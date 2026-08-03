@@ -1,0 +1,261 @@
+[split_admin_dameng_audit_rule_0_001]
+sql:
+sp_create_audit_rule('CODEX_RT_DANGEROUS_SESSION','CONNECT','SYSDBA','NULL','NULL','ALL','"127.0.0.1"','MON "8:00:00" TO MON "9:00:00"',0,0);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Procedure(1:0~1:20) /test/1/catalog1/schema1/sp_create_audit_rule/",
+      "action": "CALL",
+      "target": [
+        "Policy(1:21~1:49) /test/1/CODEX_RT_DANGEROUS_SESSION/",
+        "User(1:60~1:68) /test/1/SYSDBA/"
+      ]
+    }
+  ]
+}
+----------
+[split_admin_dameng_audit_rule_0_002]
+sql:
+sp_drop_audit_rule('CODEX_RT_DANGEROUS_SESSION');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Procedure(1:0~1:18) /test/1/catalog1/schema1/sp_drop_audit_rule/",
+      "action": "CALL",
+      "target": "Policy(1:19~1:47) /test/1/CODEX_RT_DANGEROUS_SESSION/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_audit_rule_0_003]
+sql:
+sp_create_audit_rule('CODEX_RT_PWD_CRACK','CONNECT','NULL','NULL','NULL','FAIL','NULL','NULL',1,50);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Procedure(1:0~1:20) /test/1/catalog1/schema1/sp_create_audit_rule/",
+      "action": "CALL",
+      "target": "Policy(1:21~1:41) /test/1/CODEX_RT_PWD_CRACK/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_audit_rule_0_004]
+sql:
+sp_drop_audit_rule('CODEX_RT_PWD_CRACK');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Procedure(1:0~1:18) /test/1/catalog1/schema1/sp_drop_audit_rule/",
+      "action": "CALL",
+      "target": "Policy(1:19~1:39) /test/1/CODEX_RT_PWD_CRACK/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_audit_rule_0_005]
+sql:
+sp_create_audit_rule('CODEX_RT_CREATE_USER','CREATE USER','NULL','NULL','NULL','SUCCESSFUL','NULL','NULL',0,0);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Procedure(1:0~1:20) /test/1/catalog1/schema1/sp_create_audit_rule/",
+      "action": "CALL",
+      "target": "Policy(1:21~1:43) /test/1/CODEX_RT_CREATE_USER/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_audit_rule_0_006]
+sql:
+sp_drop_audit_rule('CODEX_RT_CREATE_USER');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Procedure(1:0~1:18) /test/1/catalog1/schema1/sp_drop_audit_rule/",
+      "action": "CALL",
+      "target": "Policy(1:19~1:41) /test/1/CODEX_RT_CREATE_USER/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_audit_rule_0_007]
+sql:
+sp_create_audit_rule('CODEX_RT_CREATE_ROLE','CREATE ROLE','SYSDBA','NULL','NULL','ALL','"127.0.0.1"','NULL',5,3);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Procedure(1:0~1:20) /test/1/catalog1/schema1/sp_create_audit_rule/",
+      "action": "CALL",
+      "target": [
+        "Policy(1:21~1:43) /test/1/CODEX_RT_CREATE_ROLE/",
+        "User(1:58~1:66) /test/1/SYSDBA/"
+      ]
+    }
+  ]
+}
+----------
+[split_admin_dameng_audit_rule_0_008]
+sql:
+sp_drop_audit_rule('CODEX_RT_CREATE_ROLE');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Procedure(1:0~1:18) /test/1/catalog1/schema1/sp_drop_audit_rule/",
+      "action": "CALL",
+      "target": "Policy(1:19~1:41) /test/1/CODEX_RT_CREATE_ROLE/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_audit_rule_0_009]
+sql:
+sp_create_audit_rule('CODEX_RT_CREATE_TABLE','CREATE TABLE','NULL','NULL','NULL','FAIL','NULL','TUE "00:00:00" TO TUE "23:59:59"',10,2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Procedure(1:0~1:20) /test/1/catalog1/schema1/sp_create_audit_rule/",
+      "action": "CALL",
+      "target": "Policy(1:21~1:44) /test/1/CODEX_RT_CREATE_TABLE/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_audit_rule_0_010]
+sql:
+sp_drop_audit_rule('CODEX_RT_CREATE_TABLE');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Procedure(1:0~1:18) /test/1/catalog1/schema1/sp_drop_audit_rule/",
+      "action": "CALL",
+      "target": "Policy(1:19~1:42) /test/1/CODEX_RT_CREATE_TABLE/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_audit_rule_0_011]
+sql:
+sp_create_audit_rule('CODEX_RT_GRANT','GRANT','NULL','NULL','NULL','ALL','"127.0.0.1","::1"','NULL',0,0);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Procedure(1:0~1:20) /test/1/catalog1/schema1/sp_create_audit_rule/",
+      "action": "CALL",
+      "target": "Policy(1:21~1:37) /test/1/CODEX_RT_GRANT/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_audit_rule_0_012]
+sql:
+sp_drop_audit_rule('CODEX_RT_GRANT');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Procedure(1:0~1:18) /test/1/catalog1/schema1/sp_drop_audit_rule/",
+      "action": "CALL",
+      "target": "Policy(1:19~1:35) /test/1/CODEX_RT_GRANT/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_audit_rule_0_013]
+sql:
+sp_create_audit_rule('CODEX_RT_COMMIT','COMMIT','NULL','NULL','NULL','SUCCESSFUL','NULL','NULL',30,100);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Procedure(1:0~1:20) /test/1/catalog1/schema1/sp_create_audit_rule/",
+      "action": "CALL",
+      "target": "Policy(1:21~1:38) /test/1/CODEX_RT_COMMIT/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_audit_rule_0_014]
+sql:
+sp_drop_audit_rule('CODEX_RT_COMMIT');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Procedure(1:0~1:18) /test/1/catalog1/schema1/sp_drop_audit_rule/",
+      "action": "CALL",
+      "target": "Policy(1:19~1:36) /test/1/CODEX_RT_COMMIT/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_audit_rule_0_015]
+sql:
+sp_create_audit_rule('CODEX_RT_SHUTDOWN','SHUTDOWN','NULL','NULL','NULL','ALL','NULL','NULL',0,0);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Procedure(1:0~1:20) /test/1/catalog1/schema1/sp_create_audit_rule/",
+      "action": "CALL",
+      "target": "Policy(1:21~1:40) /test/1/CODEX_RT_SHUTDOWN/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_audit_rule_0_016]
+sql:
+sp_drop_audit_rule('CODEX_RT_SHUTDOWN');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Procedure(1:0~1:18) /test/1/catalog1/schema1/sp_drop_audit_rule/",
+      "action": "CALL",
+      "target": "Policy(1:19~1:38) /test/1/CODEX_RT_SHUTDOWN/"
+    }
+  ]
+}

@@ -39,4 +39,5 @@ public class DsStatusConfVO {
     private DsStatusSupportConfVO cancel;
     private DsStatusSupportConfVO explain;
     private DsStatusSupportConfVO format;
+    private DsLanguageConfVO      language;
 }

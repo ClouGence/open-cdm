@@ -1,0 +1,48 @@
+[union_columns]
+sql:
+select a.id,a.v value from catalog1.app.set_left a
+union all
+select b.id,b.v from catalog1.app.set_right b
+expect:
+{
+  "id": [
+    "/catalog1/app/set_left/id/",
+    "/catalog1/app/set_right/id/"
+  ],
+  "value": [
+    "/catalog1/app/set_left/v/",
+    "/catalog1/app/set_right/v/"
+  ]
+}
+----------
+[set_expression_columns]
+sql:
+select a.id,a.v+a.v2 value from catalog1.app.set_left a
+intersect
+select b.id,b.v+b.v2 from catalog1.app.set_right b
+expect:
+{
+  "id": [
+    "/catalog1/app/set_left/id/",
+    "/catalog1/app/set_right/id/"
+  ],
+  "value": [
+    "/catalog1/app/set_left/v/",
+    "/catalog1/app/set_left/v2/",
+    "/catalog1/app/set_right/v/",
+    "/catalog1/app/set_right/v2/"
+  ]
+}
+----------
+[corresponding_columns]
+sql:
+select a.id,a.v value from catalog1.app.set_left a
+union all corresponding by(value)
+select b.id,b.v value from catalog1.app.set_right b
+expect:
+{
+  "value": [
+    "/catalog1/app/set_left/v/",
+    "/catalog1/app/set_right/v/"
+  ]
+}

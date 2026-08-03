@@ -1,0 +1,36 @@
+SELECT JSON_ARRAYAGG();
+SELECT JSON_ARRAYAGG(1,2);
+SELECT JSON_OBJECTAGG(1);
+SELECT JSON_OBJECTAGG(1,2,3);
+SELECT JSON_VALUE();
+SELECT JSON_VALUE('{}');
+SELECT JSON_VALUE('{}','$.a',1);
+SELECT * FROM JSON_TABLE('{"a":[1]}','$' COLUMNS (NESTED '$.a[*]' COLUMNS (x INT PATH '$'))) AS jt;
+SELECT * FROM JSON_TABLE(?, ? COLUMNS(a INT PATH '$.a')) AS jt;
+SELECT COUNT(*)->>'$.t' FROM t1;
+SELECT * FROM JSON_TABLE('{}','$' COLUMNS(x INT PATH '$.x' DEFAULT NULL ON EMPTY)) AS jt;
+SELECT * FROM JSON_TABLE('{}','$' COLUMNS(x INT PATH '$.x' DEFAULT NULL ON ERROR)) AS jt;
+------------------------------------------------------------------------------------------
+[SELECT] SELECT JSON_ARRAYAGG();
+----------
+[SELECT] SELECT JSON_ARRAYAGG(1,2);
+----------
+[SELECT] SELECT JSON_OBJECTAGG(1);
+----------
+[SELECT] SELECT JSON_OBJECTAGG(1,2,3);
+----------
+[SELECT] SELECT JSON_VALUE();
+----------
+[SELECT] SELECT JSON_VALUE('{}');
+----------
+[SELECT] SELECT JSON_VALUE('{}','$.a',1);
+----------
+[SELECT] SELECT * FROM JSON_TABLE('{"a":[1]}','$' COLUMNS (NESTED '$.a[*]' COLUMNS (x INT PATH '$'))) AS jt;
+----------
+[SELECT] SELECT * FROM JSON_TABLE(?, ? COLUMNS(a INT PATH '$.a')) AS jt;
+----------
+[SELECT] SELECT COUNT(*)->>'$.t' FROM t1;
+----------
+[SELECT] SELECT * FROM JSON_TABLE('{}','$' COLUMNS(x INT PATH '$.x' DEFAULT NULL ON EMPTY)) AS jt;
+----------
+[SELECT] SELECT * FROM JSON_TABLE('{}','$' COLUMNS(x INT PATH '$.x' DEFAULT NULL ON ERROR)) AS jt;

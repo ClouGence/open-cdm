@@ -1,0 +1,91 @@
+[column_encryption_create_table]
+sql:
+create table app.secret_data(id int primary key, transparent_value varchar(100) encrypt, owner_value varchar(100) encrypt manual, shared_value varchar(100) encrypt manual user (report_user, audit_user) hash with MD5 salt)
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"CREATE_TABLE", "auditKind":"CREATE", "schema":"app", "table":"secret_data"}
+  ]
+}
+----------
+[column_encryption_alter_table]
+sql:
+alter table app.secret_data add extra_secret varchar(100) encrypt with DES_ECB manual user (report_user) hash with SHA1 no salt
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"ALTER_TABLE", "auditKind":"ALTER", "schema":"app", "table":"secret_data"}
+  ]
+}
+----------
+[explicit_key_column_encryption_lifecycle]
+sql:
+create table app.explicit_secret(id int primary key, auto_value varchar(100) encrypt auto by StorageKey3_2026, manual_value varchar(100) encrypt manual by StorageKey5_2026 user (SYSDBA));
+alter table app.explicit_secret add extra_value varchar(100) encrypt auto by StorageKey7_2026;
+insert into app.explicit_secret values(1, 'A', 'B', 'C');
+select auto_value,manual_value,extra_value from app.explicit_secret where id=1;
+drop table app.explicit_secret purge;
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"CREATE_TABLE", "auditKind":"CREATE", "schema":"app", "table":"explicit_secret"},
+    {"class":"RdbTableDomain", "sqlType":"ALTER_TABLE", "auditKind":"ALTER", "schema":"app", "table":"explicit_secret"},
+    {"class":"RdbInsertDomain", "sqlType":"INSERT", "auditKind":"DML", "schema":"app", "table":"explicit_secret"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"explicit_secret"},
+    {"class":"RdbTableDomain", "sqlType":"DROP_TABLE", "auditKind":"DROP", "schema":"app", "table":"explicit_secret"}
+  ]
+}
+----------
+[column_encryption_dml_and_query]
+sql:
+insert into app.secret_data(id, owner_value) values(1, 'A');
+update app.secret_data set owner_value='B' where id=1;
+delete from app.secret_data where id=1;
+select owner_value from app.secret_data where id=1;
+expect:
+{
+  "contains": [
+    {"class":"RdbInsertDomain", "sqlType":"INSERT", "auditKind":"DML", "schema":"app", "table":"secret_data"},
+    {"class":"RdbUpdateDomain", "sqlType":"UPDATE", "auditKind":"DML", "schema":"app", "table":"secret_data"},
+    {"class":"RdbDeleteDomain", "sqlType":"DELETE", "auditKind":"DML", "schema":"app", "table":"secret_data"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"secret_data"}
+  ]
+}
+----------
+[column_encryption_create_user_storage_key]
+sql:
+create user report_user identified by "Dm8@Test2026" encrypt by "StorageKey2026"
+expect:
+{
+  "contains": [
+    {"class":"RdbUserDomain", "sqlType":"CREATE_USER", "auditKind":"CREATE", "user":"report_user"}
+  ]
+}
+----------
+[column_encryption_drop_user]
+sql:
+drop user report_user cascade
+expect:
+{
+  "contains": [
+    {"class":"RdbUserDomain", "sqlType":"DROP_USER", "auditKind":"DROP", "user":"report_user"}
+  ]
+}
+----------
+[wrapped_key_column_encryption_lifecycle]
+sql:
+create table app.wrapped_secret(id int primary key, auto_value varchar(100) encrypt auto by wrapped '0x5CD036397C52C40E8F6AD96A125F86E47C4B67050211CA1EDC2A3AB4A04D241133EAD7CA8C022C3E02073968E1501D0CF0C651A8', manual_value varchar(100) encrypt manual by wrapped '0x5CD036397C52C40E8F6AD96A125F86E47C4B67050211CA1EDC2A3AB4A04D241133EAD7CA8C022C3E02073968E1501D0CF0C651A8' user (SYSDBA));
+alter table app.wrapped_secret add extra_value varchar(100) encrypt auto by wrapped '0x5CD036397C52C40E8F6AD96A125F86E47C4B67050211CA1EDC2A3AB4A04D241133EAD7CA8C022C3E02073968E1501D0CF0C651A8';
+insert into app.wrapped_secret values(1, 'A', 'B', 'C');
+select auto_value,manual_value,extra_value from app.wrapped_secret where id=1;
+drop table app.wrapped_secret purge;
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"CREATE_TABLE", "auditKind":"CREATE", "schema":"app", "table":"wrapped_secret"},
+    {"class":"RdbTableDomain", "sqlType":"ALTER_TABLE", "auditKind":"ALTER", "schema":"app", "table":"wrapped_secret"},
+    {"class":"RdbInsertDomain", "sqlType":"INSERT", "auditKind":"DML", "schema":"app", "table":"wrapped_secret"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"wrapped_secret"},
+    {"class":"RdbTableDomain", "sqlType":"DROP_TABLE", "auditKind":"DROP", "schema":"app", "table":"wrapped_secret"}
+  ]
+}

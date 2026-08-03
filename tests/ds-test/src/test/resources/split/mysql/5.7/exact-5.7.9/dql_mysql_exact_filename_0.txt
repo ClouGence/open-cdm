@@ -1,0 +1,12 @@
+SELECT _filename'abcd';
+SELECT 1 AS `_filename`;
+SELECT _filename;
+SELECT 1 AS _filename;
+------------------------------------------------------------------------------------------
+[SELECT] SELECT _filename'abcd';
+----------
+[SELECT] SELECT 1 AS `_filename`;
+----------
+[SELECT] SELECT _filename;
+----------
+[SELECT] SELECT 1 AS _filename;

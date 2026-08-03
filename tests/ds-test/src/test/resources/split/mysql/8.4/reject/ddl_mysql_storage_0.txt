@@ -1,0 +1,15 @@
+ALTER LOGFILE GROUP split_lg ADD REDOFILE 'split_redo.dat' INITIAL_SIZE=4M ENGINE=NDB;
+ALTER TABLESPACE split_ts_legacy CHANGE DATAFILE 'split_ts_legacy.dat' INITIAL_SIZE=1M AUTOEXTEND_SIZE=1M MAX_SIZE=2M;
+ALTER TABLESPACE split_ts_legacy NOT ACCESSIBLE;
+ALTER TABLESPACE split_ts_legacy READ_ONLY;
+ALTER TABLESPACE split_ts_legacy READ_WRITE;
+------------------------------------------------------------------------------------------
+[ALTER_LOG] ALTER LOGFILE GROUP split_lg ADD REDOFILE 'split_redo.dat' INITIAL_SIZE=4M ENGINE=NDB;
+----------
+[ALTER_TABLESPACE] ALTER TABLESPACE split_ts_legacy CHANGE DATAFILE 'split_ts_legacy.dat' INITIAL_SIZE=1M AUTOEXTEND_SIZE=1M MAX_SIZE=2M;
+----------
+[ALTER_TABLESPACE] ALTER TABLESPACE split_ts_legacy NOT ACCESSIBLE;
+----------
+[ALTER_TABLESPACE] ALTER TABLESPACE split_ts_legacy READ_ONLY;
+----------
+[ALTER_TABLESPACE] ALTER TABLESPACE split_ts_legacy READ_WRITE;

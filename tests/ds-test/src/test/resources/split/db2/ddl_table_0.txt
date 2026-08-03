@@ -1,0 +1,28 @@
+create table app.employee (
+  id int not null,
+  dept_id int,
+  name varchar(50),
+  constraint pk_employee primary key (id)
+);
+alter table app.employee add column title varchar(30);
+alter table app.employee rename column title to job_title;
+rename table employee to employee_archive;
+truncate table app.employee_archive immediate;
+drop table app.employee_archive;
+------------------------------------------------------------------------------------------
+[CREATE_TABLE] create table app.employee (
+  id int not null,
+  dept_id int,
+  name varchar(50),
+  constraint pk_employee primary key (id)
+);
+----------
+[ALTER_TABLE|ADD_COLUMN] alter table app.employee add column title varchar(30);
+----------
+[ALTER_TABLE|RENAME_COLUMN] alter table app.employee rename column title to job_title;
+----------
+[RENAME_TABLE] rename table employee to employee_archive;
+----------
+[TRUNCATE_TABLE] truncate table app.employee_archive immediate;
+----------
+[DROP_TABLE] drop table app.employee_archive;

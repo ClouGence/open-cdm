@@ -1,0 +1,1843 @@
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_001_behavior_review]
+sql:
+-- ROUND_DEFAULT_DATE_BEFORE_NOON
+SELECT ROUND(DATE '1992-10-27 11:59:59') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/ROUND/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:46~2:50) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_002_behavior_review]
+sql:
+-- ROUND_DEFAULT_TIMESTAMP_AFTER_NOON
+SELECT ROUND(TIMESTAMP '1992-10-27 12:00:01') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/ROUND/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:51~2:55) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_003_behavior_review]
+sql:
+-- ROUND_DEFAULT_TIME
+SELECT ROUND(TIME '12:30:30') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/ROUND/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:35~2:39) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_004_behavior_review]
+sql:
+-- ROUND_STRING_IMPLICIT_TIMESTAMP
+SELECT ROUND('1992-10-27 12:00:01','DDD') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/ROUND/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:47~2:51) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_005_behavior_review]
+sql:
+-- ROUND_NULL_VALUE
+SELECT ROUND(NULL,'YYYY') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/ROUND/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:31~2:35) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_006_behavior_review]
+sql:
+-- ROUND_NULL_FORMAT
+SELECT ROUND(TIMESTAMP '1992-10-27 12:00:01',NULL) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/ROUND/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:56~2:60) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_007_behavior_review]
+sql:
+-- TRUNC_DEFAULT_DATE
+SELECT TRUNC(DATE '1992-10-27 12:00:01') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/TRUNC/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:46~2:50) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_008_behavior_review]
+sql:
+-- TRUNC_DEFAULT_TIMESTAMP
+SELECT TRUNC(TIMESTAMP '1992-10-27 12:00:01.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/TRUNC/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:58~2:62) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_009_behavior_review]
+sql:
+-- TRUNC_DEFAULT_TIME
+SELECT TRUNC(TIME '12:30:30') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/TRUNC/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:35~2:39) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_010_behavior_review]
+sql:
+-- TRUNC_STRING_IMPLICIT_TIMESTAMP
+SELECT TRUNC('1992-10-27 12:00:01','DDD') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/TRUNC/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:47~2:51) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_011_behavior_review]
+sql:
+-- TRUNC_NULL_VALUE
+SELECT TRUNC(NULL,'YYYY') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/TRUNC/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:31~2:35) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_012_behavior_review]
+sql:
+-- TRUNC_NULL_FORMAT
+SELECT TRUNC(TIMESTAMP '1992-10-27 12:00:01',NULL) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/TRUNC/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:56~2:60) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_013_behavior_review]
+sql:
+-- ROUND_PUBLIC_FORMAT_CC
+SELECT ROUND(TIMESTAMP '1992-10-27 12:30:30.123456','CC') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/ROUND/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:63~2:67) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_014_behavior_review]
+sql:
+-- ROUND_PUBLIC_FORMAT_SCC
+SELECT ROUND(TIMESTAMP '1992-10-27 12:30:30.123456','SCC') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/ROUND/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:64~2:68) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_015_behavior_review]
+sql:
+-- ROUND_PUBLIC_FORMAT_SYEAR
+SELECT ROUND(TIMESTAMP '1992-10-27 12:30:30.123456','SYEAR') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/ROUND/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:66~2:70) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_016_behavior_review]
+sql:
+-- ROUND_PUBLIC_FORMAT_SYYY
+SELECT ROUND(TIMESTAMP '1992-10-27 12:30:30.123456','SYYY') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/ROUND/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:65~2:69) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_017_behavior_review]
+sql:
+-- ROUND_PUBLIC_FORMAT_Y
+SELECT ROUND(TIMESTAMP '1992-10-27 12:30:30.123456','Y') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/ROUND/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:62~2:66) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_018_behavior_review]
+sql:
+-- ROUND_PUBLIC_FORMAT_YY
+SELECT ROUND(TIMESTAMP '1992-10-27 12:30:30.123456','YY') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/ROUND/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:63~2:67) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_019_behavior_review]
+sql:
+-- ROUND_PUBLIC_FORMAT_YYY
+SELECT ROUND(TIMESTAMP '1992-10-27 12:30:30.123456','YYY') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/ROUND/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:64~2:68) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_020_behavior_review]
+sql:
+-- ROUND_PUBLIC_FORMAT_YYYY
+SELECT ROUND(TIMESTAMP '1992-10-27 12:30:30.123456','YYYY') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/ROUND/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:65~2:69) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_021_behavior_review]
+sql:
+-- ROUND_PUBLIC_FORMAT_YEAR
+SELECT ROUND(TIMESTAMP '1992-10-27 12:30:30.123456','YEAR') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/ROUND/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:65~2:69) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_022_behavior_review]
+sql:
+-- ROUND_PUBLIC_FORMAT_Q
+SELECT ROUND(TIMESTAMP '1992-10-27 12:30:30.123456','Q') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/ROUND/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:62~2:66) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_023_behavior_review]
+sql:
+-- ROUND_PUBLIC_FORMAT_MONTH
+SELECT ROUND(TIMESTAMP '1992-10-27 12:30:30.123456','MONTH') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/ROUND/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:66~2:70) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_024_behavior_review]
+sql:
+-- ROUND_PUBLIC_FORMAT_MON
+SELECT ROUND(TIMESTAMP '1992-10-27 12:30:30.123456','MON') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/ROUND/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:64~2:68) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_025_behavior_review]
+sql:
+-- ROUND_PUBLIC_FORMAT_MM
+SELECT ROUND(TIMESTAMP '1992-10-27 12:30:30.123456','MM') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/ROUND/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:63~2:67) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_026_behavior_review]
+sql:
+-- ROUND_PUBLIC_FORMAT_M
+SELECT ROUND(TIMESTAMP '1992-10-27 12:30:30.123456','M') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/ROUND/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:62~2:66) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_027_behavior_review]
+sql:
+-- ROUND_PUBLIC_FORMAT_RM
+SELECT ROUND(TIMESTAMP '1992-10-27 12:30:30.123456','RM') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/ROUND/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:63~2:67) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_028_behavior_review]
+sql:
+-- ROUND_PUBLIC_FORMAT_WW
+SELECT ROUND(TIMESTAMP '1992-10-27 12:30:30.123456','WW') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/ROUND/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:63~2:67) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_029_behavior_review]
+sql:
+-- ROUND_PUBLIC_FORMAT_W
+SELECT ROUND(TIMESTAMP '1992-10-27 12:30:30.123456','W') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/ROUND/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:62~2:66) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_030_behavior_review]
+sql:
+-- ROUND_PUBLIC_FORMAT_IW
+SELECT ROUND(TIMESTAMP '1992-10-27 12:30:30.123456','IW') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/ROUND/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:63~2:67) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_031_behavior_review]
+sql:
+-- ROUND_PUBLIC_FORMAT_DDD
+SELECT ROUND(TIMESTAMP '1992-10-27 12:30:30.123456','DDD') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/ROUND/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:64~2:68) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_032_behavior_review]
+sql:
+-- ROUND_PUBLIC_FORMAT_DD
+SELECT ROUND(TIMESTAMP '1992-10-27 12:30:30.123456','DD') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/ROUND/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:63~2:67) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_033_behavior_review]
+sql:
+-- ROUND_PUBLIC_FORMAT_J
+SELECT ROUND(TIMESTAMP '1992-10-27 12:30:30.123456','J') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/ROUND/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:62~2:66) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_034_behavior_review]
+sql:
+-- ROUND_PUBLIC_FORMAT_DAY
+SELECT ROUND(TIMESTAMP '1992-10-27 12:30:30.123456','DAY') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/ROUND/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:64~2:68) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_035_behavior_review]
+sql:
+-- ROUND_PUBLIC_FORMAT_DY
+SELECT ROUND(TIMESTAMP '1992-10-27 12:30:30.123456','DY') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/ROUND/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:63~2:67) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_036_behavior_review]
+sql:
+-- ROUND_PUBLIC_FORMAT_D
+SELECT ROUND(TIMESTAMP '1992-10-27 12:30:30.123456','D') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/ROUND/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:62~2:66) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_037_behavior_review]
+sql:
+-- ROUND_PUBLIC_FORMAT_HH
+SELECT ROUND(TIMESTAMP '1992-10-27 12:30:30.123456','HH') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/ROUND/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:63~2:67) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_038_behavior_review]
+sql:
+-- ROUND_PUBLIC_FORMAT_HH12
+SELECT ROUND(TIMESTAMP '1992-10-27 12:30:30.123456','HH12') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/ROUND/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:65~2:69) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_039_behavior_review]
+sql:
+-- ROUND_PUBLIC_FORMAT_HH24
+SELECT ROUND(TIMESTAMP '1992-10-27 12:30:30.123456','HH24') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/ROUND/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:65~2:69) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_040_behavior_review]
+sql:
+-- ROUND_PUBLIC_FORMAT_MI
+SELECT ROUND(TIMESTAMP '1992-10-27 12:30:30.123456','MI') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/ROUND/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:63~2:67) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_041_behavior_review]
+sql:
+-- TRUNC_PUBLIC_FORMAT_CC
+SELECT TRUNC(TIMESTAMP '1992-10-27 12:30:30.123456','CC') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/TRUNC/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:63~2:67) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_042_behavior_review]
+sql:
+-- TRUNC_PUBLIC_FORMAT_SCC
+SELECT TRUNC(TIMESTAMP '1992-10-27 12:30:30.123456','SCC') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/TRUNC/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:64~2:68) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_043_behavior_review]
+sql:
+-- TRUNC_PUBLIC_FORMAT_SYEAR
+SELECT TRUNC(TIMESTAMP '1992-10-27 12:30:30.123456','SYEAR') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/TRUNC/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:66~2:70) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_044_behavior_review]
+sql:
+-- TRUNC_PUBLIC_FORMAT_SYYY
+SELECT TRUNC(TIMESTAMP '1992-10-27 12:30:30.123456','SYYY') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/TRUNC/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:65~2:69) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_045_behavior_review]
+sql:
+-- TRUNC_PUBLIC_FORMAT_Y
+SELECT TRUNC(TIMESTAMP '1992-10-27 12:30:30.123456','Y') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/TRUNC/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:62~2:66) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_046_behavior_review]
+sql:
+-- TRUNC_PUBLIC_FORMAT_YY
+SELECT TRUNC(TIMESTAMP '1992-10-27 12:30:30.123456','YY') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/TRUNC/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:63~2:67) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_047_behavior_review]
+sql:
+-- TRUNC_PUBLIC_FORMAT_YYY
+SELECT TRUNC(TIMESTAMP '1992-10-27 12:30:30.123456','YYY') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/TRUNC/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:64~2:68) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_048_behavior_review]
+sql:
+-- TRUNC_PUBLIC_FORMAT_YYYY
+SELECT TRUNC(TIMESTAMP '1992-10-27 12:30:30.123456','YYYY') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/TRUNC/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:65~2:69) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_049_behavior_review]
+sql:
+-- TRUNC_PUBLIC_FORMAT_YEAR
+SELECT TRUNC(TIMESTAMP '1992-10-27 12:30:30.123456','YEAR') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/TRUNC/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:65~2:69) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_050_behavior_review]
+sql:
+-- TRUNC_PUBLIC_FORMAT_Q
+SELECT TRUNC(TIMESTAMP '1992-10-27 12:30:30.123456','Q') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/TRUNC/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:62~2:66) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_051_behavior_review]
+sql:
+-- TRUNC_PUBLIC_FORMAT_MONTH
+SELECT TRUNC(TIMESTAMP '1992-10-27 12:30:30.123456','MONTH') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/TRUNC/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:66~2:70) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_052_behavior_review]
+sql:
+-- TRUNC_PUBLIC_FORMAT_MON
+SELECT TRUNC(TIMESTAMP '1992-10-27 12:30:30.123456','MON') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/TRUNC/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:64~2:68) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_053_behavior_review]
+sql:
+-- TRUNC_PUBLIC_FORMAT_MM
+SELECT TRUNC(TIMESTAMP '1992-10-27 12:30:30.123456','MM') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/TRUNC/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:63~2:67) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_054_behavior_review]
+sql:
+-- TRUNC_PUBLIC_FORMAT_M
+SELECT TRUNC(TIMESTAMP '1992-10-27 12:30:30.123456','M') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/TRUNC/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:62~2:66) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_055_behavior_review]
+sql:
+-- TRUNC_PUBLIC_FORMAT_RM
+SELECT TRUNC(TIMESTAMP '1992-10-27 12:30:30.123456','RM') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/TRUNC/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:63~2:67) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_056_behavior_review]
+sql:
+-- TRUNC_PUBLIC_FORMAT_WW
+SELECT TRUNC(TIMESTAMP '1992-10-27 12:30:30.123456','WW') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/TRUNC/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:63~2:67) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_057_behavior_review]
+sql:
+-- TRUNC_PUBLIC_FORMAT_W
+SELECT TRUNC(TIMESTAMP '1992-10-27 12:30:30.123456','W') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/TRUNC/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:62~2:66) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_058_behavior_review]
+sql:
+-- TRUNC_PUBLIC_FORMAT_IW
+SELECT TRUNC(TIMESTAMP '1992-10-27 12:30:30.123456','IW') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/TRUNC/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:63~2:67) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_059_behavior_review]
+sql:
+-- TRUNC_PUBLIC_FORMAT_DDD
+SELECT TRUNC(TIMESTAMP '1992-10-27 12:30:30.123456','DDD') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/TRUNC/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:64~2:68) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_060_behavior_review]
+sql:
+-- TRUNC_PUBLIC_FORMAT_DD
+SELECT TRUNC(TIMESTAMP '1992-10-27 12:30:30.123456','DD') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/TRUNC/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:63~2:67) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_061_behavior_review]
+sql:
+-- TRUNC_PUBLIC_FORMAT_J
+SELECT TRUNC(TIMESTAMP '1992-10-27 12:30:30.123456','J') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/TRUNC/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:62~2:66) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_062_behavior_review]
+sql:
+-- TRUNC_PUBLIC_FORMAT_DAY
+SELECT TRUNC(TIMESTAMP '1992-10-27 12:30:30.123456','DAY') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/TRUNC/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:64~2:68) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_063_behavior_review]
+sql:
+-- TRUNC_PUBLIC_FORMAT_DY
+SELECT TRUNC(TIMESTAMP '1992-10-27 12:30:30.123456','DY') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/TRUNC/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:63~2:67) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_064_behavior_review]
+sql:
+-- TRUNC_PUBLIC_FORMAT_D
+SELECT TRUNC(TIMESTAMP '1992-10-27 12:30:30.123456','D') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/TRUNC/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:62~2:66) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_065_behavior_review]
+sql:
+-- TRUNC_PUBLIC_FORMAT_HH
+SELECT TRUNC(TIMESTAMP '1992-10-27 12:30:30.123456','HH') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/TRUNC/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:63~2:67) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_066_behavior_review]
+sql:
+-- TRUNC_PUBLIC_FORMAT_HH12
+SELECT TRUNC(TIMESTAMP '1992-10-27 12:30:30.123456','HH12') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/TRUNC/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:65~2:69) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_067_behavior_review]
+sql:
+-- TRUNC_PUBLIC_FORMAT_HH24
+SELECT TRUNC(TIMESTAMP '1992-10-27 12:30:30.123456','HH24') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/TRUNC/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:65~2:69) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_068_behavior_review]
+sql:
+-- TRUNC_PUBLIC_FORMAT_MI
+SELECT TRUNC(TIMESTAMP '1992-10-27 12:30:30.123456','MI') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/TRUNC/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:63~2:67) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_069_behavior_review]
+sql:
+-- ROUND_YEAR_BEFORE_MIDPOINT
+SELECT ROUND(TIMESTAMP '2024-06-30 23:59:59.999999','YYYY') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/ROUND/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:65~2:69) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_070_behavior_review]
+sql:
+-- ROUND_YEAR_AT_MIDPOINT
+SELECT ROUND(TIMESTAMP '2024-07-01 00:00:00','YYYY') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/ROUND/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:58~2:62) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_071_behavior_review]
+sql:
+-- ROUND_QUARTER_DAY_15
+SELECT ROUND(TIMESTAMP '2024-05-15 23:59:59.999999','Q') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/ROUND/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:62~2:66) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_072_behavior_review]
+sql:
+-- ROUND_QUARTER_DAY_16
+SELECT ROUND(TIMESTAMP '2024-05-16 00:00:00','Q') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/ROUND/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:55~2:59) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_073_behavior_review]
+sql:
+-- ROUND_MONTH_DAY_15
+SELECT ROUND(TIMESTAMP '2024-02-15 23:59:59.999999','MONTH') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/ROUND/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:66~2:70) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_074_behavior_review]
+sql:
+-- ROUND_MONTH_DAY_16
+SELECT ROUND(TIMESTAMP '2024-02-16 00:00:00','MONTH') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/ROUND/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:59~2:63) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_075_behavior_review]
+sql:
+-- ROUND_DAY_BEFORE_NOON
+SELECT ROUND(TIMESTAMP '2024-02-29 11:59:59.999999','DD') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/ROUND/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:63~2:67) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_076_behavior_review]
+sql:
+-- ROUND_DAY_AT_NOON
+SELECT ROUND(TIMESTAMP '2024-02-29 12:00:00','DD') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/ROUND/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:56~2:60) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_077_behavior_review]
+sql:
+-- ROUND_HOUR_BEFORE_MIDPOINT
+SELECT ROUND(TIME '12:30:29.999999','HH') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/ROUND/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:47~2:51) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_078_behavior_review]
+sql:
+-- ROUND_HOUR_AT_MIDPOINT
+SELECT ROUND(TIME '12:30:30','HH') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/ROUND/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:40~2:44) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_079_behavior_review]
+sql:
+-- ROUND_MINUTE_BEFORE_MIDPOINT
+SELECT ROUND(TIME '12:00:29.999999','MI') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/ROUND/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:47~2:51) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_080_behavior_review]
+sql:
+-- ROUND_MINUTE_AT_MIDPOINT
+SELECT ROUND(TIME '12:00:30','MI') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/ROUND/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:40~2:44) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_081_behavior_review]
+sql:
+-- TRUNC_TIME_HOUR
+SELECT TRUNC(TIME '12:30:30.123456','HH') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/TRUNC/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:47~2:51) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_082_behavior_review]
+sql:
+-- TRUNC_TIME_MINUTE
+SELECT TRUNC(TIME '12:30:30.123456','MI') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/TRUNC/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:47~2:51) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_083_behavior_review]
+sql:
+-- TRUNC_LEAP_DAY_YEAR
+SELECT TRUNC(TIMESTAMP '2024-02-29 23:59:59.999999','YEAR') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/TRUNC/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:65~2:69) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_084_behavior_review]
+sql:
+-- TRUNC_MONTH_END
+SELECT TRUNC(TIMESTAMP '2024-02-29 23:59:59.999999','MONTH') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/TRUNC/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:66~2:70) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_085_behavior_review]
+sql:
+-- AGE_TWO_ARGUMENT_DOCUMENTED
+SELECT AGE(TIMESTAMP '2001-04-10',TIMESTAMP '1957-06-13') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:10) /test/1/catalog1/schema1/AGE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:63~2:67) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_086_behavior_review]
+sql:
+-- AGE_TWO_ARGUMENT_FRACTION
+SELECT AGE(TIMESTAMP '2024-12-24 10:30:45.123456',TIMESTAMP '1990-05-15 09:15:30.654321') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:10) /test/1/catalog1/schema1/AGE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:95~2:99) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_087_behavior_review]
+sql:
+-- AGE_TWO_ARGUMENT_NEGATIVE
+SELECT AGE(TIMESTAMP '1990-01-01',TIMESTAMP '2000-01-01') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:10) /test/1/catalog1/schema1/AGE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:63~2:67) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_088_behavior_review]
+sql:
+-- AGE_ONE_ARGUMENT
+SELECT AGE(TIMESTAMP '2000-01-01') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:10) /test/1/catalog1/schema1/AGE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:40~2:44) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_089_behavior_review]
+sql:
+-- AGE_NULL_END
+SELECT AGE(NULL,TIMESTAMP '2000-01-01') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:10) /test/1/catalog1/schema1/AGE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:45~2:49) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_090_behavior_review]
+sql:
+-- AGE_NULL_START
+SELECT AGE(TIMESTAMP '2000-01-01',NULL) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:10) /test/1/catalog1/schema1/AGE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:45~2:49) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_091_behavior_review]
+sql:
+-- AGE_EXTRACT_YEAR
+SELECT EXTRACT(YEAR FROM AGE(TIMESTAMP '2001-04-10',TIMESTAMP '1957-06-13')) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:14) /test/1/catalog1/schema1/EXTRACT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:25~2:28) /test/1/catalog1/schema1/AGE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:82~2:86) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_round_age_function_signature_combinations_0_092_behavior_review]
+sql:
+-- AGE_EXTRA_ARGUMENT
+SELECT AGE(TIMESTAMP '2001-04-10',TIMESTAMP '1957-06-13',1) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:10) /test/1/catalog1/schema1/AGE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:65~2:69) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}

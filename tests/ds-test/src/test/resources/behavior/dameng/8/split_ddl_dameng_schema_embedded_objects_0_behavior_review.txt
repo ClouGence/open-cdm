@@ -1,0 +1,518 @@
+[split_ddl_dameng_schema_embedded_objects_0_001_behavior_review]
+sql:
+create schema CODEX_DM8_SCHEMA_EMBED_DOMAIN authorization SYSDBA
+  create domain POSITIVE_ID int check(value > 0)
+  create table DOMAIN_TABLE(ID POSITIVE_ID);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SCHEMA": [
+    {
+      "subject": "Schema(1:14~1:43) /test/1/catalog1/CODEX_DM8_SCHEMA_EMBED_DOMAIN/",
+      "action" : "CREATE",
+      "target" : "User(1:58~1:64) /test/1/SYSDBA/"
+    },
+    {
+      "subject": "Type(2:16~2:27) /test/1/catalog1/CODEX_DM8_SCHEMA_EMBED_DOMAIN/POSITIVE_ID/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Table(3:15~3:27) /test/1/catalog1/CODEX_DM8_SCHEMA_EMBED_DOMAIN/DOMAIN_TABLE/",
+      "action" : "CREATE",
+      "target" : "Type(3:31~3:42) /test/1/catalog1/CODEX_DM8_SCHEMA_EMBED_DOMAIN/POSITIVE_ID/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_embedded_objects_0_002_behavior_review]
+sql:
+insert into CODEX_DM8_SCHEMA_EMBED_DOMAIN.DOMAIN_TABLE values(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:54) /test/1/catalog1/CODEX_DM8_SCHEMA_EMBED_DOMAIN/DOMAIN_TABLE/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_embedded_objects_0_003_behavior_review]
+sql:
+select ID from CODEX_DM8_SCHEMA_EMBED_DOMAIN.DOMAIN_TABLE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:15~1:57) /test/1/catalog1/CODEX_DM8_SCHEMA_EMBED_DOMAIN/DOMAIN_TABLE/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_embedded_objects_0_004_behavior_review]
+sql:
+create schema CODEX_DM8_SCHEMA_EMBED_ROUTINE authorization SYSDBA
+  create table ROUTINE_LOG(ID int)
+  create procedure ADD_LOG(P_ID int) as begin insert into ROUTINE_LOG values(P_ID); end;
+  create function PLUS_ONE(P_ID int) return int as begin return P_ID + 1; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SCHEMA": [
+    {
+      "subject": "Schema(1:14~1:44) /test/1/catalog1/CODEX_DM8_SCHEMA_EMBED_ROUTINE/",
+      "action" : "CREATE",
+      "target" : "User(1:59~1:65) /test/1/SYSDBA/"
+    },
+    {
+      "subject": "Table(2:15~2:26) /test/1/catalog1/CODEX_DM8_SCHEMA_EMBED_ROUTINE/ROUTINE_LOG/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Procedure(3:19~3:26) /test/1/catalog1/CODEX_DM8_SCHEMA_EMBED_ROUTINE/ADD_LOG/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Table(3:58~3:69) /test/1/catalog1/CODEX_DM8_SCHEMA_EMBED_ROUTINE/ROUTINE_LOG/",
+      "action" : "INSERT"
+    },
+    {
+      "subject": "Function(4:18~4:26) /test/1/catalog1/CODEX_DM8_SCHEMA_EMBED_ROUTINE/PLUS_ONE/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_embedded_objects_0_005_behavior_review]
+sql:
+call CODEX_DM8_SCHEMA_EMBED_ROUTINE.ADD_LOG(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:5~1:43) /test/1/catalog1/CODEX_DM8_SCHEMA_EMBED_ROUTINE/ADD_LOG/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_embedded_objects_0_006_behavior_review]
+sql:
+select CODEX_DM8_SCHEMA_EMBED_ROUTINE.PLUS_ONE(1) from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:46) /test/1/catalog1/CODEX_DM8_SCHEMA_EMBED_ROUTINE/PLUS_ONE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:55~1:59) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_embedded_objects_0_007_behavior_review]
+sql:
+select ID from CODEX_DM8_SCHEMA_EMBED_ROUTINE.ROUTINE_LOG;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:15~1:57) /test/1/catalog1/CODEX_DM8_SCHEMA_EMBED_ROUTINE/ROUTINE_LOG/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_embedded_objects_0_008_behavior_review]
+sql:
+create schema CODEX_DM8_SCHEMA_EMBED_TRIGGER authorization SYSDBA
+  create table TRIGGER_SOURCE(ID int)
+  create table TRIGGER_LOG(ID int)
+  create trigger TRG_SCHEMA after insert on TRIGGER_SOURCE for each row begin insert into TRIGGER_LOG values(:NEW.ID); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SCHEMA": [
+    {
+      "subject": "Schema(1:14~1:44) /test/1/catalog1/CODEX_DM8_SCHEMA_EMBED_TRIGGER/",
+      "action" : "CREATE",
+      "target" : "User(1:59~1:65) /test/1/SYSDBA/"
+    },
+    {
+      "subject": "Table(2:15~2:29) /test/1/catalog1/CODEX_DM8_SCHEMA_EMBED_TRIGGER/TRIGGER_SOURCE/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Table(3:15~3:26) /test/1/catalog1/CODEX_DM8_SCHEMA_EMBED_TRIGGER/TRIGGER_LOG/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Trigger(4:17~4:27) /test/1/catalog1/CODEX_DM8_SCHEMA_EMBED_TRIGGER/TRG_SCHEMA/",
+      "action" : "CREATE",
+      "target" : "Table(4:44~4:58) /test/1/catalog1/CODEX_DM8_SCHEMA_EMBED_TRIGGER/TRIGGER_SOURCE/"
+    },
+    {
+      "subject": "Table(4:90~4:101) /test/1/catalog1/CODEX_DM8_SCHEMA_EMBED_TRIGGER/TRIGGER_LOG/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_embedded_objects_0_009_behavior_review]
+sql:
+insert into CODEX_DM8_SCHEMA_EMBED_TRIGGER.TRIGGER_SOURCE values(2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:57) /test/1/catalog1/CODEX_DM8_SCHEMA_EMBED_TRIGGER/TRIGGER_SOURCE/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_embedded_objects_0_010_behavior_review]
+sql:
+select ID from CODEX_DM8_SCHEMA_EMBED_TRIGGER.TRIGGER_LOG;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:15~1:57) /test/1/catalog1/CODEX_DM8_SCHEMA_EMBED_TRIGGER/TRIGGER_LOG/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_embedded_objects_0_011_behavior_review]
+sql:
+create schema CODEX_DM8_SCHEMA_EMBED_FULLTEXT authorization SYSDBA
+  create table FT_DOCS(ID int primary key, CONTENT varchar(200))
+  create context index FT_CONTENT_IDX on FT_DOCS(CONTENT) lexer english_lexer;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SCHEMA": [
+    {
+      "subject": "Schema(1:14~1:45) /test/1/catalog1/CODEX_DM8_SCHEMA_EMBED_FULLTEXT/",
+      "action" : "CREATE",
+      "target" : "User(1:60~1:66) /test/1/SYSDBA/"
+    },
+    {
+      "subject": "Table(2:15~2:22) /test/1/catalog1/CODEX_DM8_SCHEMA_EMBED_FULLTEXT/FT_DOCS/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Index(3:23~3:37) /test/1/catalog1/CODEX_DM8_SCHEMA_EMBED_FULLTEXT/FT_CONTENT_IDX/",
+      "action" : "CREATE",
+      "target" : "Table(3:41~3:48) /test/1/catalog1/CODEX_DM8_SCHEMA_EMBED_FULLTEXT/FT_DOCS/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_embedded_objects_0_012_behavior_review]
+sql:
+select count(*) from sysobjects where schid=(select id from sysobjects where type$='SCH' and name='CODEX_DM8_SCHEMA_EMBED_FULLTEXT') and name='FT_CONTENT_IDX';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "View(1:21~1:31) /test/1/catalog1/schema1/sysobjects/",
+      "action" : "READ"
+    },
+    {
+      "subject": "View(1:60~1:70) /test/1/catalog1/schema1/sysobjects/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_embedded_objects_0_013_behavior_review]
+sql:
+create schema CODEX_DM8_SCHEMA_EMBED_PACKAGE authorization SYSDBA
+  create package EMBED_PKG as function GET_VALUE return int; end EMBED_PKG;
+  create package body EMBED_PKG as function GET_VALUE return int as begin return 3; end; end EMBED_PKG;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SCHEMA": [
+    {
+      "subject": "Schema(1:14~1:44) /test/1/catalog1/CODEX_DM8_SCHEMA_EMBED_PACKAGE/",
+      "action" : "CREATE",
+      "target" : "User(1:59~1:65) /test/1/SYSDBA/"
+    },
+    {
+      "subject": "Package(2:17~2:26) /test/1/catalog1/CODEX_DM8_SCHEMA_EMBED_PACKAGE/EMBED_PKG/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Package(3:22~3:31) /test/1/catalog1/CODEX_DM8_SCHEMA_EMBED_PACKAGE/EMBED_PKG/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_embedded_objects_0_014_behavior_review]
+sql:
+select CODEX_DM8_SCHEMA_EMBED_PACKAGE.EMBED_PKG.GET_VALUE() from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:57) /test/1/CODEX_DM8_SCHEMA_EMBED_PACKAGE/EMBED_PKG/GET_VALUE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:65~1:69) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_embedded_objects_0_015_behavior_review]
+sql:
+create schema CODEX_DM8_SCHEMA_EMBED_CLASS authorization SYSDBA
+  create class EMBED_CLASS as VALUE int; member function GET_VALUE return int; end;
+  create class body EMBED_CLASS as member function GET_VALUE return int as begin return VALUE; end; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SCHEMA": [
+    {
+      "subject": "Schema(1:14~1:42) /test/1/catalog1/CODEX_DM8_SCHEMA_EMBED_CLASS/",
+      "action" : "CREATE",
+      "target" : "User(1:57~1:63) /test/1/SYSDBA/"
+    },
+    {
+      "subject": "Type(2:15~2:26) /test/1/catalog1/CODEX_DM8_SCHEMA_EMBED_CLASS/EMBED_CLASS/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Type(3:20~3:31) /test/1/catalog1/CODEX_DM8_SCHEMA_EMBED_CLASS/EMBED_CLASS/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_embedded_objects_0_016_behavior_review]
+sql:
+select CODEX_DM8_SCHEMA_EMBED_CLASS.EMBED_CLASS(4).GET_VALUE() from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:47) /test/1/catalog1/CODEX_DM8_SCHEMA_EMBED_CLASS/EMBED_CLASS/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:51~1:60) /test/1/catalog1/schema1/GET_VALUE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:68~1:72) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_embedded_objects_0_017_behavior_review]
+sql:
+create schema CODEX_DM8_SCHEMA_EMBED_LINK authorization SYSDBA
+  create link EMBED_LINK connect 'DPI' with BAD_USER identified by BAD_PASSWORD using '127.0.0.1:1';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SCHEMA": [
+    {
+      "subject": "Schema(1:14~1:41) /test/1/catalog1/CODEX_DM8_SCHEMA_EMBED_LINK/",
+      "action" : "CREATE",
+      "target" : "User(1:56~1:62) /test/1/SYSDBA/"
+    },
+    {
+      "subject": "Link(2:14~2:24) /test/1/catalog1/CODEX_DM8_SCHEMA_EMBED_LINK/EMBED_LINK/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_embedded_objects_0_018_behavior_review]
+sql:
+select count(*) from sysobjects where schid=(select id from sysobjects where type$='SCH' and name='CODEX_DM8_SCHEMA_EMBED_LINK') and name='EMBED_LINK';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "View(1:21~1:31) /test/1/catalog1/schema1/sysobjects/",
+      "action" : "READ"
+    },
+    {
+      "subject": "View(1:60~1:70) /test/1/catalog1/schema1/sysobjects/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_embedded_objects_0_019_behavior_review]
+sql:
+create schema CODEX_DM8_SCHEMA_EMBED_MVIEW authorization SYSDBA
+  create table MV_BASE(ID int primary key, AMOUNT int)
+  create materialized view log on MV_BASE with primary key
+  create materialized view MV_EMBED refresh complete as select ID, AMOUNT from MV_BASE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SCHEMA": [
+    {
+      "subject": "Schema(1:14~1:42) /test/1/catalog1/CODEX_DM8_SCHEMA_EMBED_MVIEW/",
+      "action" : "CREATE",
+      "target" : "User(1:57~1:63) /test/1/SYSDBA/"
+    },
+    {
+      "subject": "Table(2:15~2:22) /test/1/catalog1/CODEX_DM8_SCHEMA_EMBED_MVIEW/MV_BASE/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Log(3:34~3:41) /test/1/catalog1/CODEX_DM8_SCHEMA_EMBED_MVIEW/MV_BASE/",
+      "action" : "CREATE",
+      "target" : "Table(3:34~3:41) /test/1/catalog1/CODEX_DM8_SCHEMA_EMBED_MVIEW/MV_BASE/"
+    },
+    {
+      "subject": "Materialized(4:27~4:35) /test/1/catalog1/CODEX_DM8_SCHEMA_EMBED_MVIEW/MV_EMBED/",
+      "action" : "CREATE",
+      "target" : "Table(4:79~4:86) /test/1/catalog1/CODEX_DM8_SCHEMA_EMBED_MVIEW/MV_BASE/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_embedded_objects_0_020_behavior_review]
+sql:
+insert into CODEX_DM8_SCHEMA_EMBED_MVIEW.MV_BASE values(1, 5);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:48) /test/1/catalog1/CODEX_DM8_SCHEMA_EMBED_MVIEW/MV_BASE/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_embedded_objects_0_021_behavior_review]
+sql:
+refresh materialized view CODEX_DM8_SCHEMA_EMBED_MVIEW.MV_EMBED;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Materialized(1:26~1:63) /test/1/catalog1/CODEX_DM8_SCHEMA_EMBED_MVIEW/MV_EMBED/",
+      "action" : "REFRESH"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_embedded_objects_0_022_behavior_review]
+sql:
+select ID, AMOUNT from CODEX_DM8_SCHEMA_EMBED_MVIEW.MV_EMBED;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:23~1:60) /test/1/catalog1/CODEX_DM8_SCHEMA_EMBED_MVIEW/MV_EMBED/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_embedded_objects_0_023_behavior_review]
+sql:
+create schema CODEX_DM8_SCHEMA_EMBED_OPERATOR authorization SYSDBA
+  create function OP_ADD(P_LEFT int, P_RIGHT int) return int as begin return P_LEFT + P_RIGHT; end;
+  create operator @^ (function OP_ADD, leftarg int, rightarg int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SCHEMA": [
+    {
+      "subject": "Schema(1:14~1:45) /test/1/catalog1/CODEX_DM8_SCHEMA_EMBED_OPERATOR/",
+      "action" : "CREATE",
+      "target" : "User(1:60~1:66) /test/1/SYSDBA/"
+    },
+    {
+      "subject": "Function(2:18~2:24) /test/1/catalog1/CODEX_DM8_SCHEMA_EMBED_OPERATOR/OP_ADD/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Operator(3:18~3:20) /test/1/catalog1/CODEX_DM8_SCHEMA_EMBED_OPERATOR/@^/",
+      "action" : "CREATE",
+      "target" : "Function(3:31~3:37) /test/1/catalog1/CODEX_DM8_SCHEMA_EMBED_OPERATOR/OP_ADD/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_embedded_objects_0_024_behavior_review]
+sql:
+select 5 operator(CODEX_DM8_SCHEMA_EMBED_OPERATOR.@^) 6 from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Operator(1:18~1:52) /test/1/catalog1/CODEX_DM8_SCHEMA_EMBED_OPERATOR/@^/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:61~1:65) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}

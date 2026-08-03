@@ -15,6 +15,8 @@
  */
 package com.clougence.clouddm.console.web.component.config;
 
+import java.util.List;
+
 import com.clougence.clouddm.base.metadata.ds.ConfigValType;
 import com.clougence.clouddm.platform.dal.model.system.ConfBelong;
 import com.clougence.clouddm.platform.dal.model.system.UserConfigTagType;
@@ -36,6 +38,11 @@ public class UserConfigKvDef {
     private String            configValue;
     private String            defaultValue;
     private String            valueRange;
+    private long              minValue;
+    private long              maxValue;
+    private List<String>      allowedValues;
+    private boolean           required;
+    private Class<?>          valueType;
     private boolean           readOnly;
     private UserConfigTagType userConfigTagType;
     private ConfBelong        confBelong;

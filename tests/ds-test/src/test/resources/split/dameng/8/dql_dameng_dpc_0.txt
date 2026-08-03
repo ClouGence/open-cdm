@@ -1,0 +1,41 @@
+select NAME, INSTANCE_NAME, MODE$, STATUS$ from V$INSTANCE order by NAME;
+select NAME, DPC_MODE, SYS_STATUS, STATUS from DPC_INSTANCE order by RAFT_ID;
+select RAFT_ID, GROUP_ID, DPC_MODE, NAME, IS_VALID from DPC_BP_RAFT order by RAFT_ID;
+select ID, NOTE, SF_GET_EP_SEQNO(ROWID) as EP_SEQNO from CODEX_DPC_RANGE order by ID;
+select SF_GET_EP_SEQNO(ROWID) as EP_SEQNO, count(*) as ROW_COUNT
+from CODEX_DPC_HASH group by SF_GET_EP_SEQNO(ROWID) order by EP_SEQNO;
+select R.ID, R.NOTE, N.NOTE as NORMAL_NOTE
+from CODEX_DPC_RANGE R join CODEX_DPC_NORMAL N on N.ID=1 order by R.ID;
+select PARTGROUPDEF('SYSDBA', 'CODEX_DPC_PG_RANGE');
+select TABLEDEF('SYSDBA', 'CODEX_DPC_RANGE');
+select NAME, DPC_MODE, XMAL_PORT, INST_PORT, IP_INTERNAL
+from DPC_INSTANCE order by RAFT_ID;
+select TS_ID, NAME, RAFT_ID from DPC_TABLESPACE
+where NAME like 'CODEX_DPC_%' order by NAME;
+select NAME from V$INSTANCE where SF_GET_EP_SEQNO(ROWID)=SF_GET_SELF_EP_SEQNO();
+------------------------------------------------------------------------------------------
+[SELECT] select NAME, INSTANCE_NAME, MODE$, STATUS$ from V$INSTANCE order by NAME;
+----------
+[SELECT] select NAME, DPC_MODE, SYS_STATUS, STATUS from DPC_INSTANCE order by RAFT_ID;
+----------
+[SELECT] select RAFT_ID, GROUP_ID, DPC_MODE, NAME, IS_VALID from DPC_BP_RAFT order by RAFT_ID;
+----------
+[SELECT] select ID, NOTE, SF_GET_EP_SEQNO(ROWID) as EP_SEQNO from CODEX_DPC_RANGE order by ID;
+----------
+[SELECT] select SF_GET_EP_SEQNO(ROWID) as EP_SEQNO, count(*) as ROW_COUNT
+from CODEX_DPC_HASH group by SF_GET_EP_SEQNO(ROWID) order by EP_SEQNO;
+----------
+[SELECT] select R.ID, R.NOTE, N.NOTE as NORMAL_NOTE
+from CODEX_DPC_RANGE R join CODEX_DPC_NORMAL N on N.ID=1 order by R.ID;
+----------
+[SELECT] select PARTGROUPDEF('SYSDBA', 'CODEX_DPC_PG_RANGE');
+----------
+[SELECT] select TABLEDEF('SYSDBA', 'CODEX_DPC_RANGE');
+----------
+[SELECT] select NAME, DPC_MODE, XMAL_PORT, INST_PORT, IP_INTERNAL
+from DPC_INSTANCE order by RAFT_ID;
+----------
+[SELECT] select TS_ID, NAME, RAFT_ID from DPC_TABLESPACE
+where NAME like 'CODEX_DPC_%' order by NAME;
+----------
+[SELECT] select NAME from V$INSTANCE where SF_GET_EP_SEQNO(ROWID)=SF_GET_SELF_EP_SEQNO();

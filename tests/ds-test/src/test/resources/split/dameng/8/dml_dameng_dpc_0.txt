@@ -1,0 +1,33 @@
+insert into CODEX_DPC_NORMAL values(1, 'NORMAL');
+insert into CODEX_DPC_RANGE values(50, 'RAFT_1');
+insert into CODEX_DPC_RANGE values(150, 'RAFT_2');
+insert into CODEX_DPC_HASH values('A', 10);
+insert into CODEX_DPC_HASH values('B', 20);
+insert into CODEX_DPC_HASH values('C', 30);
+insert into CODEX_DPC_HASH values('D', 40);
+commit;
+update CODEX_DPC_RANGE set NOTE='UPDATED_RAFT_2' where ID=150;
+delete from CODEX_DPC_HASH where CODE='D';
+commit;
+------------------------------------------------------------------------------------------
+[INSERT] insert into CODEX_DPC_NORMAL values(1, 'NORMAL');
+----------
+[INSERT] insert into CODEX_DPC_RANGE values(50, 'RAFT_1');
+----------
+[INSERT] insert into CODEX_DPC_RANGE values(150, 'RAFT_2');
+----------
+[INSERT] insert into CODEX_DPC_HASH values('A', 10);
+----------
+[INSERT] insert into CODEX_DPC_HASH values('B', 20);
+----------
+[INSERT] insert into CODEX_DPC_HASH values('C', 30);
+----------
+[INSERT] insert into CODEX_DPC_HASH values('D', 40);
+----------
+[TRANSACTION] commit;
+----------
+[UPDATE] update CODEX_DPC_RANGE set NOTE='UPDATED_RAFT_2' where ID=150;
+----------
+[DELETE] delete from CODEX_DPC_HASH where CODE='D';
+----------
+[TRANSACTION] commit;

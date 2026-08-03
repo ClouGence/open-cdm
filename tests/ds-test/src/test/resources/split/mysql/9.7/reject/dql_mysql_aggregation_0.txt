@@ -1,0 +1,9 @@
+SELECT grp, COUNT(*) FROM t GROUP BY grp DESC;
+SELECT grp,SUM(v) FROM split_group_matrix.t GROUP BY grp ASC,id DESC WITH ROLLUP;
+SELECT GROUPING();
+------------------------------------------------------------------------------------------
+[SELECT] SELECT grp, COUNT(*) FROM t GROUP BY grp DESC;
+----------
+[SELECT] SELECT grp,SUM(v) FROM split_group_matrix.t GROUP BY grp ASC,id DESC WITH ROLLUP;
+----------
+[SELECT] SELECT GROUPING();

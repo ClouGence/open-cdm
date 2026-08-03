@@ -1,0 +1,49 @@
+[database_primary]
+sql:
+alter database primary
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"ADMIN", "name":"DATABASE"}
+  ]
+}
+----------
+[database_standby]
+sql:
+alter database standby
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"ADMIN", "name":"DATABASE"}
+  ]
+}
+----------
+[database_primary_force]
+sql:
+alter database primary force
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"ADMIN", "name":"DATABASE"}
+  ]
+}
+----------
+[database_standby_force]
+sql:
+alter database standby force
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"ADMIN", "name":"DATABASE"}
+  ]
+}
+----------
+[database_normal_force]
+sql:
+alter database normal force
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"ADMIN", "name":"DATABASE"}
+  ]
+}

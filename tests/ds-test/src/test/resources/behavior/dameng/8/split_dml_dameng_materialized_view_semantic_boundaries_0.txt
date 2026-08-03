@@ -1,0 +1,90 @@
+[split_dml_dameng_materialized_view_semantic_boundaries_0_001]
+sql:
+insert into MV_DML values(9, 9);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:18) /test/1/catalog1/schema1/MV_DML/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_materialized_view_semantic_boundaries_0_002]
+sql:
+update MV_DML set AMOUNT=9 where ID=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:13) /test/1/catalog1/schema1/MV_DML/",
+      "action": "UPDATE"
+    }
+  ]
+}
+----------
+[split_dml_dameng_materialized_view_semantic_boundaries_0_003]
+sql:
+delete from MV_DML where ID=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:18) /test/1/catalog1/schema1/MV_DML/",
+      "action": "DELETE"
+    }
+  ]
+}
+----------
+[split_dml_dameng_materialized_view_semantic_boundaries_0_004]
+sql:
+merge into MV_DML M using MV_BASE B on(M.ID=B.ID) when matched then update set M.AMOUNT=B.AMOUNT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:11~1:17) /test/1/catalog1/schema1/MV_DML/",
+      "action": "MERGE",
+      "target": "Table(1:26~1:33) /test/1/catalog1/schema1/MV_BASE/"
+    }
+  ]
+}
+----------
+[split_dml_dameng_materialized_view_semantic_boundaries_0_005]
+sql:
+truncate table MV_DML;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRUNCATE_TABLE": [
+    {
+      "subject": "Table(1:15~1:21) /test/1/catalog1/schema1/MV_DML/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_dml_dameng_materialized_view_semantic_boundaries_0_006]
+sql:
+drop table MTAB$_MV_DML;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:23) /test/1/catalog1/schema1/MTAB$_MV_DML/",
+      "action": "DROP"
+    }
+  ]
+}

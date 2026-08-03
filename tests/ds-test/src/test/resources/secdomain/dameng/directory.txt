@@ -1,0 +1,104 @@
+[create_directory]
+sql:
+create or replace directory if not exists employee_files as '/tmp/employee'
+expect:
+{
+  "contains": [
+    {"class":"RdbConfigDomain", "sqlType":"CONFIG_WRITE", "auditKind":"OTHER", "configKey":"employee_files"}
+  ]
+}
+----------
+[create_quoted_directory]
+sql:
+create directory "Employee Files" as './employee files'
+expect:
+{
+  "contains": [
+    {"class":"RdbConfigDomain", "sqlType":"CONFIG_WRITE", "auditKind":"OTHER", "configKey":"Employee Files"}
+  ]
+}
+----------
+[grant_directory]
+sql:
+grant read, write on directory employee_files to report_user
+expect:
+{
+  "contains": [
+    {"class":"RdbGrantDomain", "sqlType":"GRANT", "auditKind":"ALTER", "name":"report_user"}
+  ]
+}
+----------
+[revoke_directory]
+sql:
+revoke read, write on directory employee_files from report_user
+expect:
+{
+  "contains": [
+    {"class":"RdbRevokeDomain", "sqlType":"REVOKE", "auditKind":"ALTER", "name":"report_user"}
+  ]
+}
+----------
+[external_table_uses_directory]
+sql:
+create external table app.employee_external(id int, name varchar(20))
+from datafile default directory employee_files location ('employee.csv')
+parms(fields delimited by '|', records delimited by 0x0a)
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"CREATE_TABLE", "auditKind":"CREATE", "schema":"app", "table":"employee_external"},
+    {"class":"RdbObjectDomain", "sqlType":"SELECT", "auditKind":"QUERY", "name":"employee_files"}
+  ]
+}
+----------
+[query_external_table]
+sql:
+select id, name from app.employee_external where id > 0
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"employee_external"}
+  ]
+}
+----------
+[drop_directory_options]
+sql:
+drop directory if exists employee_files cascade;
+drop directory "Employee Files" restrict;
+expect:
+{
+  "contains": [
+    {"class":"RdbConfigDomain", "sqlType":"CONFIG_WRITE", "auditKind":"OTHER", "configKey":"employee_files"},
+    {"class":"RdbConfigDomain", "sqlType":"CONFIG_WRITE", "auditKind":"OTHER", "configKey":"Employee Files"}
+  ]
+}
+----------
+[grant_directory_to_public]
+sql:
+grant read, write on directory employee_files to public
+expect:
+{
+  "contains": [
+    {"class":"RdbGrantDomain", "sqlType":"GRANT", "auditKind":"ALTER", "name":"public"}
+  ]
+}
+----------
+[grant_directory_system_privileges]
+sql:
+grant create any directory, drop any directory to directory_admin
+expect:
+{
+  "contains": [
+    {"class":"RdbGrantDomain", "sqlType":"GRANT", "auditKind":"ALTER", "name":"directory_admin"}
+  ]
+}
+----------
+[revoke_directory_system_privileges]
+sql:
+revoke create any directory, drop any directory from directory_admin
+expect:
+{
+  "contains": [
+    {"class":"RdbRevokeDomain", "sqlType":"REVOKE", "auditKind":"ALTER", "name":"directory_admin"}
+  ]
+}

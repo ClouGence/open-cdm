@@ -1,4 +1,6 @@
 <script lang="jsx">
+import appLogger from '@/utils/logger';
+import { DoubleLeftOutlined, SearchOutlined } from '@ant-design/icons-vue';
 import ContextMenu from '@imengyu/vue3-context-menu';
 import { resolveBrowserMenuLabel } from '@/utils/browserMenuI18n';
 import VTree from '@wsfe/vue-tree';
@@ -13,12 +15,17 @@ import { clearAllPending } from '@/services/http/cancelRequest';
 import AddDataSource from '@/views/dataSource/AddDataSource';
 
 const DATASOURCE_EXPANDED_KEYS_KEY = 'clouddm_datasource_expanded_keys';
+const SEARCH_PANEL_EXPANDED_WIDTH = 280;
+const SIDEBAR_ANIMATION_DURATION = 260;
 
 export default {
   name: 'DataSourceTree',
+  emits: ['sidebar-state-change'],
   mixins: [copyMixin, datasourceMixin, browseMixin, utilMixin],
   components: {
     AddDataSource,
+    DoubleLeftOutlined,
+    SearchOutlined,
     VTree
   },
   props: {
@@ -43,6 +50,12 @@ export default {
         });
       },
       immediate: true
+    },
+    hide: {
+      handler(hidden) {
+        this.$emit('sidebar-state-change', hidden);
+      },
+      immediate: true
     }
   },
   data() {
@@ -51,7 +64,7 @@ export default {
     return {
       testDsMsg: '',
       showAddDsModal: false,
-      isInitialized: false, // The tag has been initialized
+      isInitialized: false,
       advancedSetting: [
         {
           value: 'delimited',
@@ -115,6 +128,10 @@ export default {
       hide: storedHide,
       dataSourceWidth: 0,
       preDataSourceWidth: 250,
+      refreshingTree: false,
+      sidebarAnimating: false,
+      sidebarClosing: false,
+      sidebarOpening: false,
       searchKey: '',
       showTicketModal: false,
       rawSqlToSubmit: '',
@@ -170,7 +187,7 @@ export default {
       try {
         localStorage.setItem('clouddm_datasource_hide', hide.toString());
       } catch (e) {
-        console.warn('Failed to save hide state:', e);
+        appLogger.warn('Failed to save hide state:', e);
       }
     },
     getStoredExpandedKeys() {
@@ -199,7 +216,7 @@ export default {
       try {
         localStorage.setItem(DATASOURCE_EXPANDED_KEYS_KEY, JSON.stringify(this.expandedKeys));
       } catch (e) {
-        console.warn('Failed to save datasource expanded keys:', e);
+        appLogger.warn('Failed to save datasource expanded keys:', e);
       }
     },
     getTreeKeyDepth(key) {
@@ -246,47 +263,40 @@ export default {
       }
     },
     checkTreeDataAndToggle() {
-      // Check for data within the V-tree component
-      if (this.$refs.tree) {
-        const treeData = this.$refs.tree.getTreeData();
-        const hasData = treeData && treeData.length > 0;
-
-        console.log('v-tree data check:', hasData, treeData);
-
-        // Get a user saved status
-        const storedHide = this.getStoredHideState();
-
-        if (hasData) {
-          // If data are available, decide whether to proceed according to the status of the user
-          // Automatically expand only when the user does not close manually
-          if (!storedHide) {
-            // Update only if the current state is not consistent with the target state, avoiding unnecessary updating leading to flash
-            if (this.hide !== false || this.dataSourceWidth !== 250) {
-              this.hide = false;
-              this.dataSourceWidth = 250;
-            }
-          } else {
-            // The user collected it manually and kept it closed.
-            if (this.hide !== true || this.dataSourceWidth !== 0) {
-              this.hide = true;
-              this.dataSourceWidth = 0;
-            }
-          }
-        } else {
-          // When data are not available, automatically close only after initialization
-          // But if the user has started manually, stay active.
-          if (this.isInitialized && !storedHide) {
-            // Update only when the state needs a change
-            if (this.hide !== true || this.dataSourceWidth !== 0) {
-              this.hide = true;
-              this.dataSourceWidth = 0;
-            }
-          }
-        }
-
-        // Mark as Initialized
-        this.isInitialized = true;
+      if (!this.$refs.tree) {
+        return;
       }
+
+      const treeData = this.$refs.tree.getTreeData();
+      const hasData = treeData && treeData.length > 0;
+      appLogger.debug('v-tree data check:', hasData, treeData);
+      if (!hasData) {
+        if (this.isInitialized && !this.refreshingTree && !this.getStoredHideState()) {
+          this.hide = true;
+          this.dataSourceWidth = 0;
+        }
+        this.isInitialized = true;
+        return;
+      }
+
+      const storedHide = this.getStoredHideState();
+      if (storedHide) {
+        if (this.hide !== true || this.dataSourceWidth !== 0) {
+          this.hide = true;
+          this.dataSourceWidth = 0;
+        }
+        return;
+      }
+
+      let targetWidth = this.dataSourceWidth;
+      if (targetWidth <= 0) {
+        targetWidth = this.preDataSourceWidth || 250;
+      }
+      if (this.hide !== false || this.dataSourceWidth !== targetWidth) {
+        this.hide = false;
+        this.dataSourceWidth = targetWidth;
+      }
+      this.isInitialized = true;
     },
     async submitTicket() {
       this.$refs.ticketContent.validate(async (valid) => {
@@ -368,10 +378,22 @@ export default {
         this.handleCloseModal();
       }
     },
-    handleRefreshTree() {
+    async handleRefreshTree() {
+      const currentWidth = this.$el.getBoundingClientRect().width;
+      if (!this.hide && currentWidth > 0) {
+        this.dataSourceWidth = currentWidth;
+        this.preDataSourceWidth = currentWidth;
+      }
       this.scrollY = 0;
-      this.getDataSourceList();
       this.searchKey = '';
+      this.refreshingTree = true;
+      try {
+        await this.getDataSourceList();
+      } finally {
+        await this.$nextTick();
+        this.refreshingTree = false;
+        this.checkTreeDataAndToggle();
+      }
     },
     handleMenuNameChange(e) {
       if (e.target.value !== this.menuModal.name) {
@@ -491,7 +513,7 @@ export default {
             break;
           case DS_RIGHT_CLICK_MENU_ITEM.MENU_BROWSE_SCHEMA_CREATE:
             if (this.selectedNode.nodeType === NODE_TYPE.SCHEMA) {
-              console.log(this.selectedNode);
+              appLogger.debug(this.selectedNode);
               const parentNode = this.selectedNode._parent;
               currentNode = {
                 ...this.selectedNode,
@@ -564,7 +586,7 @@ export default {
       }
     },
     handleSetExpandedKeys(node) {
-      console.log('expand key', node.key);
+      appLogger.debug('expand key', node.key);
       const { key } = node;
       if (this.isExpandedKey(node)) {
         this.expandedKeys = this.expandedKeys.filter((k) => k !== key);
@@ -608,7 +630,7 @@ export default {
     },
     async handleSetData(data, search = false) {
       this.top = this.scrollY;
-      console.log('handleSetData', this.$refs);
+      appLogger.debug('handleSetData', this.$refs);
       const expandedKeys = this.expandedKeys.slice();
       this.suspendExpandedKeysSync = true;
       try {
@@ -720,6 +742,31 @@ export default {
       if (scroll && this.treeData[0]) {
         this.$refs.tree.scrollTo(this.treeData[0].key);
       }
+    },
+    getSidebarAnimationDuration() {
+      return window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ? 0 : SIDEBAR_ANIMATION_DURATION;
+    },
+    handleExpandCompactSearch() {
+      if (this.sidebarAnimating) {
+        return;
+      }
+
+      const currentWidth = this.$el.getBoundingClientRect().width;
+      this.dataSourceWidth = currentWidth;
+      this.preDataSourceWidth = SEARCH_PANEL_EXPANDED_WIDTH;
+      this.sidebarAnimating = true;
+      this.sidebarOpening = true;
+      this.$nextTick(() => {
+        window.requestAnimationFrame(() => {
+          this.dataSourceWidth = SEARCH_PANEL_EXPANDED_WIDTH;
+          this.$el.style.setProperty('width', `${SEARCH_PANEL_EXPANDED_WIDTH}px`, 'important');
+          window.setTimeout(() => {
+            this.sidebarOpening = false;
+            this.sidebarAnimating = false;
+            this.$refs.compactSearchInput?.focus();
+          }, this.getSidebarAnimationDuration());
+        });
+      });
     },
     handleFocus() {
       if (!this.currentTab) {
@@ -881,15 +928,50 @@ export default {
       this.handleSetSelected(key);
     },
     handleSwitchHide() {
-      if (this.hide) {
-        this.dataSourceWidth = 250;
-        this.hide = false;
-        this.saveHideState(false);
-      } else {
-        this.dataSourceWidth = 0;
-        this.hide = true;
-        this.saveHideState(true);
+      if (this.sidebarAnimating) {
+        return;
       }
+
+      this.sidebarAnimating = true;
+
+      if (this.hide) {
+        this.hide = false;
+        this.sidebarOpening = true;
+        this.saveHideState(false);
+        this.$nextTick(() => {
+          window.requestAnimationFrame(() => {
+            const targetWidth = this.preDataSourceWidth || 250;
+            this.dataSourceWidth = targetWidth;
+            this.$el.style.setProperty('width', `${targetWidth}px`, 'important');
+            window.setTimeout(() => {
+              this.sidebarOpening = false;
+              this.sidebarAnimating = false;
+            }, this.getSidebarAnimationDuration());
+          });
+        });
+        return;
+      }
+
+      const currentWidth = this.$el.getBoundingClientRect().width;
+      if (currentWidth > 0) {
+        this.preDataSourceWidth = currentWidth;
+        this.dataSourceWidth = currentWidth;
+      }
+
+      this.sidebarClosing = true;
+      this.$emit('sidebar-state-change', true);
+      this.saveHideState(true);
+      this.$nextTick(() => {
+        window.requestAnimationFrame(() => {
+          this.dataSourceWidth = 0;
+          this.$el.style.setProperty('width', '0px', 'important');
+          window.setTimeout(() => {
+            this.hide = true;
+            this.sidebarClosing = false;
+            this.sidebarAnimating = false;
+          }, this.getSidebarAnimationDuration());
+        });
+      });
     },
     handleShowAddDsModal() {
       this.showAddDsModal = true;
@@ -946,7 +1028,7 @@ export default {
       }
     },
     async handleRightClickMenu(actionType) {
-      console.log('handleRightClickMenu', actionType);
+      appLogger.debug('handleRightClickMenu', actionType);
       this.actionType = actionType;
       const data = {
         actionType,
@@ -1208,37 +1290,85 @@ export default {
 </script>
 
 <template>
-  <div class="data-source-container" :style="`width: ${dataSourceWidth}px`">
-    <div class="tree-resize" />
-    <div class="data-source-filter" v-if="!hide">
-      <!--      <Icon type="md-add" style="margin-right: 5px;" @click="handleShowAddDsModal" v-if="isDesktop"/>-->
-      <Input v-model="searchKey" class="filter-input" icon="ios-search" @on-click="handleSearch" @on-enter="handleSearch" size="small" allow-clear />
-      <cc-svg-icon :size="18" name="focus" @click.native="handleFocus" style="cursor: pointer" :color="`${isDark ? '#fff' : '#000'}`"></cc-svg-icon>
-      <cc-svg-icon
-        style="margin-left: 6px"
-        name="refresh"
-        @click.native="handleRefreshTree"
-        :size="16"
-        :color="`${isDark ? '#fff' : '#000'}`"
-      ></cc-svg-icon>
-    </div>
-    <cc-iconfont @click.native="handleSwitchHide" :size="14" class="hide-icon" color="#999999" :name="hide ? 'zhankai' : 'shouqi'"></cc-iconfont>
-    <div class="datasource-tree" @contextmenu.prevent.stop="onContextmenu">
-      <v-tree
-        emptyText=" "
-        ref="tree"
-        keyField="key"
-        :load="handleExpandLoadNode"
-        :render="renderNode"
-        :expand-on-filter="false"
-        :expanded-keys="expandedKeys"
-        @node-right-click="handleNodeRightClick"
-        @node-dblclick="handleDblClick"
-        @expand="handleTreeExpand"
-        :nodeIndent="10"
-        :renderNodeAmount="200"
-        @click="handleNodeClick"
-      ></v-tree>
+  <div
+    class="data-source-container"
+    :class="{
+      'data-source-container--collapsed': hide,
+      'data-source-container--animating': sidebarAnimating,
+      'data-source-container--closing': sidebarClosing,
+      'data-source-container--opening': sidebarOpening
+    }"
+    :style="{
+      width: `${dataSourceWidth}px`,
+      '--data-source-content-width': `${preDataSourceWidth || 250}px`
+    }"
+  >
+    <div class="tree-resize" v-show="!hide" />
+    <div v-show="!hide" class="data-source-panel-body">
+      <div class="data-source-filter">
+        <!--      <Icon type="md-add" style="margin-right: 5px;" @click="handleShowAddDsModal" v-if="isDesktop"/>-->
+        <a-input
+          v-model:value="searchKey"
+          class="filter-input"
+          size="small"
+          allow-clear
+          ref="compactSearchInput"
+          :placeholder="$t('object-browser-search-datasource-placeholder')"
+          @change="handleSearch"
+          @pressEnter="handleSearch"
+        >
+          <template #prefix>
+            <SearchOutlined class="data-source-search-icon" />
+          </template>
+        </a-input>
+        <button
+          type="button"
+          class="data-source-toolbar-button compact-search-button"
+          :aria-label="$t('object-browser-search-datasource-placeholder')"
+          :title="$t('object-browser-search-datasource-placeholder')"
+          @click="handleExpandCompactSearch"
+        >
+          <SearchOutlined aria-hidden="true" />
+        </button>
+        <button
+          type="button"
+          class="data-source-toolbar-button"
+          :aria-label="$t('sql-locate-current-datasource')"
+          :title="$t('sql-locate-current-datasource')"
+          @click="handleFocus"
+        >
+          <cc-svg-icon :size="16" name="focus" :color="`${isDark ? '#fff' : '#000'}`" />
+        </button>
+        <button type="button" class="data-source-toolbar-button" :aria-label="$t('shua-xin')" :title="$t('shua-xin')" @click="handleRefreshTree">
+          <cc-svg-icon name="refresh" :size="16" :color="`${isDark ? '#fff' : '#000'}`" />
+        </button>
+        <button
+          type="button"
+          class="data-source-toolbar-button data-source-sidebar-toggle"
+          :aria-label="$t('sql-collapse-datasource-sidebar')"
+          :title="$t('sql-collapse-datasource-sidebar')"
+          @click="handleSwitchHide"
+        >
+          <DoubleLeftOutlined aria-hidden="true" />
+        </button>
+      </div>
+      <div class="datasource-tree" @contextmenu.prevent.stop="onContextmenu">
+        <v-tree
+          emptyText=" "
+          ref="tree"
+          keyField="key"
+          :load="handleExpandLoadNode"
+          :render="renderNode"
+          :expand-on-filter="false"
+          :expanded-keys="expandedKeys"
+          @node-right-click="handleNodeRightClick"
+          @node-dblclick="handleDblClick"
+          @expand="handleTreeExpand"
+          :nodeIndent="10"
+          :renderNodeAmount="200"
+          @click="handleNodeClick"
+        ></v-tree>
+      </div>
     </div>
     <CCModal :title="menuModal.title" v-model="menuModal.show" :mask-closable="false" :closable="false" :keyboard="false">
       <div style="margin-bottom: 5px; font-weight: bold">
@@ -1371,13 +1501,78 @@ export default {
 }
 
 .data-source-container {
+  container-type: inline-size;
   background: var(--bg-secondary);
   height: 100%;
   float: left;
   display: flex;
   flex-direction: column;
   position: relative;
+  overflow: visible;
+  flex-shrink: 0;
   border-right: 1px solid var(--border-primary);
+
+  &.data-source-container--collapsed {
+    z-index: 2;
+    border-right: 0;
+  }
+
+  &.data-source-container--animating {
+    transition: width 0.26s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+
+    .data-source-panel-body {
+      width: var(--data-source-content-width);
+      min-width: var(--data-source-content-width);
+    }
+  }
+
+  &.data-source-container--closing {
+    .data-source-panel-body {
+      animation: data-source-panel-conceal 0.16s ease-out both;
+      pointer-events: none;
+    }
+  }
+
+  &.data-source-container--opening {
+    .data-source-panel-body {
+      animation: data-source-panel-reveal 0.26s cubic-bezier(0.4, 0, 0.2, 1) both;
+      pointer-events: none;
+    }
+  }
+
+  &.data-source-container--resizing {
+    transition: none !important;
+  }
+
+  .data-source-panel-body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+    opacity: 1;
+  }
+
+  .data-source-filter {
+    gap: 4px;
+
+    .filter-input {
+      margin-right: 0;
+
+      :deep(.ant-input-prefix) {
+        color: var(--text-primary);
+      }
+    }
+
+    .data-source-search-icon {
+      :deep(svg) {
+        width: 16px;
+        height: 16px;
+        color: var(--text-primary);
+      }
+    }
+  }
 
   .tree-resize {
     height: 100%;
@@ -1390,18 +1585,6 @@ export default {
     z-index: 9;
   }
 
-  .hide-icon {
-    position: absolute;
-    border-radius: 5px;
-    right: -28px;
-    z-index: 9;
-    top: 7px;
-    background: var(--bg-card);
-    padding: 2px 5px;
-    cursor: pointer;
-    box-shadow: rgba(0, 0, 0, 0.35) 0px 1px 2px;
-  }
-
   .datasource-tree {
     padding: 2px 0 0 4px;
     flex: 1;
@@ -1410,6 +1593,104 @@ export default {
     :deep(.node) {
       display: flex;
       align-items: center;
+    }
+  }
+
+  .data-source-toolbar-button {
+    display: flex;
+    width: 32px;
+    height: 32px;
+    flex: 0 0 32px;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 0;
+    border-radius: 4px;
+    background: transparent;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    transition:
+      color 0.2s ease,
+      background-color 0.2s ease,
+      box-shadow 0.2s ease;
+    font-size: 16px;
+
+    &:hover,
+    &:focus-visible {
+      color: var(--text-primary);
+      background: var(--bg-hover);
+      box-shadow: var(--shadow-sm);
+    }
+
+    &:focus-visible {
+      outline: 1px solid var(--primary-color);
+      outline-offset: 1px;
+    }
+  }
+
+  .compact-search-button {
+    display: none;
+    color: var(--text-primary);
+
+    :deep(svg) {
+      width: 16px;
+      height: 16px;
+      color: var(--text-primary);
+    }
+  }
+}
+
+@container (max-width: 150px) {
+  .data-source-container:not(.data-source-container--animating) .data-source-filter {
+    gap: 3px;
+    padding: 4px !important;
+
+    .filter-input {
+      display: none;
+    }
+
+    .compact-search-button {
+      display: inline-flex;
+    }
+  }
+}
+
+@keyframes data-source-panel-conceal {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateX(-6px);
+  }
+}
+
+@keyframes data-source-panel-reveal {
+  0%,
+  20% {
+    opacity: 0;
+    transform: translateX(-6px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .data-source-container {
+    &.data-source-container--animating {
+      transition: none;
+    }
+
+    &.data-source-container--closing,
+    &.data-source-container--opening {
+      .data-source-panel-body {
+        animation: none;
+      }
     }
   }
 }

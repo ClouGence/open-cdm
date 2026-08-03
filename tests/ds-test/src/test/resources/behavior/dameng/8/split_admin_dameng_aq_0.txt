@@ -1,0 +1,456 @@
+[split_admin_dameng_aq_0_001]
+sql:
+begin dbms_aqadm.create_queue_table('SYSDBA.CODEX_DM8_QUEUE_TAB', 'RAW', multiple_consumers => true, tab_comment => 'CODEX queue table'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:6~1:35) /test/1/catalog1/dbms_aqadm/create_queue_table/",
+      "action": "CALL",
+      "target": "Table(1:36~1:64) /test/1/catalog1/SYSDBA/CODEX_DM8_QUEUE_TAB/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_aq_0_008]
+sql:
+begin dbms_aqadm.add_subscriber('SYSDBA.CODEX_DM8_QUEUE', sys.aq$_agent('CODEX_SUB', null, 0)); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:6~1:31) /test/1/catalog1/dbms_aqadm/add_subscriber/",
+      "action": "CALL",
+      "target": [
+        "Queue(1:32~1:56) /test/1/catalog1/SYSDBA/CODEX_DM8_QUEUE/",
+        "QueueSubscriber(1:72~1:83) /test/1/catalog1/SYSDBA/CODEX_DM8_QUEUE/CODEX_SUB/"
+      ]
+    },
+    {
+      "subject": "Function(1:58~1:71) /test/1/catalog1/sys/aq$_agent/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_admin_dameng_aq_0_003]
+sql:
+begin dbms_aqadm.alter_queue_table('SYSDBA.CODEX_DM8_QUEUE_TAB', 'CODEX queue table updated'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:6~1:34) /test/1/catalog1/dbms_aqadm/alter_queue_table/",
+      "action": "CALL",
+      "target": "Table(1:35~1:63) /test/1/catalog1/SYSDBA/CODEX_DM8_QUEUE_TAB/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_aq_0_004]
+sql:
+begin dbms_aqadm.create_queue('SYSDBA.CODEX_DM8_QUEUE', 'SYSDBA.CODEX_DM8_QUEUE_TAB', queue_comment => 'CODEX queue'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:6~1:29) /test/1/catalog1/dbms_aqadm/create_queue/",
+      "action": "CALL",
+      "target": [
+        "Queue(1:30~1:54) /test/1/catalog1/SYSDBA/CODEX_DM8_QUEUE/",
+        "Table(1:56~1:84) /test/1/catalog1/SYSDBA/CODEX_DM8_QUEUE_TAB/"
+      ]
+    }
+  ]
+}
+----------
+[split_admin_dameng_aq_0_005]
+sql:
+begin dbms_aqadm.alter_queue('SYSDBA.CODEX_DM8_QUEUE', max_retries => 3, retry_delay => 1, retention_time => 10, queue_comment => 'CODEX queue updated'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:6~1:28) /test/1/catalog1/dbms_aqadm/alter_queue/",
+      "action": "CALL",
+      "target": "Queue(1:29~1:53) /test/1/catalog1/SYSDBA/CODEX_DM8_QUEUE/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_aq_0_006]
+sql:
+begin dbms_aqadm.start_queue('SYSDBA.CODEX_DM8_QUEUE'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:6~1:28) /test/1/catalog1/dbms_aqadm/start_queue/",
+      "action": "CALL",
+      "target": "Queue(1:29~1:53) /test/1/catalog1/SYSDBA/CODEX_DM8_QUEUE/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_aq_0_007]
+sql:
+select name, enable_flag, max_retries, retry_delay, ret_time from sys.aq$_queues where name='CODEX_DM8_QUEUE';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:66~1:80) /test/1/catalog1/sys/aq$_queues/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_admin_dameng_aq_0_002]
+sql:
+select schm, name, table_comment from sys.aq$_queue_tables where name='CODEX_DM8_QUEUE_TAB';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:38~1:58) /test/1/catalog1/sys/aq$_queue_tables/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_admin_dameng_aq_0_009]
+sql:
+select name from sys.aq$_queues where name='CODEX_DM8_QUEUE' and subscribers is not null;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:17~1:31) /test/1/catalog1/sys/aq$_queues/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_admin_dameng_aq_0_010]
+sql:
+begin dbms_aq.register(sys.aq$_reg_info_list(sys.aq$_reg_info('SYSDBA.CODEX_DM8_QUEUE:CODEX_SUB', dbms_aq.namespace_aq, 'PLSQL://SYSDBA.CODEX_DM8_AQ_CALLBACK', hextoraw('FF'))), 1); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:6~1:22) /test/1/catalog1/dbms_aq/register/",
+      "action": "CALL",
+      "target": "QueueSubscriber(1:62~1:96) /test/1/catalog1/SYSDBA/CODEX_DM8_QUEUE/CODEX_SUB/"
+    },
+    {
+      "subject": "Function(1:23~1:44) /test/1/catalog1/sys/aq$_reg_info_list/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:45~1:61) /test/1/catalog1/sys/aq$_reg_info/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:160~1:168) /test/1/catalog1/schema1/hextoraw/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_admin_dameng_aq_0_011]
+sql:
+declare options_value dbms_aq.enqueue_options_t; msgid_value varbinary(16); begin dbms_aq.enqueue('SYSDBA.CODEX_DM8_QUEUE', options_value, null, hextoraw('434F4445585F41515F4D455353414745'), msgid_value); commit; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:22~1:47) /test/1/catalog1/dbms_aq/enqueue_options_t/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(1:82~1:97) /test/1/catalog1/dbms_aq/enqueue/",
+      "action": "CALL",
+      "target": "Queue(1:98~1:122) /test/1/catalog1/SYSDBA/CODEX_DM8_QUEUE/"
+    },
+    {
+      "subject": "Function(1:145~1:153) /test/1/catalog1/schema1/hextoraw/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_admin_dameng_aq_0_012]
+sql:
+declare value int; begin dbms_lock.sleep(1); select count(*) into value from CODEX_DM8_SCHED_LOG where message='AQ_CALLBACK'; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:25~1:40) /test/1/catalog1/dbms_lock/sleep/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:52~1:57) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:77~1:96) /test/1/catalog1/schema1/CODEX_DM8_SCHED_LOG/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_admin_dameng_aq_0_013]
+sql:
+declare options_value dbms_aq.dequeue_options_t; properties_value dbms_aq.message_properties_t; payload_value varbinary(8188); msgid_value varbinary(16); begin options_value.consumer_name := 'CODEX_SUB'; options_value.dequeue_mode := dbms_aq.browse; options_value.wait := dbms_aq.no_wait; dbms_aq.dequeue('SYSDBA.CODEX_DM8_QUEUE', options_value, properties_value, payload_value, msgid_value); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:22~1:47) /test/1/catalog1/dbms_aq/dequeue_options_t/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(1:66~1:94) /test/1/catalog1/dbms_aq/message_properties_t/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(1:289~1:304) /test/1/catalog1/dbms_aq/dequeue/",
+      "action": "CALL",
+      "target": "Queue(1:305~1:329) /test/1/catalog1/SYSDBA/CODEX_DM8_QUEUE/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_aq_0_014]
+sql:
+declare options_value dbms_aq.dequeue_options_t; properties_value dbms_aq.message_properties_t; payload_value varbinary(8188); msgid_value varbinary(16); begin options_value.consumer_name := 'CODEX_SUB'; options_value.dequeue_mode := dbms_aq.remove; options_value.wait := dbms_aq.no_wait; dbms_aq.dequeue('SYSDBA.CODEX_DM8_QUEUE', options_value, properties_value, payload_value, msgid_value); commit; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:22~1:47) /test/1/catalog1/dbms_aq/dequeue_options_t/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(1:66~1:94) /test/1/catalog1/dbms_aq/message_properties_t/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(1:289~1:304) /test/1/catalog1/dbms_aq/dequeue/",
+      "action": "CALL",
+      "target": "Queue(1:305~1:329) /test/1/catalog1/SYSDBA/CODEX_DM8_QUEUE/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_aq_0_015]
+sql:
+begin dbms_aq.unregister(sys.aq$_reg_info_list(sys.aq$_reg_info('SYSDBA.CODEX_DM8_QUEUE:CODEX_SUB', dbms_aq.namespace_aq, 'PLSQL://SYSDBA.CODEX_DM8_AQ_CALLBACK', hextoraw('FF'))), 1); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:6~1:24) /test/1/catalog1/dbms_aq/unregister/",
+      "action": "CALL",
+      "target": "QueueSubscriber(1:64~1:98) /test/1/catalog1/SYSDBA/CODEX_DM8_QUEUE/CODEX_SUB/"
+    },
+    {
+      "subject": "Function(1:25~1:46) /test/1/catalog1/sys/aq$_reg_info_list/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:47~1:63) /test/1/catalog1/sys/aq$_reg_info/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:162~1:170) /test/1/catalog1/schema1/hextoraw/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_admin_dameng_aq_0_016]
+sql:
+begin dbms_aqadm.stop_queue('SYSDBA.CODEX_DM8_QUEUE', dequeue => true, wait => false); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:6~1:27) /test/1/catalog1/dbms_aqadm/stop_queue/",
+      "action": "CALL",
+      "target": "Queue(1:28~1:52) /test/1/catalog1/SYSDBA/CODEX_DM8_QUEUE/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_aq_0_017]
+sql:
+begin dbms_aqadm.start_queue('SYSDBA.CODEX_DM8_QUEUE', enqueue => false, dequeue => true); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:6~1:28) /test/1/catalog1/dbms_aqadm/start_queue/",
+      "action": "CALL",
+      "target": "Queue(1:29~1:53) /test/1/catalog1/SYSDBA/CODEX_DM8_QUEUE/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_aq_0_018]
+sql:
+begin dbms_aqadm.stop_queue('SYSDBA.CODEX_DM8_QUEUE', enqueue => true, dequeue => false, wait => false); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:6~1:27) /test/1/catalog1/dbms_aqadm/stop_queue/",
+      "action": "CALL",
+      "target": "Queue(1:28~1:52) /test/1/catalog1/SYSDBA/CODEX_DM8_QUEUE/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_aq_0_019]
+sql:
+begin dbms_aqadm.start_queue('SYSDBA.CODEX_DM8_QUEUE', enqueue => true, dequeue => false); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:6~1:28) /test/1/catalog1/dbms_aqadm/start_queue/",
+      "action": "CALL",
+      "target": "Queue(1:29~1:53) /test/1/catalog1/SYSDBA/CODEX_DM8_QUEUE/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_aq_0_020]
+sql:
+begin dbms_aqadm.remove_subscriber('SYSDBA.CODEX_DM8_QUEUE', sys.aq$_agent('CODEX_SUB', null, 0)); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:6~1:34) /test/1/catalog1/dbms_aqadm/remove_subscriber/",
+      "action": "CALL",
+      "target": [
+        "Queue(1:35~1:59) /test/1/catalog1/SYSDBA/CODEX_DM8_QUEUE/",
+        "QueueSubscriber(1:75~1:86) /test/1/catalog1/SYSDBA/CODEX_DM8_QUEUE/CODEX_SUB/"
+      ]
+    },
+    {
+      "subject": "Function(1:61~1:74) /test/1/catalog1/sys/aq$_agent/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_admin_dameng_aq_0_021]
+sql:
+begin dbms_aqadm.stop_queue('SYSDBA.CODEX_DM8_QUEUE', true, true, false); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:6~1:27) /test/1/catalog1/dbms_aqadm/stop_queue/",
+      "action": "CALL",
+      "target": "Queue(1:28~1:52) /test/1/catalog1/SYSDBA/CODEX_DM8_QUEUE/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_aq_0_022]
+sql:
+declare options_value dbms_aqadm.aq$_purge_options_t; begin dbms_aqadm.purge_queue_table('SYSDBA.CODEX_DM8_QUEUE_TAB', null, options_value); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:22~1:52) /test/1/catalog1/dbms_aqadm/aq$_purge_options_t/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(1:60~1:88) /test/1/catalog1/dbms_aqadm/purge_queue_table/",
+      "action": "CALL",
+      "target": "Table(1:89~1:117) /test/1/catalog1/SYSDBA/CODEX_DM8_QUEUE_TAB/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_aq_0_023]
+sql:
+begin dbms_aqadm.drop_queue('SYSDBA.CODEX_DM8_QUEUE'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:6~1:27) /test/1/catalog1/dbms_aqadm/drop_queue/",
+      "action": "CALL",
+      "target": "Queue(1:28~1:52) /test/1/catalog1/SYSDBA/CODEX_DM8_QUEUE/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_aq_0_024]
+sql:
+begin dbms_aqadm.drop_queue_table('SYSDBA.CODEX_DM8_QUEUE_TAB'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:6~1:33) /test/1/catalog1/dbms_aqadm/drop_queue_table/",
+      "action": "CALL",
+      "target": "Table(1:34~1:62) /test/1/catalog1/SYSDBA/CODEX_DM8_QUEUE_TAB/"
+    }
+  ]
+}

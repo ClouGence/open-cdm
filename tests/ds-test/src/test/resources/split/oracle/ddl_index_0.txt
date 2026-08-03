@@ -1,0 +1,24 @@
+create index index_name on abc (id);
+create index "index_name" on "test"."abc" ("id");
+create unique index index_name_uq on abc (id, name);
+create index idx_desc on abc (id desc, name);
+alter index index_name rebuild;
+alter index "test"."index_name" rebuild;
+drop index index_name;
+drop index "test"."index_name";
+------------------------------------------------------------------------------------------
+[ADD_INDEX] create index index_name on abc (id);
+----------
+[ADD_INDEX] create index "index_name" on "test"."abc" ("id");
+----------
+[ADD_INDEX] create unique index index_name_uq on abc (id, name);
+----------
+[ADD_INDEX] create index idx_desc on abc (id desc, name);
+----------
+[ALTER_INDEX] alter index index_name rebuild;
+----------
+[ALTER_INDEX] alter index "test"."index_name" rebuild;
+----------
+[DROP_INDEX] drop index index_name;
+----------
+[DROP_INDEX] drop index "test"."index_name";

@@ -17,14 +17,15 @@ package com.clougence.clouddm.dsfamily.mysql.execute;
 
 import java.sql.*;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
 import com.clougence.clouddm.dsfamily.mysql.definition.ui.editor.table.MyEditorProvider;
 import com.clougence.clouddm.dsfamily.mysql.dialect.MySqlDialect;
 import com.clougence.clouddm.sdk.execute.session.Session;
 import com.clougence.clouddm.sdk.execute.session.rdb.DefaultRdbMetaService;
 import com.clougence.clouddm.sdk.execute.session.rdb.DmRdbUmiService;
+import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.schema.editor.provider.SqlBuilder;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.utils.ExceptionUtils;
@@ -41,6 +42,31 @@ public class MyMetaService extends DefaultRdbMetaService {
 
     public MyMetaService(Session rdbSession){
         super(rdbSession);
+    }
+
+    @Override
+    public Map<String, String> getSqlParserParameters() {
+        try {
+            return this.rdbSession.executeQuery(c -> {
+                try (Statement statement = c.createStatement(); ResultSet resultSet = statement.executeQuery("SELECT VERSION(), @@SESSION.sql_mode")) {
+                    if (!resultSet.next()) {
+                        return Map.of();
+                    }
+
+                    Map<String, String> parameters = new LinkedHashMap<>();
+                    String version = resultSet.getString(1);
+                    if (StringUtils.isNotBlank(version)) {
+                        parameters.put(SqlParserParameters.VERSION, version);
+                    }
+                    String sqlMode = resultSet.getString(2);
+                    parameters.put(SqlParserParameters.SQL_MODE, sqlMode == null ? "" : sqlMode);
+                    return parameters;
+                }
+            });
+        } catch (Exception e) {
+            log.warn("Get SQL parser parameters failed: {}", ExceptionUtils.getRootCauseMessage(e));
+            return Map.of();
+        }
     }
 
     @Override

@@ -1,0 +1,150 @@
+[split_dql_dameng_misc_system_packages_0_001]
+sql:
+select dbms_binary.binary_get_char(cast('41424344' as varbinary(16)), 0);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:34) /test/1/catalog1/dbms_binary/binary_get_char/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_misc_system_packages_0_002]
+sql:
+select dbms_binary.binary_get_varchar(cast('41424344' as varbinary(16)), 0, 4);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:37) /test/1/catalog1/dbms_binary/binary_get_varchar/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_misc_system_packages_0_003]
+sql:
+select dbms_binary.binary_get_tinyint(cast('7F00000000000000' as varbinary(16)), 0);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:37) /test/1/catalog1/dbms_binary/binary_get_tinyint/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_misc_system_packages_0_004]
+sql:
+select dbms_binary.binary_get_smallint(cast('007F000000000000' as varbinary(16)), 0);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:38) /test/1/catalog1/dbms_binary/binary_get_smallint/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_misc_system_packages_0_005]
+sql:
+select dbms_binary.binary_get_int(cast('0000007F00000000' as varbinary(16)), 0);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:33) /test/1/catalog1/dbms_binary/binary_get_int/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_misc_system_packages_0_006]
+sql:
+select dbms_binary.binary_get_bigint(cast('000000000000007F' as varbinary(16)), 0);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:36) /test/1/catalog1/dbms_binary/binary_get_bigint/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_misc_system_packages_0_007]
+sql:
+select dbms_binary.binary_get_float(cast('3F80000000000000' as varbinary(16)), 0);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:35) /test/1/catalog1/dbms_binary/binary_get_float/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_misc_system_packages_0_008]
+sql:
+select dbms_binary.binary_get_double(cast('3FF0000000000000' as varbinary(16)), 0);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:36) /test/1/catalog1/dbms_binary/binary_get_double/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_misc_system_packages_0_009]
+sql:
+select dbms_binary.binary_get_char(cast('41424344' as varbinary(16)), null);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:34) /test/1/catalog1/dbms_binary/binary_get_char/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_misc_system_packages_0_010]
+sql:
+select dbms_binary.binary_get_varchar(cast('41424344' as varbinary(16)), 1, 2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:37) /test/1/catalog1/dbms_binary/binary_get_varchar/",
+      "action": "CALL"
+    }
+  ]
+}
+

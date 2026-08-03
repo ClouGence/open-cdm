@@ -18,7 +18,7 @@ REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 BACKEND_DIR="$REPO_ROOT/backend"
 PACKAGE_BUILD_DIR="$SCRIPT_DIR/build"
 
-VERSION="$(grep '^cg\.clouddm\.main\.version=' "$BACKEND_DIR/gradle.properties" | cut -d'=' -f2 | tr -d '[:space:]')"
+VERSION="${CG_CLOUDDM_MAIN_VERSION:-$(grep '^cg\.clouddm\.main\.version=' "$BACKEND_DIR/gradle.properties" | cut -d'=' -f2 | tr -d '[:space:]')}"
 [ -z "$VERSION" ] && { echo "error: cg.clouddm.main.version not found"; exit 1; }
 
 DO_BUILD=0
@@ -126,9 +126,6 @@ fi
 
 # ---- Step 2: Docker ----
 if [ "$DO_DOCKER" -eq 1 ]; then
-  echo "=== Docker: generating built-in drivers ==="
-  "$BACKEND_DIR/gradlew" -p "$BACKEND_DIR" -Ptarget=all :pkg-builtin-drivers:generateBuiltinDrivers
-
   echo "=== Docker: starting image build ==="
   run_docker_build() {
     local platform_arg="$1"

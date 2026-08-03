@@ -1,5 +1,12 @@
 <template>
   <div class="management-layout">
+    <AppPageTabs
+      v-if="availableAuditTypes.length"
+      class="management-layout__tabs"
+      :model-value="activeAuditType"
+      :tabs="availableAuditTypes"
+      @change="handleAuditTypeChange"
+    />
     <div class="management-layout__body">
       <router-view />
     </div>
@@ -8,11 +15,18 @@
 
 <script>
 import { mapState } from 'vuex';
+import AppPageTabs from '@/components/layout/AppPageTabs';
 
 export default {
   name: 'ManagementLogsLayout',
+  components: {
+    AppPageTabs
+  },
   computed: {
     ...mapState(['myCatLog']),
+    activeAuditType() {
+      return this.$route.meta.managementTab || '';
+    },
     availableAuditTypes() {
       const tabs = [];
 
@@ -43,6 +57,12 @@ export default {
     }
   },
   methods: {
+    handleAuditTypeChange(name) {
+      const target = this.availableAuditTypes.find((tab) => tab.name === name);
+      if (target) {
+        this.$router.push(target.to);
+      }
+    },
     ensureValidAuditType(tabs) {
       if (!tabs.length) {
         return;
@@ -63,6 +83,12 @@ export default {
   flex-direction: column;
   height: 100%;
   min-height: 0;
+
+  &__tabs {
+    box-sizing: border-box;
+    flex-shrink: 0;
+    padding: 0 16px;
+  }
 
   &__body {
     flex: 1;

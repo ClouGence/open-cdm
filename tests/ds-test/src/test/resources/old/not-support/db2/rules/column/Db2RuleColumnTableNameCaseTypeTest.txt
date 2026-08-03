@@ -1,0 +1,415 @@
+[Db2RuleColumnTableNameCaseTypeTest#columnTableNameCaseType_1#001]
+rule: _rules/column/column-name-case-type.rule
+expect: true
+vars:
+  caseType: Upper case
+sql:
+alter table test_table alter column abc_test set data type int;
+----------
+[Db2RuleColumnTableNameCaseTypeTest#columnTableNameCaseType_1#002]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper case
+sql:
+create table test_table(abc_test int);
+----------
+[Db2RuleColumnTableNameCaseTypeTest#columnTableNameCaseType_1#003]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper case
+sql:
+alter table test_table add abc_test int;
+----------
+[Db2RuleColumnTableNameCaseTypeTest#columnTableNameCaseType_1#004]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper case
+sql:
+alter table test_table rename column c to abc_test;
+----------
+[Db2RuleColumnTableNameCaseTypeTest#columnTableNameCaseType_1#005]
+rule: _rules/column/column-name-case-type.rule
+expect: true
+vars:
+  caseType: Upper case
+sql:
+create table test_table(ABC_TEST int);
+----------
+[Db2RuleColumnTableNameCaseTypeTest#columnTableNameCaseType_1#006]
+rule: _rules/column/column-name-case-type.rule
+expect: true
+vars:
+  caseType: Upper case
+sql:
+alter table test_table add ABC_TEST int;
+----------
+[Db2RuleColumnTableNameCaseTypeTest#columnTableNameCaseType_1#007]
+rule: _rules/column/column-name-case-type.rule
+expect: true
+vars:
+  caseType: Upper case
+sql:
+alter table test_table rename column c to ABC_TEST;
+----------
+[Db2RuleColumnTableNameCaseTypeTest#columnTableNameCaseType_1#008]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper case
+sql:
+create table test_table(abcTest int);
+----------
+[Db2RuleColumnTableNameCaseTypeTest#columnTableNameCaseType_1#009]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper case
+sql:
+alter table test_table add abcTest int;
+----------
+[Db2RuleColumnTableNameCaseTypeTest#columnTableNameCaseType_1#010]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper case
+sql:
+alter table test_table rename column c to abcTest;
+----------
+[Db2RuleColumnTableNameCaseTypeTest#columnTableNameCaseType_1#011]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper case
+sql:
+create table test_table(AbcTest int);
+----------
+[Db2RuleColumnTableNameCaseTypeTest#columnTableNameCaseType_1#012]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper case
+sql:
+alter table test_table add AbcTest int;
+----------
+[Db2RuleColumnTableNameCaseTypeTest#columnTableNameCaseType_1#013]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper case
+sql:
+alter table test_table rename column c to AbcTest;
+----------
+[Db2RuleColumnTableNameCaseTypeTest#columnTableNameCaseType_2#001]
+rule: _rules/column/column-name-case-type.rule
+expect: true
+vars:
+  caseType: Lower case
+sql:
+alter table test_table alter column abc_test set data type int;
+----------
+[Db2RuleColumnTableNameCaseTypeTest#columnTableNameCaseType_2#002]
+rule: _rules/column/column-name-case-type.rule
+expect: true
+vars:
+  caseType: Lower case
+sql:
+create table test_table(abc_test int);
+----------
+[Db2RuleColumnTableNameCaseTypeTest#columnTableNameCaseType_2#003]
+rule: _rules/column/column-name-case-type.rule
+expect: true
+vars:
+  caseType: Lower case
+sql:
+alter table test_table add abc_test int;
+----------
+[Db2RuleColumnTableNameCaseTypeTest#columnTableNameCaseType_2#004]
+rule: _rules/column/column-name-case-type.rule
+expect: true
+vars:
+  caseType: Lower case
+sql:
+alter table test_table rename column c to abc_test;
+----------
+[Db2RuleColumnTableNameCaseTypeTest#columnTableNameCaseType_2#005]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower case
+sql:
+create table test_table(ABC_TEST int);
+----------
+[Db2RuleColumnTableNameCaseTypeTest#columnTableNameCaseType_2#006]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower case
+sql:
+alter table test_table add ABC_TEST int;
+----------
+[Db2RuleColumnTableNameCaseTypeTest#columnTableNameCaseType_2#007]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower case
+sql:
+alter table test_table rename column c to ABC_TEST;
+----------
+[Db2RuleColumnTableNameCaseTypeTest#columnTableNameCaseType_2#008]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower case
+sql:
+create table test_table(abcTest int);
+----------
+[Db2RuleColumnTableNameCaseTypeTest#columnTableNameCaseType_2#009]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower case
+sql:
+alter table test_table add abcTest int;
+----------
+[Db2RuleColumnTableNameCaseTypeTest#columnTableNameCaseType_2#010]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower case
+sql:
+alter table test_table rename column c to abcTest;
+----------
+[Db2RuleColumnTableNameCaseTypeTest#columnTableNameCaseType_2#011]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower case
+sql:
+create table test_table(AbcTest int);
+----------
+[Db2RuleColumnTableNameCaseTypeTest#columnTableNameCaseType_2#012]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower case
+sql:
+alter table test_table add AbcTest int;
+----------
+[Db2RuleColumnTableNameCaseTypeTest#columnTableNameCaseType_2#013]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower case
+sql:
+alter table test_table rename column c to AbcTest;
+----------
+[Db2RuleColumnTableNameCaseTypeTest#columnTableNameCaseType_3#001]
+rule: _rules/column/column-name-case-type.rule
+expect: true
+vars:
+  caseType: Lower camel case
+sql:
+alter table test_table alter column abc_test set data type int;
+----------
+[Db2RuleColumnTableNameCaseTypeTest#columnTableNameCaseType_3#002]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower camel case
+sql:
+create table test_table(abc_test int);
+----------
+[Db2RuleColumnTableNameCaseTypeTest#columnTableNameCaseType_3#003]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower camel case
+sql:
+alter table test_table add abc_test int;
+----------
+[Db2RuleColumnTableNameCaseTypeTest#columnTableNameCaseType_3#004]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower camel case
+sql:
+alter table test_table rename column c to abc_test;
+----------
+[Db2RuleColumnTableNameCaseTypeTest#columnTableNameCaseType_3#005]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower camel case
+sql:
+create table test_table(ABC_TEST int);
+----------
+[Db2RuleColumnTableNameCaseTypeTest#columnTableNameCaseType_3#006]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower camel case
+sql:
+alter table test_table add ABC_TEST int;
+----------
+[Db2RuleColumnTableNameCaseTypeTest#columnTableNameCaseType_3#007]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower camel case
+sql:
+alter table test_table rename column c to ABC_TEST;
+----------
+[Db2RuleColumnTableNameCaseTypeTest#columnTableNameCaseType_3#008]
+rule: _rules/column/column-name-case-type.rule
+expect: true
+vars:
+  caseType: Lower camel case
+sql:
+create table test_table(abcTest int);
+----------
+[Db2RuleColumnTableNameCaseTypeTest#columnTableNameCaseType_3#009]
+rule: _rules/column/column-name-case-type.rule
+expect: true
+vars:
+  caseType: Lower camel case
+sql:
+alter table test_table add abcTest int;
+----------
+[Db2RuleColumnTableNameCaseTypeTest#columnTableNameCaseType_3#010]
+rule: _rules/column/column-name-case-type.rule
+expect: true
+vars:
+  caseType: Lower camel case
+sql:
+alter table test_table rename column c to abcTest;
+----------
+[Db2RuleColumnTableNameCaseTypeTest#columnTableNameCaseType_3#011]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower camel case
+sql:
+create table test_table(AbcTest int);
+----------
+[Db2RuleColumnTableNameCaseTypeTest#columnTableNameCaseType_3#012]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower camel case
+sql:
+alter table test_table add AbcTest int;
+----------
+[Db2RuleColumnTableNameCaseTypeTest#columnTableNameCaseType_3#013]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower camel case
+sql:
+alter table test_table rename column c to AbcTest;
+----------
+[Db2RuleColumnTableNameCaseTypeTest#columnTableNameCaseType_4#001]
+rule: _rules/column/column-name-case-type.rule
+expect: true
+vars:
+  caseType: Upper camel case
+sql:
+alter table test_table alter column abc_test set data type int;
+----------
+[Db2RuleColumnTableNameCaseTypeTest#columnTableNameCaseType_4#002]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper camel case
+sql:
+create table test_table(abc_test int);
+----------
+[Db2RuleColumnTableNameCaseTypeTest#columnTableNameCaseType_4#003]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper camel case
+sql:
+alter table test_table add abc_test int;
+----------
+[Db2RuleColumnTableNameCaseTypeTest#columnTableNameCaseType_4#004]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper camel case
+sql:
+alter table test_table rename column c to abc_test;
+----------
+[Db2RuleColumnTableNameCaseTypeTest#columnTableNameCaseType_4#005]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper camel case
+sql:
+create table test_table(ABC_TEST int);
+----------
+[Db2RuleColumnTableNameCaseTypeTest#columnTableNameCaseType_4#006]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper camel case
+sql:
+alter table test_table add ABC_TEST int;
+----------
+[Db2RuleColumnTableNameCaseTypeTest#columnTableNameCaseType_4#007]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper camel case
+sql:
+alter table test_table rename column c to ABC_TEST;
+----------
+[Db2RuleColumnTableNameCaseTypeTest#columnTableNameCaseType_4#008]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper camel case
+sql:
+create table test_table(abcTest int);
+----------
+[Db2RuleColumnTableNameCaseTypeTest#columnTableNameCaseType_4#009]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper camel case
+sql:
+alter table test_table add abcTest int;
+----------
+[Db2RuleColumnTableNameCaseTypeTest#columnTableNameCaseType_4#010]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper camel case
+sql:
+alter table test_table rename column c to abcTest;
+----------
+[Db2RuleColumnTableNameCaseTypeTest#columnTableNameCaseType_4#011]
+rule: _rules/column/column-name-case-type.rule
+expect: true
+vars:
+  caseType: Upper camel case
+sql:
+create table test_table(AbcTest int);
+----------
+[Db2RuleColumnTableNameCaseTypeTest#columnTableNameCaseType_4#012]
+rule: _rules/column/column-name-case-type.rule
+expect: true
+vars:
+  caseType: Upper camel case
+sql:
+alter table test_table add AbcTest int;
+----------
+[Db2RuleColumnTableNameCaseTypeTest#columnTableNameCaseType_4#013]
+rule: _rules/column/column-name-case-type.rule
+expect: true
+vars:
+  caseType: Upper camel case
+sql:
+alter table test_table rename column c to AbcTest;

@@ -1,0 +1,22 @@
+[utl_http_payload_columns]
+sql:
+select URL_VALUE, METHOD_VALUE, HTTP_VERSION_VALUE, HEADER_NAME, HEADER_VALUE,
+       USERNAME_VALUE, PASSWORD_VALUE, PROXY_VALUE, WALLET_PATH, TIMEOUT_VALUE,
+       TEXT_DATA, RAW_DATA, READ_LENGTH
+from catalog1.app.http_payload
+expect:
+{
+  "URL_VALUE": ["/catalog1/app/http_payload/URL_VALUE/"],
+  "METHOD_VALUE": ["/catalog1/app/http_payload/METHOD_VALUE/"],
+  "HTTP_VERSION_VALUE": ["/catalog1/app/http_payload/HTTP_VERSION_VALUE/"],
+  "HEADER_NAME": ["/catalog1/app/http_payload/HEADER_NAME/"],
+  "HEADER_VALUE": ["/catalog1/app/http_payload/HEADER_VALUE/"],
+  "USERNAME_VALUE": ["/catalog1/app/http_payload/USERNAME_VALUE/"],
+  "PASSWORD_VALUE": ["/catalog1/app/http_payload/PASSWORD_VALUE/"],
+  "PROXY_VALUE": ["/catalog1/app/http_payload/PROXY_VALUE/"],
+  "WALLET_PATH": ["/catalog1/app/http_payload/WALLET_PATH/"],
+  "TIMEOUT_VALUE": ["/catalog1/app/http_payload/TIMEOUT_VALUE/"],
+  "TEXT_DATA": ["/catalog1/app/http_payload/TEXT_DATA/"],
+  "RAW_DATA": ["/catalog1/app/http_payload/RAW_DATA/"],
+  "READ_LENGTH": ["/catalog1/app/http_payload/READ_LENGTH/"]
+}

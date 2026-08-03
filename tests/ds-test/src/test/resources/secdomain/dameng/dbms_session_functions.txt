@@ -1,0 +1,38 @@
+[dbms_session_procedure_domains]
+sql:
+declare
+  context_list dbms_session.appctxtabtyp;
+  context_size int;
+begin
+  dbms_session.clear_all_context('CTX');
+  dbms_session.clear_context('CTX',null,'K');
+  dbms_session.list_context(context_list,context_size);
+  dbms_session.reset_package;
+  dbms_session.set_context('CTX','K','V');
+  dbms_session.close_database_link('L');
+  dbms_session.set_identifier('ID');
+end;
+expect:
+{
+  "contains": [
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_session"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_session"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_session"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_session"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_session"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_session"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_session"}
+  ]
+}
+----------
+[dbms_session_function_expression_no_domain]
+sql:
+declare
+  unique_id varchar(32767);
+  alive_value varchar(32767);
+begin
+  unique_id:=dbms_session.unique_session_id;
+  alive_value:=dbms_session.is_session_alive(unique_id);
+end;
+expect:
+{"size":0}

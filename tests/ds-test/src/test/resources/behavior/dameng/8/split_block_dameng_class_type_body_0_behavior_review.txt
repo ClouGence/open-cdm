@@ -1,0 +1,1501 @@
+[split_block_dameng_class_type_body_0_001_behavior_review]
+sql:
+create table class_source(id int primary key, name varchar(20));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/class_source/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_002_behavior_review]
+sql:
+insert into class_source values(1, 'A');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:24) /test/1/catalog1/schema1/class_source/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_003_behavior_review]
+sql:
+insert into class_source values(2, 'B');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:24) /test/1/catalog1/schema1/class_source/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_004_behavior_review]
+sql:
+create or replace class c_simple as
+  id int;
+  member function get_value return int;
+  static function add_two(a int, b int) return int;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:24~1:32) /test/1/catalog1/schema1/c_simple/",
+      "action" : "REPLACE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_005_behavior_review]
+sql:
+create or replace class body c_simple as
+  member function get_value return int as
+  begin
+    return id;
+  end;
+  static function add_two(a int, b int) return int as
+  begin
+    return a + b;
+  end;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:29~1:37) /test/1/catalog1/schema1/c_simple/",
+      "action" : "REPLACE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_006_behavior_review]
+sql:
+select c_simple(1).get_value();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/c_simple/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:19~1:28) /test/1/catalog1/schema1/get_value/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_007_behavior_review]
+sql:
+select c_simple.add_two(2, 3);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:23) /test/1/catalog1/c_simple/add_two/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_008_behavior_review]
+sql:
+alter class c_simple compile;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TYPE": [
+    {
+      "subject": "Type(1:12~1:20) /test/1/catalog1/schema1/c_simple/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_009_behavior_review]
+sql:
+create or replace class c_reader as
+  member function read_max return int;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:24~1:32) /test/1/catalog1/schema1/c_reader/",
+      "action" : "REPLACE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_010_behavior_review]
+sql:
+create or replace class body c_reader as
+  member function read_max return int as
+    v_value int;
+  begin
+    select max(id) into v_value from class_source;
+    return v_value;
+  end;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:29~1:37) /test/1/catalog1/schema1/c_reader/",
+      "action" : "REPLACE"
+    },
+    {
+      "subject": "Function(5:11~5:14) /test/1/catalog1/schema1/max/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(5:37~5:49) /test/1/catalog1/schema1/class_source/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_011_behavior_review]
+sql:
+select c_reader().read_max();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/c_reader/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:18~1:26) /test/1/catalog1/schema1/read_max/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_012_behavior_review]
+sql:
+create table class_object_table(id int primary key, obj c_simple);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/schema1/class_object_table/",
+      "action" : "CREATE",
+      "target" : "Type(1:56~1:64) /test/1/catalog1/schema1/c_simple/"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_013_behavior_review]
+sql:
+insert into class_object_table values(1, c_simple(4));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:30) /test/1/catalog1/schema1/class_object_table/",
+      "action" : "INSERT"
+    },
+    {
+      "subject": "Function(1:41~1:49) /test/1/catalog1/schema1/c_simple/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_014_behavior_review]
+sql:
+select id, t.obj.id, t.obj.get_value() from class_object_table t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:27~1:36) /test/1/catalog1/schema1/get_value/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:44~1:62) /test/1/catalog1/schema1/class_object_table/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_015_behavior_review]
+sql:
+declare
+  v_obj c_simple;
+begin
+  v_obj = new c_simple(5);
+  print v_obj.get_value();
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:8~2:16) /test/1/catalog1/schema1/c_simple/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(4:14~4:22) /test/1/catalog1/schema1/c_simple/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(5:14~5:23) /test/1/catalog1/c_simple/get_value/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_016_behavior_review]
+sql:
+drop class body c_reader;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:16~1:24) /test/1/catalog1/schema1/c_reader/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_017_behavior_review]
+sql:
+create or replace class body c_reader as
+  member function read_max return int as
+    v_value int;
+  begin
+    select max(id) into v_value from class_source;
+    return v_value;
+  end;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:29~1:37) /test/1/catalog1/schema1/c_reader/",
+      "action" : "REPLACE"
+    },
+    {
+      "subject": "Function(5:11~5:14) /test/1/catalog1/schema1/max/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(5:37~5:49) /test/1/catalog1/schema1/class_source/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_018_behavior_review]
+sql:
+select c_reader().read_max();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/c_reader/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:18~1:26) /test/1/catalog1/schema1/read_max/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_019_behavior_review]
+sql:
+create or replace class c_parent not final as
+  base_value int;
+  member function calculate return int;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:24~1:32) /test/1/catalog1/schema1/c_parent/",
+      "action" : "REPLACE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_020_behavior_review]
+sql:
+create or replace class body c_parent as
+  member function calculate return int as
+  begin
+    return base_value;
+  end;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:29~1:37) /test/1/catalog1/schema1/c_parent/",
+      "action" : "REPLACE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_021_behavior_review]
+sql:
+create or replace class c_child under c_parent as
+  child_value int;
+  overriding member function calculate return int;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:24~1:31) /test/1/catalog1/schema1/c_child/",
+      "action" : "REPLACE",
+      "target" : "Type(1:38~1:46) /test/1/catalog1/schema1/c_parent/"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_022_behavior_review]
+sql:
+create or replace class body c_child as
+  overriding member function calculate return int as
+  begin
+    return child_value;
+  end;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:29~1:36) /test/1/catalog1/schema1/c_child/",
+      "action" : "REPLACE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_023_behavior_review]
+sql:
+select c_child(6, 7).calculate();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/c_child/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:21~1:30) /test/1/catalog1/schema1/calculate/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_024_behavior_review]
+sql:
+declare
+  v_parent c_parent;
+  v_child c_child;
+begin
+  v_child = new c_child(8, 9);
+  v_parent = v_child;
+  print v_parent.calculate();
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:11~2:19) /test/1/catalog1/schema1/c_parent/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(3:10~3:17) /test/1/catalog1/schema1/c_child/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(5:16~5:23) /test/1/catalog1/schema1/c_child/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(7:17~7:26) /test/1/catalog1/c_parent/calculate/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_025_behavior_review]
+sql:
+create table class_inherit_table(id int primary key, obj c_parent);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:32) /test/1/catalog1/schema1/class_inherit_table/",
+      "action" : "CREATE",
+      "target" : "Type(1:57~1:65) /test/1/catalog1/schema1/c_parent/"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_026_behavior_review]
+sql:
+insert into class_inherit_table values(1, c_parent(10));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/schema1/class_inherit_table/",
+      "action" : "INSERT"
+    },
+    {
+      "subject": "Function(1:42~1:50) /test/1/catalog1/schema1/c_parent/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_027_behavior_review]
+sql:
+insert into class_inherit_table values(2, c_child(11, 12));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/schema1/class_inherit_table/",
+      "action" : "INSERT"
+    },
+    {
+      "subject": "Function(1:42~1:49) /test/1/catalog1/schema1/c_child/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_028_behavior_review]
+sql:
+select id, t.obj.base_value, t.obj.calculate() from class_inherit_table t order by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:35~1:44) /test/1/catalog1/schema1/calculate/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:52~1:71) /test/1/catalog1/schema1/class_inherit_table/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_029_behavior_review]
+sql:
+alter class c_child compile debug;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TYPE": [
+    {
+      "subject": "Type(1:12~1:19) /test/1/catalog1/schema1/c_child/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_030_behavior_review]
+sql:
+create or replace class c_abstract not final not instantiable as
+  value int;
+  not instantiable member function calculate return int;
+  member function stable return int;
+  static function twice(p_value int) return int;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:24~1:34) /test/1/catalog1/schema1/c_abstract/",
+      "action" : "REPLACE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_031_behavior_review]
+sql:
+create or replace class body c_abstract as
+  member function stable return int as
+  begin
+    return value;
+  end;
+  static function twice(p_value int) return int as
+  begin
+    return p_value * 2;
+  end;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:29~1:39) /test/1/catalog1/schema1/c_abstract/",
+      "action" : "REPLACE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_032_behavior_review]
+sql:
+select c_abstract.twice(5);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:23) /test/1/catalog1/c_abstract/twice/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_033_behavior_review]
+sql:
+create or replace class c_concrete under c_abstract as
+  extra int;
+  overriding member function calculate return int;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:24~1:34) /test/1/catalog1/schema1/c_concrete/",
+      "action" : "REPLACE",
+      "target" : "Type(1:41~1:51) /test/1/catalog1/schema1/c_abstract/"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_034_behavior_review]
+sql:
+create or replace class body c_concrete as
+  overriding member function calculate return int as
+  begin
+    return value + extra;
+  end;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:29~1:39) /test/1/catalog1/schema1/c_concrete/",
+      "action" : "REPLACE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_035_behavior_review]
+sql:
+select c_concrete(3, 4).calculate(), c_concrete(3, 4).stable();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/c_concrete/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:24~1:33) /test/1/catalog1/schema1/calculate/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:37~1:47) /test/1/catalog1/schema1/c_concrete/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:54~1:60) /test/1/catalog1/schema1/stable/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_036_behavior_review]
+sql:
+create or replace type t_complex as object(
+  rpart real,
+  ipart real,
+  member function plus(x t_complex) return t_complex,
+  member function total return real
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:23~1:32) /test/1/catalog1/schema1/t_complex/",
+      "action" : "REPLACE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_037_behavior_review]
+sql:
+create or replace type body t_complex as
+  member function plus(x t_complex) return t_complex is
+  begin
+    return t_complex(rpart + x.rpart, ipart + x.ipart);
+  end;
+  member function total return real is
+  begin
+    return rpart + ipart;
+  end;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:28~1:37) /test/1/catalog1/schema1/t_complex/",
+      "action" : "REPLACE"
+    },
+    {
+      "subject": "Function(4:11~4:20) /test/1/catalog1/schema1/t_complex/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_038_behavior_review]
+sql:
+create table type_object_table(id int primary key, value t_complex);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/schema1/type_object_table/",
+      "action" : "CREATE",
+      "target" : "Type(1:57~1:66) /test/1/catalog1/schema1/t_complex/"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_039_behavior_review]
+sql:
+insert into type_object_table values(1, t_complex(2, 3));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:29) /test/1/catalog1/schema1/type_object_table/",
+      "action" : "INSERT"
+    },
+    {
+      "subject": "Function(1:40~1:49) /test/1/catalog1/schema1/t_complex/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_040_behavior_review]
+sql:
+insert into type_object_table values(2, t_complex(4, 2).plus(t_complex(2, 3)));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:29) /test/1/catalog1/schema1/type_object_table/",
+      "action" : "INSERT"
+    },
+    {
+      "subject": "Function(1:40~1:49) /test/1/catalog1/schema1/t_complex/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:56~1:60) /test/1/catalog1/schema1/plus/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:61~1:70) /test/1/catalog1/schema1/t_complex/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_041_behavior_review]
+sql:
+select id, t.value.rpart, t.value.ipart, t.value.total() from type_object_table t order by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:49~1:54) /test/1/catalog1/schema1/total/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:62~1:79) /test/1/catalog1/schema1/type_object_table/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_042_behavior_review]
+sql:
+select id from type_object_table where value is of type(t_complex);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:15~1:32) /test/1/catalog1/schema1/type_object_table/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Type(1:56~1:65) /test/1/catalog1/schema1/t_complex/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_043_behavior_review]
+sql:
+alter type t_complex compile debug;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TYPE": [
+    {
+      "subject": "Type(1:11~1:20) /test/1/catalog1/schema1/t_complex/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_044_behavior_review]
+sql:
+drop type body t_complex;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:15~1:24) /test/1/catalog1/schema1/t_complex/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_045_behavior_review]
+sql:
+create or replace type body t_complex as
+  member function plus(x t_complex) return t_complex is
+  begin
+    return t_complex(rpart + x.rpart, ipart + x.ipart);
+  end;
+  member function total return real is
+  begin
+    return rpart + ipart;
+  end;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:28~1:37) /test/1/catalog1/schema1/t_complex/",
+      "action" : "REPLACE"
+    },
+    {
+      "subject": "Function(4:11~4:20) /test/1/catalog1/schema1/t_complex/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_046_behavior_review]
+sql:
+select t_complex(6, 7).total();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/t_complex/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:23~1:28) /test/1/catalog1/schema1/total/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_047_behavior_review]
+sql:
+create or replace type t_point as object(
+  x int,
+  y int,
+  constructor function t_point(p_value int) return self as result,
+  member function total return int
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:23~1:30) /test/1/catalog1/schema1/t_point/",
+      "action" : "REPLACE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_048_behavior_review]
+sql:
+create or replace type body t_point as
+  constructor function t_point(p_value int) return self as result is
+  begin
+    self.x = p_value;
+    self.y = p_value;
+    return self;
+  end;
+  member function total return int is
+  begin
+    return x + y;
+  end;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:28~1:35) /test/1/catalog1/schema1/t_point/",
+      "action" : "REPLACE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_049_behavior_review]
+sql:
+select t_point(5).x, t_point(5).y, t_point(5).total();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/t_point/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:21~1:28) /test/1/catalog1/schema1/t_point/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:35~1:42) /test/1/catalog1/schema1/t_point/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:46~1:51) /test/1/catalog1/schema1/total/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_050_behavior_review]
+sql:
+create table type_point_table(id int primary key, value t_point);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:29) /test/1/catalog1/schema1/type_point_table/",
+      "action" : "CREATE",
+      "target" : "Type(1:56~1:63) /test/1/catalog1/schema1/t_point/"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_051_behavior_review]
+sql:
+insert into type_point_table values(1, t_point(8));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:28) /test/1/catalog1/schema1/type_point_table/",
+      "action" : "INSERT"
+    },
+    {
+      "subject": "Function(1:39~1:46) /test/1/catalog1/schema1/t_point/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_052_behavior_review]
+sql:
+select id, t.value.x, t.value.y, t.value.total() from type_point_table t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:41~1:46) /test/1/catalog1/schema1/total/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:54~1:70) /test/1/catalog1/schema1/type_point_table/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_053_behavior_review]
+sql:
+alter type t_point compile;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TYPE": [
+    {
+      "subject": "Type(1:11~1:18) /test/1/catalog1/schema1/t_point/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_054_behavior_review]
+sql:
+create or replace type t_base as object(
+  value int,
+  member function calculate return int
+) not final;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:23~1:29) /test/1/catalog1/schema1/t_base/",
+      "action" : "REPLACE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_055_behavior_review]
+sql:
+create or replace type body t_base as
+  member function calculate return int is
+  begin
+    return value;
+  end;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:28~1:34) /test/1/catalog1/schema1/t_base/",
+      "action" : "REPLACE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_056_behavior_review]
+sql:
+create or replace type t_child under t_base(
+  extra int,
+  overriding member function calculate return int
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:23~1:30) /test/1/catalog1/schema1/t_child/",
+      "action" : "REPLACE",
+      "target" : "Type(1:37~1:43) /test/1/catalog1/schema1/t_base/"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_057_behavior_review]
+sql:
+create or replace type body t_child as
+  overriding member function calculate return int is
+  begin
+    return value + extra;
+  end;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:28~1:35) /test/1/catalog1/schema1/t_child/",
+      "action" : "REPLACE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_058_behavior_review]
+sql:
+select t_child(9, 10).calculate();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/t_child/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:22~1:31) /test/1/catalog1/schema1/calculate/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_059_behavior_review]
+sql:
+create table type_inherit_table(id int primary key, obj t_base);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/schema1/type_inherit_table/",
+      "action" : "CREATE",
+      "target" : "Type(1:56~1:62) /test/1/catalog1/schema1/t_base/"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_060_behavior_review]
+sql:
+insert into type_inherit_table values(1, t_base(11));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:30) /test/1/catalog1/schema1/type_inherit_table/",
+      "action" : "INSERT"
+    },
+    {
+      "subject": "Function(1:41~1:47) /test/1/catalog1/schema1/t_base/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_061_behavior_review]
+sql:
+insert into type_inherit_table values(2, t_child(12, 13));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:30) /test/1/catalog1/schema1/type_inherit_table/",
+      "action" : "INSERT"
+    },
+    {
+      "subject": "Function(1:41~1:48) /test/1/catalog1/schema1/t_child/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_062_behavior_review]
+sql:
+select id from type_inherit_table where obj is of type(t_child);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:15~1:33) /test/1/catalog1/schema1/type_inherit_table/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Type(1:55~1:62) /test/1/catalog1/schema1/t_child/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_063_behavior_review]
+sql:
+select id from type_inherit_table where obj is not of type(t_child);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:15~1:33) /test/1/catalog1/schema1/type_inherit_table/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Type(1:59~1:66) /test/1/catalog1/schema1/t_child/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_064_behavior_review]
+sql:
+alter type t_child compile debug;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TYPE": [
+    {
+      "subject": "Type(1:11~1:18) /test/1/catalog1/schema1/t_child/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_065_behavior_review]
+sql:
+drop table type_inherit_table;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:29) /test/1/catalog1/schema1/type_inherit_table/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_066_behavior_review]
+sql:
+drop table type_point_table;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:27) /test/1/catalog1/schema1/type_point_table/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_067_behavior_review]
+sql:
+drop table type_object_table;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:28) /test/1/catalog1/schema1/type_object_table/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_068_behavior_review]
+sql:
+drop table class_inherit_table;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:30) /test/1/catalog1/schema1/class_inherit_table/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_069_behavior_review]
+sql:
+drop table class_object_table;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:29) /test/1/catalog1/schema1/class_object_table/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_070_behavior_review]
+sql:
+drop type t_child;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:10~1:17) /test/1/catalog1/schema1/t_child/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_071_behavior_review]
+sql:
+drop type t_base;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:10~1:16) /test/1/catalog1/schema1/t_base/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_072_behavior_review]
+sql:
+drop type t_point;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:10~1:17) /test/1/catalog1/schema1/t_point/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_073_behavior_review]
+sql:
+drop type t_complex;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:10~1:19) /test/1/catalog1/schema1/t_complex/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_074_behavior_review]
+sql:
+drop class c_concrete;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:11~1:21) /test/1/catalog1/schema1/c_concrete/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_075_behavior_review]
+sql:
+drop class c_abstract;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:11~1:21) /test/1/catalog1/schema1/c_abstract/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_076_behavior_review]
+sql:
+drop class c_child;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:11~1:18) /test/1/catalog1/schema1/c_child/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_077_behavior_review]
+sql:
+drop class c_parent;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:11~1:19) /test/1/catalog1/schema1/c_parent/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_078_behavior_review]
+sql:
+drop class c_reader;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:11~1:19) /test/1/catalog1/schema1/c_reader/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_079_behavior_review]
+sql:
+drop class c_simple;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:11~1:19) /test/1/catalog1/schema1/c_simple/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_type_body_0_080_behavior_review]
+sql:
+drop table class_source;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:23) /test/1/catalog1/schema1/class_source/",
+      "action" : "DROP"
+    }
+  ]
+}

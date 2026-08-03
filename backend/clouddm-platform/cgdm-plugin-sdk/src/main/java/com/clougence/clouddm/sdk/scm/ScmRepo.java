@@ -22,9 +22,17 @@ import lombok.Setter;
 @Setter
 public class ScmRepo {
 
-    private String repoSpace;
-    private String repoName;
-    private String repoUrl;
-    private String repoHome;
-    private String branchName;
+    /** Provider-specific immutable repository identifier (GitLab project ID, Gitee full path). */
+    private String  repoId;
+    /** Current full path including all nested groups/namespaces. */
+    private String  repoPath;
+    private String  repoSpace;
+    private String  repoName;
+    private String  repoUrl;
+    private String  repoHome;
+    private String  branchName;
+    /** Immutable commit SHA selected for download/execution. */
+    private String  commitId;
+    private boolean archived;
+    private boolean empty;
 }

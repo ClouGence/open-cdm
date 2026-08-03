@@ -1,0 +1,27 @@
+SHOW LIBRARY STATUS;
+SHOW LIBRARY STATUS LIKE 'split_js%';
+SHOW LIBRARY STATUS WHERE Db = DATABASE();
+SHOW CREATE LIBRARY split_js_lib;
+SHOW CREATE LIBRARY split97lib.split_js_lib;
+SHOW MASTER LOGS;
+SHOW SLAVE HOSTS;
+------------------------------------------------------------------------------------------
+[METADATA]
+SHOW LIBRARY STATUS;
+----------
+[METADATA]
+SHOW LIBRARY STATUS LIKE 'split_js%';
+----------
+[METADATA]
+SHOW LIBRARY STATUS WHERE Db = DATABASE();
+----------
+[METADATA]
+SHOW CREATE LIBRARY split_js_lib;
+----------
+[METADATA]
+SHOW CREATE LIBRARY split97lib.split_js_lib;
+----------
+[LOG_READ]
+SHOW MASTER LOGS;
+----------
+[METADATA] SHOW SLAVE HOSTS;

@@ -1,0 +1,18 @@
+select checkpoint(0);
+select checkpoint(30);
+select checkpoint(100);
+checkpoint(0);
+checkpoint(30);
+checkpoint(100);
+------------------------------------------------------------------------------------------
+[SELECT] select checkpoint(0);
+----------
+[SELECT] select checkpoint(30);
+----------
+[SELECT] select checkpoint(100);
+----------
+[ADMIN] checkpoint(0);
+----------
+[ADMIN] checkpoint(30);
+----------
+[ADMIN] checkpoint(100);

@@ -1,0 +1,159 @@
+[split_dql_dameng_alert_job_metadata_flashback_0_007]
+sql:
+select dbms_metadata.get_ddl('TABLE', 'CODEX_DM8_META_BASE', 'SYSDBA');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:28) /test/1/catalog1/dbms_metadata/get_ddl/",
+      "action": "CALL",
+      "target": "Table(1:38~1:59) /test/1/catalog1/SYSDBA/CODEX_DM8_META_BASE/"
+    }
+  ]
+}
+----------
+[split_dql_dameng_alert_job_metadata_flashback_0_008]
+sql:
+select dbms_metadata.get_ddl('VIEW', 'CODEX_DM8_META_VIEW', 'SYSDBA');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:28) /test/1/catalog1/dbms_metadata/get_ddl/",
+      "action": "CALL",
+      "target": "View(1:37~1:58) /test/1/catalog1/SYSDBA/CODEX_DM8_META_VIEW/"
+    }
+  ]
+}
+----------
+[split_dql_dameng_alert_job_metadata_flashback_0_009]
+sql:
+select dbms_metadata.get_ddl('SEQUENCE', 'CODEX_DM8_META_SEQ', 'SYSDBA');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:28) /test/1/catalog1/dbms_metadata/get_ddl/",
+      "action": "CALL",
+      "target": "Sequence(1:41~1:61) /test/1/catalog1/SYSDBA/CODEX_DM8_META_SEQ/"
+    }
+  ]
+}
+----------
+[split_dql_dameng_alert_job_metadata_flashback_0_010]
+sql:
+select dbms_metadata.get_ddl('SYNONYM', 'CODEX_DM8_META_SYN', 'SYSDBA');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:28) /test/1/catalog1/dbms_metadata/get_ddl/",
+      "action": "CALL",
+      "target": "Synonym(1:40~1:60) /test/1/catalog1/SYSDBA/CODEX_DM8_META_SYN/"
+    }
+  ]
+}
+----------
+[split_dql_dameng_alert_job_metadata_flashback_0_011]
+sql:
+select dbms_metadata.get_ddl('PROCEDURE', 'CODEX_DM8_META_PROC', 'SYSDBA');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:28) /test/1/catalog1/dbms_metadata/get_ddl/",
+      "action": "CALL",
+      "target": "Procedure(1:42~1:63) /test/1/catalog1/SYSDBA/CODEX_DM8_META_PROC/"
+    }
+  ]
+}
+----------
+[split_dql_dameng_alert_job_metadata_flashback_0_012]
+sql:
+select dbms_metadata.get_ddl('FUNCTION', 'CODEX_DM8_META_FUNC', 'SYSDBA');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:28) /test/1/catalog1/dbms_metadata/get_ddl/",
+      "action": "CALL",
+      "target": "Function(1:41~1:62) /test/1/catalog1/SYSDBA/CODEX_DM8_META_FUNC/"
+    }
+  ]
+}
+----------
+[split_dql_dameng_alert_job_metadata_flashback_0_013]
+sql:
+select dbms_metadata.get_ddl('PACKAGE', 'CODEX_DM8_META_PKG', 'SYSDBA');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:28) /test/1/catalog1/dbms_metadata/get_ddl/",
+      "action": "CALL",
+      "target": "Package(1:40~1:60) /test/1/catalog1/SYSDBA/CODEX_DM8_META_PKG/"
+    }
+  ]
+}
+----------
+[split_dql_dameng_alert_job_metadata_flashback_0_014]
+sql:
+select dbms_metadata.get_ddl('INDEX', 'CODEX_DM8_META_CHILD_IDX', 'SYSDBA');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:28) /test/1/catalog1/dbms_metadata/get_ddl/",
+      "action": "CALL",
+      "target": "Index(1:38~1:64) /test/1/catalog1/SYSDBA/CODEX_DM8_META_CHILD_IDX/"
+    }
+  ]
+}
+----------
+[split_dql_dameng_alert_job_metadata_flashback_0_015]
+sql:
+select dbms_metadata.get_dependent_ddl('INDEX', 'CODEX_DM8_META_CHILD', 'SYSDBA');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:38) /test/1/catalog1/dbms_metadata/get_dependent_ddl/",
+      "action": "CALL",
+      "target": "Table(1:48~1:70) /test/1/catalog1/SYSDBA/CODEX_DM8_META_CHILD/"
+    }
+  ]
+}
+----------
+[split_dql_dameng_alert_job_metadata_flashback_0_016]
+sql:
+select dbms_metadata.get_granted_ddl('OBJECT_GRANT', 'PUBLIC', 10);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:36) /test/1/catalog1/dbms_metadata/get_granted_ddl/",
+      "action": "CALL",
+      "target": "UserOrRole(1:53~1:61) /test/1/PUBLIC/"
+    }
+  ]
+}

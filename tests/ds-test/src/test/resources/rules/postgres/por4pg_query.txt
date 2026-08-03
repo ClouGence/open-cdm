@@ -1,0 +1,559 @@
+[PgRuleQueryAllowAsTestFamily#selectAndWithTest_1#001]
+rule: _rules/query/query-allow-as.rule
+expect: false
+vars:
+  allow: false
+sql:
+select id as a, name from table_1
+----------
+[PgRuleQueryAllowAsTestFamily#selectAndWithTest_1#002]
+rule: _rules/query/query-allow-as.rule
+expect: false
+vars:
+  allow: false
+sql:
+select * from (select id as a, name from table_1) t
+----------
+[PgRuleQueryAllowAsTestFamily#selectAndWithTest_1#003]
+rule: _rules/query/query-allow-as.rule
+expect: false
+vars:
+  allow: false
+sql:
+select * from table_1 where id in (select id as a from table_1)
+----------
+[PgRuleQueryAllowAsTestFamily#selectAndWithTest_2#001]
+rule: _rules/query/query-allow-as.rule
+expect: true
+vars:
+  allow: false
+sql:
+select id, name from table_1
+----------
+[PgRuleQueryAllowAsTestFamily#selectAndWithTest_2#002]
+rule: _rules/query/query-allow-as.rule
+expect: true
+vars:
+  allow: false
+sql:
+select * from (select * from table_1) t
+----------
+[PgRuleQueryAllowAsTestFamily#selectAndWithTest_2#003]
+rule: _rules/query/query-allow-as.rule
+expect: true
+vars:
+  allow: false
+sql:
+select * from table_1 where id in (select id from table_1)
+----------
+[PgRuleQueryAllowAsTestFamily#selectAndWithTest_3#001]
+rule: _rules/query/query-allow-as.rule
+expect: true
+vars:
+  allow: true
+sql:
+select id as a, name from table_1
+----------
+[PgRuleQueryAllowAsTestFamily#selectAndWithTest_3#002]
+rule: _rules/query/query-allow-as.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from (select id as a, name from table_1) t
+----------
+[PgRuleQueryAllowAsTestFamily#selectAndWithTest_3#003]
+rule: _rules/query/query-allow-as.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from table_1 where id in (select id as a from table_1)
+----------
+[PgRuleQueryAllowAsTestFamily#selectAndWithTest_4#001]
+rule: _rules/query/query-allow-as.rule
+expect: true
+vars:
+  allow: true
+sql:
+select id, name from table_1
+----------
+[PgRuleQueryAllowAsTestFamily#selectAndWithTest_4#002]
+rule: _rules/query/query-allow-as.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from (select * from table_1) t
+----------
+[PgRuleQueryAllowAsTestFamily#selectAndWithTest_4#003]
+rule: _rules/query/query-allow-as.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from table_1 where id in (select id from table_1)
+----------
+[PgRuleQueryAllowCrossInnerTestFamily#joinTest_1#001]
+rule: _rules/query/query-allow-cross-inner.rule
+expect: false
+vars:
+  allow: false
+sql:
+select * from table_1 a join table_2 b on a.id = b.id
+----------
+[PgRuleQueryAllowCrossInnerTestFamily#joinTest_1#002]
+rule: _rules/query/query-allow-cross-inner.rule
+expect: false
+vars:
+  allow: false
+sql:
+select * from (select * from table_1 a join table_2 b on a.id = b.id) t
+----------
+[PgRuleQueryAllowCrossInnerTestFamily#joinTest_1#003]
+rule: _rules/query/query-allow-cross-inner.rule
+expect: false
+vars:
+  allow: false
+sql:
+select * from table_1 where id in (select id from table_1 a join table_2 b on a.id = b.id)
+----------
+[PgRuleQueryAllowCrossInnerTestFamily#joinTest_2#001]
+rule: _rules/query/query-allow-cross-inner.rule
+expect: true
+vars:
+  allow: false
+sql:
+select * from table_1 a left join table_2 b on a.id = b.id
+----------
+[PgRuleQueryAllowCrossInnerTestFamily#joinTest_2#002]
+rule: _rules/query/query-allow-cross-inner.rule
+expect: true
+vars:
+  allow: false
+sql:
+select * from (select * from table_1) t
+----------
+[PgRuleQueryAllowCrossInnerTestFamily#joinTest_2#003]
+rule: _rules/query/query-allow-cross-inner.rule
+expect: true
+vars:
+  allow: false
+sql:
+select * from table_1 where id in (select id from table_1)
+----------
+[PgRuleQueryAllowCrossInnerTestFamily#joinTest_3#001]
+rule: _rules/query/query-allow-cross-inner.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from table_1 a join table_2 b on a.id = b.id
+----------
+[PgRuleQueryAllowCrossInnerTestFamily#joinTest_3#002]
+rule: _rules/query/query-allow-cross-inner.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from (select * from table_1 a join table_2 b on a.id = b.id) t
+----------
+[PgRuleQueryAllowCrossInnerTestFamily#joinTest_3#003]
+rule: _rules/query/query-allow-cross-inner.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from table_1 where id in (select id from table_1 a join table_2 b on a.id = b.id)
+----------
+[PgRuleQueryAllowCrossInnerTestFamily#joinTest_4#001]
+rule: _rules/query/query-allow-cross-inner.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from table_1 a left join table_2 b on a.id = b.id
+----------
+[PgRuleQueryAllowCrossInnerTestFamily#joinTest_4#002]
+rule: _rules/query/query-allow-cross-inner.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from (select * from table_1) t
+----------
+[PgRuleQueryAllowCrossInnerTestFamily#joinTest_4#003]
+rule: _rules/query/query-allow-cross-inner.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from table_1 where id in (select id from table_1)
+----------
+[PgRuleQueryAllowJoinTestFamily#joinTest_1#001]
+rule: _rules/query/query-allow-join.rule
+expect: false
+vars:
+  allow: false
+sql:
+select * from table_1 a join table_2 b on a.id = b.id
+----------
+[PgRuleQueryAllowJoinTestFamily#joinTest_1#002]
+rule: _rules/query/query-allow-join.rule
+expect: false
+vars:
+  allow: false
+sql:
+select * from (select * from table_1 a join table_2 b on a.id = b.id) t
+----------
+[PgRuleQueryAllowJoinTestFamily#joinTest_1#003]
+rule: _rules/query/query-allow-join.rule
+expect: false
+vars:
+  allow: false
+sql:
+select * from table_1 where id in (select id from table_1 a join table_2 b on a.id = b.id)
+----------
+[PgRuleQueryAllowJoinTestFamily#joinTest_2#001]
+rule: _rules/query/query-allow-join.rule
+expect: true
+vars:
+  allow: false
+sql:
+select * from table_1
+----------
+[PgRuleQueryAllowJoinTestFamily#joinTest_2#002]
+rule: _rules/query/query-allow-join.rule
+expect: true
+vars:
+  allow: false
+sql:
+select * from (select * from table_1) t
+----------
+[PgRuleQueryAllowJoinTestFamily#joinTest_2#003]
+rule: _rules/query/query-allow-join.rule
+expect: true
+vars:
+  allow: false
+sql:
+select * from table_1 where id in (select id from table_1)
+----------
+[PgRuleQueryAllowJoinTestFamily#joinTest_3#001]
+rule: _rules/query/query-allow-join.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from table_1 a join table_2 b on a.id = b.id
+----------
+[PgRuleQueryAllowJoinTestFamily#joinTest_3#002]
+rule: _rules/query/query-allow-join.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from (select * from table_1 a join table_2 b on a.id = b.id) t
+----------
+[PgRuleQueryAllowJoinTestFamily#joinTest_3#003]
+rule: _rules/query/query-allow-join.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from table_1 where id in (select id from table_1 a join table_2 b on a.id = b.id)
+----------
+[PgRuleQueryAllowJoinTestFamily#joinTest_4#001]
+rule: _rules/query/query-allow-join.rule
+expect: true
+vars:
+  allow: true
+sql:
+select id, name from table_1
+----------
+[PgRuleQueryAllowJoinTestFamily#joinTest_4#002]
+rule: _rules/query/query-allow-join.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from (select * from table_1) t
+----------
+[PgRuleQueryAllowJoinTestFamily#joinTest_4#003]
+rule: _rules/query/query-allow-join.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from table_1 where id in (select id from table_1)
+----------
+[PgRuleQueryAllowSubQueryTestFamily#selectHasSelect_1#001]
+rule: _rules/query/query-allow-sub-query.rule
+expect: true
+vars:
+  allow: Any
+sql:
+select id, name from table1;
+----------
+[PgRuleQueryAllowSubQueryTestFamily#selectHasSelect_1#002]
+rule: _rules/query/query-allow-sub-query.rule
+expect: true
+vars:
+  allow: Any
+sql:
+select (select id from bb) as id1, name from table1;
+----------
+[PgRuleQueryAllowSubQueryTestFamily#selectHasSelect_1#003]
+rule: _rules/query/query-allow-sub-query.rule
+expect: true
+vars:
+  allow: Select,From,Where
+sql:
+select id, name from table1;
+----------
+[PgRuleQueryAllowSubQueryTestFamily#selectHasSelect_1#004]
+rule: _rules/query/query-allow-sub-query.rule
+expect: true
+vars:
+  allow: Select,From,Where
+sql:
+select (select id from bb) as id1, name from table1;
+----------
+[PgRuleQueryAllowSubQueryTestFamily#selectHasSelect_1#005]
+rule: _rules/query/query-allow-sub-query.rule
+expect: true
+vars:
+  allow: None
+sql:
+select id, name from table1;
+----------
+[PgRuleQueryAllowSubQueryTestFamily#selectHasSelect_1#006]
+rule: _rules/query/query-allow-sub-query.rule
+expect: false
+vars:
+  allow: None
+sql:
+select (select id from bb) as id1, name from table1;
+----------
+[PgRuleQueryAllowSubQueryTestFamily#fromHasSelect_1#002]
+rule: _rules/query/query-allow-sub-query.rule
+expect: true
+vars:
+  allow: Any
+sql:
+select t.id, t.name from (select id from bb) as t;
+----------
+[PgRuleQueryAllowSubQueryTestFamily#fromHasSelect_1#004]
+rule: _rules/query/query-allow-sub-query.rule
+expect: true
+vars:
+  allow: Select,From,Where
+sql:
+select t.id, t.name from (select id from bb) as t;
+----------
+[PgRuleQueryAllowSubQueryTestFamily#fromHasSelect_1#006]
+rule: _rules/query/query-allow-sub-query.rule
+expect: false
+vars:
+  allow: None
+sql:
+select t.id, t.name from (select id from bb) as t;
+----------
+[PgRuleQueryAllowSubQueryTestFamily#whereHasSelect_1#002]
+rule: _rules/query/query-allow-sub-query.rule
+expect: true
+vars:
+  allow: Any
+sql:
+select id, name from table1 where id in (select id from bb);
+----------
+[PgRuleQueryAllowSubQueryTestFamily#whereHasSelect_1#004]
+rule: _rules/query/query-allow-sub-query.rule
+expect: true
+vars:
+  allow: Select,From,Where
+sql:
+select id, name from table1 where id in (select id from bb);
+----------
+[PgRuleQueryAllowSubQueryTestFamily#whereHasSelect_1#006]
+rule: _rules/query/query-allow-sub-query.rule
+expect: false
+vars:
+  allow: None
+sql:
+select id, name from table1 where id in (select id from bb);
+----------
+[PgRuleQueryAllowUnionTestFamily#selectAndWithTest_1#001]
+rule: _rules/query/query-allow-union.rule
+expect: false
+vars:
+  allow: false
+sql:
+select * from table_1 union select * from table_2
+----------
+[PgRuleQueryAllowUnionTestFamily#selectAndWithTest_1#002]
+rule: _rules/query/query-allow-union.rule
+expect: false
+vars:
+  allow: false
+sql:
+select * from (select * from table_1 union select * from table_2) t
+----------
+[PgRuleQueryAllowUnionTestFamily#selectAndWithTest_1#003]
+rule: _rules/query/query-allow-union.rule
+expect: false
+vars:
+  allow: false
+sql:
+select id from table_3 where id in (select id from table_1 union select id from table_2)
+----------
+[PgRuleQueryAllowUnionTestFamily#selectAndWithTest_1#004]
+rule: _rules/query/query-allow-union.rule
+expect: true
+vars:
+  allow: false
+sql:
+select * from table_1
+----------
+[PgRuleQueryAllowUnionTestFamily#unionQueryTest_1#001]
+rule: _rules/query/query-allow-union.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from table_1 union select * from table_2
+----------
+[PgRuleQueryAllowUnionTestFamily#unionQueryTest_1#002]
+rule: _rules/query/query-allow-union.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from (select * from table_1 union select * from table_2) t
+----------
+[PgRuleQueryAllowUnionTestFamily#unionQueryTest_1#003]
+rule: _rules/query/query-allow-union.rule
+expect: true
+vars:
+  allow: true
+sql:
+select id from table_3 where id in (select id from table_1 union select id from table_2)
+----------
+[PgRuleQueryAllowUnionTestFamily#unionQueryTest_1#004]
+rule: _rules/query/query-allow-union.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from table_1
+----------
+[PgRuleQueryAllowWithTestFamily#selectAndWithTest_1#001]
+rule: _rules/query/query-allow-with.rule
+expect: true
+vars:
+  allow: false
+sql:
+select * from abc
+----------
+[PgRuleQueryAllowWithTestFamily#selectAndWithTest_1#002]
+rule: _rules/query/query-allow-with.rule
+expect: false
+vars:
+  allow: false
+sql:
+with one as (select 1) select * from table_1
+----------
+[PgRuleQueryAllowWithTestFamily#selectAndWithTest_2#001]
+rule: _rules/query/query-allow-with.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from abc
+----------
+[PgRuleQueryAllowWithTestFamily#selectAndWithTest_2#002]
+rule: _rules/query/query-allow-with.rule
+expect: true
+vars:
+  allow: true
+sql:
+with one as (select 1) select * from table_1
+----------
+[PgRuleQueryEmptyWhereTestFamily#emptyWhereTest_1#001]
+rule: _rules/query/query-empty-where.rule
+expect: false
+vars:
+  allow: false
+sql:
+select * from abc
+----------
+[PgRuleQueryEmptyWhereTestFamily#emptyWhereTest_1#002]
+rule: _rules/query/query-empty-where.rule
+expect: false
+vars:
+  allow: false
+sql:
+select * from table_1 where 1=1
+----------
+[PgRuleQueryEmptyWhereTestFamily#emptyWhereTest_1#003]
+rule: _rules/query/query-empty-where.rule
+expect: false
+vars:
+  allow: false
+sql:
+select * from table_1 where a=a
+----------
+[PgRuleQueryEmptyWhereTestFamily#emptyWhereTest_2#001]
+rule: _rules/query/query-empty-where.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from abc
+----------
+[PgRuleQueryEmptyWhereTestFamily#emptyWhereTest_2#002]
+rule: _rules/query/query-empty-where.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from table_1 where 1=1
+----------
+[PgRuleQueryEmptyWhereTestFamily#emptyWhereTest_2#003]
+rule: _rules/query/query-empty-where.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from table_1 where a=a
+----------
+[PgRuleQueryEmptyWhereTestFamily#emptyWhereTest_3#001]
+rule: _rules/query/query-empty-where.rule
+expect: false
+vars:
+  allow: false
+sql:
+select * from table_1 where 1>1
+----------
+[PgRuleQueryEmptyWhereTestFamily#emptyWhereTest_3#002]
+rule: _rules/query/query-empty-where.rule
+expect: true
+vars:
+  allow: false
+sql:
+select * from table_1 where 1=1 and a = '123'
+----------
+[PgRuleQueryEmptyWhereTestFamily#emptyWhereTest_4#001]
+rule: _rules/query/query-empty-where.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from table_1 where 1>1
+----------
+[PgRuleQueryEmptyWhereTestFamily#emptyWhereTest_4#002]
+rule: _rules/query/query-empty-where.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from table_1 where 1=1 and a = '123'

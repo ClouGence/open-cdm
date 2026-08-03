@@ -1,0 +1,117 @@
+BGREWRITEAOF
+BGSAVE SCHEDULE
+BGSAVE
+DBSIZE
+FAILOVER
+FAILOVER TO 192.168.34.555 3234
+FAILOVER TO 192.168.34.555 3234 force
+FAILOVER TO 192.168.34.555 3234 force abort
+FAILOVER TO 192.168.34.555 3234 force abort timeout 11111
+FLUSHALL ASYNC
+FLUSHALL SYNC
+FLUSHALL
+FLUSHDB
+FLUSHDB ASYNC
+FLUSHDB SYNC
+LASTSAVE
+LOLWUT VERSION 5
+LOLWUT
+MONITOR
+PSYNC replicationid 234
+REPLICAOF 192.168.34.555 3234
+REPLICAOF NO ONE
+role
+save
+shutdown
+shutdown nosave
+shutdown save
+shutdown save now
+shutdown save now
+shutdown save now force abort
+SLAVEOF 192.168.34.555 3234
+SLAVEOF NO ONE
+SLOWLOG GET
+SLOWLOG GET 111
+SLOWLOG LEN
+SLOWLOG RESET
+SWAPDB 0 1
+SYNC
+TIME
+------------------------------------------------------------------------------------------
+[MAINTAIN_LOG] BGREWRITEAOF
+----------
+[ADMIN] BGSAVE SCHEDULE
+----------
+[ADMIN] BGSAVE
+----------
+[SELECT] DBSIZE
+----------
+[ALTER_REPLICATION] FAILOVER
+----------
+[ALTER_REPLICATION] FAILOVER TO 192.168.34.555 3234
+----------
+[ALTER_REPLICATION] FAILOVER TO 192.168.34.555 3234 force
+----------
+[ALTER_REPLICATION] FAILOVER TO 192.168.34.555 3234 force abort
+----------
+[ALTER_REPLICATION] FAILOVER TO 192.168.34.555 3234 force abort timeout 11111
+----------
+[DELETE|UNSAFE] FLUSHALL ASYNC
+----------
+[DELETE|UNSAFE] FLUSHALL SYNC
+----------
+[DELETE|UNSAFE] FLUSHALL
+----------
+[DELETE|UNSAFE] FLUSHDB
+----------
+[DELETE|UNSAFE] FLUSHDB ASYNC
+----------
+[DELETE|UNSAFE] FLUSHDB SYNC
+----------
+[PERFORMANCE] LASTSAVE
+----------
+[SELECT] LOLWUT VERSION 5
+----------
+[SELECT] LOLWUT
+----------
+[PERFORMANCE] MONITOR
+----------
+[ADMIN_REPLICATION] PSYNC replicationid 234
+----------
+[ALTER_REPLICATION] REPLICAOF 192.168.34.555 3234
+----------
+[ALTER_REPLICATION] REPLICAOF NO ONE
+----------
+[METADATA] role
+----------
+[ADMIN] save
+----------
+[UNSAFE] shutdown
+----------
+[UNSAFE] shutdown nosave
+----------
+[UNSAFE] shutdown save
+----------
+[UNSAFE] shutdown save now
+----------
+[UNSAFE] shutdown save now
+----------
+[UNSAFE] shutdown save now force abort
+----------
+[ALTER_REPLICATION] SLAVEOF 192.168.34.555 3234
+----------
+[ALTER_REPLICATION] SLAVEOF NO ONE
+----------
+[LOG_READ] SLOWLOG GET
+----------
+[LOG_READ] SLOWLOG GET 111
+----------
+[LOG_READ] SLOWLOG LEN
+----------
+[MAINTAIN_LOG] SLOWLOG RESET
+----------
+[UNSAFE] SWAPDB 0 1
+----------
+[ADMIN_REPLICATION] SYNC
+----------
+[SELECT] TIME

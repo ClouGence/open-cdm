@@ -1,0 +1,761 @@
+[split_dql_dameng_regexp_signature_combinations_0_001_behavior_review]
+sql:
+SELECT REGEXP_COUNT('AbCdAb','ab');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/REGEXP_COUNT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_regexp_signature_combinations_0_002_behavior_review]
+sql:
+SELECT REGEXP_COUNT('AbCdAb','ab',2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/REGEXP_COUNT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_regexp_signature_combinations_0_003_behavior_review]
+sql:
+SELECT REGEXP_COUNT('AbCdAb','ab',1,'i');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/REGEXP_COUNT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_regexp_signature_combinations_0_004_behavior_review]
+sql:
+SELECT REGEXP_COUNT('AbCd','abcd',1,'c'),REGEXP_COUNT('AbCd','abcd',1,'i');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/REGEXP_COUNT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:41~1:53) /test/1/catalog1/schema1/REGEXP_COUNT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_regexp_signature_combinations_0_005_behavior_review]
+sql:
+SELECT REGEXP_COUNT('ab'||CHR(10)||'ac','^a.',1,'m');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/REGEXP_COUNT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:26~1:29) /test/1/catalog1/schema1/CHR/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_regexp_signature_combinations_0_006_behavior_review]
+sql:
+SELECT REGEXP_COUNT('a'||CHR(10)||'d','a.d',1,'n');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/REGEXP_COUNT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:25~1:28) /test/1/catalog1/schema1/CHR/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_regexp_signature_combinations_0_007_behavior_review]
+sql:
+SELECT REGEXP_COUNT('abcd','a b c d',1,'x');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/REGEXP_COUNT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_regexp_signature_combinations_0_008_behavior_review]
+sql:
+SELECT REGEXP_COUNT(NULL,'a'),REGEXP_COUNT('a',NULL),REGEXP_COUNT('a','a',NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/REGEXP_COUNT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:30~1:42) /test/1/catalog1/schema1/REGEXP_COUNT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:53~1:65) /test/1/catalog1/schema1/REGEXP_COUNT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_regexp_signature_combinations_0_009_behavior_review]
+sql:
+SELECT REGEXP_LIKE('DM database V8','dm');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/REGEXP_LIKE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_regexp_signature_combinations_0_010_behavior_review]
+sql:
+SELECT REGEXP_LIKE('DM database V8','dm','c'),REGEXP_LIKE('DM database V8','dm','i');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/REGEXP_LIKE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:46~1:57) /test/1/catalog1/schema1/REGEXP_LIKE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_regexp_signature_combinations_0_011_behavior_review]
+sql:
+SELECT REGEXP_LIKE(NULL,'a'),REGEXP_LIKE('a',NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/REGEXP_LIKE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:29~1:40) /test/1/catalog1/schema1/REGEXP_LIKE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_regexp_signature_combinations_0_012_behavior_review]
+sql:
+SELECT REGEXP_INSTR('abcabc','bc');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/REGEXP_INSTR/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_regexp_signature_combinations_0_013_behavior_review]
+sql:
+SELECT REGEXP_INSTR('abcabc','bc',3);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/REGEXP_INSTR/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_regexp_signature_combinations_0_014_behavior_review]
+sql:
+SELECT REGEXP_INSTR('abcabc','bc',1,2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/REGEXP_INSTR/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_regexp_signature_combinations_0_015_behavior_review]
+sql:
+SELECT REGEXP_INSTR('abcabc','bc',1,2,1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/REGEXP_INSTR/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_regexp_signature_combinations_0_016_behavior_review]
+sql:
+SELECT REGEXP_INSTR('AbCaBc','bc',1,2,0,'i');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/REGEXP_INSTR/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_regexp_signature_combinations_0_017_behavior_review]
+sql:
+SELECT REGEXP_INSTR('123%4567890','(123)%(4(56)(78))',1,1,0,'i',2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/REGEXP_INSTR/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_regexp_signature_combinations_0_018_behavior_review]
+sql:
+SELECT REGEXP_INSTR('abc','(a)',1,1,0,'c',0),REGEXP_INSTR('abc','(a)',1,1,0,'c',9);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/REGEXP_INSTR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:45~1:57) /test/1/catalog1/schema1/REGEXP_INSTR/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_regexp_signature_combinations_0_019_behavior_review]
+sql:
+SELECT REGEXP_INSTR(NULL,'a'),REGEXP_INSTR('a',NULL),REGEXP_INSTR('a','a',NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/REGEXP_INSTR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:30~1:42) /test/1/catalog1/schema1/REGEXP_INSTR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:53~1:65) /test/1/catalog1/schema1/REGEXP_INSTR/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_regexp_signature_combinations_0_020_behavior_review]
+sql:
+SELECT REGEXP_INSTR('a','a',1,NULL),REGEXP_INSTR('a','a',1,1,NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/REGEXP_INSTR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:36~1:48) /test/1/catalog1/schema1/REGEXP_INSTR/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_regexp_signature_combinations_0_021_behavior_review]
+sql:
+SELECT REGEXP_SUBSTR('abcabc','bc');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:20) /test/1/catalog1/schema1/REGEXP_SUBSTR/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_regexp_signature_combinations_0_022_behavior_review]
+sql:
+SELECT REGEXP_SUBSTR('abcabc','bc',3);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:20) /test/1/catalog1/schema1/REGEXP_SUBSTR/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_regexp_signature_combinations_0_023_behavior_review]
+sql:
+SELECT REGEXP_SUBSTR('abcabc','bc',1,2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:20) /test/1/catalog1/schema1/REGEXP_SUBSTR/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_regexp_signature_combinations_0_024_behavior_review]
+sql:
+SELECT REGEXP_SUBSTR('AbCaBc','bc',1,2,'i');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:20) /test/1/catalog1/schema1/REGEXP_SUBSTR/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_regexp_signature_combinations_0_025_behavior_review]
+sql:
+SELECT REGEXP_SUBSTR('500 DM8 DATABASE, SHANG HAI, CN',', ([^,]+),',5,1,'i',1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:20) /test/1/catalog1/schema1/REGEXP_SUBSTR/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_regexp_signature_combinations_0_026_behavior_review]
+sql:
+SELECT REGEXP_SUBSTR('abc','(a)',1,1,'c',0),REGEXP_SUBSTR('abc','(a)',1,1,'c',9);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:20) /test/1/catalog1/schema1/REGEXP_SUBSTR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:44~1:57) /test/1/catalog1/schema1/REGEXP_SUBSTR/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_regexp_signature_combinations_0_027_behavior_review]
+sql:
+SELECT REGEXP_SUBSTR(NULL,'a'),REGEXP_SUBSTR('a',NULL),REGEXP_SUBSTR('a','a',NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:20) /test/1/catalog1/schema1/REGEXP_SUBSTR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:31~1:44) /test/1/catalog1/schema1/REGEXP_SUBSTR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:55~1:68) /test/1/catalog1/schema1/REGEXP_SUBSTR/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_regexp_signature_combinations_0_028_behavior_review]
+sql:
+SELECT REGEXP_SUBSTR('a','a',1,NULL),REGEXP_SUBSTR('a','a',1,1,'c',NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:20) /test/1/catalog1/schema1/REGEXP_SUBSTR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:37~1:50) /test/1/catalog1/schema1/REGEXP_SUBSTR/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_regexp_signature_combinations_0_029_behavior_review]
+sql:
+SELECT REGEXP_REPLACE('abcabc','bc');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:21) /test/1/catalog1/schema1/REGEXP_REPLACE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_regexp_signature_combinations_0_030_behavior_review]
+sql:
+SELECT REGEXP_REPLACE('abcabc','bc','XY');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:21) /test/1/catalog1/schema1/REGEXP_REPLACE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_regexp_signature_combinations_0_031_behavior_review]
+sql:
+SELECT REGEXP_REPLACE('abcabc','bc','XY',3);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:21) /test/1/catalog1/schema1/REGEXP_REPLACE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_regexp_signature_combinations_0_032_behavior_review]
+sql:
+SELECT REGEXP_REPLACE('abcabc','bc','XY',1,2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:21) /test/1/catalog1/schema1/REGEXP_REPLACE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_regexp_signature_combinations_0_033_behavior_review]
+sql:
+SELECT REGEXP_REPLACE('AbCaBc','bc','XY',1,0,'i');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:21) /test/1/catalog1/schema1/REGEXP_REPLACE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_regexp_signature_combinations_0_034_behavior_review]
+sql:
+SELECT REGEXP_REPLACE('www1234xxxx3q','([[:alpha:]]+)','AAA\1');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:21) /test/1/catalog1/schema1/REGEXP_REPLACE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_regexp_signature_combinations_0_035_behavior_review]
+sql:
+SELECT REGEXP_REPLACE(NULL,'a','x'),REGEXP_REPLACE('a',NULL,'x');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:21) /test/1/catalog1/schema1/REGEXP_REPLACE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:36~1:50) /test/1/catalog1/schema1/REGEXP_REPLACE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_regexp_signature_combinations_0_036_behavior_review]
+sql:
+SELECT REGEXP_REPLACE('a','a','x',NULL),REGEXP_REPLACE('a','a','x',1,NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:21) /test/1/catalog1/schema1/REGEXP_REPLACE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:40~1:54) /test/1/catalog1/schema1/REGEXP_REPLACE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_regexp_signature_combinations_0_037_behavior_review]
+sql:
+SELECT REGEXP_LIKE('ab'||CHR(10)||'ac','^a.','m'),REGEXP_LIKE('a'||CHR(10)||'d','a.d','n'),REGEXP_LIKE('abcd','a b c d','x');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/REGEXP_LIKE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:25~1:28) /test/1/catalog1/schema1/CHR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:50~1:61) /test/1/catalog1/schema1/REGEXP_LIKE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:67~1:70) /test/1/catalog1/schema1/CHR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:91~1:102) /test/1/catalog1/schema1/REGEXP_LIKE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_regexp_signature_combinations_0_038_behavior_review]
+sql:
+SELECT REGEXP_INSTR('ab'||CHR(10)||'ac','^a.',1,2,0,'m'),REGEXP_INSTR('a'||CHR(10)||'d','a.d',1,1,0,'n'),REGEXP_INSTR('abcd','a b c d',1,1,0,'x');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/REGEXP_INSTR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:26~1:29) /test/1/catalog1/schema1/CHR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:57~1:69) /test/1/catalog1/schema1/REGEXP_INSTR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:75~1:78) /test/1/catalog1/schema1/CHR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:105~1:117) /test/1/catalog1/schema1/REGEXP_INSTR/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_regexp_signature_combinations_0_039_behavior_review]
+sql:
+SELECT REGEXP_SUBSTR('ab'||CHR(10)||'ac','^a.',1,2,'m'),REGEXP_SUBSTR('a'||CHR(10)||'d','a.d',1,1,'n'),REGEXP_SUBSTR('abcd','a b c d',1,1,'x');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:20) /test/1/catalog1/schema1/REGEXP_SUBSTR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:27~1:30) /test/1/catalog1/schema1/CHR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:56~1:69) /test/1/catalog1/schema1/REGEXP_SUBSTR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:75~1:78) /test/1/catalog1/schema1/CHR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:103~1:116) /test/1/catalog1/schema1/REGEXP_SUBSTR/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_regexp_signature_combinations_0_040_behavior_review]
+sql:
+SELECT REGEXP_REPLACE('ab'||CHR(10)||'ac','^a.','X',1,0,'m'),REGEXP_REPLACE('a'||CHR(10)||'d','a.d','X',1,0,'n'),REGEXP_REPLACE('abcd','a b c d','X',1,0,'x');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:21) /test/1/catalog1/schema1/REGEXP_REPLACE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:28~1:31) /test/1/catalog1/schema1/CHR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:61~1:75) /test/1/catalog1/schema1/REGEXP_REPLACE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:81~1:84) /test/1/catalog1/schema1/CHR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:113~1:127) /test/1/catalog1/schema1/REGEXP_REPLACE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_regexp_signature_combinations_0_041_behavior_review]
+sql:
+SELECT REGEXP_SUBSTR(CAST('abcabc' AS CLOB),'bc',1,2,'c',0);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:20) /test/1/catalog1/schema1/REGEXP_SUBSTR/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_regexp_signature_combinations_0_042_behavior_review]
+sql:
+SELECT REGEXP_REPLACE(CAST('abcabc' AS CLOB),'bc','XY',1,0,'c');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:21) /test/1/catalog1/schema1/REGEXP_REPLACE/",
+      "action": "CALL"
+    }
+  ]
+}

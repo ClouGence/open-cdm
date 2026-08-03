@@ -1,0 +1,136 @@
+-- FUNC-0326 GET_SYSTEM_CHANGE_NUMBER block zero argument
+declare
+  current_lsn bigint;
+begin
+  current_lsn:=DBMS_FLASHBACK.GET_SYSTEM_CHANGE_NUMBER;
+end;
+/
+-- FUNC-0323 DISABLE zero argument idempotent call
+begin
+  DBMS_FLASHBACK.DISABLE;
+end;
+/
+-- FUNC-0324 ENABLE_AT_SYSTEM_CHANGE_NUMBER current positional and disable
+declare
+  current_lsn bigint;
+begin
+  current_lsn:=DBMS_FLASHBACK.GET_SYSTEM_CHANGE_NUMBER;
+  DBMS_FLASHBACK.ENABLE_AT_SYSTEM_CHANGE_NUMBER(current_lsn);
+  DBMS_FLASHBACK.DISABLE;
+end;
+/
+-- FUNC-0324 ENABLE_AT_SYSTEM_CHANGE_NUMBER historical positional and query
+declare
+  snapshot_value varchar(30);
+begin
+  DBMS_FLASHBACK.ENABLE_AT_SYSTEM_CHANGE_NUMBER(
+    (select snapshot_lsn from CODEX_DBMS_FLASHBACK_CTL)
+  );
+  select value_text into snapshot_value
+  from CODEX_DBMS_FLASHBACK_BASE where id=1;
+  DBMS_FLASHBACK.DISABLE;
+end;
+/
+-- FUNC-0324 ENABLE_AT_SYSTEM_CHANGE_NUMBER named argument
+declare
+  current_lsn bigint;
+begin
+  current_lsn:=DBMS_FLASHBACK.GET_SYSTEM_CHANGE_NUMBER;
+  DBMS_FLASHBACK.ENABLE_AT_SYSTEM_CHANGE_NUMBER(QUERY_SCN=>current_lsn);
+  DBMS_FLASHBACK.DISABLE;
+end;
+/
+-- FUNC-0325 ENABLE_AT_TIME recent positional and disable
+begin
+  DBMS_FLASHBACK.ENABLE_AT_TIME(cast(sysdate - 1/86400 as timestamp));
+  DBMS_FLASHBACK.DISABLE;
+end;
+/
+-- FUNC-0325 ENABLE_AT_TIME historical positional and query
+declare
+  snapshot_value varchar(30);
+begin
+  DBMS_FLASHBACK.ENABLE_AT_TIME(
+    (select snapshot_time from CODEX_DBMS_FLASHBACK_CTL)
+  );
+  select value_text into snapshot_value
+  from CODEX_DBMS_FLASHBACK_BASE where id=1;
+  DBMS_FLASHBACK.DISABLE;
+end;
+/
+-- FUNC-0325 ENABLE_AT_TIME named argument
+begin
+  DBMS_FLASHBACK.ENABLE_AT_TIME(
+    QUERY_TIME=>cast(sysdate - 1/86400 as timestamp)
+  );
+  DBMS_FLASHBACK.DISABLE;
+end;
+/
+------------------------------------------------------------------------------------------
+[BLOCK(PROGRAM_CONTROL)] -- FUNC-0326 GET_SYSTEM_CHANGE_NUMBER block zero argument
+declare
+  current_lsn bigint;
+begin
+  current_lsn:=DBMS_FLASHBACK.GET_SYSTEM_CHANGE_NUMBER;
+end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-0323 DISABLE zero argument idempotent call
+begin
+  DBMS_FLASHBACK.DISABLE;
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0324 ENABLE_AT_SYSTEM_CHANGE_NUMBER current positional and disable
+declare
+  current_lsn bigint;
+begin
+  current_lsn:=DBMS_FLASHBACK.GET_SYSTEM_CHANGE_NUMBER;
+  DBMS_FLASHBACK.ENABLE_AT_SYSTEM_CHANGE_NUMBER(current_lsn);
+  DBMS_FLASHBACK.DISABLE;
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ,SELECT)] -- FUNC-0324 ENABLE_AT_SYSTEM_CHANGE_NUMBER historical positional and query
+declare
+  snapshot_value varchar(30);
+begin
+  DBMS_FLASHBACK.ENABLE_AT_SYSTEM_CHANGE_NUMBER(
+    (select snapshot_lsn from CODEX_DBMS_FLASHBACK_CTL)
+  );
+  select value_text into snapshot_value
+  from CODEX_DBMS_FLASHBACK_BASE where id=1;
+  DBMS_FLASHBACK.DISABLE;
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0324 ENABLE_AT_SYSTEM_CHANGE_NUMBER named argument
+declare
+  current_lsn bigint;
+begin
+  current_lsn:=DBMS_FLASHBACK.GET_SYSTEM_CHANGE_NUMBER;
+  DBMS_FLASHBACK.ENABLE_AT_SYSTEM_CHANGE_NUMBER(QUERY_SCN=>current_lsn);
+  DBMS_FLASHBACK.DISABLE;
+end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-0325 ENABLE_AT_TIME recent positional and disable
+begin
+  DBMS_FLASHBACK.ENABLE_AT_TIME(cast(sysdate - 1/86400 as timestamp));
+  DBMS_FLASHBACK.DISABLE;
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ,SELECT)] -- FUNC-0325 ENABLE_AT_TIME historical positional and query
+declare
+  snapshot_value varchar(30);
+begin
+  DBMS_FLASHBACK.ENABLE_AT_TIME(
+    (select snapshot_time from CODEX_DBMS_FLASHBACK_CTL)
+  );
+  select value_text into snapshot_value
+  from CODEX_DBMS_FLASHBACK_BASE where id=1;
+  DBMS_FLASHBACK.DISABLE;
+end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-0325 ENABLE_AT_TIME named argument
+begin
+  DBMS_FLASHBACK.ENABLE_AT_TIME(
+    QUERY_TIME=>cast(sysdate - 1/86400 as timestamp)
+  );
+  DBMS_FLASHBACK.DISABLE;
+end;

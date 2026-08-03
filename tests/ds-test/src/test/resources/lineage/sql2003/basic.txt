@@ -1,0 +1,7 @@
+[select_column]
+sql:
+SELECT column1 FROM schema2.table1
+expect:
+{
+  "column1" : [ "/catalog1/schema2/table1/column1/" ]
+}

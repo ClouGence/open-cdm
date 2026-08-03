@@ -1,0 +1,53 @@
+[dbms_scheduler_package_calls_no_static_lineage]
+sql:
+declare v varchar2(32767); next_date timestamp with time zone; begin DBMS_SCHEDULER.ADD_JOB_EMAIL_NOTIFICATION(JOB_NAME=>'CODEX_SCHED_MAIL',RECIPIENTS=>'nobody@example.invalid',SENDER=>'sender@example.invalid'); end;
+/
+declare v varchar2(32767); next_date timestamp with time zone; begin DBMS_SCHEDULER.CREATE_JOB(JOB_NAME=>'CODEX_SCHED_INLINE',JOB_TYPE=>'PLSQL_BLOCK',JOB_ACTION=>'begin null; end;',ENABLED=>FALSE,AUTO_DROP=>FALSE); end;
+/
+declare v varchar2(32767); next_date timestamp with time zone; begin DBMS_SCHEDULER.CREATE_JOB(JOB_NAME=>'CODEX_SCHED_NAMED',PROGRAM_NAME=>'CODEX_SCHED_P0',SCHEDULE_NAME=>'CODEX_SCHED_S',ENABLED=>FALSE,AUTO_DROP=>FALSE); end;
+/
+declare v varchar2(32767); next_date timestamp with time zone; begin DBMS_SCHEDULER.CREATE_JOB(JOB_NAME=>'CODEX_SCHED_ARG',PROGRAM_NAME=>'CODEX_SCHED_P2',START_DATE=>NULL,REPEAT_INTERVAL=>NULL,ENABLED=>FALSE,AUTO_DROP=>FALSE); end;
+/
+declare v varchar2(32767); next_date timestamp with time zone; begin DBMS_SCHEDULER.CREATE_JOB(JOB_NAME=>'CODEX_SCHED_WITH_S',SCHEDULE_NAME=>'CODEX_SCHED_S',JOB_TYPE=>'PLSQL_BLOCK',JOB_ACTION=>'begin null; end;',ENABLED=>FALSE,AUTO_DROP=>FALSE); end;
+/
+declare v varchar2(32767); next_date timestamp with time zone; begin DBMS_SCHEDULER.CREATE_PROGRAM(PROGRAM_NAME=>'CODEX_SCHED_P0',PROGRAM_TYPE=>'PLSQL_BLOCK',PROGRAM_ACTION=>'begin null; end;',NUMBER_OF_ARGUMENTS=>0,ENABLED=>FALSE); end;
+/
+declare v varchar2(32767); next_date timestamp with time zone; begin DBMS_SCHEDULER.CREATE_SCHEDULE(SCHEDULE_NAME=>'CODEX_SCHED_S',START_DATE=>CURRENT_TIMESTAMP,REPEAT_INTERVAL=>'FREQ=DAILY',END_DATE=>NULL,COMMENTS=>'signature evidence'); end;
+/
+declare v varchar2(32767); next_date timestamp with time zone; begin DBMS_SCHEDULER.DEFINE_PROGRAM_ARGUMENT(PROGRAM_NAME=>'CODEX_SCHED_P2',ARGUMENT_POSITION=>1,ARGUMENT_NAME=>'P1',ARGUMENT_TYPE=>'VARCHAR',OUT_ARGUMENT=>FALSE); end;
+/
+declare v varchar2(32767); next_date timestamp with time zone; begin DBMS_SCHEDULER.DEFINE_PROGRAM_ARGUMENT(PROGRAM_NAME=>'CODEX_SCHED_P2',ARGUMENT_POSITION=>2,ARGUMENT_NAME=>'P2',ARGUMENT_TYPE=>'VARCHAR',DEFAULT_VALUE=>'D2',OUT_ARGUMENT=>FALSE); end;
+/
+declare v varchar2(32767); next_date timestamp with time zone; begin DBMS_SCHEDULER.DISABLE(NAME=>'CODEX_SCHED_INLINE',FORCE=>TRUE); end;
+/
+declare v varchar2(32767); next_date timestamp with time zone; begin DBMS_SCHEDULER.DROP_JOB(JOB_NAME=>'CODEX_SCHED_INLINE',FORCE=>FALSE,DEFER=>FALSE); end;
+/
+declare v varchar2(32767); next_date timestamp with time zone; begin DBMS_SCHEDULER.DROP_PROGRAM(PROGRAM_NAME=>'CODEX_SCHED_P0',FORCE=>FALSE); end;
+/
+declare v varchar2(32767); next_date timestamp with time zone; begin DBMS_SCHEDULER.DROP_SCHEDULE(SCHEDULE_NAME=>'CODEX_SCHED_S',FORCE=>FALSE); end;
+/
+declare v varchar2(32767); next_date timestamp with time zone; begin DBMS_SCHEDULER.ENABLE(NAME=>'CODEX_SCHED_INLINE'); end;
+/
+declare v varchar2(32767); next_date timestamp with time zone; begin DBMS_SCHEDULER.EVALUATE_CALENDAR_STRING(CALENDAR_STRING=>'FREQ=DAILY',START_DATE=>CURRENT_TIMESTAMP,RETURN_DATE_AFTER=>CURRENT_TIMESTAMP,NEXT_RUN_DATE=>next_date); end;
+/
+declare v varchar2(32767); next_date timestamp with time zone; begin v:=DBMS_SCHEDULER.GENERATE_JOB_NAME(PREFIX=>'CODEX_GENERATED_'); end;
+/
+declare v varchar2(32767); next_date timestamp with time zone; begin DBMS_SCHEDULER.GET_SCHEDULER_ATTRIBUTE(ATTRIBUTE=>'EMAIL_SERVER',VALUE=>v); end;
+/
+declare v varchar2(32767); next_date timestamp with time zone; begin DBMS_SCHEDULER.PURGE_LOG(LOG_HISTORY=>0,WHICH_LOG=>'JOB_AND_WINDOW_LOG',JOB_NAME=>'CODEX_SCHED_INLINE'); end;
+/
+declare v varchar2(32767); next_date timestamp with time zone; begin DBMS_SCHEDULER.REMOVE_JOB_EMAIL_NOTIFICATION(JOB_NAME=>'CODEX_SCHED_MAIL',RECIPIENTS=>'nobody@example.invalid'); end;
+/
+declare v varchar2(32767); next_date timestamp with time zone; begin DBMS_SCHEDULER.RUN_JOB(JOB_NAME=>'CODEX_SCHED_INLINE',USE_CURRENT_SESSION=>TRUE); end;
+/
+declare v varchar2(32767); next_date timestamp with time zone; begin DBMS_SCHEDULER.SET_ATTRIBUTE(NAME=>'CODEX_SCHED_INLINE',ATTRIBUTE=>'COMMENTS',VALUE=>'updated'); end;
+/
+declare v varchar2(32767); next_date timestamp with time zone; begin DBMS_SCHEDULER.SET_JOB_ARGUMENT_VALUE(JOB_NAME=>'CODEX_SCHED_ARG',ARGUMENT_POSITION=>1,ARGUMENT_VALUE=>'V1'); end;
+/
+declare v varchar2(32767); next_date timestamp with time zone; begin DBMS_SCHEDULER.SET_JOB_ARGUMENT_VALUE(JOB_NAME=>'CODEX_SCHED_ARG',ARGUMENT_NAME=>'P2',ARGUMENT_VALUE=>'V2'); end;
+/
+declare v varchar2(32767); next_date timestamp with time zone; begin DBMS_SCHEDULER.SET_SCHEDULER_ATTRIBUTE(ATTRIBUTE=>'EMAIL_SERVER',VALUE=>NULL); end;
+/
+declare v varchar2(32767); next_date timestamp with time zone; begin DBMS_SCHEDULER.STOP_JOB(JOB_NAME=>'CODEX_SCHED_STOP',FORCE=>FALSE); end;
+expect:
+{}

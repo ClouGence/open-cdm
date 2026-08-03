@@ -1,0 +1,994 @@
+[block_select__001]
+sql:
+DO(SELECT 1 c GROUP BY 1 HAVING 1 ORDER BY COUNT(1));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(1:43~1:48) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[block_call_prog_obj__002]
+sql:
+DO ST_TRANSFORM(ST_GEOMFROMTEXT('POINT(0 0)'),4326);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(1:3~1:15) /test/1/catalog1/schema1/ST_TRANSFORM/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:16~1:31) /test/1/catalog1/schema1/ST_GEOMFROMTEXT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[block_call_prog_obj__003]
+sql:
+DO ST_TRANSFORM(ST_GEOMFROMTEXT('POINT(0 0)',4326),0);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(1:3~1:15) /test/1/catalog1/schema1/ST_TRANSFORM/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:16~1:31) /test/1/catalog1/schema1/ST_GEOMFROMTEXT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[call_prog_obj__004]
+sql:
+CALL splitv.call_no_args;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:5~1:24) /test/1/catalog1/splitv/call_no_args/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[call_prog_obj__005]
+sql:
+CALL splitv.call_no_args();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:5~1:24) /test/1/catalog1/splitv/call_no_args/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[call_prog_obj__006]
+sql:
+CALL splitv.call_in_expr(2 + 3, CONCAT('a', 'b'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:5~1:24) /test/1/catalog1/splitv/call_in_expr/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:32~1:38) /test/1/catalog1/schema1/CONCAT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[call_prog_obj_session_variable_rw__007]
+sql:
+CALL splitv.call_out(@call_version);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:5~1:20) /test/1/catalog1/splitv/call_out/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "ConfigKey(1:21~1:34) /test/1/call_version/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[call_prog_obj_session_variable_rw__008]
+sql:
+CALL splitv.call_inout(@call_counter);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:5~1:22) /test/1/catalog1/splitv/call_inout/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "ConfigKey(1:23~1:36) /test/1/call_counter/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[call_prog_obj__009]
+sql:
+CALL splitv.call_nested(2, 'cq', ABS(test1()));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:5~1:23) /test/1/catalog1/splitv/call_nested/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:33~1:36) /test/1/catalog1/schema1/ABS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:37~1:42) /test/1/catalog1/schema1/test1/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[call_prog_obj__010]
+sql:
+CALL splitv.call_nested(3, 'hz', test3.test());
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:5~1:23) /test/1/catalog1/splitv/call_nested/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:33~1:43) /test/1/catalog1/test3/test/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[block__011]
+sql:
+DO 1 + 1, ABS(-2), COALESCE(NULL, 'fallback');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(1:10~1:13) /test/1/catalog1/schema1/ABS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:19~1:27) /test/1/catalog1/schema1/COALESCE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[block_session_variable_rw__012]
+sql:
+DO @do_counter := 0, @do_counter := @do_counter + 1, @do_counter := @do_counter * 10;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "ConfigKey(1:3~1:14) /test/1/do_counter/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[block_session_lock__013]
+sql:
+DO RELEASE_LOCK(GET_LOCK('splitv_do_lock', 0));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(1:3~1:15) /test/1/catalog1/schema1/RELEASE_LOCK/",
+      "action" : "LOCK"
+    },
+    {
+      "subject": "Function(1:16~1:24) /test/1/catalog1/schema1/GET_LOCK/",
+      "action" : "LOCK"
+    }
+  ]
+}
+----------
+[block__014]
+sql:
+DO 1 AS one, 2 two;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": []
+}
+----------
+[block__015]
+sql:
+DO 1 AS 'one', 2 'two';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": []
+}
+----------
+[block_select__016]
+sql:
+DO (SELECT 3) AS scalar_value;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": []
+}
+----------
+[unsafe__017]
+sql:
+EXECUTE ps_no_args;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UNSAFE": [
+    {
+      "subject": "PrepareStatement(1:8~1:18) /test/1/ps_no_args/",
+      "action" : "UNSAFE"
+    }
+  ]
+}
+----------
+[select__018]
+sql:
+HANDLER splitv.handler_versions OPEN;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:8~1:31) /test/1/catalog1/splitv/handler_versions/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__019]
+sql:
+HANDLER handler_versions READ `PRIMARY` = (1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__020]
+sql:
+HANDLER handler_versions READ idx_ab = (1, 'alpha') WHERE id >= 1 LIMIT 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__021]
+sql:
+HANDLER handler_versions READ idx_ab <= (2, 'beta') LIMIT 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__022]
+sql:
+HANDLER handler_versions READ idx_ab >= (1) LIMIT 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__023]
+sql:
+HANDLER handler_versions READ idx_ab < (3) LIMIT 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__024]
+sql:
+HANDLER handler_versions READ idx_ab > (1) LIMIT 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__025]
+sql:
+HANDLER handler_versions READ idx_ab FIRST LIMIT 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__026]
+sql:
+HANDLER handler_versions READ idx_ab NEXT LIMIT 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__027]
+sql:
+HANDLER handler_versions READ idx_ab LAST LIMIT 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__028]
+sql:
+HANDLER handler_versions READ idx_ab PREV LIMIT 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__029]
+sql:
+HANDLER handler_versions READ FIRST LIMIT 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__030]
+sql:
+HANDLER handler_versions READ NEXT LIMIT 0, 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__031]
+sql:
+HANDLER handler_versions CLOSE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__032]
+sql:
+HANDLER handler_versions OPEN hv;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:8~1:24) /test/1/catalog1/schema1/handler_versions/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__033]
+sql:
+HANDLER hv READ FIRST LIMIT 1 OFFSET 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__034]
+sql:
+HANDLER hv CLOSE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[unsafe__035]
+sql:
+PREPARE ps_select FROM 'SELECT id, v FROM split84.ps_t WHERE id = ?';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UNSAFE": [
+    {
+      "subject": "PrepareStatement(1:8~1:17) /test/1/ps_select/",
+      "action" : "UNSAFE"
+    }
+  ]
+}
+----------
+[session_variable_rw__036]
+sql:
+SET @ps_id = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_VARIABLE_RW": [
+    {
+      "subject": "ConfigKey(1:4~1:10) /test/1/ps_id/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[unsafe__037]
+sql:
+EXECUTE ps_select USING @ps_id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UNSAFE": [
+    {
+      "subject": "PrepareStatement(1:8~1:17) /test/1/ps_select/",
+      "action" : "UNSAFE"
+    },
+    {
+      "subject": "ConfigKey(1:24~1:30) /test/1/ps_id/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[session_variable_rw__038]
+sql:
+SET @ps_id = 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_VARIABLE_RW": [
+    {
+      "subject": "ConfigKey(1:4~1:10) /test/1/ps_id/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[unsafe__039]
+sql:
+EXECUTE ps_select USING @ps_id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UNSAFE": [
+    {
+      "subject": "PrepareStatement(1:8~1:17) /test/1/ps_select/",
+      "action" : "UNSAFE"
+    },
+    {
+      "subject": "ConfigKey(1:24~1:30) /test/1/ps_id/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[unsafe__040]
+sql:
+DEALLOCATE PREPARE ps_select;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UNSAFE": [
+    {
+      "subject": "PrepareStatement(1:19~1:28) /test/1/ps_select/",
+      "action" : "UNSAFE"
+    }
+  ]
+}
+----------
+[session_variable_rw__041]
+sql:
+SET @ps_sql = 'UPDATE split84.ps_t SET v = ? WHERE id = ?';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_VARIABLE_RW": [
+    {
+      "subject": "ConfigKey(1:4~1:11) /test/1/ps_sql/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[unsafe__042]
+sql:
+PREPARE ps_update FROM @ps_sql;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UNSAFE": [
+    {
+      "subject": "ConfigKey(1:23~1:30) /test/1/ps_sql/",
+      "action" : "READ"
+    },
+    {
+      "subject": "PrepareStatement(1:8~1:17) /test/1/ps_update/",
+      "action" : "UNSAFE"
+    }
+  ]
+}
+----------
+[session_variable_rw__043]
+sql:
+SET @ps_v = 99, @ps_id = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_VARIABLE_RW": [
+    {
+      "subject": "ConfigKey(1:4~1:9) /test/1/ps_v/",
+      "action" : "READ"
+    },
+    {
+      "subject": "ConfigKey(1:16~1:22) /test/1/ps_id/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[unsafe__044]
+sql:
+EXECUTE ps_update USING @ps_v, @ps_id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UNSAFE": [
+    {
+      "subject": "PrepareStatement(1:8~1:17) /test/1/ps_update/",
+      "action" : "UNSAFE"
+    },
+    {
+      "subject": "ConfigKey(1:24~1:29) /test/1/ps_v/",
+      "action" : "READ"
+    },
+    {
+      "subject": "ConfigKey(1:31~1:37) /test/1/ps_id/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[unsafe__045]
+sql:
+DROP PREPARE ps_update;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UNSAFE": [
+    {
+      "subject": "PrepareStatement(1:13~1:22) /test/1/ps_update/",
+      "action" : "UNSAFE"
+    }
+  ]
+}
+----------
+[unsafe__046]
+sql:
+PREPARE ps_insert FROM 'INSERT INTO split84.ps_t(id, v, c) VALUES (?, ?, ?)';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UNSAFE": [
+    {
+      "subject": "PrepareStatement(1:8~1:17) /test/1/ps_insert/",
+      "action" : "UNSAFE"
+    }
+  ]
+}
+----------
+[session_variable_rw__047]
+sql:
+SET @ps_id = 3, @ps_v = 30, @ps_c = 'c';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_VARIABLE_RW": [
+    {
+      "subject": "ConfigKey(1:4~1:10) /test/1/ps_id/",
+      "action" : "READ"
+    },
+    {
+      "subject": "ConfigKey(1:16~1:21) /test/1/ps_v/",
+      "action" : "READ"
+    },
+    {
+      "subject": "ConfigKey(1:28~1:33) /test/1/ps_c/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[unsafe__048]
+sql:
+EXECUTE ps_insert USING @ps_id, @ps_v, @ps_c;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UNSAFE": [
+    {
+      "subject": "PrepareStatement(1:8~1:17) /test/1/ps_insert/",
+      "action" : "UNSAFE"
+    },
+    {
+      "subject": "ConfigKey(1:24~1:30) /test/1/ps_id/",
+      "action" : "READ"
+    },
+    {
+      "subject": "ConfigKey(1:32~1:37) /test/1/ps_v/",
+      "action" : "READ"
+    },
+    {
+      "subject": "ConfigKey(1:39~1:44) /test/1/ps_c/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[unsafe__049]
+sql:
+DEALLOCATE PREPARE ps_insert;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UNSAFE": [
+    {
+      "subject": "PrepareStatement(1:19~1:28) /test/1/ps_insert/",
+      "action" : "UNSAFE"
+    }
+  ]
+}
+----------
+[unsafe__050]
+sql:
+PREPARE ps_delete FROM 'DELETE FROM split84.ps_t WHERE id = ?';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UNSAFE": [
+    {
+      "subject": "PrepareStatement(1:8~1:17) /test/1/ps_delete/",
+      "action" : "UNSAFE"
+    }
+  ]
+}
+----------
+[session_variable_rw__051]
+sql:
+SET @ps_id = 3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_VARIABLE_RW": [
+    {
+      "subject": "ConfigKey(1:4~1:10) /test/1/ps_id/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[unsafe__052]
+sql:
+EXECUTE ps_delete USING @ps_id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UNSAFE": [
+    {
+      "subject": "PrepareStatement(1:8~1:17) /test/1/ps_delete/",
+      "action" : "UNSAFE"
+    },
+    {
+      "subject": "ConfigKey(1:24~1:30) /test/1/ps_id/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[unsafe__053]
+sql:
+DEALLOCATE PREPARE ps_delete;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UNSAFE": [
+    {
+      "subject": "PrepareStatement(1:19~1:28) /test/1/ps_delete/",
+      "action" : "UNSAFE"
+    }
+  ]
+}
+----------
+[select__054]
+sql:
+HANDLER myisam_t OPEN AS h;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:8~1:16) /test/1/catalog1/schema1/myisam_t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[unsafe__055]
+sql:
+PREPARE p_bt FROM @`quoted sql`;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UNSAFE": [
+    {
+      "subject": "ConfigKey(1:18~1:31) /test/1/quoted sql/",
+      "action" : "READ"
+    },
+    {
+      "subject": "PrepareStatement(1:8~1:12) /test/1/p_bt/",
+      "action" : "UNSAFE"
+    }
+  ]
+}
+----------
+[unsafe__056]
+sql:
+PREPARE p_dq FROM @"quoted sql";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UNSAFE": [
+    {
+      "subject": "ConfigKey(1:18~1:31) /test/1/quoted sql/",
+      "action" : "READ"
+    },
+    {
+      "subject": "PrepareStatement(1:8~1:12) /test/1/p_dq/",
+      "action" : "UNSAFE"
+    }
+  ]
+}
+----------
+[unsafe__057]
+sql:
+PREPARE split_dml_s1 FROM 'INSERT INTO split_dml_p1 VALUES (@split_dml_a),(?)';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UNSAFE": [
+    {
+      "subject": "PrepareStatement(1:8~1:20) /test/1/split_dml_s1/",
+      "action" : "UNSAFE"
+    }
+  ]
+}
+----------
+[unsafe__058]
+sql:
+PREPARE split_dml_s2 FROM 'INSERT INTO split_dml_p2 SELECT 100 LIMIT ?';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UNSAFE": [
+    {
+      "subject": "PrepareStatement(1:8~1:20) /test/1/split_dml_s2/",
+      "action" : "UNSAFE"
+    }
+  ]
+}
+----------
+[select__059]
+sql:
+HANDLER split_dml_handler READ idx_v NEXT
+  WHERE v BETWEEN 10 AND 20 LIMIT 1 OFFSET 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[unsafe__060]
+sql:
+PREPARE `ps name` FROM 'SELECT 1';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UNSAFE": [
+    {
+      "subject": "PrepareStatement(1:8~1:17) /test/1/ps name/",
+      "action" : "UNSAFE"
+    }
+  ]
+}
+----------
+[unsafe__061]
+sql:
+EXECUTE `ps name`;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UNSAFE": [
+    {
+      "subject": "PrepareStatement(1:8~1:17) /test/1/ps name/",
+      "action" : "UNSAFE"
+    }
+  ]
+}
+----------
+[unsafe__062]
+sql:
+DEALLOCATE PREPARE `ps name`;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UNSAFE": [
+    {
+      "subject": "PrepareStatement(1:19~1:28) /test/1/ps name/",
+      "action" : "UNSAFE"
+    }
+  ]
+}
+----------
+[unsafe__063]
+sql:
+PREPARE p2 FROM @'sql text';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UNSAFE": [
+    {
+      "subject": "ConfigKey(1:16~1:27) /test/1/sql text/",
+      "action" : "READ"
+    },
+    {
+      "subject": "PrepareStatement(1:8~1:10) /test/1/p2/",
+      "action" : "UNSAFE"
+    }
+  ]
+}
+----------
+[unsafe__064]
+sql:
+EXECUTE p3 USING @'arg name';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UNSAFE": [
+    {
+      "subject": "PrepareStatement(1:8~1:10) /test/1/p3/",
+      "action" : "UNSAFE"
+    },
+    {
+      "subject": "ConfigKey(1:17~1:28) /test/1/arg name/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[call_prog_obj__065]
+sql:
+CALL `proc name`();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:5~1:16) /test/1/catalog1/schema1/proc name/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__066]
+sql:
+HANDLER h READ FIRST WHERE id > 0 LIMIT 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}

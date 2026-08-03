@@ -59,7 +59,6 @@ public class EditorConvertUtils {
         dto.setGeneratedKeys(resultCount.getGeneratedKeys());
 
         dto.setSql(resultCount.getQuerySql());
-        dto.setResource(resultCount.getResource());
         dto.setColumnList(Collections.emptyList());
         dto.setColumnType(Collections.emptyList());
         dto.setRowSet(Collections.emptyList());
@@ -83,7 +82,6 @@ public class EditorConvertUtils {
         //dto.setGeneratedKeys(r.getGeneratedKeys());
 
         dto.setSql(r.getQuerySql());
-        dto.setResource(r.getResource());
         //dto.setColumnList(r.getColumnList());
         //dto.setColumnType(r.getColumnType());
         //dto.setRowSet(r.getRowSet());

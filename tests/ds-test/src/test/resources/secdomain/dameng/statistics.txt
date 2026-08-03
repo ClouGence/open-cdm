@@ -1,0 +1,63 @@
+[stat_table]
+sql:
+stat on app.employee
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"ADMIN_TABLE", "schema":"app", "table":"employee"}
+  ]
+}
+----------
+[stat_columns]
+sql:
+stat 25 size 10 on app.employee(id,name)
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"ADMIN_TABLE", "schema":"app", "table":"employee"}
+  ]
+}
+----------
+[stat_index]
+sql:
+stat 50 on index app.idx_employee_name
+expect:
+{
+  "contains": [
+    {"class":"RdbIndexDomain", "sqlType":"ADMIN_TABLE", "schema":"app", "name":"idx_employee_name"}
+  ]
+}
+----------
+[stat_table_procedures]
+sql:
+sp_tab_index_stat_init('APP', 'EMPLOYEE');
+call sp_col_stat_init('APP', 'EMPLOYEE', 'NAME');
+sp_tab_stat_deinit('APP', 'EMPLOYEE')
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"ADMIN_TABLE", "schema":"APP", "table":"EMPLOYEE"}
+  ]
+}
+----------
+[stat_index_procedures]
+sql:
+sp_index_stat_init('APP', 'IDX_EMPLOYEE_NAME');
+call sp_index_stat_deinit('APP', 'IDX_EMPLOYEE_NAME')
+expect:
+{
+  "contains": [
+    {"class":"RdbIndexDomain", "sqlType":"ADMIN_TABLE", "schema":"APP", "name":"IDX_EMPLOYEE_NAME"}
+  ]
+}
+----------
+[stat_database_procedures]
+sql:
+sp_flush_modifications_info();
+call sp_clean_modifications()
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"ADMIN_TABLE", "name":"DATABASE"}
+  ]
+}

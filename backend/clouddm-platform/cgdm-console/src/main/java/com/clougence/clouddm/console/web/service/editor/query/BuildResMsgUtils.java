@@ -94,7 +94,6 @@ public class BuildResMsgUtils {
         WsResultSetMetaMsg dto = fillResult(new WsResultSetMetaMsg(), WsResultType.ResultSetMeta, queryDTO);
 
         dto.setResultId(result.getResultId());
-        //dto.setResource(result.getResource());
         dto.setColumnList(result.getColumnList());
         dto.setColumnType(result.getColumnType());
         dto.setReceiveMode(result.getReceiveMode());

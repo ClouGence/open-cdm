@@ -1,0 +1,29 @@
+[dbms_flashback_procedure_domains]
+sql:
+declare
+  current_lsn bigint;
+begin
+  current_lsn:=dbms_flashback.get_system_change_number;
+  dbms_flashback.enable_at_system_change_number(current_lsn);
+  dbms_flashback.disable;
+  dbms_flashback.enable_at_time(cast(sysdate - 1/86400 as timestamp));
+  dbms_flashback.disable;
+end;
+expect:
+{
+  "contains": [
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_flashback"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_flashback"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_flashback"}
+  ]
+}
+----------
+[dbms_flashback_function_expression_no_domain]
+sql:
+declare
+  current_lsn bigint;
+begin
+  current_lsn:=dbms_flashback.get_system_change_number;
+end;
+expect:
+{"size":0}

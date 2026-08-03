@@ -1,0 +1,9 @@
+create view app.v_employee select id, name from app.employee where active = 1;
+alter view app.v_employee enable query optimization;
+drop view app.v_employee;
+------------------------------------------------------------------------------------------
+[CREATE_VIEW(SELECT)] create view app.v_employee select id, name from app.employee where active = 1;
+----------
+[ALTER_VIEW] alter view app.v_employee enable query optimization;
+----------
+[DROP_VIEW] drop view app.v_employee;

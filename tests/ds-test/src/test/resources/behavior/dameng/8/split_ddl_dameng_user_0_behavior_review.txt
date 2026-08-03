@@ -1,0 +1,887 @@
+[split_ddl_dameng_user_0_behavior_review_001]
+sql:
+create user CODEX_DM8_USER_BASIC identified by "Dm8User#2026";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:32) /test/1/CODEX_DM8_USER_BASIC/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_0_behavior_review_002]
+sql:
+create user if not exists CODEX_DM8_USER_BASIC identified by "Ignored#2026";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:26~1:46) /test/1/CODEX_DM8_USER_BASIC/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_0_behavior_review_003]
+sql:
+create user "User Mixed" identified by "Dm8Mixed#2026";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:24) /test/1/User Mixed/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_0_behavior_review_004]
+sql:
+create user UXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX identified by "Dm8Long#2026";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:140) /test/1/UXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_0_behavior_review_005]
+sql:
+create user CODEX_DM8_USER_MD5 identified by "Dm8Md5#2026" hash with MD5 salt;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:30) /test/1/CODEX_DM8_USER_MD5/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_0_behavior_review_006]
+sql:
+create user CODEX_DM8_USER_SHA1 identified by "Dm8Sha1#2026" hash with SHA1 no salt;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:31) /test/1/CODEX_DM8_USER_SHA1/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_0_behavior_review_007]
+sql:
+create user CODEX_DM8_USER_SHA224 identified by "Dm8Sha224#2026" hash with SHA224;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:33) /test/1/CODEX_DM8_USER_SHA224/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_0_behavior_review_008]
+sql:
+create user CODEX_DM8_USER_SHA256 identified by "Dm8Sha256#2026" hash with ENGINE1.SHA256 salt;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:33) /test/1/CODEX_DM8_USER_SHA256/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_0_behavior_review_009]
+sql:
+create user CODEX_DM8_USER_SHA384 identified by "Dm8Sha384#2026" hash with SHA384 no salt;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:33) /test/1/CODEX_DM8_USER_SHA384/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_0_behavior_review_010]
+sql:
+create user CODEX_DM8_USER_SHA512 identified by "Dm8Sha512#2026" hash with SHA512 salt;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:33) /test/1/CODEX_DM8_USER_SHA512/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_0_behavior_review_011]
+sql:
+create user CODEX_DM8_USER_POLICY0 identified by weak password_policy 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:34) /test/1/CODEX_DM8_USER_POLICY0/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_0_behavior_review_012]
+sql:
+create user CODEX_DM8_USER_POLICY15 identified by "Dm8Policy2026" password_policy 15;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:35) /test/1/CODEX_DM8_USER_POLICY15/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_0_behavior_review_013]
+sql:
+create user CODEX_DM8_USER_POLICY31 identified by "Dm8Policy#2026" password_policy 31;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:35) /test/1/CODEX_DM8_USER_POLICY31/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_0_behavior_review_014]
+sql:
+create user CODEX_DM8_USER_LOCK identified by "Dm8Lock#2026" account lock;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:31) /test/1/CODEX_DM8_USER_LOCK/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_0_behavior_review_015]
+sql:
+create user CODEX_DM8_USER_UNLOCK identified by "Dm8Unlock#2026" account unlock;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:33) /test/1/CODEX_DM8_USER_UNLOCK/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_0_behavior_review_016]
+sql:
+create user CODEX_DM8_USER_KEY identified by "Dm8User#2026" encrypt by "Dm8Key#2026";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:30) /test/1/CODEX_DM8_USER_KEY/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_0_behavior_review_017]
+sql:
+create user CODEX_DM8_USER_DISK_MIN identified by "Dm8User#2026" diskspace limit 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:35) /test/1/CODEX_DM8_USER_DISK_MIN/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_0_behavior_review_018]
+sql:
+create user CODEX_DM8_USER_DISK_MAX identified by "Dm8User#2026" diskspace limit 1048576;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:35) /test/1/CODEX_DM8_USER_DISK_MAX/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_0_behavior_review_019]
+sql:
+create user CODEX_DM8_USER_DISK_UNL identified by "Dm8User#2026" diskspace unlimited;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:35) /test/1/CODEX_DM8_USER_DISK_UNL/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_0_behavior_review_020]
+sql:
+create user CODEX_DM8_USER_RO identified by "Dm8User#2026" read only;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:29) /test/1/CODEX_DM8_USER_RO/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_0_behavior_review_021]
+sql:
+create user CODEX_DM8_USER_RW identified by "Dm8User#2026" not read only;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:29) /test/1/CODEX_DM8_USER_RW/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_0_behavior_review_022]
+sql:
+create user CODEX_DM8_USER_RES_MIN identified by "Dm8User#2026" limit GLOBAL_SESSION_PER_USER 1, SESSION_PER_USER 1, CONNECT_IDLE_TIME 1, CONNECT_TIME 1, CPU_PER_CALL 1, CPU_PER_SESSION 1, MEM_SPACE 1, READ_PER_CALL 1, READ_PER_SESSION 1, FAILED_LOGIN_ATTEMPTS 1, PASSWORD_LIFE_TIME 1, PASSWORD_REUSE_TIME 1, PASSWORD_REUSE_MAX 1, PASSWORD_LOCK_TIME 1, PASSWORD_GRACE_TIME 1, INACTIVE_ACCOUNT_TIME 15;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:34) /test/1/CODEX_DM8_USER_RES_MIN/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_0_behavior_review_023]
+sql:
+create user CODEX_DM8_USER_RES_MAX identified by "Dm8User#2026" limit GLOBAL_SESSION_PER_USER 32768 SESSION_PER_USER 32768 CONNECT_IDLE_TIME 1440 CONNECT_TIME 1440 CPU_PER_CALL 86400 CPU_PER_SESSION 31536000 MEM_SPACE 2147483647 READ_PER_CALL 2147483646 READ_PER_SESSION 2147483646 FAILED_LOGIN_ATTEMPTS 100 PASSWORD_LIFE_TIME 365 PASSWORD_REUSE_TIME 365 PASSWORD_REUSE_MAX 32768 PASSWORD_LOCK_TIME 1440 PASSWORD_GRACE_TIME 30 INACTIVE_ACCOUNT_TIME 24855;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:34) /test/1/CODEX_DM8_USER_RES_MAX/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_0_behavior_review_024]
+sql:
+create user CODEX_DM8_USER_RES_DEFAULT identified by "Dm8User#2026" limit SESSION_PER_USER default, CONNECT_TIME default, FAILED_LOGIN_ATTEMPTS default;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:38) /test/1/CODEX_DM8_USER_RES_DEFAULT/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_0_behavior_review_025]
+sql:
+create user CODEX_DM8_USER_RES_UNL identified by "Dm8User#2026" limit SESSION_PER_USER unlimited CONNECT_TIME unlimited FAILED_LOGIN_ATTEMPTS unlimited;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:34) /test/1/CODEX_DM8_USER_RES_UNL/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_0_behavior_review_026]
+sql:
+create user CODEX_DM8_USER_EXPIRE identified by "Dm8User#2026" password expire;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:33) /test/1/CODEX_DM8_USER_EXPIRE/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_0_behavior_review_027]
+sql:
+create user CODEX_DM8_USER_IP identified by "Dm8User#2026" allow_ip "127.0.0.1", "192.168.0.*" not_allow_ip "192.168.0.13";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:29) /test/1/CODEX_DM8_USER_IP/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_0_behavior_review_028]
+sql:
+create user CODEX_DM8_USER_CIDR identified by "Dm8User#2026" allow_ip "10.0.0.0/8";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:31) /test/1/CODEX_DM8_USER_CIDR/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_0_behavior_review_029]
+sql:
+create user CODEX_DM8_USER_TIME identified by "Dm8User#2026" allow_datetime MON "00:00:00" to SUN "23:59:59" not_allow_datetime SAT "12:00:00" to SAT "12:00:01";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:31) /test/1/CODEX_DM8_USER_TIME/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_0_behavior_review_030]
+sql:
+create user CODEX_DM8_USER_EXACT identified by "Dm8User#2026" allow_datetime "2026-01-01" "00:00:00" to "2027-12-31" "23:59:59";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:32) /test/1/CODEX_DM8_USER_EXACT/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_0_behavior_review_031]
+sql:
+create user CODEX_DM8_USER_TS identified by "Dm8User#2026" default tablespace CODEX_USER_TS default index tablespace CODEX_USER_TS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:29) /test/1/CODEX_DM8_USER_TS/",
+      "action": "CREATE",
+      "target": [
+        "Tablespace(1:78~1:91) /test/1/CODEX_USER_TS/",
+        "Tablespace(1:117~1:130) /test/1/CODEX_USER_TS/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_0_behavior_review_032]
+sql:
+create user CODEX_DM8_USER_QUOTA identified by "Dm8User#2026" quota 1M on CODEX_USER_TS quota unlimited on CODEX_USER_TS2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:32) /test/1/CODEX_DM8_USER_QUOTA/",
+      "action": "CREATE",
+      "target": [
+        "Tablespace(1:74~1:87) /test/1/CODEX_USER_TS/",
+        "Tablespace(1:107~1:121) /test/1/CODEX_USER_TS2/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_0_behavior_review_033]
+sql:
+create user CODEX_DM8_USER_QUOTA0 identified by "Dm8User#2026" quota 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:33) /test/1/CODEX_DM8_USER_QUOTA0/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_0_behavior_review_034]
+sql:
+create user CODEX_DM8_USER_PROFILE identified by "Dm8User#2026" profile CODEX_PROFILE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:34) /test/1/CODEX_DM8_USER_PROFILE/",
+      "action": "CREATE",
+      "target": "Profile(1:72~1:85) /test/1/CODEX_PROFILE/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_0_behavior_review_035]
+sql:
+create user CODEX_DM8_USER_NOPROFILE identified by "Dm8User#2026" drop profile;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:36) /test/1/CODEX_DM8_USER_NOPROFILE/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_0_behavior_review_036]
+sql:
+create user CODEX_DM8_USER_EXT identified externally;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:30) /test/1/CODEX_DM8_USER_EXT/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_0_behavior_review_037]
+sql:
+create user CODEX_DM8_USER_DN identified externally as 'CN=dm8,OU=db,O=example';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:29) /test/1/CODEX_DM8_USER_DN/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_0_behavior_review_038]
+sql:
+create user CODEX_DM8_USER_RADIUS identified externally radius;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:33) /test/1/CODEX_DM8_USER_RADIUS/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_0_behavior_review_039]
+sql:
+alter user CODEX_DM8_USER_BASIC identified by "Dm8Next#2026" retain current password;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:31) /test/1/CODEX_DM8_USER_BASIC/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_0_behavior_review_040]
+sql:
+alter user CODEX_DM8_USER_BASIC replace "Dm8User#2026";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:31) /test/1/CODEX_DM8_USER_BASIC/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_0_behavior_review_041]
+sql:
+alter user CODEX_DM8_USER_BASIC discard old password;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:31) /test/1/CODEX_DM8_USER_BASIC/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_0_behavior_review_042]
+sql:
+alter user CODEX_DM8_USER_BASIC account lock encrypt by "Dm8Key2#2026" diskspace unlimited not read only password expire;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:31) /test/1/CODEX_DM8_USER_BASIC/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_0_behavior_review_043]
+sql:
+alter user CODEX_DM8_USER_BASIC limit SESSION_PER_USER 10, CONNECT_IDLE_TIME unlimited;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:31) /test/1/CODEX_DM8_USER_BASIC/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_0_behavior_review_044]
+sql:
+alter user CODEX_DM8_USER_BASIC allow_ip add "172.16.0.*";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:31) /test/1/CODEX_DM8_USER_BASIC/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_0_behavior_review_045]
+sql:
+alter user CODEX_DM8_USER_BASIC allow_ip drop "172.16.0.*";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:31) /test/1/CODEX_DM8_USER_BASIC/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_0_behavior_review_046]
+sql:
+alter user CODEX_DM8_USER_BASIC not_allow_ip add "172.16.1.1";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:31) /test/1/CODEX_DM8_USER_BASIC/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_0_behavior_review_047]
+sql:
+alter user CODEX_DM8_USER_BASIC not_allow_ip drop "172.16.1.1";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:31) /test/1/CODEX_DM8_USER_BASIC/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_0_behavior_review_048]
+sql:
+alter user CODEX_DM8_USER_BASIC allow_ip null not_allow_ip null;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:31) /test/1/CODEX_DM8_USER_BASIC/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_0_behavior_review_049]
+sql:
+alter user CODEX_DM8_USER_BASIC default tablespace MAIN default index tablespace MAIN quota 0 on CODEX_USER_TS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:31) /test/1/CODEX_DM8_USER_BASIC/",
+      "action": "ALTER",
+      "target": [
+        "Tablespace(1:51~1:55) /test/1/MAIN/",
+        "Tablespace(1:81~1:85) /test/1/MAIN/",
+        "Tablespace(1:97~1:110) /test/1/CODEX_USER_TS/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_0_behavior_review_050]
+sql:
+alter user CODEX_DM8_USER_BASIC on schema CODEX_DM8_USER_BASIC;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:31) /test/1/CODEX_DM8_USER_BASIC/",
+      "action": "ALTER",
+      "target": "Schema(1:42~1:62) /test/1/catalog1/CODEX_DM8_USER_BASIC/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_0_behavior_review_051]
+sql:
+alter user CODEX_DM8_USER_BASIC profile CODEX_PROFILE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:31) /test/1/CODEX_DM8_USER_BASIC/",
+      "action": "ALTER",
+      "target": "Profile(1:40~1:53) /test/1/CODEX_PROFILE/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_0_behavior_review_052]
+sql:
+alter user CODEX_DM8_USER_BASIC drop profile;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:31) /test/1/CODEX_DM8_USER_BASIC/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_0_behavior_review_053]
+sql:
+alter user CODEX_DM8_USER_BASIC grant connect through CODEX_DM8_USER_PROXY;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:31) /test/1/CODEX_DM8_USER_BASIC/",
+      "action": "GRANT",
+      "target": "User(1:54~1:74) /test/1/CODEX_DM8_USER_PROXY/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_0_behavior_review_054]
+sql:
+alter user CODEX_DM8_USER_BASIC revoke connect through CODEX_DM8_USER_PROXY;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:31) /test/1/CODEX_DM8_USER_BASIC/",
+      "action": "REVOKE",
+      "target": "User(1:55~1:75) /test/1/CODEX_DM8_USER_PROXY/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_0_behavior_review_055]
+sql:
+drop user CODEX_DM8_USER_BASIC;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_USER": [
+    {
+      "subject": "User(1:10~1:30) /test/1/CODEX_DM8_USER_BASIC/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_0_behavior_review_056]
+sql:
+drop user if exists CODEX_DM8_USER_MISSING;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_USER": [
+    {
+      "subject": "User(1:20~1:42) /test/1/CODEX_DM8_USER_MISSING/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_0_behavior_review_057]
+sql:
+drop user CODEX_DM8_USER_RESTRICT restrict;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_USER": [
+    {
+      "subject": "User(1:10~1:33) /test/1/CODEX_DM8_USER_RESTRICT/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_0_behavior_review_058]
+sql:
+drop user CODEX_DM8_USER_CASCADE cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_USER": [
+    {
+      "subject": "User(1:10~1:32) /test/1/CODEX_DM8_USER_CASCADE/",
+      "action": "DROP"
+    }
+  ]
+}

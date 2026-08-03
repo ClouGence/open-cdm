@@ -18,7 +18,6 @@ package com.clougence.dslpaser.antlr;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.List;
-import java.util.Map;
 
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.Lexer;
@@ -30,35 +29,8 @@ import com.clougence.dslpaser.parse.AntlrParseTreeVisitorCreator;
 import com.clougence.dslpaser.parse.AstSplitScript;
 import com.clougence.dslpaser.parse.SyntaxErrorListener;
 import com.clougence.utils.StringUtils;
-import com.clougence.utils.ref.LinkedCaseInsensitiveMap;
 
 public final class DslHelper {
-
-    private static final Map<String, DslProvider> PROVIDER_MAP = new LinkedCaseInsensitiveMap<>();
-
-    public static void register(DslProvider provider) {
-        for (String dslName : provider.getDslName()) {
-            PROVIDER_MAP.put(dslName, provider);
-        }
-    }
-
-    public static void register(String dslName, DslProvider provider) {
-        PROVIDER_MAP.put(dslName, provider);
-    }
-
-    public static DslProvider getProvider(String dslName) {
-        return PROVIDER_MAP.get(dslName);
-    }
-
-    //
-
-    public static StatementSet parserDsl(String dslName, String queryString) {
-        if (!PROVIDER_MAP.containsKey(dslName)) {
-            throw new UnsupportedOperationException("DSL '" + dslName + "' Unsupported.");
-        }
-
-        return parserDsl(PROVIDER_MAP.get(dslName), queryString);
-    }
 
     public static StatementSet parserDsl(DslProvider provider, String queryString) {
         try {
@@ -75,14 +47,6 @@ public final class DslHelper {
         }
     }
 
-    public static List<AstSplitScript> splitDsl(String dslName, String queryString) {
-        if (!PROVIDER_MAP.containsKey(dslName)) {
-            throw new UnsupportedOperationException("DSL '" + dslName + "' Unsupported.");
-        }
-
-        return splitDsl(PROVIDER_MAP.get(dslName), queryString);
-    }
-
     public static List<AstSplitScript> splitDsl(DslProvider provider, String queryString) {
         try {
             Lexer lexer = provider.createLexer(CharStreams.fromReader(new StringReader(queryString)));
@@ -97,14 +61,6 @@ public final class DslHelper {
         } catch (IOException e) {
             throw new SyntaxIoException(e);
         }
-    }
-
-    public static List<AstSplitScript> splitDsl(String dslName, String queryString, CodeLocation base) {
-        if (!PROVIDER_MAP.containsKey(dslName)) {
-            throw new UnsupportedOperationException("DSL '" + dslName + "' Unsupported.");
-        }
-
-        return splitDsl(PROVIDER_MAP.get(dslName), queryString, base);
     }
 
     public static List<AstSplitScript> splitDsl(DslProvider provider, String queryString, CodeLocation base) {
@@ -167,14 +123,6 @@ public final class DslHelper {
             ass.setEndCodeColumn(endCodeColumn);
         }
         return scripts;
-    }
-
-    public static void doVisitor(String dslName, String queryString, AntlrParseTreeVisitorCreator visitor) {
-        if (!PROVIDER_MAP.containsKey(dslName)) {
-            throw new UnsupportedOperationException("DSL '" + dslName + "' Unsupported.");
-        }
-
-        doVisitor(PROVIDER_MAP.get(dslName), queryString, visitor);
     }
 
     public static void doVisitor(DslProvider provider, String queryString, AntlrParseTreeVisitorCreator visitor) {

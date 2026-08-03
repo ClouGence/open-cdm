@@ -15,42 +15,37 @@
  */
 package com.clougence.clouddm.ds.tidb.sql;
 
-import com.clougence.clouddm.ds.tidb.sql.column.TiSelectColumnAnalysisSpi;
+import com.clougence.clouddm.ds.tidb.sql.analysis.behavior.TiBehaviorAnalysisSpi;
+import com.clougence.clouddm.ds.tidb.sql.analysis.lineage.TiLineageAnalysisSpi;
+import com.clougence.clouddm.ds.tidb.sql.analysis.security.TiSecDomainResolveSpi;
+import com.clougence.clouddm.ds.tidb.sql.editor.rewrite.TiRewriteSpi;
 import com.clougence.clouddm.ds.tidb.sql.parser.TiDBDslProvider;
-import com.clougence.clouddm.ds.tidb.sql.resource.TiResAnalysisSpi;
-import com.clougence.clouddm.ds.tidb.sql.rewrite.TiRewriteSpi;
-import com.clougence.clouddm.ds.tidb.sql.security.TiSecDomainResolveSpi;
-import com.clougence.clouddm.ds.tidb.sql.split.TiSplitAnalysisSpi;
+import com.clougence.clouddm.ds.tidb.sql.parser.TiSplitAnalysisSpi;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
-import com.clougence.clouddm.sdk.sql.column.SelectColumnAnalysisSpi;
-import com.clougence.clouddm.sdk.sql.rewrite.RewriteSpi;
-import com.clougence.clouddm.sdk.sql.secrules.ResAnalysisSpi;
-import com.clougence.clouddm.sdk.sql.secrules.SecDomainResolveSpi;
-import com.clougence.clouddm.sdk.sql.secrules.SecRulesSupportSpi;
-import com.clougence.clouddm.sdk.sql.split.SplitAnalysisSpi;
-import com.clougence.dslpaser.antlr.DslHelper;
+import com.clougence.clouddm.sdk.sql.SqlParserParameters;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAnalysisSpi;
+import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageAnalysisSpi;
+import com.clougence.clouddm.sdk.sql.analysis.security.SecDomainResolveSpi;
+import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteSpi;
+import com.clougence.clouddm.sdk.sql.parser.SplitAnalysisSpi;
 import com.clougence.dslpaser.antlr.DslProvider;
 
 /** @author mode */
 public class TiSqlEngineSpi implements SqlEngineSpi {
-    public static final String            NAME = "TiDB SQL";
+    public static final String        NAME = "TiDB SQL";
 
-    private final SplitAnalysisSpi        splitAnalysisSpi;
-    private final SecDomainResolveSpi     secDomainResolveSpi;
-    private final ResAnalysisSpi          resAnalysisSpi;
-    private final SelectColumnAnalysisSpi selectColumnAnalysisSpi;
-    private final RewriteSpi              rewriteSpi;
-
-    static {
-        DslHelper.register(TiDBDslProvider.INSTANCE);
-    }
+    private final SplitAnalysisSpi    splitAnalysisSpi;
+    private final SecDomainResolveSpi secDomainResolveSpi;
+    private final BehaviorAnalysisSpi behaviorAnalysisSpi;
+    private final LineageAnalysisSpi  lineageAnalysisSpi;
+    private final RewriteSpi          rewriteSpi;
 
     public TiSqlEngineSpi(MetaService metaService){
         this.splitAnalysisSpi = new TiSplitAnalysisSpi();
         this.secDomainResolveSpi = new TiSecDomainResolveSpi(metaService);
-        this.resAnalysisSpi = new TiResAnalysisSpi(metaService);
-        this.selectColumnAnalysisSpi = new TiSelectColumnAnalysisSpi(metaService);
+        this.behaviorAnalysisSpi = new TiBehaviorAnalysisSpi();
+        this.lineageAnalysisSpi = new TiLineageAnalysisSpi(metaService);
         this.rewriteSpi = new TiRewriteSpi();
     }
 
@@ -59,37 +54,32 @@ public class TiSqlEngineSpi implements SqlEngineSpi {
     }
 
     @Override
-    public DslProvider dslProvider() {
+    public DslProvider dslProvider(SqlParserParameters parameters) {
         return TiDBDslProvider.INSTANCE;
     }
 
     @Override
-    public SplitAnalysisSpi splitAnalysisSpi() {
+    public SplitAnalysisSpi splitAnalysisSpi(SqlParserParameters parameters) {
         return splitAnalysisSpi;
     }
 
     @Override
-    public SecDomainResolveSpi secDomainResolveSpi() {
+    public SecDomainResolveSpi secDomainResolveSpi(SqlParserParameters parameters) {
         return secDomainResolveSpi;
     }
 
     @Override
-    public ResAnalysisSpi resAnalysisSpi() {
-        return resAnalysisSpi;
+    public BehaviorAnalysisSpi behaviorAnalysisSpi(SqlParserParameters parameters) {
+        return behaviorAnalysisSpi;
     }
 
     @Override
-    public SelectColumnAnalysisSpi selectColumnAnalysisSpi() {
-        return selectColumnAnalysisSpi;
+    public LineageAnalysisSpi lineageAnalysisSpi(SqlParserParameters parameters) {
+        return lineageAnalysisSpi;
     }
 
     @Override
-    public SecRulesSupportSpi secRulesSupportSpi() {
-        return null;
-    }
-
-    @Override
-    public RewriteSpi rewriteSpi() {
+    public RewriteSpi rewriteSpi(SqlParserParameters parameters) {
         return rewriteSpi;
     }
 

@@ -1,0 +1,108 @@
+SELECT to_tsvector('english', 'The Fat Rats') @@ to_tsquery('english', 'fat & rat');
+SELECT 'fat cats ate rats' @@ to_tsquery('english', 'cat & rat');
+SELECT 'a:1 b:2'::tsvector || 'c:1 d:2 b:3'::tsvector;
+SELECT 'fat | rat'::tsquery && 'cat'::tsquery;
+SELECT 'fat | rat'::tsquery || 'cat'::tsquery;
+SELECT !! 'cat'::tsquery;
+SELECT to_tsquery('fat') <-> to_tsquery('rat');
+SELECT 'cat'::tsquery @> 'cat & rat'::tsquery, 'cat'::tsquery <@ 'cat & rat'::tsquery;
+SELECT array_to_tsvector(ARRAY['fat','cat','rat']);
+SELECT get_current_ts_config();
+SELECT length('fat:2,4 cat:3 rat:5A'::tsvector), numnode('(fat & rat) | cat'::tsquery);
+SELECT plainto_tsquery('english', 'The Fat Rats'), phraseto_tsquery('english', 'The Cat and Rats');
+SELECT websearch_to_tsquery('english', '"fat rat" or cat dog');
+SELECT querytree('foo & ! bar'::tsquery);
+SELECT setweight('fat:2,4 cat:3 rat:5B'::tsvector, 'A');
+SELECT setweight('fat:2,4 cat:3 rat:5,6B'::tsvector, 'A', ARRAY['cat','rat']);
+SELECT strip('fat:2,4 cat:3 rat:5A'::tsvector);
+SELECT to_tsvector('english', '{"aa": "The Fat Rats", "b": "dog"}'::json);
+SELECT to_tsvector('english', '{"aa": "The Fat Rats", "b": "dog"}'::jsonb);
+SELECT json_to_tsvector('english', '{"cat": "The Fat Rats", "dog": 123}'::json, '["string", "numeric"]');
+SELECT jsonb_to_tsvector('english', '{"cat": "The Fat Rats", "dog": 123}'::jsonb, '"all"');
+SELECT ts_delete('fat:2,4 cat:3 rat:5A'::tsvector, 'fat');
+SELECT ts_delete('fat:2,4 cat:3 rat:5A'::tsvector, ARRAY['fat','rat']);
+SELECT ts_filter('fat:2,4 cat:3B,7C rat:5A'::tsvector, '{a,b}');
+SELECT ts_headline('english', 'The fat cat ate the rat.', to_tsquery('cat'), 'StartSel=<mark>, StopSel=</mark>');
+SELECT ts_headline('english', '{"cat":"raining cats and dogs"}'::jsonb, to_tsquery('cat'));
+SELECT ts_rank(to_tsvector('raining cats and dogs'), to_tsquery('cat'));
+SELECT ts_rank_cd(to_tsvector('raining cats and dogs'), to_tsquery('cat'));
+SELECT ts_rewrite('a & b'::tsquery, 'a'::tsquery, 'foo|bar'::tsquery);
+SELECT tsquery_phrase(to_tsquery('fat'), to_tsquery('cat'), 10);
+SELECT tsvector_to_array('fat:2,4 cat:3 rat:5A'::tsvector);
+SELECT * FROM unnest('cat:3 fat:2,4 rat:5A'::tsvector) AS u(lexeme, positions, weights);
+SELECT alias, token, dictionary, lexemes FROM ts_debug('english', 'The Brightest supernovaes') LIMIT 2;
+SELECT ts_lexize('english_stem', 'stars');
+SELECT * FROM ts_parse('default', 'foo - bar') LIMIT 2;
+SELECT * FROM ts_token_type('default') LIMIT 2;
+------------------------------------------------------------------------------------------
+[SELECT] SELECT to_tsvector('english', 'The Fat Rats') @@ to_tsquery('english', 'fat & rat');
+----------
+[SELECT] SELECT 'fat cats ate rats' @@ to_tsquery('english', 'cat & rat');
+----------
+[SELECT] SELECT 'a:1 b:2'::tsvector || 'c:1 d:2 b:3'::tsvector;
+----------
+[SELECT] SELECT 'fat | rat'::tsquery && 'cat'::tsquery;
+----------
+[SELECT] SELECT 'fat | rat'::tsquery || 'cat'::tsquery;
+----------
+[SELECT] SELECT !! 'cat'::tsquery;
+----------
+[SELECT] SELECT to_tsquery('fat') <-> to_tsquery('rat');
+----------
+[SELECT] SELECT 'cat'::tsquery @> 'cat & rat'::tsquery, 'cat'::tsquery <@ 'cat & rat'::tsquery;
+----------
+[SELECT] SELECT array_to_tsvector(ARRAY['fat','cat','rat']);
+----------
+[SELECT] SELECT get_current_ts_config();
+----------
+[SELECT] SELECT length('fat:2,4 cat:3 rat:5A'::tsvector), numnode('(fat & rat) | cat'::tsquery);
+----------
+[SELECT] SELECT plainto_tsquery('english', 'The Fat Rats'), phraseto_tsquery('english', 'The Cat and Rats');
+----------
+[SELECT] SELECT websearch_to_tsquery('english', '"fat rat" or cat dog');
+----------
+[SELECT] SELECT querytree('foo & ! bar'::tsquery);
+----------
+[SELECT] SELECT setweight('fat:2,4 cat:3 rat:5B'::tsvector, 'A');
+----------
+[SELECT] SELECT setweight('fat:2,4 cat:3 rat:5,6B'::tsvector, 'A', ARRAY['cat','rat']);
+----------
+[SELECT] SELECT strip('fat:2,4 cat:3 rat:5A'::tsvector);
+----------
+[SELECT] SELECT to_tsvector('english', '{"aa": "The Fat Rats", "b": "dog"}'::json);
+----------
+[SELECT] SELECT to_tsvector('english', '{"aa": "The Fat Rats", "b": "dog"}'::jsonb);
+----------
+[SELECT] SELECT json_to_tsvector('english', '{"cat": "The Fat Rats", "dog": 123}'::json, '["string", "numeric"]');
+----------
+[SELECT] SELECT jsonb_to_tsvector('english', '{"cat": "The Fat Rats", "dog": 123}'::jsonb, '"all"');
+----------
+[SELECT] SELECT ts_delete('fat:2,4 cat:3 rat:5A'::tsvector, 'fat');
+----------
+[SELECT] SELECT ts_delete('fat:2,4 cat:3 rat:5A'::tsvector, ARRAY['fat','rat']);
+----------
+[SELECT] SELECT ts_filter('fat:2,4 cat:3B,7C rat:5A'::tsvector, '{a,b}');
+----------
+[SELECT] SELECT ts_headline('english', 'The fat cat ate the rat.', to_tsquery('cat'), 'StartSel=<mark>, StopSel=</mark>');
+----------
+[SELECT] SELECT ts_headline('english', '{"cat":"raining cats and dogs"}'::jsonb, to_tsquery('cat'));
+----------
+[SELECT] SELECT ts_rank(to_tsvector('raining cats and dogs'), to_tsquery('cat'));
+----------
+[SELECT] SELECT ts_rank_cd(to_tsvector('raining cats and dogs'), to_tsquery('cat'));
+----------
+[SELECT] SELECT ts_rewrite('a & b'::tsquery, 'a'::tsquery, 'foo|bar'::tsquery);
+----------
+[SELECT] SELECT tsquery_phrase(to_tsquery('fat'), to_tsquery('cat'), 10);
+----------
+[SELECT] SELECT tsvector_to_array('fat:2,4 cat:3 rat:5A'::tsvector);
+----------
+[SELECT] SELECT * FROM unnest('cat:3 fat:2,4 rat:5A'::tsvector) AS u(lexeme, positions, weights);
+----------
+[SELECT] SELECT alias, token, dictionary, lexemes FROM ts_debug('english', 'The Brightest supernovaes') LIMIT 2;
+----------
+[SELECT] SELECT ts_lexize('english_stem', 'stars');
+----------
+[SELECT] SELECT * FROM ts_parse('default', 'foo - bar') LIMIT 2;
+----------
+[SELECT] SELECT * FROM ts_token_type('default') LIMIT 2;

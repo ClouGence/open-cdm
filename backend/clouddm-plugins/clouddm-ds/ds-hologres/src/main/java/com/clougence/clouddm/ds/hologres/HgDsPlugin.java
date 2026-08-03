@@ -19,6 +19,7 @@ import com.clougence.adapter.hologres.HgSqlTypes;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.base.metadata.ui.DsFeatureIDs;
 import com.clougence.clouddm.ds.hologres.broswer.HgDsBrowseSpi;
+import com.clougence.clouddm.ds.hologres.definition.secrules.HgSecRulesSupportSpi;
 import com.clougence.clouddm.ds.hologres.definition.ui.template.HgCmdTemplateSpi;
 import com.clougence.clouddm.ds.hologres.dsconf.HgConfigSpi;
 import com.clougence.clouddm.ds.hologres.dsconf.HgSerializationSpi;
@@ -26,7 +27,6 @@ import com.clougence.clouddm.ds.hologres.execute.HgSessionFactory;
 import com.clougence.clouddm.ds.hologres.i18n.HgDsI18nKeys;
 import com.clougence.clouddm.ds.hologres.resource.HgEditorResourceSpi;
 import com.clougence.clouddm.dsfamily.definition.TypeMapUtils;
-import com.clougence.clouddm.dsfamily.postgres.definition.secrules.PgSecRulesSupportSpi;
 import com.clougence.clouddm.dsfamily.postgres.definition.ui.editor.data.PgDataEditorSpi;
 import com.clougence.clouddm.dsfamily.postgres.definition.ui.editor.table.PgEditorProvider;
 import com.clougence.clouddm.dsfamily.postgres.definition.ui.editor.table.PgTableEditorUiDataSpi;
@@ -109,7 +109,7 @@ public class HgDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
     }
 
     private void configTeam(DsPluginBinder dsPlugin) {
-        dsPlugin.addPluginSpi(new PgSecRulesSupportSpi());
+        dsPlugin.addPluginSpi(new HgSecRulesSupportSpi());
     }
 
     private void configFeature(DsPluginBinder dsPlugin) {

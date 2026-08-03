@@ -1,0 +1,51 @@
+select SECRET from CODEX_ENC_T01 where ID = 1;
+select SECRET from CODEX_ENC_K05 where ID = 1;
+select SECRET from CODEX_COLKEY_AUTO where ID=1;
+select SECRET from CODEX_COLKEY_AUTO_HASH where ID=1;
+select SECRET from CODEX_COLKEY_MANUAL where ID=1;
+select SECRET from CODEX_COLKEY_MANUAL_VISIBLE where ID=1;
+select AUTO_SECRET,MANUAL_SECRET from CODEX_COLKEY_ALTER where ID=1;
+select SECRET from CODEX_WRAP_AUTO_20260722 where ID=1;
+select SECRET from CODEX_WRAP_MANUAL_20260722 where ID=1;
+select SECRET from CODEX_WRAP_ALTER_20260722 where ID=1;
+select SECRET from CODEX_WRAP_AUTO_20260722 where ID=1;
+select SECRET from CODEX_WRAP_MANUAL_20260722 where ID=1;
+select SECRET from CODEX_WRAP_ALTER_20260722 where ID=1;
+select SECRET from CODEX_ENC_USER1.MANUAL_OWNER_DATA where ID = 1;
+select SECRET from CODEX_ENC_USER1.MANUAL_VISIBLE_DATA where ID = 1;
+select SECRET from CODEX_ENC_USER1.MANUAL_OWNER_DATA where ID = 1;
+select SECRET from CODEX_ENC_USER1.MANUAL_OWNER_DATA where ID = 1;
+------------------------------------------------------------------------------------------
+[SELECT] select SECRET from CODEX_ENC_T01 where ID = 1;
+----------
+[SELECT] select SECRET from CODEX_ENC_K05 where ID = 1;
+----------
+[SELECT] select SECRET from CODEX_COLKEY_AUTO where ID=1;
+----------
+[SELECT] select SECRET from CODEX_COLKEY_AUTO_HASH where ID=1;
+----------
+[SELECT] select SECRET from CODEX_COLKEY_MANUAL where ID=1;
+----------
+[SELECT] select SECRET from CODEX_COLKEY_MANUAL_VISIBLE where ID=1;
+----------
+[SELECT] select AUTO_SECRET,MANUAL_SECRET from CODEX_COLKEY_ALTER where ID=1;
+----------
+[SELECT] select SECRET from CODEX_WRAP_AUTO_20260722 where ID=1;
+----------
+[SELECT] select SECRET from CODEX_WRAP_MANUAL_20260722 where ID=1;
+----------
+[SELECT] select SECRET from CODEX_WRAP_ALTER_20260722 where ID=1;
+----------
+[SELECT] select SECRET from CODEX_WRAP_AUTO_20260722 where ID=1;
+----------
+[SELECT] select SECRET from CODEX_WRAP_MANUAL_20260722 where ID=1;
+----------
+[SELECT] select SECRET from CODEX_WRAP_ALTER_20260722 where ID=1;
+----------
+[SELECT] select SECRET from CODEX_ENC_USER1.MANUAL_OWNER_DATA where ID = 1;
+----------
+[SELECT] select SECRET from CODEX_ENC_USER1.MANUAL_VISIBLE_DATA where ID = 1;
+----------
+[SELECT] select SECRET from CODEX_ENC_USER1.MANUAL_OWNER_DATA where ID = 1;
+----------
+[SELECT] select SECRET from CODEX_ENC_USER1.MANUAL_OWNER_DATA where ID = 1;

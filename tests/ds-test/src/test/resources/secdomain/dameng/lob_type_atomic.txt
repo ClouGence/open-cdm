@@ -1,0 +1,13 @@
+[ddl]
+sql:
+create table app.lob_t(id int,c_text text,c_blob blob,c_clob clob);
+create view app.lob_v as select id,c_text,c_blob,c_clob from app.lob_t
+expect:
+{"contains":[{"class":"RdbTableDomain","sqlType":"CREATE_TABLE","auditKind":"CREATE","schema":"app","table":"lob_t"},{"class":"RdbViewDomain","sqlType":"CREATE_VIEW","auditKind":"CREATE","schema":"app","view":"lob_v"},{"class":"RdbTableDomain","sqlType":"SELECT","auditKind":"QUERY","schema":"app","table":"lob_t"}]}
+----------
+[dml]
+sql:
+insert into app.lob_t values(1,'TEXT',to_blob(0x01),cast('CLOB' as clob));
+update app.lob_t set c_clob='UPDATED' where id=1;delete from app.lob_t where id=1
+expect:
+{"contains":[{"class":"RdbInsertDomain","sqlType":"INSERT","auditKind":"DML","schema":"app","table":"lob_t"},{"class":"RdbUpdateDomain","sqlType":"UPDATE","auditKind":"DML","schema":"app","table":"lob_t"},{"class":"RdbDeleteDomain","sqlType":"DELETE","auditKind":"DML","schema":"app","table":"lob_t"}]}

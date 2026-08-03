@@ -5,12 +5,12 @@ plugins {
 dependencies {
     // project
     testImplementation project(':cgdm-plugin-sdk')
+    testImplementation project(':cgdm-console')
     testImplementation project(':cgdm-share-libs')
     testImplementation project(':cg-schema')
     testImplementation project(':plus-sec-rules')
     testImplementation project(':cg-detectrule')
     testImplementation project(':cg-dslparser')
-    testImplementation files('../clouddm-ds/lib/druid-1.2.25-SNAPSHOT.jar')
 
     testImplementation(project(':dsc-common'))
     testImplementation(project(':dsc-common-mysql'))
@@ -24,6 +24,9 @@ dependencies {
     testImplementation(project(':sql-doris'))
     testImplementation(project(':sql-redis'))
     testImplementation(project(':sql-mongodb'))
+    testImplementation(project(':sql-iso-sql92'))
+    testImplementation(project(':sql-iso-sql99'))
+    testImplementation(project(':sql-iso-sql2003'))
 
     testImplementation(project(':ds-mysql'))
     testImplementation(project(':ds-mariadb'))
@@ -53,10 +56,99 @@ dependencies {
     testRuntimeOnly 'org.junit.vintage:junit-vintage-engine:5.13.4'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.13.4'
     testRuntimeOnly "org.slf4j:slf4j-api:${SLF4J_VERSION}"
+    testRuntimeOnly 'com.mysql:mysql-connector-j:9.6.0'
 }
 
 test {
     useJUnitPlatform()
+
+    def parserTestParallelism = providers.gradleProperty('parserTestParallelism').getOrElse('16')
+    if (!['8', '16'].contains(parserTestParallelism)) {
+        throw new GradleException('parserTestParallelism must be 8 or 16')
+    }
+    def parserTestForkEvery = providers.gradleProperty('parserTestForkEvery').getOrElse('12').toLong()
+    if (parserTestForkEvery < 1) {
+        throw new GradleException('parserTestForkEvery must be greater than 0')
+    }
+    def progressInterval = providers.gradleProperty('testProgressInterval').getOrElse('100').toInteger()
+    def heartbeatSeconds = providers.gradleProperty('testProgressHeartbeatSeconds').getOrElse('30').toInteger()
+    if (progressInterval < 1) {
+        throw new GradleException('testProgressInterval must be greater than 0')
+    }
+    if (heartbeatSeconds < 1) {
+        throw new GradleException('testProgressHeartbeatSeconds must be greater than 0')
+    }
+
+    systemProperty 'junit.jupiter.execution.parallel.enabled', 'true'
+    systemProperty 'junit.jupiter.execution.parallel.config.strategy', 'fixed'
+    systemProperty 'junit.jupiter.execution.parallel.config.fixed.parallelism', parserTestParallelism
+    systemProperty 'junit.jupiter.execution.parallel.config.fixed.max-pool-size', parserTestParallelism
+    // Parser runtimes keep thread-local and grammar caches. Recycle the worker before
+    // those caches and JUnit's dynamic-test descriptors make later classes progressively slower.
+    forkEvery = parserTestForkEvery
+
+    def startedCount = new java.util.concurrent.atomic.AtomicLong()
+    def completedCount = new java.util.concurrent.atomic.AtomicLong()
+    def failedCount = new java.util.concurrent.atomic.AtomicLong()
+    def skippedCount = new java.util.concurrent.atomic.AtomicLong()
+    def startNanos = new java.util.concurrent.atomic.AtomicLong()
+    def heartbeatExecutor = new java.util.concurrent.atomic.AtomicReference<java.util.concurrent.ScheduledExecutorService>()
+
+    beforeSuite { descriptor ->
+        if (descriptor.parent == null) {
+            startNanos.set(System.nanoTime())
+            logger.lifecycle("[s-test] started: JUnit dynamic cases are registered during execution; " +
+                "progress shows completed, started, and currently running counts.")
+
+            def threadFactory = { Runnable runnable ->
+                Thread thread = new Thread(runnable, 's-test-progress')
+                thread.daemon = true
+                return thread
+            } as java.util.concurrent.ThreadFactory
+            def executor = java.util.concurrent.Executors.newSingleThreadScheduledExecutor(threadFactory)
+            heartbeatExecutor.set(executor)
+            executor.scheduleAtFixedRate({
+                long started = startedCount.get()
+                long completed = completedCount.get()
+                long elapsedSeconds = java.util.concurrent.TimeUnit.NANOSECONDS.toSeconds(System.nanoTime() - startNanos.get())
+                logger.lifecycle("[s-test] heartbeat: ${completed} completed, ${started} started, " +
+                    "${Math.max(0L, started - completed)} running, ${elapsedSeconds}s elapsed")
+            } as Runnable, heartbeatSeconds, heartbeatSeconds, java.util.concurrent.TimeUnit.SECONDS)
+        }
+    }
+
+    beforeTest {
+        startedCount.incrementAndGet()
+    }
+
+    afterTest { descriptor, result ->
+        long completed = completedCount.incrementAndGet()
+        if (result.resultType == org.gradle.api.tasks.testing.TestResult.ResultType.FAILURE) {
+            failedCount.incrementAndGet()
+        } else if (result.resultType == org.gradle.api.tasks.testing.TestResult.ResultType.SKIPPED) {
+            skippedCount.incrementAndGet()
+        }
+
+        if (completed == 1 || completed % progressInterval == 0 ||
+            result.resultType == org.gradle.api.tasks.testing.TestResult.ResultType.FAILURE) {
+            long started = startedCount.get()
+            logger.lifecycle("[s-test] progress: ${completed} completed, ${started} started, " +
+                "${Math.max(0L, started - completed)} running, ${failedCount.get()} failed, " +
+                "${skippedCount.get()} skipped; latest: ${descriptor.className}.${descriptor.name}")
+        }
+    }
+
+    afterSuite { descriptor, result ->
+        if (descriptor.parent == null) {
+            def executor = heartbeatExecutor.getAndSet(null)
+            if (executor != null) {
+                executor.shutdownNow()
+            }
+            long elapsedSeconds = java.util.concurrent.TimeUnit.NANOSECONDS.toSeconds(System.nanoTime() - startNanos.get())
+            logger.lifecycle("[s-test] finished: ${result.testCount} total, ${result.successfulTestCount} passed, " +
+                "${result.failedTestCount} failed, ${result.skippedTestCount} skipped, ${elapsedSeconds}s elapsed")
+        }
+    }
 }
 
 description = 's-test'

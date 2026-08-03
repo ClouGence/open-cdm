@@ -1,0 +1,39 @@
+SELECT jsonb_path_exists_tz('["2015-08-01 12:00:00-05"]'::jsonb, '$[*] ? (@.datetime() < "2015-08-02".datetime())'::jsonpath);
+SELECT jsonb_path_match_tz('["2015-08-01 12:00:00-05"]'::jsonb, 'exists($[*] ? (@.datetime() < "2015-08-02".datetime()))'::jsonpath);
+SELECT * FROM jsonb_path_query_tz('["2015-08-01 12:00:00-05","2015-08-03 00:00:00-05"]'::jsonb, '$[*] ? (@.datetime() < "2015-08-02".datetime())'::jsonpath) AS q(value);
+SELECT jsonb_path_query_array_tz('["2015-08-01 12:00:00-05","2015-08-03 00:00:00-05"]'::jsonb, '$[*] ? (@.datetime() < "2015-08-02".datetime())'::jsonpath);
+SELECT jsonb_path_query_first_tz('["2015-08-01 12:00:00-05","2015-08-03 00:00:00-05"]'::jsonb, '$[*] ? (@.datetime() < "2015-08-02".datetime())'::jsonpath);
+SELECT json_object_agg_strict(k, v ORDER BY k) FROM (VALUES ('a', 1), ('b', NULL), ('c', 3)) AS t(k, v);
+SELECT jsonb_object_agg_strict(k, v ORDER BY k) FROM (VALUES ('a', 1), ('b', NULL), ('c', 3)) AS t(k, v);
+SELECT json_object_agg_unique(k, v ORDER BY k) FROM (VALUES ('a', 1), ('b', NULL), ('c', 3)) AS t(k, v);
+SELECT jsonb_object_agg_unique(k, v ORDER BY k) FROM (VALUES ('a', 1), ('b', NULL), ('c', 3)) AS t(k, v);
+SELECT json_object_agg_unique_strict(k, v ORDER BY k) FROM (VALUES ('a', 1), ('b', NULL), ('c', 3)) AS t(k, v);
+SELECT jsonb_object_agg_unique_strict(k, v ORDER BY k) FROM (VALUES ('a', 1), ('b', NULL), ('c', 3)) AS t(k, v);
+SELECT json_agg_strict(v ORDER BY v) FROM (VALUES (1), (NULL), (2)) AS t(v);
+SELECT jsonb_agg_strict(v ORDER BY v DESC) FROM (VALUES ('a'), (NULL), ('b')) AS t(v);
+------------------------------------------------------------------------------------------
+[SELECT] SELECT jsonb_path_exists_tz('["2015-08-01 12:00:00-05"]'::jsonb, '$[*] ? (@.datetime() < "2015-08-02".datetime())'::jsonpath);
+----------
+[SELECT] SELECT jsonb_path_match_tz('["2015-08-01 12:00:00-05"]'::jsonb, 'exists($[*] ? (@.datetime() < "2015-08-02".datetime()))'::jsonpath);
+----------
+[SELECT] SELECT * FROM jsonb_path_query_tz('["2015-08-01 12:00:00-05","2015-08-03 00:00:00-05"]'::jsonb, '$[*] ? (@.datetime() < "2015-08-02".datetime())'::jsonpath) AS q(value);
+----------
+[SELECT] SELECT jsonb_path_query_array_tz('["2015-08-01 12:00:00-05","2015-08-03 00:00:00-05"]'::jsonb, '$[*] ? (@.datetime() < "2015-08-02".datetime())'::jsonpath);
+----------
+[SELECT] SELECT jsonb_path_query_first_tz('["2015-08-01 12:00:00-05","2015-08-03 00:00:00-05"]'::jsonb, '$[*] ? (@.datetime() < "2015-08-02".datetime())'::jsonpath);
+----------
+[SELECT] SELECT json_object_agg_strict(k, v ORDER BY k) FROM (VALUES ('a', 1), ('b', NULL), ('c', 3)) AS t(k, v);
+----------
+[SELECT] SELECT jsonb_object_agg_strict(k, v ORDER BY k) FROM (VALUES ('a', 1), ('b', NULL), ('c', 3)) AS t(k, v);
+----------
+[SELECT] SELECT json_object_agg_unique(k, v ORDER BY k) FROM (VALUES ('a', 1), ('b', NULL), ('c', 3)) AS t(k, v);
+----------
+[SELECT] SELECT jsonb_object_agg_unique(k, v ORDER BY k) FROM (VALUES ('a', 1), ('b', NULL), ('c', 3)) AS t(k, v);
+----------
+[SELECT] SELECT json_object_agg_unique_strict(k, v ORDER BY k) FROM (VALUES ('a', 1), ('b', NULL), ('c', 3)) AS t(k, v);
+----------
+[SELECT] SELECT jsonb_object_agg_unique_strict(k, v ORDER BY k) FROM (VALUES ('a', 1), ('b', NULL), ('c', 3)) AS t(k, v);
+----------
+[SELECT] SELECT json_agg_strict(v ORDER BY v) FROM (VALUES (1), (NULL), (2)) AS t(v);
+----------
+[SELECT] SELECT jsonb_agg_strict(v ORDER BY v DESC) FROM (VALUES ('a'), (NULL), ('b')) AS t(v);

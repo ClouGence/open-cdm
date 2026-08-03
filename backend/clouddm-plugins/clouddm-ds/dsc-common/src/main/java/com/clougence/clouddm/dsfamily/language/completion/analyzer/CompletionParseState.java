@@ -5,10 +5,7 @@
  */
 package com.clougence.clouddm.dsfamily.language.completion.analyzer;
 
-import java.util.Collections;
 import java.util.List;
-
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -17,16 +14,10 @@ import lombok.Getter;
 @Builder
 public class CompletionParseState {
 
-    private final boolean                 parsed;
-    private final boolean                 hasSyntaxError;
-    @Builder.Default
-    private final SecQueryType            statementType = SecQueryType.UNKNOWN;
-    @Builder.Default
-    private final CompletionClause        clause        = CompletionClause.UNKNOWN;
-    @Builder.Default
-    private final List<CompletionTableRef> tableRefs    = Collections.emptyList();
-    @Builder.Default
-    private final List<CompletionColumnRef> columnRefs   = Collections.emptyList();
-    @Builder.Default
-    private final List<CompletionSyntaxError> syntaxErrors = Collections.emptyList();
+    private final boolean                     parsed;
+    private final boolean                     hasSyntaxError;
+    private final CompletionClause            clause;
+    private final List<CompletionTableRef>    tableRefs;
+    private final List<CompletionColumnRef>   columnRefs;
+    private final List<CompletionSyntaxError> syntaxErrors;
 }

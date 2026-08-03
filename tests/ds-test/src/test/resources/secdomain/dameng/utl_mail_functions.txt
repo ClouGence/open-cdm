@@ -1,0 +1,29 @@
+[utl_mail_init_domain]
+sql:
+call utl_mail.init('127.0.0.1',65534,'sender@dm8.local','password')
+expect:
+{
+  "contains": [
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"utl_mail"}
+  ]
+}
+----------
+[utl_mail_send_domain]
+sql:
+call utl_mail.send('sender@dm8.local','receiver@dm8.local',MESSAGE=>'body')
+expect:
+{
+  "contains": [
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"utl_mail"}
+  ]
+}
+----------
+[utl_mail_attach_domain]
+sql:
+call utl_mail.send_attach_raw(SENDER=>'sender@dm8.local',RECIPIENTS=>'receiver@dm8.local',ATTACHMENT=>cast(null as blob))
+expect:
+{
+  "contains": [
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"utl_mail"}
+  ]
+}

@@ -1,0 +1,104 @@
+[OraParseColumnComplexTest.test1]
+sql:
+-- 包含子查询的跨Schema三表连接[1,7](@ref)
+SELECT s1t1.column1 AS main_id,
+       (SELECT MAX(s2t2.column3) as c 
+        FROM schema2.table2 s2t2 
+        WHERE s2t2.column4 = s1t1.column2) AS max_val,
+       RANK() OVER (ORDER BY s1t2.column5 DESC) AS rank_level
+FROM schema1.table1 s1t1
+JOIN schema1.table2 s1t2 
+  ON s1t1.column3 = s1t2.column1
+LEFT JOIN schema2.table1 s2t1 
+  ON s1t1.column4 = s2t1.column5
+WHERE s2t1.column6 IN (
+    SELECT DISTINCT column2 
+    FROM schema2.table2 
+    WHERE column4 > 100
+);
+expect:
+{
+  "main_id" : [ "/catalog1/schema1/table1/column1/" ],
+  "max_val" : [ "/catalog1/schema2/table2/column3/" ],
+  "rank_level" : []
+}
+----------
+[OraParseColumnComplexTest.test2]
+sql:
+SELECT s1t1.column2 AS category,
+       SUM(s2t1.column4) AS total_sum,
+       AVG(s1t2.column5) OVER (PARTITION BY s1t1.column2) AS avg_value,
+       (SELECT COUNT(*) as total 
+        FROM schema2.table2 
+        WHERE column3 = s1t1.column3) AS related_count
+FROM schema1.table1 s1t1
+LEFT JOIN schema1.table2 s1t2 
+  ON s1t1.column1 = s1t2.column6
+RIGHT JOIN schema2.table1 s2t1 
+  ON s1t1.column4 = s2t1.column3
+GROUP BY s1t1.column2
+HAVING total_sum > (
+    SELECT AVG(column4)*1.5 
+    FROM schema2.table1
+);
+expect:
+{
+  "category" : [ "/catalog1/schema1/table1/column2/" ],
+  "total_sum" : [ "/catalog1/schema2/table1/column4/" ],
+  "avg_value" : [ "/catalog1/schema1/table2/column5/" ],
+  "related_count" : []
+}
+----------
+[OraParseColumnComplexTest.test3]
+sql:
+(
+    SELECT 
+        s1t1.*,
+        s2t2.column1 AS s2_col1,
+        ROW_NUMBER() OVER (ORDER BY s1t2.column5) AS conflict_alias
+    FROM schema1.table1 s1t1
+    LEFT JOIN schema2.table2 s2t2 
+      ON s1t1.column6 = s2t2.column3
+    FULL JOIN schema1.table2 s1t2 
+      ON s1t1.column2 = s1t2.column4
+) 
+UNION
+(
+    SELECT 
+        s2t1.*,
+        s1t2.column2 AS s1_col2,
+        RANK() OVER (PARTITION BY s2t1.column3 ORDER BY s2t1.column4) AS conflict_alias 
+    FROM schema2.table1 s2t1
+    RIGHT JOIN schema1.table2 s1t2 
+      ON s2t1.column5 = s1t2.column1
+    WHERE s2t1.column6 IN (
+        SELECT MAX(column6) 
+        FROM schema2.table2 
+        GROUP BY column2
+    )
+)
+ORDER BY 
+    CASE 
+        WHEN conflict_alias > 100 THEN column1 
+        ELSE column2 
+    END DESC;
+expect:
+{
+  "column1" : [ "/catalog1/schema1/table1/column1/", "/catalog1/schema2/table1/column1/" ],
+  "column2" : [ "/catalog1/schema1/table1/column2/", "/catalog1/schema2/table1/column2/" ],
+  "column3" : [ "/catalog1/schema1/table1/column3/", "/catalog1/schema2/table1/column3/" ],
+  "column4" : [ "/catalog1/schema1/table1/column4/", "/catalog1/schema2/table1/column4/" ],
+  "column5" : [ "/catalog1/schema1/table1/column5/", "/catalog1/schema2/table1/column5/" ],
+  "column6" : [ "/catalog1/schema1/table1/column6/", "/catalog1/schema2/table1/column6/" ],
+  "s2_col1" : [ "/catalog1/schema2/table2/column1/", "/catalog1/schema1/table2/column2/" ],
+  "conflict_alias" : []
+}
+----------
+[OraParseColumnComplexTest.test4]
+sql:
+select a.column1,b.column2 from (select * from table1 union select * from table2) a left join (select * from schema2.table1 union select * from schema2.table2) b on a.column1 = b.column1
+expect:
+{
+  "column1" : [ "/catalog1/schema1/table1/column1/", "/catalog1/schema1/table2/column1/" ],
+  "column2" : [ "/catalog1/schema2/table1/column2/", "/catalog1/schema2/table2/column2/" ]
+}

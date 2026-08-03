@@ -1,0 +1,675 @@
+[dql_mysql_window_0.0001]
+sql:
+SELECT ST_INTERSECTION(MBRDISJOINT(1, POINT(8156, -19591)), (SELECT INTERVAL((-28347), (SELECT 1))));
+expect:
+{
+  "ST_INTERSECTION(MBRDISJOINT(1, POINT(8156, -19591)), (SELECT INTERVAL((-28347), (SELECT 1))))" : [ ]
+}
+----------
+[dql_mysql_window_0.0002]
+sql:
+SELECT product,country_id,year,SUM(profit) FROM split_olap_native_a.sales GROUP BY product,country_id,year WITH CUBE;
+expect:
+{
+  "product" : [ "(1:7~1:14) /catalog1/split_olap_native_a/sales/product/" ],
+  "country_id" : [ "(1:15~1:25) /catalog1/split_olap_native_a/sales/country_id/" ],
+  "year" : [ "(1:26~1:30) /catalog1/split_olap_native_a/sales/year/" ],
+  "SUM(profit)" : [ "(1:35~1:41) /catalog1/split_olap_native_a/sales/profit/" ]
+}
+----------
+[dql_mysql_window_0.0003]
+sql:
+SELECT product,country_id,year,SUM(profit) FROM split_olap_native_a.sales GROUP BY product,country_id,year WITH CUBE UNION ALL SELECT product,country_id,year,SUM(profit) FROM split_olap_native_a.sales GROUP BY product,country_id,year WITH ROLLUP;
+expect:
+{
+  "product" : [ "(1:7~1:14) /catalog1/split_olap_native_a/sales/product/", "(1:134~1:141) /catalog1/split_olap_native_a/sales/product/" ],
+  "country_id" : [ "(1:15~1:25) /catalog1/split_olap_native_a/sales/country_id/", "(1:142~1:152) /catalog1/split_olap_native_a/sales/country_id/" ],
+  "year" : [ "(1:26~1:30) /catalog1/split_olap_native_a/sales/year/", "(1:153~1:157) /catalog1/split_olap_native_a/sales/year/" ],
+  "SUM(profit)" : [ "(1:35~1:41) /catalog1/split_olap_native_a/sales/profit/", "(1:162~1:168) /catalog1/split_olap_native_a/sales/profit/" ]
+}
+----------
+[dql_mysql_window_0.0004]
+sql:
+SELECT a,b,GROUPING(c+c) FROM split_olap_grouping.t GROUP BY a,b,(c+c) WITH ROLLUP;
+expect:
+{
+  "a" : [ "(1:7~1:8) /catalog1/split_olap_grouping/t/a/" ],
+  "b" : [ "(1:9~1:10) /catalog1/split_olap_grouping/t/b/" ],
+  "GROUPING(c+c)" : [ "(1:20~1:21) /catalog1/split_olap_grouping/t/c/", "(1:22~1:23) /catalog1/split_olap_grouping/t/c/" ]
+}
+----------
+[dql_mysql_window_0.0005]
+sql:
+SELECT 1 FROM DUAL WHERE 2>ALL(SELECT GROUPING(a) FROM split_olap_grouping.t GROUP BY a WITH ROLLUP);
+expect:
+{
+  "1" : [ ]
+}
+----------
+[dql_mysql_window_0.0006]
+sql:
+SELECT IF(GROUPING(a)=1,'ALL',a),IF(GROUPING(b)=1,'ALL',b),SUM(c) FROM split_olap_grouping.t GROUP BY a,b WITH ROLLUP;
+expect:
+{
+  "IF(GROUPING(a)=1,'ALL',a)" : [ "(1:19~1:20) /catalog1/split_olap_grouping/t/a/", "(1:30~1:31) /catalog1/split_olap_grouping/t/a/" ],
+  "IF(GROUPING(b)=1,'ALL',b)" : [ "(1:45~1:46) /catalog1/split_olap_grouping/t/b/", "(1:56~1:57) /catalog1/split_olap_grouping/t/b/" ],
+  "SUM(c)" : [ "(1:63~1:64) /catalog1/split_olap_grouping/t/c/" ]
+}
+----------
+[dql_mysql_window_0.0007]
+sql:
+SELECT DISTINCT GROUPING(a),GROUPING(b) FROM split_olap_grouping.t GROUP BY a,b WITH ROLLUP ORDER BY GROUPING(a),GROUPING(b);
+expect:
+{
+  "GROUPING(a)" : [ "(1:25~1:26) /catalog1/split_olap_grouping/t/a/" ],
+  "GROUPING(b)" : [ "(1:37~1:38) /catalog1/split_olap_grouping/t/b/" ]
+}
+----------
+[dql_mysql_window_0.0008]
+sql:
+SELECT a,b FROM split_olap_grouping.t GROUP BY GROUPING(a),GROUPING(b) WITH ROLLUP;
+expect:
+{
+  "a" : [ "(1:7~1:8) /catalog1/split_olap_grouping/t/a/" ],
+  "b" : [ "(1:9~1:10) /catalog1/split_olap_grouping/t/b/" ]
+}
+----------
+[dql_mysql_window_0.0009]
+sql:
+SELECT a,GROUPING(1) FROM split_olap_grouping.t GROUP BY 1 WITH ROLLUP;
+expect:
+{
+  "a" : [ "(1:7~1:8) /catalog1/split_olap_grouping/t/a/" ],
+  "GROUPING(1)" : [ ]
+}
+----------
+[dql_mysql_window_0.0010]
+sql:
+SELECT a,GROUPING(SUM(a)) FROM split_olap_grouping.t GROUP BY a WITH ROLLUP;
+expect:
+{
+  "a" : [ "(1:7~1:8) /catalog1/split_olap_grouping/t/a/" ],
+  "GROUPING(SUM(a))" : [ "(1:22~1:23) /catalog1/split_olap_grouping/t/a/" ]
+}
+----------
+[dql_mysql_window_0.0011]
+sql:
+SELECT GROUPING((SELECT MAX(b) FROM split_olap_grouping.t)) FROM split_olap_grouping.t GROUP BY (SELECT MAX(b) FROM split_olap_grouping.t) WITH ROLLUP;
+expect:
+{
+  "GROUPING((SELECT MAX(b) FROM split_olap_grouping.t))" : [ "(1:28~1:29) /catalog1/split_olap_grouping/t/b/" ]
+}
+----------
+[dql_mysql_window_0.0012]
+sql:
+SELECT GROUPING(f1) FROM split_olap_modern.p GROUP BY f1;
+expect:
+{
+  "GROUPING(f1)" : [ "(1:16~1:18) /catalog1/split_olap_modern/p/f1/" ]
+}
+----------
+[dql_mysql_window_0.0013]
+sql:
+SELECT f1,f1+GROUPING(f1) FROM split_olap_modern.p GROUP BY f1 HAVING GROUPING(f1)=0 ORDER BY GROUPING(f1);
+expect:
+{
+  "f1" : [ "(1:7~1:9) /catalog1/split_olap_modern/p/f1/" ],
+  "f1+GROUPING(f1)" : [ "(1:10~1:12) /catalog1/split_olap_modern/p/f1/", "(1:22~1:24) /catalog1/split_olap_modern/p/f1/" ]
+}
+----------
+[dql_mysql_window_0.0014]
+sql:
+SELECT 1 FROM split_olap_modern.p GROUP BY (f1+f1) ORDER BY GROUPING(f1+f1);
+expect:
+{
+  "1" : [ ]
+}
+----------
+[dql_mysql_window_0.0015]
+sql:
+SELECT NOW(),(SELECT 1),GROUPING((SELECT 1)) FROM split_olap_modern.p GROUP BY (SELECT 1) WITH ROLLUP;
+expect:
+{
+  "NOW()" : [ ],
+  "(SELECT 1)" : [ ],
+  "GROUPING((SELECT 1))" : [ ]
+}
+----------
+[dql_mysql_window_0.0016]
+sql:
+SELECT RELEASE_ALL_LOCKS(),f1,GROUPING(f1) FROM split_olap_modern.p GROUP BY f1 WITH ROLLUP;
+expect:
+{
+  "RELEASE_ALL_LOCKS()" : [ ],
+  "f1" : [ "(1:27~1:29) /catalog1/split_olap_modern/p/f1/" ],
+  "GROUPING(f1)" : [ "(1:39~1:41) /catalog1/split_olap_modern/p/f1/" ]
+}
+----------
+[dql_mysql_window_0.0017]
+sql:
+SELECT GROUPING(r.pk) FROM split_olap_myisam.left_t AS l LEFT JOIN split_olap_myisam.right_t AS r ON 0 GROUP BY r.pk WITH ROLLUP ORDER BY GROUPING(r.pk);
+expect:
+{
+  "GROUPING(r.pk)" : [ "(1:16~1:20) /catalog1/split_olap_myisam/right_t/pk/" ]
+}
+----------
+[dql_mysql_window_0.0018]
+sql:
+SELECT CONCAT(v.col_varchar_key,1) AS field1 FROM split_olap_myisam.varchar_t AS v RIGHT JOIN split_olap_myisam.one_t AS o ON v.pk=1 GROUP BY field1 WITH ROLLUP HAVING field1>='n' ORDER BY field1;
+expect:
+{
+  "field1" : [ "(1:14~1:31) /catalog1/split_olap_myisam/varchar_t/col_varchar_key/" ]
+}
+----------
+[dql_mysql_window_0.0019]
+sql:
+SELECT int_t.col_int*int_t.col_int AS field2 FROM split_olap_myisam.int_t WHERE int_t.col_int<>1 OR int_t.pk GROUP BY field2 WITH ROLLUP HAVING field2<>239 ORDER BY GROUPING(field2);
+expect:
+{
+  "field2" : [ "(1:7~1:20) /catalog1/split_olap_myisam/int_t/col_int/", "(1:21~1:34) /catalog1/split_olap_myisam/int_t/col_int/" ]
+}
+----------
+[dql_mysql_window_0.0020]
+sql:
+SELECT product,SUM(profit) FROM split_olap_native_a.sales GROUP BY 1 WITH ROLLUP;
+expect:
+{
+  "product" : [ "(1:7~1:14) /catalog1/split_olap_native_a/sales/product/" ],
+  "SUM(profit)" : [ "(1:19~1:25) /catalog1/split_olap_native_a/sales/profit/" ]
+}
+----------
+[dql_mysql_window_0.0021]
+sql:
+SELECT product,country_id,year,SUM(profit) FROM split_olap_native_a.sales GROUP BY product,country_id,year WITH ROLLUP;
+expect:
+{
+  "product" : [ "(1:7~1:14) /catalog1/split_olap_native_a/sales/product/" ],
+  "country_id" : [ "(1:15~1:25) /catalog1/split_olap_native_a/sales/country_id/" ],
+  "year" : [ "(1:26~1:30) /catalog1/split_olap_native_a/sales/year/" ],
+  "SUM(profit)" : [ "(1:35~1:41) /catalog1/split_olap_native_a/sales/profit/" ]
+}
+----------
+[dql_mysql_window_0.0022]
+sql:
+SELECT product,country_id,year,SUM(profit) FROM split_olap_native_a.sales GROUP BY product,country_id,year WITH ROLLUP LIMIT 3,3;
+expect:
+{
+  "product" : [ "(1:7~1:14) /catalog1/split_olap_native_a/sales/product/" ],
+  "country_id" : [ "(1:15~1:25) /catalog1/split_olap_native_a/sales/country_id/" ],
+  "year" : [ "(1:26~1:30) /catalog1/split_olap_native_a/sales/year/" ],
+  "SUM(profit)" : [ "(1:35~1:41) /catalog1/split_olap_native_a/sales/profit/" ]
+}
+----------
+[dql_mysql_window_0.0023]
+sql:
+SELECT product,country_id,COUNT(*),COUNT(DISTINCT year) FROM split_olap_native_a.sales GROUP BY product,country_id WITH ROLLUP;
+expect:
+{
+  "product" : [ "(1:7~1:14) /catalog1/split_olap_native_a/sales/product/" ],
+  "country_id" : [ "(1:15~1:25) /catalog1/split_olap_native_a/sales/country_id/" ],
+  "COUNT(*)" : [ ],
+  "COUNT(DISTINCT year)" : [ "(1:50~1:54) /catalog1/split_olap_native_a/sales/year/" ]
+}
+----------
+[dql_mysql_window_0.0024]
+sql:
+SELECT CONCAT(product,':',country_id) AS 'prod',CONCAT(':',year,':') AS 'year',1+1,SUM(profit)/COUNT(*) FROM split_olap_native_a.sales GROUP BY 1,2 WITH ROLLUP;
+expect:
+{
+  "prod" : [ "(1:14~1:21) /catalog1/split_olap_native_a/sales/product/", "(1:26~1:36) /catalog1/split_olap_native_a/sales/country_id/" ],
+  "year" : [ "(1:59~1:63) /catalog1/split_olap_native_a/sales/year/" ],
+  "1+1" : [ ],
+  "SUM(profit)/COUNT(*)" : [ "(1:87~1:93) /catalog1/split_olap_native_a/sales/profit/" ]
+}
+----------
+[dql_mysql_window_0.0025]
+sql:
+SELECT product,country,year,SUM(profit) FROM split_olap_native_a.sales,split_olap_native_a.countries WHERE sales.country_id=countries.country_id GROUP BY product,country,year WITH ROLLUP;
+expect:
+{
+  "product" : [ "(1:7~1:14) /catalog1/split_olap_native_a/sales/product/" ],
+  "country" : [ "(1:15~1:22) /catalog1/split_olap_native_a/sales/country/" ],
+  "year" : [ "(1:23~1:27) /catalog1/split_olap_native_a/sales/year/" ],
+  "SUM(profit)" : [ "(1:32~1:38) /catalog1/split_olap_native_a/sales/profit/" ]
+}
+----------
+[dql_mysql_window_0.0026]
+sql:
+SELECT product FROM split_olap_native_a.sales AS outer_sales WHERE EXISTS (SELECT product,country_id,SUM(profit) FROM split_olap_native_a.sales AS inner_sales WHERE outer_sales.product=inner_sales.product GROUP BY product,country_id WITH ROLLUP HAVING SUM(profit)>6000);
+expect:
+{
+  "product" : [ "(1:7~1:14) /catalog1/split_olap_native_a/sales/product/" ]
+}
+----------
+[dql_mysql_window_0.0027]
+sql:
+SELECT c1.i,c2.i,COUNT(*) FROM split_olap_native_a.c1,split_olap_native_a.c2 GROUP BY c1.i,c2.i WITH ROLLUP;
+expect:
+[ {
+  "sources" : [ "(1:7~1:11) /catalog1/split_olap_native_a/c1/i/" ],
+  "column" : "i"
+}, {
+  "sources" : [ "(1:12~1:16) /catalog1/split_olap_native_a/c2/i/" ],
+  "column" : "i"
+}, {
+  "sources" : [ ],
+  "column" : "COUNT(*)"
+} ]
+----------
+[dql_mysql_window_0.0028]
+sql:
+SELECT d.dt AS day,COUNT(d.user_id) AS sample,COUNT(next_day.user_id) AS not_cancelled FROM split_olap_native_a.user_day AS d LEFT JOIN split_olap_native_a.user_day AS next_day ON next_day.user_id=d.user_id AND next_day.dt=DATE_ADD(d.dt,INTERVAL 1 DAY) GROUP BY day WITH ROLLUP;
+expect:
+{
+  "day" : [ "(1:7~1:11) /catalog1/split_olap_native_a/user_day/dt/" ],
+  "sample" : [ "(1:25~1:34) /catalog1/split_olap_native_a/user_day/user_id/" ],
+  "not_cancelled" : [ "(1:52~1:68) /catalog1/split_olap_native_a/user_day/user_id/" ]
+}
+----------
+[dql_mysql_window_0.0029]
+sql:
+SELECT SQL_CALC_FOUND_ROWS a,SUM(b) FROM split_olap_native_a.nums GROUP BY a WITH ROLLUP LIMIT 1;
+expect:
+{
+  "a" : [ "(1:27~1:28) /catalog1/split_olap_native_a/nums/a/" ],
+  "SUM(b)" : [ "(1:33~1:34) /catalog1/split_olap_native_a/nums/b/" ]
+}
+----------
+[dql_mysql_window_0.0030]
+sql:
+SELECT a,SUM(a),SUM(a)+1 FROM (SELECT a FROM split_olap_native_a.nums UNION SELECT 2) AS derived_nums GROUP BY a WITH ROLLUP;
+expect:
+{
+  "a" : [ "(1:38~1:39) /catalog1/split_olap_native_a/nums/a/" ],
+  "SUM(a)" : [ "(1:38~1:39) /catalog1/split_olap_native_a/nums/a/" ],
+  "SUM(a)+1" : [ "(1:38~1:39) /catalog1/split_olap_native_a/nums/a/" ]
+}
+----------
+[dql_mysql_window_0.0031]
+sql:
+SELECT a,SUM(a),SUM(a)+1,CONCAT(SUM(a),'x'),SUM(a)+SUM(a) FROM (SELECT 1 AS a,2 AS b UNION SELECT 2,3 UNION SELECT 5,6) AS derived_nums GROUP BY a WITH ROLLUP;
+expect:
+{
+  "a" : [ ],
+  "SUM(a)" : [ ],
+  "SUM(a)+1" : [ ],
+  "CONCAT(SUM(a),'x')" : [ ],
+  "SUM(a)+SUM(a)" : [ ]
+}
+----------
+[dql_mysql_window_0.0032]
+sql:
+SELECT a,a+1,SUM(a) FROM split_olap_native_a.nums GROUP BY a WITH ROLLUP;
+expect:
+{
+  "a" : [ "(1:7~1:8) /catalog1/split_olap_native_a/nums/a/" ],
+  "a+1" : [ "(1:9~1:10) /catalog1/split_olap_native_a/nums/a/" ],
+  "SUM(a)" : [ "(1:17~1:18) /catalog1/split_olap_native_a/nums/a/" ]
+}
+----------
+[dql_mysql_window_0.0033]
+sql:
+SELECT a,a+1 AS b_alias FROM split_olap_native_a.nums GROUP BY a WITH ROLLUP HAVING b_alias>2;
+expect:
+{
+  "a" : [ "(1:7~1:8) /catalog1/split_olap_native_a/nums/a/" ],
+  "b_alias" : [ "(1:9~1:10) /catalog1/split_olap_native_a/nums/a/" ]
+}
+----------
+[dql_mysql_window_0.0034]
+sql:
+SELECT IFNULL(a,'TEST'),COALESCE(b,'TEST') FROM split_olap_native_b.nums GROUP BY a,b WITH ROLLUP;
+expect:
+{
+  "IFNULL(a,'TEST')" : [ "(1:14~1:15) /catalog1/split_olap_native_b/nums/a/" ],
+  "COALESCE(b,'TEST')" : [ "(1:33~1:34) /catalog1/split_olap_native_b/nums/b/" ]
+}
+----------
+[dql_mysql_window_0.0035]
+sql:
+SELECT a,b,a AS c,COUNT(*) AS row_count FROM split_olap_native_b.nums GROUP BY a,b,c WITH ROLLUP;
+expect:
+{
+  "a" : [ "(1:7~1:8) /catalog1/split_olap_native_b/nums/a/" ],
+  "b" : [ "(1:9~1:10) /catalog1/split_olap_native_b/nums/b/" ],
+  "c" : [ "(1:11~1:12) /catalog1/split_olap_native_b/nums/a/" ],
+  "row_count" : [ ]
+}
+----------
+[dql_mysql_window_0.0036]
+sql:
+SELECT COUNT(a) FROM split_olap_native_b.nums GROUP BY NULL WITH ROLLUP;
+expect:
+{
+  "COUNT(a)" : [ "(1:13~1:14) /catalog1/split_olap_native_b/nums/a/" ]
+}
+----------
+[dql_mysql_window_0.0037]
+sql:
+SELECT 1 FROM split_olap_native_b.nums GROUP BY (DATE(NULL)) WITH ROLLUP;
+expect:
+{
+  "1" : [ ]
+}
+----------
+[dql_mysql_window_0.0038]
+sql:
+SELECT f1 FROM split_olap_native_b.dt GROUP BY (SELECT f1 FROM split_olap_native_b.dt HAVING f1<'2012-12-21 00:00:00') WITH ROLLUP;
+expect:
+{
+  "f1" : [ "(1:7~1:9) /catalog1/split_olap_native_b/dt/f1/" ]
+}
+----------
+[dql_mysql_window_0.0039]
+sql:
+SELECT f1 FROM split_olap_native_b.d GROUP BY (SELECT f1 FROM split_olap_native_b.d HAVING f1<'2012-12-21') WITH ROLLUP;
+expect:
+{
+  "f1" : [ "(1:7~1:9) /catalog1/split_olap_native_b/d/f1/" ]
+}
+----------
+[dql_mysql_window_0.0040]
+sql:
+SELECT f1 FROM split_olap_native_b.tm GROUP BY (SELECT f1 FROM split_olap_native_b.tm HAVING f1<'12:12:12') WITH ROLLUP;
+expect:
+{
+  "f1" : [ "(1:7~1:9) /catalog1/split_olap_native_b/tm/f1/" ]
+}
+----------
+[dql_mysql_window_0.0041]
+sql:
+SELECT NOW() FROM split_olap_native_b.nums GROUP BY (SELECT 1) WITH ROLLUP;
+expect:
+{
+  "NOW()" : [ ]
+}
+----------
+[dql_mysql_window_0.0042]
+sql:
+SELECT RELEASE_ALL_LOCKS() FROM split_olap_native_b.nums GROUP BY a WITH ROLLUP;
+expect:
+{
+  "RELEASE_ALL_LOCKS()" : [ ]
+}
+----------
+[dql_mysql_window_0.0043]
+sql:
+SELECT GROUPING(table2.col_time) FROM split_olap_tail.ttime AS table1,split_olap_tail.ttime AS table2 WHERE table2.pk=1 GROUP BY table2.col_time WITH ROLLUP ORDER BY GROUPING(table2.col_time);
+expect:
+{
+  "GROUPING(table2.col_time)" : [ "(1:16~1:31) /catalog1/split_olap_tail/ttime/col_time/" ]
+}
+----------
+[dql_mysql_window_0.0044]
+sql:
+SELECT (a+1) IS NULL,GROUPING(a+1) FROM split_olap_tail.t GROUP BY a+1 WITH ROLLUP;
+expect:
+{
+  "(a+1) IS NULL" : [ "(1:8~1:9) /catalog1/split_olap_tail/t/a/" ],
+  "GROUPING(a+1)" : [ "(1:30~1:31) /catalog1/split_olap_tail/t/a/" ]
+}
+----------
+[dql_mysql_window_0.0045]
+sql:
+SELECT a AS f1,'w' AS f2 FROM split_olap_tail.t GROUP BY f1,f2 WITH ROLLUP HAVING ISNULL(f2);
+expect:
+{
+  "f1" : [ "(1:7~1:8) /catalog1/split_olap_tail/t/a/" ],
+  "f2" : [ ]
+}
+----------
+[dql_mysql_window_0.0046]
+sql:
+SELECT a=3 OR a=3,a AS f1 FROM split_olap_tail.t GROUP BY f1 WITH ROLLUP;
+expect:
+{
+  "a=3 OR a=3" : [ "(1:7~1:8) /catalog1/split_olap_tail/t/a/", "(1:14~1:15) /catalog1/split_olap_tail/t/a/" ],
+  "f1" : [ "(1:18~1:19) /catalog1/split_olap_tail/t/a/" ]
+}
+----------
+[dql_mysql_window_0.0047]
+sql:
+SELECT DISTINCT COUNT(*),a+b FROM split_olap_tail.t GROUP BY a+b WITH ROLLUP;
+expect:
+{
+  "COUNT(*)" : [ ],
+  "a+b" : [ "(1:25~1:26) /catalog1/split_olap_tail/t/a/", "(1:27~1:28) /catalog1/split_olap_tail/t/b/" ]
+}
+----------
+[dql_mysql_window_0.0048]
+sql:
+SELECT (SELECT 'a') AS f1 FROM split_olap_tail.t AS alias1,split_olap_tail.t AS alias2 GROUP BY f1 WITH ROLLUP HAVING f1<7;
+expect:
+{
+  "f1" : [ ]
+}
+----------
+[dql_mysql_window_0.0049]
+sql:
+SELECT CONCAT(INSTR(a,'w')) FROM split_olap_tail.t GROUP BY a WITH ROLLUP;
+expect:
+{
+  "CONCAT(INSTR(a,'w'))" : [ "(1:20~1:21) /catalog1/split_olap_tail/t/a/" ]
+}
+----------
+[dql_mysql_window_0.0050]
+sql:
+SELECT REPLACE(IF(t2.a=t2.b,_latin1 'a','e'),'d','b') FROM split_olap_tail.tmix,split_olap_tail.tmix AS t2 GROUP BY REPLACE(IF(t2.a=t2.b,_latin1 'a','e'),'d','b') WITH ROLLUP;
+expect:
+{
+  "REPLACE(IF(t2.a=t2.b,_latin1 'a','e'),'d','b')" : [ "(1:18~1:22) /catalog1/split_olap_tail/tmix/a/", "(1:23~1:27) /catalog1/split_olap_tail/tmix/b/" ]
+}
+----------
+[dql_mysql_window_0.0051]
+sql:
+SELECT a,GROUPING(a) AS ga FROM split_olap_tail.tj JOIN split_olap_tail.tj2 USING(b) GROUP BY a WITH ROLLUP HAVING ga=0;
+expect:
+{
+  "a" : [ "(1:7~1:8) /catalog1/split_olap_tail/tj/a/" ],
+  "ga" : [ "(1:18~1:19) /catalog1/split_olap_tail/tj/a/" ]
+}
+----------
+[dql_mysql_window_0.0052]
+sql:
+SELECT DISTINCT a,b,GROUPING(a),GROUPING(b),GROUPING(a+b),GROUPING(a)+GROUPING(b) FROM split_olap_tail.t GROUP BY a,b,a+b WITH ROLLUP ORDER BY a,b,a+b;
+expect:
+{
+  "a" : [ "(1:16~1:17) /catalog1/split_olap_tail/t/a/" ],
+  "b" : [ "(1:18~1:19) /catalog1/split_olap_tail/t/b/" ],
+  "GROUPING(a)" : [ "(1:29~1:30) /catalog1/split_olap_tail/t/a/" ],
+  "GROUPING(b)" : [ "(1:41~1:42) /catalog1/split_olap_tail/t/b/" ],
+  "GROUPING(a+b)" : [ "(1:53~1:54) /catalog1/split_olap_tail/t/a/", "(1:55~1:56) /catalog1/split_olap_tail/t/b/" ],
+  "GROUPING(a)+GROUPING(b)" : [ "(1:67~1:68) /catalog1/split_olap_tail/t/a/", "(1:79~1:80) /catalog1/split_olap_tail/t/b/" ]
+}
+----------
+[dql_mysql_window_0.0053]
+sql:
+SELECT RANK();
+expect:
+{
+  "RANK()" : [ ]
+}
+----------
+[dql_mysql_window_0.0054]
+sql:
+SELECT NTILE(1);
+expect:
+{
+  "NTILE(1)" : [ ]
+}
+----------
+[dql_mysql_window_0.0055]
+sql:
+SELECT FIRST_VALUE(1);
+expect:
+{
+  "FIRST_VALUE(1)" : [ ]
+}
+----------
+[dql_mysql_window_0.0056]
+sql:
+SELECT LAST_VALUE(1);
+expect:
+{
+  "LAST_VALUE(1)" : [ ]
+}
+----------
+[dql_mysql_window_0.0057]
+sql:
+SELECT LAG(1);
+expect:
+{
+  "LAG(1)" : [ ]
+}
+----------
+[dql_mysql_window_0.0058]
+sql:
+SELECT LEAD(1);
+expect:
+{
+  "LEAD(1)" : [ ]
+}
+----------
+[dql_mysql_window_0.0059]
+sql:
+SELECT NTH_VALUE(1,1);
+expect:
+{
+  "NTH_VALUE(1,1)" : [ ]
+}
+----------
+[dql_mysql_window_0.0060]
+sql:
+SELECT RANK(1);
+expect:
+{
+  "RANK(1)" : [ ]
+}
+----------
+[dql_mysql_window_0.0061]
+sql:
+SELECT ROW_NUMBER(1);
+expect:
+{
+  "ROW_NUMBER(1)" : [ ]
+}
+----------
+[dql_mysql_window_0.0062]
+sql:
+SELECT CUME_DIST(1);
+expect:
+{
+  "CUME_DIST(1)" : [ ]
+}
+----------
+[dql_mysql_window_0.0063]
+sql:
+SELECT DENSE_RANK(1);
+expect:
+{
+  "DENSE_RANK(1)" : [ ]
+}
+----------
+[dql_mysql_window_0.0064]
+sql:
+SELECT PERCENT_RANK(1);
+expect:
+{
+  "PERCENT_RANK(1)" : [ ]
+}
+----------
+[dql_mysql_window_0.0065]
+sql:
+SELECT NTILE();
+expect:
+{
+  "NTILE()" : [ ]
+}
+----------
+[dql_mysql_window_0.0066]
+sql:
+SELECT NTILE(1,2);
+expect:
+{
+  "NTILE(1,2)" : [ ]
+}
+----------
+[dql_mysql_window_0.0067]
+sql:
+SELECT FIRST_VALUE();
+expect:
+{
+  "FIRST_VALUE()" : [ ]
+}
+----------
+[dql_mysql_window_0.0068]
+sql:
+SELECT FIRST_VALUE(1,2);
+expect:
+{
+  "FIRST_VALUE(1,2)" : [ ]
+}
+----------
+[dql_mysql_window_0.0069]
+sql:
+SELECT LAST_VALUE();
+expect:
+{
+  "LAST_VALUE()" : [ ]
+}
+----------
+[dql_mysql_window_0.0070]
+sql:
+SELECT LAST_VALUE(1,2);
+expect:
+{
+  "LAST_VALUE(1,2)" : [ ]
+}
+----------
+[dql_mysql_window_0.0071]
+sql:
+SELECT LAG();
+expect:
+{
+  "LAG()" : [ ]
+}
+----------
+[dql_mysql_window_0.0072]
+sql:
+SELECT LAG(1,2,3,4);
+expect:
+{
+  "LAG(1,2,3,4)" : [ ]
+}
+----------
+[dql_mysql_window_0.0073]
+sql:
+SELECT LEAD();
+expect:
+{
+  "LEAD()" : [ ]
+}
+----------
+[dql_mysql_window_0.0074]
+sql:
+SELECT LEAD(1,2,3,4);
+expect:
+{
+  "LEAD(1,2,3,4)" : [ ]
+}
+----------
+[dql_mysql_window_0.0075]
+sql:
+SELECT NTH_VALUE(1);
+expect:
+{
+  "NTH_VALUE(1)" : [ ]
+}
+----------
+[dql_mysql_window_0.0076]
+sql:
+SELECT NTH_VALUE(1,2,3);
+expect:
+{
+  "NTH_VALUE(1,2,3)" : [ ]
+}

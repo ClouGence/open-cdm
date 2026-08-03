@@ -1,0 +1,66 @@
+SELECT '[{"a":"foo"},{"b":"bar"},{"c":"baz"}]'::json -> 2;
+SELECT '[{"a":"foo"},{"b":"bar"},{"c":"baz"}]'::jsonb -> -3;
+SELECT '{"a":{"b":"foo"}}'::json -> 'a';
+SELECT '[1,2,3]'::jsonb ->> 2;
+SELECT '{"a":1,"b":2}'::json ->> 'b';
+SELECT '{"a":{"b":["foo","bar"]}}'::json #> '{a,b,1}';
+SELECT '{"a":{"b":["foo","bar"]}}'::jsonb #>> ARRAY['a','b','1'];
+SELECT '{"a":1,"b":2}'::jsonb @> '{"b":2}'::jsonb;
+SELECT '{"b":2}'::jsonb <@ '{"a":1,"b":2}'::jsonb;
+SELECT '{"a":1,"b":2}'::jsonb ? 'b';
+SELECT '["a","b","c"]'::jsonb ? 'b';
+SELECT '{"a":1,"b":2,"c":3}'::jsonb ?| array['b','d'];
+SELECT '["a","b","c"]'::jsonb ?& array['a','b'];
+SELECT '["a","b"]'::jsonb || '["a","d"]'::jsonb;
+SELECT '{"a":"b"}'::jsonb || '{"c":"d"}'::jsonb;
+SELECT '[1,2]'::jsonb || '3'::jsonb;
+SELECT '{"a":"b"}'::jsonb || '42'::jsonb;
+SELECT '{"a":"b","c":"d"}'::jsonb - 'a';
+SELECT '["a","b","c","b"]'::jsonb - 'b';
+SELECT '{"a":"b","c":"d"}'::jsonb - '{a,c}'::text[];
+SELECT '["a","b"]'::jsonb - 1;
+SELECT '["a",{"b":1}]'::jsonb #- '{1,b}';
+------------------------------------------------------------------------------------------
+[SELECT] SELECT '[{"a":"foo"},{"b":"bar"},{"c":"baz"}]'::json -> 2;
+----------
+[SELECT] SELECT '[{"a":"foo"},{"b":"bar"},{"c":"baz"}]'::jsonb -> -3;
+----------
+[SELECT] SELECT '{"a":{"b":"foo"}}'::json -> 'a';
+----------
+[SELECT] SELECT '[1,2,3]'::jsonb ->> 2;
+----------
+[SELECT] SELECT '{"a":1,"b":2}'::json ->> 'b';
+----------
+[SELECT] SELECT '{"a":{"b":["foo","bar"]}}'::json #> '{a,b,1}';
+----------
+[SELECT] SELECT '{"a":{"b":["foo","bar"]}}'::jsonb #>> ARRAY['a','b','1'];
+----------
+[SELECT] SELECT '{"a":1,"b":2}'::jsonb @> '{"b":2}'::jsonb;
+----------
+[SELECT] SELECT '{"b":2}'::jsonb <@ '{"a":1,"b":2}'::jsonb;
+----------
+[SELECT] SELECT '{"a":1,"b":2}'::jsonb ? 'b';
+----------
+[SELECT] SELECT '["a","b","c"]'::jsonb ? 'b';
+----------
+[SELECT] SELECT '{"a":1,"b":2,"c":3}'::jsonb ?| array['b','d'];
+----------
+[SELECT] SELECT '["a","b","c"]'::jsonb ?& array['a','b'];
+----------
+[SELECT] SELECT '["a","b"]'::jsonb || '["a","d"]'::jsonb;
+----------
+[SELECT] SELECT '{"a":"b"}'::jsonb || '{"c":"d"}'::jsonb;
+----------
+[SELECT] SELECT '[1,2]'::jsonb || '3'::jsonb;
+----------
+[SELECT] SELECT '{"a":"b"}'::jsonb || '42'::jsonb;
+----------
+[SELECT] SELECT '{"a":"b","c":"d"}'::jsonb - 'a';
+----------
+[SELECT] SELECT '["a","b","c","b"]'::jsonb - 'b';
+----------
+[SELECT] SELECT '{"a":"b","c":"d"}'::jsonb - '{a,c}'::text[];
+----------
+[SELECT] SELECT '["a","b"]'::jsonb - 1;
+----------
+[SELECT] SELECT '["a",{"b":1}]'::jsonb #- '{1,b}';

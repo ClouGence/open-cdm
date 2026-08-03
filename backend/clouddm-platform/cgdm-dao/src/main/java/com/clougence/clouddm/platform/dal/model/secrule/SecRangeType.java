@@ -16,7 +16,7 @@
 package com.clougence.clouddm.platform.dal.model.secrule;
 
 import com.clougence.clouddm.platform.dal.handler.EnumOfCode;
-import com.clougence.clouddm.sdk.model.analysis.TargetType;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 
 import lombok.Getter;
 
@@ -40,24 +40,15 @@ public enum SecRangeType implements EnumOfCode<SecRangeType> {
     }
 
     public static SecRangeType ofTarget(TargetType type) {
-        switch (type) {
-            case Environment:
-                return Environment;
-            case Instance:
-                return Instance;
-            case Catalog:
-                return Catalog;
-            case Schema:
-                return Schema;
-            case Table:
-            case View:
-            case Materialized:
-                return TableOrView;
-            case Column:
-                return Column;
-            default:
-                return null;
-        }
+        return switch (type) {
+            case Environment -> Environment;
+            case Instance -> Instance;
+            case Catalog -> Catalog;
+            case Schema -> Schema;
+            case Table, View, Materialized -> TableOrView;
+            case Column -> Column;
+            default -> null;
+        };
     }
 
     @Override

@@ -1,0 +1,120 @@
+create table app.plsint_t(
+  id pls_integer primary key,v pls_integer default 0 not null,
+  v_null pls_integer null,
+  constraint ck_plsint check(v between -2147483648 and 2147483647),
+  constraint uk_plsint unique(v));
+comment on column app.plsint_t.v is 'PLS_INTEGER value';
+create index app.idx_plsint on app.plsint_t(v,id);
+alter table app.plsint_t add v_alter pls_integer default 7;
+alter table app.plsint_t modify v_alter pls_integer;
+insert into app.plsint_t values(-2147483648,-2147483648,null,7);
+insert into app.plsint_t values(2147483647,2147483647,null,8);
+insert into app.plsint_t(id) values(0);
+insert into app.plsint_t values(1,'123',null,9);
+update app.plsint_t set v=v+1,v_alter=v_alter+1 where id=1;
+select id,v,v_null,v_alter from app.plsint_t order by id;
+select abs(v),mod(v,10),power(v,2),sign(v),cast(v as varchar(20))
+  from app.plsint_t where id=1;
+select min(v),max(v),sum(cast(v as bigint)),avg(v),count(v)
+  from app.plsint_t;
+select id from app.plsint_t index idx_plsint
+  where v>=0 order by v;
+select data_type,data_length,data_precision,data_scale
+  from user_tab_columns where table_name='PLSINT_T' order by column_id;
+create view app.plsint_v as
+  select id,v,v_alter from app.plsint_t where v>=0;
+select id,cast(v as bigint)+v_alter as total
+  from app.plsint_v order by id;
+update app.plsint_v set v_alter=v_alter+1 where id=1;
+create function app.plsint_f(p_value pls_integer)
+  return pls_integer as
+begin
+  return p_value;
+end;
+/
+select app.plsint_f(-2147483648),app.plsint_f(2147483647) from dual;
+create table app.plsint_p(id pls_integer,v int)
+  partition by range(id)(partition p0 values less than(0),
+  partition p1 values less than(maxvalue));
+insert into app.plsint_p values(-2147483648,1),(2147483647,2);
+select count(*) from app.plsint_p partition for(-1);
+select count(*) from app.plsint_p partition for(1);
+create table app.bad_plsint_pair(c pls_integer(1));
+insert into app.plsint_t(id,v) values(101,2147483648);
+insert into app.plsint_t(id,v) values(102,-2147483649);
+insert into app.plsint_t(id,v) values(103,null);
+select cast(2147483647 as pls_integer)+1 from dual;
+------------------------------------------------------------------------------------------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table app.plsint_t(
+  id pls_integer primary key,v pls_integer default 0 not null,
+  v_null pls_integer null,
+  constraint ck_plsint check(v between -2147483648 and 2147483647),
+  constraint uk_plsint unique(v));
+----------
+[COMMENT_COLUMN] comment on column app.plsint_t.v is 'PLS_INTEGER value';
+----------
+[ADD_INDEX] create index app.idx_plsint on app.plsint_t(v,id);
+----------
+[ALTER_TABLE|ADD_COLUMN] alter table app.plsint_t add v_alter pls_integer default 7;
+----------
+[ALTER_TABLE|ALTER_COLUMN] alter table app.plsint_t modify v_alter pls_integer;
+----------
+[INSERT] insert into app.plsint_t values(-2147483648,-2147483648,null,7);
+----------
+[INSERT] insert into app.plsint_t values(2147483647,2147483647,null,8);
+----------
+[INSERT] insert into app.plsint_t(id) values(0);
+----------
+[INSERT] insert into app.plsint_t values(1,'123',null,9);
+----------
+[UPDATE] update app.plsint_t set v=v+1,v_alter=v_alter+1 where id=1;
+----------
+[SELECT] select id,v,v_null,v_alter from app.plsint_t order by id;
+----------
+[SELECT] select abs(v),mod(v,10),power(v,2),sign(v),cast(v as varchar(20))
+  from app.plsint_t where id=1;
+----------
+[SELECT] select min(v),max(v),sum(cast(v as bigint)),avg(v),count(v)
+  from app.plsint_t;
+----------
+[SELECT] select id from app.plsint_t index idx_plsint
+  where v>=0 order by v;
+----------
+[SELECT] select data_type,data_length,data_precision,data_scale
+  from user_tab_columns where table_name='PLSINT_T' order by column_id;
+----------
+[CREATE_VIEW(SELECT)] create view app.plsint_v as
+  select id,v,v_alter from app.plsint_t where v>=0;
+----------
+[SELECT] select id,cast(v as bigint)+v_alter as total
+  from app.plsint_v order by id;
+----------
+[UPDATE] update app.plsint_v set v_alter=v_alter+1 where id=1;
+----------
+[CREATE_PROG_OBJ(BLOCK,PROGRAM_CONTROL)] create function app.plsint_f(p_value pls_integer)
+  return pls_integer as
+begin
+  return p_value;
+end;
+----------
+[SELECT|CALL_PROG_OBJ] select app.plsint_f(-2147483648),app.plsint_f(2147483647) from dual;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.plsint_p(id pls_integer,v int)
+  partition by range(id)(partition p0 values less than(0),
+  partition p1 values less than(maxvalue));
+----------
+[INSERT] insert into app.plsint_p values(-2147483648,1),(2147483647,2);
+----------
+[SELECT] select count(*) from app.plsint_p partition for(-1);
+----------
+[SELECT] select count(*) from app.plsint_p partition for(1);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.bad_plsint_pair(c pls_integer(1));
+----------
+[INSERT] insert into app.plsint_t(id,v) values(101,2147483648);
+----------
+[INSERT] insert into app.plsint_t(id,v) values(102,-2147483649);
+----------
+[INSERT] insert into app.plsint_t(id,v) values(103,null);
+----------
+[SELECT] select cast(2147483647 as pls_integer)+1 from dual;

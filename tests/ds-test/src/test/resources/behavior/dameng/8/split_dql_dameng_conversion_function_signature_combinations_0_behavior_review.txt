@@ -1,0 +1,1021 @@
+[split_dql_dameng_conversion_function_signature_combinations_0_001_behavior_review]
+sql:
+SELECT BINTOCHAR(0x61626364) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/BINTOCHAR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:34~1:38) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_conversion_function_signature_combinations_0_002_behavior_review]
+sql:
+SELECT BINTOCHAR(CHARTOBIN('abcdef')) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/BINTOCHAR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:26) /test/1/catalog1/schema1/CHARTOBIN/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:43~1:47) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_conversion_function_signature_combinations_0_003_behavior_review]
+sql:
+SELECT BINTOCHAR(CAST(NULL AS VARBINARY)) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/BINTOCHAR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:47~1:51) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_conversion_function_signature_combinations_0_004_behavior_review]
+sql:
+SELECT BINTOCHAR(0x00FF) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/BINTOCHAR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:30~1:34) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_conversion_function_signature_combinations_0_005_behavior_review]
+sql:
+SELECT CAST(100.5678 AS NUMERIC(10,2)) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:44~1:48) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_conversion_function_signature_combinations_0_006_behavior_review]
+sql:
+SELECT CAST(100.5678 AS VARCHAR(8)) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:41~1:45) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_conversion_function_signature_combinations_0_007_behavior_review]
+sql:
+SELECT CAST('100.5678' AS INTEGER) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:40~1:44) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_conversion_function_signature_combinations_0_008_behavior_review]
+sql:
+SELECT CAST(12345 AS CHAR(5)) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:35~1:39) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_conversion_function_signature_combinations_0_009_behavior_review]
+sql:
+SELECT CAST('2020-01-02' AS DATE) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:39~1:43) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_conversion_function_signature_combinations_0_010_behavior_review]
+sql:
+SELECT CAST(DATE '2020-01-02' AS VARCHAR(20)) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:51~1:55) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_conversion_function_signature_combinations_0_011_behavior_review]
+sql:
+SELECT CAST(0x616263 AS VARCHAR(8)) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:41~1:45) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_conversion_function_signature_combinations_0_012_behavior_review]
+sql:
+SELECT CAST(NULL AS TIMESTAMP) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:36~1:40) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_conversion_function_signature_combinations_0_013_behavior_review]
+sql:
+SELECT CHARTOBIN('abcdef') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/CHARTOBIN/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:32~1:36) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_conversion_function_signature_combinations_0_014_behavior_review]
+sql:
+SELECT CHARTOBIN('达梦') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/CHARTOBIN/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:28~1:32) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_conversion_function_signature_combinations_0_015_behavior_review]
+sql:
+SELECT CHARTOBIN('') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/CHARTOBIN/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:26~1:30) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_conversion_function_signature_combinations_0_016_behavior_review]
+sql:
+SELECT CHARTOBIN(NULL) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/CHARTOBIN/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:28~1:32) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_conversion_function_signature_combinations_0_017_behavior_review]
+sql:
+SELECT CONVERT(VARCHAR(8),100.5678) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/CONVERT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:41~1:45) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_conversion_function_signature_combinations_0_018_behavior_review]
+sql:
+SELECT CONVERT(INTEGER,'100.5678') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/CONVERT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:40~1:44) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_conversion_function_signature_combinations_0_019_behavior_review]
+sql:
+SELECT CONVERT(CHAR(5),12345) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/CONVERT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:35~1:39) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_conversion_function_signature_combinations_0_020_behavior_review]
+sql:
+SELECT CONVERT(CHAR(30),TIMESTAMP '2020-01-02 03:04:05',23) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/CONVERT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:65~1:69) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_conversion_function_signature_combinations_0_021_behavior_review]
+sql:
+SELECT CONVERT(CHAR(30),TIMESTAMP '2020-01-02 03:04:05',112) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/CONVERT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:66~1:70) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_conversion_function_signature_combinations_0_022_behavior_review]
+sql:
+SELECT CONVERT(CHAR(30),TIMESTAMP '2020-01-02 03:04:05',120) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/CONVERT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:66~1:70) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_conversion_function_signature_combinations_0_023_behavior_review]
+sql:
+SELECT CONVERT(CHAR(30),TIMESTAMP '2020-01-02 03:04:05',127) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/CONVERT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:66~1:70) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_conversion_function_signature_combinations_0_024_behavior_review]
+sql:
+SELECT CONVERT(INTEGER,'12',23) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/CONVERT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:37~1:41) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_conversion_function_signature_combinations_0_025_behavior_review]
+sql:
+SELECT HEX('abc') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/HEX/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:23~1:27) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_conversion_function_signature_combinations_0_026_behavior_review]
+sql:
+SELECT HEX('达梦') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/HEX/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:22~1:26) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_conversion_function_signature_combinations_0_027_behavior_review]
+sql:
+SELECT HEX(255) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/HEX/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:21~1:25) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_conversion_function_signature_combinations_0_028_behavior_review]
+sql:
+SELECT HEX('') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/HEX/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:20~1:24) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_conversion_function_signature_combinations_0_029_behavior_review]
+sql:
+SELECT HEX(NULL) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/HEX/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:22~1:26) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_conversion_function_signature_combinations_0_030_behavior_review]
+sql:
+SELECT HEXTORAW('abcdef') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/HEXTORAW/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:31~1:35) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_conversion_function_signature_combinations_0_031_behavior_review]
+sql:
+SELECT HEXTORAW('00FF') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/HEXTORAW/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:29~1:33) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_conversion_function_signature_combinations_0_032_behavior_review]
+sql:
+SELECT HEXTORAW('') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/HEXTORAW/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:25~1:29) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_conversion_function_signature_combinations_0_033_behavior_review]
+sql:
+SELECT HEXTORAW(NULL) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/HEXTORAW/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:27~1:31) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_conversion_function_signature_combinations_0_034_behavior_review]
+sql:
+SELECT RAWTOHEX(0x616263) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/RAWTOHEX/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:31~1:35) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_conversion_function_signature_combinations_0_035_behavior_review]
+sql:
+SELECT RAWTOHEX(CHARTOBIN('达梦')) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/RAWTOHEX/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:16~1:25) /test/1/catalog1/schema1/CHARTOBIN/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:38~1:42) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_conversion_function_signature_combinations_0_036_behavior_review]
+sql:
+SELECT RAWTOHEX(0x00FF) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/RAWTOHEX/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:29~1:33) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_conversion_function_signature_combinations_0_037_behavior_review]
+sql:
+SELECT RAWTOHEX(CAST(NULL AS VARBINARY)) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/RAWTOHEX/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:46~1:50) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_conversion_function_signature_combinations_0_038_behavior_review]
+sql:
+SELECT TO_BLOB(0x616263) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/TO_BLOB/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:30~1:34) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_conversion_function_signature_combinations_0_039_behavior_review]
+sql:
+SELECT TO_BLOB(CHARTOBIN('abcd')) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/TO_BLOB/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:15~1:24) /test/1/catalog1/schema1/CHARTOBIN/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:39~1:43) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_conversion_function_signature_combinations_0_040_behavior_review]
+sql:
+SELECT TO_BLOB(CAST(NULL AS VARBINARY)) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/TO_BLOB/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:45~1:49) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_conversion_function_signature_combinations_0_041_behavior_review]
+sql:
+SELECT TREAT(CODEX_TREAT_CHILD(1,2) AS CODEX_TREAT_BASE) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Type(1:39~1:55) /test/1/catalog1/schema1/CODEX_TREAT_BASE/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(1:13~1:30) /test/1/catalog1/schema1/CODEX_TREAT_CHILD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:62~1:66) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_conversion_function_signature_combinations_0_042_behavior_review]
+sql:
+SELECT TREAT(CODEX_TREAT_BASE(1) AS CODEX_TREAT_CHILD) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Type(1:36~1:53) /test/1/catalog1/schema1/CODEX_TREAT_CHILD/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(1:13~1:29) /test/1/catalog1/schema1/CODEX_TREAT_BASE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:60~1:64) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_conversion_function_signature_combinations_0_043_behavior_review]
+sql:
+SELECT TREAT(CODEX_TREAT_BASE(NULL) AS CODEX_TREAT_BASE) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Type(1:39~1:55) /test/1/catalog1/schema1/CODEX_TREAT_BASE/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(1:13~1:29) /test/1/catalog1/schema1/CODEX_TREAT_BASE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:62~1:66) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_conversion_function_signature_combinations_0_044_behavior_review]
+sql:
+SELECT UNHEX('616263') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/UNHEX/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:28~1:32) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_conversion_function_signature_combinations_0_045_behavior_review]
+sql:
+SELECT UNHEX('00FF') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/UNHEX/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:26~1:30) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_conversion_function_signature_combinations_0_046_behavior_review]
+sql:
+SELECT UNHEX(HEX('达梦')) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/UNHEX/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:13~1:16) /test/1/catalog1/schema1/HEX/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:29~1:33) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_conversion_function_signature_combinations_0_047_behavior_review]
+sql:
+SELECT UNHEX('') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/UNHEX/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:22~1:26) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_conversion_function_signature_combinations_0_048_behavior_review]
+sql:
+SELECT UNHEX(NULL) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/UNHEX/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:24~1:28) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_conversion_function_signature_combinations_0_049_behavior_review]
+sql:
+SELECT CONVERT('abc','UTF8') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/CONVERT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:34~1:38) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_conversion_function_signature_combinations_0_050_behavior_review]
+sql:
+SELECT CONVERT('abc','AL32UTF8','UTF8') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/CONVERT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:45~1:49) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_conversion_function_signature_combinations_0_051_behavior_review]
+sql:
+SELECT CONVERT('abc','ZHS16GBK') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/CONVERT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:38~1:42) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_conversion_function_signature_combinations_0_052_behavior_review]
+sql:
+SELECT CONVERT('abc','ZHS32GB18030','UTF8') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/CONVERT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:49~1:53) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_conversion_function_signature_combinations_0_053_behavior_review]
+sql:
+SELECT CONVERT(NULL,'UTF8') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/CONVERT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:33~1:37) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_conversion_function_signature_combinations_0_054_behavior_review]
+sql:
+SELECT CONVERT(CAST('abc' AS CLOB),'UTF8') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/CONVERT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:48~1:52) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}

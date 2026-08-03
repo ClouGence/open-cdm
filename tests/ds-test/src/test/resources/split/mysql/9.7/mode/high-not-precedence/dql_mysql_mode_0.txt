@@ -1,0 +1,24 @@
+SELECT NOT 1 BETWEEN -5 AND 5 AS high_not;
+SELECT /*!50000 NOT 1 BETWEEN 0 AND 2 */;
+SELECT NOT 1 ^ 1, NOT 2 * 3, NOT 1 + 1;
+SELECT NOT 1 << 1, NOT 1 & 1, NOT 1 | 1;
+SELECT NOT 1 = 1, NOT 1 IN (1), NOT 1 IS TRUE;
+SELECT NOT 'a' LIKE 'a', NOT 'a' REGEXP '^a';
+SELECT NOT CASE WHEN 1 THEN 1 ELSE 0 END;
+SELECT NOT 1 MEMBER OF('[1]');
+------------------------------------------------------------------------------------------
+[SELECT] SELECT NOT 1 BETWEEN -5 AND 5 AS high_not;
+----------
+[SELECT] SELECT /*!50000 NOT 1 BETWEEN 0 AND 2 */;
+----------
+[SELECT] SELECT NOT 1 ^ 1, NOT 2 * 3, NOT 1 + 1;
+----------
+[SELECT] SELECT NOT 1 << 1, NOT 1 & 1, NOT 1 | 1;
+----------
+[SELECT] SELECT NOT 1 = 1, NOT 1 IN (1), NOT 1 IS TRUE;
+----------
+[SELECT] SELECT NOT 'a' LIKE 'a', NOT 'a' REGEXP '^a';
+----------
+[SELECT] SELECT NOT CASE WHEN 1 THEN 1 ELSE 0 END;
+----------
+[SELECT] SELECT NOT 1 MEMBER OF('[1]');

@@ -1,0 +1,107 @@
+[java_this_constructor_chain]
+sql:
+create or replace java class j_this_chain
+{
+  int value;
+  j_this_chain()
+  {
+    this.value = 1;
+  }
+  j_this_chain(int p_value)
+  {
+    this();
+    this.value = p_value;
+  }
+}
+/
+expect:
+{
+  "size": 1,
+  "domains": [
+    {"class":"RdbObjectDomain", "sqlType":"CREATE_TYPE", "auditKind":"CREATE", "name":"j_this_chain"}
+  ]
+}
+----------
+[java_super_parent_reference]
+sql:
+create or replace java class j_super_child extends j_chain_parent
+{
+  int child_value;
+  public int get_parent_value()
+  {
+    return super().get_base();
+  }
+}
+/
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"CREATE_TYPE", "auditKind":"CREATE", "name":"j_super_child"}
+  ]
+}
+----------
+[java_final_class]
+sql:
+create or replace java public final class j_standalone_final
+{
+  int value;
+  public int get_value()
+  {
+    return value;
+  }
+}
+/
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"CREATE_TYPE", "auditKind":"CREATE", "name":"j_standalone_final"}
+  ]
+}
+----------
+[java_abstract_static_method]
+sql:
+create or replace java abstract class j_mixed_abstract
+{
+  int value;
+  public abstract int calculate();
+  public static int twice(int p_value)
+  {
+    return p_value * 2;
+  }
+}
+/
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"CREATE_TYPE", "auditKind":"CREATE", "name":"j_mixed_abstract"}
+  ]
+}
+----------
+[java_inherited_overload]
+sql:
+create or replace java class j_overload_child extends j_overload_parent
+{
+  int extra;
+  public varchar calculate(varchar p_value)
+  {
+    return p_value;
+  }
+}
+/
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"CREATE_TYPE", "auditKind":"CREATE", "name":"j_overload_child"}
+  ]
+}
+----------
+[this_named_procedure_outside_java_class]
+sql:
+call app.this();
+expect:
+{
+  "size": 1,
+  "domains": [
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"app", "callName":"this"}
+  ]
+}

@@ -1,0 +1,13 @@
+[dbms_random_argument_columns]
+sql:
+select SEED_INT, SEED_TEXT, STRING_MODE, STRING_LENGTH, RANGE_LOW, RANGE_HIGH
+from catalog1.app.dbms_random_payload
+expect:
+{
+  "SEED_INT": ["/catalog1/app/dbms_random_payload/SEED_INT/"],
+  "SEED_TEXT": ["/catalog1/app/dbms_random_payload/SEED_TEXT/"],
+  "STRING_MODE": ["/catalog1/app/dbms_random_payload/STRING_MODE/"],
+  "STRING_LENGTH": ["/catalog1/app/dbms_random_payload/STRING_LENGTH/"],
+  "RANGE_LOW": ["/catalog1/app/dbms_random_payload/RANGE_LOW/"],
+  "RANGE_HIGH": ["/catalog1/app/dbms_random_payload/RANGE_HIGH/"]
+}

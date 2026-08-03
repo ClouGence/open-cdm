@@ -1,0 +1,48 @@
+grant create table to codex_huge_creator;
+grant create any table to codex_huge_any_creator;
+grant alter any table to codex_huge_alterer;
+grant comment any table to codex_huge_commenter;
+grant drop any table to codex_huge_dropper;
+grant dba to codex_huge_dba;
+create huge table codex_huge_creator.own_target(id int);
+create huge table codex_huge_owner.any_target(id int);
+alter table codex_huge_owner.alter_target add column added_col int;
+comment on table codex_huge_owner.comment_target is 'huge comment';
+comment on column codex_huge_owner.comment_target.note is 'huge column';
+drop table codex_huge_owner.drop_target;
+create huge table codex_huge_none.own_denied(id int);
+alter table codex_huge_owner.none_target add column denied_col int;
+comment on table codex_huge_owner.none_target is 'denied';
+drop table codex_huge_owner.none_target;
+------------------------------------------------------------------------------------------
+[GRANT] grant create table to codex_huge_creator;
+----------
+[GRANT] grant create any table to codex_huge_any_creator;
+----------
+[GRANT] grant alter any table to codex_huge_alterer;
+----------
+[GRANT] grant comment any table to codex_huge_commenter;
+----------
+[GRANT] grant drop any table to codex_huge_dropper;
+----------
+[GRANT] grant dba to codex_huge_dba;
+----------
+[CREATE_TABLE|ADD_COLUMN] create huge table codex_huge_creator.own_target(id int);
+----------
+[CREATE_TABLE|ADD_COLUMN] create huge table codex_huge_owner.any_target(id int);
+----------
+[ALTER_TABLE|ADD_COLUMN] alter table codex_huge_owner.alter_target add column added_col int;
+----------
+[COMMENT_TABLE] comment on table codex_huge_owner.comment_target is 'huge comment';
+----------
+[COMMENT_COLUMN] comment on column codex_huge_owner.comment_target.note is 'huge column';
+----------
+[DROP_TABLE] drop table codex_huge_owner.drop_target;
+----------
+[CREATE_TABLE|ADD_COLUMN] create huge table codex_huge_none.own_denied(id int);
+----------
+[ALTER_TABLE|ADD_COLUMN] alter table codex_huge_owner.none_target add column denied_col int;
+----------
+[COMMENT_TABLE] comment on table codex_huge_owner.none_target is 'denied';
+----------
+[DROP_TABLE] drop table codex_huge_owner.none_target;

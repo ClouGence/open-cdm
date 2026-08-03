@@ -25,10 +25,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.clougence.clouddm.api.common.exception.DmErrorCode;
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
+import com.clougence.clouddm.console.web.component.analysis.QueryAnalysisService;
 import com.clougence.clouddm.console.web.component.approval.ApprovalFlowService;
 import com.clougence.clouddm.console.web.component.approval.impl.ApprovalProviderServiceImpl;
 import com.clougence.clouddm.console.web.component.approval.model.ApprovalMO;
@@ -48,10 +48,10 @@ import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
 import com.clougence.clouddm.console.web.model.fo.security.ListMyAuthTicketFO;
 import com.clougence.clouddm.console.web.model.fo.ticket.*;
 import com.clougence.clouddm.console.web.model.vo.DmBizLogVO;
+import com.clougence.clouddm.console.web.model.vo.DmPageVO;
 import com.clougence.clouddm.console.web.model.vo.RdpApproTemplateVO;
 import com.clougence.clouddm.console.web.model.vo.envparam.DmEnvParamTicketDesVO;
 import com.clougence.clouddm.console.web.model.vo.ticket.*;
-import com.clougence.clouddm.console.web.service.analysis.QueryAnalysisService;
 import com.clougence.clouddm.console.web.service.envparam.DmEnvParamService;
 import com.clougence.clouddm.console.web.util.RdpConvertUtils;
 import com.clougence.clouddm.platform.dal.access.*;
@@ -69,23 +69,17 @@ import com.clougence.clouddm.platform.dal.model.secrule.WarnLevel;
 import com.clougence.clouddm.platform.dal.model.system.DmSysEnvDO;
 import com.clougence.clouddm.platform.dal.model.system.DmSysEnvParamDO;
 import com.clougence.clouddm.platform.dal.util.PageUtils;
-import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.approval.ApprovalUrl;
-import com.clougence.clouddm.sdk.execute.session.SessionSpi;
-import com.clougence.clouddm.sdk.execute.session.rdb.RdbSupportSpi;
-import com.clougence.clouddm.sdk.model.analysis.TargetType;
-import com.clougence.clouddm.sdk.model.analysis.resource.ResObject;
 import com.clougence.clouddm.sdk.model.env.EnvParamKeys;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiErrorType;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
 import com.clougence.clouddm.sdk.security.auth.AuthInfo;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 import com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel;
 import com.clougence.clouddm.sdk.service.secrules.Requester;
-import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
 import com.clougence.clouddm.sdk.service.secrules.RuleLevel;
-import com.clougence.clouddm.sdk.sql.split.SplitScript;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.clouddm.sdk.sql.parser.SplitScript;
 import com.clougence.rdp.service.RdpDsEnvService;
 import com.clougence.rdp.service.model.EnvTicketMO;
 import com.clougence.schema.umi.struts.UmiTypes;
@@ -183,8 +177,7 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
         DmTicketResultVO result = this.convertToRuleCheckResult(checkResult);
 
         // check force
-        ApprovalMO ticketInfo = new ApprovalMO();
-        int totalCount = this.analysisSqlAndCheckResource(fo, dsLevels, ticketInfo);
+        ApprovalMO mo = new ApprovalMO();
         if (!fo.isForce()) {
             if (result.isFailure() || result.isConfirm()) {
                 return result;
@@ -220,9 +213,8 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
         ticket.setEnvName(envDO.getEnvName());
 
         ticket.setRawSql(fo.getRawSql());
-        ticket.setTotalCount(totalCount);
         ticket.setExpectedAffectedRows(fo.getExpectedAffectedRows());
-        ticket.setTicketInfo(JsonUtils.toJson(ticketInfo));
+        ticket.setTicketInfo(JsonUtils.toJson(mo));
         ticket.setLevels(dsLevels.dbLevels());
         if (StringUtils.isNotBlank(fo.getRollBackSql())) {
             ticket.setRollBackSql(fo.getRollBackSql());
@@ -238,7 +230,7 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
 
         this.approvalDal.approvalMapper().insert(ticket);
 
-        this.approvalFlowService.createProcess(ticket.getId(), ApprovalBiz.DM_QUERY, ticketInfo.getMessage() == null);
+        this.approvalFlowService.createProcess(ticket.getId(), ApprovalBiz.DM_QUERY, mo.getMessage() == null);
 
         result.setTicketId(ticket.getId());
         return result;
@@ -319,7 +311,7 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
     public RdpAuthTicketDetailVO queryAuthTicketDetail(String ownerUid, String uid, long ticketId) {
         DmApprovalDO ticketDO = this.approvalDal.approvalMapper().queryById(ticketId);
         DmAuthApprovalDO authTicketInfo = this.authDal.approvalMapper().getAuthTicketInfo(ticketDO.getBizId());
-        RdpAddAuthTicketFO fo = JsonUtils.toList(authTicketInfo.getApplyAuthInfo(), new TypeReference<RdpAddAuthTicketFO>() {});
+        RdpAddAuthTicketFO fo = JsonUtils.toList(authTicketInfo.getApplyAuthInfo(), new TypeReference<>() {});
 
         RdpAuthTicketDetailVO vo = new RdpAuthTicketDetailVO();
         vo.setApplyAuths(fo.getApplyAuths().stream().map(this::labelI18).collect(Collectors.toList()));
@@ -364,54 +356,6 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
         }
 
         return applyAuths;
-    }
-
-    private int analysisSqlAndCheckResource(DmAddTicketFO fo, DsLevels dsLevels, ApprovalMO ticketInfo) {
-        int totalCount = 1;
-        try {
-            DataSourceConfig dataSourceConfig = dmDsConfigService.fetchDsConfigFromExists(dsLevels.dsDO().getId());
-            List<SplitScript> sqlList = this.queryAnalysisService.analysisSplit(dataSourceConfig, fo.getRawSql(), null, 1, 0);
-            totalCount = sqlList.size();
-            // check resource match fo.levels
-            Map<String, Object> params = new HashMap<>();
-            dsLevels.levelsParam().forEach((umiType, value) -> {
-                switch (umiType) {
-                    case Catalog:
-                        params.put(SessionSpi.PARAMS_DEFAULT_DB, value);
-                        break;
-                    case Schema:
-                        params.put(SessionSpi.PARAMS_DEFAULT_SCHEMA, value);
-                        break;
-                    default:
-                        break;
-                }
-            });
-            Map<RuleDomain, List<ResObject>> ruleDomainListMap = this.queryAnalysisService.analysisResourceV2(dataSourceConfig, fo.getRawSql(), params);
-            List<ResObject> resObjects = ruleDomainListMap.values().stream().flatMap(List::stream).toList();
-            String path = dsLevels.asResPath().getResPath();
-            for (ResObject resObject : resObjects) {
-                if (resObject.getType() == TargetType.ConfigKey) {
-                    continue;
-                }
-
-                if (!resObject.toDsResPath().getResPath().startsWith(path)) {
-                    throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.PASRSE_SQL_RESOURCE_ERROR.name(), path));
-                }
-            }
-        } catch (ErrorMessageException e) {
-            throw e;
-        } catch (Exception e) {
-            if (fo.isForce()) {
-                ticketInfo.setMessage(DmI18nUtils.getMessage(I18nDmMsgKeys.PASRSE_SQL_FAILED_FORCE.name()));
-            } else {
-                throw new ErrorMessageException(DmErrorCode.TICKET_SQL_PARSE_FAILED.code(), DmI18nUtils.getMessage(I18nDmMsgKeys.PASRSE_SQL_FAILED_MESSAGE.name()));
-            }
-        }
-
-        if (totalCount > 1000) {
-            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.TICKET_SQL_ROW_NUMBER_OVER_ERROR.name()));
-        }
-        return totalCount;
     }
 
     private static final RuleLevel[] CHECK_LEVELS_FAILURE = new RuleLevel[] { RuleLevel.FAILURE };
@@ -525,19 +469,7 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
             log.warn("can not parse sql");
             SplitScript splitScript = new SplitScript();
             splitScript.setScript(dmTicket.getRawSql());
-            splitScript.setType(SecQueryType.UNKNOWN);
-            scripts = Collections.singletonList(splitScript);
-        }
-
-        RdbSupportSpi rdbSupportSpi = PluginManager.findRdbSupportSpi(dsLevels.dsDO().getDataSourceType());
-        if (!rdbSupportSpi.supportMultiStatement(false)) {
-            SplitScript splitScript = new SplitScript();
-            splitScript.setScript(dmTicket.getRawSql());
-            if (scripts.size() > 1) {
-                splitScript.setType(SecQueryType.UNKNOWN);
-            } else {
-                splitScript.setType(scripts.get(0).getType());
-            }
+            splitScript.setType(Collections.singleton(SplitQueryType.UNKNOWN));
             scripts = Collections.singletonList(splitScript);
         }
 
@@ -569,6 +501,7 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
         vo.setRollBackSql(dmTicketDO.getRollBackSql());
         vo.setTotalCount(dmTicketDO.getTotalCount());
         vo.setExpectedAffectedRows(dmTicketDO.getExpectedAffectedRows());
+        vo.setBehaviors(dmTicketDO.getBehaviors());
         if (StringUtils.isNotEmpty(dmTicketDO.getTicketInfo())) {
             ApprovalMO ticketInfo = JsonUtils.toObj(dmTicketDO.getTicketInfo(), ApprovalMO.class);
             String message = ticketInfo.getMessage();
@@ -593,7 +526,7 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
     }
 
     @Override
-    public IPage<RdpTicketBasicVO> queryAuthTicketListByPage(String puid, ListMyAuthTicketFO fo) {
+    public DmPageVO<RdpTicketBasicVO> queryAuthTicketListByPage(String puid, ListMyAuthTicketFO fo) {
         Page<?> page = PageUtils.startPage(fo.getPage());
         ArgApprovalQueryObj queryParams = ArgApprovalQueryObj.builder()
             .ticketStatus(fo.getTicketStatus())
@@ -607,7 +540,7 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
     }
 
     @Override
-    public IPage<RdpTicketBasicVO> queryTicketListByPage(String puid, RdpListTicketFO fo) {
+    public DmPageVO<RdpTicketBasicVO> queryTicketListByPage(String puid, RdpListTicketFO fo) {
         IPage<DmApprovalDO> tickets;
         switch (fo.getTicketListType()) {
             case SELF_CREATE: {
@@ -893,10 +826,11 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
         })).collect(Collectors.toList());
     }
 
-    private IPage<RdpTicketBasicVO> convertAndFillExtraInfo(IPage<DmApprovalDO> tickets) {
+    private DmPageVO<RdpTicketBasicVO> convertAndFillExtraInfo(IPage<DmApprovalDO> tickets) {
+        DmPageVO<RdpTicketBasicVO> results = new DmPageVO<>(tickets);
         List<DmApprovalDO> records = tickets.getRecords();
         if (CollectionUtils.isEmpty(records)) {
-            return new Page<>();
+            return results;
         }
 
         Map<Long, DmAuthUserDO> ticketUserMap = genTicketUserMap(records);
@@ -916,12 +850,7 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
         }
         vos.sort((o1, o2) -> -o1.getGmtCreate().compareTo(o2.getGmtCreate()));
 
-        IPage<RdpTicketBasicVO> results = new Page<>();
         results.setRecords(vos);
-        results.setCurrent(tickets.getCurrent());
-        results.setSize(tickets.getSize());
-        results.setPages(tickets.getPages());
-        results.setTotal(tickets.getTotal());
         return results;
     }
 
@@ -1045,16 +974,11 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
     }
 
     protected String execUserFromConfirmAction(DmConfirmActionType actionType, DmAuthUserDO confirmUser) {
-        switch (actionType) {
-            case REFUSE: {
-                return null;
-            }
-            case CONFIRM: {
-                return confirmUser.getUsername();
-            }
-            default:
-                throw new UnsupportedOperationException("Not supported confirm action type " + actionType.name());
-        }
+        return switch (actionType) {
+            case REFUSE -> null;
+            case CONFIRM -> confirmUser.getUsername();
+            default -> throw new UnsupportedOperationException("Not supported confirm action type " + actionType.name());
+        };
     }
 
     private DmApprovalDO checkTicket(long ticketId, String puid) {

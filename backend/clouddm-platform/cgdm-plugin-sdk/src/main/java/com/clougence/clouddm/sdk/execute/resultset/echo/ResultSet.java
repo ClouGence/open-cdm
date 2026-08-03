@@ -40,7 +40,6 @@ public class ResultSet extends Result {
         empty.setSessionId(this.getSessionId());
         empty.setQueryId(this.getQueryId());
         empty.setQuerySql(this.getQuerySql());
-        empty.setResource(this.getResource());
         empty.setVariables(this.getVariables());
         empty.setSuccess(this.isSuccess());
         empty.setMessage(this.getMessage());

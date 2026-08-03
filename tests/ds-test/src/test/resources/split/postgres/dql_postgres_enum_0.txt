@@ -1,0 +1,60 @@
+SELECT 'red'::split_enum_dql.rainbow;
+SELECT 'red'::split_enum_dql.rainbow::text || ' hithere';
+SELECT 'red'::text::split_enum_dql.rainbow = 'red'::split_enum_dql.rainbow;
+SELECT 'orange'::split_enum_dql.rainbow < 'green'::split_enum_dql.rainbow;
+SELECT 'purple'::split_enum_dql.rainbow > 'blue'::split_enum_dql.rainbow;
+SELECT 'green'::split_enum_dql.rainbow BETWEEN 'orange'::split_enum_dql.rainbow AND 'purple'::split_enum_dql.rainbow;
+SELECT 'red' = ANY ('{red,green,blue}'::split_enum_dql.rainbow[]);
+SELECT 'red' = ALL ('{red,red}'::split_enum_dql.rainbow[]);
+SELECT ('{red,green,blue}'::split_enum_dql.rainbow[])[2];
+SELECT enum_first(NULL::split_enum_dql.rainbow);
+SELECT enum_last('green'::split_enum_dql.rainbow);
+SELECT enum_range(NULL::split_enum_dql.rainbow);
+SELECT enum_range('orange'::split_enum_dql.rainbow, 'green'::split_enum_dql.rainbow);
+SELECT enum_range(NULL, 'green'::split_enum_dql.rainbow);
+SELECT enum_range('orange'::split_enum_dql.rainbow, NULL);
+SELECT enum_range(NULL::split_enum_dql.rainbow, NULL);
+SELECT min(v), max(v)
+FROM (VALUES ('red'::split_enum_dql.rainbow), ('green'), ('purple')) AS t(v);
+SELECT v
+FROM (VALUES ('purple'::split_enum_dql.rainbow), ('red'), ('green')) AS t(v)
+ORDER BY v;
+------------------------------------------------------------------------------------------
+[SELECT] SELECT 'red'::split_enum_dql.rainbow;
+----------
+[SELECT] SELECT 'red'::split_enum_dql.rainbow::text || ' hithere';
+----------
+[SELECT] SELECT 'red'::text::split_enum_dql.rainbow = 'red'::split_enum_dql.rainbow;
+----------
+[SELECT] SELECT 'orange'::split_enum_dql.rainbow < 'green'::split_enum_dql.rainbow;
+----------
+[SELECT] SELECT 'purple'::split_enum_dql.rainbow > 'blue'::split_enum_dql.rainbow;
+----------
+[SELECT] SELECT 'green'::split_enum_dql.rainbow BETWEEN 'orange'::split_enum_dql.rainbow AND 'purple'::split_enum_dql.rainbow;
+----------
+[SELECT] SELECT 'red' = ANY ('{red,green,blue}'::split_enum_dql.rainbow[]);
+----------
+[SELECT] SELECT 'red' = ALL ('{red,red}'::split_enum_dql.rainbow[]);
+----------
+[SELECT] SELECT ('{red,green,blue}'::split_enum_dql.rainbow[])[2];
+----------
+[SELECT] SELECT enum_first(NULL::split_enum_dql.rainbow);
+----------
+[SELECT] SELECT enum_last('green'::split_enum_dql.rainbow);
+----------
+[SELECT] SELECT enum_range(NULL::split_enum_dql.rainbow);
+----------
+[SELECT] SELECT enum_range('orange'::split_enum_dql.rainbow, 'green'::split_enum_dql.rainbow);
+----------
+[SELECT] SELECT enum_range(NULL, 'green'::split_enum_dql.rainbow);
+----------
+[SELECT] SELECT enum_range('orange'::split_enum_dql.rainbow, NULL);
+----------
+[SELECT] SELECT enum_range(NULL::split_enum_dql.rainbow, NULL);
+----------
+[SELECT] SELECT min(v), max(v)
+FROM (VALUES ('red'::split_enum_dql.rainbow), ('green'), ('purple')) AS t(v);
+----------
+[SELECT] SELECT v
+FROM (VALUES ('purple'::split_enum_dql.rainbow), ('red'), ('green')) AS t(v)
+ORDER BY v;

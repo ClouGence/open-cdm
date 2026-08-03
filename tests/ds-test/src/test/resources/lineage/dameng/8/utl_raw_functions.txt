@@ -1,0 +1,67 @@
+[utl_raw_bit_and_columns]
+sql:
+select utl_raw.bit_and(t.RAW_LEFT,t.RAW_RIGHT) as RAW_AND,
+utl_raw.bit_complement(t.RAW_LEFT) as RAW_NOT,
+utl_raw.bit_or(t.RAW_LEFT,t.RAW_RIGHT) as RAW_OR,
+utl_raw.bit_xor(t.RAW_LEFT,t.RAW_RIGHT) as RAW_XOR,
+utl_raw.compare(t.RAW_LEFT,t.RAW_RIGHT) as RAW_COMPARE,
+utl_raw.concat(t.RAW_LEFT,t.RAW_RIGHT) as RAW_CONCAT,
+utl_raw.convert_raw(t.RAW_TEXT,'GBK','UTF8') as RAW_CONVERT,
+utl_raw.copies(t.RAW_LEFT,2) as RAW_COPIES,
+utl_raw.length(t.RAW_LEFT) as RAW_LENGTH,
+utl_raw.overlay_raw(t.RAW_LEFT,t.RAW_RIGHT) as RAW_OVERLAY,
+utl_raw.reverse_raw(t.RAW_LEFT) as RAW_REVERSE,
+utl_raw.substr(t.RAW_LEFT,1) as RAW_SUBSTR,
+utl_raw.translate(t.RAW_LEFT,t.RAW_FROM,t.RAW_TO) as RAW_TRANSLATE,
+utl_raw.transliterate(t.RAW_LEFT,t.RAW_TO,t.RAW_FROM) as RAW_TRANSLITERATE,
+utl_raw.cast_to_raw(t.TEXT_VALUE) as RAW_FROM_TEXT,
+utl_raw.cast_to_varchar2(t.RAW_TEXT) as TEXT_FROM_RAW,
+utl_raw.cast_to_varchar2(t.BLOB_VALUE) as TEXT_FROM_BLOB
+from catalog1.app.raw_source t
+expect:
+{
+  "RAW_AND": ["/catalog1/app/raw_source/RAW_LEFT/", "/catalog1/app/raw_source/RAW_RIGHT/"],
+  "RAW_NOT": ["/catalog1/app/raw_source/RAW_LEFT/"],
+  "RAW_OR": ["/catalog1/app/raw_source/RAW_LEFT/", "/catalog1/app/raw_source/RAW_RIGHT/"],
+  "RAW_XOR": ["/catalog1/app/raw_source/RAW_LEFT/", "/catalog1/app/raw_source/RAW_RIGHT/"],
+  "RAW_COMPARE": ["/catalog1/app/raw_source/RAW_LEFT/", "/catalog1/app/raw_source/RAW_RIGHT/"],
+  "RAW_CONCAT": ["/catalog1/app/raw_source/RAW_LEFT/", "/catalog1/app/raw_source/RAW_RIGHT/"],
+  "RAW_CONVERT": ["/catalog1/app/raw_source/RAW_TEXT/"],
+  "RAW_COPIES": ["/catalog1/app/raw_source/RAW_LEFT/"],
+  "RAW_LENGTH": ["/catalog1/app/raw_source/RAW_LEFT/"],
+  "RAW_OVERLAY": ["/catalog1/app/raw_source/RAW_LEFT/", "/catalog1/app/raw_source/RAW_RIGHT/"],
+  "RAW_REVERSE": ["/catalog1/app/raw_source/RAW_LEFT/"],
+  "RAW_SUBSTR": ["/catalog1/app/raw_source/RAW_LEFT/"],
+  "RAW_TRANSLATE": ["/catalog1/app/raw_source/RAW_LEFT/", "/catalog1/app/raw_source/RAW_FROM/", "/catalog1/app/raw_source/RAW_TO/"],
+  "RAW_TRANSLITERATE": ["/catalog1/app/raw_source/RAW_LEFT/", "/catalog1/app/raw_source/RAW_TO/", "/catalog1/app/raw_source/RAW_FROM/"],
+  "RAW_FROM_TEXT": ["/catalog1/app/raw_source/TEXT_VALUE/"],
+  "TEXT_FROM_RAW": ["/catalog1/app/raw_source/RAW_TEXT/"],
+  "TEXT_FROM_BLOB": ["/catalog1/app/raw_source/BLOB_VALUE/"]
+}
+----------
+[utl_raw_numeric_cast_columns]
+sql:
+select utl_raw.cast_to_int(t.INTEGER_RAW) as TO_INT,
+utl_raw.cast_from_int(t.INTEGER_VALUE) as FROM_INT,
+utl_raw.cast_to_binary_integer(t.INTEGER_RAW) as TO_BINARY_INTEGER,
+utl_raw.cast_from_binary_integer(t.INTEGER_VALUE) as FROM_BINARY_INTEGER,
+utl_raw.cast_to_binary_double(t.DOUBLE_RAW) as TO_BINARY_DOUBLE,
+utl_raw.cast_from_binary_double(t.DOUBLE_VALUE) as FROM_BINARY_DOUBLE,
+utl_raw.cast_to_binary_float(t.FLOAT_RAW) as TO_BINARY_FLOAT,
+utl_raw.cast_from_binary_float(t.FLOAT_VALUE) as FROM_BINARY_FLOAT,
+utl_raw.cast_to_number(t.NUMBER_RAW) as TO_NUMBER,
+utl_raw.cast_from_number(t.NUMBER_VALUE) as FROM_NUMBER
+from catalog1.app.raw_source t
+expect:
+{
+  "TO_INT": ["/catalog1/app/raw_source/INTEGER_RAW/"],
+  "FROM_INT": ["/catalog1/app/raw_source/INTEGER_VALUE/"],
+  "TO_BINARY_INTEGER": ["/catalog1/app/raw_source/INTEGER_RAW/"],
+  "FROM_BINARY_INTEGER": ["/catalog1/app/raw_source/INTEGER_VALUE/"],
+  "TO_BINARY_DOUBLE": ["/catalog1/app/raw_source/DOUBLE_RAW/"],
+  "FROM_BINARY_DOUBLE": ["/catalog1/app/raw_source/DOUBLE_VALUE/"],
+  "TO_BINARY_FLOAT": ["/catalog1/app/raw_source/FLOAT_RAW/"],
+  "FROM_BINARY_FLOAT": ["/catalog1/app/raw_source/FLOAT_VALUE/"],
+  "TO_NUMBER": ["/catalog1/app/raw_source/NUMBER_RAW/"],
+  "FROM_NUMBER": ["/catalog1/app/raw_source/NUMBER_VALUE/"]
+}

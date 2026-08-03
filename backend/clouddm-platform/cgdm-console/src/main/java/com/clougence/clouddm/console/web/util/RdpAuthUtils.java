@@ -15,6 +15,7 @@
  */
 package com.clougence.clouddm.console.web.util;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.context.ApplicationContext;
@@ -28,7 +29,6 @@ import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
 import com.clougence.clouddm.platform.dal.access.DataSourceDal;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
-import com.clougence.clouddm.sdk.model.analysis.resource.DsResPathObj;
 import com.clougence.clouddm.sdk.security.auth.AuthInfo;
 import com.clougence.utils.StringUtils;
 
@@ -108,30 +108,13 @@ public class RdpAuthUtils {
     }
 
     public static DsResPathObj genResPathByList(List<String> levelElements) {
-        StringBuilder resPathLike = new StringBuilder();
-        for (String path : levelElements) {
-            if (StringUtils.isNotBlank(path)) {
-                resPathLike.append("/").append(path);
-            }
-        }
-        resPathLike.append("/");
-        return new DsResPathObj(resPathLike.toString());
+        return new DsResPathObj(DmDsUtils.buildResourcePath(levelElements));
     }
 
     public static DsResPathObj genResPathByList(List<String> levelElements, String lastOne) {
-        StringBuilder resPathLike = new StringBuilder();
-        for (String path : levelElements) {
-            if (StringUtils.isNotBlank(path)) {
-                resPathLike.append("/").append(path);
-            }
-        }
-
-        if (StringUtils.isNotBlank(lastOne)) {
-            resPathLike.append("/").append(lastOne);
-        }
-        resPathLike.append("/");
-
-        return new DsResPathObj(resPathLike.toString());
+        List<String> nodes = new ArrayList<>(levelElements);
+        nodes.add(lastOne);
+        return new DsResPathObj(DmDsUtils.buildResourcePath(nodes));
     }
 
     private static final DsResPathObj EMPTY = new DsResPathObj("/");

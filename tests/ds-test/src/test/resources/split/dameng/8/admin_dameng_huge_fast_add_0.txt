@@ -1,0 +1,30 @@
+alter session set 'ALTER_TABLE_OPT'=0;
+alter session set 'ALTER_TABLE_OPT'=1;
+alter session set 'ALTER_TABLE_OPT'=2;
+alter session set 'ALTER_TABLE_OPT'=3;
+select sf_get_session_para_value('ALTER_TABLE_OPT');
+alter table app.huge_fast add column c_no_default int;
+alter table app.huge_fast add column c_null int default null;
+alter table app.huge_fast add column c_default int default 33;
+alter table app.huge_fast_empty add column c_not_null int not null;
+alter session set ALTER_TABLE_OPT=2;
+------------------------------------------------------------------------------------------
+[SESSION_SETTING_WRITE] alter session set 'ALTER_TABLE_OPT'=0;
+----------
+[SESSION_SETTING_WRITE] alter session set 'ALTER_TABLE_OPT'=1;
+----------
+[SESSION_SETTING_WRITE] alter session set 'ALTER_TABLE_OPT'=2;
+----------
+[SESSION_SETTING_WRITE] alter session set 'ALTER_TABLE_OPT'=3;
+----------
+[SELECT|SESSION_VARIABLE_RW] select sf_get_session_para_value('ALTER_TABLE_OPT');
+----------
+[ALTER_TABLE|ADD_COLUMN] alter table app.huge_fast add column c_no_default int;
+----------
+[ALTER_TABLE|ADD_COLUMN] alter table app.huge_fast add column c_null int default null;
+----------
+[ALTER_TABLE|ADD_COLUMN] alter table app.huge_fast add column c_default int default 33;
+----------
+[ALTER_TABLE|ADD_COLUMN] alter table app.huge_fast_empty add column c_not_null int not null;
+----------
+[SESSION_SETTING_WRITE] alter session set ALTER_TABLE_OPT=2;

@@ -1,0 +1,35 @@
+-- branch LIMIT without parentheses
+select a from app.set_left limit 1 union all select a from app.set_right limit 1;
+-- UNION missing right branch
+select 1 from dual union;
+-- INTERSECT missing left branch
+intersect select 1 from dual;
+-- duplicate quantifier
+select 1 from dual union all distinct select 2 from dual;
+-- CORRESPONDING missing branch
+select 1 a from dual union corresponding by(a);
+-- CORRESPONDING empty BY
+select 1 a from dual union corresponding by() select 2 a from dual;
+-- trailing set operator
+select 1 from dual minus;
+------------------------------------------------------------------------------------------
+[SELECT] -- branch LIMIT without parentheses
+select a from app.set_left limit 1 union all select a from app.set_right limit 1;
+----------
+[SELECT] -- UNION missing right branch
+select 1 from dual union;
+----------
+[SELECT] -- INTERSECT missing left branch
+intersect select 1 from dual;
+----------
+[SELECT] -- duplicate quantifier
+select 1 from dual union all distinct select 2 from dual;
+----------
+[SELECT] -- CORRESPONDING missing branch
+select 1 a from dual union corresponding by(a);
+----------
+[SELECT] -- CORRESPONDING empty BY
+select 1 a from dual union corresponding by() select 2 a from dual;
+----------
+[SELECT] -- trailing set operator
+select 1 from dual minus;

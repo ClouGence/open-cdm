@@ -1,0 +1,30 @@
+select sf_get_para_value(1,'SORT_BUF_SIZE') from dual;
+select sf_get_para_value(2,'SORT_BUF_SIZE') from dual;
+select sf_get_para_double_value(1,'CKPT_FLUSH_RATE') from dual;
+select sf_get_para_double_value(2,'CKPT_FLUSH_RATE') from dual;
+select sf_get_para_string_value(1,'COMMIT_WRITE') from dual;
+select sf_get_para_string_value(2,'COMMIT_WRITE') from dual;
+select sf_get_session_para_value('JOIN_HASH_SIZE') from dual;
+select para_name,para_value,sess_value,file_value from v$dm_ini where para_name='SORT_BUF_SIZE';
+select "NAME","TYPE","VALUE" from v$parameter where "NAME"='SORT_BUF_SIZE';
+select sess_case_sensitive() from dual;
+------------------------------------------------------------------------------------------
+[SELECT] select sf_get_para_value(1,'SORT_BUF_SIZE') from dual;
+----------
+[SELECT] select sf_get_para_value(2,'SORT_BUF_SIZE') from dual;
+----------
+[SELECT] select sf_get_para_double_value(1,'CKPT_FLUSH_RATE') from dual;
+----------
+[SELECT] select sf_get_para_double_value(2,'CKPT_FLUSH_RATE') from dual;
+----------
+[SELECT] select sf_get_para_string_value(1,'COMMIT_WRITE') from dual;
+----------
+[SELECT] select sf_get_para_string_value(2,'COMMIT_WRITE') from dual;
+----------
+[SELECT|SESSION_VARIABLE_RW] select sf_get_session_para_value('JOIN_HASH_SIZE') from dual;
+----------
+[SELECT] select para_name,para_value,sess_value,file_value from v$dm_ini where para_name='SORT_BUF_SIZE';
+----------
+[SELECT] select "NAME","TYPE","VALUE" from v$parameter where "NAME"='SORT_BUF_SIZE';
+----------
+[SELECT|CALL_PROG_OBJ] select sess_case_sensitive() from dual;

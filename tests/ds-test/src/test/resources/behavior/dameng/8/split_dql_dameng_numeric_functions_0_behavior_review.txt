@@ -1,0 +1,829 @@
+[split_dql_dameng_numeric_functions_0_001_behavior_review]
+sql:
+SELECT ACOS(0);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/ACOS/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_functions_0_002_behavior_review]
+sql:
+SELECT ASIN(0);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/ASIN/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_functions_0_003_behavior_review]
+sql:
+SELECT ATAN(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/ATAN/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_functions_0_004_behavior_review]
+sql:
+SELECT ATAN2(0.2,0.3);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/ATAN2/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_functions_0_005_behavior_review]
+sql:
+SELECT   CEIL(15.6);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:9~1:13) /test/1/catalog1/schema1/CEIL/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_functions_0_006_behavior_review]
+sql:
+SELECT   CEIL(-16.23);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:9~1:13) /test/1/catalog1/schema1/CEIL/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_functions_0_007_behavior_review]
+sql:
+SELECT COS(14.78);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/COS/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_functions_0_008_behavior_review]
+sql:
+SELECT COSH(0)"Hyperbolic cosine of 0";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/COSH/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_functions_0_009_behavior_review]
+sql:
+SELECT COT(20 * 3.1415926/180);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/COT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_functions_0_010_behavior_review]
+sql:
+SELECT DEGREES(1.0);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/DEGREES/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_functions_0_011_behavior_review]
+sql:
+SELECT EXP(4) "e to the 4th power";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/EXP/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_functions_0_012_behavior_review]
+sql:
+SELECT  FLOOR(15.6);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:8~1:13) /test/1/catalog1/schema1/FLOOR/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_functions_0_013_behavior_review]
+sql:
+SELECT  FLOOR(-16.23);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:8~1:13) /test/1/catalog1/schema1/FLOOR/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_functions_0_014_behavior_review]
+sql:
+SELECT GREATEST(1.2,3.4,2.1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/GREATEST/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_functions_0_015_behavior_review]
+sql:
+SELECT GREAT (2, 4);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/GREAT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_functions_0_016_behavior_review]
+sql:
+SELECT LEAST(1.2,3.4,2.1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/LEAST/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_functions_0_017_behavior_review]
+sql:
+SELECT LN(95) "Natural log of 95";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:9) /test/1/catalog1/schema1/LN/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_functions_0_018_behavior_review]
+sql:
+SELECT LOG(10,100);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/LOG/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_functions_0_019_behavior_review]
+sql:
+SELECT LOG(95);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/LOG/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_functions_0_020_behavior_review]
+sql:
+SELECT LOG10(100);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/LOG10/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_functions_0_021_behavior_review]
+sql:
+SELECT PI();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:9) /test/1/catalog1/schema1/PI/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_functions_0_022_behavior_review]
+sql:
+SELECT POWER(3,2) "Raised";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/POWER/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_functions_0_023_behavior_review]
+sql:
+SELECT POWER(-3,3) "Raised";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/POWER/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_functions_0_024_behavior_review]
+sql:
+SELECT RADIANS(180.0);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/RADIANS/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_functions_0_025_behavior_review]
+sql:
+SELECT RAND();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/RAND/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_functions_0_026_behavior_review]
+sql:
+SELECT RAND(314);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/RAND/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_functions_0_027_behavior_review]
+sql:
+SELECT   ROUND(15.163,-1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:9~1:14) /test/1/catalog1/schema1/ROUND/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_functions_0_028_behavior_review]
+sql:
+SELECT   ROUND(15.163);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:9~1:14) /test/1/catalog1/schema1/ROUND/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_functions_0_029_behavior_review]
+sql:
+SELECT SIN(0);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/SIN/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_functions_0_030_behavior_review]
+sql:
+SELECT SINH(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/SINH/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_functions_0_031_behavior_review]
+sql:
+SELECT TAN(45*Pi()/180);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/TAN/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:14~1:16) /test/1/catalog1/schema1/Pi/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_functions_0_032_behavior_review]
+sql:
+SELECT TANH(0);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/TANH/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_functions_0_033_behavior_review]
+sql:
+SELECT TO_NUMBER('2,222.22', '9G999D99');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/TO_NUMBER/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_functions_0_034_behavior_review]
+sql:
+SELECT TO_NUMBER('2,222.22', '9,999.99');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/TO_NUMBER/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_functions_0_035_behavior_review]
+sql:
+SELECT TO_NUMBER('$2,222.22','$9G999D99');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/TO_NUMBER/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_functions_0_036_behavior_review]
+sql:
+SELECT TO_NUMBER('-1212.12','S9999.99');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/TO_NUMBER/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_functions_0_037_behavior_review]
+sql:
+SELECT TO_NUMBER('1,234','XXXX');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/TO_NUMBER/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_functions_0_038_behavior_review]
+sql:
+SELECT TO_NUMBER('-123.4');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/TO_NUMBER/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_functions_0_039_behavior_review]
+sql:
+SELECT   TRUNC(15.167,-1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:9~1:14) /test/1/catalog1/schema1/TRUNC/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_functions_0_040_behavior_review]
+sql:
+SELECT   TRUNC('-14.1111',-1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:9~1:14) /test/1/catalog1/schema1/TRUNC/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_functions_0_041_behavior_review]
+sql:
+SELECT TO_CHAR('01110' + 1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/TO_CHAR/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_functions_0_042_behavior_review]
+sql:
+SELECT TO_CHAR(-10000,'L99G999D99MI') "Amount";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/TO_CHAR/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_functions_0_043_behavior_review]
+sql:
+SELECT BITAND(-4, -5);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/BITAND/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_functions_0_044_behavior_review]
+sql:
+SELECT NANVL(NULL, 12.34)FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/NANVL/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:30~1:34) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_functions_0_045_behavior_review]
+sql:
+SELECT REMAINDER(11,4)FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/REMAINDER/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:27~1:31) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_functions_0_046_behavior_review]
+sql:
+SELECT TO_BINARY_FLOAT(12) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:22) /test/1/catalog1/schema1/TO_BINARY_FLOAT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:32~1:36) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_functions_0_047_behavior_review]
+sql:
+SELECT TO_BINARY_DOUBLE(12) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:23) /test/1/catalog1/schema1/TO_BINARY_DOUBLE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:33~1:37) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_functions_0_048_behavior_review]
+sql:
+SELECT ABS(-7);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/ABS/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_functions_0_049_behavior_review]
+sql:
+SELECT CEILING(1.2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/CEILING/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_functions_0_050_behavior_review]
+sql:
+SELECT MOD(7,3);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/MOD/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_functions_0_051_behavior_review]
+sql:
+SELECT SIGN(-8);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/SIGN/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_functions_0_052_behavior_review]
+sql:
+SELECT SQRT(9);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/SQRT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_functions_0_053_behavior_review]
+sql:
+SELECT POWER2(3,2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/POWER2/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_functions_0_054_behavior_review]
+sql:
+SELECT TRUNCATE(123.456,1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/TRUNCATE/",
+      "action": "CALL"
+    }
+  ]
+}

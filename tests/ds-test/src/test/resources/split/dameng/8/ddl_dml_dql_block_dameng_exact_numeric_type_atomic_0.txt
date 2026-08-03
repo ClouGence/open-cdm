@@ -1,0 +1,249 @@
+create table app.exact_num_t(
+  id int primary key,
+  c_numeric numeric(38,0) default 0 not null,
+  c_decimal decimal(38,38) default 0,
+  c_dec dec(10,2) default 0 check(c_dec between -99999999.99 and 99999999.99),
+  c_number number(10,2) default 0,
+  c_number_default number,
+  c_null numeric null,
+  constraint uk_exact_num unique(c_numeric,c_decimal,c_dec,c_number)
+);
+create index app.idx_exact_num on app.exact_num_t(c_numeric,c_number,c_dec);
+insert into app.exact_num_t values(1,
+  -99999999999999999999999999999999999999,
+  -0.99999999999999999999999999999999999999,-99999999.99,-99999999.99,
+  -99999999999999999999999999999999999999,null);
+insert into app.exact_num_t values(2,
+  99999999999999999999999999999999999999,
+  0.99999999999999999999999999999999999999,99999999.99,99999999.99,
+  99999999999999999999999999999999999999,null);
+insert into app.exact_num_t(id) values(3);
+insert into app.exact_num_t values(4,'123','0.123456','12.345','67.895','999.5',null);
+select id,c_numeric,c_decimal,c_dec,c_number,c_number_default,c_null
+  from app.exact_num_t order by id;
+select round(c_dec,1),trunc(c_number,1),ceil(c_decimal),floor(c_decimal),
+  abs(c_numeric),power(c_dec,2) from app.exact_num_t where id=4;
+select cast(c_numeric as varchar(40)),cast(c_decimal as double),
+  cast(c_dec as int),cast(c_number as bigint),
+  cast(c_number_default as decimal(38,1)) from app.exact_num_t where id=4;
+select min(c_numeric),max(c_decimal),sum(c_dec),avg(c_number),
+  count(c_number_default) from app.exact_num_t;
+select id from app.exact_num_t index idx_exact_num
+  where c_numeric>=0 and c_number>=0 order by c_numeric;
+create view app.exact_num_v as
+  select id,c_numeric,c_decimal,c_dec,c_number from app.exact_num_t where c_numeric>=0;
+select c_numeric+c_dec as num_dec_sum,
+  c_number*c_dec as number_dec_product from app.exact_num_v
+  where id in(3,4) order by id;
+update app.exact_num_v set c_number=c_number+0.01 where id=4;
+create function app.exact_numeric_f(p_value numeric(38,0)) return numeric(38,0) as
+begin
+  return p_value;
+end;
+/
+create function app.exact_decimal_f(p_value decimal(38,38)) return decimal(38,38) as
+begin
+  return p_value;
+end;
+/
+create function app.exact_dec_f(p_value dec(10,2)) return dec(10,2) as
+begin
+  return p_value;
+end;
+/
+create function app.exact_number_f(p_value number(10,2)) return number(10,2) as
+begin
+  return p_value;
+end;
+/
+select app.exact_numeric_f(99999999999999999999999999999999999999),
+  app.exact_decimal_f(0.99999999999999999999999999999999999999),
+  app.exact_dec_f(99999999.99),app.exact_number_f(-99999999.99) from dual;
+create table app.exact_p_numeric(id numeric(38,0),v int)
+  partition by range(id)(partition p0 values less than(0),
+  partition p1 values less than(maxvalue));
+insert into app.exact_p_numeric values
+  (-99999999999999999999999999999999999999,1),
+  (99999999999999999999999999999999999999,2);
+select count(*) from app.exact_p_numeric partition for(1);
+create table app.exact_p_decimal(id decimal(38,0),v int)
+  partition by range(id)(partition p0 values less than(0),
+  partition p1 values less than(maxvalue));
+insert into app.exact_p_decimal values
+  (-99999999999999999999999999999999999999,1),
+  (99999999999999999999999999999999999999,2);
+select count(*) from app.exact_p_decimal partition for(1);
+create table app.exact_p_dec(id dec(38,0),v int)
+  partition by range(id)(partition p0 values less than(0),
+  partition p1 values less than(maxvalue));
+insert into app.exact_p_dec values
+  (-99999999999999999999999999999999999999,1),
+  (99999999999999999999999999999999999999,2);
+select count(*) from app.exact_p_dec partition for(1);
+create table app.exact_p_number(id number(38,0),v int)
+  partition by range(id)(partition p0 values less than(0),
+  partition p1 values less than(maxvalue));
+insert into app.exact_p_number values
+  (-99999999999999999999999999999999999999,1),
+  (99999999999999999999999999999999999999,2);
+select count(*) from app.exact_p_number partition for(1);
+create table app.bad_numeric_p0(c numeric(0));
+create table app.bad_numeric_p39(c numeric(39));
+create table app.bad_numeric_scale(c numeric(3,4));
+create table app.bad_decimal_p0(c decimal(0));
+create table app.bad_decimal_p39(c decimal(39));
+create table app.bad_decimal_scale(c decimal(3,4));
+create table app.bad_dec_p0(c dec(0));
+create table app.bad_dec_p39(c dec(39));
+create table app.bad_dec_scale(c dec(3,4));
+create table app.bad_number_p0(c number(0));
+create table app.bad_number_p39(c number(39));
+create table app.bad_number_scale(c number(3,4));
+insert into app.exact_num_t(id,c_numeric) values(101,
+  100000000000000000000000000000000000000);
+insert into app.exact_num_t(id,c_numeric) values(102,null);
+------------------------------------------------------------------------------------------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table app.exact_num_t(
+  id int primary key,
+  c_numeric numeric(38,0) default 0 not null,
+  c_decimal decimal(38,38) default 0,
+  c_dec dec(10,2) default 0 check(c_dec between -99999999.99 and 99999999.99),
+  c_number number(10,2) default 0,
+  c_number_default number,
+  c_null numeric null,
+  constraint uk_exact_num unique(c_numeric,c_decimal,c_dec,c_number)
+);
+----------
+[ADD_INDEX] create index app.idx_exact_num on app.exact_num_t(c_numeric,c_number,c_dec);
+----------
+[INSERT] insert into app.exact_num_t values(1,
+  -99999999999999999999999999999999999999,
+  -0.99999999999999999999999999999999999999,-99999999.99,-99999999.99,
+  -99999999999999999999999999999999999999,null);
+----------
+[INSERT] insert into app.exact_num_t values(2,
+  99999999999999999999999999999999999999,
+  0.99999999999999999999999999999999999999,99999999.99,99999999.99,
+  99999999999999999999999999999999999999,null);
+----------
+[INSERT] insert into app.exact_num_t(id) values(3);
+----------
+[INSERT] insert into app.exact_num_t values(4,'123','0.123456','12.345','67.895','999.5',null);
+----------
+[SELECT] select id,c_numeric,c_decimal,c_dec,c_number,c_number_default,c_null
+  from app.exact_num_t order by id;
+----------
+[SELECT] select round(c_dec,1),trunc(c_number,1),ceil(c_decimal),floor(c_decimal),
+  abs(c_numeric),power(c_dec,2) from app.exact_num_t where id=4;
+----------
+[SELECT] select cast(c_numeric as varchar(40)),cast(c_decimal as double),
+  cast(c_dec as int),cast(c_number as bigint),
+  cast(c_number_default as decimal(38,1)) from app.exact_num_t where id=4;
+----------
+[SELECT] select min(c_numeric),max(c_decimal),sum(c_dec),avg(c_number),
+  count(c_number_default) from app.exact_num_t;
+----------
+[SELECT] select id from app.exact_num_t index idx_exact_num
+  where c_numeric>=0 and c_number>=0 order by c_numeric;
+----------
+[CREATE_VIEW(SELECT)] create view app.exact_num_v as
+  select id,c_numeric,c_decimal,c_dec,c_number from app.exact_num_t where c_numeric>=0;
+----------
+[SELECT] select c_numeric+c_dec as num_dec_sum,
+  c_number*c_dec as number_dec_product from app.exact_num_v
+  where id in(3,4) order by id;
+----------
+[UPDATE] update app.exact_num_v set c_number=c_number+0.01 where id=4;
+----------
+[CREATE_PROG_OBJ(BLOCK,PROGRAM_CONTROL)] create function app.exact_numeric_f(p_value numeric(38,0)) return numeric(38,0) as
+begin
+  return p_value;
+end;
+----------
+[CREATE_PROG_OBJ(BLOCK,PROGRAM_CONTROL)] create function app.exact_decimal_f(p_value decimal(38,38)) return decimal(38,38) as
+begin
+  return p_value;
+end;
+----------
+[CREATE_PROG_OBJ(BLOCK,PROGRAM_CONTROL)] create function app.exact_dec_f(p_value dec(10,2)) return dec(10,2) as
+begin
+  return p_value;
+end;
+----------
+[CREATE_PROG_OBJ(BLOCK,PROGRAM_CONTROL)] create function app.exact_number_f(p_value number(10,2)) return number(10,2) as
+begin
+  return p_value;
+end;
+----------
+[SELECT|CALL_PROG_OBJ] select app.exact_numeric_f(99999999999999999999999999999999999999),
+  app.exact_decimal_f(0.99999999999999999999999999999999999999),
+  app.exact_dec_f(99999999.99),app.exact_number_f(-99999999.99) from dual;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.exact_p_numeric(id numeric(38,0),v int)
+  partition by range(id)(partition p0 values less than(0),
+  partition p1 values less than(maxvalue));
+----------
+[INSERT] insert into app.exact_p_numeric values
+  (-99999999999999999999999999999999999999,1),
+  (99999999999999999999999999999999999999,2);
+----------
+[SELECT] select count(*) from app.exact_p_numeric partition for(1);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.exact_p_decimal(id decimal(38,0),v int)
+  partition by range(id)(partition p0 values less than(0),
+  partition p1 values less than(maxvalue));
+----------
+[INSERT] insert into app.exact_p_decimal values
+  (-99999999999999999999999999999999999999,1),
+  (99999999999999999999999999999999999999,2);
+----------
+[SELECT] select count(*) from app.exact_p_decimal partition for(1);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.exact_p_dec(id dec(38,0),v int)
+  partition by range(id)(partition p0 values less than(0),
+  partition p1 values less than(maxvalue));
+----------
+[INSERT] insert into app.exact_p_dec values
+  (-99999999999999999999999999999999999999,1),
+  (99999999999999999999999999999999999999,2);
+----------
+[SELECT] select count(*) from app.exact_p_dec partition for(1);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.exact_p_number(id number(38,0),v int)
+  partition by range(id)(partition p0 values less than(0),
+  partition p1 values less than(maxvalue));
+----------
+[INSERT] insert into app.exact_p_number values
+  (-99999999999999999999999999999999999999,1),
+  (99999999999999999999999999999999999999,2);
+----------
+[SELECT] select count(*) from app.exact_p_number partition for(1);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.bad_numeric_p0(c numeric(0));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.bad_numeric_p39(c numeric(39));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.bad_numeric_scale(c numeric(3,4));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.bad_decimal_p0(c decimal(0));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.bad_decimal_p39(c decimal(39));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.bad_decimal_scale(c decimal(3,4));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.bad_dec_p0(c dec(0));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.bad_dec_p39(c dec(39));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.bad_dec_scale(c dec(3,4));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.bad_number_p0(c number(0));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.bad_number_p39(c number(39));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.bad_number_scale(c number(3,4));
+----------
+[INSERT] insert into app.exact_num_t(id,c_numeric) values(101,
+  100000000000000000000000000000000000000);
+----------
+[INSERT] insert into app.exact_num_t(id,c_numeric) values(102,null);

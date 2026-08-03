@@ -5,46 +5,32 @@
  */
 package com.clougence.clouddm.ds.language.completion;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.clougence.clouddm.ds.TextCaseSupport;
+import com.clougence.clouddm.ds.TextCaseSupport.CaseBlock;
 
 final class CompletionScriptParser {
 
     private CompletionScriptParser(){
     }
 
-    static List<CompletionScriptCase> parse(Path root, Path script) {
-        try {
-            String content = Files.readString(script, StandardCharsets.UTF_8);
-            List<CompletionScriptCase> cases = new ArrayList<>();
-            for (String block : content.split("(?m)^----------\\s*$")) {
-                if (!block.isBlank()) {
-                    cases.add(parseBlock(root.relativize(script).toString(), block.strip()));
-                }
-            }
-            return cases;
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
+    static List<CompletionScriptCase> parse(String resourcePath) {
+        List<CompletionScriptCase> cases = new ArrayList<>();
+        for (CaseBlock block : TextCaseSupport.loadBlocks(resourcePath)) {
+            cases.add(parseBlock(block));
         }
+        return cases;
     }
 
-    private static CompletionScriptCase parseBlock(String path, String block) {
-        List<String> lines = block.lines().toList();
-        String name = null;
+    private static CompletionScriptCase parseBlock(CaseBlock block) {
+        List<String> lines = block.body().lines().toList();
         Map<String, String> fields = new HashMap<>();
         for (int i = 0; i < lines.size(); i++) {
             String line = lines.get(i);
-            if (i == 0 && line.startsWith("[") && line.endsWith("]")) {
-                name = line.substring(1, line.length() - 1);
-                continue;
-            }
             if (line.endsWith(":")) {
                 String key = line.substring(0, line.length() - 1);
                 StringBuilder value = new StringBuilder();
@@ -65,11 +51,10 @@ final class CompletionScriptParser {
 
         String sql = required(fields, "sql");
         CursorSql cursorSql = resolveCursor(sql, fields);
-        return new CompletionScriptCase(path,
-            name == null ? path : name,
+        return new CompletionScriptCase(block.resourcePath(),
+            block.name(),
             required(fields, "languageClass"),
-            required(fields, "sqlEngineClass"),
-            fields.getOrDefault("meta", "completion-test/rdb-2level.json"),
+            fields.getOrDefault("meta", "_meta"),
             Long.parseLong(fields.getOrDefault("dataSourceId", "1")),
             fields.get("catalog"),
             fields.getOrDefault("schema", fields.get("database")),

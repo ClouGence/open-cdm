@@ -84,6 +84,15 @@ public class DrUmiServiceDm extends AbstractRdbUmiService<DrMetaProviderDm> impl
                 List<RdbTable> defs = this.metadataSupplier.eGet().loadViews(null, schema, names);
                 return CollectionUtils.isEmpty(defs) ? null : defs.get(0);
             }
+            case Materialized: {
+                if (StringUtils.isBlank(leafName)) {
+                    return null;
+                }
+                String catalog = StringUtils.toString(levelsParam.get(UmiTypes.Catalog));
+                RdbTable def = this.metadataSupplier.eGet().loadSelectObject(catalog, schema, leafName);
+                def.setUmiType(UmiTypes.Materialized);
+                return def;
+            }
             case Table: {
                 List<String> names = StringUtils.isNotBlank(leafName) ? Collections.singletonList(leafName) : new ArrayList<>();
                 List<RdbTable> defs = this.metadataSupplier.eGet().loadTables(null, schema, names);

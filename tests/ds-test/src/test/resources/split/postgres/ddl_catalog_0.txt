@@ -1,0 +1,84 @@
+create database abc;
+create database abc owner zyc;
+create database abc owner = zyc;
+create database abc with owner zyc;
+create database abc with owner = zyc;
+create database abc template template1;
+create database abc template = template1;
+create database abc with template template1;
+create database abc with template = template1;
+alter database abc allow_connections false;
+alter database abc with allow_connections true;
+alter database abc is_template true;
+alter database abc with is_template true;
+alter database abc owner to abc2;
+alter database abc owner to CURRENT_ROLE;
+alter database abc owner to CURRENT_USER;
+alter database abc owner to SESSION_USER;
+alter database abc set tablespace myspace;
+alter database abc refresh collation version;
+alter database abc reset all;
+alter database abc reset datestyle;
+alter database abc set datestyle = 'iso, mdy';
+alter database abc set datestyle to 'iso, mdy';
+alter database abc set datestyle to default;
+alter database abc set datestyle = default;
+alter database abc rename to abc2;
+drop database abc;
+drop database if exists abc;
+------------------------------------------------------------------------------------------
+[CREATE_CATALOG] create database abc;
+----------
+[CREATE_CATALOG] create database abc owner zyc;
+----------
+[CREATE_CATALOG] create database abc owner = zyc;
+----------
+[CREATE_CATALOG] create database abc with owner zyc;
+----------
+[CREATE_CATALOG] create database abc with owner = zyc;
+----------
+[CREATE_CATALOG] create database abc template template1;
+----------
+[CREATE_CATALOG] create database abc template = template1;
+----------
+[CREATE_CATALOG] create database abc with template template1;
+----------
+[CREATE_CATALOG] create database abc with template = template1;
+----------
+[ALTER_CATALOG] alter database abc allow_connections false;
+----------
+[ALTER_CATALOG] alter database abc with allow_connections true;
+----------
+[ALTER_CATALOG] alter database abc is_template true;
+----------
+[ALTER_CATALOG] alter database abc with is_template true;
+----------
+[TRANSFER_PRIVILEGE] alter database abc owner to abc2;
+----------
+[TRANSFER_PRIVILEGE] alter database abc owner to CURRENT_ROLE;
+----------
+[TRANSFER_PRIVILEGE] alter database abc owner to CURRENT_USER;
+----------
+[TRANSFER_PRIVILEGE] alter database abc owner to SESSION_USER;
+----------
+[ALTER_CATALOG] alter database abc set tablespace myspace;
+----------
+[ALTER_CATALOG] alter database abc refresh collation version;
+----------
+[ALTER_CATALOG] alter database abc reset all;
+----------
+[ALTER_CATALOG] alter database abc reset datestyle;
+----------
+[ALTER_CATALOG] alter database abc set datestyle = 'iso, mdy';
+----------
+[ALTER_CATALOG] alter database abc set datestyle to 'iso, mdy';
+----------
+[ALTER_CATALOG] alter database abc set datestyle to default;
+----------
+[ALTER_CATALOG] alter database abc set datestyle = default;
+----------
+[RENAME_CATALOG] alter database abc rename to abc2;
+----------
+[DROP_CATALOG] drop database abc;
+----------
+[DROP_CATALOG] drop database if exists abc;

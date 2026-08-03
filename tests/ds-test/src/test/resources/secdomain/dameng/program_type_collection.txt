@@ -1,0 +1,48 @@
+[program_type_objects]
+sql:
+create table app.type_base(id int primary key,name varchar2(30),amount number(10,2)); create or replace type app.rec_sql as record(id int,name varchar2(30));
+/
+create or replace type app.static_min as array int[1];
+/
+create or replace type app.dynamic_one as array int[];
+/
+create or replace type app.index_int as table of varchar2(30) index by int;
+/
+create table app.index_column_compat(id int primary key,v app.index_int);
+expect:
+{
+  "contains":[
+    {"class":"RdbTableDomain","sqlType":"CREATE_TABLE","auditKind":"CREATE","schema":"app","table":"type_base"},
+    {"class":"RdbObjectDomain","sqlType":"CREATE_TYPE","auditKind":"CREATE","schema":"app","name":"rec_sql"},
+    {"class":"RdbObjectDomain","sqlType":"CREATE_TYPE","auditKind":"CREATE","schema":"app","name":"static_min"},
+    {"class":"RdbObjectDomain","sqlType":"CREATE_TYPE","auditKind":"CREATE","schema":"app","name":"dynamic_one"},
+    {"class":"RdbObjectDomain","sqlType":"CREATE_TYPE","auditKind":"CREATE","schema":"app","name":"index_int"},
+    {"class":"RdbTableDomain","sqlType":"CREATE_TABLE","auditKind":"CREATE","schema":"app","table":"index_column_compat"}
+  ]
+}
+----------
+[program_type_dml]
+sql:
+insert into app.type_base values(1,'DM8',88.25); insert into app.index_column_compat values(1,null);
+expect:
+{
+  "contains":[
+    {"class":"RdbInsertDomain","sqlType":"INSERT","auditKind":"DML","schema":"app","table":"type_base"},
+    {"class":"RdbInsertDomain","sqlType":"INSERT","auditKind":"DML","schema":"app","table":"index_column_compat"}
+  ]
+}
+----------
+[program_type_blocks]
+sql:
+declare v_name app.type_base.name%type; begin select name into v_name from app.type_base where id=1; print v_name; end;
+/
+declare v_row app.type_base%rowtype; begin select * into v_row from app.type_base where id=1; print v_row.name; end;
+/
+select id,v from app.index_column_compat;
+expect:
+{
+  "contains":[
+    {"class":"RdbTableDomain","sqlType":"SELECT","auditKind":"QUERY","schema":"app","table":"type_base"},
+    {"class":"RdbTableDomain","sqlType":"SELECT","auditKind":"QUERY","schema":"app","table":"index_column_compat"}
+  ]
+}

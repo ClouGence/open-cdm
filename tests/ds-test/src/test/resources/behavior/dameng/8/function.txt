@@ -1,0 +1,59 @@
+[create_function]
+sql:
+create function app.f return int as begin return 1;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:21) /test/1/catalog1/app/f/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[alter_function]
+sql:
+alter function app.f compile cascade debug;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_PROG_OBJ": [
+    {
+      "subject": "Function(1:15~1:20) /test/1/catalog1/app/f/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[call_function]
+sql:
+call app.f;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:5~1:10) /test/1/catalog1/app/f/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[drop_function]
+sql:
+drop function app.f;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Function(1:14~1:19) /test/1/catalog1/app/f/",
+      "action" : "DROP"
+    }
+  ]
+}

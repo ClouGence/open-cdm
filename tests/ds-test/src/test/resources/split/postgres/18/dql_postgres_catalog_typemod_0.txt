@@ -1,0 +1,10 @@
+SELECT to_regtypemod('varchar(32)');
+SELECT to_regtypemod('integer');
+SELECT format_type(to_regtype('varchar(32)'), to_regtypemod('varchar(32)'));
+------------------------------------------------------------------------------------------
+[SELECT] SELECT to_regtypemod('varchar(32)');
+----------
+[SELECT] SELECT to_regtypemod('integer');
+----------
+[METADATA] SELECT format_type(to_regtype('varchar(32)'), to_regtypemod('varchar(32)'));
+

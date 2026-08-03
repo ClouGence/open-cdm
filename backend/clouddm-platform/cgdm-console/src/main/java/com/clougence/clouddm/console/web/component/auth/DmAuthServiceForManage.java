@@ -18,6 +18,7 @@ package com.clougence.clouddm.console.web.component.auth;
 import java.util.List;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
+import com.clougence.clouddm.console.web.model.fo.security.BatchModifyUserAuthFO;
 import com.clougence.clouddm.console.web.model.fo.security.ModifyUserAuthFO;
 import com.clougence.clouddm.console.web.model.fo.ticket.RdpAddAuthTicketFO;
 import com.clougence.clouddm.console.web.model.vo.RdpAuthObjectVO;
@@ -68,6 +69,8 @@ public interface DmAuthServiceForManage {
     boolean hasGlobalAuth(String targetUid, AuthKind authKind, String dataAuthLabel);
 
     void modifyUserAuth(String puid, ModifyUserAuthFO fo);
+
+    void batchModifyUserAuth(String puid, BatchModifyUserAuthFO fo);
 
     void appendUserAuth(String puid, RdpAddAuthTicketFO fo);
 

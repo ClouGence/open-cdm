@@ -1,3 +1,4 @@
+import appLogger from '@/utils/logger';
 import axios from 'axios';
 import { Modal, Spin } from 'view-ui-plus';
 import i18n from '@/i18n';
@@ -78,7 +79,7 @@ instance.interceptors.response.use(
         }
       }
       if (response.data.code === '2011') {
-        console.log('hello tao');
+        appLogger.debug('hello tao');
         window.$bus.emit('setCloudAKSKModal');
       }
     }

@@ -1,0 +1,1021 @@
+[select__001]
+sql:
+SELECT CAST(CAST(1-2 AS UNSIGNED) AS SIGNED INTEGER);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__002]
+sql:
+SELECT CAST(-5 AS UNSIGNED) | 1, CAST(-5 AS UNSIGNED) & -1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__003]
+sql:
+SELECT CAST(-5 AS UNSIGNED)-1, CAST(-5 AS UNSIGNED)+1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__004]
+sql:
+SELECT CAST(NULL AS SIGNED), CAST(1/0 AS SIGNED);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__005]
+sql:
+SELECT CAST(NULL AS UNSIGNED), CAST(1/0 AS UNSIGNED);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__006]
+sql:
+SELECT CAST('A' AS BINARY)='a', CAST(BINARY 'a' AS CHAR)='A';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__007]
+sql:
+SELECT CONVERT(TIMESTAMP '2004-01-22 21:45:33' USING latin1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/CONVERT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__008]
+sql:
+SELECT CONVERT(TIMESTAMP '2004-01-22 21:45:33',CHAR);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/CONVERT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__009]
+sql:
+SELECT CONVERT(TIMESTAMP '2004-01-22 21:45:33',CHAR(4));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/CONVERT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__010]
+sql:
+SELECT CONVERT(TIMESTAMP '2004-01-22 21:45:33',BINARY(4));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/CONVERT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__011]
+sql:
+SELECT CAST(TIMESTAMP '2004-01-22 21:45:33' AS BINARY(4));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__012]
+sql:
+SELECT CAST('18446744073709551616' AS UNSIGNED);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__013]
+sql:
+SELECT CAST('18446744073709551616' AS SIGNED);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__014]
+sql:
+SELECT CAST('9223372036854775809' AS SIGNED);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__015]
+sql:
+SELECT CAST('-1' AS UNSIGNED);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__016]
+sql:
+SELECT CAST('abc' AS SIGNED);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__017]
+sql:
+SELECT CAST('1a' AS SIGNED);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__018]
+sql:
+SELECT CAST('' AS SIGNED);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__019]
+sql:
+SELECT CAST(_latin1'test' AS CHAR CHARACTER SET latin2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__020]
+sql:
+SELECT CAST(_koi8r'тест' AS CHAR CHARACTER SET cp1251);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__021]
+sql:
+SELECT a,CAST(a AS CHAR) FROM t1 ORDER BY CAST(a AS UNSIGNED);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:9~1:13) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:30~1:32) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__022]
+sql:
+SELECT a,CAST(a AS CHAR(3)) FROM t1 ORDER BY CAST(a AS CHAR(2)),a;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:9~1:13) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:33~1:35) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__023]
+sql:
+SELECT a,CAST(a AS UNSIGNED) FROM t1 ORDER BY CAST(a AS CHAR);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:9~1:13) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:34~1:36) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__024]
+sql:
+SELECT a,CAST(a AS CHAR(2)) FROM t1 ORDER BY CAST(a AS CHAR(3)),a;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:9~1:13) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:33~1:35) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__025]
+sql:
+SELECT DATE_ADD(CAST('2004-12-30 12:00:00' AS DATE),INTERVAL 0 HOUR);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/DATE_ADD/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:16~1:20) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__026]
+sql:
+SELECT TIMEDIFF(CAST('2004-12-30 12:00:00' AS TIME),'12:00:00');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/TIMEDIFF/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:16~1:20) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__027]
+sql:
+SELECT TIMEDIFF(CAST('1 12:00:00' AS TIME),'12:00:00');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/TIMEDIFF/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:16~1:20) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__028]
+sql:
+SELECT CAST(CONCAT('184467440','73709551615') AS UNSIGNED);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:12~1:18) /test/1/catalog1/schema1/CONCAT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__029]
+sql:
+SELECT CAST(CONCAT('184467440','73709551615') AS SIGNED);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:12~1:18) /test/1/catalog1/schema1/CONCAT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__030]
+sql:
+SELECT CAST(REPEAT('1',20) AS UNSIGNED);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:12~1:18) /test/1/catalog1/schema1/REPEAT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__031]
+sql:
+SELECT CAST(REPEAT('1',20) AS SIGNED);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:12~1:18) /test/1/catalog1/schema1/REPEAT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__032]
+sql:
+SELECT CAST(v AS DECIMAL),CAST(tt AS DECIMAL),CAST(t AS DECIMAL),CAST(mt AS DECIMAL),CAST(lt AS DECIMAL) FROM t1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:110~1:112) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__033]
+sql:
+SELECT CAST(DATE(d1) AS SIGNED) FROM t1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:12~1:16) /test/1/catalog1/schema1/DATE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:37~1:39) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__034]
+sql:
+SELECT HOUR(CAST('2007-07-19' AS DATE)),MINUTE(CAST('2007-07-19' AS DATE)),SECOND(CAST('2007-07-19' AS DATE));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/HOUR/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:12~1:16) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:40~1:46) /test/1/catalog1/schema1/MINUTE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:75~1:81) /test/1/catalog1/schema1/SECOND/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__035]
+sql:
+SELECT HOUR(CAST(NULL AS DATE)),MINUTE(CAST(NULL AS DATE)),SECOND(CAST(NULL AS DATE));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/HOUR/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:12~1:16) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:32~1:38) /test/1/catalog1/schema1/MINUTE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:59~1:65) /test/1/catalog1/schema1/SECOND/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__036]
+sql:
+SELECT 1 FROM (SELECT CONVERT(t2.a USING utf8) FROM t1,t1 AS t2 LIMIT 1) AS s LIMIT 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:22~1:29) /test/1/catalog1/schema1/CONVERT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:52~1:54) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__037]
+sql:
+SELECT CONVERT('a',BINARY(2049));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/CONVERT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__038]
+sql:
+SELECT CONVERT('a',CHAR(2049));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/CONVERT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__039]
+sql:
+SELECT a FROM t1 WHERE CAST(a AS BINARY)=X'62736D697468' AND CAST(a AS BINARY)=X'65736D697468';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:16) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(1:23~1:27) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__040]
+sql:
+SELECT f1 AS double_value,CAST(f1 AS SIGNED INT) AS cast_value FROM t1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:26~1:30) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:68~1:70) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__041]
+sql:
+SELECT CAST(CAST('01-01-01' AS DATE) AS UNSIGNED);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__042]
+sql:
+SELECT CAST(CAST('01-01-01' AS DATE) AS SIGNED);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__043]
+sql:
+SELECT CAST(s1 AS DECIMAL(7,2)) FROM t1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:37~1:39) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__044]
+sql:
+SELECT CAST(c1 AS UNSIGNED) FROM (SELECT c1 FROM enum_source) AS d;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:49~1:60) /test/1/catalog1/schema1/enum_source/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__045]
+sql:
+SELECT CAST('a' AS BINARY(4294967295));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__046]
+sql:
+SELECT CAST('a' AS BINARY(4294967296));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__047]
+sql:
+SELECT CAST(x<=0x4891f642 AS UNSIGNED) FROM cast_input;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:44~1:54) /test/1/catalog1/schema1/cast_input/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__048]
+sql:
+SELECT CAST(STRCMP(x,0x4891f642) AS UNSIGNED) FROM cast_input;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:12~1:18) /test/1/catalog1/schema1/STRCMP/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:51~1:61) /test/1/catalog1/schema1/cast_input/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__049]
+sql:
+SELECT 1 FROM nullability_input WHERE CAST(a AS UNSIGNED INTEGER)=1 AND a=IF(TRUE,NULL,1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:31) /test/1/catalog1/schema1/nullability_input/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(1:38~1:42) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:74~1:76) /test/1/catalog1/schema1/IF/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[block_session_variable_rw__050]
+sql:
+DO EXTRACTVALUE(CONVERT(@f<=>0x2e67ffd1,UNSIGNED),4);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(1:3~1:15) /test/1/catalog1/schema1/EXTRACTVALUE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:16~1:23) /test/1/catalog1/schema1/CONVERT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "ConfigKey(1:24~1:26) /test/1/f/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__051]
+sql:
+SELECT * FROM escape_input WHERE v1 LIKE v1 ESCAPE CONVERT(TRUE,DATETIME(100));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:26) /test/1/catalog1/schema1/escape_input/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(1:51~1:58) /test/1/catalog1/schema1/CONVERT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__052]
+sql:
+SELECT CAST(1.9e0 AS SIGNED) FROM double_input;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:34~1:46) /test/1/catalog1/schema1/double_input/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__053]
+sql:
+SELECT c1 FROM codex_year_union_source UNION SELECT c2 FROM codex_year_union_source;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:15~1:38) /test/1/catalog1/schema1/codex_year_union_source/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__054]
+sql:
+SELECT c2 FROM codex_year_union_source UNION SELECT c1 FROM codex_year_union_source;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:15~1:38) /test/1/catalog1/schema1/codex_year_union_source/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__055]
+sql:
+SELECT CAST(a AS DATE),CAST(a AS DATETIME),LEAST(a,DATE'2000-01-01'),GREATEST(a,DATE'2000-01-01') FROM codex_year_source;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:43~1:48) /test/1/catalog1/schema1/LEAST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:69~1:77) /test/1/catalog1/schema1/GREATEST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:103~1:120) /test/1/catalog1/schema1/codex_year_source/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__056]
+sql:
+SELECT CAST('9223372036854775807' AS UNSIGNED)=9223372036854775806;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__057]
+sql:
+SELECT CAST(0xb3 AS SIGNED),CAST(0x8fffffffffffffff AS SIGNED),CAST(0xffffffffffffffff AS UNSIGNED),CAST(0xfffffffffffffffe AS SIGNED);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__058]
+sql:
+SELECT CAST(_latin1'abc' AS CHAR(2) CHARSET binary),CAST(_latin1'a' AS CHAR(2) CHARSET binary),HEX(CAST(_latin1'abc' AS CHAR(2) CHARSET binary)),HEX(CAST(_latin1'a' AS CHAR(2) CHARSET binary));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:95~1:98) /test/1/catalog1/schema1/HEX/",
+      "action" : "CALL"
+    }
+  ]
+}

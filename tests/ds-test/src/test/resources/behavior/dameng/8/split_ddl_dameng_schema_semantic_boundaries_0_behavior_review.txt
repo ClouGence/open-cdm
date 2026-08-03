@@ -1,0 +1,199 @@
+[split_ddl_dameng_schema_semantic_boundaries_0_001_behavior_review]
+sql:
+create schema S00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 authorization SYSDBA;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SCHEMA": [
+    {
+      "subject": "Schema(1:14~1:143) /test/1/catalog1/S00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000/",
+      "action" : "CREATE",
+      "target" : "User(1:158~1:164) /test/1/SYSDBA/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_semantic_boundaries_0_002_behavior_review]
+sql:
+create schema CODEX_DM8_SCHEMA_BAD_OWNER_20260722 authorization CODEX_DM8_SCHEMA_NO_USER_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SCHEMA": [
+    {
+      "subject": "Schema(1:14~1:49) /test/1/catalog1/CODEX_DM8_SCHEMA_BAD_OWNER_20260722/",
+      "action" : "CREATE",
+      "target" : "User(1:64~1:97) /test/1/CODEX_DM8_SCHEMA_NO_USER_20260722/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_semantic_boundaries_0_003_behavior_review]
+sql:
+drop schema CODEX_DM8_SCHEMA_MISSING_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SCHEMA": [
+    {
+      "subject": "Schema(1:12~1:45) /test/1/catalog1/CODEX_DM8_SCHEMA_MISSING_20260722/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_semantic_boundaries_0_004_behavior_review]
+sql:
+drop schema CODEX_DM8_SCHEMA_RESTRICT_20260722 restrict;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SCHEMA": [
+    {
+      "subject": "Schema(1:12~1:46) /test/1/catalog1/CODEX_DM8_SCHEMA_RESTRICT_20260722/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_semantic_boundaries_0_005_behavior_review]
+sql:
+drop schema CODEX_DM8_SCHEMA_OWNER_20260722 cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SCHEMA": [
+    {
+      "subject": "Schema(1:12~1:43) /test/1/catalog1/CODEX_DM8_SCHEMA_OWNER_20260722/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_semantic_boundaries_0_006_behavior_review]
+sql:
+create schema CODEX_DM8_SCHEMA_CLUSTER_IDX_20260722 authorization SYSDBA
+  create table T(ID int)
+  create cluster index IDX_CLUSTER on T(ID);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SCHEMA": [
+    {
+      "subject": "Schema(1:14~1:51) /test/1/catalog1/CODEX_DM8_SCHEMA_CLUSTER_IDX_20260722/",
+      "action" : "CREATE",
+      "target" : "User(1:66~1:72) /test/1/SYSDBA/"
+    },
+    {
+      "subject": "Table(2:15~2:16) /test/1/catalog1/CODEX_DM8_SCHEMA_CLUSTER_IDX_20260722/T/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Index(3:23~3:34) /test/1/catalog1/CODEX_DM8_SCHEMA_CLUSTER_IDX_20260722/IDX_CLUSTER/",
+      "action" : "CREATE",
+      "target" : "Table(3:38~3:39) /test/1/catalog1/CODEX_DM8_SCHEMA_CLUSTER_IDX_20260722/T/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_semantic_boundaries_0_007_behavior_review]
+sql:
+create schema CODEX_DM8_SCHEMA_PUBLIC_LINK_20260722 authorization SYSDBA
+  create public link L connect 'DPI' with U identified by P using '127.0.0.1:1';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SCHEMA": [
+    {
+      "subject": "Schema(1:14~1:51) /test/1/catalog1/CODEX_DM8_SCHEMA_PUBLIC_LINK_20260722/",
+      "action" : "CREATE",
+      "target" : "User(1:66~1:72) /test/1/SYSDBA/"
+    },
+    {
+      "subject": "Link(2:21~2:22) /test/1/L/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_semantic_boundaries_0_008_behavior_review]
+sql:
+create schema CODEX_DM8_SCHEMA_ALTER_ADD_20260722 authorization SYSDBA
+  create table T(ID int)
+  alter table T add NOTE varchar(20);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SCHEMA": [
+    {
+      "subject": "Schema(1:14~1:49) /test/1/catalog1/CODEX_DM8_SCHEMA_ALTER_ADD_20260722/",
+      "action" : "CREATE",
+      "target" : "User(1:64~1:70) /test/1/SYSDBA/"
+    },
+    {
+      "subject": "Table(2:15~2:16) /test/1/catalog1/CODEX_DM8_SCHEMA_ALTER_ADD_20260722/T/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Table(3:14~3:15) /test/1/catalog1/CODEX_DM8_SCHEMA_ALTER_ADD_20260722/T/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_semantic_boundaries_0_009_behavior_review]
+sql:
+create schema CODEX_DM8_SCHEMA_ALTER_DROP_20260722 authorization SYSDBA
+  create table T(ID int, NOTE varchar(20))
+  alter table T drop column NOTE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SCHEMA": [
+    {
+      "subject": "Schema(1:14~1:50) /test/1/catalog1/CODEX_DM8_SCHEMA_ALTER_DROP_20260722/",
+      "action" : "CREATE",
+      "target" : "User(1:65~1:71) /test/1/SYSDBA/"
+    },
+    {
+      "subject": "Table(2:15~2:16) /test/1/catalog1/CODEX_DM8_SCHEMA_ALTER_DROP_20260722/T/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Table(3:14~3:15) /test/1/catalog1/CODEX_DM8_SCHEMA_ALTER_DROP_20260722/T/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_semantic_boundaries_0_010_behavior_review]
+sql:
+create schema CODEX_DM8_SCHEMA_EXTERNAL_20260722 authorization SYSDBA
+  create or replace function EXT_ADD(A int, B int) return int
+  external '/opt/dmdbms/bin/codex_missing.so' USING CS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SCHEMA": [
+    {
+      "subject": "Schema(1:14~1:48) /test/1/catalog1/CODEX_DM8_SCHEMA_EXTERNAL_20260722/",
+      "action" : "CREATE",
+      "target" : "User(1:63~1:69) /test/1/SYSDBA/"
+    },
+    {
+      "subject": "Function(2:29~2:36) /test/1/catalog1/CODEX_DM8_SCHEMA_EXTERNAL_20260722/EXT_ADD/",
+      "action" : "REPLACE",
+      "target" : "File(3:11~3:45) /test/1/opt/dmdbms/bin/codex_missing.so/"
+    }
+  ]
+}

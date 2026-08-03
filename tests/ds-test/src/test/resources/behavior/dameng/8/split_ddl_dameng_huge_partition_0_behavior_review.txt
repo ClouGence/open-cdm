@@ -1,0 +1,828 @@
+[split_ddl_dameng_huge_partition_0_behavior_review_001]
+sql:
+create huge table huge_part_range(id int, note varchar(40)) storage(stat none, with delta, section(1024), filesize(16)) partition by range(id)(partition p10 values less than(10), partition p20 values less than(20));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:33) /test/1/catalog1/schema1/huge_part_range/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_partition_0_behavior_review_002]
+sql:
+alter table huge_part_range add partition pmax values less than(maxvalue);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:27) /test/1/catalog1/schema1/huge_part_range/",
+      "action": "ALTER",
+      "target": "Partition(1:42~1:46) /test/1/catalog1/schema1/huge_part_range/pmax/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_partition_0_behavior_review_003]
+sql:
+alter table huge_part_range split partition pmax at(30) into(partition p30, partition pmax2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:27) /test/1/catalog1/schema1/huge_part_range/",
+      "action": "ALTER",
+      "target": [
+        "Partition(1:44~1:48) /test/1/catalog1/schema1/huge_part_range/pmax/",
+        "Partition(1:71~1:74) /test/1/catalog1/schema1/huge_part_range/p30/",
+        "Partition(1:86~1:91) /test/1/catalog1/schema1/huge_part_range/pmax2/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_partition_0_behavior_review_004]
+sql:
+alter table huge_part_range merge partitions p30, pmax2 into partition pmax_merged;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:27) /test/1/catalog1/schema1/huge_part_range/",
+      "action": "ALTER",
+      "target": [
+        "Partition(1:45~1:48) /test/1/catalog1/schema1/huge_part_range/p30/",
+        "Partition(1:50~1:55) /test/1/catalog1/schema1/huge_part_range/pmax2/",
+        "Partition(1:71~1:82) /test/1/catalog1/schema1/huge_part_range/pmax_merged/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_partition_0_behavior_review_005]
+sql:
+alter table huge_part_range drop partition p20;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:27) /test/1/catalog1/schema1/huge_part_range/",
+      "action": "ALTER",
+      "target": "Partition(1:43~1:46) /test/1/catalog1/schema1/huge_part_range/p20/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_partition_0_behavior_review_006]
+sql:
+create huge table huge_part_exchange(id int, note varchar(40)) storage(stat none, with delta, section(1024), filesize(16));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:36) /test/1/catalog1/schema1/huge_part_exchange/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_partition_0_behavior_review_007]
+sql:
+alter table huge_part_range exchange partition p10 with table huge_part_exchange;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:27) /test/1/catalog1/schema1/huge_part_range/",
+      "action": "ALTER",
+      "target": [
+        "Partition(1:47~1:50) /test/1/catalog1/schema1/huge_part_range/p10/",
+        "Table(1:62~1:80) /test/1/catalog1/schema1/huge_part_exchange/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_partition_0_behavior_review_008]
+sql:
+create index huge_part_local_idx on huge_part_range(id);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:32) /test/1/catalog1/schema1/huge_part_local_idx/",
+      "action": "CREATE",
+      "target": "Table(1:36~1:51) /test/1/catalog1/schema1/huge_part_range/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_partition_0_behavior_review_009]
+sql:
+create huge table huge_part_list(id int, category int) storage(stat none, with delta, section(1024), filesize(16)) partition by list(category)(partition p12 values(1,2), partition p34 values(3,4));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:32) /test/1/catalog1/schema1/huge_part_list/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_partition_0_behavior_review_010]
+sql:
+alter table huge_part_list add partition p56 values(5,6);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/huge_part_list/",
+      "action": "ALTER",
+      "target": "Partition(1:41~1:44) /test/1/catalog1/schema1/huge_part_list/p56/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_partition_0_behavior_review_011]
+sql:
+alter table huge_part_list drop partition p56;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/huge_part_list/",
+      "action": "ALTER",
+      "target": "Partition(1:42~1:45) /test/1/catalog1/schema1/huge_part_list/p56/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_partition_0_behavior_review_012]
+sql:
+alter table huge_part_list split partition p34 values(3) into(partition p3, partition p4);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/huge_part_list/",
+      "action": "ALTER",
+      "target": [
+        "Partition(1:43~1:46) /test/1/catalog1/schema1/huge_part_list/p34/",
+        "Partition(1:72~1:74) /test/1/catalog1/schema1/huge_part_list/p3/",
+        "Partition(1:86~1:88) /test/1/catalog1/schema1/huge_part_list/p4/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_partition_0_behavior_review_013]
+sql:
+alter table huge_part_list merge partitions p3, p4 into partition p34_merged;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/huge_part_list/",
+      "action": "ALTER",
+      "target": [
+        "Partition(1:44~1:46) /test/1/catalog1/schema1/huge_part_list/p3/",
+        "Partition(1:48~1:50) /test/1/catalog1/schema1/huge_part_list/p4/",
+        "Partition(1:66~1:76) /test/1/catalog1/schema1/huge_part_list/p34_merged/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_partition_0_behavior_review_014]
+sql:
+alter table huge_part_list truncate partition p12;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/huge_part_list/",
+      "action": "ALTER",
+      "target": "Partition(1:46~1:49) /test/1/catalog1/schema1/huge_part_list/p12/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_partition_0_behavior_review_015]
+sql:
+alter table huge_part_list lock partitions;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/huge_part_list/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_partition_0_behavior_review_016]
+sql:
+alter table huge_part_list lock root;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/huge_part_list/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_partition_0_behavior_review_017]
+sql:
+create huge table huge_part_sub(id int, category int, note varchar(40)) storage(stat none, with delta, section(1024), filesize(16)) partition by range(id) subpartition by range(category)(partition p10 values less than(10)(subpartition sp10 values less than(10), subpartition sp20 values less than(20)));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:31) /test/1/catalog1/schema1/huge_part_sub/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_partition_0_behavior_review_018]
+sql:
+alter table huge_part_sub modify partition p10 add subpartition sp30 values less than(30);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:25) /test/1/catalog1/schema1/huge_part_sub/",
+      "action": "ALTER",
+      "target": [
+        "Partition(1:43~1:46) /test/1/catalog1/schema1/huge_part_sub/p10/",
+        "Partition(1:64~1:68) /test/1/catalog1/schema1/huge_part_sub/sp30/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_partition_0_behavior_review_019]
+sql:
+alter table huge_part_sub set subpartition template(subpartition t10 values less than(10), subpartition tmax values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:25) /test/1/catalog1/schema1/huge_part_sub/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_partition_0_behavior_review_020]
+sql:
+alter table huge_part_sub add partition p20 values less than(20);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:25) /test/1/catalog1/schema1/huge_part_sub/",
+      "action": "ALTER",
+      "target": "Partition(1:40~1:43) /test/1/catalog1/schema1/huge_part_sub/p20/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_partition_0_behavior_review_021]
+sql:
+create huge table huge_part_sub_exchange(id int, category int, note varchar(40)) storage(stat none, with delta, section(1024), filesize(16));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:40) /test/1/catalog1/schema1/huge_part_sub_exchange/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_partition_0_behavior_review_022]
+sql:
+alter table huge_part_sub exchange subpartition p10_sp10 with table huge_part_sub_exchange;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:25) /test/1/catalog1/schema1/huge_part_sub/",
+      "action": "ALTER",
+      "target": [
+        "Partition(1:48~1:56) /test/1/catalog1/schema1/huge_part_sub/p10_sp10/",
+        "Table(1:68~1:90) /test/1/catalog1/schema1/huge_part_sub_exchange/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_partition_0_behavior_review_023]
+sql:
+alter table huge_part_sub truncate subpartition p10_sp30;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:25) /test/1/catalog1/schema1/huge_part_sub/",
+      "action": "ALTER",
+      "target": "Partition(1:48~1:56) /test/1/catalog1/schema1/huge_part_sub/p10_sp30/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_partition_0_behavior_review_024]
+sql:
+create huge table huge_part_hash(id int, note varchar(40)) storage(stat none, with delta, section(1024), filesize(16)) partition by hash(id)(partition h1, partition h2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:32) /test/1/catalog1/schema1/huge_part_hash/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_partition_0_behavior_review_025]
+sql:
+alter table huge_part_hash add partition h3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/huge_part_hash/",
+      "action": "ALTER",
+      "target": "Partition(1:41~1:43) /test/1/catalog1/schema1/huge_part_hash/h3/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_partition_0_behavior_review_026]
+sql:
+create huge table huge_part_hash_exchange(id int, note varchar(40)) storage(stat none, with delta, section(1024), filesize(16));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:41) /test/1/catalog1/schema1/huge_part_hash_exchange/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_partition_0_behavior_review_027]
+sql:
+alter table huge_part_list modify partition p12 add values(5,6);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/huge_part_list/",
+      "action": "ALTER",
+      "target": "Partition(1:44~1:47) /test/1/catalog1/schema1/huge_part_list/p12/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_partition_0_behavior_review_028]
+sql:
+alter table huge_part_list rename partition p12 to p12_renamed;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Partition(1:44~1:47) /test/1/catalog1/schema1/huge_part_list/p12/",
+      "action": "RENAME",
+      "target": "Partition(1:51~1:62) /test/1/catalog1/schema1/huge_part_list/p12_renamed/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_partition_0_behavior_review_029]
+sql:
+alter table huge_part_sub rename subpartition p10_sp30 to p10_sp30_new;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Partition(1:46~1:54) /test/1/catalog1/schema1/huge_part_sub/p10_sp30/",
+      "action": "RENAME",
+      "target": "Partition(1:58~1:70) /test/1/catalog1/schema1/huge_part_sub/p10_sp30_new/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_partition_0_behavior_review_030]
+sql:
+alter table huge_part_list enable row movement;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/huge_part_list/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_partition_0_behavior_review_031]
+sql:
+alter table huge_part_sub drop subpartition p10_sp20;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:25) /test/1/catalog1/schema1/huge_part_sub/",
+      "action": "ALTER",
+      "target": "Partition(1:44~1:52) /test/1/catalog1/schema1/huge_part_sub/p10_sp20/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_partition_0_behavior_review_032]
+sql:
+alter table huge_part_list move partition p34_merged tablespace main;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/huge_part_list/",
+      "action": "MOVE",
+      "target": [
+        "Partition(1:42~1:52) /test/1/catalog1/schema1/huge_part_list/p34_merged/",
+        "Tablespace(1:64~1:68) /test/1/main/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_partition_0_behavior_review_033]
+sql:
+create index huge_part_global_idx on huge_part_range(id) global;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:33) /test/1/catalog1/schema1/huge_part_global_idx/",
+      "action": "CREATE",
+      "target": "Table(1:37~1:52) /test/1/catalog1/schema1/huge_part_range/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_partition_0_behavior_review_034]
+sql:
+create table huge_part_normal(id int, note varchar(40));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:29) /test/1/catalog1/schema1/huge_part_normal/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_partition_0_behavior_review_035]
+sql:
+alter table huge_part_range exchange partition p10 with table huge_part_normal;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:27) /test/1/catalog1/schema1/huge_part_range/",
+      "action": "ALTER",
+      "target": [
+        "Partition(1:47~1:50) /test/1/catalog1/schema1/huge_part_range/p10/",
+        "Table(1:62~1:78) /test/1/catalog1/schema1/huge_part_normal/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_partition_0_behavior_review_036]
+sql:
+create huge table huge_part_mismatch(id int, note varchar(40)) storage(stat none, with delta, section(2048), filesize(16));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:36) /test/1/catalog1/schema1/huge_part_mismatch/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_partition_0_behavior_review_037]
+sql:
+alter table huge_part_range exchange partition p10 with table huge_part_mismatch;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:27) /test/1/catalog1/schema1/huge_part_range/",
+      "action": "ALTER",
+      "target": [
+        "Partition(1:47~1:50) /test/1/catalog1/schema1/huge_part_range/p10/",
+        "Table(1:62~1:80) /test/1/catalog1/schema1/huge_part_mismatch/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_partition_0_behavior_review_038]
+sql:
+alter table huge_part_hash exchange partition h1 with table huge_part_hash_exchange;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/huge_part_hash/",
+      "action": "ALTER",
+      "target": [
+        "Partition(1:46~1:48) /test/1/catalog1/schema1/huge_part_hash/h1/",
+        "Table(1:60~1:83) /test/1/catalog1/schema1/huge_part_hash_exchange/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_partition_0_behavior_review_039]
+sql:
+alter table huge_part_hash drop partition h1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/huge_part_hash/",
+      "action": "ALTER",
+      "target": "Partition(1:42~1:44) /test/1/catalog1/schema1/huge_part_hash/h1/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_partition_0_behavior_review_040]
+sql:
+create huge table huge_part_only(id int) partition by range(id)(partition ponly values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:32) /test/1/catalog1/schema1/huge_part_only/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_partition_0_behavior_review_041]
+sql:
+alter table huge_part_only drop partition ponly;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/huge_part_only/",
+      "action": "ALTER",
+      "target": "Partition(1:42~1:47) /test/1/catalog1/schema1/huge_part_only/ponly/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_partition_0_behavior_review_042]
+sql:
+drop table huge_part_range cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:26) /test/1/catalog1/schema1/huge_part_range/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_partition_0_behavior_review_043]
+sql:
+drop table huge_part_exchange cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:29) /test/1/catalog1/schema1/huge_part_exchange/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_partition_0_behavior_review_044]
+sql:
+drop table huge_part_list cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:25) /test/1/catalog1/schema1/huge_part_list/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_partition_0_behavior_review_045]
+sql:
+drop table huge_part_sub cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:24) /test/1/catalog1/schema1/huge_part_sub/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_partition_0_behavior_review_046]
+sql:
+drop table huge_part_sub_exchange cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:33) /test/1/catalog1/schema1/huge_part_sub_exchange/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_partition_0_behavior_review_047]
+sql:
+drop table huge_part_hash cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:25) /test/1/catalog1/schema1/huge_part_hash/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_partition_0_behavior_review_048]
+sql:
+drop table huge_part_hash_exchange cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:34) /test/1/catalog1/schema1/huge_part_hash_exchange/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_partition_0_behavior_review_049]
+sql:
+drop table huge_part_normal cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:27) /test/1/catalog1/schema1/huge_part_normal/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_partition_0_behavior_review_050]
+sql:
+drop table huge_part_mismatch cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:29) /test/1/catalog1/schema1/huge_part_mismatch/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_partition_0_behavior_review_051]
+sql:
+drop table huge_part_only cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:25) /test/1/catalog1/schema1/huge_part_only/",
+      "action": "DROP"
+    }
+  ]
+}

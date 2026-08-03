@@ -1,0 +1,92 @@
+[select__001]
+sql:
+select * from table1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:20) /test/1/catalog1/schema1/table1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__002]
+sql:
+select * from table2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:20) /test/1/catalog1/schema1/table2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__003]
+sql:
+select * from table1     ;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:20) /test/1/catalog1/schema1/table1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__004]
+sql:
+select * from table2     ;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:20) /test/1/catalog1/schema1/table2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__005]
+sql:
+-- test 
+   select * from table1  -- test comment  
+ ;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:17~2:23) /test/1/catalog1/schema1/table1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__006]
+sql:
+/*comment
+gweg*/   select * from table2   -- ffff  ;  --aaaa
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:23~2:29) /test/1/catalog1/schema1/table2/",
+      "action" : "READ"
+    }
+  ]
+}

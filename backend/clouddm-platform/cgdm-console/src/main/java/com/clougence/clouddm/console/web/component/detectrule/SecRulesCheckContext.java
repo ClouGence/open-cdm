@@ -17,6 +17,7 @@ package com.clougence.clouddm.console.web.component.detectrule;
 
 import com.clougence.clouddm.platform.dal.model.secrule.WarnLevel;
 import com.clougence.clouddm.sdk.service.secrules.Requester;
+import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -32,16 +33,17 @@ import lombok.Setter;
 public class SecRulesCheckContext {
 
     // for CodeLocation
-    private int       basicCodeLine;
-    private int       basicCodeColumn;
+    private int                 basicCodeLine;
+    private int                 basicCodeColumn;
 
     // env info
-    private long      dsId;
-    private String    currentUID;
-    private String    currentCatalog;
-    private String    currentSchema;
-    private Requester requester;
+    private long                dsId;
+    private String              currentUID;
+    private String              currentCatalog;
+    private String              currentSchema;
+    private Requester           requester;
+    private SqlParserParameters sqlParameters;
 
     // parameter
-    private WarnLevel unsupportedLevel;
+    private WarnLevel           unsupportedLevel;
 }

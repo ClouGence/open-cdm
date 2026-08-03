@@ -33,12 +33,16 @@ tasks.register('tgz', Tar) {
     }
 
     def consolePath = "cgdm/console"
-    def mainVersion = rootProject.findProperty("cg.clouddm.main.version") ?: "unknow"
+    def mainVersion = System.getenv("CG_CLOUDDM_MAIN_VERSION") ?: rootProject.findProperty("cg.clouddm.main.version") ?: "unknow"
 
     into("${consolePath}") {
         project.file("$buildDir/emptyFoldersRoot/logs").mkdirs()
         project.file("$buildDir/emptyFoldersRoot/data").mkdirs()
         from "$buildDir/emptyFoldersRoot"
+        from rootProject.file("../LICENSE.txt")
+    }
+    into("${consolePath}/legal") {
+        from "${projectDir}/../../legal"
     }
     into("${consolePath}/bin") {
         from "${buildDir}/../app.conf"
@@ -73,6 +77,10 @@ tasks.register('tgz', Tar) {
                 from p.tasks.customFatJar.archiveFile
             }
         }
+    }
+    into("${consolePath}/built-in-drivers") {
+        from project(':pkg-builtin-drivers').tasks.named('generateBuiltinDrivers')
+        exclude '.bundle-hash'
     }
 
     archiveFileName = "cgdm-console.tar.gz"

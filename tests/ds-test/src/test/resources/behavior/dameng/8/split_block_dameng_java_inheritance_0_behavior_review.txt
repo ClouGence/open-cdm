@@ -1,0 +1,982 @@
+[split_block_dameng_java_inheritance_0_001_behavior_review]
+sql:
+create or replace java class j_parent
+{
+  int base_value;
+  public int get_value()
+  {
+    return base_value;
+  }
+}
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:29~1:37) /test/1/catalog1/schema1/j_parent/",
+      "action": "REPLACE"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_inheritance_0_002_behavior_review]
+sql:
+create or replace java class j_child extends j_parent
+{
+  int child_value;
+  public override int get_value()
+  {
+    return child_value;
+  }
+}
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:29~1:36) /test/1/catalog1/schema1/j_child/",
+      "action": "REPLACE",
+      "target": "Type(1:45~1:53) /test/1/catalog1/schema1/j_parent/"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_inheritance_0_003_behavior_review]
+sql:
+select j_child(10, 20).get_value();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/j_child/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:23~1:32) /test/1/catalog1/schema1/get_value/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_inheritance_0_004_behavior_review]
+sql:
+declare
+  v_parent j_parent;
+  v_child j_child;
+begin
+  v_child = new j_child(10, 20);
+  v_parent = v_child;
+  print v_parent.get_value();
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:11~2:19) /test/1/catalog1/schema1/j_parent/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(3:10~3:17) /test/1/catalog1/schema1/j_child/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(5:16~5:23) /test/1/catalog1/schema1/j_child/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(7:17~7:26) /test/1/catalog1/j_parent/get_value/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_inheritance_0_005_behavior_review]
+sql:
+create table java_inherit_table(
+  id int primary key,
+  obj j_parent
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/schema1/java_inherit_table/",
+      "action": "CREATE",
+      "target": "Type(3:6~3:14) /test/1/catalog1/schema1/j_parent/"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_inheritance_0_006_behavior_review]
+sql:
+insert into java_inherit_table values(1, j_parent(10));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:30) /test/1/catalog1/schema1/java_inherit_table/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:41~1:49) /test/1/catalog1/schema1/j_parent/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_inheritance_0_007_behavior_review]
+sql:
+insert into java_inherit_table values(2, j_child(20, 30));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:30) /test/1/catalog1/schema1/java_inherit_table/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:41~1:48) /test/1/catalog1/schema1/j_child/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_inheritance_0_008_behavior_review]
+sql:
+select id, t.obj.base_value, t.obj.get_value() from java_inherit_table t order by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:35~1:44) /test/1/catalog1/schema1/get_value/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:52~1:70) /test/1/catalog1/schema1/java_inherit_table/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_inheritance_0_009_behavior_review]
+sql:
+create or replace java abstract class j_abstract
+{
+  int value;
+  public abstract int calculate();
+}
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:38~1:48) /test/1/catalog1/schema1/j_abstract/",
+      "action": "REPLACE"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_inheritance_0_010_behavior_review]
+sql:
+create or replace java class j_concrete extends j_abstract
+{
+  int extra;
+  public override int calculate()
+  {
+    return value + extra;
+  }
+}
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:29~1:39) /test/1/catalog1/schema1/j_concrete/",
+      "action": "REPLACE",
+      "target": "Type(1:48~1:58) /test/1/catalog1/schema1/j_abstract/"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_inheritance_0_011_behavior_review]
+sql:
+select j_concrete(3, 4).calculate();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/j_concrete/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:24~1:33) /test/1/catalog1/schema1/calculate/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_inheritance_0_012_behavior_review]
+sql:
+declare
+  v_base j_abstract;
+  v_child j_concrete;
+begin
+  v_child = new j_concrete(5, 6);
+  v_base = v_child;
+  print v_base.calculate();
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:9~2:19) /test/1/catalog1/schema1/j_abstract/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(3:10~3:20) /test/1/catalog1/schema1/j_concrete/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(5:16~5:26) /test/1/catalog1/schema1/j_concrete/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(7:15~7:24) /test/1/catalog1/j_abstract/calculate/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_inheritance_0_013_behavior_review]
+sql:
+create or replace java abstract class j_partial_base
+{
+  int value;
+  public abstract int first_value();
+  public abstract int second_value();
+}
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:38~1:52) /test/1/catalog1/schema1/j_partial_base/",
+      "action": "REPLACE"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_inheritance_0_014_behavior_review]
+sql:
+create or replace java abstract class j_partial_child extends j_partial_base
+{
+  int extra;
+  public override int first_value()
+  {
+    return value;
+  }
+}
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:38~1:53) /test/1/catalog1/schema1/j_partial_child/",
+      "action": "REPLACE",
+      "target": "Type(1:62~1:76) /test/1/catalog1/schema1/j_partial_base/"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_inheritance_0_015_behavior_review]
+sql:
+create or replace java class j_partial_final extends j_partial_child
+{
+  int final_value;
+  public override int second_value()
+  {
+    return final_value;
+  }
+}
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:29~1:44) /test/1/catalog1/schema1/j_partial_final/",
+      "action": "REPLACE",
+      "target": "Type(1:53~1:68) /test/1/catalog1/schema1/j_partial_child/"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_inheritance_0_016_behavior_review]
+sql:
+select j_partial_final(1, 2, 3).first_value(), j_partial_final(1, 2, 3).second_value();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:22) /test/1/catalog1/schema1/j_partial_final/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:32~1:43) /test/1/catalog1/schema1/first_value/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:47~1:62) /test/1/catalog1/schema1/j_partial_final/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:72~1:84) /test/1/catalog1/schema1/second_value/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_inheritance_0_017_behavior_review]
+sql:
+create or replace java class j_overload
+{
+  int value;
+  public int calculate(int a)
+  {
+    return a;
+  }
+  public int calculate(int a, int b)
+  {
+    return a + b;
+  }
+  public varchar calculate(varchar a)
+  {
+    return a;
+  }
+}
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:29~1:39) /test/1/catalog1/schema1/j_overload/",
+      "action": "REPLACE"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_inheritance_0_018_behavior_review]
+sql:
+select j_overload().calculate(7);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/j_overload/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:20~1:29) /test/1/catalog1/schema1/calculate/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_inheritance_0_019_behavior_review]
+sql:
+select j_overload().calculate(7, 8);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/j_overload/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:20~1:29) /test/1/catalog1/schema1/calculate/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_inheritance_0_020_behavior_review]
+sql:
+select j_overload().calculate('DM8');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/j_overload/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:20~1:29) /test/1/catalog1/schema1/calculate/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_inheritance_0_021_behavior_review]
+sql:
+create or replace java class j_constructor
+{
+  int value;
+  varchar name;
+  j_constructor()
+  {
+    this.value = 1;
+    this.name = 'DEFAULT';
+  }
+  j_constructor(int p_value)
+  {
+    this.value = p_value;
+    this.name = 'ONE_ARG';
+  }
+  j_constructor(int p_value, varchar p_name)
+  {
+    this.value = p_value;
+    this.name = p_name;
+  }
+  public varchar describe()
+  {
+    return name;
+  }
+}
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:29~1:42) /test/1/catalog1/schema1/j_constructor/",
+      "action": "REPLACE"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_inheritance_0_022_behavior_review]
+sql:
+select j_constructor().describe();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:20) /test/1/catalog1/schema1/j_constructor/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:23~1:31) /test/1/catalog1/schema1/describe/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_inheritance_0_023_behavior_review]
+sql:
+select j_constructor(23).describe();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:20) /test/1/catalog1/schema1/j_constructor/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:25~1:33) /test/1/catalog1/schema1/describe/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_inheritance_0_024_behavior_review]
+sql:
+select j_constructor(24, 'TWO_ARG').describe();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:20) /test/1/catalog1/schema1/j_constructor/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:36~1:44) /test/1/catalog1/schema1/describe/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_inheritance_0_025_behavior_review]
+sql:
+create or replace java class j_static_members
+{
+  private int hidden_value;
+  public static int twice(int value)
+  {
+    return value * 2;
+  }
+  private int hidden()
+  {
+    return hidden_value;
+  }
+}
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:29~1:45) /test/1/catalog1/schema1/j_static_members/",
+      "action": "REPLACE"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_inheritance_0_026_behavior_review]
+sql:
+select j_static_members.twice(25);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:29) /test/1/catalog1/j_static_members/twice/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_inheritance_0_027_behavior_review]
+sql:
+alter class j_child compile;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TYPE": [
+    {
+      "subject": "Type(1:12~1:19) /test/1/catalog1/schema1/j_child/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_inheritance_0_028_behavior_review]
+sql:
+alter class j_concrete compile debug;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TYPE": [
+    {
+      "subject": "Type(1:12~1:22) /test/1/catalog1/schema1/j_concrete/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_inheritance_0_029_behavior_review]
+sql:
+drop table java_inherit_table;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:29) /test/1/catalog1/schema1/java_inherit_table/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_inheritance_0_030_behavior_review]
+sql:
+drop class j_static_members;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:11~1:27) /test/1/catalog1/schema1/j_static_members/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_inheritance_0_031_behavior_review]
+sql:
+drop class j_constructor;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:11~1:24) /test/1/catalog1/schema1/j_constructor/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_inheritance_0_032_behavior_review]
+sql:
+drop class j_overload;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:11~1:21) /test/1/catalog1/schema1/j_overload/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_inheritance_0_033_behavior_review]
+sql:
+drop class j_partial_final;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:11~1:26) /test/1/catalog1/schema1/j_partial_final/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_inheritance_0_034_behavior_review]
+sql:
+drop class j_partial_child;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:11~1:26) /test/1/catalog1/schema1/j_partial_child/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_inheritance_0_035_behavior_review]
+sql:
+drop class j_partial_base;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:11~1:25) /test/1/catalog1/schema1/j_partial_base/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_inheritance_0_036_behavior_review]
+sql:
+drop class j_concrete;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:11~1:21) /test/1/catalog1/schema1/j_concrete/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_inheritance_0_037_behavior_review]
+sql:
+drop class j_abstract;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:11~1:21) /test/1/catalog1/schema1/j_abstract/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_inheritance_0_038_behavior_review]
+sql:
+drop class j_child;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:11~1:18) /test/1/catalog1/schema1/j_child/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_inheritance_0_039_behavior_review]
+sql:
+drop class j_parent;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:11~1:19) /test/1/catalog1/schema1/j_parent/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_inheritance_0_040_behavior_review]
+sql:
+create table java_parent_source(id int primary key, parent_name varchar(30));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/schema1/java_parent_source/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_inheritance_0_041_behavior_review]
+sql:
+create table java_child_source(id int primary key, child_name varchar(30));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/schema1/java_child_source/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_inheritance_0_042_behavior_review]
+sql:
+insert into java_parent_source values(1, 'PARENT');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:30) /test/1/catalog1/schema1/java_parent_source/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_inheritance_0_043_behavior_review]
+sql:
+insert into java_child_source values(2, 'CHILD');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:29) /test/1/catalog1/schema1/java_child_source/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_inheritance_0_044_behavior_review]
+sql:
+create or replace java class j_resource_parent
+{
+  public int read_value()
+  {
+    int v_value;
+    select max(id) into v_value from java_parent_source;
+    return v_value;
+  }
+}
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:29~1:46) /test/1/catalog1/schema1/j_resource_parent/",
+      "action": "REPLACE"
+    },
+    {
+      "subject": "Function(6:11~6:14) /test/1/catalog1/schema1/max/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(6:37~6:55) /test/1/catalog1/schema1/java_parent_source/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_inheritance_0_045_behavior_review]
+sql:
+create or replace java class j_resource_child extends j_resource_parent
+{
+  int child_marker;
+  public override int read_value()
+  {
+    int v_value;
+    select max(id) into v_value from java_child_source where id > 0;
+    return v_value;
+  }
+}
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:29~1:45) /test/1/catalog1/schema1/j_resource_child/",
+      "action": "REPLACE",
+      "target": "Type(1:54~1:71) /test/1/catalog1/schema1/j_resource_parent/"
+    },
+    {
+      "subject": "Function(7:11~7:14) /test/1/catalog1/schema1/max/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(7:37~7:54) /test/1/catalog1/schema1/java_child_source/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_inheritance_0_046_behavior_review]
+sql:
+select j_resource_child(1).read_value();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:23) /test/1/catalog1/schema1/j_resource_child/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:27~1:37) /test/1/catalog1/schema1/read_value/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_inheritance_0_047_behavior_review]
+sql:
+drop class j_resource_child;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:11~1:27) /test/1/catalog1/schema1/j_resource_child/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_inheritance_0_048_behavior_review]
+sql:
+drop class j_resource_parent;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:11~1:28) /test/1/catalog1/schema1/j_resource_parent/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_inheritance_0_049_behavior_review]
+sql:
+drop table java_child_source;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:28) /test/1/catalog1/schema1/java_child_source/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_inheritance_0_050_behavior_review]
+sql:
+drop table java_parent_source;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:29) /test/1/catalog1/schema1/java_parent_source/",
+      "action": "DROP"
+    }
+  ]
+}

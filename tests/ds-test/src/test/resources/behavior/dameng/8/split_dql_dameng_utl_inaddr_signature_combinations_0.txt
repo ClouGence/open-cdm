@@ -1,0 +1,299 @@
+[split_dql_dameng_utl_inaddr_signature_combinations_0_001]
+sql:
+-- GET_HOST_ADDRESS_DEFAULT
+SELECT UTL_INADDR.GET_HOST_ADDRESS() FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:34) /test/1/catalog1/UTL_INADDR/GET_HOST_ADDRESS/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:42~2:46) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_inaddr_signature_combinations_0_002]
+sql:
+-- GET_HOST_ADDRESS_NULL
+SELECT UTL_INADDR.GET_HOST_ADDRESS(CAST(NULL AS VARCHAR)) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:34) /test/1/catalog1/UTL_INADDR/GET_HOST_ADDRESS/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:63~2:67) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_inaddr_signature_combinations_0_003]
+sql:
+-- GET_HOST_ADDRESS_LOCALHOST
+SELECT UTL_INADDR.GET_HOST_ADDRESS('localhost') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:34) /test/1/catalog1/UTL_INADDR/GET_HOST_ADDRESS/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:53~2:57) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_inaddr_signature_combinations_0_004]
+sql:
+-- GET_HOST_ADDRESS_CASE_INSENSITIVE
+SELECT UTL_INADDR.GET_HOST_ADDRESS('LOCALHOST') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:34) /test/1/catalog1/UTL_INADDR/GET_HOST_ADDRESS/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:53~2:57) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_inaddr_signature_combinations_0_005]
+sql:
+-- GET_HOST_ADDRESS_NUMERIC_LOOPBACK
+SELECT UTL_INADDR.GET_HOST_ADDRESS('127.0.0.1') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:34) /test/1/catalog1/UTL_INADDR/GET_HOST_ADDRESS/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:53~2:57) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_inaddr_signature_combinations_0_006]
+sql:
+-- GET_HOST_ADDRESS_NAMED
+SELECT UTL_INADDR.GET_HOST_ADDRESS(HOST=>'localhost') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:34) /test/1/catalog1/UTL_INADDR/GET_HOST_ADDRESS/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:59~2:63) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_inaddr_signature_combinations_0_007]
+sql:
+-- GET_HOST_ADDRESS_LOCAL_NAME
+SELECT UTL_INADDR.GET_HOST_ADDRESS(UTL_INADDR.GET_HOST_NAME()) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:34) /test/1/catalog1/UTL_INADDR/GET_HOST_ADDRESS/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:35~2:59) /test/1/catalog1/UTL_INADDR/GET_HOST_NAME/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:68~2:72) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_inaddr_signature_combinations_0_008]
+sql:
+-- GET_HOST_NAME_DEFAULT
+SELECT UTL_INADDR.GET_HOST_NAME() FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:31) /test/1/catalog1/UTL_INADDR/GET_HOST_NAME/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:39~2:43) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_inaddr_signature_combinations_0_009]
+sql:
+-- GET_HOST_NAME_NULL
+SELECT UTL_INADDR.GET_HOST_NAME(CAST(NULL AS VARCHAR)) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:31) /test/1/catalog1/UTL_INADDR/GET_HOST_NAME/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:60~2:64) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_inaddr_signature_combinations_0_010]
+sql:
+-- GET_HOST_NAME_LOOPBACK
+SELECT UTL_INADDR.GET_HOST_NAME('127.0.0.1') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:31) /test/1/catalog1/UTL_INADDR/GET_HOST_NAME/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:50~2:54) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_inaddr_signature_combinations_0_011]
+sql:
+-- GET_HOST_NAME_NAMED
+SELECT UTL_INADDR.GET_HOST_NAME(IP=>'127.0.0.1') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:31) /test/1/catalog1/UTL_INADDR/GET_HOST_NAME/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:54~2:58) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_inaddr_signature_combinations_0_012]
+sql:
+-- GET_HOST_NAME_LOCAL_ADDRESS
+SELECT UTL_INADDR.GET_HOST_NAME(UTL_INADDR.GET_HOST_ADDRESS()) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:31) /test/1/catalog1/UTL_INADDR/GET_HOST_NAME/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:32~2:59) /test/1/catalog1/UTL_INADDR/GET_HOST_ADDRESS/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:68~2:72) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_inaddr_signature_combinations_0_013]
+sql:
+-- GET_HOST_NAME_LOCALHOST_ADDRESS
+SELECT UTL_INADDR.GET_HOST_NAME(UTL_INADDR.GET_HOST_ADDRESS('localhost')) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:31) /test/1/catalog1/UTL_INADDR/GET_HOST_NAME/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:32~2:59) /test/1/catalog1/UTL_INADDR/GET_HOST_ADDRESS/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:79~2:83) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_inaddr_signature_combinations_0_014]
+sql:
+-- LOCAL_ADDRESS_NAME_ADDRESS_ROUNDTRIP
+SELECT UTL_INADDR.GET_HOST_ADDRESS(UTL_INADDR.GET_HOST_NAME(UTL_INADDR.GET_HOST_ADDRESS())) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:34) /test/1/catalog1/UTL_INADDR/GET_HOST_ADDRESS/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:35~2:59) /test/1/catalog1/UTL_INADDR/GET_HOST_NAME/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:60~2:87) /test/1/catalog1/UTL_INADDR/GET_HOST_ADDRESS/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:97~2:101) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+create table app.bad_nchar_s01(c nchar());
+create table app.bad_nchar_s02(c nvarchar());
+create table app.bad_nchar_s03(c nvarchar2());
+create table app.bad_nchar_s04(c national char());
+create table app.bad_nchar_s05(c national character());
+create table app.bad_nchar_s06(c nchar varying());
+create table app.bad_nchar_s07(c national character varying());
+create table app.bad_nchar_s08(c national varchar(4));
+create table app.bad_nchar_s09(c national varchar2(4));
+create table app.bad_nchar_s10(c nchar varying varying(4));
+create function app.bad_nchar_f(p national char()) return int as begin return 1; end;/
+------------------------------------------------------------------------------------------
+[CREATE_TABLE] create table app.bad_nchar_s01(c nchar());
+----------
+[CREATE_TABLE] create table app.bad_nchar_s02(c nvarchar());
+----------
+[CREATE_TABLE] create table app.bad_nchar_s03(c nvarchar2());
+----------
+[CREATE_TABLE] create table app.bad_nchar_s04(c national char());
+----------
+[CREATE_TABLE] create table app.bad_nchar_s05(c national character());
+----------
+[CREATE_TABLE] create table app.bad_nchar_s06(c nchar varying());
+----------
+[CREATE_TABLE] create table app.bad_nchar_s07(c national character varying());
+----------
+[CREATE_TABLE] create table app.bad_nchar_s08(c national varchar(4));
+----------
+[CREATE_TABLE] create table app.bad_nchar_s09(c national varchar2(4));
+----------
+[CREATE_TABLE] create table app.bad_nchar_s10(c nchar varying varying(4));
+----------
+[CREATE_PROG_OBJ] create function app.bad_nchar_f(p national char()) return int as begin return 1; end;/

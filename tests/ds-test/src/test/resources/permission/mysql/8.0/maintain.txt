@@ -1,0 +1,1728 @@
+[permission_mysql_8_0_00001]
+source: permission/mysql/8.0/maintain.txt#create_resource_group
+sql:
+CREATE RESOURCE GROUP split_rg_a TYPE = USER VCPU 0 THREAD_PRIORITY = 0 ENABLE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "ResourceGroup(1:22~1:32) /test/1/catalog1/schema1/split_rg_a/"
+  ]
+}
+----------
+[permission_mysql_8_0_00003]
+source: permission/mysql/8.0/maintain.txt#maintain_log
+sql:
+FLUSH LOGS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Log(1:0~1:10) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00004]
+source: permission/mysql/8.0/maintain.txt#data_export
+sql:
+SELECT * FROM sales.orders INTO OUTFILE '/tmp/orders.csv';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "File(1:40~1:57) /test/1/tmp/orders.csv/"
+  ]
+}
+----------
+[permission_mysql_8_0_00005]
+source: permission/mysql/8.0/maintain.txt#data_import
+sql:
+LOAD DATA INFILE '/var/lib/mysql-files/split_load.tsv' INTO TABLE load_innodb;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Table(1:66~1:77) /test/1/catalog1/schema1/load_innodb/"
+  ]
+}
+----------
+[permission_mysql_8_0_00137]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#1
+sql:
+FLUSH LOCAL BINARY LOGS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Log(1:0~1:23) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00140]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#3
+sql:
+FLUSH NO_WRITE_TO_BINLOG BINARY LOGS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Log(1:0~1:36) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00142]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#4
+sql:
+FLUSH BINARY LOGS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Log(1:0~1:17) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00144]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#5
+sql:
+FLUSH ENGINE LOGS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Log(1:0~1:17) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00146]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#6
+sql:
+FLUSH ERROR LOGS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Log(1:0~1:16) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00148]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#7
+sql:
+FLUSH GENERAL LOGS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Log(1:0~1:18) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00152]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#10
+sql:
+FLUSH RELAY LOGS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Log(1:0~1:16) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00154]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#11
+sql:
+FLUSH SLOW LOGS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Log(1:0~1:15) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00170]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#19
+sql:
+FLUSH TABLES split_verify.flush_a, split_verify.flush_b FOR EXPORT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Table(1:13~1:33) /test/1/catalog1/split_verify/flush_a/",
+    "Table(1:35~1:55) /test/1/catalog1/split_verify/flush_b/"
+  ]
+}
+----------
+[permission_mysql_8_0_00172]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#20
+sql:
+FLUSH LOCAL TABLES split_verify.flush_a, split_verify.flush_b FOR EXPORT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Table(1:19~1:39) /test/1/catalog1/split_verify/flush_a/",
+    "Table(1:41~1:61) /test/1/catalog1/split_verify/flush_b/"
+  ]
+}
+----------
+[permission_mysql_8_0_00174]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#21
+sql:
+FLUSH TABLE export FOR EXPORT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Table(1:12~1:18) /test/1/catalog1/schema1/export/"
+  ]
+}
+----------
+[permission_mysql_8_0_00213]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#54
+sql:
+PURGE BINARY LOGS TO 'split-bin.999999';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Log(1:0~1:39) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00214]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#55
+sql:
+PURGE BINARY LOGS BEFORE '2000-01-01 00:00:00';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Log(1:0~1:46) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00215]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#56
+sql:
+PURGE BINARY LOGS BEFORE CURRENT_TIMESTAMP - INTERVAL 1 DAY;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Log(1:0~1:59) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00216]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#57
+sql:
+PURGE MASTER LOGS TO 'split-bin.999999';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Log(1:0~1:39) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00217]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#58
+sql:
+PURGE MASTER LOGS BEFORE CURRENT_TIMESTAMP - INTERVAL 1 DAY;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Log(1:0~1:59) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00317]
+source: split/mysql/5.6/dcl_mysql_language_0.txt#51
+sql:
+START SLAVE SQL_THREAD;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Replication(1:0~1:22) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00318]
+source: split/mysql/5.6/dcl_mysql_language_0.txt#52
+sql:
+STOP SLAVE SQL_THREAD;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Replication(1:0~1:21) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00322]
+source: split/mysql/5.6/dcl_mysql_replication_0.txt#1
+sql:
+STOP SLAVE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Replication(1:0~1:10) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00323]
+source: split/mysql/5.6/dcl_mysql_replication_0.txt#2
+sql:
+START SLAVE IO_THREAD, SQL_THREAD UNTIL MASTER_LOG_FILE='dummy-log.000001', MASTER_LOG_POS=116 USER='root' PASSWORD='secret' DEFAULT_AUTH='auth_test_plugin' PLUGIN_DIR='/usr/lib/mysql/plugin';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Replication(1:0~1:191) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00324]
+source: split/mysql/5.6/dcl_mysql_replication_0.txt#3
+sql:
+START SLAVE IO_THREAD, SQL_THREAD UNTIL RELAY_LOG_FILE='dummy-log.000001', RELAY_LOG_POS=116 USER='root' PASSWORD='secret' DEFAULT_AUTH='auth_test_plugin' PLUGIN_DIR='/usr/lib/mysql/plugin';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Replication(1:0~1:189) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00328]
+source: split/mysql/5.6/dcl_mysql_replication_0.txt#9
+sql:
+START SLAVE IO_THREAD;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Replication(1:0~1:21) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00329]
+source: split/mysql/5.6/dcl_mysql_replication_0.txt#10
+sql:
+STOP SLAVE IO_THREAD;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Replication(1:0~1:20) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00330]
+source: split/mysql/5.6/dcl_mysql_replication_0.txt#11
+sql:
+RESET SLAVE ALL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Replication(1:0~1:15) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00337]
+source: split/mysql/5.6/dcl_mysql_replication_0.txt#20
+sql:
+START SLAVE SQL_THREAD UNTIL SQL_AFTER_GTIDS='aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa:1';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Replication(1:0~1:85) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00338]
+source: split/mysql/5.6/dcl_mysql_replication_0.txt#21
+sql:
+START SLAVE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Replication(1:0~1:11) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00339]
+source: split/mysql/5.6/dcl_mysql_replication_0.txt#22
+sql:
+START SLAVE SQL_THREAD UNTIL SQL_BEFORE_GTIDS='aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa:1';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Replication(1:0~1:86) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00340]
+source: split/mysql/5.6/dcl_mysql_replication_0.txt#23
+sql:
+START SLAVE USER='root' PASSWORD='123456' DEFAULT_AUTH='mysql_native_password' PLUGIN_DIR='/usr/lib/mysql/plugin';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Replication(1:0~1:113) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00341]
+source: split/mysql/5.6/dcl_mysql_replication_0.txt#24
+sql:
+START SLAVE IO_THREAD UNTIL MASTER_LOG_FILE='binlog.000001', MASTER_LOG_POS=4;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Replication(1:0~1:77) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00342]
+source: split/mysql/5.6/dcl_mysql_replication_0.txt#25
+sql:
+START SLAVE UNTIL SQL_AFTER_MTS_GAPS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Replication(1:0~1:36) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00343]
+source: split/mysql/5.6/dcl_mysql_replication_0.txt#26
+sql:
+START SLAVE SQL_THREAD UNTIL RELAY_LOG_FILE='relay-bin.000001', RELAY_LOG_POS=4;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Replication(1:0~1:79) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00344]
+source: split/mysql/5.6/dcl_mysql_replication_0.txt#27
+sql:
+START SLAVE IO_THREAD, SQL_THREAD;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Replication(1:0~1:33) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00345]
+source: split/mysql/5.6/dcl_mysql_replication_0.txt#28
+sql:
+STOP SLAVE IO_THREAD, SQL_THREAD;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Replication(1:0~1:32) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00347]
+source: split/mysql/5.6/dcl_mysql_replication_0.txt#33
+sql:
+START SLAVE UNTIL MASTER_LOG_FILE = 'master-bin.000001', MASTER_LOG_POS = 4;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Replication(1:0~1:75) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00351]
+source: split/mysql/5.6/dcl_mysql_replication_0.txt#37
+sql:
+START SLAVE IO_THREAD UNTIL SQL_BEFORE_GTIDS='aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa:4-5';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Replication(1:0~1:87) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_01232]
+source: split/mysql/5.6/ddl_mysql_view_0.txt#28
+sql:
+CREATE VIEW split_view_outfile AS SELECT 5 INTO OUTFILE '/tmp/split_native_gap_view.txt';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "File(1:56~1:88) /test/1/tmp/split_native_gap_view.txt/"
+  ]
+}
+----------
+[permission_mysql_8_0_01365]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#59
+sql:
+LOAD DATA INFILE '/var/lib/mysql-files/function_defaults_fixed.dat'
+INTO TABLE fd_load_target
+FIELDS TERMINATED BY '' ENCLOSED BY '';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Table(2:11~2:25) /test/1/catalog1/schema1/fd_load_target/"
+  ]
+}
+----------
+[permission_mysql_8_0_01497]
+source: split/mysql/5.6/dml_mysql_load_0.txt#2
+sql:
+LOAD DATA LOW_PRIORITY LOCAL INFILE '/var/lib/mysql-files/split_load.csv' REPLACE INTO TABLE load_innodb CHARACTER SET utf8mb4 FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' ESCAPED BY '\\' LINES STARTING BY '' TERMINATED BY '\n' IGNORE 1 LINES (id, @raw_name, val) SET name = TRIM(@raw_name);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Table(1:93~1:104) /test/1/catalog1/schema1/load_innodb/"
+  ]
+}
+----------
+[permission_mysql_8_0_01498]
+source: split/mysql/5.6/dml_mysql_load_0.txt#3
+sql:
+LOAD DATA CONCURRENT INFILE '/var/lib/mysql-files/split_load.csv' IGNORE INTO TABLE load_myisam COLUMNS TERMINATED BY ',' ENCLOSED BY '"' ESCAPED BY '\\' LINES TERMINATED BY '\n' IGNORE 1 ROWS (id, name, val) SET val = DEFAULT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Table(1:84~1:95) /test/1/catalog1/schema1/load_myisam/"
+  ]
+}
+----------
+[permission_mysql_8_0_01499]
+source: split/mysql/5.6/dml_mysql_load_0.txt#4
+sql:
+LOAD DATA INFILE '/var/lib/mysql-files/split_load.csv' INTO TABLE load_partition PARTITION (p0) FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' IGNORE 1 LINES;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Table(1:66~1:80) /test/1/catalog1/schema1/load_partition/"
+  ]
+}
+----------
+[permission_mysql_8_0_01500]
+source: split/mysql/5.6/dml_mysql_load_0.txt#5
+sql:
+LOAD DATA INFILE '/var/lib/mysql-files/codex_load_audit_missing_empty.csv' INTO TABLE codex_load_audit_s.t ();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Table(1:86~1:106) /test/1/catalog1/codex_load_audit_s/t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01501]
+source: split/mysql/5.6/dml_mysql_load_0.txt#6
+sql:
+LOAD DATA INFILE '/var/lib/mysql-files/codex_load_audit_missing_subquery.csv' INTO TABLE codex_load_audit_s.t (@codex_load_audit_x) SET b = (SELECT 1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Table(1:89~1:109) /test/1/catalog1/codex_load_audit_s/t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01502]
+source: split/mysql/5.6/dml_mysql_load_0.txt#7
+sql:
+LOAD DATA INFILE '/var/lib/mysql-files/codex_missing.csv' INTO TABLE dml_audit.t (@x) SET v := @x;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Table(1:69~1:80) /test/1/catalog1/dml_audit/t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01503]
+source: split/mysql/5.6/dml_mysql_load_0.txt#8
+sql:
+LOAD XML INFILE '/var/lib/mysql-files/split_load.xml' INTO TABLE load_innodb;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Table(1:65~1:76) /test/1/catalog1/schema1/load_innodb/"
+  ]
+}
+----------
+[permission_mysql_8_0_01504]
+source: split/mysql/5.6/dml_mysql_load_0.txt#9
+sql:
+LOAD XML LOW_PRIORITY LOCAL INFILE '/var/lib/mysql-files/split_load.xml' REPLACE INTO TABLE load_innodb ROWS IDENTIFIED BY '<row>' IGNORE 0 ROWS (id, @raw_name, val) SET name = TRIM(@raw_name);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Table(1:92~1:103) /test/1/catalog1/schema1/load_innodb/"
+  ]
+}
+----------
+[permission_mysql_8_0_01505]
+source: split/mysql/5.6/dml_mysql_load_0.txt#10
+sql:
+LOAD XML CONCURRENT INFILE '/var/lib/mysql-files/split_load.xml' IGNORE INTO TABLE load_myisam ROWS IDENTIFIED BY '<row>';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Table(1:83~1:94) /test/1/catalog1/schema1/load_myisam/"
+  ]
+}
+----------
+[permission_mysql_8_0_01506]
+source: split/mysql/5.6/dml_mysql_load_0.txt#11
+sql:
+LOAD XML INFILE '/var/lib/mysql-files/split_load.xml' INTO TABLE load_partition PARTITION (p0) ROWS IDENTIFIED BY '<row>';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Table(1:65~1:79) /test/1/catalog1/schema1/load_partition/"
+  ]
+}
+----------
+[permission_mysql_8_0_01507]
+source: split/mysql/5.6/dml_mysql_load_0.txt#12
+sql:
+LOAD XML INFILE '/var/lib/mysql-files/split_load.xml' INTO TABLE load_innodb ROWS IDENTIFIED BY '<row>' COLUMNS TERMINATED BY ',' LINES STARTING BY '<' TERMINATED BY '>';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Table(1:65~1:76) /test/1/catalog1/schema1/load_innodb/"
+  ]
+}
+----------
+[permission_mysql_8_0_01508]
+source: split/mysql/5.6/dml_mysql_load_0.txt#13
+sql:
+LOAD XML INFILE '/var/lib/mysql-files/codex_missing.xml' INTO TABLE dml_audit.t CHARACTER SET utf8mb4 ROWS IDENTIFIED BY '<row>';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Table(1:68~1:79) /test/1/catalog1/dml_audit/t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01509]
+source: split/mysql/5.6/dml_mysql_load_0.txt#14
+sql:
+LOAD XML INFILE '/var/lib/mysql-files/codex_missing.xml' INTO TABLE dml_audit.t ();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Table(1:68~1:79) /test/1/catalog1/dml_audit/t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01510]
+source: split/mysql/5.6/dml_mysql_load_0.txt#15
+sql:
+LOAD XML INFILE '/var/lib/mysql-files/codex_missing.xml' INTO TABLE dml_audit.t FIELDS TERMINATED BY ',';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Table(1:68~1:79) /test/1/catalog1/dml_audit/t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01511]
+source: split/mysql/5.6/dml_mysql_load_0.txt#16
+sql:
+LOAD XML INFILE '/var/lib/mysql-files/codex_missing.xml' INTO TABLE dml_audit.t (@x) SET v := @x;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Table(1:68~1:79) /test/1/catalog1/dml_audit/t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01512]
+source: split/mysql/5.6/dml_mysql_load_0.txt#17
+sql:
+LOAD DATA INFILE '/var/lib/mysql-files/split_outfile_load_base.txt' INTO TABLE split_outfile_load_native.t2 FIELDS TERMINATED BY 'raker';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Table(1:79~1:107) /test/1/catalog1/split_outfile_load_native/t2/"
+  ]
+}
+----------
+[permission_mysql_8_0_01513]
+source: split/mysql/5.6/dml_mysql_load_0.txt#18
+sql:
+LOAD DATA INFILE '/var/lib/mysql-files/split_outfile_load_base.txt' INTO TABLE split_outfile_load_native.t2 FIELDS ENCLOSED BY 0xC3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Table(1:79~1:107) /test/1/catalog1/split_outfile_load_native/t2/"
+  ]
+}
+----------
+[permission_mysql_8_0_01514]
+source: split/mysql/5.6/dml_mysql_load_0.txt#19
+sql:
+LOAD DATA INFILE '/var/lib/mysql-files/split_outfile_load_base.txt' INTO TABLE split_outfile_load_native.t2 FIELDS ENCLOSED BY '12345';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Table(1:79~1:107) /test/1/catalog1/split_outfile_load_native/t2/"
+  ]
+}
+----------
+[permission_mysql_8_0_01515]
+source: split/mysql/5.6/dml_mysql_load_0.txt#20
+sql:
+LOAD DATA INFILE '/var/lib/mysql-files/split_outfile_load_base.txt' INTO TABLE split_outfile_load_native.t2 FIELDS ESCAPED BY '12345';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Table(1:79~1:107) /test/1/catalog1/split_outfile_load_native/t2/"
+  ]
+}
+----------
+[permission_mysql_8_0_01516]
+source: split/mysql/5.6/dml_mysql_load_0.txt#21
+sql:
+LOAD DATA INFILE '/var/lib/mysql-files/split_outfile_load_base.txt' INTO TABLE split_outfile_load_native.t2 CHARACTER SET binary FIELDS ENCLOSED BY 'ъ';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Table(1:79~1:107) /test/1/catalog1/split_outfile_load_native/t2/"
+  ]
+}
+----------
+[permission_mysql_8_0_01517]
+source: split/mysql/5.6/dml_mysql_load_0.txt#22
+sql:
+LOAD DATA INFILE '/var/lib/mysql-files/split_outfile_load_base.txt' INTO TABLE split_outfile_load_native.t2 CHARACTER SET binary FIELDS ESCAPED BY 'ъ';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Table(1:79~1:107) /test/1/catalog1/split_outfile_load_native/t2/"
+  ]
+}
+----------
+[permission_mysql_8_0_01518]
+source: split/mysql/5.6/dml_mysql_load_0.txt#23
+sql:
+LOAD DATA INFILE '/var/lib/mysql-files/split_outfile_load_base.txt' INTO TABLE split_outfile_load_native.t2 CHARACTER SET binary FIELDS TERMINATED BY 'ъ';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Table(1:79~1:107) /test/1/catalog1/split_outfile_load_native/t2/"
+  ]
+}
+----------
+[permission_mysql_8_0_01519]
+source: split/mysql/5.6/dml_mysql_load_0.txt#24
+sql:
+LOAD DATA INFILE '/var/lib/mysql-files/split_outfile_load_base.txt' INTO TABLE split_outfile_load_native.t2 CHARACTER SET binary LINES STARTING BY 'ъ';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Table(1:79~1:107) /test/1/catalog1/split_outfile_load_native/t2/"
+  ]
+}
+----------
+[permission_mysql_8_0_01520]
+source: split/mysql/5.6/dml_mysql_load_0.txt#25
+sql:
+LOAD DATA INFILE '/var/lib/mysql-files/split_outfile_load_base.txt' INTO TABLE split_outfile_load_native.t2 CHARACTER SET binary LINES TERMINATED BY 'ъ';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Table(1:79~1:107) /test/1/catalog1/split_outfile_load_native/t2/"
+  ]
+}
+----------
+[permission_mysql_8_0_01521]
+source: split/mysql/5.6/dml_mysql_load_0.txt#26
+sql:
+LOAD DATA INFILE '/var/lib/mysql-files/split_outfile_load_base.txt' INTO TABLE split_outfile_load_native.t2 CHARACTER SET binary;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Table(1:79~1:107) /test/1/catalog1/split_outfile_load_native/t2/"
+  ]
+}
+----------
+[permission_mysql_8_0_01522]
+source: split/mysql/5.6/dml_mysql_load_0.txt#27
+sql:
+LOAD DATA INFILE '/var/lib/mysql-files/split_outfile_load_base.txt' INTO TABLE split_outfile_load_native.t2 CHARACTER SET latin1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Table(1:79~1:107) /test/1/catalog1/split_outfile_load_native/t2/"
+  ]
+}
+----------
+[permission_mysql_8_0_01523]
+source: split/mysql/5.6/dml_mysql_load_0.txt#28
+sql:
+LOAD DATA INFILE '/var/lib/mysql-files/split_outfile_load_base.txt' INTO TABLE split_outfile_load_native.t2 CHARACTER SET koi8r;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Table(1:79~1:107) /test/1/catalog1/split_outfile_load_native/t2/"
+  ]
+}
+----------
+[permission_mysql_8_0_01524]
+source: split/mysql/5.6/dml_mysql_load_0.txt#29
+sql:
+LOAD DATA INFILE '/var/lib/mysql-files/split_outfile_load_base.txt' INTO TABLE split_outfile_load_native.t2 CHARACTER SET utf8;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Table(1:79~1:107) /test/1/catalog1/split_outfile_load_native/t2/"
+  ]
+}
+----------
+[permission_mysql_8_0_01525]
+source: split/mysql/5.6/dml_mysql_load_0.txt#30
+sql:
+LOAD DATA INFILE '/var/lib/mysql-files/split_outfile_load_base.txt' INTO TABLE split_outfile_load_native.t2 FIELDS ENCLOSED BY 0b00100010;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Table(1:79~1:107) /test/1/catalog1/split_outfile_load_native/t2/"
+  ]
+}
+----------
+[permission_mysql_8_0_01526]
+source: split/mysql/5.6/dml_mysql_load_0.txt#31
+sql:
+LOAD DATA INFILE '/var/lib/mysql-files/split_load.txt'
+INTO TABLE load_t FIELDS ESCAPED BY '\\' TERMINATED BY ' ';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Table(2:11~2:17) /test/1/catalog1/schema1/load_t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01527]
+source: split/mysql/5.6/dml_mysql_load_0.txt#32
+sql:
+LOAD DATA INFILE '/var/lib/mysql-files/split_load.txt'
+INTO TABLE load_t (a, @raw_b)
+SET b=@raw_b+10, c=CONCAT('b=', @raw_b);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Table(2:11~2:17) /test/1/catalog1/schema1/load_t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01528]
+source: split/mysql/5.6/dml_mysql_load_0.txt#33
+sql:
+LOAD DATA INFILE '/var/lib/mysql-files/split_load.txt'
+INTO TABLE load_v(@a,@d) SET a=@a,d=@d;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Table(2:11~2:17) /test/1/catalog1/schema1/load_v/"
+  ]
+}
+----------
+[permission_mysql_8_0_01529]
+source: split/mysql/5.6/dml_mysql_load_0.txt#34
+sql:
+LOAD XML INFILE '/var/lib/mysql-files/split_load.xml' INTO TABLE load_v;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Table(1:65~1:71) /test/1/catalog1/schema1/load_v/"
+  ]
+}
+----------
+[permission_mysql_8_0_01530]
+source: split/mysql/5.6/dml_mysql_load_0.txt#35
+sql:
+LOAD DATA INFILE '/tmp/codex_lob.csv'
+INTO TABLE lob_family
+CHARACTER SET binary
+FIELDS TERMINATED BY ','
+LINES TERMINATED BY '\n'
+(@b,@t)
+SET b=UNHEX(@b),t=CONVERT(@t USING utf8mb4);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Table(2:11~2:21) /test/1/catalog1/schema1/lob_family/"
+  ]
+}
+----------
+[permission_mysql_8_0_01531]
+source: split/mysql/5.6/dml_mysql_load_0.txt#36
+sql:
+LOAD DATA LOCAL INFILE '/tmp/nonexistent-enum-set.csv'
+    INTO TABLE split_type_enum_set.es_core
+    FIELDS TERMINATED BY ','
+    (id,e_basic,e_case,s_basic,s_case,e_added,s_flags);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Table(2:15~2:42) /test/1/catalog1/split_type_enum_set/es_core/"
+  ]
+}
+----------
+[permission_mysql_8_0_01532]
+source: split/mysql/5.6/dml_mysql_load_0.txt#37
+sql:
+LOAD DATA INFILE '/var/lib/mysql-files/codex-spatial.csv'
+INTO TABLE spatial_lifecycle
+FIELDS TERMINATED BY ','
+LINES TERMINATED BY '\n'
+(@id,@wkt)
+SET id=@id,g=ST_GeomFromText(@wkt),p=ST_PointFromText(@wkt);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Table(2:11~2:28) /test/1/catalog1/schema1/spatial_lifecycle/"
+  ]
+}
+----------
+[permission_mysql_8_0_01533]
+source: split/mysql/5.6/dml_mysql_load_0.txt#38
+sql:
+LOAD DATA LOCAL INFILE '/tmp/nonexistent-integer.csv'
+INTO TABLE integer_lifecycle
+FIELDS TERMINATED BY ','
+(tiny_signed,tiny_unsigned,small_signed,small_unsigned,medium_signed,medium_unsigned,
+ int_signed,int_unsigned,big_signed,big_unsigned,@bool_value,note)
+SET bool_alias=CAST(@bool_value AS UNSIGNED),boolean_alias=NOT CAST(@bool_value AS UNSIGNED);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Table(2:11~2:28) /test/1/catalog1/schema1/integer_lifecycle/"
+  ]
+}
+----------
+[permission_mysql_8_0_01534]
+source: split/mysql/5.6/dml_mysql_load_0.txt#39
+sql:
+LOAD DATA LOCAL INFILE '/tmp/nonexistent-numeric.csv'
+INTO TABLE numeric_lifecycle
+FIELDS TERMINATED BY ','
+(id,@decimal_value,@numeric_value,@fixed_value,@float_value,@double_value,@real_value,note)
+SET decimal_value=CAST(@decimal_value AS DECIMAL(20,6)),
+    numeric_value=CAST(@numeric_value AS DECIMAL(12,4)),
+    fixed_value=CAST(@fixed_value AS DECIMAL(18,2)),
+    float_value=@float_value+0e0,
+    double_value=@double_value+0e0,
+    real_value=@real_value+0e0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Table(2:11~2:28) /test/1/catalog1/schema1/numeric_lifecycle/"
+  ]
+}
+----------
+[permission_mysql_8_0_01535]
+source: split/mysql/5.6/dml_mysql_load_0.txt#40
+sql:
+LOAD DATA INFILE '/tmp/codex_missing_load' INTO TABLE dst (@'raw value') SET id=@'raw value';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Table(1:54~1:57) /test/1/catalog1/schema1/dst/"
+  ]
+}
+----------
+[permission_mysql_8_0_01536]
+source: split/mysql/5.6/dml_mysql_load_0.txt#41
+sql:
+LOAD DATA INFILE '/tmp/x' INTO TABLE t FIELDS TERMINATED BY '' ENCLOSED BY '' LINES TERMINATED BY '' IGNORE 1 LINES;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Table(1:37~1:38) /test/1/catalog1/schema1/t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01537]
+source: split/mysql/5.6/dml_mysql_load_0.txt#42
+sql:
+LOAD DATA LOCAL INFILE '' REPLACE INTO TABLE v1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Table(1:45~1:47) /test/1/catalog1/schema1/v1/"
+  ]
+}
+----------
+[permission_mysql_8_0_01538]
+source: split/mysql/5.6/dml_mysql_load_0.txt#43
+sql:
+LOAD DATA INFILE 'x' INTO TABLE v(a,d);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Table(1:32~1:33) /test/1/catalog1/schema1/v/"
+  ]
+}
+----------
+[permission_mysql_8_0_01539]
+source: split/mysql/5.6/dml_mysql_load_0.txt#44
+sql:
+LOAD DATA INFILE 'loadtest.txt' INTO TABLE t1 PARTITION (pNeg,`p10-99`) CHARACTER SET latin1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Table(1:43~1:45) /test/1/catalog1/schema1/t1/"
+  ]
+}
+----------
+[permission_mysql_8_0_01730]
+source: split/mysql/5.6/dql_mysql_aggregation_0.txt#26
+sql:
+SELECT DISTINCT fruit_id,fruit_name INTO OUTFILE '/var/lib/mysql-files/split_distinct_native_b.tsv' FROM split_distinct_native_b.fruit_t WHERE fruit_name='APPLE';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "File(1:49~1:99) /test/1/var/lib/mysql-files/split_distinct_native_b.tsv/"
+  ]
+}
+----------
+[permission_mysql_8_0_00006]
+source: permission/mysql/8.0/manage.txt#admin_performance
+sql:
+CACHE INDEX utility_audit.myisam_a INDEX (PRIMARY, idx_v) IN DEFAULT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Index(1:12~1:34) /test/1/catalog1/utility_audit/myisam_a/"
+  ]
+}
+----------
+[permission_mysql_8_0_00139]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#2
+sql:
+FLUSH NO_WRITE_TO_BINLOG STATUS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Instance(1:0~1:31) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00156]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#12
+sql:
+FLUSH STATUS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Instance(1:0~1:12) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00158]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#13
+sql:
+FLUSH USER_RESOURCES;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Instance(1:0~1:20) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00160]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#14
+sql:
+FLUSH TABLES;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Table(1:0~1:12) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00162]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#15
+sql:
+FLUSH TABLE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Table(1:0~1:11) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00164]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#16
+sql:
+FLUSH TABLES split_verify.flush_a, split_verify.flush_b;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Table(1:13~1:33) /test/1/catalog1/split_verify/flush_a/",
+    "Table(1:35~1:55) /test/1/catalog1/split_verify/flush_b/"
+  ]
+}
+----------
+[permission_mysql_8_0_00166]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#17
+sql:
+FLUSH TABLES WITH READ LOCK;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Table(1:0~1:27) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00168]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#18
+sql:
+FLUSH TABLE split_verify.flush_a WITH READ LOCK;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Table(1:12~1:32) /test/1/catalog1/split_verify/flush_a/"
+  ]
+}
+----------
+[permission_mysql_8_0_00176]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#22
+sql:
+FLUSH LOCAL STATUS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Instance(1:0~1:18) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00180]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#24
+sql:
+FLUSH NO_WRITE_TO_BINLOG TABLES admin_sql_audit.flush_a, admin_sql_audit.flush_b;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Table(1:32~1:55) /test/1/catalog1/admin_sql_audit/flush_a/",
+    "Table(1:57~1:80) /test/1/catalog1/admin_sql_audit/flush_b/"
+  ]
+}
+----------
+[permission_mysql_8_0_00182]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#25
+sql:
+FLUSH STATUS, USER_RESOURCES;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Instance(1:0~1:28) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00184]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#26
+sql:
+FLUSH HOSTS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Instance(1:0~1:11) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00187]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#28
+sql:
+FLUSH TABLES admin_sql_audit.flush_a, admin_sql_audit.flush_b WITH READ LOCK;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Table(1:13~1:36) /test/1/catalog1/admin_sql_audit/flush_a/",
+    "Table(1:38~1:61) /test/1/catalog1/admin_sql_audit/flush_b/"
+  ]
+}
+----------
+[permission_mysql_8_0_00196]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#37
+sql:
+ANALYZE TABLE split84.maint_innodb;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Table(1:14~1:34) /test/1/catalog1/split84/maint_innodb/"
+  ]
+}
+----------
+[permission_mysql_8_0_00197]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#38
+sql:
+ANALYZE TABLES split84.maint_innodb;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Table(1:15~1:35) /test/1/catalog1/split84/maint_innodb/"
+  ]
+}
+----------
+[permission_mysql_8_0_00198]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#39
+sql:
+ANALYZE NO_WRITE_TO_BINLOG TABLE split84.maint_innodb;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Table(1:33~1:53) /test/1/catalog1/split84/maint_innodb/"
+  ]
+}
+----------
+[permission_mysql_8_0_00199]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#40
+sql:
+CHECK TABLE split84.maint_innodb FOR UPGRADE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Table(1:12~1:32) /test/1/catalog1/split84/maint_innodb/"
+  ]
+}
+----------
+[permission_mysql_8_0_00200]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#41
+sql:
+CHECK TABLES split84.maint_innodb;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Table(1:13~1:33) /test/1/catalog1/split84/maint_innodb/"
+  ]
+}
+----------
+[permission_mysql_8_0_00201]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#42
+sql:
+CHECK TABLE split84.maint_innodb QUICK FAST MEDIUM EXTENDED CHANGED;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Table(1:12~1:32) /test/1/catalog1/split84/maint_innodb/"
+  ]
+}
+----------
+[permission_mysql_8_0_00202]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#43
+sql:
+CHECKSUM TABLE split84.maint_innodb QUICK;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Table(1:15~1:35) /test/1/catalog1/split84/maint_innodb/"
+  ]
+}
+----------
+[permission_mysql_8_0_00203]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#44
+sql:
+CHECKSUM TABLE split84.maint_innodb EXTENDED;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Table(1:15~1:35) /test/1/catalog1/split84/maint_innodb/"
+  ]
+}
+----------
+[permission_mysql_8_0_00204]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#45
+sql:
+CHECKSUM TABLES split84.maint_innodb QUICK;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Table(1:16~1:36) /test/1/catalog1/split84/maint_innodb/"
+  ]
+}
+----------
+[permission_mysql_8_0_00205]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#46
+sql:
+OPTIMIZE NO_WRITE_TO_BINLOG TABLE split84.maint_innodb;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Table(1:34~1:54) /test/1/catalog1/split84/maint_innodb/"
+  ]
+}
+----------
+[permission_mysql_8_0_00206]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#47
+sql:
+OPTIMIZE LOCAL TABLES split84.maint_innodb;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Table(1:22~1:42) /test/1/catalog1/split84/maint_innodb/"
+  ]
+}
+----------
+[permission_mysql_8_0_00207]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#48
+sql:
+REPAIR LOCAL TABLE split84.maint_myisam QUICK EXTENDED USE_FRM;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Table(1:19~1:39) /test/1/catalog1/split84/maint_myisam/"
+  ]
+}
+----------
+[permission_mysql_8_0_00208]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#49
+sql:
+REPAIR TABLES split84.maint_myisam QUICK;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Table(1:14~1:34) /test/1/catalog1/split84/maint_myisam/"
+  ]
+}
+----------
+[permission_mysql_8_0_00209]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#50
+sql:
+CACHE INDEX split84.maint_myisam KEY(idx_v) IN DEFAULT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Index(1:12~1:32) /test/1/catalog1/split84/maint_myisam/"
+  ]
+}
+----------
+[permission_mysql_8_0_00210]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#51
+sql:
+LOAD INDEX INTO CACHE split84.maint_myisam KEY(idx_v) IGNORE LEAVES;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Instance(1:0~1:67) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00211]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#52
+sql:
+CACHE INDEX split_part.maint_part PARTITION (p0) KEY(idx_v) IN DEFAULT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Index(1:12~1:33) /test/1/catalog1/split_part/maint_part/"
+  ]
+}
+----------
+[permission_mysql_8_0_00212]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#53
+sql:
+LOAD INDEX INTO CACHE split_part.maint_part PARTITION (p0) KEY(idx_v) IGNORE LEAVES;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Instance(1:0~1:83) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00219]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#62
+sql:
+CACHE INDEX t3 IN keycache1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Index(1:12~1:14) /test/1/catalog1/schema1/t3/"
+  ]
+}
+----------
+[permission_mysql_8_0_00220]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#63
+sql:
+REPAIR TABLE split84.maint_myisam EXTENDED;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Table(1:13~1:33) /test/1/catalog1/split84/maint_myisam/"
+  ]
+}
+----------
+[permission_mysql_8_0_00221]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#64
+sql:
+REPAIR TABLE split84.maint_myisam USE_FRM;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Table(1:13~1:33) /test/1/catalog1/split84/maint_myisam/"
+  ]
+}
+----------
+[permission_mysql_8_0_00222]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#65
+sql:
+REPAIR TABLE split84.maint_myisam QUICK USE_FRM;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Table(1:13~1:33) /test/1/catalog1/split84/maint_myisam/"
+  ]
+}
+----------
+[permission_mysql_8_0_00223]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#66
+sql:
+REPAIR TABLE split84.maint_myisam EXTENDED USE_FRM;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Table(1:13~1:33) /test/1/catalog1/split84/maint_myisam/"
+  ]
+}
+----------
+[permission_mysql_8_0_00224]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#67
+sql:
+REPAIR TABLE split84.maint_myisam EXTENDED QUICK;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Table(1:13~1:33) /test/1/catalog1/split84/maint_myisam/"
+  ]
+}
+----------
+[permission_mysql_8_0_00225]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#68
+sql:
+REPAIR TABLE split84.maint_myisam USE_FRM QUICK EXTENDED;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Table(1:13~1:33) /test/1/catalog1/split84/maint_myisam/"
+  ]
+}
+----------
+[permission_mysql_8_0_00226]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#69
+sql:
+REPAIR TABLE split84.maint_myisam QUICK QUICK;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Table(1:13~1:33) /test/1/catalog1/split84/maint_myisam/"
+  ]
+}
+----------
+[permission_mysql_8_0_00281]
+source: split/mysql/5.6/dcl_mysql_language_0.txt#7
+sql:
+/*!50000 FLUSH STATUS */;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Instance(1:9~1:21) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00294]
+source: split/mysql/5.6/dcl_mysql_language_0.txt#21
+sql:
+CHECK TABLE ``;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Table(1:0~1:14) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00295]
+source: split/mysql/5.6/dcl_mysql_language_0.txt#22
+sql:
+CACHE INDEX `` IN cache_name;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Instance(1:0~1:28) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00296]
+source: split/mysql/5.6/dcl_mysql_language_0.txt#23
+sql:
+CACHE INDEX `` PARTITION (ALL) IN cache_name;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Instance(1:0~1:44) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00297]
+source: split/mysql/5.6/dcl_mysql_language_0.txt#24
+sql:
+LOAD INDEX INTO CACHE `` PARTITION (ALL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Instance(1:0~1:40) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00298]
+source: split/mysql/5.6/dcl_mysql_language_0.txt#25
+sql:
+LOAD INDEX INTO CACHE ``;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Instance(1:0~1:24) /test/1/"
+  ]
+}

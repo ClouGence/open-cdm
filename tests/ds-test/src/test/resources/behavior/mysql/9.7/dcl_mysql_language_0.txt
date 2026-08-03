@@ -1,0 +1,885 @@
+[transaction__001]
+sql:
+/*!50000 START TRANSACTION */;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[transaction__002]
+sql:
+/*!50000 COMMIT */;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[create_user__003]
+sql:
+/*!50000 CREATE USER 'split_exec_97'@'%' IDENTIFIED BY 'ExecPass1!' */;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:21~1:40) /test/1/split_exec_97@%/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[grant__004]
+sql:
+/*!50000 GRANT SELECT ON split_exec_comment.* TO 'split_exec_97'@'%' */;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Schema(1:25~1:43) /test/1/catalog1/split_exec_comment/",
+      "action" : "GRANT",
+      "target" : "UserOrRole(1:49~1:68) /test/1/split_exec_97@%/"
+    }
+  ]
+}
+----------
+[revoke__005]
+sql:
+/*!50000 REVOKE SELECT ON split_exec_comment.* FROM 'split_exec_97'@'%' */;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "Schema(1:26~1:44) /test/1/catalog1/split_exec_comment/",
+      "action" : "REVOKE",
+      "target" : "UserOrRole(1:52~1:71) /test/1/split_exec_97@%/"
+    }
+  ]
+}
+----------
+[drop_user__006]
+sql:
+/*!50000 DROP USER 'split_exec_97'@'%' */;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_USER": [
+    {
+      "subject": "User(1:19~1:38) /test/1/split_exec_97@%/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[admin_performance__007]
+sql:
+/*!50000 FLUSH STATUS */;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_PERFORMANCE": [
+    {
+      "subject": "Instance(1:9~1:21) /test/1/",
+      "action" : "FLUSH"
+    }
+  ]
+}
+----------
+[session_variable_rw_select__008]
+sql:
+SET @join_outer_row := (SELECT ROW(1, 2) =
+                               ROW((SELECT 1 FROM join_set LEFT JOIN join_set AS joined_set ON 1), 1));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_VARIABLE_RW": [
+    {
+      "subject": "ConfigKey(1:4~1:19) /test/1/join_outer_row/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(2:50~2:58) /test/1/catalog1/schema1/join_set/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[session_setting_write__009]
+sql:
+SET sets = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:8) /test/1/sets/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[create_role__010]
+sql:
+CREATE ROLE sets;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_ROLE": [
+    {
+      "subject": "Role(1:12~1:16) /test/1/sets/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[session_variable_rw__011]
+sql:
+SET @max_allowed_packet=@@global.max_allowed_packet;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_VARIABLE_RW": [
+    {
+      "subject": "ConfigKey(1:4~1:23) /test/1/max_allowed_packet/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[session_variable_rw__012]
+sql:
+SET @net_buffer_length=@@global.net_buffer_length;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_VARIABLE_RW": [
+    {
+      "subject": "ConfigKey(1:4~1:22) /test/1/net_buffer_length/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[system_setting_write__013]
+sql:
+SET GLOBAL max_allowed_packet=100;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:29) /test/1/max_allowed_packet/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[system_setting_write__014]
+sql:
+SET GLOBAL net_buffer_length=100;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:28) /test/1/net_buffer_length/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[system_setting_write__015]
+sql:
+SET GLOBAL max_allowed_packet=DEFAULT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:29) /test/1/max_allowed_packet/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[system_setting_write__016]
+sql:
+SET GLOBAL net_buffer_length=DEFAULT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:28) /test/1/net_buffer_length/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[system_setting_write_session_variable_rw__017]
+sql:
+SET GLOBAL max_allowed_packet=@max_allowed_packet;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:29) /test/1/max_allowed_packet/",
+      "action" : "CONFIGURE"
+    },
+    {
+      "subject": "ConfigKey(1:30~1:49) /test/1/max_allowed_packet/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[system_setting_write_session_variable_rw__018]
+sql:
+SET GLOBAL net_buffer_length=@net_buffer_length;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:28) /test/1/net_buffer_length/",
+      "action" : "CONFIGURE"
+    },
+    {
+      "subject": "ConfigKey(1:29~1:47) /test/1/net_buffer_length/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[admin_table__019]
+sql:
+CHECK TABLE ``;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:0~1:14) /test/1/",
+      "action" : "VALIDATE"
+    }
+  ]
+}
+----------
+[admin_performance__020]
+sql:
+CACHE INDEX `` IN cache_name;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_PERFORMANCE": [
+    {
+      "subject": "Instance(1:0~1:28) /test/1/",
+      "action" : "LOAD"
+    }
+  ]
+}
+----------
+[admin_performance__021]
+sql:
+CACHE INDEX `` PARTITION (ALL) IN cache_name;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_PERFORMANCE": [
+    {
+      "subject": "Instance(1:0~1:44) /test/1/",
+      "action" : "LOAD"
+    }
+  ]
+}
+----------
+[admin_performance__022]
+sql:
+LOAD INDEX INTO CACHE `` PARTITION (ALL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_PERFORMANCE": [
+    {
+      "subject": "Instance(1:0~1:40) /test/1/",
+      "action" : "LOAD"
+    }
+  ]
+}
+----------
+[admin_performance__023]
+sql:
+LOAD INDEX INTO CACHE ``;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_PERFORMANCE": [
+    {
+      "subject": "Instance(1:0~1:24) /test/1/",
+      "action" : "LOAD"
+    }
+  ]
+}
+----------
+[session_variable_rw__024]
+sql:
+SET @parse_gcol_expr = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_VARIABLE_RW": [
+    {
+      "subject": "ConfigKey(1:4~1:20) /test/1/parse_gcol_expr/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[session_setting_write__025]
+sql:
+SET @@session.parser_max_mem_size=DEFAULT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:33) /test/1/parser_max_mem_size/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[session_setting_write__026]
+sql:
+SET @@session.parser_max_mem_size=500*1000*100;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:33) /test/1/parser_max_mem_size/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[session_setting_write__027]
+sql:
+SET SESSION parser_max_mem_size=1000*1000*100;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:31) /test/1/parser_max_mem_size/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[system_setting_write__028]
+sql:
+SET @@global.parser_max_mem_size=1000*1000*100;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:32) /test/1/parser_max_mem_size/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[session_setting_write__029]
+sql:
+SET @@session.parser_max_mem_size='NOT_CHAR_TYPE';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:33) /test/1/parser_max_mem_size/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[session_setting_write__030]
+sql:
+SET @@session.parser_max_mem_size=-10;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:33) /test/1/parser_max_mem_size/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[session_setting_write__031]
+sql:
+SET @@session.parser_max_mem_size=0.5;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:33) /test/1/parser_max_mem_size/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[session_setting_write__032]
+sql:
+SET @@session.parser_max_mem_size=TRUE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:33) /test/1/parser_max_mem_size/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[session_setting_write__033]
+sql:
+SET @@session.parser_max_mem_size=FALSE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:33) /test/1/parser_max_mem_size/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[system_setting_write__034]
+sql:
+SET @@global.parser_max_mem_size=DEFAULT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:32) /test/1/parser_max_mem_size/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[session_setting_write__035]
+sql:
+SET default_storage_engine=a.myisam;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:26) /test/1/default_storage_engine/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[session_setting_write__036]
+sql:
+SET default_storage_engine = a.b.MyISAM;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:26) /test/1/default_storage_engine/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[session_setting_write__037]
+sql:
+SET default_storage_engine = `a`.MyISAM;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:26) /test/1/default_storage_engine/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[session_setting_write__038]
+sql:
+SET default_storage_engine = `a`.`MyISAM`;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:26) /test/1/default_storage_engine/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[session_setting_write__039]
+sql:
+SET default_storage_engine = "a.MYISAM";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:26) /test/1/default_storage_engine/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[session_setting_write__040]
+sql:
+SET default_storage_engine = 'a.MYISAM';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:26) /test/1/default_storage_engine/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[session_setting_write__041]
+sql:
+SET default_storage_engine = `a.MYISAM`;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:26) /test/1/default_storage_engine/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[transaction__042]
+sql:
+COMMIT AND NO CHAIN NO RELEASE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[transaction__043]
+sql:
+COMMIT RELEASE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[transaction__044]
+sql:
+COMMIT NO RELEASE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[transaction__045]
+sql:
+ROLLBACK AND NO CHAIN NO RELEASE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[transaction__046]
+sql:
+ROLLBACK RELEASE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[transaction__047]
+sql:
+ROLLBACK NO RELEASE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[alter_replication__048]
+sql:
+START REPLICA SQL_THREAD;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_REPLICATION": [
+    {
+      "subject": "Replication(1:0~1:24) /test/1/",
+      "action": "START"
+    }
+  ]
+}
+----------
+[alter_replication__049]
+sql:
+STOP REPLICA SQL_THREAD;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_REPLICATION": [
+    {
+      "subject": "Replication(1:0~1:23) /test/1/",
+      "action": "STOP"
+    }
+  ]
+}
+----------
+[session_setting_write__050]
+sql:
+SET SESSION sql_mode='HIGH_NOT_PRECEDENCE';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:20) /test/1/sql_mode/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[select__051]
+sql:
+SELECT NOT 1 BETWEEN -5 AND 5;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[session_setting_write__052]
+sql:
+SET SESSION sql_mode='PIPES_AS_CONCAT';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:20) /test/1/sql_mode/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[select__053]
+sql:
+SELECT 'a'||'b';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__054]
+sql:
+SELECT 'ab' LIKE 'a' || '%';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__055]
+sql:
+SELECT 'ab' NOT LIKE 'a' || '%';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__056]
+sql:
+SELECT 'a%' LIKE 'a!' || '%' ESCAPE '!';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__057]
+sql:
+SELECT 'a%' NOT LIKE 'a!' || '%' ESCAPE '!';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__058]
+sql:
+SELECT 'a%' LIKE 'a!%' ESCAPE '' || '!';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__059]
+sql:
+SELECT 'a%' NOT LIKE 'a!%' ESCAPE '' || '!';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__060]
+sql:
+SELECT 1 ^ '10' || '0';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__061]
+sql:
+SELECT -1 || '0';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[session_setting_write_select_session_variable_rw__062]
+sql:
+SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:12) /test/1/sql_mode/",
+      "action" : "CONFIGURE"
+    },
+    {
+      "subject": "Function(1:21~1:28) /test/1/catalog1/schema1/REPLACE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "ConfigKey(1:29~1:39) /test/1/sql_mode/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[session_variable_rw_select__063]
+sql:
+SET @myvar=(WITH qn AS (SELECT a,SUM(b) AS s FROM t1 GROUP BY a) SELECT s FROM qn GROUP BY a HAVING s IS NOT NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_VARIABLE_RW": [
+    {
+      "subject": "ConfigKey(1:4~1:10) /test/1/myvar/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(1:33~1:36) /test/1/catalog1/schema1/SUM/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:50~1:52) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    }
+  ]
+}

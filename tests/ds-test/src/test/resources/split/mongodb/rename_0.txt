@@ -1,0 +1,12 @@
+db.people.renameCollection("users");
+db.user_table.renameCollection("user_info");
+db.temp_collection.renameCollection("permanent_data");
+db.old_name.renameCollection("new_name");
+------------------------------------------------------------------------------------------
+[RENAME_TABLE] db.people.renameCollection("users")
+----------
+[RENAME_TABLE] db.user_table.renameCollection("user_info")
+----------
+[RENAME_TABLE] db.temp_collection.renameCollection("permanent_data")
+----------
+[RENAME_TABLE] db.old_name.renameCollection("new_name")

@@ -1,0 +1,35 @@
+[utl_tcp_procedure_domains]
+sql:
+declare c utl_tcp.connection; begin
+c:=utl_tcp.open_connection('tcp.example.invalid',18081);
+utl_tcp.flush(c);
+utl_tcp.close_connection(c);
+utl_tcp.close_all_connection();
+utl_tcp.close_all_connections();
+end;
+expect:
+{
+  "contains": [
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"utl_tcp"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"utl_tcp"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"utl_tcp"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"utl_tcp"}
+  ]
+}
+----------
+[utl_tcp_function_expressions_no_domain]
+sql:
+declare c utl_tcp.connection; n int; t varchar(32767); r varbinary(32767); begin
+c:=utl_tcp.open_connection('tcp.example.invalid',18081);
+n:=utl_tcp.available(c);
+t:=utl_tcp.get_line(c);
+r:=utl_tcp.get_raw(c);
+t:=utl_tcp.get_text(c);
+n:=utl_tcp.read_raw(c,r);
+n:=utl_tcp.read_text(c,t);
+n:=utl_tcp.write_line(c);
+n:=utl_tcp.write_raw(c,cast('41' as varbinary(8)));
+n:=utl_tcp.write_text(c,'A');
+end;
+expect:
+{"size":0}

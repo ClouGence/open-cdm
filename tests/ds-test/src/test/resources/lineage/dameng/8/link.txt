@@ -1,0 +1,27 @@
+[remote_select_columns]
+sql:
+select e.id, e.name from catalog1.remote_app.employee@employee_link e where e.id = 1
+expect:
+{
+  "id" : [ "/catalog1/remote_app/employee/id/" ],
+  "name" : [ "/catalog1/remote_app/employee/name/" ]
+}
+----------
+[remote_join_columns]
+sql:
+select l.id, r.name from catalog1.app.employee l
+join catalog1.remote_app.employee@employee_link r on l.id = r.id
+expect:
+{
+  "id" : [ "/catalog1/app/employee/id/" ],
+  "name" : [ "/catalog1/remote_app/employee/name/" ]
+}
+----------
+[schema_link_remote_columns]
+sql:
+select e.id, e.name from catalog1.remote_app.employee@app.employee_link e where e.id = 1
+expect:
+{
+  "id" : [ "/catalog1/remote_app/employee/id/" ],
+  "name" : [ "/catalog1/remote_app/employee/name/" ]
+}

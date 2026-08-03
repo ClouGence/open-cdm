@@ -1,0 +1,49 @@
+[audit_statement_rule]
+sql:
+sp_audit_stmt('TABLE', 'NULL', 'ALL')
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"ADMIN", "auditKind":"ADMIN", "name":"DATABASE"}
+  ]
+}
+----------
+[noaudit_statement_rule]
+sql:
+sp_noaudit_stmt('TABLE', 'NULL', 'ALL')
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"ADMIN", "auditKind":"ADMIN", "name":"DATABASE"}
+  ]
+}
+----------
+[audit_object_rule]
+sql:
+sp_audit_object('UPDATE', 'SYSDBA', 'APP', 'EMPLOYEE', 'AMOUNT', 'ALL')
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"ADMIN", "auditKind":"ADMIN", "name":"DATABASE"}
+  ]
+}
+----------
+[audit_sql_sequence_rule]
+sql:
+sp_audit_sqlseq_add('AUDIT_SQL1', 'SELECT AMOUNT FROM APP.EMPLOYEE;')
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"ADMIN", "auditKind":"ADMIN", "name":"DATABASE"}
+  ]
+}
+----------
+[audit_switch]
+sql:
+sp_set_enable_audit(1)
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"ADMIN", "auditKind":"ADMIN", "name":"DATABASE"}
+  ]
+}

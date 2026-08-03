@@ -1,0 +1,748 @@
+[split_block_dameng_cjava_0_001]
+sql:
+{
+  int i = 0;
+  i++;
+  print i;
+}
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": []
+}
+----------
+[split_block_dameng_cjava_0_002]
+sql:
+{
+  varchar v_name = 'DM8';
+  int v_value = 8;
+  v_name = concat(v_name, cast(v_value as varchar));
+  print v_name;
+}
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(4:11~4:17) /test/1/catalog1/schema1/concat/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_cjava_0_003]
+sql:
+{
+  int v_value = 1;
+  if(v_value = 1)
+  {
+    print 'ONE';
+  }
+}
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": []
+}
+----------
+[split_block_dameng_cjava_0_004]
+sql:
+{
+  int v_value = 2;
+  if(v_value = 1)
+  {
+    print 'ONE';
+  }
+  else
+  {
+    print 'OTHER';
+  }
+}
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": []
+}
+----------
+[split_block_dameng_cjava_0_005]
+sql:
+{
+  int i = 0;
+  while(i < 3)
+  {
+    i++;
+  }
+  print i;
+}
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": []
+}
+----------
+[split_block_dameng_cjava_0_006]
+sql:
+{
+  int v_total = 0;
+  for(int i = 1; i <= 4; i++)
+  {
+    v_total = v_total + i;
+  }
+  print v_total;
+}
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": []
+}
+----------
+[split_block_dameng_cjava_0_007]
+sql:
+{
+  int v_total = 0;
+  for(int i = 1; i <= 2; i++)
+  {
+    for(int j = 1; j <= 2; j++)
+    {
+      v_total = v_total + i * j;
+    }
+  }
+  print v_total;
+}
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": []
+}
+----------
+[split_block_dameng_cjava_0_008]
+sql:
+{
+  int v_value = 2;
+  switch(v_value)
+  {
+    case 1:
+      print 'ONE';
+      break;
+    case 2:
+      print 'TWO';
+      break;
+    default:
+      print 'OTHER';
+      break;
+  }
+}
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": []
+}
+----------
+[split_block_dameng_cjava_0_009]
+sql:
+{
+  try
+  {
+    int v_value = 1;
+    print v_value;
+  }
+  catch(exception ex)
+  {
+    print 'UNEXPECTED';
+  }
+}
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": []
+}
+----------
+[split_block_dameng_cjava_0_010]
+sql:
+{
+  int v_id;
+  varchar v_name;
+  select id, name into v_id, v_name from cjava_source where id = 1;
+  print v_name;
+}
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(4:41~4:53) /test/1/catalog1/schema1/cjava_source/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_cjava_0_011]
+sql:
+{
+  insert into cjava_target values(101, 'C_INSERT');
+  commit;
+}
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(2:14~2:26) /test/1/catalog1/schema1/cjava_target/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_block_dameng_cjava_0_012]
+sql:
+{
+  update cjava_target set name = 'C_UPDATE' where id = 101;
+  delete from cjava_target where id = 101;
+  commit;
+}
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(2:9~2:21) /test/1/catalog1/schema1/cjava_target/",
+      "action": "UPDATE"
+    },
+    {
+      "subject": "Table(3:14~3:26) /test/1/catalog1/schema1/cjava_target/",
+      "action": "DELETE"
+    }
+  ]
+}
+----------
+[split_block_dameng_cjava_0_013]
+sql:
+{
+  varchar v_name;
+  int v_id;
+  cursor csr is select id, name from cjava_source order by id;
+  open cursor csr;
+  fetch cursor csr into v_id, v_name;
+  close cursor csr;
+}
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(4:37~4:49) /test/1/catalog1/schema1/cjava_source/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_cjava_0_014]
+sql:
+create or replace procedure cjava_helper(p_id int)
+as
+begin
+  insert into cjava_target values(p_id, 'C_CALL');
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:28~1:40) /test/1/catalog1/schema1/cjava_helper/",
+      "action": "REPLACE"
+    },
+    {
+      "subject": "Table(4:14~4:26) /test/1/catalog1/schema1/cjava_target/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_block_dameng_cjava_0_015]
+sql:
+{
+  cjava_helper(102);
+  commit;
+}
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:2~2:14) /test/1/catalog1/schema1/cjava_helper/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_cjava_0_016]
+sql:
+create or replace java public class j_basic
+{
+  int b = 5;
+  j_basic(int a)
+  {
+    this.b = a;
+  }
+  int test_fun(int a)
+  {
+    b = a;
+    return b;
+  }
+}
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:36~1:43) /test/1/catalog1/schema1/j_basic/",
+      "action": "REPLACE"
+    }
+  ]
+}
+----------
+[split_block_dameng_cjava_0_017]
+sql:
+declare
+  c1 j_basic;
+begin
+  c1 = new j_basic();
+  print c1.b;
+  print c1.test_fun(9);
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:5~2:12) /test/1/catalog1/schema1/j_basic/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(4:11~4:18) /test/1/catalog1/schema1/j_basic/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(6:11~6:19) /test/1/catalog1/j_basic/test_fun/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_cjava_0_018]
+sql:
+declare
+  c1 j_basic;
+begin
+  c1 = new j_basic(8);
+  print c1.test_fun(c1.b);
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:5~2:12) /test/1/catalog1/schema1/j_basic/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(4:11~4:18) /test/1/catalog1/schema1/j_basic/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(5:11~5:19) /test/1/catalog1/j_basic/test_fun/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_cjava_0_019]
+sql:
+create or replace java class j_math
+{
+  int a;
+  public static int add_two(int a, int b)
+  {
+    return a + b;
+  }
+  public int add_three(int a, int b, int c)
+  {
+    return a + b + c;
+  }
+}
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:29~1:35) /test/1/catalog1/schema1/j_math/",
+      "action": "REPLACE"
+    }
+  ]
+}
+----------
+[split_block_dameng_cjava_0_020]
+sql:
+select j_math.add_two(1, 2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:21) /test/1/catalog1/j_math/add_two/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_cjava_0_021]
+sql:
+select j_math().add_three(1, 2, 3);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/j_math/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:16~1:25) /test/1/catalog1/schema1/add_three/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_cjava_0_022]
+sql:
+create table cjava_class_table(
+  id int primary key,
+  obj j_math
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/schema1/cjava_class_table/",
+      "action": "CREATE",
+      "target": "Type(3:6~3:12) /test/1/catalog1/schema1/j_math/"
+    }
+  ]
+}
+----------
+[split_block_dameng_cjava_0_023]
+sql:
+insert into cjava_class_table values(j_math.add_two(1, 2), j_math(1));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:29) /test/1/catalog1/schema1/cjava_class_table/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:37~1:51) /test/1/catalog1/j_math/add_two/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:59~1:65) /test/1/catalog1/schema1/j_math/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_cjava_0_024]
+sql:
+insert into cjava_class_table values(j_math().add_three(1, 2, 3), j_math(2));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:29) /test/1/catalog1/schema1/cjava_class_table/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:37~1:43) /test/1/catalog1/schema1/j_math/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:46~1:55) /test/1/catalog1/schema1/add_three/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:66~1:72) /test/1/catalog1/schema1/j_math/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_cjava_0_025]
+sql:
+select id, t.obj.a from cjava_class_table t order by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:24~1:41) /test/1/catalog1/schema1/cjava_class_table/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_cjava_0_026]
+sql:
+create or replace java final class j_final_value
+{
+  int value;
+  public int get_value()
+  {
+    return value;
+  }
+}
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:35~1:48) /test/1/catalog1/schema1/j_final_value/",
+      "action": "REPLACE"
+    }
+  ]
+}
+----------
+[split_block_dameng_cjava_0_027]
+sql:
+declare
+  v_obj j_final_value;
+begin
+  v_obj = new j_final_value(27);
+  print v_obj.get_value();
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:8~2:21) /test/1/catalog1/schema1/j_final_value/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(4:14~4:27) /test/1/catalog1/schema1/j_final_value/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(5:14~5:23) /test/1/catalog1/j_final_value/get_value/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_cjava_0_028]
+sql:
+create or replace java class j_cursor_reader
+{
+  varchar v_name;
+  int v_id;
+  int first_id()
+  {
+    cursor csr for select id, name from cjava_source order by id;
+    open cursor csr;
+    fetch cursor csr into v_id, v_name;
+    close cursor csr;
+    return v_id;
+  }
+}
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:29~1:44) /test/1/catalog1/schema1/j_cursor_reader/",
+      "action": "REPLACE"
+    },
+    {
+      "subject": "Table(7:40~7:52) /test/1/catalog1/schema1/cjava_source/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_cjava_0_029]
+sql:
+declare
+  v_reader j_cursor_reader;
+begin
+  v_reader = new j_cursor_reader();
+  print v_reader.first_id();
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:11~2:26) /test/1/catalog1/schema1/j_cursor_reader/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(4:17~4:32) /test/1/catalog1/schema1/j_cursor_reader/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(5:17~5:25) /test/1/catalog1/j_cursor_reader/first_id/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_cjava_0_030]
+sql:
+alter class j_basic compile;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TYPE": [
+    {
+      "subject": "Type(1:12~1:19) /test/1/catalog1/schema1/j_basic/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_block_dameng_cjava_0_031]
+sql:
+alter class j_math compile debug;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TYPE": [
+    {
+      "subject": "Type(1:12~1:18) /test/1/catalog1/schema1/j_math/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_block_dameng_cjava_0_032]
+sql:
+drop table cjava_class_table;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:28) /test/1/catalog1/schema1/cjava_class_table/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_cjava_0_033]
+sql:
+drop class j_cursor_reader;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:11~1:26) /test/1/catalog1/schema1/j_cursor_reader/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_cjava_0_034]
+sql:
+drop class j_final_value;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:11~1:24) /test/1/catalog1/schema1/j_final_value/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_cjava_0_035]
+sql:
+drop class j_math;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:11~1:17) /test/1/catalog1/schema1/j_math/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_cjava_0_036]
+sql:
+drop class j_basic;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:11~1:18) /test/1/catalog1/schema1/j_basic/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_cjava_0_037]
+sql:
+drop procedure cjava_helper;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:15~1:27) /test/1/catalog1/schema1/cjava_helper/",
+      "action": "DROP"
+    }
+  ]
+}

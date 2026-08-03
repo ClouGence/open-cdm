@@ -20,15 +20,30 @@ import java.io.File;
 import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.api.common.GlobalConfUtils;
+import com.clougence.clouddm.console.web.service.sdk.ConsoleCacheServiceImpl;
+import com.clougence.clouddm.console.web.service.sdk.ConsolePluginConfigServiceImpl;
 import com.clougence.clouddm.platform.plugin.PluginLoadHelper;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.security.auth.AuthInfoSpi;
+import com.clougence.clouddm.sdk.service.cache.CacheService;
+import com.clougence.clouddm.sdk.service.config.ConfigService;
 import com.clougence.utils.CollectionUtils;
+
+import jakarta.annotation.Resource;
 
 @Service
 public class InitConsolePluginLoader {
 
+    @Resource
+    private ConsoleCacheServiceImpl        cacheService;
+    @Resource
+    private ConsolePluginConfigServiceImpl configService;
+
     public void loadPlugin(ClassLoader parentClassLoader) {
+        this.cacheService.init();
+        PluginManager.putService(CacheService.class, this.cacheService);
+        PluginManager.putService(ConfigService.class, this.configService);
+
         if (CollectionUtils.isNotEmpty(PluginManager.findSpi(AuthInfoSpi.class))) {
             return;
         }

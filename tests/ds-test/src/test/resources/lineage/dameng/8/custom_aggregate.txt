@@ -1,0 +1,31 @@
+[custom_aggregate_has_no_result_lineage]
+sql:
+create function app.agg_max(input number default 1) return number
+deterministic aggregate using app.dm8_max_impl;
+/
+expect:
+{}
+----------
+[custom_aggregate_group_columns]
+sql:
+select grp, app.agg_max(amount) as max_amount
+from catalog1.app.agg_source
+group by grp
+expect:
+{
+  "grp": ["/catalog1/app/agg_source/grp/"],
+  "max_amount": ["/catalog1/app/agg_source/amount/"]
+}
+----------
+[custom_aggregate_window_columns]
+sql:
+select id, app.agg_max(amount) over(partition by grp) as group_max
+from catalog1.app.agg_source
+expect:
+{
+  "id": ["/catalog1/app/agg_source/id/"],
+  "group_max": [
+    "/catalog1/app/agg_source/amount/",
+    "/catalog1/app/agg_source/grp/"
+  ]
+}

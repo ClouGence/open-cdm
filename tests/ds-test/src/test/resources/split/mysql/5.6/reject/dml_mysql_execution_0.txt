@@ -1,0 +1,18 @@
+DO(SELECT 1 c GROUP BY 1 HAVING 1 ORDER BY COUNT(1));
+DO 1 AS one;
+DO 1 AS 'one';
+DO 2 two;
+DO 2 'two';
+DO (SELECT 3) AS scalar_value;
+------------------------------------------------------------------------------------------
+[BLOCK|SELECT] DO(SELECT 1 c GROUP BY 1 HAVING 1 ORDER BY COUNT(1));
+----------
+[BLOCK] DO 1 AS one;
+----------
+[BLOCK] DO 1 AS 'one';
+----------
+[BLOCK] DO 2 two;
+----------
+[BLOCK] DO 2 'two';
+----------
+[BLOCK|SELECT] DO (SELECT 3) AS scalar_value;

@@ -1,0 +1,92 @@
+[c_block_select_into]
+sql:
+{
+  int v_id;
+  varchar v_name;
+  select id, name into v_id, v_name from app.cjava_source where id = 1;
+}
+/
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"cjava_source"}
+  ]
+}
+----------
+[c_block_dml]
+sql:
+{
+  insert into app.cjava_target values(1, 'INSERT');
+  update app.cjava_target set name = 'UPDATE' where id = 1;
+  delete from app.cjava_target where id = 1;
+  commit;
+}
+/
+expect:
+{
+  "contains": [
+    {"class":"RdbInsertDomain", "sqlType":"INSERT", "auditKind":"DML", "schema":"app", "table":"cjava_target"},
+    {"class":"RdbUpdateDomain", "sqlType":"UPDATE", "auditKind":"DML", "schema":"app", "table":"cjava_target"},
+    {"class":"RdbDeleteDomain", "sqlType":"DELETE", "auditKind":"DML", "schema":"app", "table":"cjava_target"}
+  ]
+}
+----------
+[c_block_cursor]
+sql:
+{
+  varchar v_name;
+  int v_id;
+  cursor csr is select id, name from app.cjava_source order by id;
+  open cursor csr;
+  fetch cursor csr into v_id, v_name;
+  close cursor csr;
+}
+/
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"cjava_source"}
+  ]
+}
+----------
+[java_class_with_cursor_query]
+sql:
+create or replace java class j_cursor_reader
+{
+  varchar v_name;
+  int v_id;
+  int first_id()
+  {
+    cursor csr for select id, name from app.cjava_source order by id;
+    open cursor csr;
+    fetch cursor csr into v_id, v_name;
+    close cursor csr;
+    return v_id;
+  }
+}
+/
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"CREATE_TYPE", "auditKind":"CREATE", "name":"j_cursor_reader"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"cjava_source"}
+  ]
+}
+----------
+[java_class_without_sql]
+sql:
+create or replace java final class j_value
+{
+  int value;
+  public int get_value()
+  {
+    return value;
+  }
+}
+/
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"CREATE_TYPE", "auditKind":"CREATE", "name":"j_value"}
+  ]
+}

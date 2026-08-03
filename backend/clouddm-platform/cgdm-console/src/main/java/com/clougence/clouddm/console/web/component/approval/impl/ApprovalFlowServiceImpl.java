@@ -115,6 +115,18 @@ public class ApprovalFlowServiceImpl implements ApprovalFlowService {
 
         this.approvalProcessService.failedAllProcess(ticketId);
         this.approvalDal.approvalMapper().updateStatusByEnum(ticketId, ApprovalStatus.FAILED, statusMessage);
+        this.approvalHandler(ticketDO.getApproBiz()).approvalFailed(ticketDO.getId(), ticketDO.getApproBiz(), imSenderService);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
+    public void execFailTicket(long ticketId, String statusMessage, String puid) {
+        DmApprovalDO ticketDO = checkTicket(ticketId, puid);
+        checkInProgress(ticketDO);
+
+        this.approvalProcessService.failedAllProcess(ticketId);
+        this.approvalDal.approvalMapper().updateStatusByEnum(ticketId, ApprovalStatus.EXEC_FAIL, statusMessage);
+        this.approvalHandler(ticketDO.getApproBiz()).approvalFailed(ticketDO.getId(), ticketDO.getApproBiz(), imSenderService);
     }
 
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)

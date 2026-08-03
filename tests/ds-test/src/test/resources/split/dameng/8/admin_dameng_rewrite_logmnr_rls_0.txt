@@ -1,0 +1,3 @@
+alter session set query_rewrite_integrity=trusted;
+------------------------------------------------------------------------------------------
+[SESSION_SETTING_WRITE] alter session set query_rewrite_integrity=trusted;

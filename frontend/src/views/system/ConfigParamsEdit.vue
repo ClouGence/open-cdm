@@ -133,6 +133,7 @@
   </div>
 </template>
 <script>
+import appLogger from '@/utils/logger';
 import { pick } from '@/components/function/monitor/utils/colors';
 import { handleCopy } from '@/utils/clipboard';
 
@@ -279,7 +280,7 @@ export default {
       try {
         compressedJson = JSON.stringify(JSON.parse(this.currentValue));
       } catch (Error) {
-        console.error(Error);
+        appLogger.error(Error);
       }
       this.selectedRow.currentCount = compressedJson;
       this.dsKvConfigs.forEach((item) => {

@@ -20,7 +20,7 @@ import java.util.List;
 
 import com.clougence.dslparser.detectrule.test.func.FuncGroupUtils;
 import com.clougence.dslparser.detectrule.test.rule.RdbColumnDomain;
-import com.clougence.dslparser.detectrule.test.rule.SecQueryType;
+import com.clougence.dslparser.detectrule.test.rule.SplitQueryType;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -29,11 +29,11 @@ import lombok.Setter;
 @Setter
 public class TestRuleDomain {
 
-    private FuncGroupUtils     fun;
-    private RdbColumnDomain    domain;
+    private FuncGroupUtils       fun;
+    private RdbColumnDomain      domain;
 
-    private List<String>       stringList = new ArrayList<>();
-    private String[]           stringArray;
+    private List<String>         stringList = new ArrayList<>();
+    private String[]             stringArray;
 
-    private List<SecQueryType> queryTypes = new ArrayList<>();
+    private List<SplitQueryType> queryTypes = new ArrayList<>();
 }

@@ -1,0 +1,599 @@
+[insert__001]
+sql:
+/*!50000 INSERT INTO t VALUES (1, 'a', 0), (2, 'b', 0) */;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:21~1:22) /test/1/catalog1/schema1/t/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[update__002]
+sql:
+/*!50000 UPDATE t SET flag = 1 WHERE id = 1 */;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:16~1:17) /test/1/catalog1/schema1/t/",
+      "action" : "UPDATE"
+    }
+  ]
+}
+----------
+[delete__003]
+sql:
+/*!50000 DELETE FROM t WHERE id = 2 */;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:21~1:22) /test/1/catalog1/schema1/t/",
+      "action" : "DELETE"
+    }
+  ]
+}
+----------
+[update_session_variable_rw__004]
+sql:
+UPDATE split_packet_native.t1 SET c12=REPEAT('ab',@max_allowed_packet);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:29) /test/1/catalog1/split_packet_native/t1/",
+      "action" : "UPDATE"
+    },
+    {
+      "subject": "Function(1:38~1:44) /test/1/catalog1/schema1/REPEAT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "ConfigKey(1:50~1:69) /test/1/max_allowed_packet/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[update_session_variable_rw__005]
+sql:
+UPDATE IGNORE split_packet_native.t1 SET c12=REPEAT('ab',@max_allowed_packet);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:14~1:36) /test/1/catalog1/split_packet_native/t1/",
+      "action" : "UPDATE"
+    },
+    {
+      "subject": "Function(1:45~1:51) /test/1/catalog1/schema1/REPEAT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "ConfigKey(1:57~1:76) /test/1/max_allowed_packet/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[update_session_variable_rw__006]
+sql:
+UPDATE split_packet_native.t1,split_packet_native.t2 SET c12=REPEAT('ab',@max_allowed_packet),c22='ab';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:29) /test/1/catalog1/split_packet_native/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:30~1:52) /test/1/catalog1/split_packet_native/t2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(1:61~1:67) /test/1/catalog1/schema1/REPEAT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "ConfigKey(1:73~1:92) /test/1/max_allowed_packet/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[update_session_variable_rw__007]
+sql:
+UPDATE IGNORE split_packet_native.t1,split_packet_native.t2 SET c12=REPEAT('ab',@max_allowed_packet),c22='ab';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:14~1:36) /test/1/catalog1/split_packet_native/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:37~1:59) /test/1/catalog1/split_packet_native/t2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(1:68~1:74) /test/1/catalog1/schema1/REPEAT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "ConfigKey(1:80~1:99) /test/1/max_allowed_packet/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[insert_session_variable_rw__008]
+sql:
+INSERT INTO split_packet_native.t1 VALUES (101,REPEAT('ab',@max_allowed_packet));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:34) /test/1/catalog1/split_packet_native/t1/",
+      "action" : "INSERT"
+    },
+    {
+      "subject": "Function(1:47~1:53) /test/1/catalog1/schema1/REPEAT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "ConfigKey(1:59~1:78) /test/1/max_allowed_packet/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[insert_select_session_variable_rw__009]
+sql:
+INSERT INTO split_packet_native.t1 SELECT 101,REPEAT('ab',@max_allowed_packet);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:34) /test/1/catalog1/split_packet_native/t1/",
+      "action" : "INSERT"
+    },
+    {
+      "subject": "Function(1:46~1:52) /test/1/catalog1/schema1/REPEAT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "ConfigKey(1:58~1:77) /test/1/max_allowed_packet/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[insert_select_session_variable_rw__010]
+sql:
+INSERT IGNORE INTO split_packet_native.t1 SELECT 101,REPEAT('ab',@max_allowed_packet);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:19~1:41) /test/1/catalog1/split_packet_native/t1/",
+      "action" : "INSERT"
+    },
+    {
+      "subject": "Function(1:53~1:59) /test/1/catalog1/schema1/REPEAT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "ConfigKey(1:65~1:84) /test/1/max_allowed_packet/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[merge_session_variable_rw__011]
+sql:
+REPLACE INTO split_packet_native.t1 VALUES (102,REPEAT('ab',@max_allowed_packet));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:13~1:35) /test/1/catalog1/split_packet_native/t1/",
+      "action" : "MERGE"
+    },
+    {
+      "subject": "Function(1:48~1:54) /test/1/catalog1/schema1/REPEAT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "ConfigKey(1:60~1:79) /test/1/max_allowed_packet/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[merge_session_variable_rw__012]
+sql:
+REPLACE INTO split_packet_native.t1 SET c11=102,c12=REPEAT('ab',@max_allowed_packet);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:13~1:35) /test/1/catalog1/split_packet_native/t1/",
+      "action" : "MERGE"
+    },
+    {
+      "subject": "Function(1:52~1:58) /test/1/catalog1/schema1/REPEAT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "ConfigKey(1:64~1:83) /test/1/max_allowed_packet/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[merge_select_session_variable_rw__013]
+sql:
+REPLACE INTO split_packet_native.t1 SELECT 102,REPEAT('ab',@max_allowed_packet);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:13~1:35) /test/1/catalog1/split_packet_native/t1/",
+      "action" : "MERGE"
+    },
+    {
+      "subject": "Function(1:47~1:53) /test/1/catalog1/schema1/REPEAT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "ConfigKey(1:59~1:78) /test/1/max_allowed_packet/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[delete_session_variable_rw__014]
+sql:
+DELETE FROM split_packet_native.t1 WHERE c12 <=> REPEAT('ab',@max_allowed_packet);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:34) /test/1/catalog1/split_packet_native/t1/",
+      "action" : "DELETE"
+    },
+    {
+      "subject": "Function(1:49~1:55) /test/1/catalog1/schema1/REPEAT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "ConfigKey(1:61~1:80) /test/1/max_allowed_packet/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[delete_session_variable_rw__015]
+sql:
+DELETE FROM split_packet_native.t1,split_packet_native.t2 USING split_packet_native.t1 INNER JOIN split_packet_native.t2 WHERE split_packet_native.t1.c11=split_packet_native.t2.c21 AND split_packet_native.t2.c22 <=> REPEAT('ab',@max_allowed_packet);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:34) /test/1/catalog1/split_packet_native/t1/",
+      "action" : "DELETE",
+      "target" : [
+        "Table(1:64~1:86) /test/1/catalog1/split_packet_native/t1/",
+        "Table(1:98~1:120) /test/1/catalog1/split_packet_native/t2/"
+      ]
+    },
+    {
+      "subject": "Table(1:35~1:57) /test/1/catalog1/split_packet_native/t2/",
+      "action" : "DELETE"
+    },
+    {
+      "subject": "Function(1:216~1:222) /test/1/catalog1/schema1/REPEAT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "ConfigKey(1:228~1:247) /test/1/max_allowed_packet/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[delete_session_variable_rw__016]
+sql:
+DELETE IGNORE FROM split_packet_native.t1,split_packet_native.t2 USING split_packet_native.t1 INNER JOIN split_packet_native.t2 WHERE split_packet_native.t1.c11=split_packet_native.t2.c21 AND split_packet_native.t2.c22 <=> REPEAT('ab',@max_allowed_packet);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:19~1:41) /test/1/catalog1/split_packet_native/t1/",
+      "action" : "DELETE",
+      "target" : [
+        "Table(1:71~1:93) /test/1/catalog1/split_packet_native/t1/",
+        "Table(1:105~1:127) /test/1/catalog1/split_packet_native/t2/"
+      ]
+    },
+    {
+      "subject": "Table(1:42~1:64) /test/1/catalog1/split_packet_native/t2/",
+      "action" : "DELETE"
+    },
+    {
+      "subject": "Function(1:223~1:229) /test/1/catalog1/schema1/REPEAT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "ConfigKey(1:235~1:254) /test/1/max_allowed_packet/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[insert_select_session_variable_rw__017]
+sql:
+INSERT INTO split_packet_native.t4 SELECT c31,CONCAT(c32,REPEAT('a',@max_allowed_packet-1)) FROM split_packet_native.t3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:34) /test/1/catalog1/split_packet_native/t4/",
+      "action" : "INSERT",
+      "target" : "Table(1:97~1:119) /test/1/catalog1/split_packet_native/t3/"
+    },
+    {
+      "subject": "Function(1:46~1:52) /test/1/catalog1/schema1/CONCAT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:57~1:63) /test/1/catalog1/schema1/REPEAT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "ConfigKey(1:68~1:87) /test/1/max_allowed_packet/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[update_session_variable_rw__018]
+sql:
+UPDATE split_packet_native.t3 SET c32=CONCAT(c32,REPEAT('a',@max_allowed_packet-1));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:29) /test/1/catalog1/split_packet_native/t3/",
+      "action" : "UPDATE"
+    },
+    {
+      "subject": "Function(1:38~1:44) /test/1/catalog1/schema1/CONCAT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:49~1:55) /test/1/catalog1/schema1/REPEAT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "ConfigKey(1:60~1:79) /test/1/max_allowed_packet/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[delete__019]
+sql:
+DELETE FROM split_parser_big.t1 WHERE (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2)
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/split_parser_big/t1/",
+      "action" : "DELETE"
+    }
+  ]
+}
+----------
+[block__020]
+sql:
+DO(CONVERT(CONVERT('',DECIMAL(66,0)), DECIMAL(66,0))), CAST(CONVERT(1,DECIMAL(65,31)) AS DATE);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(1:3~1:10) /test/1/catalog1/schema1/CONVERT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:55~1:59) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[insert__021]
+sql:
+INSERT INTO t1 VALUES ('ŁĄŞŻ');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:14) /test/1/catalog1/schema1/t1/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[insert__022]
+sql:
+INSERT INTO t1 VALUES ('ŁĄŞŻ' '');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:14) /test/1/catalog1/schema1/t1/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[insert__023]
+sql:
+INSERT INTO interval_t VALUES (INTERVAL(3,2,1) + 1, "1997-12-31 23:59:59" + INTERVAL 1 SECOND);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:22) /test/1/catalog1/schema1/interval_t/",
+      "action" : "INSERT"
+    },
+    {
+      "subject": "Function(1:31~1:39) /test/1/catalog1/schema1/INTERVAL/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[update__024]
+sql:
+UPDATE t3 SET a4={d '1789-07-14'} WHERE a1=0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:9) /test/1/catalog1/schema1/t3/",
+      "action" : "UPDATE"
+    }
+  ]
+}
+----------
+[insert_select__025]
+sql:
+INSERT INTO dml_t () SELECT * FROM dml_t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:17) /test/1/catalog1/schema1/dml_t/",
+      "action" : "INSERT",
+      "target" : "Table(1:35~1:40) /test/1/catalog1/schema1/dml_t/"
+    }
+  ]
+}
+----------
+[insert_select__026]
+sql:
+INSERT INTO dml_t SELECT HIGH_PRIORITY * FROM dml_t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:17) /test/1/catalog1/schema1/dml_t/",
+      "action" : "INSERT",
+      "target" : "Table(1:46~1:51) /test/1/catalog1/schema1/dml_t/"
+    }
+  ]
+}
+----------
+[insert_select__027]
+sql:
+INSERT INTO dml_t SELECT DISTINCT ALL * FROM dml_t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:17) /test/1/catalog1/schema1/dml_t/",
+      "action" : "INSERT",
+      "target" : "Table(1:45~1:50) /test/1/catalog1/schema1/dml_t/"
+    }
+  ]
+}
+----------
+[merge_select__028]
+sql:
+REPLACE INTO `` SELECT * FROM ``;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:13~1:15) /test/1/catalog1/schema1/",
+      "action" : "MERGE",
+      "target" : "Table(1:30~1:32) /test/1/catalog1/schema1/"
+    }
+  ]
+}
+----------
+[delete__029]
+sql:
+DELETE QUICK FROM dml_t WHERE i = 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:18~1:23) /test/1/catalog1/schema1/dml_t/",
+      "action" : "DELETE"
+    }
+  ]
+}

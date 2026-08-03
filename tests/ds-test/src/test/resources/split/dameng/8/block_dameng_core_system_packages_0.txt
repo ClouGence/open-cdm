@@ -1,0 +1,208 @@
+declare value clob; length_value bigint; begin dbms_lob.createtemporary(value, true); dbms_lob.writeappend(value, 5, 'HELLO'); length_value := dbms_lob.getlength(value); dbms_lob.freetemporary(value); end;
+/
+declare left_value clob; right_value clob; begin dbms_lob.createtemporary(left_value, true); dbms_lob.createtemporary(right_value, true); dbms_lob.writeappend(left_value, 1, 'A'); dbms_lob.writeappend(right_value, 1, 'B'); dbms_lob.append(left_value, right_value); dbms_lob.freetemporary(left_value); dbms_lob.freetemporary(right_value); end;
+/
+declare src clob; dst clob; begin dbms_lob.createtemporary(src, true); dbms_lob.createtemporary(dst, true); dbms_lob.writeappend(src, 5, 'ABCDE'); dbms_lob.copy(dst, src, 3, 1, 2); dbms_lob.freetemporary(src); dbms_lob.freetemporary(dst); end;
+/
+declare value clob; amount bigint := 2; begin dbms_lob.createtemporary(value, true); dbms_lob.writeappend(value, 5, 'ABCDE'); dbms_lob.erase(value, amount, 2); dbms_lob.freetemporary(value); end;
+/
+declare value clob; begin dbms_lob.createtemporary(value, true); dbms_lob.writeappend(value, 5, 'ABCDE'); dbms_lob.fragment_insert(value, 2, 3, 'XY'); dbms_lob.freetemporary(value); end;
+/
+declare value clob; begin dbms_lob.createtemporary(value, true); dbms_lob.writeappend(value, 5, 'ABCDE'); dbms_lob.fragment_replace(value, 2, 2, 2, 'XY'); dbms_lob.freetemporary(value); end;
+/
+declare value clob; begin dbms_lob.createtemporary(value, true); dbms_lob.writeappend(value, 5, 'ABCDE'); dbms_lob.fragment_delete(value, 2, 2); dbms_lob.freetemporary(value); end;
+/
+declare value clob; begin dbms_lob.createtemporary(value, true); dbms_lob.writeappend(value, 5, 'ABCDE'); dbms_lob.fragment_move(value, 2, 1, 4); dbms_lob.freetemporary(value); end;
+/
+declare value clob; begin dbms_lob.createtemporary(value, true); dbms_lob.writeappend(value, 5, 'ABCDE'); dbms_lob.trim(value, 3); dbms_lob.freetemporary(value); end;
+/
+declare value clob; begin dbms_lob.createtemporary(value, true); dbms_lob.write(value, 5, 1, 'ABCDE'); dbms_lob.freetemporary(value); end;
+/
+declare value clob; amount int := 5; buffer varchar(32); begin dbms_lob.createtemporary(value, true); dbms_lob.writeappend(value, 5, 'ABCDE'); dbms_lob.read(value, amount, 1, buffer); dbms_lob.freetemporary(value); end;
+/
+declare value clob; open_value int; begin dbms_lob.createtemporary(value, true); dbms_lob.open(value, 0); open_value := dbms_lob.isopen(value); dbms_lob.close(value); dbms_lob.freetemporary(value); end;
+/
+declare value clob; temporary_value int; begin dbms_lob.createtemporary(value, true); temporary_value := dbms_lob.istemporary(value); dbms_lob.freetemporary(value); end;
+/
+declare value blob; begin dbms_lob.createtemporary(value, true); dbms_lob.writeappend(value, 4, cast('434F4445' as varbinary(16))); dbms_lob.freetemporary(value); end;
+/
+declare left_value blob; right_value blob; begin dbms_lob.createtemporary(left_value, true); dbms_lob.createtemporary(right_value, true); dbms_lob.writeappend(left_value, 1, cast('43' as varbinary(4))); dbms_lob.writeappend(right_value, 1, cast('44' as varbinary(4))); dbms_lob.append(left_value, right_value); dbms_lob.freetemporary(left_value); dbms_lob.freetemporary(right_value); end;
+/
+begin dbms_session.set_identifier('CODEX_DM8_SESSION'); end;
+/
+declare contexts dbms_session.appctxtabtyp; context_size int; begin dbms_session.list_context(contexts, context_size); end;
+/
+begin dbms_session.reset_package(); end;
+/
+begin dbms_session.set_identifier('CODEX_DM8_SESSION_2'); dbms_session.set_identifier(null); end;
+/
+declare session_id varchar(64); alive boolean; begin session_id := dbms_session.unique_session_id(); alive := dbms_session.is_session_alive(session_id); end;
+/
+declare value dbms_space.ts_arr_t; begin value := dbms_space.ts_get(4); end;
+/
+declare value dbms_space.ts_all_arr_t; begin value := dbms_space.ts_all_get(1, 10); end;
+/
+declare value dbms_space.file_arr_t; begin value := dbms_space.file_get(4, 0); end;
+/
+declare value dbms_space.file_all_arr_t; begin value := dbms_space.file_all_get(4, 1, 10); end;
+/
+declare value dbms_space.seg_id_arr_t; begin value := dbms_space.seg_all_get(4, 1, 10); end;
+/
+declare value dbms_space.page_addr_arr_t; begin value := dbms_space.ipage_no_all_get(4, 'FULL', 'FORWARD', 1, 10); end;
+/
+declare value dbms_space.ts_arr_t; begin dbms_space.ts_load(4, value); end;
+/
+declare value int; begin dbms_space.ts_n_load(value); end;
+/
+declare value dbms_space.ts_all_arr_t; begin dbms_space.ts_all_load(value, 1, 10); end;
+/
+declare value dbms_space.file_arr_t; begin dbms_space.file_load(4, 0, value); end;
+/
+declare value dbms_space.file_all_arr_t; begin dbms_space.file_all_load(4, value, 1, 10); end;
+/
+declare value int; begin dbms_space.extent_size_load(value); end;
+/
+declare value int; begin dbms_space.page_n_load(value); end;
+/
+declare cursor_no int; open_value boolean; begin cursor_no := dbms_sql.open_cursor(); open_value := dbms_sql.is_open(cursor_no); dbms_sql.close_cursor(cursor_no); end;
+/
+declare cursor_no int; execute_value int; begin cursor_no := dbms_sql.open_cursor(); dbms_sql.parse(cursor_no, 'select 1 as A', '1'); execute_value := dbms_sql.execute(cursor_no); dbms_sql.close_cursor(cursor_no); end;
+/
+declare cursor_no int; execute_value int; fetch_value int; column_value number; begin cursor_no := dbms_sql.open_cursor(); dbms_sql.parse(cursor_no, 'select 1.5 as A', '1'); dbms_sql.define_column(cursor_no, 1, column_value); execute_value := dbms_sql.execute(cursor_no); fetch_value := dbms_sql.fetch_rows(cursor_no); dbms_sql.column_value(cursor_no, 1, column_value); dbms_sql.close_cursor(cursor_no); end;
+/
+declare cursor_no int; execute_value int; fetch_value int; column_value varchar(64); begin cursor_no := dbms_sql.open_cursor(); dbms_sql.parse(cursor_no, 'select ''CODEX'' as A', '1'); dbms_sql.define_column(cursor_no, 1, column_value, 64); execute_value := dbms_sql.execute(cursor_no); fetch_value := dbms_sql.fetch_rows(cursor_no); dbms_sql.column_value(cursor_no, 1, column_value); dbms_sql.close_cursor(cursor_no); end;
+/
+declare cursor_no int; execute_value int; fetch_value int; column_value number; begin cursor_no := dbms_sql.open_cursor(); dbms_sql.parse(cursor_no, 'select :C1 as A', '1'); dbms_sql.bind_variable(cursor_no, 'C1', 52); dbms_sql.define_column(cursor_no, 1, column_value); execute_value := dbms_sql.execute(cursor_no); fetch_value := dbms_sql.fetch_rows(cursor_no); dbms_sql.column_value(cursor_no, 1, column_value); dbms_sql.close_cursor(cursor_no); end;
+/
+declare cursor_no int; execute_value int; fetch_value int; column_value dbms_sql.number_table; begin cursor_no := dbms_sql.open_cursor(); dbms_sql.parse(cursor_no, 'select n from CODEX_DM8_CORE_PKG order by id', '1'); dbms_sql.define_array(cursor_no, 1, column_value, 2, 1); execute_value := dbms_sql.execute(cursor_no); fetch_value := dbms_sql.fetch_rows(cursor_no); dbms_sql.column_value(cursor_no, 1, column_value); dbms_sql.close_cursor(cursor_no); end;
+/
+declare cursor_no int; execute_value int; begin cursor_no := dbms_sql.open_cursor(); dbms_sql.parse(cursor_no, 'select 1', '1'); execute_value := dbms_sql.execute_and_fetch(cursor_no, true); dbms_sql.close_cursor(cursor_no); end;
+/
+declare ctx int; xml_value clob; begin ctx := dbms_xmlgen.newcontext('select id,n from CODEX_DM8_CORE_PKG order by id'); dbms_xmlgen.setcheckinvalidchars(ctx, true); xml_value := dbms_xmlgen.getxml(ctx); dbms_xmlgen.closecontext(ctx); end;
+/
+declare ctx int; xml_value clob; result_value int; begin dbms_lob.createtemporary(xml_value, true); ctx := dbms_xmlgen.newcontext('select id,n from CODEX_DM8_CORE_PKG order by id'); result_value := dbms_xmlgen.getxml(ctx, xml_value, 0); dbms_xmlgen.closecontext(ctx); dbms_lob.freetemporary(xml_value); end;
+/
+declare ctx int; xml_value clob; begin ctx := dbms_xmlgen.newcontext('select id,n from CODEX_DM8_CORE_PKG order by id'); xml_value := dbms_xmlgen.getxml(ctx); dbms_xmlgen.closecontext(ctx); end;
+/
+declare ctx int; xml_value clob; begin ctx := dbms_xmlgen.newcontext('select id,n from CODEX_DM8_CORE_PKG order by id'); dbms_xmlgen.setrowsettag(ctx, 'ROWS'); dbms_xmlgen.setrowtag(ctx, 'ROW'); xml_value := dbms_xmlgen.getxml(ctx); dbms_xmlgen.closecontext(ctx); end;
+/
+declare ctx int; xml_value clob; row_count bigint; begin ctx := dbms_xmlgen.newcontext('select id,n from CODEX_DM8_CORE_PKG order by id'); dbms_xmlgen.setmaxrows(ctx, 1); dbms_xmlgen.setskiprows(ctx, 1); xml_value := dbms_xmlgen.getxml(ctx); row_count := dbms_xmlgen.getnumrowsprocessed(ctx); dbms_xmlgen.closecontext(ctx); end;
+/
+declare ctx int; xml_value clob; begin ctx := dbms_xmlgen.newcontext('select id,c from CODEX_DM8_CORE_PKG order by id'); dbms_xmlgen.setconvertspecialchars(ctx, true); dbms_xmlgen.setnullhandling(ctx, 0); dbms_xmlgen.usenullattributeindicator(ctx, true); xml_value := dbms_xmlgen.getxml(ctx); dbms_xmlgen.closecontext(ctx); end;
+/
+declare ctx int; xml_value clob; begin ctx := dbms_xmlgen.newcontext('select id,n from CODEX_DM8_CORE_PKG where id=:ID'); dbms_xmlgen.setbindvalue(ctx, 'ID', '1'); xml_value := dbms_xmlgen.getxml(ctx); dbms_xmlgen.clearbindvalues(ctx); dbms_xmlgen.closecontext(ctx); end;
+/
+declare ctx int; xml_value clob; begin ctx := dbms_xmlgen.newcontext('select id,n from CODEX_DM8_CORE_PKG order by id'); dbms_xmlgen.setprettyprinting(ctx, true); dbms_xmlgen.setindentationwidth(ctx, 2); xml_value := dbms_xmlgen.getxml(ctx); dbms_xmlgen.closecontext(ctx); end;
+/
+declare ctx int; xml_value clob; begin ctx := dbms_xmlgen.newcontext('select id,n from CODEX_DM8_CORE_PKG order by id'); xml_value := dbms_xmlgen.getxml(ctx); dbms_xmlgen.restartquery(ctx); xml_value := dbms_xmlgen.getxml(ctx); dbms_xmlgen.closecontext(ctx); end;
+/
+declare ctx int; xml_value clob; begin ctx := dbms_xmlgen.newcontext('select id,n from CODEX_DM8_CORE_PKG order by id'); dbms_xmlgen.useitemtagsforcoll(ctx); xml_value := dbms_xmlgen.getxml(ctx); dbms_xmlgen.closecontext(ctx); end;
+/
+declare cursor_no int; execute_value int; begin cursor_no := dbms_sql.open_cursor(); dbms_sql.parse(cursor_no, 'select :x from dual', 0); dbms_sql.bind_variable(cursor_no, ':x', 'ABC', 10); execute_value := dbms_sql.execute(cursor_no); dbms_sql.close_cursor(cursor_no); end;
+/
+declare cursor_no int; execute_value int; value varbinary(16) := '4142'; begin cursor_no := dbms_sql.open_cursor(); dbms_sql.parse(cursor_no, 'select :x from dual', 0); dbms_sql.bind_variable(cursor_no, ':x', value, 10); execute_value := dbms_sql.execute(cursor_no); dbms_sql.close_cursor(cursor_no); end;
+/
+------------------------------------------------------------------------------------------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare value clob; length_value bigint; begin dbms_lob.createtemporary(value, true); dbms_lob.writeappend(value, 5, 'HELLO'); length_value := dbms_lob.getlength(value); dbms_lob.freetemporary(value); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare left_value clob; right_value clob; begin dbms_lob.createtemporary(left_value, true); dbms_lob.createtemporary(right_value, true); dbms_lob.writeappend(left_value, 1, 'A'); dbms_lob.writeappend(right_value, 1, 'B'); dbms_lob.append(left_value, right_value); dbms_lob.freetemporary(left_value); dbms_lob.freetemporary(right_value); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare src clob; dst clob; begin dbms_lob.createtemporary(src, true); dbms_lob.createtemporary(dst, true); dbms_lob.writeappend(src, 5, 'ABCDE'); dbms_lob.copy(dst, src, 3, 1, 2); dbms_lob.freetemporary(src); dbms_lob.freetemporary(dst); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare value clob; amount bigint := 2; begin dbms_lob.createtemporary(value, true); dbms_lob.writeappend(value, 5, 'ABCDE'); dbms_lob.erase(value, amount, 2); dbms_lob.freetemporary(value); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare value clob; begin dbms_lob.createtemporary(value, true); dbms_lob.writeappend(value, 5, 'ABCDE'); dbms_lob.fragment_insert(value, 2, 3, 'XY'); dbms_lob.freetemporary(value); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare value clob; begin dbms_lob.createtemporary(value, true); dbms_lob.writeappend(value, 5, 'ABCDE'); dbms_lob.fragment_replace(value, 2, 2, 2, 'XY'); dbms_lob.freetemporary(value); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare value clob; begin dbms_lob.createtemporary(value, true); dbms_lob.writeappend(value, 5, 'ABCDE'); dbms_lob.fragment_delete(value, 2, 2); dbms_lob.freetemporary(value); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare value clob; begin dbms_lob.createtemporary(value, true); dbms_lob.writeappend(value, 5, 'ABCDE'); dbms_lob.fragment_move(value, 2, 1, 4); dbms_lob.freetemporary(value); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare value clob; begin dbms_lob.createtemporary(value, true); dbms_lob.writeappend(value, 5, 'ABCDE'); dbms_lob.trim(value, 3); dbms_lob.freetemporary(value); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare value clob; begin dbms_lob.createtemporary(value, true); dbms_lob.write(value, 5, 1, 'ABCDE'); dbms_lob.freetemporary(value); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare value clob; amount int := 5; buffer varchar(32); begin dbms_lob.createtemporary(value, true); dbms_lob.writeappend(value, 5, 'ABCDE'); dbms_lob.read(value, amount, 1, buffer); dbms_lob.freetemporary(value); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare value clob; open_value int; begin dbms_lob.createtemporary(value, true); dbms_lob.open(value, 0); open_value := dbms_lob.isopen(value); dbms_lob.close(value); dbms_lob.freetemporary(value); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare value clob; temporary_value int; begin dbms_lob.createtemporary(value, true); temporary_value := dbms_lob.istemporary(value); dbms_lob.freetemporary(value); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare value blob; begin dbms_lob.createtemporary(value, true); dbms_lob.writeappend(value, 4, cast('434F4445' as varbinary(16))); dbms_lob.freetemporary(value); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare left_value blob; right_value blob; begin dbms_lob.createtemporary(left_value, true); dbms_lob.createtemporary(right_value, true); dbms_lob.writeappend(left_value, 1, cast('43' as varbinary(4))); dbms_lob.writeappend(right_value, 1, cast('44' as varbinary(4))); dbms_lob.append(left_value, right_value); dbms_lob.freetemporary(left_value); dbms_lob.freetemporary(right_value); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_session.set_identifier('CODEX_DM8_SESSION'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare contexts dbms_session.appctxtabtyp; context_size int; begin dbms_session.list_context(contexts, context_size); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_session.reset_package(); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_session.set_identifier('CODEX_DM8_SESSION_2'); dbms_session.set_identifier(null); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare session_id varchar(64); alive boolean; begin session_id := dbms_session.unique_session_id(); alive := dbms_session.is_session_alive(session_id); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare value dbms_space.ts_arr_t; begin value := dbms_space.ts_get(4); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare value dbms_space.ts_all_arr_t; begin value := dbms_space.ts_all_get(1, 10); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare value dbms_space.file_arr_t; begin value := dbms_space.file_get(4, 0); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare value dbms_space.file_all_arr_t; begin value := dbms_space.file_all_get(4, 1, 10); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare value dbms_space.seg_id_arr_t; begin value := dbms_space.seg_all_get(4, 1, 10); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare value dbms_space.page_addr_arr_t; begin value := dbms_space.ipage_no_all_get(4, 'FULL', 'FORWARD', 1, 10); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare value dbms_space.ts_arr_t; begin dbms_space.ts_load(4, value); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare value int; begin dbms_space.ts_n_load(value); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare value dbms_space.ts_all_arr_t; begin dbms_space.ts_all_load(value, 1, 10); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare value dbms_space.file_arr_t; begin dbms_space.file_load(4, 0, value); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare value dbms_space.file_all_arr_t; begin dbms_space.file_all_load(4, value, 1, 10); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare value int; begin dbms_space.extent_size_load(value); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare value int; begin dbms_space.page_n_load(value); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare cursor_no int; open_value boolean; begin cursor_no := dbms_sql.open_cursor(); open_value := dbms_sql.is_open(cursor_no); dbms_sql.close_cursor(cursor_no); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare cursor_no int; execute_value int; begin cursor_no := dbms_sql.open_cursor(); dbms_sql.parse(cursor_no, 'select 1 as A', '1'); execute_value := dbms_sql.execute(cursor_no); dbms_sql.close_cursor(cursor_no); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare cursor_no int; execute_value int; fetch_value int; column_value number; begin cursor_no := dbms_sql.open_cursor(); dbms_sql.parse(cursor_no, 'select 1.5 as A', '1'); dbms_sql.define_column(cursor_no, 1, column_value); execute_value := dbms_sql.execute(cursor_no); fetch_value := dbms_sql.fetch_rows(cursor_no); dbms_sql.column_value(cursor_no, 1, column_value); dbms_sql.close_cursor(cursor_no); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare cursor_no int; execute_value int; fetch_value int; column_value varchar(64); begin cursor_no := dbms_sql.open_cursor(); dbms_sql.parse(cursor_no, 'select ''CODEX'' as A', '1'); dbms_sql.define_column(cursor_no, 1, column_value, 64); execute_value := dbms_sql.execute(cursor_no); fetch_value := dbms_sql.fetch_rows(cursor_no); dbms_sql.column_value(cursor_no, 1, column_value); dbms_sql.close_cursor(cursor_no); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare cursor_no int; execute_value int; fetch_value int; column_value number; begin cursor_no := dbms_sql.open_cursor(); dbms_sql.parse(cursor_no, 'select :C1 as A', '1'); dbms_sql.bind_variable(cursor_no, 'C1', 52); dbms_sql.define_column(cursor_no, 1, column_value); execute_value := dbms_sql.execute(cursor_no); fetch_value := dbms_sql.fetch_rows(cursor_no); dbms_sql.column_value(cursor_no, 1, column_value); dbms_sql.close_cursor(cursor_no); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare cursor_no int; execute_value int; fetch_value int; column_value dbms_sql.number_table; begin cursor_no := dbms_sql.open_cursor(); dbms_sql.parse(cursor_no, 'select n from CODEX_DM8_CORE_PKG order by id', '1'); dbms_sql.define_array(cursor_no, 1, column_value, 2, 1); execute_value := dbms_sql.execute(cursor_no); fetch_value := dbms_sql.fetch_rows(cursor_no); dbms_sql.column_value(cursor_no, 1, column_value); dbms_sql.close_cursor(cursor_no); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare cursor_no int; execute_value int; begin cursor_no := dbms_sql.open_cursor(); dbms_sql.parse(cursor_no, 'select 1', '1'); execute_value := dbms_sql.execute_and_fetch(cursor_no, true); dbms_sql.close_cursor(cursor_no); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare ctx int; xml_value clob; begin ctx := dbms_xmlgen.newcontext('select id,n from CODEX_DM8_CORE_PKG order by id'); dbms_xmlgen.setcheckinvalidchars(ctx, true); xml_value := dbms_xmlgen.getxml(ctx); dbms_xmlgen.closecontext(ctx); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare ctx int; xml_value clob; result_value int; begin dbms_lob.createtemporary(xml_value, true); ctx := dbms_xmlgen.newcontext('select id,n from CODEX_DM8_CORE_PKG order by id'); result_value := dbms_xmlgen.getxml(ctx, xml_value, 0); dbms_xmlgen.closecontext(ctx); dbms_lob.freetemporary(xml_value); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare ctx int; xml_value clob; begin ctx := dbms_xmlgen.newcontext('select id,n from CODEX_DM8_CORE_PKG order by id'); xml_value := dbms_xmlgen.getxml(ctx); dbms_xmlgen.closecontext(ctx); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare ctx int; xml_value clob; begin ctx := dbms_xmlgen.newcontext('select id,n from CODEX_DM8_CORE_PKG order by id'); dbms_xmlgen.setrowsettag(ctx, 'ROWS'); dbms_xmlgen.setrowtag(ctx, 'ROW'); xml_value := dbms_xmlgen.getxml(ctx); dbms_xmlgen.closecontext(ctx); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare ctx int; xml_value clob; row_count bigint; begin ctx := dbms_xmlgen.newcontext('select id,n from CODEX_DM8_CORE_PKG order by id'); dbms_xmlgen.setmaxrows(ctx, 1); dbms_xmlgen.setskiprows(ctx, 1); xml_value := dbms_xmlgen.getxml(ctx); row_count := dbms_xmlgen.getnumrowsprocessed(ctx); dbms_xmlgen.closecontext(ctx); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare ctx int; xml_value clob; begin ctx := dbms_xmlgen.newcontext('select id,c from CODEX_DM8_CORE_PKG order by id'); dbms_xmlgen.setconvertspecialchars(ctx, true); dbms_xmlgen.setnullhandling(ctx, 0); dbms_xmlgen.usenullattributeindicator(ctx, true); xml_value := dbms_xmlgen.getxml(ctx); dbms_xmlgen.closecontext(ctx); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare ctx int; xml_value clob; begin ctx := dbms_xmlgen.newcontext('select id,n from CODEX_DM8_CORE_PKG where id=:ID'); dbms_xmlgen.setbindvalue(ctx, 'ID', '1'); xml_value := dbms_xmlgen.getxml(ctx); dbms_xmlgen.clearbindvalues(ctx); dbms_xmlgen.closecontext(ctx); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare ctx int; xml_value clob; begin ctx := dbms_xmlgen.newcontext('select id,n from CODEX_DM8_CORE_PKG order by id'); dbms_xmlgen.setprettyprinting(ctx, true); dbms_xmlgen.setindentationwidth(ctx, 2); xml_value := dbms_xmlgen.getxml(ctx); dbms_xmlgen.closecontext(ctx); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare ctx int; xml_value clob; begin ctx := dbms_xmlgen.newcontext('select id,n from CODEX_DM8_CORE_PKG order by id'); xml_value := dbms_xmlgen.getxml(ctx); dbms_xmlgen.restartquery(ctx); xml_value := dbms_xmlgen.getxml(ctx); dbms_xmlgen.closecontext(ctx); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare ctx int; xml_value clob; begin ctx := dbms_xmlgen.newcontext('select id,n from CODEX_DM8_CORE_PKG order by id'); dbms_xmlgen.useitemtagsforcoll(ctx); xml_value := dbms_xmlgen.getxml(ctx); dbms_xmlgen.closecontext(ctx); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare cursor_no int; execute_value int; begin cursor_no := dbms_sql.open_cursor(); dbms_sql.parse(cursor_no, 'select :x from dual', 0); dbms_sql.bind_variable(cursor_no, ':x', 'ABC', 10); execute_value := dbms_sql.execute(cursor_no); dbms_sql.close_cursor(cursor_no); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare cursor_no int; execute_value int; value varbinary(16) := '4142'; begin cursor_no := dbms_sql.open_cursor(); dbms_sql.parse(cursor_no, 'select :x from dual', 0); dbms_sql.bind_variable(cursor_no, ':x', value, 10); execute_value := dbms_sql.execute(cursor_no); dbms_sql.close_cursor(cursor_no); end;

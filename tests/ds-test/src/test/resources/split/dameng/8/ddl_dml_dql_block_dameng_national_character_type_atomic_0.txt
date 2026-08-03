@@ -1,0 +1,380 @@
+select para_value from v$dm_ini where para_name='NVARCHAR_LENGTH_IN_CHAR';
+create table app.nchar_t(
+  id int primary key,c_nchar nchar(4) default 'A' not null,
+  c_nvarchar nvarchar(4) default 'B',c_nvarchar2 nvarchar2(4) default 'C',
+  c_national_char national char(4) default 'D',
+  c_national_character national character(4) default 'E',
+  c_nchar_varying nchar varying(4) default 'F',
+  c_national_varying national character varying(4) default 'G',
+  c_null nvarchar2(4) null,
+  constraint ck_nchar check(length(c_nvarchar)<=4),
+  constraint uk_nchar unique(c_nvarchar,c_nvarchar2))
+storage(using long row);
+comment on column app.nchar_t.c_nchar is 'national fixed character';
+comment on column app.nchar_t.c_national_varying
+  is 'national varying character';
+create index app.idx_nchar on app.nchar_t(c_nvarchar,c_nchar);
+alter table app.nchar_t add c_alter nvarchar2(8) default 'ALTERED';
+alter table app.nchar_t modify c_alter nvarchar2(16);
+insert into app.nchar_t values(
+  1,'AB','CD','EF','GH','IJ','KL','MN',null,'ALTERED');
+insert into app.nchar_t(id) values(2);
+update app.nchar_t set c_nvarchar=upper(c_nvarchar),
+  c_nvarchar2=lower(c_nvarchar2),c_alter=c_alter||'_OK' where id=1;
+select id,length(c_nchar),lengthb(c_nchar),length(c_nvarchar),
+  lengthb(c_nvarchar),length(c_national_char),lengthb(c_national_char),
+  length(c_nchar_varying),lengthb(c_nchar_varying)
+  from app.nchar_t order by id;
+select trim(c_nchar),substr(c_nvarchar,1,2),instr(c_nvarchar2,'F'),
+  replace(c_national_char,'G','g'),concat(c_nchar_varying,c_national_varying),
+  upper(c_national_character),lower(c_nvarchar2)
+  from app.nchar_t where id=1;
+select cast(c_nchar as varchar2(20)),cast(c_nvarchar as nchar(8)),
+  min(c_national_char),max(c_national_character),count(c_nchar_varying)
+  from app.nchar_t group by c_nchar,c_nvarchar;
+select id from app.nchar_t index idx_nchar
+  where c_nvarchar>='A' order by c_nvarchar;
+create view app.nchar_v as
+  select id,c_nchar,c_nvarchar,c_nvarchar2,c_national_char,
+  c_national_character,c_nchar_varying,c_national_varying
+  from app.nchar_t where c_nvarchar is not null;
+select c_nchar||c_nvarchar,
+  c_national_char||c_national_character,c_nchar_varying||c_national_varying
+  from app.nchar_v order by id;
+update app.nchar_v set c_nvarchar2='VIEW' where id=1;
+create function app.nchar_nchar_f(p nchar(32767))
+  return nchar(32767) as
+begin
+  return p;
+end;
+/
+create function app.nchar_nvarchar_f(p nvarchar(32767))
+  return nvarchar(32767) as
+begin
+  return p;
+end;
+/
+create function app.nchar_nvarchar2_f(p nvarchar2(32767))
+  return nvarchar2(32767) as
+begin
+  return p;
+end;
+/
+create function app.nchar_national_char_f(p national char(32767))
+  return national char(32767) as
+begin
+  return p;
+end;
+/
+create function app.nchar_national_character_f(p national character(32767))
+  return national character(32767) as
+begin
+  return p;
+end;
+/
+create function app.nchar_nchar_varying_f(p nchar varying(32767))
+  return nchar varying(32767) as
+begin
+  return p;
+end;
+/
+create function app.nchar_national_character_varying_f(p national character varying(32767))
+  return national character varying(32767) as
+begin
+  return p;
+end;
+/
+select length(app.nchar_nchar_f('A')),
+  length(app.nchar_nvarchar_f('B')),length(app.nchar_nvarchar2_f('C')),
+  length(app.nchar_national_char_f('D')),
+  length(app.nchar_national_character_f('E')),
+  length(app.nchar_nchar_varying_f('F')),
+  length(app.nchar_national_character_varying_f('G')) from dual;
+create table app.nchar_p_0(id nchar(4),v int)
+  partition by range(id)(partition p0 values less than('M'),
+  partition p1 values less than(maxvalue));
+insert into app.nchar_p_0 values('A',1),('Z',2);
+select count(*) from app.nchar_p_0 partition for('A');
+create table app.nchar_p_1(id nvarchar(4),v int)
+  partition by range(id)(partition p0 values less than('M'),
+  partition p1 values less than(maxvalue));
+insert into app.nchar_p_1 values('A',1),('Z',2);
+select count(*) from app.nchar_p_1 partition for('A');
+create table app.nchar_p_2(id nvarchar2(4),v int)
+  partition by range(id)(partition p0 values less than('M'),
+  partition p1 values less than(maxvalue));
+insert into app.nchar_p_2 values('A',1),('Z',2);
+select count(*) from app.nchar_p_2 partition for('A');
+create table app.nchar_p_3(id national char(4),v int)
+  partition by range(id)(partition p0 values less than('M'),
+  partition p1 values less than(maxvalue));
+insert into app.nchar_p_3 values('A',1),('Z',2);
+select count(*) from app.nchar_p_3 partition for('A');
+create table app.nchar_p_4(id national character(4),v int)
+  partition by range(id)(partition p0 values less than('M'),
+  partition p1 values less than(maxvalue));
+insert into app.nchar_p_4 values('A',1),('Z',2);
+select count(*) from app.nchar_p_4 partition for('A');
+create table app.nchar_p_5(id nchar varying(4),v int)
+  partition by range(id)(partition p0 values less than('M'),
+  partition p1 values less than(maxvalue));
+insert into app.nchar_p_5 values('A',1),('Z',2);
+select count(*) from app.nchar_p_5 partition for('A');
+create table app.nchar_p_6(id national character varying(4),v int)
+  partition by range(id)(partition p0 values less than('M'),
+  partition p1 values less than(maxvalue));
+insert into app.nchar_p_6 values('A',1),('Z',2);
+select count(*) from app.nchar_p_6 partition for('A');
+create table app.nchar_long(
+  c0 nchar(32767),c1 nvarchar(32767),c2 nvarchar2(32767),
+  c3 national char(32767),c4 national character(32767),
+  c5 nchar varying(32767),c6 national character varying(32767))
+storage(using long row);
+insert into app.nchar_long values('A','B','C','D','E','F','G');
+select column_name,data_type,data_length from user_tab_columns
+  where table_name='NCHAR_LONG' order by column_id;
+create table app.nchar_defaults(
+  c0 nchar,c1 nvarchar,c2 nvarchar2,c3 national char,
+  c4 national character,c5 nchar varying,c6 national character varying)
+storage(using long row);
+select column_name,data_type,data_length from user_tab_columns
+  where table_name='NCHAR_DEFAULTS' order by column_id;
+create table app.bad_nchar_nchar_0(c nchar(0));
+create table app.bad_nchar_nchar_32768(c nchar(32768));
+create table app.bad_nchar_nvarchar_0(c nvarchar(0));
+create table app.bad_nchar_nvarchar_32768(c nvarchar(32768));
+create table app.bad_nchar_nvarchar2_0(c nvarchar2(0));
+create table app.bad_nchar_nvarchar2_32768(c nvarchar2(32768));
+create table app.bad_nchar_national_char_0(c national char(0));
+create table app.bad_nchar_national_char_32768(c national char(32768));
+create table app.bad_nchar_national_character_0(c national character(0));
+create table app.bad_nchar_national_character_32768(c national character(32768));
+create table app.bad_nchar_nchar_varying_0(c nchar varying(0));
+create table app.bad_nchar_nchar_varying_32768(c nchar varying(32768));
+create table app.bad_nchar_national_character_varying_0(c national character varying(0));
+create table app.bad_nchar_national_character_varying_32768(c national character varying(32768));
+insert into app.nchar_t(id,c_nchar) values(101,null);
+insert into app.nchar_t(id,c_nvarchar) values(102,'ABCDE');
+create table app.bad_nchar_pair(c nchar(1,2));
+create table app.bad_ncharacter_token(c ncharacter(4));
+------------------------------------------------------------------------------------------
+[SELECT] select para_value from v$dm_ini where para_name='NVARCHAR_LENGTH_IN_CHAR';
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table app.nchar_t(
+  id int primary key,c_nchar nchar(4) default 'A' not null,
+  c_nvarchar nvarchar(4) default 'B',c_nvarchar2 nvarchar2(4) default 'C',
+  c_national_char national char(4) default 'D',
+  c_national_character national character(4) default 'E',
+  c_nchar_varying nchar varying(4) default 'F',
+  c_national_varying national character varying(4) default 'G',
+  c_null nvarchar2(4) null,
+  constraint ck_nchar check(length(c_nvarchar)<=4),
+  constraint uk_nchar unique(c_nvarchar,c_nvarchar2))
+storage(using long row);
+----------
+[COMMENT_COLUMN] comment on column app.nchar_t.c_nchar is 'national fixed character';
+----------
+[COMMENT_COLUMN] comment on column app.nchar_t.c_national_varying
+  is 'national varying character';
+----------
+[ADD_INDEX] create index app.idx_nchar on app.nchar_t(c_nvarchar,c_nchar);
+----------
+[ALTER_TABLE|ADD_COLUMN] alter table app.nchar_t add c_alter nvarchar2(8) default 'ALTERED';
+----------
+[ALTER_TABLE|ALTER_COLUMN] alter table app.nchar_t modify c_alter nvarchar2(16);
+----------
+[INSERT] insert into app.nchar_t values(
+  1,'AB','CD','EF','GH','IJ','KL','MN',null,'ALTERED');
+----------
+[INSERT] insert into app.nchar_t(id) values(2);
+----------
+[UPDATE] update app.nchar_t set c_nvarchar=upper(c_nvarchar),
+  c_nvarchar2=lower(c_nvarchar2),c_alter=c_alter||'_OK' where id=1;
+----------
+[SELECT] select id,length(c_nchar),lengthb(c_nchar),length(c_nvarchar),
+  lengthb(c_nvarchar),length(c_national_char),lengthb(c_national_char),
+  length(c_nchar_varying),lengthb(c_nchar_varying)
+  from app.nchar_t order by id;
+----------
+[SELECT] select trim(c_nchar),substr(c_nvarchar,1,2),instr(c_nvarchar2,'F'),
+  replace(c_national_char,'G','g'),concat(c_nchar_varying,c_national_varying),
+  upper(c_national_character),lower(c_nvarchar2)
+  from app.nchar_t where id=1;
+----------
+[SELECT] select cast(c_nchar as varchar2(20)),cast(c_nvarchar as nchar(8)),
+  min(c_national_char),max(c_national_character),count(c_nchar_varying)
+  from app.nchar_t group by c_nchar,c_nvarchar;
+----------
+[SELECT] select id from app.nchar_t index idx_nchar
+  where c_nvarchar>='A' order by c_nvarchar;
+----------
+[CREATE_VIEW(SELECT)] create view app.nchar_v as
+  select id,c_nchar,c_nvarchar,c_nvarchar2,c_national_char,
+  c_national_character,c_nchar_varying,c_national_varying
+  from app.nchar_t where c_nvarchar is not null;
+----------
+[SELECT] select c_nchar||c_nvarchar,
+  c_national_char||c_national_character,c_nchar_varying||c_national_varying
+  from app.nchar_v order by id;
+----------
+[UPDATE] update app.nchar_v set c_nvarchar2='VIEW' where id=1;
+----------
+[CREATE_PROG_OBJ(BLOCK,PROGRAM_CONTROL)] create function app.nchar_nchar_f(p nchar(32767))
+  return nchar(32767) as
+begin
+  return p;
+end;
+----------
+[CREATE_PROG_OBJ(BLOCK,PROGRAM_CONTROL)] create function app.nchar_nvarchar_f(p nvarchar(32767))
+  return nvarchar(32767) as
+begin
+  return p;
+end;
+----------
+[CREATE_PROG_OBJ(BLOCK,PROGRAM_CONTROL)] create function app.nchar_nvarchar2_f(p nvarchar2(32767))
+  return nvarchar2(32767) as
+begin
+  return p;
+end;
+----------
+[CREATE_PROG_OBJ(BLOCK,PROGRAM_CONTROL)] create function app.nchar_national_char_f(p national char(32767))
+  return national char(32767) as
+begin
+  return p;
+end;
+----------
+[CREATE_PROG_OBJ(BLOCK,PROGRAM_CONTROL)] create function app.nchar_national_character_f(p national character(32767))
+  return national character(32767) as
+begin
+  return p;
+end;
+----------
+[CREATE_PROG_OBJ(BLOCK,PROGRAM_CONTROL)] create function app.nchar_nchar_varying_f(p nchar varying(32767))
+  return nchar varying(32767) as
+begin
+  return p;
+end;
+----------
+[CREATE_PROG_OBJ(BLOCK,PROGRAM_CONTROL)] create function app.nchar_national_character_varying_f(p national character varying(32767))
+  return national character varying(32767) as
+begin
+  return p;
+end;
+----------
+[SELECT|CALL_PROG_OBJ] select length(app.nchar_nchar_f('A')),
+  length(app.nchar_nvarchar_f('B')),length(app.nchar_nvarchar2_f('C')),
+  length(app.nchar_national_char_f('D')),
+  length(app.nchar_national_character_f('E')),
+  length(app.nchar_nchar_varying_f('F')),
+  length(app.nchar_national_character_varying_f('G')) from dual;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.nchar_p_0(id nchar(4),v int)
+  partition by range(id)(partition p0 values less than('M'),
+  partition p1 values less than(maxvalue));
+----------
+[INSERT] insert into app.nchar_p_0 values('A',1),('Z',2);
+----------
+[SELECT] select count(*) from app.nchar_p_0 partition for('A');
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.nchar_p_1(id nvarchar(4),v int)
+  partition by range(id)(partition p0 values less than('M'),
+  partition p1 values less than(maxvalue));
+----------
+[INSERT] insert into app.nchar_p_1 values('A',1),('Z',2);
+----------
+[SELECT] select count(*) from app.nchar_p_1 partition for('A');
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.nchar_p_2(id nvarchar2(4),v int)
+  partition by range(id)(partition p0 values less than('M'),
+  partition p1 values less than(maxvalue));
+----------
+[INSERT] insert into app.nchar_p_2 values('A',1),('Z',2);
+----------
+[SELECT] select count(*) from app.nchar_p_2 partition for('A');
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.nchar_p_3(id national char(4),v int)
+  partition by range(id)(partition p0 values less than('M'),
+  partition p1 values less than(maxvalue));
+----------
+[INSERT] insert into app.nchar_p_3 values('A',1),('Z',2);
+----------
+[SELECT] select count(*) from app.nchar_p_3 partition for('A');
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.nchar_p_4(id national character(4),v int)
+  partition by range(id)(partition p0 values less than('M'),
+  partition p1 values less than(maxvalue));
+----------
+[INSERT] insert into app.nchar_p_4 values('A',1),('Z',2);
+----------
+[SELECT] select count(*) from app.nchar_p_4 partition for('A');
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.nchar_p_5(id nchar varying(4),v int)
+  partition by range(id)(partition p0 values less than('M'),
+  partition p1 values less than(maxvalue));
+----------
+[INSERT] insert into app.nchar_p_5 values('A',1),('Z',2);
+----------
+[SELECT] select count(*) from app.nchar_p_5 partition for('A');
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.nchar_p_6(id national character varying(4),v int)
+  partition by range(id)(partition p0 values less than('M'),
+  partition p1 values less than(maxvalue));
+----------
+[INSERT] insert into app.nchar_p_6 values('A',1),('Z',2);
+----------
+[SELECT] select count(*) from app.nchar_p_6 partition for('A');
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.nchar_long(
+  c0 nchar(32767),c1 nvarchar(32767),c2 nvarchar2(32767),
+  c3 national char(32767),c4 national character(32767),
+  c5 nchar varying(32767),c6 national character varying(32767))
+storage(using long row);
+----------
+[INSERT] insert into app.nchar_long values('A','B','C','D','E','F','G');
+----------
+[SELECT] select column_name,data_type,data_length from user_tab_columns
+  where table_name='NCHAR_LONG' order by column_id;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.nchar_defaults(
+  c0 nchar,c1 nvarchar,c2 nvarchar2,c3 national char,
+  c4 national character,c5 nchar varying,c6 national character varying)
+storage(using long row);
+----------
+[SELECT] select column_name,data_type,data_length from user_tab_columns
+  where table_name='NCHAR_DEFAULTS' order by column_id;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.bad_nchar_nchar_0(c nchar(0));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.bad_nchar_nchar_32768(c nchar(32768));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.bad_nchar_nvarchar_0(c nvarchar(0));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.bad_nchar_nvarchar_32768(c nvarchar(32768));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.bad_nchar_nvarchar2_0(c nvarchar2(0));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.bad_nchar_nvarchar2_32768(c nvarchar2(32768));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.bad_nchar_national_char_0(c national char(0));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.bad_nchar_national_char_32768(c national char(32768));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.bad_nchar_national_character_0(c national character(0));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.bad_nchar_national_character_32768(c national character(32768));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.bad_nchar_nchar_varying_0(c nchar varying(0));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.bad_nchar_nchar_varying_32768(c nchar varying(32768));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.bad_nchar_national_character_varying_0(c national character varying(0));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.bad_nchar_national_character_varying_32768(c national character varying(32768));
+----------
+[INSERT] insert into app.nchar_t(id,c_nchar) values(101,null);
+----------
+[INSERT] insert into app.nchar_t(id,c_nvarchar) values(102,'ABCDE');
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.bad_nchar_pair(c nchar(1,2));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.bad_ncharacter_token(c ncharacter(4));

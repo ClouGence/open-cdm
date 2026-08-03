@@ -1,0 +1,36 @@
+SELECT "double quoted string";
+SELECT 1 || 0 AND 0 AS logical_pipes;
+SELECT NOT 1 BETWEEN -5 AND 5 AS low_not;
+SELECT COUNT (1) AS generic_count;
+SELECT PI(), PI ();
+SELECT split_mode_gap.PI(), split_mode_gap.PI ();
+SELECT "a\\b", "a\\\'b", "a""\\b", "a""\\\'b";
+SELECT "session remains known empty after GLOBAL";
+SELECT /*!50000 "double quoted string", 1 || 0 AND 0, NOT 1 BETWEEN 0 AND 2, COUNT (1) */;
+SELECT 'a_' LIKE 'a_' ESCAPE '';
+SELECT _utf8mb4"abc";
+SELECT _utf8mb4'a' "b";
+------------------------------------------------------------------------------------------
+[SELECT] SELECT "double quoted string";
+----------
+[SELECT] SELECT 1 || 0 AND 0 AS logical_pipes;
+----------
+[SELECT] SELECT NOT 1 BETWEEN -5 AND 5 AS low_not;
+----------
+[SELECT] SELECT COUNT (1) AS generic_count;
+----------
+[SELECT] SELECT PI(), PI ();
+----------
+[SELECT|CALL_PROG_OBJ] SELECT split_mode_gap.PI(), split_mode_gap.PI ();
+----------
+[SELECT] SELECT "a\\b", "a\\\'b", "a""\\b", "a""\\\'b";
+----------
+[SELECT] SELECT "session remains known empty after GLOBAL";
+----------
+[SELECT] SELECT /*!50000 "double quoted string", 1 || 0 AND 0, NOT 1 BETWEEN 0 AND 2, COUNT (1) */;
+----------
+[SELECT] SELECT 'a_' LIKE 'a_' ESCAPE '';
+----------
+[SELECT] SELECT _utf8mb4"abc";
+----------
+[SELECT] SELECT _utf8mb4'a' "b";

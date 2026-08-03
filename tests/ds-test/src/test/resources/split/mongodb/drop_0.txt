@@ -1,0 +1,12 @@
+db.user_table.drop();
+db.products.drop();
+db.orders.drop();
+db.logs.drop();
+------------------------------------------------------------------------------------------
+[DROP_TABLE] db.user_table.drop()
+----------
+[DROP_TABLE] db.products.drop()
+----------
+[DROP_TABLE] db.orders.drop()
+----------
+[DROP_TABLE] db.logs.drop()

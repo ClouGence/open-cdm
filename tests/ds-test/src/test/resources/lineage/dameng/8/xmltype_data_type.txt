@@ -1,0 +1,35 @@
+[xmltype_direct_columns]
+sql:
+select d.id,d.doc from catalog1.app.xmltype_docs d
+expect:
+{"id":["/catalog1/app/xmltype_docs/id/"],"doc":["/catalog1/app/xmltype_docs/doc/"]}
+----------
+[xmltype_query_columns]
+sql:
+select d.id,xmlquery(d.doc,'/ROOT/ITEM') as item_xml from catalog1.app.xmltype_docs d
+expect:
+{"id":["/catalog1/app/xmltype_docs/id/"],"item_xml":["/catalog1/app/xmltype_docs/doc/"]}
+----------
+[xmltype_exists_columns]
+sql:
+select existsnode(d.doc,'/ROOT/ITEM') as has_item from catalog1.app.xmltype_docs d
+expect:
+{"has_item":["/catalog1/app/xmltype_docs/doc/"]}
+----------
+[xmltype_extract_columns]
+sql:
+select extractvalue(d.doc,'/ROOT/ITEM') as item_value from catalog1.app.xmltype_docs d
+expect:
+{"item_value":["/catalog1/app/xmltype_docs/doc/"]}
+----------
+[xmltype_table_columns]
+sql:
+select d.id,x.item_id,x.item_text from catalog1.app.xmltype_docs d,xmltable('/ROOT/ITEM' passing d.doc columns item_id int path '@ID',item_text varchar2(20) path 'text()') x
+expect:
+{"id":["/catalog1/app/xmltype_docs/id/"],"item_id":["/catalog1/app/xmltype_docs/doc/"],"item_text":["/catalog1/app/xmltype_docs/doc/"]}
+----------
+[xmltype_object_columns]
+sql:
+select t.id,t.value.name as name_value,t.value.doc as doc_value from catalog1.app.xml_holder_tab t
+expect:
+{"id":["/catalog1/app/xml_holder_tab/id/"],"name_value":["/catalog1/app/xml_holder_tab/value/"],"doc_value":["/catalog1/app/xml_holder_tab/value/"]}

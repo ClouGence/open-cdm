@@ -1,0 +1,1302 @@
+[create_table__001]
+sql:
+CREATE TABLE t1(pk INT, KEY(pk)) ENGINE=MYISAM;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Index(1:24~1:31) /test/1/catalog1/schema1/",
+      "action" : "CREATE",
+      "target" : "Table(1:13~1:15) /test/1/catalog1/schema1/t1/"
+    }
+  ]
+}
+----------
+[insert__002]
+sql:
+INSERT INTO t1 VALUES(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:14) /test/1/catalog1/schema1/t1/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[alter_table_add_constraint__003]
+sql:
+ALTER TABLE t1 ADD CONSTRAINT CHECK (c1 > 10), ALGORITHM=COPY;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:14) /test/1/catalog1/schema1/t1/",
+      "action" : "ALTER"
+    },
+    {
+      "subject": "Constraint(1:15~1:45) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__004]
+sql:
+CREATE TABLE t1 (f1 INT CHECK (f1 = DEFAULT(f1)));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:15) /test/1/catalog1/schema1/t1/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Constraint(1:24~1:48) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:36~1:43) /test/1/catalog1/schema1/DEFAULT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[alter_table_alter_column__005]
+sql:
+ALTER TABLE t1 MODIFY COLUMN f1 INT DEFAULT 20, ALGORITHM=INPLACE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:14) /test/1/catalog1/schema1/t1/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[create_table__006]
+sql:
+CREATE TABLE split_column_format_default (c INT COLUMN_FORMAT DEFAULT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:40) /test/1/catalog1/schema1/split_column_format_default/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__007]
+sql:
+CREATE TABLE split_column_format_dynamic (c INT COLUMN_FORMAT DYNAMIC);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:40) /test/1/catalog1/schema1/split_column_format_dynamic/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__008]
+sql:
+CREATE TABLE codex_constraint_c02 (id INT, CONSTRAINT CHECK (id > 0));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:33) /test/1/catalog1/schema1/codex_constraint_c02/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Constraint(1:43~1:68) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__009]
+sql:
+CREATE TABLE codex_constraint_c01 (id INT, CONSTRAINT UNIQUE (id));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:33) /test/1/catalog1/schema1/codex_constraint_c01/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Constraint(1:43~1:65) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__010]
+sql:
+CREATE TABLE codex_create_audit_enum_byte (a ENUM(b'10010010') BYTE);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:41) /test/1/catalog1/schema1/codex_create_audit_enum_byte/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__011]
+sql:
+CREATE TABLE IF NOT EXISTS codex_create_audit_ifne_like LIKE codex_create_audit_src;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:27~1:55) /test/1/catalog1/schema1/codex_create_audit_ifne_like/",
+      "action" : "CREATE",
+      "target" : "Table(1:61~1:83) /test/1/catalog1/schema1/codex_create_audit_src/"
+    }
+  ]
+}
+----------
+[create_table__012]
+sql:
+CREATE TABLE t1 SELECT CEIL(ST_LINESTRINGFROMWKB(1) DIV NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:15) /test/1/catalog1/schema1/t1/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:23~1:27) /test/1/catalog1/schema1/CEIL/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:28~1:48) /test/1/catalog1/schema1/ST_LINESTRINGFROMWKB/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_table__013]
+sql:
+CREATE TABLE r SELECT 0 AS c, HEX(@a << 0) AS sl, HEX(@a >> 0) AS sr;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:14) /test/1/catalog1/schema1/r/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:30~1:33) /test/1/catalog1/schema1/HEX/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "ConfigKey(1:34~1:36) /test/1/a/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[alter_table_add_column_drop_column_add_constraint__014]
+sql:
+ALTER TABLE child ADD COLUMN uncle_id INT, DROP COLUMN c, ADD CONSTRAINT FOREIGN KEY (uncle_id) REFERENCES uncle(id), ALGORITHM=INPLACE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:17) /test/1/catalog1/schema1/child/",
+      "action" : "ALTER",
+      "target" : "Table(1:107~1:112) /test/1/catalog1/schema1/uncle/"
+    },
+    {
+      "subject": "Constraint(1:58~1:116) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[alter_table_add_constraint_rename_table__015]
+sql:
+ALTER TABLE t2 ADD FOREIGN KEY (fk) REFERENCES t1(pk), ENGINE=InnoDB, RENAME TO t3, ALGORITHM=COPY;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:14) /test/1/catalog1/schema1/t2/",
+      "action" : "ALTER",
+      "target" : "Table(1:47~1:49) /test/1/catalog1/schema1/t1/"
+    },
+    {
+      "subject": "Constraint(1:15~1:53) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__016]
+sql:
+CREATE TABLE codex_constraint_c04 (id INT PRIMARY KEY, parent_id INT, CONSTRAINT fk_c04 FOREIGN KEY (parent_id) REFERENCES codex_constraint_c04(id) ON DELETE SET DEFAULT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:33) /test/1/catalog1/schema1/codex_constraint_c04/",
+      "action" : "CREATE",
+      "target" : "Table(1:123~1:143) /test/1/catalog1/schema1/codex_constraint_c04/"
+    },
+    {
+      "subject": "Constraint(1:42~1:53) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Constraint(1:81~1:87) /test/1/catalog1/schema1/fk_c04/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__017]
+sql:
+CREATE TABLE codex_constraint_c10 (parent_id INT REFERENCES codex_constraint_c10p);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:33) /test/1/catalog1/schema1/codex_constraint_c10/",
+      "action" : "CREATE",
+      "target" : "Table(1:60~1:81) /test/1/catalog1/schema1/codex_constraint_c10p/"
+    },
+    {
+      "subject": "Constraint(1:49~1:81) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__018]
+sql:
+CREATE TEMPORARY TABLE tv AS SELECT /*+ SET_VAR(default_tmp_storage_engine=InnoDB) */ id FROM t1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:23~1:25) /test/1/catalog1/schema1/tv/",
+      "action" : "CREATE",
+      "target" : "Table(1:94~1:96) /test/1/catalog1/schema1/t1/"
+    },
+    {
+      "subject": "ConfigKey(1:48~1:74) /test/1/default_tmp_storage_engine/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[alter_view_select___019]
+sql:
+CREATE OR REPLACE VIEW vv AS SELECT /*+ SET_VAR(sql_select_limit=1) */ id FROM t1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_VIEW": [
+    {
+      "subject": "View(1:23~1:25) /test/1/catalog1/schema1/vv/",
+      "action" : "REPLACE",
+      "target" : "Table(1:79~1:81) /test/1/catalog1/schema1/t1/"
+    },
+    {
+      "subject": "ConfigKey(1:48~1:64) /test/1/sql_select_limit/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[rename_table__020]
+sql:
+RENAME TABLES codex_rename.r1 TO codex_rename.r1_new, codex_rename.r2 TO codex_rename.r2_new;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "RENAME_TABLE": [
+    {
+      "subject": "Table(1:14~1:29) /test/1/catalog1/codex_rename/r1/",
+      "action" : "RENAME",
+      "target" : "Table(1:33~1:52) /test/1/catalog1/codex_rename/r1_new/"
+    },
+    {
+      "subject": "Table(1:54~1:69) /test/1/catalog1/codex_rename/r2/",
+      "action" : "RENAME",
+      "target" : "Table(1:73~1:92) /test/1/catalog1/codex_rename/r2_new/"
+    }
+  ]
+}
+----------
+[create_table__021]
+sql:
+CREATE TABLE split_table.parent(id INT PRIMARY KEY) ENGINE=InnoDB;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/split_table/parent/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Constraint(1:39~1:50) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table_comment_column_comment_index__022]
+sql:
+CREATE TABLE split_table.constraints_common (
+  id BIGINT SERIAL DEFAULT VALUE,
+  required_col INT NOT NULL DEFAULT 0 COMMENT 'required',
+  unique_col INT UNIQUE KEY,
+  text_col VARCHAR(40) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'x',
+  ts_col TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  format_col INT COLUMN_FORMAT FIXED STORAGE DISK,
+  parent_inline INT REFERENCES split_table.parent(id) MATCH SIMPLE ON DELETE SET NULL ON UPDATE CASCADE,
+  parent_table INT,
+  CONSTRAINT pk_constraints PRIMARY KEY (id) USING BTREE COMMENT 'primary',
+  CONSTRAINT uk_constraints UNIQUE KEY uq_constraints (unique_col) USING BTREE COMMENT 'unique',
+  CONSTRAINT fk_constraints FOREIGN KEY fk_parent (parent_table) REFERENCES split_table.parent(id) MATCH FULL ON UPDATE NO ACTION ON DELETE RESTRICT,
+  CONSTRAINT chk_constraints CHECK (required_col >= 0),
+  KEY idx_text (text_col(12) DESC) COMMENT 'inline index'
+) ENGINE=InnoDB;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Index(11:39~11:53) /test/1/catalog1/schema1/uq_constraints/",
+      "action" : "CREATE",
+      "target" : "Table(1:13~1:43) /test/1/catalog1/split_table/constraints_common/"
+    },
+    {
+      "subject": "Index(12:40~12:49) /test/1/catalog1/schema1/fk_parent/",
+      "action" : "CREATE",
+      "target" : "Table(1:13~1:43) /test/1/catalog1/split_table/constraints_common/"
+    },
+    {
+      "subject": "Index(14:6~14:14) /test/1/catalog1/schema1/idx_text/",
+      "action" : "CREATE",
+      "target" : "Table(1:13~1:43) /test/1/catalog1/split_table/constraints_common/"
+    },
+    {
+      "subject": "Table(1:13~1:43) /test/1/catalog1/split_table/constraints_common/",
+      "action" : "CREATE",
+      "target" : "Table(8:31~8:49) /test/1/catalog1/split_table/parent/"
+    },
+    {
+      "subject": "Constraint(4:17~4:27) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Constraint(8:20~8:103) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Constraint(10:13~10:27) /test/1/catalog1/schema1/pk_constraints/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Constraint(11:13~11:27) /test/1/catalog1/schema1/uk_constraints/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Constraint(12:13~12:27) /test/1/catalog1/schema1/fk_constraints/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Constraint(13:13~13:28) /test/1/catalog1/schema1/chk_constraints/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__023]
+sql:
+CREATE TABLE split_table.match_partial(id INT, parent_id INT, FOREIGN KEY(parent_id) REFERENCES split_table.parent(id) MATCH PARTIAL ON DELETE CASCADE);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:38) /test/1/catalog1/split_table/match_partial/",
+      "action" : "CREATE",
+      "target" : "Table(1:96~1:114) /test/1/catalog1/split_table/parent/"
+    },
+    {
+      "subject": "Constraint(1:62~1:150) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[drop_table__024]
+sql:
+DROP TABLE IF EXISTS split_table.base, split_table.like_a, split_table.like_b;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:21~1:37) /test/1/catalog1/split_table/base/",
+      "action" : "DROP"
+    },
+    {
+      "subject": "Table(1:39~1:57) /test/1/catalog1/split_table/like_a/",
+      "action" : "DROP"
+    },
+    {
+      "subject": "Table(1:59~1:77) /test/1/catalog1/split_table/like_b/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[drop_table__025]
+sql:
+DROP TABLES IF EXISTS split_table.drop_plural_a, split_table.drop_plural_b;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:22~1:47) /test/1/catalog1/split_table/drop_plural_a/",
+      "action" : "DROP"
+    },
+    {
+      "subject": "Table(1:49~1:74) /test/1/catalog1/split_table/drop_plural_b/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[create_table__026]
+sql:
+CREATE TABLE IF NOT EXISTS split_table.base (id INT PRIMARY KEY, note VARCHAR(40)) ENGINE=InnoDB;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:27~1:43) /test/1/catalog1/split_table/base/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Constraint(1:52~1:63) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__027]
+sql:
+CREATE TEMPORARY TABLE IF NOT EXISTS split_table.tmp_session (id INT, note VARCHAR(40));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:37~1:60) /test/1/catalog1/split_table/tmp_session/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__028]
+sql:
+CREATE TEMPORARY TABLE split_table.tmp_drop_no_if_exists (id INT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:23~1:56) /test/1/catalog1/split_table/tmp_drop_no_if_exists/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__029]
+sql:
+CREATE TABLE split_table.like_a LIKE split_table.base;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/split_table/like_a/",
+      "action" : "CREATE",
+      "target" : "Table(1:37~1:53) /test/1/catalog1/split_table/base/"
+    }
+  ]
+}
+----------
+[create_table__030]
+sql:
+CREATE TABLE split_table.like_b (LIKE split_table.base);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/split_table/like_b/",
+      "action" : "CREATE",
+      "target" : "Table(1:38~1:54) /test/1/catalog1/split_table/base/"
+    }
+  ]
+}
+----------
+[create_table__031]
+sql:
+CREATE TABLE split_table.as_select AS SELECT id, note FROM split_table.base;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:34) /test/1/catalog1/split_table/as_select/",
+      "action" : "CREATE",
+      "target" : "Table(1:59~1:75) /test/1/catalog1/split_table/base/"
+    }
+  ]
+}
+----------
+[create_table__032]
+sql:
+CREATE TABLE split_table.as_no_keyword SELECT id, note FROM split_table.base;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:38) /test/1/catalog1/split_table/as_no_keyword/",
+      "action" : "CREATE",
+      "target" : "Table(1:60~1:76) /test/1/catalog1/split_table/base/"
+    }
+  ]
+}
+----------
+[create_table__033]
+sql:
+CREATE TABLE split_table.ignore_select (id INT PRIMARY KEY, note VARCHAR(40)) IGNORE AS SELECT id, note FROM split_table.base;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:38) /test/1/catalog1/split_table/ignore_select/",
+      "action" : "CREATE",
+      "target" : "Table(1:109~1:125) /test/1/catalog1/split_table/base/"
+    },
+    {
+      "subject": "Constraint(1:47~1:58) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__034]
+sql:
+CREATE TABLE split_table.replace_select (id INT PRIMARY KEY, note VARCHAR(40)) REPLACE SELECT id, note FROM split_table.base;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:39) /test/1/catalog1/split_table/replace_select/",
+      "action" : "CREATE",
+      "target" : "Table(1:108~1:124) /test/1/catalog1/split_table/base/"
+    },
+    {
+      "subject": "Constraint(1:48~1:59) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[rename_table__035]
+sql:
+RENAME TABLE split_table.like_a TO split_table.swap_tmp, split_table.like_b TO split_table.like_a, split_table.swap_tmp TO split_table.like_b;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "RENAME_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/split_table/like_a/",
+      "action" : "RENAME",
+      "target" : "Table(1:35~1:55) /test/1/catalog1/split_table/swap_tmp/"
+    },
+    {
+      "subject": "Table(1:57~1:75) /test/1/catalog1/split_table/like_b/",
+      "action" : "RENAME",
+      "target" : "Table(1:79~1:97) /test/1/catalog1/split_table/like_a/"
+    },
+    {
+      "subject": "Table(1:99~1:119) /test/1/catalog1/split_table/swap_tmp/",
+      "action" : "RENAME",
+      "target" : "Table(1:123~1:141) /test/1/catalog1/split_table/like_b/"
+    }
+  ]
+}
+----------
+[rename_table__036]
+sql:
+RENAME TABLE split_table.as_select TO split_table2.moved;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "RENAME_TABLE": [
+    {
+      "subject": "Table(1:13~1:34) /test/1/catalog1/split_table/as_select/",
+      "action" : "RENAME",
+      "target" : "Table(1:38~1:56) /test/1/catalog1/split_table2/moved/"
+    }
+  ]
+}
+----------
+[alter_table_rename_table__037]
+sql:
+ALTER TABLE split_table2.moved RENAME TO split_table.as_select;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:30) /test/1/catalog1/split_table2/moved/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_rename_table__038]
+sql:
+ALTER TABLE split_table.as_no_keyword RENAME AS split_table.as_renamed;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:37) /test/1/catalog1/split_table/as_no_keyword/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[truncate_table__039]
+sql:
+TRUNCATE TABLE split_table.as_select;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRUNCATE_TABLE": [
+    {
+      "subject": "Table(1:15~1:36) /test/1/catalog1/split_table/as_select/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[truncate_table__040]
+sql:
+TRUNCATE split_table.as_renamed;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRUNCATE_TABLE": [
+    {
+      "subject": "Table(1:9~1:31) /test/1/catalog1/split_table/as_renamed/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[drop_table__041]
+sql:
+DROP TABLE split_table.like_a RESTRICT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:29) /test/1/catalog1/split_table/like_a/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[drop_table__042]
+sql:
+DROP TABLE split_table.like_b CASCADE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:29) /test/1/catalog1/split_table/like_b/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[drop_table__043]
+sql:
+DROP TABLE IF EXISTS split_table.as_select, split_table.as_renamed, split_table.ignore_select, split_table.replace_select CASCADE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:21~1:42) /test/1/catalog1/split_table/as_select/",
+      "action" : "DROP"
+    },
+    {
+      "subject": "Table(1:44~1:66) /test/1/catalog1/split_table/as_renamed/",
+      "action" : "DROP"
+    },
+    {
+      "subject": "Table(1:68~1:93) /test/1/catalog1/split_table/ignore_select/",
+      "action" : "DROP"
+    },
+    {
+      "subject": "Table(1:95~1:121) /test/1/catalog1/split_table/replace_select/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[drop_table__044]
+sql:
+DROP TEMPORARY TABLE IF EXISTS split_table.tmp_session RESTRICT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:31~1:54) /test/1/catalog1/split_table/tmp_session/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[drop_table__045]
+sql:
+DROP TEMPORARY TABLE split_table.tmp_drop_no_if_exists;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:21~1:54) /test/1/catalog1/split_table/tmp_drop_no_if_exists/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[create_table_comment_table__046]
+sql:
+CREATE TABLE split_table.options_common (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, note VARCHAR(40)) COMMENT='all common', MAX_ROWS=1000 MIN_ROWS=1 AVG_ROW_LENGTH=128 AUTO_INCREMENT=10 CHECKSUM=2 DELAY_KEY_WRITE=2 KEY_BLOCK_SIZE=8 PACK_KEYS=DEFAULT PASSWORD='secret' ROW_FORMAT=COMPACT STATS_AUTO_RECALC=DEFAULT STATS_PERSISTENT=1 STATS_SAMPLE_PAGES=DEFAULT DEFAULT CHARACTER SET=utf8mb4 COLLATE=utf8mb4_unicode_ci CONNECTION='mysql://host/db/table' DATA DIRECTORY='/var/lib/mysql-files' INDEX DIRECTORY='/var/lib/mysql-files' INSERT_METHOD=NO STORAGE DISK UNION=(split_table.base) ENGINE=MyISAM;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:39) /test/1/catalog1/split_table/options_common/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Constraint(1:72~1:83) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_prog_obj_delete_select___047]
+sql:
+CREATE PROCEDURE split_table_derived.del_rows() DELETE o.* FROM split_table_derived.t1 AS o,(SELECT 1) AS d WHERE o.b<0 OR o.a IN(SELECT i.a+1 FROM split_table_derived.t2 AS i);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Table(1:55~1:56) /test/1/catalog1/schema1/o/",
+      "action" : "DELETE",
+      "target" : [
+        "Table(1:64~1:86) /test/1/catalog1/split_table_derived/t1/",
+        "Table(1:148~1:170) /test/1/catalog1/split_table_derived/t2/"
+      ]
+    },
+    {
+      "subject": "Procedure(1:17~1:45) /test/1/catalog1/split_table_derived/del_rows/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__048]
+sql:
+CREATE TABLE split_table_derived.ctas AS SELECT 1 AS c1 FROM split_table_derived.t1 AS o WHERE o.b IN(SELECT 1 FROM split_table_derived.t1 AS i WHERE ('f','f') IN(SELECT 1,COUNT(1) FROM split_table_derived.t1));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:37) /test/1/catalog1/split_table_derived/ctas/",
+      "action" : "CREATE",
+      "target" : "Table(1:61~1:83) /test/1/catalog1/split_table_derived/t1/"
+    },
+    {
+      "subject": "Function(1:172~1:177) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_table__049]
+sql:
+CREATE TABLE split_row_format.dynamic_t(id INT) ENGINE=InnoDB ROW_FORMAT=DYNAMIC;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:39) /test/1/catalog1/split_row_format/dynamic_t/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__050]
+sql:
+CREATE TABLE split_row_format.compressed_t(id INT) ENGINE=InnoDB ROW_FORMAT=COMPRESSED;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:42) /test/1/catalog1/split_row_format/compressed_t/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__051]
+sql:
+CREATE TABLE split_row_format.redundant_t(id INT) ENGINE=InnoDB ROW_FORMAT=REDUNDANT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:41) /test/1/catalog1/split_row_format/redundant_t/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__052]
+sql:
+CREATE TABLE split_row_format.fixed_t(id INT) ENGINE=MyISAM ROW_FORMAT=FIXED;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:37) /test/1/catalog1/split_row_format/fixed_t/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__053]
+sql:
+CREATE TABLE split_merge.first_t(id INT) ENGINE=MRG_MYISAM UNION=(merge_a,merge_b) INSERT_METHOD=FIRST;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:32) /test/1/catalog1/split_merge/first_t/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__054]
+sql:
+CREATE TABLE split_fk.update_null(id INT PRIMARY KEY,parent_id INT,CONSTRAINT fk_update_parent FOREIGN KEY(parent_id) REFERENCES parent_t(id) ON UPDATE SET NULL) ENGINE=InnoDB;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:33) /test/1/catalog1/split_fk/update_null/",
+      "action" : "CREATE",
+      "target" : "Table(1:129~1:137) /test/1/catalog1/schema1/parent_t/"
+    },
+    {
+      "subject": "Constraint(1:41~1:52) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Constraint(1:78~1:94) /test/1/catalog1/schema1/fk_update_parent/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__055]
+sql:
+CREATE TABLE split_fk.delete_no_action(id INT PRIMARY KEY,parent_id INT,CONSTRAINT fk_delete_parent FOREIGN KEY(parent_id) REFERENCES parent_t(id) ON DELETE NO ACTION) ENGINE=InnoDB;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:38) /test/1/catalog1/split_fk/delete_no_action/",
+      "action" : "CREATE",
+      "target" : "Table(1:134~1:142) /test/1/catalog1/schema1/parent_t/"
+    },
+    {
+      "subject": "Constraint(1:46~1:57) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Constraint(1:83~1:99) /test/1/catalog1/schema1/fk_delete_parent/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__056]
+sql:
+CREATE TEMPORARY TABLE IF NOT EXISTS tmp_t_like LIKE base_t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:37~1:47) /test/1/catalog1/schema1/tmp_t_like/",
+      "action" : "CREATE",
+      "target" : "Table(1:53~1:59) /test/1/catalog1/schema1/base_t/"
+    }
+  ]
+}
+----------
+[create_table__057]
+sql:
+CREATE TABLE m1(a INT) ENGINE=MERGE UNION=();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:15) /test/1/catalog1/schema1/m1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[alter_table__058]
+sql:
+ALTER TABLE m1 UNION=();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:14) /test/1/catalog1/schema1/m1/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_alter_column__059]
+sql:
+ALTER TABLE t1 MODIFY COLUMN l INT STORAGE DISK STORAGE MEMORY;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:14) /test/1/catalog1/schema1/t1/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[create_table__060]
+sql:
+CREATE TABLE fk_two(c1 INT,c2 INT,FOREIGN KEY(c1) REFERENCES fk_parent1(a),FOREIGN KEY(c2) REFERENCES fk_parent2(b));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:19) /test/1/catalog1/schema1/fk_two/",
+      "action" : "CREATE",
+      "target" : [
+        "Table(1:61~1:71) /test/1/catalog1/schema1/fk_parent1/",
+        "Table(1:102~1:112) /test/1/catalog1/schema1/fk_parent2/"
+      ]
+    },
+    {
+      "subject": "Constraint(1:34~1:74) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Constraint(1:75~1:115) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__061]
+sql:
+CREATE TABLE fk_child_composite(a INT,d INT,b INT,c INT,FOREIGN KEY(a,d) REFERENCES fk_parent_composite(a,d) ON DELETE CASCADE ON UPDATE CASCADE,CONSTRAINT fk_bc FOREIGN KEY(b,c) REFERENCES fk_parent_composite(b,c) ON DELETE CASCADE ON UPDATE CASCADE);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/schema1/fk_child_composite/",
+      "action" : "CREATE",
+      "target" : "Table(1:84~1:103) /test/1/catalog1/schema1/fk_parent_composite/"
+    },
+    {
+      "subject": "Constraint(1:56~1:144) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Constraint(1:156~1:161) /test/1/catalog1/schema1/fk_bc/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__062]
+sql:
+CREATE TABLE gap_zip (a INT, b TEXT) ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=4 TABLESPACE gap_ts;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:20) /test/1/catalog1/schema1/gap_zip/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__063]
+sql:
+CREATE TABLE split_check_forward (CHECK((f1 + f2) > 10), f1 INT CHECK (f1 < 10), f2 INT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:32) /test/1/catalog1/schema1/split_check_forward/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Constraint(1:34~1:55) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Constraint(1:64~1:79) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__064]
+sql:
+CREATE TEMPORARY TABLE split_check_forward_tmp (CHECK((f1 + f2) > 10), f1 INT CHECK (f1 < 12), f2 INT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:23~1:46) /test/1/catalog1/schema1/split_check_forward_tmp/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Constraint(1:48~1:69) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Constraint(1:78~1:93) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[drop_table__065]
+sql:
+DROP TEMPORARY TABLE IF EXISTS t_tmp CASCADE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:31~1:36) /test/1/catalog1/schema1/t_tmp/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[alter_table__066]
+sql:
+ALTER TABLE storage_table STORAGE MEMORY;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:25) /test/1/catalog1/schema1/storage_table/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_add_column__067]
+sql:
+ALTER TABLE storage_add ADD COLUMN j INT STORAGE DISK,ADD COLUMN k INT STORAGE MEMORY NOT NULL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:23) /test/1/catalog1/schema1/storage_add/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_alter_column__068]
+sql:
+ALTER TABLE storage_change CHANGE COLUMN a a INT STORAGE MEMORY;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/storage_change/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_alter_column__069]
+sql:
+ALTER TABLE storage_modify MODIFY COLUMN m INT STORAGE DISK STORAGE DEFAULT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/storage_modify/",
+      "action" : "ALTER"
+    }
+  ]
+}

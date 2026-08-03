@@ -1,0 +1,379 @@
+[performance__001]
+sql:
+EXPLAIN SELECT e FROM split_type_enum_set.es_enum_pk WHERE e=0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Table(1:22~1:52) /test/1/catalog1/split_type_enum_set/es_enum_pk/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__002]
+sql:
+SELECT id,e_basic,e_basic+0,CAST(e_basic AS UNSIGNED),
+               e_basic='alpha',e_basic=2
+        FROM split_type_enum_set.es_core
+        ORDER BY e_basic,id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:28~1:32) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(3:13~3:40) /test/1/catalog1/split_type_enum_set/es_core/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__003]
+sql:
+SELECT id,e_basic
+        FROM split_type_enum_set.es_core
+        ORDER BY CAST(e_basic AS CHAR),CONCAT(e_basic),id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:13~2:40) /test/1/catalog1/split_type_enum_set/es_core/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(3:17~3:21) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(3:39~3:45) /test/1/catalog1/schema1/CONCAT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__004]
+sql:
+SELECT id,e_basic,s_basic
+        FROM split_type_enum_set.es_core
+        WHERE (
+                e_basic IN ('alpha','two words')
+                OR e_basic BETWEEN 'alpha' AND 'trailing '
+                OR e_basic <=> NULL
+              )
+          AND (
+                s_basic COLLATE utf8mb4_bin = 'red,blue'
+                OR s_basic IN ('green','blue,red')
+                OR s_basic <=> NULL
+              );
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:13~2:40) /test/1/catalog1/split_type_enum_set/es_core/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__005]
+sql:
+SELECT id,s_basic,s_basic+0,(s_basic+0 & 1),(s_basic+0 & 4),
+               FIND_IN_SET('green',s_basic),s_basic LIKE '%blue%',
+               s_basic='red,blue'
+        FROM split_type_enum_set.es_core
+        ORDER BY s_basic+0,id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:15~2:26) /test/1/catalog1/schema1/FIND_IN_SET/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(4:13~4:40) /test/1/catalog1/split_type_enum_set/es_core/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__006]
+sql:
+SELECT e_basic,COUNT(*),BIT_OR(s_basic+0)
+        FROM split_type_enum_set.es_core
+        GROUP BY e_basic
+        HAVING e_basic+0 >= 1
+        ORDER BY e_basic;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:15~1:20) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:24~1:30) /test/1/catalog1/schema1/BIT_OR/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(2:13~2:40) /test/1/catalog1/split_type_enum_set/es_core/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__007]
+sql:
+SELECT a.id,a.e_basic,b.s_basic
+        FROM split_type_enum_set.es_core AS a
+        JOIN split_type_enum_set.es_core AS b
+          ON a.e_basic=b.e_basic AND (a.s_basic+0 & b.s_basic+0) <> 0
+        ORDER BY a.id,b.id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:13~2:40) /test/1/catalog1/split_type_enum_set/es_core/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__008]
+sql:
+SELECT a.id,a.e_basic
+        FROM split_type_enum_set.es_core AS a
+        WHERE EXISTS (
+          SELECT 1 FROM split_type_enum_set.es_core AS b
+          WHERE b.e_basic=a.e_basic AND FIND_IN_SET('red',b.s_basic)
+        )
+        ORDER BY a.id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:13~2:40) /test/1/catalog1/split_type_enum_set/es_core/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(5:40~5:51) /test/1/catalog1/schema1/FIND_IN_SET/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__009]
+sql:
+SELECT d.enum_index,d.set_mask,COUNT(*)
+        FROM (
+          SELECT e_basic+0 AS enum_index,s_basic+0 AS set_mask
+          FROM split_type_enum_set.es_core
+        ) AS d
+        GROUP BY d.enum_index,d.set_mask
+        HAVING BIT_OR(d.set_mask) > 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:31~1:36) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(4:15~4:42) /test/1/catalog1/split_type_enum_set/es_core/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(7:15~7:21) /test/1/catalog1/schema1/BIT_OR/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__010]
+sql:
+SELECT e_basic AS v FROM split_type_enum_set.es_core
+        UNION ALL
+        SELECT s_basic FROM split_type_enum_set.es_core
+        ORDER BY v;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:25~1:52) /test/1/catalog1/split_type_enum_set/es_core/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__011]
+sql:
+SELECT id,
+               CASE e_basic WHEN 'alpha' THEN e_case ELSE e_basic END AS enum_case,
+               CASE WHEN FIND_IN_SET('red',s_basic) THEN s_case ELSE s_basic END AS set_case
+        FROM split_type_enum_set.es_core;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(3:25~3:36) /test/1/catalog1/schema1/FIND_IN_SET/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(4:13~4:40) /test/1/catalog1/split_type_enum_set/es_core/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__012]
+sql:
+SELECT
+          (SELECT MAX(e_basic+0) FROM split_type_enum_set.es_core) AS max_enum_index,
+          (SELECT BIT_OR(s_basic+0) FROM split_type_enum_set.es_core) AS combined_set_mask;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:18~2:21) /test/1/catalog1/schema1/MAX/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(2:38~2:65) /test/1/catalog1/split_type_enum_set/es_core/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(3:18~3:24) /test/1/catalog1/schema1/BIT_OR/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__013]
+sql:
+WITH enum_set_cte AS (
+          SELECT id,e_basic,e_basic+0 AS e_index,s_basic,s_basic+0 AS s_mask
+          FROM split_type_enum_set.es_core
+        ),
+        filtered AS (
+          SELECT * FROM enum_set_cte WHERE (s_mask & 1) = 1
+        )
+        SELECT id,e_basic,s_basic
+        FROM filtered
+        WHERE e_index >= 1
+        ORDER BY e_index,id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(3:15~3:42) /test/1/catalog1/split_type_enum_set/es_core/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__014]
+sql:
+WITH RECURSIVE enum_indexes(n) AS (
+          SELECT 1
+          UNION ALL
+          SELECT n+1 FROM enum_indexes WHERE n < 6
+        )
+        SELECT enum_indexes.n,e.id,e.e_basic
+        FROM enum_indexes
+        LEFT JOIN split_type_enum_set.es_core AS e
+          ON e.e_basic+0=enum_indexes.n
+        ORDER BY enum_indexes.n,e.id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(8:18~8:45) /test/1/catalog1/split_type_enum_set/es_core/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__015]
+sql:
+SELECT id,e_basic,s_basic,
+               ROW_NUMBER() OVER (
+                 PARTITION BY e_basic ORDER BY s_basic+0,id
+               ) AS rn,
+               SUM(s_basic+0) OVER (
+                 ORDER BY e_basic
+                 ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+               ) AS running_mask
+        FROM split_type_enum_set.es_core
+        ORDER BY e_basic,rn;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:15~2:25) /test/1/catalog1/schema1/ROW_NUMBER/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(5:15~5:18) /test/1/catalog1/schema1/SUM/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(9:13~9:40) /test/1/catalog1/split_type_enum_set/es_core/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__016]
+sql:
+SELECT LEAD(e_basic) OVER (ORDER BY e_basic)
+        FROM split_type_enum_set.es_core
+        GROUP BY e_basic WITH ROLLUP
+        EXCEPT
+        SELECT NULL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/LEAD/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(2:13~2:40) /test/1/catalog1/split_type_enum_set/es_core/",
+      "action" : "READ"
+    }
+  ]
+}

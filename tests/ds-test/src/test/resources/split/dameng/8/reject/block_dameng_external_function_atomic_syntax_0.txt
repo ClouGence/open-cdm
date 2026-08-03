@@ -1,0 +1,70 @@
+-- UNNAMED_PARAMETER
+create function APP.C_BAD(int) return int external '/opt/dmdbms/bin/libdm8_external_structured.so' "dm8_c_add" using c;
+/
+-- UNNAMED_MODE_PARAMETER
+create function APP.C_BAD(in int) return int external '/opt/dmdbms/bin/libdm8_external_structured.so' "dm8_c_add" using c;
+/
+-- SINGLE_QUOTED_REFERENCE_WITHOUT_AND
+create function APP.C_BAD(A int) return int external '/opt/dmdbms/bin/libdm8_external_structured.so' 'dm8_c_add' using c;
+/
+-- AND_DOUBLE_QUOTED_REFERENCE
+create function APP.C_BAD(A int) return int external '/opt/dmdbms/bin/libdm8_external_structured.so' and "dm8_c_add" using c;
+/
+-- MISSING_RETURN
+create function APP.C_BAD(A int) external '/opt/dmdbms/bin/libdm8_external_structured.so' "dm8_c_add" using c;
+/
+-- MISSING_EXTERNAL_PATH
+create function APP.C_BAD(A int) return int external "dm8_c_add" using c;
+/
+-- MISSING_USING
+create function APP.C_BAD(A int) return int external '/opt/dmdbms/bin/libdm8_external_structured.so' "dm8_c_add";
+/
+-- MISSING_LANGUAGE
+create function APP.C_BAD(A int) return int external '/opt/dmdbms/bin/libdm8_external_structured.so' "dm8_c_add" using;
+/
+-- TRIPLE_PARAMETER_MODE
+create function APP.C_BAD(A in out in int) return int external '/opt/dmdbms/bin/libdm8_external_structured.so' "dm8_c_add" using c;
+/
+-- LIBRARY_MISSING_NAME
+create function APP.C_BAD(A int) return int as language c library APP.C_LIB;
+/
+------------------------------------------------------------------------------------------
+[CREATE_PROG_OBJ] -- UNNAMED_PARAMETER
+create function APP.C_BAD(int) return int external '/opt/dmdbms/bin/libdm8_external_structured.so' "dm8_c_add" using c;
+/
+----------
+[CREATE_PROG_OBJ] -- UNNAMED_MODE_PARAMETER
+create function APP.C_BAD(in int) return int external '/opt/dmdbms/bin/libdm8_external_structured.so' "dm8_c_add" using c;
+/
+----------
+[CREATE_PROG_OBJ] -- SINGLE_QUOTED_REFERENCE_WITHOUT_AND
+create function APP.C_BAD(A int) return int external '/opt/dmdbms/bin/libdm8_external_structured.so' 'dm8_c_add' using c;
+/
+----------
+[CREATE_PROG_OBJ] -- AND_DOUBLE_QUOTED_REFERENCE
+create function APP.C_BAD(A int) return int external '/opt/dmdbms/bin/libdm8_external_structured.so' and "dm8_c_add" using c;
+/
+----------
+[CREATE_PROG_OBJ] -- MISSING_RETURN
+create function APP.C_BAD(A int) external '/opt/dmdbms/bin/libdm8_external_structured.so' "dm8_c_add" using c;
+/
+----------
+[CREATE_PROG_OBJ] -- MISSING_EXTERNAL_PATH
+create function APP.C_BAD(A int) return int external "dm8_c_add" using c;
+/
+----------
+[CREATE_PROG_OBJ] -- MISSING_USING
+create function APP.C_BAD(A int) return int external '/opt/dmdbms/bin/libdm8_external_structured.so' "dm8_c_add";
+/
+----------
+[CREATE_PROG_OBJ] -- MISSING_LANGUAGE
+create function APP.C_BAD(A int) return int external '/opt/dmdbms/bin/libdm8_external_structured.so' "dm8_c_add" using;
+/
+----------
+[CREATE_PROG_OBJ] -- TRIPLE_PARAMETER_MODE
+create function APP.C_BAD(A in out in int) return int external '/opt/dmdbms/bin/libdm8_external_structured.so' "dm8_c_add" using c;
+/
+----------
+[CREATE_PROG_OBJ] -- LIBRARY_MISSING_NAME
+create function APP.C_BAD(A int) return int as language c library APP.C_LIB;
+/

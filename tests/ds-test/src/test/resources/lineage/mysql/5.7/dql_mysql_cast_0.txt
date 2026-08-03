@@ -1,0 +1,498 @@
+[dql_mysql_cast_0.0001]
+sql:
+SELECT CAST(CAST(1-2 AS UNSIGNED) AS SIGNED INTEGER);
+expect:
+{
+  "CAST(CAST(1-2 AS UNSIGNED) AS SIGNED INTEGER)" : [ ]
+}
+----------
+[dql_mysql_cast_0.0002]
+sql:
+SELECT CAST(-5 AS UNSIGNED) | 1, CAST(-5 AS UNSIGNED) & -1;
+expect:
+{
+  "CAST(-5 AS UNSIGNED) | 1" : [ ],
+  "CAST(-5 AS UNSIGNED) & -1" : [ ]
+}
+----------
+[dql_mysql_cast_0.0003]
+sql:
+SELECT CAST(-5 AS UNSIGNED)-1, CAST(-5 AS UNSIGNED)+1;
+expect:
+{
+  "CAST(-5 AS UNSIGNED)-1" : [ ],
+  "CAST(-5 AS UNSIGNED)+1" : [ ]
+}
+----------
+[dql_mysql_cast_0.0004]
+sql:
+SELECT CAST(NULL AS SIGNED), CAST(1/0 AS SIGNED);
+expect:
+{
+  "CAST(NULL AS SIGNED)" : [ ],
+  "CAST(1/0 AS SIGNED)" : [ ]
+}
+----------
+[dql_mysql_cast_0.0005]
+sql:
+SELECT CAST(NULL AS UNSIGNED), CAST(1/0 AS UNSIGNED);
+expect:
+{
+  "CAST(NULL AS UNSIGNED)" : [ ],
+  "CAST(1/0 AS UNSIGNED)" : [ ]
+}
+----------
+[dql_mysql_cast_0.0006]
+sql:
+SELECT CAST('A' AS BINARY)='a', CAST(BINARY 'a' AS CHAR)='A';
+expect:
+{
+  "CAST('A' AS BINARY)='a'" : [ ],
+  "CAST(BINARY 'a' AS CHAR)='A'" : [ ]
+}
+----------
+[dql_mysql_cast_0.0007]
+sql:
+SELECT CONVERT(TIMESTAMP '2004-01-22 21:45:33' USING latin1);
+expect:
+{
+  "CONVERT(TIMESTAMP '2004-01-22 21:45:33' USING latin1)" : [ ]
+}
+----------
+[dql_mysql_cast_0.0008]
+sql:
+SELECT CONVERT(TIMESTAMP '2004-01-22 21:45:33',CHAR);
+expect:
+{
+  "CONVERT(TIMESTAMP '2004-01-22 21:45:33',CHAR)" : [ ]
+}
+----------
+[dql_mysql_cast_0.0009]
+sql:
+SELECT CONVERT(TIMESTAMP '2004-01-22 21:45:33',CHAR(4));
+expect:
+{
+  "CONVERT(TIMESTAMP '2004-01-22 21:45:33',CHAR(4))" : [ ]
+}
+----------
+[dql_mysql_cast_0.0010]
+sql:
+SELECT CONVERT(TIMESTAMP '2004-01-22 21:45:33',BINARY(4));
+expect:
+{
+  "CONVERT(TIMESTAMP '2004-01-22 21:45:33',BINARY(4))" : [ ]
+}
+----------
+[dql_mysql_cast_0.0011]
+sql:
+SELECT CAST(TIMESTAMP '2004-01-22 21:45:33' AS BINARY(4));
+expect:
+{
+  "CAST(TIMESTAMP '2004-01-22 21:45:33' AS BINARY(4))" : [ ]
+}
+----------
+[dql_mysql_cast_0.0012]
+sql:
+SELECT CAST('18446744073709551616' AS UNSIGNED);
+expect:
+{
+  "CAST('18446744073709551616' AS UNSIGNED)" : [ ]
+}
+----------
+[dql_mysql_cast_0.0013]
+sql:
+SELECT CAST('18446744073709551616' AS SIGNED);
+expect:
+{
+  "CAST('18446744073709551616' AS SIGNED)" : [ ]
+}
+----------
+[dql_mysql_cast_0.0014]
+sql:
+SELECT CAST('9223372036854775809' AS SIGNED);
+expect:
+{
+  "CAST('9223372036854775809' AS SIGNED)" : [ ]
+}
+----------
+[dql_mysql_cast_0.0015]
+sql:
+SELECT CAST('-1' AS UNSIGNED);
+expect:
+{
+  "CAST('-1' AS UNSIGNED)" : [ ]
+}
+----------
+[dql_mysql_cast_0.0016]
+sql:
+SELECT CAST('abc' AS SIGNED);
+expect:
+{
+  "CAST('abc' AS SIGNED)" : [ ]
+}
+----------
+[dql_mysql_cast_0.0017]
+sql:
+SELECT CAST('1a' AS SIGNED);
+expect:
+{
+  "CAST('1a' AS SIGNED)" : [ ]
+}
+----------
+[dql_mysql_cast_0.0018]
+sql:
+SELECT CAST('' AS SIGNED);
+expect:
+{
+  "CAST('' AS SIGNED)" : [ ]
+}
+----------
+[dql_mysql_cast_0.0019]
+sql:
+SELECT CAST(_latin1'test' AS CHAR CHARACTER SET latin2);
+expect:
+{
+  "CAST(_latin1'test' AS CHAR CHARACTER SET latin2)" : [ ]
+}
+----------
+[dql_mysql_cast_0.0020]
+sql:
+SELECT CAST(_koi8r'тест' AS CHAR CHARACTER SET cp1251);
+expect:
+{
+  "CAST(_koi8r'тест' AS CHAR CHARACTER SET cp1251)" : [ ]
+}
+----------
+[dql_mysql_cast_0.0021]
+sql:
+SELECT a,CAST(a AS CHAR) FROM t1 ORDER BY CAST(a AS UNSIGNED);
+expect:
+{
+  "a" : [ "(1:7~1:8) /catalog1/schema1/t1/a/" ],
+  "CAST(a AS CHAR)" : [ "(1:14~1:15) /catalog1/schema1/t1/a/" ]
+}
+----------
+[dql_mysql_cast_0.0022]
+sql:
+SELECT a,CAST(a AS CHAR(3)) FROM t1 ORDER BY CAST(a AS CHAR(2)),a;
+expect:
+{
+  "a" : [ "(1:7~1:8) /catalog1/schema1/t1/a/" ],
+  "CAST(a AS CHAR(3))" : [ "(1:14~1:15) /catalog1/schema1/t1/a/" ]
+}
+----------
+[dql_mysql_cast_0.0023]
+sql:
+SELECT a,CAST(a AS UNSIGNED) FROM t1 ORDER BY CAST(a AS CHAR);
+expect:
+{
+  "a" : [ "(1:7~1:8) /catalog1/schema1/t1/a/" ],
+  "CAST(a AS UNSIGNED)" : [ "(1:14~1:15) /catalog1/schema1/t1/a/" ]
+}
+----------
+[dql_mysql_cast_0.0024]
+sql:
+SELECT a,CAST(a AS CHAR(2)) FROM t1 ORDER BY CAST(a AS CHAR(3)),a;
+expect:
+{
+  "a" : [ "(1:7~1:8) /catalog1/schema1/t1/a/" ],
+  "CAST(a AS CHAR(2))" : [ "(1:14~1:15) /catalog1/schema1/t1/a/" ]
+}
+----------
+[dql_mysql_cast_0.0025]
+sql:
+SELECT DATE_ADD(CAST('2004-12-30 12:00:00' AS DATE),INTERVAL 0 HOUR);
+expect:
+{
+  "DATE_ADD(CAST('2004-12-30 12:00:00' AS DATE),INTERVAL 0 HOUR)" : [ ]
+}
+----------
+[dql_mysql_cast_0.0026]
+sql:
+SELECT TIMEDIFF(CAST('2004-12-30 12:00:00' AS TIME),'12:00:00');
+expect:
+{
+  "TIMEDIFF(CAST('2004-12-30 12:00:00' AS TIME),'12:00:00')" : [ ]
+}
+----------
+[dql_mysql_cast_0.0027]
+sql:
+SELECT TIMEDIFF(CAST('1 12:00:00' AS TIME),'12:00:00');
+expect:
+{
+  "TIMEDIFF(CAST('1 12:00:00' AS TIME),'12:00:00')" : [ ]
+}
+----------
+[dql_mysql_cast_0.0028]
+sql:
+SELECT CAST(CONCAT('184467440','73709551615') AS UNSIGNED);
+expect:
+{
+  "CAST(CONCAT('184467440','73709551615') AS UNSIGNED)" : [ ]
+}
+----------
+[dql_mysql_cast_0.0029]
+sql:
+SELECT CAST(CONCAT('184467440','73709551615') AS SIGNED);
+expect:
+{
+  "CAST(CONCAT('184467440','73709551615') AS SIGNED)" : [ ]
+}
+----------
+[dql_mysql_cast_0.0030]
+sql:
+SELECT CAST(REPEAT('1',20) AS UNSIGNED);
+expect:
+{
+  "CAST(REPEAT('1',20) AS UNSIGNED)" : [ ]
+}
+----------
+[dql_mysql_cast_0.0031]
+sql:
+SELECT CAST(REPEAT('1',20) AS SIGNED);
+expect:
+{
+  "CAST(REPEAT('1',20) AS SIGNED)" : [ ]
+}
+----------
+[dql_mysql_cast_0.0032]
+sql:
+SELECT CAST(v AS DECIMAL),CAST(tt AS DECIMAL),CAST(t AS DECIMAL),CAST(mt AS DECIMAL),CAST(lt AS DECIMAL) FROM t1;
+expect:
+{
+  "CAST(v AS DECIMAL)" : [ "(1:12~1:13) /catalog1/schema1/t1/v/" ],
+  "CAST(tt AS DECIMAL)" : [ "(1:31~1:33) /catalog1/schema1/t1/tt/" ],
+  "CAST(t AS DECIMAL)" : [ "(1:51~1:52) /catalog1/schema1/t1/t/" ],
+  "CAST(mt AS DECIMAL)" : [ "(1:70~1:72) /catalog1/schema1/t1/mt/" ],
+  "CAST(lt AS DECIMAL)" : [ "(1:90~1:92) /catalog1/schema1/t1/lt/" ]
+}
+----------
+[dql_mysql_cast_0.0033]
+sql:
+SELECT CAST(DATE(d1) AS SIGNED) FROM t1;
+expect:
+{
+  "CAST(DATE(d1) AS SIGNED)" : [ "(1:17~1:19) /catalog1/schema1/t1/d1/" ]
+}
+----------
+[dql_mysql_cast_0.0034]
+sql:
+SELECT HOUR(CAST('2007-07-19' AS DATE)),MINUTE(CAST('2007-07-19' AS DATE)),SECOND(CAST('2007-07-19' AS DATE));
+expect:
+{
+  "HOUR(CAST('2007-07-19' AS DATE))" : [ ],
+  "MINUTE(CAST('2007-07-19' AS DATE))" : [ ],
+  "SECOND(CAST('2007-07-19' AS DATE))" : [ ]
+}
+----------
+[dql_mysql_cast_0.0035]
+sql:
+SELECT HOUR(CAST(NULL AS DATE)),MINUTE(CAST(NULL AS DATE)),SECOND(CAST(NULL AS DATE));
+expect:
+{
+  "HOUR(CAST(NULL AS DATE))" : [ ],
+  "MINUTE(CAST(NULL AS DATE))" : [ ],
+  "SECOND(CAST(NULL AS DATE))" : [ ]
+}
+----------
+[dql_mysql_cast_0.0036]
+sql:
+SELECT 1 FROM (SELECT CONVERT(t2.a USING utf8) FROM t1,t1 AS t2 LIMIT 1) AS s LIMIT 1;
+expect:
+{
+  "1" : [ ]
+}
+----------
+[dql_mysql_cast_0.0037]
+sql:
+SELECT CONVERT('a',BINARY(2049));
+expect:
+{
+  "CONVERT('a',BINARY(2049))" : [ ]
+}
+----------
+[dql_mysql_cast_0.0038]
+sql:
+SELECT CONVERT('a',CHAR(2049));
+expect:
+{
+  "CONVERT('a',CHAR(2049))" : [ ]
+}
+----------
+[dql_mysql_cast_0.0039]
+sql:
+SELECT a FROM t1 WHERE CAST(a AS BINARY)=X'62736D697468' AND CAST(a AS BINARY)=X'65736D697468';
+expect:
+{
+  "a" : [ "(1:7~1:8) /catalog1/schema1/t1/a/" ]
+}
+----------
+[dql_mysql_cast_0.0040]
+sql:
+SELECT f1 AS double_value,CAST(f1 AS SIGNED INT) AS cast_value FROM t1;
+expect:
+{
+  "double_value" : [ "(1:7~1:9) /catalog1/schema1/t1/f1/" ],
+  "cast_value" : [ "(1:31~1:33) /catalog1/schema1/t1/f1/" ]
+}
+----------
+[dql_mysql_cast_0.0041]
+sql:
+SELECT CAST(CAST('01-01-01' AS DATE) AS UNSIGNED);
+expect:
+{
+  "CAST(CAST('01-01-01' AS DATE) AS UNSIGNED)" : [ ]
+}
+----------
+[dql_mysql_cast_0.0042]
+sql:
+SELECT CAST(CAST('01-01-01' AS DATE) AS SIGNED);
+expect:
+{
+  "CAST(CAST('01-01-01' AS DATE) AS SIGNED)" : [ ]
+}
+----------
+[dql_mysql_cast_0.0043]
+sql:
+SELECT CAST(s1 AS DECIMAL(7,2)) FROM t1;
+expect:
+{
+  "CAST(s1 AS DECIMAL(7,2))" : [ "(1:12~1:14) /catalog1/schema1/t1/s1/" ]
+}
+----------
+[dql_mysql_cast_0.0044]
+sql:
+SELECT CAST(c1 AS UNSIGNED) FROM (SELECT c1 FROM enum_source) AS d;
+expect:
+{
+  "CAST(c1 AS UNSIGNED)" : [ "(1:41~1:43) /catalog1/schema1/enum_source/c1/" ]
+}
+----------
+[dql_mysql_cast_0.0045]
+sql:
+SELECT CAST('a' AS BINARY(4294967295));
+expect:
+{
+  "CAST('a' AS BINARY(4294967295))" : [ ]
+}
+----------
+[dql_mysql_cast_0.0046]
+sql:
+SELECT CAST('a' AS BINARY(4294967296));
+expect:
+{
+  "CAST('a' AS BINARY(4294967296))" : [ ]
+}
+----------
+[dql_mysql_cast_0.0047]
+sql:
+SELECT CAST(x<=0x4891f642 AS UNSIGNED) FROM cast_input;
+expect:
+{
+  "CAST(x<=0x4891f642 AS UNSIGNED)" : [ "(1:12~1:13) /catalog1/schema1/cast_input/x/" ]
+}
+----------
+[dql_mysql_cast_0.0048]
+sql:
+SELECT CAST(STRCMP(x,0x4891f642) AS UNSIGNED) FROM cast_input;
+expect:
+{
+  "CAST(STRCMP(x,0x4891f642) AS UNSIGNED)" : [ "(1:19~1:20) /catalog1/schema1/cast_input/x/" ]
+}
+----------
+[dql_mysql_cast_0.0049]
+sql:
+SELECT 1 FROM nullability_input WHERE CAST(a AS UNSIGNED INTEGER)=1 AND a=IF(TRUE,NULL,1);
+expect:
+{
+  "1" : [ ]
+}
+----------
+[dql_mysql_cast_0.0051]
+sql:
+SELECT * FROM escape_input WHERE v1 LIKE v1 ESCAPE CONVERT(TRUE,DATETIME(100));
+expect:
+{
+  "id" : [ "(1:7~1:8) /catalog1/schema1/escape_input/id/" ]
+}
+----------
+[dql_mysql_cast_0.0052]
+sql:
+SELECT CAST(1.9e0 AS SIGNED) FROM double_input;
+expect:
+{
+  "CAST(1.9e0 AS SIGNED)" : [ ]
+}
+----------
+[dql_mysql_cast_0.0053]
+sql:
+SELECT c1 FROM codex_year_union_source UNION SELECT c2 FROM codex_year_union_source;
+expect:
+{
+  "c1" : [ "(1:7~1:9) /catalog1/schema1/codex_year_union_source/c1/", "(1:52~1:54) /catalog1/schema1/codex_year_union_source/c2/" ]
+}
+----------
+[dql_mysql_cast_0.0054]
+sql:
+SELECT c2 FROM codex_year_union_source UNION SELECT c1 FROM codex_year_union_source;
+expect:
+{
+  "c2" : [ "(1:7~1:9) /catalog1/schema1/codex_year_union_source/c2/", "(1:52~1:54) /catalog1/schema1/codex_year_union_source/c1/" ]
+}
+----------
+[dql_mysql_cast_0.0055]
+sql:
+SELECT CAST(a AS DATE),CAST(a AS DATETIME),LEAST(a,DATE'2000-01-01'),GREATEST(a,DATE'2000-01-01') FROM codex_year_source;
+expect:
+{
+  "CAST(a AS DATE)" : [ "(1:12~1:13) /catalog1/schema1/codex_year_source/a/" ],
+  "CAST(a AS DATETIME)" : [ "(1:28~1:29) /catalog1/schema1/codex_year_source/a/" ],
+  "LEAST(a,DATE'2000-01-01')" : [ "(1:49~1:50) /catalog1/schema1/codex_year_source/a/" ],
+  "GREATEST(a,DATE'2000-01-01')" : [ "(1:78~1:79) /catalog1/schema1/codex_year_source/a/" ]
+}
+----------
+[dql_mysql_cast_0.0056]
+sql:
+SELECT CAST(0.0e0 AS JSON) = -0.0e0;
+expect:
+{
+  "CAST(0.0e0 AS JSON) = -0.0e0" : [ ]
+}
+----------
+[dql_mysql_cast_0.0057]
+sql:
+SELECT CAST('"123"' AS JSON) IN (?, ?);
+expect:
+{
+  "CAST('\"123\"' AS JSON) IN (?, ?)" : [ ]
+}
+----------
+[dql_mysql_cast_0.0058]
+sql:
+SELECT CAST('9223372036854775807' AS UNSIGNED)=9223372036854775806;
+expect:
+{
+  "CAST('9223372036854775807' AS UNSIGNED)=9223372036854775806" : [ ]
+}
+----------
+[dql_mysql_cast_0.0059]
+sql:
+SELECT CAST(0xb3 AS SIGNED),CAST(0x8fffffffffffffff AS SIGNED),CAST(0xffffffffffffffff AS UNSIGNED),CAST(0xfffffffffffffffe AS SIGNED);
+expect:
+{
+  "CAST(0xb3 AS SIGNED)" : [ ],
+  "CAST(0x8fffffffffffffff AS SIGNED)" : [ ],
+  "CAST(0xffffffffffffffff AS UNSIGNED)" : [ ],
+  "CAST(0xfffffffffffffffe AS SIGNED)" : [ ]
+}
+----------
+[dql_mysql_cast_0.0060]
+sql:
+SELECT CAST(_latin1'abc' AS CHAR(2) CHARSET binary),CAST(_latin1'a' AS CHAR(2) CHARSET binary),HEX(CAST(_latin1'abc' AS CHAR(2) CHARSET binary)),HEX(CAST(_latin1'a' AS CHAR(2) CHARSET binary));
+expect:
+{
+  "CAST(_latin1'abc' AS CHAR(2) CHARSET binary)" : [ ],
+  "CAST(_latin1'a' AS CHAR(2) CHARSET binary)" : [ ],
+  "HEX(CAST(_latin1'abc' AS CHAR(2) CHARSET binary))" : [ ],
+  "HEX(CAST(_latin1'a' AS CHAR(2) CHARSET binary))" : [ ]
+}

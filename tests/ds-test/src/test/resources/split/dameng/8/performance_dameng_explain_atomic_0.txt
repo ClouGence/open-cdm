@@ -1,0 +1,185 @@
+-- DIRECT_SELECT
+explain select ID,V from EX_TARGET where ID=1;
+-- DIRECT_SELECT_JOIN
+explain select T.ID,S.NAME from EX_TARGET T join EX_SOURCE S on S.ID=T.ID;
+-- DIRECT_SELECT_CTE
+explain with Q as(select ID,V from EX_TARGET) select * from Q where V>0;
+-- DIRECT_SELECT_GROUP_ANALYTIC
+explain select ID,sum(V) over(order by ID) from EX_TARGET group by ID,V;
+-- DIRECT_SELECT_ARRAY
+explain select column_value from array new int[2]{1,2};
+-- DIRECT_SELECT_PARTITION
+explain select * from EX_PART partition(P1);
+-- DIRECT_SELECT_FOR_UPDATE
+explain select * from EX_TARGET where ID=1 for update;
+-- DIRECT_INSERT_VALUES
+explain insert into EX_TARGET values(3,30,'C');
+-- DIRECT_INSERT_SELECT
+explain insert into EX_TARGET select ID+10,V,NAME from EX_SOURCE;
+-- DIRECT_UPDATE
+explain update EX_TARGET set V=V+1 where ID=1;
+-- DIRECT_DELETE
+explain delete from EX_TARGET where ID=1;
+-- DIRECT_MERGE
+explain merge into EX_TARGET T using EX_SOURCE S on(T.ID=S.ID) when matched then update set T.V=S.V when not matched then insert values(S.ID,S.V,S.NAME);
+-- FOR_SELECT
+explain for select ID,V from EX_TARGET where ID=1;
+-- FOR_AS_SIMPLE
+explain as EX_PLAN_1 for select * from EX_TARGET;
+-- FOR_AS_QUOTED
+explain as "Plan Mixed" for select * from EX_TARGET;
+-- FOR_AS_128
+explain as PAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA for select * from EX_TARGET;
+-- FOR_AS_129
+explain as PAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA for select * from EX_TARGET;
+-- FOR_INSERT_VALUES
+explain for insert into EX_TARGET values(3,30,'C');
+-- FOR_INSERT_SELECT
+explain for insert into EX_TARGET select ID+10,V,NAME from EX_SOURCE;
+-- FOR_UPDATE
+explain for update EX_TARGET set V=V+1 where ID=1;
+-- FOR_DELETE
+explain for delete from EX_TARGET where ID=1;
+-- FOR_MERGE
+explain for merge into EX_TARGET T using EX_SOURCE S on(T.ID=S.ID) when matched then update set T.V=S.V;
+-- FOR_SELECT_JOIN
+explain for select T.ID,S.NAME from EX_TARGET T join EX_SOURCE S on S.ID=T.ID;
+-- FOR_SELECT_CTE
+explain for with Q as(select ID,V from EX_TARGET) select * from Q where V>0;
+-- FOR_SELECT_GROUP_ANALYTIC
+explain for select ID,sum(V) over(order by ID) from EX_TARGET group by ID,V;
+-- FOR_SELECT_ARRAY
+explain for select column_value from array new int[2]{1,2};
+-- FOR_SELECT_PARTITION
+explain for select * from EX_PART partition(P1);
+-- FOR_SELECT_FOR_UPDATE
+explain for select * from EX_TARGET where ID=1 for update;
+-- AS_EMPTY_QUOTED_NAME
+explain as "" for select * from EX_TARGET;
+-- UNSUPPORTED_CREATE
+explain create table EX_NEW(ID int);
+-- UNSUPPORTED_DROP
+explain drop table EX_TARGET;
+-- UNSUPPORTED_CALL
+explain call SP_TABLEDEF('SYSDBA','EX_TARGET');
+-- USER_DIRECT_SELECT
+explain select * from CODEX_DM8_EXPLAIN.EX_TARGET;
+-- USER_FOR_SELECT
+explain as USER_PLAN for select * from CODEX_DM8_EXPLAIN.EX_TARGET;
+-- USER_SELECT_DENIED
+explain select * from CODEX_DM8_EXPLAIN.EX_TARGET;
+-- USER_DIRECT_INSERT
+explain insert into CODEX_DM8_EXPLAIN.EX_TARGET values(3,30,'C');
+-- USER_INSERT_DENIED
+explain insert into CODEX_DM8_EXPLAIN.EX_TARGET values(3,30,'C');
+------------------------------------------------------------------------------------------
+[PERFORMANCE|SELECT] -- DIRECT_SELECT
+explain select ID,V from EX_TARGET where ID=1;
+----------
+[PERFORMANCE|SELECT] -- DIRECT_SELECT_JOIN
+explain select T.ID,S.NAME from EX_TARGET T join EX_SOURCE S on S.ID=T.ID;
+----------
+[PERFORMANCE|SELECT] -- DIRECT_SELECT_CTE
+explain with Q as(select ID,V from EX_TARGET) select * from Q where V>0;
+----------
+[PERFORMANCE|SELECT] -- DIRECT_SELECT_GROUP_ANALYTIC
+explain select ID,sum(V) over(order by ID) from EX_TARGET group by ID,V;
+----------
+[PERFORMANCE|SELECT] -- DIRECT_SELECT_ARRAY
+explain select column_value from array new int[2]{1,2};
+----------
+[PERFORMANCE|SELECT] -- DIRECT_SELECT_PARTITION
+explain select * from EX_PART partition(P1);
+----------
+[PERFORMANCE|SELECT|QUERY_LOCK] -- DIRECT_SELECT_FOR_UPDATE
+explain select * from EX_TARGET where ID=1 for update;
+----------
+[PERFORMANCE] -- DIRECT_INSERT_VALUES
+explain insert into EX_TARGET values(3,30,'C');
+----------
+[PERFORMANCE|SELECT] -- DIRECT_INSERT_SELECT
+explain insert into EX_TARGET select ID+10,V,NAME from EX_SOURCE;
+----------
+[PERFORMANCE] -- DIRECT_UPDATE
+explain update EX_TARGET set V=V+1 where ID=1;
+----------
+[PERFORMANCE] -- DIRECT_DELETE
+explain delete from EX_TARGET where ID=1;
+----------
+[PERFORMANCE] -- DIRECT_MERGE
+explain merge into EX_TARGET T using EX_SOURCE S on(T.ID=S.ID) when matched then update set T.V=S.V when not matched then insert values(S.ID,S.V,S.NAME);
+----------
+[PERFORMANCE|SELECT] -- FOR_SELECT
+explain for select ID,V from EX_TARGET where ID=1;
+----------
+[PERFORMANCE|SELECT] -- FOR_AS_SIMPLE
+explain as EX_PLAN_1 for select * from EX_TARGET;
+----------
+[PERFORMANCE|SELECT] -- FOR_AS_QUOTED
+explain as "Plan Mixed" for select * from EX_TARGET;
+----------
+[PERFORMANCE|SELECT] -- FOR_AS_128
+explain as PAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA for select * from EX_TARGET;
+----------
+[PERFORMANCE|SELECT] -- FOR_AS_129
+explain as PAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA for select * from EX_TARGET;
+----------
+[PERFORMANCE] -- FOR_INSERT_VALUES
+explain for insert into EX_TARGET values(3,30,'C');
+----------
+[PERFORMANCE|SELECT] -- FOR_INSERT_SELECT
+explain for insert into EX_TARGET select ID+10,V,NAME from EX_SOURCE;
+----------
+[PERFORMANCE] -- FOR_UPDATE
+explain for update EX_TARGET set V=V+1 where ID=1;
+----------
+[PERFORMANCE] -- FOR_DELETE
+explain for delete from EX_TARGET where ID=1;
+----------
+[PERFORMANCE] -- FOR_MERGE
+explain for merge into EX_TARGET T using EX_SOURCE S on(T.ID=S.ID) when matched then update set T.V=S.V;
+----------
+[PERFORMANCE|SELECT] -- FOR_SELECT_JOIN
+explain for select T.ID,S.NAME from EX_TARGET T join EX_SOURCE S on S.ID=T.ID;
+----------
+[PERFORMANCE|SELECT] -- FOR_SELECT_CTE
+explain for with Q as(select ID,V from EX_TARGET) select * from Q where V>0;
+----------
+[PERFORMANCE|SELECT] -- FOR_SELECT_GROUP_ANALYTIC
+explain for select ID,sum(V) over(order by ID) from EX_TARGET group by ID,V;
+----------
+[PERFORMANCE|SELECT] -- FOR_SELECT_ARRAY
+explain for select column_value from array new int[2]{1,2};
+----------
+[PERFORMANCE|SELECT] -- FOR_SELECT_PARTITION
+explain for select * from EX_PART partition(P1);
+----------
+[PERFORMANCE|SELECT|QUERY_LOCK] -- FOR_SELECT_FOR_UPDATE
+explain for select * from EX_TARGET where ID=1 for update;
+----------
+[PERFORMANCE|SELECT] -- AS_EMPTY_QUOTED_NAME
+explain as "" for select * from EX_TARGET;
+----------
+[PERFORMANCE|ADD_COLUMN] -- UNSUPPORTED_CREATE
+explain create table EX_NEW(ID int);
+----------
+[PERFORMANCE] -- UNSUPPORTED_DROP
+explain drop table EX_TARGET;
+----------
+[PERFORMANCE] -- UNSUPPORTED_CALL
+explain call SP_TABLEDEF('SYSDBA','EX_TARGET');
+----------
+[PERFORMANCE|SELECT] -- USER_DIRECT_SELECT
+explain select * from CODEX_DM8_EXPLAIN.EX_TARGET;
+----------
+[PERFORMANCE|SELECT] -- USER_FOR_SELECT
+explain as USER_PLAN for select * from CODEX_DM8_EXPLAIN.EX_TARGET;
+----------
+[PERFORMANCE|SELECT] -- USER_SELECT_DENIED
+explain select * from CODEX_DM8_EXPLAIN.EX_TARGET;
+----------
+[PERFORMANCE] -- USER_DIRECT_INSERT
+explain insert into CODEX_DM8_EXPLAIN.EX_TARGET values(3,30,'C');
+----------
+[PERFORMANCE] -- USER_INSERT_DENIED
+explain insert into CODEX_DM8_EXPLAIN.EX_TARGET values(3,30,'C');

@@ -1,0 +1,128 @@
+begin dbms_alert.set_defaults(1); end;
+/
+begin dbms_alert.set_defaults(null); end;
+/
+begin dbms_alert.register('CODEX_ALERT_REGISTER'); dbms_alert.remove('CODEX_ALERT_REGISTER'); end;
+/
+begin dbms_alert.register('CODEX_ALERT_ALL_A'); dbms_alert.register('CODEX_ALERT_ALL_B'); dbms_alert.removeall(); end;
+/
+declare msg varchar(1800); status int; begin dbms_alert.register('CODEX_ALERT_ONE'); dbms_alert.signal('CODEX_ALERT_ONE', 'ONE_MESSAGE'); commit; dbms_alert.waitone('CODEX_ALERT_ONE', msg, status, 3); dbms_alert.remove('CODEX_ALERT_ONE'); end;
+/
+declare name varchar(30); msg varchar(1800); status int; begin dbms_alert.register('CODEX_ALERT_ANY_A'); dbms_alert.register('CODEX_ALERT_ANY_B'); dbms_alert.signal('CODEX_ALERT_ANY_B', 'ANY_MESSAGE'); commit; dbms_alert.waitany(name, msg, status, 3); dbms_alert.removeall(); end;
+/
+declare msg varchar(1800); status int; begin dbms_alert.register('CODEX_ALERT_TIMEOUT'); dbms_alert.waitone('CODEX_ALERT_TIMEOUT', msg, status, 0); dbms_alert.remove('CODEX_ALERT_TIMEOUT'); end;
+/
+declare job_no int; begin dbms_job.submit(job_no, 'insert into CODEX_DM8_JOB_LOG(marker) values(''SUBMIT_RUN''); commit;', sysdate + 1, null); insert into CODEX_DM8_JOB_CTL values(job_no, 'SUBMIT'); commit; end;
+/
+declare job_no int; begin select job_id into job_no from CODEX_DM8_JOB_CTL where label='SUBMIT'; dbms_job.run(job_no); end;
+/
+declare job_no int; begin select job_id into job_no from CODEX_DM8_JOB_CTL where label='SUBMIT'; dbms_job.broken(job_no, true, sysdate + 1); commit; end;
+/
+declare job_no int; begin select job_id into job_no from CODEX_DM8_JOB_CTL where label='SUBMIT'; dbms_job.broken(job_no, false, sysdate + 1); commit; end;
+/
+declare job_no int; begin select job_id into job_no from CODEX_DM8_JOB_CTL where label='SUBMIT'; dbms_job.next_date(job_no, sysdate + 2); commit; end;
+/
+declare job_no int; begin select job_id into job_no from CODEX_DM8_JOB_CTL where label='SUBMIT'; dbms_job."INTERVAL"(job_no, 'sysdate + 1'); commit; end;
+/
+declare job_no int; text_value varchar(1800); begin select job_id into job_no from CODEX_DM8_JOB_CTL where label='SUBMIT'; text_value := 'insert into CODEX_DM8_JOB_LOG(marker) values(''WHAT_RUN''); commit;'; dbms_job.what(job_no, text_value); commit; end;
+/
+declare job_no int; begin select job_id into job_no from CODEX_DM8_JOB_CTL where label='SUBMIT'; dbms_job."CHANGE"(job_no, 'insert into CODEX_DM8_JOB_LOG(marker) values(''CHANGE_RUN''); commit;', sysdate + 1, null); commit; end;
+/
+declare job_no int; begin select job_id into job_no from CODEX_DM8_JOB_CTL where label='SUBMIT'; dbms_job.run(job_no, false); end;
+/
+declare job_no int; begin select job_id into job_no from CODEX_DM8_JOB_CTL where label='SUBMIT'; dbms_job.remove(job_no); delete from CODEX_DM8_JOB_CTL where job_id=job_no; commit; end;
+/
+begin dbms_job.isubmit(910002, 'insert into CODEX_DM8_JOB_LOG(marker) values(''ISUBMIT_RUN''); commit;', sysdate + 1, null, false); insert into CODEX_DM8_JOB_CTL values(910002, 'ISUBMIT'); commit; end;
+/
+begin dbms_job.run(910002); end;
+/
+begin dbms_job.remove(910002); delete from CODEX_DM8_JOB_CTL where job_id=910002; commit; end;
+/
+declare h int; doc clob; begin h := dbms_metadata."OPEN"('TABLE'); dbms_metadata.set_filter(h, 'SCHEMA', 'SYSDBA'); dbms_metadata.set_filter(h, 'NAME', 'CODEX_DM8_META_BASE'); doc := dbms_metadata.fetch_clob(h); dbms_metadata."CLOSE"(h); end;
+/
+declare h int; th number; doc clob; begin h := dbms_metadata."OPEN"('TABLE'); dbms_metadata.set_filter(h, 'SCHEMA', 'SYSDBA'); dbms_metadata.set_filter(h, 'NAME', 'CODEX_DM8_META_BASE'); th := dbms_metadata.add_transform(h, 'DDL'); doc := dbms_metadata.fetch_clob(h); dbms_metadata."CLOSE"(h); end;
+/
+declare h int; query_text varchar(32767); begin h := dbms_metadata."OPEN"('TABLE'); dbms_metadata.set_filter(h, 'SCHEMA', 'SYSDBA'); query_text := dbms_metadata.get_query(h); dbms_metadata."CLOSE"(h); end;
+/
+declare h int; doc clob; begin h := dbms_metadata."OPEN"('TABLE'); dbms_metadata.set_filter(h, 'SCHEMA', 'SYSDBA'); dbms_metadata.set_count(h, 1); doc := dbms_metadata.fetch_clob(h); dbms_metadata."CLOSE"(h); end;
+/
+declare h int; docs dbms_metadata.ku$_ddls; begin h := dbms_metadata."OPEN"('TABLE'); dbms_metadata.set_filter(h, 'SCHEMA', 'SYSDBA'); dbms_metadata.set_filter(h, 'NAME', 'CODEX_DM8_META_BASE'); dbms_metadata.set_parse_item(h, 'NAME'); docs := dbms_metadata.fetch_ddl(h); dbms_metadata."CLOSE"(h); end;
+/
+begin dbms_metadata.set_transform_param(dbms_metadata.session_transform, 'CONSTRAINTS', false, 'TABLE'); end;
+/
+begin dbms_metadata.set_transform_param(dbms_metadata.session_transform, 'STORAGE', false); end;
+/
+declare current_lsn bigint; begin current_lsn := dbms_flashback.get_system_change_number; dbms_flashback.enable_at_system_change_number(current_lsn); dbms_flashback.disable; end;
+/
+declare snapshot_lsn bigint; old_value varchar(30); begin select snapshot_lsn into snapshot_lsn from CODEX_DM8_FLASH_CTL; dbms_flashback.enable_at_system_change_number(snapshot_lsn); select value_text into old_value from CODEX_DM8_FLASH_BASE where id=1; dbms_flashback.disable; end;
+/
+declare snapshot_time timestamp; old_value varchar(30); begin select snapshot_time into snapshot_time from CODEX_DM8_FLASH_CTL; dbms_flashback.enable_at_time(snapshot_time); select value_text into old_value from CODEX_DM8_FLASH_BASE where id=1; dbms_flashback.disable; end;
+/
+declare snapshot_lsn bigint; row_count int; begin select snapshot_lsn into snapshot_lsn from CODEX_DM8_FLASH_CTL; dbms_flashback.enable_at_system_change_number(snapshot_lsn); select count(*) into row_count from CODEX_DM8_FLASH_BASE; dbms_flashback.disable; end;
+/
+begin dbms_flashback.disable; end;
+/
+------------------------------------------------------------------------------------------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_alert.set_defaults(1); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_alert.set_defaults(null); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_alert.register('CODEX_ALERT_REGISTER'); dbms_alert.remove('CODEX_ALERT_REGISTER'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_alert.register('CODEX_ALERT_ALL_A'); dbms_alert.register('CODEX_ALERT_ALL_B'); dbms_alert.removeall(); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ,TRANSACTION)] declare msg varchar(1800); status int; begin dbms_alert.register('CODEX_ALERT_ONE'); dbms_alert.signal('CODEX_ALERT_ONE', 'ONE_MESSAGE'); commit; dbms_alert.waitone('CODEX_ALERT_ONE', msg, status, 3); dbms_alert.remove('CODEX_ALERT_ONE'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ,TRANSACTION)] declare name varchar(30); msg varchar(1800); status int; begin dbms_alert.register('CODEX_ALERT_ANY_A'); dbms_alert.register('CODEX_ALERT_ANY_B'); dbms_alert.signal('CODEX_ALERT_ANY_B', 'ANY_MESSAGE'); commit; dbms_alert.waitany(name, msg, status, 3); dbms_alert.removeall(); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare msg varchar(1800); status int; begin dbms_alert.register('CODEX_ALERT_TIMEOUT'); dbms_alert.waitone('CODEX_ALERT_TIMEOUT', msg, status, 0); dbms_alert.remove('CODEX_ALERT_TIMEOUT'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ,INSERT,TRANSACTION)] declare job_no int; begin dbms_job.submit(job_no, 'insert into CODEX_DM8_JOB_LOG(marker) values(''SUBMIT_RUN''); commit;', sysdate + 1, null); insert into CODEX_DM8_JOB_CTL values(job_no, 'SUBMIT'); commit; end;
+----------
+[BLOCK(PROGRAM_CONTROL,SELECT,CALL_PROG_OBJ)] declare job_no int; begin select job_id into job_no from CODEX_DM8_JOB_CTL where label='SUBMIT'; dbms_job.run(job_no); end;
+----------
+[BLOCK(PROGRAM_CONTROL,SELECT,CALL_PROG_OBJ,TRANSACTION)] declare job_no int; begin select job_id into job_no from CODEX_DM8_JOB_CTL where label='SUBMIT'; dbms_job.broken(job_no, true, sysdate + 1); commit; end;
+----------
+[BLOCK(PROGRAM_CONTROL,SELECT,CALL_PROG_OBJ,TRANSACTION)] declare job_no int; begin select job_id into job_no from CODEX_DM8_JOB_CTL where label='SUBMIT'; dbms_job.broken(job_no, false, sysdate + 1); commit; end;
+----------
+[BLOCK(PROGRAM_CONTROL,SELECT,CALL_PROG_OBJ,TRANSACTION)] declare job_no int; begin select job_id into job_no from CODEX_DM8_JOB_CTL where label='SUBMIT'; dbms_job.next_date(job_no, sysdate + 2); commit; end;
+----------
+[BLOCK(PROGRAM_CONTROL,SELECT,CALL_PROG_OBJ,TRANSACTION)] declare job_no int; begin select job_id into job_no from CODEX_DM8_JOB_CTL where label='SUBMIT'; dbms_job."INTERVAL"(job_no, 'sysdate + 1'); commit; end;
+----------
+[BLOCK(PROGRAM_CONTROL,SELECT,CALL_PROG_OBJ,TRANSACTION)] declare job_no int; text_value varchar(1800); begin select job_id into job_no from CODEX_DM8_JOB_CTL where label='SUBMIT'; text_value := 'insert into CODEX_DM8_JOB_LOG(marker) values(''WHAT_RUN''); commit;'; dbms_job.what(job_no, text_value); commit; end;
+----------
+[BLOCK(PROGRAM_CONTROL,SELECT,CALL_PROG_OBJ,TRANSACTION)] declare job_no int; begin select job_id into job_no from CODEX_DM8_JOB_CTL where label='SUBMIT'; dbms_job."CHANGE"(job_no, 'insert into CODEX_DM8_JOB_LOG(marker) values(''CHANGE_RUN''); commit;', sysdate + 1, null); commit; end;
+----------
+[BLOCK(PROGRAM_CONTROL,SELECT,CALL_PROG_OBJ)] declare job_no int; begin select job_id into job_no from CODEX_DM8_JOB_CTL where label='SUBMIT'; dbms_job.run(job_no, false); end;
+----------
+[BLOCK(PROGRAM_CONTROL,SELECT,CALL_PROG_OBJ,DELETE,TRANSACTION)] declare job_no int; begin select job_id into job_no from CODEX_DM8_JOB_CTL where label='SUBMIT'; dbms_job.remove(job_no); delete from CODEX_DM8_JOB_CTL where job_id=job_no; commit; end;
+----------
+[BLOCK(CALL_PROG_OBJ,INSERT,TRANSACTION)] begin dbms_job.isubmit(910002, 'insert into CODEX_DM8_JOB_LOG(marker) values(''ISUBMIT_RUN''); commit;', sysdate + 1, null, false); insert into CODEX_DM8_JOB_CTL values(910002, 'ISUBMIT'); commit; end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_job.run(910002); end;
+----------
+[BLOCK(CALL_PROG_OBJ,DELETE,TRANSACTION)] begin dbms_job.remove(910002); delete from CODEX_DM8_JOB_CTL where job_id=910002; commit; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare h int; doc clob; begin h := dbms_metadata."OPEN"('TABLE'); dbms_metadata.set_filter(h, 'SCHEMA', 'SYSDBA'); dbms_metadata.set_filter(h, 'NAME', 'CODEX_DM8_META_BASE'); doc := dbms_metadata.fetch_clob(h); dbms_metadata."CLOSE"(h); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare h int; th number; doc clob; begin h := dbms_metadata."OPEN"('TABLE'); dbms_metadata.set_filter(h, 'SCHEMA', 'SYSDBA'); dbms_metadata.set_filter(h, 'NAME', 'CODEX_DM8_META_BASE'); th := dbms_metadata.add_transform(h, 'DDL'); doc := dbms_metadata.fetch_clob(h); dbms_metadata."CLOSE"(h); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare h int; query_text varchar(32767); begin h := dbms_metadata."OPEN"('TABLE'); dbms_metadata.set_filter(h, 'SCHEMA', 'SYSDBA'); query_text := dbms_metadata.get_query(h); dbms_metadata."CLOSE"(h); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare h int; doc clob; begin h := dbms_metadata."OPEN"('TABLE'); dbms_metadata.set_filter(h, 'SCHEMA', 'SYSDBA'); dbms_metadata.set_count(h, 1); doc := dbms_metadata.fetch_clob(h); dbms_metadata."CLOSE"(h); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare h int; docs dbms_metadata.ku$_ddls; begin h := dbms_metadata."OPEN"('TABLE'); dbms_metadata.set_filter(h, 'SCHEMA', 'SYSDBA'); dbms_metadata.set_filter(h, 'NAME', 'CODEX_DM8_META_BASE'); dbms_metadata.set_parse_item(h, 'NAME'); docs := dbms_metadata.fetch_ddl(h); dbms_metadata."CLOSE"(h); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_metadata.set_transform_param(dbms_metadata.session_transform, 'CONSTRAINTS', false, 'TABLE'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_metadata.set_transform_param(dbms_metadata.session_transform, 'STORAGE', false); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare current_lsn bigint; begin current_lsn := dbms_flashback.get_system_change_number; dbms_flashback.enable_at_system_change_number(current_lsn); dbms_flashback.disable; end;
+----------
+[BLOCK(PROGRAM_CONTROL,SELECT,CALL_PROG_OBJ)] declare snapshot_lsn bigint; old_value varchar(30); begin select snapshot_lsn into snapshot_lsn from CODEX_DM8_FLASH_CTL; dbms_flashback.enable_at_system_change_number(snapshot_lsn); select value_text into old_value from CODEX_DM8_FLASH_BASE where id=1; dbms_flashback.disable; end;
+----------
+[BLOCK(PROGRAM_CONTROL,SELECT,CALL_PROG_OBJ)] declare snapshot_time timestamp; old_value varchar(30); begin select snapshot_time into snapshot_time from CODEX_DM8_FLASH_CTL; dbms_flashback.enable_at_time(snapshot_time); select value_text into old_value from CODEX_DM8_FLASH_BASE where id=1; dbms_flashback.disable; end;
+----------
+[BLOCK(PROGRAM_CONTROL,SELECT,CALL_PROG_OBJ)] declare snapshot_lsn bigint; row_count int; begin select snapshot_lsn into snapshot_lsn from CODEX_DM8_FLASH_CTL; dbms_flashback.enable_at_system_change_number(snapshot_lsn); select count(*) into row_count from CODEX_DM8_FLASH_BASE; dbms_flashback.disable; end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_flashback.disable; end;

@@ -1,0 +1,122 @@
+[create_schema]
+sql:
+create schema app
+expect:
+{
+  "contains": [
+    {"class":"Db2SchemaDomain", "sqlType": "CREATE_SCHEMA", "auditKind":"CREATE", "schema":"app"}
+  ]
+}
+----------
+[drop_schema]
+sql:
+drop schema app restrict
+expect:
+{
+  "contains": [
+    {"class":"Db2SchemaDomain", "sqlType": "DROP_SCHEMA", "auditKind":"DROP", "schema":"app"}
+  ]
+}
+----------
+[create_index]
+sql:
+create unique index app.idx_employee_name on app.employee (name asc)
+expect:
+{
+  "contains": [
+    {"class":"RdbIndexDomain", "sqlType": "ADD_INDEX", "auditKind":"CREATE", "name":"idx_employee_name", "tableName":"employee"}
+  ]
+}
+----------
+[drop_index]
+sql:
+drop index app.idx_employee_name
+expect:
+{
+  "contains": [
+    {"class":"RdbIndexDomain", "sqlType": "DROP_INDEX", "auditKind":"DROP", "name":"idx_employee_name"}
+  ]
+}
+----------
+[create_view]
+sql:
+create view app.v_employee select id, name from app.employee where active = 1
+expect:
+{
+  "contains": [
+    {"class":"RdbViewDomain", "sqlType": "CREATE_VIEW", "auditKind":"CREATE", "schema":"app", "view":"v_employee"},
+    {"class":"Db2SelectDomain", "sqlType": "SELECT", "auditKind":"QUERY", "hasWhere":true, "childrenSize":1},
+    {"class":"Db2TableDomain", "sqlType": "SELECT", "auditKind":"QUERY", "schema":"app", "table":"employee"}
+  ]
+}
+----------
+[alter_view]
+sql:
+alter view app.v_employee enable query optimization
+expect:
+{
+  "contains": [
+    {"class":"RdbViewDomain", "sqlType": "ALTER_VIEW", "auditKind":"ALTER", "schema":"app", "view":"v_employee"}
+  ]
+}
+----------
+[drop_view]
+sql:
+drop view app.v_employee
+expect:
+{
+  "contains": [
+    {"class":"RdbViewDomain", "sqlType": "DROP_VIEW", "auditKind":"DROP", "schema":"app", "view":"v_employee"}
+  ]
+}
+----------
+[comment_table]
+sql:
+comment on table app.employee is 'employee table'
+expect:
+{
+  "contains": [
+    {"class":"Db2TableDomain", "sqlType": "COMMENT_TABLE", "auditKind":"ALTER", "schema":"app", "table":"employee"}
+  ]
+}
+----------
+[comment_column]
+sql:
+comment on column app.employee.name is 'employee name'
+expect:
+{
+  "contains": [
+    {"class":"Db2ColumnDomain", "sqlType": "COMMENT_COLUMN", "auditKind":"ALTER", "schema":"app", "table":"employee", "column":"name"}
+  ]
+}
+----------
+[comment_column_list]
+sql:
+comment on app.employee (name is 'employee name', title is 'job title')
+expect:
+{
+  "contains": [
+    {"class":"Db2ColumnDomain", "sqlType": "COMMENT_COLUMN", "auditKind":"ALTER", "schema":"app", "table":"employee", "column":"name"},
+    {"class":"Db2ColumnDomain", "sqlType": "COMMENT_COLUMN", "auditKind":"ALTER", "schema":"app", "table":"employee", "column":"title"}
+  ]
+}
+----------
+[rename_table]
+sql:
+rename table employee to employee_archive
+expect:
+{
+  "contains": [
+    {"class":"Db2TableDomain", "sqlType": "RENAME_TABLE", "auditKind":"ALTER", "table":"employee", "newName":"employee_archive"}
+  ]
+}
+----------
+[truncate_table]
+sql:
+truncate table app.employee immediate
+expect:
+{
+  "contains": [
+    {"class":"Db2TableDomain", "sqlType": "TRUNCATE", "auditKind":"DML", "schema":"app", "table":"employee"}
+  ]
+}

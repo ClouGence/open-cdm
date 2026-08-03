@@ -1,0 +1,130 @@
+[dpc_cluster_call_001]
+sql:
+call sysdba.sp_create_dpc_bp_group('CODEX_CC_BG','cluster control evidence')
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:5~1:34) /test/1/catalog1/sysdba/sp_create_dpc_bp_group/",
+      "action": "CALL",
+      "target": "ResourceGroup(1:35~1:48) /test/1/CODEX_CC_BG/"
+    }
+  ]
+}
+----------
+[dpc_cluster_call_002]
+sql:
+call sysdba.sp_create_dpc_raft('BP','CODEX_CC_MISSING_RAFT')
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:5~1:30) /test/1/catalog1/sysdba/sp_create_dpc_raft/",
+      "action": "CALL",
+      "target": "Replication(1:36~1:59) /test/1/CODEX_CC_MISSING_RAFT/"
+    }
+  ]
+}
+----------
+[dpc_cluster_call_003]
+sql:
+call sysdba.sp_create_dpc_instance('CODEX_CC_MISSING_RAFT','CODEX_CC_I10','BP',6092,5292,'127.0.0.1','','NORMAL',0,'syntax evidence')
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:5~1:34) /test/1/catalog1/sysdba/sp_create_dpc_instance/",
+      "action": "CALL",
+      "target": [
+        "Replication(1:35~1:58) /test/1/CODEX_CC_MISSING_RAFT/",
+        "Instance(1:59~1:73) /test/1/CODEX_CC_I10/"
+      ]
+    }
+  ]
+}
+----------
+[dpc_cluster_call_004]
+sql:
+call sysdba.sp_set_dpc_net_conf('CODEX_CC_INVALID_PARA','1')
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:5~1:31) /test/1/catalog1/sysdba/sp_set_dpc_net_conf/",
+      "action": "CALL",
+      "target": "ConfigKey(1:32~1:55) /test/1/CODEX_CC_INVALID_PARA/"
+    }
+  ]
+}
+----------
+[dpc_cluster_call_005]
+sql:
+call sysdba.sp_ts_group_create('CODEX_CC_TSG','cluster control evidence')
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:5~1:30) /test/1/catalog1/sysdba/sp_ts_group_create/",
+      "action": "CALL",
+      "target": "ResourceGroup(1:31~1:45) /test/1/CODEX_CC_TSG/"
+    }
+  ]
+}
+----------
+[dpc_cluster_call_006]
+sql:
+call sysdba.sp_add_raft_learner('CODEX_CC_LEARNER','127.0.0.1',6094,8)
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:5~1:31) /test/1/catalog1/sysdba/sp_add_raft_learner/",
+      "action": "CALL",
+      "target": "Replication(1:32~1:50) /test/1/CODEX_CC_LEARNER/"
+    }
+  ]
+}
+----------
+[dpc_cluster_call_007]
+sql:
+call sysdba.sp_raft_suspend_thread()
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:5~1:34) /test/1/catalog1/sysdba/sp_raft_suspend_thread/",
+      "action": "CALL",
+      "target": "Replication(1:5~1:34) /test/1/"
+    }
+  ]
+}
+----------
+[dpc_cluster_call_008]
+sql:
+call sysdba.sp_clear_tab_rowcnt_cache(null,null)
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:5~1:37) /test/1/catalog1/sysdba/sp_clear_tab_rowcnt_cache/",
+      "action": "CALL",
+      "target": "Environment(1:5~1:37) /test/1/"
+    }
+  ]
+}

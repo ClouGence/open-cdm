@@ -1,0 +1,28 @@
+-- getter empty first argument
+declare v int; begin v:=DBMS_BINARY.BINARY_GET_INT(,0); end;
+/
+-- getter dangling named argument
+declare v int; begin v:=DBMS_BINARY.BINARY_GET_INT(VB=>); end;
+/
+-- setter double comma
+declare b varbinary; begin DBMS_BINARY.BINARY_SET_INT(b,,1); end;
+/
+-- setter unclosed call
+declare b varbinary; begin DBMS_BINARY.BINARY_SET_VARCHAR(b,0,'A'; end;
+/
+------------------------------------------------------------------------------------------
+[BLOCK] -- getter empty first argument
+declare v int; begin v:=DBMS_BINARY.BINARY_GET_INT(,0); end;
+/
+----------
+[BLOCK] -- getter dangling named argument
+declare v int; begin v:=DBMS_BINARY.BINARY_GET_INT(VB=>); end;
+/
+----------
+[BLOCK] -- setter double comma
+declare b varbinary; begin DBMS_BINARY.BINARY_SET_INT(b,,1); end;
+/
+----------
+[BLOCK] -- setter unclosed call
+declare b varbinary; begin DBMS_BINARY.BINARY_SET_VARCHAR(b,0,'A'; end;
+/

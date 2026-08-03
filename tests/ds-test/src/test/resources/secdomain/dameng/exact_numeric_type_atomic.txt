@@ -1,0 +1,14 @@
+[ddl]
+sql:
+create table app.exact_num_t(id int,c_numeric numeric,c_number number);
+create view app.exact_num_v as select id,c_numeric,c_number from app.exact_num_t
+expect:
+{"contains":[{"class":"RdbTableDomain","sqlType":"CREATE_TABLE","auditKind":"CREATE","schema":"app","table":"exact_num_t"},{"class":"RdbViewDomain","sqlType":"CREATE_VIEW","auditKind":"CREATE","schema":"app","view":"exact_num_v"},{"class":"RdbTableDomain","sqlType":"SELECT","auditKind":"QUERY","schema":"app","table":"exact_num_t"}]}
+----------
+[dml]
+sql:
+insert into app.exact_num_t values(1,1,2);
+update app.exact_num_t set c_number=c_number+1 where id=1;
+delete from app.exact_num_t where id=1
+expect:
+{"contains":[{"class":"RdbInsertDomain","sqlType":"INSERT","auditKind":"DML","schema":"app","table":"exact_num_t"},{"class":"RdbUpdateDomain","sqlType":"UPDATE","auditKind":"DML","schema":"app","table":"exact_num_t"},{"class":"RdbDeleteDomain","sqlType":"DELETE","auditKind":"DML","schema":"app","table":"exact_num_t"}]}

@@ -1,0 +1,17 @@
+[join_columns]
+sql:
+select e.id, d.name from catalog1.app.employee e join catalog1.app.department d on e.dept_id = d.id
+expect:
+{
+  "id" : [ "/catalog1/app/employee/id/" ],
+  "name" : [ "/catalog1/app/department/name/" ]
+}
+----------
+[derived_columns]
+sql:
+select x.id, x.name from (select e.id, d.name from catalog1.app.employee e join catalog1.app.department d on e.dept_id = d.id) x
+expect:
+{
+  "id" : [ "/catalog1/app/employee/id/" ],
+  "name" : [ "/catalog1/app/department/name/" ]
+}

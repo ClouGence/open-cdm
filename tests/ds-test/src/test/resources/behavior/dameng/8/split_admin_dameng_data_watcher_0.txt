@@ -1,0 +1,79 @@
+[split_admin_dameng_data_watcher_0_001]
+sql:
+SP_SET_OGUID(6220722);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Procedure(1:0~1:12) /test/1/catalog1/schema1/SP_SET_OGUID/",
+      "action": "CALL",
+      "target": "ConfigKey(1:0~1:12) /test/1/OGUID/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_data_watcher_0_002]
+sql:
+SP_APPLY_KEEP_PKG();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Procedure(1:0~1:17) /test/1/catalog1/schema1/SP_APPLY_KEEP_PKG/",
+      "action": "CALL",
+      "target": "Replication(1:0~1:17) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_data_watcher_0_003]
+sql:
+SP_CLEAR_ARCH_SEND_INFO();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Procedure(1:0~1:23) /test/1/catalog1/schema1/SP_CLEAR_ARCH_SEND_INFO/",
+      "action": "CALL",
+      "target": "Replication(1:0~1:23) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_data_watcher_0_004]
+sql:
+SP_CLEAR_ARCH_SEND_INFO('GRP6220722_DW2');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Procedure(1:0~1:23) /test/1/catalog1/schema1/SP_CLEAR_ARCH_SEND_INFO/",
+      "action": "CALL",
+      "target": "Replication(1:24~1:40) /test/1/GRP6220722_DW2/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_data_watcher_0_005]
+sql:
+SP_CLEAR_RAPPLY_STAT();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Procedure(1:0~1:20) /test/1/catalog1/schema1/SP_CLEAR_RAPPLY_STAT/",
+      "action": "CALL",
+      "target": "Replication(1:0~1:20) /test/1/"
+    }
+  ]
+}

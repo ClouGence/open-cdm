@@ -1,0 +1,763 @@
+[split_dql_dameng_with_cte_atomic_0_001_behavior_review]
+sql:
+-- inferred column name
+with q as(select id from app.cte_t) select id from q;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:25~2:34) /test/1/catalog1/app/cte_t/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_with_cte_atomic_0_002_behavior_review]
+sql:
+-- explicit column list
+with q(c) as(select id from app.cte_t) select c from q;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:28~2:37) /test/1/catalog1/app/cte_t/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_with_cte_atomic_0_003_behavior_review]
+sql:
+-- multiple CTE
+with q1(c) as(select 1 from dual),q2(c) as(select 2 from dual) select q1.c,q2.c from q1,q2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(2:28~2:32) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(2:57~2:61) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_with_cte_atomic_0_004_behavior_review]
+sql:
+-- later CTE references earlier
+with q1(c) as(select 1 from dual),q2(c) as(select c+1 from q1) select c from q2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(2:28~2:32) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_with_cte_atomic_0_005_behavior_review]
+sql:
+-- earlier CTE references later restriction
+with q1(c) as(select c+1 from q2),q2(c) as(select 1 from dual) select c from q1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(2:57~2:61) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_with_cte_atomic_0_006_behavior_review]
+sql:
+-- duplicate CTE name restriction
+with q(c) as(select 1 from dual),q(c) as(select 2 from dual) select c from q;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(2:27~2:31) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(2:55~2:59) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_with_cte_atomic_0_007_behavior_review]
+sql:
+-- CTE priority over base table
+with cte_t(id) as(select 99 from dual) select id from cte_t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(2:33~2:37) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_with_cte_atomic_0_008_behavior_review]
+sql:
+-- CTE reused twice
+with q as(select id,v from app.cte_t) select a.id,b.v from q a join q b on a.id=b.id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:27~2:36) /test/1/catalog1/app/cte_t/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_with_cte_atomic_0_009_behavior_review]
+sql:
+-- CTE union source
+with q(c) as(select 1 from dual union all select 2 from dual) select sum(c) from q;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:69~2:72) /test/1/catalog1/schema1/sum/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:27~2:31) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(2:56~2:60) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_with_cte_atomic_0_010_behavior_review]
+sql:
+-- CTE order and limit source
+with q as(select id,v from app.cte_t order by id limit 2) select * from q order by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:27~2:36) /test/1/catalog1/app/cte_t/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_with_cte_atomic_0_011_behavior_review]
+sql:
+-- nested CTE definition restriction
+with q as(with inner_q(c) as(select 1 from dual) select c from inner_q) select * from q;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(2:43~2:47) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_with_cte_atomic_0_012_behavior_review]
+sql:
+-- duplicate CTE columns restriction
+with q(c,c) as(select 1,2 from dual) select * from q;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(2:31~2:35) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_with_cte_atomic_0_013_behavior_review]
+sql:
+-- CTE column count too few restriction
+with q(c) as(select 1,2 from dual) select * from q;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(2:29~2:33) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_with_cte_atomic_0_014_behavior_review]
+sql:
+-- CTE column count too many restriction
+with q(c1,c2) as(select 1 from dual) select * from q;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(2:31~2:35) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_with_cte_atomic_0_015_behavior_review]
+sql:
+-- unnamed result without list restriction
+with q as(select 1+1 from dual) select * from q;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(2:26~2:30) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_with_cte_atomic_0_016_behavior_review]
+sql:
+-- nested separate CTE scope
+with outer_q(c) as(select 1 from dual) select c,(select c from(with inner_q(c) as(select 2 from dual) select c from inner_q)) from outer_q;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(2:33~2:37) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(2:96~2:100) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_with_cte_atomic_0_017_behavior_review]
+sql:
+-- CTE in scalar subquery
+select (with q(c) as(select 1 from dual) select c from q) value from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(2:35~2:39) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(2:69~2:73) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_with_cte_atomic_0_018_behavior_review]
+sql:
+-- WITH before INSERT
+with q(id,v) as(select 10,100 from dual) insert into app.cte_t(id,v) select id,v from q;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(2:53~2:62) /test/1/catalog1/app/cte_t/",
+      "action": "INSERT",
+      "target": "View(2:35~2:39) /test/1/catalog1/schema1/dual/"
+    }
+  ]
+}
+----------
+[split_dql_dameng_with_cte_atomic_0_019_behavior_review]
+sql:
+-- WITH after INSERT target
+insert into app.cte_t(id,v) with q(id,v) as(select 11,110 from dual) select id,v from q;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(2:12~2:21) /test/1/catalog1/app/cte_t/",
+      "action": "INSERT",
+      "target": "View(2:63~2:67) /test/1/catalog1/schema1/dual/"
+    }
+  ]
+}
+----------
+[split_dql_dameng_with_cte_atomic_0_020_behavior_review]
+sql:
+-- WITH UPDATE
+with q as(select id from app.cte_t where id=1) update app.cte_t set v=v+1 where id in(select id from q);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(2:54~2:63) /test/1/catalog1/app/cte_t/",
+      "action": "UPDATE",
+      "target": "Table(2:25~2:34) /test/1/catalog1/app/cte_t/"
+    }
+  ]
+}
+----------
+[split_dql_dameng_with_cte_atomic_0_021_behavior_review]
+sql:
+-- WITH DELETE
+with q as(select id from app.cte_t where id=999) delete from app.cte_t where id in(select id from q);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(2:61~2:70) /test/1/catalog1/app/cte_t/",
+      "action": "DELETE",
+      "target": "Table(2:25~2:34) /test/1/catalog1/app/cte_t/"
+    }
+  ]
+}
+----------
+[split_dql_dameng_with_cte_atomic_0_022_behavior_review]
+sql:
+-- CREATE VIEW with CTE
+create view app.cte_v as with q as(select id,v from app.cte_t) select * from q;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(2:12~2:21) /test/1/catalog1/app/cte_v/",
+      "action": "CREATE",
+      "target": "Table(2:52~2:61) /test/1/catalog1/app/cte_t/"
+    }
+  ]
+}
+----------
+[split_dql_dameng_with_cte_atomic_0_023_behavior_review]
+sql:
+-- recursive numbers
+with nums(n) as(select 1 from dual union all select n+1 from nums where n<3) select * from nums;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(2:30~2:34) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_with_cte_atomic_0_024_behavior_review]
+sql:
+-- WITH RECURSIVE numbers
+with recursive nums(n) as(select 1 from dual union all select n+1 from nums where n<3) select * from nums;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(2:40~2:44) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_with_cte_atomic_0_025_behavior_review]
+sql:
+-- recursive multiple columns
+with nums(n,total) as(select 1,1 from dual union all select n+1,total+n+1 from nums where n<3) select * from nums;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(2:38~2:42) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_with_cte_atomic_0_026_behavior_review]
+sql:
+-- recursive compound anchor
+with nums(n) as((select 1 from dual union select 2 from dual) union all select n+1 from nums where n<3) select * from nums;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(2:31~2:35) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(2:56~2:60) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_with_cte_atomic_0_027_behavior_review]
+sql:
+-- recursive anchor INTERSECT
+with nums(n) as((select 1 from dual intersect select 1 from dual) union all select n+1 from nums where n<3) select * from nums;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(2:31~2:35) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(2:60~2:64) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_with_cte_atomic_0_028_behavior_review]
+sql:
+-- recursive analytic member
+with nums(n,rn) as(select 1,1 from dual union all select n+1,row_number() over(order by n) from nums where n<3) select * from nums;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:61~2:71) /test/1/catalog1/schema1/row_number/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:35~2:39) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_with_cte_atomic_0_029_behavior_review]
+sql:
+-- recursive anchor self reference restriction
+with nums(n) as(select n from nums union all select n+1 from nums where n<3) select * from nums;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[split_dql_dameng_with_cte_atomic_0_030_behavior_review]
+sql:
+-- recursive member two references restriction
+with nums(n) as(select 1 from dual union all select a.n+b.n from nums a,nums b where a.n<3) select * from nums;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(2:30~2:34) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_with_cte_atomic_0_031_behavior_review]
+sql:
+-- recursive DISTINCT restriction
+with nums(n) as(select 1 from dual union all select distinct n+1 from nums where n<3) select * from nums;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(2:30~2:34) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_with_cte_atomic_0_032_behavior_review]
+sql:
+-- recursive GROUP BY restriction
+with nums(n) as(select 1 from dual union all select n+1 from nums where n<3 group by n) select * from nums;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(2:30~2:34) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_with_cte_atomic_0_033_behavior_review]
+sql:
+-- recursive aggregate restriction
+with nums(n) as(select 1 from dual union all select max(n)+1 from nums where n<3) select * from nums;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:52~2:55) /test/1/catalog1/schema1/max/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:30~2:34) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_with_cte_atomic_0_034_behavior_review]
+sql:
+-- recursive nested self reference restriction
+with nums(n) as(select 1 from dual union all select n+1 from nums where exists(select 1 from nums x where x.n=nums.n) and n<3) select * from nums;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(2:30~2:34) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_with_cte_atomic_0_035_behavior_review]
+sql:
+-- recursive outer join right restriction
+with nums(n) as(select 1 from dual union all select nvl(q.n,0)+1 from dual d left join nums q on q.n<3) select * from nums;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:52~2:55) /test/1/catalog1/schema1/nvl/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:30~2:34) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(2:70~2:74) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_with_cte_atomic_0_036_behavior_review]
+sql:
+-- recursive type mismatch restriction
+with nums(n) as(select 1 from dual union all select 'x' from nums where n<2) select * from nums;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(2:30~2:34) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_with_cte_atomic_0_037_behavior_review]
+sql:
+-- recursive depth 100
+with nums(n) as(select 1 from dual union all select n+1 from nums where n<100) select max(n) from nums;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:86~2:89) /test/1/catalog1/schema1/max/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:30~2:34) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_with_cte_atomic_0_038_behavior_review]
+sql:
+-- recursive depth 101
+with nums(n) as(select 1 from dual union all select n+1 from nums where n<101) select max(n) from nums;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:86~2:89) /test/1/catalog1/schema1/max/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:30~2:34) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_with_cte_atomic_0_039_behavior_review]
+sql:
+-- recursive depth 102 restriction
+with nums(n) as(select 1 from dual union all select n+1 from nums where n<102) select max(n) from nums;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:86~2:89) /test/1/catalog1/schema1/max/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:30~2:34) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_with_cte_atomic_0_040_behavior_review]
+sql:
+-- SEARCH DEPTH FIRST availability
+with nums(n) as(select 1 from dual union all select n+1 from nums where n<3) search depth first by n set seq select n from nums;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(2:30~2:34) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_with_cte_atomic_0_041_behavior_review]
+sql:
+-- SEARCH BREADTH FIRST availability
+with nums(n) as(select 1 from dual union all select n+1 from nums where n<3) search breadth first by n set seq select n from nums;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(2:30~2:34) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_with_cte_atomic_0_042_behavior_review]
+sql:
+-- CYCLE finite availability
+with nums(n) as(select 1 from dual union all select n+1 from nums where n<3) cycle n set is_cycle to 1 default 0 select n from nums;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(2:30~2:34) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_with_cte_atomic_0_043_behavior_review]
+sql:
+-- SEARCH generated column restriction
+with nums(n) as(select 1 from dual union all select n+1 from nums where n<3) search depth first by n set seq select n,seq from nums;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(2:30~2:34) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_with_cte_atomic_0_044_behavior_review]
+sql:
+-- CYCLE generated column restriction
+with nums(n) as(select 1 from dual union all select n+1 from nums where n<3) cycle n set is_cycle to 1 default 0 select n,is_cycle from nums;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(2:30~2:34) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}

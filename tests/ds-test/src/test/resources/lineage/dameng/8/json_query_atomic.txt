@@ -1,0 +1,33 @@
+[row_to_json_columns]
+sql:
+select row_to_json(row(d.id,d.payload)) as doc from catalog1.app.json_docs d
+expect:
+{
+  "doc": [
+    "/catalog1/app/json_docs/id/",
+    "/catalog1/app/json_docs/payload/"
+  ]
+}
+----------
+[json_table_columns]
+sql:
+select d.id,jt.v from catalog1.app.json_docs d,json_table(d.payload,'$.items[*]' columns(v int path '$.v')) jt
+expect:
+{
+  "id": [
+    "/catalog1/app/json_docs/id/"
+  ],
+  "v": [
+    "/jt/v/"
+  ]
+}
+----------
+[json_valid_columns]
+sql:
+select json_valid(d.payload) as valid_doc from catalog1.app.json_docs d
+expect:
+{
+  "valid_doc": [
+    "/catalog1/app/json_docs/payload/"
+  ]
+}

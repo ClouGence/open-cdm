@@ -33,6 +33,14 @@ export const cicdApi = {
   dmCicdChangeConfirmExec: '/api/entry/cicd/change/confirmExec',
   dmCicdChangeSkipChecks: '/api/entry/cicd/change/skipChecks',
   dmCicdChangeRetry: '/api/entry/cicd/change/changeRetry',
+  dmCicdChangeExecJobInfo: '/api/entry/cicd/change/changeExecJobInfo',
   dmCicdChangeExecTaskList: '/api/entry/cicd/change/changeExecTaskList',
+  dmCicdChangeExecLog: '/api/entry/cicd/change/changeExecLog',
+  dmCicdChangeExecJobPause: '/api/entry/cicd/change/changeExecJobPause',
+  dmCicdChangeExecJobStart: '/api/entry/cicd/change/changeExecJobStart',
+  dmCicdChangeExecJobRetry: '/api/entry/cicd/change/changeExecJobRetry',
+  dmCicdChangeExecJobAbort: '/api/entry/cicd/change/changeExecJobAbort',
+  dmCicdChangeExecTaskSkip: '/api/entry/cicd/change/changeExecTaskSkip',
+  dmCicdChangeExecTaskContinue: '/api/entry/cicd/change/changeExecTaskContinue',
   dmCicdChangeExecute: '/api/entry/cicd/change/changeExecute'
 };

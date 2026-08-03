@@ -1,0 +1,76 @@
+[huge_create]
+sql:
+create huge table app.huge_main(
+  id int default on null 7 primary key,
+  name varchar(40) storage(stat none) comment 'huge name'
+) storage(section(65536), filesize(64), stat synchronous on(id), with delta, on main)
+  compress level 2 for 'QUERY HIGH'(name)
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"CREATE_TABLE", "auditKind":"CREATE", "schema":"app", "table":"huge_main"}
+  ]
+}
+----------
+[huge_ctas]
+sql:
+create huge table app.huge_archive
+as select o.id, o.name from app.orders o where o.id > 0
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"CREATE_TABLE", "auditKind":"CREATE", "schema":"app", "table":"huge_archive"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"orders"}
+  ]
+}
+----------
+[huge_dml_query]
+sql:
+insert into app.huge_main(id,name) values(1,'alpha');
+update app.huge_main set name='beta' where id=1;
+delete from app.huge_main where id=1;
+select id,name,rowid from app.huge_main
+expect:
+{
+  "contains": [
+    {"class":"RdbInsertDomain", "sqlType":"INSERT", "auditKind":"DML", "schema":"app", "table":"huge_main"},
+    {"class":"RdbUpdateDomain", "sqlType":"UPDATE", "auditKind":"DML", "schema":"app", "table":"huge_main"},
+    {"class":"RdbDeleteDomain", "sqlType":"DELETE", "auditKind":"DML", "schema":"app", "table":"huge_main"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"huge_main"}
+  ]
+}
+----------
+[huge_alter_comment_drop]
+sql:
+alter table app.huge_main set stat none;
+alter table app.huge_main refresh stat;
+alter table app.huge_main force column storage;
+alter table app.huge_main rebuild section;
+comment on table app.huge_main is 'huge';
+comment on column app.huge_main.name is 'huge name';
+drop table app.huge_main cascade
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"ALTER_TABLE", "auditKind":"ALTER", "schema":"app", "table":"huge_main"},
+    {"class":"RdbTableDomain", "sqlType":"COMMENT_TABLE", "auditKind":"ALTER", "schema":"app", "table":"huge_main"},
+    {"class":"RdbTableDomain", "sqlType":"COMMENT_COLUMN", "auditKind":"ALTER", "schema":"app", "table":"huge_main"},
+    {"class":"RdbTableDomain", "sqlType":"DROP_TABLE", "auditKind":"DROP", "schema":"app", "table":"huge_main"}
+  ]
+}
+----------
+[huge_fast_add_privilege_lifecycle]
+sql:
+alter table app.huge_fast add column c_default int default 33;
+comment on table app.huge_fast is 'fast add';
+comment on column app.huge_fast.c_default is 'added column';
+drop table app.huge_fast
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"ALTER_TABLE", "auditKind":"ALTER", "schema":"app", "table":"huge_fast"},
+    {"class":"RdbTableDomain", "sqlType":"COMMENT_TABLE", "auditKind":"ALTER", "schema":"app", "table":"huge_fast"},
+    {"class":"RdbTableDomain", "sqlType":"COMMENT_COLUMN", "auditKind":"ALTER", "schema":"app", "table":"huge_fast"},
+    {"class":"RdbTableDomain", "sqlType":"DROP_TABLE", "auditKind":"DROP", "schema":"app", "table":"huge_fast"}
+  ]
+}

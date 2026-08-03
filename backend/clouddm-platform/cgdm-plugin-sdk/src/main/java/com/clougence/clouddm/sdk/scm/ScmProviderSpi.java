@@ -33,9 +33,16 @@ public interface ScmProviderSpi extends Spi {
 
     List<ScmRepo> fetchRepoList(String serviceUrl, String accessToken, String filter);
 
-    List<ScmBranch> fetchBranchList(String serviceUrl, String accessToken, String repoName, String filter, boolean exactMatch);
+    ScmRepo fetchRepo(String serviceUrl, String accessToken, ScmRepo selection);
 
-    ScmEvent readEvent(String serviceUrl, String accessToken, String repoPath, String repoName, String password, Map<String, List<String>> headers, String jsonBody);
+    List<ScmBranch> fetchBranchList(String serviceUrl, String accessToken, ScmRepo repo, String filter, boolean exactMatch);
+
+    ScmPathValidation validateScriptPath(String serviceUrl, String accessToken, ScmRepo repo, String scriptPath);
+
+    String fetchServerVersion(String serviceUrl, String accessToken);
+
+    ScmEvent readEvent(String serviceUrl, String accessToken, String repoId, String repoPath, String repoName, String password, String signingToken,
+                       Map<String, List<String>> headers, String jsonBody);
 
     void downloadToLocal(ScmProvider scm, ScmRepo repo, ScmSaveTo saveTo, ESupplier<Boolean, Exception> watchdog) throws Exception;
 }

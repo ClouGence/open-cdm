@@ -1,0 +1,12 @@
+CREATE OR REPLACE EDITIONABLE SYNONYM "JIERUI"."SYNONYM1_NAME" FOR "SCHEMA_NAME"."AA";
+create public synonym syn_emp for scott.emp;
+drop synonym synonym1_name;
+drop public synonym syn_emp;
+------------------------------------------------------------------------------------------
+[CREATE_SYNONYM] CREATE OR REPLACE EDITIONABLE SYNONYM "JIERUI"."SYNONYM1_NAME" FOR "SCHEMA_NAME"."AA";
+----------
+[CREATE_SYNONYM] create public synonym syn_emp for scott.emp;
+----------
+[DROP_SYNONYM] drop synonym synonym1_name;
+----------
+[DROP_SYNONYM] drop public synonym syn_emp;

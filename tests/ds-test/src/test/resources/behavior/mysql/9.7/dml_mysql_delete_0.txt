@@ -1,0 +1,1050 @@
+[delete__001]
+sql:
+delete from test;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:16) /test/1/catalog1/schema1/test/",
+      "action" : "DELETE"
+    }
+  ]
+}
+----------
+[delete__002]
+sql:
+delete ignore from test where id = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:19~1:23) /test/1/catalog1/schema1/test/",
+      "action" : "DELETE"
+    }
+  ]
+}
+----------
+[delete_select__003]
+sql:
+delete from test1 where id = (select max(id) from test2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:17) /test/1/catalog1/schema1/test1/",
+      "action" : "DELETE",
+      "target" : "Table(1:50~1:55) /test/1/catalog1/schema1/test2/"
+    },
+    {
+      "subject": "Function(1:37~1:40) /test/1/catalog1/schema1/max/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[delete_select__004]
+sql:
+delete from test1 where id = (select max(id) from test2 limit 2) limit 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:17) /test/1/catalog1/schema1/test1/",
+      "action" : "DELETE",
+      "target" : "Table(1:50~1:55) /test/1/catalog1/schema1/test2/"
+    },
+    {
+      "subject": "Function(1:37~1:40) /test/1/catalog1/schema1/max/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[delete__005]
+sql:
+DELETE LOW_PRIORITY QUICK IGNORE FROM ptab PARTITION (p0) WHERE id < 0 ORDER BY id LIMIT 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:38~1:42) /test/1/catalog1/schema1/ptab/",
+      "action" : "DELETE"
+    }
+  ]
+}
+----------
+[delete__006]
+sql:
+DELETE LOW_PRIORITY QUICK IGNORE a.*, b.* FROM t1 AS a INNER JOIN t2 AS b ON a.id = b.id WHERE a.id < 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:33~1:34) /test/1/catalog1/schema1/a/",
+      "action" : "DELETE",
+      "target" : [
+        "Table(1:47~1:49) /test/1/catalog1/schema1/t1/",
+        "Table(1:66~1:68) /test/1/catalog1/schema1/t2/"
+      ]
+    },
+    {
+      "subject": "Table(1:38~1:39) /test/1/catalog1/schema1/b/",
+      "action" : "DELETE"
+    }
+  ]
+}
+----------
+[delete__007]
+sql:
+DELETE LOW_PRIORITY QUICK IGNORE FROM a, b USING t1 AS a INNER JOIN t2 AS b ON a.id = b.id WHERE a.id < 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:38~1:39) /test/1/catalog1/schema1/a/",
+      "action" : "DELETE",
+      "target" : [
+        "Table(1:49~1:51) /test/1/catalog1/schema1/t1/",
+        "Table(1:68~1:70) /test/1/catalog1/schema1/t2/"
+      ]
+    },
+    {
+      "subject": "Table(1:41~1:42) /test/1/catalog1/schema1/b/",
+      "action" : "DELETE"
+    }
+  ]
+}
+----------
+[delete__008]
+sql:
+DELETE a FROM ptab PARTITION (p0) AS a INNER JOIN t2 AS b ON a.id = b.id WHERE a.id < 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:7~1:8) /test/1/catalog1/schema1/a/",
+      "action" : "DELETE",
+      "target" : [
+        "Table(1:14~1:18) /test/1/catalog1/schema1/ptab/",
+        "Table(1:50~1:52) /test/1/catalog1/schema1/t2/"
+      ]
+    }
+  ]
+}
+----------
+[delete__009]
+sql:
+DELETE LOW_PRIORITY FROM ptab AS p PARTITION (p0) WHERE p.id < 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:25~1:29) /test/1/catalog1/schema1/ptab/",
+      "action" : "DELETE"
+    }
+  ]
+}
+----------
+[delete_select__010]
+sql:
+DELETE FROM t2 a2 WHERE NOT EXISTS (SELECT * FROM t1 WHERE t1.c1 = a2.c2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:14) /test/1/catalog1/schema1/t2/",
+      "action" : "DELETE",
+      "target" : "Table(1:50~1:52) /test/1/catalog1/schema1/t1/"
+    }
+  ]
+}
+----------
+[delete_select__011]
+sql:
+WITH cte AS (SELECT id FROM table1) DELETE FROM table2 WHERE id IN (SELECT id FROM cte);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:48~1:54) /test/1/catalog1/schema1/table2/",
+      "action" : "DELETE",
+      "target" : "Table(1:28~1:34) /test/1/catalog1/schema1/table1/"
+    }
+  ]
+}
+----------
+[delete__012]
+sql:
+DELETE FROM articles WHERE MATCH(title,body) AGAINST('+database' IN BOOLEAN MODE);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:20) /test/1/catalog1/schema1/articles/",
+      "action" : "DELETE"
+    }
+  ]
+}
+----------
+[delete__013]
+sql:
+DELETE a FROM articles AS a JOIN aux AS b ON a.id=b.id WHERE MATCH(a.title) AGAINST('database');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:7~1:8) /test/1/catalog1/schema1/a/",
+      "action" : "DELETE",
+      "target" : [
+        "Table(1:14~1:22) /test/1/catalog1/schema1/articles/",
+        "Table(1:33~1:36) /test/1/catalog1/schema1/aux/"
+      ]
+    }
+  ]
+}
+----------
+[delete_select__014]
+sql:
+DELETE FROM jt_base WHERE EXISTS (SELECT a FROM JSON_TABLE('[{"a":"3"}]', '$[0].a' COLUMNS (a FOR ORDINALITY)) AS q);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:19) /test/1/catalog1/schema1/jt_base/",
+      "action" : "DELETE"
+    }
+  ]
+}
+----------
+[delete__015]
+sql:
+DELETE `4.t1` FROM t1 AS `4.t1` WHERE `4.t1`.a = 500;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:7~1:13) /test/1/catalog1/schema1/4.t1/",
+      "action" : "DELETE",
+      "target" : "Table(1:19~1:21) /test/1/catalog1/schema1/t1/"
+    }
+  ]
+}
+----------
+[delete__016]
+sql:
+DELETE FROM `4.t1` USING t1 AS `4.t1` WHERE `4.t1`.a = 500;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:18) /test/1/catalog1/schema1/4.t1/",
+      "action" : "DELETE",
+      "target" : "Table(1:25~1:27) /test/1/catalog1/schema1/t1/"
+    }
+  ]
+}
+----------
+[delete_session_variable_rw__017]
+sql:
+DELETE FROM t1 WHERE (@a := f1) ORDER BY f1 LIMIT 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:14) /test/1/catalog1/schema1/t1/",
+      "action" : "DELETE"
+    },
+    {
+      "subject": "ConfigKey(1:22~1:24) /test/1/a/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[delete__018]
+sql:
+DELETE FROM t1.*, codex_delete_native_parallel.t2.*, a.* USING t1, t2, t3 AS a;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:14) /test/1/catalog1/schema1/t1/",
+      "action" : "DELETE",
+      "target" : [
+        "Table(1:63~1:65) /test/1/catalog1/schema1/t1/",
+        "Table(1:67~1:69) /test/1/catalog1/schema1/t2/",
+        "Table(1:71~1:73) /test/1/catalog1/schema1/t3/"
+      ]
+    },
+    {
+      "subject": "Table(1:18~1:49) /test/1/catalog1/codex_delete_native_parallel/t2/",
+      "action" : "DELETE"
+    },
+    {
+      "subject": "Table(1:53~1:54) /test/1/catalog1/schema1/a/",
+      "action" : "DELETE"
+    }
+  ]
+}
+----------
+[delete_select__019]
+sql:
+DELETE FROM OUTR1.* USING t1 AS OUTR1 LEFT OUTER JOIN t2 AS OUTR2 ON (OUTR1.a = OUTR2.b) WHERE OUTR1.a < (SELECT t3.c FROM t3 WHERE 1 XOR OUTR2.b IS NOT NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:17) /test/1/catalog1/schema1/OUTR1/",
+      "action" : "DELETE",
+      "target" : [
+        "Table(1:26~1:28) /test/1/catalog1/schema1/t1/",
+        "Table(1:54~1:56) /test/1/catalog1/schema1/t2/",
+        "Table(1:123~1:125) /test/1/catalog1/schema1/t3/"
+      ]
+    }
+  ]
+}
+----------
+[delete_select__020]
+sql:
+DELETE IGNORE t1.*, t2.* FROM t1, t2 WHERE c < b OR a != (SELECT 1 UNION SELECT 2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:14~1:16) /test/1/catalog1/schema1/t1/",
+      "action" : "DELETE",
+      "target" : [
+        "Table(1:30~1:32) /test/1/catalog1/schema1/t1/",
+        "Table(1:34~1:36) /test/1/catalog1/schema1/t2/"
+      ]
+    },
+    {
+      "subject": "Table(1:20~1:22) /test/1/catalog1/schema1/t2/",
+      "action" : "DELETE"
+    }
+  ]
+}
+----------
+[delete__021]
+sql:
+DELETE t1, t2, t3, t4 FROM (t1 INNER JOIN t2 USING (a)) LEFT JOIN (t3 INNER JOIN t4 USING (a)) ON t2.b = t4.b;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:7~1:9) /test/1/catalog1/schema1/t1/",
+      "action" : "DELETE",
+      "target" : [
+        "Table(1:28~1:30) /test/1/catalog1/schema1/t1/",
+        "Table(1:42~1:44) /test/1/catalog1/schema1/t2/",
+        "Table(1:67~1:69) /test/1/catalog1/schema1/t3/",
+        "Table(1:81~1:83) /test/1/catalog1/schema1/t4/"
+      ]
+    },
+    {
+      "subject": "Table(1:11~1:13) /test/1/catalog1/schema1/t2/",
+      "action" : "DELETE"
+    },
+    {
+      "subject": "Table(1:15~1:17) /test/1/catalog1/schema1/t3/",
+      "action" : "DELETE"
+    },
+    {
+      "subject": "Table(1:19~1:21) /test/1/catalog1/schema1/t4/",
+      "action" : "DELETE"
+    }
+  ]
+}
+----------
+[delete__022]
+sql:
+DELETE IGNORE QUICK LOW_PRIORITY FROM dml_audit.t WHERE id=999 ORDER BY id LIMIT 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:38~1:49) /test/1/catalog1/dml_audit/t/",
+      "action" : "DELETE"
+    }
+  ]
+}
+----------
+[delete_select__023]
+sql:
+WITH RECURSIVE cte(n) AS (SELECT 999) DELETE t FROM dml_audit.t AS t JOIN cte ON t.id=cte.n;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:45~1:46) /test/1/catalog1/schema1/t/",
+      "action" : "DELETE",
+      "target" : "Table(1:52~1:63) /test/1/catalog1/dml_audit/t/"
+    }
+  ]
+}
+----------
+[delete_select__024]
+sql:
+DELETE p1.* FROM split_derived_common.nm AS p1 INNER JOIN (SELECT n FROM split_derived_common.nm GROUP BY n HAVING COUNT(m)>1) AS p2 ON p1.n=p2.n;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:7~1:9) /test/1/catalog1/schema1/p1/",
+      "action" : "DELETE",
+      "target" : "Table(1:17~1:40) /test/1/catalog1/split_derived_common/nm/"
+    },
+    {
+      "subject": "Function(1:115~1:120) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[delete_select__025]
+sql:
+DELETE FROM split_subquery_fifth.del1 WHERE del1.EMPNUM NOT IN (SELECT del2.EMPNUM FROM split_subquery_fifth.del2 WHERE del1.EMPNUM=del2.EMPNUM);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:37) /test/1/catalog1/split_subquery_fifth/del1/",
+      "action" : "DELETE",
+      "target" : "Table(1:88~1:113) /test/1/catalog1/split_subquery_fifth/del2/"
+    }
+  ]
+}
+----------
+[delete_select__026]
+sql:
+DELETE FROM split_window_rpl.t2 WHERE c1 IN (SELECT 1+DENSE_RANK() OVER () FROM DUAL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/split_window_rpl/t2/",
+      "action" : "DELETE",
+      "target" : "Table(1:80~1:84) /test/1/catalog1/schema1/DUAL/"
+    },
+    {
+      "subject": "Function(1:54~1:64) /test/1/catalog1/schema1/DENSE_RANK/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[delete_select__027]
+sql:
+DELETE FROM split_window_rpl.t2 WHERE c2=ANY (SELECT 2+PERCENT_RANK() OVER () FROM DUAL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/split_window_rpl/t2/",
+      "action" : "DELETE",
+      "target" : "Table(1:83~1:87) /test/1/catalog1/schema1/DUAL/"
+    },
+    {
+      "subject": "Function(1:55~1:67) /test/1/catalog1/schema1/PERCENT_RANK/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[delete_select__028]
+sql:
+DELETE FROM split_window_rpl.t2 WHERE c3>SOME (SELECT NTILE(1) OVER () FROM DUAL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/split_window_rpl/t2/",
+      "action" : "DELETE",
+      "target" : "Table(1:76~1:80) /test/1/catalog1/schema1/DUAL/"
+    },
+    {
+      "subject": "Function(1:54~1:59) /test/1/catalog1/schema1/NTILE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[delete_select__029]
+sql:
+DELETE FROM split_window_rpl.t4 WHERE c2<=ALL (SELECT FIRST_VALUE(100) OVER () FROM DUAL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/split_window_rpl/t4/",
+      "action" : "DELETE",
+      "target" : "Table(1:84~1:88) /test/1/catalog1/schema1/DUAL/"
+    },
+    {
+      "subject": "Function(1:54~1:65) /test/1/catalog1/schema1/FIRST_VALUE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[delete_select__030]
+sql:
+DELETE FROM split_window_rpl.t4 WHERE c3=ANY (SELECT LAST_VALUE('Updated') OVER () FROM DUAL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/split_window_rpl/t4/",
+      "action" : "DELETE",
+      "target" : "Table(1:88~1:92) /test/1/catalog1/schema1/DUAL/"
+    },
+    {
+      "subject": "Function(1:53~1:63) /test/1/catalog1/schema1/LAST_VALUE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[delete_select__031]
+sql:
+DELETE FROM split_window_rpl.t4 WHERE c4=ALL (SELECT NTH_VALUE('Updated',1) OVER () FROM DUAL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/split_window_rpl/t4/",
+      "action" : "DELETE",
+      "target" : "Table(1:89~1:93) /test/1/catalog1/schema1/DUAL/"
+    },
+    {
+      "subject": "Function(1:53~1:62) /test/1/catalog1/schema1/NTH_VALUE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[delete_select__032]
+sql:
+DELETE FROM split_window_rpl.t4 WHERE c5 IN (SELECT LAG('2017-01-01',0) OVER () FROM DUAL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/split_window_rpl/t4/",
+      "action" : "DELETE",
+      "target" : "Table(1:85~1:89) /test/1/catalog1/schema1/DUAL/"
+    },
+    {
+      "subject": "Function(1:52~1:55) /test/1/catalog1/schema1/LAG/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[delete_select__033]
+sql:
+DELETE FROM split_window_rpl.t4 WHERE c6 IN (SELECT CAST(FIRST_VALUE('2017-01-01 12:30:45') OVER () AS DATETIME) FROM DUAL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/split_window_rpl/t4/",
+      "action" : "DELETE",
+      "target" : "Table(1:118~1:122) /test/1/catalog1/schema1/DUAL/"
+    },
+    {
+      "subject": "Function(1:52~1:56) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:57~1:68) /test/1/catalog1/schema1/FIRST_VALUE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[delete_select__034]
+sql:
+DELETE FROM split_window_rpl.t4 WHERE c7 IN (SELECT LEAD('Updated') OVER () FROM DUAL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/split_window_rpl/t4/",
+      "action" : "DELETE",
+      "target" : "Table(1:81~1:85) /test/1/catalog1/schema1/DUAL/"
+    },
+    {
+      "subject": "Function(1:52~1:56) /test/1/catalog1/schema1/LEAD/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[delete_select__035]
+sql:
+DELETE FROM split_window_rpl.t4 WHERE c8 IN (SELECT NTH_VALUE('Updated',1) OVER () FROM DUAL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/split_window_rpl/t4/",
+      "action" : "DELETE",
+      "target" : "Table(1:88~1:92) /test/1/catalog1/schema1/DUAL/"
+    },
+    {
+      "subject": "Function(1:52~1:61) /test/1/catalog1/schema1/NTH_VALUE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[delete__036]
+sql:
+DELETE FROM part_t PARTITION(p0,p1) WHERE id IN(2,12);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:18) /test/1/catalog1/schema1/part_t/",
+      "action" : "DELETE"
+    }
+  ]
+}
+----------
+[delete__037]
+sql:
+DELETE d7_t1, d7_t2 FROM d7_t1 PARTITION (pNeg), d7_t3, d7_t2 PARTITION (subp3) WHERE d7_t1.a = d7_t3.a AND d7_t3.b = 'subp3' AND d7_t3.a = d7_t2.a;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:7~1:12) /test/1/catalog1/schema1/d7_t1/",
+      "action" : "DELETE",
+      "target" : [
+        "Table(1:25~1:30) /test/1/catalog1/schema1/d7_t1/",
+        "Table(1:49~1:54) /test/1/catalog1/schema1/d7_t3/",
+        "Table(1:56~1:61) /test/1/catalog1/schema1/d7_t2/"
+      ]
+    },
+    {
+      "subject": "Table(1:14~1:19) /test/1/catalog1/schema1/d7_t2/",
+      "action" : "DELETE"
+    }
+  ]
+}
+----------
+[delete__038]
+sql:
+DELETE FROM d8_t2, d8_t3 USING d8_t2 PARTITION (`p0-9`), d8_t3, d8_t1 PARTITION (subp3) WHERE d8_t1.a = d8_t3.a AND d8_t3.b = 'subp3' AND d8_t2.a = d8_t1.a;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:17) /test/1/catalog1/schema1/d8_t2/",
+      "action" : "DELETE",
+      "target" : [
+        "Table(1:31~1:36) /test/1/catalog1/schema1/d8_t2/",
+        "Table(1:57~1:62) /test/1/catalog1/schema1/d8_t3/",
+        "Table(1:64~1:69) /test/1/catalog1/schema1/d8_t1/"
+      ]
+    },
+    {
+      "subject": "Table(1:19~1:24) /test/1/catalog1/schema1/d8_t3/",
+      "action" : "DELETE"
+    }
+  ]
+}
+----------
+[delete__039]
+sql:
+DELETE d9_t1.* FROM d9_t1 FORCE INDEX(by_val) WHERE val > 1 AND val MOD 1000 = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:7~1:12) /test/1/catalog1/schema1/d9_t1/",
+      "action" : "DELETE",
+      "target" : "Table(1:20~1:25) /test/1/catalog1/schema1/d9_t1/"
+    }
+  ]
+}
+----------
+[delete_select__040]
+sql:
+DELETE s FROM split_dml_src AS s IGNORE INDEX FOR JOIN (idx_v)
+  JOIN split_dml_aux AS a USE INDEX FOR JOIN (PRIMARY) ON a.id=s.id
+  WHERE EXISTS (SELECT 1 FROM split_dml_dst AS d WHERE d.id=a.id);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:7~1:8) /test/1/catalog1/schema1/s/",
+      "action" : "DELETE",
+      "target" : [
+        "Table(1:14~1:27) /test/1/catalog1/schema1/split_dml_src/",
+        "Table(2:7~2:20) /test/1/catalog1/schema1/split_dml_aux/",
+        "Table(3:30~3:43) /test/1/catalog1/schema1/split_dml_dst/"
+      ]
+    }
+  ]
+}
+----------
+[delete_select__041]
+sql:
+WITH c AS (SELECT id FROM split_dml_src WHERE id<100)
+DELETE d FROM split_dml_dst PARTITION(p0) AS d FORCE INDEX FOR JOIN (idx_v)
+  JOIN c ON c.id=d.id
+  WHERE EXISTS (SELECT 1 FROM split_dml_aux AS a WHERE a.id=c.id);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(2:7~2:8) /test/1/catalog1/schema1/d/",
+      "action" : "DELETE",
+      "target" : [
+        "Table(1:26~1:39) /test/1/catalog1/schema1/split_dml_src/",
+        "Table(2:14~2:27) /test/1/catalog1/schema1/split_dml_dst/",
+        "Table(4:30~4:43) /test/1/catalog1/schema1/split_dml_aux/"
+      ]
+    }
+  ]
+}
+----------
+[delete__042]
+sql:
+DELETE FROM bit_values WHERE b=FALSE OR b BETWEEN b'1' AND b'111';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:22) /test/1/catalog1/schema1/bit_values/",
+      "action" : "DELETE"
+    }
+  ]
+}
+----------
+[delete__043]
+sql:
+DELETE FROM time_widths WHERE t6 IN(TIME'00:00:00.000000',NULL) OR t6 NOT BETWEEN TIME'-24:00:00' AND TIME'24:00:00';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:23) /test/1/catalog1/schema1/time_widths/",
+      "action" : "DELETE"
+    }
+  ]
+}
+----------
+[delete__044]
+sql:
+DELETE FROM str_lifecycle WHERE variable_binary=X'6279746573' OR c BETWEEN 'a' AND 'z';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:25) /test/1/catalog1/schema1/str_lifecycle/",
+      "action" : "DELETE"
+    }
+  ]
+}
+----------
+[delete__045]
+sql:
+DELETE FROM lob_family WHERE b=X'4100' OR t COLLATE utf8mb4_bin BETWEEN 'a' AND 'z';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:22) /test/1/catalog1/schema1/lob_family/",
+      "action" : "DELETE"
+    }
+  ]
+}
+----------
+[delete_select__046]
+sql:
+DELETE FROM split_type_enum_set.es_core
+    WHERE e_basic IN (
+      SELECT e_basic
+      FROM (SELECT e_basic FROM split_type_enum_set.es_core
+            WHERE FIND_IN_SET('green',s_basic)) AS d
+    )
+      AND (s_basic+0 & 2) <> 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:39) /test/1/catalog1/split_type_enum_set/es_core/",
+      "action" : "DELETE",
+      "target" : "Table(4:32~4:59) /test/1/catalog1/split_type_enum_set/es_core/"
+    },
+    {
+      "subject": "Function(5:18~5:29) /test/1/catalog1/schema1/FIND_IN_SET/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[delete_select__047]
+sql:
+DELETE FROM split_type_json.json_core
+    WHERE JSON_CONTAINS_PATH(doc,'one','$.obsolete')
+       OR EXISTS (
+            SELECT 1
+            FROM split_type_json.json_core AS inner_json
+            WHERE inner_json.id<>json_core.id
+              AND inner_json.doc->>'$.name'=json_core.doc->>'$.name'
+          );
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:37) /test/1/catalog1/split_type_json/json_core/",
+      "action" : "DELETE",
+      "target" : "Table(5:17~5:42) /test/1/catalog1/split_type_json/json_core/"
+    },
+    {
+      "subject": "Function(2:10~2:28) /test/1/catalog1/schema1/JSON_CONTAINS_PATH/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[delete_select__048]
+sql:
+DELETE FROM spatial_lifecycle
+WHERE EXISTS (
+  SELECT 1
+  FROM spatial_lifecycle AS s2
+  WHERE s2.id=spatial_lifecycle.id
+    AND ST_Within(s2.p,ST_Buffer(spatial_lifecycle.p,1))
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:29) /test/1/catalog1/schema1/spatial_lifecycle/",
+      "action" : "DELETE",
+      "target" : "Table(4:7~4:24) /test/1/catalog1/schema1/spatial_lifecycle/"
+    },
+    {
+      "subject": "Function(6:8~6:17) /test/1/catalog1/schema1/ST_Within/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(6:23~6:32) /test/1/catalog1/schema1/ST_Buffer/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[delete_select__049]
+sql:
+DELETE FROM vector_lifecycle
+WHERE embedding=TO_VECTOR('[99,99,99]')
+   OR EXISTS (
+     SELECT 1 FROM vector_lifecycle AS v2
+     WHERE v2.id=vector_lifecycle.id
+       AND v2.embedding=vector_lifecycle.embedding
+   );
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:28) /test/1/catalog1/schema1/vector_lifecycle/",
+      "action" : "DELETE",
+      "target" : "Table(4:19~4:35) /test/1/catalog1/schema1/vector_lifecycle/"
+    },
+    {
+      "subject": "Function(2:16~2:25) /test/1/catalog1/schema1/TO_VECTOR/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[delete_select__050]
+sql:
+DELETE FROM integer_lifecycle
+WHERE int_signed<0
+  AND EXISTS (
+    SELECT 1
+    FROM integer_lifecycle AS inner_integer
+    WHERE inner_integer.id=integer_lifecycle.id
+      AND inner_integer.big_unsigned=integer_lifecycle.big_unsigned
+  );
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:29) /test/1/catalog1/schema1/integer_lifecycle/",
+      "action" : "DELETE",
+      "target" : "Table(5:9~5:26) /test/1/catalog1/schema1/integer_lifecycle/"
+    }
+  ]
+}
+----------
+[delete__051]
+sql:
+DELETE FROM integer_key_partition
+WHERE id IN (0,18446744073709551615);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:33) /test/1/catalog1/schema1/integer_key_partition/",
+      "action" : "DELETE"
+    }
+  ]
+}
+----------
+[delete_select__052]
+sql:
+DELETE FROM numeric_lifecycle
+WHERE float_value<0
+   OR EXISTS (
+     SELECT 1
+     FROM numeric_lifecycle AS inner_numeric
+     WHERE inner_numeric.id=numeric_lifecycle.id
+       AND inner_numeric.decimal_value=numeric_lifecycle.numeric_value
+   );
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:29) /test/1/catalog1/schema1/numeric_lifecycle/",
+      "action" : "DELETE",
+      "target" : "Table(5:10~5:27) /test/1/catalog1/schema1/numeric_lifecycle/"
+    }
+  ]
+}
+----------
+[delete_select__053]
+sql:
+WITH cte AS (SELECT alias1.col_int_key AS field1 FROM a AS alias1 LEFT JOIN c AS alias2 ON alias1.col_blob=alias2.col_blob_key WHERE alias2.pk>3 AND alias2.pk<(3+10) OR alias1.col_varchar_key>='z' AND alias1.col_varchar_key<='k') DELETE /*+ NO_MERGE(outrcte) */ LOW_PRIORITY QUICK outr1.*,outr2.* FROM d AS outr1 LEFT JOIN c AS outr2 ON outr1.col_int=outr2.pk JOIN a AS outr3 ON outr1.col_int_key=outr3.pk RIGHT JOIN cte AS outrcte ON outr1.col_int_key=outrcte.field1 WHERE outr1.col_blob_key<>(SELECT innr1.col_blob FROM a AS innr2 INNER JOIN a AS innr1 ON innr2.col_datetime>=innr1.col_datetime RIGHT OUTER JOIN cte AS innrcte ON innr2.col_int_key<innrcte.field1 WHERE innr1.col_datetime='2006-02-24');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:281~1:286) /test/1/catalog1/schema1/outr1/",
+      "action" : "DELETE",
+      "target" : [
+        "Table(1:54~1:55) /test/1/catalog1/schema1/a/",
+        "Table(1:76~1:77) /test/1/catalog1/schema1/c/",
+        "Table(1:302~1:303) /test/1/catalog1/schema1/d/"
+      ]
+    },
+    {
+      "subject": "Table(1:289~1:294) /test/1/catalog1/schema1/outr2/",
+      "action" : "DELETE"
+    }
+  ]
+}

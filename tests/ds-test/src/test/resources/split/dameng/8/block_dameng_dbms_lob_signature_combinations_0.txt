@@ -1,0 +1,1188 @@
+-- FUNC-0538 APPEND
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.APPEND(LOB_LOC=>b1,LOB_SRC=>b2); end;
+/
+-- FUNC-0539 APPEND
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.APPEND(LOB_LOC=>c1,LOB_SRC=>c2); end;
+/
+-- FUNC-0540 CLOSE
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.CLOSE(LOB_LOC=>b1); end;
+/
+-- FUNC-0541 CLOSE
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.CLOSE(LOB_LOC=>c1); end;
+/
+-- FUNC-0542 CLOSE
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.CLOSE(FIL_LOC=>f); end;
+/
+-- FUNC-0543 COMPARE
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin i:=DBMS_LOB.COMPARE(LOB_1=>b1,LOB_2=>b2,AMOUNT=>4,OFFSET_1=>1,OFFSET_2=>1); end;
+/
+-- FUNC-0544 COMPARE
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin i:=DBMS_LOB.COMPARE(LOB_1=>c1,LOB_2=>c2,AMOUNT=>4,OFFSET_1=>1,OFFSET_2=>1); end;
+/
+-- FUNC-0545 COMPARE
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin i:=DBMS_LOB.COMPARE(LOB_1=>f,LOB_2=>f,AMOUNT=>4,OFFSET_1=>1,OFFSET_2=>1); end;
+/
+-- FUNC-0546 CONVERTTOBLOB
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.CONVERTTOBLOB(DEST_LOB=>b1,SRC_CLOB=>c1,AMOUNT=>4,DEST_OFFSET=>off1,SRC_OFFSET=>off2,BLOB_CSID=>0,LANG_CONTEXT=>lang,WARNING=>warning); end;
+/
+-- FUNC-0547 CONVERTTOCLOB
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.CONVERTTOCLOB(DEST_LOB=>c1,SRC_BLOB=>b1,AMOUNT=>4,DEST_OFFSET=>off1,SRC_OFFSET=>off2,BLOB_CSID=>0,LANG_CONTEXT=>lang,WARNING=>warning); end;
+/
+-- FUNC-0548 COPY
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.COPY(DEST_LOB=>b1,SRC_LOB=>b2,AMOUNT=>4,DEST_OFFSET=>1,SRC_OFFSET=>1); end;
+/
+-- FUNC-0549 COPY
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.COPY(DEST_LOB=>c1,SRC_LOB=>c2,AMOUNT=>4,DEST_OFFSET=>1,SRC_OFFSET=>1); end;
+/
+-- FUNC-0550 CREATETEMPORARY
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.CREATETEMPORARY(LOB_LOC=>b1,CACHE=>TRUE,DUR=>DBMS_LOB.SESSION); end;
+/
+-- FUNC-0551 CREATETEMPORARY
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.CREATETEMPORARY(LOB_LOC=>c1,CACHE=>TRUE,DUR=>DBMS_LOB.SESSION); end;
+/
+-- FUNC-0552 ERASE
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.ERASE(LOB_LOC=>b1,AMOUNT=>amt,OFFSET=>2); end;
+/
+-- FUNC-0553 ERASE
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.ERASE(LOB_LOC=>c1,AMOUNT=>amt,OFFSET=>2); end;
+/
+-- FUNC-0554 FILECLOSE
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.FILECLOSE(FIL_LOC=>f); end;
+/
+-- FUNC-0555 FILECLOSEALL
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.FILECLOSEALL(); end;
+/
+-- FUNC-0556 FILEEXISTS
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin i:=DBMS_LOB.FILEEXISTS(FILE_LOC=>f); end;
+/
+-- FUNC-0557 FILEGETNAME
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.FILEGETNAME(FILE_LOC=>f,DIR_ALIAS=>dir_name,FILENAME=>file_name); end;
+/
+-- FUNC-0558 FILEISOPEN
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin i:=DBMS_LOB.FILEISOPEN(FILE_LOC=>f); end;
+/
+-- FUNC-0559 FILEOPEN
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.FILEOPEN(FILE_LOC=>f,OPEN_MODE=>DBMS_LOB.FILE_READONLY); end;
+/
+-- FUNC-0560 FRAGMENT_DELETE
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.FRAGMENT_DELETE(LOB_LOC=>b1,AMOUNT=>2,OFFSET=>2); end;
+/
+-- FUNC-0561 FRAGMENT_DELETE
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.FRAGMENT_DELETE(LOB_LOC=>c1,AMOUNT=>2,OFFSET=>2); end;
+/
+-- FUNC-0562 FRAGMENT_INSERT
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.FRAGMENT_INSERT(LOB_LOC=>b1,AMOUNT=>2,OFFSET=>2,BUFFER=>CAST('5859' AS VARBINARY(8))); end;
+/
+-- FUNC-0563 FRAGMENT_INSERT
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.FRAGMENT_INSERT(LOB_LOC=>c1,AMOUNT=>2,OFFSET=>2,BUFFER=>'XY'); end;
+/
+-- FUNC-0564 FRAGMENT_MOVE
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.FRAGMENT_MOVE(LOB_LOC=>b1,AMOUNT=>1,SRC_OFFSET=>1,DEST_OFFSET=>3); end;
+/
+-- FUNC-0565 FRAGMENT_MOVE
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.FRAGMENT_MOVE(LOB_LOC=>c1,AMOUNT=>1,SRC_OFFSET=>1,DEST_OFFSET=>3); end;
+/
+-- FUNC-0566 FRAGMENT_REPLACE
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.FRAGMENT_REPLACE(LOB_LOC=>b1,OLD_AMOUNT=>2,NEW_AMOUNT=>2,OFFSET=>2,BUFFER=>CAST('5859' AS VARBINARY(8))); end;
+/
+-- FUNC-0567 FRAGMENT_REPLACE
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.FRAGMENT_REPLACE(LOB_LOC=>c1,OLD_AMOUNT=>2,NEW_AMOUNT=>2,OFFSET=>2,BUFFER=>'XY'); end;
+/
+-- FUNC-0568 FREETEMPORARY
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.FREETEMPORARY(LOB_LOC=>b1); end;
+/
+-- FUNC-0569 FREETEMPORARY
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.FREETEMPORARY(LOB_LOC=>c1); end;
+/
+-- FUNC-0570 GET_STORAGE_LIMIT
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin n:=DBMS_LOB.GET_STORAGE_LIMIT(LOB_LOC=>b1); end;
+/
+-- FUNC-0571 GET_STORAGE_LIMIT
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin n:=DBMS_LOB.GET_STORAGE_LIMIT(LOB_LOC=>c1); end;
+/
+-- FUNC-0572 GETCHUNKSIZE
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin i:=DBMS_LOB.GETCHUNKSIZE(LOB_LOC=>b1); end;
+/
+-- FUNC-0573 GETCHUNKSIZE
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin i:=DBMS_LOB.GETCHUNKSIZE(LOB_LOC=>c1); end;
+/
+-- FUNC-0574 GETLENGTH
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin n:=DBMS_LOB.GETLENGTH(LOB_1=>b1); end;
+/
+-- FUNC-0575 GETLENGTH
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin n:=DBMS_LOB.GETLENGTH(LOB_1=>c1); end;
+/
+-- FUNC-0576 GETLENGTH
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin n:=DBMS_LOB.GETLENGTH(FILE_LOC=>f); end;
+/
+-- FUNC-0577 INSTR
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin n:=DBMS_LOB.INSTR(LOB_LOC=>b1,PATTERN=>CAST('4142' AS VARBINARY(8)),OFFSET=>1,NTH=>1); end;
+/
+-- FUNC-0578 INSTR
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin n:=DBMS_LOB.INSTR(LOB_LOC=>c1,PATTERN=>'AB',OFFSET=>1,NTH=>1); end;
+/
+-- FUNC-0579 ISOPEN
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin i:=DBMS_LOB.ISOPEN(LOB_LOC=>b1); end;
+/
+-- FUNC-0580 ISOPEN
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin i:=DBMS_LOB.ISOPEN(LOB_LOC=>c1); end;
+/
+-- FUNC-0581 ISOPEN
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin i:=DBMS_LOB.ISOPEN(FILE_LOC=>f); end;
+/
+-- FUNC-0582 ISTEMPORARY
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin i:=DBMS_LOB.ISTEMPORARY(LOB_LOC=>b1); end;
+/
+-- FUNC-0583 ISTEMPORARY
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin i:=DBMS_LOB.ISTEMPORARY(LOB_LOC=>c1); end;
+/
+-- FUNC-0584 LOADBLOBFROMFILE
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.LOADBLOBFROMFILE(DEST_LOB=>b1,SRC_BFILE=>f,AMOUNT=>4,DEST_OFFSET=>off1,SRC_OFFSET=>off2); end;
+/
+-- FUNC-0585 LOADCLOBFROMFILE
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.LOADCLOBFROMFILE(DEST_LOB=>c1,SRC_BFILE=>f,AMOUNT=>4,DEST_OFFSET=>off1,SRC_OFFSET=>off2,BFILE_CSID=>0,LANG_CONTEXT=>lang,WARNING=>warning); end;
+/
+-- FUNC-0586 LOADFROMFILE
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.LOADFROMFILE(DEST_LOB=>b1,SRC_FILE=>f,AMOUNT=>4,DEST_OFFSET=>off1,SRC_OFFSET=>off2); end;
+/
+-- FUNC-0587 OPEN
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.OPEN(LOB_LOC=>b1,OPEN_MODE=>DBMS_LOB.LOB_READWRITE); end;
+/
+-- FUNC-0588 OPEN
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.OPEN(LOB_LOC=>c1,OPEN_MODE=>DBMS_LOB.LOB_READWRITE); end;
+/
+-- FUNC-0589 OPEN
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.OPEN(FILE_LOC=>f,OPEN_MODE=>DBMS_LOB.FILE_READONLY); end;
+/
+-- FUNC-0590 READ
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.READ(LOB_LOC=>b1,AMOUNT=>read_amount,OFFSET=>1,BUFFER=>vb); end;
+/
+-- FUNC-0591 READ
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.READ(LOB_LOC=>c1,AMOUNT=>read_amount,OFFSET=>1,BUFFER=>vc); end;
+/
+-- FUNC-0592 READ
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.READ(FILE_LOC=>f,AMOUNT=>read_amount,OFFSET=>1,BUFFER=>vb); end;
+/
+-- FUNC-0593 SUBSTR
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin vb:=DBMS_LOB.SUBSTR(LOB_LOC=>b1,AMOUNT=>4,OFFSET=>1); end;
+/
+-- FUNC-0594 SUBSTR
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin vc:=DBMS_LOB.SUBSTR(LOB_LOC=>c1,AMOUNT=>4,OFFSET=>1); end;
+/
+-- FUNC-0595 SUBSTR
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin vb:=DBMS_LOB.SUBSTR(FILE_LOC=>f,AMOUNT=>4,OFFSET=>1); end;
+/
+-- FUNC-0596 TRIM
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.TRIM(LOB_LOC=>b1,NEWLEN=>2); end;
+/
+-- FUNC-0597 TRIM
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.TRIM(LOB_LOC=>c1,NEWLEN=>2); end;
+/
+-- FUNC-0598 TRIM_LOB
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.TRIM_LOB(LOB_LOC=>b1,NEWLEN=>2); end;
+/
+-- FUNC-0599 TRIM_LOB
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.TRIM_LOB(LOB_LOC=>c1,NEWLEN=>2); end;
+/
+-- FUNC-0600 WRITE
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.WRITE(LOB_LOC=>b1,AMOUNT=>2,OFFSET=>2,BUFFER=>CAST('5859' AS VARBINARY(8))); end;
+/
+-- FUNC-0601 WRITE
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.WRITE(LOB_LOC=>c1,AMOUNT=>2,OFFSET=>2,BUFFER=>'XY'); end;
+/
+-- FUNC-0602 WRITEAPPEND
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.WRITEAPPEND(LOB_LOC=>b1,AMOUNT=>2,BUFFER=>CAST('5859' AS VARBINARY(8))); end;
+/
+-- FUNC-0603 WRITEAPPEND
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.WRITEAPPEND(LOB_LOC=>c1,AMOUNT=>2,BUFFER=>'XY'); end;
+/
+------------------------------------------------------------------------------------------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0538 APPEND
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.APPEND(LOB_LOC=>b1,LOB_SRC=>b2); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0539 APPEND
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.APPEND(LOB_LOC=>c1,LOB_SRC=>c2); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0540 CLOSE
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.CLOSE(LOB_LOC=>b1); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0541 CLOSE
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.CLOSE(LOB_LOC=>c1); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0542 CLOSE
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.CLOSE(FIL_LOC=>f); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0543 COMPARE
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin i:=DBMS_LOB.COMPARE(LOB_1=>b1,LOB_2=>b2,AMOUNT=>4,OFFSET_1=>1,OFFSET_2=>1); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0544 COMPARE
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin i:=DBMS_LOB.COMPARE(LOB_1=>c1,LOB_2=>c2,AMOUNT=>4,OFFSET_1=>1,OFFSET_2=>1); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0545 COMPARE
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin i:=DBMS_LOB.COMPARE(LOB_1=>f,LOB_2=>f,AMOUNT=>4,OFFSET_1=>1,OFFSET_2=>1); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0546 CONVERTTOBLOB
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.CONVERTTOBLOB(DEST_LOB=>b1,SRC_CLOB=>c1,AMOUNT=>4,DEST_OFFSET=>off1,SRC_OFFSET=>off2,BLOB_CSID=>0,LANG_CONTEXT=>lang,WARNING=>warning); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0547 CONVERTTOCLOB
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.CONVERTTOCLOB(DEST_LOB=>c1,SRC_BLOB=>b1,AMOUNT=>4,DEST_OFFSET=>off1,SRC_OFFSET=>off2,BLOB_CSID=>0,LANG_CONTEXT=>lang,WARNING=>warning); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0548 COPY
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.COPY(DEST_LOB=>b1,SRC_LOB=>b2,AMOUNT=>4,DEST_OFFSET=>1,SRC_OFFSET=>1); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0549 COPY
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.COPY(DEST_LOB=>c1,SRC_LOB=>c2,AMOUNT=>4,DEST_OFFSET=>1,SRC_OFFSET=>1); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0550 CREATETEMPORARY
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.CREATETEMPORARY(LOB_LOC=>b1,CACHE=>TRUE,DUR=>DBMS_LOB.SESSION); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0551 CREATETEMPORARY
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.CREATETEMPORARY(LOB_LOC=>c1,CACHE=>TRUE,DUR=>DBMS_LOB.SESSION); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0552 ERASE
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.ERASE(LOB_LOC=>b1,AMOUNT=>amt,OFFSET=>2); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0553 ERASE
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.ERASE(LOB_LOC=>c1,AMOUNT=>amt,OFFSET=>2); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0554 FILECLOSE
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.FILECLOSE(FIL_LOC=>f); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0555 FILECLOSEALL
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.FILECLOSEALL(); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0556 FILEEXISTS
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin i:=DBMS_LOB.FILEEXISTS(FILE_LOC=>f); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0557 FILEGETNAME
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.FILEGETNAME(FILE_LOC=>f,DIR_ALIAS=>dir_name,FILENAME=>file_name); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0558 FILEISOPEN
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin i:=DBMS_LOB.FILEISOPEN(FILE_LOC=>f); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0559 FILEOPEN
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.FILEOPEN(FILE_LOC=>f,OPEN_MODE=>DBMS_LOB.FILE_READONLY); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0560 FRAGMENT_DELETE
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.FRAGMENT_DELETE(LOB_LOC=>b1,AMOUNT=>2,OFFSET=>2); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0561 FRAGMENT_DELETE
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.FRAGMENT_DELETE(LOB_LOC=>c1,AMOUNT=>2,OFFSET=>2); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0562 FRAGMENT_INSERT
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.FRAGMENT_INSERT(LOB_LOC=>b1,AMOUNT=>2,OFFSET=>2,BUFFER=>CAST('5859' AS VARBINARY(8))); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0563 FRAGMENT_INSERT
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.FRAGMENT_INSERT(LOB_LOC=>c1,AMOUNT=>2,OFFSET=>2,BUFFER=>'XY'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0564 FRAGMENT_MOVE
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.FRAGMENT_MOVE(LOB_LOC=>b1,AMOUNT=>1,SRC_OFFSET=>1,DEST_OFFSET=>3); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0565 FRAGMENT_MOVE
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.FRAGMENT_MOVE(LOB_LOC=>c1,AMOUNT=>1,SRC_OFFSET=>1,DEST_OFFSET=>3); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0566 FRAGMENT_REPLACE
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.FRAGMENT_REPLACE(LOB_LOC=>b1,OLD_AMOUNT=>2,NEW_AMOUNT=>2,OFFSET=>2,BUFFER=>CAST('5859' AS VARBINARY(8))); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0567 FRAGMENT_REPLACE
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.FRAGMENT_REPLACE(LOB_LOC=>c1,OLD_AMOUNT=>2,NEW_AMOUNT=>2,OFFSET=>2,BUFFER=>'XY'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0568 FREETEMPORARY
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.FREETEMPORARY(LOB_LOC=>b1); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0569 FREETEMPORARY
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.FREETEMPORARY(LOB_LOC=>c1); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0570 GET_STORAGE_LIMIT
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin n:=DBMS_LOB.GET_STORAGE_LIMIT(LOB_LOC=>b1); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0571 GET_STORAGE_LIMIT
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin n:=DBMS_LOB.GET_STORAGE_LIMIT(LOB_LOC=>c1); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0572 GETCHUNKSIZE
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin i:=DBMS_LOB.GETCHUNKSIZE(LOB_LOC=>b1); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0573 GETCHUNKSIZE
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin i:=DBMS_LOB.GETCHUNKSIZE(LOB_LOC=>c1); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0574 GETLENGTH
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin n:=DBMS_LOB.GETLENGTH(LOB_1=>b1); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0575 GETLENGTH
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin n:=DBMS_LOB.GETLENGTH(LOB_1=>c1); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0576 GETLENGTH
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin n:=DBMS_LOB.GETLENGTH(FILE_LOC=>f); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0577 INSTR
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin n:=DBMS_LOB.INSTR(LOB_LOC=>b1,PATTERN=>CAST('4142' AS VARBINARY(8)),OFFSET=>1,NTH=>1); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0578 INSTR
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin n:=DBMS_LOB.INSTR(LOB_LOC=>c1,PATTERN=>'AB',OFFSET=>1,NTH=>1); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0579 ISOPEN
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin i:=DBMS_LOB.ISOPEN(LOB_LOC=>b1); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0580 ISOPEN
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin i:=DBMS_LOB.ISOPEN(LOB_LOC=>c1); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0581 ISOPEN
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin i:=DBMS_LOB.ISOPEN(FILE_LOC=>f); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0582 ISTEMPORARY
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin i:=DBMS_LOB.ISTEMPORARY(LOB_LOC=>b1); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0583 ISTEMPORARY
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin i:=DBMS_LOB.ISTEMPORARY(LOB_LOC=>c1); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0584 LOADBLOBFROMFILE
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.LOADBLOBFROMFILE(DEST_LOB=>b1,SRC_BFILE=>f,AMOUNT=>4,DEST_OFFSET=>off1,SRC_OFFSET=>off2); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0585 LOADCLOBFROMFILE
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.LOADCLOBFROMFILE(DEST_LOB=>c1,SRC_BFILE=>f,AMOUNT=>4,DEST_OFFSET=>off1,SRC_OFFSET=>off2,BFILE_CSID=>0,LANG_CONTEXT=>lang,WARNING=>warning); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0586 LOADFROMFILE
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.LOADFROMFILE(DEST_LOB=>b1,SRC_FILE=>f,AMOUNT=>4,DEST_OFFSET=>off1,SRC_OFFSET=>off2); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0587 OPEN
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.OPEN(LOB_LOC=>b1,OPEN_MODE=>DBMS_LOB.LOB_READWRITE); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0588 OPEN
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.OPEN(LOB_LOC=>c1,OPEN_MODE=>DBMS_LOB.LOB_READWRITE); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0589 OPEN
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.OPEN(FILE_LOC=>f,OPEN_MODE=>DBMS_LOB.FILE_READONLY); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0590 READ
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.READ(LOB_LOC=>b1,AMOUNT=>read_amount,OFFSET=>1,BUFFER=>vb); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0591 READ
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.READ(LOB_LOC=>c1,AMOUNT=>read_amount,OFFSET=>1,BUFFER=>vc); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0592 READ
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.READ(FILE_LOC=>f,AMOUNT=>read_amount,OFFSET=>1,BUFFER=>vb); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0593 SUBSTR
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin vb:=DBMS_LOB.SUBSTR(LOB_LOC=>b1,AMOUNT=>4,OFFSET=>1); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0594 SUBSTR
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin vc:=DBMS_LOB.SUBSTR(LOB_LOC=>c1,AMOUNT=>4,OFFSET=>1); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0595 SUBSTR
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin vb:=DBMS_LOB.SUBSTR(FILE_LOC=>f,AMOUNT=>4,OFFSET=>1); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0596 TRIM
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.TRIM(LOB_LOC=>b1,NEWLEN=>2); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0597 TRIM
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.TRIM(LOB_LOC=>c1,NEWLEN=>2); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0598 TRIM_LOB
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.TRIM_LOB(LOB_LOC=>b1,NEWLEN=>2); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0599 TRIM_LOB
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.TRIM_LOB(LOB_LOC=>c1,NEWLEN=>2); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0600 WRITE
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.WRITE(LOB_LOC=>b1,AMOUNT=>2,OFFSET=>2,BUFFER=>CAST('5859' AS VARBINARY(8))); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0601 WRITE
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.WRITE(LOB_LOC=>c1,AMOUNT=>2,OFFSET=>2,BUFFER=>'XY'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0602 WRITEAPPEND
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.WRITEAPPEND(LOB_LOC=>b1,AMOUNT=>2,BUFFER=>CAST('5859' AS VARBINARY(8))); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0603 WRITEAPPEND
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.WRITEAPPEND(LOB_LOC=>c1,AMOUNT=>2,BUFFER=>'XY'); end;

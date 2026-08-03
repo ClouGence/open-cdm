@@ -1,0 +1,19 @@
+[application_info_all_procedures]
+sql:
+declare
+  v_client varchar2(64);
+  v_module varchar2(48);
+  v_action varchar2(32);
+begin
+  dbms_application_info.set_client_info('CLIENT');
+  dbms_application_info.set_module('MODULE','ACTION');
+  dbms_application_info.set_action('ACTION_2');
+  dbms_application_info.read_client_info(v_client);
+  dbms_application_info.read_module(v_module,v_action);
+end;
+expect:
+{
+  "contains": [
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_application_info"}
+  ]
+}

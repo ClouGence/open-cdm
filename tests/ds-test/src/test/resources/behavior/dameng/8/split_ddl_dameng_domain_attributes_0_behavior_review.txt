@@ -1,0 +1,944 @@
+[split_ddl_dameng_domain_attributes_0_001_behavior_review]
+sql:
+create domain dom_attr_null int default null;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:14~1:27) /test/1/catalog1/schema1/dom_attr_null/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_attributes_0_002_behavior_review]
+sql:
+create domain dom_attr_expr int default (1 + 2) check(value between 0 and 10);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:14~1:27) /test/1/catalog1/schema1/dom_attr_expr/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_attributes_0_003_behavior_review]
+sql:
+create domain dom_attr_multi int check(value > 0) check(value < 10);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:14~1:28) /test/1/catalog1/schema1/dom_attr_multi/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_attributes_0_004_behavior_review]
+sql:
+create domain dom_attr_named int default 5
+constraint ck_dom_attr_low check(value >= 1)
+constraint ck_dom_attr_high check(value <= 9);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:14~1:28) /test/1/catalog1/schema1/dom_attr_named/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_attributes_0_005_behavior_review]
+sql:
+create domain DOM_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA varchar(8) default 'MAXNAME';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:14~1:142) /test/1/catalog1/schema1/DOM_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_attributes_0_006_behavior_review]
+sql:
+create table domain_attr_use(
+  id int primary key,
+  null_value dom_attr_null,
+  expr_value dom_attr_expr,
+  multi_value dom_attr_multi,
+  named_value dom_attr_named,
+  max_name_value DOM_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/schema1/domain_attr_use/",
+      "action": "CREATE",
+      "target": [
+        "Type(3:13~3:26) /test/1/catalog1/schema1/dom_attr_null/",
+        "Type(4:13~4:26) /test/1/catalog1/schema1/dom_attr_expr/",
+        "Type(5:14~5:28) /test/1/catalog1/schema1/dom_attr_multi/",
+        "Type(6:14~6:28) /test/1/catalog1/schema1/dom_attr_named/",
+        "Type(7:17~7:145) /test/1/catalog1/schema1/DOM_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_attributes_0_007_behavior_review]
+sql:
+insert into domain_attr_use(id, multi_value) values(1, 5);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:27) /test/1/catalog1/schema1/domain_attr_use/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_attributes_0_008_behavior_review]
+sql:
+select id, null_value, expr_value, multi_value, named_value, max_name_value
+from domain_attr_use where id = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:5~2:20) /test/1/catalog1/schema1/domain_attr_use/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_attributes_0_009_behavior_review]
+sql:
+update domain_attr_use set multi_value = 9, named_value = 1 where id = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:22) /test/1/catalog1/schema1/domain_attr_use/",
+      "action": "UPDATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_attributes_0_010_behavior_review]
+sql:
+create table domain_attr_override(
+  id int primary key,
+  inherited_value dom_attr_expr,
+  overridden_value dom_attr_expr default 8
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:33) /test/1/catalog1/schema1/domain_attr_override/",
+      "action": "CREATE",
+      "target": [
+        "Type(3:18~3:31) /test/1/catalog1/schema1/dom_attr_expr/",
+        "Type(4:19~4:32) /test/1/catalog1/schema1/dom_attr_expr/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_attributes_0_011_behavior_review]
+sql:
+insert into domain_attr_override(id) values(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:32) /test/1/catalog1/schema1/domain_attr_override/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_attributes_0_012_behavior_review]
+sql:
+select inherited_value, overridden_value from domain_attr_override where id = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:46~1:66) /test/1/catalog1/schema1/domain_attr_override/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_attributes_0_013_behavior_review]
+sql:
+select count(*) from sysobjects where subtype$ = 'DOMAIN'
+and name in ('DOM_ATTR_NULL', 'DOM_ATTR_EXPR', 'DOM_ATTR_MULTI', 'DOM_ATTR_NAMED');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:21~1:31) /test/1/catalog1/schema1/sysobjects/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_attributes_0_014_behavior_review]
+sql:
+drop table domain_attr_override;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:31) /test/1/catalog1/schema1/domain_attr_override/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_attributes_0_015_behavior_review]
+sql:
+drop table domain_attr_use;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:26) /test/1/catalog1/schema1/domain_attr_use/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_attributes_0_016_behavior_review]
+sql:
+drop domain dom_attr_named restrict;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:12~1:26) /test/1/catalog1/schema1/dom_attr_named/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_attributes_0_017_behavior_review]
+sql:
+drop domain dom_attr_multi restrict;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:12~1:26) /test/1/catalog1/schema1/dom_attr_multi/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_attributes_0_018_behavior_review]
+sql:
+drop domain dom_attr_expr restrict;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:12~1:25) /test/1/catalog1/schema1/dom_attr_expr/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_attributes_0_019_behavior_review]
+sql:
+drop domain dom_attr_null restrict;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:12~1:25) /test/1/catalog1/schema1/dom_attr_null/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_attributes_0_020_behavior_review]
+sql:
+drop domain DOM_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA restrict;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:12~1:140) /test/1/catalog1/schema1/DOM_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_attributes_0_021_behavior_review]
+sql:
+drop domain if exists dom_attr_missing;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:22~1:38) /test/1/catalog1/schema1/dom_attr_missing/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_attributes_0_022_behavior_review]
+sql:
+create domain dom_type_tinyint tinyint;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:14~1:30) /test/1/catalog1/schema1/dom_type_tinyint/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_attributes_0_023_behavior_review]
+sql:
+create domain dom_type_smallint smallint;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:14~1:31) /test/1/catalog1/schema1/dom_type_smallint/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_attributes_0_024_behavior_review]
+sql:
+create domain dom_type_real real;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:14~1:27) /test/1/catalog1/schema1/dom_type_real/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_attributes_0_025_behavior_review]
+sql:
+create domain dom_type_double double precision;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:14~1:29) /test/1/catalog1/schema1/dom_type_double/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_attributes_0_026_behavior_review]
+sql:
+create domain dom_type_float float(24);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:14~1:28) /test/1/catalog1/schema1/dom_type_float/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_attributes_0_027_behavior_review]
+sql:
+create domain dom_type_bit bit;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:14~1:26) /test/1/catalog1/schema1/dom_type_bit/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_attributes_0_028_behavior_review]
+sql:
+create domain dom_type_binary binary(8);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:14~1:29) /test/1/catalog1/schema1/dom_type_binary/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_attributes_0_029_behavior_review]
+sql:
+create domain dom_type_varbinary varbinary(8);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:14~1:32) /test/1/catalog1/schema1/dom_type_varbinary/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_attributes_0_030_behavior_review]
+sql:
+create domain dom_type_nchar nchar(8);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:14~1:28) /test/1/catalog1/schema1/dom_type_nchar/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_attributes_0_031_behavior_review]
+sql:
+create domain dom_type_nvarchar nvarchar(8);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:14~1:31) /test/1/catalog1/schema1/dom_type_nvarchar/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_attributes_0_032_behavior_review]
+sql:
+create domain dom_type_time time(3);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:14~1:27) /test/1/catalog1/schema1/dom_type_time/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_attributes_0_033_behavior_review]
+sql:
+create domain dom_type_time_tz time(3) with time zone;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:14~1:30) /test/1/catalog1/schema1/dom_type_time_tz/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_attributes_0_034_behavior_review]
+sql:
+create domain dom_type_timestamp_tz timestamp(3) with time zone;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:14~1:35) /test/1/catalog1/schema1/dom_type_timestamp_tz/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_attributes_0_035_behavior_review]
+sql:
+create domain dom_type_interval interval day(2) to second(3);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:14~1:31) /test/1/catalog1/schema1/dom_type_interval/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_attributes_0_036_behavior_review]
+sql:
+create domain dom_type_blob blob;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:14~1:27) /test/1/catalog1/schema1/dom_type_blob/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_attributes_0_037_behavior_review]
+sql:
+create domain dom_type_clob clob;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:14~1:27) /test/1/catalog1/schema1/dom_type_clob/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_attributes_0_038_behavior_review]
+sql:
+drop domain dom_type_clob;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:12~1:25) /test/1/catalog1/schema1/dom_type_clob/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_attributes_0_039_behavior_review]
+sql:
+drop domain dom_type_blob;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:12~1:25) /test/1/catalog1/schema1/dom_type_blob/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_attributes_0_040_behavior_review]
+sql:
+drop domain dom_type_interval;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:12~1:29) /test/1/catalog1/schema1/dom_type_interval/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_attributes_0_041_behavior_review]
+sql:
+drop domain dom_type_timestamp_tz;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:12~1:33) /test/1/catalog1/schema1/dom_type_timestamp_tz/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_attributes_0_042_behavior_review]
+sql:
+drop domain dom_type_time_tz;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:12~1:28) /test/1/catalog1/schema1/dom_type_time_tz/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_attributes_0_043_behavior_review]
+sql:
+drop domain dom_type_time;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:12~1:25) /test/1/catalog1/schema1/dom_type_time/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_attributes_0_044_behavior_review]
+sql:
+drop domain dom_type_nvarchar;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:12~1:29) /test/1/catalog1/schema1/dom_type_nvarchar/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_attributes_0_045_behavior_review]
+sql:
+drop domain dom_type_nchar;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:12~1:26) /test/1/catalog1/schema1/dom_type_nchar/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_attributes_0_046_behavior_review]
+sql:
+drop domain dom_type_varbinary;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:12~1:30) /test/1/catalog1/schema1/dom_type_varbinary/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_attributes_0_047_behavior_review]
+sql:
+drop domain dom_type_binary;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:12~1:27) /test/1/catalog1/schema1/dom_type_binary/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_attributes_0_048_behavior_review]
+sql:
+drop domain dom_type_bit;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:12~1:24) /test/1/catalog1/schema1/dom_type_bit/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_attributes_0_049_behavior_review]
+sql:
+drop domain dom_type_float;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:12~1:26) /test/1/catalog1/schema1/dom_type_float/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_attributes_0_050_behavior_review]
+sql:
+drop domain dom_type_double;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:12~1:27) /test/1/catalog1/schema1/dom_type_double/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_attributes_0_051_behavior_review]
+sql:
+drop domain dom_type_real;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:12~1:25) /test/1/catalog1/schema1/dom_type_real/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_attributes_0_052_behavior_review]
+sql:
+drop domain dom_type_smallint;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:12~1:29) /test/1/catalog1/schema1/dom_type_smallint/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_attributes_0_053_behavior_review]
+sql:
+drop domain dom_type_tinyint;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:12~1:28) /test/1/catalog1/schema1/dom_type_tinyint/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_attributes_0_054_behavior_review]
+sql:
+create domain dom_type_image image;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:14~1:28) /test/1/catalog1/schema1/dom_type_image/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_attributes_0_055_behavior_review]
+sql:
+create domain dom_type_json json;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:14~1:27) /test/1/catalog1/schema1/dom_type_json/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_attributes_0_056_behavior_review]
+sql:
+create domain dom_type_xmltype xmltype;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:14~1:30) /test/1/catalog1/schema1/dom_type_xmltype/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_attributes_0_057_behavior_review]
+sql:
+create domain dom_type_rowid rowid;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:14~1:28) /test/1/catalog1/schema1/dom_type_rowid/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_attributes_0_058_behavior_review]
+sql:
+drop domain dom_type_rowid;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:12~1:26) /test/1/catalog1/schema1/dom_type_rowid/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_attributes_0_059_behavior_review]
+sql:
+drop domain dom_type_xmltype;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:12~1:28) /test/1/catalog1/schema1/dom_type_xmltype/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_attributes_0_060_behavior_review]
+sql:
+drop domain dom_type_json;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:12~1:25) /test/1/catalog1/schema1/dom_type_json/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_attributes_0_061_behavior_review]
+sql:
+drop domain dom_type_image;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:12~1:26) /test/1/catalog1/schema1/dom_type_image/",
+      "action": "DROP"
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+SELECT inet '192.168.0.5' << inet '192.168.1/24';
+SELECT inet '192.168.1/24' << inet '192.168.1/24';
+SELECT inet '192.168.1/24' && inet '192.168.2.0/28';
+SELECT CAST(inet '192.168.1.5/24' AS cidr);
+SELECT set_masklen(inet '192.168.1.5/24', -1);
+SELECT set_masklen(cidr '192.168.1.0/24', -1);
+SELECT family(inet '192.168.1.5/24');
+SELECT inet_same_family(inet '192.168.1.5/24', inet '192.168.1.6/32');
+SELECT abbrev(cidr '192.168/24');
+SELECT abbrev(cidr '2001:4f8:3:ba::/64');
+SELECT macaddr8_set7bit('08:00:2b:01:02:03'::macaddr8);
+SELECT '08-00-2b-01-02-03'::macaddr;
+SELECT '08002b01:02030405'::macaddr8;
+SELECT macaddr '08:00:2b:01:02:03' > macaddr '08:00:2b:01:02:02';
+SELECT macaddr8 '08:00:2b:01:02:03:04:05' <> macaddr8 '08:00:2b:01:02:03:04:06';
+------------------------------------------------------------------------------------------
+[SELECT] SELECT inet '192.168.0.5' << inet '192.168.1/24';
+----------
+[SELECT] SELECT inet '192.168.1/24' << inet '192.168.1/24';
+----------
+[SELECT] SELECT inet '192.168.1/24' && inet '192.168.2.0/28';
+----------
+[SELECT] SELECT CAST(inet '192.168.1.5/24' AS cidr);
+----------
+[SELECT] SELECT set_masklen(inet '192.168.1.5/24', -1);
+----------
+[SELECT] SELECT set_masklen(cidr '192.168.1.0/24', -1);
+----------
+[SELECT] SELECT family(inet '192.168.1.5/24');
+----------
+[SELECT] SELECT inet_same_family(inet '192.168.1.5/24', inet '192.168.1.6/32');
+----------
+[SELECT] SELECT abbrev(cidr '192.168/24');
+----------
+[SELECT] SELECT abbrev(cidr '2001:4f8:3:ba::/64');
+----------
+[SELECT] SELECT macaddr8_set7bit('08:00:2b:01:02:03'::macaddr8);
+----------
+[SELECT] SELECT '08-00-2b-01-02-03'::macaddr;
+----------
+[SELECT] SELECT '08002b01:02030405'::macaddr8;
+----------
+[SELECT] SELECT macaddr '08:00:2b:01:02:03' > macaddr '08:00:2b:01:02:02';
+----------
+[SELECT] SELECT macaddr8 '08:00:2b:01:02:03:04:05' <> macaddr8 '08:00:2b:01:02:03:04:06';

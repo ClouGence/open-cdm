@@ -1,0 +1,36 @@
+[
+  {
+    "columns": [
+      {
+        "column": "id",
+        "table": "user_table",
+        "schema": "devtester",
+        "catalog": "catalog1"
+      }
+    ],
+    "itemAlias": "id",
+    "icon": "COLUMN-PK"
+  },
+  {
+    "columns": [
+      {
+        "column": "created_at",
+        "table": "user_table",
+        "schema": "devtester",
+        "catalog": "catalog1"
+      }
+    ],
+    "itemAlias": "created_at"
+  },
+  {
+    "columns": [
+      {
+        "column": "name",
+        "table": "user_table",
+        "schema": "devtester",
+        "catalog": "catalog1"
+      }
+    ],
+    "itemAlias": "name"
+  }
+]

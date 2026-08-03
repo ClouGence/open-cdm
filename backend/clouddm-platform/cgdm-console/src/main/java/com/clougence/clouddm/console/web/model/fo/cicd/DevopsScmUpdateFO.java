@@ -27,4 +27,5 @@ public class DevopsScmUpdateFO {
     private String  newServiceUrl;
     private String  newAccessToken;
     private boolean force;
+    private boolean plainHttpAcknowledged;
 }

@@ -1,0 +1,610 @@
+[split_ddl_dameng_materialized_view_advanced_0_001_behavior_review]
+sql:
+create materialized view CODEX_DM8_MV_ADV_20260721.mv_prebuilt_default
+for CODEX_DM8_MV_ADV_20260721.prebuilt_default on prebuilt table
+as select id, customer_id, amount from CODEX_DM8_MV_ADV_20260721.orders;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "Materialized(1:25~1:70) /test/1/catalog1/CODEX_DM8_MV_ADV_20260721/mv_prebuilt_default/",
+      "action" : "CREATE",
+      "target" : "Table(3:39~3:71) /test/1/catalog1/CODEX_DM8_MV_ADV_20260721/orders/"
+    },
+    {
+      "subject": "Table(2:4~2:46) /test/1/catalog1/CODEX_DM8_MV_ADV_20260721/prebuilt_default/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_advanced_0_002_behavior_review]
+sql:
+drop materialized view CODEX_DM8_MV_ADV_20260721.mv_prebuilt_default;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "Materialized(1:23~1:68) /test/1/catalog1/CODEX_DM8_MV_ADV_20260721/mv_prebuilt_default/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_advanced_0_003_behavior_review]
+sql:
+create materialized view CODEX_DM8_MV_ADV_20260721.mv_prebuilt_reduced
+for CODEX_DM8_MV_ADV_20260721.prebuilt_reduced on prebuilt table with reduced precision
+as select id, customer_id, amount from CODEX_DM8_MV_ADV_20260721.orders;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "Materialized(1:25~1:70) /test/1/catalog1/CODEX_DM8_MV_ADV_20260721/mv_prebuilt_reduced/",
+      "action" : "CREATE",
+      "target" : "Table(3:39~3:71) /test/1/catalog1/CODEX_DM8_MV_ADV_20260721/orders/"
+    },
+    {
+      "subject": "Table(2:4~2:46) /test/1/catalog1/CODEX_DM8_MV_ADV_20260721/prebuilt_reduced/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_advanced_0_004_behavior_review]
+sql:
+drop materialized view CODEX_DM8_MV_ADV_20260721.mv_prebuilt_reduced;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "Materialized(1:23~1:68) /test/1/catalog1/CODEX_DM8_MV_ADV_20260721/mv_prebuilt_reduced/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_advanced_0_005_behavior_review]
+sql:
+create materialized view CODEX_DM8_MV_ADV_20260721.mv_prebuilt_exact
+for CODEX_DM8_MV_ADV_20260721.prebuilt_exact on prebuilt table without reduced precision
+as select id, customer_id, amount from CODEX_DM8_MV_ADV_20260721.orders;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "Materialized(1:25~1:68) /test/1/catalog1/CODEX_DM8_MV_ADV_20260721/mv_prebuilt_exact/",
+      "action" : "CREATE",
+      "target" : "Table(3:39~3:71) /test/1/catalog1/CODEX_DM8_MV_ADV_20260721/orders/"
+    },
+    {
+      "subject": "Table(2:4~2:44) /test/1/catalog1/CODEX_DM8_MV_ADV_20260721/prebuilt_exact/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_advanced_0_006_behavior_review]
+sql:
+drop materialized view CODEX_DM8_MV_ADV_20260721.mv_prebuilt_exact;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "Materialized(1:23~1:66) /test/1/catalog1/CODEX_DM8_MV_ADV_20260721/mv_prebuilt_exact/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_advanced_0_007_behavior_review]
+sql:
+create materialized view CODEX_DM8_MV_ADV_20260721.mv_on_commit
+refresh complete on commit
+as select id, customer_id, amount from CODEX_DM8_MV_ADV_20260721.orders;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "Materialized(1:25~1:63) /test/1/catalog1/CODEX_DM8_MV_ADV_20260721/mv_on_commit/",
+      "action" : "CREATE",
+      "target" : "Table(3:39~3:71) /test/1/catalog1/CODEX_DM8_MV_ADV_20260721/orders/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_advanced_0_008_behavior_review]
+sql:
+create materialized view CODEX_DM8_MV_ADV_20260721.mv_start_once
+refresh complete start with sysdate + 1
+as select id, amount from CODEX_DM8_MV_ADV_20260721.orders;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "Materialized(1:25~1:64) /test/1/catalog1/CODEX_DM8_MV_ADV_20260721/mv_start_once/",
+      "action" : "CREATE",
+      "target" : "Table(3:26~3:58) /test/1/catalog1/CODEX_DM8_MV_ADV_20260721/orders/"
+    },
+    {
+      "subject": "Function(2:28~2:35) /test/1/catalog1/schema1/sysdate/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_advanced_0_009_behavior_review]
+sql:
+create materialized view CODEX_DM8_MV_ADV_20260721.mv_next_daily
+refresh complete next sysdate + 1
+as select id, amount from CODEX_DM8_MV_ADV_20260721.orders;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "Materialized(1:25~1:64) /test/1/catalog1/CODEX_DM8_MV_ADV_20260721/mv_next_daily/",
+      "action" : "CREATE",
+      "target" : "Table(3:26~3:58) /test/1/catalog1/CODEX_DM8_MV_ADV_20260721/orders/"
+    },
+    {
+      "subject": "Function(2:22~2:29) /test/1/catalog1/schema1/sysdate/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_advanced_0_010_behavior_review]
+sql:
+create materialized view CODEX_DM8_MV_ADV_20260721.mv_start_next
+refresh complete start with sysdate + 1 next sysdate + 2
+as select id, amount from CODEX_DM8_MV_ADV_20260721.orders;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "Materialized(1:25~1:64) /test/1/catalog1/CODEX_DM8_MV_ADV_20260721/mv_start_next/",
+      "action" : "CREATE",
+      "target" : "Table(3:26~3:58) /test/1/catalog1/CODEX_DM8_MV_ADV_20260721/orders/"
+    },
+    {
+      "subject": "Function(2:28~2:35) /test/1/catalog1/schema1/sysdate/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(2:45~2:52) /test/1/catalog1/schema1/sysdate/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_advanced_0_011_behavior_review]
+sql:
+create materialized view CODEX_DM8_MV_ADV_20260721.mv_demand_schedule
+refresh force on demand start with sysdate + 1 next sysdate + 1
+as select id, amount from CODEX_DM8_MV_ADV_20260721.orders;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "Materialized(1:25~1:69) /test/1/catalog1/CODEX_DM8_MV_ADV_20260721/mv_demand_schedule/",
+      "action" : "CREATE",
+      "target" : "Table(3:26~3:58) /test/1/catalog1/CODEX_DM8_MV_ADV_20260721/orders/"
+    },
+    {
+      "subject": "Function(2:35~2:42) /test/1/catalog1/schema1/sysdate/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(2:52~2:59) /test/1/catalog1/schema1/sysdate/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_advanced_0_012_behavior_review]
+sql:
+create materialized view CODEX_DM8_MV_ADV_20260721.mv_commit_schedule
+refresh complete on demand next sysdate + 1
+as select id, amount from CODEX_DM8_MV_ADV_20260721.orders;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "Materialized(1:25~1:69) /test/1/catalog1/CODEX_DM8_MV_ADV_20260721/mv_commit_schedule/",
+      "action" : "CREATE",
+      "target" : "Table(3:26~3:58) /test/1/catalog1/CODEX_DM8_MV_ADV_20260721/orders/"
+    },
+    {
+      "subject": "Function(2:32~2:39) /test/1/catalog1/schema1/sysdate/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_advanced_0_013_behavior_review]
+sql:
+create materialized view CODEX_DM8_MV_ADV_20260721.mv_deferred_complete
+build deferred refresh complete on demand
+as select id, amount from CODEX_DM8_MV_ADV_20260721.orders;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "Materialized(1:25~1:71) /test/1/catalog1/CODEX_DM8_MV_ADV_20260721/mv_deferred_complete/",
+      "action" : "CREATE",
+      "target" : "Table(3:26~3:58) /test/1/catalog1/CODEX_DM8_MV_ADV_20260721/orders/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_advanced_0_014_behavior_review]
+sql:
+refresh materialized view CODEX_DM8_MV_ADV_20260721.mv_deferred_complete complete;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Materialized(1:26~1:72) /test/1/catalog1/CODEX_DM8_MV_ADV_20260721/mv_deferred_complete/",
+      "action" : "REFRESH"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_advanced_0_015_behavior_review]
+sql:
+create materialized view CODEX_DM8_MV_ADV_20260721.mv_tablespace
+tablespace main
+as select id, customer_id, amount from CODEX_DM8_MV_ADV_20260721.orders;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "Materialized(1:25~1:64) /test/1/catalog1/CODEX_DM8_MV_ADV_20260721/mv_tablespace/",
+      "action" : "CREATE",
+      "target" : [
+        "Table(3:39~3:71) /test/1/catalog1/CODEX_DM8_MV_ADV_20260721/orders/",
+        "Tablespace(2:11~2:15) /test/1/main/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_advanced_0_016_behavior_review]
+sql:
+create index CODEX_DM8_MV_ADV_20260721.idx_mv_on_commit_amount
+on CODEX_DM8_MV_ADV_20260721.mv_on_commit(amount);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:62) /test/1/catalog1/CODEX_DM8_MV_ADV_20260721/idx_mv_on_commit_amount/",
+      "action" : "CREATE",
+      "target" : "Table(2:3~2:41) /test/1/catalog1/CODEX_DM8_MV_ADV_20260721/mv_on_commit/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_advanced_0_017_behavior_review]
+sql:
+create materialized view log on CODEX_DM8_MV_ADV_20260721.orders
+with rowid(id, customer_id, amount, status);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_LOG": [
+    {
+      "subject": "Log(1:32~1:64) /test/1/catalog1/CODEX_DM8_MV_ADV_20260721/orders/",
+      "action" : "CREATE",
+      "target" : "Table(1:32~1:64) /test/1/catalog1/CODEX_DM8_MV_ADV_20260721/orders/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_advanced_0_018_behavior_review]
+sql:
+create materialized view CODEX_DM8_MV_ADV_20260721.mv_fast_rowid
+refresh fast with rowid
+as select id, customer_id, amount, status, rowid as source_rowid
+from CODEX_DM8_MV_ADV_20260721.orders;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "Materialized(1:25~1:64) /test/1/catalog1/CODEX_DM8_MV_ADV_20260721/mv_fast_rowid/",
+      "action" : "CREATE",
+      "target" : "Table(4:5~4:37) /test/1/catalog1/CODEX_DM8_MV_ADV_20260721/orders/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_advanced_0_019_behavior_review]
+sql:
+refresh materialized view CODEX_DM8_MV_ADV_20260721.mv_fast_rowid fast;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Materialized(1:26~1:65) /test/1/catalog1/CODEX_DM8_MV_ADV_20260721/mv_fast_rowid/",
+      "action" : "REFRESH"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_advanced_0_020_behavior_review]
+sql:
+drop materialized view CODEX_DM8_MV_ADV_20260721.mv_fast_rowid;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "Materialized(1:23~1:62) /test/1/catalog1/CODEX_DM8_MV_ADV_20260721/mv_fast_rowid/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_advanced_0_021_behavior_review]
+sql:
+drop materialized view log on CODEX_DM8_MV_ADV_20260721.orders;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_LOG": [
+    {
+      "subject": "Log(1:30~1:62) /test/1/catalog1/CODEX_DM8_MV_ADV_20260721/orders/",
+      "action" : "DROP"
+    },
+    {
+      "subject": "Table(1:30~1:62) /test/1/catalog1/CODEX_DM8_MV_ADV_20260721/orders/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_advanced_0_022_behavior_review]
+sql:
+alter materialized view CODEX_DM8_MV_ADV_20260721.mv_start_next
+refresh complete on demand start with sysdate + 1 next sysdate + 1 disable query rewrite;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_VIEW": [
+    {
+      "subject": "Materialized(1:24~1:63) /test/1/catalog1/CODEX_DM8_MV_ADV_20260721/mv_start_next/",
+      "action" : "ALTER"
+    },
+    {
+      "subject": "Function(2:38~2:45) /test/1/catalog1/schema1/sysdate/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(2:55~2:62) /test/1/catalog1/schema1/sysdate/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_advanced_0_023_behavior_review]
+sql:
+alter materialized view CODEX_DM8_MV_ADV_20260721.mv_demand_schedule
+refresh complete on demand using delete enable query rewrite;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_VIEW": [
+    {
+      "subject": "Materialized(1:24~1:68) /test/1/catalog1/CODEX_DM8_MV_ADV_20260721/mv_demand_schedule/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_advanced_0_024_behavior_review]
+sql:
+create materialized view CODEX_DM8_MV_ADV_20260721.mv_storage
+storage(initial 1, next 1)
+as select id, amount from CODEX_DM8_MV_ADV_20260721.orders;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "Materialized(1:25~1:61) /test/1/catalog1/CODEX_DM8_MV_ADV_20260721/mv_storage/",
+      "action" : "CREATE",
+      "target" : "Table(3:26~3:58) /test/1/catalog1/CODEX_DM8_MV_ADV_20260721/orders/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_advanced_0_025_behavior_review]
+sql:
+drop index CODEX_DM8_MV_ADV_20260721.idx_mv_on_commit_amount;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_INDEX": [
+    {
+      "subject": "Index(1:11~1:60) /test/1/catalog1/CODEX_DM8_MV_ADV_20260721/idx_mv_on_commit_amount/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_advanced_0_026_behavior_review]
+sql:
+drop materialized view CODEX_DM8_MV_ADV_20260721.mv_on_commit;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "Materialized(1:23~1:61) /test/1/catalog1/CODEX_DM8_MV_ADV_20260721/mv_on_commit/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_advanced_0_027_behavior_review]
+sql:
+drop materialized view CODEX_DM8_MV_ADV_20260721.mv_start_once;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "Materialized(1:23~1:62) /test/1/catalog1/CODEX_DM8_MV_ADV_20260721/mv_start_once/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_advanced_0_028_behavior_review]
+sql:
+drop materialized view CODEX_DM8_MV_ADV_20260721.mv_next_daily;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "Materialized(1:23~1:62) /test/1/catalog1/CODEX_DM8_MV_ADV_20260721/mv_next_daily/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_advanced_0_029_behavior_review]
+sql:
+drop materialized view CODEX_DM8_MV_ADV_20260721.mv_start_next;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "Materialized(1:23~1:62) /test/1/catalog1/CODEX_DM8_MV_ADV_20260721/mv_start_next/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_advanced_0_030_behavior_review]
+sql:
+drop materialized view CODEX_DM8_MV_ADV_20260721.mv_demand_schedule;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "Materialized(1:23~1:67) /test/1/catalog1/CODEX_DM8_MV_ADV_20260721/mv_demand_schedule/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_advanced_0_031_behavior_review]
+sql:
+drop materialized view CODEX_DM8_MV_ADV_20260721.mv_commit_schedule;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "Materialized(1:23~1:67) /test/1/catalog1/CODEX_DM8_MV_ADV_20260721/mv_commit_schedule/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_advanced_0_032_behavior_review]
+sql:
+drop materialized view CODEX_DM8_MV_ADV_20260721.mv_deferred_complete;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "Materialized(1:23~1:69) /test/1/catalog1/CODEX_DM8_MV_ADV_20260721/mv_deferred_complete/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_advanced_0_033_behavior_review]
+sql:
+drop materialized view CODEX_DM8_MV_ADV_20260721.mv_tablespace;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "Materialized(1:23~1:62) /test/1/catalog1/CODEX_DM8_MV_ADV_20260721/mv_tablespace/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_advanced_0_034_behavior_review]
+sql:
+drop materialized view CODEX_DM8_MV_ADV_20260721.mv_storage;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "Materialized(1:23~1:59) /test/1/catalog1/CODEX_DM8_MV_ADV_20260721/mv_storage/",
+      "action" : "DROP"
+    }
+  ]
+}

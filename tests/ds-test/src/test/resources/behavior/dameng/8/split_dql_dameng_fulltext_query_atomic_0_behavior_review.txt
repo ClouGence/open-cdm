@@ -1,0 +1,938 @@
+[split_dql_dameng_fulltext_query_atomic_0_behavior_review_001]
+sql:
+-- CASE_001
+SELECT ID FROM CODEX_DM8_FULLTEXT_QUERY_20260727.T_DOCS WHERE CONTAINS(BODY, 'database');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:62~2:70) /test/1/catalog1/schema1/CONTAINS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(2:15~2:55) /test/1/catalog1/CODEX_DM8_FULLTEXT_QUERY_20260727/T_DOCS/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_fulltext_query_atomic_0_behavior_review_002]
+sql:
+-- CASE_002
+SELECT ID FROM CODEX_DM8_FULLTEXT_QUERY_20260727.T_DOCS WHERE CONTAINS(BODY, 'DATABASE');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:62~2:70) /test/1/catalog1/schema1/CONTAINS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(2:15~2:55) /test/1/catalog1/CODEX_DM8_FULLTEXT_QUERY_20260727/T_DOCS/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_fulltext_query_atomic_0_behavior_review_003]
+sql:
+-- CASE_003
+SELECT ID FROM CODEX_DM8_FULLTEXT_QUERY_20260727.T_DOCS WHERE CONTAINS(BODY, 'database language');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:62~2:70) /test/1/catalog1/schema1/CONTAINS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(2:15~2:55) /test/1/catalog1/CODEX_DM8_FULLTEXT_QUERY_20260727/T_DOCS/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_fulltext_query_atomic_0_behavior_review_004]
+sql:
+-- CASE_004
+SELECT ID FROM CODEX_DM8_FULLTEXT_QUERY_20260727.T_DOCS WHERE CONTAINS(BODY, 'database' AND 'language');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:62~2:70) /test/1/catalog1/schema1/CONTAINS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(2:15~2:55) /test/1/catalog1/CODEX_DM8_FULLTEXT_QUERY_20260727/T_DOCS/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_fulltext_query_atomic_0_behavior_review_005]
+sql:
+-- CASE_005
+SELECT ID FROM CODEX_DM8_FULLTEXT_QUERY_20260727.T_DOCS WHERE CONTAINS(BODY, 'database' OR 'parser');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:62~2:70) /test/1/catalog1/schema1/CONTAINS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(2:15~2:55) /test/1/catalog1/CODEX_DM8_FULLTEXT_QUERY_20260727/T_DOCS/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_fulltext_query_atomic_0_behavior_review_006]
+sql:
+-- CASE_006
+SELECT ID FROM CODEX_DM8_FULLTEXT_QUERY_20260727.T_DOCS WHERE CONTAINS(BODY, 'database' AND NOT 'security');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:62~2:70) /test/1/catalog1/schema1/CONTAINS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(2:15~2:55) /test/1/catalog1/CODEX_DM8_FULLTEXT_QUERY_20260727/T_DOCS/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_fulltext_query_atomic_0_behavior_review_007]
+sql:
+-- CASE_007
+SELECT ID FROM CODEX_DM8_FULLTEXT_QUERY_20260727.T_DOCS
+WHERE CONTAINS(BODY, 'database' AND 'language' OR 'parser');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(3:6~3:14) /test/1/catalog1/schema1/CONTAINS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(2:15~2:55) /test/1/catalog1/CODEX_DM8_FULLTEXT_QUERY_20260727/T_DOCS/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_fulltext_query_atomic_0_behavior_review_008]
+sql:
+-- CASE_008
+SELECT ID FROM CODEX_DM8_FULLTEXT_QUERY_20260727.T_DOCS
+WHERE CONTAINS(BODY, 'database' OR 'parser' AND 'language');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(3:6~3:14) /test/1/catalog1/schema1/CONTAINS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(2:15~2:55) /test/1/catalog1/CODEX_DM8_FULLTEXT_QUERY_20260727/T_DOCS/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_fulltext_query_atomic_0_behavior_review_009]
+sql:
+-- CASE_009
+SELECT ID FROM CODEX_DM8_FULLTEXT_QUERY_20260727.T_DOCS WHERE NOT CONTAINS(BODY, 'security');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:66~2:74) /test/1/catalog1/schema1/CONTAINS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(2:15~2:55) /test/1/catalog1/CODEX_DM8_FULLTEXT_QUERY_20260727/T_DOCS/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_fulltext_query_atomic_0_behavior_review_010]
+sql:
+-- CASE_010
+SELECT ID FROM CODEX_DM8_FULLTEXT_QUERY_20260727.T_DOCS WHERE CONTAINS(BODY, 'database', 0);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:62~2:70) /test/1/catalog1/schema1/CONTAINS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(2:15~2:55) /test/1/catalog1/CODEX_DM8_FULLTEXT_QUERY_20260727/T_DOCS/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_fulltext_query_atomic_0_behavior_review_011]
+sql:
+-- CASE_011
+SELECT ID FROM CODEX_DM8_FULLTEXT_QUERY_20260727.T_DOCS WHERE CONTAINS(BODY, 'database', 1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:62~2:70) /test/1/catalog1/schema1/CONTAINS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(2:15~2:55) /test/1/catalog1/CODEX_DM8_FULLTEXT_QUERY_20260727/T_DOCS/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_fulltext_query_atomic_0_behavior_review_012]
+sql:
+-- CASE_012
+SELECT ID FROM CODEX_DM8_FULLTEXT_QUERY_20260727.T_DOCS WHERE CONTAINS(BODY, 'database', 100000);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:62~2:70) /test/1/catalog1/schema1/CONTAINS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(2:15~2:55) /test/1/catalog1/CODEX_DM8_FULLTEXT_QUERY_20260727/T_DOCS/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_fulltext_query_atomic_0_behavior_review_013]
+sql:
+-- CASE_013
+SELECT D.ID, D.TITLE FROM CODEX_DM8_FULLTEXT_QUERY_20260727.T_DOCS D
+WHERE CONTAINS(D.BODY, 'database') AND D.CATEGORY='TECH' ORDER BY D.ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(3:6~3:14) /test/1/catalog1/schema1/CONTAINS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(2:26~2:66) /test/1/catalog1/CODEX_DM8_FULLTEXT_QUERY_20260727/T_DOCS/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_fulltext_query_atomic_0_behavior_review_014]
+sql:
+-- CASE_014
+SELECT COUNT(*) FROM CODEX_DM8_FULLTEXT_QUERY_20260727.T_DOCS WHERE CONTAINS(BODY, 'database');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(2:68~2:76) /test/1/catalog1/schema1/CONTAINS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(2:21~2:61) /test/1/catalog1/CODEX_DM8_FULLTEXT_QUERY_20260727/T_DOCS/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_fulltext_query_atomic_0_behavior_review_015]
+sql:
+-- CASE_015
+SELECT CATEGORY, COUNT(*) FROM CODEX_DM8_FULLTEXT_QUERY_20260727.T_DOCS
+WHERE CONTAINS(BODY, 'reference') GROUP BY CATEGORY HAVING COUNT(*)>0 ORDER BY CATEGORY;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:17~2:22) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(3:6~3:14) /test/1/catalog1/schema1/CONTAINS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(3:59~3:64) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(2:31~2:71) /test/1/catalog1/CODEX_DM8_FULLTEXT_QUERY_20260727/T_DOCS/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_fulltext_query_atomic_0_behavior_review_016]
+sql:
+-- CASE_016
+SELECT ID FROM CODEX_DM8_FULLTEXT_QUERY_20260727.T_DOCS WHERE CONTAINS(BODY, 'database') LIMIT 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:62~2:70) /test/1/catalog1/schema1/CONTAINS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(2:15~2:55) /test/1/catalog1/CODEX_DM8_FULLTEXT_QUERY_20260727/T_DOCS/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_fulltext_query_atomic_0_behavior_review_017]
+sql:
+-- CASE_017
+SELECT * FROM (
+  SELECT ID, TITLE FROM CODEX_DM8_FULLTEXT_QUERY_20260727.T_DOCS WHERE CONTAINS(BODY, 'database')
+) Q ORDER BY ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(3:71~3:79) /test/1/catalog1/schema1/CONTAINS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(3:24~3:64) /test/1/catalog1/CODEX_DM8_FULLTEXT_QUERY_20260727/T_DOCS/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_fulltext_query_atomic_0_behavior_review_018]
+sql:
+-- CASE_018
+WITH Q AS (
+  SELECT ID, TITLE FROM CODEX_DM8_FULLTEXT_QUERY_20260727.T_DOCS WHERE CONTAINS(BODY, 'database')
+) SELECT ID, TITLE FROM Q ORDER BY ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(3:71~3:79) /test/1/catalog1/schema1/CONTAINS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(3:24~3:64) /test/1/catalog1/CODEX_DM8_FULLTEXT_QUERY_20260727/T_DOCS/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_fulltext_query_atomic_0_behavior_review_019]
+sql:
+-- CASE_019
+SELECT D.ID, O.BODY
+FROM CODEX_DM8_FULLTEXT_QUERY_20260727.T_DOCS D
+JOIN CODEX_DM8_FULLTEXT_QUERY_20260727.T_OTHER O ON O.ID=D.ID
+WHERE CONTAINS(D.BODY, 'database', 1) AND CONTAINS(O.BODY, 'reference', 2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(5:6~5:14) /test/1/catalog1/schema1/CONTAINS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(5:42~5:50) /test/1/catalog1/schema1/CONTAINS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(3:5~3:45) /test/1/catalog1/CODEX_DM8_FULLTEXT_QUERY_20260727/T_DOCS/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(4:5~4:46) /test/1/catalog1/CODEX_DM8_FULLTEXT_QUERY_20260727/T_OTHER/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_fulltext_query_atomic_0_behavior_review_020]
+sql:
+-- CASE_020
+SELECT D.ID FROM CODEX_DM8_FULLTEXT_QUERY_20260727.T_DOCS D
+WHERE EXISTS(
+  SELECT 1 FROM CODEX_DM8_FULLTEXT_QUERY_20260727.T_OTHER O
+  WHERE O.ID=D.ID AND CONTAINS(O.BODY, 'reference')
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(5:22~5:30) /test/1/catalog1/schema1/CONTAINS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(2:17~2:57) /test/1/catalog1/CODEX_DM8_FULLTEXT_QUERY_20260727/T_DOCS/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(4:16~4:57) /test/1/catalog1/CODEX_DM8_FULLTEXT_QUERY_20260727/T_OTHER/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_fulltext_query_atomic_0_behavior_review_021]
+sql:
+-- CASE_021
+SELECT ID FROM CODEX_DM8_FULLTEXT_QUERY_20260727.T_DOCS WHERE CONTAINS(BODY, 'database')
+UNION ALL
+SELECT ID FROM CODEX_DM8_FULLTEXT_QUERY_20260727.T_DOCS WHERE CONTAINS(BODY, 'parser');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:62~2:70) /test/1/catalog1/schema1/CONTAINS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(4:62~4:70) /test/1/catalog1/schema1/CONTAINS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(2:15~2:55) /test/1/catalog1/CODEX_DM8_FULLTEXT_QUERY_20260727/T_DOCS/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(4:15~4:55) /test/1/catalog1/CODEX_DM8_FULLTEXT_QUERY_20260727/T_DOCS/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_fulltext_query_atomic_0_behavior_review_022]
+sql:
+-- CASE_022
+SELECT ID, ROW_NUMBER() OVER(ORDER BY ID) RN
+FROM CODEX_DM8_FULLTEXT_QUERY_20260727.T_DOCS WHERE CONTAINS(BODY, 'database');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:11~2:21) /test/1/catalog1/schema1/ROW_NUMBER/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(3:52~3:60) /test/1/catalog1/schema1/CONTAINS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(3:5~3:45) /test/1/catalog1/CODEX_DM8_FULLTEXT_QUERY_20260727/T_DOCS/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_fulltext_query_atomic_0_behavior_review_023]
+sql:
+-- CASE_023
+SELECT ID FROM CODEX_DM8_FULLTEXT_QUERY_20260727.T_DOCS
+WHERE CONTAINS(BODY, 'database', 1) AND CONTAINS(BODY, 'language', 2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(3:6~3:14) /test/1/catalog1/schema1/CONTAINS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(3:40~3:48) /test/1/catalog1/schema1/CONTAINS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(2:15~2:55) /test/1/catalog1/CODEX_DM8_FULLTEXT_QUERY_20260727/T_DOCS/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_fulltext_query_atomic_0_behavior_review_024]
+sql:
+-- CASE_024
+SELECT ID FROM CODEX_DM8_FULLTEXT_QUERY_20260727.T_DOCS WHERE
+CONTAINS(BODY,'database',1) AND CONTAINS(BODY,'database',2) AND
+CONTAINS(BODY,'database',3) AND CONTAINS(BODY,'database',4) AND
+CONTAINS(BODY,'database',5);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(3:0~3:8) /test/1/catalog1/schema1/CONTAINS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(3:32~3:40) /test/1/catalog1/schema1/CONTAINS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(4:0~4:8) /test/1/catalog1/schema1/CONTAINS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(4:32~4:40) /test/1/catalog1/schema1/CONTAINS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(5:0~5:8) /test/1/catalog1/schema1/CONTAINS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(2:15~2:55) /test/1/catalog1/CODEX_DM8_FULLTEXT_QUERY_20260727/T_DOCS/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_fulltext_query_atomic_0_behavior_review_025]
+sql:
+-- CASE_025
+SELECT ID FROM CODEX_DM8_FULLTEXT_QUERY_20260727.T_DOCS WHERE CONTAINS(BODY, 'data*');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:62~2:70) /test/1/catalog1/schema1/CONTAINS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(2:15~2:55) /test/1/catalog1/CODEX_DM8_FULLTEXT_QUERY_20260727/T_DOCS/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_fulltext_query_atomic_0_behavior_review_026]
+sql:
+-- CASE_026
+SELECT ID FROM CODEX_DM8_FULLTEXT_QUERY_20260727.T_DOCS WHERE CONTAINS(BODY, BINARY 'DATABASE');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:62~2:70) /test/1/catalog1/schema1/CONTAINS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(2:15~2:55) /test/1/catalog1/CODEX_DM8_FULLTEXT_QUERY_20260727/T_DOCS/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_fulltext_query_atomic_0_behavior_review_027]
+sql:
+-- CASE_027
+EXPLAIN SELECT ID FROM CODEX_DM8_FULLTEXT_QUERY_20260727.T_DOCS WHERE CONTAINS(BODY, 'database');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Function(2:70~2:78) /test/1/catalog1/schema1/CONTAINS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(2:23~2:63) /test/1/catalog1/CODEX_DM8_FULLTEXT_QUERY_20260727/T_DOCS/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_fulltext_query_atomic_0_behavior_review_028]
+sql:
+-- CASE_028
+SELECT ID FROM CODEX_DM8_FULLTEXT_QUERY_20260727.T_DOCS
+WHERE CONTAINS(BODY, 'database') AND TITLE LIKE '%guide%';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(3:6~3:14) /test/1/catalog1/schema1/CONTAINS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(2:15~2:55) /test/1/catalog1/CODEX_DM8_FULLTEXT_QUERY_20260727/T_DOCS/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_fulltext_query_atomic_0_behavior_review_029]
+sql:
+-- CASE_029
+SELECT ID FROM CODEX_DM8_FULLTEXT_QUERY_20260727.T_DOCS
+WHERE CONTAINS(BODY, 'database') INTERSECT
+SELECT ID FROM CODEX_DM8_FULLTEXT_QUERY_20260727.T_DOCS WHERE ID>0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(3:6~3:14) /test/1/catalog1/schema1/CONTAINS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(2:15~2:55) /test/1/catalog1/CODEX_DM8_FULLTEXT_QUERY_20260727/T_DOCS/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(4:15~4:55) /test/1/catalog1/CODEX_DM8_FULLTEXT_QUERY_20260727/T_DOCS/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_fulltext_query_atomic_0_behavior_review_030]
+sql:
+-- CASE_030
+SELECT ID FROM CODEX_DM8_FULLTEXT_QUERY_20260727.T_DOCS
+WHERE CONTAINS(BODY, 'database') MINUS
+SELECT ID FROM CODEX_DM8_FULLTEXT_QUERY_20260727.T_DOCS WHERE CONTAINS(BODY, 'security');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(3:6~3:14) /test/1/catalog1/schema1/CONTAINS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(4:62~4:70) /test/1/catalog1/schema1/CONTAINS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(2:15~2:55) /test/1/catalog1/CODEX_DM8_FULLTEXT_QUERY_20260727/T_DOCS/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(4:15~4:55) /test/1/catalog1/CODEX_DM8_FULLTEXT_QUERY_20260727/T_DOCS/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_fulltext_query_atomic_0_behavior_review_031]
+sql:
+-- CASE_031
+SELECT ID FROM CODEX_DM8_FULLTEXT_QUERY_20260727.V_DOCS WHERE CONTAINS(BODY, 'database');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:62~2:70) /test/1/catalog1/schema1/CONTAINS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(2:15~2:55) /test/1/catalog1/CODEX_DM8_FULLTEXT_QUERY_20260727/V_DOCS/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_fulltext_query_atomic_0_behavior_review_032]
+sql:
+-- CASE_032
+SELECT ID, SCORE(1) AS RELEVANCE
+FROM CODEX_DM8_FULLTEXT_QUERY_20260727.T_DOCS
+WHERE CONTAINS(BODY, 'database', 1)
+ORDER BY SCORE(1) DESC, ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:11~2:16) /test/1/catalog1/schema1/SCORE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(4:6~4:14) /test/1/catalog1/schema1/CONTAINS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(5:9~5:14) /test/1/catalog1/schema1/SCORE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(3:5~3:45) /test/1/catalog1/CODEX_DM8_FULLTEXT_QUERY_20260727/T_DOCS/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_fulltext_query_atomic_0_behavior_review_033]
+sql:
+-- SEMANTIC_BOUNDARY_001
+SELECT ID FROM CODEX_DM8_FULLTEXT_QUERY_20260727.T_DOCS WHERE CONTAINS(BODY, 'database', -1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:62~2:70) /test/1/catalog1/schema1/CONTAINS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(2:15~2:55) /test/1/catalog1/CODEX_DM8_FULLTEXT_QUERY_20260727/T_DOCS/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_fulltext_query_atomic_0_behavior_review_034]
+sql:
+-- SEMANTIC_BOUNDARY_002
+SELECT ID FROM CODEX_DM8_FULLTEXT_QUERY_20260727.T_DOCS WHERE CONTAINS(BODY, 'database', 100001);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:62~2:70) /test/1/catalog1/schema1/CONTAINS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(2:15~2:55) /test/1/catalog1/CODEX_DM8_FULLTEXT_QUERY_20260727/T_DOCS/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_fulltext_query_atomic_0_behavior_review_035]
+sql:
+-- SEMANTIC_BOUNDARY_003
+SELECT ID FROM CODEX_DM8_FULLTEXT_QUERY_20260727.T_DOCS
+WHERE CONTAINS(BODY, 'database', 1) AND CONTAINS(BODY, 'language', 1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(3:6~3:14) /test/1/catalog1/schema1/CONTAINS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(3:40~3:48) /test/1/catalog1/schema1/CONTAINS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(2:15~2:55) /test/1/catalog1/CODEX_DM8_FULLTEXT_QUERY_20260727/T_DOCS/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_fulltext_query_atomic_0_behavior_review_036]
+sql:
+-- SEMANTIC_BOUNDARY_004
+SELECT ID FROM CODEX_DM8_FULLTEXT_QUERY_20260727.T_DOCS WHERE
+CONTAINS(BODY,'database',1) AND CONTAINS(BODY,'database',2) AND
+CONTAINS(BODY,'database',3) AND CONTAINS(BODY,'database',4) AND
+CONTAINS(BODY,'database',5) AND CONTAINS(BODY,'database',6);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(3:0~3:8) /test/1/catalog1/schema1/CONTAINS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(3:32~3:40) /test/1/catalog1/schema1/CONTAINS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(4:0~4:8) /test/1/catalog1/schema1/CONTAINS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(4:32~4:40) /test/1/catalog1/schema1/CONTAINS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(5:0~5:8) /test/1/catalog1/schema1/CONTAINS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(5:32~5:40) /test/1/catalog1/schema1/CONTAINS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(2:15~2:55) /test/1/catalog1/CODEX_DM8_FULLTEXT_QUERY_20260727/T_DOCS/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_fulltext_query_atomic_0_behavior_review_037]
+sql:
+-- SEMANTIC_BOUNDARY_005
+SELECT ID FROM CODEX_DM8_FULLTEXT_QUERY_20260727.T_NO_INDEX WHERE CONTAINS(BODY, 'database');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:66~2:74) /test/1/catalog1/schema1/CONTAINS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(2:15~2:59) /test/1/catalog1/CODEX_DM8_FULLTEXT_QUERY_20260727/T_NO_INDEX/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_fulltext_query_atomic_0_behavior_review_038]
+sql:
+-- SEMANTIC_BOUNDARY_006
+SELECT ID FROM CODEX_DM8_FULLTEXT_QUERY_20260727.T_DOCS WHERE CONTAINS(TITLE, 'guide');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:62~2:70) /test/1/catalog1/schema1/CONTAINS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(2:15~2:55) /test/1/catalog1/CODEX_DM8_FULLTEXT_QUERY_20260727/T_DOCS/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_fulltext_query_atomic_0_behavior_review_039]
+sql:
+-- SEMANTIC_BOUNDARY_007
+SELECT ID FROM CODEX_DM8_FULLTEXT_QUERY_20260727.T_DOCS WHERE CONTAINS(BODY, 'database', 1, 2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:62~2:70) /test/1/catalog1/schema1/CONTAINS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(2:15~2:55) /test/1/catalog1/CODEX_DM8_FULLTEXT_QUERY_20260727/T_DOCS/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_fulltext_query_atomic_0_behavior_review_040]
+sql:
+-- SEMANTIC_BOUNDARY_008
+SELECT ID, SCORE(2) FROM CODEX_DM8_FULLTEXT_QUERY_20260727.T_DOCS
+WHERE CONTAINS(BODY, 'database', 1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:11~2:16) /test/1/catalog1/schema1/SCORE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(3:6~3:14) /test/1/catalog1/schema1/CONTAINS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(2:25~2:65) /test/1/catalog1/CODEX_DM8_FULLTEXT_QUERY_20260727/T_DOCS/",
+      "action" : "READ"
+    }
+  ]
+}

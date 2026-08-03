@@ -24,12 +24,16 @@ import java.time.*;
 import java.util.Arrays;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 public class ResultSetTest {
 
+    @TempDir
+    File tempDir;
+
     @Test
     public void allTypeTest_1() throws IOException {
-        try (FileResultSetOutputStream out = new FileResultSetOutputStream(new File("test.dat"), false)) {
+        try (FileResultSetOutputStream out = new FileResultSetOutputStream(new File(tempDir, "test.dat"), false)) {
             out.newRow();
             out.writeCodeStatus(1234);
 
@@ -104,7 +108,7 @@ public class ResultSetTest {
             }
         }
 
-        try (FileResultSetInputStream in = new FileResultSetInputStream(new File("test.dat"))) {
+        try (FileResultSetInputStream in = new FileResultSetInputStream(new File(tempDir, "test.dat"))) {
             in.nextRow();
             assert in.readCodeStatus() == 1234;
 
@@ -182,7 +186,7 @@ public class ResultSetTest {
 
     @Test
     public void rowTest_1() throws IOException {
-        try (FileResultSetOutputStream out = new FileResultSetOutputStream(new File("test.dat"), false)) {
+        try (FileResultSetOutputStream out = new FileResultSetOutputStream(new File(tempDir, "test.dat"), false)) {
             // row 1
             out.newRow();
             out.writeInteger(1);
@@ -200,7 +204,7 @@ public class ResultSetTest {
             out.writeBoolean(false);
         }
 
-        try (FileResultSetInputStream in = new FileResultSetInputStream(new File("test.dat"))) {
+        try (FileResultSetInputStream in = new FileResultSetInputStream(new File(tempDir, "test.dat"))) {
             assert in.getRowCount() == 3;
 
             // row 1
@@ -226,7 +230,7 @@ public class ResultSetTest {
 
     @Test
     public void rowTest_2() throws IOException {
-        try (FileResultSetOutputStream out = new FileResultSetOutputStream(new File("test.dat"), false)) {
+        try (FileResultSetOutputStream out = new FileResultSetOutputStream(new File(tempDir, "test.dat"), false)) {
             // row 1
             out.newRow();
             out.writeInteger(null);
@@ -234,7 +238,7 @@ public class ResultSetTest {
             out.writeString((String) null, StandardCharsets.UTF_8);
         }
 
-        try (FileResultSetInputStream in = new FileResultSetInputStream(new File("test.dat"))) {
+        try (FileResultSetInputStream in = new FileResultSetInputStream(new File(tempDir, "test.dat"))) {
             assert in.getRowCount() == 1;
 
             in.nextRow();
@@ -247,7 +251,7 @@ public class ResultSetTest {
 
     @Test
     public void rowTest_3() throws IOException {
-        try (FileResultSetOutputStream out = new FileResultSetOutputStream(new File("test.dat"), false)) {
+        try (FileResultSetOutputStream out = new FileResultSetOutputStream(new File(tempDir, "test.dat"), false)) {
             // row 1
             out.newRow();
             out.writeInteger(null);
@@ -255,7 +259,7 @@ public class ResultSetTest {
             out.writeString((String) null, StandardCharsets.UTF_8);
         }
 
-        try (FileResultSetInputStream in = new FileResultSetInputStream(new File("test.dat"))) {
+        try (FileResultSetInputStream in = new FileResultSetInputStream(new File(tempDir, "test.dat"))) {
             assert in.getRowCount() == 1;
 
             in.nextRow();
@@ -268,7 +272,7 @@ public class ResultSetTest {
 
     @Test
     public void rowTest_4() throws IOException {
-        try (FileResultSetOutputStream out = new FileResultSetOutputStream(new File("test.dat"), false)) {
+        try (FileResultSetOutputStream out = new FileResultSetOutputStream(new File(tempDir, "test.dat"), false)) {
             // row 1
             out.newRow();
             out.writeString("select * from abc", StandardCharsets.UTF_8);
@@ -286,7 +290,7 @@ public class ResultSetTest {
             out.writeBoolean(false);
         }
 
-        try (FileResultSetInputStream in = new FileResultSetInputStream(new File("test.dat"))) {
+        try (FileResultSetInputStream in = new FileResultSetInputStream(new File(tempDir, "test.dat"))) {
             assert in.getRowCount() == 3;
 
             // row 1

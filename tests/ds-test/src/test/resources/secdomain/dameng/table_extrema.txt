@@ -1,0 +1,42 @@
+[table_extrema_create]
+sql:
+create table app.table_extrema(id int, value varchar(3000) default 'D')
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"CREATE_TABLE", "schema":"app", "table":"table_extrema"}
+  ]
+}
+----------
+[table_extrema_insert]
+sql:
+insert into app.table_extrema(id) values(1)
+expect:
+{
+  "contains": [
+    {"class":"RdbInsertDomain", "sqlType":"INSERT", "schema":"app", "table":"table_extrema"}
+  ]
+}
+----------
+[table_extrema_comments]
+sql:
+comment on table app.table_extrema is 'table boundary';
+comment on column app.table_extrema.value is 'column boundary'
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"COMMENT_TABLE", "auditKind":"ALTER", "schema":"app", "table":"table_extrema"},
+    {"class":"RdbTableDomain", "sqlType":"COMMENT_COLUMN", "auditKind":"ALTER", "schema":"app", "table":"table_extrema"}
+  ]
+}
+----------
+[table_extrema_dictionary]
+sql:
+select table_name, column_name from catalog1.sys.user_tab_columns
+where table_name='TABLE_EXTREMA'
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "catalog":"catalog1", "schema":"sys", "table":"user_tab_columns"}
+  ]
+}

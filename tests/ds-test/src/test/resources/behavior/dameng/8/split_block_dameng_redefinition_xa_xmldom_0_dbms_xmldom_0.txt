@@ -1,0 +1,878 @@
+[split_block_dameng_redefinition_xa_xmldom_0_028]
+sql:
+declare doc dbms_xmldom.domdocument; begin doc:=dbms_xmldom.newdomdocument(); insert into CODEX_DM8_PKG_CTL(label, number_value) values('XML_EMPTY_DOC_NULL', case when dbms_xmldom.isnull(doc) then 1 else 0 end); dbms_xmldom.freedocument(doc); commit; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:12~1:35) /test/1/catalog1/dbms_xmldom/domdocument/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(1:90~1:107) /test/1/catalog1/schema1/CODEX_DM8_PKG_CTL/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:168~1:186) /test/1/catalog1/dbms_xmldom/isnull/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:212~1:236) /test/1/catalog1/dbms_xmldom/freedocument/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:48~1:74) /test/1/catalog1/dbms_xmldom/newdomdocument/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_redefinition_xa_xmldom_0_029]
+sql:
+declare doc dbms_xmldom.domdocument; ele dbms_xmldom.domelement; begin doc:=dbms_xmldom.newdomdocument('<ROOT ATTR="A"/>'); ele:=dbms_xmldom.getdocumentelement(doc); insert into CODEX_DM8_PKG_CTL(label, text_value) values('XML_ROOT_TAG', dbms_xmldom.gettagname(ele)); dbms_xmldom.freedocument(doc); commit; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:12~1:35) /test/1/catalog1/dbms_xmldom/domdocument/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(1:41~1:63) /test/1/catalog1/dbms_xmldom/domelement/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(1:178~1:195) /test/1/catalog1/schema1/CODEX_DM8_PKG_CTL/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:238~1:260) /test/1/catalog1/dbms_xmldom/gettagname/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:268~1:292) /test/1/catalog1/dbms_xmldom/freedocument/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:76~1:102) /test/1/catalog1/dbms_xmldom/newdomdocument/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:129~1:159) /test/1/catalog1/dbms_xmldom/getdocumentelement/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_redefinition_xa_xmldom_0_030]
+sql:
+declare doc dbms_xmldom.domdocument; ele dbms_xmldom.domelement; attr dbms_xmldom.domattr; begin doc:=dbms_xmldom.newdomdocument('<ROOT ATTR="A"/>'); ele:=dbms_xmldom.getdocumentelement(doc); attr:=dbms_xmldom.getattributenode(ele, 'ATTR'); insert into CODEX_DM8_PKG_CTL(label, text_value) values('XML_ATTR_VALUE', dbms_xmldom.getvalue(attr)); dbms_xmldom.freedocument(doc); commit; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:12~1:35) /test/1/catalog1/dbms_xmldom/domdocument/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(1:41~1:63) /test/1/catalog1/dbms_xmldom/domelement/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(1:70~1:89) /test/1/catalog1/dbms_xmldom/domattr/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(1:253~1:270) /test/1/catalog1/schema1/CODEX_DM8_PKG_CTL/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:315~1:335) /test/1/catalog1/dbms_xmldom/getvalue/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:344~1:368) /test/1/catalog1/dbms_xmldom/freedocument/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:102~1:128) /test/1/catalog1/dbms_xmldom/newdomdocument/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:155~1:185) /test/1/catalog1/dbms_xmldom/getdocumentelement/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:198~1:226) /test/1/catalog1/dbms_xmldom/getattributenode/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_redefinition_xa_xmldom_0_031]
+sql:
+declare doc dbms_xmldom.domdocument; ele dbms_xmldom.domelement; begin doc:=dbms_xmldom.newdomdocument('<ROOT/>'); ele:=dbms_xmldom.getdocumentelement(doc); dbms_xmldom.setattribute(ele, 'K', 'V'); insert into CODEX_DM8_PKG_CTL(label, text_value) values('XML_SET_ATTR', dbms_xmldom.getattribute(ele, 'K')); dbms_xmldom.removeattribute(ele, 'K'); dbms_xmldom.freedocument(doc); commit; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:12~1:35) /test/1/catalog1/dbms_xmldom/domdocument/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(1:41~1:63) /test/1/catalog1/dbms_xmldom/domelement/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(1:157~1:181) /test/1/catalog1/dbms_xmldom/setattribute/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:210~1:227) /test/1/catalog1/schema1/CODEX_DM8_PKG_CTL/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:270~1:294) /test/1/catalog1/dbms_xmldom/getattribute/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:307~1:334) /test/1/catalog1/dbms_xmldom/removeattribute/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:346~1:370) /test/1/catalog1/dbms_xmldom/freedocument/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:76~1:102) /test/1/catalog1/dbms_xmldom/newdomdocument/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:120~1:150) /test/1/catalog1/dbms_xmldom/getdocumentelement/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_redefinition_xa_xmldom_0_032]
+sql:
+declare doc dbms_xmldom.domdocument; ele dbms_xmldom.domelement; node dbms_xmldom.domnode; children dbms_xmldom.domnodelist; begin doc:=dbms_xmldom.newdomdocument('<ROOT><A/><B/></ROOT>'); ele:=dbms_xmldom.getdocumentelement(doc); node:=dbms_xmldom.makenode(ele); children:=dbms_xmldom.getchildnodes(node); insert into CODEX_DM8_PKG_CTL(label, number_value) values('XML_CHILD_COUNT', dbms_xmldom.getlength(children)); dbms_xmldom.freenodelist(children); dbms_xmldom.freedocument(doc); commit; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:12~1:35) /test/1/catalog1/dbms_xmldom/domdocument/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(1:41~1:63) /test/1/catalog1/dbms_xmldom/domelement/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(1:70~1:89) /test/1/catalog1/dbms_xmldom/domnode/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(1:100~1:123) /test/1/catalog1/dbms_xmldom/domnodelist/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(1:319~1:336) /test/1/catalog1/schema1/CODEX_DM8_PKG_CTL/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:384~1:405) /test/1/catalog1/dbms_xmldom/getlength/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:418~1:442) /test/1/catalog1/dbms_xmldom/freenodelist/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:454~1:478) /test/1/catalog1/dbms_xmldom/freedocument/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:136~1:162) /test/1/catalog1/dbms_xmldom/newdomdocument/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:194~1:224) /test/1/catalog1/dbms_xmldom/getdocumentelement/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:237~1:257) /test/1/catalog1/dbms_xmldom/makenode/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:274~1:299) /test/1/catalog1/dbms_xmldom/getchildnodes/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_redefinition_xa_xmldom_0_033]
+sql:
+declare doc dbms_xmldom.domdocument; ele dbms_xmldom.domelement; node dbms_xmldom.domnode; children dbms_xmldom.domnodelist; child dbms_xmldom.domnode; begin doc:=dbms_xmldom.newdomdocument('<ROOT><A>ONE</A><B>TWO</B></ROOT>'); ele:=dbms_xmldom.getdocumentelement(doc); node:=dbms_xmldom.makenode(ele); children:=dbms_xmldom.getchildnodes(node); child:=dbms_xmldom.item(children, 1); insert into CODEX_DM8_PKG_CTL(label, text_value) values('XML_ITEM_NAME', dbms_xmldom.getnodename(child)); dbms_xmldom.freedocument(doc); commit; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:12~1:35) /test/1/catalog1/dbms_xmldom/domdocument/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(1:41~1:63) /test/1/catalog1/dbms_xmldom/domelement/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(1:70~1:89) /test/1/catalog1/dbms_xmldom/domnode/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(1:100~1:123) /test/1/catalog1/dbms_xmldom/domnodelist/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(1:131~1:150) /test/1/catalog1/dbms_xmldom/domnode/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(1:396~1:413) /test/1/catalog1/schema1/CODEX_DM8_PKG_CTL/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:457~1:480) /test/1/catalog1/dbms_xmldom/getnodename/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:490~1:514) /test/1/catalog1/dbms_xmldom/freedocument/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:163~1:189) /test/1/catalog1/dbms_xmldom/newdomdocument/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:233~1:263) /test/1/catalog1/dbms_xmldom/getdocumentelement/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:276~1:296) /test/1/catalog1/dbms_xmldom/makenode/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:313~1:338) /test/1/catalog1/dbms_xmldom/getchildnodes/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:353~1:369) /test/1/catalog1/dbms_xmldom/item/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_redefinition_xa_xmldom_0_034]
+sql:
+declare doc dbms_xmldom.domdocument; ele dbms_xmldom.domelement; text_node dbms_xmldom.domtext; appended dbms_xmldom.domnode; begin doc:=dbms_xmldom.newdomdocument('<ROOT/>'); ele:=dbms_xmldom.getdocumentelement(doc); text_node:=dbms_xmldom.createtextnode(doc, 'TEXT-VALUE'); appended:=dbms_xmldom.appendchild(dbms_xmldom.makenode(ele), dbms_xmldom.makenode(text_node)); insert into CODEX_DM8_PKG_CTL(label, text_value) values('XML_APPEND_TEXT', dbms_xmldom.getnodevalue(appended)); dbms_xmldom.freedocument(doc); commit; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:12~1:35) /test/1/catalog1/dbms_xmldom/domdocument/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(1:41~1:63) /test/1/catalog1/dbms_xmldom/domelement/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(1:75~1:94) /test/1/catalog1/dbms_xmldom/domtext/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(1:105~1:124) /test/1/catalog1/dbms_xmldom/domnode/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(1:383~1:400) /test/1/catalog1/schema1/CODEX_DM8_PKG_CTL/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:446~1:470) /test/1/catalog1/dbms_xmldom/getnodevalue/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:483~1:507) /test/1/catalog1/dbms_xmldom/freedocument/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:137~1:163) /test/1/catalog1/dbms_xmldom/newdomdocument/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:181~1:211) /test/1/catalog1/dbms_xmldom/getdocumentelement/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:229~1:255) /test/1/catalog1/dbms_xmldom/createtextnode/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:286~1:309) /test/1/catalog1/dbms_xmldom/appendchild/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:310~1:330) /test/1/catalog1/dbms_xmldom/makenode/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:337~1:357) /test/1/catalog1/dbms_xmldom/makenode/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_redefinition_xa_xmldom_0_035]
+sql:
+declare doc dbms_xmldom.domdocument; root dbms_xmldom.domelement; child dbms_xmldom.domelement; appended dbms_xmldom.domnode; begin doc:=dbms_xmldom.newdomdocument('<ROOT/>'); root:=dbms_xmldom.getdocumentelement(doc); child:=dbms_xmldom.createelement(doc, 'CHILD'); appended:=dbms_xmldom.appendchild(dbms_xmldom.makenode(root), dbms_xmldom.makenode(child)); insert into CODEX_DM8_PKG_CTL(label, text_value) values('XML_APPEND_ELEMENT', dbms_xmldom.getnodename(appended)); dbms_xmldom.freedocument(doc); commit; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:12~1:35) /test/1/catalog1/dbms_xmldom/domdocument/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(1:42~1:64) /test/1/catalog1/dbms_xmldom/domelement/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(1:72~1:94) /test/1/catalog1/dbms_xmldom/domelement/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(1:105~1:124) /test/1/catalog1/dbms_xmldom/domnode/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(1:371~1:388) /test/1/catalog1/schema1/CODEX_DM8_PKG_CTL/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:437~1:460) /test/1/catalog1/dbms_xmldom/getnodename/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:473~1:497) /test/1/catalog1/dbms_xmldom/freedocument/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:137~1:163) /test/1/catalog1/dbms_xmldom/newdomdocument/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:182~1:212) /test/1/catalog1/dbms_xmldom/getdocumentelement/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:226~1:251) /test/1/catalog1/dbms_xmldom/createelement/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:277~1:300) /test/1/catalog1/dbms_xmldom/appendchild/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:301~1:321) /test/1/catalog1/dbms_xmldom/makenode/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:329~1:349) /test/1/catalog1/dbms_xmldom/makenode/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_redefinition_xa_xmldom_0_036]
+sql:
+declare doc dbms_xmldom.domdocument; root dbms_xmldom.domnode; first_node dbms_xmldom.domnode; new_node dbms_xmldom.domnode; result_node dbms_xmldom.domnode; begin doc:=dbms_xmldom.newdomdocument('<ROOT><B/></ROOT>'); root:=dbms_xmldom.makenode(dbms_xmldom.getdocumentelement(doc)); first_node:=dbms_xmldom.getfirstchild(root); new_node:=dbms_xmldom.makenode(dbms_xmldom.createelement(doc, 'A')); result_node:=dbms_xmldom.insertbefore(root, new_node, first_node); insert into CODEX_DM8_PKG_CTL(label, text_value) values('XML_INSERT_BEFORE', dbms_xmldom.getnodename(result_node)); dbms_xmldom.freedocument(doc); commit; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:12~1:35) /test/1/catalog1/dbms_xmldom/domdocument/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(1:42~1:61) /test/1/catalog1/dbms_xmldom/domnode/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(1:74~1:93) /test/1/catalog1/dbms_xmldom/domnode/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(1:104~1:123) /test/1/catalog1/dbms_xmldom/domnode/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(1:137~1:156) /test/1/catalog1/dbms_xmldom/domnode/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(1:476~1:493) /test/1/catalog1/schema1/CODEX_DM8_PKG_CTL/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:541~1:564) /test/1/catalog1/dbms_xmldom/getnodename/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:580~1:604) /test/1/catalog1/dbms_xmldom/freedocument/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:169~1:195) /test/1/catalog1/dbms_xmldom/newdomdocument/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:224~1:244) /test/1/catalog1/dbms_xmldom/makenode/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:245~1:275) /test/1/catalog1/dbms_xmldom/getdocumentelement/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:295~1:320) /test/1/catalog1/dbms_xmldom/getfirstchild/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:338~1:358) /test/1/catalog1/dbms_xmldom/makenode/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:359~1:384) /test/1/catalog1/dbms_xmldom/createelement/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:410~1:434) /test/1/catalog1/dbms_xmldom/insertbefore/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_redefinition_xa_xmldom_0_037]
+sql:
+declare doc dbms_xmldom.domdocument; root dbms_xmldom.domnode; last_node dbms_xmldom.domnode; begin doc:=dbms_xmldom.newdomdocument('<ROOT><A/><LAST/></ROOT>'); root:=dbms_xmldom.makenode(dbms_xmldom.getdocumentelement(doc)); last_node:=dbms_xmldom.getlastchild(root); insert into CODEX_DM8_PKG_CTL(label, text_value) values('XML_LAST_CHILD', dbms_xmldom.getnodename(last_node)); dbms_xmldom.freedocument(doc); commit; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:12~1:35) /test/1/catalog1/dbms_xmldom/domdocument/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(1:42~1:61) /test/1/catalog1/dbms_xmldom/domnode/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(1:73~1:92) /test/1/catalog1/dbms_xmldom/domnode/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(1:281~1:298) /test/1/catalog1/schema1/CODEX_DM8_PKG_CTL/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:343~1:366) /test/1/catalog1/dbms_xmldom/getnodename/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:380~1:404) /test/1/catalog1/dbms_xmldom/freedocument/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:105~1:131) /test/1/catalog1/dbms_xmldom/newdomdocument/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:167~1:187) /test/1/catalog1/dbms_xmldom/makenode/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:188~1:218) /test/1/catalog1/dbms_xmldom/getdocumentelement/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:237~1:261) /test/1/catalog1/dbms_xmldom/getlastchild/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_redefinition_xa_xmldom_0_038]
+sql:
+declare doc dbms_xmldom.domdocument; root dbms_xmldom.domnode; old_node dbms_xmldom.domnode; result_node dbms_xmldom.domnode; begin doc:=dbms_xmldom.newdomdocument('<ROOT><REMOVE/></ROOT>'); root:=dbms_xmldom.makenode(dbms_xmldom.getdocumentelement(doc)); old_node:=dbms_xmldom.getfirstchild(root); result_node:=dbms_xmldom.removechild(root, old_node); insert into CODEX_DM8_PKG_CTL(label, text_value) values('XML_REMOVE_NODE', dbms_xmldom.getnodename(result_node)); dbms_xmldom.freedocument(doc); commit; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:12~1:35) /test/1/catalog1/dbms_xmldom/domdocument/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(1:42~1:61) /test/1/catalog1/dbms_xmldom/domnode/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(1:72~1:91) /test/1/catalog1/dbms_xmldom/domnode/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(1:105~1:124) /test/1/catalog1/dbms_xmldom/domnode/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(1:365~1:382) /test/1/catalog1/schema1/CODEX_DM8_PKG_CTL/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:428~1:451) /test/1/catalog1/dbms_xmldom/getnodename/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:467~1:491) /test/1/catalog1/dbms_xmldom/freedocument/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:137~1:163) /test/1/catalog1/dbms_xmldom/newdomdocument/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:197~1:217) /test/1/catalog1/dbms_xmldom/makenode/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:218~1:248) /test/1/catalog1/dbms_xmldom/getdocumentelement/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:266~1:291) /test/1/catalog1/dbms_xmldom/getfirstchild/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:312~1:335) /test/1/catalog1/dbms_xmldom/removechild/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_redefinition_xa_xmldom_0_039]
+sql:
+declare doc dbms_xmldom.domdocument; root dbms_xmldom.domnode; clone dbms_xmldom.domnode; begin doc:=dbms_xmldom.newdomdocument('<ROOT><A><B/></A></ROOT>'); root:=dbms_xmldom.makenode(dbms_xmldom.getdocumentelement(doc)); clone:=dbms_xmldom.clonenode(root, true); insert into CODEX_DM8_PKG_CTL(label, text_value) values('XML_CLONE_NAME', dbms_xmldom.getnodename(clone)); dbms_xmldom.freedocument(doc); commit; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:12~1:35) /test/1/catalog1/dbms_xmldom/domdocument/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(1:42~1:61) /test/1/catalog1/dbms_xmldom/domnode/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(1:69~1:88) /test/1/catalog1/dbms_xmldom/domnode/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(1:276~1:293) /test/1/catalog1/schema1/CODEX_DM8_PKG_CTL/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:338~1:361) /test/1/catalog1/dbms_xmldom/getnodename/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:371~1:395) /test/1/catalog1/dbms_xmldom/freedocument/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:101~1:127) /test/1/catalog1/dbms_xmldom/newdomdocument/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:163~1:183) /test/1/catalog1/dbms_xmldom/makenode/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:184~1:214) /test/1/catalog1/dbms_xmldom/getdocumentelement/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:229~1:250) /test/1/catalog1/dbms_xmldom/clonenode/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_redefinition_xa_xmldom_0_040]
+sql:
+declare doc dbms_xmldom.domdocument; node dbms_xmldom.domnode; begin doc:=dbms_xmldom.newdomdocument('<ROOT ATTR="Y"><A/></ROOT>'); node:=dbms_xmldom.makenode(dbms_xmldom.getdocumentelement(doc)); insert into CODEX_DM8_PKG_CTL(label, number_value) values('XML_HAS_FLAGS', case when dbms_xmldom.haschildnodes(node) and dbms_xmldom.hasattributes(node) then 1 else 0 end); dbms_xmldom.freedocument(doc); commit; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:12~1:35) /test/1/catalog1/dbms_xmldom/domdocument/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(1:42~1:61) /test/1/catalog1/dbms_xmldom/domnode/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(1:209~1:226) /test/1/catalog1/schema1/CODEX_DM8_PKG_CTL/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:282~1:307) /test/1/catalog1/dbms_xmldom/haschildnodes/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:318~1:343) /test/1/catalog1/dbms_xmldom/hasattributes/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:370~1:394) /test/1/catalog1/dbms_xmldom/freedocument/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:74~1:100) /test/1/catalog1/dbms_xmldom/newdomdocument/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:138~1:158) /test/1/catalog1/dbms_xmldom/makenode/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:159~1:189) /test/1/catalog1/dbms_xmldom/getdocumentelement/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_redefinition_xa_xmldom_0_041]
+sql:
+declare doc dbms_xmldom.domdocument; buf varchar(32767); begin doc:=dbms_xmldom.newdomdocument('<ROOT><A>ONE</A></ROOT>'); dbms_xmldom.writetobuffer(doc, buf); insert into CODEX_DM8_PKG_CTL(label, text_value) values('XML_BUFFER', buf); dbms_xmldom.freedocument(doc); commit; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:12~1:35) /test/1/catalog1/dbms_xmldom/domdocument/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(1:123~1:148) /test/1/catalog1/dbms_xmldom/writetobuffer/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:172~1:189) /test/1/catalog1/schema1/CODEX_DM8_PKG_CTL/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Procedure(1:236~1:260) /test/1/catalog1/dbms_xmldom/freedocument/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:68~1:94) /test/1/catalog1/dbms_xmldom/newdomdocument/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_redefinition_xa_xmldom_0_043]
+sql:
+declare doc dbms_xmldom.domdocument; begin doc:=dbms_xmldom.newdomdocument('<ROOT/>'); dbms_xmldom.setversion(doc, '1.1'); dbms_xmldom.setcharset(doc, 'UTF-8'); dbms_xmldom.setstandalone(doc, 'yes'); insert into CODEX_DM8_PKG_CTL(label, text_value) values('XML_DECL', dbms_xmldom.getversion(doc)||':'||dbms_xmldom.getcharset(doc)||':'||dbms_xmldom.getstandalone(doc)); dbms_xmldom.freedocument(doc); commit; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:12~1:35) /test/1/catalog1/dbms_xmldom/domdocument/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(1:87~1:109) /test/1/catalog1/dbms_xmldom/setversion/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:123~1:145) /test/1/catalog1/dbms_xmldom/setcharset/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:161~1:186) /test/1/catalog1/dbms_xmldom/setstandalone/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:212~1:229) /test/1/catalog1/schema1/CODEX_DM8_PKG_CTL/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:268~1:290) /test/1/catalog1/dbms_xmldom/getversion/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:302~1:324) /test/1/catalog1/dbms_xmldom/getcharset/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:336~1:361) /test/1/catalog1/dbms_xmldom/getstandalone/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:369~1:393) /test/1/catalog1/dbms_xmldom/freedocument/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:48~1:74) /test/1/catalog1/dbms_xmldom/newdomdocument/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_redefinition_xa_xmldom_0_044]
+sql:
+declare doc dbms_xmldom.domdocument; root dbms_xmldom.domnode; comment_node dbms_xmldom.domcomment; appended dbms_xmldom.domnode; begin doc:=dbms_xmldom.newdomdocument('<ROOT/>'); root:=dbms_xmldom.makenode(dbms_xmldom.getdocumentelement(doc)); comment_node:=dbms_xmldom.createcomment(doc, 'COMMENT-TEXT'); appended:=dbms_xmldom.appendchild(root, dbms_xmldom.makenode(comment_node)); insert into CODEX_DM8_PKG_CTL(label, text_value) values('XML_COMMENT', dbms_xmldom.getnodevalue(appended)); dbms_xmldom.freedocument(doc); commit; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:12~1:35) /test/1/catalog1/dbms_xmldom/domdocument/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(1:42~1:61) /test/1/catalog1/dbms_xmldom/domnode/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(1:76~1:98) /test/1/catalog1/dbms_xmldom/domcomment/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(1:109~1:128) /test/1/catalog1/dbms_xmldom/domnode/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(1:396~1:413) /test/1/catalog1/schema1/CODEX_DM8_PKG_CTL/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:455~1:479) /test/1/catalog1/dbms_xmldom/getnodevalue/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:492~1:516) /test/1/catalog1/dbms_xmldom/freedocument/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:141~1:167) /test/1/catalog1/dbms_xmldom/newdomdocument/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:186~1:206) /test/1/catalog1/dbms_xmldom/makenode/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:207~1:237) /test/1/catalog1/dbms_xmldom/getdocumentelement/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:259~1:284) /test/1/catalog1/dbms_xmldom/createcomment/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:317~1:340) /test/1/catalog1/dbms_xmldom/appendchild/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:347~1:367) /test/1/catalog1/dbms_xmldom/makenode/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_redefinition_xa_xmldom_0_045]
+sql:
+declare doc dbms_xmldom.domdocument; frag dbms_xmldom.domdocumentfragment; begin doc:=dbms_xmldom.newdomdocument('<ROOT/>'); frag:=dbms_xmldom.createdocumentfragment(doc); insert into CODEX_DM8_PKG_CTL(label, number_value) values('XML_FRAGMENT_NULL', case when dbms_xmldom.isnull(frag) then 1 else 0 end); dbms_xmldom.freedocfrag(frag); dbms_xmldom.freedocument(doc); commit; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:12~1:35) /test/1/catalog1/dbms_xmldom/domdocument/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(1:42~1:73) /test/1/catalog1/dbms_xmldom/domdocumentfragment/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(1:184~1:201) /test/1/catalog1/schema1/CODEX_DM8_PKG_CTL/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:261~1:279) /test/1/catalog1/dbms_xmldom/isnull/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:306~1:329) /test/1/catalog1/dbms_xmldom/freedocfrag/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:337~1:361) /test/1/catalog1/dbms_xmldom/freedocument/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:86~1:112) /test/1/catalog1/dbms_xmldom/newdomdocument/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:131~1:165) /test/1/catalog1/dbms_xmldom/createdocumentfragment/",
+      "action": "CALL"
+    }
+  ]
+}

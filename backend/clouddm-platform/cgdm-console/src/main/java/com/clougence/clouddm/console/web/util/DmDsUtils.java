@@ -99,6 +99,72 @@ public class DmDsUtils {
         return new DsLevels(String.valueOf(dsDO.getDsEnvId()), dsDO, levels, dbLevels, curLevelsDef, curLevelsParam);
     }
 
+    public static String currentResourcePath(Map<UmiTypes, Object> levels) {
+        return levelsPath(levels, List.of(UmiTypes.Instance, UmiTypes.Catalog, UmiTypes.Schema));
+    }
+
+    public static String instanceResourcePath(Map<UmiTypes, Object> levels) {
+        return levelsPath(levels, List.of(UmiTypes.Instance));
+    }
+
+    public static String normalizeResourcePath(String path) {
+        return normalizeResourcePath(path, true);
+    }
+
+    public static String normalizeResourcePath(String path, boolean trailingSlash) {
+        if (StringUtils.isBlank(path) || "/".equals(path)) {
+            return "/";
+        }
+        String normalized = path.trim();
+        while (normalized.startsWith("/")) {
+            normalized = normalized.substring(1);
+        }
+        while (normalized.endsWith("/")) {
+            normalized = normalized.substring(0, normalized.length() - 1);
+        }
+        if (normalized.isEmpty()) {
+            return "/";
+        }
+        return "/" + normalized + (trailingSlash ? "/" : "");
+    }
+
+    public static String buildResourcePath(Collection<?> nodes) {
+        return buildResourcePath(nodes, true);
+    }
+
+    public static String buildResourcePath(Collection<?> nodes, boolean trailingSlash) {
+        if (CollectionUtils.isEmpty(nodes)) {
+            return "/";
+        }
+        String path = nodes.stream().map(StringUtils::toString).filter(StringUtils::isNotBlank).collect(java.util.stream.Collectors.joining("/"));
+        return normalizeResourcePath(path, trailingSlash);
+    }
+
+    public static String parentResourcePath(String path) {
+        String normalized = normalizeResourcePath(path, false);
+        int index = normalized.lastIndexOf('/');
+        return index <= 0 ? "/" : normalizeResourcePath(normalized.substring(0, index));
+    }
+
+    private static String levelsPath(Map<UmiTypes, Object> levels, List<UmiTypes> types) {
+        if (levels == null || levels.isEmpty()) {
+            return "/";
+        }
+        List<String> nodes = new ArrayList<>();
+        for (UmiTypes type : types) {
+            Object value = levels.get(type);
+            if (value == null) {
+                continue;
+            }
+            for (String node : StringUtils.toString(value).split("/")) {
+                if (StringUtils.isNotBlank(node)) {
+                    nodes.add(node);
+                }
+            }
+        }
+        return buildResourcePath(nodes);
+    }
+
     public static SessionContextDTO createSessionCtx(DataSourceConfig dsConfig, Map<UmiTypes, Object> levelsParam) {
         Map<String, Object> params = new HashMap<>();
         params.put(SessionSpi.PARAMS_DEFAULT_DB, StringUtils.toString(levelsParam.get(UmiTypes.Catalog)));
@@ -131,15 +197,15 @@ public class DmDsUtils {
     public static ResultLimit fetchResultLimit(Map<String, String> configMap, Requester requester) {
         ResultLimit limit = new ResultLimit();
         if (requester.isOnline()) {
-            limit.setFetchRecordCountLimit(safeGetConfSize(configMap.get(RootUserConfig.Fields.onlineMaxRecordCount), 3000));
-            limit.setFetchResultSetBytesLimit(safeGetConfSize(configMap.get(RootUserConfig.Fields.onlineMaxResultSetMegaByte), 200) * MB_SIZE);
-            limit.setFetchColumnBytesLimit(safeGetConfSize(configMap.get(RootUserConfig.Fields.onlineMaxColumnMegaByte), 4) * MB_SIZE);
+            limit.setFetchRecordCountLimit(safeGetConfSize(configMap.get(RootUserConfig.Fields.onlineMaxRecordCount), 1000));
+            limit.setFetchResultSetBytesLimit(safeGetConfSize(configMap.get(RootUserConfig.Fields.onlineMaxResultSetMegaByte), 60) * MB_SIZE);
+            limit.setFetchColumnBytesLimit(safeGetConfSize(configMap.get(RootUserConfig.Fields.onlineMaxColumnMegaByte), 1) * MB_SIZE);
             limit.setFetchElementBytesLimit(safeGetConfSize(configMap.get(RootUserConfig.Fields.onlineMaxElementMegaByte), 1) * MB_SIZE);
             limit.setFetchPageSize(30);
             limit.setQueryTimeoutSec(30);// default 30 seconds for console
         } else {
-            limit.setFetchRecordCountLimit(safeGetConfSize(configMap.get(RootUserConfig.Fields.taskMaxRecordCount), 3000));
-            limit.setFetchResultSetBytesLimit(safeGetConfSize(configMap.get(RootUserConfig.Fields.taskMaxResultSetMegaByte), 200) * MB_SIZE);
+            limit.setFetchRecordCountLimit(safeGetConfSize(configMap.get(RootUserConfig.Fields.taskMaxRecordCount), -1));
+            limit.setFetchResultSetBytesLimit(safeGetConfSize(configMap.get(RootUserConfig.Fields.taskMaxResultSetMegaByte), 1024) * MB_SIZE);
             limit.setFetchColumnBytesLimit(safeGetConfSize(configMap.get(RootUserConfig.Fields.taskMaxColumnMegaByte), 4) * MB_SIZE);
             limit.setFetchElementBytesLimit(safeGetConfSize(configMap.get(RootUserConfig.Fields.taskMaxElementMegaByte), 1) * MB_SIZE);
             limit.setFetchPageSize(-1);
@@ -183,7 +249,7 @@ public class DmDsUtils {
             query.getResultConf().setFetchColumnBytesLimit(limit.getFetchColumnBytesLimit());
             query.getResultConf().setFetchElementBytesLimit(limit.getFetchElementBytesLimit());
             query.getResultConf().setFetchPageSize(limit.getFetchPageSize());
-            query.getResultConf().setDisplayChars(safeGetConfSize(configMap.get(RootUserConfig.Fields.defaultColumnDisplayChars), 256));
+            query.getResultConf().setDisplayChars(safeGetConfSize(configMap.get(RootUserConfig.Fields.defaultColumnDisplayChars), 250));
             query.getResultConf().setDataFormat(WellKnowFormat.WKF_DATE10);
             query.getResultConf().setTimeFormat(WellKnowFormat.WKF_TIME24_S9);
             query.getResultConf().setDataTimeFormat(WellKnowFormat.WKF_DATE_TIME24_S9);

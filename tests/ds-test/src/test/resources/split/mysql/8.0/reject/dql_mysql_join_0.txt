@@ -1,0 +1,39 @@
+SELECT t1.period FROM split_select_inc_a.t3 = t1 LIMIT 1;
+SELECT * FROM split_sample.t TABLESAMPLE BERNOULLI (0.5);
+SELECT s.id FROM split_sample.t PARTITION (p0) AS s USE INDEX (idx_grp) TABLESAMPLE BERNOULLI (50) LEFT JOIN split_sample.t2 TABLESAMPLE SYSTEM (100) ON s.id = t2.id;
+SELECT * FROM split_sample.t TABLESAMPLE SYSTEM (10);
+SELECT o.id, d.total
+  FROM t1 AS o
+  JOIN LATERAL (
+      SELECT SUM(i.v) AS total, GROUPING(i.grp) AS g
+        FROM t2 AS i
+       WHERE i.grp = o.grp
+       GROUP BY GROUPING SETS ((i.grp), ())
+      HAVING SUM(i.v) > 0
+       ORDER BY g
+       LIMIT 1
+  ) AS d ON TRUE
+ ORDER BY o.id
+ LIMIT 5;
+------------------------------------------------------------------------------------------
+[SELECT] SELECT t1.period FROM split_select_inc_a.t3 = t1 LIMIT 1;
+----------
+[SELECT] SELECT * FROM split_sample.t TABLESAMPLE BERNOULLI (0.5);
+----------
+[SELECT] SELECT s.id FROM split_sample.t PARTITION (p0) AS s USE INDEX (idx_grp) TABLESAMPLE BERNOULLI (50) LEFT JOIN split_sample.t2 TABLESAMPLE SYSTEM (100) ON s.id = t2.id;
+----------
+[SELECT] SELECT * FROM split_sample.t TABLESAMPLE SYSTEM (10);
+----------
+[SELECT] SELECT o.id, d.total
+  FROM t1 AS o
+  JOIN LATERAL (
+      SELECT SUM(i.v) AS total, GROUPING(i.grp) AS g
+        FROM t2 AS i
+       WHERE i.grp = o.grp
+       GROUP BY GROUPING SETS ((i.grp), ())
+      HAVING SUM(i.v) > 0
+       ORDER BY g
+       LIMIT 1
+  ) AS d ON TRUE
+ ORDER BY o.id
+ LIMIT 5;

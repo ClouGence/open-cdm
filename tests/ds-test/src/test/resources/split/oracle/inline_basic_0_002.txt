@@ -1,0 +1,5 @@
+    select * from table1     ;     select * from table2     ;
+------------------------------------------------------------------------------------------
+[SELECT] select * from table1     ;
+----------
+[SELECT] select * from table2     ;

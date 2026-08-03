@@ -1,0 +1,36 @@
+create partition group;
+create partition group pg_bad;
+create partition group pg_bad partition by;
+create partition group pg_bad partition by range();
+create partition group pg_bad partition by range(int)();
+create partition group pg_bad partition by hash(int) partitions;
+create partition group pg_bad partition by hash(int) partitions 2 storage(on);
+create partition group pg_bad partition by range(int) subpartition by hash()(partition p values less than(maxvalue));
+create partition group pg_bad partition by range(int) subpartition by list(int) subpartition template()(partition p values less than(maxvalue));
+drop partition group;
+drop partition group pg_bad force force;
+comment on partition group pg_bad is 'x';
+------------------------------------------------------------------------------------------
+[SYSTEM_SETTING_WRITE] create partition group;
+----------
+[SYSTEM_SETTING_WRITE] create partition group pg_bad;
+----------
+[SYSTEM_SETTING_WRITE] create partition group pg_bad partition by;
+----------
+[SYSTEM_SETTING_WRITE] create partition group pg_bad partition by range();
+----------
+[SYSTEM_SETTING_WRITE] create partition group pg_bad partition by range(int)();
+----------
+[SYSTEM_SETTING_WRITE] create partition group pg_bad partition by hash(int) partitions;
+----------
+[SYSTEM_SETTING_WRITE] create partition group pg_bad partition by hash(int) partitions 2 storage(on);
+----------
+[SYSTEM_SETTING_WRITE] create partition group pg_bad partition by range(int) subpartition by hash()(partition p values less than(maxvalue));
+----------
+[SYSTEM_SETTING_WRITE] create partition group pg_bad partition by range(int) subpartition by list(int) subpartition template()(partition p values less than(maxvalue));
+----------
+[SYSTEM_SETTING_WRITE] drop partition group;
+----------
+[SYSTEM_SETTING_WRITE] drop partition group pg_bad force force;
+----------
+[COMMENT_PARTITION] comment on partition group pg_bad is 'x';

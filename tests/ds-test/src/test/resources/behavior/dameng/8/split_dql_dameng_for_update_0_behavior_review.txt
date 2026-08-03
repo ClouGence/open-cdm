@@ -1,0 +1,553 @@
+[split_dql_dameng_for_update_0_001_behavior_review]
+sql:
+select * from lock_target for read only;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:25) /test/1/catalog1/schema1/lock_target/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_for_update_0_002_behavior_review]
+sql:
+select id, name from lock_target where id = 1 for read only;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:21~1:32) /test/1/catalog1/schema1/lock_target/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_for_update_0_003_behavior_review]
+sql:
+select id, name from lock_target order by id for read only;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:21~1:32) /test/1/catalog1/schema1/lock_target/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_for_update_0_004_behavior_review]
+sql:
+select id, name from lock_target limit 2 for read only;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:21~1:32) /test/1/catalog1/schema1/lock_target/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_for_update_0_005_behavior_review]
+sql:
+select id, name from lock_target for read only limit 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:21~1:32) /test/1/catalog1/schema1/lock_target/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_for_update_0_006_behavior_review]
+sql:
+select id, name from lock_target order by id for read only limit 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:21~1:32) /test/1/catalog1/schema1/lock_target/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_for_update_0_007_behavior_review]
+sql:
+select id, name from lock_target order by id limit 2 for read only;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:21~1:32) /test/1/catalog1/schema1/lock_target/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_for_update_0_008_behavior_review]
+sql:
+select * from lock_target for update;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:25) /test/1/catalog1/schema1/lock_target/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:14~1:25) /test/1/catalog1/schema1/lock_target/",
+      "action" : "LOCK"
+    }
+  ]
+}
+----------
+[split_dql_dameng_for_update_0_009_behavior_review]
+sql:
+select id, name from lock_target where id = 1 for update;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:21~1:32) /test/1/catalog1/schema1/lock_target/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:21~1:32) /test/1/catalog1/schema1/lock_target/",
+      "action" : "LOCK"
+    }
+  ]
+}
+----------
+[split_dql_dameng_for_update_0_010_behavior_review]
+sql:
+select id, name from lock_target for update of name;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:21~1:32) /test/1/catalog1/schema1/lock_target/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:21~1:32) /test/1/catalog1/schema1/lock_target/",
+      "action" : "LOCK"
+    }
+  ]
+}
+----------
+[split_dql_dameng_for_update_0_011_behavior_review]
+sql:
+select id, name from lock_target for update of lock_target.name;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:21~1:32) /test/1/catalog1/schema1/lock_target/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:21~1:32) /test/1/catalog1/schema1/lock_target/",
+      "action" : "LOCK"
+    }
+  ]
+}
+----------
+[split_dql_dameng_for_update_0_012_behavior_review]
+sql:
+select id, name from lock_target for update nowait;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:21~1:32) /test/1/catalog1/schema1/lock_target/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:21~1:32) /test/1/catalog1/schema1/lock_target/",
+      "action" : "LOCK"
+    }
+  ]
+}
+----------
+[split_dql_dameng_for_update_0_013_behavior_review]
+sql:
+select id, name from lock_target for update wait 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:21~1:32) /test/1/catalog1/schema1/lock_target/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:21~1:32) /test/1/catalog1/schema1/lock_target/",
+      "action" : "LOCK"
+    }
+  ]
+}
+----------
+[split_dql_dameng_for_update_0_014_behavior_review]
+sql:
+select id, name from lock_target for update skip locked;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:21~1:32) /test/1/catalog1/schema1/lock_target/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:21~1:32) /test/1/catalog1/schema1/lock_target/",
+      "action" : "LOCK"
+    }
+  ]
+}
+----------
+[split_dql_dameng_for_update_0_015_behavior_review]
+sql:
+select id, name from lock_target for update 1 skip locked;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:21~1:32) /test/1/catalog1/schema1/lock_target/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:21~1:32) /test/1/catalog1/schema1/lock_target/",
+      "action" : "LOCK"
+    }
+  ]
+}
+----------
+[split_dql_dameng_for_update_0_016_behavior_review]
+sql:
+select id, name from lock_target for update 3 skip locked;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:21~1:32) /test/1/catalog1/schema1/lock_target/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:21~1:32) /test/1/catalog1/schema1/lock_target/",
+      "action" : "LOCK"
+    }
+  ]
+}
+----------
+[split_dql_dameng_for_update_0_017_behavior_review]
+sql:
+select id, name from lock_target for update of name nowait;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:21~1:32) /test/1/catalog1/schema1/lock_target/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:21~1:32) /test/1/catalog1/schema1/lock_target/",
+      "action" : "LOCK"
+    }
+  ]
+}
+----------
+[split_dql_dameng_for_update_0_018_behavior_review]
+sql:
+select id, name from lock_target for update of name wait 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:21~1:32) /test/1/catalog1/schema1/lock_target/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:21~1:32) /test/1/catalog1/schema1/lock_target/",
+      "action" : "LOCK"
+    }
+  ]
+}
+----------
+[split_dql_dameng_for_update_0_019_behavior_review]
+sql:
+select id, name from lock_target for update of name skip locked;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:21~1:32) /test/1/catalog1/schema1/lock_target/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:21~1:32) /test/1/catalog1/schema1/lock_target/",
+      "action" : "LOCK"
+    }
+  ]
+}
+----------
+[split_dql_dameng_for_update_0_020_behavior_review]
+sql:
+select id, name from lock_target order by id for update;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:21~1:32) /test/1/catalog1/schema1/lock_target/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:21~1:32) /test/1/catalog1/schema1/lock_target/",
+      "action" : "LOCK"
+    }
+  ]
+}
+----------
+[split_dql_dameng_for_update_0_021_behavior_review]
+sql:
+select id, name from lock_target order by id for update nowait;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:21~1:32) /test/1/catalog1/schema1/lock_target/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:21~1:32) /test/1/catalog1/schema1/lock_target/",
+      "action" : "LOCK"
+    }
+  ]
+}
+----------
+[split_dql_dameng_for_update_0_022_behavior_review]
+sql:
+select id, name from lock_target for update limit 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:21~1:32) /test/1/catalog1/schema1/lock_target/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:21~1:32) /test/1/catalog1/schema1/lock_target/",
+      "action" : "LOCK"
+    }
+  ]
+}
+----------
+[split_dql_dameng_for_update_0_023_behavior_review]
+sql:
+select id, name from lock_target limit 2 for update;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:21~1:32) /test/1/catalog1/schema1/lock_target/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:21~1:32) /test/1/catalog1/schema1/lock_target/",
+      "action" : "LOCK"
+    }
+  ]
+}
+----------
+[split_dql_dameng_for_update_0_024_behavior_review]
+sql:
+select id, name from lock_target order by id for update limit 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:21~1:32) /test/1/catalog1/schema1/lock_target/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:21~1:32) /test/1/catalog1/schema1/lock_target/",
+      "action" : "LOCK"
+    }
+  ]
+}
+----------
+[split_dql_dameng_for_update_0_025_behavior_review]
+sql:
+select id, name from lock_target order by id limit 2 for update;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:21~1:32) /test/1/catalog1/schema1/lock_target/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:21~1:32) /test/1/catalog1/schema1/lock_target/",
+      "action" : "LOCK"
+    }
+  ]
+}
+----------
+[split_dql_dameng_for_update_0_026_behavior_review]
+sql:
+select id, name from lock_target offset 1 rows fetch next 2 rows only for update;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:21~1:32) /test/1/catalog1/schema1/lock_target/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:21~1:32) /test/1/catalog1/schema1/lock_target/",
+      "action" : "LOCK"
+    }
+  ]
+}
+----------
+[split_dql_dameng_for_update_0_027_behavior_review]
+sql:
+select id, name from lock_target order by id offset 1 rows fetch next 2 rows only for update;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:21~1:32) /test/1/catalog1/schema1/lock_target/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:21~1:32) /test/1/catalog1/schema1/lock_target/",
+      "action" : "LOCK"
+    }
+  ]
+}
+----------
+[split_dql_dameng_for_update_0_028_behavior_review]
+sql:
+select a.id, a.name from lock_target a for update of a.name;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:25~1:36) /test/1/catalog1/schema1/lock_target/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:25~1:36) /test/1/catalog1/schema1/lock_target/",
+      "action" : "LOCK"
+    }
+  ]
+}
+----------
+[split_dql_dameng_for_update_0_029_behavior_review]
+sql:
+select a.id, a.name, b.amount from lock_target a join lock_target b on a.id = b.id for update of a.name;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:35~1:46) /test/1/catalog1/schema1/lock_target/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:54~1:65) /test/1/catalog1/schema1/lock_target/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:35~1:46) /test/1/catalog1/schema1/lock_target/",
+      "action" : "LOCK"
+    }
+  ]
+}
+----------
+[split_dql_dameng_for_update_0_030_behavior_review]
+sql:
+select a.id, b.name from lock_target a, lock_target b where a.id = b.id for update of a.id, b.name;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:25~1:36) /test/1/catalog1/schema1/lock_target/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:40~1:51) /test/1/catalog1/schema1/lock_target/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:25~1:36) /test/1/catalog1/schema1/lock_target/",
+      "action" : "LOCK"
+    },
+    {
+      "subject": "Table(1:40~1:51) /test/1/catalog1/schema1/lock_target/",
+      "action" : "LOCK"
+    }
+  ]
+}

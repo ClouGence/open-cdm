@@ -1,0 +1,1000 @@
+[split_dql_dml_block_dameng_rownum_atomic_0_001_behavior_review]
+sql:
+-- PROJECTION
+select rownum,ID from T;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:22~2:23) /test/1/catalog1/schema1/T/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_rownum_atomic_0_002_behavior_review]
+sql:
+-- PROJECTION_ALIAS
+select rownum as RN,ID from T;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:28~2:29) /test/1/catalog1/schema1/T/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_rownum_atomic_0_003_behavior_review]
+sql:
+-- ARITHMETIC_ADD
+select rownum+1 from T where rownum<=3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:21~2:22) /test/1/catalog1/schema1/T/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_rownum_atomic_0_004_behavior_review]
+sql:
+-- ARITHMETIC_SUBTRACT
+select rownum-1 from T where rownum<=3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:21~2:22) /test/1/catalog1/schema1/T/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_rownum_atomic_0_005_behavior_review]
+sql:
+-- ARITHMETIC_MULTIPLY
+select rownum*2 from T where rownum<=3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:21~2:22) /test/1/catalog1/schema1/T/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_rownum_atomic_0_006_behavior_review]
+sql:
+-- ARITHMETIC_DIVIDE
+select rownum/2 from T where rownum<=3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:21~2:22) /test/1/catalog1/schema1/T/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_rownum_atomic_0_007_behavior_review]
+sql:
+-- ARITHMETIC_MOD
+select mod(rownum,2) from T where rownum<=3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:10) /test/1/catalog1/schema1/mod/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:26~2:27) /test/1/catalog1/schema1/T/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_rownum_atomic_0_008_behavior_review]
+sql:
+-- ARITHMETIC_CAST
+select cast(rownum as bigint) from T where rownum<=3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:35~2:36) /test/1/catalog1/schema1/T/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_rownum_atomic_0_009_behavior_review]
+sql:
+-- PREDICATE_LT
+select ID from T where rownum<3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:15~2:16) /test/1/catalog1/schema1/T/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_rownum_atomic_0_010_behavior_review]
+sql:
+-- PREDICATE_LE
+select ID from T where rownum<=3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:15~2:16) /test/1/catalog1/schema1/T/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_rownum_atomic_0_011_behavior_review]
+sql:
+-- PREDICATE_GT
+select ID from T where rownum>3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:15~2:16) /test/1/catalog1/schema1/T/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_rownum_atomic_0_012_behavior_review]
+sql:
+-- PREDICATE_GE
+select ID from T where rownum>=3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:15~2:16) /test/1/catalog1/schema1/T/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_rownum_atomic_0_013_behavior_review]
+sql:
+-- PREDICATE_EQ_ONE
+select ID from T where rownum=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:15~2:16) /test/1/catalog1/schema1/T/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_rownum_atomic_0_014_behavior_review]
+sql:
+-- PREDICATE_EQ_FIVE
+select ID from T where rownum=5;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:15~2:16) /test/1/catalog1/schema1/T/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_rownum_atomic_0_015_behavior_review]
+sql:
+-- PREDICATE_NE
+select ID from T where rownum<>3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:15~2:16) /test/1/catalog1/schema1/T/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_rownum_atomic_0_016_behavior_review]
+sql:
+-- PREDICATE_DECIMAL
+select ID from T where rownum<=3.5;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:15~2:16) /test/1/catalog1/schema1/T/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_rownum_atomic_0_017_behavior_review]
+sql:
+-- PREDICATE_SCIENTIFIC
+select ID from T where rownum<2e1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:15~2:16) /test/1/catalog1/schema1/T/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_rownum_atomic_0_018_behavior_review]
+sql:
+-- PREDICATE_NEGATIVE
+select ID from T where rownum<=-1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:15~2:16) /test/1/catalog1/schema1/T/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_rownum_atomic_0_019_behavior_review]
+sql:
+-- PREDICATE_ZERO
+select ID from T where rownum<=0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:15~2:16) /test/1/catalog1/schema1/T/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_rownum_atomic_0_020_behavior_review]
+sql:
+-- PREDICATE_BIGINT_MAX
+select ID from T where rownum<=9223372036854775807;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:15~2:16) /test/1/catalog1/schema1/T/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_rownum_atomic_0_021_behavior_review]
+sql:
+-- PREDICATE_PARAMETER
+select ID from T where rownum<=?;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:15~2:16) /test/1/catalog1/schema1/T/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_rownum_atomic_0_022_behavior_review]
+sql:
+-- PREDICATE_AND
+select ID from T where rownum<=5 and GRP=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:15~2:16) /test/1/catalog1/schema1/T/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_rownum_atomic_0_023_behavior_review]
+sql:
+-- PREDICATE_OR
+select ID from T where rownum<=2 or ID=20;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:15~2:16) /test/1/catalog1/schema1/T/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_rownum_atomic_0_024_behavior_review]
+sql:
+-- ORDER_AFTER_FILTER
+select ID from T where rownum<=5 order by ID desc;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:15~2:16) /test/1/catalog1/schema1/T/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_rownum_atomic_0_025_behavior_review]
+sql:
+-- ORDER_BEFORE_FILTER
+select ID from(select ID from T order by ID desc) where rownum<=5;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:30~2:31) /test/1/catalog1/schema1/T/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_rownum_atomic_0_026_behavior_review]
+sql:
+-- AGGREGATE_PROJECTION
+select max(rownum),count(*) from T;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:10) /test/1/catalog1/schema1/max/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:19~2:24) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:33~2:34) /test/1/catalog1/schema1/T/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_rownum_atomic_0_027_behavior_review]
+sql:
+-- GROUP_PROJECTION
+select GRP,max(rownum) from T group by GRP order by GRP;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:11~2:14) /test/1/catalog1/schema1/max/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:28~2:29) /test/1/catalog1/schema1/T/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_rownum_atomic_0_028_behavior_review]
+sql:
+-- HAVING_PREDICATE
+select GRP,count(*) from T group by GRP having rownum<=2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:11~2:16) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:25~2:26) /test/1/catalog1/schema1/T/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_rownum_atomic_0_029_behavior_review]
+sql:
+-- NONCORRELATED_EXISTS
+select ID from T where exists(select 1 from T2 where rownum<=1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:15~2:16) /test/1/catalog1/schema1/T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:44~2:46) /test/1/catalog1/schema1/T2/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_rownum_atomic_0_030_behavior_review]
+sql:
+-- NONCORRELATED_SCALAR
+select ID,(select ID from T2 where rownum=1) FIRST_ID from T where rownum<=2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:26~2:28) /test/1/catalog1/schema1/T2/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:59~2:60) /test/1/catalog1/schema1/T/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_rownum_atomic_0_031_behavior_review]
+sql:
+-- NONCORRELATED_ORDER
+select ID from T where exists(select 1 from T2 where rownum<=1 order by ID);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:15~2:16) /test/1/catalog1/schema1/T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:44~2:46) /test/1/catalog1/schema1/T2/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_rownum_atomic_0_032_behavior_review]
+sql:
+-- NONCORRELATED_GROUP
+select ID from T where exists(select count(*) from T2 where rownum<=1 group by FLAG);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:37~2:42) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:15~2:16) /test/1/catalog1/schema1/T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:51~2:53) /test/1/catalog1/schema1/T2/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_rownum_atomic_0_033_behavior_review]
+sql:
+-- CORRELATED_PARAMETER_ZERO
+select O.ID,0 MODE_FLAG from T O where exists(select 1 from T2 I where I.ID=O.ID and rownum<=1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:29~2:30) /test/1/catalog1/schema1/T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:60~2:62) /test/1/catalog1/schema1/T2/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_rownum_atomic_0_034_behavior_review]
+sql:
+-- CORRELATED_PARAMETER_ONE
+select O.ID,1 MODE_FLAG from T O where exists(select 1 from T2 I where I.ID=O.ID and rownum<=1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:29~2:30) /test/1/catalog1/schema1/T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:60~2:62) /test/1/catalog1/schema1/T2/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_rownum_atomic_0_035_behavior_review]
+sql:
+-- JOIN_ON_ROWNUM
+select T.ID from T join T2 on T.ID=T2.ID and rownum<=3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:17~2:18) /test/1/catalog1/schema1/T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:24~2:26) /test/1/catalog1/schema1/T2/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_rownum_atomic_0_036_behavior_review]
+sql:
+-- DERIVED_ROWNUM_ALIAS
+select RN,ID from(select rownum RN,ID from T) where RN between 3 and 5;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:43~2:44) /test/1/catalog1/schema1/T/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_rownum_atomic_0_037_behavior_review]
+sql:
+-- CTE_ROWNUM
+with Q as(select rownum RN,ID from T) select ID from Q where RN<=3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:35~2:36) /test/1/catalog1/schema1/T/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_rownum_atomic_0_038_behavior_review]
+sql:
+-- UNION_ROWNUM
+select ID from T where rownum<=2 union all select ID from T2 where rownum<=2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:15~2:16) /test/1/catalog1/schema1/T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:58~2:60) /test/1/catalog1/schema1/T2/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_rownum_atomic_0_039_behavior_review]
+sql:
+-- FOR_UPDATE_ROWNUM
+select ID from T where rownum<=2 for update;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:15~2:16) /test/1/catalog1/schema1/T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:15~2:16) /test/1/catalog1/schema1/T/",
+      "action": "LOCK"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_rownum_atomic_0_040_behavior_review]
+sql:
+-- TOP_ROWNUM
+select top 5 rownum,ID from T order by ID desc;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:28~2:29) /test/1/catalog1/schema1/T/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_rownum_atomic_0_041_behavior_review]
+sql:
+-- LIMIT_ROWNUM
+select rownum,ID from T order by ID limit 5;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:22~2:23) /test/1/catalog1/schema1/T/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_rownum_atomic_0_042_behavior_review]
+sql:
+-- UPDATE_ROWNUM
+update T set NAME=NAME||'_U' where rownum<=2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(2:7~2:8) /test/1/catalog1/schema1/T/",
+      "action": "UPDATE"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_rownum_atomic_0_043_behavior_review]
+sql:
+-- DELETE_ROWNUM
+delete from T where rownum<=2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(2:12~2:13) /test/1/catalog1/schema1/T/",
+      "action": "DELETE"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_rownum_atomic_0_044_behavior_review]
+sql:
+-- INSERT_SELECT_ROWNUM
+insert into T2 select ID+100,rownum from T where rownum<=2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(2:12~2:14) /test/1/catalog1/schema1/T2/",
+      "action": "INSERT",
+      "target": "Table(2:41~2:42) /test/1/catalog1/schema1/T/"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_rownum_atomic_0_045_behavior_review]
+sql:
+-- MERGE_ROWNUM
+merge into T2 D using T S on(D.ID=S.ID) when matched then update set D.FLAG=rownum;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(2:11~2:13) /test/1/catalog1/schema1/T2/",
+      "action": "MERGE",
+      "target": "Table(2:22~2:23) /test/1/catalog1/schema1/T/"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_rownum_atomic_0_046_behavior_review]
+sql:
+-- PLSQL_VARIABLE
+declare N int:=3; C int; begin select count(*) into C from T where rownum<=N; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:38~2:43) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:59~2:60) /test/1/catalog1/schema1/T/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_rownum_atomic_0_047_behavior_review]
+sql:
+-- REVERSE_COMPARISON
+select ID from T where 3>=rownum;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:15~2:16) /test/1/catalog1/schema1/T/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_rownum_atomic_0_048_behavior_review]
+sql:
+-- COLUMN_EXPRESSION
+select ID from T where rownum<=ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:15~2:16) /test/1/catalog1/schema1/T/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_rownum_atomic_0_049_behavior_review]
+sql:
+-- FUNCTION_EXPRESSION
+select ID from T where rownum<=abs(3);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:31~2:34) /test/1/catalog1/schema1/abs/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:15~2:16) /test/1/catalog1/schema1/T/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_rownum_atomic_0_050_behavior_review]
+sql:
+-- CAST_EXPRESSION
+select ID from T where rownum<=cast(3 as int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:15~2:16) /test/1/catalog1/schema1/T/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_rownum_atomic_0_051_behavior_review]
+sql:
+-- SUBQUERY_EXPRESSION
+select ID from T where rownum<=(select max(ID) from T2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:39~2:42) /test/1/catalog1/schema1/max/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:15~2:16) /test/1/catalog1/schema1/T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:52~2:54) /test/1/catalog1/schema1/T2/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_rownum_atomic_0_052_behavior_review]
+sql:
+-- NULL_EXPRESSION
+select ID from T where rownum<=null;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:15~2:16) /test/1/catalog1/schema1/T/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_rownum_atomic_0_053_behavior_review]
+sql:
+-- BETWEEN_PREDICATE
+select ID from T where rownum between 1 and 3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:15~2:16) /test/1/catalog1/schema1/T/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_rownum_atomic_0_054_behavior_review]
+sql:
+-- IN_PREDICATE
+select ID from T where rownum in(1,2,3);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:15~2:16) /test/1/catalog1/schema1/T/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_rownum_atomic_0_055_behavior_review]
+sql:
+-- IS_NULL_PREDICATE
+select ID from T where rownum is null;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:15~2:16) /test/1/catalog1/schema1/T/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_rownum_atomic_0_056_behavior_review]
+sql:
+-- QUALIFIED_ROWNUM
+select T.rownum from T;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:21~2:22) /test/1/catalog1/schema1/T/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_rownum_atomic_0_057_behavior_review]
+sql:
+-- QUOTED_PHYSICAL_COLUMN
+select "ROWNUM",rownum from QUOTED_ROWNUM;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:28~2:41) /test/1/catalog1/schema1/QUOTED_ROWNUM/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_rownum_atomic_0_058_behavior_review]
+sql:
+-- ROWNUM_STANDALONE
+select rownum;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}

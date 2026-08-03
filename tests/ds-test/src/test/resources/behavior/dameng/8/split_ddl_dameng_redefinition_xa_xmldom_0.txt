@@ -1,0 +1,14 @@
+[split_ddl_dameng_redefinition_xa_xmldom_0_001]
+sql:
+drop table CODEX_REDEF_REDUNDANT cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:32) /test/1/catalog1/schema1/CODEX_REDEF_REDUNDANT/",
+      "action": "DROP"
+    }
+  ]
+}

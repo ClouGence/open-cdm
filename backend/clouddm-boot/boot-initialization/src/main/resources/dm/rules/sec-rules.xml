@@ -1446,17 +1446,6 @@ then
   return false
 end
 ]]></ruleDef>
-        <ruleDef id="rule_query_010" ruleName="i18n::RULE_N_QUERY_MUST_CONTAIN_COLUMN" ruleDesc="i18n::RULE_D_QUERY_MUST_CONTAIN_COLUMN" ruleTarget="Query" scriptType="DetectRules"><![CDATA[
-#define "columns" as string
-        default "column"
-        hint "输出参数，结果集中缺少的字段"
-
-    map = @func.constraint.checkSelectColumn(@domain.primaryUid,@domain.dsId,@domain.selectItems)
-    columns = @func.string.getListElement(map,0)
-
-return   @func.string.getListElement(map,1) == 'true'
-]]></ruleDef>
-
         <!-- update -->
         <ruleDef id="rule_update_001" ruleName="i18n::RULE_N_UPDATE_ALLOW_EMPTY_WHERE" ruleDesc="i18n::RULE_D_UPDATE_ALLOW_EMPTY_WHERE" ruleTarget="Update" scriptType="DetectRules"><![CDATA[
 #define "allow" as string

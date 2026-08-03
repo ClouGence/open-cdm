@@ -1,0 +1,13 @@
+[functions]
+sql:
+select extract(year from t.c_date) as year_value,
+to_char(t.c_ts,'YYYY-MM-DD') as text_value from catalog1.app.dt_t t
+expect:
+{"year_value":["/catalog1/app/dt_t/c_date/"],"text_value":["/catalog1/app/dt_t/c_ts/"]}
+----------
+[arithmetic]
+sql:
+select t.c_date+1 as next_date,
+t.c_ts-t.c_date as elapsed_days from catalog1.app.dt_t t
+expect:
+{"next_date":["/catalog1/app/dt_t/c_date/"],"elapsed_days":["/catalog1/app/dt_t/c_ts/","/catalog1/app/dt_t/c_date/"]}

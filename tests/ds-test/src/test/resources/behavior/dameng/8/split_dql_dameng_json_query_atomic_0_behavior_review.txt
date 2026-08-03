@@ -1,0 +1,484 @@
+[split_dql_dameng_json_query_atomic_0_behavior_review_001]
+sql:
+-- CASE_001_JSON_CONCAT_OBJECT
+SELECT JSON_CONCAT('{"a":1}', '{"b":2}');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:18) /test/1/catalog1/schema1/JSON_CONCAT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_query_atomic_0_behavior_review_002]
+sql:
+-- CASE_002_JSON_CONCAT_ARRAY
+SELECT JSON_CONCAT('[1,2]', '[3,4]');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:18) /test/1/catalog1/schema1/JSON_CONCAT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_query_atomic_0_behavior_review_003]
+sql:
+-- CASE_003_JSON_CONCAT_SCALAR
+SELECT JSON_CONCAT('1', '"x"');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:18) /test/1/catalog1/schema1/JSON_CONCAT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_query_atomic_0_behavior_review_004]
+sql:
+-- CASE_004_JSON_CONCAT_NULL
+SELECT JSON_CONCAT(NULL, '{"a":1}');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:18) /test/1/catalog1/schema1/JSON_CONCAT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_query_atomic_0_behavior_review_005]
+sql:
+-- CASE_005_JSON_VALID_VALID
+SELECT JSON_VALID('{"a":[1,true,null]}');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:17) /test/1/catalog1/schema1/JSON_VALID/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_query_atomic_0_behavior_review_006]
+sql:
+-- CASE_006_JSON_VALID_INVALID
+SELECT JSON_VALID('{"a":');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:17) /test/1/catalog1/schema1/JSON_VALID/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_query_atomic_0_behavior_review_007]
+sql:
+-- CASE_007_JSON_VALID_NULL
+SELECT JSON_VALID(NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:17) /test/1/catalog1/schema1/JSON_VALID/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_query_atomic_0_behavior_review_008]
+sql:
+-- CASE_008_ROW_TO_JSON_TABLE
+SELECT ROW_TO_JSON(T) FROM app.json_docs T ORDER BY ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:18) /test/1/catalog1/schema1/ROW_TO_JSON/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:27~2:40) /test/1/catalog1/app/json_docs/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_query_atomic_0_behavior_review_009]
+sql:
+-- CASE_009_ROW_TO_JSON_ROW
+SELECT ROW_TO_JSON(ROW(ID, PAYLOAD))
+FROM app.json_docs ORDER BY ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:18) /test/1/catalog1/schema1/ROW_TO_JSON/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(3:5~3:18) /test/1/catalog1/app/json_docs/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_query_atomic_0_behavior_review_010]
+sql:
+-- CASE_010_ROW_TO_JSON_ALIAS
+SELECT ROW_TO_JSON(Q)
+FROM (SELECT ID, PAYLOAD FROM app.json_docs WHERE ID=1) Q;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:18) /test/1/catalog1/schema1/ROW_TO_JSON/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(3:30~3:43) /test/1/catalog1/app/json_docs/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_query_atomic_0_behavior_review_011]
+sql:
+-- CASE_011_JSON_TABLE_EXISTS
+SELECT * FROM JSON_TABLE(
+  '{a:100,b:200,c:{d:300,e:400}}', '$.c'
+  COLUMNS(C1 INT EXISTS PATH '$.d' FALSE ON EMPTY,
+          C2 INT EXISTS PATH '$.f' FALSE ON EMPTY)
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:14~2:24) /test/1/catalog1/schema1/JSON_TABLE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_query_atomic_0_behavior_review_012]
+sql:
+-- CASE_012_JSON_TABLE_FORMAT_JSON
+SELECT * FROM JSON_TABLE(
+  '[{a:100,c:{d:300}},{a:500,c:{d:700}}]', '$[*]'
+  COLUMNS(C1 VARCHAR2(20) FORMAT JSON PATH '$.c')
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:14~2:24) /test/1/catalog1/schema1/JSON_TABLE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_query_atomic_0_behavior_review_013]
+sql:
+-- CASE_013_JSON_TABLE_NESTED
+SELECT * FROM JSON_TABLE(
+  '{"a":100,"c":{"d":300,"e":400}}', '$'
+  COLUMNS(NESTED PATH '$.c' COLUMNS(C1 INT PATH '$.d', C2 INT PATH '$.e'))
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:14~2:24) /test/1/catalog1/schema1/JSON_TABLE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_query_atomic_0_behavior_review_014]
+sql:
+-- CASE_014_JSON_TABLE_ORDINALITY_FORMAT
+SELECT * FROM JSON_TABLE(
+  '[{a:100,c:{d:300}},{a:500,c:{d:700}}]', '$[*]'
+  COLUMNS(ID FOR ORDINALITY, C1 VARCHAR2(20) FORMAT JSON PATH '$.c')
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:14~2:24) /test/1/catalog1/schema1/JSON_TABLE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_query_atomic_0_behavior_review_015]
+sql:
+-- CASE_015_JSON_TABLE_VALUE_EMPTY_DEFAULT
+SELECT * FROM JSON_TABLE(
+  '{"a":1}', '$'
+  COLUMNS(MISSING INT PATH '$.missing' DEFAULT '9' ON EMPTY)
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:14~2:24) /test/1/catalog1/schema1/JSON_TABLE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_query_atomic_0_behavior_review_016]
+sql:
+-- CASE_016_JSON_TABLE_QUERY_EMPTY_ARRAY
+SELECT * FROM JSON_TABLE(
+  '{"a":1}', '$'
+  COLUMNS(MISSING VARCHAR2(20) FORMAT JSON PATH '$.missing' EMPTY ARRAY ON EMPTY)
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:14~2:24) /test/1/catalog1/schema1/JSON_TABLE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_query_atomic_0_behavior_review_017]
+sql:
+-- CASE_017_JSON_VALUE_EMPTY_DEFAULT
+SELECT JSON_VALUE('{"a":1}', '$.missing' RETURNING NUMBER DEFAULT '9' ON EMPTY);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:17) /test/1/catalog1/schema1/JSON_VALUE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_query_atomic_0_behavior_review_018]
+sql:
+-- CASE_018_JSON_VALUE_EMPTY_NULL
+SELECT JSON_VALUE('{"a":1}', '$.missing' RETURNING NUMBER NULL ON EMPTY);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:17) /test/1/catalog1/schema1/JSON_VALUE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_query_atomic_0_behavior_review_019]
+sql:
+-- SEM_001_JSON_OBJECT_ODD_ARGUMENTS
+SELECT JSON_OBJECT('a', 1, 'b');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:18) /test/1/catalog1/schema1/JSON_OBJECT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_query_atomic_0_behavior_review_020]
+sql:
+-- SEM_002_JSON_OBJECT_KEYS_NOT_FROM
+SELECT JSON_OBJECT_KEYS('{"a":1}');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:23) /test/1/catalog1/schema1/JSON_OBJECT_KEYS/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_query_atomic_0_behavior_review_021]
+sql:
+-- SEM_003_JSON_TYPEOF_INVALID
+SELECT JSON_TYPEOF('not-json');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:18) /test/1/catalog1/schema1/JSON_TYPEOF/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_query_atomic_0_behavior_review_022]
+sql:
+-- SEM_004_JSONB_EACH_NON_OBJECT
+SELECT * FROM JSONB_EACH('[1,2]');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:14~2:24) /test/1/catalog1/schema1/JSONB_EACH/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_query_atomic_0_behavior_review_023]
+sql:
+-- SEM_005_JSON_TABLE_ERROR_ON_EMPTY
+SELECT * FROM JSON_TABLE(
+  '{"a":1}', '$' COLUMNS(MISSING INT PATH '$.missing' ERROR ON EMPTY)
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:14~2:24) /test/1/catalog1/schema1/JSON_TABLE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_query_atomic_0_behavior_review_024]
+sql:
+-- SEM_006_JSON_TABLE_FORMAT_SCALAR
+SELECT * FROM JSON_TABLE(
+  '{"a":1}', '$' COLUMNS(A VARCHAR2(20) FORMAT JSON PATH '$.a' ERROR ON ERROR)
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:14~2:24) /test/1/catalog1/schema1/JSON_TABLE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_query_atomic_0_behavior_review_025]
+sql:
+-- SEM_007_JSON_CONCAT_MISSING_SECOND
+SELECT JSON_CONCAT('{"a":1}');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:18) /test/1/catalog1/schema1/JSON_CONCAT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_query_atomic_0_behavior_review_026]
+sql:
+-- SEM_008_JSON_VALID_EXTRA_ARGUMENT
+SELECT JSON_VALID('{}', '{}');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:17) /test/1/catalog1/schema1/JSON_VALID/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_query_atomic_0_behavior_review_027]
+sql:
+-- SEM_009_ROW_TO_JSON_EMPTY
+SELECT ROW_TO_JSON();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:18) /test/1/catalog1/schema1/ROW_TO_JSON/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_query_atomic_0_behavior_review_028]
+sql:
+-- SEM_010_JSONB_SET_MISSING_VALUE
+SELECT JSONB_SET('{}', '{a}');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:16) /test/1/catalog1/schema1/JSONB_SET/",
+      "action": "CALL"
+    }
+  ]
+}

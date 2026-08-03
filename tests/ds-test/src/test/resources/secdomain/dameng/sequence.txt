@@ -1,0 +1,104 @@
+[create_sequence]
+sql:
+create sequence employee_seq start with 1 increment by 1
+expect:
+{
+  "contains": [
+    {"class":"RdbSequenceDomain", "sqlType":"CREATE_SEQUENCE", "auditKind":"CREATE", "name":"employee_seq"}
+  ]
+}
+----------
+[create_schema_sequence]
+sql:
+create sequence app.employee_seq start with 10
+expect:
+{
+  "contains": [
+    {"class":"RdbSequenceDomain", "sqlType":"CREATE_SEQUENCE", "auditKind":"CREATE", "schema":"app", "name":"employee_seq"}
+  ]
+}
+----------
+[alter_sequence]
+sql:
+alter sequence app.employee_seq increment by 2 current value 100
+expect:
+{
+  "contains": [
+    {"class":"RdbSequenceDomain", "sqlType":"ALTER_SEQUENCE", "auditKind":"ALTER", "schema":"app", "name":"employee_seq"}
+  ]
+}
+----------
+[rename_sequence]
+sql:
+alter sequence app.employee_seq rename to employee_seq_new
+expect:
+{
+  "contains": [
+    {"class":"RdbSequenceDomain", "sqlType":"ALTER_SEQUENCE", "auditKind":"ALTER", "schema":"app", "name":"employee_seq"}
+  ]
+}
+----------
+[select_sequence_values]
+sql:
+select employee_seq.nextval, employee_seq.currval from dual
+expect:
+{
+  "contains": [
+    {"class":"RdbSequenceDomain", "sqlType":"SELECT", "auditKind":"QUERY", "name":"employee_seq"}
+  ]
+}
+----------
+[select_schema_sequence]
+sql:
+select app.employee_seq.nextval from dual
+expect:
+{
+  "contains": [
+    {"class":"RdbSequenceDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "name":"employee_seq"}
+  ]
+}
+----------
+[insert_with_sequence]
+sql:
+insert into app.employee(id, name) values(app.employee_seq.nextval, 'A')
+expect:
+{
+  "contains": [
+    {"class":"RdbInsertDomain", "sqlType":"INSERT", "auditKind":"DML", "schema":"app", "table":"employee"},
+    {"class":"RdbSequenceDomain", "sqlType":"INSERT", "auditKind":"DML", "schema":"app", "name":"employee_seq"}
+  ]
+}
+----------
+[update_with_sequence]
+sql:
+update app.employee set id=app.employee_seq.nextval where name='A'
+expect:
+{
+  "contains": [
+    {"class":"RdbUpdateDomain", "sqlType":"UPDATE", "auditKind":"DML", "schema":"app", "table":"employee"},
+    {"class":"RdbSequenceDomain", "sqlType":"UPDATE", "auditKind":"DML", "schema":"app", "name":"employee_seq"}
+  ]
+}
+----------
+[remote_sequence]
+sql:
+select remote_app.employee_seq.nextval@app.employee_link from dual
+expect:
+{
+  "contains": [
+    {"class":"RdbSequenceDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"remote_app", "name":"employee_seq"},
+    {"class":"RdbObjectDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "name":"employee_link"}
+  ]
+}
+----------
+[drop_sequences]
+sql:
+drop sequence if exists employee_seq restrict;
+drop sequence if exists app.employee_seq cascade;
+expect:
+{
+  "contains": [
+    {"class":"RdbSequenceDomain", "sqlType":"DROP_SEQUENCE", "auditKind":"DROP", "name":"employee_seq"},
+    {"class":"RdbSequenceDomain", "sqlType":"DROP_SEQUENCE", "auditKind":"DROP", "schema":"app", "name":"employee_seq"}
+  ]
+}

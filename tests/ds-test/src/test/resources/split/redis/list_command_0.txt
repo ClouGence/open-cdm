@@ -1,0 +1,126 @@
+BLMOVE mylist myotherlist 123
+BLMOVE mylist myotherlist RIGHT 123
+BLMOVE mylist myotherlist LEFT RIGHT 123
+BLMPOP 60 2 non1 non2 LEFT COUNT 10
+BLMPOP 60 1 mylist LEFT
+BLMPOP 60 1 mylist RIGHT COUNT 10
+BLMPOP 60 2 mylist mylist2 right count 3
+BLPOP list1 list2 list3 0
+BRPOP list1 list2 list3 0
+BRPOPLPUSH mylist myotherlist 60
+LINDEX mylist 0
+LINDEX mylist -1
+LINDEX mylist 3
+LINSERT mylist BEFORE "World" "There"
+LLEN mylist
+LMOVE mylist myotherlist
+LMOVE mylist myotherlist RIGHT
+LMOVE mylist myotherlist LEFT RIGHT
+LMPOP 2 non1 non2 LEFT COUNT 10
+LMPOP 1 mylist LEFT
+LMPOP 1 mylist RIGHT COUNT 10
+LMPOP 2 mylist mylist2 right count 3
+LRANGE mylist 0 -1
+LRANGE myotherlist 0 -1
+LPUSH mylist "one" "two" "three" "four" "five"
+LPOP mylist
+LPOP mylist 2
+LPOS mylist c
+LPOS mylist c RANK 2
+LPOS mylist c RANK -1
+LPUSH mylist "world"
+LPUSH mylist "hello" "world"
+LPUSHX mylist "world"
+LPUSHX mylist "hello" "world"
+LREM mylist -2 "hello"
+LSET mylist 0 "four"
+LSET mylist -2 "five"
+LTRIM mylist 0 99
+RPOP mylist 2
+RPOPLPUSH mylist myotherlist
+RPUSH mylist "hello"
+RPUSHX myotherlist "World"
+------------------------------------------------------------------------------------------
+[DELETE|INSERT] BLMOVE mylist myotherlist 123
+----------
+[DELETE|INSERT] BLMOVE mylist myotherlist RIGHT 123
+----------
+[DELETE|INSERT] BLMOVE mylist myotherlist LEFT RIGHT 123
+----------
+[DELETE] BLMPOP 60 2 non1 non2 LEFT COUNT 10
+----------
+[DELETE] BLMPOP 60 1 mylist LEFT
+----------
+[DELETE] BLMPOP 60 1 mylist RIGHT COUNT 10
+----------
+[DELETE] BLMPOP 60 2 mylist mylist2 right count 3
+----------
+[DELETE] BLPOP list1 list2 list3 0
+----------
+[DELETE] BRPOP list1 list2 list3 0
+----------
+[DELETE|INSERT] BRPOPLPUSH mylist myotherlist 60
+----------
+[SELECT] LINDEX mylist 0
+----------
+[SELECT] LINDEX mylist -1
+----------
+[SELECT] LINDEX mylist 3
+----------
+[INSERT] LINSERT mylist BEFORE "World" "There"
+----------
+[SELECT] LLEN mylist
+----------
+[DELETE|INSERT] LMOVE mylist myotherlist
+----------
+[DELETE|INSERT] LMOVE mylist myotherlist RIGHT
+----------
+[DELETE|INSERT] LMOVE mylist myotherlist LEFT RIGHT
+----------
+[DELETE] LMPOP 2 non1 non2 LEFT COUNT 10
+----------
+[DELETE] LMPOP 1 mylist LEFT
+----------
+[DELETE] LMPOP 1 mylist RIGHT COUNT 10
+----------
+[DELETE] LMPOP 2 mylist mylist2 right count 3
+----------
+[SELECT] LRANGE mylist 0 -1
+----------
+[SELECT] LRANGE myotherlist 0 -1
+----------
+[INSERT] LPUSH mylist "one" "two" "three" "four" "five"
+----------
+[DELETE] LPOP mylist
+----------
+[DELETE] LPOP mylist 2
+----------
+[SELECT] LPOS mylist c
+----------
+[SELECT] LPOS mylist c RANK 2
+----------
+[SELECT] LPOS mylist c RANK -1
+----------
+[INSERT] LPUSH mylist "world"
+----------
+[INSERT] LPUSH mylist "hello" "world"
+----------
+[INSERT] LPUSHX mylist "world"
+----------
+[INSERT] LPUSHX mylist "hello" "world"
+----------
+[DELETE] LREM mylist -2 "hello"
+----------
+[UPDATE] LSET mylist 0 "four"
+----------
+[UPDATE] LSET mylist -2 "five"
+----------
+[DELETE] LTRIM mylist 0 99
+----------
+[DELETE] RPOP mylist 2
+----------
+[DELETE|INSERT] RPOPLPUSH mylist myotherlist
+----------
+[INSERT] RPUSH mylist "hello"
+----------
+[INSERT] RPUSHX myotherlist "World"

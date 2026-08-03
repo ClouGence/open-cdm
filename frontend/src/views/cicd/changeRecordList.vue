@@ -34,7 +34,13 @@
               </template>
               <template #target="{ row }">
                 <div class="flow-list-inline flow-list-gitops">
-                  <CustomIcon v-if="row.scmType" :type="row.scmType" size="18px" rightMargin />
+                  <CustomIcon
+                    v-if="row.scmType"
+                    :resource="getScmIconResource(row.scmType)"
+                    :alt="getScmDisplayName(row.scmType)"
+                    size="18px"
+                    rightMargin
+                  />
                   <CustomIcon :type="row.dsType || 'icon-v2-DataBase2'" size="18px" rightMargin />
                   <Tooltip :content="row.dsInstance || row.dsDisplay || '-'">
                     <span class="flow-list-ellipsis">{{ compactText(row.dsInstance || row.dsDisplay, 24) }}</span>
@@ -72,6 +78,8 @@
 </template>
 
 <script>
+import { getScmDisplayName, getScmIconResource } from './utils';
+
 export default {
   name: 'CicdChangeRecordList',
   data() {
@@ -135,6 +143,8 @@ export default {
     this.init();
   },
   methods: {
+    getScmDisplayName,
+    getScmIconResource,
     init() {
       this.flowId = this.$route.params.id;
       this.pageNum = 1;

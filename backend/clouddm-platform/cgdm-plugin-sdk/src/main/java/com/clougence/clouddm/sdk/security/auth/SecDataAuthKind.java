@@ -22,17 +22,16 @@ import lombok.Getter;
 @Getter
 public enum SecDataAuthKind {
 
-    // for all
-    READ(SecDataAuthLabel.DM_DAUTH_QUERY),
-    WRITE(SecDataAuthLabel.DM_DAUTH_DML),
-    ADMIN(SecDataAuthLabel.DM_DAUTH_DCL),
-    OTHER(SecDataAuthLabel.DM_DAUTH_OTHER),
+    READ(SecDataAuthLabel.DM_DAUTH_QUERY),        // DQL
+    WRITE(SecDataAuthLabel.DM_DAUTH_DML),         // DML
+    PROGRAM(SecDataAuthLabel.DM_DAUTH_PROGRAM),   // Program object execution
+    DDL(SecDataAuthLabel.DM_DAUTH_DDL),           // Object definition
+    SPACE(SecDataAuthLabel.DM_DAUTH_SPACE),       // Catalog, schema, and tablespace management
+    MANAGE(SecDataAuthLabel.DM_DAUTH_MANAGE),     // Database management
+    MAINTAIN(SecDataAuthLabel.DM_DAUTH_MAINTAIN), // Database operations and maintenance
+    UNSAFE(SecDataAuthLabel.DM_DAUTH_UNSAFE),     // High-risk operations
 
-    // for RDBMS
-    SPACE(SecDataAuthLabel.DM_DAUTH_SPACE),
-    DDL(SecDataAuthLabel.DM_DAUTH_DDL),
-    OBJECT(SecDataAuthLabel.DM_DAUTH_OBJ),
-    CALL(SecDataAuthLabel.DM_DAUTH_CALL),;
+    ;
 
     private final String authLabel;
 

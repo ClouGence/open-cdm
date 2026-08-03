@@ -1,0 +1,126 @@
+create user CODEX_DM8_PF_CREATOR_20260722 identified by "Dm8@Profile2026";
+create user CODEX_DM8_PF_ALTERER_20260722 identified by "Dm8@Profile2026";
+create user CODEX_DM8_PF_DROPPER_20260722 identified by "Dm8@Profile2026";
+create user CODEX_DM8_PF_DENIED_20260722 identified by "Dm8@Profile2026";
+create user CODEX_DM8_PF_ROLE_USER_20260722 identified by "Dm8@Profile2026";
+create user CODEX_DM8_PF_DELEGATE_20260722 identified by "Dm8@Profile2026";
+create user CODEX_DM8_PF_BENEFIT_20260722 identified by "Dm8@Profile2026";
+create role CODEX_DM8_PF_ROLE_20260722;
+create profile CODEX_DM8_PF_DENIED_TARGET_20260722 limit session_per_user 1;
+grant create profile to CODEX_DM8_PF_CREATOR_20260722;
+grant alter profile to CODEX_DM8_PF_ALTERER_20260722;
+grant drop profile to CODEX_DM8_PF_DROPPER_20260722;
+grant create profile, alter profile, drop profile to CODEX_DM8_PF_ROLE_20260722;
+grant CODEX_DM8_PF_ROLE_20260722 to CODEX_DM8_PF_ROLE_USER_20260722;
+grant create profile to CODEX_DM8_PF_DELEGATE_20260722 with admin option;
+create profile CODEX_DM8_PF_GLOBAL_20260722 limit session_per_user 1;
+alter profile CODEX_DM8_PF_GLOBAL_20260722 limit session_per_user 2;
+alter profile CODEX_DM8_PF_GLOBAL_20260722 limit session_per_user 32768;
+drop profile CODEX_DM8_PF_GLOBAL_20260722;
+drop profile CODEX_DM8_PF_GLOBAL_20260722;
+create profile CODEX_DM8_PF_NOAUTH_20260722;
+alter profile CODEX_DM8_PF_DENIED_TARGET_20260722 limit session_per_user 2;
+drop profile CODEX_DM8_PF_DENIED_TARGET_20260722;
+create profile CODEX_DM8_PF_ROLE_TARGET_20260722 limit session_per_user 1;
+alter profile CODEX_DM8_PF_ROLE_TARGET_20260722 limit session_per_user 32768;
+drop profile CODEX_DM8_PF_ROLE_TARGET_20260722;
+grant create profile to CODEX_DM8_PF_BENEFIT_20260722;
+create profile CODEX_DM8_PF_DELEGATED_20260722 limit session_per_user 1;
+grant create profile to public;
+create profile CODEX_DM8_PF_PUBLIC_20260722 limit session_per_user 1;
+revoke create profile from public;
+drop profile CODEX_DM8_PF_DENIED_TARGET_20260722;
+drop profile CODEX_DM8_PF_DELEGATED_20260722;
+drop profile CODEX_DM8_PF_PUBLIC_20260722;
+drop user CODEX_DM8_PF_CREATOR_20260722 cascade;
+drop user CODEX_DM8_PF_ALTERER_20260722 cascade;
+drop user CODEX_DM8_PF_DROPPER_20260722 cascade;
+drop user CODEX_DM8_PF_DENIED_20260722 cascade;
+drop user CODEX_DM8_PF_ROLE_USER_20260722 cascade;
+drop user CODEX_DM8_PF_DELEGATE_20260722 cascade;
+drop user CODEX_DM8_PF_BENEFIT_20260722 cascade;
+drop role CODEX_DM8_PF_ROLE_20260722;
+------------------------------------------------------------------------------------------
+[CREATE_USER] create user CODEX_DM8_PF_CREATOR_20260722 identified by "Dm8@Profile2026";
+----------
+[CREATE_USER] create user CODEX_DM8_PF_ALTERER_20260722 identified by "Dm8@Profile2026";
+----------
+[CREATE_USER] create user CODEX_DM8_PF_DROPPER_20260722 identified by "Dm8@Profile2026";
+----------
+[CREATE_USER] create user CODEX_DM8_PF_DENIED_20260722 identified by "Dm8@Profile2026";
+----------
+[CREATE_USER] create user CODEX_DM8_PF_ROLE_USER_20260722 identified by "Dm8@Profile2026";
+----------
+[CREATE_USER] create user CODEX_DM8_PF_DELEGATE_20260722 identified by "Dm8@Profile2026";
+----------
+[CREATE_USER] create user CODEX_DM8_PF_BENEFIT_20260722 identified by "Dm8@Profile2026";
+----------
+[CREATE_ROLE] create role CODEX_DM8_PF_ROLE_20260722;
+----------
+[SYSTEM_SETTING_WRITE] create profile CODEX_DM8_PF_DENIED_TARGET_20260722 limit session_per_user 1;
+----------
+[GRANT] grant create profile to CODEX_DM8_PF_CREATOR_20260722;
+----------
+[GRANT] grant alter profile to CODEX_DM8_PF_ALTERER_20260722;
+----------
+[GRANT] grant drop profile to CODEX_DM8_PF_DROPPER_20260722;
+----------
+[GRANT] grant create profile, alter profile, drop profile to CODEX_DM8_PF_ROLE_20260722;
+----------
+[GRANT] grant CODEX_DM8_PF_ROLE_20260722 to CODEX_DM8_PF_ROLE_USER_20260722;
+----------
+[GRANT] grant create profile to CODEX_DM8_PF_DELEGATE_20260722 with admin option;
+----------
+[SYSTEM_SETTING_WRITE] create profile CODEX_DM8_PF_GLOBAL_20260722 limit session_per_user 1;
+----------
+[SYSTEM_SETTING_WRITE] alter profile CODEX_DM8_PF_GLOBAL_20260722 limit session_per_user 2;
+----------
+[SYSTEM_SETTING_WRITE] alter profile CODEX_DM8_PF_GLOBAL_20260722 limit session_per_user 32768;
+----------
+[SYSTEM_SETTING_WRITE] drop profile CODEX_DM8_PF_GLOBAL_20260722;
+----------
+[SYSTEM_SETTING_WRITE] drop profile CODEX_DM8_PF_GLOBAL_20260722;
+----------
+[SYSTEM_SETTING_WRITE] create profile CODEX_DM8_PF_NOAUTH_20260722;
+----------
+[SYSTEM_SETTING_WRITE] alter profile CODEX_DM8_PF_DENIED_TARGET_20260722 limit session_per_user 2;
+----------
+[SYSTEM_SETTING_WRITE] drop profile CODEX_DM8_PF_DENIED_TARGET_20260722;
+----------
+[SYSTEM_SETTING_WRITE] create profile CODEX_DM8_PF_ROLE_TARGET_20260722 limit session_per_user 1;
+----------
+[SYSTEM_SETTING_WRITE] alter profile CODEX_DM8_PF_ROLE_TARGET_20260722 limit session_per_user 32768;
+----------
+[SYSTEM_SETTING_WRITE] drop profile CODEX_DM8_PF_ROLE_TARGET_20260722;
+----------
+[GRANT] grant create profile to CODEX_DM8_PF_BENEFIT_20260722;
+----------
+[SYSTEM_SETTING_WRITE] create profile CODEX_DM8_PF_DELEGATED_20260722 limit session_per_user 1;
+----------
+[GRANT] grant create profile to public;
+----------
+[SYSTEM_SETTING_WRITE] create profile CODEX_DM8_PF_PUBLIC_20260722 limit session_per_user 1;
+----------
+[REVOKE] revoke create profile from public;
+----------
+[SYSTEM_SETTING_WRITE] drop profile CODEX_DM8_PF_DENIED_TARGET_20260722;
+----------
+[SYSTEM_SETTING_WRITE] drop profile CODEX_DM8_PF_DELEGATED_20260722;
+----------
+[SYSTEM_SETTING_WRITE] drop profile CODEX_DM8_PF_PUBLIC_20260722;
+----------
+[DROP_USER] drop user CODEX_DM8_PF_CREATOR_20260722 cascade;
+----------
+[DROP_USER] drop user CODEX_DM8_PF_ALTERER_20260722 cascade;
+----------
+[DROP_USER] drop user CODEX_DM8_PF_DROPPER_20260722 cascade;
+----------
+[DROP_USER] drop user CODEX_DM8_PF_DENIED_20260722 cascade;
+----------
+[DROP_USER] drop user CODEX_DM8_PF_ROLE_USER_20260722 cascade;
+----------
+[DROP_USER] drop user CODEX_DM8_PF_DELEGATE_20260722 cascade;
+----------
+[DROP_USER] drop user CODEX_DM8_PF_BENEFIT_20260722 cascade;
+----------
+[DROP_ROLE] drop role CODEX_DM8_PF_ROLE_20260722;

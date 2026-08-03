@@ -1,0 +1,15 @@
+db.collection.findOne({});
+db.users.findOne({"name": "John"});
+db.products.findOne({"price": {$gt: 20}});
+db.orders.findOne({"status": "pending"}, {"orderId": 1, "orderDate": 1});
+db.inventory.findOne({"qty": {$lt: 10}});
+------------------------------------------------------------------------------------------
+[SELECT] db.collection.findOne({})
+----------
+[SELECT] db.users.findOne({"name": "John"})
+----------
+[SELECT] db.products.findOne({"price": {$gt: 20}})
+----------
+[SELECT] db.orders.findOne({"status": "pending"}, {"orderId": 1, "orderDate": 1})
+----------
+[SELECT] db.inventory.findOne({"qty": {$lt: 10}})

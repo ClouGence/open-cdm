@@ -1,0 +1,14 @@
+[utl_smtp_payload_columns]
+sql:
+select SMTP_HOST, SMTP_PORT, HELO_DOMAIN, SENDER, RECIPIENTS, TEXT_DATA, RAW_DATA
+from catalog1.app.smtp_payload
+expect:
+{
+  "SMTP_HOST": ["/catalog1/app/smtp_payload/SMTP_HOST/"],
+  "SMTP_PORT": ["/catalog1/app/smtp_payload/SMTP_PORT/"],
+  "HELO_DOMAIN": ["/catalog1/app/smtp_payload/HELO_DOMAIN/"],
+  "SENDER": ["/catalog1/app/smtp_payload/SENDER/"],
+  "RECIPIENTS": ["/catalog1/app/smtp_payload/RECIPIENTS/"],
+  "TEXT_DATA": ["/catalog1/app/smtp_payload/TEXT_DATA/"],
+  "RAW_DATA": ["/catalog1/app/smtp_payload/RAW_DATA/"]
+}

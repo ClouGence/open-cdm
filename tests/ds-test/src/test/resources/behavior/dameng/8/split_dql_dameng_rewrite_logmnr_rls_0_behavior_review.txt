@@ -1,0 +1,128 @@
+[split_dql_dameng_rewrite_logmnr_rls_0_behavior_review_001]
+sql:
+select owner, name, source_stmt, destination_stmt, rewrite_mode from sys_rewrite_equivalences where name='CODEX_REWRITE_RULE';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:69~1:93) /test/1/catalog1/schema1/sys_rewrite_equivalences/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_rewrite_logmnr_rls_0_behavior_review_002]
+sql:
+select count(*) from CODEX_REWRITE_SOURCE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:21~1:41) /test/1/catalog1/schema1/CODEX_REWRITE_SOURCE/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_rewrite_logmnr_rls_0_behavior_review_003]
+sql:
+select low_scn, next_scn, low_time, high_time, log_id, filename from v$logmnr_logs order by low_scn;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:69~1:82) /test/1/catalog1/schema1/v$logmnr_logs/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_rewrite_logmnr_rls_0_behavior_review_004]
+sql:
+select operation_code, scn, sql_redo, timestamp, seg_owner, table_name from v$logmnr_contents where seg_owner='CODEX_DM8_RLS' and table_name='CODEX_LOGMNR_T' order by scn;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:76~1:93) /test/1/catalog1/schema1/v$logmnr_contents/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_rewrite_logmnr_rls_0_behavior_review_007]
+sql:
+select count(*) from v$logmnr_logs;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:21~1:34) /test/1/catalog1/schema1/v$logmnr_logs/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_rewrite_logmnr_rls_0_behavior_review_009]
+sql:
+select count(*), min(TENANT_ID) from CODEX_RLS_T;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:20) /test/1/catalog1/schema1/min/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:37~1:48) /test/1/catalog1/schema1/CODEX_RLS_T/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_rewrite_logmnr_rls_0_behavior_review_010]
+sql:
+select count(*), min(TENANT_ID) from CODEX_RLS_T;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:20) /test/1/catalog1/schema1/min/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:37~1:48) /test/1/catalog1/schema1/CODEX_RLS_T/",
+      "action": "READ"
+    }
+  ]
+}

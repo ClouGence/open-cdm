@@ -1,0 +1,28 @@
+-- empty argument slot
+begin DBMS_LDAP.INIT(,389); end;
+/
+-- double comma
+begin DBMS_LDAP.SEARCH_S(NULL,,,NULL,NULL,0,NULL); end;
+/
+-- dangling named
+begin DBMS_LDAP.POPULATE_MOD_ARRAY(MODPTR=>); end;
+/
+-- unclosed call
+begin DBMS_LDAP.RENAME_S(NULL,'dn','rdn','parent',1; end;
+/
+------------------------------------------------------------------------------------------
+[BLOCK] -- empty argument slot
+begin DBMS_LDAP.INIT(,389); end;
+/
+----------
+[BLOCK] -- double comma
+begin DBMS_LDAP.SEARCH_S(NULL,,,NULL,NULL,0,NULL); end;
+/
+----------
+[BLOCK] -- dangling named
+begin DBMS_LDAP.POPULATE_MOD_ARRAY(MODPTR=>); end;
+/
+----------
+[BLOCK] -- unclosed call
+begin DBMS_LDAP.RENAME_S(NULL,'dn','rdn','parent',1; end;
+/

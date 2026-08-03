@@ -1,0 +1,357 @@
+select 1 + column1 as qq from table1;
+select 1 + column1 + (select column1 from table2 limit 1) as "xx" from table1;
+select 1 + column1 + (select column1 from table2 limit 1) + test(column2) as mbdv from table1;
+select 32 + column1 + test(2) + (select column1 from table2) as test from schema2.table1 a;
+select 1 as f;
+select 1 as a;
+select 1 as a from table1;
+select column1 = 1 as a from table1;
+select column1 + column2 = 1 as a from table1;
+select test_function(1) as e from table1;
+select test_function(column1) as g from table1;
+select test_function(32) as ge;
+select cast(column1 as char) as f from table1;
+select f from (select cast(column1 as char) as f from table1)c;
+select test_func((select column1 from table2)) as vv from table1;
+select test_func((select test_func1((select column1 from schema2.table1),column1) as q from table2),column1) as "xx" from table1;
+select * from table1 left join table2 on table1.column1 = table2.column1;
+select table1.column1,table2.column2 from table1 left join table2 on table1.column1 = table2.column1;
+select * from table1 a left join table2 b on a.column1 = b.column1;
+select * from table1 left join schema2.table2 on table1.column1 = table2.column1;
+select * from table1 a left join schema2.table2 b on a.column1 = b.column1;
+select a.*,b.* from table1 a left join schema2.table2 b on a.column1 = b.column1;
+select a.*,b.column1 from table1 a left join schema2.table2 b on a.column1 = b.column1;
+select column1,d from (select a.*,b.column1 as d from table1 a left join schema2.table2 b on a.column1 = b.column1)c;
+select a.column1,b.column2,c.column3 from table1 a left join table2 b on a.column1 = b.column1 left join schema2.table1 c on c.column1 = a.column1;
+select (select column1 from table1) as ww from table2;
+select * from table1;
+select * from table1 a;
+select column1 from table1;
+select column1 as test from table1 a;
+select * from schema2.table1;
+select * from schema2.table1 a;
+select column1 from schema2.table1;
+select column1 as test from schema2.table1 a;
+select *,test(column1) as s from schema2.table1;
+select * from table1 union select * from table2;
+select column1 from (select column1  from table1 union select column2 from table2)c;
+select e from (select column1 as e  from table1 union select column2 as x from table2)c;
+select * from table1 union select * from table2 union select * from schema2.table1;
+select * from (select * from table1 union select * from table2) c;
+with test1 as (select * from table1) select * from test1;
+with test1 as (select * from table1) select * from (with test2 as (select * from table2) select * from test2);
+select * from (with test1 as (select * from table1) select * from (with test1 as (select * from table2) select * from test1)) t;
+select id,name from abc;
+select id,name from test1.test.abc;
+select id + name from test1.test.abc group by id having ss > 3 order by id desc;
+select 1;
+select 1 + 1;
+select (1 + a) as a from users;
+select ads_version();
+select * from table_1;
+select id,* from table_1;
+select id,* from (table_1);
+select id,* from (table_1) a;
+select * from table_1 limit 10;
+select * from table_1;
+select * from table_1 where 1=1;
+select * from table_1 where id=id;
+select * from table_1 where id = (id);
+select * from table_1 where id > 1;
+select * from table_1 where id is not null;
+select * from table_1 where 'abc' = name and id > 3;
+select * from table_1 where length(name) > 2;
+select * from table_1 where (name = 'abc' and id > 3) or id = 1;
+select * from table_1 where 1>1;
+select * from table_1 where id in (1,2,3);
+select * from table_1 where id in (1,'2',3);
+select * from table_1 where id in (select id from table_2);
+select id as id1 from table_1;
+select id as id from table_1;
+select * from table_1 union select * from table_2;
+select * from (select * from table_1 union select * from table_2) t;
+select * from table_1 a join (select * from table_1 union select * from table_2) b on a.id = b.id;
+select id, name from table_1 where id in (select a.id from table_1 a left join (select * from table_1 union select * from table_2) b on a.id = b.id);
+select id = (select a.id from table_1 a left join (select * from table_1 union select * from table_2) b on a.id = b.id limit 1) from table_1;
+select (select a.id from table_1 a left join (select * from table_1 union select * from table_2) b on a.id = b.id limit 1) = id from table_1;
+select * from table1 union distinct select * from table2;
+select * from table1 union distinct select * from table2 union all select * from table3 union distinct select * from table4;
+with tab1Cnt as (select * from table_1),     tab2Cnt as (select * from table_2)select * from tab1Cnt a join tab2Cnt b on a.id = b.id;
+with tab1Cnt as (with one as (select 1) select * from table_1),     tab2Cnt as (select * from table_2)select * from tab1Cnt a join tab2Cnt b on a.id = b.id;
+with one as (select 1 as i),
+     tab1Cnt as (select * from table_1),
+     tab2Cnt as (select * from table_2 where (select i from one) = 1)
+select * from tab1Cnt a join tab2Cnt b on a.id = b.id;
+select * from table_1 a join (with one as (select 1) select * from one) b on a.id = b.id;
+select * from (with one as (select * from table_1) select * from one) t;
+select id = (with one as (select 1) select a.id from one a limit 1) from table_1;
+select (with one as (select 1) select a.id from table_1 a limit 1) = id from table_1;
+select * from table_1 where id in (with one as (select 1)  select id from table_1);
+select id,name from abc where id = 1 and name in('a','b');
+select id,name from abc where name in('a','b') and id = 1;
+select id,name from abc where id = 1 or name in('a','b');
+select id,name from abc where name in('a','b') or id = 1;
+SELECT ARRAY[1,name::int,(select * from table1),test()] from abc;
+select * from table_1 a join table_2 b on a.id = b.id;
+select * from schema1.table_1 a join schema2.table_2 b on a.id = b.id;
+select * from catalog1.schema1.table_1 a join catalog2.schema2.table_2 b on a.id = b.id;
+select * from table_1 a join table_2 b on a.id = b.id;
+select * from table_1 a join table_2 b on (a.id);
+select * from table_1, table_2;
+select * from table_1 a, table_2 b where a.id1 = b.id2;
+select * from table_1 a natural join table_2 b;
+select * from table_1 a natural left join table_2 b;
+select * from table_1 a left join table_2 b on a.id = b.id right join table_3 c on a.id = c.id;
+select * from table_1 a inner join table_2 b on a.id = b.id;
+select * from table_1 a inner join table_2 b on a.id = b.id;
+select * from table_1 a inner join table_2 b on (a.id);
+select * from table_1 a cross join table_2 b;
+select * from table_1 a cross join table_2 b;
+select * from table_1 a left outer join table_2 b on a.id = b.id;
+select * from table_1 a left outer join table_2 b on (a.id);
+select * from table_1 a right join table_2 b on a.id = b.id;
+select * from table_1 a right outer join table_2 b on (a.id);
+select * from (select 1 id,'name' name) a join table_2 b on a.id = b.id;
+select distinct on (a,b) a,b from "table" order by a,b;
+select max(tmp1)::varchar from test01;
+select v_date_desc::date - max(access_time)::date from table1;
+select * from msg.msg_pool where status= 1 order by create_time limit 100 for update skip locked;
+select * from com_demo order by sex asc nulls first;
+SELECT (idx - 1)::text FROM cgm_data c1, jsonb_array_elements(data) WITH ORDINALITY arr(elem, idx) WHERE elem ->> 'index' = 22 AND c1.id = 11;
+------------------------------------------------------------------------------------------
+[SELECT] select 1 + column1 as qq from table1;
+----------
+[SELECT] select 1 + column1 + (select column1 from table2 limit 1) as "xx" from table1;
+----------
+[SELECT] select 1 + column1 + (select column1 from table2 limit 1) + test(column2) as mbdv from table1;
+----------
+[SELECT] select 32 + column1 + test(2) + (select column1 from table2) as test from schema2.table1 a;
+----------
+[SELECT] select 1 as f;
+----------
+[SELECT] select 1 as a;
+----------
+[SELECT] select 1 as a from table1;
+----------
+[SELECT] select column1 = 1 as a from table1;
+----------
+[SELECT] select column1 + column2 = 1 as a from table1;
+----------
+[SELECT] select test_function(1) as e from table1;
+----------
+[SELECT] select test_function(column1) as g from table1;
+----------
+[SELECT] select test_function(32) as ge;
+----------
+[SELECT] select cast(column1 as char) as f from table1;
+----------
+[SELECT] select f from (select cast(column1 as char) as f from table1)c;
+----------
+[SELECT] select test_func((select column1 from table2)) as vv from table1;
+----------
+[SELECT] select test_func((select test_func1((select column1 from schema2.table1),column1) as q from table2),column1) as "xx" from table1;
+----------
+[SELECT] select * from table1 left join table2 on table1.column1 = table2.column1;
+----------
+[SELECT] select table1.column1,table2.column2 from table1 left join table2 on table1.column1 = table2.column1;
+----------
+[SELECT] select * from table1 a left join table2 b on a.column1 = b.column1;
+----------
+[SELECT] select * from table1 left join schema2.table2 on table1.column1 = table2.column1;
+----------
+[SELECT] select * from table1 a left join schema2.table2 b on a.column1 = b.column1;
+----------
+[SELECT] select a.*,b.* from table1 a left join schema2.table2 b on a.column1 = b.column1;
+----------
+[SELECT] select a.*,b.column1 from table1 a left join schema2.table2 b on a.column1 = b.column1;
+----------
+[SELECT] select column1,d from (select a.*,b.column1 as d from table1 a left join schema2.table2 b on a.column1 = b.column1)c;
+----------
+[SELECT] select a.column1,b.column2,c.column3 from table1 a left join table2 b on a.column1 = b.column1 left join schema2.table1 c on c.column1 = a.column1;
+----------
+[SELECT] select (select column1 from table1) as ww from table2;
+----------
+[SELECT] select * from table1;
+----------
+[SELECT] select * from table1 a;
+----------
+[SELECT] select column1 from table1;
+----------
+[SELECT] select column1 as test from table1 a;
+----------
+[SELECT] select * from schema2.table1;
+----------
+[SELECT] select * from schema2.table1 a;
+----------
+[SELECT] select column1 from schema2.table1;
+----------
+[SELECT] select column1 as test from schema2.table1 a;
+----------
+[SELECT] select *,test(column1) as s from schema2.table1;
+----------
+[SELECT] select * from table1 union select * from table2;
+----------
+[SELECT] select column1 from (select column1  from table1 union select column2 from table2)c;
+----------
+[SELECT] select e from (select column1 as e  from table1 union select column2 as x from table2)c;
+----------
+[SELECT] select * from table1 union select * from table2 union select * from schema2.table1;
+----------
+[SELECT] select * from (select * from table1 union select * from table2) c;
+----------
+[SELECT] with test1 as (select * from table1) select * from test1;
+----------
+[SELECT] with test1 as (select * from table1) select * from (with test2 as (select * from table2) select * from test2);
+----------
+[SELECT] select * from (with test1 as (select * from table1) select * from (with test1 as (select * from table2) select * from test1)) t;
+----------
+[SELECT] select id,name from abc;
+----------
+[SELECT] select id,name from test1.test.abc;
+----------
+[SELECT] select id + name from test1.test.abc group by id having ss > 3 order by id desc;
+----------
+[SELECT] select 1;
+----------
+[SELECT] select 1 + 1;
+----------
+[SELECT] select (1 + a) as a from users;
+----------
+[SELECT] select ads_version();
+----------
+[SELECT] select * from table_1;
+----------
+[SELECT] select id,* from table_1;
+----------
+[SELECT] select id,* from (table_1);
+----------
+[SELECT] select id,* from (table_1) a;
+----------
+[SELECT] select * from table_1 limit 10;
+----------
+[SELECT] select * from table_1;
+----------
+[SELECT] select * from table_1 where 1=1;
+----------
+[SELECT] select * from table_1 where id=id;
+----------
+[SELECT] select * from table_1 where id = (id);
+----------
+[SELECT] select * from table_1 where id > 1;
+----------
+[SELECT] select * from table_1 where id is not null;
+----------
+[SELECT] select * from table_1 where 'abc' = name and id > 3;
+----------
+[SELECT] select * from table_1 where length(name) > 2;
+----------
+[SELECT] select * from table_1 where (name = 'abc' and id > 3) or id = 1;
+----------
+[SELECT] select * from table_1 where 1>1;
+----------
+[SELECT] select * from table_1 where id in (1,2,3);
+----------
+[SELECT] select * from table_1 where id in (1,'2',3);
+----------
+[SELECT] select * from table_1 where id in (select id from table_2);
+----------
+[SELECT] select id as id1 from table_1;
+----------
+[SELECT] select id as id from table_1;
+----------
+[SELECT] select * from table_1 union select * from table_2;
+----------
+[SELECT] select * from (select * from table_1 union select * from table_2) t;
+----------
+[SELECT] select * from table_1 a join (select * from table_1 union select * from table_2) b on a.id = b.id;
+----------
+[SELECT] select id, name from table_1 where id in (select a.id from table_1 a left join (select * from table_1 union select * from table_2) b on a.id = b.id);
+----------
+[SELECT] select id = (select a.id from table_1 a left join (select * from table_1 union select * from table_2) b on a.id = b.id limit 1) from table_1;
+----------
+[SELECT] select (select a.id from table_1 a left join (select * from table_1 union select * from table_2) b on a.id = b.id limit 1) = id from table_1;
+----------
+[SELECT] select * from table1 union distinct select * from table2;
+----------
+[SELECT] select * from table1 union distinct select * from table2 union all select * from table3 union distinct select * from table4;
+----------
+[SELECT] with tab1Cnt as (select * from table_1),     tab2Cnt as (select * from table_2)select * from tab1Cnt a join tab2Cnt b on a.id = b.id;
+----------
+[SELECT] with tab1Cnt as (with one as (select 1) select * from table_1),     tab2Cnt as (select * from table_2)select * from tab1Cnt a join tab2Cnt b on a.id = b.id;
+----------
+[SELECT] with one as (select 1 as i),
+     tab1Cnt as (select * from table_1),
+     tab2Cnt as (select * from table_2 where (select i from one) = 1)
+select * from tab1Cnt a join tab2Cnt b on a.id = b.id;
+----------
+[SELECT] select * from table_1 a join (with one as (select 1) select * from one) b on a.id = b.id;
+----------
+[SELECT] select * from (with one as (select * from table_1) select * from one) t;
+----------
+[SELECT] select id = (with one as (select 1) select a.id from one a limit 1) from table_1;
+----------
+[SELECT] select (with one as (select 1) select a.id from table_1 a limit 1) = id from table_1;
+----------
+[SELECT] select * from table_1 where id in (with one as (select 1)  select id from table_1);
+----------
+[SELECT] select id,name from abc where id = 1 and name in('a','b');
+----------
+[SELECT] select id,name from abc where name in('a','b') and id = 1;
+----------
+[SELECT] select id,name from abc where id = 1 or name in('a','b');
+----------
+[SELECT] select id,name from abc where name in('a','b') or id = 1;
+----------
+[SELECT] SELECT ARRAY[1,name::int,(select * from table1),test()] from abc;
+----------
+[SELECT] select * from table_1 a join table_2 b on a.id = b.id;
+----------
+[SELECT] select * from schema1.table_1 a join schema2.table_2 b on a.id = b.id;
+----------
+[SELECT] select * from catalog1.schema1.table_1 a join catalog2.schema2.table_2 b on a.id = b.id;
+----------
+[SELECT] select * from table_1 a join table_2 b on a.id = b.id;
+----------
+[SELECT] select * from table_1 a join table_2 b on (a.id);
+----------
+[SELECT] select * from table_1, table_2;
+----------
+[SELECT] select * from table_1 a, table_2 b where a.id1 = b.id2;
+----------
+[SELECT] select * from table_1 a natural join table_2 b;
+----------
+[SELECT] select * from table_1 a natural left join table_2 b;
+----------
+[SELECT] select * from table_1 a left join table_2 b on a.id = b.id right join table_3 c on a.id = c.id;
+----------
+[SELECT] select * from table_1 a inner join table_2 b on a.id = b.id;
+----------
+[SELECT] select * from table_1 a inner join table_2 b on a.id = b.id;
+----------
+[SELECT] select * from table_1 a inner join table_2 b on (a.id);
+----------
+[SELECT] select * from table_1 a cross join table_2 b;
+----------
+[SELECT] select * from table_1 a cross join table_2 b;
+----------
+[SELECT] select * from table_1 a left outer join table_2 b on a.id = b.id;
+----------
+[SELECT] select * from table_1 a left outer join table_2 b on (a.id);
+----------
+[SELECT] select * from table_1 a right join table_2 b on a.id = b.id;
+----------
+[SELECT] select * from table_1 a right outer join table_2 b on (a.id);
+----------
+[SELECT] select * from (select 1 id,'name' name) a join table_2 b on a.id = b.id;
+----------
+[SELECT] select distinct on (a,b) a,b from "table" order by a,b;
+----------
+[SELECT] select max(tmp1)::varchar from test01;
+----------
+[SELECT] select v_date_desc::date - max(access_time)::date from table1;
+----------
+[SELECT|QUERY_LOCK] select * from msg.msg_pool where status= 1 order by create_time limit 100 for update skip locked;
+----------
+[SELECT] select * from com_demo order by sex asc nulls first;
+----------
+[SELECT] SELECT (idx - 1)::text FROM cgm_data c1, jsonb_array_elements(data) WITH ORDINALITY arr(elem, idx) WHERE elem ->> 'index' = 22 AND c1.id = 11;

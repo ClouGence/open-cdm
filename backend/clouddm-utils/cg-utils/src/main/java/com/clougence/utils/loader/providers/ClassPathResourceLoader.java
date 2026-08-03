@@ -251,6 +251,7 @@ public class ClassPathResourceLoader extends AbstractResourceLoader {
         if (listFiles == null) {
             return;
         }
+        Arrays.sort(listFiles, Comparator.comparing(File::getName));
 
         for (File fileItem : listFiles) {
             if (matchOnce && !result.isEmpty()) {

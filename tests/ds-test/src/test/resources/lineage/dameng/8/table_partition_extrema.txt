@@ -1,0 +1,47 @@
+[range_columns]
+sql:
+select p.id,p.note from catalog1.app.part_an_range partition(p10) p
+expect:
+{"id":["/catalog1/app/part_an_range/id/"],"note":["/catalog1/app/part_an_range/note/"]}
+----------
+[range_for_columns]
+sql:
+select p.id,p.note from catalog1.app.part_an_range partition for(1) p
+expect:
+{"id":["/catalog1/app/part_an_range/id/"],"note":["/catalog1/app/part_an_range/note/"]}
+----------
+[list_columns]
+sql:
+select p.id,p.note from catalog1.app.part_an_list partition(p12) p
+expect:
+{"id":["/catalog1/app/part_an_list/id/"],"note":["/catalog1/app/part_an_list/note/"]}
+----------
+[hash_columns]
+sql:
+select p.id,p.note from catalog1.app.part_an_hash partition(dmhashpart0) p
+expect:
+{"id":["/catalog1/app/part_an_hash/id/"],"note":["/catalog1/app/part_an_hash/note/"]}
+----------
+[subpartition_columns]
+sql:
+select p.id,p.kind,p.note from catalog1.app.part_an_multi subpartition(s1) p
+expect:
+{"id":["/catalog1/app/part_an_multi/id/"],"kind":["/catalog1/app/part_an_multi/kind/"],"note":["/catalog1/app/part_an_multi/note/"]}
+----------
+[join_columns]
+sql:
+select r.id,l.note from catalog1.app.part_an_range partition(p10) r join catalog1.app.part_an_list partition(p12) l on r.id=l.id
+expect:
+{"id":["/catalog1/app/part_an_range/id/"],"note":["/catalog1/app/part_an_list/note/"]}
+----------
+[aggregate_columns]
+sql:
+select count(p.id) as cnt,max(p.note) as max_note from catalog1.app.part_an_range partition(p10) p
+expect:
+{"cnt":["/catalog1/app/part_an_range/id/"],"max_note":["/catalog1/app/part_an_range/note/"]}
+----------
+[window_columns]
+sql:
+select p.id,row_number() over(partition by p.note order by p.id) as rn from catalog1.app.part_an_range partition(p10) p
+expect:
+{"id":["/catalog1/app/part_an_range/id/"],"rn":["/catalog1/app/part_an_range/note/","/catalog1/app/part_an_range/id/"]}

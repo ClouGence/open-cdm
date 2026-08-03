@@ -1,0 +1,63 @@
+[Db2RuleQueryAllowUnionTest#selectAndWithTest_1#001]
+rule: _rules/query/query-allow-union.rule
+expect: false
+vars:
+  allow: false
+sql:
+select * from table_1 union select * from table_2
+----------
+[Db2RuleQueryAllowUnionTest#selectAndWithTest_1#002]
+rule: _rules/query/query-allow-union.rule
+expect: false
+vars:
+  allow: false
+sql:
+select * from (select * from table_1 union select * from table_2) t
+----------
+[Db2RuleQueryAllowUnionTest#selectAndWithTest_1#003]
+rule: _rules/query/query-allow-union.rule
+expect: false
+vars:
+  allow: false
+sql:
+select id from table_3 where id in (select id from table_1 union select id from table_2)
+----------
+[Db2RuleQueryAllowUnionTest#selectAndWithTest_1#004]
+rule: _rules/query/query-allow-union.rule
+expect: true
+vars:
+  allow: false
+sql:
+select * from table_1
+----------
+[Db2RuleQueryAllowUnionTest#unionQueryTest_1#001]
+rule: _rules/query/query-allow-union.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from table_1 union select * from table_2
+----------
+[Db2RuleQueryAllowUnionTest#unionQueryTest_1#002]
+rule: _rules/query/query-allow-union.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from (select * from table_1 union select * from table_2) t
+----------
+[Db2RuleQueryAllowUnionTest#unionQueryTest_1#003]
+rule: _rules/query/query-allow-union.rule
+expect: true
+vars:
+  allow: true
+sql:
+select id from table_3 where id in (select id from table_1 union select id from table_2)
+----------
+[Db2RuleQueryAllowUnionTest#unionQueryTest_1#004]
+rule: _rules/query/query-allow-union.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from table_1

@@ -1,0 +1,161 @@
+[split_dql_dameng_misc_system_packages_0_011]
+sql:
+select utl_url.escape('http://www.dameng.com/a url with space.html', false, 'UTF8');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:21) /test/1/catalog1/utl_url/escape/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_misc_system_packages_0_012]
+sql:
+select utl_url.escape('a+b=c' || chr(38) || 'd=e', true, 'UTF8');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:21) /test/1/catalog1/utl_url/escape/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:33~1:36) /test/1/catalog1/schema1/chr/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_misc_system_packages_0_013]
+sql:
+select utl_url.escape('a+b=c' || chr(38) || 'd=e', false, 'UTF8');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:21) /test/1/catalog1/utl_url/escape/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:33~1:36) /test/1/catalog1/schema1/chr/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_misc_system_packages_0_014]
+sql:
+select utl_url.escape('CODEX_DM8-._~', false, 'UTF8');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:21) /test/1/catalog1/utl_url/escape/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_misc_system_packages_0_015]
+sql:
+select utl_url.unescape('http://www.dameng.com/a%20url%20with%20space.html', 'UTF8');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:23) /test/1/catalog1/utl_url/unescape/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_misc_system_packages_0_016]
+sql:
+select utl_url.unescape('a%2Bb%3Dc%26d%3De', 'UTF8');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:23) /test/1/catalog1/utl_url/unescape/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_misc_system_packages_0_017]
+sql:
+select utl_url.unescape(utl_url.escape('A B/C?D=E', true, 'UTF8'), 'UTF8');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:23) /test/1/catalog1/utl_url/unescape/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:24~1:38) /test/1/catalog1/utl_url/escape/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_misc_system_packages_0_018]
+sql:
+select utl_url.escape('ASCII VALUE', reserved => false, pgtype => 'GBK');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:21) /test/1/catalog1/utl_url/escape/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_misc_system_packages_0_019]
+sql:
+select utl_url.unescape('ASCII%20VALUE', pgtype => 'GBK');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:23) /test/1/catalog1/utl_url/unescape/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_misc_system_packages_0_020]
+sql:
+select utl_url.escape(null, false, 'UTF8');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:21) /test/1/catalog1/utl_url/escape/",
+      "action": "CALL"
+    }
+  ]
+}

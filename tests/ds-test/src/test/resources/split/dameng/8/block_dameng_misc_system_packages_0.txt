@@ -1,0 +1,67 @@
+declare value varbinary(32) := cast('0000000000000000' as varbinary(32)); result_value char(1); begin dbms_binary.binary_set_char(value, 0, 'Z'); result_value := dbms_binary.binary_get_char(value, 0); end;
+/
+declare value varbinary(32) := cast('0000000000000000' as varbinary(32)); result_value varchar(8); begin dbms_binary.binary_set_varchar(value, 0, 'CODE'); result_value := dbms_binary.binary_get_varchar(value, 0, 4); end;
+/
+declare value varbinary(32) := cast('0000000000000000' as varbinary(32)); result_value tinyint; begin dbms_binary.binary_set_tinyint(value, 0, 12); result_value := dbms_binary.binary_get_tinyint(value, 0); end;
+/
+declare value varbinary(32) := cast('0000000000000000' as varbinary(32)); result_value smallint; begin dbms_binary.binary_set_smallint(value, 0, 1234); result_value := dbms_binary.binary_get_smallint(value, 0); end;
+/
+declare value varbinary(32) := cast('0000000000000000' as varbinary(32)); result_value int; begin dbms_binary.binary_set_int(value, 0, 123456); result_value := dbms_binary.binary_get_int(value, 0); end;
+/
+declare value varbinary(32) := cast('0000000000000000' as varbinary(32)); result_value bigint; begin dbms_binary.binary_set_bigint(value, 0, 123456789); result_value := dbms_binary.binary_get_bigint(value, 0); end;
+/
+declare value varbinary(32) := cast('0000000000000000' as varbinary(32)); result_value float; begin dbms_binary.binary_set_float(value, 0, 1.25); result_value := dbms_binary.binary_get_float(value, 0); end;
+/
+declare value varbinary(32) := cast('0000000000000000' as varbinary(32)); result_value double; begin dbms_binary.binary_set_double(value, 0, 1.25); result_value := dbms_binary.binary_get_double(value, 0); end;
+/
+declare value varbinary(32) := cast('0000000000000000' as varbinary(32)); begin dbms_binary.binary_set_int(value, 4, 42); end;
+/
+declare value varbinary(32) := cast('0000000000000000' as varbinary(32)); begin dbms_binary.binary_set_varchar(value, 2, 'AB'); end;
+/
+call dbms_errlog.create_error_log('CODEX_DM8_ERR_BASE', 'CODEX_DM8_ERR_LOG');
+call dbms_errlog.create_error_log('CODEX_DM8_ERR_DEFAULT');
+call dbms_errlog.create_error_log('CODEX_DM8_ERR_SKIP', 'CODEX_DM8_ERR_SKIP_LOG', null, null, true);
+call dbms_mview.refresh('CODEX_DM8_MV_A');
+call dbms_mview.refresh('CODEX_DM8_MV_A', 'C');
+call dbms_mview.refresh('CODEX_DM8_MV_A,CODEX_DM8_MV_B', 'CC');
+call dbms_mview.refresh(lst => 'CODEX_DM8_MV_A', method => 'C');
+call dbms_mview.refresh('CODEX_DM8_MV_A', 'C', null, true, false, 1, 0, 0, true, false);
+call dbms_mview.refresh('CODEX_DM8_MV_A,CODEX_DM8_MV_B', 'CC', atomic_refresh => true);
+------------------------------------------------------------------------------------------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare value varbinary(32) := cast('0000000000000000' as varbinary(32)); result_value char(1); begin dbms_binary.binary_set_char(value, 0, 'Z'); result_value := dbms_binary.binary_get_char(value, 0); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare value varbinary(32) := cast('0000000000000000' as varbinary(32)); result_value varchar(8); begin dbms_binary.binary_set_varchar(value, 0, 'CODE'); result_value := dbms_binary.binary_get_varchar(value, 0, 4); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare value varbinary(32) := cast('0000000000000000' as varbinary(32)); result_value tinyint; begin dbms_binary.binary_set_tinyint(value, 0, 12); result_value := dbms_binary.binary_get_tinyint(value, 0); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare value varbinary(32) := cast('0000000000000000' as varbinary(32)); result_value smallint; begin dbms_binary.binary_set_smallint(value, 0, 1234); result_value := dbms_binary.binary_get_smallint(value, 0); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare value varbinary(32) := cast('0000000000000000' as varbinary(32)); result_value int; begin dbms_binary.binary_set_int(value, 0, 123456); result_value := dbms_binary.binary_get_int(value, 0); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare value varbinary(32) := cast('0000000000000000' as varbinary(32)); result_value bigint; begin dbms_binary.binary_set_bigint(value, 0, 123456789); result_value := dbms_binary.binary_get_bigint(value, 0); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare value varbinary(32) := cast('0000000000000000' as varbinary(32)); result_value float; begin dbms_binary.binary_set_float(value, 0, 1.25); result_value := dbms_binary.binary_get_float(value, 0); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare value varbinary(32) := cast('0000000000000000' as varbinary(32)); result_value double; begin dbms_binary.binary_set_double(value, 0, 1.25); result_value := dbms_binary.binary_get_double(value, 0); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare value varbinary(32) := cast('0000000000000000' as varbinary(32)); begin dbms_binary.binary_set_int(value, 4, 42); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare value varbinary(32) := cast('0000000000000000' as varbinary(32)); begin dbms_binary.binary_set_varchar(value, 2, 'AB'); end;
+----------
+[CALL_PROG_OBJ] call dbms_errlog.create_error_log('CODEX_DM8_ERR_BASE', 'CODEX_DM8_ERR_LOG');
+----------
+[CALL_PROG_OBJ] call dbms_errlog.create_error_log('CODEX_DM8_ERR_DEFAULT');
+----------
+[CALL_PROG_OBJ] call dbms_errlog.create_error_log('CODEX_DM8_ERR_SKIP', 'CODEX_DM8_ERR_SKIP_LOG', null, null, true);
+----------
+[CALL_PROG_OBJ] call dbms_mview.refresh('CODEX_DM8_MV_A');
+----------
+[CALL_PROG_OBJ] call dbms_mview.refresh('CODEX_DM8_MV_A', 'C');
+----------
+[CALL_PROG_OBJ] call dbms_mview.refresh('CODEX_DM8_MV_A,CODEX_DM8_MV_B', 'CC');
+----------
+[CALL_PROG_OBJ] call dbms_mview.refresh(lst => 'CODEX_DM8_MV_A', method => 'C');
+----------
+[CALL_PROG_OBJ] call dbms_mview.refresh('CODEX_DM8_MV_A', 'C', null, true, false, 1, 0, 0, true, false);
+----------
+[CALL_PROG_OBJ] call dbms_mview.refresh('CODEX_DM8_MV_A,CODEX_DM8_MV_B', 'CC', atomic_refresh => true);

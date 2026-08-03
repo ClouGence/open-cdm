@@ -1,0 +1,1028 @@
+[split_block_dameng_dbms_ldap_signature_combinations_0_001]
+sql:
+-- FUNC-0518 ADD_S
+declare
+  ld DBMS_LDAP.SESSION;
+  msg DBMS_LDAP.MESSAGE;
+  modptr DBMS_LDAP.MOD_ARRAY;
+  strings DBMS_LDAP.STRING_COLLECTION;
+  bervals DBMS_LDAP.BERVAL_COLLECTION;
+  blobs DBMS_LDAP.BLOB_COLLECTION;
+  n PLS_INTEGER;
+  v VARCHAR2(32767);
+begin n:=DBMS_LDAP.ADD_S(LD=>ld,ENTRYDN=>'cn=u,dc=example,dc=org',MODPTR=>modptr); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(3:5~3:22) /test/1/catalog1/DBMS_LDAP/SESSION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(4:6~4:23) /test/1/catalog1/DBMS_LDAP/MESSAGE/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(5:9~5:28) /test/1/catalog1/DBMS_LDAP/MOD_ARRAY/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(6:10~6:37) /test/1/catalog1/DBMS_LDAP/STRING_COLLECTION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(7:10~7:37) /test/1/catalog1/DBMS_LDAP/BERVAL_COLLECTION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(8:8~8:33) /test/1/catalog1/DBMS_LDAP/BLOB_COLLECTION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(11:9~11:24) /test/1/catalog1/DBMS_LDAP/ADD_S/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_ldap_signature_combinations_0_002]
+sql:
+-- FUNC-0519 COUNT_ENTRIES
+declare
+  ld DBMS_LDAP.SESSION;
+  msg DBMS_LDAP.MESSAGE;
+  modptr DBMS_LDAP.MOD_ARRAY;
+  strings DBMS_LDAP.STRING_COLLECTION;
+  bervals DBMS_LDAP.BERVAL_COLLECTION;
+  blobs DBMS_LDAP.BLOB_COLLECTION;
+  n PLS_INTEGER;
+  v VARCHAR2(32767);
+begin n:=DBMS_LDAP.COUNT_ENTRIES(LD=>ld,MSG=>msg); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(3:5~3:22) /test/1/catalog1/DBMS_LDAP/SESSION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(4:6~4:23) /test/1/catalog1/DBMS_LDAP/MESSAGE/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(5:9~5:28) /test/1/catalog1/DBMS_LDAP/MOD_ARRAY/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(6:10~6:37) /test/1/catalog1/DBMS_LDAP/STRING_COLLECTION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(7:10~7:37) /test/1/catalog1/DBMS_LDAP/BERVAL_COLLECTION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(8:8~8:33) /test/1/catalog1/DBMS_LDAP/BLOB_COLLECTION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(11:9~11:32) /test/1/catalog1/DBMS_LDAP/COUNT_ENTRIES/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_ldap_signature_combinations_0_003]
+sql:
+-- FUNC-0520 CREATE_MOD_ARRAY
+declare
+  ld DBMS_LDAP.SESSION;
+  msg DBMS_LDAP.MESSAGE;
+  modptr DBMS_LDAP.MOD_ARRAY;
+  strings DBMS_LDAP.STRING_COLLECTION;
+  bervals DBMS_LDAP.BERVAL_COLLECTION;
+  blobs DBMS_LDAP.BLOB_COLLECTION;
+  n PLS_INTEGER;
+  v VARCHAR2(32767);
+begin modptr:=DBMS_LDAP.CREATE_MOD_ARRAY(NUM=>3); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(3:5~3:22) /test/1/catalog1/DBMS_LDAP/SESSION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(4:6~4:23) /test/1/catalog1/DBMS_LDAP/MESSAGE/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(5:9~5:28) /test/1/catalog1/DBMS_LDAP/MOD_ARRAY/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(6:10~6:37) /test/1/catalog1/DBMS_LDAP/STRING_COLLECTION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(7:10~7:37) /test/1/catalog1/DBMS_LDAP/BERVAL_COLLECTION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(8:8~8:33) /test/1/catalog1/DBMS_LDAP/BLOB_COLLECTION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(11:14~11:40) /test/1/catalog1/DBMS_LDAP/CREATE_MOD_ARRAY/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_ldap_signature_combinations_0_004]
+sql:
+-- FUNC-0521 DELETE_S
+declare
+  ld DBMS_LDAP.SESSION;
+  msg DBMS_LDAP.MESSAGE;
+  modptr DBMS_LDAP.MOD_ARRAY;
+  strings DBMS_LDAP.STRING_COLLECTION;
+  bervals DBMS_LDAP.BERVAL_COLLECTION;
+  blobs DBMS_LDAP.BLOB_COLLECTION;
+  n PLS_INTEGER;
+  v VARCHAR2(32767);
+begin n:=DBMS_LDAP.DELETE_S(LD=>ld,ENTRYDN=>'cn=u,dc=example,dc=org'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(3:5~3:22) /test/1/catalog1/DBMS_LDAP/SESSION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(4:6~4:23) /test/1/catalog1/DBMS_LDAP/MESSAGE/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(5:9~5:28) /test/1/catalog1/DBMS_LDAP/MOD_ARRAY/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(6:10~6:37) /test/1/catalog1/DBMS_LDAP/STRING_COLLECTION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(7:10~7:37) /test/1/catalog1/DBMS_LDAP/BERVAL_COLLECTION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(8:8~8:33) /test/1/catalog1/DBMS_LDAP/BLOB_COLLECTION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(11:9~11:27) /test/1/catalog1/DBMS_LDAP/DELETE_S/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_ldap_signature_combinations_0_005]
+sql:
+-- FUNC-0522 ERR2STRING
+declare
+  ld DBMS_LDAP.SESSION;
+  msg DBMS_LDAP.MESSAGE;
+  modptr DBMS_LDAP.MOD_ARRAY;
+  strings DBMS_LDAP.STRING_COLLECTION;
+  bervals DBMS_LDAP.BERVAL_COLLECTION;
+  blobs DBMS_LDAP.BLOB_COLLECTION;
+  n PLS_INTEGER;
+  v VARCHAR2(32767);
+begin v:=DBMS_LDAP.ERR2STRING(LDAP_ERR=>0); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(3:5~3:22) /test/1/catalog1/DBMS_LDAP/SESSION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(4:6~4:23) /test/1/catalog1/DBMS_LDAP/MESSAGE/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(5:9~5:28) /test/1/catalog1/DBMS_LDAP/MOD_ARRAY/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(6:10~6:37) /test/1/catalog1/DBMS_LDAP/STRING_COLLECTION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(7:10~7:37) /test/1/catalog1/DBMS_LDAP/BERVAL_COLLECTION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(8:8~8:33) /test/1/catalog1/DBMS_LDAP/BLOB_COLLECTION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(11:9~11:29) /test/1/catalog1/DBMS_LDAP/ERR2STRING/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_ldap_signature_combinations_0_006]
+sql:
+-- FUNC-0523 FIRST_ENTRY
+declare
+  ld DBMS_LDAP.SESSION;
+  msg DBMS_LDAP.MESSAGE;
+  modptr DBMS_LDAP.MOD_ARRAY;
+  strings DBMS_LDAP.STRING_COLLECTION;
+  bervals DBMS_LDAP.BERVAL_COLLECTION;
+  blobs DBMS_LDAP.BLOB_COLLECTION;
+  n PLS_INTEGER;
+  v VARCHAR2(32767);
+begin msg:=DBMS_LDAP.FIRST_ENTRY(LD=>ld,MSG=>msg); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(3:5~3:22) /test/1/catalog1/DBMS_LDAP/SESSION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(4:6~4:23) /test/1/catalog1/DBMS_LDAP/MESSAGE/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(5:9~5:28) /test/1/catalog1/DBMS_LDAP/MOD_ARRAY/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(6:10~6:37) /test/1/catalog1/DBMS_LDAP/STRING_COLLECTION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(7:10~7:37) /test/1/catalog1/DBMS_LDAP/BERVAL_COLLECTION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(8:8~8:33) /test/1/catalog1/DBMS_LDAP/BLOB_COLLECTION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(11:11~11:32) /test/1/catalog1/DBMS_LDAP/FIRST_ENTRY/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_ldap_signature_combinations_0_007]
+sql:
+-- FUNC-0524 FREE_MOD_ARRAY
+declare
+  ld DBMS_LDAP.SESSION;
+  msg DBMS_LDAP.MESSAGE;
+  modptr DBMS_LDAP.MOD_ARRAY;
+  strings DBMS_LDAP.STRING_COLLECTION;
+  bervals DBMS_LDAP.BERVAL_COLLECTION;
+  blobs DBMS_LDAP.BLOB_COLLECTION;
+  n PLS_INTEGER;
+  v VARCHAR2(32767);
+begin DBMS_LDAP.FREE_MOD_ARRAY(MODPTR=>modptr); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(3:5~3:22) /test/1/catalog1/DBMS_LDAP/SESSION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(4:6~4:23) /test/1/catalog1/DBMS_LDAP/MESSAGE/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(5:9~5:28) /test/1/catalog1/DBMS_LDAP/MOD_ARRAY/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(6:10~6:37) /test/1/catalog1/DBMS_LDAP/STRING_COLLECTION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(7:10~7:37) /test/1/catalog1/DBMS_LDAP/BERVAL_COLLECTION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(8:8~8:33) /test/1/catalog1/DBMS_LDAP/BLOB_COLLECTION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(11:6~11:30) /test/1/catalog1/DBMS_LDAP/FREE_MOD_ARRAY/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_ldap_signature_combinations_0_008]
+sql:
+-- FUNC-0525 GET_DN
+declare
+  ld DBMS_LDAP.SESSION;
+  msg DBMS_LDAP.MESSAGE;
+  modptr DBMS_LDAP.MOD_ARRAY;
+  strings DBMS_LDAP.STRING_COLLECTION;
+  bervals DBMS_LDAP.BERVAL_COLLECTION;
+  blobs DBMS_LDAP.BLOB_COLLECTION;
+  n PLS_INTEGER;
+  v VARCHAR2(32767);
+begin v:=DBMS_LDAP.GET_DN(LD=>ld,LDAPENTRY=>msg); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(3:5~3:22) /test/1/catalog1/DBMS_LDAP/SESSION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(4:6~4:23) /test/1/catalog1/DBMS_LDAP/MESSAGE/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(5:9~5:28) /test/1/catalog1/DBMS_LDAP/MOD_ARRAY/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(6:10~6:37) /test/1/catalog1/DBMS_LDAP/STRING_COLLECTION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(7:10~7:37) /test/1/catalog1/DBMS_LDAP/BERVAL_COLLECTION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(8:8~8:33) /test/1/catalog1/DBMS_LDAP/BLOB_COLLECTION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(11:9~11:25) /test/1/catalog1/DBMS_LDAP/GET_DN/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_ldap_signature_combinations_0_009]
+sql:
+-- FUNC-0526 GET_VALUES
+declare
+  ld DBMS_LDAP.SESSION;
+  msg DBMS_LDAP.MESSAGE;
+  modptr DBMS_LDAP.MOD_ARRAY;
+  strings DBMS_LDAP.STRING_COLLECTION;
+  bervals DBMS_LDAP.BERVAL_COLLECTION;
+  blobs DBMS_LDAP.BLOB_COLLECTION;
+  n PLS_INTEGER;
+  v VARCHAR2(32767);
+begin strings:=DBMS_LDAP.GET_VALUES(LD=>ld,LDAPENTRY=>msg,ATTR=>'cn'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(3:5~3:22) /test/1/catalog1/DBMS_LDAP/SESSION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(4:6~4:23) /test/1/catalog1/DBMS_LDAP/MESSAGE/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(5:9~5:28) /test/1/catalog1/DBMS_LDAP/MOD_ARRAY/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(6:10~6:37) /test/1/catalog1/DBMS_LDAP/STRING_COLLECTION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(7:10~7:37) /test/1/catalog1/DBMS_LDAP/BERVAL_COLLECTION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(8:8~8:33) /test/1/catalog1/DBMS_LDAP/BLOB_COLLECTION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(11:15~11:35) /test/1/catalog1/DBMS_LDAP/GET_VALUES/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_ldap_signature_combinations_0_010]
+sql:
+-- FUNC-0527 INIT
+declare
+  ld DBMS_LDAP.SESSION;
+  msg DBMS_LDAP.MESSAGE;
+  modptr DBMS_LDAP.MOD_ARRAY;
+  strings DBMS_LDAP.STRING_COLLECTION;
+  bervals DBMS_LDAP.BERVAL_COLLECTION;
+  blobs DBMS_LDAP.BLOB_COLLECTION;
+  n PLS_INTEGER;
+  v VARCHAR2(32767);
+begin ld:=DBMS_LDAP.INIT(HOSTNAME=>'127.0.0.1',PORTNUM=>389); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(3:5~3:22) /test/1/catalog1/DBMS_LDAP/SESSION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(4:6~4:23) /test/1/catalog1/DBMS_LDAP/MESSAGE/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(5:9~5:28) /test/1/catalog1/DBMS_LDAP/MOD_ARRAY/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(6:10~6:37) /test/1/catalog1/DBMS_LDAP/STRING_COLLECTION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(7:10~7:37) /test/1/catalog1/DBMS_LDAP/BERVAL_COLLECTION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(8:8~8:33) /test/1/catalog1/DBMS_LDAP/BLOB_COLLECTION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(11:10~11:24) /test/1/catalog1/DBMS_LDAP/INIT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_ldap_signature_combinations_0_011]
+sql:
+-- FUNC-0528 MODIFY_S
+declare
+  ld DBMS_LDAP.SESSION;
+  msg DBMS_LDAP.MESSAGE;
+  modptr DBMS_LDAP.MOD_ARRAY;
+  strings DBMS_LDAP.STRING_COLLECTION;
+  bervals DBMS_LDAP.BERVAL_COLLECTION;
+  blobs DBMS_LDAP.BLOB_COLLECTION;
+  n PLS_INTEGER;
+  v VARCHAR2(32767);
+begin n:=DBMS_LDAP.MODIFY_S(LD=>ld,ENTRYDN=>'cn=u,dc=example,dc=org',MODPTR=>modptr); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(3:5~3:22) /test/1/catalog1/DBMS_LDAP/SESSION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(4:6~4:23) /test/1/catalog1/DBMS_LDAP/MESSAGE/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(5:9~5:28) /test/1/catalog1/DBMS_LDAP/MOD_ARRAY/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(6:10~6:37) /test/1/catalog1/DBMS_LDAP/STRING_COLLECTION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(7:10~7:37) /test/1/catalog1/DBMS_LDAP/BERVAL_COLLECTION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(8:8~8:33) /test/1/catalog1/DBMS_LDAP/BLOB_COLLECTION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(11:9~11:27) /test/1/catalog1/DBMS_LDAP/MODIFY_S/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_ldap_signature_combinations_0_012]
+sql:
+-- FUNC-0529 MSGFREE
+declare
+  ld DBMS_LDAP.SESSION;
+  msg DBMS_LDAP.MESSAGE;
+  modptr DBMS_LDAP.MOD_ARRAY;
+  strings DBMS_LDAP.STRING_COLLECTION;
+  bervals DBMS_LDAP.BERVAL_COLLECTION;
+  blobs DBMS_LDAP.BLOB_COLLECTION;
+  n PLS_INTEGER;
+  v VARCHAR2(32767);
+begin n:=DBMS_LDAP.MSGFREE(LM=>msg); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(3:5~3:22) /test/1/catalog1/DBMS_LDAP/SESSION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(4:6~4:23) /test/1/catalog1/DBMS_LDAP/MESSAGE/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(5:9~5:28) /test/1/catalog1/DBMS_LDAP/MOD_ARRAY/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(6:10~6:37) /test/1/catalog1/DBMS_LDAP/STRING_COLLECTION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(7:10~7:37) /test/1/catalog1/DBMS_LDAP/BERVAL_COLLECTION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(8:8~8:33) /test/1/catalog1/DBMS_LDAP/BLOB_COLLECTION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(11:9~11:26) /test/1/catalog1/DBMS_LDAP/MSGFREE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_ldap_signature_combinations_0_013]
+sql:
+-- FUNC-0530 NEXT_ENTRY
+declare
+  ld DBMS_LDAP.SESSION;
+  msg DBMS_LDAP.MESSAGE;
+  modptr DBMS_LDAP.MOD_ARRAY;
+  strings DBMS_LDAP.STRING_COLLECTION;
+  bervals DBMS_LDAP.BERVAL_COLLECTION;
+  blobs DBMS_LDAP.BLOB_COLLECTION;
+  n PLS_INTEGER;
+  v VARCHAR2(32767);
+begin msg:=DBMS_LDAP.NEXT_ENTRY(LD=>ld,MSG=>msg); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(3:5~3:22) /test/1/catalog1/DBMS_LDAP/SESSION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(4:6~4:23) /test/1/catalog1/DBMS_LDAP/MESSAGE/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(5:9~5:28) /test/1/catalog1/DBMS_LDAP/MOD_ARRAY/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(6:10~6:37) /test/1/catalog1/DBMS_LDAP/STRING_COLLECTION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(7:10~7:37) /test/1/catalog1/DBMS_LDAP/BERVAL_COLLECTION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(8:8~8:33) /test/1/catalog1/DBMS_LDAP/BLOB_COLLECTION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(11:11~11:31) /test/1/catalog1/DBMS_LDAP/NEXT_ENTRY/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_ldap_signature_combinations_0_014]
+sql:
+-- FUNC-0531 POPULATE_MOD_ARRAY
+declare
+  ld DBMS_LDAP.SESSION;
+  msg DBMS_LDAP.MESSAGE;
+  modptr DBMS_LDAP.MOD_ARRAY;
+  strings DBMS_LDAP.STRING_COLLECTION;
+  bervals DBMS_LDAP.BERVAL_COLLECTION;
+  blobs DBMS_LDAP.BLOB_COLLECTION;
+  n PLS_INTEGER;
+  v VARCHAR2(32767);
+begin DBMS_LDAP.POPULATE_MOD_ARRAY(MODPTR=>modptr,MOD_OP=>DBMS_LDAP.MOD_ADD,MOD_TYPE=>'cn',MODVAL=>strings); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(3:5~3:22) /test/1/catalog1/DBMS_LDAP/SESSION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(4:6~4:23) /test/1/catalog1/DBMS_LDAP/MESSAGE/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(5:9~5:28) /test/1/catalog1/DBMS_LDAP/MOD_ARRAY/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(6:10~6:37) /test/1/catalog1/DBMS_LDAP/STRING_COLLECTION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(7:10~7:37) /test/1/catalog1/DBMS_LDAP/BERVAL_COLLECTION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(8:8~8:33) /test/1/catalog1/DBMS_LDAP/BLOB_COLLECTION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(11:6~11:34) /test/1/catalog1/DBMS_LDAP/POPULATE_MOD_ARRAY/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_ldap_signature_combinations_0_015]
+sql:
+-- FUNC-0532 POPULATE_MOD_ARRAY
+declare
+  ld DBMS_LDAP.SESSION;
+  msg DBMS_LDAP.MESSAGE;
+  modptr DBMS_LDAP.MOD_ARRAY;
+  strings DBMS_LDAP.STRING_COLLECTION;
+  bervals DBMS_LDAP.BERVAL_COLLECTION;
+  blobs DBMS_LDAP.BLOB_COLLECTION;
+  n PLS_INTEGER;
+  v VARCHAR2(32767);
+begin DBMS_LDAP.POPULATE_MOD_ARRAY(MODPTR=>modptr,MOD_OP=>DBMS_LDAP.MOD_ADD,MOD_TYPE=>'jpegPhoto',MODBVAL=>bervals); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(3:5~3:22) /test/1/catalog1/DBMS_LDAP/SESSION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(4:6~4:23) /test/1/catalog1/DBMS_LDAP/MESSAGE/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(5:9~5:28) /test/1/catalog1/DBMS_LDAP/MOD_ARRAY/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(6:10~6:37) /test/1/catalog1/DBMS_LDAP/STRING_COLLECTION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(7:10~7:37) /test/1/catalog1/DBMS_LDAP/BERVAL_COLLECTION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(8:8~8:33) /test/1/catalog1/DBMS_LDAP/BLOB_COLLECTION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(11:6~11:34) /test/1/catalog1/DBMS_LDAP/POPULATE_MOD_ARRAY/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_ldap_signature_combinations_0_016]
+sql:
+-- FUNC-0533 POPULATE_MOD_ARRAY
+declare
+  ld DBMS_LDAP.SESSION;
+  msg DBMS_LDAP.MESSAGE;
+  modptr DBMS_LDAP.MOD_ARRAY;
+  strings DBMS_LDAP.STRING_COLLECTION;
+  bervals DBMS_LDAP.BERVAL_COLLECTION;
+  blobs DBMS_LDAP.BLOB_COLLECTION;
+  n PLS_INTEGER;
+  v VARCHAR2(32767);
+begin DBMS_LDAP.POPULATE_MOD_ARRAY(MODPTR=>modptr,MOD_OP=>DBMS_LDAP.MOD_ADD,MOD_TYPE=>'jpegPhoto',MODBVAL=>blobs); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(3:5~3:22) /test/1/catalog1/DBMS_LDAP/SESSION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(4:6~4:23) /test/1/catalog1/DBMS_LDAP/MESSAGE/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(5:9~5:28) /test/1/catalog1/DBMS_LDAP/MOD_ARRAY/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(6:10~6:37) /test/1/catalog1/DBMS_LDAP/STRING_COLLECTION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(7:10~7:37) /test/1/catalog1/DBMS_LDAP/BERVAL_COLLECTION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(8:8~8:33) /test/1/catalog1/DBMS_LDAP/BLOB_COLLECTION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(11:6~11:34) /test/1/catalog1/DBMS_LDAP/POPULATE_MOD_ARRAY/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_ldap_signature_combinations_0_017]
+sql:
+-- FUNC-0534 RENAME_S
+declare
+  ld DBMS_LDAP.SESSION;
+  msg DBMS_LDAP.MESSAGE;
+  modptr DBMS_LDAP.MOD_ARRAY;
+  strings DBMS_LDAP.STRING_COLLECTION;
+  bervals DBMS_LDAP.BERVAL_COLLECTION;
+  blobs DBMS_LDAP.BLOB_COLLECTION;
+  n PLS_INTEGER;
+  v VARCHAR2(32767);
+begin n:=DBMS_LDAP.RENAME_S(LD=>ld,DN=>'cn=u,dc=example,dc=org',NEWRDN=>'cn=v',NEWPARENT=>'dc=example,dc=org',DELETEOLDRDN=>1,SERVERCTRLS=>NULL,CLIENTCTRLS=>NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(3:5~3:22) /test/1/catalog1/DBMS_LDAP/SESSION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(4:6~4:23) /test/1/catalog1/DBMS_LDAP/MESSAGE/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(5:9~5:28) /test/1/catalog1/DBMS_LDAP/MOD_ARRAY/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(6:10~6:37) /test/1/catalog1/DBMS_LDAP/STRING_COLLECTION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(7:10~7:37) /test/1/catalog1/DBMS_LDAP/BERVAL_COLLECTION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(8:8~8:33) /test/1/catalog1/DBMS_LDAP/BLOB_COLLECTION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(11:9~11:27) /test/1/catalog1/DBMS_LDAP/RENAME_S/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_ldap_signature_combinations_0_018]
+sql:
+-- FUNC-0535 SEARCH_S
+declare
+  ld DBMS_LDAP.SESSION;
+  msg DBMS_LDAP.MESSAGE;
+  modptr DBMS_LDAP.MOD_ARRAY;
+  strings DBMS_LDAP.STRING_COLLECTION;
+  bervals DBMS_LDAP.BERVAL_COLLECTION;
+  blobs DBMS_LDAP.BLOB_COLLECTION;
+  n PLS_INTEGER;
+  v VARCHAR2(32767);
+begin n:=DBMS_LDAP.SEARCH_S(LD=>ld,BASE=>'dc=example,dc=org',SCOPE=>DBMS_LDAP.SCOPE_SUBTREE,FILTER=>'(objectClass=*)',ATTRS=>strings,ATTRONLY=>0,RES=>msg); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(3:5~3:22) /test/1/catalog1/DBMS_LDAP/SESSION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(4:6~4:23) /test/1/catalog1/DBMS_LDAP/MESSAGE/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(5:9~5:28) /test/1/catalog1/DBMS_LDAP/MOD_ARRAY/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(6:10~6:37) /test/1/catalog1/DBMS_LDAP/STRING_COLLECTION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(7:10~7:37) /test/1/catalog1/DBMS_LDAP/BERVAL_COLLECTION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(8:8~8:33) /test/1/catalog1/DBMS_LDAP/BLOB_COLLECTION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(11:9~11:27) /test/1/catalog1/DBMS_LDAP/SEARCH_S/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_ldap_signature_combinations_0_019]
+sql:
+-- FUNC-0536 SIMPLE_BIND_S
+declare
+  ld DBMS_LDAP.SESSION;
+  msg DBMS_LDAP.MESSAGE;
+  modptr DBMS_LDAP.MOD_ARRAY;
+  strings DBMS_LDAP.STRING_COLLECTION;
+  bervals DBMS_LDAP.BERVAL_COLLECTION;
+  blobs DBMS_LDAP.BLOB_COLLECTION;
+  n PLS_INTEGER;
+  v VARCHAR2(32767);
+begin n:=DBMS_LDAP.SIMPLE_BIND_S(LD=>ld,DN=>'cn=admin,dc=example,dc=org',PASSWD=>'secret'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(3:5~3:22) /test/1/catalog1/DBMS_LDAP/SESSION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(4:6~4:23) /test/1/catalog1/DBMS_LDAP/MESSAGE/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(5:9~5:28) /test/1/catalog1/DBMS_LDAP/MOD_ARRAY/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(6:10~6:37) /test/1/catalog1/DBMS_LDAP/STRING_COLLECTION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(7:10~7:37) /test/1/catalog1/DBMS_LDAP/BERVAL_COLLECTION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(8:8~8:33) /test/1/catalog1/DBMS_LDAP/BLOB_COLLECTION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(11:9~11:32) /test/1/catalog1/DBMS_LDAP/SIMPLE_BIND_S/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_ldap_signature_combinations_0_020]
+sql:
+-- FUNC-0537 UNBIND_S
+declare
+  ld DBMS_LDAP.SESSION;
+  msg DBMS_LDAP.MESSAGE;
+  modptr DBMS_LDAP.MOD_ARRAY;
+  strings DBMS_LDAP.STRING_COLLECTION;
+  bervals DBMS_LDAP.BERVAL_COLLECTION;
+  blobs DBMS_LDAP.BLOB_COLLECTION;
+  n PLS_INTEGER;
+  v VARCHAR2(32767);
+begin n:=DBMS_LDAP.UNBIND_S(LD=>ld); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(3:5~3:22) /test/1/catalog1/DBMS_LDAP/SESSION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(4:6~4:23) /test/1/catalog1/DBMS_LDAP/MESSAGE/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(5:9~5:28) /test/1/catalog1/DBMS_LDAP/MOD_ARRAY/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(6:10~6:37) /test/1/catalog1/DBMS_LDAP/STRING_COLLECTION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(7:10~7:37) /test/1/catalog1/DBMS_LDAP/BERVAL_COLLECTION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(8:8~8:33) /test/1/catalog1/DBMS_LDAP/BLOB_COLLECTION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(11:9~11:27) /test/1/catalog1/DBMS_LDAP/UNBIND_S/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_ldap_signature_combinations_0_021]
+sql:
+-- FUNC-0534 RENAME_S minimum optional omission
+declare
+  ld DBMS_LDAP.SESSION;
+  msg DBMS_LDAP.MESSAGE;
+  modptr DBMS_LDAP.MOD_ARRAY;
+  strings DBMS_LDAP.STRING_COLLECTION;
+  bervals DBMS_LDAP.BERVAL_COLLECTION;
+  blobs DBMS_LDAP.BLOB_COLLECTION;
+  n PLS_INTEGER;
+  v VARCHAR2(32767);
+begin n:=DBMS_LDAP.RENAME_S(ld,'cn=u,dc=example,dc=org','cn=v','dc=example,dc=org',1); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(3:5~3:22) /test/1/catalog1/DBMS_LDAP/SESSION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(4:6~4:23) /test/1/catalog1/DBMS_LDAP/MESSAGE/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(5:9~5:28) /test/1/catalog1/DBMS_LDAP/MOD_ARRAY/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(6:10~6:37) /test/1/catalog1/DBMS_LDAP/STRING_COLLECTION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(7:10~7:37) /test/1/catalog1/DBMS_LDAP/BERVAL_COLLECTION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(8:8~8:33) /test/1/catalog1/DBMS_LDAP/BLOB_COLLECTION/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(11:9~11:27) /test/1/catalog1/DBMS_LDAP/RENAME_S/",
+      "action": "CALL"
+    }
+  ]
+}

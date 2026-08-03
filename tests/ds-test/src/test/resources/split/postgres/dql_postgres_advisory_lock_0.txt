@@ -1,0 +1,78 @@
+SELECT pg_advisory_unlock_all();
+SELECT pg_advisory_lock(710001::bigint);
+SELECT pg_try_advisory_lock(710001::bigint) AS reentrant_session_lock;
+SELECT pg_advisory_unlock(710001::bigint) AS unlocked_first_session_lock;
+SELECT pg_advisory_unlock(710001::bigint) AS unlocked_second_session_lock;
+SELECT pg_advisory_lock(71, 1);
+SELECT pg_try_advisory_lock(71, 1) AS reentrant_two_key_session_lock;
+SELECT pg_advisory_unlock(71, 1) AS unlocked_first_two_key_lock;
+SELECT pg_advisory_unlock(71, 1) AS unlocked_second_two_key_lock;
+SELECT pg_advisory_lock_shared(720001::bigint);
+SELECT pg_try_advisory_lock_shared(720001::bigint) AS reentrant_shared_session_lock;
+SELECT pg_advisory_unlock_shared(720001::bigint) AS unlocked_first_shared_lock;
+SELECT pg_advisory_unlock_shared(720001::bigint) AS unlocked_second_shared_lock;
+SELECT pg_advisory_lock_shared(72, 1);
+SELECT pg_try_advisory_lock_shared(72, 1) AS reentrant_two_key_shared_lock;
+SELECT pg_advisory_unlock_shared(72, 1) AS unlocked_first_two_key_shared_lock;
+SELECT pg_advisory_unlock_shared(72, 1) AS unlocked_second_two_key_shared_lock;
+SELECT pg_try_advisory_xact_lock(730001::bigint) AS got_xact_lock;
+SELECT pg_try_advisory_xact_lock(73, 1) AS got_two_key_xact_lock;
+SELECT pg_try_advisory_xact_lock_shared(740001::bigint) AS got_shared_xact_lock;
+SELECT pg_try_advisory_xact_lock_shared(74, 1) AS got_two_key_shared_xact_lock;
+SELECT pg_advisory_xact_lock(750001::bigint);
+SELECT pg_advisory_xact_lock(75, 1);
+SELECT pg_advisory_xact_lock_shared(760001::bigint);
+SELECT pg_advisory_xact_lock_shared(76, 1);
+SELECT pg_advisory_unlock_all();
+------------------------------------------------------------------------------------------
+[SELECT|SESSION_LOCK] SELECT pg_advisory_unlock_all();
+----------
+[SELECT|SESSION_LOCK] SELECT pg_advisory_lock(710001::bigint);
+----------
+[SELECT|SESSION_LOCK] SELECT pg_try_advisory_lock(710001::bigint) AS reentrant_session_lock;
+----------
+[SELECT|SESSION_LOCK] SELECT pg_advisory_unlock(710001::bigint) AS unlocked_first_session_lock;
+----------
+[SELECT|SESSION_LOCK] SELECT pg_advisory_unlock(710001::bigint) AS unlocked_second_session_lock;
+----------
+[SELECT|SESSION_LOCK] SELECT pg_advisory_lock(71, 1);
+----------
+[SELECT|SESSION_LOCK] SELECT pg_try_advisory_lock(71, 1) AS reentrant_two_key_session_lock;
+----------
+[SELECT|SESSION_LOCK] SELECT pg_advisory_unlock(71, 1) AS unlocked_first_two_key_lock;
+----------
+[SELECT|SESSION_LOCK] SELECT pg_advisory_unlock(71, 1) AS unlocked_second_two_key_lock;
+----------
+[SELECT|SESSION_LOCK] SELECT pg_advisory_lock_shared(720001::bigint);
+----------
+[SELECT|SESSION_LOCK] SELECT pg_try_advisory_lock_shared(720001::bigint) AS reentrant_shared_session_lock;
+----------
+[SELECT|SESSION_LOCK] SELECT pg_advisory_unlock_shared(720001::bigint) AS unlocked_first_shared_lock;
+----------
+[SELECT|SESSION_LOCK] SELECT pg_advisory_unlock_shared(720001::bigint) AS unlocked_second_shared_lock;
+----------
+[SELECT|SESSION_LOCK] SELECT pg_advisory_lock_shared(72, 1);
+----------
+[SELECT|SESSION_LOCK] SELECT pg_try_advisory_lock_shared(72, 1) AS reentrant_two_key_shared_lock;
+----------
+[SELECT|SESSION_LOCK] SELECT pg_advisory_unlock_shared(72, 1) AS unlocked_first_two_key_shared_lock;
+----------
+[SELECT|SESSION_LOCK] SELECT pg_advisory_unlock_shared(72, 1) AS unlocked_second_two_key_shared_lock;
+----------
+[SELECT|SESSION_LOCK] SELECT pg_try_advisory_xact_lock(730001::bigint) AS got_xact_lock;
+----------
+[SELECT|SESSION_LOCK] SELECT pg_try_advisory_xact_lock(73, 1) AS got_two_key_xact_lock;
+----------
+[SELECT|SESSION_LOCK] SELECT pg_try_advisory_xact_lock_shared(740001::bigint) AS got_shared_xact_lock;
+----------
+[SELECT|SESSION_LOCK] SELECT pg_try_advisory_xact_lock_shared(74, 1) AS got_two_key_shared_xact_lock;
+----------
+[SELECT|SESSION_LOCK] SELECT pg_advisory_xact_lock(750001::bigint);
+----------
+[SELECT|SESSION_LOCK] SELECT pg_advisory_xact_lock(75, 1);
+----------
+[SELECT|SESSION_LOCK] SELECT pg_advisory_xact_lock_shared(760001::bigint);
+----------
+[SELECT|SESSION_LOCK] SELECT pg_advisory_xact_lock_shared(76, 1);
+----------
+[SELECT|SESSION_LOCK] SELECT pg_advisory_unlock_all();

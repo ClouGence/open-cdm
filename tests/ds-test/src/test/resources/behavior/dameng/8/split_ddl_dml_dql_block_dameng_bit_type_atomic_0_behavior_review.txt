@@ -1,0 +1,585 @@
+[split_ddl_dml_dql_block_dameng_bit_type_atomic_0_001_behavior_review]
+sql:
+create table app.bit_t(
+  id int primary key,flag bit default 0 not null,flag_null bit null,
+  constraint ck_bit check(flag in(0,1)),constraint uk_bit unique(flag_null));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:22) /test/1/catalog1/app/bit_t/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_bit_type_atomic_0_002_behavior_review]
+sql:
+comment on column app.bit_t.flag is '0 false, nonzero true';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "COMMENT_COLUMN": [
+    {
+      "subject": "Table(1:18~1:27) /test/1/catalog1/app/bit_t/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_bit_type_atomic_0_003_behavior_review]
+sql:
+create index app.idx_bit on app.bit_t(flag,id);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:24) /test/1/catalog1/app/idx_bit/",
+      "action" : "CREATE",
+      "target" : "Table(1:28~1:37) /test/1/catalog1/app/bit_t/"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_bit_type_atomic_0_004_behavior_review]
+sql:
+alter table app.bit_t add flag_alter bit default 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_COLUMN": [
+    {
+      "subject": "Table(1:12~1:21) /test/1/catalog1/app/bit_t/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_bit_type_atomic_0_005_behavior_review]
+sql:
+insert into app.bit_t(id,flag) values(0,0);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:21) /test/1/catalog1/app/bit_t/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_bit_type_atomic_0_006_behavior_review]
+sql:
+insert into app.bit_t(id,flag) values(1,1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:21) /test/1/catalog1/app/bit_t/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_bit_type_atomic_0_007_behavior_review]
+sql:
+insert into app.bit_t(id,flag) values(2,-1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:21) /test/1/catalog1/app/bit_t/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_bit_type_atomic_0_008_behavior_review]
+sql:
+insert into app.bit_t(id,flag) values(3,2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:21) /test/1/catalog1/app/bit_t/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_bit_type_atomic_0_009_behavior_review]
+sql:
+insert into app.bit_t(id,flag) values(4,0.0);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:21) /test/1/catalog1/app/bit_t/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_bit_type_atomic_0_010_behavior_review]
+sql:
+insert into app.bit_t(id,flag) values(5,0.1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:21) /test/1/catalog1/app/bit_t/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_bit_type_atomic_0_011_behavior_review]
+sql:
+insert into app.bit_t(id,flag) values(6,'000');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:21) /test/1/catalog1/app/bit_t/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_bit_type_atomic_0_012_behavior_review]
+sql:
+insert into app.bit_t(id,flag) values(7,'10');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:21) /test/1/catalog1/app/bit_t/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_bit_type_atomic_0_013_behavior_review]
+sql:
+insert into app.bit_t(id) values(8);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:21) /test/1/catalog1/app/bit_t/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_bit_type_atomic_0_014_behavior_review]
+sql:
+update app.bit_t set flag=case when flag=0 then 1 else 0 end,
+  flag_alter=case when flag_alter=0 then 1 else 0 end where id in(0,1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:16) /test/1/catalog1/app/bit_t/",
+      "action" : "UPDATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_bit_type_atomic_0_015_behavior_review]
+sql:
+select id,flag,flag_null,flag_alter,cast(flag as int)
+  from app.bit_t order by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:7~2:16) /test/1/catalog1/app/bit_t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_bit_type_atomic_0_016_behavior_review]
+sql:
+select sum(case when flag=0 then 1 else 0 end),
+  sum(case when flag=1 then 1 else 0 end),min(flag),max(flag),
+  sum(cast(flag as int)),avg(cast(flag as int)) from app.bit_t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/sum/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(2:2~2:5) /test/1/catalog1/schema1/sum/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(2:42~2:45) /test/1/catalog1/schema1/min/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(2:52~2:55) /test/1/catalog1/schema1/max/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(3:2~3:5) /test/1/catalog1/schema1/sum/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(3:25~3:28) /test/1/catalog1/schema1/avg/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(3:53~3:62) /test/1/catalog1/app/bit_t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_bit_type_atomic_0_017_behavior_review]
+sql:
+select id from app.bit_t index idx_bit where flag=1 order by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:15~1:24) /test/1/catalog1/app/bit_t/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Index(1:31~1:38) /test/1/catalog1/app/idx_bit/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_bit_type_atomic_0_018_behavior_review]
+sql:
+select bitand(cast(flag as int),cast(flag_alter as int)),
+  mod(cast(flag as int),2),abs(cast(flag as int)-1),
+  cast(flag as varchar(5)),cast(flag as boolean) from app.bit_t order by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/bitand/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(2:2~2:5) /test/1/catalog1/schema1/mod/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(2:27~2:30) /test/1/catalog1/schema1/abs/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(3:54~3:63) /test/1/catalog1/app/bit_t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_bit_type_atomic_0_019_behavior_review]
+sql:
+select data_type,data_length,data_precision,data_scale
+  from user_tab_columns where table_name='BIT_T' order by column_id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(2:7~2:23) /test/1/catalog1/schema1/user_tab_columns/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_bit_type_atomic_0_020_behavior_review]
+sql:
+create view app.bit_v as
+  select id,flag,flag_alter from app.bit_t where flag=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:21) /test/1/catalog1/app/bit_v/",
+      "action" : "CREATE",
+      "target" : "Table(2:33~2:42) /test/1/catalog1/app/bit_t/"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_bit_type_atomic_0_021_behavior_review]
+sql:
+select id,case when flag then 'T' else 'F' end
+  from app.bit_v order by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:7~2:16) /test/1/catalog1/app/bit_v/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_bit_type_atomic_0_022_behavior_review]
+sql:
+update app.bit_v set flag_alter=0 where id=2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:16) /test/1/catalog1/app/bit_v/",
+      "action" : "UPDATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_bit_type_atomic_0_023_behavior_review]
+sql:
+create function app.bit_f(p bit) return bit as
+begin return p;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:25) /test/1/catalog1/app/bit_f/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_bit_type_atomic_0_024_behavior_review]
+sql:
+select app.bit_f(0),app.bit_f(1),app.bit_f(-9223372036854775808),
+  app.bit_f(9223372036854775807),app.bit_f(null) from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/app/bit_f/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:20~1:29) /test/1/catalog1/app/bit_f/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:33~1:42) /test/1/catalog1/app/bit_f/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2~2:11) /test/1/catalog1/app/bit_f/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:33~2:42) /test/1/catalog1/app/bit_f/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:54~2:58) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_bit_type_atomic_0_025_behavior_review]
+sql:
+insert into app.bit_t(id,flag) values(100,'1e1');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:21) /test/1/catalog1/app/bit_t/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_bit_type_atomic_0_026_behavior_review]
+sql:
+insert into app.bit_t(id,flag) values(100,'3.14');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:21) /test/1/catalog1/app/bit_t/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_bit_type_atomic_0_027_behavior_review]
+sql:
+insert into app.bit_t(id,flag) values(100,'2a5');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:21) /test/1/catalog1/app/bit_t/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_bit_type_atomic_0_028_behavior_review]
+sql:
+create table app.bad_bit_partition(id bit,v int)
+  partition by list(id)(partition p0 values(0),partition p1 values(1));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:34) /test/1/catalog1/app/bad_bit_partition/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_bit_type_atomic_0_029_behavior_review]
+sql:
+create table app.bad_bit_arg_1(c bit(1));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/app/bad_bit_arg_1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_bit_type_atomic_0_030_behavior_review]
+sql:
+create table app.bad_bit_arg_0(c bit(0));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/app/bad_bit_arg_0/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_bit_type_atomic_0_031_behavior_review]
+sql:
+insert into app.bit_t(id,flag) values(101,null);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:21) /test/1/catalog1/app/bit_t/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_bit_type_atomic_0_032_behavior_review]
+sql:
+drop view app.bit_v;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "View(1:10~1:19) /test/1/catalog1/app/bit_v/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_bit_type_atomic_0_033_behavior_review]
+sql:
+drop function app.bit_f;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Function(1:14~1:23) /test/1/catalog1/app/bit_f/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_bit_type_atomic_0_034_behavior_review]
+sql:
+drop table app.bit_t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:20) /test/1/catalog1/app/bit_t/",
+      "action" : "DROP"
+    }
+  ]
+}

@@ -1,0 +1,87 @@
+[split_block_dameng_performance_packages_0_036]
+sql:
+declare task_name varchar(128); begin task_name := dbms_sqltune.create_tuning_task(sql_text=>'select id, amount from CODEX_DM8_PERF_STATS where category=''C3'' and amount>100', user_name=>'SYSDBA', scope=>'COMPREHENSIVE', time_limit=>30, task_name=>'CODEX_TUNE_MAIN', description=>'Codex DM8 parser validation'); insert into CODEX_DM8_PERF_CTL values('TUNE_MAIN', null, task_name); commit; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(1:325~1:343) /test/1/catalog1/schema1/CODEX_DM8_PERF_CTL/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:51~1:82) /test/1/catalog1/dbms_sqltune/create_tuning_task/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_performance_packages_0_037]
+sql:
+declare execution_name varchar(128); begin execution_name := dbms_sqltune.execute_tuning_task(task_name=>'CODEX_TUNE_MAIN', execution_name=>'CODEX_EXEC_MAIN'); update CODEX_DM8_PERF_CTL set text_value=execution_name where label='TUNE_MAIN'; commit; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(1:167~1:185) /test/1/catalog1/schema1/CODEX_DM8_PERF_CTL/",
+      "action": "UPDATE"
+    },
+    {
+      "subject": "Function(1:61~1:93) /test/1/catalog1/dbms_sqltune/execute_tuning_task/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_performance_packages_0_038]
+sql:
+declare task_name varchar(128); begin task_name := dbms_sqltune.create_tuning_task(sql_text=>'select count(*) from CODEX_DM8_PERF_STATS where amount between 10 and 50', time_limit=>30, task_name=>'CODEX_TUNE_PROC'); dbms_sqltune.execute_tuning_task(task_name=>'CODEX_TUNE_PROC', execution_name=>'CODEX_EXEC_PROC'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:216~1:248) /test/1/catalog1/dbms_sqltune/execute_tuning_task/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:51~1:82) /test/1/catalog1/dbms_sqltune/create_tuning_task/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_performance_packages_0_039]
+sql:
+begin dbms_sqltune.drop_tuning_task('CODEX_TUNE_PROC'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:6~1:35) /test/1/catalog1/dbms_sqltune/drop_tuning_task/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_performance_packages_0_040]
+sql:
+begin dbms_sqltune.drop_tuning_task('CODEX_TUNE_MAIN'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:6~1:35) /test/1/catalog1/dbms_sqltune/drop_tuning_task/",
+      "action": "CALL"
+    }
+  ]
+}
+

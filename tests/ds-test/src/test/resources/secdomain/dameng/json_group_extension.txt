@@ -1,0 +1,57 @@
+[rollup]
+sql:
+select g,h,sum(id) total from app.group_t group by rollup(g,h)
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"group_t"}
+  ]
+}
+----------
+[grouping_sets]
+sql:
+select grouping(g),grouping_id(g,h),group_id(),g,h,count(*) from app.group_t group by grouping sets((g,h),(g,h),(g),())
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"group_t"}
+  ]
+}
+----------
+[extension_join]
+sql:
+select a.g,count(*) from app.group_t a join app.group_other b on a.id=b.id group by rollup(a.g)
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"group_t"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"group_other"}
+  ]
+}
+----------
+[extension_nested_correlated]
+sql:
+select o.id from app.group_t o where exists(select 1 from app.group_other i where exists(select count(*) from app.group_leaf j where j.g=i.g group by grouping sets((j.h),())))
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"group_t"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"group_other"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"group_leaf"}
+  ]
+}
+----------
+[extension_with_function]
+sql:
+select o.id from app.group_t o where exists(
+  with function f(c int) return int as begin return c; end;
+  select count(*) from app.group_other i where i.g=o.g group by rollup(f(i.h))
+)
+/
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"group_t"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"group_other"}
+  ]
+}

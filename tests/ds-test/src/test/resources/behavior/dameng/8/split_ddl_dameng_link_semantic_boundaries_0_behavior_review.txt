@@ -1,0 +1,214 @@
+[split_ddl_dameng_link_semantic_boundaries_0_001_behavior_review]
+sql:
+create link "LBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB" connect 'DPI' with U identified by P using 'x';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:12~1:143) /test/1/catalog1/schema1/LBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_semantic_boundaries_0_002_behavior_review]
+sql:
+create link CODEX_DM8_LINK_ATTR_DUP connect 'DPI' with U identified by P using 'x';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:12~1:35) /test/1/catalog1/schema1/CODEX_DM8_LINK_ATTR_DUP/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_semantic_boundaries_0_003_behavior_review]
+sql:
+drop link CODEX_DM8_LINK_ATTR_MISSING;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:10~1:37) /test/1/catalog1/schema1/CODEX_DM8_LINK_ATTR_MISSING/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_semantic_boundaries_0_004_behavior_review]
+sql:
+create link CODEX_DM8_LINK_BAD_TYPE connect 'POSTGRES' with U identified by P using 'x';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:12~1:35) /test/1/catalog1/schema1/CODEX_DM8_LINK_BAD_TYPE/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_semantic_boundaries_0_005_behavior_review]
+sql:
+create link CODEX_DM8_LINK_BAD_LOCAL connect 'ODBC' with U identified by P using 'x' option(LOCAL_CODE='LATIN1');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:12~1:36) /test/1/catalog1/schema1/CODEX_DM8_LINK_BAD_LOCAL/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_semantic_boundaries_0_006_behavior_review]
+sql:
+create link CODEX_DM8_LINK_BAD_CONVERT connect 'ODBC' with U identified by P using 'x' option(CONVERT_MODE=2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:12~1:38) /test/1/catalog1/schema1/CODEX_DM8_LINK_BAD_CONVERT/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_semantic_boundaries_0_007_behavior_review]
+sql:
+create link CODEX_DM8_LINK_BAD_BYTES_ZERO connect 'ODBC' with U identified by P using 'x' option(BYTES_IN_CHAR=0);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:12~1:41) /test/1/catalog1/schema1/CODEX_DM8_LINK_BAD_BYTES_ZERO/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_semantic_boundaries_0_008_behavior_review]
+sql:
+create link CODEX_DM8_LINK_BAD_BYTES_HIGH connect 'ODBC' with U identified by P using 'x' option(BYTES_IN_CHAR=2147483648);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:12~1:41) /test/1/catalog1/schema1/CODEX_DM8_LINK_BAD_BYTES_HIGH/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_semantic_boundaries_0_009_behavior_review]
+sql:
+create link CODEX_DM8_LINK_BAD_DBTYPE connect 'ODBC' with U identified by P using 'x' option(DB_TYPE='POSTGRES');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:12~1:37) /test/1/catalog1/schema1/CODEX_DM8_LINK_BAD_DBTYPE/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_semantic_boundaries_0_010_behavior_review]
+sql:
+create link CODEX_DM8_LINK_BAD_DATA connect 'ODBC' with U identified by P using 'x' option(DATA_CHARSET='LATIN1');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:12~1:35) /test/1/catalog1/schema1/CODEX_DM8_LINK_BAD_DATA/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_semantic_boundaries_0_011_behavior_review]
+sql:
+create link CODEX_DM8_LINK_BAD_CASE connect 'ODBC' with U identified by P using 'x' option(CASE_OPT='TITLE');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:12~1:35) /test/1/catalog1/schema1/CODEX_DM8_LINK_BAD_CASE/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_semantic_boundaries_0_012_behavior_review]
+sql:
+create link CODEX_DM8_LINK_BAD_ROLLBACK connect 'DPI' with U identified by P using 'x' option(ROLLBACK_OPTION=2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:12~1:39) /test/1/catalog1/schema1/CODEX_DM8_LINK_BAD_ROLLBACK/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_semantic_boundaries_0_013_behavior_review]
+sql:
+create link CODEX_DM8_LINK_BAD_GWDSN connect 'GATEWAY' with U identified by P using 'x' option(GWDSN='CODEX_GW');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:12~1:36) /test/1/catalog1/schema1/CODEX_DM8_LINK_BAD_GWDSN/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_semantic_boundaries_0_014_behavior_review]
+sql:
+create schema CODEX_DM8_LINK_PUBLIC_SCHEMA_20260722 authorization SYSDBA create public link CODEX_DM8_LINK_NESTED_PUBLIC connect 'DPI' with U identified by P using 'x';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SCHEMA": [
+    {
+      "subject": "Schema(1:14~1:51) /test/1/catalog1/CODEX_DM8_LINK_PUBLIC_SCHEMA_20260722/",
+      "action" : "CREATE",
+      "target" : "User(1:66~1:72) /test/1/SYSDBA/"
+    },
+    {
+      "subject": "Link(1:92~1:120) /test/1/CODEX_DM8_LINK_NESTED_PUBLIC/",
+      "action" : "CREATE"
+    }
+  ]
+}

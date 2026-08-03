@@ -1,0 +1,90 @@
+[rowid_bit_lob_ddl]
+sql:
+create table app.codex_dm8_type_rowid(id int primary key,rid rowid); create index idx_codex_dm8_type_rowid on app.codex_dm8_type_rowid(rid); create table app.codex_dm8_type_bit(id int primary key,flag bit); create table app.codex_dm8_type_text(id int primary key,v text); create table app.codex_dm8_type_long(id int primary key,v long); create table app.codex_dm8_type_longvarchar(id int primary key,v longvarchar); create table app.codex_dm8_type_image(id int primary key,v image); create table app.codex_dm8_type_longvarbinary(id int primary key,v longvarbinary); create table app.codex_dm8_type_blob(id int primary key,v blob); create table app.codex_dm8_type_clob(id int primary key,v clob); create directory codex_dm8_bfile_dir as '/opt/dmdbms/data/DAMENG'; create table app.codex_dm8_type_bfile(id int primary key,v bfile); create table app.codex_dm8_bad_text(v text(1)); create table app.codex_dm8_bad_long(v long(1)); create table app.codex_dm8_bad_longvarchar(v longvarchar(1)); create table app.codex_dm8_bad_image(v image(1)); create table app.codex_dm8_bad_longvarbinary(v longvarbinary(1)); create table app.codex_dm8_bad_blob(v blob(1)); create table app.codex_dm8_bad_clob(v clob(1));
+expect:
+{
+  "contains":[
+    {"class":"RdbTableDomain","sqlType":"CREATE_TABLE","auditKind":"CREATE","schema":"app","table":"codex_dm8_type_rowid"},
+    {"class":"RdbIndexDomain","sqlType":"ADD_INDEX","auditKind":"CREATE","schema":"app","name":"idx_codex_dm8_type_rowid","tableSchema":"app","tableName":"codex_dm8_type_rowid"},
+    {"class":"RdbTableDomain","sqlType":"CREATE_TABLE","auditKind":"CREATE","schema":"app","table":"codex_dm8_type_bit"},
+    {"class":"RdbTableDomain","sqlType":"CREATE_TABLE","auditKind":"CREATE","schema":"app","table":"codex_dm8_type_text"},
+    {"class":"RdbTableDomain","sqlType":"CREATE_TABLE","auditKind":"CREATE","schema":"app","table":"codex_dm8_type_long"},
+    {"class":"RdbTableDomain","sqlType":"CREATE_TABLE","auditKind":"CREATE","schema":"app","table":"codex_dm8_type_longvarchar"},
+    {"class":"RdbTableDomain","sqlType":"CREATE_TABLE","auditKind":"CREATE","schema":"app","table":"codex_dm8_type_image"},
+    {"class":"RdbTableDomain","sqlType":"CREATE_TABLE","auditKind":"CREATE","schema":"app","table":"codex_dm8_type_longvarbinary"},
+    {"class":"RdbTableDomain","sqlType":"CREATE_TABLE","auditKind":"CREATE","schema":"app","table":"codex_dm8_type_blob"},
+    {"class":"RdbTableDomain","sqlType":"CREATE_TABLE","auditKind":"CREATE","schema":"app","table":"codex_dm8_type_clob"},
+    {"class":"RdbConfigDomain","sqlType":"CONFIG_WRITE","auditKind":"OTHER","configKey":"codex_dm8_bfile_dir"},
+    {"class":"RdbTableDomain","sqlType":"CREATE_TABLE","auditKind":"CREATE","schema":"app","table":"codex_dm8_type_bfile"},
+    {"class":"RdbTableDomain","sqlType":"CREATE_TABLE","auditKind":"CREATE","schema":"app","table":"codex_dm8_bad_text"},
+    {"class":"RdbTableDomain","sqlType":"CREATE_TABLE","auditKind":"CREATE","schema":"app","table":"codex_dm8_bad_long"},
+    {"class":"RdbTableDomain","sqlType":"CREATE_TABLE","auditKind":"CREATE","schema":"app","table":"codex_dm8_bad_longvarchar"},
+    {"class":"RdbTableDomain","sqlType":"CREATE_TABLE","auditKind":"CREATE","schema":"app","table":"codex_dm8_bad_image"},
+    {"class":"RdbTableDomain","sqlType":"CREATE_TABLE","auditKind":"CREATE","schema":"app","table":"codex_dm8_bad_longvarbinary"},
+    {"class":"RdbTableDomain","sqlType":"CREATE_TABLE","auditKind":"CREATE","schema":"app","table":"codex_dm8_bad_blob"},
+    {"class":"RdbTableDomain","sqlType":"CREATE_TABLE","auditKind":"CREATE","schema":"app","table":"codex_dm8_bad_clob"}
+  ]
+}
+----------
+[rowid_bit_lob_dml]
+sql:
+insert into app.codex_dm8_type_rowid values(1,sf_build_rowid(1,2,50)); insert into app.codex_dm8_type_bit values(1,1); insert into app.codex_dm8_type_text values(1,'TEXT'); insert into app.codex_dm8_type_long values(1,'LONG'); insert into app.codex_dm8_type_longvarchar values(1,'LONGVARCHAR'); insert into app.codex_dm8_type_image values(1,0x49); insert into app.codex_dm8_type_longvarbinary values(1,0x4C); insert into app.codex_dm8_type_blob values(1,to_blob(0x42)); insert into app.codex_dm8_type_clob values(1,cast('C' as clob)); insert into app.codex_dm8_type_bfile values(1,bfilename('CODEX_DM8_BFILE_DIR','dm.ini')); insert into app.codex_dm8_bad_text values('AB'); insert into app.codex_dm8_bad_long values('AB'); insert into app.codex_dm8_bad_longvarchar values('AB'); insert into app.codex_dm8_bad_image values(0x4142); insert into app.codex_dm8_bad_longvarbinary values(0x4142); insert into app.codex_dm8_bad_blob values(to_blob(0x4142)); insert into app.codex_dm8_bad_clob values(cast('AB' as clob));
+expect:
+{
+  "contains":[
+    {"class":"RdbInsertDomain","sqlType":"INSERT","auditKind":"DML","schema":"app","table":"codex_dm8_type_rowid"},
+    {"class":"RdbInsertDomain","sqlType":"INSERT","auditKind":"DML","schema":"app","table":"codex_dm8_type_bit"},
+    {"class":"RdbInsertDomain","sqlType":"INSERT","auditKind":"DML","schema":"app","table":"codex_dm8_type_text"},
+    {"class":"RdbInsertDomain","sqlType":"INSERT","auditKind":"DML","schema":"app","table":"codex_dm8_type_long"},
+    {"class":"RdbInsertDomain","sqlType":"INSERT","auditKind":"DML","schema":"app","table":"codex_dm8_type_longvarchar"},
+    {"class":"RdbInsertDomain","sqlType":"INSERT","auditKind":"DML","schema":"app","table":"codex_dm8_type_image"},
+    {"class":"RdbInsertDomain","sqlType":"INSERT","auditKind":"DML","schema":"app","table":"codex_dm8_type_longvarbinary"},
+    {"class":"RdbInsertDomain","sqlType":"INSERT","auditKind":"DML","schema":"app","table":"codex_dm8_type_blob"},
+    {"class":"RdbInsertDomain","sqlType":"INSERT","auditKind":"DML","schema":"app","table":"codex_dm8_type_clob"},
+    {"class":"RdbInsertDomain","sqlType":"INSERT","auditKind":"DML","schema":"app","table":"codex_dm8_type_bfile"},
+    {"class":"RdbInsertDomain","sqlType":"INSERT","auditKind":"DML","schema":"app","table":"codex_dm8_bad_text"},
+    {"class":"RdbInsertDomain","sqlType":"INSERT","auditKind":"DML","schema":"app","table":"codex_dm8_bad_long"},
+    {"class":"RdbInsertDomain","sqlType":"INSERT","auditKind":"DML","schema":"app","table":"codex_dm8_bad_longvarchar"},
+    {"class":"RdbInsertDomain","sqlType":"INSERT","auditKind":"DML","schema":"app","table":"codex_dm8_bad_image"},
+    {"class":"RdbInsertDomain","sqlType":"INSERT","auditKind":"DML","schema":"app","table":"codex_dm8_bad_longvarbinary"},
+    {"class":"RdbInsertDomain","sqlType":"INSERT","auditKind":"DML","schema":"app","table":"codex_dm8_bad_blob"},
+    {"class":"RdbInsertDomain","sqlType":"INSERT","auditKind":"DML","schema":"app","table":"codex_dm8_bad_clob"}
+  ]
+}
+----------
+[rowid_bit_lob_queries]
+sql:
+select id,rid,rowid from app.codex_dm8_type_rowid; select id,flag from app.codex_dm8_type_bit; select length(v) from app.codex_dm8_type_text; select length(v) from app.codex_dm8_type_long; select length(v) from app.codex_dm8_type_longvarchar; select lengthb(v) from app.codex_dm8_type_image; select lengthb(v) from app.codex_dm8_type_longvarbinary; select dbms_lob.getlength(v) from app.codex_dm8_type_blob; select dbms_lob.getlength(v) from app.codex_dm8_type_clob; select dbms_lob.fileexists(v) from app.codex_dm8_type_bfile; select length(v) from app.codex_dm8_bad_text; select length(v) from app.codex_dm8_bad_long; select length(v) from app.codex_dm8_bad_longvarchar; select lengthb(v) from app.codex_dm8_bad_image; select lengthb(v) from app.codex_dm8_bad_longvarbinary; select dbms_lob.getlength(v) from app.codex_dm8_bad_blob; select dbms_lob.getlength(v) from app.codex_dm8_bad_clob;
+expect:
+{
+  "contains":[
+    {"class":"RdbTableDomain","sqlType":"SELECT","auditKind":"QUERY","schema":"app","table":"codex_dm8_type_rowid"},
+    {"class":"RdbTableDomain","sqlType":"SELECT","auditKind":"QUERY","schema":"app","table":"codex_dm8_type_bit"},
+    {"class":"RdbTableDomain","sqlType":"SELECT","auditKind":"QUERY","schema":"app","table":"codex_dm8_type_text"},
+    {"class":"RdbTableDomain","sqlType":"SELECT","auditKind":"QUERY","schema":"app","table":"codex_dm8_type_long"},
+    {"class":"RdbTableDomain","sqlType":"SELECT","auditKind":"QUERY","schema":"app","table":"codex_dm8_type_longvarchar"},
+    {"class":"RdbTableDomain","sqlType":"SELECT","auditKind":"QUERY","schema":"app","table":"codex_dm8_type_image"},
+    {"class":"RdbTableDomain","sqlType":"SELECT","auditKind":"QUERY","schema":"app","table":"codex_dm8_type_longvarbinary"},
+    {"class":"RdbTableDomain","sqlType":"SELECT","auditKind":"QUERY","schema":"app","table":"codex_dm8_type_blob"},
+    {"class":"RdbTableDomain","sqlType":"SELECT","auditKind":"QUERY","schema":"app","table":"codex_dm8_type_clob"},
+    {"class":"RdbTableDomain","sqlType":"SELECT","auditKind":"QUERY","schema":"app","table":"codex_dm8_type_bfile"},
+    {"class":"RdbTableDomain","sqlType":"SELECT","auditKind":"QUERY","schema":"app","table":"codex_dm8_bad_text"},
+    {"class":"RdbTableDomain","sqlType":"SELECT","auditKind":"QUERY","schema":"app","table":"codex_dm8_bad_long"},
+    {"class":"RdbTableDomain","sqlType":"SELECT","auditKind":"QUERY","schema":"app","table":"codex_dm8_bad_longvarchar"},
+    {"class":"RdbTableDomain","sqlType":"SELECT","auditKind":"QUERY","schema":"app","table":"codex_dm8_bad_image"},
+    {"class":"RdbTableDomain","sqlType":"SELECT","auditKind":"QUERY","schema":"app","table":"codex_dm8_bad_longvarbinary"},
+    {"class":"RdbTableDomain","sqlType":"SELECT","auditKind":"QUERY","schema":"app","table":"codex_dm8_bad_blob"},
+    {"class":"RdbTableDomain","sqlType":"SELECT","auditKind":"QUERY","schema":"app","table":"codex_dm8_bad_clob"}
+  ]
+}
+----------
+[rowid_bit_lob_block]
+sql:
+declare f bfile; d varchar(128); n varchar(256); begin select v into f from app.codex_dm8_type_bfile where id=1; dbms_lob.filegetname(f,d,n); end;
+/
+expect:
+{
+  "contains":[
+    {"class":"RdbTableDomain","sqlType":"SELECT","auditKind":"QUERY","schema":"app","table":"codex_dm8_type_bfile"}
+  ]
+}

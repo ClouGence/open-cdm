@@ -1,0 +1,515 @@
+[OraRuleColumnAlertNeedDefaultTestFamily#columnNeedDefault_1#001]
+rule: _rules/column/column-alter-need-default.rule
+expect: true
+vars:
+{}
+sql:
+alter table test.abc modify name varchar(25);
+----------
+[OraRuleColumnAlertNeedDefaultTestFamily#columnNeedDefault_1#002]
+rule: _rules/column/column-alter-need-default.rule
+expect: true
+vars:
+{}
+sql:
+alter table test.abc modify name varchar(25) default 'aaa';
+----------
+[OraRuleColumnAllowDropTestFamily#dropColumn_1#001]
+rule: _rules/column/column-allow-drop.rule
+expect: true
+vars:
+  allow: true
+sql:
+alter table test.abc drop column id;
+----------
+[OraRuleColumnAllowDropTestFamily#dropColumn_2#001]
+rule: _rules/column/column-allow-drop.rule
+expect: false
+vars:
+  allow: false
+sql:
+alter table test.abc drop column id;
+----------
+[OraRuleColumnCreateNeedDefaultTestFamily#columnNeedDefault_1#001]
+rule: _rules/column/column-create-need-default.rule
+expect: true
+vars:
+{}
+sql:
+create table test.abc_test(id int(4) default 1)
+----------
+[OraRuleColumnCreateNeedDefaultTestFamily#columnNeedDefault_1#002]
+rule: _rules/column/column-create-need-default.rule
+expect: true
+vars:
+{}
+sql:
+alter table test.abc add name varchar(25) default 'aa';
+----------
+[OraRuleColumnCreateNeedDefaultTestFamily#columnNeedDefault_1#003]
+rule: _rules/column/column-create-need-default.rule
+expect: true
+vars:
+{}
+sql:
+alter table test.abc add name varchar(25) default '';
+----------
+[OraRuleColumnCreateNeedDefaultTestFamily#columnNeedDefault_2#001]
+rule: _rules/column/column-create-need-default.rule
+expect: false
+vars:
+{}
+sql:
+create table test.abc_test(id int(4))
+----------
+[OraRuleColumnCreateNeedDefaultTestFamily#columnNeedDefault_2#002]
+rule: _rules/column/column-create-need-default.rule
+expect: false
+vars:
+{}
+sql:
+alter table test.abc add name varchar(25);
+----------
+[OraRuleColumnNameLengthTestFamily#columnNameLength_1#001]
+rule: _rules/column/column-name-length.rule
+expect: true
+vars:
+{}
+sql:
+create table test(a123456 int);
+----------
+[OraRuleColumnNameLengthTestFamily#columnNameLength_1#002]
+rule: _rules/column/column-name-length.rule
+expect: true
+vars:
+{}
+sql:
+alter table test add a123456 int;
+----------
+[OraRuleColumnNameLengthTestFamily#columnNameLength_2#001]
+rule: _rules/column/column-name-length.rule
+expect: false
+vars:
+  length: 5
+sql:
+create table test(a123456 int);
+----------
+[OraRuleColumnNameLengthTestFamily#columnNameLength_2#002]
+rule: _rules/column/column-name-length.rule
+expect: false
+vars:
+  length: 5
+sql:
+alter table test add a123456 int;
+----------
+[OraRuleColumnNeedCommentTestFamily#columnNeedComment_1#001]
+rule: _rules/column/column-need-comment.rule
+expect: false
+vars:
+{}
+sql:
+create table test.abc_test(id int(4))
+----------
+[OraRuleColumnNeedCommentTestFamily#columnNeedComment_1#002]
+rule: _rules/column/column-need-comment.rule
+expect: true
+vars:
+{}
+sql:
+comment on column test.abc is 'aac';
+----------
+[OraRuleColumnNeedCommentTestFamily#columnNeedComment_1#003]
+rule: _rules/column/column-need-comment.rule
+expect: true
+vars:
+{}
+sql:
+alter table test.abc modify name varchar(25);
+----------
+[OraRuleColumnNotNullTestFamily#columnNotNull_1#001]
+rule: _rules/column/column-need-notnull.rule
+expect: false
+vars:
+{}
+sql:
+create table test.abc_test(id int(4))
+----------
+[OraRuleColumnNotNullTestFamily#columnNotNull_1#002]
+rule: _rules/column/column-need-notnull.rule
+expect: true
+vars:
+{}
+sql:
+create table test.abc_test(id int(4) not null)
+----------
+[OraRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_1#001]
+rule: _rules/column/column-name-case-type.rule
+expect: true
+vars:
+  caseType: Upper case
+sql:
+alter table test_table modify abc_test int;
+----------
+[OraRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_1#002]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper case
+sql:
+create table test_table(abc_test int);
+----------
+[OraRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_1#003]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper case
+sql:
+alter table test_table add abc_test int;
+----------
+[OraRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_1#004]
+rule: _rules/column/column-name-case-type.rule
+expect: true
+vars:
+  caseType: Upper case
+sql:
+create table test_table(ABC_TEST int);
+----------
+[OraRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_1#005]
+rule: _rules/column/column-name-case-type.rule
+expect: true
+vars:
+  caseType: Upper case
+sql:
+alter table test_table add ABC_TEST int;
+----------
+[OraRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_1#006]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper case
+sql:
+create table test_table(abcTest int);
+----------
+[OraRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_1#007]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper case
+sql:
+alter table test_table add abcTest int;
+----------
+[OraRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_1#008]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper case
+sql:
+create table test_table(AbcTest int);
+----------
+[OraRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_1#009]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper case
+sql:
+alter table test_table add AbcTest int;
+----------
+[OraRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_2#001]
+rule: _rules/column/column-name-case-type.rule
+expect: true
+vars:
+  caseType: Lower case
+sql:
+alter table test_table modify abc_test int;
+----------
+[OraRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_2#002]
+rule: _rules/column/column-name-case-type.rule
+expect: true
+vars:
+  caseType: Lower case
+sql:
+create table test_table(abc_test int);
+----------
+[OraRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_2#003]
+rule: _rules/column/column-name-case-type.rule
+expect: true
+vars:
+  caseType: Lower case
+sql:
+alter table test_table add abc_test int;
+----------
+[OraRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_2#004]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower case
+sql:
+create table test_table(ABC_TEST int);
+----------
+[OraRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_2#005]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower case
+sql:
+alter table test_table add ABC_TEST int;
+----------
+[OraRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_2#006]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower case
+sql:
+create table test_table(abcTest int);
+----------
+[OraRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_2#007]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower case
+sql:
+alter table test_table add abcTest int;
+----------
+[OraRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_2#008]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower case
+sql:
+create table test_table(AbcTest int);
+----------
+[OraRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_2#009]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower case
+sql:
+alter table test_table add AbcTest int;
+----------
+[OraRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_3#001]
+rule: _rules/column/column-name-case-type.rule
+expect: true
+vars:
+  caseType: Lower camel case
+sql:
+alter table test_table modify abc_test int;
+----------
+[OraRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_3#002]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower camel case
+sql:
+create table test_table(abc_test int);
+----------
+[OraRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_3#003]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower camel case
+sql:
+alter table test_table add abc_test int;
+----------
+[OraRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_3#004]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower camel case
+sql:
+create table test_table(ABC_TEST int);
+----------
+[OraRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_3#005]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower camel case
+sql:
+alter table test_table add ABC_TEST int;
+----------
+[OraRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_3#006]
+rule: _rules/column/column-name-case-type.rule
+expect: true
+vars:
+  caseType: Lower camel case
+sql:
+create table test_table(abcTest int);
+----------
+[OraRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_3#007]
+rule: _rules/column/column-name-case-type.rule
+expect: true
+vars:
+  caseType: Lower camel case
+sql:
+alter table test_table add abcTest int;
+----------
+[OraRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_3#008]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower camel case
+sql:
+create table test_table(AbcTest int);
+----------
+[OraRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_3#009]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower camel case
+sql:
+alter table test_table add AbcTest int;
+----------
+[OraRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_4#001]
+rule: _rules/column/column-name-case-type.rule
+expect: true
+vars:
+  caseType: Upper camel case
+sql:
+alter table test_table modify abc_test int;
+----------
+[OraRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_4#002]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper camel case
+sql:
+create table test_table(abc_test int);
+----------
+[OraRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_4#003]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper camel case
+sql:
+alter table test_table add abc_test int;
+----------
+[OraRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_4#004]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper camel case
+sql:
+create table test_table(ABC_TEST int);
+----------
+[OraRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_4#005]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper camel case
+sql:
+alter table test_table add ABC_TEST int;
+----------
+[OraRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_4#006]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper camel case
+sql:
+create table test_table(abcTest int);
+----------
+[OraRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_4#007]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper camel case
+sql:
+alter table test_table add abcTest int;
+----------
+[OraRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_4#008]
+rule: _rules/column/column-name-case-type.rule
+expect: true
+vars:
+  caseType: Upper camel case
+sql:
+create table test_table(AbcTest int);
+----------
+[OraRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_4#009]
+rule: _rules/column/column-name-case-type.rule
+expect: true
+vars:
+  caseType: Upper camel case
+sql:
+alter table test_table add AbcTest int;
+----------
+[OraRuleColumnTypesTestFamily#columnTypes_1#001]
+rule: _rules/column/column-types.rule
+expect: true
+vars:
+  ruleType: AllowList
+  typeList: int,char,datetime
+sql:
+create table test.abc_test(id int)
+----------
+[OraRuleColumnTypesTestFamily#columnTypes_1#002]
+rule: _rules/column/column-types.rule
+expect: false
+vars:
+  ruleType: AllowList
+  typeList: int,char,datetime
+sql:
+create table test.abc_test(id varchar(4))
+----------
+[OraRuleColumnTypesTestFamily#columnTypes_2#001]
+rule: _rules/column/column-types.rule
+expect: false
+vars:
+  ruleType: BlockList
+  typeList: int,char,datetime
+sql:
+create table test.abc_test(id int)
+----------
+[OraRuleColumnTypesTestFamily#columnTypes_2#002]
+rule: _rules/column/column-types.rule
+expect: true
+vars:
+  ruleType: BlockList
+  typeList: int,char,datetime
+sql:
+create table test.abc_test(id varchar(4))
+----------
+[OraRuleColumnVarCharLengthTestFamily#columnVarchar_1#001]
+rule: _rules/column/column-varchar-length.rule
+expect: true
+vars:
+{}
+sql:
+alter table test add a123 varchar(10);
+----------
+[OraRuleColumnVarCharLengthTestFamily#columnVarchar_2#001]
+rule: _rules/column/column-varchar-length.rule
+expect: true
+vars:
+  allowEmpty: true
+sql:
+alter table test add a123 varchar(10);
+----------
+[OraRuleColumnVarCharLengthTestFamily#columnVarchar_3#001]
+rule: _rules/column/column-varchar-length.rule
+expect: false
+vars:
+  length: 5
+sql:
+alter table test add a123 varchar(10);
+----------
+[OraRuleColumnVarCharLengthTestFamily#columnNVarchar_1#001]
+rule: _rules/column/column-varchar-length.rule
+expect: true
+vars:
+{}
+sql:
+alter table test add a123 nvarchar2(10);
+----------
+[OraRuleColumnVarCharLengthTestFamily#columnNVarchar_2#001]
+rule: _rules/column/column-varchar-length.rule
+expect: true
+vars:
+  allowEmpty: true
+sql:
+alter table test add a123 nvarchar2(10);
+----------
+[OraRuleColumnVarCharLengthTestFamily#columnNVarchar_3#001]
+rule: _rules/column/column-varchar-length.rule
+expect: false
+vars:
+  length: 5
+sql:
+alter table test add a123 nvarchar2(10);

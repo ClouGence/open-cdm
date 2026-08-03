@@ -1,0 +1,18 @@
+EXPLAIN ANALYZE FORMAT=JSON INTO @codex_load_audit_explain SELECT 1;
+EXPLAIN FORMAT=JSON INTO @codex_load_audit_explain FOR SCHEMA codex_load_audit_s SELECT 1;
+EXPLAIN FORMAT=JSON INTO @codex_load_audit_explain SELECT 1;
+EXPLAIN EXTENDED SELECT * FROM json_op;
+EXPLAIN PARTITIONS SELECT * FROM json_op;
+SELECT SQL_CACHE * FROM t;
+------------------------------------------------------------------------------------------
+[SELECT|SESSION_VARIABLE_RW] EXPLAIN ANALYZE FORMAT=JSON INTO @codex_load_audit_explain SELECT 1;
+----------
+[PERFORMANCE|SESSION_VARIABLE_RW] EXPLAIN FORMAT=JSON INTO @codex_load_audit_explain FOR SCHEMA codex_load_audit_s SELECT 1;
+----------
+[PERFORMANCE|SESSION_VARIABLE_RW] EXPLAIN FORMAT=JSON INTO @codex_load_audit_explain SELECT 1;
+----------
+[PERFORMANCE] EXPLAIN EXTENDED SELECT * FROM json_op;
+----------
+[PERFORMANCE] EXPLAIN PARTITIONS SELECT * FROM json_op;
+----------
+[SELECT] SELECT SQL_CACHE * FROM t;

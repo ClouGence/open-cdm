@@ -1,0 +1,55 @@
+create schema S00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 authorization SYSDBA;
+/
+create schema CODEX_DM8_SCHEMA_BAD_OWNER_20260722 authorization CODEX_DM8_SCHEMA_NO_USER_20260722;
+/
+drop schema CODEX_DM8_SCHEMA_MISSING_20260722;
+drop schema CODEX_DM8_SCHEMA_RESTRICT_20260722 restrict;
+drop schema CODEX_DM8_SCHEMA_OWNER_20260722 cascade;
+create schema CODEX_DM8_SCHEMA_CLUSTER_IDX_20260722 authorization SYSDBA
+  create table T(ID int)
+  create cluster index IDX_CLUSTER on T(ID);
+/
+create schema CODEX_DM8_SCHEMA_PUBLIC_LINK_20260722 authorization SYSDBA
+  create public link L connect 'DPI' with U identified by P using '127.0.0.1:1';
+/
+create schema CODEX_DM8_SCHEMA_ALTER_ADD_20260722 authorization SYSDBA
+  create table T(ID int)
+  alter table T add NOTE varchar(20);
+/
+create schema CODEX_DM8_SCHEMA_ALTER_DROP_20260722 authorization SYSDBA
+  create table T(ID int, NOTE varchar(20))
+  alter table T drop column NOTE;
+/
+create schema CODEX_DM8_SCHEMA_EXTERNAL_20260722 authorization SYSDBA
+  create or replace function EXT_ADD(A int, B int) return int
+  external '/opt/dmdbms/bin/codex_missing.so' USING CS;
+/
+------------------------------------------------------------------------------------------
+[CREATE_SCHEMA] create schema S00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 authorization SYSDBA;
+----------
+[CREATE_SCHEMA] create schema CODEX_DM8_SCHEMA_BAD_OWNER_20260722 authorization CODEX_DM8_SCHEMA_NO_USER_20260722;
+----------
+[DROP_SCHEMA] drop schema CODEX_DM8_SCHEMA_MISSING_20260722;
+----------
+[DROP_SCHEMA] drop schema CODEX_DM8_SCHEMA_RESTRICT_20260722 restrict;
+----------
+[DROP_SCHEMA] drop schema CODEX_DM8_SCHEMA_OWNER_20260722 cascade;
+----------
+[CREATE_SCHEMA|ADD_COLUMN] create schema CODEX_DM8_SCHEMA_CLUSTER_IDX_20260722 authorization SYSDBA
+  create table T(ID int)
+  create cluster index IDX_CLUSTER on T(ID);
+----------
+[CREATE_SCHEMA] create schema CODEX_DM8_SCHEMA_PUBLIC_LINK_20260722 authorization SYSDBA
+  create public link L connect 'DPI' with U identified by P using '127.0.0.1:1';
+----------
+[CREATE_SCHEMA|ADD_COLUMN] create schema CODEX_DM8_SCHEMA_ALTER_ADD_20260722 authorization SYSDBA
+  create table T(ID int)
+  alter table T add NOTE varchar(20);
+----------
+[CREATE_SCHEMA|ADD_COLUMN|DROP_COLUMN] create schema CODEX_DM8_SCHEMA_ALTER_DROP_20260722 authorization SYSDBA
+  create table T(ID int, NOTE varchar(20))
+  alter table T drop column NOTE;
+----------
+[CREATE_SCHEMA] create schema CODEX_DM8_SCHEMA_EXTERNAL_20260722 authorization SYSDBA
+  create or replace function EXT_ADD(A int, B int) return int
+  external '/opt/dmdbms/bin/codex_missing.so' USING CS;

@@ -1,0 +1,6 @@
+SELECT pg_read_file('split_file_access_missing_file', true) IS NULL AS missing_text_all_is_null;
+SELECT pg_read_binary_file('split_file_access_missing_file', true) IS NULL AS missing_binary_all_is_null;
+------------------------------------------------------------------------------------------
+[SELECT|DATA_IMPORT|UNSAFE] SELECT pg_read_file('split_file_access_missing_file', true) IS NULL AS missing_text_all_is_null;
+----------
+[SELECT|DATA_IMPORT|UNSAFE] SELECT pg_read_binary_file('split_file_access_missing_file', true) IS NULL AS missing_binary_all_is_null;

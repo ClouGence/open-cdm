@@ -1,0 +1,17 @@
+[split_block_dameng_system_audit_xplan_ddl_dbms_system_0_001]
+sql:
+begin
+  dbms_system.ksdwrt(2, 'CODEX_DM8_DBMS_SYSTEM_KSDWRT');
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:2~2:20) /test/1/catalog1/dbms_system/ksdwrt/",
+      "action": "CALL",
+      "target": "File(2:2~2:20) /test/1/"
+    }
+  ]
+}

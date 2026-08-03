@@ -35,13 +35,11 @@ import com.clougence.clouddm.ds.hana.execute.HanaSupportSpi;
 import com.clougence.clouddm.ds.hana.i18n.HanaDsI18nKeys;
 import com.clougence.clouddm.ds.hana.language.HanaLanguageSpi;
 import com.clougence.clouddm.ds.hana.resource.HanaEditorResourceSpi;
-import com.clougence.clouddm.ds.hana.sql.HanaSqlEngineSpi;
 import com.clougence.clouddm.dsfamily.definition.TypeMapUtils;
 import com.clougence.clouddm.sdk.DsPlugin;
 import com.clougence.clouddm.sdk.DsPluginBinder;
 import com.clougence.clouddm.sdk.Plugin;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
-import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
 import com.clougence.schema.DsType;
 import com.clougence.schema.SchemaBinder;
 import com.clougence.schema.SchemaFramework;
@@ -82,9 +80,7 @@ public class HanaDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
     private void configExecute(DsPluginBinder dsPlugin) {
         dsPlugin.bindDsSessionFactory(HanaSessionFactory.class);
         dsPlugin.bindDsDriverFamily("SAP Hana JDBC");
-
-        dsPlugin.bindSqlEngine(HanaSqlEngineSpi.NAME);
-        dsPlugin.addGlobalSpi(SqlEngineSpi.class, HanaSqlEngineSpi.NAME, new HanaSqlEngineSpi());
+        dsPlugin.bindSqlEngine("SAP Hana SQL");
 
         dsPlugin.addPluginSpi(new HanaSessionSpi());
         dsPlugin.addPluginSpi(new HanaSupportSpi());

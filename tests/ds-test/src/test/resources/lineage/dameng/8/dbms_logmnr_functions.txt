@@ -1,0 +1,10 @@
+[dbms_logmnr_literal_arguments_have_no_static_lineage]
+sql:
+begin
+  DBMS_LOGMNR.ADD_LOGFILE('/archive/A.log',DBMS_LOGMNR."NEW",0);
+  DBMS_LOGMNR.END_LOGMNR();
+  DBMS_LOGMNR.REMOVE_LOGFILE('/archive/A.log');
+  DBMS_LOGMNR.START_LOGMNR(options=>2128);
+end;
+expect:
+{}

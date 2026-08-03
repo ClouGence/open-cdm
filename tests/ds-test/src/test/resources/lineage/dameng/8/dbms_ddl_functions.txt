@@ -1,0 +1,9 @@
+[dbms_ddl_payload_columns]
+sql:
+select DDL_TEXT, LOWER_BOUND, UPPER_BOUND from catalog1.app.dbms_ddl_payload
+expect:
+{
+  "DDL_TEXT": ["/catalog1/app/dbms_ddl_payload/DDL_TEXT/"],
+  "LOWER_BOUND": ["/catalog1/app/dbms_ddl_payload/LOWER_BOUND/"],
+  "UPPER_BOUND": ["/catalog1/app/dbms_ddl_payload/UPPER_BOUND/"]
+}

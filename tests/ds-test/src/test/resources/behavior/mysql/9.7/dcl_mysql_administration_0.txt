@@ -1,0 +1,1423 @@
+[maintain_log__001]
+sql:
+FLUSH LOCAL BINARY LOGS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN_LOG": [
+    {
+      "subject": "Log(1:0~1:23) /test/1/",
+      "action": "FLUSH"
+    }
+  ]
+}
+----------
+[admin_performance__002]
+sql:
+FLUSH NO_WRITE_TO_BINLOG STATUS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_PERFORMANCE": [
+    {
+      "subject": "Instance(1:0~1:31) /test/1/",
+      "action" : "FLUSH"
+    }
+  ]
+}
+----------
+[maintain_log__003]
+sql:
+FLUSH NO_WRITE_TO_BINLOG BINARY LOGS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN_LOG": [
+    {
+      "subject": "Log(1:0~1:36) /test/1/",
+      "action": "FLUSH"
+    }
+  ]
+}
+----------
+[maintain_log__004]
+sql:
+FLUSH BINARY LOGS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN_LOG": [
+    {
+      "subject": "Log(1:0~1:17) /test/1/",
+      "action": "FLUSH"
+    }
+  ]
+}
+----------
+[maintain_log__005]
+sql:
+FLUSH ENGINE LOGS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN_LOG": [
+    {
+      "subject": "Log(1:0~1:17) /test/1/",
+      "action": "FLUSH"
+    }
+  ]
+}
+----------
+[maintain_log__006]
+sql:
+FLUSH ERROR LOGS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN_LOG": [
+    {
+      "subject": "Log(1:0~1:16) /test/1/",
+      "action": "FLUSH"
+    }
+  ]
+}
+----------
+[maintain_log__007]
+sql:
+FLUSH GENERAL LOGS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN_LOG": [
+    {
+      "subject": "Log(1:0~1:18) /test/1/",
+      "action": "FLUSH"
+    }
+  ]
+}
+----------
+[maintain_log__008]
+sql:
+FLUSH LOGS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN_LOG": [
+    {
+      "subject": "Log(1:0~1:10) /test/1/",
+      "action": "FLUSH"
+    }
+  ]
+}
+----------
+[system_setting_write__009]
+sql:
+FLUSH PRIVILEGES;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:0~1:16) /test/1/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[maintain_log__010]
+sql:
+FLUSH RELAY LOGS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN_LOG": [
+    {
+      "subject": "Log(1:0~1:16) /test/1/",
+      "action": "FLUSH"
+    }
+  ]
+}
+----------
+[maintain_log__011]
+sql:
+FLUSH SLOW LOGS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN_LOG": [
+    {
+      "subject": "Log(1:0~1:15) /test/1/",
+      "action": "FLUSH"
+    }
+  ]
+}
+----------
+[admin_performance__012]
+sql:
+FLUSH STATUS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_PERFORMANCE": [
+    {
+      "subject": "Instance(1:0~1:12) /test/1/",
+      "action" : "FLUSH"
+    }
+  ]
+}
+----------
+[admin_performance__013]
+sql:
+FLUSH USER_RESOURCES;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_PERFORMANCE": [
+    {
+      "subject": "Instance(1:0~1:20) /test/1/",
+      "action" : "FLUSH"
+    }
+  ]
+}
+----------
+[admin_table__014]
+sql:
+FLUSH TABLES;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:0~1:12) /test/1/",
+      "action" : "FLUSH"
+    }
+  ]
+}
+----------
+[admin_table__015]
+sql:
+FLUSH TABLE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:0~1:11) /test/1/",
+      "action" : "FLUSH"
+    }
+  ]
+}
+----------
+[admin_table__016]
+sql:
+FLUSH TABLES split_verify.flush_a, split_verify.flush_b;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:13~1:33) /test/1/catalog1/split_verify/flush_a/",
+      "action" : "FLUSH"
+    },
+    {
+      "subject": "Table(1:35~1:55) /test/1/catalog1/split_verify/flush_b/",
+      "action" : "FLUSH"
+    }
+  ]
+}
+----------
+[admin_table_transaction__017]
+sql:
+FLUSH TABLES WITH READ LOCK;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:0~1:27) /test/1/",
+      "action" : "FLUSH"
+    }
+  ]
+}
+----------
+[admin_table_transaction__018]
+sql:
+FLUSH TABLE split_verify.flush_a WITH READ LOCK;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:12~1:32) /test/1/catalog1/split_verify/flush_a/",
+      "action" : "FLUSH"
+    },
+    {
+      "subject": "Table(1:12~1:32) /test/1/catalog1/split_verify/flush_a/",
+      "action" : "LOCK"
+    }
+  ]
+}
+----------
+[data_export__019]
+sql:
+FLUSH TABLES split_verify.flush_a, split_verify.flush_b FOR EXPORT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_EXPORT": [
+    {
+      "subject": "Table(1:13~1:33) /test/1/catalog1/split_verify/flush_a/",
+      "action" : "EXPORT"
+    },
+    {
+      "subject": "Table(1:35~1:55) /test/1/catalog1/split_verify/flush_b/",
+      "action" : "EXPORT"
+    }
+  ]
+}
+----------
+[data_export__020]
+sql:
+FLUSH LOCAL TABLES split_verify.flush_a, split_verify.flush_b FOR EXPORT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_EXPORT": [
+    {
+      "subject": "Table(1:19~1:39) /test/1/catalog1/split_verify/flush_a/",
+      "action" : "EXPORT"
+    },
+    {
+      "subject": "Table(1:41~1:61) /test/1/catalog1/split_verify/flush_b/",
+      "action" : "EXPORT"
+    }
+  ]
+}
+----------
+[data_export__021]
+sql:
+FLUSH TABLE export FOR EXPORT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_EXPORT": [
+    {
+      "subject": "Table(1:12~1:18) /test/1/catalog1/schema1/export/",
+      "action" : "EXPORT"
+    }
+  ]
+}
+----------
+[admin_performance__022]
+sql:
+FLUSH LOCAL STATUS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_PERFORMANCE": [
+    {
+      "subject": "Instance(1:0~1:18) /test/1/",
+      "action" : "FLUSH"
+    }
+  ]
+}
+----------
+[system_setting_write__023]
+sql:
+FLUSH NO_WRITE_TO_BINLOG PRIVILEGES;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:0~1:35) /test/1/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[admin_table__024]
+sql:
+FLUSH NO_WRITE_TO_BINLOG TABLES admin_sql_audit.flush_a, admin_sql_audit.flush_b;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:32~1:55) /test/1/catalog1/admin_sql_audit/flush_a/",
+      "action" : "FLUSH"
+    },
+    {
+      "subject": "Table(1:57~1:80) /test/1/catalog1/admin_sql_audit/flush_b/",
+      "action" : "FLUSH"
+    }
+  ]
+}
+----------
+[admin_performance__025]
+sql:
+FLUSH STATUS, USER_RESOURCES;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_PERFORMANCE": [
+    {
+      "subject": "Instance(1:0~1:28) /test/1/",
+      "action" : "FLUSH"
+    }
+  ]
+}
+----------
+[admin_performance__026]
+sql:
+FLUSH OPTIMIZER_COSTS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_PERFORMANCE": [
+    {
+      "subject": "Instance(1:0~1:21) /test/1/",
+      "action" : "FLUSH"
+    }
+  ]
+}
+----------
+[maintain_log__027]
+sql:
+FLUSH RELAY LOGS FOR CHANNEL 'split_chan';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN_LOG": [
+    {
+      "subject": "Log(1:0~1:41) /test/1/",
+      "action": "FLUSH"
+    }
+  ]
+}
+----------
+[maintain_log_system_setting_write_admin_performance__028]
+sql:
+FLUSH ERROR LOGS, ENGINE LOGS, GENERAL LOGS, SLOW LOGS, BINARY LOGS, RELAY LOGS, PRIVILEGES, LOGS, STATUS, USER_RESOURCES, OPTIMIZER_COSTS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN_LOG": [
+    {
+      "subject": "Log(1:0~1:138) /test/1/",
+      "action": "FLUSH"
+    }
+  ]
+}
+----------
+[admin_table_transaction__029]
+sql:
+FLUSH TABLES admin_sql_audit.flush_a, admin_sql_audit.flush_b WITH READ LOCK;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:13~1:36) /test/1/catalog1/admin_sql_audit/flush_a/",
+      "action" : "FLUSH"
+    },
+    {
+      "subject": "Table(1:38~1:61) /test/1/catalog1/admin_sql_audit/flush_b/",
+      "action" : "FLUSH"
+    },
+    {
+      "subject": "Table(1:13~1:36) /test/1/catalog1/admin_sql_audit/flush_a/",
+      "action" : "LOCK"
+    },
+    {
+      "subject": "Table(1:38~1:61) /test/1/catalog1/admin_sql_audit/flush_b/",
+      "action" : "LOCK"
+    }
+  ]
+}
+----------
+[admin_table__030]
+sql:
+ANALYZE TABLE split84.maint_innodb UPDATE HISTOGRAM ON v, c WITH 8 BUCKETS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:14~1:34) /test/1/catalog1/split84/maint_innodb/",
+      "action" : "ANALYZE"
+    }
+  ]
+}
+----------
+[admin_table__031]
+sql:
+ANALYZE TABLES split84.maint_innodb UPDATE HISTOGRAM ON v WITH 4 BUCKETS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:15~1:35) /test/1/catalog1/split84/maint_innodb/",
+      "action" : "ANALYZE"
+    }
+  ]
+}
+----------
+[admin_table__032]
+sql:
+ANALYZE TABLE split84.maint_innodb UPDATE HISTOGRAM ON v;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:14~1:34) /test/1/catalog1/split84/maint_innodb/",
+      "action" : "ANALYZE"
+    }
+  ]
+}
+----------
+[admin_table__033]
+sql:
+ANALYZE TABLE split84.maint_innodb DROP HISTOGRAM ON v, c;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:14~1:34) /test/1/catalog1/split84/maint_innodb/",
+      "action" : "ANALYZE"
+    }
+  ]
+}
+----------
+[admin_table__034]
+sql:
+ANALYZE LOCAL TABLE split84.maint_innodb UPDATE HISTOGRAM ON v, c WITH 8 BUCKETS AUTO UPDATE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:20~1:40) /test/1/catalog1/split84/maint_innodb/",
+      "action" : "ANALYZE"
+    }
+  ]
+}
+----------
+[admin_table__035]
+sql:
+ANALYZE TABLE split84.maint_innodb UPDATE HISTOGRAM ON v WITH 4 BUCKETS MANUAL UPDATE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:14~1:34) /test/1/catalog1/split84/maint_innodb/",
+      "action" : "ANALYZE"
+    }
+  ]
+}
+----------
+[admin_table__036]
+sql:
+ANALYZE TABLE split_native_gap.t_hist UPDATE HISTOGRAM ON c USING DATA '{}';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:14~1:37) /test/1/catalog1/split_native_gap/t_hist/",
+      "action" : "ANALYZE"
+    }
+  ]
+}
+----------
+[admin__037]
+sql:
+KILL 999999;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Instance(1:0~1:11) /test/1/",
+      "action": "TERMINATE"
+    }
+  ]
+}
+----------
+[admin__038]
+sql:
+KILL CONNECTION 999998;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Instance(1:0~1:22) /test/1/",
+      "action": "TERMINATE"
+    }
+  ]
+}
+----------
+[admin__039]
+sql:
+KILL QUERY 999997;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Instance(1:0~1:17) /test/1/",
+      "action": "TERMINATE"
+    }
+  ]
+}
+----------
+[admin_session_variable_rw__040]
+sql:
+KILL QUERY @split_kill_id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "ConfigKey(1:11~1:25) /test/1/split_kill_id/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[admin__041]
+sql:
+KILL QUERY 999990 + 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Instance(1:0~1:21) /test/1/",
+      "action": "TERMINATE"
+    }
+  ]
+}
+----------
+[admin__042]
+sql:
+KILL CONNECTION CAST(999991 AS UNSIGNED);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Instance(1:0~1:40) /test/1/",
+      "action": "TERMINATE"
+    },
+    {
+      "subject": "Function(1:16~1:20) /test/1/catalog1/schema1/CAST/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[admin_select__043]
+sql:
+KILL QUERY (SELECT 999992);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Instance(1:0~1:26) /test/1/",
+      "action": "TERMINATE"
+    }
+  ]
+}
+----------
+[admin__044]
+sql:
+LOCK INSTANCE FOR BACKUP;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_LOCK": [
+    {
+      "subject": "Instance(1:0~1:24) /test/1/",
+      "action" : "LOCK"
+    }
+  ]
+}
+----------
+[admin__045]
+sql:
+UNLOCK INSTANCE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_LOCK": [
+    {
+      "subject": "Instance(1:0~1:15) /test/1/",
+      "action" : "LOCK"
+    }
+  ]
+}
+----------
+[transaction__046]
+sql:
+LOCK TABLES splitv.lock_view lv READ;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_LOCK": [
+    {
+      "subject": "Table(1:12~1:28) /test/1/catalog1/splitv/lock_view/",
+      "action" : "LOCK"
+    }
+  ]
+}
+----------
+[admin_table__047]
+sql:
+ANALYZE TABLE split84.maint_innodb;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:14~1:34) /test/1/catalog1/split84/maint_innodb/",
+      "action" : "ANALYZE"
+    }
+  ]
+}
+----------
+[admin_table__048]
+sql:
+ANALYZE TABLES split84.maint_innodb;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:15~1:35) /test/1/catalog1/split84/maint_innodb/",
+      "action" : "ANALYZE"
+    }
+  ]
+}
+----------
+[admin_table__049]
+sql:
+ANALYZE NO_WRITE_TO_BINLOG TABLE split84.maint_innodb;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:33~1:53) /test/1/catalog1/split84/maint_innodb/",
+      "action" : "ANALYZE"
+    }
+  ]
+}
+----------
+[admin_table__050]
+sql:
+CHECK TABLE split84.maint_innodb FOR UPGRADE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:12~1:32) /test/1/catalog1/split84/maint_innodb/",
+      "action" : "VALIDATE"
+    }
+  ]
+}
+----------
+[admin_table__051]
+sql:
+CHECK TABLES split84.maint_innodb;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:13~1:33) /test/1/catalog1/split84/maint_innodb/",
+      "action" : "VALIDATE"
+    }
+  ]
+}
+----------
+[admin_table__052]
+sql:
+CHECK TABLE split84.maint_innodb QUICK FAST MEDIUM EXTENDED CHANGED;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:12~1:32) /test/1/catalog1/split84/maint_innodb/",
+      "action" : "VALIDATE"
+    }
+  ]
+}
+----------
+[admin_table__053]
+sql:
+CHECKSUM TABLE split84.maint_innodb QUICK;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:15~1:35) /test/1/catalog1/split84/maint_innodb/",
+      "action" : "CHECKSUM"
+    }
+  ]
+}
+----------
+[admin_table__054]
+sql:
+CHECKSUM TABLE split84.maint_innodb EXTENDED;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:15~1:35) /test/1/catalog1/split84/maint_innodb/",
+      "action" : "CHECKSUM"
+    }
+  ]
+}
+----------
+[admin_table__055]
+sql:
+CHECKSUM TABLES split84.maint_innodb QUICK;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:16~1:36) /test/1/catalog1/split84/maint_innodb/",
+      "action" : "CHECKSUM"
+    }
+  ]
+}
+----------
+[admin_table__056]
+sql:
+OPTIMIZE NO_WRITE_TO_BINLOG TABLE split84.maint_innodb;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:34~1:54) /test/1/catalog1/split84/maint_innodb/",
+      "action" : "OPTIMIZE"
+    }
+  ]
+}
+----------
+[admin_table__057]
+sql:
+OPTIMIZE LOCAL TABLES split84.maint_innodb;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:22~1:42) /test/1/catalog1/split84/maint_innodb/",
+      "action" : "OPTIMIZE"
+    }
+  ]
+}
+----------
+[admin_table__058]
+sql:
+REPAIR LOCAL TABLE split84.maint_myisam QUICK EXTENDED USE_FRM;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:19~1:39) /test/1/catalog1/split84/maint_myisam/",
+      "action" : "REPAIR"
+    }
+  ]
+}
+----------
+[admin_table__059]
+sql:
+REPAIR TABLES split84.maint_myisam QUICK;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:14~1:34) /test/1/catalog1/split84/maint_myisam/",
+      "action" : "REPAIR"
+    }
+  ]
+}
+----------
+[admin_performance__060]
+sql:
+CACHE INDEX split84.maint_myisam KEY(idx_v) IN DEFAULT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_PERFORMANCE": [
+    {
+      "subject": "Index(1:12~1:32) /test/1/catalog1/split84/maint_myisam/",
+      "action" : "LOAD"
+    }
+  ]
+}
+----------
+[admin_performance__061]
+sql:
+LOAD INDEX INTO CACHE split84.maint_myisam KEY(idx_v) IGNORE LEAVES;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_PERFORMANCE": [
+    {
+      "subject": "Instance(1:0~1:67) /test/1/",
+      "action" : "LOAD"
+    }
+  ]
+}
+----------
+[admin_performance__062]
+sql:
+CACHE INDEX split_part.maint_part PARTITION (p0) KEY(idx_v) IN DEFAULT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_PERFORMANCE": [
+    {
+      "subject": "Index(1:12~1:33) /test/1/catalog1/split_part/maint_part/",
+      "action" : "LOAD"
+    }
+  ]
+}
+----------
+[admin_performance__063]
+sql:
+LOAD INDEX INTO CACHE split_part.maint_part PARTITION (p0) KEY(idx_v) IGNORE LEAVES;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_PERFORMANCE": [
+    {
+      "subject": "Instance(1:0~1:83) /test/1/",
+      "action" : "LOAD"
+    }
+  ]
+}
+----------
+[maintain_log__064]
+sql:
+PURGE BINARY LOGS TO 'split-bin.999999';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN_LOG": [
+    {
+      "subject": "Log(1:0~1:39) /test/1/",
+      "action": "PURGE"
+    }
+  ]
+}
+----------
+[maintain_log__065]
+sql:
+PURGE BINARY LOGS BEFORE '2000-01-01 00:00:00';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN_LOG": [
+    {
+      "subject": "Log(1:0~1:46) /test/1/",
+      "action": "PURGE"
+    }
+  ]
+}
+----------
+[maintain_log__066]
+sql:
+PURGE BINARY LOGS BEFORE CURRENT_TIMESTAMP - INTERVAL 1 DAY;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN_LOG": [
+    {
+      "subject": "Log(1:0~1:59) /test/1/",
+      "action": "PURGE"
+    },
+    {
+      "subject": "Function(1:25~1:42) /test/1/catalog1/schema1/CURRENT_TIMESTAMP/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[maintain_log__067]
+sql:
+RESET BINARY LOGS AND GTIDS TO 7;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN_LOG": [
+    {
+      "subject": "Log(1:0~1:32) /test/1/",
+      "action": "UNSAFE"
+    }
+  ]
+}
+----------
+[maintain_log__068]
+sql:
+RESET BINARY LOGS AND GTIDS TO 0x7;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN_LOG": [
+    {
+      "subject": "Log(1:0~1:34) /test/1/",
+      "action": "UNSAFE"
+    }
+  ]
+}
+----------
+[maintain_log__069]
+sql:
+RESET BINARY LOGS AND GTIDS TO X'07';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN_LOG": [
+    {
+      "subject": "Log(1:0~1:36) /test/1/",
+      "action": "UNSAFE"
+    }
+  ]
+}
+----------
+[alter_replication_maintain_log__070]
+sql:
+RESET REPLICA ALL FOR CHANNEL 'split', BINARY LOGS AND GTIDS TO 7;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_REPLICATION": [
+    {
+      "subject": "Replication(1:0~1:65) /test/1/",
+      "action": "RESET"
+    }
+  ]
+}
+----------
+[system_setting_write__071]
+sql:
+RESET PERSIST IF EXISTS max_connections;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:24~1:39) /test/1/max_connections/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[system_setting_write__072]
+sql:
+RESET PERSIST;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:0~1:13) /test/1/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[system_setting_write__073]
+sql:
+RESET PERSIST default.key_buffer_size;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:14~1:37) /test/1/default.key_buffer_size/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[system_setting_write__074]
+sql:
+RESET PERSIST IF EXISTS default.key_buffer_size;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:24~1:47) /test/1/default.key_buffer_size/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[alter_replication__075]
+sql:
+RESET REPLICA;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_REPLICATION": [
+    {
+      "subject": "Replication(1:0~1:13) /test/1/",
+      "action": "RESET"
+    }
+  ]
+}
+----------
+[unsafe__076]
+sql:
+RESTART;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UNSAFE": [
+    {
+      "subject": "Instance(1:0~1:7) /test/1/",
+      "action" : "UNSAFE"
+    }
+  ]
+}
+----------
+[unsafe__077]
+sql:
+SHUTDOWN;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UNSAFE": [
+    {
+      "subject": "Instance(1:0~1:8) /test/1/",
+      "action" : "UNSAFE"
+    }
+  ]
+}
+----------
+[performance_session_variable_rw__078]
+sql:
+GET STACKED DIAGNOSTICS CONDITION 1 @state = RETURNED_SQLSTATE, @msg = MESSAGE_TEXT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "ConfigKey(1:36~1:42) /test/1/state/",
+      "action" : "READ"
+    },
+    {
+      "subject": "ConfigKey(1:64~1:68) /test/1/msg/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[admin_performance__079]
+sql:
+CACHE INDEX t3 IN keycache1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_PERFORMANCE": [
+    {
+      "subject": "Index(1:12~1:14) /test/1/catalog1/schema1/t3/",
+      "action" : "LOAD"
+    }
+  ]
+}
+----------
+[maintain_log__080]
+sql:
+FLUSH LOCAL RELAY LOGS FOR CHANNEL 'codex_gap7_ch';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN_LOG": [
+    {
+      "subject": "Log(1:0~1:50) /test/1/",
+      "action": "FLUSH"
+    }
+  ]
+}
+----------
+[maintain_log__081]
+sql:
+FLUSH NO_WRITE_TO_BINLOG RELAY LOGS FOR CHANNEL 'codex_gap7_ch';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN_LOG": [
+    {
+      "subject": "Log(1:0~1:63) /test/1/",
+      "action": "FLUSH"
+    }
+  ]
+}
+----------
+[admin_table__082]
+sql:
+ANALYZE TABLE t_hist UPDATE HISTOGRAM ON c1,c3 AUTO UPDATE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:14~1:20) /test/1/catalog1/schema1/t_hist/",
+      "action" : "ANALYZE"
+    }
+  ]
+}
+----------
+[admin_table__083]
+sql:
+ANALYZE TABLE vector_lifecycle UPDATE HISTOGRAM ON embedding WITH 8 BUCKETS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:14~1:30) /test/1/catalog1/schema1/vector_lifecycle/",
+      "action" : "ANALYZE"
+    }
+  ]
+}
+----------
+[admin_table__084]
+sql:
+ANALYZE TABLE split84.maint_innodb UPDATE HISTOGRAM ON v MANUAL UPDATE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:14~1:34) /test/1/catalog1/split84/maint_innodb/",
+      "action" : "ANALYZE"
+    }
+  ]
+}
+----------
+[admin_table__085]
+sql:
+REPAIR TABLE split84.maint_myisam EXTENDED;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:13~1:33) /test/1/catalog1/split84/maint_myisam/",
+      "action" : "REPAIR"
+    }
+  ]
+}
+----------
+[admin_table__086]
+sql:
+REPAIR TABLE split84.maint_myisam USE_FRM;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:13~1:33) /test/1/catalog1/split84/maint_myisam/",
+      "action" : "REPAIR"
+    }
+  ]
+}
+----------
+[admin_table__087]
+sql:
+REPAIR TABLE split84.maint_myisam QUICK USE_FRM;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:13~1:33) /test/1/catalog1/split84/maint_myisam/",
+      "action" : "REPAIR"
+    }
+  ]
+}
+----------
+[admin_table__088]
+sql:
+REPAIR TABLE split84.maint_myisam EXTENDED USE_FRM;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:13~1:33) /test/1/catalog1/split84/maint_myisam/",
+      "action" : "REPAIR"
+    }
+  ]
+}
+----------
+[admin_table__089]
+sql:
+REPAIR TABLE split84.maint_myisam EXTENDED QUICK;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:13~1:33) /test/1/catalog1/split84/maint_myisam/",
+      "action" : "REPAIR"
+    }
+  ]
+}
+----------
+[admin_table__090]
+sql:
+REPAIR TABLE split84.maint_myisam USE_FRM QUICK EXTENDED;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:13~1:33) /test/1/catalog1/split84/maint_myisam/",
+      "action" : "REPAIR"
+    }
+  ]
+}
+----------
+[admin_table__091]
+sql:
+REPAIR TABLE split84.maint_myisam QUICK QUICK;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:13~1:33) /test/1/catalog1/split84/maint_myisam/",
+      "action" : "REPAIR"
+    }
+  ]
+}
+----------
+[maintain_log__092]
+sql:
+RESET BINARY LOGS AND GTIDS TO 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN_LOG": [
+    {
+      "subject": "Log(1:0~1:32) /test/1/",
+      "action": "UNSAFE"
+    }
+  ]
+}

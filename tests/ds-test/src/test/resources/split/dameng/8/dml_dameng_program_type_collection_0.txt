@@ -1,0 +1,6 @@
+INSERT INTO TYPE_BASE VALUES(1, 'DM8', 88.25);
+INSERT INTO INDEX_COLUMN_COMPAT VALUES(1, NULL);
+------------------------------------------------------------------------------------------
+[INSERT] INSERT INTO TYPE_BASE VALUES(1, 'DM8', 88.25);
+----------
+[INSERT] INSERT INTO INDEX_COLUMN_COMPAT VALUES(1, NULL);

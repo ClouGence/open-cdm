@@ -1,0 +1,7 @@
+[inline_1.0007]
+sql:
+SELECT * FROM employees;
+expect:
+{
+  "id" : [ "(1:7~1:8) /catalog1/schema1/employees/id/" ]
+}

@@ -1,0 +1,12 @@
+delete from test;
+delete from test where id = 1;
+delete from test1 where id = (select max(id) from test2);
+delete from test1 as w where id = (select max(id) from test2 limit 2);
+------------------------------------------------------------------------------------------
+[DELETE] delete from test;
+----------
+[DELETE] delete from test where id = 1;
+----------
+[DELETE|SELECT] delete from test1 where id = (select max(id) from test2);
+----------
+[DELETE|SELECT] delete from test1 as w where id = (select max(id) from test2 limit 2);

@@ -1,0 +1,9 @@
+GRANT BACKUP_ADMIN ON *.* TO 'dynamic_old'@'%';
+CREATE AGGREGATE FUNCTION IF NOT EXISTS split_missing_agg_ifne_56 RETURNS REAL SONAME 'split_missing_ifne.so';
+CREATE FUNCTION IF NOT EXISTS split_missing_ifne_56 RETURNS INTEGER SONAME 'split_missing_ifne.so';
+------------------------------------------------------------------------------------------
+[GRANT] GRANT BACKUP_ADMIN ON *.* TO 'dynamic_old'@'%';
+----------
+[CREATE_PROG_OBJ|UNSAFE] CREATE AGGREGATE FUNCTION IF NOT EXISTS split_missing_agg_ifne_56 RETURNS REAL SONAME 'split_missing_ifne.so';
+----------
+[CREATE_PROG_OBJ|UNSAFE] CREATE FUNCTION IF NOT EXISTS split_missing_ifne_56 RETURNS INTEGER SONAME 'split_missing_ifne.so';

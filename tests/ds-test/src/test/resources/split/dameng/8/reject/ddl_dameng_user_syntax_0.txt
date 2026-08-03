@@ -1,0 +1,89 @@
+create user;
+create user CODEX_DM8_USER_REJECT;
+create user CODEX_DM8_USER_REJECT identified;
+create user CODEX_DM8_USER_REJECT identified by;
+create user CODEX_DM8_USER_REJECT identified by "Dm8User#2026" hash with;
+create user CODEX_DM8_USER_REJECT identified by "Dm8User#2026" hash with SHA512 salt no salt;
+create user CODEX_DM8_USER_REJECT identified by "Dm8User#2026" password_policy;
+create user CODEX_DM8_USER_REJECT identified by "Dm8User#2026" account;
+create user CODEX_DM8_USER_REJECT identified by "Dm8User#2026" encrypt by;
+create user CODEX_DM8_USER_REJECT identified by "Dm8User#2026" diskspace;
+create user CODEX_DM8_USER_REJECT identified by "Dm8User#2026" diskspace limit;
+create user CODEX_DM8_USER_REJECT identified by "Dm8User#2026" read;
+create user CODEX_DM8_USER_REJECT identified by "Dm8User#2026" limit;
+create user CODEX_DM8_USER_REJECT identified by "Dm8User#2026" limit session_per_user;
+create user CODEX_DM8_USER_REJECT identified by "Dm8User#2026" allow_ip;
+create user CODEX_DM8_USER_REJECT identified by "Dm8User#2026" not_allow_ip;
+create user CODEX_DM8_USER_REJECT identified by "Dm8User#2026" allow_datetime;
+create user CODEX_DM8_USER_REJECT identified by "Dm8User#2026" default tablespace;
+create user CODEX_DM8_USER_REJECT identified by "Dm8User#2026" default index tablespace;
+create user CODEX_DM8_USER_REJECT identified by "Dm8User#2026" quota;
+create user CODEX_DM8_USER_REJECT identified by "Dm8User#2026" quota 1 on;
+create user CODEX_DM8_USER_REJECT identified externally as;
+alter user;
+alter user CODEX_DM8_USER_REJECT identified;
+alter user CODEX_DM8_USER_REJECT grant connect through;
+drop user;
+drop user CODEX_DM8_USER_REJECT purge;
+drop user CODEX_DM8_USER_REJECT cascade restrict;
+drop user CODEX_DM8_USER_REJECT restrict cascade;
+
+------------------------------------------------------------------------------------------
+[CREATE_USER] create user;
+----------
+[CREATE_USER] create user CODEX_DM8_USER_REJECT;
+----------
+[CREATE_USER] create user CODEX_DM8_USER_REJECT identified;
+----------
+[CREATE_USER] create user CODEX_DM8_USER_REJECT identified by;
+----------
+[CREATE_USER] create user CODEX_DM8_USER_REJECT identified by "Dm8User#2026" hash with;
+----------
+[CREATE_USER] create user CODEX_DM8_USER_REJECT identified by "Dm8User#2026" hash with SHA512 salt no salt;
+----------
+[CREATE_USER] create user CODEX_DM8_USER_REJECT identified by "Dm8User#2026" password_policy;
+----------
+[CREATE_USER] create user CODEX_DM8_USER_REJECT identified by "Dm8User#2026" account;
+----------
+[CREATE_USER] create user CODEX_DM8_USER_REJECT identified by "Dm8User#2026" encrypt by;
+----------
+[CREATE_USER] create user CODEX_DM8_USER_REJECT identified by "Dm8User#2026" diskspace;
+----------
+[CREATE_USER] create user CODEX_DM8_USER_REJECT identified by "Dm8User#2026" diskspace limit;
+----------
+[CREATE_USER] create user CODEX_DM8_USER_REJECT identified by "Dm8User#2026" read;
+----------
+[CREATE_USER] create user CODEX_DM8_USER_REJECT identified by "Dm8User#2026" limit;
+----------
+[CREATE_USER] create user CODEX_DM8_USER_REJECT identified by "Dm8User#2026" limit session_per_user;
+----------
+[CREATE_USER] create user CODEX_DM8_USER_REJECT identified by "Dm8User#2026" allow_ip;
+----------
+[CREATE_USER] create user CODEX_DM8_USER_REJECT identified by "Dm8User#2026" not_allow_ip;
+----------
+[CREATE_USER] create user CODEX_DM8_USER_REJECT identified by "Dm8User#2026" allow_datetime;
+----------
+[CREATE_USER] create user CODEX_DM8_USER_REJECT identified by "Dm8User#2026" default tablespace;
+----------
+[CREATE_USER] create user CODEX_DM8_USER_REJECT identified by "Dm8User#2026" default index tablespace;
+----------
+[CREATE_USER] create user CODEX_DM8_USER_REJECT identified by "Dm8User#2026" quota;
+----------
+[CREATE_USER] create user CODEX_DM8_USER_REJECT identified by "Dm8User#2026" quota 1 on;
+----------
+[CREATE_USER] create user CODEX_DM8_USER_REJECT identified externally as;
+----------
+[ALTER_USER] alter user;
+----------
+[ALTER_USER] alter user CODEX_DM8_USER_REJECT identified;
+----------
+[ALTER_USER] alter user CODEX_DM8_USER_REJECT grant connect through;
+----------
+[DROP_USER] drop user;
+----------
+[DROP_USER] drop user CODEX_DM8_USER_REJECT purge;
+----------
+[DROP_USER] drop user CODEX_DM8_USER_REJECT cascade restrict;
+----------
+[DROP_USER] drop user CODEX_DM8_USER_REJECT restrict cascade;
+

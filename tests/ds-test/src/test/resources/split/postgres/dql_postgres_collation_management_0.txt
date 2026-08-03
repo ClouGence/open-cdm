@@ -1,0 +1,12 @@
+SELECT pg_collation_actual_version(oid) IS NULL OR length(pg_collation_actual_version(oid)) >= 0 AS collation_version_known
+FROM pg_collation
+WHERE collname = 'C'
+LIMIT 1;
+SELECT pg_import_system_collations('pg_catalog'::regnamespace) >= 0 AS imported_system_collations;
+------------------------------------------------------------------------------------------
+[SELECT|METADATA] SELECT pg_collation_actual_version(oid) IS NULL OR length(pg_collation_actual_version(oid)) >= 0 AS collation_version_known
+FROM pg_collation
+WHERE collname = 'C'
+LIMIT 1;
+----------
+[SELECT|SYSTEM_SETTING_WRITE] SELECT pg_import_system_collations('pg_catalog'::regnamespace) >= 0 AS imported_system_collations;

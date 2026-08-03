@@ -1,0 +1,70 @@
+[alter_add_column]
+sql:
+alter table `test`.`user_table` add column `address` varchar(255);
+expect:
+{
+  "contains": [
+    {"class":"DrColumnDomain", "sqlType": "ALTER_TABLE_ADD_COLUMN", "auditKind":"CREATE", "schema":"test", "table":"user_table", "column":"address", "typeDesc":"varchar(255)"}
+  ]
+}
+----------
+[alter_add_columns]
+sql:
+alter table `test`.`user_table` add column (`address` varchar(255), aa int);
+expect:
+{
+  "contains": [
+    {"class":"DrColumnDomain", "sqlType": "ALTER_TABLE_ADD_COLUMN", "auditKind":"CREATE", "schema":"test", "table":"user_table", "column":"address", "typeDesc":"varchar(255)"},
+    {"class":"DrColumnDomain", "sqlType": "ALTER_TABLE_ADD_COLUMN", "auditKind":"CREATE", "schema":"test", "table":"user_table", "column":"aa", "typeDesc":"int"}
+  ]
+}
+----------
+[alter_drop_column]
+sql:
+alter table user_table drop column address;
+expect:
+{
+  "contains": [
+    {"class":"DrColumnDomain", "sqlType": "ALTER_TABLE_DROP_COLUMN", "auditKind":"DROP", "table":"user_table", "column":"address"}
+  ]
+}
+----------
+[alter_rename_column]
+sql:
+alter table user_table rename column c1 c2;
+expect:
+{
+  "contains": [
+    {"class":"DrColumnDomain", "sqlType": "ALTER_TABLE_RENAME_COLUMN", "auditKind":"ALTER", "table":"user_table", "column":"c1", "newName":"c2"}
+  ]
+}
+----------
+[alter_add_index]
+sql:
+alter table user_table add index idx_name (`name`);
+expect:
+{
+  "contains": [
+    {"class":"RdbIndexDomain", "sqlType": "ALTER_TABLE_ADD_INDEX", "auditKind":"CREATE", "tableName":"user_table", "name":"idx_name", "columns":["name"]}
+  ]
+}
+----------
+[alter_rename_table]
+sql:
+alter table user_table rename user_table_new;
+expect:
+{
+  "contains": [
+    {"class":"DrTableDomain", "sqlType": "RENAME_TABLE", "auditKind":"ALTER", "table":"user_table", "newName":"user_table_new"}
+  ]
+}
+----------
+[alter_table_comment]
+sql:
+alter table user_table set ("comment" = "new table comment");
+expect:
+{
+  "contains": [
+    {"class":"DrTableDomain", "sqlType": "ALTER_TABLE", "auditKind":"ALTER", "table":"user_table"}
+  ]
+}

@@ -1,0 +1,49 @@
+[select_join]
+sql:
+select * from db1.t1 join t2 on t1.id = t2.id
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:20) /test/1/catalog1/db1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:26~1:28) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[create_table_select]
+sql:
+create table target_tab as select * from source_tab
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:23) /test/1/catalog1/schema1/target_tab/",
+      "action" : "CREATE",
+      "target" : "Table(1:41~1:51) /test/1/catalog1/schema1/source_tab/"
+    }
+  ]
+}
+----------
+[call_procedure]
+sql:
+call proc1()
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:5~1:10) /test/1/catalog1/schema1/proc1/",
+      "action" : "CALL"
+    }
+  ]
+}

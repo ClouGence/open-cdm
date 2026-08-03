@@ -1,0 +1,54 @@
+[array_direct_columns]
+sql:
+select a.column_value value_from_array
+from array new int[2]{1,2} a
+expect:
+{
+  "value_from_array": []
+}
+----------
+[array_join_columns]
+sql:
+select a.column_value value_from_array,t.value_text
+from array new int[2]{1,2} a
+join catalog1.app.array_target t on t.id=a.column_value
+expect:
+{
+  "value_from_array": [],
+  "value_text": ["/catalog1/app/array_target/value_text/"]
+}
+----------
+[array_cte_columns]
+sql:
+with q as(
+  select column_value v from array new int[2]{1,2}
+)
+select q.v,t.value_text
+from q join catalog1.app.array_target t on t.id=q.v
+expect:
+{
+  "v": [],
+  "value_text": ["/catalog1/app/array_target/value_text/"]
+}
+----------
+[table_collection_columns]
+sql:
+select x.column_value
+from table(
+  select c.values_col from catalog1.app.array_collections c where c.id=1
+) x
+expect:
+{
+  "column_value": ["/catalog1/app/array_collections/values_col/"]
+}
+----------
+[array_analytic_columns]
+sql:
+select a.column_value,
+  row_number() over(order by a.column_value) rn
+from array new int[2]{2,1} a
+expect:
+{
+  "column_value": [],
+  "rn": []
+}

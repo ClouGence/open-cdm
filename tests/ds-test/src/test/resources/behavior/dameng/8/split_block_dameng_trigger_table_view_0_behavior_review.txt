@@ -1,0 +1,1284 @@
+[split_block_dameng_trigger_table_view_0_001_behavior_review]
+sql:
+create table trg_target(id int primary key, name varchar(30), amount int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:23) /test/1/catalog1/schema1/trg_target/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_table_view_0_002_behavior_review]
+sql:
+create table trg_log(seq int identity, trigger_name varchar(40), operation varchar(10), old_id int, new_id int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:20) /test/1/catalog1/schema1/trg_log/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_table_view_0_003_behavior_review]
+sql:
+create view trg_view as select id, name, amount from trg_target;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:20) /test/1/catalog1/schema1/trg_view/",
+      "action": "CREATE",
+      "target": "Table(1:53~1:63) /test/1/catalog1/schema1/trg_target/"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_table_view_0_004_behavior_review]
+sql:
+create or replace trigger trg_before_insert
+before insert on trg_target
+referencing new row as n
+for each row
+begin
+  :n.name = upper(:n.name);
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(1:26~1:43) /test/1/catalog1/schema1/trg_before_insert/",
+      "action": "REPLACE",
+      "target": "Table(2:17~2:27) /test/1/catalog1/schema1/trg_target/"
+    },
+    {
+      "subject": "Function(6:12~6:17) /test/1/catalog1/schema1/upper/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_table_view_0_005_behavior_review]
+sql:
+create or replace trigger trg_after_insert
+after insert on trg_target
+referencing new as n
+for each row
+begin
+  insert into trg_log(trigger_name, operation, new_id)
+  values('TRG_AFTER_INSERT', 'INSERT', :n.id);
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(1:26~1:42) /test/1/catalog1/schema1/trg_after_insert/",
+      "action": "REPLACE",
+      "target": "Table(2:16~2:26) /test/1/catalog1/schema1/trg_target/"
+    },
+    {
+      "subject": "Table(6:14~6:21) /test/1/catalog1/schema1/trg_log/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_table_view_0_006_behavior_review]
+sql:
+insert into trg_target values(1, 'alpha', 10);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:22) /test/1/catalog1/schema1/trg_target/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_table_view_0_007_behavior_review]
+sql:
+select id, name, amount from trg_target where id = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:29~1:39) /test/1/catalog1/schema1/trg_target/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_table_view_0_008_behavior_review]
+sql:
+select trigger_name, operation, new_id from trg_log where new_id = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:44~1:51) /test/1/catalog1/schema1/trg_log/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_table_view_0_009_behavior_review]
+sql:
+create or replace trigger trg_before_update
+before update of name, amount on trg_target
+referencing old row as o new row as n
+for each row
+when (:n.amount > 0)
+begin
+  :n.amount = :o.amount + :n.amount;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(1:26~1:43) /test/1/catalog1/schema1/trg_before_update/",
+      "action": "REPLACE",
+      "target": "Table(2:33~2:43) /test/1/catalog1/schema1/trg_target/"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_table_view_0_010_behavior_review]
+sql:
+update trg_target set name = 'beta', amount = 5 where id = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:17) /test/1/catalog1/schema1/trg_target/",
+      "action": "UPDATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_table_view_0_011_behavior_review]
+sql:
+select id, name, amount from trg_target where id = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:29~1:39) /test/1/catalog1/schema1/trg_target/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_table_view_0_012_behavior_review]
+sql:
+create or replace trigger trg_after_delete
+after delete on trg_target
+referencing old as o
+for each row
+begin
+  insert into trg_log(trigger_name, operation, old_id)
+  values('TRG_AFTER_DELETE', 'DELETE', :o.id);
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(1:26~1:42) /test/1/catalog1/schema1/trg_after_delete/",
+      "action": "REPLACE",
+      "target": "Table(2:16~2:26) /test/1/catalog1/schema1/trg_target/"
+    },
+    {
+      "subject": "Table(6:14~6:21) /test/1/catalog1/schema1/trg_log/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_table_view_0_013_behavior_review]
+sql:
+delete from trg_target where id = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:22) /test/1/catalog1/schema1/trg_target/",
+      "action": "DELETE"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_table_view_0_014_behavior_review]
+sql:
+select trigger_name, operation, old_id from trg_log where old_id = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:44~1:51) /test/1/catalog1/schema1/trg_log/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_table_view_0_015_behavior_review]
+sql:
+create or replace trigger trg_all_dml
+after insert or delete or update on trg_target
+for each row
+declare
+  v_operation varchar(10);
+  v_old_id int;
+  v_new_id int;
+begin
+  if inserting then
+    v_operation = 'INSERT';
+    v_new_id = :new.id;
+  elseif updating then
+    v_operation = 'UPDATE';
+    v_old_id = :old.id;
+    v_new_id = :new.id;
+  else
+    v_operation = 'DELETE';
+    v_old_id = :old.id;
+  end if;
+  insert into trg_log(trigger_name, operation, old_id, new_id)
+  values('TRG_ALL_DML', v_operation, v_old_id, v_new_id);
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(1:26~1:37) /test/1/catalog1/schema1/trg_all_dml/",
+      "action": "REPLACE",
+      "target": "Table(2:36~2:46) /test/1/catalog1/schema1/trg_target/"
+    },
+    {
+      "subject": "Table(20:14~20:21) /test/1/catalog1/schema1/trg_log/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_table_view_0_016_behavior_review]
+sql:
+insert into trg_target values(2, 'gamma', 20);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:22) /test/1/catalog1/schema1/trg_target/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_table_view_0_017_behavior_review]
+sql:
+update trg_target set amount = amount + 1 where id = 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:17) /test/1/catalog1/schema1/trg_target/",
+      "action": "UPDATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_table_view_0_018_behavior_review]
+sql:
+delete from trg_target where id = 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:22) /test/1/catalog1/schema1/trg_target/",
+      "action": "DELETE"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_table_view_0_019_behavior_review]
+sql:
+select operation, old_id, new_id from trg_log where trigger_name = 'TRG_ALL_DML' order by seq;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:38~1:45) /test/1/catalog1/schema1/trg_log/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_table_view_0_020_behavior_review]
+sql:
+create or replace trigger trg_before_update_statement
+before update on trg_target
+for each statement
+begin
+  insert into trg_log(trigger_name, operation) values('TRG_BEFORE_STMT', 'UPDATE');
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(1:26~1:53) /test/1/catalog1/schema1/trg_before_update_statement/",
+      "action": "REPLACE",
+      "target": "Table(2:17~2:27) /test/1/catalog1/schema1/trg_target/"
+    },
+    {
+      "subject": "Table(5:14~5:21) /test/1/catalog1/schema1/trg_log/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_table_view_0_021_behavior_review]
+sql:
+create or replace trigger trg_after_update_statement
+after update on trg_target
+begin
+  insert into trg_log(trigger_name, operation) values('TRG_AFTER_STMT', 'UPDATE');
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(1:26~1:52) /test/1/catalog1/schema1/trg_after_update_statement/",
+      "action": "REPLACE",
+      "target": "Table(2:16~2:26) /test/1/catalog1/schema1/trg_target/"
+    },
+    {
+      "subject": "Table(4:14~4:21) /test/1/catalog1/schema1/trg_log/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_table_view_0_022_behavior_review]
+sql:
+insert into trg_target values(3, 'one', 1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:22) /test/1/catalog1/schema1/trg_target/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_table_view_0_023_behavior_review]
+sql:
+insert into trg_target values(4, 'two', 2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:22) /test/1/catalog1/schema1/trg_target/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_table_view_0_024_behavior_review]
+sql:
+update trg_target set amount = amount + 10 where id in (3, 4);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:17) /test/1/catalog1/schema1/trg_target/",
+      "action": "UPDATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_table_view_0_025_behavior_review]
+sql:
+select trigger_name, count(*) from trg_log where trigger_name in ('TRG_BEFORE_STMT', 'TRG_AFTER_STMT') group by trigger_name order by trigger_name;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:21~1:26) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:35~1:42) /test/1/catalog1/schema1/trg_log/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_table_view_0_026_behavior_review]
+sql:
+create or replace trigger trg_view_insert
+instead of insert on trg_view
+for each row
+begin
+  insert into trg_target values(:new.id, :new.name, :new.amount);
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(1:26~1:41) /test/1/catalog1/schema1/trg_view_insert/",
+      "action": "REPLACE",
+      "target": "View(2:21~2:29) /test/1/catalog1/schema1/trg_view/"
+    },
+    {
+      "subject": "Table(5:14~5:24) /test/1/catalog1/schema1/trg_target/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_table_view_0_027_behavior_review]
+sql:
+insert into trg_view values(5, 'view_insert', 50);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:20) /test/1/catalog1/schema1/trg_view/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_table_view_0_028_behavior_review]
+sql:
+select id, name, amount from trg_target where id = 5;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:29~1:39) /test/1/catalog1/schema1/trg_target/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_table_view_0_029_behavior_review]
+sql:
+create or replace trigger trg_view_update
+instead of update on trg_view
+for each row
+begin
+  update trg_target set name = :new.name, amount = :new.amount where id = :old.id;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(1:26~1:41) /test/1/catalog1/schema1/trg_view_update/",
+      "action": "REPLACE",
+      "target": "View(2:21~2:29) /test/1/catalog1/schema1/trg_view/"
+    },
+    {
+      "subject": "Table(5:9~5:19) /test/1/catalog1/schema1/trg_target/",
+      "action": "UPDATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_table_view_0_030_behavior_review]
+sql:
+update trg_view set name = 'view_update', amount = 55 where id = 5;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:15) /test/1/catalog1/schema1/trg_view/",
+      "action": "UPDATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_table_view_0_031_behavior_review]
+sql:
+select id, name, amount from trg_target where id = 5;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:29~1:39) /test/1/catalog1/schema1/trg_target/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_table_view_0_032_behavior_review]
+sql:
+create or replace trigger trg_view_delete
+instead of delete on trg_view
+for each row
+begin
+  delete from trg_target where id = :old.id;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(1:26~1:41) /test/1/catalog1/schema1/trg_view_delete/",
+      "action": "REPLACE",
+      "target": "View(2:21~2:29) /test/1/catalog1/schema1/trg_view/"
+    },
+    {
+      "subject": "Table(5:14~5:24) /test/1/catalog1/schema1/trg_target/",
+      "action": "DELETE"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_table_view_0_033_behavior_review]
+sql:
+delete from trg_view where id = 5;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:20) /test/1/catalog1/schema1/trg_view/",
+      "action": "DELETE"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_table_view_0_034_behavior_review]
+sql:
+select count(*) from trg_target where id = 5;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:21~1:31) /test/1/catalog1/schema1/trg_target/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_table_view_0_035_behavior_review]
+sql:
+create or replace trigger trg_order_first
+before insert on trg_target
+for each row
+begin
+  insert into trg_log(trigger_name, operation, new_id) values('ORDER_FIRST', 'INSERT', :new.id);
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(1:26~1:41) /test/1/catalog1/schema1/trg_order_first/",
+      "action": "REPLACE",
+      "target": "Table(2:17~2:27) /test/1/catalog1/schema1/trg_target/"
+    },
+    {
+      "subject": "Table(5:14~5:21) /test/1/catalog1/schema1/trg_log/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_table_view_0_036_behavior_review]
+sql:
+create or replace trigger trg_order_second
+before insert on trg_target
+for each row
+follows trg_order_first
+begin
+  insert into trg_log(trigger_name, operation, new_id) values('ORDER_SECOND', 'INSERT', :new.id);
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(1:26~1:42) /test/1/catalog1/schema1/trg_order_second/",
+      "action": "REPLACE",
+      "target": [
+        "Table(2:17~2:27) /test/1/catalog1/schema1/trg_target/",
+        "Trigger(4:8~4:23) /test/1/catalog1/schema1/trg_order_first/"
+      ]
+    },
+    {
+      "subject": "Table(6:14~6:21) /test/1/catalog1/schema1/trg_log/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_table_view_0_037_behavior_review]
+sql:
+create or replace trigger trg_order_zero
+before insert on trg_target
+for each row
+precedes trg_order_first
+begin
+  insert into trg_log(trigger_name, operation, new_id) values('ORDER_ZERO', 'INSERT', :new.id);
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(1:26~1:40) /test/1/catalog1/schema1/trg_order_zero/",
+      "action": "REPLACE",
+      "target": [
+        "Table(2:17~2:27) /test/1/catalog1/schema1/trg_target/",
+        "Trigger(4:9~4:24) /test/1/catalog1/schema1/trg_order_first/"
+      ]
+    },
+    {
+      "subject": "Table(6:14~6:21) /test/1/catalog1/schema1/trg_log/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_table_view_0_038_behavior_review]
+sql:
+insert into trg_target values(6, 'ordered', 60);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:22) /test/1/catalog1/schema1/trg_target/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_table_view_0_039_behavior_review]
+sql:
+select trigger_name from trg_log where new_id = 6 and trigger_name like 'ORDER_%' order by seq;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:25~1:32) /test/1/catalog1/schema1/trg_log/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_table_view_0_040_behavior_review]
+sql:
+create or replace trigger trg_encrypted with encryption
+after delete on trg_target
+begin
+  insert into trg_log(trigger_name, operation) values('TRG_ENCRYPTED', 'DELETE');
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(1:26~1:39) /test/1/catalog1/schema1/trg_encrypted/",
+      "action": "REPLACE",
+      "target": "Table(2:16~2:26) /test/1/catalog1/schema1/trg_target/"
+    },
+    {
+      "subject": "Table(4:14~4:21) /test/1/catalog1/schema1/trg_log/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_table_view_0_041_behavior_review]
+sql:
+alter trigger trg_encrypted disable;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TRIGGER": [
+    {
+      "subject": "Trigger(1:14~1:27) /test/1/catalog1/schema1/trg_encrypted/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_table_view_0_042_behavior_review]
+sql:
+delete from trg_target where id = 6;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:22) /test/1/catalog1/schema1/trg_target/",
+      "action": "DELETE"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_table_view_0_043_behavior_review]
+sql:
+select count(*) from trg_log where trigger_name = 'TRG_ENCRYPTED';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:21~1:28) /test/1/catalog1/schema1/trg_log/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_table_view_0_044_behavior_review]
+sql:
+alter trigger trg_encrypted enable;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TRIGGER": [
+    {
+      "subject": "Trigger(1:14~1:27) /test/1/catalog1/schema1/trg_encrypted/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_table_view_0_045_behavior_review]
+sql:
+insert into trg_target values(7, 'enabled', 70);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:22) /test/1/catalog1/schema1/trg_target/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_table_view_0_046_behavior_review]
+sql:
+delete from trg_target where id = 7;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:22) /test/1/catalog1/schema1/trg_target/",
+      "action": "DELETE"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_table_view_0_047_behavior_review]
+sql:
+select count(*) from trg_log where trigger_name = 'TRG_ENCRYPTED';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:21~1:28) /test/1/catalog1/schema1/trg_log/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_table_view_0_048_behavior_review]
+sql:
+alter trigger trg_encrypted compile;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TRIGGER": [
+    {
+      "subject": "Trigger(1:14~1:27) /test/1/catalog1/schema1/trg_encrypted/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_table_view_0_049_behavior_review]
+sql:
+alter trigger trg_encrypted compile debug;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TRIGGER": [
+    {
+      "subject": "Trigger(1:14~1:27) /test/1/catalog1/schema1/trg_encrypted/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_table_view_0_050_behavior_review]
+sql:
+alter table trg_target disable all triggers;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:22) /test/1/catalog1/schema1/trg_target/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_table_view_0_051_behavior_review]
+sql:
+insert into trg_target values(8, 'all_disabled', 80);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:22) /test/1/catalog1/schema1/trg_target/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_table_view_0_052_behavior_review]
+sql:
+select count(*) from trg_log where new_id = 8;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:21~1:28) /test/1/catalog1/schema1/trg_log/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_table_view_0_053_behavior_review]
+sql:
+alter table trg_target enable all triggers;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:22) /test/1/catalog1/schema1/trg_target/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_table_view_0_054_behavior_review]
+sql:
+insert into trg_target values(9, 'all_enabled', 90);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:22) /test/1/catalog1/schema1/trg_target/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_table_view_0_055_behavior_review]
+sql:
+select count(*) from trg_log where new_id = 9;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:21~1:28) /test/1/catalog1/schema1/trg_log/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_table_view_0_056_behavior_review]
+sql:
+drop trigger trg_view_delete;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TRIGGER": [
+    {
+      "subject": "Trigger(1:13~1:28) /test/1/catalog1/schema1/trg_view_delete/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_table_view_0_057_behavior_review]
+sql:
+drop trigger trg_view_update;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TRIGGER": [
+    {
+      "subject": "Trigger(1:13~1:28) /test/1/catalog1/schema1/trg_view_update/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_table_view_0_058_behavior_review]
+sql:
+drop trigger trg_view_insert;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TRIGGER": [
+    {
+      "subject": "Trigger(1:13~1:28) /test/1/catalog1/schema1/trg_view_insert/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_table_view_0_059_behavior_review]
+sql:
+drop trigger trg_order_zero;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TRIGGER": [
+    {
+      "subject": "Trigger(1:13~1:27) /test/1/catalog1/schema1/trg_order_zero/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_table_view_0_060_behavior_review]
+sql:
+drop trigger trg_order_second;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TRIGGER": [
+    {
+      "subject": "Trigger(1:13~1:29) /test/1/catalog1/schema1/trg_order_second/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_table_view_0_061_behavior_review]
+sql:
+drop trigger trg_order_first;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TRIGGER": [
+    {
+      "subject": "Trigger(1:13~1:28) /test/1/catalog1/schema1/trg_order_first/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_table_view_0_062_behavior_review]
+sql:
+drop trigger trg_encrypted;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TRIGGER": [
+    {
+      "subject": "Trigger(1:13~1:26) /test/1/catalog1/schema1/trg_encrypted/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_table_view_0_063_behavior_review]
+sql:
+drop trigger trg_after_update_statement;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TRIGGER": [
+    {
+      "subject": "Trigger(1:13~1:39) /test/1/catalog1/schema1/trg_after_update_statement/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_table_view_0_064_behavior_review]
+sql:
+drop trigger trg_before_update_statement;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TRIGGER": [
+    {
+      "subject": "Trigger(1:13~1:40) /test/1/catalog1/schema1/trg_before_update_statement/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_table_view_0_065_behavior_review]
+sql:
+drop trigger trg_all_dml;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TRIGGER": [
+    {
+      "subject": "Trigger(1:13~1:24) /test/1/catalog1/schema1/trg_all_dml/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_table_view_0_066_behavior_review]
+sql:
+drop trigger trg_after_delete;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TRIGGER": [
+    {
+      "subject": "Trigger(1:13~1:29) /test/1/catalog1/schema1/trg_after_delete/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_table_view_0_067_behavior_review]
+sql:
+drop trigger trg_before_update;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TRIGGER": [
+    {
+      "subject": "Trigger(1:13~1:30) /test/1/catalog1/schema1/trg_before_update/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_table_view_0_068_behavior_review]
+sql:
+drop trigger trg_after_insert;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TRIGGER": [
+    {
+      "subject": "Trigger(1:13~1:29) /test/1/catalog1/schema1/trg_after_insert/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_table_view_0_069_behavior_review]
+sql:
+drop trigger trg_before_insert;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TRIGGER": [
+    {
+      "subject": "Trigger(1:13~1:30) /test/1/catalog1/schema1/trg_before_insert/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_table_view_0_070_behavior_review]
+sql:
+drop trigger if exists no_such_trigger;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TRIGGER": [
+    {
+      "subject": "Trigger(1:23~1:38) /test/1/catalog1/schema1/no_such_trigger/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_table_view_0_071_behavior_review]
+sql:
+drop view trg_view;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "View(1:10~1:18) /test/1/catalog1/schema1/trg_view/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_table_view_0_072_behavior_review]
+sql:
+drop table trg_target;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:21) /test/1/catalog1/schema1/trg_target/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_table_view_0_073_behavior_review]
+sql:
+drop table trg_log;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:18) /test/1/catalog1/schema1/trg_log/",
+      "action": "DROP"
+    }
+  ]
+}

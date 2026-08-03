@@ -1,0 +1,21 @@
+[debug_control_columns]
+sql:
+select label, number_value, text_value
+from catalog1.app.codex_dm8_debug_ctl
+where label='PROBE_VERSION'
+expect:
+{
+  "label" : [ "/catalog1/app/codex_dm8_debug_ctl/label/" ],
+  "number_value" : [ "/catalog1/app/codex_dm8_debug_ctl/number_value/" ],
+  "text_value" : [ "/catalog1/app/codex_dm8_debug_ctl/text_value/" ]
+}
+----------
+[debug_target_result_columns]
+sql:
+select number_value target_result
+from catalog1.app.codex_dm8_debug_ctl
+where label='TARGET_RESULT'
+expect:
+{
+  "target_result" : [ "/catalog1/app/codex_dm8_debug_ctl/number_value/" ]
+}

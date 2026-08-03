@@ -1,0 +1,1857 @@
+[split_dql_dameng_datetime_functions_0_001_behavior_review]
+sql:
+SELECT ADD_DAYS( DATE '2000-01-12',1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/ADD_DAYS/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_002_behavior_review]
+sql:
+SELECT ADD_MONTHS(DATE '2000-01-31',1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/ADD_MONTHS/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_003_behavior_review]
+sql:
+SELECT ADD_MONTHS(TIMESTAMP '2000-01-31 20:00:00',1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/ADD_MONTHS/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_004_behavior_review]
+sql:
+SELECT ADD_WEEKS( DATE '2000-01-12',1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/ADD_WEEKS/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_005_behavior_review]
+sql:
+SELECT   CURDATE();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:9~1:16) /test/1/catalog1/schema1/CURDATE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_006_behavior_review]
+sql:
+SELECT  CURTIME();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:8~1:15) /test/1/catalog1/schema1/CURTIME/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_007_behavior_review]
+sql:
+SELECT   CURRENT_TIMESTAMP();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:9~1:26) /test/1/catalog1/schema1/CURRENT_TIMESTAMP/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_008_behavior_review]
+sql:
+SELECT DATEADD(HH, 4, '2022-09-19 16:09:35');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/DATEADD/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_009_behavior_review]
+sql:
+SELECT DATEADD(SS, 10, '14:05:47.555');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/DATEADD/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_010_behavior_review]
+sql:
+SELECT DATEADD(WW, 15, '2000-06-09');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/DATEADD/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_011_behavior_review]
+sql:
+SELECT DATEDIFF(QQ, '2003-06-01', DATE '2002-01-01');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/DATEDIFF/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_012_behavior_review]
+sql:
+SELECT DATEDIFF(MONTH, '2001-06-01', DATE '2002-01-01');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/DATEDIFF/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_013_behavior_review]
+sql:
+SELECT DATEDIFF(WK, DATE '2003-02-07',DATE '2003-02-14');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/DATEDIFF/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_014_behavior_review]
+sql:
+SELECT DATEDIFF(MS,'2003-02-14 12:10:10.000','2003-02-14 12:09:09.300');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/DATEDIFF/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_015_behavior_review]
+sql:
+SELECT DATEPART(SECOND, DATETIME '2000-02-02 13:33:40.00');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/DATEPART/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_016_behavior_review]
+sql:
+SELECT DATEPART(DY, '2000-02-02');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/DATEPART/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_017_behavior_review]
+sql:
+SELECT DATEPART(WEEKDAY, '2002-02-02');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/DATEPART/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_018_behavior_review]
+sql:
+SELECT DAY('2016-06-07');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/DAY/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_019_behavior_review]
+sql:
+SELECT DAYNAME(DATE '2012-01-01');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/DAYNAME/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_020_behavior_review]
+sql:
+SELECT DAYOFMONTH('2003-01-03');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/DAYOFMONTH/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_021_behavior_review]
+sql:
+SELECT DAYOFWEEK('2003-01-01');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/DAYOFWEEK/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_022_behavior_review]
+sql:
+SELECT DAYOFYEAR('2003-03-03');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/DAYOFYEAR/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_023_behavior_review]
+sql:
+SELECT DAYS_BETWEEN('2022-06-01','2021-10-01');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/DAYS_BETWEEN/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_024_behavior_review]
+sql:
+SELECT GETDATE();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/GETDATE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_025_behavior_review]
+sql:
+SELECT GREATEST(date'1999-01-01',date'1998-01-01',date'2000-01-01');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/GREATEST/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_026_behavior_review]
+sql:
+SELECT GREAT (date'1999-01-01', date'2000-01-01');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/GREAT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_027_behavior_review]
+sql:
+SELECT HOUR(TIME '20:10:16');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/HOUR/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_028_behavior_review]
+sql:
+SELECT LAST_DAY(SYSDATE) "Days Left";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/LAST_DAY/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:16~1:23) /test/1/catalog1/schema1/SYSDATE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_029_behavior_review]
+sql:
+SELECT LAST_DAY(TIMESTAMP '2000-01-11 12:00:00');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/LAST_DAY/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_030_behavior_review]
+sql:
+SELECT LEAST(date'1999-01-01',date'1998-01-01',date'2000-01-01');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/LEAST/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_031_behavior_review]
+sql:
+SELECT MINUTE('20:10:16');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/MINUTE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_032_behavior_review]
+sql:
+SELECT MONTH('2002-11-12');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/MONTH/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_033_behavior_review]
+sql:
+SELECT MONTHNAME('2002-11-12');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/MONTHNAME/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_034_behavior_review]
+sql:
+SELECT MONTHS_BETWEEN(DATE '1995-02-28', DATE '1995-01-31') "Months";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:21) /test/1/catalog1/schema1/MONTHS_BETWEEN/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_035_behavior_review]
+sql:
+SELECT NEXT_DAY(DATE '2001-08-02', 'MONDAY');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/NEXT_DAY/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_036_behavior_review]
+sql:
+SELECT NEXT_DAY('2001-08-02 12:00:00', 'FRI');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/NEXT_DAY/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_037_behavior_review]
+sql:
+SELECT QUARTER('2002-08-01');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/QUARTER/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_038_behavior_review]
+sql:
+SELECT SECOND('08:10:25.300');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/SECOND/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_039_behavior_review]
+sql:
+SELECT ROUND(DATE '1992-10-27', 'scc');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/ROUND/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_040_behavior_review]
+sql:
+SELECT ROUND(DATE '1992-10-27', 'YEAR') "FIRST OF THE YEAR";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/ROUND/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_041_behavior_review]
+sql:
+SELECT ROUND(DATE '1992-10-27', 'q');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/ROUND/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_042_behavior_review]
+sql:
+SELECT ROUND(DATE '1992-10-27', 'month');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/ROUND/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_043_behavior_review]
+sql:
+SELECT ROUND(TIMESTAMP '1992-10-27 11:00:00', 'ww');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/ROUND/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_044_behavior_review]
+sql:
+SELECT ROUND(TIMESTAMP '1992-10-27 11:00:00', 'w');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/ROUND/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_045_behavior_review]
+sql:
+SELECT ROUND(TIMESTAMP '1992-10-27 12:00:01', 'ddd');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/ROUND/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_046_behavior_review]
+sql:
+SELECT ROUND(DATE '1992-10-27', 'day');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/ROUND/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_047_behavior_review]
+sql:
+SELECT ROUND(TIMESTAMP '1992-10-27 12:00:31', 'hh');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/ROUND/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_048_behavior_review]
+sql:
+SELECT ROUND(TIMESTAMP '1992-10-27 12:00:31', 'mi');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/ROUND/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_049_behavior_review]
+sql:
+SELECT TIMESTAMPADD(SQL_TSI_FRAC_SECOND, 5, '2003-02-10 08:12:20.300' );
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/TIMESTAMPADD/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_050_behavior_review]
+sql:
+SELECT TIMESTAMPADD(SQL_TSI_YEAR, 30, DATE '2002-01-01');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/TIMESTAMPADD/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_051_behavior_review]
+sql:
+SELECT TIMESTAMPADD(SQL_TSI_QUARTER, 2, TIMESTAMP '2002-01-01 12:00:00');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/TIMESTAMPADD/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_052_behavior_review]
+sql:
+SELECT TIMESTAMPADD(SQL_TSI_DAY, 40, '2002-12-01 12:00:00');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/TIMESTAMPADD/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_053_behavior_review]
+sql:
+SELECT TIMESTAMPADD(SQL_TSI_WEEK, 1, '2002-01-30');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/TIMESTAMPADD/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_054_behavior_review]
+sql:
+SELECT TIMESTAMPDIFF(SQL_TSI_QUARTER, '2003-06-01', DATE '2002-01-01');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:20) /test/1/catalog1/schema1/TIMESTAMPDIFF/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_055_behavior_review]
+sql:
+SELECT TIMESTAMPDIFF(SQL_TSI_MONTH, '2001-06-01', DATE '2002-01-01');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:20) /test/1/catalog1/schema1/TIMESTAMPDIFF/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_056_behavior_review]
+sql:
+SELECT TIMESTAMPDIFF(SQL_TSI_WEEK, DATE '2003-02-07',DATE '2003-02-14');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:20) /test/1/catalog1/schema1/TIMESTAMPDIFF/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_057_behavior_review]
+sql:
+SELECT  SYSDATE();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:8~1:15) /test/1/catalog1/schema1/SYSDATE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_058_behavior_review]
+sql:
+SELECT TO_DATE('20200215 14.47.38','YYYY-MM-DD HH24:MI:SS');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/TO_DATE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_059_behavior_review]
+sql:
+select to_date('2023 兔年10:10','yyyy" 兔年"mm :dd') from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/to_date/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:54~1:58) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_060_behavior_review]
+sql:
+select to_date('2001: 10:10','yyyy:mm:dd') from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/to_date/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:48~1:52) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_061_behavior_review]
+sql:
+select to_date('2001-10--10','yyyy:mm:::dd') from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/to_date/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:50~1:54) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_062_behavior_review]
+sql:
+select to_date('2001:1010','yyyy-mmdd') from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/to_date/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:45~1:49) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_063_behavior_review]
+sql:
+select to_date('200112   10','yyyy  mmdd') from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/to_date/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:48~1:52) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_064_behavior_review]
+sql:
+select to_date('200112     10','yyyymmdd') from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/to_date/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:48~1:52) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_065_behavior_review]
+sql:
+SELECT TO_TIMESTAMP ('10.123000', 'SS.XFF') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/TO_TIMESTAMP/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:49~1:53) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_066_behavior_review]
+sql:
+SELECT FROM_TZ(TO_TIMESTAMP('20091101','YYYYMMDD'),'ASIA/HONG_KONG') ;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/FROM_TZ/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:15~1:27) /test/1/catalog1/schema1/TO_TIMESTAMP/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_067_behavior_review]
+sql:
+select from_tz('20091101', 'ASIA/HONG_KONG');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/from_tz/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_068_behavior_review]
+sql:
+SELECT TZ_OFFSET(DBTIMEZONE);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/TZ_OFFSET/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:27) /test/1/catalog1/schema1/DBTIMEZONE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_069_behavior_review]
+sql:
+SELECT TZ_OFFSET('US/Eastern');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/TZ_OFFSET/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_070_behavior_review]
+sql:
+SELECT TRUNC(DATE '1992-10-27', 'scc');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/TRUNC/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_071_behavior_review]
+sql:
+SELECT TRUNC(DATE '1992-10-27', 'YEAR') "FIRST OF THE YEAR";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/TRUNC/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_072_behavior_review]
+sql:
+SELECT TRUNC(DATE '1992-10-27', 'q');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/TRUNC/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_073_behavior_review]
+sql:
+SELECT TRUNC(DATE '1992-10-27', 'month');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/TRUNC/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_074_behavior_review]
+sql:
+SELECT TRUNC(TIMESTAMP '1992-10-27 11:00:00', 'ww');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/TRUNC/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_075_behavior_review]
+sql:
+SELECT TRUNC(TIMESTAMP '1992-10-27 11:00:00', 'w');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/TRUNC/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_076_behavior_review]
+sql:
+SELECT TRUNC(TIMESTAMP '1992-10-27 12:00:01', 'ddd');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/TRUNC/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_077_behavior_review]
+sql:
+SELECT TRUNC(DATE '1992-10-27', 'day');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/TRUNC/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_078_behavior_review]
+sql:
+SELECT TRUNC(TIMESTAMP '1992-10-27 12:00:31', 'hh');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/TRUNC/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_079_behavior_review]
+sql:
+SELECT TRUNC(TIMESTAMP '1992-10-27 12:00:31', 'mi');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/TRUNC/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_080_behavior_review]
+sql:
+SELECT WEEK(DATE '2003-02-10');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/WEEK/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_081_behavior_review]
+sql:
+SELECT WEEKDAY(DATE '1998-10-26');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/WEEKDAY/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_082_behavior_review]
+sql:
+SELECT WEEKS_BETWEEN(DATE '1998-2-28', DATE '1998-10-31');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:20) /test/1/catalog1/schema1/WEEKS_BETWEEN/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_083_behavior_review]
+sql:
+SELECT YEAR(DATE '2001-05-12');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/YEAR/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_084_behavior_review]
+sql:
+SELECT  YEARS_BETWEEN(DATE '1998-2-28', DATE '1999-10-31');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:8~1:21) /test/1/catalog1/schema1/YEARS_BETWEEN/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_085_behavior_review]
+sql:
+SELECT OVERLAPS('2011-10-3','2011-10-9','2011-10-6','2011-10-13');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/OVERLAPS/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_086_behavior_review]
+sql:
+SELECT OVERLAPS('2011-10-3','2011-10-9','2011-10-10','2011-10-11');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/OVERLAPS/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_087_behavior_review]
+sql:
+SELECT TO_CHAR(SYSDATE,'YYYY/MM/DD');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/TO_CHAR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:15~1:22) /test/1/catalog1/schema1/SYSDATE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_088_behavior_review]
+sql:
+SELECT TO_CHAR(SYSDATE,'HH24:MI');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/TO_CHAR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:15~1:22) /test/1/catalog1/schema1/SYSDATE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_089_behavior_review]
+sql:
+SELECT TO_CHAR(SYSDATE,'YYYYMMDD HH24:MI:SS');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/TO_CHAR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:15~1:22) /test/1/catalog1/schema1/SYSDATE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_090_behavior_review]
+sql:
+SELECT TO_CHAR(SYSDATE,'YYYY-MM-DD HH24:MI:SS');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/TO_CHAR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:15~1:22) /test/1/catalog1/schema1/SYSDATE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_091_behavior_review]
+sql:
+SELECT TO_CHAR(INTERVAL '123-2' YEAR(3) TO MONTH) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/TO_CHAR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:55~1:59) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_092_behavior_review]
+sql:
+select to_char(sysdate(), 'mon', 'NLS_DATE_LANGUAGE = ENGLISH');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/to_char/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:15~1:22) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_093_behavior_review]
+sql:
+select to_char(sysdate(),'mon','NLS_DATE_LANGUAGE=''SIMPLIFIED CHINESE'' ');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/to_char/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:15~1:22) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_094_behavior_review]
+sql:
+SELECT SYSTIMESTAMP();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/SYSTIMESTAMP/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_095_behavior_review]
+sql:
+SELECT NUMTODSINTERVAL (2.5,'DAY');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:22) /test/1/catalog1/schema1/NUMTODSINTERVAL/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_096_behavior_review]
+sql:
+SELECT NUMTOYMINTERVAL (2.5,'YEAR');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:22) /test/1/catalog1/schema1/NUMTOYMINTERVAL/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_097_behavior_review]
+sql:
+SELECT WEEK('2013-12-31',0);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/WEEK/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_098_behavior_review]
+sql:
+SELECT WEEK('2013-12-31',1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/WEEK/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_099_behavior_review]
+sql:
+SELECT WEEK('2013-12-31',2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/WEEK/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_100_behavior_review]
+sql:
+SELECT WEEK('2013-12-31',3);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/WEEK/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_101_behavior_review]
+sql:
+SELECT UNIX_TIMESTAMP(timestamp '1970-01-01 08:00:00');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:21) /test/1/catalog1/schema1/UNIX_TIMESTAMP/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_102_behavior_review]
+sql:
+SELECT UNIX_TIMESTAMP('1970-01-01 17:00:00');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:21) /test/1/catalog1/schema1/UNIX_TIMESTAMP/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_103_behavior_review]
+sql:
+SELECT UNIX_TIMESTAMP( 20120608 );
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:21) /test/1/catalog1/schema1/UNIX_TIMESTAMP/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_104_behavior_review]
+sql:
+select FROM_UNIXTIME ('539712061');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:20) /test/1/catalog1/schema1/FROM_UNIXTIME/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_105_behavior_review]
+sql:
+SELECT FROM_UNIXTIME(1249488000);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:20) /test/1/catalog1/schema1/FROM_UNIXTIME/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_106_behavior_review]
+sql:
+SELECT FROM_UNIXTIME( 1249488000 ,'%D') ;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:20) /test/1/catalog1/schema1/FROM_UNIXTIME/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_107_behavior_review]
+sql:
+SELECT SESSIONTIMEZONE FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:22) /test/1/catalog1/schema1/SESSIONTIMEZONE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:28~1:32) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_108_behavior_review]
+sql:
+SELECT DBTIMEZONE FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/DBTIMEZONE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:23~1:27) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_109_behavior_review]
+sql:
+select date_format(timestamp '1980-1-1 1:1:1.123456789','%Y-%m-%d %H:%i:%s');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/date_format/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_110_behavior_review]
+sql:
+select time_to_sec(timestamp '1900-1-1 23:59:59 +8:00');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/time_to_sec/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_111_behavior_review]
+sql:
+select time_to_sec(time '23:59:59');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/time_to_sec/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_112_behavior_review]
+sql:
+select sec_to_time(104399);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/sec_to_time/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_113_behavior_review]
+sql:
+select  to_days('2021-11-11');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:8~1:15) /test/1/catalog1/schema1/to_days/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_114_behavior_review]
+sql:
+SELECT DATE_ADD('2020-07-12 12:20:30',INTERVAL '2  1 ' DAY TO SECOND);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/DATE_ADD/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_115_behavior_review]
+sql:
+SELECT DATE_SUB('2020-07-12 12:20:30',INTERVAL '2  1 ' DAY TO SECOND);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/DATE_SUB/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_116_behavior_review]
+sql:
+SELECT SYS_EXTRACT_UTC('2000-03-28 11:30:00.00 -08:00') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:22) /test/1/catalog1/schema1/SYS_EXTRACT_UTC/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:61~1:65) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_117_behavior_review]
+sql:
+SELECT TO_DSINTERVAL('100 00:00:00') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:20) /test/1/catalog1/schema1/TO_DSINTERVAL/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:42~1:46) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_functions_0_118_behavior_review]
+sql:
+SELECT TO_YMINTERVAL('01-02') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:20) /test/1/catalog1/schema1/TO_YMINTERVAL/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:35~1:39) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}

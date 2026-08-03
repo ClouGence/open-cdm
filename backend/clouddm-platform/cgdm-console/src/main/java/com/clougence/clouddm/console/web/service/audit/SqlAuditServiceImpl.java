@@ -15,23 +15,19 @@
  */
 package com.clougence.clouddm.console.web.service.audit;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.api.console.sqlaudit.SqlStatus;
+import com.clougence.clouddm.console.web.model.vo.DmPageVO;
 import com.clougence.clouddm.console.web.model.vo.audit.SqlAuditVO;
+import com.clougence.clouddm.console.web.util.DmConvertUtils;
 import com.clougence.clouddm.platform.dal.access.ExecutionDal;
 import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
 import com.clougence.clouddm.platform.dal.access.entry.DsCacheEntry;
 import com.clougence.clouddm.platform.dal.model.execution.DmExecSqlAuditDO;
-import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
 import com.clougence.clouddm.sdk.service.secrules.Requester;
 
 import jakarta.annotation.Resource;
@@ -41,33 +37,37 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class SqlAuditServiceImpl implements SqlAuditService {
     @Resource
-    private ExecutionDal executionDal;
-
+    private ExecutionDal   executionDal;
     @Resource
     private ObjectCacheDao objectCacheDao;
 
-    private final int    DEFAULT_PAGE_SIZE = 20;
-    private final int    MAX_PAGE_SIZE     = 60;
+    private final int      DEFAULT_PAGE_SIZE = 20;
+    private final int      MAX_PAGE_SIZE     = 60;
 
     @Override
-    public List<SqlAuditVO> queryUserAllAudit(String puid, String uid, SecQueryKind sqlKind, String resourcePath, Long dsId, Requester requester, SqlStatus status, Date start,
-                                              Date end, long startId, int pageSize) {
+    public DmPageVO<SqlAuditVO> pageUserAllAudit(String puid, String uid, Long dsId, Requester requester, SqlStatus status, Date start, Date end, int pageNumber, int pageSize) {
         if (pageSize == 0) {
             pageSize = DEFAULT_PAGE_SIZE;
         } else if (pageSize > MAX_PAGE_SIZE) {
             pageSize = MAX_PAGE_SIZE;
         }
-        List<DmExecSqlAuditDO> auditDOs = executionDal.sqlAuditMapper().queryByCondition(puid, uid, sqlKind, resourcePath, dsId, requester, status, start, end, startId, pageSize);
+        if (pageNumber < 1) {
+            pageNumber = 1;
+        }
+
+        int offset = (pageNumber - 1) * pageSize;
+        List<DmExecSqlAuditDO> auditDOs = executionDal.sqlAuditMapper().pageByCondition(puid, uid, dsId, requester, status, start, end, offset, pageSize);
+        long total = executionDal.sqlAuditMapper().countByCondition(puid, uid, dsId, requester, status, start, end);
 
         if (auditDOs == null || auditDOs.isEmpty()) {
-            return new ArrayList<>();
+            return new DmPageVO<>(pageNumber, pageSize, total, new ArrayList<>());
         }
 
         Map<Long, DsCacheEntry> dsCacheById = new HashMap<>();
         auditDOs.stream().map(DmExecSqlAuditDO::getDsId).filter(Objects::nonNull).distinct().forEach(id -> dsCacheById.put(id, objectCacheDao.queryByDsId(id)));
 
-        return auditDOs.stream().map(auditDO -> {
-            SqlAuditVO vo = SqlAuditVO.convertFromDO(auditDO);
+        List<SqlAuditVO> auditVOS = auditDOs.stream().map(auditDO -> {
+            SqlAuditVO vo = DmConvertUtils.convertToSqlAuditVO(auditDO);
             DsCacheEntry dsCache = dsCacheById.get(auditDO.getDsId());
             if (dsCache != null) {
                 vo.setDsResourceId(dsCache.getDsInstId());
@@ -75,5 +75,6 @@ public class SqlAuditServiceImpl implements SqlAuditService {
             }
             return vo;
         }).collect(Collectors.toList());
+        return new DmPageVO<>(pageNumber, pageSize, total, auditVOS);
     }
 }

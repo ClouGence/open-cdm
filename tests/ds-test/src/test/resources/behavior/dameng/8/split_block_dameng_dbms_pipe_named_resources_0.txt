@@ -1,0 +1,129 @@
+[split_block_dameng_dbms_pipe_named_resources_0_001]
+sql:
+-- FUNC-0672 CREATE_PIPE
+declare
+  ret int;
+  text_value varchar2(128);
+  int_value int;
+  bigint_value bigint;
+  double_value double;
+  number_value number;
+  date_value date;
+  rid rowid;
+begin ret:=DBMS_PIPE.CREATE_PIPE(PIPENAME=>'CODEX_PIPE',MAXPIPESIZE=>8192,IS_PRIVATE=>TRUE); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(11:11~11:32) /test/1/catalog1/DBMS_PIPE/CREATE_PIPE/",
+      "action": "CALL",
+      "target": "Pipe(11:43~11:55) /test/1/CODEX_PIPE/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_pipe_named_resources_0_002]
+sql:
+-- FUNC-0681 PURGE
+declare
+  ret int;
+  text_value varchar2(128);
+  int_value int;
+  bigint_value bigint;
+  double_value double;
+  number_value number;
+  date_value date;
+  rid rowid;
+begin DBMS_PIPE.PURGE(PIPENAME=>'CODEX_PIPE'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(11:6~11:21) /test/1/catalog1/DBMS_PIPE/PURGE/",
+      "action": "CALL",
+      "target": "Pipe(11:32~11:44) /test/1/CODEX_PIPE/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_pipe_named_resources_0_003]
+sql:
+-- FUNC-0682 RECEIVE_MESSAGE
+declare
+  ret int;
+  text_value varchar2(128);
+  int_value int;
+  bigint_value bigint;
+  double_value double;
+  number_value number;
+  date_value date;
+  rid rowid;
+begin ret:=DBMS_PIPE.RECEIVE_MESSAGE(PIPENAME=>'CODEX_PIPE',TIMEOUT=>0); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(11:11~11:36) /test/1/catalog1/DBMS_PIPE/RECEIVE_MESSAGE/",
+      "action": "CALL",
+      "target": "Pipe(11:47~11:59) /test/1/CODEX_PIPE/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_pipe_named_resources_0_004]
+sql:
+-- FUNC-0683 REMOVE_PIPE
+declare
+  ret int;
+  text_value varchar2(128);
+  int_value int;
+  bigint_value bigint;
+  double_value double;
+  number_value number;
+  date_value date;
+  rid rowid;
+begin ret:=DBMS_PIPE.REMOVE_PIPE(PIPENAME=>'CODEX_PIPE'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(11:11~11:32) /test/1/catalog1/DBMS_PIPE/REMOVE_PIPE/",
+      "action": "CALL",
+      "target": "Pipe(11:43~11:55) /test/1/CODEX_PIPE/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_pipe_named_resources_0_005]
+sql:
+-- FUNC-0685 SEND_MESSAGE
+declare
+  ret int;
+  text_value varchar2(128);
+  int_value int;
+  bigint_value bigint;
+  double_value double;
+  number_value number;
+  date_value date;
+  rid rowid;
+begin ret:=DBMS_PIPE.SEND_MESSAGE(PIPENAME=>'CODEX_PIPE',TIMEOUT=>0,MAXPIPESIZE=>8192); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(11:11~11:33) /test/1/catalog1/DBMS_PIPE/SEND_MESSAGE/",
+      "action": "CALL",
+      "target": "Pipe(11:44~11:56) /test/1/CODEX_PIPE/"
+    }
+  ]
+}

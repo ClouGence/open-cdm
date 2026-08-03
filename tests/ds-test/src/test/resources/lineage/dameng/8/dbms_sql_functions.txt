@@ -1,0 +1,54 @@
+[dbms_sql_all_calls_have_no_static_column_lineage]
+sql:
+declare
+  v integer;
+begin
+  dbms_sql.bind_array(v,v,v,v,v);
+  dbms_sql.bind_variable(v,v,v,v);
+  dbms_sql.bind_variable_char(v,v,v,v);
+  dbms_sql.bind_variable_raw(v,v,v,v);
+  dbms_sql.bind_variable_rowid(v,v,v);
+  dbms_sql.close_cursor(v);
+  dbms_sql.column_value(v,v,v);
+  dbms_sql.column_value_char(v,v,v);
+  dbms_sql.column_value_raw(v,v,v);
+  dbms_sql.column_value_rowid(v,v,v,v,v);
+  dbms_sql.column_value_long(v,v,v,v,v,v);
+  dbms_sql.define_array(v,v,v,v);
+  dbms_sql.define_column(v,v,v,v);
+  dbms_sql.define_column_raw(v,v,v,v);
+  dbms_sql.define_column_char(v,v,v,v);
+  dbms_sql.define_column_long(v,v);
+  dbms_sql.define_column_rowid(v,v,v);
+  dbms_sql.describe_columns(v,v,v);
+  dbms_sql.describe_columns2(v,v,v);
+  dbms_sql.describe_columns3(v,v,v);
+  dbms_sql.parse(v,v,v,v,v);
+  dbms_sql.variable_value(v,v,v);
+  dbms_sql.variable_value_char(v,v,v);
+  dbms_sql.variable_value_raw(v,v,v);
+  dbms_sql.variable_value_rowid(v,v,v);
+end;
+expect:
+{}
+----------
+[dbms_sql_function_expressions_have_no_static_column_lineage]
+sql:
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  v:=dbms_sql.execute(v);
+  v:=dbms_sql.execute_and_fetch(v);
+  v:=dbms_sql.fetch_rows(v);
+  b:=dbms_sql.is_open(v);
+  v:=dbms_sql.last_error_position();
+  v:=dbms_sql.last_row_count();
+  v:=dbms_sql.last_sql_function_code();
+  v:=dbms_sql.open_cursor(v);
+  rc:=dbms_sql.to_refcursor(v);
+  v:=dbms_sql.to_cursor_number(rc);
+end;
+expect:
+{}

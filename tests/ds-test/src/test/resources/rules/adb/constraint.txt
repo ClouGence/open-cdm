@@ -1,0 +1,31 @@
+[MyRuleConstraintAllowForeignTestFamily#tableNeedForeign_1#001]
+rule: _rules/constraint/constraint-allow-foreign.rule
+expect: true
+vars:
+  allow: true
+sql:
+create table test.abc(r_int int not null primary key,r_k1 int,r_k2 int,r_name  varchar(100) null,constraint ptr foreign key (r_k1, r_k2) references fk_table (c_id, c_name));
+----------
+[MyRuleConstraintAllowForeignTestFamily#tableNeedForeign_1#002]
+rule: _rules/constraint/constraint-allow-foreign.rule
+expect: true
+vars:
+  allow: true
+sql:
+alter table test.abc add constraint ptr foreign key (r_k1, r_k2) references fk_table (c_id, c_name);
+----------
+[MyRuleConstraintAllowForeignTestFamily#tableNeedForeign_2#001]
+rule: _rules/constraint/constraint-allow-foreign.rule
+expect: false
+vars:
+  allow: false
+sql:
+create table test.abc(r_int int not null primary key,r_k1 int,r_k2 int,r_name  varchar(100) null,constraint ptr foreign key (r_k1, r_k2) references fk_table (c_id, c_name));
+----------
+[MyRuleConstraintAllowForeignTestFamily#tableNeedForeign_2#002]
+rule: _rules/constraint/constraint-allow-foreign.rule
+expect: false
+vars:
+  allow: false
+sql:
+alter table test.abc add constraint ptr foreign key (r_k1, r_k2) references fk_table (c_id, c_name);

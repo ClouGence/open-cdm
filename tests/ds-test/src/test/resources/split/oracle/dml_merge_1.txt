@@ -1,0 +1,95 @@
+MERGE INTO audit_log t
+USING (
+    SELECT SYS_GUID() AS id,
+           SYSTIMESTAMP AS ts,
+           INITCAP('oracle cli') AS name,
+           ADD_MONTHS(TRUNC(SYSDATE), 1) AS biz_day
+    FROM dual
+) s
+ON (t.id = s.id)
+WHEN MATCHED THEN
+  UPDATE SET t.display_name = NVL(s.name, t.display_name),
+             t.created_ts = s.ts,
+             t.biz_day = s.biz_day
+WHEN NOT MATCHED THEN
+  INSERT (id, created_ts, display_name, biz_day)
+  VALUES (s.id, s.ts, s.name, s.biz_day);
+
+MERGE INTO audit_log_ext t
+USING (
+    SELECT RAWTOHEX(SYS_GUID()) AS ext_id,
+           TO_CHAR(SYSTIMESTAMP, 'YYYYMMDDHH24MISS') AS ts_text
+    FROM dual
+) s
+ON (t.ext_id = s.ext_id)
+WHEN MATCHED THEN
+  UPDATE SET t.ts_text = s.ts_text
+WHEN NOT MATCHED THEN
+  INSERT (ext_id, ts_text)
+  VALUES (s.ext_id, s.ts_text);
+
+MERGE INTO audit_log_with t
+USING (
+    WITH src AS (
+        SELECT SYS_GUID() AS id,
+               SYSTIMESTAMP AS ts,
+               INITCAP('oracle with merge') AS name
+        FROM dual
+    )
+    SELECT id, ts, name FROM src
+) s
+ON (t.id = s.id)
+WHEN MATCHED THEN
+  UPDATE SET t.display_name = s.name,
+             t.created_ts = s.ts
+WHEN NOT MATCHED THEN
+  INSERT (id, created_ts, display_name)
+  VALUES (s.id, s.ts, s.name);
+------------------------------------------------------------------------------------------
+[MERGE|SELECT] MERGE INTO audit_log t
+USING (
+    SELECT SYS_GUID() AS id,
+           SYSTIMESTAMP AS ts,
+           INITCAP('oracle cli') AS name,
+           ADD_MONTHS(TRUNC(SYSDATE), 1) AS biz_day
+    FROM dual
+) s
+ON (t.id = s.id)
+WHEN MATCHED THEN
+  UPDATE SET t.display_name = NVL(s.name, t.display_name),
+             t.created_ts = s.ts,
+             t.biz_day = s.biz_day
+WHEN NOT MATCHED THEN
+  INSERT (id, created_ts, display_name, biz_day)
+  VALUES (s.id, s.ts, s.name, s.biz_day);
+----------
+[MERGE|SELECT] MERGE INTO audit_log_ext t
+USING (
+    SELECT RAWTOHEX(SYS_GUID()) AS ext_id,
+           TO_CHAR(SYSTIMESTAMP, 'YYYYMMDDHH24MISS') AS ts_text
+    FROM dual
+) s
+ON (t.ext_id = s.ext_id)
+WHEN MATCHED THEN
+  UPDATE SET t.ts_text = s.ts_text
+WHEN NOT MATCHED THEN
+  INSERT (ext_id, ts_text)
+  VALUES (s.ext_id, s.ts_text);
+----------
+[MERGE|SELECT] MERGE INTO audit_log_with t
+USING (
+    WITH src AS (
+        SELECT SYS_GUID() AS id,
+               SYSTIMESTAMP AS ts,
+               INITCAP('oracle with merge') AS name
+        FROM dual
+    )
+    SELECT id, ts, name FROM src
+) s
+ON (t.id = s.id)
+WHEN MATCHED THEN
+  UPDATE SET t.display_name = s.name,
+             t.created_ts = s.ts
+WHEN NOT MATCHED THEN
+  INSERT (id, created_ts, display_name)
+  VALUES (s.id, s.ts, s.name);

@@ -1,0 +1,6 @@
+CREATE ALIAS FUNCTION id_masking(INT) WITH PARAMETER(id) AS CONCAT(LEFT(id, 3), '****', RIGHT(id, 4));
+DROP FUNCTION id_masking(INT);
+------------------------------------------------------------------------------------------
+[CREATE_PROG_OBJ] CREATE ALIAS FUNCTION id_masking(INT) WITH PARAMETER(id) AS CONCAT(LEFT(id, 3), '****', RIGHT(id, 4));
+----------
+[DROP_PROG_OBJ] DROP FUNCTION id_masking(INT);

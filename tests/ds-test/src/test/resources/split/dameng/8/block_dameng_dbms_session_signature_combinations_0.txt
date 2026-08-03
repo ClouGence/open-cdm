@@ -1,0 +1,126 @@
+-- FUNC-0770 UNIQUE_SESSION_ID without parentheses
+declare value_text varchar(32767); begin value_text:=DBMS_SESSION.UNIQUE_SESSION_ID; if value_text is null then raise_application_error(-20001,'unique id null'); end if; end;
+/
+-- FUNC-0770 UNIQUE_SESSION_ID with parentheses
+declare value_text varchar(32767); begin value_text:=DBMS_SESSION.UNIQUE_SESSION_ID(); if length(value_text)=0 then raise_application_error(-20002,'unique id empty'); end if; end;
+/
+-- FUNC-0765 IS_SESSION_ALIVE current session
+declare value_text varchar(32767); begin value_text:=DBMS_SESSION.IS_SESSION_ALIVE(DBMS_SESSION.UNIQUE_SESSION_ID); if value_text<>'TRUE' then raise_application_error(-20003,'current session not alive'); end if; end;
+/
+-- FUNC-0765 IS_SESSION_ALIVE Pack29 named VARCHAR identifier
+declare value_text varchar(32767); begin value_text:=DBMS_SESSION.IS_SESSION_ALIVE(UNIQUEID=>DBMS_SESSION.UNIQUE_SESSION_ID()); if value_text<>'TRUE' then raise_application_error(-20004,'named current session not alive'); end if; end;
+/
+-- FUNC-0765 IS_SESSION_ALIVE nonexistent identifier
+declare value_text varchar(32767); begin value_text:=DBMS_SESSION.IS_SESSION_ALIVE('999999999999999'); if value_text<>'FALSE' then raise_application_error(-20005,'nonexistent session alive'); end if; end;
+/
+-- FUNC-0769 SET_IDENTIFIER positional and V$SESSIONS effect
+declare row_count int; begin DBMS_SESSION.SET_IDENTIFIER('CODEX_DM8_SESSION_CLIENT'); select count(*) into row_count from V$SESSIONS where CLIENT_IDENTIFIER='CODEX_DM8_SESSION_CLIENT'; if row_count=0 then raise_application_error(-20006,'identifier absent'); end if; end;
+/
+-- FUNC-0769 SET_IDENTIFIER Pack29 named CLIENT_ID
+declare row_count int; begin DBMS_SESSION.SET_IDENTIFIER(CLIENT_ID=>'CODEX_DM8_SESSION_NAMED'); select count(*) into row_count from V$SESSIONS where CLIENT_IDENTIFIER='CODEX_DM8_SESSION_NAMED'; if row_count=0 then raise_application_error(-20007,'named identifier absent'); end if; end;
+/
+-- FUNC-0769 SET_IDENTIFIER maximum documented 64 characters
+declare row_count int; begin DBMS_SESSION.SET_IDENTIFIER('IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII'); select count(*) into row_count from V$SESSIONS where CLIENT_IDENTIFIER='IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII'; if row_count=0 then raise_application_error(-20008,'maximum identifier absent'); end if; end;
+/
+-- FUNC-0768 SET_CONTEXT required three arguments through associated package
+declare value_text varchar(32767); begin CODEX_DM8_SESSION_CTX_PKG.SET_VALUE('K_REQUIRED','V_REQUIRED'); value_text:=SYS_CONTEXT('CODEX_DM8_SESSION_CTX','K_REQUIRED'); if value_text<>'V_REQUIRED' then raise_application_error(-20009,'required context mismatch'); end if; end;
+/
+-- FUNC-0768 SET_CONTEXT optional USERNAME prefix
+declare value_text varchar(32767); begin CODEX_DM8_SESSION_CTX_PKG.SET_VALUE('K_USER','V_USER','IGNORED_USER'); value_text:=SYS_CONTEXT('CODEX_DM8_SESSION_CTX','K_USER'); if value_text<>'V_USER' then raise_application_error(-20010,'username context mismatch'); end if; end;
+/
+-- FUNC-0768 SET_CONTEXT all arguments including ignored CLIENT_ID
+declare value_text varchar(32767); begin CODEX_DM8_SESSION_CTX_PKG.SET_VALUE('K_CLIENT','V_CLIENT','IGNORED_USER','IGNORED_CLIENT'); value_text:=SYS_CONTEXT('CODEX_DM8_SESSION_CTX','K_CLIENT'); if value_text<>'V_CLIENT' then raise_application_error(-20011,'client context mismatch'); end if; end;
+/
+-- FUNC-0768 SET_CONTEXT NULL value
+declare value_text varchar(32767); begin CODEX_DM8_SESSION_CTX_PKG.SET_VALUE('K_NULL',NULL); value_text:=SYS_CONTEXT('CODEX_DM8_SESSION_CTX','K_NULL'); if length(value_text)>0 then raise_application_error(-20012,'null context mismatch'); end if; end;
+/
+-- FUNC-0766 LIST_CONTEXT returns associated context
+declare context_list DBMS_SESSION.APPCTXTABTYP; context_size int; found_value int:=0; begin CODEX_DM8_SESSION_CTX_PKG.SET_VALUE('K_LIST','V_LIST'); DBMS_SESSION.LIST_CONTEXT(context_list,context_size); for index_value in 0..context_size-1 loop if context_list(index_value).namespace='CODEX_DM8_SESSION_CTX' and context_list(index_value).attribute='K_LIST' and context_list(index_value).value='V_LIST' then found_value:=1; end if; end loop; if found_value=0 then raise_application_error(-20013,'listed context absent'); end if; end;
+/
+-- FUNC-0766 LIST_CONTEXT named OUT arguments reordered
+declare context_list DBMS_SESSION.APPCTXTABTYP; context_size int; begin DBMS_SESSION.LIST_CONTEXT(CONTEXT_SIZE=>context_size,CONTEXT_LIST=>context_list); if context_size<0 then raise_application_error(-20014,'negative context size'); end if; end;
+/
+-- FUNC-0763 CLEAR_CONTEXT required namespace only through associated package
+declare value_text varchar(32767); begin CODEX_DM8_SESSION_CTX_PKG.SET_VALUE('K_CLEAR_ONE','V1'); CODEX_DM8_SESSION_CTX_PKG.CLEAR_VALUE; value_text:=SYS_CONTEXT('CODEX_DM8_SESSION_CTX','K_CLEAR_ONE'); end;
+/
+-- FUNC-0763 CLEAR_CONTEXT namespace and client id prefix
+declare value_text varchar(32767); begin CODEX_DM8_SESSION_CTX_PKG.SET_VALUE('K_CLEAR_TWO','V2'); CODEX_DM8_SESSION_CTX_PKG.CLEAR_VALUE(NULL); value_text:=SYS_CONTEXT('CODEX_DM8_SESSION_CTX','K_CLEAR_TWO'); end;
+/
+-- FUNC-0763 CLEAR_CONTEXT all arguments clears one attribute
+declare value_text varchar(32767); begin CODEX_DM8_SESSION_CTX_PKG.SET_VALUE('K_CLEAR_THREE','V3'); CODEX_DM8_SESSION_CTX_PKG.CLEAR_VALUE(NULL,'K_CLEAR_THREE'); value_text:=SYS_CONTEXT('CODEX_DM8_SESSION_CTX','K_CLEAR_THREE'); if length(value_text)>0 then raise_application_error(-20015,'attribute not cleared'); end if; end;
+/
+-- FUNC-0762 CLEAR_ALL_CONTEXT through associated package
+declare first_value varchar(32767); second_value varchar(32767); begin CODEX_DM8_SESSION_CTX_PKG.SET_VALUE('K_ALL_1','V1'); CODEX_DM8_SESSION_CTX_PKG.SET_VALUE('K_ALL_2','V2'); CODEX_DM8_SESSION_CTX_PKG.CLEAR_ALL; first_value:=SYS_CONTEXT('CODEX_DM8_SESSION_CTX','K_ALL_1'); second_value:=SYS_CONTEXT('CODEX_DM8_SESSION_CTX','K_ALL_2'); if first_value is not null or second_value is not null then raise_application_error(-20016,'context not cleared'); end if; end;
+/
+-- FUNC-0767 RESET_PACKAGE without parentheses
+begin DBMS_SESSION.RESET_PACKAGE; end;
+/
+-- FUNC-0767 RESET_PACKAGE with parentheses
+begin DBMS_SESSION.RESET_PACKAGE(); end;
+/
+-- FUNC-0764 CLOSE_DATABASE_LINK after opening and committing link transaction
+declare row_count int; begin select count(*) into row_count from DUAL@CODEX_DM8_SESSION_LINK; commit; DBMS_SESSION.CLOSE_DATABASE_LINK('CODEX_DM8_SESSION_LINK'); end;
+/
+------------------------------------------------------------------------------------------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0770 UNIQUE_SESSION_ID without parentheses
+declare value_text varchar(32767); begin value_text:=DBMS_SESSION.UNIQUE_SESSION_ID; if value_text is null then raise_application_error(-20001,'unique id null'); end if; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0770 UNIQUE_SESSION_ID with parentheses
+declare value_text varchar(32767); begin value_text:=DBMS_SESSION.UNIQUE_SESSION_ID(); if length(value_text)=0 then raise_application_error(-20002,'unique id empty'); end if; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0765 IS_SESSION_ALIVE current session
+declare value_text varchar(32767); begin value_text:=DBMS_SESSION.IS_SESSION_ALIVE(DBMS_SESSION.UNIQUE_SESSION_ID); if value_text<>'TRUE' then raise_application_error(-20003,'current session not alive'); end if; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0765 IS_SESSION_ALIVE Pack29 named VARCHAR identifier
+declare value_text varchar(32767); begin value_text:=DBMS_SESSION.IS_SESSION_ALIVE(UNIQUEID=>DBMS_SESSION.UNIQUE_SESSION_ID()); if value_text<>'TRUE' then raise_application_error(-20004,'named current session not alive'); end if; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0765 IS_SESSION_ALIVE nonexistent identifier
+declare value_text varchar(32767); begin value_text:=DBMS_SESSION.IS_SESSION_ALIVE('999999999999999'); if value_text<>'FALSE' then raise_application_error(-20005,'nonexistent session alive'); end if; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ,SELECT)] -- FUNC-0769 SET_IDENTIFIER positional and V$SESSIONS effect
+declare row_count int; begin DBMS_SESSION.SET_IDENTIFIER('CODEX_DM8_SESSION_CLIENT'); select count(*) into row_count from V$SESSIONS where CLIENT_IDENTIFIER='CODEX_DM8_SESSION_CLIENT'; if row_count=0 then raise_application_error(-20006,'identifier absent'); end if; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ,SELECT)] -- FUNC-0769 SET_IDENTIFIER Pack29 named CLIENT_ID
+declare row_count int; begin DBMS_SESSION.SET_IDENTIFIER(CLIENT_ID=>'CODEX_DM8_SESSION_NAMED'); select count(*) into row_count from V$SESSIONS where CLIENT_IDENTIFIER='CODEX_DM8_SESSION_NAMED'; if row_count=0 then raise_application_error(-20007,'named identifier absent'); end if; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ,SELECT)] -- FUNC-0769 SET_IDENTIFIER maximum documented 64 characters
+declare row_count int; begin DBMS_SESSION.SET_IDENTIFIER('IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII'); select count(*) into row_count from V$SESSIONS where CLIENT_IDENTIFIER='IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII'; if row_count=0 then raise_application_error(-20008,'maximum identifier absent'); end if; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0768 SET_CONTEXT required three arguments through associated package
+declare value_text varchar(32767); begin CODEX_DM8_SESSION_CTX_PKG.SET_VALUE('K_REQUIRED','V_REQUIRED'); value_text:=SYS_CONTEXT('CODEX_DM8_SESSION_CTX','K_REQUIRED'); if value_text<>'V_REQUIRED' then raise_application_error(-20009,'required context mismatch'); end if; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0768 SET_CONTEXT optional USERNAME prefix
+declare value_text varchar(32767); begin CODEX_DM8_SESSION_CTX_PKG.SET_VALUE('K_USER','V_USER','IGNORED_USER'); value_text:=SYS_CONTEXT('CODEX_DM8_SESSION_CTX','K_USER'); if value_text<>'V_USER' then raise_application_error(-20010,'username context mismatch'); end if; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0768 SET_CONTEXT all arguments including ignored CLIENT_ID
+declare value_text varchar(32767); begin CODEX_DM8_SESSION_CTX_PKG.SET_VALUE('K_CLIENT','V_CLIENT','IGNORED_USER','IGNORED_CLIENT'); value_text:=SYS_CONTEXT('CODEX_DM8_SESSION_CTX','K_CLIENT'); if value_text<>'V_CLIENT' then raise_application_error(-20011,'client context mismatch'); end if; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0768 SET_CONTEXT NULL value
+declare value_text varchar(32767); begin CODEX_DM8_SESSION_CTX_PKG.SET_VALUE('K_NULL',NULL); value_text:=SYS_CONTEXT('CODEX_DM8_SESSION_CTX','K_NULL'); if length(value_text)>0 then raise_application_error(-20012,'null context mismatch'); end if; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0766 LIST_CONTEXT returns associated context
+declare context_list DBMS_SESSION.APPCTXTABTYP; context_size int; found_value int:=0; begin CODEX_DM8_SESSION_CTX_PKG.SET_VALUE('K_LIST','V_LIST'); DBMS_SESSION.LIST_CONTEXT(context_list,context_size); for index_value in 0..context_size-1 loop if context_list(index_value).namespace='CODEX_DM8_SESSION_CTX' and context_list(index_value).attribute='K_LIST' and context_list(index_value).value='V_LIST' then found_value:=1; end if; end loop; if found_value=0 then raise_application_error(-20013,'listed context absent'); end if; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0766 LIST_CONTEXT named OUT arguments reordered
+declare context_list DBMS_SESSION.APPCTXTABTYP; context_size int; begin DBMS_SESSION.LIST_CONTEXT(CONTEXT_SIZE=>context_size,CONTEXT_LIST=>context_list); if context_size<0 then raise_application_error(-20014,'negative context size'); end if; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0763 CLEAR_CONTEXT required namespace only through associated package
+declare value_text varchar(32767); begin CODEX_DM8_SESSION_CTX_PKG.SET_VALUE('K_CLEAR_ONE','V1'); CODEX_DM8_SESSION_CTX_PKG.CLEAR_VALUE; value_text:=SYS_CONTEXT('CODEX_DM8_SESSION_CTX','K_CLEAR_ONE'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0763 CLEAR_CONTEXT namespace and client id prefix
+declare value_text varchar(32767); begin CODEX_DM8_SESSION_CTX_PKG.SET_VALUE('K_CLEAR_TWO','V2'); CODEX_DM8_SESSION_CTX_PKG.CLEAR_VALUE(NULL); value_text:=SYS_CONTEXT('CODEX_DM8_SESSION_CTX','K_CLEAR_TWO'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0763 CLEAR_CONTEXT all arguments clears one attribute
+declare value_text varchar(32767); begin CODEX_DM8_SESSION_CTX_PKG.SET_VALUE('K_CLEAR_THREE','V3'); CODEX_DM8_SESSION_CTX_PKG.CLEAR_VALUE(NULL,'K_CLEAR_THREE'); value_text:=SYS_CONTEXT('CODEX_DM8_SESSION_CTX','K_CLEAR_THREE'); if length(value_text)>0 then raise_application_error(-20015,'attribute not cleared'); end if; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0762 CLEAR_ALL_CONTEXT through associated package
+declare first_value varchar(32767); second_value varchar(32767); begin CODEX_DM8_SESSION_CTX_PKG.SET_VALUE('K_ALL_1','V1'); CODEX_DM8_SESSION_CTX_PKG.SET_VALUE('K_ALL_2','V2'); CODEX_DM8_SESSION_CTX_PKG.CLEAR_ALL; first_value:=SYS_CONTEXT('CODEX_DM8_SESSION_CTX','K_ALL_1'); second_value:=SYS_CONTEXT('CODEX_DM8_SESSION_CTX','K_ALL_2'); if first_value is not null or second_value is not null then raise_application_error(-20016,'context not cleared'); end if; end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-0767 RESET_PACKAGE without parentheses
+begin DBMS_SESSION.RESET_PACKAGE; end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-0767 RESET_PACKAGE with parentheses
+begin DBMS_SESSION.RESET_PACKAGE(); end;
+----------
+[BLOCK(PROGRAM_CONTROL,SELECT,TRANSACTION,CALL_PROG_OBJ)] -- FUNC-0764 CLOSE_DATABASE_LINK after opening and committing link transaction
+declare row_count int; begin select count(*) into row_count from DUAL@CODEX_DM8_SESSION_LINK; commit; DBMS_SESSION.CLOSE_DATABASE_LINK('CODEX_DM8_SESSION_LINK'); end;

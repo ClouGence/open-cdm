@@ -1,0 +1,130 @@
+[split_dml_dameng_huge_table_0_001_behavior_review]
+sql:
+insert into huge_main(id, name) values(1, 'alpha');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:21) /test/1/catalog1/schema1/huge_main/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_huge_table_0_002_behavior_review]
+sql:
+insert into huge_main(id, name) values(null, default);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:21) /test/1/catalog1/schema1/huge_main/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_huge_table_0_003_behavior_review]
+sql:
+insert into huge_main select id, name from source_table;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:21) /test/1/catalog1/schema1/huge_main/",
+      "action": "INSERT",
+      "target": "Table(1:43~1:55) /test/1/catalog1/schema1/source_table/"
+    }
+  ]
+}
+----------
+[split_dml_dameng_huge_table_0_004_behavior_review]
+sql:
+update huge_main set name=upper(name) where id=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:16) /test/1/catalog1/schema1/huge_main/",
+      "action": "UPDATE"
+    },
+    {
+      "subject": "Function(1:26~1:31) /test/1/catalog1/schema1/upper/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dml_dameng_huge_table_0_005_behavior_review]
+sql:
+delete from huge_main where id=2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:21) /test/1/catalog1/schema1/huge_main/",
+      "action": "DELETE"
+    }
+  ]
+}
+----------
+[split_dml_dameng_huge_table_0_006_behavior_review]
+sql:
+merge into huge_main h using source_table s on(h.id=s.id) when matched then update set h.name=s.name when not matched then insert(id,name) values(s.id,s.name);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:11~1:20) /test/1/catalog1/schema1/huge_main/",
+      "action": "MERGE",
+      "target": "Table(1:29~1:41) /test/1/catalog1/schema1/source_table/"
+    }
+  ]
+}
+----------
+[split_dml_dameng_huge_table_0_007_behavior_review]
+sql:
+truncate table huge_main;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRUNCATE_TABLE": [
+    {
+      "subject": "Table(1:15~1:24) /test/1/catalog1/schema1/huge_main/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_dml_dameng_huge_table_0_008_behavior_review]
+sql:
+commit;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[split_dml_dameng_huge_table_0_009_behavior_review]
+sql:
+rollback;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}

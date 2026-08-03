@@ -1,0 +1,21 @@
+[select_domain]
+sql:
+SELECT column1 FROM schema2.table1
+expect:
+{
+  "domains": [
+    {
+      "class": "RdbSelectDomain",
+      "sqlType": "SELECT",
+      "childrenSize": 1,
+      "columns": [
+        {"column": "column1"}
+      ]
+    },
+    {
+      "class": "RdbTableDomain",
+      "schema": "schema2",
+      "table": "table1"
+    }
+  ]
+}

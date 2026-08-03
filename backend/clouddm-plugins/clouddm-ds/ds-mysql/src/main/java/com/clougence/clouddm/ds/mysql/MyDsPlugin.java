@@ -19,11 +19,11 @@ import com.clougence.adapter.mysql.MySQLTypes;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.base.metadata.ui.DsFeatureIDs;
 import com.clougence.clouddm.ds.mysql.definition.MyDefService;
+import com.clougence.clouddm.ds.mysql.definition.secrules.MySecRulesSupportSpi;
 import com.clougence.clouddm.ds.mysql.dsconf.MyConfigSpi;
 import com.clougence.clouddm.ds.mysql.dsconf.MySerializationSpi;
 import com.clougence.clouddm.ds.mysql.execute.MySessionFactory;
 import com.clougence.clouddm.dsfamily.definition.TypeMapUtils;
-import com.clougence.clouddm.dsfamily.mysql.definition.secrules.MySecRulesSupportSpi;
 import com.clougence.clouddm.dsfamily.mysql.definition.ui.browser.MyDsBrowseSpi;
 import com.clougence.clouddm.dsfamily.mysql.definition.ui.ddl.MyConvertTableDDLSpi;
 import com.clougence.clouddm.dsfamily.mysql.definition.ui.editor.data.MyDataEditorSpi;
@@ -42,12 +42,10 @@ import com.clougence.clouddm.sdk.DsPlugin;
 import com.clougence.clouddm.sdk.DsPluginBinder;
 import com.clougence.clouddm.sdk.Plugin;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
-import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
 import com.clougence.schema.DsType;
 import com.clougence.schema.SchemaBinder;
 import com.clougence.schema.SchemaFramework;
 import com.clougence.schema.SchemaPlugin;
-import com.clougence.sql.mysql.MySqlEngineSpi;
 
 /** @author mode 2024/12/25 15:13 */
 @Plugin(name = "i18n::" + MyDsI18nKeys.PLUGIN_NAME_MYSQL,                    //
@@ -85,9 +83,7 @@ public class MyDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
     private void configExecute(DsPluginBinder dsPlugin) {
         dsPlugin.bindDsSessionFactory(MySessionFactory.class);
         dsPlugin.bindDsDriverFamily("MySQL Connector/J");
-
-        dsPlugin.bindSqlEngine(MySqlEngineSpi.NAME);
-        dsPlugin.addGlobalSpi(SqlEngineSpi.class, MySqlEngineSpi.NAME, new MySqlEngineSpi(dsPlugin.findGlobalService(MetaService.class)));
+        dsPlugin.bindSqlEngine("MySQL");
 
         dsPlugin.addPluginSpi(new MySessionSpi());
         dsPlugin.addPluginSpi(new MySupportSpi());

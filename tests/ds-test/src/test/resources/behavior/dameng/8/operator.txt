@@ -1,0 +1,30 @@
+[create_operator]
+sql:
+create operator app.@^ (function app.f_binary,leftarg int,rightarg int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Operator(1:16~1:22) /test/1/catalog1/app/@^/",
+      "action" : "CREATE",
+      "target": "Function(1:33~1:45) /test/1/catalog1/app/f_binary/"
+    }
+  ]
+}
+----------
+[drop_operator]
+sql:
+drop operator if exists app.@^(int,int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Operator(1:24~1:30) /test/1/catalog1/app/@^/",
+      "action" : "DROP"
+    }
+  ]
+}

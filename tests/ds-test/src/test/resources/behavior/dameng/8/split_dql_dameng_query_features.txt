@@ -1,0 +1,67 @@
+[split_dql_dameng_query_features_001]
+sql:
+select status, count(*) as total
+from app.customer
+group by status
+having count(*) >= 1
+order by status;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:15~1:20) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(4:7~4:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:5~2:17) /test/1/catalog1/app/customer/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_query_features_002]
+sql:
+select id, name, row_number() over (order by id) as rn
+from app.customer;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:17~1:27) /test/1/catalog1/schema1/row_number/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:5~2:17) /test/1/catalog1/app/customer/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_query_features_003]
+sql:
+select id from app.customer where id = 1
+union all
+select id from app.customer where id = 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:15~1:27) /test/1/catalog1/app/customer/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(3:15~3:27) /test/1/catalog1/app/customer/",
+      "action": "READ"
+    }
+  ]
+}

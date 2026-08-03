@@ -34,7 +34,7 @@ import lombok.extern.slf4j.Slf4j;
 public class McSupportSpi implements RdbSupportSpi {
 
     //    private final List<RdbIsolation> isolationDef = Arrays.asList(RdbIsolation.values());
-    private final List<RdbIsolation> isolationDef = Arrays.asList(RdbIsolation.DEFAULT);
+    private final List<RdbIsolation> isolationDef = List.of(RdbIsolation.DEFAULT);
 
     @Override
     public RdbSupportLevel supportChangeCatalog(DataSourceConfig dsConfig) {
@@ -84,10 +84,5 @@ public class McSupportSpi implements RdbSupportSpi {
     @Override
     public List<RdbIsolation> supportIsolation() {
         return this.isolationDef;
-    }
-
-    @Override
-    public boolean supportMultiStatement(boolean isDesktop) {
-        return true;
     }
 }

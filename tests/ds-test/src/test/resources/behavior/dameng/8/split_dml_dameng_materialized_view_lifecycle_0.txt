@@ -1,0 +1,24 @@
+[split_dml_dameng_materialized_view_lifecycle_0_001]
+sql:
+insert into MV_BASE values(4, 30, 40.00, 'D');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:19) /test/1/catalog1/schema1/MV_BASE/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_materialized_view_lifecycle_0_002]
+sql:
+rollback;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}

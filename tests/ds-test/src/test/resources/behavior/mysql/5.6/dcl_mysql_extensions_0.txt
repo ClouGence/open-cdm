@@ -1,0 +1,819 @@
+[session_variable_rw__001]
+sql:
+SET @aes_iva = REPEAT('a', 16), @aes_ivb = REPEAT('b', 16), @aes_key1 = REPEAT('c', 16), @aes_key2 = REPEAT('d', 16);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_VARIABLE_RW": [
+    {
+      "subject": "ConfigKey(1:4~1:12) /test/1/aes_iva/",
+      "action" : "READ"
+    },
+    {
+      "subject": "ConfigKey(1:32~1:40) /test/1/aes_ivb/",
+      "action" : "READ"
+    },
+    {
+      "subject": "ConfigKey(1:60~1:69) /test/1/aes_key1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "ConfigKey(1:89~1:98) /test/1/aes_key2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(1:15~1:21) /test/1/catalog1/schema1/REPEAT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[session_setting_write__002]
+sql:
+SET SESSION block_encryption_mode = 'aes-128-cfb1';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:33) /test/1/block_encryption_mode/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[session_setting_write__003]
+sql:
+SET SESSION block_encryption_mode = 'aes-192-cfb1';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:33) /test/1/block_encryption_mode/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[session_setting_write__004]
+sql:
+SET SESSION block_encryption_mode = 'aes-256-cfb1';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:33) /test/1/block_encryption_mode/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[session_setting_write__005]
+sql:
+SET SESSION block_encryption_mode = 'aes-128-cfb8';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:33) /test/1/block_encryption_mode/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[session_setting_write__006]
+sql:
+SET SESSION block_encryption_mode = 'aes-192-cfb8';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:33) /test/1/block_encryption_mode/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[session_setting_write__007]
+sql:
+SET SESSION block_encryption_mode = 'aes-256-cfb8';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:33) /test/1/block_encryption_mode/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[session_setting_write__008]
+sql:
+SET SESSION block_encryption_mode = 'aes-128-cfb128';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:33) /test/1/block_encryption_mode/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[session_setting_write__009]
+sql:
+SET SESSION block_encryption_mode = 'aes-192-cfb128';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:33) /test/1/block_encryption_mode/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[session_setting_write__010]
+sql:
+SET SESSION block_encryption_mode = 'aes-256-cfb128';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:33) /test/1/block_encryption_mode/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[session_setting_write__011]
+sql:
+SET SESSION block_encryption_mode = 'aes-128-ofb';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:33) /test/1/block_encryption_mode/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[session_setting_write__012]
+sql:
+SET SESSION block_encryption_mode = 'aes-192-ofb';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:33) /test/1/block_encryption_mode/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[session_setting_write__013]
+sql:
+SET SESSION block_encryption_mode = 'aes-256-ofb';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:33) /test/1/block_encryption_mode/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[session_setting_write__014]
+sql:
+SET SESSION block_encryption_mode = DEFAULT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:33) /test/1/block_encryption_mode/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[session_setting_write__015]
+sql:
+SET SESSION block_encryption_mode = 'aes-128-ecb';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:33) /test/1/block_encryption_mode/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[session_setting_write__016]
+sql:
+SET SESSION block_encryption_mode = 'aes-192-ecb';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:33) /test/1/block_encryption_mode/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[session_setting_write__017]
+sql:
+SET SESSION block_encryption_mode = 'aes-256-ecb';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:33) /test/1/block_encryption_mode/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[session_setting_write__018]
+sql:
+SET SESSION block_encryption_mode = 'aes-128-cbc';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:33) /test/1/block_encryption_mode/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[session_setting_write__019]
+sql:
+SET SESSION block_encryption_mode = 'aes-192-cbc';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:33) /test/1/block_encryption_mode/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[session_setting_write__020]
+sql:
+SET SESSION block_encryption_mode = 'aes-256-cbc';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:33) /test/1/block_encryption_mode/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[session_variable_rw__021]
+sql:
+SET @aes_misc_short_key = RANDOM_BYTES(1), @aes_misc_long_key = RANDOM_BYTES(1024);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_VARIABLE_RW": [
+    {
+      "subject": "ConfigKey(1:4~1:23) /test/1/aes_misc_short_key/",
+      "action" : "READ"
+    },
+    {
+      "subject": "ConfigKey(1:43~1:61) /test/1/aes_misc_long_key/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(1:26~1:38) /test/1/catalog1/schema1/RANDOM_BYTES/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[system_setting_write__022]
+sql:
+SET GLOBAL old_passwords=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:24) /test/1/old_passwords/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[session_setting_write__023]
+sql:
+SET SESSION old_passwords=0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:25) /test/1/old_passwords/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[session_setting_write__024]
+sql:
+SET old_passwords=2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:17) /test/1/old_passwords/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[session_variable_rw__025]
+sql:
+SET @des_nossl_before_flush=DES_DECRYPT(DES_ENCRYPT('hello'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_VARIABLE_RW": [
+    {
+      "subject": "ConfigKey(1:4~1:27) /test/1/des_nossl_before_flush/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(1:28~1:39) /test/1/catalog1/schema1/DES_DECRYPT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:40~1:51) /test/1/catalog1/schema1/DES_ENCRYPT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[session_setting_write__026]
+sql:
+SET optimizer_switch='semijoin=on,materialization=on,firstmatch=on,loosescan=on,index_condition_pushdown=on,mrr=on,mrr_cost_based=off';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:20) /test/1/optimizer_switch/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[session_setting_write__027]
+sql:
+SET optimizer_switch=DEFAULT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:20) /test/1/optimizer_switch/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[session_variable_rw__028]
+sql:
+SET @old_collation_connection=@@collation_connection;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_VARIABLE_RW": [
+    {
+      "subject": "ConfigKey(1:4~1:29) /test/1/old_collation_connection/",
+      "action" : "READ"
+    },
+    {
+      "subject": "ConfigKey(1:30~1:52) /test/1/collation_connection/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[session_setting_write__029]
+sql:
+SET collation_connection='utf8_general_ci';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:24) /test/1/collation_connection/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[session_setting_write_session_variable_rw__030]
+sql:
+SET collation_connection=@old_collation_connection;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:24) /test/1/collation_connection/",
+      "action" : "CONFIGURE"
+    },
+    {
+      "subject": "ConfigKey(1:25~1:50) /test/1/old_collation_connection/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[session_variable_rw__031]
+sql:
+SET @func_test_right:='11';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_VARIABLE_RW": [
+    {
+      "subject": "ConfigKey(1:4~1:20) /test/1/func_test_right/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[session_setting_write__032]
+sql:
+SET TIMESTAMP=UNIX_TIMESTAMP('2025-01-01 00:00:00');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:13) /test/1/TIMESTAMP/",
+      "action" : "CONFIGURE"
+    },
+    {
+      "subject": "Function(1:14~1:28) /test/1/catalog1/schema1/UNIX_TIMESTAMP/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[session_setting_write__033]
+sql:
+SET TIMESTAMP=DEFAULT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:13) /test/1/TIMESTAMP/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[session_setting_write__034]
+sql:
+SET time_zone='+03:00';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:13) /test/1/time_zone/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[session_setting_write__035]
+sql:
+SET time_zone=@@global.time_zone;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:13) /test/1/time_zone/",
+      "action" : "CONFIGURE"
+    },
+    {
+      "subject": "ConfigKey(1:14~1:32) /test/1/time_zone/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[session_setting_write__036]
+sql:
+SET time_zone=UTC;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:13) /test/1/time_zone/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[session_setting_write__037]
+sql:
+SET SESSION explicit_defaults_for_timestamp=OFF;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:43) /test/1/explicit_defaults_for_timestamp/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[session_setting_write__038]
+sql:
+SET TIMESTAMP=1000000019;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:13) /test/1/TIMESTAMP/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[session_variable_rw__039]
+sql:
+SET @uuid_native = UUID();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_VARIABLE_RW": [
+    {
+      "subject": "ConfigKey(1:4~1:16) /test/1/uuid_native/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(1:19~1:23) /test/1/catalog1/schema1/UUID/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_library__040]
+sql:
+INSTALL PLUGIN split_missing_plugin_56 SONAME 'split_missing_plugin.so';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_LIBRARY": [
+    {
+      "subject": "Library(1:0~1:71) /test/1/",
+      "action": "UNSAFE"
+    }
+  ]
+}
+----------
+[drop_library__041]
+sql:
+UNINSTALL PLUGIN split_missing_plugin_56;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_LIBRARY": [
+    {
+      "subject": "Library(1:0~1:40) /test/1/",
+      "action": "UNSAFE"
+    }
+  ]
+}
+----------
+[create_prog_obj__042]
+sql:
+CREATE FUNCTION split_missing_udf_56 RETURNS STRING SONAME 'split_missing_udf.so';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:36) /test/1/catalog1/schema1/split_missing_udf_56/",
+      "action": "UNSAFE"
+    },
+    {
+      "subject": "File(1:59~1:81) /test/1/split_missing_udf.so/",
+      "action": "UNSAFE"
+    }
+  ]
+}
+----------
+[create_prog_obj__043]
+sql:
+CREATE AGGREGATE FUNCTION split_missing_agg_56 RETURNS REAL SONAME 'split_missing_agg.so';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:26~1:46) /test/1/catalog1/schema1/split_missing_agg_56/",
+      "action": "UNSAFE"
+    },
+    {
+      "subject": "File(1:67~1:89) /test/1/split_missing_agg.so/",
+      "action": "UNSAFE"
+    }
+  ]
+}
+----------
+[create_prog_obj__044]
+sql:
+CREATE FUNCTION split_missing_int_56 RETURNS INTEGER SONAME 'split_missing_int.so';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:36) /test/1/catalog1/schema1/split_missing_int_56/",
+      "action": "UNSAFE"
+    },
+    {
+      "subject": "File(1:60~1:82) /test/1/split_missing_int.so/",
+      "action": "UNSAFE"
+    }
+  ]
+}
+----------
+[create_prog_obj__045]
+sql:
+CREATE FUNCTION split_missing_decimal_56 RETURNS DECIMAL SONAME 'split_missing_decimal.so';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:40) /test/1/catalog1/schema1/split_missing_decimal_56/",
+      "action": "UNSAFE"
+    },
+    {
+      "subject": "File(1:64~1:90) /test/1/split_missing_decimal.so/",
+      "action": "UNSAFE"
+    }
+  ]
+}
+----------
+[drop_prog_obj__046]
+sql:
+DROP FUNCTION split_missing_udf_56;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Function(1:14~1:34) /test/1/catalog1/schema1/split_missing_udf_56/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[drop_prog_obj__047]
+sql:
+DROP FUNCTION IF EXISTS split_missing_udf_56;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Function(1:24~1:44) /test/1/catalog1/schema1/split_missing_udf_56/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[grant__048]
+sql:
+GRANT ALTER, ALTER ROUTINE, CREATE, CREATE ROUTINE, CREATE TABLESPACE, CREATE TEMPORARY TABLES, CREATE USER, CREATE VIEW, DELETE, DROP, EVENT, EXECUTE, FILE, GRANT OPTION, INDEX, INSERT, LOCK TABLES, PROCESS, REFERENCES, RELOAD, REPLICATION CLIENT, REPLICATION SLAVE, SELECT, SHOW DATABASES, SHOW VIEW, SHUTDOWN, SUPER, TRIGGER, UPDATE, USAGE ON *.* TO 'static_56'@'%';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Instance(1:346~1:349) /test/1/",
+      "action" : "GRANT",
+      "target" : "UserOrRole(1:353~1:368) /test/1/static_56@%/"
+    }
+  ]
+}
+----------
+[revoke__049]
+sql:
+REVOKE ALTER, ALTER ROUTINE, CREATE, CREATE ROUTINE, CREATE TABLESPACE, CREATE TEMPORARY TABLES, CREATE USER, CREATE VIEW, DELETE, DROP, EVENT, EXECUTE, FILE, GRANT OPTION, INDEX, INSERT, LOCK TABLES, PROCESS, REFERENCES, RELOAD, REPLICATION CLIENT, REPLICATION SLAVE, SELECT, SHOW DATABASES, SHOW VIEW, SHUTDOWN, SUPER, TRIGGER, UPDATE, USAGE ON *.* FROM 'static_56'@'%';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "Instance(1:347~1:350) /test/1/",
+      "action" : "REVOKE",
+      "target" : "UserOrRole(1:356~1:371) /test/1/static_56@%/"
+    }
+  ]
+}
+----------
+[session_setting_write__050]
+sql:
+SET ENABLE_CASCADE_TRIGGERS=ON;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:27) /test/1/ENABLE_CASCADE_TRIGGERS/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}

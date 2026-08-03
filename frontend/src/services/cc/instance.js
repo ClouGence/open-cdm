@@ -1,3 +1,4 @@
+import appLogger from '@/utils/logger';
 import axios from 'axios';
 import { Modal, Spin } from 'view-ui-plus';
 import { showActiveLicense } from '@/utils';
@@ -29,7 +30,7 @@ let baseURL = `${window.location.protocol}//${window.location.host}/cloudcanal/c
 if (process.env.VUE_APP_BASE_URL) {
   baseURL = `${process.env.VUE_APP_BASE_URL}/cloudcanal/console/api/v1/inner`;
 }
-console.log('baseURL', baseURL);
+appLogger.debug('baseURL', baseURL);
 // const baseURL = '/' + '/api/v1/';
 const timeout = 1800000;
 const trimObj = (obj) => {
@@ -69,7 +70,7 @@ const instance = axios.create({
           try {
             data[key] = trimObj(data[key]);
           } catch (e) {
-            console.error(e);
+            appLogger.error(e);
           }
         }
         return null;

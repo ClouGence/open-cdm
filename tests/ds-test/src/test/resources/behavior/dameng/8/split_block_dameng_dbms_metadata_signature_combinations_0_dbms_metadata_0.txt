@@ -1,0 +1,470 @@
+[split_block_dameng_dbms_metadata_signature_combinations_0_001]
+sql:
+-- FUNC-0630 OPEN and FUNC-0622 CLOSE positional
+declare handle_value int; begin handle_value:=DBMS_METADATA."OPEN"('TABLE'); DBMS_METADATA."CLOSE"(handle_value); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:77~2:98) /test/1/catalog1/DBMS_METADATA/CLOSE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:46~2:66) /test/1/catalog1/DBMS_METADATA/OPEN/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_metadata_signature_combinations_0_002]
+sql:
+-- FUNC-0622 CLOSE named argument
+declare handle_value int; begin handle_value:=DBMS_METADATA."OPEN"('TABLE'); DBMS_METADATA."CLOSE"(HANDLE=>handle_value); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:77~2:98) /test/1/catalog1/DBMS_METADATA/CLOSE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:46~2:66) /test/1/catalog1/DBMS_METADATA/OPEN/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_metadata_signature_combinations_0_003]
+sql:
+-- FUNC-0623 CLOSE_ALL zero argument
+declare handle_a int; handle_b int; begin handle_a:=DBMS_METADATA."OPEN"('TABLE'); handle_b:=DBMS_METADATA."OPEN"('VIEW'); DBMS_METADATA.CLOSE_ALL(); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:123~2:146) /test/1/catalog1/DBMS_METADATA/CLOSE_ALL/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:52~2:72) /test/1/catalog1/DBMS_METADATA/OPEN/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:93~2:113) /test/1/catalog1/DBMS_METADATA/OPEN/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_metadata_signature_combinations_0_004]
+sql:
+-- FUNC-0621 CHECK_HANDLE zero argument
+begin DBMS_METADATA.CHECK_HANDLE; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:32) /test/1/catalog1/DBMS_METADATA/CHECK_HANDLE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_metadata_signature_combinations_0_005]
+sql:
+-- FUNC-0624 FETCH_CLOB positional lifecycle
+declare handle_value int; document_value clob; begin handle_value:=DBMS_METADATA."OPEN"('TABLE'); DBMS_METADATA.SET_FILTER(handle_value, 'SCHEMA', 'SYSDBA'); DBMS_METADATA.SET_FILTER(handle_value, 'NAME', 'CODEX_DBMS_META_BASE'); document_value:=DBMS_METADATA.FETCH_CLOB(handle_value); DBMS_METADATA."CLOSE"(handle_value); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:98~2:122) /test/1/catalog1/DBMS_METADATA/SET_FILTER/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:158~2:182) /test/1/catalog1/DBMS_METADATA/SET_FILTER/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:286~2:307) /test/1/catalog1/DBMS_METADATA/CLOSE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:67~2:87) /test/1/catalog1/DBMS_METADATA/OPEN/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:246~2:270) /test/1/catalog1/DBMS_METADATA/FETCH_CLOB/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_metadata_signature_combinations_0_006]
+sql:
+-- FUNC-0625 FETCH_DDL named lifecycle
+declare handle_value int; documents_value DBMS_METADATA.KU$_DDLS; begin handle_value:=DBMS_METADATA."OPEN"('TABLE'); DBMS_METADATA.SET_FILTER(handle_value, 'SCHEMA', 'SYSDBA'); DBMS_METADATA.SET_FILTER(handle_value, 'NAME', 'CODEX_DBMS_META_BASE'); DBMS_METADATA.SET_PARSE_ITEM(handle_value, 'NAME'); documents_value:=DBMS_METADATA.FETCH_DDL(HANDLE=>handle_value); DBMS_METADATA."CLOSE"(handle_value); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:42~2:64) /test/1/catalog1/DBMS_METADATA/KU$_DDLS/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:117~2:141) /test/1/catalog1/DBMS_METADATA/SET_FILTER/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:177~2:201) /test/1/catalog1/DBMS_METADATA/SET_FILTER/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:249~2:277) /test/1/catalog1/DBMS_METADATA/SET_PARSE_ITEM/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:365~2:386) /test/1/catalog1/DBMS_METADATA/CLOSE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:86~2:106) /test/1/catalog1/DBMS_METADATA/OPEN/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:318~2:341) /test/1/catalog1/DBMS_METADATA/FETCH_DDL/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_metadata_signature_combinations_0_007]
+sql:
+-- FUNC-0620 ADD_TRANSFORM minimum required arguments
+declare handle_value int; transform_value number; begin handle_value:=DBMS_METADATA."OPEN"('TABLE'); transform_value:=DBMS_METADATA.ADD_TRANSFORM(handle_value, 'DDL'); DBMS_METADATA."CLOSE"(handle_value); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:168~2:189) /test/1/catalog1/DBMS_METADATA/CLOSE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:70~2:90) /test/1/catalog1/DBMS_METADATA/OPEN/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:118~2:145) /test/1/catalog1/DBMS_METADATA/ADD_TRANSFORM/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_metadata_signature_combinations_0_008]
+sql:
+-- FUNC-0620 ADD_TRANSFORM through encoding optional
+declare handle_value int; transform_value number; begin handle_value:=DBMS_METADATA."OPEN"('TABLE'); transform_value:=DBMS_METADATA.ADD_TRANSFORM(handle_value, 'DDL', 'UTF-8'); DBMS_METADATA."CLOSE"(handle_value); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:177~2:198) /test/1/catalog1/DBMS_METADATA/CLOSE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:70~2:90) /test/1/catalog1/DBMS_METADATA/OPEN/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:118~2:145) /test/1/catalog1/DBMS_METADATA/ADD_TRANSFORM/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_metadata_signature_combinations_0_009]
+sql:
+-- FUNC-0620 ADD_TRANSFORM full named reordered
+declare handle_value int; transform_value number; begin handle_value:=DBMS_METADATA."OPEN"('TABLE'); transform_value:=DBMS_METADATA.ADD_TRANSFORM(OBJECT_TYPE=>'TABLE', ENCODING=>NULL, NAME=>'DDL', HANDLE=>handle_value); DBMS_METADATA."CLOSE"(handle_value); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:220~2:241) /test/1/catalog1/DBMS_METADATA/CLOSE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:70~2:90) /test/1/catalog1/DBMS_METADATA/OPEN/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:118~2:145) /test/1/catalog1/DBMS_METADATA/ADD_TRANSFORM/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_metadata_signature_combinations_0_010]
+sql:
+-- FUNC-0629 GET_QUERY named lifecycle
+declare handle_value int; query_value varchar(32767); begin handle_value:=DBMS_METADATA."OPEN"('TABLE'); DBMS_METADATA.SET_FILTER(handle_value, 'SCHEMA', 'SYSDBA'); query_value:=DBMS_METADATA.GET_QUERY(HANDLE=>handle_value); DBMS_METADATA."CLOSE"(handle_value); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:105~2:129) /test/1/catalog1/DBMS_METADATA/SET_FILTER/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:225~2:246) /test/1/catalog1/DBMS_METADATA/CLOSE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:74~2:94) /test/1/catalog1/DBMS_METADATA/OPEN/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:178~2:201) /test/1/catalog1/DBMS_METADATA/GET_QUERY/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_metadata_signature_combinations_0_011]
+sql:
+-- FUNC-0631 SET_COUNT named reordered
+declare handle_value int; begin handle_value:=DBMS_METADATA."OPEN"('TABLE'); DBMS_METADATA.SET_COUNT(VALUE=>1, HANDLE=>handle_value); DBMS_METADATA."CLOSE"(handle_value); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:77~2:100) /test/1/catalog1/DBMS_METADATA/SET_COUNT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:134~2:155) /test/1/catalog1/DBMS_METADATA/CLOSE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:46~2:66) /test/1/catalog1/DBMS_METADATA/OPEN/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_metadata_signature_combinations_0_012]
+sql:
+-- FUNC-0632 SET_FILTER minimum required arguments
+declare handle_value int; begin handle_value:=DBMS_METADATA."OPEN"('TABLE'); DBMS_METADATA.SET_FILTER(handle_value, 'SCHEMA', 'SYSDBA'); DBMS_METADATA."CLOSE"(handle_value); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:77~2:101) /test/1/catalog1/DBMS_METADATA/SET_FILTER/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:137~2:158) /test/1/catalog1/DBMS_METADATA/CLOSE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:46~2:66) /test/1/catalog1/DBMS_METADATA/OPEN/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_metadata_signature_combinations_0_013]
+sql:
+-- FUNC-0632 SET_FILTER full named reordered
+declare handle_value int; begin handle_value:=DBMS_METADATA."OPEN"('TABLE'); DBMS_METADATA.SET_FILTER(OBJECT_TYPE_PATH=>'TABLE', VAL=>'CODEX_DBMS_META_BASE', NAME=>'NAME', HANDLE=>handle_value); DBMS_METADATA."CLOSE"(handle_value); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:77~2:101) /test/1/catalog1/DBMS_METADATA/SET_FILTER/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:195~2:216) /test/1/catalog1/DBMS_METADATA/CLOSE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:46~2:66) /test/1/catalog1/DBMS_METADATA/OPEN/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_metadata_signature_combinations_0_014]
+sql:
+-- FUNC-0633 SET_PARSE_ITEM minimum required arguments
+declare handle_value int; begin handle_value:=DBMS_METADATA."OPEN"('TABLE'); DBMS_METADATA.SET_PARSE_ITEM(handle_value, 'NAME'); DBMS_METADATA."CLOSE"(handle_value); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:77~2:105) /test/1/catalog1/DBMS_METADATA/SET_PARSE_ITEM/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:129~2:150) /test/1/catalog1/DBMS_METADATA/CLOSE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:46~2:66) /test/1/catalog1/DBMS_METADATA/OPEN/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_metadata_signature_combinations_0_015]
+sql:
+-- FUNC-0633 SET_PARSE_ITEM full named reordered
+declare handle_value int; begin handle_value:=DBMS_METADATA."OPEN"('TABLE'); DBMS_METADATA.SET_PARSE_ITEM(OBJECT_TYPE=>'TABLE', NAME=>'SCHEMA', HANDLE=>handle_value); DBMS_METADATA."CLOSE"(handle_value); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:77~2:105) /test/1/catalog1/DBMS_METADATA/SET_PARSE_ITEM/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:167~2:188) /test/1/catalog1/DBMS_METADATA/CLOSE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:46~2:66) /test/1/catalog1/DBMS_METADATA/OPEN/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_metadata_signature_combinations_0_016]
+sql:
+-- FUNC-0634 SET_TRANSFORM_PARAM minimum required arguments
+begin DBMS_METADATA.SET_TRANSFORM_PARAM(DBMS_METADATA.SESSION_TRANSFORM, 'STORAGE'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:39) /test/1/catalog1/DBMS_METADATA/SET_TRANSFORM_PARAM/",
+      "action": "CALL",
+      "target": "ConfigKey(2:73~2:82) /test/1/STORAGE/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_metadata_signature_combinations_0_017]
+sql:
+-- FUNC-0634 SET_TRANSFORM_PARAM through value optional
+begin DBMS_METADATA.SET_TRANSFORM_PARAM(DBMS_METADATA.SESSION_TRANSFORM, 'CONSTRAINTS', false); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:39) /test/1/catalog1/DBMS_METADATA/SET_TRANSFORM_PARAM/",
+      "action": "CALL",
+      "target": "ConfigKey(2:73~2:86) /test/1/CONSTRAINTS/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_metadata_signature_combinations_0_018]
+sql:
+-- FUNC-0634 SET_TRANSFORM_PARAM full named reordered
+begin DBMS_METADATA.SET_TRANSFORM_PARAM(OBJECT_TYPE=>'TABLE', VALUE=>false, NAME=>'CONSTRAINTS', TRANSFORM_HANDLE=>DBMS_METADATA.SESSION_TRANSFORM); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:39) /test/1/catalog1/DBMS_METADATA/SET_TRANSFORM_PARAM/",
+      "action": "CALL",
+      "target": "ConfigKey(2:82~2:95) /test/1/CONSTRAINTS/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_metadata_signature_combinations_0_019]
+sql:
+-- FUNC-0631 SET_COUNT Pack29 accepts zero
+declare handle_value int; begin handle_value:=DBMS_METADATA."OPEN"('TABLE'); DBMS_METADATA.SET_COUNT(handle_value, 0); DBMS_METADATA."CLOSE"(handle_value); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:77~2:100) /test/1/catalog1/DBMS_METADATA/SET_COUNT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:119~2:140) /test/1/catalog1/DBMS_METADATA/CLOSE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:46~2:66) /test/1/catalog1/DBMS_METADATA/OPEN/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_metadata_signature_combinations_0_020]
+sql:
+-- FUNC-0620 ADD_TRANSFORM Pack29 accepts unsupported name as no-op
+declare handle_value int; transform_value number; begin handle_value:=DBMS_METADATA."OPEN"('TABLE'); transform_value:=DBMS_METADATA.ADD_TRANSFORM(handle_value, 'INVALID'); DBMS_METADATA."CLOSE"(handle_value); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:172~2:193) /test/1/catalog1/DBMS_METADATA/CLOSE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:70~2:90) /test/1/catalog1/DBMS_METADATA/OPEN/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:118~2:145) /test/1/catalog1/DBMS_METADATA/ADD_TRANSFORM/",
+      "action": "CALL"
+    }
+  ]
+}

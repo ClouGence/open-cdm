@@ -15,31 +15,28 @@
  */
 package com.clougence.clouddm.worker.component.notify;
 
-import java.util.*;
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import com.clougence.clouddm.api.console.status.ConsoleStatusRService;
-import jakarta.annotation.Resource;
-
-import com.clougence.clouddm.sdk.execute.resultset.echo.*;
 import org.springframework.stereotype.Service;
 
+import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
 import com.clougence.clouddm.api.console.sqlaudit.SqlAuditRService;
 import com.clougence.clouddm.api.console.sqlaudit.SqlExecNotifyDTO;
 import com.clougence.clouddm.api.console.sqlaudit.SqlStatus;
 import com.clougence.clouddm.api.console.sqlaudit.Type;
 import com.clougence.clouddm.comm.model.auth.WorkerIdentity;
-import com.clougence.clouddm.sdk.service.secrules.Requester;
-import com.clougence.clouddm.sdk.execute.ExecuteVariables;
+import com.clougence.clouddm.sdk.execute.resultset.echo.*;
 import com.clougence.clouddm.sdk.execute.session.MessageLevel;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.clouddm.worker.component.report.ReportUtils;
-import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
-import com.clougence.utils.StringUtils;
 import com.clougence.utils.ThreadUtils;
 
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -62,16 +59,15 @@ public class SidecarSqlNotifyServiceImpl implements SidecarSqlNotifyService, Uni
     }
 
     @Override
-    public void finishForAutoExec(String sessionId, String message, Long affectLine, String sql, SqlStatus result, List<String> levels, Long dsId) {
+    public void finishForAutoExec(String queryId, String sessionId, String message, Long affectLine, SqlStatus result) {
         SqlExecNotifyDTO dto = new SqlExecNotifyDTO();
+        dto.setQueryId(queryId);
         dto.setSessionId(sessionId);
         dto.setMessage(message);
         dto.setSqlStatus(result);
         dto.setLine(affectLine);
         dto.setTime(new Date());
-        dto.setSql(sql);
-        dto.setLevels(levels);
-        dto.setDsId(dsId);
+        dto.setType(Type.SQL_END);
         this.queue.add(dto);
     }
 
@@ -108,7 +104,7 @@ public class SidecarSqlNotifyServiceImpl implements SidecarSqlNotifyService, Uni
             case Phase: {
                 if (result instanceof ResultPhase) {
                     if (((ResultPhase) result).getPhaseType() == ResultPhaseType.After) {
-                        this.addToQueue(query, result, SqlStatus.SUCCESS, 0, result.getVariables());
+                        this.addToQueue(query, result, SqlStatus.SUCCESS, 0);
                     }
                 }
                 break;
@@ -120,93 +116,50 @@ public class SidecarSqlNotifyServiceImpl implements SidecarSqlNotifyService, Uni
                     return;
                 }
                 if (resultMessage.getLevel() == MessageLevel.Error) {
-                    addToQueue(query, result, SqlStatus.FAILURE, 0, result.getVariables());
+                    addToQueue(query, result, SqlStatus.FAILURE, 0);
                 } else if (resultMessage.getLevel() == MessageLevel.Info) {
-                    addToQueue(query, result, SqlStatus.SUCCESS, 0, result.getVariables());
+                    addToQueue(query, result, SqlStatus.SUCCESS, 0);
                 }
                 break;
             }
             case ResultCount: {
                 ResultCount resultCount = (ResultCount) result;
                 // create table .... count = -1
-                addToQueue(query, result, SqlStatus.SUCCESS, Math.max(0, resultCount.getUpdateCount()), result.getVariables());
+                addToQueue(query, result, SqlStatus.SUCCESS, Math.max(0, resultCount.getUpdateCount()));
                 break;
             }
         }
     }
 
-    private void addToQueue(QueryRequest query, Result result, SqlStatus sqlStatus, long affectLine, Map<String, String> variables) {
+    private void addToQueue(QueryRequest query, Result result, SqlStatus sqlStatus, long affectLine) {
         SqlExecNotifyDTO dto = new SqlExecNotifyDTO();
         dto.setSessionId(result.getSessionId());
         dto.setQueryId(query.getQueryId());
         dto.setMessage(result.getMessage());
-        dto.setSql(result.getQuerySql());
         dto.setSqlStatus(sqlStatus);
         dto.setLine(affectLine);
         dto.setTime(new Date());
         dto.setType(Type.SQL_END);
-        dto.setRewrite(query.isHasRewrite());
-        dto.setRewriteTag(query.getRewriteTag());
-        dto.setOriginalSql(query.getOriginalBody());
-
-        List<String> levels = new ArrayList<>();
-        String catalog = variables.get(ExecuteVariables.CURRENT_CATALOG);
-        String schema = variables.get(ExecuteVariables.CURRENT_SCHEMA);
-        if (StringUtils.isNotEmpty(catalog)) {
-            levels.add(catalog);
-        }
-        if (StringUtils.isNotEmpty(schema)) {
-            levels.add(schema);
-        }
-
-        dto.setDsId(Long.valueOf(variables.get(ExecuteVariables.DS_ID)));
-
-        dto.setLevels(levels);
-
         this.queue.add(dto);
     }
 
     @Override
     public void beginForConsoleQuery(QueryRequest query, String sessionId) {
         SqlExecNotifyDTO dto = new SqlExecNotifyDTO();
-        dto.setExplain(query.isUseExplain());
-        dto.setUid(query.getVariables().get(ExecuteVariables.CURRENT_UID));
         dto.setTime(new Date());
-        dto.setSql(query.getQueryBody());
-        dto.setRequester(query.getRequester());
         dto.setSessionId(sessionId);
         dto.setQueryId(query.getQueryId());
-        dto.setDsId(Long.valueOf(query.getVariables().get(ExecuteVariables.DS_ID)));
         dto.setType(Type.SQL_START);
-        dto.setRewrite(query.isHasRewrite());
-        dto.setRewriteTag(query.getRewriteTag());
-        dto.setOriginalSql(query.getOriginalBody());
-        dto.setClientIp(query.getVariables().get(ExecuteVariables.CLIENT_IP));
         dto.setSqlStatus(SqlStatus.RUNNING);
-        List<String> levels = new ArrayList<>();
-        String catalog = query.getVariables().get(ExecuteVariables.CURRENT_CATALOG);
-        String schema = query.getVariables().get(ExecuteVariables.CURRENT_SCHEMA);
-        if (StringUtils.isNotEmpty(catalog)) {
-            levels.add(catalog);
-        }
-        if (StringUtils.isNotEmpty(schema)) {
-            levels.add(schema);
-        }
-        dto.setLevels(levels);
-
         this.queue.add(dto);
     }
 
     @Override
-    public void recodeSqlForAutoExec(String uid, String sql, Requester requester, Long dsId, String sessionId, List<String> levels) {
+    public void beginForAutoExec(String queryId, String sessionId) {
         SqlExecNotifyDTO dto = new SqlExecNotifyDTO();
-        dto.setUid(uid);
+        dto.setQueryId(queryId);
         dto.setTime(new Date());
-        dto.setSql(sql);
-        dto.setRequester(requester);
         dto.setSessionId(sessionId);
-        dto.setDsId(dsId);
-        dto.setLevels(levels);
         dto.setSqlStatus(SqlStatus.RUNNING);
         dto.setType(Type.SQL_START);
         this.queue.add(dto);

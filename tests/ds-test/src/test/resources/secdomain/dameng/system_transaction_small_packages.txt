@@ -1,0 +1,19 @@
+[dbms_system_direct_call]
+sql:
+call dbms_system.ksdwrt(2, 'CODEX_DM8_DBMS_SYSTEM_KSDWRT')
+expect:
+{
+  "contains": [
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_system"}
+  ]
+}
+----------
+[dbms_transaction_select]
+sql:
+select dbms_transaction.local_transaction_id(false) as transaction_id from dual
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "table":"dual"}
+  ]
+}

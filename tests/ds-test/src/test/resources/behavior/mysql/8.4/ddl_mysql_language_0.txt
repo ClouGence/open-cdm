@@ -1,0 +1,2194 @@
+[alter_prog_obj__001]
+sql:
+ALTER FUNCTION missing_external_function LANGUAGE JAVASCRIPT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_PROG_OBJ": [
+    {
+      "subject": "Function(1:15~1:40) /test/1/catalog1/schema1/missing_external_function/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_prog_obj__002]
+sql:
+ALTER PROCEDURE missing_external_procedure LANGUAGE JAVASCRIPT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:16~1:42) /test/1/catalog1/schema1/missing_external_procedure/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_drop_index_add_index_comment_index__003]
+sql:
+ALTER TABLE codex_alter_audit_t DROP INDEX key1, ADD INDEX key1(fld1) COMMENT 'test', ALGORITHM=INPLACE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Index(1:43~1:47) /test/1/catalog1/schema1/key1/",
+      "action" : "DROP",
+      "target" : "Table(1:12~1:31) /test/1/catalog1/schema1/codex_alter_audit_t/"
+    },
+    {
+      "subject": "Index(1:59~1:63) /test/1/catalog1/schema1/key1/",
+      "action" : "CREATE",
+      "target" : "Table(1:12~1:31) /test/1/catalog1/schema1/codex_alter_audit_t/"
+    }
+  ]
+}
+----------
+[create_table__004]
+sql:
+CREATE TABLE `semi;table` (`semi;column` INT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/semi;table/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[drop_table__005]
+sql:
+DROP TABLE `semi;table`;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:23) /test/1/catalog1/schema1/semi;table/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[create_table__006]
+sql:
+CREATE TABLE split_numid (1e INT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:24) /test/1/catalog1/schema1/split_numid/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__007]
+sql:
+CREATE TABLE split_removed_84 (master_bind INT, master_ssl_verify_server_cert INT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:29) /test/1/catalog1/schema1/split_removed_84/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__008]
+sql:
+CREATE TABLE dollar_digit.$1$ (id INT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:29) /test/1/catalog1/dollar_digit/$1$/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__009]
+sql:
+CREATE TABLE dollar_ctx.$$id (id INT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/dollar_ctx/$$id/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__010]
+sql:
+CREATE TABLE dollar_ctx.$$alpha$$ (id INT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:33) /test/1/catalog1/dollar_ctx/$$alpha$$/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__011]
+sql:
+CREATE TABLE dollar_ctx.$tag$alpha$tag$ (id INT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:39) /test/1/catalog1/dollar_ctx/$tag$alpha$tag$/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__012]
+sql:
+CREATE TABLE dollar_ctx.$$alpha (id INT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/dollar_ctx/$$alpha/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__013]
+sql:
+CREATE TABLE dollar_ctx.$tag$alpha$other$ (id INT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:41) /test/1/catalog1/dollar_ctx/$tag$alpha$other$/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__014]
+sql:
+/*!50000 CREATE TABLE t (id INT PRIMARY KEY, note VARCHAR(20)) */;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:22~1:23) /test/1/catalog1/schema1/t/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Constraint(1:32~1:43) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[alter_table_add_column__015]
+sql:
+/*!50000 ALTER TABLE t ADD COLUMN flag INT DEFAULT 0 */;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:21~1:22) /test/1/catalog1/schema1/t/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[drop_table__016]
+sql:
+/*!50000 DROP TABLE t */;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:20~1:21) /test/1/catalog1/schema1/t/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[create_prog_obj__017]
+sql:
+CREATE FUNCTION f_ext_dollar(n INTEGER) RETURNS INTEGER LANGUAGE JAVASCRIPT AS $$ return n; $$;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:28) /test/1/catalog1/schema1/f_ext_dollar/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_prog_obj__018]
+sql:
+CREATE FUNCTION f_ext_string(n INTEGER) RETURNS INTEGER LANGUAGE JAVASCRIPT AS 'return n;';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:28) /test/1/catalog1/schema1/f_ext_string/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_prog_obj__019]
+sql:
+CREATE FUNCTION codex_tagged(n INTEGER) RETURNS INTEGER DETERMINISTIC LANGUAGE JAVASCRIPT AS $abdc_1234$ const marker = "$$ $other$"; return n; $abdc_1234$;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:28) /test/1/catalog1/schema1/codex_tagged/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_prog_obj__020]
+sql:
+CREATE PROCEDURE p_ext_dollar(n INTEGER) LANGUAGE JAVASCRIPT AS $$ let x = n; $$;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:17~1:29) /test/1/catalog1/schema1/p_ext_dollar/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__021]
+sql:
+CREATE TABLE JSON_DUALITY_OBJECT(a INT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:32) /test/1/catalog1/schema1/JSON_DUALITY_OBJECT/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__022]
+sql:
+CREATE TABLE JSON_ARRAYAGG (a INT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:26) /test/1/catalog1/schema1/JSON_ARRAYAGG/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__023]
+sql:
+CREATE TABLE JSON_OBJECTAGG (a INT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:27) /test/1/catalog1/schema1/JSON_OBJECTAGG/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__024]
+sql:
+CREATE TABLE JSON_DUALITY_OBJECT (a INT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:32) /test/1/catalog1/schema1/JSON_DUALITY_OBJECT/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__025]
+sql:
+CREATE TABLE function_token_gap.JSON_ARRAYAGG(a INT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:45) /test/1/catalog1/function_token_gap/JSON_ARRAYAGG/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__026]
+sql:
+CREATE TABLE function_token_gap.JSON_OBJECTAGG(a INT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:46) /test/1/catalog1/function_token_gap/JSON_OBJECTAGG/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__027]
+sql:
+CREATE TABLE function_token_gap.JSON_DUALITY_OBJECT(a INT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:51) /test/1/catalog1/function_token_gap/JSON_DUALITY_OBJECT/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__028]
+sql:
+CREATE TABLE split_identifiers.1table (1column INT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:37) /test/1/catalog1/split_identifiers/1table/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__029]
+sql:
+CREATE TABLE split_identifiers.$one (id INT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:35) /test/1/catalog1/split_identifiers/$one/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__030]
+sql:
+CREATE TABLE split_identifiers.$one$two (id INT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:39) /test/1/catalog1/split_identifiers/$one$two/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_prog_obj_block_program_control___031]
+sql:
+CREATE PROCEDURE audit_label_external() external: BEGIN LEAVE external; END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:17~1:37) /test/1/catalog1/schema1/audit_label_external/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__032]
+sql:
+CREATE TABLE split_keywords.keyword_identifiers (`cume_dist` INT, `dense_rank` INT, `empty` INT, `except` INT, `first_value` INT, `grouping` INT, `groups` INT, `json_table` INT, `lag` INT, `last_value` INT, `lateral` INT, `lead` INT, `nth_value` INT, `ntile` INT, `of` INT, `over` INT, `percent_rank` INT, `rank` INT, `recursive` INT, `row_number` INT, `system` INT, `window` INT, `manual` INT, `parallel` INT, `qualify` INT, `tablesample` INT, external INT, library INT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:47) /test/1/catalog1/split_keywords/keyword_identifiers/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_prog_obj_block_program_control___033]
+sql:
+CREATE PROCEDURE audit_label_library() library: BEGIN LEAVE library; END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:17~1:36) /test/1/catalog1/schema1/audit_label_library/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_prog_obj_block_program_control___034]
+sql:
+CREATE PROCEDURE audit_label_sets() sets: BEGIN LEAVE sets; END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:17~1:33) /test/1/catalog1/schema1/audit_label_sets/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_prog_obj_block_program_control___035]
+sql:
+CREATE PROCEDURE split_keywords.p_label_binlog()
+binlog: BEGIN
+  LEAVE binlog;
+END binlog;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:17~1:46) /test/1/catalog1/split_keywords/p_label_binlog/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__036]
+sql:
+CREATE TABLE split_keywords.files (absent INT, allow_missing_files INT, auto_refresh INT, auto_refresh_source INT, duality INT, external_format INT, file_format INT, file_name INT, file_pattern INT, file_prefix INT, guided INT, header INT, masking INT, materialized INT, parameters INT, policy INT, relational INT, sets INT, strict_load INT, uri INT, validate INT, vector INT, verify_key_constraints INT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:33) /test/1/catalog1/split_keywords/files/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[alter_table__037]
+sql:
+ALTER TABLE t1 CONVERT TO CHARACTER SET DEFAULT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:14) /test/1/catalog1/schema1/t1/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table__038]
+sql:
+ALTER TABLE t1 CONVERT TO CHARACTER SET DEFAULT COLLATE cp1251_bin;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:14) /test/1/catalog1/schema1/t1/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_rename_table__039]
+sql:
+ALTER TABLE t1 RENAME TO ``.t1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:14) /test/1/catalog1/schema1/t1/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[create_index__040]
+sql:
+CREATE INDEX idx1 ON `` (c1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:17) /test/1/catalog1/schema1/idx1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[alter_table_alter_partition__041]
+sql:
+ALTER TABLE t1 EXCHANGE PARTITION p0 WITH TABLE `` WITH VALIDATION;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:14) /test/1/catalog1/schema1/t1/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[drop_index__042]
+sql:
+DROP INDEX idx1 ON ``;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_INDEX": [
+    {
+      "subject": "Index(1:11~1:15) /test/1/catalog1/schema1/idx1/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[create_table__043]
+sql:
+CREATE TABLE full(i INT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:17) /test/1/catalog1/schema1/full/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__044]
+sql:
+CREATE TABLE ADDDATE(a int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:20) /test/1/catalog1/schema1/ADDDATE/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__045]
+sql:
+CREATE TABLE ADDDATE (a int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:20) /test/1/catalog1/schema1/ADDDATE/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__046]
+sql:
+CREATE TABLE BIT_AND (a int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:20) /test/1/catalog1/schema1/BIT_AND/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__047]
+sql:
+CREATE TABLE BIT_OR (a int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:19) /test/1/catalog1/schema1/BIT_OR/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__048]
+sql:
+CREATE TABLE BIT_XOR (a int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:20) /test/1/catalog1/schema1/BIT_XOR/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__049]
+sql:
+CREATE TABLE CAST (a int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:17) /test/1/catalog1/schema1/CAST/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__050]
+sql:
+CREATE TABLE CURDATE (a int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:20) /test/1/catalog1/schema1/CURDATE/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__051]
+sql:
+CREATE TABLE CURTIME (a int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:20) /test/1/catalog1/schema1/CURTIME/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__052]
+sql:
+CREATE TABLE DATE_ADD (a int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:21) /test/1/catalog1/schema1/DATE_ADD/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__053]
+sql:
+CREATE TABLE DATE_SUB (a int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:21) /test/1/catalog1/schema1/DATE_SUB/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__054]
+sql:
+CREATE TABLE EXTRACT (a int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:20) /test/1/catalog1/schema1/EXTRACT/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__055]
+sql:
+CREATE TABLE GROUP_CONCAT (a int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/GROUP_CONCAT/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__056]
+sql:
+CREATE TABLE GROUP_UNIQUE_USERS(a int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/schema1/GROUP_UNIQUE_USERS/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__057]
+sql:
+CREATE TABLE GROUP_UNIQUE_USERS (a int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/schema1/GROUP_UNIQUE_USERS/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__058]
+sql:
+CREATE TABLE MAX (a int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:16) /test/1/catalog1/schema1/MAX/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__059]
+sql:
+CREATE TABLE MID (a int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:16) /test/1/catalog1/schema1/MID/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__060]
+sql:
+CREATE TABLE MIN (a int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:16) /test/1/catalog1/schema1/MIN/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__061]
+sql:
+CREATE TABLE NOW (a int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:16) /test/1/catalog1/schema1/NOW/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__062]
+sql:
+CREATE TABLE POSITION (a int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:21) /test/1/catalog1/schema1/POSITION/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__063]
+sql:
+CREATE TABLE SESSION_USER(a int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/SESSION_USER/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__064]
+sql:
+CREATE TABLE SESSION_USER (a int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/SESSION_USER/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__065]
+sql:
+CREATE TABLE STD (a int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:16) /test/1/catalog1/schema1/STD/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__066]
+sql:
+CREATE TABLE STDDEV (a int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:19) /test/1/catalog1/schema1/STDDEV/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__067]
+sql:
+CREATE TABLE STDDEV_POP (a int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:23) /test/1/catalog1/schema1/STDDEV_POP/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__068]
+sql:
+CREATE TABLE STDDEV_SAMP (a int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:24) /test/1/catalog1/schema1/STDDEV_SAMP/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__069]
+sql:
+CREATE TABLE SUBDATE(a int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:20) /test/1/catalog1/schema1/SUBDATE/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__070]
+sql:
+CREATE TABLE SUBDATE (a int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:20) /test/1/catalog1/schema1/SUBDATE/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__071]
+sql:
+CREATE TABLE SUBSTR (a int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:19) /test/1/catalog1/schema1/SUBSTR/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__072]
+sql:
+CREATE TABLE SUBSTRING (a int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:22) /test/1/catalog1/schema1/SUBSTRING/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__073]
+sql:
+CREATE TABLE SUM (a int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:16) /test/1/catalog1/schema1/SUM/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__074]
+sql:
+CREATE TABLE SYSDATE (a int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:20) /test/1/catalog1/schema1/SYSDATE/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__075]
+sql:
+CREATE TABLE SYSTEM_USER(a int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:24) /test/1/catalog1/schema1/SYSTEM_USER/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__076]
+sql:
+CREATE TABLE SYSTEM_USER (a int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:24) /test/1/catalog1/schema1/SYSTEM_USER/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__077]
+sql:
+CREATE TABLE TRIM (a int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:17) /test/1/catalog1/schema1/TRIM/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__078]
+sql:
+CREATE TABLE UNIQUE_USERS(a int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/UNIQUE_USERS/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__079]
+sql:
+CREATE TABLE UNIQUE_USERS (a int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/UNIQUE_USERS/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__080]
+sql:
+CREATE TABLE VARIANCE (a int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:21) /test/1/catalog1/schema1/VARIANCE/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__081]
+sql:
+CREATE TABLE VAR_POP (a int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:20) /test/1/catalog1/schema1/VAR_POP/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__082]
+sql:
+CREATE TABLE VAR_SAMP (a int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:21) /test/1/catalog1/schema1/VAR_SAMP/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_index__083]
+sql:
+CREATE INDEX idx_repeat_block ON t1 (a) KEY_BLOCK_SIZE = 1 KEY_BLOCK_SIZE = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:29) /test/1/catalog1/schema1/idx_repeat_block/",
+      "action" : "CREATE",
+      "target" : "Table(1:33~1:35) /test/1/catalog1/schema1/t1/"
+    }
+  ]
+}
+----------
+[create_index_comment_index__084]
+sql:
+CREATE INDEX idx_repeat_comment ON t1 (b) COMMENT 'first' COMMENT 'second';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:31) /test/1/catalog1/schema1/idx_repeat_comment/",
+      "action" : "CREATE",
+      "target" : "Table(1:35~1:37) /test/1/catalog1/schema1/t1/"
+    }
+  ]
+}
+----------
+[create_index__085]
+sql:
+CREATE INDEX idx_dual_using USING BTREE ON t1 (c) USING BTREE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:27) /test/1/catalog1/schema1/idx_dual_using/",
+      "action" : "CREATE",
+      "target" : "Table(1:43~1:45) /test/1/catalog1/schema1/t1/"
+    }
+  ]
+}
+----------
+[create_index__086]
+sql:
+CREATE INDEX type TYPE BTREE ON t1 (e);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:17) /test/1/catalog1/schema1/type/",
+      "action" : "CREATE",
+      "target" : "Table(1:32~1:34) /test/1/catalog1/schema1/t1/"
+    }
+  ]
+}
+----------
+[create_table__087]
+sql:
+CREATE TABLE parse_gcol_expr (i INT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/schema1/parse_gcol_expr/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[alter_table__088]
+sql:
+ALTER TABLE dml_t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:17) /test/1/catalog1/schema1/dml_t/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table__089]
+sql:
+ALTER TABLE dml_t LOCK=SHARED, ALGORITHM=COPY,
+                  LOCK=NONE, ALGORITHM=DEFAULT,
+                  LOCK=EXCLUSIVE, ALGORITHM=INPLACE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:17) /test/1/catalog1/schema1/dml_t/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[create_prog_obj_block_program_control_select___090]
+sql:
+CREATE PROCEDURE p1()
+BEGIN
+parse_gcol_expr: LOOP
+  SELECT 1;
+  LEAVE parse_gcol_expr;
+END LOOP parse_gcol_expr;
+END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:17~1:19) /test/1/catalog1/schema1/p1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__091]
+sql:
+CREATE TEMPORARY TABLE admin (admin INT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:23~1:28) /test/1/catalog1/schema1/admin/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_prog_obj_block_program_control___092]
+sql:
+CREATE FUNCTION f_labels() RETURNS INT
+BEGIN
+  ACCOUNT: LOOP LEAVE ACCOUNT; END LOOP ACCOUNT;
+  ALWAYS: LOOP LEAVE ALWAYS; END LOOP ALWAYS;
+  BACKUP: LOOP LEAVE BACKUP; END LOOP BACKUP;
+  CLOSE: LOOP LEAVE CLOSE; END LOOP CLOSE;
+  FORMAT: LOOP LEAVE FORMAT; END LOOP FORMAT;
+  GROUP_REPLICATION: LOOP LEAVE GROUP_REPLICATION; END LOOP GROUP_REPLICATION;
+  HOST: LOOP LEAVE HOST; END LOOP HOST;
+  INVISIBLE: LOOP LEAVE INVISIBLE; END LOOP INVISIBLE;
+  OPEN: LOOP LEAVE OPEN; END LOOP OPEN;
+  OPTIONS: LOOP LEAVE OPTIONS; END LOOP OPTIONS;
+  OWNER: LOOP LEAVE OWNER; END LOOP OWNER;
+  PARSER: LOOP LEAVE PARSER; END LOOP PARSER;
+  PORT: LOOP LEAVE PORT; END LOOP PORT;
+  REMOVE: LOOP LEAVE REMOVE; END LOOP REMOVE;
+  RESTORE: LOOP LEAVE RESTORE; END LOOP RESTORE;
+  ROLE: LOOP LEAVE ROLE; END LOOP ROLE;
+  SECONDARY: LOOP LEAVE SECONDARY; END LOOP SECONDARY;
+  SECONDARY_ENGINE: LOOP LEAVE SECONDARY_ENGINE; END LOOP SECONDARY_ENGINE;
+  SECONDARY_LOAD: LOOP LEAVE SECONDARY_LOAD; END LOOP SECONDARY_LOAD;
+  SECONDARY_UNLOAD: LOOP LEAVE SECONDARY_UNLOAD; END LOOP SECONDARY_UNLOAD;
+  SECURITY: LOOP LEAVE SECURITY; END LOOP SECURITY;
+  SERVER: LOOP LEAVE SERVER; END LOOP SERVER;
+  SOCKET: LOOP LEAVE SOCKET; END LOOP SOCKET;
+  SONAME: LOOP LEAVE SONAME; END LOOP SONAME;
+  UPGRADE: LOOP LEAVE UPGRADE; END LOOP UPGRADE;
+  VISIBLE: LOOP LEAVE VISIBLE; END LOOP VISIBLE;
+  WRAPPER: LOOP LEAVE WRAPPER; END LOOP WRAPPER;
+  RETURN 1;
+END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:24) /test/1/catalog1/schema1/f_labels/",
+      "action": "UNSAFE"
+    }
+  ]
+}
+----------
+[create_table__093]
+sql:
+CREATE TABLE split_parser_key (i INT KEY);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:29) /test/1/catalog1/schema1/split_parser_key/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Constraint(1:37~1:40) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__094]
+sql:
+CREATE TABLE split_parser_unique (i INT UNIQUE);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:32) /test/1/catalog1/schema1/split_parser_unique/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Constraint(1:40~1:46) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__095]
+sql:
+CREATE TABLE split_parser_ansi_a ( "blah" INT );
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:32) /test/1/catalog1/schema1/split_parser_ansi_a/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__096]
+sql:
+CREATE TABLE split_parser_ansi_b SELECT "blah" - 1 FROM split_parser_ansi_a;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:32) /test/1/catalog1/schema1/split_parser_ansi_b/",
+      "action" : "CREATE",
+      "target" : "Table(1:56~1:75) /test/1/catalog1/schema1/split_parser_ansi_a/"
+    }
+  ]
+}
+----------
+[create_table__097]
+sql:
+CREATE TABLE get_source_public_key(i INT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:34) /test/1/catalog1/schema1/get_source_public_key/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__098]
+sql:
+CREATE TABLE source_auto_position(i INT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:33) /test/1/catalog1/schema1/source_auto_position/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__099]
+sql:
+CREATE TABLE source_bind(i INT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:24) /test/1/catalog1/schema1/source_bind/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__100]
+sql:
+CREATE TABLE source_compression_algorithm(i INT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:41) /test/1/catalog1/schema1/source_compression_algorithm/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__101]
+sql:
+CREATE TABLE source_connect_retry(i INT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:33) /test/1/catalog1/schema1/source_connect_retry/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__102]
+sql:
+CREATE TABLE source_delay(i INT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/source_delay/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__103]
+sql:
+CREATE TABLE source_heartbeat_period(i INT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:36) /test/1/catalog1/schema1/source_heartbeat_period/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__104]
+sql:
+CREATE TABLE source_host(i INT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:24) /test/1/catalog1/schema1/source_host/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__105]
+sql:
+CREATE TABLE source_log_file(i INT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/schema1/source_log_file/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__106]
+sql:
+CREATE TABLE source_log_pos(i INT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:27) /test/1/catalog1/schema1/source_log_pos/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__107]
+sql:
+CREATE TABLE source_password(i INT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/schema1/source_password/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__108]
+sql:
+CREATE TABLE source_port(i INT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:24) /test/1/catalog1/schema1/source_port/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__109]
+sql:
+CREATE TABLE source_public_key_path(i INT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:35) /test/1/catalog1/schema1/source_public_key_path/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__110]
+sql:
+CREATE TABLE source_retry_count(i INT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/schema1/source_retry_count/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__111]
+sql:
+CREATE TABLE source_ssl(i INT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:23) /test/1/catalog1/schema1/source_ssl/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__112]
+sql:
+CREATE TABLE source_ssl_ca(i INT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:26) /test/1/catalog1/schema1/source_ssl_ca/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__113]
+sql:
+CREATE TABLE source_ssl_capath(i INT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/schema1/source_ssl_capath/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__114]
+sql:
+CREATE TABLE source_ssl_cert(i INT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/schema1/source_ssl_cert/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__115]
+sql:
+CREATE TABLE source_ssl_cipher(i INT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/schema1/source_ssl_cipher/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__116]
+sql:
+CREATE TABLE source_ssl_crl(i INT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:27) /test/1/catalog1/schema1/source_ssl_crl/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__117]
+sql:
+CREATE TABLE source_ssl_crlpath(i INT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/schema1/source_ssl_crlpath/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__118]
+sql:
+CREATE TABLE source_ssl_key(i INT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:27) /test/1/catalog1/schema1/source_ssl_key/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__119]
+sql:
+CREATE TABLE source_ssl_verify_server_cert(i INT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:42) /test/1/catalog1/schema1/source_ssl_verify_server_cert/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__120]
+sql:
+CREATE TABLE source_tls_ciphersuites(i INT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:36) /test/1/catalog1/schema1/source_tls_ciphersuites/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__121]
+sql:
+CREATE TABLE source_tls_version(i INT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/schema1/source_tls_version/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__122]
+sql:
+CREATE TABLE source_user(i INT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:24) /test/1/catalog1/schema1/source_user/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__123]
+sql:
+CREATE TABLE source_zstd_compression_level(i INT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:42) /test/1/catalog1/schema1/source_zstd_compression_level/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_trigger_session_setting_write___124]
+sql:
+CREATE TRIGGER trigger1 BEFORE INSERT ON t1 FOR EACH ROW SET default_storage_engine = NEW.INNODB;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(1:15~1:23) /test/1/catalog1/schema1/trigger1/",
+      "action" : "CREATE",
+      "target" : "Table(1:41~1:43) /test/1/catalog1/schema1/t1/"
+    },
+    {
+      "subject": "ConfigKey(1:61~1:83) /test/1/default_storage_engine/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[create_view_select___125]
+sql:
+CREATE VIEW v_hint AS SELECT /*+ QB_NAME(a) */ 1 AS i;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:18) /test/1/catalog1/schema1/v_hint/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[alter_view_select___126]
+sql:
+ALTER VIEW v_hint AS SELECT /*+ BAD_HINT */ 2 AS i;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_VIEW": [
+    {
+      "subject": "View(1:11~1:17) /test/1/catalog1/schema1/v_hint/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[create_prog_obj_block___127]
+sql:
+CREATE PROCEDURE split_keywords.p_restricted_labels()
+BEGIN
+  `ascii`: BEGIN END `ascii`;
+  `begin`: BEGIN END `begin`;
+  `binlog`: BEGIN END `binlog`;
+  `byte`: BEGIN END `byte`;
+  `cache`: BEGIN END `cache`;
+  `charset`: BEGIN END `charset`;
+  `checksum`: BEGIN END `checksum`;
+  `clone`: BEGIN END `clone`;
+  `comment`: BEGIN END `comment`;
+  `commit`: BEGIN END `commit`;
+  `contains`: BEGIN END `contains`;
+  `deallocate`: BEGIN END `deallocate`;
+  `do`: BEGIN END `do`;
+  `end`: BEGIN END `end`;
+  `execute`: BEGIN END `execute`;
+  `flush`: BEGIN END `flush`;
+  `follows`: BEGIN END `follows`;
+  `handler`: BEGIN END `handler`;
+  `help`: BEGIN END `help`;
+  `import`: BEGIN END `import`;
+  `install`: BEGIN END `install`;
+  `language`: BEGIN END `language`;
+  `no`: BEGIN END `no`;
+  `precedes`: BEGIN END `precedes`;
+  `prepare`: BEGIN END `prepare`;
+  `repair`: BEGIN END `repair`;
+  `reset`: BEGIN END `reset`;
+  `restart`: BEGIN END `restart`;
+  `rollback`: BEGIN END `rollback`;
+  `savepoint`: BEGIN END `savepoint`;
+  `shutdown`: BEGIN END `shutdown`;
+  `signed`: BEGIN END `signed`;
+  `slave`: BEGIN END `slave`;
+  `start`: BEGIN END `start`;
+  `stop`: BEGIN END `stop`;
+  `truncate`: BEGIN END `truncate`;
+  `unicode`: BEGIN END `unicode`;
+  `uninstall`: BEGIN END `uninstall`;
+  `xa`: BEGIN END `xa`;
+END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:17~1:51) /test/1/catalog1/split_keywords/p_restricted_labels/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__128]
+sql:
+CREATE TABLE t0 (skip INT, locked INT, nowait INT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:15) /test/1/catalog1/schema1/t0/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_prog_obj_block_program_control___129]
+sql:
+CREATE PROCEDURE p_skip() BEGIN skip: LOOP LEAVE skip; END LOOP skip; END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:17~1:23) /test/1/catalog1/schema1/p_skip/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_prog_obj_block_program_control___130]
+sql:
+CREATE PROCEDURE p_locked() BEGIN locked: LOOP LEAVE locked; END LOOP locked; END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:17~1:25) /test/1/catalog1/schema1/p_locked/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_prog_obj_block_program_control___131]
+sql:
+CREATE PROCEDURE p_nowait() BEGIN nowait: LOOP LEAVE nowait; END LOOP nowait; END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:17~1:25) /test/1/catalog1/schema1/p_nowait/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__132]
+sql:
+CREATE TABLE keyword_temporal (time TIME,date DATE,timestamp TIMESTAMP,quarter INT,week INT,year INT,timestampadd INT,timestampdiff INT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:29) /test/1/catalog1/schema1/keyword_temporal/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_prog_obj_block_program_control___133]
+sql:
+CREATE PROCEDURE p_keyword_contexts() BEGIN DECLARE connection INT DEFAULT 1; authors: LOOP LEAVE authors; END LOOP authors; contributors: LOOP LEAVE contributors; END LOOP contributors; general: LOOP LEAVE general; END LOOP general; ignore_server_ids: LOOP LEAVE ignore_server_ids; END LOOP ignore_server_ids; END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:17~1:35) /test/1/catalog1/schema1/p_keyword_contexts/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__134]
+sql:
+CREATE TABLE slow (slow INT,general INT,master_heartbeat_period INT,ignore_server_ids INT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:17) /test/1/catalog1/schema1/slow/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_prog_obj_block_program_control___135]
+sql:
+CREATE PROCEDURE p_master_keyword() BEGIN master_heartbeat_period: LOOP LEAVE master_heartbeat_period; END LOOP master_heartbeat_period; END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:17~1:33) /test/1/catalog1/schema1/p_master_keyword/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__136]
+sql:
+CREATE TABLE slow (slow INT,general INT,source_heartbeat_period INT,ignore_server_ids INT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:17) /test/1/catalog1/schema1/slow/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_prog_obj_block_program_control___137]
+sql:
+CREATE PROCEDURE p_source_keyword() BEGIN source_heartbeat_period: LOOP LEAVE source_heartbeat_period; END LOOP source_heartbeat_period; END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:17~1:33) /test/1/catalog1/schema1/p_source_keyword/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__138]
+sql:
+CREATE TABLE binlog (binlog INT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:19) /test/1/catalog1/schema1/binlog/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__139]
+sql:
+CREATE TABLE sets (col1 INT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:17) /test/1/catalog1/schema1/sets/",
+      "action" : "CREATE"
+    }
+  ]
+}

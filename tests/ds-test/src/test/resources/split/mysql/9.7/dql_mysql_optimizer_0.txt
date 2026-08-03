@@ -1,0 +1,291 @@
+CACHE INDEX utility_audit.myisam_a INDEX (PRIMARY, idx_v) IN DEFAULT;
+CACHE INDEX utility_audit.missing_part PARTITION (p0,p1) IN DEFAULT;
+EXPLAIN SELECT * FROM json_op;
+EXPLAIN FORMAT=TRADITIONAL SELECT * FROM json_op;
+EXPLAIN FORMAT=JSON SELECT * FROM json_op;
+EXPLAIN FORMAT=TREE SELECT * FROM json_op;
+EXPLAIN ANALYZE SELECT * FROM json_op;
+EXPLAIN FOR CONNECTION 1;
+EXPLAIN ANALYZE FORMAT=JSON INTO @codex_load_audit_explain SELECT 1;
+EXPLAIN FORMAT=JSON INTO @codex_load_audit_explain FOR SCHEMA codex_load_audit_s SELECT 1;
+EXPLAIN FORMAT=JSON INTO @codex_load_audit_explain SELECT 1;
+EXPLAIN REPLACE INTO utility_audit.maint_a VALUES (1,1);
+EXPLAIN FORMAT=TRADITIONAL FOR CONNECTION 999999;
+EXPLAIN FORMAT=TRADITIONAL FOR SCHEMA split_native_gap SELECT * FROM t_explain;
+SELECT /*+ INDEX_MERGE(t1) INDEX_MERGE(t1 f2,f3,f4) */ f2 FROM split_opt_hints_merge.t1 AS t1 WHERE f4='h' AND f2=2 AND f3='b';
+SELECT /*+ INDEX_MERGE(t1 f2,f3,f4) NO_INDEX_MERGE(t1) */ f2 FROM split_opt_hints_merge.t1 AS t1 WHERE f4='h' AND f2=2 AND f3='b';
+SELECT /*+ INDEX_MERGE(missing f9,f10) */ f2 FROM split_opt_hints_merge.t1 AS t1 WHERE f4='h' AND f2=2 AND f3='b';
+SELECT /*+ INDEX_MERGE(t1 f4,f2) */ COUNT(*) FROM split_opt_hints_merge.t1 AS t1 WHERE f4='h' AND f2=2;
+SELECT /*+ INDEX_MERGE(t1 PRIMARY,f4,f3) */ COUNT(*) FROM split_opt_hints_merge.t1 AS t1 WHERE f4='h' AND f3='b' AND f5='i';
+SELECT /*+ NO_INDEX_MERGE(t1) */ COUNT(*) FROM split_opt_hints_merge.t1 AS t1 WHERE f4='h' AND f2=2 AND f3='b';
+SELECT /*+ NO_INDEX_MERGE(t1 f4) */ COUNT(*) FROM split_opt_hints_merge.t1 AS t1 WHERE f4='h' AND f2=2;
+SELECT /*+ INDEX_MERGE(t1 f2,f3,f4) */ f1 FROM split_opt_hints_merge.t1 AS t1 WHERE f2=5 OR f3='c' OR f4='f';
+SELECT /*+ NO_INDEX_MERGE(t1 f2,f3,f4) */ f1 FROM split_opt_hints_merge.t1 AS t1 WHERE f2=5 OR f3='c' OR f4='f';
+SELECT /*+ INDEX_MERGE(t1 f2,f4) */ * FROM split_opt_hints_merge.t1 AS t1 WHERE (f2 BETWEEN 5 AND 6 OR f3='c') AND (f2 BETWEEN 5 AND 6 OR f4='f');
+SELECT /*+ INDEX_MERGE(t1) */ COUNT(*) FROM split_opt_hints_merge.t1 AS t1 WHERE (f4='h' AND f2=2 AND f3='b') OR (f7='d' AND f6='e');
+SELECT /*+ INDEX_MERGE(t1 f3,f4) */ * FROM split_opt_hints_merge.t1 AS t1 IGNORE INDEX(f3) WHERE f2=400 AND (f3='x' OR f4='n');
+SELECT /*+ INDEX_MERGE(t1 f2,f3,f4) */ f2 FROM split_opt_hints_merge.t1 AS t1 FORCE INDEX(f2,f3) WHERE f4='h' AND f2=2 AND f3='b';
+SELECT /*+ INDEX_MERGE(t1 f2,f3,f4) */ f2 FROM split_opt_hints_merge.t1 AS t1 USE INDEX(f2,f3) WHERE f4='h' AND f2=2 AND f3='b';
+SELECT /*+ INDEX_MERGE(t1 f3,PRIMARY) */ f2 FROM split_opt_hints_merge.t1 AS t1 WHERE f1=99 AND f2=f3 AND f3<='4';
+SELECT /*+ QB_NAME(q1) INDEX_MERGE(@q1 t1 f2,f3) NO_INDEX_MERGE(t1@q1 f4) */ f1 FROM split_opt_hints_merge.t1 AS t1 WHERE f2=5 OR f3='c' OR f4='f';
+SELECT /*+ INDEX(t1) JOIN_INDEX(t1) */ a FROM split_opt_hints_index.t1 AS t1;
+SELECT /*+ INDEX(t1 i_a,i_b,i_c) INDEX(t1 i_d) */ a FROM split_opt_hints_index.t1 AS t1;
+SELECT /*+ INDEX(t1 i_a) JOIN_INDEX(t1 i_a,i_b) GROUP_INDEX(t1 i_b) ORDER_INDEX(t1 i_c) */ a FROM split_opt_hints_index.t1 AS t1 WHERE a=1 AND b=1 GROUP BY a ORDER BY a;
+SELECT /*+ INDEX(t1 i_a,i_b) */ a FROM split_opt_hints_index.t1 AS t1 WHERE a=1 AND b=2 AND c=3;
+SELECT /*+ NO_INDEX(t1 i_ab) */ a,MAX(b) FROM split_opt_hints_index.t1 AS t1 WHERE b=2 GROUP BY a;
+SELECT /*+ NO_JOIN_INDEX(t1 i_ab) */ a,MAX(b) FROM split_opt_hints_index.t1 AS t1 WHERE b=2 GROUP BY a;
+SELECT /*+ NO_GROUP_INDEX(t1 i_a) */ a,COUNT(*) FROM split_opt_hints_index.t1 AS t1 GROUP BY a;
+SELECT /*+ NO_ORDER_INDEX(t1 i_ab) */ a FROM split_opt_hints_index.t1 AS t1 ORDER BY a;
+SELECT /*+ NO_INDEX(t1) */ * FROM split_opt_hints_index.t1 AS t1 WHERE a=1 AND b=2 AND c=3;
+SELECT /*+ INDEX_MERGE(t1) */ * FROM split_opt_hints_index.t1 AS t1 IGNORE INDEX(i_a) WHERE a=1 AND b=2 AND c=3;
+SELECT /*+ INDEX(t1 i_a) */ * FROM split_opt_hints_index.t1 AS t1 IGNORE INDEX(i_a) WHERE a=1 AND b=2 AND c=3;
+SELECT /*+ NO_ORDER_INDEX(ft ft_x) */ doc_id,MATCH(x) AGAINST('abc') AS m FROM split_opt_hints_index.ft AS ft WHERE MATCH(x) AGAINST('abc') ORDER BY MATCH(x) AGAINST('abc') DESC;
+SELECT /*+ ORDER_INDEX(ft ft_x) */ doc_id,MATCH(x) AGAINST('abc') AS m FROM split_opt_hints_index.ft AS ft WHERE MATCH(x) AGAINST('abc') ORDER BY MATCH(x) AGAINST('abc') DESC;
+SELECT /*+ JOIN_INDEX(ft ft_x) */ * FROM split_opt_hints_index.ft AS ft WHERE MATCH(x) AGAINST('abc');
+SELECT /*+ NO_JOIN_INDEX(ft ft_x) */ * FROM split_opt_hints_index.ft AS ft WHERE MATCH(x) AGAINST('abc');
+SELECT /*+ NO_JOIN_INDEX(t1) */ a FROM split_opt_hints_index.t1 AS t1 WHERE a=1;
+SELECT /*+ QB_NAME(q1) INDEX(@q1 t1 i_a) NO_INDEX(t1@q1 i_b) */ * FROM split_opt_hints_index.t1 AS t1 WHERE a>=1;
+EXPLAIN SELECT /*+ NO_BNL(t1) */ * FROM t1 t1, T1 T1 WHERE T1.f1 BETWEEN 1 AND 3 AND t1.f2=T1.f2;
+EXPLAIN SELECT /*+ NO_BNL(T1) */ * FROM t1 t1, T1 T1 WHERE T1.f1 BETWEEN 1 AND 3 AND t1.f2=T1.f2;
+SELECT /*+ NO_RANGE_OPTIMIZATION(t1 PRIMARY, idx_b) */ a FROM split_opt_hints_native.t1 WHERE a BETWEEN 1 AND 3;
+SELECT /*+ NO_ICP(t1@inner_q idx_c) */ c FROM (SELECT /*+ QB_NAME(inner_q) */ a,b,c FROM split_opt_hints_native.t1 WHERE c='x') AS d WHERE d.a>0;
+SELECT /*+ BKA() */ t2.a FROM split_opt_hints_native.t1 JOIN split_opt_hints_native.t2 ON t1.a=t2.a;
+SELECT /*+ QB_NAME(outer_q) BKA(t2@outer_q) NO_BKA(t3@outer_q) */ t1.a FROM split_opt_hints_native.t1 JOIN split_opt_hints_native.t2 ON t1.a=t2.a JOIN split_opt_hints_native.t3 ON t3.b=t2.b;
+SELECT /*+ BKA(@inner_q t2) */ * FROM (SELECT /*+ QB_NAME(inner_q) */ t2.a,t2.b FROM split_opt_hints_native.t1 JOIN split_opt_hints_native.t2 ON t1.a=t2.a) AS d;
+SELECT * FROM (SELECT /*+ QB_NAME(inner_q) BKA(@inner_q t1@inner_q, t2@inner_q, t3) */ t1.a FROM split_opt_hints_native.t1,split_opt_hints_native.t2,split_opt_hints_native.t3) AS d;
+SELECT * FROM (SELECT /*+ QB_NAME(inner_q) NO_BKA(@inner_q t1@inner_q, t2@inner_q, t3) */ t1.a FROM split_opt_hints_native.t1,split_opt_hints_native.t2,split_opt_hints_native.t3) AS d;
+SELECT /*+ BNL(t2,t3) */ t1.a FROM split_opt_hints_native.t1,split_opt_hints_native.t2,split_opt_hints_native.t3 WHERE t1.a=t2.a AND t2.b=t3.b;
+SELECT /*+ QB_NAME(outer_q) NO_BNL(t1,t2) */ t1.a FROM split_opt_hints_native.t1 JOIN split_opt_hints_native.t2 ON t1.a=t2.a;
+SELECT /*+ NO_BNL(@sub_q t2,t3) */ t1.a FROM split_opt_hints_native.t1 WHERE t1.a IN (SELECT /*+ QB_NAME(sub_q) */ t2.a FROM split_opt_hints_native.t2 JOIN split_opt_hints_native.t3 ON t2.b=t3.b);
+SELECT /*+ MRR(t1 idx_b) */ * FROM split_opt_hints_native.t1 WHERE b BETWEEN 1 AND 3;
+SELECT /*+ NO_MRR(t1 idx_b, idx_c) */ * FROM split_opt_hints_native.t1 WHERE b<=3 AND c='x';
+SELECT /*+ QB_NAME(q1) NO_ICP(@q1 t1 PRIMARY) NO_ICP(@q1 t1 PRIMARY) */ * FROM split_opt_hints_native.t1;
+SELECT /*+ QB_NAME(`a b`) BKA(t1@`a b`) */ * FROM split_opt_hints_native.t1;
+SELECT /*+ QB_NAME(1a) BKA(t1@1a) */ * FROM split_opt_hints_native.t1;
+SELECT /*+*/ 1;
+SELECT /*+ NO_ICP( */ 1;
+SELECT t1.a FROM split_opt_hints_native.t1 AS t1 /*+ regular commentary, not a hint */ WHERE t1.a=1;
+SELECT /*+ MERGE(dt1) NO_MERGE(dt2) */ * FROM (SELECT a FROM split_opt_hints_native.t1) AS dt1 JOIN (SELECT a FROM split_opt_hints_native.t2) AS dt2 USING(a);
+SELECT /*+ NO_MERGE(@sub_q dt) */ t1.a FROM split_opt_hints_native.t1 WHERE t1.a IN (SELECT /*+ QB_NAME(sub_q) */ dt.a FROM (SELECT a FROM split_opt_hints_native.t2) AS dt);
+SELECT /*+ NO_BKA(t2) NO_BNL(t3) BKA(t4) */ t1.a FROM split_opt_hints_native.t1 AS t1 JOIN split_opt_hints_native.t2 AS t2 ON t1.a=t2.a LEFT JOIN split_opt_hints_native.t2 AS t3 ON t2.b=t3.b LEFT JOIN split_opt_hints_native.t2 AS t4 ON t3.a=t4.a;
+SELECT /*+ QB_NAME(q1) MRR(t1@q1 idx_b) NO_MRR(t1@q1 idx_c) */ * FROM split_opt_hints_native.t1 AS t1 WHERE b>=1;
+SELECT /*+
+  BKA(t1@qb1)
+  BNL(@qb1 t1)
+  DUPSWEEDOUT
+  FIRSTMATCH
+  INTOEXISTS
+  LOOSESCAN
+  MATERIALIZATION
+  MRR(t1)
+  NO_BKA(t2)
+  NO_BNL(t2)
+  NO_ICP(t2)
+  NO_MRR(t2)
+  NO_RANGE_OPTIMIZATION(t2)
+  NO_SEMIJOIN(t2)
+  QB_NAME(qb1)
+  SEMIJOIN(t1)
+  SUBQUERY(t1)
+*/ * FROM t1, t2;
+/*+ MAX_EXECUTION_TIME(1) */ SELECT 1;
+SELECT /*+ MAX_EXECUTION_TIME(4294967295) */ * FROM t2, t1;
+SELECT /*+ bad_hint_also_goes_to_digest */ 1;
+EXPLAIN FORMAT=JSON INSERT INTO codex_explain4.t VALUES (3,'c');
+EXPLAIN FORMAT=JSON UPDATE codex_explain4.t SET name='x' WHERE id=1;
+EXPLAIN FORMAT=JSON DELETE FROM codex_explain4.t WHERE id=2;
+EXPLAIN DELETE FROM split_select_safe.t1 WHERE c1 IN (1,22);
+EXPLAIN UPDATE split_select_safe.t1 SET c1=20 WHERE c1 IN (1,22);
+EXPLAIN DELETE t1 FROM split_select_safe.t1 AS t1 JOIN split_select_safe.t2 AS t2 ON t1.c2=t2.c1;
+EXPLAIN UPDATE split_select_safe.t1 AS t1,split_select_safe.t2 AS t2 SET t1.c1=20 WHERE t1.c2=t2.c1;
+EXPLAIN FORMAT=JSON INTO @plan DELETE t1, t2 FROM t1 JOIN t2 ON t1.id = t2.id;
+EXPLAIN ANALYZE FORMAT=JSON INTO @plan UPDATE t1 SET v = v + 1 WHERE id = 1;
+EXPLAIN SELECT 1 AS res QUALIFY ROW_NUMBER() OVER () > 10;
+------------------------------------------------------------------------------------------
+[ADMIN_PERFORMANCE] CACHE INDEX utility_audit.myisam_a INDEX (PRIMARY, idx_v) IN DEFAULT;
+----------
+[ADMIN_PERFORMANCE] CACHE INDEX utility_audit.missing_part PARTITION (p0,p1) IN DEFAULT;
+----------
+[PERFORMANCE] EXPLAIN SELECT * FROM json_op;
+----------
+[PERFORMANCE] EXPLAIN FORMAT=TRADITIONAL SELECT * FROM json_op;
+----------
+[PERFORMANCE] EXPLAIN FORMAT=JSON SELECT * FROM json_op;
+----------
+[PERFORMANCE] EXPLAIN FORMAT=TREE SELECT * FROM json_op;
+----------
+[SELECT] EXPLAIN ANALYZE SELECT * FROM json_op;
+----------
+[PERFORMANCE] EXPLAIN FOR CONNECTION 1;
+----------
+[SELECT|SESSION_VARIABLE_RW] EXPLAIN ANALYZE FORMAT=JSON INTO @codex_load_audit_explain SELECT 1;
+----------
+[PERFORMANCE|SESSION_VARIABLE_RW] EXPLAIN FORMAT=JSON INTO @codex_load_audit_explain FOR SCHEMA codex_load_audit_s SELECT 1;
+----------
+[PERFORMANCE|SESSION_VARIABLE_RW] EXPLAIN FORMAT=JSON INTO @codex_load_audit_explain SELECT 1;
+----------
+[PERFORMANCE] EXPLAIN REPLACE INTO utility_audit.maint_a VALUES (1,1);
+----------
+[PERFORMANCE] EXPLAIN FORMAT=TRADITIONAL FOR CONNECTION 999999;
+----------
+[PERFORMANCE] EXPLAIN FORMAT=TRADITIONAL FOR SCHEMA split_native_gap SELECT * FROM t_explain;
+----------
+[SELECT] SELECT /*+ INDEX_MERGE(t1) INDEX_MERGE(t1 f2,f3,f4) */ f2 FROM split_opt_hints_merge.t1 AS t1 WHERE f4='h' AND f2=2 AND f3='b';
+----------
+[SELECT] SELECT /*+ INDEX_MERGE(t1 f2,f3,f4) NO_INDEX_MERGE(t1) */ f2 FROM split_opt_hints_merge.t1 AS t1 WHERE f4='h' AND f2=2 AND f3='b';
+----------
+[SELECT] SELECT /*+ INDEX_MERGE(missing f9,f10) */ f2 FROM split_opt_hints_merge.t1 AS t1 WHERE f4='h' AND f2=2 AND f3='b';
+----------
+[SELECT] SELECT /*+ INDEX_MERGE(t1 f4,f2) */ COUNT(*) FROM split_opt_hints_merge.t1 AS t1 WHERE f4='h' AND f2=2;
+----------
+[SELECT] SELECT /*+ INDEX_MERGE(t1 PRIMARY,f4,f3) */ COUNT(*) FROM split_opt_hints_merge.t1 AS t1 WHERE f4='h' AND f3='b' AND f5='i';
+----------
+[SELECT] SELECT /*+ NO_INDEX_MERGE(t1) */ COUNT(*) FROM split_opt_hints_merge.t1 AS t1 WHERE f4='h' AND f2=2 AND f3='b';
+----------
+[SELECT] SELECT /*+ NO_INDEX_MERGE(t1 f4) */ COUNT(*) FROM split_opt_hints_merge.t1 AS t1 WHERE f4='h' AND f2=2;
+----------
+[SELECT] SELECT /*+ INDEX_MERGE(t1 f2,f3,f4) */ f1 FROM split_opt_hints_merge.t1 AS t1 WHERE f2=5 OR f3='c' OR f4='f';
+----------
+[SELECT] SELECT /*+ NO_INDEX_MERGE(t1 f2,f3,f4) */ f1 FROM split_opt_hints_merge.t1 AS t1 WHERE f2=5 OR f3='c' OR f4='f';
+----------
+[SELECT] SELECT /*+ INDEX_MERGE(t1 f2,f4) */ * FROM split_opt_hints_merge.t1 AS t1 WHERE (f2 BETWEEN 5 AND 6 OR f3='c') AND (f2 BETWEEN 5 AND 6 OR f4='f');
+----------
+[SELECT] SELECT /*+ INDEX_MERGE(t1) */ COUNT(*) FROM split_opt_hints_merge.t1 AS t1 WHERE (f4='h' AND f2=2 AND f3='b') OR (f7='d' AND f6='e');
+----------
+[SELECT] SELECT /*+ INDEX_MERGE(t1 f3,f4) */ * FROM split_opt_hints_merge.t1 AS t1 IGNORE INDEX(f3) WHERE f2=400 AND (f3='x' OR f4='n');
+----------
+[SELECT] SELECT /*+ INDEX_MERGE(t1 f2,f3,f4) */ f2 FROM split_opt_hints_merge.t1 AS t1 FORCE INDEX(f2,f3) WHERE f4='h' AND f2=2 AND f3='b';
+----------
+[SELECT] SELECT /*+ INDEX_MERGE(t1 f2,f3,f4) */ f2 FROM split_opt_hints_merge.t1 AS t1 USE INDEX(f2,f3) WHERE f4='h' AND f2=2 AND f3='b';
+----------
+[SELECT] SELECT /*+ INDEX_MERGE(t1 f3,PRIMARY) */ f2 FROM split_opt_hints_merge.t1 AS t1 WHERE f1=99 AND f2=f3 AND f3<='4';
+----------
+[SELECT] SELECT /*+ QB_NAME(q1) INDEX_MERGE(@q1 t1 f2,f3) NO_INDEX_MERGE(t1@q1 f4) */ f1 FROM split_opt_hints_merge.t1 AS t1 WHERE f2=5 OR f3='c' OR f4='f';
+----------
+[SELECT] SELECT /*+ INDEX(t1) JOIN_INDEX(t1) */ a FROM split_opt_hints_index.t1 AS t1;
+----------
+[SELECT] SELECT /*+ INDEX(t1 i_a,i_b,i_c) INDEX(t1 i_d) */ a FROM split_opt_hints_index.t1 AS t1;
+----------
+[SELECT] SELECT /*+ INDEX(t1 i_a) JOIN_INDEX(t1 i_a,i_b) GROUP_INDEX(t1 i_b) ORDER_INDEX(t1 i_c) */ a FROM split_opt_hints_index.t1 AS t1 WHERE a=1 AND b=1 GROUP BY a ORDER BY a;
+----------
+[SELECT] SELECT /*+ INDEX(t1 i_a,i_b) */ a FROM split_opt_hints_index.t1 AS t1 WHERE a=1 AND b=2 AND c=3;
+----------
+[SELECT] SELECT /*+ NO_INDEX(t1 i_ab) */ a,MAX(b) FROM split_opt_hints_index.t1 AS t1 WHERE b=2 GROUP BY a;
+----------
+[SELECT] SELECT /*+ NO_JOIN_INDEX(t1 i_ab) */ a,MAX(b) FROM split_opt_hints_index.t1 AS t1 WHERE b=2 GROUP BY a;
+----------
+[SELECT] SELECT /*+ NO_GROUP_INDEX(t1 i_a) */ a,COUNT(*) FROM split_opt_hints_index.t1 AS t1 GROUP BY a;
+----------
+[SELECT] SELECT /*+ NO_ORDER_INDEX(t1 i_ab) */ a FROM split_opt_hints_index.t1 AS t1 ORDER BY a;
+----------
+[SELECT] SELECT /*+ NO_INDEX(t1) */ * FROM split_opt_hints_index.t1 AS t1 WHERE a=1 AND b=2 AND c=3;
+----------
+[SELECT] SELECT /*+ INDEX_MERGE(t1) */ * FROM split_opt_hints_index.t1 AS t1 IGNORE INDEX(i_a) WHERE a=1 AND b=2 AND c=3;
+----------
+[SELECT] SELECT /*+ INDEX(t1 i_a) */ * FROM split_opt_hints_index.t1 AS t1 IGNORE INDEX(i_a) WHERE a=1 AND b=2 AND c=3;
+----------
+[SELECT] SELECT /*+ NO_ORDER_INDEX(ft ft_x) */ doc_id,MATCH(x) AGAINST('abc') AS m FROM split_opt_hints_index.ft AS ft WHERE MATCH(x) AGAINST('abc') ORDER BY MATCH(x) AGAINST('abc') DESC;
+----------
+[SELECT] SELECT /*+ ORDER_INDEX(ft ft_x) */ doc_id,MATCH(x) AGAINST('abc') AS m FROM split_opt_hints_index.ft AS ft WHERE MATCH(x) AGAINST('abc') ORDER BY MATCH(x) AGAINST('abc') DESC;
+----------
+[SELECT] SELECT /*+ JOIN_INDEX(ft ft_x) */ * FROM split_opt_hints_index.ft AS ft WHERE MATCH(x) AGAINST('abc');
+----------
+[SELECT] SELECT /*+ NO_JOIN_INDEX(ft ft_x) */ * FROM split_opt_hints_index.ft AS ft WHERE MATCH(x) AGAINST('abc');
+----------
+[SELECT] SELECT /*+ NO_JOIN_INDEX(t1) */ a FROM split_opt_hints_index.t1 AS t1 WHERE a=1;
+----------
+[SELECT] SELECT /*+ QB_NAME(q1) INDEX(@q1 t1 i_a) NO_INDEX(t1@q1 i_b) */ * FROM split_opt_hints_index.t1 AS t1 WHERE a>=1;
+----------
+[PERFORMANCE] EXPLAIN SELECT /*+ NO_BNL(t1) */ * FROM t1 t1, T1 T1 WHERE T1.f1 BETWEEN 1 AND 3 AND t1.f2=T1.f2;
+----------
+[PERFORMANCE] EXPLAIN SELECT /*+ NO_BNL(T1) */ * FROM t1 t1, T1 T1 WHERE T1.f1 BETWEEN 1 AND 3 AND t1.f2=T1.f2;
+----------
+[SELECT] SELECT /*+ NO_RANGE_OPTIMIZATION(t1 PRIMARY, idx_b) */ a FROM split_opt_hints_native.t1 WHERE a BETWEEN 1 AND 3;
+----------
+[SELECT] SELECT /*+ NO_ICP(t1@inner_q idx_c) */ c FROM (SELECT /*+ QB_NAME(inner_q) */ a,b,c FROM split_opt_hints_native.t1 WHERE c='x') AS d WHERE d.a>0;
+----------
+[SELECT] SELECT /*+ BKA() */ t2.a FROM split_opt_hints_native.t1 JOIN split_opt_hints_native.t2 ON t1.a=t2.a;
+----------
+[SELECT] SELECT /*+ QB_NAME(outer_q) BKA(t2@outer_q) NO_BKA(t3@outer_q) */ t1.a FROM split_opt_hints_native.t1 JOIN split_opt_hints_native.t2 ON t1.a=t2.a JOIN split_opt_hints_native.t3 ON t3.b=t2.b;
+----------
+[SELECT] SELECT /*+ BKA(@inner_q t2) */ * FROM (SELECT /*+ QB_NAME(inner_q) */ t2.a,t2.b FROM split_opt_hints_native.t1 JOIN split_opt_hints_native.t2 ON t1.a=t2.a) AS d;
+----------
+[SELECT] SELECT * FROM (SELECT /*+ QB_NAME(inner_q) BKA(@inner_q t1@inner_q, t2@inner_q, t3) */ t1.a FROM split_opt_hints_native.t1,split_opt_hints_native.t2,split_opt_hints_native.t3) AS d;
+----------
+[SELECT] SELECT * FROM (SELECT /*+ QB_NAME(inner_q) NO_BKA(@inner_q t1@inner_q, t2@inner_q, t3) */ t1.a FROM split_opt_hints_native.t1,split_opt_hints_native.t2,split_opt_hints_native.t3) AS d;
+----------
+[SELECT] SELECT /*+ BNL(t2,t3) */ t1.a FROM split_opt_hints_native.t1,split_opt_hints_native.t2,split_opt_hints_native.t3 WHERE t1.a=t2.a AND t2.b=t3.b;
+----------
+[SELECT] SELECT /*+ QB_NAME(outer_q) NO_BNL(t1,t2) */ t1.a FROM split_opt_hints_native.t1 JOIN split_opt_hints_native.t2 ON t1.a=t2.a;
+----------
+[SELECT] SELECT /*+ NO_BNL(@sub_q t2,t3) */ t1.a FROM split_opt_hints_native.t1 WHERE t1.a IN (SELECT /*+ QB_NAME(sub_q) */ t2.a FROM split_opt_hints_native.t2 JOIN split_opt_hints_native.t3 ON t2.b=t3.b);
+----------
+[SELECT] SELECT /*+ MRR(t1 idx_b) */ * FROM split_opt_hints_native.t1 WHERE b BETWEEN 1 AND 3;
+----------
+[SELECT] SELECT /*+ NO_MRR(t1 idx_b, idx_c) */ * FROM split_opt_hints_native.t1 WHERE b<=3 AND c='x';
+----------
+[SELECT] SELECT /*+ QB_NAME(q1) NO_ICP(@q1 t1 PRIMARY) NO_ICP(@q1 t1 PRIMARY) */ * FROM split_opt_hints_native.t1;
+----------
+[SELECT] SELECT /*+ QB_NAME(`a b`) BKA(t1@`a b`) */ * FROM split_opt_hints_native.t1;
+----------
+[SELECT] SELECT /*+ QB_NAME(1a) BKA(t1@1a) */ * FROM split_opt_hints_native.t1;
+----------
+[SELECT] SELECT /*+*/ 1;
+----------
+[SELECT] SELECT /*+ NO_ICP( */ 1;
+----------
+[SELECT] SELECT t1.a FROM split_opt_hints_native.t1 AS t1 /*+ regular commentary, not a hint */ WHERE t1.a=1;
+----------
+[SELECT] SELECT /*+ MERGE(dt1) NO_MERGE(dt2) */ * FROM (SELECT a FROM split_opt_hints_native.t1) AS dt1 JOIN (SELECT a FROM split_opt_hints_native.t2) AS dt2 USING(a);
+----------
+[SELECT] SELECT /*+ NO_MERGE(@sub_q dt) */ t1.a FROM split_opt_hints_native.t1 WHERE t1.a IN (SELECT /*+ QB_NAME(sub_q) */ dt.a FROM (SELECT a FROM split_opt_hints_native.t2) AS dt);
+----------
+[SELECT] SELECT /*+ NO_BKA(t2) NO_BNL(t3) BKA(t4) */ t1.a FROM split_opt_hints_native.t1 AS t1 JOIN split_opt_hints_native.t2 AS t2 ON t1.a=t2.a LEFT JOIN split_opt_hints_native.t2 AS t3 ON t2.b=t3.b LEFT JOIN split_opt_hints_native.t2 AS t4 ON t3.a=t4.a;
+----------
+[SELECT] SELECT /*+ QB_NAME(q1) MRR(t1@q1 idx_b) NO_MRR(t1@q1 idx_c) */ * FROM split_opt_hints_native.t1 AS t1 WHERE b>=1;
+----------
+[SELECT] SELECT /*+
+  BKA(t1@qb1)
+  BNL(@qb1 t1)
+  DUPSWEEDOUT
+  FIRSTMATCH
+  INTOEXISTS
+  LOOSESCAN
+  MATERIALIZATION
+  MRR(t1)
+  NO_BKA(t2)
+  NO_BNL(t2)
+  NO_ICP(t2)
+  NO_MRR(t2)
+  NO_RANGE_OPTIMIZATION(t2)
+  NO_SEMIJOIN(t2)
+  QB_NAME(qb1)
+  SEMIJOIN(t1)
+  SUBQUERY(t1)
+*/ * FROM t1, t2;
+----------
+[SELECT] /*+ MAX_EXECUTION_TIME(1) */ SELECT 1;
+----------
+[SELECT] SELECT /*+ MAX_EXECUTION_TIME(4294967295) */ * FROM t2, t1;
+----------
+[SELECT] SELECT /*+ bad_hint_also_goes_to_digest */ 1;
+----------
+[PERFORMANCE] EXPLAIN FORMAT=JSON INSERT INTO codex_explain4.t VALUES (3,'c');
+----------
+[PERFORMANCE] EXPLAIN FORMAT=JSON UPDATE codex_explain4.t SET name='x' WHERE id=1;
+----------
+[PERFORMANCE] EXPLAIN FORMAT=JSON DELETE FROM codex_explain4.t WHERE id=2;
+----------
+[PERFORMANCE] EXPLAIN DELETE FROM split_select_safe.t1 WHERE c1 IN (1,22);
+----------
+[PERFORMANCE] EXPLAIN UPDATE split_select_safe.t1 SET c1=20 WHERE c1 IN (1,22);
+----------
+[PERFORMANCE] EXPLAIN DELETE t1 FROM split_select_safe.t1 AS t1 JOIN split_select_safe.t2 AS t2 ON t1.c2=t2.c1;
+----------
+[PERFORMANCE] EXPLAIN UPDATE split_select_safe.t1 AS t1,split_select_safe.t2 AS t2 SET t1.c1=20 WHERE t1.c2=t2.c1;
+----------
+[PERFORMANCE|SESSION_VARIABLE_RW] EXPLAIN FORMAT=JSON INTO @plan DELETE t1, t2 FROM t1 JOIN t2 ON t1.id = t2.id;
+----------
+[UPDATE|SESSION_VARIABLE_RW] EXPLAIN ANALYZE FORMAT=JSON INTO @plan UPDATE t1 SET v = v + 1 WHERE id = 1;
+----------
+[PERFORMANCE] EXPLAIN SELECT 1 AS res QUALIFY ROW_NUMBER() OVER () > 10;

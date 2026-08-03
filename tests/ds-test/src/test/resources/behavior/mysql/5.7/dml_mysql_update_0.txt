@@ -1,0 +1,1130 @@
+[update__001]
+sql:
+UPDATE gis_point_srid SET g=ST_SRID();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:21) /test/1/catalog1/schema1/gis_point_srid/",
+      "action" : "UPDATE"
+    },
+    {
+      "subject": "Function(1:28~1:35) /test/1/catalog1/schema1/ST_SRID/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[update__002]
+sql:
+UPDATE gis_point_srid SET g=ST_SRID(g,4145,0);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:21) /test/1/catalog1/schema1/gis_point_srid/",
+      "action" : "UPDATE"
+    },
+    {
+      "subject": "Function(1:28~1:35) /test/1/catalog1/schema1/ST_SRID/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[update_select__003]
+sql:
+UPDATE split_derived_common.nm AS p1 INNER JOIN (SELECT n FROM split_derived_common.nm GROUP BY n HAVING COUNT(m)>1) AS p2 ON p1.n=p2.n SET p1.m=2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:30) /test/1/catalog1/split_derived_common/nm/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(1:105~1:110) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[update_select__004]
+sql:
+UPDATE split_subquery_bugs_1550.u1,split_subquery_bugs_1550.u2 SET u1.c=0 WHERE u1.c<>(SELECT u3.c FROM split_subquery_bugs_1550.u3 JOIN split_subquery_bugs_1550.u3 AS u3_b ON u3_b.a>u3.a WHERE u3.b<=u3.b XOR u2.pk=3);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:34) /test/1/catalog1/split_subquery_bugs_1550/u1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:35~1:62) /test/1/catalog1/split_subquery_bugs_1550/u2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:104~1:131) /test/1/catalog1/split_subquery_bugs_1550/u3/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[update_select__005]
+sql:
+UPDATE split_subquery_bugs_550.u3 SET field3=9 WHERE field3 IN (SELECT 1 FROM (SELECT * FROM split_subquery_bugs_550.u2) AS alias1 WHERE EXISTS (SELECT * FROM split_subquery_bugs_550.u1 WHERE field1<>alias1.field2));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:33) /test/1/catalog1/split_subquery_bugs_550/u3/",
+      "action" : "UPDATE",
+      "target" : [
+        "Table(1:93~1:119) /test/1/catalog1/split_subquery_bugs_550/u2/",
+        "Table(1:159~1:185) /test/1/catalog1/split_subquery_bugs_550/u1/"
+      ]
+    }
+  ]
+}
+----------
+[delete_select__006]
+sql:
+DELETE outr1.* FROM split_subquery_bugs_550.del1 AS outr1 RIGHT OUTER JOIN split_subquery_bugs_550.del2 AS outr2 ON outr1.col_int=outr2.col_int WHERE (0,3) NOT IN (SELECT innr1.pk,innr1.col_int FROM split_subquery_bugs_550.del2 AS innr1 WHERE outr1.col_int=25);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:7~1:12) /test/1/catalog1/schema1/outr1/",
+      "action" : "DELETE",
+      "target" : [
+        "Table(1:20~1:48) /test/1/catalog1/split_subquery_bugs_550/del1/",
+        "Table(1:75~1:103) /test/1/catalog1/split_subquery_bugs_550/del2/"
+      ]
+    }
+  ]
+}
+----------
+[update__007]
+sql:
+update `table` set id = 1 where id = 2 or name = 3 and zz =4;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:14) /test/1/catalog1/schema1/table/",
+      "action" : "UPDATE"
+    }
+  ]
+}
+----------
+[update__008]
+sql:
+update table1 set name = 1 where id = cast(id AS SIGNED) order by id desc;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:13) /test/1/catalog1/schema1/table1/",
+      "action" : "UPDATE"
+    },
+    {
+      "subject": "Function(1:38~1:42) /test/1/catalog1/schema1/cast/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[update_select__009]
+sql:
+update table1 set name = 1 where id = avg((select id from table2));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:13) /test/1/catalog1/schema1/table1/",
+      "action" : "UPDATE",
+      "target" : "Table(1:58~1:64) /test/1/catalog1/schema1/table2/"
+    },
+    {
+      "subject": "Function(1:38~1:41) /test/1/catalog1/schema1/avg/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[update__010]
+sql:
+update `table` set id = 1 limit 21;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:14) /test/1/catalog1/schema1/table/",
+      "action" : "UPDATE"
+    }
+  ]
+}
+----------
+[update__011]
+sql:
+update ignore `table` set id = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:14~1:21) /test/1/catalog1/schema1/table/",
+      "action" : "UPDATE"
+    }
+  ]
+}
+----------
+[update_select__012]
+sql:
+update `table` set id = (select id2 from test limit 1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:14) /test/1/catalog1/schema1/table/",
+      "action" : "UPDATE",
+      "target" : "Table(1:41~1:45) /test/1/catalog1/schema1/test/"
+    }
+  ]
+}
+----------
+[update_select__013]
+sql:
+update `table` set id = 2 where table.name = (select id2 from test limit 1) order by aa;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:14) /test/1/catalog1/schema1/table/",
+      "action" : "UPDATE",
+      "target" : "Table(1:62~1:66) /test/1/catalog1/schema1/test/"
+    }
+  ]
+}
+----------
+[update__014]
+sql:
+UPDATE LOW_PRIORITY IGNORE ptab PARTITION (p0) AS p SET p.val = DEFAULT WHERE p.id < 10 ORDER BY p.id LIMIT 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:27~1:31) /test/1/catalog1/schema1/ptab/",
+      "action" : "UPDATE"
+    }
+  ]
+}
+----------
+[update__015]
+sql:
+UPDATE LOW_PRIORITY IGNORE t1 JOIN t2 ON t1.id = t2.id SET t1.val = t2.val, t2.name = t1.name WHERE t1.id > 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:27~1:29) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:35~1:37) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[update_select__016]
+sql:
+UPDATE t1, (SELECT id, val FROM t2) AS d SET t1.val = d.val WHERE t1.id = d.id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:9) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:32~1:34) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[update__017]
+sql:
+UPDATE articles SET body='changed' WHERE MATCH(title) AGAINST('tutorial' IN NATURAL LANGUAGE MODE);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:15) /test/1/catalog1/schema1/articles/",
+      "action" : "UPDATE"
+    }
+  ]
+}
+----------
+[update__018]
+sql:
+UPDATE t1 LEFT JOIN t2 ON t1.c1 = t2.c1 SET t2.c2 = 't2c2-1' WHERE t1.c3 = 10;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:9) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:20~1:22) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[update_select__019]
+sql:
+UPDATE IGNORE v2 STRAIGHT_JOIN (SELECT 1) AS t0 SET f2 = 400;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:14~1:16) /test/1/catalog1/schema1/v2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[update_select__020]
+sql:
+UPDATE IGNORE (SELECT 1) AS t0 STRAIGHT_JOIN v2 SET f2 = 400;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:45~1:47) /test/1/catalog1/schema1/v2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[update_select_query_lock__021]
+sql:
+UPDATE t SET a = 1 WHERE EXISTS (SELECT b FROM g WHERE 1 NOT LIKE c FOR UPDATE);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:8) /test/1/catalog1/schema1/t/",
+      "action" : "UPDATE",
+      "target" : "Table(1:47~1:48) /test/1/catalog1/schema1/g/"
+    }
+  ]
+}
+----------
+[update__022]
+sql:
+UPDATE t1 SET token = X'ad';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:9) /test/1/catalog1/schema1/t1/",
+      "action" : "UPDATE"
+    }
+  ]
+}
+----------
+[update_select__023]
+sql:
+UPDATE (SELECT 1 AS a FROM t1 NATURAL JOIN t1 AS t2) AS x, t1 SET t1.e = x.a;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:27~1:29) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[update_select__024]
+sql:
+UPDATE codex_group_having_audit_dst SET a=(SELECT '' AS b FROM codex_group_having_audit_src GROUP BY VALUES(b));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:35) /test/1/catalog1/schema1/codex_group_having_audit_dst/",
+      "action" : "UPDATE",
+      "target" : "Table(1:63~1:91) /test/1/catalog1/schema1/codex_group_having_audit_src/"
+    },
+    {
+      "subject": "Function(1:101~1:107) /test/1/catalog1/schema1/VALUES/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[update__025]
+sql:
+UPDATE dml_audit.t SET v := 'u01' WHERE id=21;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:18) /test/1/catalog1/dml_audit/t/",
+      "action" : "UPDATE"
+    }
+  ]
+}
+----------
+[update__026]
+sql:
+UPDATE t1 SET c1=DATE_ADD(CURDATE(),INTERVAL '1 1:1:1' DAY_SECOND) WHERE c2=CURDATE();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:9) /test/1/catalog1/schema1/t1/",
+      "action" : "UPDATE"
+    },
+    {
+      "subject": "Function(1:17~1:25) /test/1/catalog1/schema1/DATE_ADD/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:26~1:33) /test/1/catalog1/schema1/CURDATE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[update__027]
+sql:
+UPDATE part_t PARTITION(p0,p1) SET c=c+1 WHERE id IN(2,12);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:13) /test/1/catalog1/schema1/part_t/",
+      "action" : "UPDATE"
+    }
+  ]
+}
+----------
+[update__028]
+sql:
+UPDATE d4_t1 FORCE INDEX (b) STRAIGHT_JOIN d4_t2 SET d4_t1.b=d4_t1.b+2, d4_t2.b=d4_t1.b+10 WHERE d4_t1.b BETWEEN 3 AND 5 AND d4_t1.a=d4_t2.a+100;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:12) /test/1/catalog1/schema1/d4_t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:43~1:48) /test/1/catalog1/schema1/d4_t2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[update__029]
+sql:
+UPDATE d5_monitor USE INDEX () SET col = 10 WHERE col = 9;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:17) /test/1/catalog1/schema1/d5_monitor/",
+      "action" : "UPDATE"
+    }
+  ]
+}
+----------
+[update__030]
+sql:
+UPDATE d6_t1 PARTITION (p0) AS a JOIN d6_t2 PARTITION (p1) AS b ON a.id = b.id SET a.v = b.v WHERE b.id > 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:12) /test/1/catalog1/schema1/d6_t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:38~1:43) /test/1/catalog1/schema1/d6_t2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[update__031]
+sql:
+UPDATE split_dml_src USE INDEX FOR ORDER BY (idx_v)
+  SET v=v+1 WHERE id>0 ORDER BY v LIMIT 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:20) /test/1/catalog1/schema1/split_dml_src/",
+      "action" : "UPDATE"
+    }
+  ]
+}
+----------
+[update__032]
+sql:
+UPDATE split_dml_src AS s IGNORE INDEX FOR JOIN (idx_v)
+  JOIN split_dml_aux AS a FORCE INDEX FOR JOIN (PRIMARY) ON a.id=s.id
+  SET s.v=a.v WHERE a.id>0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:20) /test/1/catalog1/schema1/split_dml_src/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(2:7~2:20) /test/1/catalog1/schema1/split_dml_aux/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[update__033]
+sql:
+UPDATE t1 SET b = a, c = CAST(a AS SIGNED);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:9) /test/1/catalog1/schema1/t1/",
+      "action" : "UPDATE"
+    },
+    {
+      "subject": "Function(1:25~1:29) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[update__034]
+sql:
+UPDATE bit_t SET c=CONCAT(b) WHERE a=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:12) /test/1/catalog1/schema1/bit_t/",
+      "action" : "UPDATE"
+    },
+    {
+      "subject": "Function(1:19~1:25) /test/1/catalog1/schema1/CONCAT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[update__035]
+sql:
+UPDATE bit_values SET b=DEFAULT(b) WHERE b IS NULL OR b=FALSE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:17) /test/1/catalog1/schema1/bit_values/",
+      "action" : "UPDATE"
+    },
+    {
+      "subject": "Function(1:24~1:31) /test/1/catalog1/schema1/DEFAULT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[update__036]
+sql:
+UPDATE time_widths SET t0=t6,t1=t6,t2=t6,t3=t6,t4=t6,t5=t6 WHERE id IN(1,2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:18) /test/1/catalog1/schema1/time_widths/",
+      "action" : "UPDATE"
+    }
+  ]
+}
+----------
+[update__037]
+sql:
+UPDATE time_widths SET t6=-t6 WHERE t6<TIME'00:00:00';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:18) /test/1/catalog1/schema1/time_widths/",
+      "action" : "UPDATE"
+    }
+  ]
+}
+----------
+[update__038]
+sql:
+UPDATE time_widths SET t0=t0-INTERVAL 1 SECOND,t3=t3+INTERVAL '1.001' SECOND_MICROSECOND,t6=t6+INTERVAL '1:02:03.000001' HOUR_MICROSECOND WHERE id=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:18) /test/1/catalog1/schema1/time_widths/",
+      "action" : "UPDATE"
+    }
+  ]
+}
+----------
+[update__039]
+sql:
+UPDATE temporal_auto SET payload=CONCAT(payload,'-updated') WHERE id=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:20) /test/1/catalog1/schema1/temporal_auto/",
+      "action" : "UPDATE"
+    },
+    {
+      "subject": "Function(1:33~1:39) /test/1/catalog1/schema1/CONCAT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[update__040]
+sql:
+UPDATE temporal_auto SET created_at=DEFAULT(created_at),modified_at=DEFAULT WHERE id IN(2,3);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:20) /test/1/catalog1/schema1/temporal_auto/",
+      "action" : "UPDATE"
+    },
+    {
+      "subject": "Function(1:36~1:43) /test/1/catalog1/schema1/DEFAULT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[update__041]
+sql:
+UPDATE datetime_widths SET dt1=dt6,dt2=ts6,ts1=dt6,ts2=ts6 WHERE id=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:22) /test/1/catalog1/schema1/datetime_widths/",
+      "action" : "UPDATE"
+    }
+  ]
+}
+----------
+[update__042]
+sql:
+UPDATE str_lifecycle
+SET v=CONCAT(v,'x'), c=RTRIM(c), fixed_binary=CONCAT(fixed_binary,X'00'), variable_binary=CONCAT(variable_binary,X'00')
+WHERE BINARY v = BINARY 'a ';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:20) /test/1/catalog1/schema1/str_lifecycle/",
+      "action" : "UPDATE"
+    },
+    {
+      "subject": "Function(2:6~2:12) /test/1/catalog1/schema1/CONCAT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(2:23~2:28) /test/1/catalog1/schema1/RTRIM/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[update__043]
+sql:
+UPDATE lob_family
+SET b=CONCAT(b,X'00'), t=CONCAT(t,' suffix'), mb=COMPRESS(mt), lt=CONCAT_WS(':',tt,t,mt)
+WHERE HEX(tb)='01' OR t LIKE 'b%';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:17) /test/1/catalog1/schema1/lob_family/",
+      "action" : "UPDATE"
+    },
+    {
+      "subject": "Function(2:6~2:12) /test/1/catalog1/schema1/CONCAT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(2:49~2:57) /test/1/catalog1/schema1/COMPRESS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(2:66~2:75) /test/1/catalog1/schema1/CONCAT_WS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(3:6~3:9) /test/1/catalog1/schema1/HEX/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[update__044]
+sql:
+UPDATE lob_family AS target
+LEFT JOIN lob_family AS source ON target.b=source.b
+SET target.t=source.lt,target.mb=source.lb
+WHERE target.tb=X'01';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:17) /test/1/catalog1/schema1/lob_family/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[update__045]
+sql:
+UPDATE split_type_enum_set.es_core
+    SET e_basic=2,s_basic=s_basic|4,e_added='archived',s_flags='x,z'
+    WHERE e_basic+0 > 0 AND (s_basic+0 & 1) = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:34) /test/1/catalog1/split_type_enum_set/es_core/",
+      "action" : "UPDATE"
+    }
+  ]
+}
+----------
+[update__046]
+sql:
+UPDATE split_type_json.json_core
+    SET doc=JSON_SET(
+              JSON_REPLACE(doc,'$.score',JSON_EXTRACT(doc,'$.score')+1),
+              '$.updated',TRUE
+            ),
+        payload=JSON_REMOVE(payload,'$.old'),
+        meta=JSON_INSERT(
+          COALESCE(meta,JSON_OBJECT()),'$.source','update'
+        )
+    WHERE doc->>'$.kind'='person';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:32) /test/1/catalog1/split_type_json/json_core/",
+      "action" : "UPDATE"
+    },
+    {
+      "subject": "Function(2:12~2:20) /test/1/catalog1/schema1/JSON_SET/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(3:14~3:26) /test/1/catalog1/schema1/JSON_REPLACE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(3:41~3:53) /test/1/catalog1/schema1/JSON_EXTRACT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(6:16~6:27) /test/1/catalog1/schema1/JSON_REMOVE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(7:13~7:24) /test/1/catalog1/schema1/JSON_INSERT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(8:10~8:18) /test/1/catalog1/schema1/COALESCE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(8:24~8:35) /test/1/catalog1/schema1/JSON_OBJECT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[update__047]
+sql:
+UPDATE spatial_lifecycle
+SET p=ST_SRID(ST_PointFromText('POINT(9 9)'),0),
+    g=ST_Buffer(g,1)
+WHERE ST_Intersects(g,ST_GeomFromText('POINT(1 1)'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:24) /test/1/catalog1/schema1/spatial_lifecycle/",
+      "action" : "UPDATE"
+    },
+    {
+      "subject": "Function(2:6~2:13) /test/1/catalog1/schema1/ST_SRID/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(2:14~2:30) /test/1/catalog1/schema1/ST_PointFromText/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(3:6~3:15) /test/1/catalog1/schema1/ST_Buffer/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(4:6~4:19) /test/1/catalog1/schema1/ST_Intersects/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(4:22~4:37) /test/1/catalog1/schema1/ST_GeomFromText/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[update__048]
+sql:
+UPDATE spatial_lifecycle AS a
+JOIN spatial_lifecycle AS b ON a.id=b.id+1
+SET a.g=ST_Union(a.g,b.g),
+    a.p=ST_PointFromText('POINT(8 8)')
+WHERE ST_Distance(a.p,b.p)>=0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:24) /test/1/catalog1/schema1/spatial_lifecycle/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(3:8~3:16) /test/1/catalog1/schema1/ST_Union/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(4:8~4:24) /test/1/catalog1/schema1/ST_PointFromText/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(5:6~5:17) /test/1/catalog1/schema1/ST_Distance/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[update__049]
+sql:
+UPDATE integer_lifecycle
+SET tiny_signed=tiny_signed+1,
+    small_unsigned=small_unsigned|1,
+    medium_signed=medium_signed DIV 2,
+    int_unsigned=int_unsigned+1000,
+    big_signed=-big_signed,
+    bool_alias=NOT bool_alias
+WHERE tiny_unsigned BETWEEN 1 AND 10;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:24) /test/1/catalog1/schema1/integer_lifecycle/",
+      "action" : "UPDATE"
+    }
+  ]
+}
+----------
+[update__050]
+sql:
+UPDATE integer_lifecycle AS target
+JOIN integer_lifecycle AS source ON target.id=source.id+1
+SET target.tiny_signed=source.tiny_signed,
+    target.small_signed=source.small_signed,
+    target.medium_signed=source.medium_signed,
+    target.int_signed=source.int_signed,
+    target.big_signed=source.big_signed
+WHERE target.big_unsigned>=source.big_unsigned;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:24) /test/1/catalog1/schema1/integer_lifecycle/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[update__051]
+sql:
+UPDATE numeric_lifecycle
+SET decimal_value=ROUND(decimal_value+numeric_value,6),
+    fixed_value=fixed_value*1.10,
+    float_value=float_value/NULLIF(real_value,0),
+    double_value=POW(double_value,2),
+    real_value=SQRT(ABS(real_value))
+WHERE decimal_value BETWEEN 0 AND 1000;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:24) /test/1/catalog1/schema1/numeric_lifecycle/",
+      "action" : "UPDATE"
+    },
+    {
+      "subject": "Function(2:18~2:23) /test/1/catalog1/schema1/ROUND/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(4:28~4:34) /test/1/catalog1/schema1/NULLIF/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(5:17~5:20) /test/1/catalog1/schema1/POW/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(6:15~6:19) /test/1/catalog1/schema1/SQRT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(6:20~6:23) /test/1/catalog1/schema1/ABS/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[update__052]
+sql:
+UPDATE numeric_lifecycle AS target
+JOIN numeric_lifecycle AS source
+  ON target.id=source.id+1
+SET target.decimal_value=source.numeric_value,
+    target.float_value=source.double_value,
+    target.double_value=source.float_value,
+    target.real_value=source.fixed_value
+WHERE target.decimal_value>=source.fixed_value;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:24) /test/1/catalog1/schema1/numeric_lifecycle/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[update_select__053]
+sql:
+UPDATE split_update_t1 AS a
+INNER JOIN split_update_t2 AS b ON a.i = b.i
+INNER JOIN split_update_t3 AS c ON a.j = c.j AND b.k = c.k
+SET a.x = b.x, a.y = b.y, a.z = (SELECT SUM(z) FROM split_update_t3 WHERE y = 34)
+WHERE b.x = 23;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:22) /test/1/catalog1/schema1/split_update_t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(2:11~2:26) /test/1/catalog1/schema1/split_update_t2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(3:11~3:26) /test/1/catalog1/schema1/split_update_t3/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(4:40~4:43) /test/1/catalog1/schema1/SUM/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[update__054]
+sql:
+UPDATE t1=a SET i=0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:9) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[update__055]
+sql:
+UPDATE t1 AS A NATURAL JOIN t1 B SET A.pk=5,B.pk=7;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:9) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[update__056]
+sql:
+UPDATE t1 AS t2 STRAIGHT_JOIN t1 SET t1.c1=t1.c1+1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:9) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[update__057]
+sql:
+UPDATE /*+ SET_VAR(sql_safe_updates=1) */ IGNORE v1 SET a=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:49~1:51) /test/1/catalog1/schema1/v1/",
+      "action" : "UPDATE"
+    },
+    {
+      "subject": "ConfigKey(1:19~1:35) /test/1/sql_safe_updates/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}

@@ -1,0 +1,174 @@
+select +0;
+select +1;
+select +1.25;
+select -0;
+select -1;
+select -1.25;
+select -(-5);
+select ~0;
+select ~1;
+select ~10;
+select ~(-1);
+select 1 + 2;
+select 1 - 2;
+select 2 * 3;
+select 8 / 4;
+select 1.25 + 2.75;
+select 5.5 - 2.25;
+select 2.5 * 4;
+select 7.5 / 2.5;
+select -5 + 2;
+select 5 + -2;
+select (1 + 2) * 3;
+select 1 + 2 * 3;
+select 10 / 2 + 3;
+select 6 & 3;
+select 255 & 15;
+select -1 & 15;
+select 6 | 3;
+select 240 | 15;
+select 0 | 15;
+select 6 ^ 3;
+select 255 ^ 15;
+select 15 ^ 15;
+select 1 << 1;
+select 1 << 8;
+select 256 >> 1;
+select 256 >> 8;
+select (3 | 4) << 2;
+select 'DM' || '8';
+select '' || 'DM8';
+select 'DM8' || '';
+select 'A' || 'B' || 'C';
+select 'value=' || 8;
+select TIME '19:00:00' + INTERVAL '9' HOUR;
+select TIME '19:00:00' - INTERVAL '9' HOUR;
+select TIMESTAMP '2007-07-15 19:00:00' + INTERVAL '9' HOUR;
+select TIMESTAMP '2007-07-15 19:00:00' - INTERVAL '9' HOUR;
+select DATE '2011-09-29' + 2;
+select DATE '2011-09-29' - 100;
+select TIMESTAMP '2003-09-29 08:59:59.123' + 2.358;
+select (TIME '19:00:00' - TIME '10:00:00') HOUR;
+select (TIMESTAMP '2007-07-15 19:00:00' - TIMESTAMP '2007-01-15 19:00:00') HOUR;
+select INTERVAL '2007-07' YEAR(4) TO MONTH + INTERVAL '7' MONTH;
+select INTERVAL '2007-07' YEAR(4) TO MONTH - INTERVAL '7' MONTH;
+select INTERVAL '7 15' DAY TO HOUR + INTERVAL '10:10' MINUTE TO SECOND;
+select INTERVAL '7 15' DAY TO HOUR - INTERVAL '10:10' MINUTE TO SECOND;
+select INTERVAL '10:10' MINUTE TO SECOND * 3;
+select INTERVAL '10:10' MINUTE TO SECOND / 3;
+------------------------------------------------------------------------------------------
+[SELECT] select +0;
+----------
+[SELECT] select +1;
+----------
+[SELECT] select +1.25;
+----------
+[SELECT] select -0;
+----------
+[SELECT] select -1;
+----------
+[SELECT] select -1.25;
+----------
+[SELECT] select -(-5);
+----------
+[SELECT] select ~0;
+----------
+[SELECT] select ~1;
+----------
+[SELECT] select ~10;
+----------
+[SELECT] select ~(-1);
+----------
+[SELECT] select 1 + 2;
+----------
+[SELECT] select 1 - 2;
+----------
+[SELECT] select 2 * 3;
+----------
+[SELECT] select 8 / 4;
+----------
+[SELECT] select 1.25 + 2.75;
+----------
+[SELECT] select 5.5 - 2.25;
+----------
+[SELECT] select 2.5 * 4;
+----------
+[SELECT] select 7.5 / 2.5;
+----------
+[SELECT] select -5 + 2;
+----------
+[SELECT] select 5 + -2;
+----------
+[SELECT] select (1 + 2) * 3;
+----------
+[SELECT] select 1 + 2 * 3;
+----------
+[SELECT] select 10 / 2 + 3;
+----------
+[SELECT] select 6 & 3;
+----------
+[SELECT] select 255 & 15;
+----------
+[SELECT] select -1 & 15;
+----------
+[SELECT] select 6 | 3;
+----------
+[SELECT] select 240 | 15;
+----------
+[SELECT] select 0 | 15;
+----------
+[SELECT] select 6 ^ 3;
+----------
+[SELECT] select 255 ^ 15;
+----------
+[SELECT] select 15 ^ 15;
+----------
+[SELECT] select 1 << 1;
+----------
+[SELECT] select 1 << 8;
+----------
+[SELECT] select 256 >> 1;
+----------
+[SELECT] select 256 >> 8;
+----------
+[SELECT] select (3 | 4) << 2;
+----------
+[SELECT] select 'DM' || '8';
+----------
+[SELECT] select '' || 'DM8';
+----------
+[SELECT] select 'DM8' || '';
+----------
+[SELECT] select 'A' || 'B' || 'C';
+----------
+[SELECT] select 'value=' || 8;
+----------
+[SELECT] select TIME '19:00:00' + INTERVAL '9' HOUR;
+----------
+[SELECT] select TIME '19:00:00' - INTERVAL '9' HOUR;
+----------
+[SELECT] select TIMESTAMP '2007-07-15 19:00:00' + INTERVAL '9' HOUR;
+----------
+[SELECT] select TIMESTAMP '2007-07-15 19:00:00' - INTERVAL '9' HOUR;
+----------
+[SELECT] select DATE '2011-09-29' + 2;
+----------
+[SELECT] select DATE '2011-09-29' - 100;
+----------
+[SELECT] select TIMESTAMP '2003-09-29 08:59:59.123' + 2.358;
+----------
+[SELECT] select (TIME '19:00:00' - TIME '10:00:00') HOUR;
+----------
+[SELECT] select (TIMESTAMP '2007-07-15 19:00:00' - TIMESTAMP '2007-01-15 19:00:00') HOUR;
+----------
+[SELECT] select INTERVAL '2007-07' YEAR(4) TO MONTH + INTERVAL '7' MONTH;
+----------
+[SELECT] select INTERVAL '2007-07' YEAR(4) TO MONTH - INTERVAL '7' MONTH;
+----------
+[SELECT] select INTERVAL '7 15' DAY TO HOUR + INTERVAL '10:10' MINUTE TO SECOND;
+----------
+[SELECT] select INTERVAL '7 15' DAY TO HOUR - INTERVAL '10:10' MINUTE TO SECOND;
+----------
+[SELECT] select INTERVAL '10:10' MINUTE TO SECOND * 3;
+----------
+[SELECT] select INTERVAL '10:10' MINUTE TO SECOND / 3;

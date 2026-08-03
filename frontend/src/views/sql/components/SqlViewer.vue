@@ -13,7 +13,11 @@
       :handleReadOnly="handleReadOnly"
       :storeQueryTabs="storeQueryTabs"
       :formatSql="formatSql"
-    />
+    >
+      <template #connection-context>
+        <slot name="connection-context" />
+      </template>
+    </operators>
     <Editor
       :set-editor-instance="setEditorInstance"
       :current-tab="tab"
@@ -61,6 +65,7 @@
   </div>
 </template>
 <script>
+import appLogger from '@/utils/logger';
 import * as monaco from 'monaco-editor';
 import { mapGetters, mapMutations, mapState } from 'vuex';
 import Operators from '@/views/sql/components/Operators';
@@ -477,7 +482,7 @@ export default {
       this.tab.text = value;
     },
     setSql(sql) {
-      console.log('setSql', sql);
+      appLogger.debug('setSql', sql);
       const position = this.monacoEditor.getPosition();
       let text = sql;
       if (position.column !== 1) {
@@ -925,7 +930,7 @@ export default {
           this.$bus.emit(EVENT_BUS_NAME_LIST.WS_RES_EXPORT_EVENT, queryData.object);
         }
       } catch (e) {
-        console.error(e);
+        appLogger.error(e);
       }
     },
     onerror() {},

@@ -1,0 +1,3 @@
+drop materialized view mv;
+------------------------------------------------------------------------------------------
+[DROP_VIEW] drop materialized view mv;

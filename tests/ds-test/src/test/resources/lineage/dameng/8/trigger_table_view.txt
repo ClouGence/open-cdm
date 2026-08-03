@@ -1,0 +1,47 @@
+[row_trigger_has_no_result_lineage]
+sql:
+create or replace trigger app.trg_after_insert
+after insert on catalog1.app.trg_target
+for each row
+begin
+  insert into catalog1.app.trg_log(trigger_name, new_id) values('INSERT', :new.id);
+end;
+/
+expect:
+{}
+----------
+[instead_of_trigger_has_no_result_lineage]
+sql:
+create or replace trigger app.trg_view_update
+instead of update on catalog1.app.trg_view
+for each row
+begin
+  update catalog1.app.trg_target set name = :new.name where id = :old.id;
+end;
+/
+expect:
+{}
+----------
+[local_trigger_has_no_result_lineage]
+sql:
+create trigger app.trg_local
+after insert local on catalog1.app.trg_target
+begin
+  null;
+end;
+/
+expect:
+{}
+----------
+[multiple_order_targets_have_no_result_lineage]
+sql:
+create trigger app.trg_order_multi
+before insert on catalog1.app.trg_target
+for each row
+follows app.trg_order_first, app.trg_order_second
+begin
+  null;
+end;
+/
+expect:
+{}

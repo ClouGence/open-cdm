@@ -1,0 +1,11 @@
+[utl_inaddr_column_lineage]
+sql:
+select
+  utl_inaddr.get_host_address(t.host_value) as host_address,
+  utl_inaddr.get_host_name(t.ip_value) as host_name
+from catalog1.app.network_source t
+expect:
+{
+  "host_address": ["/catalog1/app/network_source/host_value/"],
+  "host_name": ["/catalog1/app/network_source/ip_value/"]
+}

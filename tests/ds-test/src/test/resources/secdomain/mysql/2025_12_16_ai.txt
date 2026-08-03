@@ -1,0 +1,5164 @@
+[2025_12_16_ai_DROP_SCHEMA_1]
+sql:
+-- mysql_examples.sql
+-- 综合 MySQL 特性示例（DDL / DML / DCL / TCL / 存储过程 / 触发器 / 视图 / 事件 / JSON / 空间 / 分区 / 索引 / 事务 / 预处理语句 等）
+
+-- 注意：在生产环境运行前请先在测试库验证。部分语句需要相应权限（如 CREATE USER, GRANT, CHANGE MASTER 等）。
+
+-- 1) 创建数据库并切换
+DROP DATABASE IF EXISTS example_db;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "DROP_SCHEMA",
+      "auditKind": "DROP",
+      "schema": "example_db",
+      "ifNotExists": false,
+      "ifExists": true
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_CREATE_SCHEMA_2]
+sql:
+CREATE DATABASE example_db CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CREATE_SCHEMA",
+      "auditKind": "CREATE",
+      "options": {},
+      "schema": "example_db",
+      "ifNotExists": false,
+      "ifExists": false,
+      "collate": "utf8mb4_general_ci",
+      "characterSet": "utf8mb4"
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_DROP_TABLE_3]
+sql:
+-- 2) 简要用户表（示例常用列类型与约束）
+DROP TABLE IF EXISTS users;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "DROP_TABLE",
+      "auditKind": "DROP",
+      "table": "users",
+      "hasPrimary": false,
+      "hasUnique": false,
+      "hasForeignKey": false,
+      "hasIndex": false,
+      "virtual": false,
+      "ifNotExists": false,
+      "ifExists": true,
+      "temporary": false
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_CREATE_TABLE_4]
+sql:
+CREATE TABLE users (
+  id BIGINT NOT NULL AUTO_INCREMENT,
+  username VARCHAR(50) NOT NULL UNIQUE,
+  email VARCHAR(255) NOT NULL,
+  password_hash CHAR(64) NOT NULL,
+  first_name VARCHAR(50),
+  last_name VARCHAR(50),
+  full_name VARCHAR(101) GENERATED ALWAYS AS (CONCAT(first_name, ' ', last_name)) STORED,
+  status ENUM('active','inactive','banned') NOT NULL DEFAULT 'active',
+  preferences JSON DEFAULT (JSON_OBJECT()),
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY ux_email (email)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "users",
+      "column": "last_name",
+      "typeName": "VARCHAR",
+      "typeDesc": "VARCHAR(50)",
+      "nullable": true,
+      "primary": false,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "length": "50",
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "users",
+      "column": "email",
+      "typeName": "VARCHAR",
+      "typeDesc": "VARCHAR(255)",
+      "nullable": false,
+      "primary": false,
+      "unique": true,
+      "foreign": false,
+      "index": false,
+      "length": "255",
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE",
+      "auditKind": "CREATE",
+      "options": {},
+      "table": "users",
+      "hasPrimary": true,
+      "hasUnique": true,
+      "hasForeignKey": false,
+      "hasIndex": false,
+      "columns": [
+        "id",
+        "username",
+        "email",
+        "password_hash",
+        "first_name",
+        "last_name",
+        "full_name",
+        "status",
+        "preferences",
+        "created_at",
+        "updated_at"
+      ],
+      "virtual": false,
+      "ifNotExists": false,
+      "ifExists": false,
+      "collate": "utf8mb4_general_ci",
+      "characterSet": "utf8mb4",
+      "engine": "InnoDB",
+      "temporary": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "users",
+      "column": "updated_at",
+      "typeName": "TIMESTAMP",
+      "typeDesc": "TIMESTAMP",
+      "nullable": false,
+      "primary": false,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "defaultValue": "CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP",
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "users",
+      "column": "password_hash",
+      "typeName": "CHAR",
+      "typeDesc": "CHAR(64)",
+      "nullable": false,
+      "primary": false,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "length": "64",
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "users",
+      "column": "id",
+      "typeName": "BIGINT",
+      "typeDesc": "BIGINT",
+      "nullable": false,
+      "primary": true,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "auto": true,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "users",
+      "column": "full_name",
+      "typeName": "VARCHAR",
+      "typeDesc": "VARCHAR(101)",
+      "nullable": true,
+      "primary": false,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "length": "101",
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "users",
+      "column": "username",
+      "typeName": "VARCHAR",
+      "typeDesc": "VARCHAR(50)",
+      "nullable": false,
+      "primary": false,
+      "unique": true,
+      "foreign": false,
+      "index": false,
+      "length": "50",
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "users",
+      "column": "status",
+      "typeName": "ENUM",
+      "typeDesc": "ENUM('active','inactive','banned')",
+      "nullable": false,
+      "primary": false,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "defaultValue": "active",
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "users",
+      "column": "first_name",
+      "typeName": "VARCHAR",
+      "typeDesc": "VARCHAR(50)",
+      "nullable": true,
+      "primary": false,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "length": "50",
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
+      "auditKind": "CREATE",
+      "tableName": "users",
+      "type": "Unique",
+      "name": "ux_email",
+      "columns": [
+        "email"
+      ]
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "users",
+      "column": "created_at",
+      "typeName": "DATETIME",
+      "typeDesc": "DATETIME",
+      "nullable": false,
+      "primary": false,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "defaultValue": "CURRENT_TIMESTAMP",
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
+      "auditKind": "CREATE",
+      "tableName": "users",
+      "type": "Unique",
+      "columns": [
+        "username"
+      ]
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
+      "auditKind": "CREATE",
+      "tableName": "users",
+      "type": "Primary",
+      "columns": [
+        "id"
+      ]
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "users",
+      "column": "preferences",
+      "typeName": "JSON",
+      "typeDesc": "JSON",
+      "nullable": true,
+      "primary": false,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "defaultValue": "(JSON_OBJECT())",
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_DROP_TABLE_5]
+sql:
+-- 3) 文章与标签示例：外键、全文索引、组合索引
+DROP TABLE IF EXISTS posts;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "DROP_TABLE",
+      "auditKind": "DROP",
+      "table": "posts",
+      "hasPrimary": false,
+      "hasUnique": false,
+      "hasForeignKey": false,
+      "hasIndex": false,
+      "virtual": false,
+      "ifNotExists": false,
+      "ifExists": true,
+      "temporary": false
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_CREATE_TABLE_6]
+sql:
+CREATE TABLE posts (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  user_id BIGINT NOT NULL,
+  title VARCHAR(255) NOT NULL,
+  body LONGTEXT NOT NULL,
+  tags SET('tech','life','news','guide') DEFAULT NULL,
+  views INT UNSIGNED DEFAULT 0,
+  published BOOLEAN DEFAULT FALSE,
+  published_at DATETIME NULL,
+  geom POINT NULL,
+  FULLTEXT KEY ft_title_body (title, body),
+  KEY idx_user_published (user_id, published),
+  CONSTRAINT fk_posts_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
+      "auditKind": "CREATE",
+      "tableName": "posts",
+      "type": "ForeignKey",
+      "name": "fk_posts_user",
+      "columns": [
+        "user_id"
+      ]
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "posts",
+      "column": "body",
+      "typeName": "LONGTEXT",
+      "typeDesc": "LONGTEXT",
+      "nullable": false,
+      "primary": false,
+      "unique": false,
+      "foreign": false,
+      "index": true,
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "posts",
+      "column": "title",
+      "typeName": "VARCHAR",
+      "typeDesc": "VARCHAR(255)",
+      "nullable": false,
+      "primary": false,
+      "unique": false,
+      "foreign": false,
+      "index": true,
+      "length": "255",
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "posts",
+      "column": "tags",
+      "typeName": "SET",
+      "typeDesc": "SET('tech','life','news','guide')",
+      "nullable": true,
+      "primary": false,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "defaultValue": "NULL",
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "posts",
+      "column": "views",
+      "typeName": "INT",
+      "typeDesc": "INT UNSIGNED",
+      "nullable": true,
+      "primary": false,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "defaultValue": "0",
+      "auto": false,
+      "zerofill": false,
+      "unsigned": true
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_INDEX",
+      "auditKind": "CREATE",
+      "tableName": "posts",
+      "type": "FULLTEXT",
+      "columns": [
+        "title",
+        "body"
+      ]
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "posts",
+      "column": "published",
+      "typeName": "BOOLEAN",
+      "typeDesc": "BOOLEAN",
+      "nullable": true,
+      "primary": false,
+      "unique": false,
+      "foreign": false,
+      "index": true,
+      "defaultValue": "FALSE",
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "posts",
+      "column": "published_at",
+      "typeName": "DATETIME",
+      "typeDesc": "DATETIME",
+      "nullable": false,
+      "primary": false,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "posts",
+      "column": "id",
+      "typeName": "BIGINT",
+      "typeDesc": "BIGINT",
+      "nullable": true,
+      "primary": true,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "auto": true,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "posts",
+      "column": "user_id",
+      "typeName": "BIGINT",
+      "typeDesc": "BIGINT",
+      "nullable": false,
+      "primary": false,
+      "unique": false,
+      "foreign": true,
+      "index": true,
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "posts",
+      "column": "geom",
+      "typeName": "POINT",
+      "typeDesc": "POINT",
+      "nullable": false,
+      "primary": false,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
+      "auditKind": "CREATE",
+      "tableName": "posts",
+      "type": "Primary",
+      "columns": [
+        "id"
+      ]
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_INDEX",
+      "auditKind": "CREATE",
+      "tableName": "posts",
+      "type": "index",
+      "columns": [
+        "user_id",
+        "published"
+      ]
+    },
+    {
+      "sqlType": "CREATE_TABLE",
+      "auditKind": "CREATE",
+      "options": {},
+      "table": "posts",
+      "hasPrimary": true,
+      "hasUnique": false,
+      "hasForeignKey": true,
+      "hasIndex": true,
+      "columns": [
+        "id",
+        "user_id",
+        "title",
+        "body",
+        "tags",
+        "views",
+        "published",
+        "published_at",
+        "geom"
+      ],
+      "virtual": false,
+      "ifNotExists": false,
+      "ifExists": false,
+      "characterSet": "utf8mb4",
+      "engine": "InnoDB",
+      "temporary": false
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_DROP_TABLE_7]
+sql:
+DROP TABLE IF EXISTS tags;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "DROP_TABLE",
+      "auditKind": "DROP",
+      "table": "tags",
+      "hasPrimary": false,
+      "hasUnique": false,
+      "hasForeignKey": false,
+      "hasIndex": false,
+      "virtual": false,
+      "ifNotExists": false,
+      "ifExists": true,
+      "temporary": false
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_CREATE_TABLE_8]
+sql:
+CREATE TABLE tags (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(50) NOT NULL UNIQUE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
+      "auditKind": "CREATE",
+      "tableName": "tags",
+      "type": "Unique",
+      "columns": [
+        "name"
+      ]
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "tags",
+      "column": "name",
+      "typeName": "VARCHAR",
+      "typeDesc": "VARCHAR(50)",
+      "nullable": false,
+      "primary": false,
+      "unique": true,
+      "foreign": false,
+      "index": false,
+      "length": "50",
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
+      "auditKind": "CREATE",
+      "tableName": "tags",
+      "type": "Primary",
+      "columns": [
+        "id"
+      ]
+    },
+    {
+      "sqlType": "CREATE_TABLE",
+      "auditKind": "CREATE",
+      "options": {},
+      "table": "tags",
+      "hasPrimary": true,
+      "hasUnique": true,
+      "hasForeignKey": false,
+      "hasIndex": false,
+      "columns": [
+        "id",
+        "name"
+      ],
+      "virtual": false,
+      "ifNotExists": false,
+      "ifExists": false,
+      "characterSet": "utf8mb4",
+      "engine": "InnoDB",
+      "temporary": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "tags",
+      "column": "id",
+      "typeName": "INT",
+      "typeDesc": "INT",
+      "nullable": true,
+      "primary": true,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "auto": true,
+      "zerofill": false,
+      "unsigned": false
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_DROP_TABLE_9]
+sql:
+DROP TABLE IF EXISTS post_tags;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "DROP_TABLE",
+      "auditKind": "DROP",
+      "table": "post_tags",
+      "hasPrimary": false,
+      "hasUnique": false,
+      "hasForeignKey": false,
+      "hasIndex": false,
+      "virtual": false,
+      "ifNotExists": false,
+      "ifExists": true,
+      "temporary": false
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_CREATE_TABLE_10]
+sql:
+CREATE TABLE post_tags (
+  post_id BIGINT NOT NULL,
+  tag_id INT NOT NULL,
+  PRIMARY KEY (post_id, tag_id),
+  CONSTRAINT fk_pt_post FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
+  CONSTRAINT fk_pt_tag FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CREATE_TABLE",
+      "auditKind": "CREATE",
+      "options": {},
+      "table": "post_tags",
+      "hasPrimary": true,
+      "hasUnique": false,
+      "hasForeignKey": true,
+      "hasIndex": false,
+      "columns": [
+        "post_id",
+        "tag_id"
+      ],
+      "virtual": false,
+      "ifNotExists": false,
+      "ifExists": false,
+      "characterSet": "utf8mb4",
+      "engine": "InnoDB",
+      "temporary": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
+      "auditKind": "CREATE",
+      "tableName": "post_tags",
+      "type": "ForeignKey",
+      "name": "fk_pt_post",
+      "columns": [
+        "post_id"
+      ]
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "post_tags",
+      "column": "post_id",
+      "typeName": "BIGINT",
+      "typeDesc": "BIGINT",
+      "nullable": false,
+      "primary": true,
+      "unique": false,
+      "foreign": true,
+      "index": false,
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
+      "auditKind": "CREATE",
+      "tableName": "post_tags",
+      "type": "ForeignKey",
+      "name": "fk_pt_tag",
+      "columns": [
+        "tag_id"
+      ]
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "post_tags",
+      "column": "tag_id",
+      "typeName": "INT",
+      "typeDesc": "INT",
+      "nullable": false,
+      "primary": true,
+      "unique": false,
+      "foreign": true,
+      "index": false,
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
+      "auditKind": "CREATE",
+      "tableName": "post_tags",
+      "type": "Primary",
+      "columns": [
+        "post_id",
+        "tag_id"
+      ]
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_DROP_TABLE_11]
+sql:
+-- 4) JSON 与生成列、索引示例
+DROP TABLE IF EXISTS products;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "DROP_TABLE",
+      "auditKind": "DROP",
+      "table": "products",
+      "hasPrimary": false,
+      "hasUnique": false,
+      "hasForeignKey": false,
+      "hasIndex": false,
+      "virtual": false,
+      "ifNotExists": false,
+      "ifExists": true,
+      "temporary": false
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_CREATE_TABLE_12]
+sql:
+CREATE TABLE products (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  sku VARCHAR(64) NOT NULL UNIQUE,
+  attributes JSON NOT NULL,
+  price DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+  color VARCHAR(32) GENERATED ALWAYS AS (JSON_UNQUOTE(JSON_EXTRACT(attributes, '$.color'))) STORED,
+  KEY idx_color (color)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "products",
+      "column": "color",
+      "typeName": "VARCHAR",
+      "typeDesc": "VARCHAR(32)",
+      "nullable": true,
+      "primary": false,
+      "unique": false,
+      "foreign": false,
+      "index": true,
+      "length": "32",
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
+      "auditKind": "CREATE",
+      "tableName": "products",
+      "type": "Unique",
+      "columns": [
+        "sku"
+      ]
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "products",
+      "column": "price",
+      "typeName": "DECIMAL",
+      "typeDesc": "DECIMAL(10,2)",
+      "nullable": false,
+      "primary": false,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "length": "10",
+      "defaultValue": "0.00",
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_INDEX",
+      "auditKind": "CREATE",
+      "tableName": "products",
+      "type": "index",
+      "columns": [
+        "color"
+      ]
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "products",
+      "column": "sku",
+      "typeName": "VARCHAR",
+      "typeDesc": "VARCHAR(64)",
+      "nullable": false,
+      "primary": false,
+      "unique": true,
+      "foreign": false,
+      "index": false,
+      "length": "64",
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "products",
+      "column": "id",
+      "typeName": "BIGINT",
+      "typeDesc": "BIGINT",
+      "nullable": true,
+      "primary": true,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "auto": true,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "products",
+      "column": "attributes",
+      "typeName": "JSON",
+      "typeDesc": "JSON",
+      "nullable": false,
+      "primary": false,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE",
+      "auditKind": "CREATE",
+      "options": {},
+      "table": "products",
+      "hasPrimary": true,
+      "hasUnique": true,
+      "hasForeignKey": false,
+      "hasIndex": true,
+      "columns": [
+        "id",
+        "sku",
+        "attributes",
+        "price",
+        "color"
+      ],
+      "virtual": false,
+      "ifNotExists": false,
+      "ifExists": false,
+      "characterSet": "utf8mb4",
+      "engine": "InnoDB",
+      "temporary": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
+      "auditKind": "CREATE",
+      "tableName": "products",
+      "type": "Primary",
+      "columns": [
+        "id"
+      ]
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_DROP_TABLE_13]
+sql:
+-- 5) 分区示例（按范围分区）
+DROP TABLE IF EXISTS logs;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "DROP_TABLE",
+      "auditKind": "DROP",
+      "table": "logs",
+      "hasPrimary": false,
+      "hasUnique": false,
+      "hasForeignKey": false,
+      "hasIndex": false,
+      "virtual": false,
+      "ifNotExists": false,
+      "ifExists": true,
+      "temporary": false
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_CREATE_TABLE_14]
+sql:
+CREATE TABLE logs (
+  id BIGINT NOT NULL AUTO_INCREMENT,
+  level TINYINT NOT NULL,
+  msgContent TEXT,
+  created_date DATE NOT NULL,
+  PRIMARY KEY (id, created_date)
+) ENGINE=InnoDB
+PARTITION BY RANGE ( YEAR(created_date) ) (
+  PARTITION p2020 VALUES LESS THAN (2021),
+  PARTITION p2021 VALUES LESS THAN (2022),
+  PARTITION pmax VALUES LESS THAN MAXVALUE
+);
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "logs",
+      "column": "msgContent",
+      "typeName": "TEXT",
+      "typeDesc": "TEXT",
+      "nullable": true,
+      "primary": false,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "logs",
+      "column": "created_date",
+      "typeName": "DATE",
+      "typeDesc": "DATE",
+      "nullable": false,
+      "primary": true,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "logs",
+      "column": "id",
+      "typeName": "BIGINT",
+      "typeDesc": "BIGINT",
+      "nullable": false,
+      "primary": true,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "auto": true,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE",
+      "auditKind": "CREATE",
+      "options": {},
+      "table": "logs",
+      "hasPrimary": true,
+      "hasUnique": false,
+      "hasForeignKey": false,
+      "hasIndex": false,
+      "columns": [
+        "id",
+        "level",
+        "msgContent",
+        "created_date"
+      ],
+      "virtual": false,
+      "ifNotExists": false,
+      "ifExists": false,
+      "engine": "InnoDB",
+      "temporary": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "logs",
+      "column": "level",
+      "typeName": "TINYINT",
+      "typeDesc": "TINYINT",
+      "nullable": false,
+      "primary": false,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
+      "auditKind": "CREATE",
+      "tableName": "logs",
+      "type": "Primary",
+      "columns": [
+        "id",
+        "created_date"
+      ]
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_INSERT_15]
+sql:
+-- 6) 示例数据插入（多行、ON DUPLICATE KEY、INSERT IGNORE）
+INSERT INTO users (username, email, password_hash, first_name, last_name)
+VALUES
+  ('alice','alice@example.com', REPEAT('a',64), 'Alice','Anderson'),
+  ('bob','bob@example.com', REPEAT('b',64), 'Bob','Brown');
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "REPEAT",
+      "func": true,
+      "args": [
+        "'b'",
+        "64"
+      ],
+      "emptyArg": false
+    },
+    {
+      "sqlType": "INSERT",
+      "auditKind": "DML",
+      "hasWith": false,
+      "table": "users",
+      "columns": [
+        "username",
+        "email",
+        "password_hash",
+        "first_name",
+        "last_name"
+      ],
+      "onlyValues": false,
+      "multipleValues": true,
+      "conflict": "NONE",
+      "fromSelect": false,
+      "hasSubQuery": false,
+      "hasNullValue": false
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "REPEAT",
+      "func": true,
+      "args": [
+        "'a'",
+        "64"
+      ],
+      "emptyArg": false
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_INSERT_16]
+sql:
+-- 插入带 JSON
+INSERT INTO products (sku, attributes, price) VALUES
+  ('SKU1', JSON_OBJECT('color','red','size','M'), 19.99),
+  ('SKU2', JSON_OBJECT('color','blue','size','L'), 29.99)
+ON DUPLICATE KEY UPDATE price = VALUES(price);
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "JSON_OBJECT",
+      "func": true,
+      "args": [
+        "'color'",
+        "'blue'",
+        "'size'",
+        "'L'"
+      ],
+      "emptyArg": false
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "values",
+      "func": true,
+      "args": [
+        "price"
+      ],
+      "emptyArg": false
+    },
+    {
+      "sqlType": "MERGE",
+      "auditKind": "DML",
+      "hasWith": false,
+      "table": "products",
+      "columns": [
+        "sku",
+        "attributes",
+        "price",
+        "price"
+      ],
+      "onlyValues": false,
+      "multipleValues": true,
+      "conflict": "UPDATE",
+      "fromSelect": false,
+      "hasSubQuery": false,
+      "hasNullValue": false
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "JSON_OBJECT",
+      "func": true,
+      "args": [
+        "'color'",
+        "'red'",
+        "'size'",
+        "'M'"
+      ],
+      "emptyArg": false
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_SELECT_17]
+sql:
+-- 7) 复杂查询示例：JOIN / 子查询 / 窗口函数 / CTE
+-- CTE + 窗口函数: 最近活跃用户排名
+WITH recent_posts AS (
+  SELECT user_id, COUNT(*) AS cnt
+  FROM posts
+  WHERE published = TRUE
+  GROUP BY user_id
+)
+SELECT u.id, u.username, rp.cnt,
+  ROW_NUMBER() OVER (ORDER BY rp.cnt DESC) AS rank1
+FROM users u
+LEFT JOIN recent_posts rp ON rp.user_id = u.id
+ORDER BY rp.cnt DESC
+LIMIT 10;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": true,
+      "whereColumns": [
+        "published"
+      ],
+      "selectInWhere": false,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": false,
+      "mode": "SUB_FROM",
+      "virtual": false,
+      "hasAs": true,
+      "hasSelectAll": false,
+      "selectInSelect": false,
+      "funcInSelect": true,
+      "exprInSelect": false,
+      "selectColumns": [
+        "user_id"
+      ],
+      "selectVariables": [],
+      "selectFunc": [
+        "COUNT"
+      ],
+      "selectValue": [],
+      "selectInFrom": false,
+      "emptyFrom": false,
+      "joinTypes": [],
+      "hasLimit": false
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "ROW_NUMBER",
+      "func": true,
+      "args": [],
+      "emptyArg": true
+    },
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": true,
+      "hasWhere": false,
+      "whereColumns": [],
+      "selectInWhere": false,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": false,
+      "mode": "NORMAL",
+      "virtual": false,
+      "hasAs": true,
+      "hasSelectAll": false,
+      "selectInSelect": false,
+      "funcInSelect": true,
+      "exprInSelect": false,
+      "selectColumns": [
+        "id",
+        "username",
+        "cnt"
+      ],
+      "selectVariables": [],
+      "selectFunc": [
+        "ROW_NUMBER"
+      ],
+      "selectValue": [],
+      "selectInFrom": true,
+      "emptyFrom": false,
+      "joinTypes": [
+        "LEFT_JOIN"
+      ],
+      "hasLimit": true
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "COUNT",
+      "func": true,
+      "args": [
+        "*"
+      ],
+      "emptyArg": false
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_SELECT_18]
+sql:
+-- 子查询与 EXISTS
+SELECT p.* FROM posts p
+WHERE EXISTS (SELECT 1 FROM users u WHERE u.id = p.user_id AND u.status = 'active');
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": true,
+      "whereColumns": [],
+      "selectInWhere": true,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": false,
+      "mode": "NORMAL",
+      "virtual": false,
+      "hasAs": false,
+      "hasSelectAll": true,
+      "selectInSelect": false,
+      "funcInSelect": false,
+      "exprInSelect": false,
+      "selectColumns": [],
+      "selectVariables": [],
+      "selectFunc": [],
+      "selectValue": [],
+      "selectInFrom": false,
+      "emptyFrom": false,
+      "joinTypes": [],
+      "hasLimit": false
+    },
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": true,
+      "whereColumns": [
+        "id",
+        "user_id",
+        "status"
+      ],
+      "selectInWhere": false,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": true,
+      "mode": "SUB_WHERE",
+      "virtual": false,
+      "hasAs": false,
+      "hasSelectAll": false,
+      "selectInSelect": false,
+      "funcInSelect": false,
+      "exprInSelect": false,
+      "selectColumns": [],
+      "selectVariables": [],
+      "selectFunc": [],
+      "selectValue": [
+        "1"
+      ],
+      "selectInFrom": false,
+      "emptyFrom": false,
+      "joinTypes": [],
+      "hasLimit": false
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_SELECT_19]
+sql:
+-- 聚合与 ROLLUP
+SELECT user_id, COUNT(*) AS cnt, SUM(views) AS total_views
+FROM posts
+GROUP BY user_id WITH ROLLUP;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": false,
+      "whereColumns": [],
+      "selectInWhere": false,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": false,
+      "mode": "NORMAL",
+      "virtual": false,
+      "hasAs": true,
+      "hasSelectAll": false,
+      "selectInSelect": false,
+      "funcInSelect": true,
+      "exprInSelect": false,
+      "selectColumns": [
+        "user_id",
+        "views"
+      ],
+      "selectVariables": [],
+      "selectFunc": [
+        "COUNT",
+        "SUM"
+      ],
+      "selectValue": [],
+      "selectInFrom": false,
+      "emptyFrom": false,
+      "joinTypes": [],
+      "hasLimit": false
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "SUM",
+      "func": true,
+      "args": [
+        "views"
+      ],
+      "emptyArg": false
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "COUNT",
+      "func": true,
+      "args": [
+        "*"
+      ],
+      "emptyArg": false
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_SELECT_20]
+sql:
+-- FULLTEXT 查询
+SELECT id, title, MATCH(title, body) AGAINST ('+mysql -fulltext' IN BOOLEAN MODE) AS score
+FROM posts
+WHERE MATCH(title, body) AGAINST ('+mysql -fulltext' IN BOOLEAN MODE)
+ORDER BY score DESC;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": true,
+      "whereColumns": [],
+      "selectInWhere": false,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": true,
+      "mode": "NORMAL",
+      "virtual": false,
+      "hasAs": true,
+      "hasSelectAll": false,
+      "selectInSelect": false,
+      "funcInSelect": false,
+      "exprInSelect": false,
+      "selectColumns": [
+        "id",
+        "title"
+      ],
+      "selectVariables": [],
+      "selectFunc": [],
+      "selectValue": [],
+      "selectInFrom": false,
+      "emptyFrom": false,
+      "joinTypes": [],
+      "hasLimit": false
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_SELECT_21]
+sql:
+-- 8) JSON 函数示例
+SELECT id, JSON_EXTRACT(attributes, '$.size') AS size FROM products;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": false,
+      "whereColumns": [],
+      "selectInWhere": false,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": false,
+      "mode": "NORMAL",
+      "virtual": false,
+      "hasAs": true,
+      "hasSelectAll": false,
+      "selectInSelect": false,
+      "funcInSelect": true,
+      "exprInSelect": false,
+      "selectColumns": [
+        "id",
+        "attributes"
+      ],
+      "selectVariables": [],
+      "selectFunc": [
+        "JSON_EXTRACT"
+      ],
+      "selectValue": [],
+      "selectInFrom": false,
+      "emptyFrom": false,
+      "joinTypes": [],
+      "hasLimit": false
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "JSON_EXTRACT",
+      "func": true,
+      "args": [
+        "attributes",
+        "'$.size'"
+      ],
+      "emptyArg": false
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_SELECT_22]
+sql:
+SELECT id, attributes->"$.color" AS color FROM products;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": false,
+      "whereColumns": [],
+      "selectInWhere": false,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": false,
+      "mode": "NORMAL",
+      "virtual": false,
+      "hasAs": true,
+      "hasSelectAll": false,
+      "selectInSelect": false,
+      "funcInSelect": false,
+      "exprInSelect": false,
+      "selectColumns": [
+        "id",
+        "attributes"
+      ],
+      "selectVariables": [],
+      "selectFunc": [],
+      "selectValue": [],
+      "selectInFrom": false,
+      "emptyFrom": false,
+      "joinTypes": [],
+      "hasLimit": false
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_SELECT_23]
+sql:
+-- -> 返回 JSON
+SELECT id, attributes->>"$.color" AS color_text FROM products;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": false,
+      "whereColumns": [],
+      "selectInWhere": false,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": false,
+      "mode": "NORMAL",
+      "virtual": false,
+      "hasAs": true,
+      "hasSelectAll": false,
+      "selectInSelect": false,
+      "funcInSelect": false,
+      "exprInSelect": false,
+      "selectColumns": [
+        "id",
+        "attributes"
+      ],
+      "selectVariables": [],
+      "selectFunc": [],
+      "selectValue": [],
+      "selectInFrom": false,
+      "emptyFrom": false,
+      "joinTypes": [],
+      "hasLimit": false
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_INSERT_24]
+sql:
+-- ->> 返回文本
+
+-- 9) 空间函数示例
+INSERT INTO posts (user_id, title, body, geom) VALUES (1, 'Geo post', 'Has location', ST_GeomFromText('POINT(116.38 39.90)'));
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "ST_GeomFromText",
+      "func": true,
+      "args": [
+        "'POINT(116.38 39.90)'"
+      ],
+      "emptyArg": false
+    },
+    {
+      "sqlType": "INSERT",
+      "auditKind": "DML",
+      "hasWith": false,
+      "table": "posts",
+      "columns": [
+        "user_id",
+        "title",
+        "body",
+        "geom"
+      ],
+      "onlyValues": false,
+      "multipleValues": false,
+      "conflict": "NONE",
+      "fromSelect": false,
+      "hasSubQuery": false,
+      "hasNullValue": false
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_SELECT_25]
+sql:
+SELECT id FROM posts WHERE ST_Contains(ST_GeomFromText('POLYGON((116.0 39.7,117.0 39.7,117.0 40.2,116.0 40.2,116.0 39.7))'), geom);
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": true,
+      "whereColumns": [
+        "geom"
+      ],
+      "selectInWhere": false,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": true,
+      "mode": "NORMAL",
+      "virtual": false,
+      "hasAs": false,
+      "hasSelectAll": false,
+      "selectInSelect": false,
+      "funcInSelect": false,
+      "exprInSelect": false,
+      "selectColumns": [
+        "id"
+      ],
+      "selectVariables": [],
+      "selectFunc": [],
+      "selectValue": [],
+      "selectInFrom": false,
+      "emptyFrom": false,
+      "joinTypes": [],
+      "hasLimit": false
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "ST_Contains",
+      "func": true,
+      "args": [
+        "ST_GeomFromText('POLYGON((116.0 39.7,117.0 39.7,117.0 40.2,116.0 40.2,116.0 39.7))')",
+        "geom"
+      ],
+      "emptyArg": false
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "ST_GeomFromText",
+      "func": true,
+      "args": [
+        "'POLYGON((116.0 39.7,117.0 39.7,117.0 40.2,116.0 40.2,116.0 39.7))'"
+      ],
+      "emptyArg": false
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_TRANSACTION_26]
+sql:
+-- 10) 事务、保存点、隔离级别
+SET TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "TRANSACTION",
+      "auditKind": "OTHER",
+      "target": "Unknown",
+      "needSupply": true
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_TRANSACTION_27]
+sql:
+START TRANSACTION;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "TRANSACTION",
+      "auditKind": "QUERY",
+      "target": "Unknown",
+      "needSupply": true
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_UPDATE_28]
+sql:
+UPDATE users SET status='inactive' WHERE id=999;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "UPDATE",
+      "auditKind": "DML",
+      "hasWith": false,
+      "hasWhere": true,
+      "whereColumns": [
+        "id"
+      ],
+      "selectInWhere": false,
+      "hasUnion": false,
+      "table": "users",
+      "setColumns": [
+        "status"
+      ],
+      "selectInSet": false,
+      "multiUpdate": false,
+      "joinTypes": [],
+      "hasLimit": false,
+      "hasIgnore": false
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_TRANSACTION_29]
+sql:
+-- 假设
+  SAVEPOINT sp1;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "TRANSACTION",
+      "auditKind": "QUERY",
+      "target": "Unknown",
+      "needSupply": true
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_TRANSACTION_30]
+sql:
+-- 执行一些操作
+  ROLLBACK TO SAVEPOINT sp1;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "TRANSACTION",
+      "auditKind": "QUERY",
+      "target": "Unknown",
+      "needSupply": true
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_TRANSACTION_31]
+sql:
+COMMIT;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "TRANSACTION",
+      "auditKind": "QUERY",
+      "target": "Unknown",
+      "needSupply": true
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_TRANSACTION_32]
+sql:
+-- 11) 锁表示例
+LOCK TABLES users WRITE;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "TRANSACTION",
+      "auditKind": "QUERY",
+      "target": "Unknown",
+      "needSupply": true
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_TRANSACTION_33]
+sql:
+-- 做一些写操作
+UNLOCK TABLES;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "TRANSACTION",
+      "auditKind": "QUERY",
+      "target": "Unknown",
+      "needSupply": true
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_PREPARE_34]
+sql:
+-- 12) 预处理语句与动态 SQL
+PREPARE stmt FROM 'SELECT * FROM users WHERE username = ?';
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "UNSAFE",
+      "auditKind": "OTHER",
+      "target": "PrepareStatement",
+      "needSupply": false
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_CONFIG_WRITE_35]
+sql:
+SET @u = 'alice';
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CONFIG_WRITE",
+      "auditKind": "OTHER",
+      "configKey": "u",
+      "type": "LOCAL"
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_EXECUTE_36]
+sql:
+EXECUTE stmt USING @u;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "UNSAFE",
+      "auditKind": "OTHER",
+      "target": "PrepareStatement",
+      "needSupply": false
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_DEALLOCATE_37]
+sql:
+DEALLOCATE PREPARE stmt;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "UNSAFE",
+      "auditKind": "OTHER",
+      "target": "PrepareStatement",
+      "needSupply": false
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_DROP_PROCEDURE_38]
+sql:
+-- 13) 存储过程（游标 + 异常处理）
+DROP PROCEDURE IF EXISTS sp_count_posts_by_user;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "DROP_PROG_OBJ",
+      "auditKind": "DROP",
+      "name": "sp_count_posts_by_user"
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_CREATE_PROCEDURE_39]
+sql:
+CREATE PROCEDURE sp_count_posts_by_user(IN p_user_id BIGINT, OUT p_count INT)
+BEGIN
+  SELECT COUNT(*) INTO p_count FROM posts WHERE user_id = p_user_id;
+END;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CREATE_PROG_OBJ",
+      "auditKind": "CREATE",
+      "name": "sp_count_posts_by_user"
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_CALL_40]
+sql:
+-- 使用存储过程
+CALL sp_count_posts_by_user(1, @cnt);
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "sp_count_posts_by_user",
+      "func": false,
+      "args": [
+        "1",
+        "@cnt"
+      ],
+      "emptyArg": false
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_SELECT_41]
+sql:
+SELECT @cnt;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": false,
+      "whereColumns": [],
+      "selectInWhere": false,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": true,
+      "mode": "NORMAL",
+      "virtual": false,
+      "hasAs": false,
+      "hasSelectAll": false,
+      "selectInSelect": false,
+      "funcInSelect": false,
+      "exprInSelect": false,
+      "selectColumns": [],
+      "selectVariables": [
+        "cnt"
+      ],
+      "selectFunc": [],
+      "selectValue": [],
+      "selectInFrom": false,
+      "emptyFrom": true,
+      "joinTypes": [],
+      "hasLimit": false
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_DROP_FUNCTION_42]
+sql:
+-- 14) 存储函数示例
+DROP FUNCTION IF EXISTS fn_user_display_name;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "DROP_PROG_OBJ",
+      "auditKind": "DROP",
+      "name": "fn_user_display_name"
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_CREATE_FUNCTION_43]
+sql:
+CREATE FUNCTION fn_user_display_name(uid BIGINT) RETURNS VARCHAR(200)
+DETERMINISTIC
+BEGIN
+  DECLARE v_name VARCHAR(200);
+  SELECT COALESCE(full_name, username) INTO v_name FROM users WHERE id = uid;
+  RETURN v_name;
+END;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CREATE_PROG_OBJ",
+      "auditKind": "CREATE",
+      "name": "fn_user_display_name"
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_DROP_TRIGGER_44]
+sql:
+-- 15) 触发器示例
+DROP TRIGGER IF EXISTS trg_posts_before_insert;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "DROP_TRIGGER",
+      "auditKind": "DROP",
+      "name": "trg_posts_before_insert"
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_CREATE_TRIGGER_45]
+sql:
+CREATE TRIGGER trg_posts_before_insert
+BEFORE INSERT ON posts
+FOR EACH ROW
+BEGIN
+  IF NEW.published = TRUE AND NEW.published_at IS NULL THEN
+    SET NEW.published_at = NOW();
+  END IF;
+END;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CREATE_TRIGGER",
+      "auditKind": "CREATE",
+      "name": "trg_posts_before_insert"
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_DROP_VIEW_46]
+sql:
+-- 16) 视图示例
+DROP VIEW IF EXISTS v_user_post_counts;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "DROP_VIEW",
+      "auditKind": "DROP",
+      "view": "v_user_post_counts",
+      "materialized": false
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_CREATE_VIEW_47]
+sql:
+CREATE VIEW v_user_post_counts AS
+SELECT u.id AS user_id, u.username, COUNT(p.id) AS post_count
+FROM users u
+LEFT JOIN posts p ON p.user_id = u.id
+GROUP BY u.id, u.username;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CREATE_VIEW",
+      "auditKind": "CREATE",
+      "view": "v_user_post_counts",
+      "materialized": false
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_DROP_EVENT_48]
+sql:
+-- 17) 事件调度器示例（需开启 event_scheduler）
+DROP EVENT IF EXISTS ev_cleanup_old_logs;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "DROP_EVENT",
+      "auditKind": "DROP",
+      "name": "ev_cleanup_old_logs"
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_CREATE_EVENT_49]
+sql:
+CREATE EVENT ev_cleanup_old_logs
+ON SCHEDULE EVERY 1 DAY STARTS (CURRENT_TIMESTAMP)
+DO
+  DELETE FROM logs WHERE created_date < DATE_SUB(CURDATE(), INTERVAL 365 DAY);
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CREATE_EVENT",
+      "auditKind": "CREATE",
+      "name": "ev_cleanup_old_logs"
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_ALTER_TABLE_50]
+sql:
+-- 18) ALTER TABLE 示例（多种更改）
+ALTER TABLE users
+  ADD COLUMN last_login DATETIME NULL,
+  MODIFY COLUMN email VARCHAR(320) NOT NULL,
+  DROP INDEX ux_email;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "ALTER_TABLE_ALTER_COLUMN",
+      "auditKind": "ALTER",
+      "table": "users",
+      "column": "email",
+      "typeName": "VARCHAR",
+      "typeDesc": "VARCHAR(320)",
+      "nullable": false,
+      "primary": false,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "length": "320",
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "DROP_INDEX",
+      "auditKind": "DROP",
+      "tableName": "users",
+      "name": "ux_email"
+    },
+    {
+      "sqlType": "ALTER_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "users",
+      "column": "last_login",
+      "typeName": "DATETIME",
+      "typeDesc": "DATETIME",
+      "nullable": false,
+      "primary": false,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_CREATE_INDEX_51]
+sql:
+-- 19) 索引管理
+CREATE INDEX idx_posts_title ON posts(title(100));
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "ADD_INDEX",
+      "auditKind": "CREATE",
+      "tableName": "posts",
+      "type": "index",
+      "name": "idx_posts_title",
+      "columns": [
+        "title"
+      ]
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_DROP_INDEX_52]
+sql:
+DROP INDEX idx_posts_title ON posts;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "DROP_INDEX",
+      "auditKind": "DROP",
+      "tableName": "posts",
+      "name": "idx_posts_title"
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_CREATE_TABLE_SELECT_53]
+sql:
+-- 20) 表复制/创建表从 SELECT
+CREATE TABLE posts_backup ENGINE=InnoDB AS SELECT * FROM posts LIMIT 0;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CREATE_TABLE_SELECT",
+      "auditKind": "CREATE",
+      "options": {},
+      "table": "posts_backup",
+      "hasPrimary": false,
+      "hasUnique": false,
+      "hasForeignKey": false,
+      "hasIndex": false,
+      "columns": [],
+      "virtual": false,
+      "ifNotExists": false,
+      "ifExists": false,
+      "engine": "InnoDB",
+      "temporary": false
+    },
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": false,
+      "whereColumns": [],
+      "selectInWhere": false,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": true,
+      "mode": "CREATE",
+      "virtual": false,
+      "hasAs": false,
+      "hasSelectAll": true,
+      "selectInSelect": false,
+      "funcInSelect": false,
+      "exprInSelect": false,
+      "selectColumns": [],
+      "selectVariables": [],
+      "selectFunc": [],
+      "selectValue": [],
+      "selectInFrom": false,
+      "emptyFrom": false,
+      "joinTypes": [],
+      "hasLimit": true
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_SHOW_54]
+sql:
+-- 21) 管理和诊断语句示例
+SHOW VARIABLES LIKE 'max_connections';
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "SHOW",
+      "auditKind": "QUERY",
+      "showType": "VARIABLES",
+      "target": "Environment",
+      "showKind": "ENVIRONMENT"
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_SHOW_55]
+sql:
+SHOW STATUS LIKE 'Threads%';
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "SHOW",
+      "auditKind": "QUERY",
+      "showType": "STATUS",
+      "target": "Environment",
+      "showKind": "ENVIRONMENT"
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_EXPLAIN_56]
+sql:
+EXPLAIN FORMAT=JSON SELECT * FROM posts WHERE title LIKE '%test%';
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "EXPLAIN",
+      "auditKind": "QUERY",
+      "target": "Unknown",
+      "needSupply": true
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_ANALYZE_57]
+sql:
+ANALYZE TABLE posts;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "ANALYZE",
+      "auditKind": "OTHER",
+      "name": "posts",
+      "target": "Table",
+      "needSupply": true
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_OPTIMIZE_58]
+sql:
+OPTIMIZE TABLE posts;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "OPTIMIZE",
+      "auditKind": "OTHER",
+      "name": "posts",
+      "target": "Table",
+      "needSupply": true
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_CHECK_TABLE_59]
+sql:
+CHECK TABLE posts;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CHECK_TABLE",
+      "auditKind": "ALTER",
+      "name": "posts",
+      "target": "Table",
+      "needSupply": true
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_MYSQL_REPLACE_INTO_60]
+sql:
+-- 22) 用户与权限（需要管理员权限）
+-- CREATE USER 'app'@'localhost' IDENTIFIED BY 'secret';
+-- GRANT SELECT, INSERT, UPDATE ON example_db.* TO 'app'@'localhost';
+-- REVOKE DELETE ON example_db.* FROM 'app'@'localhost';
+-- DROP USER 'app'@'localhost';
+
+-- 23) 复制（示例，仅供参考）
+-- CHANGE MASTER TO MASTER_HOST='master.example', MASTER_USER='repl', MASTER_PASSWORD='pwd', MASTER_LOG_FILE='mysql-bin.000001', MASTER_LOG_POS=  4;
+-- START REPLICA; -- 或 START SLAVE 在旧版本中
+
+-- 24) 其他常用语法：REPLACE, TRUNCATE, DELETE, UPDATE
+REPLACE INTO users (id, username, email, password_hash) VALUES (99999, 'temp', 'temp@example.com', REPEAT('t',64));
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "MERGE",
+      "auditKind": "DML",
+      "table": "users",
+      "fromSelect": false,
+      "hasSubQuery": false,
+      "hasNullValue": false,
+      "columns": [
+        "id",
+        "username",
+        "email",
+        "password_hash"
+      ],
+      "setColumns": [],
+      "selectInSet": false
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_INSERT_61]
+sql:
+INSERT IGNORE INTO tags (name) VALUES ('tech'), ('life');
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "INSERT",
+      "auditKind": "DML",
+      "hasWith": false,
+      "table": "tags",
+      "columns": [
+        "name"
+      ],
+      "onlyValues": false,
+      "multipleValues": true,
+      "conflict": "IGNORE",
+      "fromSelect": false,
+      "hasSubQuery": false,
+      "hasNullValue": false
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_UPDATE_62]
+sql:
+-- 25) 示例：复杂 UPDATE 使用 JOIN
+UPDATE posts p
+JOIN users u ON u.id = p.user_id
+SET p.views = p.views + 1
+WHERE u.status = 'active' AND p.id = 1;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "UPDATE",
+      "auditKind": "DML",
+      "hasWith": false,
+      "hasWhere": true,
+      "whereColumns": [
+        "status",
+        "id"
+      ],
+      "selectInWhere": false,
+      "hasUnion": false,
+      "setColumns": [
+        "views"
+      ],
+      "selectInSet": false,
+      "multiUpdate": true,
+      "joinTypes": [
+        "INNER_JOIN"
+      ],
+      "hasLimit": false,
+      "hasIgnore": false
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_SELECT_63]
+sql:
+-- 26) 事务隔离演示查询（查看当前隔离级别）
+SELECT @@transaction_isolation;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": false,
+      "whereColumns": [],
+      "selectInWhere": false,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": true,
+      "mode": "NORMAL",
+      "virtual": false,
+      "hasAs": false,
+      "hasSelectAll": false,
+      "selectInSelect": false,
+      "funcInSelect": false,
+      "exprInSelect": false,
+      "selectColumns": [],
+      "selectVariables": [
+        "transaction_isolation"
+      ],
+      "selectFunc": [],
+      "selectValue": [],
+      "selectInFrom": false,
+      "emptyFrom": true,
+      "joinTypes": [],
+      "hasLimit": false
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_SELECT_64]
+sql:
+-- 21) WHERE 子句判定示例（常见判断方式与进阶用法）
+-- 基本比较
+SELECT * FROM users WHERE id = 1;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": true,
+      "whereColumns": [
+        "id"
+      ],
+      "selectInWhere": false,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": true,
+      "mode": "NORMAL",
+      "virtual": false,
+      "hasAs": false,
+      "hasSelectAll": true,
+      "selectInSelect": false,
+      "funcInSelect": false,
+      "exprInSelect": false,
+      "selectColumns": [],
+      "selectVariables": [],
+      "selectFunc": [],
+      "selectValue": [],
+      "selectInFrom": false,
+      "emptyFrom": false,
+      "joinTypes": [],
+      "hasLimit": false
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_SELECT_65]
+sql:
+SELECT * FROM users WHERE created_at > '2025-01-01';
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": true,
+      "whereColumns": [
+        "created_at"
+      ],
+      "selectInWhere": false,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": true,
+      "mode": "NORMAL",
+      "virtual": false,
+      "hasAs": false,
+      "hasSelectAll": true,
+      "selectInSelect": false,
+      "funcInSelect": false,
+      "exprInSelect": false,
+      "selectColumns": [],
+      "selectVariables": [],
+      "selectFunc": [],
+      "selectValue": [],
+      "selectInFrom": false,
+      "emptyFrom": false,
+      "joinTypes": [],
+      "hasLimit": false
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_SELECT_66]
+sql:
+-- IN / NOT IN
+SELECT * FROM posts WHERE id IN (1,2,3);
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": true,
+      "whereColumns": [
+        "id"
+      ],
+      "selectInWhere": false,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": true,
+      "mode": "NORMAL",
+      "virtual": false,
+      "hasAs": false,
+      "hasSelectAll": true,
+      "selectInSelect": false,
+      "funcInSelect": false,
+      "exprInSelect": false,
+      "selectColumns": [],
+      "selectVariables": [],
+      "selectFunc": [],
+      "selectValue": [],
+      "selectInFrom": false,
+      "emptyFrom": false,
+      "joinTypes": [],
+      "hasLimit": false
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_SELECT_67]
+sql:
+SELECT * FROM tags WHERE name IN (SELECT name FROM tags WHERE id < 10);
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": true,
+      "whereColumns": [
+        "id"
+      ],
+      "selectInWhere": false,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": true,
+      "mode": "SUB_WHERE",
+      "virtual": false,
+      "hasAs": false,
+      "hasSelectAll": false,
+      "selectInSelect": false,
+      "funcInSelect": false,
+      "exprInSelect": false,
+      "selectColumns": [
+        "name"
+      ],
+      "selectVariables": [],
+      "selectFunc": [],
+      "selectValue": [],
+      "selectInFrom": false,
+      "emptyFrom": false,
+      "joinTypes": [],
+      "hasLimit": false
+    },
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": true,
+      "whereColumns": [
+        "name"
+      ],
+      "selectInWhere": true,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": false,
+      "mode": "NORMAL",
+      "virtual": false,
+      "hasAs": false,
+      "hasSelectAll": true,
+      "selectInSelect": false,
+      "funcInSelect": false,
+      "exprInSelect": false,
+      "selectColumns": [],
+      "selectVariables": [],
+      "selectFunc": [],
+      "selectValue": [],
+      "selectInFrom": false,
+      "emptyFrom": false,
+      "joinTypes": [],
+      "hasLimit": false
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_SELECT_68]
+sql:
+SELECT * FROM posts WHERE id NOT IN (SELECT post_id FROM post_tags WHERE tag_id = 2);
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": true,
+      "whereColumns": [
+        "id"
+      ],
+      "selectInWhere": true,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": false,
+      "mode": "NORMAL",
+      "virtual": false,
+      "hasAs": false,
+      "hasSelectAll": true,
+      "selectInSelect": false,
+      "funcInSelect": false,
+      "exprInSelect": false,
+      "selectColumns": [],
+      "selectVariables": [],
+      "selectFunc": [],
+      "selectValue": [],
+      "selectInFrom": false,
+      "emptyFrom": false,
+      "joinTypes": [],
+      "hasLimit": false
+    },
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": true,
+      "whereColumns": [
+        "tag_id"
+      ],
+      "selectInWhere": false,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": true,
+      "mode": "SUB_WHERE",
+      "virtual": false,
+      "hasAs": false,
+      "hasSelectAll": false,
+      "selectInSelect": false,
+      "funcInSelect": false,
+      "exprInSelect": false,
+      "selectColumns": [
+        "post_id"
+      ],
+      "selectVariables": [],
+      "selectFunc": [],
+      "selectValue": [],
+      "selectInFrom": false,
+      "emptyFrom": false,
+      "joinTypes": [],
+      "hasLimit": false
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_SELECT_69]
+sql:
+-- 注意：若子查询返回 NULL，NOT IN 可能产生意外结果，优先使用 NOT EXISTS
+
+-- EXISTS / NOT EXISTS（相关子查询）
+SELECT p.* FROM posts p WHERE EXISTS (
+  SELECT 1 FROM users u WHERE u.id = p.user_id AND u.status = 'active'
+);
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": true,
+      "whereColumns": [],
+      "selectInWhere": true,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": false,
+      "mode": "NORMAL",
+      "virtual": false,
+      "hasAs": false,
+      "hasSelectAll": true,
+      "selectInSelect": false,
+      "funcInSelect": false,
+      "exprInSelect": false,
+      "selectColumns": [],
+      "selectVariables": [],
+      "selectFunc": [],
+      "selectValue": [],
+      "selectInFrom": false,
+      "emptyFrom": false,
+      "joinTypes": [],
+      "hasLimit": false
+    },
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": true,
+      "whereColumns": [
+        "id",
+        "user_id",
+        "status"
+      ],
+      "selectInWhere": false,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": true,
+      "mode": "SUB_WHERE",
+      "virtual": false,
+      "hasAs": false,
+      "hasSelectAll": false,
+      "selectInSelect": false,
+      "funcInSelect": false,
+      "exprInSelect": false,
+      "selectColumns": [],
+      "selectVariables": [],
+      "selectFunc": [],
+      "selectValue": [
+        "1"
+      ],
+      "selectInFrom": false,
+      "emptyFrom": false,
+      "joinTypes": [],
+      "hasLimit": false
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_SELECT_70]
+sql:
+SELECT p.* FROM posts p WHERE NOT EXISTS (
+  SELECT 1 FROM post_tags pt WHERE pt.post_id = p.id AND pt.tag_id = 5
+);
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": true,
+      "whereColumns": [],
+      "selectInWhere": true,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": false,
+      "mode": "NORMAL",
+      "virtual": false,
+      "hasAs": false,
+      "hasSelectAll": true,
+      "selectInSelect": false,
+      "funcInSelect": false,
+      "exprInSelect": false,
+      "selectColumns": [],
+      "selectVariables": [],
+      "selectFunc": [],
+      "selectValue": [],
+      "selectInFrom": false,
+      "emptyFrom": false,
+      "joinTypes": [],
+      "hasLimit": false
+    },
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": true,
+      "whereColumns": [
+        "post_id",
+        "id",
+        "tag_id"
+      ],
+      "selectInWhere": false,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": true,
+      "mode": "SUB_WHERE",
+      "virtual": false,
+      "hasAs": false,
+      "hasSelectAll": false,
+      "selectInSelect": false,
+      "funcInSelect": false,
+      "exprInSelect": false,
+      "selectColumns": [],
+      "selectVariables": [],
+      "selectFunc": [],
+      "selectValue": [
+        "1"
+      ],
+      "selectInFrom": false,
+      "emptyFrom": false,
+      "joinTypes": [],
+      "hasLimit": false
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_SELECT_71]
+sql:
+-- ANY / SOME / ALL
+SELECT * FROM products WHERE price > ANY (SELECT price FROM products WHERE sku LIKE 'SKU%');
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": false,
+      "whereColumns": [],
+      "selectInWhere": false,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": true,
+      "mode": "NORMAL",
+      "virtual": false,
+      "hasAs": false,
+      "hasSelectAll": true,
+      "selectInSelect": false,
+      "funcInSelect": false,
+      "exprInSelect": false,
+      "selectColumns": [],
+      "selectVariables": [],
+      "selectFunc": [],
+      "selectValue": [],
+      "selectInFrom": false,
+      "emptyFrom": false,
+      "joinTypes": [],
+      "hasLimit": false
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_SELECT_72]
+sql:
+SELECT * FROM products WHERE price > ALL (SELECT price FROM products WHERE color = 'red');
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": false,
+      "whereColumns": [],
+      "selectInWhere": false,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": true,
+      "mode": "NORMAL",
+      "virtual": false,
+      "hasAs": false,
+      "hasSelectAll": true,
+      "selectInSelect": false,
+      "funcInSelect": false,
+      "exprInSelect": false,
+      "selectColumns": [],
+      "selectVariables": [],
+      "selectFunc": [],
+      "selectValue": [],
+      "selectInFrom": false,
+      "emptyFrom": false,
+      "joinTypes": [],
+      "hasLimit": false
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_SELECT_73]
+sql:
+-- LIKE / REGEXP
+SELECT * FROM users WHERE username LIKE 'a%';
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": true,
+      "whereColumns": [
+        "username"
+      ],
+      "selectInWhere": false,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": true,
+      "mode": "NORMAL",
+      "virtual": false,
+      "hasAs": false,
+      "hasSelectAll": true,
+      "selectInSelect": false,
+      "funcInSelect": false,
+      "exprInSelect": false,
+      "selectColumns": [],
+      "selectVariables": [],
+      "selectFunc": [],
+      "selectValue": [],
+      "selectInFrom": false,
+      "emptyFrom": false,
+      "joinTypes": [],
+      "hasLimit": false
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_SELECT_74]
+sql:
+SELECT * FROM users WHERE email REGEXP '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$';
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": false,
+      "whereColumns": [],
+      "selectInWhere": false,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": true,
+      "mode": "NORMAL",
+      "virtual": false,
+      "hasAs": false,
+      "hasSelectAll": true,
+      "selectInSelect": false,
+      "funcInSelect": false,
+      "exprInSelect": false,
+      "selectColumns": [],
+      "selectVariables": [],
+      "selectFunc": [],
+      "selectValue": [],
+      "selectInFrom": false,
+      "emptyFrom": false,
+      "joinTypes": [],
+      "hasLimit": false
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_SELECT_75]
+sql:
+-- BETWEEN / IS NULL
+SELECT * FROM posts WHERE published_at BETWEEN '2024-01-01' AND '2024-12-31';
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": true,
+      "whereColumns": [
+        "published_at"
+      ],
+      "selectInWhere": false,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": true,
+      "mode": "NORMAL",
+      "virtual": false,
+      "hasAs": false,
+      "hasSelectAll": true,
+      "selectInSelect": false,
+      "funcInSelect": false,
+      "exprInSelect": false,
+      "selectColumns": [],
+      "selectVariables": [],
+      "selectFunc": [],
+      "selectValue": [],
+      "selectInFrom": false,
+      "emptyFrom": false,
+      "joinTypes": [],
+      "hasLimit": false
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_SELECT_76]
+sql:
+SELECT * FROM users WHERE last_login IS NULL;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": true,
+      "whereColumns": [
+        "last_login"
+      ],
+      "selectInWhere": false,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": true,
+      "mode": "NORMAL",
+      "virtual": false,
+      "hasAs": false,
+      "hasSelectAll": true,
+      "selectInSelect": false,
+      "funcInSelect": false,
+      "exprInSelect": false,
+      "selectColumns": [],
+      "selectVariables": [],
+      "selectFunc": [],
+      "selectValue": [],
+      "selectInFrom": false,
+      "emptyFrom": false,
+      "joinTypes": [],
+      "hasLimit": false
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_SELECT_77]
+sql:
+-- JSON 相关谓词
+SELECT * FROM products WHERE JSON_CONTAINS(attributes, '"M"', '$.size');
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "JSON_CONTAINS",
+      "func": true,
+      "args": [
+        "attributes",
+        "'\"M\"'",
+        "'$.size'"
+      ],
+      "emptyArg": false
+    },
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": true,
+      "whereColumns": [
+        "attributes"
+      ],
+      "selectInWhere": false,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": true,
+      "mode": "NORMAL",
+      "virtual": false,
+      "hasAs": false,
+      "hasSelectAll": true,
+      "selectInSelect": false,
+      "funcInSelect": false,
+      "exprInSelect": false,
+      "selectColumns": [],
+      "selectVariables": [],
+      "selectFunc": [],
+      "selectValue": [],
+      "selectInFrom": false,
+      "emptyFrom": false,
+      "joinTypes": [],
+      "hasLimit": false
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_SELECT_78]
+sql:
+-- attributes.size 包含 "M"
+SELECT * FROM products WHERE attributes->>"$.color" = 'red';
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": true,
+      "whereColumns": [
+        "attributes"
+      ],
+      "selectInWhere": false,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": true,
+      "mode": "NORMAL",
+      "virtual": false,
+      "hasAs": false,
+      "hasSelectAll": true,
+      "selectInSelect": false,
+      "funcInSelect": false,
+      "exprInSelect": false,
+      "selectColumns": [],
+      "selectVariables": [],
+      "selectFunc": [],
+      "selectValue": [],
+      "selectInFrom": false,
+      "emptyFrom": false,
+      "joinTypes": [],
+      "hasLimit": false
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_SELECT_79]
+sql:
+-- 空间谓词
+SELECT * FROM posts WHERE ST_Within(geom, ST_GeomFromText('POLYGON((116.0 39.7,117.0 39.7,117.0 40.2,116.0 40.2,116.0 39.7))'));
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "ST_Within",
+      "func": true,
+      "args": [
+        "geom",
+        "ST_GeomFromText('POLYGON((116.0 39.7,117.0 39.7,117.0 40.2,116.0 40.2,116.0 39.7))')"
+      ],
+      "emptyArg": false
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "ST_GeomFromText",
+      "func": true,
+      "args": [
+        "'POLYGON((116.0 39.7,117.0 39.7,117.0 40.2,116.0 40.2,116.0 39.7))'"
+      ],
+      "emptyArg": false
+    },
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": true,
+      "whereColumns": [
+        "geom"
+      ],
+      "selectInWhere": false,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": true,
+      "mode": "NORMAL",
+      "virtual": false,
+      "hasAs": false,
+      "hasSelectAll": true,
+      "selectInSelect": false,
+      "funcInSelect": false,
+      "exprInSelect": false,
+      "selectColumns": [],
+      "selectVariables": [],
+      "selectFunc": [],
+      "selectValue": [],
+      "selectInFrom": false,
+      "emptyFrom": false,
+      "joinTypes": [],
+      "hasLimit": false
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_SELECT_80]
+sql:
+-- FULLTEXT 在 WHERE 中的用法
+SELECT * FROM posts WHERE MATCH(title, body) AGAINST ('database' IN NATURAL LANGUAGE MODE);
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": true,
+      "whereColumns": [],
+      "selectInWhere": false,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": true,
+      "mode": "NORMAL",
+      "virtual": false,
+      "hasAs": false,
+      "hasSelectAll": true,
+      "selectInSelect": false,
+      "funcInSelect": false,
+      "exprInSelect": false,
+      "selectColumns": [],
+      "selectVariables": [],
+      "selectFunc": [],
+      "selectValue": [],
+      "selectInFrom": false,
+      "emptyFrom": false,
+      "joinTypes": [],
+      "hasLimit": false
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_SELECT_81]
+sql:
+-- 相关子查询与聚合示例
+SELECT u.id, u.username
+FROM users u
+WHERE (
+  SELECT COUNT(*) FROM posts p WHERE p.user_id = u.id AND p.published = TRUE
+) > 10;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": true,
+      "whereColumns": [
+        "user_id",
+        "id",
+        "published"
+      ],
+      "selectInWhere": false,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": false,
+      "mode": "SUB_WHERE",
+      "virtual": false,
+      "hasAs": false,
+      "hasSelectAll": false,
+      "selectInSelect": false,
+      "funcInSelect": true,
+      "exprInSelect": false,
+      "selectColumns": [],
+      "selectVariables": [],
+      "selectFunc": [
+        "COUNT"
+      ],
+      "selectValue": [],
+      "selectInFrom": false,
+      "emptyFrom": false,
+      "joinTypes": [],
+      "hasLimit": false
+    },
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": true,
+      "whereColumns": [],
+      "selectInWhere": true,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": false,
+      "mode": "NORMAL",
+      "virtual": false,
+      "hasAs": false,
+      "hasSelectAll": false,
+      "selectInSelect": false,
+      "funcInSelect": false,
+      "exprInSelect": false,
+      "selectColumns": [
+        "id",
+        "username"
+      ],
+      "selectVariables": [],
+      "selectFunc": [],
+      "selectValue": [],
+      "selectInFrom": false,
+      "emptyFrom": false,
+      "joinTypes": [],
+      "hasLimit": false
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "COUNT",
+      "func": true,
+      "args": [
+        "*"
+      ],
+      "emptyArg": false
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_DROP_TABLE_82]
+sql:
+-- 1) 基本 CREATE TABLE 示例（常见约束与选项）
+DROP TABLE IF EXISTS ddl_users;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "DROP_TABLE",
+      "auditKind": "DROP",
+      "table": "ddl_users",
+      "hasPrimary": false,
+      "hasUnique": false,
+      "hasForeignKey": false,
+      "hasIndex": false,
+      "virtual": false,
+      "ifNotExists": false,
+      "ifExists": true,
+      "temporary": false
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_CREATE_TABLE_83]
+sql:
+CREATE TABLE ddl_users (
+  id BIGINT NOT NULL AUTO_INCREMENT,
+  username VARCHAR(100) NOT NULL,
+  email VARCHAR(255) NOT NULL,
+  password_hash CHAR(64) NOT NULL,
+  status TINYINT NOT NULL DEFAULT 1,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY ux_username (username),
+  CONSTRAINT chk_email CHECK (email LIKE '%@%')
+) ENGINE=InnoDB ROW_FORMAT=DYNAMIC DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='示例用户表';
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "ddl_users",
+      "column": "id",
+      "typeName": "BIGINT",
+      "typeDesc": "BIGINT",
+      "nullable": false,
+      "primary": true,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "auto": true,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "ddl_users",
+      "column": "email",
+      "typeName": "VARCHAR",
+      "typeDesc": "VARCHAR(255)",
+      "nullable": false,
+      "primary": false,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "length": "255",
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "ddl_users",
+      "column": "password_hash",
+      "typeName": "CHAR",
+      "typeDesc": "CHAR(64)",
+      "nullable": false,
+      "primary": false,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "length": "64",
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
+      "auditKind": "CREATE",
+      "tableName": "ddl_users",
+      "type": "Primary",
+      "columns": [
+        "id"
+      ]
+    },
+    {
+      "sqlType": "CREATE_TABLE",
+      "auditKind": "CREATE",
+      "options": {},
+      "table": "ddl_users",
+      "comment": "示例用户表",
+      "hasPrimary": true,
+      "hasUnique": true,
+      "hasForeignKey": false,
+      "hasIndex": false,
+      "columns": [
+        "id",
+        "username",
+        "email",
+        "password_hash",
+        "status",
+        "created_at",
+        "updated_at"
+      ],
+      "virtual": false,
+      "ifNotExists": false,
+      "ifExists": false,
+      "collate": "utf8mb4_unicode_ci",
+      "characterSet": "utf8mb4",
+      "engine": "InnoDB",
+      "temporary": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "ddl_users",
+      "column": "created_at",
+      "typeName": "TIMESTAMP",
+      "typeDesc": "TIMESTAMP",
+      "nullable": false,
+      "primary": false,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "defaultValue": "CURRENT_TIMESTAMP",
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "ddl_users",
+      "column": "username",
+      "typeName": "VARCHAR",
+      "typeDesc": "VARCHAR(100)",
+      "nullable": false,
+      "primary": false,
+      "unique": true,
+      "foreign": false,
+      "index": false,
+      "length": "100",
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "ddl_users",
+      "column": "updated_at",
+      "typeName": "TIMESTAMP",
+      "typeDesc": "TIMESTAMP",
+      "nullable": false,
+      "primary": false,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "defaultValue": "NULL",
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
+      "auditKind": "CREATE",
+      "tableName": "ddl_users",
+      "type": "Unique",
+      "name": "ux_username",
+      "columns": [
+        "username"
+      ]
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "ddl_users",
+      "column": "status",
+      "typeName": "TINYINT",
+      "typeDesc": "TINYINT",
+      "nullable": false,
+      "primary": false,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "defaultValue": "1",
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
+      "auditKind": "CREATE",
+      "tableName": "ddl_users",
+      "type": "Check",
+      "name": "chk_email",
+      "columns": [
+        "email"
+      ]
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_DROP_TABLE_84]
+sql:
+-- 2) CREATE TABLE ... LIKE（拷贝结构）
+DROP TABLE IF EXISTS ddl_users_like;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "DROP_TABLE",
+      "auditKind": "DROP",
+      "table": "ddl_users_like",
+      "hasPrimary": false,
+      "hasUnique": false,
+      "hasForeignKey": false,
+      "hasIndex": false,
+      "virtual": false,
+      "ifNotExists": false,
+      "ifExists": true,
+      "temporary": false
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_CREATE_TABLE_LIKE_85]
+sql:
+CREATE TABLE ddl_users_like LIKE ddl_users;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CREATE_TABLE_LIKE",
+      "auditKind": "CREATE",
+      "options": {},
+      "table": "ddl_users_like",
+      "hasPrimary": false,
+      "hasUnique": false,
+      "hasForeignKey": false,
+      "hasIndex": false,
+      "columns": [],
+      "sourceTable": "ddl_users",
+      "virtual": false,
+      "ifNotExists": false,
+      "ifExists": false,
+      "temporary": false
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_CREATE_TABLE_86]
+sql:
+-- 3) 临时表与内存表
+CREATE TEMPORARY TABLE tmp_results (
+  id INT PRIMARY KEY,
+  val VARCHAR(100)
+) ENGINE=MEMORY;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
+      "auditKind": "CREATE",
+      "tableName": "tmp_results",
+      "type": "Primary",
+      "columns": [
+        "id"
+      ]
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "tmp_results",
+      "column": "id",
+      "typeName": "INT",
+      "typeDesc": "INT",
+      "nullable": true,
+      "primary": true,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "tmp_results",
+      "column": "val",
+      "typeName": "VARCHAR",
+      "typeDesc": "VARCHAR(100)",
+      "nullable": true,
+      "primary": false,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "length": "100",
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE",
+      "auditKind": "CREATE",
+      "options": {},
+      "table": "tmp_results",
+      "hasPrimary": true,
+      "hasUnique": false,
+      "hasForeignKey": false,
+      "hasIndex": false,
+      "columns": [
+        "id",
+        "val"
+      ],
+      "virtual": false,
+      "ifNotExists": false,
+      "ifExists": false,
+      "engine": "MEMORY",
+      "temporary": true
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_DROP_TABLE_87]
+sql:
+-- 4) 分区表示例（RANGE 与 HASH）
+DROP TABLE IF EXISTS ddl_orders;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "DROP_TABLE",
+      "auditKind": "DROP",
+      "table": "ddl_orders",
+      "hasPrimary": false,
+      "hasUnique": false,
+      "hasForeignKey": false,
+      "hasIndex": false,
+      "virtual": false,
+      "ifNotExists": false,
+      "ifExists": true,
+      "temporary": false
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_CREATE_TABLE_88]
+sql:
+CREATE TABLE ddl_orders (
+  order_id BIGINT NOT NULL,
+  user_id BIGINT NOT NULL,
+  amount DECIMAL(10,2) NOT NULL,
+  order_date DATE NOT NULL,
+  PRIMARY KEY (order_id, order_date)
+) ENGINE=InnoDB
+PARTITION BY RANGE ( YEAR(order_date) ) (
+  PARTITION p2021 VALUES LESS THAN (2022),
+  PARTITION p2022 VALUES LESS THAN (2023),
+  PARTITION pmax VALUES LESS THAN MAXVALUE
+);
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
+      "auditKind": "CREATE",
+      "tableName": "ddl_orders",
+      "type": "Primary",
+      "columns": [
+        "order_id",
+        "order_date"
+      ]
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "ddl_orders",
+      "column": "user_id",
+      "typeName": "BIGINT",
+      "typeDesc": "BIGINT",
+      "nullable": false,
+      "primary": false,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE",
+      "auditKind": "CREATE",
+      "options": {},
+      "table": "ddl_orders",
+      "hasPrimary": true,
+      "hasUnique": false,
+      "hasForeignKey": false,
+      "hasIndex": false,
+      "columns": [
+        "order_id",
+        "user_id",
+        "amount",
+        "order_date"
+      ],
+      "virtual": false,
+      "ifNotExists": false,
+      "ifExists": false,
+      "engine": "InnoDB",
+      "temporary": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "ddl_orders",
+      "column": "order_id",
+      "typeName": "BIGINT",
+      "typeDesc": "BIGINT",
+      "nullable": false,
+      "primary": true,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "ddl_orders",
+      "column": "amount",
+      "typeName": "DECIMAL",
+      "typeDesc": "DECIMAL(10,2)",
+      "nullable": false,
+      "primary": false,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "length": "10",
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "ddl_orders",
+      "column": "order_date",
+      "typeName": "DATE",
+      "typeDesc": "DATE",
+      "nullable": false,
+      "primary": true,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_DROP_TABLE_89]
+sql:
+-- HASH 分区示例
+DROP TABLE IF EXISTS ddl_sharded;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "DROP_TABLE",
+      "auditKind": "DROP",
+      "table": "ddl_sharded",
+      "hasPrimary": false,
+      "hasUnique": false,
+      "hasForeignKey": false,
+      "hasIndex": false,
+      "virtual": false,
+      "ifNotExists": false,
+      "ifExists": true,
+      "temporary": false
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_CREATE_TABLE_90]
+sql:
+CREATE TABLE ddl_sharded (
+  id BIGINT NOT NULL PRIMARY KEY,
+  data VARCHAR(200)
+) ENGINE=InnoDB
+PARTITION BY HASH(id) PARTITIONS 4;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "ddl_sharded",
+      "column": "id",
+      "typeName": "BIGINT",
+      "typeDesc": "BIGINT",
+      "nullable": false,
+      "primary": true,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "ddl_sharded",
+      "column": "data",
+      "typeName": "VARCHAR",
+      "typeDesc": "VARCHAR(200)",
+      "nullable": true,
+      "primary": false,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "length": "200",
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
+      "auditKind": "CREATE",
+      "tableName": "ddl_sharded",
+      "type": "Primary",
+      "columns": [
+        "id"
+      ]
+    },
+    {
+      "sqlType": "CREATE_TABLE",
+      "auditKind": "CREATE",
+      "options": {},
+      "table": "ddl_sharded",
+      "hasPrimary": true,
+      "hasUnique": false,
+      "hasForeignKey": false,
+      "hasIndex": false,
+      "columns": [
+        "id",
+        "data"
+      ],
+      "virtual": false,
+      "ifNotExists": false,
+      "ifExists": false,
+      "engine": "InnoDB",
+      "temporary": false
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_CREATE_INDEX_91]
+sql:
+-- 5) 创建索引：BTREE / FULLTEXT / SPATIAL / INVISIBLE
+CREATE INDEX idx_ddl_users_email ON ddl_users(email);
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "ADD_INDEX",
+      "auditKind": "CREATE",
+      "tableName": "ddl_users",
+      "type": "index",
+      "name": "idx_ddl_users_email",
+      "columns": [
+        "email"
+      ]
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_CREATE_INDEX_92]
+sql:
+CREATE FULLTEXT INDEX ft_posts_title ON posts(title);
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "ADD_INDEX",
+      "auditKind": "CREATE",
+      "tableName": "posts",
+      "type": "index",
+      "name": "ft_posts_title",
+      "columns": [
+        "title"
+      ]
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_CREATE_INDEX_93]
+sql:
+CREATE SPATIAL INDEX sp_posts_geom ON posts(geom);
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "ADD_INDEX",
+      "auditKind": "CREATE",
+      "tableName": "posts",
+      "type": "index",
+      "name": "sp_posts_geom",
+      "columns": [
+        "geom"
+      ]
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_CREATE_INDEX_94]
+sql:
+CREATE INDEX idx_products_color_invisible ON products(color) INVISIBLE;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "ADD_INDEX",
+      "auditKind": "CREATE",
+      "tableName": "products",
+      "type": "index",
+      "name": "idx_products_color_invisible",
+      "columns": [
+        "color"
+      ]
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_ALTER_TABLE_95]
+sql:
+-- 6) ALTER TABLE 操作合集：添加/修改/删除列、重命名、增加约束、修改引擎与字符集
+ALTER TABLE ddl_users
+  ADD COLUMN bio TEXT AFTER email,
+  ADD COLUMN nickname VARCHAR(50) GENERATED ALWAYS AS (CONCAT(first_name, '-', last_name)) VIRTUAL,
+  MODIFY COLUMN email VARCHAR(320) NOT NULL,
+  CHANGE COLUMN password_hash password CHAR(128) NOT NULL,
+  DROP INDEX ux_username,
+  ADD UNIQUE INDEX ux_email (email),
+  COMMENT = '更新后的用户表';
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "ALTER_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "ddl_users",
+      "column": "bio",
+      "typeName": "TEXT",
+      "typeDesc": "TEXT",
+      "nullable": true,
+      "primary": false,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "ALTER_TABLE_ALTER_COLUMN",
+      "auditKind": "ALTER",
+      "table": "ddl_users",
+      "column": "email",
+      "typeName": "VARCHAR",
+      "typeDesc": "VARCHAR(320)",
+      "nullable": false,
+      "primary": false,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "length": "320",
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "ALTER_TABLE",
+      "auditKind": "ALTER",
+      "table": "ddl_users",
+      "comment": "更新后的用户表",
+      "hasPrimary": false,
+      "hasUnique": false,
+      "hasForeignKey": false,
+      "hasIndex": false,
+      "virtual": false,
+      "ifNotExists": false,
+      "ifExists": false,
+      "temporary": false
+    },
+    {
+      "sqlType": "ALTER_TABLE_ADD_CONSTRAINT",
+      "auditKind": "CREATE",
+      "tableName": "ddl_users",
+      "type": "Unique",
+      "name": "ux_email",
+      "columns": [
+        "email"
+      ]
+    },
+    {
+      "sqlType": "ALTER_TABLE_RENAME_COLUMN",
+      "auditKind": "ALTER",
+      "table": "ddl_users",
+      "column": "password_hash",
+      "nullable": false,
+      "primary": false,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "newName": "password",
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "ALTER_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "ddl_users",
+      "column": "nickname",
+      "typeName": "VARCHAR",
+      "typeDesc": "VARCHAR(50)",
+      "nullable": true,
+      "primary": false,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "length": "50",
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "ALTER_TABLE_ALTER_COLUMN",
+      "auditKind": "ALTER",
+      "table": "ddl_users",
+      "column": "password_hash",
+      "typeName": "CHAR",
+      "typeDesc": "CHAR(128)",
+      "nullable": false,
+      "primary": false,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "length": "128",
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "DROP_INDEX",
+      "auditKind": "DROP",
+      "tableName": "ddl_users",
+      "name": "ux_username"
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_ALTER_TABLE_96]
+sql:
+-- 修改表引擎与字符集
+ALTER TABLE ddl_users ENGINE=InnoDB, CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_bin;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "ALTER_TABLE",
+      "auditKind": "ALTER",
+      "table": "ddl_users",
+      "hasPrimary": false,
+      "hasUnique": false,
+      "hasForeignKey": false,
+      "hasIndex": false,
+      "virtual": false,
+      "ifNotExists": false,
+      "ifExists": false,
+      "engine": "InnoDB",
+      "temporary": false
+    },
+    {
+      "sqlType": "ALTER_TABLE",
+      "auditKind": "ALTER",
+      "table": "ddl_users",
+      "hasPrimary": false,
+      "hasUnique": false,
+      "hasForeignKey": false,
+      "hasIndex": false,
+      "virtual": false,
+      "ifNotExists": false,
+      "ifExists": false,
+      "collate": "utf8mb4_bin",
+      "characterSet": "utf8mb4",
+      "temporary": false
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_ALTER_TABLE_97]
+sql:
+-- 添加外键约束
+ALTER TABLE posts
+  ADD CONSTRAINT fk_posts_user_example FOREIGN KEY (user_id) REFERENCES ddl_users(id) ON DELETE SET NULL;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "ALTER_TABLE_ADD_CONSTRAINT",
+      "auditKind": "CREATE",
+      "tableName": "posts",
+      "type": "ForeignKey",
+      "name": "fk_posts_user_example",
+      "columns": [
+        "user_id"
+      ]
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_ALTER_TABLE_98]
+sql:
+-- 删除外键与列
+ALTER TABLE posts
+  DROP FOREIGN KEY fk_posts_user_example;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "ALTER_TABLE_DROP_CONSTRAINT",
+      "auditKind": "DROP",
+      "tableName": "posts",
+      "type": "ForeignKey",
+      "name": "fk_posts_user_example",
+      "columns": []
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_ALTER_TABLE_99]
+sql:
+ALTER TABLE ddl_users DROP COLUMN bio;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "ALTER_TABLE_DROP_COLUMN",
+      "auditKind": "DROP",
+      "table": "ddl_users",
+      "column": "bio",
+      "nullable": true,
+      "primary": false,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_RENAME_TABLE_100]
+sql:
+-- 重命名表
+RENAME TABLE ddl_users_like TO ddl_users_archive;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "RENAME_TABLE",
+      "auditKind": "ALTER",
+      "table": "ddl_users_like",
+      "hasPrimary": false,
+      "hasUnique": false,
+      "hasForeignKey": false,
+      "hasIndex": false,
+      "newName": "ddl_users_archive",
+      "virtual": false,
+      "ifNotExists": false,
+      "ifExists": false,
+      "temporary": false
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_ALTER_TABLE_101]
+sql:
+-- 7) 重建索引与优化表
+ALTER TABLE posts DROP INDEX idx_user_published;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "DROP_INDEX",
+      "auditKind": "DROP",
+      "tableName": "posts",
+      "name": "idx_user_published"
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_ALTER_TABLE_102]
+sql:
+ALTER TABLE posts ADD INDEX idx_user_published (user_id, published);
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "ALTER_TABLE_ADD_INDEX",
+      "auditKind": "CREATE",
+      "tableName": "posts",
+      "type": "index",
+      "name": "idx_user_published",
+      "columns": [
+        "user_id",
+        "published"
+      ]
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_OPTIMIZE_103]
+sql:
+OPTIMIZE TABLE posts;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "OPTIMIZE",
+      "auditKind": "OTHER",
+      "name": "posts",
+      "target": "Table",
+      "needSupply": true
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_ANALYZE_104]
+sql:
+ANALYZE TABLE posts;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "ANALYZE",
+      "auditKind": "OTHER",
+      "name": "posts",
+      "target": "Table",
+      "needSupply": true
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_DROP_VIEW_105]
+sql:
+-- 8) 创建/删除视图
+DROP VIEW IF EXISTS v_recent_posts;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "DROP_VIEW",
+      "auditKind": "DROP",
+      "view": "v_recent_posts",
+      "materialized": false
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_CREATE_VIEW_106]
+sql:
+CREATE VIEW v_recent_posts AS
+SELECT id, title, user_id, published_at FROM posts WHERE published = TRUE ORDER BY published_at DESC LIMIT 100;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CREATE_VIEW",
+      "auditKind": "CREATE",
+      "view": "v_recent_posts",
+      "materialized": false
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_CREATE_VIEW_107]
+sql:
+-- 更新视图
+CREATE OR REPLACE VIEW v_recent_posts AS
+SELECT id, title, user_id, published_at FROM posts WHERE published = TRUE ORDER BY published_at DESC LIMIT 500;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CREATE_VIEW",
+      "auditKind": "CREATE",
+      "view": "v_recent_posts",
+      "materialized": false
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_DROP_VIEW_108]
+sql:
+DROP VIEW IF EXISTS v_recent_posts;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "DROP_VIEW",
+      "auditKind": "DROP",
+      "view": "v_recent_posts",
+      "materialized": false
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_TRUNCATE_109]
+sql:
+-- 10) 表空间示例（需管理员权限与文件路径）
+-- CREATE TABLESPACE ts_example ADD DATAFILE '/var/lib/mysql/ts_example.ibd' ENGINE=InnoDB;
+-- CREATE TABLE tb_ts (id INT PRIMARY KEY) TABLESPACE ts_example;
+
+
+-- 12) 无日志快速删除：TRUNCATE / DROP
+TRUNCATE TABLE tmp_results;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "TRUNCATE",
+      "auditKind": "DML",
+      "table": "tmp_results",
+      "hasPrimary": false,
+      "hasUnique": false,
+      "hasForeignKey": false,
+      "hasIndex": false,
+      "virtual": false,
+      "ifNotExists": false,
+      "ifExists": false,
+      "temporary": false
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_DROP_TABLE_110]
+sql:
+DROP TABLE IF EXISTS tmp_results;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "DROP_TABLE",
+      "auditKind": "DROP",
+      "table": "tmp_results",
+      "hasPrimary": false,
+      "hasUnique": false,
+      "hasForeignKey": false,
+      "hasIndex": false,
+      "virtual": false,
+      "ifNotExists": false,
+      "ifExists": true,
+      "temporary": false
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_DROP_TABLE_111]
+sql:
+-- 13) DROP TABLE 与 CASCADE 注意（MySQL 无显式 CASCADE 子句）
+DROP TABLE IF EXISTS ddl_users_archive;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "DROP_TABLE",
+      "auditKind": "DROP",
+      "table": "ddl_users_archive",
+      "hasPrimary": false,
+      "hasUnique": false,
+      "hasForeignKey": false,
+      "hasIndex": false,
+      "virtual": false,
+      "ifNotExists": false,
+      "ifExists": true,
+      "temporary": false
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_DROP_TABLE_112]
+sql:
+-- 14) CREATE TABLE ... AS SELECT（复制数据）
+DROP TABLE IF EXISTS posts_backup;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "DROP_TABLE",
+      "auditKind": "DROP",
+      "table": "posts_backup",
+      "hasPrimary": false,
+      "hasUnique": false,
+      "hasForeignKey": false,
+      "hasIndex": false,
+      "virtual": false,
+      "ifNotExists": false,
+      "ifExists": true,
+      "temporary": false
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_CREATE_TABLE_SELECT_113]
+sql:
+CREATE TABLE posts_backup AS SELECT * FROM posts LIMIT 0;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CREATE_TABLE_SELECT",
+      "auditKind": "CREATE",
+      "options": {},
+      "table": "posts_backup",
+      "hasPrimary": false,
+      "hasUnique": false,
+      "hasForeignKey": false,
+      "hasIndex": false,
+      "columns": [],
+      "virtual": false,
+      "ifNotExists": false,
+      "ifExists": false,
+      "temporary": false
+    },
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": false,
+      "whereColumns": [],
+      "selectInWhere": false,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": true,
+      "mode": "CREATE",
+      "virtual": false,
+      "hasAs": false,
+      "hasSelectAll": true,
+      "selectInSelect": false,
+      "funcInSelect": false,
+      "exprInSelect": false,
+      "selectColumns": [],
+      "selectVariables": [],
+      "selectFunc": [],
+      "selectValue": [],
+      "selectInFrom": false,
+      "emptyFrom": false,
+      "joinTypes": [],
+      "hasLimit": true
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_CREATE_TABLE_SELECT_114]
+sql:
+-- 仅结构
+CREATE TABLE posts_copy AS SELECT * FROM posts;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": false,
+      "whereColumns": [],
+      "selectInWhere": false,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": true,
+      "mode": "CREATE",
+      "virtual": false,
+      "hasAs": false,
+      "hasSelectAll": true,
+      "selectInSelect": false,
+      "funcInSelect": false,
+      "exprInSelect": false,
+      "selectColumns": [],
+      "selectVariables": [],
+      "selectFunc": [],
+      "selectValue": [],
+      "selectInFrom": false,
+      "emptyFrom": false,
+      "joinTypes": [],
+      "hasLimit": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_SELECT",
+      "auditKind": "CREATE",
+      "options": {},
+      "table": "posts_copy",
+      "hasPrimary": false,
+      "hasUnique": false,
+      "hasForeignKey": false,
+      "hasIndex": false,
+      "columns": [],
+      "virtual": false,
+      "ifNotExists": false,
+      "ifExists": false,
+      "temporary": false
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_ALTER_TABLE_115]
+sql:
+-- 连数据
+
+-- 15) 字段注释与表注释显示
+ALTER TABLE products MODIFY COLUMN sku VARCHAR(64) NOT NULL COMMENT '商品 SKU';
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "ALTER_TABLE_ALTER_COLUMN",
+      "auditKind": "ALTER",
+      "table": "products",
+      "column": "sku",
+      "comment": "商品 SKU",
+      "typeName": "VARCHAR",
+      "typeDesc": "VARCHAR(64)",
+      "nullable": false,
+      "primary": false,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "length": "64",
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_ALTER_TABLE_116]
+sql:
+ALTER TABLE products COMMENT = '商品主表';
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "ALTER_TABLE",
+      "auditKind": "ALTER",
+      "table": "products",
+      "comment": "商品主表",
+      "hasPrimary": false,
+      "hasUnique": false,
+      "hasForeignKey": false,
+      "hasIndex": false,
+      "virtual": false,
+      "ifNotExists": false,
+      "ifExists": false,
+      "temporary": false
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_ALTER_TABLE_117]
+sql:
+-- 16) 检查约束（MySQL 8+ 支持）
+ALTER TABLE products ADD CONSTRAINT chk_price_nonnegative CHECK (price >= 0);
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "ALTER_TABLE_ADD_CONSTRAINT",
+      "auditKind": "CREATE",
+      "tableName": "products",
+      "type": "Check",
+      "name": "chk_price_nonnegative",
+      "columns": [
+        "price"
+      ]
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_CREATE_TABLE_118]
+sql:
+-- 17) 创建带默认值与生成列的示例
+CREATE TABLE ddl_generated (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  data JSON,
+  data_key1 VARCHAR(100) GENERATED ALWAYS AS (JSON_UNQUOTE(JSON_EXTRACT(data, '$.key1'))) STORED,
+  data_len INT GENERATED ALWAYS AS (JSON_LENGTH(data)) VIRTUAL
+) ENGINE=InnoDB;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CREATE_TABLE",
+      "auditKind": "CREATE",
+      "options": {},
+      "table": "ddl_generated",
+      "hasPrimary": true,
+      "hasUnique": false,
+      "hasForeignKey": false,
+      "hasIndex": false,
+      "columns": [
+        "id",
+        "data",
+        "data_key1",
+        "data_len"
+      ],
+      "virtual": false,
+      "ifNotExists": false,
+      "ifExists": false,
+      "engine": "InnoDB",
+      "temporary": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "ddl_generated",
+      "column": "data_len",
+      "typeName": "INT",
+      "typeDesc": "INT",
+      "nullable": true,
+      "primary": false,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "ddl_generated",
+      "column": "data",
+      "typeName": "JSON",
+      "typeDesc": "JSON",
+      "nullable": true,
+      "primary": false,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "ddl_generated",
+      "column": "data_key1",
+      "typeName": "VARCHAR",
+      "typeDesc": "VARCHAR(100)",
+      "nullable": true,
+      "primary": false,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "length": "100",
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "ddl_generated",
+      "column": "id",
+      "typeName": "INT",
+      "typeDesc": "INT",
+      "nullable": true,
+      "primary": true,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "auto": true,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
+      "auditKind": "CREATE",
+      "tableName": "ddl_generated",
+      "type": "Primary",
+      "columns": [
+        "id"
+      ]
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_CREATE_INDEX_119]
+sql:
+CREATE INDEX idx_generated_key1 ON ddl_generated(data_key1);
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "ADD_INDEX",
+      "auditKind": "CREATE",
+      "tableName": "ddl_generated",
+      "type": "index",
+      "name": "idx_generated_key1",
+      "columns": [
+        "data_key1"
+      ]
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_CREATE_INDEX_120]
+sql:
+-- 18) 创建不可见索引，与切换可见性
+CREATE INDEX idx_products_price_invis ON products(price) INVISIBLE;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "ADD_INDEX",
+      "auditKind": "CREATE",
+      "tableName": "products",
+      "type": "index",
+      "name": "idx_products_price_invis",
+      "columns": [
+        "price"
+      ]
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_ALTER_TABLE_121]
+sql:
+ALTER TABLE products ALTER INDEX idx_products_price_invis VISIBLE;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "ALTER_INDEX",
+      "auditKind": "ALTER",
+      "tableName": "products",
+      "name": "idx_products_price_invis",
+      "visible": true
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_TRANSACTION_122]
+sql:
+-- 19) 权限与 DDL：CREATE USER（示例，仅管理员可执行）
+-- CREATE USER 'ddl_admin'@'localhost' IDENTIFIED BY 'strongpwd';
+-- GRANT CREATE, ALTER, DROP ON example_db.* TO 'ddl_admin'@'localhost';
+
+-- 20) 事务中执行 DDL（注意：多数 DDL 会隐式提交）
+START TRANSACTION;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "TRANSACTION",
+      "auditKind": "QUERY",
+      "target": "Unknown",
+      "needSupply": true
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_INSERT_123]
+sql:
+-- DML 操作
+  INSERT INTO users (username, email, password_hash) VALUES ('tempuser','temp@example.com', REPEAT('t',64));
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "INSERT",
+      "auditKind": "DML",
+      "hasWith": false,
+      "table": "users",
+      "columns": [
+        "username",
+        "email",
+        "password_hash"
+      ],
+      "onlyValues": false,
+      "multipleValues": false,
+      "conflict": "NONE",
+      "fromSelect": false,
+      "hasSubQuery": false,
+      "hasNullValue": false
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "REPEAT",
+      "func": true,
+      "args": [
+        "'t'",
+        "64"
+      ],
+      "emptyArg": false
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_ALTER_TABLE_124]
+sql:
+-- 以下 ALTER 将导致隐式提交（取决于 MySQL 版本与操作）
+  ALTER TABLE users ADD COLUMN temp_flag TINYINT DEFAULT 0;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "ALTER_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "users",
+      "column": "temp_flag",
+      "typeName": "TINYINT",
+      "typeDesc": "TINYINT",
+      "nullable": true,
+      "primary": false,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "defaultValue": "0",
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    }
+  ]
+}
+----------
+
+[2025_12_16_ai_TRANSACTION_125]
+sql:
+COMMIT;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "TRANSACTION",
+      "auditKind": "QUERY",
+      "target": "Unknown",
+      "needSupply": true
+    }
+  ]
+}
+----------

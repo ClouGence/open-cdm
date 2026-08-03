@@ -1,0 +1,404 @@
+[split_block_dameng_network_packages_0_001]
+sql:
+declare request_value utl_http.req; response_value utl_http.resp; body_value varchar(32767); begin request_value := utl_http.begin_request('http://host.docker.internal:18080/dm8?case=context'); response_value := utl_http.get_response(request_value); utl_http.read_text(response_value, body_value, 32767); utl_http.end_response(response_value); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:22~1:34) /test/1/catalog1/utl_http/req/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(1:51~1:64) /test/1/catalog1/utl_http/resp/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(1:250~1:268) /test/1/catalog1/utl_http/read_text/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:305~1:326) /test/1/catalog1/utl_http/end_response/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:116~1:138) /test/1/catalog1/utl_http/begin_request/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:212~1:233) /test/1/catalog1/utl_http/get_response/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_network_packages_0_002]
+sql:
+declare request_value utl_http.req; response_value utl_http.resp; body_value varchar(32767); begin request_value := utl_http.begin_request('http://host.docker.internal:18080/dm8?case=header'); utl_http.set_header(request_value, 'X-DM8-Case', 'HEADER_OK'); response_value := utl_http.get_response(request_value); utl_http.read_line(response_value, body_value, true); utl_http.end_response(response_value); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:22~1:34) /test/1/catalog1/utl_http/req/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(1:51~1:64) /test/1/catalog1/utl_http/resp/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(1:193~1:212) /test/1/catalog1/utl_http/set_header/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:312~1:330) /test/1/catalog1/utl_http/read_line/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:366~1:387) /test/1/catalog1/utl_http/end_response/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:116~1:138) /test/1/catalog1/utl_http/begin_request/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:274~1:295) /test/1/catalog1/utl_http/get_response/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_network_packages_0_003]
+sql:
+declare request_value utl_http.req; response_value utl_http.resp; body_value varchar(32767); begin request_value := utl_http.begin_request('http://host.docker.internal:18080/dm8', 'POST', 'HTTP/1.1'); utl_http.set_header(request_value, 'Content-Length', '13'); utl_http.write_text(request_value, 'DM8_HTTP_POST'); response_value := utl_http.get_response(request_value); utl_http.read_text(response_value, body_value); utl_http.end_response(response_value); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:22~1:34) /test/1/catalog1/utl_http/req/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(1:51~1:64) /test/1/catalog1/utl_http/resp/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(1:201~1:220) /test/1/catalog1/utl_http/set_header/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:261~1:280) /test/1/catalog1/utl_http/write_text/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:370~1:388) /test/1/catalog1/utl_http/read_text/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:418~1:439) /test/1/catalog1/utl_http/end_response/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:116~1:138) /test/1/catalog1/utl_http/begin_request/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:332~1:353) /test/1/catalog1/utl_http/get_response/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_network_packages_0_004]
+sql:
+declare request_value utl_http.req; response_value utl_http.resp; body_value varbinary(32767); begin request_value := utl_http.begin_request('http://host.docker.internal:18080/dm8?case=raw'); response_value := utl_http.get_response(request_value); utl_http.read_raw(response_value, body_value, 32767); utl_http.end_response(response_value); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:22~1:34) /test/1/catalog1/utl_http/req/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(1:51~1:64) /test/1/catalog1/utl_http/resp/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(1:248~1:265) /test/1/catalog1/utl_http/read_raw/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:302~1:323) /test/1/catalog1/utl_http/end_response/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:118~1:140) /test/1/catalog1/utl_http/begin_request/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:210~1:231) /test/1/catalog1/utl_http/get_response/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_network_packages_0_005]
+sql:
+declare request_value utl_http.req; response_value utl_http.resp; header_count int; header_name varchar(32767); header_value varchar(32767); begin request_value := utl_http.begin_request('http://host.docker.internal:18080/dm8?case=headers'); response_value := utl_http.get_response(request_value); header_count := utl_http.get_header_count(response_value); utl_http.get_header(response_value, 1, header_name, header_value); utl_http.end_response(response_value); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:22~1:34) /test/1/catalog1/utl_http/req/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(1:51~1:64) /test/1/catalog1/utl_http/resp/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(1:357~1:376) /test/1/catalog1/utl_http/get_header/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:424~1:445) /test/1/catalog1/utl_http/end_response/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:164~1:186) /test/1/catalog1/utl_http/begin_request/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:260~1:281) /test/1/catalog1/utl_http/get_response/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:314~1:339) /test/1/catalog1/utl_http/get_header_count/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_network_packages_0_006]
+sql:
+declare request_value utl_http.req; response_value utl_http.resp; header_value varchar(32767); begin request_value := utl_http.begin_request('http://host.docker.internal:18080/dm8?case=header-name'); response_value := utl_http.get_response(request_value); utl_http.get_header_by_name(response_value, 'X-DM8-Protocol-Test', header_value); utl_http.end_response(response_value); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:22~1:34) /test/1/catalog1/utl_http/req/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(1:51~1:64) /test/1/catalog1/utl_http/resp/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(1:256~1:283) /test/1/catalog1/utl_http/get_header_by_name/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:338~1:359) /test/1/catalog1/utl_http/end_response/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:118~1:140) /test/1/catalog1/utl_http/begin_request/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:218~1:239) /test/1/catalog1/utl_http/get_response/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_network_packages_0_007]
+sql:
+declare request_value utl_http.req; response_value utl_http.resp; body_value varchar(32767); begin utl_http.set_body_charset('UTF-8'); request_value := utl_http.begin_request('http://host.docker.internal:18080/dm8?case=charset'); utl_http.set_body_charset(request_value, 'UTF-8'); response_value := utl_http.get_response(request_value); utl_http.set_body_charset(response_value, 'UTF-8'); utl_http.read_text(response_value, body_value); utl_http.end_response(response_value); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:22~1:34) /test/1/catalog1/utl_http/req/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(1:51~1:64) /test/1/catalog1/utl_http/resp/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(1:99~1:124) /test/1/catalog1/utl_http/set_body_charset/",
+      "action": "CALL",
+      "target": "ConfigKey(1:99~1:124) /test/1/BODY_CHARSET/"
+    },
+    {
+      "subject": "Procedure(1:230~1:255) /test/1/catalog1/utl_http/set_body_charset/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:337~1:362) /test/1/catalog1/utl_http/set_body_charset/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:389~1:407) /test/1/catalog1/utl_http/read_text/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:437~1:458) /test/1/catalog1/utl_http/end_response/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:152~1:174) /test/1/catalog1/utl_http/begin_request/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:299~1:320) /test/1/catalog1/utl_http/get_response/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_network_packages_0_008]
+sql:
+declare request_value utl_http.req; response_value utl_http.resp; begin utl_http.set_transfer_timeout(5); request_value := utl_http.begin_request('http://host.docker.internal:18080/dm8?case=timeout'); utl_http.set_transfer_timeout(request_value, 5); response_value := utl_http.get_response(request_value); utl_http.end_response(response_value); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:22~1:34) /test/1/catalog1/utl_http/req/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(1:51~1:64) /test/1/catalog1/utl_http/resp/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(1:72~1:101) /test/1/catalog1/utl_http/set_transfer_timeout/",
+      "action": "CALL",
+      "target": "ConfigKey(1:72~1:101) /test/1/TRANSFER_TIMEOUT/"
+    },
+    {
+      "subject": "Procedure(1:201~1:230) /test/1/catalog1/utl_http/set_transfer_timeout/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:306~1:327) /test/1/catalog1/utl_http/end_response/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:123~1:145) /test/1/catalog1/utl_http/begin_request/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:268~1:289) /test/1/catalog1/utl_http/get_response/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_network_packages_0_009]
+sql:
+declare enabled_value boolean; begin utl_http.set_detailed_excp_support(true); utl_http.get_detailed_excp_support(enabled_value); utl_http.set_detailed_excp_support(false); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:37~1:71) /test/1/catalog1/utl_http/set_detailed_excp_support/",
+      "action": "CALL",
+      "target": "ConfigKey(1:37~1:71) /test/1/DETAILED_EXCP_SUPPORT/"
+    },
+    {
+      "subject": "Procedure(1:79~1:113) /test/1/catalog1/utl_http/get_detailed_excp_support/",
+      "action": "CALL",
+      "target": "ConfigKey(1:79~1:113) /test/1/DETAILED_EXCP_SUPPORT/"
+    },
+    {
+      "subject": "Procedure(1:130~1:164) /test/1/catalog1/utl_http/set_detailed_excp_support/",
+      "action": "CALL",
+      "target": "ConfigKey(1:130~1:164) /test/1/DETAILED_EXCP_SUPPORT/"
+    }
+  ]
+}
+----------
+[split_block_dameng_network_packages_0_010]
+sql:
+declare code_value int; message_value varchar(32767); begin utl_http.set_response_error_check(false); code_value := utl_http.get_detailed_sqlcode(); message_value := utl_http.get_detailed_sqlerrm(); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:60~1:93) /test/1/catalog1/utl_http/set_response_error_check/",
+      "action": "CALL",
+      "target": "ConfigKey(1:60~1:93) /test/1/RESPONSE_ERROR_CHECK/"
+    },
+    {
+      "subject": "Function(1:116~1:145) /test/1/catalog1/utl_http/get_detailed_sqlcode/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:166~1:195) /test/1/catalog1/utl_http/get_detailed_sqlerrm/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_network_packages_0_011]
+sql:
+declare enabled_value boolean; max_connections int; begin utl_http.set_persistent_conn_support(true, 2); utl_http.get_persistent_conn_support(enabled_value, max_connections); utl_http.set_persistent_conn_support(false, 0); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:58~1:94) /test/1/catalog1/utl_http/set_persistent_conn_support/",
+      "action": "CALL",
+      "target": "ConfigKey(1:58~1:94) /test/1/PERSISTENT_CONN_SUPPORT/"
+    },
+    {
+      "subject": "Procedure(1:105~1:141) /test/1/catalog1/utl_http/get_persistent_conn_support/",
+      "action": "CALL",
+      "target": "ConfigKey(1:105~1:141) /test/1/PERSISTENT_CONN_SUPPORT/"
+    },
+    {
+      "subject": "Procedure(1:175~1:211) /test/1/catalog1/utl_http/set_persistent_conn_support/",
+      "action": "CALL",
+      "target": "ConfigKey(1:175~1:211) /test/1/PERSISTENT_CONN_SUPPORT/"
+    }
+  ]
+}
+----------
+[split_block_dameng_network_packages_0_012]
+sql:
+begin utl_http.close_persistent_conns('host.docker.internal', 18080, null, null, false); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:6~1:37) /test/1/catalog1/utl_http/close_persistent_conns/",
+      "action": "CALL"
+    }
+  ]
+}

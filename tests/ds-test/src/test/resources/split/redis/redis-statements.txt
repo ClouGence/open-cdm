@@ -1,0 +1,15 @@
+select ?
+set a '1' /*before*/
+/*after*/
+set b '2'
+get a
+------------------------------------------------------------------------------------------
+[SWITCH_SCHEMA] select ?
+----------
+[MERGE] set a '1'
+----------
+[MERGE] /*before*/
+/*after*/
+set b '2'
+----------
+[SELECT] get a

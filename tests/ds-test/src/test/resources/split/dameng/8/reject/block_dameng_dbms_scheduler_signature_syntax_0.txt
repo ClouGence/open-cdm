@@ -1,0 +1,28 @@
+-- empty argument slot
+declare v varchar2(32767); next_date timestamp with time zone; begin DBMS_SCHEDULER.RUN_JOB(,); end;
+/
+-- double comma
+declare v varchar2(32767); next_date timestamp with time zone; begin DBMS_SCHEDULER.CREATE_JOB(NULL,,NULL); end;
+/
+-- dangling named argument
+declare v varchar2(32767); next_date timestamp with time zone; begin DBMS_SCHEDULER.ENABLE(NAME=>); end;
+/
+-- unclosed call
+declare v varchar2(32767); next_date timestamp with time zone; begin DBMS_SCHEDULER.DROP_JOB(NULL; end;
+/
+------------------------------------------------------------------------------------------
+[BLOCK] -- empty argument slot
+declare v varchar2(32767); next_date timestamp with time zone; begin DBMS_SCHEDULER.RUN_JOB(,); end;
+/
+----------
+[BLOCK] -- double comma
+declare v varchar2(32767); next_date timestamp with time zone; begin DBMS_SCHEDULER.CREATE_JOB(NULL,,NULL); end;
+/
+----------
+[BLOCK] -- dangling named argument
+declare v varchar2(32767); next_date timestamp with time zone; begin DBMS_SCHEDULER.ENABLE(NAME=>); end;
+/
+----------
+[BLOCK] -- unclosed call
+declare v varchar2(32767); next_date timestamp with time zone; begin DBMS_SCHEDULER.DROP_JOB(NULL; end;
+/

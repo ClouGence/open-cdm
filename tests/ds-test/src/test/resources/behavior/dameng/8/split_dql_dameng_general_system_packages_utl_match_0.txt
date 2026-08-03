@@ -1,0 +1,90 @@
+[split_dql_dameng_general_system_packages_utl_match_0_001]
+sql:
+select utl_match.edit_distance('dameng', 'meng');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:30) /test/1/catalog1/utl_match/edit_distance/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_general_system_packages_utl_match_0_002]
+sql:
+select utl_match.edit_distance_similarity('china', 'chin');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:41) /test/1/catalog1/utl_match/edit_distance_similarity/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_general_system_packages_utl_match_0_003]
+sql:
+select utl_match.edit_distance('', 'DM8');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:30) /test/1/catalog1/utl_match/edit_distance/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_general_system_packages_utl_match_0_004]
+sql:
+select utl_match.edit_distance('DM8', 'DM8');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:30) /test/1/catalog1/utl_match/edit_distance/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_general_system_packages_utl_match_0_005]
+sql:
+select utl_match.edit_distance_similarity('DM8', 'DM8');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:41) /test/1/catalog1/utl_match/edit_distance_similarity/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_general_system_packages_utl_match_0_006]
+sql:
+select utl_match.edit_distance(cast(null as varchar), 'DM8');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:30) /test/1/catalog1/utl_match/edit_distance/",
+      "action": "CALL"
+    }
+  ]
+}
+

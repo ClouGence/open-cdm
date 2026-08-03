@@ -1,0 +1,40 @@
+-- missing closing parenthesis
+call DBMS_AQ.REGISTER(NULL,1;
+-- trailing argument comma
+call DBMS_AQ.UNREGISTER(NULL,1,);
+-- missing named value
+call DBMS_AQADM.CREATE_QUEUE(QUEUE_NAME=>);
+-- empty leading argument
+call DBMS_AQADM.START_QUEUE(,);
+-- malformed block call
+begin
+  DBMS_AQADM.STOP_QUEUE('SYSDBA.Q',TRUE,TRUE,FALSE;
+end;
+/
+-- malformed record declaration
+declare o DBMS_AQADM.AQ$_PURGE_OPTIONS_T
+begin DBMS_AQADM.PURGE_QUEUE_TABLE('SYSDBA.QT',NULL,o); end;
+/
+------------------------------------------------------------------------------------------
+[CALL_PROG_OBJ] -- missing closing parenthesis
+call DBMS_AQ.REGISTER(NULL,1;
+----------
+[CALL_PROG_OBJ] -- trailing argument comma
+call DBMS_AQ.UNREGISTER(NULL,1,);
+----------
+[CALL_PROG_OBJ] -- missing named value
+call DBMS_AQADM.CREATE_QUEUE(QUEUE_NAME=>);
+----------
+[CALL_PROG_OBJ] -- empty leading argument
+call DBMS_AQADM.START_QUEUE(,);
+----------
+[BLOCK] -- malformed block call
+begin
+  DBMS_AQADM.STOP_QUEUE('SYSDBA.Q',TRUE,TRUE,FALSE;
+end;
+/
+----------
+[BLOCK] -- malformed record declaration
+declare o DBMS_AQADM.AQ$_PURGE_OPTIONS_T
+begin DBMS_AQADM.PURGE_QUEUE_TABLE('SYSDBA.QT',NULL,o); end;
+/

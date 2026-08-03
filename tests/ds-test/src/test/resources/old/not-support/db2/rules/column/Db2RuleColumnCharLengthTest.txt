@@ -1,0 +1,71 @@
+[Db2RuleColumnCharLengthTest#columnChar_1#001]
+rule: _rules/column/column-char-length.rule
+expect: false
+vars:
+{}
+sql:
+create table test(a123 char);
+----------
+[Db2RuleColumnCharLengthTest#columnChar_1#002]
+rule: _rules/column/column-char-length.rule
+expect: true
+vars:
+{}
+sql:
+alter table test add a123 char(10);
+----------
+[Db2RuleColumnCharLengthTest#columnChar_1#003]
+rule: _rules/column/column-char-length.rule
+expect: true
+vars:
+{}
+sql:
+alter table test alter column a1 set data type char(10);
+----------
+[Db2RuleColumnCharLengthTest#columnChar_2#001]
+rule: _rules/column/column-char-length.rule
+expect: true
+vars:
+  allowEmpty: true
+sql:
+create table test(a123 char);
+----------
+[Db2RuleColumnCharLengthTest#columnChar_2#002]
+rule: _rules/column/column-char-length.rule
+expect: true
+vars:
+  allowEmpty: true
+sql:
+alter table test add a123 char(10);
+----------
+[Db2RuleColumnCharLengthTest#columnChar_2#003]
+rule: _rules/column/column-char-length.rule
+expect: true
+vars:
+  allowEmpty: true
+sql:
+alter table test alter column a1 set data type char(10);
+----------
+[Db2RuleColumnCharLengthTest#columnChar_3#001]
+rule: _rules/column/column-char-length.rule
+expect: false
+vars:
+  length: 5
+sql:
+create table test(a123 char);
+----------
+[Db2RuleColumnCharLengthTest#columnChar_3#002]
+rule: _rules/column/column-char-length.rule
+expect: false
+vars:
+  length: 5
+sql:
+alter table test add a123 char(10);
+----------
+[Db2RuleColumnCharLengthTest#columnChar_3#003]
+rule: _rules/column/column-char-length.rule
+expect: false
+vars:
+  length: 5
+sql:
+alter table test alter column a1 set data type char(10);

@@ -1,0 +1,26 @@
+CREATE PROCEDURE audit_mode_isolation() SET SESSION sql_mode='ANSI_QUOTES';
+SELECT "mode_leak_table";
+CREATE PROCEDURE proc_mode_internal()
+BEGIN
+  DECLARE div_zero INTEGER;
+  SET SQL_MODE='TRADITIONAL';
+  SELECT 1/0;
+END;
+DROP PROCEDURE IF EXISTS p26030; CREATE PROCEDURE p26030() BEGIN SELECT 1; END; CALL p26030();
+------------------------------------------------------------------------------------------
+[CREATE_PROG_OBJ(SESSION_SETTING_WRITE)] CREATE PROCEDURE audit_mode_isolation() SET SESSION sql_mode='ANSI_QUOTES';
+----------
+[SELECT] SELECT "mode_leak_table";
+----------
+[CREATE_PROG_OBJ(BLOCK,PROGRAM_CONTROL,SESSION_SETTING_WRITE,SELECT)] CREATE PROCEDURE proc_mode_internal()
+BEGIN
+  DECLARE div_zero INTEGER;
+  SET SQL_MODE='TRADITIONAL';
+  SELECT 1/0;
+END;
+----------
+[DROP_PROG_OBJ] DROP PROCEDURE IF EXISTS p26030;
+----------
+[CREATE_PROG_OBJ(BLOCK,SELECT)] CREATE PROCEDURE p26030() BEGIN SELECT 1; END;
+----------
+[CALL_PROG_OBJ] CALL p26030();

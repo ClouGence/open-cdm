@@ -1,0 +1,35 @@
+create table app.order_snapshot as
+select o.id, c.name, o.order_total
+from app.orders o
+join app.customer c on c.id = o.customer_id;
+
+select o.id, c.name
+from app.orders o
+join app.customer c on c.id = o.customer_id
+where o.order_total > 10;
+
+with recent_orders as (
+  select id, customer_id, order_total from app.orders where order_total > 10
+)
+select r.id, c.name
+from recent_orders r
+join app.customer c on c.id = r.customer_id
+where exists (select 1 from app.customer c2 where c2.id = c.id);
+------------------------------------------------------------------------------------------
+[CREATE_TABLE|SELECT] create table app.order_snapshot as
+select o.id, c.name, o.order_total
+from app.orders o
+join app.customer c on c.id = o.customer_id;
+----------
+[SELECT] select o.id, c.name
+from app.orders o
+join app.customer c on c.id = o.customer_id
+where o.order_total > 10;
+----------
+[SELECT] with recent_orders as (
+  select id, customer_id, order_total from app.orders where order_total > 10
+)
+select r.id, c.name
+from recent_orders r
+join app.customer c on c.id = r.customer_id
+where exists (select 1 from app.customer c2 where c2.id = c.id);

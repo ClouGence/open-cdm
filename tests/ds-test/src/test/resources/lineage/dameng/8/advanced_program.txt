@@ -1,0 +1,25 @@
+[dynamic_sql_text_has_no_result_lineage]
+sql:
+declare
+  v_name varchar(80);
+begin
+  execute immediate 'select name from catalog1.app.program_source where id = ?' into v_name using 1;
+end;
+/
+expect:
+{}
+----------
+[static_cursor_has_no_result_lineage]
+sql:
+declare
+  cursor c_source is select id, name from catalog1.app.program_source order by id;
+  v_id int;
+  v_name varchar(80);
+begin
+  open c_source;
+  fetch c_source into v_id, v_name;
+  close c_source;
+end;
+/
+expect:
+{}

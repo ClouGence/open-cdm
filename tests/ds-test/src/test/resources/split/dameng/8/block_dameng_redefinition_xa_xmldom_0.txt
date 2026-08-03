@@ -1,0 +1,180 @@
+begin dbms_redefinition.can_redef_table('SYSDBA', 'CODEX_REDEF_MAIN', dbms_redefinition.cons_use_pk); end;
+/
+begin dbms_redefinition.start_redef_table(uname=>'SYSDBA', orig_table=>'CODEX_REDEF_MAIN', int_table=>'CODEX_REDEF_MAIN_INT', col_mapping=>'ID AS ID, CATEGORY AS CATEGORY, AMOUNT AS AMOUNT, NOTE AS NOTE', options_flag=>dbms_redefinition.cons_use_pk, refresh_dep_mviews=>'N'); end;
+/
+begin dbms_redefinition.sync_interim_table('SYSDBA', 'CODEX_REDEF_MAIN', 'CODEX_REDEF_MAIN_INT'); end;
+/
+declare n_err int; begin dbms_redefinition.copy_table_dependents(uname=>'SYSDBA', orig_table=>'CODEX_REDEF_MAIN', int_table=>'CODEX_REDEF_MAIN_INT', copy_indexes=>1, copy_triggers=>false, copy_constraints=>true, copy_privileges=>true, ignore_errors=>false, num_errors=>n_err, copy_statistics=>true, copy_mvlog=>false); merge into CODEX_DM8_PKG_CTL t using (select 'REDEF_COPY_ERRORS' label, n_err number_value from dual) s on (t.label=s.label) when matched then update set t.number_value=s.number_value when not matched then insert(label, number_value) values(s.label, s.number_value); end;
+/
+declare rid varchar(128); begin select cast(max(redefinition_id) as varchar(128)) into rid from dba_redefinition_status where base_table_name='CODEX_REDEF_MAIN'; dbms_redefinition.set_param(rid, 'REFRESH_DEP_MVIEWS', '0'); end;
+/
+begin dbms_redefinition.finish_redef_table('SYSDBA', 'CODEX_REDEF_MAIN', 'CODEX_REDEF_MAIN_INT', dml_lock_timeout=>30); end;
+/
+begin dbms_redefinition.can_redef_table('SYSDBA', 'CODEX_REDEF_ABORT'); end;
+/
+begin dbms_redefinition.start_redef_table('SYSDBA', 'CODEX_REDEF_ABORT', 'CODEX_REDEF_ABORT_INT', 'ID AS ID, PAYLOAD AS PAYLOAD'); end;
+/
+begin dbms_redefinition.sync_interim_table(uname=>'SYSDBA', orig_table=>'CODEX_REDEF_ABORT', int_table=>'CODEX_REDEF_ABORT_INT', continue_after_errors=>false); end;
+/
+begin dbms_redefinition.abort_redef_table('SYSDBA', 'CODEX_REDEF_ABORT', 'CODEX_REDEF_ABORT_INT'); end;
+/
+begin dbms_redefinition.can_redef_table('SYSDBA', 'CODEX_REDEF_ROWID', dbms_redefinition.cons_use_rowid); end;
+/
+begin dbms_redefinition.start_redef_table(uname=>'SYSDBA', orig_table=>'CODEX_REDEF_ROWID', int_table=>'CODEX_REDEF_ROWID_INT', options_flag=>dbms_redefinition.cons_use_rowid); end;
+/
+begin dbms_redefinition.sync_interim_table('SYSDBA', 'CODEX_REDEF_ROWID', 'CODEX_REDEF_ROWID_INT'); end;
+/
+begin dbms_redefinition.finish_redef_table('SYSDBA', 'CODEX_REDEF_ROWID', 'CODEX_REDEF_ROWID_INT'); end;
+/
+begin dbms_redefinition.start_redef_table('SYSDBA', 'CODEX_REDEF_REDUNDANT', 'CODEX_REDEF_REDUNDANT_INT'); end;
+/
+declare rid int; begin select redefinition_id into rid from dba_redefinition_status where base_table_name='CODEX_REDEF_REDUNDANT'; insert into CODEX_DM8_PKG_CTL(label, number_value) values('REDEF_REDUNDANT_ID', rid); commit; end;
+/
+declare rid int; begin select number_value into rid from CODEX_DM8_PKG_CTL where label='REDEF_REDUNDANT_ID'; dbms_redefinition.delete_redundant_record(rid); end;
+/
+declare rc int; begin rc:=dbms_xa.xa_settimeout(60); insert into CODEX_DM8_PKG_CTL(label, number_value) values('XA_TIMEOUT_RC', rc); commit; end;
+/
+declare xid dbms_xa_xid:=dbms_xa_xid(72022001); rc int; begin rc:=dbms_xa.xa_start(xid, dbms_xa.tmnoFlags); insert into CODEX_DM8_XA values(1, 'TWO_PHASE', 10); insert into CODEX_DM8_PKG_CTL(label, number_value) values('XA_START_1', rc); end;
+/
+declare xid dbms_xa_xid:=dbms_xa_xid(72022001); rc int; begin rc:=dbms_xa.xa_end(xid, dbms_xa.tmsuccess); insert into CODEX_DM8_PKG_CTL(label, number_value) values('XA_END_1', rc); commit; end;
+/
+declare xid dbms_xa_xid:=dbms_xa_xid(72022001); rc int; begin rc:=dbms_xa.xa_prepare(xid); insert into CODEX_DM8_PKG_CTL(label, number_value) values('XA_PREPARE_1', rc); commit; end;
+/
+declare xids dbms_xa_xid_array; begin xids:=dbms_xa.xa_recover(); merge into CODEX_DM8_PKG_CTL t using (select 'XA_RECOVER_COUNT' label, xids.count number_value from dual) s on (t.label=s.label) when matched then update set t.number_value=s.number_value when not matched then insert(label, number_value) values(s.label, s.number_value); commit; end;
+/
+declare xid dbms_xa_xid:=dbms_xa_xid(72022001); rc int; begin rc:=dbms_xa.xa_commit(xid, false); insert into CODEX_DM8_PKG_CTL(label, number_value) values('XA_COMMIT_1', rc); commit; end;
+/
+declare xid dbms_xa_xid:=dbms_xa_xid(72022002); rc int; begin rc:=dbms_xa.xa_start(xid, dbms_xa.tmnoFlags); insert into CODEX_DM8_XA values(2, 'ONE_PHASE', 20); rc:=dbms_xa.xa_end(xid, dbms_xa.tmsuccess); rc:=dbms_xa.xa_commit(xid, true); insert into CODEX_DM8_PKG_CTL(label, number_value) values('XA_COMMIT_2', rc); commit; end;
+/
+declare xid dbms_xa_xid:=dbms_xa_xid(72022003); rc int; begin rc:=dbms_xa.xa_start(xid, dbms_xa.tmnoFlags); insert into CODEX_DM8_XA values(3, 'ROLLBACK', 30); rc:=dbms_xa.xa_end(xid, dbms_xa.tmsuccess); rc:=dbms_xa.xa_rollback(xid); insert into CODEX_DM8_PKG_CTL(label, number_value) values('XA_ROLLBACK_3', rc); commit; end;
+/
+declare xid dbms_xa_xid:=dbms_xa_xid(72022004); rc int; begin rc:=dbms_xa.xa_start(xid, dbms_xa.tmnoFlags); insert into CODEX_DM8_XA values(4, 'SUSPEND', 40); rc:=dbms_xa.xa_end(xid, dbms_xa.tmsuspend); rc:=dbms_xa.xa_start(xid, dbms_xa.tmresume); update CODEX_DM8_XA set amount=44 where id=4; rc:=dbms_xa.xa_end(xid, dbms_xa.tmsuccess); rc:=dbms_xa.xa_commit(xid, true); insert into CODEX_DM8_PKG_CTL(label, number_value) values('XA_RESUME_4', rc); commit; end;
+/
+declare xid dbms_xa_xid:=dbms_xa_xid(99999999); rc int; begin rc:=dbms_xa.xa_forget(xid); insert into CODEX_DM8_PKG_CTL(label, number_value) values('XA_FORGET_UNKNOWN', rc); commit; end;
+/
+declare doc dbms_xmldom.domdocument; begin doc:=dbms_xmldom.newdomdocument(); insert into CODEX_DM8_PKG_CTL(label, number_value) values('XML_EMPTY_DOC_NULL', case when dbms_xmldom.isnull(doc) then 1 else 0 end); dbms_xmldom.freedocument(doc); commit; end;
+/
+declare doc dbms_xmldom.domdocument; ele dbms_xmldom.domelement; begin doc:=dbms_xmldom.newdomdocument('<ROOT ATTR="A"/>'); ele:=dbms_xmldom.getdocumentelement(doc); insert into CODEX_DM8_PKG_CTL(label, text_value) values('XML_ROOT_TAG', dbms_xmldom.gettagname(ele)); dbms_xmldom.freedocument(doc); commit; end;
+/
+declare doc dbms_xmldom.domdocument; ele dbms_xmldom.domelement; attr dbms_xmldom.domattr; begin doc:=dbms_xmldom.newdomdocument('<ROOT ATTR="A"/>'); ele:=dbms_xmldom.getdocumentelement(doc); attr:=dbms_xmldom.getattributenode(ele, 'ATTR'); insert into CODEX_DM8_PKG_CTL(label, text_value) values('XML_ATTR_VALUE', dbms_xmldom.getvalue(attr)); dbms_xmldom.freedocument(doc); commit; end;
+/
+declare doc dbms_xmldom.domdocument; ele dbms_xmldom.domelement; begin doc:=dbms_xmldom.newdomdocument('<ROOT/>'); ele:=dbms_xmldom.getdocumentelement(doc); dbms_xmldom.setattribute(ele, 'K', 'V'); insert into CODEX_DM8_PKG_CTL(label, text_value) values('XML_SET_ATTR', dbms_xmldom.getattribute(ele, 'K')); dbms_xmldom.removeattribute(ele, 'K'); dbms_xmldom.freedocument(doc); commit; end;
+/
+declare doc dbms_xmldom.domdocument; ele dbms_xmldom.domelement; node dbms_xmldom.domnode; children dbms_xmldom.domnodelist; begin doc:=dbms_xmldom.newdomdocument('<ROOT><A/><B/></ROOT>'); ele:=dbms_xmldom.getdocumentelement(doc); node:=dbms_xmldom.makenode(ele); children:=dbms_xmldom.getchildnodes(node); insert into CODEX_DM8_PKG_CTL(label, number_value) values('XML_CHILD_COUNT', dbms_xmldom.getlength(children)); dbms_xmldom.freenodelist(children); dbms_xmldom.freedocument(doc); commit; end;
+/
+declare doc dbms_xmldom.domdocument; ele dbms_xmldom.domelement; node dbms_xmldom.domnode; children dbms_xmldom.domnodelist; child dbms_xmldom.domnode; begin doc:=dbms_xmldom.newdomdocument('<ROOT><A>ONE</A><B>TWO</B></ROOT>'); ele:=dbms_xmldom.getdocumentelement(doc); node:=dbms_xmldom.makenode(ele); children:=dbms_xmldom.getchildnodes(node); child:=dbms_xmldom.item(children, 1); insert into CODEX_DM8_PKG_CTL(label, text_value) values('XML_ITEM_NAME', dbms_xmldom.getnodename(child)); dbms_xmldom.freedocument(doc); commit; end;
+/
+declare doc dbms_xmldom.domdocument; ele dbms_xmldom.domelement; text_node dbms_xmldom.domtext; appended dbms_xmldom.domnode; begin doc:=dbms_xmldom.newdomdocument('<ROOT/>'); ele:=dbms_xmldom.getdocumentelement(doc); text_node:=dbms_xmldom.createtextnode(doc, 'TEXT-VALUE'); appended:=dbms_xmldom.appendchild(dbms_xmldom.makenode(ele), dbms_xmldom.makenode(text_node)); insert into CODEX_DM8_PKG_CTL(label, text_value) values('XML_APPEND_TEXT', dbms_xmldom.getnodevalue(appended)); dbms_xmldom.freedocument(doc); commit; end;
+/
+declare doc dbms_xmldom.domdocument; root dbms_xmldom.domelement; child dbms_xmldom.domelement; appended dbms_xmldom.domnode; begin doc:=dbms_xmldom.newdomdocument('<ROOT/>'); root:=dbms_xmldom.getdocumentelement(doc); child:=dbms_xmldom.createelement(doc, 'CHILD'); appended:=dbms_xmldom.appendchild(dbms_xmldom.makenode(root), dbms_xmldom.makenode(child)); insert into CODEX_DM8_PKG_CTL(label, text_value) values('XML_APPEND_ELEMENT', dbms_xmldom.getnodename(appended)); dbms_xmldom.freedocument(doc); commit; end;
+/
+declare doc dbms_xmldom.domdocument; root dbms_xmldom.domnode; first_node dbms_xmldom.domnode; new_node dbms_xmldom.domnode; result_node dbms_xmldom.domnode; begin doc:=dbms_xmldom.newdomdocument('<ROOT><B/></ROOT>'); root:=dbms_xmldom.makenode(dbms_xmldom.getdocumentelement(doc)); first_node:=dbms_xmldom.getfirstchild(root); new_node:=dbms_xmldom.makenode(dbms_xmldom.createelement(doc, 'A')); result_node:=dbms_xmldom.insertbefore(root, new_node, first_node); insert into CODEX_DM8_PKG_CTL(label, text_value) values('XML_INSERT_BEFORE', dbms_xmldom.getnodename(result_node)); dbms_xmldom.freedocument(doc); commit; end;
+/
+declare doc dbms_xmldom.domdocument; root dbms_xmldom.domnode; last_node dbms_xmldom.domnode; begin doc:=dbms_xmldom.newdomdocument('<ROOT><A/><LAST/></ROOT>'); root:=dbms_xmldom.makenode(dbms_xmldom.getdocumentelement(doc)); last_node:=dbms_xmldom.getlastchild(root); insert into CODEX_DM8_PKG_CTL(label, text_value) values('XML_LAST_CHILD', dbms_xmldom.getnodename(last_node)); dbms_xmldom.freedocument(doc); commit; end;
+/
+declare doc dbms_xmldom.domdocument; root dbms_xmldom.domnode; old_node dbms_xmldom.domnode; result_node dbms_xmldom.domnode; begin doc:=dbms_xmldom.newdomdocument('<ROOT><REMOVE/></ROOT>'); root:=dbms_xmldom.makenode(dbms_xmldom.getdocumentelement(doc)); old_node:=dbms_xmldom.getfirstchild(root); result_node:=dbms_xmldom.removechild(root, old_node); insert into CODEX_DM8_PKG_CTL(label, text_value) values('XML_REMOVE_NODE', dbms_xmldom.getnodename(result_node)); dbms_xmldom.freedocument(doc); commit; end;
+/
+declare doc dbms_xmldom.domdocument; root dbms_xmldom.domnode; clone dbms_xmldom.domnode; begin doc:=dbms_xmldom.newdomdocument('<ROOT><A><B/></A></ROOT>'); root:=dbms_xmldom.makenode(dbms_xmldom.getdocumentelement(doc)); clone:=dbms_xmldom.clonenode(root, true); insert into CODEX_DM8_PKG_CTL(label, text_value) values('XML_CLONE_NAME', dbms_xmldom.getnodename(clone)); dbms_xmldom.freedocument(doc); commit; end;
+/
+declare doc dbms_xmldom.domdocument; node dbms_xmldom.domnode; begin doc:=dbms_xmldom.newdomdocument('<ROOT ATTR="Y"><A/></ROOT>'); node:=dbms_xmldom.makenode(dbms_xmldom.getdocumentelement(doc)); insert into CODEX_DM8_PKG_CTL(label, number_value) values('XML_HAS_FLAGS', case when dbms_xmldom.haschildnodes(node) and dbms_xmldom.hasattributes(node) then 1 else 0 end); dbms_xmldom.freedocument(doc); commit; end;
+/
+declare doc dbms_xmldom.domdocument; buf varchar(32767); begin doc:=dbms_xmldom.newdomdocument('<ROOT><A>ONE</A></ROOT>'); dbms_xmldom.writetobuffer(doc, buf); insert into CODEX_DM8_PKG_CTL(label, text_value) values('XML_BUFFER', buf); dbms_xmldom.freedocument(doc); commit; end;
+/
+declare doc dbms_xmldom.domdocument; cl text; begin doc:=dbms_xmldom.newdomdocument('<ROOT><A>ONE</A></ROOT>'); dbms_lob.createtemporary(cl, true); dbms_xmldom.writetoclob(doc, cl); insert into CODEX_DM8_PKG_CTL(label, number_value) values('XML_CLOB_LENGTH', dbms_lob.getlength(cl)); dbms_lob.freetemporary(cl); dbms_xmldom.freedocument(doc); commit; end;
+/
+declare doc dbms_xmldom.domdocument; begin doc:=dbms_xmldom.newdomdocument('<ROOT/>'); dbms_xmldom.setversion(doc, '1.1'); dbms_xmldom.setcharset(doc, 'UTF-8'); dbms_xmldom.setstandalone(doc, 'yes'); insert into CODEX_DM8_PKG_CTL(label, text_value) values('XML_DECL', dbms_xmldom.getversion(doc)||':'||dbms_xmldom.getcharset(doc)||':'||dbms_xmldom.getstandalone(doc)); dbms_xmldom.freedocument(doc); commit; end;
+/
+declare doc dbms_xmldom.domdocument; root dbms_xmldom.domnode; comment_node dbms_xmldom.domcomment; appended dbms_xmldom.domnode; begin doc:=dbms_xmldom.newdomdocument('<ROOT/>'); root:=dbms_xmldom.makenode(dbms_xmldom.getdocumentelement(doc)); comment_node:=dbms_xmldom.createcomment(doc, 'COMMENT-TEXT'); appended:=dbms_xmldom.appendchild(root, dbms_xmldom.makenode(comment_node)); insert into CODEX_DM8_PKG_CTL(label, text_value) values('XML_COMMENT', dbms_xmldom.getnodevalue(appended)); dbms_xmldom.freedocument(doc); commit; end;
+/
+declare doc dbms_xmldom.domdocument; frag dbms_xmldom.domdocumentfragment; begin doc:=dbms_xmldom.newdomdocument('<ROOT/>'); frag:=dbms_xmldom.createdocumentfragment(doc); insert into CODEX_DM8_PKG_CTL(label, number_value) values('XML_FRAGMENT_NULL', case when dbms_xmldom.isnull(frag) then 1 else 0 end); dbms_xmldom.freedocfrag(frag); dbms_xmldom.freedocument(doc); commit; end;
+/
+------------------------------------------------------------------------------------------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_redefinition.can_redef_table('SYSDBA', 'CODEX_REDEF_MAIN', dbms_redefinition.cons_use_pk); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_redefinition.start_redef_table(uname=>'SYSDBA', orig_table=>'CODEX_REDEF_MAIN', int_table=>'CODEX_REDEF_MAIN_INT', col_mapping=>'ID AS ID, CATEGORY AS CATEGORY, AMOUNT AS AMOUNT, NOTE AS NOTE', options_flag=>dbms_redefinition.cons_use_pk, refresh_dep_mviews=>'N'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_redefinition.sync_interim_table('SYSDBA', 'CODEX_REDEF_MAIN', 'CODEX_REDEF_MAIN_INT'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ,MERGE,SELECT)] declare n_err int; begin dbms_redefinition.copy_table_dependents(uname=>'SYSDBA', orig_table=>'CODEX_REDEF_MAIN', int_table=>'CODEX_REDEF_MAIN_INT', copy_indexes=>1, copy_triggers=>false, copy_constraints=>true, copy_privileges=>true, ignore_errors=>false, num_errors=>n_err, copy_statistics=>true, copy_mvlog=>false); merge into CODEX_DM8_PKG_CTL t using (select 'REDEF_COPY_ERRORS' label, n_err number_value from dual) s on (t.label=s.label) when matched then update set t.number_value=s.number_value when not matched then insert(label, number_value) values(s.label, s.number_value); end;
+----------
+[BLOCK(PROGRAM_CONTROL,SELECT,CALL_PROG_OBJ)] declare rid varchar(128); begin select cast(max(redefinition_id) as varchar(128)) into rid from dba_redefinition_status where base_table_name='CODEX_REDEF_MAIN'; dbms_redefinition.set_param(rid, 'REFRESH_DEP_MVIEWS', '0'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_redefinition.finish_redef_table('SYSDBA', 'CODEX_REDEF_MAIN', 'CODEX_REDEF_MAIN_INT', dml_lock_timeout=>30); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_redefinition.can_redef_table('SYSDBA', 'CODEX_REDEF_ABORT'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_redefinition.start_redef_table('SYSDBA', 'CODEX_REDEF_ABORT', 'CODEX_REDEF_ABORT_INT', 'ID AS ID, PAYLOAD AS PAYLOAD'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_redefinition.sync_interim_table(uname=>'SYSDBA', orig_table=>'CODEX_REDEF_ABORT', int_table=>'CODEX_REDEF_ABORT_INT', continue_after_errors=>false); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_redefinition.abort_redef_table('SYSDBA', 'CODEX_REDEF_ABORT', 'CODEX_REDEF_ABORT_INT'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_redefinition.can_redef_table('SYSDBA', 'CODEX_REDEF_ROWID', dbms_redefinition.cons_use_rowid); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_redefinition.start_redef_table(uname=>'SYSDBA', orig_table=>'CODEX_REDEF_ROWID', int_table=>'CODEX_REDEF_ROWID_INT', options_flag=>dbms_redefinition.cons_use_rowid); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_redefinition.sync_interim_table('SYSDBA', 'CODEX_REDEF_ROWID', 'CODEX_REDEF_ROWID_INT'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_redefinition.finish_redef_table('SYSDBA', 'CODEX_REDEF_ROWID', 'CODEX_REDEF_ROWID_INT'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_redefinition.start_redef_table('SYSDBA', 'CODEX_REDEF_REDUNDANT', 'CODEX_REDEF_REDUNDANT_INT'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,SELECT,INSERT,TRANSACTION)] declare rid int; begin select redefinition_id into rid from dba_redefinition_status where base_table_name='CODEX_REDEF_REDUNDANT'; insert into CODEX_DM8_PKG_CTL(label, number_value) values('REDEF_REDUNDANT_ID', rid); commit; end;
+----------
+[BLOCK(PROGRAM_CONTROL,SELECT,CALL_PROG_OBJ)] declare rid int; begin select number_value into rid from CODEX_DM8_PKG_CTL where label='REDEF_REDUNDANT_ID'; dbms_redefinition.delete_redundant_record(rid); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ,INSERT,TRANSACTION)] declare rc int; begin rc:=dbms_xa.xa_settimeout(60); insert into CODEX_DM8_PKG_CTL(label, number_value) values('XA_TIMEOUT_RC', rc); commit; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ,INSERT)] declare xid dbms_xa_xid:=dbms_xa_xid(72022001); rc int; begin rc:=dbms_xa.xa_start(xid, dbms_xa.tmnoFlags); insert into CODEX_DM8_XA values(1, 'TWO_PHASE', 10); insert into CODEX_DM8_PKG_CTL(label, number_value) values('XA_START_1', rc); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ,INSERT,TRANSACTION)] declare xid dbms_xa_xid:=dbms_xa_xid(72022001); rc int; begin rc:=dbms_xa.xa_end(xid, dbms_xa.tmsuccess); insert into CODEX_DM8_PKG_CTL(label, number_value) values('XA_END_1', rc); commit; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ,INSERT,TRANSACTION)] declare xid dbms_xa_xid:=dbms_xa_xid(72022001); rc int; begin rc:=dbms_xa.xa_prepare(xid); insert into CODEX_DM8_PKG_CTL(label, number_value) values('XA_PREPARE_1', rc); commit; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ,MERGE,SELECT,TRANSACTION)] declare xids dbms_xa_xid_array; begin xids:=dbms_xa.xa_recover(); merge into CODEX_DM8_PKG_CTL t using (select 'XA_RECOVER_COUNT' label, xids.count number_value from dual) s on (t.label=s.label) when matched then update set t.number_value=s.number_value when not matched then insert(label, number_value) values(s.label, s.number_value); commit; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ,INSERT,TRANSACTION)] declare xid dbms_xa_xid:=dbms_xa_xid(72022001); rc int; begin rc:=dbms_xa.xa_commit(xid, false); insert into CODEX_DM8_PKG_CTL(label, number_value) values('XA_COMMIT_1', rc); commit; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ,INSERT,TRANSACTION)] declare xid dbms_xa_xid:=dbms_xa_xid(72022002); rc int; begin rc:=dbms_xa.xa_start(xid, dbms_xa.tmnoFlags); insert into CODEX_DM8_XA values(2, 'ONE_PHASE', 20); rc:=dbms_xa.xa_end(xid, dbms_xa.tmsuccess); rc:=dbms_xa.xa_commit(xid, true); insert into CODEX_DM8_PKG_CTL(label, number_value) values('XA_COMMIT_2', rc); commit; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ,INSERT,TRANSACTION)] declare xid dbms_xa_xid:=dbms_xa_xid(72022003); rc int; begin rc:=dbms_xa.xa_start(xid, dbms_xa.tmnoFlags); insert into CODEX_DM8_XA values(3, 'ROLLBACK', 30); rc:=dbms_xa.xa_end(xid, dbms_xa.tmsuccess); rc:=dbms_xa.xa_rollback(xid); insert into CODEX_DM8_PKG_CTL(label, number_value) values('XA_ROLLBACK_3', rc); commit; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ,INSERT,UPDATE,TRANSACTION)] declare xid dbms_xa_xid:=dbms_xa_xid(72022004); rc int; begin rc:=dbms_xa.xa_start(xid, dbms_xa.tmnoFlags); insert into CODEX_DM8_XA values(4, 'SUSPEND', 40); rc:=dbms_xa.xa_end(xid, dbms_xa.tmsuspend); rc:=dbms_xa.xa_start(xid, dbms_xa.tmresume); update CODEX_DM8_XA set amount=44 where id=4; rc:=dbms_xa.xa_end(xid, dbms_xa.tmsuccess); rc:=dbms_xa.xa_commit(xid, true); insert into CODEX_DM8_PKG_CTL(label, number_value) values('XA_RESUME_4', rc); commit; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ,INSERT,TRANSACTION)] declare xid dbms_xa_xid:=dbms_xa_xid(99999999); rc int; begin rc:=dbms_xa.xa_forget(xid); insert into CODEX_DM8_PKG_CTL(label, number_value) values('XA_FORGET_UNKNOWN', rc); commit; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ,INSERT,TRANSACTION)] declare doc dbms_xmldom.domdocument; begin doc:=dbms_xmldom.newdomdocument(); insert into CODEX_DM8_PKG_CTL(label, number_value) values('XML_EMPTY_DOC_NULL', case when dbms_xmldom.isnull(doc) then 1 else 0 end); dbms_xmldom.freedocument(doc); commit; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ,INSERT,TRANSACTION)] declare doc dbms_xmldom.domdocument; ele dbms_xmldom.domelement; begin doc:=dbms_xmldom.newdomdocument('<ROOT ATTR="A"/>'); ele:=dbms_xmldom.getdocumentelement(doc); insert into CODEX_DM8_PKG_CTL(label, text_value) values('XML_ROOT_TAG', dbms_xmldom.gettagname(ele)); dbms_xmldom.freedocument(doc); commit; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ,INSERT,TRANSACTION)] declare doc dbms_xmldom.domdocument; ele dbms_xmldom.domelement; attr dbms_xmldom.domattr; begin doc:=dbms_xmldom.newdomdocument('<ROOT ATTR="A"/>'); ele:=dbms_xmldom.getdocumentelement(doc); attr:=dbms_xmldom.getattributenode(ele, 'ATTR'); insert into CODEX_DM8_PKG_CTL(label, text_value) values('XML_ATTR_VALUE', dbms_xmldom.getvalue(attr)); dbms_xmldom.freedocument(doc); commit; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ,INSERT,TRANSACTION)] declare doc dbms_xmldom.domdocument; ele dbms_xmldom.domelement; begin doc:=dbms_xmldom.newdomdocument('<ROOT/>'); ele:=dbms_xmldom.getdocumentelement(doc); dbms_xmldom.setattribute(ele, 'K', 'V'); insert into CODEX_DM8_PKG_CTL(label, text_value) values('XML_SET_ATTR', dbms_xmldom.getattribute(ele, 'K')); dbms_xmldom.removeattribute(ele, 'K'); dbms_xmldom.freedocument(doc); commit; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ,INSERT,TRANSACTION)] declare doc dbms_xmldom.domdocument; ele dbms_xmldom.domelement; node dbms_xmldom.domnode; children dbms_xmldom.domnodelist; begin doc:=dbms_xmldom.newdomdocument('<ROOT><A/><B/></ROOT>'); ele:=dbms_xmldom.getdocumentelement(doc); node:=dbms_xmldom.makenode(ele); children:=dbms_xmldom.getchildnodes(node); insert into CODEX_DM8_PKG_CTL(label, number_value) values('XML_CHILD_COUNT', dbms_xmldom.getlength(children)); dbms_xmldom.freenodelist(children); dbms_xmldom.freedocument(doc); commit; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ,INSERT,TRANSACTION)] declare doc dbms_xmldom.domdocument; ele dbms_xmldom.domelement; node dbms_xmldom.domnode; children dbms_xmldom.domnodelist; child dbms_xmldom.domnode; begin doc:=dbms_xmldom.newdomdocument('<ROOT><A>ONE</A><B>TWO</B></ROOT>'); ele:=dbms_xmldom.getdocumentelement(doc); node:=dbms_xmldom.makenode(ele); children:=dbms_xmldom.getchildnodes(node); child:=dbms_xmldom.item(children, 1); insert into CODEX_DM8_PKG_CTL(label, text_value) values('XML_ITEM_NAME', dbms_xmldom.getnodename(child)); dbms_xmldom.freedocument(doc); commit; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ,INSERT,TRANSACTION)] declare doc dbms_xmldom.domdocument; ele dbms_xmldom.domelement; text_node dbms_xmldom.domtext; appended dbms_xmldom.domnode; begin doc:=dbms_xmldom.newdomdocument('<ROOT/>'); ele:=dbms_xmldom.getdocumentelement(doc); text_node:=dbms_xmldom.createtextnode(doc, 'TEXT-VALUE'); appended:=dbms_xmldom.appendchild(dbms_xmldom.makenode(ele), dbms_xmldom.makenode(text_node)); insert into CODEX_DM8_PKG_CTL(label, text_value) values('XML_APPEND_TEXT', dbms_xmldom.getnodevalue(appended)); dbms_xmldom.freedocument(doc); commit; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ,INSERT,TRANSACTION)] declare doc dbms_xmldom.domdocument; root dbms_xmldom.domelement; child dbms_xmldom.domelement; appended dbms_xmldom.domnode; begin doc:=dbms_xmldom.newdomdocument('<ROOT/>'); root:=dbms_xmldom.getdocumentelement(doc); child:=dbms_xmldom.createelement(doc, 'CHILD'); appended:=dbms_xmldom.appendchild(dbms_xmldom.makenode(root), dbms_xmldom.makenode(child)); insert into CODEX_DM8_PKG_CTL(label, text_value) values('XML_APPEND_ELEMENT', dbms_xmldom.getnodename(appended)); dbms_xmldom.freedocument(doc); commit; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ,INSERT,TRANSACTION)] declare doc dbms_xmldom.domdocument; root dbms_xmldom.domnode; first_node dbms_xmldom.domnode; new_node dbms_xmldom.domnode; result_node dbms_xmldom.domnode; begin doc:=dbms_xmldom.newdomdocument('<ROOT><B/></ROOT>'); root:=dbms_xmldom.makenode(dbms_xmldom.getdocumentelement(doc)); first_node:=dbms_xmldom.getfirstchild(root); new_node:=dbms_xmldom.makenode(dbms_xmldom.createelement(doc, 'A')); result_node:=dbms_xmldom.insertbefore(root, new_node, first_node); insert into CODEX_DM8_PKG_CTL(label, text_value) values('XML_INSERT_BEFORE', dbms_xmldom.getnodename(result_node)); dbms_xmldom.freedocument(doc); commit; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ,INSERT,TRANSACTION)] declare doc dbms_xmldom.domdocument; root dbms_xmldom.domnode; last_node dbms_xmldom.domnode; begin doc:=dbms_xmldom.newdomdocument('<ROOT><A/><LAST/></ROOT>'); root:=dbms_xmldom.makenode(dbms_xmldom.getdocumentelement(doc)); last_node:=dbms_xmldom.getlastchild(root); insert into CODEX_DM8_PKG_CTL(label, text_value) values('XML_LAST_CHILD', dbms_xmldom.getnodename(last_node)); dbms_xmldom.freedocument(doc); commit; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ,INSERT,TRANSACTION)] declare doc dbms_xmldom.domdocument; root dbms_xmldom.domnode; old_node dbms_xmldom.domnode; result_node dbms_xmldom.domnode; begin doc:=dbms_xmldom.newdomdocument('<ROOT><REMOVE/></ROOT>'); root:=dbms_xmldom.makenode(dbms_xmldom.getdocumentelement(doc)); old_node:=dbms_xmldom.getfirstchild(root); result_node:=dbms_xmldom.removechild(root, old_node); insert into CODEX_DM8_PKG_CTL(label, text_value) values('XML_REMOVE_NODE', dbms_xmldom.getnodename(result_node)); dbms_xmldom.freedocument(doc); commit; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ,INSERT,TRANSACTION)] declare doc dbms_xmldom.domdocument; root dbms_xmldom.domnode; clone dbms_xmldom.domnode; begin doc:=dbms_xmldom.newdomdocument('<ROOT><A><B/></A></ROOT>'); root:=dbms_xmldom.makenode(dbms_xmldom.getdocumentelement(doc)); clone:=dbms_xmldom.clonenode(root, true); insert into CODEX_DM8_PKG_CTL(label, text_value) values('XML_CLONE_NAME', dbms_xmldom.getnodename(clone)); dbms_xmldom.freedocument(doc); commit; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ,INSERT,TRANSACTION)] declare doc dbms_xmldom.domdocument; node dbms_xmldom.domnode; begin doc:=dbms_xmldom.newdomdocument('<ROOT ATTR="Y"><A/></ROOT>'); node:=dbms_xmldom.makenode(dbms_xmldom.getdocumentelement(doc)); insert into CODEX_DM8_PKG_CTL(label, number_value) values('XML_HAS_FLAGS', case when dbms_xmldom.haschildnodes(node) and dbms_xmldom.hasattributes(node) then 1 else 0 end); dbms_xmldom.freedocument(doc); commit; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ,INSERT,TRANSACTION)] declare doc dbms_xmldom.domdocument; buf varchar(32767); begin doc:=dbms_xmldom.newdomdocument('<ROOT><A>ONE</A></ROOT>'); dbms_xmldom.writetobuffer(doc, buf); insert into CODEX_DM8_PKG_CTL(label, text_value) values('XML_BUFFER', buf); dbms_xmldom.freedocument(doc); commit; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ,INSERT,TRANSACTION)] declare doc dbms_xmldom.domdocument; cl text; begin doc:=dbms_xmldom.newdomdocument('<ROOT><A>ONE</A></ROOT>'); dbms_lob.createtemporary(cl, true); dbms_xmldom.writetoclob(doc, cl); insert into CODEX_DM8_PKG_CTL(label, number_value) values('XML_CLOB_LENGTH', dbms_lob.getlength(cl)); dbms_lob.freetemporary(cl); dbms_xmldom.freedocument(doc); commit; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ,INSERT,TRANSACTION)] declare doc dbms_xmldom.domdocument; begin doc:=dbms_xmldom.newdomdocument('<ROOT/>'); dbms_xmldom.setversion(doc, '1.1'); dbms_xmldom.setcharset(doc, 'UTF-8'); dbms_xmldom.setstandalone(doc, 'yes'); insert into CODEX_DM8_PKG_CTL(label, text_value) values('XML_DECL', dbms_xmldom.getversion(doc)||':'||dbms_xmldom.getcharset(doc)||':'||dbms_xmldom.getstandalone(doc)); dbms_xmldom.freedocument(doc); commit; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ,INSERT,TRANSACTION)] declare doc dbms_xmldom.domdocument; root dbms_xmldom.domnode; comment_node dbms_xmldom.domcomment; appended dbms_xmldom.domnode; begin doc:=dbms_xmldom.newdomdocument('<ROOT/>'); root:=dbms_xmldom.makenode(dbms_xmldom.getdocumentelement(doc)); comment_node:=dbms_xmldom.createcomment(doc, 'COMMENT-TEXT'); appended:=dbms_xmldom.appendchild(root, dbms_xmldom.makenode(comment_node)); insert into CODEX_DM8_PKG_CTL(label, text_value) values('XML_COMMENT', dbms_xmldom.getnodevalue(appended)); dbms_xmldom.freedocument(doc); commit; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ,INSERT,TRANSACTION)] declare doc dbms_xmldom.domdocument; frag dbms_xmldom.domdocumentfragment; begin doc:=dbms_xmldom.newdomdocument('<ROOT/>'); frag:=dbms_xmldom.createdocumentfragment(doc); insert into CODEX_DM8_PKG_CTL(label, number_value) values('XML_FRAGMENT_NULL', case when dbms_xmldom.isnull(frag) then 1 else 0 end); dbms_xmldom.freedocfrag(frag); dbms_xmldom.freedocument(doc); commit; end;

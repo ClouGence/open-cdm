@@ -1,0 +1,223 @@
+[split_dql_dameng_dsc_0_001_behavior_review]
+sql:
+select EP_NAME, EP_SEQNO, EP_MODE, EP_STATUS from V$DSC_EP_INFO order by EP_SEQNO;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:50~1:63) /test/1/catalog1/schema1/V$DSC_EP_INFO/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_dsc_0_002_behavior_review]
+sql:
+select count(*) as REQUEST_TYPES from V$DSC_REQUEST_STATISTIC;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:38~1:61) /test/1/catalog1/schema1/V$DSC_REQUEST_STATISTIC/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_dsc_0_003_behavior_review]
+sql:
+select count(*) as REQUEST_PAGES from V$DSC_REQUEST_PAGE_STATISTIC;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:38~1:66) /test/1/catalog1/schema1/V$DSC_REQUEST_PAGE_STATISTIC/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_dsc_0_004_behavior_review]
+sql:
+select EP_SEQNO, OK_FLAG, MIN_FIRST_MODIFIED_LSN, CRASH_LSN
+from V$DSC_CRASH_OVER_INFO order by EP_SEQNO;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(2:5~2:26) /test/1/catalog1/schema1/V$DSC_CRASH_OVER_INFO/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_dsc_0_005_behavior_review]
+sql:
+select TOTAL_SUCCESS, TOTAL_WAIT, TOTAL_DEADLOCK from V$DSC_GLS_SYS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:54~1:67) /test/1/catalog1/schema1/V$DSC_GLS_SYS/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_dsc_0_006_behavior_review]
+sql:
+select count(*) as ACTIVE_VIEWS from V$DSC_TRX_VIEW;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:37~1:51) /test/1/catalog1/schema1/V$DSC_TRX_VIEW/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_dsc_0_007_behavior_review]
+sql:
+select count(*) as ASM_ATTRIBUTES from V$ASMATTR;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:39~1:48) /test/1/catalog1/schema1/V$ASMATTR/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_dsc_0_008_behavior_review]
+sql:
+select count(*) as ASM_GROUPS from V$ASMGROUP;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:35~1:45) /test/1/catalog1/schema1/V$ASMGROUP/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_dsc_0_009_behavior_review]
+sql:
+select count(*) as ASM_DISKS from V$ASMDISK;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:34~1:43) /test/1/catalog1/schema1/V$ASMDISK/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_dsc_0_010_behavior_review]
+sql:
+select checkpoint(0) as CHECKPOINT_RESULT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/checkpoint/",
+      "action": "CHECKPOINT"
+    }
+  ]
+}
+----------
+[split_dql_dameng_dsc_0_011_behavior_review]
+sql:
+select ID, OWNER_EP, NOTE from CODEX_DM8_DSC.SHARED_T order by ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:31~1:53) /test/1/catalog1/CODEX_DM8_DSC/SHARED_T/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_dsc_0_012_behavior_review]
+sql:
+select ID, OWNER_EP, NOTE from CODEX_DM8_DSC.SHARED_T order by ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:31~1:53) /test/1/catalog1/CODEX_DM8_DSC/SHARED_T/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_dsc_0_013_behavior_review]
+sql:
+select count(*) as CHECKPOINT_EVENT_COUNT from CODEX_DM8_DSC.CHECKPOINT_EVENT_LOG;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:47~1:81) /test/1/catalog1/CODEX_DM8_DSC/CHECKPOINT_EVENT_LOG/",
+      "action": "READ"
+    }
+  ]
+}

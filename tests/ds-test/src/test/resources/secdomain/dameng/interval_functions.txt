@@ -1,0 +1,16 @@
+[interval_public_signatures]
+sql:
+select
+  numtodsinterval(2.5,'DAY') as ds_number,
+  numtoyminterval(2.5,'YEAR') as ym_number,
+  to_dsinterval('1 02:03:04.5') as ds_text,
+  to_yminterval('1-2') as ym_text,
+  overlaps(date '2024-01-01',date '2024-01-10',
+    date '2024-01-05',date '2024-01-06') as overlap_value
+from dual
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "table":"dual"}
+  ]
+}

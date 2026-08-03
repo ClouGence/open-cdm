@@ -1,0 +1,124 @@
+-- FUNC-0713 ADD_GROUPED_POLICY
+begin DBMS_RLS.ADD_GROUPED_POLICY(object_name=>'RLS_T',policy_group=>'G',policy_name=>'P',policy_function=>'RLS_POLICY'); end;
+/
+-- FUNC-0714 ADD_POLICY
+begin DBMS_RLS.ADD_POLICY(object_name=>'RLS_T',policy_name=>'P',policy_function=>'RLS_POLICY'); end;
+/
+-- FUNC-0715 ADD_POLICY_CONTEXT
+begin DBMS_RLS.ADD_POLICY_CONTEXT(object_name=>'RLS_T',namespace=>'NS',attribute=>'A'); end;
+/
+-- FUNC-0716 CREATE_POLICY_GROUP
+begin DBMS_RLS.CREATE_POLICY_GROUP(object_name=>'RLS_T',policy_group=>'G'); end;
+/
+-- FUNC-0717 DELETE_POLICY_GROUP
+begin DBMS_RLS.DELETE_POLICY_GROUP(object_name=>'RLS_T',policy_group=>'G'); end;
+/
+-- FUNC-0718 DISABLE_GROUPED_POLICY
+begin DBMS_RLS.DISABLE_GROUPED_POLICY(object_name=>'RLS_T',group_name=>'SYS_DEFAULT',policy_name=>'P'); end;
+/
+-- FUNC-0719 DROP_GROUPED_POLICY
+begin DBMS_RLS.DROP_GROUPED_POLICY(object_name=>'RLS_T',policy_name=>'P'); end;
+/
+-- FUNC-0720 DROP_POLICY
+begin DBMS_RLS.DROP_POLICY(object_name=>'RLS_T',policy_name=>'P'); end;
+/
+-- FUNC-0721 DROP_POLICY_CONTEXT
+begin DBMS_RLS.DROP_POLICY_CONTEXT(object_name=>'RLS_T',namespace=>'NS',attribute=>'A'); end;
+/
+-- FUNC-0722 ENABLE_GROUPED_POLICY
+begin DBMS_RLS.ENABLE_GROUPED_POLICY(object_name=>'RLS_T',group_name=>'SYS_DEFAULT',policy_name=>'P'); end;
+/
+-- FUNC-0723 ENABLE_POLICY
+begin DBMS_RLS.ENABLE_POLICY(object_name=>'RLS_T',policy_name=>'P'); end;
+/
+-- FUNC-1765 ADD_POLICY
+begin DBMS_RLS.ADD_POLICY(object_name=>'RLS_T',policy_name=>'P',policy_function=>'RLS_POLICY',update_check=>false); end;
+/
+-- FUNC-1766 REFRESH_POLICY
+begin DBMS_RLS.REFRESH_POLICY(object_name=>'RLS_T',policy_name=>'P'); end;
+/
+-- FUNC-1767 ENABLE_POLICY
+begin DBMS_RLS.ENABLE_POLICY(object_name=>'RLS_T',policy_name=>'P',enable=>true); end;
+/
+-- FUNC-1768 ADD_GROUPED_POLICY
+begin DBMS_RLS.ADD_GROUPED_POLICY(object_name=>'RLS_T',policy_group=>'G',policy_name=>'P',policy_function=>'RLS_POLICY',update_check=>false); end;
+/
+-- FUNC-1769 REFRESH_GROUPED_POLICY
+begin DBMS_RLS.REFRESH_GROUPED_POLICY(object_name=>'RLS_T',group_name=>'SYS_DEFAULT',policy_name=>'P'); end;
+/
+-- FUNC-1770 ENABLE_GROUPED_POLICY
+begin DBMS_RLS.ENABLE_GROUPED_POLICY(object_name=>'RLS_T',group_name=>'SYS_DEFAULT',policy_name=>'P',enable=>true); end;
+/
+-- FUNC-1771 ADD_MASK
+begin DBMS_RLS.ADD_MASK('APP','RLS_T','TXT','APP',NULL,'MASK_VALUE'); end;
+/
+-- FUNC-1772 DROP_MASK
+begin DBMS_RLS.DROP_MASK('APP','RLS_T','TXT'); end;
+/
+-- FUNC-1773 documented external initializer
+call SP_INIT_RLS_SYS(1);
+-- FUNC-1774 documented external checker
+select SF_CHECK_RLS_SYS() from dual;
+------------------------------------------------------------------------------------------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-0713 ADD_GROUPED_POLICY
+begin DBMS_RLS.ADD_GROUPED_POLICY(object_name=>'RLS_T',policy_group=>'G',policy_name=>'P',policy_function=>'RLS_POLICY'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-0714 ADD_POLICY
+begin DBMS_RLS.ADD_POLICY(object_name=>'RLS_T',policy_name=>'P',policy_function=>'RLS_POLICY'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-0715 ADD_POLICY_CONTEXT
+begin DBMS_RLS.ADD_POLICY_CONTEXT(object_name=>'RLS_T',namespace=>'NS',attribute=>'A'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-0716 CREATE_POLICY_GROUP
+begin DBMS_RLS.CREATE_POLICY_GROUP(object_name=>'RLS_T',policy_group=>'G'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-0717 DELETE_POLICY_GROUP
+begin DBMS_RLS.DELETE_POLICY_GROUP(object_name=>'RLS_T',policy_group=>'G'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-0718 DISABLE_GROUPED_POLICY
+begin DBMS_RLS.DISABLE_GROUPED_POLICY(object_name=>'RLS_T',group_name=>'SYS_DEFAULT',policy_name=>'P'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-0719 DROP_GROUPED_POLICY
+begin DBMS_RLS.DROP_GROUPED_POLICY(object_name=>'RLS_T',policy_name=>'P'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-0720 DROP_POLICY
+begin DBMS_RLS.DROP_POLICY(object_name=>'RLS_T',policy_name=>'P'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-0721 DROP_POLICY_CONTEXT
+begin DBMS_RLS.DROP_POLICY_CONTEXT(object_name=>'RLS_T',namespace=>'NS',attribute=>'A'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-0722 ENABLE_GROUPED_POLICY
+begin DBMS_RLS.ENABLE_GROUPED_POLICY(object_name=>'RLS_T',group_name=>'SYS_DEFAULT',policy_name=>'P'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-0723 ENABLE_POLICY
+begin DBMS_RLS.ENABLE_POLICY(object_name=>'RLS_T',policy_name=>'P'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-1765 ADD_POLICY
+begin DBMS_RLS.ADD_POLICY(object_name=>'RLS_T',policy_name=>'P',policy_function=>'RLS_POLICY',update_check=>false); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-1766 REFRESH_POLICY
+begin DBMS_RLS.REFRESH_POLICY(object_name=>'RLS_T',policy_name=>'P'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-1767 ENABLE_POLICY
+begin DBMS_RLS.ENABLE_POLICY(object_name=>'RLS_T',policy_name=>'P',enable=>true); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-1768 ADD_GROUPED_POLICY
+begin DBMS_RLS.ADD_GROUPED_POLICY(object_name=>'RLS_T',policy_group=>'G',policy_name=>'P',policy_function=>'RLS_POLICY',update_check=>false); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-1769 REFRESH_GROUPED_POLICY
+begin DBMS_RLS.REFRESH_GROUPED_POLICY(object_name=>'RLS_T',group_name=>'SYS_DEFAULT',policy_name=>'P'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-1770 ENABLE_GROUPED_POLICY
+begin DBMS_RLS.ENABLE_GROUPED_POLICY(object_name=>'RLS_T',group_name=>'SYS_DEFAULT',policy_name=>'P',enable=>true); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-1771 ADD_MASK
+begin DBMS_RLS.ADD_MASK('APP','RLS_T','TXT','APP',NULL,'MASK_VALUE'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-1772 DROP_MASK
+begin DBMS_RLS.DROP_MASK('APP','RLS_T','TXT'); end;
+----------
+[CALL_PROG_OBJ] -- FUNC-1773 documented external initializer
+call SP_INIT_RLS_SYS(1);
+----------
+[SELECT|CALL_PROG_OBJ] -- FUNC-1774 documented external checker
+select SF_CHECK_RLS_SYS() from dual;

@@ -1,0 +1,309 @@
+select to_json(null);
+select to_json(true);
+select to_json(false);
+select to_json(-12.3);
+select to_json('{"b":1,"a":2}');
+select to_json('-12.3'::json);
+select to_json('true'::json);
+select to_json('"str"'::json);
+select to_json('{"b":1,"a":2}'::json);
+select json_value('{"c":2}', '$.c');
+select json_value('[1,"a",true]', '$[1]');
+select json_value('{"c":true}', '$.c' returning number);
+select json_value('{"c":10}', '$.c' returning decimal(10,2));
+select json_value('{"c":"2026-07-21"}', '$.c' returning date);
+select json_value('{"c":"abc"}', '$.c' returning varchar2);
+select json_value('{"c":"abc"}', '$.c' returning varchar2 ascii);
+select json_value('{"c":null}', '$.c' null on error);
+select json_value('{"c":[1]}', '$.c' default 'fallback' on error);
+select json_value('[aa]', '$[0]' returning number default '1' on error);
+select json_query('{"c":{"a":1}}', '$.c');
+select json_query('{"c":[1,true]}', '$.c');
+select json_query('{"c":2}', '$.c' with wrapper);
+select json_query('{"c":"x"}', '$.c' with array wrapper);
+select json_query('{"c":[1,2]}', '$.c' without wrapper);
+select json_query('{"c":{"a":1}}', '$.c' returning varchar2 pretty);
+select json_query('{"c":{"a":"中"}}', '$.c' returning varchar2 ascii);
+select json_query('{"c":2}', '$.c' with conditional wrapper null on error);
+select * from json_table('{a:100,b:200,c:{d:300,e:400}}', '$.c' columns(c1 dec path '$.d', c2 dec path '$.e'));
+select * from json_table('[{"id":1},{"id":2}]', '$[*]' columns(id int path '$.id'));
+select * from json_table('[{"id":1,"name":"A"}]', '$[*]' columns(ord for ordinality, id int path '$.id', name varchar(20) path '$.name'));
+select * from json_table('{"items":[{"v":10},{"v":20}]}', '$.items[*]' columns(v int path '$.v'));
+select * from json_table('{"a":"x"}', '$' columns(a varchar(20) path '$.a' default 'n/a' on error));
+select json_overlaps(null, null);
+select json_overlaps('{"a":1,"a":2,"a":3,"b":4}', '{"a":1}');
+select json_overlaps('{"a":1,"a":2,"a":3,"b":4}', '{"a":3}');
+select json_overlaps('{"a":{"b":2,"b":3}}', '{"a":{"b":2}}');
+select json_overlaps('{"a":{"b":2,"b":3}}', '{"a":{"b":3}}');
+select json_overlaps('[1,{"a":2,"a":3}]', '{"a":2}');
+select json_overlaps('[1,{"a":2,"a":3}]', '{"a":3}');
+select json_overlaps('[1,[2,3],{"a":2,"b":4}]', '1');
+select json_overlaps('[1,[2,3],{"a":2,"b":4}]', '2');
+select json_overlaps('[1,[2,3],{"a":2,"b":4}]', '[2,3]');
+select json_overlaps('[1,[2,3],{"a":2,"b":4}]', '[[2,3]]');
+select json_overlaps('[1,[2,3],{"a":2,"b":4}]', '[[3,2]]');
+select json_overlaps('[1,[2,3],{"a":2,"b":4}]', '{"a":2}');
+select json_overlaps('[1,[2,3],{"a":2,"b":4}]', '{"a":2,"b":4}');
+select json_set(null, '$.f1.a', 15);
+select json_set('{"f1":{"a":1}}', '$.f1.a', 15);
+select json_set('{"f1":{"a":1}}', '$.f1.a', 'str');
+select json_set('[{"f1":{"a":1}}]', '$[0]', true);
+select json_set('[{"f1":{"a":1}},2,"b"]', '$[0].f1.a', 15, '$[1]', 'c');
+select json_set('{"f1":{"a":1}}', '$.f1.b', 15);
+select json_replace('[{"f1":{"a":1}},2,"b"]', '$[0].f1.a', 15, '$[1]', 'c');
+select json_insert('{"f1":{"a":1}}', '$.f1.b', 15);
+select json_insert('[1,2]', '$[2]', 3);
+select json_set('{"a":1}', '$.a[1]', 2);
+select json_array(1, 'a', true, null);
+select json_object('name', 'DM8', 'version', 8);
+select json_build_array(1, 'a', true);
+select json_build_object('name', 'DM8', 'version', 8);
+select json_contains_path('{"a":{"b":1}}', 'one', '$.a.b');
+select json_contains_path('{"a":1,"b":2}', 'all', '$.a', '$.b');
+select json_keys('{"b":2,"a":1}');
+select json_keys('{"a":{"b":1}}', '$.a');
+select json_type('{"a":1}');
+select json_type('[1,2]');
+select json_type('true');
+select json_typeof('{"a":1}');
+select json_typeof('[1,2]');
+select json_contains('{"a":1,"b":2}', '{"a":1}');
+select to_jsonb(null);
+select to_jsonb(true);
+select to_jsonb(false);
+select to_jsonb(-12.3);
+select to_jsonb('{"b":1,"a":2}');
+select to_jsonb('-12.3'::jsonb);
+select to_jsonb('true'::jsonb);
+select to_jsonb('"str"'::jsonb);
+select to_jsonb('{"b":1,"a":2}'::jsonb);
+select jsonb_set('[{"f1":{"a":1}}]', '{0,f1,a}', '15');
+select jsonb_set('[{"f1":{"a":1}}]', '{0,f1,b}', '15', true);
+select jsonb_set('[{"f1":{"a":1}}]', '{0,f1,b}', '15', false);
+select jsonb_concat(null, '1');
+select jsonb_concat('1', '"abc"');
+select jsonb_object_agg('a', jsonb_concat('1', '2'));
+select jsonb_object_agg('a', '[1,2]');
+select * from jsonb_object_keys('{"F2":"ABC","F1":{"F3":"A"}}');
+select * from jsonb_object_keys('{"F1":"ABC","F1":"X"}');
+select cast('{"a":1}' as jsonb);
+select null::json;
+select '"str"'::json;
+select '[1,true,"a",{"b":1}]'::json;
+select null::jsonb;
+select '"str"'::jsonb;
+select '{"a":1,"b":2}'::jsonb @> '{"b":2}'::jsonb;
+select '{"a":1,"b":2}'::jsonb @> '{"b":2,"b":2}';
+select json_value('{"a":{"b":[0,{"c":true}]}}', '$.a.b[1].c');
+select id, json_value(payload, '$.name') from json_docs;
+select id, json_query(payload, '$.items') from json_docs order by id;
+select d.id, jt.v from json_docs d, json_table(d.payload, '$.items[*]' columns(v int path '$.v')) jt order by d.id, jt.v;
+select count(*) from json_docs where payload is json;
+select id from json_docs where json_value(payload, '$.name') = 'ALPHA';
+select d.id, jt.ord, jt.v from json_docs d, json_table(d.payload, '$.items[*]' columns(ord for ordinality, v int path '$.v')) jt;
+------------------------------------------------------------------------------------------
+[SELECT|CALL_PROG_OBJ] select to_json(null);
+----------
+[SELECT|CALL_PROG_OBJ] select to_json(true);
+----------
+[SELECT|CALL_PROG_OBJ] select to_json(false);
+----------
+[SELECT|CALL_PROG_OBJ] select to_json(-12.3);
+----------
+[SELECT|CALL_PROG_OBJ] select to_json('{"b":1,"a":2}');
+----------
+[SELECT|CALL_PROG_OBJ] select to_json('-12.3'::json);
+----------
+[SELECT|CALL_PROG_OBJ] select to_json('true'::json);
+----------
+[SELECT|CALL_PROG_OBJ] select to_json('"str"'::json);
+----------
+[SELECT|CALL_PROG_OBJ] select to_json('{"b":1,"a":2}'::json);
+----------
+[SELECT] select json_value('{"c":2}', '$.c');
+----------
+[SELECT] select json_value('[1,"a",true]', '$[1]');
+----------
+[SELECT] select json_value('{"c":true}', '$.c' returning number);
+----------
+[SELECT] select json_value('{"c":10}', '$.c' returning decimal(10,2));
+----------
+[SELECT] select json_value('{"c":"2026-07-21"}', '$.c' returning date);
+----------
+[SELECT] select json_value('{"c":"abc"}', '$.c' returning varchar2);
+----------
+[SELECT] select json_value('{"c":"abc"}', '$.c' returning varchar2 ascii);
+----------
+[SELECT] select json_value('{"c":null}', '$.c' null on error);
+----------
+[SELECT] select json_value('{"c":[1]}', '$.c' default 'fallback' on error);
+----------
+[SELECT] select json_value('[aa]', '$[0]' returning number default '1' on error);
+----------
+[SELECT] select json_query('{"c":{"a":1}}', '$.c');
+----------
+[SELECT] select json_query('{"c":[1,true]}', '$.c');
+----------
+[SELECT] select json_query('{"c":2}', '$.c' with wrapper);
+----------
+[SELECT] select json_query('{"c":"x"}', '$.c' with array wrapper);
+----------
+[SELECT] select json_query('{"c":[1,2]}', '$.c' without wrapper);
+----------
+[SELECT] select json_query('{"c":{"a":1}}', '$.c' returning varchar2 pretty);
+----------
+[SELECT] select json_query('{"c":{"a":"中"}}', '$.c' returning varchar2 ascii);
+----------
+[SELECT] select json_query('{"c":2}', '$.c' with conditional wrapper null on error);
+----------
+[SELECT] select * from json_table('{a:100,b:200,c:{d:300,e:400}}', '$.c' columns(c1 dec path '$.d', c2 dec path '$.e'));
+----------
+[SELECT] select * from json_table('[{"id":1},{"id":2}]', '$[*]' columns(id int path '$.id'));
+----------
+[SELECT] select * from json_table('[{"id":1,"name":"A"}]', '$[*]' columns(ord for ordinality, id int path '$.id', name varchar(20) path '$.name'));
+----------
+[SELECT] select * from json_table('{"items":[{"v":10},{"v":20}]}', '$.items[*]' columns(v int path '$.v'));
+----------
+[SELECT] select * from json_table('{"a":"x"}', '$' columns(a varchar(20) path '$.a' default 'n/a' on error));
+----------
+[SELECT|CALL_PROG_OBJ] select json_overlaps(null, null);
+----------
+[SELECT|CALL_PROG_OBJ] select json_overlaps('{"a":1,"a":2,"a":3,"b":4}', '{"a":1}');
+----------
+[SELECT|CALL_PROG_OBJ] select json_overlaps('{"a":1,"a":2,"a":3,"b":4}', '{"a":3}');
+----------
+[SELECT|CALL_PROG_OBJ] select json_overlaps('{"a":{"b":2,"b":3}}', '{"a":{"b":2}}');
+----------
+[SELECT|CALL_PROG_OBJ] select json_overlaps('{"a":{"b":2,"b":3}}', '{"a":{"b":3}}');
+----------
+[SELECT|CALL_PROG_OBJ] select json_overlaps('[1,{"a":2,"a":3}]', '{"a":2}');
+----------
+[SELECT|CALL_PROG_OBJ] select json_overlaps('[1,{"a":2,"a":3}]', '{"a":3}');
+----------
+[SELECT|CALL_PROG_OBJ] select json_overlaps('[1,[2,3],{"a":2,"b":4}]', '1');
+----------
+[SELECT|CALL_PROG_OBJ] select json_overlaps('[1,[2,3],{"a":2,"b":4}]', '2');
+----------
+[SELECT|CALL_PROG_OBJ] select json_overlaps('[1,[2,3],{"a":2,"b":4}]', '[2,3]');
+----------
+[SELECT|CALL_PROG_OBJ] select json_overlaps('[1,[2,3],{"a":2,"b":4}]', '[[2,3]]');
+----------
+[SELECT|CALL_PROG_OBJ] select json_overlaps('[1,[2,3],{"a":2,"b":4}]', '[[3,2]]');
+----------
+[SELECT|CALL_PROG_OBJ] select json_overlaps('[1,[2,3],{"a":2,"b":4}]', '{"a":2}');
+----------
+[SELECT|CALL_PROG_OBJ] select json_overlaps('[1,[2,3],{"a":2,"b":4}]', '{"a":2,"b":4}');
+----------
+[SELECT|CALL_PROG_OBJ] select json_set(null, '$.f1.a', 15);
+----------
+[SELECT|CALL_PROG_OBJ] select json_set('{"f1":{"a":1}}', '$.f1.a', 15);
+----------
+[SELECT|CALL_PROG_OBJ] select json_set('{"f1":{"a":1}}', '$.f1.a', 'str');
+----------
+[SELECT|CALL_PROG_OBJ] select json_set('[{"f1":{"a":1}}]', '$[0]', true);
+----------
+[SELECT|CALL_PROG_OBJ] select json_set('[{"f1":{"a":1}},2,"b"]', '$[0].f1.a', 15, '$[1]', 'c');
+----------
+[SELECT|CALL_PROG_OBJ] select json_set('{"f1":{"a":1}}', '$.f1.b', 15);
+----------
+[SELECT|CALL_PROG_OBJ] select json_replace('[{"f1":{"a":1}},2,"b"]', '$[0].f1.a', 15, '$[1]', 'c');
+----------
+[SELECT|CALL_PROG_OBJ] select json_insert('{"f1":{"a":1}}', '$.f1.b', 15);
+----------
+[SELECT|CALL_PROG_OBJ] select json_insert('[1,2]', '$[2]', 3);
+----------
+[SELECT|CALL_PROG_OBJ] select json_set('{"a":1}', '$.a[1]', 2);
+----------
+[SELECT] select json_array(1, 'a', true, null);
+----------
+[SELECT] select json_object('name', 'DM8', 'version', 8);
+----------
+[SELECT|CALL_PROG_OBJ] select json_build_array(1, 'a', true);
+----------
+[SELECT|CALL_PROG_OBJ] select json_build_object('name', 'DM8', 'version', 8);
+----------
+[SELECT|CALL_PROG_OBJ] select json_contains_path('{"a":{"b":1}}', 'one', '$.a.b');
+----------
+[SELECT|CALL_PROG_OBJ] select json_contains_path('{"a":1,"b":2}', 'all', '$.a', '$.b');
+----------
+[SELECT|CALL_PROG_OBJ] select json_keys('{"b":2,"a":1}');
+----------
+[SELECT|CALL_PROG_OBJ] select json_keys('{"a":{"b":1}}', '$.a');
+----------
+[SELECT|CALL_PROG_OBJ] select json_type('{"a":1}');
+----------
+[SELECT|CALL_PROG_OBJ] select json_type('[1,2]');
+----------
+[SELECT|CALL_PROG_OBJ] select json_type('true');
+----------
+[SELECT] select json_typeof('{"a":1}');
+----------
+[SELECT] select json_typeof('[1,2]');
+----------
+[SELECT|CALL_PROG_OBJ] select json_contains('{"a":1,"b":2}', '{"a":1}');
+----------
+[SELECT|CALL_PROG_OBJ] select to_jsonb(null);
+----------
+[SELECT|CALL_PROG_OBJ] select to_jsonb(true);
+----------
+[SELECT|CALL_PROG_OBJ] select to_jsonb(false);
+----------
+[SELECT|CALL_PROG_OBJ] select to_jsonb(-12.3);
+----------
+[SELECT|CALL_PROG_OBJ] select to_jsonb('{"b":1,"a":2}');
+----------
+[SELECT|CALL_PROG_OBJ] select to_jsonb('-12.3'::jsonb);
+----------
+[SELECT|CALL_PROG_OBJ] select to_jsonb('true'::jsonb);
+----------
+[SELECT|CALL_PROG_OBJ] select to_jsonb('"str"'::jsonb);
+----------
+[SELECT|CALL_PROG_OBJ] select to_jsonb('{"b":1,"a":2}'::jsonb);
+----------
+[SELECT] select jsonb_set('[{"f1":{"a":1}}]', '{0,f1,a}', '15');
+----------
+[SELECT] select jsonb_set('[{"f1":{"a":1}}]', '{0,f1,b}', '15', true);
+----------
+[SELECT] select jsonb_set('[{"f1":{"a":1}}]', '{0,f1,b}', '15', false);
+----------
+[SELECT|CALL_PROG_OBJ] select jsonb_concat(null, '1');
+----------
+[SELECT|CALL_PROG_OBJ] select jsonb_concat('1', '"abc"');
+----------
+[SELECT|CALL_PROG_OBJ] select jsonb_object_agg('a', jsonb_concat('1', '2'));
+----------
+[SELECT|CALL_PROG_OBJ] select jsonb_object_agg('a', '[1,2]');
+----------
+[SELECT] select * from jsonb_object_keys('{"F2":"ABC","F1":{"F3":"A"}}');
+----------
+[SELECT] select * from jsonb_object_keys('{"F1":"ABC","F1":"X"}');
+----------
+[SELECT] select cast('{"a":1}' as jsonb);
+----------
+[SELECT] select null::json;
+----------
+[SELECT] select '"str"'::json;
+----------
+[SELECT] select '[1,true,"a",{"b":1}]'::json;
+----------
+[SELECT] select null::jsonb;
+----------
+[SELECT] select '"str"'::jsonb;
+----------
+[SELECT] select '{"a":1,"b":2}'::jsonb @> '{"b":2}'::jsonb;
+----------
+[SELECT] select '{"a":1,"b":2}'::jsonb @> '{"b":2,"b":2}';
+----------
+[SELECT] select json_value('{"a":{"b":[0,{"c":true}]}}', '$.a.b[1].c');
+----------
+[SELECT] select id, json_value(payload, '$.name') from json_docs;
+----------
+[SELECT] select id, json_query(payload, '$.items') from json_docs order by id;
+----------
+[SELECT] select d.id, jt.v from json_docs d, json_table(d.payload, '$.items[*]' columns(v int path '$.v')) jt order by d.id, jt.v;
+----------
+[SELECT] select count(*) from json_docs where payload is json;
+----------
+[SELECT] select id from json_docs where json_value(payload, '$.name') = 'ALPHA';
+----------
+[SELECT] select d.id, jt.ord, jt.v from json_docs d, json_table(d.payload, '$.items[*]' columns(ord for ordinality, v int path '$.v')) jt;

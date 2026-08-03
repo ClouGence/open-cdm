@@ -1,0 +1,42 @@
+[hierarchical_pseudocolumns]
+sql:
+select d.name,level depth,connect_by_isleaf leaf_flag,connect_by_iscycle cycle_flag
+from catalog1.app.department d
+start with d.id=1
+connect by nocycle prior d.id=d.parent_id
+expect:
+{
+  "name": ["/catalog1/app/department/name/"],
+  "depth": [],
+  "leaf_flag": [],
+  "cycle_flag": []
+}
+----------
+[hierarchical_operators]
+sql:
+select
+  connect_by_root d.name root_name,
+  prior d.name parent_name,
+  sys_connect_by_path(d.name,'/') name_path
+from catalog1.app.department d
+start with d.id=1
+connect by prior d.id=d.parent_id
+expect:
+{
+  "root_name": ["/catalog1/app/department/name/"],
+  "parent_name": ["/catalog1/app/department/name/"],
+  "name_path": ["/catalog1/app/department/name/"]
+}
+----------
+[hierarchical_join_columns]
+sql:
+select d.name,m.label
+from catalog1.app.department d
+join catalog1.app.department_meta m on d.id=m.id
+start with d.id=1
+connect by prior d.id=d.parent_id
+expect:
+{
+  "name": ["/catalog1/app/department/name/"],
+  "label": ["/catalog1/app/department_meta/label/"]
+}

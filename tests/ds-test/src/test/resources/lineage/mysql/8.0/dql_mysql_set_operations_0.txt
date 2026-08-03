@@ -1,0 +1,785 @@
+[dql_mysql_set_operations_0.0001]
+sql:
+SELECT INTERVAL(13,7,14,21,28,35,42,49,56,77), FIELD('IBM','NCA','ICL','SUN','IBM','DIGITAL'), ELT(2,'ONE','TWO','THREE'), ELT(1,1.1,1.2,1.3)+0;
+expect:
+{
+  "INTERVAL(13,7,14,21,28,35,42,49,56,77)" : [ ],
+  "FIELD('IBM','NCA','ICL','SUN','IBM','DIGITAL')" : [ ],
+  "ELT(2,'ONE','TWO','THREE')" : [ ],
+  "ELT(1,1.1,1.2,1.3)+0" : [ ]
+}
+----------
+[dql_mysql_set_operations_0.0002]
+sql:
+SELECT FIND_IN_SET(BINARY 'a',BINARY 'A,B,C'), FIND_IN_SET('',',a,b,c'), FIND_IN_SET('1','3,1,');
+expect:
+{
+  "FIND_IN_SET(BINARY 'a',BINARY 'A,B,C')" : [ ],
+  "FIND_IN_SET('',',a,b,c')" : [ ],
+  "FIND_IN_SET('1','3,1,')" : [ ]
+}
+----------
+[dql_mysql_set_operations_0.0003]
+sql:
+SELECT MAKE_SET(-1,'a','b','c'), MAKE_SET(1|4,'a',NULL,'c'), MAKE_SET(1+2,CONCAT('a','b'),'c');
+expect:
+{
+  "MAKE_SET(-1,'a','b','c')" : [ ],
+  "MAKE_SET(1|4,'a',NULL,'c')" : [ ],
+  "MAKE_SET(1+2,CONCAT('a','b'),'c')" : [ ]
+}
+----------
+[dql_mysql_set_operations_0.0004]
+sql:
+SELECT INTERVAL(0.0,CAST(NULL AS DECIMAL),CAST(DATE(NULL) AS DECIMAL),NULL,NULL,NULL,NULL,NULL,NULL);
+expect:
+{
+  "INTERVAL(0.0,CAST(NULL AS DECIMAL),CAST(DATE(NULL) AS DECIMAL),NULL,NULL,NULL,NULL,NULL,NULL)" : [ ]
+}
+----------
+[dql_mysql_set_operations_0.0005]
+sql:
+SELECT l.id,ELT(r.val,'one','two') FROM split_func_set_native.t_left AS l JOIN split_func_set_native.t_right AS r ON r.id=l.id ORDER BY l.id;
+expect:
+{
+  "id" : [ "(1:7~1:11) /catalog1/split_func_set_native/t_left/id/" ],
+  "ELT(r.val,'one','two')" : [ "(1:16~1:21) /catalog1/split_func_set_native/t_right/val/" ]
+}
+----------
+[dql_mysql_set_operations_0.0006]
+sql:
+SELECT FIND_IN_SET(f1,f1) FROM split_func_set_native.t_set,(SELECT FIND_IN_SET(f1,f1) FROM split_func_set_native.t_set) AS d;
+expect:
+{
+  "FIND_IN_SET(f1,f1)" : [ "(1:19~1:21) /catalog1/split_func_set_native/t_set/f1/", "(1:22~1:24) /catalog1/split_func_set_native/t_set/f1/" ]
+}
+----------
+[dql_mysql_set_operations_0.0007]
+sql:
+SELECT CONVERT(f1 USING latin1) FROM split_func_set_native.t_set;
+expect:
+{
+  "CONVERT(f1 USING latin1)" : [ "(1:15~1:17) /catalog1/split_func_set_native/t_set/f1/" ]
+}
+----------
+[dql_mysql_set_operations_0.0008]
+sql:
+SELECT * FROM split_func_set_native.t_set WHERE FIND_IN_SET(DAYOFWEEK(CURRENT_DATE()),days) IS UNKNOWN;
+expect:
+{
+  "id" : [ "(1:7~1:8) /catalog1/split_func_set_native/t_set/id/" ]
+}
+----------
+[dql_mysql_set_operations_0.0010]
+sql:
+SELECT 1 IN (SELECT MAKE_SET(-1,1,(SELECT 1 FROM split_func_set_native.t_nested)) FROM split_func_set_native.t_nested);
+expect:
+{
+  "1 IN (SELECT MAKE_SET(-1,1,(SELECT 1 FROM split_func_set_native.t_nested)) FROM split_func_set_native.t_nested)" : [ ]
+}
+----------
+[dql_mysql_set_operations_0.0011]
+sql:
+SELECT 'literal' AS param,FIND_IN_SET('foxtrot',s),s FROM split_func_set_native.t_union UNION SELECT 'column',FIND_IN_SET(c,s),s FROM split_func_set_native.t_union;
+expect:
+{
+  "param" : [ ],
+  "FIND_IN_SET('foxtrot',s)" : [ "(1:48~1:49) /catalog1/split_func_set_native/t_union/s/", "(1:122~1:123) /catalog1/split_func_set_native/t_union/c/", "(1:124~1:125) /catalog1/split_func_set_native/t_union/s/" ],
+  "s" : [ "(1:51~1:52) /catalog1/split_func_set_native/t_union/s/", "(1:127~1:128) /catalog1/split_func_set_native/t_union/s/" ]
+}
+----------
+[dql_mysql_set_operations_0.0012]
+sql:
+SELECT FIND_IN_SET(JSON_UNQUOTE(JSON_SET('{}','$','')),1);
+expect:
+{
+  "FIND_IN_SET(JSON_UNQUOTE(JSON_SET('{}','$','')),1)" : [ ]
+}
+----------
+[dql_mysql_set_operations_0.0013]
+sql:
+(SELECT a FROM t LIMIT 5 OFFSET 4) UNION ALL SELECT a FROM t2 LIMIT 8 OFFSET 1;
+expect:
+{
+  "a" : [ "(1:8~1:9) /catalog1/schema1/t/a/", "(1:52~1:53) /catalog1/schema1/t2/a/" ]
+}
+----------
+[dql_mysql_set_operations_0.0014]
+sql:
+WITH RECURSIVE qn(n) AS (SELECT 1 UNION ALL SELECT n+1 FROM qn WHERE n<2) SELECT /*+ SET_VAR(cte_max_recursion_depth=5) */ COUNT(*) FROM qn;
+expect:
+{
+  "COUNT(*)" : [ ]
+}
+----------
+[dql_mysql_set_operations_0.0015]
+sql:
+SELECT /*+ SET_VAR(windowing_use_high_precision=OFF) */ id, AVG(id) OVER w FROM t1 WINDOW w AS (ORDER BY id RANGE BETWEEN 1 FOLLOWING AND 2 FOLLOWING);
+expect:
+{
+  "id" : [ "(1:56~1:58) /catalog1/schema1/t1/id/" ],
+  "AVG(id) OVER w" : [ "(1:64~1:66) /catalog1/schema1/t1/id/", "(1:56~1:58) /catalog1/schema1/t1/id/" ]
+}
+----------
+[dql_mysql_set_operations_0.0016]
+sql:
+SELECT /*+ SET_VAR(foo = 10) */ 1;
+expect:
+{
+  "1" : [ ]
+}
+----------
+[dql_mysql_set_operations_0.0017]
+sql:
+SELECT /*+ SET_VAR(foo = 1K) */ 1;
+expect:
+{
+  "1" : [ ]
+}
+----------
+[dql_mysql_set_operations_0.0018]
+sql:
+SELECT /*+ SET_VAR(foo = 21M) */ 1;
+expect:
+{
+  "1" : [ ]
+}
+----------
+[dql_mysql_set_operations_0.0019]
+sql:
+SELECT /*+ SET_VAR(foo = 321G) */ 1;
+expect:
+{
+  "1" : [ ]
+}
+----------
+[dql_mysql_set_operations_0.0020]
+sql:
+SELECT /*+ SET_VAR(foo = 9000100500G) */ 1;
+expect:
+{
+  "1" : [ ]
+}
+----------
+[dql_mysql_set_operations_0.0021]
+sql:
+SELECT /*+ SET_VAR(foo = 'test') */ 1;
+expect:
+{
+  "1" : [ ]
+}
+----------
+[dql_mysql_set_operations_0.0022]
+sql:
+SELECT /*+ SET_VAR(foo = "test""test") */ 1;
+expect:
+{
+  "1" : [ ]
+}
+----------
+[dql_mysql_set_operations_0.0023]
+sql:
+SELECT /*+ SET_VAR(foo = 900010050018247362846826482468) */ 1;
+expect:
+{
+  "1" : [ ]
+}
+----------
+[dql_mysql_set_operations_0.0024]
+sql:
+SELECT /*+ SET_VAR(foo = 900010050018247362846826482468000) */ 1;
+expect:
+{
+  "1" : [ ]
+}
+----------
+[dql_mysql_set_operations_0.0032]
+sql:
+SELECT /*+ SET_VAR(range_alloc_block_size=7000) */ 1;
+expect:
+{
+  "1" : [ ]
+}
+----------
+[dql_mysql_set_operations_0.0033]
+sql:
+SELECT /*+ SET_VAR(max_heap_table_size=1G) SET_VAR(internal_tmp_mem_storage_engine=MEMORY) */ 1;
+expect:
+{
+  "1" : [ ]
+}
+----------
+[dql_mysql_set_operations_0.0034]
+sql:
+SELECT /*+ SET_VAR(SESSION max_join_size=1) */ 1;
+expect:
+{
+  "1" : [ ]
+}
+----------
+[dql_mysql_set_operations_0.0035]
+sql:
+SELECT /*+ SET_VAR(@@SESSION.max_join_size=1) */ 1;
+expect:
+{
+  "1" : [ ]
+}
+----------
+[dql_mysql_set_operations_0.0036]
+sql:
+SELECT /*+ SET_VAR(@@max_join_size=1) */ 1;
+expect:
+{
+  "1" : [ ]
+}
+----------
+[dql_mysql_set_operations_0.0037]
+sql:
+SELECT 1 FROM DUAL WHERE EXISTS (SELECT /*+ SET_VAR(sort_buffer_size=16M) */ 1 FROM DUAL);
+expect:
+{
+  "1" : [ ]
+}
+----------
+[dql_mysql_set_operations_0.0038]
+sql:
+(SELECT /*+ SET_VAR(sort_buffer_size=16M) */ id FROM t1) UNION ALL (SELECT /*+ SET_VAR(sort_buffer_size=32M) */ id FROM t2);
+expect:
+{
+  "id" : [ "(1:45~1:47) /catalog1/schema1/t1/id/", "(1:112~1:114) /catalog1/schema1/t2/id/" ]
+}
+----------
+[dql_mysql_set_operations_0.0039]
+sql:
+SELECT /*+ SET_VAR(sql_select_limit=18446744073709551616) */ 1;
+expect:
+{
+  "1" : [ ]
+}
+----------
+[dql_mysql_set_operations_0.0040]
+sql:
+SELECT /*+ SET_VAR(sql_select_limit=18446744073709551615) */ 1;
+expect:
+{
+  "1" : [ ]
+}
+----------
+[dql_mysql_set_operations_0.0041]
+sql:
+SELECT /*+ SET_VAR(time_zone='+04:00') */ TIMEDIFF(NOW(), UTC_TIMESTAMP());
+expect:
+{
+  "TIMEDIFF(NOW(), UTC_TIMESTAMP())" : [ ]
+}
+----------
+[dql_mysql_set_operations_0.0043]
+sql:
+SELECT /*+ SET_VAR(foo=1.25) */ 1;
+expect:
+{
+  "1" : [ ]
+}
+----------
+[dql_mysql_set_operations_0.0044]
+sql:
+SELECT /*+ SET_VAR(`max_join_size`=1) */ 1;
+expect:
+{
+  "1" : [ ]
+}
+----------
+[dql_mysql_set_operations_0.0045]
+sql:
+SELECT /*+ SET_VAR(foo='') */ 1;
+expect:
+{
+  "1" : [ ]
+}
+----------
+[dql_mysql_set_operations_0.0046]
+sql:
+SELECT /*+ SET_VAR(foo='te''st') */ 1;
+expect:
+{
+  "1" : [ ]
+}
+----------
+[dql_mysql_set_operations_0.0047]
+sql:
+SELECT /*+ SET_VAR(foo=1.25) SET_VAR(end_markers_in_json=ON) */ 1;
+expect:
+{
+  "1" : [ ]
+}
+----------
+[dql_mysql_set_operations_0.0048]
+sql:
+SELECT 1 AS n UNION ALL SELECT 1 INTERSECT ALL SELECT 1;
+expect:
+{
+  "n" : [ ]
+}
+----------
+[dql_mysql_set_operations_0.0049]
+sql:
+SELECT id FROM t EXCEPT DISTINCT SELECT id FROM t2 EXCEPT ALL SELECT 99;
+expect:
+{
+  "id" : [ "(1:7~1:9) /catalog1/schema1/t/id/", "(1:40~1:42) /catalog1/schema1/t2/id/" ]
+}
+----------
+[dql_mysql_set_operations_0.0051]
+sql:
+(TABLE t ORDER BY id LIMIT 2) INTERSECT (TABLE t2 ORDER BY id LIMIT 2);
+expect:
+{
+  "id" : [ "(1:7~1:8) /catalog1/schema1/t/id/", "(1:47~1:49) /catalog1/schema1/t2/id/" ]
+}
+----------
+[dql_mysql_set_operations_0.0053]
+sql:
+(SELECT 1 AS n UNION SELECT 2 LIMIT 2) LIMIT 1;
+expect:
+{
+  "n" : [ ]
+}
+----------
+[dql_mysql_set_operations_0.0054]
+sql:
+(SELECT id FROM t WHERE id = 1 FOR UPDATE) UNION ALL SELECT id FROM t2 WHERE id = 2;
+expect:
+{
+  "id" : [ "(1:8~1:10) /catalog1/schema1/t/id/", "(1:60~1:62) /catalog1/schema1/t2/id/" ]
+}
+----------
+[dql_mysql_set_operations_0.0055]
+sql:
+SELECT id FROM t WHERE id <= 2 UNION DISTINCT SELECT id FROM t2 WHERE id >= 2 ORDER BY id LIMIT 3;
+expect:
+{
+  "id" : [ "(1:7~1:9) /catalog1/schema1/t/id/", "(1:53~1:55) /catalog1/schema1/t2/id/" ]
+}
+----------
+[dql_mysql_set_operations_0.0056]
+sql:
+SELECT id FROM t WHERE id = 99 UNION ALL SELECT id FROM t2 WHERE id = 1 INTO @set_id;
+expect:
+{
+  "id" : [ "(1:7~1:9) /catalog1/schema1/t/id/", "(1:48~1:50) /catalog1/schema1/t2/id/" ]
+}
+----------
+[dql_mysql_set_operations_0.0057]
+sql:
+SELECT id FROM split_set_tail.t
+INTERSECT
+SELECT id FROM split_set_tail.t2
+ORDER BY id LIMIT 1
+FOR UPDATE
+INTO @split_intersect_tail;
+expect:
+{
+  "id" : [ "(1:7~1:9) /catalog1/split_set_tail/t/id/", "(3:7~3:9) /catalog1/split_set_tail/t2/id/" ]
+}
+----------
+[dql_mysql_set_operations_0.0058]
+sql:
+SELECT id FROM split_set_tail.t
+EXCEPT
+SELECT id FROM split_set_tail.t2
+ORDER BY id LIMIT 1
+LOCK IN SHARE MODE
+INTO @split_except_tail;
+expect:
+{
+  "id" : [ "(1:7~1:9) /catalog1/split_set_tail/t/id/", "(3:7~3:9) /catalog1/split_set_tail/t2/id/" ]
+}
+----------
+[dql_mysql_set_operations_0.0059]
+sql:
+SELECT id FROM split_set_tail.t
+UNION ALL
+SELECT id FROM split_set_tail.t2
+FOR UPDATE;
+expect:
+{
+  "id" : [ "(1:7~1:9) /catalog1/split_set_tail/t/id/", "(3:7~3:9) /catalog1/split_set_tail/t2/id/" ]
+}
+----------
+[dql_mysql_set_operations_0.0060]
+sql:
+SELECT id FROM split_set_tail.t
+UNION ALL
+SELECT id FROM split_set_tail.t2
+ORDER BY id LIMIT 1 FOR UPDATE;
+expect:
+{
+  "id" : [ "(1:7~1:9) /catalog1/split_set_tail/t/id/", "(3:7~3:9) /catalog1/split_set_tail/t2/id/" ]
+}
+----------
+[dql_mysql_set_operations_0.0061]
+sql:
+SELECT id FROM split_set_tail.t
+UNION ALL
+SELECT id FROM split_set_tail.t2
+ORDER BY id LIMIT 1 INTO @split_set_tail;
+expect:
+{
+  "id" : [ "(1:7~1:9) /catalog1/split_set_tail/t/id/", "(3:7~3:9) /catalog1/split_set_tail/t2/id/" ]
+}
+----------
+[dql_mysql_set_operations_0.0062]
+sql:
+SELECT id FROM split_set_tail.t
+UNION ALL
+SELECT id FROM split_set_tail.t2
+ORDER BY id LIMIT 1
+FOR UPDATE
+INTO @split_set_lock_tail;
+expect:
+{
+  "id" : [ "(1:7~1:9) /catalog1/split_set_tail/t/id/", "(3:7~3:9) /catalog1/split_set_tail/t2/id/" ]
+}
+----------
+[dql_mysql_set_operations_0.0063]
+sql:
+SELECT 1 AS n UNION ALL SELECT 1 UNION DISTINCT SELECT 1 UNION ALL SELECT 2 ORDER BY n;
+expect:
+{
+  "n" : [ ]
+}
+----------
+[dql_mysql_set_operations_0.0064]
+sql:
+SELECT source, COUNT(*) AS cnt FROM (SELECT 't' AS source, grp FROM t UNION ALL SELECT 't2', grp FROM t2) AS u GROUP BY source HAVING COUNT(*) > 1 ORDER BY source;
+expect:
+{
+  "source" : [ ],
+  "cnt" : [ ]
+}
+----------
+[dql_mysql_set_operations_0.0065]
+sql:
+SELECT id, CASE WHEN id = (SELECT 1 UNION SELECT 1) THEN 'one' ELSE 'other' END AS kind FROM t ORDER BY id;
+expect:
+{
+  "id" : [ "(1:7~1:9) /catalog1/schema1/t/id/" ],
+  "kind" : [ "(1:21~1:23) /catalog1/schema1/t/id/" ]
+}
+----------
+[dql_mysql_set_operations_0.0066]
+sql:
+SELECT id FROM t AS o WHERE EXISTS (SELECT 1 FROM t2 WHERE t2.id = o.id UNION ALL SELECT 1 FROM t AS i WHERE i.grp = o.grp AND i.id < o.id) ORDER BY id;
+expect:
+{
+  "id" : [ "(1:7~1:9) /catalog1/schema1/t/id/" ]
+}
+----------
+[dql_mysql_set_operations_0.0067]
+sql:
+SELECT id AS first_id FROM t UNION ALL SELECT id AS second_id FROM t2 ORDER BY first_id LIMIT 4;
+expect:
+{
+  "first_id" : [ "(1:7~1:9) /catalog1/schema1/t/id/", "(1:46~1:48) /catalog1/schema1/t2/id/" ]
+}
+----------
+[dql_mysql_set_operations_0.0068]
+sql:
+(SELECT 1 INTO @v) UNION (SELECT 1);
+expect:
+{
+  "1" : [ ]
+}
+----------
+[dql_mysql_set_operations_0.0069]
+sql:
+(SELECT 1) UNION (SELECT 1 INTO @v);
+expect:
+{
+  "1" : [ ]
+}
+----------
+[dql_mysql_set_operations_0.0070]
+sql:
+SELECT 1 INTO @v UNION SELECT 2;
+expect:
+{
+  "1" : [ ]
+}
+----------
+[dql_mysql_set_operations_0.0071]
+sql:
+SELECT 1 UNION SELECT 2 INTO @v;
+expect:
+{
+  "1" : [ ]
+}
+----------
+[dql_mysql_set_operations_0.0072]
+sql:
+(SELECT 1) UNION ALL (SELECT SQL_CALC_FOUND_ROWS 2) LIMIT 1;
+expect:
+{
+  "1" : [ ]
+}
+----------
+[dql_mysql_set_operations_0.0074]
+sql:
+(SELECT a FROM r UNION SELECT a FROM s ORDER BY a LIMIT 4) ORDER BY -a LIMIT 2;
+expect:
+{
+  "a" : [ "(1:8~1:9) /catalog1/schema1/r/a/", "(1:30~1:31) /catalog1/schema1/s/a/" ]
+}
+----------
+[dql_mysql_set_operations_0.0075]
+sql:
+(((SELECT a FROM t ORDER BY a LIMIT 3) ORDER BY -a LIMIT 2) ORDER BY a LIMIT 1) UNION ALL (((SELECT a FROM t ORDER BY a LIMIT 3) ORDER BY -a LIMIT 2) ORDER BY a LIMIT 1);
+expect:
+{
+  "a" : [ "(1:10~1:11) /catalog1/schema1/t/a/", "(1:100~1:101) /catalog1/schema1/t/a/" ]
+}
+----------
+[dql_mysql_set_operations_0.0076]
+sql:
+((SELECT a FROM r UNION DISTINCT SELECT a FROM s) UNION ALL (SELECT a FROM r UNION ALL SELECT a FROM t)) ORDER BY a;
+expect:
+{
+  "a" : [ "(1:9~1:10) /catalog1/schema1/r/a/", "(1:40~1:41) /catalog1/schema1/s/a/", "(1:68~1:69) /catalog1/schema1/r/a/", "(1:94~1:95) /catalog1/schema1/t/a/" ]
+}
+----------
+[dql_mysql_set_operations_0.0077]
+sql:
+(SELECT 1 AS a UNION SELECT 2) UNION ALL (SELECT 1 UNION SELECT 1) ORDER BY 1;
+expect:
+{
+  "a" : [ ]
+}
+----------
+[dql_mysql_set_operations_0.0078]
+sql:
+((SELECT a FROM r UNION SELECT a FROM s ORDER BY a LIMIT 2) UNION ALL (SELECT a FROM r UNION ALL SELECT a FROM t ORDER BY a LIMIT 2)) ORDER BY a LIMIT 3;
+expect:
+{
+  "a" : [ "(1:9~1:10) /catalog1/schema1/r/a/", "(1:31~1:32) /catalog1/schema1/s/a/", "(1:78~1:79) /catalog1/schema1/r/a/", "(1:104~1:105) /catalog1/schema1/t/a/" ]
+}
+----------
+[dql_mysql_set_operations_0.0079]
+sql:
+(((SELECT a FROM r UNION DISTINCT SELECT 1 ORDER BY a LIMIT 2) UNION ALL (SELECT a FROM s UNION DISTINCT (SELECT a FROM t UNION ALL SELECT a FROM r ORDER BY a LIMIT 2)) ORDER BY a LIMIT 3) UNION DISTINCT (SELECT a FROM r UNION DISTINCT SELECT a FROM t)) ORDER BY a LIMIT 5;
+expect:
+{
+  "a" : [ "(1:10~1:11) /catalog1/schema1/r/a/", "(1:81~1:82) /catalog1/schema1/s/a/", "(1:113~1:114) /catalog1/schema1/t/a/", "(1:139~1:140) /catalog1/schema1/r/a/", "(1:212~1:213) /catalog1/schema1/r/a/", "(1:243~1:244) /catalog1/schema1/t/a/" ]
+}
+----------
+[dql_mysql_set_operations_0.0081]
+sql:
+SELECT @u:=1 UNION SELECT @u:=@u+1;
+expect:
+{
+  "1" : [ ]
+}
+----------
+[dql_mysql_set_operations_0.0082]
+sql:
+SELECT 1 AS src,1 AS a FROM r UNION SELECT 2,a FROM s GROUP BY a WITH ROLLUP ORDER BY src,a LIMIT 5;
+expect:
+{
+  "src" : [ ],
+  "a" : [ "(1:45~1:46) /catalog1/schema1/s/a/" ]
+}
+----------
+[dql_mysql_set_operations_0.0083]
+sql:
+SELECT * FROM ((SELECT * FROM r LIMIT 1) UNION (SELECT * FROM s LIMIT 1) UNION (SELECT * FROM t LIMIT 1)) AS d;
+expect:
+{
+  "id" : [ "(1:23~1:24) /catalog1/schema1/r/id/", "(1:55~1:56) /catalog1/schema1/s/id/", "(1:87~1:88) /catalog1/schema1/t/id/" ]
+}
+----------
+[dql_mysql_set_operations_0.0084]
+sql:
+SELECT (SELECT 0 AS a UNION SELECT 1 AS a ORDER BY a DESC LIMIT 1) AS scalar_union;
+expect:
+{
+  "scalar_union" : [ ]
+}
+----------
+[dql_mysql_set_operations_0.0085]
+sql:
+SELECT 1 AS foo UNION SELECT 2 ORDER BY MAX(1);
+expect:
+{
+  "foo" : [ ]
+}
+----------
+[dql_mysql_set_operations_0.0086]
+sql:
+SELECT 1 AS foo UNION SELECT 2 ORDER BY (SELECT foo);
+expect:
+{
+  "foo" : [ ]
+}
+----------
+[dql_mysql_set_operations_0.0087]
+sql:
+SELECT NULL AS g UNION SELECT ST_GeomFromText('POINT(1 1)');
+expect:
+{
+  "g" : [ ]
+}
+----------
+[dql_mysql_set_operations_0.0088]
+sql:
+SELECT _utf8mb4'a' AS c UNION SELECT _latin1'b';
+expect:
+{
+  "c" : [ ]
+}
+----------
+[dql_mysql_set_operations_0.0089]
+sql:
+SELECT CAST('2004-12-31' AS DATE) AS d UNION SELECT NOW();
+expect:
+{
+  "d" : [ ]
+}
+----------
+[dql_mysql_set_operations_0.0090]
+sql:
+SELECT 1 AS a UNION SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 3;
+expect:
+{
+  "a" : [ ]
+}
+----------
+[dql_mysql_set_operations_0.0091]
+sql:
+(((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((SELECT a FROM r UNION SELECT a FROM s ORDER BY a LIMIT 5) UNION SELECT a FROM s ORDER BY a LIMIT 5) UNION SELECT a FROM s ORDER BY a LIMIT 5) UNION SELECT a FROM s ORDER BY a LIMIT 5) UNION SELECT a FROM s ORDER BY a LIMIT 5) UNION SELECT a FROM s ORDER BY a LIMIT 5) UNION SELECT a FROM s ORDER BY a LIMIT 5) UNION SELECT a FROM s ORDER BY a LIMIT 5) UNION SELECT a FROM s ORDER BY a LIMIT 5) UNION SELECT a FROM s ORDER BY a LIMIT 5) UNION SELECT a FROM s ORDER BY a LIMIT 5) UNION SELECT a FROM s ORDER BY a LIMIT 5) UNION SELECT a FROM s ORDER BY a LIMIT 5) UNION SELECT a FROM s ORDER BY a LIMIT 5) UNION SELECT a FROM s ORDER BY a LIMIT 5) UNION SELECT a FROM s ORDER BY a LIMIT 5) UNION SELECT a FROM s ORDER BY a LIMIT 5) UNION SELECT a FROM s ORDER BY a LIMIT 5) UNION SELECT a FROM s ORDER BY a LIMIT 5) UNION SELECT a FROM s ORDER BY a LIMIT 5) UNION SELECT a FROM s ORDER BY a LIMIT 5) UNION SELECT a FROM s ORDER BY a LIMIT 5) UNION SELECT a FROM s ORDER BY a LIMIT 5) UNION SELECT a FROM s ORDER BY a LIMIT 5) UNION SELECT a FROM s ORDER BY a LIMIT 5) UNION SELECT a FROM s ORDER BY a LIMIT 5) UNION SELECT a FROM s ORDER BY a LIMIT 5) UNION SELECT a FROM s ORDER BY a LIMIT 5) UNION SELECT a FROM s ORDER BY a LIMIT 5) UNION SELECT a FROM s ORDER BY a LIMIT 5) UNION SELECT a FROM s ORDER BY a LIMIT 5) UNION SELECT a FROM s ORDER BY a LIMIT 5) UNION SELECT a FROM s ORDER BY a LIMIT 5) UNION SELECT a FROM s ORDER BY a LIMIT 5) UNION SELECT a FROM s ORDER BY a LIMIT 5) UNION SELECT a FROM s ORDER BY a LIMIT 5) UNION SELECT a FROM s ORDER BY a LIMIT 5) UNION SELECT a FROM s ORDER BY a LIMIT 5) UNION SELECT a FROM s ORDER BY a LIMIT 5) UNION SELECT a FROM s ORDER BY a LIMIT 5) UNION SELECT a FROM s ORDER BY a LIMIT 5) UNION SELECT a FROM s ORDER BY a LIMIT 5) UNION SELECT a FROM s ORDER BY a LIMIT 5) UNION SELECT a FROM s ORDER BY a LIMIT 5) UNION SELECT a FROM s ORDER BY a LIMIT 5) UNION SELECT a FROM s ORDER BY a LIMIT 5) UNION SELECT a FROM s ORDER BY a LIMIT 5) UNION SELECT a FROM s ORDER BY a LIMIT 5) UNION SELECT a FROM s ORDER BY a LIMIT 5) UNION SELECT a FROM s ORDER BY a LIMIT 5) UNION SELECT a FROM s ORDER BY a LIMIT 5) UNION SELECT a FROM s ORDER BY a LIMIT 5) UNION SELECT a FROM s ORDER BY a LIMIT 5) UNION SELECT a FROM s ORDER BY a LIMIT 5) UNION SELECT a FROM s ORDER BY a LIMIT 5) UNION SELECT a FROM s ORDER BY a LIMIT 5) UNION SELECT a FROM s ORDER BY a LIMIT 5) UNION SELECT a FROM s ORDER BY a LIMIT 5) UNION SELECT a FROM s ORDER BY a LIMIT 5) UNION SELECT a FROM s ORDER BY a LIMIT 5) UNION SELECT a FROM s ORDER BY a LIMIT 5) UNION SELECT a FROM s ORDER BY a LIMIT 5) UNION SELECT a FROM s ORDER BY a LIMIT 5);
+expect:
+{
+  "a" : [ "(1:70~1:71) /catalog1/schema1/r/a/", "(1:92~1:93) /catalog1/schema1/s/a/", "(1:134~1:135) /catalog1/schema1/s/a/", "(1:176~1:177) /catalog1/schema1/s/a/", "(1:218~1:219) /catalog1/schema1/s/a/", "(1:260~1:261) /catalog1/schema1/s/a/", "(1:302~1:303) /catalog1/schema1/s/a/", "(1:344~1:345) /catalog1/schema1/s/a/", "(1:386~1:387) /catalog1/schema1/s/a/", "(1:428~1:429) /catalog1/schema1/s/a/", "(1:470~1:471) /catalog1/schema1/s/a/", "(1:512~1:513) /catalog1/schema1/s/a/", "(1:554~1:555) /catalog1/schema1/s/a/", "(1:596~1:597) /catalog1/schema1/s/a/", "(1:638~1:639) /catalog1/schema1/s/a/", "(1:680~1:681) /catalog1/schema1/s/a/", "(1:722~1:723) /catalog1/schema1/s/a/", "(1:764~1:765) /catalog1/schema1/s/a/", "(1:806~1:807) /catalog1/schema1/s/a/", "(1:848~1:849) /catalog1/schema1/s/a/", "(1:890~1:891) /catalog1/schema1/s/a/", "(1:932~1:933) /catalog1/schema1/s/a/", "(1:974~1:975) /catalog1/schema1/s/a/", "(1:1016~1:1017) /catalog1/schema1/s/a/", "(1:1058~1:1059) /catalog1/schema1/s/a/", "(1:1100~1:1101) /catalog1/schema1/s/a/", "(1:1142~1:1143) /catalog1/schema1/s/a/", "(1:1184~1:1185) /catalog1/schema1/s/a/", "(1:1226~1:1227) /catalog1/schema1/s/a/", "(1:1268~1:1269) /catalog1/schema1/s/a/", "(1:1310~1:1311) /catalog1/schema1/s/a/", "(1:1352~1:1353) /catalog1/schema1/s/a/", "(1:1394~1:1395) /catalog1/schema1/s/a/", "(1:1436~1:1437) /catalog1/schema1/s/a/", "(1:1478~1:1479) /catalog1/schema1/s/a/", "(1:1520~1:1521) /catalog1/schema1/s/a/", "(1:1562~1:1563) /catalog1/schema1/s/a/", "(1:1604~1:1605) /catalog1/schema1/s/a/", "(1:1646~1:1647) /catalog1/schema1/s/a/", "(1:1688~1:1689) /catalog1/schema1/s/a/", "(1:1730~1:1731) /catalog1/schema1/s/a/", "(1:1772~1:1773) /catalog1/schema1/s/a/", "(1:1814~1:1815) /catalog1/schema1/s/a/", "(1:1856~1:1857) /catalog1/schema1/s/a/", "(1:1898~1:1899) /catalog1/schema1/s/a/", "(1:1940~1:1941) /catalog1/schema1/s/a/", "(1:1982~1:1983) /catalog1/schema1/s/a/", "(1:2024~1:2025) /catalog1/schema1/s/a/", "(1:2066~1:2067) /catalog1/schema1/s/a/", "(1:2108~1:2109) /catalog1/schema1/s/a/", "(1:2150~1:2151) /catalog1/schema1/s/a/", "(1:2192~1:2193) /catalog1/schema1/s/a/", "(1:2234~1:2235) /catalog1/schema1/s/a/", "(1:2276~1:2277) /catalog1/schema1/s/a/", "(1:2318~1:2319) /catalog1/schema1/s/a/", "(1:2360~1:2361) /catalog1/schema1/s/a/", "(1:2402~1:2403) /catalog1/schema1/s/a/", "(1:2444~1:2445) /catalog1/schema1/s/a/", "(1:2486~1:2487) /catalog1/schema1/s/a/", "(1:2528~1:2529) /catalog1/schema1/s/a/", "(1:2570~1:2571) /catalog1/schema1/s/a/", "(1:2612~1:2613) /catalog1/schema1/s/a/", "(1:2654~1:2655) /catalog1/schema1/s/a/", "(1:2696~1:2697) /catalog1/schema1/s/a/" ]
+}
+----------
+[dql_mysql_set_operations_0.0092]
+sql:
+SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1) UNION SELECT AVG(1);
+expect:
+{
+  "AVG(1)" : [ ]
+}
+----------
+[dql_mysql_set_operations_0.0093]
+sql:
+(SELECT 1,3) UNION (SELECT 2,1) ORDER BY (SELECT 2);
+expect:
+{
+  "1" : [ ],
+  "3" : [ ]
+}
+----------
+[dql_mysql_set_operations_0.0094]
+sql:
+SELECT 1 UNION SELECT 1 INTO @v FOR UPDATE;
+expect:
+{
+  "1" : [ ]
+}
+----------
+[dql_mysql_set_operations_0.0095]
+sql:
+SELECT 1 UNION SELECT 1 FOR UPDATE INTO @v;
+expect:
+{
+  "1" : [ ]
+}
+----------
+[dql_mysql_set_operations_0.0096]
+sql:
+SELECT 1 UNION (SELECT 1) INTO @v;
+expect:
+{
+  "1" : [ ]
+}
+----------
+[dql_mysql_set_operations_0.0097]
+sql:
+(SELECT 1) UNION (SELECT 1) INTO @v;
+expect:
+{
+  "1" : [ ]
+}
+----------
+[dql_mysql_set_operations_0.0098]
+sql:
+SELECT * FROM (SELECT f1,f2,SUM(f2) OVER(PARTITION BY f1,f2) FROM t1 GROUP BY f1,f2 INTERSECT ALL SELECT f1,f2,SUM(f2) OVER(PARTITION BY f1,f2) FROM t2 GROUP BY f1,f2) AS dt WHERE f1>2 AND f2>30 AND (f1+f2)>40;
+expect:
+{
+  "f1" : [ "(1:22~1:24) /catalog1/schema1/t1/f1/", "(1:105~1:107) /catalog1/schema1/t2/f1/" ],
+  "f2" : [ "(1:25~1:27) /catalog1/schema1/t1/f2/", "(1:108~1:110) /catalog1/schema1/t2/f2/" ],
+  "SUM(f2) OVER(PARTITION BY f1,f2)" : [ "(1:32~1:34) /catalog1/schema1/t1/f2/", "(1:22~1:24) /catalog1/schema1/t1/f1/", "(1:25~1:27) /catalog1/schema1/t1/f2/", "(1:115~1:117) /catalog1/schema1/t2/f2/", "(1:105~1:107) /catalog1/schema1/t2/f1/", "(1:108~1:110) /catalog1/schema1/t2/f2/" ]
+}
+----------
+[dql_mysql_set_operations_0.0099]
+sql:
+SELECT (WITH cte AS (SELECT f1 AS f2 FROM t1) SELECT f1 FROM (SELECT f1 FROM t1 EXCEPT SELECT t2.f1 FROM cte) AS dt WHERE f1>0) AS f3 FROM t1,t1 AS t2 GROUP BY f3;
+expect:
+{
+  "exception" : "IllegalArgumentException"
+}
+----------
+[dql_mysql_set_operations_0.0100]
+sql:
+SELECT * FROM t3 EXCEPT ALL (SELECT * FROM t2 EXCEPT SELECT * FROM t1);
+expect:
+{
+  "id" : [ "(1:7~1:8) /catalog1/schema1/t3/id/", "(1:36~1:37) /catalog1/schema1/t2/id/", "(1:60~1:61) /catalog1/schema1/t1/id/" ]
+}
+----------
+[dql_mysql_set_operations_0.0101]
+sql:
+SELECT * FROM (SELECT * FROM t3 UNION DISTINCT SELECT * FROM t3 UNION ALL SELECT * FROM t3) x1 INTERSECT SELECT * FROM (SELECT * FROM t3 UNION DISTINCT SELECT * FROM t3 UNION ALL SELECT * FROM t3) x2 WHERE i>1 ORDER BY i;
+expect:
+{
+  "id" : [ "(1:22~1:23) /catalog1/schema1/t3/id/", "(1:54~1:55) /catalog1/schema1/t3/id/", "(1:81~1:82) /catalog1/schema1/t3/id/", "(1:127~1:128) /catalog1/schema1/t3/id/", "(1:159~1:160) /catalog1/schema1/t3/id/", "(1:186~1:187) /catalog1/schema1/t3/id/" ]
+}
+----------
+[dql_mysql_set_operations_0.0102]
+sql:
+WITH a AS (
+    SELECT id, ROW_NUMBER() OVER (PARTITION BY grp ORDER BY v DESC) AS rn FROM t1
+), b AS (
+    SELECT id, ROW_NUMBER() OVER (PARTITION BY grp ORDER BY v DESC) AS rn FROM t2
+)
+SELECT id FROM a WHERE rn <= 2
+INTERSECT
+SELECT id FROM b WHERE rn = 1
+ORDER BY id
+LIMIT 3;
+expect:
+{
+  "id" : [ "(2:11~2:13) /catalog1/schema1/t1/id/", "(4:11~4:13) /catalog1/schema1/t2/id/" ]
+}
+----------
+[dql_mysql_set_operations_0.0103]
+sql:
+(SELECT a FROM r EXCEPT ALL SELECT a FROM s) INTERSECT ALL SELECT a FROM t;
+expect:
+{
+  "a" : [ "(1:8~1:9) /catalog1/schema1/r/a/", "(1:35~1:36) /catalog1/schema1/s/a/", "(1:66~1:67) /catalog1/schema1/t/a/" ]
+}
+----------
+[dql_mysql_set_operations_0.0104]
+sql:
+SELECT a INTO @v FROM (SELECT a FROM t1 UNION SELECT a FROM t1) alias;
+expect:
+{
+  "a" : [ "(1:30~1:31) /catalog1/schema1/t1/a/", "(1:53~1:54) /catalog1/schema1/t1/a/" ]
+}
+----------
+[dql_mysql_set_operations_0.0105]
+sql:
+SELECT (SELECT a UNION SELECT a) INTO @v FROM t1;
+expect:
+{
+  "(SELECT a UNION SELECT a)" : [ "(1:15~1:16) /catalog1/schema1/t1/a/", "(1:30~1:31) /catalog1/schema1/t1/a/" ]
+}

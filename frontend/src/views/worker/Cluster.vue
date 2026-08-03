@@ -119,6 +119,7 @@
   </div>
 </template>
 <script>
+import appLogger from '@/utils/logger';
 import _ from '@/utils/lodash';
 import { handleCopy as handleCopyUtil } from '@/utils/clipboard';
 import { mapGetters, mapState } from 'vuex';
@@ -293,7 +294,7 @@ export default {
       ];
     },
     init() {
-      console.log('this.type', this.type);
+      appLogger.debug('this.type', this.type);
       if (this.type === 'dm') {
         this.regions = this.buildDmRegions();
         this.supportedRegions = this.buildDmRegions();
@@ -487,7 +488,7 @@ export default {
       this.showConfirmDelete = false;
     },
     handleChangeCloudOrIdcName(data) {
-      console.log('data', data);
+      appLogger.debug('data', data);
       if (this.type === 'dm') {
         this.regions = this.buildDmRegions();
         this.supportedRegions = this.buildDmRegions();

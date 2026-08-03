@@ -1,0 +1,66 @@
+select top 0 * from app.customer;
+select top 2,3 id from app.customer order by id;
+select top 50 percent id from app.customer order by id;
+select top 20 percent with ties g from app.customer order by g;
+select top 2 with ties g from app.customer;
+select top 101 percent id from app.customer;
+select top (1+1) id from app.customer;
+select top -1 id from app.customer;
+select top 2 id from app.customer limit 1;
+select id from app.customer order by id limit 0;
+select id from app.customer order by id limit 3,2;
+select id from app.customer order by id limit 2 offset 3;
+select id from app.customer order by id offset 3 limit 2;
+select id from app.customer limit -1;
+select id from app.customer limit 1+1;
+select id from app.customer order by id offset (-2.4) rows fetch next 2.6 rows only;
+select id from app.customer order by id offset null rows fetch first null rows only;
+select id from app.customer order by id fetch first 50 percent rows only;
+select g from app.customer order by g fetch first 20 percent rows with ties;
+select id from app.customer fetch first 2 rows with ties;
+select app.s.nextval from app.customer fetch first 2 rows only;
+select * from (select id from app.customer order by id limit 2) s;
+------------------------------------------------------------------------------------------
+[SELECT] select top 0 * from app.customer;
+----------
+[SELECT] select top 2,3 id from app.customer order by id;
+----------
+[SELECT] select top 50 percent id from app.customer order by id;
+----------
+[SELECT] select top 20 percent with ties g from app.customer order by g;
+----------
+[SELECT] select top 2 with ties g from app.customer;
+----------
+[SELECT] select top 101 percent id from app.customer;
+----------
+[SELECT] select top (1+1) id from app.customer;
+----------
+[SELECT] select top -1 id from app.customer;
+----------
+[SELECT] select top 2 id from app.customer limit 1;
+----------
+[SELECT] select id from app.customer order by id limit 0;
+----------
+[SELECT] select id from app.customer order by id limit 3,2;
+----------
+[SELECT] select id from app.customer order by id limit 2 offset 3;
+----------
+[SELECT] select id from app.customer order by id offset 3 limit 2;
+----------
+[SELECT] select id from app.customer limit -1;
+----------
+[SELECT] select id from app.customer limit 1+1;
+----------
+[SELECT] select id from app.customer order by id offset (-2.4) rows fetch next 2.6 rows only;
+----------
+[SELECT] select id from app.customer order by id offset null rows fetch first null rows only;
+----------
+[SELECT] select id from app.customer order by id fetch first 50 percent rows only;
+----------
+[SELECT] select g from app.customer order by g fetch first 20 percent rows with ties;
+----------
+[SELECT] select id from app.customer fetch first 2 rows with ties;
+----------
+[SELECT] select app.s.nextval from app.customer fetch first 2 rows only;
+----------
+[SELECT] select * from (select id from app.customer order by id limit 2) s;

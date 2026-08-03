@@ -1,0 +1,610 @@
+[split_performance_dameng_explain_atomic_0_001_behavior_review]
+sql:
+-- DIRECT_SELECT
+explain select ID,V from EX_TARGET where ID=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Table(2:25~2:34) /test/1/catalog1/schema1/EX_TARGET/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_performance_dameng_explain_atomic_0_002_behavior_review]
+sql:
+-- DIRECT_SELECT_JOIN
+explain select T.ID,S.NAME from EX_TARGET T join EX_SOURCE S on S.ID=T.ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Table(2:32~2:41) /test/1/catalog1/schema1/EX_TARGET/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(2:49~2:58) /test/1/catalog1/schema1/EX_SOURCE/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_performance_dameng_explain_atomic_0_003_behavior_review]
+sql:
+-- DIRECT_SELECT_CTE
+explain with Q as(select ID,V from EX_TARGET) select * from Q where V>0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Table(2:35~2:44) /test/1/catalog1/schema1/EX_TARGET/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_performance_dameng_explain_atomic_0_004_behavior_review]
+sql:
+-- DIRECT_SELECT_GROUP_ANALYTIC
+explain select ID,sum(V) over(order by ID) from EX_TARGET group by ID,V;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Function(2:18~2:21) /test/1/catalog1/schema1/sum/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(2:48~2:57) /test/1/catalog1/schema1/EX_TARGET/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_performance_dameng_explain_atomic_0_005_behavior_review]
+sql:
+-- DIRECT_SELECT_ARRAY
+explain select column_value from array new int[2]{1,2};
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": []
+}
+----------
+[split_performance_dameng_explain_atomic_0_006_behavior_review]
+sql:
+-- DIRECT_SELECT_PARTITION
+explain select * from EX_PART partition(P1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Partition(2:40~2:42) /test/1/catalog1/schema1/EX_PART/P1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_performance_dameng_explain_atomic_0_007_behavior_review]
+sql:
+-- DIRECT_SELECT_FOR_UPDATE
+explain select * from EX_TARGET where ID=1 for update;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Table(2:22~2:31) /test/1/catalog1/schema1/EX_TARGET/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(2:22~2:31) /test/1/catalog1/schema1/EX_TARGET/",
+      "action" : "LOCK"
+    }
+  ]
+}
+----------
+[split_performance_dameng_explain_atomic_0_008_behavior_review]
+sql:
+-- DIRECT_INSERT_VALUES
+explain insert into EX_TARGET values(3,30,'C');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Table(2:20~2:29) /test/1/catalog1/schema1/EX_TARGET/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_performance_dameng_explain_atomic_0_009_behavior_review]
+sql:
+-- DIRECT_INSERT_SELECT
+explain insert into EX_TARGET select ID+10,V,NAME from EX_SOURCE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Table(2:20~2:29) /test/1/catalog1/schema1/EX_TARGET/",
+      "action" : "INSERT",
+      "target" : "Table(2:55~2:64) /test/1/catalog1/schema1/EX_SOURCE/"
+    }
+  ]
+}
+----------
+[split_performance_dameng_explain_atomic_0_010_behavior_review]
+sql:
+-- DIRECT_UPDATE
+explain update EX_TARGET set V=V+1 where ID=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Table(2:15~2:24) /test/1/catalog1/schema1/EX_TARGET/",
+      "action" : "UPDATE"
+    }
+  ]
+}
+----------
+[split_performance_dameng_explain_atomic_0_011_behavior_review]
+sql:
+-- DIRECT_DELETE
+explain delete from EX_TARGET where ID=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Table(2:20~2:29) /test/1/catalog1/schema1/EX_TARGET/",
+      "action" : "DELETE"
+    }
+  ]
+}
+----------
+[split_performance_dameng_explain_atomic_0_012_behavior_review]
+sql:
+-- DIRECT_MERGE
+explain merge into EX_TARGET T using EX_SOURCE S on(T.ID=S.ID) when matched then update set T.V=S.V when not matched then insert values(S.ID,S.V,S.NAME);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Table(2:19~2:28) /test/1/catalog1/schema1/EX_TARGET/",
+      "action" : "MERGE",
+      "target" : "Table(2:37~2:46) /test/1/catalog1/schema1/EX_SOURCE/"
+    }
+  ]
+}
+----------
+[split_performance_dameng_explain_atomic_0_013_behavior_review]
+sql:
+-- FOR_SELECT
+explain for select ID,V from EX_TARGET where ID=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Table(2:29~2:38) /test/1/catalog1/schema1/EX_TARGET/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_performance_dameng_explain_atomic_0_014_behavior_review]
+sql:
+-- FOR_AS_SIMPLE
+explain as EX_PLAN_1 for select * from EX_TARGET;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Table(2:39~2:48) /test/1/catalog1/schema1/EX_TARGET/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_performance_dameng_explain_atomic_0_015_behavior_review]
+sql:
+-- FOR_AS_QUOTED
+explain as "Plan Mixed" for select * from EX_TARGET;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Table(2:42~2:51) /test/1/catalog1/schema1/EX_TARGET/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_performance_dameng_explain_atomic_0_016_behavior_review]
+sql:
+-- FOR_AS_128
+explain as PAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA for select * from EX_TARGET;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Table(2:158~2:167) /test/1/catalog1/schema1/EX_TARGET/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_performance_dameng_explain_atomic_0_017_behavior_review]
+sql:
+-- FOR_AS_129
+explain as PAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA for select * from EX_TARGET;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Table(2:159~2:168) /test/1/catalog1/schema1/EX_TARGET/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_performance_dameng_explain_atomic_0_018_behavior_review]
+sql:
+-- FOR_INSERT_VALUES
+explain for insert into EX_TARGET values(3,30,'C');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Table(2:24~2:33) /test/1/catalog1/schema1/EX_TARGET/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_performance_dameng_explain_atomic_0_019_behavior_review]
+sql:
+-- FOR_INSERT_SELECT
+explain for insert into EX_TARGET select ID+10,V,NAME from EX_SOURCE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Table(2:24~2:33) /test/1/catalog1/schema1/EX_TARGET/",
+      "action" : "INSERT",
+      "target" : "Table(2:59~2:68) /test/1/catalog1/schema1/EX_SOURCE/"
+    }
+  ]
+}
+----------
+[split_performance_dameng_explain_atomic_0_020_behavior_review]
+sql:
+-- FOR_UPDATE
+explain for update EX_TARGET set V=V+1 where ID=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Table(2:19~2:28) /test/1/catalog1/schema1/EX_TARGET/",
+      "action" : "UPDATE"
+    }
+  ]
+}
+----------
+[split_performance_dameng_explain_atomic_0_021_behavior_review]
+sql:
+-- FOR_DELETE
+explain for delete from EX_TARGET where ID=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Table(2:24~2:33) /test/1/catalog1/schema1/EX_TARGET/",
+      "action" : "DELETE"
+    }
+  ]
+}
+----------
+[split_performance_dameng_explain_atomic_0_022_behavior_review]
+sql:
+-- FOR_MERGE
+explain for merge into EX_TARGET T using EX_SOURCE S on(T.ID=S.ID) when matched then update set T.V=S.V;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Table(2:23~2:32) /test/1/catalog1/schema1/EX_TARGET/",
+      "action" : "MERGE",
+      "target" : "Table(2:41~2:50) /test/1/catalog1/schema1/EX_SOURCE/"
+    }
+  ]
+}
+----------
+[split_performance_dameng_explain_atomic_0_023_behavior_review]
+sql:
+-- FOR_SELECT_JOIN
+explain for select T.ID,S.NAME from EX_TARGET T join EX_SOURCE S on S.ID=T.ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Table(2:36~2:45) /test/1/catalog1/schema1/EX_TARGET/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(2:53~2:62) /test/1/catalog1/schema1/EX_SOURCE/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_performance_dameng_explain_atomic_0_024_behavior_review]
+sql:
+-- FOR_SELECT_CTE
+explain for with Q as(select ID,V from EX_TARGET) select * from Q where V>0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Table(2:39~2:48) /test/1/catalog1/schema1/EX_TARGET/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_performance_dameng_explain_atomic_0_025_behavior_review]
+sql:
+-- FOR_SELECT_GROUP_ANALYTIC
+explain for select ID,sum(V) over(order by ID) from EX_TARGET group by ID,V;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Function(2:22~2:25) /test/1/catalog1/schema1/sum/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(2:52~2:61) /test/1/catalog1/schema1/EX_TARGET/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_performance_dameng_explain_atomic_0_026_behavior_review]
+sql:
+-- FOR_SELECT_ARRAY
+explain for select column_value from array new int[2]{1,2};
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": []
+}
+----------
+[split_performance_dameng_explain_atomic_0_027_behavior_review]
+sql:
+-- FOR_SELECT_PARTITION
+explain for select * from EX_PART partition(P1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Partition(2:44~2:46) /test/1/catalog1/schema1/EX_PART/P1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_performance_dameng_explain_atomic_0_028_behavior_review]
+sql:
+-- FOR_SELECT_FOR_UPDATE
+explain for select * from EX_TARGET where ID=1 for update;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Table(2:26~2:35) /test/1/catalog1/schema1/EX_TARGET/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(2:26~2:35) /test/1/catalog1/schema1/EX_TARGET/",
+      "action" : "LOCK"
+    }
+  ]
+}
+----------
+[split_performance_dameng_explain_atomic_0_029_behavior_review]
+sql:
+-- AS_EMPTY_QUOTED_NAME
+explain as "" for select * from EX_TARGET;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Table(2:32~2:41) /test/1/catalog1/schema1/EX_TARGET/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_performance_dameng_explain_atomic_0_030_behavior_review]
+sql:
+-- UNSUPPORTED_CREATE
+explain create table EX_NEW(ID int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Table(2:21~2:27) /test/1/catalog1/schema1/EX_NEW/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_performance_dameng_explain_atomic_0_031_behavior_review]
+sql:
+-- UNSUPPORTED_DROP
+explain drop table EX_TARGET;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Table(2:19~2:28) /test/1/catalog1/schema1/EX_TARGET/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_performance_dameng_explain_atomic_0_032_behavior_review]
+sql:
+-- UNSUPPORTED_CALL
+explain call SP_TABLEDEF('SYSDBA','EX_TARGET');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Procedure(2:13~2:24) /test/1/catalog1/schema1/SP_TABLEDEF/",
+      "action" : "CALL",
+      "target" : "Table(2:34~2:45) /test/1/catalog1/SYSDBA/EX_TARGET/"
+    }
+  ]
+}
+----------
+[split_performance_dameng_explain_atomic_0_033_behavior_review]
+sql:
+-- USER_DIRECT_SELECT
+explain select * from CODEX_DM8_EXPLAIN.EX_TARGET;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Table(2:22~2:49) /test/1/catalog1/CODEX_DM8_EXPLAIN/EX_TARGET/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_performance_dameng_explain_atomic_0_034_behavior_review]
+sql:
+-- USER_FOR_SELECT
+explain as USER_PLAN for select * from CODEX_DM8_EXPLAIN.EX_TARGET;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Table(2:39~2:66) /test/1/catalog1/CODEX_DM8_EXPLAIN/EX_TARGET/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_performance_dameng_explain_atomic_0_035_behavior_review]
+sql:
+-- USER_SELECT_DENIED
+explain select * from CODEX_DM8_EXPLAIN.EX_TARGET;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Table(2:22~2:49) /test/1/catalog1/CODEX_DM8_EXPLAIN/EX_TARGET/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_performance_dameng_explain_atomic_0_036_behavior_review]
+sql:
+-- USER_DIRECT_INSERT
+explain insert into CODEX_DM8_EXPLAIN.EX_TARGET values(3,30,'C');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Table(2:20~2:47) /test/1/catalog1/CODEX_DM8_EXPLAIN/EX_TARGET/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_performance_dameng_explain_atomic_0_037_behavior_review]
+sql:
+-- USER_INSERT_DENIED
+explain insert into CODEX_DM8_EXPLAIN.EX_TARGET values(3,30,'C');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Table(2:20~2:47) /test/1/catalog1/CODEX_DM8_EXPLAIN/EX_TARGET/",
+      "action" : "INSERT"
+    }
+  ]
+}

@@ -1,0 +1,423 @@
+[split_block_dameng_dbms_rls_signature_combinations_0_001]
+sql:
+-- FUNC-0713 ADD_GROUPED_POLICY
+begin DBMS_RLS.ADD_GROUPED_POLICY(object_name=>'RLS_T',policy_group=>'G',policy_name=>'P',policy_function=>'RLS_POLICY'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:33) /test/1/catalog1/DBMS_RLS/ADD_GROUPED_POLICY/",
+      "action": "CALL",
+      "target": [
+        "Table(2:47~2:54) /test/1/catalog1/schema1/RLS_T/",
+        "Policy(2:69~2:72) /test/1/G/",
+        "RowAccessPolicy(2:86~2:89) /test/1/catalog1/schema1/P/",
+        "Function(2:107~2:119) /test/1/catalog1/schema1/RLS_POLICY/"
+      ]
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_rls_signature_combinations_0_002]
+sql:
+-- FUNC-0714 ADD_POLICY
+begin DBMS_RLS.ADD_POLICY(object_name=>'RLS_T',policy_name=>'P',policy_function=>'RLS_POLICY'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:25) /test/1/catalog1/DBMS_RLS/ADD_POLICY/",
+      "action": "CALL",
+      "target": [
+        "Table(2:39~2:46) /test/1/catalog1/schema1/RLS_T/",
+        "RowAccessPolicy(2:60~2:63) /test/1/catalog1/schema1/P/",
+        "Function(2:81~2:93) /test/1/catalog1/schema1/RLS_POLICY/"
+      ]
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_rls_signature_combinations_0_003]
+sql:
+-- FUNC-0715 ADD_POLICY_CONTEXT
+begin DBMS_RLS.ADD_POLICY_CONTEXT(object_name=>'RLS_T',namespace=>'NS',attribute=>'A'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:33) /test/1/catalog1/DBMS_RLS/ADD_POLICY_CONTEXT/",
+      "action": "CALL",
+      "target": [
+        "Table(2:47~2:54) /test/1/catalog1/schema1/RLS_T/",
+        "ConfigKey(2:66~2:70) /test/1/NS/"
+      ]
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_rls_signature_combinations_0_004]
+sql:
+-- FUNC-0716 CREATE_POLICY_GROUP
+begin DBMS_RLS.CREATE_POLICY_GROUP(object_name=>'RLS_T',policy_group=>'G'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:34) /test/1/catalog1/DBMS_RLS/CREATE_POLICY_GROUP/",
+      "action": "CALL",
+      "target": [
+        "Table(2:48~2:55) /test/1/catalog1/schema1/RLS_T/",
+        "Policy(2:70~2:73) /test/1/G/"
+      ]
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_rls_signature_combinations_0_005]
+sql:
+-- FUNC-0717 DELETE_POLICY_GROUP
+begin DBMS_RLS.DELETE_POLICY_GROUP(object_name=>'RLS_T',policy_group=>'G'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:34) /test/1/catalog1/DBMS_RLS/DELETE_POLICY_GROUP/",
+      "action": "CALL",
+      "target": [
+        "Table(2:48~2:55) /test/1/catalog1/schema1/RLS_T/",
+        "Policy(2:70~2:73) /test/1/G/"
+      ]
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_rls_signature_combinations_0_006]
+sql:
+-- FUNC-0718 DISABLE_GROUPED_POLICY
+begin DBMS_RLS.DISABLE_GROUPED_POLICY(object_name=>'RLS_T',group_name=>'SYS_DEFAULT',policy_name=>'P'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:37) /test/1/catalog1/DBMS_RLS/DISABLE_GROUPED_POLICY/",
+      "action": "CALL",
+      "target": [
+        "Table(2:51~2:58) /test/1/catalog1/schema1/RLS_T/",
+        "Policy(2:71~2:84) /test/1/SYS_DEFAULT/",
+        "RowAccessPolicy(2:98~2:101) /test/1/catalog1/schema1/P/"
+      ]
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_rls_signature_combinations_0_007]
+sql:
+-- FUNC-0719 DROP_GROUPED_POLICY
+begin DBMS_RLS.DROP_GROUPED_POLICY(object_name=>'RLS_T',policy_name=>'P'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:34) /test/1/catalog1/DBMS_RLS/DROP_GROUPED_POLICY/",
+      "action": "CALL",
+      "target": [
+        "Table(2:48~2:55) /test/1/catalog1/schema1/RLS_T/",
+        "Policy(2:6~2:34) /test/1/SYS_DEFAULT/",
+        "RowAccessPolicy(2:69~2:72) /test/1/catalog1/schema1/P/"
+      ]
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_rls_signature_combinations_0_008]
+sql:
+-- FUNC-0720 DROP_POLICY
+begin DBMS_RLS.DROP_POLICY(object_name=>'RLS_T',policy_name=>'P'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:26) /test/1/catalog1/DBMS_RLS/DROP_POLICY/",
+      "action": "CALL",
+      "target": [
+        "Table(2:40~2:47) /test/1/catalog1/schema1/RLS_T/",
+        "RowAccessPolicy(2:61~2:64) /test/1/catalog1/schema1/P/"
+      ]
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_rls_signature_combinations_0_009]
+sql:
+-- FUNC-0721 DROP_POLICY_CONTEXT
+begin DBMS_RLS.DROP_POLICY_CONTEXT(object_name=>'RLS_T',namespace=>'NS',attribute=>'A'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:34) /test/1/catalog1/DBMS_RLS/DROP_POLICY_CONTEXT/",
+      "action": "CALL",
+      "target": [
+        "Table(2:48~2:55) /test/1/catalog1/schema1/RLS_T/",
+        "ConfigKey(2:67~2:71) /test/1/NS/"
+      ]
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_rls_signature_combinations_0_010]
+sql:
+-- FUNC-0722 ENABLE_GROUPED_POLICY
+begin DBMS_RLS.ENABLE_GROUPED_POLICY(object_name=>'RLS_T',group_name=>'SYS_DEFAULT',policy_name=>'P'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:36) /test/1/catalog1/DBMS_RLS/ENABLE_GROUPED_POLICY/",
+      "action": "CALL",
+      "target": [
+        "Table(2:50~2:57) /test/1/catalog1/schema1/RLS_T/",
+        "Policy(2:70~2:83) /test/1/SYS_DEFAULT/",
+        "RowAccessPolicy(2:97~2:100) /test/1/catalog1/schema1/P/"
+      ]
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_rls_signature_combinations_0_011]
+sql:
+-- FUNC-0723 ENABLE_POLICY
+begin DBMS_RLS.ENABLE_POLICY(object_name=>'RLS_T',policy_name=>'P'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:28) /test/1/catalog1/DBMS_RLS/ENABLE_POLICY/",
+      "action": "CALL",
+      "target": [
+        "Table(2:42~2:49) /test/1/catalog1/schema1/RLS_T/",
+        "RowAccessPolicy(2:63~2:66) /test/1/catalog1/schema1/P/"
+      ]
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_rls_signature_combinations_0_012]
+sql:
+-- FUNC-1765 ADD_POLICY
+begin DBMS_RLS.ADD_POLICY(object_name=>'RLS_T',policy_name=>'P',policy_function=>'RLS_POLICY',update_check=>false); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:25) /test/1/catalog1/DBMS_RLS/ADD_POLICY/",
+      "action": "CALL",
+      "target": [
+        "Table(2:39~2:46) /test/1/catalog1/schema1/RLS_T/",
+        "RowAccessPolicy(2:60~2:63) /test/1/catalog1/schema1/P/",
+        "Function(2:81~2:93) /test/1/catalog1/schema1/RLS_POLICY/"
+      ]
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_rls_signature_combinations_0_013]
+sql:
+-- FUNC-1766 REFRESH_POLICY
+begin DBMS_RLS.REFRESH_POLICY(object_name=>'RLS_T',policy_name=>'P'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:29) /test/1/catalog1/DBMS_RLS/REFRESH_POLICY/",
+      "action": "CALL",
+      "target": [
+        "Table(2:43~2:50) /test/1/catalog1/schema1/RLS_T/",
+        "RowAccessPolicy(2:64~2:67) /test/1/catalog1/schema1/P/"
+      ]
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_rls_signature_combinations_0_014]
+sql:
+-- FUNC-1767 ENABLE_POLICY
+begin DBMS_RLS.ENABLE_POLICY(object_name=>'RLS_T',policy_name=>'P',enable=>true); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:28) /test/1/catalog1/DBMS_RLS/ENABLE_POLICY/",
+      "action": "CALL",
+      "target": [
+        "Table(2:42~2:49) /test/1/catalog1/schema1/RLS_T/",
+        "RowAccessPolicy(2:63~2:66) /test/1/catalog1/schema1/P/"
+      ]
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_rls_signature_combinations_0_015]
+sql:
+-- FUNC-1768 ADD_GROUPED_POLICY
+begin DBMS_RLS.ADD_GROUPED_POLICY(object_name=>'RLS_T',policy_group=>'G',policy_name=>'P',policy_function=>'RLS_POLICY',update_check=>false); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:33) /test/1/catalog1/DBMS_RLS/ADD_GROUPED_POLICY/",
+      "action": "CALL",
+      "target": [
+        "Table(2:47~2:54) /test/1/catalog1/schema1/RLS_T/",
+        "Policy(2:69~2:72) /test/1/G/",
+        "RowAccessPolicy(2:86~2:89) /test/1/catalog1/schema1/P/",
+        "Function(2:107~2:119) /test/1/catalog1/schema1/RLS_POLICY/"
+      ]
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_rls_signature_combinations_0_016]
+sql:
+-- FUNC-1769 REFRESH_GROUPED_POLICY
+begin DBMS_RLS.REFRESH_GROUPED_POLICY(object_name=>'RLS_T',group_name=>'SYS_DEFAULT',policy_name=>'P'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:37) /test/1/catalog1/DBMS_RLS/REFRESH_GROUPED_POLICY/",
+      "action": "CALL",
+      "target": [
+        "Table(2:51~2:58) /test/1/catalog1/schema1/RLS_T/",
+        "Policy(2:71~2:84) /test/1/SYS_DEFAULT/",
+        "RowAccessPolicy(2:98~2:101) /test/1/catalog1/schema1/P/"
+      ]
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_rls_signature_combinations_0_017]
+sql:
+-- FUNC-1770 ENABLE_GROUPED_POLICY
+begin DBMS_RLS.ENABLE_GROUPED_POLICY(object_name=>'RLS_T',group_name=>'SYS_DEFAULT',policy_name=>'P',enable=>true); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:36) /test/1/catalog1/DBMS_RLS/ENABLE_GROUPED_POLICY/",
+      "action": "CALL",
+      "target": [
+        "Table(2:50~2:57) /test/1/catalog1/schema1/RLS_T/",
+        "Policy(2:70~2:83) /test/1/SYS_DEFAULT/",
+        "RowAccessPolicy(2:97~2:100) /test/1/catalog1/schema1/P/"
+      ]
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_rls_signature_combinations_0_018]
+sql:
+-- FUNC-1771 ADD_MASK
+begin DBMS_RLS.ADD_MASK('APP','RLS_T','TXT','APP',NULL,'MASK_VALUE'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:23) /test/1/catalog1/DBMS_RLS/ADD_MASK/",
+      "action": "CALL",
+      "target": [
+        "Table(2:30~2:37) /test/1/catalog1/APP/RLS_T/",
+        "Function(2:55~2:67) /test/1/catalog1/APP/MASK_VALUE/"
+      ]
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_rls_signature_combinations_0_019]
+sql:
+-- FUNC-1772 DROP_MASK
+begin DBMS_RLS.DROP_MASK('APP','RLS_T','TXT'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:24) /test/1/catalog1/DBMS_RLS/DROP_MASK/",
+      "action": "CALL",
+      "target": "Table(2:31~2:38) /test/1/catalog1/APP/RLS_T/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_rls_signature_combinations_0_020]
+sql:
+-- FUNC-1773 documented external initializer
+call SP_INIT_RLS_SYS(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:20) /test/1/catalog1/schema1/SP_INIT_RLS_SYS/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_rls_signature_combinations_0_021]
+sql:
+-- FUNC-1774 documented external checker
+select SF_CHECK_RLS_SYS() from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:23) /test/1/catalog1/schema1/SF_CHECK_RLS_SYS/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:31~2:35) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}

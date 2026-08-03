@@ -1,0 +1,294 @@
+create table tblen_ps4_varchar(v varchar(32767),i int);
+insert into tblen_ps4_varchar values(rpad('x',1875,'0123456789'),1);
+insert into tblen_ps4_varchar values(rpad('x',1876,'0123456789'),1);
+create table tblen_ps4_char_ok(v char(1879));
+insert into tblen_ps4_char_ok values(rpad('x',1879,'0123456789'));
+create table tblen_ps4_char_fail(v char(1880));
+insert into tblen_ps4_char_fail values(rpad('x',1880,'0123456789'));
+create table tblen_ps4_binary_ok(v binary(1900));
+create table tblen_ps4_binary_fail(v binary(1901));
+create table tblen_ps4_varbinary(v varbinary(32767),i int);
+insert into tblen_ps4_varbinary values(utl_raw.cast_to_raw(repeat('R',1875)),1);
+insert into tblen_ps4_varbinary values(utl_raw.cast_to_raw(repeat('R',1876)),1);
+create table tblen_ps4_long(a varchar(32767),b varchar(32767),i int) storage(using long row);
+insert into tblen_ps4_long values(rpad('a',32767,'0123456789'),rpad('b',32767,'abcdefghij'),1);
+select lengthb(a),lengthb(b),i from tblen_ps4_long;
+create table tblen_ps8_varchar(v varchar(32767),i int);
+insert into tblen_ps8_varchar values(rpad('x',3875,'0123456789'),1);
+insert into tblen_ps8_varchar values(rpad('x',3876,'0123456789'),1);
+create table tblen_ps8_char_ok(v char(3879));
+insert into tblen_ps8_char_ok values(rpad('x',3879,'0123456789'));
+create table tblen_ps8_char_fail(v char(3880));
+insert into tblen_ps8_char_fail values(rpad('x',3880,'0123456789'));
+create table tblen_ps8_binary_ok(v binary(3900));
+create table tblen_ps8_binary_fail(v binary(3901));
+create table tblen_ps8_varbinary(v varbinary(32767),i int);
+insert into tblen_ps8_varbinary values(utl_raw.cast_to_raw(repeat('R',3875)),1);
+insert into tblen_ps8_varbinary values(utl_raw.cast_to_raw(repeat('R',3876)),1);
+create table tblen_ps8_long(a varchar(32767),b varchar(32767),i int) storage(using long row);
+insert into tblen_ps8_long values(rpad('a',32767,'0123456789'),rpad('b',32767,'abcdefghij'),1);
+select lengthb(a),lengthb(b),i from tblen_ps8_long;
+create table tblen_ps16_varchar(v varchar(32767),i int);
+insert into tblen_ps16_varchar values(rpad('x',7975,'0123456789'),1);
+insert into tblen_ps16_varchar values(rpad('x',7976,'0123456789'),1);
+create table tblen_ps16_char_ok(v char(7979));
+insert into tblen_ps16_char_ok values(rpad('x',7979,'0123456789'));
+create table tblen_ps16_char_fail(v char(7980));
+insert into tblen_ps16_char_fail values(rpad('x',7980,'0123456789'));
+create table tblen_ps16_binary_ok(v binary(8000));
+create table tblen_ps16_binary_fail(v binary(8001));
+create table tblen_ps16_varbinary(v varbinary(32767),i int);
+insert into tblen_ps16_varbinary values(utl_raw.cast_to_raw(repeat('R',7975)),1);
+insert into tblen_ps16_varbinary values(utl_raw.cast_to_raw(repeat('R',7976)),1);
+create table tblen_ps16_long(a varchar(32767),b varchar(32767),i int) storage(using long row);
+insert into tblen_ps16_long values(rpad('a',32767,'0123456789'),rpad('b',32767,'abcdefghij'),1);
+select lengthb(a),lengthb(b),i from tblen_ps16_long;
+create table tblen_ps32_varchar(v varchar(32767),i int);
+insert into tblen_ps32_varchar values(rpad('x',16175,'0123456789'),1);
+insert into tblen_ps32_varchar values(rpad('x',16176,'0123456789'),1);
+create table tblen_ps32_char_ok(v char(16179));
+insert into tblen_ps32_char_ok values(rpad('x',16179,'0123456789'));
+create table tblen_ps32_char_fail(v char(16180));
+insert into tblen_ps32_char_fail values(rpad('x',16180,'0123456789'));
+create table tblen_ps32_binary_ok(v binary(16200));
+create table tblen_ps32_binary_fail(v binary(16201));
+create table tblen_ps32_varbinary(v varbinary(32767),i int);
+insert into tblen_ps32_varbinary values(utl_raw.cast_to_raw(repeat('R',16175)),1);
+insert into tblen_ps32_varbinary values(utl_raw.cast_to_raw(repeat('R',16176)),1);
+create table tblen_ps32_long(a varchar(32767),b varchar(32767),i int) storage(using long row);
+insert into tblen_ps32_long values(rpad('a',32767,'0123456789'),rpad('b',32767,'abcdefghij'),1);
+select lengthb(a),lengthb(b),i from tblen_ps32_long;
+create table tblen_long_transition(v varchar(32767),i int);
+insert into tblen_long_transition values(rpad('x',7975,'0123456789'),1);
+update tblen_long_transition set v=rpad('x',7976,'0123456789');
+alter table tblen_long_transition enable using long row;
+update tblen_long_transition set v=rpad('x',32767,'0123456789');
+alter table tblen_long_transition disable using long row;
+delete from tblen_long_transition;
+alter table tblen_long_transition disable using long row;
+create global temporary table tblen_long_temp(v varchar(32767)) storage(using long row) on commit preserve rows;
+create table tblen_binary_zero(v binary(0));
+create table tblen_varbinary_over(v varbinary(32768));
+create table tblen_varchar_over(v varchar(32768));
+select sf_get_page_size() from dual;
+drop table if exists tblen_ps4_varchar purge;
+drop table if exists tblen_ps4_char_ok purge;
+drop table if exists tblen_ps4_char_fail purge;
+drop table if exists tblen_ps4_binary_ok purge;
+drop table if exists tblen_ps4_varbinary purge;
+drop table if exists tblen_ps4_long purge;
+drop table if exists tblen_ps8_varchar purge;
+drop table if exists tblen_ps8_char_ok purge;
+drop table if exists tblen_ps8_char_fail purge;
+drop table if exists tblen_ps8_binary_ok purge;
+drop table if exists tblen_ps8_varbinary purge;
+drop table if exists tblen_ps8_long purge;
+drop table if exists tblen_ps16_varchar purge;
+drop table if exists tblen_ps16_char_ok purge;
+drop table if exists tblen_ps16_char_fail purge;
+drop table if exists tblen_ps16_binary_ok purge;
+drop table if exists tblen_ps16_varbinary purge;
+drop table if exists tblen_ps16_long purge;
+drop table if exists tblen_ps32_varchar purge;
+drop table if exists tblen_ps32_char_ok purge;
+drop table if exists tblen_ps32_char_fail purge;
+drop table if exists tblen_ps32_binary_ok purge;
+drop table if exists tblen_ps32_varbinary purge;
+drop table if exists tblen_ps32_long purge;
+drop table if exists tblen_long_transition purge;
+------------------------------------------------------------------------------------------
+[CREATE_TABLE|ADD_COLUMN] create table tblen_ps4_varchar(v varchar(32767),i int);
+----------
+[INSERT] insert into tblen_ps4_varchar values(rpad('x',1875,'0123456789'),1);
+----------
+[INSERT] insert into tblen_ps4_varchar values(rpad('x',1876,'0123456789'),1);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table tblen_ps4_char_ok(v char(1879));
+----------
+[INSERT] insert into tblen_ps4_char_ok values(rpad('x',1879,'0123456789'));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table tblen_ps4_char_fail(v char(1880));
+----------
+[INSERT] insert into tblen_ps4_char_fail values(rpad('x',1880,'0123456789'));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table tblen_ps4_binary_ok(v binary(1900));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table tblen_ps4_binary_fail(v binary(1901));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table tblen_ps4_varbinary(v varbinary(32767),i int);
+----------
+[INSERT|CALL_PROG_OBJ] insert into tblen_ps4_varbinary values(utl_raw.cast_to_raw(repeat('R',1875)),1);
+----------
+[INSERT|CALL_PROG_OBJ] insert into tblen_ps4_varbinary values(utl_raw.cast_to_raw(repeat('R',1876)),1);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table tblen_ps4_long(a varchar(32767),b varchar(32767),i int) storage(using long row);
+----------
+[INSERT] insert into tblen_ps4_long values(rpad('a',32767,'0123456789'),rpad('b',32767,'abcdefghij'),1);
+----------
+[SELECT] select lengthb(a),lengthb(b),i from tblen_ps4_long;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table tblen_ps8_varchar(v varchar(32767),i int);
+----------
+[INSERT] insert into tblen_ps8_varchar values(rpad('x',3875,'0123456789'),1);
+----------
+[INSERT] insert into tblen_ps8_varchar values(rpad('x',3876,'0123456789'),1);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table tblen_ps8_char_ok(v char(3879));
+----------
+[INSERT] insert into tblen_ps8_char_ok values(rpad('x',3879,'0123456789'));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table tblen_ps8_char_fail(v char(3880));
+----------
+[INSERT] insert into tblen_ps8_char_fail values(rpad('x',3880,'0123456789'));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table tblen_ps8_binary_ok(v binary(3900));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table tblen_ps8_binary_fail(v binary(3901));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table tblen_ps8_varbinary(v varbinary(32767),i int);
+----------
+[INSERT|CALL_PROG_OBJ] insert into tblen_ps8_varbinary values(utl_raw.cast_to_raw(repeat('R',3875)),1);
+----------
+[INSERT|CALL_PROG_OBJ] insert into tblen_ps8_varbinary values(utl_raw.cast_to_raw(repeat('R',3876)),1);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table tblen_ps8_long(a varchar(32767),b varchar(32767),i int) storage(using long row);
+----------
+[INSERT] insert into tblen_ps8_long values(rpad('a',32767,'0123456789'),rpad('b',32767,'abcdefghij'),1);
+----------
+[SELECT] select lengthb(a),lengthb(b),i from tblen_ps8_long;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table tblen_ps16_varchar(v varchar(32767),i int);
+----------
+[INSERT] insert into tblen_ps16_varchar values(rpad('x',7975,'0123456789'),1);
+----------
+[INSERT] insert into tblen_ps16_varchar values(rpad('x',7976,'0123456789'),1);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table tblen_ps16_char_ok(v char(7979));
+----------
+[INSERT] insert into tblen_ps16_char_ok values(rpad('x',7979,'0123456789'));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table tblen_ps16_char_fail(v char(7980));
+----------
+[INSERT] insert into tblen_ps16_char_fail values(rpad('x',7980,'0123456789'));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table tblen_ps16_binary_ok(v binary(8000));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table tblen_ps16_binary_fail(v binary(8001));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table tblen_ps16_varbinary(v varbinary(32767),i int);
+----------
+[INSERT|CALL_PROG_OBJ] insert into tblen_ps16_varbinary values(utl_raw.cast_to_raw(repeat('R',7975)),1);
+----------
+[INSERT|CALL_PROG_OBJ] insert into tblen_ps16_varbinary values(utl_raw.cast_to_raw(repeat('R',7976)),1);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table tblen_ps16_long(a varchar(32767),b varchar(32767),i int) storage(using long row);
+----------
+[INSERT] insert into tblen_ps16_long values(rpad('a',32767,'0123456789'),rpad('b',32767,'abcdefghij'),1);
+----------
+[SELECT] select lengthb(a),lengthb(b),i from tblen_ps16_long;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table tblen_ps32_varchar(v varchar(32767),i int);
+----------
+[INSERT] insert into tblen_ps32_varchar values(rpad('x',16175,'0123456789'),1);
+----------
+[INSERT] insert into tblen_ps32_varchar values(rpad('x',16176,'0123456789'),1);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table tblen_ps32_char_ok(v char(16179));
+----------
+[INSERT] insert into tblen_ps32_char_ok values(rpad('x',16179,'0123456789'));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table tblen_ps32_char_fail(v char(16180));
+----------
+[INSERT] insert into tblen_ps32_char_fail values(rpad('x',16180,'0123456789'));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table tblen_ps32_binary_ok(v binary(16200));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table tblen_ps32_binary_fail(v binary(16201));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table tblen_ps32_varbinary(v varbinary(32767),i int);
+----------
+[INSERT|CALL_PROG_OBJ] insert into tblen_ps32_varbinary values(utl_raw.cast_to_raw(repeat('R',16175)),1);
+----------
+[INSERT|CALL_PROG_OBJ] insert into tblen_ps32_varbinary values(utl_raw.cast_to_raw(repeat('R',16176)),1);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table tblen_ps32_long(a varchar(32767),b varchar(32767),i int) storage(using long row);
+----------
+[INSERT] insert into tblen_ps32_long values(rpad('a',32767,'0123456789'),rpad('b',32767,'abcdefghij'),1);
+----------
+[SELECT] select lengthb(a),lengthb(b),i from tblen_ps32_long;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table tblen_long_transition(v varchar(32767),i int);
+----------
+[INSERT] insert into tblen_long_transition values(rpad('x',7975,'0123456789'),1);
+----------
+[UPDATE] update tblen_long_transition set v=rpad('x',7976,'0123456789');
+----------
+[ALTER_TABLE] alter table tblen_long_transition enable using long row;
+----------
+[UPDATE] update tblen_long_transition set v=rpad('x',32767,'0123456789');
+----------
+[ALTER_TABLE] alter table tblen_long_transition disable using long row;
+----------
+[DELETE] delete from tblen_long_transition;
+----------
+[ALTER_TABLE] alter table tblen_long_transition disable using long row;
+----------
+[CREATE_TABLE|ADD_COLUMN] create global temporary table tblen_long_temp(v varchar(32767)) storage(using long row) on commit preserve rows;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table tblen_binary_zero(v binary(0));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table tblen_varbinary_over(v varbinary(32768));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table tblen_varchar_over(v varchar(32768));
+----------
+[SELECT|CALL_PROG_OBJ] select sf_get_page_size() from dual;
+----------
+[DROP_TABLE] drop table if exists tblen_ps4_varchar purge;
+----------
+[DROP_TABLE] drop table if exists tblen_ps4_char_ok purge;
+----------
+[DROP_TABLE] drop table if exists tblen_ps4_char_fail purge;
+----------
+[DROP_TABLE] drop table if exists tblen_ps4_binary_ok purge;
+----------
+[DROP_TABLE] drop table if exists tblen_ps4_varbinary purge;
+----------
+[DROP_TABLE] drop table if exists tblen_ps4_long purge;
+----------
+[DROP_TABLE] drop table if exists tblen_ps8_varchar purge;
+----------
+[DROP_TABLE] drop table if exists tblen_ps8_char_ok purge;
+----------
+[DROP_TABLE] drop table if exists tblen_ps8_char_fail purge;
+----------
+[DROP_TABLE] drop table if exists tblen_ps8_binary_ok purge;
+----------
+[DROP_TABLE] drop table if exists tblen_ps8_varbinary purge;
+----------
+[DROP_TABLE] drop table if exists tblen_ps8_long purge;
+----------
+[DROP_TABLE] drop table if exists tblen_ps16_varchar purge;
+----------
+[DROP_TABLE] drop table if exists tblen_ps16_char_ok purge;
+----------
+[DROP_TABLE] drop table if exists tblen_ps16_char_fail purge;
+----------
+[DROP_TABLE] drop table if exists tblen_ps16_binary_ok purge;
+----------
+[DROP_TABLE] drop table if exists tblen_ps16_varbinary purge;
+----------
+[DROP_TABLE] drop table if exists tblen_ps16_long purge;
+----------
+[DROP_TABLE] drop table if exists tblen_ps32_varchar purge;
+----------
+[DROP_TABLE] drop table if exists tblen_ps32_char_ok purge;
+----------
+[DROP_TABLE] drop table if exists tblen_ps32_char_fail purge;
+----------
+[DROP_TABLE] drop table if exists tblen_ps32_binary_ok purge;
+----------
+[DROP_TABLE] drop table if exists tblen_ps32_varbinary purge;
+----------
+[DROP_TABLE] drop table if exists tblen_ps32_long purge;
+----------
+[DROP_TABLE] drop table if exists tblen_long_transition purge;

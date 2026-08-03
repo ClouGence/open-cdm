@@ -1,0 +1,21 @@
+SET cube = 1;
+CREATE ROLE cube;
+SET external = 1;
+CREATE ROLE external;
+SET library = 1;
+CREATE ROLE library;
+SET default_storage_engine = .a.MyISAM;
+------------------------------------------------------------------------------------------
+[SESSION_SETTING_WRITE] SET cube = 1;
+----------
+[CREATE_ROLE] CREATE ROLE cube;
+----------
+[SESSION_SETTING_WRITE] SET external = 1;
+----------
+[CREATE_ROLE] CREATE ROLE external;
+----------
+[SESSION_SETTING_WRITE] SET library = 1;
+----------
+[CREATE_ROLE] CREATE ROLE library;
+----------
+[SESSION_SETTING_WRITE] SET default_storage_engine = .a.MyISAM;

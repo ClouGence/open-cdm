@@ -1,0 +1,98 @@
+CREATE ROLE split_reassign_a;
+CREATE ROLE split_reassign_b;
+CREATE SCHEMA split_maint;
+CREATE TABLE split_maint.maint_table (
+    id integer PRIMARY KEY,
+    name text NOT NULL,
+    amount numeric CONSTRAINT amount_positive CHECK (amount >= 0)
+);
+INSERT INTO split_maint.maint_table VALUES (1, 'alice', 10), (2, 'bob', 20);
+CREATE INDEX maint_name_idx ON split_maint.maint_table (name);
+CREATE TYPE split_maint.status_enum AS ENUM ('new', 'done');
+CREATE FUNCTION split_maint.add_amount(a numeric, b numeric)
+RETURNS numeric
+LANGUAGE SQL
+IMMUTABLE
+AS $$ SELECT a + b $$;
+CREATE AGGREGATE split_maint.sum_amount(numeric) (
+    SFUNC = numeric_add,
+    STYPE = numeric,
+    INITCOND = '0'
+);
+CREATE OPERATOR split_maint.## (
+    FUNCTION = split_maint.add_amount,
+    LEFTARG = numeric,
+    RIGHTARG = numeric
+);
+ANALYZE VERBOSE split_maint.maint_table;
+VACUUM (VERBOSE, ANALYZE) split_maint.maint_table;
+CLUSTER VERBOSE split_maint.maint_table USING maint_name_idx;
+REINDEX INDEX split_maint.maint_name_idx;
+REINDEX TABLE split_maint.maint_table;
+REINDEX SCHEMA split_maint;
+SET CONSTRAINTS ALL IMMEDIATE;
+DISCARD PLANS;
+CHECKPOINT;
+ALTER TABLE split_maint.maint_table OWNER TO split_reassign_a;
+REASSIGN OWNED BY split_reassign_a TO split_reassign_b;
+DROP OWNED BY split_reassign_a;
+------------------------------------------------------------------------------------------
+[CREATE_ROLE] CREATE ROLE split_reassign_a;
+----------
+[CREATE_ROLE] CREATE ROLE split_reassign_b;
+----------
+[CREATE_SCHEMA] CREATE SCHEMA split_maint;
+----------
+[CREATE_TABLE] CREATE TABLE split_maint.maint_table (
+    id integer PRIMARY KEY,
+    name text NOT NULL,
+    amount numeric CONSTRAINT amount_positive CHECK (amount >= 0)
+);
+----------
+[INSERT] INSERT INTO split_maint.maint_table VALUES (1, 'alice', 10), (2, 'bob', 20);
+----------
+[ADD_INDEX] CREATE INDEX maint_name_idx ON split_maint.maint_table (name);
+----------
+[CREATE_TYPE] CREATE TYPE split_maint.status_enum AS ENUM ('new', 'done');
+----------
+[CREATE_PROG_OBJ] CREATE FUNCTION split_maint.add_amount(a numeric, b numeric)
+RETURNS numeric
+LANGUAGE SQL
+IMMUTABLE
+AS $$ SELECT a + b $$;
+----------
+[CREATE_PROG_OBJ] CREATE AGGREGATE split_maint.sum_amount(numeric) (
+    SFUNC = numeric_add,
+    STYPE = numeric,
+    INITCOND = '0'
+);
+----------
+[CREATE_PROG_OBJ] CREATE OPERATOR split_maint.## (
+    FUNCTION = split_maint.add_amount,
+    LEFTARG = numeric,
+    RIGHTARG = numeric
+);
+----------
+[ADMIN_TABLE] ANALYZE VERBOSE split_maint.maint_table;
+----------
+[ADMIN_TABLE] VACUUM (VERBOSE, ANALYZE) split_maint.maint_table;
+----------
+[ADMIN_TABLE] CLUSTER VERBOSE split_maint.maint_table USING maint_name_idx;
+----------
+[ADMIN] REINDEX INDEX split_maint.maint_name_idx;
+----------
+[ADMIN] REINDEX TABLE split_maint.maint_table;
+----------
+[ADMIN] REINDEX SCHEMA split_maint;
+----------
+[TRANSACTION] SET CONSTRAINTS ALL IMMEDIATE;
+----------
+[ADMIN_PERFORMANCE] DISCARD PLANS;
+----------
+[MAINTAIN_LOG] CHECKPOINT;
+----------
+[TRANSFER_PRIVILEGE] ALTER TABLE split_maint.maint_table OWNER TO split_reassign_a;
+----------
+[TRANSFER_PRIVILEGE] REASSIGN OWNED BY split_reassign_a TO split_reassign_b;
+----------
+[REVOKE] DROP OWNED BY split_reassign_a;

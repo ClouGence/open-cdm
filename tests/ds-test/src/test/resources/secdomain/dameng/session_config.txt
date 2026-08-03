@@ -1,0 +1,142 @@
+[time_zone_config]
+sql:
+set time zone '+9:00'
+expect:
+{
+  "contains": [
+    {"class":"RdbConfigDomain", "sqlType":"CONFIG_WRITE", "auditKind":"OTHER", "configKey":"TIME_ZONE"}
+  ]
+}
+----------
+[parallel_dml_config]
+sql:
+alter session enable parallel dml;
+alter session disable parallel dml;
+expect:
+{
+  "contains": [
+    {"class":"RdbConfigDomain", "sqlType":"CONFIG_WRITE", "auditKind":"OTHER", "configKey":"PARALLEL_POLICY"}
+  ]
+}
+----------
+[nls_and_case_config]
+sql:
+alter session set nls_date_language=english;
+alter session set nls_date_format='YYYY-MM-DD';
+alter session set nls_sort=schinese_pinyin_m;
+alter session set case_sensitive=false;
+expect:
+{
+  "contains": [
+    {"class":"RdbConfigDomain", "sqlType":"CONFIG_WRITE", "auditKind":"OTHER", "configKey":"nls_date_language"},
+    {"class":"RdbConfigDomain", "sqlType":"CONFIG_WRITE", "auditKind":"OTHER", "configKey":"nls_date_format"},
+    {"class":"RdbConfigDomain", "sqlType":"CONFIG_WRITE", "auditKind":"OTHER", "configKey":"nls_sort"},
+    {"class":"RdbConfigDomain", "sqlType":"CONFIG_WRITE", "auditKind":"OTHER", "configKey":"case_sensitive"}
+  ]
+}
+----------
+[alter_ini_config]
+sql:
+alter session set 'HAGR_HASH_SIZE'=2000000;
+alter system set 'SORT_BUF_SIZE'=10 memory;
+expect:
+{
+  "contains": [
+    {"class":"RdbConfigDomain", "sqlType":"CONFIG_WRITE", "auditKind":"OTHER", "configKey":"HAGR_HASH_SIZE"},
+    {"class":"RdbConfigDomain", "sqlType":"CONFIG_WRITE", "auditKind":"OTHER", "configKey":"SORT_BUF_SIZE"}
+  ]
+}
+----------
+[persistent_ini_config]
+sql:
+alter system set 'SORT_BUF_SIZE'=23 both;
+alter system set 'SORT_BUF_SIZE'=24 spfile;
+alter system set 'BDTA_SIZE'=301 spfile;
+expect:
+{
+  "contains": [
+    {"class":"RdbConfigDomain", "sqlType":"CONFIG_WRITE", "auditKind":"OTHER", "configKey":"SORT_BUF_SIZE"},
+    {"class":"RdbConfigDomain", "sqlType":"CONFIG_WRITE", "auditKind":"OTHER", "configKey":"BDTA_SIZE"}
+  ]
+}
+----------
+[numeric_parameter_procedures]
+sql:
+sp_set_para_value(0,'SORT_BUF_SIZE',10);
+sp_set_para_double_value(0,'CKPT_FLUSH_RATE',5.0);
+expect:
+{
+  "contains": [
+    {"class":"RdbConfigDomain", "sqlType":"CONFIG_WRITE", "auditKind":"OTHER", "configKey":"SORT_BUF_SIZE"},
+    {"class":"RdbConfigDomain", "sqlType":"CONFIG_WRITE", "auditKind":"OTHER", "configKey":"CKPT_FLUSH_RATE"}
+  ]
+}
+----------
+[persistent_and_cross_session_parameter_procedures]
+sql:
+sp_set_para_value(1,'SORT_BUF_SIZE',26);
+sp_set_para_value(2,'SORT_BUF_SIZE',27);
+sp_set_param_in_session(
+  sessid(),
+  (select sess_seq from v$sessions where sess_id=sessid()),
+  'SORT_BUF_SIZE',
+  28
+);
+expect:
+{
+  "contains": [
+    {"class":"RdbConfigDomain", "sqlType":"CONFIG_WRITE", "auditKind":"OTHER", "configKey":"SORT_BUF_SIZE"}
+  ]
+}
+----------
+[string_parameter_procedure]
+sql:
+sp_set_para_string_value(0,'COMMIT_WRITE','IMMEDIATE,WAIT')
+expect:
+{
+  "contains": [
+    {"class":"RdbConfigDomain", "sqlType":"CONFIG_WRITE", "auditKind":"OTHER", "configKey":"COMMIT_WRITE"}
+  ]
+}
+----------
+[session_parameter_procedures]
+sql:
+sf_set_session_para_value('JOIN_HASH_SIZE',2000);
+sp_reset_session_para_value('JOIN_HASH_SIZE');
+expect:
+{
+  "contains": [
+    {"class":"RdbConfigDomain", "sqlType":"CONFIG_WRITE", "auditKind":"OTHER", "configKey":"JOIN_HASH_SIZE"}
+  ]
+}
+----------
+[system_parameter_function]
+sql:
+sf_set_system_para_value('SORT_BUF_SIZE',10,0,0)
+expect:
+{
+  "contains": [
+    {"class":"RdbConfigDomain", "sqlType":"CONFIG_WRITE", "auditKind":"OTHER", "configKey":"SORT_BUF_SIZE"}
+  ]
+}
+----------
+[session_readonly_config]
+sql:
+sp_set_session_readonly(1);
+sp_set_session_readonly(0);
+expect:
+{
+  "contains": [
+    {"class":"RdbConfigDomain", "sqlType":"CONFIG_WRITE", "auditKind":"OTHER", "configKey":"SESSION_READONLY"}
+  ]
+}
+----------
+[config_introspection_view]
+sql:
+select para_name,para_value,sess_value,file_value from sys.v$dm_ini where para_name='SORT_BUF_SIZE'
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"sys", "table":"v$dm_ini"}
+  ]
+}

@@ -1,0 +1,87 @@
+[dql_mysql_lob_0.0001]
+sql:
+SELECT HEX(b),OCTET_LENGTH(mb),CHAR_LENGTH(t),LENGTH(lt)
+FROM lob_family
+WHERE HEX(b) LIKE '41%' AND t LIKE 'text%'
+ORDER BY t,b
+LIMIT 5;
+expect:
+{
+  "HEX(b)" : [ "(1:11~1:12) /catalog1/schema1/lob_family/b/" ],
+  "OCTET_LENGTH(mb)" : [ "(1:27~1:29) /catalog1/schema1/lob_family/mb/" ],
+  "CHAR_LENGTH(t)" : [ "(1:43~1:44) /catalog1/schema1/lob_family/t/" ],
+  "LENGTH(lt)" : [ "(1:53~1:55) /catalog1/schema1/lob_family/lt/" ]
+}
+----------
+[dql_mysql_lob_0.0002]
+sql:
+SELECT t,COUNT(*),MIN(HEX(b)),MAX(CHAR_LENGTH(lt))
+FROM lob_family
+GROUP BY t
+HAVING COUNT(*) >= 1
+ORDER BY t;
+expect:
+{
+  "t" : [ "(1:7~1:8) /catalog1/schema1/lob_family/t/" ],
+  "COUNT(*)" : [ ],
+  "MIN(HEX(b))" : [ "(1:26~1:27) /catalog1/schema1/lob_family/b/" ],
+  "MAX(CHAR_LENGTH(lt))" : [ "(1:46~1:48) /catalog1/schema1/lob_family/lt/" ]
+}
+----------
+[dql_mysql_lob_0.0003]
+sql:
+SELECT outer_lob.t
+FROM lob_family AS outer_lob
+WHERE EXISTS (
+  SELECT 1 FROM lob_family AS inner_lob
+  WHERE inner_lob.b=outer_lob.b AND inner_lob.t=outer_lob.t
+);
+expect:
+{
+  "t" : [ "(1:7~1:18) /catalog1/schema1/lob_family/t/" ]
+}
+----------
+[dql_mysql_lob_0.0004]
+sql:
+SELECT a.t,HEX(b.b)
+FROM lob_family AS a
+JOIN lob_family AS b ON a.b=b.b AND a.t=b.t
+WHERE a.mb IS NOT NULL;
+expect:
+{
+  "t" : [ "(1:7~1:10) /catalog1/schema1/lob_family/t/" ],
+  "HEX(b.b)" : [ "(1:15~1:18) /catalog1/schema1/lob_family/b/" ]
+}
+----------
+[dql_mysql_lob_0.0005]
+sql:
+SELECT CASE WHEN b IS NULL THEN CAST('none' AS CHAR) ELSE HEX(b) END,
+       COALESCE(t,mt,lt),
+       NULLIF(b,X'00')
+FROM lob_family;
+expect:
+{
+  "CASE WHEN b IS NULL THEN CAST('none' AS CHAR) ELSE HEX(b) END" : [ "(1:17~1:18) /catalog1/schema1/lob_family/b/", "(1:62~1:63) /catalog1/schema1/lob_family/b/" ],
+  "COALESCE(t,mt,lt)" : [ "(2:16~2:17) /catalog1/schema1/lob_family/t/", "(2:18~2:20) /catalog1/schema1/lob_family/mt/", "(2:21~2:23) /catalog1/schema1/lob_family/lt/" ],
+  "NULLIF(b,X'00')" : [ "(3:14~3:15) /catalog1/schema1/lob_family/b/" ]
+}
+----------
+[dql_mysql_lob_0.0006]
+sql:
+SELECT t FROM lob_family
+UNION ALL
+SELECT CAST(b AS CHAR CHARACTER SET utf8mb4) FROM lob_family;
+expect:
+{
+  "t" : [ "(1:7~1:8) /catalog1/schema1/lob_family/t/", "(3:12~3:13) /catalog1/schema1/lob_family/b/" ]
+}
+----------
+[dql_mysql_lob_0.0007]
+sql:
+SELECT (SELECT (b <> 1) FROM lob_family LIMIT 1) <> ALL
+       (SELECT 1681007452 FROM lob_family)
+FROM lob_family;
+expect:
+{
+  "(SELECT (b <> 1) FROM lob_family LIMIT 1) <> ALL\n       (SELECT 1681007452 FROM lob_family)" : [ "(1:16~1:17) /catalog1/schema1/lob_family/b/" ]
+}

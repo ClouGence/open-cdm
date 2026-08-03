@@ -1,0 +1,168 @@
+-- FUNC-0613 SLEEP positional zero seconds
+begin DBMS_LOCK.SLEEP(0); end;
+/
+-- FUNC-0613 SLEEP named fractional seconds
+begin DBMS_LOCK.SLEEP(SLEEP_SEC=>0.01); end;
+/
+-- FUNC-0604 ALLOCATE_UNIQUE minimum arguments
+declare handle_value varchar(128); begin DBMS_LOCK.ALLOCATE_UNIQUE('CODEX_DBMS_LOCK_SHARED', handle_value); end;
+/
+-- FUNC-0604 ALLOCATE_UNIQUE full positional arguments
+declare handle_value varchar(128); begin DBMS_LOCK.ALLOCATE_UNIQUE('CODEX_DBMS_LOCK_SHARED', handle_value, 1); end;
+/
+-- FUNC-0604 ALLOCATE_UNIQUE Pack29 named arguments
+declare handle_value varchar(128); begin DBMS_LOCK.ALLOCATE_UNIQUE(EXPIRATION_SEC=>1, LOCK_HANDLE=>handle_value, LOCK_NAME=>'CODEX_DBMS_LOCK_SHARED'); end;
+/
+-- FUNC-1618 REQUEST lock id integer release flag minimum arguments
+declare result_value int; begin result_value:=DBMS_LOCK.REQUEST(921006); result_value:=DBMS_LOCK.RELEASE(921006); end;
+/
+-- FUNC-1618 REQUEST lock id integer release flag full positional
+declare result_value int; begin result_value:=DBMS_LOCK.REQUEST(921007, DBMS_LOCK.S_MODE, 0, 0); result_value:=DBMS_LOCK.RELEASE(921007); end;
+/
+-- FUNC-0611 REQUEST lock id boolean release flag full positional
+declare result_value int; begin result_value:=DBMS_LOCK.REQUEST(921008, DBMS_LOCK.S_MODE, 0, false); result_value:=DBMS_LOCK.RELEASE(921008); end;
+/
+-- FUNC-1618 REQUEST lock id integer release flag named
+declare result_value int; begin result_value:=DBMS_LOCK.REQUEST(RELEASE_ON_COMMIT=>0, TIMEOUT=>0, LOCK_MODE=>DBMS_LOCK.S_MODE, LOCK_ID=>921009); result_value:=DBMS_LOCK.RELEASE(921009); end;
+/
+-- FUNC-0611 REQUEST lock id boolean release flag named
+declare result_value int; begin result_value:=DBMS_LOCK.REQUEST(RELEASE_ON_COMMIT=>false, TIMEOUT=>0, LOCKMODE=>DBMS_LOCK.S_MODE, ID=>921010); result_value:=DBMS_LOCK.RELEASE(921010); end;
+/
+-- FUNC-1619 REQUEST lock handle integer release flag full positional
+declare handle_value varchar(128); result_value int; begin DBMS_LOCK.ALLOCATE_UNIQUE('CODEX_DBMS_LOCK_SHARED', handle_value, 1); result_value:=DBMS_LOCK.REQUEST(handle_value, DBMS_LOCK.S_MODE, 0, 0); result_value:=DBMS_LOCK.RELEASE(handle_value); end;
+/
+-- FUNC-0612 REQUEST lock handle boolean release flag full positional
+declare handle_value varchar(128); result_value int; begin DBMS_LOCK.ALLOCATE_UNIQUE('CODEX_DBMS_LOCK_SHARED', handle_value, 1); result_value:=DBMS_LOCK.REQUEST(handle_value, DBMS_LOCK.S_MODE, 0, false); result_value:=DBMS_LOCK.RELEASE(handle_value); end;
+/
+-- FUNC-1619 REQUEST lock handle integer release flag named
+declare handle_value varchar(128); result_value int; begin DBMS_LOCK.ALLOCATE_UNIQUE('CODEX_DBMS_LOCK_SHARED', handle_value, 1); result_value:=DBMS_LOCK.REQUEST(RELEASE_ON_COMMIT=>0, TIMEOUT=>0, LOCK_MODE=>DBMS_LOCK.S_MODE, LOCK_HANDLE=>handle_value); result_value:=DBMS_LOCK.RELEASE(handle_value); end;
+/
+-- FUNC-0612 REQUEST lock handle boolean release flag named
+declare handle_value varchar(128); result_value int; begin DBMS_LOCK.ALLOCATE_UNIQUE('CODEX_DBMS_LOCK_SHARED', handle_value, 1); result_value:=DBMS_LOCK.REQUEST(RELEASE_ON_COMMIT=>false, TIMEOUT=>0, LOCKMODE=>DBMS_LOCK.S_MODE, LOCKHANDLE=>handle_value); result_value:=DBMS_LOCK.RELEASE(handle_value); end;
+/
+-- FUNC-0611 and FUNC-1618 REQUEST lock id optional prefixes
+declare result_value int; begin result_value:=DBMS_LOCK.REQUEST(921015, DBMS_LOCK.S_MODE); result_value:=DBMS_LOCK.RELEASE(921015); result_value:=DBMS_LOCK.REQUEST(921015, DBMS_LOCK.S_MODE, 0); result_value:=DBMS_LOCK.RELEASE(921015); end;
+/
+-- FUNC-0612 and FUNC-1619 REQUEST lock handle optional prefixes
+declare handle_value varchar(128); result_value int; begin DBMS_LOCK.ALLOCATE_UNIQUE('CODEX_DBMS_LOCK_SHARED', handle_value, 1); result_value:=DBMS_LOCK.REQUEST(handle_value, DBMS_LOCK.S_MODE); result_value:=DBMS_LOCK.RELEASE(handle_value); result_value:=DBMS_LOCK.REQUEST(handle_value, DBMS_LOCK.S_MODE, 0); result_value:=DBMS_LOCK.RELEASE(handle_value); end;
+/
+-- FUNC-0605 CONVERT lock id minimum arguments
+declare result_value int; begin result_value:=DBMS_LOCK.REQUEST(921017, DBMS_LOCK.S_MODE, 0, false); result_value:=DBMS_LOCK."CONVERT"(921017, DBMS_LOCK.X_MODE); result_value:=DBMS_LOCK.RELEASE(921017); end;
+/
+-- FUNC-0605 CONVERT lock id full named reordered
+declare result_value int; begin result_value:=DBMS_LOCK.REQUEST(921018, DBMS_LOCK.S_MODE, 0, false); result_value:=DBMS_LOCK."CONVERT"(TIMEOUT=>0, LOCK_MODE=>DBMS_LOCK.X_MODE, LOCK_ID=>921018); result_value:=DBMS_LOCK.RELEASE(921018); end;
+/
+-- FUNC-0606 CONVERT lock handle minimum arguments
+declare handle_value varchar(128); result_value int; begin DBMS_LOCK.ALLOCATE_UNIQUE('CODEX_DBMS_LOCK_SHARED', handle_value, 1); result_value:=DBMS_LOCK.REQUEST(handle_value, DBMS_LOCK.S_MODE, 0, false); result_value:=DBMS_LOCK."CONVERT"(handle_value, DBMS_LOCK.X_MODE); result_value:=DBMS_LOCK.RELEASE(handle_value); end;
+/
+-- FUNC-0606 CONVERT lock handle full named reordered
+declare handle_value varchar(128); result_value int; begin DBMS_LOCK.ALLOCATE_UNIQUE('CODEX_DBMS_LOCK_SHARED', handle_value, 1); result_value:=DBMS_LOCK.REQUEST(handle_value, DBMS_LOCK.S_MODE, 0, false); result_value:=DBMS_LOCK."CONVERT"(TIMEOUT=>0, LOCK_MODE=>DBMS_LOCK.X_MODE, LOCK_HANDLE=>handle_value); result_value:=DBMS_LOCK.RELEASE(handle_value); end;
+/
+-- FUNC-0607 CONVERT2 lock id minimum arguments
+declare result_value int; begin result_value:=DBMS_LOCK.REQUEST(921021, DBMS_LOCK.S_MODE, 0, false); result_value:=DBMS_LOCK.CONVERT2(921021, DBMS_LOCK.X_MODE); result_value:=DBMS_LOCK.RELEASE(921021); end;
+/
+-- FUNC-0607 CONVERT2 lock id full named reordered
+declare result_value int; begin result_value:=DBMS_LOCK.REQUEST(921022, DBMS_LOCK.S_MODE, 0, false); result_value:=DBMS_LOCK.CONVERT2(TIMEOUT=>0, LOCK_MODE=>DBMS_LOCK.X_MODE, LOCK_ID=>921022); result_value:=DBMS_LOCK.RELEASE(921022); end;
+/
+-- FUNC-0608 CONVERT2 lock handle minimum arguments
+declare handle_value varchar(128); result_value int; begin DBMS_LOCK.ALLOCATE_UNIQUE('CODEX_DBMS_LOCK_SHARED', handle_value, 1); result_value:=DBMS_LOCK.REQUEST(handle_value, DBMS_LOCK.S_MODE, 0, false); result_value:=DBMS_LOCK.CONVERT2(handle_value, DBMS_LOCK.X_MODE); result_value:=DBMS_LOCK.RELEASE(handle_value); end;
+/
+-- FUNC-0608 CONVERT2 lock handle full named reordered
+declare handle_value varchar(128); result_value int; begin DBMS_LOCK.ALLOCATE_UNIQUE('CODEX_DBMS_LOCK_SHARED', handle_value, 1); result_value:=DBMS_LOCK.REQUEST(handle_value, DBMS_LOCK.S_MODE, 0, false); result_value:=DBMS_LOCK.CONVERT2(TIMEOUT=>0, LOCK_MODE=>DBMS_LOCK.X_MODE, LOCK_HANDLE=>handle_value); result_value:=DBMS_LOCK.RELEASE(handle_value); end;
+/
+-- FUNC-0609 RELEASE lock id
+declare result_value int; begin result_value:=DBMS_LOCK.REQUEST(921025, DBMS_LOCK.X_MODE, 0, false); result_value:=DBMS_LOCK.RELEASE(921025); end;
+/
+-- FUNC-0610 RELEASE lock handle
+declare handle_value varchar(128); result_value int; begin DBMS_LOCK.ALLOCATE_UNIQUE('CODEX_DBMS_LOCK_SHARED', handle_value, 1); result_value:=DBMS_LOCK.REQUEST(handle_value, DBMS_LOCK.X_MODE, 0, false); result_value:=DBMS_LOCK.RELEASE(handle_value); end;
+/
+-- REQUEST all six documented lock mode constants
+declare result_value int; begin result_value:=DBMS_LOCK.REQUEST(921027, DBMS_LOCK.NL_MODE, 0, false); result_value:=DBMS_LOCK.CONVERT2(921027, DBMS_LOCK.SS_MODE, 0); result_value:=DBMS_LOCK.CONVERT2(921027, DBMS_LOCK.SX_MODE, 0); result_value:=DBMS_LOCK.CONVERT2(921027, DBMS_LOCK.S_MODE, 0); result_value:=DBMS_LOCK.CONVERT2(921027, DBMS_LOCK.SSX_MODE, 0); result_value:=DBMS_LOCK.CONVERT2(921027, DBMS_LOCK.X_MODE, 0); result_value:=DBMS_LOCK.RELEASE(921027); end;
+/
+-- REQUEST maximum documented direct lock id
+declare result_value int; begin result_value:=DBMS_LOCK.REQUEST(1073741823, DBMS_LOCK.X_MODE, 0, false); result_value:=DBMS_LOCK.RELEASE(1073741823); end;
+/
+------------------------------------------------------------------------------------------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-0613 SLEEP positional zero seconds
+begin DBMS_LOCK.SLEEP(0); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-0613 SLEEP named fractional seconds
+begin DBMS_LOCK.SLEEP(SLEEP_SEC=>0.01); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0604 ALLOCATE_UNIQUE minimum arguments
+declare handle_value varchar(128); begin DBMS_LOCK.ALLOCATE_UNIQUE('CODEX_DBMS_LOCK_SHARED', handle_value); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0604 ALLOCATE_UNIQUE full positional arguments
+declare handle_value varchar(128); begin DBMS_LOCK.ALLOCATE_UNIQUE('CODEX_DBMS_LOCK_SHARED', handle_value, 1); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0604 ALLOCATE_UNIQUE Pack29 named arguments
+declare handle_value varchar(128); begin DBMS_LOCK.ALLOCATE_UNIQUE(EXPIRATION_SEC=>1, LOCK_HANDLE=>handle_value, LOCK_NAME=>'CODEX_DBMS_LOCK_SHARED'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1618 REQUEST lock id integer release flag minimum arguments
+declare result_value int; begin result_value:=DBMS_LOCK.REQUEST(921006); result_value:=DBMS_LOCK.RELEASE(921006); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1618 REQUEST lock id integer release flag full positional
+declare result_value int; begin result_value:=DBMS_LOCK.REQUEST(921007, DBMS_LOCK.S_MODE, 0, 0); result_value:=DBMS_LOCK.RELEASE(921007); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0611 REQUEST lock id boolean release flag full positional
+declare result_value int; begin result_value:=DBMS_LOCK.REQUEST(921008, DBMS_LOCK.S_MODE, 0, false); result_value:=DBMS_LOCK.RELEASE(921008); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1618 REQUEST lock id integer release flag named
+declare result_value int; begin result_value:=DBMS_LOCK.REQUEST(RELEASE_ON_COMMIT=>0, TIMEOUT=>0, LOCK_MODE=>DBMS_LOCK.S_MODE, LOCK_ID=>921009); result_value:=DBMS_LOCK.RELEASE(921009); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0611 REQUEST lock id boolean release flag named
+declare result_value int; begin result_value:=DBMS_LOCK.REQUEST(RELEASE_ON_COMMIT=>false, TIMEOUT=>0, LOCKMODE=>DBMS_LOCK.S_MODE, ID=>921010); result_value:=DBMS_LOCK.RELEASE(921010); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1619 REQUEST lock handle integer release flag full positional
+declare handle_value varchar(128); result_value int; begin DBMS_LOCK.ALLOCATE_UNIQUE('CODEX_DBMS_LOCK_SHARED', handle_value, 1); result_value:=DBMS_LOCK.REQUEST(handle_value, DBMS_LOCK.S_MODE, 0, 0); result_value:=DBMS_LOCK.RELEASE(handle_value); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0612 REQUEST lock handle boolean release flag full positional
+declare handle_value varchar(128); result_value int; begin DBMS_LOCK.ALLOCATE_UNIQUE('CODEX_DBMS_LOCK_SHARED', handle_value, 1); result_value:=DBMS_LOCK.REQUEST(handle_value, DBMS_LOCK.S_MODE, 0, false); result_value:=DBMS_LOCK.RELEASE(handle_value); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1619 REQUEST lock handle integer release flag named
+declare handle_value varchar(128); result_value int; begin DBMS_LOCK.ALLOCATE_UNIQUE('CODEX_DBMS_LOCK_SHARED', handle_value, 1); result_value:=DBMS_LOCK.REQUEST(RELEASE_ON_COMMIT=>0, TIMEOUT=>0, LOCK_MODE=>DBMS_LOCK.S_MODE, LOCK_HANDLE=>handle_value); result_value:=DBMS_LOCK.RELEASE(handle_value); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0612 REQUEST lock handle boolean release flag named
+declare handle_value varchar(128); result_value int; begin DBMS_LOCK.ALLOCATE_UNIQUE('CODEX_DBMS_LOCK_SHARED', handle_value, 1); result_value:=DBMS_LOCK.REQUEST(RELEASE_ON_COMMIT=>false, TIMEOUT=>0, LOCKMODE=>DBMS_LOCK.S_MODE, LOCKHANDLE=>handle_value); result_value:=DBMS_LOCK.RELEASE(handle_value); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0611 and FUNC-1618 REQUEST lock id optional prefixes
+declare result_value int; begin result_value:=DBMS_LOCK.REQUEST(921015, DBMS_LOCK.S_MODE); result_value:=DBMS_LOCK.RELEASE(921015); result_value:=DBMS_LOCK.REQUEST(921015, DBMS_LOCK.S_MODE, 0); result_value:=DBMS_LOCK.RELEASE(921015); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0612 and FUNC-1619 REQUEST lock handle optional prefixes
+declare handle_value varchar(128); result_value int; begin DBMS_LOCK.ALLOCATE_UNIQUE('CODEX_DBMS_LOCK_SHARED', handle_value, 1); result_value:=DBMS_LOCK.REQUEST(handle_value, DBMS_LOCK.S_MODE); result_value:=DBMS_LOCK.RELEASE(handle_value); result_value:=DBMS_LOCK.REQUEST(handle_value, DBMS_LOCK.S_MODE, 0); result_value:=DBMS_LOCK.RELEASE(handle_value); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0605 CONVERT lock id minimum arguments
+declare result_value int; begin result_value:=DBMS_LOCK.REQUEST(921017, DBMS_LOCK.S_MODE, 0, false); result_value:=DBMS_LOCK."CONVERT"(921017, DBMS_LOCK.X_MODE); result_value:=DBMS_LOCK.RELEASE(921017); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0605 CONVERT lock id full named reordered
+declare result_value int; begin result_value:=DBMS_LOCK.REQUEST(921018, DBMS_LOCK.S_MODE, 0, false); result_value:=DBMS_LOCK."CONVERT"(TIMEOUT=>0, LOCK_MODE=>DBMS_LOCK.X_MODE, LOCK_ID=>921018); result_value:=DBMS_LOCK.RELEASE(921018); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0606 CONVERT lock handle minimum arguments
+declare handle_value varchar(128); result_value int; begin DBMS_LOCK.ALLOCATE_UNIQUE('CODEX_DBMS_LOCK_SHARED', handle_value, 1); result_value:=DBMS_LOCK.REQUEST(handle_value, DBMS_LOCK.S_MODE, 0, false); result_value:=DBMS_LOCK."CONVERT"(handle_value, DBMS_LOCK.X_MODE); result_value:=DBMS_LOCK.RELEASE(handle_value); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0606 CONVERT lock handle full named reordered
+declare handle_value varchar(128); result_value int; begin DBMS_LOCK.ALLOCATE_UNIQUE('CODEX_DBMS_LOCK_SHARED', handle_value, 1); result_value:=DBMS_LOCK.REQUEST(handle_value, DBMS_LOCK.S_MODE, 0, false); result_value:=DBMS_LOCK."CONVERT"(TIMEOUT=>0, LOCK_MODE=>DBMS_LOCK.X_MODE, LOCK_HANDLE=>handle_value); result_value:=DBMS_LOCK.RELEASE(handle_value); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0607 CONVERT2 lock id minimum arguments
+declare result_value int; begin result_value:=DBMS_LOCK.REQUEST(921021, DBMS_LOCK.S_MODE, 0, false); result_value:=DBMS_LOCK.CONVERT2(921021, DBMS_LOCK.X_MODE); result_value:=DBMS_LOCK.RELEASE(921021); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0607 CONVERT2 lock id full named reordered
+declare result_value int; begin result_value:=DBMS_LOCK.REQUEST(921022, DBMS_LOCK.S_MODE, 0, false); result_value:=DBMS_LOCK.CONVERT2(TIMEOUT=>0, LOCK_MODE=>DBMS_LOCK.X_MODE, LOCK_ID=>921022); result_value:=DBMS_LOCK.RELEASE(921022); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0608 CONVERT2 lock handle minimum arguments
+declare handle_value varchar(128); result_value int; begin DBMS_LOCK.ALLOCATE_UNIQUE('CODEX_DBMS_LOCK_SHARED', handle_value, 1); result_value:=DBMS_LOCK.REQUEST(handle_value, DBMS_LOCK.S_MODE, 0, false); result_value:=DBMS_LOCK.CONVERT2(handle_value, DBMS_LOCK.X_MODE); result_value:=DBMS_LOCK.RELEASE(handle_value); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0608 CONVERT2 lock handle full named reordered
+declare handle_value varchar(128); result_value int; begin DBMS_LOCK.ALLOCATE_UNIQUE('CODEX_DBMS_LOCK_SHARED', handle_value, 1); result_value:=DBMS_LOCK.REQUEST(handle_value, DBMS_LOCK.S_MODE, 0, false); result_value:=DBMS_LOCK.CONVERT2(TIMEOUT=>0, LOCK_MODE=>DBMS_LOCK.X_MODE, LOCK_HANDLE=>handle_value); result_value:=DBMS_LOCK.RELEASE(handle_value); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0609 RELEASE lock id
+declare result_value int; begin result_value:=DBMS_LOCK.REQUEST(921025, DBMS_LOCK.X_MODE, 0, false); result_value:=DBMS_LOCK.RELEASE(921025); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0610 RELEASE lock handle
+declare handle_value varchar(128); result_value int; begin DBMS_LOCK.ALLOCATE_UNIQUE('CODEX_DBMS_LOCK_SHARED', handle_value, 1); result_value:=DBMS_LOCK.REQUEST(handle_value, DBMS_LOCK.X_MODE, 0, false); result_value:=DBMS_LOCK.RELEASE(handle_value); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- REQUEST all six documented lock mode constants
+declare result_value int; begin result_value:=DBMS_LOCK.REQUEST(921027, DBMS_LOCK.NL_MODE, 0, false); result_value:=DBMS_LOCK.CONVERT2(921027, DBMS_LOCK.SS_MODE, 0); result_value:=DBMS_LOCK.CONVERT2(921027, DBMS_LOCK.SX_MODE, 0); result_value:=DBMS_LOCK.CONVERT2(921027, DBMS_LOCK.S_MODE, 0); result_value:=DBMS_LOCK.CONVERT2(921027, DBMS_LOCK.SSX_MODE, 0); result_value:=DBMS_LOCK.CONVERT2(921027, DBMS_LOCK.X_MODE, 0); result_value:=DBMS_LOCK.RELEASE(921027); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- REQUEST maximum documented direct lock id
+declare result_value int; begin result_value:=DBMS_LOCK.REQUEST(1073741823, DBMS_LOCK.X_MODE, 0, false); result_value:=DBMS_LOCK.RELEASE(1073741823); end;

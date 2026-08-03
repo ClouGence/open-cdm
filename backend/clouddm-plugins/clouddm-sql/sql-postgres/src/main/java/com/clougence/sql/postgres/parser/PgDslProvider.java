@@ -32,20 +32,32 @@ import com.clougence.sql.postgres.parser.antlr.PgSqlParser;
 
 public class PgDslProvider implements DslProvider {
 
-    public static final DslProvider    INSTANCE    = new PgDslProvider();
     private final AntlrStatementParser TREE_PARSER = new PgStatementParser();
+    private final PostgresVersion      version;
+
+    public PgDslProvider(PostgresVersion version){
+        this.version = version;
+    }
+
+    public PostgresVersion version() {
+        return version;
+    }
 
     @Override
     public String[] getDslName() { return new String[] { PgSqlEngineSpi.NAME }; }
 
     @Override
     public Lexer createLexer(CharStream charStream) {
-        return new PgSqlLexer(charStream);
+        PgSqlLexer lexer = new PgSqlLexer(charStream);
+        lexer.setVersion(version);
+        return lexer;
     }
 
     @Override
     public Parser createParser(Lexer lexer) {
-        return new PgSqlParser(new CommonTokenStream(lexer));
+        PgSqlParser parser = new PgSqlParser(new CommonTokenStream(lexer));
+        parser.setVersion(version);
+        return parser;
     }
 
     protected AntlrStatementParser treeParser() {

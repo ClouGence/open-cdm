@@ -1,0 +1,30 @@
+[split_dql_dameng_core_system_packages_0_015]
+sql:
+select dbms_xmlgen.getxml('select id,n from CODEX_DM8_CORE_PKG order by id');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:25) /test/1/catalog1/dbms_xmlgen/getxml/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_core_system_packages_0_016]
+sql:
+select dbms_xmlgen.getxmltype('select id,n from CODEX_DM8_CORE_PKG order by id');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:29) /test/1/catalog1/dbms_xmlgen/getxmltype/",
+      "action": "CALL"
+    }
+  ]
+}
+

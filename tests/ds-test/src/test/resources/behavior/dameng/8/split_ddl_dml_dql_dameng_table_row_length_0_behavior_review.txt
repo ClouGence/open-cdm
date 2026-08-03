@@ -1,0 +1,1493 @@
+[split_ddl_dml_dql_dameng_table_row_length_0_001_behavior_review]
+sql:
+create table tblen_ps4_varchar(v varchar(32767),i int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/schema1/tblen_ps4_varchar/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_002_behavior_review]
+sql:
+insert into tblen_ps4_varchar values(rpad('x',1875,'0123456789'),1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:29) /test/1/catalog1/schema1/tblen_ps4_varchar/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:37~1:41) /test/1/catalog1/schema1/rpad/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_003_behavior_review]
+sql:
+insert into tblen_ps4_varchar values(rpad('x',1876,'0123456789'),1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:29) /test/1/catalog1/schema1/tblen_ps4_varchar/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:37~1:41) /test/1/catalog1/schema1/rpad/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_004_behavior_review]
+sql:
+create table tblen_ps4_char_ok(v char(1879));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/schema1/tblen_ps4_char_ok/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_005_behavior_review]
+sql:
+insert into tblen_ps4_char_ok values(rpad('x',1879,'0123456789'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:29) /test/1/catalog1/schema1/tblen_ps4_char_ok/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:37~1:41) /test/1/catalog1/schema1/rpad/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_006_behavior_review]
+sql:
+create table tblen_ps4_char_fail(v char(1880));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:32) /test/1/catalog1/schema1/tblen_ps4_char_fail/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_007_behavior_review]
+sql:
+insert into tblen_ps4_char_fail values(rpad('x',1880,'0123456789'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/schema1/tblen_ps4_char_fail/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:39~1:43) /test/1/catalog1/schema1/rpad/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_008_behavior_review]
+sql:
+create table tblen_ps4_binary_ok(v binary(1900));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:32) /test/1/catalog1/schema1/tblen_ps4_binary_ok/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_009_behavior_review]
+sql:
+create table tblen_ps4_binary_fail(v binary(1901));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:34) /test/1/catalog1/schema1/tblen_ps4_binary_fail/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_010_behavior_review]
+sql:
+create table tblen_ps4_varbinary(v varbinary(32767),i int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:32) /test/1/catalog1/schema1/tblen_ps4_varbinary/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_013_behavior_review]
+sql:
+create table tblen_ps4_long(a varchar(32767),b varchar(32767),i int) storage(using long row);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:27) /test/1/catalog1/schema1/tblen_ps4_long/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_014_behavior_review]
+sql:
+insert into tblen_ps4_long values(rpad('a',32767,'0123456789'),rpad('b',32767,'abcdefghij'),1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/tblen_ps4_long/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:34~1:38) /test/1/catalog1/schema1/rpad/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:63~1:67) /test/1/catalog1/schema1/rpad/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_015_behavior_review]
+sql:
+select lengthb(a),lengthb(b),i from tblen_ps4_long;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/lengthb/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:18~1:25) /test/1/catalog1/schema1/lengthb/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:36~1:50) /test/1/catalog1/schema1/tblen_ps4_long/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_016_behavior_review]
+sql:
+create table tblen_ps8_varchar(v varchar(32767),i int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/schema1/tblen_ps8_varchar/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_017_behavior_review]
+sql:
+insert into tblen_ps8_varchar values(rpad('x',3875,'0123456789'),1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:29) /test/1/catalog1/schema1/tblen_ps8_varchar/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:37~1:41) /test/1/catalog1/schema1/rpad/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_018_behavior_review]
+sql:
+insert into tblen_ps8_varchar values(rpad('x',3876,'0123456789'),1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:29) /test/1/catalog1/schema1/tblen_ps8_varchar/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:37~1:41) /test/1/catalog1/schema1/rpad/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_019_behavior_review]
+sql:
+create table tblen_ps8_char_ok(v char(3879));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/schema1/tblen_ps8_char_ok/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_020_behavior_review]
+sql:
+insert into tblen_ps8_char_ok values(rpad('x',3879,'0123456789'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:29) /test/1/catalog1/schema1/tblen_ps8_char_ok/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:37~1:41) /test/1/catalog1/schema1/rpad/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_021_behavior_review]
+sql:
+create table tblen_ps8_char_fail(v char(3880));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:32) /test/1/catalog1/schema1/tblen_ps8_char_fail/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_022_behavior_review]
+sql:
+insert into tblen_ps8_char_fail values(rpad('x',3880,'0123456789'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/schema1/tblen_ps8_char_fail/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:39~1:43) /test/1/catalog1/schema1/rpad/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_023_behavior_review]
+sql:
+create table tblen_ps8_binary_ok(v binary(3900));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:32) /test/1/catalog1/schema1/tblen_ps8_binary_ok/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_024_behavior_review]
+sql:
+create table tblen_ps8_binary_fail(v binary(3901));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:34) /test/1/catalog1/schema1/tblen_ps8_binary_fail/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_025_behavior_review]
+sql:
+create table tblen_ps8_varbinary(v varbinary(32767),i int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:32) /test/1/catalog1/schema1/tblen_ps8_varbinary/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_028_behavior_review]
+sql:
+create table tblen_ps8_long(a varchar(32767),b varchar(32767),i int) storage(using long row);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:27) /test/1/catalog1/schema1/tblen_ps8_long/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_029_behavior_review]
+sql:
+insert into tblen_ps8_long values(rpad('a',32767,'0123456789'),rpad('b',32767,'abcdefghij'),1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/tblen_ps8_long/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:34~1:38) /test/1/catalog1/schema1/rpad/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:63~1:67) /test/1/catalog1/schema1/rpad/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_030_behavior_review]
+sql:
+select lengthb(a),lengthb(b),i from tblen_ps8_long;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/lengthb/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:18~1:25) /test/1/catalog1/schema1/lengthb/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:36~1:50) /test/1/catalog1/schema1/tblen_ps8_long/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_031_behavior_review]
+sql:
+create table tblen_ps16_varchar(v varchar(32767),i int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/schema1/tblen_ps16_varchar/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_032_behavior_review]
+sql:
+insert into tblen_ps16_varchar values(rpad('x',7975,'0123456789'),1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:30) /test/1/catalog1/schema1/tblen_ps16_varchar/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:38~1:42) /test/1/catalog1/schema1/rpad/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_033_behavior_review]
+sql:
+insert into tblen_ps16_varchar values(rpad('x',7976,'0123456789'),1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:30) /test/1/catalog1/schema1/tblen_ps16_varchar/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:38~1:42) /test/1/catalog1/schema1/rpad/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_034_behavior_review]
+sql:
+create table tblen_ps16_char_ok(v char(7979));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/schema1/tblen_ps16_char_ok/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_035_behavior_review]
+sql:
+insert into tblen_ps16_char_ok values(rpad('x',7979,'0123456789'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:30) /test/1/catalog1/schema1/tblen_ps16_char_ok/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:38~1:42) /test/1/catalog1/schema1/rpad/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_036_behavior_review]
+sql:
+create table tblen_ps16_char_fail(v char(7980));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:33) /test/1/catalog1/schema1/tblen_ps16_char_fail/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_037_behavior_review]
+sql:
+insert into tblen_ps16_char_fail values(rpad('x',7980,'0123456789'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:32) /test/1/catalog1/schema1/tblen_ps16_char_fail/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:40~1:44) /test/1/catalog1/schema1/rpad/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_038_behavior_review]
+sql:
+create table tblen_ps16_binary_ok(v binary(8000));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:33) /test/1/catalog1/schema1/tblen_ps16_binary_ok/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_039_behavior_review]
+sql:
+create table tblen_ps16_binary_fail(v binary(8001));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:35) /test/1/catalog1/schema1/tblen_ps16_binary_fail/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_040_behavior_review]
+sql:
+create table tblen_ps16_varbinary(v varbinary(32767),i int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:33) /test/1/catalog1/schema1/tblen_ps16_varbinary/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_043_behavior_review]
+sql:
+create table tblen_ps16_long(a varchar(32767),b varchar(32767),i int) storage(using long row);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/schema1/tblen_ps16_long/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_044_behavior_review]
+sql:
+insert into tblen_ps16_long values(rpad('a',32767,'0123456789'),rpad('b',32767,'abcdefghij'),1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:27) /test/1/catalog1/schema1/tblen_ps16_long/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:35~1:39) /test/1/catalog1/schema1/rpad/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:64~1:68) /test/1/catalog1/schema1/rpad/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_045_behavior_review]
+sql:
+select lengthb(a),lengthb(b),i from tblen_ps16_long;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/lengthb/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:18~1:25) /test/1/catalog1/schema1/lengthb/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:36~1:51) /test/1/catalog1/schema1/tblen_ps16_long/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_046_behavior_review]
+sql:
+create table tblen_ps32_varchar(v varchar(32767),i int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/schema1/tblen_ps32_varchar/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_047_behavior_review]
+sql:
+insert into tblen_ps32_varchar values(rpad('x',16175,'0123456789'),1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:30) /test/1/catalog1/schema1/tblen_ps32_varchar/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:38~1:42) /test/1/catalog1/schema1/rpad/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_048_behavior_review]
+sql:
+insert into tblen_ps32_varchar values(rpad('x',16176,'0123456789'),1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:30) /test/1/catalog1/schema1/tblen_ps32_varchar/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:38~1:42) /test/1/catalog1/schema1/rpad/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_049_behavior_review]
+sql:
+create table tblen_ps32_char_ok(v char(16179));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/schema1/tblen_ps32_char_ok/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_050_behavior_review]
+sql:
+insert into tblen_ps32_char_ok values(rpad('x',16179,'0123456789'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:30) /test/1/catalog1/schema1/tblen_ps32_char_ok/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:38~1:42) /test/1/catalog1/schema1/rpad/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_051_behavior_review]
+sql:
+create table tblen_ps32_char_fail(v char(16180));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:33) /test/1/catalog1/schema1/tblen_ps32_char_fail/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_052_behavior_review]
+sql:
+insert into tblen_ps32_char_fail values(rpad('x',16180,'0123456789'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:32) /test/1/catalog1/schema1/tblen_ps32_char_fail/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:40~1:44) /test/1/catalog1/schema1/rpad/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_053_behavior_review]
+sql:
+create table tblen_ps32_binary_ok(v binary(16200));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:33) /test/1/catalog1/schema1/tblen_ps32_binary_ok/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_054_behavior_review]
+sql:
+create table tblen_ps32_binary_fail(v binary(16201));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:35) /test/1/catalog1/schema1/tblen_ps32_binary_fail/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_055_behavior_review]
+sql:
+create table tblen_ps32_varbinary(v varbinary(32767),i int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:33) /test/1/catalog1/schema1/tblen_ps32_varbinary/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_058_behavior_review]
+sql:
+create table tblen_ps32_long(a varchar(32767),b varchar(32767),i int) storage(using long row);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/schema1/tblen_ps32_long/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_059_behavior_review]
+sql:
+insert into tblen_ps32_long values(rpad('a',32767,'0123456789'),rpad('b',32767,'abcdefghij'),1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:27) /test/1/catalog1/schema1/tblen_ps32_long/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:35~1:39) /test/1/catalog1/schema1/rpad/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:64~1:68) /test/1/catalog1/schema1/rpad/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_060_behavior_review]
+sql:
+select lengthb(a),lengthb(b),i from tblen_ps32_long;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/lengthb/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:18~1:25) /test/1/catalog1/schema1/lengthb/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:36~1:51) /test/1/catalog1/schema1/tblen_ps32_long/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_061_behavior_review]
+sql:
+create table tblen_long_transition(v varchar(32767),i int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:34) /test/1/catalog1/schema1/tblen_long_transition/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_062_behavior_review]
+sql:
+insert into tblen_long_transition values(rpad('x',7975,'0123456789'),1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:33) /test/1/catalog1/schema1/tblen_long_transition/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:41~1:45) /test/1/catalog1/schema1/rpad/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_063_behavior_review]
+sql:
+update tblen_long_transition set v=rpad('x',7976,'0123456789');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:28) /test/1/catalog1/schema1/tblen_long_transition/",
+      "action": "UPDATE"
+    },
+    {
+      "subject": "Function(1:35~1:39) /test/1/catalog1/schema1/rpad/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_064_behavior_review]
+sql:
+alter table tblen_long_transition enable using long row;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:33) /test/1/catalog1/schema1/tblen_long_transition/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_065_behavior_review]
+sql:
+update tblen_long_transition set v=rpad('x',32767,'0123456789');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:28) /test/1/catalog1/schema1/tblen_long_transition/",
+      "action": "UPDATE"
+    },
+    {
+      "subject": "Function(1:35~1:39) /test/1/catalog1/schema1/rpad/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_066_behavior_review]
+sql:
+alter table tblen_long_transition disable using long row;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:33) /test/1/catalog1/schema1/tblen_long_transition/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_067_behavior_review]
+sql:
+delete from tblen_long_transition;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:33) /test/1/catalog1/schema1/tblen_long_transition/",
+      "action": "DELETE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_068_behavior_review]
+sql:
+alter table tblen_long_transition disable using long row;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:33) /test/1/catalog1/schema1/tblen_long_transition/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_069_behavior_review]
+sql:
+create global temporary table tblen_long_temp(v varchar(32767)) storage(using long row) on commit preserve rows;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:30~1:45) /test/1/catalog1/schema1/tblen_long_temp/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_070_behavior_review]
+sql:
+create table tblen_binary_zero(v binary(0));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/schema1/tblen_binary_zero/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_071_behavior_review]
+sql:
+create table tblen_varbinary_over(v varbinary(32768));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:33) /test/1/catalog1/schema1/tblen_varbinary_over/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_072_behavior_review]
+sql:
+create table tblen_varchar_over(v varchar(32768));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/schema1/tblen_varchar_over/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_073_behavior_review]
+sql:
+select sf_get_page_size() from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:23) /test/1/catalog1/schema1/sf_get_page_size/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:31~1:35) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_074_behavior_review]
+sql:
+drop table if exists tblen_ps4_varchar purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:21~1:38) /test/1/catalog1/schema1/tblen_ps4_varchar/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_075_behavior_review]
+sql:
+drop table if exists tblen_ps4_char_ok purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:21~1:38) /test/1/catalog1/schema1/tblen_ps4_char_ok/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_076_behavior_review]
+sql:
+drop table if exists tblen_ps4_char_fail purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:21~1:40) /test/1/catalog1/schema1/tblen_ps4_char_fail/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_077_behavior_review]
+sql:
+drop table if exists tblen_ps4_binary_ok purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:21~1:40) /test/1/catalog1/schema1/tblen_ps4_binary_ok/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_078_behavior_review]
+sql:
+drop table if exists tblen_ps4_varbinary purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:21~1:40) /test/1/catalog1/schema1/tblen_ps4_varbinary/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_079_behavior_review]
+sql:
+drop table if exists tblen_ps4_long purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:21~1:35) /test/1/catalog1/schema1/tblen_ps4_long/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_080_behavior_review]
+sql:
+drop table if exists tblen_ps8_varchar purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:21~1:38) /test/1/catalog1/schema1/tblen_ps8_varchar/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_081_behavior_review]
+sql:
+drop table if exists tblen_ps8_char_ok purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:21~1:38) /test/1/catalog1/schema1/tblen_ps8_char_ok/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_082_behavior_review]
+sql:
+drop table if exists tblen_ps8_char_fail purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:21~1:40) /test/1/catalog1/schema1/tblen_ps8_char_fail/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_083_behavior_review]
+sql:
+drop table if exists tblen_ps8_binary_ok purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:21~1:40) /test/1/catalog1/schema1/tblen_ps8_binary_ok/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_084_behavior_review]
+sql:
+drop table if exists tblen_ps8_varbinary purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:21~1:40) /test/1/catalog1/schema1/tblen_ps8_varbinary/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_085_behavior_review]
+sql:
+drop table if exists tblen_ps8_long purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:21~1:35) /test/1/catalog1/schema1/tblen_ps8_long/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_086_behavior_review]
+sql:
+drop table if exists tblen_ps16_varchar purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:21~1:39) /test/1/catalog1/schema1/tblen_ps16_varchar/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_087_behavior_review]
+sql:
+drop table if exists tblen_ps16_char_ok purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:21~1:39) /test/1/catalog1/schema1/tblen_ps16_char_ok/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_088_behavior_review]
+sql:
+drop table if exists tblen_ps16_char_fail purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:21~1:41) /test/1/catalog1/schema1/tblen_ps16_char_fail/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_089_behavior_review]
+sql:
+drop table if exists tblen_ps16_binary_ok purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:21~1:41) /test/1/catalog1/schema1/tblen_ps16_binary_ok/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_090_behavior_review]
+sql:
+drop table if exists tblen_ps16_varbinary purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:21~1:41) /test/1/catalog1/schema1/tblen_ps16_varbinary/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_091_behavior_review]
+sql:
+drop table if exists tblen_ps16_long purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:21~1:36) /test/1/catalog1/schema1/tblen_ps16_long/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_092_behavior_review]
+sql:
+drop table if exists tblen_ps32_varchar purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:21~1:39) /test/1/catalog1/schema1/tblen_ps32_varchar/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_093_behavior_review]
+sql:
+drop table if exists tblen_ps32_char_ok purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:21~1:39) /test/1/catalog1/schema1/tblen_ps32_char_ok/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_094_behavior_review]
+sql:
+drop table if exists tblen_ps32_char_fail purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:21~1:41) /test/1/catalog1/schema1/tblen_ps32_char_fail/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_095_behavior_review]
+sql:
+drop table if exists tblen_ps32_binary_ok purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:21~1:41) /test/1/catalog1/schema1/tblen_ps32_binary_ok/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_096_behavior_review]
+sql:
+drop table if exists tblen_ps32_varbinary purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:21~1:41) /test/1/catalog1/schema1/tblen_ps32_varbinary/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_097_behavior_review]
+sql:
+drop table if exists tblen_ps32_long purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:21~1:36) /test/1/catalog1/schema1/tblen_ps32_long/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_098_behavior_review]
+sql:
+drop table if exists tblen_long_transition purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:21~1:42) /test/1/catalog1/schema1/tblen_long_transition/",
+      "action": "DROP"
+    }
+  ]
+}

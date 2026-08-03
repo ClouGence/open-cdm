@@ -1,0 +1,59 @@
+[split_block_dameng_general_system_packages_0_001]
+sql:
+call dbms_random.initialize(15);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:5~1:27) /test/1/catalog1/dbms_random/initialize/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_general_system_packages_0_002]
+sql:
+call dbms_random.seed(20260722);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:5~1:21) /test/1/catalog1/dbms_random/seed/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_general_system_packages_0_003]
+sql:
+call dbms_random.seed('CODEX_DM8_SEED');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:5~1:21) /test/1/catalog1/dbms_random/seed/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_general_system_packages_0_004]
+sql:
+call dbms_random.terminate();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:5~1:26) /test/1/catalog1/dbms_random/terminate/",
+      "action": "CALL"
+    }
+  ]
+}

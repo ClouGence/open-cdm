@@ -1,0 +1,54 @@
+[alter_add_column]
+sql:
+alter table app.employee add column title varchar(30)
+expect:
+{
+  "contains": [
+    {"class":"Db2TableDomain", "sqlType": "ALTER_TABLE", "auditKind":"ALTER", "schema":"app", "table":"employee"},
+    {"class":"Db2ColumnDomain", "sqlType": "ALTER_TABLE_ADD_COLUMN", "auditKind":"ALTER", "schema":"app", "table":"employee", "column":"title", "typeDesc":"varchar(30)", "typeName":"varchar"}
+  ]
+}
+----------
+[alter_rename_column]
+sql:
+alter table app.employee rename column title to job_title
+expect:
+{
+  "contains": [
+    {"class":"Db2ColumnDomain", "sqlType": "ALTER_TABLE_RENAME_COLUMN", "auditKind":"ALTER", "schema":"app", "table":"employee", "column":"title", "newName":"job_title"}
+  ]
+}
+----------
+[alter_drop_column]
+sql:
+alter table app.employee drop column dept_id
+expect:
+{
+  "contains": [
+    {"class":"Db2ColumnDomain", "sqlType": "ALTER_TABLE_DROP_COLUMN", "auditKind":"ALTER", "schema":"app", "table":"employee", "column":"dept_id"}
+  ]
+}
+----------
+[alter_add_constraints_and_index]
+sql:
+alter table app.employee add constraint pk_employee primary key (id) add constraint uq_employee unique (name) add constraint fk_employee foreign key (dept_id) references app.department(id) add index idx_employee_name (name)
+expect:
+{
+  "contains": [
+    {"class":"Db2TableDomain", "sqlType": "ALTER_TABLE", "auditKind":"ALTER", "schema":"app", "table":"employee", "hasPrimary":true, "hasUnique":true, "hasForeignKey":true, "hasIndex":true},
+    {"class":"RdbConstraintDomain", "sqlType": "ALTER_TABLE_ADD_CONSTRAINT", "auditKind":"ALTER", "tableSchema":"app", "tableName":"employee", "name":"pk_employee", "type":"Primary", "columns":["id"]},
+    {"class":"RdbConstraintDomain", "sqlType": "ALTER_TABLE_ADD_CONSTRAINT", "auditKind":"ALTER", "tableSchema":"app", "tableName":"employee", "name":"uq_employee", "type":"Unique", "columns":["name"]},
+    {"class":"RdbConstraintDomain", "sqlType": "ALTER_TABLE_ADD_CONSTRAINT", "auditKind":"ALTER", "tableSchema":"app", "tableName":"employee", "name":"fk_employee", "type":"ForeignKey", "columns":["dept_id"]},
+    {"class":"RdbIndexDomain", "sqlType": "ALTER_TABLE_ADD_INDEX", "auditKind":"ALTER", "tableSchema":"app", "tableName":"employee", "name":"idx_employee_name", "columns":["name"]}
+  ]
+}
+----------
+[alter_rename_table]
+sql:
+alter table app.employee rename to employee_archive
+expect:
+{
+  "contains": [
+    {"class":"Db2TableDomain", "sqlType": "ALTER_TABLE_RENAME", "auditKind":"ALTER", "schema":"app", "table":"employee", "newName":"employee_archive"}
+  ]
+}

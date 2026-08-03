@@ -1,0 +1,18 @@
+SET PASSWORD FOR 'split_pw_old'@'%' = OLD_PASSWORD('Old57!');
+SET PASSWORD FOR 'cda16a'@'%' = 'Cda#New16x9' REPLACE 'Cda#Old16x9';
+SET PERSIST max_connections = 1000;
+SET PERSIST_ONLY back_log = 1000;
+SET PASSWORD TO RANDOM REPLACE 'Split#Old1';
+SET PASSWORD FOR split_gap_foo TO RANDOM REPLACE 'Split#Old1';
+------------------------------------------------------------------------------------------
+[ALTER_USER] SET PASSWORD FOR 'split_pw_old'@'%' = OLD_PASSWORD('Old57!');
+----------
+[ALTER_USER] SET PASSWORD FOR 'cda16a'@'%' = 'Cda#New16x9' REPLACE 'Cda#Old16x9';
+----------
+[SYSTEM_SETTING_WRITE] SET PERSIST max_connections = 1000;
+----------
+[SYSTEM_SETTING_WRITE] SET PERSIST_ONLY back_log = 1000;
+----------
+[ALTER_USER] SET PASSWORD TO RANDOM REPLACE 'Split#Old1';
+----------
+[ALTER_USER] SET PASSWORD FOR split_gap_foo TO RANDOM REPLACE 'Split#Old1';

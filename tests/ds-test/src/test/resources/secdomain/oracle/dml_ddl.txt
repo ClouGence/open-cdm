@@ -1,0 +1,103 @@
+[createTable_basic]
+sql:
+create table abc(id int)
+expect:
+{
+  "contains": [
+    {"class":"OraTableDomain", "sqlType": "CREATE_TABLE", "auditKind":"CREATE", "table":"abc"},
+    {"class":"OraColumnDomain", "sqlType": "CREATE_TABLE_ADD_COLUMN", "auditKind":"CREATE", "table":"abc", "column":"id", "typeDesc":"int"}
+  ]
+}
+----------
+[createTable_withSchema]
+sql:
+create table public.abc(id int);
+expect:
+{
+  "contains": [
+    {"class":"OraTableDomain", "sqlType": "CREATE_TABLE", "auditKind":"CREATE", "schema":"public", "table":"abc"},
+    {"class":"OraColumnDomain", "sqlType": "CREATE_TABLE_ADD_COLUMN", "auditKind":"CREATE", "schema":"public", "table":"abc", "column":"id", "typeDesc":"int"}
+  ]
+}
+----------
+[createTable_defaultValue]
+sql:
+create table public.abc(id int default 1);
+expect:
+{
+  "contains": [
+    {"class":"OraTableDomain", "sqlType": "CREATE_TABLE", "auditKind":"CREATE", "schema":"public", "table":"abc"},
+    {"class":"OraColumnDomain", "sqlType": "CREATE_TABLE_ADD_COLUMN", "auditKind":"CREATE", "schema":"public", "table":"abc", "column":"id", "typeDesc":"int", "defaultValue":"1"}
+  ]
+}
+----------
+[insertInto_basic]
+sql:
+insert into abc(id) values (1)
+expect:
+{
+  "contains": [
+    {"class":"OraInsertDomain", "sqlType": "INSERT", "auditKind":"DML", "table":"abc"}
+  ]
+}
+----------
+[update_basic]
+sql:
+update abc set id=2 where id=1
+expect:
+{
+  "contains": [
+    {"class":"OraUpdateDomain", "sqlType": "UPDATE", "auditKind":"DML", "table":"abc"}
+  ]
+}
+----------
+[delete_basic]
+sql:
+delete from abc where id=1
+expect:
+{
+  "contains": [
+    {"class":"OraDeleteDomain", "sqlType": "DELETE", "auditKind":"DML", "table":"abc"}
+  ]
+}
+----------
+[drop_table]
+sql:
+drop table abc
+expect:
+{
+  "contains": [
+    {"class":"OraTableDomain", "sqlType": "DROP_TABLE", "auditKind":"DROP", "table":"abc"}
+  ]
+}
+----------
+[select_basic]
+sql:
+select * from abc
+expect:
+{
+  "contains": [
+    {"class":"OraSelectDomain", "sqlType": "SELECT", "auditKind":"QUERY", "childrenSize":1},
+    {"class":"RdbTableDomain", "table":"abc"}
+  ]
+}
+----------
+[createIndex]
+sql:
+create index idx_abc on abc(id)
+expect:
+{
+  "contains": [
+    {"class":"RdbIndexDomain", "sqlType": "ADD_INDEX", "auditKind":"CREATE", "tableName":"abc", "name":"idx_abc"}
+  ]
+}
+----------
+[addConstraint_pk]
+sql:
+alter table abc add constraint pk_abc primary key (id)
+expect:
+{
+  "contains": [
+    {"class":"RdbConstraintDomain", "sqlType": "ALTER_TABLE_ADD_CONSTRAINT", "auditKind":"CREATE", "tableName":"abc", "name":"pk_abc"}
+  ]
+}

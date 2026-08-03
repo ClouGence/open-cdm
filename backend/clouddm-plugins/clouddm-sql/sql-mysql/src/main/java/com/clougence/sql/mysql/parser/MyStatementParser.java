@@ -53,8 +53,11 @@ public class MyStatementParser implements AntlrStatementParser {
             if (start.getType() == MySqlLexer.SPACE) {
                 // ignore
             } else if (start.getType() == MySqlLexer.SEMI) {
-                break;
-            } else if (start.getType() == MySqlLexer.COMMENT_INPUT || start.getType() == MySqlLexer.LINE_COMMENT) {
+                if (start.getChannel() == Token.DEFAULT_CHANNEL) {
+                    break;
+                }
+                startToken = start;
+            } else if (isComment(start)) {
                 startToken = start;
             } else {
                 break;
@@ -67,8 +70,10 @@ public class MyStatementParser implements AntlrStatementParser {
                 //ignore
             } else if (end.getType() == MySqlLexer.SEMI) {
                 endToken = end;
-                break;
-            } else if (end.getType() == MySqlLexer.COMMENT_INPUT || end.getType() == MySqlLexer.LINE_COMMENT) {
+                if (end.getChannel() == Token.DEFAULT_CHANNEL) {
+                    break;
+                }
+            } else if (isComment(end)) {
                 endToken = end;
             } else {
                 break;
@@ -76,5 +81,10 @@ public class MyStatementParser implements AntlrStatementParser {
         }
 
         return tokens.getText(startToken, endToken);
+    }
+
+    private static boolean isComment(Token token) {
+        int type = token.getType();
+        return type == MySqlLexer.COMMENT_INPUT || type == MySqlLexer.LINE_COMMENT || type == MySqlLexer.EXEC_COMMENT_LEFT || type == MySqlLexer.EXEC_COMMENT_RIGHT;
     }
 }

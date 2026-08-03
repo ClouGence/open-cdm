@@ -1,0 +1,15 @@
+[utl_compress_payload_columns]
+sql:
+select RAW_SOURCE, BLOB_SOURCE, BFILE_SOURCE, QUALITY_VALUE, HANDLE_VALUE,
+       CHUNK_SOURCE, OUTPUT_LENGTH
+from catalog1.app.utl_compress_payload
+expect:
+{
+  "RAW_SOURCE": ["/catalog1/app/utl_compress_payload/RAW_SOURCE/"],
+  "BLOB_SOURCE": ["/catalog1/app/utl_compress_payload/BLOB_SOURCE/"],
+  "BFILE_SOURCE": ["/catalog1/app/utl_compress_payload/BFILE_SOURCE/"],
+  "QUALITY_VALUE": ["/catalog1/app/utl_compress_payload/QUALITY_VALUE/"],
+  "HANDLE_VALUE": ["/catalog1/app/utl_compress_payload/HANDLE_VALUE/"],
+  "CHUNK_SOURCE": ["/catalog1/app/utl_compress_payload/CHUNK_SOURCE/"],
+  "OUTPUT_LENGTH": ["/catalog1/app/utl_compress_payload/OUTPUT_LENGTH/"]
+}

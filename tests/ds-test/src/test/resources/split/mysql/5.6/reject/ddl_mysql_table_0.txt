@@ -1,0 +1,164 @@
+ALTER TABLE t1 DROP CHECK ck11, ALTER CHECK ck11 NOT ENFORCED, ADD CONSTRAINT ck11 CHECK (c1 > 10);
+ALTER TABLE t3 DROP CHECK t3_p_ck, ADD CONSTRAINT t3_p_ck CHECK (f1 > 38);
+ALTER TABLE t1 DROP CHECK t1_chk_2, DROP COLUMN f1;
+ALTER TABLE t1 MODIFY COLUMN c1 FLOAT(10.3), DROP CHECK t1_chk_1, ADD CONSTRAINT CHECK (c1 > 10.1) ENFORCED;
+CREATE TABLE codex_constraint_c03 (id INT CONSTRAINT ck_c03 CHECK (id > 0));
+CREATE LIBRARY split97ddl.split_lib_dollar LANGUAGE JAVASCRIPT AS $$
+export function plain(n) { return n; }
+$$;
+CREATE LIBRARY IF NOT EXISTS split97ddl.split_lib_comment LANGUAGE JAVASCRIPT COMMENT 'library comment' AS 'export function comment(n) { return n + 1; }';
+CREATE LIBRARY split97ddl.split_lib_wasm LANGUAGE WASM AS 'AGFzbQEAAAA=';
+ALTER LIBRARY split97ddl.split_lib_comment COMMENT 'updated comment';
+ALTER LIBRARY split97ddl.split_lib_comment COMMENT '';
+DROP LIBRARY split97ddl.split_lib_dollar;
+DROP LIBRARY split97ddl.split_lib_wasm;
+DROP LIBRARY IF EXISTS split97ddl.split_lib_comment;
+DROP LIBRARY IF EXISTS split97ddl.split_lib_missing;
+DROP MASKING POLICY IF EXISTS split_accept_mask;
+CREATE MASKING POLICY IF NOT EXISTS split_accept_mask(pass_column) CASE WHEN CURRENT_ROLE_IN('admin') THEN pass_column ELSE SHA2(pass_column, 256) END;
+SHOW CREATE MASKING POLICY split_accept_mask;
+CREATE TABLE ctas_t AS SELECT 1 AS a WHERE 1;
+CREATE TEMPORARY TABLE temp_t AS SELECT 1 AS a GROUP BY 1;
+CREATE TABLE split_table.c_check_enforced(id INT, CHECK (id > 0) ENFORCED);
+CREATE TABLE split_table.c_check_not_enforced(id INT, CHECK (id > 0) NOT ENFORCED);
+CREATE TABLE split_table.c_attr(id INT ENGINE_ATTRIBUTE='{}');
+CREATE TABLE split_table.c_invisible(id INT, hidden_col INT INVISIBLE);
+CREATE TABLE split_table.c_secondary_attr(id INT SECONDARY_ENGINE_ATTRIBUTE='{}');
+CREATE TABLE split_table.c_visible(id INT, shown_col INT VISIBLE);
+CREATE TABLE split_table.c_default_expr(id INT DEFAULT (RAND() * 10));
+CREATE TABLE split_table.c_generated(id INT, g INT GENERATED ALWAYS AS (id + 1) VIRTUAL);
+CREATE TABLE split_table.opt_compression(id INT) COMPRESSION='none';
+CREATE TABLE split_table.opt_encryption(id INT) ENCRYPTION='N';
+CREATE TABLE split_table.opt_engine_attr(id INT) ENGINE_ATTRIBUTE='{}';
+CREATE TABLE split_table.opt_secondary(id INT) SECONDARY_ENGINE=NULL;
+CREATE TABLE split_table.opt_secondary_attr(id INT) SECONDARY_ENGINE_ATTRIBUTE='{}';
+CREATE TABLE split_table.opt_start_tx(id INT) START TRANSACTION;
+ALTER TABLE split_partition.p_hash SECONDARY_LOAD;
+ALTER TABLE split_partition.p_hash SECONDARY_UNLOAD;
+CREATE TABLE t2(c1 INT,c2 TEXT) AUTOEXTEND_SIZE 4M;
+CREATE TABLE t1(i VARCHAR(256) MASKING POLICY p1);
+CREATE TABLE json_gc (j JSON, stored_gc JSON GENERATED ALWAYS AS (JSON_EXTRACT(j,'$[0]')) STORED, virtual_gc JSON GENERATED ALWAYS AS (JSON_EXTRACT(j,'$[1]')) VIRTUAL);
+CREATE TABLE json_gc_idx (f1 JSON, gc VARCHAR(20) CHARACTER SET utf8mb4 AS (JSON_UNQUOTE(JSON_EXTRACT(f1,'$'))) STORED, KEY gc_idx(gc));
+CREATE TABLE fi_desc (col1 INT, INDEX ((ABS(col1)) DESC));
+CREATE TABLE fi_json (f1 JSON, INDEX idx1 ((CAST(f1->'$.id' AS UNSIGNED))));
+CREATE TABLE check_order (a INTEGER CHECK (a > 0) NOT ENFORCED NOT NULL);
+ALTER TABLE t1 SECONDARY_ENGINE NULL;
+ALTER TABLE t1 SECONDARY_ENGINE_ATTRIBUTE='{"table algo":"inplace"}', ALGORITHM=INPLACE;
+ALTER TABLE t1 ADD COLUMN m VARCHAR(64) SECONDARY_ENGINE_ATTRIBUTE='{"add column algo":"inplace"}', ALGORITHM=INPLACE;
+CREATE TABLE autoext_part(c1 INT, c2 TEXT) AUTOEXTEND_SIZE 4M PARTITION BY RANGE(c1) (PARTITION p0 VALUES LESS THAN(20), PARTITION p1 VALUES LESS THAN MAXVALUE);
+CREATE TABLE split_check_multi (a INTEGER CHECK (a > 0) UNIQUE CHECK (a IS NOT NULL) NULL CHECK (a < 100));
+CREATE TABLE audit_ctas_table TABLE audit_source;
+CREATE TABLE audit_ctas_table_cols(pad INT) TABLE audit_source;
+------------------------------------------------------------------------------------------
+
+[ALTER_TABLE|DROP_CONSTRAINT|ALTER_CONSTRAINT|ADD_CONSTRAINT] ALTER TABLE t1 DROP CHECK ck11, ALTER CHECK ck11 NOT ENFORCED, ADD CONSTRAINT ck11 CHECK (c1 > 10);
+----------
+[ALTER_TABLE|DROP_CONSTRAINT|ADD_CONSTRAINT] ALTER TABLE t3 DROP CHECK t3_p_ck, ADD CONSTRAINT t3_p_ck CHECK (f1 > 38);
+----------
+[ALTER_TABLE|DROP_CONSTRAINT|DROP_COLUMN] ALTER TABLE t1 DROP CHECK t1_chk_2, DROP COLUMN f1;
+----------
+[ALTER_TABLE|ALTER_COLUMN|DROP_CONSTRAINT|ADD_CONSTRAINT] ALTER TABLE t1 MODIFY COLUMN c1 FLOAT(10.3), DROP CHECK t1_chk_1, ADD CONSTRAINT CHECK (c1 > 10.1) ENFORCED;
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] CREATE TABLE codex_constraint_c03 (id INT CONSTRAINT ck_c03 CHECK (id > 0));
+----------
+[CREATE_LIBRARY]
+CREATE LIBRARY split97ddl.split_lib_dollar LANGUAGE JAVASCRIPT AS $$
+export function plain(n) { return n; }
+$$;
+----------
+[CREATE_LIBRARY|COMMENT_LIBRARY]
+CREATE LIBRARY IF NOT EXISTS split97ddl.split_lib_comment LANGUAGE JAVASCRIPT COMMENT 'library comment' AS 'export function comment(n) { return n + 1; }';
+----------
+[CREATE_LIBRARY]
+CREATE LIBRARY split97ddl.split_lib_wasm LANGUAGE WASM AS 'AGFzbQEAAAA=';
+----------
+[ALTER_LIBRARY|COMMENT_LIBRARY]
+ALTER LIBRARY split97ddl.split_lib_comment COMMENT 'updated comment';
+----------
+[ALTER_LIBRARY|COMMENT_LIBRARY]
+ALTER LIBRARY split97ddl.split_lib_comment COMMENT '';
+----------
+[DROP_LIBRARY]
+DROP LIBRARY split97ddl.split_lib_dollar;
+----------
+[DROP_LIBRARY]
+DROP LIBRARY split97ddl.split_lib_wasm;
+----------
+[DROP_LIBRARY]
+DROP LIBRARY IF EXISTS split97ddl.split_lib_comment;
+----------
+[DROP_LIBRARY]
+DROP LIBRARY IF EXISTS split97ddl.split_lib_missing;
+----------
+[DROP_POLICY]
+DROP MASKING POLICY IF EXISTS split_accept_mask;
+----------
+[CREATE_POLICY]
+CREATE MASKING POLICY IF NOT EXISTS split_accept_mask(pass_column) CASE WHEN CURRENT_ROLE_IN('admin') THEN pass_column ELSE SHA2(pass_column, 256) END;
+----------
+[METADATA]
+SHOW CREATE MASKING POLICY split_accept_mask;
+----------
+[CREATE_TABLE] CREATE TABLE ctas_t AS SELECT 1 AS a WHERE 1;
+----------
+[CREATE_TABLE] CREATE TEMPORARY TABLE temp_t AS SELECT 1 AS a GROUP BY 1;
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] CREATE TABLE split_table.c_check_enforced(id INT, CHECK (id > 0) ENFORCED);
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] CREATE TABLE split_table.c_check_not_enforced(id INT, CHECK (id > 0) NOT ENFORCED);
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE split_table.c_attr(id INT ENGINE_ATTRIBUTE='{}');
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE split_table.c_invisible(id INT, hidden_col INT INVISIBLE);
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE split_table.c_secondary_attr(id INT SECONDARY_ENGINE_ATTRIBUTE='{}');
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE split_table.c_visible(id INT, shown_col INT VISIBLE);
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE split_table.c_default_expr(id INT DEFAULT (RAND() * 10));
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE split_table.c_generated(id INT, g INT GENERATED ALWAYS AS (id + 1) VIRTUAL);
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE split_table.opt_compression(id INT) COMPRESSION='none';
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE split_table.opt_encryption(id INT) ENCRYPTION='N';
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE split_table.opt_engine_attr(id INT) ENGINE_ATTRIBUTE='{}';
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE split_table.opt_secondary(id INT) SECONDARY_ENGINE=NULL;
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE split_table.opt_secondary_attr(id INT) SECONDARY_ENGINE_ATTRIBUTE='{}';
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE split_table.opt_start_tx(id INT) START TRANSACTION;
+----------
+[ALTER_TABLE|ADMIN_PARTITION] ALTER TABLE split_partition.p_hash SECONDARY_LOAD;
+----------
+[ALTER_TABLE|ADMIN_PARTITION] ALTER TABLE split_partition.p_hash SECONDARY_UNLOAD;
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE t2(c1 INT,c2 TEXT) AUTOEXTEND_SIZE 4M;
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE t1(i VARCHAR(256) MASKING POLICY p1);
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE json_gc (j JSON, stored_gc JSON GENERATED ALWAYS AS (JSON_EXTRACT(j,'$[0]')) STORED, virtual_gc JSON GENERATED ALWAYS AS (JSON_EXTRACT(j,'$[1]')) VIRTUAL);
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_INDEX] CREATE TABLE json_gc_idx (f1 JSON, gc VARCHAR(20) CHARACTER SET utf8mb4 AS (JSON_UNQUOTE(JSON_EXTRACT(f1,'$'))) STORED, KEY gc_idx(gc));
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_INDEX] CREATE TABLE fi_desc (col1 INT, INDEX ((ABS(col1)) DESC));
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_INDEX] CREATE TABLE fi_json (f1 JSON, INDEX idx1 ((CAST(f1->'$.id' AS UNSIGNED))));
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] CREATE TABLE check_order (a INTEGER CHECK (a > 0) NOT ENFORCED NOT NULL);
+----------
+[ALTER_TABLE] ALTER TABLE t1 SECONDARY_ENGINE NULL;
+----------
+[ALTER_TABLE] ALTER TABLE t1 SECONDARY_ENGINE_ATTRIBUTE='{"table algo":"inplace"}', ALGORITHM=INPLACE;
+----------
+[ALTER_TABLE|ADD_COLUMN] ALTER TABLE t1 ADD COLUMN m VARCHAR(64) SECONDARY_ENGINE_ATTRIBUTE='{"add column algo":"inplace"}', ALGORITHM=INPLACE;
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE autoext_part(c1 INT, c2 TEXT) AUTOEXTEND_SIZE 4M PARTITION BY RANGE(c1) (PARTITION p0 VALUES LESS THAN(20), PARTITION p1 VALUES LESS THAN MAXVALUE);
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] CREATE TABLE split_check_multi (a INTEGER CHECK (a > 0) UNIQUE CHECK (a IS NOT NULL) NULL CHECK (a < 100));
+----------
+[CREATE_TABLE] CREATE TABLE audit_ctas_table TABLE audit_source;
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE audit_ctas_table_cols(pad INT) TABLE audit_source;

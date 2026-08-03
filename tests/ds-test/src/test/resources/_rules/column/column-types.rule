@@ -1,0 +1,33 @@
+#define "ruleType" as string
+        default "AllowList"
+        enum ["AllowList", "BlockList"]
+        hint "名单工作模式"
+#define "typeList" as string
+        default "bit,tinyint,smallint,mediumint,int,integer,bigint,decimal,numeric,float,double,date,datetime,timestamp,time,char,varchar,binary,tinyblob,blob,mediumblob,longblob,tinytext,text,mediumtext,longtext,enum,set,json"
+        hint "允许或禁止的类型列表"
+
+if
+  @domain.sqlType not in ['CREATE_TABLE_ADD_COLUMN', 'ALTER_TABLE_ADD_COLUMN', 'ALTER_TABLE_ALTER_COLUMN']
+then
+  return true
+end
+
+if
+  @func.string.isBlank(#{typeList})
+then
+  return true
+end
+
+if
+  #{ruleType} == 'AllowList'
+then
+  return @domain.typeName in @func.string.split(#{typeList}, ',')
+end
+
+if
+  #{ruleType} == 'BlockList'
+then
+  return @domain.typeName not in @func.string.split(#{typeList}, ',')
+end
+
+return false

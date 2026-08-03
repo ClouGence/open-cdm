@@ -1,0 +1,60 @@
+-- WRAP_VARCHAR_POSITIONAL
+declare o clob; begin o:=dbms_ddl.wrap('create or replace procedure CODEX_DDL_WRAP_ONLY_1 as begin null; end;'); if instr(lower(o),'wrapped')=0 then raise_application_error(-20001,'not wrapped'); end if; end;
+-- WRAP_VARCHAR_NAMED
+declare o clob; begin o:=dbms_ddl.wrap(ddl=>'create or replace function CODEX_DDL_WRAP_ONLY_2 return int as begin return 2; end;'); if instr(lower(o),'wrapped')=0 then raise_application_error(-20002,'not wrapped'); end if; end;
+-- WRAP_VARCHAR2A_POSITIONAL
+declare a dbms_sql.varchar2a; o dbms_sql.varchar2a; begin a(1):='create or replace procedure CODEX_DDL_WRAP_ONLY_3 as '; a(2):='begin null; end;'; o:=dbms_ddl.wrap(a,1,2); if o.count=0 then raise_application_error(-20003,'empty wrap'); end if; end;
+-- WRAP_VARCHAR2A_NAMED_REORDERED
+declare a dbms_sql.varchar2a; o dbms_sql.varchar2a; begin a(2):='begin null; end;'; a(1):='create or replace procedure CODEX_DDL_WRAP_ONLY_4 as '; o:=dbms_ddl.wrap(ub=>2,ddl=>a,lb=>1); if o.count=0 then raise_application_error(-20004,'empty wrap'); end if; end;
+-- WRAP_VARCHAR2S_POSITIONAL
+declare a dbms_sql.varchar2s; o dbms_sql.varchar2s; begin a(1):='create or replace procedure CODEX_DDL_WRAP_ONLY_5 as '; a(2):='begin null; end;'; o:=dbms_ddl.wrap(a,1,2); if o.count=0 then raise_application_error(-20005,'empty wrap'); end if; end;
+-- WRAP_VARCHAR2S_NAMED_REORDERED
+declare a dbms_sql.varchar2s; o dbms_sql.varchar2s; begin a(2):='begin null; end;'; a(1):='create or replace procedure CODEX_DDL_WRAP_ONLY_6 as '; o:=dbms_ddl.wrap(ub=>2,lb=>1,ddl=>a); if o.count=0 then raise_application_error(-20006,'empty wrap'); end if; end;
+-- CREATE_WRAPPED_VARCHAR_POSITIONAL
+begin dbms_ddl.create_wrapped('create or replace procedure CODEX_DDL_WRAP_P1 as begin null; end;'); commit; end;
+-- CREATE_WRAPPED_VARCHAR_NAMED
+begin dbms_ddl.create_wrapped(ddl=>'create or replace procedure CODEX_DDL_WRAP_P2 as begin null; end;'); commit; end;
+-- CREATE_WRAPPED_VARCHAR2A_POSITIONAL
+declare a dbms_sql.varchar2a; begin a(1):='create or replace procedure CODEX_DDL_WRAP_A1 as '; a(2):='begin null; end;'; dbms_ddl.create_wrapped(a,1,2); commit; end;
+-- CREATE_WRAPPED_VARCHAR2A_NAMED_REORDERED
+declare a dbms_sql.varchar2a; begin a(2):='begin null; end;'; a(1):='create or replace procedure CODEX_DDL_WRAP_A2 as '; dbms_ddl.create_wrapped(ub=>2,ddl=>a,lb=>1); commit; end;
+-- CREATE_WRAPPED_VARCHAR2S_POSITIONAL
+declare a dbms_sql.varchar2s; begin a(1):='create or replace procedure CODEX_DDL_WRAP_S1 as '; a(2):='begin null; end;'; dbms_ddl.create_wrapped(a,1,2); commit; end;
+-- CREATE_WRAPPED_VARCHAR2S_NAMED_REORDERED
+declare a dbms_sql.varchar2s; begin a(2):='begin null; end;'; a(1):='create or replace procedure CODEX_DDL_WRAP_S2 as '; dbms_ddl.create_wrapped(lb=>1,ub=>2,ddl=>a); commit; end;
+------------------------------------------------------------------------------------------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- WRAP_VARCHAR_POSITIONAL
+declare o clob; begin o:=dbms_ddl.wrap('create or replace procedure CODEX_DDL_WRAP_ONLY_1 as begin null; end;'); if instr(lower(o),'wrapped')=0 then raise_application_error(-20001,'not wrapped'); end if; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- WRAP_VARCHAR_NAMED
+declare o clob; begin o:=dbms_ddl.wrap(ddl=>'create or replace function CODEX_DDL_WRAP_ONLY_2 return int as begin return 2; end;'); if instr(lower(o),'wrapped')=0 then raise_application_error(-20002,'not wrapped'); end if; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- WRAP_VARCHAR2A_POSITIONAL
+declare a dbms_sql.varchar2a; o dbms_sql.varchar2a; begin a(1):='create or replace procedure CODEX_DDL_WRAP_ONLY_3 as '; a(2):='begin null; end;'; o:=dbms_ddl.wrap(a,1,2); if o.count=0 then raise_application_error(-20003,'empty wrap'); end if; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- WRAP_VARCHAR2A_NAMED_REORDERED
+declare a dbms_sql.varchar2a; o dbms_sql.varchar2a; begin a(2):='begin null; end;'; a(1):='create or replace procedure CODEX_DDL_WRAP_ONLY_4 as '; o:=dbms_ddl.wrap(ub=>2,ddl=>a,lb=>1); if o.count=0 then raise_application_error(-20004,'empty wrap'); end if; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- WRAP_VARCHAR2S_POSITIONAL
+declare a dbms_sql.varchar2s; o dbms_sql.varchar2s; begin a(1):='create or replace procedure CODEX_DDL_WRAP_ONLY_5 as '; a(2):='begin null; end;'; o:=dbms_ddl.wrap(a,1,2); if o.count=0 then raise_application_error(-20005,'empty wrap'); end if; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- WRAP_VARCHAR2S_NAMED_REORDERED
+declare a dbms_sql.varchar2s; o dbms_sql.varchar2s; begin a(2):='begin null; end;'; a(1):='create or replace procedure CODEX_DDL_WRAP_ONLY_6 as '; o:=dbms_ddl.wrap(ub=>2,lb=>1,ddl=>a); if o.count=0 then raise_application_error(-20006,'empty wrap'); end if; end;
+----------
+[BLOCK(CALL_PROG_OBJ,TRANSACTION)] -- CREATE_WRAPPED_VARCHAR_POSITIONAL
+begin dbms_ddl.create_wrapped('create or replace procedure CODEX_DDL_WRAP_P1 as begin null; end;'); commit; end;
+----------
+[BLOCK(CALL_PROG_OBJ,TRANSACTION)] -- CREATE_WRAPPED_VARCHAR_NAMED
+begin dbms_ddl.create_wrapped(ddl=>'create or replace procedure CODEX_DDL_WRAP_P2 as begin null; end;'); commit; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ,TRANSACTION)] -- CREATE_WRAPPED_VARCHAR2A_POSITIONAL
+declare a dbms_sql.varchar2a; begin a(1):='create or replace procedure CODEX_DDL_WRAP_A1 as '; a(2):='begin null; end;'; dbms_ddl.create_wrapped(a,1,2); commit; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ,TRANSACTION)] -- CREATE_WRAPPED_VARCHAR2A_NAMED_REORDERED
+declare a dbms_sql.varchar2a; begin a(2):='begin null; end;'; a(1):='create or replace procedure CODEX_DDL_WRAP_A2 as '; dbms_ddl.create_wrapped(ub=>2,ddl=>a,lb=>1); commit; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ,TRANSACTION)] -- CREATE_WRAPPED_VARCHAR2S_POSITIONAL
+declare a dbms_sql.varchar2s; begin a(1):='create or replace procedure CODEX_DDL_WRAP_S1 as '; a(2):='begin null; end;'; dbms_ddl.create_wrapped(a,1,2); commit; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ,TRANSACTION)] -- CREATE_WRAPPED_VARCHAR2S_NAMED_REORDERED
+declare a dbms_sql.varchar2s; begin a(2):='begin null; end;'; a(1):='create or replace procedure CODEX_DDL_WRAP_S2 as '; dbms_ddl.create_wrapped(lb=>1,ub=>2,ddl=>a); commit; end;

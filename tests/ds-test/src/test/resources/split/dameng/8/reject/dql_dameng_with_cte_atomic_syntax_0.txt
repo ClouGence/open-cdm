@@ -1,0 +1,40 @@
+-- missing CTE name
+with as(select 1 from dual) select 1 from dual;
+-- missing AS
+with q(select 1 from dual) select * from q;
+-- missing definition parentheses
+with q as select 1 from dual select * from q;
+-- empty definition
+with q as() select * from q;
+-- trailing comma
+with q as(select 1 from dual), select * from q;
+-- empty column list
+with q() as(select 1 from dual) select * from q;
+-- SEARCH missing SET
+with q(n) as(select 1 from dual) search depth first by n select * from q;
+-- CYCLE missing DEFAULT
+with q(n) as(select 1 from dual) cycle n set flag to 1 select * from q;
+------------------------------------------------------------------------------------------
+[SELECT] -- missing CTE name
+with as(select 1 from dual) select 1 from dual;
+----------
+[SELECT] -- missing AS
+with q(select 1 from dual) select * from q;
+----------
+[SELECT] -- missing definition parentheses
+with q as select 1 from dual select * from q;
+----------
+[SELECT] -- empty definition
+with q as() select * from q;
+----------
+[SELECT] -- trailing comma
+with q as(select 1 from dual), select * from q;
+----------
+[SELECT] -- empty column list
+with q() as(select 1 from dual) select * from q;
+----------
+[SELECT] -- SEARCH missing SET
+with q(n) as(select 1 from dual) search depth first by n select * from q;
+----------
+[SELECT] -- CYCLE missing DEFAULT
+with q(n) as(select 1 from dual) cycle n set flag to 1 select * from q;

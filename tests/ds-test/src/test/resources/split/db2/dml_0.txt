@@ -1,0 +1,18 @@
+insert into app.employee (id, name) values (1, 'alice');
+insert into app.employee_archive (id, name) select id, name from app.employee where active = 0;
+update app.employee set name = 'bob' where id = 1;
+delete from app.employee where id = 1;
+call app.refresh_employee(1, 'force');
+select e.id, d.name from app.employee e join app.department d on e.dept_id = d.id where e.active = 1;
+------------------------------------------------------------------------------------------
+[INSERT] insert into app.employee (id, name) values (1, 'alice');
+----------
+[INSERT|SELECT] insert into app.employee_archive (id, name) select id, name from app.employee where active = 0;
+----------
+[UPDATE] update app.employee set name = 'bob' where id = 1;
+----------
+[DELETE] delete from app.employee where id = 1;
+----------
+[CALL_PROG_OBJ] call app.refresh_employee(1, 'force');
+----------
+[SELECT] select e.id, d.name from app.employee e join app.department d on e.dept_id = d.id where e.active = 1;

@@ -1,0 +1,225 @@
+create materialized view mv_basic as select id, customer_id, amount, status from mv_orders;
+create materialized view mv_columns(order_id, order_amount) as select id, amount from mv_orders;
+create materialized view mv_build_immediate build immediate as select id, amount from mv_orders;
+create materialized view mv_build_deferred build deferred as select id, amount from mv_orders;
+create materialized view mv_refresh_complete refresh complete as select id, amount from mv_orders;
+create materialized view mv_refresh_force refresh force as select id, amount from mv_orders;
+create materialized view mv_never_refresh never refresh as select id, amount from mv_orders;
+create materialized view mv_on_demand refresh complete on demand as select id, amount from mv_orders;
+create materialized view mv_primary_key refresh complete with primary key as select id, amount from mv_orders;
+create materialized view mv_rowid refresh complete with rowid as select id, amount from mv_orders;
+create materialized view mv_using_default refresh complete using default as select id, amount from mv_orders;
+create materialized view mv_using_truncate refresh complete using truncate as select id, amount from mv_orders;
+create materialized view mv_using_delete refresh complete using delete as select id, amount from mv_orders;
+create materialized view mv_disable_rewrite disable query rewrite as select id, amount from mv_orders;
+create materialized view mv_enable_rewrite enable query rewrite as select id, amount from mv_orders;
+create materialized view mv_filtered as select id, amount from mv_orders where status = 'OPEN';
+create materialized view mv_join as select o.id, o.amount, c.name, c.region from mv_orders o join mv_customers c on o.customer_id = c.id;
+create materialized view mv_aggregate as select customer_id, count(*) as order_count, sum(amount) as total_amount from mv_orders group by customer_id;
+create materialized view mv_subquery as select id, amount from mv_orders where customer_id in(select id from mv_customers where region = 'EAST');
+create materialized view mv_union as select id, amount from mv_orders where status = 'OPEN' union all select id, amount from mv_orders where status = 'CLOSED';
+create materialized view mv_ordered as select id, amount from mv_orders order by id;
+create materialized view mv_distinct as select distinct customer_id from mv_orders;
+create materialized view mv_expression as select id, amount * 1.1 as adjusted_amount from mv_orders;
+create materialized view mv_case as select id, case when amount >= 100 then 'HIGH' else 'LOW' end as amount_level from mv_orders;
+create materialized view mv_cte as with open_orders as (select id, amount from mv_orders where status = 'OPEN') select * from open_orders;
+alter materialized view mv_basic enable query rewrite;
+alter materialized view mv_basic disable query rewrite;
+alter materialized view mv_basic refresh complete;
+alter materialized view mv_basic refresh force;
+alter materialized view mv_basic refresh complete on demand;
+alter materialized view mv_basic refresh complete with primary key;
+alter materialized view mv_basic refresh complete using default;
+alter materialized view mv_basic refresh complete using truncate;
+alter materialized view mv_basic refresh complete using delete;
+alter materialized view mv_basic never refresh;
+alter materialized view mv_basic refresh complete disable query rewrite;
+alter materialized view mv_basic compile;
+refresh materialized view mv_basic;
+refresh materialized view mv_basic complete;
+refresh materialized view mv_basic complete using default;
+refresh materialized view mv_basic complete using truncate;
+refresh materialized view mv_basic complete using delete;
+refresh materialized view mv_basic force;
+refresh materialized view mv_basic force using default;
+refresh materialized view mv_basic force using truncate;
+refresh materialized view mv_basic force using delete;
+create materialized view mv_fast refresh fast with primary key as select id, customer_id, amount, status from mv_orders;
+refresh materialized view mv_fast fast;
+drop materialized view mv_fast;
+drop materialized view mv_basic;
+drop materialized view if exists mv_columns;
+drop materialized view mv_build_immediate;
+drop materialized view mv_build_deferred;
+drop materialized view mv_refresh_complete;
+drop materialized view mv_refresh_force;
+drop materialized view mv_never_refresh;
+drop materialized view mv_on_demand;
+drop materialized view mv_primary_key;
+drop materialized view mv_rowid;
+drop materialized view mv_using_default;
+drop materialized view mv_using_truncate;
+drop materialized view mv_using_delete;
+drop materialized view mv_disable_rewrite;
+drop materialized view mv_enable_rewrite;
+drop materialized view mv_filtered;
+drop materialized view mv_join;
+drop materialized view mv_aggregate;
+drop materialized view mv_subquery;
+drop materialized view mv_union;
+drop materialized view mv_ordered;
+drop materialized view mv_distinct;
+drop materialized view mv_expression;
+drop materialized view mv_case;
+drop materialized view mv_cte;
+drop materialized view if exists mv_missing;
+------------------------------------------------------------------------------------------
+[CREATE_VIEW(SELECT)] create materialized view mv_basic as select id, customer_id, amount, status from mv_orders;
+----------
+[CREATE_VIEW(SELECT)] create materialized view mv_columns(order_id, order_amount) as select id, amount from mv_orders;
+----------
+[CREATE_VIEW(SELECT)] create materialized view mv_build_immediate build immediate as select id, amount from mv_orders;
+----------
+[CREATE_VIEW(SELECT)] create materialized view mv_build_deferred build deferred as select id, amount from mv_orders;
+----------
+[CREATE_VIEW(SELECT)] create materialized view mv_refresh_complete refresh complete as select id, amount from mv_orders;
+----------
+[CREATE_VIEW(SELECT)] create materialized view mv_refresh_force refresh force as select id, amount from mv_orders;
+----------
+[CREATE_VIEW(SELECT)] create materialized view mv_never_refresh never refresh as select id, amount from mv_orders;
+----------
+[CREATE_VIEW(SELECT)] create materialized view mv_on_demand refresh complete on demand as select id, amount from mv_orders;
+----------
+[CREATE_VIEW(SELECT)] create materialized view mv_primary_key refresh complete with primary key as select id, amount from mv_orders;
+----------
+[CREATE_VIEW(SELECT)] create materialized view mv_rowid refresh complete with rowid as select id, amount from mv_orders;
+----------
+[CREATE_VIEW(SELECT)] create materialized view mv_using_default refresh complete using default as select id, amount from mv_orders;
+----------
+[CREATE_VIEW(SELECT)] create materialized view mv_using_truncate refresh complete using truncate as select id, amount from mv_orders;
+----------
+[CREATE_VIEW(SELECT)] create materialized view mv_using_delete refresh complete using delete as select id, amount from mv_orders;
+----------
+[CREATE_VIEW(SELECT)] create materialized view mv_disable_rewrite disable query rewrite as select id, amount from mv_orders;
+----------
+[CREATE_VIEW(SELECT)] create materialized view mv_enable_rewrite enable query rewrite as select id, amount from mv_orders;
+----------
+[CREATE_VIEW(SELECT)] create materialized view mv_filtered as select id, amount from mv_orders where status = 'OPEN';
+----------
+[CREATE_VIEW(SELECT)] create materialized view mv_join as select o.id, o.amount, c.name, c.region from mv_orders o join mv_customers c on o.customer_id = c.id;
+----------
+[CREATE_VIEW(SELECT)] create materialized view mv_aggregate as select customer_id, count(*) as order_count, sum(amount) as total_amount from mv_orders group by customer_id;
+----------
+[CREATE_VIEW(SELECT)] create materialized view mv_subquery as select id, amount from mv_orders where customer_id in(select id from mv_customers where region = 'EAST');
+----------
+[CREATE_VIEW(SELECT)] create materialized view mv_union as select id, amount from mv_orders where status = 'OPEN' union all select id, amount from mv_orders where status = 'CLOSED';
+----------
+[CREATE_VIEW(SELECT)] create materialized view mv_ordered as select id, amount from mv_orders order by id;
+----------
+[CREATE_VIEW(SELECT)] create materialized view mv_distinct as select distinct customer_id from mv_orders;
+----------
+[CREATE_VIEW(SELECT)] create materialized view mv_expression as select id, amount * 1.1 as adjusted_amount from mv_orders;
+----------
+[CREATE_VIEW(SELECT)] create materialized view mv_case as select id, case when amount >= 100 then 'HIGH' else 'LOW' end as amount_level from mv_orders;
+----------
+[CREATE_VIEW(SELECT)] create materialized view mv_cte as with open_orders as (select id, amount from mv_orders where status = 'OPEN') select * from open_orders;
+----------
+[ALTER_VIEW] alter materialized view mv_basic enable query rewrite;
+----------
+[ALTER_VIEW] alter materialized view mv_basic disable query rewrite;
+----------
+[ALTER_VIEW] alter materialized view mv_basic refresh complete;
+----------
+[ALTER_VIEW] alter materialized view mv_basic refresh force;
+----------
+[ALTER_VIEW] alter materialized view mv_basic refresh complete on demand;
+----------
+[ALTER_VIEW] alter materialized view mv_basic refresh complete with primary key;
+----------
+[ALTER_VIEW] alter materialized view mv_basic refresh complete using default;
+----------
+[ALTER_VIEW] alter materialized view mv_basic refresh complete using truncate;
+----------
+[ALTER_VIEW] alter materialized view mv_basic refresh complete using delete;
+----------
+[ALTER_VIEW] alter materialized view mv_basic never refresh;
+----------
+[ALTER_VIEW] alter materialized view mv_basic refresh complete disable query rewrite;
+----------
+[ALTER_VIEW] alter materialized view mv_basic compile;
+----------
+[ADMIN] refresh materialized view mv_basic;
+----------
+[ADMIN] refresh materialized view mv_basic complete;
+----------
+[ADMIN] refresh materialized view mv_basic complete using default;
+----------
+[ADMIN] refresh materialized view mv_basic complete using truncate;
+----------
+[ADMIN] refresh materialized view mv_basic complete using delete;
+----------
+[ADMIN] refresh materialized view mv_basic force;
+----------
+[ADMIN] refresh materialized view mv_basic force using default;
+----------
+[ADMIN] refresh materialized view mv_basic force using truncate;
+----------
+[ADMIN] refresh materialized view mv_basic force using delete;
+----------
+[CREATE_VIEW(SELECT)] create materialized view mv_fast refresh fast with primary key as select id, customer_id, amount, status from mv_orders;
+----------
+[ADMIN] refresh materialized view mv_fast fast;
+----------
+[DROP_VIEW] drop materialized view mv_fast;
+----------
+[DROP_VIEW] drop materialized view mv_basic;
+----------
+[DROP_VIEW] drop materialized view if exists mv_columns;
+----------
+[DROP_VIEW] drop materialized view mv_build_immediate;
+----------
+[DROP_VIEW] drop materialized view mv_build_deferred;
+----------
+[DROP_VIEW] drop materialized view mv_refresh_complete;
+----------
+[DROP_VIEW] drop materialized view mv_refresh_force;
+----------
+[DROP_VIEW] drop materialized view mv_never_refresh;
+----------
+[DROP_VIEW] drop materialized view mv_on_demand;
+----------
+[DROP_VIEW] drop materialized view mv_primary_key;
+----------
+[DROP_VIEW] drop materialized view mv_rowid;
+----------
+[DROP_VIEW] drop materialized view mv_using_default;
+----------
+[DROP_VIEW] drop materialized view mv_using_truncate;
+----------
+[DROP_VIEW] drop materialized view mv_using_delete;
+----------
+[DROP_VIEW] drop materialized view mv_disable_rewrite;
+----------
+[DROP_VIEW] drop materialized view mv_enable_rewrite;
+----------
+[DROP_VIEW] drop materialized view mv_filtered;
+----------
+[DROP_VIEW] drop materialized view mv_join;
+----------
+[DROP_VIEW] drop materialized view mv_aggregate;
+----------
+[DROP_VIEW] drop materialized view mv_subquery;
+----------
+[DROP_VIEW] drop materialized view mv_union;
+----------
+[DROP_VIEW] drop materialized view mv_ordered;
+----------
+[DROP_VIEW] drop materialized view mv_distinct;
+----------
+[DROP_VIEW] drop materialized view mv_expression;
+----------
+[DROP_VIEW] drop materialized view mv_case;
+----------
+[DROP_VIEW] drop materialized view mv_cte;
+----------
+[DROP_VIEW] drop materialized view if exists mv_missing;

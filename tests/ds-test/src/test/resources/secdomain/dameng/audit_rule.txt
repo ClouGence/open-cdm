@@ -1,0 +1,19 @@
+[audit_rule_create]
+sql:
+sp_create_audit_rule('CODEX_RT_CREATE_ROLE','CREATE ROLE','SYSDBA','NULL','NULL','ALL','NULL','NULL',0,0)
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"ADMIN", "auditKind":"ADMIN", "name":"DATABASE"}
+  ]
+}
+----------
+[audit_rule_drop]
+sql:
+sp_drop_audit_rule('CODEX_RT_CREATE_ROLE')
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"ADMIN", "auditKind":"ADMIN", "name":"DATABASE"}
+  ]
+}

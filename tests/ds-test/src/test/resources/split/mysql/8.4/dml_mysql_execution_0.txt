@@ -1,0 +1,221 @@
+DO(SELECT 1 c GROUP BY 1 HAVING 1 ORDER BY COUNT(1));
+DO ST_TRANSFORM(ST_GEOMFROMTEXT('POINT(0 0)'),4326);
+DO ST_TRANSFORM(ST_GEOMFROMTEXT('POINT(0 0)',4326),0);
+CALL splitv.call_no_args;
+CALL splitv.call_no_args();
+CALL splitv.call_in_expr(2 + 3, CONCAT('a', 'b'));
+CALL splitv.call_out(@call_version);
+CALL splitv.call_inout(@call_counter);
+CALL splitv.call_nested(2, 'cq', ABS(test1()));
+CALL splitv.call_nested(3, 'hz', test3.test());
+DO 1 + 1, ABS(-2), COALESCE(NULL, 'fallback');
+DO @do_counter := 0, @do_counter := @do_counter + 1, @do_counter := @do_counter * 10;
+DO RELEASE_LOCK(GET_LOCK('splitv_do_lock', 0));
+DO 1 AS one, 2 two;
+DO 1 AS 'one', 2 'two';
+DO (SELECT 3) AS scalar_value;
+EXECUTE ps_no_args;
+HANDLER splitv.handler_versions OPEN;
+HANDLER handler_versions READ `PRIMARY` = (1);
+HANDLER handler_versions READ idx_ab = (1, 'alpha') WHERE id >= 1 LIMIT 1;
+HANDLER handler_versions READ idx_ab <= (2, 'beta') LIMIT 1;
+HANDLER handler_versions READ idx_ab >= (1) LIMIT 2;
+HANDLER handler_versions READ idx_ab < (3) LIMIT 1;
+HANDLER handler_versions READ idx_ab > (1) LIMIT 1;
+HANDLER handler_versions READ idx_ab FIRST LIMIT 1;
+HANDLER handler_versions READ idx_ab NEXT LIMIT 1;
+HANDLER handler_versions READ idx_ab LAST LIMIT 1;
+HANDLER handler_versions READ idx_ab PREV LIMIT 1;
+HANDLER handler_versions READ FIRST LIMIT 2;
+HANDLER handler_versions READ NEXT LIMIT 0, 1;
+HANDLER handler_versions CLOSE;
+HANDLER handler_versions OPEN hv;
+HANDLER hv READ FIRST LIMIT 1 OFFSET 0;
+HANDLER hv CLOSE;
+PREPARE ps_select FROM 'SELECT id, v FROM split84.ps_t WHERE id = ?';
+SET @ps_id = 1;
+EXECUTE ps_select USING @ps_id;
+SET @ps_id = 2;
+EXECUTE ps_select USING @ps_id;
+DEALLOCATE PREPARE ps_select;
+SET @ps_sql = 'UPDATE split84.ps_t SET v = ? WHERE id = ?';
+PREPARE ps_update FROM @ps_sql;
+SET @ps_v = 99, @ps_id = 1;
+EXECUTE ps_update USING @ps_v, @ps_id;
+DROP PREPARE ps_update;
+PREPARE ps_insert FROM 'INSERT INTO split84.ps_t(id, v, c) VALUES (?, ?, ?)';
+SET @ps_id = 3, @ps_v = 30, @ps_c = 'c';
+EXECUTE ps_insert USING @ps_id, @ps_v, @ps_c;
+DEALLOCATE PREPARE ps_insert;
+PREPARE ps_delete FROM 'DELETE FROM split84.ps_t WHERE id = ?';
+SET @ps_id = 3;
+EXECUTE ps_delete USING @ps_id;
+DEALLOCATE PREPARE ps_delete;
+DO ST_CROSSES(@g,SUM(SHA(@g)) OVER ()),UNHEX(SUM(@g) OVER ()),BIT_LENGTH(AVG(@f) OVER ()),COMPRESS(SUM(' >') OVER ()),LTRIM(AVG(LOG2(@c)) OVER ()),~(SUM(@f) OVER ()),IS_UUID(SUM(@e) OVER ()),TO_BASE64(AVG(@d) OVER ());
+DO (SELECT a FROM split_window_tail.t WINDOW w2 AS (w1),w1 AS (ORDER BY a,a));
+DO LAG(1,9223372036854775807) OVER(),LEAD(1,9223372036854775807) OVER(),NTILE(9223372036854775807) OVER();
+DO LAG(1,18446744073709551615) OVER(),LEAD(1,18446744073709551615) OVER(),NTILE(18446744073709551615) OVER();
+DO LAG(1,@v) OVER(),@v:=20;
+HANDLER myisam_t OPEN AS h;
+PREPARE p_bt FROM @`quoted sql`;
+PREPARE p_dq FROM @"quoted sql";
+HANDLER d12_t1 READ FIRST WHERE c1 MEMBER (c1) IS NOT FALSE LIMIT 100, 100;
+PREPARE split_dml_s1 FROM 'INSERT INTO split_dml_p1 VALUES (@split_dml_a),(?)';
+PREPARE split_dml_s2 FROM 'INSERT INTO split_dml_p2 SELECT 100 LIMIT ?';
+HANDLER split_dml_handler READ idx_v NEXT
+  WHERE v BETWEEN 10 AND 20 LIMIT 1 OFFSET 1;
+PREPARE `ps name` FROM 'SELECT 1';
+EXECUTE `ps name`;
+DEALLOCATE PREPARE `ps name`;
+PREPARE p2 FROM @'sql text';
+EXECUTE p3 USING @'arg name';
+CALL `proc name`();
+DO LAG(1,@v) OVER(), @v:=20;
+DO NTILE(@v) OVER(), @v:=20;
+------------------------------------------------------------------------------------------
+[BLOCK|SELECT] DO(SELECT 1 c GROUP BY 1 HAVING 1 ORDER BY COUNT(1));
+----------
+[BLOCK] DO ST_TRANSFORM(ST_GEOMFROMTEXT('POINT(0 0)'),4326);
+----------
+[BLOCK] DO ST_TRANSFORM(ST_GEOMFROMTEXT('POINT(0 0)',4326),0);
+----------
+[CALL_PROG_OBJ] CALL splitv.call_no_args;
+----------
+[CALL_PROG_OBJ] CALL splitv.call_no_args();
+----------
+[CALL_PROG_OBJ] CALL splitv.call_in_expr(2 + 3, CONCAT('a', 'b'));
+----------
+[CALL_PROG_OBJ|SESSION_VARIABLE_RW] CALL splitv.call_out(@call_version);
+----------
+[CALL_PROG_OBJ|SESSION_VARIABLE_RW] CALL splitv.call_inout(@call_counter);
+----------
+[CALL_PROG_OBJ] CALL splitv.call_nested(2, 'cq', ABS(test1()));
+----------
+[CALL_PROG_OBJ] CALL splitv.call_nested(3, 'hz', test3.test());
+----------
+[BLOCK] DO 1 + 1, ABS(-2), COALESCE(NULL, 'fallback');
+----------
+[BLOCK|SESSION_VARIABLE_RW] DO @do_counter := 0, @do_counter := @do_counter + 1, @do_counter := @do_counter * 10;
+----------
+[BLOCK|SESSION_LOCK] DO RELEASE_LOCK(GET_LOCK('splitv_do_lock', 0));
+----------
+[BLOCK] DO 1 AS one, 2 two;
+----------
+[BLOCK] DO 1 AS 'one', 2 'two';
+----------
+[BLOCK|SELECT] DO (SELECT 3) AS scalar_value;
+----------
+[UNSAFE] EXECUTE ps_no_args;
+----------
+[SELECT] HANDLER splitv.handler_versions OPEN;
+----------
+[SELECT] HANDLER handler_versions READ `PRIMARY` = (1);
+----------
+[SELECT] HANDLER handler_versions READ idx_ab = (1, 'alpha') WHERE id >= 1 LIMIT 1;
+----------
+[SELECT] HANDLER handler_versions READ idx_ab <= (2, 'beta') LIMIT 1;
+----------
+[SELECT] HANDLER handler_versions READ idx_ab >= (1) LIMIT 2;
+----------
+[SELECT] HANDLER handler_versions READ idx_ab < (3) LIMIT 1;
+----------
+[SELECT] HANDLER handler_versions READ idx_ab > (1) LIMIT 1;
+----------
+[SELECT] HANDLER handler_versions READ idx_ab FIRST LIMIT 1;
+----------
+[SELECT] HANDLER handler_versions READ idx_ab NEXT LIMIT 1;
+----------
+[SELECT] HANDLER handler_versions READ idx_ab LAST LIMIT 1;
+----------
+[SELECT] HANDLER handler_versions READ idx_ab PREV LIMIT 1;
+----------
+[SELECT] HANDLER handler_versions READ FIRST LIMIT 2;
+----------
+[SELECT] HANDLER handler_versions READ NEXT LIMIT 0, 1;
+----------
+[SELECT] HANDLER handler_versions CLOSE;
+----------
+[SELECT] HANDLER handler_versions OPEN hv;
+----------
+[SELECT] HANDLER hv READ FIRST LIMIT 1 OFFSET 0;
+----------
+[SELECT] HANDLER hv CLOSE;
+----------
+[UNSAFE] PREPARE ps_select FROM 'SELECT id, v FROM split84.ps_t WHERE id = ?';
+----------
+[SESSION_VARIABLE_RW] SET @ps_id = 1;
+----------
+[UNSAFE] EXECUTE ps_select USING @ps_id;
+----------
+[SESSION_VARIABLE_RW] SET @ps_id = 2;
+----------
+[UNSAFE] EXECUTE ps_select USING @ps_id;
+----------
+[UNSAFE] DEALLOCATE PREPARE ps_select;
+----------
+[SESSION_VARIABLE_RW] SET @ps_sql = 'UPDATE split84.ps_t SET v = ? WHERE id = ?';
+----------
+[UNSAFE] PREPARE ps_update FROM @ps_sql;
+----------
+[SESSION_VARIABLE_RW] SET @ps_v = 99, @ps_id = 1;
+----------
+[UNSAFE] EXECUTE ps_update USING @ps_v, @ps_id;
+----------
+[UNSAFE] DROP PREPARE ps_update;
+----------
+[UNSAFE] PREPARE ps_insert FROM 'INSERT INTO split84.ps_t(id, v, c) VALUES (?, ?, ?)';
+----------
+[SESSION_VARIABLE_RW] SET @ps_id = 3, @ps_v = 30, @ps_c = 'c';
+----------
+[UNSAFE] EXECUTE ps_insert USING @ps_id, @ps_v, @ps_c;
+----------
+[UNSAFE] DEALLOCATE PREPARE ps_insert;
+----------
+[UNSAFE] PREPARE ps_delete FROM 'DELETE FROM split84.ps_t WHERE id = ?';
+----------
+[SESSION_VARIABLE_RW] SET @ps_id = 3;
+----------
+[UNSAFE] EXECUTE ps_delete USING @ps_id;
+----------
+[UNSAFE] DEALLOCATE PREPARE ps_delete;
+----------
+[BLOCK|SESSION_VARIABLE_RW] DO ST_CROSSES(@g,SUM(SHA(@g)) OVER ()),UNHEX(SUM(@g) OVER ()),BIT_LENGTH(AVG(@f) OVER ()),COMPRESS(SUM(' >') OVER ()),LTRIM(AVG(LOG2(@c)) OVER ()),~(SUM(@f) OVER ()),IS_UUID(SUM(@e) OVER ()),TO_BASE64(AVG(@d) OVER ());
+----------
+[BLOCK|SELECT] DO (SELECT a FROM split_window_tail.t WINDOW w2 AS (w1),w1 AS (ORDER BY a,a));
+----------
+[BLOCK] DO LAG(1,9223372036854775807) OVER(),LEAD(1,9223372036854775807) OVER(),NTILE(9223372036854775807) OVER();
+----------
+[BLOCK] DO LAG(1,18446744073709551615) OVER(),LEAD(1,18446744073709551615) OVER(),NTILE(18446744073709551615) OVER();
+----------
+[BLOCK|SESSION_VARIABLE_RW] DO LAG(1,@v) OVER(),@v:=20;
+----------
+[SELECT] HANDLER myisam_t OPEN AS h;
+----------
+[UNSAFE] PREPARE p_bt FROM @`quoted sql`;
+----------
+[UNSAFE] PREPARE p_dq FROM @"quoted sql";
+----------
+[SELECT] HANDLER d12_t1 READ FIRST WHERE c1 MEMBER (c1) IS NOT FALSE LIMIT 100, 100;
+----------
+[UNSAFE] PREPARE split_dml_s1 FROM 'INSERT INTO split_dml_p1 VALUES (@split_dml_a),(?)';
+----------
+[UNSAFE] PREPARE split_dml_s2 FROM 'INSERT INTO split_dml_p2 SELECT 100 LIMIT ?';
+----------
+[SELECT] HANDLER split_dml_handler READ idx_v NEXT
+  WHERE v BETWEEN 10 AND 20 LIMIT 1 OFFSET 1;
+----------
+[UNSAFE] PREPARE `ps name` FROM 'SELECT 1';
+----------
+[UNSAFE] EXECUTE `ps name`;
+----------
+[UNSAFE] DEALLOCATE PREPARE `ps name`;
+----------
+[UNSAFE] PREPARE p2 FROM @'sql text';
+----------
+[UNSAFE] EXECUTE p3 USING @'arg name';
+----------
+[CALL_PROG_OBJ] CALL `proc name`();
+----------
+[BLOCK|SESSION_VARIABLE_RW] DO LAG(1,@v) OVER(), @v:=20;
+----------
+[BLOCK|SESSION_VARIABLE_RW] DO NTILE(@v) OVER(), @v:=20;

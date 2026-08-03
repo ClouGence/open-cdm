@@ -17,47 +17,49 @@ package com.clougence.clouddm.platform.dal.model.execution;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 import com.baomidou.mybatisplus.annotation.*;
 import com.clougence.clouddm.api.console.sqlaudit.SqlStatus;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
-import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
+import com.clougence.clouddm.platform.dal.handler.json.BehaviorRelationListTypeHandler;
 import com.clougence.clouddm.sdk.service.secrules.Requester;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorRelation;
 
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-@TableName(value = "dm_exec_sql_audit")
+@TableName(value = "dm_exec_sql_audit", autoResultMap = true)
 public class DmExecSqlAuditDO {
 
     @TableId(type = IdType.AUTO)
-    private Long           id;
+    private Long                   id;
     @TableField(insertStrategy = FieldStrategy.NOT_NULL, updateStrategy = FieldStrategy.NOT_NULL)
-    private Date           gmtCreate;
+    private Date                   gmtCreate;
     @TableField(insertStrategy = FieldStrategy.NOT_NULL, updateStrategy = FieldStrategy.NOT_NULL)
-    private Date           gmtModified;
-    private String         uid;
-    private String         userName;
-    private String         primaryUid;
-    private Date           operateTime;
-    private Date           endTime;
-    private String         clientIp;
-    private String         logIp;
-    private String         workSeqNumber;
-    private String         execSql;
-    private String         originalSql;
-    private Requester      requester;
-    private String         sessionId;
-    private String         resource;
-    private SecQueryKind   sqlKind;
-    private long           affectLine;
-    private SqlStatus      status;
-    private Long           dsId;
-    private DataSourceType dataSourceType;
-    private String         dsDesc;
-    private String         message;
+    private Date                   gmtModified;
+    private String                 uid;
+    private String                 userName;
+    private Date                   operateTime;
+    private Date                   endTime;
+    private String                 clientIp;
+    private String                 logIp;
+    private String                 workSeqNumber;
+    private String                 execSql;
+    private String                 originalSql;
+    private Requester              requester;
+    private String                 queryId;
+    private String                 sessionId;
+    @TableField(value = "behaviors", typeHandler = BehaviorRelationListTypeHandler.class)
+    private List<BehaviorRelation> behaviors;
+    private long                   affectLine;
+    private SqlStatus              status;
+    private Long                   dsId;
+    private DataSourceType         dataSourceType;
+    private String                 dsDesc;
+    private String                 message;
 
     @Override
     public String toString() {
@@ -79,7 +81,6 @@ public class DmExecSqlAuditDO {
         String format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(this.operateTime);
 
         String sql = this.execSql.replaceAll("\\s+", " ");
-        return String
-            .format("%s requestId: %s ,[%s]  uid: %s,dsId: %3s ,operateType: %s ,resource: %s ,sql: \"%s\" ", format, this.sessionId, this.status, this.uid, this.dsId, this.sqlKind, this.resource, sql);
+        return String.format("%s requestId: %s ,[%s] uid: %s, dsId: %3s, sql: \"%s\" ", format, this.sessionId, this.status, this.uid, this.dsId, sql);
     }
 }

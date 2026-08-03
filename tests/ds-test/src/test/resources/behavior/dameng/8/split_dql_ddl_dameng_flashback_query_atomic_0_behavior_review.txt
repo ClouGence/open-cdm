@@ -1,0 +1,382 @@
+[split_dql_ddl_dameng_flashback_query_atomic_0_behavior_review_001]
+sql:
+-- CASE_001_AS_OF_SCN
+SELECT ID,NAME,AMOUNT FROM CODEX_DM8_FLASHQUERY_20260727.T_BASE AS OF SCN 60000
+ORDER BY ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:27~2:63) /test/1/catalog1/CODEX_DM8_FLASHQUERY_20260727/T_BASE/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_ddl_dameng_flashback_query_atomic_0_behavior_review_002]
+sql:
+-- CASE_002_AS_OF_LSN
+SELECT ID,NAME FROM CODEX_DM8_FLASHQUERY_20260727.T_BASE AS OF LSN 60000
+ORDER BY ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:20~2:56) /test/1/catalog1/CODEX_DM8_FLASHQUERY_20260727/T_BASE/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_ddl_dameng_flashback_query_atomic_0_behavior_review_003]
+sql:
+-- CASE_003_WHEN_TIMESTAMP
+SELECT ID,NAME FROM CODEX_DM8_FLASHQUERY_20260727.T_BASE
+WHEN TIMESTAMP SYSDATE-3/86400 ORDER BY ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(3:15~3:22) /test/1/catalog1/schema1/SYSDATE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:20~2:56) /test/1/catalog1/CODEX_DM8_FLASHQUERY_20260727/T_BASE/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_ddl_dameng_flashback_query_atomic_0_behavior_review_004]
+sql:
+-- CASE_004_AS_OF_TIMESTAMP
+SELECT ID,NAME FROM CODEX_DM8_FLASHQUERY_20260727.T_BASE
+AS OF TIMESTAMP CAST(SYSDATE-3/86400 AS TIMESTAMP) ORDER BY ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(3:21~3:28) /test/1/catalog1/schema1/SYSDATE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:20~2:56) /test/1/catalog1/CODEX_DM8_FLASHQUERY_20260727/T_BASE/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_ddl_dameng_flashback_query_atomic_0_behavior_review_005]
+sql:
+-- CASE_005_VERSIONS_SCN
+SELECT VERSIONS_STARTSCN,VERSIONS_ENDSCN,VERSIONS_STARTTRXID,VERSIONS_ENDTRXID,
+       VERSIONS_OPERATION,ID,NAME
+FROM CODEX_DM8_FLASHQUERY_20260727.T_BASE
+VERSIONS BETWEEN SCN 60000 AND 60050 ORDER BY ID,VERSIONS_STARTSCN;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(4:5~4:41) /test/1/catalog1/CODEX_DM8_FLASHQUERY_20260727/T_BASE/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_ddl_dameng_flashback_query_atomic_0_behavior_review_006]
+sql:
+-- CASE_006_VERSIONS_LSN
+SELECT VERSIONS_STARTTIME,VERSIONS_ENDTIME,VERSIONS_OPERATION,ID,NAME
+FROM CODEX_DM8_FLASHQUERY_20260727.T_BASE
+VERSIONS BETWEEN LSN 60000 AND 60050 ORDER BY ID,VERSIONS_STARTTIME;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(3:5~3:41) /test/1/catalog1/CODEX_DM8_FLASHQUERY_20260727/T_BASE/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_ddl_dameng_flashback_query_atomic_0_behavior_review_007]
+sql:
+-- CASE_007_VERSIONS_TIMESTAMP
+SELECT VERSIONS_STARTSCN,VERSIONS_ENDSCN,VERSIONS_OPERATION,ID,NAME
+FROM CODEX_DM8_FLASHQUERY_20260727.T_BASE
+VERSIONS BETWEEN TIMESTAMP SYSDATE-10/86400 AND SYSDATE ORDER BY ID,VERSIONS_STARTSCN;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(4:27~4:34) /test/1/catalog1/schema1/SYSDATE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(4:48~4:55) /test/1/catalog1/schema1/SYSDATE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(3:5~3:41) /test/1/catalog1/CODEX_DM8_FLASHQUERY_20260727/T_BASE/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_ddl_dameng_flashback_query_atomic_0_behavior_review_008]
+sql:
+-- CASE_008_PARTITION_AS_OF_LSN
+SELECT ID,NAME FROM CODEX_DM8_FLASHQUERY_20260727.T_PART PARTITION(P1)
+AS OF LSN 60000 ORDER BY ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Partition(2:67~2:69) /test/1/catalog1/CODEX_DM8_FLASHQUERY_20260727/T_PART/P1/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_ddl_dameng_flashback_query_atomic_0_behavior_review_009]
+sql:
+-- CASE_009_JOIN_TWO_SNAPSHOTS
+SELECT B.ID,B.NAME,O.LABEL
+FROM CODEX_DM8_FLASHQUERY_20260727.T_BASE AS OF LSN 60000 B
+JOIN CODEX_DM8_FLASHQUERY_20260727.T_OTHER AS OF LSN 60000 O ON O.ID=B.ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(3:5~3:41) /test/1/catalog1/CODEX_DM8_FLASHQUERY_20260727/T_BASE/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(4:5~4:42) /test/1/catalog1/CODEX_DM8_FLASHQUERY_20260727/T_OTHER/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_ddl_dameng_flashback_query_atomic_0_behavior_review_010]
+sql:
+-- CASE_010_CTE_SNAPSHOT
+WITH OLD_ROWS AS(
+  SELECT ID,NAME FROM CODEX_DM8_FLASHQUERY_20260727.T_BASE AS OF LSN 60000
+) SELECT ID,NAME FROM OLD_ROWS ORDER BY ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(3:22~3:58) /test/1/catalog1/CODEX_DM8_FLASHQUERY_20260727/T_BASE/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_ddl_dameng_flashback_query_atomic_0_behavior_review_011]
+sql:
+-- CASE_011_TRANSACTION_VIEW
+SELECT START_TRXID,COMMIT_TRXID,COMMIT_TIMESTAMP,LOGIN_USER,OPERATION,
+       TABLE_NAME,TABLE_OWNER,ROW_ID,UNDO_SQL,COMMIT_LSN
+FROM V$FLASHBACK_TRX_INFO
+WHERE TABLE_OWNER='CODEX_DM8_FLASHQUERY_20260727'
+ORDER BY COMMIT_TIMESTAMP;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(4:5~4:25) /test/1/catalog1/schema1/V$FLASHBACK_TRX_INFO/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_ddl_dameng_flashback_query_atomic_0_behavior_review_012]
+sql:
+-- CASE_012_FLASHBACK_TABLE_LSN
+FLASHBACK TABLE CODEX_DM8_FLASHQUERY_20260727.T_FB1 TO LSN 60000;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(2:16~2:51) /test/1/catalog1/CODEX_DM8_FLASHQUERY_20260727/T_FB1/",
+      "action": "RESTORE"
+    }
+  ]
+}
+----------
+[split_dql_ddl_dameng_flashback_query_atomic_0_behavior_review_013]
+sql:
+-- CASE_013_FLASHBACK_TABLE_SCN_ENABLE
+FLASHBACK TABLE CODEX_DM8_FLASHQUERY_20260727.T_FB2 TO SCN 60000 ENABLE TRIGGERS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(2:16~2:51) /test/1/catalog1/CODEX_DM8_FLASHQUERY_20260727/T_FB2/",
+      "action": "RESTORE"
+    }
+  ]
+}
+----------
+[split_dql_ddl_dameng_flashback_query_atomic_0_behavior_review_014]
+sql:
+-- CASE_014_FLASHBACK_MULTI_TABLE_DISABLE
+FLASHBACK TABLE CODEX_DM8_FLASHQUERY_20260727.T_FB3,
+  CODEX_DM8_FLASHQUERY_20260727.T_FB4 TO LSN 60000 DISABLE TRIGGERS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(2:16~2:51) /test/1/catalog1/CODEX_DM8_FLASHQUERY_20260727/T_FB3/",
+      "action": "RESTORE"
+    },
+    {
+      "subject": "Table(3:2~3:37) /test/1/catalog1/CODEX_DM8_FLASHQUERY_20260727/T_FB4/",
+      "action": "RESTORE"
+    }
+  ]
+}
+----------
+[split_dql_ddl_dameng_flashback_query_atomic_0_behavior_review_015]
+sql:
+-- SEMANTIC_CASE_001_VIEW_NOT_SUPPORTED
+SELECT * FROM CODEX_DM8_FLASHQUERY_20260727.V_BASE AS OF TIMESTAMP SYSDATE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:67~2:74) /test/1/catalog1/schema1/SYSDATE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:14~2:50) /test/1/catalog1/CODEX_DM8_FLASHQUERY_20260727/V_BASE/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_ddl_dameng_flashback_query_atomic_0_behavior_review_016]
+sql:
+-- SEMANTIC_CASE_002_TEMP_NOT_SUPPORTED
+SELECT * FROM CODEX_DM8_FLASHQUERY_20260727.T_TEMP AS OF TIMESTAMP SYSDATE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:67~2:74) /test/1/catalog1/schema1/SYSDATE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:14~2:50) /test/1/catalog1/CODEX_DM8_FLASHQUERY_20260727/T_TEMP/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_ddl_dameng_flashback_query_atomic_0_behavior_review_017]
+sql:
+-- SEMANTIC_CASE_003_VIEW_VERSIONS_NOT_SUPPORTED
+SELECT * FROM CODEX_DM8_FLASHQUERY_20260727.V_BASE
+VERSIONS BETWEEN TIMESTAMP SYSDATE-1/86400 AND SYSDATE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(3:27~3:34) /test/1/catalog1/schema1/SYSDATE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(3:47~3:54) /test/1/catalog1/schema1/SYSDATE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:14~2:50) /test/1/catalog1/CODEX_DM8_FLASHQUERY_20260727/V_BASE/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_ddl_dameng_flashback_query_atomic_0_behavior_review_018]
+sql:
+-- SEMANTIC_CASE_004_FUTURE_LSN
+SELECT * FROM CODEX_DM8_FLASHQUERY_20260727.T_BASE AS OF LSN 9223372036854775807;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:14~2:50) /test/1/catalog1/CODEX_DM8_FLASHQUERY_20260727/T_BASE/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_ddl_dameng_flashback_query_atomic_0_behavior_review_019]
+sql:
+-- SEMANTIC_CASE_005_REVERSED_LSN_RANGE
+SELECT * FROM CODEX_DM8_FLASHQUERY_20260727.T_BASE
+VERSIONS BETWEEN LSN 60050 AND 60000;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:14~2:50) /test/1/catalog1/CODEX_DM8_FLASHQUERY_20260727/T_BASE/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_ddl_dameng_flashback_query_atomic_0_behavior_review_020]
+sql:
+-- SEMANTIC_CASE_006_MISSING_TABLE
+SELECT * FROM CODEX_DM8_FLASHQUERY_20260727.NO_SUCH_TABLE AS OF LSN 60000;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:14~2:57) /test/1/catalog1/CODEX_DM8_FLASHQUERY_20260727/NO_SUCH_TABLE/",
+      "action": "READ"
+    }
+  ]
+}

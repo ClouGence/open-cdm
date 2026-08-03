@@ -17,6 +17,7 @@ package com.clougence.clouddm.api.console.sqlaudit;
 
 public enum SqlStatus {
 
+    PENDING("PENDING"),
     RUNNING("RUNNING"),
     SUCCESS("SUCCESS"),
     WAIT_CONFIRM("WAIT_CONFIRM"),

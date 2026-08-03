@@ -1,0 +1,103 @@
+[Por4XRuleNameNotInKeywordsTest#columnNameNotInKeywords_1#001]
+rule: _rules/name/por4x-name-not-in-keywords.rule
+expect: true
+vars:
+{}
+sql:
+create table abc_test(id int)
+----------
+[Por4XRuleNameNotInKeywordsTest#columnNameNotInKeywords_1#002]
+rule: _rules/name/por4x-name-not-in-keywords.rule
+expect: true
+vars:
+{}
+sql:
+alter table test.abc change `table` table1 varchar(25);
+----------
+[Por4XRuleNameNotInKeywordsTest#columnNameNotInKeywords_1#003]
+rule: _rules/name/por4x-name-not-in-keywords.rule
+expect: false
+vars:
+{}
+sql:
+create table abc_test(`table` int)
+----------
+[Por4XRuleNameNotInKeywordsTest#columnNameNotInKeywords_1#004]
+rule: _rules/name/por4x-name-not-in-keywords.rule
+expect: false
+vars:
+{}
+sql:
+alter table test.abc add `elseif` varchar(25);
+----------
+[Por4XRuleNameNotInKeywordsTest#columnNameNotInKeywords_1#005]
+rule: _rules/name/por4x-name-not-in-keywords.rule
+expect: false
+vars:
+{}
+sql:
+alter table test.abc change `table` `elseif` varchar(25);
+----------
+[Por4XRuleNameNotInKeywordsTest#columnNameNotInKeywords_1#006]
+rule: _rules/name/por4x-name-not-in-keywords.rule
+expect: true
+vars:
+{}
+sql:
+alter table test.abc change `table` `LAST_VALUE` varchar(25);
+----------
+[Por4XRuleNameNotInKeywordsTest#tableNameNotInKeywords_1#001]
+rule: _rules/name/por4x-name-not-in-keywords.rule
+expect: false
+vars:
+{}
+sql:
+create table `table`(id int(4) primary key auto_increment)
+----------
+[Por4XRuleNameNotInKeywordsTest#tableNameNotInKeywords_1#002]
+rule: _rules/name/por4x-name-not-in-keywords.rule
+expect: true
+vars:
+{}
+sql:
+create table abc_test(id int(4) primary key auto_increment)
+----------
+[Por4XRuleNameNotInKeywordsTest#tableNameNotInKeywords_1#003]
+rule: _rules/name/por4x-name-not-in-keywords.rule
+expect: true
+vars:
+{}
+sql:
+rename table `table` to abc_test
+----------
+[Por4XRuleNameNotInKeywordsTest#tableNameNotInKeywords_1#004]
+rule: _rules/name/por4x-name-not-in-keywords.rule
+expect: false
+vars:
+{}
+sql:
+rename table `table` to `elseif`
+----------
+[Por4XRuleNameNotInKeywordsTest#tableNameNotInKeywords_1#005]
+rule: _rules/name/por4x-name-not-in-keywords.rule
+expect: false
+vars:
+{}
+sql:
+rename table abc_test to `elseif`
+----------
+[Por4XRuleNameNotInKeywordsTest#tableNameNotInKeywords_1#006]
+rule: _rules/name/por4x-name-not-in-keywords.rule
+expect: true
+vars:
+{}
+sql:
+create table `LAST_VALUE`(aa int(4) primary key auto_increment)
+----------
+[Por4XRuleNameNotInKeywordsTest#tableNameNotInKeywords_1#007]
+rule: _rules/name/por4x-name-not-in-keywords.rule
+expect: false
+vars:
+{}
+sql:
+alter table test.abc comment 'abc' engine MyISAM, rename `int`

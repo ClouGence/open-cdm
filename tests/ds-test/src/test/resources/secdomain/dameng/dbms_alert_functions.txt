@@ -1,0 +1,25 @@
+[dbms_alert_procedure_domains]
+sql:
+declare
+  n varchar(30); m varchar(1800); s int;
+begin
+  dbms_alert.register(n);
+  dbms_alert.remove(n);
+  dbms_alert.removeall;
+  dbms_alert.signal(n,m);
+  dbms_alert.set_defaults(s);
+  dbms_alert.waitany(n,m,s,0);
+  dbms_alert.waitone(n,m,s,0);
+end;
+expect:
+{
+  "contains": [
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_alert"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_alert"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_alert"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_alert"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_alert"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_alert"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_alert"}
+  ]
+}

@@ -1,0 +1,410 @@
+-- C_CURRENT_SCHEMA
+create function APP.C_ADD(A int,B int) return int
+external '/opt/dmdbms/bin/libdm8_external_structured.so' "dm8_c_add" using c;
+/
+-- C_OR_REPLACE
+create or replace function APP.C_REPLACE(A int,B int) return int
+external '/opt/dmdbms/bin/libdm8_external_structured.so' "dm8_c_add" using c;
+/
+-- C_IF_NOT_EXISTS
+create function if not exists APP.C_IFNE(A int,B int) return int
+external '/opt/dmdbms/bin/libdm8_external_structured.so' "dm8_c_add" using c;
+/
+-- C_OR_REPLACE_IF_NOT_EXISTS
+create or replace function if not exists APP.C_REPLACE_IFNE(A int,B int) return int
+external '/opt/dmdbms/bin/libdm8_external_structured.so' "dm8_c_add" using c;
+/
+-- C_EXPLICIT_IN
+create function APP.C_IN(A in int,B in int) return int
+external '/opt/dmdbms/bin/libdm8_external_structured.so' "dm8_c_add" using c;
+/
+-- C_OUT
+create function APP.C_OUT(A in int,B out int) return int
+external '/opt/dmdbms/bin/libdm8_external_structured.so' "dm8_c_out" using c;
+/
+-- C_IN_OUT
+create function APP.C_INOUT(A in int,B in out int) return int
+external '/opt/dmdbms/bin/libdm8_external_structured.so' "dm8_c_out" using c;
+/
+-- C_OUT_IN
+create function APP.C_OUTIN(A in int,B out in int) return int
+external '/opt/dmdbms/bin/libdm8_external_structured.so' "dm8_c_out" using c;
+/
+-- C_INPUT_PARAMETER_NAME
+create function APP.C_INPUT_NAME(INPUT int,B int) return int
+external '/opt/dmdbms/bin/libdm8_external_structured.so' "dm8_c_add" using c;
+/
+-- C_ZERO_PARAMETERS
+create function APP.C_ZERO return int external '/opt/dmdbms/bin/libdm8_external_structured.so' "dm8_c_null_safe" using c;
+/
+-- C_EMPTY_PARAMETERS
+create function APP.C_EMPTY() return int external '/opt/dmdbms/bin/libdm8_external_structured.so' "dm8_c_null_safe" using c;
+/
+-- C_INT
+create function APP.C_INT(A int) return int
+external '/opt/dmdbms/bin/libdm8_external_structured.so' "dm8_c_null_safe" using c;
+/
+-- C_DOUBLE
+create function APP.C_DOUBLE(A double) return double
+external '/opt/dmdbms/bin/libdm8_external_structured.so' "dm8_c_double" using c;
+/
+-- C_FLOAT
+create function APP.C_FLOAT(A float) return double
+external '/opt/dmdbms/bin/libdm8_external_structured.so' "dm8_c_double" using c;
+/
+-- C_VARCHAR
+create function APP.C_VARCHAR(A varchar) return int
+external '/opt/dmdbms/bin/libdm8_external_structured.so' "dm8_c_length" using c;
+/
+-- C_REFERENCE_OMITTED
+create function APP.C_DEFAULT_REF(A int) return int external '/opt/dmdbms/bin/libdm8_external_structured.so' using c;
+/
+-- C_REFERENCE_UNQUOTED
+create function APP.C_UNQUOTED(A int,B int) return int external '/opt/dmdbms/bin/libdm8_external_structured.so' dm8_c_add using c;
+/
+-- C_REFERENCE_DOUBLE_QUOTED
+create function APP.C_QUOTED(A int,B int) return int
+external '/opt/dmdbms/bin/libdm8_external_structured.so' "dm8_c_add" using c;
+/
+-- C_REFERENCE_AND_STRING
+create function APP.C_LONG_REF(A int,B int) return int external '/opt/dmdbms/bin/libdm8_external_structured.so' and 'dm8_c_add' using c;
+/
+-- C_MISSING_FILE_DEFINITION
+create function APP.C_MISSING_FILE(A int) return int external '/opt/no-such.so' "missing" using c;
+/
+-- C_MISSING_SYMBOL_DEFINITION
+create function APP.C_MISSING_SYMBOL(A int) return int external '/opt/dmdbms/bin/libdm8_external_structured.so' "missing" using c;
+/
+-- CS_INT
+create function APP.CS_INT(A int,B int) return int
+external '/opt/dmdbms/bin/libdm8_external_scalar.so' "dm8_cs_add" using cs;
+/
+-- CS_DOUBLE
+create function APP.CS_DOUBLE(A double) return double
+external '/opt/dmdbms/bin/libdm8_external_scalar.so' "dm8_cs_double" using cs;
+/
+-- CS_VARCHAR
+create function APP.CS_VARCHAR(A varchar,B varchar) return varchar
+external '/opt/dmdbms/bin/libdm8_external_scalar.so' "dm8_cs_concat" using cs;
+/
+-- JAVA_INT
+create function APP.J_INT(A int,B int) return int
+external '/opt/dmagent/resources/ap/dm8-external-functions.jar' "com.clougence.dm8.external.Dm8ExternalFunctions.add" using java;
+/
+-- JAVA_CHAR
+create function APP.J_CHAR(A char) return varchar
+external '/opt/dmagent/resources/ap/dm8-external-functions.jar' "com.clougence.dm8.external.Dm8ExternalFunctions.append" using java;
+/
+-- JAVA_VARCHAR
+create function APP.J_VARCHAR(A varchar) return varchar
+external '/opt/dmagent/resources/ap/dm8-external-functions.jar' "com.clougence.dm8.external.Dm8ExternalFunctions.append" using java;
+/
+-- JAVA_VARCHAR2
+create function APP.J_VARCHAR2(A varchar2) return varchar2
+external '/opt/dmagent/resources/ap/dm8-external-functions.jar' "com.clougence.dm8.external.Dm8ExternalFunctions.append" using java;
+/
+-- JAVA_BIGINT
+create function APP.J_BIGINT(A bigint,B bigint) return bigint
+external '/opt/dmagent/resources/ap/dm8-external-functions.jar' "com.clougence.dm8.external.Dm8ExternalFunctions.addLong" using java;
+/
+-- JAVA_DOUBLE
+create function APP.J_DOUBLE(A double) return double
+external '/opt/dmagent/resources/ap/dm8-external-functions.jar' "com.clougence.dm8.external.Dm8ExternalFunctions.doubleValue" using java;
+/
+-- JAVA_FLOAT
+create function APP.J_FLOAT(A float) return double
+external '/opt/dmagent/resources/ap/dm8-external-functions.jar' "com.clougence.dm8.external.Dm8ExternalFunctions.doubleValue" using java;
+/
+-- JAVA_BINARY_FLOAT
+create function APP.J_BINARY_FLOAT(A binary_float) return double
+external '/opt/dmagent/resources/ap/dm8-external-functions.jar' "com.clougence.dm8.external.Dm8ExternalFunctions.doubleValue" using java;
+/
+-- JAVA_BINARY
+create function APP.J_BINARY(A binary) return varbinary
+external '/opt/dmagent/resources/ap/dm8-external-functions.jar' "com.clougence.dm8.external.Dm8ExternalFunctions.reverse" using java;
+/
+-- JAVA_VARBINARY
+create function APP.J_VARBINARY(A varbinary) return varbinary
+external '/opt/dmagent/resources/ap/dm8-external-functions.jar' "com.clougence.dm8.external.Dm8ExternalFunctions.reverse" using java;
+/
+-- JAVA_CLOB
+create function APP.J_CLOB(A clob) return clob
+external '/opt/dmagent/resources/ap/dm8-external-functions.jar' "com.clougence.dm8.external.Dm8ExternalFunctions.append" using java;
+/
+-- JAVA_BLOB
+create function APP.J_BLOB(A blob) return blob
+external '/opt/dmagent/resources/ap/dm8-external-functions.jar' "com.clougence.dm8.external.Dm8ExternalFunctions.reverse" using java;
+/
+-- JAVA_EXPLICIT_SIGNATURE
+create function APP.J_SIGNATURE(A int,B int) return int
+external '/opt/dmagent/resources/ap/dm8-external-functions.jar' "com.clougence.dm8.external.Dm8ExternalFunctions.add(int,int)" using java;
+/
+-- JAVA_FULL_SIGNATURE
+create function APP.J_FULL_SIGNATURE(A varchar) return varchar
+external '/opt/dmagent/resources/ap/dm8-external-functions.jar' "com.clougence.dm8.external.Dm8ExternalFunctions.append(java.lang.String)" using java;
+/
+-- JAVA_SLASH_CLASS
+create function APP.J_SLASH(A int,B int) return int
+external '/opt/dmagent/resources/ap/dm8-external-functions.jar' "com/clougence/dm8/external/Dm8ExternalFunctions.add" using java;
+/
+-- JAVA_REFERENCE_OMITTED
+create function APP.J_NO_REF(A int) return int external '/opt/dmagent/resources/ap/dm8-external-functions.jar' using java;
+/
+-- JAVA_LONG_REFERENCE_AND_STRING
+create function APP.J_LONG_REF(A varchar) return varchar external '/opt/dmagent/resources/ap/dm8-external-functions.jar' and 'com.clougence.dm8.external.Dm8ExternalFunctions.append(java.lang.String,java.lang.String,java.lang.String)' using java;
+/
+-- JAVA_EXPLICIT_IN
+create function APP.J_IN(A in int,B in int) return int
+external '/opt/dmagent/resources/ap/dm8-external-functions.jar' "com.clougence.dm8.external.Dm8ExternalFunctions.add" using java;
+/
+-- JAVA_OUT
+create function APP.J_OUT(A out int) return int
+external '/opt/dmagent/resources/ap/dm8-external-functions.jar' "com.clougence.dm8.external.Dm8ExternalFunctions.add(int,int)" using java;
+/
+-- JAVA_IN_OUT
+create function APP.J_INOUT(A in out int) return int
+external '/opt/dmagent/resources/ap/dm8-external-functions.jar' "com.clougence.dm8.external.Dm8ExternalFunctions.add(int,int)" using java;
+/
+-- JAVA_OUT_IN
+create function APP.J_OUTIN(A out in int) return int
+external '/opt/dmagent/resources/ap/dm8-external-functions.jar' "com.clougence.dm8.external.Dm8ExternalFunctions.add(int,int)" using java;
+/
+-- JAVA_ZERO_PARAMETERS
+create function APP.J_ZERO return int external '/opt/dmagent/resources/ap/dm8-external-functions.jar' "com.clougence.dm8.external.Dm8ExternalFunctions.add" using java;
+/
+-- JAVA_EMPTY_PARAMETERS
+create function APP.J_EMPTY() return int external '/opt/dmagent/resources/ap/dm8-external-functions.jar' "com.clougence.dm8.external.Dm8ExternalFunctions.add" using java;
+/
+-- LIBRARY_CREATE
+create library APP.C_LIB as '/opt/dmdbms/bin/libdm8_external_structured.so';
+-- LIBRARY_OR_REPLACE
+create or replace library APP.C_LIB as '/opt/dmdbms/bin/libdm8_external_structured.so';
+-- LIBRARY_IF_NOT_EXISTS
+create library if not exists APP.C_LIB as '/opt/dmdbms/bin/libdm8_external_structured.so';
+-- C_USING_LIBRARY
+create function APP.C_LIBRARY(A int,B int) return int
+as language c library APP.C_LIB name "dm8_c_add";
+/
+-- CS_USING_LIBRARY
+create function APP.CS_LIBRARY(A int,B int) return int
+as language cs library APP.C_LIB name "dm8_cs_add";
+/
+-- ALTER_EXTERNAL
+alter function APP.C_ADD compile debug;
+-- DROP_EXTERNAL
+drop function APP.C_ADD;
+-- DROP_EXTERNAL_IF_EXISTS
+drop function if exists APP.C_ADD;
+-- DROP_LIBRARY
+drop library APP.C_LIB;
+-- DROP_LIBRARY_IF_EXISTS
+drop library if exists APP.C_LIB;
+------------------------------------------------------------------------------------------
+[CREATE_PROG_OBJ] -- C_CURRENT_SCHEMA
+create function APP.C_ADD(A int,B int) return int
+external '/opt/dmdbms/bin/libdm8_external_structured.so' "dm8_c_add" using c;
+----------
+[CREATE_PROG_OBJ] -- C_OR_REPLACE
+create or replace function APP.C_REPLACE(A int,B int) return int
+external '/opt/dmdbms/bin/libdm8_external_structured.so' "dm8_c_add" using c;
+----------
+[CREATE_PROG_OBJ] -- C_IF_NOT_EXISTS
+create function if not exists APP.C_IFNE(A int,B int) return int
+external '/opt/dmdbms/bin/libdm8_external_structured.so' "dm8_c_add" using c;
+----------
+[CREATE_PROG_OBJ] -- C_OR_REPLACE_IF_NOT_EXISTS
+create or replace function if not exists APP.C_REPLACE_IFNE(A int,B int) return int
+external '/opt/dmdbms/bin/libdm8_external_structured.so' "dm8_c_add" using c;
+----------
+[CREATE_PROG_OBJ] -- C_EXPLICIT_IN
+create function APP.C_IN(A in int,B in int) return int
+external '/opt/dmdbms/bin/libdm8_external_structured.so' "dm8_c_add" using c;
+----------
+[CREATE_PROG_OBJ] -- C_OUT
+create function APP.C_OUT(A in int,B out int) return int
+external '/opt/dmdbms/bin/libdm8_external_structured.so' "dm8_c_out" using c;
+----------
+[CREATE_PROG_OBJ] -- C_IN_OUT
+create function APP.C_INOUT(A in int,B in out int) return int
+external '/opt/dmdbms/bin/libdm8_external_structured.so' "dm8_c_out" using c;
+----------
+[CREATE_PROG_OBJ] -- C_OUT_IN
+create function APP.C_OUTIN(A in int,B out in int) return int
+external '/opt/dmdbms/bin/libdm8_external_structured.so' "dm8_c_out" using c;
+----------
+[CREATE_PROG_OBJ] -- C_INPUT_PARAMETER_NAME
+create function APP.C_INPUT_NAME(INPUT int,B int) return int
+external '/opt/dmdbms/bin/libdm8_external_structured.so' "dm8_c_add" using c;
+----------
+[CREATE_PROG_OBJ] -- C_ZERO_PARAMETERS
+create function APP.C_ZERO return int external '/opt/dmdbms/bin/libdm8_external_structured.so' "dm8_c_null_safe" using c;
+----------
+[CREATE_PROG_OBJ] -- C_EMPTY_PARAMETERS
+create function APP.C_EMPTY() return int external '/opt/dmdbms/bin/libdm8_external_structured.so' "dm8_c_null_safe" using c;
+----------
+[CREATE_PROG_OBJ] -- C_INT
+create function APP.C_INT(A int) return int
+external '/opt/dmdbms/bin/libdm8_external_structured.so' "dm8_c_null_safe" using c;
+----------
+[CREATE_PROG_OBJ] -- C_DOUBLE
+create function APP.C_DOUBLE(A double) return double
+external '/opt/dmdbms/bin/libdm8_external_structured.so' "dm8_c_double" using c;
+----------
+[CREATE_PROG_OBJ] -- C_FLOAT
+create function APP.C_FLOAT(A float) return double
+external '/opt/dmdbms/bin/libdm8_external_structured.so' "dm8_c_double" using c;
+----------
+[CREATE_PROG_OBJ] -- C_VARCHAR
+create function APP.C_VARCHAR(A varchar) return int
+external '/opt/dmdbms/bin/libdm8_external_structured.so' "dm8_c_length" using c;
+----------
+[CREATE_PROG_OBJ] -- C_REFERENCE_OMITTED
+create function APP.C_DEFAULT_REF(A int) return int external '/opt/dmdbms/bin/libdm8_external_structured.so' using c;
+----------
+[CREATE_PROG_OBJ] -- C_REFERENCE_UNQUOTED
+create function APP.C_UNQUOTED(A int,B int) return int external '/opt/dmdbms/bin/libdm8_external_structured.so' dm8_c_add using c;
+----------
+[CREATE_PROG_OBJ] -- C_REFERENCE_DOUBLE_QUOTED
+create function APP.C_QUOTED(A int,B int) return int
+external '/opt/dmdbms/bin/libdm8_external_structured.so' "dm8_c_add" using c;
+----------
+[CREATE_PROG_OBJ] -- C_REFERENCE_AND_STRING
+create function APP.C_LONG_REF(A int,B int) return int external '/opt/dmdbms/bin/libdm8_external_structured.so' and 'dm8_c_add' using c;
+----------
+[CREATE_PROG_OBJ] -- C_MISSING_FILE_DEFINITION
+create function APP.C_MISSING_FILE(A int) return int external '/opt/no-such.so' "missing" using c;
+----------
+[CREATE_PROG_OBJ] -- C_MISSING_SYMBOL_DEFINITION
+create function APP.C_MISSING_SYMBOL(A int) return int external '/opt/dmdbms/bin/libdm8_external_structured.so' "missing" using c;
+----------
+[CREATE_PROG_OBJ] -- CS_INT
+create function APP.CS_INT(A int,B int) return int
+external '/opt/dmdbms/bin/libdm8_external_scalar.so' "dm8_cs_add" using cs;
+----------
+[CREATE_PROG_OBJ] -- CS_DOUBLE
+create function APP.CS_DOUBLE(A double) return double
+external '/opt/dmdbms/bin/libdm8_external_scalar.so' "dm8_cs_double" using cs;
+----------
+[CREATE_PROG_OBJ] -- CS_VARCHAR
+create function APP.CS_VARCHAR(A varchar,B varchar) return varchar
+external '/opt/dmdbms/bin/libdm8_external_scalar.so' "dm8_cs_concat" using cs;
+----------
+[CREATE_PROG_OBJ] -- JAVA_INT
+create function APP.J_INT(A int,B int) return int
+external '/opt/dmagent/resources/ap/dm8-external-functions.jar' "com.clougence.dm8.external.Dm8ExternalFunctions.add" using java;
+----------
+[CREATE_PROG_OBJ] -- JAVA_CHAR
+create function APP.J_CHAR(A char) return varchar
+external '/opt/dmagent/resources/ap/dm8-external-functions.jar' "com.clougence.dm8.external.Dm8ExternalFunctions.append" using java;
+----------
+[CREATE_PROG_OBJ] -- JAVA_VARCHAR
+create function APP.J_VARCHAR(A varchar) return varchar
+external '/opt/dmagent/resources/ap/dm8-external-functions.jar' "com.clougence.dm8.external.Dm8ExternalFunctions.append" using java;
+----------
+[CREATE_PROG_OBJ] -- JAVA_VARCHAR2
+create function APP.J_VARCHAR2(A varchar2) return varchar2
+external '/opt/dmagent/resources/ap/dm8-external-functions.jar' "com.clougence.dm8.external.Dm8ExternalFunctions.append" using java;
+----------
+[CREATE_PROG_OBJ] -- JAVA_BIGINT
+create function APP.J_BIGINT(A bigint,B bigint) return bigint
+external '/opt/dmagent/resources/ap/dm8-external-functions.jar' "com.clougence.dm8.external.Dm8ExternalFunctions.addLong" using java;
+----------
+[CREATE_PROG_OBJ] -- JAVA_DOUBLE
+create function APP.J_DOUBLE(A double) return double
+external '/opt/dmagent/resources/ap/dm8-external-functions.jar' "com.clougence.dm8.external.Dm8ExternalFunctions.doubleValue" using java;
+----------
+[CREATE_PROG_OBJ] -- JAVA_FLOAT
+create function APP.J_FLOAT(A float) return double
+external '/opt/dmagent/resources/ap/dm8-external-functions.jar' "com.clougence.dm8.external.Dm8ExternalFunctions.doubleValue" using java;
+----------
+[CREATE_PROG_OBJ] -- JAVA_BINARY_FLOAT
+create function APP.J_BINARY_FLOAT(A binary_float) return double
+external '/opt/dmagent/resources/ap/dm8-external-functions.jar' "com.clougence.dm8.external.Dm8ExternalFunctions.doubleValue" using java;
+----------
+[CREATE_PROG_OBJ] -- JAVA_BINARY
+create function APP.J_BINARY(A binary) return varbinary
+external '/opt/dmagent/resources/ap/dm8-external-functions.jar' "com.clougence.dm8.external.Dm8ExternalFunctions.reverse" using java;
+----------
+[CREATE_PROG_OBJ] -- JAVA_VARBINARY
+create function APP.J_VARBINARY(A varbinary) return varbinary
+external '/opt/dmagent/resources/ap/dm8-external-functions.jar' "com.clougence.dm8.external.Dm8ExternalFunctions.reverse" using java;
+----------
+[CREATE_PROG_OBJ] -- JAVA_CLOB
+create function APP.J_CLOB(A clob) return clob
+external '/opt/dmagent/resources/ap/dm8-external-functions.jar' "com.clougence.dm8.external.Dm8ExternalFunctions.append" using java;
+----------
+[CREATE_PROG_OBJ] -- JAVA_BLOB
+create function APP.J_BLOB(A blob) return blob
+external '/opt/dmagent/resources/ap/dm8-external-functions.jar' "com.clougence.dm8.external.Dm8ExternalFunctions.reverse" using java;
+----------
+[CREATE_PROG_OBJ] -- JAVA_EXPLICIT_SIGNATURE
+create function APP.J_SIGNATURE(A int,B int) return int
+external '/opt/dmagent/resources/ap/dm8-external-functions.jar' "com.clougence.dm8.external.Dm8ExternalFunctions.add(int,int)" using java;
+----------
+[CREATE_PROG_OBJ] -- JAVA_FULL_SIGNATURE
+create function APP.J_FULL_SIGNATURE(A varchar) return varchar
+external '/opt/dmagent/resources/ap/dm8-external-functions.jar' "com.clougence.dm8.external.Dm8ExternalFunctions.append(java.lang.String)" using java;
+----------
+[CREATE_PROG_OBJ] -- JAVA_SLASH_CLASS
+create function APP.J_SLASH(A int,B int) return int
+external '/opt/dmagent/resources/ap/dm8-external-functions.jar' "com/clougence/dm8/external/Dm8ExternalFunctions.add" using java;
+----------
+[CREATE_PROG_OBJ] -- JAVA_REFERENCE_OMITTED
+create function APP.J_NO_REF(A int) return int external '/opt/dmagent/resources/ap/dm8-external-functions.jar' using java;
+----------
+[CREATE_PROG_OBJ] -- JAVA_LONG_REFERENCE_AND_STRING
+create function APP.J_LONG_REF(A varchar) return varchar external '/opt/dmagent/resources/ap/dm8-external-functions.jar' and 'com.clougence.dm8.external.Dm8ExternalFunctions.append(java.lang.String,java.lang.String,java.lang.String)' using java;
+----------
+[CREATE_PROG_OBJ] -- JAVA_EXPLICIT_IN
+create function APP.J_IN(A in int,B in int) return int
+external '/opt/dmagent/resources/ap/dm8-external-functions.jar' "com.clougence.dm8.external.Dm8ExternalFunctions.add" using java;
+----------
+[CREATE_PROG_OBJ] -- JAVA_OUT
+create function APP.J_OUT(A out int) return int
+external '/opt/dmagent/resources/ap/dm8-external-functions.jar' "com.clougence.dm8.external.Dm8ExternalFunctions.add(int,int)" using java;
+----------
+[CREATE_PROG_OBJ] -- JAVA_IN_OUT
+create function APP.J_INOUT(A in out int) return int
+external '/opt/dmagent/resources/ap/dm8-external-functions.jar' "com.clougence.dm8.external.Dm8ExternalFunctions.add(int,int)" using java;
+----------
+[CREATE_PROG_OBJ] -- JAVA_OUT_IN
+create function APP.J_OUTIN(A out in int) return int
+external '/opt/dmagent/resources/ap/dm8-external-functions.jar' "com.clougence.dm8.external.Dm8ExternalFunctions.add(int,int)" using java;
+----------
+[CREATE_PROG_OBJ] -- JAVA_ZERO_PARAMETERS
+create function APP.J_ZERO return int external '/opt/dmagent/resources/ap/dm8-external-functions.jar' "com.clougence.dm8.external.Dm8ExternalFunctions.add" using java;
+----------
+[CREATE_PROG_OBJ] -- JAVA_EMPTY_PARAMETERS
+create function APP.J_EMPTY() return int external '/opt/dmagent/resources/ap/dm8-external-functions.jar' "com.clougence.dm8.external.Dm8ExternalFunctions.add" using java;
+----------
+[CREATE_LIBRARY] -- LIBRARY_CREATE
+create library APP.C_LIB as '/opt/dmdbms/bin/libdm8_external_structured.so';
+----------
+[CREATE_LIBRARY] -- LIBRARY_OR_REPLACE
+create or replace library APP.C_LIB as '/opt/dmdbms/bin/libdm8_external_structured.so';
+----------
+[CREATE_LIBRARY] -- LIBRARY_IF_NOT_EXISTS
+create library if not exists APP.C_LIB as '/opt/dmdbms/bin/libdm8_external_structured.so';
+----------
+[CREATE_PROG_OBJ] -- C_USING_LIBRARY
+create function APP.C_LIBRARY(A int,B int) return int
+as language c library APP.C_LIB name "dm8_c_add";
+----------
+[CREATE_PROG_OBJ] -- CS_USING_LIBRARY
+create function APP.CS_LIBRARY(A int,B int) return int
+as language cs library APP.C_LIB name "dm8_cs_add";
+----------
+[ALTER_PROG_OBJ] -- ALTER_EXTERNAL
+alter function APP.C_ADD compile debug;
+----------
+[DROP_PROG_OBJ] -- DROP_EXTERNAL
+drop function APP.C_ADD;
+----------
+[DROP_PROG_OBJ] -- DROP_EXTERNAL_IF_EXISTS
+drop function if exists APP.C_ADD;
+----------
+[DROP_LIBRARY] -- DROP_LIBRARY
+drop library APP.C_LIB;
+----------
+[DROP_LIBRARY] -- DROP_LIBRARY_IF_EXISTS
+drop library if exists APP.C_LIB;

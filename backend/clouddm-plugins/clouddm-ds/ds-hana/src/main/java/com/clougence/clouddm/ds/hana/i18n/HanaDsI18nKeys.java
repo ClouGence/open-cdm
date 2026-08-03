@@ -29,7 +29,6 @@ import com.clougence.utils.i18n.I18nResource;
 public interface HanaDsI18nKeys extends DsDataEditorI18nKeys, DsTableEditorI18nKeys, DsTriggerEditorI18nKeys, DsViewEditorI18nKeys {
 
     String PLUGIN_NAME_HANA                              = "PLUGIN_NAME_HANA";
-
     String EDITOR_INDEXES_TYPE_BTREE_LABEL               = "UI_EDITOR_INDEXES_TYPE_BTREE_LABEL";
     String EDITOR_INDEXES_TYPE_CPBTREE_LABEL             = "UI_EDITOR_INDEXES_TYPE_CPBTREE_LABEL";
     String EDITOR_INDEXES_TYPE_INVERTED_LABEL            = "UI_EDITOR_INDEXES_TYPE_INVERTED_LABEL";

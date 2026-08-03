@@ -1,0 +1,15 @@
+-- rollup missing parentheses
+select count(*) from app.group_t group by rollup g;
+-- cube missing closing parenthesis
+select count(*) from app.group_t group by cube(g;
+-- grouping sets missing body
+select count(*) from app.group_t group by grouping sets;
+------------------------------------------------------------------------------------------
+[SELECT] -- rollup missing parentheses
+select count(*) from app.group_t group by rollup g;
+----------
+[SELECT] -- cube missing closing parenthesis
+select count(*) from app.group_t group by cube(g;
+----------
+[SELECT] -- grouping sets missing body
+select count(*) from app.group_t group by grouping sets;

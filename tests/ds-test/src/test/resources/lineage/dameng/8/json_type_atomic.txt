@@ -1,0 +1,14 @@
+[operators]
+sql:
+select t.j->'a' as json_a,t.jb->>'a' as jsonb_a
+from catalog1.app.json_types t
+expect:
+{"json_a":["/catalog1/app/json_types/j/"],"jsonb_a":["/catalog1/app/json_types/jb/"]}
+----------
+[functions]
+sql:
+select jsonb_typeof(t.j) as json_kind,
+json_query(t.jb,'$.a' with wrapper) as json_query_value
+from catalog1.app.json_types t
+expect:
+{"json_kind":["/catalog1/app/json_types/j/"],"json_query_value":["/catalog1/app/json_types/jb/"]}

@@ -1,0 +1,7 @@
+alter table abc drop constraint abc_pk; select * from test; drop table rrw
+------------------------------------------------------------------------------------------
+[ALTER_TABLE|DROP_CONSTRAINT] alter table abc drop constraint abc_pk;
+----------
+[SELECT] select * from test;
+----------
+[DROP_TABLE] drop table rrw

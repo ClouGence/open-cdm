@@ -1,0 +1,39 @@
+[Db2RuleColumnCreateNeedDefaultTest#columnNeedDefault_1#001]
+rule: _rules/column/column-create-need-default.rule
+expect: true
+vars:
+{}
+sql:
+create table test.abc_test(id int default 1);
+----------
+[Db2RuleColumnCreateNeedDefaultTest#columnNeedDefault_1#002]
+rule: _rules/column/column-create-need-default.rule
+expect: true
+vars:
+{}
+sql:
+alter table test.abc add name varchar(25) default 'aa';
+----------
+[Db2RuleColumnCreateNeedDefaultTest#columnNeedDefault_1#003]
+rule: _rules/column/column-create-need-default.rule
+expect: true
+vars:
+{}
+sql:
+alter table test.abc add name varchar(25) default '';
+----------
+[Db2RuleColumnCreateNeedDefaultTest#columnNeedDefault_2#001]
+rule: _rules/column/column-create-need-default.rule
+expect: false
+vars:
+{}
+sql:
+create table test.abc_test(id int);
+----------
+[Db2RuleColumnCreateNeedDefaultTest#columnNeedDefault_2#002]
+rule: _rules/column/column-create-need-default.rule
+expect: false
+vars:
+{}
+sql:
+alter table test.abc add name varchar(25);

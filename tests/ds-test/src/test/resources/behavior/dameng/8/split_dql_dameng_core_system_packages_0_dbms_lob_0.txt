@@ -1,0 +1,170 @@
+[split_dql_dameng_core_system_packages_0_001]
+sql:
+select dbms_lob.getlength(c) from CODEX_DM8_CORE_PKG where id=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:25) /test/1/catalog1/dbms_lob/getlength/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:34~1:52) /test/1/catalog1/schema1/CODEX_DM8_CORE_PKG/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_core_system_packages_0_002]
+sql:
+select dbms_lob.substr(c, 4, 1) from CODEX_DM8_CORE_PKG where id=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:22) /test/1/catalog1/dbms_lob/substr/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:37~1:55) /test/1/catalog1/schema1/CODEX_DM8_CORE_PKG/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_core_system_packages_0_003]
+sql:
+select dbms_lob.instr(c, 'TEXT', 1, 1) from CODEX_DM8_CORE_PKG where id=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:21) /test/1/catalog1/dbms_lob/instr/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:44~1:62) /test/1/catalog1/schema1/CODEX_DM8_CORE_PKG/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_core_system_packages_0_004]
+sql:
+select dbms_lob.compare(c, c) from CODEX_DM8_CORE_PKG where id=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:23) /test/1/catalog1/dbms_lob/compare/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:35~1:53) /test/1/catalog1/schema1/CODEX_DM8_CORE_PKG/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_core_system_packages_0_005]
+sql:
+select dbms_lob.get_storage_limit(c) from CODEX_DM8_CORE_PKG where id=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:33) /test/1/catalog1/dbms_lob/get_storage_limit/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:42~1:60) /test/1/catalog1/schema1/CODEX_DM8_CORE_PKG/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_core_system_packages_0_006]
+sql:
+select dbms_lob.getlength(b) from CODEX_DM8_CORE_PKG where id=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:25) /test/1/catalog1/dbms_lob/getlength/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:34~1:52) /test/1/catalog1/schema1/CODEX_DM8_CORE_PKG/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_core_system_packages_0_007]
+sql:
+select dbms_lob.substr(b, 4, 1) from CODEX_DM8_CORE_PKG where id=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:22) /test/1/catalog1/dbms_lob/substr/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:37~1:55) /test/1/catalog1/schema1/CODEX_DM8_CORE_PKG/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_core_system_packages_0_008]
+sql:
+select dbms_lob.compare(b, b) from CODEX_DM8_CORE_PKG where id=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:23) /test/1/catalog1/dbms_lob/compare/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:35~1:53) /test/1/catalog1/schema1/CODEX_DM8_CORE_PKG/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_core_system_packages_0_009]
+sql:
+select dbms_lob.getchunksize(c) from CODEX_DM8_CORE_PKG where id=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:28) /test/1/catalog1/dbms_lob/getchunksize/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:37~1:55) /test/1/catalog1/schema1/CODEX_DM8_CORE_PKG/",
+      "action": "READ"
+    }
+  ]
+}

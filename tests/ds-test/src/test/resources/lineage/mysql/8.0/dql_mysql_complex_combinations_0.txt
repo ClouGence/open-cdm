@@ -1,0 +1,701 @@
+[dql_mysql_complex_combinations_0.0001]
+sql:
+SELECT * FROM t1 WHERE a IN (SELECT a FROM t1 UNION SELECT a FROM t1 ORDER BY (SELECT a)) UNION SELECT * FROM t1 ORDER BY (SELECT a);
+expect:
+{
+  "id" : [ "(1:7~1:8) /catalog1/schema1/t1/id/", "(1:103~1:104) /catalog1/schema1/t1/id/" ]
+}
+----------
+[dql_mysql_complex_combinations_0.0002]
+sql:
+SELECT 1 AS foo UNION SELECT 2 UNION SELECT 3 UNION (SELECT 4) ORDER BY MAX(42)+MAX(1)+MAX(1)+MAX(1)+MAX(1)+MAX(1);
+expect:
+{
+  "foo" : [ ]
+}
+----------
+[dql_mysql_complex_combinations_0.0003]
+sql:
+SELECT * FROM (SELECT * FROM (SELECT * FROM t1 WHERE f1<7 GROUP BY f1) tt WHERE f1>2 GROUP BY f1) x JOIN (SELECT * FROM (SELECT * FROM t1 WHERE f1<7 GROUP BY f1) tt WHERE f1>2 GROUP BY f1) z ON x.f1=z.f1;
+expect:
+[ {
+  "sources" : [ "(1:37~1:38) /catalog1/schema1/t1/f1/" ],
+  "column" : "f1"
+}, {
+  "sources" : [ "(1:128~1:129) /catalog1/schema1/t1/f1/" ],
+  "column" : "f1"
+} ]
+----------
+[dql_mysql_complex_combinations_0.0004]
+sql:
+SELECT d.*,MIN(d.`rank`) OVER (ROWS UNBOUNDED PRECEDING),MAX(d.`rank`) OVER (ROWS UNBOUNDED PRECEDING) FROM (SELECT sex,t1.id,`date`,ROW_NUMBER() OVER w AS row_no,RANK() OVER w AS `rank` FROM t1,t2 WHERE t1.id=t2.user_id WINDOW w AS (PARTITION BY `date` ORDER BY t1.id)) AS d;
+expect:
+{
+  "sex" : [ "(1:116~1:119) /catalog1/schema1/t1/sex/" ],
+  "id" : [ "(1:120~1:125) /catalog1/schema1/t1/id/" ],
+  "date" : [ "(1:126~1:132) /catalog1/schema1/t1/date/" ],
+  "row_no" : [ "(1:126~1:132) /catalog1/schema1/t1/date/", "(1:263~1:268) /catalog1/schema1/t1/id/" ],
+  "rank" : [ "(1:126~1:132) /catalog1/schema1/t1/date/", "(1:263~1:268) /catalog1/schema1/t1/id/" ],
+  "MIN(d.`rank`) OVER (ROWS UNBOUNDED PRECEDING)" : [ "(1:126~1:132) /catalog1/schema1/t1/date/", "(1:263~1:268) /catalog1/schema1/t1/id/" ],
+  "MAX(d.`rank`) OVER (ROWS UNBOUNDED PRECEDING)" : [ "(1:126~1:132) /catalog1/schema1/t1/date/", "(1:263~1:268) /catalog1/schema1/t1/id/" ]
+}
+----------
+[dql_mysql_complex_combinations_0.0005]
+sql:
+WITH RECURSIVE cte AS (SELECT 1 num UNION ALL SELECT num+1 FROM cte WHERE num<5) SELECT num,COUNT(*) OVER (frame),COUNT(*) OVER (ORDER BY num DESC) FROM cte WINDOW frame AS (ORDER BY num DESC);
+expect:
+{
+  "num" : [ ],
+  "COUNT(*) OVER (frame)" : [ ],
+  "COUNT(*) OVER (ORDER BY num DESC)" : [ ]
+}
+----------
+[dql_mysql_complex_combinations_0.0006]
+sql:
+((((SELECT * FROM t ORDER BY a LIMIT 5) ORDER BY -a LIMIT 3) ORDER BY a LIMIT 2) UNION ALL (((SELECT * FROM t ORDER BY a LIMIT 5) ORDER BY -a LIMIT 3) ORDER BY a LIMIT 2)) ORDER BY a LIMIT 3;
+expect:
+{
+  "id" : [ "(1:11~1:12) /catalog1/schema1/t/id/", "(1:101~1:102) /catalog1/schema1/t/id/" ]
+}
+----------
+[dql_mysql_complex_combinations_0.0007]
+sql:
+((((SELECT a FROM r UNION DISTINCT SELECT 1) ORDER BY a LIMIT 4) UNION ALL (SELECT a FROM s UNION DISTINCT (SELECT * FROM t UNION DISTINCT (SELECT a FROM r UNION ALL SELECT * FROM s ORDER BY a LIMIT 10))) UNION DISTINCT (VALUES ROW(1),ROW(2) UNION DISTINCT SELECT * FROM s ORDER BY column_0 LIMIT 3)) ORDER BY a LIMIT 3) UNION DISTINCT (SELECT * FROM r UNION DISTINCT SELECT * FROM t) ORDER BY a LIMIT 5;
+expect:
+{
+  "a" : [ "(1:11~1:12) /catalog1/schema1/r/a/", "(1:83~1:84) /catalog1/schema1/s/a/", "(1:115~1:116) /catalog1/schema1/t/id/", "(1:147~1:148) /catalog1/schema1/r/a/", "(1:173~1:174) /catalog1/schema1/s/a/", "(1:264~1:265) /catalog1/schema1/s/a/", "(1:344~1:345) /catalog1/schema1/r/a/", "(1:375~1:376) /catalog1/schema1/t/id/" ]
+}
+----------
+[dql_mysql_complex_combinations_0.0008]
+sql:
+WITH RECURSIVE tran(batch_uid,guid,type,trantime,refguid) AS (SELECT 549285,'a',13,'2023-04-07 09:19:04',NULL UNION ALL SELECT 549286,'b',13,'2023-04-07 09:31:20','a'),cte_t(init_dataset,batch_uid,guid,type,trantime) AS (SELECT TRUE,batch_uid,guid,type,trantime FROM tran WHERE batch_uid=549285 UNION ALL SELECT FALSE,wt.batch_uid,wt.guid,wt.type,wt.trantime FROM tran wt JOIN cte_t ts ON wt.refguid=ts.guid WHERE wt.batch_uid<>549285 AND init_dataset) SELECT t2.count FROM cte_t LEFT JOIN (SELECT type,COUNT(*) count FROM cte_t WHERE batch_uid=549285 GROUP BY type) t2 ON t2.type=cte_t.type;
+expect:
+{
+  "count" : [ ]
+}
+----------
+[dql_mysql_complex_combinations_0.0009]
+sql:
+SELECT table1.col_varchar_key,table2.col_time_gckey FROM t2 table1 STRAIGHT_JOIN t1 table2 ON table2.col_varchar_key=table1.col_varchar_key WHERE table2.col_int_key IN (WITH qn AS (SELECT sq1.col_int FROM t2 sq1 WHERE sq1.col_varchar_key=table2.col_varchar OR EXISTS (WITH qn1 AS (SELECT c.col_int_key FROM t1 c WHERE c.col_varchar_key>sq1.col_varchar) SELECT * FROM qn1)) SELECT * FROM qn) AND EXISTS (WITH qn AS (SELECT a.col_varchar FROM t1 a STRAIGHT_JOIN t2 b INNER JOIN t1 c ON c.col_varchar=b.col_varchar_key ON c.col_int=b.pk) SELECT * FROM qn);
+expect:
+{
+  "col_varchar_key" : [ "(1:7~1:29) /catalog1/schema1/t2/col_varchar_key/" ],
+  "col_time_gckey" : [ "(1:30~1:51) /catalog1/schema1/t1/col_time_gckey/" ]
+}
+----------
+[dql_mysql_complex_combinations_0.0010]
+sql:
+SELECT FIRST_VALUE(j) OVER (ORDER BY 0+(SELECT FIRST_VALUE(outer_t.j) OVER (ORDER BY inner_t.i) FROM t1 inner_t LIMIT 1)) FROM t1 outer_t;
+expect:
+{
+  "FIRST_VALUE(j) OVER (ORDER BY 0+(SELECT FIRST_VALUE(outer_t.j) OVER (ORDER BY inner_t.i) FROM t1 inner_t LIMIT 1))" : [ "(1:19~1:20) /catalog1/schema1/t1/j/", "(1:59~1:68) /catalog1/schema1/t1/j/", "(1:85~1:94) /catalog1/schema1/t1/i/" ]
+}
+----------
+[dql_mysql_complex_combinations_0.0011]
+sql:
+SELECT 1 UNION SELECT 1 UNION SELECT * FROM (SELECT 2 UNION SELECT 1 INTO @var FROM DUAL) d;
+expect:
+{
+  "1" : [ ]
+}
+----------
+[dql_mysql_complex_combinations_0.0012]
+sql:
+WITH v AS (VALUES ROW(1) UNION ALL SELECT id FROM tv) SELECT * FROM v;
+expect:
+{
+  "column_0" : [ "(1:42~1:44) /catalog1/schema1/tv/id/" ]
+}
+----------
+[dql_mysql_complex_combinations_0.0013]
+sql:
+WITH cte AS (SELECT * FROM t1) (SELECT * FROM cte UNION SELECT * FROM cte) ORDER BY id;
+expect:
+{
+  "id" : [ "(1:20~1:21) /catalog1/schema1/t1/id/", "(1:20~1:21) /catalog1/schema1/t1/id/" ]
+}
+----------
+[dql_mysql_complex_combinations_0.0014]
+sql:
+SELECT MONTH(`date`),SUM(sale),AVG(SUM(sale)) OVER w AS sliding_avg FROM sales GROUP BY MONTH(`date`) WINDOW w AS (ORDER BY MONTH(`date`) RANGE BETWEEN 1 PRECEDING AND 1 FOLLOWING) ORDER BY AVG(SUM(sale)) OVER (ORDER BY MONTH(`date`) RANGE BETWEEN 1 PRECEDING AND 1 FOLLOWING),MONTH(`date`);
+expect:
+{
+  "MONTH(`date`)" : [ "(1:13~1:19) /catalog1/schema1/sales/date/" ],
+  "SUM(sale)" : [ "(1:25~1:29) /catalog1/schema1/sales/sale/" ],
+  "sliding_avg" : [ "(1:39~1:43) /catalog1/schema1/sales/sale/", "(1:130~1:136) /catalog1/schema1/sales/date/" ]
+}
+----------
+[dql_mysql_complex_combinations_0.0015]
+sql:
+SELECT MAX(c1) OVER (ORDER BY c2 ROWS CURRENT ROW) AS col FROM t1 INTERSECT DISTINCT SELECT c2='' OR 447938560 FROM t1;
+expect:
+{
+  "col" : [ "(1:11~1:13) /catalog1/schema1/t1/c1/", "(1:30~1:32) /catalog1/schema1/t1/c2/", "(1:92~1:94) /catalog1/schema1/t1/c2/" ]
+}
+----------
+[dql_mysql_complex_combinations_0.0016]
+sql:
+SELECT i FROM t WHERE i IN ((SELECT 2 UNION ALL SELECT 2) EXCEPT ALL SELECT 2);
+expect:
+{
+  "i" : [ "(1:7~1:8) /catalog1/schema1/t/i/" ]
+}
+----------
+[dql_mysql_complex_combinations_0.0017]
+sql:
+SELECT SUBSTRING(d.rep,1,4),LENGTH(d.rep) FROM (SELECT REPEAT(c1,c2) AS rep FROM t1 EXCEPT DISTINCT SELECT DISTINCT RANK() OVER () FROM t1) AS d;
+expect:
+{
+  "SUBSTRING(d.rep,1,4)" : [ "(1:62~1:64) /catalog1/schema1/t1/c1/", "(1:65~1:67) /catalog1/schema1/t1/c2/" ],
+  "LENGTH(d.rep)" : [ "(1:62~1:64) /catalog1/schema1/t1/c1/", "(1:65~1:67) /catalog1/schema1/t1/c2/" ]
+}
+----------
+[dql_mysql_complex_combinations_0.0018]
+sql:
+SELECT * FROM ((SELECT a1,a2 FROM t ORDER BY a1,a2 ASC) ORDER BY a2/a1 DESC LIMIT 7) AS derived;
+expect:
+{
+  "a1" : [ "(1:23~1:25) /catalog1/schema1/t/a1/" ],
+  "a2" : [ "(1:26~1:28) /catalog1/schema1/t/a2/" ]
+}
+----------
+[dql_mysql_complex_combinations_0.0019]
+sql:
+SELECT DISTINCT * FROM t1 LEFT JOIN t0 ON t1.c1=t0.c0 INTERSECT SELECT DISTINCT * FROM t1 RIGHT JOIN t0 ON t1.c1=t0.c0;
+expect:
+{
+  "c1" : [ "(1:16~1:17) /catalog1/schema1/t1/c1/", "(1:80~1:81) /catalog1/schema1/t1/c1/" ],
+  "c0" : [ "(1:16~1:17) /catalog1/schema1/t0/c0/", "(1:80~1:81) /catalog1/schema1/t0/c0/" ]
+}
+----------
+[dql_mysql_complex_combinations_0.0020]
+sql:
+SELECT DISTINCT COUNT(*) AS c,SUM(t0.c0) AS s FROM t1 LEFT JOIN t0 ON t1.c1=t0.c0 GROUP BY t1.c1 INTERSECT SELECT DISTINCT 1,t1.c1 FROM t1 LEFT JOIN t0 ON t1.c1=t0.c0;
+expect:
+{
+  "c" : [ ],
+  "s" : [ "(1:34~1:39) /catalog1/schema1/t0/c0/", "(1:125~1:130) /catalog1/schema1/t1/c1/" ]
+}
+----------
+[dql_mysql_complex_combinations_0.0021]
+sql:
+SELECT AVG(c0) OVER (PARTITION BY c0),c0 FROM t0 GROUP BY c0 INTERSECT SELECT c1,c1 FROM t1;
+expect:
+{
+  "AVG(c0) OVER (PARTITION BY c0)" : [ "(1:11~1:13) /catalog1/schema1/t0/c0/", "(1:34~1:36) /catalog1/schema1/t0/c0/", "(1:78~1:80) /catalog1/schema1/t1/c1/" ],
+  "c0" : [ "(1:38~1:40) /catalog1/schema1/t0/c0/", "(1:81~1:83) /catalog1/schema1/t1/c1/" ]
+}
+----------
+[dql_mysql_complex_combinations_0.0022]
+sql:
+SELECT * FROM (SELECT * FROM tb1 WHERE id%3=0) AS even,LATERAL (SELECT SQL_SMALL_RESULT AVG(id2) AS a FROM tb1 WHERE id>even.id GROUP BY id2) AS l WHERE even.id<>l.a;
+expect:
+{
+  "id2" : [ "(1:22~1:23) /catalog1/schema1/tb1/id2/" ],
+  "id" : [ "(1:22~1:23) /catalog1/schema1/tb1/id/" ],
+  "a" : [ "(1:92~1:95) /catalog1/schema1/tb1/id2/" ]
+}
+----------
+[dql_mysql_complex_combinations_0.0023]
+sql:
+SELECT SQL_SMALL_RESULT (SELECT COUNT(*) FROM tb2 WHERE b+5>AVG(tb1.id)+tb1.id2) FROM tb1 GROUP BY id2;
+expect:
+{
+  "(SELECT COUNT(*) FROM tb2 WHERE b+5>AVG(tb1.id)+tb1.id2)" : [ ]
+}
+----------
+[dql_mysql_complex_combinations_0.0024]
+sql:
+SELECT SQL_SMALL_RESULT txt,AVG(i)+2 AS a,(SELECT AVG(i)+2) AS b,ROW_NUMBER() OVER() FROM tg GROUP BY txt ORDER BY b;
+expect:
+{
+  "txt" : [ "(1:24~1:27) /catalog1/schema1/tg/txt/" ],
+  "a" : [ "(1:32~1:33) /catalog1/schema1/tg/i/" ],
+  "b" : [ "(1:54~1:55) /catalog1/schema1/tg/i/" ],
+  "ROW_NUMBER() OVER()" : [ ]
+}
+----------
+[dql_mysql_complex_combinations_0.0025]
+sql:
+SELECT ROUND(STDDEV(id2),5) FROM tb1 AS outer_t GROUP BY (SELECT (inner_t.id+inner_t.id2)%5 FROM tb1 AS inner_t WHERE inner_t.id=outer_t.id);
+expect:
+{
+  "ROUND(STDDEV(id2),5)" : [ "(1:20~1:23) /catalog1/schema1/tb1/id2/" ]
+}
+----------
+[dql_mysql_complex_combinations_0.0026]
+sql:
+SELECT a,oref,a IN (SELECT SQL_SMALL_RESULT MAX(ie) FROM t1 WHERE t1.oref=t2.oref GROUP BY grp) AS z FROM t2;
+expect:
+{
+  "a" : [ "(1:7~1:8) /catalog1/schema1/t2/a/" ],
+  "oref" : [ "(1:9~1:13) /catalog1/schema1/t2/oref/" ],
+  "z" : [ "(1:14~1:15) /catalog1/schema1/t2/a/", "(1:48~1:50) /catalog1/schema1/t1/ie/" ]
+}
+----------
+[dql_mysql_complex_combinations_0.0027]
+sql:
+SELECT 1 FROM tfd AS ot WHERE 1<=(SELECT dt.b FROM (SELECT ot.b FROM tfd AS it1) AS dt JOIN tfd AS it2 ON dt.b=it2.b GROUP BY it2.b);
+expect:
+{
+  "1" : [ ]
+}
+----------
+[dql_mysql_complex_combinations_0.0028]
+sql:
+SELECT t1.*,t1.* FROM t1;
+expect:
+[ {
+  "sources" : [ "(1:7~1:11) /catalog1/schema1/t1/id/" ],
+  "column" : "id"
+}, {
+  "sources" : [ "(1:12~1:16) /catalog1/schema1/t1/id/" ],
+  "column" : "id"
+} ]
+----------
+[dql_mysql_complex_combinations_0.0029]
+sql:
+SELECT t1.*,a,t1.* FROM t1;
+expect:
+[ {
+  "sources" : [ "(1:7~1:11) /catalog1/schema1/t1/a/" ],
+  "column" : "a"
+}, {
+  "sources" : [ "(1:12~1:13) /catalog1/schema1/t1/a/" ],
+  "column" : "a"
+}, {
+  "sources" : [ "(1:14~1:18) /catalog1/schema1/t1/a/" ],
+  "column" : "a"
+} ]
+----------
+[dql_mysql_complex_combinations_0.0030]
+sql:
+SELECT (SELECT d FROM t2 WHERE d>a),t1.* FROM t1;
+expect:
+{
+  "(SELECT d FROM t2 WHERE d>a)" : [ "(1:15~1:16) /catalog1/schema1/t2/d/" ],
+  "id" : [ "(1:36~1:40) /catalog1/schema1/t1/id/" ]
+}
+----------
+[dql_mysql_complex_combinations_0.0031]
+sql:
+SELECT t1.*,(SELECT a FROM t2 WHERE d>a) FROM t1;
+expect:
+{
+  "id" : [ "(1:7~1:11) /catalog1/schema1/t1/id/" ],
+  "(SELECT a FROM t2 WHERE d>a)" : [ "(1:20~1:21) /catalog1/schema1/t2/a/" ]
+}
+----------
+[dql_mysql_complex_combinations_0.0032]
+sql:
+SELECT (SELECT t2.* FROM t2) FROM t1;
+expect:
+{
+  "(SELECT t2.* FROM t2)" : [ "(1:15~1:19) /catalog1/schema1/t2/id/" ]
+}
+----------
+[dql_mysql_complex_combinations_0.0033]
+sql:
+SELECT t1.*,(SELECT t2.* FROM t2) FROM t1;
+expect:
+{
+  "id" : [ "(1:7~1:11) /catalog1/schema1/t1/id/" ],
+  "(SELECT t2.* FROM t2)" : [ "(1:20~1:24) /catalog1/schema1/t2/id/" ]
+}
+----------
+[dql_mysql_complex_combinations_0.0034]
+sql:
+SELECT unresolved_udf(1 AS first_arg,2 second_arg);
+expect:
+{
+  "unresolved_udf(1 AS first_arg,2 second_arg)" : [ ]
+}
+----------
+[dql_mysql_complex_combinations_0.0035]
+sql:
+SELECT POSITION(CAST(1|2 AS CHAR) IN CONCAT('x',CASE WHEN 1 THEN '3' ELSE '0' END));
+expect:
+{
+  "POSITION(CAST(1|2 AS CHAR) IN CONCAT('x',CASE WHEN 1 THEN '3' ELSE '0' END))" : [ ]
+}
+----------
+[dql_mysql_complex_combinations_0.0036]
+sql:
+SELECT (SELECT d.b FROM (SELECT SUM(i.a) b FROM t2 i GROUP BY o.a) d) FROM t1 o;
+expect:
+{
+  "(SELECT d.b FROM (SELECT SUM(i.a) b FROM t2 i GROUP BY o.a) d)" : [ "(1:36~1:39) /catalog1/schema1/t2/a/" ]
+}
+----------
+[dql_mysql_complex_combinations_0.0037]
+sql:
+SELECT (SELECT d.b FROM (SELECT SUM(i.a) b FROM t2 i HAVING o.a=SUM(i.a)-1) d) FROM t1 o;
+expect:
+{
+  "(SELECT d.b FROM (SELECT SUM(i.a) b FROM t2 i HAVING o.a=SUM(i.a)-1) d)" : [ "(1:36~1:39) /catalog1/schema1/t2/a/" ]
+}
+----------
+[dql_mysql_complex_combinations_0.0038]
+sql:
+SELECT (SELECT d.b FROM (SELECT i.a b FROM t2 i ORDER BY IF(o.a=1,i.a,-i.a) LIMIT 1) d) FROM t1 o;
+expect:
+{
+  "(SELECT d.b FROM (SELECT i.a b FROM t2 i ORDER BY IF(o.a=1,i.a,-i.a) LIMIT 1) d)" : [ "(1:32~1:35) /catalog1/schema1/t2/a/" ]
+}
+----------
+[dql_mysql_complex_combinations_0.0039]
+sql:
+SELECT (WITH d AS (SELECT o.a a,i.a b FROM t2 i) SELECT d2.a FROM d d1,d d2 WHERE d1.b=o.a AND d2.b=d1.b) FROM t1 o;
+expect:
+{
+  "(WITH d AS (SELECT o.a a,i.a b FROM t2 i) SELECT d2.a FROM d d1,d d2 WHERE d1.b=o.a AND d2.b=d1.b)" : [ "(1:26~1:29) /catalog1/schema1/t1/a/" ]
+}
+----------
+[dql_mysql_complex_combinations_0.0040]
+sql:
+SELECT (WITH d AS (SELECT o.a a FROM t2 LIMIT 1) SELECT * FROM d d1 WHERE d1.a=(SELECT * FROM d d2)) FROM t1 o;
+expect:
+{
+  "(WITH d AS (SELECT o.a a FROM t2 LIMIT 1) SELECT * FROM d d1 WHERE d1.a=(SELECT * FROM d d2))" : [ "(1:26~1:29) /catalog1/schema1/t1/a/" ]
+}
+----------
+[dql_mysql_complex_combinations_0.0041]
+sql:
+SELECT * FROM t1 o WHERE o.a NOT IN (SELECT d.f+1 FROM (SELECT 0*o.a+i.a f FROM t2 i) d);
+expect:
+{
+  "a" : [ "(1:7~1:8) /catalog1/schema1/t1/a/" ]
+}
+----------
+[dql_mysql_complex_combinations_0.0042]
+sql:
+SELECT * FROM t1 o JOIN LATERAL (SELECT o.a) d ON TRUE JOIN LATERAL (SELECT d.a) d2 ON TRUE;
+expect:
+[ {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/t1/a/" ],
+  "column" : "a"
+}, {
+  "sources" : [ "(1:40~1:43) /catalog1/schema1/t1/a/" ],
+  "column" : "a"
+}, {
+  "sources" : [ "(1:40~1:43) /catalog1/schema1/t1/a/" ],
+  "column" : "a"
+} ]
+----------
+[dql_mysql_complex_combinations_0.0043]
+sql:
+SELECT o.a,d.a FROM t1 o,LATERAL (SELECT i.a FROM t2 i HAVING o.a) d;
+expect:
+[ {
+  "sources" : [ "(1:7~1:10) /catalog1/schema1/t1/a/" ],
+  "column" : "a"
+}, {
+  "sources" : [ "(1:41~1:44) /catalog1/schema1/t2/a/" ],
+  "column" : "a"
+} ]
+----------
+[dql_mysql_complex_combinations_0.0044]
+sql:
+SELECT * FROM t1 o,LATERAL (WITH qn AS (SELECT o.a) SELECT (SELECT MAX(a) FROM qn)) d;
+expect:
+{
+  "a" : [ "(1:7~1:8) /catalog1/schema1/t1/a/" ],
+  "(SELECT MAX(a) FROM qn)" : [ "(1:47~1:50) /catalog1/schema1/t1/a/" ]
+}
+----------
+[dql_mysql_complex_combinations_0.0045]
+sql:
+SELECT (SELECT * FROM (SELECT * FROM (SELECT o.a FROM t2) d LIMIT 1) d2) FROM t1 o;
+expect:
+{
+  "exception" : "IllegalArgumentException"
+}
+----------
+[dql_mysql_complex_combinations_0.0046]
+sql:
+SELECT * FROM t1 o,LATERAL (SELECT 1 WHERE o.a IN (SELECT b FROM t2 WHERE b>=SOME(SELECT SUM(x.a) FROM t1 x GROUP BY x.b HAVING o.a=x.b))) d;
+expect:
+{
+  "a" : [ "(1:7~1:8) /catalog1/schema1/t1/a/" ],
+  "1" : [ ]
+}
+----------
+[dql_mysql_complex_combinations_0.0047]
+sql:
+SELECT * FROM t1 AS t0,LATERAL (SELECT dt3.* FROM t1,LATERAL (SELECT * FROM (SELECT * FROM (SELECT t0.a FROM t2) d LIMIT 1) d2) dt3) dt4;
+expect:
+{
+  "exception" : "IllegalArgumentException"
+}
+----------
+[dql_mysql_complex_combinations_0.0048]
+sql:
+SELECT * FROM t1 LEFT JOIN (t3,LATERAL (SELECT * FROM t2 WHERE t2.table_id=t3.id) l1) ON TRUE;
+expect:
+[ {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/t1/id/" ],
+  "column" : "id"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/t3/id/" ],
+  "column" : "id"
+}, {
+  "sources" : [ "(1:47~1:48) /catalog1/schema1/t2/table_id/" ],
+  "column" : "table_id"
+} ]
+----------
+[dql_mysql_complex_combinations_0.0049]
+sql:
+SELECT * FROM t1 LEFT JOIN (t1 t2 LEFT JOIN t1 t3 ON TRUE) ON TRUE,LATERAL (SELECT SUM(t1.a),t2.a FROM t1) d1;
+expect:
+[ {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/t1/a/" ],
+  "column" : "a"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/t1/a/" ],
+  "column" : "a"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/t1/a/" ],
+  "column" : "a"
+}, {
+  "sources" : [ "(1:87~1:91) /catalog1/schema1/t1/a/" ],
+  "column" : "SUM(t1.a)"
+}, {
+  "sources" : [ "(1:93~1:97) /catalog1/schema1/t1/a/" ],
+  "column" : "a"
+} ]
+----------
+[dql_mysql_complex_combinations_0.0050]
+sql:
+SELECT (SELECT i.a FROM t1 i,LATERAL (SELECT o.a AS c00,o.a AS c11 FROM t1) d ORDER BY i.a DESC LIMIT 1) AS c1 FROM t1 o GROUP BY c1;
+expect:
+{
+  "c1" : [ "(1:15~1:18) /catalog1/schema1/t1/a/" ]
+}
+----------
+[dql_mysql_complex_combinations_0.0051]
+sql:
+SELECT * FROM LATERAL (SELECT 1,2) AS d(x,y);
+expect:
+{
+  "x" : [ ],
+  "y" : [ ]
+}
+----------
+[dql_mysql_complex_combinations_0.0052]
+sql:
+SELECT SQL_SMALL_RESULT DISTINCT id2,ANY_VALUE(id) i FROM tb1 GROUP BY i+2 ORDER BY id2,i;
+expect:
+{
+  "id2" : [ "(1:33~1:36) /catalog1/schema1/tb1/id2/" ],
+  "i" : [ "(1:47~1:49) /catalog1/schema1/tb1/id/" ]
+}
+----------
+[dql_mysql_complex_combinations_0.0053]
+sql:
+SELECT SQL_SMALL_RESULT DISTINCT id2,id i FROM tb1 GROUP BY id2+3 HAVING id2<>i ORDER BY id2+2;
+expect:
+{
+  "id2" : [ "(1:33~1:36) /catalog1/schema1/tb1/id2/" ],
+  "i" : [ "(1:37~1:39) /catalog1/schema1/tb1/id/" ]
+}
+----------
+[dql_mysql_complex_combinations_0.0054]
+sql:
+SELECT SQL_SMALL_RESULT DISTINCT ANY_VALUE(id2) i,id FROM tb2 HAVING i>10 ORDER BY i,id;
+expect:
+{
+  "i" : [ "(1:43~1:46) /catalog1/schema1/tb2/id2/" ],
+  "id" : [ "(1:50~1:52) /catalog1/schema1/tb2/id/" ]
+}
+----------
+[dql_mysql_complex_combinations_0.0055]
+sql:
+SELECT SQL_SMALL_RESULT ANY_VALUE(id2),ANY_VALUE(id) i FROM tb1 t1 GROUP BY id2+id HAVING i>10 ORDER BY (SELECT AVG(id) FROM tb1 t2 WHERE i<t2.id);
+expect:
+{
+  "ANY_VALUE(id2)" : [ "(1:34~1:37) /catalog1/schema1/tb1/id2/" ],
+  "i" : [ "(1:49~1:51) /catalog1/schema1/tb1/id/" ]
+}
+----------
+[dql_mysql_complex_combinations_0.0056]
+sql:
+SELECT SQL_SMALL_RESULT DISTINCT v,id2 FROM tb1 t GROUP BY id,id2 HAVING (SELECT t.id2 FROM tb1 t2 WHERE t.id2=t2.id2 LIMIT 1)>50 ORDER BY CONCAT(v,-id2) DESC,id2 DESC;
+expect:
+{
+  "v" : [ "(1:33~1:34) /catalog1/schema1/tb1/v/" ],
+  "id2" : [ "(1:35~1:38) /catalog1/schema1/tb1/id2/" ]
+}
+----------
+[dql_mysql_complex_combinations_0.0057]
+sql:
+SELECT SQL_SMALL_RESULT DISTINCT t1.id2,t1.id2+1 i,(SELECT ABS(50-i)) FROM tb1 t1 JOIN tb1 t2 ON t1.id=t2.id GROUP BY t2.id,t1.id2 ORDER BY (SELECT DISTINCT ABS(50-x.id2) FROM tb1 x WHERE x.id2=t1.id2);
+expect:
+{
+  "id2" : [ "(1:33~1:39) /catalog1/schema1/tb1/id2/" ],
+  "i" : [ "(1:40~1:46) /catalog1/schema1/tb1/id2/" ],
+  "(SELECT ABS(50-i))" : [ ]
+}
+----------
+[dql_mysql_complex_combinations_0.0058]
+sql:
+SELECT SQL_SMALL_RESULT t1.id2,t1.id2+1 i,(SELECT ABS(50-i)) FROM tb1 t1 JOIN tb1 t2 ON t1.id=t2.id GROUP BY t2.id,t1.id2 HAVING EXISTS (SELECT * FROM tb1 h WHERE i=h.id2+1) ORDER BY (SELECT DISTINCT ABS(50-x.id2) FROM tb1 x WHERE x.id2=t1.id2);
+expect:
+{
+  "id2" : [ "(1:24~1:30) /catalog1/schema1/tb1/id2/" ],
+  "i" : [ "(1:31~1:37) /catalog1/schema1/tb1/id2/" ],
+  "(SELECT ABS(50-i))" : [ ]
+}
+----------
+[dql_mysql_complex_combinations_0.0059]
+sql:
+SELECT SQL_SMALL_RESULT DISTINCT AVG(id),JSON_ARRAYAGG(id) FROM tb1 GROUP BY id2,id WITH ROLLUP ORDER BY 1,2;
+expect:
+{
+  "AVG(id)" : [ "(1:37~1:39) /catalog1/schema1/tb1/id/" ],
+  "JSON_ARRAYAGG(id)" : [ "(1:55~1:57) /catalog1/schema1/tb1/id/" ]
+}
+----------
+[dql_mysql_complex_combinations_0.0060]
+sql:
+SELECT MAX(t1.f1),(SELECT COUNT(f1) FROM t1) FROM (t1 JOIN (SELECT * FROM (SELECT DISTINCT * FROM t1) dt) t2 ON 1) WHERE ((SELECT f1 FROM t1) IS NULL);
+expect:
+{
+  "MAX(t1.f1)" : [ "(1:11~1:16) /catalog1/schema1/t1/f1/" ],
+  "(SELECT COUNT(f1) FROM t1)" : [ "(1:32~1:34) /catalog1/schema1/t1/f1/" ]
+}
+----------
+[dql_mysql_complex_combinations_0.0061]
+sql:
+SELECT SQL_SMALL_RESULT DISTINCT SUM(id*2) OVER(PARTITION BY id2),id FROM tb1 GROUP BY id2 ORDER BY -(id-2);
+expect:
+{
+  "SUM(id*2) OVER(PARTITION BY id2)" : [ "(1:37~1:39) /catalog1/schema1/tb1/id/", "(1:61~1:64) /catalog1/schema1/tb1/id2/" ],
+  "id" : [ "(1:66~1:68) /catalog1/schema1/tb1/id/" ]
+}
+----------
+[dql_mysql_complex_combinations_0.0062]
+sql:
+SELECT SQL_SMALL_RESULT DISTINCT id FROM tb1 GROUP BY id2,id INTERSECT SELECT id2 FROM tb1;
+expect:
+{
+  "id" : [ "(1:33~1:35) /catalog1/schema1/tb1/id/", "(1:78~1:81) /catalog1/schema1/tb1/id2/" ]
+}
+----------
+[dql_mysql_complex_combinations_0.0063]
+sql:
+SELECT id2 FROM tb1 INTERSECT SELECT SQL_SMALL_RESULT DISTINCT id FROM tb1 GROUP BY id2,id;
+expect:
+{
+  "id2" : [ "(1:7~1:10) /catalog1/schema1/tb1/id2/", "(1:63~1:65) /catalog1/schema1/tb1/id/" ]
+}
+----------
+[dql_mysql_complex_combinations_0.0064]
+sql:
+WITH cte1 AS (SELECT SUM(x1.b+x2.b) v1,x1.d v2 FROM t1 x1,t1 x2 WHERE x1.c=x2.c GROUP BY x1.d) SELECT 1 FROM t1 y1,t1 y2 WHERE y1.b=y2.b AND y2.c>(SELECT AVG(v1) FROM cte1 WHERE y2.d=v2);
+expect:
+{
+  "1" : [ ]
+}
+----------
+[dql_mysql_complex_combinations_0.0065]
+sql:
+WITH cte1 AS (SELECT SUM(x1.b+x2.b) v1,x1.d v2,MAX(x1.b+x2.b) v3 FROM t1 x1,t1 x2 WHERE x1.c=x2.c GROUP BY x1.d) SELECT 1 FROM t1 y1,t1 y2 WHERE y1.b=y2.b AND y2.c>(SELECT AVG(v1) FROM cte1 d1 WHERE y2.d=v2 AND v1>(SELECT AVG(d2.v2) FROM cte1 d2 WHERE d1.v3=d2.v1));
+expect:
+{
+  "1" : [ ]
+}
+----------
+[dql_mysql_complex_combinations_0.0066]
+sql:
+WITH cte1 AS (SELECT SUM(x1.b+x2.b) v1,x1.d v2,MAX(x1.b+x2.b) v3 FROM t1 x1,t1 x2 WHERE x1.c=x2.c GROUP BY x1.d) SELECT 1 FROM cte1 d1 WHERE v1=2 UNION SELECT 1 FROM cte1 d2 WHERE v2=3;
+expect:
+{
+  "1" : [ ]
+}
+----------
+[dql_mysql_complex_combinations_0.0067]
+sql:
+WITH cte1 AS (SELECT MAX(a) m,b FROM t1 GROUP BY b) SELECT * FROM cte1 x1 NATURAL JOIN cte1 x2 NATURAL JOIN cte1 x3;
+expect:
+{
+  "m" : [ "(1:25~1:26) /catalog1/schema1/t1/a/", "(1:25~1:26) /catalog1/schema1/t1/a/", "(1:25~1:26) /catalog1/schema1/t1/a/" ],
+  "b" : [ "(1:30~1:31) /catalog1/schema1/t1/b/", "(1:30~1:31) /catalog1/schema1/t1/b/", "(1:30~1:31) /catalog1/schema1/t1/b/" ]
+}
+----------
+[dql_mysql_complex_combinations_0.0068]
+sql:
+WITH u AS (SELECT * FROM t1 UNION ALL SELECT * FROM t1) SELECT * FROM u u1 NATURAL JOIN u u2;
+expect:
+{
+  "id" : [ "(1:18~1:19) /catalog1/schema1/t1/id/", "(1:45~1:46) /catalog1/schema1/t1/id/", "(1:18~1:19) /catalog1/schema1/t1/id/", "(1:45~1:46) /catalog1/schema1/t1/id/" ]
+}
+----------
+[dql_mysql_complex_combinations_0.0069]
+sql:
+WITH cte1 AS (SELECT MAX(a) m,b FROM t1 GROUP BY b) SELECT * FROM cte1 x1,cte1 x2,cte1 x3 WHERE x1.m=x2.m AND x2.b=x3.b;
+expect:
+[ {
+  "sources" : [ "(1:25~1:26) /catalog1/schema1/t1/a/" ],
+  "column" : "m"
+}, {
+  "sources" : [ "(1:30~1:31) /catalog1/schema1/t1/b/" ],
+  "column" : "b"
+}, {
+  "sources" : [ "(1:25~1:26) /catalog1/schema1/t1/a/" ],
+  "column" : "m"
+}, {
+  "sources" : [ "(1:30~1:31) /catalog1/schema1/t1/b/" ],
+  "column" : "b"
+}, {
+  "sources" : [ "(1:25~1:26) /catalog1/schema1/t1/a/" ],
+  "column" : "m"
+}, {
+  "sources" : [ "(1:30~1:31) /catalog1/schema1/t1/b/" ],
+  "column" : "b"
+} ]
+----------
+[dql_mysql_complex_combinations_0.0070]
+sql:
+WITH cte1 AS (SELECT STD(a) AS a1 FROM split_complex_t), cte2 AS (SELECT JSON_INSERT('$.KEY3', NULL, NULL) AS a2 FROM split_complex_t) SELECT cte1.a1 FROM cte1, cte2 WHERE cte1.a1 LIKE cte2.a2;
+expect:
+{
+  "a1" : [ "(1:25~1:26) /catalog1/schema1/split_complex_t/a/" ]
+}
+----------
+[dql_mysql_complex_combinations_0.0071]
+sql:
+SELECT (SELECT ti1.a FROM t1 AS ti1,(SELECT to1.a AS c00,to1.a AS c11 FROM t1) AS subq_0 ORDER BY ti1.a DESC LIMIT 1) AS c1 FROM t1 AS to1 GROUP BY c1;
+expect:
+{
+  "exception" : "IllegalArgumentException"
+}
+----------
+[dql_mysql_complex_combinations_0.0072]
+sql:
+SELECT to1.a AS c2,to1.a AS c3,(to1.a,to1.a) IN (SELECT to1.a AS c1,to1.a AS c2 FROM t1 AS ti1,(SELECT to1.a AS c00,to1.a AS c11 FROM t1) AS subq_0) AS c1 FROM t1 AS to1;
+expect:
+{
+  "exception" : "IllegalArgumentException"
+}
+----------
+[dql_mysql_complex_combinations_0.0073]
+sql:
+SELECT g_t3.g_f1,g_t3.g_f2,g_t3.g_f3 FROM (SELECT g_t0.integer1 AS g_f1,g_t0.integer2 AS g_f2,g_t0.varchar1 AS g_f3 FROM t1 AS g_t0) AS g_t3 GROUP BY g_t3.g_f1,g_t3.g_f2,g_t3.g_f3 HAVING (g_t3.g_f3,3)=(SELECT g_t3.g_f1 AS c1,g_t3.g_f1 AS c2 FROM t2 ORDER BY c2 LIMIT 1);
+expect:
+{
+  "g_f1" : [ "(1:50~1:63) /catalog1/schema1/t1/integer1/" ],
+  "g_f2" : [ "(1:72~1:85) /catalog1/schema1/t1/integer2/" ],
+  "g_f3" : [ "(1:94~1:107) /catalog1/schema1/t1/varchar1/" ]
+}
+----------
+[dql_mysql_complex_combinations_0.0074]
+sql:
+SELECT * FROM t AS t0,LATERAL (SELECT * FROM t AS t1 WHERE TRUE IN (SELECT t3.x IS NOT NULL FROM t AS t2 LEFT JOIN t AS t3 ON t2.x+t0.x=t3.x)) AS dt;
+expect:
+[ {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/t/x/" ],
+  "column" : "x"
+}, {
+  "sources" : [ "(1:38~1:39) /catalog1/schema1/t/x/" ],
+  "column" : "x"
+} ]

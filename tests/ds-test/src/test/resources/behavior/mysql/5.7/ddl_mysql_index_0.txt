@@ -1,0 +1,793 @@
+[alter_table_add_constraint__001]
+sql:
+ALTER TABLE codex_constraint_c05 ADD CONSTRAINT UNIQUE INDEX uq_c05 (id);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Index(1:61~1:67) /test/1/catalog1/schema1/uq_c05/",
+      "action" : "CREATE",
+      "target" : "Table(1:12~1:32) /test/1/catalog1/schema1/codex_constraint_c05/"
+    },
+    {
+      "subject": "Constraint(1:33~1:72) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[alter_table_add_index_rename_index_drop_index__002]
+sql:
+ALTER TABLE codex_alter_audit_t ADD INDEX i1(d), RENAME INDEX i1 TO i2, DROP INDEX i2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Index(1:62~1:64) /test/1/catalog1/schema1/i1/",
+      "action" : "RENAME",
+      "target" : "Index(1:68~1:70) /test/1/catalog1/schema1/i2/"
+    },
+    {
+      "subject": "Index(1:42~1:44) /test/1/catalog1/schema1/i1/",
+      "action" : "CREATE",
+      "target" : "Table(1:12~1:31) /test/1/catalog1/schema1/codex_alter_audit_t/"
+    },
+    {
+      "subject": "Index(1:83~1:85) /test/1/catalog1/schema1/i2/",
+      "action" : "DROP",
+      "target" : "Table(1:12~1:31) /test/1/catalog1/schema1/codex_alter_audit_t/"
+    }
+  ]
+}
+----------
+[create_table__003]
+sql:
+CREATE TABLE codex_create_audit_key_ctas (KEY (b)) SELECT 1 AS b;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Index(1:42~1:49) /test/1/catalog1/schema1/",
+      "action" : "CREATE",
+      "target" : "Table(1:13~1:40) /test/1/catalog1/schema1/codex_create_audit_key_ctas/"
+    }
+  ]
+}
+----------
+[alter_table_alter_column_drop_constraint_add_constraint_add_index__004]
+sql:
+ALTER TABLE t2 CHANGE b2 b2 VARCHAR(255) CHARSET latin1, DROP FOREIGN KEY fk, ADD CONSTRAINT fk FOREIGN KEY (b2) REFERENCES t1(b), ADD INDEX idx(a2), ALGORITHM=INPLACE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Index(1:141~1:144) /test/1/catalog1/schema1/idx/",
+      "action" : "CREATE",
+      "target" : "Table(1:12~1:14) /test/1/catalog1/schema1/t2/"
+    },
+    {
+      "subject": "Table(1:12~1:14) /test/1/catalog1/schema1/t2/",
+      "action" : "ALTER",
+      "target" : "Table(1:124~1:126) /test/1/catalog1/schema1/t1/"
+    },
+    {
+      "subject": "Constraint(1:74~1:76) /test/1/catalog1/schema1/fk/",
+      "action" : "DROP"
+    },
+    {
+      "subject": "Constraint(1:93~1:95) /test/1/catalog1/schema1/fk/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[alter_table_add_index_drop_constraint__005]
+sql:
+ALTER TABLE t2 ADD INDEX(fld2), DROP FOREIGN KEY fidx, ALGORITHM=INPLACE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Index(1:15~1:30) /test/1/catalog1/schema1/",
+      "action" : "CREATE",
+      "target" : "Table(1:12~1:14) /test/1/catalog1/schema1/t2/"
+    },
+    {
+      "subject": "Constraint(1:49~1:53) /test/1/catalog1/schema1/fidx/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[create_table__006]
+sql:
+CREATE TABLE codex_constraint_c11 (id INT PRIMARY KEY, parent_id INT, CONSTRAINT FOREIGN KEY fk_idx_c11 (parent_id) REFERENCES codex_constraint_c11(id));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Index(1:93~1:103) /test/1/catalog1/schema1/fk_idx_c11/",
+      "action" : "CREATE",
+      "target" : "Table(1:13~1:33) /test/1/catalog1/schema1/codex_constraint_c11/"
+    },
+    {
+      "subject": "Table(1:13~1:33) /test/1/catalog1/schema1/codex_constraint_c11/",
+      "action" : "CREATE",
+      "target" : "Table(1:127~1:147) /test/1/catalog1/schema1/codex_constraint_c11/"
+    },
+    {
+      "subject": "Constraint(1:42~1:53) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Constraint(1:70~1:151) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[alter_table_add_index_comment_index__007]
+sql:
+ALTER TABLE split_idx.t_alter ADD INDEX idx_add TYPE BTREE (c(16) ASC, id DESC) COMMENT 'alter index', ALGORITHM=INPLACE, LOCK=NONE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Index(1:40~1:47) /test/1/catalog1/schema1/idx_add/",
+      "action" : "CREATE",
+      "target" : "Table(1:12~1:29) /test/1/catalog1/split_idx/t_alter/"
+    }
+  ]
+}
+----------
+[alter_table_add_index__008]
+sql:
+ALTER TABLE split_idx.t_alter ADD UNIQUE KEY idx_unique(email(32), id) USING HASH;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Index(1:45~1:55) /test/1/catalog1/schema1/idx_unique/",
+      "action" : "CREATE",
+      "target" : "Table(1:12~1:29) /test/1/catalog1/split_idx/t_alter/"
+    }
+  ]
+}
+----------
+[alter_table_add_index_comment_index__009]
+sql:
+ALTER TABLE split_idx.t_alter ADD FULLTEXT INDEX idx_ft(content) WITH PARSER ngram COMMENT 'alter fulltext';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Index(1:49~1:55) /test/1/catalog1/schema1/idx_ft/",
+      "action" : "CREATE",
+      "target" : "Table(1:12~1:29) /test/1/catalog1/split_idx/t_alter/"
+    }
+  ]
+}
+----------
+[alter_table_add_index_comment_index__010]
+sql:
+ALTER TABLE split_idx.t_alter ADD SPATIAL INDEX idx_sp(geo) COMMENT 'alter spatial';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Index(1:48~1:54) /test/1/catalog1/schema1/idx_sp/",
+      "action" : "CREATE",
+      "target" : "Table(1:12~1:29) /test/1/catalog1/split_idx/t_alter/"
+    }
+  ]
+}
+----------
+[alter_table_add_constraint_drop_constraint__011]
+sql:
+ALTER TABLE split_idx.t_alter ADD PRIMARY KEY(id), DROP PRIMARY KEY;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:29) /test/1/catalog1/split_idx/t_alter/",
+      "action" : "ALTER"
+    },
+    {
+      "subject": "Constraint(1:30~1:49) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Constraint(1:51~1:67) /test/1/catalog1/schema1/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[alter_table_drop_index__012]
+sql:
+ALTER TABLE split_idx.t_alter DROP INDEX idx_add, DROP KEY idx_unique;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Index(1:41~1:48) /test/1/catalog1/schema1/idx_add/",
+      "action" : "DROP",
+      "target" : "Table(1:12~1:29) /test/1/catalog1/split_idx/t_alter/"
+    },
+    {
+      "subject": "Index(1:59~1:69) /test/1/catalog1/schema1/idx_unique/",
+      "action" : "DROP",
+      "target" : "Table(1:12~1:29) /test/1/catalog1/split_idx/t_alter/"
+    }
+  ]
+}
+----------
+[create_index__013]
+sql:
+CREATE INDEX idx_type TYPE BTREE ON split_idx.t_common (id);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:21) /test/1/catalog1/schema1/idx_type/",
+      "action" : "CREATE",
+      "target" : "Table(1:36~1:54) /test/1/catalog1/split_idx/t_common/"
+    }
+  ]
+}
+----------
+[create_index_comment_index__014]
+sql:
+CREATE INDEX idx_common USING BTREE ON split_idx.t_common (name(16) ASC, id DESC) KEY_BLOCK_SIZE=8 COMMENT 'common index' ALGORITHM=DEFAULT LOCK=DEFAULT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:23) /test/1/catalog1/schema1/idx_common/",
+      "action" : "CREATE",
+      "target" : "Table(1:39~1:57) /test/1/catalog1/split_idx/t_common/"
+    }
+  ]
+}
+----------
+[create_index__015]
+sql:
+CREATE UNIQUE INDEX idx_unique ON split_idx.t_common (email(32), id) USING HASH ALGORITHM=INPLACE LOCK=NONE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:20~1:30) /test/1/catalog1/schema1/idx_unique/",
+      "action" : "CREATE",
+      "target" : "Table(1:34~1:52) /test/1/catalog1/split_idx/t_common/"
+    }
+  ]
+}
+----------
+[create_index__016]
+sql:
+CREATE INDEX idx_rtree USING RTREE ON split_idx.t_common (geo);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:22) /test/1/catalog1/schema1/idx_rtree/",
+      "action" : "CREATE",
+      "target" : "Table(1:38~1:56) /test/1/catalog1/split_idx/t_common/"
+    }
+  ]
+}
+----------
+[create_index_comment_index__017]
+sql:
+CREATE FULLTEXT INDEX idx_fulltext ON split_idx.t_common (content) WITH PARSER ngram COMMENT 'fulltext parser' ALGORITHM=COPY LOCK=SHARED;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:22~1:34) /test/1/catalog1/schema1/idx_fulltext/",
+      "action" : "CREATE",
+      "target" : "Table(1:38~1:56) /test/1/catalog1/split_idx/t_common/"
+    }
+  ]
+}
+----------
+[create_index_comment_index__018]
+sql:
+CREATE SPATIAL INDEX idx_spatial ON split_idx.t_common (geo) COMMENT 'spatial index' ALGORITHM=DEFAULT LOCK=EXCLUSIVE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:21~1:32) /test/1/catalog1/schema1/idx_spatial/",
+      "action" : "CREATE",
+      "target" : "Table(1:36~1:54) /test/1/catalog1/split_idx/t_common/"
+    }
+  ]
+}
+----------
+[drop_index__019]
+sql:
+DROP INDEX idx_type ON split_idx.t_common LOCK DEFAULT ALGORITHM DEFAULT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_INDEX": [
+    {
+      "subject": "Index(1:11~1:19) /test/1/catalog1/schema1/idx_type/",
+      "action" : "DROP",
+      "target" : "Table(1:23~1:41) /test/1/catalog1/split_idx/t_common/"
+    }
+  ]
+}
+----------
+[drop_index__020]
+sql:
+DROP INDEX idx_common ON split_idx.t_common ALGORITHM=INPLACE LOCK=NONE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_INDEX": [
+    {
+      "subject": "Index(1:11~1:21) /test/1/catalog1/schema1/idx_common/",
+      "action" : "DROP",
+      "target" : "Table(1:25~1:43) /test/1/catalog1/split_idx/t_common/"
+    }
+  ]
+}
+----------
+[drop_index__021]
+sql:
+DROP INDEX idx_unique ON split_idx.t_common ALGORITHM=COPY LOCK=SHARED;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_INDEX": [
+    {
+      "subject": "Index(1:11~1:21) /test/1/catalog1/schema1/idx_unique/",
+      "action" : "DROP",
+      "target" : "Table(1:25~1:43) /test/1/catalog1/split_idx/t_common/"
+    }
+  ]
+}
+----------
+[drop_index__022]
+sql:
+DROP INDEX `PRIMARY` ON split_index.parent_t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_INDEX": [
+    {
+      "subject": "Index(1:11~1:20) /test/1/catalog1/schema1/PRIMARY/",
+      "action" : "DROP",
+      "target" : "Table(1:24~1:44) /test/1/catalog1/split_index/parent_t/"
+    }
+  ]
+}
+----------
+[alter_table_rename_index__023]
+sql:
+ALTER TABLE split_idx.t_rename RENAME INDEX idx_old TO idx_new;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Index(1:44~1:51) /test/1/catalog1/schema1/idx_old/",
+      "action" : "RENAME",
+      "target" : "Index(1:55~1:62) /test/1/catalog1/schema1/idx_new/"
+    },
+    {
+      "subject": "Table(1:12~1:30) /test/1/catalog1/split_idx/t_rename/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_rename_index__024]
+sql:
+ALTER TABLE split_idx.t_rename RENAME KEY idx_new TO idx_old;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Index(1:42~1:49) /test/1/catalog1/schema1/idx_new/",
+      "action" : "RENAME",
+      "target" : "Index(1:53~1:60) /test/1/catalog1/schema1/idx_old/"
+    },
+    {
+      "subject": "Table(1:12~1:30) /test/1/catalog1/split_idx/t_rename/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[create_view_select___025]
+sql:
+CREATE VIEW split_opt_hints_index.v1 AS SELECT /*+ NO_INDEX(t1 i_a,i_b) */ a FROM split_opt_hints_index.t1 AS t1 WHERE b IN (SELECT /*+ NO_INDEX(t2 i_ab,i_b) */ a FROM split_opt_hints_index.t1 AS t2 WHERE a>3) ORDER BY a;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:36) /test/1/catalog1/split_opt_hints_index/v1/",
+      "action" : "CREATE",
+      "target" : "Table(1:82~1:106) /test/1/catalog1/split_opt_hints_index/t1/"
+    }
+  ]
+}
+----------
+[create_view_select___026]
+sql:
+CREATE VIEW split_opt_hints_index.v2 AS SELECT /*+ INDEX_MERGE(t1) */ a FROM split_opt_hints_index.t1 AS t1 WHERE a=1 AND b=2 AND c=3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:36) /test/1/catalog1/split_opt_hints_index/v2/",
+      "action" : "CREATE",
+      "target" : "Table(1:77~1:101) /test/1/catalog1/split_opt_hints_index/t1/"
+    }
+  ]
+}
+----------
+[create_table__027]
+sql:
+CREATE TABLE temporal_indexed(dt DATETIME(6) NOT NULL,ts TIMESTAMP(6) NOT NULL,payload VARCHAR(20),PRIMARY KEY(dt),UNIQUE KEY uk_ts(ts),KEY idx_ts_dt(ts,dt));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Index(1:126~1:131) /test/1/catalog1/schema1/uk_ts/",
+      "action" : "CREATE",
+      "target" : "Table(1:13~1:29) /test/1/catalog1/schema1/temporal_indexed/"
+    },
+    {
+      "subject": "Index(1:140~1:149) /test/1/catalog1/schema1/idx_ts_dt/",
+      "action" : "CREATE",
+      "target" : "Table(1:13~1:29) /test/1/catalog1/schema1/temporal_indexed/"
+    },
+    {
+      "subject": "Constraint(1:99~1:114) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Constraint(1:115~1:135) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__028]
+sql:
+CREATE TABLE str_index (
+  c CHAR(20),
+  v VARCHAR(300),
+  b BINARY(20),
+  vb VARBINARY(300),
+  KEY idx_c(c),
+  KEY idx_v(v(12)),
+  KEY idx_b(b),
+  KEY idx_vb(vb(12))
+) CHARACTER SET latin1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Index(6:6~6:11) /test/1/catalog1/schema1/idx_c/",
+      "action" : "CREATE",
+      "target" : "Table(1:13~1:22) /test/1/catalog1/schema1/str_index/"
+    },
+    {
+      "subject": "Index(7:6~7:11) /test/1/catalog1/schema1/idx_v/",
+      "action" : "CREATE",
+      "target" : "Table(1:13~1:22) /test/1/catalog1/schema1/str_index/"
+    },
+    {
+      "subject": "Index(8:6~8:11) /test/1/catalog1/schema1/idx_b/",
+      "action" : "CREATE",
+      "target" : "Table(1:13~1:22) /test/1/catalog1/schema1/str_index/"
+    },
+    {
+      "subject": "Index(9:6~9:12) /test/1/catalog1/schema1/idx_vb/",
+      "action" : "CREATE",
+      "target" : "Table(1:13~1:22) /test/1/catalog1/schema1/str_index/"
+    }
+  ]
+}
+----------
+[alter_table_drop_index_add_index__029]
+sql:
+ALTER TABLE str_index DROP KEY idx_v, ADD UNIQUE KEY uk_v(v(16));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Index(1:31~1:36) /test/1/catalog1/schema1/idx_v/",
+      "action" : "DROP",
+      "target" : "Table(1:12~1:21) /test/1/catalog1/schema1/str_index/"
+    },
+    {
+      "subject": "Index(1:53~1:57) /test/1/catalog1/schema1/uk_v/",
+      "action" : "CREATE",
+      "target" : "Table(1:12~1:21) /test/1/catalog1/schema1/str_index/"
+    }
+  ]
+}
+----------
+[create_table__030]
+sql:
+CREATE TABLE lob_indexes (
+  tb TINYBLOB,
+  b BLOB,
+  mb MEDIUMBLOB,
+  lb LONGBLOB,
+  tt TINYTEXT,
+  t TEXT,
+  mt MEDIUMTEXT,
+  lt LONGTEXT,
+  KEY idx_tb(tb(8)),
+  KEY idx_b(b(16)),
+  KEY idx_mb(mb(24)),
+  KEY idx_lb(lb(32)),
+  KEY idx_tt(tt(8)),
+  KEY idx_t(t(16)),
+  KEY idx_mt(mt(24)),
+  KEY idx_lt(lt(32))
+) CHARACTER SET latin1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Index(10:6~10:12) /test/1/catalog1/schema1/idx_tb/",
+      "action" : "CREATE",
+      "target" : "Table(1:13~1:24) /test/1/catalog1/schema1/lob_indexes/"
+    },
+    {
+      "subject": "Index(11:6~11:11) /test/1/catalog1/schema1/idx_b/",
+      "action" : "CREATE",
+      "target" : "Table(1:13~1:24) /test/1/catalog1/schema1/lob_indexes/"
+    },
+    {
+      "subject": "Index(12:6~12:12) /test/1/catalog1/schema1/idx_mb/",
+      "action" : "CREATE",
+      "target" : "Table(1:13~1:24) /test/1/catalog1/schema1/lob_indexes/"
+    },
+    {
+      "subject": "Index(13:6~13:12) /test/1/catalog1/schema1/idx_lb/",
+      "action" : "CREATE",
+      "target" : "Table(1:13~1:24) /test/1/catalog1/schema1/lob_indexes/"
+    },
+    {
+      "subject": "Index(14:6~14:12) /test/1/catalog1/schema1/idx_tt/",
+      "action" : "CREATE",
+      "target" : "Table(1:13~1:24) /test/1/catalog1/schema1/lob_indexes/"
+    },
+    {
+      "subject": "Index(15:6~15:11) /test/1/catalog1/schema1/idx_t/",
+      "action" : "CREATE",
+      "target" : "Table(1:13~1:24) /test/1/catalog1/schema1/lob_indexes/"
+    },
+    {
+      "subject": "Index(16:6~16:12) /test/1/catalog1/schema1/idx_mt/",
+      "action" : "CREATE",
+      "target" : "Table(1:13~1:24) /test/1/catalog1/schema1/lob_indexes/"
+    },
+    {
+      "subject": "Index(17:6~17:12) /test/1/catalog1/schema1/idx_lt/",
+      "action" : "CREATE",
+      "target" : "Table(1:13~1:24) /test/1/catalog1/schema1/lob_indexes/"
+    }
+  ]
+}
+----------
+[alter_table_drop_index_add_index__031]
+sql:
+ALTER TABLE lob_indexes DROP KEY idx_b, ADD UNIQUE KEY uk_b(b(16)), ADD UNIQUE KEY uk_t(t(16));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Index(1:33~1:38) /test/1/catalog1/schema1/idx_b/",
+      "action" : "DROP",
+      "target" : "Table(1:12~1:23) /test/1/catalog1/schema1/lob_indexes/"
+    },
+    {
+      "subject": "Index(1:55~1:59) /test/1/catalog1/schema1/uk_b/",
+      "action" : "CREATE",
+      "target" : "Table(1:12~1:23) /test/1/catalog1/schema1/lob_indexes/"
+    },
+    {
+      "subject": "Index(1:83~1:87) /test/1/catalog1/schema1/uk_t/",
+      "action" : "CREATE",
+      "target" : "Table(1:12~1:23) /test/1/catalog1/schema1/lob_indexes/"
+    }
+  ]
+}
+----------
+[create_index__032]
+sql:
+CREATE UNIQUE INDEX uq_es_enum ON split_type_enum_set.es_core(e_case);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:20~1:30) /test/1/catalog1/schema1/uq_es_enum/",
+      "action" : "CREATE",
+      "target" : "Table(1:34~1:61) /test/1/catalog1/split_type_enum_set/es_core/"
+    }
+  ]
+}
+----------
+[create_index__033]
+sql:
+CREATE INDEX idx_es_set ON split_type_enum_set.es_core(s_case);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:23) /test/1/catalog1/schema1/idx_es_set/",
+      "action" : "CREATE",
+      "target" : "Table(1:27~1:54) /test/1/catalog1/split_type_enum_set/es_core/"
+    }
+  ]
+}
+----------
+[create_index__034]
+sql:
+CREATE INDEX idx_integer_mixed
+ON integer_lifecycle (tiny_unsigned,small_unsigned,medium_unsigned,int_unsigned,big_unsigned);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:30) /test/1/catalog1/schema1/idx_integer_mixed/",
+      "action" : "CREATE",
+      "target" : "Table(2:3~2:20) /test/1/catalog1/schema1/integer_lifecycle/"
+    }
+  ]
+}
+----------
+[create_index__035]
+sql:
+CREATE INDEX idx_numeric_mixed
+ON numeric_lifecycle (decimal_value,numeric_value,float_value,double_value);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:30) /test/1/catalog1/schema1/idx_numeric_mixed/",
+      "action" : "CREATE",
+      "target" : "Table(2:3~2:20) /test/1/catalog1/schema1/numeric_lifecycle/"
+    }
+  ]
+}
+----------
+[create_index_comment_index__036]
+sql:
+CREATE SPATIAL INDEX gap_sx ON gap_geo(g DESC) KEY_BLOCK_SIZE=4 COMMENT 'spatial';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:21~1:27) /test/1/catalog1/schema1/gap_sx/",
+      "action" : "CREATE",
+      "target" : "Table(1:31~1:38) /test/1/catalog1/schema1/gap_geo/"
+    }
+  ]
+}
+----------
+[create_table__037]
+sql:
+CREATE TABLE ft_inline(body TEXT,FULLTEXT KEY ft_body(body) WITH PARSER ngram) ENGINE=InnoDB;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Index(1:46~1:53) /test/1/catalog1/schema1/ft_body/",
+      "action" : "CREATE",
+      "target" : "Table(1:13~1:22) /test/1/catalog1/schema1/ft_inline/"
+    }
+  ]
+}
+----------
+[create_table__038]
+sql:
+CREATE TABLE idx_inline_block(a INT,KEY k_a(a) KEY_BLOCK_SIZE=8) ENGINE=MyISAM;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Index(1:40~1:43) /test/1/catalog1/schema1/k_a/",
+      "action" : "CREATE",
+      "target" : "Table(1:13~1:29) /test/1/catalog1/schema1/idx_inline_block/"
+    }
+  ]
+}
+----------
+[create_table__039]
+sql:
+CREATE TABLE idx_inline_type(a INT,KEY k_a TYPE BTREE(a));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Index(1:39~1:42) /test/1/catalog1/schema1/k_a/",
+      "action" : "CREATE",
+      "target" : "Table(1:13~1:28) /test/1/catalog1/schema1/idx_inline_type/"
+    }
+  ]
+}

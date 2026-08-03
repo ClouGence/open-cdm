@@ -1,0 +1,178 @@
+[split_ddl_dameng_context_attributes_0_002]
+sql:
+create or replace package body context_attr_pkg as
+  procedure set_value(namespace_name varchar, attribute_name varchar, attribute_value varchar) as
+  begin
+    dbms_session.set_context(namespace_name, attribute_name, attribute_value);
+  end;
+  procedure set_value_as(namespace_name varchar, attribute_name varchar, attribute_value varchar,
+    username varchar, client_id varchar) as
+  begin
+    dbms_session.set_context(namespace_name, attribute_name, attribute_value, username, client_id);
+  end;
+  procedure clear_value(namespace_name varchar, client_id varchar, attribute_name varchar) as
+  begin
+    dbms_session.clear_context(namespace_name, client_id, attribute_name);
+  end;
+  procedure clear_all(namespace_name varchar) as
+  begin
+    dbms_session.clear_all_context(namespace_name);
+  end;
+end context_attr_pkg;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Package(1:31~1:47) /test/1/catalog1/schema1/context_attr_pkg/",
+      "action": "REPLACE"
+    },
+    {
+      "subject": "Procedure(4:4~4:28) /test/1/catalog1/dbms_session/set_context/",
+      "action": "CALL",
+      "target": "ConfigKey(4:29~4:43) /test/1/"
+    },
+    {
+      "subject": "Procedure(9:4~9:28) /test/1/catalog1/dbms_session/set_context/",
+      "action": "CALL",
+      "target": "ConfigKey(9:29~9:43) /test/1/"
+    },
+    {
+      "subject": "Procedure(13:4~13:30) /test/1/catalog1/dbms_session/clear_context/",
+      "action": "CALL",
+      "target": "ConfigKey(13:31~13:45) /test/1/"
+    },
+    {
+      "subject": "Procedure(17:4~17:34) /test/1/catalog1/dbms_session/clear_all_context/",
+      "action": "CALL",
+      "target": "ConfigKey(17:35~17:49) /test/1/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_004]
+sql:
+create or replace package body context_attr_replacement_pkg as
+  procedure set_value(namespace_name varchar, attribute_name varchar, attribute_value varchar) as
+  begin
+    dbms_session.set_context(namespace_name, attribute_name, attribute_value);
+  end;
+end context_attr_replacement_pkg;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Package(1:31~1:59) /test/1/catalog1/schema1/context_attr_replacement_pkg/",
+      "action": "REPLACE"
+    },
+    {
+      "subject": "Procedure(4:4~4:28) /test/1/catalog1/dbms_session/set_context/",
+      "action": "CALL",
+      "target": "ConfigKey(4:29~4:43) /test/1/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_064]
+sql:
+select dbms_session.is_session_alive(dbms_session.unique_session_id);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:36) /test/1/catalog1/dbms_session/is_session_alive/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:37~1:67) /test/1/catalog1/dbms_session/unique_session_id/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_065]
+sql:
+declare
+  context_list dbms_session.appctxtabtyp;
+  context_count number;
+begin
+  dbms_session.list_context(context_list, context_count);
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:15~2:40) /test/1/catalog1/dbms_session/appctxtabtyp/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(5:2~5:27) /test/1/catalog1/dbms_session/list_context/",
+      "action": "CALL",
+      "target": "Environment(5:2~5:27) /test/1/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_066]
+sql:
+call dbms_session.set_identifier('CODEX_CONTEXT_CLIENT_20260722');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:5~1:32) /test/1/catalog1/dbms_session/set_identifier/",
+      "action": "CALL",
+      "target": "ConfigKey(1:5~1:32) /test/1/CLIENT_IDENTIFIER/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_068]
+sql:
+call dbms_session.set_identifier(null);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:5~1:32) /test/1/catalog1/dbms_session/set_identifier/",
+      "action": "CALL",
+      "target": "ConfigKey(1:5~1:32) /test/1/CLIENT_IDENTIFIER/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_082]
+sql:
+create or replace package body context_session_pkg as
+  procedure set_value(namespace_name varchar, attribute_name varchar, attribute_value varchar) as
+  begin
+    dbms_session.set_context(namespace_name, attribute_name, attribute_value);
+  end;
+end context_session_pkg;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Package(1:31~1:50) /test/1/catalog1/schema1/context_session_pkg/",
+      "action": "REPLACE"
+    },
+    {
+      "subject": "Procedure(4:4~4:28) /test/1/catalog1/dbms_session/set_context/",
+      "action": "CALL",
+      "target": "ConfigKey(4:29~4:43) /test/1/"
+    }
+  ]
+}

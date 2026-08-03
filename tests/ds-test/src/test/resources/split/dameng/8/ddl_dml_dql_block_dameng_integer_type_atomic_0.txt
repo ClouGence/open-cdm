@@ -1,0 +1,268 @@
+create table app.int_type_t(
+  id int primary key,
+  c_tiny tinyint default 0 not null check(c_tiny between -128 and 127),
+  c_byte byte default 0,
+  c_small smallint default 0,
+  c_integer integer default 0,
+  c_int int default 0,
+  c_big bigint default 0,
+  c_null bigint null,
+  constraint uk_int_types unique(c_tiny,c_byte,c_small,c_integer,c_int,c_big)
+);
+create index app.idx_int_types on app.int_type_t(c_big,c_integer,c_small,c_tiny);
+insert into app.int_type_t values
+  (1,-128,-128,-32768,-2147483648,-2147483648,-9223372036854775808,null);
+insert into app.int_type_t values
+  (2,127,127,32767,2147483647,2147483647,9223372036854775807,null);
+insert into app.int_type_t(id) values(3);
+insert into app.int_type_t values(4,'1','2','3','4','5','6',null);
+update app.int_type_t set c_tiny=c_tiny+1,c_byte=c_byte+1,
+  c_small=c_small+1,c_integer=c_integer+1,c_int=c_int+1,c_big=c_big+1 where id=4;
+select id,c_tiny,c_byte,c_small,c_integer,c_int,c_big,c_null
+  from app.int_type_t order by id;
+select min(c_tiny),max(c_byte),sum(c_small),avg(c_integer),count(c_int),
+  abs(min(c_big)+1) from app.int_type_t;
+select cast(c_tiny as varchar(10)),cast(c_byte as int),
+  cast(c_small as bigint),cast(c_integer as decimal(38,0)),cast(c_int as double),
+  cast(c_big as varchar(30)) from app.int_type_t where id=4;
+select id from app.int_type_t index idx_int_types
+  where c_big>=0 and c_integer>=0 order by c_big;
+create view app.int_type_v as
+  select id,c_tiny,c_byte,c_small,c_integer,c_int,c_big
+  from app.int_type_t where c_big>=0;
+select c_tiny+c_byte as tiny_byte_sum,c_small*c_int as small_int_product,
+  mod(c_big,2) as big_parity from app.int_type_v where id in(3,4) order by id;
+update app.int_type_v set c_big=c_big+1 where id=4;
+create function app.int_tiny_f(p_value tinyint) return tinyint as
+begin
+  return p_value;
+end;
+/
+create function app.int_byte_f(p_value byte) return byte as
+begin
+  return p_value;
+end;
+/
+create function app.int_small_f(p_value smallint) return smallint as
+begin
+  return p_value;
+end;
+/
+create function app.int_integer_f(p_value integer) return integer as
+begin
+  return p_value;
+end;
+/
+create function app.int_int_f(p_value int) return int as
+begin
+  return p_value;
+end;
+/
+create function app.int_big_f(p_value bigint) return bigint as
+begin
+  return p_value;
+end;
+/
+select app.int_tiny_f(-128),app.int_byte_f(127),
+  app.int_small_f(-32768),app.int_integer_f(2147483647),
+  app.int_int_f(-2147483648),app.int_big_f(9223372036854775807) from dual;
+create table app.int_p_tiny(id tinyint,v int)
+  partition by range(id)(partition p0 values less than(0),
+  partition p1 values less than(maxvalue));
+insert into app.int_p_tiny values(-128,1),(127,2);
+select count(*) from app.int_p_tiny partition for(127);
+create table app.int_p_byte(id byte,v int)
+  partition by range(id)(partition p0 values less than(0),
+  partition p1 values less than(maxvalue));
+insert into app.int_p_byte values(-128,1),(127,2);
+select count(*) from app.int_p_byte partition for(127);
+create table app.int_p_small(id smallint,v int)
+  partition by range(id)(partition p0 values less than(0),
+  partition p1 values less than(maxvalue));
+insert into app.int_p_small values(-32768,1),(32767,2);
+select count(*) from app.int_p_small partition for(32767);
+create table app.int_p_integer(id integer,v int)
+  partition by range(id)(partition p0 values less than(0),
+  partition p1 values less than(maxvalue));
+insert into app.int_p_integer values(-2147483648,1),(2147483647,2);
+select count(*) from app.int_p_integer partition for(2147483647);
+create table app.int_p_int(id int,v int)
+  partition by range(id)(partition p0 values less than(0),
+  partition p1 values less than(maxvalue));
+insert into app.int_p_int values(-2147483648,1),(2147483647,2);
+select count(*) from app.int_p_int partition for(2147483647);
+create table app.int_p_big(id bigint,v int)
+  partition by range(id)(partition p0 values less than(0),
+  partition p1 values less than(maxvalue));
+insert into app.int_p_big values(-9223372036854775808,1),(9223372036854775807,2);
+select count(*) from app.int_p_big partition for(9223372036854775807);
+insert into app.int_type_t(id,c_tiny) values(101,-129);
+insert into app.int_type_t(id,c_tiny) values(102,128);
+insert into app.int_type_t(id,c_byte) values(101,-129);
+insert into app.int_type_t(id,c_byte) values(102,128);
+insert into app.int_type_t(id,c_small) values(101,-32769);
+insert into app.int_type_t(id,c_small) values(102,32768);
+insert into app.int_type_t(id,c_integer) values(101,-2147483649);
+insert into app.int_type_t(id,c_integer) values(102,2147483648);
+insert into app.int_type_t(id,c_int) values(101,-2147483649);
+insert into app.int_type_t(id,c_int) values(102,2147483648);
+insert into app.int_type_t(id,c_big) values(101,-9223372036854775809);
+insert into app.int_type_t(id,c_big) values(102,9223372036854775808);
+insert into app.int_type_t(id,c_tiny) values(113,null);
+------------------------------------------------------------------------------------------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table app.int_type_t(
+  id int primary key,
+  c_tiny tinyint default 0 not null check(c_tiny between -128 and 127),
+  c_byte byte default 0,
+  c_small smallint default 0,
+  c_integer integer default 0,
+  c_int int default 0,
+  c_big bigint default 0,
+  c_null bigint null,
+  constraint uk_int_types unique(c_tiny,c_byte,c_small,c_integer,c_int,c_big)
+);
+----------
+[ADD_INDEX] create index app.idx_int_types on app.int_type_t(c_big,c_integer,c_small,c_tiny);
+----------
+[INSERT] insert into app.int_type_t values
+  (1,-128,-128,-32768,-2147483648,-2147483648,-9223372036854775808,null);
+----------
+[INSERT] insert into app.int_type_t values
+  (2,127,127,32767,2147483647,2147483647,9223372036854775807,null);
+----------
+[INSERT] insert into app.int_type_t(id) values(3);
+----------
+[INSERT] insert into app.int_type_t values(4,'1','2','3','4','5','6',null);
+----------
+[UPDATE] update app.int_type_t set c_tiny=c_tiny+1,c_byte=c_byte+1,
+  c_small=c_small+1,c_integer=c_integer+1,c_int=c_int+1,c_big=c_big+1 where id=4;
+----------
+[SELECT] select id,c_tiny,c_byte,c_small,c_integer,c_int,c_big,c_null
+  from app.int_type_t order by id;
+----------
+[SELECT] select min(c_tiny),max(c_byte),sum(c_small),avg(c_integer),count(c_int),
+  abs(min(c_big)+1) from app.int_type_t;
+----------
+[SELECT] select cast(c_tiny as varchar(10)),cast(c_byte as int),
+  cast(c_small as bigint),cast(c_integer as decimal(38,0)),cast(c_int as double),
+  cast(c_big as varchar(30)) from app.int_type_t where id=4;
+----------
+[SELECT] select id from app.int_type_t index idx_int_types
+  where c_big>=0 and c_integer>=0 order by c_big;
+----------
+[CREATE_VIEW(SELECT)] create view app.int_type_v as
+  select id,c_tiny,c_byte,c_small,c_integer,c_int,c_big
+  from app.int_type_t where c_big>=0;
+----------
+[SELECT] select c_tiny+c_byte as tiny_byte_sum,c_small*c_int as small_int_product,
+  mod(c_big,2) as big_parity from app.int_type_v where id in(3,4) order by id;
+----------
+[UPDATE] update app.int_type_v set c_big=c_big+1 where id=4;
+----------
+[CREATE_PROG_OBJ(BLOCK,PROGRAM_CONTROL)] create function app.int_tiny_f(p_value tinyint) return tinyint as
+begin
+  return p_value;
+end;
+----------
+[CREATE_PROG_OBJ(BLOCK,PROGRAM_CONTROL)] create function app.int_byte_f(p_value byte) return byte as
+begin
+  return p_value;
+end;
+----------
+[CREATE_PROG_OBJ(BLOCK,PROGRAM_CONTROL)] create function app.int_small_f(p_value smallint) return smallint as
+begin
+  return p_value;
+end;
+----------
+[CREATE_PROG_OBJ(BLOCK,PROGRAM_CONTROL)] create function app.int_integer_f(p_value integer) return integer as
+begin
+  return p_value;
+end;
+----------
+[CREATE_PROG_OBJ(BLOCK,PROGRAM_CONTROL)] create function app.int_int_f(p_value int) return int as
+begin
+  return p_value;
+end;
+----------
+[CREATE_PROG_OBJ(BLOCK,PROGRAM_CONTROL)] create function app.int_big_f(p_value bigint) return bigint as
+begin
+  return p_value;
+end;
+----------
+[SELECT|CALL_PROG_OBJ] select app.int_tiny_f(-128),app.int_byte_f(127),
+  app.int_small_f(-32768),app.int_integer_f(2147483647),
+  app.int_int_f(-2147483648),app.int_big_f(9223372036854775807) from dual;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.int_p_tiny(id tinyint,v int)
+  partition by range(id)(partition p0 values less than(0),
+  partition p1 values less than(maxvalue));
+----------
+[INSERT] insert into app.int_p_tiny values(-128,1),(127,2);
+----------
+[SELECT] select count(*) from app.int_p_tiny partition for(127);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.int_p_byte(id byte,v int)
+  partition by range(id)(partition p0 values less than(0),
+  partition p1 values less than(maxvalue));
+----------
+[INSERT] insert into app.int_p_byte values(-128,1),(127,2);
+----------
+[SELECT] select count(*) from app.int_p_byte partition for(127);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.int_p_small(id smallint,v int)
+  partition by range(id)(partition p0 values less than(0),
+  partition p1 values less than(maxvalue));
+----------
+[INSERT] insert into app.int_p_small values(-32768,1),(32767,2);
+----------
+[SELECT] select count(*) from app.int_p_small partition for(32767);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.int_p_integer(id integer,v int)
+  partition by range(id)(partition p0 values less than(0),
+  partition p1 values less than(maxvalue));
+----------
+[INSERT] insert into app.int_p_integer values(-2147483648,1),(2147483647,2);
+----------
+[SELECT] select count(*) from app.int_p_integer partition for(2147483647);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.int_p_int(id int,v int)
+  partition by range(id)(partition p0 values less than(0),
+  partition p1 values less than(maxvalue));
+----------
+[INSERT] insert into app.int_p_int values(-2147483648,1),(2147483647,2);
+----------
+[SELECT] select count(*) from app.int_p_int partition for(2147483647);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.int_p_big(id bigint,v int)
+  partition by range(id)(partition p0 values less than(0),
+  partition p1 values less than(maxvalue));
+----------
+[INSERT] insert into app.int_p_big values(-9223372036854775808,1),(9223372036854775807,2);
+----------
+[SELECT] select count(*) from app.int_p_big partition for(9223372036854775807);
+----------
+[INSERT] insert into app.int_type_t(id,c_tiny) values(101,-129);
+----------
+[INSERT] insert into app.int_type_t(id,c_tiny) values(102,128);
+----------
+[INSERT] insert into app.int_type_t(id,c_byte) values(101,-129);
+----------
+[INSERT] insert into app.int_type_t(id,c_byte) values(102,128);
+----------
+[INSERT] insert into app.int_type_t(id,c_small) values(101,-32769);
+----------
+[INSERT] insert into app.int_type_t(id,c_small) values(102,32768);
+----------
+[INSERT] insert into app.int_type_t(id,c_integer) values(101,-2147483649);
+----------
+[INSERT] insert into app.int_type_t(id,c_integer) values(102,2147483648);
+----------
+[INSERT] insert into app.int_type_t(id,c_int) values(101,-2147483649);
+----------
+[INSERT] insert into app.int_type_t(id,c_int) values(102,2147483648);
+----------
+[INSERT] insert into app.int_type_t(id,c_big) values(101,-9223372036854775809);
+----------
+[INSERT] insert into app.int_type_t(id,c_big) values(102,9223372036854775808);
+----------
+[INSERT] insert into app.int_type_t(id,c_tiny) values(113,null);

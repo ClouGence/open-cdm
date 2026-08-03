@@ -1,0 +1,40 @@
+[dql_mysql_datetime_0.0001]
+sql:
+SELECT d.id,d.dt6,a.modified_at FROM datetime_widths AS d JOIN temporal_auto AS a ON d.dt6=a.created_at OR d.ts6=a.modified_at;
+expect:
+{
+  "id" : [ "(1:7~1:11) /catalog1/schema1/datetime_widths/id/" ],
+  "dt6" : [ "(1:12~1:17) /catalog1/schema1/datetime_widths/dt6/" ],
+  "modified_at" : [ "(1:18~1:31) /catalog1/schema1/temporal_auto/modified_at/" ]
+}
+----------
+[dql_mysql_datetime_0.0002]
+sql:
+SELECT id,dt6,ts6 FROM datetime_widths WHERE(dt6,ts6) IN(SELECT created_at,modified_at FROM temporal_auto WHERE explicit_at IS NOT NULL);
+expect:
+{
+  "id" : [ "(1:7~1:9) /catalog1/schema1/datetime_widths/id/" ],
+  "dt6" : [ "(1:10~1:13) /catalog1/schema1/datetime_widths/dt6/" ],
+  "ts6" : [ "(1:14~1:17) /catalog1/schema1/datetime_widths/ts6/" ]
+}
+----------
+[dql_mysql_datetime_0.0003]
+sql:
+SELECT CASE WHEN id=1 THEN dt1 ELSE ts1 END AS temporal_case,IF(id>0,dt3,ts3) AS temporal_if,COALESCE(dt6,ts6,CURRENT_TIMESTAMP(6)) AS temporal_coalesce,NULLIF(dt5,ts5) AS temporal_nullif,LEAST(dt4,ts4) AS temporal_least,GREATEST(dt2,ts2) AS temporal_greatest FROM datetime_widths;
+expect:
+{
+  "temporal_case" : [ "(1:17~1:19) /catalog1/schema1/datetime_widths/id/", "(1:27~1:30) /catalog1/schema1/datetime_widths/dt1/", "(1:36~1:39) /catalog1/schema1/datetime_widths/ts1/" ],
+  "temporal_if" : [ "(1:64~1:66) /catalog1/schema1/datetime_widths/id/", "(1:69~1:72) /catalog1/schema1/datetime_widths/dt3/", "(1:73~1:76) /catalog1/schema1/datetime_widths/ts3/" ],
+  "temporal_coalesce" : [ "(1:102~1:105) /catalog1/schema1/datetime_widths/dt6/", "(1:106~1:109) /catalog1/schema1/datetime_widths/ts6/" ],
+  "temporal_nullif" : [ "(1:160~1:163) /catalog1/schema1/datetime_widths/dt5/", "(1:164~1:167) /catalog1/schema1/datetime_widths/ts5/" ],
+  "temporal_least" : [ "(1:194~1:197) /catalog1/schema1/datetime_widths/dt4/", "(1:198~1:201) /catalog1/schema1/datetime_widths/ts4/" ],
+  "temporal_greatest" : [ "(1:230~1:233) /catalog1/schema1/datetime_widths/dt2/", "(1:234~1:237) /catalog1/schema1/datetime_widths/ts2/" ]
+}
+----------
+[dql_mysql_datetime_0.0004]
+sql:
+SELECT dt6 AS temporal_value FROM datetime_widths UNION ALL SELECT modified_at FROM temporal_auto;
+expect:
+{
+  "temporal_value" : [ "(1:7~1:10) /catalog1/schema1/datetime_widths/dt6/", "(1:67~1:78) /catalog1/schema1/temporal_auto/modified_at/" ]
+}

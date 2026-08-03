@@ -1,0 +1,63 @@
+[split_dql_dameng_materialized_view_0_001]
+sql:
+select * from mv_basic;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:22) /test/1/catalog1/schema1/mv_basic/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_materialized_view_0_002]
+sql:
+select id, amount from mv_filtered where amount > 100;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:23~1:34) /test/1/catalog1/schema1/mv_filtered/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_materialized_view_0_003]
+sql:
+select customer_id, total_amount from mv_aggregate order by customer_id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:38~1:50) /test/1/catalog1/schema1/mv_aggregate/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_materialized_view_0_004]
+sql:
+select m.id, c.name from mv_basic m join mv_customers c on m.customer_id = c.id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:25~1:33) /test/1/catalog1/schema1/mv_basic/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(1:41~1:53) /test/1/catalog1/schema1/mv_customers/",
+      "action": "READ"
+    }
+  ]
+}

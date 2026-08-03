@@ -23,6 +23,7 @@ import lombok.Setter;
 public class DmBranchDef {
 
     private long   scmId;
+    private String repoId;
     private String repoName;
     private String branch;
     private String branchCommitId;

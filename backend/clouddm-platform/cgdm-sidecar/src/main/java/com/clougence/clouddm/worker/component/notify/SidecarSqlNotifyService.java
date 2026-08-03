@@ -15,12 +15,9 @@
  */
 package com.clougence.clouddm.worker.component.notify;
 
-import java.util.List;
-
 import com.clougence.clouddm.api.console.sqlaudit.SqlStatus;
-import com.clougence.clouddm.sdk.service.secrules.Requester;
-import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.clouddm.sdk.execute.resultset.echo.Result;
+import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 
 public interface SidecarSqlNotifyService {
 
@@ -28,9 +25,9 @@ public interface SidecarSqlNotifyService {
     /*  SQL Audit (AutoExec)  */
     /* ---------------------------------------------------------------------------------- */
 
-    void recodeSqlForAutoExec(String uid, String sql, Requester requester, Long dsId, String sessionId, List<String> levels);
+    void beginForAutoExec(String queryId, String sessionId);
 
-    void finishForAutoExec(String sessionId, String message, Long affectLine, String sql, SqlStatus result, List<String> levels, Long dsId);
+    void finishForAutoExec(String queryId, String sessionId, String message, Long affectLine, SqlStatus result);
 
     void confirmSession(String sessionId);
 

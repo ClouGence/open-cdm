@@ -24,7 +24,7 @@ lexer grammar GaussSqlLexer;
 
 
 @header {
-    import com.clougence.clouddm.ds.gauss.sql.gs.parser.base.GaussSqlLexerBase;
+    import com.clougence.clouddm.ds.gauss.sql.analysis.security.base.GaussSqlLexerBase;
 }
 options { superClass = GaussSqlLexerBase; }
 

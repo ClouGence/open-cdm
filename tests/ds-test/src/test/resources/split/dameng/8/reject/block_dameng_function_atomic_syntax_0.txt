@@ -1,0 +1,50 @@
+-- CREATE_MISSING_NAME
+create function return int as begin return 1;end;
+-- CREATE_MISSING_RETURN_TYPE
+create function CODEX_DM8_FUNCTION.F_BAD return as begin return 1;end;
+-- LEADING_COMMA
+create function CODEX_DM8_FUNCTION.F_BAD_1(,A int) return int as begin return 1;end;
+-- TRAILING_COMMA
+create function CODEX_DM8_FUNCTION.F_BAD_2(A int,) return int as begin return 1;end;
+-- FOR_CALCULATE_AFTER_PARAMETERS
+create function CODEX_DM8_FUNCTION.F_BAD_3(A int) for calculate return int as begin return 1;end;
+-- DOUBLE_END_NAME
+create function CODEX_DM8_FUNCTION.F_BAD_4 return int as begin return 1;end F_BAD_4 EXTRA;
+-- ALTER_MISSING_COMPILE
+alter function CODEX_DM8_FUNCTION.F_BASIC;
+-- ALTER_CASCADE_BEFORE_COMPILE
+alter function CODEX_DM8_FUNCTION.F_BASIC cascade compile;
+-- DROP_IF_NOT_EXISTS
+drop function if not exists CODEX_DM8_FUNCTION.F_BASIC;
+-- COMMENT_NOT_SUPPORTED
+comment on function CODEX_DM8_FUNCTION.F_BASIC is 'function comment';
+------------------------------------------------------------------------------------------
+[CREATE_PROG_OBJ] -- CREATE_MISSING_NAME
+create function return int as begin return 1;end;
+----------
+[CREATE_PROG_OBJ] -- CREATE_MISSING_RETURN_TYPE
+create function CODEX_DM8_FUNCTION.F_BAD return as begin return 1;end;
+----------
+[CREATE_PROG_OBJ] -- LEADING_COMMA
+create function CODEX_DM8_FUNCTION.F_BAD_1(,A int) return int as begin return 1;end;
+----------
+[CREATE_PROG_OBJ] -- TRAILING_COMMA
+create function CODEX_DM8_FUNCTION.F_BAD_2(A int,) return int as begin return 1;end;
+----------
+[CREATE_PROG_OBJ] -- FOR_CALCULATE_AFTER_PARAMETERS
+create function CODEX_DM8_FUNCTION.F_BAD_3(A int) for calculate return int as begin return 1;end;
+----------
+[CREATE_PROG_OBJ] -- DOUBLE_END_NAME
+create function CODEX_DM8_FUNCTION.F_BAD_4 return int as begin return 1;end F_BAD_4 EXTRA;
+----------
+[ALTER_PROG_OBJ] -- ALTER_MISSING_COMPILE
+alter function CODEX_DM8_FUNCTION.F_BASIC;
+----------
+[ALTER_PROG_OBJ] -- ALTER_CASCADE_BEFORE_COMPILE
+alter function CODEX_DM8_FUNCTION.F_BASIC cascade compile;
+----------
+[DROP_PROG_OBJ] -- DROP_IF_NOT_EXISTS
+drop function if not exists CODEX_DM8_FUNCTION.F_BASIC;
+----------
+[UNKNOWN] -- COMMENT_NOT_SUPPORTED
+comment on function CODEX_DM8_FUNCTION.F_BASIC is 'function comment';

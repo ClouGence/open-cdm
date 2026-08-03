@@ -1,0 +1,29 @@
+[full_join]
+sql:
+create view app.v_full(order_id,customer_id) as select o.id,c.id from catalog1.app.orders o full join catalog1.app.customers c on o.customer_id=c.id
+expect:
+{"order_id":["/catalog1/app/orders/id/"],"customer_id":["/catalog1/app/customers/id/"]}
+----------
+[recursive]
+sql:
+create view app.v_recursive(n) as with recursive r(n) as (select id from catalog1.app.orders union all select n+1 from r where n<3) select n from r
+expect:
+{"n":["/catalog1/app/orders/id/"]}
+----------
+[corresponding]
+sql:
+create view app.v_corresponding(order_id) as select id order_id,amount from catalog1.app.orders union all corresponding by(order_id) select id order_id,total from catalog1.app.archive_orders
+expect:
+{"order_id":["/catalog1/app/orders/id/","/catalog1/app/archive_orders/id/"]}
+----------
+[hierarchy]
+sql:
+create view app.v_hierarchy as select id,parent_id from catalog1.app.nodes start with parent_id is null connect by prior id=parent_id
+expect:
+{"id":["/catalog1/app/nodes/id/"],"parent_id":["/catalog1/app/nodes/parent_id/"]}
+----------
+[partition]
+sql:
+create view app.v_partition as select id,amount from catalog1.app.orders partition for(1)
+expect:
+{"id":["/catalog1/app/orders/id/"],"amount":["/catalog1/app/orders/amount/"]}

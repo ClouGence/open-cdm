@@ -1,0 +1,1575 @@
+[split_ddl_dameng_synonym_0_001]
+sql:
+create table synonym_base(id int primary key, name varchar(40), amount int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/synonym_base/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_002]
+sql:
+insert into synonym_base values(1, 'ALPHA', 10), (2, 'BETA', 20);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:24) /test/1/catalog1/schema1/synonym_base/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_003]
+sql:
+create view synonym_view as select id, name, amount from synonym_base where amount >= 10;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:24) /test/1/catalog1/schema1/synonym_view/",
+      "action": "CREATE",
+      "target": "Table(1:57~1:69) /test/1/catalog1/schema1/synonym_base/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_004]
+sql:
+create sequence synonym_seq start with 100 increment by 5;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SEQUENCE": [
+    {
+      "subject": "Sequence(1:16~1:27) /test/1/catalog1/schema1/synonym_seq/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_005]
+sql:
+create function synonym_fn(value_in int) return int as
+begin
+  return value_in * 2;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:26) /test/1/catalog1/schema1/synonym_fn/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_006]
+sql:
+create procedure synonym_proc(value_in int) as
+begin
+  update synonym_base set amount = amount + value_in where id = 1;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:17~1:29) /test/1/catalog1/schema1/synonym_proc/",
+      "action": "CREATE"
+    },
+    {
+      "subject": "Table(3:9~3:21) /test/1/catalog1/schema1/synonym_base/",
+      "action": "UPDATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_007]
+sql:
+create package synonym_pkg as
+  procedure add_amount(row_id int, delta_value int);
+end synonym_pkg;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Package(1:15~1:26) /test/1/catalog1/schema1/synonym_pkg/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_008]
+sql:
+create package body synonym_pkg as
+  procedure add_amount(row_id int, delta_value int) as
+  begin
+    update synonym_base set amount = amount + delta_value where id = row_id;
+  end;
+end synonym_pkg;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Package(1:20~1:31) /test/1/catalog1/schema1/synonym_pkg/",
+      "action": "CREATE"
+    },
+    {
+      "subject": "Table(4:11~4:23) /test/1/catalog1/schema1/synonym_base/",
+      "action": "UPDATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_009]
+sql:
+create synonym syn_table for synonym_base;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SYNONYM": [
+    {
+      "subject": "Synonym(1:15~1:24) /test/1/catalog1/schema1/syn_table/",
+      "action": "CREATE",
+      "target": "SchemaObject(1:29~1:41) /test/1/catalog1/schema1/synonym_base/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_010]
+sql:
+select id, name, amount from syn_table order by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:29~1:38) /test/1/catalog1/schema1/syn_table/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_011]
+sql:
+insert into syn_table values(3, 'GAMMA', 30);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:21) /test/1/catalog1/schema1/syn_table/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_012]
+sql:
+update syn_table set amount = amount + 1 where id = 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:16) /test/1/catalog1/schema1/syn_table/",
+      "action": "UPDATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_013]
+sql:
+select count(*) as row_count, sum(amount) as total_amount from syn_table;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:30~1:33) /test/1/catalog1/schema1/sum/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:63~1:72) /test/1/catalog1/schema1/syn_table/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_014]
+sql:
+delete from syn_table where id = 3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:21) /test/1/catalog1/schema1/syn_table/",
+      "action": "DELETE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_015]
+sql:
+create or replace synonym syn_table for synonym_view;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SYNONYM": [
+    {
+      "subject": "Synonym(1:26~1:35) /test/1/catalog1/schema1/syn_table/",
+      "action": "REPLACE",
+      "target": "SchemaObject(1:40~1:52) /test/1/catalog1/schema1/synonym_view/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_016]
+sql:
+select id, name from syn_table where amount > 10 order by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:21~1:30) /test/1/catalog1/schema1/syn_table/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_017]
+sql:
+create synonym CODEX_DM8_SYNONYM_20260721.syn_view
+for CODEX_DM8_SYNONYM_20260721.synonym_view;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SYNONYM": [
+    {
+      "subject": "Synonym(1:15~1:50) /test/1/catalog1/CODEX_DM8_SYNONYM_20260721/syn_view/",
+      "action": "CREATE",
+      "target": "SchemaObject(2:4~2:43) /test/1/catalog1/CODEX_DM8_SYNONYM_20260721/synonym_view/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_018]
+sql:
+select id, name from CODEX_DM8_SYNONYM_20260721.syn_view order by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:21~1:56) /test/1/catalog1/CODEX_DM8_SYNONYM_20260721/syn_view/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_019]
+sql:
+create synonym syn_seq for synonym_seq;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SYNONYM": [
+    {
+      "subject": "Synonym(1:15~1:22) /test/1/catalog1/schema1/syn_seq/",
+      "action": "CREATE",
+      "target": "SchemaObject(1:27~1:38) /test/1/catalog1/schema1/synonym_seq/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_020]
+sql:
+select syn_seq.nextval from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Sequence(1:7~1:14) /test/1/catalog1/schema1/syn_seq/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:28~1:32) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_021]
+sql:
+select syn_seq.currval from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Sequence(1:7~1:14) /test/1/catalog1/schema1/syn_seq/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:28~1:32) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_022]
+sql:
+create synonym syn_fn for synonym_fn;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SYNONYM": [
+    {
+      "subject": "Synonym(1:15~1:21) /test/1/catalog1/schema1/syn_fn/",
+      "action": "CREATE",
+      "target": "SchemaObject(1:26~1:36) /test/1/catalog1/schema1/synonym_fn/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_023]
+sql:
+select name, info5, info6 from sysobjects
+where subtype$ = 'SYNOM' and name = 'SYN_FN';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:31~1:41) /test/1/catalog1/schema1/sysobjects/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_024]
+sql:
+create synonym syn_proc for synonym_proc;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SYNONYM": [
+    {
+      "subject": "Synonym(1:15~1:23) /test/1/catalog1/schema1/syn_proc/",
+      "action": "CREATE",
+      "target": "SchemaObject(1:28~1:40) /test/1/catalog1/schema1/synonym_proc/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_025]
+sql:
+select name, info5, info6 from sysobjects
+where subtype$ = 'SYNOM' and name = 'SYN_PROC';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:31~1:41) /test/1/catalog1/schema1/sysobjects/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_026]
+sql:
+create synonym syn_pkg for synonym_pkg;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SYNONYM": [
+    {
+      "subject": "Synonym(1:15~1:22) /test/1/catalog1/schema1/syn_pkg/",
+      "action": "CREATE",
+      "target": "SchemaObject(1:27~1:38) /test/1/catalog1/schema1/synonym_pkg/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_027]
+sql:
+select name, info5, info6 from sysobjects
+where subtype$ = 'SYNOM' and name = 'SYN_PKG';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:31~1:41) /test/1/catalog1/schema1/sysobjects/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_028]
+sql:
+select syn_fn(3) from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/syn_fn/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:22~1:26) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_029]
+sql:
+call syn_proc(5);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:5~1:13) /test/1/catalog1/schema1/syn_proc/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_030]
+sql:
+call syn_pkg.add_amount(1, 2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:5~1:23) /test/1/catalog1/syn_pkg/add_amount/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_031]
+sql:
+select amount from synonym_base where id = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:19~1:31) /test/1/catalog1/schema1/synonym_base/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_032]
+sql:
+create synonym syn_chain_1 for syn_view;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SYNONYM": [
+    {
+      "subject": "Synonym(1:15~1:26) /test/1/catalog1/schema1/syn_chain_1/",
+      "action": "CREATE",
+      "target": "SchemaObject(1:31~1:39) /test/1/catalog1/schema1/syn_view/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_033]
+sql:
+create synonym syn_chain_2 for syn_chain_1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SYNONYM": [
+    {
+      "subject": "Synonym(1:15~1:26) /test/1/catalog1/schema1/syn_chain_2/",
+      "action": "CREATE",
+      "target": "SchemaObject(1:31~1:42) /test/1/catalog1/schema1/syn_chain_1/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_034]
+sql:
+select id, amount from syn_chain_2 order by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:23~1:34) /test/1/catalog1/schema1/syn_chain_2/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_035]
+sql:
+create synonym syn_deferred for object_not_created_yet;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SYNONYM": [
+    {
+      "subject": "Synonym(1:15~1:27) /test/1/catalog1/schema1/syn_deferred/",
+      "action": "CREATE",
+      "target": "SchemaObject(1:32~1:54) /test/1/catalog1/schema1/object_not_created_yet/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_036]
+sql:
+select name, info5, info6 from sysobjects
+where subtype$ = 'SYNOM' and name = 'SYN_DEFERRED';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:31~1:41) /test/1/catalog1/schema1/sysobjects/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_037]
+sql:
+create synonym if not exists syn_view for synonym_base;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SYNONYM": [
+    {
+      "subject": "Synonym(1:29~1:37) /test/1/catalog1/schema1/syn_view/",
+      "action": "CREATE",
+      "target": "SchemaObject(1:42~1:54) /test/1/catalog1/schema1/synonym_base/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_038]
+sql:
+create or replace synonym if not exists syn_replace_ifne for synonym_base;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SYNONYM": [
+    {
+      "subject": "Synonym(1:40~1:56) /test/1/catalog1/schema1/syn_replace_ifne/",
+      "action": "REPLACE",
+      "target": "SchemaObject(1:61~1:73) /test/1/catalog1/schema1/synonym_base/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_039]
+sql:
+create synonym "Syn_Quoted_20260721" for synonym_base;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SYNONYM": [
+    {
+      "subject": "Synonym(1:15~1:36) /test/1/catalog1/schema1/Syn_Quoted_20260721/",
+      "action": "CREATE",
+      "target": "SchemaObject(1:41~1:53) /test/1/catalog1/schema1/synonym_base/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_040]
+sql:
+select id, name from "Syn_Quoted_20260721" order by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:21~1:42) /test/1/catalog1/schema1/Syn_Quoted_20260721/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_041]
+sql:
+create public synonym CODEX_DM8_PUB_TABLE_20260721
+for CODEX_DM8_SYNONYM_20260721.synonym_base;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SYNONYM": [
+    {
+      "subject": "Synonym(1:22~1:50) /test/1/CODEX_DM8_PUB_TABLE_20260721/",
+      "action": "CREATE",
+      "target": "SchemaObject(2:4~2:43) /test/1/catalog1/CODEX_DM8_SYNONYM_20260721/synonym_base/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_042]
+sql:
+select id, name from CODEX_DM8_PUB_TABLE_20260721 order by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:21~1:49) /test/1/catalog1/schema1/CODEX_DM8_PUB_TABLE_20260721/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_043]
+sql:
+create or replace public synonym CODEX_DM8_PUB_TABLE_20260721
+for CODEX_DM8_SYNONYM_20260721.synonym_view;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SYNONYM": [
+    {
+      "subject": "Synonym(1:33~1:61) /test/1/CODEX_DM8_PUB_TABLE_20260721/",
+      "action": "REPLACE",
+      "target": "SchemaObject(2:4~2:43) /test/1/catalog1/CODEX_DM8_SYNONYM_20260721/synonym_view/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_044]
+sql:
+select count(*) from CODEX_DM8_PUB_TABLE_20260721;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:21~1:49) /test/1/catalog1/schema1/CODEX_DM8_PUB_TABLE_20260721/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_045]
+sql:
+create public synonym if not exists CODEX_DM8_PUB_TABLE_20260721
+for CODEX_DM8_SYNONYM_20260721.synonym_base;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SYNONYM": [
+    {
+      "subject": "Synonym(1:36~1:64) /test/1/CODEX_DM8_PUB_TABLE_20260721/",
+      "action": "CREATE",
+      "target": "SchemaObject(2:4~2:43) /test/1/catalog1/CODEX_DM8_SYNONYM_20260721/synonym_base/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_046]
+sql:
+create public synonym CODEX_DM8_SHARED_20260721
+for CODEX_DM8_SYNONYM_20260721.synonym_base;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SYNONYM": [
+    {
+      "subject": "Synonym(1:22~1:47) /test/1/CODEX_DM8_SHARED_20260721/",
+      "action": "CREATE",
+      "target": "SchemaObject(2:4~2:43) /test/1/catalog1/CODEX_DM8_SYNONYM_20260721/synonym_base/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_047]
+sql:
+create synonym CODEX_DM8_SHARED_20260721 for synonym_view;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SYNONYM": [
+    {
+      "subject": "Synonym(1:15~1:40) /test/1/catalog1/schema1/CODEX_DM8_SHARED_20260721/",
+      "action": "CREATE",
+      "target": "SchemaObject(1:45~1:57) /test/1/catalog1/schema1/synonym_view/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_048]
+sql:
+select id from CODEX_DM8_SYNONYM_20260721.CODEX_DM8_SHARED_20260721 order by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:15~1:67) /test/1/catalog1/CODEX_DM8_SYNONYM_20260721/CODEX_DM8_SHARED_20260721/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_049]
+sql:
+drop synonym CODEX_DM8_SHARED_20260721;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SYNONYM": [
+    {
+      "subject": "Synonym(1:13~1:38) /test/1/catalog1/schema1/CODEX_DM8_SHARED_20260721/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_050]
+sql:
+select id from CODEX_DM8_SHARED_20260721 order by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:15~1:40) /test/1/catalog1/schema1/CODEX_DM8_SHARED_20260721/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_051]
+sql:
+drop public synonym if exists CODEX_DM8_SHARED_20260721;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SYNONYM": [
+    {
+      "subject": "Synonym(1:30~1:55) /test/1/CODEX_DM8_SHARED_20260721/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_052]
+sql:
+drop public synonym if exists CODEX_DM8_PUB_TABLE_20260721;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SYNONYM": [
+    {
+      "subject": "Synonym(1:30~1:58) /test/1/CODEX_DM8_PUB_TABLE_20260721/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_053]
+sql:
+drop synonym if exists "Syn_Quoted_20260721";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SYNONYM": [
+    {
+      "subject": "Synonym(1:23~1:44) /test/1/catalog1/schema1/Syn_Quoted_20260721/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_054]
+sql:
+drop synonym if exists syn_deferred;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SYNONYM": [
+    {
+      "subject": "Synonym(1:23~1:35) /test/1/catalog1/schema1/syn_deferred/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_055]
+sql:
+drop synonym if exists syn_replace_ifne;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SYNONYM": [
+    {
+      "subject": "Synonym(1:23~1:39) /test/1/catalog1/schema1/syn_replace_ifne/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_056]
+sql:
+drop synonym if exists syn_chain_2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SYNONYM": [
+    {
+      "subject": "Synonym(1:23~1:34) /test/1/catalog1/schema1/syn_chain_2/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_057]
+sql:
+drop synonym if exists syn_chain_1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SYNONYM": [
+    {
+      "subject": "Synonym(1:23~1:34) /test/1/catalog1/schema1/syn_chain_1/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_058]
+sql:
+drop synonym if exists syn_pkg;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SYNONYM": [
+    {
+      "subject": "Synonym(1:23~1:30) /test/1/catalog1/schema1/syn_pkg/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_059]
+sql:
+drop synonym if exists syn_proc;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SYNONYM": [
+    {
+      "subject": "Synonym(1:23~1:31) /test/1/catalog1/schema1/syn_proc/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_060]
+sql:
+drop synonym if exists syn_fn;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SYNONYM": [
+    {
+      "subject": "Synonym(1:23~1:29) /test/1/catalog1/schema1/syn_fn/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_061]
+sql:
+drop synonym if exists syn_seq;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SYNONYM": [
+    {
+      "subject": "Synonym(1:23~1:30) /test/1/catalog1/schema1/syn_seq/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_062]
+sql:
+drop synonym if exists syn_view;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SYNONYM": [
+    {
+      "subject": "Synonym(1:23~1:31) /test/1/catalog1/schema1/syn_view/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_063]
+sql:
+drop synonym if exists syn_table;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SYNONYM": [
+    {
+      "subject": "Synonym(1:23~1:32) /test/1/catalog1/schema1/syn_table/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_064]
+sql:
+drop package synonym_pkg;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Package(1:13~1:24) /test/1/catalog1/schema1/synonym_pkg/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_065]
+sql:
+drop procedure synonym_proc;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:15~1:27) /test/1/catalog1/schema1/synonym_proc/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_066]
+sql:
+drop function synonym_fn;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Function(1:14~1:24) /test/1/catalog1/schema1/synonym_fn/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_067]
+sql:
+drop sequence synonym_seq;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SEQUENCE": [
+    {
+      "subject": "Sequence(1:14~1:25) /test/1/catalog1/schema1/synonym_seq/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_068]
+sql:
+drop view synonym_view;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "View(1:10~1:22) /test/1/catalog1/schema1/synonym_view/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_069]
+sql:
+drop table synonym_base;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:23) /test/1/catalog1/schema1/synonym_base/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_070]
+sql:
+create table synonym_attr_base(id int primary key, source_name varchar(20));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/schema1/synonym_attr_base/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_071]
+sql:
+insert into synonym_attr_base values(1, 'PRIVATE');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:29) /test/1/catalog1/schema1/synonym_attr_base/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_072]
+sql:
+create view synonym_attr_view as select id, source_name from synonym_attr_base;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:29) /test/1/catalog1/schema1/synonym_attr_view/",
+      "action": "CREATE",
+      "target": "Table(1:61~1:78) /test/1/catalog1/schema1/synonym_attr_base/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_073]
+sql:
+create table synonym_public_base(id int primary key, source_name varchar(20));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:32) /test/1/catalog1/schema1/synonym_public_base/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_074]
+sql:
+insert into synonym_public_base values(1, 'PUBLIC');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/schema1/synonym_public_base/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_075]
+sql:
+create synonym CODEX_DM8_SYNONYM_20260721.syn_attr for CODEX_DM8_SYNONYM_20260721.synonym_attr_base;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SYNONYM": [
+    {
+      "subject": "Synonym(1:15~1:50) /test/1/catalog1/CODEX_DM8_SYNONYM_20260721/syn_attr/",
+      "action": "CREATE",
+      "target": "SchemaObject(1:55~1:99) /test/1/catalog1/CODEX_DM8_SYNONYM_20260721/synonym_attr_base/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_076]
+sql:
+create or replace synonym CODEX_DM8_SYNONYM_20260721.syn_attr for CODEX_DM8_SYNONYM_20260721.synonym_attr_view;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SYNONYM": [
+    {
+      "subject": "Synonym(1:26~1:61) /test/1/catalog1/CODEX_DM8_SYNONYM_20260721/syn_attr/",
+      "action": "REPLACE",
+      "target": "SchemaObject(1:66~1:110) /test/1/catalog1/CODEX_DM8_SYNONYM_20260721/synonym_attr_view/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_077]
+sql:
+create synonym syn_attr_deferred for object_that_does_not_exist;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SYNONYM": [
+    {
+      "subject": "Synonym(1:15~1:32) /test/1/catalog1/schema1/syn_attr_deferred/",
+      "action": "CREATE",
+      "target": "SchemaObject(1:37~1:63) /test/1/catalog1/schema1/object_that_does_not_exist/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_078]
+sql:
+create synonym SYN_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA for synonym_attr_base;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SYNONYM": [
+    {
+      "subject": "Synonym(1:15~1:143) /test/1/catalog1/schema1/SYN_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/",
+      "action": "CREATE",
+      "target": "SchemaObject(1:148~1:165) /test/1/catalog1/schema1/synonym_attr_base/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_079]
+sql:
+select length(name) from sysobjects where subtype$ = 'SYNOM' and name like 'SYN_AAA%';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/length/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:25~1:35) /test/1/catalog1/schema1/sysobjects/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_080]
+sql:
+drop synonym SYN_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SYNONYM": [
+    {
+      "subject": "Synonym(1:13~1:141) /test/1/catalog1/schema1/SYN_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_081]
+sql:
+create public synonym CODEX_DM8_SYN_PRECEDENCE_20260722 for CODEX_DM8_SYNONYM_20260721.synonym_public_base;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SYNONYM": [
+    {
+      "subject": "Synonym(1:22~1:55) /test/1/CODEX_DM8_SYN_PRECEDENCE_20260722/",
+      "action": "CREATE",
+      "target": "SchemaObject(1:60~1:106) /test/1/catalog1/CODEX_DM8_SYNONYM_20260721/synonym_public_base/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_082]
+sql:
+create synonym CODEX_DM8_SYN_PRECEDENCE_20260722 for synonym_attr_base;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SYNONYM": [
+    {
+      "subject": "Synonym(1:15~1:48) /test/1/catalog1/schema1/CODEX_DM8_SYN_PRECEDENCE_20260722/",
+      "action": "CREATE",
+      "target": "SchemaObject(1:53~1:70) /test/1/catalog1/schema1/synonym_attr_base/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_083]
+sql:
+select source_name from CODEX_DM8_SYN_PRECEDENCE_20260722 where id = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:24~1:57) /test/1/catalog1/schema1/CODEX_DM8_SYN_PRECEDENCE_20260722/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_084]
+sql:
+drop synonym CODEX_DM8_SYN_PRECEDENCE_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SYNONYM": [
+    {
+      "subject": "Synonym(1:13~1:46) /test/1/catalog1/schema1/CODEX_DM8_SYN_PRECEDENCE_20260722/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_085]
+sql:
+select source_name from CODEX_DM8_SYN_PRECEDENCE_20260722 where id = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:24~1:57) /test/1/catalog1/schema1/CODEX_DM8_SYN_PRECEDENCE_20260722/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_086]
+sql:
+drop public synonym CODEX_DM8_SYN_PRECEDENCE_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SYNONYM": [
+    {
+      "subject": "Synonym(1:20~1:53) /test/1/CODEX_DM8_SYN_PRECEDENCE_20260722/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_087]
+sql:
+drop synonym if exists synonym_that_does_not_exist;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SYNONYM": [
+    {
+      "subject": "Synonym(1:23~1:50) /test/1/catalog1/schema1/synonym_that_does_not_exist/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_088]
+sql:
+drop synonym syn_attr_deferred;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SYNONYM": [
+    {
+      "subject": "Synonym(1:13~1:30) /test/1/catalog1/schema1/syn_attr_deferred/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_089]
+sql:
+drop synonym syn_attr;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SYNONYM": [
+    {
+      "subject": "Synonym(1:13~1:21) /test/1/catalog1/schema1/syn_attr/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_090]
+sql:
+drop view synonym_attr_view;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "View(1:10~1:27) /test/1/catalog1/schema1/synonym_attr_view/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_091]
+sql:
+drop table synonym_attr_base;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:28) /test/1/catalog1/schema1/synonym_attr_base/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_092]
+sql:
+drop table synonym_public_base;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:30) /test/1/catalog1/schema1/synonym_public_base/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_093]
+sql:
+create link CODEX_DM8_SYN_LINK_20260722 connect 'DPI'
+with CODEX_DM8_LINK_REMOTE_20260721 identified by "Dm8@Link2026"
+using '127.0.0.1:5236';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:12~1:39) /test/1/catalog1/schema1/CODEX_DM8_SYN_LINK_20260722/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_094]
+sql:
+create synonym syn_remote_table for CODEX_DM8_LINK_REMOTE_20260721.CODEX_LINK_T@CODEX_DM8_SYN_LINK_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SYNONYM": [
+    {
+      "subject": "Synonym(1:15~1:31) /test/1/catalog1/schema1/syn_remote_table/",
+      "action": "CREATE",
+      "target": [
+        "SchemaObject(1:36~1:79) /test/1/catalog1/CODEX_DM8_LINK_REMOTE_20260721/CODEX_LINK_T/",
+        "Link(1:80~1:107) /test/1/catalog1/schema1/CODEX_DM8_SYN_LINK_20260722/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_095]
+sql:
+select name from syn_remote_table where id = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:17~1:33) /test/1/catalog1/schema1/syn_remote_table/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_096]
+sql:
+drop synonym syn_remote_table;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SYNONYM": [
+    {
+      "subject": "Synonym(1:13~1:29) /test/1/catalog1/schema1/syn_remote_table/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_097]
+sql:
+drop link CODEX_DM8_SYN_LINK_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:10~1:37) /test/1/catalog1/schema1/CODEX_DM8_SYN_LINK_20260722/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_098]
+sql:
+create public synonym CODEX_DM8_SYN_SCHEMA_DROP_20260722 for CODEX_DM8_SYNONYM_20260721.deferred_public_target;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SYNONYM": [
+    {
+      "subject": "Synonym(1:22~1:56) /test/1/CODEX_DM8_SYN_SCHEMA_DROP_20260722/",
+      "action": "CREATE",
+      "target": "SchemaObject(1:61~1:110) /test/1/catalog1/CODEX_DM8_SYNONYM_20260721/deferred_public_target/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_synonym_0_099]
+sql:
+drop public synonym SYSDBA.CODEX_DM8_SYN_SCHEMA_DROP_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SYNONYM": [
+    {
+      "subject": "Synonym(1:20~1:61) /test/1/CODEX_DM8_SYN_SCHEMA_DROP_20260722/",
+      "action": "DROP"
+    }
+  ]
+}

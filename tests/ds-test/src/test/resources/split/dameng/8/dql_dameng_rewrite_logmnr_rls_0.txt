@@ -1,0 +1,30 @@
+select owner, name, source_stmt, destination_stmt, rewrite_mode from sys_rewrite_equivalences where name='CODEX_REWRITE_RULE';
+select count(*) from CODEX_REWRITE_SOURCE;
+select low_scn, next_scn, low_time, high_time, log_id, filename from v$logmnr_logs order by low_scn;
+select operation_code, scn, sql_redo, timestamp, seg_owner, table_name from v$logmnr_contents where seg_owner='CODEX_DM8_RLS' and table_name='CODEX_LOGMNR_T' order by scn;
+select dbms_logmnr.column_present(redo_value, 'CODEX_DM8_RLS.CODEX_LOGMNR_T.TXT') from v$logmnr_contents where seg_owner='CODEX_DM8_RLS' and table_name='CODEX_LOGMNR_T' and operation_code=1;
+select dbms_logmnr.mine_value(redo_value, 'CODEX_DM8_RLS.CODEX_LOGMNR_T.TXT') from v$logmnr_contents where seg_owner='CODEX_DM8_RLS' and table_name='CODEX_LOGMNR_T' and operation_code=1;
+select count(*) from v$logmnr_logs;
+select object_name, object_type, status from all_objects where object_name='DBMS_RLS' and object_type='PACKAGE';
+select count(*), min(TENANT_ID) from CODEX_RLS_T;
+select count(*), min(TENANT_ID) from CODEX_RLS_T;
+------------------------------------------------------------------------------------------
+[SELECT] select owner, name, source_stmt, destination_stmt, rewrite_mode from sys_rewrite_equivalences where name='CODEX_REWRITE_RULE';
+----------
+[SELECT] select count(*) from CODEX_REWRITE_SOURCE;
+----------
+[SELECT] select low_scn, next_scn, low_time, high_time, log_id, filename from v$logmnr_logs order by low_scn;
+----------
+[SELECT] select operation_code, scn, sql_redo, timestamp, seg_owner, table_name from v$logmnr_contents where seg_owner='CODEX_DM8_RLS' and table_name='CODEX_LOGMNR_T' order by scn;
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_logmnr.column_present(redo_value, 'CODEX_DM8_RLS.CODEX_LOGMNR_T.TXT') from v$logmnr_contents where seg_owner='CODEX_DM8_RLS' and table_name='CODEX_LOGMNR_T' and operation_code=1;
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_logmnr.mine_value(redo_value, 'CODEX_DM8_RLS.CODEX_LOGMNR_T.TXT') from v$logmnr_contents where seg_owner='CODEX_DM8_RLS' and table_name='CODEX_LOGMNR_T' and operation_code=1;
+----------
+[SELECT] select count(*) from v$logmnr_logs;
+----------
+[SELECT] select object_name, object_type, status from all_objects where object_name='DBMS_RLS' and object_type='PACKAGE';
+----------
+[SELECT] select count(*), min(TENANT_ID) from CODEX_RLS_T;
+----------
+[SELECT] select count(*), min(TENANT_ID) from CODEX_RLS_T;

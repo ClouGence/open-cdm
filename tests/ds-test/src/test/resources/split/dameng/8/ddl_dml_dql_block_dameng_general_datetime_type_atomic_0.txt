@@ -1,0 +1,303 @@
+create table app.dt_t(
+  id int primary key,c_date date default date '2000-01-01' not null,
+  c_time0 time(0) default time '00:00:00',c_time6 time(6),
+  c_ts0 timestamp(0),c_ts9 timestamp(9),c_ts timestamp,
+  c_dt0 datetime(0),c_dt9 datetime(9),c_dt datetime,
+  c_null timestamp null,
+  constraint ck_dt check(c_date>=date '-4712-01-01'),
+  constraint uk_dt unique(c_ts9));
+comment on column app.dt_t.c_date is 'Gregorian and Julian date';
+comment on column app.dt_t.c_ts9 is 'declared nanosecond timestamp';
+create index app.idx_dt on app.dt_t(c_date,c_ts9);
+alter table app.dt_t add c_alter datetime(6) default current_timestamp;
+alter table app.dt_t modify c_alter timestamp(9);
+insert into app.dt_t values(
+  1,date '-4712-01-01',time '00:00:00',time '00:00:00.000000',
+  timestamp '-4712-01-01 00:00:00',timestamp '-4712-01-01 00:00:00.000000000',
+  timestamp '-4712-01-01 00:00:00.123456789',
+  datetime '-4712-01-01 00:00:00',datetime '-4712-01-01 00:00:00.000000000',
+  datetime '-4712-01-01 00:00:00.123456789',null,current_timestamp);
+insert into app.dt_t values(
+  2,date '9999-12-31',time '23:59:59',time '23:59:59.999999',
+  timestamp '9999-12-31 23:59:59',timestamp '9999-12-31 23:59:59.999999999',
+  timestamp '9999-12-31 23:59:59.999999999',
+  datetime '9999-12-31 23:59:59',datetime '9999-12-31 23:59:59.999999999',
+  datetime '9999-12-31 23:59:59.999999999',null,current_timestamp);
+insert into app.dt_t(id,c_date,c_time0,c_time6,c_ts9,c_dt9)
+  values(3,'1999/10/01','9:10:21.49','09:10:21.123456',
+  '2002/12/12 09:10:21.123456789','2002.12.12 09:10:21.987654321');
+insert into app.dt_t(id,c_date) values(4,'1999.10.01');
+insert into app.dt_t(id,c_date) values(5,'1999,10,01');
+insert into app.dt_t(id,c_date) values(6,'1999:10:01');
+insert into app.dt_t(id,c_date) values(7,'1999*10*01');
+insert into app.dt_t(id) values(8);
+update app.dt_t set c_date=c_date+1,
+  c_ts0=c_ts0+interval '1' day where id=3;
+select id,c_date,c_time0,c_time6,c_ts0,c_ts9,c_ts,c_dt0,c_dt9,c_dt,c_null
+  from app.dt_t order by id;
+select data_type,data_length,data_precision,data_scale
+  from user_tab_columns where table_name='DT_T' order by column_id;
+select date '1582-10-04'+1,date '1582-10-15'-1 from dual;
+select timestamp '1582-10-05 12:34:56.123456789',
+  datetime '1582-10-14 12:34:56.987654321' from dual;
+select extract(year from c_date),extract(hour from c_ts9),
+  to_char(c_date,'YYYY-MM-DD'),to_char(c_ts9,'YYYY-MM-DD HH24:MI:SS.FF9')
+  from app.dt_t where id=3;
+select add_days(c_date,10),add_months(c_date,1),last_day(c_date),
+  months_between(add_months(c_date,2),c_date) from app.dt_t where id=3;
+select datediff(day,c_date,date '2000-01-01'),
+  dateadd(day,2,c_date),trunc(c_ts9,'DD') from app.dt_t where id=3;
+select to_date('2026-07-23','YYYY-MM-DD'),
+  to_timestamp('2026-07-23 12:34:56.123456','YYYY-MM-DD HH24:MI:SS.FF6')
+  from dual;
+select min(c_date),max(c_date),min(c_time6),max(c_time6),
+  min(c_ts9),max(c_dt9) from app.dt_t;
+select id from app.dt_t index idx_dt
+  where c_date between date '1999-01-01' and date '2000-12-31' order by c_ts9;
+create view app.dt_v as
+  select id,c_date,c_time6,c_ts9,c_dt9 from app.dt_t
+  where c_date>=date '1999-01-01';
+select id,c_ts9-c_date from app.dt_v order by id;
+update app.dt_v set c_time6=time '12:34:56.654321' where id=3;
+create function app.date_f(p date) return date as
+begin return p;end;
+/
+create function app.time_f(p time(6)) return time(6) as
+begin return p;end;
+/
+create function app.timestamp_f(p timestamp(9)) return timestamp(9) as
+begin return p;end;
+/
+create function app.datetime_f(p datetime(9)) return datetime(9) as
+begin return p;end;
+/
+select app.date_f(date '-4712-01-01'),app.date_f(date '9999-12-31'),
+  app.time_f(time '23:59:59.999999'),
+  app.timestamp_f(timestamp '9999-12-31 23:59:59.999999999'),
+  app.datetime_f(datetime '-4712-01-01 00:00:00.000000000') from dual;
+create table app.dt_p_date(id date,v int)
+  partition by range(id)(partition p0 values less than(date '2000-01-01'),
+  partition p1 values less than(maxvalue));
+insert into app.dt_p_date values(date '1999-12-31',1),(date '2000-01-01',2);
+select count(*) from app.dt_p_date partition for(date '1999-12-31');
+create table app.dt_p_time(id time(6),v int)
+  partition by range(id)(partition p0 values less than(time '12:00:00'),
+  partition p1 values less than(maxvalue));
+insert into app.dt_p_time values(time '11:59:59',1),(time '12:00:00',2);
+select count(*) from app.dt_p_time partition for(time '11:59:59');
+create table app.dt_p_ts(id timestamp(9),v int)
+  partition by range(id)(partition p0 values less than(timestamp '2000-01-01 00:00:00'),
+  partition p1 values less than(maxvalue));
+insert into app.dt_p_ts values(timestamp '1999-12-31 23:59:59',1),(timestamp '2000-01-01 00:00:00',2);
+select count(*) from app.dt_p_ts partition for(timestamp '1999-12-31 23:59:59');
+create table app.bad_date_arg(c date(1));
+create table app.bad_time_p7(c time(7));
+create table app.bad_ts_p10(c timestamp(10));
+create table app.bad_dt_p10(c datetime(10));
+insert into app.dt_t(id,c_date) values(101,null);
+select time '24:00:00' from dual;
+select time '23:60:00' from dual;
+select time '23:59:60' from dual;
+select timestamp '2002-12-12 09:10:21.1234567894' from dual;
+select datetime '2002-12-12 09:10:21.1234567895' from dual;
+select date '-4712-01-01'-1 from dual;
+select date '9999-12-31'+1 from dual;
+select timestamp '-4712-01-01 00:00:00'-interval '0.000001' second from dual;
+select timestamp '9999-12-31 23:59:59.999999999'+interval '0.000001' second from dual;
+select time '09:10:21.1234567' from dual;
+select date '' from dual;
+select time '' from dual;
+select timestamp '' from dual;
+drop view app.dt_v;
+drop function app.date_f;
+drop function app.time_f;
+drop function app.timestamp_f;
+drop function app.datetime_f;
+drop table app.dt_p_date;
+drop table app.dt_p_time;
+drop table app.dt_p_ts;
+drop table app.dt_t;
+------------------------------------------------------------------------------------------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table app.dt_t(
+  id int primary key,c_date date default date '2000-01-01' not null,
+  c_time0 time(0) default time '00:00:00',c_time6 time(6),
+  c_ts0 timestamp(0),c_ts9 timestamp(9),c_ts timestamp,
+  c_dt0 datetime(0),c_dt9 datetime(9),c_dt datetime,
+  c_null timestamp null,
+  constraint ck_dt check(c_date>=date '-4712-01-01'),
+  constraint uk_dt unique(c_ts9));
+----------
+[COMMENT_COLUMN] comment on column app.dt_t.c_date is 'Gregorian and Julian date';
+----------
+[COMMENT_COLUMN] comment on column app.dt_t.c_ts9 is 'declared nanosecond timestamp';
+----------
+[ADD_INDEX] create index app.idx_dt on app.dt_t(c_date,c_ts9);
+----------
+[ALTER_TABLE|ADD_COLUMN] alter table app.dt_t add c_alter datetime(6) default current_timestamp;
+----------
+[ALTER_TABLE|ALTER_COLUMN] alter table app.dt_t modify c_alter timestamp(9);
+----------
+[INSERT] insert into app.dt_t values(
+  1,date '-4712-01-01',time '00:00:00',time '00:00:00.000000',
+  timestamp '-4712-01-01 00:00:00',timestamp '-4712-01-01 00:00:00.000000000',
+  timestamp '-4712-01-01 00:00:00.123456789',
+  datetime '-4712-01-01 00:00:00',datetime '-4712-01-01 00:00:00.000000000',
+  datetime '-4712-01-01 00:00:00.123456789',null,current_timestamp);
+----------
+[INSERT] insert into app.dt_t values(
+  2,date '9999-12-31',time '23:59:59',time '23:59:59.999999',
+  timestamp '9999-12-31 23:59:59',timestamp '9999-12-31 23:59:59.999999999',
+  timestamp '9999-12-31 23:59:59.999999999',
+  datetime '9999-12-31 23:59:59',datetime '9999-12-31 23:59:59.999999999',
+  datetime '9999-12-31 23:59:59.999999999',null,current_timestamp);
+----------
+[INSERT] insert into app.dt_t(id,c_date,c_time0,c_time6,c_ts9,c_dt9)
+  values(3,'1999/10/01','9:10:21.49','09:10:21.123456',
+  '2002/12/12 09:10:21.123456789','2002.12.12 09:10:21.987654321');
+----------
+[INSERT] insert into app.dt_t(id,c_date) values(4,'1999.10.01');
+----------
+[INSERT] insert into app.dt_t(id,c_date) values(5,'1999,10,01');
+----------
+[INSERT] insert into app.dt_t(id,c_date) values(6,'1999:10:01');
+----------
+[INSERT] insert into app.dt_t(id,c_date) values(7,'1999*10*01');
+----------
+[INSERT] insert into app.dt_t(id) values(8);
+----------
+[UPDATE] update app.dt_t set c_date=c_date+1,
+  c_ts0=c_ts0+interval '1' day where id=3;
+----------
+[SELECT] select id,c_date,c_time0,c_time6,c_ts0,c_ts9,c_ts,c_dt0,c_dt9,c_dt,c_null
+  from app.dt_t order by id;
+----------
+[SELECT] select data_type,data_length,data_precision,data_scale
+  from user_tab_columns where table_name='DT_T' order by column_id;
+----------
+[SELECT] select date '1582-10-04'+1,date '1582-10-15'-1 from dual;
+----------
+[SELECT] select timestamp '1582-10-05 12:34:56.123456789',
+  datetime '1582-10-14 12:34:56.987654321' from dual;
+----------
+[SELECT] select extract(year from c_date),extract(hour from c_ts9),
+  to_char(c_date,'YYYY-MM-DD'),to_char(c_ts9,'YYYY-MM-DD HH24:MI:SS.FF9')
+  from app.dt_t where id=3;
+----------
+[SELECT] select add_days(c_date,10),add_months(c_date,1),last_day(c_date),
+  months_between(add_months(c_date,2),c_date) from app.dt_t where id=3;
+----------
+[SELECT] select datediff(day,c_date,date '2000-01-01'),
+  dateadd(day,2,c_date),trunc(c_ts9,'DD') from app.dt_t where id=3;
+----------
+[SELECT] select to_date('2026-07-23','YYYY-MM-DD'),
+  to_timestamp('2026-07-23 12:34:56.123456','YYYY-MM-DD HH24:MI:SS.FF6')
+  from dual;
+----------
+[SELECT] select min(c_date),max(c_date),min(c_time6),max(c_time6),
+  min(c_ts9),max(c_dt9) from app.dt_t;
+----------
+[SELECT] select id from app.dt_t index idx_dt
+  where c_date between date '1999-01-01' and date '2000-12-31' order by c_ts9;
+----------
+[CREATE_VIEW(SELECT)] create view app.dt_v as
+  select id,c_date,c_time6,c_ts9,c_dt9 from app.dt_t
+  where c_date>=date '1999-01-01';
+----------
+[SELECT] select id,c_ts9-c_date from app.dt_v order by id;
+----------
+[UPDATE] update app.dt_v set c_time6=time '12:34:56.654321' where id=3;
+----------
+[CREATE_PROG_OBJ(BLOCK,PROGRAM_CONTROL)] create function app.date_f(p date) return date as
+begin return p;end;
+----------
+[CREATE_PROG_OBJ(BLOCK,PROGRAM_CONTROL)] create function app.time_f(p time(6)) return time(6) as
+begin return p;end;
+----------
+[CREATE_PROG_OBJ(BLOCK,PROGRAM_CONTROL)] create function app.timestamp_f(p timestamp(9)) return timestamp(9) as
+begin return p;end;
+----------
+[CREATE_PROG_OBJ(BLOCK,PROGRAM_CONTROL)] create function app.datetime_f(p datetime(9)) return datetime(9) as
+begin return p;end;
+----------
+[SELECT|CALL_PROG_OBJ] select app.date_f(date '-4712-01-01'),app.date_f(date '9999-12-31'),
+  app.time_f(time '23:59:59.999999'),
+  app.timestamp_f(timestamp '9999-12-31 23:59:59.999999999'),
+  app.datetime_f(datetime '-4712-01-01 00:00:00.000000000') from dual;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.dt_p_date(id date,v int)
+  partition by range(id)(partition p0 values less than(date '2000-01-01'),
+  partition p1 values less than(maxvalue));
+----------
+[INSERT] insert into app.dt_p_date values(date '1999-12-31',1),(date '2000-01-01',2);
+----------
+[SELECT] select count(*) from app.dt_p_date partition for(date '1999-12-31');
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.dt_p_time(id time(6),v int)
+  partition by range(id)(partition p0 values less than(time '12:00:00'),
+  partition p1 values less than(maxvalue));
+----------
+[INSERT] insert into app.dt_p_time values(time '11:59:59',1),(time '12:00:00',2);
+----------
+[SELECT] select count(*) from app.dt_p_time partition for(time '11:59:59');
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.dt_p_ts(id timestamp(9),v int)
+  partition by range(id)(partition p0 values less than(timestamp '2000-01-01 00:00:00'),
+  partition p1 values less than(maxvalue));
+----------
+[INSERT] insert into app.dt_p_ts values(timestamp '1999-12-31 23:59:59',1),(timestamp '2000-01-01 00:00:00',2);
+----------
+[SELECT] select count(*) from app.dt_p_ts partition for(timestamp '1999-12-31 23:59:59');
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.bad_date_arg(c date(1));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.bad_time_p7(c time(7));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.bad_ts_p10(c timestamp(10));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.bad_dt_p10(c datetime(10));
+----------
+[INSERT] insert into app.dt_t(id,c_date) values(101,null);
+----------
+[SELECT] select time '24:00:00' from dual;
+----------
+[SELECT] select time '23:60:00' from dual;
+----------
+[SELECT] select time '23:59:60' from dual;
+----------
+[SELECT] select timestamp '2002-12-12 09:10:21.1234567894' from dual;
+----------
+[SELECT] select datetime '2002-12-12 09:10:21.1234567895' from dual;
+----------
+[SELECT] select date '-4712-01-01'-1 from dual;
+----------
+[SELECT] select date '9999-12-31'+1 from dual;
+----------
+[SELECT] select timestamp '-4712-01-01 00:00:00'-interval '0.000001' second from dual;
+----------
+[SELECT] select timestamp '9999-12-31 23:59:59.999999999'+interval '0.000001' second from dual;
+----------
+[SELECT] select time '09:10:21.1234567' from dual;
+----------
+[SELECT] select date '' from dual;
+----------
+[SELECT] select time '' from dual;
+----------
+[SELECT] select timestamp '' from dual;
+----------
+[DROP_VIEW] drop view app.dt_v;
+----------
+[DROP_PROG_OBJ] drop function app.date_f;
+----------
+[DROP_PROG_OBJ] drop function app.time_f;
+----------
+[DROP_PROG_OBJ] drop function app.timestamp_f;
+----------
+[DROP_PROG_OBJ] drop function app.datetime_f;
+----------
+[DROP_TABLE] drop table app.dt_p_date;
+----------
+[DROP_TABLE] drop table app.dt_p_time;
+----------
+[DROP_TABLE] drop table app.dt_p_ts;
+----------
+[DROP_TABLE] drop table app.dt_t;

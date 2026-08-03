@@ -1,0 +1,13 @@
+[extract]
+sql:
+select extract(year from t.i_ym) as years,
+extract(day from t.i_ds) as days from catalog1.app.iv_t t
+expect:
+{"years":["/catalog1/app/iv_t/i_ym/"],"days":["/catalog1/app/iv_t/i_ds/"]}
+----------
+[arithmetic]
+sql:
+select t.i_ym+interval '1' year as next_year,
+t.i_ds+interval '1' day as next_day from catalog1.app.iv_t t
+expect:
+{"next_year":["/catalog1/app/iv_t/i_ym/"],"next_day":["/catalog1/app/iv_t/i_ds/"]}

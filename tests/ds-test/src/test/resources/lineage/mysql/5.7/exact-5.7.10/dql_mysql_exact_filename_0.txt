@@ -1,0 +1,31 @@
+[dql_mysql_exact_filename_0.0001]
+sql:
+SELECT _filename'abcd';
+expect:
+{
+  "abcd" : [ ]
+}
+----------
+[dql_mysql_exact_filename_0.0002]
+sql:
+SELECT _filename;
+expect:
+{
+  "_filename" : [ ]
+}
+----------
+[dql_mysql_exact_filename_0.0003]
+sql:
+SELECT 1 AS _filename;
+expect:
+{
+  "_filename" : [ ]
+}
+----------
+[dql_mysql_exact_filename_0.0004]
+sql:
+SELECT 1 AS `_filename`;
+expect:
+{
+  "_filename" : [ ]
+}

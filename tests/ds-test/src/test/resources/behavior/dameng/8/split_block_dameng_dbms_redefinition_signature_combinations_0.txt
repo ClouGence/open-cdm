@@ -1,0 +1,156 @@
+[split_block_dameng_dbms_redefinition_signature_combinations_0_001]
+sql:
+-- FUNC-0705 ABORT_REDEF_TABLE
+call DBMS_REDEFINITION.ABORT_REDEF_TABLE('SYSDBA','T','TI',NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:40) /test/1/catalog1/DBMS_REDEFINITION/ABORT_REDEF_TABLE/",
+      "action": "CALL",
+      "target": [
+        "Table(2:50~2:53) /test/1/catalog1/SYSDBA/T/",
+        "Table(2:54~2:58) /test/1/catalog1/SYSDBA/TI/"
+      ]
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_redefinition_signature_combinations_0_002]
+sql:
+-- FUNC-0706 CAN_REDEF_TABLE
+call DBMS_REDEFINITION.CAN_REDEF_TABLE('SYSDBA','T',DBMS_REDEFINITION.CONS_USE_PK,NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:38) /test/1/catalog1/DBMS_REDEFINITION/CAN_REDEF_TABLE/",
+      "action": "CALL",
+      "target": "Table(2:48~2:51) /test/1/catalog1/SYSDBA/T/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_redefinition_signature_combinations_0_003]
+sql:
+-- FUNC-0707 COPY_TABLE_DEPENDENTS
+declare n int;
+begin DBMS_REDEFINITION.COPY_TABLE_DEPENDENTS(
+'SYSDBA','T','TI',1,TRUE,TRUE,TRUE,FALSE,n,FALSE,FALSE); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(3:6~3:45) /test/1/catalog1/DBMS_REDEFINITION/COPY_TABLE_DEPENDENTS/",
+      "action": "CALL",
+      "target": [
+        "Table(4:9~4:12) /test/1/catalog1/SYSDBA/T/",
+        "Table(4:13~4:17) /test/1/catalog1/SYSDBA/TI/"
+      ]
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_redefinition_signature_combinations_0_004]
+sql:
+-- FUNC-0708 FINISH_REDEF_TABLE
+call DBMS_REDEFINITION.FINISH_REDEF_TABLE('SYSDBA','T','TI',NULL,30,FALSE);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:41) /test/1/catalog1/DBMS_REDEFINITION/FINISH_REDEF_TABLE/",
+      "action": "CALL",
+      "target": [
+        "Table(2:51~2:54) /test/1/catalog1/SYSDBA/T/",
+        "Table(2:55~2:59) /test/1/catalog1/SYSDBA/TI/"
+      ]
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_redefinition_signature_combinations_0_005]
+sql:
+-- FUNC-0709 DELETE_REDUNDANT_RECORD
+call DBMS_REDEFINITION.DELETE_REDUNDANT_RECORD(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:46) /test/1/catalog1/DBMS_REDEFINITION/DELETE_REDUNDANT_RECORD/",
+      "action": "CALL",
+      "target": "Table(2:47~2:48) /test/1/catalog1/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_redefinition_signature_combinations_0_006]
+sql:
+-- FUNC-0710 SET_PARAM
+call DBMS_REDEFINITION.SET_PARAM('1','REFRESH_DEP_MVIEWS','0');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:32) /test/1/catalog1/DBMS_REDEFINITION/SET_PARAM/",
+      "action": "CALL",
+      "target": [
+        "Table(2:33~2:36) /test/1/catalog1/",
+        "ConfigKey(2:37~2:57) /test/1/REFRESH_DEP_MVIEWS/"
+      ]
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_redefinition_signature_combinations_0_007]
+sql:
+-- FUNC-0711 START_REDEF_TABLE
+call DBMS_REDEFINITION.START_REDEF_TABLE(
+'SYSDBA','T','TI',NULL,DBMS_REDEFINITION.CONS_USE_PK,NULL,NULL,FALSE,1,'N');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:40) /test/1/catalog1/DBMS_REDEFINITION/START_REDEF_TABLE/",
+      "action": "CALL",
+      "target": [
+        "Table(3:9~3:12) /test/1/catalog1/SYSDBA/T/",
+        "Table(3:13~3:17) /test/1/catalog1/SYSDBA/TI/"
+      ]
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_redefinition_signature_combinations_0_008]
+sql:
+-- FUNC-0712 SYNC_INTERIM_TABLE
+call DBMS_REDEFINITION.SYNC_INTERIM_TABLE('SYSDBA','T','TI',NULL,FALSE);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:41) /test/1/catalog1/DBMS_REDEFINITION/SYNC_INTERIM_TABLE/",
+      "action": "CALL",
+      "target": [
+        "Table(2:51~2:54) /test/1/catalog1/SYSDBA/T/",
+        "Table(2:55~2:59) /test/1/catalog1/SYSDBA/TI/"
+      ]
+    }
+  ]
+}

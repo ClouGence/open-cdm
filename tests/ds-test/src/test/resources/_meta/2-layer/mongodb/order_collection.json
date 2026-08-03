@@ -1,0 +1,33 @@
+[
+  {
+    "columns": [
+      {
+        "column": "_id",
+        "table": "order_collection",
+        "schema": "mongodb"
+      }
+    ],
+    "itemAlias": "_id",
+    "icon": "COLUMN-PK"
+  },
+  {
+    "columns": [
+      {
+        "column": "user_id",
+        "table": "order_collection",
+        "schema": "mongodb"
+      }
+    ],
+    "itemAlias": "user_id"
+  },
+  {
+    "columns": [
+      {
+        "column": "amount",
+        "table": "order_collection",
+        "schema": "mongodb"
+      }
+    ],
+    "itemAlias": "amount"
+  }
+]

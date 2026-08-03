@@ -1,0 +1,508 @@
+[split_ddl_dml_dql_block_dameng_pls_integer_type_atomic_0_001_behavior_review]
+sql:
+create table app.plsint_t(
+  id pls_integer primary key,v pls_integer default 0 not null,
+  v_null pls_integer null,
+  constraint ck_plsint check(v between -2147483648 and 2147483647),
+  constraint uk_plsint unique(v));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/app/plsint_t/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_pls_integer_type_atomic_0_002_behavior_review]
+sql:
+comment on column app.plsint_t.v is 'PLS_INTEGER value';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "COMMENT_COLUMN": [
+    {
+      "subject": "Table(1:18~1:30) /test/1/catalog1/app/plsint_t/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_pls_integer_type_atomic_0_003_behavior_review]
+sql:
+create index app.idx_plsint on app.plsint_t(v,id);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:27) /test/1/catalog1/app/idx_plsint/",
+      "action" : "CREATE",
+      "target" : "Table(1:31~1:43) /test/1/catalog1/app/plsint_t/"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_pls_integer_type_atomic_0_004_behavior_review]
+sql:
+alter table app.plsint_t add v_alter pls_integer default 7;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_COLUMN": [
+    {
+      "subject": "Table(1:12~1:24) /test/1/catalog1/app/plsint_t/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_pls_integer_type_atomic_0_005_behavior_review]
+sql:
+alter table app.plsint_t modify v_alter pls_integer;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_COLUMN": [
+    {
+      "subject": "Table(1:12~1:24) /test/1/catalog1/app/plsint_t/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_pls_integer_type_atomic_0_006_behavior_review]
+sql:
+insert into app.plsint_t values(-2147483648,-2147483648,null,7);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:24) /test/1/catalog1/app/plsint_t/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_pls_integer_type_atomic_0_007_behavior_review]
+sql:
+insert into app.plsint_t values(2147483647,2147483647,null,8);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:24) /test/1/catalog1/app/plsint_t/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_pls_integer_type_atomic_0_008_behavior_review]
+sql:
+insert into app.plsint_t(id) values(0);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:24) /test/1/catalog1/app/plsint_t/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_pls_integer_type_atomic_0_009_behavior_review]
+sql:
+insert into app.plsint_t values(1,'123',null,9);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:24) /test/1/catalog1/app/plsint_t/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_pls_integer_type_atomic_0_010_behavior_review]
+sql:
+update app.plsint_t set v=v+1,v_alter=v_alter+1 where id=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:19) /test/1/catalog1/app/plsint_t/",
+      "action" : "UPDATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_pls_integer_type_atomic_0_011_behavior_review]
+sql:
+select id,v,v_null,v_alter from app.plsint_t order by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:32~1:44) /test/1/catalog1/app/plsint_t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_pls_integer_type_atomic_0_012_behavior_review]
+sql:
+select abs(v),mod(v,10),power(v,2),sign(v),cast(v as varchar(20))
+  from app.plsint_t where id=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/abs/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:14~1:17) /test/1/catalog1/schema1/mod/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:24~1:29) /test/1/catalog1/schema1/power/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:35~1:39) /test/1/catalog1/schema1/sign/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(2:7~2:19) /test/1/catalog1/app/plsint_t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_pls_integer_type_atomic_0_013_behavior_review]
+sql:
+select min(v),max(v),sum(cast(v as bigint)),avg(v),count(v)
+  from app.plsint_t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/min/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:14~1:17) /test/1/catalog1/schema1/max/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:21~1:24) /test/1/catalog1/schema1/sum/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:44~1:47) /test/1/catalog1/schema1/avg/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:51~1:56) /test/1/catalog1/schema1/count/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(2:7~2:19) /test/1/catalog1/app/plsint_t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_pls_integer_type_atomic_0_014_behavior_review]
+sql:
+select id from app.plsint_t index idx_plsint
+  where v>=0 order by v;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:15~1:27) /test/1/catalog1/app/plsint_t/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Index(1:34~1:44) /test/1/catalog1/app/idx_plsint/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_pls_integer_type_atomic_0_015_behavior_review]
+sql:
+select data_type,data_length,data_precision,data_scale
+  from user_tab_columns where table_name='PLSINT_T' order by column_id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(2:7~2:23) /test/1/catalog1/schema1/user_tab_columns/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_pls_integer_type_atomic_0_016_behavior_review]
+sql:
+create view app.plsint_v as
+  select id,v,v_alter from app.plsint_t where v>=0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:24) /test/1/catalog1/app/plsint_v/",
+      "action" : "CREATE",
+      "target" : "Table(2:27~2:39) /test/1/catalog1/app/plsint_t/"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_pls_integer_type_atomic_0_017_behavior_review]
+sql:
+select id,cast(v as bigint)+v_alter as total
+  from app.plsint_v order by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:7~2:19) /test/1/catalog1/app/plsint_v/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_pls_integer_type_atomic_0_018_behavior_review]
+sql:
+update app.plsint_v set v_alter=v_alter+1 where id=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:19) /test/1/catalog1/app/plsint_v/",
+      "action" : "UPDATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_pls_integer_type_atomic_0_019_behavior_review]
+sql:
+create function app.plsint_f(p_value pls_integer)
+  return pls_integer as
+begin
+  return p_value;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:28) /test/1/catalog1/app/plsint_f/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_pls_integer_type_atomic_0_020_behavior_review]
+sql:
+select app.plsint_f(-2147483648),app.plsint_f(2147483647) from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/app/plsint_f/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:33~1:45) /test/1/catalog1/app/plsint_f/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:63~1:67) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_pls_integer_type_atomic_0_021_behavior_review]
+sql:
+create table app.plsint_p(id pls_integer,v int)
+  partition by range(id)(partition p0 values less than(0),
+  partition p1 values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/app/plsint_p/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_pls_integer_type_atomic_0_022_behavior_review]
+sql:
+insert into app.plsint_p values(-2147483648,1),(2147483647,2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:24) /test/1/catalog1/app/plsint_p/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_pls_integer_type_atomic_0_023_behavior_review]
+sql:
+select count(*) from app.plsint_p partition for(-1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Partition(1:34~1:51) /test/1/catalog1/app/plsint_p/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_pls_integer_type_atomic_0_024_behavior_review]
+sql:
+select count(*) from app.plsint_p partition for(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Partition(1:34~1:50) /test/1/catalog1/app/plsint_p/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_pls_integer_type_atomic_0_025_behavior_review]
+sql:
+create table app.bad_plsint_pair(c pls_integer(1));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:32) /test/1/catalog1/app/bad_plsint_pair/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_pls_integer_type_atomic_0_026_behavior_review]
+sql:
+insert into app.plsint_t(id,v) values(101,2147483648);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:24) /test/1/catalog1/app/plsint_t/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_pls_integer_type_atomic_0_027_behavior_review]
+sql:
+insert into app.plsint_t(id,v) values(102,-2147483649);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:24) /test/1/catalog1/app/plsint_t/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_pls_integer_type_atomic_0_028_behavior_review]
+sql:
+insert into app.plsint_t(id,v) values(103,null);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:24) /test/1/catalog1/app/plsint_t/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_pls_integer_type_atomic_0_029_behavior_review]
+sql:
+select cast(2147483647 as pls_integer)+1 from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:46~1:50) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}

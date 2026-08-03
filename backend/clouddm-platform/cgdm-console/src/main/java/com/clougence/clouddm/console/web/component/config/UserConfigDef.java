@@ -40,6 +40,14 @@ public @interface UserConfigDef {
 
     String valueRange() default "";
 
+    long minValue() default Long.MIN_VALUE;
+
+    long maxValue() default Long.MAX_VALUE;
+
+    String[] allowedValues() default {};
+
+    boolean required() default false;
+
     boolean readOnly() default false;
 
     UserConfigTagType configTagType() default UserConfigTagType.COMMON;

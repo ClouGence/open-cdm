@@ -1,0 +1,1135 @@
+[split_dql_dameng_set_operation_atomic_0_behavior_review_001]
+sql:
+-- UNION default
+select a from app.set_left union select a from app.set_right;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:14~2:26) /test/1/catalog1/app/set_left/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:47~2:60) /test/1/catalog1/app/set_right/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_set_operation_atomic_0_behavior_review_002]
+sql:
+-- UNION all
+select a from app.set_left union all select a from app.set_right;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:14~2:26) /test/1/catalog1/app/set_left/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:51~2:64) /test/1/catalog1/app/set_right/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_set_operation_atomic_0_behavior_review_003]
+sql:
+-- UNION distinct
+select a from app.set_left union distinct select a from app.set_right;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:14~2:26) /test/1/catalog1/app/set_left/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:56~2:69) /test/1/catalog1/app/set_right/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_set_operation_atomic_0_behavior_review_004]
+sql:
+-- UNION unique
+select a from app.set_left union unique select a from app.set_right;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:14~2:26) /test/1/catalog1/app/set_left/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:54~2:67) /test/1/catalog1/app/set_right/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_set_operation_atomic_0_behavior_review_005]
+sql:
+-- INTERSECT default
+select a from app.set_left intersect select a from app.set_right;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:14~2:26) /test/1/catalog1/app/set_left/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:51~2:64) /test/1/catalog1/app/set_right/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_set_operation_atomic_0_behavior_review_006]
+sql:
+-- INTERSECT all
+select a from app.set_left intersect all select a from app.set_right;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:14~2:26) /test/1/catalog1/app/set_left/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:55~2:68) /test/1/catalog1/app/set_right/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_set_operation_atomic_0_behavior_review_007]
+sql:
+-- INTERSECT distinct
+select a from app.set_left intersect distinct select a from app.set_right;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:14~2:26) /test/1/catalog1/app/set_left/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:60~2:73) /test/1/catalog1/app/set_right/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_set_operation_atomic_0_behavior_review_008]
+sql:
+-- INTERSECT unique
+select a from app.set_left intersect unique select a from app.set_right;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:14~2:26) /test/1/catalog1/app/set_left/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:58~2:71) /test/1/catalog1/app/set_right/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_set_operation_atomic_0_behavior_review_009]
+sql:
+-- MINUS default
+select a from app.set_left minus select a from app.set_right;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:14~2:26) /test/1/catalog1/app/set_left/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:47~2:60) /test/1/catalog1/app/set_right/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_set_operation_atomic_0_behavior_review_010]
+sql:
+-- MINUS all
+select a from app.set_left minus all select a from app.set_right;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:14~2:26) /test/1/catalog1/app/set_left/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:51~2:64) /test/1/catalog1/app/set_right/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_set_operation_atomic_0_behavior_review_011]
+sql:
+-- MINUS distinct
+select a from app.set_left minus distinct select a from app.set_right;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:14~2:26) /test/1/catalog1/app/set_left/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:56~2:69) /test/1/catalog1/app/set_right/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_set_operation_atomic_0_behavior_review_012]
+sql:
+-- MINUS unique
+select a from app.set_left minus unique select a from app.set_right;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:14~2:26) /test/1/catalog1/app/set_left/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:54~2:67) /test/1/catalog1/app/set_right/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_set_operation_atomic_0_behavior_review_013]
+sql:
+-- EXCEPT default
+select a from app.set_left except select a from app.set_right;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:14~2:26) /test/1/catalog1/app/set_left/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:48~2:61) /test/1/catalog1/app/set_right/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_set_operation_atomic_0_behavior_review_014]
+sql:
+-- EXCEPT all
+select a from app.set_left except all select a from app.set_right;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:14~2:26) /test/1/catalog1/app/set_left/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:52~2:65) /test/1/catalog1/app/set_right/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_set_operation_atomic_0_behavior_review_015]
+sql:
+-- EXCEPT distinct
+select a from app.set_left except distinct select a from app.set_right;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:14~2:26) /test/1/catalog1/app/set_left/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:57~2:70) /test/1/catalog1/app/set_right/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_set_operation_atomic_0_behavior_review_016]
+sql:
+-- EXCEPT unique
+select a from app.set_left except unique select a from app.set_right;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:14~2:26) /test/1/catalog1/app/set_left/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:55~2:68) /test/1/catalog1/app/set_right/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_set_operation_atomic_0_behavior_review_017]
+sql:
+-- UNION CORRESPONDING
+select a,b from app.set_left union corresponding select a,b from app.set_right;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:16~2:28) /test/1/catalog1/app/set_left/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:65~2:78) /test/1/catalog1/app/set_right/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_set_operation_atomic_0_behavior_review_018]
+sql:
+-- UNION CORRESPONDING BY
+select a,b from app.set_left union all corresponding by(a) select a,b from app.set_right;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:16~2:28) /test/1/catalog1/app/set_left/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:75~2:88) /test/1/catalog1/app/set_right/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_set_operation_atomic_0_behavior_review_019]
+sql:
+-- INTERSECT CORRESPONDING
+select a,b from app.set_left intersect corresponding select a,b from app.set_right;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:16~2:28) /test/1/catalog1/app/set_left/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:69~2:82) /test/1/catalog1/app/set_right/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_set_operation_atomic_0_behavior_review_020]
+sql:
+-- INTERSECT CORRESPONDING BY
+select a,b from app.set_left intersect all corresponding by(a) select a,b from app.set_right;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:16~2:28) /test/1/catalog1/app/set_left/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:79~2:92) /test/1/catalog1/app/set_right/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_set_operation_atomic_0_behavior_review_021]
+sql:
+-- MINUS CORRESPONDING
+select a,b from app.set_left minus corresponding select a,b from app.set_right;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:16~2:28) /test/1/catalog1/app/set_left/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:65~2:78) /test/1/catalog1/app/set_right/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_set_operation_atomic_0_behavior_review_022]
+sql:
+-- MINUS CORRESPONDING BY
+select a,b from app.set_left minus all corresponding by(a) select a,b from app.set_right;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:16~2:28) /test/1/catalog1/app/set_left/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:75~2:88) /test/1/catalog1/app/set_right/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_set_operation_atomic_0_behavior_review_023]
+sql:
+-- EXCEPT CORRESPONDING
+select a,b from app.set_left except corresponding select a,b from app.set_right;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:16~2:28) /test/1/catalog1/app/set_left/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:66~2:79) /test/1/catalog1/app/set_right/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_set_operation_atomic_0_behavior_review_024]
+sql:
+-- EXCEPT CORRESPONDING BY
+select a,b from app.set_left except all corresponding by(a) select a,b from app.set_right;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:16~2:28) /test/1/catalog1/app/set_left/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:76~2:89) /test/1/catalog1/app/set_right/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_set_operation_atomic_0_behavior_review_025]
+sql:
+-- CORRESPONDING alias match
+select a left_a,b shared_b from app.set_left union all corresponding by(shared_b) select a right_a,b shared_b from app.set_right;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:32~2:44) /test/1/catalog1/app/set_left/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:115~2:128) /test/1/catalog1/app/set_right/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_set_operation_atomic_0_behavior_review_026]
+sql:
+-- CORRESPONDING two columns
+select a,b from app.set_left union corresponding by(a,b) select a,b from app.set_right;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:16~2:28) /test/1/catalog1/app/set_left/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:73~2:86) /test/1/catalog1/app/set_right/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_set_operation_atomic_0_behavior_review_027]
+sql:
+-- CORRESPONDING missing common restriction
+select a left_a from app.set_left union corresponding select a right_a from app.set_right;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:21~2:33) /test/1/catalog1/app/set_left/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:76~2:89) /test/1/catalog1/app/set_right/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_set_operation_atomic_0_behavior_review_028]
+sql:
+-- CORRESPONDING BY missing column restriction
+select a from app.set_left union corresponding by(missing_col) select a from app.set_right;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:14~2:26) /test/1/catalog1/app/set_left/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:77~2:90) /test/1/catalog1/app/set_right/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_set_operation_atomic_0_behavior_review_029]
+sql:
+-- three branch UNION
+select 1 from dual union select 2 from dual union select 3 from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(2:14~2:18) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(2:39~2:43) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(2:64~2:68) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_set_operation_atomic_0_behavior_review_030]
+sql:
+-- mixed UNION and INTERSECT
+select 1 from dual union select 2 from dual intersect select 2 from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(2:14~2:18) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(2:39~2:43) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(2:68~2:72) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_set_operation_atomic_0_behavior_review_031]
+sql:
+-- mixed MINUS and UNION ALL
+select 1 from dual minus select 2 from dual union all select 3 from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(2:14~2:18) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(2:39~2:43) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(2:68~2:72) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_set_operation_atomic_0_behavior_review_032]
+sql:
+-- left parenthesized
+(select 1 from dual union all select 2 from dual) intersect select 2 from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(2:15~2:19) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(2:44~2:48) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(2:74~2:78) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_set_operation_atomic_0_behavior_review_033]
+sql:
+-- right parenthesized
+select 1 from dual union all(select 2 from dual intersect select 2 from dual);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(2:14~2:18) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(2:43~2:47) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(2:72~2:76) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_set_operation_atomic_0_behavior_review_034]
+sql:
+-- both parenthesized
+(select 1 from dual union select 2 from dual) minus (select 2 from dual union select 3 from dual);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(2:15~2:19) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(2:40~2:44) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(2:67~2:71) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(2:92~2:96) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_set_operation_atomic_0_behavior_review_035]
+sql:
+-- nested three levels
+select 1 from dual union all(select 2 from dual minus(select 3 from dual union select 4 from dual));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(2:14~2:18) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(2:43~2:47) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(2:68~2:72) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(2:93~2:97) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_set_operation_atomic_0_behavior_review_036]
+sql:
+-- final ORDER BY ordinal
+select 2 a from dual union all select 1 from dual order by 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(2:16~2:20) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(2:45~2:49) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_set_operation_atomic_0_behavior_review_037]
+sql:
+-- final ORDER BY first alias
+select 2 a from dual union all select 1 b from dual order by a;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(2:16~2:20) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(2:47~2:51) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_set_operation_atomic_0_behavior_review_038]
+sql:
+-- final ORDER BY second alias restriction
+select 2 a from dual union all select 1 b from dual order by b;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(2:16~2:20) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(2:47~2:51) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_set_operation_atomic_0_behavior_review_039]
+sql:
+-- final LIMIT
+select a from app.set_left union all select a from app.set_right limit 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:14~2:26) /test/1/catalog1/app/set_left/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:51~2:64) /test/1/catalog1/app/set_right/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_set_operation_atomic_0_behavior_review_040]
+sql:
+-- final ROW_LIMIT
+select a from app.set_left union all select a from app.set_right fetch first 2 rows only;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:14~2:26) /test/1/catalog1/app/set_left/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:51~2:64) /test/1/catalog1/app/set_right/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_set_operation_atomic_0_behavior_review_041]
+sql:
+-- branch ORDER BY parenthesized
+(select a from app.set_left order by a limit 1) union all(select a from app.set_right order by a limit 1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:15~2:27) /test/1/catalog1/app/set_left/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:72~2:85) /test/1/catalog1/app/set_right/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_set_operation_atomic_0_behavior_review_042]
+sql:
+-- UNION compatible numeric types
+select cast(a as int) value from app.set_left union select cast(a as bigint) from app.set_right;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:33~2:45) /test/1/catalog1/app/set_left/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:82~2:95) /test/1/catalog1/app/set_right/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_set_operation_atomic_0_behavior_review_043]
+sql:
+-- UNION compatible character types
+select cast(b as varchar(20)) value from app.set_left union select cast(b as char(20)) from app.set_right;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:41~2:53) /test/1/catalog1/app/set_left/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:92~2:105) /test/1/catalog1/app/set_right/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_set_operation_atomic_0_behavior_review_044]
+sql:
+-- UNION incompatible type restriction
+select a from app.set_left union select dt from app.set_right;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:14~2:26) /test/1/catalog1/app/set_left/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:48~2:61) /test/1/catalog1/app/set_right/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_set_operation_atomic_0_behavior_review_045]
+sql:
+-- UNION column count restriction
+select a,b from app.set_left union select a from app.set_right;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:16~2:28) /test/1/catalog1/app/set_left/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:49~2:62) /test/1/catalog1/app/set_right/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_set_operation_atomic_0_behavior_review_046]
+sql:
+-- INTERSECT type exact restriction
+select cast(a as int) from app.set_left intersect select cast(a as bigint) from app.set_right;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:27~2:39) /test/1/catalog1/app/set_left/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:80~2:93) /test/1/catalog1/app/set_right/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_set_operation_atomic_0_behavior_review_047]
+sql:
+-- MINUS column count restriction
+select a,b from app.set_left minus select a from app.set_right;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:16~2:28) /test/1/catalog1/app/set_left/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:49~2:62) /test/1/catalog1/app/set_right/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_set_operation_atomic_0_behavior_review_048]
+sql:
+-- UNION BLOB availability
+select blob_col from app.set_lob_left union select blob_col from app.set_lob_right;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:21~2:37) /test/1/catalog1/app/set_lob_left/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:65~2:82) /test/1/catalog1/app/set_lob_right/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_set_operation_atomic_0_behavior_review_049]
+sql:
+-- INTERSECT CLOB restriction
+select clob_col from app.set_lob_left intersect select clob_col from app.set_lob_right;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:21~2:37) /test/1/catalog1/app/set_lob_left/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:69~2:86) /test/1/catalog1/app/set_lob_right/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_set_operation_atomic_0_behavior_review_050]
+sql:
+-- EXCEPT IMAGE restriction
+select image_col from app.set_lob_left except select image_col from app.set_lob_right;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:22~2:38) /test/1/catalog1/app/set_lob_left/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:68~2:85) /test/1/catalog1/app/set_lob_right/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_set_operation_atomic_0_behavior_review_051]
+sql:
+-- set operation with CTE
+with q(a) as(select a from app.set_left) select a from q union all select a from app.set_right;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:27~2:39) /test/1/catalog1/app/set_left/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:81~2:94) /test/1/catalog1/app/set_right/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_set_operation_atomic_0_behavior_review_052]
+sql:
+-- set operation with analytic
+select a,row_number() over(order by a) rn from app.set_left union all select a,row_number() over(order by a) from app.set_right;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:9~2:19) /test/1/catalog1/schema1/row_number/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:79~2:89) /test/1/catalog1/schema1/row_number/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:47~2:59) /test/1/catalog1/app/set_left/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:114~2:127) /test/1/catalog1/app/set_right/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_set_operation_atomic_0_behavior_review_053]
+sql:
+-- set operation with GROUP
+select b,count(*) total from app.set_left group by b union all select b,count(*) from app.set_right group by b;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:9~2:14) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:72~2:77) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:29~2:41) /test/1/catalog1/app/set_left/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:86~2:99) /test/1/catalog1/app/set_right/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_set_operation_atomic_0_behavior_review_054]
+sql:
+-- set operation derived table
+select sum(a) from(select a from app.set_left union all select a from app.set_right) q;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:10) /test/1/catalog1/schema1/sum/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:33~2:45) /test/1/catalog1/app/set_left/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:70~2:83) /test/1/catalog1/app/set_right/",
+      "action": "READ"
+    }
+  ]
+}

@@ -1,0 +1,180 @@
+SELECT 'abc' LIKE 'abc';
+SELECT 'abc' LIKE 'a%';
+SELECT 'abc' LIKE '_b_';
+SELECT 'abc' NOT LIKE 'c';
+SELECT 'h%' LIKE 'h#%' ESCAPE '#';
+SELECT 'h%wkeye' LIKE 'h#%%' ESCAPE '#';
+SELECT 'i_dio' LIKE 'i$_d_o' ESCAPE '$';
+SELECT 'ma%a' LIKE 'm%a%%a' ESCAPE '%';
+SELECT 'be_r' LIKE 'b_e__r' ESCAPE '_';
+SELECT 'abcd\efg' LIKE 'abcd\%' ESCAPE '';
+SELECT 'hawkeye' ILIKE 'H%Eye';
+SELECT 'Hawkeye' NOT ILIKE 'z%';
+SELECT 'alphabet' ~~ 'alph%';
+SELECT 'alphabet' ~~* 'ALPH%';
+SELECT 'alphabet' !~~ 'beta%';
+SELECT 'alphabet' !~~* 'BETA%';
+SELECT 'abc'::name LIKE '_b_';
+SELECT 'abc'::bytea LIKE '_b_'::bytea;
+SELECT 'abc' LIKE ANY (ARRAY['z%', 'a%']);
+SELECT 'abc' NOT LIKE ALL (ARRAY['z%', 'x%']);
+SELECT 'abc' SIMILAR TO 'abc';
+SELECT 'abc' SIMILAR TO '%(b|d)%';
+SELECT 'abc' NOT SIMILAR TO '(b|c)%';
+SELECT 'abcd%' SIMILAR TO '_bcd#%' ESCAPE '#';
+SELECT 'abcd\efg' SIMILAR TO '_bcd\%' ESCAPE '';
+SELECT 'abc123' SIMILAR TO '[a-z]{3}[0-9]{3}';
+SELECT 'abc' SIMILAR TO 'a(b|c)+';
+SELECT 'abc' SIMILAR TO 'a(b)?c';
+SELECT 'abc' SIMILAR TO 'a.c';
+SELECT substring('foobar' similar '%#"o_b#"%' escape '#');
+SELECT substring('foobar' from '%#"o_b#"%' for '#');
+SELECT substring('foobar', '%#"o_b#"%', '#');
+SELECT 'thomas' ~ 't.*ma';
+SELECT 'thomas' ~* 'T.*MA';
+SELECT 'thomas' !~ 't.*max';
+SELECT 'thomas' !~* 'X.*MA';
+SELECT 'abcd' ~ 'bc';
+SELECT 'abcd' ~ '^a';
+SELECT 'abcd' !~ '^(b|c)';
+SELECT 'abc123' ~ '[[:alpha:]]{3}[[:digit:]]{3}';
+SELECT 'abc' ~ '(?:a)(b)c';
+SELECT 'foobar' ~ 'foo(?=bar)';
+SELECT 'foobar' ~ '(?<=foo)bar';
+SELECT 'foobaz' ~ 'foo(?!bar)';
+SELECT 'foobaz' ~ '(?<!bar)baz';
+SELECT substring('foobar' from 'o.b');
+SELECT substring('foobar' from 'o(.)b');
+SELECT regexp_count('ABCABCAXYaxy', 'A.');
+SELECT regexp_count('ABCABCAXYaxy', 'A.', 1, 'i');
+SELECT regexp_instr('number of your street, town zip, FR', '[^,]+', 1, 2);
+SELECT regexp_like('Hello World', 'world', 'i');
+SELECT regexp_match('foobarbequebaz', 'bar.*que');
+SELECT regexp_matches('foobarbequebazilbarfbonk', '(b[^b]+)(b[^b]+)', 'g');
+SELECT regexp_replace('foobarbaz', 'b..', 'X');
+SELECT regexp_replace('foobarbaz', 'b..', 'X', 'g');
+SELECT regexp_replace('A PostgreSQL function', 'a|e|i|o|u', 'X', 1, 0, 'i');
+SELECT regexp_split_to_array('the quick brown fox jumps over the lazy dog', '\s+');
+SELECT foo FROM regexp_split_to_table('the quick brown fox', '\s+') AS foo;
+SELECT regexp_substr('number of your street, town zip, FR', '[^,]+', 1, 2);
+SELECT regexp_substr('ABCDEFGHI', '(c..)(...)', 1, 1, 'i', 2);
+------------------------------------------------------------------------------------------
+[SELECT] SELECT 'abc' LIKE 'abc';
+----------
+[SELECT] SELECT 'abc' LIKE 'a%';
+----------
+[SELECT] SELECT 'abc' LIKE '_b_';
+----------
+[SELECT] SELECT 'abc' NOT LIKE 'c';
+----------
+[SELECT] SELECT 'h%' LIKE 'h#%' ESCAPE '#';
+----------
+[SELECT] SELECT 'h%wkeye' LIKE 'h#%%' ESCAPE '#';
+----------
+[SELECT] SELECT 'i_dio' LIKE 'i$_d_o' ESCAPE '$';
+----------
+[SELECT] SELECT 'ma%a' LIKE 'm%a%%a' ESCAPE '%';
+----------
+[SELECT] SELECT 'be_r' LIKE 'b_e__r' ESCAPE '_';
+----------
+[SELECT] SELECT 'abcd\efg' LIKE 'abcd\%' ESCAPE '';
+----------
+[SELECT] SELECT 'hawkeye' ILIKE 'H%Eye';
+----------
+[SELECT] SELECT 'Hawkeye' NOT ILIKE 'z%';
+----------
+[SELECT] SELECT 'alphabet' ~~ 'alph%';
+----------
+[SELECT] SELECT 'alphabet' ~~* 'ALPH%';
+----------
+[SELECT] SELECT 'alphabet' !~~ 'beta%';
+----------
+[SELECT] SELECT 'alphabet' !~~* 'BETA%';
+----------
+[SELECT] SELECT 'abc'::name LIKE '_b_';
+----------
+[SELECT] SELECT 'abc'::bytea LIKE '_b_'::bytea;
+----------
+[SELECT] SELECT 'abc' LIKE ANY (ARRAY['z%', 'a%']);
+----------
+[SELECT] SELECT 'abc' NOT LIKE ALL (ARRAY['z%', 'x%']);
+----------
+[SELECT] SELECT 'abc' SIMILAR TO 'abc';
+----------
+[SELECT] SELECT 'abc' SIMILAR TO '%(b|d)%';
+----------
+[SELECT] SELECT 'abc' NOT SIMILAR TO '(b|c)%';
+----------
+[SELECT] SELECT 'abcd%' SIMILAR TO '_bcd#%' ESCAPE '#';
+----------
+[SELECT] SELECT 'abcd\efg' SIMILAR TO '_bcd\%' ESCAPE '';
+----------
+[SELECT] SELECT 'abc123' SIMILAR TO '[a-z]{3}[0-9]{3}';
+----------
+[SELECT] SELECT 'abc' SIMILAR TO 'a(b|c)+';
+----------
+[SELECT] SELECT 'abc' SIMILAR TO 'a(b)?c';
+----------
+[SELECT] SELECT 'abc' SIMILAR TO 'a.c';
+----------
+[SELECT] SELECT substring('foobar' similar '%#"o_b#"%' escape '#');
+----------
+[SELECT] SELECT substring('foobar' from '%#"o_b#"%' for '#');
+----------
+[SELECT] SELECT substring('foobar', '%#"o_b#"%', '#');
+----------
+[SELECT] SELECT 'thomas' ~ 't.*ma';
+----------
+[SELECT] SELECT 'thomas' ~* 'T.*MA';
+----------
+[SELECT] SELECT 'thomas' !~ 't.*max';
+----------
+[SELECT] SELECT 'thomas' !~* 'X.*MA';
+----------
+[SELECT] SELECT 'abcd' ~ 'bc';
+----------
+[SELECT] SELECT 'abcd' ~ '^a';
+----------
+[SELECT] SELECT 'abcd' !~ '^(b|c)';
+----------
+[SELECT] SELECT 'abc123' ~ '[[:alpha:]]{3}[[:digit:]]{3}';
+----------
+[SELECT] SELECT 'abc' ~ '(?:a)(b)c';
+----------
+[SELECT] SELECT 'foobar' ~ 'foo(?=bar)';
+----------
+[SELECT] SELECT 'foobar' ~ '(?<=foo)bar';
+----------
+[SELECT] SELECT 'foobaz' ~ 'foo(?!bar)';
+----------
+[SELECT] SELECT 'foobaz' ~ '(?<!bar)baz';
+----------
+[SELECT] SELECT substring('foobar' from 'o.b');
+----------
+[SELECT] SELECT substring('foobar' from 'o(.)b');
+----------
+[SELECT] SELECT regexp_count('ABCABCAXYaxy', 'A.');
+----------
+[SELECT] SELECT regexp_count('ABCABCAXYaxy', 'A.', 1, 'i');
+----------
+[SELECT] SELECT regexp_instr('number of your street, town zip, FR', '[^,]+', 1, 2);
+----------
+[SELECT] SELECT regexp_like('Hello World', 'world', 'i');
+----------
+[SELECT] SELECT regexp_match('foobarbequebaz', 'bar.*que');
+----------
+[SELECT] SELECT regexp_matches('foobarbequebazilbarfbonk', '(b[^b]+)(b[^b]+)', 'g');
+----------
+[SELECT] SELECT regexp_replace('foobarbaz', 'b..', 'X');
+----------
+[SELECT] SELECT regexp_replace('foobarbaz', 'b..', 'X', 'g');
+----------
+[SELECT] SELECT regexp_replace('A PostgreSQL function', 'a|e|i|o|u', 'X', 1, 0, 'i');
+----------
+[SELECT] SELECT regexp_split_to_array('the quick brown fox jumps over the lazy dog', '\s+');
+----------
+[SELECT] SELECT foo FROM regexp_split_to_table('the quick brown fox', '\s+') AS foo;
+----------
+[SELECT] SELECT regexp_substr('number of your street, town zip, FR', '[^,]+', 1, 2);
+----------
+[SELECT] SELECT regexp_substr('ABCDEFGHI', '(c..)(...)', 1, 1, 'i', 2);

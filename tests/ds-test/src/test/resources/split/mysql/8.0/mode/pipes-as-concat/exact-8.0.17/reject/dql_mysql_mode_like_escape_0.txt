@@ -1,0 +1,12 @@
+SELECT 'ab' LIKE 'a' || '%' AS like_concat;
+SELECT 'ab' NOT LIKE 'a' || '%' AS not_like_concat;
+SELECT 'a%' LIKE 'a!' || '%' ESCAPE '!' AS pattern_concat;
+SELECT 'a%' LIKE 'a!%' ESCAPE '' || '!' AS escape_concat;
+------------------------------------------------------------------------------------------
+[SELECT] SELECT 'ab' LIKE 'a' || '%' AS like_concat;
+----------
+[SELECT] SELECT 'ab' NOT LIKE 'a' || '%' AS not_like_concat;
+----------
+[SELECT] SELECT 'a%' LIKE 'a!' || '%' ESCAPE '!' AS pattern_concat;
+----------
+[SELECT] SELECT 'a%' LIKE 'a!%' ESCAPE '' || '!' AS escape_concat;

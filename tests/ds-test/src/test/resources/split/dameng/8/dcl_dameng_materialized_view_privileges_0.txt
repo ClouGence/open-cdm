@@ -1,0 +1,24 @@
+grant create any materialized view to CODEX_DM8_MV_ACTOR_20260722;
+grant alter any materialized view to CODEX_DM8_MV_ACTOR_20260722;
+grant drop any materialized view to CODEX_DM8_MV_ACTOR_20260722;
+grant select any table to CODEX_DM8_MV_ACTOR_20260722;
+grant create any table to CODEX_DM8_MV_ACTOR_20260722;
+grant dba to CODEX_DM8_MV_ACTOR_20260722;
+grant create table, create materialized view to CODEX_DM8_MV_OWNER_20260722;
+grant select on CODEX_DM8_MV_ATOM_20260722.MV_BASE to CODEX_DM8_MV_OWNER_20260722;
+------------------------------------------------------------------------------------------
+[GRANT] grant create any materialized view to CODEX_DM8_MV_ACTOR_20260722;
+----------
+[GRANT] grant alter any materialized view to CODEX_DM8_MV_ACTOR_20260722;
+----------
+[GRANT] grant drop any materialized view to CODEX_DM8_MV_ACTOR_20260722;
+----------
+[GRANT] grant select any table to CODEX_DM8_MV_ACTOR_20260722;
+----------
+[GRANT] grant create any table to CODEX_DM8_MV_ACTOR_20260722;
+----------
+[GRANT] grant dba to CODEX_DM8_MV_ACTOR_20260722;
+----------
+[GRANT] grant create table, create materialized view to CODEX_DM8_MV_OWNER_20260722;
+----------
+[GRANT] grant select on CODEX_DM8_MV_ATOM_20260722.MV_BASE to CODEX_DM8_MV_OWNER_20260722;

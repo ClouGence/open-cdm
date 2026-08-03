@@ -1,0 +1,538 @@
+[split_dql_dml_dameng_partition_query_atomic_0_behavior_review_001]
+sql:
+-- CASE_001
+SELECT ID, KIND, NOTE FROM CODEX_DM8_PARTQUERY_20260727.T_RANGE ORDER BY ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:27~2:63) /test/1/catalog1/CODEX_DM8_PARTQUERY_20260727/T_RANGE/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_dameng_partition_query_atomic_0_behavior_review_002]
+sql:
+-- CASE_002
+SELECT ID, KIND, NOTE FROM CODEX_DM8_PARTQUERY_20260727.T_RANGE PARTITION(P_LT10) ORDER BY ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Partition(2:74~2:80) /test/1/catalog1/CODEX_DM8_PARTQUERY_20260727/T_RANGE/P_LT10/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_dameng_partition_query_atomic_0_behavior_review_003]
+sql:
+-- CASE_003
+SELECT ID, KIND, NOTE FROM CODEX_DM8_PARTQUERY_20260727.T_RANGE PARTITION FOR(5) ORDER BY ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Partition(2:64~2:80) /test/1/catalog1/CODEX_DM8_PARTQUERY_20260727/T_RANGE/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_dameng_partition_query_atomic_0_behavior_review_004]
+sql:
+-- CASE_004
+SELECT ID, KIND, NOTE FROM CODEX_DM8_PARTQUERY_20260727.T_RANGE PARTITION FOR(15) ORDER BY ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Partition(2:64~2:81) /test/1/catalog1/CODEX_DM8_PARTQUERY_20260727/T_RANGE/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_dameng_partition_query_atomic_0_behavior_review_005]
+sql:
+-- CASE_005
+SELECT P.ID, P.NOTE FROM CODEX_DM8_PARTQUERY_20260727.T_RANGE PARTITION(P_LT20) P WHERE P.ID >= 10 ORDER BY P.ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Partition(2:72~2:78) /test/1/catalog1/CODEX_DM8_PARTQUERY_20260727/T_RANGE/P_LT20/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_dameng_partition_query_atomic_0_behavior_review_006]
+sql:
+-- CASE_006
+SELECT ID, COUNT(*) FROM CODEX_DM8_PARTQUERY_20260727.T_RANGE PARTITION(P_LT10) GROUP BY ID HAVING COUNT(*) > 0 ORDER BY ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:11~2:16) /test/1/catalog1/schema1/COUNT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:99~2:104) /test/1/catalog1/schema1/COUNT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Partition(2:72~2:78) /test/1/catalog1/CODEX_DM8_PARTQUERY_20260727/T_RANGE/P_LT10/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_dameng_partition_query_atomic_0_behavior_review_007]
+sql:
+-- CASE_007
+SELECT COUNT(*), MIN(ID), MAX(ID) FROM CODEX_DM8_PARTQUERY_20260727.T_RANGE PARTITION(P_LT20);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/COUNT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:17~2:20) /test/1/catalog1/schema1/MIN/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:26~2:29) /test/1/catalog1/schema1/MAX/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Partition(2:86~2:92) /test/1/catalog1/CODEX_DM8_PARTQUERY_20260727/T_RANGE/P_LT20/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_dameng_partition_query_atomic_0_behavior_review_008]
+sql:
+-- CASE_008
+SELECT P.ID, D.DESCRIPTION
+FROM CODEX_DM8_PARTQUERY_20260727.T_RANGE PARTITION(P_LT20) P
+JOIN CODEX_DM8_PARTQUERY_20260727.T_DIM D ON D.KIND = P.KIND
+ORDER BY P.ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Partition(3:52~3:58) /test/1/catalog1/CODEX_DM8_PARTQUERY_20260727/T_RANGE/P_LT20/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(4:5~4:39) /test/1/catalog1/CODEX_DM8_PARTQUERY_20260727/T_DIM/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_dameng_partition_query_atomic_0_behavior_review_009]
+sql:
+-- CASE_009
+WITH Q AS (SELECT ID, KIND FROM CODEX_DM8_PARTQUERY_20260727.T_RANGE PARTITION(P_LT10))
+SELECT ID, KIND FROM Q ORDER BY ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Partition(2:79~2:85) /test/1/catalog1/CODEX_DM8_PARTQUERY_20260727/T_RANGE/P_LT10/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_dameng_partition_query_atomic_0_behavior_review_010]
+sql:
+-- CASE_010
+SELECT Q.ID FROM (SELECT ID FROM CODEX_DM8_PARTQUERY_20260727.T_RANGE PARTITION(P_LT20)) Q ORDER BY Q.ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Partition(2:80~2:86) /test/1/catalog1/CODEX_DM8_PARTQUERY_20260727/T_RANGE/P_LT20/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_dameng_partition_query_atomic_0_behavior_review_011]
+sql:
+-- CASE_011
+SELECT ID FROM CODEX_DM8_PARTQUERY_20260727.T_RANGE PARTITION(P_LT10)
+UNION ALL
+SELECT ID FROM CODEX_DM8_PARTQUERY_20260727.T_RANGE PARTITION(P_MAX)
+ORDER BY ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Partition(2:62~2:68) /test/1/catalog1/CODEX_DM8_PARTQUERY_20260727/T_RANGE/P_LT10/",
+      "action": "READ"
+    },
+    {
+      "subject": "Partition(4:62~4:67) /test/1/catalog1/CODEX_DM8_PARTQUERY_20260727/T_RANGE/P_MAX/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_dameng_partition_query_atomic_0_behavior_review_012]
+sql:
+-- CASE_012
+SELECT ID, ROW_NUMBER() OVER(ORDER BY ID)
+FROM CODEX_DM8_PARTQUERY_20260727.T_RANGE PARTITION(P_LT20)
+ORDER BY ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:11~2:21) /test/1/catalog1/schema1/ROW_NUMBER/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Partition(3:52~3:58) /test/1/catalog1/CODEX_DM8_PARTQUERY_20260727/T_RANGE/P_LT20/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_dameng_partition_query_atomic_0_behavior_review_013]
+sql:
+-- CASE_013
+SELECT ID, KIND FROM CODEX_DM8_PARTQUERY_20260727.T_RANGE_LIST PARTITION(P_LT10) ORDER BY ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Partition(2:73~2:79) /test/1/catalog1/CODEX_DM8_PARTQUERY_20260727/T_RANGE_LIST/P_LT10/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_dameng_partition_query_atomic_0_behavior_review_014]
+sql:
+-- CASE_014
+SELECT ID, KIND FROM CODEX_DM8_PARTQUERY_20260727.T_RANGE_LIST SUBPARTITION(P_LT10_SP_A) ORDER BY ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Partition(2:76~2:87) /test/1/catalog1/CODEX_DM8_PARTQUERY_20260727/T_RANGE_LIST/P_LT10_SP_A/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_dameng_partition_query_atomic_0_behavior_review_015]
+sql:
+-- CASE_015
+SELECT ID, KIND FROM CODEX_DM8_PARTQUERY_20260727.T_RANGE_LIST SUBPARTITION(P_LT10_SP_B) ORDER BY ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Partition(2:76~2:87) /test/1/catalog1/CODEX_DM8_PARTQUERY_20260727/T_RANGE_LIST/P_LT10_SP_B/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_dameng_partition_query_atomic_0_behavior_review_016]
+sql:
+-- CASE_016
+SELECT ID, KIND FROM CODEX_DM8_PARTQUERY_20260727.T_RANGE_LIST SUBPARTITION FOR(5, 'A') ORDER BY ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Partition(2:63~2:87) /test/1/catalog1/CODEX_DM8_PARTQUERY_20260727/T_RANGE_LIST/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_dameng_partition_query_atomic_0_behavior_review_017]
+sql:
+-- CASE_017
+SELECT ID, KIND FROM CODEX_DM8_PARTQUERY_20260727.T_RANGE_LIST SUBPARTITION FOR(15, 'B') ORDER BY ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Partition(2:63~2:88) /test/1/catalog1/CODEX_DM8_PARTQUERY_20260727/T_RANGE_LIST/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_dameng_partition_query_atomic_0_behavior_review_018]
+sql:
+-- CASE_018
+SELECT COUNT(*) FROM CODEX_DM8_PARTQUERY_20260727.T_HASH PARTITION(DMHASHPART0);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/COUNT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Partition(2:67~2:78) /test/1/catalog1/CODEX_DM8_PARTQUERY_20260727/T_HASH/DMHASHPART0/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_dameng_partition_query_atomic_0_behavior_review_019]
+sql:
+-- CASE_019
+SELECT COUNT(*) FROM CODEX_DM8_PARTQUERY_20260727.T_HASH PARTITION FOR(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/COUNT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Partition(2:57~2:73) /test/1/catalog1/CODEX_DM8_PARTQUERY_20260727/T_HASH/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_dameng_partition_query_atomic_0_behavior_review_020]
+sql:
+-- CASE_020
+INSERT INTO CODEX_DM8_PARTQUERY_20260727.T_RANGE PARTITION(P_LT10)(ID, KIND, NOTE) VALUES(6, 'A', 'INSERTED');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Partition(2:59~2:65) /test/1/catalog1/CODEX_DM8_PARTQUERY_20260727/T_RANGE/P_LT10/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dql_dml_dameng_partition_query_atomic_0_behavior_review_021]
+sql:
+-- CASE_021
+UPDATE CODEX_DM8_PARTQUERY_20260727.T_RANGE PARTITION(P_LT10) SET NOTE = 'UPDATED' WHERE ID = 6;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Partition(2:54~2:60) /test/1/catalog1/CODEX_DM8_PARTQUERY_20260727/T_RANGE/P_LT10/",
+      "action": "UPDATE"
+    }
+  ]
+}
+----------
+[split_dql_dml_dameng_partition_query_atomic_0_behavior_review_022]
+sql:
+-- CASE_022
+MERGE INTO CODEX_DM8_PARTQUERY_20260727.T_RANGE PARTITION(P_LT10) T
+USING (SELECT 7 AS ID, 'B' AS KIND, 'MERGED' AS NOTE FROM DUAL) S
+ON (T.ID = S.ID)
+WHEN NOT MATCHED THEN INSERT(ID, KIND, NOTE) VALUES(S.ID, S.KIND, S.NOTE);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Partition(2:58~2:64) /test/1/catalog1/CODEX_DM8_PARTQUERY_20260727/T_RANGE/P_LT10/",
+      "action": "MERGE",
+      "target": "View(3:58~3:62) /test/1/catalog1/schema1/DUAL/"
+    }
+  ]
+}
+----------
+[split_dql_dml_dameng_partition_query_atomic_0_behavior_review_023]
+sql:
+-- CASE_023
+DELETE FROM CODEX_DM8_PARTQUERY_20260727.T_RANGE PARTITION(P_LT10) WHERE ID = 6;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Partition(2:59~2:65) /test/1/catalog1/CODEX_DM8_PARTQUERY_20260727/T_RANGE/P_LT10/",
+      "action": "DELETE"
+    }
+  ]
+}
+----------
+[split_dql_dml_dameng_partition_query_atomic_0_behavior_review_024]
+sql:
+-- CASE_024
+SELECT ID, KIND, NOTE FROM CODEX_DM8_PARTQUERY_20260727.T_RANGE PARTITION(P_LT10) ORDER BY ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Partition(2:74~2:80) /test/1/catalog1/CODEX_DM8_PARTQUERY_20260727/T_RANGE/P_LT10/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_dameng_partition_query_atomic_0_behavior_review_025]
+sql:
+-- SEMANTIC_BOUNDARY_001
+SELECT * FROM CODEX_DM8_PARTQUERY_20260727.T_RANGE PARTITION(NO_SUCH_PARTITION);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Partition(2:61~2:78) /test/1/catalog1/CODEX_DM8_PARTQUERY_20260727/T_RANGE/NO_SUCH_PARTITION/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_dameng_partition_query_atomic_0_behavior_review_026]
+sql:
+-- SEMANTIC_BOUNDARY_002
+SELECT * FROM CODEX_DM8_PARTQUERY_20260727.T_RANGE_LIST SUBPARTITION(NO_SUCH_SUBPARTITION);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Partition(2:69~2:89) /test/1/catalog1/CODEX_DM8_PARTQUERY_20260727/T_RANGE_LIST/NO_SUCH_SUBPARTITION/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_dameng_partition_query_atomic_0_behavior_review_027]
+sql:
+-- SEMANTIC_BOUNDARY_003
+SELECT * FROM CODEX_DM8_PARTQUERY_20260727.T_HASH PARTITION(DMHASHPART4);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Partition(2:60~2:71) /test/1/catalog1/CODEX_DM8_PARTQUERY_20260727/T_HASH/DMHASHPART4/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_dameng_partition_query_atomic_0_behavior_review_028]
+sql:
+-- SEMANTIC_BOUNDARY_004
+INSERT INTO CODEX_DM8_PARTQUERY_20260727.T_RANGE PARTITION(P_LT10)
+  (ID, KIND, NOTE) VALUES(25, 'A', 'WRONG PARTITION');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Partition(2:59~2:65) /test/1/catalog1/CODEX_DM8_PARTQUERY_20260727/T_RANGE/P_LT10/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dql_dml_dameng_partition_query_atomic_0_behavior_review_029]
+sql:
+-- SEMANTIC_BOUNDARY_005
+UPDATE CODEX_DM8_PARTQUERY_20260727.T_RANGE PARTITION(P_LT10)
+  SET ID = 25 WHERE ID = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Partition(2:54~2:60) /test/1/catalog1/CODEX_DM8_PARTQUERY_20260727/T_RANGE/P_LT10/",
+      "action": "UPDATE"
+    }
+  ]
+}
+----------
+[split_dql_dml_dameng_partition_query_atomic_0_behavior_review_030]
+sql:
+-- SEMANTIC_BOUNDARY_006
+MERGE INTO CODEX_DM8_PARTQUERY_20260727.T_RANGE PARTITION(P_LT10) T
+USING (SELECT 25 AS ID, 'A' AS KIND, 'WRONG PARTITION' AS NOTE FROM DUAL) S
+ON (T.ID = S.ID)
+WHEN NOT MATCHED THEN INSERT(ID, KIND, NOTE) VALUES(S.ID, S.KIND, S.NOTE);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Partition(2:58~2:64) /test/1/catalog1/CODEX_DM8_PARTQUERY_20260727/T_RANGE/P_LT10/",
+      "action": "MERGE",
+      "target": "View(3:68~3:72) /test/1/catalog1/schema1/DUAL/"
+    }
+  ]
+}

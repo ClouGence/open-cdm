@@ -1,0 +1,38 @@
+[with_function_direct_columns]
+sql:
+with function f(c int) return int as begin return c+1; end;
+select t.id,f(t.v) value from catalog1.app.with_function_t t
+/
+expect:
+{
+  "id": ["/catalog1/app/with_function_t/id/"],
+  "value": ["/catalog1/app/with_function_t/v/"]
+}
+----------
+[with_function_cte_columns]
+sql:
+with function f(c int) return int as begin return c+1; end;
+q as(select t.id,t.v from catalog1.app.with_function_t t)
+select q.id,f(q.v) value from q
+/
+expect:
+{
+  "id": ["/catalog1/app/with_function_t/id/"],
+  "value": ["/catalog1/app/with_function_t/v/"]
+}
+----------
+[with_function_join_columns]
+sql:
+with function f(c int) return int as begin return c+1; end;
+select a.id,f(a.v+b.v) value
+from catalog1.app.with_function_t a
+join catalog1.app.with_function_other b on a.id=b.id
+/
+expect:
+{
+  "id": ["/catalog1/app/with_function_t/id/"],
+  "value": [
+    "/catalog1/app/with_function_t/v/",
+    "/catalog1/app/with_function_other/v/"
+  ]
+}

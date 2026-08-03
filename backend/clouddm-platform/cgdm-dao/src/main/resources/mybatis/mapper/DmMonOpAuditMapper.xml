@@ -30,7 +30,8 @@
     </resultMap>
 
     <sql id="rdpOperationAudit">
-        id,
+        id
+        ,
         gmt_create,
         gmt_modified,
         uid,
@@ -52,8 +53,34 @@
         log_path
     </sql>
 
+    <sql id="operationAuditCondition">
+        AND owner_uid = #{puid}
+        <if test="uid != null and uid != ''">
+            AND uid = #{uid}
+        </if>
+        <if test="dateStart != null">
+            <![CDATA[ AND operate_date >= #{dateStart} ]]>
+        </if>
+        <if test="dateEnd != null">
+            <![CDATA[ AND operate_date <= #{dateEnd} ]]>
+        </if>
+        <if test="securityLevel != null">
+            <![CDATA[ AND security_level = #{securityLevel} ]]>
+        </if>
+        <if test="auditType != null">
+            <![CDATA[ AND audit_type = #{auditType} ]]>
+        </if>
+        <if test="resourceType != null">
+            <![CDATA[ AND resource_type = #{resourceType} ]]>
+        </if>
+        <if test="userNameLike != null and userNameLike != ''">
+            <![CDATA[ AND user_name like CONCAT('%',#{userNameLike},'%') ]]>
+        </if>
+    </sql>
+
     <delete id="clearData">
-        delete from operation_audit;
+        delete
+        from operation_audit;
     </delete>
 
     <select id="queryByConditionJoinUrlAuth" resultMap="rdpOperationAuditDO">
@@ -135,9 +162,9 @@
 
     <select id="querySection" resultType="com.clougence.clouddm.platform.dal.model.monitor.DmMonOpAuditDO">
         SELECT
-            <include refid="rdpOperationAudit"/>
+        <include refid="rdpOperationAudit"/>
         FROM
-            dm_mon_op_audit
+        dm_mon_op_audit
         WHERE 1=1
         <if test="startId != 0">
             <![CDATA[ AND id < #{startId} ]]>
@@ -151,30 +178,9 @@
         FROM
         dm_mon_op_audit
         WHERE 1=1
-        AND owner_uid = #{puid}
+        <include refid="operationAuditCondition"/>
         <if test="startId != 0">
             <![CDATA[ AND id < #{startId} ]]>
-        </if>
-        <if test="uid != null and uid != ''">
-            AND uid = #{uid}
-        </if>
-        <if test="dateStart != null">
-            <![CDATA[ AND operate_date >= #{dateStart} ]]>
-        </if>
-        <if test="dateEnd != null">
-            <![CDATA[ AND operate_date <= #{dateEnd} ]]>
-        </if>
-        <if test="securityLevel != null">
-            <![CDATA[ AND security_level = #{securityLevel} ]]>
-        </if>
-        <if test="auditType != null">
-            <![CDATA[ AND audit_type = #{auditType} ]]>
-        </if>
-        <if test="resourceType != null">
-            <![CDATA[ AND resource_type = #{resourceType} ]]>
-        </if>
-        <if test="userNameLike != null and userNameLike != ''">
-            <![CDATA[ AND user_name like CONCAT('%',#{userNameLike},'%') ]]>
         </if>
         ORDER BY operate_date DESC,id LIMIT #{pageSize}
     </select>
@@ -185,28 +191,14 @@
         FROM
         dm_mon_op_audit
         WHERE 1=1
-        AND owner_uid = #{puid}
-        <if test="uid != null and uid != ''">
-            AND uid = #{uid}
-        </if>
-        <if test="dateStart != null">
-            <![CDATA[ AND operate_date >= #{dateStart} ]]>
-        </if>
-        <if test="dateEnd != null">
-            <![CDATA[ AND operate_date <= #{dateEnd} ]]>
-        </if>
-        <if test="securityLevel != null">
-            <![CDATA[ AND security_level = #{securityLevel} ]]>
-        </if>
-        <if test="auditType != null">
-            <![CDATA[ AND audit_type = #{auditType} ]]>
-        </if>
-        <if test="resourceType != null">
-            <![CDATA[ AND resource_type = #{resourceType} ]]>
-        </if>
-        <if test="userNameLike != null and userNameLike != ''">
-            <![CDATA[ AND user_name like CONCAT('%',#{userNameLike},'%') ]]>
-        </if>
+        <include refid="operationAuditCondition"/>
         ORDER BY operate_date DESC,id LIMIT #{pageSize} OFFSET #{offset}
+    </select>
+
+    <select id="countByCondition" resultType="long">
+        SELECT COUNT(*)
+        FROM dm_mon_op_audit
+        WHERE 1=1
+        <include refid="operationAuditCondition"/>
     </select>
 </mapper>

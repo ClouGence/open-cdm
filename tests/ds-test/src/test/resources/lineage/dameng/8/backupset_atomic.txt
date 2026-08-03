@@ -1,0 +1,89 @@
+[backup_database_has_no_result_lineage]
+sql:
+backup database full backupset '/opt/codex/db_full';
+expect:
+{}
+----------
+[backup_tablespace_has_no_result_lineage]
+sql:
+backup tablespace CODEX_TS full backupset '/opt/codex/ts_full';
+expect:
+{}
+----------
+[backup_table_has_no_result_lineage]
+sql:
+backup table CODEX_OWNER.CODEX_TAB backupset '/opt/codex/tab_default';
+expect:
+{}
+----------
+[backup_archive_has_no_result_lineage]
+sql:
+backup archive log all backupset '/opt/codex/arch_all';
+expect:
+{}
+----------
+[show_backupset_has_no_result_lineage]
+sql:
+show backupset '/opt/codex/backupset' info db, meta, file, tablespace, table;
+expect:
+{}
+----------
+[remove_backupset_has_no_result_lineage]
+sql:
+remove backupset '/opt/codex/no_such_backupset';
+expect:
+{}
+----------
+[restore_database_has_no_result_lineage]
+sql:
+restore database '/opt/codex/target/dm.ini' from backupset '/opt/codex/backupset';
+expect:
+{}
+----------
+[restore_table_has_no_result_lineage]
+sql:
+restore table CODEX_OWNER.CODEX_TAB from backupset '/opt/codex/table_backup';
+expect:
+{}
+----------
+[restore_tablespace_has_no_result_lineage]
+sql:
+restore database '/opt/codex/target/dm.ini' tablespace CODEX_TS from backupset '/opt/codex/ts_backup';
+expect:
+{}
+----------
+[restore_archive_has_no_result_lineage]
+sql:
+restore archivelog from backupset '/opt/codex/arch_backup' to archivedir '/opt/codex/archive';
+expect:
+{}
+----------
+[recover_database_has_no_result_lineage]
+sql:
+recover database '/opt/codex/target/dm.ini' from backupset '/opt/codex/backupset';
+expect:
+{}
+----------
+[recover_tablespace_has_no_result_lineage]
+sql:
+recover database '/opt/codex/target/dm.ini' tablespace CODEX_TS;
+expect:
+{}
+----------
+[repair_archive_has_no_result_lineage]
+sql:
+repair archivelog database '/opt/codex/source/dm.ini';
+expect:
+{}
+----------
+[configure_has_no_result_lineage]
+sql:
+configure;
+expect:
+{}
+----------
+[merge_database_has_no_result_lineage]
+sql:
+merge database '/opt/codex/target/dm.ini' from backupset '/opt/codex/increment';
+expect:
+{}

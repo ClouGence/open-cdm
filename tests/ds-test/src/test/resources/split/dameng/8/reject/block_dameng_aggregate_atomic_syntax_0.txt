@@ -1,0 +1,14 @@
+-- UNNAMED_PARAMETER
+create function APP.AGG_UNNAMED(number) return number aggregate using APP.MAX_IMPL;
+/
+-- UNNAMED_MODE_PARAMETER
+create function APP.AGG_UNNAMED_IN(in number) return number aggregate using APP.MAX_IMPL;
+/
+------------------------------------------------------------------------------------------
+[CREATE_PROG_OBJ] -- UNNAMED_PARAMETER
+create function APP.AGG_UNNAMED(number) return number aggregate using APP.MAX_IMPL;
+/
+----------
+[CREATE_PROG_OBJ] -- UNNAMED_MODE_PARAMETER
+create function APP.AGG_UNNAMED_IN(in number) return number aggregate using APP.MAX_IMPL;
+/

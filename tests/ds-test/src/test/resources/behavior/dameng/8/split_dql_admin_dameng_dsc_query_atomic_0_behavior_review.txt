@@ -1,0 +1,947 @@
+[split_dql_admin_dameng_dsc_query_atomic_0_001_behavior_review]
+sql:
+-- SHARED_001_ROWS
+select id,owner_ep,note from app.dsc_q_shared_t order by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:29~2:47) /test/1/catalog1/app/dsc_q_shared_t/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dsc_query_atomic_0_002_behavior_review]
+sql:
+-- SHARED_002_INSTANCE
+select name,instance_name,status$ from sys.v$instance;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(2:39~2:53) /test/1/catalog1/sys/v$instance/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dsc_query_atomic_0_003_behavior_review]
+sql:
+-- API_001_CHECKPOINT_FUNCTION
+select checkpoint(0) checkpoint_result from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:17) /test/1/catalog1/schema1/checkpoint/",
+      "action": "CHECKPOINT"
+    },
+    {
+      "subject": "View(2:44~2:48) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dsc_query_atomic_0_004_behavior_review]
+sql:
+-- API_002_CHECKPOINT_STATEMENT
+checkpoint(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Instance(2:0~2:10) /test/1/",
+      "action": "CHECKPOINT"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dsc_query_atomic_0_005_behavior_review]
+sql:
+-- VIEW_001_DSC_EP_INFO
+select count(*) from sys.v$dsc_ep_info;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:21~2:38) /test/1/catalog1/sys/v$dsc_ep_info/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dsc_query_atomic_0_006_behavior_review]
+sql:
+-- VIEW_002_DSC_GBS_POOL
+select count(*) from sys.v$dsc_gbs_pool;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:21~2:39) /test/1/catalog1/sys/v$dsc_gbs_pool/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dsc_query_atomic_0_007_behavior_review]
+sql:
+-- VIEW_003_DSC_GBS_POOLS_DETAIL
+select count(*) from sys.v$dsc_gbs_pools_detail;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:21~2:47) /test/1/catalog1/sys/v$dsc_gbs_pools_detail/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dsc_query_atomic_0_008_behavior_review]
+sql:
+-- VIEW_004_DSC_GBS_CTL
+select count(*) from sys.v$dsc_gbs_ctl;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:21~2:38) /test/1/catalog1/sys/v$dsc_gbs_ctl/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dsc_query_atomic_0_009_behavior_review]
+sql:
+-- VIEW_005_DSC_GBS_CTL_DETAIL
+select count(*) from sys.v$dsc_gbs_ctl_detail;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:21~2:45) /test/1/catalog1/sys/v$dsc_gbs_ctl_detail/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dsc_query_atomic_0_010_behavior_review]
+sql:
+-- VIEW_006_DSC_GBS_CTL_LRU_FIRST
+select count(*) from sys.v$dsc_gbs_ctl_lru_first;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:21~2:48) /test/1/catalog1/sys/v$dsc_gbs_ctl_lru_first/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dsc_query_atomic_0_011_behavior_review]
+sql:
+-- VIEW_007_DSC_GBS_CTL_LRU_FIRST_DETAIL
+select count(*) from sys.v$dsc_gbs_ctl_lru_first_detail;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:21~2:55) /test/1/catalog1/sys/v$dsc_gbs_ctl_lru_first_detail/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dsc_query_atomic_0_012_behavior_review]
+sql:
+-- VIEW_008_DSC_GBS_CTL_LRU_LAST
+select count(*) from sys.v$dsc_gbs_ctl_lru_last;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:21~2:47) /test/1/catalog1/sys/v$dsc_gbs_ctl_lru_last/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dsc_query_atomic_0_013_behavior_review]
+sql:
+-- VIEW_009_DSC_GBS_CTL_LRU_LAST_DETAIL
+select count(*) from sys.v$dsc_gbs_ctl_lru_last_detail;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:21~2:54) /test/1/catalog1/sys/v$dsc_gbs_ctl_lru_last_detail/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dsc_query_atomic_0_014_behavior_review]
+sql:
+-- VIEW_010_DSC_GBS_REQUEST_CTL
+select count(*) from sys.v$dsc_gbs_request_ctl;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:21~2:46) /test/1/catalog1/sys/v$dsc_gbs_request_ctl/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dsc_query_atomic_0_015_behavior_review]
+sql:
+-- VIEW_011_DSC_GBS_FREQ_CFLT
+select count(*) from sys.v$dsc_gbs_freq_cflt;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:21~2:44) /test/1/catalog1/sys/v$dsc_gbs_freq_cflt/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dsc_query_atomic_0_016_behavior_review]
+sql:
+-- VIEW_012_DSC_LBS_POOL
+select count(*) from sys.v$dsc_lbs_pool;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:21~2:39) /test/1/catalog1/sys/v$dsc_lbs_pool/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dsc_query_atomic_0_017_behavior_review]
+sql:
+-- VIEW_013_DSC_LBS_POOLS_DETAIL
+select count(*) from sys.v$dsc_lbs_pools_detail;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:21~2:47) /test/1/catalog1/sys/v$dsc_lbs_pools_detail/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dsc_query_atomic_0_018_behavior_review]
+sql:
+-- VIEW_014_DSC_LBS_CTL_LRU_FIRST
+select count(*) from sys.v$dsc_lbs_ctl_lru_first;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:21~2:48) /test/1/catalog1/sys/v$dsc_lbs_ctl_lru_first/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dsc_query_atomic_0_019_behavior_review]
+sql:
+-- VIEW_015_DSC_LBS_CTL_LRU_LAST
+select count(*) from sys.v$dsc_lbs_ctl_lru_last;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:21~2:47) /test/1/catalog1/sys/v$dsc_lbs_ctl_lru_last/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dsc_query_atomic_0_020_behavior_review]
+sql:
+-- VIEW_016_DSC_LBS_CTL_DETAIL
+select count(*) from sys.v$dsc_lbs_ctl_detail;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:21~2:45) /test/1/catalog1/sys/v$dsc_lbs_ctl_detail/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dsc_query_atomic_0_021_behavior_review]
+sql:
+-- VIEW_017_DSC_LBS_CTL_LRU_FIRST_DETAIL
+select count(*) from sys.v$dsc_lbs_ctl_lru_first_detail;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:21~2:55) /test/1/catalog1/sys/v$dsc_lbs_ctl_lru_first_detail/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dsc_query_atomic_0_022_behavior_review]
+sql:
+-- VIEW_018_DSC_LBS_CTL_LRU_LAST_DETAIL
+select count(*) from sys.v$dsc_lbs_ctl_lru_last_detail;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:21~2:54) /test/1/catalog1/sys/v$dsc_lbs_ctl_lru_last_detail/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dsc_query_atomic_0_023_behavior_review]
+sql:
+-- VIEW_019_DSC_GTV_SYS
+select count(*) from sys.v$dsc_gtv_sys;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:21~2:38) /test/1/catalog1/sys/v$dsc_gtv_sys/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dsc_query_atomic_0_024_behavior_review]
+sql:
+-- VIEW_020_DSC_LBS_CTL
+select count(*) from sys.v$dsc_lbs_ctl;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:21~2:38) /test/1/catalog1/sys/v$dsc_lbs_ctl/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dsc_query_atomic_0_025_behavior_review]
+sql:
+-- VIEW_021_DSC_GTV_TINFO
+select count(*) from sys.v$dsc_gtv_tinfo;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:21~2:40) /test/1/catalog1/sys/v$dsc_gtv_tinfo/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dsc_query_atomic_0_026_behavior_review]
+sql:
+-- VIEW_022_DSC_GTV_ACTIVE_TRX
+select count(*) from sys.v$dsc_gtv_active_trx;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:21~2:45) /test/1/catalog1/sys/v$dsc_gtv_active_trx/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dsc_query_atomic_0_027_behavior_review]
+sql:
+-- VIEW_023_DSC_LOCK
+select count(*) from sys.v$dsc_lock;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:21~2:35) /test/1/catalog1/sys/v$dsc_lock/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dsc_query_atomic_0_028_behavior_review]
+sql:
+-- VIEW_024_DSC_TRX
+select count(*) from sys.v$dsc_trx;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:21~2:34) /test/1/catalog1/sys/v$dsc_trx/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dsc_query_atomic_0_029_behavior_review]
+sql:
+-- VIEW_025_DSC_TRXWAIT
+select count(*) from sys.v$dsc_trxwait;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:21~2:38) /test/1/catalog1/sys/v$dsc_trxwait/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dsc_query_atomic_0_030_behavior_review]
+sql:
+-- VIEW_026_DSC_TRX_VIEW
+select count(*) from sys.v$dsc_trx_view;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:21~2:39) /test/1/catalog1/sys/v$dsc_trx_view/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dsc_query_atomic_0_031_behavior_review]
+sql:
+-- VIEW_027_DCR_INFO
+select count(*) from sys.v$dcr_info;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:21~2:35) /test/1/catalog1/sys/v$dcr_info/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dsc_query_atomic_0_032_behavior_review]
+sql:
+-- VIEW_028_DCR_GROUP
+select count(*) from sys.v$dcr_group;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:21~2:36) /test/1/catalog1/sys/v$dcr_group/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dsc_query_atomic_0_033_behavior_review]
+sql:
+-- VIEW_029_DCR_EP
+select count(*) from sys.v$dcr_ep;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:21~2:33) /test/1/catalog1/sys/v$dcr_ep/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dsc_query_atomic_0_034_behavior_review]
+sql:
+-- VIEW_030_DSC_REQUEST_STATISTIC
+select count(*) from sys.v$dsc_request_statistic;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:21~2:48) /test/1/catalog1/sys/v$dsc_request_statistic/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dsc_query_atomic_0_035_behavior_review]
+sql:
+-- VIEW_031_DSC_REQUEST_PAGE_STATISTIC
+select count(*) from sys.v$dsc_request_page_statistic;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:21~2:53) /test/1/catalog1/sys/v$dsc_request_page_statistic/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dsc_query_atomic_0_036_behavior_review]
+sql:
+-- VIEW_032_DSC_CRASH_OVER_INFO
+select count(*) from sys.v$dsc_crash_over_info;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:21~2:46) /test/1/catalog1/sys/v$dsc_crash_over_info/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dsc_query_atomic_0_037_behavior_review]
+sql:
+-- VIEW_033_DSC_GLS_SYS
+select count(*) from sys.v$dsc_gls_sys;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:21~2:38) /test/1/catalog1/sys/v$dsc_gls_sys/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dsc_query_atomic_0_038_behavior_review]
+sql:
+-- VIEW_034_ASMATTR
+select count(*) from sys.v$asmattr;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:21~2:34) /test/1/catalog1/sys/v$asmattr/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dsc_query_atomic_0_039_behavior_review]
+sql:
+-- VIEW_035_ASMGROUP
+select count(*) from sys.v$asmgroup;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:21~2:35) /test/1/catalog1/sys/v$asmgroup/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dsc_query_atomic_0_040_behavior_review]
+sql:
+-- VIEW_036_ASMDISK
+select count(*) from sys.v$asmdisk;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:21~2:34) /test/1/catalog1/sys/v$asmdisk/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dsc_query_atomic_0_041_behavior_review]
+sql:
+-- VIEW_037_ASMFILE
+select count(*) from sys.v$asmfile;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:21~2:34) /test/1/catalog1/sys/v$asmfile/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dsc_query_atomic_0_042_behavior_review]
+sql:
+-- VIEW_038_ASMPARTNER
+select count(*) from sys.v$asmpartner;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:21~2:37) /test/1/catalog1/sys/v$asmpartner/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dsc_query_atomic_0_043_behavior_review]
+sql:
+-- VIEW_039_ASM_OPERATION
+select count(*) from sys.v$asm_operation;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:21~2:40) /test/1/catalog1/sys/v$asm_operation/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dsc_query_atomic_0_044_behavior_review]
+sql:
+-- VIEW_040_DM_ARCH_INI
+select count(*) from sys.v$dm_arch_ini;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:21~2:38) /test/1/catalog1/sys/v$dm_arch_ini/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dsc_query_atomic_0_045_behavior_review]
+sql:
+-- VIEW_041_ASM_REBALANCE_HISTORY
+select count(*) from sys.v$asm_rebalance_history;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:21~2:48) /test/1/catalog1/sys/v$asm_rebalance_history/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dsc_query_atomic_0_046_behavior_review]
+sql:
+-- VIEW_042_ASM_FAIL_AU
+select count(*) from sys.v$asm_fail_au;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:21~2:38) /test/1/catalog1/sys/v$asm_fail_au/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dsc_query_atomic_0_047_behavior_review]
+sql:
+-- ARITY_001_CHECKPOINT_MISSING
+select checkpoint() from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:17) /test/1/catalog1/schema1/checkpoint/",
+      "action": "CHECKPOINT"
+    },
+    {
+      "subject": "View(2:25~2:29) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dsc_query_atomic_0_048_behavior_review]
+sql:
+-- ARITY_002_CHECKPOINT_EXTRA
+select checkpoint(0,1) from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:17) /test/1/catalog1/schema1/checkpoint/",
+      "action": "CHECKPOINT"
+    },
+    {
+      "subject": "View(2:28~2:32) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}

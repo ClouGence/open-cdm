@@ -1,5 +1,0 @@
-if
-  @domain.sqlType in ['CREATE_TABLE_ADD_COLUMN', 'ALTER_TABLE_ADD_COLUMN', 'ALTER_TABLE_ALTER_COLUMN']
-then
-  return !@domain.nullable
-end

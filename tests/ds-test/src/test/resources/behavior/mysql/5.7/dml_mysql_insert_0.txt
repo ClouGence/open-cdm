@@ -1,0 +1,1790 @@
+[insert__001]
+sql:
+insert into `test_sch`.`table2` (`id`, `b`) values (2, 1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/test_sch/table2/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[insert__002]
+sql:
+insert `test_schema`.`table2` (`id`, `b`) values (2, 1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:7~1:29) /test/1/catalog1/test_schema/table2/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[insert_select__003]
+sql:
+insert `test_schema`.`table2` (`id`, `b`) values ((select id from table1 limit 1), 1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:7~1:29) /test/1/catalog1/test_schema/table2/",
+      "action" : "INSERT",
+      "target" : "Table(1:66~1:72) /test/1/catalog1/schema1/table1/"
+    }
+  ]
+}
+----------
+[insert__004]
+sql:
+insert into `test_schema`.`table2` (`id`, `b`) value (null, 1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:34) /test/1/catalog1/test_schema/table2/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[insert__005]
+sql:
+insert ignore into `test_schema`.`table2` (`id`, `b`) values (null, 1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:19~1:41) /test/1/catalog1/test_schema/table2/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[merge__006]
+sql:
+insert into `test_schema`.`table2` (`id`, `b`) values (null, 1) ON DUPLICATE KEY UPDATE b = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:12~1:34) /test/1/catalog1/test_schema/table2/",
+      "action" : "MERGE"
+    }
+  ]
+}
+----------
+[insert_select__007]
+sql:
+insert into table2 (customer_id, order_date, total_amount)
+select customer_id, order_date, total_amount from orders1
+union
+select customer_id, order_date, total_amount from orders2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:18) /test/1/catalog1/schema1/table2/",
+      "action" : "INSERT",
+      "target" : [
+        "Table(2:50~2:57) /test/1/catalog1/schema1/orders1/",
+        "Table(4:50~4:57) /test/1/catalog1/schema1/orders2/"
+      ]
+    }
+  ]
+}
+----------
+[merge__008]
+sql:
+INSERT LOW_PRIORITY IGNORE INTO ptab PARTITION (p0) (id, name, val) VALUES (1, 'a', DEFAULT) ON DUPLICATE KEY UPDATE name = VALUES(name);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:32~1:36) /test/1/catalog1/schema1/ptab/",
+      "action" : "MERGE"
+    },
+    {
+      "subject": "Function(1:124~1:130) /test/1/catalog1/schema1/VALUES/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[insert__009]
+sql:
+INSERT DELAYED INTO myisam_t SET id = 1, name = 'delayed', val = DEFAULT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:20~1:28) /test/1/catalog1/schema1/myisam_t/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[insert__010]
+sql:
+INSERT DELAYED myisam_t VALUES (11, 'delayed-no-into', DEFAULT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:15~1:23) /test/1/catalog1/schema1/myisam_t/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[insert_select__011]
+sql:
+INSERT HIGH_PRIORITY INTO myisam_t (id, name, val) SELECT id + 20, name, val FROM src;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:26~1:34) /test/1/catalog1/schema1/myisam_t/",
+      "action" : "INSERT",
+      "target" : "Table(1:82~1:85) /test/1/catalog1/schema1/src/"
+    }
+  ]
+}
+----------
+[insert__012]
+sql:
+INSERT INTO target () VALUES();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:18) /test/1/catalog1/schema1/target/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[insert_session_variable_rw__013]
+sql:
+INSERT INTO t2 VALUES(CONVERT_TZ('2004-01-01 00:00:00','MET',@@time_zone),NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:14) /test/1/catalog1/schema1/t2/",
+      "action" : "INSERT"
+    },
+    {
+      "subject": "Function(1:22~1:32) /test/1/catalog1/schema1/CONVERT_TZ/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "ConfigKey(1:61~1:72) /test/1/time_zone/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[insert__014]
+sql:
+INSERT INTO dml_audit.t () VALUES (), ();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:23) /test/1/catalog1/dml_audit/t/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[insert__015]
+sql:
+INSERT INTO codex_insert_native_parallel.qualified_target SET codex_insert_native_parallel.qualified_target.c = '1';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:57) /test/1/catalog1/codex_insert_native_parallel/qualified_target/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[merge_select__016]
+sql:
+REPLACE INTO table_target SELECT stations.mexs_id AS mexs_id, datetime AS messzeit FROM table_source INNER JOIN view_stations AS stations ON table_source.id = stations.icao LEFT JOIN table_target AS old USING (mexs_id);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/table_target/",
+      "action" : "MERGE",
+      "target" : [
+        "Table(1:88~1:100) /test/1/catalog1/schema1/table_source/",
+        "Table(1:112~1:125) /test/1/catalog1/schema1/view_stations/",
+        "Table(1:183~1:195) /test/1/catalog1/schema1/table_target/"
+      ]
+    }
+  ]
+}
+----------
+[insert_select__017]
+sql:
+INSERT INTO t2 SELECT STRAIGHT_JOIN * FROM t1 AS alias1 WHERE EXISTS (SELECT * FROM (SELECT * FROM t1 JOIN t1 AS alias2 USING (f1)) AS alias3 WHERE alias1.f1 < 20);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:14) /test/1/catalog1/schema1/t2/",
+      "action" : "INSERT",
+      "target" : "Table(1:43~1:45) /test/1/catalog1/schema1/t1/"
+    }
+  ]
+}
+----------
+[insert__018]
+sql:
+INSERT INTO t VALUES (1, VALUES(x));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:13) /test/1/catalog1/schema1/t/",
+      "action" : "INSERT"
+    },
+    {
+      "subject": "Function(1:25~1:31) /test/1/catalog1/schema1/VALUES/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[insert__019]
+sql:
+INSERT INTO t1 (Ñ, N) VALUES (1, 2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:14) /test/1/catalog1/schema1/t1/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[merge__020]
+sql:
+INSERT INTO dml_audit.t SET id := 11, v := 'i02' ON DUPLICATE KEY UPDATE v := 'i02u';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:12~1:23) /test/1/catalog1/dml_audit/t/",
+      "action" : "MERGE"
+    }
+  ]
+}
+----------
+[insert_select__021]
+sql:
+INSERT INTO split_subquery_third.dest SELECT a,b FROM split_subquery_third.src AS o WHERE b=(SELECT MIN(i.b) FROM split_subquery_third.src AS i WHERE i.a=o.a);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:37) /test/1/catalog1/split_subquery_third/dest/",
+      "action" : "INSERT",
+      "target" : "Table(1:54~1:78) /test/1/catalog1/split_subquery_third/src/"
+    },
+    {
+      "subject": "Function(1:100~1:103) /test/1/catalog1/schema1/MIN/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[insert__022]
+sql:
+INSERT DELAYED IGNORE INTO myisam_t VALUES(2,2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:27~1:35) /test/1/catalog1/schema1/myisam_t/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[insert__023]
+sql:
+INSERT INTO part_t PARTITION(p0,p1) VALUES(2,3),(12,4);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:18) /test/1/catalog1/schema1/part_t/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[merge__024]
+sql:
+INSERT INTO base_t VALUES(1,9,'x') ON DUPLICATE KEY UPDATE c=VALUES(c),d=DEFAULT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:12~1:18) /test/1/catalog1/schema1/base_t/",
+      "action" : "MERGE"
+    },
+    {
+      "subject": "Function(1:61~1:67) /test/1/catalog1/schema1/VALUES/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[insert__025]
+sql:
+INSERT IGNORE INTO base_t SET id=5,c=DEFAULT,d='e';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:19~1:25) /test/1/catalog1/schema1/base_t/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[merge_select__026]
+sql:
+INSERT DELAYED IGNORE INTO d1_t1 PARTITION(p0, p1) (c1, c2) SELECT c1, 'a' FROM d1_t2 ON DUPLICATE KEY UPDATE c2 = 'c';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:27~1:32) /test/1/catalog1/schema1/d1_t1/",
+      "action" : "MERGE",
+      "target" : "Table(1:80~1:85) /test/1/catalog1/schema1/d1_t2/"
+    }
+  ]
+}
+----------
+[insert_select__027]
+sql:
+INSERT IGNORE INTO d2_t2 PARTITION (subp3) SELECT * FROM d2_t1 PARTITION (subp3, `p10-99`, `p100-99999`);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:19~1:24) /test/1/catalog1/schema1/d2_t2/",
+      "action" : "INSERT",
+      "target" : "Table(1:57~1:62) /test/1/catalog1/schema1/d2_t1/"
+    }
+  ]
+}
+----------
+[merge_select__028]
+sql:
+INSERT INTO d3_t1 SELECT MAX(id) FROM d3_t2 GROUP BY id ORDER BY id ON DUPLICATE KEY UPDATE d3_t1.id = id + 10;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:12~1:17) /test/1/catalog1/schema1/d3_t1/",
+      "action" : "MERGE",
+      "target" : "Table(1:38~1:43) /test/1/catalog1/schema1/d3_t2/"
+    },
+    {
+      "subject": "Function(1:25~1:28) /test/1/catalog1/schema1/MAX/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[merge_session_setting_write__029]
+sql:
+INSERT split_dml_odku1 (f2) VALUES ('test')
+  ON DUPLICATE KEY UPDATE f1 = LAST_INSERT_ID(f1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:7~1:22) /test/1/catalog1/schema1/split_dml_odku1/",
+      "action" : "MERGE"
+    },
+    {
+      "subject": "Function(2:31~2:45) /test/1/catalog1/schema1/LAST_INSERT_ID/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[merge_select__030]
+sql:
+INSERT INTO split_dml_odku_dst
+  SELECT split_dml_odku_src.a FROM split_dml_odku_src GROUP BY split_dml_odku_src.a
+  ON DUPLICATE KEY UPDATE a = split_dml_odku_dst.a + split_dml_odku_src.b;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:12~1:30) /test/1/catalog1/schema1/split_dml_odku_dst/",
+      "action" : "MERGE",
+      "target" : "Table(2:35~2:53) /test/1/catalog1/schema1/split_dml_odku_src/"
+    }
+  ]
+}
+----------
+[insert__031]
+sql:
+INSERT INTO f24 VALUES (1e+10);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:15) /test/1/catalog1/schema1/f24/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[insert__032]
+sql:
+INSERT INTO f24 VALUES (-1e-10);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:15) /test/1/catalog1/schema1/f24/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[insert__033]
+sql:
+INSERT INTO f52 VALUES (1e+10);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:15) /test/1/catalog1/schema1/f52/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[insert__034]
+sql:
+INSERT INTO f52 VALUES (-1e-10);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:15) /test/1/catalog1/schema1/f52/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[insert__035]
+sql:
+INSERT INTO dupper VALUES (1.7976931348623157E+308);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:18) /test/1/catalog1/schema1/dupper/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[insert__036]
+sql:
+INSERT INTO dupper VALUES (1.7976931348623157E+309);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:18) /test/1/catalog1/schema1/dupper/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[insert__037]
+sql:
+INSERT INTO dupper VALUES (-1.7976931348623157E+309);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:18) /test/1/catalog1/schema1/dupper/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[insert__038]
+sql:
+INSERT INTO t1 VALUES ('2001-01-01 23:59:59.4');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:14) /test/1/catalog1/schema1/t1/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[insert__039]
+sql:
+INSERT INTO t1 VALUES (TIMESTAMP'2001-01-01 23:59:59.4');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:14) /test/1/catalog1/schema1/t1/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[insert__040]
+sql:
+INSERT INTO t1 VALUES (20010101235959.4);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:14) /test/1/catalog1/schema1/t1/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[insert__041]
+sql:
+INSERT INTO t1 VALUES (TIME'23:59:59.4');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:14) /test/1/catalog1/schema1/t1/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[insert__042]
+sql:
+INSERT INTO t1 VALUES (TIMESTAMP'9999-12-31 23:59:59.9');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:14) /test/1/catalog1/schema1/t1/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[insert_select__043]
+sql:
+INSERT INTO t2(i) SELECT d FROM t1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:14) /test/1/catalog1/schema1/t2/",
+      "action" : "INSERT",
+      "target" : "Table(1:32~1:34) /test/1/catalog1/schema1/t1/"
+    }
+  ]
+}
+----------
+[insert__044]
+sql:
+INSERT INTO bit_t SET a=1,b=b'111111111',c=b'01';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:17) /test/1/catalog1/schema1/bit_t/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[insert__045]
+sql:
+INSERT IGNORE INTO bit_t(a,b,c) VALUES(2,b'1000000000',b'100');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:19~1:24) /test/1/catalog1/schema1/bit_t/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[insert__046]
+sql:
+INSERT INTO bit_t(a,b,c) VALUES(3,b'',b'');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:17) /test/1/catalog1/schema1/bit_t/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[insert_select__047]
+sql:
+INSERT IGNORE INTO bit_t(b) SELECT d FROM bit_double;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:19~1:24) /test/1/catalog1/schema1/bit_t/",
+      "action" : "INSERT",
+      "target" : "Table(1:42~1:52) /test/1/catalog1/schema1/bit_double/"
+    }
+  ]
+}
+----------
+[insert_select__048]
+sql:
+INSERT INTO bit_insert_dst(b) SELECT SQL_SMALL_RESULT DISTINCT b FROM bit_t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/bit_insert_dst/",
+      "action" : "INSERT",
+      "target" : "Table(1:70~1:75) /test/1/catalog1/schema1/bit_t/"
+    }
+  ]
+}
+----------
+[insert__049]
+sql:
+INSERT INTO bit_values(id,b) VALUES(1,b''),(2,b'0'),(3,0x01),(4,7),(5,NULL),(6,DEFAULT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:22) /test/1/catalog1/schema1/bit_values/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[insert__050]
+sql:
+INSERT INTO time_widths(id,t,t0,t1,t2,t3,t4,t5,t6) VALUES(1,'1:23','1112','10:10:10.9','10:10:10.99','10:10:10.999','10:10:10.9999','10:10:10.99999','10:10:10.999999'),(2,'-10 01:22:33.45',-10,-10.0,-10e0,'-24:00:00','-48:00:00','-838:59:59.000000','838:59:59.000000');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:23) /test/1/catalog1/schema1/time_widths/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[insert__051]
+sql:
+INSERT IGNORE INTO time_widths(id,t6) VALUES(3,'839:00:00'),(4,'-839:00:00.1'),(5,'10:10:10.9999995'),(6,101010.9999995);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:19~1:30) /test/1/catalog1/schema1/time_widths/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[insert_select__052]
+sql:
+INSERT INTO time_widths(id,t6) SELECT 7,CAST('2001-01-01 10:10:10.999999' AS DATETIME(6));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:23) /test/1/catalog1/schema1/time_widths/",
+      "action" : "INSERT"
+    },
+    {
+      "subject": "Function(1:40~1:44) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[insert__053]
+sql:
+INSERT INTO time_widths SET id=9,t6=TIME'00:00:01.0000005'+0.000001;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:23) /test/1/catalog1/schema1/time_widths/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[insert__054]
+sql:
+INSERT INTO temporal_auto(id,created_at,modified_at,payload) VALUES(2,DEFAULT,DEFAULT,'defaults');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:25) /test/1/catalog1/schema1/temporal_auto/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[insert__055]
+sql:
+INSERT INTO temporal_auto SET id=4,created_at=DEFAULT,modified_at=CURRENT_TIMESTAMP(3),explicit_at=TIMESTAMP'2001-02-03 04:05:06.123456',payload='set-form';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:25) /test/1/catalog1/schema1/temporal_auto/",
+      "action" : "INSERT"
+    },
+    {
+      "subject": "Function(1:66~1:83) /test/1/catalog1/schema1/CURRENT_TIMESTAMP/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[insert__056]
+sql:
+INSERT INTO datetime_widths(id,dt1,dt2,dt3,dt4,dt5,dt6,ts1,ts2,ts3,ts4,ts5,ts6) VALUES(1,'2001-01-01 01:01:01.1','2001-01-01 01:01:01.12','2001-01-01 01:01:01.123','2001-01-01 01:01:01.1234','2001-01-01 01:01:01.12345','2001-01-01 01:01:01.123456','2001-01-01 01:01:01.1','2001-01-01 01:01:01.12','2001-01-01 01:01:01.123','2001-01-01 01:01:01.1234','2001-01-01 01:01:01.12345','2001-01-01 01:01:01.123456');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:27) /test/1/catalog1/schema1/datetime_widths/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[merge__057]
+sql:
+INSERT INTO temporal_auto(id,payload) VALUES(1,'duplicate') ON DUPLICATE KEY UPDATE created_at=DEFAULT(created_at),modified_at=CURRENT_TIMESTAMP(6),payload=VALUES(payload);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:12~1:25) /test/1/catalog1/schema1/temporal_auto/",
+      "action" : "MERGE"
+    },
+    {
+      "subject": "Function(1:95~1:102) /test/1/catalog1/schema1/DEFAULT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:127~1:144) /test/1/catalog1/schema1/CURRENT_TIMESTAMP/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:156~1:162) /test/1/catalog1/schema1/VALUES/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[insert__058]
+sql:
+INSERT INTO str_lifecycle(v,c,fixed_binary,variable_binary,t)
+VALUES ('a ', 'a ', X'4100', _binary'a\0', 'text'), ('b', 'b', 0x4200, X'42', DEFAULT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:25) /test/1/catalog1/schema1/str_lifecycle/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[insert__059]
+sql:
+INSERT IGNORE INTO str_lifecycle SET v='set form', c='c', fixed_binary=X'43', variable_binary=_binary'bytes', t='t';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:19~1:32) /test/1/catalog1/schema1/str_lifecycle/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[insert_select__060]
+sql:
+INSERT INTO str_lifecycle(v,c,fixed_binary,variable_binary,t)
+SELECT CAST(c AS CHAR), CAST(c AS CHAR), CAST(c AS BINARY), CAST(c AS BINARY), CONCAT(c,c) FROM str_ctas;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:25) /test/1/catalog1/schema1/str_lifecycle/",
+      "action" : "INSERT",
+      "target" : "Table(2:96~2:104) /test/1/catalog1/schema1/str_ctas/"
+    },
+    {
+      "subject": "Function(2:7~2:11) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(2:79~2:85) /test/1/catalog1/schema1/CONCAT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[insert__061]
+sql:
+INSERT INTO str_parents VALUES (X'93222796CABA43CA979F5C96EB6898B7');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:23) /test/1/catalog1/schema1/str_parents/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[insert_select__062]
+sql:
+INSERT INTO str_foos(parent_id,text) SELECT id,'correct output' FROM str_parents;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:20) /test/1/catalog1/schema1/str_foos/",
+      "action" : "INSERT",
+      "target" : "Table(1:69~1:80) /test/1/catalog1/schema1/str_parents/"
+    }
+  ]
+}
+----------
+[insert_select__063]
+sql:
+INSERT INTO str_bars(id,parent_id) SELECT X'79CEA9AB6FE14A8EBDFED711A7727763',id FROM str_parents;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:20) /test/1/catalog1/schema1/str_bars/",
+      "action" : "INSERT",
+      "target" : "Table(1:86~1:97) /test/1/catalog1/schema1/str_parents/"
+    }
+  ]
+}
+----------
+[insert__064]
+sql:
+INSERT INTO lob_family(tb,b,mb,lb,tt,t,mt,lt)
+VALUES (X'00',X'4100',_binary'bytes',REPEAT(X'42',4),'tiny','text','medium','long');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:22) /test/1/catalog1/schema1/lob_family/",
+      "action" : "INSERT"
+    },
+    {
+      "subject": "Function(2:37~2:43) /test/1/catalog1/schema1/REPEAT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[insert__065]
+sql:
+INSERT IGNORE INTO lob_family
+SET tb=X'01',b=0x4142,mb=_binary'medium',lb=X'FF',tt='a ',t='b ',mt='c ',lt='d ';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:19~1:29) /test/1/catalog1/schema1/lob_family/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[insert_select__066]
+sql:
+INSERT INTO lob_family(tb,b,mb,lb,tt,t,mt,lt)
+SELECT b,b,b,b,t,t,t,t FROM lob_lifecycle;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:22) /test/1/catalog1/schema1/lob_family/",
+      "action" : "INSERT",
+      "target" : "Table(2:28~2:41) /test/1/catalog1/schema1/lob_lifecycle/"
+    }
+  ]
+}
+----------
+[merge__067]
+sql:
+INSERT INTO lob_family(tb,b,mb,lb,tt,t,mt,lt)
+VALUES(X'03',X'41',X'42',X'43','upsert','upsert','upsert','upsert')
+ON DUPLICATE KEY UPDATE t=VALUES(t),mt=NULL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:12~1:22) /test/1/catalog1/schema1/lob_family/",
+      "action" : "MERGE"
+    },
+    {
+      "subject": "Function(3:26~3:32) /test/1/catalog1/schema1/VALUES/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[insert__068]
+sql:
+INSERT INTO split_type_enum_set.es_core
+      (id,e_basic,e_case,s_basic,s_case,e_added,s_flags)
+    VALUES
+      (1,'alpha','a','red,blue','a','new','x,z'),
+      (2,'10','A','green','A','old','y,w'),
+      (3,2,1,5,3,3,9),
+      (4,'quote''d','a','quote''d,two words','a','archived','z');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:39) /test/1/catalog1/split_type_enum_set/es_core/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[insert__069]
+sql:
+INSERT INTO split_type_enum_set.es_core
+    SET id=5,e_basic='',e_case='A',s_basic='blue,red',
+        s_case='a,A',e_added='new',s_flags='w,x';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:39) /test/1/catalog1/split_type_enum_set/es_core/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[merge__070]
+sql:
+INSERT INTO split_type_enum_set.es_core(id,e_basic,s_basic)
+    VALUES (1,'two words','green')
+    ON DUPLICATE KEY UPDATE e_basic=VALUES(e_basic),s_basic=VALUES(s_basic);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:12~1:39) /test/1/catalog1/split_type_enum_set/es_core/",
+      "action" : "MERGE"
+    },
+    {
+      "subject": "Function(3:36~3:42) /test/1/catalog1/schema1/VALUES/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[insert__071]
+sql:
+INSERT INTO split_type_json.json_core(id,doc,payload,meta) VALUES
+      (1,'{"name":"Ada","kind":"person","score":10}',
+         '{"tags":["sql","json"],"old":true}',JSON_OBJECT('active',TRUE)),
+      (2,JSON_OBJECT('name','Lin','kind','person','score',20),
+         JSON_ARRAY('parser','mysql'),JSON_ARRAY()),
+      (3,CAST('{"name":"Kai","kind":"service","score":30}' AS JSON),
+         NULL,CAST('null' AS JSON));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:37) /test/1/catalog1/split_type_json/json_core/",
+      "action" : "INSERT"
+    },
+    {
+      "subject": "Function(3:46~3:57) /test/1/catalog1/schema1/JSON_OBJECT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(5:9~5:19) /test/1/catalog1/schema1/JSON_ARRAY/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(6:9~6:13) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[insert__072]
+sql:
+INSERT INTO split_type_json.json_core
+    SET id=4,
+        doc=JSON_SET('{}','$.name','Mia','$.kind','person','$.score',40),
+        payload=JSON_OBJECT('tags',JSON_ARRAY('set','syntax')),
+        meta=JSON_OBJECT();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:37) /test/1/catalog1/split_type_json/json_core/",
+      "action" : "INSERT"
+    },
+    {
+      "subject": "Function(3:12~3:20) /test/1/catalog1/schema1/JSON_SET/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(4:16~4:27) /test/1/catalog1/schema1/JSON_OBJECT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(4:35~4:45) /test/1/catalog1/schema1/JSON_ARRAY/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[insert_select__073]
+sql:
+INSERT INTO split_type_json.json_core(id,doc,payload,meta)
+    SELECT id+10,JSON_MERGE_PATCH(doc,'{"copied":true}'),payload,meta
+    FROM split_type_json.json_core
+    WHERE JSON_EXTRACT(doc,'$.score') >= 20;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:37) /test/1/catalog1/split_type_json/json_core/",
+      "action" : "INSERT",
+      "target" : "Table(3:9~3:34) /test/1/catalog1/split_type_json/json_core/"
+    },
+    {
+      "subject": "Function(2:17~2:33) /test/1/catalog1/schema1/JSON_MERGE_PATCH/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(4:10~4:22) /test/1/catalog1/schema1/JSON_EXTRACT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[merge__074]
+sql:
+INSERT INTO split_type_json.json_core(id,doc,payload)
+    VALUES (1,'{"name":"Ada","kind":"person","score":11}',
+            '{"tags":["upsert"]}')
+    ON DUPLICATE KEY UPDATE
+      doc=JSON_MERGE_PATCH(doc,VALUES(doc)),
+      payload=JSON_ARRAY_APPEND(payload,'$.tags','upsert');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:12~1:37) /test/1/catalog1/split_type_json/json_core/",
+      "action" : "MERGE"
+    },
+    {
+      "subject": "Function(5:10~5:26) /test/1/catalog1/schema1/JSON_MERGE_PATCH/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(5:31~5:37) /test/1/catalog1/schema1/VALUES/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(6:14~6:31) /test/1/catalog1/schema1/JSON_ARRAY_APPEND/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[insert__075]
+sql:
+INSERT INTO spatial_lifecycle
+  (id,g,p,ls,pg,mp,mls,mpg,gc,p_changed)
+VALUES
+  (1,
+   ST_GeomFromText('POINT(1 1)'),
+   ST_PointFromText('POINT(1 1)'),
+   ST_LineStringFromText('LINESTRING(0 0,1 1)'),
+   ST_PolygonFromText('POLYGON((0 0,0 2,2 2,0 0))'),
+   ST_MultiPointFromText('MULTIPOINT(0 0,1 1)'),
+   ST_MultiLineStringFromText('MULTILINESTRING((0 0,1 1))'),
+   ST_MultiPolygonFromText('MULTIPOLYGON(((0 0,0 2,2 2,0 0)))'),
+   ST_GeometryCollectionFromText('GEOMETRYCOLLECTION(POINT(1 1))'),
+   ST_LineStringFromText('LINESTRING(1 1,2 2)'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:29) /test/1/catalog1/schema1/spatial_lifecycle/",
+      "action" : "INSERT"
+    },
+    {
+      "subject": "Function(5:3~5:18) /test/1/catalog1/schema1/ST_GeomFromText/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(6:3~6:19) /test/1/catalog1/schema1/ST_PointFromText/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(7:3~7:24) /test/1/catalog1/schema1/ST_LineStringFromText/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(8:3~8:21) /test/1/catalog1/schema1/ST_PolygonFromText/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(9:3~9:24) /test/1/catalog1/schema1/ST_MultiPointFromText/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(10:3~10:29) /test/1/catalog1/schema1/ST_MultiLineStringFromText/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(11:3~11:26) /test/1/catalog1/schema1/ST_MultiPolygonFromText/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(12:3~12:32) /test/1/catalog1/schema1/ST_GeometryCollectionFromText/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[insert__076]
+sql:
+INSERT INTO spatial_lifecycle SET
+  id=2,
+  g=ST_GeomFromText('POINT(2 2)'),
+  p=POINT(2,2),
+  ls=ST_GeomFromText('LINESTRING(2 2,3 3)'),
+  pg=ST_GeomFromText('POLYGON((0 0,0 3,3 3,0 0))'),
+  mp=ST_GeomFromText('MULTIPOINT(2 2,3 3)'),
+  mls=ST_GeomFromText('MULTILINESTRING((2 2,3 3))'),
+  mpg=ST_GeomFromText('MULTIPOLYGON(((0 0,0 3,3 3,0 0)))'),
+  gc=ST_GeomFromText('GEOMETRYCOLLECTION(POINT(2 2))'),
+  p_changed=ST_GeomFromText('LINESTRING(2 2,4 4)');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:29) /test/1/catalog1/schema1/spatial_lifecycle/",
+      "action" : "INSERT"
+    },
+    {
+      "subject": "Function(3:4~3:19) /test/1/catalog1/schema1/ST_GeomFromText/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(4:4~4:9) /test/1/catalog1/schema1/POINT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[insert_select__077]
+sql:
+INSERT INTO spatial_lifecycle
+  (id,g,p,ls,pg,mp,mls,mpg,gc,p_changed)
+SELECT
+  3,g,p,ls,pg,mp,mls,mpg,gc,p_changed
+FROM spatial_lifecycle
+WHERE id=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:29) /test/1/catalog1/schema1/spatial_lifecycle/",
+      "action" : "INSERT",
+      "target" : "Table(5:5~5:22) /test/1/catalog1/schema1/spatial_lifecycle/"
+    }
+  ]
+}
+----------
+[insert__078]
+sql:
+INSERT INTO spatial_generated (id,p)
+VALUES (1,ST_PointFromText('POINT(1 1)'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:29) /test/1/catalog1/schema1/spatial_generated/",
+      "action" : "INSERT"
+    },
+    {
+      "subject": "Function(2:10~2:26) /test/1/catalog1/schema1/ST_PointFromText/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[insert__079]
+sql:
+INSERT INTO integer_lifecycle
+  (tiny_signed,tiny_unsigned,small_signed,small_unsigned,medium_signed,medium_unsigned,
+   int_signed,int_unsigned,big_signed,big_unsigned,bool_alias,boolean_alias,
+   tiny_added,small_changed,medium_added,big_changed,note)
+VALUES
+  (-1,1,-2,2,-3,3,-4,101,-5,5,FALSE,TRUE,6,7,8,9,'values-one'),
+  (1,10,2,20,3,30,4,102,5,50,TRUE,FALSE,60,70,80,90,'values-two');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:29) /test/1/catalog1/schema1/integer_lifecycle/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[insert__080]
+sql:
+INSERT INTO integer_lifecycle SET
+  tiny_signed=-8,tiny_unsigned=8,
+  small_signed=-16,small_unsigned=16,
+  medium_signed=-24,medium_unsigned=24,
+  int_signed=-32,int_unsigned=103,
+  big_signed=-64,big_unsigned=64,
+  bool_alias=1,boolean_alias=0,
+  tiny_added=8,small_changed=16,medium_added=24,big_changed=64,note='set';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:29) /test/1/catalog1/schema1/integer_lifecycle/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[insert_select__081]
+sql:
+INSERT INTO integer_lifecycle
+  (tiny_signed,tiny_unsigned,small_signed,small_unsigned,medium_signed,medium_unsigned,
+   int_signed,int_unsigned,big_signed,big_unsigned,bool_alias,boolean_alias,
+   tiny_added,small_changed,medium_added,big_changed,note)
+SELECT
+  tiny_signed,tiny_unsigned,small_signed,small_unsigned,medium_signed,medium_unsigned,
+  int_signed,int_unsigned+100,big_signed,big_unsigned,bool_alias,boolean_alias,
+  tiny_added,small_changed,medium_added,big_changed,'select'
+FROM integer_lifecycle
+WHERE int_unsigned=101;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:29) /test/1/catalog1/schema1/integer_lifecycle/",
+      "action" : "INSERT",
+      "target" : "Table(9:5~9:22) /test/1/catalog1/schema1/integer_lifecycle/"
+    }
+  ]
+}
+----------
+[merge__082]
+sql:
+INSERT INTO integer_lifecycle
+  (tiny_signed,tiny_unsigned,small_signed,small_unsigned,medium_signed,medium_unsigned,
+   int_signed,int_unsigned,big_signed,big_unsigned,note)
+VALUES (-9,9,-18,18,-27,27,-36,101,-72,72,'upsert')
+ON DUPLICATE KEY UPDATE
+  tiny_signed=VALUES(tiny_signed),
+  medium_unsigned=VALUES(medium_unsigned),
+  big_unsigned=VALUES(big_unsigned),
+  note=VALUES(note);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:12~1:29) /test/1/catalog1/schema1/integer_lifecycle/",
+      "action" : "MERGE"
+    },
+    {
+      "subject": "Function(6:14~6:20) /test/1/catalog1/schema1/VALUES/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[insert__083]
+sql:
+INSERT INTO integer_range_partition(id,partition_value)
+VALUES (1,-8388608),(2,-1),(3,0),(4,8388607);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:35) /test/1/catalog1/schema1/integer_range_partition/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[insert__084]
+sql:
+INSERT INTO integer_key_partition(id)
+VALUES (0),(9223372036854775807),(18446744073709551615);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:33) /test/1/catalog1/schema1/integer_key_partition/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[insert__085]
+sql:
+INSERT INTO numeric_lifecycle
+  (id,decimal_value,numeric_value,fixed_value,float_value,float_scale,
+   double_value,real_value,decimal_added,numeric_changed,fixed_added,
+   float_changed,double_added,real_changed,note)
+VALUES
+  (1,1.250000,2.5000,3.75,1e-20,4.125,1e100,5.5,
+   6.125,7.25,8.5,9.75,10.125,11.5,'values-one'),
+  (2,12.500000,13.7500,14.25,1e20,15.375,1e-100,16.5,
+   17.625,18.75,19.5,20.75,21.125,22.5,'values-two');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:29) /test/1/catalog1/schema1/numeric_lifecycle/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[insert__086]
+sql:
+INSERT INTO numeric_lifecycle SET
+  id=3,
+  decimal_value=23.125,
+  numeric_value=24.25,
+  fixed_value=25.5,
+  float_value=2.5e-10,
+  float_scale=26.75,
+  double_value=2.75e50,
+  real_value=27.875,
+  decimal_added=28.125,
+  numeric_changed=29.25,
+  fixed_added=30.5,
+  float_changed=31.75,
+  double_added=32.125,
+  real_changed=33.5,
+  note='set';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:29) /test/1/catalog1/schema1/numeric_lifecycle/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[insert_select__087]
+sql:
+INSERT INTO numeric_lifecycle
+  (id,decimal_value,numeric_value,fixed_value,float_value,float_scale,
+   double_value,real_value,decimal_added,numeric_changed,fixed_added,
+   float_changed,double_added,real_changed,note)
+SELECT
+  id+10,decimal_value,numeric_value,fixed_value,float_value,float_scale,
+  double_value,real_value,decimal_added,numeric_changed,fixed_added,
+  float_changed,double_added,real_changed,'select'
+FROM numeric_lifecycle
+WHERE id=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:29) /test/1/catalog1/schema1/numeric_lifecycle/",
+      "action" : "INSERT",
+      "target" : "Table(9:5~9:22) /test/1/catalog1/schema1/numeric_lifecycle/"
+    }
+  ]
+}
+----------
+[merge__088]
+sql:
+INSERT INTO numeric_lifecycle
+  (id,decimal_value,numeric_value,fixed_value,float_value,float_scale,
+   double_value,real_value,note)
+VALUES (1,100.125,101.25,102.5,1.03e2,104.75,1.05e2,106.5,'upsert')
+ON DUPLICATE KEY UPDATE
+  decimal_value=VALUES(decimal_value),
+  float_value=VALUES(float_value),
+  double_value=VALUES(double_value),
+  note=VALUES(note);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:12~1:29) /test/1/catalog1/schema1/numeric_lifecycle/",
+      "action" : "MERGE"
+    },
+    {
+      "subject": "Function(6:16~6:22) /test/1/catalog1/schema1/VALUES/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[insert_select__089]
+sql:
+INSERT INTO t3 SELECT t2.*,1,2 FROM t2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:14) /test/1/catalog1/schema1/t3/",
+      "action" : "INSERT",
+      "target" : "Table(1:36~1:38) /test/1/catalog1/schema1/t2/"
+    }
+  ]
+}
+----------
+[insert_select__090]
+sql:
+INSERT INTO t3 SELECT t2.*,t2.*,3 FROM t2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:14) /test/1/catalog1/schema1/t3/",
+      "action" : "INSERT",
+      "target" : "Table(1:39~1:41) /test/1/catalog1/schema1/t2/"
+    }
+  ]
+}
+----------
+[insert_select_query_lock__091]
+sql:
+INSERT IGNORE INTO dst SELECT * FROM src LOCK IN SHARE MODE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:19~1:22) /test/1/catalog1/schema1/dst/",
+      "action" : "INSERT",
+      "target" : "Table(1:37~1:40) /test/1/catalog1/schema1/src/"
+    }
+  ]
+}
+----------
+[insert_select_query_lock__092]
+sql:
+INSERT IGNORE INTO dst SELECT * FROM src FOR UPDATE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:19~1:22) /test/1/catalog1/schema1/dst/",
+      "action" : "INSERT",
+      "target" : "Table(1:37~1:40) /test/1/catalog1/schema1/src/"
+    }
+  ]
+}
+----------
+[insert_select__093]
+sql:
+INSERT INTO t3 (SELECT a,b FROM t1) UNION (SELECT a,b FROM t2) LIMIT 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:14) /test/1/catalog1/schema1/t3/",
+      "action" : "INSERT",
+      "target" : [
+        "Table(1:32~1:34) /test/1/catalog1/schema1/t1/",
+        "Table(1:59~1:61) /test/1/catalog1/schema1/t2/"
+      ]
+    }
+  ]
+}
+----------
+[merge_select__094]
+sql:
+INSERT t1 SELECT 5,6,30 FROM DUAL ON DUPLICATE KEY UPDATE c=c+100;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:7~1:9) /test/1/catalog1/schema1/t1/",
+      "action" : "MERGE",
+      "target" : "Table(1:29~1:33) /test/1/catalog1/schema1/DUAL/"
+    }
+  ]
+}
+----------
+[merge_select__095]
+sql:
+INSERT INTO t1(a) SELECT 1 UNION SELECT 2 ON DUPLICATE KEY UPDATE a=(SELECT d FROM t2 GROUP BY 1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:12~1:14) /test/1/catalog1/schema1/t1/",
+      "action" : "MERGE",
+      "target" : "Table(1:83~1:85) /test/1/catalog1/schema1/t2/"
+    }
+  ]
+}
+----------
+[insert__096]
+sql:
+INSERT /*+ SET_VAR(auto_increment_increment=10) */ INTO t1 VALUES(NULL),(NULL),(NULL),(NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:56~1:58) /test/1/catalog1/schema1/t1/",
+      "action" : "INSERT"
+    },
+    {
+      "subject": "ConfigKey(1:19~1:43) /test/1/auto_increment_increment/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}

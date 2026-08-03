@@ -1,0 +1,109 @@
+[as_of_lsn]
+sql:
+select id,name from app.t_base as of lsn 60000
+expect:
+{
+  "contains": [
+    {
+      "class": "RdbTableDomain",
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "schema": "app",
+      "table": "t_base"
+    }
+  ]
+}
+----------
+[partition_as_of_lsn]
+sql:
+select id from app.t_part partition(p1) as of lsn 60000
+expect:
+{
+  "contains": [
+    {
+      "class": "RdbTableDomain",
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "schema": "app",
+      "table": "t_part"
+    }
+  ]
+}
+----------
+[versions_lsn]
+sql:
+select versions_startscn,versions_endscn,id from app.t_base versions between lsn 60000 and 60050
+expect:
+{
+  "contains": [
+    {
+      "class": "RdbTableDomain",
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "schema": "app",
+      "table": "t_base"
+    }
+  ]
+}
+----------
+[snapshot_join]
+sql:
+select b.id,o.label from app.t_base as of lsn 60000 b join app.t_other as of lsn 60000 o on o.id=b.id
+expect:
+{
+  "contains": [
+    {
+      "class": "RdbTableDomain",
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "schema": "app",
+      "table": "t_base"
+    },
+    {
+      "class": "RdbTableDomain",
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "schema": "app",
+      "table": "t_other"
+    }
+  ]
+}
+----------
+[flashback_table_lsn]
+sql:
+flashback table app.t_fb1 to lsn 60000
+expect:
+{
+  "contains": [
+    {
+      "class": "RdbTableDomain",
+      "sqlType": "ADMIN_TABLE",
+      "auditKind": "ADMIN",
+      "schema": "app",
+      "table": "t_fb1"
+    }
+  ]
+}
+----------
+[flashback_multi]
+sql:
+flashback table app.t_fb2,app.t_fb3 to scn 60000 disable triggers
+expect:
+{
+  "contains": [
+    {
+      "class": "RdbTableDomain",
+      "sqlType": "ADMIN_TABLE",
+      "auditKind": "ADMIN",
+      "schema": "app",
+      "table": "t_fb2"
+    },
+    {
+      "class": "RdbTableDomain",
+      "sqlType": "ADMIN_TABLE",
+      "auditKind": "ADMIN",
+      "schema": "app",
+      "table": "t_fb3"
+    }
+  ]
+}

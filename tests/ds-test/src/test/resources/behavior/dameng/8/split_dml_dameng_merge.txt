@@ -1,0 +1,19 @@
+[split_dml_dameng_merge_001]
+sql:
+merge into app.customer target
+using (select 1 as id, 'Bob' as name, 'A' as status from dual) source
+on (target.id = source.id)
+when matched then update set target.status = source.status
+when not matched then insert (name, status) values (source.name, source.status);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:11~1:23) /test/1/catalog1/app/customer/",
+      "action": "MERGE",
+      "target": "View(2:57~2:61) /test/1/catalog1/schema1/dual/"
+    }
+  ]
+}

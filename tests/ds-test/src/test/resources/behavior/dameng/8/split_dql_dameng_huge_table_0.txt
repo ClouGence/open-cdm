@@ -1,0 +1,137 @@
+[split_dql_dameng_huge_table_0_001]
+sql:
+select id, name, rowid from huge_main order by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:28~1:37) /test/1/catalog1/schema1/huge_main/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_huge_table_0_002]
+sql:
+select count(*), min(id), max(id) from huge_main;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:20) /test/1/catalog1/schema1/min/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:26~1:29) /test/1/catalog1/schema1/max/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:39~1:48) /test/1/catalog1/schema1/huge_main/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_huge_table_0_003]
+sql:
+select h.id, s.name from huge_main h join source_table s on h.id=s.id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:25~1:34) /test/1/catalog1/schema1/huge_main/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(1:42~1:54) /test/1/catalog1/schema1/source_table/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_huge_table_0_004]
+sql:
+select * from huge_main where id in(select id from source_table);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:23) /test/1/catalog1/schema1/huge_main/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(1:51~1:63) /test/1/catalog1/schema1/source_table/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_huge_table_0_005]
+sql:
+with h as(select id, name from huge_main) select * from h;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:31~1:40) /test/1/catalog1/schema1/huge_main/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_huge_table_0_006]
+sql:
+select id, row_number() over(order by id) as rn from huge_main;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:11~1:21) /test/1/catalog1/schema1/row_number/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:53~1:62) /test/1/catalog1/schema1/huge_main/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_huge_table_0_007]
+sql:
+select dbms_metadata.get_ddl('TABLE','HUGE_MAIN',user) from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:28) /test/1/catalog1/dbms_metadata/get_ddl/",
+      "action": "CALL",
+      "target": "Table(1:37~1:48) /test/1/catalog1/schema1/HUGE_MAIN/"
+    },
+    {
+      "subject": "Function(1:49~1:53) /test/1/catalog1/schema1/user/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:60~1:64) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}

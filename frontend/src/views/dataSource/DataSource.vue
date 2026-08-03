@@ -3,7 +3,7 @@
     <second-confirm-modal
       :title="$t('shan-chu-shu-ju-yuan')"
       :event="SECOND_CONFIRM_EVENT_LIST.DELETE_DATASOURCE"
-      :confirm-text="selectedRow.instanceId"
+      :confirm-text="selectedRow.instanceDesc"
       :visible="showDeleteDataSourceConfirm"
       :confirm-button-text="$t('shan-chu-shu-ju-yuan')"
       confirm-button-type="error"
@@ -17,9 +17,9 @@
       <Alert class="delete-datasource-confirm-tip">
         {{ $t('shan-chu-shu-ju-yuan') }}
         <span class="delete-datasource-confirm-id" @dblclick="selectConfirmText">
-          {{ selectedRow.instanceId }}
+          {{ selectedRow.instanceDesc }}
         </span>
-        {{ $t('qing-zai-xia-fang-zhong-fu-shu-ru-gai-id') }}
+        {{ $t('qing-zai-xia-fang-zhong-fu-shu-ru-gai-shu-ju-yuan-ming-cheng') }}
       </Alert>
     </second-confirm-modal>
     <CCModal

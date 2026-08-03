@@ -1,0 +1,240 @@
+-- SHARED_001_ROWS
+select id,owner_ep,note from app.dsc_q_shared_t order by id;
+-- SHARED_002_INSTANCE
+select name,instance_name,status$ from sys.v$instance;
+-- API_001_CHECKPOINT_FUNCTION
+select checkpoint(0) checkpoint_result from dual;
+-- API_002_CHECKPOINT_STATEMENT
+checkpoint(1);
+-- VIEW_001_DSC_EP_INFO
+select count(*) from sys.v$dsc_ep_info;
+-- VIEW_002_DSC_GBS_POOL
+select count(*) from sys.v$dsc_gbs_pool;
+-- VIEW_003_DSC_GBS_POOLS_DETAIL
+select count(*) from sys.v$dsc_gbs_pools_detail;
+-- VIEW_004_DSC_GBS_CTL
+select count(*) from sys.v$dsc_gbs_ctl;
+-- VIEW_005_DSC_GBS_CTL_DETAIL
+select count(*) from sys.v$dsc_gbs_ctl_detail;
+-- VIEW_006_DSC_GBS_CTL_LRU_FIRST
+select count(*) from sys.v$dsc_gbs_ctl_lru_first;
+-- VIEW_007_DSC_GBS_CTL_LRU_FIRST_DETAIL
+select count(*) from sys.v$dsc_gbs_ctl_lru_first_detail;
+-- VIEW_008_DSC_GBS_CTL_LRU_LAST
+select count(*) from sys.v$dsc_gbs_ctl_lru_last;
+-- VIEW_009_DSC_GBS_CTL_LRU_LAST_DETAIL
+select count(*) from sys.v$dsc_gbs_ctl_lru_last_detail;
+-- VIEW_010_DSC_GBS_REQUEST_CTL
+select count(*) from sys.v$dsc_gbs_request_ctl;
+-- VIEW_011_DSC_GBS_FREQ_CFLT
+select count(*) from sys.v$dsc_gbs_freq_cflt;
+-- VIEW_012_DSC_LBS_POOL
+select count(*) from sys.v$dsc_lbs_pool;
+-- VIEW_013_DSC_LBS_POOLS_DETAIL
+select count(*) from sys.v$dsc_lbs_pools_detail;
+-- VIEW_014_DSC_LBS_CTL_LRU_FIRST
+select count(*) from sys.v$dsc_lbs_ctl_lru_first;
+-- VIEW_015_DSC_LBS_CTL_LRU_LAST
+select count(*) from sys.v$dsc_lbs_ctl_lru_last;
+-- VIEW_016_DSC_LBS_CTL_DETAIL
+select count(*) from sys.v$dsc_lbs_ctl_detail;
+-- VIEW_017_DSC_LBS_CTL_LRU_FIRST_DETAIL
+select count(*) from sys.v$dsc_lbs_ctl_lru_first_detail;
+-- VIEW_018_DSC_LBS_CTL_LRU_LAST_DETAIL
+select count(*) from sys.v$dsc_lbs_ctl_lru_last_detail;
+-- VIEW_019_DSC_GTV_SYS
+select count(*) from sys.v$dsc_gtv_sys;
+-- VIEW_020_DSC_LBS_CTL
+select count(*) from sys.v$dsc_lbs_ctl;
+-- VIEW_021_DSC_GTV_TINFO
+select count(*) from sys.v$dsc_gtv_tinfo;
+-- VIEW_022_DSC_GTV_ACTIVE_TRX
+select count(*) from sys.v$dsc_gtv_active_trx;
+-- VIEW_023_DSC_LOCK
+select count(*) from sys.v$dsc_lock;
+-- VIEW_024_DSC_TRX
+select count(*) from sys.v$dsc_trx;
+-- VIEW_025_DSC_TRXWAIT
+select count(*) from sys.v$dsc_trxwait;
+-- VIEW_026_DSC_TRX_VIEW
+select count(*) from sys.v$dsc_trx_view;
+-- VIEW_027_DCR_INFO
+select count(*) from sys.v$dcr_info;
+-- VIEW_028_DCR_GROUP
+select count(*) from sys.v$dcr_group;
+-- VIEW_029_DCR_EP
+select count(*) from sys.v$dcr_ep;
+-- VIEW_030_DSC_REQUEST_STATISTIC
+select count(*) from sys.v$dsc_request_statistic;
+-- VIEW_031_DSC_REQUEST_PAGE_STATISTIC
+select count(*) from sys.v$dsc_request_page_statistic;
+-- VIEW_032_DSC_CRASH_OVER_INFO
+select count(*) from sys.v$dsc_crash_over_info;
+-- VIEW_033_DSC_GLS_SYS
+select count(*) from sys.v$dsc_gls_sys;
+-- VIEW_034_ASMATTR
+select count(*) from sys.v$asmattr;
+-- VIEW_035_ASMGROUP
+select count(*) from sys.v$asmgroup;
+-- VIEW_036_ASMDISK
+select count(*) from sys.v$asmdisk;
+-- VIEW_037_ASMFILE
+select count(*) from sys.v$asmfile;
+-- VIEW_038_ASMPARTNER
+select count(*) from sys.v$asmpartner;
+-- VIEW_039_ASM_OPERATION
+select count(*) from sys.v$asm_operation;
+-- VIEW_040_DM_ARCH_INI
+select count(*) from sys.v$dm_arch_ini;
+-- VIEW_041_ASM_REBALANCE_HISTORY
+select count(*) from sys.v$asm_rebalance_history;
+-- VIEW_042_ASM_FAIL_AU
+select count(*) from sys.v$asm_fail_au;
+-- ARITY_001_CHECKPOINT_MISSING
+select checkpoint() from dual;
+-- ARITY_002_CHECKPOINT_EXTRA
+select checkpoint(0,1) from dual;
+------------------------------------------------------------------------------------------
+[SELECT] -- SHARED_001_ROWS
+select id,owner_ep,note from app.dsc_q_shared_t order by id;
+----------
+[SELECT] -- SHARED_002_INSTANCE
+select name,instance_name,status$ from sys.v$instance;
+----------
+[SELECT] -- API_001_CHECKPOINT_FUNCTION
+select checkpoint(0) checkpoint_result from dual;
+----------
+[ADMIN] -- API_002_CHECKPOINT_STATEMENT
+checkpoint(1);
+----------
+[SELECT] -- VIEW_001_DSC_EP_INFO
+select count(*) from sys.v$dsc_ep_info;
+----------
+[SELECT] -- VIEW_002_DSC_GBS_POOL
+select count(*) from sys.v$dsc_gbs_pool;
+----------
+[SELECT] -- VIEW_003_DSC_GBS_POOLS_DETAIL
+select count(*) from sys.v$dsc_gbs_pools_detail;
+----------
+[SELECT] -- VIEW_004_DSC_GBS_CTL
+select count(*) from sys.v$dsc_gbs_ctl;
+----------
+[SELECT] -- VIEW_005_DSC_GBS_CTL_DETAIL
+select count(*) from sys.v$dsc_gbs_ctl_detail;
+----------
+[SELECT] -- VIEW_006_DSC_GBS_CTL_LRU_FIRST
+select count(*) from sys.v$dsc_gbs_ctl_lru_first;
+----------
+[SELECT] -- VIEW_007_DSC_GBS_CTL_LRU_FIRST_DETAIL
+select count(*) from sys.v$dsc_gbs_ctl_lru_first_detail;
+----------
+[SELECT] -- VIEW_008_DSC_GBS_CTL_LRU_LAST
+select count(*) from sys.v$dsc_gbs_ctl_lru_last;
+----------
+[SELECT] -- VIEW_009_DSC_GBS_CTL_LRU_LAST_DETAIL
+select count(*) from sys.v$dsc_gbs_ctl_lru_last_detail;
+----------
+[SELECT] -- VIEW_010_DSC_GBS_REQUEST_CTL
+select count(*) from sys.v$dsc_gbs_request_ctl;
+----------
+[SELECT] -- VIEW_011_DSC_GBS_FREQ_CFLT
+select count(*) from sys.v$dsc_gbs_freq_cflt;
+----------
+[SELECT] -- VIEW_012_DSC_LBS_POOL
+select count(*) from sys.v$dsc_lbs_pool;
+----------
+[SELECT] -- VIEW_013_DSC_LBS_POOLS_DETAIL
+select count(*) from sys.v$dsc_lbs_pools_detail;
+----------
+[SELECT] -- VIEW_014_DSC_LBS_CTL_LRU_FIRST
+select count(*) from sys.v$dsc_lbs_ctl_lru_first;
+----------
+[SELECT] -- VIEW_015_DSC_LBS_CTL_LRU_LAST
+select count(*) from sys.v$dsc_lbs_ctl_lru_last;
+----------
+[SELECT] -- VIEW_016_DSC_LBS_CTL_DETAIL
+select count(*) from sys.v$dsc_lbs_ctl_detail;
+----------
+[SELECT] -- VIEW_017_DSC_LBS_CTL_LRU_FIRST_DETAIL
+select count(*) from sys.v$dsc_lbs_ctl_lru_first_detail;
+----------
+[SELECT] -- VIEW_018_DSC_LBS_CTL_LRU_LAST_DETAIL
+select count(*) from sys.v$dsc_lbs_ctl_lru_last_detail;
+----------
+[SELECT] -- VIEW_019_DSC_GTV_SYS
+select count(*) from sys.v$dsc_gtv_sys;
+----------
+[SELECT] -- VIEW_020_DSC_LBS_CTL
+select count(*) from sys.v$dsc_lbs_ctl;
+----------
+[SELECT] -- VIEW_021_DSC_GTV_TINFO
+select count(*) from sys.v$dsc_gtv_tinfo;
+----------
+[SELECT] -- VIEW_022_DSC_GTV_ACTIVE_TRX
+select count(*) from sys.v$dsc_gtv_active_trx;
+----------
+[SELECT] -- VIEW_023_DSC_LOCK
+select count(*) from sys.v$dsc_lock;
+----------
+[SELECT] -- VIEW_024_DSC_TRX
+select count(*) from sys.v$dsc_trx;
+----------
+[SELECT] -- VIEW_025_DSC_TRXWAIT
+select count(*) from sys.v$dsc_trxwait;
+----------
+[SELECT] -- VIEW_026_DSC_TRX_VIEW
+select count(*) from sys.v$dsc_trx_view;
+----------
+[SELECT] -- VIEW_027_DCR_INFO
+select count(*) from sys.v$dcr_info;
+----------
+[SELECT] -- VIEW_028_DCR_GROUP
+select count(*) from sys.v$dcr_group;
+----------
+[SELECT] -- VIEW_029_DCR_EP
+select count(*) from sys.v$dcr_ep;
+----------
+[SELECT] -- VIEW_030_DSC_REQUEST_STATISTIC
+select count(*) from sys.v$dsc_request_statistic;
+----------
+[SELECT] -- VIEW_031_DSC_REQUEST_PAGE_STATISTIC
+select count(*) from sys.v$dsc_request_page_statistic;
+----------
+[SELECT] -- VIEW_032_DSC_CRASH_OVER_INFO
+select count(*) from sys.v$dsc_crash_over_info;
+----------
+[SELECT] -- VIEW_033_DSC_GLS_SYS
+select count(*) from sys.v$dsc_gls_sys;
+----------
+[SELECT] -- VIEW_034_ASMATTR
+select count(*) from sys.v$asmattr;
+----------
+[SELECT] -- VIEW_035_ASMGROUP
+select count(*) from sys.v$asmgroup;
+----------
+[SELECT] -- VIEW_036_ASMDISK
+select count(*) from sys.v$asmdisk;
+----------
+[SELECT] -- VIEW_037_ASMFILE
+select count(*) from sys.v$asmfile;
+----------
+[SELECT] -- VIEW_038_ASMPARTNER
+select count(*) from sys.v$asmpartner;
+----------
+[SELECT] -- VIEW_039_ASM_OPERATION
+select count(*) from sys.v$asm_operation;
+----------
+[SELECT] -- VIEW_040_DM_ARCH_INI
+select count(*) from sys.v$dm_arch_ini;
+----------
+[SELECT] -- VIEW_041_ASM_REBALANCE_HISTORY
+select count(*) from sys.v$asm_rebalance_history;
+----------
+[SELECT] -- VIEW_042_ASM_FAIL_AU
+select count(*) from sys.v$asm_fail_au;
+----------
+[SELECT] -- ARITY_001_CHECKPOINT_MISSING
+select checkpoint() from dual;
+----------
+[SELECT] -- ARITY_002_CHECKPOINT_EXTRA
+select checkpoint(0,1) from dual;

@@ -1,0 +1,30 @@
+alter table table_log_state with advanced;
+alter table table_log_state advanced log;
+alter table table_log_state without advanced;
+alter table table_log_state truncate advanced;
+alter table table_logic_state add logic;
+alter table table_logic_state drop logic;
+create table table_log_ctas with advanced log as select 1 id;
+create table table_log_bad(id int) with log advanced;
+create table table_log_bad(id int) partition by range(id)(partition p1 values less than(10)) advanced log;
+create table table_log_bad(id int) add log;
+------------------------------------------------------------------------------------------
+[ALTER_TABLE] alter table table_log_state with advanced;
+----------
+[ALTER_TABLE] alter table table_log_state advanced log;
+----------
+[ALTER_TABLE] alter table table_log_state without advanced;
+----------
+[ALTER_TABLE] alter table table_log_state truncate advanced;
+----------
+[ALTER_TABLE] alter table table_logic_state add logic;
+----------
+[ALTER_TABLE] alter table table_logic_state drop logic;
+----------
+[CREATE_TABLE|SELECT] create table table_log_ctas with advanced log as select 1 id;
+----------
+[CREATE_TABLE] create table table_log_bad(id int) with log advanced;
+----------
+[CREATE_TABLE] create table table_log_bad(id int) partition by range(id)(partition p1 values less than(10)) advanced log;
+----------
+[CREATE_TABLE] create table table_log_bad(id int) add log;

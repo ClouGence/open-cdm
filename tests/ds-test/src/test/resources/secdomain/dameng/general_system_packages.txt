@@ -1,0 +1,26 @@
+[general_system_package_constant_query]
+sql:
+select dbms_random.value(10, 100)
+expect:
+{"size":0}
+----------
+[general_system_package_table_query]
+sql:
+select utl_raw.bit_xor(raw_left, raw_right) as raw_diff from app.raw_data where id=1
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"raw_data"}
+  ]
+}
+----------
+[general_system_package_block_call_domains]
+sql:
+declare v_client varchar2(64); begin dbms_application_info.set_client_info('DM8'); dbms_application_info.read_client_info(v_client); end;
+expect:
+{
+  "contains": [
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_application_info"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_application_info"}
+  ]
+}

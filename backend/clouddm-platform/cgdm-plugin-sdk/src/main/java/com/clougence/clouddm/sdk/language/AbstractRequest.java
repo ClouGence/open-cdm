@@ -44,6 +44,7 @@ public abstract class AbstractRequest {
     private String                        sqlText;
 
     private transient SqlEngineSpi        sqlEngine;
+    private transient Map<String, String> sqlParameters;
     private transient Map<String, Object> ctxParams   = Collections.emptyMap();
 
     private Map<String, Object>           options     = Collections.emptyMap();

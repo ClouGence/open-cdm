@@ -1,0 +1,61 @@
+SELECT 1 /*!080100 +1*/ AS should_return_2;
+SELECT (SELECT EXISTS(SELECT * LIMIT 1 ORDER BY VALUES (c00)));
+SELECT '' IN (SELECT '1' c FROM t1 ORDER BY '' ORDER BY '') FROM t1;
+SELECT /*!8000 1 */;
+/*!080046 SELECT 6 */;
+SELECT 1 /*!080410*/;
+SELECT 1 /*!080400
++ 1 */;
+SELECT 1 /*!080400+ 1 */;
+SELECT 1 /*!080400	+ 1 */;
+SELECT 1 /*!080400
++ 1 */;
+SELECT 1 /*!080400+ 1 */;
+SELECT 1 */;
+SELECT 1 /*!80000 + 1;
+SELECT .t1.i FROM t1;
+SELECT * FROM split_sample.t TABLESAMPLE SYSTEM (@sample_pct);
+SELECT 1/*!2*/;
+SELECT 1/*!000002*/;
+SELECT TRUE IS TRUE IS TRUE IS TRUE;
+SELECT FALSE IS NOT TRUE IS NOT TRUE IS NOT TRUE;
+------------------------------------------------------------------------------------------
+[SELECT] SELECT 1 /*!080100 +1*/ AS should_return_2;
+----------
+[SELECT] SELECT (SELECT EXISTS(SELECT * LIMIT 1 ORDER BY VALUES (c00)));
+----------
+[SELECT] SELECT '' IN (SELECT '1' c FROM t1 ORDER BY '' ORDER BY '') FROM t1;
+----------
+[SELECT] SELECT /*!8000 1 */;
+----------
+[SELECT] /*!080046 SELECT 6 */;
+----------
+[SELECT] SELECT 1 /*!080410*/;
+----------
+[SELECT] SELECT 1 /*!080400
++ 1 */;
+----------
+[SELECT] SELECT 1 /*!080400+ 1 */;
+----------
+[SELECT] SELECT 1 /*!080400	+ 1 */;
+----------
+[SELECT] SELECT 1 /*!080400
++ 1 */;
+----------
+[SELECT] SELECT 1 /*!080400+ 1 */;
+----------
+[SELECT] SELECT 1 */;
+----------
+[SELECT] SELECT 1 /*!80000 + 1;
+----------
+[SELECT] SELECT .t1.i FROM t1;
+----------
+[SELECT] SELECT * FROM split_sample.t TABLESAMPLE SYSTEM (@sample_pct);
+----------
+[SELECT] SELECT 1/*!2*/;
+----------
+[SELECT] SELECT 1/*!000002*/;
+----------
+[SELECT] SELECT TRUE IS TRUE IS TRUE IS TRUE;
+----------
+[SELECT] SELECT FALSE IS NOT TRUE IS NOT TRUE IS NOT TRUE;

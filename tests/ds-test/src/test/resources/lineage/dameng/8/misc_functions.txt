@@ -1,0 +1,87 @@
+[misc_function_public_signatures]
+sql:
+select
+  decode(1,1,'one','other') as decoded_value,
+  dm_hash('abc') as hash_value,
+  field('b','a','b') as field_value,
+  if(1=1,'a','b') as if_value,
+  isdate('2024-02-29') as date_flag,
+  isnumeric('1.5') as numeric_flag,
+  lengthb('达梦') as byte_length,
+  lnnvl(1=2) as lnnvl_value,
+  object_id('dual') as object_value,
+  ora_hash('abc',100,1) as ora_hash_value,
+  width_bucket(2,1,5,4) as bucket_value
+from dual
+expect:
+{
+  "decoded_value": [],
+  "hash_value": [],
+  "field_value": [],
+  "if_value": [],
+  "date_flag": [],
+  "numeric_flag": [],
+  "byte_length": [],
+  "lnnvl_value": [],
+  "object_value": [],
+  "ora_hash_value": [],
+  "bucket_value": []
+}
+----------
+[misc_function_column_lineage]
+sql:
+select
+  decode(t.kind,t.search_value,t.result_value,t.default_value) as decoded_value,
+  dm_hash(t.payload) as hash_value,
+  field(t.kind,t.first_kind,t.second_kind) as field_value,
+  if(t.enabled,t.true_value,t.false_value) as if_value,
+  isdate(t.date_text) as date_flag,
+  isnumeric(t.number_text) as numeric_flag,
+  lengthb(t.payload) as byte_length,
+  lnnvl(t.score > t.threshold) as lnnvl_value,
+  object_id(t.object_name,t.object_type) as object_value,
+  ora_hash(t.payload,t.max_bucket,t.seed_value) as ora_hash_value,
+  width_bucket(t.score,t.low_value,t.high_value,t.bucket_count) as bucket_value
+from catalog1.app.misc_source t
+expect:
+{
+  "decoded_value": [
+    "/catalog1/app/misc_source/kind/",
+    "/catalog1/app/misc_source/search_value/",
+    "/catalog1/app/misc_source/result_value/",
+    "/catalog1/app/misc_source/default_value/"
+  ],
+  "hash_value": ["/catalog1/app/misc_source/payload/"],
+  "field_value": [
+    "/catalog1/app/misc_source/kind/",
+    "/catalog1/app/misc_source/first_kind/",
+    "/catalog1/app/misc_source/second_kind/"
+  ],
+  "if_value": [
+    "/catalog1/app/misc_source/enabled/",
+    "/catalog1/app/misc_source/true_value/",
+    "/catalog1/app/misc_source/false_value/"
+  ],
+  "date_flag": ["/catalog1/app/misc_source/date_text/"],
+  "numeric_flag": ["/catalog1/app/misc_source/number_text/"],
+  "byte_length": ["/catalog1/app/misc_source/payload/"],
+  "lnnvl_value": [
+    "/catalog1/app/misc_source/score/",
+    "/catalog1/app/misc_source/threshold/"
+  ],
+  "object_value": [
+    "/catalog1/app/misc_source/object_name/",
+    "/catalog1/app/misc_source/object_type/"
+  ],
+  "ora_hash_value": [
+    "/catalog1/app/misc_source/payload/",
+    "/catalog1/app/misc_source/max_bucket/",
+    "/catalog1/app/misc_source/seed_value/"
+  ],
+  "bucket_value": [
+    "/catalog1/app/misc_source/score/",
+    "/catalog1/app/misc_source/low_value/",
+    "/catalog1/app/misc_source/high_value/",
+    "/catalog1/app/misc_source/bucket_count/"
+  ]
+}

@@ -1,0 +1,42 @@
+COMMAND COUNT
+COMMAND DOCS
+COMMAND DOCS SET
+COMMAND DOCS get set
+COMMAND GETKEYS MSET a b c d e f
+COMMAND GETKEYS EVAL "not consulted" 3 key1 key2 key3 arg1 arg2 arg3 argN
+COMMAND GETKEYS SORT mylist ALPHA STORE outlist
+COMMAND GETKEYSANDFLAGS LMOVE mylist1 mylist2 left left
+COMMAND INFO get set eval
+COMMAND INFO evalsha config
+COMMAND LIST
+COMMAND LIST filterby  module sss
+COMMAND LIST filterby  ACLCAT sss
+COMMAND LIST filterby  PATTERN sss
+------------------------------------------------------------------------------------------
+[METADATA] COMMAND COUNT
+----------
+[METADATA] COMMAND DOCS
+----------
+[METADATA] COMMAND DOCS SET
+----------
+[METADATA] COMMAND DOCS get set
+----------
+[METADATA] COMMAND GETKEYS MSET a b c d e f
+----------
+[METADATA] COMMAND GETKEYS EVAL "not consulted" 3 key1 key2 key3 arg1 arg2 arg3 argN
+----------
+[METADATA] COMMAND GETKEYS SORT mylist ALPHA STORE outlist
+----------
+[METADATA] COMMAND GETKEYSANDFLAGS LMOVE mylist1 mylist2 left left
+----------
+[METADATA] COMMAND INFO get set eval
+----------
+[METADATA] COMMAND INFO evalsha config
+----------
+[METADATA] COMMAND LIST
+----------
+[METADATA] COMMAND LIST filterby  module sss
+----------
+[METADATA] COMMAND LIST filterby  ACLCAT sss
+----------
+[METADATA] COMMAND LIST filterby  PATTERN sss

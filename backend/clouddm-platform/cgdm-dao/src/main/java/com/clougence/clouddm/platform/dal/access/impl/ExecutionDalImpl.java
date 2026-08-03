@@ -21,8 +21,6 @@ public class ExecutionDalImpl implements ExecutionDal {
     @Resource
     private DmExecFileMapper             fileMapper;
     @Resource
-    private DmExecQueryConstraintsMapper queryConstraintsMapper;
-    @Resource
     private DmExecSessionMapper          sessionMapper;
     @Resource
     private DmExecSqlAuditMapper         sqlAuditMapper;
@@ -45,11 +43,6 @@ public class ExecutionDalImpl implements ExecutionDal {
     @Override
     public DmExecFileMapper fileMapper() {
         return fileMapper;
-    }
-
-    @Override
-    public DmExecQueryConstraintsMapper queryConstraintsMapper() {
-        return queryConstraintsMapper;
     }
 
     @Override

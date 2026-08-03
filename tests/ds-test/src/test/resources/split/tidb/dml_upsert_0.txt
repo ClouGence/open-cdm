@@ -1,0 +1,6 @@
+INSERT INTO target_tab(id, value_col) VALUES (1, 'new') ON DUPLICATE KEY UPDATE value_col = VALUES(value_col);
+REPLACE INTO target_tab(id, value_col) VALUES (1, 'replacement');
+------------------------------------------------------------------------------------------
+[MERGE] INSERT INTO target_tab(id, value_col) VALUES (1, 'new') ON DUPLICATE KEY UPDATE value_col = VALUES(value_col);
+----------
+[MERGE] REPLACE INTO target_tab(id, value_col) VALUES (1, 'replacement');

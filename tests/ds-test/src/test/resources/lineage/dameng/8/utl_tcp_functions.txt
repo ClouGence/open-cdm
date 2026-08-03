@@ -1,0 +1,18 @@
+[utl_tcp_payload_columns]
+sql:
+select REMOTE_HOST, REMOTE_PORT, LOCAL_HOST, LOCAL_PORT, CHARSET_NAME, NEWLINE_VALUE,
+       TIMEOUT_VALUE, TEXT_DATA, RAW_DATA, READ_LENGTH
+from catalog1.app.tcp_payload
+expect:
+{
+  "REMOTE_HOST": ["/catalog1/app/tcp_payload/REMOTE_HOST/"],
+  "REMOTE_PORT": ["/catalog1/app/tcp_payload/REMOTE_PORT/"],
+  "LOCAL_HOST": ["/catalog1/app/tcp_payload/LOCAL_HOST/"],
+  "LOCAL_PORT": ["/catalog1/app/tcp_payload/LOCAL_PORT/"],
+  "CHARSET_NAME": ["/catalog1/app/tcp_payload/CHARSET_NAME/"],
+  "NEWLINE_VALUE": ["/catalog1/app/tcp_payload/NEWLINE_VALUE/"],
+  "TIMEOUT_VALUE": ["/catalog1/app/tcp_payload/TIMEOUT_VALUE/"],
+  "TEXT_DATA": ["/catalog1/app/tcp_payload/TEXT_DATA/"],
+  "RAW_DATA": ["/catalog1/app/tcp_payload/RAW_DATA/"],
+  "READ_LENGTH": ["/catalog1/app/tcp_payload/READ_LENGTH/"]
+}

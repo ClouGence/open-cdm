@@ -1,0 +1,102 @@
+SELECT B'10001' || B'011';
+SELECT B'10001' & B'01101';
+SELECT B'10001' | B'01101';
+SELECT B'10001' # B'01101';
+SELECT ~ B'10001';
+SELECT B'10001' << 3;
+SELECT B'10001' >> 2;
+SELECT B'101'::bit(3) < B'110'::bit(3);
+SELECT B'101'::bit(3) <= B'101'::bit(3);
+SELECT B'101'::bit(3) = B'101'::bit(3);
+SELECT B'111'::bit(3) >= B'101'::bit(3);
+SELECT B'111'::bit(3) > B'101'::bit(3);
+SELECT B'111'::bit(3) <> B'101'::bit(3);
+SELECT B'10'::varbit || B'011'::varbit;
+SELECT bit_count(B'10111');
+SELECT bit_length(B'10111');
+SELECT length(B'10111');
+SELECT octet_length(B'1011111011');
+SELECT overlay(B'01010101010101010' placing B'11111' from 2 for 3);
+SELECT overlay(B'0101011100' placing B'101' from 6);
+SELECT overlay(B'0101011100' placing B'001' from 11);
+SELECT position(B'010' in B'000001101011');
+SELECT position(B'1010' in B'00001010');
+SELECT position(B'' in B'00001010');
+SELECT substring(B'110010111111' from 3 for 2);
+SELECT substring(B'01010101'::varbit from 2 for 2147483646);
+SELECT get_bit(B'101010101010101010', 6);
+SELECT set_bit(B'101010101010101010', 6, 0);
+SELECT 44::bit(10);
+SELECT 44::bit(3);
+SELECT cast(-44 as bit(12));
+SELECT '1110'::bit(4)::integer;
+SELECT X'0F'::bit(8);
+SELECT X'0F'::varbit;
+------------------------------------------------------------------------------------------
+[SELECT] SELECT B'10001' || B'011';
+----------
+[SELECT] SELECT B'10001' & B'01101';
+----------
+[SELECT] SELECT B'10001' | B'01101';
+----------
+[SELECT] SELECT B'10001' # B'01101';
+----------
+[SELECT] SELECT ~ B'10001';
+----------
+[SELECT] SELECT B'10001' << 3;
+----------
+[SELECT] SELECT B'10001' >> 2;
+----------
+[SELECT] SELECT B'101'::bit(3) < B'110'::bit(3);
+----------
+[SELECT] SELECT B'101'::bit(3) <= B'101'::bit(3);
+----------
+[SELECT] SELECT B'101'::bit(3) = B'101'::bit(3);
+----------
+[SELECT] SELECT B'111'::bit(3) >= B'101'::bit(3);
+----------
+[SELECT] SELECT B'111'::bit(3) > B'101'::bit(3);
+----------
+[SELECT] SELECT B'111'::bit(3) <> B'101'::bit(3);
+----------
+[SELECT] SELECT B'10'::varbit || B'011'::varbit;
+----------
+[SELECT] SELECT bit_count(B'10111');
+----------
+[SELECT] SELECT bit_length(B'10111');
+----------
+[SELECT] SELECT length(B'10111');
+----------
+[SELECT] SELECT octet_length(B'1011111011');
+----------
+[SELECT] SELECT overlay(B'01010101010101010' placing B'11111' from 2 for 3);
+----------
+[SELECT] SELECT overlay(B'0101011100' placing B'101' from 6);
+----------
+[SELECT] SELECT overlay(B'0101011100' placing B'001' from 11);
+----------
+[SELECT] SELECT position(B'010' in B'000001101011');
+----------
+[SELECT] SELECT position(B'1010' in B'00001010');
+----------
+[SELECT] SELECT position(B'' in B'00001010');
+----------
+[SELECT] SELECT substring(B'110010111111' from 3 for 2);
+----------
+[SELECT] SELECT substring(B'01010101'::varbit from 2 for 2147483646);
+----------
+[SELECT] SELECT get_bit(B'101010101010101010', 6);
+----------
+[SELECT] SELECT set_bit(B'101010101010101010', 6, 0);
+----------
+[SELECT] SELECT 44::bit(10);
+----------
+[SELECT] SELECT 44::bit(3);
+----------
+[SELECT] SELECT cast(-44 as bit(12));
+----------
+[SELECT] SELECT '1110'::bit(4)::integer;
+----------
+[SELECT] SELECT X'0F'::bit(8);
+----------
+[SELECT] SELECT X'0F'::varbit;

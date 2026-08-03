@@ -1,0 +1,30 @@
+[java_parent_method_query_has_no_result_lineage]
+sql:
+create or replace java class j_resource_parent
+{
+  public int read_value()
+  {
+    int v_value;
+    select max(id) into v_value from catalog1.app.java_parent_source;
+    return v_value;
+  }
+}
+/
+expect:
+{}
+----------
+[java_child_override_query_has_no_result_lineage]
+sql:
+create or replace java class j_resource_child extends j_resource_parent
+{
+  int child_marker;
+  public override int read_value()
+  {
+    int v_value;
+    select max(id) into v_value from catalog1.app.java_child_source where id > 0;
+    return v_value;
+  }
+}
+/
+expect:
+{}

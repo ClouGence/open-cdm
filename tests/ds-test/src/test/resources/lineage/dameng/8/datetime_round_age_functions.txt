@@ -1,0 +1,36 @@
+[datetime_round_age_public_signatures]
+sql:
+select
+  round(timestamp '2024-02-29 12:30:30.123456','MI') as rounded_value,
+  trunc(timestamp '2024-02-29 12:30:30.123456','MI') as truncated_value,
+  age(timestamp '2001-04-10',timestamp '1957-06-13') as age_value
+from dual
+expect:
+{
+  "rounded_value": [],
+  "truncated_value": [],
+  "age_value": []
+}
+----------
+[datetime_round_age_column_lineage]
+sql:
+select
+  round(t.created_at,t.round_format) as rounded_value,
+  trunc(t.updated_at,t.trunc_format) as truncated_value,
+  age(t.end_at,t.start_at) as age_value
+from catalog1.app.events t
+expect:
+{
+  "rounded_value": [
+    "/catalog1/app/events/created_at/",
+    "/catalog1/app/events/round_format/"
+  ],
+  "truncated_value": [
+    "/catalog1/app/events/updated_at/",
+    "/catalog1/app/events/trunc_format/"
+  ],
+  "age_value": [
+    "/catalog1/app/events/end_at/",
+    "/catalog1/app/events/start_at/"
+  ]
+}

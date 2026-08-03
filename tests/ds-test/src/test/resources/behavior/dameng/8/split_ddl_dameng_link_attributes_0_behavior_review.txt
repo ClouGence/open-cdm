@@ -1,0 +1,1176 @@
+[split_ddl_dameng_link_attributes_0_001_behavior_review]
+sql:
+drop link if exists "LAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:20~1:150) /test/1/catalog1/schema1/LAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_attributes_0_002_behavior_review]
+sql:
+create link "LAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" connect 'DPI'
+with CODEX_DM8_LINK_REMOTE_20260721 identified by "Dm8@Link2026"
+using 'dm8-link-peer:5236';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:12~1:142) /test/1/catalog1/schema1/LAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_attributes_0_003_behavior_review]
+sql:
+select count(*) from CODEX_DM8_LINK_REMOTE_20260721.CODEX_LINK_T@"LAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:21~1:195) /test/1/catalog1/CODEX_DM8_LINK_REMOTE_20260721/CODEX_LINK_T/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_attributes_0_004_behavior_review]
+sql:
+drop link "LAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:10~1:140) /test/1/catalog1/schema1/LAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_attributes_0_005_behavior_review]
+sql:
+create link CODEX_DM8_LINK_ATTR_IFNE connect 'DPI'
+with CODEX_DM8_LINK_REMOTE_20260721 identified by "Dm8@Link2026"
+using 'dm8-link-peer:5236';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:12~1:36) /test/1/catalog1/schema1/CODEX_DM8_LINK_ATTR_IFNE/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_attributes_0_006_behavior_review]
+sql:
+select count(*) from CODEX_DM8_LINK_REMOTE_20260721.CODEX_LINK_T@CODEX_DM8_LINK_ATTR_IFNE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:21~1:89) /test/1/catalog1/CODEX_DM8_LINK_REMOTE_20260721/CODEX_LINK_T/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_attributes_0_007_behavior_review]
+sql:
+create link if not exists CODEX_DM8_LINK_ATTR_IFNE connect 'DPI' with BAD_USER identified by BAD_PASSWORD using '127.0.0.1:1';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:26~1:50) /test/1/catalog1/schema1/CODEX_DM8_LINK_ATTR_IFNE/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_attributes_0_008_behavior_review]
+sql:
+select count(*) from CODEX_DM8_LINK_REMOTE_20260721.CODEX_LINK_T@CODEX_DM8_LINK_ATTR_IFNE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:21~1:89) /test/1/catalog1/CODEX_DM8_LINK_REMOTE_20260721/CODEX_LINK_T/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_attributes_0_009_behavior_review]
+sql:
+drop link CODEX_DM8_LINK_ATTR_IFNE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:10~1:34) /test/1/catalog1/schema1/CODEX_DM8_LINK_ATTR_IFNE/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_attributes_0_010_behavior_review]
+sql:
+create link CODEX_DM8_LINK_ATTR_BOTH connect 'DPI' with BAD_USER identified by BAD_PASSWORD using '127.0.0.1:1';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:12~1:36) /test/1/catalog1/schema1/CODEX_DM8_LINK_ATTR_BOTH/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_attributes_0_011_behavior_review]
+sql:
+create or replace link if not exists CODEX_DM8_LINK_ATTR_BOTH connect 'DPI'
+with CODEX_DM8_LINK_REMOTE_20260721 identified by "Dm8@Link2026"
+using 'dm8-link-peer:5236';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:37~1:61) /test/1/catalog1/schema1/CODEX_DM8_LINK_ATTR_BOTH/",
+      "action" : "REPLACE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_attributes_0_012_behavior_review]
+sql:
+select count(*) from CODEX_DM8_LINK_REMOTE_20260721.CODEX_LINK_T@CODEX_DM8_LINK_ATTR_BOTH;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:21~1:89) /test/1/catalog1/CODEX_DM8_LINK_REMOTE_20260721/CODEX_LINK_T/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_attributes_0_013_behavior_review]
+sql:
+drop link CODEX_DM8_LINK_ATTR_BOTH;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:10~1:34) /test/1/catalog1/schema1/CODEX_DM8_LINK_ATTR_BOTH/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_attributes_0_014_behavior_review]
+sql:
+create link CODEX_DM8_LINK_ATTR_LOCAL_CODE_0 connect 'ODBC' with CODEX_LINK_USER identified by CODEX_LINK_PASSWORD using 'CODEX_DSN' option(LOCAL_CODE='UTF-8');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:12~1:44) /test/1/catalog1/schema1/CODEX_DM8_LINK_ATTR_LOCAL_CODE_0/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_attributes_0_015_behavior_review]
+sql:
+drop link CODEX_DM8_LINK_ATTR_LOCAL_CODE_0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:10~1:42) /test/1/catalog1/schema1/CODEX_DM8_LINK_ATTR_LOCAL_CODE_0/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_attributes_0_016_behavior_review]
+sql:
+create link CODEX_DM8_LINK_ATTR_LOCAL_CODE_1 connect 'ODBC' with CODEX_LINK_USER identified by CODEX_LINK_PASSWORD using 'CODEX_DSN' option(LOCAL_CODE='GBK');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:12~1:44) /test/1/catalog1/schema1/CODEX_DM8_LINK_ATTR_LOCAL_CODE_1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_attributes_0_017_behavior_review]
+sql:
+drop link CODEX_DM8_LINK_ATTR_LOCAL_CODE_1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:10~1:42) /test/1/catalog1/schema1/CODEX_DM8_LINK_ATTR_LOCAL_CODE_1/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_attributes_0_018_behavior_review]
+sql:
+create link CODEX_DM8_LINK_ATTR_LOCAL_CODE_2 connect 'ODBC' with CODEX_LINK_USER identified by CODEX_LINK_PASSWORD using 'CODEX_DSN' option(LOCAL_CODE='GB18030');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:12~1:44) /test/1/catalog1/schema1/CODEX_DM8_LINK_ATTR_LOCAL_CODE_2/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_attributes_0_019_behavior_review]
+sql:
+drop link CODEX_DM8_LINK_ATTR_LOCAL_CODE_2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:10~1:42) /test/1/catalog1/schema1/CODEX_DM8_LINK_ATTR_LOCAL_CODE_2/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_attributes_0_020_behavior_review]
+sql:
+create link CODEX_DM8_LINK_ATTR_CONVERT_MODE_0 connect 'ODBC' with CODEX_LINK_USER identified by CODEX_LINK_PASSWORD using 'CODEX_DSN' option(CONVERT_MODE=0);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:12~1:46) /test/1/catalog1/schema1/CODEX_DM8_LINK_ATTR_CONVERT_MODE_0/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_attributes_0_021_behavior_review]
+sql:
+drop link CODEX_DM8_LINK_ATTR_CONVERT_MODE_0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:10~1:44) /test/1/catalog1/schema1/CODEX_DM8_LINK_ATTR_CONVERT_MODE_0/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_attributes_0_022_behavior_review]
+sql:
+create link CODEX_DM8_LINK_ATTR_CONVERT_MODE_1 connect 'ODBC' with CODEX_LINK_USER identified by CODEX_LINK_PASSWORD using 'CODEX_DSN' option(CONVERT_MODE=1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:12~1:46) /test/1/catalog1/schema1/CODEX_DM8_LINK_ATTR_CONVERT_MODE_1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_attributes_0_023_behavior_review]
+sql:
+drop link CODEX_DM8_LINK_ATTR_CONVERT_MODE_1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:10~1:44) /test/1/catalog1/schema1/CODEX_DM8_LINK_ATTR_CONVERT_MODE_1/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_attributes_0_024_behavior_review]
+sql:
+create link CODEX_DM8_LINK_ATTR_BYTES_IN_CHAR_1 connect 'ODBC' with CODEX_LINK_USER identified by CODEX_LINK_PASSWORD using 'CODEX_DSN' option(BYTES_IN_CHAR=1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:12~1:47) /test/1/catalog1/schema1/CODEX_DM8_LINK_ATTR_BYTES_IN_CHAR_1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_attributes_0_025_behavior_review]
+sql:
+drop link CODEX_DM8_LINK_ATTR_BYTES_IN_CHAR_1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:10~1:45) /test/1/catalog1/schema1/CODEX_DM8_LINK_ATTR_BYTES_IN_CHAR_1/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_attributes_0_026_behavior_review]
+sql:
+create link CODEX_DM8_LINK_ATTR_BYTES_IN_CHAR_2 connect 'ODBC' with CODEX_LINK_USER identified by CODEX_LINK_PASSWORD using 'CODEX_DSN' option(BYTES_IN_CHAR=2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:12~1:47) /test/1/catalog1/schema1/CODEX_DM8_LINK_ATTR_BYTES_IN_CHAR_2/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_attributes_0_027_behavior_review]
+sql:
+drop link CODEX_DM8_LINK_ATTR_BYTES_IN_CHAR_2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:10~1:45) /test/1/catalog1/schema1/CODEX_DM8_LINK_ATTR_BYTES_IN_CHAR_2/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_attributes_0_028_behavior_review]
+sql:
+create link CODEX_DM8_LINK_ATTR_BYTES_IN_CHAR_3 connect 'ODBC' with CODEX_LINK_USER identified by CODEX_LINK_PASSWORD using 'CODEX_DSN' option(BYTES_IN_CHAR=2147483647);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:12~1:47) /test/1/catalog1/schema1/CODEX_DM8_LINK_ATTR_BYTES_IN_CHAR_3/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_attributes_0_029_behavior_review]
+sql:
+drop link CODEX_DM8_LINK_ATTR_BYTES_IN_CHAR_3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:10~1:45) /test/1/catalog1/schema1/CODEX_DM8_LINK_ATTR_BYTES_IN_CHAR_3/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_attributes_0_030_behavior_review]
+sql:
+create link CODEX_DM8_LINK_ATTR_DB_TYPE_0 connect 'ODBC' with CODEX_LINK_USER identified by CODEX_LINK_PASSWORD using 'CODEX_DSN' option(DB_TYPE='SQLSERVER');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:12~1:41) /test/1/catalog1/schema1/CODEX_DM8_LINK_ATTR_DB_TYPE_0/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_attributes_0_031_behavior_review]
+sql:
+drop link CODEX_DM8_LINK_ATTR_DB_TYPE_0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:10~1:39) /test/1/catalog1/schema1/CODEX_DM8_LINK_ATTR_DB_TYPE_0/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_attributes_0_032_behavior_review]
+sql:
+create link CODEX_DM8_LINK_ATTR_DB_TYPE_1 connect 'ODBC' with CODEX_LINK_USER identified by CODEX_LINK_PASSWORD using 'CODEX_DSN' option(DB_TYPE='MYSQL');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:12~1:41) /test/1/catalog1/schema1/CODEX_DM8_LINK_ATTR_DB_TYPE_1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_attributes_0_033_behavior_review]
+sql:
+drop link CODEX_DM8_LINK_ATTR_DB_TYPE_1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:10~1:39) /test/1/catalog1/schema1/CODEX_DM8_LINK_ATTR_DB_TYPE_1/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_attributes_0_034_behavior_review]
+sql:
+create link CODEX_DM8_LINK_ATTR_DB_TYPE_2 connect 'ODBC' with CODEX_LINK_USER identified by CODEX_LINK_PASSWORD using 'CODEX_DSN' option(DB_TYPE='PI');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:12~1:41) /test/1/catalog1/schema1/CODEX_DM8_LINK_ATTR_DB_TYPE_2/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_attributes_0_035_behavior_review]
+sql:
+drop link CODEX_DM8_LINK_ATTR_DB_TYPE_2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:10~1:39) /test/1/catalog1/schema1/CODEX_DM8_LINK_ATTR_DB_TYPE_2/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_attributes_0_036_behavior_review]
+sql:
+create link CODEX_DM8_LINK_ATTR_DB_TYPE_3 connect 'ODBC' with CODEX_LINK_USER identified by CODEX_LINK_PASSWORD using 'CODEX_DSN' option(DB_TYPE='ORACLE');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:12~1:41) /test/1/catalog1/schema1/CODEX_DM8_LINK_ATTR_DB_TYPE_3/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_attributes_0_037_behavior_review]
+sql:
+drop link CODEX_DM8_LINK_ATTR_DB_TYPE_3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:10~1:39) /test/1/catalog1/schema1/CODEX_DM8_LINK_ATTR_DB_TYPE_3/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_attributes_0_038_behavior_review]
+sql:
+create link CODEX_DM8_LINK_ATTR_DB_TYPE_4 connect 'ODBC' with CODEX_LINK_USER identified by CODEX_LINK_PASSWORD using 'CODEX_DSN' option(DB_TYPE='DAMENG');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:12~1:41) /test/1/catalog1/schema1/CODEX_DM8_LINK_ATTR_DB_TYPE_4/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_attributes_0_039_behavior_review]
+sql:
+drop link CODEX_DM8_LINK_ATTR_DB_TYPE_4;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:10~1:39) /test/1/catalog1/schema1/CODEX_DM8_LINK_ATTR_DB_TYPE_4/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_attributes_0_040_behavior_review]
+sql:
+create link CODEX_DM8_LINK_ATTR_DB_TYPE_5 connect 'ODBC' with CODEX_LINK_USER identified by CODEX_LINK_PASSWORD using 'CODEX_DSN' option(DB_TYPE='OCEANBASE_ORACLE');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:12~1:41) /test/1/catalog1/schema1/CODEX_DM8_LINK_ATTR_DB_TYPE_5/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_attributes_0_041_behavior_review]
+sql:
+drop link CODEX_DM8_LINK_ATTR_DB_TYPE_5;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:10~1:39) /test/1/catalog1/schema1/CODEX_DM8_LINK_ATTR_DB_TYPE_5/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_attributes_0_042_behavior_review]
+sql:
+create link CODEX_DM8_LINK_ATTR_DATA_CHARSET_0 connect 'ODBC' with CODEX_LINK_USER identified by CODEX_LINK_PASSWORD using 'CODEX_DSN' option(DATA_CHARSET='UTF-8');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:12~1:46) /test/1/catalog1/schema1/CODEX_DM8_LINK_ATTR_DATA_CHARSET_0/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_attributes_0_043_behavior_review]
+sql:
+drop link CODEX_DM8_LINK_ATTR_DATA_CHARSET_0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:10~1:44) /test/1/catalog1/schema1/CODEX_DM8_LINK_ATTR_DATA_CHARSET_0/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_attributes_0_044_behavior_review]
+sql:
+create link CODEX_DM8_LINK_ATTR_DATA_CHARSET_1 connect 'ODBC' with CODEX_LINK_USER identified by CODEX_LINK_PASSWORD using 'CODEX_DSN' option(DATA_CHARSET='GBK');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:12~1:46) /test/1/catalog1/schema1/CODEX_DM8_LINK_ATTR_DATA_CHARSET_1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_attributes_0_045_behavior_review]
+sql:
+drop link CODEX_DM8_LINK_ATTR_DATA_CHARSET_1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:10~1:44) /test/1/catalog1/schema1/CODEX_DM8_LINK_ATTR_DATA_CHARSET_1/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_attributes_0_046_behavior_review]
+sql:
+create link CODEX_DM8_LINK_ATTR_DATA_CHARSET_2 connect 'ODBC' with CODEX_LINK_USER identified by CODEX_LINK_PASSWORD using 'CODEX_DSN' option(DATA_CHARSET='GB18030');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:12~1:46) /test/1/catalog1/schema1/CODEX_DM8_LINK_ATTR_DATA_CHARSET_2/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_attributes_0_047_behavior_review]
+sql:
+drop link CODEX_DM8_LINK_ATTR_DATA_CHARSET_2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:10~1:44) /test/1/catalog1/schema1/CODEX_DM8_LINK_ATTR_DATA_CHARSET_2/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_attributes_0_048_behavior_review]
+sql:
+create link CODEX_DM8_LINK_ATTR_CASE_OPT_0 connect 'ODBC' with CODEX_LINK_USER identified by CODEX_LINK_PASSWORD using 'CODEX_DSN' option(CASE_OPT='UPPER');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:12~1:42) /test/1/catalog1/schema1/CODEX_DM8_LINK_ATTR_CASE_OPT_0/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_attributes_0_049_behavior_review]
+sql:
+drop link CODEX_DM8_LINK_ATTR_CASE_OPT_0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:10~1:40) /test/1/catalog1/schema1/CODEX_DM8_LINK_ATTR_CASE_OPT_0/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_attributes_0_050_behavior_review]
+sql:
+create link CODEX_DM8_LINK_ATTR_CASE_OPT_1 connect 'ODBC' with CODEX_LINK_USER identified by CODEX_LINK_PASSWORD using 'CODEX_DSN' option(CASE_OPT='LOWER');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:12~1:42) /test/1/catalog1/schema1/CODEX_DM8_LINK_ATTR_CASE_OPT_1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_attributes_0_051_behavior_review]
+sql:
+drop link CODEX_DM8_LINK_ATTR_CASE_OPT_1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:10~1:40) /test/1/catalog1/schema1/CODEX_DM8_LINK_ATTR_CASE_OPT_1/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_attributes_0_052_behavior_review]
+sql:
+create link CODEX_DM8_LINK_ATTR_CASE_OPT_2 connect 'ODBC' with CODEX_LINK_USER identified by CODEX_LINK_PASSWORD using 'CODEX_DSN' option(CASE_OPT='MIX');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:12~1:42) /test/1/catalog1/schema1/CODEX_DM8_LINK_ATTR_CASE_OPT_2/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_attributes_0_053_behavior_review]
+sql:
+drop link CODEX_DM8_LINK_ATTR_CASE_OPT_2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:10~1:40) /test/1/catalog1/schema1/CODEX_DM8_LINK_ATTR_CASE_OPT_2/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_attributes_0_054_behavior_review]
+sql:
+create link CODEX_DM8_LINK_ATTR_CASE_OPT_3 connect 'ODBC' with CODEX_LINK_USER identified by CODEX_LINK_PASSWORD using 'CODEX_DSN' option(CASE_OPT='SENSITIVE');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:12~1:42) /test/1/catalog1/schema1/CODEX_DM8_LINK_ATTR_CASE_OPT_3/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_attributes_0_055_behavior_review]
+sql:
+drop link CODEX_DM8_LINK_ATTR_CASE_OPT_3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:10~1:40) /test/1/catalog1/schema1/CODEX_DM8_LINK_ATTR_CASE_OPT_3/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_attributes_0_056_behavior_review]
+sql:
+create link CODEX_DM8_LINK_ATTR_ROLLBACK_OPTION_0 connect 'ODBC' with CODEX_LINK_USER identified by CODEX_LINK_PASSWORD using 'CODEX_DSN' option(ROLLBACK_OPTION=0);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:12~1:49) /test/1/catalog1/schema1/CODEX_DM8_LINK_ATTR_ROLLBACK_OPTION_0/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_attributes_0_057_behavior_review]
+sql:
+drop link CODEX_DM8_LINK_ATTR_ROLLBACK_OPTION_0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:10~1:47) /test/1/catalog1/schema1/CODEX_DM8_LINK_ATTR_ROLLBACK_OPTION_0/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_attributes_0_058_behavior_review]
+sql:
+create link CODEX_DM8_LINK_ATTR_ROLLBACK_OPTION_1 connect 'ODBC' with CODEX_LINK_USER identified by CODEX_LINK_PASSWORD using 'CODEX_DSN' option(ROLLBACK_OPTION=1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:12~1:49) /test/1/catalog1/schema1/CODEX_DM8_LINK_ATTR_ROLLBACK_OPTION_1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_attributes_0_059_behavior_review]
+sql:
+drop link CODEX_DM8_LINK_ATTR_ROLLBACK_OPTION_1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:10~1:47) /test/1/catalog1/schema1/CODEX_DM8_LINK_ATTR_ROLLBACK_OPTION_1/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_attributes_0_060_behavior_review]
+sql:
+create link CODEX_DM8_LINK_ATTR_DM_PRI_FIRST connect 'DAMENG' with CODEX_LINK_USER identified by CODEX_LINK_PASSWORD using 'PRIMARY FIRST;peer1,peer2';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:12~1:44) /test/1/catalog1/schema1/CODEX_DM8_LINK_ATTR_DM_PRI_FIRST/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_attributes_0_061_behavior_review]
+sql:
+drop link CODEX_DM8_LINK_ATTR_DM_PRI_FIRST;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:10~1:42) /test/1/catalog1/schema1/CODEX_DM8_LINK_ATTR_DM_PRI_FIRST/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_attributes_0_062_behavior_review]
+sql:
+create link CODEX_DM8_LINK_ATTR_DM_STA_FIRST connect 'DAMENG' with CODEX_LINK_USER identified by CODEX_LINK_PASSWORD using 'STANDBY FIRST;peer1,peer2';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:12~1:44) /test/1/catalog1/schema1/CODEX_DM8_LINK_ATTR_DM_STA_FIRST/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_attributes_0_063_behavior_review]
+sql:
+drop link CODEX_DM8_LINK_ATTR_DM_STA_FIRST;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:10~1:42) /test/1/catalog1/schema1/CODEX_DM8_LINK_ATTR_DM_STA_FIRST/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_attributes_0_064_behavior_review]
+sql:
+create link CODEX_DM8_LINK_ATTR_DM_PRI_ONLY connect 'DAMENG' with CODEX_LINK_USER identified by CODEX_LINK_PASSWORD using 'PRIMARY ONLY;peer1,peer2';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:12~1:43) /test/1/catalog1/schema1/CODEX_DM8_LINK_ATTR_DM_PRI_ONLY/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_attributes_0_065_behavior_review]
+sql:
+drop link CODEX_DM8_LINK_ATTR_DM_PRI_ONLY;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:10~1:41) /test/1/catalog1/schema1/CODEX_DM8_LINK_ATTR_DM_PRI_ONLY/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_attributes_0_066_behavior_review]
+sql:
+create link CODEX_DM8_LINK_ATTR_DM_STA_ONLY connect 'DAMENG' with CODEX_LINK_USER identified by CODEX_LINK_PASSWORD using 'STANDBY ONLY;peer1,peer2';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:12~1:43) /test/1/catalog1/schema1/CODEX_DM8_LINK_ATTR_DM_STA_ONLY/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_attributes_0_067_behavior_review]
+sql:
+drop link CODEX_DM8_LINK_ATTR_DM_STA_ONLY;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:10~1:41) /test/1/catalog1/schema1/CODEX_DM8_LINK_ATTR_DM_STA_ONLY/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_attributes_0_068_behavior_review]
+sql:
+create link CODEX_DM8_LINK_ATTR_DM_IP_PORT connect 'DAMENG' with CODEX_LINK_USER identified by CODEX_LINK_PASSWORD using '127.0.0.1/5236,127.0.0.2/5236';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:12~1:42) /test/1/catalog1/schema1/CODEX_DM8_LINK_ATTR_DM_IP_PORT/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_attributes_0_069_behavior_review]
+sql:
+drop link CODEX_DM8_LINK_ATTR_DM_IP_PORT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:10~1:40) /test/1/catalog1/schema1/CODEX_DM8_LINK_ATTR_DM_IP_PORT/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_attributes_0_070_behavior_review]
+sql:
+create link CODEX_DM8_LINK_ATTR_DM_MAL_PORT connect 'DAMENG' with CODEX_LINK_USER identified by CODEX_LINK_PASSWORD using '10.0.0.1/61141,10.0.0.2/61141';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:12~1:43) /test/1/catalog1/schema1/CODEX_DM8_LINK_ATTR_DM_MAL_PORT/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_attributes_0_071_behavior_review]
+sql:
+drop link CODEX_DM8_LINK_ATTR_DM_MAL_PORT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:10~1:41) /test/1/catalog1/schema1/CODEX_DM8_LINK_ATTR_DM_MAL_PORT/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_attributes_0_072_behavior_review]
+sql:
+create link CODEX_DM8_LINK_ATTR_DM_INSTANCE connect 'DAMENG' with CODEX_LINK_USER identified by CODEX_LINK_PASSWORD using 'DM1,DM2';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:12~1:43) /test/1/catalog1/schema1/CODEX_DM8_LINK_ATTR_DM_INSTANCE/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_attributes_0_073_behavior_review]
+sql:
+drop link CODEX_DM8_LINK_ATTR_DM_INSTANCE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:10~1:41) /test/1/catalog1/schema1/CODEX_DM8_LINK_ATTR_DM_INSTANCE/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_attributes_0_074_behavior_review]
+sql:
+create link CODEX_DM8_LINK_ATTR_ORACLE_DESC connect 'ORACLE' with CODEX_LINK_USER identified by CODEX_LINK_PASSWORD using '(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=127.0.0.1)(PORT=1521)))(CONNECT_DATA=(SERVICE_NAME=ORCL)))';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:12~1:43) /test/1/catalog1/schema1/CODEX_DM8_LINK_ATTR_ORACLE_DESC/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_attributes_0_075_behavior_review]
+sql:
+drop link CODEX_DM8_LINK_ATTR_ORACLE_DESC;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:10~1:41) /test/1/catalog1/schema1/CODEX_DM8_LINK_ATTR_ORACLE_DESC/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_attributes_0_076_behavior_review]
+sql:
+create link CODEX_DM8_LINK_ATTR_PAIRWISE connect 'ODBC' with CODEX_LINK_USER identified by CODEX_LINK_PASSWORD using 'CODEX_DSN' option(LOCAL_CODE='GB18030',CONVERT_MODE=0,BYTES_IN_CHAR=4,DB_TYPE='OCEANBASE_ORACLE',DATA_CHARSET='GB18030',CASE_OPT='MIX',ROLLBACK_OPTION=1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:12~1:40) /test/1/catalog1/schema1/CODEX_DM8_LINK_ATTR_PAIRWISE/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_attributes_0_077_behavior_review]
+sql:
+drop link CODEX_DM8_LINK_ATTR_PAIRWISE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:10~1:38) /test/1/catalog1/schema1/CODEX_DM8_LINK_ATTR_PAIRWISE/",
+      "action" : "DROP"
+    }
+  ]
+}

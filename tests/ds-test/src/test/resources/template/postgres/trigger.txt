@@ -1,0 +1,141 @@
+[testNormal]
+type: createTrigger
+option:
+{
+  "targetName": "target_name",
+  "schema": "test_schema",
+  "delimited": true,
+  "data": {
+    "name": "test_trigger",
+    "triggerTable": "table_name",
+    "triggerTime": "before",
+    "triggerEvent": [
+      "insert"
+    ],
+    "sql": "trigger_function"
+  }
+}
+expect:
+<<<
+create trigger "test_trigger"
+before insert 
+on table_name
+execute function trigger_function();
+>>>
+----------
+
+[newAliasTest]
+type: createTrigger
+option:
+{
+  "targetName": "target_name",
+  "schema": "test_schema",
+  "delimited": true,
+  "data": {
+    "name": "test_trigger",
+    "triggerTable": "table_name",
+    "triggerTime": "before",
+    "triggerEvent": [
+      "insert"
+    ],
+    "sql": "trigger_function",
+    "rdbpg_newal": "new_name"
+  }
+}
+expect:
+<<<
+create trigger "test_trigger"
+before insert 
+on table_name
+referencing new table as new_name
+execute function trigger_function();
+>>>
+----------
+
+[oldAliasTest]
+type: createTrigger
+option:
+{
+  "targetName": "target_name",
+  "schema": "test_schema",
+  "delimited": true,
+  "data": {
+    "name": "test_trigger",
+    "triggerTable": "table1",
+    "triggerTime": "before",
+    "triggerEvent": [
+      "insert"
+    ],
+    "sql": "test_function",
+    "rdbpg_oldal": "new_name"
+  }
+}
+expect:
+<<<
+create trigger "test_trigger"
+before insert 
+on table1
+referencing old table as new_name
+execute function test_function();
+>>>
+----------
+
+[conditionTest]
+type: createTrigger
+option:
+{
+  "targetName": "target_name",
+  "schema": "test_schema",
+  "delimited": true,
+  "data": {
+    "name": "test_trigger",
+    "triggerTable": "tabl2e",
+    "triggerTime": "before",
+    "triggerEvent": [
+      "insert"
+    ],
+    "sql": "funcaa",
+    "rdbpg_tricn": "1=1"
+  }
+}
+expect:
+<<<
+create trigger "test_trigger"
+before insert 
+on tabl2e
+when(1=1)
+execute function funcaa();
+>>>
+----------
+
+[updateTwoColumnTest]
+type: createTrigger
+option:
+{
+  "targetName": "target_name",
+  "schema": "test_schema",
+  "delimited": true,
+  "data": {
+    "name": "test_trigger",
+    "triggerTable": "tabl1e",
+    "triggerTime": "before",
+    "triggerEvent": [
+      "insert",
+      "update"
+    ],
+    "triggerColumns": [
+      "a",
+      "b"
+    ],
+    "sql": "test",
+    "rdbdm_cond": "1=1",
+    "rdbdm_trig": "row"
+  }
+}
+expect:
+<<<
+create trigger "test_trigger"
+before insert or update of "a","b" 
+on tabl1e
+execute function test();
+>>>

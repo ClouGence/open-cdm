@@ -1,0 +1,371 @@
+CREATE INDEX idx_name ON test (name);
+CREATE INDEX idx_multi ON test (c1, c2 ASC);
+CREATE INDEX idx_desc ON test (c1 DESC, c2 ASC);
+CREATE INDEX idx_prefix ON test (name(10));
+CREATE INDEX idx_multi_prefix ON test (c1(10), c2(20));
+CREATE INDEX idx_comment ON test (c1, c2 ASC) COMMENT 'test index';
+CREATE UNIQUE INDEX idx_uniq ON test (email);
+CREATE UNIQUE INDEX idx_uniq_multi ON test (c1, c2);
+CREATE INDEX idx_btree ON test (id) USING BTREE;
+CREATE INDEX idx_hash ON test (id) USING HASH;
+CREATE FULLTEXT INDEX idx_ft ON test (content);
+CREATE SPATIAL INDEX idx_sp ON test (geo);
+CREATE INDEX idx_schema ON `test_schema`.`test_table` (c1);
+CREATE INDEX `idx_backtick` ON `test_schema`.`test_table` (`c1`, `c2`);
+DROP INDEX idx_test ON test;
+DROP INDEX `idx_test` ON `test_schema`.test;
+DROP INDEX idx_test ON `test_schema`.`test_table`;
+ALTER TABLE test ADD INDEX idx_c1 (c1);
+ALTER TABLE test ADD INDEX (c1, c2);
+ALTER TABLE test ADD INDEX idx_prefix (c1(33));
+ALTER TABLE test ADD KEY idx_key (c1);
+ALTER TABLE test ADD KEY www (c1(33),c2(33)) COMMENT 'sss';
+ALTER TABLE test ADD UNIQUE INDEX idx_uniq (email);
+ALTER TABLE test ADD UNIQUE KEY idx_uk (c1, c2);
+ALTER TABLE test ADD UNIQUE (c1);
+ALTER TABLE test ADD FULLTEXT INDEX idx_ft (content);
+ALTER TABLE test ADD SPATIAL INDEX idx_sp (geo);
+ALTER TABLE `test_schema`.`test_table` ADD INDEX idx_c1 (c1);
+ALTER TABLE test DROP INDEX idx_c1;
+ALTER TABLE test DROP KEY idx_key;
+ALTER TABLE `test_schema`.`test_table` DROP INDEX `idx_c1`;
+ALTER TABLE test RENAME INDEX old_idx TO new_idx;
+ALTER TABLE test RENAME KEY old_key TO new_key;
+ALTER TABLE test ALTER INDEX idx_c1 VISIBLE;
+ALTER TABLE test ALTER INDEX idx_c1 INVISIBLE;
+ALTER TABLE codex_constraint_c05 ADD CONSTRAINT UNIQUE INDEX uq_c05 (id);
+ALTER TABLE codex_alter_audit_t ADD INDEX i1(d), RENAME INDEX i1 TO i2, DROP INDEX i2;
+CREATE TABLE codex_create_audit_key_ctas (KEY (b)) SELECT 1 AS b;
+ALTER TABLE t2 CHANGE b2 b2 VARCHAR(255) CHARSET latin1, DROP FOREIGN KEY fk, ADD CONSTRAINT fk FOREIGN KEY (b2) REFERENCES t1(b), ADD INDEX idx(a2), ALGORITHM=INPLACE;
+ALTER TABLE t2 ADD INDEX(fld2), DROP FOREIGN KEY fidx, ALGORITHM=INPLACE;
+CREATE TABLE codex_constraint_c11 (id INT PRIMARY KEY, parent_id INT, CONSTRAINT FOREIGN KEY fk_idx_c11 (parent_id) REFERENCES codex_constraint_c11(id));
+CREATE TABLE codex_constraint_c07 (id INT, name VARCHAR(64), UNIQUE INDEX uq_c07 ((LOWER(name))));
+ALTER TABLE codex_c13_22.t ALTER my_row_id SET INVISIBLE, ADD INDEX (f1), ALGORITHM=INPLACE;
+ALTER TABLE codex_c13_22.t ALTER my_row_id SET INVISIBLE, RENAME COLUMN f1 TO f2, ALGORITHM=INSTANT;
+ALTER TABLE codex_c13_22.t ALTER my_row_id SET VISIBLE, ADD INDEX (f1), ALGORITHM=INPLACE;
+ALTER TABLE codex_c13_22.t ALTER my_row_id SET VISIBLE, RENAME COLUMN f1 TO f2, ALGORITHM=INSTANT;
+ALTER TABLE split_idx.t_alter ADD INDEX idx_add TYPE BTREE (c(16) ASC, id DESC) COMMENT 'alter index', ALGORITHM=INPLACE, LOCK=NONE;
+ALTER TABLE split_idx.t_alter ADD UNIQUE KEY idx_unique(email(32), id) USING HASH;
+ALTER TABLE split_idx.t_alter ADD FULLTEXT INDEX idx_ft(content) WITH PARSER ngram COMMENT 'alter fulltext';
+ALTER TABLE split_idx.t_alter ADD SPATIAL INDEX idx_sp(geo) COMMENT 'alter spatial';
+ALTER TABLE split_idx.t_alter ADD PRIMARY KEY(id), DROP PRIMARY KEY;
+ALTER TABLE split_idx.t_alter DROP INDEX idx_add, DROP KEY idx_unique;
+ALTER TABLE split_idx.t_alter_modern ADD INDEX idx_func ((LOWER(name))) INVISIBLE;
+ALTER TABLE split_idx.t_alter_modern ADD INDEX idx_multi ((CAST(j->'$.ids' AS UNSIGNED ARRAY))) VISIBLE;
+ALTER TABLE split_idx.t_alter_modern ADD INDEX idx_attr(id) ENGINE_ATTRIBUTE='{}' SECONDARY_ENGINE_ATTRIBUTE='{}';
+ALTER TABLE split_idx.t_alter_modern ALTER INDEX idx_old INVISIBLE;
+ALTER TABLE split_idx.t_alter_modern ALTER INDEX idx_old VISIBLE;
+CREATE INDEX idx_accept_attr ON split_accept.t_attr (id) ENGINE_ATTRIBUTE='{}' SECONDARY_ENGINE_ATTRIBUTE='{}';
+CREATE INDEX idx_func_80 ON split_idx.t_modern ((LOWER(name))) INVISIBLE;
+CREATE INDEX idx_multi_80 ON split_idx.t_modern ((CAST(j->'$.ids' AS UNSIGNED ARRAY))) VISIBLE;
+CREATE INDEX idx_visible_80 ON split_idx.t_modern (id) VISIBLE;
+CREATE INDEX idx_invisible_80 ON split_idx.t_modern (name) INVISIBLE;
+CREATE INDEX idx_attrs_80 ON split_idx.t_modern (id) ENGINE_ATTRIBUTE='{}' SECONDARY_ENGINE_ATTRIBUTE='{}';
+DROP INDEX idx_func_80 ON split_idx.t_modern;
+DROP INDEX idx_multi_80 ON split_idx.t_modern;
+DROP INDEX idx_visible_80 ON split_idx.t_modern;
+DROP INDEX idx_invisible_80 ON split_idx.t_modern;
+DROP INDEX idx_attrs_80 ON split_idx.t_modern;
+CREATE INDEX idx_type TYPE BTREE ON split_idx.t_common (id);
+CREATE INDEX idx_common USING BTREE ON split_idx.t_common (name(16) ASC, id DESC) KEY_BLOCK_SIZE=8 COMMENT 'common index' ALGORITHM=DEFAULT LOCK=DEFAULT;
+CREATE UNIQUE INDEX idx_unique ON split_idx.t_common (email(32), id) USING HASH ALGORITHM=INPLACE LOCK=NONE;
+CREATE INDEX idx_rtree USING RTREE ON split_idx.t_common (geo);
+CREATE FULLTEXT INDEX idx_fulltext ON split_idx.t_common (content) WITH PARSER ngram COMMENT 'fulltext parser' ALGORITHM=COPY LOCK=SHARED;
+CREATE SPATIAL INDEX idx_spatial ON split_idx.t_common (geo) COMMENT 'spatial index' ALGORITHM=DEFAULT LOCK=EXCLUSIVE;
+DROP INDEX idx_type ON split_idx.t_common LOCK DEFAULT ALGORITHM DEFAULT;
+DROP INDEX idx_common ON split_idx.t_common ALGORITHM=INPLACE LOCK=NONE;
+DROP INDEX idx_unique ON split_idx.t_common ALGORITHM=COPY LOCK=SHARED;
+DROP INDEX `PRIMARY` ON split_index.parent_t;
+ALTER TABLE split_idx.t_rename RENAME INDEX idx_old TO idx_new;
+ALTER TABLE split_idx.t_rename RENAME KEY idx_new TO idx_old;
+CREATE TABLE codex_constraint_c08 (id INT, name VARCHAR(64), INDEX ix_c08 (id, (LOWER(name))));
+CREATE TABLE codex_constraint_c09 (id INT, modified DATETIME, j JSON, INDEX ix_c09 (id, (CAST(j->'$.ids' AS UNSIGNED ARRAY)), modified));
+CREATE VIEW split_opt_hints_index.v1 AS SELECT /*+ NO_INDEX(t1 i_a,i_b) */ a FROM split_opt_hints_index.t1 AS t1 WHERE b IN (SELECT /*+ NO_INDEX(t2 i_ab,i_b) */ a FROM split_opt_hints_index.t1 AS t2 WHERE a>3) ORDER BY a;
+CREATE VIEW split_opt_hints_index.v2 AS SELECT /*+ INDEX_MERGE(t1) */ a FROM split_opt_hints_index.t1 AS t1 WHERE a=1 AND b=2 AND c=3;
+CREATE TABLE temporal_indexed(dt DATETIME(6) NOT NULL,ts TIMESTAMP(6) NOT NULL,payload VARCHAR(20),PRIMARY KEY(dt),UNIQUE KEY uk_ts(ts),KEY idx_ts_dt(ts,dt));
+CREATE TABLE str_index (
+  c CHAR(20),
+  v VARCHAR(300),
+  b BINARY(20),
+  vb VARBINARY(300),
+  KEY idx_c(c),
+  KEY idx_v(v(12)),
+  KEY idx_b(b),
+  KEY idx_vb(vb(12))
+) CHARACTER SET latin1;
+ALTER TABLE str_index DROP KEY idx_v, ADD UNIQUE KEY uk_v(v(16));
+CREATE TABLE lob_indexes (
+  tb TINYBLOB,
+  b BLOB,
+  mb MEDIUMBLOB,
+  lb LONGBLOB,
+  tt TINYTEXT,
+  t TEXT,
+  mt MEDIUMTEXT,
+  lt LONGTEXT,
+  KEY idx_tb(tb(8)),
+  KEY idx_b(b(16)),
+  KEY idx_mb(mb(24)),
+  KEY idx_lb(lb(32)),
+  KEY idx_tt(tt(8)),
+  KEY idx_t(t(16)),
+  KEY idx_mt(mt(24)),
+  KEY idx_lt(lt(32))
+) CHARACTER SET latin1;
+ALTER TABLE lob_indexes DROP KEY idx_b, ADD UNIQUE KEY uk_b(b(16)), ADD UNIQUE KEY uk_t(t(16));
+CREATE UNIQUE INDEX uq_es_enum ON split_type_enum_set.es_core(e_case);
+CREATE INDEX idx_es_set ON split_type_enum_set.es_core(s_case);
+ALTER TABLE split_type_enum_set.es_roles ADD INDEX idx_admin ((FIND_IN_SET('Admin',roles)));
+ALTER TABLE split_type_json.json_mvi_alter
+      ADD INDEX idx_tags ((CAST(doc->'$.tags' AS CHAR(20) ARRAY)));
+CREATE INDEX idx_dates
+    ON split_type_json.json_mvi_create (
+      (CAST(doc->'$.dates' AS DATE ARRAY))
+    );
+CREATE INDEX idx_integer_mixed
+ON integer_lifecycle (tiny_unsigned,small_unsigned,medium_unsigned,int_unsigned,big_unsigned);
+CREATE INDEX idx_numeric_mixed
+ON numeric_lifecycle (decimal_value,numeric_value,float_value,double_value);
+CREATE SPATIAL INDEX gap_sx ON gap_geo(g DESC) KEY_BLOCK_SIZE=4 COMMENT 'spatial';
+CREATE UNIQUE INDEX split_geometry_unique_idx ON split_geometry_unique(g);
+CREATE TABLE ft_inline(body TEXT,FULLTEXT KEY ft_body(body) WITH PARSER ngram) ENGINE=InnoDB;
+CREATE TABLE idx_inline_visibility(a INT,KEY k_a(a) INVISIBLE);
+CREATE TABLE idx_inline_block(a INT,KEY k_a(a) KEY_BLOCK_SIZE=8) ENGINE=MyISAM;
+CREATE TABLE idx_inline_type(a INT,KEY k_a TYPE BTREE(a));
+------------------------------------------------------------------------------------------
+[ADD_INDEX] CREATE INDEX idx_name ON test (name);
+----------
+[ADD_INDEX] CREATE INDEX idx_multi ON test (c1, c2 ASC);
+----------
+[ADD_INDEX] CREATE INDEX idx_desc ON test (c1 DESC, c2 ASC);
+----------
+[ADD_INDEX] CREATE INDEX idx_prefix ON test (name(10));
+----------
+[ADD_INDEX] CREATE INDEX idx_multi_prefix ON test (c1(10), c2(20));
+----------
+[ADD_INDEX|COMMENT_INDEX] CREATE INDEX idx_comment ON test (c1, c2 ASC) COMMENT 'test index';
+----------
+[ADD_INDEX] CREATE UNIQUE INDEX idx_uniq ON test (email);
+----------
+[ADD_INDEX] CREATE UNIQUE INDEX idx_uniq_multi ON test (c1, c2);
+----------
+[ADD_INDEX] CREATE INDEX idx_btree ON test (id) USING BTREE;
+----------
+[ADD_INDEX] CREATE INDEX idx_hash ON test (id) USING HASH;
+----------
+[ADD_INDEX] CREATE FULLTEXT INDEX idx_ft ON test (content);
+----------
+[ADD_INDEX] CREATE SPATIAL INDEX idx_sp ON test (geo);
+----------
+[ADD_INDEX] CREATE INDEX idx_schema ON `test_schema`.`test_table` (c1);
+----------
+[ADD_INDEX] CREATE INDEX `idx_backtick` ON `test_schema`.`test_table` (`c1`, `c2`);
+----------
+[DROP_INDEX] DROP INDEX idx_test ON test;
+----------
+[DROP_INDEX] DROP INDEX `idx_test` ON `test_schema`.test;
+----------
+[DROP_INDEX] DROP INDEX idx_test ON `test_schema`.`test_table`;
+----------
+[ALTER_TABLE|ADD_INDEX] ALTER TABLE test ADD INDEX idx_c1 (c1);
+----------
+[ALTER_TABLE|ADD_INDEX] ALTER TABLE test ADD INDEX (c1, c2);
+----------
+[ALTER_TABLE|ADD_INDEX] ALTER TABLE test ADD INDEX idx_prefix (c1(33));
+----------
+[ALTER_TABLE|ADD_INDEX] ALTER TABLE test ADD KEY idx_key (c1);
+----------
+[ALTER_TABLE|ADD_INDEX|COMMENT_INDEX] ALTER TABLE test ADD KEY www (c1(33),c2(33)) COMMENT 'sss';
+----------
+[ALTER_TABLE|ADD_INDEX] ALTER TABLE test ADD UNIQUE INDEX idx_uniq (email);
+----------
+[ALTER_TABLE|ADD_INDEX] ALTER TABLE test ADD UNIQUE KEY idx_uk (c1, c2);
+----------
+[ALTER_TABLE|ADD_INDEX] ALTER TABLE test ADD UNIQUE (c1);
+----------
+[ALTER_TABLE|ADD_INDEX] ALTER TABLE test ADD FULLTEXT INDEX idx_ft (content);
+----------
+[ALTER_TABLE|ADD_INDEX] ALTER TABLE test ADD SPATIAL INDEX idx_sp (geo);
+----------
+[ALTER_TABLE|ADD_INDEX] ALTER TABLE `test_schema`.`test_table` ADD INDEX idx_c1 (c1);
+----------
+[ALTER_TABLE|DROP_INDEX] ALTER TABLE test DROP INDEX idx_c1;
+----------
+[ALTER_TABLE|DROP_INDEX] ALTER TABLE test DROP KEY idx_key;
+----------
+[ALTER_TABLE|DROP_INDEX] ALTER TABLE `test_schema`.`test_table` DROP INDEX `idx_c1`;
+----------
+[ALTER_TABLE|RENAME_INDEX] ALTER TABLE test RENAME INDEX old_idx TO new_idx;
+----------
+[ALTER_TABLE|RENAME_INDEX] ALTER TABLE test RENAME KEY old_key TO new_key;
+----------
+[ALTER_TABLE|ALTER_INDEX] ALTER TABLE test ALTER INDEX idx_c1 VISIBLE;
+----------
+[ALTER_TABLE|ALTER_INDEX] ALTER TABLE test ALTER INDEX idx_c1 INVISIBLE;
+----------
+[ALTER_TABLE|ADD_CONSTRAINT] ALTER TABLE codex_constraint_c05 ADD CONSTRAINT UNIQUE INDEX uq_c05 (id);
+----------
+[ALTER_TABLE|ADD_INDEX|RENAME_INDEX|DROP_INDEX] ALTER TABLE codex_alter_audit_t ADD INDEX i1(d), RENAME INDEX i1 TO i2, DROP INDEX i2;
+----------
+[CREATE_TABLE|ADD_INDEX] CREATE TABLE codex_create_audit_key_ctas (KEY (b)) SELECT 1 AS b;
+----------
+[ALTER_TABLE|ALTER_COLUMN|DROP_CONSTRAINT|ADD_CONSTRAINT|ADD_INDEX] ALTER TABLE t2 CHANGE b2 b2 VARCHAR(255) CHARSET latin1, DROP FOREIGN KEY fk, ADD CONSTRAINT fk FOREIGN KEY (b2) REFERENCES t1(b), ADD INDEX idx(a2), ALGORITHM=INPLACE;
+----------
+[ALTER_TABLE|ADD_INDEX|DROP_CONSTRAINT] ALTER TABLE t2 ADD INDEX(fld2), DROP FOREIGN KEY fidx, ALGORITHM=INPLACE;
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] CREATE TABLE codex_constraint_c11 (id INT PRIMARY KEY, parent_id INT, CONSTRAINT FOREIGN KEY fk_idx_c11 (parent_id) REFERENCES codex_constraint_c11(id));
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] CREATE TABLE codex_constraint_c07 (id INT, name VARCHAR(64), UNIQUE INDEX uq_c07 ((LOWER(name))));
+----------
+[ALTER_TABLE|ALTER_COLUMN|ADD_INDEX] ALTER TABLE codex_c13_22.t ALTER my_row_id SET INVISIBLE, ADD INDEX (f1), ALGORITHM=INPLACE;
+----------
+[ALTER_TABLE|ALTER_COLUMN|RENAME_COLUMN] ALTER TABLE codex_c13_22.t ALTER my_row_id SET INVISIBLE, RENAME COLUMN f1 TO f2, ALGORITHM=INSTANT;
+----------
+[ALTER_TABLE|ALTER_COLUMN|ADD_INDEX] ALTER TABLE codex_c13_22.t ALTER my_row_id SET VISIBLE, ADD INDEX (f1), ALGORITHM=INPLACE;
+----------
+[ALTER_TABLE|ALTER_COLUMN|RENAME_COLUMN] ALTER TABLE codex_c13_22.t ALTER my_row_id SET VISIBLE, RENAME COLUMN f1 TO f2, ALGORITHM=INSTANT;
+----------
+[ALTER_TABLE|ADD_INDEX|COMMENT_INDEX] ALTER TABLE split_idx.t_alter ADD INDEX idx_add TYPE BTREE (c(16) ASC, id DESC) COMMENT 'alter index', ALGORITHM=INPLACE, LOCK=NONE;
+----------
+[ALTER_TABLE|ADD_INDEX] ALTER TABLE split_idx.t_alter ADD UNIQUE KEY idx_unique(email(32), id) USING HASH;
+----------
+[ALTER_TABLE|ADD_INDEX|COMMENT_INDEX] ALTER TABLE split_idx.t_alter ADD FULLTEXT INDEX idx_ft(content) WITH PARSER ngram COMMENT 'alter fulltext';
+----------
+[ALTER_TABLE|ADD_INDEX|COMMENT_INDEX] ALTER TABLE split_idx.t_alter ADD SPATIAL INDEX idx_sp(geo) COMMENT 'alter spatial';
+----------
+[ALTER_TABLE|ADD_CONSTRAINT|DROP_CONSTRAINT] ALTER TABLE split_idx.t_alter ADD PRIMARY KEY(id), DROP PRIMARY KEY;
+----------
+[ALTER_TABLE|DROP_INDEX] ALTER TABLE split_idx.t_alter DROP INDEX idx_add, DROP KEY idx_unique;
+----------
+[ALTER_TABLE|ADD_INDEX] ALTER TABLE split_idx.t_alter_modern ADD INDEX idx_func ((LOWER(name))) INVISIBLE;
+----------
+[ALTER_TABLE|ADD_INDEX] ALTER TABLE split_idx.t_alter_modern ADD INDEX idx_multi ((CAST(j->'$.ids' AS UNSIGNED ARRAY))) VISIBLE;
+----------
+[ALTER_TABLE|ADD_INDEX] ALTER TABLE split_idx.t_alter_modern ADD INDEX idx_attr(id) ENGINE_ATTRIBUTE='{}' SECONDARY_ENGINE_ATTRIBUTE='{}';
+----------
+[ALTER_TABLE|ALTER_INDEX] ALTER TABLE split_idx.t_alter_modern ALTER INDEX idx_old INVISIBLE;
+----------
+[ALTER_TABLE|ALTER_INDEX] ALTER TABLE split_idx.t_alter_modern ALTER INDEX idx_old VISIBLE;
+----------
+[ADD_INDEX]
+CREATE INDEX idx_accept_attr ON split_accept.t_attr (id) ENGINE_ATTRIBUTE='{}' SECONDARY_ENGINE_ATTRIBUTE='{}';
+----------
+[ADD_INDEX] CREATE INDEX idx_func_80 ON split_idx.t_modern ((LOWER(name))) INVISIBLE;
+----------
+[ADD_INDEX] CREATE INDEX idx_multi_80 ON split_idx.t_modern ((CAST(j->'$.ids' AS UNSIGNED ARRAY))) VISIBLE;
+----------
+[ADD_INDEX] CREATE INDEX idx_visible_80 ON split_idx.t_modern (id) VISIBLE;
+----------
+[ADD_INDEX] CREATE INDEX idx_invisible_80 ON split_idx.t_modern (name) INVISIBLE;
+----------
+[ADD_INDEX] CREATE INDEX idx_attrs_80 ON split_idx.t_modern (id) ENGINE_ATTRIBUTE='{}' SECONDARY_ENGINE_ATTRIBUTE='{}';
+----------
+[DROP_INDEX] DROP INDEX idx_func_80 ON split_idx.t_modern;
+----------
+[DROP_INDEX] DROP INDEX idx_multi_80 ON split_idx.t_modern;
+----------
+[DROP_INDEX] DROP INDEX idx_visible_80 ON split_idx.t_modern;
+----------
+[DROP_INDEX] DROP INDEX idx_invisible_80 ON split_idx.t_modern;
+----------
+[DROP_INDEX] DROP INDEX idx_attrs_80 ON split_idx.t_modern;
+----------
+[ADD_INDEX] CREATE INDEX idx_type TYPE BTREE ON split_idx.t_common (id);
+----------
+[ADD_INDEX|COMMENT_INDEX] CREATE INDEX idx_common USING BTREE ON split_idx.t_common (name(16) ASC, id DESC) KEY_BLOCK_SIZE=8 COMMENT 'common index' ALGORITHM=DEFAULT LOCK=DEFAULT;
+----------
+[ADD_INDEX] CREATE UNIQUE INDEX idx_unique ON split_idx.t_common (email(32), id) USING HASH ALGORITHM=INPLACE LOCK=NONE;
+----------
+[ADD_INDEX] CREATE INDEX idx_rtree USING RTREE ON split_idx.t_common (geo);
+----------
+[ADD_INDEX|COMMENT_INDEX] CREATE FULLTEXT INDEX idx_fulltext ON split_idx.t_common (content) WITH PARSER ngram COMMENT 'fulltext parser' ALGORITHM=COPY LOCK=SHARED;
+----------
+[ADD_INDEX|COMMENT_INDEX] CREATE SPATIAL INDEX idx_spatial ON split_idx.t_common (geo) COMMENT 'spatial index' ALGORITHM=DEFAULT LOCK=EXCLUSIVE;
+----------
+[DROP_INDEX] DROP INDEX idx_type ON split_idx.t_common LOCK DEFAULT ALGORITHM DEFAULT;
+----------
+[DROP_INDEX] DROP INDEX idx_common ON split_idx.t_common ALGORITHM=INPLACE LOCK=NONE;
+----------
+[DROP_INDEX] DROP INDEX idx_unique ON split_idx.t_common ALGORITHM=COPY LOCK=SHARED;
+----------
+[DROP_INDEX] DROP INDEX `PRIMARY` ON split_index.parent_t;
+----------
+[ALTER_TABLE|RENAME_INDEX] ALTER TABLE split_idx.t_rename RENAME INDEX idx_old TO idx_new;
+----------
+[ALTER_TABLE|RENAME_INDEX] ALTER TABLE split_idx.t_rename RENAME KEY idx_new TO idx_old;
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_INDEX] CREATE TABLE codex_constraint_c08 (id INT, name VARCHAR(64), INDEX ix_c08 (id, (LOWER(name))));
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_INDEX] CREATE TABLE codex_constraint_c09 (id INT, modified DATETIME, j JSON, INDEX ix_c09 (id, (CAST(j->'$.ids' AS UNSIGNED ARRAY)), modified));
+----------
+[CREATE_VIEW(SELECT)] CREATE VIEW split_opt_hints_index.v1 AS SELECT /*+ NO_INDEX(t1 i_a,i_b) */ a FROM split_opt_hints_index.t1 AS t1 WHERE b IN (SELECT /*+ NO_INDEX(t2 i_ab,i_b) */ a FROM split_opt_hints_index.t1 AS t2 WHERE a>3) ORDER BY a;
+----------
+[CREATE_VIEW(SELECT)] CREATE VIEW split_opt_hints_index.v2 AS SELECT /*+ INDEX_MERGE(t1) */ a FROM split_opt_hints_index.t1 AS t1 WHERE a=1 AND b=2 AND c=3;
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT|ADD_INDEX] CREATE TABLE temporal_indexed(dt DATETIME(6) NOT NULL,ts TIMESTAMP(6) NOT NULL,payload VARCHAR(20),PRIMARY KEY(dt),UNIQUE KEY uk_ts(ts),KEY idx_ts_dt(ts,dt));
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_INDEX] CREATE TABLE str_index (
+  c CHAR(20),
+  v VARCHAR(300),
+  b BINARY(20),
+  vb VARBINARY(300),
+  KEY idx_c(c),
+  KEY idx_v(v(12)),
+  KEY idx_b(b),
+  KEY idx_vb(vb(12))
+) CHARACTER SET latin1;
+----------
+[ALTER_TABLE|DROP_INDEX|ADD_INDEX] ALTER TABLE str_index DROP KEY idx_v, ADD UNIQUE KEY uk_v(v(16));
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_INDEX] CREATE TABLE lob_indexes (
+  tb TINYBLOB,
+  b BLOB,
+  mb MEDIUMBLOB,
+  lb LONGBLOB,
+  tt TINYTEXT,
+  t TEXT,
+  mt MEDIUMTEXT,
+  lt LONGTEXT,
+  KEY idx_tb(tb(8)),
+  KEY idx_b(b(16)),
+  KEY idx_mb(mb(24)),
+  KEY idx_lb(lb(32)),
+  KEY idx_tt(tt(8)),
+  KEY idx_t(t(16)),
+  KEY idx_mt(mt(24)),
+  KEY idx_lt(lt(32))
+) CHARACTER SET latin1;
+----------
+[ALTER_TABLE|DROP_INDEX|ADD_INDEX] ALTER TABLE lob_indexes DROP KEY idx_b, ADD UNIQUE KEY uk_b(b(16)), ADD UNIQUE KEY uk_t(t(16));
+----------
+[ADD_INDEX] CREATE UNIQUE INDEX uq_es_enum ON split_type_enum_set.es_core(e_case);
+----------
+[ADD_INDEX] CREATE INDEX idx_es_set ON split_type_enum_set.es_core(s_case);
+----------
+[ALTER_TABLE|ADD_INDEX] ALTER TABLE split_type_enum_set.es_roles ADD INDEX idx_admin ((FIND_IN_SET('Admin',roles)));
+----------
+[ALTER_TABLE|ADD_INDEX] ALTER TABLE split_type_json.json_mvi_alter
+      ADD INDEX idx_tags ((CAST(doc->'$.tags' AS CHAR(20) ARRAY)));
+----------
+[ADD_INDEX] CREATE INDEX idx_dates
+    ON split_type_json.json_mvi_create (
+      (CAST(doc->'$.dates' AS DATE ARRAY))
+    );
+----------
+[ADD_INDEX] CREATE INDEX idx_integer_mixed
+ON integer_lifecycle (tiny_unsigned,small_unsigned,medium_unsigned,int_unsigned,big_unsigned);
+----------
+[ADD_INDEX] CREATE INDEX idx_numeric_mixed
+ON numeric_lifecycle (decimal_value,numeric_value,float_value,double_value);
+----------
+[ADD_INDEX|COMMENT_INDEX] CREATE SPATIAL INDEX gap_sx ON gap_geo(g DESC) KEY_BLOCK_SIZE=4 COMMENT 'spatial';
+----------
+[ADD_INDEX] CREATE UNIQUE INDEX split_geometry_unique_idx ON split_geometry_unique(g);
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_INDEX] CREATE TABLE ft_inline(body TEXT,FULLTEXT KEY ft_body(body) WITH PARSER ngram) ENGINE=InnoDB;
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_INDEX] CREATE TABLE idx_inline_visibility(a INT,KEY k_a(a) INVISIBLE);
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_INDEX] CREATE TABLE idx_inline_block(a INT,KEY k_a(a) KEY_BLOCK_SIZE=8) ENGINE=MyISAM;
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_INDEX] CREATE TABLE idx_inline_type(a INT,KEY k_a TYPE BTREE(a));

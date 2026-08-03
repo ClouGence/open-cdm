@@ -1,0 +1,33 @@
+create database `abc`;
+create schema abc;
+create database abc;
+create schema `abc`;
+create database abc properties("p1"="v1");
+create database if not exists abc;
+drop database abc;
+drop database if exists abc;
+drop schema if exists abc;
+drop schema if exists abc force;
+alter database abc rename bcd;
+------------------------------------------------------------------------------------------
+[CREATE_SCHEMA] create database `abc`;
+----------
+[CREATE_SCHEMA] create schema abc;
+----------
+[CREATE_SCHEMA] create database abc;
+----------
+[CREATE_SCHEMA] create schema `abc`;
+----------
+[CREATE_SCHEMA] create database abc properties("p1"="v1");
+----------
+[CREATE_SCHEMA] create database if not exists abc;
+----------
+[DROP_SCHEMA] drop database abc;
+----------
+[DROP_SCHEMA] drop database if exists abc;
+----------
+[DROP_SCHEMA] drop schema if exists abc;
+----------
+[DROP_SCHEMA] drop schema if exists abc force;
+----------
+[RENAME_SCHEMA] alter database abc rename bcd;

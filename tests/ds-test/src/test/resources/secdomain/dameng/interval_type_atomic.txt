@@ -1,0 +1,14 @@
+[ddl]
+sql:
+create table app.iv_t(id int,i_ym interval year to month,i_ds interval day to second);
+create view app.iv_v as select id,i_ym,i_ds from app.iv_t
+expect:
+{"contains":[{"class":"RdbTableDomain","sqlType":"CREATE_TABLE","auditKind":"CREATE","schema":"app","table":"iv_t"},{"class":"RdbViewDomain","sqlType":"CREATE_VIEW","auditKind":"CREATE","schema":"app","view":"iv_v"},{"class":"RdbTableDomain","sqlType":"SELECT","auditKind":"QUERY","schema":"app","table":"iv_t"}]}
+----------
+[dml]
+sql:
+insert into app.iv_t values(1,interval '1-1' year to month,
+interval '1 1:1:1' day to second);update app.iv_t set i_ds=i_ds+interval '1' day where id=1;
+delete from app.iv_t where id=1
+expect:
+{"contains":[{"class":"RdbInsertDomain","sqlType":"INSERT","auditKind":"DML","schema":"app","table":"iv_t"},{"class":"RdbUpdateDomain","sqlType":"UPDATE","auditKind":"DML","schema":"app","table":"iv_t"},{"class":"RdbDeleteDomain","sqlType":"DELETE","auditKind":"DML","schema":"app","table":"iv_t"}]}

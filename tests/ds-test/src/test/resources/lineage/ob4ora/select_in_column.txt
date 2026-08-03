@@ -1,0 +1,7 @@
+[OraParseColumnSelectInColumnTestFamily.test1]
+sql:
+select (select column1 from table1) as te from table2
+expect:
+{
+  "te" : [ "/catalog1/schema1/table1/column1/" ]
+}

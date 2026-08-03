@@ -1,0 +1,150 @@
+select sf_xmlquery('<a><b>b</b></a>', '/a');
+select sf_xmlquery('<a><b>b</b></a>', '/a/b');
+select sf_xmlquery('<a><b>1</b><b>2</b></a>', '/a/b');
+select sf_xmlquery(null, '/a');
+select xmlquery('<a><b>b</b></a>', '/a');
+select xmlquery('<a><b>b</b></a>', '/a/b');
+select xmlquery('<a><b>1</b><b>2</b></a>', '/a/b');
+select xmlquery(null, '/a');
+select existsnode('<a><b>b</b></a>', '/a');
+select existsnode('<a><b>b</b></a>', '/a/b');
+select existsnode('<a><b>b</b></a>', '/a/c');
+select existsnode(null, '/a');
+select extractvalue('<a><b>b</b></a>', '/a/b');
+select extractvalue('<a><b code="x">text</b></a>', '/a/b/@code');
+select extractvalue('<a><b>1</b></a>', '/a/b/text()');
+select extractvalue(null, '/a/b');
+select appendchildxml('<a><b>b</b></a>', '/a', '<d>xxx</d>');
+select appendchildxml('<a/>', '/a', '<b>1</b>');
+select appendchildxml('<a/>', '/a', '<b><c>1</c></b>');
+select xmlparse(document '<a>good</a>' wellformed);
+select xmlparse(document '<a><b>text</b></a>');
+select xmlparse(content '<a>one</a><b>two</b>' wellformed);
+select xmlparse(content 'plain text' wellformed);
+select x1, x2 from xml_docs d, xmltable('/A/ITEM' passing d.payload columns x1 varchar(12) path '@CODE', x2 varchar(20) path 'text()');
+select d.id, x.item_text from xml_docs d, xmltable('/A/ITEM' passing d.payload columns item_text varchar(20) path 'text()') x order by d.id;
+select d.id, x.item_code, x.item_text from xml_docs d, xmltable('/A/ITEM' passing d.payload columns item_code varchar(10) path '@CODE', item_text varchar(20) path 'text()') x;
+select x.item_code from xml_docs d, xmltable('/A/ITEM' passing d.payload columns item_code varchar(10) path '@CODE') x where d.id = 1;
+select * from table(xmlsequence(extract('<a><b>shanghai</b><b>dameng</b></a>', '/a/b')));
+select * from table(xmlsequence(extract('<a><b>1</b></a>', '/a/b')));
+select xmlelement(DM, 'TXT1', 'TXT2') from dual;
+select xmlelement(ROOT, 'TXT') from dual;
+select xmlelement(DM, 1, 2, 3) from dual;
+select xmlelement(DM, null) from dual;
+select xmlelement(DM, xmlattributes('A' as CODE), 'TXT') from dual;
+select xmlelement(ROOT, xmlelement(CHILD, 'VALUE')) from dual;
+select xmlforest('TXT1' as A, 'TXT2' as B) from dual;
+select xmlforest(id, category) from xml_docs where id = 1;
+select xmlforest(id as DOC_ID, payload as DOC_XML) from xml_docs where id = 1;
+select xmlforest(null as A, 'TXT' as B) from dual;
+select xmlagg(xmlparse(content content wellformed) order by seq) from xml_agg_source;
+select xmlagg(xmlelement(ITEM, content) order by seq) from xml_agg_source;
+select xmlagg(xmlelement(ITEM, content)) from xml_agg_source;
+select deletexml('<a><b2>local<c>d</c></b2><b2>dd</b2></a>', 'a/b2/c');
+select insertchildxml('<a><b2>local</b2><b2>dd</b2></a>', 'a/b2', 'c', xmltype('<c>china</c>'));
+select insertchildxmlafter('<a><b2>local</b2><b2>dd</b2></a>', 'a/', 'b2', xmltype('<c>china</c>'));
+select insertchildxmlbefore('<a><b2>local</b2><b2>dd</b2></a>', 'a/', 'b2', xmltype('<c>china</c>'));
+select insertxmlbefore('<a><b2>hello</b2><b2>dd</b2></a>', '/a/b2[1]', xmltype('<c>china</c>'));
+select insertxmlafter(xmltype('<a><b2>local</b2><b2>dd</b2></a>'), 'a/b2', xmltype('<c>china</c>'));
+select updatexml('<a><a1>d1</a1><a2>d2</a2></a>', '/a/a2', '<x>f</x>');
+select updatexml('<a><a1>d1</a1></a>', '/a/a1', '<x>updated</x>');
+------------------------------------------------------------------------------------------
+[SELECT|CALL_PROG_OBJ] select sf_xmlquery('<a><b>b</b></a>', '/a');
+----------
+[SELECT|CALL_PROG_OBJ] select sf_xmlquery('<a><b>b</b></a>', '/a/b');
+----------
+[SELECT|CALL_PROG_OBJ] select sf_xmlquery('<a><b>1</b><b>2</b></a>', '/a/b');
+----------
+[SELECT|CALL_PROG_OBJ] select sf_xmlquery(null, '/a');
+----------
+[SELECT] select xmlquery('<a><b>b</b></a>', '/a');
+----------
+[SELECT] select xmlquery('<a><b>b</b></a>', '/a/b');
+----------
+[SELECT] select xmlquery('<a><b>1</b><b>2</b></a>', '/a/b');
+----------
+[SELECT] select xmlquery(null, '/a');
+----------
+[SELECT] select existsnode('<a><b>b</b></a>', '/a');
+----------
+[SELECT] select existsnode('<a><b>b</b></a>', '/a/b');
+----------
+[SELECT] select existsnode('<a><b>b</b></a>', '/a/c');
+----------
+[SELECT] select existsnode(null, '/a');
+----------
+[SELECT] select extractvalue('<a><b>b</b></a>', '/a/b');
+----------
+[SELECT] select extractvalue('<a><b code="x">text</b></a>', '/a/b/@code');
+----------
+[SELECT] select extractvalue('<a><b>1</b></a>', '/a/b/text()');
+----------
+[SELECT] select extractvalue(null, '/a/b');
+----------
+[SELECT] select appendchildxml('<a><b>b</b></a>', '/a', '<d>xxx</d>');
+----------
+[SELECT] select appendchildxml('<a/>', '/a', '<b>1</b>');
+----------
+[SELECT] select appendchildxml('<a/>', '/a', '<b><c>1</c></b>');
+----------
+[SELECT] select xmlparse(document '<a>good</a>' wellformed);
+----------
+[SELECT] select xmlparse(document '<a><b>text</b></a>');
+----------
+[SELECT] select xmlparse(content '<a>one</a><b>two</b>' wellformed);
+----------
+[SELECT] select xmlparse(content 'plain text' wellformed);
+----------
+[SELECT] select x1, x2 from xml_docs d, xmltable('/A/ITEM' passing d.payload columns x1 varchar(12) path '@CODE', x2 varchar(20) path 'text()');
+----------
+[SELECT] select d.id, x.item_text from xml_docs d, xmltable('/A/ITEM' passing d.payload columns item_text varchar(20) path 'text()') x order by d.id;
+----------
+[SELECT] select d.id, x.item_code, x.item_text from xml_docs d, xmltable('/A/ITEM' passing d.payload columns item_code varchar(10) path '@CODE', item_text varchar(20) path 'text()') x;
+----------
+[SELECT] select x.item_code from xml_docs d, xmltable('/A/ITEM' passing d.payload columns item_code varchar(10) path '@CODE') x where d.id = 1;
+----------
+[SELECT] select * from table(xmlsequence(extract('<a><b>shanghai</b><b>dameng</b></a>', '/a/b')));
+----------
+[SELECT] select * from table(xmlsequence(extract('<a><b>1</b></a>', '/a/b')));
+----------
+[SELECT] select xmlelement(DM, 'TXT1', 'TXT2') from dual;
+----------
+[SELECT] select xmlelement(ROOT, 'TXT') from dual;
+----------
+[SELECT] select xmlelement(DM, 1, 2, 3) from dual;
+----------
+[SELECT] select xmlelement(DM, null) from dual;
+----------
+[SELECT] select xmlelement(DM, xmlattributes('A' as CODE), 'TXT') from dual;
+----------
+[SELECT] select xmlelement(ROOT, xmlelement(CHILD, 'VALUE')) from dual;
+----------
+[SELECT] select xmlforest('TXT1' as A, 'TXT2' as B) from dual;
+----------
+[SELECT] select xmlforest(id, category) from xml_docs where id = 1;
+----------
+[SELECT] select xmlforest(id as DOC_ID, payload as DOC_XML) from xml_docs where id = 1;
+----------
+[SELECT] select xmlforest(null as A, 'TXT' as B) from dual;
+----------
+[SELECT] select xmlagg(xmlparse(content content wellformed) order by seq) from xml_agg_source;
+----------
+[SELECT] select xmlagg(xmlelement(ITEM, content) order by seq) from xml_agg_source;
+----------
+[SELECT] select xmlagg(xmlelement(ITEM, content)) from xml_agg_source;
+----------
+[SELECT] select deletexml('<a><b2>local<c>d</c></b2><b2>dd</b2></a>', 'a/b2/c');
+----------
+[SELECT|CALL_PROG_OBJ] select insertchildxml('<a><b2>local</b2><b2>dd</b2></a>', 'a/b2', 'c', xmltype('<c>china</c>'));
+----------
+[SELECT|CALL_PROG_OBJ] select insertchildxmlafter('<a><b2>local</b2><b2>dd</b2></a>', 'a/', 'b2', xmltype('<c>china</c>'));
+----------
+[SELECT|CALL_PROG_OBJ] select insertchildxmlbefore('<a><b2>local</b2><b2>dd</b2></a>', 'a/', 'b2', xmltype('<c>china</c>'));
+----------
+[SELECT|CALL_PROG_OBJ] select insertxmlbefore('<a><b2>hello</b2><b2>dd</b2></a>', '/a/b2[1]', xmltype('<c>china</c>'));
+----------
+[SELECT|CALL_PROG_OBJ] select insertxmlafter(xmltype('<a><b2>local</b2><b2>dd</b2></a>'), 'a/b2', xmltype('<c>china</c>'));
+----------
+[SELECT] select updatexml('<a><a1>d1</a1><a2>d2</a2></a>', '/a/a2', '<x>f</x>');
+----------
+[SELECT] select updatexml('<a><a1>d1</a1></a>', '/a/a1', '<x>updated</x>');

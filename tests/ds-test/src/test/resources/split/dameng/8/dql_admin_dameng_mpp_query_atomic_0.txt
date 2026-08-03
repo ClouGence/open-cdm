@@ -1,0 +1,95 @@
+-- PLAN_001_HASH_POINT_ROUTE
+explain select note from app.mpp_hash_a where id=1;
+-- PLAN_002_HASH_COLOCATED_JOIN
+explain select a.id,a.note,b.note from app.mpp_hash_a a join app.mpp_hash_b b on a.id=b.id;
+-- PLAN_003_HASH_REDISTRIBUTED_JOIN
+explain select a.id,b.id from app.mpp_hash_a a join app.mpp_hash_b b on a.grp_id=b.grp_id;
+-- PLAN_004_FULLY_JOIN
+explain select a.id,f.note from app.mpp_hash_a a join app.mpp_fully f on a.id=f.id;
+-- PLAN_005_GROUP_DISTRIBUTION_KEY
+explain select id,count(*) from app.mpp_hash_a group by id;
+-- PLAN_006_GROUP_NON_DISTRIBUTION_KEY
+explain select grp_id,count(*) from app.mpp_hash_a group by grp_id;
+-- PLAN_007_RANGE_POINT_ROUTE
+explain select note from app.mpp_range where id=150;
+-- PLAN_008_REAL_ROUTE_ROWS
+select id,sf_get_ep_seqno(rowid) as ep_no from app.mpp_range order by id;
+-- API_001_LOCAL_DDL_ENABLE
+call sp_set_session_local_type(1);
+-- API_002_LOCAL_DDL_DISABLE
+call sp_set_session_local_type(0);
+-- API_003_DYNAMIC_ADD_INVALID_INSTANCE
+select sf_mpp_inst_add('', '') from dual;
+-- API_004_DYNAMIC_REMOVE_MISSING_INSTANCE
+select sf_mpp_inst_remove('CODEX_MISSING_EP_27') from dual;
+-- ARITY_001_SET_MPP_LOCAL_MISSING
+call sp_set_session_mpp_select_local();
+-- ARITY_002_GET_MPP_LOCAL_EXTRA
+select sf_get_session_mpp_select_local(1) from dual;
+-- ARITY_003_SET_LOCAL_TYPE_MISSING
+call sp_set_session_local_type();
+-- ARITY_004_SELF_EP_EXTRA
+select sf_get_self_ep_seqno(1) from dual;
+-- ARITY_005_EP_COUNT_MISSING
+call sp_get_ep_count('SYSDBA');
+-- ARITY_006_INST_ADD_MISSING
+select sf_mpp_inst_add('ONLY_ONE') from dual;
+-- ARITY_007_INST_REMOVE_MISSING
+select sf_mpp_inst_remove() from dual;
+------------------------------------------------------------------------------------------
+[PERFORMANCE|SELECT] -- PLAN_001_HASH_POINT_ROUTE
+explain select note from app.mpp_hash_a where id=1;
+----------
+[PERFORMANCE|SELECT] -- PLAN_002_HASH_COLOCATED_JOIN
+explain select a.id,a.note,b.note from app.mpp_hash_a a join app.mpp_hash_b b on a.id=b.id;
+----------
+[PERFORMANCE|SELECT] -- PLAN_003_HASH_REDISTRIBUTED_JOIN
+explain select a.id,b.id from app.mpp_hash_a a join app.mpp_hash_b b on a.grp_id=b.grp_id;
+----------
+[PERFORMANCE|SELECT] -- PLAN_004_FULLY_JOIN
+explain select a.id,f.note from app.mpp_hash_a a join app.mpp_fully f on a.id=f.id;
+----------
+[PERFORMANCE|SELECT] -- PLAN_005_GROUP_DISTRIBUTION_KEY
+explain select id,count(*) from app.mpp_hash_a group by id;
+----------
+[PERFORMANCE|SELECT] -- PLAN_006_GROUP_NON_DISTRIBUTION_KEY
+explain select grp_id,count(*) from app.mpp_hash_a group by grp_id;
+----------
+[PERFORMANCE|SELECT] -- PLAN_007_RANGE_POINT_ROUTE
+explain select note from app.mpp_range where id=150;
+----------
+[SELECT] -- PLAN_008_REAL_ROUTE_ROWS
+select id,sf_get_ep_seqno(rowid) as ep_no from app.mpp_range order by id;
+----------
+[CALL_PROG_OBJ] -- API_001_LOCAL_DDL_ENABLE
+call sp_set_session_local_type(1);
+----------
+[CALL_PROG_OBJ] -- API_002_LOCAL_DDL_DISABLE
+call sp_set_session_local_type(0);
+----------
+[SELECT] -- API_003_DYNAMIC_ADD_INVALID_INSTANCE
+select sf_mpp_inst_add('', '') from dual;
+----------
+[SELECT] -- API_004_DYNAMIC_REMOVE_MISSING_INSTANCE
+select sf_mpp_inst_remove('CODEX_MISSING_EP_27') from dual;
+----------
+[CALL_PROG_OBJ] -- ARITY_001_SET_MPP_LOCAL_MISSING
+call sp_set_session_mpp_select_local();
+----------
+[SELECT] -- ARITY_002_GET_MPP_LOCAL_EXTRA
+select sf_get_session_mpp_select_local(1) from dual;
+----------
+[CALL_PROG_OBJ] -- ARITY_003_SET_LOCAL_TYPE_MISSING
+call sp_set_session_local_type();
+----------
+[SELECT] -- ARITY_004_SELF_EP_EXTRA
+select sf_get_self_ep_seqno(1) from dual;
+----------
+[CALL_PROG_OBJ] -- ARITY_005_EP_COUNT_MISSING
+call sp_get_ep_count('SYSDBA');
+----------
+[SELECT] -- ARITY_006_INST_ADD_MISSING
+select sf_mpp_inst_add('ONLY_ONE') from dual;
+----------
+[SELECT] -- ARITY_007_INST_REMOVE_MISSING
+select sf_mpp_inst_remove() from dual;

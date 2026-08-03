@@ -1,0 +1,24 @@
+create huge table dsc_huge_bad_missing(id int) striping;
+create huge table dsc_huge_bad_parens(id int) striping(32);
+create huge table dsc_huge_bad_mirrors(id int) high normal;
+create huge table dsc_huge_bad_order(id int) high striping 32;
+create huge table dsc_huge_bad_repeat(id int) striping 32 striping 64;
+create huge table dsc_huge_bad_before_storage(id int) striping 32 storage(with delta);
+create huge table dsc_huge_bad_ctas striping 32 as select 1 from dual;
+create huge table dsc_huge_bad_trailing(id int) striping 32 external high;
+------------------------------------------------------------------------------------------
+[CREATE_TABLE] create huge table dsc_huge_bad_missing(id int) striping;
+----------
+[CREATE_TABLE] create huge table dsc_huge_bad_parens(id int) striping(32);
+----------
+[CREATE_TABLE] create huge table dsc_huge_bad_mirrors(id int) high normal;
+----------
+[CREATE_TABLE] create huge table dsc_huge_bad_order(id int) high striping 32;
+----------
+[CREATE_TABLE] create huge table dsc_huge_bad_repeat(id int) striping 32 striping 64;
+----------
+[CREATE_TABLE] create huge table dsc_huge_bad_before_storage(id int) striping 32 storage(with delta);
+----------
+[CREATE_TABLE|SELECT] create huge table dsc_huge_bad_ctas striping 32 as select 1 from dual;
+----------
+[CREATE_TABLE] create huge table dsc_huge_bad_trailing(id int) striping 32 external high;

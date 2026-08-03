@@ -1,0 +1,26 @@
+[profile_definition_has_no_result_lineage]
+sql:
+create profile employee_profile limit session_per_user 10
+expect:
+{}
+----------
+[profile_dictionary_columns]
+sql:
+select profile, resource_name, limit
+from catalog1.sys.dba_profiles
+where profile = 'EMPLOYEE_PROFILE'
+expect:
+{
+  "profile": ["/catalog1/sys/dba_profiles/profile/"],
+  "resource_name": ["/catalog1/sys/dba_profiles/resource_name/"],
+  "limit": ["/catalog1/sys/dba_profiles/limit/"]
+}
+----------
+[profile_lifecycle_and_privileges_have_no_lineage]
+sql:
+alter profile employee_profile limit session_per_user 32768;
+drop profile employee_profile cascade;
+grant create profile, alter profile, drop profile to profile_admin;
+revoke create profile, alter profile, drop profile from profile_admin
+expect:
+{}

@@ -15,6 +15,7 @@
  */
 package com.clougence.clouddm.console.web.component.approval.schedule;
 
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -23,26 +24,39 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.clougence.clouddm.api.common.exception.ErrorMessageException;
+import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
+import com.clougence.clouddm.console.web.component.analysis.*;
 import com.clougence.clouddm.console.web.component.approval.ApprovalHandler;
 import com.clougence.clouddm.console.web.component.approval.impl.ApprovalProviderServiceImpl;
 import com.clougence.clouddm.console.web.component.approval.model.ApprovalStageMO;
-import com.clougence.clouddm.console.web.component.config.RootUserConfig;
 import com.clougence.clouddm.console.web.component.cicd.ImSenderService;
+import com.clougence.clouddm.console.web.component.config.RootUserConfig;
+import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
+import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
 import com.clougence.clouddm.console.web.model.vo.PrimaryUserVO;
+import com.clougence.clouddm.console.web.util.DmDsUtils;
 import com.clougence.clouddm.platform.dal.access.ApprovalDal;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
+import com.clougence.clouddm.platform.dal.access.DataSourceDal;
 import com.clougence.clouddm.platform.dal.access.SystemDal;
 import com.clougence.clouddm.platform.dal.model.approval.*;
 import com.clougence.clouddm.platform.dal.model.auth.AccountType;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthRoleDO;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.clouddm.platform.dal.model.auth.RsAuthPersonObj;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.platform.dal.model.system.DmSysUserConfDO;
+import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
 import com.clougence.clouddm.sdk.security.auth.def.SecDataAuthLabel;
 import com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorObject;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.JsonUtils;
 import com.clougence.utils.NumberUtils;
@@ -71,12 +85,21 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 public class ApprovalTaskScheduleProcess {
+
+    private static final int                        MAX_TICKET_SQL_BYTES = 2 * 1024 * 1024;
+
     @Resource
     private SystemDal                               systemDal;
     @Resource
     private AuthDal                                 authDal;
     @Resource
     private ApprovalDal                             approvalDal;
+    @Resource
+    private DataSourceDal                           dataSourceDal;
+    @Resource
+    private DmDsConfigService                       dmDsConfigService;
+    @Resource
+    private QueryAnalysisService                    queryAnalysisService;
     @Resource
     private ApprovalProviderServiceImpl             approvalProviderService;
     @Resource
@@ -97,6 +120,45 @@ public class ApprovalTaskScheduleProcess {
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public void processPreInit(DmApprovalDO approvalDO) {
         long ticketId = approvalDO.getId();
+        if (approvalDO.getApproBiz() == ApprovalBiz.DM_QUERY || approvalDO.getApproBiz() == ApprovalBiz.DM_CHANGE) {
+            String rawSql = approvalDO.getRawSql() == null ? "" : approvalDO.getRawSql();
+            if (rawSql.getBytes(StandardCharsets.UTF_8).length > MAX_TICKET_SQL_BYTES) {
+                throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.TICKET_SQL_SIZE_OVER_ERROR.name()));
+            }
+
+            DmDsDO dsDO = this.dataSourceDal.dsMapper().selectById(approvalDO.getBindDsId());
+            if (dsDO == null) {
+                throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_NOT_EXIST_ERROR.name()));
+            }
+
+            List<String> levels = new ArrayList<>();
+            levels.add(String.valueOf(dsDO.getDsEnvId()));
+            levels.add(String.valueOf(dsDO.getId()));
+            if (CollectionUtils.isNotEmpty(approvalDO.getLevels())) {
+                levels.addAll(approvalDO.getLevels());
+            } else if (StringUtils.isNotBlank(approvalDO.getTargetInfo())) {
+                levels.addAll(Arrays.stream(approvalDO.getTargetInfo().split("/")).filter(StringUtils::isNotBlank).toList());
+            }
+            DsLevels dsLevels = this.dmDsConfigService.parseLevels(levels);
+
+            //
+            DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromExists(dsDO.getId());
+            QueryAnalysisOptions options = QueryAnalysisOptions.builder()
+                .currentUid(approvalDO.getOwnerUid())
+                .dataSourceId(dsDO.getId())
+                .levels(dsLevels.levelsParam())
+                .deepParser(false)
+                .skip(QueryAnalysisFeature.REWRITE, QueryAnalysisFeature.LINEAGE, QueryAnalysisFeature.MASKING)
+                .build();
+
+            List<QueryRequest> requests = this.queryAnalysisService.analysisRequests(dsConfig, rawSql, Collections.emptyList(), 1, 0, options);
+            List<ApprovalBehavior> behaviors = groupBehaviorsByResource(requests);
+            if (behaviors.stream().anyMatch(behavior -> behavior.getActions().contains(BehaviorAction.SWITCH))) {
+                throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_JOB_NONSUPPORT_SWITCH_CTX_ERROR.name()));
+            }
+            this.approvalDal.approvalMapper().updateAnalysis(ticketId, behaviors);
+        }
+
         DmApprovalProcessDO processDO = this.approvalDal.processMapper().queryByStage(ticketId, ApprovalStage.EXPLAIN);
         //         sometimes it will be null , not find question
         if (processDO == null) {
@@ -105,6 +167,30 @@ public class ApprovalTaskScheduleProcess {
         }
         this.approvalDal.processMapper().updateTicketStatusByEnum(processDO.getId(), ApprovalProcessStatus.FINISH, null);
         this.approvalDal.approvalMapper().updateStatusByEnum(ticketId, ApprovalStatus.WAIT_APPROVAL, DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_STATUS_WAIT_APPROVAL.name()));
+    }
+
+    static List<ApprovalBehavior> groupBehaviorsByResource(List<QueryRequest> requests) {
+        Map<String, ApprovalBehavior> grouped = new LinkedHashMap<>();
+        if (CollectionUtils.isEmpty(requests)) {
+            return Collections.emptyList();
+        }
+        for (QueryRequest request : requests) {
+            for (BehaviorRequest behaviorRequest : BehaviorRelations.flattenResourceIgnoringPermission(request.getRelations())) {
+                BehaviorAction action = behaviorRequest.action();
+                BehaviorObject resource = behaviorRequest.resource();
+                TargetType resourceType = Objects.requireNonNullElse(resource.getObjectType(), TargetType.Unknown);
+                String resourcePath = DmDsUtils.normalizeResourcePath(resource.getObjectPath());
+                String resourceKey = resourceType + "|" + resourcePath;
+                ApprovalBehavior behavior = grouped.computeIfAbsent(resourceKey, ignored -> {
+                    ApprovalBehavior value = new ApprovalBehavior();
+                    value.setResourceType(resourceType);
+                    value.setResourcePath(resourcePath);
+                    return value;
+                });
+                behavior.getActions().add(action);
+            }
+        }
+        return new ArrayList<>(grouped.values());
     }
 
     // WAIT_APPROVAL -> [WAIT_APPROVAL \ WAIT_CONFIRM \ REJECTED]

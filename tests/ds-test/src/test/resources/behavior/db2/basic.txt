@@ -1,0 +1,193 @@
+[select_join]
+sql:
+select * from schema1.t1 inner join t2 on t1.id = t2.id
+levels:
+/test/1/catalog1/schema0
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:24) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:36~1:38) /test/1/catalog1/schema0/t2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[create_table_dependencies]
+sql:
+create table dst as (select * from src1) with data
+levels:
+/test/1/catalog1/schema0
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:16) /test/1/catalog1/schema0/dst/",
+      "action" : "CREATE",
+      "target" : "Table(1:35~1:39) /test/1/catalog1/schema0/src1/"
+    }
+  ]
+}
+----------
+[create_view_dependencies]
+sql:
+create view v1 select * from src1 inner join schema2.src2 on src1.id = src2.id
+levels:
+/test/1/catalog1/schema0
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:14) /test/1/catalog1/schema0/v1/",
+      "action" : "CREATE",
+      "target" : [
+        "Table(1:29~1:33) /test/1/catalog1/schema0/src1/",
+        "Table(1:45~1:57) /test/1/catalog1/schema2/src2/"
+      ]
+    }
+  ]
+}
+----------
+[dml_dependencies]
+sql:
+insert into dst select * from src1; update dst set id = 1 where id in (select id from src2); delete from dst where id in (select id from src3)
+levels:
+/test/1/catalog1/schema0
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:15) /test/1/catalog1/schema0/dst/",
+      "action" : "INSERT",
+      "target" : "Table(1:30~1:34) /test/1/catalog1/schema0/src1/"
+    }
+  ],
+  "UPDATE": [
+    {
+      "subject": "Table(1:43~1:46) /test/1/catalog1/schema0/dst/",
+      "action" : "UPDATE",
+      "target" : "Table(1:86~1:90) /test/1/catalog1/schema0/src2/"
+    }
+  ],
+  "DELETE": [
+    {
+      "subject": "Table(1:105~1:108) /test/1/catalog1/schema0/dst/",
+      "action" : "DELETE",
+      "target" : "Table(1:137~1:141) /test/1/catalog1/schema0/src3/"
+    }
+  ]
+}
+----------
+[ddl_objects]
+sql:
+create schema s2; create table schema2.t1 (id integer); alter table schema2.t1 add column name varchar(20); truncate table schema2.t1 immediate; alter view schema2.v1 enable query optimization; drop table schema2.t1; drop view schema2.v1; drop index schema2.i1; drop schema s2 restrict
+levels:
+/test/1/catalog1/schema0
+expect:
+{
+  "CREATE_SCHEMA": [
+    {
+      "subject": "Schema(1:14~1:16) /test/1/catalog1/s2/",
+      "action" : "CREATE"
+    }
+  ],
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:31~1:41) /test/1/catalog1/schema2/t1/",
+      "action" : "CREATE"
+    }
+  ],
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:68~1:78) /test/1/catalog1/schema2/t1/",
+      "action" : "ALTER"
+    }
+  ],
+  "TRUNCATE_TABLE": [
+    {
+      "subject": "Table(1:123~1:133) /test/1/catalog1/schema2/t1/",
+      "action" : "ALTER"
+    }
+  ],
+  "ALTER_VIEW": [
+    {
+      "subject": "View(1:156~1:166) /test/1/catalog1/schema2/v1/",
+      "action" : "ALTER"
+    }
+  ],
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:205~1:215) /test/1/catalog1/schema2/t1/",
+      "action" : "DROP"
+    }
+  ],
+  "DROP_VIEW": [
+    {
+      "subject": "View(1:227~1:237) /test/1/catalog1/schema2/v1/",
+      "action" : "DROP"
+    }
+  ],
+  "DROP_INDEX": [
+    {
+      "subject": "Index(1:250~1:260) /test/1/catalog1/schema2/i1/",
+      "action" : "DROP"
+    }
+  ],
+  "DROP_SCHEMA": [
+    {
+      "subject": "Schema(1:274~1:276) /test/1/catalog1/s2/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[call_procedure]
+sql:
+call proc1()
+levels:
+/test/1/catalog1/schema0
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:5~1:10) /test/1/catalog1/schema0/proc1/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[rename_table]
+sql:
+rename table old_tab to new_tab
+levels:
+/test/1/catalog1/schema0
+expect:
+{
+  "RENAME_TABLE": [
+    {
+      "subject": "Table(1:13~1:20) /test/1/catalog1/schema0/old_tab/",
+      "action" : "RENAME",
+      "target" : "Table(1:24~1:31) /test/1/catalog1/schema0/new_tab/"
+    }
+  ]
+}
+----------
+[create_index]
+sql:
+create index idx_t1_name on t1(name)
+levels:
+/test/1/catalog1/schema0
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:24) /test/1/catalog1/schema0/idx_t1_name/",
+      "action" : "CREATE",
+      "target" : "Table(1:28~1:30) /test/1/catalog1/schema0/t1/"
+    }
+  ]
+}

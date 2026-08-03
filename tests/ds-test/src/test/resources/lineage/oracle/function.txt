@@ -1,0 +1,55 @@
+[OraParseColumnFunctionTest.test1]
+sql:
+select test_function(1) as q from table1
+expect:
+{
+  "q" : []
+}
+----------
+[OraParseColumnFunctionTest.test2]
+sql:
+select test_function(column1) as ww from table1
+expect:
+{
+  "ww" : [ "/catalog1/schema1/table1/column1/" ]
+}
+----------
+[OraParseColumnFunctionTest.test3]
+sql:
+select test_function(32) as a
+expect:
+{
+  "a" : []
+}
+----------
+[OraParseColumnFunctionTest.test4]
+sql:
+select cast(column1 as char) as f from table1
+expect:
+{
+  "f" : [ "/catalog1/schema1/table1/column1/" ]
+}
+----------
+[OraParseColumnFunctionTest.test5]
+sql:
+select f from (select cast(column1 as char) as f from table1)c
+expect:
+{
+  "f" : [ "/catalog1/schema1/table1/column1/" ]
+}
+----------
+[OraParseColumnFunctionTest.test6]
+sql:
+select test_func((select column1 from table2)) as ff from table1
+expect:
+{
+  "ff" : [ "/catalog1/schema1/table2/column1/" ]
+}
+----------
+[OraParseColumnFunctionTest.test7]
+sql:
+select test_func((select test_func1((select column1 from schema2.table1),column1) as ww from table2),column1) as gg from table1
+expect:
+{
+  "gg" : [ "/catalog1/schema2/table1/column1/", "/catalog1/schema1/table2/column1/", "/catalog1/schema1/table1/column1/" ]
+}

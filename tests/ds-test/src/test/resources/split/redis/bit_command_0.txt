@@ -1,0 +1,81 @@
+BITCOUNT mykey
+BITCOUNT mykey 0 0
+BITCOUNT mykey 1 1
+BITCOUNT mykey 1 1 BYTE
+BITCOUNT mykey 5 30 BIT
+BITFIELD mykey
+BITFIELD mykey INCRBY i5 100 1 GET u4 0
+BITFIELD mystring SET i8 #0 100 SET i8 #1 200
+BITFIELD mykey incrby u2 100 1 OVERFLOW SAT incrby u2 102 1
+BITFIELD mykey OVERFLOW FAIL incrby u2 102 1
+BITFIELD mykey OVERFLOW FAIL incrby u2 102 1 OVERFLOW FAIL incrby u2 102 1
+BITFIELD_RO hello GET i8 16
+BITFIELD_RO hello GET i8 16 GET i8 16
+BITFIELD key1 SET i8 #0 255
+BITOP AND dest key1 key2
+BITFIELD dest GET i8 #0
+BITFIELD_RO hello GET i8 16
+BITPOS mykey 0
+BITPOS mykey 1 0
+BITPOS mykey 1 2 -1 BYTE
+BITPOS mykey 1 7 15 BIT
+BITPOS mykey 1 7 -3 BIT
+GETBIT mykey 0
+GETBIT mykey 7
+GETBIT mykey 100
+SETBIT mykey 7 1
+SETBIT mykey 7 0
+------------------------------------------------------------------------------------------
+[SELECT] BITCOUNT mykey
+----------
+[SELECT] BITCOUNT mykey 0 0
+----------
+[SELECT] BITCOUNT mykey 1 1
+----------
+[SELECT] BITCOUNT mykey 1 1 BYTE
+----------
+[SELECT] BITCOUNT mykey 5 30 BIT
+----------
+[SELECT] BITFIELD mykey
+----------
+[MERGE|SELECT] BITFIELD mykey INCRBY i5 100 1 GET u4 0
+----------
+[MERGE] BITFIELD mystring SET i8 #0 100 SET i8 #1 200
+----------
+[MERGE] BITFIELD mykey incrby u2 100 1 OVERFLOW SAT incrby u2 102 1
+----------
+[MERGE] BITFIELD mykey OVERFLOW FAIL incrby u2 102 1
+----------
+[MERGE] BITFIELD mykey OVERFLOW FAIL incrby u2 102 1 OVERFLOW FAIL incrby u2 102 1
+----------
+[SELECT] BITFIELD_RO hello GET i8 16
+----------
+[SELECT] BITFIELD_RO hello GET i8 16 GET i8 16
+----------
+[MERGE] BITFIELD key1 SET i8 #0 255
+----------
+[MERGE|SELECT] BITOP AND dest key1 key2
+----------
+[SELECT] BITFIELD dest GET i8 #0
+----------
+[SELECT] BITFIELD_RO hello GET i8 16
+----------
+[SELECT] BITPOS mykey 0
+----------
+[SELECT] BITPOS mykey 1 0
+----------
+[SELECT] BITPOS mykey 1 2 -1 BYTE
+----------
+[SELECT] BITPOS mykey 1 7 15 BIT
+----------
+[SELECT] BITPOS mykey 1 7 -3 BIT
+----------
+[SELECT] GETBIT mykey 0
+----------
+[SELECT] GETBIT mykey 7
+----------
+[SELECT] GETBIT mykey 100
+----------
+[MERGE] SETBIT mykey 7 1
+----------
+[MERGE] SETBIT mykey 7 0

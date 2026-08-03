@@ -1,0 +1,451 @@
+[split_ddl_dameng_dsc_huge_asm_0_behavior_review_001]
+sql:
+create huge table dsc_huge_basic(id int, payload varchar(64));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:32) /test/1/catalog1/schema1/dsc_huge_basic/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_dsc_huge_asm_0_behavior_review_002]
+sql:
+create huge table if not exists dsc_huge_ifne(id int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:32~1:45) /test/1/catalog1/schema1/dsc_huge_ifne/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_dsc_huge_asm_0_behavior_review_003]
+sql:
+create huge table dsc_huge_storage(id int) storage(section(1024), with delta);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:34) /test/1/catalog1/schema1/dsc_huge_storage/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_dsc_huge_asm_0_behavior_review_004]
+sql:
+create huge table dsc_huge_s0(id int) striping 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:29) /test/1/catalog1/schema1/dsc_huge_s0/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_dsc_huge_asm_0_behavior_review_005]
+sql:
+create huge table dsc_huge_s32(id int) striping 32;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:30) /test/1/catalog1/schema1/dsc_huge_s32/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_dsc_huge_asm_0_behavior_review_006]
+sql:
+create huge table dsc_huge_s64(id int) striping 64;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:30) /test/1/catalog1/schema1/dsc_huge_s64/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_dsc_huge_asm_0_behavior_review_007]
+sql:
+create huge table dsc_huge_s128(id int) striping 128;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:31) /test/1/catalog1/schema1/dsc_huge_s128/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_dsc_huge_asm_0_behavior_review_008]
+sql:
+create huge table dsc_huge_s256(id int) striping 256;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:31) /test/1/catalog1/schema1/dsc_huge_s256/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_dsc_huge_asm_0_behavior_review_009]
+sql:
+create huge table dsc_huge_high(id int) high;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:31) /test/1/catalog1/schema1/dsc_huge_high/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_dsc_huge_asm_0_behavior_review_010]
+sql:
+create huge table dsc_huge_normal(id int) normal;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:33) /test/1/catalog1/schema1/dsc_huge_normal/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_dsc_huge_asm_0_behavior_review_011]
+sql:
+create huge table dsc_huge_external(id int) external;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:35) /test/1/catalog1/schema1/dsc_huge_external/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_dsc_huge_asm_0_behavior_review_012]
+sql:
+create huge table dsc_huge_s0_external(id int) striping 0 external;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:38) /test/1/catalog1/schema1/dsc_huge_s0_external/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_dsc_huge_asm_0_behavior_review_013]
+sql:
+create huge table dsc_huge_s32_normal(id int) striping 32 normal;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:37) /test/1/catalog1/schema1/dsc_huge_s32_normal/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_dsc_huge_asm_0_behavior_review_014]
+sql:
+create huge table dsc_huge_s64_high(id int) striping 64 high;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:35) /test/1/catalog1/schema1/dsc_huge_s64_high/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_dsc_huge_asm_0_behavior_review_015]
+sql:
+create huge table dsc_huge_s128_external(id int) striping 128 external;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:40) /test/1/catalog1/schema1/dsc_huge_s128_external/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_dsc_huge_asm_0_behavior_review_016]
+sql:
+create huge table dsc_huge_s256_normal(id int) striping 256 normal;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:38) /test/1/catalog1/schema1/dsc_huge_s256_normal/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_dsc_huge_asm_0_behavior_review_017]
+sql:
+create huge table dsc_huge_ctas as select 1 as id from dual striping 32 external;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:31) /test/1/catalog1/schema1/dsc_huge_ctas/",
+      "action": "CREATE",
+      "target": "View(1:55~1:59) /test/1/catalog1/schema1/dual/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_dsc_huge_asm_0_behavior_review_018]
+sql:
+insert into dsc_huge_basic values(1, 'from-dsc01');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/dsc_huge_basic/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_dsc_huge_asm_0_behavior_review_019]
+sql:
+select id, payload, rowid from dsc_huge_basic;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:31~1:45) /test/1/catalog1/schema1/dsc_huge_basic/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_dsc_huge_asm_0_behavior_review_020]
+sql:
+update dsc_huge_basic set payload='failover-dsc02' where id=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:21) /test/1/catalog1/schema1/dsc_huge_basic/",
+      "action": "UPDATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_dsc_huge_asm_0_behavior_review_021]
+sql:
+commit;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[split_ddl_dameng_dsc_huge_asm_0_behavior_review_022]
+sql:
+select ep_name, ep_seqno, ep_mode, ep_status from v$dsc_ep_info order by ep_seqno;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:50~1:63) /test/1/catalog1/schema1/v$dsc_ep_info/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_dsc_huge_asm_0_behavior_review_023]
+sql:
+comment on table dsc_huge_basic is 'dsc huge table';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "COMMENT_TABLE": [
+    {
+      "subject": "Table(1:17~1:31) /test/1/catalog1/schema1/dsc_huge_basic/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_dsc_huge_asm_0_behavior_review_024]
+sql:
+comment on column dsc_huge_basic.payload is 'dsc huge payload';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "COMMENT_COLUMN": [
+    {
+      "subject": "Table(1:18~1:32) /test/1/catalog1/schema1/dsc_huge_basic/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_dsc_huge_asm_0_behavior_review_025]
+sql:
+create index dsc_huge_basic_i on dsc_huge_basic(id);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:29) /test/1/catalog1/schema1/dsc_huge_basic_i/",
+      "action": "CREATE",
+      "target": "Table(1:33~1:47) /test/1/catalog1/schema1/dsc_huge_basic/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_dsc_huge_asm_0_behavior_review_026]
+sql:
+create or replace directory dsc_ext_dir as '/tmp';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:28~1:39) /test/1/catalog1/schema1/dsc_ext_dir/",
+      "action": "CONFIGURE",
+      "target": "File(1:43~1:49) /test/1/tmp/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_dsc_huge_asm_0_behavior_review_027]
+sql:
+create external table dsc_external(id int) from datafile default directory dsc_ext_dir location('dsc.csv');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:22~1:34) /test/1/catalog1/schema1/dsc_external/",
+      "action": "CREATE",
+      "target": [
+        "ConfigKey(1:75~1:86) /test/1/catalog1/schema1/dsc_ext_dir/",
+        "File(1:96~1:105) /test/1/dsc_ext_dir/dsc.csv/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dameng_dsc_huge_asm_0_behavior_review_028]
+sql:
+drop index dsc_huge_basic_i;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_INDEX": [
+    {
+      "subject": "Index(1:11~1:27) /test/1/catalog1/schema1/dsc_huge_basic_i/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_dsc_huge_asm_0_behavior_review_029]
+sql:
+drop table dsc_huge_basic purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:25) /test/1/catalog1/schema1/dsc_huge_basic/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_dsc_huge_asm_0_behavior_review_030]
+sql:
+drop directory dsc_ext_dir;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:15~1:26) /test/1/catalog1/schema1/dsc_ext_dir/",
+      "action": "CONFIGURE"
+    }
+  ]
+}

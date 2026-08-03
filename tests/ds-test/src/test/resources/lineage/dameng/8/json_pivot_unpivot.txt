@@ -1,0 +1,112 @@
+[pivot_group_column]
+sql:
+select p.salesman,p.apple
+from(
+  select t.salesman,t.product,t.amount
+  from catalog1.app.pivot_t t
+) pivot(sum(amount) for product in('APPLE' as apple)) p
+expect:
+{
+  "salesman": ["/catalog1/app/pivot_t/salesman/"],
+  "apple": [
+    "/catalog1/app/pivot_t/product/",
+    "/catalog1/app/pivot_t/amount/"
+  ]
+}
+----------
+[pivot_multiple_aggregate_columns]
+sql:
+select p.salesman,p.apple_total,p.apple_cnt
+from(
+  select t.salesman,t.product,t.amount
+  from catalog1.app.pivot_t t
+) pivot(
+  sum(amount) total,count(amount) cnt
+  for product in('APPLE' as apple)
+) p
+expect:
+{
+  "salesman": ["/catalog1/app/pivot_t/salesman/"],
+  "apple_total": [
+    "/catalog1/app/pivot_t/product/",
+    "/catalog1/app/pivot_t/amount/"
+  ],
+  "apple_cnt": [
+    "/catalog1/app/pivot_t/product/",
+    "/catalog1/app/pivot_t/amount/"
+  ]
+}
+----------
+[unpivot_columns]
+sql:
+select u.salesman,u.product,u.amount
+from catalog1.app.wide_t
+unpivot(amount for product in(apple as 'APPLE',orange as 'ORANGE')) u
+expect:
+{
+  "salesman": ["/catalog1/app/wide_t/salesman/"],
+  "product": [],
+  "amount": [
+    "/catalog1/app/wide_t/apple/",
+    "/catalog1/app/wide_t/orange/"
+  ]
+}
+----------
+[pivot_multiple_for_columns]
+sql:
+select p.aa_total
+from(
+  select t.salesman,t.product,t.amount
+  from catalog1.app.pivot_t t
+) pivot(
+  sum(amount) total
+  for(salesman,product) in(('ALICE','APPLE') as aa)
+) p
+expect:
+{
+  "aa_total": [
+    "/catalog1/app/pivot_t/salesman/",
+    "/catalog1/app/pivot_t/product/",
+    "/catalog1/app/pivot_t/amount/"
+  ]
+}
+----------
+[unpivot_multiple_values]
+sql:
+select u.salesman,u.product,u.amount,u.cnt
+from catalog1.app.wide_t
+unpivot(
+  (amount,cnt) for product in(
+    (apple,apple_count) as 'APPLE',
+    (orange,orange_count) as 'ORANGE'
+  )
+) u
+expect:
+{
+  "salesman": ["/catalog1/app/wide_t/salesman/"],
+  "product": [],
+  "amount": [
+    "/catalog1/app/wide_t/apple/",
+    "/catalog1/app/wide_t/orange/"
+  ],
+  "cnt": [
+    "/catalog1/app/wide_t/apple_count/",
+    "/catalog1/app/wide_t/orange_count/"
+  ]
+}
+----------
+[pivot_xml_column]
+sql:
+select p.salesman,p.product_xml
+from(
+  select t.salesman,t.product,t.amount
+  from catalog1.app.pivot_t t
+) pivot xml(sum(amount) for product in(any)) p
+expect:
+{
+  "salesman": ["/catalog1/app/pivot_t/salesman/"],
+  "product_xml": [
+    "/catalog1/app/pivot_t/product/",
+    "/catalog1/app/pivot_t/amount/"
+  ]
+}

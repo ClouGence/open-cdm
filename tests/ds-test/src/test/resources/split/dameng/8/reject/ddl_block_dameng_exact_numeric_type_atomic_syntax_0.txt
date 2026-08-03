@@ -1,0 +1,24 @@
+create table app.bad_exact_01(c number(5,-2));
+create table app.bad_exact_02(c numeric(5,));
+create table app.bad_exact_03(c decimal(,2));
+create table app.bad_exact_04(c dec());
+create table app.bad_exact_05(c number(5,2,1));
+create table app.bad_exact_06(c numeric numeric);
+create function app.bad_exact_f(p number(5,-2)) return int as begin return 1; end;/
+create function app.bad_exact_r(p number) return as begin return p; end;/
+------------------------------------------------------------------------------------------
+[CREATE_TABLE] create table app.bad_exact_01(c number(5,-2));
+----------
+[CREATE_TABLE] create table app.bad_exact_02(c numeric(5,));
+----------
+[CREATE_TABLE] create table app.bad_exact_03(c decimal(,2));
+----------
+[CREATE_TABLE] create table app.bad_exact_04(c dec());
+----------
+[CREATE_TABLE] create table app.bad_exact_05(c number(5,2,1));
+----------
+[CREATE_TABLE] create table app.bad_exact_06(c numeric numeric);
+----------
+[CREATE_PROG_OBJ] create function app.bad_exact_f(p number(5,-2)) return int as begin return 1; end;/
+----------
+[CREATE_PROG_OBJ] create function app.bad_exact_r(p number) return as begin return p; end;/

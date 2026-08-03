@@ -1,0 +1,75 @@
+create context index ft_content_idx on ft_docs(content) lexer english_lexer;
+create context index if not exists ft_cn_idx on ft_docs(content_cn) lexer chinese_lexer;
+create context index ft_vgram_idx on ft_docs(content_vgram) lexer chinese_vgram_lexer;
+create context index ft_fp_idx on ft_docs(content_fp) lexer chinese_fp_lexer;
+create context index ft_default_idx on ft_docs(content_default) lexer default_lexer;
+create context index ft_sync_idx on ft_docs(content_sync) lexer english_lexer sync;
+create context index ft_other_idx on ft_other(body) lexer english_lexer sync transaction;
+alter context index ft_content_idx on ft_docs rebuild;
+alter context index ft_cn_idx on ft_docs rebuild;
+alter context index ft_vgram_idx on ft_docs rebuild;
+alter context index ft_fp_idx on ft_docs rebuild;
+alter context index ft_default_idx on ft_docs rebuild;
+alter context index ft_content_idx on ft_docs rebuild lexer english_lexer;
+alter context index ft_content_idx on ft_docs increment;
+alter context index ft_content_idx on ft_docs increment online;
+alter context index ft_content_idx on ft_docs optimize;
+alter context index ft_content_idx on ft_docs optimize online;
+drop context index ft_content_idx on ft_docs;
+drop context index if exists ft_cn_idx on ft_docs;
+drop context index ft_vgram_idx on ft_docs;
+drop context index ft_fp_idx on ft_docs;
+drop context index ft_default_idx on ft_docs;
+drop context index ft_sync_idx on ft_docs;
+drop context index ft_other_idx on ft_other;
+drop context index if exists ft_missing_idx on ft_docs;
+------------------------------------------------------------------------------------------
+[ADD_INDEX] create context index ft_content_idx on ft_docs(content) lexer english_lexer;
+----------
+[ADD_INDEX] create context index if not exists ft_cn_idx on ft_docs(content_cn) lexer chinese_lexer;
+----------
+[ADD_INDEX] create context index ft_vgram_idx on ft_docs(content_vgram) lexer chinese_vgram_lexer;
+----------
+[ADD_INDEX] create context index ft_fp_idx on ft_docs(content_fp) lexer chinese_fp_lexer;
+----------
+[ADD_INDEX] create context index ft_default_idx on ft_docs(content_default) lexer default_lexer;
+----------
+[ADD_INDEX] create context index ft_sync_idx on ft_docs(content_sync) lexer english_lexer sync;
+----------
+[ADD_INDEX] create context index ft_other_idx on ft_other(body) lexer english_lexer sync transaction;
+----------
+[ALTER_INDEX] alter context index ft_content_idx on ft_docs rebuild;
+----------
+[ALTER_INDEX] alter context index ft_cn_idx on ft_docs rebuild;
+----------
+[ALTER_INDEX] alter context index ft_vgram_idx on ft_docs rebuild;
+----------
+[ALTER_INDEX] alter context index ft_fp_idx on ft_docs rebuild;
+----------
+[ALTER_INDEX] alter context index ft_default_idx on ft_docs rebuild;
+----------
+[ALTER_INDEX] alter context index ft_content_idx on ft_docs rebuild lexer english_lexer;
+----------
+[ALTER_INDEX] alter context index ft_content_idx on ft_docs increment;
+----------
+[ALTER_INDEX] alter context index ft_content_idx on ft_docs increment online;
+----------
+[ALTER_INDEX] alter context index ft_content_idx on ft_docs optimize;
+----------
+[ALTER_INDEX] alter context index ft_content_idx on ft_docs optimize online;
+----------
+[DROP_INDEX] drop context index ft_content_idx on ft_docs;
+----------
+[DROP_INDEX] drop context index if exists ft_cn_idx on ft_docs;
+----------
+[DROP_INDEX] drop context index ft_vgram_idx on ft_docs;
+----------
+[DROP_INDEX] drop context index ft_fp_idx on ft_docs;
+----------
+[DROP_INDEX] drop context index ft_default_idx on ft_docs;
+----------
+[DROP_INDEX] drop context index ft_sync_idx on ft_docs;
+----------
+[DROP_INDEX] drop context index ft_other_idx on ft_other;
+----------
+[DROP_INDEX] drop context index if exists ft_missing_idx on ft_docs;

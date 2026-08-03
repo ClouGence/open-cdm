@@ -1,0 +1,191 @@
+[Por4pgRuleNameNotInKeywordsTest#catalogNotInKeywords_1#001]
+rule: _rules/name/por4pg-name-not-in-keywords.rule
+expect: false
+vars:
+{}
+sql:
+create database "table"
+----------
+[Por4pgRuleNameNotInKeywordsTest#catalogNotInKeywords_1#002]
+rule: _rules/name/por4pg-name-not-in-keywords.rule
+expect: true
+vars:
+{}
+sql:
+create database abc_test
+----------
+[Por4pgRuleNameNotInKeywordsTest#catalogNotInKeywords_1#003]
+rule: _rules/name/por4pg-name-not-in-keywords.rule
+expect: false
+vars:
+{}
+sql:
+alter database abc rename to "table"
+----------
+[Por4pgRuleNameNotInKeywordsTest#catalogNotInKeywords_1#004]
+rule: _rules/name/por4pg-name-not-in-keywords.rule
+expect: true
+vars:
+{}
+sql:
+alter database abc rename to abc_test
+----------
+[Por4pgRuleNameNotInKeywordsTest#catalogNotInKeywords_1#005]
+rule: _rules/name/por4pg-name-not-in-keywords.rule
+expect: true
+vars:
+{}
+sql:
+alter database "table" rename to abc_test
+----------
+[Por4pgRuleNameNotInKeywordsTest#schemaNotInKeywords_1#001]
+rule: _rules/name/por4pg-name-not-in-keywords.rule
+expect: true
+vars:
+{}
+sql:
+create schema abc_test
+----------
+[Por4pgRuleNameNotInKeywordsTest#schemaNotInKeywords_2#001]
+rule: _rules/name/por4pg-name-not-in-keywords.rule
+expect: true
+vars:
+{}
+sql:
+alter schema abc rename to abc_test
+----------
+[Por4pgRuleNameNotInKeywordsTest#schemaNotInKeywords_2#002]
+rule: _rules/name/por4pg-name-not-in-keywords.rule
+expect: true
+vars:
+{}
+sql:
+alter schema test.abc rename to abc_test
+----------
+[Por4pgRuleNameNotInKeywordsTest#schemaNotInKeywords_2#003]
+rule: _rules/name/por4pg-name-not-in-keywords.rule
+expect: true
+vars:
+{}
+sql:
+alter schema test."table" rename to abc_test
+----------
+[Por4pgRuleNameNotInKeywordsTest#schemaNotInKeywords_2#004]
+rule: _rules/name/por4pg-name-not-in-keywords.rule
+expect: true
+vars:
+{}
+sql:
+alter schema "table"."table" rename to abc_test
+----------
+[Por4pgRuleNameNotInKeywordsTest#schemaNotInKeywords_3#001]
+rule: _rules/name/por4pg-name-not-in-keywords.rule
+expect: false
+vars:
+{}
+sql:
+alter schema abc rename to "else"
+----------
+[Por4pgRuleNameNotInKeywordsTest#schemaNotInKeywords_3#002]
+rule: _rules/name/por4pg-name-not-in-keywords.rule
+expect: false
+vars:
+{}
+sql:
+alter schema test.abc rename to "else"
+----------
+[Por4pgRuleNameNotInKeywordsTest#schemaNotInKeywords_3#003]
+rule: _rules/name/por4pg-name-not-in-keywords.rule
+expect: false
+vars:
+{}
+sql:
+alter schema test."table" rename to "else"
+----------
+[Por4pgRuleNameNotInKeywordsTest#schemaNotInKeywords_3#004]
+rule: _rules/name/por4pg-name-not-in-keywords.rule
+expect: false
+vars:
+{}
+sql:
+alter schema "table"."table" rename to "else"
+----------
+[Por4pgRuleNameNotInKeywordsTest#tableNotInKeywords_1#001]
+rule: _rules/name/por4pg-name-not-in-keywords.rule
+expect: false
+vars:
+{}
+sql:
+create table "table"(id int primary key, name varchar(25) not null)
+----------
+[Por4pgRuleNameNotInKeywordsTest#tableNotInKeywords_1#002]
+rule: _rules/name/por4pg-name-not-in-keywords.rule
+expect: true
+vars:
+{}
+sql:
+create table abc_test(id int primary key, name varchar(25) not null)
+----------
+[Por4pgRuleNameNotInKeywordsTest#tableNotInKeywords_1#003]
+rule: _rules/name/por4pg-name-not-in-keywords.rule
+expect: true
+vars:
+{}
+sql:
+alter table "table" rename to abc_test
+----------
+[Por4pgRuleNameNotInKeywordsTest#tableNotInKeywords_1#004]
+rule: _rules/name/por4pg-name-not-in-keywords.rule
+expect: false
+vars:
+{}
+sql:
+alter table "table" rename to "else"
+----------
+[Por4pgRuleNameNotInKeywordsTest#columnNameNotInKeywords_1#001]
+rule: _rules/name/por4pg-name-not-in-keywords.rule
+expect: true
+vars:
+{}
+sql:
+create table abc_test(id int)
+----------
+[Por4pgRuleNameNotInKeywordsTest#columnNameNotInKeywords_1#002]
+rule: _rules/name/por4pg-name-not-in-keywords.rule
+expect: false
+vars:
+{}
+sql:
+create table abc_test(id int, "table" int)
+----------
+[Por4pgRuleNameNotInKeywordsTest#columnNameNotInKeywords_1#003]
+rule: _rules/name/por4pg-name-not-in-keywords.rule
+expect: true
+vars:
+{}
+sql:
+alter table abc_test add name varchar(25);
+----------
+[Por4pgRuleNameNotInKeywordsTest#columnNameNotInKeywords_1#004]
+rule: _rules/name/por4pg-name-not-in-keywords.rule
+expect: true
+vars:
+{}
+sql:
+alter table test rename column a1 to a123456;
+----------
+[Por4pgRuleNameNotInKeywordsTest#columnNameNotInKeywords_1#005]
+rule: _rules/name/por4pg-name-not-in-keywords.rule
+expect: true
+vars:
+{}
+sql:
+alter table test rename column "table" to a123456;
+----------
+[Por4pgRuleNameNotInKeywordsTest#columnNameNotInKeywords_1#006]
+rule: _rules/name/por4pg-name-not-in-keywords.rule
+expect: false
+vars:
+{}
+sql:
+alter table test rename column a1 to "table";

@@ -1,0 +1,13 @@
+[ddl]
+sql:
+create table app.plsint_t(id pls_integer,v pls_integer);
+create view app.plsint_v as select id,v from app.plsint_t
+expect:
+{"contains":[{"class":"RdbTableDomain","sqlType":"CREATE_TABLE","auditKind":"CREATE","schema":"app","table":"plsint_t"},{"class":"RdbViewDomain","sqlType":"CREATE_VIEW","auditKind":"CREATE","schema":"app","view":"plsint_v"},{"class":"RdbTableDomain","sqlType":"SELECT","auditKind":"QUERY","schema":"app","table":"plsint_t"}]}
+----------
+[dml]
+sql:
+insert into app.plsint_t values(1,2);
+update app.plsint_t set v=v+1 where id=1;delete from app.plsint_t where id=1
+expect:
+{"contains":[{"class":"RdbInsertDomain","sqlType":"INSERT","auditKind":"DML","schema":"app","table":"plsint_t"},{"class":"RdbUpdateDomain","sqlType":"UPDATE","auditKind":"DML","schema":"app","table":"plsint_t"},{"class":"RdbDeleteDomain","sqlType":"DELETE","auditKind":"DML","schema":"app","table":"plsint_t"}]}

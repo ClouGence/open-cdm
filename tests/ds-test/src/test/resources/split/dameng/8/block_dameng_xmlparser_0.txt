@@ -1,0 +1,210 @@
+declare
+  parser_handle dbms_xmlparser.parser;
+begin
+  parser_handle := dbms_xmlparser.newparser();
+  dbms_xmlparser.freeparser(parser_handle);
+end;
+/
+declare
+  parser_handle dbms_xmlparser.parser;
+  document_node dbms_xmldom.domdocument;
+  root_node dbms_xmldom.domelement;
+begin
+  parser_handle := dbms_xmlparser.newparser();
+  dbms_xmlparser.parsebuffer(parser_handle, '<ROOT><A>one</A></ROOT>');
+  document_node := dbms_xmlparser.getdocument(parser_handle);
+  root_node := dbms_xmldom.getdocumentelement(document_node);
+  print dbms_xmldom.gettagname(root_node);
+  dbms_xmlparser.freeparser(parser_handle);
+end;
+/
+declare
+  parser_handle dbms_xmlparser.parser;
+  document_node dbms_xmldom.domdocument;
+  root_node dbms_xmldom.domelement;
+  xml_text clob := '<CLOB_ROOT ATTR="yes"/>';
+begin
+  parser_handle := dbms_xmlparser.newparser();
+  dbms_xmlparser.parseclob(parser_handle, xml_text);
+  document_node := dbms_xmlparser.getdocument(parser_handle);
+  root_node := dbms_xmldom.getdocumentelement(document_node);
+  print dbms_xmldom.getattribute(root_node, 'ATTR');
+  dbms_xmlparser.freeparser(parser_handle);
+end;
+/
+declare
+  parser_handle dbms_xmlparser.parser;
+  document_node dbms_xmldom.domdocument;
+  root_node dbms_xmldom.domnode;
+  child_nodes dbms_xmldom.domnodelist;
+begin
+  parser_handle := dbms_xmlparser.newparser();
+  dbms_xmlparser.parsebuffer(parser_handle, '<ROOT><A/><B/><C/></ROOT>');
+  document_node := dbms_xmlparser.getdocument(parser_handle);
+  root_node := dbms_xmldom.makenode(dbms_xmldom.getdocumentelement(document_node));
+  child_nodes := dbms_xmldom.getchildnodes(root_node);
+  print dbms_xmldom.getlength(child_nodes);
+  dbms_xmldom.freenodelist(child_nodes);
+  dbms_xmlparser.freeparser(parser_handle);
+end;
+/
+declare
+  parser_handle dbms_xmlparser.parser;
+  document_node dbms_xmldom.domdocument;
+  root_node dbms_xmldom.domelement;
+begin
+  parser_handle := dbms_xmlparser.newparser();
+  dbms_xmlparser.parsebuffer(parser_handle, '<?xml version="1.0" encoding="UTF-8"?><ENCODED>&#20540;</ENCODED>');
+  document_node := dbms_xmlparser.getdocument(parser_handle);
+  root_node := dbms_xmldom.getdocumentelement(document_node);
+  print dbms_xmldom.gettagname(root_node);
+  dbms_xmlparser.freeparser(parser_handle);
+end;
+/
+declare
+  parser_handle dbms_xmlparser.parser;
+  document_node dbms_xmldom.domdocument;
+  root_node dbms_xmldom.domelement;
+begin
+  parser_handle := dbms_xmlparser.newparser();
+  dbms_xmlparser.parsebuffer(parser_handle, '<ROOT><![CDATA[a<b]]></ROOT>');
+  document_node := dbms_xmlparser.getdocument(parser_handle);
+  root_node := dbms_xmldom.getdocumentelement(document_node);
+  print dbms_xmldom.gettagname(root_node);
+  dbms_xmlparser.freeparser(parser_handle);
+end;
+/
+declare
+  parser_handle dbms_xmlparser.parser;
+  document_node dbms_xmldom.domdocument;
+begin
+  parser_handle := dbms_xmlparser.newparser();
+  dbms_xmlparser.parsebuffer(parser_handle, '<FIRST/>');
+  dbms_xmlparser.parsebuffer(parser_handle, '<SECOND/>');
+  document_node := dbms_xmlparser.getdocument(parser_handle);
+  print dbms_xmldom.gettagname(dbms_xmldom.getdocumentelement(document_node));
+  dbms_xmlparser.freeparser(parser_handle);
+end;
+/
+declare
+  parser_handle dbms_xmlparser.parser;
+begin
+  parser_handle := dbms_xmlparser.newparser();
+  dbms_xmlparser.parsebuffer(p=>parser_handle, doc=>'<NAMED_BUFFER/>');
+  dbms_xmlparser.freeparser(p=>parser_handle);
+end;
+/
+declare
+  parser_handle dbms_xmlparser.parser;
+  xml_text clob := '<NAMED_CLOB><VALUE>10</VALUE></NAMED_CLOB>';
+begin
+  parser_handle := dbms_xmlparser.newparser();
+  dbms_xmlparser.parseclob(p=>parser_handle, doc=>xml_text);
+  dbms_xmlparser.freeparser(p=>parser_handle);
+end;
+/
+------------------------------------------------------------------------------------------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare
+  parser_handle dbms_xmlparser.parser;
+begin
+  parser_handle := dbms_xmlparser.newparser();
+  dbms_xmlparser.freeparser(parser_handle);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare
+  parser_handle dbms_xmlparser.parser;
+  document_node dbms_xmldom.domdocument;
+  root_node dbms_xmldom.domelement;
+begin
+  parser_handle := dbms_xmlparser.newparser();
+  dbms_xmlparser.parsebuffer(parser_handle, '<ROOT><A>one</A></ROOT>');
+  document_node := dbms_xmlparser.getdocument(parser_handle);
+  root_node := dbms_xmldom.getdocumentelement(document_node);
+  print dbms_xmldom.gettagname(root_node);
+  dbms_xmlparser.freeparser(parser_handle);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare
+  parser_handle dbms_xmlparser.parser;
+  document_node dbms_xmldom.domdocument;
+  root_node dbms_xmldom.domelement;
+  xml_text clob := '<CLOB_ROOT ATTR="yes"/>';
+begin
+  parser_handle := dbms_xmlparser.newparser();
+  dbms_xmlparser.parseclob(parser_handle, xml_text);
+  document_node := dbms_xmlparser.getdocument(parser_handle);
+  root_node := dbms_xmldom.getdocumentelement(document_node);
+  print dbms_xmldom.getattribute(root_node, 'ATTR');
+  dbms_xmlparser.freeparser(parser_handle);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare
+  parser_handle dbms_xmlparser.parser;
+  document_node dbms_xmldom.domdocument;
+  root_node dbms_xmldom.domnode;
+  child_nodes dbms_xmldom.domnodelist;
+begin
+  parser_handle := dbms_xmlparser.newparser();
+  dbms_xmlparser.parsebuffer(parser_handle, '<ROOT><A/><B/><C/></ROOT>');
+  document_node := dbms_xmlparser.getdocument(parser_handle);
+  root_node := dbms_xmldom.makenode(dbms_xmldom.getdocumentelement(document_node));
+  child_nodes := dbms_xmldom.getchildnodes(root_node);
+  print dbms_xmldom.getlength(child_nodes);
+  dbms_xmldom.freenodelist(child_nodes);
+  dbms_xmlparser.freeparser(parser_handle);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare
+  parser_handle dbms_xmlparser.parser;
+  document_node dbms_xmldom.domdocument;
+  root_node dbms_xmldom.domelement;
+begin
+  parser_handle := dbms_xmlparser.newparser();
+  dbms_xmlparser.parsebuffer(parser_handle, '<?xml version="1.0" encoding="UTF-8"?><ENCODED>&#20540;</ENCODED>');
+  document_node := dbms_xmlparser.getdocument(parser_handle);
+  root_node := dbms_xmldom.getdocumentelement(document_node);
+  print dbms_xmldom.gettagname(root_node);
+  dbms_xmlparser.freeparser(parser_handle);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare
+  parser_handle dbms_xmlparser.parser;
+  document_node dbms_xmldom.domdocument;
+  root_node dbms_xmldom.domelement;
+begin
+  parser_handle := dbms_xmlparser.newparser();
+  dbms_xmlparser.parsebuffer(parser_handle, '<ROOT><![CDATA[a<b]]></ROOT>');
+  document_node := dbms_xmlparser.getdocument(parser_handle);
+  root_node := dbms_xmldom.getdocumentelement(document_node);
+  print dbms_xmldom.gettagname(root_node);
+  dbms_xmlparser.freeparser(parser_handle);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare
+  parser_handle dbms_xmlparser.parser;
+  document_node dbms_xmldom.domdocument;
+begin
+  parser_handle := dbms_xmlparser.newparser();
+  dbms_xmlparser.parsebuffer(parser_handle, '<FIRST/>');
+  dbms_xmlparser.parsebuffer(parser_handle, '<SECOND/>');
+  document_node := dbms_xmlparser.getdocument(parser_handle);
+  print dbms_xmldom.gettagname(dbms_xmldom.getdocumentelement(document_node));
+  dbms_xmlparser.freeparser(parser_handle);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare
+  parser_handle dbms_xmlparser.parser;
+begin
+  parser_handle := dbms_xmlparser.newparser();
+  dbms_xmlparser.parsebuffer(p=>parser_handle, doc=>'<NAMED_BUFFER/>');
+  dbms_xmlparser.freeparser(p=>parser_handle);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare
+  parser_handle dbms_xmlparser.parser;
+  xml_text clob := '<NAMED_CLOB><VALUE>10</VALUE></NAMED_CLOB>';
+begin
+  parser_handle := dbms_xmlparser.newparser();
+  dbms_xmlparser.parseclob(p=>parser_handle, doc=>xml_text);
+  dbms_xmlparser.freeparser(p=>parser_handle);
+end;

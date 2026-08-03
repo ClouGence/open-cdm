@@ -163,8 +163,6 @@ public class PgMetaProviderDm extends AbstractMetadataProvider implements MetaDa
                                                              + "  and fkn.nspname = ###SCHEMA_NAME### and fkc.relname in ###TABLE_NAME###\n"                                                                                                                              //
                                                              + "order by pkn.nspname, pkc.relname, con.conname, pos.n";
 
-    private static final List<String> HIDE_SCHEMA          = Arrays.asList("pg_toast", "pg_temp_1", "pg_toast_temp_1");
-
     protected PgMetaProviderUtils     providerUtils        = new PgMetaProviderUtils();
 
     public PgMetaProviderDm(Connection connection){
@@ -236,7 +234,12 @@ public class PgMetaProviderDm extends AbstractMetadataProvider implements MetaDa
             String querySchema = "select nspname from pg_namespace order by nspname asc";
             try (PreparedStatement ps = conn.prepareStatement(querySchema); ResultSet rs = ps.executeQuery()) {
                 List<Value> schemas = this.providerUtils.convertSchema(rs);
-                return schemas.stream().filter(s -> !HIDE_SCHEMA.contains(s.asValue())).collect(Collectors.toList());
+                return schemas.stream().filter(schema -> {
+                    String schemaName = schema.asValue();
+                    return !StringUtils.equals(schemaName, "pg_toast")
+                        && !schemaName.startsWith("pg_temp_")
+                        && !schemaName.startsWith("pg_toast_temp_");
+                }).collect(Collectors.toList());
             }
         }
     }

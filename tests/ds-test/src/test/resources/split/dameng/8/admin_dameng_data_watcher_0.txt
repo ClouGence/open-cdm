@@ -1,0 +1,15 @@
+SP_SET_OGUID(6220722);
+SP_APPLY_KEEP_PKG();
+SP_CLEAR_ARCH_SEND_INFO();
+SP_CLEAR_ARCH_SEND_INFO('GRP6220722_DW2');
+SP_CLEAR_RAPPLY_STAT();
+------------------------------------------------------------------------------------------
+[ADMIN] SP_SET_OGUID(6220722);
+----------
+[ADMIN] SP_APPLY_KEEP_PKG();
+----------
+[ADMIN] SP_CLEAR_ARCH_SEND_INFO();
+----------
+[ADMIN] SP_CLEAR_ARCH_SEND_INFO('GRP6220722_DW2');
+----------
+[ADMIN] SP_CLEAR_RAPPLY_STAT();

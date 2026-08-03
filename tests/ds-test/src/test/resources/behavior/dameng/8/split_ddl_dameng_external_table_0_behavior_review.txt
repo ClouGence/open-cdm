@@ -1,0 +1,416 @@
+[split_ddl_dameng_external_table_0_behavior_review_001]
+sql:
+create or replace directory ext_dir as '/tmp/dm8_external';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:28~1:35) /test/1/catalog1/schema1/ext_dir/",
+      "action": "CONFIGURE",
+      "target": "File(1:39~1:58) /test/1/tmp/dm8_external/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_external_table_0_behavior_review_002]
+sql:
+create external table app.ext_all(
+  id int comment 'external id', label varchar(20) comment 'external label',
+  amount decimal(10,2), optional_value varchar(20)
+) from datafile default directory ext_dir location ('all.csv')
+parms(fields delimited by '|', records delimited by 0x0a, errors 1,
+  badfile 'all.bad', log 'all.log', null_str 'NULL_TOKEN', skip 1,
+  character_code 'UTF-8');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:22~1:33) /test/1/catalog1/app/ext_all/",
+      "action": "CREATE",
+      "target": [
+        "ConfigKey(4:34~4:41) /test/1/catalog1/schema1/ext_dir/",
+        "File(4:52~4:61) /test/1/ext_dir/all.csv/",
+        "File(6:10~6:19) /test/1/ext_dir/all.bad/",
+        "File(6:25~6:34) /test/1/ext_dir/all.log/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dameng_external_table_0_behavior_review_003]
+sql:
+select id, label, amount, optional_value from app.ext_all order by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:46~1:57) /test/1/catalog1/app/ext_all/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_external_table_0_behavior_review_004]
+sql:
+select id, rowid as rid, user as current_user_name, uid as current_user_id
+from app.ext_all order by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:25~1:29) /test/1/catalog1/schema1/user/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:52~1:55) /test/1/catalog1/schema1/uid/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:5~2:16) /test/1/catalog1/app/ext_all/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_external_table_0_behavior_review_005]
+sql:
+select count(*) as null_count from app.ext_all where optional_value is null;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:35~1:46) /test/1/catalog1/app/ext_all/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_external_table_0_behavior_review_006]
+sql:
+create external table app.ext_control(id int, label varchar(20), amount decimal(10,2))
+from default directory ext_dir location ('external.ctrl');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:22~1:37) /test/1/catalog1/app/ext_control/",
+      "action": "CREATE",
+      "target": [
+        "ConfigKey(2:23~2:30) /test/1/catalog1/schema1/ext_dir/",
+        "File(2:41~2:56) /test/1/ext_dir/external.ctrl/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dameng_external_table_0_behavior_review_007]
+sql:
+select id, label, amount from app.ext_control order by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:30~1:45) /test/1/catalog1/app/ext_control/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_external_table_0_behavior_review_008]
+sql:
+create external table if not exists app.ext_ifne(id int, label varchar(20), amount decimal(10,2))
+from datafile default directory ext_dir location ('data.csv')
+parms(fields delimited by ',', errors 0, skip 0, character_code 'GBK');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:36~1:48) /test/1/catalog1/app/ext_ifne/",
+      "action": "CREATE",
+      "target": [
+        "ConfigKey(2:32~2:39) /test/1/catalog1/schema1/ext_dir/",
+        "File(2:50~2:60) /test/1/ext_dir/data.csv/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dameng_external_table_0_behavior_review_009]
+sql:
+create external table if not exists app.ext_ifne(id int, label varchar(20), amount decimal(10,2))
+from datafile default directory ext_dir location ('data.csv');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:36~1:48) /test/1/catalog1/app/ext_ifne/",
+      "action": "CREATE",
+      "target": [
+        "ConfigKey(2:32~2:39) /test/1/catalog1/schema1/ext_dir/",
+        "File(2:50~2:60) /test/1/ext_dir/data.csv/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dameng_external_table_0_behavior_review_010]
+sql:
+create external table app.ext_charset(id int, label varchar(20), amount decimal(10,2))
+from datafile default directory ext_dir location ('data.csv')
+parms(fields delimited by ',', character_code 'SINGLE_BYTE');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:22~1:37) /test/1/catalog1/app/ext_charset/",
+      "action": "CREATE",
+      "target": [
+        "ConfigKey(2:32~2:39) /test/1/catalog1/schema1/ext_dir/",
+        "File(2:50~2:60) /test/1/ext_dir/data.csv/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dameng_external_table_0_behavior_review_011]
+sql:
+drop table app.ext_charset;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:26) /test/1/catalog1/app/ext_charset/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_external_table_0_behavior_review_012]
+sql:
+create external table app.ext_charset(id int, label varchar(20), amount decimal(10,2))
+from datafile default directory ext_dir location ('data.csv')
+parms(fields delimited by ',', character_code 'EUC-KR');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:22~1:37) /test/1/catalog1/app/ext_charset/",
+      "action": "CREATE",
+      "target": [
+        "ConfigKey(2:32~2:39) /test/1/catalog1/schema1/ext_dir/",
+        "File(2:50~2:60) /test/1/ext_dir/data.csv/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dameng_external_table_0_behavior_review_013]
+sql:
+alter table app.ext_all default directory ext_dir;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:23) /test/1/catalog1/app/ext_all/",
+      "action": "ALTER",
+      "target": "ConfigKey(1:42~1:49) /test/1/catalog1/schema1/ext_dir/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_external_table_0_behavior_review_014]
+sql:
+alter table app.ext_all location ('all.csv');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:23) /test/1/catalog1/app/ext_all/",
+      "action": "ALTER",
+      "target": "File(1:34~1:43) /test/1/all.csv/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_external_table_0_behavior_review_015]
+sql:
+alter table app.ext_all modify path '/tmp/dm8_external/all-alternate.csv';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:23) /test/1/catalog1/app/ext_all/",
+      "action": "ALTER",
+      "target": "File(1:36~1:73) /test/1/tmp/dm8_external/all-alternate.csv/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_external_table_0_behavior_review_016]
+sql:
+comment on table app.ext_all is 'external table comment';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "COMMENT_TABLE": [
+    {
+      "subject": "Table(1:17~1:28) /test/1/catalog1/app/ext_all/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_external_table_0_behavior_review_017]
+sql:
+comment on column app.ext_all.id is 'external id comment';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "COMMENT_COLUMN": [
+    {
+      "subject": "Table(1:18~1:29) /test/1/catalog1/app/ext_all/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_external_table_0_behavior_review_018]
+sql:
+select comments from user_tab_comments where table_name='EXT_ALL';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:21~1:38) /test/1/catalog1/schema1/user_tab_comments/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_external_table_0_behavior_review_019]
+sql:
+select comments from user_col_comments where table_name='EXT_ALL' and column_name='ID';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:21~1:38) /test/1/catalog1/schema1/user_col_comments/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_external_table_0_behavior_review_020]
+sql:
+drop table app.ext_all;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:22) /test/1/catalog1/app/ext_all/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_external_table_0_behavior_review_021]
+sql:
+drop table app.ext_control;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:26) /test/1/catalog1/app/ext_control/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_external_table_0_behavior_review_022]
+sql:
+drop table app.ext_ifne;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:23) /test/1/catalog1/app/ext_ifne/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_external_table_0_behavior_review_023]
+sql:
+drop table app.ext_charset;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:26) /test/1/catalog1/app/ext_charset/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_external_table_0_behavior_review_024]
+sql:
+drop directory ext_dir;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:15~1:22) /test/1/catalog1/schema1/ext_dir/",
+      "action": "CONFIGURE"
+    }
+  ]
+}

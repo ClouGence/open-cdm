@@ -12,9 +12,6 @@ import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 
 public class TestUtil {
 
-    public static final String        LONG_SPLIT   = "------------------------------------------------------------------------------------------";
-    public static final String        SHORT_SPLIT  = "----------";
-
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     static {
@@ -33,8 +30,7 @@ public class TestUtil {
     }
 
     public static Set<String> readToSet(String json) throws JsonProcessingException {
-        return objectMapper.readValue(json, new TypeReference<Set<String>>() {
-        });
+        return objectMapper.readValue(json, new TypeReference<>() {});
     }
 
     public static boolean equalsSet(Set<String> l1, Set<String> l2) {

@@ -1,0 +1,79 @@
+[split_block_dameng_dbms_space_header_offset_environment_0_001]
+sql:
+-- FUNC-0787 SEG_GET_BY_HEADER actual Pack29 offset rejected -20035
+declare v DBMS_SPACE.SEG_T; begin v:=DBMS_SPACE.SEG_GET_BY_HEADER(4,0,10,52); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:26) /test/1/catalog1/DBMS_SPACE/SEG_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(2:37~2:65) /test/1/catalog1/DBMS_SPACE/SEG_GET_BY_HEADER/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_header_offset_environment_0_002]
+sql:
+-- FUNC-0787 SEG_GET_BY_HEADER documented offset has no matching header -4561
+declare v DBMS_SPACE.SEG_T; begin v:=DBMS_SPACE.SEG_GET_BY_HEADER(4,0,10,62); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:26) /test/1/catalog1/DBMS_SPACE/SEG_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(2:37~2:65) /test/1/catalog1/DBMS_SPACE/SEG_GET_BY_HEADER/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_header_offset_environment_0_003]
+sql:
+-- FUNC-0789 SEG_LOAD_BY_HEADER actual Pack29 offset rejected -20035
+declare v DBMS_SPACE.SEG_T; begin DBMS_SPACE.SEG_LOAD_BY_HEADER(4,0,10,52,v); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:26) /test/1/catalog1/DBMS_SPACE/SEG_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:34~2:63) /test/1/catalog1/DBMS_SPACE/SEG_LOAD_BY_HEADER/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_header_offset_environment_0_004]
+sql:
+-- FUNC-0789 SEG_LOAD_BY_HEADER documented offset has no matching header -4561
+declare v DBMS_SPACE.SEG_T; begin DBMS_SPACE.SEG_LOAD_BY_HEADER(4,0,10,62,v); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:26) /test/1/catalog1/DBMS_SPACE/SEG_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:34~2:63) /test/1/catalog1/DBMS_SPACE/SEG_LOAD_BY_HEADER/",
+      "action": "CALL"
+    }
+  ]
+}

@@ -16,11 +16,10 @@
 package com.clougence.clouddm.console.web.service.security;
 
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Date;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,12 +30,8 @@ import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
 import com.clougence.clouddm.api.console.sqlaudit.SqlExecNotifyDTO;
 import com.clougence.clouddm.api.console.sqlaudit.SqlStatus;
 import com.clougence.clouddm.api.console.sqlaudit.Type;
-import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.console.web.component.config.RootUserConfig;
-import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
-import com.clougence.clouddm.console.web.component.dsconfig.mode.DsConfig;
 import com.clougence.clouddm.console.web.global.notify.DmWorkerRegisterNotify;
-import com.clougence.clouddm.console.web.service.analysis.QueryAnalysisService;
 import com.clougence.clouddm.console.web.service.auth.RdpUserService;
 import com.clougence.clouddm.console.web.util.RdpHostUtil;
 import com.clougence.clouddm.platform.dal.access.DataSourceDal;
@@ -46,13 +41,9 @@ import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.platform.dal.model.execution.DmExecSqlAuditDO;
 import com.clougence.clouddm.platform.dal.model.system.DmSysUserConfDO;
-import com.clougence.clouddm.sdk.execute.session.SessionSpi;
-import com.clougence.clouddm.sdk.model.analysis.resource.ResObject;
-import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
+import com.clougence.clouddm.sdk.execute.ExecuteVariables;
+import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.clouddm.sdk.service.secrules.Requester;
-import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
-import com.clougence.clouddm.sdk.sql.split.SplitScript;
-import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.utils.StringUtils;
 import com.clougence.utils.ThreadUtils;
 
@@ -72,114 +63,120 @@ public class AuditServiceImpl implements AuditService, DmWorkerRegisterNotify, U
     @Resource
     private SystemDal                   systemDal;
     @Resource
-    private ExecutionDal                executionDal;
+    private ExecutionDal                execDal;
     @Resource
     private DataSourceDal               dsDal;
     @Resource
-    private QueryAnalysisService        queryAnalysisService;
-    @Resource
-    private RdpUserService              rdpUserService;
-    @Resource
-    private DmDsConfigService           dmDsConfigService;
+    private RdpUserService              userService;
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
-    public void recordAudit(List<SqlExecNotifyDTO> audits, String wsn) {
-        List<LogInfo> logInfos = recodeSql(audits, wsn);
-        for (LogInfo info : logInfos) {
-            logger.info(info.toString());
+    public void prepareAudit(Long dsId, QueryRequest request) {
+        if (request == null) {
+            return;
+        }
+        DmExecSqlAuditDO exists = this.execDal.sqlAuditMapper().queryByQueryId(request.getQueryId());
+        if (exists != null && request.getRequester() == Requester.CONSOLE) {
+            throw new IllegalStateException("Duplicate SQL audit ACK: " + request.getQueryId());
+        }
+        if (exists != null) {
+            return;
+        }
+        String uid = null;
+        String clientIp = null;
+        if (request.getVariables() != null) {
+            uid = request.getVariables().get(ExecuteVariables.CURRENT_UID);
+            clientIp = request.getVariables().get(ExecuteVariables.CLIENT_IP);
+        }
+        String userName = uid;
+        if (StringUtils.isNotBlank(uid)) {
+            DmAuthUserDO user = this.userService.getUserByUid(uid);
+            if (user != null) {
+                if (StringUtils.isNotBlank(user.getUsername())) {
+                    userName = user.getUsername();
+                } else if (StringUtils.isNotBlank(user.getAccount())) {
+                    userName = user.getAccount();
+                } else if (StringUtils.isNotBlank(user.getBindAccount())) {
+                    userName = user.getBindAccount();
+                }
+            }
+        }
+        DmDsDO dsDO = this.dsDal.dsMapper().queryDsIdentityById(dsId);
+
+        DmExecSqlAuditDO auditDO = new DmExecSqlAuditDO();
+        auditDO.setQueryId(request.getQueryId());
+        auditDO.setBehaviors(request.getRelations());
+        auditDO.setExecSql(getString(request.getQueryBody()));
+        auditDO.setOriginalSql(request.isHasRewrite() ? getString(request.getOriginalBody()) : null);
+        auditDO.setDsId(dsId);
+        auditDO.setUid(uid);
+        auditDO.setUserName(userName);
+        auditDO.setClientIp(clientIp);
+        auditDO.setLogIp(RdpHostUtil.getHostIp());
+        auditDO.setRequester(request.getRequester());
+        auditDO.setDataSourceType(dsDO.getDataSourceType());
+        auditDO.setDsDesc(dsDO.getInstanceId() + "(" + dsDO.getInstanceDesc() + ")");
+        auditDO.setStatus(SqlStatus.PENDING);
+        this.execDal.sqlAuditMapper().insert(auditDO);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Throwable.class)
+    public void recordAudit(SqlExecNotifyDTO audit, String wsn) {
+        LogInfo logInfo = recodeSql(audit, wsn);
+        if (logInfo != null) {
+            logger.info(logInfo.toString());
         }
     }
 
-    private List<LogInfo> recodeSql(List<SqlExecNotifyDTO> list, String wsn) {
-        List<LogInfo> result = new ArrayList<>();
-        for (SqlExecNotifyDTO dto : list) {
-            if (dto.getType() == Type.COMMIT) {
-                executionDal.sqlAuditMapper().confirmSession(dto.getSessionId());
-                result.add(LogInfo.getCommitLogInfo(dto));
-            } else if (dto.getType() == Type.ROLLBACK) {
-                executionDal.sqlAuditMapper().rollbackSession(dto.getSessionId());
-                result.add(LogInfo.getRollbackLogInfo(dto));
-            } else if (dto.getType() == Type.START_TRANSACTION) {
-                result.add(LogInfo.getStartTransaction(dto));
-            } else if (dto.getType() == Type.SQL_START) {
-                DmDsDO rdpDataSourceDO = dsDal.dsMapper().queryDsIdentityById(dto.getDsId());
-                DmExecSqlAuditDO auditDO = new DmExecSqlAuditDO();
-                if (dto.isExplain()) {
-                    auditDO.setSqlKind(SecQueryKind.EXPLAIN);
-                } else {
-                    try {
-                        DataSourceConfig dsConfig = dmDsConfigService.fetchDsConfigFromExists(rdpDataSourceDO.getId());
-                        List<SplitScript> splitScripts = queryAnalysisService.analysisSplit(dsConfig, dto.getSql(), null, 1, 0);
-                        auditDO.setSqlKind(splitScripts.get(0).getType().getAuditKind());
-                    } catch (Throwable e) {
-                        // some sql can't analysis
-                        auditDO.setSqlKind(SecQueryKind.OTHER);
-                    }
-                }
-
-                auditDO.setSessionId(dto.getSessionId());
-                auditDO.setExecSql(getString(dto.getSql()));
-                auditDO.setOperateTime(dto.getTime());
-
-                if (dto.isRewrite()) {
-                    auditDO.setOriginalSql(getString(dto.getOriginalSql()));
-                }
-
-                DsConfig dsConfig = dmDsConfigService.dsConstantSettings(rdpDataSourceDO.getDataSourceType());
-                List<String> levels = dsConfig.getCategories().getLevels();
-                Map<String, Object> map = new HashMap<>();
-
-                for (int i = 0; i < dto.getLevels().size(); i++) {
-                    UmiTypes umiTypes = UmiTypes.valueOfCode(levels.get(i + 2));
-                    if (umiTypes == UmiTypes.Catalog) {
-                        map.put(SessionSpi.PARAMS_DEFAULT_DB, dto.getLevels().get(i));
-                    } else {
-                        map.put(SessionSpi.PARAMS_DEFAULT_SCHEMA, dto.getLevels().get(i));
-                    }
-                }
-                try {
-                    DataSourceConfig dataSourceConfig = dmDsConfigService.fetchDsConfigFromExists(rdpDataSourceDO.getId());
-                    Map<RuleDomain, List<ResObject>> objs = queryAnalysisService.analysisResourceV2(dataSourceConfig, dto.getSql(), map);
-
-                    List<String> collect = objs.values().stream().flatMap(List::stream).map(obj -> {
-                        return obj.toDsResPath().getResPath();
-                    }).distinct().sorted().collect(Collectors.toList());
-                    String resource = String.join(",", collect);
-                    auditDO.setResource(getString(resource));
-                } catch (Throwable e) {
-                    logger.error(e.getMessage());
-                    auditDO.setResource("");
-                }
-
-                auditDO.setLogIp(RdpHostUtil.getHostIp());
-                auditDO.setWorkSeqNumber(wsn);
-                auditDO.setClientIp(dto.getClientIp());
-                auditDO.setDsId(dto.getDsId());
-                auditDO.setDataSourceType(rdpDataSourceDO.getDataSourceType());
-
-                auditDO.setDsDesc(rdpDataSourceDO.getInstanceId() + "(" + rdpDataSourceDO.getInstanceDesc() + ")");
-
-                auditDO.setUid(dto.getUid());
-                DmAuthUserDO userByUid = rdpUserService.getUserByUid(dto.getUid());
-                if (userByUid == null) {
-                    auditDO.setUserName(dto.getUid());
-                } else {
-                    auditDO.setUserName(userByUid.getUsername());
-                }
-
-                auditDO.setPrimaryUid(rdpUserService.getPrimaryUser(dto.getUid()).getUid());
-                auditDO.setStatus(SqlStatus.RUNNING);
-                auditDO.setRequester(dto.getRequester());
-                this.executionDal.sqlAuditMapper().insert(auditDO);
-                result.add(LogInfo.getStartLogInfo(auditDO, dto));
-            } else {
-                String message = getString(dto.getMessage());
-                this.executionDal.sqlAuditMapper().updateBySessionId(dto.getSessionId(), dto.getSqlStatus().name(), dto.getLine(), message, dto.getTime());
-                result.add(LogInfo.getEndLogInfo(dto));
+    private LogInfo recodeSql(SqlExecNotifyDTO dto, String wsn) {
+        if (dto.getType() == Type.COMMIT) {
+            execDal.sqlAuditMapper().confirmSession(dto.getSessionId());
+            return LogInfo.getCommitLogInfo(dto);
+        } else if (dto.getType() == Type.ROLLBACK) {
+            execDal.sqlAuditMapper().rollbackSession(dto.getSessionId());
+            return LogInfo.getRollbackLogInfo(dto);
+        } else if (dto.getType() == Type.START_TRANSACTION) {
+            return LogInfo.getStartTransaction(dto);
+        } else if (dto.getType() == Type.SQL_START) {
+            if (StringUtils.isBlank(dto.getQueryId())) {
+                return null;
             }
+            DmExecSqlAuditDO auditDO = this.startPreparedAudit(dto, wsn);
+            if (auditDO != null) {
+                return LogInfo.getStartLogInfo(auditDO, dto);
+            }
+            return null;
         }
-        return result;
+
+        String message = getString(dto.getMessage());
+        if (StringUtils.isBlank(dto.getQueryId())) {
+            return null;
+        }
+        int updated = this.execDal.sqlAuditMapper().completeByQueryId(dto.getQueryId(), dto.getSessionId(), dto.getSqlStatus().name(), dto.getLine(), message, dto.getTime());
+        if (updated == 0) {
+            return null;
+        }
+
+        DmExecSqlAuditDO auditDO = this.execDal.sqlAuditMapper().queryByQueryId(dto.getQueryId());
+        return LogInfo.getEndLogInfo(dto, auditDO);
+    }
+
+    private DmExecSqlAuditDO startPreparedAudit(SqlExecNotifyDTO dto, String wsn) {
+        DmExecSqlAuditDO auditDO = this.execDal.sqlAuditMapper().queryByQueryId(dto.getQueryId());
+        if (auditDO == null) {
+            return null;
+        }
+
+        auditDO.setSessionId(dto.getSessionId());
+        auditDO.setWorkSeqNumber(wsn);
+        auditDO.setOperateTime(dto.getTime());
+        auditDO.setStatus(SqlStatus.RUNNING);
+        auditDO.setAffectLine(0);
+        auditDO.setEndTime(null);
+        auditDO.setMessage(null);
+        int updated = this.execDal.sqlAuditMapper().markRunningByQueryId(auditDO);
+        return updated == 0 ? null : auditDO;
     }
 
     private String getString(String str) {
@@ -195,7 +192,7 @@ public class AuditServiceImpl implements AuditService, DmWorkerRegisterNotify, U
 
     @Override
     public void notifyRegister(String wsn) {
-        this.executionDal.sqlAuditMapper().updateErrorSql(wsn);
+        this.execDal.sqlAuditMapper().updateErrorSql(wsn);
     }
 
     @Override
@@ -213,7 +210,7 @@ public class AuditServiceImpl implements AuditService, DmWorkerRegisterNotify, U
     }
 
     private void deleteTimeoutLog() {
-        for (DmAuthUserDO rdpUserDO : rdpUserService.listPrimaryUser()) {
+        for (DmAuthUserDO rdpUserDO : userService.listPrimaryUser()) {
             Date now = new Date();
             DmSysUserConfDO configDO = systemDal.userConfMapper().queryByUidAndConfigName(rdpUserDO.getUid(), RootUserConfig.Fields.sqlAuditRetentionDays);
             int day = 30;
@@ -236,7 +233,7 @@ public class AuditServiceImpl implements AuditService, DmWorkerRegisterNotify, U
             int deleteCount;
 
             do {
-                deleteCount = executionDal.sqlAuditMapper().deleteAuditBeforeDate(rdpUserDO.getUid(), date);
+                deleteCount = execDal.sqlAuditMapper().deleteAuditBeforeDate(rdpUserDO.getUid(), date);
             } while (deleteCount > 0);
         }
     }
@@ -245,30 +242,28 @@ public class AuditServiceImpl implements AuditService, DmWorkerRegisterNotify, U
     private static class LogInfo {
 
         // all
-        private Type         type;
+        private Type      type;
 
-        private String       sql;
-        private String       uid;
-        private String       username;
-        private String       clientIp;
-        private String       sessionId;
-        private Requester    requester;
-        private Long         dsId;
-        private String       resource;
-        private String       wsn;
+        private String    sql;
+        private String    uid;
+        private String    username;
+        private String    clientIp;
+        private String    sessionId;
+        private Requester requester;
+        private Long      dsId;
+        private String    wsn;
 
-        private String       message;
-        private Date         time;
+        private String    message;
+        private Date      time;
 
-        private SecQueryKind sqlKind;
-        private long         affectLine;
+        private long      affectLine;
 
-        private SqlStatus    sqlStatus;
+        private SqlStatus sqlStatus;
 
         public static LogInfo getStartLogInfo(DmExecSqlAuditDO auditDO, SqlExecNotifyDTO dto) {
             LogInfo logInfo = new LogInfo();
             logInfo.setType(Type.SQL_START);
-            logInfo.setSql(dto.getSql());
+            logInfo.setSql(auditDO.getExecSql());
             logInfo.setUid(auditDO.getUid());
             logInfo.setDsId(auditDO.getDsId());
             logInfo.setUsername(auditDO.getUserName());
@@ -278,15 +273,13 @@ public class AuditServiceImpl implements AuditService, DmWorkerRegisterNotify, U
             logInfo.setMessage(auditDO.getMessage());
             logInfo.setWsn(auditDO.getWorkSeqNumber());
             logInfo.setTime(dto.getTime());
-            logInfo.setSqlKind(auditDO.getSqlKind());
-            logInfo.setResource(auditDO.getResource());
             return logInfo;
         }
 
-        public static LogInfo getEndLogInfo(SqlExecNotifyDTO dto) {
+        public static LogInfo getEndLogInfo(SqlExecNotifyDTO dto, DmExecSqlAuditDO auditDO) {
             LogInfo logInfo = new LogInfo();
             logInfo.setType(Type.SQL_END);
-            logInfo.setSql(dto.getSql());
+            logInfo.setSql(auditDO.getExecSql());
             logInfo.setAffectLine(dto.getLine());
             logInfo.setMessage(dto.getMessage());
             logInfo.setTime(dto.getTime());
@@ -326,7 +319,7 @@ public class AuditServiceImpl implements AuditService, DmWorkerRegisterNotify, U
             String formatTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(this.time);
             if (type == Type.SQL_START) {
                 result = String
-                    .format("%s sessionId: %s, [START] uid: %s, username:%s, clientIp: %s, wsn: %s, requester: %s, dsId: %3s, resource: %s, sqlKind: %s, sql: %s", formatTime, this.sessionId, this.uid, this.username, this.clientIp, this.wsn, this.requester, this.dsId, this.resource, this.sqlKind, this.sql);
+                    .format("%s sessionId: %s, [START] uid: %s, username:%s, clientIp: %s, wsn: %s, requester: %s, dsId: %3s, sql: %s", formatTime, this.sessionId, this.uid, this.username, this.clientIp, this.wsn, this.requester, this.dsId, this.sql);
             } else if (type == Type.SQL_END) {
                 result = String
                     .format("%s sessionId: %s, [%s] affectLine: %d, sql: %s, message: %s", formatTime, this.sessionId, this.sqlStatus, this.affectLine, this.sql, this.message);

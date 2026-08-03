@@ -1,0 +1,256 @@
+[split_block_dameng_dbms_binary_signature_combinations_0_001]
+sql:
+-- BINARY_GET_BIGINT
+declare v bigint; begin v:=DBMS_BINARY.BINARY_GET_BIGINT(VB=>'0000000000000000',OFFSET=>0); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:27~2:56) /test/1/catalog1/DBMS_BINARY/BINARY_GET_BIGINT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_binary_signature_combinations_0_002]
+sql:
+-- BINARY_GET_CHAR
+declare v char; begin v:=DBMS_BINARY.BINARY_GET_CHAR(VB=>'41',OFFSET=>0); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:25~2:52) /test/1/catalog1/DBMS_BINARY/BINARY_GET_CHAR/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_binary_signature_combinations_0_003]
+sql:
+-- BINARY_GET_DOUBLE
+declare v double; begin v:=DBMS_BINARY.BINARY_GET_DOUBLE(VB=>'0000000000000000',OFFSET=>0); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:27~2:56) /test/1/catalog1/DBMS_BINARY/BINARY_GET_DOUBLE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_binary_signature_combinations_0_004]
+sql:
+-- BINARY_GET_FLOAT
+declare v float; begin v:=DBMS_BINARY.BINARY_GET_FLOAT(VB=>'00000000',OFFSET=>0); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:26~2:54) /test/1/catalog1/DBMS_BINARY/BINARY_GET_FLOAT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_binary_signature_combinations_0_005]
+sql:
+-- BINARY_GET_INT
+declare v int; begin v:=DBMS_BINARY.BINARY_GET_INT(VB=>'00000000',OFFSET=>0); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:24~2:50) /test/1/catalog1/DBMS_BINARY/BINARY_GET_INT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_binary_signature_combinations_0_006]
+sql:
+-- BINARY_GET_SMALLINT
+declare v smallint; begin v:=DBMS_BINARY.BINARY_GET_SMALLINT(VB=>'0000',OFFSET=>0); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:29~2:60) /test/1/catalog1/DBMS_BINARY/BINARY_GET_SMALLINT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_binary_signature_combinations_0_007]
+sql:
+-- BINARY_GET_TINYINT
+declare v tinyint; begin v:=DBMS_BINARY.BINARY_GET_TINYINT(VB=>'00',OFFSET=>0); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:28~2:58) /test/1/catalog1/DBMS_BINARY/BINARY_GET_TINYINT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_binary_signature_combinations_0_008]
+sql:
+-- BINARY_GET_VARCHAR
+declare v varchar; begin v:=DBMS_BINARY.BINARY_GET_VARCHAR(VB=>'41424344',OFFSET=>0,LENGTH=>4); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:28~2:58) /test/1/catalog1/DBMS_BINARY/BINARY_GET_VARCHAR/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_binary_signature_combinations_0_009]
+sql:
+-- BINARY_SET_BIGINT
+declare b varbinary(64):='00000000000000000000000000000000'; begin DBMS_BINARY.BINARY_SET_BIGINT(VB=>b,OFFSET=>0,VALUE=>1234567890123); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:67~2:96) /test/1/catalog1/DBMS_BINARY/BINARY_SET_BIGINT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_binary_signature_combinations_0_010]
+sql:
+-- BINARY_SET_CHAR
+declare b varbinary(64):='00000000000000000000000000000000'; begin DBMS_BINARY.BINARY_SET_CHAR(VB=>b,OFFSET=>0,VALUE=>'A'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:67~2:94) /test/1/catalog1/DBMS_BINARY/BINARY_SET_CHAR/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_binary_signature_combinations_0_011]
+sql:
+-- BINARY_SET_DOUBLE
+declare b varbinary(64):='00000000000000000000000000000000'; begin DBMS_BINARY.BINARY_SET_DOUBLE(VB=>b,OFFSET=>0,VALUE=>123.125); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:67~2:96) /test/1/catalog1/DBMS_BINARY/BINARY_SET_DOUBLE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_binary_signature_combinations_0_012]
+sql:
+-- BINARY_SET_FLOAT
+declare b varbinary(64):='00000000000000000000000000000000'; begin DBMS_BINARY.BINARY_SET_FLOAT(VB=>b,OFFSET=>0,VALUE=>12.5); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:67~2:95) /test/1/catalog1/DBMS_BINARY/BINARY_SET_FLOAT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_binary_signature_combinations_0_013]
+sql:
+-- BINARY_SET_INT
+declare b varbinary(64):='00000000000000000000000000000000'; begin DBMS_BINARY.BINARY_SET_INT(VB=>b,OFFSET=>0,VALUE=>123456789); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:67~2:93) /test/1/catalog1/DBMS_BINARY/BINARY_SET_INT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_binary_signature_combinations_0_014]
+sql:
+-- BINARY_SET_SMALLINT
+declare b varbinary(64):='00000000000000000000000000000000'; begin DBMS_BINARY.BINARY_SET_SMALLINT(VB=>b,OFFSET=>0,VALUE=>12345); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:67~2:98) /test/1/catalog1/DBMS_BINARY/BINARY_SET_SMALLINT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_binary_signature_combinations_0_015]
+sql:
+-- BINARY_SET_TINYINT
+declare b varbinary(64):='00000000000000000000000000000000'; begin DBMS_BINARY.BINARY_SET_TINYINT(VB=>b,OFFSET=>0,VALUE=>127); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:67~2:97) /test/1/catalog1/DBMS_BINARY/BINARY_SET_TINYINT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_binary_signature_combinations_0_016]
+sql:
+-- BINARY_SET_VARCHAR
+declare b varbinary(64):='00000000000000000000000000000000'; begin DBMS_BINARY.BINARY_SET_VARCHAR(VB=>b,OFFSET=>0,VALUE=>'BCDE'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:67~2:97) /test/1/catalog1/DBMS_BINARY/BINARY_SET_VARCHAR/",
+      "action": "CALL"
+    }
+  ]
+}
+

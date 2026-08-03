@@ -1,0 +1,59 @@
+[alter_add_column]
+sql:
+alter table "test"."user_table" add address varchar(255);
+expect:
+{
+  "contains": [
+    {"class":"OraColumnDomain", "sqlType": "ALTER_TABLE_ADD_COLUMN", "auditKind":"CREATE", "schema":"test", "table":"user_table", "column":"address", "typeName":"varchar", "typeDesc":"varchar(255)"}
+  ]
+}
+----------
+[alter_add_primary_key_column]
+sql:
+alter table user_table add address varchar(255) primary key;
+expect:
+{
+  "contains": [
+    {"class":"OraColumnDomain", "sqlType": "ALTER_TABLE_ADD_COLUMN", "auditKind":"CREATE", "table":"user_table", "column":"address", "typeName":"varchar", "typeDesc":"varchar(255)", "primary":true}
+  ]
+}
+----------
+[alter_add_foreign_key_column]
+sql:
+alter table user_table add address varchar(255) references abc(id2);
+expect:
+{
+  "contains": [
+    {"class":"OraColumnDomain", "sqlType": "ALTER_TABLE_ADD_COLUMN", "auditKind":"CREATE", "table":"user_table", "column":"address", "typeName":"varchar", "typeDesc":"varchar(255)", "foreign":true}
+  ]
+}
+----------
+[alter_drop_column]
+sql:
+alter table user_table drop column address;
+expect:
+{
+  "contains": [
+    {"class":"OraColumnDomain", "sqlType": "ALTER_TABLE_DROP_COLUMN", "auditKind":"DROP", "table":"user_table", "column":"address"}
+  ]
+}
+----------
+[alter_modify_column]
+sql:
+alter table "abc" modify column1 nvarchar2(22);
+expect:
+{
+  "contains": [
+    {"class":"OraColumnDomain", "sqlType": "ALTER_TABLE_ALTER_COLUMN", "auditKind":"ALTER", "table":"abc", "column":"column1", "typeName":"nvarchar2", "typeDesc":"nvarchar2(22)", "nullable":true}
+  ]
+}
+----------
+[alter_modify_column_not_null]
+sql:
+alter table "abc" modify column1 nvarchar2(22) not null;
+expect:
+{
+  "contains": [
+    {"class":"OraColumnDomain", "sqlType": "ALTER_TABLE_ALTER_COLUMN", "auditKind":"ALTER", "table":"abc", "column":"column1", "typeName":"nvarchar2", "typeDesc":"nvarchar2(22)", "nullable":false}
+  ]
+}

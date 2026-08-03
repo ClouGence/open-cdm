@@ -1,0 +1,105 @@
+[dpc_range_table_create]
+sql:
+create table app.dpc_range(id int, note varchar(40))
+using partition group dpc_pg_range by(id)
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"CREATE_TABLE", "auditKind":"CREATE", "schema":"app", "table":"dpc_range"}
+  ]
+}
+----------
+[dpc_hash_table_create]
+sql:
+create table app.dpc_hash(code varchar(40), amount int)
+using partition group dpc_pg_hash by(code)
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"CREATE_TABLE", "auditKind":"CREATE", "schema":"app", "table":"dpc_hash"}
+  ]
+}
+----------
+[dpc_subpartition_table_create]
+sql:
+create table app.dpc_subpart(id int, region_id int, note varchar(40))
+using partition group dpc_pg_range by(id) subpartition by(region_id)
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"CREATE_TABLE", "auditKind":"CREATE", "schema":"app", "table":"dpc_subpart"}
+  ]
+}
+----------
+[dpc_insert_select_domains]
+sql:
+insert into app.dpc_range(id, note) select id, note from app.dpc_stage
+expect:
+{
+  "contains": [
+    {"class":"RdbInsertDomain", "sqlType":"INSERT", "auditKind":"DML", "schema":"app", "table":"dpc_range"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"dpc_stage"}
+  ]
+}
+----------
+[dpc_update_domains]
+sql:
+update app.dpc_range set note='UPDATED' where id=150
+expect:
+{
+  "contains": [
+    {"class":"RdbUpdateDomain", "sqlType":"UPDATE", "auditKind":"DML", "schema":"app", "table":"dpc_range"}
+  ]
+}
+----------
+[dpc_delete_domains]
+sql:
+delete from app.dpc_hash where code='D'
+expect:
+{
+  "contains": [
+    {"class":"RdbDeleteDomain", "sqlType":"DELETE", "auditKind":"DML", "schema":"app", "table":"dpc_hash"}
+  ]
+}
+----------
+[dpc_cross_bp_join]
+sql:
+select r.id, r.note, n.note as normal_note
+from app.dpc_range r join app.dpc_normal n on n.id=1 order by r.id
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"dpc_range"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"dpc_normal"}
+  ]
+}
+----------
+[dpc_instance_view]
+sql:
+select name, dpc_mode, sys_status, status from sys.dpc_instance order by raft_id
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"sys", "table":"dpc_instance"}
+  ]
+}
+----------
+[dpc_tablespace_view]
+sql:
+select ts_id, name, raft_id from sys.dpc_tablespace where name like 'DPC_%'
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"sys", "table":"dpc_tablespace"}
+  ]
+}
+----------
+[dpc_cache_procedure]
+sql:
+call sysdba.sp_clear_tab_rowcnt_cache(null, null)
+expect:
+{
+  "contains": [
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"sysdba", "callName":"sp_clear_tab_rowcnt_cache"}
+  ]
+}

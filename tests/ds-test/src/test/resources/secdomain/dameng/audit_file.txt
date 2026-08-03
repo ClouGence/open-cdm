@@ -1,0 +1,29 @@
+[audit_file_drop]
+sql:
+sp_drop_audit_file(sysdate + 1, 0)
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"ADMIN", "auditKind":"ADMIN", "name":"DATABASE"}
+  ]
+}
+----------
+[audit_file_switch]
+sql:
+sp_switch_audit_file(1)
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"ADMIN", "auditKind":"ADMIN", "name":"DATABASE"}
+  ]
+}
+----------
+[audit_file_encryption]
+sql:
+sp_audit_set_enc('AES128_CBC', 'CodexDm8AuditKey')
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"ADMIN", "auditKind":"ADMIN", "name":"DATABASE"}
+  ]
+}

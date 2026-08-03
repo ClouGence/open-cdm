@@ -1,0 +1,99 @@
+[create_private_synonym]
+sql:
+create synonym syn_orders for app.orders
+expect:
+{
+  "contains": [
+    {"class":"RdbSynonymDomain", "sqlType":"CREATE_SYNONYM", "auditKind":"CREATE", "name":"syn_orders"}
+  ]
+}
+----------
+[create_schema_qualified_synonym]
+sql:
+create or replace synonym app.syn_orders for app.orders
+expect:
+{
+  "contains": [
+    {"class":"RdbSynonymDomain", "sqlType":"CREATE_SYNONYM", "auditKind":"CREATE", "schema":"app", "name":"syn_orders"}
+  ]
+}
+----------
+[create_public_synonym]
+sql:
+create public synonym if not exists public_orders for app.orders
+expect:
+{
+  "contains": [
+    {"class":"RdbSynonymDomain", "sqlType":"CREATE_SYNONYM", "auditKind":"CREATE", "schema":"PUBLIC", "name":"public_orders"}
+  ]
+}
+----------
+[drop_private_synonym]
+sql:
+drop synonym if exists app.syn_orders
+expect:
+{
+  "contains": [
+    {"class":"RdbSynonymDomain", "sqlType":"DROP_SYNONYM", "auditKind":"DROP", "schema":"app", "name":"syn_orders"}
+  ]
+}
+----------
+[drop_public_synonym]
+sql:
+drop public synonym if exists public_orders
+expect:
+{
+  "contains": [
+    {"class":"RdbSynonymDomain", "sqlType":"DROP_SYNONYM", "auditKind":"DROP", "schema":"PUBLIC", "name":"public_orders"}
+  ]
+}
+----------
+[query_through_synonym]
+sql:
+select id, amount from app.syn_orders where amount > 10
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"syn_orders"}
+  ]
+}
+----------
+[dml_through_synonym]
+sql:
+update app.syn_orders set amount = amount + 1 where id = 1
+expect:
+{
+  "contains": [
+    {"class":"RdbUpdateDomain", "sqlType":"UPDATE", "auditKind":"DML", "schema":"app", "table":"syn_orders"}
+  ]
+}
+----------
+[grant_synonym_system_privileges]
+sql:
+grant create synonym, create public synonym, drop public synonym to synonym_owner
+expect:
+{
+  "contains": [
+    {"class":"RdbGrantDomain", "sqlType":"GRANT", "auditKind":"ALTER", "name":"synonym_owner"}
+  ]
+}
+----------
+[grant_drop_any_synonym]
+sql:
+grant drop any synonym to synonym_actor
+expect:
+{
+  "contains": [
+    {"class":"RdbGrantDomain", "sqlType":"GRANT", "auditKind":"ALTER", "name":"synonym_actor"}
+  ]
+}
+----------
+[revoke_synonym_system_privileges]
+sql:
+revoke create synonym, create public synonym, drop public synonym from synonym_owner
+expect:
+{
+  "contains": [
+    {"class":"RdbRevokeDomain", "sqlType":"REVOKE", "auditKind":"ALTER", "name":"synonym_owner"}
+  ]
+}

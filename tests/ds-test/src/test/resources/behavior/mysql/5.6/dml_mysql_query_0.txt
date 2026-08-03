@@ -1,0 +1,1523 @@
+[update_session_variable_rw__001]
+sql:
+UPDATE assignment_t SET c1 = 2 WHERE c1 = @assign_where := 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:19) /test/1/catalog1/schema1/assignment_t/",
+      "action" : "UPDATE"
+    },
+    {
+      "subject": "ConfigKey(1:42~1:55) /test/1/assign_where/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__002]
+sql:
+select * from test;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:18) /test/1/catalog1/schema1/test/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__003]
+sql:
+select id, name from test where id > 10;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:21~1:25) /test/1/catalog1/schema1/test/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__004]
+sql:
+select count(*) from test group by name having count(*) > 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:21~1:25) /test/1/catalog1/schema1/test/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__005]
+sql:
+select a.id, b.name from test a join test2 b on a.id = b.id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:25~1:29) /test/1/catalog1/schema1/test/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:37~1:42) /test/1/catalog1/schema1/test2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__006]
+sql:
+select * from test order by id desc limit 10;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:18) /test/1/catalog1/schema1/test/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__007]
+sql:
+select * from test where id in (select id from test2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:18) /test/1/catalog1/schema1/test/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:47~1:52) /test/1/catalog1/schema1/test2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[insert__008]
+sql:
+insert into test (id, name) values (1, 'abc');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:16) /test/1/catalog1/schema1/test/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[insert__009]
+sql:
+insert into test values (1, 'abc');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:16) /test/1/catalog1/schema1/test/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[insert__010]
+sql:
+insert into test (id, name) values (1, 'a'), (2, 'b'), (3, 'c');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:16) /test/1/catalog1/schema1/test/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[insert_select__011]
+sql:
+insert into test (id, name) select id, name from test2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:16) /test/1/catalog1/schema1/test/",
+      "action" : "INSERT",
+      "target" : "Table(1:49~1:54) /test/1/catalog1/schema1/test2/"
+    }
+  ]
+}
+----------
+[insert__012]
+sql:
+insert into test set id = 1, name = 'abc';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:16) /test/1/catalog1/schema1/test/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[merge__013]
+sql:
+replace into test (id, name) values (1, 'abc');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:13~1:17) /test/1/catalog1/schema1/test/",
+      "action" : "MERGE"
+    }
+  ]
+}
+----------
+[merge__014]
+sql:
+replace into test set id = 1, name = 'abc';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:13~1:17) /test/1/catalog1/schema1/test/",
+      "action" : "MERGE"
+    }
+  ]
+}
+----------
+[update__015]
+sql:
+update test set name = 'abc' where id = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:11) /test/1/catalog1/schema1/test/",
+      "action" : "UPDATE"
+    }
+  ]
+}
+----------
+[update__016]
+sql:
+update test set name = 'abc', age = 20 where id = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:11) /test/1/catalog1/schema1/test/",
+      "action" : "UPDATE"
+    }
+  ]
+}
+----------
+[update__017]
+sql:
+update test a join test2 b on a.id = b.id set a.name = b.name;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:11) /test/1/catalog1/schema1/test/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:19~1:24) /test/1/catalog1/schema1/test2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[delete__018]
+sql:
+delete from test where id = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:16) /test/1/catalog1/schema1/test/",
+      "action" : "DELETE"
+    }
+  ]
+}
+----------
+[delete__019]
+sql:
+delete from test where id > 10 order by id limit 5;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:16) /test/1/catalog1/schema1/test/",
+      "action" : "DELETE"
+    }
+  ]
+}
+----------
+[delete__020]
+sql:
+delete a from test a join test2 b on a.id = b.id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:7~1:8) /test/1/catalog1/schema1/a/",
+      "action" : "DELETE",
+      "target" : [
+        "Table(1:14~1:18) /test/1/catalog1/schema1/test/",
+        "Table(1:26~1:31) /test/1/catalog1/schema1/test2/"
+      ]
+    }
+  ]
+}
+----------
+[truncate_table__021]
+sql:
+truncate table test;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRUNCATE_TABLE": [
+    {
+      "subject": "Table(1:15~1:19) /test/1/catalog1/schema1/test/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[call_prog_obj__022]
+sql:
+call sp_test();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:5~1:12) /test/1/catalog1/schema1/sp_test/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[call_prog_obj__023]
+sql:
+call sp_test(1, 'abc');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:5~1:12) /test/1/catalog1/schema1/sp_test/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[update_select__024]
+sql:
+UPDATE split_derived_80common.u1 SET a=5 WHERE a IN (SELECT a FROM split_derived_80common.u2 ORDER BY (SELECT a FROM (SELECT SUM(a) FROM split_derived_80common.u1) AS dt));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:32) /test/1/catalog1/split_derived_80common/u1/",
+      "action" : "UPDATE",
+      "target" : [
+        "Table(1:67~1:92) /test/1/catalog1/split_derived_80common/u2/",
+        "Table(1:137~1:162) /test/1/catalog1/split_derived_80common/u1/"
+      ]
+    },
+    {
+      "subject": "Function(1:125~1:128) /test/1/catalog1/schema1/SUM/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[insert_select__025]
+sql:
+INSERT INTO split_derived_80common.ref_t(a,b) VALUES(999,(SELECT a UNION SELECT a));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:40) /test/1/catalog1/split_derived_80common/ref_t/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[update_select__026]
+sql:
+UPDATE (SELECT * FROM split_derived_80early.t1) AS d SET a=5;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:22~1:46) /test/1/catalog1/split_derived_80early/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[update_select__027]
+sql:
+UPDATE (SELECT * FROM split_derived_80early.t1) AS d,split_derived_80early.t1 AS b SET d.a=5;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:22~1:46) /test/1/catalog1/split_derived_80early/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[delete_select__028]
+sql:
+DELETE FROM split_derived_dml57.t1 WHERE id IN (SELECT * FROM (SELECT id FROM split_derived_dml57.t1) AS dt);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:34) /test/1/catalog1/split_derived_dml57/t1/",
+      "action" : "DELETE",
+      "target" : "Table(1:78~1:100) /test/1/catalog1/split_derived_dml57/t1/"
+    }
+  ]
+}
+----------
+[update_select__029]
+sql:
+UPDATE split_derived_dml57.t1 SET d=NULL WHERE id IN (SELECT * FROM (SELECT id FROM split_derived_dml57.t1) AS dt);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:29) /test/1/catalog1/split_derived_dml57/t1/",
+      "action" : "UPDATE",
+      "target" : "Table(1:84~1:106) /test/1/catalog1/split_derived_dml57/t1/"
+    }
+  ]
+}
+----------
+[insert_select__030]
+sql:
+INSERT INTO split_derived_dml57.t1 SELECT id+10,d FROM split_derived_dml57.t1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:34) /test/1/catalog1/split_derived_dml57/t1/",
+      "action" : "INSERT",
+      "target" : "Table(1:55~1:77) /test/1/catalog1/split_derived_dml57/t1/"
+    }
+  ]
+}
+----------
+[insert_select__031]
+sql:
+INSERT INTO split_derived_dml57.t1 SELECT id+20,d FROM (SELECT * FROM split_derived_dml57.t1) AS dt;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:34) /test/1/catalog1/split_derived_dml57/t1/",
+      "action" : "INSERT",
+      "target" : "Table(1:70~1:92) /test/1/catalog1/split_derived_dml57/t1/"
+    }
+  ]
+}
+----------
+[update_select__032]
+sql:
+UPDATE split_derived_dml57.users SET position=(SELECT COUNT(pos)+1 FROM (SELECT DISTINCT position AS pos FROM split_derived_dml57.users) AS t2 WHERE t2.pos<users.position) WHERE id=3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:32) /test/1/catalog1/split_derived_dml57/users/",
+      "action" : "UPDATE",
+      "target" : "Table(1:110~1:135) /test/1/catalog1/split_derived_dml57/users/"
+    },
+    {
+      "subject": "Function(1:54~1:59) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[update_select__033]
+sql:
+UPDATE split_derived_dml57.users SET position=(SELECT COUNT(pos)+1 FROM (SELECT position AS pos FROM split_derived_dml57.users) AS t2 WHERE t2.pos<users.position) WHERE id=3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:32) /test/1/catalog1/split_derived_dml57/users/",
+      "action" : "UPDATE",
+      "target" : "Table(1:101~1:126) /test/1/catalog1/split_derived_dml57/users/"
+    },
+    {
+      "subject": "Function(1:54~1:59) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[update_select__034]
+sql:
+UPDATE split_derived_dml57.users,(SELECT 1) AS dummy SET position=(SELECT COUNT(pos)+1 FROM (SELECT DISTINCT position AS pos FROM split_derived_dml57.users) AS t2 WHERE t2.pos<users.position) WHERE id=3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:32) /test/1/catalog1/split_derived_dml57/users/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(1:74~1:79) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[update_select__035]
+sql:
+UPDATE split_derived_dml57.users,(SELECT 1) AS dummy SET position=(SELECT COUNT(pos)+1 FROM (SELECT position AS pos FROM split_derived_dml57.users) AS t2 WHERE t2.pos<users.position) WHERE id=3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:32) /test/1/catalog1/split_derived_dml57/users/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(1:74~1:79) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[delete_select__036]
+sql:
+DELETE a,b FROM split_derived_dml57.t1 AS a LEFT JOIN split_derived_dml57.t2 AS b ON a.id=b.id WHERE a.id IN (SELECT * FROM (SELECT id FROM split_derived_dml57.t1) AS t1sub);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:7~1:8) /test/1/catalog1/schema1/a/",
+      "action" : "DELETE",
+      "target" : [
+        "Table(1:16~1:38) /test/1/catalog1/split_derived_dml57/t1/",
+        "Table(1:54~1:76) /test/1/catalog1/split_derived_dml57/t2/"
+      ]
+    },
+    {
+      "subject": "Table(1:9~1:10) /test/1/catalog1/schema1/b/",
+      "action" : "DELETE"
+    }
+  ]
+}
+----------
+[update_select_session_variable_rw__037]
+sql:
+UPDATE split_derived_dml57.tbl1 AS t1 INNER JOIN (SELECT a.id,a.rec_id,b.s_date FROM split_derived_dml57.tbl2 AS b,split_derived_dml57.tbl1 AS a WHERE a.id_value2=b.t_id AND a.id=1 ORDER BY s_date DESC) AS t2 ON t1.id=t2.id AND t1.rec_id=t2.rec_id SET t1.rec_id=@ROWNUM:=@ROWNUM+1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:31) /test/1/catalog1/split_derived_dml57/tbl1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:85~1:109) /test/1/catalog1/split_derived_dml57/tbl2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "ConfigKey(1:262~1:269) /test/1/ROWNUM/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[insert_select__038]
+sql:
+INSERT INTO split_distinct_native_a.facility_dst SELECT DISTINCT facility FROM split_distinct_native_a.facility_src;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:48) /test/1/catalog1/split_distinct_native_a/facility_dst/",
+      "action" : "INSERT",
+      "target" : "Table(1:79~1:115) /test/1/catalog1/split_distinct_native_a/facility_src/"
+    }
+  ]
+}
+----------
+[insert_select__039]
+sql:
+INSERT INTO t3 SELECT a,MAX(b) FROM t1 GROUP BY a;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:14) /test/1/catalog1/schema1/t3/",
+      "action" : "INSERT",
+      "target" : "Table(1:36~1:38) /test/1/catalog1/schema1/t1/"
+    },
+    {
+      "subject": "Function(1:24~1:27) /test/1/catalog1/schema1/MAX/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[insert_select__040]
+sql:
+INSERT INTO t3 SELECT 1,(SELECT MAX(b) FROM t1 GROUP BY a HAVING a<2) FROM t1 LIMIT 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:14) /test/1/catalog1/schema1/t3/",
+      "action" : "INSERT",
+      "target" : "Table(1:44~1:46) /test/1/catalog1/schema1/t1/"
+    },
+    {
+      "subject": "Function(1:32~1:35) /test/1/catalog1/schema1/MAX/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[delete_select__041]
+sql:
+DELETE FROM t3 WHERE (SELECT MAX(b) FROM t1 GROUP BY a HAVING a<2)>10000;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:14) /test/1/catalog1/schema1/t3/",
+      "action" : "DELETE",
+      "target" : "Table(1:41~1:43) /test/1/catalog1/schema1/t1/"
+    },
+    {
+      "subject": "Function(1:29~1:32) /test/1/catalog1/schema1/MAX/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[delete_select__042]
+sql:
+DELETE FROM t3 WHERE (SELECT (SELECT MAX(b) FROM t1 GROUP BY a HAVING a<2) AS x FROM t1)>10000;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:14) /test/1/catalog1/schema1/t3/",
+      "action" : "DELETE",
+      "target" : "Table(1:49~1:51) /test/1/catalog1/schema1/t1/"
+    },
+    {
+      "subject": "Function(1:37~1:40) /test/1/catalog1/schema1/MAX/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[update__043]
+sql:
+UPDATE u1 AS A NATURAL JOIN u2 AS B SET B.a2=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:9) /test/1/catalog1/schema1/u1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:28~1:30) /test/1/catalog1/schema1/u2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[update__044]
+sql:
+UPDATE jt AS a NATURAL JOIN jt AS b SET a.dummy='',b.col_check=NULL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:9) /test/1/catalog1/schema1/jt/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[update__045]
+sql:
+UPDATE t SET b=3 LIMIT 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:8) /test/1/catalog1/schema1/t/",
+      "action" : "UPDATE"
+    }
+  ]
+}
+----------
+[delete__046]
+sql:
+DELETE FROM t LIMIT 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:13) /test/1/catalog1/schema1/t/",
+      "action" : "DELETE"
+    }
+  ]
+}
+----------
+[update__047]
+sql:
+UPDATE /*+ INDEX(t1 i_a) */ split_opt_hints_index.t1 AS t1 SET d=2 WHERE a=1 AND b=2 AND c=3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:28~1:52) /test/1/catalog1/split_opt_hints_index/t1/",
+      "action" : "UPDATE"
+    }
+  ]
+}
+----------
+[delete__048]
+sql:
+DELETE /*+ INDEX(t1 i_a) */ FROM split_opt_hints_index.t1 WHERE a=100 AND b=2 AND c=3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:33~1:57) /test/1/catalog1/split_opt_hints_index/t1/",
+      "action" : "DELETE"
+    }
+  ]
+}
+----------
+[update__049]
+sql:
+UPDATE /*+ JOIN_ORDER(t2,t1) JOIN_FIXED_ORDER() */ t1 JOIN t2 ON t1.val=t2.val SET t1.f1=t2.f1 WHERE t2.id>100;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:51~1:53) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:59~1:61) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[update_select__050]
+sql:
+UPDATE /*+ JOIN_SUFFIX(ta1,t2) */ t1 AS ta1 JOIN t1 AS ta2 ON ta1.f1=ta2.f1 RIGHT JOIN t2 ON ta1.f1=t2.f1 SET ta1.f2=ta1.f2,ta2.f3=ta2.f3 WHERE ('n','r') IN (SELECT f3,f3 FROM t3 WHERE f1<>f2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:34~1:36) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:87~1:89) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:176~1:178) /test/1/catalog1/schema1/t3/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[delete_select__051]
+sql:
+DELETE /*+ JOIN_PREFIX(t2,t3,ta2) JOIN_SUFFIX(t3,ta1) */ FROM ta1.* USING t1 AS ta1 JOIN t1 AS ta2 ON 1 RIGHT OUTER JOIN t2 ON ta1.val=t2.val WHERE 9 IN (SELECT val FROM t3);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:62~1:65) /test/1/catalog1/schema1/ta1/",
+      "action" : "DELETE",
+      "target" : [
+        "Table(1:74~1:76) /test/1/catalog1/schema1/t1/",
+        "Table(1:121~1:123) /test/1/catalog1/schema1/t2/",
+        "Table(1:170~1:172) /test/1/catalog1/schema1/t3/"
+      ]
+    }
+  ]
+}
+----------
+[update__052]
+sql:
+UPDATE /*+ NO_RANGE_OPTIMIZATION(t1 PRIMARY) */ split_opt_hints_native.t1 SET c='z' WHERE a BETWEEN 1 AND 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:48~1:73) /test/1/catalog1/split_opt_hints_native/t1/",
+      "action" : "UPDATE"
+    }
+  ]
+}
+----------
+[delete_select__053]
+sql:
+DELETE /*+ NO_RANGE_OPTIMIZATION(t1 PRIMARY) NO_BNL(t2@sub_q) */ FROM split_opt_hints_native.t1 WHERE a IN (SELECT /*+ QB_NAME(sub_q) */ a FROM split_opt_hints_native.t2 AS t2 WHERE t2.b>10);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:70~1:95) /test/1/catalog1/split_opt_hints_native/t1/",
+      "action" : "DELETE",
+      "target" : "Table(1:144~1:169) /test/1/catalog1/split_opt_hints_native/t2/"
+    }
+  ]
+}
+----------
+[insert_select__054]
+sql:
+INSERT /*+ NO_ICP(t2@src_q idx_ab) */ INTO split_opt_hints_native.t3(a,b,c) SELECT /*+ QB_NAME(src_q) */ t2.a+20,t2.b,t2.c FROM split_opt_hints_native.t2 AS t2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:43~1:68) /test/1/catalog1/split_opt_hints_native/t3/",
+      "action" : "INSERT",
+      "target" : "Table(1:128~1:153) /test/1/catalog1/split_opt_hints_native/t2/"
+    }
+  ]
+}
+----------
+[merge_select__055]
+sql:
+REPLACE /*+ NO_ICP(t2@src_q idx_ab) */ INTO split_opt_hints_native.t3(a,b,c) SELECT /*+ QB_NAME(src_q) */ t2.a+30,t2.b,t2.c FROM split_opt_hints_native.t2 AS t2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:44~1:69) /test/1/catalog1/split_opt_hints_native/t3/",
+      "action" : "MERGE",
+      "target" : "Table(1:129~1:154) /test/1/catalog1/split_opt_hints_native/t2/"
+    }
+  ]
+}
+----------
+[merge__056]
+sql:
+INSERT /*+ SET_VAR(auto_increment_increment=10) SET_VAR(auto_increment_offset=5) */ INTO t1 VALUES (3,'c') ON DUPLICATE KEY UPDATE f1=VALUES(f1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:89~1:91) /test/1/catalog1/schema1/t1/",
+      "action" : "MERGE"
+    },
+    {
+      "subject": "Function(1:134~1:140) /test/1/catalog1/schema1/VALUES/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "ConfigKey(1:19~1:43) /test/1/auto_increment_increment/",
+      "action" : "CONFIGURE"
+    },
+    {
+      "subject": "ConfigKey(1:56~1:77) /test/1/auto_increment_offset/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[merge__057]
+sql:
+INSERT /*+ SET_VAR(foreign_key_checks=OFF) */ INTO t1 VALUES (4,'d') ON DUPLICATE KEY UPDATE f1=VALUES(f1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:51~1:53) /test/1/catalog1/schema1/t1/",
+      "action" : "MERGE"
+    },
+    {
+      "subject": "Function(1:96~1:102) /test/1/catalog1/schema1/VALUES/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "ConfigKey(1:19~1:37) /test/1/foreign_key_checks/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[update__058]
+sql:
+UPDATE /*+ SET_VAR(time_zone='UTC') */ t1 SET f1=TIMEDIFF(NOW(), UTC_TIMESTAMP()) WHERE id=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:39~1:41) /test/1/catalog1/schema1/t1/",
+      "action" : "UPDATE"
+    },
+    {
+      "subject": "Function(1:49~1:57) /test/1/catalog1/schema1/TIMEDIFF/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:58~1:61) /test/1/catalog1/schema1/NOW/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:65~1:78) /test/1/catalog1/schema1/UTC_TIMESTAMP/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "ConfigKey(1:19~1:28) /test/1/time_zone/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[delete__059]
+sql:
+DELETE /*+ SET_VAR(time_zone='UTC') */ FROM t1 WHERE id=999;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:44~1:46) /test/1/catalog1/schema1/t1/",
+      "action" : "DELETE"
+    },
+    {
+      "subject": "ConfigKey(1:19~1:28) /test/1/time_zone/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[merge__060]
+sql:
+REPLACE /*+ SET_VAR(unique_checks=OFF) */ INTO t1 VALUES (5,'e');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:47~1:49) /test/1/catalog1/schema1/t1/",
+      "action" : "MERGE"
+    },
+    {
+      "subject": "ConfigKey(1:20~1:33) /test/1/unique_checks/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[insert_select__061]
+sql:
+INSERT /*+ SET_VAR(unique_checks=OFF) */ INTO t1 SELECT /*+ SET_VAR(sort_buffer_size=16M) */ id+100, f1 FROM t2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:46~1:48) /test/1/catalog1/schema1/t1/",
+      "action" : "INSERT",
+      "target" : "Table(1:109~1:111) /test/1/catalog1/schema1/t2/"
+    },
+    {
+      "subject": "ConfigKey(1:19~1:32) /test/1/unique_checks/",
+      "action" : "CONFIGURE"
+    },
+    {
+      "subject": "ConfigKey(1:68~1:84) /test/1/sort_buffer_size/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[unsafe__062]
+sql:
+PREPARE stmt_set_var FROM 'SELECT /*+ SET_VAR(big_tables=on) */ 1';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UNSAFE": [
+    {
+      "subject": "PrepareStatement(1:8~1:20) /test/1/stmt_set_var/",
+      "action" : "UNSAFE"
+    }
+  ]
+}
+----------
+[update_session_variable_rw__063]
+sql:
+UPDATE t SET b=0 ORDER BY (a=@id),b LIMIT 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:8) /test/1/catalog1/schema1/t/",
+      "action" : "UPDATE"
+    },
+    {
+      "subject": "ConfigKey(1:29~1:32) /test/1/id/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[insert_select__064]
+sql:
+INSERT INTO split_select_short.distinct_t (SELECT 'a','a','a','a111','xy1','' FROM split_select_short.t);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:41) /test/1/catalog1/split_select_short/distinct_t/",
+      "action" : "INSERT",
+      "target" : "Table(1:83~1:103) /test/1/catalog1/split_select_short/t/"
+    }
+  ]
+}
+----------
+[merge_select__065]
+sql:
+REPLACE INTO split_select_short.distinct_t (SELECT 'a','a','a','a111','xy1','' FROM split_select_short.t);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:13~1:42) /test/1/catalog1/split_select_short/distinct_t/",
+      "action" : "MERGE",
+      "target" : "Table(1:84~1:104) /test/1/catalog1/split_select_short/t/"
+    }
+  ]
+}
+----------
+[delete_select__066]
+sql:
+DELETE x.*,y.* FROM split_subquery_base.t11a AS x,split_subquery_base.t12a AS y WHERE x.a=y.a AND x.b=(SELECT z.b FROM split_subquery_base.t2 AS z WHERE z.a=x.a);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:7~1:8) /test/1/catalog1/schema1/x/",
+      "action" : "DELETE",
+      "target" : [
+        "Table(1:20~1:44) /test/1/catalog1/split_subquery_base/t11a/",
+        "Table(1:50~1:74) /test/1/catalog1/split_subquery_base/t12a/",
+        "Table(1:119~1:141) /test/1/catalog1/split_subquery_base/t2/"
+      ]
+    },
+    {
+      "subject": "Table(1:11~1:12) /test/1/catalog1/schema1/y/",
+      "action" : "DELETE"
+    }
+  ]
+}
+----------
+[delete_select__067]
+sql:
+DELETE x.*,y.* FROM split_subquery_base.t11b AS x,split_subquery_base.t12b AS y WHERE x.a=y.a AND x.b=(SELECT z.b FROM split_subquery_base.t12b AS z WHERE z.a=x.a);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:7~1:8) /test/1/catalog1/schema1/x/",
+      "action" : "DELETE",
+      "target" : [
+        "Table(1:20~1:44) /test/1/catalog1/split_subquery_base/t11b/",
+        "Table(1:50~1:74) /test/1/catalog1/split_subquery_base/t12b/"
+      ]
+    },
+    {
+      "subject": "Table(1:11~1:12) /test/1/catalog1/schema1/y/",
+      "action" : "DELETE"
+    }
+  ]
+}
+----------
+[insert_select__068]
+sql:
+INSERT INTO split_subquery_base.ins_t(x) SELECT (SELECT SUM(s.x)+2 FROM split_subquery_base.ins_t AS s) FROM split_subquery_base.t2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:37) /test/1/catalog1/split_subquery_base/ins_t/",
+      "action" : "INSERT",
+      "target" : [
+        "Table(1:72~1:97) /test/1/catalog1/split_subquery_base/ins_t/",
+        "Table(1:109~1:131) /test/1/catalog1/split_subquery_base/t2/"
+      ]
+    },
+    {
+      "subject": "Function(1:56~1:59) /test/1/catalog1/schema1/SUM/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[insert_select__069]
+sql:
+INSERT INTO split_subquery_base.ins_values(x) VALUES ((SELECT x FROM split_subquery_base.ins_values));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:42) /test/1/catalog1/split_subquery_base/ins_values/",
+      "action" : "INSERT",
+      "target" : "Table(1:69~1:99) /test/1/catalog1/split_subquery_base/ins_values/"
+    }
+  ]
+}
+----------
+[merge_select__070]
+sql:
+REPLACE LOW_PRIORITY INTO split_subquery_base.rep_t(x,y) VALUES ((SELECT a FROM split_subquery_base.t2 WHERE a=1),(SELECT a+1 FROM split_subquery_base.t2 WHERE a=1));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:26~1:51) /test/1/catalog1/split_subquery_base/rep_t/",
+      "action" : "MERGE",
+      "target" : "Table(1:80~1:102) /test/1/catalog1/split_subquery_base/t2/"
+    }
+  ]
+}
+----------
+[merge_select__071]
+sql:
+REPLACE INTO split_subquery_base.rep_self(x,y) VALUES ((SELECT x FROM split_subquery_base.rep_self),(SELECT a+1 FROM split_subquery_base.t2 WHERE a=1));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:13~1:41) /test/1/catalog1/split_subquery_base/rep_self/",
+      "action" : "MERGE",
+      "target" : [
+        "Table(1:70~1:98) /test/1/catalog1/split_subquery_base/rep_self/",
+        "Table(1:117~1:139) /test/1/catalog1/split_subquery_base/t2/"
+      ]
+    }
+  ]
+}
+----------
+[block_session_variable_rw_select__072]
+sql:
+DO @sq_a:=(SELECT a FROM split_subquery_next.var_t);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "ConfigKey(1:3~1:8) /test/1/sq_a/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:25~1:50) /test/1/catalog1/split_subquery_next/var_t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[session_variable_rw_select__073]
+sql:
+SET @sq_a:=(SELECT a FROM split_subquery_next.var_t);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_VARIABLE_RW": [
+    {
+      "subject": "ConfigKey(1:4~1:9) /test/1/sq_a/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:26~1:51) /test/1/catalog1/split_subquery_next/var_t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[update_select__074]
+sql:
+UPDATE split_subquery_next.update_outer SET i=i+1 WHERE i=(SELECT MAX(i));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:39) /test/1/catalog1/split_subquery_next/update_outer/",
+      "action" : "UPDATE"
+    },
+    {
+      "subject": "Function(1:66~1:69) /test/1/catalog1/schema1/MAX/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[delete_select__075]
+sql:
+DELETE FROM split_subquery_next.del_t1 WHERE topic IN (SELECT DISTINCT topic FROM split_subquery_next.del_t2 WHERE NOT EXISTS (SELECT * FROM split_subquery_next.del_t3 WHERE numeropost=topic));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:38) /test/1/catalog1/split_subquery_next/del_t1/",
+      "action" : "DELETE",
+      "target" : [
+        "Table(1:82~1:108) /test/1/catalog1/split_subquery_next/del_t2/",
+        "Table(1:141~1:167) /test/1/catalog1/split_subquery_next/del_t3/"
+      ]
+    }
+  ]
+}
+----------
+[update_select__076]
+sql:
+UPDATE split_subquery_next.update_nested SET i=i+(SELECT MAX(i) FROM (SELECT 1 AS i) AS d) WHERE i=(SELECT MAX(i));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:40) /test/1/catalog1/split_subquery_next/update_nested/",
+      "action" : "UPDATE"
+    },
+    {
+      "subject": "Function(1:57~1:60) /test/1/catalog1/schema1/MAX/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[update_select__077]
+sql:
+UPDATE split_subquery_next.mt1,split_subquery_next.mt2 SET mt2.name='lenka' WHERE mt2.id IN (SELECT id FROM split_subquery_next.mt1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:30) /test/1/catalog1/split_subquery_next/mt1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:31~1:54) /test/1/catalog1/split_subquery_next/mt2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[update_select__078]
+sql:
+UPDATE IGNORE split_subquery_next.u1 SET b=(SELECT b FROM split_subquery_next.u2 WHERE u1.a=u2.a);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:14~1:36) /test/1/catalog1/split_subquery_next/u1/",
+      "action" : "UPDATE",
+      "target" : "Table(1:58~1:80) /test/1/catalog1/split_subquery_next/u2/"
+    }
+  ]
+}
+----------
+[update_select__079]
+sql:
+UPDATE split_table_derived.t1 AS o SET o.a=o.a*100 WHERE o.b<0 OR o.a IN(SELECT i.a+1 FROM split_table_derived.t2 AS i);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:29) /test/1/catalog1/split_table_derived/t1/",
+      "action" : "UPDATE",
+      "target" : "Table(1:91~1:113) /test/1/catalog1/split_table_derived/t2/"
+    }
+  ]
+}
+----------
+[update_select__080]
+sql:
+UPDATE split_table_derived.t1 AS o,(SELECT 1) AS d SET o.a=o.a*100 WHERE o.b<0 OR o.a IN(SELECT i.a+1 FROM split_table_derived.t2 AS i);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:29) /test/1/catalog1/split_table_derived/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:107~1:129) /test/1/catalog1/split_table_derived/t2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[delete_select__081]
+sql:
+DELETE FROM split_table_derived.t1 WHERE t1.b<0 OR t1.a IN(SELECT i.a+1 FROM split_table_derived.t2 AS i);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:34) /test/1/catalog1/split_table_derived/t1/",
+      "action" : "DELETE",
+      "target" : "Table(1:77~1:99) /test/1/catalog1/split_table_derived/t2/"
+    }
+  ]
+}
+----------
+[delete_select__082]
+sql:
+DELETE o.* FROM split_table_derived.t1 AS o,(SELECT 1) AS d WHERE o.b<0 OR o.a IN(SELECT i.a+1 FROM split_table_derived.t2 AS i);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:7~1:8) /test/1/catalog1/schema1/o/",
+      "action" : "DELETE",
+      "target" : [
+        "Table(1:16~1:38) /test/1/catalog1/split_table_derived/t1/",
+        "Table(1:100~1:122) /test/1/catalog1/split_table_derived/t2/"
+      ]
+    }
+  ]
+}
+----------
+[insert_select__083]
+sql:
+INSERT INTO t(a,b) SELECT a+1000,b FROM r UNION ALL SELECT a+2000,b FROM s;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:13) /test/1/catalog1/schema1/t/",
+      "action" : "INSERT",
+      "target" : [
+        "Table(1:40~1:41) /test/1/catalog1/schema1/r/",
+        "Table(1:73~1:74) /test/1/catalog1/schema1/s/"
+      ]
+    }
+  ]
+}
+----------
+[merge_select__084]
+sql:
+REPLACE INTO t(a,b) SELECT a+3000,b FROM r UNION ALL SELECT a+4000,b FROM s;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:13~1:14) /test/1/catalog1/schema1/t/",
+      "action" : "MERGE",
+      "target" : [
+        "Table(1:41~1:42) /test/1/catalog1/schema1/r/",
+        "Table(1:74~1:75) /test/1/catalog1/schema1/s/"
+      ]
+    }
+  ]
+}
+----------
+[merge_select__085]
+sql:
+INSERT INTO t(a,b) SELECT 20000,'x' UNION SELECT 20001,'y' ON DUPLICATE KEY UPDATE b='updated';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:12~1:13) /test/1/catalog1/schema1/t/",
+      "action" : "MERGE"
+    }
+  ]
+}

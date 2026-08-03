@@ -1,0 +1,66 @@
+create table abc(id int);
+create table `abc`(`id` int) COMMENT 'desc';
+create table if not exists test.abc(id int);
+create table if not exists abc(id int);
+create temporary table if not exists test.abc(id int);
+create table test.abc(id int(4) primary key auto_increment, name varchar(25) not null) auto_increment = 12;
+create table test.abc(id int(4) primary key auto_increment, name varchar(25) not null) engine = innodb;
+create table test.abc(id int(4), name varchar(25) not null, primary key (id));
+create table test.abc(id int(4), name varchar(25) not null, key (id));
+create table test.abc(id int(4), name varchar(25) not null, constraint ptr foreign key (id) references test.abc2(id2));
+create table test.abc_copy like test.abc;
+create table abc_copy like abc;
+create table test.abc_select select * from test.abc;
+alter table test.abc comment 'abc' engine MyISAM, rename abc_test;
+alter table schema1.abc rename to schema2.cba;
+rename table abc to cba;
+rename table schema1.abc to schema2.cba;
+drop table abc;
+drop table if exists abc;
+drop table test.abc, test.def;
+truncate table test.abc;
+truncate abc;
+------------------------------------------------------------------------------------------
+[CREATE_TABLE] create table abc(id int);
+----------
+[CREATE_TABLE|COMMENT_TABLE] create table `abc`(`id` int) COMMENT 'desc';
+----------
+[CREATE_TABLE] create table if not exists test.abc(id int);
+----------
+[CREATE_TABLE] create table if not exists abc(id int);
+----------
+[CREATE_TABLE] create temporary table if not exists test.abc(id int);
+----------
+[CREATE_TABLE] create table test.abc(id int(4) primary key auto_increment, name varchar(25) not null) auto_increment = 12;
+----------
+[CREATE_TABLE] create table test.abc(id int(4) primary key auto_increment, name varchar(25) not null) engine = innodb;
+----------
+[CREATE_TABLE] create table test.abc(id int(4), name varchar(25) not null, primary key (id));
+----------
+[CREATE_TABLE] create table test.abc(id int(4), name varchar(25) not null, key (id));
+----------
+[CREATE_TABLE] create table test.abc(id int(4), name varchar(25) not null, constraint ptr foreign key (id) references test.abc2(id2));
+----------
+[CREATE_TABLE] create table test.abc_copy like test.abc;
+----------
+[CREATE_TABLE] create table abc_copy like abc;
+----------
+[CREATE_TABLE] create table test.abc_select select * from test.abc;
+----------
+[ALTER_TABLE|COMMENT_TABLE|RENAME_TABLE] alter table test.abc comment 'abc' engine MyISAM, rename abc_test;
+----------
+[ALTER_TABLE|RENAME_TABLE] alter table schema1.abc rename to schema2.cba;
+----------
+[RENAME_TABLE] rename table abc to cba;
+----------
+[RENAME_TABLE] rename table schema1.abc to schema2.cba;
+----------
+[DROP_TABLE] drop table abc;
+----------
+[DROP_TABLE] drop table if exists abc;
+----------
+[DROP_TABLE] drop table test.abc, test.def;
+----------
+[TRUNCATE_TABLE] truncate table test.abc;
+----------
+[TRUNCATE_TABLE] truncate abc;

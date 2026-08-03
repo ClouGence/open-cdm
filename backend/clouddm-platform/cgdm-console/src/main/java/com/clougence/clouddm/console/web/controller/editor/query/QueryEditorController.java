@@ -18,7 +18,10 @@ package com.clougence.clouddm.console.web.controller.editor.query;
 import static com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel.DM_QUERY_CONSOLE;
 
 import java.net.URI;
+import java.util.EnumSet;
+import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -37,6 +40,7 @@ import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
 import com.clougence.clouddm.console.web.model.fo.editor.query.*;
+import com.clougence.clouddm.console.web.model.vo.editor.query.DsLanguageConfVO;
 import com.clougence.clouddm.console.web.model.vo.editor.query.DsStatusConfVO;
 import com.clougence.clouddm.console.web.model.vo.editor.query.DsStatusSupportConfVO;
 import com.clougence.clouddm.console.web.model.vo.editor.query.OperationSessionVO;
@@ -53,12 +57,20 @@ import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
 import com.clougence.clouddm.platform.dal.access.entry.DsCacheEntry;
 import com.clougence.clouddm.platform.dal.model.datasource.DataSourceStatus;
 import com.clougence.clouddm.platform.dal.model.execution.DmExecFileDO;
+import com.clougence.clouddm.platform.plugin.DsPluginInfo;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbIsolation;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbSupportLevel;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbSupportSpi;
+import com.clougence.clouddm.sdk.language.DsLanguageSpi;
+import com.clougence.clouddm.sdk.language.DsLanguageSupport;
+import com.clougence.clouddm.sdk.resource.ResourceCategory;
+import com.clougence.clouddm.sdk.resource.ResourceSpi;
 import com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel;
+import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
+import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.drivers.DsConfigKeys;
+import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.JsonUtils;
 import com.clougence.utils.StringUtils;
 import com.clougence.utils.i18n.I18nUtils;
@@ -145,6 +157,7 @@ public class QueryEditorController {
 
         I18nUtils dsI18n = PluginManager.findDsI18nUtil(entry.getDsType());
         DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromExists(entry.getDsNumId());
+        vo.setLanguage(loadDsLanguage(entry, dsConfig, dto));
         if (supportSpi != null) {
             vo.setCatalog(convertToSupportedInfoMap(RdbSupportSpi.HINT_FOR_CHANGE_CATALOG, this.dmSupportSpiWrapper.supportChangeCatalog(supportSpi, dsConfig), dsI18n));
             vo.setSchema(convertToSupportedInfoMap(RdbSupportSpi.HINT_FOR_CHANGE_SCHEMA, this.dmSupportSpiWrapper.supportChangeSchema(supportSpi, dsConfig), dsI18n));
@@ -177,6 +190,64 @@ public class QueryEditorController {
         vo.getAutoCommit().setDefaultValue(String.valueOf(!StringUtils.equalsIgnoreCase("false", autoCommit)));
         vo.getReadOnly().setDefaultValue(String.valueOf(Boolean.TRUE.equals(dsConfig.getReadOnly())));
         return ResWebDataUtils.buildSuccess(vo);
+    }
+
+    private DsLanguageConfVO loadDsLanguage(DsCacheEntry entry, DataSourceConfig dsConfig, DsAvailableDTO status) {
+        DsLanguageConfVO language = new DsLanguageConfVO();
+        language.setSupports(Set.of());
+
+        SqlEngineSpi sqlEngine;
+        try {
+            sqlEngine = this.dmDsConfigService.fetchSqlEngineSpi(entry.getDsNumId());
+        } catch (RuntimeException e) {
+            return language;
+        }
+        if (sqlEngine == null) {
+            return language;
+        }
+
+        DsPluginInfo dsPlugin = PluginManager.findDsPlugin(entry.getDsType());
+        if (dsPlugin == null) {
+            return language;
+        }
+
+        boolean hasLanguageSpi = CollectionUtils.isNotEmpty(dsPlugin.findSpi(DsLanguageSpi.class));
+        boolean hasDslProvider = sqlEngine.dslProvider(SqlParserParameters.empty()) != null;
+        boolean hasSplitAnalysisSpi = sqlEngine.splitAnalysisSpi(SqlParserParameters.empty()) != null;
+
+        Set<DsLanguageSupport> supports = EnumSet.noneOf(DsLanguageSupport.class);
+        if (hasLanguageSpi && hasDslProvider) {
+            supports.add(DsLanguageSupport.COMPLETE);
+            supports.add(DsLanguageSupport.VALIDATE);
+        }
+        if (hasLanguageSpi && hasSplitAnalysisSpi) {
+            supports.add(DsLanguageSupport.SPLIT);
+        }
+
+        language.setSupported(!supports.isEmpty());
+        language.setSupports(Set.copyOf(supports));
+        language.setCompletion(supports.contains(DsLanguageSupport.COMPLETE));
+        language.setValidate(supports.contains(DsLanguageSupport.VALIDATE));
+        language.setSplit(supports.contains(DsLanguageSupport.SPLIT));
+
+        String keywordResourceModule = findEditorKeywordResourceModule(dsPlugin);
+        if (StringUtils.isNotBlank(keywordResourceModule)) {
+            language.setKeywordResource(ResourceCategory.EDITOR.getCode() + "/" + keywordResourceModule + "@keywords");
+        }
+        return language;
+    }
+
+    private String findEditorKeywordResourceModule(DsPluginInfo dsPlugin) {
+        List<ResourceSpi> spis = dsPlugin.findSpi(ResourceSpi.class);
+        if (CollectionUtils.isEmpty(spis)) {
+            return null;
+        }
+
+        ResourceSpi spi = spis.get(0);
+        if (spi.findResource(ResourceCategory.EDITOR.getCode(), "keywords", null) == null) {
+            return null;
+        }
+        return spi.name();
     }
 
     private static DsStatusSupportConfVO convertToSupportedInfoMap(String i18nKey, RdbSupportLevel supportLevel, I18nUtils dsI18n) {

@@ -1,0 +1,25 @@
+[sequence_value_has_no_source_column]
+sql:
+select app.employee_seq.nextval as generated_id from dual
+expect:
+{
+  "generated_id": []
+}
+----------
+[sequence_and_table_column]
+sql:
+select app.employee_seq.nextval as generated_id, e.name
+from catalog1.app.employee e
+expect:
+{
+  "generated_id": [],
+  "name": ["/catalog1/app/employee/name/"]
+}
+----------
+[remote_sequence_has_no_source_column]
+sql:
+select remote_app.employee_seq.nextval@app.employee_link as generated_id from dual
+expect:
+{
+  "generated_id": []
+}

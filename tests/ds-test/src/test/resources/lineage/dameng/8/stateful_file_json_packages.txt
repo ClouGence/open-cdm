@@ -1,0 +1,15 @@
+[stateful_package_compress_column]
+sql:
+select utl_compress.lz_compress(payload) as compressed_payload from catalog1.app.binary_data
+expect:
+{
+  "compressed_payload" : [ "/catalog1/app/binary_data/payload/" ]
+}
+----------
+[stateful_package_uncompress_column]
+sql:
+select utl_compress.lz_uncompress(compressed_payload) as raw_payload from catalog1.app.binary_data
+expect:
+{
+  "raw_payload" : [ "/catalog1/app/binary_data/compressed_payload/" ]
+}

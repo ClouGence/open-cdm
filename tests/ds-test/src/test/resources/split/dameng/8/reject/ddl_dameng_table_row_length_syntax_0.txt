@@ -1,0 +1,18 @@
+create table tblen_long_bad_empty(v varchar(10)) storage(using long row());
+create table tblen_long_bad_missing(v varchar(10)) storage(using long);
+create table tblen_long_bad_order(v varchar(10)) storage(long using row);
+alter table tblen_long_transition enable using long;
+alter table tblen_long_transition disable long row;
+create huge table tblen_long_huge(v varchar(32767)) storage(using long row);
+------------------------------------------------------------------------------------------
+[CREATE_TABLE] create table tblen_long_bad_empty(v varchar(10)) storage(using long row());
+----------
+[CREATE_TABLE] create table tblen_long_bad_missing(v varchar(10)) storage(using long);
+----------
+[CREATE_TABLE] create table tblen_long_bad_order(v varchar(10)) storage(long using row);
+----------
+[ALTER_TABLE] alter table tblen_long_transition enable using long;
+----------
+[ALTER_TABLE] alter table tblen_long_transition disable long row;
+----------
+[CREATE_TABLE] create huge table tblen_long_huge(v varchar(32767)) storage(using long row);

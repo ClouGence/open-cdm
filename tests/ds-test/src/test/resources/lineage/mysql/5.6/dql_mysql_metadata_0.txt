@@ -1,0 +1,70 @@
+[dql_mysql_metadata_0.0007]
+sql:
+SELECT GET_FORMAT(DATE,CONCAT('U','SA')),GET_FORMAT(TIME,UPPER('iso')),GET_FORMAT(DATETIME,fmt) FROM (SELECT 'JIS' AS fmt) AS d;
+expect:
+{
+  "GET_FORMAT(DATE,CONCAT('U','SA'))" : [ ],
+  "GET_FORMAT(TIME,UPPER('iso'))" : [ ],
+  "GET_FORMAT(DATETIME,fmt)" : [ ]
+}
+----------
+[dql_mysql_metadata_0.0008]
+sql:
+SELECT GET_FORMAT(DATE,'EUR'),GET_FORMAT(DATE,'USA'),GET_FORMAT(DATE,'JIS'),GET_FORMAT(DATE,'ISO'),GET_FORMAT(DATE,'INTERNAL');
+expect:
+{
+  "GET_FORMAT(DATE,'EUR')" : [ ],
+  "GET_FORMAT(DATE,'USA')" : [ ],
+  "GET_FORMAT(DATE,'JIS')" : [ ],
+  "GET_FORMAT(DATE,'ISO')" : [ ],
+  "GET_FORMAT(DATE,'INTERNAL')" : [ ]
+}
+----------
+[dql_mysql_metadata_0.0009]
+sql:
+SELECT GET_FORMAT(TIME,'EUR'),GET_FORMAT(TIME,'USA'),GET_FORMAT(TIME,'JIS'),GET_FORMAT(TIME,'ISO'),GET_FORMAT(TIME,'INTERNAL');
+expect:
+{
+  "GET_FORMAT(TIME,'EUR')" : [ ],
+  "GET_FORMAT(TIME,'USA')" : [ ],
+  "GET_FORMAT(TIME,'JIS')" : [ ],
+  "GET_FORMAT(TIME,'ISO')" : [ ],
+  "GET_FORMAT(TIME,'INTERNAL')" : [ ]
+}
+----------
+[dql_mysql_metadata_0.0010]
+sql:
+SELECT GET_FORMAT(DATETIME,'EUR'),GET_FORMAT(DATETIME,'USA'),GET_FORMAT(DATETIME,'JIS'),GET_FORMAT(DATETIME,'ISO'),GET_FORMAT(DATETIME,'INTERNAL');
+expect:
+{
+  "GET_FORMAT(DATETIME,'EUR')" : [ ],
+  "GET_FORMAT(DATETIME,'USA')" : [ ],
+  "GET_FORMAT(DATETIME,'JIS')" : [ ],
+  "GET_FORMAT(DATETIME,'ISO')" : [ ],
+  "GET_FORMAT(DATETIME,'INTERNAL')" : [ ]
+}
+----------
+[dql_mysql_metadata_0.0147]
+sql:
+SELECT GET_FORMAT(TIMESTAMP,'USA');
+expect:
+{
+  "GET_FORMAT(TIMESTAMP,'USA')" : [ ]
+}
+----------
+[dql_mysql_metadata_0.0159]
+sql:
+SELECT u.id, c.table_name FROM split_metadata_case.user_table AS u JOIN information_schema.columns AS c ON c.table_schema='split_metadata_case' AND c.table_name='user_table';
+expect:
+{
+  "id" : [ "(1:7~1:11) /catalog1/split_metadata_case/user_table/id/" ],
+  "table_name" : [ "(1:13~1:25) /catalog1/information_schema/columns/table_name/" ]
+}
+----------
+[dql_mysql_metadata_0.0160]
+sql:
+SELECT * FROM split_metadata_case.columns;
+expect:
+{
+  "id" : [ "(1:7~1:8) /catalog1/split_metadata_case/columns/id/" ]
+}

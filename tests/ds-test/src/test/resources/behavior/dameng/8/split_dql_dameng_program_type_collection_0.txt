@@ -1,0 +1,14 @@
+[split_dql_dameng_program_type_collection_0_001]
+sql:
+SELECT ID, V FROM INDEX_COLUMN_COMPAT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:18~1:37) /test/1/catalog1/schema1/INDEX_COLUMN_COMPAT/",
+      "action": "READ"
+    }
+  ]
+}

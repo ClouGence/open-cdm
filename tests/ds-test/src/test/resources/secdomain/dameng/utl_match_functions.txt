@@ -1,0 +1,14 @@
+[utl_match_table_domain]
+sql:
+select
+  utl_match.edit_distance(t.left_value,t.right_value) as edit_value,
+  utl_match.edit_distance_similarity(t.left_value,t.right_value) as edit_similarity,
+  utl_match.jaro_winkler(t.left_value,t.right_value) as jaro_value,
+  utl_match.jaro_winkler_similarity(t.left_value,t.right_value) as jaro_similarity
+from catalog1.app.match_source t
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"match_source"}
+  ]
+}

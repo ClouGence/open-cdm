@@ -1,0 +1,387 @@
+create or replace package context_attr_pkg as
+  procedure set_value(namespace_name varchar, attribute_name varchar, attribute_value varchar);
+  procedure set_value_as(namespace_name varchar, attribute_name varchar, attribute_value varchar,
+    username varchar, client_id varchar);
+  procedure clear_value(namespace_name varchar, client_id varchar, attribute_name varchar);
+  procedure clear_all(namespace_name varchar);
+end context_attr_pkg;
+/
+create or replace package body context_attr_pkg as
+  procedure set_value(namespace_name varchar, attribute_name varchar, attribute_value varchar) as
+  begin
+    dbms_session.set_context(namespace_name, attribute_name, attribute_value);
+  end;
+  procedure set_value_as(namespace_name varchar, attribute_name varchar, attribute_value varchar,
+    username varchar, client_id varchar) as
+  begin
+    dbms_session.set_context(namespace_name, attribute_name, attribute_value, username, client_id);
+  end;
+  procedure clear_value(namespace_name varchar, client_id varchar, attribute_name varchar) as
+  begin
+    dbms_session.clear_context(namespace_name, client_id, attribute_name);
+  end;
+  procedure clear_all(namespace_name varchar) as
+  begin
+    dbms_session.clear_all_context(namespace_name);
+  end;
+end context_attr_pkg;
+/
+create or replace package context_attr_replacement_pkg as
+  procedure set_value(namespace_name varchar, attribute_name varchar, attribute_value varchar);
+end context_attr_replacement_pkg;
+/
+create or replace package body context_attr_replacement_pkg as
+  procedure set_value(namespace_name varchar, attribute_name varchar, attribute_value varchar) as
+  begin
+    dbms_session.set_context(namespace_name, attribute_name, attribute_value);
+  end;
+end context_attr_replacement_pkg;
+/
+create context C12345678901234567890123456789 using context_attr_pkg;
+select name, schid, info5, info6, type$, subtype$ from sysobjects
+where name='C12345678901234567890123456789';
+drop context SYS.C12345678901234567890123456789;
+create context "Codex_Ctx_Mixed_20260722" using context_attr_pkg;
+select name, info5, info6 from sysobjects where name='Codex_Ctx_Mixed_20260722';
+drop context SYS."Codex_Ctx_Mixed_20260722";
+create context CODEX_CTX_ATTR_20260722 using CODEX_DM8_CONTEXT_20260721.context_attr_pkg;
+select name, schid, info5, info6, type$, subtype$ from sysobjects
+where name='CODEX_CTX_ATTR_20260722';
+call context_attr_pkg.set_value('codex_ctx_attr_20260722',
+  'A12345678901234567890123456789', 'CASE_INSENSITIVE');
+select sys_context('CODEX_CTX_ATTR_20260722', 'a12345678901234567890123456789');
+call context_attr_pkg.set_value('CODEX_CTX_ATTR_20260722', 'LONG_VALUE', repeat('X', 4000));
+select length(sys_context('CODEX_CTX_ATTR_20260722', 'LONG_VALUE'));
+select length(sys_context('CODEX_CTX_ATTR_20260722', 'LONG_VALUE', 1));
+select length(sys_context('CODEX_CTX_ATTR_20260722', 'LONG_VALUE', 4000));
+select length(sys_context('CODEX_CTX_ATTR_20260722', 'LONG_VALUE', 0));
+select length(sys_context('CODEX_CTX_ATTR_20260722', 'LONG_VALUE', -1));
+select length(sys_context('CODEX_CTX_ATTR_20260722', 'LONG_VALUE', 4001));
+select length(sys_context('CODEX_CTX_ATTR_20260722', 'LONG_VALUE', null));
+select sys_context('CODEX_CTX_ATTR_20260722', 'MISSING_ATTRIBUTE');
+select namespace, attribute, value from v$context
+where namespace='CODEX_CTX_ATTR_20260722' order by attribute;
+call context_attr_pkg.clear_value('CODEX_CTX_ATTR_20260722', 'IGNORED_CLIENT', 'LONG_VALUE');
+select sys_context('CODEX_CTX_ATTR_20260722', 'LONG_VALUE');
+call context_attr_pkg.set_value('CODEX_CTX_ATTR_20260722', 'CLEAR_ONE', 'ONE');
+call context_attr_pkg.set_value('CODEX_CTX_ATTR_20260722', 'CLEAR_TWO', 'TWO');
+call context_attr_pkg.clear_all('CODEX_CTX_ATTR_20260722');
+select sys_context('CODEX_CTX_ATTR_20260722', 'CLEAR_ONE'),
+  sys_context('CODEX_CTX_ATTR_20260722', 'CLEAR_TWO');
+call context_attr_pkg.set_value_as('CODEX_CTX_ATTR_20260722', 'FIVE_ARGS', 'IGNORED_OK',
+  'NO_SUCH_USER', 'NO_SUCH_CLIENT');
+select sys_context('CODEX_CTX_ATTR_20260722', 'FIVE_ARGS');
+create or replace context CODEX_CTX_ATTR_20260722
+using CODEX_DM8_CONTEXT_20260721.context_attr_replacement_pkg;
+select name, info5, info6 from sysobjects where name='CODEX_CTX_ATTR_20260722';
+create context if not exists CODEX_CTX_ATTR_20260722
+using CODEX_DM8_CONTEXT_20260721.context_attr_pkg;
+select name, info5, info6 from sysobjects where name='CODEX_CTX_ATTR_20260722';
+create or replace context if not exists CODEX_CTX_ATTR_20260722
+using CODEX_DM8_CONTEXT_20260721.context_attr_pkg;
+select name, info5, info6 from sysobjects where name='CODEX_CTX_ATTR_20260722';
+call context_attr_pkg.set_value('CODEX_CTX_ATTR_20260722', 'DROP_KEEP', 'STILL_VISIBLE');
+drop context SYS.CODEX_CTX_ATTR_20260722;
+select sys_context('CODEX_CTX_ATTR_20260722', 'DROP_KEEP');
+create context CODEX_CTX_ATTR_20260722 using context_attr_pkg;
+select sys_context('CODEX_CTX_ATTR_20260722', 'DROP_KEEP');
+drop context if exists SYS.CODEX_CTX_ATTR_20260722;
+drop context if exists SYS.CODEX_CTX_ATTR_20260722;
+select sys_context('USERENV', 'CURRENT_SCHEMA');
+select sys_context('USERENV', 'CURRENT_SCHEMAID');
+select sys_context('USERENV', 'CURRENT_USER');
+select sys_context('USERENV', 'CURRENT_USERID');
+select sys_context('USERENV', 'DB_NAME');
+select sys_context('USERENV', 'HOST');
+select sys_context('USERENV', 'INSTANCE');
+select sys_context('USERENV', 'INSTANCE_NAME');
+select sys_context('USERENV', 'IP_ADDRESS');
+select sys_context('USERENV', 'ISDBA');
+select sys_context('USERENV', 'LANG');
+select sys_context('USERENV', 'LANGUAGE');
+select sys_context('USERENV', 'NETWORK_PROTOCOL');
+select sys_context('USERENV', 'SERVER_HOST');
+select sys_context('USERENV', 'SESSION_USER');
+select sys_context('USERENV', 'SESSION_USERID');
+select sys_context('USERENV', 'SID');
+select sys_context('USERENV', 'UNKNOWN_ATTRIBUTE');
+select dbms_session.is_session_alive(dbms_session.unique_session_id);
+declare
+  context_list dbms_session.appctxtabtyp;
+  context_count number;
+begin
+  dbms_session.list_context(context_list, context_count);
+end;
+/
+call dbms_session.set_identifier('CODEX_CONTEXT_CLIENT_20260722');
+select client_identifier from v$sessions
+where sess_id=cast(sys_context('USERENV', 'SID') as bigint);
+call dbms_session.set_identifier(null);
+drop package context_attr_replacement_pkg;
+drop package context_attr_pkg;
+create context "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+using CODEX_DM8_CONTEXT_20260721.no_such_package;
+select name, schid, info5, info6 from sysobjects
+where name='CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+drop context SYS."CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+create context CODEX_CTX_NO_PACKAGE_20260722
+using CODEX_DM8_CONTEXT_20260721.no_such_package;
+select name, info5, info6 from sysobjects where name='CODEX_CTX_NO_PACKAGE_20260722';
+drop context SYS.CODEX_CTX_NO_PACKAGE_20260722;
+select sys_context('CODEX_CTX_MISSING_20260722', 'ATTRIBUTE');
+create context C123456789012345678901234567890
+using CODEX_DM8_CONTEXT_20260721.no_such_package;
+select name, info5, info6 from sysobjects where name='C123456789012345678901234567890';
+drop context SYS.C123456789012345678901234567890;
+create or replace package context_session_pkg as
+  procedure set_value(namespace_name varchar, attribute_name varchar, attribute_value varchar);
+end context_session_pkg;
+/
+create or replace package body context_session_pkg as
+  procedure set_value(namespace_name varchar, attribute_name varchar, attribute_value varchar) as
+  begin
+    dbms_session.set_context(namespace_name, attribute_name, attribute_value);
+  end;
+end context_session_pkg;
+/
+create context CODEX_CTX_SESSION_20260722
+using CODEX_DM8_CONTEXT_20260721.context_session_pkg;
+call context_session_pkg.set_value('CODEX_CTX_SESSION_20260722', 'SESSION_KEY', 'ORIGIN_VALUE');
+select sys_context('CODEX_CTX_SESSION_20260722', 'SESSION_KEY');
+select sys_context('CODEX_CTX_SESSION_20260722', 'SESSION_KEY');
+drop context SYS.CODEX_CTX_SESSION_20260722;
+drop package context_session_pkg;
+------------------------------------------------------------------------------------------
+[CREATE_PROG_OBJ] create or replace package context_attr_pkg as
+  procedure set_value(namespace_name varchar, attribute_name varchar, attribute_value varchar);
+  procedure set_value_as(namespace_name varchar, attribute_name varchar, attribute_value varchar,
+    username varchar, client_id varchar);
+  procedure clear_value(namespace_name varchar, client_id varchar, attribute_name varchar);
+  procedure clear_all(namespace_name varchar);
+end context_attr_pkg;
+----------
+[CREATE_PROG_OBJ(CALL_PROG_OBJ)] create or replace package body context_attr_pkg as
+  procedure set_value(namespace_name varchar, attribute_name varchar, attribute_value varchar) as
+  begin
+    dbms_session.set_context(namespace_name, attribute_name, attribute_value);
+  end;
+  procedure set_value_as(namespace_name varchar, attribute_name varchar, attribute_value varchar,
+    username varchar, client_id varchar) as
+  begin
+    dbms_session.set_context(namespace_name, attribute_name, attribute_value, username, client_id);
+  end;
+  procedure clear_value(namespace_name varchar, client_id varchar, attribute_name varchar) as
+  begin
+    dbms_session.clear_context(namespace_name, client_id, attribute_name);
+  end;
+  procedure clear_all(namespace_name varchar) as
+  begin
+    dbms_session.clear_all_context(namespace_name);
+  end;
+end context_attr_pkg;
+----------
+[CREATE_PROG_OBJ] create or replace package context_attr_replacement_pkg as
+  procedure set_value(namespace_name varchar, attribute_name varchar, attribute_value varchar);
+end context_attr_replacement_pkg;
+----------
+[CREATE_PROG_OBJ(CALL_PROG_OBJ)] create or replace package body context_attr_replacement_pkg as
+  procedure set_value(namespace_name varchar, attribute_name varchar, attribute_value varchar) as
+  begin
+    dbms_session.set_context(namespace_name, attribute_name, attribute_value);
+  end;
+end context_attr_replacement_pkg;
+----------
+[SYSTEM_SETTING_WRITE] create context C12345678901234567890123456789 using context_attr_pkg;
+----------
+[SELECT] select name, schid, info5, info6, type$, subtype$ from sysobjects
+where name='C12345678901234567890123456789';
+----------
+[SYSTEM_SETTING_WRITE] drop context SYS.C12345678901234567890123456789;
+----------
+[SYSTEM_SETTING_WRITE] create context "Codex_Ctx_Mixed_20260722" using context_attr_pkg;
+----------
+[SELECT] select name, info5, info6 from sysobjects where name='Codex_Ctx_Mixed_20260722';
+----------
+[SYSTEM_SETTING_WRITE] drop context SYS."Codex_Ctx_Mixed_20260722";
+----------
+[SYSTEM_SETTING_WRITE] create context CODEX_CTX_ATTR_20260722 using CODEX_DM8_CONTEXT_20260721.context_attr_pkg;
+----------
+[SELECT] select name, schid, info5, info6, type$, subtype$ from sysobjects
+where name='CODEX_CTX_ATTR_20260722';
+----------
+[CALL_PROG_OBJ] call context_attr_pkg.set_value('codex_ctx_attr_20260722',
+  'A12345678901234567890123456789', 'CASE_INSENSITIVE');
+----------
+[SELECT|CALL_PROG_OBJ] select sys_context('CODEX_CTX_ATTR_20260722', 'a12345678901234567890123456789');
+----------
+[CALL_PROG_OBJ] call context_attr_pkg.set_value('CODEX_CTX_ATTR_20260722', 'LONG_VALUE', repeat('X', 4000));
+----------
+[SELECT|CALL_PROG_OBJ] select length(sys_context('CODEX_CTX_ATTR_20260722', 'LONG_VALUE'));
+----------
+[SELECT|CALL_PROG_OBJ] select length(sys_context('CODEX_CTX_ATTR_20260722', 'LONG_VALUE', 1));
+----------
+[SELECT|CALL_PROG_OBJ] select length(sys_context('CODEX_CTX_ATTR_20260722', 'LONG_VALUE', 4000));
+----------
+[SELECT|CALL_PROG_OBJ] select length(sys_context('CODEX_CTX_ATTR_20260722', 'LONG_VALUE', 0));
+----------
+[SELECT|CALL_PROG_OBJ] select length(sys_context('CODEX_CTX_ATTR_20260722', 'LONG_VALUE', -1));
+----------
+[SELECT|CALL_PROG_OBJ] select length(sys_context('CODEX_CTX_ATTR_20260722', 'LONG_VALUE', 4001));
+----------
+[SELECT|CALL_PROG_OBJ] select length(sys_context('CODEX_CTX_ATTR_20260722', 'LONG_VALUE', null));
+----------
+[SELECT|CALL_PROG_OBJ] select sys_context('CODEX_CTX_ATTR_20260722', 'MISSING_ATTRIBUTE');
+----------
+[SELECT] select namespace, attribute, value from v$context
+where namespace='CODEX_CTX_ATTR_20260722' order by attribute;
+----------
+[CALL_PROG_OBJ] call context_attr_pkg.clear_value('CODEX_CTX_ATTR_20260722', 'IGNORED_CLIENT', 'LONG_VALUE');
+----------
+[SELECT|CALL_PROG_OBJ] select sys_context('CODEX_CTX_ATTR_20260722', 'LONG_VALUE');
+----------
+[CALL_PROG_OBJ] call context_attr_pkg.set_value('CODEX_CTX_ATTR_20260722', 'CLEAR_ONE', 'ONE');
+----------
+[CALL_PROG_OBJ] call context_attr_pkg.set_value('CODEX_CTX_ATTR_20260722', 'CLEAR_TWO', 'TWO');
+----------
+[CALL_PROG_OBJ] call context_attr_pkg.clear_all('CODEX_CTX_ATTR_20260722');
+----------
+[SELECT|CALL_PROG_OBJ] select sys_context('CODEX_CTX_ATTR_20260722', 'CLEAR_ONE'),
+  sys_context('CODEX_CTX_ATTR_20260722', 'CLEAR_TWO');
+----------
+[CALL_PROG_OBJ] call context_attr_pkg.set_value_as('CODEX_CTX_ATTR_20260722', 'FIVE_ARGS', 'IGNORED_OK',
+  'NO_SUCH_USER', 'NO_SUCH_CLIENT');
+----------
+[SELECT|CALL_PROG_OBJ] select sys_context('CODEX_CTX_ATTR_20260722', 'FIVE_ARGS');
+----------
+[SYSTEM_SETTING_WRITE] create or replace context CODEX_CTX_ATTR_20260722
+using CODEX_DM8_CONTEXT_20260721.context_attr_replacement_pkg;
+----------
+[SELECT] select name, info5, info6 from sysobjects where name='CODEX_CTX_ATTR_20260722';
+----------
+[SYSTEM_SETTING_WRITE] create context if not exists CODEX_CTX_ATTR_20260722
+using CODEX_DM8_CONTEXT_20260721.context_attr_pkg;
+----------
+[SELECT] select name, info5, info6 from sysobjects where name='CODEX_CTX_ATTR_20260722';
+----------
+[SYSTEM_SETTING_WRITE] create or replace context if not exists CODEX_CTX_ATTR_20260722
+using CODEX_DM8_CONTEXT_20260721.context_attr_pkg;
+----------
+[SELECT] select name, info5, info6 from sysobjects where name='CODEX_CTX_ATTR_20260722';
+----------
+[CALL_PROG_OBJ] call context_attr_pkg.set_value('CODEX_CTX_ATTR_20260722', 'DROP_KEEP', 'STILL_VISIBLE');
+----------
+[SYSTEM_SETTING_WRITE] drop context SYS.CODEX_CTX_ATTR_20260722;
+----------
+[SELECT|CALL_PROG_OBJ] select sys_context('CODEX_CTX_ATTR_20260722', 'DROP_KEEP');
+----------
+[SYSTEM_SETTING_WRITE] create context CODEX_CTX_ATTR_20260722 using context_attr_pkg;
+----------
+[SELECT|CALL_PROG_OBJ] select sys_context('CODEX_CTX_ATTR_20260722', 'DROP_KEEP');
+----------
+[SYSTEM_SETTING_WRITE] drop context if exists SYS.CODEX_CTX_ATTR_20260722;
+----------
+[SYSTEM_SETTING_WRITE] drop context if exists SYS.CODEX_CTX_ATTR_20260722;
+----------
+[SELECT|CALL_PROG_OBJ] select sys_context('USERENV', 'CURRENT_SCHEMA');
+----------
+[SELECT|CALL_PROG_OBJ] select sys_context('USERENV', 'CURRENT_SCHEMAID');
+----------
+[SELECT|CALL_PROG_OBJ] select sys_context('USERENV', 'CURRENT_USER');
+----------
+[SELECT|CALL_PROG_OBJ] select sys_context('USERENV', 'CURRENT_USERID');
+----------
+[SELECT|CALL_PROG_OBJ] select sys_context('USERENV', 'DB_NAME');
+----------
+[SELECT|CALL_PROG_OBJ] select sys_context('USERENV', 'HOST');
+----------
+[SELECT|CALL_PROG_OBJ] select sys_context('USERENV', 'INSTANCE');
+----------
+[SELECT|CALL_PROG_OBJ] select sys_context('USERENV', 'INSTANCE_NAME');
+----------
+[SELECT|CALL_PROG_OBJ] select sys_context('USERENV', 'IP_ADDRESS');
+----------
+[SELECT|CALL_PROG_OBJ] select sys_context('USERENV', 'ISDBA');
+----------
+[SELECT|CALL_PROG_OBJ] select sys_context('USERENV', 'LANG');
+----------
+[SELECT|CALL_PROG_OBJ] select sys_context('USERENV', 'LANGUAGE');
+----------
+[SELECT|CALL_PROG_OBJ] select sys_context('USERENV', 'NETWORK_PROTOCOL');
+----------
+[SELECT|CALL_PROG_OBJ] select sys_context('USERENV', 'SERVER_HOST');
+----------
+[SELECT|CALL_PROG_OBJ] select sys_context('USERENV', 'SESSION_USER');
+----------
+[SELECT|CALL_PROG_OBJ] select sys_context('USERENV', 'SESSION_USERID');
+----------
+[SELECT|CALL_PROG_OBJ] select sys_context('USERENV', 'SID');
+----------
+[SELECT|CALL_PROG_OBJ] select sys_context('USERENV', 'UNKNOWN_ATTRIBUTE');
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_session.is_session_alive(dbms_session.unique_session_id);
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare
+  context_list dbms_session.appctxtabtyp;
+  context_count number;
+begin
+  dbms_session.list_context(context_list, context_count);
+end;
+----------
+[CALL_PROG_OBJ] call dbms_session.set_identifier('CODEX_CONTEXT_CLIENT_20260722');
+----------
+[SELECT|CALL_PROG_OBJ] select client_identifier from v$sessions
+where sess_id=cast(sys_context('USERENV', 'SID') as bigint);
+----------
+[CALL_PROG_OBJ] call dbms_session.set_identifier(null);
+----------
+[DROP_PROG_OBJ] drop package context_attr_replacement_pkg;
+----------
+[DROP_PROG_OBJ] drop package context_attr_pkg;
+----------
+[SYSTEM_SETTING_WRITE] create context "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+using CODEX_DM8_CONTEXT_20260721.no_such_package;
+----------
+[SELECT] select name, schid, info5, info6 from sysobjects
+where name='CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+----------
+[SYSTEM_SETTING_WRITE] drop context SYS."CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+----------
+[SYSTEM_SETTING_WRITE] create context CODEX_CTX_NO_PACKAGE_20260722
+using CODEX_DM8_CONTEXT_20260721.no_such_package;
+----------
+[SELECT] select name, info5, info6 from sysobjects where name='CODEX_CTX_NO_PACKAGE_20260722';
+----------
+[SYSTEM_SETTING_WRITE] drop context SYS.CODEX_CTX_NO_PACKAGE_20260722;
+----------
+[SELECT|CALL_PROG_OBJ] select sys_context('CODEX_CTX_MISSING_20260722', 'ATTRIBUTE');
+----------
+[SYSTEM_SETTING_WRITE] create context C123456789012345678901234567890
+using CODEX_DM8_CONTEXT_20260721.no_such_package;
+----------
+[SELECT] select name, info5, info6 from sysobjects where name='C123456789012345678901234567890';
+----------
+[SYSTEM_SETTING_WRITE] drop context SYS.C123456789012345678901234567890;
+----------
+[CREATE_PROG_OBJ] create or replace package context_session_pkg as
+  procedure set_value(namespace_name varchar, attribute_name varchar, attribute_value varchar);
+end context_session_pkg;
+----------
+[CREATE_PROG_OBJ(CALL_PROG_OBJ)] create or replace package body context_session_pkg as
+  procedure set_value(namespace_name varchar, attribute_name varchar, attribute_value varchar) as
+  begin
+    dbms_session.set_context(namespace_name, attribute_name, attribute_value);
+  end;
+end context_session_pkg;
+----------
+[SYSTEM_SETTING_WRITE] create context CODEX_CTX_SESSION_20260722
+using CODEX_DM8_CONTEXT_20260721.context_session_pkg;
+----------
+[CALL_PROG_OBJ] call context_session_pkg.set_value('CODEX_CTX_SESSION_20260722', 'SESSION_KEY', 'ORIGIN_VALUE');
+----------
+[SELECT|CALL_PROG_OBJ] select sys_context('CODEX_CTX_SESSION_20260722', 'SESSION_KEY');
+----------
+[SELECT|CALL_PROG_OBJ] select sys_context('CODEX_CTX_SESSION_20260722', 'SESSION_KEY');
+----------
+[SYSTEM_SETTING_WRITE] drop context SYS.CODEX_CTX_SESSION_20260722;
+----------
+[DROP_PROG_OBJ] drop package context_session_pkg;

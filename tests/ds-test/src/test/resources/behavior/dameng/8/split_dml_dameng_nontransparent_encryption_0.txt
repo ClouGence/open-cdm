@@ -1,0 +1,76 @@
+[split_dml_dameng_nontransparent_encryption_0_001]
+sql:
+insert into CODEX_DM8_CRYPTO_DATA values(1, cfalgorithmsencrypt('CODEX_TEXT', 514, 'CodexKey20260722'), sf_encrypt_binary(0x12345678EF, 514, 'CodexKey20260722', null), sf_encrypt_char('CODEX_CHAR', 514, 'CodexKey20260722', null), sf_encrypt_date(cast('2026-07-22' as date), 514, 'CodexKey20260722', null), sf_encrypt_datetime(cast('2026-07-22 12:34:56' as datetime), 514, 'CodexKey20260722', null), sf_encrypt_dec(cast('3.1415900000' as dec(15,10)), 514, 'CodexKey20260722', null), sf_encrypt_time(cast('12:34:56' as time), 514, 'CodexKey20260722', null));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:33) /test/1/catalog1/schema1/CODEX_DM8_CRYPTO_DATA/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:44~1:63) /test/1/catalog1/schema1/cfalgorithmsencrypt/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:104~1:121) /test/1/catalog1/schema1/sf_encrypt_binary/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:168~1:183) /test/1/catalog1/schema1/sf_encrypt_char/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:230~1:245) /test/1/catalog1/schema1/sf_encrypt_date/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:306~1:325) /test/1/catalog1/schema1/sf_encrypt_datetime/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:399~1:413) /test/1/catalog1/schema1/sf_encrypt_dec/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:482~1:497) /test/1/catalog1/schema1/sf_encrypt_time/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dml_dameng_nontransparent_encryption_0_002]
+sql:
+update CODEX_DM8_CRYPTO_DATA set C_CHAR = sf_encrypt_char('UPDATED', 514, 'CodexKey20260722', null) where ID = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:28) /test/1/catalog1/schema1/CODEX_DM8_CRYPTO_DATA/",
+      "action": "UPDATE"
+    },
+    {
+      "subject": "Function(1:42~1:57) /test/1/catalog1/schema1/sf_encrypt_char/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dml_dameng_nontransparent_encryption_0_003]
+sql:
+delete from CODEX_DM8_CRYPTO_DATA where ID = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:33) /test/1/catalog1/schema1/CODEX_DM8_CRYPTO_DATA/",
+      "action": "DELETE"
+    }
+  ]
+}

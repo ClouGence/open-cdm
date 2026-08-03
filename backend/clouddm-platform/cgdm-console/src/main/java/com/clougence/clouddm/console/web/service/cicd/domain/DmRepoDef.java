@@ -22,10 +22,14 @@ import lombok.Setter;
 @Setter
 public class DmRepoDef {
 
-    private long   scmId;
-    private String repoSpace;
-    private String repoName;
-    private String repoUrl;
-    private String repoHome;
-    private String branch;
+    private long    scmId;
+    private String  repoId;
+    private String  repoPath;
+    private String  repoSpace;
+    private String  repoName;
+    private String  repoUrl;
+    private String  repoHome;
+    private String  branch;
+    private boolean archived;
+    private boolean empty;
 }

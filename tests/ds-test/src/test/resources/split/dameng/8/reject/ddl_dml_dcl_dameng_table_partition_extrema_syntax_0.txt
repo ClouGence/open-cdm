@@ -1,0 +1,60 @@
+create table part_bad_partition(id int) partition range(id)(partition p values less than(10));
+create table part_bad_method(id int) partition by(id)(partition p values less than(10));
+create table part_bad_key(id int) partition by range()(partition p values less than(10));
+create table part_bad_def(id int) partition by range(id)();
+create table part_bad_values(id int) partition by range(id)(partition p less than(10));
+create table part_bad_list(id int) partition by list(id)(partition p values());
+create table part_bad_hash(id int) partition by hash(id) partitions;
+create table part_bad_interval(id int) partition by range(id) interval()(partition p values less than(10));
+create table part_bad_template(a int,b int) partition by range(a) subpartition by range(b) subpartition template()(partition p values less than(10));
+create table part_bad_lock(id int) partition by range(id)(partition p values less than(10)) lock;
+create table part_bad_hpm(id int) storage(hashpartmap()) partition by hash(id) partitions 2;
+alter table part_access add partition;
+alter table part_access split partition pmax at() into(partition p1,partition p2);
+alter table part_access merge partitions p1 into partition p2;
+alter table part_access rename partition p1;
+alter table part_access lock;
+select * from app.part_access partition();
+insert into app.part_access partition values(1,'x');
+grant alter on table part_priv_owner.pt part_priv_object;
+revoke alter on table part_priv_owner.pt part_priv_object;
+------------------------------------------------------------------------------------------
+[CREATE_TABLE|ADD_COLUMN] create table part_bad_partition(id int) partition range(id)(partition p values less than(10));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table part_bad_method(id int) partition by(id)(partition p values less than(10));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table part_bad_key(id int) partition by range()(partition p values less than(10));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table part_bad_def(id int) partition by range(id)();
+----------
+[CREATE_TABLE|ADD_COLUMN] create table part_bad_values(id int) partition by range(id)(partition p less than(10));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table part_bad_list(id int) partition by list(id)(partition p values());
+----------
+[CREATE_TABLE|ADD_COLUMN] create table part_bad_hash(id int) partition by hash(id) partitions;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table part_bad_interval(id int) partition by range(id) interval()(partition p values less than(10));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table part_bad_template(a int,b int) partition by range(a) subpartition by range(b) subpartition template()(partition p values less than(10));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table part_bad_lock(id int) partition by range(id)(partition p values less than(10)) lock;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table part_bad_hpm(id int) storage(hashpartmap()) partition by hash(id) partitions 2;
+----------
+[ALTER_TABLE|ADD_PARTITION] alter table part_access add partition;
+----------
+[ALTER_TABLE|ALTER_PARTITION] alter table part_access split partition pmax at() into(partition p1,partition p2);
+----------
+[ALTER_TABLE|ALTER_PARTITION] alter table part_access merge partitions p1 into partition p2;
+----------
+[ALTER_TABLE|ALTER_PARTITION] alter table part_access rename partition p1;
+----------
+[ALTER_TABLE] alter table part_access lock;
+----------
+[SELECT] select * from app.part_access partition();
+----------
+[INSERT] insert into app.part_access partition values(1,'x');
+----------
+[GRANT] grant alter on table part_priv_owner.pt part_priv_object;
+----------
+[REVOKE] revoke alter on table part_priv_owner.pt part_priv_object;

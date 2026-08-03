@@ -1,0 +1,119 @@
+[integer_extrema_columns]
+sql:
+select t.tiny_min,t.tiny_max,t.small_min,t.small_max,t.int_min,t.int_max,t.big_min,t.big_max from catalog1.app.codex_dm8_type_integer t where t.id=1
+expect:
+{
+  "tiny_min":["/catalog1/app/codex_dm8_type_integer/tiny_min/"],
+  "tiny_max":["/catalog1/app/codex_dm8_type_integer/tiny_max/"],
+  "small_min":["/catalog1/app/codex_dm8_type_integer/small_min/"],
+  "small_max":["/catalog1/app/codex_dm8_type_integer/small_max/"],
+  "int_min":["/catalog1/app/codex_dm8_type_integer/int_min/"],
+  "int_max":["/catalog1/app/codex_dm8_type_integer/int_max/"],
+  "big_min":["/catalog1/app/codex_dm8_type_integer/big_min/"],
+  "big_max":["/catalog1/app/codex_dm8_type_integer/big_max/"]
+}
+----------
+[integer_aggregate_columns]
+sql:
+select min(t.tiny_min) as min_tiny,max(t.big_max) as max_big,sum(t.small_max) as sum_small from catalog1.app.codex_dm8_type_integer t
+expect:
+{
+  "min_tiny":["/catalog1/app/codex_dm8_type_integer/tiny_min/"],
+  "max_big":["/catalog1/app/codex_dm8_type_integer/big_max/"],
+  "sum_small":["/catalog1/app/codex_dm8_type_integer/small_max/"]
+}
+----------
+[numeric_extrema_columns]
+sql:
+select t.n_min,t.n_max,t.n_scale_min,t.n_scale_max,t.n_round,t.f_min,t.f_real,t.f_double,t.f_max,t.d_max,t.dp_max,t.r from catalog1.app.codex_dm8_type_numeric t where t.id=1
+expect:
+{
+  "n_min":["/catalog1/app/codex_dm8_type_numeric/n_min/"],
+  "n_max":["/catalog1/app/codex_dm8_type_numeric/n_max/"],
+  "n_scale_min":["/catalog1/app/codex_dm8_type_numeric/n_scale_min/"],
+  "n_scale_max":["/catalog1/app/codex_dm8_type_numeric/n_scale_max/"],
+  "n_round":["/catalog1/app/codex_dm8_type_numeric/n_round/"],
+  "f_min":["/catalog1/app/codex_dm8_type_numeric/f_min/"],
+  "f_real":["/catalog1/app/codex_dm8_type_numeric/f_real/"],
+  "f_double":["/catalog1/app/codex_dm8_type_numeric/f_double/"],
+  "f_max":["/catalog1/app/codex_dm8_type_numeric/f_max/"],
+  "d_max":["/catalog1/app/codex_dm8_type_numeric/d_max/"],
+  "dp_max":["/catalog1/app/codex_dm8_type_numeric/dp_max/"],
+  "r":["/catalog1/app/codex_dm8_type_numeric/r/"]
+}
+----------
+[character_length_columns]
+sql:
+select length(t.c_min) as c_min_len,length(t.c_alias) as c_alias_len,length(t.v_min) as v_min_len,length(t.v_char) as v_char_len,length(t.v_alias) as v_alias_len from catalog1.app.codex_dm8_type_char t where t.id=1
+expect:
+{
+  "c_min_len":["/catalog1/app/codex_dm8_type_char/c_min/"],
+  "c_alias_len":["/catalog1/app/codex_dm8_type_char/c_alias/"],
+  "v_min_len":["/catalog1/app/codex_dm8_type_char/v_min/"],
+  "v_char_len":["/catalog1/app/codex_dm8_type_char/v_char/"],
+  "v_alias_len":["/catalog1/app/codex_dm8_type_char/v_alias/"]
+}
+----------
+[binary_length_columns]
+sql:
+select lengthb(t.b_min) as b_min_len,lengthb(t.vb_min) as vb_min_len,lengthb(t.raw_max) as raw_max_len from catalog1.app.codex_dm8_type_binary t where t.id=1
+expect:
+{
+  "b_min_len":["/catalog1/app/codex_dm8_type_binary/b_min/"],
+  "vb_min_len":["/catalog1/app/codex_dm8_type_binary/vb_min/"],
+  "raw_max_len":["/catalog1/app/codex_dm8_type_binary/raw_max/"]
+}
+----------
+[datetime_extrema_columns]
+sql:
+select t.date_min,t.date_max,t.time_min,t.time_max,t.ts_min,t.ts_max from catalog1.app.codex_dm8_type_datetime t where t.id=1
+expect:
+{
+  "date_min":["/catalog1/app/codex_dm8_type_datetime/date_min/"],
+  "date_max":["/catalog1/app/codex_dm8_type_datetime/date_max/"],
+  "time_min":["/catalog1/app/codex_dm8_type_datetime/time_min/"],
+  "time_max":["/catalog1/app/codex_dm8_type_datetime/time_max/"],
+  "ts_min":["/catalog1/app/codex_dm8_type_datetime/ts_min/"],
+  "ts_max":["/catalog1/app/codex_dm8_type_datetime/ts_max/"]
+}
+----------
+[interval_extrema_columns]
+sql:
+select t.i_ym,t.i_y,t.i_m,t.i_d,t.i_dh,t.i_dm,t.i_ds,t.i_h,t.i_hm,t.i_hs,t.i_mi,t.i_ms,t.i_s from catalog1.app.codex_dm8_type_interval t where t.id=1
+expect:
+{
+  "i_ym":["/catalog1/app/codex_dm8_type_interval/i_ym/"],
+  "i_y":["/catalog1/app/codex_dm8_type_interval/i_y/"],
+  "i_m":["/catalog1/app/codex_dm8_type_interval/i_m/"],
+  "i_d":["/catalog1/app/codex_dm8_type_interval/i_d/"],
+  "i_dh":["/catalog1/app/codex_dm8_type_interval/i_dh/"],
+  "i_dm":["/catalog1/app/codex_dm8_type_interval/i_dm/"],
+  "i_ds":["/catalog1/app/codex_dm8_type_interval/i_ds/"],
+  "i_h":["/catalog1/app/codex_dm8_type_interval/i_h/"],
+  "i_hm":["/catalog1/app/codex_dm8_type_interval/i_hm/"],
+  "i_hs":["/catalog1/app/codex_dm8_type_interval/i_hs/"],
+  "i_mi":["/catalog1/app/codex_dm8_type_interval/i_mi/"],
+  "i_ms":["/catalog1/app/codex_dm8_type_interval/i_ms/"],
+  "i_s":["/catalog1/app/codex_dm8_type_interval/i_s/"]
+}
+----------
+[timezone_extrema_columns]
+sql:
+select t.t_neg,t.t_pos,t.ts_neg,t.ts_pos,t.ts_local from catalog1.app.codex_dm8_type_tz t where t.id=1
+expect:
+{
+  "t_neg":["/catalog1/app/codex_dm8_type_tz/t_neg/"],
+  "t_pos":["/catalog1/app/codex_dm8_type_tz/t_pos/"],
+  "ts_neg":["/catalog1/app/codex_dm8_type_tz/ts_neg/"],
+  "ts_pos":["/catalog1/app/codex_dm8_type_tz/ts_pos/"],
+  "ts_local":["/catalog1/app/codex_dm8_type_tz/ts_local/"]
+}
+----------
+[timezone_cast_columns]
+sql:
+select cast(t.ts_neg as timestamp(9)) as ts_plain,cast(t.ts_local as timestamp(9) with time zone) as ts_zoned from catalog1.app.codex_dm8_type_tz t where t.id=1
+expect:
+{
+  "ts_plain":["/catalog1/app/codex_dm8_type_tz/ts_neg/"],
+  "ts_zoned":["/catalog1/app/codex_dm8_type_tz/ts_local/"]
+}

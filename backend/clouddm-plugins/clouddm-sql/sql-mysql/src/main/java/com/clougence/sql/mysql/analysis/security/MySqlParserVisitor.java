@@ -1,0 +1,4311 @@
+/*
+ * Copyright 2026 杭州开云集致科技有限公司
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.clougence.sql.mysql.analysis.security;
+
+import static com.clougence.sql.mysql.parser.antlr.MySqlParser.*;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
+import org.antlr.v4.runtime.Parser;
+import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.tree.ParseTree;
+import org.antlr.v4.runtime.tree.RuleNode;
+import org.antlr.v4.runtime.tree.TerminalNode;
+import org.antlr.v4.runtime.tree.TerminalNodeImpl;
+
+import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
+import com.clougence.clouddm.sdk.service.secrules.SecQueryKind;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
+import com.clougence.clouddm.sdk.sql.analysis.security.rdb.*;
+import com.clougence.sql.common.analysis.secrules.builder.enums.AlterTableType;
+import com.clougence.sql.common.analysis.secrules.builder.enums.CommonAttribute;
+import com.clougence.sql.common.analysis.secrules.builder.enums.DomainSource;
+import com.clougence.sql.common.analysis.secrules.builder.enums.NameType;
+import com.clougence.sql.common.analysis.secrules.builder.mode.ColumnTypeDomain;
+import com.clougence.sql.common.analysis.secrules.builder.mode.ConstraintTypeDomain;
+import com.clougence.sql.common.analysis.secrules.builder.mode.ObjNameDomain;
+import com.clougence.sql.mysql.analysis.security.builder.MyBuilderFactory;
+import com.clougence.sql.mysql.analysis.security.builder.enums.MyAttribute;
+import com.clougence.sql.mysql.analysis.security.domain.*;
+import com.clougence.sql.mysql.parser.antlr.MySqlParserBaseVisitor;
+
+public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
+
+    protected final MyBuilderFactory                              builder;
+    protected final Parser                                        parser;
+    private final Deque<Map<String, Window_specificationContext>> namedWindows = new ArrayDeque<>();
+
+    public MySqlParserVisitor(MyBuilderFactory builder, Parser parser){
+        this.builder = builder;
+        this.parser = parser;
+    }
+
+    @Override
+    public Void visitChildren(RuleNode node) {
+        if (node instanceof ParserRuleContext) {
+            throw new UnsupportedOperationException("unsupported SQL context " + node.getClass().getSimpleName() + ": " + this.getText((ParserRuleContext) node));
+        } else {
+            throw new UnsupportedOperationException("unsupported SQL node " + node.getClass().getSimpleName() + ": " + node.getText());
+        }
+    }
+
+    public void dmVisitChildren(RuleNode node) {
+        int n = node.getChildCount();
+
+        for (int i = 0; i < n; ++i) {
+            ParseTree c = node.getChild(i);
+            c.accept(this);
+        }
+    }
+
+    private void addStatementDomain(RuleQueryType sqlType) {
+        RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
+        rdbResourceDomain.setSqlType(sqlType);
+        rdbResourceDomain.setAuditKind(sqlType == RuleQueryType.ALTER_USER ? SecQueryKind.ADMIN : sqlType.getAuditKind());
+        rdbResourceDomain.setTarget(sqlType == RuleQueryType.EXPLAIN ? TargetType.Unknown : sqlType.getTarget());
+        rdbResourceDomain.setNeedSupply(sqlType == RuleQueryType.EXPLAIN);
+        builder.addDomain(rdbResourceDomain);
+    }
+
+    private void addUserAdministrationDomain(RuleQueryType sqlType) {
+        RdbResourceDomain domain = new RdbResourceDomain();
+        domain.setSqlType(sqlType);
+        domain.setAuditKind(SecQueryKind.ADMIN);
+        domain.setTarget(TargetType.UserOrRole);
+        domain.setNeedSupply(false);
+        builder.addDomain(domain);
+    }
+
+    private void addUnknownTargetDomain(RuleQueryType sqlType, SecQueryKind auditKind) {
+        RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
+        rdbResourceDomain.setSqlType(sqlType);
+        rdbResourceDomain.setAuditKind(auditKind);
+        rdbResourceDomain.setNeedSupply(false);
+        rdbResourceDomain.setTarget(TargetType.Unknown);
+        builder.addDomain(rdbResourceDomain);
+    }
+
+    private String getText(ParserRuleContext context) {
+        return parser.getTokenStream().getText(context.getStart(), context.getStop());
+    }
+
+    @Override
+    public Void visitQuerySpecification(QuerySpecificationContext ctx) {
+        namedWindows.push(namedWindows(ctx.windowClause()));
+        try {
+            builder.enterSelectDomain();
+            try {
+                dmVisitChildren(ctx);
+            } finally {
+                builder.exitSelectDomain();
+            }
+        } finally {
+            namedWindows.pop();
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitQuerySpecificationUnionOperand(QuerySpecificationUnionOperandContext ctx) {
+        namedWindows.push(namedWindows(ctx.windowClause()));
+        try {
+            builder.enterSelectDomain();
+            try {
+                dmVisitChildren(ctx);
+            } finally {
+                builder.exitSelectDomain();
+            }
+        } finally {
+            namedWindows.pop();
+        }
+        return null;
+    }
+
+    private Map<String, Window_specificationContext> namedWindows(WindowClauseContext windowClause) {
+        Map<String, Window_specificationContext> windows = new LinkedHashMap<>();
+        if (windowClause != null) {
+            for (WindowDefinitionContext definition : windowClause.windowDefinition()) {
+                windows.put(getName(definition.uid()), definition.window_specification());
+            }
+        }
+        return windows;
+    }
+
+    @Override
+    public Void visitWithSelectStatement(WithSelectStatementContext ctx) {
+        builder.enterSelectDomain();
+        dmVisitChildren(ctx);
+        builder.exitSelectDomain();
+        return null;
+    }
+
+    @Override
+    public Void visitQueryExpressionSelect(QueryExpressionSelectContext ctx) {
+        builder.enterSelectDomain();
+        if (!ctx.queryExpressionSelectTail().unionStatement().isEmpty()) {
+            builder.addAttr(CommonAttribute.UNION, true);
+        }
+        dmVisitChildren(ctx);
+        builder.exitSelectDomain();
+        return null;
+    }
+
+    @Override
+    public Void visitQuerySpecificationSelect(QuerySpecificationSelectContext ctx) {
+        if (ctx.querySpecificationSelectTail().unionStatement().isEmpty()) {
+            dmVisitChildren(ctx);
+            return null;
+        }
+
+        builder.enterSelectDomain();
+        builder.addAttr(CommonAttribute.UNION, true);
+        dmVisitChildren(ctx);
+        builder.exitSelectDomain();
+        return null;
+    }
+
+    @Override
+    public Void visitQuerySpecificationSelectTail(QuerySpecificationSelectTailContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitQueryExpressionSelectTail(QueryExpressionSelectTailContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitParenthesizedSelect(ParenthesizedSelectContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitLegacyQueryExpression(LegacyQueryExpressionContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitSubqueryStatement(SubqueryStatementContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitSelectElements(SelectElementsContext ctx) {
+        if (ctx.getChild(0).getText().equals("*")) {
+            builder.handleBuildSelectItem(() -> {
+                RdbColumnDomain rdbColumnDomain = new RdbColumnDomain();
+                rdbColumnDomain.setColumn("*");
+                builder.handleDomain(rdbColumnDomain, DomainSource.COLUMN);
+            });
+        }
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitSelectExpressionElement(SelectExpressionElementContext ctx) {
+        builder.handleBuildSelectItem(() -> {
+            ExpressionAtomContext expressionAtomContext = findExpressionAtomContext(ctx.expression());
+            if (expressionAtomContext != null && expressionAtomContext.children.size() > 1) {
+                builder.addAttr(CommonAttribute.VALUE, this.getText(ctx.expression()));
+            } else {
+                String text = this.getText(ctx.expression());
+                if (text.startsWith("'")) {
+                    text = text.substring(1, text.length() - 1);
+                }
+                builder.addAttr(CommonAttribute.VALUE, text);
+            }
+
+            dmVisitChildren(ctx);
+        });
+        return null;
+    }
+
+    private ExpressionAtomContext findExpressionAtomContext(ParserRuleContext ctx) {
+        for (ParseTree child : ctx.children) {
+            if (child instanceof ExpressionAtomContext) {
+                return (ExpressionAtomContext) child;
+            } else if (child instanceof ParserRuleContext) {
+                return findExpressionAtomContext((ParserRuleContext) child);
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitAliasName(AliasNameContext ctx) {
+        builder.addAttr(CommonAttribute.ALIAS, getName(ctx));
+        return null;
+    }
+
+    @Override
+    public Void visitSelectAlias(SelectAliasContext ctx) {
+        builder.addAttr(CommonAttribute.ALIAS, getName(ctx));
+        return null;
+    }
+
+    @Override
+    public Void visitGetFormatFunctionCall(GetFormatFunctionCallContext ctx) {
+        builder.handleCall(() -> {
+            builder.handleDomain(new ObjNameDomain(ctx.GET_FORMAT().getText()), DomainSource.OBJ_NAME);
+            builder.handleFunctionArgs(() -> {
+                builder.addAttr(CommonAttribute.FUNC_ARG_NAME, ctx.datetimeFormat.getText());
+                builder.handleDomain(new RdbConstantDomain(ctx.datetimeFormat.getText()), DomainSource.CONSTANT);
+
+                builder.addAttr(CommonAttribute.FUNC_ARG_NAME, getText(ctx.expression()));
+                ctx.expression().accept(this);
+            });
+        });
+        return null;
+    }
+
+    @Override
+    public Void visitJsonValueFunctionCall(JsonValueFunctionCallContext ctx) {
+        builder.handleCall(() -> {
+            builder.handleDomain(new ObjNameDomain(ctx.JSON_VALUE().getText()), DomainSource.OBJ_NAME);
+            builder.handleFunctionArgs(() -> ctx.expression().forEach(this::addFunctionArgument));
+        });
+        return null;
+    }
+
+    @Override
+    public Void visitTrimFunctionCall(TrimFunctionCallContext ctx) {
+        builder.handleCall(() -> {
+            builder.handleDomain(new ObjNameDomain(ctx.TRIM().getText()), DomainSource.OBJ_NAME);
+            builder.handleFunctionArgs(() -> {
+                if (ctx.positioinForm != null) {
+                    builder.addAttr(CommonAttribute.FUNC_ARG_NAME, ctx.positioinForm.getText());
+                    builder.handleDomain(new RdbConstantDomain(ctx.positioinForm.getText()), DomainSource.CONSTANT);
+                }
+                if (ctx.sourceString != null) {
+                    builder.addAttr(CommonAttribute.FUNC_ARG_NAME, ctx.sourceString.getText());
+                    builder.handleDomain(new RdbConstantDomain(ctx.sourceString.getText()), DomainSource.CONSTANT);
+                } else if (ctx.sourceExpression != null) {
+                    builder.addAttr(CommonAttribute.FUNC_ARG_NAME, getText(ctx.sourceExpression));
+                    ctx.sourceExpression.accept(this);
+                }
+
+                if (ctx.fromString != null) {
+                    builder.addAttr(CommonAttribute.FUNC_ARG_NAME, ctx.fromString.getText());
+                    builder.handleDomain(new RdbConstantDomain(ctx.fromString.getText()), DomainSource.CONSTANT);
+                } else if (ctx.sourceExpression != null) {
+                    builder.addAttr(CommonAttribute.FUNC_ARG_NAME, getText(ctx.sourceExpression));
+                    ctx.sourceExpression.accept(this);
+                }
+            });
+        });
+        return null;
+    }
+
+    @Override
+    public Void visitWeightFunctionCall(WeightFunctionCallContext ctx) {
+        builder.handleCall(() -> {
+            builder.handleDomain(new ObjNameDomain(ctx.WEIGHT_STRING().getText()), DomainSource.OBJ_NAME);
+            ParserRuleContext argument = ctx.expression() == null ? ctx.stringLiteral() : ctx.expression();
+            builder.handleFunctionArgs(() -> {
+                builder.addAttr(CommonAttribute.FUNC_ARG_NAME, getText(argument));
+                argument.accept(this);
+            });
+        });
+        return null;
+    }
+
+    @Override
+    public Void visitPasswordFunctionCall(PasswordFunctionCallContext ctx) {
+        PasswordFunctionClauseContext password = ctx.passwordFunctionClause();
+        builder.handleCall(() -> {
+            builder.handleDomain(new ObjNameDomain(password.functionName.getText()), DomainSource.OBJ_NAME);
+            builder.handleFunctionArgs(() -> {
+                builder.addAttr(CommonAttribute.FUNC_ARG_NAME, getText(password.functionArg()));
+                password.functionArg().accept(this);
+            });
+        });
+        return null;
+    }
+
+    @Override
+    public Void visitSimpleFunctionCall(SimpleFunctionCallContext ctx) {
+        builder.handleCall(() -> {
+            builder.handleDomain(new ObjNameDomain(ctx.getChild(0).getText()), DomainSource.OBJ_NAME);
+        });
+        return null;
+    }
+
+    @Override
+    public Void visitCharFunctionCall(CharFunctionCallContext ctx) {
+        builder.handleCall(() -> {
+            builder.handleDomain(new ObjNameDomain(ctx.CHAR().getText()), DomainSource.OBJ_NAME);
+            ctx.functionArgs().accept(this);
+        });
+        return null;
+    }
+
+    @Override
+    public Void visitPositionFunctionCall(PositionFunctionCallContext ctx) {
+        builder.handleCall(() -> {
+            builder.handleDomain(new ObjNameDomain(ctx.POSITION().getText()), DomainSource.OBJ_NAME);
+            builder.handleFunctionArgs(() -> {
+                if (ctx.positionString != null) {
+                    ctx.positionString.accept(this);
+                    builder.addAttr(CommonAttribute.FUNC_ARG_NAME, ctx.positionString.getText());
+                } else {
+                    ctx.positionExpression.accept(this);
+                    builder.addAttr(CommonAttribute.FUNC_ARG_NAME, getText(ctx.positionExpression));
+                }
+
+                if (ctx.inString != null) {
+                    ctx.inString.accept(this);
+                    builder.addAttr(CommonAttribute.FUNC_ARG_NAME, ctx.inString.getText());
+                } else {
+                    ctx.inExpression.accept(this);
+                    builder.addAttr(CommonAttribute.FUNC_ARG_NAME, getText(ctx.inExpression));
+                }
+            });
+
+        });
+        return null;
+    }
+
+    /**
+     *  func call
+     * @param ctx
+     * @return
+     */
+
+    @Override
+    public Void visitGenericFunctionCall(GenericFunctionCallContext ctx) {
+        builder.addAttr(CommonAttribute.VALID_WHERE, true);
+        builder.handleCall(() -> {
+            dmVisitChildren(ctx);
+        });
+        return null;
+    }
+
+    @Override
+    public Void visitGenericFunction(GenericFunctionContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitScalarGenericFunctionName(ScalarGenericFunctionNameContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitCustomGenericFunctionName(CustomGenericFunctionNameContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitKeywordFunctionCall(KeywordFunctionCallContext ctx) {
+        builder.addAttr(CommonAttribute.VALID_WHERE, true);
+        builder.handleCall(() -> {
+            KeywordFunctionContext function = ctx.keywordFunction();
+            builder.handleDomain(new ObjNameDomain(function.getChild(0).getText()), DomainSource.OBJ_NAME);
+            builder.handleFunctionArgs(() -> function.functionArg().forEach(arg -> arg.accept(this)));
+        });
+        return null;
+    }
+
+    @Override
+    public Void visitNonKeywordFunctionCall(NonKeywordFunctionCallContext ctx) {
+        builder.addAttr(CommonAttribute.VALID_WHERE, true);
+        builder.handleCall(() -> {
+            builder.handleDomain(new ObjNameDomain(ctx.getChild(0).getText()), DomainSource.OBJ_NAME);
+            builder.handleFunctionArgs(() -> {
+                List<ExpressionContext> expressions = ctx.expression();
+                if (ctx.INTERVAL() != null) {
+                    addFunctionArgument(expressions.get(0));
+                    String intervalText = "INTERVAL " + getText(expressions.get(1)) + " " + getText(ctx.intervalType());
+                    builder.addAttr(CommonAttribute.FUNC_ARG_NAME, intervalText);
+                    visitIntervalArgument(expressions.get(1));
+                } else {
+                    if (ctx.intervalTypeBase() != null) {
+                        String intervalType = getText(ctx.intervalTypeBase());
+                        builder.addAttr(CommonAttribute.FUNC_ARG_NAME, intervalType);
+                        builder.handleDomain(new RdbConstantDomain(intervalType), DomainSource.CONSTANT);
+                    }
+                    expressions.forEach(this::addFunctionArgument);
+                }
+            });
+        });
+        return null;
+    }
+
+    private void addFunctionArgument(ExpressionContext expression) {
+        builder.addAttr(CommonAttribute.FUNC_ARG_NAME, getText(expression));
+        expression.accept(this);
+    }
+
+    private void visitIntervalArgument(ExpressionContext expression) {
+        builder.handleCall(() -> {
+            builder.addAttr(CommonAttribute.VALUE, "INTERVAL");
+            builder.handleFunctionArgs(() -> addFunctionArgument(expression));
+        });
+    }
+
+    @Override
+    public Void visitScalarFunctionName(ScalarFunctionNameContext ctx) {
+        ObjNameDomain objNameDomain = new ObjNameDomain(Collections.singletonList(this.getText(ctx)), NameType.FUNCTION);
+        builder.handleDomain(objNameDomain, DomainSource.OBJ_NAME);
+        return null;
+    }
+
+    @Override
+    public Void visitWhereClause(WhereClauseContext ctx) {
+        builder.handleWhere(() -> {
+            dmVisitChildren(ctx);
+        });
+        return null;
+    }
+
+    @Override
+    public Void visitFunctionArgs(FunctionArgsContext ctx) {
+        builder.handleFunctionArgs(() -> {
+            dmVisitChildren(ctx);
+        });
+        return null;
+    }
+
+    @Override
+    public Void visitFunctionArgWithAlias(FunctionArgWithAliasContext ctx) {
+        ctx.functionArg().accept(this);
+        return null;
+    }
+
+    @Override
+    public Void visitCustomFunctionName(CustomFunctionNameContext ctx) {
+        builder.enterObjName();
+        dmVisitChildren(ctx);
+        builder.exitObjName();
+        return null;
+    }
+
+    @Override
+    public Void visitConstant(ConstantContext ctx) {
+        String text = this.getText(ctx);
+        if (text.startsWith("'")) {
+            text = text.substring(1, text.length() - 1);
+        }
+        builder.handleDomain(new RdbConstantDomain(text), DomainSource.CONSTANT);
+        return null;
+    }
+
+    @Override
+    public Void visitProcName(ProcNameContext ctx) {
+        builder.enterObjName(NameType.PROCEDURE);
+        dmVisitChildren(ctx);
+        builder.exitObjName();
+        return null;
+    }
+
+    @Override
+    public Void visitProcedureArgs(ProcedureArgsContext ctx) {
+        builder.handleFunctionArgs(() -> {
+            for (ParseTree child : ctx.children) {
+                if (!child.getText().equals(",")) {
+                    String text = this.getText((ParserRuleContext) child);
+                    if (text.startsWith("'")) {
+                        text = text.substring(1, text.length() - 1);
+                    }
+                    builder.addAttr(CommonAttribute.VALUE, text);
+                }
+            }
+            dmVisitChildren(ctx);
+        });
+        return null;
+    }
+
+    @Override
+    public Void visitFullColumnName(FullColumnNameContext ctx) {
+        builder.handleSelectColumn(() -> {
+            builder.handleObjName(() -> {
+                dmVisitChildren(ctx);
+            });
+        });
+        return null;
+    }
+
+    @Override
+    public Void visitBinaryComparasionPredicate(BinaryComparasionPredicateContext ctx) {
+        ParserRuleContext parent = ctx.getParent();
+        int suffixIndex = parent.children.indexOf(ctx);
+        String left = parent.children.subList(0, suffixIndex).stream().map(ParseTree::getText).collect(Collectors.joining());
+        String right = ctx.bitOrExpression().getText();
+        if (left.startsWith("(")) {
+            left = left.substring(1, left.length() - 1);
+        }
+        if (right.startsWith("(")) {
+            right = right.substring(1, right.length() - 1);
+        }
+        if (!left.equals(right)) {
+            builder.addAttr(CommonAttribute.VALID_WHERE, true);
+        }
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitInPredicate(InPredicateContext ctx) {
+        builder.addAttr(CommonAttribute.VALID_WHERE, true);
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitIsNullPredicate(IsNullPredicateContext ctx) {
+        builder.addAttr(CommonAttribute.VALID_WHERE, true);
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitFromClause(FromClauseContext ctx) {
+        builder.enterSelectFromBuilder();
+        dmVisitChildren(ctx);
+        builder.exitSelectFromBuilder();
+        return null;
+    }
+
+    @Override
+    public Void visitTableSources(TableSourcesContext ctx) {
+        builder.enterSelectTableBuilder();
+        dmVisitChildren(ctx);
+        builder.exitSelectTableBuilder();
+        return null;
+    }
+
+    @Override
+    public Void visitTableSourceOdbc(TableSourceOdbcContext ctx) {
+        ctx.tableSource().accept(this);
+        return null;
+    }
+
+    @Override
+    public Void visitTableName(TableNameContext ctx) {
+        builder.enterObjName(NameType.TABLE);
+        for (String name : tableNameParts(ctx)) {
+            builder.addAttr(CommonAttribute.VALUE, name);
+        }
+        builder.exitObjName();
+        return null;
+    }
+
+    private List<String> tableNameParts(TableNameContext ctx) {
+        if (ctx.delphiName != null) {
+            return new ArrayList<>(Collections.singletonList(getName(ctx.delphiName)));
+        }
+        List<String> names = new ArrayList<>();
+        for (UidContext uid : ctx.fullId().uid()) {
+            names.add(getName(uid));
+        }
+        if (ctx.fullId().identifierAfterDot != null) {
+            names.add(identifierText(ctx.fullId().identifierAfterDot.getText()));
+        }
+        return names;
+    }
+
+    @Override
+    public Void visitSimpleId(SimpleIdContext ctx) {
+
+        builder.addAttr(CommonAttribute.VALUE, this.getText(ctx));
+        return null;
+    }
+
+    @Override
+    public Void visitCreateDatabase(CreateDatabaseContext ctx) {
+        builder.enterCreateSchema();
+        dmVisitChildren(ctx);
+        builder.exitCreateSchema();
+        return null;
+    }
+
+    @Override
+    public Void visitDatabaseName(DatabaseNameContext ctx) {
+        builder.enterObjName();
+        dmVisitChildren(ctx);
+        builder.exitObjName();
+        return null;
+    }
+
+    @Override
+    public Void visitCreateIndex(CreateIndexContext ctx) {
+        builder.enterCreateIndex();
+        if (ctx.indexCategory != null) {
+            if (ctx.indexCategory.getType() == UNIQUE) {
+                builder.handleDomain(new ConstraintTypeDomain(SqlConstraintType.Unique), DomainSource.CONSTRAINT_TYPE);
+            }
+        }
+        dmVisitChildren(ctx);
+        builder.exitCreateIndex();
+        return null;
+    }
+
+    @Override
+    public Void visitNormalIndexOption(NormalIndexOptionContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitCommonIndexOption(CommonIndexOptionContext ctx) {
+        if (ctx.getChild(0).getText().equalsIgnoreCase("comment")) {
+            String text = ctx.getChild(1).getText();
+            builder.addAttr(CommonAttribute.COMMENT, text.substring(1, text.length() - 1));
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitCreateProcedure(CreateProcedureContext ctx) {
+        builder.enterCreateProcedure();
+        builder.enterObjName();
+        ctx.fullId().accept(this);
+        builder.exitObjName();
+        builder.enterExitProcedure();
+        return null;
+    }
+
+    @Override
+    public Void visitCreateFunction(CreateFunctionContext ctx) {
+        builder.enterCreateFunction();
+        builder.enterObjName();
+        ctx.fullId().accept(this);
+        builder.exitObjName();
+        builder.exitCreateFunction();
+        return null;
+    }
+
+    @Override
+    public Void visitAlterProcedure(AlterProcedureContext ctx) {
+        addUnknownTargetDomain(RuleQueryType.ALTER_PROG_OBJ, SecQueryKind.ALTER);
+        return null;
+    }
+
+    @Override
+    public Void visitAlterFunction(AlterFunctionContext ctx) {
+        addUnknownTargetDomain(RuleQueryType.ALTER_PROG_OBJ, SecQueryKind.ALTER);
+        return null;
+    }
+
+    @Override
+    public Void visitCreateLibrary(CreateLibraryContext ctx) {
+        addStatementDomain(RuleQueryType.CREATE_LIBRARY);
+        return null;
+    }
+
+    @Override
+    public Void visitCreateMaskingPolicy(CreateMaskingPolicyContext ctx) {
+        addStatementDomain(RuleQueryType.CREATE_POLICY);
+        return null;
+    }
+
+    @Override
+    public Void visitAlterLibrary(AlterLibraryContext ctx) {
+        addStatementDomain(RuleQueryType.ALTER_LIBRARY);
+        return null;
+    }
+
+    @Override
+    public Void visitCreateRole(CreateRoleContext ctx) {
+        builder.enterCreateRole();
+        dmVisitChildren(ctx);
+        builder.exitCreateRole();
+        return null;
+    }
+
+    @Override
+    public Void visitCopyCreateTable(CopyCreateTableContext ctx) {
+        builder.enterCreateTable(RuleQueryType.CREATE_TABLE_LIKE);
+        dmVisitChildren(ctx);
+        builder.exitCreateTable();
+        return null;
+    }
+
+    @Override
+    public Void visitQueryCreateTable(QueryCreateTableContext ctx) {
+        builder.enterCreateTable(RuleQueryType.CREATE_TABLE_SELECT);
+        dmVisitChildren(ctx);
+        builder.exitCreateTable();
+        return null;
+    }
+
+    @Override
+    public Void visitCreateTableQueryExpression(CreateTableQueryExpressionContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitColumnCreateTable(ColumnCreateTableContext ctx) {
+        builder.enterCreateTable(RuleQueryType.CREATE_TABLE);
+        dmVisitChildren(ctx);
+        builder.exitCreateTable();
+        return null;
+    }
+
+    @Override
+    public Void visitCreateTrigger(CreateTriggerContext ctx) {
+        builder.enterCreateTrigger();
+        builder.enterObjName(NameType.TRIGGER);
+        ctx.thisTrigger.accept(this);
+        builder.exitObjName();
+        builder.exitCreateTrigger();
+        return null;
+    }
+
+    @Override
+    public Void visitCreateView(CreateViewContext ctx) {
+        builder.enterView(RuleQueryType.CREATE_VIEW);
+        builder.enterObjName();
+        ctx.fullId().accept(this);
+        builder.exitObjName();
+        builder.exitView();
+        return null;
+    }
+
+    @Override
+    public Void visitAlterView(AlterViewContext ctx) {
+        builder.enterAlterView(RuleQueryType.ALTER_VIEW);
+        builder.enterObjName();
+        ctx.fullId().accept(this);
+        builder.exitObjName();
+        builder.exitAlterView();
+        return null;
+    }
+
+    @Override
+    public Void visitIndexOption(IndexOptionContext ctx) {
+        if (ctx.getChild(0).getText().equalsIgnoreCase("comment")) {
+            String text = ctx.getChild(1).getText();
+            text = text.substring(1, text.length() - 1);
+            builder.addAttr(CommonAttribute.COMMENT, text);
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitColumnDefinition(ColumnDefinitionContext ctx) {
+        builder.handleColumnDef(() -> {
+            builder.handleDomain(new ObjNameDomain(Collections.singletonList(getName(ctx.uid())), null), DomainSource.OBJ_NAME);
+
+            ctx.dataType().accept(this);
+            for (ColumnConstraintContext constraint : ctx.columnConstraint()) {
+                constraint.accept(this);
+            }
+
+            if (ctx.dataType() instanceof StringDataTypeContext stringDataTypeContext) {
+                if (stringDataTypeContext.collationName() != null) {
+                    builder.addAttr(MyAttribute.COLLATE, stringDataTypeContext.collationName().getText());
+                }
+                StringCharsetAttributeContext charsetAttribute = stringDataTypeContext.stringCharsetAttribute();
+                if (charsetAttribute != null) {
+                    String charset = charsetAttribute.ASCII() != null ? "latin1" : charsetAttribute.UNICODE() != null ? "ucs2" : charsetAttribute.charsetName().getText();
+                    builder.addAttr(MyAttribute.CHARACTER_SET, charset);
+                }
+            }
+        });
+        return null;
+    }
+
+    @Override
+    public Void visitNullColumnConstraint(NullColumnConstraintContext ctx) {
+        builder.addAttr(CommonAttribute.NOT_NULL, true);
+        return null;
+    }
+
+    @Override
+    public Void visitDefaultColumnConstraint(DefaultColumnConstraintContext ctx) {
+        builder.handleDomain(new RdbConstantDomain(this.getText(ctx.defaultValue())), DomainSource.COLUMN_DEFAULT_VALUE);
+        return null;
+    }
+
+    @Override
+    public Void visitInvisibleColumnConstraint(InvisibleColumnConstraintContext ctx) {
+        return null;
+    }
+
+    @Override
+    public Void visitAutoIncrementColumnConstraint(AutoIncrementColumnConstraintContext ctx) {
+        if (ctx.AUTO_INCREMENT() != null) {
+            builder.addAttr(MyAttribute.AUTO_INCREMENT, true);
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitPrimaryKeyColumnConstraint(PrimaryKeyColumnConstraintContext ctx) {
+
+        builder.handleDomain(new ConstraintTypeDomain(SqlConstraintType.Primary), DomainSource.CONSTRAINT_TYPE);
+        return null;
+    }
+
+    @Override
+    public Void visitUniqueKeyColumnConstraint(UniqueKeyColumnConstraintContext ctx) {
+        builder.handleDomain(new ConstraintTypeDomain(SqlConstraintType.Unique), DomainSource.CONSTRAINT_TYPE);
+        return null;
+    }
+
+    @Override
+    public Void visitCommentColumnConstraint(CommentColumnConstraintContext ctx) {
+        String text = ctx.textLiteralToken().getText();
+        builder.addAttr(CommonAttribute.COMMENT, text.substring(1, text.length() - 1));
+        return null;
+    }
+
+    @Override
+    public Void visitReferenceColumnConstraint(ReferenceColumnConstraintContext ctx) {
+        builder.handleDomain(new ConstraintTypeDomain(SqlConstraintType.ForeignKey), DomainSource.CONSTRAINT_TYPE);
+        return null;
+    }
+
+    @Override
+    public Void visitGeneratedColumnConstraint(GeneratedColumnConstraintContext ctx) {
+        return null;
+    }
+
+    @Override
+    public Void visitPrimaryKeyTableConstraint(PrimaryKeyTableConstraintContext ctx) {
+        builder.enterConstraint();
+        builder.handleDomain(new ConstraintTypeDomain(SqlConstraintType.Primary), DomainSource.CONSTRAINT_TYPE);
+        dmVisitChildren(ctx);
+        builder.exitConstraint();
+        return null;
+    }
+
+    @Override
+    public Void visitUniqueKeyTableConstraint(UniqueKeyTableConstraintContext ctx) {
+        builder.enterConstraint();
+        builder.handleDomain(new ConstraintTypeDomain(SqlConstraintType.Unique), DomainSource.CONSTRAINT_TYPE);
+        dmVisitChildren(ctx);
+        builder.exitConstraint();
+        return null;
+    }
+
+    @Override
+    public Void visitCheckTableConstraint(CheckTableConstraintContext ctx) {
+        builder.enterConstraint();
+        builder.handleDomain(new ConstraintTypeDomain(SqlConstraintType.Check), DomainSource.CONSTRAINT_TYPE);
+        dmVisitChildren(ctx);
+        builder.exitConstraint();
+        return null;
+    }
+
+    @Override
+    public Void visitForeignKeyTableConstraint(ForeignKeyTableConstraintContext ctx) {
+
+        builder.enterConstraint();
+        builder.handleDomain(new ConstraintTypeDomain(SqlConstraintType.ForeignKey), DomainSource.CONSTRAINT_TYPE);
+        dmVisitChildren(ctx);
+        builder.exitConstraint();
+        return null;
+    }
+
+    @Override
+    public Void visitReferenceDefinition(ReferenceDefinitionContext ctx) {
+        return null;
+    }
+
+    @Override
+    public Void visitSimpleIndexDeclaration(SimpleIndexDeclarationContext ctx) {
+        builder.enterCreateIndex();
+        dmVisitChildren(ctx);
+        builder.exitCreateIndex();
+        return null;
+    }
+
+    @Override
+    public Void visitSpecialIndexDeclaration(SpecialIndexDeclarationContext ctx) {
+        builder.handleCreateIndex(() -> {
+            builder.addAttr(CommonAttribute.INDEX_TYPE, ctx.getChild(0).getText());
+            dmVisitChildren(ctx);
+        });
+        return null;
+    }
+
+    @Override
+    public Void visitOptimizeTable(OptimizeTableContext ctx) {
+        for (TableNameContext tableNameContext : ctx.tables().tableName()) {
+            builder.handleOptimizeTable(() -> {
+                tableNameContext.accept(this);
+            });
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitCheckTable(CheckTableContext ctx) {
+        for (TableNameContext tableNameContext : ctx.tables().tableName()) {
+            builder.handleResource(() -> {
+                tableNameContext.accept(this);
+            }, RuleQueryType.CHECK_TABLE, SecQueryKind.ALTER, true, TargetType.Table);
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitChecksumTable(ChecksumTableContext ctx) {
+        for (TableNameContext tableNameContext : ctx.tables().tableName()) {
+            builder.handleResource(() -> {
+                tableNameContext.accept(this);
+            }, RuleQueryType.CHECK_TABLE, SecQueryKind.OTHER, true, TargetType.Table);
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitInstallPlugin(InstallPluginContext ctx) {
+        RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
+        rdbResourceDomain.setSqlType(RuleQueryType.INSTALL_PLUGIN);
+        rdbResourceDomain.setAuditKind(SecQueryKind.OTHER);
+        rdbResourceDomain.setNeedSupply(false);
+        rdbResourceDomain.setTarget(TargetType.Unknown);
+        builder.addDomain(rdbResourceDomain);
+        return null;
+    }
+
+    @Override
+    public Void visitUninstallPlugin(UninstallPluginContext ctx) {
+        RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
+        rdbResourceDomain.setSqlType(RuleQueryType.UNINSTALL_PLUGIN);
+        rdbResourceDomain.setAuditKind(SecQueryKind.OTHER);
+        rdbResourceDomain.setNeedSupply(false);
+        rdbResourceDomain.setTarget(TargetType.Unknown);
+        builder.addDomain(rdbResourceDomain);
+        return null;
+    }
+
+    @Override
+    public Void visitInstallComponent(InstallComponentContext ctx) {
+        addStatementDomain(RuleQueryType.CREATE_LIBRARY);
+        return null;
+    }
+
+    @Override
+    public Void visitUninstallComponent(UninstallComponentContext ctx) {
+        addStatementDomain(RuleQueryType.DROP_LIBRARY);
+        return null;
+    }
+
+    @Override
+    public Void visitCreateUdfFunction(CreateUdfFunctionContext ctx) {
+        RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
+        rdbResourceDomain.setSqlType(RuleQueryType.CREATE_UDF_FUNCTION);
+        rdbResourceDomain.setAuditKind(SecQueryKind.CREATE);
+        rdbResourceDomain.setNeedSupply(false);
+        rdbResourceDomain.setTarget(TargetType.Function);
+        builder.addDomain(rdbResourceDomain);
+        return null;
+    }
+
+    @Override
+    public Void visitRepairTable(RepairTableContext ctx) {
+        for (TableNameContext tableNameContext : ctx.tables().tableName()) {
+            builder.handleResource(() -> {
+                tableNameContext.accept(this);
+            }, RuleQueryType.REPAIR, SecQueryKind.OTHER, true, TargetType.Table);
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitAnalyzeTable(AnalyzeTableContext ctx) {
+        if (ctx.tables() != null) {
+            for (TableNameContext tableNameContext : ctx.tables().tableName()) {
+                builder.handleAnalyzeTable(() -> {
+                    tableNameContext.accept(this);
+                });
+            }
+        } else if (ctx.tableName() != null) {
+            builder.handleAnalyzeTable(() -> {
+                ctx.tableName().accept(this);
+            });
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitFullDescribeStatement(FullDescribeStatementContext ctx) {
+        if (ctx.analyze != null) {
+            ctx.describeObjectClause().accept(this);
+        } else {
+            addStatementDomain(RuleQueryType.EXPLAIN);
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitCreateEvent(CreateEventContext ctx) {
+        builder.handleCreateEvent(() -> {
+            builder.handleObjName(() -> {
+                ctx.fullId().accept(this);
+            });
+        });
+        return null;
+    }
+
+    @Override
+    public Void visitSetTransaction(SetTransactionContext ctx) {
+        RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
+        rdbResourceDomain.setAuditKind(SecQueryKind.OTHER);
+        rdbResourceDomain.setSqlType(RuleQueryType.TRANSACTION);
+        rdbResourceDomain.setNeedSupply(true);
+        rdbResourceDomain.setTarget(TargetType.Unknown);
+        builder.addDomain(rdbResourceDomain);
+        return null;
+    }
+
+    @Override
+    public Void visitSetAutocommit(SetAutocommitContext ctx) {
+        RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
+        rdbResourceDomain.setAuditKind(SecQueryKind.OTHER);
+        rdbResourceDomain.setSqlType(RuleQueryType.SESSION_SETTING_WRITE);
+        rdbResourceDomain.setNeedSupply(true);
+        rdbResourceDomain.setTarget(TargetType.Unknown);
+        builder.addDomain(rdbResourceDomain);
+        return null;
+    }
+
+    @Override
+    public Void visitDropProcedure(DropProcedureContext ctx) {
+        builder.enterDropProcedure();
+        builder.handleObjName(() -> {
+            ctx.fullId().accept(this);
+        }, NameType.PROCEDURE);
+        builder.exitDropProcedure();
+        return null;
+    }
+
+    @Override
+    public Void visitDropEvent(DropEventContext ctx) {
+        builder.handleDropEvent(() -> {
+            builder.handleObjName(() -> {
+                ctx.fullId().accept(this);
+            });
+        });
+        return null;
+    }
+
+    @Override
+    public Void visitDropTrigger(DropTriggerContext ctx) {
+        builder.enterDropTrigger();
+        builder.handleObjName(() -> {
+            ctx.fullId().accept(this);
+        }, NameType.TRIGGER);
+        builder.exitDropTrigger();
+        return null;
+    }
+
+    @Override
+    public Void visitDropView(DropViewContext ctx) {
+        for (FullIdContext fullIdContext : ctx.fullId()) {
+            builder.handleDropView(() -> {
+                builder.handleObjName(() -> {
+                    fullIdContext.accept(this);
+                });
+            });
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitDropFunction(DropFunctionContext ctx) {
+        builder.enterDropFunction();
+        builder.handleObjName(() -> {
+            ctx.fullId().accept(this);
+        }, NameType.FUNCTION);
+        builder.exitDropFunction();
+        return null;
+    }
+
+    @Override
+    public Void visitJsonExpressionAtom(JsonExpressionAtomContext ctx) {
+        ctx.left.accept(this);
+
+        builder.handleOtherDomains(() -> {
+            ctx.right.accept(this);
+        });
+        return null;
+    }
+
+    @Override
+    public Void visitIndexName(IndexNameContext ctx) {
+        builder.enterObjName(NameType.INDEX);
+        dmVisitChildren(ctx);
+        builder.exitObjName();
+        return null;
+    }
+
+    @Override
+    public Void visitTableOptionEngine(TableOptionEngineContext ctx) {
+        if (ctx.engineName() != null) {
+            builder.addAttr(MyAttribute.ENGINE, this.getText(ctx.engineName()));
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitTableOptionAutoIncrement(TableOptionAutoIncrementContext ctx) {
+        String text = ctx.decimalLiteral().getText();
+        builder.addAttr(MyAttribute.AUTO_INCREMENT, text);
+        return null;
+    }
+
+    @Override
+    public Void visitTableOptionCharset(TableOptionCharsetContext ctx) {
+        if (ctx.charsetName() != null) {
+            builder.addAttr(MyAttribute.CHARACTER_SET, this.getText(ctx.charsetName()));
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitTableOptionCollate(TableOptionCollateContext ctx) {
+        builder.addAttr(MyAttribute.COLLATE, this.getText(ctx.collationName()));
+        return null;
+    }
+
+    @Override
+    public Void visitTemporary_(Temporary_Context ctx) {
+        builder.addAttr(MyAttribute.TEMPORARY, true);
+        return null;
+    }
+
+    @Override
+    public Void visitCreateTableModifier(CreateTableModifierContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitTableOptionComment(TableOptionCommentContext ctx) {
+        ParseTree child = ctx.getChild(ctx.children.size() - 1);
+        builder.addAttr(CommonAttribute.COMMENT, child.getText().substring(1, child.getText().length() - 1));
+        return null;
+    }
+
+    @Override
+    public Void visitPartitionDefinitions(PartitionDefinitionsContext ctx) {
+        return null;
+    }
+
+    @Override
+    public Void visitAlterSimpleDatabase(AlterSimpleDatabaseContext ctx) {
+        builder.enterAlterSchema();
+        dmVisitChildren(ctx);
+        builder.exitAlterSchema();
+        return null;
+    }
+
+    @Override
+    public Void visitAlterTable(AlterTableContext ctx) {
+        builder.enterAlterTable();
+        dmVisitChildren(ctx);
+        builder.exitAlterTable();
+        return null;
+    }
+
+    @Override
+    public Void visitAlterByAddColumn(AlterByAddColumnContext ctx) {
+        builder.enterAlterTableItem(AlterTableType.ADD_COLUMN);
+        dmVisitChildren(ctx);
+        builder.exitAlterTableItem();
+        return null;
+    }
+
+    @Override
+    public Void visitAlterByAddIndex(AlterByAddIndexContext ctx) {
+        builder.enterAlterTableItem(AlterTableType.ADD_INDEX);
+        builder.enterCreateIndex();
+        dmVisitChildren(ctx);
+        builder.exitCreateIndex();
+        builder.exitAlterTableItem();
+        return null;
+    }
+
+    @Override
+    public Void visitAlterByAddPrimaryKey(AlterByAddPrimaryKeyContext ctx) {
+        builder.enterAlterTableItem(AlterTableType.ADD_CONSTRAINT);
+        builder.enterConstraint();
+        builder.handleDomain(new ConstraintTypeDomain(SqlConstraintType.Primary), DomainSource.CONSTRAINT_TYPE);
+        dmVisitChildren(ctx);
+        builder.exitConstraint();
+        builder.exitAlterTableItem();
+        return null;
+    }
+
+    @Override
+    public Void visitAlterByAddUniqueKey(AlterByAddUniqueKeyContext ctx) {
+        builder.enterAlterTableItem(AlterTableType.ADD_CONSTRAINT);
+        builder.enterConstraint();
+        builder.handleDomain(new ConstraintTypeDomain(SqlConstraintType.Unique), DomainSource.CONSTRAINT_TYPE);
+        dmVisitChildren(ctx);
+        builder.exitConstraint();
+        builder.exitAlterTableItem();
+        return null;
+    }
+
+    @Override
+    public Void visitAlterByAddCheckTableConstraint(AlterByAddCheckTableConstraintContext ctx) {
+        builder.enterAlterTableItem(AlterTableType.ADD_CONSTRAINT);
+        builder.enterConstraint();
+        builder.handleDomain(new ConstraintTypeDomain(SqlConstraintType.Check), DomainSource.CONSTRAINT_TYPE);
+        dmVisitChildren(ctx);
+        builder.exitConstraint();
+        builder.exitAlterTableItem();
+        return null;
+    }
+
+    @Override
+    public Void visitCreateTablespaceInnodb(CreateTablespaceInnodbContext ctx) {
+        addStatementDomain(RuleQueryType.CREATE_TABLESPACE);
+        return null;
+    }
+
+    @Override
+    public Void visitCreateUndoTablespace(CreateUndoTablespaceContext ctx) {
+        addStatementDomain(RuleQueryType.CREATE_TABLESPACE);
+        return null;
+    }
+
+    @Override
+    public Void visitAlterLogfileGroup(AlterLogfileGroupContext ctx) {
+        addStatementDomain(RuleQueryType.ALTER_LOG);
+        return null;
+    }
+
+    @Override
+    public Void visitAlterTablespace(AlterTablespaceContext ctx) {
+        addStatementDomain(RuleQueryType.ALTER_TABLESPACE);
+        return null;
+    }
+
+    @Override
+    public Void visitAlterUndoTablespace(AlterUndoTablespaceContext ctx) {
+        addStatementDomain(RuleQueryType.ALTER_TABLESPACE);
+        return null;
+    }
+
+    @Override
+    public Void visitDropTablespace(DropTablespaceContext ctx) {
+        addStatementDomain(RuleQueryType.DROP_TABLESPACE);
+        return null;
+    }
+
+    @Override
+    public Void visitDropUndoTablespace(DropUndoTablespaceContext ctx) {
+        addStatementDomain(RuleQueryType.DROP_TABLESPACE);
+        return null;
+    }
+
+    @Override
+    public Void visitDropLogfileGroup(DropLogfileGroupContext ctx) {
+        addStatementDomain(RuleQueryType.DROP_LOG);
+        return null;
+    }
+
+    @Override
+    public Void visitCreateLogfileGroup(CreateLogfileGroupContext ctx) {
+        addStatementDomain(RuleQueryType.CREATE_LOG);
+        return null;
+    }
+
+    @Override
+    public Void visitCreateTablespaceNdb(CreateTablespaceNdbContext ctx) {
+        addStatementDomain(RuleQueryType.CREATE_TABLESPACE);
+        return null;
+    }
+
+    @Override
+    public Void visitCreateResourceGroup(CreateResourceGroupContext ctx) {
+        addStatementDomain(RuleQueryType.CREATE_RESOURCE_GROUP);
+        return null;
+    }
+
+    @Override
+    public Void visitCreateServer(CreateServerContext ctx) {
+        addStatementDomain(RuleQueryType.SYSTEM_SETTING_WRITE);
+        return null;
+    }
+
+    @Override
+    public Void visitCreateSpatialReferenceSystem(CreateSpatialReferenceSystemContext ctx) {
+        addStatementDomain(RuleQueryType.SYSTEM_SETTING_WRITE);
+        return null;
+    }
+
+    @Override
+    public Void visitAlterResourceGroup(AlterResourceGroupContext ctx) {
+        addStatementDomain(RuleQueryType.ALTER_RESOURCE_GROUP);
+        return null;
+    }
+
+    @Override
+    public Void visitAlterInstance(AlterInstanceContext ctx) {
+        addStatementDomain(RuleQueryType.SYSTEM_SETTING_WRITE);
+        return null;
+    }
+
+    @Override
+    public Void visitAlterServer(AlterServerContext ctx) {
+        addStatementDomain(RuleQueryType.SYSTEM_SETTING_WRITE);
+        return null;
+    }
+
+    @Override
+    public Void visitDropResourceGroup(DropResourceGroupContext ctx) {
+        addStatementDomain(RuleQueryType.DROP_RESOURCE_GROUP);
+        return null;
+    }
+
+    @Override
+    public Void visitDropServer(DropServerContext ctx) {
+        addStatementDomain(RuleQueryType.SYSTEM_SETTING_WRITE);
+        return null;
+    }
+
+    @Override
+    public Void visitDropSpatialReferenceSystem(DropSpatialReferenceSystemContext ctx) {
+        addStatementDomain(RuleQueryType.SYSTEM_SETTING_WRITE);
+        return null;
+    }
+
+    @Override
+    public Void visitDropLibrary(DropLibraryContext ctx) {
+        addStatementDomain(RuleQueryType.DROP_LIBRARY);
+        return null;
+    }
+
+    @Override
+    public Void visitDropMaskingPolicy(DropMaskingPolicyContext ctx) {
+        addStatementDomain(RuleQueryType.DROP_POLICY);
+        return null;
+    }
+
+    @Override
+    public Void visitSetResourceGroup(SetResourceGroupContext ctx) {
+        addStatementDomain(RuleQueryType.ADMIN_RESOURCE_GROUP);
+        return null;
+    }
+
+    @Override
+    public Void visitDoStatement(DoStatementContext ctx) {
+        addStatementDomain(RuleQueryType.BLOCK);
+        return null;
+    }
+
+    @Override
+    public Void visitSignalStatement(SignalStatementContext ctx) {
+        addStatementDomain(RuleQueryType.PROGRAM_CONTROL);
+        return null;
+    }
+
+    @Override
+    public Void visitResignalStatement(ResignalStatementContext ctx) {
+        addStatementDomain(RuleQueryType.PROGRAM_CONTROL);
+        return null;
+    }
+
+    @Override
+    public Void visitDiagnosticsStatement(DiagnosticsStatementContext ctx) {
+        addStatementDomain(RuleQueryType.UNKNOWN);
+        return null;
+    }
+
+    @Override
+    public Void visitHelpStatement(HelpStatementContext ctx) {
+        addStatementDomain(RuleQueryType.METADATA);
+        return null;
+    }
+
+    @Override
+    public Void visitCacheIndexStatement(CacheIndexStatementContext ctx) {
+        addStatementDomain(RuleQueryType.ADMIN_PERFORMANCE);
+        return null;
+    }
+
+    @Override
+    public Void visitAlterByAddSpecialIndex(AlterByAddSpecialIndexContext ctx) {
+
+        builder.enterAlterTableItem(AlterTableType.ADD_INDEX);
+        builder.enterCreateIndex();
+        dmVisitChildren(ctx);
+        builder.exitCreateIndex();
+        builder.exitAlterTableItem();
+        return null;
+    }
+
+    @Override
+    public Void visitAlterByAddForeignKey(AlterByAddForeignKeyContext ctx) {
+        builder.enterAlterTableItem(AlterTableType.ADD_CONSTRAINT);
+        builder.enterConstraint();
+        builder.handleDomain(new ConstraintTypeDomain(SqlConstraintType.ForeignKey), DomainSource.CONSTRAINT_TYPE);
+        dmVisitChildren(ctx);
+        builder.exitConstraint();
+        builder.exitAlterTableItem();
+        return null;
+    }
+
+    @Override
+    public Void visitAlterByChangeDefault(AlterByChangeDefaultContext ctx) {
+        MyColumnDomain myColumnDomain = new MyColumnDomain();
+        myColumnDomain.setAuditKind(SecQueryKind.ALTER);
+        myColumnDomain.setSqlType(RuleQueryType.ALTER_TABLE_ALTER_COLUMN);
+        myColumnDomain.setColumn(getName(ctx.uid()));
+        if (ctx.defaultValue() != null) {
+            String text = this.getText(ctx.defaultValue());
+            if (text.startsWith("'")) {
+                text = text.substring(1, text.length() - 1);
+            }
+            myColumnDomain.setDefaultValue(text);
+        }
+        builder.handleDomain(myColumnDomain, DomainSource.ALTER_TABLE_ITEM);
+        return null;
+    }
+
+    @Override
+    public Void visitAlterBySetMaskingPolicy(AlterBySetMaskingPolicyContext ctx) {
+        addMaskingPolicyColumn(ctx.uid(0));
+        return null;
+    }
+
+    @Override
+    public Void visitAlterByDropMaskingPolicy(AlterByDropMaskingPolicyContext ctx) {
+        addMaskingPolicyColumn(ctx.uid());
+        return null;
+    }
+
+    private void addMaskingPolicyColumn(UidContext column) {
+        MyColumnDomain domain = new MyColumnDomain();
+        domain.setAuditKind(SecQueryKind.ALTER);
+        domain.setSqlType(RuleQueryType.ALTER_COLUMN);
+        domain.setColumn(getName(column));
+        builder.handleDomain(domain, DomainSource.ALTER_TABLE_ITEM);
+    }
+
+    @Override
+    public Void visitAlterByChangeColumn(AlterByChangeColumnContext ctx) {
+        builder.handleAlterTableItem(() -> {
+            dmVisitChildren(ctx);
+        }, AlterTableType.ALTER_COLUMN);
+        return null;
+    }
+
+    @Override
+    public Void visitAlterByModifyColumn(AlterByModifyColumnContext ctx) {
+        builder.handleAlterTableItem(() -> {
+            ctx.columnDefinition().accept(this);
+        }, AlterTableType.ALTER_COLUMN);
+
+        return null;
+    }
+
+    @Override
+    public Void visitAlterByDropColumn(AlterByDropColumnContext ctx) {
+        builder.handleAlterTableItem(() -> {
+            builder.handleColumnDef(() -> {
+                dmVisitChildren(ctx);
+            });
+        }, AlterTableType.DROP_COLUMN);
+        return null;
+    }
+
+    @Override
+    public Void visitAlterByDropConstraintCheck(AlterByDropConstraintCheckContext ctx) {
+        builder.handleAlterTableItem(() -> {
+            builder.handleConstraint(() -> {
+                dmVisitChildren(ctx);
+            });
+        }, AlterTableType.DROP_CONSTRAINT);
+
+        return null;
+    }
+
+    @Override
+    public Void visitAlterByDropPrimaryKey(AlterByDropPrimaryKeyContext ctx) {
+        builder.handleAlterTableItem(() -> {
+            builder.handleConstraint(() -> {
+                builder.handleDomain(new ConstraintTypeDomain(SqlConstraintType.Primary), DomainSource.CONSTRAINT_TYPE);
+            });
+        }, AlterTableType.DROP_CONSTRAINT);
+        return null;
+    }
+
+    @Override
+    public Void visitAlterByDropIndex(AlterByDropIndexContext ctx) {
+        builder.handleAlterTableItem(() -> {
+            builder.enterDropIndex();
+            dmVisitChildren(ctx);
+            builder.exitDropIndex();
+        }, AlterTableType.DROP_INDEX);
+        return null;
+    }
+
+    @Override
+    public Void visitAlterByRenameIndex(AlterByRenameIndexContext ctx) {
+        MyIndexDomain myIndexDomain = new MyIndexDomain();
+        myIndexDomain.setSqlType(RuleQueryType.ALTER_INDEX);
+        myIndexDomain.setAuditKind(SecQueryKind.ALTER);
+        myIndexDomain.setName(getName(ctx.uid(0)));
+        myIndexDomain.setNewName(getName(ctx.uid(1)));
+
+        builder.handleDomain(myIndexDomain, DomainSource.ALTER_TABLE_ITEM);
+        return null;
+    }
+
+    @Override
+    public Void visitAlterByAlterIndexVisibility(AlterByAlterIndexVisibilityContext ctx) {
+        MyIndexDomain myIndexDomain = new MyIndexDomain();
+        myIndexDomain.setSqlType(RuleQueryType.ALTER_INDEX);
+        myIndexDomain.setAuditKind(SecQueryKind.ALTER);
+        myIndexDomain.setName(getName(ctx.uid()));
+        myIndexDomain.setVisible(ctx.visivility.getType() == VISIBLE);
+
+        builder.handleDomain(myIndexDomain, DomainSource.ALTER_TABLE_ITEM);
+        return null;
+    }
+
+    @Override
+    public Void visitAlterByDropForeignKey(AlterByDropForeignKeyContext ctx) {
+        builder.handleAlterTableItem(() -> {
+            builder.handleConstraint(() -> {
+                builder.handleDomain(new ConstraintTypeDomain(SqlConstraintType.ForeignKey), DomainSource.CONSTRAINT_TYPE);
+                dmVisitChildren(ctx);
+            });
+        }, AlterTableType.DROP_CONSTRAINT);
+        return null;
+    }
+
+    @Override
+    public Void visitAlterByRename(AlterByRenameContext ctx) {
+        builder.enterObjName(NameType.NEW_TABLE);
+        dmVisitChildren(ctx.tableName());
+        builder.exitObjName();
+        return null;
+    }
+
+    @Override
+    public Void visitAlterByConvertCharset(AlterByConvertCharsetContext ctx) {
+        MyTableDomain myTableDomain = new MyTableDomain();
+        myTableDomain.setAuditKind(SecQueryKind.ALTER);
+        myTableDomain.setSqlType(RuleQueryType.ALTER_TABLE);
+
+        myTableDomain.setCharacterSet(ctx.charsetName().getText());
+        if (ctx.collationName() != null) {
+            myTableDomain.setCollate(ctx.collationName().getText());
+        }
+        builder.handleDomain(myTableDomain, DomainSource.ALTER_TABLE_ITEM);
+        return null;
+    }
+
+    @Override
+    public Void visitDropDatabase(DropDatabaseContext ctx) {
+        builder.handleDropSchema(() -> {
+            dmVisitChildren(ctx);
+        });
+        return null;
+    }
+
+    @Override
+    public Void visitDropIndex(DropIndexContext ctx) {
+        builder.enterDropIndex();
+        dmVisitChildren(ctx);
+        builder.exitDropIndex();
+        return null;
+    }
+
+    @Override
+    public Void visitDropTable(DropTableContext ctx) {
+        boolean ifExists = ctx.ifExists() != null;
+        for (TableNameContext child : ctx.tables().tableName()) {
+            builder.handleDropTable(() -> {
+                if (ifExists) {
+                    builder.addAttr(CommonAttribute.IF_EXISTS, true);
+                }
+                child.accept(this);
+            });
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitRenameTableClause(RenameTableClauseContext ctx) {
+        builder.enterRename(TargetType.Table);
+
+        builder.enterObjName(NameType.TABLE);
+        dmVisitChildren(ctx.tableName(0));
+        builder.exitObjName();
+
+        builder.enterObjName(NameType.NEW_TABLE);
+        dmVisitChildren(ctx.tableName(1));
+        builder.exitObjName();
+
+        builder.exitRename();
+        return null;
+    }
+
+    @Override
+    public Void visitTruncateTable(TruncateTableContext ctx) {
+        MyTableDomain myTableDomain = new MyTableDomain();
+        myTableDomain.setAuditKind(SecQueryKind.DML);
+        myTableDomain.setSqlType(RuleQueryType.TRUNCATE);
+
+        List<String> names = tableNameParts(ctx.tableName());
+        if (names.size() == 1) {
+            myTableDomain.setTable(names.get(0));
+        } else if (names.size() == 2) {
+            myTableDomain.setSchema(names.get(0));
+            myTableDomain.setTable(names.get(1));
+        } else {
+            throw new UnsupportedOperationException("unsupported SQL: " + this.getText(ctx.tableName()));
+        }
+
+        builder.addDomain(myTableDomain);
+        return null;
+    }
+
+    @Override
+    public Void visitCallStatement(CallStatementContext ctx) {
+        builder.handleCall(() -> {
+            dmVisitChildren(ctx);
+        });
+        return null;
+    }
+
+    @Override
+    public Void visitInsertStatement(InsertStatementContext ctx) {
+        builder.handleInsert(() -> {
+            dmVisitChildren(ctx);
+            if (ctx.duplicatedFirst != null) {
+                builder.addAttr(CommonAttribute.INSERT_CONFLICT, RdbInsertConflictStrategy.UPDATE);
+            }
+        });
+        return null;
+    }
+
+    @Override
+    public Void visitUnionTableValueSelect(UnionTableValueSelectContext ctx) {
+        builder.enterSelectDomain();
+        builder.addAttr(CommonAttribute.UNION, true);
+        dmVisitChildren(ctx);
+        builder.exitSelectDomain();
+        return null;
+    }
+
+    @Override
+    public Void visitCommentInsertValue(CommentInsertValueContext ctx) {
+        if (ctx.valuesRow() != null && ctx.valuesRow().size() > 1) {
+            builder.addAttr(CommonAttribute.MULTI_VALUE, true);
+        }
+
+        builder.handleValues(() -> {
+            dmVisitChildren(ctx);
+        });
+        return null;
+    }
+
+    @Override
+    public Void visitUpdatedElement(UpdatedElementContext ctx) {
+        builder.handleUpdateColumn(() -> {
+            ctx.fullColumnName().accept(this);
+        });
+
+        if (ctx.expression() != null) {
+            builder.enterSetColumnValue();
+            ctx.expression().accept(this);
+            builder.exitSetColumnValue();
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitTableOptionRowFormat(TableOptionRowFormatContext ctx) {
+        return null;
+    }
+
+    @Override
+    public Void visitSubqueryComparasionPredicate(SubqueryComparasionPredicateContext ctx) {
+        builder.handleCall(() -> {
+            builder.handleDomain(new ObjNameDomain(ctx.quantifier.getText()), DomainSource.OBJ_NAME);
+
+            builder.handleFunctionArgs(() -> {
+                builder.addAttr(CommonAttribute.FUNC_ARG_NAME, getText(ctx.subqueryStatement()));
+                ctx.subqueryStatement().accept(this);
+            });
+        });
+        return null;
+    }
+
+    @Override
+    public Void visitLockClause(LockClauseContext ctx) {
+        return null;
+    }
+
+    @Override
+    public Void visitLockClauses(LockClausesContext ctx) {
+        return null;
+    }
+
+    @Override
+    public Void visitSingleDeleteStatement(SingleDeleteStatementContext ctx) {
+        builder.handleDelete(() -> {
+            dmVisitChildren(ctx);
+            if (ctx.deleteOption().stream().anyMatch(option -> option.IGNORE() != null)) {
+                builder.addAttr(CommonAttribute.IGNORE, true);
+            }
+            if (ctx.limit != null) {
+                builder.addAttr(CommonAttribute.LIMIT, true);
+            }
+        });
+        return null;
+    }
+
+    @Override
+    public Void visitDeleteOption(DeleteOptionContext ctx) {
+        return null;
+    }
+
+    @Override
+    public Void visitFullSearchPredicate(FullSearchPredicateContext ctx) {
+        builder.addAttr(CommonAttribute.VALID_WHERE, true);
+        return null;
+    }
+
+    @Override
+    public Void visitSingleUpdateStatement(SingleUpdateStatementContext ctx) {
+        builder.handleUpdate(() -> {
+            dmVisitChildren(ctx);
+        });
+        return null;
+    }
+
+    @Override
+    public Void visitOrderByClause(OrderByClauseContext ctx) {
+        return null;
+    }
+
+    @Override
+    public Void visitLegacyOrderByClause(LegacyOrderByClauseContext ctx) {
+        return null;
+    }
+
+    @Override
+    public Void visitProcedureAnalyseClause(ProcedureAnalyseClauseContext ctx) {
+        return null;
+    }
+
+    @Override
+    public Void visitIgnore_(Ignore_Context ctx) {
+        builder.addAttr(CommonAttribute.IGNORE, true);
+        return null;
+    }
+
+    @Override
+    public Void visitInnerJoin(InnerJoinContext ctx) {
+        visit(ctx.getChild(0));
+        visit(ctx.getChild(1));
+        return null;
+    }
+
+    @Override
+    public Void visitStraightJoin(StraightJoinContext ctx) {
+        visit(ctx.getChild(0));
+        visit(ctx.getChild(1));
+        return null;
+    }
+
+    @Override
+    public Void visitRightDeepInnerJoin(RightDeepInnerJoinContext ctx) {
+        visit(ctx.getChild(0));
+        visit(ctx.getChild(1));
+        return null;
+    }
+
+    @Override
+    public Void visitRightDeepStraightJoin(RightDeepStraightJoinContext ctx) {
+        visit(ctx.getChild(0));
+        visit(ctx.getChild(1));
+        return null;
+    }
+
+    @Override
+    public Void visitOuterJoin(OuterJoinContext ctx) {
+        visit(ctx.getChild(0));
+        visit(ctx.getChild(1));
+        return null;
+    }
+
+    @Override
+    public Void visitNaturalJoin(NaturalJoinContext ctx) {
+        visit(ctx.getChild(0));
+        visit(ctx.getChild(1));
+        return null;
+    }
+
+    @Override
+    public Void visitInnerJoinType(InnerJoinTypeContext ctx) {
+        builder.enterJoin(ctx.getText());
+        builder.addAttr(CommonAttribute.JOIN_USING_COLUMNS, joinUsingColumns(ctx.getParent()));
+        builder.exitJoin();
+        return null;
+    }
+
+    @Override
+    public Void visitOuterJoinType(OuterJoinTypeContext ctx) {
+        builder.enterJoin(ctx.getText());
+        builder.addAttr(CommonAttribute.JOIN_USING_COLUMNS, joinUsingColumns(ctx.getParent()));
+        builder.exitJoin();
+        return null;
+    }
+
+    @Override
+    public Void visitNaturalJoinType(NaturalJoinTypeContext ctx) {
+        builder.enterJoin(ctx.getText());
+        builder.exitJoin();
+        return null;
+    }
+
+    private List<String> joinUsingColumns(ParseTree join) {
+        UidListContext usingColumns = null;
+        if (join instanceof InnerJoinContext innerJoin) {
+            usingColumns = innerJoin.uidList();
+        } else if (join instanceof RightDeepInnerJoinContext rightDeepInnerJoin) {
+            usingColumns = rightDeepInnerJoin.uidList();
+        } else if (join instanceof OuterJoinContext outerJoin) {
+            usingColumns = outerJoin.uidList();
+        }
+        return usingColumns == null ? List.of() : usingColumns.uid().stream().map(this::getName).toList();
+    }
+
+    @Override
+    public Void visitAtomTableItem(AtomTableItemContext ctx) {
+        builder.handleSelectTable(() -> {
+            ctx.tableName().accept(this);
+            if (ctx.aliasName() != null) {
+                ctx.aliasName().accept(this);
+            }
+        });
+        return null;
+    }
+
+    @Override
+    public Void visitJsonTableItem(JsonTableItemContext ctx) {
+        JsonTableFunctionContext jsonTable = ctx.jsonTableFunction();
+        builder.handleSelectTable(() -> {
+            builder.handleSelectDomain(() -> addJsonTableColumns(jsonTable.jsonTableColumn(), jsonTable.expression()));
+            if (ctx.aliasName() != null) {
+                ctx.aliasName().accept(this);
+            }
+        });
+        return null;
+    }
+
+    private void addJsonTableColumns(List<JsonTableColumnContext> columns, ExpressionContext sourceExpression) {
+        for (JsonTableColumnContext column : columns) {
+            if (column instanceof JsonTableNestedColumnContext nestedColumn) {
+                addJsonTableColumns(nestedColumn.jsonTableColumn(), sourceExpression);
+                continue;
+            }
+            UidContext columnName = jsonTableColumnName(column);
+            builder.handleBuildSelectItem(() -> {
+                builder.addAttr(CommonAttribute.VALUE, getName(columnName));
+                sourceExpression.accept(this);
+                builder.addAttr(CommonAttribute.ALIAS, getName(columnName));
+            });
+        }
+    }
+
+    private UidContext jsonTableColumnName(JsonTableColumnContext column) {
+        if (column instanceof JsonTableOrdinalityColumnContext ordinalityColumn) {
+            return ordinalityColumn.uid();
+        } else if (column instanceof JsonTablePathColumnContext pathColumn) {
+            return pathColumn.uid();
+        } else if (column instanceof JsonTableExistsColumnContext existsColumn) {
+            return existsColumn.uid();
+        }
+        throw new IllegalArgumentException("JSON_TABLE nested column has no direct name");
+    }
+
+    @Override
+    public Void visitSelectStarElement(SelectStarElementContext ctx) {
+        builder.handleBuildSelectItem(() -> {
+            RdbColumnDomain rdbColumnDomain = new RdbColumnDomain();
+            if (ctx.schema != null) {
+                rdbColumnDomain.setSchema(getName(ctx.schema));
+            }
+            rdbColumnDomain.setTable(getName(ctx.table));
+            rdbColumnDomain.setColumn("*");
+            builder.handleDomain(rdbColumnDomain, DomainSource.COLUMN);
+        });
+        return null;
+    }
+
+    @Override
+    public Void visitLimitClause(LimitClauseContext ctx) {
+        builder.addAttr(CommonAttribute.LIMIT, true);
+        return null;
+    }
+
+    @Override
+    public Void visitSelectIntoVariables(SelectIntoVariablesContext ctx) {
+        return null;
+    }
+
+    @Override
+    public Void visitSelectIntoDumpFile(SelectIntoDumpFileContext ctx) {
+        return null;
+    }
+
+    @Override
+    public Void visitSelectIntoTextFile(SelectIntoTextFileContext ctx) {
+        return null;
+    }
+
+    @Override
+    public Void visitSelectIntoRemoteFile(SelectIntoRemoteFileContext ctx) {
+        return null;
+    }
+
+    @Override
+    public Void visitSelectIntoRemoteParameters(SelectIntoRemoteParametersContext ctx) {
+        return null;
+    }
+
+    @Override
+    public Void visitWithSelectExpr(WithSelectExprContext ctx) {
+        builder.handleWithSelect(() -> {
+            ctx.uid().accept(this);
+            if (ctx.uidList() != null) {
+                List<String> columnNames = ctx.uidList().uid().stream().map(this::getName).toList();
+                builder.addAttr(CommonAttribute.CTE_COLUMN_NAMES, columnNames);
+            }
+            if (ctx.withSelectStatement() != null) {
+                ctx.withSelectStatement().accept(this);
+            } else if (ctx.selectStatement() != null) {
+                ctx.selectStatement().accept(this);
+            } else if (ctx.tableStatement() != null) {
+                ctx.tableStatement().accept(this);
+            } else if (ctx.valuesStatement() != null) {
+                ctx.valuesStatement().accept(this);
+            }
+        });
+        return null;
+    }
+
+    @Override
+    public Void visitLimitClauseAtom(LimitClauseAtomContext ctx) {
+        return null;
+    }
+
+    @Override
+    public Void visitCreateUser(CreateUserContext ctx) {
+        //        builder.enterCreateUser();
+        //        dmVisitChildren(ctx);
+        //        builder.exitCreateUser();
+        RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
+        rdbResourceDomain.setSqlType(RuleQueryType.CREATE_USER);
+        rdbResourceDomain.setAuditKind(SecQueryKind.CREATE);
+        rdbResourceDomain.setNeedSupply(false);
+        rdbResourceDomain.setTarget(TargetType.User);
+        builder.addDomain(rdbResourceDomain);
+        return null;
+    }
+
+    @Override
+    public Void visitDropUser(DropUserContext ctx) {
+        builder.enterDropUser();
+        dmVisitChildren(ctx);
+        builder.exitDropUser();
+        return null;
+    }
+
+    @Override
+    public Void visitDropRole(DropRoleContext ctx) {
+        builder.enterDropRole();
+        dmVisitChildren(ctx);
+        builder.exitDropRole();
+        return null;
+    }
+
+    @Override
+    public Void visitGrantStatement(GrantStatementContext ctx) {
+        builder.enterGrant();
+        dmVisitChildren(ctx);
+        for (GrantUserContext grantUserContext : ctx.grantUser()) {
+            UserAuthOptionContext userAuthOptionContext = grantUserContext.userAuthOption();
+            if (userAuthOptionContext == null) {
+                continue;
+            }
+            for (ParseTree child : userAuthOptionContext.children) {
+                if (child instanceof TerminalNodeImpl) {
+                    if (((TerminalNodeImpl) child).getSymbol().getType() == PASSWORD) {
+                        throw new UnsupportedOperationException("not support grant with create user");
+                    }
+                }
+            }
+        }
+        builder.exitGrant();
+        return null;
+    }
+
+    @Override
+    public Void visitRevokeStatement(RevokeStatementContext ctx) {
+        builder.enterRevoke();
+
+        for (AccountTargetContext context : ctx.accountTarget()) {
+            context.accept(this);
+        }
+        builder.exitRevoke();
+        return null;
+    }
+
+    @Override
+    public Void visitAccountTarget(AccountTargetContext ctx) {
+        if (ctx.userName() != null) {
+            return ctx.userName().accept(this);
+        }
+
+        builder.enterObjName();
+        builder.addAttr(CommonAttribute.VALUE, "CURRENT_USER");
+        builder.addAttr(CommonAttribute.VALUE, "%");
+        builder.exitObjName();
+        return null;
+    }
+
+    @Override
+    public Void visitGrantUser(GrantUserContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitCurrentUserGrantAuthOption(CurrentUserGrantAuthOptionContext ctx) {
+        builder.enterObjName();
+        builder.addAttr(CommonAttribute.VALUE, "CURRENT_USER");
+        builder.addAttr(CommonAttribute.VALUE, "%");
+        String password = ctx.textLiteralToken().getText();
+        if (password.startsWith("'")) {
+            password = password.substring(1, password.length() - 1);
+        }
+        builder.addAttr(CommonAttribute.PASSWORD, password);
+        builder.exitObjName();
+        return null;
+    }
+
+    @Override
+    public Void visitStringAuthOption(StringAuthOptionContext ctx) {
+        String password = ctx.password.getText();
+        if (password.startsWith("'")) {
+            password = password.substring(1, password.length() - 1);
+        }
+        builder.addAttr(CommonAttribute.PASSWORD, password);
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitModuleAuthOption(ModuleAuthOptionContext ctx) {
+        //todo
+        return null;
+    }
+
+    @Override
+    public Void visitAlterUserMysqlV57(AlterUserMysqlV57Context ctx) {
+        addUserAdministrationDomain(RuleQueryType.ALTER_USER);
+        return null;
+    }
+
+    @Override
+    public Void visitAlterUserMysqlV56(AlterUserMysqlV56Context ctx) {
+        addUserAdministrationDomain(RuleQueryType.ALTER_USER);
+        return null;
+    }
+
+    @Override
+    public Void visitAlterUserCurrentUser(AlterUserCurrentUserContext ctx) {
+        addStatementDomain(RuleQueryType.ALTER_USER);
+        return null;
+    }
+
+    @Override
+    public Void visitAlterUserCurrentUserDiscard(AlterUserCurrentUserDiscardContext ctx) {
+        addStatementDomain(RuleQueryType.ALTER_USER);
+        return null;
+    }
+
+    @Override
+    public Void visitAlterUserDefaultRole(AlterUserDefaultRoleContext ctx) {
+        addStatementDomain(RuleQueryType.ALTER_USER);
+        return null;
+    }
+
+    @Override
+    public Void visitAlterUserDiscardOldPassword(AlterUserDiscardOldPasswordContext ctx) {
+        addStatementDomain(RuleQueryType.ALTER_USER);
+        return null;
+    }
+
+    @Override
+    public Void visitAlterUserMfa(AlterUserMfaContext ctx) {
+        addStatementDomain(RuleQueryType.ALTER_USER);
+        return null;
+    }
+
+    @Override
+    public Void visitGrantProxy(GrantProxyContext ctx) {
+        RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
+        rdbResourceDomain.setSqlType(RuleQueryType.GRANT);
+        rdbResourceDomain.setAuditKind(SecQueryKind.ADMIN);
+        rdbResourceDomain.setNeedSupply(false);
+        rdbResourceDomain.setTarget(TargetType.User);
+        builder.addDomain(rdbResourceDomain);
+        return null;
+    }
+
+    @Override
+    public Void visitRevokeProxy(RevokeProxyContext ctx) {
+        RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
+        rdbResourceDomain.setSqlType(RuleQueryType.REVOKE);
+        rdbResourceDomain.setAuditKind(SecQueryKind.ADMIN);
+        rdbResourceDomain.setNeedSupply(false);
+        rdbResourceDomain.setTarget(TargetType.User);
+        builder.addDomain(rdbResourceDomain);
+        return null;
+    }
+
+    @Override
+    public Void visitRenameUser(RenameUserContext ctx) {
+        RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
+        rdbResourceDomain.setSqlType(RuleQueryType.RENAME_USER);
+        rdbResourceDomain.setAuditKind(SecQueryKind.ADMIN);
+        rdbResourceDomain.setNeedSupply(false);
+        rdbResourceDomain.setTarget(TargetType.User);
+        builder.addDomain(rdbResourceDomain);
+        return null;
+    }
+
+    @Override
+    public Void visitSetVariable(SetVariableContext ctx) {
+        List<VariableClauseContext> configKeys = ctx.setVariableAssignment().stream().map(SetVariableAssignmentContext::variableClause).collect(Collectors.toList());
+        for (VariableClauseContext configKey : configKeys) {
+            MyScopeType scopeType;
+            String keyName;
+            if (configKey.GLOBAL_ID() != null) {
+                keyName = configKey.GLOBAL_ID().getText().substring(2);
+                String normalizedKey = keyName.toUpperCase(Locale.ROOT);
+                if (normalizedKey.startsWith("GLOBAL.")) {
+                    scopeType = MyScopeType.GLOBAL;
+                    keyName = keyName.substring("GLOBAL.".length());
+                } else if (normalizedKey.startsWith("PERSIST.")) {
+                    scopeType = MyScopeType.GLOBAL;
+                    keyName = keyName.substring("PERSIST.".length());
+                } else if (normalizedKey.startsWith("PERSIST_ONLY.")) {
+                    scopeType = MyScopeType.GLOBAL;
+                    keyName = keyName.substring("PERSIST_ONLY.".length());
+                } else if (normalizedKey.startsWith("SESSION.")) {
+                    scopeType = MyScopeType.SESSION;
+                    keyName = keyName.substring("SESSION.".length());
+                } else if (normalizedKey.startsWith("LOCAL.")) {
+                    scopeType = MyScopeType.LOCAL;
+                    keyName = keyName.substring("LOCAL.".length());
+                } else {
+                    scopeType = MyScopeType.SESSION;
+                }
+            } else if (configKey.GLOBAL() != null) {
+                scopeType = MyScopeType.GLOBAL;
+                keyName = configKey.uid().getText();
+            } else if (configKey.persistScope() != null) {
+                scopeType = MyScopeType.GLOBAL;
+                keyName = configKey.uid().getText();
+            } else if (configKey.LOCAL_ID() != null) {
+                scopeType = MyScopeType.LOCAL;
+                keyName = configKey.LOCAL_ID().getText().substring(1);
+            } else if (configKey.LOCAL() != null) {
+                scopeType = MyScopeType.LOCAL;
+                keyName = configKey.uid().getText();
+            } else if (configKey.SESSION() != null) {
+                scopeType = MyScopeType.SESSION;
+                keyName = configKey.uid().getText();
+            } else {
+                throw new UnsupportedOperationException("unsupported SQL: " + this.getText(configKey));
+            }
+
+            MyConfigDomain domain = new MyConfigDomain(keyName, scopeType);
+            String normalizedKey = keyName.toUpperCase(Locale.ROOT);
+            if (normalizedKey.contains("GTID_") || normalizedKey.contains("SLAVE_") || normalizedKey.contains("REPLICA_")) {
+                domain.setSqlType(RuleQueryType.CONFIG_WRITE);
+            } else if (scopeType == MyScopeType.GLOBAL) {
+                domain.setSqlType(RuleQueryType.CONFIG_WRITE);
+            } else if (configKey.LOCAL_ID() != null) {
+                domain.setSqlType(RuleQueryType.CONFIG_WRITE);
+            } else {
+                domain.setSqlType(RuleQueryType.CONFIG_WRITE);
+            }
+            domain.setAuditKind(SecQueryKind.OTHER);
+            builder.addDomain(domain);
+        }
+
+        return null;
+    }
+
+    @Override
+    public Void visitSetCharset(SetCharsetContext ctx) {
+        addUnknownTargetDomain(RuleQueryType.SESSION_SETTING_WRITE, SecQueryKind.OTHER);
+        return null;
+    }
+
+    @Override
+    public Void visitSetNames(SetNamesContext ctx) {
+        addUnknownTargetDomain(RuleQueryType.SESSION_SETTING_WRITE, SecQueryKind.OTHER);
+        return null;
+    }
+
+    @Override
+    public Void visitSetPassword(SetPasswordContext ctx) {
+        RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
+        rdbResourceDomain.setSqlType(RuleQueryType.ALTER_USER);
+        rdbResourceDomain.setAuditKind(SecQueryKind.ALTER);
+        rdbResourceDomain.setNeedSupply(false);
+        rdbResourceDomain.setTarget(TargetType.User);
+        builder.addDomain(rdbResourceDomain);
+        return null;
+    }
+
+    @Override
+    public Void visitSetRole(SetRoleContext ctx) {
+        addStatementDomain(RuleQueryType.SWITCH_ROLE);
+        return null;
+    }
+
+    @Override
+    public Void visitSetDefaultRole(SetDefaultRoleContext ctx) {
+        addStatementDomain(RuleQueryType.ALTER_USER);
+        return null;
+    }
+
+    @Override
+    public Void visitShowMasterLogs(ShowMasterLogsContext ctx) {
+        MyShowDomain myShowDomain = new MyShowDomain();
+        myShowDomain.setSqlType(RuleQueryType.UNKNOWN);
+        myShowDomain.setAuditKind(SecQueryKind.QUERY);
+        myShowDomain.setShowType(MyShowType.BINARY_LOGS);
+        myShowDomain.setTarget(TargetType.Environment);
+        builder.addDomain(myShowDomain);
+        return null;
+    }
+
+    @Override
+    public Void visitShowBinaryLogStatus(ShowBinaryLogStatusContext ctx) {
+        MyShowDomain myShowDomain = new MyShowDomain();
+        myShowDomain.setSqlType(RuleQueryType.UNKNOWN);
+        myShowDomain.setAuditKind(SecQueryKind.QUERY);
+        myShowDomain.setShowType(MyShowType.BINARY_LOG_STATUS);
+        myShowDomain.setTarget(TargetType.Environment);
+        builder.addDomain(myShowDomain);
+        return null;
+    }
+
+    @Override
+    public Void visitShowSlaveStatus(ShowSlaveStatusContext ctx) {
+        MyShowDomain myShowDomain = new MyShowDomain();
+        myShowDomain.setSqlType(RuleQueryType.METADATA);
+        myShowDomain.setAuditKind(SecQueryKind.QUERY);
+        myShowDomain.setShowType(MyShowType.SALVE_STATUS);
+        myShowDomain.setTarget(TargetType.Environment);
+        builder.addDomain(myShowDomain);
+        return null;
+    }
+
+    @Override
+    public Void visitResetReplica(ResetReplicaContext ctx) {
+        addStatementDomain(RuleQueryType.RESET);
+        return null;
+    }
+
+    @Override
+    public Void visitResetBinaryLogsAndGtids(ResetBinaryLogsAndGtidsContext ctx) {
+        RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
+        rdbResourceDomain.setSqlType(RuleQueryType.MAINTAIN_LOG);
+        rdbResourceDomain.setAuditKind(SecQueryKind.OTHER);
+        rdbResourceDomain.setTarget(TargetType.Unknown);
+        rdbResourceDomain.setNeedSupply(false);
+        builder.addDomain(rdbResourceDomain);
+        return null;
+    }
+
+    @Override
+    public Void visitResetQueryCache(ResetQueryCacheContext ctx) {
+        RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
+        rdbResourceDomain.setSqlType(RuleQueryType.ADMIN_PERFORMANCE);
+        rdbResourceDomain.setAuditKind(SecQueryKind.OTHER);
+        rdbResourceDomain.setTarget(TargetType.Environment);
+        rdbResourceDomain.setNeedSupply(false);
+        builder.addDomain(rdbResourceDomain);
+        return null;
+    }
+
+    @Override
+    public Void visitResetOptions(ResetOptionsContext ctx) {
+        RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
+        RuleQueryType type;
+        if (ctx.resetOption().stream().anyMatch(option -> option.BINARY() != null && option.LOGS() != null)) {
+            type = RuleQueryType.MAINTAIN_LOG;
+        } else if (ctx.resetOption().stream().anyMatch(option -> option.SLAVE() != null || option.REPLICA() != null)) {
+            type = RuleQueryType.ALTER_REPLICATION;
+        } else if (ctx.resetOption().stream().anyMatch(option -> option.MASTER() != null)) {
+            type = RuleQueryType.MAINTAIN_LOG;
+        } else if (ctx.resetOption().stream().anyMatch(option -> option.QUERY() != null && option.CACHE() != null)) {
+            type = RuleQueryType.ADMIN_PERFORMANCE;
+        } else {
+            type = RuleQueryType.SYSTEM_SETTING_WRITE;
+        }
+        rdbResourceDomain.setSqlType(type);
+        rdbResourceDomain.setAuditKind(type.getAuditKind());
+        rdbResourceDomain.setTarget(type.getTarget());
+        rdbResourceDomain.setNeedSupply(false);
+        builder.addDomain(rdbResourceDomain);
+        return null;
+    }
+
+    @Override
+    public Void visitResetPersist(ResetPersistContext ctx) {
+        RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
+        rdbResourceDomain.setSqlType(RuleQueryType.SYSTEM_SETTING_WRITE);
+        rdbResourceDomain.setAuditKind(SecQueryKind.OTHER);
+        rdbResourceDomain.setTarget(TargetType.Unknown);
+        rdbResourceDomain.setNeedSupply(false);
+        builder.addDomain(rdbResourceDomain);
+        return null;
+    }
+
+    @Override
+    public Void visitResetSlave(ResetSlaveContext ctx) {
+        addStatementDomain(RuleQueryType.RESET);
+        return null;
+    }
+
+    @Override
+    public Void visitReplicationStatement(ReplicationStatementContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitChangeMaster(ChangeMasterContext ctx) {
+        addStatementDomain(RuleQueryType.ALTER_REPLICATION);
+        return null;
+    }
+
+    @Override
+    public Void visitChangeReplicationSource(ChangeReplicationSourceContext ctx) {
+        addStatementDomain(RuleQueryType.ALTER_REPLICATION);
+        return null;
+    }
+
+    @Override
+    public Void visitChangeReplicationFilter(ChangeReplicationFilterContext ctx) {
+        addStatementDomain(RuleQueryType.ALTER_REPLICATION);
+        return null;
+    }
+
+    @Override
+    public Void visitStartSlave(StartSlaveContext ctx) {
+        addStatementDomain(RuleQueryType.ALTER_REPLICATION);
+        return null;
+    }
+
+    @Override
+    public Void visitStartReplica(StartReplicaContext ctx) {
+        addStatementDomain(RuleQueryType.ALTER_REPLICATION);
+        return null;
+    }
+
+    @Override
+    public Void visitStopSlave(StopSlaveContext ctx) {
+        addStatementDomain(RuleQueryType.ALTER_REPLICATION);
+        return null;
+    }
+
+    @Override
+    public Void visitStopReplica(StopReplicaContext ctx) {
+        addStatementDomain(RuleQueryType.ALTER_REPLICATION);
+        return null;
+    }
+
+    @Override
+    public Void visitStartGroupReplication(StartGroupReplicationContext ctx) {
+        addStatementDomain(RuleQueryType.ALTER_REPLICATION);
+        return null;
+    }
+
+    @Override
+    public Void visitStopGroupReplication(StopGroupReplicationContext ctx) {
+        addStatementDomain(RuleQueryType.ALTER_REPLICATION);
+        return null;
+    }
+
+    @Override
+    public Void visitXaStartTransaction(XaStartTransactionContext ctx) {
+        addUnknownTargetDomain(RuleQueryType.TRANSACTION, SecQueryKind.OTHER);
+        return null;
+    }
+
+    @Override
+    public Void visitXaEndTransaction(XaEndTransactionContext ctx) {
+        addUnknownTargetDomain(RuleQueryType.TRANSACTION, SecQueryKind.OTHER);
+        return null;
+    }
+
+    @Override
+    public Void visitXaPrepareStatement(XaPrepareStatementContext ctx) {
+        addUnknownTargetDomain(RuleQueryType.TRANSACTION, SecQueryKind.OTHER);
+        return null;
+    }
+
+    @Override
+    public Void visitXaCommitWork(XaCommitWorkContext ctx) {
+        addUnknownTargetDomain(RuleQueryType.TRANSACTION, SecQueryKind.OTHER);
+        return null;
+    }
+
+    @Override
+    public Void visitXaRollbackWork(XaRollbackWorkContext ctx) {
+        addUnknownTargetDomain(RuleQueryType.TRANSACTION, SecQueryKind.OTHER);
+        return null;
+    }
+
+    @Override
+    public Void visitXaRecoverWork(XaRecoverWorkContext ctx) {
+        addStatementDomain(RuleQueryType.TRANSACTION);
+        return null;
+    }
+
+    @Override
+    public Void visitLoadIndexIntoCache(LoadIndexIntoCacheContext ctx) {
+        RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
+        rdbResourceDomain.setSqlType(RuleQueryType.LOAD_INDEX_INTO_CACHE);
+        rdbResourceDomain.setAuditKind(SecQueryKind.OTHER);
+        rdbResourceDomain.setTarget(TargetType.Index);
+        rdbResourceDomain.setNeedSupply(false);
+        builder.addDomain(rdbResourceDomain);
+        return null;
+    }
+
+    @Override
+    public Void visitImportTableStatement(ImportTableStatementContext ctx) {
+        addUnknownTargetDomain(RuleQueryType.DATA_IMPORT, SecQueryKind.DML);
+        return null;
+    }
+
+    @Override
+    public Void visitCloneStatement(CloneStatementContext ctx) {
+        addStatementDomain(RuleQueryType.DATA_IMPORT);
+        return null;
+    }
+
+    @Override
+    public Void visitRestartStatement(RestartStatementContext ctx) {
+        addStatementDomain(RuleQueryType.ADMIN);
+        return null;
+    }
+
+    @Override
+    public Void visitShutdownStatement(ShutdownStatementContext ctx) {
+        addStatementDomain(RuleQueryType.ADMIN);
+        return null;
+    }
+
+    @Override
+    public Void visitBinlogStatement(BinlogStatementContext ctx) {
+        addStatementDomain(RuleQueryType.ADMIN_REPLICATION);
+        return null;
+    }
+
+    @Override
+    public Void visitKillStatement(KillStatementContext ctx) {
+        RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
+        rdbResourceDomain.setSqlType(RuleQueryType.KILL);
+        rdbResourceDomain.setAuditKind(SecQueryKind.OTHER);
+        rdbResourceDomain.setTarget(TargetType.Unknown);
+        rdbResourceDomain.setNeedSupply(false);
+        builder.addDomain(rdbResourceDomain);
+        return null;
+    }
+
+    @Override
+    public Void visitPurgeBinaryLogs(PurgeBinaryLogsContext ctx) {
+        RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
+        rdbResourceDomain.setSqlType(RuleQueryType.PURGE);
+        rdbResourceDomain.setAuditKind(SecQueryKind.OTHER);
+        rdbResourceDomain.setTarget(TargetType.Unknown);
+        rdbResourceDomain.setNeedSupply(false);
+        builder.addDomain(rdbResourceDomain);
+        return null;
+    }
+
+    @Override
+    public Void visitResetMaster(ResetMasterContext ctx) {
+        RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
+        rdbResourceDomain.setSqlType(RuleQueryType.RESET);
+        rdbResourceDomain.setAuditKind(SecQueryKind.OTHER);
+        rdbResourceDomain.setTarget(TargetType.Unknown);
+        rdbResourceDomain.setNeedSupply(false);
+        builder.addDomain(rdbResourceDomain);
+        return null;
+    }
+
+    @Override
+    public Void visitShowReplicaStatus(ShowReplicaStatusContext ctx) {
+        MyShowDomain myShowDomain = new MyShowDomain();
+        myShowDomain.setSqlType(RuleQueryType.METADATA);
+        myShowDomain.setAuditKind(SecQueryKind.QUERY);
+        myShowDomain.setShowType(MyShowType.REPLICA_STATUS);
+        myShowDomain.setTarget(TargetType.Environment);
+        builder.addDomain(myShowDomain);
+        return null;
+    }
+
+    @Override
+    public Void visitShowReplicas(ShowReplicasContext ctx) {
+        MyShowDomain myShowDomain = new MyShowDomain();
+        myShowDomain.setSqlType(RuleQueryType.METADATA);
+        myShowDomain.setAuditKind(SecQueryKind.QUERY);
+        myShowDomain.setShowType(MyShowType.REPLICAS);
+        myShowDomain.setTarget(TargetType.Environment);
+        builder.addDomain(myShowDomain);
+        return null;
+    }
+
+    @Override
+    public Void visitShowParseTree(ShowParseTreeContext ctx) {
+        MyShowDomain myShowDomain = new MyShowDomain();
+        myShowDomain.setSqlType(RuleQueryType.PERFORMANCE);
+        myShowDomain.setAuditKind(SecQueryKind.QUERY);
+        myShowDomain.setShowType(MyShowType.PARSE_TREE);
+        myShowDomain.setTarget(TargetType.Query);
+        builder.addDomain(myShowDomain);
+        return null;
+    }
+
+    @Override
+    public Void visitShowCharset(ShowCharsetContext ctx) {
+        MyShowDomain myShowDomain = new MyShowDomain();
+        myShowDomain.setSqlType(RuleQueryType.METADATA);
+        myShowDomain.setAuditKind(SecQueryKind.QUERY);
+        myShowDomain.setShowType(MyShowType.CHARACTER_SET);
+        myShowDomain.setTarget(TargetType.Environment);
+        builder.addDomain(myShowDomain);
+        return null;
+    }
+
+    @Override
+    public Void visitShowBinlogEvents(ShowBinlogEventsContext ctx) {
+        MyShowDomain myShowDomain = new MyShowDomain();
+        myShowDomain.setSqlType(RuleQueryType.LOG_READ);
+        myShowDomain.setAuditKind(SecQueryKind.QUERY);
+        myShowDomain.setShowType(MyShowType.BINLOG_EVENTS);
+        myShowDomain.setTarget(TargetType.Environment);
+        builder.addDomain(myShowDomain);
+        return null;
+    }
+
+    @Override
+    public Void visitShowRelayLogEvents(ShowRelayLogEventsContext ctx) {
+        MyShowDomain myShowDomain = new MyShowDomain();
+        myShowDomain.setSqlType(RuleQueryType.LOG_READ);
+        myShowDomain.setAuditKind(SecQueryKind.QUERY);
+        myShowDomain.setShowType(MyShowType.RELAYLOG_EVENTS);
+        myShowDomain.setTarget(TargetType.Environment);
+        builder.addDomain(myShowDomain);
+        return null;
+    }
+
+    @Override
+    public Void visitShowObjectFilter(ShowObjectFilterContext ctx) {
+        MyShowDomain myShowDomain = new MyShowDomain();
+        myShowDomain.setSqlType(RuleQueryType.METADATA);
+        myShowDomain.setAuditKind(SecQueryKind.QUERY);
+        ParseTree child = ctx.showCommonEntity().getChild(0);
+        TerminalNodeImpl node = (TerminalNodeImpl) child;
+        int type = node.getSymbol().getType();
+        if (type == DATABASES || type == SCHEMAS) {
+            myShowDomain.setShowType(MyShowType.DATABASES);
+            myShowDomain.setTarget(TargetType.Schema);
+        } else if (type == CHARACTER) {
+            myShowDomain.setShowType(MyShowType.CHARACTER_SET);
+            myShowDomain.setTarget(TargetType.Environment);
+        } else if (type == PROCEDURE) {
+            myShowDomain.setShowType(MyShowType.PROCEDURE_STATUS);
+            myShowDomain.setTarget(TargetType.Procedure);
+        } else if (type == STATUS) {
+            myShowDomain.setSqlType(RuleQueryType.PERFORMANCE);
+            myShowDomain.setShowType(MyShowType.STATUS);
+            myShowDomain.setTarget(TargetType.Environment);
+        } else if (type == FUNCTION) {
+            myShowDomain.setShowType(MyShowType.FUNCTION_STATUS);
+            myShowDomain.setTarget(TargetType.Function);
+        } else if (type == COLLATION) {
+            myShowDomain.setShowType(MyShowType.COLLATION);
+            myShowDomain.setTarget(TargetType.Environment);
+        } else if (type == VARIABLES) {
+            myShowDomain.setShowType(MyShowType.VARIABLES);
+            myShowDomain.setTarget(TargetType.Environment);
+        } else if (type == GLOBAL || type == SESSION || type == LOCAL) {
+            if (((TerminalNodeImpl) ctx.showCommonEntity().getChild(1)).getSymbol().getType() == VARIABLES) {
+                myShowDomain.setShowType(MyShowType.VARIABLES);
+                myShowDomain.setTarget(TargetType.Environment);
+            } else {
+                myShowDomain.setSqlType(RuleQueryType.PERFORMANCE);
+                myShowDomain.setShowType(MyShowType.STATUS);
+                myShowDomain.setTarget(TargetType.Environment);
+            }
+        } else {
+            throw new UnsupportedOperationException("not support:" + node.getText());
+        }
+        builder.addDomain(myShowDomain);
+        return null;
+    }
+
+    @Override
+    public Void visitShowColumns(ShowColumnsContext ctx) {
+        MyShowDomain myShowDomain = new MyShowDomain();
+        myShowDomain.setSqlType(RuleQueryType.METADATA);
+        myShowDomain.setAuditKind(SecQueryKind.QUERY);
+        List<String> nameList = tableNameParts(ctx.tableName());
+        if (nameList.size() == 2) {
+            myShowDomain.setSchema(nameList.get(0));
+            myShowDomain.setTable(nameList.get(1));
+        } else {
+            myShowDomain.setTable(nameList.get(0));
+        }
+
+        String text = getName(ctx.uid());
+        if (text != null) {
+            myShowDomain.setSchema(text);
+        }
+        myShowDomain.setShowType(MyShowType.COLUMNS);
+        myShowDomain.setTarget(TargetType.Column);
+        builder.addDomain(myShowDomain);
+        return null;
+    }
+
+    private String getName(ParserRuleContext ctx) {
+        if (ctx == null) {
+            return null;
+        }
+        String text = this.getText(ctx);
+        if (text.length() >= 2 && ((text.startsWith("`") && text.endsWith("`")) || (text.startsWith("\"") && text.endsWith("\"")))) {
+            text = text.substring(1, text.length() - 1);
+        }
+        return text;
+    }
+
+    @Override
+    public Void visitShowTables(ShowTablesContext ctx) {
+        MyShowDomain myShowDomain = new MyShowDomain();
+        myShowDomain.setSqlType(RuleQueryType.METADATA);
+        myShowDomain.setAuditKind(SecQueryKind.QUERY);
+        myShowDomain.setShowType(MyShowType.TABLES);
+        myShowDomain.setTarget(TargetType.Table);
+        String text = getName(ctx.uid(0));
+        myShowDomain.setSchema(text);
+        builder.addDomain(myShowDomain);
+        return null;
+    }
+
+    @Override
+    public Void visitShowCreateDb(ShowCreateDbContext ctx) {
+
+        MyShowDomain myShowDomain = new MyShowDomain();
+        myShowDomain.setSqlType(RuleQueryType.METADATA);
+        myShowDomain.setAuditKind(SecQueryKind.QUERY);
+        myShowDomain.setShowType(MyShowType.CREATE_DATABASE);
+        myShowDomain.setTarget(TargetType.Schema);
+        String text = getName(ctx.uid());
+        myShowDomain.setSchema(text);
+
+        builder.addDomain(myShowDomain);
+        return null;
+    }
+
+    @Override
+    public Void visitReplaceStatement(ReplaceStatementContext ctx) {
+        builder.handleReplace(() -> {
+            dmVisitChildren(ctx);
+        });
+        return null;
+    }
+
+    @Override
+    public Void visitMultipleUpdateStatement(MultipleUpdateStatementContext ctx) {
+        builder.handleUpdate(() -> {
+            dmVisitChildren(ctx);
+        });
+        return null;
+    }
+
+    @Override
+    public Void visitShowCreateFullIdObject(ShowCreateFullIdObjectContext ctx) {
+        MyShowDomain myShowDomain = new MyShowDomain();
+        myShowDomain.setSqlType(RuleQueryType.METADATA);
+        myShowDomain.setAuditKind(SecQueryKind.QUERY);
+        List<String> nameList = new ArrayList<>();
+        for (ParseTree child : ctx.fullId().children) {
+            if (child instanceof UidContext) {
+                String text = getName((ParserRuleContext) child);
+                nameList.add(text);
+            }
+        }
+        String objName = nameList.get(0);
+        if (nameList.size() == 2) {
+            myShowDomain.setSchema(nameList.get(0));
+            objName = nameList.get(1);
+        }
+        if (ctx.namedEntity.getType() == FUNCTION) {
+            myShowDomain.setShowType(MyShowType.CREATE_FUNCTION);
+            myShowDomain.setTarget(TargetType.Function);
+            myShowDomain.setFunc(objName);
+        } else if (ctx.namedEntity.getType() == PROCEDURE) {
+            myShowDomain.setShowType(MyShowType.CREATE_PROCEDURE);
+            myShowDomain.setTarget(TargetType.Procedure);
+            myShowDomain.setProc(objName);
+        } else if (ctx.namedEntity.getType() == LIBRARY) {
+            myShowDomain.setShowType(MyShowType.CREATE_LIBRARY);
+            myShowDomain.setTarget(TargetType.Object);
+        } else if (ctx.namedEntity.getType() == TABLE) {
+            myShowDomain.setShowType(MyShowType.CREATE_TABLE);
+            myShowDomain.setTarget(TargetType.Table);
+            myShowDomain.setTable(objName);
+        } else if (ctx.namedEntity.getType() == VIEW) {
+            myShowDomain.setShowType(MyShowType.CREATE_VIEW);
+            myShowDomain.setTarget(TargetType.View);
+            myShowDomain.setView(objName);
+        } else if (ctx.namedEntity.getType() == EVENT) {
+            myShowDomain.setShowType(MyShowType.CREATE_EVENT);
+            myShowDomain.setTarget(TargetType.Event);
+            myShowDomain.setEvent(objName);
+        } else if (ctx.namedEntity.getType() == TRIGGER) {
+            myShowDomain.setShowType(MyShowType.CREATE_TRIGGER);
+            myShowDomain.setTarget(TargetType.Trigger);
+            myShowDomain.setTrigger(objName);
+        } else {
+            throw new UnsupportedOperationException("Not Support:" + ctx.namedEntity.getText());
+        }
+        builder.addDomain(myShowDomain);
+        return null;
+    }
+
+    @Override
+    public Void visitShowCreateMaskingPolicy(ShowCreateMaskingPolicyContext ctx) {
+        MyShowDomain myShowDomain = new MyShowDomain();
+        myShowDomain.setSqlType(RuleQueryType.METADATA);
+        myShowDomain.setAuditKind(SecQueryKind.QUERY);
+        myShowDomain.setShowType(MyShowType.CREATE_MASKING_POLICY);
+        myShowDomain.setTarget(TargetType.Object);
+        builder.addDomain(myShowDomain);
+        return null;
+    }
+
+    @Override
+    public Void visitShowCreateUser(ShowCreateUserContext ctx) {
+        MyShowDomain myShowDomain = new MyShowDomain();
+        myShowDomain.setSqlType(RuleQueryType.METADATA);
+        myShowDomain.setAuditKind(SecQueryKind.QUERY);
+        myShowDomain.setShowType(MyShowType.CREATE_USER);
+        myShowDomain.setTarget(TargetType.User);
+        myShowDomain.setUserOrRole(ctx.userName() == null ? "CURRENT_USER" : this.getText(ctx.userName()));
+        builder.addDomain(myShowDomain);
+        return null;
+    }
+
+    @Override
+    public Void visitShowEngine(ShowEngineContext ctx) {
+        MyShowDomain myShowDomain = new MyShowDomain();
+        if (ctx.engineOption.getType() == LOGS) {
+            myShowDomain.setSqlType(RuleQueryType.LOG_READ);
+        } else {
+            myShowDomain.setSqlType(RuleQueryType.PERFORMANCE);
+        }
+        myShowDomain.setAuditKind(SecQueryKind.QUERY);
+        myShowDomain.setShowType(MyShowType.ENGINE);
+        myShowDomain.setTarget(TargetType.Environment);
+        builder.addDomain(myShowDomain);
+        return null;
+    }
+
+    @Override
+    public Void visitShowEngines(ShowEnginesContext ctx) {
+        MyShowDomain myShowDomain = new MyShowDomain();
+        myShowDomain.setSqlType(RuleQueryType.METADATA);
+        myShowDomain.setAuditKind(SecQueryKind.QUERY);
+        myShowDomain.setShowType(MyShowType.ENGINES);
+        myShowDomain.setTarget(TargetType.Environment);
+        builder.addDomain(myShowDomain);
+        return null;
+    }
+
+    @Override
+    public Void visitShowPrivileges(ShowPrivilegesContext ctx) {
+        MyShowDomain myShowDomain = new MyShowDomain();
+        myShowDomain.setSqlType(RuleQueryType.METADATA);
+        myShowDomain.setAuditKind(SecQueryKind.QUERY);
+        myShowDomain.setShowType(MyShowType.PRIVILEGES);
+        myShowDomain.setTarget(TargetType.Environment);
+        builder.addDomain(myShowDomain);
+        return null;
+    }
+
+    @Override
+    public Void visitShowPlugins(ShowPluginsContext ctx) {
+        MyShowDomain myShowDomain = new MyShowDomain();
+        myShowDomain.setSqlType(RuleQueryType.METADATA);
+        myShowDomain.setAuditKind(SecQueryKind.QUERY);
+        myShowDomain.setShowType(MyShowType.PLUGINS);
+        myShowDomain.setTarget(TargetType.Environment);
+        builder.addDomain(myShowDomain);
+        return null;
+    }
+
+    @Override
+    public Void visitShowErrors(ShowErrorsContext ctx) {
+        MyShowDomain myShowDomain = new MyShowDomain();
+        myShowDomain.setSqlType(RuleQueryType.PERFORMANCE);
+        myShowDomain.setAuditKind(SecQueryKind.QUERY);
+        if (ctx.errorFormat.getType() == ERRORS) {
+            myShowDomain.setShowType(MyShowType.ERRORS);
+        } else {
+            myShowDomain.setShowType(MyShowType.WARNINGS);
+        }
+        myShowDomain.setTarget(TargetType.Environment);
+        builder.addDomain(myShowDomain);
+        return null;
+    }
+
+    @Override
+    public Void visitShowCountErrors(ShowCountErrorsContext ctx) {
+
+        MyShowDomain myShowDomain = new MyShowDomain();
+        myShowDomain.setSqlType(RuleQueryType.PERFORMANCE);
+        myShowDomain.setAuditKind(SecQueryKind.QUERY);
+        if (ctx.errorFormat.getType() == ERRORS) {
+            myShowDomain.setShowType(MyShowType.ERRORS);
+        } else {
+            myShowDomain.setShowType(MyShowType.WARNINGS);
+        }
+        myShowDomain.setTarget(TargetType.Environment);
+        builder.addDomain(myShowDomain);
+        return null;
+    }
+
+    @Override
+    public Void visitShowSchemaFilter(ShowSchemaFilterContext ctx) {
+        MyShowDomain myShowDomain = new MyShowDomain();
+        myShowDomain.setSqlType(RuleQueryType.METADATA);
+        myShowDomain.setAuditKind(SecQueryKind.QUERY);
+        ParseTree child = ctx.showSchemaEntity().getChild(0);
+        int type = ((TerminalNodeImpl) child).getSymbol().getType();
+        if (type == EVENTS) {
+            myShowDomain.setShowType(MyShowType.EVENTS);
+            myShowDomain.setTarget(TargetType.Event);
+        } else if (type == TABLES || type == FULL) {
+            myShowDomain.setShowType(MyShowType.TABLES);
+            myShowDomain.setTarget(TargetType.Table);
+        } else if (type == TABLE) {
+            if (ctx.uid() != null) {
+                String text = getName(ctx.uid());
+                myShowDomain.setSchema(text);
+            }
+            myShowDomain.setShowType(MyShowType.TABLE_STATUS);
+            myShowDomain.setTarget(TargetType.Table);
+        } else if (type == TRIGGERS) {
+            myShowDomain.setShowType(MyShowType.TRIGGERS);
+            myShowDomain.setTarget(TargetType.Trigger);
+        }
+
+        if (ctx.uid() != null) {
+            String text = getName(ctx.uid());
+            myShowDomain.setSchema(text);
+        }
+
+        builder.addDomain(myShowDomain);
+        return null;
+    }
+
+    @Override
+    public Void visitShowRoutine(ShowRoutineContext ctx) {
+
+        MyShowDomain myShowDomain = new MyShowDomain();
+        myShowDomain.setSqlType(RuleQueryType.METADATA);
+        myShowDomain.setAuditKind(SecQueryKind.QUERY);
+        List<String> nameList = new ArrayList<>();
+        for (ParseTree child : ctx.fullId().children) {
+            if (child instanceof UidContext) {
+                String text = getName((ParserRuleContext) child);
+                nameList.add(text);
+            }
+        }
+        String objName;
+        if (nameList.size() == 2) {
+            myShowDomain.setSchema(nameList.get(0));
+            objName = nameList.get(1);
+        } else {
+            objName = nameList.get(0);
+        }
+
+        if (ctx.routine.getType() == PROCEDURE) {
+            myShowDomain.setShowType(MyShowType.PROCEDURE_CODE);
+            myShowDomain.setTarget(TargetType.Procedure);
+            myShowDomain.setProc(objName);
+        } else {
+            myShowDomain.setShowType(MyShowType.FUNCTION_CODE);
+            myShowDomain.setTarget(TargetType.Function);
+            myShowDomain.setFunc(objName);
+        }
+        builder.addDomain(myShowDomain);
+        return null;
+    }
+
+    @Override
+    public Void visitShowGrants(ShowGrantsContext ctx) {
+        MyShowDomain myShowDomain = new MyShowDomain();
+        myShowDomain.setSqlType(RuleQueryType.METADATA);
+        myShowDomain.setAuditKind(SecQueryKind.QUERY);
+        myShowDomain.setShowType(MyShowType.GRANTS);
+        myShowDomain.setTarget(TargetType.UserOrRole);
+        if (ctx.userName() != null) {
+            String text = this.getText(ctx.userName());
+            myShowDomain.setUserOrRole(text);
+        } else if (ctx.children.size() > 2) {
+            myShowDomain.setUserOrRole("CURRENT_USER");
+        }
+        builder.addDomain(myShowDomain);
+        return null;
+    }
+
+    @Override
+    public Void visitShowLibraryStatus(ShowLibraryStatusContext ctx) {
+        MyShowDomain myShowDomain = new MyShowDomain();
+        myShowDomain.setSqlType(RuleQueryType.METADATA);
+        myShowDomain.setAuditKind(SecQueryKind.QUERY);
+        myShowDomain.setShowType(MyShowType.LIBRARY_STATUS);
+        myShowDomain.setTarget(TargetType.Object);
+        builder.addDomain(myShowDomain);
+        return null;
+    }
+
+    @Override
+    public Void visitShowIndexes(ShowIndexesContext ctx) {
+
+        MyShowDomain myShowDomain = new MyShowDomain();
+        myShowDomain.setSqlType(RuleQueryType.METADATA);
+        myShowDomain.setAuditKind(SecQueryKind.QUERY);
+        List<String> nameList = tableNameParts(ctx.tableName());
+        if (nameList.size() == 2) {
+            myShowDomain.setSchema(nameList.get(0));
+            myShowDomain.setTable(nameList.get(1));
+        } else {
+            myShowDomain.setTable(nameList.get(0));
+        }
+        if (ctx.uid() != null) {
+            String text = getName(ctx.uid());
+            myShowDomain.setSchema(text);
+        }
+        myShowDomain.setShowType(MyShowType.INDEX);
+        myShowDomain.setTarget(TargetType.Index);
+        builder.addDomain(myShowDomain);
+        return null;
+    }
+
+    @Override
+    public Void visitShowOpenTables(ShowOpenTablesContext ctx) {
+
+        MyShowDomain myShowDomain = new MyShowDomain();
+        myShowDomain.setSqlType(RuleQueryType.PERFORMANCE);
+        myShowDomain.setAuditKind(SecQueryKind.QUERY);
+        myShowDomain.setShowType(MyShowType.OPEN_TABLES);
+        myShowDomain.setTarget(TargetType.Table);
+        if (ctx.uid() != null) {
+            String text = getName(ctx.uid());
+            myShowDomain.setSchema(text);
+        }
+        builder.addDomain(myShowDomain);
+        return null;
+    }
+
+    @Override
+    public Void visitShowProfile(ShowProfileContext ctx) {
+        MyShowDomain myShowDomain = new MyShowDomain();
+        myShowDomain.setSqlType(RuleQueryType.PERFORMANCE);
+        myShowDomain.setAuditKind(SecQueryKind.QUERY);
+        myShowDomain.setShowType(MyShowType.PROFILE);
+        myShowDomain.setTarget(TargetType.Environment);
+        builder.addDomain(myShowDomain);
+        return null;
+    }
+
+    @Override
+    public Void visitShowProcessList(ShowProcessListContext ctx) {
+        MyShowDomain myShowDomain = new MyShowDomain();
+        myShowDomain.setSqlType(RuleQueryType.PERFORMANCE);
+        myShowDomain.setAuditKind(SecQueryKind.QUERY);
+        myShowDomain.setShowType(MyShowType.PROCESSLIST);
+        myShowDomain.setTarget(TargetType.Environment);
+        builder.addDomain(myShowDomain);
+        return null;
+    }
+
+    @Override
+    public Void visitShowProfiles(ShowProfilesContext ctx) {
+
+        MyShowDomain myShowDomain = new MyShowDomain();
+        myShowDomain.setSqlType(RuleQueryType.PERFORMANCE);
+        myShowDomain.setAuditKind(SecQueryKind.QUERY);
+        myShowDomain.setShowType(MyShowType.PROFILES);
+        myShowDomain.setTarget(TargetType.Environment);
+        builder.addDomain(myShowDomain);
+        return null;
+    }
+
+    @Override
+    public Void visitFlushStatement(FlushStatementContext ctx) {
+        if (ctx.flushTablesOption() != null) {
+            addFlushDomain(MyFlushType.TABLES);
+            return null;
+        }
+        for (FlushOptionContext flushOptionContext : ctx.flushOption()) {
+            String text = this.getText(flushOptionContext);
+            addFlushDomain(MyFlushType.valueOfString(text));
+        }
+
+        return null;
+    }
+
+    private void addFlushDomain(MyFlushType flushType) {
+        MyFlushDomain myFlushDomain = new MyFlushDomain();
+        RuleQueryType type = switch (flushType) {
+            case BINARY_LOGS, ENGINE_LOGS, ERROR_LOGS, GENERAL_LOGS, LOGS, RELAY_LOGS, SLOW_LOGS -> RuleQueryType.ADMIN_LOG;
+            case OPTIMIZER_COSTS, QUERY_CACHE, STATUS -> RuleQueryType.ADMIN_PERFORMANCE;
+            case TABLES -> RuleQueryType.ADMIN_TABLE;
+            default -> RuleQueryType.SYSTEM_SETTING_WRITE;
+        };
+        myFlushDomain.setSqlType(type);
+        myFlushDomain.setAuditKind(SecQueryKind.OTHER);
+        myFlushDomain.setFlushType(flushType);
+        builder.addDomain(myFlushDomain);
+    }
+
+    @Override
+    public Void visitSimpleDescribeStatement(SimpleDescribeStatementContext ctx) {
+        MyShowDomain myShowDomain = new MyShowDomain();
+        if ("EXPLAIN".equalsIgnoreCase(ctx.command.getText())) {
+            myShowDomain.setSqlType(RuleQueryType.PERFORMANCE);
+            myShowDomain.setTarget(TargetType.Table);
+        } else {
+            myShowDomain.setSqlType(RuleQueryType.METADATA);
+            myShowDomain.setTarget(TargetType.Column);
+        }
+        myShowDomain.setAuditKind(SecQueryKind.QUERY);
+        myShowDomain.setShowType(MyShowType.COLUMNS);
+        List<String> nameList = tableNameParts(ctx.tableName());
+        if (nameList.size() == 1) {
+            myShowDomain.setTable(nameList.get(0));
+        } else {
+            myShowDomain.setTable(nameList.get(1));
+            myShowDomain.setSchema(nameList.get(0));
+        }
+
+        builder.addDomain(myShowDomain);
+        return null;
+    }
+
+    @Override
+    public Void visitShowStatus(ShowStatusContext ctx) {
+        MyShowDomain myShowDomain = new MyShowDomain();
+        myShowDomain.setSqlType(RuleQueryType.UNKNOWN);
+        myShowDomain.setAuditKind(SecQueryKind.QUERY);
+        myShowDomain.setShowType(MyShowType.MASTER_STATUS);
+        myShowDomain.setTarget(TargetType.Environment);
+        builder.addDomain(myShowDomain);
+        return null;
+    }
+
+    //
+    @Override
+    public Void visitUseStatement(UseStatementContext ctx) {
+        return null;
+    }
+
+    @Override
+    public Void visitRoleName(RoleNameContext ctx) {
+        builder.enterObjName();
+        builder.addAttr(CommonAttribute.VALUE, getName(ctx));
+        builder.exitObjName();
+        return null;
+    }
+
+    @Override
+    public Void visitIndexColumnName(IndexColumnNameContext ctx) {
+        builder.enterObjName();
+        dmVisitChildren(ctx);
+        builder.exitObjName();
+        return null;
+    }
+
+    @Override
+    public Void visitUserName(UserNameContext ctx) {
+        builder.enterObjName();
+        String text = ctx.user.getText();
+        if (text.startsWith("'")) {
+            text = text.substring(1, text.length() - 1);
+        }
+        String host;
+        if (ctx.host != null) {
+            host = ctx.host.getText().substring(1);
+            if (host.startsWith("'")) {
+                host = host.substring(1, host.length() - 1);
+            }
+        } else {
+            host = "%";
+        }
+        builder.addAttr(CommonAttribute.VALUE, text);
+        builder.addAttr(CommonAttribute.VALUE, host);
+        builder.exitObjName();
+        return null;
+    }
+
+    @Override
+    public Void visitMysqlVariable(MysqlVariableContext ctx) {
+        TerminalNode globalID = ctx.GLOBAL_ID();
+        TerminalNode localID = ctx.LOCAL_ID();
+
+        if (globalID != null) {
+            builder.handleDomain(new MyVariableDomain(globalID.getText().substring(2), MyScopeType.GLOBAL), DomainSource.VARIABLE);
+        } else if (localID != null) {
+            builder.handleDomain(new MyVariableDomain(localID.getText().substring(1), MyScopeType.LOCAL), DomainSource.VARIABLE);
+        } else {
+            throw new UnsupportedOperationException("unsupported SQL: " + this.getText(ctx));
+        }
+
+        return null;
+    }
+
+    @Override
+    public Void visitCharsetName(CharsetNameContext ctx) {
+        builder.addAttr(MyAttribute.CHARACTER_SET, this.getText(ctx));
+        return null;
+    }
+
+    @Override
+    public Void visitCollationName(CollationNameContext ctx) {
+        builder.addAttr(MyAttribute.COLLATE, this.getText(ctx));
+        return null;
+    }
+
+    @Override
+    public Void visitStringLiteral(StringLiteralContext ctx) {
+        String text = this.getText(ctx);
+        if (text.startsWith("'")) {
+            text = text.substring(1, text.length() - 1);
+        }
+        builder.handleDomain(new RdbConstantDomain(text), DomainSource.CONSTANT);
+        return null;
+    }
+
+    @Override
+    public Void visitStringDataType(StringDataTypeContext ctx) {
+        String type = ctx.typeName.getText();
+        ColumnTypeDomain columnTypeDomain;
+        if (ctx.lengthOneDimension() != null) {
+            columnTypeDomain = new ColumnTypeDomain(type, this.getText(ctx), ctx.lengthOneDimension().decimalLiteral().getText());
+        } else {
+            columnTypeDomain = new ColumnTypeDomain(type, this.getText(ctx), null);
+        }
+        builder.handleDomain(columnTypeDomain, DomainSource.COLUMN_TYPE);
+
+        return null;
+    }
+
+    @Override
+    public Void visitNationalStringDataType(NationalStringDataTypeContext ctx) {
+
+        String type = ctx.typeName.getText();
+        ColumnTypeDomain columnTypeDomain;
+        if (ctx.lengthOneDimension() != null) {
+            columnTypeDomain = new ColumnTypeDomain(type, this.getText(ctx), ctx.lengthOneDimension().decimalLiteral().getText());
+        } else {
+            columnTypeDomain = new ColumnTypeDomain(type, this.getText(ctx), null);
+        }
+        builder.handleDomain(columnTypeDomain, DomainSource.COLUMN_TYPE);
+
+        return null;
+    }
+
+    @Override
+    public Void visitNationalVaryingStringDataType(NationalVaryingStringDataTypeContext ctx) {
+        String type = ctx.typeName.getText();
+        ColumnTypeDomain columnTypeDomain;
+        if (ctx.lengthOneDimension() != null) {
+            columnTypeDomain = new ColumnTypeDomain(type, this.getText(ctx), ctx.lengthOneDimension().decimalLiteral().getText());
+        } else {
+            columnTypeDomain = new ColumnTypeDomain(type, this.getText(ctx), null);
+        }
+        builder.handleDomain(columnTypeDomain, DomainSource.COLUMN_TYPE);
+
+        return null;
+    }
+
+    @Override
+    public Void visitDimensionDataType(DimensionDataTypeContext ctx) {
+        String type = ctx.typeName.getText();
+        ColumnTypeDomain columnTypeDomain;
+        if (ctx.lengthOneDimension() != null) {
+            columnTypeDomain = new ColumnTypeDomain(type, this.getText(ctx), ctx.lengthOneDimension().decimalLiteral().getText());
+        } else if (ctx.lengthTwoDimension() != null) {
+            columnTypeDomain = new ColumnTypeDomain(type, this.getText(ctx), ctx.lengthTwoDimension().decimalLiteral(0).getText());
+        } else if (ctx.lengthTwoOptionalDimension() != null) {
+            columnTypeDomain = new ColumnTypeDomain(type, this.getText(ctx), ctx.lengthTwoOptionalDimension().decimalLiteral(0).getText());
+        } else {
+            columnTypeDomain = new ColumnTypeDomain(type, this.getText(ctx), null);
+        }
+        builder.handleDomain(columnTypeDomain, DomainSource.COLUMN_TYPE);
+
+        for (NumericFieldOptionContext option : ctx.numericFieldOption()) {
+            if (option.UNSIGNED() != null) {
+                builder.addAttr(MyAttribute.UNSIGNED, true);
+            }
+            if (option.ZEROFILL() != null) {
+                builder.addAttr(MyAttribute.ZEROFILL, true);
+            }
+        }
+
+        return null;
+    }
+
+    @Override
+    public Void visitSimpleDataType(SimpleDataTypeContext ctx) {
+        String type = ctx.typeName.getText();
+        ColumnTypeDomain columnTypeDomain = new ColumnTypeDomain(type, this.getText(ctx), null);
+        builder.handleDomain(columnTypeDomain, DomainSource.COLUMN_TYPE);
+        return null;
+    }
+
+    @Override
+    public Void visitCollectionDataType(CollectionDataTypeContext ctx) {
+        String type = ctx.typeName.getText();
+        ColumnTypeDomain columnTypeDomain = new ColumnTypeDomain(type, this.getText(ctx), null);
+        builder.handleDomain(columnTypeDomain, DomainSource.COLUMN_TYPE);
+        return null;
+    }
+
+    @Override
+    public Void visitSpatialDataType(SpatialDataTypeContext ctx) {
+        String type = ctx.typeName.getText();
+        ColumnTypeDomain columnTypeDomain = new ColumnTypeDomain(type, this.getText(ctx), null);
+        builder.handleDomain(columnTypeDomain, DomainSource.COLUMN_TYPE);
+        return null;
+    }
+
+    @Override
+    public Void visitUidList(UidListContext ctx) {
+        builder.handleInsertColumn(() -> {
+            dmVisitChildren(ctx);
+        });
+
+        return null;
+    }
+
+    @Override
+    public Void visitIndexColumnNames(IndexColumnNamesContext ctx) {
+        builder.handleColumnList(() -> {
+            dmVisitChildren(ctx);
+        });
+        return null;
+    }
+
+    @Override
+    public Void visitIfExists(IfExistsContext ctx) {
+        builder.addAttr(CommonAttribute.IF_EXISTS, true);
+        return null;
+    }
+
+    @Override
+    public Void visitIfNotExists(IfNotExistsContext ctx) {
+        builder.addAttr(CommonAttribute.IF_NOT_EXISTS, true);
+        return null;
+    }
+
+    @Override
+    public Void visitDataTypeFunctionCall(DataTypeFunctionCallContext ctx) {
+        builder.handleCall(() -> {
+            builder.addAttr(CommonAttribute.VALUE, ctx.getChild(0).getText());
+            builder.handleFunctionArgs(() -> {
+                for (ParseTree child : ctx.children) {
+                    if (child instanceof ExpressionContext) {
+                        builder.addAttr(CommonAttribute.VALUE, this.getText((ParserRuleContext) child));
+                        child.accept(this);
+                        break;
+                    }
+                }
+            });
+        });
+        return null;
+    }
+
+    @Override
+    public Void visitValuesFunctionCall(ValuesFunctionCallContext ctx) {
+        builder.handleCall(() -> {
+            builder.handleDomain(new ObjNameDomain(Collections.singletonList("values"), NameType.FUNCTION), DomainSource.OBJ_NAME);
+
+            builder.handleFunctionArgs(() -> {
+                builder.addAttr(CommonAttribute.VALUE, this.getText(ctx.fullColumnName()));
+                ctx.fullColumnName().accept(this);
+            });
+        });
+        return null;
+
+    }
+
+    @Override
+    public Void visitSubstrFunctionCall(SubstrFunctionCallContext ctx) {
+        builder.handleCall(() -> {
+            builder.addAttr(CommonAttribute.VALUE, ctx.getChild(0).getText());
+
+            builder.handleFunctionArgs(() -> {
+                for (ParseTree child : ctx.children) {
+                    if (child instanceof ParserRuleContext) {
+                        builder.addAttr(CommonAttribute.FUNC_ARG_NAME, getText((ParserRuleContext) child));
+                        child.accept(this);
+                    }
+                }
+            });
+        });
+        return null;
+    }
+
+    @Override
+    public Void visitCaseFunctionCall(CaseFunctionCallContext ctx) {
+        builder.handleCall(() -> {
+            builder.handleDomain(new ObjNameDomain(ctx.CASE().getText()), DomainSource.OBJ_NAME);
+
+            builder.handleFunctionArgs(() -> {
+                if (ctx.expression() != null) {
+                    ctx.expression().accept(this);
+                    builder.addAttr(CommonAttribute.FUNC_ARG_NAME, getText(ctx.expression()));
+                }
+                for (CaseFuncAlternativeContext caseFuncAlternativeContext : ctx.caseFuncAlternative()) {
+                    caseFuncAlternativeContext.accept(this);
+                }
+                if (ctx.elseArg != null) {
+                    ctx.elseArg.accept(this);
+                }
+            });
+        });
+
+        return null;
+    }
+
+    @Override
+    public Void visitCaseFuncAlternative(CaseFuncAlternativeContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitExtractFunctionCall(ExtractFunctionCallContext ctx) {
+        builder.handleCall(() -> {
+            builder.handleDomain(new ObjNameDomain(ctx.EXTRACT().getText()), DomainSource.OBJ_NAME);
+
+            builder.handleFunctionArgs(() -> {
+                ParserRuleContext arg = ctx.sourceString == null ? ctx.sourceExpression : ctx.sourceString;
+                builder.addAttr(CommonAttribute.FUNC_ARG_NAME, getText(arg));
+                arg.accept(this);
+            });
+        });
+        return null;
+    }
+
+    @Override
+    public Void visitAggregateFunctionCall(AggregateFunctionCallContext ctx) {
+        ctx.aggregateFunction().accept(this);
+        return null;
+    }
+
+    @Override
+    public Void visitSpatialAggregateFunctionCall(SpatialAggregateFunctionCallContext ctx) {
+        builder.handleCall(() -> {
+            builder.addAttr(CommonAttribute.VALUE, getText(ctx.customFunctionName()));
+            builder.handleFunctionArgs(() -> {
+                builder.addAttr(CommonAttribute.FUNC_ARG_NAME, getText(ctx.functionArg()));
+                ctx.functionArg().accept(this);
+            });
+        });
+        return null;
+    }
+
+    @Override
+    public Void visitJsonDualityObjectFunctionCall(JsonDualityObjectFunctionCallContext ctx) {
+        JsonDualityObjectFunctionContext function = ctx.jsonDualityObjectFunction();
+        builder.handleCall(() -> {
+            builder.handleDomain(new ObjNameDomain(function.JSON_DUALITY_OBJECT().getText()), DomainSource.OBJ_NAME);
+            builder.handleFunctionArgs(() -> function.jsonDualityKeyValueList().jsonDualityKeyValue().forEach(keyValue -> {
+                builder.addAttr(CommonAttribute.FUNC_ARG_NAME, getText(keyValue.functionArg()));
+                keyValue.functionArg().accept(this);
+            }));
+        });
+        return null;
+    }
+
+    @Override
+    public Void visitNonAggregateFunctionCall(NonAggregateFunctionCallContext ctx) {
+        ctx.nonAggregateFunction().accept(this);
+        return null;
+    }
+
+    @Override
+    public Void visitAggregateFunction(AggregateFunctionContext ctx) {
+        builder.handleCall(() -> {
+            builder.addAttr(CommonAttribute.VALUE, ctx.getChild(0).getText());
+            for (ParseTree child : ctx.children) {
+                if (child instanceof FunctionArgsContext) {
+                    child.accept(this);
+                    break;
+                } else if (child instanceof FunctionArgContext) {
+                    builder.handleFunctionArgs(() -> {
+                        child.accept(this);
+                    });
+                    break;
+                } else if (child.getText().equals("*")) {
+                    builder.handleFunctionArgs(() -> {
+                        builder.addAttr(CommonAttribute.VALUE, "*");
+                        builder.handleDomain(new RdbConstantDomain("*"), DomainSource.CONSTANT);
+                    });
+                    break;
+                }
+            }
+        });
+        return null;
+    }
+
+    @Override
+    public Void visitNonAggregateFunction(NonAggregateFunctionContext ctx) {
+        builder.handleCall(() -> {
+            builder.addAttr(CommonAttribute.VALUE, ctx.getChild(0).getText());
+            builder.handleFunctionArgs(() -> ctx.children.stream().filter(child -> child instanceof ExpressionContext || child instanceof StableIntegerContext).forEach(child -> {
+                builder.addAttr(CommonAttribute.FUNC_ARG_NAME, getText((ParserRuleContext) child));
+                child.accept(this);
+            }));
+        });
+        return null;
+    }
+
+    @Override
+    public Void visitGroupClause(GroupClauseContext ctx) {
+        return null;
+    }
+
+    @Override
+    public Void visitHavingClause(HavingClauseContext ctx) {
+        return null;
+    }
+
+    @Override
+    public Void visitQualifyClause(QualifyClauseContext ctx) {
+        return null;
+    }
+
+    @Override
+    public Void visitFunctionArg(FunctionArgContext ctx) {
+        builder.addAttr(CommonAttribute.VALUE, this.getText(ctx));
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitNotExpression(NotExpressionContext ctx) {
+        builder.addAttr(CommonAttribute.VALID_WHERE, true);
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitHighNotExpression(HighNotExpressionContext ctx) {
+        builder.addAttr(CommonAttribute.VALID_WHERE, true);
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitSubqueryTableItem(SubqueryTableItemContext ctx) {
+        builder.handleSelectTable(() -> {
+            ctx.queryExpression().accept(this);
+            if (ctx.aliasName() != null) {
+                ctx.aliasName().accept(this);
+            }
+            if (ctx.uidList() != null) {
+                builder.addAttr(CommonAttribute.DERIVED_COLUMN_NAMES, ctx.uidList().uid().stream().map(this::getName).toList());
+            }
+        });
+        return null;
+    }
+
+    @Override
+    public Void visitLateralTableItem(LateralTableItemContext ctx) {
+        builder.handleSelectTable(() -> {
+            ctx.subqueryStatement().accept(this);
+            if (ctx.aliasName() != null) {
+                ctx.aliasName().accept(this);
+            }
+            if (ctx.uidList() != null) {
+                builder.addAttr(CommonAttribute.DERIVED_COLUMN_NAMES, ctx.uidList().uid().stream().map(this::getName).toList());
+            }
+        });
+        return null;
+    }
+
+    @Override
+    public Void visitBetweenPredicate(BetweenPredicateContext ctx) {
+        builder.addAttr(CommonAttribute.VALID_WHERE, true);
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitLikePredicate(LikePredicateContext ctx) {
+        builder.addAttr(CommonAttribute.VALID_WHERE, true);
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitMysqlVariableExpressionAtom(MysqlVariableExpressionAtomContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitOdbcExpressionAtom(OdbcExpressionAtomContext ctx) {
+        ctx.expression().accept(this);
+        return null;
+    }
+
+    @Override
+    public Void visitIntervalExpressionAtom(IntervalExpressionAtomContext ctx) {
+        builder.handleCall(() -> {
+            builder.addAttr(CommonAttribute.VALUE, ctx.INTERVAL().getText());
+            builder.handleFunctionArgs(() -> {
+                builder.addAttr(CommonAttribute.FUNC_ARG_NAME, getText(ctx.expression()));
+                ctx.expression().accept(this);
+            });
+        });
+        return null;
+    }
+
+    @Override
+    public Void visitExistsExpessionAtom(ExistsExpessionAtomContext ctx) {
+        builder.addAttr(CommonAttribute.VALID_WHERE, true);
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitSqlStatement(SqlStatementContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitDdlStatement(DdlStatementContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitDmlStatement(DmlStatementContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitAdministrationStatement(AdministrationStatementContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitUtilityStatement(UtilityStatementContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitCreateDatabaseOption(CreateDatabaseOptionContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitAlterDatabaseOption(AlterDatabaseOptionContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitCreateDefinitions(CreateDefinitionsContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitColumnDeclaration(ColumnDeclarationContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitConstraintDeclaration(ConstraintDeclarationContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitIndexDeclaration(IndexDeclarationContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitAlterByTableOption(AlterByTableOptionContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitRenameTable(RenameTableContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitDeleteStatement(DeleteStatementContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitUpdateStatement(UpdateStatementContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitWithClause(WithClauseContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitSelectInsertValue(SelectInsertValueContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitTableSourceBase(TableSourceBaseContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitTableSourcesItem(TableSourcesItemContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitQueryExpression(QueryExpressionContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitUnionStatement(UnionStatementContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitSelectSpec(SelectSpecContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitSimpleAuthOption(SimpleAuthOptionContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitPrivelegeClause(PrivelegeClauseContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitPrivilege(PrivilegeContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitGlobalPrivLevel(GlobalPrivLevelContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitDefiniteSchemaPrivLevel(DefiniteSchemaPrivLevelContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitDefiniteFullTablePrivLevel(DefiniteFullTablePrivLevelContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitDefiniteFullTablePrivLevel2(DefiniteFullTablePrivLevel2Context ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitDefiniteTablePrivLevel(DefiniteTablePrivLevelContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitShowSlaveHosts(ShowSlaveHostsContext ctx) {
+        MyShowDomain myShowDomain = new MyShowDomain();
+        myShowDomain.setSqlType(RuleQueryType.METADATA);
+        myShowDomain.setAuditKind(SecQueryKind.QUERY);
+        myShowDomain.setShowType(MyShowType.REPLICAS);
+        myShowDomain.setTarget(TargetType.Environment);
+        builder.addDomain(myShowDomain);
+        return null;
+    }
+
+    @Override
+    public Void visitFullId(FullIdContext ctx) {
+        dmVisitChildren(ctx);
+        if (ctx.identifierAfterDot != null) {
+            builder.addAttr(CommonAttribute.VALUE, identifierText(ctx.identifierAfterDot.getText()));
+        }
+        return null;
+    }
+
+    private static String identifierText(String text) {
+        if (text != null && text.length() >= 2 && ((text.startsWith("`") && text.endsWith("`")) || (text.startsWith("\"") && text.endsWith("\"")))) {
+            return text.substring(1, text.length() - 1);
+        }
+        return text;
+    }
+
+    @Override
+    public Void visitSetOperator(SetOperatorContext ctx) {
+        return null;
+    }
+
+    @Override
+    public Void visitUid(UidContext ctx) {
+        if (ctx.simpleId() != null) {
+            dmVisitChildren(ctx);
+        } else {
+            builder.addAttr(CommonAttribute.VALUE, getName(ctx));
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitDottedId(DottedIdContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitDecimalLiteral(DecimalLiteralContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitNullNotnull(NullNotnullContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitTables(TablesContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitExpressions(ExpressionsContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitExpressionsWithDefaults(ExpressionsWithDefaultsContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitValuesRow(ValuesRowContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitValuesStatement(ValuesStatementContext ctx) {
+        builder.enterSelectDomain();
+        builder.addAttr(CommonAttribute.UNION, true);
+        for (ExplicitValuesRowContext row : ctx.explicitValuesRow()) {
+            builder.handleSelectDomain(() -> {
+                ExpressionsWithDefaultsContext values = row.expressionsWithDefaults();
+                if (values == null) {
+                    return;
+                }
+                List<ExpressionOrDefaultContext> expressions = values.expressionOrDefault();
+                for (int i = 0; i < expressions.size(); i++) {
+                    ExpressionOrDefaultContext value = expressions.get(i);
+                    String columnName = "column_" + i;
+                    builder.handleBuildSelectItem(() -> {
+                        builder.addAttr(CommonAttribute.VALUE, columnName);
+                        if (value.expression() != null) {
+                            value.expression().accept(this);
+                        }
+                        builder.addAttr(CommonAttribute.ALIAS, columnName);
+                    });
+                }
+            });
+        }
+        builder.exitSelectDomain();
+        return null;
+    }
+
+    @Override
+    public Void visitTableStatement(TableStatementContext ctx) {
+        builder.handleSelectDomain(() -> {
+            builder.handleBuildSelectItem(() -> {
+                RdbColumnDomain column = new RdbColumnDomain();
+                column.setColumn("*");
+                builder.handleDomain(column, DomainSource.COLUMN);
+            });
+            builder.handleSelectFrom(() -> builder.handleSelectTable(() -> ctx.tableName().accept(this)));
+        });
+        return null;
+    }
+
+    @Override
+    public Void visitReplaceStatementValue(ReplaceStatementValueContext ctx) {
+        builder.handleValues(() -> dmVisitChildren(ctx));
+        return null;
+    }
+
+    @Override
+    public Void visitInsertQuerySource(InsertQuerySourceContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitInsertQueryStatement(InsertQueryStatementContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitExpressionOrDefault(ExpressionOrDefaultContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitIntervalType(IntervalTypeContext ctx) {
+        return null;
+    }
+
+    @Override
+    public Void visitIntervalTypeBase(IntervalTypeBaseContext ctx) {
+        return null;
+    }
+
+    @Override
+    public Void visitStableInteger(StableIntegerContext ctx) {
+        builder.handleDomain(new RdbConstantDomain(getText(ctx)), DomainSource.CONSTANT);
+        return null;
+    }
+
+    @Override
+    public Void visitSpecificFunctionCall(SpecificFunctionCallContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitDefaultFunctionCall(DefaultFunctionCallContext ctx) {
+        builder.handleCall(() -> {
+            builder.handleDomain(new ObjNameDomain(ctx.DEFAULT().getText()), DomainSource.OBJ_NAME);
+            builder.handleFunctionArgs(() -> ctx.fullColumnName().accept(this));
+        });
+        return null;
+    }
+
+    @Override
+    public Void visitOverClause(OverClauseContext ctx) {
+        if (ctx.window_specification() != null) {
+            ctx.window_specification().accept(this);
+        } else if (ctx.uid() != null) {
+            visitNamedWindow(getName(ctx.uid()));
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitWindow_specification(Window_specificationContext ctx) {
+        if (ctx.uid() != null) {
+            visitNamedWindow(getName(ctx.uid()));
+        }
+        ctx.expression().forEach(expression -> expression.accept(this));
+        if (ctx.orderByClause() != null) {
+            ctx.orderByClause().orderByExpression().forEach(order -> order.expression().accept(this));
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitWindowClause(WindowClauseContext ctx) {
+        return null;
+    }
+
+    private void visitNamedWindow(String name) {
+        if (namedWindows.isEmpty()) {
+            return;
+        }
+        Window_specificationContext window = namedWindows.peek().get(name);
+        if (window != null) {
+            window.accept(this);
+        }
+    }
+
+    @Override
+    public Void visitExpression(ExpressionContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitVariableAssignmentExpression(VariableAssignmentExpressionContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitLogicalAssignmentExpression(LogicalAssignmentExpressionContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitLogicalExpression(LogicalExpressionContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitLogicalXorExpression(LogicalXorExpressionContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitLogicalAndExpression(LogicalAndExpressionContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitPredicateExpression(PredicateExpressionContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitComparisonPredicate(ComparisonPredicateContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitComparisonExpression(ComparisonExpressionContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitTruthPredicate(TruthPredicateContext ctx) {
+        builder.addAttr(CommonAttribute.VALID_WHERE, true);
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitRegexpPredicate(RegexpPredicateContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitSoundsLikePredicate(SoundsLikePredicateContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitJsonMemberOfPredicate(JsonMemberOfPredicateContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitExpressionAtomPredicate(ExpressionAtomPredicateContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitSubqueryExpessionAtom(SubqueryExpessionAtomContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitNestedExpressionAtom(NestedExpressionAtomContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitNestedRowExpressionAtom(NestedRowExpressionAtomContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitMathExpressionAtom(MathExpressionAtomContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitAdditiveExpressionAtom(AdditiveExpressionAtomContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitShiftExpressionAtom(ShiftExpressionAtomContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitBitAndExpressionAtom(BitAndExpressionAtomContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitBitXorExpressionAtom(BitXorExpressionAtomContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitPipesConcatExpressionAtom(PipesConcatExpressionAtomContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitConstantExpressionAtom(ConstantExpressionAtomContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitParameterMarkerExpressionAtom(ParameterMarkerExpressionAtomContext ctx) {
+        return null;
+    }
+
+    @Override
+    public Void visitTypedTemporalLiteralExpressionAtom(TypedTemporalLiteralExpressionAtomContext ctx) {
+        builder.handleDomain(new RdbConstantDomain(getText(ctx)), DomainSource.CONSTANT);
+        return null;
+    }
+
+    @Override
+    public Void visitFunctionCallExpressionAtom(FunctionCallExpressionAtomContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitFullColumnNameExpressionAtom(FullColumnNameExpressionAtomContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitUnaryExpressionAtom(UnaryExpressionAtomContext ctx) {
+        ctx.unaryExpression().accept(this);
+        return null;
+    }
+
+    @Override
+    public Void visitNestedVariableAssignmentExpression(NestedVariableAssignmentExpressionContext ctx) {
+        ctx.assignmentExpression().accept(this);
+        return null;
+    }
+
+    @Override
+    public Void visitPrimaryExpressionAtom(PrimaryExpressionAtomContext ctx) {
+        ctx.expressionAtom().accept(this);
+        return null;
+    }
+
+    @Override
+    public Void visitBinaryExpressionAtom(BinaryExpressionAtomContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitCollateExpressionAtom(CollateExpressionAtomContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitBitOperator(BitOperatorContext ctx) {
+        return null;
+    }
+
+    @Override
+    public Void visitBitExpressionAtom(BitExpressionAtomContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitTransactionStatement(TransactionStatementContext ctx) {
+        RdbResourceDomain domain = new RdbResourceDomain();
+        domain.setAuditKind(SecQueryKind.QUERY);
+        domain.setSqlType(RuleQueryType.TRANSACTION);
+        domain.setNeedSupply(true);
+        domain.setTarget(TargetType.Unknown);
+        builder.addDomain(domain);
+        return null;
+    }
+
+    @Override
+    public Void visitPreparedStatement(PreparedStatementContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitPrepareStatement(PrepareStatementContext ctx) {
+        RdbResourceDomain domain = new RdbResourceDomain();
+        domain.setAuditKind(SecQueryKind.OTHER);
+        domain.setSqlType(RuleQueryType.UNSAFE);
+        domain.setNeedSupply(false);
+        domain.setTarget(TargetType.PrepareStatement);
+        builder.addDomain(domain);
+        return null;
+    }
+
+    @Override
+    public Void visitExecuteStatement(ExecuteStatementContext ctx) {
+        RdbResourceDomain domain = new RdbResourceDomain();
+        domain.setAuditKind(SecQueryKind.OTHER);
+        domain.setSqlType(RuleQueryType.UNSAFE);
+        domain.setNeedSupply(false);
+        domain.setTarget(TargetType.PrepareStatement);
+        builder.addDomain(domain);
+        return null;
+    }
+
+    @Override
+    public Void visitDeallocatePrepare(DeallocatePrepareContext ctx) {
+        RdbResourceDomain domain = new RdbResourceDomain();
+        domain.setAuditKind(SecQueryKind.OTHER);
+        domain.setSqlType(RuleQueryType.UNSAFE);
+        domain.setNeedSupply(false);
+        domain.setTarget(TargetType.PrepareStatement);
+        builder.addDomain(domain);
+        return null;
+    }
+
+    @Override
+    public Void visitComparisonOperator(ComparisonOperatorContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitMathOperator(MathOperatorContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitKeywordsCanBeId(KeywordsCanBeIdContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitFunctionNameBase(FunctionNameBaseContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+}

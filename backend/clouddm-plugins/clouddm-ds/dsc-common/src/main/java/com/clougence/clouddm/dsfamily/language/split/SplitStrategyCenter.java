@@ -22,8 +22,9 @@ import com.clougence.clouddm.sdk.language.LanguageResult;
 import com.clougence.clouddm.sdk.language.split.SplitRequest;
 import com.clougence.clouddm.sdk.language.split.SplitResult;
 import com.clougence.clouddm.sdk.language.split.SplitSqlStatement;
-import com.clougence.clouddm.sdk.sql.split.SplitAnalysisSpi;
-import com.clougence.clouddm.sdk.sql.split.SplitScript;
+import com.clougence.clouddm.sdk.sql.SqlParserParameters;
+import com.clougence.clouddm.sdk.sql.parser.SplitAnalysisSpi;
+import com.clougence.clouddm.sdk.sql.parser.SplitScript;
 import com.clougence.dslpaser.ast.location.BlockLocation;
 import com.clougence.dslpaser.ast.location.CodeLocation;
 import com.clougence.utils.StringUtils;
@@ -38,11 +39,12 @@ public class SplitStrategyCenter {
 
         List<SplitScript> scripts;
         try {
-            SplitAnalysisSpi splitSpi = request.getSqlEngine().splitAnalysisSpi();
+            SplitAnalysisSpi splitSpi = request.getSqlEngine().splitAnalysisSpi(new SqlParserParameters(request.getSqlParameters()));
             scripts = splitSpi.splitScript(request.getSqlText(), null, request.getBasicCodeLine(), request.getBasicCodeColumn());
         } catch (RuntimeException e) {
             return result;
         }
+
         for (SplitScript script : scripts) {
             SplitSqlStatement statement = new SplitSqlStatement();
             statement.setSql(script.getScript());

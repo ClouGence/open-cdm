@@ -30,18 +30,11 @@ import lombok.Setter;
 public class DsCacheEntry {
 
     private Long           dsNumId;
-
     private String         dsInstId;
-
     private String         dsInstDesc;
-
     private DataSourceType dsType;
-
     private String         ownerUid;
-
     private Long           clusterId;
-
     private Long           envId;
-
     private LocalDateTime  addTime = LocalDateTime.now();
 }

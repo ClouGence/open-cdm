@@ -4,7 +4,8 @@
       <div class="tab-group">
         <a-tabs
           v-model:activeKey="tab.result.active"
-          :style="`width: ${tab.result?.list?.length ? '110px' : '100%'}`"
+          class="message-tabs"
+          :class="{ 'message-tabs--with-results': tab.result?.list?.length }"
           type="card"
           @tabClick="handleResultTabChange"
         >
@@ -396,6 +397,7 @@
   </div>
 </template>
 <script lang="jsx">
+import appLogger from '@/utils/logger';
 import dayjs from 'dayjs';
 import { Modal, Tooltip } from 'ant-design-vue';
 import { mysqlInsert, pgInsert } from '@/views/sql/components/typeGroup';
@@ -666,7 +668,7 @@ export default {
   },
   methods: {
     handleClickCostPop() {
-      console.warn(123, this.tab);
+      appLogger.warn(123, this.tab);
     },
     handleResize(e, column) {
       const startX = e.clientX;
@@ -711,7 +713,7 @@ export default {
       return (page - 1) * pageSize + index + 1;
     },
     onContextmenu(event, tab) {
-      console.log(event, tab);
+      appLogger.debug(event, tab);
       this.contextData = tab;
       ContextMenu.showContextMenu({
         zIndex: 999,
@@ -730,7 +732,7 @@ export default {
       });
     },
     handleCloseResultTab(type, key) {
-      console.log(type, key);
+      appLogger.debug(type, key);
       if (type === 'current') {
         const deleteIndex = this.tab.result.list.findIndex((tab) => tab.resultId === key);
         const closingTab = this.tab.result.list[deleteIndex];
@@ -782,7 +784,7 @@ export default {
       };
 
       this.$services.dmQueryCloseResultWindow(params).catch((error) => {
-        console.error('err:', error);
+        appLogger.error('err:', error);
       });
     },
     handleResultTabChange(activeKey) {
@@ -980,7 +982,7 @@ export default {
           }
         }
       } catch (err) {
-        console.log('获取单元格 complete 字段失败:', err);
+        appLogger.debug('获取单元格 complete 字段失败:', err);
       }
       return true;
     },
@@ -1058,7 +1060,7 @@ export default {
           }
         }
       } catch (err) {
-        console.log('获取单元格原始数据失败:', err);
+        appLogger.debug('获取单元格原始数据失败:', err);
       }
 
       this.$bus.emit('showCellDetailModal', {
@@ -1077,8 +1079,8 @@ export default {
     },
     generateRowInsert(row) {
       const { dsType } = this.tab;
-      const { columnList, columnType, resource } = this.selectedTab;
-      const tableName = this.currentTableName || resource || 'my_table';
+      const { columnList, columnType } = this.selectedTab;
+      const tableName = this.currentTableName || 'my_table';
       this.currentTableName = tableName;
       let keyStr = '';
       const qualifier = this.getQualifier(dsType);
@@ -1116,7 +1118,7 @@ export default {
         }
       });
 
-      console.log(`INSERT INTO ${left}${tableName}${right} (${keyStr}) VALUES (${valueStr})`);
+      appLogger.debug(`INSERT INTO ${left}${tableName}${right} (${keyStr}) VALUES (${valueStr})`);
 
       return `INSERT INTO ${left}${tableName}${right} (${keyStr}) VALUES (${valueStr})`;
     },
@@ -1271,7 +1273,7 @@ export default {
             tab.rowSetCache[page] = rowSet; // Save raw data from the current page
           }
         } catch (error) {
-          console.error('获取分页数据失败:', error);
+          appLogger.error('获取分页数据失败:', error);
           this.$Message.error(this.$t('huo-qu-fen-ye-shu-ju-shi-bai'));
         }
       } else if (receiveMode === 'STREAM') {
@@ -1321,7 +1323,7 @@ export default {
     },
     resetInsertOption() {
       const columns = Array.isArray(this.selectedTab?.columnList) ? this.selectedTab.columnList : [];
-      const tableName = this.selectedTab?.resource || 'table_name';
+      const tableName = 'table_name';
 
       let offset = 0;
       let limit = -1;
@@ -1435,7 +1437,7 @@ export default {
           throw new Error(res.message);
         }
       } catch (error) {
-        console.error('err:', error);
+        appLogger.error('err:', error);
       }
     },
     async confirmExportOption() {
@@ -1512,7 +1514,7 @@ export default {
           throw new Error(res.message);
         }
       } catch (error) {
-        console.error('err:', error);
+        appLogger.error('err:', error);
       }
     },
     async downloadExportedFile() {
@@ -1542,7 +1544,7 @@ export default {
           const disposition = typeof dispositionRaw === 'string' ? dispositionRaw.trim() : '';
           fileName = disposition.split('filename=')[1];
         } catch (e) {
-          console.log(e);
+          appLogger.debug(e);
         }
 
         const url = window.URL.createObjectURL(blob);
@@ -1554,7 +1556,7 @@ export default {
         a.remove();
         window.URL.revokeObjectURL(url);
       } catch (error) {
-        console.error('err:', error);
+        appLogger.error('err:', error);
         if (this.selectedTab.exportState) {
           // this.selectedTab.exportState.exporting = false;
         }
@@ -1659,19 +1661,81 @@ export default {
 
   .tab-group {
     display: flex;
+    height: 44px;
+    flex: 0 0 44px;
     width: 100%;
+    background: var(--bg-secondary);
 
     .right {
       flex: 1;
       min-width: 0;
     }
 
+    .message-tabs {
+      flex: 1;
+      min-width: 0;
+
+      &--with-results {
+        flex: 0 0 auto;
+      }
+
+      :deep(.ant-tabs-nav-operations) {
+        display: none;
+      }
+    }
+
+    :deep(.ant-tabs) {
+      height: 44px;
+    }
+
     :deep(.ant-tabs-top > .ant-tabs-nav) {
+      height: 44px;
       margin: 0;
+    }
+
+    :deep(.ant-tabs-nav-list) {
+      min-height: 44px;
+      align-items: stretch;
+      padding-top: 0;
+      box-sizing: border-box;
     }
 
     :deep(.ant-tabs-nav-more) {
       display: none;
+    }
+
+    :deep(.ant-tabs-nav-wrap) {
+      border-bottom: 1px solid var(--border-primary);
+    }
+
+    :deep(.ant-tabs-tab) {
+      height: 44px;
+      align-items: center;
+      margin: 0 !important;
+      padding: 0 8px !important;
+      border-top: 0 !important;
+      border-left: 0 !important;
+      border-color: var(--border-primary) !important;
+      border-radius: 0 !important;
+      background: var(--bg-tertiary) !important;
+      color: var(--text-secondary) !important;
+
+      &:hover {
+        color: var(--primary-color) !important;
+      }
+    }
+
+    :deep(.ant-tabs-tab-active) {
+      border-bottom-color: var(--bg-primary) !important;
+      background: var(--bg-primary) !important;
+      color: var(--text-primary) !important;
+    }
+
+    :deep(.ant-tabs-extra-content) {
+      height: 44px;
+      line-height: 44px;
+      border-bottom: 1px solid var(--border-primary);
+      padding-right: 8px;
     }
   }
 

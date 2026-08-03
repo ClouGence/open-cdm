@@ -1,0 +1,55 @@
+[AdsParseColumnFunctionTest.test1]
+sql:
+select test_function(1) from table1
+expect:
+{
+  "test_function(1)" : []
+}
+----------
+[AdsParseColumnFunctionTest.test2]
+sql:
+select test_function(column1) from table1
+expect:
+{
+  "test_function(column1)" : [ "/catalog1/schema1/table1/column1/" ]
+}
+----------
+[AdsParseColumnFunctionTest.test3]
+sql:
+select test_function(32)
+expect:
+{
+  "test_function(32)" : []
+}
+----------
+[AdsParseColumnFunctionTest.test4]
+sql:
+select cast(column1 as char) as f from table1
+expect:
+{
+  "f" : [ "/catalog1/schema1/table1/column1/" ]
+}
+----------
+[AdsParseColumnFunctionTest.test5]
+sql:
+select f from (select cast(column1 as char) as f from table1)c
+expect:
+{
+  "f" : [ "/catalog1/schema1/table1/column1/" ]
+}
+----------
+[AdsParseColumnFunctionTest.test6]
+sql:
+select test_func((select column1 from table2)) from table1
+expect:
+{
+  "test_func((select column1 from table2))" : [ "/catalog1/schema1/table2/column1/" ]
+}
+----------
+[AdsParseColumnFunctionTest.test7]
+sql:
+select test_func((select test_func1((select column1 from schema2.table1),column1) from table2),column1) from table1
+expect:
+{
+  "test_func((select test_func1((select column1 from schema2.table1),column1) from table2),column1)" : [ "/catalog1/schema2/table1/column1/", "/catalog1/schema1/table2/column1/", "/catalog1/schema1/table1/column1/" ]
+}

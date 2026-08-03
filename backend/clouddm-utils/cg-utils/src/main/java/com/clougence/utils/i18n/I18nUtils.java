@@ -152,12 +152,9 @@ public class I18nUtils {
                 locale = Locale.getDefault();
             }
 
-            if (!this.i18nDictionary.containsKey(code)) {
-                this.i18nDictionary.put(code, new ConcurrentHashMap<>());
-            }
-
             String i18nKey = toI18nKey(locale);
-            this.i18nDictionary.get(code).put(i18nKey, message);
+            Map<String, String> localeMap = this.i18nDictionary.computeIfAbsent(code, key -> new ConcurrentHashMap<>());
+            localeMap.put(i18nKey, message);
         }
     }
 
@@ -183,9 +180,9 @@ public class I18nUtils {
         this.defaultI18nKey = new AtomicReference<>(toI18nKey(Locale.getDefault()));
         this.messageSource = new I18nMessageSourceImpl();
         this.variablesSource = new VariablesSourceImpl();
-        this.i18nSource = new LinkedHashMap<>();
+        this.i18nSource = new ConcurrentHashMap<>();
         this.i18nLoaded = new CopyOnWriteArraySet<>();
-        this.i18nSourceOfTypes = new LinkedHashSet<>();
+        this.i18nSourceOfTypes = ConcurrentHashMap.newKeySet();
         this.lockedKeys = new CopyOnWriteArraySet<>();
     }
 
@@ -193,9 +190,9 @@ public class I18nUtils {
         this.defaultI18nKey = parent.defaultI18nKey;
         this.messageSource = new I18nMessageSourceImpl();
         this.variablesSource = new VariablesSourceImpl();
-        this.i18nSource = new LinkedHashMap<>();
+        this.i18nSource = new ConcurrentHashMap<>();
         this.i18nLoaded = new CopyOnWriteArraySet<>();
-        this.i18nSourceOfTypes = new LinkedHashSet<>();
+        this.i18nSourceOfTypes = ConcurrentHashMap.newKeySet();
         this.lockedKeys = new CopyOnWriteArraySet<>();
     }
 
@@ -203,9 +200,9 @@ public class I18nUtils {
         this.defaultI18nKey = new AtomicReference<>(toI18nKey(Locale.getDefault()));
         this.messageSource = Objects.requireNonNull(messageSource, "messageSource is null.");
         this.variablesSource = new VariablesSourceImpl();
-        this.i18nSource = new LinkedHashMap<>();
+        this.i18nSource = new ConcurrentHashMap<>();
         this.i18nLoaded = new CopyOnWriteArraySet<>();
-        this.i18nSourceOfTypes = new LinkedHashSet<>();
+        this.i18nSourceOfTypes = ConcurrentHashMap.newKeySet();
         this.lockedKeys = new CopyOnWriteArraySet<>();
     }
 
@@ -213,9 +210,9 @@ public class I18nUtils {
         this.defaultI18nKey = new AtomicReference<>(toI18nKey(Locale.getDefault()));
         this.messageSource = Objects.requireNonNull(messageSource, "messageSource is null.");
         this.variablesSource = variablesSource == null ? new VariablesSourceImpl() : variablesSource;
-        this.i18nSource = new LinkedHashMap<>();
+        this.i18nSource = new ConcurrentHashMap<>();
         this.i18nLoaded = new CopyOnWriteArraySet<>();
-        this.i18nSourceOfTypes = new LinkedHashSet<>();
+        this.i18nSourceOfTypes = ConcurrentHashMap.newKeySet();
         this.lockedKeys = new CopyOnWriteArraySet<>();
     }
 
@@ -270,9 +267,9 @@ public class I18nUtils {
         this.defaultI18nKey.set(toI18nKey(defaultLocale));
     }
 
-    public Set<String> getI18nSources() { return Collections.unmodifiableSet(this.i18nSource.keySet()); }
+    public Set<String> getI18nSources() { return Collections.unmodifiableSet(new HashSet<>(this.i18nSource.keySet())); }
 
-    public Set<Class<?>> getI18nTypes() { return Collections.unmodifiableSet(this.i18nSourceOfTypes); }
+    public Set<Class<?>> getI18nTypes() { return Collections.unmodifiableSet(new HashSet<>(this.i18nSourceOfTypes)); }
 
     public ClassLoader getI18nSourceLoader(String i18nResource) {
         return this.i18nSource.get(i18nResource);
@@ -292,9 +289,7 @@ public class I18nUtils {
         resourceLoader = resourceLoader == null ? ClassUtils.getClassLoader(Thread.currentThread().getContextClassLoader()) : resourceLoader;
 
         for (String i18n : i18nResources) {
-            if (!this.i18nSource.containsKey(i18n)) {
-                this.i18nSource.put(i18n, resourceLoader);
-
+            if (this.i18nSource.putIfAbsent(i18n, resourceLoader) == null) {
                 String i18nResource = i18n + ".properties";
                 try (InputStream stream = ResourcesUtils.getResourceAsStream(resourceLoader, i18nResource)) {
                     if (stream != null) {
@@ -330,11 +325,10 @@ public class I18nUtils {
             loadTypes.add(i18nType);
 
             for (Class<?> type : loadTypes) {
-                if (this.i18nSourceOfTypes.contains(type)) {
+                if (!this.i18nSourceOfTypes.add(type)) {
                     continue;
                 }
 
-                this.i18nSourceOfTypes.add(type);
                 I18nResource i18nResource = type.getAnnotation(I18nResource.class);
                 if (i18nResource != null) {
                     this.loadResources(type.getClassLoader(), i18nResource.value());

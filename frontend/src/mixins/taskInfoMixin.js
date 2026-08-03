@@ -1,3 +1,4 @@
+import appLogger from '@/utils/logger';
 import {
   DDL_TYPE,
   EMPTY_DB,
@@ -37,7 +38,7 @@ const taskInfoMixin = {
   },
   methods: {
     needParseSchemaData() {
-      console.log('needParseSchemaData', this.isEditMode(), this.taskInfo.mode);
+      appLogger.debug('needParseSchemaData', this.isEditMode(), this.taskInfo.mode);
       return this.isEditMode() || this.taskInfo.mode === JOB_MODE.SIMILAR;
     },
     isEditMode() {
@@ -87,7 +88,7 @@ const taskInfoMixin = {
               columnMapping = mapping.serializeMapping;
             }
           } catch (e) {
-            console.log('e', e);
+            appLogger.debug('e', e);
           }
         });
 
@@ -112,7 +113,7 @@ const taskInfoMixin = {
           targetSchemaList
         };
       } catch (e) {
-        console.log(e);
+        appLogger.debug(e);
         return {
           tableMapping: {},
           columnMapping: {},
@@ -142,7 +143,7 @@ const taskInfoMixin = {
           mapping: false
         };
       } catch (e) {
-        console.log(e);
+        appLogger.debug(e);
         return {
           targetTableName: '',
           mapping: false
@@ -150,7 +151,7 @@ const taskInfoMixin = {
       }
     },
     newGetTargetTableFromSchemaData(table, mapping, db) {
-      console.log('newGetTargetTableFromSchemaData', table, mapping);
+      appLogger.debug('newGetTargetTableFromSchemaData', table, mapping);
       let targetTable = '';
       let hasMapping = false;
       Object.keys(mapping).forEach((theMapping) => {
@@ -235,7 +236,7 @@ const taskInfoMixin = {
       };
     },
     newGetTargetColumnFromSchemaData(column, mapping, db) {
-      console.log('newGetTargetColumnFromSchemaData');
+      appLogger.debug('newGetTargetColumnFromSchemaData');
       let targetColumn = column.sourceColumn;
       Object.keys(mapping).forEach((theMapping) => {
         try {
@@ -267,11 +268,11 @@ const taskInfoMixin = {
             targetColumn = theValue.value;
           }
         } catch (e) {
-          console.log('e', e);
+          appLogger.debug('e', e);
         }
       });
 
-      console.log('mapping column', column.sourceColumn, targetColumn);
+      appLogger.debug('mapping column', column.sourceColumn, targetColumn);
       return targetColumn;
     },
     getParseSchemaDataTables(parseDb, sourceSchemaList) {
@@ -299,7 +300,7 @@ const taskInfoMixin = {
       return { tables, schemaName };
     },
     newParseTableFilterSchemaData() {
-      console.log('newParseTableFilterSchemaData');
+      appLogger.debug('newParseTableFilterSchemaData');
       try {
         const { sourceType, targetType } = this.taskInfo;
         const { tableMapping, schema, sourceSchemaList, targetSchemaList } = this.newGetSchemaBasicData();
@@ -329,7 +330,7 @@ const taskInfoMixin = {
                     }
 
                     if (parseTable.table === table.sourceTable) {
-                      console.log(parseTable.table, table.sourceTable, parseTable.table === table.sourceTable);
+                      appLogger.debug(parseTable.table, table.sourceTable, parseTable.table === table.sourceTable);
                       sameTable = parseTable;
                     }
                   }
@@ -340,7 +341,7 @@ const taskInfoMixin = {
             if (sameTable) {
               table._checked = true;
               const { tableName } = this.newGetTargetTableFromSchemaData(table, tableMapping, sameDb);
-              console.log('sameItem', sameTable.table, 'tableName', tableName);
+              appLogger.debug('sameItem', sameTable.table, 'tableName', tableName);
               if (tableName) {
                 table.targetTable = tableName;
               }
@@ -377,7 +378,7 @@ const taskInfoMixin = {
             } else {
               table.hasInJob = false;
               if (table.sourceTable === 'alert_receiver') {
-                console.log('set table false');
+                appLogger.debug('set table false');
               }
               table._checked = false;
               table.action = [];
@@ -445,11 +446,11 @@ const taskInfoMixin = {
           });
         });
       } catch (e) {
-        console.log('err', e);
+        appLogger.debug('err', e);
       }
     },
     newParseCleanDataSchemaData() {
-      console.log('newParseCleanDataSchemaData');
+      appLogger.debug('newParseCleanDataSchemaData');
       const { sourceType, targetType } = this.taskInfo;
       const { sourceSchemaList, targetSchemaList, columnMapping } = this.newGetSchemaBasicData();
 
@@ -470,7 +471,7 @@ const taskInfoMixin = {
       }
 
       const { virtualColumnObj, transformColumnObj, wideTableObj } = this.newParseProcessorData();
-      console.log(virtualColumnObj, transformColumnObj, wideTableObj);
+      appLogger.debug(virtualColumnObj, transformColumnObj, wideTableObj);
 
       this.allTableList.forEach((table) => {
         let sameTable = null;
@@ -857,7 +858,7 @@ const taskInfoMixin = {
     },
     // Use newTaskInfo
     async handleNewNextStep() {
-      console.log(this.taskInfo.step);
+      appLogger.debug(this.taskInfo.step);
       switch (this.taskInfo.step) {
         case JOB_STEP.ORIGINAL:
           this.handleOriginalNextStep();
@@ -957,7 +958,7 @@ const taskInfoMixin = {
       this.newTaskInfo.common.tableDefaultDisabled = this.newTaskInfo.common.isFullDatabaseSync;
     },
     handleFunctionNextStep() {
-      console.log(this.newTaskInfo);
+      appLogger.debug(this.newTaskInfo);
       const { fullPeriodDate, checkPeriodDate, fullPeriod, checkMode } = this.newTaskInfo.functionConfig;
       this.newTaskInfo.jobType = this.newTaskInfo.functionConfig.jobType;
 
@@ -1044,7 +1045,7 @@ const taskInfoMixin = {
       }
     },
     async handleCleanDataNextStep() {
-      console.log('clean data next step');
+      appLogger.debug('clean data next step');
       await this.$refs.newCleanData.updateNextStep();
     },
     async handleNewPreStep() {
@@ -1405,7 +1406,7 @@ const taskInfoMixin = {
                 currentMappingDef = configData.mappingDef || [];
               } catch (error) {
                 // Could not close temporary folder: %s
-                console.log('error', error);
+                appLogger.debug('error', error);
               }
             }
           }
@@ -1514,7 +1515,7 @@ const taskInfoMixin = {
             });
           }
         } catch (error) {
-          console.log('error', error);
+          appLogger.debug('error', error);
         }
 
         // Any changes
@@ -1541,7 +1542,7 @@ const taskInfoMixin = {
           this.editChangesSummary.wideTables.modified.length > 0 ||
           this.editChangesSummary.wideTables.removed.length > 0;
 
-        console.log('完整变更摘要:', this.editChangesSummary);
+        appLogger.debug('完整变更摘要:', this.editChangesSummary);
       } catch (error) {
         this.editChangesSummary.hasChanges = true; // Default allows submission when an error occurs
       }

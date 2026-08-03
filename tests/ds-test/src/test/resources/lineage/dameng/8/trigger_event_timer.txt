@@ -1,0 +1,217 @@
+[schema_event_trigger_has_no_result_lineage]
+sql:
+create or replace trigger app.evt_after_create
+after create on audit_app.schema
+begin
+  insert into audit_app.event_log(trigger_name, operation)
+  values('EVT_AFTER_CREATE', :eventinfo.optype);
+end;
+/
+expect:
+{}
+----------
+[privilege_event_trigger_has_no_result_lineage]
+sql:
+create or replace trigger app.evt_privilege
+after grant or revoke on database
+begin
+  insert into audit_app.event_log(trigger_name, operation)
+  values('EVT_PRIVILEGE', 'PRIVILEGE');
+end;
+/
+expect:
+{}
+----------
+[timer_trigger_has_no_result_lineage]
+sql:
+create or replace trigger app.timer_daily
+after timer on database
+for each 1 day at time '23:59:59'
+begin
+  insert into audit_app.event_log(trigger_name, operation)
+  values('TIMER_DAILY', 'TIMER');
+end;
+/
+expect:
+{}
+----------
+[event_execute_at_has_no_result_lineage]
+sql:
+create trigger app.evt_raft
+after create on database execute at RAFT_AT_ALL_SP$
+begin
+  null;
+end;
+/
+expect:
+{}
+----------
+[timer_month_last_week_has_no_result_lineage]
+sql:
+create trigger app.timer_month_last
+after timer on database
+for each 2 month day 2 of week last at time '23:00:00'
+begin
+  null;
+end;
+/
+expect:
+{}
+----------
+[logout_event_trigger_has_no_result_lineage]
+sql:
+create or replace trigger app.evt_logout
+before logout on database
+begin
+  insert into audit_app.event_log(trigger_name, operation)
+  values('EVT_LOGOUT', :eventinfo.loginname);
+end;
+/
+expect:
+{}
+----------
+[sererr_event_trigger_has_no_result_lineage]
+sql:
+create or replace trigger app.evt_sererr
+after sererr on database
+begin
+  insert into audit_app.event_log(trigger_name, operation)
+  values('EVT_SERERR', cast(:eventinfo.errcode as varchar(20)));
+end;
+/
+expect:
+{}
+----------
+[backup_event_trigger_has_no_result_lineage]
+sql:
+create or replace trigger app.evt_backup_database
+after backup database on database
+begin
+  insert into audit_app.event_log(trigger_name, operation)
+  values('EVT_BACKUP_DATABASE', 'BACKUP DATABASE');
+end;
+/
+expect:
+{}
+----------
+[restore_event_trigger_has_no_result_lineage]
+sql:
+create or replace trigger app.evt_restore_database
+after restore database on database
+begin
+  insert into audit_app.event_log(trigger_name, operation)
+  values('EVT_RESTORE_DATABASE', 'RESTORE DATABASE');
+end;
+/
+expect:
+{}
+----------
+[startup_event_trigger_has_no_result_lineage]
+sql:
+create or replace trigger app.evt_startup
+after startup on database
+begin
+  insert into audit_app.event_log(trigger_name, operation)
+  values('EVT_STARTUP', 'STARTUP');
+end;
+/
+expect:
+{}
+----------
+[shutdown_event_trigger_has_no_result_lineage]
+sql:
+create or replace trigger app.evt_shutdown
+before shutdown on database
+begin
+  insert into audit_app.event_log(trigger_name, operation)
+  values('EVT_SHUTDOWN', 'SHUTDOWN');
+end;
+/
+expect:
+{}
+----------
+[audit_event_trigger_has_no_result_lineage]
+sql:
+create or replace trigger app.evt_audit
+after audit on database
+begin
+  insert into audit_app.event_log(trigger_name, operation)
+  values('EVT_AUDIT', 'AUDIT');
+end;
+/
+expect:
+{}
+----------
+[noaudit_event_trigger_has_no_result_lineage]
+sql:
+create or replace trigger app.evt_noaudit
+after noaudit on database
+begin
+  insert into audit_app.event_log(trigger_name, operation)
+  values('EVT_NOAUDIT', 'NOAUDIT');
+end;
+/
+expect:
+{}
+----------
+[checkpoint_event_trigger_has_no_result_lineage]
+sql:
+create or replace trigger app.evt_checkpoint
+after checkpoint on database
+begin
+  insert into audit_app.event_log(trigger_name, operation)
+  values('EVT_CHECKPOINT', 'CHECKPOINT');
+end;
+/
+expect:
+{}
+----------
+[before_audit_event_trigger_has_no_result_lineage]
+sql:
+create or replace trigger app.evt_before_audit
+before audit on database
+begin
+  insert into audit_app.event_log(trigger_name, operation)
+  values('EVT_BEFORE_AUDIT', 'AUDIT');
+end;
+/
+expect:
+{}
+----------
+[before_noaudit_event_trigger_has_no_result_lineage]
+sql:
+create or replace trigger app.evt_before_noaudit
+before noaudit on database
+begin
+  insert into audit_app.event_log(trigger_name, operation)
+  values('EVT_BEFORE_NOAUDIT', 'NOAUDIT');
+end;
+/
+expect:
+{}
+----------
+[backup_eventinfo_trigger_has_no_result_lineage]
+sql:
+create or replace trigger app.evt_backup_eventinfo
+after backup database on database
+begin
+  insert into audit_app.event_log(event_name, db_name, op_user, op_time)
+  values('BACKUP EVENTINFO', :eventinfo.databasename,
+    :eventinfo.opuser, :eventinfo.optime);
+end;
+/
+expect:
+{}
+----------
+[restore_eventinfo_trigger_has_no_result_lineage]
+sql:
+create or replace trigger app.evt_restore_eventinfo
+after restore database on database
+begin
+  insert into audit_app.event_log(event_name, db_name, op_user, op_time)
+  values('RESTORE EVENTINFO', :eventinfo.databasename,
+    :eventinfo.opuser, :eventinfo.optime);
+end;
+/
+expect:
+{}

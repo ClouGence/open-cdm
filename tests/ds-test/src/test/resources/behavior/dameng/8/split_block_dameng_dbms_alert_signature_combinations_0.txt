@@ -1,0 +1,516 @@
+[split_block_dameng_dbms_alert_signature_combinations_0_001]
+sql:
+-- FUNC-0240 REGISTER and FUNC-0241 REMOVE positional
+begin
+  DBMS_ALERT.REGISTER('CODEX_ALERT_POS');
+  DBMS_ALERT.REMOVE('CODEX_ALERT_POS');
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(3:2~3:21) /test/1/catalog1/DBMS_ALERT/REGISTER/",
+      "action": "CALL",
+      "target": "Event(3:22~3:39) /test/1/CODEX_ALERT_POS/"
+    },
+    {
+      "subject": "Procedure(4:2~4:19) /test/1/catalog1/DBMS_ALERT/REMOVE/",
+      "action": "CALL",
+      "target": "Event(4:20~4:37) /test/1/CODEX_ALERT_POS/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_alert_signature_combinations_0_002]
+sql:
+-- FUNC-0240 REGISTER and FUNC-0241 REMOVE named
+begin
+  DBMS_ALERT.REGISTER(NAME=>'CODEX_ALERT_NAMED');
+  DBMS_ALERT.REMOVE(NAME=>'CODEX_ALERT_NAMED');
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(3:2~3:21) /test/1/catalog1/DBMS_ALERT/REGISTER/",
+      "action": "CALL",
+      "target": "Event(3:28~3:47) /test/1/CODEX_ALERT_NAMED/"
+    },
+    {
+      "subject": "Procedure(4:2~4:19) /test/1/catalog1/DBMS_ALERT/REMOVE/",
+      "action": "CALL",
+      "target": "Event(4:26~4:45) /test/1/CODEX_ALERT_NAMED/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_alert_signature_combinations_0_003]
+sql:
+-- FUNC-0242 REMOVEALL after two registrations
+begin
+  DBMS_ALERT.REGISTER('CODEX_ALERT_ALL_A');
+  DBMS_ALERT.REGISTER('CODEX_ALERT_ALL_B');
+  DBMS_ALERT.REMOVEALL;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(3:2~3:21) /test/1/catalog1/DBMS_ALERT/REGISTER/",
+      "action": "CALL",
+      "target": "Event(3:22~3:41) /test/1/CODEX_ALERT_ALL_A/"
+    },
+    {
+      "subject": "Procedure(4:2~4:21) /test/1/catalog1/DBMS_ALERT/REGISTER/",
+      "action": "CALL",
+      "target": "Event(4:22~4:41) /test/1/CODEX_ALERT_ALL_B/"
+    },
+    {
+      "subject": "Procedure(5:2~5:22) /test/1/catalog1/DBMS_ALERT/REMOVEALL/",
+      "action": "CALL",
+      "target": "Event(5:2~5:22) /test/1/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_alert_signature_combinations_0_004]
+sql:
+-- FUNC-0242 REMOVEALL idempotent zero argument
+begin DBMS_ALERT.REMOVEALL(); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:26) /test/1/catalog1/DBMS_ALERT/REMOVEALL/",
+      "action": "CALL",
+      "target": "Event(2:6~2:26) /test/1/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_alert_signature_combinations_0_005]
+sql:
+-- FUNC-0243 SET_DEFAULTS positional one second
+begin DBMS_ALERT.SET_DEFAULTS(1); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:29) /test/1/catalog1/DBMS_ALERT/SET_DEFAULTS/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_alert_signature_combinations_0_006]
+sql:
+-- FUNC-0243 SET_DEFAULTS positional NULL documented default
+begin DBMS_ALERT.SET_DEFAULTS(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:29) /test/1/catalog1/DBMS_ALERT/SET_DEFAULTS/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_alert_signature_combinations_0_007]
+sql:
+-- FUNC-0243 SET_DEFAULTS named zero
+begin DBMS_ALERT.SET_DEFAULTS(SENSITIVITY=>0); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:29) /test/1/catalog1/DBMS_ALERT/SET_DEFAULTS/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_alert_signature_combinations_0_008]
+sql:
+-- FUNC-0244 SIGNAL positional and FUNC-0246 WAITONE full
+declare message_value varchar(1800); status_value int; begin DBMS_ALERT.REGISTER('CODEX_ALERT_SIGNAL'); DBMS_ALERT.SIGNAL('CODEX_ALERT_SIGNAL', 'POSITIONAL_MESSAGE'); commit; DBMS_ALERT.WAITONE('CODEX_ALERT_SIGNAL', message_value, status_value, 2); DBMS_ALERT.REMOVE('CODEX_ALERT_SIGNAL'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:61~2:80) /test/1/catalog1/DBMS_ALERT/REGISTER/",
+      "action": "CALL",
+      "target": "Event(2:81~2:101) /test/1/CODEX_ALERT_SIGNAL/"
+    },
+    {
+      "subject": "Procedure(2:104~2:121) /test/1/catalog1/DBMS_ALERT/SIGNAL/",
+      "action": "CALL",
+      "target": "Event(2:122~2:142) /test/1/CODEX_ALERT_SIGNAL/"
+    },
+    {
+      "subject": "Procedure(2:175~2:193) /test/1/catalog1/DBMS_ALERT/WAITONE/",
+      "action": "CALL",
+      "target": "Event(2:194~2:214) /test/1/CODEX_ALERT_SIGNAL/"
+    },
+    {
+      "subject": "Procedure(2:249~2:266) /test/1/catalog1/DBMS_ALERT/REMOVE/",
+      "action": "CALL",
+      "target": "Event(2:267~2:287) /test/1/CODEX_ALERT_SIGNAL/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_alert_signature_combinations_0_009]
+sql:
+-- FUNC-0244 SIGNAL named reordered
+declare message_value varchar(1800); status_value int; begin DBMS_ALERT.REGISTER('CODEX_ALERT_SIGNAL_N'); DBMS_ALERT.SIGNAL(MESSAGE=>'NAMED_MESSAGE', NAME=>'CODEX_ALERT_SIGNAL_N'); commit; DBMS_ALERT.WAITONE('CODEX_ALERT_SIGNAL_N', message_value, status_value, 2); DBMS_ALERT.REMOVEALL; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:61~2:80) /test/1/catalog1/DBMS_ALERT/REGISTER/",
+      "action": "CALL",
+      "target": "Event(2:81~2:103) /test/1/CODEX_ALERT_SIGNAL_N/"
+    },
+    {
+      "subject": "Procedure(2:106~2:123) /test/1/catalog1/DBMS_ALERT/SIGNAL/",
+      "action": "CALL",
+      "target": "Event(2:156~2:178) /test/1/CODEX_ALERT_SIGNAL_N/"
+    },
+    {
+      "subject": "Procedure(2:189~2:207) /test/1/catalog1/DBMS_ALERT/WAITONE/",
+      "action": "CALL",
+      "target": "Event(2:208~2:230) /test/1/CODEX_ALERT_SIGNAL_N/"
+    },
+    {
+      "subject": "Procedure(2:265~2:285) /test/1/catalog1/DBMS_ALERT/REMOVEALL/",
+      "action": "CALL",
+      "target": "Event(2:265~2:285) /test/1/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_alert_signature_combinations_0_010]
+sql:
+-- FUNC-0246 WAITONE minimum arguments with pre-signaled message
+declare message_value varchar(1800); status_value int; begin DBMS_ALERT.REGISTER('CODEX_ALERT_ONE_MIN'); DBMS_ALERT.SIGNAL('CODEX_ALERT_ONE_MIN', 'MINIMUM'); commit; DBMS_ALERT.WAITONE('CODEX_ALERT_ONE_MIN', message_value, status_value); DBMS_ALERT.REMOVEALL; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:61~2:80) /test/1/catalog1/DBMS_ALERT/REGISTER/",
+      "action": "CALL",
+      "target": "Event(2:81~2:102) /test/1/CODEX_ALERT_ONE_MIN/"
+    },
+    {
+      "subject": "Procedure(2:105~2:122) /test/1/catalog1/DBMS_ALERT/SIGNAL/",
+      "action": "CALL",
+      "target": "Event(2:123~2:144) /test/1/CODEX_ALERT_ONE_MIN/"
+    },
+    {
+      "subject": "Procedure(2:166~2:184) /test/1/catalog1/DBMS_ALERT/WAITONE/",
+      "action": "CALL",
+      "target": "Event(2:185~2:206) /test/1/CODEX_ALERT_ONE_MIN/"
+    },
+    {
+      "subject": "Procedure(2:238~2:258) /test/1/catalog1/DBMS_ALERT/REMOVEALL/",
+      "action": "CALL",
+      "target": "Event(2:238~2:258) /test/1/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_alert_signature_combinations_0_011]
+sql:
+-- FUNC-0246 WAITONE full named reordered timeout
+declare message_value varchar(1800); status_value int; begin DBMS_ALERT.REGISTER('CODEX_ALERT_ONE_T'); DBMS_ALERT.WAITONE(TIMEOUT=>0, STATUS=>status_value, MESSAGE=>message_value, NAME=>'CODEX_ALERT_ONE_T'); DBMS_ALERT.REMOVEALL; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:61~2:80) /test/1/catalog1/DBMS_ALERT/REGISTER/",
+      "action": "CALL",
+      "target": "Event(2:81~2:100) /test/1/CODEX_ALERT_ONE_T/"
+    },
+    {
+      "subject": "Procedure(2:103~2:121) /test/1/catalog1/DBMS_ALERT/WAITONE/",
+      "action": "CALL",
+      "target": "Event(2:186~2:205) /test/1/CODEX_ALERT_ONE_T/"
+    },
+    {
+      "subject": "Procedure(2:208~2:228) /test/1/catalog1/DBMS_ALERT/REMOVEALL/",
+      "action": "CALL",
+      "target": "Event(2:208~2:228) /test/1/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_alert_signature_combinations_0_012]
+sql:
+-- FUNC-0245 WAITANY minimum arguments with pre-signaled message
+declare name_value varchar(30); message_value varchar(1800); status_value int; begin DBMS_ALERT.REGISTER('CODEX_ALERT_ANY_MIN'); DBMS_ALERT.SIGNAL('CODEX_ALERT_ANY_MIN', 'ANY_MINIMUM'); commit; DBMS_ALERT.WAITANY(name_value, message_value, status_value); DBMS_ALERT.REMOVEALL; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:85~2:104) /test/1/catalog1/DBMS_ALERT/REGISTER/",
+      "action": "CALL",
+      "target": "Event(2:105~2:126) /test/1/CODEX_ALERT_ANY_MIN/"
+    },
+    {
+      "subject": "Procedure(2:129~2:146) /test/1/catalog1/DBMS_ALERT/SIGNAL/",
+      "action": "CALL",
+      "target": "Event(2:147~2:168) /test/1/CODEX_ALERT_ANY_MIN/"
+    },
+    {
+      "subject": "Procedure(2:194~2:212) /test/1/catalog1/DBMS_ALERT/WAITANY/",
+      "action": "CALL",
+      "target": "Event(2:194~2:212) /test/1/"
+    },
+    {
+      "subject": "Procedure(2:255~2:275) /test/1/catalog1/DBMS_ALERT/REMOVEALL/",
+      "action": "CALL",
+      "target": "Event(2:255~2:275) /test/1/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_alert_signature_combinations_0_013]
+sql:
+-- FUNC-0245 WAITANY full named reordered with pre-signaled message
+declare name_value varchar(30); message_value varchar(1800); status_value int; begin DBMS_ALERT.REGISTER('CODEX_ALERT_ANY_N'); DBMS_ALERT.SIGNAL('CODEX_ALERT_ANY_N', 'ANY_NAMED'); commit; DBMS_ALERT.WAITANY(TIMEOUT=>2, STATUS=>status_value, MESSAGE=>message_value, NAME=>name_value); DBMS_ALERT.REMOVEALL; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:85~2:104) /test/1/catalog1/DBMS_ALERT/REGISTER/",
+      "action": "CALL",
+      "target": "Event(2:105~2:124) /test/1/CODEX_ALERT_ANY_N/"
+    },
+    {
+      "subject": "Procedure(2:127~2:144) /test/1/catalog1/DBMS_ALERT/SIGNAL/",
+      "action": "CALL",
+      "target": "Event(2:145~2:164) /test/1/CODEX_ALERT_ANY_N/"
+    },
+    {
+      "subject": "Procedure(2:188~2:206) /test/1/catalog1/DBMS_ALERT/WAITANY/",
+      "action": "CALL",
+      "target": "Event(2:188~2:206) /test/1/"
+    },
+    {
+      "subject": "Procedure(2:284~2:304) /test/1/catalog1/DBMS_ALERT/REMOVEALL/",
+      "action": "CALL",
+      "target": "Event(2:284~2:304) /test/1/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_alert_signature_combinations_0_014]
+sql:
+-- FUNC-0245 WAITANY full timeout boundary returning status
+declare name_value varchar(30); message_value varchar(1800); status_value int; begin DBMS_ALERT.REGISTER('CODEX_ALERT_ANY_T'); DBMS_ALERT.WAITANY(name_value, message_value, status_value, 0); DBMS_ALERT.REMOVEALL; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:85~2:104) /test/1/catalog1/DBMS_ALERT/REGISTER/",
+      "action": "CALL",
+      "target": "Event(2:105~2:124) /test/1/CODEX_ALERT_ANY_T/"
+    },
+    {
+      "subject": "Procedure(2:127~2:145) /test/1/catalog1/DBMS_ALERT/WAITANY/",
+      "action": "CALL",
+      "target": "Event(2:127~2:145) /test/1/"
+    },
+    {
+      "subject": "Procedure(2:191~2:211) /test/1/catalog1/DBMS_ALERT/REMOVEALL/",
+      "action": "CALL",
+      "target": "Event(2:191~2:211) /test/1/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_alert_signature_combinations_0_015]
+sql:
+-- FUNC-0244 SIGNAL NULL message
+declare message_value varchar(1800); status_value int; begin DBMS_ALERT.REGISTER('CODEX_ALERT_NULL_MSG'); DBMS_ALERT.SIGNAL('CODEX_ALERT_NULL_MSG', NULL); commit; DBMS_ALERT.WAITONE('CODEX_ALERT_NULL_MSG', message_value, status_value, 2); DBMS_ALERT.REMOVEALL; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:61~2:80) /test/1/catalog1/DBMS_ALERT/REGISTER/",
+      "action": "CALL",
+      "target": "Event(2:81~2:103) /test/1/CODEX_ALERT_NULL_MSG/"
+    },
+    {
+      "subject": "Procedure(2:106~2:123) /test/1/catalog1/DBMS_ALERT/SIGNAL/",
+      "action": "CALL",
+      "target": "Event(2:124~2:146) /test/1/CODEX_ALERT_NULL_MSG/"
+    },
+    {
+      "subject": "Procedure(2:163~2:181) /test/1/catalog1/DBMS_ALERT/WAITONE/",
+      "action": "CALL",
+      "target": "Event(2:182~2:204) /test/1/CODEX_ALERT_NULL_MSG/"
+    },
+    {
+      "subject": "Procedure(2:239~2:259) /test/1/catalog1/DBMS_ALERT/REMOVEALL/",
+      "action": "CALL",
+      "target": "Event(2:239~2:259) /test/1/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_alert_signature_combinations_0_016]
+sql:
+-- FUNC-0240 REGISTER maximum 30 character name
+begin
+  DBMS_ALERT.REGISTER('ABCDEFGHIJKLMNOPQRSTUVWXYZ1234');
+  DBMS_ALERT.REMOVE('ABCDEFGHIJKLMNOPQRSTUVWXYZ1234');
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(3:2~3:21) /test/1/catalog1/DBMS_ALERT/REGISTER/",
+      "action": "CALL",
+      "target": "Event(3:22~3:54) /test/1/ABCDEFGHIJKLMNOPQRSTUVWXYZ1234/"
+    },
+    {
+      "subject": "Procedure(4:2~4:19) /test/1/catalog1/DBMS_ALERT/REMOVE/",
+      "action": "CALL",
+      "target": "Event(4:20~4:52) /test/1/ABCDEFGHIJKLMNOPQRSTUVWXYZ1234/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_alert_signature_combinations_0_017]
+sql:
+-- FUNC-0244 SIGNAL maximum 1800 character message
+declare message_value varchar(1800); status_value int; begin DBMS_ALERT.REGISTER('CODEX_ALERT_MAX_MSG'); DBMS_ALERT.SIGNAL('CODEX_ALERT_MAX_MSG', rpad('X', 1800, 'X')); commit; DBMS_ALERT.WAITONE('CODEX_ALERT_MAX_MSG', message_value, status_value, 2); DBMS_ALERT.REMOVEALL; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:61~2:80) /test/1/catalog1/DBMS_ALERT/REGISTER/",
+      "action": "CALL",
+      "target": "Event(2:81~2:102) /test/1/CODEX_ALERT_MAX_MSG/"
+    },
+    {
+      "subject": "Procedure(2:105~2:122) /test/1/catalog1/DBMS_ALERT/SIGNAL/",
+      "action": "CALL",
+      "target": "Event(2:123~2:144) /test/1/CODEX_ALERT_MAX_MSG/"
+    },
+    {
+      "subject": "Function(2:146~2:150) /test/1/catalog1/schema1/rpad/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:177~2:195) /test/1/catalog1/DBMS_ALERT/WAITONE/",
+      "action": "CALL",
+      "target": "Event(2:196~2:217) /test/1/CODEX_ALERT_MAX_MSG/"
+    },
+    {
+      "subject": "Procedure(2:252~2:272) /test/1/catalog1/DBMS_ALERT/REMOVEALL/",
+      "action": "CALL",
+      "target": "Event(2:252~2:272) /test/1/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_alert_signature_combinations_0_018]
+sql:
+-- FUNC-0244 SIGNAL Pack29 accepts NULL name
+begin DBMS_ALERT.SIGNAL(NULL, 'NULL_NAME'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:23) /test/1/catalog1/DBMS_ALERT/SIGNAL/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_alert_signature_combinations_0_019]
+sql:
+-- FUNC-0246 WAITONE Pack29 accepts NULL name with timeout
+declare message_value varchar(1800); status_value int; begin DBMS_ALERT.WAITONE(NULL, message_value, status_value, 0); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:61~2:79) /test/1/catalog1/DBMS_ALERT/WAITONE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_alert_signature_combinations_0_020]
+sql:
+-- FUNC-0241 REMOVE Pack29 accepts NULL name
+begin DBMS_ALERT.REMOVE(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:23) /test/1/catalog1/DBMS_ALERT/REMOVE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_alert_signature_combinations_0_021]
+sql:
+-- FUNC-0243 SET_DEFAULTS Pack29 accepts negative sensitivity
+begin DBMS_ALERT.SET_DEFAULTS(-1); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:29) /test/1/catalog1/DBMS_ALERT/SET_DEFAULTS/",
+      "action": "CALL"
+    }
+  ]
+}

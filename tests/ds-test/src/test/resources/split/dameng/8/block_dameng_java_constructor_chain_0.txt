@@ -1,0 +1,383 @@
+create or replace java class j_chain_parent
+{
+  int base_value;
+  j_chain_parent()
+  {
+    this.base_value = 1;
+  }
+  j_chain_parent(int p_value)
+  {
+    this.base_value = p_value;
+  }
+  public int get_base()
+  {
+    return base_value;
+  }
+}
+/
+select j_chain_parent().get_base(), j_chain_parent(5).get_base();
+create or replace java class j_super_child extends j_chain_parent
+{
+  int child_value;
+  j_super_child()
+  {
+    this.child_value = 10;
+  }
+  j_super_child(int p_child)
+  {
+    this.child_value = p_child;
+  }
+  public int get_parent_value()
+  {
+    return super().get_base();
+  }
+}
+/
+select j_super_child().get_parent_value(), j_super_child().child_value;
+select j_super_child(12).get_parent_value(), j_super_child(12).child_value;
+declare
+  v_parent j_chain_parent;
+  v_child j_super_child;
+begin
+  v_parent = new j_super_child(13);
+  v_child = v_parent;
+  print v_child.get_parent_value();
+end;
+/
+create or replace java class j_this_chain
+{
+  int value;
+  varchar name;
+  int code;
+  j_this_chain()
+  {
+    this.value = 1;
+    this.name = 'ZERO';
+    this.code = 0;
+  }
+  j_this_chain(int p_value)
+  {
+    this();
+    this.value = p_value;
+    this.name = 'ONE';
+  }
+  j_this_chain(int p_value, varchar p_name)
+  {
+    this(p_value);
+    this.name = p_name;
+    this.code = 2;
+  }
+  public int get_value()
+  {
+    return value;
+  }
+  public varchar get_name()
+  {
+    return name;
+  }
+  public int get_code()
+  {
+    return code;
+  }
+}
+/
+select j_this_chain().get_value(), j_this_chain().get_name(), j_this_chain().get_code();
+select j_this_chain(7).get_value(), j_this_chain(7).get_name(), j_this_chain(7).get_code();
+select j_this_chain(8, 'TWO').get_value(), j_this_chain(8, 'TWO').get_name(), j_this_chain(8, 'TWO').get_code();
+select j_this_chain(9, 'THREE', 3).get_value(), j_this_chain(9, 'THREE', 3).get_name(), j_this_chain(9, 'THREE', 3).get_code();
+create or replace java public final class j_standalone_final
+{
+  int value;
+  public int get_value()
+  {
+    return value;
+  }
+}
+/
+select j_standalone_final(14).get_value();
+alter class j_standalone_final compile debug;
+create or replace java class j_final_method_parent
+{
+  int value;
+  public final int stable_value()
+  {
+    return value;
+  }
+}
+/
+create or replace java class j_final_method_child extends j_final_method_parent
+{
+  int extra;
+  public int extra_value()
+  {
+    return extra;
+  }
+}
+/
+select j_final_method_child(15, 16).stable_value(), j_final_method_child(15, 16).extra_value();
+create or replace java abstract class j_mixed_abstract
+{
+  int value;
+  public abstract int calculate();
+  public int stable()
+  {
+    return value;
+  }
+  public static int twice(int p_value)
+  {
+    return p_value * 2;
+  }
+}
+/
+select j_mixed_abstract.twice(4);
+create or replace java final class j_mixed_concrete extends j_mixed_abstract
+{
+  int extra;
+  public override int calculate()
+  {
+    return value + extra;
+  }
+}
+/
+select j_mixed_concrete(2, 3).calculate(), j_mixed_concrete(2, 3).stable();
+create or replace java class j_overload_parent
+{
+  int value;
+  public int calculate(int p_value)
+  {
+    return p_value;
+  }
+}
+/
+create or replace java class j_overload_child extends j_overload_parent
+{
+  int extra;
+  public varchar calculate(varchar p_value)
+  {
+    return p_value;
+  }
+}
+/
+select j_overload_child(1, 2).calculate(17);
+select j_overload_child(1, 2).calculate('DM8');
+create table java_chain_object_table(id int primary key, obj j_chain_parent);
+insert into java_chain_object_table values(1, j_chain_parent(18));
+insert into java_chain_object_table values(2, j_super_child(19));
+select id, t.obj.base_value, t.obj.get_base() from java_chain_object_table t order by id;
+drop table java_chain_object_table;
+drop class j_overload_child;
+drop class j_overload_parent;
+drop class j_mixed_concrete;
+drop class j_mixed_abstract;
+drop class j_final_method_child;
+drop class j_final_method_parent;
+drop class j_standalone_final;
+drop class j_this_chain;
+drop class j_super_child;
+drop class j_chain_parent;
+------------------------------------------------------------------------------------------
+[CREATE_TYPE] create or replace java class j_chain_parent
+{
+  int base_value;
+  j_chain_parent()
+  {
+    this.base_value = 1;
+  }
+  j_chain_parent(int p_value)
+  {
+    this.base_value = p_value;
+  }
+  public int get_base()
+  {
+    return base_value;
+  }
+}
+----------
+[SELECT|CALL_PROG_OBJ] select j_chain_parent().get_base(), j_chain_parent(5).get_base();
+----------
+[CREATE_TYPE] create or replace java class j_super_child extends j_chain_parent
+{
+  int child_value;
+  j_super_child()
+  {
+    this.child_value = 10;
+  }
+  j_super_child(int p_child)
+  {
+    this.child_value = p_child;
+  }
+  public int get_parent_value()
+  {
+    return super().get_base();
+  }
+}
+----------
+[SELECT|CALL_PROG_OBJ] select j_super_child().get_parent_value(), j_super_child().child_value;
+----------
+[SELECT|CALL_PROG_OBJ] select j_super_child(12).get_parent_value(), j_super_child(12).child_value;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare
+  v_parent j_chain_parent;
+  v_child j_super_child;
+begin
+  v_parent = new j_super_child(13);
+  v_child = v_parent;
+  print v_child.get_parent_value();
+end;
+----------
+[CREATE_TYPE] create or replace java class j_this_chain
+{
+  int value;
+  varchar name;
+  int code;
+  j_this_chain()
+  {
+    this.value = 1;
+    this.name = 'ZERO';
+    this.code = 0;
+  }
+  j_this_chain(int p_value)
+  {
+    this();
+    this.value = p_value;
+    this.name = 'ONE';
+  }
+  j_this_chain(int p_value, varchar p_name)
+  {
+    this(p_value);
+    this.name = p_name;
+    this.code = 2;
+  }
+  public int get_value()
+  {
+    return value;
+  }
+  public varchar get_name()
+  {
+    return name;
+  }
+  public int get_code()
+  {
+    return code;
+  }
+}
+----------
+[SELECT|CALL_PROG_OBJ] select j_this_chain().get_value(), j_this_chain().get_name(), j_this_chain().get_code();
+----------
+[SELECT|CALL_PROG_OBJ] select j_this_chain(7).get_value(), j_this_chain(7).get_name(), j_this_chain(7).get_code();
+----------
+[SELECT|CALL_PROG_OBJ] select j_this_chain(8, 'TWO').get_value(), j_this_chain(8, 'TWO').get_name(), j_this_chain(8, 'TWO').get_code();
+----------
+[SELECT|CALL_PROG_OBJ] select j_this_chain(9, 'THREE', 3).get_value(), j_this_chain(9, 'THREE', 3).get_name(), j_this_chain(9, 'THREE', 3).get_code();
+----------
+[CREATE_TYPE] create or replace java public final class j_standalone_final
+{
+  int value;
+  public int get_value()
+  {
+    return value;
+  }
+}
+----------
+[SELECT|CALL_PROG_OBJ] select j_standalone_final(14).get_value();
+----------
+[ALTER_TYPE] alter class j_standalone_final compile debug;
+----------
+[CREATE_TYPE] create or replace java class j_final_method_parent
+{
+  int value;
+  public final int stable_value()
+  {
+    return value;
+  }
+}
+----------
+[CREATE_TYPE] create or replace java class j_final_method_child extends j_final_method_parent
+{
+  int extra;
+  public int extra_value()
+  {
+    return extra;
+  }
+}
+----------
+[SELECT|CALL_PROG_OBJ] select j_final_method_child(15, 16).stable_value(), j_final_method_child(15, 16).extra_value();
+----------
+[CREATE_TYPE] create or replace java abstract class j_mixed_abstract
+{
+  int value;
+  public abstract int calculate();
+  public int stable()
+  {
+    return value;
+  }
+  public static int twice(int p_value)
+  {
+    return p_value * 2;
+  }
+}
+----------
+[SELECT|CALL_PROG_OBJ] select j_mixed_abstract.twice(4);
+----------
+[CREATE_TYPE] create or replace java final class j_mixed_concrete extends j_mixed_abstract
+{
+  int extra;
+  public override int calculate()
+  {
+    return value + extra;
+  }
+}
+----------
+[SELECT|CALL_PROG_OBJ] select j_mixed_concrete(2, 3).calculate(), j_mixed_concrete(2, 3).stable();
+----------
+[CREATE_TYPE] create or replace java class j_overload_parent
+{
+  int value;
+  public int calculate(int p_value)
+  {
+    return p_value;
+  }
+}
+----------
+[CREATE_TYPE] create or replace java class j_overload_child extends j_overload_parent
+{
+  int extra;
+  public varchar calculate(varchar p_value)
+  {
+    return p_value;
+  }
+}
+----------
+[SELECT|CALL_PROG_OBJ] select j_overload_child(1, 2).calculate(17);
+----------
+[SELECT|CALL_PROG_OBJ] select j_overload_child(1, 2).calculate('DM8');
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table java_chain_object_table(id int primary key, obj j_chain_parent);
+----------
+[INSERT|CALL_PROG_OBJ] insert into java_chain_object_table values(1, j_chain_parent(18));
+----------
+[INSERT|CALL_PROG_OBJ] insert into java_chain_object_table values(2, j_super_child(19));
+----------
+[SELECT|CALL_PROG_OBJ] select id, t.obj.base_value, t.obj.get_base() from java_chain_object_table t order by id;
+----------
+[DROP_TABLE] drop table java_chain_object_table;
+----------
+[DROP_TYPE] drop class j_overload_child;
+----------
+[DROP_TYPE] drop class j_overload_parent;
+----------
+[DROP_TYPE] drop class j_mixed_concrete;
+----------
+[DROP_TYPE] drop class j_mixed_abstract;
+----------
+[DROP_TYPE] drop class j_final_method_child;
+----------
+[DROP_TYPE] drop class j_final_method_parent;
+----------
+[DROP_TYPE] drop class j_standalone_final;
+----------
+[DROP_TYPE] drop class j_this_chain;
+----------
+[DROP_TYPE] drop class j_super_child;
+----------
+[DROP_TYPE] drop class j_chain_parent;

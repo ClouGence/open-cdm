@@ -1,0 +1,70 @@
+CREATE LIBRARY split97ddl.split_lib_dollar LANGUAGE JAVASCRIPT AS $$
+export function plain(n) { return n; }
+$$;
+CREATE LIBRARY IF NOT EXISTS split97ddl.split_lib_comment LANGUAGE JAVASCRIPT COMMENT 'library comment' AS 'export function comment(n) { return n + 1; }';
+CREATE LIBRARY split97ddl.split_lib_wasm LANGUAGE WASM AS 'AGFzbQEAAAA=';
+ALTER LIBRARY split97ddl.split_lib_comment COMMENT 'updated comment';
+ALTER LIBRARY split97ddl.split_lib_comment COMMENT '';
+DROP LIBRARY split97ddl.split_lib_dollar;
+DROP LIBRARY split97ddl.split_lib_wasm;
+DROP LIBRARY IF EXISTS split97ddl.split_lib_comment;
+DROP LIBRARY IF EXISTS split97ddl.split_lib_missing;
+DROP MASKING POLICY IF EXISTS split_accept_mask;
+CREATE MASKING POLICY IF NOT EXISTS split_accept_mask(pass_column) CASE WHEN CURRENT_ROLE_IN('admin') THEN pass_column ELSE SHA2(pass_column, 256) END;
+SHOW CREATE MASKING POLICY split_accept_mask;
+ALTER TABLE split_partition.p_hash SECONDARY_LOAD PARTITION (p0) VALIDATE 10 ROWS ONLY GUIDED OFF;
+ALTER TABLE split_partition.p_hash SECONDARY_LOAD GUIDED ON;
+ALTER TABLE split_partition.p_hash SECONDARY_LOAD VALIDATE ALL ROWS ONLY;
+ALTER TABLE split_partition.p_hash SECONDARY_LOAD VALIDATE ONLY;
+ALTER TABLE split_partition.p_hash SECONDARY_LOAD VALIDATE 100 ROWS ONLY;
+CREATE TABLE t1(i VARCHAR(256) MASKING POLICY p1);
+------------------------------------------------------------------------------------------
+[CREATE_LIBRARY]
+CREATE LIBRARY split97ddl.split_lib_dollar LANGUAGE JAVASCRIPT AS $$
+export function plain(n) { return n; }
+$$;
+----------
+[CREATE_LIBRARY|COMMENT_LIBRARY]
+CREATE LIBRARY IF NOT EXISTS split97ddl.split_lib_comment LANGUAGE JAVASCRIPT COMMENT 'library comment' AS 'export function comment(n) { return n + 1; }';
+----------
+[CREATE_LIBRARY]
+CREATE LIBRARY split97ddl.split_lib_wasm LANGUAGE WASM AS 'AGFzbQEAAAA=';
+----------
+[ALTER_LIBRARY|COMMENT_LIBRARY]
+ALTER LIBRARY split97ddl.split_lib_comment COMMENT 'updated comment';
+----------
+[ALTER_LIBRARY|COMMENT_LIBRARY]
+ALTER LIBRARY split97ddl.split_lib_comment COMMENT '';
+----------
+[DROP_LIBRARY]
+DROP LIBRARY split97ddl.split_lib_dollar;
+----------
+[DROP_LIBRARY]
+DROP LIBRARY split97ddl.split_lib_wasm;
+----------
+[DROP_LIBRARY]
+DROP LIBRARY IF EXISTS split97ddl.split_lib_comment;
+----------
+[DROP_LIBRARY]
+DROP LIBRARY IF EXISTS split97ddl.split_lib_missing;
+----------
+[DROP_POLICY]
+DROP MASKING POLICY IF EXISTS split_accept_mask;
+----------
+[CREATE_POLICY]
+CREATE MASKING POLICY IF NOT EXISTS split_accept_mask(pass_column) CASE WHEN CURRENT_ROLE_IN('admin') THEN pass_column ELSE SHA2(pass_column, 256) END;
+----------
+[METADATA]
+SHOW CREATE MASKING POLICY split_accept_mask;
+----------
+[ALTER_TABLE|ADMIN_PARTITION] ALTER TABLE split_partition.p_hash SECONDARY_LOAD PARTITION (p0) VALIDATE 10 ROWS ONLY GUIDED OFF;
+----------
+[ALTER_TABLE|ADMIN_PARTITION] ALTER TABLE split_partition.p_hash SECONDARY_LOAD GUIDED ON;
+----------
+[ALTER_TABLE|ADMIN_PARTITION] ALTER TABLE split_partition.p_hash SECONDARY_LOAD VALIDATE ALL ROWS ONLY;
+----------
+[ALTER_TABLE|ADMIN_PARTITION] ALTER TABLE split_partition.p_hash SECONDARY_LOAD VALIDATE ONLY;
+----------
+[ALTER_TABLE|ADMIN_PARTITION] ALTER TABLE split_partition.p_hash SECONDARY_LOAD VALIDATE 100 ROWS ONLY;
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE t1(i VARCHAR(256) MASKING POLICY p1);

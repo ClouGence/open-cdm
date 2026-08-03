@@ -1,0 +1,30 @@
+SET SESSION sql_mode='ANSI_QUOTES';
+SET LOCAL sql_mode='NO_BACKSLASH_ESCAPES';
+SET @@SESSION.sql_mode='PIPES_AS_CONCAT';
+SET @@LOCAL.sql_mode='HIGH_NOT_PRECEDENCE';
+SET sql_mode='IGNORE_SPACE';
+SET SESSION sql_mode='ANSI';
+SET SESSION sql_mode='';
+SET GLOBAL sql_mode=@@GLOBAL.sql_mode;
+SET @saved_mode=@@sql_mode;
+SET sql_mode=@saved_mode;
+------------------------------------------------------------------------------------------
+[SESSION_SETTING_WRITE] SET SESSION sql_mode='ANSI_QUOTES';
+----------
+[SESSION_SETTING_WRITE] SET LOCAL sql_mode='NO_BACKSLASH_ESCAPES';
+----------
+[SESSION_SETTING_WRITE] SET @@SESSION.sql_mode='PIPES_AS_CONCAT';
+----------
+[SESSION_SETTING_WRITE] SET @@LOCAL.sql_mode='HIGH_NOT_PRECEDENCE';
+----------
+[SESSION_SETTING_WRITE] SET sql_mode='IGNORE_SPACE';
+----------
+[SESSION_SETTING_WRITE] SET SESSION sql_mode='ANSI';
+----------
+[SESSION_SETTING_WRITE] SET SESSION sql_mode='';
+----------
+[SYSTEM_SETTING_WRITE] SET GLOBAL sql_mode=@@GLOBAL.sql_mode;
+----------
+[SESSION_VARIABLE_RW] SET @saved_mode=@@sql_mode;
+----------
+[SESSION_SETTING_WRITE|SESSION_VARIABLE_RW] SET sql_mode=@saved_mode;

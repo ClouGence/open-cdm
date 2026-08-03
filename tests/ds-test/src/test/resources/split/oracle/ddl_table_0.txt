@@ -1,0 +1,117 @@
+create table public.abc(id int default 1);
+create table public.abc(id int default test(1,2));
+create table abc(id int);
+create table abc(id mytype);
+create global temporary table test.abc(id int);
+create table test.abc(id int(4), name varchar(25) not null);
+create table test.abc(id int(4) primary key, name varchar(25) not null);
+create table test.abc(id int(4), name varchar(25) not null,primary key (id));
+create table test.abc(id int(4)  constraint kk primary key , name varchar(25) not null);
+create table test.abc(id int(4), name varchar(25) not null);
+create table test.abc(id int(4) unique, name varchar(25) not null);
+create table test.abc(id int(4), name varchar(25) not null, constraint testkey unique (id));
+create table test.abc(id int(4), name varchar(25) not null);
+create table test.abc(id int(4), name varchar(25) not null,constraint fg foreign key (id) references abc2(id2));
+create table test.abc(id int(4), name varchar(25) not null constraint ptr  references test.abc2);
+create table test.abc(id int(4), name varchar(25) not null);
+create table test.abc_select as select * from test.abc;
+create table test.abc_select_zero as select * from test.abc where 1 = 0;
+create table test.abc_exchange for exchange with table test.abc;
+create table "TEST"."ABC_EXCHANGE" for exchange with table "TEST"."ABC_SOURCE";
+comment on table test.abc is 'ccc';
+comment on table abc is 'ccc';
+comment on table "test"."abc" is 'ccc';
+comment on table "abc" is 'ccc';
+rename abc to cba;
+drop table abc;
+drop table abc cascade constraints;
+truncate table abc;
+  CREATE TABLE "SCOTT"."table_namedawda0"
+   (	"column_name" NUMBER,
+	"column_name_1" NUMBER NOT NULL ENABLE,
+	 PRIMARY KEY ("column_name_1")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT)
+  TABLESPACE "USERS"  ENABLE
+   ) SEGMENT CREATION IMMEDIATE
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255
+ NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT)
+  TABLESPACE "USERS" ;
+------------------------------------------------------------------------------------------
+[CREATE_TABLE] create table public.abc(id int default 1);
+----------
+[CREATE_TABLE] create table public.abc(id int default test(1,2));
+----------
+[CREATE_TABLE] create table abc(id int);
+----------
+[CREATE_TABLE] create table abc(id mytype);
+----------
+[CREATE_TABLE] create global temporary table test.abc(id int);
+----------
+[CREATE_TABLE] create table test.abc(id int(4), name varchar(25) not null);
+----------
+[CREATE_TABLE] create table test.abc(id int(4) primary key, name varchar(25) not null);
+----------
+[CREATE_TABLE] create table test.abc(id int(4), name varchar(25) not null,primary key (id));
+----------
+[CREATE_TABLE] create table test.abc(id int(4)  constraint kk primary key , name varchar(25) not null);
+----------
+[CREATE_TABLE] create table test.abc(id int(4), name varchar(25) not null);
+----------
+[CREATE_TABLE] create table test.abc(id int(4) unique, name varchar(25) not null);
+----------
+[CREATE_TABLE] create table test.abc(id int(4), name varchar(25) not null, constraint testkey unique (id));
+----------
+[CREATE_TABLE] create table test.abc(id int(4), name varchar(25) not null);
+----------
+[CREATE_TABLE] create table test.abc(id int(4), name varchar(25) not null,constraint fg foreign key (id) references abc2(id2));
+----------
+[CREATE_TABLE] create table test.abc(id int(4), name varchar(25) not null constraint ptr  references test.abc2);
+----------
+[CREATE_TABLE] create table test.abc(id int(4), name varchar(25) not null);
+----------
+[CREATE_TABLE] create table test.abc_select as select * from test.abc;
+----------
+[CREATE_TABLE] create table test.abc_select_zero as select * from test.abc where 1 = 0;
+----------
+[CREATE_TABLE] create table test.abc_exchange for exchange with table test.abc;
+----------
+[CREATE_TABLE] create table "TEST"."ABC_EXCHANGE" for exchange with table "TEST"."ABC_SOURCE";
+----------
+[COMMENT_TABLE] comment on table test.abc is 'ccc';
+----------
+[COMMENT_TABLE] comment on table abc is 'ccc';
+----------
+[COMMENT_TABLE] comment on table "test"."abc" is 'ccc';
+----------
+[COMMENT_TABLE] comment on table "abc" is 'ccc';
+----------
+[RENAME_TABLE] rename abc to cba;
+----------
+[DROP_TABLE] drop table abc;
+----------
+[DROP_TABLE] drop table abc cascade constraints;
+----------
+[TRUNCATE_TABLE] truncate table abc;
+----------
+[CREATE_TABLE] CREATE TABLE "SCOTT"."table_namedawda0"
+   (	"column_name" NUMBER,
+	"column_name_1" NUMBER NOT NULL ENABLE,
+	 PRIMARY KEY ("column_name_1")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT)
+  TABLESPACE "USERS"  ENABLE
+   ) SEGMENT CREATION IMMEDIATE
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255
+ NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT)
+  TABLESPACE "USERS" ;

@@ -1,0 +1,271 @@
+[select__001]
+sql:
+SELECT id,
+       tiny_signed+small_signed+medium_signed+int_signed+big_signed AS arithmetic_value,
+       (tiny_unsigned|small_unsigned)&int_unsigned AS bit_value,
+       big_unsigned DIV NULLIF(int_unsigned,0) AS division_value,
+       big_unsigned MOD NULLIF(small_unsigned,0) AS modulo_value
+FROM integer_lifecycle
+WHERE (tiny_signed<0 XOR bool_alias) OR boolean_alias;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(4:24~4:30) /test/1/catalog1/schema1/NULLIF/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(6:5~6:22) /test/1/catalog1/schema1/integer_lifecycle/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__002]
+sql:
+SELECT signed_row.id,unsigned_row.id,
+       signed_row.big_signed,unsigned_row.big_unsigned
+FROM integer_lifecycle AS signed_row
+JOIN integer_lifecycle AS unsigned_row
+  ON signed_row.int_signed=CAST(unsigned_row.int_unsigned AS SIGNED)
+ AND signed_row.small_signed<=unsigned_row.small_unsigned
+WHERE signed_row.tiny_signed<>unsigned_row.tiny_unsigned;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(3:5~3:22) /test/1/catalog1/schema1/integer_lifecycle/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(5:27~5:31) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__003]
+sql:
+SELECT bool_alias,
+       COUNT(DISTINCT tiny_signed),
+       SUM(small_signed),
+       AVG(medium_unsigned),
+       MIN(int_signed),
+       MAX(big_unsigned),
+       BIT_AND(tiny_unsigned),
+       BIT_OR(small_unsigned),
+       BIT_XOR(int_unsigned)
+FROM integer_lifecycle
+GROUP BY bool_alias
+HAVING SUM(big_signed) IS NOT NULL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(3:7~3:10) /test/1/catalog1/schema1/SUM/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(4:7~4:10) /test/1/catalog1/schema1/AVG/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(5:7~5:10) /test/1/catalog1/schema1/MIN/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(6:7~6:10) /test/1/catalog1/schema1/MAX/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(7:7~7:14) /test/1/catalog1/schema1/BIT_AND/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(8:7~8:13) /test/1/catalog1/schema1/BIT_OR/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(9:7~9:14) /test/1/catalog1/schema1/BIT_XOR/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(10:5~10:22) /test/1/catalog1/schema1/integer_lifecycle/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__004]
+sql:
+SELECT outer_integer.id,
+       (SELECT MAX(inner_integer.big_unsigned)
+        FROM integer_lifecycle AS inner_integer
+        WHERE inner_integer.bool_alias=outer_integer.bool_alias
+          AND inner_integer.medium_signed<=outer_integer.medium_signed) AS correlated_max
+FROM integer_lifecycle AS outer_integer
+WHERE outer_integer.int_unsigned > ALL (
+  SELECT inner_integer.int_signed
+  FROM integer_lifecycle AS inner_integer
+  WHERE inner_integer.id<>outer_integer.id
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:15~2:18) /test/1/catalog1/schema1/MAX/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(3:13~3:30) /test/1/catalog1/schema1/integer_lifecycle/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__005]
+sql:
+SELECT id,
+       CASE
+         WHEN tiny_signed<0 THEN big_signed
+         WHEN bool_alias THEN int_signed
+         ELSE medium_signed
+       END AS chosen_signed,
+       COALESCE(NULLIF(big_unsigned,0),int_unsigned,small_unsigned) AS chosen_unsigned,
+       IF(boolean_alias,tiny_unsigned,small_unsigned) AS chosen_boolean
+FROM integer_lifecycle;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(7:7~7:15) /test/1/catalog1/schema1/COALESCE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(7:16~7:22) /test/1/catalog1/schema1/NULLIF/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(8:7~8:9) /test/1/catalog1/schema1/IF/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(9:5~9:22) /test/1/catalog1/schema1/integer_lifecycle/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__006]
+sql:
+SELECT id,tiny_signed,small_signed,medium_signed,int_signed,big_signed
+FROM integer_lifecycle
+WHERE bool_alias
+UNION ALL
+SELECT id,tiny_signed,small_signed,medium_signed,int_signed,big_signed
+FROM integer_lifecycle
+WHERE NOT boolean_alias
+ORDER BY id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:5~2:22) /test/1/catalog1/schema1/integer_lifecycle/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__007]
+sql:
+SELECT derived.bool_alias,COUNT(*) AS row_count,
+       MIN(derived.smallest),MAX(derived.largest)
+FROM (
+  SELECT bool_alias,
+         LEAST(tiny_signed,small_signed,medium_signed,int_signed,big_signed) AS smallest,
+         GREATEST(tiny_unsigned,small_unsigned,medium_unsigned,int_unsigned,big_unsigned) AS largest
+  FROM integer_lifecycle
+) AS derived
+GROUP BY derived.bool_alias
+ORDER BY row_count DESC
+LIMIT 5;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:26~1:31) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(2:7~2:10) /test/1/catalog1/schema1/MIN/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(2:29~2:32) /test/1/catalog1/schema1/MAX/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(5:9~5:14) /test/1/catalog1/schema1/LEAST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(6:9~6:17) /test/1/catalog1/schema1/GREATEST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(7:7~7:24) /test/1/catalog1/schema1/integer_lifecycle/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__008]
+sql:
+SELECT id,
+       CAST(tiny_signed AS SIGNED),
+       CAST(small_unsigned AS UNSIGNED),
+       CONVERT(medium_signed,SIGNED INTEGER),
+       CONVERT(big_unsigned,UNSIGNED INTEGER)
+FROM integer_lifecycle
+WHERE ROW(tiny_signed,small_signed) <= ROW(medium_signed,int_signed);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:11) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(4:7~4:14) /test/1/catalog1/schema1/CONVERT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(6:5~6:22) /test/1/catalog1/schema1/integer_lifecycle/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(7:6~7:9) /test/1/catalog1/schema1/ROW/",
+      "action" : "CALL"
+    }
+  ]
+}

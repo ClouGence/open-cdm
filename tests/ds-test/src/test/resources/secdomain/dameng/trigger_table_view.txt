@@ -1,0 +1,100 @@
+[row_trigger_with_internal_insert]
+sql:
+create or replace trigger app.trg_after_insert
+after insert on app.trg_target
+referencing new as n
+for each row
+begin
+  insert into app.trg_log(trigger_name, operation, new_id)
+  values('TRG_AFTER_INSERT', 'INSERT', :n.id);
+end;
+/
+expect:
+{
+  "contains": [
+    {"class":"RdbTriggerDomain", "sqlType":"CREATE_TRIGGER", "auditKind":"CREATE", "schema":"app", "name":"trg_after_insert"},
+    {"class":"RdbTableDomain", "sqlType":"ALTER_TABLE", "auditKind":"ALTER", "schema":"app", "table":"trg_target"},
+    {"class":"RdbInsertDomain", "sqlType":"INSERT", "auditKind":"DML", "schema":"app", "table":"trg_log"}
+  ]
+}
+----------
+[instead_of_view_trigger]
+sql:
+create or replace trigger app.trg_view_update
+instead of update on app.trg_view
+for each row
+begin
+  update app.trg_target set name = :new.name where id = :old.id;
+end;
+/
+expect:
+{
+  "contains": [
+    {"class":"RdbTriggerDomain", "sqlType":"CREATE_TRIGGER", "auditKind":"CREATE", "schema":"app", "name":"trg_view_update"},
+    {"class":"RdbViewDomain", "sqlType":"ALTER_VIEW", "auditKind":"ALTER", "schema":"app", "view":"trg_view"},
+    {"class":"RdbUpdateDomain", "sqlType":"UPDATE", "auditKind":"DML", "schema":"app", "table":"trg_target"}
+  ]
+}
+----------
+[trigger_order_clause]
+sql:
+create or replace trigger app.trg_order_second
+before insert on app.trg_target
+for each row
+follows app.trg_order_first
+begin
+  insert into app.trg_log(trigger_name, operation) values('ORDER_SECOND', 'INSERT');
+end;
+/
+expect:
+{
+  "contains": [
+    {"class":"RdbTriggerDomain", "sqlType":"CREATE_TRIGGER", "auditKind":"CREATE", "schema":"app", "name":"trg_order_second"},
+    {"class":"RdbTableDomain", "sqlType":"ALTER_TABLE", "auditKind":"ALTER", "schema":"app", "table":"trg_target"},
+    {"class":"RdbInsertDomain", "sqlType":"INSERT", "auditKind":"DML", "schema":"app", "table":"trg_log"}
+  ]
+}
+----------
+[alter_trigger]
+sql:
+alter trigger app.trg_after_insert compile debug;
+expect:
+{
+  "contains": [
+    {"class":"RdbTriggerDomain", "sqlType":"ALTER_TRIGGER", "auditKind":"ALTER", "schema":"app", "name":"trg_after_insert"}
+  ]
+}
+----------
+[local_table_trigger]
+sql:
+create trigger app.trg_local
+after insert local on app.trg_target
+begin
+  null;
+end;
+/
+expect:
+{
+  "contains": [
+    {"class":"RdbTriggerDomain", "sqlType":"CREATE_TRIGGER", "auditKind":"CREATE", "schema":"app", "name":"trg_local"},
+    {"class":"RdbTableDomain", "sqlType":"ALTER_TABLE", "auditKind":"ALTER", "schema":"app", "table":"trg_target"}
+  ]
+}
+----------
+[multiple_order_targets]
+sql:
+create trigger app.trg_order_multi
+before insert on app.trg_target
+for each row
+follows app.trg_order_first, app.trg_order_second
+begin
+  null;
+end;
+/
+expect:
+{
+  "contains": [
+    {"class":"RdbTriggerDomain", "sqlType":"CREATE_TRIGGER", "auditKind":"CREATE", "schema":"app", "name":"trg_order_multi"},
+    {"class":"RdbTableDomain", "sqlType":"ALTER_TABLE", "auditKind":"ALTER", "schema":"app", "table":"trg_target"}
+  ]
+}

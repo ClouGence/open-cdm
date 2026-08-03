@@ -1,0 +1,9 @@
+[dbms_errlog_create_domain]
+sql:
+call dbms_errlog.create_error_log('APP.ORDERS','APP.ERR_ORDERS')
+expect:
+{
+  "contains": [
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_errlog"}
+  ]
+}

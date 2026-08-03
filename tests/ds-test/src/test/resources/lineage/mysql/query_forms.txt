@@ -1,0 +1,20 @@
+[table_statement]
+sql:
+TABLE table1
+expect:
+{
+  "column1" : [ "(1:6~1:12) /catalog1/schema1/table1/column1/" ],
+  "column2" : [ "(1:6~1:12) /catalog1/schema1/table1/column2/" ],
+  "column3" : [ "(1:6~1:12) /catalog1/schema1/table1/column3/" ],
+  "column4" : [ "(1:6~1:12) /catalog1/schema1/table1/column4/" ],
+  "column5" : [ "(1:6~1:12) /catalog1/schema1/table1/column5/" ],
+  "column6" : [ "(1:6~1:12) /catalog1/schema1/table1/column6/" ]
+}
+----------
+[values_statement]
+sql:
+VALUES ROW(1), ROW(2)
+expect:
+{
+  "column_0" : [ ]
+}

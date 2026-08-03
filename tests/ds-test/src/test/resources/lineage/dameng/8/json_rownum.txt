@@ -1,0 +1,55 @@
+[rownum_projection]
+sql:
+select rownum rn,t.id
+from catalog1.app.rownum_t t
+where rownum<=3
+expect:
+{
+  "rn": [],
+  "id": ["/catalog1/app/rownum_t/id/"]
+}
+----------
+[rownum_arithmetic]
+sql:
+select rownum+1 next_rn,t.name
+from catalog1.app.rownum_t t
+where rownum<=3
+expect:
+{
+  "next_rn": [],
+  "name": ["/catalog1/app/rownum_t/name/"]
+}
+----------
+[rownum_derived_alias]
+sql:
+select q.rn,q.id
+from(
+  select rownum rn,t.id from catalog1.app.rownum_t t
+) q
+where q.rn between 3 and 5
+expect:
+{
+  "rn": [],
+  "id": ["/catalog1/app/rownum_t/id/"]
+}
+----------
+[rownum_quoted_physical_column]
+sql:
+select t."ROWNUM" physical_rn,rownum pseudo_rn
+from catalog1.app.quoted_rownum t
+expect:
+{
+  "physical_rn": ["/catalog1/app/quoted_rownum/ROWNUM/"],
+  "pseudo_rn": []
+}
+----------
+[rownum_join_columns]
+sql:
+select t.id,d.flag
+from catalog1.app.rownum_t t
+join catalog1.app.rownum_dim d on t.id=d.id and rownum<=3
+expect:
+{
+  "id": ["/catalog1/app/rownum_t/id/"],
+  "flag": ["/catalog1/app/rownum_dim/flag/"]
+}

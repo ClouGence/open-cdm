@@ -1,0 +1,35 @@
+[RedisRuleCommandCheckTest#commandCheck_1#001]
+rule: _rules/command/command-check.rule
+expect: true
+vars:
+  checkMode: allow
+  commands: get;set
+sql:
+get abc
+----------
+[RedisRuleCommandCheckTest#commandCheck_1#002]
+rule: _rules/command/command-check.rule
+expect: false
+vars:
+  checkMode: allow
+  commands: get;set
+sql:
+del abc
+----------
+[RedisRuleCommandCheckTest#commandCheck_2#001]
+rule: _rules/command/command-check.rule
+expect: false
+vars:
+  checkMode: Reject
+  commands: get;set
+sql:
+get abc
+----------
+[RedisRuleCommandCheckTest#commandCheck_2#002]
+rule: _rules/command/command-check.rule
+expect: true
+vars:
+  checkMode: Reject
+  commands: get;set
+sql:
+del abc

@@ -1,0 +1,867 @@
+[split_admin_dameng_statistics_0_001]
+sql:
+STAT ON CODEX_DM8_STAT_20260721.STAT_DATA;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:8~1:41) /test/1/catalog1/CODEX_DM8_STAT_20260721/STAT_DATA/",
+      "action": "ANALYZE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_statistics_0_002]
+sql:
+STAT 0 ON CODEX_DM8_STAT_20260721.STAT_DATA(ID);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:10~1:43) /test/1/catalog1/CODEX_DM8_STAT_20260721/STAT_DATA/",
+      "action": "ANALYZE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_statistics_0_003]
+sql:
+STAT 0.5 ON CODEX_DM8_STAT_20260721.STAT_DATA(ID);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:12~1:45) /test/1/catalog1/CODEX_DM8_STAT_20260721/STAT_DATA/",
+      "action": "ANALYZE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_statistics_0_004]
+sql:
+STAT 1 ON CODEX_DM8_STAT_20260721.STAT_DATA(ID);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:10~1:43) /test/1/catalog1/CODEX_DM8_STAT_20260721/STAT_DATA/",
+      "action": "ANALYZE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_statistics_0_005]
+sql:
+STAT 25 ON CODEX_DM8_STAT_20260721.STAT_DATA(CATEGORY);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:11~1:44) /test/1/catalog1/CODEX_DM8_STAT_20260721/STAT_DATA/",
+      "action": "ANALYZE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_statistics_0_006]
+sql:
+STAT 50 ON CODEX_DM8_STAT_20260721.STAT_DATA(AMOUNT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:11~1:44) /test/1/catalog1/CODEX_DM8_STAT_20260721/STAT_DATA/",
+      "action": "ANALYZE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_statistics_0_007]
+sql:
+STAT 99.999999 ON CODEX_DM8_STAT_20260721.STAT_DATA(CREATED_AT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:18~1:51) /test/1/catalog1/CODEX_DM8_STAT_20260721/STAT_DATA/",
+      "action": "ANALYZE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_statistics_0_008]
+sql:
+STAT 100 ON CODEX_DM8_STAT_20260721.STAT_DATA(ID);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:12~1:45) /test/1/catalog1/CODEX_DM8_STAT_20260721/STAT_DATA/",
+      "action": "ANALYZE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_statistics_0_009]
+sql:
+STAT 10 SIZE 0 ON CODEX_DM8_STAT_20260721.STAT_DATA(ID);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:18~1:51) /test/1/catalog1/CODEX_DM8_STAT_20260721/STAT_DATA/",
+      "action": "ANALYZE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_statistics_0_010]
+sql:
+STAT 10 SIZE 1 ON CODEX_DM8_STAT_20260721.STAT_DATA(ID);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:18~1:51) /test/1/catalog1/CODEX_DM8_STAT_20260721/STAT_DATA/",
+      "action": "ANALYZE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_statistics_0_011]
+sql:
+STAT 10 SIZE 10 ON CODEX_DM8_STAT_20260721.STAT_DATA(CATEGORY);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:19~1:52) /test/1/catalog1/CODEX_DM8_STAT_20260721/STAT_DATA/",
+      "action": "ANALYZE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_statistics_0_012]
+sql:
+STAT 10 SIZE 100 ON CODEX_DM8_STAT_20260721.STAT_DATA(AMOUNT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:20~1:53) /test/1/catalog1/CODEX_DM8_STAT_20260721/STAT_DATA/",
+      "action": "ANALYZE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_statistics_0_013]
+sql:
+STAT 20 SIZE 10000 ON CODEX_DM8_STAT_20260721.STAT_DATA(ID);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:22~1:55) /test/1/catalog1/CODEX_DM8_STAT_20260721/STAT_DATA/",
+      "action": "ANALYZE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_statistics_0_014]
+sql:
+STAT 30 ON CODEX_DM8_STAT_20260721.STAT_DATA(ID,CATEGORY);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:11~1:44) /test/1/catalog1/CODEX_DM8_STAT_20260721/STAT_DATA/",
+      "action": "ANALYZE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_statistics_0_015]
+sql:
+STAT 40 ON CODEX_DM8_STAT_20260721.STAT_DATA(ID,CATEGORY,AMOUNT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:11~1:44) /test/1/catalog1/CODEX_DM8_STAT_20260721/STAT_DATA/",
+      "action": "ANALYZE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_statistics_0_016]
+sql:
+STAT 50 SIZE 1 ON CODEX_DM8_STAT_20260721.STAT_DATA(ID,CATEGORY);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:18~1:51) /test/1/catalog1/CODEX_DM8_STAT_20260721/STAT_DATA/",
+      "action": "ANALYZE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_statistics_0_017]
+sql:
+STAT 60 SIZE 100 ON CODEX_DM8_STAT_20260721.STAT_DATA(CATEGORY,AMOUNT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:20~1:53) /test/1/catalog1/CODEX_DM8_STAT_20260721/STAT_DATA/",
+      "action": "ANALYZE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_statistics_0_018]
+sql:
+STAT 70 SIZE 2500 ON CODEX_DM8_STAT_20260721.STAT_DATA(ID,CATEGORY);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:21~1:54) /test/1/catalog1/CODEX_DM8_STAT_20260721/STAT_DATA/",
+      "action": "ANALYZE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_statistics_0_019]
+sql:
+STAT 10 ON INDEX CODEX_DM8_STAT_20260721.IDX_STAT_CATEGORY;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Index(1:17~1:58) /test/1/catalog1/CODEX_DM8_STAT_20260721/IDX_STAT_CATEGORY/",
+      "action": "ANALYZE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_statistics_0_020]
+sql:
+STAT 50 ON INDEX CODEX_DM8_STAT_20260721.IDX_STAT_AMOUNT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Index(1:17~1:56) /test/1/catalog1/CODEX_DM8_STAT_20260721/IDX_STAT_AMOUNT/",
+      "action": "ANALYZE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_statistics_0_021]
+sql:
+STAT 100 ON INDEX CODEX_DM8_STAT_20260721.IDX_STAT_CATEGORY;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Index(1:18~1:59) /test/1/catalog1/CODEX_DM8_STAT_20260721/IDX_STAT_CATEGORY/",
+      "action": "ANALYZE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_statistics_0_022]
+sql:
+STAT /*+ PARALLEL(2) */ ON CODEX_DM8_STAT_20260721.STAT_DATA;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:27~1:60) /test/1/catalog1/CODEX_DM8_STAT_20260721/STAT_DATA/",
+      "action": "ANALYZE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_statistics_0_023]
+sql:
+STAT /*+ PARALLEL(2) */ 25 ON CODEX_DM8_STAT_20260721.STAT_DATA(CATEGORY);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:30~1:63) /test/1/catalog1/CODEX_DM8_STAT_20260721/STAT_DATA/",
+      "action": "ANALYZE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_statistics_0_024]
+sql:
+STAT 25 /*+ PARALLEL(2) */ SIZE 10 ON CODEX_DM8_STAT_20260721.STAT_DATA(CATEGORY);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:38~1:71) /test/1/catalog1/CODEX_DM8_STAT_20260721/STAT_DATA/",
+      "action": "ANALYZE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_statistics_0_025]
+sql:
+STAT 25 SIZE 10 /*+ PARALLEL(2) */ ON CODEX_DM8_STAT_20260721.STAT_DATA(CATEGORY);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:38~1:71) /test/1/catalog1/CODEX_DM8_STAT_20260721/STAT_DATA/",
+      "action": "ANALYZE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_statistics_0_026]
+sql:
+STAT 25 SIZE 10 ON /*+ PARALLEL(2) */ CODEX_DM8_STAT_20260721.STAT_DATA(CATEGORY);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:38~1:71) /test/1/catalog1/CODEX_DM8_STAT_20260721/STAT_DATA/",
+      "action": "ANALYZE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_statistics_0_027]
+sql:
+STAT 25 SIZE 10 ON CODEX_DM8_STAT_20260721.STAT_DATA /*+ PARALLEL(2) */ (CATEGORY);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:19~1:52) /test/1/catalog1/CODEX_DM8_STAT_20260721/STAT_DATA/",
+      "action": "ANALYZE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_statistics_0_028]
+sql:
+STAT 25 ON INDEX /*+ PARALLEL(2) */ CODEX_DM8_STAT_20260721.IDX_STAT_CATEGORY;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Index(1:36~1:77) /test/1/catalog1/CODEX_DM8_STAT_20260721/IDX_STAT_CATEGORY/",
+      "action": "ANALYZE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_statistics_0_029]
+sql:
+SP_TAB_INDEX_STAT_INIT('CODEX_DM8_STAT_20260721', 'STAT_DATA');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Procedure(1:0~1:22) /test/1/catalog1/schema1/SP_TAB_INDEX_STAT_INIT/",
+      "action": "CALL",
+      "target": "Table(1:50~1:61) /test/1/catalog1/CODEX_DM8_STAT_20260721/STAT_DATA/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_statistics_0_030]
+sql:
+CALL SP_TAB_INDEX_STAT_INIT('CODEX_DM8_STAT_20260721', 'STAT_DATA');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Procedure(1:5~1:27) /test/1/catalog1/schema1/SP_TAB_INDEX_STAT_INIT/",
+      "action": "CALL",
+      "target": "Table(1:55~1:66) /test/1/catalog1/CODEX_DM8_STAT_20260721/STAT_DATA/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_statistics_0_031]
+sql:
+SP_INDEX_STAT_INIT('CODEX_DM8_STAT_20260721', 'IDX_STAT_CATEGORY');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Procedure(1:0~1:18) /test/1/catalog1/schema1/SP_INDEX_STAT_INIT/",
+      "action": "CALL",
+      "target": "Index(1:46~1:65) /test/1/catalog1/CODEX_DM8_STAT_20260721/IDX_STAT_CATEGORY/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_statistics_0_032]
+sql:
+CALL SP_INDEX_STAT_INIT('CODEX_DM8_STAT_20260721', 'IDX_STAT_AMOUNT');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Procedure(1:5~1:23) /test/1/catalog1/schema1/SP_INDEX_STAT_INIT/",
+      "action": "CALL",
+      "target": "Index(1:51~1:68) /test/1/catalog1/CODEX_DM8_STAT_20260721/IDX_STAT_AMOUNT/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_statistics_0_033]
+sql:
+SP_COL_STAT_INIT('CODEX_DM8_STAT_20260721', 'STAT_DATA', 'ID');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Procedure(1:0~1:16) /test/1/catalog1/schema1/SP_COL_STAT_INIT/",
+      "action": "CALL",
+      "target": "Table(1:44~1:55) /test/1/catalog1/CODEX_DM8_STAT_20260721/STAT_DATA/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_statistics_0_034]
+sql:
+CALL SP_COL_STAT_INIT('CODEX_DM8_STAT_20260721', 'STAT_DATA', 'CATEGORY');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Procedure(1:5~1:21) /test/1/catalog1/schema1/SP_COL_STAT_INIT/",
+      "action": "CALL",
+      "target": "Table(1:49~1:60) /test/1/catalog1/CODEX_DM8_STAT_20260721/STAT_DATA/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_statistics_0_035]
+sql:
+SP_TAB_COL_STAT_INIT('CODEX_DM8_STAT_20260721', 'STAT_DATA');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Procedure(1:0~1:20) /test/1/catalog1/schema1/SP_TAB_COL_STAT_INIT/",
+      "action": "CALL",
+      "target": "Table(1:48~1:59) /test/1/catalog1/CODEX_DM8_STAT_20260721/STAT_DATA/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_statistics_0_036]
+sql:
+CALL SP_TAB_COL_STAT_INIT('CODEX_DM8_STAT_20260721', 'STAT_DATA');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Procedure(1:5~1:25) /test/1/catalog1/schema1/SP_TAB_COL_STAT_INIT/",
+      "action": "CALL",
+      "target": "Table(1:53~1:64) /test/1/catalog1/CODEX_DM8_STAT_20260721/STAT_DATA/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_statistics_0_037]
+sql:
+SP_STAT_ON_TABLE_COLS('CODEX_DM8_STAT_20260721', 'STAT_DATA', 25);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Procedure(1:0~1:21) /test/1/catalog1/schema1/SP_STAT_ON_TABLE_COLS/",
+      "action": "CALL",
+      "target": "Table(1:49~1:60) /test/1/catalog1/CODEX_DM8_STAT_20260721/STAT_DATA/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_statistics_0_038]
+sql:
+CALL SP_STAT_ON_TABLE_COLS('CODEX_DM8_STAT_20260721', 'STAT_DATA', 75);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Procedure(1:5~1:26) /test/1/catalog1/schema1/SP_STAT_ON_TABLE_COLS/",
+      "action": "CALL",
+      "target": "Table(1:54~1:65) /test/1/catalog1/CODEX_DM8_STAT_20260721/STAT_DATA/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_statistics_0_039]
+sql:
+SP_TAB_STAT_INIT('CODEX_DM8_STAT_20260721', 'STAT_DATA');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Procedure(1:0~1:16) /test/1/catalog1/schema1/SP_TAB_STAT_INIT/",
+      "action": "CALL",
+      "target": "Table(1:44~1:55) /test/1/catalog1/CODEX_DM8_STAT_20260721/STAT_DATA/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_statistics_0_040]
+sql:
+CALL SP_TAB_STAT_INIT('CODEX_DM8_STAT_20260721', 'STAT_DATA');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Procedure(1:5~1:21) /test/1/catalog1/schema1/SP_TAB_STAT_INIT/",
+      "action": "CALL",
+      "target": "Table(1:49~1:60) /test/1/catalog1/CODEX_DM8_STAT_20260721/STAT_DATA/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_statistics_0_041]
+sql:
+SP_SQL_STAT_INIT('SELECT ID, CATEGORY FROM CODEX_DM8_STAT_20260721.STAT_DATA WHERE ID > 10');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Procedure(1:0~1:16) /test/1/catalog1/schema1/SP_SQL_STAT_INIT/",
+      "action": "CALL",
+      "target": "Instance(1:0~1:16) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_statistics_0_042]
+sql:
+CALL SP_SQL_STAT_INIT('SELECT AMOUNT FROM CODEX_DM8_STAT_20260721.STAT_DATA WHERE CATEGORY = ''C1''');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Procedure(1:5~1:21) /test/1/catalog1/schema1/SP_SQL_STAT_INIT/",
+      "action": "CALL",
+      "target": "Instance(1:5~1:21) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_statistics_0_043]
+sql:
+SP_INDEX_STAT_DEINIT('CODEX_DM8_STAT_20260721', 'IDX_STAT_CATEGORY');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Procedure(1:0~1:20) /test/1/catalog1/schema1/SP_INDEX_STAT_DEINIT/",
+      "action": "CALL",
+      "target": "Index(1:48~1:67) /test/1/catalog1/CODEX_DM8_STAT_20260721/IDX_STAT_CATEGORY/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_statistics_0_044]
+sql:
+CALL SP_INDEX_STAT_DEINIT('CODEX_DM8_STAT_20260721', 'IDX_STAT_AMOUNT');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Procedure(1:5~1:25) /test/1/catalog1/schema1/SP_INDEX_STAT_DEINIT/",
+      "action": "CALL",
+      "target": "Index(1:53~1:70) /test/1/catalog1/CODEX_DM8_STAT_20260721/IDX_STAT_AMOUNT/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_statistics_0_045]
+sql:
+SP_COL_STAT_DEINIT('CODEX_DM8_STAT_20260721', 'STAT_DATA', 'ID');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Procedure(1:0~1:18) /test/1/catalog1/schema1/SP_COL_STAT_DEINIT/",
+      "action": "CALL",
+      "target": "Table(1:46~1:57) /test/1/catalog1/CODEX_DM8_STAT_20260721/STAT_DATA/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_statistics_0_046]
+sql:
+CALL SP_COL_STAT_DEINIT('CODEX_DM8_STAT_20260721', 'STAT_DATA', 'CATEGORY');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Procedure(1:5~1:23) /test/1/catalog1/schema1/SP_COL_STAT_DEINIT/",
+      "action": "CALL",
+      "target": "Table(1:51~1:62) /test/1/catalog1/CODEX_DM8_STAT_20260721/STAT_DATA/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_statistics_0_047]
+sql:
+SP_TAB_COL_STAT_DEINIT('CODEX_DM8_STAT_20260721', 'STAT_DATA');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Procedure(1:0~1:22) /test/1/catalog1/schema1/SP_TAB_COL_STAT_DEINIT/",
+      "action": "CALL",
+      "target": "Table(1:50~1:61) /test/1/catalog1/CODEX_DM8_STAT_20260721/STAT_DATA/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_statistics_0_048]
+sql:
+CALL SP_TAB_COL_STAT_DEINIT('CODEX_DM8_STAT_20260721', 'STAT_DATA');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Procedure(1:5~1:27) /test/1/catalog1/schema1/SP_TAB_COL_STAT_DEINIT/",
+      "action": "CALL",
+      "target": "Table(1:55~1:66) /test/1/catalog1/CODEX_DM8_STAT_20260721/STAT_DATA/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_statistics_0_049]
+sql:
+SP_TAB_STAT_DEINIT('CODEX_DM8_STAT_20260721', 'STAT_DATA');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Procedure(1:0~1:18) /test/1/catalog1/schema1/SP_TAB_STAT_DEINIT/",
+      "action": "CALL",
+      "target": "Table(1:46~1:57) /test/1/catalog1/CODEX_DM8_STAT_20260721/STAT_DATA/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_statistics_0_050]
+sql:
+CALL SP_TAB_STAT_DEINIT('CODEX_DM8_STAT_20260721', 'STAT_DATA');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Procedure(1:5~1:23) /test/1/catalog1/schema1/SP_TAB_STAT_DEINIT/",
+      "action": "CALL",
+      "target": "Table(1:51~1:62) /test/1/catalog1/CODEX_DM8_STAT_20260721/STAT_DATA/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_statistics_0_051]
+sql:
+SP_TAB_MSTAT_DEINIT('CODEX_DM8_STAT_20260721', 'STAT_DATA');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Procedure(1:0~1:19) /test/1/catalog1/schema1/SP_TAB_MSTAT_DEINIT/",
+      "action": "CALL",
+      "target": "Table(1:47~1:58) /test/1/catalog1/CODEX_DM8_STAT_20260721/STAT_DATA/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_statistics_0_052]
+sql:
+CALL SP_TAB_MSTAT_DEINIT('CODEX_DM8_STAT_20260721', 'STAT_DATA');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Procedure(1:5~1:24) /test/1/catalog1/schema1/SP_TAB_MSTAT_DEINIT/",
+      "action": "CALL",
+      "target": "Table(1:52~1:63) /test/1/catalog1/CODEX_DM8_STAT_20260721/STAT_DATA/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_statistics_0_053]
+sql:
+SP_FLUSH_MODIFICATIONS_INFO();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Procedure(1:0~1:27) /test/1/catalog1/schema1/SP_FLUSH_MODIFICATIONS_INFO/",
+      "action": "CALL",
+      "target": "Instance(1:0~1:27) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_statistics_0_054]
+sql:
+CALL SP_FLUSH_MODIFICATIONS_INFO();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Procedure(1:5~1:32) /test/1/catalog1/schema1/SP_FLUSH_MODIFICATIONS_INFO/",
+      "action": "CALL",
+      "target": "Instance(1:5~1:32) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_statistics_0_055]
+sql:
+SP_CLEAN_MODIFICATIONS();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Procedure(1:0~1:22) /test/1/catalog1/schema1/SP_CLEAN_MODIFICATIONS/",
+      "action": "CALL",
+      "target": "Instance(1:0~1:22) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_statistics_0_056]
+sql:
+CALL SP_CLEAN_MODIFICATIONS();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Procedure(1:5~1:27) /test/1/catalog1/schema1/SP_CLEAN_MODIFICATIONS/",
+      "action": "CALL",
+      "target": "Instance(1:5~1:27) /test/1/"
+    }
+  ]
+}

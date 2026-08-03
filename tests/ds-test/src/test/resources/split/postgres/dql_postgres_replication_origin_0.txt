@@ -1,0 +1,61 @@
+SELECT pg_replication_origin_drop(roname)
+FROM pg_replication_origin
+WHERE roname = 'open_cdm_split_origin';
+SELECT pg_replication_origin_create('open_cdm_split_origin') IS NOT NULL AS origin_created;
+SELECT pg_replication_origin_oid('open_cdm_split_origin') IS NOT NULL AS origin_oid_found;
+SELECT pg_replication_origin_progress('open_cdm_split_origin', false) IS NULL AS origin_initial_progress_is_null;
+SELECT pg_replication_origin_advance('open_cdm_split_origin', pg_current_wal_lsn());
+SELECT pg_replication_origin_progress('open_cdm_split_origin', false) <= pg_current_wal_lsn() AS origin_progress_not_after_current;
+SELECT pg_replication_origin_session_is_setup() AS session_setup_before;
+SELECT pg_replication_origin_session_setup('open_cdm_split_origin');
+SELECT pg_replication_origin_session_is_setup() AS session_setup_after;
+SELECT pg_replication_origin_session_progress(false) IS NOT NULL AS session_progress_available;
+BEGIN;
+SELECT pg_replication_origin_xact_setup(pg_current_wal_lsn(), clock_timestamp());
+SELECT pg_replication_origin_xact_reset();
+ROLLBACK;
+SELECT pg_replication_origin_session_reset();
+SELECT pg_replication_origin_session_is_setup() AS session_setup_after_reset;
+SELECT count(*) >= 0 AS origin_status_rows FROM pg_show_replication_origin_status();
+SELECT pg_replication_origin_drop('open_cdm_split_origin');
+SELECT pg_replication_origin_oid('open_cdm_split_origin') IS NULL AS origin_dropped;
+------------------------------------------------------------------------------------------
+[SELECT|DROP_REPLICATION] SELECT pg_replication_origin_drop(roname)
+FROM pg_replication_origin
+WHERE roname = 'open_cdm_split_origin';
+----------
+[SELECT|CREATE_REPLICATION] SELECT pg_replication_origin_create('open_cdm_split_origin') IS NOT NULL AS origin_created;
+----------
+[SELECT|METADATA] SELECT pg_replication_origin_oid('open_cdm_split_origin') IS NOT NULL AS origin_oid_found;
+----------
+[SELECT|METADATA] SELECT pg_replication_origin_progress('open_cdm_split_origin', false) IS NULL AS origin_initial_progress_is_null;
+----------
+[SELECT|ALTER_REPLICATION|LOG_READ] SELECT pg_replication_origin_advance('open_cdm_split_origin', pg_current_wal_lsn());
+----------
+[SELECT|METADATA|LOG_READ] SELECT pg_replication_origin_progress('open_cdm_split_origin', false) <= pg_current_wal_lsn() AS origin_progress_not_after_current;
+----------
+[SELECT|METADATA] SELECT pg_replication_origin_session_is_setup() AS session_setup_before;
+----------
+[SELECT|ALTER_REPLICATION] SELECT pg_replication_origin_session_setup('open_cdm_split_origin');
+----------
+[SELECT|METADATA] SELECT pg_replication_origin_session_is_setup() AS session_setup_after;
+----------
+[SELECT|METADATA] SELECT pg_replication_origin_session_progress(false) IS NOT NULL AS session_progress_available;
+----------
+[TRANSACTION] BEGIN;
+----------
+[SELECT|ALTER_REPLICATION|LOG_READ] SELECT pg_replication_origin_xact_setup(pg_current_wal_lsn(), clock_timestamp());
+----------
+[SELECT|ALTER_REPLICATION] SELECT pg_replication_origin_xact_reset();
+----------
+[TRANSACTION] ROLLBACK;
+----------
+[SELECT|ALTER_REPLICATION] SELECT pg_replication_origin_session_reset();
+----------
+[SELECT|METADATA] SELECT pg_replication_origin_session_is_setup() AS session_setup_after_reset;
+----------
+[SELECT] SELECT count(*) >= 0 AS origin_status_rows FROM pg_show_replication_origin_status();
+----------
+[SELECT|DROP_REPLICATION] SELECT pg_replication_origin_drop('open_cdm_split_origin');
+----------
+[SELECT|METADATA] SELECT pg_replication_origin_oid('open_cdm_split_origin') IS NULL AS origin_dropped;

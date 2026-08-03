@@ -22,6 +22,7 @@ import java.util.Locale;
 import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
+import com.clougence.clouddm.console.web.component.analysis.QueryAnalysisService;
 import com.clougence.clouddm.console.web.component.autoexec.AutoExecService;
 import com.clougence.clouddm.console.web.component.cicd.ImMessageType;
 import com.clougence.clouddm.console.web.component.cicd.model.ChangeExecuteInfo;
@@ -30,12 +31,11 @@ import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.model.fo.ticket.DmAutoExecConfigFO;
-import com.clougence.clouddm.console.web.service.analysis.QueryAnalysisService;
 import com.clougence.clouddm.platform.dal.model.cicd.*;
 import com.clougence.clouddm.platform.dal.model.execution.AutoExecType;
 import com.clougence.clouddm.platform.dal.model.execution.SQLJobBizType;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
-import com.clougence.clouddm.sdk.sql.split.SplitScript;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.clouddm.sdk.sql.parser.SplitScript;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.JsonUtils;
 import com.clougence.utils.StringUtils;
@@ -149,7 +149,7 @@ public class ChangeActionForExecute extends AbstractChangeAction {
             log.warn("can not parse sql");
             SplitScript splitScript = new SplitScript();
             splitScript.setScript(changeSql);
-            splitScript.setType(SecQueryType.UNKNOWN);
+            splitScript.setType(Collections.singleton(SplitQueryType.UNKNOWN));
             scripts = Collections.singletonList(splitScript);
         }
 

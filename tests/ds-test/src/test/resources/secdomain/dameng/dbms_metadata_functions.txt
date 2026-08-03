@@ -1,0 +1,42 @@
+[dbms_metadata_procedure_domains]
+sql:
+declare
+  h int;
+begin
+  dbms_metadata.check_handle;
+  dbms_metadata."CLOSE"(h);
+  dbms_metadata.close_all;
+  dbms_metadata.set_count(h,1);
+  dbms_metadata.set_filter(h,'SCHEMA','SYSDBA');
+  dbms_metadata.set_parse_item(h,'NAME');
+  dbms_metadata.set_transform_param(dbms_metadata.session_transform,'STORAGE');
+end;
+expect:
+{
+  "contains": [
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_metadata"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_metadata"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_metadata"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_metadata"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_metadata"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_metadata"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_metadata"}
+  ]
+}
+----------
+[dbms_metadata_function_expressions_no_domain]
+sql:
+declare
+  h int; n number; c clob; q varchar(32767); d dbms_metadata.ku$_ddls;
+begin
+  h:=dbms_metadata."OPEN"('TABLE');
+  n:=dbms_metadata.add_transform(h,'DDL');
+  c:=dbms_metadata.fetch_clob(h);
+  d:=dbms_metadata.fetch_ddl(h);
+  c:=dbms_metadata.get_ddl('TABLE','T');
+  c:=dbms_metadata.get_dependent_ddl('INDEX','T');
+  c:=dbms_metadata.get_granted_ddl('OBJECT_GRANT');
+  q:=dbms_metadata.get_query(h);
+end;
+expect:
+{"size":0}

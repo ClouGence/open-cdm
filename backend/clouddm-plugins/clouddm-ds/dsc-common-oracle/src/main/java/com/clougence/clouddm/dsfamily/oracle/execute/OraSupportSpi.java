@@ -33,7 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 public class OraSupportSpi implements RdbSupportSpi {
 
     //    private final List<RdbIsolation> isolationDef = Arrays.asList(RdbIsolation.READ_COMMITTED, RdbIsolation.SERIALIZABLE);
-    private final List<RdbIsolation> isolationDef = Arrays.asList(RdbIsolation.READ_COMMITTED);
+    private final List<RdbIsolation> isolationDef = List.of(RdbIsolation.READ_COMMITTED);
 
     @Override
     public RdbSupportLevel supportChangeCatalog(DataSourceConfig dsConfig) {
@@ -83,10 +83,5 @@ public class OraSupportSpi implements RdbSupportSpi {
     @Override
     public List<RdbIsolation> supportIsolation() {
         return this.isolationDef;
-    }
-
-    @Override
-    public boolean supportMultiStatement(boolean isDesktop) {
-        return true;
     }
 }

@@ -17,10 +17,10 @@ package com.clougence.sql.common.analysis.secrules.builder;
 
 import java.util.*;
 
-import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 import com.clougence.clouddm.sdk.service.secrules.Domain;
-import com.clougence.clouddm.sdk.sql.secrules.rdb.*;
+import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
+import com.clougence.clouddm.sdk.service.secrules.SecQueryKind;
+import com.clougence.clouddm.sdk.sql.analysis.security.rdb.*;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.secrules.builder.enums.DomainSource;
 import com.clougence.sql.common.analysis.secrules.builder.mode.ObjNameDomain;
@@ -95,7 +95,7 @@ public class UpdateBuilder extends AbstractDomainBuilder {
         this.updateDomain.setSchema(map.get(UmiTypes.Schema));
         this.updateDomain.setCatalog(map.get(UmiTypes.Catalog));
         updateDomain.setAuditKind(SecQueryKind.DML);
-        updateDomain.setSqlType(SecQueryType.UPDATE);
+        updateDomain.setSqlType(RuleQueryType.UPDATE);
         if (updateDomain.getWhereColumns() == null) {
             updateDomain.setWhereColumns(new ArrayList<>());
         }

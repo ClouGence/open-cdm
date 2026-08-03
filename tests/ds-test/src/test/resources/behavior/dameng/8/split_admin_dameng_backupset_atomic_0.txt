@@ -1,0 +1,2613 @@
+[split_admin_dameng_backupset_atomic_0_001]
+sql:
+-- BACKUP_DB_DEFAULT
+backup database backupset '/opt/codex/db_default';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:26~2:49) /test/1/opt/codex/db_default/",
+      "action": "EXPORT",
+      "target": "Instance(2:7~2:15) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_002]
+sql:
+-- BACKUP_DB_FULL
+backup database full backupset '/opt/codex/db_full';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:31~2:51) /test/1/opt/codex/db_full/",
+      "action": "EXPORT",
+      "target": "Instance(2:7~2:15) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_003]
+sql:
+-- BACKUP_DB_DDL_CLONE
+backup database ddl_clone backupset '/opt/codex/db_clone';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:36~2:57) /test/1/opt/codex/db_clone/",
+      "action": "EXPORT",
+      "target": "Instance(2:7~2:15) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_004]
+sql:
+-- BACKUP_DB_FULL_DDL_CLONE
+backup database full ddl_clone backupset '/opt/codex/db_full_clone';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:41~2:67) /test/1/opt/codex/db_full_clone/",
+      "action": "EXPORT",
+      "target": "Instance(2:7~2:15) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_005]
+sql:
+-- BACKUP_DB_SHADOW
+backup database shadow backupset '/opt/codex/db_shadow';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:33~2:55) /test/1/opt/codex/db_shadow/",
+      "action": "EXPORT",
+      "target": "Instance(2:7~2:15) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_006]
+sql:
+-- BACKUP_DB_FULL_SHADOW
+backup database full shadow backupset '/opt/codex/db_full_shadow';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:38~2:65) /test/1/opt/codex/db_full_shadow/",
+      "action": "EXPORT",
+      "target": "Instance(2:7~2:15) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_007]
+sql:
+-- BACKUP_DB_INCREMENT
+backup database increment backupset '/opt/codex/db_increment';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:36~2:61) /test/1/opt/codex/db_increment/",
+      "action": "EXPORT",
+      "target": "Instance(2:7~2:15) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_008]
+sql:
+-- BACKUP_DB_INCREMENT_CUMULATIVE
+backup database increment cumulative backupset '/opt/codex/db_cumulative';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:47~2:73) /test/1/opt/codex/db_cumulative/",
+      "action": "EXPORT",
+      "target": "Instance(2:7~2:15) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_009]
+sql:
+-- BACKUP_DB_FROM_LSN
+backup database increment from lsn 100 backupset '/opt/codex/db_from_lsn';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:49~2:73) /test/1/opt/codex/db_from_lsn/",
+      "action": "EXPORT",
+      "target": "Instance(2:7~2:15) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_010]
+sql:
+-- BACKUP_DB_WITH_BACKUPDIR
+backup database increment with backupdir '/opt/codex/base1', '/opt/codex/base2' backupset '/opt/codex/db_dirs';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:90~2:110) /test/1/opt/codex/db_dirs/",
+      "action": "EXPORT",
+      "target": [
+        "Instance(2:7~2:15) /test/1/",
+        "File(2:41~2:59) /test/1/opt/codex/base1/",
+        "File(2:61~2:79) /test/1/opt/codex/base2/"
+      ]
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_011]
+sql:
+-- BACKUP_DB_BASE_ON
+backup database increment base on backupset '/opt/codex/base' backupset '/opt/codex/db_base';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:72~2:92) /test/1/opt/codex/db_base/",
+      "action": "EXPORT",
+      "target": [
+        "Instance(2:7~2:15) /test/1/",
+        "File(2:44~2:61) /test/1/opt/codex/base/"
+      ]
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_012]
+sql:
+-- BACKUP_DB_TO
+backup database full to CODEX_DB_BAK backupset '/opt/codex/db_to';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:47~2:65) /test/1/opt/codex/db_to/",
+      "action": "EXPORT",
+      "target": "Instance(2:7~2:15) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_013]
+sql:
+-- BACKUP_DB_BACKUPNAME
+backup database full backupname CODEX_DB_BAK backupset '/opt/codex/db_name';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:55~2:75) /test/1/opt/codex/db_name/",
+      "action": "EXPORT",
+      "target": "Instance(2:7~2:15) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_014]
+sql:
+-- BACKUP_DB_FORMAT
+backup database full format '/opt/codex/db_format';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:28~2:50) /test/1/opt/codex/db_format/",
+      "action": "EXPORT",
+      "target": "Instance(2:7~2:15) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_015]
+sql:
+-- BACKUP_DB_DEVICE_DISK
+backup database full backupset '/opt/codex/db_disk' device type disk;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:31~2:51) /test/1/opt/codex/db_disk/",
+      "action": "EXPORT",
+      "target": "Instance(2:7~2:15) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_016]
+sql:
+-- BACKUP_DB_DEVICE_TAPE_PARMS
+backup database full backupset '/opt/codex/db_tape' device type tape parms '/dev/nst0';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:31~2:51) /test/1/opt/codex/db_tape/",
+      "action": "EXPORT",
+      "target": "Instance(2:7~2:15) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_017]
+sql:
+-- BACKUP_DB_BACKUPINFO
+backup database full backupset '/opt/codex/db_info' backupinfo 'CODEX';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:31~2:51) /test/1/opt/codex/db_info/",
+      "action": "EXPORT",
+      "target": "Instance(2:7~2:15) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_018]
+sql:
+-- BACKUP_DB_MAXPIECESIZE
+backup database full backupset '/opt/codex/db_piece' maxpiecesize 128;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:31~2:52) /test/1/opt/codex/db_piece/",
+      "action": "EXPORT",
+      "target": "Instance(2:7~2:15) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_019]
+sql:
+-- BACKUP_DB_LIMIT_READ
+backup database full backupset '/opt/codex/db_read' limit read speed 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:31~2:51) /test/1/opt/codex/db_read/",
+      "action": "EXPORT",
+      "target": "Instance(2:7~2:15) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_020]
+sql:
+-- BACKUP_DB_LIMIT_WRITE
+backup database full backupset '/opt/codex/db_write' limit write speed 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:31~2:52) /test/1/opt/codex/db_write/",
+      "action": "EXPORT",
+      "target": "Instance(2:7~2:15) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_021]
+sql:
+-- BACKUP_DB_LIMIT_READ_WRITE
+backup database full backupset '/opt/codex/db_rw' limit read speed 0 write speed 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:31~2:49) /test/1/opt/codex/db_rw/",
+      "action": "EXPORT",
+      "target": "Instance(2:7~2:15) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_022]
+sql:
+-- BACKUP_DB_IDENTIFIED
+backup database full backupset '/opt/codex/db_pwd' identified by "Dm8Test2026";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:31~2:50) /test/1/opt/codex/db_pwd/",
+      "action": "EXPORT",
+      "target": "Instance(2:7~2:15) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_023]
+sql:
+-- BACKUP_DB_ENCRYPTION
+backup database full backupset '/opt/codex/db_encrypt' identified by "Dm8Test2026" with encryption 2 encrypt with AES256_CFB;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:31~2:54) /test/1/opt/codex/db_encrypt/",
+      "action": "EXPORT",
+      "target": "Instance(2:7~2:15) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_024]
+sql:
+-- BACKUP_DB_COMPRESSED
+backup database full backupset '/opt/codex/db_compress' compressed;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:31~2:55) /test/1/opt/codex/db_compress/",
+      "action": "EXPORT",
+      "target": "Instance(2:7~2:15) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_025]
+sql:
+-- BACKUP_DB_COMPRESSED_LEVEL
+backup database full backupset '/opt/codex/db_level' compressed level 9;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:31~2:52) /test/1/opt/codex/db_level/",
+      "action": "EXPORT",
+      "target": "Instance(2:7~2:15) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_026]
+sql:
+-- BACKUP_DB_WITHOUT_LOG
+backup database full backupset '/opt/codex/db_nolog' without log;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:31~2:52) /test/1/opt/codex/db_nolog/",
+      "action": "EXPORT",
+      "target": "Instance(2:7~2:15) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_027]
+sql:
+-- BACKUP_DB_WITHOUT_MIRROR
+backup database full backupset '/opt/codex/db_nomirror' without mirror;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:31~2:55) /test/1/opt/codex/db_nomirror/",
+      "action": "EXPORT",
+      "target": "Instance(2:7~2:15) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_028]
+sql:
+-- BACKUP_DB_TRACE
+backup database full backupset '/opt/codex/db_trace' trace;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:31~2:52) /test/1/opt/codex/db_trace/",
+      "action": "EXPORT",
+      "target": "Instance(2:7~2:15) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_029]
+sql:
+-- BACKUP_DB_TRACE_FILE
+backup database full backupset '/opt/codex/db_trace_file' trace file '/opt/codex/trace.log';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:31~2:57) /test/1/opt/codex/db_trace_file/",
+      "action": "EXPORT",
+      "target": "Instance(2:7~2:15) /test/1/"
+    },
+    {
+      "subject": "File(2:69~2:91) /test/1/opt/codex/trace.log/",
+      "action": "EXPORT",
+      "target": "Instance(2:7~2:15) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_030]
+sql:
+-- BACKUP_DB_TRACE_LEVEL
+backup database full backupset '/opt/codex/db_trace_level' trace level 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:31~2:58) /test/1/opt/codex/db_trace_level/",
+      "action": "EXPORT",
+      "target": "Instance(2:7~2:15) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_031]
+sql:
+-- BACKUP_DB_TASK_THREAD
+backup database full backupset '/opt/codex/db_task' task thread 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:31~2:51) /test/1/opt/codex/db_task/",
+      "action": "EXPORT",
+      "target": "Instance(2:7~2:15) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_032]
+sql:
+-- BACKUP_DB_PARALLEL
+backup database full backupset '/opt/codex/db_parallel' parallel;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:31~2:55) /test/1/opt/codex/db_parallel/",
+      "action": "EXPORT",
+      "target": "Instance(2:7~2:15) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_033]
+sql:
+-- BACKUP_DB_PARALLEL_COUNT
+backup database full backupset '/opt/codex/db_parallel2' parallel 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:31~2:56) /test/1/opt/codex/db_parallel2/",
+      "action": "EXPORT",
+      "target": "Instance(2:7~2:15) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_034]
+sql:
+-- BACKUP_DB_PARALLEL_READ_SIZE
+backup database full backupset '/opt/codex/db_parallel_read' parallel 2 read size 512;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:31~2:60) /test/1/opt/codex/db_parallel_read/",
+      "action": "EXPORT",
+      "target": "Instance(2:7~2:15) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_035]
+sql:
+-- BACKUP_DB_USE_BAK_MAGIC
+backup database full backupset '/opt/codex/db_magic' use bak_magic 7;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:31~2:52) /test/1/opt/codex/db_magic/",
+      "action": "EXPORT",
+      "target": "Instance(2:7~2:15) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_036]
+sql:
+-- BACKUP_TABLESPACE_DEFAULT
+backup tablespace CODEX_TS backupset '/opt/codex/ts_default';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:37~2:60) /test/1/opt/codex/ts_default/",
+      "action": "EXPORT",
+      "target": "Tablespace(2:18~2:26) /test/1/CODEX_TS/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_037]
+sql:
+-- BACKUP_TABLESPACE_FULL
+backup tablespace CODEX_TS full backupset '/opt/codex/ts_full';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:42~2:62) /test/1/opt/codex/ts_full/",
+      "action": "EXPORT",
+      "target": "Tablespace(2:18~2:26) /test/1/CODEX_TS/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_038]
+sql:
+-- BACKUP_TABLESPACE_INCREMENT
+backup tablespace CODEX_TS increment backupset '/opt/codex/ts_increment';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:47~2:72) /test/1/opt/codex/ts_increment/",
+      "action": "EXPORT",
+      "target": "Tablespace(2:18~2:26) /test/1/CODEX_TS/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_039]
+sql:
+-- BACKUP_TABLESPACE_CUMULATIVE
+backup tablespace CODEX_TS increment cumulative base on backupset '/opt/codex/ts_base' backupset '/opt/codex/ts_cum';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:97~2:116) /test/1/opt/codex/ts_cum/",
+      "action": "EXPORT",
+      "target": [
+        "Tablespace(2:18~2:26) /test/1/CODEX_TS/",
+        "File(2:66~2:86) /test/1/opt/codex/ts_base/"
+      ]
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_040]
+sql:
+-- BACKUP_TABLESPACE_NAME
+backup tablespace CODEX_TS backupname CODEX_TS_BAK backupset '/opt/codex/ts_name';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:61~2:81) /test/1/opt/codex/ts_name/",
+      "action": "EXPORT",
+      "target": "Tablespace(2:18~2:26) /test/1/CODEX_TS/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_041]
+sql:
+-- BACKUP_TABLESPACE_SHARED_OPTIONS
+backup tablespace CODEX_TS full backupset '/opt/codex/ts_options' device type disk backupinfo 'TS' maxpiecesize 128 limit read speed 0 write speed 0 identified by "Dm8Test2026" with encryption 2 encrypt with AES256_CFB compressed level 1 without log without mirror trace level 2 task thread 2 parallel 2 read size 512;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:42~2:65) /test/1/opt/codex/ts_options/",
+      "action": "EXPORT",
+      "target": "Tablespace(2:18~2:26) /test/1/CODEX_TS/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_042]
+sql:
+-- BACKUP_TABLE_DEFAULT
+backup table CODEX_OWNER.CODEX_TAB backupset '/opt/codex/tab_default';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:45~2:69) /test/1/opt/codex/tab_default/",
+      "action": "EXPORT",
+      "target": "Table(2:13~2:34) /test/1/catalog1/CODEX_OWNER/CODEX_TAB/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_043]
+sql:
+-- BACKUP_TABLE_NAME
+backup table CODEX_OWNER.CODEX_TAB backupname CODEX_TAB_BAK backupset '/opt/codex/tab_name';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:70~2:91) /test/1/opt/codex/tab_name/",
+      "action": "EXPORT",
+      "target": "Table(2:13~2:34) /test/1/catalog1/CODEX_OWNER/CODEX_TAB/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_044]
+sql:
+-- BACKUP_TABLE_SHARED_OPTIONS
+backup table CODEX_OWNER.CODEX_TAB backupset '/opt/codex/tab_options' device type disk backupinfo 'TAB' maxpiecesize 128 limit write speed 0 identified by "Dm8Test2026" with encryption 2 encrypt with AES256_CFB compressed level 1 trace file '/opt/codex/tab_trace.log' task thread 2 parallel 2 read size 512;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:45~2:69) /test/1/opt/codex/tab_options/",
+      "action": "EXPORT",
+      "target": "Table(2:13~2:34) /test/1/catalog1/CODEX_OWNER/CODEX_TAB/"
+    },
+    {
+      "subject": "File(2:241~2:267) /test/1/opt/codex/tab_trace.log/",
+      "action": "EXPORT",
+      "target": "Table(2:13~2:34) /test/1/catalog1/CODEX_OWNER/CODEX_TAB/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_045]
+sql:
+-- BACKUP_ARCHIVE_ALL
+backup archive log all backupset '/opt/codex/arch_all';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:33~2:54) /test/1/opt/codex/arch_all/",
+      "action": "EXPORT",
+      "target": "Log(2:7~2:18) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_046]
+sql:
+-- BACKUP_ARCHIVE_FROM_LSN
+backup archivelog from lsn 100 backupset '/opt/codex/arch_from';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:41~2:63) /test/1/opt/codex/arch_from/",
+      "action": "EXPORT",
+      "target": "Log(2:7~2:17) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_047]
+sql:
+-- BACKUP_ARCHIVE_UNTIL_LSN
+backup archivelog until lsn 200 backupset '/opt/codex/arch_until';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:42~2:65) /test/1/opt/codex/arch_until/",
+      "action": "EXPORT",
+      "target": "Log(2:7~2:17) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_048]
+sql:
+-- BACKUP_ARCHIVE_LSN_BETWEEN
+backup archivelog lsn between 100 and 200 backupset '/opt/codex/arch_between';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:52~2:77) /test/1/opt/codex/arch_between/",
+      "action": "EXPORT",
+      "target": "Log(2:7~2:17) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_049]
+sql:
+-- BACKUP_ARCHIVE_FROM_TIME
+backup archivelog from time '2026-07-01 00:00:00' backupset '/opt/codex/arch_from_time';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:60~2:87) /test/1/opt/codex/arch_from_time/",
+      "action": "EXPORT",
+      "target": "Log(2:7~2:17) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_050]
+sql:
+-- BACKUP_ARCHIVE_UNTIL_TIME
+backup archivelog until time '2026-07-02 00:00:00' backupset '/opt/codex/arch_until_time';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:61~2:89) /test/1/opt/codex/arch_until_time/",
+      "action": "EXPORT",
+      "target": "Log(2:7~2:17) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_051]
+sql:
+-- BACKUP_ARCHIVE_TIME_BETWEEN
+backup archivelog time between '2026-07-01 00:00:00' and '2026-07-02 00:00:00' backupset '/opt/codex/arch_time_between';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:89~2:119) /test/1/opt/codex/arch_time_between/",
+      "action": "EXPORT",
+      "target": "Log(2:7~2:17) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_052]
+sql:
+-- BACKUP_ARCHIVE_NOT_BACKED
+backup archivelog all not backed up backupset '/opt/codex/arch_not_backed';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:46~2:74) /test/1/opt/codex/arch_not_backed/",
+      "action": "EXPORT",
+      "target": "Log(2:7~2:17) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_053]
+sql:
+-- BACKUP_ARCHIVE_NOT_BACKED_TIMES
+backup archivelog all not backed up 2 times backupset '/opt/codex/arch_times';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:54~2:77) /test/1/opt/codex/arch_times/",
+      "action": "EXPORT",
+      "target": "Log(2:7~2:17) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_054]
+sql:
+-- BACKUP_ARCHIVE_NOT_BACKED_SINCE
+backup archivelog all not backed up since time '2026-07-01' backupset '/opt/codex/arch_since';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:70~2:93) /test/1/opt/codex/arch_since/",
+      "action": "EXPORT",
+      "target": "Log(2:7~2:17) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_055]
+sql:
+-- BACKUP_ARCHIVE_DELETE_INPUT
+backup archivelog all delete input backupset '/opt/codex/arch_delete';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:45~2:69) /test/1/opt/codex/arch_delete/",
+      "action": "EXPORT",
+      "target": "Log(2:7~2:17) /test/1/"
+    },
+    {
+      "subject": "Log(2:7~2:17) /test/1/",
+      "action": "DELETE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_056]
+sql:
+-- BACKUP_ARCHIVE_NAME_OPTIONS
+backup archivelog all backupname CODEX_ARCH_BAK backupset '/opt/codex/arch_options' device type disk compressed level 1 task thread 2 parallel 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:58~2:83) /test/1/opt/codex/arch_options/",
+      "action": "EXPORT",
+      "target": "Log(2:7~2:17) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_057]
+sql:
+-- BACKUP_OFFLINE_DATABASE
+backup database '/opt/codex/source/dm.ini' full backupset '/opt/codex/offline_db';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:58~2:81) /test/1/opt/codex/offline_db/",
+      "action": "EXPORT",
+      "target": [
+        "Instance(2:7~2:15) /test/1/",
+        "File(2:16~2:42) /test/1/opt/codex/source/dm.ini/"
+      ]
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_058]
+sql:
+-- BACKUP_OFFLINE_ARCHIVE_DATABASE
+backup archivelog all database '/opt/codex/source/dm.ini' backupset '/opt/codex/offline_arch';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:68~2:93) /test/1/opt/codex/offline_arch/",
+      "action": "EXPORT",
+      "target": [
+        "Log(2:7~2:17) /test/1/",
+        "File(2:31~2:57) /test/1/opt/codex/source/dm.ini/"
+      ]
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_059]
+sql:
+-- BACKUP_OFFLINE_ARCHIVE_RANGE_DATABASE
+backup archivelog from lsn 100 database '/opt/codex/source/dm.ini' backupset '/opt/codex/offline_arch_range';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:77~2:108) /test/1/opt/codex/offline_arch_range/",
+      "action": "EXPORT",
+      "target": [
+        "Log(2:7~2:17) /test/1/",
+        "File(2:40~2:66) /test/1/opt/codex/source/dm.ini/"
+      ]
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_060]
+sql:
+-- SHOW_BACKUPSET
+show backupset '/opt/codex/backupset';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:15~2:37) /test/1/opt/codex/backupset/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_061]
+sql:
+-- SHOW_BACKUPSET_DEVICE
+show backupset '/opt/codex/backupset' device type disk;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:15~2:37) /test/1/opt/codex/backupset/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_062]
+sql:
+-- SHOW_BACKUPSET_TAPE_PARMS
+show backupset '/opt/codex/backupset' device type tape parms '/dev/nst0';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:15~2:37) /test/1/opt/codex/backupset/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_063]
+sql:
+-- SHOW_BACKUPSET_RECURSIVE
+show backupset '/opt/codex/backupset' recursive;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:15~2:37) /test/1/opt/codex/backupset/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_064]
+sql:
+-- SHOW_BACKUPSET_DATABASE
+show backupset '/opt/codex/backupset' database '/opt/codex/source/dm.ini';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:15~2:37) /test/1/opt/codex/backupset/",
+      "action": "READ"
+    },
+    {
+      "subject": "File(2:47~2:73) /test/1/opt/codex/source/dm.ini/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_065]
+sql:
+-- SHOW_BACKUPSET_BACKUPDIR
+show backupset '/opt/codex/backupset' with backupdir '/opt/codex/base1', '/opt/codex/base2';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:15~2:37) /test/1/opt/codex/backupset/",
+      "action": "READ"
+    },
+    {
+      "subject": "File(2:53~2:71) /test/1/opt/codex/base1/",
+      "action": "READ"
+    },
+    {
+      "subject": "File(2:73~2:91) /test/1/opt/codex/base2/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_066]
+sql:
+-- SHOW_BACKUPSET_INFO_TYPES
+show backupset '/opt/codex/backupset' info db, meta, file, tablespace, table;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:15~2:37) /test/1/opt/codex/backupset/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_067]
+sql:
+-- SHOW_BACKUPSET_TO_TXT
+show backupset '/opt/codex/backupset' to '/opt/codex/info.txt' format txt;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:41~2:62) /test/1/opt/codex/info.txt/",
+      "action": "EXPORT",
+      "target": "File(2:15~2:37) /test/1/opt/codex/backupset/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_068]
+sql:
+-- SHOW_BACKUPSET_TO_XML
+show backupset '/opt/codex/backupset' to '/opt/codex/info.xml' format xml;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:41~2:62) /test/1/opt/codex/info.xml/",
+      "action": "EXPORT",
+      "target": "File(2:15~2:37) /test/1/opt/codex/backupset/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_069]
+sql:
+-- SHOW_BACKUPSETS_DATABASE
+show backupsets database '/opt/codex/source/dm.ini';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:25~2:51) /test/1/opt/codex/source/dm.ini/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_070]
+sql:
+-- SHOW_BACKUPSETS_DEFAULT_DIRS
+show backupsets;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": []
+}
+----------
+[split_admin_dameng_backupset_atomic_0_071]
+sql:
+-- SHOW_BACKUPSETS_BACKUPDIR_MAGIC
+show backupsets with backupdir '/opt/codex/bak1', '/opt/codex/bak2' info meta use db_magic 7;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:31~2:48) /test/1/opt/codex/bak1/",
+      "action": "READ"
+    },
+    {
+      "subject": "File(2:50~2:67) /test/1/opt/codex/bak2/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_072]
+sql:
+-- CHECK_BACKUPSET
+check backupset '/opt/codex/backupset';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:16~2:38) /test/1/opt/codex/backupset/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_073]
+sql:
+-- CHECK_BACKUPSET_DEVICE
+check backupset '/opt/codex/backupset' device type disk;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:16~2:38) /test/1/opt/codex/backupset/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_074]
+sql:
+-- CHECK_BACKUPSET_DATABASE
+check backupset '/opt/codex/backupset' database '/opt/codex/source/dm.ini';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:16~2:38) /test/1/opt/codex/backupset/",
+      "action": "READ"
+    },
+    {
+      "subject": "File(2:48~2:74) /test/1/opt/codex/source/dm.ini/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_075]
+sql:
+-- REMOVE_BACKUPSET
+remove backupset '/opt/codex/no_such_backupset';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:17~2:47) /test/1/opt/codex/no_such_backupset/",
+      "action": "DELETE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_076]
+sql:
+-- REMOVE_BACKUPSET_DEVICE
+remove backupset '/opt/codex/no_such_backupset' device type disk;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:17~2:47) /test/1/opt/codex/no_such_backupset/",
+      "action": "DELETE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_077]
+sql:
+-- REMOVE_BACKUPSET_DATABASE_CASCADE
+remove backupset '/opt/codex/no_such_backupset' database '/opt/codex/source/dm.ini' cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:17~2:47) /test/1/opt/codex/no_such_backupset/",
+      "action": "DELETE"
+    },
+    {
+      "subject": "File(2:57~2:83) /test/1/opt/codex/source/dm.ini/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_078]
+sql:
+-- REMOVE_BACKUPSETS_ALL
+remove backupsets with backupdir '/opt/codex/no_such_dir';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:33~2:57) /test/1/opt/codex/no_such_dir/",
+      "action": "DELETE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_079]
+sql:
+-- REMOVE_DATABASE_BACKUPSETS
+remove database backupsets with backupdir '/opt/codex/no_such_dir';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:42~2:66) /test/1/opt/codex/no_such_dir/",
+      "action": "DELETE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_080]
+sql:
+-- REMOVE_TABLESPACE_BACKUPSETS
+remove tablespace backupsets with backupdir '/opt/codex/no_such_dir';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:44~2:68) /test/1/opt/codex/no_such_dir/",
+      "action": "DELETE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_081]
+sql:
+-- REMOVE_NAMED_TABLESPACE_BACKUPSETS
+remove tablespace CODEX_TS backupsets with backupdir '/opt/codex/no_such_dir';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:53~2:77) /test/1/opt/codex/no_such_dir/",
+      "action": "DELETE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_082]
+sql:
+-- REMOVE_TABLE_BACKUPSETS
+remove table backupsets with backupdir '/opt/codex/no_such_dir';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:39~2:63) /test/1/opt/codex/no_such_dir/",
+      "action": "DELETE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_083]
+sql:
+-- REMOVE_NAMED_TABLE_BACKUPSETS
+remove table "CODEX_OWNER"."CODEX_TAB" backupsets with backupdir '/opt/codex/no_such_dir';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:65~2:89) /test/1/opt/codex/no_such_dir/",
+      "action": "DELETE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_084]
+sql:
+-- REMOVE_ARCHIVELOG_BACKUPSETS
+remove archivelog backupsets with backupdir '/opt/codex/no_such_dir';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:44~2:68) /test/1/opt/codex/no_such_dir/",
+      "action": "DELETE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_085]
+sql:
+-- REMOVE_ARCHIVE_LOG_BACKUPSETS
+remove archive log backupsets with backupdir '/opt/codex/no_such_dir';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:45~2:69) /test/1/opt/codex/no_such_dir/",
+      "action": "DELETE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_086]
+sql:
+-- REMOVE_BACKUPSETS_UNTIL
+remove backupsets with backupdir '/opt/codex/no_such_dir' until time '2026-01-01';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:33~2:57) /test/1/opt/codex/no_such_dir/",
+      "action": "DELETE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_087]
+sql:
+-- REMOVE_BACKUPSETS_BEFORE
+remove backupsets with backupdir '/opt/codex/no_such_dir' before 30;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:33~2:57) /test/1/opt/codex/no_such_dir/",
+      "action": "DELETE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_088]
+sql:
+-- LOAD_BACKUPSETS_TAPE
+load backupsets from device type tape to backupdir '/opt/codex/load_target';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:51~2:75) /test/1/opt/codex/load_target/",
+      "action": "IMPORT"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_089]
+sql:
+-- LOAD_BACKUPSETS_TAPE_PARMS_DIRS
+load backupsets from device type tape parms '/dev/nst0' with backupdir '/opt/codex/meta1', '/opt/codex/meta2' to backupdir '/opt/codex/load_target';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:123~2:147) /test/1/opt/codex/load_target/",
+      "action": "IMPORT",
+      "target": [
+        "File(2:71~2:89) /test/1/opt/codex/meta1/",
+        "File(2:91~2:109) /test/1/opt/codex/meta2/"
+      ]
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_090]
+sql:
+-- DUMP_BACKUPSET
+dump backupset '/opt/codex/backupset' mapped file '/opt/codex/map.txt';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:50~2:70) /test/1/opt/codex/map.txt/",
+      "action": "EXPORT",
+      "target": "File(2:15~2:37) /test/1/opt/codex/backupset/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_091]
+sql:
+-- DUMP_BACKUPSET_DATABASE
+dump backupset '/opt/codex/backupset' database '/opt/codex/source/dm.ini' mapped file '/opt/codex/map.txt';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:86~2:106) /test/1/opt/codex/map.txt/",
+      "action": "EXPORT",
+      "target": [
+        "File(2:15~2:37) /test/1/opt/codex/backupset/",
+        "File(2:47~2:73) /test/1/opt/codex/source/dm.ini/"
+      ]
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_092]
+sql:
+-- DUMP_BACKUPSET_TO
+dump backupset '/opt/codex/backupset' to '/opt/codex/system_dir' mapped file '/opt/codex/map.txt';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:77~2:97) /test/1/opt/codex/map.txt/",
+      "action": "EXPORT",
+      "target": "File(2:15~2:37) /test/1/opt/codex/backupset/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_093]
+sql:
+-- RESTORE_DATABASE_INI
+restore database '/opt/codex/target/dm.ini' from backupset '/opt/codex/backupset';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:17~2:43) /test/1/opt/codex/target/dm.ini/",
+      "action": "IMPORT",
+      "target": "File(2:59~2:81) /test/1/opt/codex/backupset/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_094]
+sql:
+-- RESTORE_DATABASE_DIRECTORY
+restore database to '/opt/codex/target' from backupset '/opt/codex/backupset';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:20~2:39) /test/1/opt/codex/target/",
+      "action": "IMPORT",
+      "target": "File(2:55~2:77) /test/1/opt/codex/backupset/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_095]
+sql:
+-- RESTORE_DATABASE_BACKUPNAME
+restore database '/opt/codex/target/dm.ini' from backupname CODEX_DB_BAK;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:17~2:43) /test/1/opt/codex/target/dm.ini/",
+      "action": "IMPORT"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_096]
+sql:
+-- RESTORE_DATABASE_TARGET_OPTIONS
+restore database '/opt/codex/target/dm.ini' to shadow with check reuse dmini without space without mirror auto extend overwrite from backupset '/opt/codex/backupset';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:17~2:43) /test/1/opt/codex/target/dm.ini/",
+      "action": "IMPORT",
+      "target": "File(2:143~2:165) /test/1/opt/codex/backupset/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_097]
+sql:
+-- RESTORE_DATABASE_DIRECTORY_OPTIONS
+restore database to '/opt/codex/target' to shadow with check overwrite without mirror from backupset '/opt/codex/backupset';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:20~2:39) /test/1/opt/codex/target/",
+      "action": "IMPORT",
+      "target": "File(2:101~2:123) /test/1/opt/codex/backupset/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_098]
+sql:
+-- RESTORE_DATABASE_SHARED_OPTIONS
+restore database '/opt/codex/target/dm.ini' from backupset '/opt/codex/backupset' device type disk identified by "Dm8Test2026" encrypt with AES256_CFB with backupdir '/opt/codex/base1', '/opt/codex/base2' mapped file '/opt/codex/map.txt' task thread 2 rename to CODEX_DB use bak_magic 7 ignore corrupt auto_clear;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:17~2:43) /test/1/opt/codex/target/dm.ini/",
+      "action": "IMPORT",
+      "target": [
+        "File(2:59~2:81) /test/1/opt/codex/backupset/",
+        "File(2:166~2:184) /test/1/opt/codex/base1/",
+        "File(2:186~2:204) /test/1/opt/codex/base2/",
+        "File(2:217~2:237) /test/1/opt/codex/map.txt/"
+      ]
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_099]
+sql:
+-- RESTORE_TABLE_NAMED
+restore table CODEX_OWNER.CODEX_TAB from backupset '/opt/codex/table_backup';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Table(2:14~2:35) /test/1/catalog1/CODEX_OWNER/CODEX_TAB/",
+      "action": "IMPORT",
+      "target": "File(2:51~2:76) /test/1/opt/codex/table_backup/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_100]
+sql:
+-- RESTORE_TABLE_UNNAMED
+restore table from backupset '/opt/codex/table_backup';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Table(2:8~2:13) /test/1/",
+      "action": "IMPORT",
+      "target": "File(2:29~2:54) /test/1/opt/codex/table_backup/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_101]
+sql:
+-- RESTORE_TABLE_STRUCT
+restore table CODEX_OWNER.CODEX_TAB struct from backupset '/opt/codex/table_backup';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Table(2:14~2:35) /test/1/catalog1/CODEX_OWNER/CODEX_TAB/",
+      "action": "IMPORT",
+      "target": "File(2:58~2:83) /test/1/opt/codex/table_backup/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_102]
+sql:
+-- RESTORE_TABLE_KEEP_TRXID
+restore table CODEX_OWNER.CODEX_TAB keep trxid from backupset '/opt/codex/table_backup';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Table(2:14~2:35) /test/1/catalog1/CODEX_OWNER/CODEX_TAB/",
+      "action": "IMPORT",
+      "target": "File(2:62~2:87) /test/1/opt/codex/table_backup/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_103]
+sql:
+-- RESTORE_TABLE_WITHOUT_INDEX
+restore table struct without index from backupset '/opt/codex/table_backup';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Table(2:8~2:13) /test/1/",
+      "action": "IMPORT",
+      "target": "File(2:50~2:75) /test/1/opt/codex/table_backup/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_104]
+sql:
+-- RESTORE_TABLE_WITHOUT_CONSTRAINT
+restore table struct without constraint from backupset '/opt/codex/table_backup';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Table(2:8~2:13) /test/1/",
+      "action": "IMPORT",
+      "target": "File(2:55~2:80) /test/1/opt/codex/table_backup/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_105]
+sql:
+-- RESTORE_TABLE_OPTIONS
+restore table CODEX_OWNER.CODEX_TAB from backupset '/opt/codex/table_backup' device type disk identified by "Dm8Test2026" encrypt with AES256_CFB trace file '/opt/codex/table_restore.log' trace level 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Table(2:14~2:35) /test/1/catalog1/CODEX_OWNER/CODEX_TAB/",
+      "action": "IMPORT",
+      "target": "File(2:51~2:76) /test/1/opt/codex/table_backup/"
+    },
+    {
+      "subject": "File(2:157~2:187) /test/1/opt/codex/table_restore.log/",
+      "action": "EXPORT",
+      "target": "Table(2:14~2:35) /test/1/catalog1/CODEX_OWNER/CODEX_TAB/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_106]
+sql:
+-- RESTORE_TABLESPACE
+restore database '/opt/codex/target/dm.ini' tablespace CODEX_TS from backupset '/opt/codex/ts_backup';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Tablespace(2:55~2:63) /test/1/CODEX_TS/",
+      "action": "IMPORT",
+      "target": "File(2:79~2:101) /test/1/opt/codex/ts_backup/"
+    },
+    {
+      "subject": "File(2:17~2:43) /test/1/opt/codex/target/dm.ini/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_107]
+sql:
+-- RESTORE_TABLESPACE_BACKUPNAME
+restore database '/opt/codex/target/dm.ini' tablespace CODEX_TS from backupname CODEX_TS_BAK;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Tablespace(2:55~2:63) /test/1/CODEX_TS/",
+      "action": "IMPORT"
+    },
+    {
+      "subject": "File(2:17~2:43) /test/1/opt/codex/target/dm.ini/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_108]
+sql:
+-- RESTORE_TABLESPACE_WITH_CHECK
+restore database '/opt/codex/target/dm.ini' tablespace CODEX_TS with check from backupset '/opt/codex/ts_backup';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Tablespace(2:55~2:63) /test/1/CODEX_TS/",
+      "action": "IMPORT",
+      "target": "File(2:90~2:112) /test/1/opt/codex/ts_backup/"
+    },
+    {
+      "subject": "File(2:17~2:43) /test/1/opt/codex/target/dm.ini/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_109]
+sql:
+-- RESTORE_TABLESPACE_DATAFILE_IDS
+restore database '/opt/codex/target/dm.ini' tablespace CODEX_TS datafile 1, 2 from backupset '/opt/codex/ts_backup';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Tablespace(2:55~2:63) /test/1/CODEX_TS/",
+      "action": "IMPORT",
+      "target": "File(2:93~2:115) /test/1/opt/codex/ts_backup/"
+    },
+    {
+      "subject": "File(2:17~2:43) /test/1/opt/codex/target/dm.ini/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_110]
+sql:
+-- RESTORE_TABLESPACE_DATAFILE_PATHS
+restore database '/opt/codex/target/dm.ini' tablespace CODEX_TS datafile '/opt/codex/a.dbf', '/opt/codex/b.dbf' from backupset '/opt/codex/ts_backup';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Tablespace(2:55~2:63) /test/1/CODEX_TS/",
+      "action": "IMPORT",
+      "target": "File(2:127~2:149) /test/1/opt/codex/ts_backup/"
+    },
+    {
+      "subject": "File(2:73~2:91) /test/1/opt/codex/a.dbf/",
+      "action": "IMPORT",
+      "target": "File(2:127~2:149) /test/1/opt/codex/ts_backup/"
+    },
+    {
+      "subject": "File(2:93~2:111) /test/1/opt/codex/b.dbf/",
+      "action": "IMPORT",
+      "target": "File(2:127~2:149) /test/1/opt/codex/ts_backup/"
+    },
+    {
+      "subject": "File(2:17~2:43) /test/1/opt/codex/target/dm.ini/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_111]
+sql:
+-- RESTORE_TABLESPACE_OPTIONS
+restore database '/opt/codex/target/dm.ini' tablespace CODEX_TS from backupset '/opt/codex/ts_backup' device type disk identified by "Dm8Test2026" encrypt with AES256_CFB with backupdir '/opt/codex/base1', '/opt/codex/base2' mapped file '/opt/codex/map.txt' task thread 2 ignore corrupt auto clear;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Tablespace(2:55~2:63) /test/1/CODEX_TS/",
+      "action": "IMPORT",
+      "target": [
+        "File(2:79~2:101) /test/1/opt/codex/ts_backup/",
+        "File(2:186~2:204) /test/1/opt/codex/base1/",
+        "File(2:206~2:224) /test/1/opt/codex/base2/",
+        "File(2:237~2:257) /test/1/opt/codex/map.txt/"
+      ]
+    },
+    {
+      "subject": "File(2:17~2:43) /test/1/opt/codex/target/dm.ini/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_112]
+sql:
+-- RESTORE_ARCHIVE_DEFAULT
+restore archivelog from backupset '/opt/codex/arch_backup' to archivedir '/opt/codex/archive';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:73~2:93) /test/1/opt/codex/archive/",
+      "action": "IMPORT",
+      "target": "File(2:34~2:58) /test/1/opt/codex/arch_backup/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_113]
+sql:
+-- RESTORE_ARCHIVE_LOG
+restore archive log from backupset '/opt/codex/arch_backup' to database '/opt/codex/target/dm.ini';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:72~2:98) /test/1/opt/codex/target/dm.ini/",
+      "action": "IMPORT",
+      "target": "File(2:35~2:59) /test/1/opt/codex/arch_backup/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_114]
+sql:
+-- RESTORE_ARCHIVE_BACKUPNAME
+restore archivelog from backupname CODEX_ARCH_BAK to database '/opt/codex/target/dm.ini';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:62~2:88) /test/1/opt/codex/target/dm.ini/",
+      "action": "IMPORT"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_115]
+sql:
+-- RESTORE_ARCHIVE_WITH_CHECK
+restore archivelog with check from backupset '/opt/codex/arch_backup' to archivedir '/opt/codex/archive';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:84~2:104) /test/1/opt/codex/archive/",
+      "action": "IMPORT",
+      "target": "File(2:45~2:69) /test/1/opt/codex/arch_backup/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_116]
+sql:
+-- RESTORE_ARCHIVE_OPTIONS
+restore archivelog from backupset '/opt/codex/arch_backup' device type disk identified by "Dm8Test2026" encrypt with AES256_CFB task thread 2 not parallel all to archivedir '/opt/codex/archive' overwrite 3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:173~2:193) /test/1/opt/codex/archive/",
+      "action": "IMPORT",
+      "target": "File(2:34~2:58) /test/1/opt/codex/arch_backup/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_117]
+sql:
+-- RESTORE_ARCHIVE_LSN_RANGE
+restore archivelog from backupset '/opt/codex/arch_backup' lsn between 100 and 200 to archivedir '/opt/codex/archive';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:97~2:117) /test/1/opt/codex/archive/",
+      "action": "IMPORT",
+      "target": "File(2:34~2:58) /test/1/opt/codex/arch_backup/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_118]
+sql:
+-- RESTORE_ARCHIVE_TIME_RANGE
+restore archivelog from backupset '/opt/codex/arch_backup' time between '2026-07-01' and '2026-07-02' to archivedir '/opt/codex/archive';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:116~2:136) /test/1/opt/codex/archive/",
+      "action": "IMPORT",
+      "target": "File(2:34~2:58) /test/1/opt/codex/arch_backup/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_119]
+sql:
+-- RECOVER_DATABASE_BACKUPSET
+recover database '/opt/codex/target/dm.ini' from backupset '/opt/codex/backupset';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:17~2:43) /test/1/opt/codex/target/dm.ini/",
+      "action": "IMPORT",
+      "target": "File(2:59~2:81) /test/1/opt/codex/backupset/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_120]
+sql:
+-- RECOVER_DATABASE_BACKUPNAME
+recover database '/opt/codex/target/dm.ini' from backupname CODEX_DB_BAK;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:17~2:43) /test/1/opt/codex/target/dm.ini/",
+      "action": "IMPORT"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_121]
+sql:
+-- RECOVER_DATABASE_ARCHIVEDIR
+recover database '/opt/codex/target/dm.ini' with archivedir '/opt/codex/arch1', '/opt/codex/arch2' use db_magic 7 until time '2026-07-01' until lsn 100;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:17~2:43) /test/1/opt/codex/target/dm.ini/",
+      "action": "IMPORT",
+      "target": [
+        "File(2:60~2:78) /test/1/opt/codex/arch1/",
+        "File(2:80~2:98) /test/1/opt/codex/arch2/"
+      ]
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_122]
+sql:
+-- RECOVER_DATABASE_FOR_STANDBY
+recover database '/opt/codex/target/dm.ini' for standby from backupset '/opt/codex/backupset' until end_lsn;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:17~2:43) /test/1/opt/codex/target/dm.ini/",
+      "action": "IMPORT",
+      "target": "File(2:71~2:93) /test/1/opt/codex/backupset/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_123]
+sql:
+-- RECOVER_DATABASE_BACKUP_OPTIONS
+recover database '/opt/codex/target/dm.ini' from backupset '/opt/codex/backupset' device type disk identified by "Dm8Test2026" encrypt with AES256_CFB use bak_magic 7;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:17~2:43) /test/1/opt/codex/target/dm.ini/",
+      "action": "IMPORT",
+      "target": "File(2:59~2:81) /test/1/opt/codex/backupset/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_124]
+sql:
+-- RECOVER_DATABASE_UPDATE_MAGIC
+recover database '/opt/codex/target/dm.ini' update db_magic;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:17~2:43) /test/1/opt/codex/target/dm.ini/",
+      "action": "RECOVER"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_125]
+sql:
+-- RECOVER_DATABASE_DEFAULT_ARCHIVE
+recover database '/opt/codex/target/dm.ini';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:17~2:43) /test/1/opt/codex/target/dm.ini/",
+      "action": "IMPORT"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_126]
+sql:
+-- RECOVER_TABLESPACE
+recover database '/opt/codex/target/dm.ini' tablespace CODEX_TS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Tablespace(2:55~2:63) /test/1/CODEX_TS/",
+      "action": "IMPORT"
+    },
+    {
+      "subject": "File(2:17~2:43) /test/1/opt/codex/target/dm.ini/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_127]
+sql:
+-- RECOVER_TABLESPACE_OPTIONS
+recover database '/opt/codex/target/dm.ini' tablespace CODEX_TS with archivedir '/opt/codex/arch1', '/opt/codex/arch2' use db_magic 7 until time '2026-07-01' until lsn 100;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Tablespace(2:55~2:63) /test/1/CODEX_TS/",
+      "action": "IMPORT",
+      "target": [
+        "File(2:80~2:98) /test/1/opt/codex/arch1/",
+        "File(2:100~2:118) /test/1/opt/codex/arch2/"
+      ]
+    },
+    {
+      "subject": "File(2:17~2:43) /test/1/opt/codex/target/dm.ini/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_128]
+sql:
+-- REPAIR_ARCHIVELOG
+repair archivelog database '/opt/codex/source/dm.ini';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Log(2:7~2:17) /test/1/",
+      "action": "REPAIR"
+    },
+    {
+      "subject": "File(2:27~2:53) /test/1/opt/codex/source/dm.ini/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_129]
+sql:
+-- REPAIR_ARCHIVE_LOG
+repair archive log database '/opt/codex/source/dm.ini';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Log(2:7~2:18) /test/1/",
+      "action": "REPAIR"
+    },
+    {
+      "subject": "File(2:28~2:54) /test/1/opt/codex/source/dm.ini/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_130]
+sql:
+-- CONFIGURE_SHOW
+configure;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": []
+}
+----------
+[split_admin_dameng_backupset_atomic_0_131]
+sql:
+-- CONFIGURE_DEFAULT_SHOW
+configure default;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": []
+}
+----------
+[split_admin_dameng_backupset_atomic_0_132]
+sql:
+-- CONFIGURE_CLEAR
+configure clear;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "ConfigKey(2:10~2:15) /test/1/",
+      "action": "CONFIGURE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_133]
+sql:
+-- CONFIGURE_DEVICE
+configure default device type disk;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "ConfigKey(2:18~2:29) /test/1/DEVICE_TYPE/",
+      "action": "CONFIGURE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_134]
+sql:
+-- CONFIGURE_DEVICE_PARMS
+configure default device type tape parms '/dev/nst0';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "ConfigKey(2:18~2:29) /test/1/DEVICE_TYPE/",
+      "action": "CONFIGURE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_135]
+sql:
+-- CONFIGURE_DEVICE_CLEAR
+configure default device clear;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "ConfigKey(2:18~2:24) /test/1/DEVICE_TYPE/",
+      "action": "CONFIGURE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_136]
+sql:
+-- CONFIGURE_TRACE_FILE
+configure default trace file '/opt/codex/rman_trace.log' trace level 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "ConfigKey(2:18~2:23) /test/1/TRACE/",
+      "action": "CONFIGURE",
+      "target": "File(2:29~2:56) /test/1/opt/codex/rman_trace.log/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_137]
+sql:
+-- CONFIGURE_TRACE_LEVEL
+configure default trace level 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "ConfigKey(2:18~2:23) /test/1/TRACE/",
+      "action": "CONFIGURE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_138]
+sql:
+-- CONFIGURE_TRACE_CLEAR
+configure default trace clear;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "ConfigKey(2:18~2:23) /test/1/TRACE/",
+      "action": "CONFIGURE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_139]
+sql:
+-- CONFIGURE_BACKUPDIR_ADD
+configure default backupdir add '/opt/codex/bak1', '/opt/codex/bak2';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "ConfigKey(2:18~2:27) /test/1/BACKUPDIR/",
+      "action": "CONFIGURE",
+      "target": [
+        "File(2:32~2:49) /test/1/opt/codex/bak1/",
+        "File(2:51~2:68) /test/1/opt/codex/bak2/"
+      ]
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_140]
+sql:
+-- CONFIGURE_BACKUPDIR_DELETE
+configure default backupdir delete '/opt/codex/bak1';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "ConfigKey(2:18~2:27) /test/1/BACKUPDIR/",
+      "action": "CONFIGURE",
+      "target": "File(2:35~2:52) /test/1/opt/codex/bak1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_141]
+sql:
+-- CONFIGURE_BACKUPDIR_CLEAR
+configure default backupdir clear;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "ConfigKey(2:18~2:27) /test/1/BACKUPDIR/",
+      "action": "CONFIGURE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_142]
+sql:
+-- CONFIGURE_ARCHIVEDIR_ADD
+configure default archivedir add '/opt/codex/arch1', '/opt/codex/arch2';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "ConfigKey(2:18~2:28) /test/1/ARCHIVEDIR/",
+      "action": "CONFIGURE",
+      "target": [
+        "File(2:33~2:51) /test/1/opt/codex/arch1/",
+        "File(2:53~2:71) /test/1/opt/codex/arch2/"
+      ]
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_143]
+sql:
+-- CONFIGURE_ARCHIVEDIR_DELETE
+configure default archivedir delete '/opt/codex/arch1';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "ConfigKey(2:18~2:28) /test/1/ARCHIVEDIR/",
+      "action": "CONFIGURE",
+      "target": "File(2:36~2:54) /test/1/opt/codex/arch1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_144]
+sql:
+-- CONFIGURE_ARCHIVEDIR_CLEAR
+configure default archivedir clear;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "ConfigKey(2:18~2:28) /test/1/ARCHIVEDIR/",
+      "action": "CONFIGURE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_145]
+sql:
+-- CONFIGURE_OPEN_FILES
+configure default open files 64;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "ConfigKey(2:18~2:28) /test/1/OPEN_FILES/",
+      "action": "CONFIGURE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_146]
+sql:
+-- CONFIGURE_OPEN_FILES_CLEAR
+configure default open files clear;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "ConfigKey(2:18~2:28) /test/1/OPEN_FILES/",
+      "action": "CONFIGURE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_147]
+sql:
+-- MERGE_DATABASE
+merge database '/opt/codex/target/dm.ini' from backupset '/opt/codex/increment';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:15~2:41) /test/1/opt/codex/target/dm.ini/",
+      "action": "IMPORT",
+      "target": "File(2:57~2:79) /test/1/opt/codex/increment/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_148]
+sql:
+-- MERGE_DATABASE_TARGET_OPTIONS
+merge database '/opt/codex/target/dm.ini' with check without space auto extend overwrite from backupset '/opt/codex/increment';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:15~2:41) /test/1/opt/codex/target/dm.ini/",
+      "action": "IMPORT",
+      "target": "File(2:104~2:126) /test/1/opt/codex/increment/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backupset_atomic_0_149]
+sql:
+-- MERGE_DATABASE_OPTIONS
+merge database '/opt/codex/target/dm.ini' from backupset '/opt/codex/increment' device type disk identified by "Dm8Test2026" encrypt with AES256_CFB with backupdir '/opt/codex/base1', '/opt/codex/base2' task thread 2 rename to CODEX_DB use bak_magic 7 ignore corrupt auto clear;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:15~2:41) /test/1/opt/codex/target/dm.ini/",
+      "action": "IMPORT",
+      "target": [
+        "File(2:57~2:79) /test/1/opt/codex/increment/",
+        "File(2:164~2:182) /test/1/opt/codex/base1/",
+        "File(2:184~2:202) /test/1/opt/codex/base2/"
+      ]
+    }
+  ]
+}

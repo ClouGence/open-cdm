@@ -1,0 +1,12 @@
+[xmlparser_object_columns]
+sql:
+select object_name, object_type, status
+from catalog1.sys.dba_objects
+where object_name='DBMS_XMLPARSER'
+expect:
+{
+  "object_name" : [ "/catalog1/sys/dba_objects/object_name/" ],
+  "object_type" : [ "/catalog1/sys/dba_objects/object_type/" ],
+  "status" : [ "/catalog1/sys/dba_objects/status/" ]
+}
+

@@ -98,6 +98,7 @@ const flowFormBasicRule = {
 
 const flowPipelineRule = {
   repoScmId: [{ required: true, message: 'Git服务商不能为空' }],
+  repoSelectionKey: [{ required: true, message: i18n.global.t('qing-xuan-ze-cang-ku') }],
   repoName: [{ required: true, message: '仓库不能为空' }],
   repoBranch: [{ required: true, message: '分支不能为空' }],
   eventType: [{ required: true, message: '事件不能为空' }],
@@ -130,6 +131,7 @@ const formDevopsRules = {
 
 const formRule = {
   repoScmId: [{ required: true, message: '请选择服务商' }],
+  repoSelectionKey: [{ required: true, message: i18n.global.t('qing-xuan-ze-cang-ku') }],
   repoName: [{ required: true, message: '请选择仓库' }],
   repoBranch: [{ required: true, message: '请输入分支' }],
   repoScriptPath: [{ required: false, message: '请输入脚本路径' }],

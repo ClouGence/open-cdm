@@ -1,0 +1,98 @@
+[MyParseColumnFunctionTest.test1]
+sql:
+select test_function(1) from table1
+expect:
+{
+  "test_function(1)" : []
+}
+----------
+[MyParseColumnFunctionTest.test2]
+sql:
+select test_function(column1) from table1
+expect:
+{
+  "test_function(column1)" : [ "(1:21~1:28) /catalog1/schema1/table1/column1/" ]
+}
+----------
+[MyParseColumnFunctionTest.test3]
+sql:
+select test_function(32)
+expect:
+{
+  "test_function(32)" : []
+}
+----------
+[MyParseColumnFunctionTest.test4]
+sql:
+select cast(column1 as char) as f from table1
+expect:
+{
+  "f" : [ "(1:12~1:19) /catalog1/schema1/table1/column1/" ]
+}
+----------
+[MyParseColumnFunctionTest.test5]
+sql:
+select f from (select cast(column1 as char) as f from table1)c
+expect:
+{
+  "f" : [ "(1:27~1:34) /catalog1/schema1/table1/column1/" ]
+}
+----------
+[MyParseColumnFunctionTest.test6]
+sql:
+select test_func((select column1 from table2)) from table1
+expect:
+{
+  "test_func((select column1 from table2))" : [ "(1:25~1:32) /catalog1/schema1/table2/column1/" ]
+}
+----------
+[MyParseColumnFunctionTest.test7]
+sql:
+select test_func((select test_func1((select column1 from schema2.table1),column1) from table2),column1) from table1
+expect:
+{
+  "test_func((select test_func1((select column1 from schema2.table1),column1) from table2),column1)" : [ "(1:44~1:51) /catalog1/schema2/table1/column1/", "(1:73~1:80) /catalog1/schema1/table2/column1/", "(1:95~1:102) /catalog1/schema1/table1/column1/" ]
+}
+----------
+[weight_string_source]
+sql:
+select WEIGHT_STRING(column1) as weighted from table1
+expect:
+{
+  "weighted" : [ "(1:21~1:28) /catalog1/schema1/table1/column1/" ]
+}
+----------
+[window_order_by_previous_alias]
+sql:
+select column1 as window_alias, row_number() over (order by window_alias) as rn from table1
+expect:
+{
+  "window_alias" : [ "(1:7~1:14) /catalog1/schema1/table1/column1/" ],
+  "rn" : [ "(1:7~1:14) /catalog1/schema1/table1/column1/" ]
+}
+----------
+[named_window_sources]
+sql:
+select row_number() over w as rn from table1 window w as (partition by column1 order by column2)
+expect:
+{
+  "rn" : [ "(1:71~1:78) /catalog1/schema1/table1/column1/", "(1:88~1:95) /catalog1/schema1/table1/column2/" ]
+}
+----------
+[inherited_named_window_sources]
+sql:
+select row_number() over w2 as rn from table1 window w1 as (partition by column1), w2 as (w1 order by column2)
+expect:
+{
+  "rn" : [ "(1:73~1:80) /catalog1/schema1/table1/column1/", "(1:102~1:109) /catalog1/schema1/table1/column2/" ]
+}
+----------
+[straight_join_source]
+sql:
+select table1.column1, table2.column2 from table1 straight_join table2 on table1.column1 = table2.column1
+expect:
+{
+  "column1" : [ "(1:7~1:21) /catalog1/schema1/table1/column1/" ],
+  "column2" : [ "(1:23~1:37) /catalog1/schema1/table2/column2/" ]
+}
+----------

@@ -63,6 +63,4 @@ public interface RdbSupportSpi extends Spi {
     RdbSupportLevel supportArgs(DataSourceConfig dsConfig);
 
     List<RdbIsolation> supportIsolation();
-
-    boolean supportMultiStatement(boolean isDesktop);
 }

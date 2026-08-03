@@ -1,0 +1,4 @@
+{
+  "known": true,
+  "features": ["ANSI_QUOTES", "PIPES_AS_CONCAT", "IGNORE_SPACE"]
+}

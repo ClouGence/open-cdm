@@ -1,0 +1,21 @@
+SELECT pg_get_wal_replay_pause_state();
+SELECT pg_wal_replay_pause();
+SELECT pg_is_wal_replay_paused() AS replay_pause_requested;
+SELECT pg_get_wal_replay_pause_state() IN ('pause requested', 'paused') AS pause_requested_or_paused;
+SELECT pg_wal_replay_resume();
+SELECT pg_get_wal_replay_pause_state();
+SELECT pg_is_wal_replay_paused() AS replay_paused_after_resume;
+------------------------------------------------------------------------------------------
+[SELECT|LOG_READ] SELECT pg_get_wal_replay_pause_state();
+----------
+[SELECT|ADMIN_REPLICATION] SELECT pg_wal_replay_pause();
+----------
+[SELECT|LOG_READ] SELECT pg_is_wal_replay_paused() AS replay_pause_requested;
+----------
+[SELECT|LOG_READ] SELECT pg_get_wal_replay_pause_state() IN ('pause requested', 'paused') AS pause_requested_or_paused;
+----------
+[SELECT|ADMIN_REPLICATION] SELECT pg_wal_replay_resume();
+----------
+[SELECT|LOG_READ] SELECT pg_get_wal_replay_pause_state();
+----------
+[SELECT|LOG_READ] SELECT pg_is_wal_replay_paused() AS replay_paused_after_resume;

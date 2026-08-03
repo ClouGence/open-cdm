@@ -1,0 +1,89 @@
+[split_dml_dameng_table_readonly_effects_0_001]
+sql:
+select id, note from codex_dm8_table_readonly;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:21~1:45) /test/1/catalog1/schema1/codex_dm8_table_readonly/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dml_dameng_table_readonly_effects_0_002]
+sql:
+insert into codex_dm8_table_readonly values(2, 'INSERT');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:36) /test/1/catalog1/schema1/codex_dm8_table_readonly/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_table_readonly_effects_0_003]
+sql:
+update codex_dm8_table_readonly set note='UPDATE' where id=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:31) /test/1/catalog1/schema1/codex_dm8_table_readonly/",
+      "action": "UPDATE"
+    }
+  ]
+}
+----------
+[split_dml_dameng_table_readonly_effects_0_004]
+sql:
+delete from codex_dm8_table_readonly where id=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:36) /test/1/catalog1/schema1/codex_dm8_table_readonly/",
+      "action": "DELETE"
+    }
+  ]
+}
+----------
+[split_dml_dameng_table_readonly_effects_0_005]
+sql:
+truncate table codex_dm8_table_readonly;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRUNCATE_TABLE": [
+    {
+      "subject": "Table(1:15~1:39) /test/1/catalog1/schema1/codex_dm8_table_readonly/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_dml_dameng_table_readonly_effects_0_006]
+sql:
+alter table codex_dm8_table_readonly add c2 int;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_COLUMN": [
+    {
+      "subject": "Table(1:12~1:36) /test/1/catalog1/schema1/codex_dm8_table_readonly/",
+      "action": "ALTER"
+    }
+  ]
+}

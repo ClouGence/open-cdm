@@ -24,7 +24,6 @@ dependencies {
     api "org.antlr:antlr4-runtime:${ANTLR_VERSION}"
     api project(':cg-dslparser')
     api project(':sqlc-common')
-    api files('../../clouddm-ds/lib/druid-1.2.25-SNAPSHOT.jar')
 }
 
 description = 'sql-db2'

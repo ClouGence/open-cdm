@@ -20,6 +20,7 @@
 </template>
 
 <script>
+import appLogger from '@/utils/logger';
 import i18n from '@/i18n';
 
 const iconMapping = {
@@ -86,7 +87,7 @@ export default {
           this.close();
         }
       } catch (err) {
-        console.error(err);
+        appLogger.error(err);
       }
     },
     removeQuotes(str) {

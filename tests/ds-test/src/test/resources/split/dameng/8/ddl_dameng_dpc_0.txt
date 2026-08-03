@@ -1,0 +1,61 @@
+create tablespace CODEX_DPC_TS1 datafile 'CODEX_DPC_TS1.DBF' size 128 storage(on RAFT_1);
+create tablespace CODEX_DPC_TS2 datafile 'CODEX_DPC_TS2.DBF' size 128 storage(on RAFT_2);
+create user CODEX_DPC_USER identified by CodexDpc8C default tablespace group CODEX_DPC_TSG;
+alter user CODEX_DPC_USER default tablespace group CODEX_DPC_TSG;
+create partition group CODEX_DPC_PG_RANGE partition by range(int)
+(partition P1 values less than(100) storage(on CODEX_DPC_TS1),
+ partition P2 values less than(maxvalue) storage(on CODEX_DPC_TS2));
+create partition group CODEX_DPC_PG_HASH partition by hash(varchar(40))
+partitions 4 storage(on CODEX_DPC_TS1, CODEX_DPC_TS2);
+create table CODEX_DPC_NORMAL(ID int primary key, NOTE varchar(40)) storage(on CODEX_DPC_TSG);
+create table CODEX_DPC_RANGE(ID int, NOTE varchar(40))
+using partition group CODEX_DPC_PG_RANGE by(ID);
+create table CODEX_DPC_HASH(CODE varchar(40), AMOUNT int)
+using partition group CODEX_DPC_PG_HASH by(CODE);
+drop table CODEX_DPC_HASH purge;
+drop table CODEX_DPC_RANGE purge;
+drop table CODEX_DPC_NORMAL purge;
+drop partition group CODEX_DPC_PG_HASH;
+drop partition group CODEX_DPC_PG_RANGE;
+drop user CODEX_DPC_USER cascade;
+drop tablespace CODEX_DPC_TS2;
+drop tablespace CODEX_DPC_TS1;
+------------------------------------------------------------------------------------------
+[CREATE_TABLESPACE] create tablespace CODEX_DPC_TS1 datafile 'CODEX_DPC_TS1.DBF' size 128 storage(on RAFT_1);
+----------
+[CREATE_TABLESPACE] create tablespace CODEX_DPC_TS2 datafile 'CODEX_DPC_TS2.DBF' size 128 storage(on RAFT_2);
+----------
+[CREATE_USER] create user CODEX_DPC_USER identified by CodexDpc8C default tablespace group CODEX_DPC_TSG;
+----------
+[ALTER_USER] alter user CODEX_DPC_USER default tablespace group CODEX_DPC_TSG;
+----------
+[UNKNOWN] create partition group CODEX_DPC_PG_RANGE partition by range(int)
+(partition P1 values less than(100) storage(on CODEX_DPC_TS1),
+ partition P2 values less than(maxvalue) storage(on CODEX_DPC_TS2));
+----------
+[UNKNOWN] create partition group CODEX_DPC_PG_HASH partition by hash(varchar(40))
+partitions 4 storage(on CODEX_DPC_TS1, CODEX_DPC_TS2);
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table CODEX_DPC_NORMAL(ID int primary key, NOTE varchar(40)) storage(on CODEX_DPC_TSG);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table CODEX_DPC_RANGE(ID int, NOTE varchar(40))
+using partition group CODEX_DPC_PG_RANGE by(ID);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table CODEX_DPC_HASH(CODE varchar(40), AMOUNT int)
+using partition group CODEX_DPC_PG_HASH by(CODE);
+----------
+[DROP_TABLE] drop table CODEX_DPC_HASH purge;
+----------
+[DROP_TABLE] drop table CODEX_DPC_RANGE purge;
+----------
+[DROP_TABLE] drop table CODEX_DPC_NORMAL purge;
+----------
+[UNKNOWN] drop partition group CODEX_DPC_PG_HASH;
+----------
+[UNKNOWN] drop partition group CODEX_DPC_PG_RANGE;
+----------
+[DROP_USER] drop user CODEX_DPC_USER cascade;
+----------
+[DROP_TABLESPACE] drop tablespace CODEX_DPC_TS2;
+----------
+[DROP_TABLESPACE] drop tablespace CODEX_DPC_TS1;

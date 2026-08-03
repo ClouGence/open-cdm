@@ -1,0 +1,52 @@
+[binary_projection]
+sql:
+select binary t.c1 c1_hex,t.id
+from catalog1.app.binary_t t
+expect:
+{
+  "c1_hex": ["/catalog1/app/binary_t/c1/"],
+  "id": ["/catalog1/app/binary_t/id/"]
+}
+----------
+[binary_derived_projection]
+sql:
+select q.c1_hex
+from(
+  select binary t.c1 c1_hex from catalog1.app.binary_t t
+) q
+expect:
+{
+  "c1_hex": ["/catalog1/app/binary_t/c1/"]
+}
+----------
+[binary_join_columns]
+sql:
+select t.c2,d.c1
+from catalog1.app.binary_t t
+join catalog1.app.binary_dim d on binary t.c2=d.c1
+expect:
+{
+  "c2": ["/catalog1/app/binary_t/c2/"],
+  "c1": ["/catalog1/app/binary_dim/c1/"]
+}
+----------
+[binary_aggregate]
+sql:
+select max(binary t.c2) max_c2
+from catalog1.app.binary_t t
+expect:
+{
+  "max_c2": ["/catalog1/app/binary_t/c2/"]
+}
+----------
+[binary_analytic]
+sql:
+select lag(binary t.c2) over(order by binary t.c1) previous_c2
+from catalog1.app.binary_t t
+expect:
+{
+  "previous_c2": [
+    "/catalog1/app/binary_t/c2/",
+    "/catalog1/app/binary_t/c1/"
+  ]
+}

@@ -1,0 +1,1156 @@
+-- FUNC-0840 COLUMN_STATS_SHOW
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.COLUMN_STATS_SHOW(OWNNAME=>'SYSDBA',TABNAME=>'CODEX_STATS_T',COLNAME=>'CATEGORY'); end;
+/
+-- FUNC-0841 CONV_DATA
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.CONV_DATA(OWNNAME=>'SYSDBA',TABNAME=>'CODEX_STATS_T',COLNAME=>'ID',DATA=>'1',RESVAL=>v); end;
+/
+-- FUNC-0842 CONVERT_RAW_VALUE
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.CONVERT_RAW_VALUE(I_RAW=>raw_number,M_N=>n); end;
+/
+-- FUNC-0843 CONVERT_RAW_VALUE
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.CONVERT_RAW_VALUE(I_RAW=>raw_datetime,M_N=>dt); end;
+/
+-- FUNC-0844 CONVERT_RAW_VALUE
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.CONVERT_RAW_VALUE(I_RAW=>raw_varchar,M_N=>v); end;
+/
+-- FUNC-0845 CONVERT_RAW_VALUE
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.CONVERT_RAW_VALUE(I_RAW=>raw_double,M_N=>dbl); end;
+/
+-- FUNC-0846 COPY_TABLE_STATS
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.COPY_TABLE_STATS(OWNNAME=>'SYSDBA',TABNAME=>'CODEX_STATS_PART',SRCPARTNAME=>'P_LOW',DSTPARTNAME=>'P_HIGH',SCALE_FACTOR=>'1',FORCE=>FALSE); end;
+/
+-- FUNC-0847 CREATE_STAT_TABLE
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.CREATE_STAT_TABLE(STATOWN=>'SYSDBA',STATTAB=>'CODEX_STATS_EVID',TABLESPACE=>NULL,GLOBAL_TEMPORARY=>FALSE); end;
+/
+-- FUNC-0848 DELETE_COLUMN_STATS
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.DELETE_COLUMN_STATS(OWNNAME=>'SYSDBA',TABNAME=>'CODEX_STATS_T',COLNAME=>'AMOUNT',FORCE=>FALSE); end;
+/
+-- FUNC-0849 DELETE_INDEX_STATS
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.DELETE_INDEX_STATS(OWNNAME=>'SYSDBA',INDNAME=>'CODEX_STATS_T_IDX',FORCE=>FALSE); end;
+/
+-- FUNC-0850 DELETE_SCHEMA_STATS
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.DELETE_SCHEMA_STATS(OWNNAME=>'CODEX_STATS_U',FORCE=>FALSE); end;
+/
+-- FUNC-0851 DELETE_TABLE_STATS
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.DELETE_TABLE_STATS(OWNNAME=>'SYSDBA',TABNAME=>'CODEX_STATS_T',FORCE=>FALSE); end;
+/
+-- FUNC-0852 DROP_STAT_TABLE
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.DROP_STAT_TABLE(STATOWN=>'SYSDBA',STATTAB=>'CODEX_STATS_EVID'); end;
+/
+-- FUNC-0853 EXPORT_DATABASE_STATS
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.EXPORT_DATABASE_STATS(STATTAB=>'CODEX_STATS_EVID',STATID=>'BASE',STATOWN=>'SYSDBA'); end;
+/
+-- FUNC-0854 EXPORT_SCHEMA_STATS
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.EXPORT_SCHEMA_STATS(OWNNAME=>'SYSDBA',STATTAB=>'CODEX_STATS_EVID',STATID=>'BASE',STATOWN=>'SYSDBA'); end;
+/
+-- FUNC-0855 EXPORT_TABLE_STATS
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.EXPORT_TABLE_STATS(OWNNAME=>'SYSDBA',TABNAME=>'CODEX_STATS_T',STATTAB=>'CODEX_STATS_EVID',STATID=>'BASE',STATOWN=>'SYSDBA'); end;
+/
+-- FUNC-0856 GATHER_INDEX_STATS
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.GATHER_INDEX_STATS(OWNNAME=>'SYSDBA',INDNAME=>'CODEX_STATS_T_IDX',ESTIMATE_PERCENT=>100); end;
+/
+-- FUNC-0857 GATHER_SCHEMA_STATS
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.GATHER_SCHEMA_STATS(OWNNAME=>'CODEX_STATS_U',ESTIMATE_PERCENT=>100); end;
+/
+-- FUNC-0858 GATHER_TABLE_STATS
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.GATHER_TABLE_STATS(OWNNAME=>'SYSDBA',TABNAME=>'CODEX_STATS_T',ESTIMATE_PERCENT=>100,CASCADE=>TRUE); end;
+/
+-- FUNC-0859 GET_COLUMN_STATS
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.GET_COLUMN_STATS(OWNNAME=>'SYSDBA',TABNAME=>'CODEX_STATS_T',COLNAME=>'ID',DISTCNT=>n,DENSITY=>n,NULLCNT=>n,SREC=>srec,AVGCLEN=>n); end;
+/
+-- FUNC-0860 GET_PREFS
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin v:=DBMS_STATS.GET_PREFS(PPNAME=>'STALE_PERCENT',OWNNAME=>'SYSDBA',TABNAME=>'CODEX_STATS_T'); end;
+/
+-- FUNC-0861 IMPORT_DATABASE_STATS
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.IMPORT_DATABASE_STATS(STATTAB=>'CODEX_STATS_EVID',STATID=>'BASE',STATOWN=>'SYSDBA'); end;
+/
+-- FUNC-0862 IMPORT_SCHEMA_STATS
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.IMPORT_SCHEMA_STATS(OWNNAME=>'SYSDBA',STATTAB=>'CODEX_STATS_EVID',STATID=>'BASE',STATOWN=>'SYSDBA'); end;
+/
+-- FUNC-0863 IMPORT_TABLE_STATS
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.IMPORT_TABLE_STATS(OWNNAME=>'SYSDBA',TABNAME=>'CODEX_STATS_T',STATTAB=>'CODEX_STATS_EVID',STATID=>'BASE',STATOWN=>'SYSDBA'); end;
+/
+-- FUNC-0864 IMPORT_TABLE_STATS_CUSTOM
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.IMPORT_TABLE_STATS_CUSTOM(OWNNAME=>'SYSDBA',TABNAME=>'CODEX_STATS_T',STATTAB=>'CODEX_STATS_EVID',STATID=>'BASE',STATOWN=>'SYSDBA'); end;
+/
+-- FUNC-0865 INDEX_STATS_SHOW
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.INDEX_STATS_SHOW(OWNNAME=>'SYSDBA',INDEXNAME=>'CODEX_STATS_T_IDX'); end;
+/
+-- FUNC-0866 PREPARE_COLUMN_VALUES
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.PREPARE_COLUMN_VALUES(SREC=>srec,CHARVALS=>chars); end;
+/
+-- FUNC-0867 PREPARE_COLUMN_VALUES
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.PREPARE_COLUMN_VALUES(SREC=>srec,NUMVALS=>nums); end;
+/
+-- FUNC-0868 PREPARE_COLUMN_VALUES
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.PREPARE_COLUMN_VALUES(SREC=>srec,TSVALS=>dates); end;
+/
+-- FUNC-0869 SET_COLUMN_STATS
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.SET_COLUMN_STATS(OWNNAME=>'SYSDBA',TABNAME=>'CODEX_STATS_T',COLNAME=>'ID'); end;
+/
+-- FUNC-0870 SET_TABLE_PREFS
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.SET_TABLE_PREFS(OWNNAME=>'SYSDBA',TABNAME=>'CODEX_STATS_T',PPNAME=>'STALE_PERCENT',PVALUE=>'25'); end;
+/
+-- FUNC-0871 SET_TABLE_STATS
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.SET_TABLE_STATS(OWNNAME=>'SYSDBA',TABNAME=>'CODEX_STATS_T',NUMROWS=>3,NUMBLKS=>1,AVGRLEN=>32); end;
+/
+-- FUNC-0872 TABLE_STATS_SHOW
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.TABLE_STATS_SHOW(OWNNAME=>'SYSDBA',TABNAME=>'CODEX_STATS_T'); end;
+/
+-- FUNC-0873 UPDATE_ALL_STATS
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.UPDATE_ALL_STATS(); end;
+/
+------------------------------------------------------------------------------------------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0840 COLUMN_STATS_SHOW
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.COLUMN_STATS_SHOW(OWNNAME=>'SYSDBA',TABNAME=>'CODEX_STATS_T',COLNAME=>'CATEGORY'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0841 CONV_DATA
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.CONV_DATA(OWNNAME=>'SYSDBA',TABNAME=>'CODEX_STATS_T',COLNAME=>'ID',DATA=>'1',RESVAL=>v); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0842 CONVERT_RAW_VALUE
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.CONVERT_RAW_VALUE(I_RAW=>raw_number,M_N=>n); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0843 CONVERT_RAW_VALUE
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.CONVERT_RAW_VALUE(I_RAW=>raw_datetime,M_N=>dt); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0844 CONVERT_RAW_VALUE
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.CONVERT_RAW_VALUE(I_RAW=>raw_varchar,M_N=>v); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0845 CONVERT_RAW_VALUE
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.CONVERT_RAW_VALUE(I_RAW=>raw_double,M_N=>dbl); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0846 COPY_TABLE_STATS
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.COPY_TABLE_STATS(OWNNAME=>'SYSDBA',TABNAME=>'CODEX_STATS_PART',SRCPARTNAME=>'P_LOW',DSTPARTNAME=>'P_HIGH',SCALE_FACTOR=>'1',FORCE=>FALSE); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0847 CREATE_STAT_TABLE
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.CREATE_STAT_TABLE(STATOWN=>'SYSDBA',STATTAB=>'CODEX_STATS_EVID',TABLESPACE=>NULL,GLOBAL_TEMPORARY=>FALSE); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0848 DELETE_COLUMN_STATS
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.DELETE_COLUMN_STATS(OWNNAME=>'SYSDBA',TABNAME=>'CODEX_STATS_T',COLNAME=>'AMOUNT',FORCE=>FALSE); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0849 DELETE_INDEX_STATS
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.DELETE_INDEX_STATS(OWNNAME=>'SYSDBA',INDNAME=>'CODEX_STATS_T_IDX',FORCE=>FALSE); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0850 DELETE_SCHEMA_STATS
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.DELETE_SCHEMA_STATS(OWNNAME=>'CODEX_STATS_U',FORCE=>FALSE); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0851 DELETE_TABLE_STATS
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.DELETE_TABLE_STATS(OWNNAME=>'SYSDBA',TABNAME=>'CODEX_STATS_T',FORCE=>FALSE); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0852 DROP_STAT_TABLE
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.DROP_STAT_TABLE(STATOWN=>'SYSDBA',STATTAB=>'CODEX_STATS_EVID'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0853 EXPORT_DATABASE_STATS
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.EXPORT_DATABASE_STATS(STATTAB=>'CODEX_STATS_EVID',STATID=>'BASE',STATOWN=>'SYSDBA'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0854 EXPORT_SCHEMA_STATS
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.EXPORT_SCHEMA_STATS(OWNNAME=>'SYSDBA',STATTAB=>'CODEX_STATS_EVID',STATID=>'BASE',STATOWN=>'SYSDBA'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0855 EXPORT_TABLE_STATS
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.EXPORT_TABLE_STATS(OWNNAME=>'SYSDBA',TABNAME=>'CODEX_STATS_T',STATTAB=>'CODEX_STATS_EVID',STATID=>'BASE',STATOWN=>'SYSDBA'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0856 GATHER_INDEX_STATS
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.GATHER_INDEX_STATS(OWNNAME=>'SYSDBA',INDNAME=>'CODEX_STATS_T_IDX',ESTIMATE_PERCENT=>100); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0857 GATHER_SCHEMA_STATS
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.GATHER_SCHEMA_STATS(OWNNAME=>'CODEX_STATS_U',ESTIMATE_PERCENT=>100); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0858 GATHER_TABLE_STATS
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.GATHER_TABLE_STATS(OWNNAME=>'SYSDBA',TABNAME=>'CODEX_STATS_T',ESTIMATE_PERCENT=>100,CASCADE=>TRUE); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0859 GET_COLUMN_STATS
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.GET_COLUMN_STATS(OWNNAME=>'SYSDBA',TABNAME=>'CODEX_STATS_T',COLNAME=>'ID',DISTCNT=>n,DENSITY=>n,NULLCNT=>n,SREC=>srec,AVGCLEN=>n); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0860 GET_PREFS
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin v:=DBMS_STATS.GET_PREFS(PPNAME=>'STALE_PERCENT',OWNNAME=>'SYSDBA',TABNAME=>'CODEX_STATS_T'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0861 IMPORT_DATABASE_STATS
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.IMPORT_DATABASE_STATS(STATTAB=>'CODEX_STATS_EVID',STATID=>'BASE',STATOWN=>'SYSDBA'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0862 IMPORT_SCHEMA_STATS
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.IMPORT_SCHEMA_STATS(OWNNAME=>'SYSDBA',STATTAB=>'CODEX_STATS_EVID',STATID=>'BASE',STATOWN=>'SYSDBA'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0863 IMPORT_TABLE_STATS
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.IMPORT_TABLE_STATS(OWNNAME=>'SYSDBA',TABNAME=>'CODEX_STATS_T',STATTAB=>'CODEX_STATS_EVID',STATID=>'BASE',STATOWN=>'SYSDBA'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0864 IMPORT_TABLE_STATS_CUSTOM
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.IMPORT_TABLE_STATS_CUSTOM(OWNNAME=>'SYSDBA',TABNAME=>'CODEX_STATS_T',STATTAB=>'CODEX_STATS_EVID',STATID=>'BASE',STATOWN=>'SYSDBA'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0865 INDEX_STATS_SHOW
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.INDEX_STATS_SHOW(OWNNAME=>'SYSDBA',INDEXNAME=>'CODEX_STATS_T_IDX'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0866 PREPARE_COLUMN_VALUES
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.PREPARE_COLUMN_VALUES(SREC=>srec,CHARVALS=>chars); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0867 PREPARE_COLUMN_VALUES
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.PREPARE_COLUMN_VALUES(SREC=>srec,NUMVALS=>nums); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0868 PREPARE_COLUMN_VALUES
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.PREPARE_COLUMN_VALUES(SREC=>srec,TSVALS=>dates); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0869 SET_COLUMN_STATS
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.SET_COLUMN_STATS(OWNNAME=>'SYSDBA',TABNAME=>'CODEX_STATS_T',COLNAME=>'ID'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0870 SET_TABLE_PREFS
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.SET_TABLE_PREFS(OWNNAME=>'SYSDBA',TABNAME=>'CODEX_STATS_T',PPNAME=>'STALE_PERCENT',PVALUE=>'25'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0871 SET_TABLE_STATS
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.SET_TABLE_STATS(OWNNAME=>'SYSDBA',TABNAME=>'CODEX_STATS_T',NUMROWS=>3,NUMBLKS=>1,AVGRLEN=>32); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0872 TABLE_STATS_SHOW
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.TABLE_STATS_SHOW(OWNNAME=>'SYSDBA',TABNAME=>'CODEX_STATS_T'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0873 UPDATE_ALL_STATS
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.UPDATE_ALL_STATS(); end;

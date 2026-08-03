@@ -1,0 +1,474 @@
+-- FUNC-1046 ST_CREATEANNULARSECTOR full
+declare v varchar2(32767); begin v:=DMGEO.ST_CREATEANNULARSECTOR(NULL,NULL,NULL,NULL,NULL); end;
+/
+-- FUNC-1047 ST_SIMPLIFYPRESERVETOPOLOGY full
+declare v varchar2(32767); begin v:=DMGEO.ST_SIMPLIFYPRESERVETOPOLOGY(NULL,NULL); end;
+/
+-- FUNC-1048 ST_ADD_SPATIAL_REF full
+declare v varchar2(32767); begin DMGEO.ST_ADD_SPATIAL_REF(NULL,NULL,NULL,NULL); end;
+/
+-- FUNC-1049 ST_AREA full
+declare v varchar2(32767); begin v:=DMGEO.ST_AREA(NULL); end;
+/
+-- FUNC-1050 ST_ASBINARY full
+declare v varchar2(32767); begin v:=DMGEO.ST_ASBINARY(NULL); end;
+/
+-- FUNC-1051 ST_ASGEOJSON full
+declare v varchar2(32767); begin v:=DMGEO.ST_ASGEOJSON(NULL); end;
+/
+-- FUNC-1052 ST_ASTEXT full
+declare v varchar2(32767); begin v:=DMGEO.ST_ASTEXT(NULL); end;
+/
+-- FUNC-1053 ST_ASTEXT full
+declare v varchar2(32767); begin v:=DMGEO.ST_ASTEXT(NULL,NULL); end;
+/
+-- FUNC-1054 ST_BOUNDARY full
+declare v varchar2(32767); begin v:=DMGEO.ST_BOUNDARY(NULL); end;
+/
+-- FUNC-1055 ST_BUFFER full
+declare v varchar2(32767); begin v:=DMGEO.ST_BUFFER(NULL,NULL); end;
+/
+-- FUNC-1056 ST_CENTROID full
+declare v varchar2(32767); begin v:=DMGEO.ST_CENTROID(NULL); end;
+/
+-- FUNC-1057 ST_CONTAINS full
+declare v varchar2(32767); begin v:=DMGEO.ST_CONTAINS(NULL,NULL); end;
+/
+-- FUNC-1058 ST_CONVEXHULL full
+declare v varchar2(32767); begin v:=DMGEO.ST_CONVEXHULL(NULL); end;
+/
+-- FUNC-1059 ST_COORDDIM full
+declare v varchar2(32767); begin v:=DMGEO.ST_COORDDIM(NULL); end;
+/
+-- FUNC-1060 ST_CREATEANNULUS full
+declare v varchar2(32767); begin v:=DMGEO.ST_CREATEANNULUS(NULL,NULL,NULL); end;
+/
+-- FUNC-1061 ST_CREATEARC full
+declare v varchar2(32767); begin v:=DMGEO.ST_CREATEARC(NULL,NULL,NULL,NULL); end;
+/
+-- FUNC-1062 ST_CREATEARCPOLYGON full
+declare v varchar2(32767); begin v:=DMGEO.ST_CREATEARCPOLYGON(NULL,NULL,NULL,NULL); end;
+/
+-- FUNC-1063 ST_CREATECIRCLE full
+declare v varchar2(32767); begin v:=DMGEO.ST_CREATECIRCLE(NULL,NULL); end;
+/
+-- FUNC-1064 ST_CROSSES full
+declare v varchar2(32767); begin v:=DMGEO.ST_CROSSES(NULL,NULL); end;
+/
+-- FUNC-1065 ST_DEL_SPATIAL_REF full
+declare v varchar2(32767); begin DMGEO.ST_DEL_SPATIAL_REF(NULL); end;
+/
+-- FUNC-1066 ST_DIFFERENCE full
+declare v varchar2(32767); begin v:=DMGEO.ST_DIFFERENCE(NULL,NULL); end;
+/
+-- FUNC-1067 ST_DIMENSION full
+declare v varchar2(32767); begin v:=DMGEO.ST_DIMENSION(NULL); end;
+/
+-- FUNC-1068 ST_DISJOINT full
+declare v varchar2(32767); begin v:=DMGEO.ST_DISJOINT(NULL,NULL); end;
+/
+-- FUNC-1069 ST_DISTANCE full
+declare v varchar2(32767); begin v:=DMGEO.ST_DISTANCE(NULL,NULL); end;
+/
+-- FUNC-1070 ST_ENDPOINT full
+declare v varchar2(32767); begin v:=DMGEO.ST_ENDPOINT(NULL); end;
+/
+-- FUNC-1071 ST_ENVELOPE full
+declare v varchar2(32767); begin v:=DMGEO.ST_ENVELOPE(NULL); end;
+/
+-- FUNC-1072 ST_EQUALS full
+declare v varchar2(32767); begin v:=DMGEO.ST_EQUALS(NULL,NULL); end;
+/
+-- FUNC-1073 ST_EXTERIORRING full
+declare v varchar2(32767); begin v:=DMGEO.ST_EXTERIORRING(NULL); end;
+/
+-- FUNC-1074 ST_GEO_VALID_CHECK full
+declare v varchar2(32767); begin v:=DMGEO.ST_GEO_VALID_CHECK(NULL); end;
+/
+-- FUNC-1075 ST_GEOMETRYN full
+declare v varchar2(32767); begin v:=DMGEO.ST_GEOMETRYN(NULL,NULL); end;
+/
+-- FUNC-1076 ST_GEOMETRYTYPE full
+declare v varchar2(32767); begin v:=DMGEO.ST_GEOMETRYTYPE(NULL); end;
+/
+-- FUNC-1077 ST_GEOMFROMTEXT full
+declare v varchar2(32767); begin v:=DMGEO.ST_GEOMFROMTEXT(NULL,NULL); end;
+/
+-- FUNC-1078 ST_GEOMFROMWKB full
+declare v varchar2(32767); begin v:=DMGEO.ST_GEOMFROMWKB(NULL,NULL); end;
+/
+-- FUNC-1079 ST_INTERIORRINGN full
+declare v varchar2(32767); begin v:=DMGEO.ST_INTERIORRINGN(NULL,NULL); end;
+/
+-- FUNC-1080 ST_INTERSECTION full
+declare v varchar2(32767); begin v:=DMGEO.ST_INTERSECTION(NULL,NULL); end;
+/
+-- FUNC-1081 ST_INTERSECTS full
+declare v varchar2(32767); begin v:=DMGEO.ST_INTERSECTS(NULL,NULL); end;
+/
+-- FUNC-1082 ST_ISCLOSED full
+declare v varchar2(32767); begin v:=DMGEO.ST_ISCLOSED(NULL); end;
+/
+-- FUNC-1083 ST_ISEMPTY full
+declare v varchar2(32767); begin v:=DMGEO.ST_ISEMPTY(NULL); end;
+/
+-- FUNC-1084 ST_ISRING full
+declare v varchar2(32767); begin v:=DMGEO.ST_ISRING(NULL); end;
+/
+-- FUNC-1085 ST_ISSIMPLE full
+declare v varchar2(32767); begin v:=DMGEO.ST_ISSIMPLE(NULL); end;
+/
+-- FUNC-1086 ST_ISVALID full
+declare v varchar2(32767); begin v:=DMGEO.ST_ISVALID(NULL); end;
+/
+-- FUNC-1087 ST_LENGTH full
+declare v varchar2(32767); begin v:=DMGEO.ST_LENGTH(NULL); end;
+/
+-- FUNC-1088 ST_LINEFROMTEXT full
+declare v varchar2(32767); begin v:=DMGEO.ST_LINEFROMTEXT(NULL,NULL); end;
+/
+-- FUNC-1089 ST_LINEFROMWKB full
+declare v varchar2(32767); begin v:=DMGEO.ST_LINEFROMWKB(NULL,NULL); end;
+/
+-- FUNC-1090 ST_MAKEVALID full
+declare v varchar2(32767); begin v:=DMGEO.ST_MAKEVALID(NULL); end;
+/
+-- FUNC-1091 ST_MAXX full
+declare v varchar2(32767); begin v:=DMGEO.ST_MAXX(NULL); end;
+/
+-- FUNC-1092 ST_MAXY full
+declare v varchar2(32767); begin v:=DMGEO.ST_MAXY(NULL); end;
+/
+-- FUNC-1093 ST_MINX full
+declare v varchar2(32767); begin v:=DMGEO.ST_MINX(NULL); end;
+/
+-- FUNC-1094 ST_MINY full
+declare v varchar2(32767); begin v:=DMGEO.ST_MINY(NULL); end;
+/
+-- FUNC-1095 ST_MLINEFROMTEXT full
+declare v varchar2(32767); begin v:=DMGEO.ST_MLINEFROMTEXT(NULL,NULL); end;
+/
+-- FUNC-1096 ST_MLINEFROMWKB full
+declare v varchar2(32767); begin v:=DMGEO.ST_MLINEFROMWKB(NULL,NULL); end;
+/
+-- FUNC-1097 ST_MPOINTFROMTEXT full
+declare v varchar2(32767); begin v:=DMGEO.ST_MPOINTFROMTEXT(NULL,NULL); end;
+/
+-- FUNC-1098 ST_MPOINTFROMWKB full
+declare v varchar2(32767); begin v:=DMGEO.ST_MPOINTFROMWKB(NULL,NULL); end;
+/
+-- FUNC-1099 ST_MPOLYFROMTEXT full
+declare v varchar2(32767); begin v:=DMGEO.ST_MPOLYFROMTEXT(NULL,NULL); end;
+/
+-- FUNC-1100 ST_MPOLYFROMWKB full
+declare v varchar2(32767); begin v:=DMGEO.ST_MPOLYFROMWKB(NULL,NULL); end;
+/
+-- FUNC-1101 ST_NUMGEOMETRIES full
+declare v varchar2(32767); begin v:=DMGEO.ST_NUMGEOMETRIES(NULL); end;
+/
+-- FUNC-1102 ST_NUMINTERIORRING full
+declare v varchar2(32767); begin v:=DMGEO.ST_NUMINTERIORRING(NULL); end;
+/
+-- FUNC-1103 ST_NUMPOINTS full
+declare v varchar2(32767); begin v:=DMGEO.ST_NUMPOINTS(NULL); end;
+/
+-- FUNC-1104 ST_OVERLAPS full
+declare v varchar2(32767); begin v:=DMGEO.ST_OVERLAPS(NULL,NULL); end;
+/
+-- FUNC-1105 ST_PERIMETER full
+declare v varchar2(32767); begin v:=DMGEO.ST_PERIMETER(NULL); end;
+/
+-- FUNC-1106 ST_POINTFROMTEXT full
+declare v varchar2(32767); begin v:=DMGEO.ST_POINTFROMTEXT(NULL,NULL); end;
+/
+-- FUNC-1107 ST_POINTFROMWKB full
+declare v varchar2(32767); begin v:=DMGEO.ST_POINTFROMWKB(NULL,NULL); end;
+/
+-- FUNC-1108 ST_POINTN full
+declare v varchar2(32767); begin v:=DMGEO.ST_POINTN(NULL,NULL); end;
+/
+-- FUNC-1109 ST_POINTONSURFACE full
+declare v varchar2(32767); begin v:=DMGEO.ST_POINTONSURFACE(NULL); end;
+/
+-- FUNC-1110 ST_POLYFROMTEXT full
+declare v varchar2(32767); begin v:=DMGEO.ST_POLYFROMTEXT(NULL,NULL); end;
+/
+-- FUNC-1111 ST_POLYFROMWKB full
+declare v varchar2(32767); begin v:=DMGEO.ST_POLYFROMWKB(NULL,NULL); end;
+/
+-- FUNC-1112 ST_RELATE full
+declare v varchar2(32767); begin v:=DMGEO.ST_RELATE(NULL,NULL,NULL); end;
+/
+-- FUNC-1113 ST_SETSRID full
+declare v varchar2(32767); begin v:=DMGEO.ST_SETSRID(NULL,NULL); end;
+/
+-- FUNC-1114 ST_SPLIT full
+declare v varchar2(32767); begin v:=DMGEO.ST_SPLIT(NULL,NULL); end;
+/
+-- FUNC-1115 ST_SRID full
+declare v varchar2(32767); begin v:=DMGEO.ST_SRID(NULL); end;
+/
+-- FUNC-1116 ST_STARTPOINT full
+declare v varchar2(32767); begin v:=DMGEO.ST_STARTPOINT(NULL); end;
+/
+-- FUNC-1117 ST_SYMDIFFERENCE full
+declare v varchar2(32767); begin v:=DMGEO.ST_SYMDIFFERENCE(NULL,NULL); end;
+/
+-- FUNC-1118 ST_TOUCHES full
+declare v varchar2(32767); begin v:=DMGEO.ST_TOUCHES(NULL,NULL); end;
+/
+-- FUNC-1119 ST_TRANSFORM full
+declare v varchar2(32767); begin v:=DMGEO.ST_TRANSFORM(NULL,NULL); end;
+/
+-- FUNC-1120 ST_UNION full
+declare v varchar2(32767); begin v:=DMGEO.ST_UNION(NULL,NULL); end;
+/
+-- FUNC-1121 ST_UPDATE_SRID full
+declare v varchar2(32767); begin DMGEO.ST_UPDATE_SRID(NULL,NULL,NULL,NULL); end;
+/
+-- FUNC-1122 ST_WITHIN full
+declare v varchar2(32767); begin v:=DMGEO.ST_WITHIN(NULL,NULL); end;
+/
+-- FUNC-1123 ST_X full
+declare v varchar2(32767); begin v:=DMGEO.ST_X(NULL); end;
+/
+-- FUNC-1124 ST_Y full
+declare v varchar2(32767); begin v:=DMGEO.ST_Y(NULL); end;
+/
+------------------------------------------------------------------------------------------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1046 ST_CREATEANNULARSECTOR full
+declare v varchar2(32767); begin v:=DMGEO.ST_CREATEANNULARSECTOR(NULL,NULL,NULL,NULL,NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1047 ST_SIMPLIFYPRESERVETOPOLOGY full
+declare v varchar2(32767); begin v:=DMGEO.ST_SIMPLIFYPRESERVETOPOLOGY(NULL,NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1048 ST_ADD_SPATIAL_REF full
+declare v varchar2(32767); begin DMGEO.ST_ADD_SPATIAL_REF(NULL,NULL,NULL,NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1049 ST_AREA full
+declare v varchar2(32767); begin v:=DMGEO.ST_AREA(NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1050 ST_ASBINARY full
+declare v varchar2(32767); begin v:=DMGEO.ST_ASBINARY(NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1051 ST_ASGEOJSON full
+declare v varchar2(32767); begin v:=DMGEO.ST_ASGEOJSON(NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1052 ST_ASTEXT full
+declare v varchar2(32767); begin v:=DMGEO.ST_ASTEXT(NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1053 ST_ASTEXT full
+declare v varchar2(32767); begin v:=DMGEO.ST_ASTEXT(NULL,NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1054 ST_BOUNDARY full
+declare v varchar2(32767); begin v:=DMGEO.ST_BOUNDARY(NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1055 ST_BUFFER full
+declare v varchar2(32767); begin v:=DMGEO.ST_BUFFER(NULL,NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1056 ST_CENTROID full
+declare v varchar2(32767); begin v:=DMGEO.ST_CENTROID(NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1057 ST_CONTAINS full
+declare v varchar2(32767); begin v:=DMGEO.ST_CONTAINS(NULL,NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1058 ST_CONVEXHULL full
+declare v varchar2(32767); begin v:=DMGEO.ST_CONVEXHULL(NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1059 ST_COORDDIM full
+declare v varchar2(32767); begin v:=DMGEO.ST_COORDDIM(NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1060 ST_CREATEANNULUS full
+declare v varchar2(32767); begin v:=DMGEO.ST_CREATEANNULUS(NULL,NULL,NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1061 ST_CREATEARC full
+declare v varchar2(32767); begin v:=DMGEO.ST_CREATEARC(NULL,NULL,NULL,NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1062 ST_CREATEARCPOLYGON full
+declare v varchar2(32767); begin v:=DMGEO.ST_CREATEARCPOLYGON(NULL,NULL,NULL,NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1063 ST_CREATECIRCLE full
+declare v varchar2(32767); begin v:=DMGEO.ST_CREATECIRCLE(NULL,NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1064 ST_CROSSES full
+declare v varchar2(32767); begin v:=DMGEO.ST_CROSSES(NULL,NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1065 ST_DEL_SPATIAL_REF full
+declare v varchar2(32767); begin DMGEO.ST_DEL_SPATIAL_REF(NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1066 ST_DIFFERENCE full
+declare v varchar2(32767); begin v:=DMGEO.ST_DIFFERENCE(NULL,NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1067 ST_DIMENSION full
+declare v varchar2(32767); begin v:=DMGEO.ST_DIMENSION(NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1068 ST_DISJOINT full
+declare v varchar2(32767); begin v:=DMGEO.ST_DISJOINT(NULL,NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1069 ST_DISTANCE full
+declare v varchar2(32767); begin v:=DMGEO.ST_DISTANCE(NULL,NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1070 ST_ENDPOINT full
+declare v varchar2(32767); begin v:=DMGEO.ST_ENDPOINT(NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1071 ST_ENVELOPE full
+declare v varchar2(32767); begin v:=DMGEO.ST_ENVELOPE(NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1072 ST_EQUALS full
+declare v varchar2(32767); begin v:=DMGEO.ST_EQUALS(NULL,NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1073 ST_EXTERIORRING full
+declare v varchar2(32767); begin v:=DMGEO.ST_EXTERIORRING(NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1074 ST_GEO_VALID_CHECK full
+declare v varchar2(32767); begin v:=DMGEO.ST_GEO_VALID_CHECK(NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1075 ST_GEOMETRYN full
+declare v varchar2(32767); begin v:=DMGEO.ST_GEOMETRYN(NULL,NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1076 ST_GEOMETRYTYPE full
+declare v varchar2(32767); begin v:=DMGEO.ST_GEOMETRYTYPE(NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1077 ST_GEOMFROMTEXT full
+declare v varchar2(32767); begin v:=DMGEO.ST_GEOMFROMTEXT(NULL,NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1078 ST_GEOMFROMWKB full
+declare v varchar2(32767); begin v:=DMGEO.ST_GEOMFROMWKB(NULL,NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1079 ST_INTERIORRINGN full
+declare v varchar2(32767); begin v:=DMGEO.ST_INTERIORRINGN(NULL,NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1080 ST_INTERSECTION full
+declare v varchar2(32767); begin v:=DMGEO.ST_INTERSECTION(NULL,NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1081 ST_INTERSECTS full
+declare v varchar2(32767); begin v:=DMGEO.ST_INTERSECTS(NULL,NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1082 ST_ISCLOSED full
+declare v varchar2(32767); begin v:=DMGEO.ST_ISCLOSED(NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1083 ST_ISEMPTY full
+declare v varchar2(32767); begin v:=DMGEO.ST_ISEMPTY(NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1084 ST_ISRING full
+declare v varchar2(32767); begin v:=DMGEO.ST_ISRING(NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1085 ST_ISSIMPLE full
+declare v varchar2(32767); begin v:=DMGEO.ST_ISSIMPLE(NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1086 ST_ISVALID full
+declare v varchar2(32767); begin v:=DMGEO.ST_ISVALID(NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1087 ST_LENGTH full
+declare v varchar2(32767); begin v:=DMGEO.ST_LENGTH(NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1088 ST_LINEFROMTEXT full
+declare v varchar2(32767); begin v:=DMGEO.ST_LINEFROMTEXT(NULL,NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1089 ST_LINEFROMWKB full
+declare v varchar2(32767); begin v:=DMGEO.ST_LINEFROMWKB(NULL,NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1090 ST_MAKEVALID full
+declare v varchar2(32767); begin v:=DMGEO.ST_MAKEVALID(NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1091 ST_MAXX full
+declare v varchar2(32767); begin v:=DMGEO.ST_MAXX(NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1092 ST_MAXY full
+declare v varchar2(32767); begin v:=DMGEO.ST_MAXY(NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1093 ST_MINX full
+declare v varchar2(32767); begin v:=DMGEO.ST_MINX(NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1094 ST_MINY full
+declare v varchar2(32767); begin v:=DMGEO.ST_MINY(NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1095 ST_MLINEFROMTEXT full
+declare v varchar2(32767); begin v:=DMGEO.ST_MLINEFROMTEXT(NULL,NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1096 ST_MLINEFROMWKB full
+declare v varchar2(32767); begin v:=DMGEO.ST_MLINEFROMWKB(NULL,NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1097 ST_MPOINTFROMTEXT full
+declare v varchar2(32767); begin v:=DMGEO.ST_MPOINTFROMTEXT(NULL,NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1098 ST_MPOINTFROMWKB full
+declare v varchar2(32767); begin v:=DMGEO.ST_MPOINTFROMWKB(NULL,NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1099 ST_MPOLYFROMTEXT full
+declare v varchar2(32767); begin v:=DMGEO.ST_MPOLYFROMTEXT(NULL,NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1100 ST_MPOLYFROMWKB full
+declare v varchar2(32767); begin v:=DMGEO.ST_MPOLYFROMWKB(NULL,NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1101 ST_NUMGEOMETRIES full
+declare v varchar2(32767); begin v:=DMGEO.ST_NUMGEOMETRIES(NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1102 ST_NUMINTERIORRING full
+declare v varchar2(32767); begin v:=DMGEO.ST_NUMINTERIORRING(NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1103 ST_NUMPOINTS full
+declare v varchar2(32767); begin v:=DMGEO.ST_NUMPOINTS(NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1104 ST_OVERLAPS full
+declare v varchar2(32767); begin v:=DMGEO.ST_OVERLAPS(NULL,NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1105 ST_PERIMETER full
+declare v varchar2(32767); begin v:=DMGEO.ST_PERIMETER(NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1106 ST_POINTFROMTEXT full
+declare v varchar2(32767); begin v:=DMGEO.ST_POINTFROMTEXT(NULL,NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1107 ST_POINTFROMWKB full
+declare v varchar2(32767); begin v:=DMGEO.ST_POINTFROMWKB(NULL,NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1108 ST_POINTN full
+declare v varchar2(32767); begin v:=DMGEO.ST_POINTN(NULL,NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1109 ST_POINTONSURFACE full
+declare v varchar2(32767); begin v:=DMGEO.ST_POINTONSURFACE(NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1110 ST_POLYFROMTEXT full
+declare v varchar2(32767); begin v:=DMGEO.ST_POLYFROMTEXT(NULL,NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1111 ST_POLYFROMWKB full
+declare v varchar2(32767); begin v:=DMGEO.ST_POLYFROMWKB(NULL,NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1112 ST_RELATE full
+declare v varchar2(32767); begin v:=DMGEO.ST_RELATE(NULL,NULL,NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1113 ST_SETSRID full
+declare v varchar2(32767); begin v:=DMGEO.ST_SETSRID(NULL,NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1114 ST_SPLIT full
+declare v varchar2(32767); begin v:=DMGEO.ST_SPLIT(NULL,NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1115 ST_SRID full
+declare v varchar2(32767); begin v:=DMGEO.ST_SRID(NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1116 ST_STARTPOINT full
+declare v varchar2(32767); begin v:=DMGEO.ST_STARTPOINT(NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1117 ST_SYMDIFFERENCE full
+declare v varchar2(32767); begin v:=DMGEO.ST_SYMDIFFERENCE(NULL,NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1118 ST_TOUCHES full
+declare v varchar2(32767); begin v:=DMGEO.ST_TOUCHES(NULL,NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1119 ST_TRANSFORM full
+declare v varchar2(32767); begin v:=DMGEO.ST_TRANSFORM(NULL,NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1120 ST_UNION full
+declare v varchar2(32767); begin v:=DMGEO.ST_UNION(NULL,NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1121 ST_UPDATE_SRID full
+declare v varchar2(32767); begin DMGEO.ST_UPDATE_SRID(NULL,NULL,NULL,NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1122 ST_WITHIN full
+declare v varchar2(32767); begin v:=DMGEO.ST_WITHIN(NULL,NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1123 ST_X full
+declare v varchar2(32767); begin v:=DMGEO.ST_X(NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1124 ST_Y full
+declare v varchar2(32767); begin v:=DMGEO.ST_Y(NULL); end;

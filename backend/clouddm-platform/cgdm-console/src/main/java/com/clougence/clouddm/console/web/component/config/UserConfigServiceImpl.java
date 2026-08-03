@@ -24,6 +24,9 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.clougence.clouddm.api.common.crypt.CryptService;
+import com.clougence.clouddm.api.common.exception.ErrorMessageException;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.model.fo.UpsertUserConfigFO;
 import com.clougence.clouddm.console.web.model.lo.UpsertUserConfigLO;
 import com.clougence.clouddm.console.web.model.vo.RdpUserConfigVO;
@@ -48,15 +51,15 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class UserConfigServiceImpl implements UserConfigService {
 
-    private static final int       DEFAULT_LANGUAGE_MAX_REQUESTS         = 8;
-    private static final int       DEFAULT_LANGUAGE_MAX_REQUESTS_BY_USER = 4;
+    private static final int       DEFAULT_LANGUAGE_MAX_REQUESTS         = 50;
+    private static final int       DEFAULT_LANGUAGE_MAX_REQUESTS_BY_USER = 2;
 
     @Resource
     private SystemDal              systemDal;
     @Resource
     private AuthDal                authDal;
     @Resource
-    private ConsoleConfig rdpConfig;
+    private ConsoleConfig          rdpConfig;
     @Resource
     private List<RdpNotifyService> notifyServices;
 
@@ -145,16 +148,19 @@ public class UserConfigServiceImpl implements UserConfigService {
         List<UserConfigMO> configList = new ArrayList<>();
         List<UpsertUserConfigLO> configLOs = new ArrayList<>();
         List<UserConfigKvDef> defaultConfigs = fetchUserDefinedDefaultConfig(ownerUid);
+        Map<String, UserConfigKvDef> defaultConfigMap = defaultConfigs.stream().collect(Collectors.toMap(UserConfigKvDef::getConfigName, c -> c));
+
+        validateRequestedConfigs(config, defaultConfigMap);
 
         if (CollectionUtils.isNotEmpty(config.getUpdateConfigs())) {
             for (Map.Entry<String, String> configEntry : config.getUpdateConfigs().entrySet()) {
-                upsertOneConfig(ownerUid, configEntry.getKey(), configEntry.getValue(), defaultConfigs, configList, configLOs);
+                upsertOneConfig(ownerUid, configEntry.getKey(), configEntry.getValue(), defaultConfigMap, configList, configLOs);
             }
         }
 
         if (CollectionUtils.isNotEmpty(config.getNeedCreateConfigs())) {
             for (Map.Entry<String, String> configEntry : config.getNeedCreateConfigs().entrySet()) {
-                upsertOneConfig(ownerUid, configEntry.getKey(), configEntry.getValue(), defaultConfigs, configList, configLOs);
+                upsertOneConfig(ownerUid, configEntry.getKey(), configEntry.getValue(), defaultConfigMap, configList, configLOs);
             }
         }
 
@@ -163,14 +169,79 @@ public class UserConfigServiceImpl implements UserConfigService {
         return configLOs;
     }
 
-    private void upsertOneConfig(String ownerUid, String configName, String configValue, List<UserConfigKvDef> defaultConfigs, List<UserConfigMO> configList,
-                                 List<UpsertUserConfigLO> configLOs) {
-        UserConfigKvDef defaultConfig = defaultConfigs.stream().filter(c -> {
-            return c.getConfigName().equals(configName);
-        }).findFirst().orElse(null);
-        if (defaultConfig == null) {
-            return;
+    private void validateRequestedConfigs(UpsertUserConfigFO config, Map<String, UserConfigKvDef> defaultConfigMap) {
+        Map<String, String> updateConfigs = config.getUpdateConfigs();
+        Map<String, String> createConfigs = config.getNeedCreateConfigs();
+
+        if (CollectionUtils.isNotEmpty(updateConfigs) && CollectionUtils.isNotEmpty(createConfigs)) {
+            Set<String> duplicateKeys = new HashSet<>(updateConfigs.keySet());
+            duplicateKeys.retainAll(createConfigs.keySet());
+            if (!duplicateKeys.isEmpty()) {
+                String configName = duplicateKeys.iterator().next();
+                throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.SYS_CONFIG_DUPLICATE_ERROR.name(), configName));
+            }
         }
+
+        if (CollectionUtils.isNotEmpty(updateConfigs)) {
+            updateConfigs.forEach((configName, configValue) -> validateConfigValue(defaultConfigMap, configName, configValue));
+        }
+        if (CollectionUtils.isNotEmpty(createConfigs)) {
+            createConfigs.forEach((configName, configValue) -> validateConfigValue(defaultConfigMap, configName, configValue));
+        }
+    }
+
+    private void validateConfigValue(Map<String, UserConfigKvDef> defaultConfigMap, String configName, String configValue) {
+        UserConfigKvDef configDef = defaultConfigMap.get(configName);
+        if (configDef == null) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.SYS_CONFIG_UNKNOWN_ERROR.name(), configName));
+        }
+        if (configDef.isReadOnly()) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.SYS_CONFIG_READ_ONLY_ERROR.name(), configName));
+        }
+
+        String value = configValue;
+        if (value != null) {
+            value = value.trim();
+        }
+        if (configDef.isRequired() && StringUtils.isBlank(value)) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.SYS_CONFIG_REQUIRED_ERROR.name(), configName));
+        }
+
+        Class<?> valueType = configDef.getValueType();
+        if (Number.class.isAssignableFrom(valueType)) {
+            validateNumberConfig(configDef, value);
+        } else if (valueType == Boolean.class && !"true".equalsIgnoreCase(value) && !"false".equalsIgnoreCase(value)) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.SYS_CONFIG_BOOLEAN_ERROR.name(), configName, value));
+        }
+
+        List<String> allowedValues = configDef.getAllowedValues();
+        if (CollectionUtils.isNotEmpty(allowedValues) && !allowedValues.contains(value)) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.SYS_CONFIG_ALLOWED_VALUES_ERROR.name(), configName, String.join(", ", allowedValues)));
+        }
+    }
+
+    private void validateNumberConfig(UserConfigKvDef configDef, String value) {
+        long number;
+        try {
+            number = Long.parseLong(value);
+        } catch (Exception e) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.SYS_CONFIG_NEED_NUMBER_ERROR.name(), configDef.getConfigName(), value));
+        }
+
+        long minValue = configDef.getMinValue();
+        long maxValue = configDef.getMaxValue();
+        if (configDef.getValueType() == Integer.class) {
+            minValue = Math.max(minValue, Integer.MIN_VALUE);
+            maxValue = Math.min(maxValue, Integer.MAX_VALUE);
+        }
+        if (number < minValue || number > maxValue) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.SYS_CONFIG_VERIFICATION_ERROR.name(), configDef.getConfigName()));
+        }
+    }
+
+    private void upsertOneConfig(String ownerUid, String configName, String configValue, Map<String, UserConfigKvDef> defaultConfigMap, List<UserConfigMO> configList,
+                                 List<UpsertUserConfigLO> configLOs) {
+        UserConfigKvDef defaultConfig = defaultConfigMap.get(configName);
 
         DmSysUserConfDO oldConfig = systemDal.userConfMapper().queryByUidAndConfigName(ownerUid, configName);
         String newValue = configValue;
@@ -332,7 +403,7 @@ public class UserConfigServiceImpl implements UserConfigService {
                     val = String.valueOf(oriVal);
                 }
 
-                configs.add(genConfigDef(configDef, val, uid));
+                configs.add(genConfigDef(configDef, val, uid, field.getType()));
             }
 
             if (clazz.getSuperclass() != null && clazz.getSuperclass() != Object.class) {
@@ -345,12 +416,17 @@ public class UserConfigServiceImpl implements UserConfigService {
         }
     }
 
-    private UserConfigKvDef genConfigDef(UserConfigDef configDef, String val, String uid) {
+    private UserConfigKvDef genConfigDef(UserConfigDef configDef, String val, String uid, Class<?> valueType) {
         UserConfigKvDef config = new UserConfigKvDef();
         config.setConfigName(configDef.name());
         config.setConfigValue(val);
         config.setUid(uid);
         config.setValueRange(configDef.valueRange());
+        config.setMinValue(configDef.minValue());
+        config.setMaxValue(configDef.maxValue());
+        config.setAllowedValues(Arrays.asList(configDef.allowedValues()));
+        config.setRequired(configDef.required());
+        config.setValueType(valueType);
         config.setUserConfigTagType(configDef.configTagType());
         config.setConfBelong(configDef.confBelong());
         config.setConfValType(configDef.kvConfWebOp());

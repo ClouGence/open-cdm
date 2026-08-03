@@ -17,10 +17,10 @@ package com.clougence.sql.common.analysis.secrules.builder;
 
 import java.util.*;
 
-import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 import com.clougence.clouddm.sdk.service.secrules.Domain;
-import com.clougence.clouddm.sdk.sql.secrules.rdb.*;
+import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
+import com.clougence.clouddm.sdk.service.secrules.SecQueryKind;
+import com.clougence.clouddm.sdk.sql.analysis.security.rdb.*;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.secrules.builder.enums.Attribute;
 import com.clougence.sql.common.analysis.secrules.builder.enums.CommonAttribute;
@@ -103,7 +103,7 @@ public abstract class CreateTableBuilder<T extends RdbTableDomain> extends Abstr
             for (Domain domain : list) {
                 RdbColumnDomain rdbColumnDomain = (RdbColumnDomain) domain;
                 rdbColumnDomain.setAuditKind(SecQueryKind.CREATE);
-                rdbColumnDomain.setSqlType(SecQueryType.CREATE_TABLE_ADD_COLUMN);
+                rdbColumnDomain.setSqlType(RuleQueryType.CREATE_TABLE_ADD_COLUMN);
                 rdbTableDomain.getColumnDomains().add(rdbColumnDomain);
 
                 parseConstraint(rdbColumnDomain);
@@ -112,7 +112,7 @@ public abstract class CreateTableBuilder<T extends RdbTableDomain> extends Abstr
             for (Domain domain : list) {
                 RdbConstraintDomain rdbConstantDomain = (RdbConstraintDomain) domain;
                 rdbConstantDomain.setAuditKind(SecQueryKind.CREATE);
-                rdbConstantDomain.setSqlType(SecQueryType.CREATE_TABLE_ADD_CONSTRAINT);
+                rdbConstantDomain.setSqlType(RuleQueryType.CREATE_TABLE_ADD_CONSTRAINT);
                 rdbTableDomain.getConstraintDomains().add(rdbConstantDomain);
             }
         } else if (source == DomainSource.OBJ_NAME) {
@@ -124,14 +124,13 @@ public abstract class CreateTableBuilder<T extends RdbTableDomain> extends Abstr
             rdbTableDomain.setTable(map.get(UmiTypes.Table));
         } else if (source == DomainSource.SELECT) {
             Domain domain = list.get(0);
-            rdbTableDomain.setSqlType(SecQueryType.CREATE_TABLE_SELECT);
             RdbSelectDomain selectDomain = (RdbSelectDomain) domain;
             selectDomain.setMode(RdbQueryMode.CREATE);
             rdbTableDomain.addChild(selectDomain);
         } else if (source == DomainSource.INDEX) {
             Domain domain = list.get(0);
             RdbIndexDomain indexDomain = (RdbIndexDomain) domain;
-            indexDomain.setSqlType(SecQueryType.CREATE_TABLE_ADD_INDEX);
+            indexDomain.setSqlType(RuleQueryType.CREATE_TABLE_ADD_INDEX);
             indexDomain.setAuditKind(SecQueryKind.CREATE);
             indexDomain.setTableName(rdbTableDomain.getTable());
             indexDomain.setTableSchema(rdbTableDomain.getSchema());
@@ -168,7 +167,7 @@ public abstract class CreateTableBuilder<T extends RdbTableDomain> extends Abstr
         }
 
         constraintDomain.setAuditKind(SecQueryKind.CREATE);
-        constraintDomain.setSqlType(SecQueryType.CREATE_TABLE_ADD_CONSTRAINT);
+        constraintDomain.setSqlType(RuleQueryType.CREATE_TABLE_ADD_CONSTRAINT);
         constraintDomain.setColumns(Collections.singletonList(rdbColumnDomain.getColumn()));
         constraintDomain.setSchema(rdbTableDomain.getSchema());
         constraintDomain.setCatalog(rdbTableDomain.getCatalog());

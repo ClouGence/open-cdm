@@ -1,0 +1,5708 @@
+[select__001]
+sql:
+SELECT * FROM t WHERE t.`$id` = 0 OR `$id2` = 0 OR b$$lit$$ = 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:15) /test/1/catalog1/schema1/t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__002]
+sql:
+SELECT 8.0 $p, 8.4$p, .0$p, 8.$p, 8.p;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__003]
+sql:
+SELECT 1 + /*!800001+0 */ + 0 AS should_return_2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__004]
+sql:
+SELECT 1 /*!080100 +1*/ AS should_return_2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__005]
+sql:
+SELECT (SELECT 1 c WHERE 1 GROUP BY 1 HAVING 1 ORDER BY COUNT(1)) AS 'null is not expected';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:56~1:61) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__006]
+sql:
+SELECT ((SELECT 1 AS f HAVING EXISTS(SELECT 1 FROM t1) IS TRUE ORDER BY f));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:51~1:53) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__007]
+sql:
+SELECT (NOT FALSE) OR TRUE, NOT (FALSE OR TRUE), NOT FALSE OR TRUE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__008]
+sql:
+SELECT (NOT NULL) IS TRUE, NOT (NULL IS TRUE), NOT NULL IS TRUE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__009]
+sql:
+SELECT 0xF0 | 0x0F | 0x55, (0xF0 | 0x0F) | 0x55, 0xF0 | (0x0F | 0x55);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__010]
+sql:
+SELECT 256 >> 3 >> 2, (256 >> 3) >> 2, 256 >> (3 >> 2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__011]
+sql:
+SELECT 0xF0 & 0x0F | 0x55, (0xF0 & 0x0F) | 0x55, 0xF0 & (0x0F | 0x55);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__012]
+sql:
+SELECT 2 + 3 << 4, (2 + 3) << 4, 2 + (3 << 4);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__013]
+sql:
+SELECT 105 / 5 | 2, (105 / 5) | 2, 105 / (5 | 2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__014]
+sql:
+SELECT connection FROM (SELECT 1 AS connection) AS kw;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__015]
+sql:
+SELECT authors, contributors FROM (SELECT 1 AS authors, 2 AS contributors) AS kw;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__016]
+sql:
+SELECT binlog FROM (SELECT 1 AS binlog) AS kw;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__017]
+sql:
+SELECT TIME'1 24:00:00', TIME'10:10:10.', TIMESTAMP'2010-01-01 00';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__018]
+sql:
+SELECT TIMESTAMP '2021/07-15 23.01:02';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__019]
+sql:
+SELECT LOCATE(_utf8mb4 0xD091, _utf8mb4 0xD0B0D0B1D0B2 COLLATE utf8mb4_bin);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/LOCATE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__020]
+sql:
+SELECT HEX(_utf32 X'44'), HEX(_utf32 X'3344'), HEX(_utf32 X'103344');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/HEX/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__021]
+sql:
+SELECT LEAST(_latin1'a', _latin2'b', _latin5'c' COLLATE latin5_turkish_ci);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/LEAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__022]
+sql:
+SELECT ADDDATE(?, INTERVAL 1 DAY);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/ADDDATE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__023]
+sql:
+SELECT SUM(b'1100'),SUM(DISTINCT b'1100');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/SUM/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__024]
+sql:
+SELECT t1.f1,COUNT(DISTINCT t2.f2),COUNT(DISTINCT 1,NULL) FROM t1 LEFT JOIN t2 ON t1.f1=t2.f1 GROUP BY t1.f1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:13~1:18) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:63~1:65) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:76~1:78) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__025]
+sql:
+SELECT _utf8mb4'a' /* adjacent */ 'b';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__026]
+sql:
+SELECT _koi8r'a'=_koi8r'A' COLLATE koi8r_general_ci,_koi8r'a' COLLATE koi8r_bin=_koi8r'A';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__027]
+sql:
+SELECT STRCMP(_koi8r'a',_koi8r'A' COLLATE koi8r_general_ci),STRCMP(_koi8r'a' COLLATE koi8r_bin,_koi8r'A');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/STRCMP/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__028]
+sql:
+SELECT _koi8r'a' LIKE _koi8r'A' COLLATE koi8r_general_ci,_koi8r'a' COLLATE koi8r_bin LIKE _koi8r'A';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__029]
+sql:
+SELECT _koi8r'a' COLLATE koi8r_bin=_koi8r'A' COLLATE koi8r_general_ci;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__030]
+sql:
+SELECT STRCMP(_koi8r'a' COLLATE koi8r_general_ci,_koi8r'A' COLLATE koi8r_bin);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/STRCMP/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__031]
+sql:
+SELECT _koi8r'a' COLLATE koi8r_general_ci LIKE _koi8r'A' COLLATE koi8r_bin;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__032]
+sql:
+SELECT 5--1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__033]
+sql:
+SELECT 5-- 1
++ 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__034]
+sql:
+SELECT 5--	comment
++ 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__035]
+sql:
+SELECT 1#comment
++ 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__036]
+sql:
+SELECT 1/**/+2, 3/* multi
+line */+4;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__037]
+sql:
+SELECT 1--
++2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__038]
+sql:
+SELECT 1 /* first */ + /* second */ 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__039]
+sql:
+# leading hash
+SELECT 1 /* inline block */ + 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__040]
+sql:
+-- leading dash
+SELECT /*+ MAX_EXECUTION_TIME(1000) */ 3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__041]
+sql:
+/*! SELECT 4 */;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__042]
+sql:
+SELECT dtaa.c AS c FROM (SELECT 1 AS c FROM (SELECT 1 AS c FROM split_derived_80early.t AS ta RIGHT JOIN split_derived_80early.t AS tb ON ta.u<=? WHERE 1 OR ? GROUP BY ta.u) AS dta INNER JOIN split_derived_80early.t AS tbb ON dta.c=tbb.h) AS dtaa RIGHT JOIN split_derived_80early.t AS tbbb ON dtaa.c OR w;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:64~1:87) /test/1/catalog1/split_derived_80early/t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__043]
+sql:
+SELECT 1 AS $hi;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__044]
+sql:
+SELECT 1 AS h$i;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__045]
+sql:
+SELECT 1 AS h$$i;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__046]
+sql:
+SELECT 1 AS h$i$;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__047]
+sql:
+SELECT /*!8 + 1 */, /*!80 + 1 */, /*!800 + 1 */, /*!8000 + 1 */;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__048]
+sql:
+SELECT 1 /*!50000+1 */;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__049]
+sql:
+SELECT 1 /*!50000*/;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__050]
+sql:
+SELECT 1 /*!50000
++ 1 */;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__051]
+sql:
+SELECT /*!080410+1 */;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__052]
+sql:
+SELECT 1 + /*!8000012 */ + 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__053]
+sql:
+SELECT 1 /*!50000 + 1 */+1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__054]
+sql:
+SELECT 1 /*!50000 + 1 */ /*!99999 + 10 */;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__055]
+sql:
+SELECT 1 /*!80000 + 1; */;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__056]
+sql:
+SELECT 1 /*!50000 + 1 */ AS active_expr, 10 /*!99999 + 5 */ AS inactive_expr;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__057]
+sql:
+SELECT /*! STRAIGHT_JOIN */ 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__058]
+sql:
+SELECT 2 AS expected, /*!01000/**/*/ 2 AS result;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__059]
+sql:
+SELECT 1 AS expected, /*!99998/**/*/ 1 AS result;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__060]
+sql:
+SELECT 7 AS expected, /*!01000 1 + /* 8 + */ 2 + */ 4 AS result;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__061]
+sql:
+SELECT 8 AS expected, /*!99998 1 + /* 2 + */ 4 + */ 8 AS result;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__062]
+sql:
+SELECT 7 AS expected, /*!01000 1 + /*!99998 8 + */ 2 + */ 4 AS result;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__063]
+sql:
+SELECT 4 AS expected, /*!99998 1 + /*!01000 8 + */ 2 + */ 4 AS result;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__064]
+sql:
+SELECT 1 /*!080400
++ 1 */;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__065]
+sql:
+SELECT 1 /*!080400+ 1 */;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__066]
+sql:
+SELECT 1 /*!080400	+ 1 */;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__067]
+sql:
+SELECT 1 /*!080400
++ 1 */;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__068]
+sql:
+SELECT 1 /*!080400+ 1 */;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__069]
+sql:
+SELECT 1 /*!50000
++ 1 */;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__070]
+sql:
+SELECT 1 /*!50000+ 1 */;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__071]
+sql:
+SELECT 1 /*!50000	+ 1 */;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__072]
+sql:
+SELECT 1 /*!50000+ 1 */;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__073]
+sql:
+SELECT 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__074]
+sql:
+/*!80400 SELECT 2 */;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__075]
+sql:
+/*!90701 SELECT 3 */;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__076]
+sql:
+SELECT 5;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__077]
+sql:
+/*!090701 SELECT 6 */;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select_session_variable_rw__078]
+sql:
+SELECT id FROM articles WHERE MATCH(title,body) AGAINST(@q IN BOOLEAN MODE);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:15~1:23) /test/1/catalog1/schema1/articles/",
+      "action" : "READ"
+    },
+    {
+      "subject": "ConfigKey(1:56~1:58) /test/1/q/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__079]
+sql:
+SELECT _latin1'1' COLLATE latin1_swedish_ci = _latin1'1' COLLATE latin1_swedish_ci;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__080]
+sql:
+SELECT CONCAT(_latin1'1' COLLATE latin1_swedish_ci, _latin1'2' COLLATE latin1_swedish_ci);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/CONCAT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__081]
+sql:
+SELECT _latin1'1' COLLATE latin1_swedish_ci = _latin1'1' COLLATE latin1_general_ci;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__082]
+sql:
+SELECT CONCAT(_latin1'1' COLLATE latin1_swedish_ci, _latin1'2' COLLATE latin1_general_ci);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/CONCAT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__083]
+sql:
+SELECT _latin1'1' COLLATE latin1_swedish_ci = _latin1'1';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__084]
+sql:
+SELECT CONCAT(_latin1'1' COLLATE latin1_swedish_ci, _latin1'2');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/CONCAT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__085]
+sql:
+SELECT c1 = b0 FROM str_collation_values;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:20~1:40) /test/1/catalog1/schema1/str_collation_values/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__086]
+sql:
+SELECT CONCAT(c1, b0) FROM str_collation_values;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/CONCAT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:27~1:47) /test/1/catalog1/schema1/str_collation_values/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__087]
+sql:
+SELECT c1 = c0 FROM str_collation_values;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:20~1:40) /test/1/catalog1/schema1/str_collation_values/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__088]
+sql:
+SELECT CONCAT(c1, c0) FROM str_collation_values;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/CONCAT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:27~1:47) /test/1/catalog1/schema1/str_collation_values/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__089]
+sql:
+SELECT c1 = c2 FROM str_collation_values;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:20~1:40) /test/1/catalog1/schema1/str_collation_values/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__090]
+sql:
+SELECT CONCAT(c1, c2), COERCIBILITY(CONCAT(c1,c2)) FROM str_collation_values;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/CONCAT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:23~1:35) /test/1/catalog1/schema1/COERCIBILITY/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:56~1:76) /test/1/catalog1/schema1/str_collation_values/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__091]
+sql:
+SELECT c1 = c3 FROM str_collation_values;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:20~1:40) /test/1/catalog1/schema1/str_collation_values/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__092]
+sql:
+SELECT CONCAT(c1, c3) FROM str_collation_values;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/CONCAT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:27~1:47) /test/1/catalog1/schema1/str_collation_values/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__093]
+sql:
+SELECT c1 = c4 FROM str_collation_values;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:20~1:40) /test/1/catalog1/schema1/str_collation_values/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__094]
+sql:
+SELECT CONCAT(c1, c4) FROM str_collation_values;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/CONCAT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:27~1:47) /test/1/catalog1/schema1/str_collation_values/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__095]
+sql:
+SELECT c1 = c5 FROM str_collation_values;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:20~1:40) /test/1/catalog1/schema1/str_collation_values/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__096]
+sql:
+SELECT CONCAT(c1, c5) FROM str_collation_values;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/CONCAT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:27~1:47) /test/1/catalog1/schema1/str_collation_values/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__097]
+sql:
+SELECT c1 = c6 FROM str_collation_values;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:20~1:40) /test/1/catalog1/schema1/str_collation_values/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__098]
+sql:
+SELECT CONCAT(c1, c6) FROM str_collation_values;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/CONCAT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:27~1:47) /test/1/catalog1/schema1/str_collation_values/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__099]
+sql:
+SELECT c1 = c7 FROM str_collation_values;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:20~1:40) /test/1/catalog1/schema1/str_collation_values/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__100]
+sql:
+SELECT CONCAT(c1, c7) FROM str_collation_values;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/CONCAT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:27~1:47) /test/1/catalog1/schema1/str_collation_values/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__101]
+sql:
+SELECT c1 = c8 FROM str_collation_values;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:20~1:40) /test/1/catalog1/schema1/str_collation_values/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__102]
+sql:
+SELECT CONCAT(c1, c8) FROM str_collation_values;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/CONCAT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:27~1:47) /test/1/catalog1/schema1/str_collation_values/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__103]
+sql:
+SELECT c7 = c8 FROM str_collation_values;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:20~1:40) /test/1/catalog1/schema1/str_collation_values/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__104]
+sql:
+SELECT CONCAT(c7, c8) FROM str_collation_values;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/CONCAT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:27~1:47) /test/1/catalog1/schema1/str_collation_values/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__105]
+sql:
+SELECT DATABASE() = _utf8mb4'abc';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/DATABASE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__106]
+sql:
+SELECT CONCAT(DATABASE(), _utf8mb4'abc');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/CONCAT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:14~1:22) /test/1/catalog1/schema1/DATABASE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__107]
+sql:
+SELECT CONCAT(_utf8mb4'abc', 1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/CONCAT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__108]
+sql:
+SELECT _utf8mb4'abc' = NULL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__109]
+sql:
+SELECT CONCAT(_utf8mb4'abc', NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/CONCAT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__110]
+sql:
+SELECT c3 = CONCAT(c1, c2) FROM str_collation_values;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:12~1:18) /test/1/catalog1/schema1/CONCAT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:32~1:52) /test/1/catalog1/schema1/str_collation_values/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__111]
+sql:
+SELECT GREATEST(c3, CONCAT(c1, c2)) FROM str_collation_values;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/GREATEST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:20~1:26) /test/1/catalog1/schema1/CONCAT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:41~1:61) /test/1/catalog1/schema1/str_collation_values/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__112]
+sql:
+SELECT COERCIBILITY(CONCAT(c1, c2)) FROM str_collation_values;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/COERCIBILITY/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:20~1:26) /test/1/catalog1/schema1/CONCAT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:41~1:61) /test/1/catalog1/schema1/str_collation_values/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__113]
+sql:
+SELECT CONCAT(c1, c2) = CONCAT(c1, c2) FROM str_collation_values;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/CONCAT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:44~1:64) /test/1/catalog1/schema1/str_collation_values/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__114]
+sql:
+SELECT CONCAT(CONCAT(c1, c2), CONCAT(c1, c2)) FROM str_collation_values;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/CONCAT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:51~1:71) /test/1/catalog1/schema1/str_collation_values/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__115]
+sql:
+SELECT 1=_latin1'1', _latin1'1'=1, _latin2'1'=1, 1=_latin2'1';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__116]
+sql:
+SELECT _latin1'1'=_latin2'1';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__117]
+sql:
+SELECT ROW(_latin1'A' COLLATE latin1_bin,_latin1'b',_latin1'c') = ROW(_latin1'a',_latin1'b',_latin1'c');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__118]
+sql:
+SELECT ROW(_latin1'A',_latin1'b',_latin1'c') = ROW(_latin1'a' COLLATE latin1_bin,_latin1'b',_latin1'c');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__119]
+sql:
+SELECT ROW(_latin1'A' COLLATE latin1_general_ci,_latin1'b',_latin1'c') = ROW(_latin1'a' COLLATE latin1_bin,_latin1'b',_latin1'c');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__120]
+sql:
+SELECT CONCAT(_latin1'a',_latin2'a');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/CONCAT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__121]
+sql:
+SELECT CONCAT(_latin1'a',_latin2'a',_latin5'a');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/CONCAT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__122]
+sql:
+SELECT CONCAT(_latin1'a',_latin2'a',_latin5'a',_latin7'a');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/CONCAT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__123]
+sql:
+SELECT CONCAT_WS(_latin1'a',_latin2'a');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/CONCAT_WS/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__124]
+sql:
+SELECT FIELD(_latin1'b' COLLATE latin1_bin,_latin1'A',_latin1'B');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/FIELD/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__125]
+sql:
+SELECT FIELD(_latin2'b',_latin1'A',_latin1'B');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/FIELD/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__126]
+sql:
+SELECT FIELD(_latin1'b',_latin2'A',_latin1'B');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/FIELD/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__127]
+sql:
+SELECT FIELD('1',_latin2'3','2',1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/FIELD/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__128]
+sql:
+SELECT POSITION(_latin1'B' IN _latin1'abcd');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/POSITION/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__129]
+sql:
+SELECT POSITION(_latin1'B' IN _latin1'abcd' COLLATE latin1_bin);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/POSITION/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__130]
+sql:
+SELECT POSITION(_latin1'B' COLLATE latin1_bin IN _latin1'abcd');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/POSITION/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__131]
+sql:
+SELECT POSITION(_latin1'B' COLLATE latin1_general_ci IN _latin1'abcd' COLLATE latin1_bin);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/POSITION/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__132]
+sql:
+SELECT POSITION(_latin1'B' IN _latin2'abcd');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/POSITION/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__133]
+sql:
+SELECT FIND_IN_SET(_latin1'B',_latin1'a,b,c,d');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/FIND_IN_SET/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__134]
+sql:
+SELECT FIND_IN_SET(_latin1'B' COLLATE latin1_general_ci,_latin1'a,b,c,d' COLLATE latin1_bin);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/FIND_IN_SET/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__135]
+sql:
+SELECT FIND_IN_SET(_latin1'B',_latin2'a,b,c,d');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/FIND_IN_SET/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__136]
+sql:
+SELECT SUBSTRING_INDEX(_latin1'abcdabcdabcd',_latin1'd',2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:22) /test/1/catalog1/schema1/SUBSTRING_INDEX/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__137]
+sql:
+SELECT SUBSTRING_INDEX(_latin1'abcdabcdabcd' COLLATE latin1_bin,_latin1'd',2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:22) /test/1/catalog1/schema1/SUBSTRING_INDEX/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__138]
+sql:
+SELECT SUBSTRING_INDEX(_latin1'abcdabcdabcd',_latin1'd' COLLATE latin1_bin,2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:22) /test/1/catalog1/schema1/SUBSTRING_INDEX/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__139]
+sql:
+SELECT SUBSTRING_INDEX(_latin1'abcdabcdabcd',_latin2'd',2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:22) /test/1/catalog1/schema1/SUBSTRING_INDEX/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__140]
+sql:
+SELECT SUBSTRING_INDEX(_latin1'abcdabcdabcd' COLLATE latin1_general_ci,_latin1'd' COLLATE latin1_bin,2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:22) /test/1/catalog1/schema1/SUBSTRING_INDEX/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__141]
+sql:
+SELECT _latin1'B' BETWEEN _latin1'a' AND _latin1'c';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__142]
+sql:
+SELECT _latin1'B' COLLATE latin1_bin BETWEEN _latin1'a' AND _latin1'c';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__143]
+sql:
+SELECT _latin1'B' BETWEEN _latin1'a' COLLATE latin1_bin AND _latin1'c';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__144]
+sql:
+SELECT _latin2'B' BETWEEN _latin1'a' AND _latin1'b';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__145]
+sql:
+SELECT _latin1'B' COLLATE latin1_general_ci BETWEEN _latin1'a' COLLATE latin1_bin AND _latin1'b';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__146]
+sql:
+SELECT _latin1'B' IN (_latin1'a',_latin1'b');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__147]
+sql:
+SELECT _latin1'B' COLLATE latin1_bin IN (_latin1'a',_latin1'b');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__148]
+sql:
+SELECT _latin1'B' IN (_latin1'a' COLLATE latin1_bin,_latin1'b');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__149]
+sql:
+SELECT _latin2'B' IN (_latin1'a',_latin1'b');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__150]
+sql:
+SELECT _latin1'B' COLLATE latin1_general_ci IN (_latin1'a' COLLATE latin1_bin,_latin1'b');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__151]
+sql:
+SELECT COLLATION(BIN(130)),COERCIBILITY(BIN(130)),COLLATION(OCT(130)),COERCIBILITY(OCT(130)),COLLATION(CONV(130,16,10)),COERCIBILITY(CONV(130,16,10)),COLLATION(HEX(130)),COERCIBILITY(HEX(130)),COLLATION(CHAR(130)),COERCIBILITY(CHAR(130)),COLLATION(FORMAT(130,10)),COERCIBILITY(FORMAT(130,10));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/COLLATION/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:20) /test/1/catalog1/schema1/BIN/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:27~1:39) /test/1/catalog1/schema1/COERCIBILITY/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:60~1:63) /test/1/catalog1/schema1/OCT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:103~1:107) /test/1/catalog1/schema1/CONV/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:160~1:163) /test/1/catalog1/schema1/HEX/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:203~1:207) /test/1/catalog1/schema1/CHAR/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:248~1:254) /test/1/catalog1/schema1/FORMAT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__152]
+sql:
+SELECT COLLATION(LCASE(_latin2'a')),COERCIBILITY(LCASE(_latin2'a')),COLLATION(UCASE(_latin2'a')),COERCIBILITY(UCASE(_latin2'a')),COLLATION(LEFT(_latin2'a',1)),COERCIBILITY(LEFT(_latin2'a',1)),COLLATION(RIGHT(_latin2'a',1)),COERCIBILITY(RIGHT(_latin2'a',1)),COLLATION(SUBSTRING(_latin2'a',1,1)),COERCIBILITY(SUBSTRING(_latin2'a',1,1));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/COLLATION/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:22) /test/1/catalog1/schema1/LCASE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:36~1:48) /test/1/catalog1/schema1/COERCIBILITY/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:78~1:83) /test/1/catalog1/schema1/UCASE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:139~1:143) /test/1/catalog1/schema1/LEFT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:202~1:207) /test/1/catalog1/schema1/RIGHT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:267~1:276) /test/1/catalog1/schema1/SUBSTRING/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__153]
+sql:
+SELECT COLLATION(CONCAT(_latin2'a',_latin2'b')),COERCIBILITY(CONCAT(_latin2'a',_latin2'b')),COLLATION(LPAD(_latin2'a',4,_latin2'b')),COERCIBILITY(LPAD(_latin2'a',4,_latin2'b')),COLLATION(RPAD(_latin2'a',4,_latin2'b')),COERCIBILITY(RPAD(_latin2'a',4,_latin2'b')),COLLATION(CONCAT_WS(_latin2'a',_latin2'b')),COERCIBILITY(CONCAT_WS(_latin2'a',_latin2'b'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/COLLATION/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:23) /test/1/catalog1/schema1/CONCAT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:48~1:60) /test/1/catalog1/schema1/COERCIBILITY/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:102~1:106) /test/1/catalog1/schema1/LPAD/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:187~1:191) /test/1/catalog1/schema1/RPAD/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:272~1:281) /test/1/catalog1/schema1/CONCAT_WS/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__154]
+sql:
+SELECT COLLATION(MAKE_SET(255,_latin2'a',_latin2'b',_latin2'c')),COERCIBILITY(MAKE_SET(255,_latin2'a',_latin2'b',_latin2'c')),COLLATION(EXPORT_SET(255,_latin2'y',_latin2'n',_latin2' ')),COERCIBILITY(EXPORT_SET(255,_latin2'y',_latin2'n',_latin2' '));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/COLLATION/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:25) /test/1/catalog1/schema1/MAKE_SET/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:65~1:77) /test/1/catalog1/schema1/COERCIBILITY/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:136~1:146) /test/1/catalog1/schema1/EXPORT_SET/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__155]
+sql:
+SELECT COLLATION(TRIM(_latin2' a ')),COERCIBILITY(TRIM(_latin2' a ')),COLLATION(TRIM(LEADING _latin2' ' FROM _latin2'a')),COERCIBILITY(TRIM(LEADING _latin2' ' FROM _latin2'a')),COLLATION(TRIM(TRAILING _latin2' ' FROM _latin2'a')),COERCIBILITY(TRIM(TRAILING _latin2' ' FROM _latin2'a')),COLLATION(TRIM(BOTH _latin2' ' FROM _latin2'a')),COERCIBILITY(TRIM(BOTH _latin2' ' FROM _latin2'a'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/COLLATION/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:21) /test/1/catalog1/schema1/TRIM/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:37~1:49) /test/1/catalog1/schema1/COERCIBILITY/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__156]
+sql:
+SELECT COLLATION(REPEAT(_latin2'a',10)),COERCIBILITY(REPEAT(_latin2'a',10)),COLLATION(REVERSE(_latin2'ab')),COERCIBILITY(REVERSE(_latin2'ab')),COLLATION(QUOTE(_latin2'ab')),COERCIBILITY(QUOTE(_latin2'ab')),COLLATION(SOUNDEX(_latin2'ab')),COERCIBILITY(SOUNDEX(_latin2'ab'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/COLLATION/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:23) /test/1/catalog1/schema1/REPEAT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:40~1:52) /test/1/catalog1/schema1/COERCIBILITY/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:86~1:93) /test/1/catalog1/schema1/REVERSE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:153~1:158) /test/1/catalog1/schema1/QUOTE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:216~1:223) /test/1/catalog1/schema1/SOUNDEX/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__157]
+sql:
+SELECT COLLATION(INSERT(_latin2'abcd',2,3,_latin2'ef')),COERCIBILITY(INSERT(_latin2'abcd',2,3,_latin2'ef')),COLLATION(REPLACE(_latin2'abcd',_latin2'b',_latin2'B')),COERCIBILITY(REPLACE(_latin2'abcd',_latin2'b',_latin2'B'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/COLLATION/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:23) /test/1/catalog1/schema1/INSERT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:56~1:68) /test/1/catalog1/schema1/COERCIBILITY/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:118~1:125) /test/1/catalog1/schema1/REPLACE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__158]
+sql:
+SELECT CHARSET(a),COLLATION(a),COERCIBILITY(a) FROM str_nullable;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/CHARSET/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:18~1:27) /test/1/catalog1/schema1/COLLATION/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:31~1:43) /test/1/catalog1/schema1/COERCIBILITY/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:52~1:64) /test/1/catalog1/schema1/str_nullable/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__159]
+sql:
+SELECT CHARSET(NULL),COLLATION(NULL),COERCIBILITY(NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/CHARSET/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:21~1:30) /test/1/catalog1/schema1/COLLATION/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:37~1:49) /test/1/catalog1/schema1/COERCIBILITY/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__160]
+sql:
+SELECT str_left.*,str_right.* FROM str_left LEFT JOIN str_right ON str_left.j=str_right.j WHERE COLLATION(str_right.i)=_utf8'binary' ORDER BY str_left.i,str_right.i;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:35~1:43) /test/1/catalog1/schema1/str_left/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:54~1:63) /test/1/catalog1/schema1/str_right/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(1:96~1:105) /test/1/catalog1/schema1/COLLATION/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__161]
+sql:
+SELECT str_left.*,str_right.* FROM str_left LEFT JOIN str_right ON str_left.j=str_right.j WHERE CHARSET(str_right.i)=_utf8'binary' ORDER BY str_left.i,str_right.i;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:35~1:43) /test/1/catalog1/schema1/str_left/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:54~1:63) /test/1/catalog1/schema1/str_right/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(1:96~1:103) /test/1/catalog1/schema1/CHARSET/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__162]
+sql:
+SELECT str_left.*,str_right.* FROM str_left LEFT JOIN str_right ON str_left.j=str_right.j WHERE COERCIBILITY(str_right.i)=5 ORDER BY str_left.i,str_right.i;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:35~1:43) /test/1/catalog1/schema1/str_left/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:54~1:63) /test/1/catalog1/schema1/str_right/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(1:96~1:108) /test/1/catalog1/schema1/COERCIBILITY/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__163]
+sql:
+SELECT _latin1'B' BETWEEN _latin1'a' AND _latin1'c' COLLATE latin1_bin;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__164]
+sql:
+SELECT _latin1'B' BETWEEN _latin2'a' AND _latin1'b';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__165]
+sql:
+SELECT _latin1'B' BETWEEN _latin1'a' AND _latin2'b';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__166]
+sql:
+SELECT _latin1'B' IN (_latin1'a',_latin1'b' COLLATE latin1_bin);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__167]
+sql:
+SELECT _latin1'B' IN (_latin2'a',_latin1'b');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__168]
+sql:
+SELECT _latin1'B' IN (_latin1'a',_latin2'b');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__169]
+sql:
+SELECT _latin1'B' COLLATE latin1_general_ci IN (_latin1'a',_latin1'b' COLLATE latin1_bin);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__170]
+sql:
+SELECT FIELD(_utf8mb4'abc',x'ff');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/FIELD/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__171]
+sql:
+WITH cte0 AS (SELECT CAST(t1.id AS CHAR(38)) AS c2 FROM t1), cte1 AS (SELECT t2.name AS c1 FROM t2), cte2 AS (SELECT d3.c1 AS c1, d1.c2 AS c2 FROM cte0 AS d1 LEFT JOIN cte1 AS d3 ON TRUE WHERE IFNULL(d3.c1, d1.c2) LIKE 'Vision Operations') SELECT * FROM cte2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:21~1:25) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:56~1:58) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:96~1:98) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(1:193~1:199) /test/1/catalog1/schema1/IFNULL/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__172]
+sql:
+SELECT _utf8'hello' COLLATE UTF8_bin;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__173]
+sql:
+SELECT * FROM customer_demographics WHERE CEILING(customer_demographics.cd_purchase_estimate) BETWEEN '2037' AND (-71 * (-1552207807 * 440370369)) COLLATE utf8mb4_et_0900_as_cs;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:35) /test/1/catalog1/schema1/customer_demographics/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(1:42~1:49) /test/1/catalog1/schema1/CEILING/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__174]
+sql:
+SELECT CONCAT(jahr,'-',monat,'-',tag,' ',zeit) AS date_value,UNIX_TIMESTAMP(CONCAT(jahr,'-',monat,'-',tag,' ',zeit)) AS unix_value FROM timestamp_source;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/CONCAT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:61~1:75) /test/1/catalog1/schema1/UNIX_TIMESTAMP/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:136~1:152) /test/1/catalog1/schema1/timestamp_source/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__175]
+sql:
+SELECT GET_FORMAT(DATE, ?) AS val;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/GET_FORMAT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__176]
+sql:
+SELECT `order`.select, `order` . `a-b` FROM split_identifiers . `order`;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:44~1:71) /test/1/catalog1/split_identifiers/order/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__177]
+sql:
+SELECT 1table . 1column FROM split_identifiers . 1table;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:29~1:55) /test/1/catalog1/split_identifiers/1table/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__178]
+sql:
+SELECT JSON_VALUE('{"x":"y"}', '$.x' RETURNING CHAR(10) CHARSET utf8mb4);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/JSON_VALUE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__179]
+sql:
+SELECT JSON_VALUE('["2020-01-01","2020-01-02"]', '$[*]' RETURNING DATE DEFAULT DATE'1999-12-31' ON ERROR);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/JSON_VALUE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__180]
+sql:
+SELECT INTERVAL(5, 10);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/INTERVAL/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__181]
+sql:
+SELECT id FROM (SELECT 1 AS id UNION ALL SELECT 2) AS d ORDER BY id LIMIT ?;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__182]
+sql:
+SELECT id FROM (SELECT 1 AS id UNION ALL SELECT 2) AS d ORDER BY id LIMIT ?, ?;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__183]
+sql:
+SELECT id FROM (SELECT 1 AS id UNION ALL SELECT 2) AS d ORDER BY id LIMIT ? OFFSET ?;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__184]
+sql:
+SELECT id FROM (SELECT 1 AS id UNION ALL SELECT 2) AS d ORDER BY id LIMIT 0002;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__185]
+sql:
+SELECT id FROM (SELECT 1 AS id UNION ALL SELECT 2) AS d ORDER BY id LIMIT 18446744073709551615;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__186]
+sql:
+SELECT X'', x'00ff', 0x0, 0xABC, B'', b'0', 0b0, 0b101010;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__187]
+sql:
+SELECT _latin1'abc', _utf8mb4 X'F09F9880', _binary b'01000001', _utf8mb4'abc' COLLATE utf8mb4_bin;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__188]
+sql:
+SELECT '\0', '\'', '\"', '\b', '\n', '\r', '\t', '\Z', '\\', '\%', '\_';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__189]
+sql:
+SELECT DATE '2020-02-29', TIME '23:59:59.123456', TIMESTAMP '2020-02-29 23:59:59.123456';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__190]
+sql:
+SELECT -9223372036854775808, +9223372036854775807, 1E-3, .5E+2, 1.E-2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__191]
+sql:
+SELECT 0, 18446744073709551615, 1.25, .5, 1., 1e3, 1.e2, X'4D7953514C', 0x4D7953514C, b'1010', 0b1010, N'national', _utf8mb4'text', _binary'bin', _binary X'41', 'adjacent' ' string', 'a''b', 'a\\nb', "double", TRUE, FALSE, NULL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__192]
+sql:
+SELECT N'a' 'b';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__193]
+sql:
+SELECT {fn 1 + 2};
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__194]
+sql:
+SELECT {t '12:34:56'};
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__195]
+sql:
+SELECT {ts '2020-02-29 12:34:56.123456'};
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__196]
+sql:
+SELECT ?, ? + 1, -?, ~?, NOT ?, (? BETWEEN ? AND ?), COALESCE(?,0) FROM (SELECT 1 AS id) d WHERE id IN (?,?) AND EXISTS (SELECT ?);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:53~1:61) /test/1/catalog1/schema1/COALESCE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[performance__197]
+sql:
+EXPLAIN SELECT
+(
+  SELECT
+  ROW(t1.b, a) = ROW(ROW(1, t2.c) = ROW(1, d), c) = a
+  FROM t1
+)
+FROM t2 GROUP BY a;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Table(5:7~5:9) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(7:5~7:7) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__198]
+sql:
+SELECT CONVERT(CONVERT('',DECIMAL(65,0)), DECIMAL(66,0));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/CONVERT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__199]
+sql:
+WITH x AS (SELECT 1)
+SELECT 1 FROM x x, x x0, x x1, x x2, x x3, x x4, x x5, x x6, x x7, x x8, x x9, x x10, x x11, x x12, x x13, x x14, x x15, x x16, x x17, x x18, x x19, x x20, x x21, x x22, x x23, x x24, x x25, x x26, x x27, x x28, x x29, x x30, x x31, x x32, x x33, x x34, x x35, x x36, x x37, x x38, x x39, x x40, x x41, x x42, x x43, x x44, x x45, x x46, x x47, x x48, x x49, x x50, x x51, x x52, x x53, x x54, x x55, x x56, x x57, x x58, x x59, x x60, x x61, x x62, x x63;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__200]
+sql:
+WITH cte AS (SELECT 0 /*! ) */ SELECT * FROM cte a, cte b;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__201]
+sql:
+WITH cte AS /*! ( */ SELECT 0) SELECT * FROM cte a, cte b;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[performance__202]
+sql:
+EXPLAIN SELECT 1 INTO @x FROM DUAL INTO @y;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "ConfigKey(1:22~1:24) /test/1/x/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:30~1:34) /test/1/catalog1/schema1/DUAL/",
+      "action" : "READ"
+    },
+    {
+      "subject": "ConfigKey(1:40~1:42) /test/1/y/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[performance__203]
+sql:
+EXPLAIN SELECT 1 INTO DUMPFILE '/tmp/codex_parser_file1' FROM DUAL INTO DUMPFILE '/tmp/codex_parser_file2';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "File(1:31~1:56) /test/1/tmp/codex_parser_file1/",
+      "action" : "EXPORT",
+      "target" : "Table(1:62~1:66) /test/1/catalog1/schema1/DUAL/"
+    },
+    {
+      "subject": "File(1:81~1:106) /test/1/tmp/codex_parser_file2/",
+      "action" : "EXPORT"
+    }
+  ]
+}
+----------
+[performance__204]
+sql:
+EXPLAIN SELECT 1 INTO OUTFILE '/tmp/codex_parser_file3' FROM DUAL INTO OUTFILE '/tmp/codex_parser_file4';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "File(1:30~1:55) /test/1/tmp/codex_parser_file3/",
+      "action" : "EXPORT",
+      "target" : "Table(1:61~1:65) /test/1/catalog1/schema1/DUAL/"
+    },
+    {
+      "subject": "File(1:79~1:104) /test/1/tmp/codex_parser_file4/",
+      "action" : "EXPORT"
+    }
+  ]
+}
+----------
+[select__205]
+sql:
+SELECT * FROM full;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:18) /test/1/catalog1/schema1/full/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__206]
+sql:
+SELECT * FROM full AS full;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:18) /test/1/catalog1/schema1/full/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__207]
+sql:
+SELECT * FROM `full` full;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:20) /test/1/catalog1/schema1/full/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__208]
+sql:
+SELECT STR_TO_DATE('10:00 PM', '%h:%i %p') + INTERVAL 10 MINUTE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/STR_TO_DATE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__209]
+sql:
+SELECT STR_TO_DATE('10:00 PM', '%h:%i %p') + INTERVAL (INTERVAL(1,2,3) + 1) MINUTE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/STR_TO_DATE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:55~1:63) /test/1/catalog1/schema1/INTERVAL/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__210]
+sql:
+SELECT "1997-12-31 23:59:59" + INTERVAL 1 SECOND;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__211]
+sql:
+SELECT 1 + INTERVAL(1,0,1,2) + 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:11~1:19) /test/1/catalog1/schema1/INTERVAL/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__212]
+sql:
+SELECT INTERVAL(1^1,0,1,2) + 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/INTERVAL/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__213]
+sql:
+SELECT INTERVAL(1,0+1,2,3) * 5.5;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/INTERVAL/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__214]
+sql:
+SELECT INTERVAL(3,3,1+3,4+4) / 0.5;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/INTERVAL/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__215]
+sql:
+SELECT (INTERVAL(1,0,1,2) + 5) * 7 + INTERVAL(1,0,1,2) / 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:8~1:16) /test/1/catalog1/schema1/INTERVAL/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__216]
+sql:
+SELECT INTERVAL(1,0,1,2) + 1, 5 * INTERVAL(1,0,1,2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/INTERVAL/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__217]
+sql:
+SELECT INTERVAL(0,(1*5)/2) + INTERVAL(5,4,3);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/INTERVAL/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__218]
+sql:
+SELECT 1^1 + INTERVAL 1+1 SECOND & 1 + INTERVAL 1+1 SECOND;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__219]
+sql:
+SELECT 1%2 - INTERVAL 1^1 SECOND | 1%2 - INTERVAL 1^1 SECOND;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__220]
+sql:
+SELECT * FROM interval_t WHERE a = INTERVAL(3,2,1) + 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:24) /test/1/catalog1/schema1/interval_t/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(1:35~1:43) /test/1/catalog1/schema1/INTERVAL/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__221]
+sql:
+SELECT 1 AS PERSIST, 2 AS PERSIST_ONLY;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select_session_variable_rw__222]
+sql:
+SELECT @@session.parser_max_mem_size;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "ConfigKey(1:7~1:36) /test/1/parser_max_mem_size/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__223]
+sql:
+SELECT @@global.parser_max_mem_size;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "ConfigKey(1:7~1:35) /test/1/parser_max_mem_size/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__224]
+sql:
+SELECT 1 FROM
+  t AS t1
+  CROSS JOIN t AS t2
+  CROSS JOIN t AS t3
+  CROSS JOIN t AS t4
+  CROSS JOIN t AS t5
+  CROSS JOIN t AS t6
+  CROSS JOIN t AS t7
+  CROSS JOIN t AS t8
+  CROSS JOIN t AS t9
+  CROSS JOIN t AS t10
+  CROSS JOIN t AS t11
+  CROSS JOIN t AS t12
+  CROSS JOIN t AS t13
+  CROSS JOIN t AS t14
+  CROSS JOIN t AS t15
+  CROSS JOIN t AS t16
+  CROSS JOIN t AS t17
+  CROSS JOIN t AS t18
+  CROSS JOIN t AS t19
+  CROSS JOIN t AS t20
+  CROSS JOIN t AS t21
+  CROSS JOIN t AS t22
+  CROSS JOIN t AS t23
+  CROSS JOIN t AS t24
+  CROSS JOIN t AS t25
+  CROSS JOIN t AS t26
+  CROSS JOIN t AS t27
+  CROSS JOIN t AS t28
+  CROSS JOIN t AS t29
+  CROSS JOIN t AS t30
+  CROSS JOIN t AS t31
+  CROSS JOIN t AS t32
+  CROSS JOIN t AS t33
+  CROSS JOIN t AS t34
+  CROSS JOIN t AS t35
+  CROSS JOIN t AS t36
+  CROSS JOIN t AS t37
+  CROSS JOIN t AS t38
+  CROSS JOIN t AS t39
+  CROSS JOIN t AS t40
+  CROSS JOIN t AS t41
+  CROSS JOIN t AS t42
+  CROSS JOIN t AS t43
+  CROSS JOIN t AS t44
+  CROSS JOIN t AS t45
+  CROSS JOIN t AS t46
+  CROSS JOIN t AS t47
+  CROSS JOIN t AS t48
+  CROSS JOIN t AS t49
+  CROSS JOIN t AS t50
+  CROSS JOIN t AS t51
+  CROSS JOIN t AS t52
+  CROSS JOIN t AS t53
+  CROSS JOIN t AS t54
+  CROSS JOIN t AS t55
+  CROSS JOIN t AS t56
+  CROSS JOIN t AS t57
+  CROSS JOIN t AS t58
+  CROSS JOIN t AS t59
+  CROSS JOIN t AS t60
+  CROSS JOIN t AS t61
+  CROSS JOIN t AS t62
+  CROSS JOIN t AS t63;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:2~2:3) /test/1/catalog1/schema1/t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__225]
+sql:
+SELECT 1 FROM
+  (t AS t1 CROSS JOIN t AS t2),
+  (t AS t3 CROSS JOIN t AS t4),
+  (t AS t5 CROSS JOIN t AS t6),
+  (t AS t7 CROSS JOIN t AS t8),
+  (t AS t9 CROSS JOIN t AS t10),
+  (t AS t11 CROSS JOIN t AS t12),
+  (t AS t13 CROSS JOIN t AS t14),
+  (t AS t15 CROSS JOIN t AS t16),
+  (t AS t17 CROSS JOIN t AS t18),
+  (t AS t19 CROSS JOIN t AS t20),
+  (t AS t21 CROSS JOIN t AS t22),
+  (t AS t23 CROSS JOIN t AS t24),
+  (t AS t25 CROSS JOIN t AS t26),
+  (t AS t27 CROSS JOIN t AS t28),
+  (t AS t29 CROSS JOIN t AS t30),
+  (t AS t31 CROSS JOIN t AS t32),
+  (t AS t33 CROSS JOIN t AS t34),
+  (t AS t35 CROSS JOIN t AS t36),
+  (t AS t37 CROSS JOIN t AS t38),
+  (t AS t39 CROSS JOIN t AS t40),
+  (t AS t41 CROSS JOIN t AS t42),
+  (t AS t43 CROSS JOIN t AS t44),
+  (t AS t45 CROSS JOIN t AS t46),
+  (t AS t47 CROSS JOIN t AS t48),
+  (t AS t49 CROSS JOIN t AS t50),
+  (t AS t51 CROSS JOIN t AS t52),
+  (t AS t53 CROSS JOIN t AS t54),
+  (t AS t55 CROSS JOIN t AS t56),
+  (t AS t57 CROSS JOIN t AS t58),
+  (t AS t59 CROSS JOIN t AS t60),
+  (t AS t61 CROSS JOIN t AS t62);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:3~2:4) /test/1/catalog1/schema1/t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__226]
+sql:
+SELECT 1 FROM
+  ((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((t AS t1 CROSS JOIN t AS t2) CROSS JOIN t AS t3) CROSS JOIN t AS t4) CROSS JOIN t AS t5) CROSS JOIN t AS t6) CROSS JOIN t AS t7) CROSS JOIN t AS t8) CROSS JOIN t AS t9) CROSS JOIN t AS t10) CROSS JOIN t AS t11) CROSS JOIN t AS t12) CROSS JOIN t AS t13) CROSS JOIN t AS t14) CROSS JOIN t AS t15) CROSS JOIN t AS t16) CROSS JOIN t AS t17) CROSS JOIN t AS t18) CROSS JOIN t AS t19) CROSS JOIN t AS t20) CROSS JOIN t AS t21) CROSS JOIN t AS t22) CROSS JOIN t AS t23) CROSS JOIN t AS t24) CROSS JOIN t AS t25) CROSS JOIN t AS t26) CROSS JOIN t AS t27) CROSS JOIN t AS t28) CROSS JOIN t AS t29) CROSS JOIN t AS t30) CROSS JOIN t AS t31) CROSS JOIN t AS t32) CROSS JOIN t AS t33) CROSS JOIN t AS t34) CROSS JOIN t AS t35) CROSS JOIN t AS t36) CROSS JOIN t AS t37) CROSS JOIN t AS t38) CROSS JOIN t AS t39) CROSS JOIN t AS t40) CROSS JOIN t AS t41) CROSS JOIN t AS t42) CROSS JOIN t AS t43) CROSS JOIN t AS t44) CROSS JOIN t AS t45) CROSS JOIN t AS t46) CROSS JOIN t AS t47) CROSS JOIN t AS t48) CROSS JOIN t AS t49) CROSS JOIN t AS t50) CROSS JOIN t AS t51) CROSS JOIN t AS t52) CROSS JOIN t AS t53) CROSS JOIN t AS t54) CROSS JOIN t AS t55) CROSS JOIN t AS t56) CROSS JOIN t AS t57) CROSS JOIN t AS t58) CROSS JOIN t AS t59) CROSS JOIN t AS t60) CROSS JOIN t AS t61) CROSS JOIN t AS t62) CROSS JOIN t AS t63);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:64~2:65) /test/1/catalog1/schema1/t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__227]
+sql:
+SELECT COUNT(*) = 0 FROM
+  (SELECT t1.pk FROM t AS t1, t AS t2, t AS t3, t AS t4, t AS t5, t AS t6, t AS t7, t AS t8, t AS t9, t AS t10, t AS t11, t AS t12, t AS t13, t AS t14, t AS t15, t AS t16, t AS t17, t AS t18, t AS t19, t AS t20, t AS t21, t AS t22, t AS t23, t AS t24, t AS t25, t AS t26, t AS t27, t AS t28, t AS t29, t AS t30) AS d1,
+  (SELECT t31.pk FROM t AS t31, t AS t32, t AS t33, t AS t34, t AS t35, t AS t36, t AS t37, t AS t38, t AS t39, t AS t40, t AS t41, t AS t42, t AS t43, t AS t44, t AS t45, t AS t46, t AS t47, t AS t48, t AS t49, t AS t50, t AS t51, t AS t52, t AS t53, t AS t54, t AS t55, t AS t56, t AS t57, t AS t58, t AS t59, t AS t60) AS d2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(2:21~2:22) /test/1/catalog1/schema1/t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__228]
+sql:
+SELECT 1 FROM t AS outer_t
+WHERE EXISTS (
+  SELECT 1 FROM t AS t1, t AS t2, t AS t3, t AS t4, t AS t5, t AS t6, t AS t7, t AS t8, t AS t9, t AS t10, t AS t11, t AS t12, t AS t13, t AS t14, t AS t15, t AS t16, t AS t17, t AS t18, t AS t19, t AS t20, t AS t21, t AS t22, t AS t23, t AS t24, t AS t25, t AS t26, t AS t27, t AS t28, t AS t29, t AS t30, t AS t31, t AS t32, t AS t33, t AS t34, t AS t35, t AS t36, t AS t37, t AS t38, t AS t39, t AS t40, t AS t41, t AS t42, t AS t43, t AS t44, t AS t45, t AS t46, t AS t47, t AS t48, t AS t49, t AS t50, t AS t51, t AS t52, t AS t53, t AS t54, t AS t55, t AS t56, t AS t57, t AS t58, t AS t59, t AS t60, t AS t61, t AS t62, t AS t63
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:15) /test/1/catalog1/schema1/t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_session_variable_rw__229]
+sql:
+SELECT 1 INTO @x FROM DUAL INTO @y;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "ConfigKey(1:14~1:16) /test/1/x/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:22~1:26) /test/1/catalog1/schema1/DUAL/",
+      "action" : "READ"
+    },
+    {
+      "subject": "ConfigKey(1:32~1:34) /test/1/y/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[data_export_select__230]
+sql:
+SELECT 1 INTO DUMPFILE '/tmp/codex_parser_plain1' FROM DUAL INTO DUMPFILE '/tmp/codex_parser_plain2';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_EXPORT": [
+    {
+      "subject": "File(1:23~1:49) /test/1/tmp/codex_parser_plain1/",
+      "action" : "EXPORT",
+      "target" : "Table(1:55~1:59) /test/1/catalog1/schema1/DUAL/"
+    },
+    {
+      "subject": "File(1:74~1:100) /test/1/tmp/codex_parser_plain2/",
+      "action" : "EXPORT"
+    }
+  ]
+}
+----------
+[data_export_select__231]
+sql:
+SELECT 1 INTO OUTFILE '/tmp/codex_parser_plain3' FROM DUAL INTO OUTFILE '/tmp/codex_parser_plain4';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_EXPORT": [
+    {
+      "subject": "File(1:22~1:48) /test/1/tmp/codex_parser_plain3/",
+      "action" : "EXPORT",
+      "target" : "Table(1:54~1:58) /test/1/catalog1/schema1/DUAL/"
+    },
+    {
+      "subject": "File(1:72~1:98) /test/1/tmp/codex_parser_plain4/",
+      "action" : "EXPORT"
+    }
+  ]
+}
+----------
+[select__232]
+sql:
+SELECT ABS(3 AS three);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/ABS/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__233]
+sql:
+SELECT ABS(3 three);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/ABS/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__234]
+sql:
+SELECT ABS(3 AS "three");
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/ABS/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__235]
+sql:
+SELECT ABS(3 "three");
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/ABS/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__236]
+sql:
+SELECT INSTR("foobar" AS p1, "bar");
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/INSTR/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__237]
+sql:
+SELECT INSTR("foobar" p1, "bar");
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/INSTR/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__238]
+sql:
+SELECT INSTR("foobar" AS "p1", "bar");
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/INSTR/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__239]
+sql:
+SELECT INSTR("foobar" "p1", "bar");
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/INSTR/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select_session_variable_rw__240]
+sql:
+SELECT INSTR(@foobar "p1", "bar");
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/INSTR/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "ConfigKey(1:13~1:20) /test/1/foobar/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__241]
+sql:
+SELECT INSTR("foobar", "bar" AS p2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/INSTR/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__242]
+sql:
+SELECT INSTR("foobar", "bar" p2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/INSTR/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__243]
+sql:
+SELECT INSTR("foobar", "bar" AS "p2");
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/INSTR/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__244]
+sql:
+SELECT INSTR("foobar", "bar" "p2");
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/INSTR/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select_session_variable_rw__245]
+sql:
+SELECT INSTR("foobar", @bar "p2");
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/INSTR/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "ConfigKey(1:23~1:27) /test/1/bar/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__246]
+sql:
+SELECT INSTR("foobar" AS p1, "bar" AS p2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/INSTR/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__247]
+sql:
+SELECT CONV(255 AS p1, 10, 16);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CONV/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__248]
+sql:
+SELECT CONV(255 p1, 10, 16);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CONV/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__249]
+sql:
+SELECT CONV(255 AS "p1", 10, 16);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CONV/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__250]
+sql:
+SELECT CONV(255 "p1", 10, 16);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CONV/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__251]
+sql:
+SELECT CONV(255, 10 AS p2, 16);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CONV/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__252]
+sql:
+SELECT CONV(255, 10 p2, 16);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CONV/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__253]
+sql:
+SELECT CONV(255, 10 AS "p2", 16);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CONV/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__254]
+sql:
+SELECT CONV(255, 10 "p2", 16);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CONV/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__255]
+sql:
+SELECT CONV(255, 10, 16 AS p3);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CONV/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__256]
+sql:
+SELECT CONV(255, 10, 16 p3);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CONV/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__257]
+sql:
+SELECT CONV(255, 10, 16 AS "p3");
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CONV/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__258]
+sql:
+SELECT CONV(255, 10, 16 "p3");
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CONV/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__259]
+sql:
+SELECT CONV(255 AS p1, 10 AS p2, 16 AS p3);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CONV/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__260]
+sql:
+SELECT ATAN(10 AS p1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/ATAN/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__261]
+sql:
+SELECT ATAN(10 p1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/ATAN/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__262]
+sql:
+SELECT ATAN(10 AS "p1");
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/ATAN/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__263]
+sql:
+SELECT ATAN(10 "p1");
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/ATAN/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__264]
+sql:
+SELECT ATAN(10 AS p1, 20);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/ATAN/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__265]
+sql:
+SELECT ATAN(10 p1, 20);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/ATAN/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__266]
+sql:
+SELECT ATAN(10 AS "p1", 20);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/ATAN/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__267]
+sql:
+SELECT ATAN(10 "p1", 20);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/ATAN/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__268]
+sql:
+SELECT ATAN(10, 20 AS p2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/ATAN/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__269]
+sql:
+SELECT ATAN(10, 20 p2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/ATAN/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__270]
+sql:
+SELECT ATAN(10, 20 AS "p2");
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/ATAN/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__271]
+sql:
+SELECT ATAN(10, 20 "p2");
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/ATAN/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__272]
+sql:
+SELECT ATAN(10 AS p1, 20 AS p2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/ATAN/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__273]
+sql:
+SELECT PI(3.14);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:9) /test/1/catalog1/schema1/PI/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__274]
+sql:
+SELECT TAN();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/TAN/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__275]
+sql:
+SELECT TAN(1, 2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/TAN/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__276]
+sql:
+SELECT MAKEDATE(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/MAKEDATE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__277]
+sql:
+SELECT MAKEDATE(1, 2, 3);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/MAKEDATE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__278]
+sql:
+SELECT MAKETIME();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/MAKETIME/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__279]
+sql:
+SELECT MAKETIME(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/MAKETIME/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__280]
+sql:
+SELECT MAKETIME(1, 2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/MAKETIME/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__281]
+sql:
+SELECT MAKETIME(1, 2, 3, 4);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/MAKETIME/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__282]
+sql:
+SELECT ATAN();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/ATAN/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__283]
+sql:
+SELECT ATAN2(1, 2, 3);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/ATAN2/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__284]
+sql:
+SELECT CONCAT_WS();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/CONCAT_WS/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__285]
+sql:
+SELECT ELT();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/ELT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__286]
+sql:
+SELECT EXPORT_SET();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/EXPORT_SET/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__287]
+sql:
+SELECT EXPORT_SET('p1');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/EXPORT_SET/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__288]
+sql:
+SELECT EXPORT_SET('p1', 'p2');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/EXPORT_SET/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__289]
+sql:
+SELECT EXPORT_SET('p1', 'p2', 'p3', 'p4', 'p5', 'p6');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/EXPORT_SET/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__290]
+sql:
+SELECT FIELD();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/FIELD/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__291]
+sql:
+SELECT FROM_UNIXTIME();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:20) /test/1/catalog1/schema1/FROM_UNIXTIME/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__292]
+sql:
+SELECT FROM_UNIXTIME(1, 2, 3);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:20) /test/1/catalog1/schema1/FROM_UNIXTIME/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__293]
+sql:
+SELECT UNIX_TIMESTAMP(1, 2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:21) /test/1/catalog1/schema1/UNIX_TIMESTAMP/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__294]
+sql:
+SELECT GREATEST();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/GREATEST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__295]
+sql:
+SELECT GREATEST(12);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/GREATEST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select_session_setting_write__296]
+sql:
+SELECT LAST_INSERT_ID(1, 2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:21) /test/1/catalog1/schema1/LAST_INSERT_ID/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__297]
+sql:
+SELECT LEAST();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/LEAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__298]
+sql:
+SELECT LEAST(12);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/LEAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__299]
+sql:
+SELECT LOCATE();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/LOCATE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__300]
+sql:
+SELECT LOCATE(1, 2, 3, 4);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/LOCATE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__301]
+sql:
+SELECT RAND(1, 2, 3);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/RAND/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__302]
+sql:
+SELECT ROUND(1, 2, 3);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/ROUND/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__303]
+sql:
+SELECT YEARWEEK();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/YEARWEEK/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__304]
+sql:
+SELECT YEARWEEK(1, 2, 3);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/YEARWEEK/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__305]
+sql:
+SELECT 1 < !(1 XOR TO_BASE64());
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:19~1:28) /test/1/catalog1/schema1/TO_BASE64/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__306]
+sql:
+SELECT !('' XOR LENGTH());
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:16~1:22) /test/1/catalog1/schema1/LENGTH/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__307]
+sql:
+SELECT !((UNHEX() IS NULL));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:10~1:15) /test/1/catalog1/schema1/UNHEX/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__308]
+sql:
+SELECT t1.* FROM t1 AS t0, { OJ t2 INNER JOIN t1 ON (t1.a1=t2.a1) } WHERE t0.a3=2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:17~1:19) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:32~1:34) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__309]
+sql:
+SELECT t1.*,t2.* FROM { OJ ((t1 INNER JOIN t2 ON (t1.a1=t2.a2)) LEFT OUTER JOIN t3 ON t3.a3=t2.a1)};
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:29~1:31) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:43~1:45) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:80~1:82) /test/1/catalog1/schema1/t3/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__310]
+sql:
+SELECT t1.*,t2.* FROM { OJ ((t1 LEFT OUTER JOIN t2 ON t1.a3=t2.a2) INNER JOIN t3 ON (t3.a1=t2.a2))};
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:29~1:31) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:48~1:50) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:78~1:80) /test/1/catalog1/schema1/t3/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__311]
+sql:
+SELECT t1.*,t2.* FROM { OJ (t1 LEFT OUTER JOIN t2 ON t1.a1=t2.a2) CROSS JOIN t3 ON (t3.a2=t2.a3)};
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:28~1:30) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:47~1:49) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:77~1:79) /test/1/catalog1/schema1/t3/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__312]
+sql:
+SELECT {fn CONCAT(a1,a2)} FROM t1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:11~1:17) /test/1/catalog1/schema1/CONCAT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:31~1:33) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__313]
+sql:
+SELECT a1, a4 FROM t2 WHERE a4 LIKE {fn UCASE('1789-07-14')};
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:19~1:21) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(1:40~1:45) /test/1/catalog1/schema1/UCASE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select_session_variable_rw__314]
+sql:
+(SELECT 1) LIMIT 1 INTO @var;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "ConfigKey(1:24~1:28) /test/1/var/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_session_variable_rw__315]
+sql:
+(SELECT 2 AS c) ORDER BY c INTO @var;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "ConfigKey(1:32~1:36) /test/1/var/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_session_variable_rw__316]
+sql:
+(SELECT 3 AS c) ORDER BY c LIMIT 1 INTO @var;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "ConfigKey(1:40~1:44) /test/1/var/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_session_variable_rw__317]
+sql:
+(SELECT 4) INTO @var;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "ConfigKey(1:16~1:20) /test/1/var/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_admin_replication__318]
+sql:
+SELECT MASTER_POS_WAIT();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:22) /test/1/catalog1/schema1/MASTER_POS_WAIT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select_admin_replication__319]
+sql:
+SELECT MASTER_POS_WAIT(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:22) /test/1/catalog1/schema1/MASTER_POS_WAIT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select_admin_replication__320]
+sql:
+SELECT SOURCE_POS_WAIT();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:22) /test/1/catalog1/schema1/SOURCE_POS_WAIT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select_admin_replication__321]
+sql:
+SELECT SOURCE_POS_WAIT(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:22) /test/1/catalog1/schema1/SOURCE_POS_WAIT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__322]
+sql:
+SELECT 1 AS parse_gcol_expr;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__323]
+sql:
+SELECT `*` FROM star_t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:16~1:22) /test/1/catalog1/schema1/star_t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__324]
+sql:
+SELECT star_t.`*`, star_t.* FROM star_t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:33~1:39) /test/1/catalog1/schema1/star_t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__325]
+sql:
+SELECT split_parser_identifier.star_t.`*`, split_parser_identifier.star_t.* FROM star_t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:81~1:87) /test/1/catalog1/schema1/star_t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__326]
+sql:
+SELECT "stmt 1";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__327]
+sql:
+SELECT "space, stmt 2";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__328]
+sql:
+SELECT "stmt 3";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__329]
+sql:
+/* comment */SELECT "comment, stmt 4";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select_session_variable_rw__330]
+sql:
+SELECT @'audit-hyphen' := 1, @audit.dot := 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "ConfigKey(1:7~1:22) /test/1/audit-hyphen/",
+      "action" : "READ"
+    },
+    {
+      "subject": "ConfigKey(1:29~1:39) /test/1/audit.dot/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__331]
+sql:
+SELECT q."from" AS "order", q.`a``b` AS `tick``alias` FROM "select" AS q;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:59~1:67) /test/1/catalog1/schema1/select/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__332]
+sql:
+SELECT CURRENT_DATE, CURRENT_DATE(), CURDATE(), UTC_DATE, UTC_DATE();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/CURRENT_DATE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:37~1:44) /test/1/catalog1/schema1/CURDATE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:48~1:56) /test/1/catalog1/schema1/UTC_DATE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__333]
+sql:
+SELECT CURRENT_TIME, CURRENT_TIME(), CURRENT_TIME(0), CURRENT_TIME(0006), CURTIME(), CURTIME(6), UTC_TIME, UTC_TIME(), UTC_TIME(6);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/CURRENT_TIME/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:74~1:81) /test/1/catalog1/schema1/CURTIME/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:97~1:105) /test/1/catalog1/schema1/UTC_TIME/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__334]
+sql:
+SELECT CURRENT_TIMESTAMP, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP(0), CURRENT_TIMESTAMP(0006), NOW(), NOW(6), LOCALTIME, LOCALTIME(6), LOCALTIMESTAMP, LOCALTIMESTAMP(6), UTC_TIMESTAMP, UTC_TIMESTAMP(6), SYSDATE(), SYSDATE(6);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:24) /test/1/catalog1/schema1/CURRENT_TIMESTAMP/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:94~1:97) /test/1/catalog1/schema1/NOW/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:109~1:118) /test/1/catalog1/schema1/LOCALTIME/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:134~1:148) /test/1/catalog1/schema1/LOCALTIMESTAMP/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:169~1:182) /test/1/catalog1/schema1/UTC_TIMESTAMP/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:202~1:209) /test/1/catalog1/schema1/SYSDATE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__335]
+sql:
+SELECT NOW(7);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/NOW/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__336]
+sql:
+SELECT CURRENT_TIMESTAMP(2147483647);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:24) /test/1/catalog1/schema1/CURRENT_TIMESTAMP/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[block__337]
+sql:
+DO TIMESTAMP(DATE_FORMAT('2011-11-11', RIGHT('12345' + 1, 3)));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(1:3~1:12) /test/1/catalog1/schema1/TIMESTAMP/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:13~1:24) /test/1/catalog1/schema1/DATE_FORMAT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:39~1:44) /test/1/catalog1/schema1/RIGHT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__338]
+sql:
+SELECT UNIX_TIMESTAMP(COUNT(1));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:21) /test/1/catalog1/schema1/UNIX_TIMESTAMP/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:22~1:27) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select_session_variable_rw__339]
+sql:
+SELECT @plain.name$, @'hyphen-name', @"space name", @`tick-name`;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "ConfigKey(1:7~1:19) /test/1/name$/",
+      "action" : "READ"
+    },
+    {
+      "subject": "ConfigKey(1:21~1:35) /test/1/hyphen-name/",
+      "action" : "READ"
+    },
+    {
+      "subject": "ConfigKey(1:37~1:50) /test/1/space name/",
+      "action" : "READ"
+    },
+    {
+      "subject": "ConfigKey(1:52~1:64) /test/1/tick-name/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_session_variable_rw__340]
+sql:
+SELECT @@GLOBAL.max_connections, @@SESSION.sql_mode, @@LOCAL.sql_mode, @@sql_mode;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "ConfigKey(1:7~1:31) /test/1/max_connections/",
+      "action" : "READ"
+    },
+    {
+      "subject": "ConfigKey(1:33~1:51) /test/1/sql_mode/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_session_variable_rw__341]
+sql:
+SELECT @@`sql_mode`, @@GLOBAL.`max_connections`, @@SESSION.`sql_mode`, @@LOCAL.`sql_mode`;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "ConfigKey(1:7~1:19) /test/1/sql_mode/",
+      "action" : "READ"
+    },
+    {
+      "subject": "ConfigKey(1:21~1:30) /test/1/GLOBAL./",
+      "action" : "READ"
+    },
+    {
+      "subject": "ConfigKey(1:49~1:59) /test/1/SESSION./",
+      "action" : "READ"
+    },
+    {
+      "subject": "ConfigKey(1:71~1:79) /test/1/LOCAL./",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__342]
+sql:
+SELECT id, SUM(val) OVER (ORDER BY ts RANGE BETWEEN INTERVAL 1 DAY PRECEDING AND INTERVAL 1 DAY FOLLOWING) AS temporal_sum FROM t ORDER BY id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:11~1:14) /test/1/catalog1/schema1/SUM/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:128~1:129) /test/1/catalog1/schema1/t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__343]
+sql:
+SELECT _filename'abcd';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__344]
+sql:
+SELECT _filename;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__345]
+sql:
+SELECT 1 AS _filename;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__346]
+sql:
+SELECT 1 AS `_filename`;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__347]
+sql:
+SELECT MASTER_SERVER_ID FROM (SELECT 1 AS MASTER_SERVER_ID) AS t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__348]
+sql:
+SELECT 1--comment
++2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__349]
+sql:
+SELECT 1 /* ; SELECT 99 */ + 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__350]
+sql:
+SELECT @@GLOBAL.hot_cache.key_buffer_size;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "ConfigKey(1:7~1:41) /test/1/hot_cache.key_buffer_size/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__351]
+sql:
+SELECT @@GLOBAL.default.key_buffer_size;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "ConfigKey(1:7~1:39) /test/1/default.key_buffer_size/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[session_variable_rw__352]
+sql:
+SET @hs=X'41', @ha=X'41'+0, @hc=CAST(X'41' AS UNSIGNED);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_VARIABLE_RW": [
+    {
+      "subject": "ConfigKey(1:4~1:7) /test/1/hs/",
+      "action" : "READ"
+    },
+    {
+      "subject": "ConfigKey(1:15~1:18) /test/1/ha/",
+      "action" : "READ"
+    },
+    {
+      "subject": "ConfigKey(1:28~1:31) /test/1/hc/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(1:32~1:36) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select_session_variable_rw__353]
+sql:
+SELECT @hs,@ha,@hc;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "ConfigKey(1:7~1:10) /test/1/hs/",
+      "action" : "READ"
+    },
+    {
+      "subject": "ConfigKey(1:11~1:14) /test/1/ha/",
+      "action" : "READ"
+    },
+    {
+      "subject": "ConfigKey(1:15~1:18) /test/1/hc/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__354]
+sql:
+SELECT CHARSET(X''),LENGTH(X''),X''+0,CAST(X'' AS UNSIGNED);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/CHARSET/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:20~1:26) /test/1/catalog1/schema1/LENGTH/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:38~1:42) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__355]
+sql:
+SELECT _utf8mb4 X'41' COLLATE utf8mb4_bin, _binary 0x0041;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[session_variable_rw__356]
+sql:
+SET @'a''b'=1, @"c""d"=2, @`e``f`=3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_VARIABLE_RW": [
+    {
+      "subject": "ConfigKey(1:4~1:11) /test/1/a'b/",
+      "action" : "READ"
+    },
+    {
+      "subject": "ConfigKey(1:15~1:22) /test/1/c\"d/",
+      "action" : "READ"
+    },
+    {
+      "subject": "ConfigKey(1:26~1:33) /test/1/e`f/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_session_variable_rw__357]
+sql:
+SELECT @'a''b',@"c""d",@`e``f`;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "ConfigKey(1:7~1:14) /test/1/a'b/",
+      "action" : "READ"
+    },
+    {
+      "subject": "ConfigKey(1:15~1:22) /test/1/c\"d/",
+      "action" : "READ"
+    },
+    {
+      "subject": "ConfigKey(1:23~1:30) /test/1/e`f/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[session_variable_rw__358]
+sql:
+SET @'semi;name'=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_VARIABLE_RW": [
+    {
+      "subject": "ConfigKey(1:4~1:16) /test/1/semi;name/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_session_variable_rw__359]
+sql:
+SELECT @'semi;name';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "ConfigKey(1:7~1:19) /test/1/semi;name/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__360]
+sql:
+SELECT `semi;column` FROM `semi;table`;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:26~1:38) /test/1/catalog1/schema1/semi;table/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__361]
+sql:
+SELECT 1e + 3 FROM split_numid;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:19~1:30) /test/1/catalog1/schema1/split_numid/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__362]
+sql:
+SELECT ASCII ('A'), ABS (-2), LENGTH ('abc');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/ASCII/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:20~1:23) /test/1/catalog1/schema1/ABS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:30~1:36) /test/1/catalog1/schema1/LENGTH/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select_call_prog_obj__363]
+sql:
+SELECT split_lang.PI(),PI();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:20) /test/1/catalog1/split_lang/PI/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:23~1:25) /test/1/catalog1/schema1/PI/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select_call_prog_obj__364]
+sql:
+SELECT `a``b`();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/a`b/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__365]
+sql:
+SELECT {fn LENGTH('hello')}, { date '1997-10-20' };
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:11~1:17) /test/1/catalog1/schema1/LENGTH/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__366]
+sql:
+SELECT 1 AS sets;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[session_variable_rw__367]
+sql:
+SET @s1=_latin1'abc',@s2=_latin2'abc';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_VARIABLE_RW": [
+    {
+      "subject": "ConfigKey(1:4~1:7) /test/1/s1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "ConfigKey(1:21~1:24) /test/1/s2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_session_variable_rw__368]
+sql:
+SELECT @s1=CONVERT(@s2 USING latin1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "ConfigKey(1:7~1:10) /test/1/s1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(1:11~1:18) /test/1/catalog1/schema1/CONVERT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "ConfigKey(1:19~1:22) /test/1/s2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[session_variable_rw__369]
+sql:
+SET @s=BINARY 'New York';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_VARIABLE_RW": [
+    {
+      "subject": "ConfigKey(1:4~1:6) /test/1/s/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_session_variable_rw__370]
+sql:
+SELECT LOWER(@s),LOWER(CONVERT(@s USING utf8mb4));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/LOWER/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "ConfigKey(1:13~1:15) /test/1/s/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(1:23~1:30) /test/1/catalog1/schema1/CONVERT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__371]
+sql:
+SELECT HEX(a),STRCMP(a,'a'),STRCMP(a,'a ') FROM padded_char;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/HEX/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:14~1:20) /test/1/catalog1/schema1/STRCMP/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:48~1:59) /test/1/catalog1/schema1/padded_char/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__372]
+sql:
+SELECT DISTINCT latin1_f COLLATE latin1_german2_ci FROM collation_projection;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:56~1:76) /test/1/catalog1/schema1/collation_projection/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__373]
+sql:
+SELECT latin1_f,COUNT(*) FROM collation_projection GROUP BY latin1_f COLLATE latin1_german2_ci ORDER BY latin1_f COLLATE latin1_german2_ci;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:16~1:21) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:30~1:50) /test/1/catalog1/schema1/collation_projection/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__374]
+sql:
+SELECT latin1_f COLLATE latin1_german2_ci AS x FROM collation_projection ORDER BY x,HEX(x);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:52~1:72) /test/1/catalog1/schema1/collation_projection/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(1:84~1:87) /test/1/catalog1/schema1/HEX/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__375]
+sql:
+SELECT COERCIBILITY(NAME_CONST('s1',_utf8mb3'test')),COERCIBILITY(NAME_CONST('s1',_utf8mb3'test' COLLATE utf8mb3_unicode_ci));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/COERCIBILITY/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:20~1:30) /test/1/catalog1/schema1/NAME_CONST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select_session_variable_rw__376]
+sql:
+SELECT COERCIBILITY(@a:=_latin2'test'),COERCIBILITY(@a:=_latin2'test' COLLATE latin2_bin);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/COERCIBILITY/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "ConfigKey(1:20~1:22) /test/1/a/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__377]
+sql:
+SELECT 1 AS 'a' ORDER BY `a`, 'a';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__378]
+sql:
+SELECT _utf8mb4 /* gap */ 'a';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__379]
+sql:
+SELECT _binary /* gap */ X'41';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}

@@ -1,0 +1,38 @@
+[rollup_columns]
+sql:
+select t.g,t.h,sum(t.id) total from catalog1.app.group_t t group by rollup(t.g,t.h)
+expect:
+{
+  "g" : [ "/catalog1/app/group_t/g/" ],
+  "h" : [ "/catalog1/app/group_t/h/" ],
+  "total" : [ "/catalog1/app/group_t/id/" ]
+}
+----------
+[grouping_function_columns]
+sql:
+select grouping(t.g) gflag,grouping_id(t.g,t.h) gid,t.g,t.h,count(t.id) total from catalog1.app.group_t t group by grouping sets((t.g,t.h),(t.g),())
+expect:
+{
+  "gflag" : [ "/catalog1/app/group_t/g/" ],
+  "gid" : [ "/catalog1/app/group_t/g/", "/catalog1/app/group_t/h/" ],
+  "g" : [ "/catalog1/app/group_t/g/" ],
+  "h" : [ "/catalog1/app/group_t/h/" ],
+  "total" : [ "/catalog1/app/group_t/id/" ]
+}
+----------
+[group_expression_columns]
+sql:
+select t.g+t.h gh,count(t.id) total from catalog1.app.group_t t group by t.g+t.h
+expect:
+{
+  "gh" : [ "/catalog1/app/group_t/g/", "/catalog1/app/group_t/h/" ],
+  "total" : [ "/catalog1/app/group_t/id/" ]
+}
+----------
+[group_nested_correlated_columns]
+sql:
+select o.id outer_id from catalog1.app.group_t o where exists(select 1 from catalog1.app.group_other i where exists(select count(*) from catalog1.app.group_leaf j where j.g=i.g group by grouping sets((j.h),())))
+expect:
+{
+  "outer_id" : [ "/catalog1/app/group_t/id/" ]
+}

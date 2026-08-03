@@ -1,0 +1,50 @@
+create table app.bad_lob_text_empty(c text());
+create table app.bad_lob_text_negative(c text(-1));
+create table app.bad_lob_long_empty(c long());
+create table app.bad_lob_long_negative(c long(-1));
+create table app.bad_lob_longvarchar_empty(c longvarchar());
+create table app.bad_lob_longvarchar_negative(c longvarchar(-1));
+create table app.bad_lob_image_empty(c image());
+create table app.bad_lob_image_negative(c image(-1));
+create table app.bad_lob_longvarbinary_empty(c longvarbinary());
+create table app.bad_lob_longvarbinary_negative(c longvarbinary(-1));
+create table app.bad_lob_blob_empty(c blob());
+create table app.bad_lob_blob_negative(c blob(-1));
+create table app.bad_lob_clob_empty(c clob());
+create table app.bad_lob_clob_negative(c clob(-1));
+create table app.bad_lob_bfile_empty(c bfile());
+create function app.bad_lob_f(p clob()) return int
+as begin return 1;end;/
+------------------------------------------------------------------------------------------
+[CREATE_TABLE] create table app.bad_lob_text_empty(c text());
+----------
+[CREATE_TABLE] create table app.bad_lob_text_negative(c text(-1));
+----------
+[CREATE_TABLE] create table app.bad_lob_long_empty(c long());
+----------
+[CREATE_TABLE] create table app.bad_lob_long_negative(c long(-1));
+----------
+[CREATE_TABLE] create table app.bad_lob_longvarchar_empty(c longvarchar());
+----------
+[CREATE_TABLE] create table app.bad_lob_longvarchar_negative(c longvarchar(-1));
+----------
+[CREATE_TABLE] create table app.bad_lob_image_empty(c image());
+----------
+[CREATE_TABLE] create table app.bad_lob_image_negative(c image(-1));
+----------
+[CREATE_TABLE] create table app.bad_lob_longvarbinary_empty(c longvarbinary());
+----------
+[CREATE_TABLE] create table app.bad_lob_longvarbinary_negative(c longvarbinary(-1));
+----------
+[CREATE_TABLE] create table app.bad_lob_blob_empty(c blob());
+----------
+[CREATE_TABLE] create table app.bad_lob_blob_negative(c blob(-1));
+----------
+[CREATE_TABLE] create table app.bad_lob_clob_empty(c clob());
+----------
+[CREATE_TABLE] create table app.bad_lob_clob_negative(c clob(-1));
+----------
+[CREATE_TABLE] create table app.bad_lob_bfile_empty(c bfile());
+----------
+[CREATE_PROG_OBJ] create function app.bad_lob_f(p clob()) return int
+as begin return 1;end;/

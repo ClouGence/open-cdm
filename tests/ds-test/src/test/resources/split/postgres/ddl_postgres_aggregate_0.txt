@@ -1,0 +1,171 @@
+DROP SCHEMA IF EXISTS split_agg_probe CASCADE;
+DROP SCHEMA IF EXISTS split_agg_probe_next CASCADE;
+CREATE SCHEMA split_agg_probe;
+CREATE SCHEMA split_agg_probe_next;
+CREATE FUNCTION split_agg_probe.sum_variadic_state(integer, VARIADIC integer[])
+RETURNS integer
+LANGUAGE sql IMMUTABLE STRICT
+AS 'SELECT $1 + COALESCE((SELECT sum(v) FROM unnest($2) AS t(v)), 0)';
+CREATE AGGREGATE split_agg_probe.sum_int(integer) (
+    SFUNC = int4pl,
+    STYPE = integer,
+    INITCOND = '0',
+    MSFUNC = int4pl,
+    MINVFUNC = int4mi,
+    MSTYPE = integer,
+    MINITCOND = '0',
+    COMBINEFUNC = int4pl,
+    PARALLEL = SAFE
+);
+CREATE AGGREGATE split_agg_probe.min_int(integer) (
+    SFUNC = int4smaller,
+    STYPE = integer,
+    SORTOP = operator(<),
+    PARALLEL = SAFE
+);
+CREATE AGGREGATE split_agg_probe.count_star(*) (
+    SFUNC = int8inc,
+    STYPE = bigint,
+    INITCOND = '0',
+    PARALLEL = SAFE
+);
+CREATE AGGREGATE split_agg_probe.count_any (
+    SFUNC = int8inc,
+    BASETYPE = 'ANY',
+    STYPE = bigint,
+    INITCOND = '0'
+);
+CREATE AGGREGATE split_agg_probe.sum_variadic(VARIADIC integer[]) (
+    SFUNC = split_agg_probe.sum_variadic_state,
+    STYPE = integer,
+    INITCOND = '0'
+);
+CREATE AGGREGATE split_agg_probe.os_sum(ORDER BY integer) (
+    SFUNC = int4pl,
+    STYPE = integer,
+    INITCOND = '0'
+);
+CREATE AGGREGATE split_agg_probe.hypo_sum(integer ORDER BY integer) (
+    SFUNC = int4pl,
+    STYPE = integer,
+    INITCOND = '0',
+    HYPOTHETICAL
+);
+COMMENT ON AGGREGATE split_agg_probe.sum_int(integer) IS 'integer aggregate with moving support';
+COMMENT ON AGGREGATE split_agg_probe.count_star(*) IS 'zero argument aggregate';
+COMMENT ON AGGREGATE split_agg_probe.os_sum(ORDER BY integer) IS 'ordered set aggregate';
+COMMENT ON AGGREGATE split_agg_probe.hypo_sum(integer ORDER BY integer) IS 'hypothetical set aggregate';
+COMMENT ON AGGREGATE split_agg_probe.sum_int(integer) IS NULL;
+ALTER AGGREGATE split_agg_probe.sum_int(integer) OWNER TO CURRENT_USER;
+ALTER AGGREGATE split_agg_probe.sum_int(integer) RENAME TO sum_int_renamed;
+ALTER AGGREGATE split_agg_probe.sum_int_renamed(integer) SET SCHEMA split_agg_probe_next;
+ALTER AGGREGATE split_agg_probe.os_sum(ORDER BY integer) SET SCHEMA split_agg_probe_next;
+DROP AGGREGATE IF EXISTS split_agg_probe_next.sum_int_renamed(integer),
+                         split_agg_probe.min_int(integer),
+                         split_agg_probe.count_star(*),
+                         split_agg_probe.count_any(*),
+                         split_agg_probe.sum_variadic(VARIADIC integer[]),
+                         split_agg_probe_next.os_sum(ORDER BY integer),
+                         split_agg_probe.hypo_sum(integer ORDER BY integer)
+CASCADE;
+DROP FUNCTION IF EXISTS split_agg_probe.sum_variadic_state(integer, VARIADIC integer[]);
+DROP SCHEMA split_agg_probe_next;
+DROP SCHEMA split_agg_probe;
+------------------------------------------------------------------------------------------
+[DROP_SCHEMA] DROP SCHEMA IF EXISTS split_agg_probe CASCADE;
+----------
+[DROP_SCHEMA] DROP SCHEMA IF EXISTS split_agg_probe_next CASCADE;
+----------
+[CREATE_SCHEMA] CREATE SCHEMA split_agg_probe;
+----------
+[CREATE_SCHEMA] CREATE SCHEMA split_agg_probe_next;
+----------
+[CREATE_PROG_OBJ] CREATE FUNCTION split_agg_probe.sum_variadic_state(integer, VARIADIC integer[])
+RETURNS integer
+LANGUAGE sql IMMUTABLE STRICT
+AS 'SELECT $1 + COALESCE((SELECT sum(v) FROM unnest($2) AS t(v)), 0)';
+----------
+[CREATE_PROG_OBJ] CREATE AGGREGATE split_agg_probe.sum_int(integer) (
+    SFUNC = int4pl,
+    STYPE = integer,
+    INITCOND = '0',
+    MSFUNC = int4pl,
+    MINVFUNC = int4mi,
+    MSTYPE = integer,
+    MINITCOND = '0',
+    COMBINEFUNC = int4pl,
+    PARALLEL = SAFE
+);
+----------
+[CREATE_PROG_OBJ] CREATE AGGREGATE split_agg_probe.min_int(integer) (
+    SFUNC = int4smaller,
+    STYPE = integer,
+    SORTOP = operator(<),
+    PARALLEL = SAFE
+);
+----------
+[CREATE_PROG_OBJ] CREATE AGGREGATE split_agg_probe.count_star(*) (
+    SFUNC = int8inc,
+    STYPE = bigint,
+    INITCOND = '0',
+    PARALLEL = SAFE
+);
+----------
+[CREATE_PROG_OBJ] CREATE AGGREGATE split_agg_probe.count_any (
+    SFUNC = int8inc,
+    BASETYPE = 'ANY',
+    STYPE = bigint,
+    INITCOND = '0'
+);
+----------
+[CREATE_PROG_OBJ] CREATE AGGREGATE split_agg_probe.sum_variadic(VARIADIC integer[]) (
+    SFUNC = split_agg_probe.sum_variadic_state,
+    STYPE = integer,
+    INITCOND = '0'
+);
+----------
+[CREATE_PROG_OBJ] CREATE AGGREGATE split_agg_probe.os_sum(ORDER BY integer) (
+    SFUNC = int4pl,
+    STYPE = integer,
+    INITCOND = '0'
+);
+----------
+[CREATE_PROG_OBJ] CREATE AGGREGATE split_agg_probe.hypo_sum(integer ORDER BY integer) (
+    SFUNC = int4pl,
+    STYPE = integer,
+    INITCOND = '0',
+    HYPOTHETICAL
+);
+----------
+[COMMENT_PROG_OBJ] COMMENT ON AGGREGATE split_agg_probe.sum_int(integer) IS 'integer aggregate with moving support';
+----------
+[COMMENT_PROG_OBJ] COMMENT ON AGGREGATE split_agg_probe.count_star(*) IS 'zero argument aggregate';
+----------
+[COMMENT_PROG_OBJ] COMMENT ON AGGREGATE split_agg_probe.os_sum(ORDER BY integer) IS 'ordered set aggregate';
+----------
+[COMMENT_PROG_OBJ] COMMENT ON AGGREGATE split_agg_probe.hypo_sum(integer ORDER BY integer) IS 'hypothetical set aggregate';
+----------
+[COMMENT_PROG_OBJ] COMMENT ON AGGREGATE split_agg_probe.sum_int(integer) IS NULL;
+----------
+[TRANSFER_PRIVILEGE] ALTER AGGREGATE split_agg_probe.sum_int(integer) OWNER TO CURRENT_USER;
+----------
+[RENAME_PROG_OBJ] ALTER AGGREGATE split_agg_probe.sum_int(integer) RENAME TO sum_int_renamed;
+----------
+[ALTER_PROG_OBJ] ALTER AGGREGATE split_agg_probe.sum_int_renamed(integer) SET SCHEMA split_agg_probe_next;
+----------
+[ALTER_PROG_OBJ] ALTER AGGREGATE split_agg_probe.os_sum(ORDER BY integer) SET SCHEMA split_agg_probe_next;
+----------
+[DROP_PROG_OBJ] DROP AGGREGATE IF EXISTS split_agg_probe_next.sum_int_renamed(integer),
+                         split_agg_probe.min_int(integer),
+                         split_agg_probe.count_star(*),
+                         split_agg_probe.count_any(*),
+                         split_agg_probe.sum_variadic(VARIADIC integer[]),
+                         split_agg_probe_next.os_sum(ORDER BY integer),
+                         split_agg_probe.hypo_sum(integer ORDER BY integer)
+CASCADE;
+----------
+[DROP_PROG_OBJ] DROP FUNCTION IF EXISTS split_agg_probe.sum_variadic_state(integer, VARIADIC integer[]);
+----------
+[DROP_SCHEMA] DROP SCHEMA split_agg_probe_next;
+----------
+[DROP_SCHEMA] DROP SCHEMA split_agg_probe;

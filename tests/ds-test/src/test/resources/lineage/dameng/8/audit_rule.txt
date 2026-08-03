@@ -1,0 +1,11 @@
+[audit_rule_create_arguments_have_no_column_lineage]
+sql:
+sp_create_audit_rule('CODEX_RT_CREATE_ROLE','CREATE ROLE','SYSDBA','NULL','NULL','ALL','NULL','NULL',0,0)
+expect:
+{}
+----------
+[audit_rule_drop_arguments_have_no_column_lineage]
+sql:
+sp_drop_audit_rule('CODEX_RT_CREATE_ROLE')
+expect:
+{}

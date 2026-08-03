@@ -1,0 +1,1304 @@
+[split_ddl_dameng_data_types_0_001_behavior_review]
+sql:
+create table dm8_type_001(c1 CHAR);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_001/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_002_behavior_review]
+sql:
+create table dm8_type_002(c1 CHAR(10));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_002/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_003_behavior_review]
+sql:
+create table dm8_type_003(c1 CHARACTER);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_003/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_004_behavior_review]
+sql:
+create table dm8_type_004(c1 CHARACTER(10));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_004/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_005_behavior_review]
+sql:
+create table dm8_type_005(c1 VARCHAR);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_005/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_006_behavior_review]
+sql:
+create table dm8_type_006(c1 VARCHAR(100));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_006/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_007_behavior_review]
+sql:
+create table dm8_type_007(c1 VARCHAR(100 CHAR));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_007/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_008_behavior_review]
+sql:
+create table dm8_type_008(c1 VARCHAR2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_008/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_009_behavior_review]
+sql:
+create table dm8_type_009(c1 VARCHAR2(100));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_009/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_010_behavior_review]
+sql:
+create table dm8_type_010(c1 ROWID);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_010/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_011_behavior_review]
+sql:
+create table dm8_type_011(c1 NUMERIC);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_011/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_012_behavior_review]
+sql:
+create table dm8_type_012(c1 NUMERIC(10));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_012/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_013_behavior_review]
+sql:
+create table dm8_type_013(c1 NUMERIC(10,2));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_013/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_014_behavior_review]
+sql:
+create table dm8_type_014(c1 DECIMAL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_014/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_015_behavior_review]
+sql:
+create table dm8_type_015(c1 DECIMAL(10,2));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_015/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_016_behavior_review]
+sql:
+create table dm8_type_016(c1 DEC);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_016/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_017_behavior_review]
+sql:
+create table dm8_type_017(c1 DEC(10,2));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_017/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_018_behavior_review]
+sql:
+create table dm8_type_018(c1 NUMBER);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_018/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_019_behavior_review]
+sql:
+create table dm8_type_019(c1 NUMBER(10,2));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_019/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_020_behavior_review]
+sql:
+create table dm8_type_020(c1 INTEGER);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_020/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_021_behavior_review]
+sql:
+create table dm8_type_021(c1 INT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_021/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_022_behavior_review]
+sql:
+create table dm8_type_022(c1 BIGINT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_022/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_023_behavior_review]
+sql:
+create table dm8_type_023(c1 TINYINT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_023/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_024_behavior_review]
+sql:
+create table dm8_type_024(c1 BYTE);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_024/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_025_behavior_review]
+sql:
+create table dm8_type_025(c1 SMALLINT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_025/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_026_behavior_review]
+sql:
+create table dm8_type_026(c1 BINARY);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_026/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_027_behavior_review]
+sql:
+create table dm8_type_027(c1 BINARY(10));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_027/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_028_behavior_review]
+sql:
+create table dm8_type_028(c1 VARBINARY);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_028/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_029_behavior_review]
+sql:
+create table dm8_type_029(c1 VARBINARY(10));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_029/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_030_behavior_review]
+sql:
+create table dm8_type_030(c1 RAW);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_030/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_031_behavior_review]
+sql:
+create table dm8_type_031(c1 RAW(10));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_031/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_032_behavior_review]
+sql:
+create table dm8_type_032(c1 FLOAT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_032/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_033_behavior_review]
+sql:
+create table dm8_type_033(c1 FLOAT(24));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_033/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_034_behavior_review]
+sql:
+create table dm8_type_034(c1 FLOAT(126));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_034/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_035_behavior_review]
+sql:
+create table dm8_type_035(c1 DOUBLE);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_035/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_036_behavior_review]
+sql:
+create table dm8_type_036(c1 DOUBLE(53));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_036/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_037_behavior_review]
+sql:
+create table dm8_type_037(c1 REAL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_037/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_038_behavior_review]
+sql:
+create table dm8_type_038(c1 DOUBLE PRECISION);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_038/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_039_behavior_review]
+sql:
+create table dm8_type_039(c1 DOUBLE PRECISION(53));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_039/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_040_behavior_review]
+sql:
+create table dm8_type_040(c1 BIT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_040/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_041_behavior_review]
+sql:
+create table dm8_type_041(c1 DATE);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_041/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_042_behavior_review]
+sql:
+create table dm8_type_042(c1 TIME);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_042/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_043_behavior_review]
+sql:
+create table dm8_type_043(c1 TIME(6));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_043/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_044_behavior_review]
+sql:
+create table dm8_type_044(c1 TIMESTAMP);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_044/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_045_behavior_review]
+sql:
+create table dm8_type_045(c1 TIMESTAMP(9));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_045/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_046_behavior_review]
+sql:
+create table dm8_type_046(c1 DATETIME);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_046/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_047_behavior_review]
+sql:
+create table dm8_type_047(c1 DATETIME(9));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_047/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_048_behavior_review]
+sql:
+create table dm8_type_048(c1 INTERVAL YEAR TO MONTH);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_048/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_049_behavior_review]
+sql:
+create table dm8_type_049(c1 INTERVAL YEAR(4) TO MONTH);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_049/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_050_behavior_review]
+sql:
+create table dm8_type_050(c1 INTERVAL YEAR);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_050/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_051_behavior_review]
+sql:
+create table dm8_type_051(c1 INTERVAL YEAR(4));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_051/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_052_behavior_review]
+sql:
+create table dm8_type_052(c1 INTERVAL MONTH);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_052/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_053_behavior_review]
+sql:
+create table dm8_type_053(c1 INTERVAL MONTH(4));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_053/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_054_behavior_review]
+sql:
+create table dm8_type_054(c1 INTERVAL DAY);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_054/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_055_behavior_review]
+sql:
+create table dm8_type_055(c1 INTERVAL DAY(3));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_055/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_056_behavior_review]
+sql:
+create table dm8_type_056(c1 INTERVAL DAY TO HOUR);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_056/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_057_behavior_review]
+sql:
+create table dm8_type_057(c1 INTERVAL DAY(3) TO HOUR);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_057/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_058_behavior_review]
+sql:
+create table dm8_type_058(c1 INTERVAL DAY TO MINUTE);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_058/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_059_behavior_review]
+sql:
+create table dm8_type_059(c1 INTERVAL DAY(3) TO MINUTE);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_059/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_060_behavior_review]
+sql:
+create table dm8_type_060(c1 INTERVAL DAY TO SECOND);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_060/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_061_behavior_review]
+sql:
+create table dm8_type_061(c1 INTERVAL DAY(3) TO SECOND(6));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_061/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_062_behavior_review]
+sql:
+create table dm8_type_062(c1 INTERVAL HOUR);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_062/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_063_behavior_review]
+sql:
+create table dm8_type_063(c1 INTERVAL HOUR(3));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_063/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_064_behavior_review]
+sql:
+create table dm8_type_064(c1 INTERVAL HOUR TO MINUTE);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_064/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_065_behavior_review]
+sql:
+create table dm8_type_065(c1 INTERVAL HOUR(3) TO MINUTE);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_065/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_066_behavior_review]
+sql:
+create table dm8_type_066(c1 INTERVAL HOUR TO SECOND);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_066/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_067_behavior_review]
+sql:
+create table dm8_type_067(c1 INTERVAL HOUR(3) TO SECOND(6));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_067/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_068_behavior_review]
+sql:
+create table dm8_type_068(c1 INTERVAL MINUTE);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_068/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_069_behavior_review]
+sql:
+create table dm8_type_069(c1 INTERVAL MINUTE(3));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_069/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_070_behavior_review]
+sql:
+create table dm8_type_070(c1 INTERVAL MINUTE TO SECOND);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_070/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_071_behavior_review]
+sql:
+create table dm8_type_071(c1 INTERVAL MINUTE(3) TO SECOND(6));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_071/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_072_behavior_review]
+sql:
+create table dm8_type_072(c1 INTERVAL SECOND);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_072/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_073_behavior_review]
+sql:
+create table dm8_type_073(c1 INTERVAL SECOND(3,6));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_073/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_074_behavior_review]
+sql:
+create table dm8_type_074(c1 TIME WITH TIME ZONE);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_074/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_075_behavior_review]
+sql:
+create table dm8_type_075(c1 TIME(6) WITH TIME ZONE);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_075/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_076_behavior_review]
+sql:
+create table dm8_type_076(c1 TIMESTAMP WITH TIME ZONE);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_076/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_077_behavior_review]
+sql:
+create table dm8_type_077(c1 TIMESTAMP(9) WITH TIME ZONE);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_077/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_078_behavior_review]
+sql:
+create table dm8_type_078(c1 TIMESTAMP WITH LOCAL TIME ZONE);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_078/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_079_behavior_review]
+sql:
+create table dm8_type_079(c1 TIMESTAMP(9) WITH LOCAL TIME ZONE);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_079/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_080_behavior_review]
+sql:
+create table dm8_type_080(c1 TEXT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_080/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_081_behavior_review]
+sql:
+create table dm8_type_081(c1 LONG);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_081/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_082_behavior_review]
+sql:
+create table dm8_type_082(c1 LONGVARCHAR);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_082/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_083_behavior_review]
+sql:
+create table dm8_type_083(c1 IMAGE);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_083/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_084_behavior_review]
+sql:
+create table dm8_type_084(c1 LONGVARBINARY);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_084/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_085_behavior_review]
+sql:
+create table dm8_type_085(c1 BLOB);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_085/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_086_behavior_review]
+sql:
+create table dm8_type_086(c1 CLOB);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_086/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_types_0_087_behavior_review]
+sql:
+create table dm8_type_087(c1 BFILE);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/dm8_type_087/",
+      "action": "CREATE"
+    }
+  ]
+}

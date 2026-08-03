@@ -1,0 +1,54 @@
+select count(*) from dbms_alert_info;
+select job, what, next_date, "INTERVAL" from user_jobs where job=(select job_id from CODEX_DM8_JOB_CTL where label='SUBMIT');
+select marker, run_at from CODEX_DM8_JOB_LOG where marker='SUBMIT_RUN';
+select count(*) from CODEX_DM8_JOB_LOG where marker='CHANGE_RUN';
+select count(*) from CODEX_DM8_JOB_LOG where marker='ISUBMIT_RUN';
+select count(*) from user_jobs;
+select dbms_metadata.get_ddl('TABLE', 'CODEX_DM8_META_BASE', 'SYSDBA');
+select dbms_metadata.get_ddl('VIEW', 'CODEX_DM8_META_VIEW', 'SYSDBA');
+select dbms_metadata.get_ddl('SEQUENCE', 'CODEX_DM8_META_SEQ', 'SYSDBA');
+select dbms_metadata.get_ddl('SYNONYM', 'CODEX_DM8_META_SYN', 'SYSDBA');
+select dbms_metadata.get_ddl('PROCEDURE', 'CODEX_DM8_META_PROC', 'SYSDBA');
+select dbms_metadata.get_ddl('FUNCTION', 'CODEX_DM8_META_FUNC', 'SYSDBA');
+select dbms_metadata.get_ddl('PACKAGE', 'CODEX_DM8_META_PKG', 'SYSDBA');
+select dbms_metadata.get_ddl('INDEX', 'CODEX_DM8_META_CHILD_IDX', 'SYSDBA');
+select dbms_metadata.get_dependent_ddl('INDEX', 'CODEX_DM8_META_CHILD', 'SYSDBA');
+select dbms_metadata.get_granted_ddl('OBJECT_GRANT', 'PUBLIC', 10);
+select dbms_flashback.get_system_change_number;
+select value_text from CODEX_DM8_FLASH_BASE where id=1;
+------------------------------------------------------------------------------------------
+[SELECT] select count(*) from dbms_alert_info;
+----------
+[SELECT] select job, what, next_date, "INTERVAL" from user_jobs where job=(select job_id from CODEX_DM8_JOB_CTL where label='SUBMIT');
+----------
+[SELECT] select marker, run_at from CODEX_DM8_JOB_LOG where marker='SUBMIT_RUN';
+----------
+[SELECT] select count(*) from CODEX_DM8_JOB_LOG where marker='CHANGE_RUN';
+----------
+[SELECT] select count(*) from CODEX_DM8_JOB_LOG where marker='ISUBMIT_RUN';
+----------
+[SELECT] select count(*) from user_jobs;
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_metadata.get_ddl('TABLE', 'CODEX_DM8_META_BASE', 'SYSDBA');
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_metadata.get_ddl('VIEW', 'CODEX_DM8_META_VIEW', 'SYSDBA');
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_metadata.get_ddl('SEQUENCE', 'CODEX_DM8_META_SEQ', 'SYSDBA');
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_metadata.get_ddl('SYNONYM', 'CODEX_DM8_META_SYN', 'SYSDBA');
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_metadata.get_ddl('PROCEDURE', 'CODEX_DM8_META_PROC', 'SYSDBA');
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_metadata.get_ddl('FUNCTION', 'CODEX_DM8_META_FUNC', 'SYSDBA');
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_metadata.get_ddl('PACKAGE', 'CODEX_DM8_META_PKG', 'SYSDBA');
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_metadata.get_ddl('INDEX', 'CODEX_DM8_META_CHILD_IDX', 'SYSDBA');
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_metadata.get_dependent_ddl('INDEX', 'CODEX_DM8_META_CHILD', 'SYSDBA');
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_metadata.get_granted_ddl('OBJECT_GRANT', 'PUBLIC', 10);
+----------
+[SELECT] select dbms_flashback.get_system_change_number;
+----------
+[SELECT] select value_text from CODEX_DM8_FLASH_BASE where id=1;

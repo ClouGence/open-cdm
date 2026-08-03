@@ -1,0 +1,84 @@
+[create_index_inherits_table_schema]
+sql:
+create index idx_employee_name on app.employee(name)
+expect:
+{
+  "contains": [
+    {"class":"RdbIndexDomain", "sqlType":"ADD_INDEX", "auditKind":"CREATE", "schema":"app", "name":"idx_employee_name", "tableSchema":"app", "tableName":"employee"}
+  ]
+}
+----------
+[create_explicit_schema_index]
+sql:
+create unique index app.idx_employee_code on app.employee(code)
+expect:
+{
+  "contains": [
+    {"class":"RdbIndexDomain", "sqlType":"ADD_INDEX", "auditKind":"CREATE", "schema":"app", "name":"idx_employee_code", "tableSchema":"app", "tableName":"employee"}
+  ]
+}
+----------
+[create_function_index]
+sql:
+create index idx_employee_upper on app.employee(upper(name))
+expect:
+{
+  "contains": [
+    {"class":"RdbIndexDomain", "sqlType":"ADD_INDEX", "auditKind":"CREATE", "schema":"app", "name":"idx_employee_upper", "tableSchema":"app", "tableName":"employee"}
+  ]
+}
+----------
+[create_array_index]
+sql:
+create array index idx_employee_tags on app.employee(tags)
+expect:
+{
+  "contains": [
+    {"class":"RdbIndexDomain", "sqlType":"ADD_INDEX", "auditKind":"CREATE", "schema":"app", "name":"idx_employee_tags", "tableSchema":"app", "tableName":"employee"}
+  ]
+}
+----------
+[create_bitmap_join_index]
+sql:
+create bitmap index idx_sales_region
+on app.sales(app.region.name)
+from app.region, app.sales
+where app.region.id=app.sales.region_id
+expect:
+{
+  "contains": [
+    {"class":"RdbIndexDomain", "sqlType":"ADD_INDEX", "auditKind":"CREATE", "schema":"app", "name":"idx_sales_region", "tableSchema":"app", "tableName":"sales"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"region"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"sales"}
+  ]
+}
+----------
+[alter_index]
+sql:
+alter index app.idx_employee_name rebuild share
+expect:
+{
+  "contains": [
+    {"class":"RdbIndexDomain", "sqlType":"ALTER_INDEX", "auditKind":"ALTER", "schema":"app", "name":"idx_employee_name"}
+  ]
+}
+----------
+[drop_index]
+sql:
+drop index app.idx_employee_name restrict
+expect:
+{
+  "contains": [
+    {"class":"RdbIndexDomain", "sqlType":"DROP_INDEX", "auditKind":"DROP", "schema":"app", "name":"idx_employee_name"}
+  ]
+}
+----------
+[select_with_index]
+sql:
+select e.id,e.name from app.employee index idx_employee_name e where e.name='A'
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"employee"}
+  ]
+}

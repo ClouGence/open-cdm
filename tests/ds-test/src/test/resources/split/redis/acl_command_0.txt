@@ -1,0 +1,69 @@
+ACL CAT
+ACL CAT "dangerous"
+ACL CAT dangerous
+ACL DELUSER antirez
+ACL DRYRUN VIRGINIA SET foo bar
+ACL DRYRUN VIRGINIA GET foo
+ACL GENPASS
+ACL GENPASS 32
+ACL GENPASS 5
+ACL GETUSER sample
+ACL SETUSER virginia on allkeys +set
+ACL SETUSER virginia +get -set
+ACL SETUSER virginia on +GET allkeys (+SET ~app1*)
+ACL SETUSER karin on +@all -@dangerous
+ACL SETUSER antirez reset
+ACL SETUSER antirez ~aac*c
+ACL SETUSER antirez %Raac*c
+ACL SETUSER antirez %Waac*c
+ACL SETUSER antirez %RWaac*c
+ACL SETUSER antirez &aac*c
+ACL USERS
+ACL WHOAMI
+ACL LIST
+------------------------------------------------------------------------------------------
+[METADATA] ACL CAT
+----------
+[METADATA] ACL CAT "dangerous"
+----------
+[METADATA] ACL CAT dangerous
+----------
+[DROP_USER] ACL DELUSER antirez
+----------
+[METADATA] ACL DRYRUN VIRGINIA SET foo bar
+----------
+[METADATA] ACL DRYRUN VIRGINIA GET foo
+----------
+[ADMIN] ACL GENPASS
+----------
+[ADMIN] ACL GENPASS 32
+----------
+[ADMIN] ACL GENPASS 5
+----------
+[METADATA] ACL GETUSER sample
+----------
+[GRANT] ACL SETUSER virginia on allkeys +set
+----------
+[GRANT|REVOKE] ACL SETUSER virginia +get -set
+----------
+[GRANT] ACL SETUSER virginia on +GET allkeys (+SET ~app1*)
+----------
+[GRANT|REVOKE] ACL SETUSER karin on +@all -@dangerous
+----------
+[REVOKE] ACL SETUSER antirez reset
+----------
+[GRANT] ACL SETUSER antirez ~aac*c
+----------
+[GRANT] ACL SETUSER antirez %Raac*c
+----------
+[GRANT] ACL SETUSER antirez %Waac*c
+----------
+[GRANT] ACL SETUSER antirez %RWaac*c
+----------
+[GRANT] ACL SETUSER antirez &aac*c
+----------
+[METADATA] ACL USERS
+----------
+[METADATA] ACL WHOAMI
+----------
+[METADATA] ACL LIST

@@ -1,0 +1,67 @@
+[createView]
+type: createView
+option:
+{
+  "targetName": "target_name",
+  "schema": "test_schema",
+  "delimited": true,
+  "data": {
+    "name": "test_name",
+    "sql": "test_sql"
+  }
+}
+expect:
+<<<
+create view "test_schema"."test_name"
+as
+test_sql;
+>>>
+----------
+
+[createViewWithComment]
+type: createView
+option:
+{
+  "targetName": "target_name",
+  "schema": "test_schema",
+  "delimited": true,
+  "data": {
+    "name": "test_name",
+    "sql": "test_sql",
+    "comment": "test_comment"
+  }
+}
+expect:
+<<<
+create view "test_schema"."test_name"
+as
+test_sql;
+>>>
+<<<
+comment on view "test_schema"."test_name" is 'test_comment'
+>>>
+----------
+
+[alterView]
+type: alterView
+option:
+{
+  "targetName": "target_name",
+  "schema": "test_schema",
+  "delimited": true,
+  "data": {
+    "name": "test_name",
+    "sql": "test_sql",
+    "comment": "test_comment",
+    "rdbpg_viewco": "local"
+  }
+}
+expect:
+<<<
+create or replace view "test_schema"."test_name"
+as
+test_sql;
+>>>
+<<<
+comment on view "test_schema"."test_name" is 'test_comment'
+>>>

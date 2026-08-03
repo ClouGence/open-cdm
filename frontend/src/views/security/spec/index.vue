@@ -82,6 +82,7 @@
   </div>
 </template>
 <script>
+import appLogger from '@/utils/logger';
 import TableListLayout from '@/layout/TableListLayout';
 import { mapState } from 'vuex';
 
@@ -211,7 +212,7 @@ export default {
     },
     handleForce() {
       this.forceEvent.data.force = true;
-      console.warn(123, this.forceEvent);
+      appLogger.warn(123, this.forceEvent);
 
       if (this.forceEvent.type === 'delete') {
         this.handleDeleteSpec({ ...this.forceEvent.data });
@@ -222,7 +223,7 @@ export default {
       this.handleCloseModal();
     },
     async handleEnableChange({ spec, specId, enable, force = false }) {
-      console.warn(321, specId, force);
+      appLogger.warn(321, specId, force);
 
       this.selectedSpec = spec;
       this.originalEnableState = !enable;

@@ -1,0 +1,47 @@
+[Db2RuleUpdateRequireColumnsTest#requireColumns_1#001]
+rule: _rules/update/update-require-columns.rule
+expect: true
+vars:
+{}
+sql:
+update table1 t1 set t1.a=1
+----------
+[Db2RuleUpdateRequireColumnsTest#requireColumns_1#002]
+rule: _rules/update/update-require-columns.rule
+expect: true
+vars:
+{}
+sql:
+update table1 set id=1,create_gmt=3
+----------
+[Db2RuleUpdateRequireColumnsTest#requireColumns_1#003]
+rule: _rules/update/update-require-columns.rule
+expect: true
+vars:
+{}
+sql:
+update table1 set id=1,create_gmt=3,modify_gmt=3
+----------
+[Db2RuleUpdateRequireColumnsTest#requireColumns_2#001]
+rule: _rules/update/update-require-columns.rule
+expect: false
+vars:
+  columns: modify_gmt
+sql:
+update table1 t1 set t1.a=1
+----------
+[Db2RuleUpdateRequireColumnsTest#requireColumns_2#002]
+rule: _rules/update/update-require-columns.rule
+expect: false
+vars:
+  columns: modify_gmt
+sql:
+update table1 set id=1,create_gmt=3
+----------
+[Db2RuleUpdateRequireColumnsTest#requireColumns_2#003]
+rule: _rules/update/update-require-columns.rule
+expect: true
+vars:
+  columns: modify_gmt
+sql:
+update table1 set id=1,create_gmt=3,modify_gmt=3

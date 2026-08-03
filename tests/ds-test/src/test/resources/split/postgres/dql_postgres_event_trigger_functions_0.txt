@@ -1,0 +1,12 @@
+SELECT * FROM pg_event_trigger_ddl_commands();
+SELECT * FROM pg_event_trigger_dropped_objects();
+SELECT pg_event_trigger_table_rewrite_oid();
+SELECT pg_event_trigger_table_rewrite_reason();
+------------------------------------------------------------------------------------------
+[SELECT] SELECT * FROM pg_event_trigger_ddl_commands();
+----------
+[SELECT] SELECT * FROM pg_event_trigger_dropped_objects();
+----------
+[SELECT] SELECT pg_event_trigger_table_rewrite_oid();
+----------
+[SELECT] SELECT pg_event_trigger_table_rewrite_reason();

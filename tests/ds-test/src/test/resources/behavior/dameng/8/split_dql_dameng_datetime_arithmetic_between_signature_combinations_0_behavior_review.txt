@@ -1,0 +1,664 @@
+[split_dql_dameng_datetime_arithmetic_between_signature_combinations_0_001_behavior_review]
+sql:
+SELECT ADD_DAYS(DATE '2024-02-28',1) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/ADD_DAYS/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:42~1:46) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_arithmetic_between_signature_combinations_0_002_behavior_review]
+sql:
+SELECT ADD_DAYS(TIMESTAMP '2024-12-31 23:59:59',1) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/ADD_DAYS/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:56~1:60) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_arithmetic_between_signature_combinations_0_003_behavior_review]
+sql:
+SELECT ADD_DAYS(DATE '2024-01-01',-1) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/ADD_DAYS/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:43~1:47) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_arithmetic_between_signature_combinations_0_004_behavior_review]
+sql:
+SELECT ADD_DAYS(DATE '2024-01-01',0) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/ADD_DAYS/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:42~1:46) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_arithmetic_between_signature_combinations_0_005_behavior_review]
+sql:
+SELECT ADD_DAYS(NULL,1) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/ADD_DAYS/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:29~1:33) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_arithmetic_between_signature_combinations_0_006_behavior_review]
+sql:
+SELECT ADD_MONTHS(DATE '2023-01-31',1) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/ADD_MONTHS/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:44~1:48) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_arithmetic_between_signature_combinations_0_007_behavior_review]
+sql:
+SELECT ADD_MONTHS(TIMESTAMP '2024-01-31 20:00:00',1) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/ADD_MONTHS/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:58~1:62) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_arithmetic_between_signature_combinations_0_008_behavior_review]
+sql:
+SELECT ADD_MONTHS(DATE '2024-03-31',-1) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/ADD_MONTHS/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:45~1:49) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_arithmetic_between_signature_combinations_0_009_behavior_review]
+sql:
+SELECT ADD_MONTHS(DATE '2024-02-29',12) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/ADD_MONTHS/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:45~1:49) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_arithmetic_between_signature_combinations_0_010_behavior_review]
+sql:
+SELECT ADD_MONTHS(NULL,1) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/ADD_MONTHS/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:31~1:35) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_arithmetic_between_signature_combinations_0_011_behavior_review]
+sql:
+SELECT ADD_WEEKS(DATE '2024-01-01',1) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/ADD_WEEKS/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:43~1:47) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_arithmetic_between_signature_combinations_0_012_behavior_review]
+sql:
+SELECT ADD_WEEKS(TIMESTAMP '2024-12-31 23:59:59',1) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/ADD_WEEKS/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:57~1:61) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_arithmetic_between_signature_combinations_0_013_behavior_review]
+sql:
+SELECT ADD_WEEKS(DATE '2024-01-08',-1) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/ADD_WEEKS/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:44~1:48) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_arithmetic_between_signature_combinations_0_014_behavior_review]
+sql:
+SELECT ADD_WEEKS(DATE '2024-01-01',0) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/ADD_WEEKS/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:43~1:47) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_arithmetic_between_signature_combinations_0_015_behavior_review]
+sql:
+SELECT ADD_WEEKS(NULL,1) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/ADD_WEEKS/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:30~1:34) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_arithmetic_between_signature_combinations_0_016_behavior_review]
+sql:
+SELECT DAYS_BETWEEN(DATE '2022-06-01',DATE '2021-10-01') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/DAYS_BETWEEN/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:62~1:66) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_arithmetic_between_signature_combinations_0_017_behavior_review]
+sql:
+SELECT DAYS_BETWEEN(TIMESTAMP '2024-03-01 12:00:00',TIMESTAMP '2024-02-28 12:00:00') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/DAYS_BETWEEN/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:90~1:94) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_arithmetic_between_signature_combinations_0_018_behavior_review]
+sql:
+SELECT DAYS_BETWEEN(DATE '2024-01-01',DATE '2024-01-01') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/DAYS_BETWEEN/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:62~1:66) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_arithmetic_between_signature_combinations_0_019_behavior_review]
+sql:
+SELECT DAYS_BETWEEN(DATE '2024-01-01',DATE '2024-01-02') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/DAYS_BETWEEN/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:62~1:66) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_arithmetic_between_signature_combinations_0_020_behavior_review]
+sql:
+SELECT DAYS_BETWEEN(NULL,DATE '2024-01-01') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/DAYS_BETWEEN/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:49~1:53) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_arithmetic_between_signature_combinations_0_021_behavior_review]
+sql:
+SELECT MONTHS_BETWEEN(DATE '1995-02-28',DATE '1995-01-31') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:21) /test/1/catalog1/schema1/MONTHS_BETWEEN/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:64~1:68) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_arithmetic_between_signature_combinations_0_022_behavior_review]
+sql:
+SELECT MONTHS_BETWEEN(TIMESTAMP '1995-03-28 12:00:00',TIMESTAMP '1995-01-31 12:00:00') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:21) /test/1/catalog1/schema1/MONTHS_BETWEEN/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:92~1:96) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_arithmetic_between_signature_combinations_0_023_behavior_review]
+sql:
+SELECT MONTHS_BETWEEN(DATE '2024-01-31',DATE '2024-02-29') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:21) /test/1/catalog1/schema1/MONTHS_BETWEEN/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:64~1:68) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_arithmetic_between_signature_combinations_0_024_behavior_review]
+sql:
+SELECT MONTHS_BETWEEN(DATE '2024-01-15',DATE '2024-01-15') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:21) /test/1/catalog1/schema1/MONTHS_BETWEEN/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:64~1:68) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_arithmetic_between_signature_combinations_0_025_behavior_review]
+sql:
+SELECT MONTHS_BETWEEN(NULL,DATE '2024-01-01') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:21) /test/1/catalog1/schema1/MONTHS_BETWEEN/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:51~1:55) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_arithmetic_between_signature_combinations_0_026_behavior_review]
+sql:
+SELECT WEEKS_BETWEEN(DATE '1998-02-28',DATE '1998-10-31') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:20) /test/1/catalog1/schema1/WEEKS_BETWEEN/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:63~1:67) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_arithmetic_between_signature_combinations_0_027_behavior_review]
+sql:
+SELECT WEEKS_BETWEEN(TIMESTAMP '2024-01-15 12:00:00',TIMESTAMP '2024-01-01 12:00:00') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:20) /test/1/catalog1/schema1/WEEKS_BETWEEN/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:91~1:95) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_arithmetic_between_signature_combinations_0_028_behavior_review]
+sql:
+SELECT WEEKS_BETWEEN(DATE '2024-01-01',DATE '2024-01-01') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:20) /test/1/catalog1/schema1/WEEKS_BETWEEN/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:63~1:67) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_arithmetic_between_signature_combinations_0_029_behavior_review]
+sql:
+SELECT WEEKS_BETWEEN(DATE '2024-01-01',DATE '2024-01-15') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:20) /test/1/catalog1/schema1/WEEKS_BETWEEN/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:63~1:67) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_arithmetic_between_signature_combinations_0_030_behavior_review]
+sql:
+SELECT WEEKS_BETWEEN(NULL,DATE '2024-01-01') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:20) /test/1/catalog1/schema1/WEEKS_BETWEEN/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:50~1:54) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_arithmetic_between_signature_combinations_0_031_behavior_review]
+sql:
+SELECT YEARS_BETWEEN(DATE '1998-02-28',DATE '1999-10-31') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:20) /test/1/catalog1/schema1/YEARS_BETWEEN/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:63~1:67) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_arithmetic_between_signature_combinations_0_032_behavior_review]
+sql:
+SELECT YEARS_BETWEEN(TIMESTAMP '2024-02-29 12:00:00',TIMESTAMP '2020-02-29 12:00:00') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:20) /test/1/catalog1/schema1/YEARS_BETWEEN/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:91~1:95) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_arithmetic_between_signature_combinations_0_033_behavior_review]
+sql:
+SELECT YEARS_BETWEEN(DATE '2024-01-01',DATE '2024-01-01') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:20) /test/1/catalog1/schema1/YEARS_BETWEEN/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:63~1:67) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_arithmetic_between_signature_combinations_0_034_behavior_review]
+sql:
+SELECT YEARS_BETWEEN(DATE '2025-01-01',DATE '2024-01-01') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:20) /test/1/catalog1/schema1/YEARS_BETWEEN/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:63~1:67) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_arithmetic_between_signature_combinations_0_035_behavior_review]
+sql:
+SELECT YEARS_BETWEEN(NULL,DATE '2024-01-01') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:20) /test/1/catalog1/schema1/YEARS_BETWEEN/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:50~1:54) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}

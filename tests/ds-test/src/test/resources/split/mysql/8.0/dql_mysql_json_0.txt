@@ -1,0 +1,662 @@
+SELECT id, JSON_ARRAYAGG(val) OVER (PARTITION BY grp ORDER BY id ROWS UNBOUNDED PRECEDING) AS values_so_far, JSON_OBJECTAGG(id, val) OVER (PARTITION BY grp ORDER BY id ROWS UNBOUNDED PRECEDING) AS values_by_id FROM t ORDER BY id;
+SELECT CAST('{"a":1}' AS JSON);
+SELECT CONVERT('{"a":1}', JSON);
+SELECT * FROM (SELECT alias2.pk AS field1 FROM split_derived_json57.t1 AS alias1 LEFT OUTER JOIN split_derived_json57.t2 AS alias2 ON JSON_UNQUOTE(JSON_EXTRACT(alias1.col_varchar,'$.varc')) COLLATE utf8mb4_general_ci=alias2.col_date_key GROUP BY JSON_QUOTE(JSON_EXTRACT(field1,'$.intc'))) AS dt;
+SELECT 'a' LIKE '%' ESCAPE CAST('' AS JSON);
+SELECT JSON_ARRAY(1,'a',NULL), JSON_OBJECT('a',1,'b',JSON_ARRAY(2,3)), JSON_QUOTE('a"b'), JSON_UNQUOTE('"abc"'), JSON_EXTRACT('{"a":[1,2]}','$.a[0]'), JSON_CONTAINS('[1,2,3]','2'), JSON_CONTAINS_PATH('{"a":1}','one','$.a'), JSON_KEYS('{"a":1,"b":2}'), JSON_SEARCH('["abc","def"]','one','def'), JSON_SET('{"a":1}','$.b',2), JSON_INSERT('{"a":1}','$.b',2), JSON_REPLACE('{"a":1}','$.a',2), JSON_REMOVE('{"a":1,"b":2}','$.b'), JSON_ARRAY_APPEND('[1,2]','$',3), JSON_ARRAY_INSERT('[1,2]','$[1]',9), JSON_MERGE('{"a":1}','{"b":2}'), JSON_DEPTH('{"a":[1]}'), JSON_LENGTH('[1,2]'), JSON_TYPE('1'), JSON_VALID('{"a":1}');
+SELECT JSON_MERGE_PATCH('{"a":1}','{"a":2}'), JSON_MERGE_PRESERVE('{"a":1}','{"a":2}'), JSON_PRETTY('{"a":1}'), JSON_STORAGE_SIZE('{"a":1}');
+SELECT JSON_ARRAYAGG(x), JSON_OBJECTAGG(x, x * x) FROM (SELECT 1 AS x UNION ALL SELECT 2) AS d;
+SELECT JSON_OVERLAPS('[1,2]','[2,3]'), PS_CURRENT_THREAD_ID(), PS_THREAD_ID(CONNECTION_ID());
+SELECT JSON_SCHEMA_VALID('{"type":"object","properties":{"a":{"type":"integer"}},"required":["a"]}', '{"a":1}'), JSON_SCHEMA_VALIDATION_REPORT('{"type":"object","properties":{"a":{"type":"integer"}},"required":["a"]}', '{"a":"x"}'), JSON_STORAGE_FREE('{"a":1}');
+SELECT (SELECT JSON_ARRAYAGG(i.t1) FROM agg_t AS i WHERE i.t2=o.t2 LIMIT 1) FROM agg_t AS o GROUP BY o.t2;
+SELECT (SELECT 1 FROM agg_t AS i WHERE JSON_ARRAYAGG(1 IN (SELECT 1 FROM agg_t AS d))) FROM agg_t AS o LIMIT 1;
+SELECT JSON_ARRAY();
+SELECT JSON_OBJECT();
+SELECT JSON_OBJECTAGG(t.col_int,t.col_int), (SELECT JSON_ARRAYAGG(s.col_int) FROM CC AS s WHERE s.col_int<>t.col_int) AS field5 FROM CC AS t WHERE t.col_int<>ALL(SELECT q.col_int FROM CC AS q STRAIGHT_JOIN C) GROUP BY field5;
+SELECT JSON_EXTRACT('{"a":1,"b":2}', '$.a', '$.b');
+SELECT JSON_CONTAINS('{"a":[1,2]}', '2', '$.a');
+SELECT JSON_CONTAINS_PATH('{"a":1,"b":2}', 'all', '$.a', '$.b');
+SELECT JSON_KEYS('{"a":{"b":1}}', '$.a');
+SELECT JSON_LENGTH('{"a":[1,2]}', '$.a');
+SELECT JSON_SEARCH('{"a":["ab_c","def"],"b":"abxc"}', 'all', 'ab!_c', '!', '$.a[*]', '$.b');
+SELECT JSON_SET('{"a":1}', '$.b', 2, '$.c', 3);
+SELECT JSON_INSERT('{"a":1}', '$.b', 2, '$.c', 3);
+SELECT JSON_REPLACE('{"a":1,"b":2}', '$.a', 9, '$.b', 8);
+SELECT JSON_REMOVE('{"a":1,"b":2,"c":3}', '$.a', '$.b');
+SELECT JSON_ARRAY_APPEND('{"a":[1],"b":[2]}', '$.a', 3, '$.b', 4);
+SELECT JSON_ARRAY_INSERT('[1,2,3]', '$[1]', 8, '$[3]', 9);
+SELECT JSON_MERGE('{"a":1}', '{"b":2}', '{"c":3}');
+SELECT JSON_MERGE_PATCH('{"a":1}', '{"b":2}', '{"c":3}');
+SELECT JSON_MERGE_PRESERVE('{"a":1}', '{"b":2}', '{"c":3}');
+SELECT JSON_EXTRACT('{"quoted key":1}', '$."quoted key"');
+SELECT JSON_EXTRACT('{"a":1,"b":2}', '$.*');
+SELECT JSON_EXTRACT('[1,2,3]', '$[*]');
+SELECT JSON_EXTRACT('{"a":{"x":1},"b":{"x":2}}', '$**.x');
+SELECT JSON_EXTRACT('[1,2,3]', '$[last]');
+SELECT JSON_EXTRACT('[1,2,3]', '$[last-1]');
+SELECT JSON_EXTRACT('[1,2,3,4]', '$[1 to 2]');
+SELECT JSON_EXTRACT('[1,2,3,4]', '$[last-2 to last]');
+SELECT JSON_SCHEMA_VALID(t2.j,t2.j) FROM schema_t, (SELECT * FROM schema_t WHERE pk=1) AS t2;
+SELECT JSON_SCHEMA_VALIDATION_REPORT(t2.j,t2.j) FROM schema_t, (SELECT * FROM schema_t WHERE pk=1) AS t2;
+SELECT id FROM jt_src WHERE EXISTS (SELECT * FROM JSON_TABLE(jt_src.x, '$[*]' COLUMNS (i INT PATH '$')) AS jt WHERE i=2);
+SELECT * FROM JSON_TABLE('{"x":1}', '$' COLUMNS (c_bit BIT(8) PATH '$.x', c_bool BOOL PATH '$.x', c_boolean BOOLEAN PATH '$.x', c_tiny TINYINT UNSIGNED PATH '$.x', c_small SMALLINT PATH '$.x', c_medium MEDIUMINT PATH '$.x', c_int INT PATH '$.x', c_integer INTEGER PATH '$.x', c_big BIGINT PATH '$.x', c_decimal DECIMAL(10,2) PATH '$.x', c_dec DEC(10,2) PATH '$.x', c_fixed FIXED(10,2) PATH '$.x', c_numeric NUMERIC(10,2) PATH '$.x', c_float FLOAT(10) PATH '$.x', c_double DOUBLE PRECISION PATH '$.x', c_real REAL PATH '$.x', c_date DATE PATH '$.x', c_time TIME(6) PATH '$.x', c_datetime DATETIME(6) PATH '$.x', c_timestamp TIMESTAMP(6) PATH '$.x', c_year YEAR PATH '$.x')) AS jt;
+SELECT * FROM JSON_TABLE('{"x":1}', '$' COLUMNS (c_char CHAR(5) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci PATH '$.x', c_nchar NCHAR(5) PATH '$.x', c_varchar VARCHAR(10) PATH '$.x', c_nvarchar NVARCHAR(10) PATH '$.x', c_binary BINARY(5) PATH '$.x', c_varbinary VARBINARY(10) PATH '$.x', c_tinyblob TINYBLOB PATH '$.x', c_blob BLOB PATH '$.x', c_mediumblob MEDIUMBLOB PATH '$.x', c_longblob LONGBLOB PATH '$.x', c_tinytext TINYTEXT PATH '$.x', c_text TEXT PATH '$.x', c_mediumtext MEDIUMTEXT PATH '$.x', c_longtext LONGTEXT PATH '$.x', c_enum ENUM('1','2') PATH '$.x', c_set SET('1','2') PATH '$.x', c_json JSON PATH '$.x', c_serial SERIAL PATH '$.x', c_long_varchar LONG VARCHAR PATH '$.x', c_long_varbinary LONG VARBINARY PATH '$.x')) AS jt;
+SELECT * FROM JSON_TABLE('{"x":1}', '$' COLUMNS (c_geometry GEOMETRY PATH '$.x', c_point POINT PATH '$.x', c_linestring LINESTRING PATH '$.x', c_polygon POLYGON PATH '$.x', c_multipoint MULTIPOINT PATH '$.x', c_multilinestring MULTILINESTRING PATH '$.x', c_multipolygon MULTIPOLYGON PATH '$.x', c_geometrycollection GEOMETRYCOLLECTION PATH '$.x')) AS jt;
+SELECT description FROM JSON_TABLE('{"operation":"root","inputs":[{"operation":"child"}]}', '$**.operation' COLUMNS (o FOR ORDINALITY, description TEXT PATH '$')) AS jt ORDER BY o;
+SELECT * FROM JSON_TABLE('{}', '$' COLUMNS (e_err INT PATH '$.x' ERROR ON EMPTY, e_null INT PATH '$.x' NULL ON EMPTY, e_def INT PATH '$.x' DEFAULT '1' ON EMPTY, r_err INT PATH '$.x' ERROR ON ERROR, r_null INT PATH '$.x' NULL ON ERROR, r_def INT PATH '$.x' DEFAULT '2' ON ERROR)) AS jt;
+SELECT * FROM JSON_TABLE('{}', '$' COLUMNS (ee INT PATH '$.x' ERROR ON EMPTY ERROR ON ERROR, en INT PATH '$.x' ERROR ON EMPTY NULL ON ERROR, ed INT PATH '$.x' ERROR ON EMPTY DEFAULT '2' ON ERROR, ne INT PATH '$.x' NULL ON EMPTY ERROR ON ERROR, nn INT PATH '$.x' NULL ON EMPTY NULL ON ERROR, nd INT PATH '$.x' NULL ON EMPTY DEFAULT '2' ON ERROR, de INT PATH '$.x' DEFAULT '1' ON EMPTY ERROR ON ERROR, dn INT PATH '$.x' DEFAULT '1' ON EMPTY NULL ON ERROR, dd INT PATH '$.x' DEFAULT '1' ON EMPTY DEFAULT '2' ON ERROR)) AS jt;
+SELECT * FROM JSON_TABLE('{}', '$' COLUMNS (ee INT PATH '$.x' ERROR ON ERROR ERROR ON EMPTY, en INT PATH '$.x' NULL ON ERROR ERROR ON EMPTY, ed INT PATH '$.x' DEFAULT '2' ON ERROR ERROR ON EMPTY, ne INT PATH '$.x' ERROR ON ERROR NULL ON EMPTY, nn INT PATH '$.x' NULL ON ERROR NULL ON EMPTY, nd INT PATH '$.x' DEFAULT '2' ON ERROR NULL ON EMPTY, de INT PATH '$.x' ERROR ON ERROR DEFAULT '1' ON EMPTY, dn INT PATH '$.x' NULL ON ERROR DEFAULT '1' ON EMPTY, dd INT PATH '$.x' DEFAULT '2' ON ERROR DEFAULT '1' ON EMPTY)) AS jt;
+SELECT * FROM JSON_TABLE('{"x":1}', '$' COLUMNS (a INT EXISTS PATH '$.x' NULL ON EMPTY NULL ON ERROR, b INT EXISTS PATH '$.y' DEFAULT '0' ON ERROR ERROR ON EMPTY)) AS jt;
+SELECT * FROM JSON_TABLE('{}', '$' COLUMNS (x DATE PATH '$.x' DEFAULT DATE '2020-01-02' ON EMPTY)) AS jt;
+SELECT 1 FROM JSON_TABLE(ROW(1,2), '$' COLUMNS (o FOR ORDINALITY)) AS jt;
+SELECT tt2.id FROM jt_src AS tt2, JSON_TABLE(tt2.f1, '$' COLUMNS (ord FOR ORDINALITY)) AS tbl STRAIGHT_JOIN jt_src AS tt3 LIMIT 1;
+SELECT * FROM JSON_TABLE('{"a":[1],"b":[2]}', '$' COLUMNS (NESTED PATH '$.a[*]' COLUMNS (ax INT PATH '$'), NESTED PATH '$.b[*]' COLUMNS (bx INT PATH '$'))) AS jt;
+SELECT * FROM JSON_TABLE('{"a":[{"b":[{"c":3}]}]}', '$' COLUMNS (NESTED PATH '$.a[*]' COLUMNS (NESTED PATH '$.b[*]' COLUMNS (NESTED PATH '$.c' COLUMNS (c INT PATH '$'))))) AS jt;
+SELECT * FROM JSON_TABLE('[1]', '$[*]' COLUMNS (x INT PATH '$'));
+SELECT * FROM JSON_TABLE('[1,2,3]', '$[*]' COLUMNS (x INT PATH '$')) AS jt;
+SELECT jt.ord, jt.id, jt.has_name, jt.name FROM JSON_TABLE('[{"id":1,"name":"a"},{"id":2}]', '$[*]' COLUMNS (ord FOR ORDINALITY, id INT PATH '$.id', has_name INT EXISTS PATH '$.name', name VARCHAR(20) PATH '$.name' NULL ON EMPTY NULL ON ERROR)) AS jt;
+SELECT jt.id, jt.tag FROM JSON_TABLE('[{"id":1,"tags":["a","b"]}]', '$[*]' COLUMNS (id INT PATH '$.id', NESTED PATH '$.tags[*]' COLUMNS (tag VARCHAR(10) PATH '$'))) AS jt;
+SELECT JSON_VALUE('{"price":"49.95"}', '$.price' RETURNING DECIMAL(5,2) DEFAULT 0 ON EMPTY DEFAULT 0 ON ERROR);
+SELECT JSON_VALUE('{"x":1}', '$.x');
+SELECT JSON_VALUE('{}', '$.x' ERROR ON EMPTY);
+SELECT JSON_VALUE('{}', '$.x' NULL ON EMPTY);
+SELECT JSON_VALUE('{}', '$.x' DEFAULT -1 ON EMPTY);
+SELECT JSON_VALUE('{bad}', '$.x' ERROR ON ERROR);
+SELECT JSON_VALUE('{bad}', '$.x' NULL ON ERROR);
+SELECT JSON_VALUE('{bad}', '$.x' DEFAULT TRUE ON ERROR);
+SELECT JSON_VALUE('{}', '$.x' ERROR ON EMPTY ERROR ON ERROR);
+SELECT JSON_VALUE('{}', '$.x' ERROR ON EMPTY NULL ON ERROR);
+SELECT JSON_VALUE('{}', '$.x' ERROR ON EMPTY DEFAULT 2 ON ERROR);
+SELECT JSON_VALUE('{}', '$.x' NULL ON EMPTY ERROR ON ERROR);
+SELECT JSON_VALUE('{}', '$.x' NULL ON EMPTY NULL ON ERROR);
+SELECT JSON_VALUE('{}', '$.x' NULL ON EMPTY DEFAULT 2 ON ERROR);
+SELECT JSON_VALUE('{}', '$.x' DEFAULT -1 ON EMPTY ERROR ON ERROR);
+SELECT JSON_VALUE('{}', '$.x' DEFAULT -1 ON EMPTY NULL ON ERROR);
+SELECT JSON_VALUE('{}', '$.x' DEFAULT X'31' ON EMPTY DEFAULT DATE '2020-01-02' ON ERROR);
+SELECT JSON_VALUE('{"x":1}', '$.x' RETURNING BINARY);
+SELECT JSON_VALUE('{"x":1}', '$.x' RETURNING NCHAR);
+SELECT JSON_VALUE('{"x":1}', '$.x' RETURNING CHAR);
+SELECT JSON_VALUE('{"x":1}', '$.x' RETURNING DATE);
+SELECT JSON_VALUE('{"x":1}', '$.x' RETURNING DATETIME);
+SELECT JSON_VALUE('{"x":1}', '$.x' RETURNING TIME);
+SELECT JSON_VALUE('{"x":1}', '$.x' RETURNING JSON);
+SELECT JSON_VALUE('{"x":1}', '$.x' RETURNING FLOAT);
+SELECT JSON_VALUE('{"x":1}', '$.x' RETURNING DOUBLE);
+SELECT JSON_VALUE('{"x":1}', '$.x' RETURNING REAL);
+SELECT JSON_VALUE('{"x":1}', '$.x' RETURNING YEAR);
+SELECT JSON_VALUE('{"x":1}', '$.x' RETURNING SIGNED);
+SELECT JSON_VALUE('{"x":1}', '$.x' RETURNING UNSIGNED);
+SELECT JSON_VALUE('{"x":1}', '$.x' RETURNING LINESTRING);
+SELECT JSON_VALUE('{"x":1}', '$.x' RETURNING POLYGON);
+SELECT JSON_VALUE('{"x":1}', '$.x' RETURNING MULTIPOINT);
+SELECT JSON_VALUE('{"x":1}', '$.x' RETURNING MULTILINESTRING);
+SELECT JSON_VALUE('{"x":1}', '$.x' RETURNING MULTIPOLYGON);
+SELECT JSON_VALUE('{"x":1}', '$.x' RETURNING GEOMETRYCOLLECTION);
+SELECT j->'$.a', j->>'$.a' FROM json_op;
+SELECT 17 MEMBER OF('[23, 17]');
+SELECT NOT (17 MEMBER OF('[23, 17]'));
+SELECT j,i,f,JSON_ARRAYAGG(i) OVER w,JSON_ARRAYAGG(f) OVER w FROM split_window_json.t1 WINDOW w AS (ORDER BY j);
+SELECT i,f,JSON_ARRAYAGG(i) OVER w,JSON_ARRAYAGG(f) OVER w FROM split_window_json.t1 GROUP BY i,f WITH ROLLUP HAVING GROUPING(f)=1 WINDOW w AS (ORDER BY f,i ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING);
+SELECT i,f,RANK() OVER w,NTH_VALUE(i,3) OVER w,LEAD(f,2) OVER w,LAG(f,2) OVER w,JSON_ARRAYAGG(i) OVER w FROM split_window_json.t1 WINDOW w AS (ORDER BY f);
+SELECT i,f,PERCENT_RANK() OVER w,JSON_ARRAYAGG(i) OVER w FROM split_window_json.t1 WINDOW w AS (PARTITION BY i ORDER BY f RANGE BETWEEN 2.1 FOLLOWING AND 4.5 FOLLOWING);
+SELECT i,j,JSON_OBJECTAGG(j,f) OVER w,JSON_OBJECTAGG(j,s) OVER w FROM split_window_json.t1 WINDOW w AS (PARTITION BY i ORDER BY j);
+SELECT i,JSON_OBJECTAGG(i,f) OVER w FROM split_window_json.t1 GROUP BY i,f WITH ROLLUP HAVING GROUPING(f)=1 WINDOW w AS (ORDER BY f);
+SELECT i,j,f,JSON_OBJECTAGG(i,j) OVER w,RANK() OVER w,NTH_VALUE(i,2) OVER w,LEAD(f,1) OVER w,LAG(f,1) OVER w FROM split_window_json.t1 WINDOW w AS (PARTITION BY i ORDER BY j);
+SELECT i,j,f,JSON_OBJECTAGG(i,j) OVER w,RANK() OVER w FROM split_window_json.t1 WINDOW w AS (PARTITION BY f ORDER BY j ROWS BETWEEN 2 PRECEDING AND 1 PRECEDING);
+SELECT 0&(JSON_ARRAYAGG(1) OVER w) FROM (SELECT 1) d WINDOW w AS ();
+SELECT MAKETIME(1<=>JSON_OBJECTAGG('1',1) OVER (),'1',1),MAKETIME(1<=>(2*JSON_OBJECTAGG('1',1) OVER ()),'1',1),1+CAST(JSON_OBJECTAGG(1,2) OVER () AS DECIMAL);
+SELECT JSON_OBJECTAGG(k,i) OVER (ORDER BY k ROWS CURRENT ROW),JSON_OBJECTAGG(k,i) OVER (ORDER BY i ROWS CURRENT ROW) FROM split_window_json.dup;
+SELECT 1 MEMBER (JSON_ARRAY(1,2));
+SELECT id,doc,doc->'$.score',doc->>'$.name',
+               JSON_TYPE(doc),JSON_DEPTH(doc),JSON_STORAGE_SIZE(doc)
+        FROM split_type_json.json_core
+        ORDER BY CAST(doc->>'$.score' AS UNSIGNED),id;
+SELECT a.id,b.id,a.doc->>'$.name'
+        FROM split_type_json.json_core AS a
+        JOIN split_type_json.json_core AS b
+          ON a.doc->>'$.kind'=b.doc->>'$.kind'
+         AND JSON_OVERLAPS(a.payload,b.payload)
+        WHERE a.id<b.id
+        ORDER BY a.id,b.id;
+SELECT o.id,o.doc
+        FROM split_type_json.json_core AS o
+        WHERE EXISTS (
+          SELECT 1 FROM split_type_json.json_core AS i
+          WHERE i.id<>o.id
+            AND JSON_CONTAINS(
+                  i.payload,JSON_QUOTE(o.doc->>'$.kind'),'$.tags'
+                )
+        );
+SELECT d.kind,COUNT(*),JSON_ARRAYAGG(d.name_text),
+               JSON_OBJECTAGG(d.id,d.score)
+        FROM (
+          SELECT id,doc->>'$.kind' AS kind,
+                 doc->>'$.name' AS name_text,
+                 CAST(doc->>'$.score' AS UNSIGNED) AS score
+          FROM split_type_json.json_core
+        ) AS d
+        GROUP BY d.kind
+        HAVING MAX(d.score)>=10;
+SELECT doc FROM split_type_json.json_core WHERE id<3
+        UNION ALL
+        SELECT JSON_OBJECT(
+                 'max_score',
+                 (SELECT MAX(CAST(doc->>'$.score' AS UNSIGNED))
+                  FROM split_type_json.json_core)
+               );
+SELECT id,doc
+        FROM split_type_json.json_mvi_inline
+        WHERE 94536 MEMBER OF (doc->'$.zipcodes')
+           OR JSON_CONTAINS(doc->'$.zipcodes','94536')
+           OR JSON_OVERLAPS(doc->'$.zipcodes','[94536,94582]');
+SELECT c.id,jt.ord,jt.tag
+        FROM split_type_json.json_core AS c
+        JOIN JSON_TABLE(
+               c.payload,
+               '$.tags[*]' COLUMNS (
+                 ord FOR ORDINALITY,
+                 tag VARCHAR(32) PATH '$'
+               )
+             ) AS jt
+        WHERE jt.tag IS NOT NULL
+        ORDER BY c.id,jt.ord;
+WITH json_scores AS (
+          SELECT id,
+                 JSON_VALUE(
+                   doc,'$.kind' RETURNING CHAR(32)
+                 ) AS kind,
+                 JSON_VALUE(
+                   doc,'$.score' RETURNING UNSIGNED
+                   DEFAULT 0 ON EMPTY
+                 ) AS score
+          FROM split_type_json.json_core
+        )
+        SELECT id,kind,score,
+               ROW_NUMBER() OVER (
+                 PARTITION BY kind ORDER BY score DESC,id
+               ) AS rn,
+               SUM(score) OVER (
+                 PARTITION BY kind ORDER BY id
+               ) AS running_score
+        FROM json_scores;
+SELECT JSON_VALUE('[1,2]','$[*]' RETURNING SIGNED ERROR ON ERROR);
+SELECT JSON_VALUE('{"data":123}','$.num' RETURNING SIGNED DEFAULT 'asdf' ON EMPTY);
+SELECT JSON_VALUE('{"data":123}', '.data' RETURNING SIGNED ERROR ON ERROR);
+SELECT JSON_VALUE('{"data":"asd"}','$.data' RETURNING SIGNED DEFAULT 321 ON ERROR);
+SELECT JSON_VALUE('"abcd"','$' RETURNING CHAR(3) DEFAULT 'xyz' ON ERROR);
+SELECT * FROM JSON_TABLE('[{"a":1},{"a":[0,1]}]','$[*]' COLUMNS(a INT PATH '$.a' ERROR ON ERROR)) AS jt;
+SELECT * FROM JSON_TABLE('!bad','$[*]' COLUMNS(id FOR ORDINALITY)) AS jt;
+SELECT * FROM JSON_TABLE('[1]','!bad' COLUMNS(id FOR ORDINALITY)) AS jt;
+SELECT * FROM JSON_TABLE('[1]','$[*]' COLUMNS(x INT PATH '!bad')) AS jt;
+SELECT * FROM JSON_TABLE('[1]','$[*]' COLUMNS(id FOR ORDINALITY,id FOR ORDINALITY)) AS jt;
+SELECT * FROM JSON_TABLE('"asdf"','$' COLUMNS(a INT PATH '$' ERROR ON ERROR)) AS jt;
+SELECT * FROM JSON_TABLE('123.456','$' COLUMNS(a DECIMAL(2,1) PATH '$' ERROR ON ERROR)) AS jt;
+SELECT * FROM JSON_TABLE('{}','$' COLUMNS(x INT PATH '$.x' DEFAULT 0 ON EMPTY)) AS jt;
+SELECT JSON_SCHEMA_VALIDATION_REPORT();
+SELECT JSON_SCHEMA_VALIDATION_REPORT(NULL);
+SELECT JSON_SCHEMA_VALIDATION_REPORT(NULL,NULL,NULL);
+SELECT JSON_MERGE_PRESERVE();
+SELECT JSON_MERGE_PRESERVE('[1]');
+SELECT JSON_EXTRACT('{"a":1}', '$.a') AS je, COUNT(DISTINCT a) FROM split_json_rollup GROUP BY je WITH ROLLUP;
+SELECT SUM(col_int), col_int FROM split_json_column AS table1 WHERE table1.pk = table1.pk;
+SELECT JSON_ARRAY(_utf8mb4'abc') = JSON_ARRAY(_binary'abc');
+SELECT * FROM split_json_prepare WHERE JSON_LENGTH(?, a BETWEEN ? AND ?);
+SELECT JSON_SEARCH(?,?,?,?);
+SELECT JSON_SEARCH(?,?,?,"x",?);
+SELECT * FROM JSON_TABLE(?, '$[*]' COLUMNS(a INT PATH '$.a')) AS jt;
+SELECT CAST((SELECT 1) AS JSON);
+SELECT JSON_EXTRACT(col_json, ?) FROM t_reuse ORDER BY pk;
+SELECT JSON_CONTAINS('{"a":[1]}','[1]',?);
+SELECT JSON_CONTAINS_PATH('{"a":1}','all',?);
+SELECT JSON_LENGTH('{"a":[1]}',?);
+SELECT JSON_KEYS('[{"a":1}]',?);
+SELECT JSON_ARRAY_APPEND('{"a":[1]}',?,2);
+SELECT JSON_INSERT('{"a":[1]}',?,2);
+SELECT JSON_SET('{"a":[1]}',?,2);
+SELECT JSON_REPLACE('{"a":[1]}',?,2);
+SELECT JSON_REMOVE('{"a":[1]}',?);
+SELECT JSON_SEARCH('{"a":"foo"}','all','foo%',NULL,?);
+SELECT JSON_SEARCH('{"a":"foo"}',?,'foo%');
+SELECT JSON_CONTAINS_PATH('{"a":1}',?,'$.a','$.b');
+SELECT JSON_ARRAY(?,?,?,?,?,?);
+SELECT JSON_OBJECT('a',?,'b',?);
+SELECT JSON_ARRAY_INSERT(@j,'$[1]',?);
+SELECT JSON_OVERLAPS('true',?);
+SELECT JSON_CONTAINS('{"a":"x"}',?,'$.a');
+SELECT JSON_MERGE_PATCH('[1,2]',?);
+SELECT JSON_MERGE_PRESERVE('[1,2]',?);
+SELECT * FROM t1 WHERE ? MEMBER OF (c1->'$');
+SELECT * FROM t1 WHERE j->'$.int'=?;
+SELECT * FROM t1 WHERE j->>'$.int'=?;
+SELECT CAST(? AS JSON);
+SELECT CAST('"123"' AS JSON)=JSON_EXTRACT(?,'$');
+SELECT CAST('"123"' AS JSON) IN (?,?);
+SELECT * FROM JSON_TABLE('"x"','$' COLUMNS(x VARCHAR(10) CHARSET utf8mb4 COLLATE utf8mb4_bin PATH '$')) AS jt;
+SELECT * FROM JSON_TABLE(JSON_OBJECT(),_utf8mb4'$' COLUMNS(NESTED PATH _utf8mb4'$.x' COLUMNS(y INT PATH _utf8mb4'$.y' DEFAULT _utf8mb4'1' ON EMPTY DEFAULT _utf8mb4'2' ON ERROR))) AS jt;
+SELECT jt1.data1,jt2.id2 FROM (SELECT CAST('[1,2]' AS JSON) AS jd) AS t,JSON_TABLE(jd,'$' COLUMNS(data1 JSON PATH '$')) AS jt1,JSON_TABLE(data1,'$[*]' COLUMNS(id2 INT PATH '$')) AS jt2;
+WITH cte_query AS (SELECT jtcol1 FROM (SELECT 1 AS i) AS t,JSON_TABLE(JSON_OBJECT('ISSKF',i),'$[*]' COLUMNS(jtcol1 INT EXISTS PATH '$[*]')) AS jt) SELECT jtcol1 FROM cte_query;
+SELECT jt.i FROM (SELECT 1) AS t STRAIGHT_JOIN JSON_TABLE(JSON_ARRAY(1),'$[*]' COLUMNS(i INT PATH '$')) AS jt;
+SELECT MAX(t.x) OVER () AS m,jt.* FROM (SELECT 1 AS x) AS t,JSON_TABLE(JSON_ARRAY(m),'$[*]' COLUMNS(i INT PATH '$')) AS jt;
+SELECT JSON_VALUE('{}','$.x' RETURNING CHAR(10) CHARSET utf16 DEFAULT 'abc' ON EMPTY);
+SELECT * FROM JSON_TABLE((SELECT '[1,2]'),'$[*]' COLUMNS(v INT PATH '$')) AS jt;
+SELECT * FROM JSON_TABLE('[{"a":2,"n":[{"l":1},{"l":11}]}]','$[*]' COLUMNS(id FOR ORDINALITY,jpath VARCHAR(50) PATH '$.a' DEFAULT '33' ON EMPTY DEFAULT '66' ON ERROR,jsn_path JSON PATH '$.n' DEFAULT '{"x":33}' ON EMPTY,jexst INT EXISTS PATH '$.b',NESTED PATH '$.n[*]' COLUMNS(id_n FOR ORDINALITY,jpath_n VARCHAR(50) PATH '$.l'),NESTED PATH '$.n[*]' COLUMNS(id_m FOR ORDINALITY,jpath_m VARCHAR(50) PATH '$.l'))) AS jt;
+------------------------------------------------------------------------------------------
+[SELECT] SELECT id, JSON_ARRAYAGG(val) OVER (PARTITION BY grp ORDER BY id ROWS UNBOUNDED PRECEDING) AS values_so_far, JSON_OBJECTAGG(id, val) OVER (PARTITION BY grp ORDER BY id ROWS UNBOUNDED PRECEDING) AS values_by_id FROM t ORDER BY id;
+----------
+[SELECT] SELECT CAST('{"a":1}' AS JSON);
+----------
+[SELECT] SELECT CONVERT('{"a":1}', JSON);
+----------
+[SELECT] SELECT * FROM (SELECT alias2.pk AS field1 FROM split_derived_json57.t1 AS alias1 LEFT OUTER JOIN split_derived_json57.t2 AS alias2 ON JSON_UNQUOTE(JSON_EXTRACT(alias1.col_varchar,'$.varc')) COLLATE utf8mb4_general_ci=alias2.col_date_key GROUP BY JSON_QUOTE(JSON_EXTRACT(field1,'$.intc'))) AS dt;
+----------
+[SELECT] SELECT 'a' LIKE '%' ESCAPE CAST('' AS JSON);
+----------
+[SELECT] SELECT JSON_ARRAY(1,'a',NULL), JSON_OBJECT('a',1,'b',JSON_ARRAY(2,3)), JSON_QUOTE('a"b'), JSON_UNQUOTE('"abc"'), JSON_EXTRACT('{"a":[1,2]}','$.a[0]'), JSON_CONTAINS('[1,2,3]','2'), JSON_CONTAINS_PATH('{"a":1}','one','$.a'), JSON_KEYS('{"a":1,"b":2}'), JSON_SEARCH('["abc","def"]','one','def'), JSON_SET('{"a":1}','$.b',2), JSON_INSERT('{"a":1}','$.b',2), JSON_REPLACE('{"a":1}','$.a',2), JSON_REMOVE('{"a":1,"b":2}','$.b'), JSON_ARRAY_APPEND('[1,2]','$',3), JSON_ARRAY_INSERT('[1,2]','$[1]',9), JSON_MERGE('{"a":1}','{"b":2}'), JSON_DEPTH('{"a":[1]}'), JSON_LENGTH('[1,2]'), JSON_TYPE('1'), JSON_VALID('{"a":1}');
+----------
+[SELECT] SELECT JSON_MERGE_PATCH('{"a":1}','{"a":2}'), JSON_MERGE_PRESERVE('{"a":1}','{"a":2}'), JSON_PRETTY('{"a":1}'), JSON_STORAGE_SIZE('{"a":1}');
+----------
+[SELECT] SELECT JSON_ARRAYAGG(x), JSON_OBJECTAGG(x, x * x) FROM (SELECT 1 AS x UNION ALL SELECT 2) AS d;
+----------
+[SELECT] SELECT JSON_OVERLAPS('[1,2]','[2,3]'), PS_CURRENT_THREAD_ID(), PS_THREAD_ID(CONNECTION_ID());
+----------
+[SELECT] SELECT JSON_SCHEMA_VALID('{"type":"object","properties":{"a":{"type":"integer"}},"required":["a"]}', '{"a":1}'), JSON_SCHEMA_VALIDATION_REPORT('{"type":"object","properties":{"a":{"type":"integer"}},"required":["a"]}', '{"a":"x"}'), JSON_STORAGE_FREE('{"a":1}');
+----------
+[SELECT] SELECT (SELECT JSON_ARRAYAGG(i.t1) FROM agg_t AS i WHERE i.t2=o.t2 LIMIT 1) FROM agg_t AS o GROUP BY o.t2;
+----------
+[SELECT] SELECT (SELECT 1 FROM agg_t AS i WHERE JSON_ARRAYAGG(1 IN (SELECT 1 FROM agg_t AS d))) FROM agg_t AS o LIMIT 1;
+----------
+[SELECT] SELECT JSON_ARRAY();
+----------
+[SELECT] SELECT JSON_OBJECT();
+----------
+[SELECT] SELECT JSON_OBJECTAGG(t.col_int,t.col_int), (SELECT JSON_ARRAYAGG(s.col_int) FROM CC AS s WHERE s.col_int<>t.col_int) AS field5 FROM CC AS t WHERE t.col_int<>ALL(SELECT q.col_int FROM CC AS q STRAIGHT_JOIN C) GROUP BY field5;
+----------
+[SELECT] SELECT JSON_EXTRACT('{"a":1,"b":2}', '$.a', '$.b');
+----------
+[SELECT] SELECT JSON_CONTAINS('{"a":[1,2]}', '2', '$.a');
+----------
+[SELECT] SELECT JSON_CONTAINS_PATH('{"a":1,"b":2}', 'all', '$.a', '$.b');
+----------
+[SELECT] SELECT JSON_KEYS('{"a":{"b":1}}', '$.a');
+----------
+[SELECT] SELECT JSON_LENGTH('{"a":[1,2]}', '$.a');
+----------
+[SELECT] SELECT JSON_SEARCH('{"a":["ab_c","def"],"b":"abxc"}', 'all', 'ab!_c', '!', '$.a[*]', '$.b');
+----------
+[SELECT] SELECT JSON_SET('{"a":1}', '$.b', 2, '$.c', 3);
+----------
+[SELECT] SELECT JSON_INSERT('{"a":1}', '$.b', 2, '$.c', 3);
+----------
+[SELECT] SELECT JSON_REPLACE('{"a":1,"b":2}', '$.a', 9, '$.b', 8);
+----------
+[SELECT] SELECT JSON_REMOVE('{"a":1,"b":2,"c":3}', '$.a', '$.b');
+----------
+[SELECT] SELECT JSON_ARRAY_APPEND('{"a":[1],"b":[2]}', '$.a', 3, '$.b', 4);
+----------
+[SELECT] SELECT JSON_ARRAY_INSERT('[1,2,3]', '$[1]', 8, '$[3]', 9);
+----------
+[SELECT] SELECT JSON_MERGE('{"a":1}', '{"b":2}', '{"c":3}');
+----------
+[SELECT] SELECT JSON_MERGE_PATCH('{"a":1}', '{"b":2}', '{"c":3}');
+----------
+[SELECT] SELECT JSON_MERGE_PRESERVE('{"a":1}', '{"b":2}', '{"c":3}');
+----------
+[SELECT] SELECT JSON_EXTRACT('{"quoted key":1}', '$."quoted key"');
+----------
+[SELECT] SELECT JSON_EXTRACT('{"a":1,"b":2}', '$.*');
+----------
+[SELECT] SELECT JSON_EXTRACT('[1,2,3]', '$[*]');
+----------
+[SELECT] SELECT JSON_EXTRACT('{"a":{"x":1},"b":{"x":2}}', '$**.x');
+----------
+[SELECT] SELECT JSON_EXTRACT('[1,2,3]', '$[last]');
+----------
+[SELECT] SELECT JSON_EXTRACT('[1,2,3]', '$[last-1]');
+----------
+[SELECT] SELECT JSON_EXTRACT('[1,2,3,4]', '$[1 to 2]');
+----------
+[SELECT] SELECT JSON_EXTRACT('[1,2,3,4]', '$[last-2 to last]');
+----------
+[SELECT] SELECT JSON_SCHEMA_VALID(t2.j,t2.j) FROM schema_t, (SELECT * FROM schema_t WHERE pk=1) AS t2;
+----------
+[SELECT] SELECT JSON_SCHEMA_VALIDATION_REPORT(t2.j,t2.j) FROM schema_t, (SELECT * FROM schema_t WHERE pk=1) AS t2;
+----------
+[SELECT] SELECT id FROM jt_src WHERE EXISTS (SELECT * FROM JSON_TABLE(jt_src.x, '$[*]' COLUMNS (i INT PATH '$')) AS jt WHERE i=2);
+----------
+[SELECT] SELECT * FROM JSON_TABLE('{"x":1}', '$' COLUMNS (c_bit BIT(8) PATH '$.x', c_bool BOOL PATH '$.x', c_boolean BOOLEAN PATH '$.x', c_tiny TINYINT UNSIGNED PATH '$.x', c_small SMALLINT PATH '$.x', c_medium MEDIUMINT PATH '$.x', c_int INT PATH '$.x', c_integer INTEGER PATH '$.x', c_big BIGINT PATH '$.x', c_decimal DECIMAL(10,2) PATH '$.x', c_dec DEC(10,2) PATH '$.x', c_fixed FIXED(10,2) PATH '$.x', c_numeric NUMERIC(10,2) PATH '$.x', c_float FLOAT(10) PATH '$.x', c_double DOUBLE PRECISION PATH '$.x', c_real REAL PATH '$.x', c_date DATE PATH '$.x', c_time TIME(6) PATH '$.x', c_datetime DATETIME(6) PATH '$.x', c_timestamp TIMESTAMP(6) PATH '$.x', c_year YEAR PATH '$.x')) AS jt;
+----------
+[SELECT] SELECT * FROM JSON_TABLE('{"x":1}', '$' COLUMNS (c_char CHAR(5) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci PATH '$.x', c_nchar NCHAR(5) PATH '$.x', c_varchar VARCHAR(10) PATH '$.x', c_nvarchar NVARCHAR(10) PATH '$.x', c_binary BINARY(5) PATH '$.x', c_varbinary VARBINARY(10) PATH '$.x', c_tinyblob TINYBLOB PATH '$.x', c_blob BLOB PATH '$.x', c_mediumblob MEDIUMBLOB PATH '$.x', c_longblob LONGBLOB PATH '$.x', c_tinytext TINYTEXT PATH '$.x', c_text TEXT PATH '$.x', c_mediumtext MEDIUMTEXT PATH '$.x', c_longtext LONGTEXT PATH '$.x', c_enum ENUM('1','2') PATH '$.x', c_set SET('1','2') PATH '$.x', c_json JSON PATH '$.x', c_serial SERIAL PATH '$.x', c_long_varchar LONG VARCHAR PATH '$.x', c_long_varbinary LONG VARBINARY PATH '$.x')) AS jt;
+----------
+[SELECT] SELECT * FROM JSON_TABLE('{"x":1}', '$' COLUMNS (c_geometry GEOMETRY PATH '$.x', c_point POINT PATH '$.x', c_linestring LINESTRING PATH '$.x', c_polygon POLYGON PATH '$.x', c_multipoint MULTIPOINT PATH '$.x', c_multilinestring MULTILINESTRING PATH '$.x', c_multipolygon MULTIPOLYGON PATH '$.x', c_geometrycollection GEOMETRYCOLLECTION PATH '$.x')) AS jt;
+----------
+[SELECT] SELECT description FROM JSON_TABLE('{"operation":"root","inputs":[{"operation":"child"}]}', '$**.operation' COLUMNS (o FOR ORDINALITY, description TEXT PATH '$')) AS jt ORDER BY o;
+----------
+[SELECT] SELECT * FROM JSON_TABLE('{}', '$' COLUMNS (e_err INT PATH '$.x' ERROR ON EMPTY, e_null INT PATH '$.x' NULL ON EMPTY, e_def INT PATH '$.x' DEFAULT '1' ON EMPTY, r_err INT PATH '$.x' ERROR ON ERROR, r_null INT PATH '$.x' NULL ON ERROR, r_def INT PATH '$.x' DEFAULT '2' ON ERROR)) AS jt;
+----------
+[SELECT] SELECT * FROM JSON_TABLE('{}', '$' COLUMNS (ee INT PATH '$.x' ERROR ON EMPTY ERROR ON ERROR, en INT PATH '$.x' ERROR ON EMPTY NULL ON ERROR, ed INT PATH '$.x' ERROR ON EMPTY DEFAULT '2' ON ERROR, ne INT PATH '$.x' NULL ON EMPTY ERROR ON ERROR, nn INT PATH '$.x' NULL ON EMPTY NULL ON ERROR, nd INT PATH '$.x' NULL ON EMPTY DEFAULT '2' ON ERROR, de INT PATH '$.x' DEFAULT '1' ON EMPTY ERROR ON ERROR, dn INT PATH '$.x' DEFAULT '1' ON EMPTY NULL ON ERROR, dd INT PATH '$.x' DEFAULT '1' ON EMPTY DEFAULT '2' ON ERROR)) AS jt;
+----------
+[SELECT] SELECT * FROM JSON_TABLE('{}', '$' COLUMNS (ee INT PATH '$.x' ERROR ON ERROR ERROR ON EMPTY, en INT PATH '$.x' NULL ON ERROR ERROR ON EMPTY, ed INT PATH '$.x' DEFAULT '2' ON ERROR ERROR ON EMPTY, ne INT PATH '$.x' ERROR ON ERROR NULL ON EMPTY, nn INT PATH '$.x' NULL ON ERROR NULL ON EMPTY, nd INT PATH '$.x' DEFAULT '2' ON ERROR NULL ON EMPTY, de INT PATH '$.x' ERROR ON ERROR DEFAULT '1' ON EMPTY, dn INT PATH '$.x' NULL ON ERROR DEFAULT '1' ON EMPTY, dd INT PATH '$.x' DEFAULT '2' ON ERROR DEFAULT '1' ON EMPTY)) AS jt;
+----------
+[SELECT] SELECT * FROM JSON_TABLE('{"x":1}', '$' COLUMNS (a INT EXISTS PATH '$.x' NULL ON EMPTY NULL ON ERROR, b INT EXISTS PATH '$.y' DEFAULT '0' ON ERROR ERROR ON EMPTY)) AS jt;
+----------
+[SELECT] SELECT * FROM JSON_TABLE('{}', '$' COLUMNS (x DATE PATH '$.x' DEFAULT DATE '2020-01-02' ON EMPTY)) AS jt;
+----------
+[SELECT] SELECT 1 FROM JSON_TABLE(ROW(1,2), '$' COLUMNS (o FOR ORDINALITY)) AS jt;
+----------
+[SELECT] SELECT tt2.id FROM jt_src AS tt2, JSON_TABLE(tt2.f1, '$' COLUMNS (ord FOR ORDINALITY)) AS tbl STRAIGHT_JOIN jt_src AS tt3 LIMIT 1;
+----------
+[SELECT] SELECT * FROM JSON_TABLE('{"a":[1],"b":[2]}', '$' COLUMNS (NESTED PATH '$.a[*]' COLUMNS (ax INT PATH '$'), NESTED PATH '$.b[*]' COLUMNS (bx INT PATH '$'))) AS jt;
+----------
+[SELECT] SELECT * FROM JSON_TABLE('{"a":[{"b":[{"c":3}]}]}', '$' COLUMNS (NESTED PATH '$.a[*]' COLUMNS (NESTED PATH '$.b[*]' COLUMNS (NESTED PATH '$.c' COLUMNS (c INT PATH '$'))))) AS jt;
+----------
+[SELECT] SELECT * FROM JSON_TABLE('[1]', '$[*]' COLUMNS (x INT PATH '$'));
+----------
+[SELECT] SELECT * FROM JSON_TABLE('[1,2,3]', '$[*]' COLUMNS (x INT PATH '$')) AS jt;
+----------
+[SELECT] SELECT jt.ord, jt.id, jt.has_name, jt.name FROM JSON_TABLE('[{"id":1,"name":"a"},{"id":2}]', '$[*]' COLUMNS (ord FOR ORDINALITY, id INT PATH '$.id', has_name INT EXISTS PATH '$.name', name VARCHAR(20) PATH '$.name' NULL ON EMPTY NULL ON ERROR)) AS jt;
+----------
+[SELECT] SELECT jt.id, jt.tag FROM JSON_TABLE('[{"id":1,"tags":["a","b"]}]', '$[*]' COLUMNS (id INT PATH '$.id', NESTED PATH '$.tags[*]' COLUMNS (tag VARCHAR(10) PATH '$'))) AS jt;
+----------
+[SELECT] SELECT JSON_VALUE('{"price":"49.95"}', '$.price' RETURNING DECIMAL(5,2) DEFAULT 0 ON EMPTY DEFAULT 0 ON ERROR);
+----------
+[SELECT] SELECT JSON_VALUE('{"x":1}', '$.x');
+----------
+[SELECT] SELECT JSON_VALUE('{}', '$.x' ERROR ON EMPTY);
+----------
+[SELECT] SELECT JSON_VALUE('{}', '$.x' NULL ON EMPTY);
+----------
+[SELECT] SELECT JSON_VALUE('{}', '$.x' DEFAULT -1 ON EMPTY);
+----------
+[SELECT] SELECT JSON_VALUE('{bad}', '$.x' ERROR ON ERROR);
+----------
+[SELECT] SELECT JSON_VALUE('{bad}', '$.x' NULL ON ERROR);
+----------
+[SELECT] SELECT JSON_VALUE('{bad}', '$.x' DEFAULT TRUE ON ERROR);
+----------
+[SELECT] SELECT JSON_VALUE('{}', '$.x' ERROR ON EMPTY ERROR ON ERROR);
+----------
+[SELECT] SELECT JSON_VALUE('{}', '$.x' ERROR ON EMPTY NULL ON ERROR);
+----------
+[SELECT] SELECT JSON_VALUE('{}', '$.x' ERROR ON EMPTY DEFAULT 2 ON ERROR);
+----------
+[SELECT] SELECT JSON_VALUE('{}', '$.x' NULL ON EMPTY ERROR ON ERROR);
+----------
+[SELECT] SELECT JSON_VALUE('{}', '$.x' NULL ON EMPTY NULL ON ERROR);
+----------
+[SELECT] SELECT JSON_VALUE('{}', '$.x' NULL ON EMPTY DEFAULT 2 ON ERROR);
+----------
+[SELECT] SELECT JSON_VALUE('{}', '$.x' DEFAULT -1 ON EMPTY ERROR ON ERROR);
+----------
+[SELECT] SELECT JSON_VALUE('{}', '$.x' DEFAULT -1 ON EMPTY NULL ON ERROR);
+----------
+[SELECT] SELECT JSON_VALUE('{}', '$.x' DEFAULT X'31' ON EMPTY DEFAULT DATE '2020-01-02' ON ERROR);
+----------
+[SELECT] SELECT JSON_VALUE('{"x":1}', '$.x' RETURNING BINARY);
+----------
+[SELECT] SELECT JSON_VALUE('{"x":1}', '$.x' RETURNING NCHAR);
+----------
+[SELECT] SELECT JSON_VALUE('{"x":1}', '$.x' RETURNING CHAR);
+----------
+[SELECT] SELECT JSON_VALUE('{"x":1}', '$.x' RETURNING DATE);
+----------
+[SELECT] SELECT JSON_VALUE('{"x":1}', '$.x' RETURNING DATETIME);
+----------
+[SELECT] SELECT JSON_VALUE('{"x":1}', '$.x' RETURNING TIME);
+----------
+[SELECT] SELECT JSON_VALUE('{"x":1}', '$.x' RETURNING JSON);
+----------
+[SELECT] SELECT JSON_VALUE('{"x":1}', '$.x' RETURNING FLOAT);
+----------
+[SELECT] SELECT JSON_VALUE('{"x":1}', '$.x' RETURNING DOUBLE);
+----------
+[SELECT] SELECT JSON_VALUE('{"x":1}', '$.x' RETURNING REAL);
+----------
+[SELECT] SELECT JSON_VALUE('{"x":1}', '$.x' RETURNING YEAR);
+----------
+[SELECT] SELECT JSON_VALUE('{"x":1}', '$.x' RETURNING SIGNED);
+----------
+[SELECT] SELECT JSON_VALUE('{"x":1}', '$.x' RETURNING UNSIGNED);
+----------
+[SELECT] SELECT JSON_VALUE('{"x":1}', '$.x' RETURNING LINESTRING);
+----------
+[SELECT] SELECT JSON_VALUE('{"x":1}', '$.x' RETURNING POLYGON);
+----------
+[SELECT] SELECT JSON_VALUE('{"x":1}', '$.x' RETURNING MULTIPOINT);
+----------
+[SELECT] SELECT JSON_VALUE('{"x":1}', '$.x' RETURNING MULTILINESTRING);
+----------
+[SELECT] SELECT JSON_VALUE('{"x":1}', '$.x' RETURNING MULTIPOLYGON);
+----------
+[SELECT] SELECT JSON_VALUE('{"x":1}', '$.x' RETURNING GEOMETRYCOLLECTION);
+----------
+[SELECT] SELECT j->'$.a', j->>'$.a' FROM json_op;
+----------
+[SELECT] SELECT 17 MEMBER OF('[23, 17]');
+----------
+[SELECT] SELECT NOT (17 MEMBER OF('[23, 17]'));
+----------
+[SELECT] SELECT j,i,f,JSON_ARRAYAGG(i) OVER w,JSON_ARRAYAGG(f) OVER w FROM split_window_json.t1 WINDOW w AS (ORDER BY j);
+----------
+[SELECT] SELECT i,f,JSON_ARRAYAGG(i) OVER w,JSON_ARRAYAGG(f) OVER w FROM split_window_json.t1 GROUP BY i,f WITH ROLLUP HAVING GROUPING(f)=1 WINDOW w AS (ORDER BY f,i ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING);
+----------
+[SELECT] SELECT i,f,RANK() OVER w,NTH_VALUE(i,3) OVER w,LEAD(f,2) OVER w,LAG(f,2) OVER w,JSON_ARRAYAGG(i) OVER w FROM split_window_json.t1 WINDOW w AS (ORDER BY f);
+----------
+[SELECT] SELECT i,f,PERCENT_RANK() OVER w,JSON_ARRAYAGG(i) OVER w FROM split_window_json.t1 WINDOW w AS (PARTITION BY i ORDER BY f RANGE BETWEEN 2.1 FOLLOWING AND 4.5 FOLLOWING);
+----------
+[SELECT] SELECT i,j,JSON_OBJECTAGG(j,f) OVER w,JSON_OBJECTAGG(j,s) OVER w FROM split_window_json.t1 WINDOW w AS (PARTITION BY i ORDER BY j);
+----------
+[SELECT] SELECT i,JSON_OBJECTAGG(i,f) OVER w FROM split_window_json.t1 GROUP BY i,f WITH ROLLUP HAVING GROUPING(f)=1 WINDOW w AS (ORDER BY f);
+----------
+[SELECT] SELECT i,j,f,JSON_OBJECTAGG(i,j) OVER w,RANK() OVER w,NTH_VALUE(i,2) OVER w,LEAD(f,1) OVER w,LAG(f,1) OVER w FROM split_window_json.t1 WINDOW w AS (PARTITION BY i ORDER BY j);
+----------
+[SELECT] SELECT i,j,f,JSON_OBJECTAGG(i,j) OVER w,RANK() OVER w FROM split_window_json.t1 WINDOW w AS (PARTITION BY f ORDER BY j ROWS BETWEEN 2 PRECEDING AND 1 PRECEDING);
+----------
+[SELECT] SELECT 0&(JSON_ARRAYAGG(1) OVER w) FROM (SELECT 1) d WINDOW w AS ();
+----------
+[SELECT] SELECT MAKETIME(1<=>JSON_OBJECTAGG('1',1) OVER (),'1',1),MAKETIME(1<=>(2*JSON_OBJECTAGG('1',1) OVER ()),'1',1),1+CAST(JSON_OBJECTAGG(1,2) OVER () AS DECIMAL);
+----------
+[SELECT] SELECT JSON_OBJECTAGG(k,i) OVER (ORDER BY k ROWS CURRENT ROW),JSON_OBJECTAGG(k,i) OVER (ORDER BY i ROWS CURRENT ROW) FROM split_window_json.dup;
+----------
+[SELECT] SELECT 1 MEMBER (JSON_ARRAY(1,2));
+----------
+[SELECT] SELECT id,doc,doc->'$.score',doc->>'$.name',
+               JSON_TYPE(doc),JSON_DEPTH(doc),JSON_STORAGE_SIZE(doc)
+        FROM split_type_json.json_core
+        ORDER BY CAST(doc->>'$.score' AS UNSIGNED),id;
+----------
+[SELECT] SELECT a.id,b.id,a.doc->>'$.name'
+        FROM split_type_json.json_core AS a
+        JOIN split_type_json.json_core AS b
+          ON a.doc->>'$.kind'=b.doc->>'$.kind'
+         AND JSON_OVERLAPS(a.payload,b.payload)
+        WHERE a.id<b.id
+        ORDER BY a.id,b.id;
+----------
+[SELECT] SELECT o.id,o.doc
+        FROM split_type_json.json_core AS o
+        WHERE EXISTS (
+          SELECT 1 FROM split_type_json.json_core AS i
+          WHERE i.id<>o.id
+            AND JSON_CONTAINS(
+                  i.payload,JSON_QUOTE(o.doc->>'$.kind'),'$.tags'
+                )
+        );
+----------
+[SELECT] SELECT d.kind,COUNT(*),JSON_ARRAYAGG(d.name_text),
+               JSON_OBJECTAGG(d.id,d.score)
+        FROM (
+          SELECT id,doc->>'$.kind' AS kind,
+                 doc->>'$.name' AS name_text,
+                 CAST(doc->>'$.score' AS UNSIGNED) AS score
+          FROM split_type_json.json_core
+        ) AS d
+        GROUP BY d.kind
+        HAVING MAX(d.score)>=10;
+----------
+[SELECT] SELECT doc FROM split_type_json.json_core WHERE id<3
+        UNION ALL
+        SELECT JSON_OBJECT(
+                 'max_score',
+                 (SELECT MAX(CAST(doc->>'$.score' AS UNSIGNED))
+                  FROM split_type_json.json_core)
+               );
+----------
+[SELECT] SELECT id,doc
+        FROM split_type_json.json_mvi_inline
+        WHERE 94536 MEMBER OF (doc->'$.zipcodes')
+           OR JSON_CONTAINS(doc->'$.zipcodes','94536')
+           OR JSON_OVERLAPS(doc->'$.zipcodes','[94536,94582]');
+----------
+[SELECT] SELECT c.id,jt.ord,jt.tag
+        FROM split_type_json.json_core AS c
+        JOIN JSON_TABLE(
+               c.payload,
+               '$.tags[*]' COLUMNS (
+                 ord FOR ORDINALITY,
+                 tag VARCHAR(32) PATH '$'
+               )
+             ) AS jt
+        WHERE jt.tag IS NOT NULL
+        ORDER BY c.id,jt.ord;
+----------
+[SELECT] WITH json_scores AS (
+          SELECT id,
+                 JSON_VALUE(
+                   doc,'$.kind' RETURNING CHAR(32)
+                 ) AS kind,
+                 JSON_VALUE(
+                   doc,'$.score' RETURNING UNSIGNED
+                   DEFAULT 0 ON EMPTY
+                 ) AS score
+          FROM split_type_json.json_core
+        )
+        SELECT id,kind,score,
+               ROW_NUMBER() OVER (
+                 PARTITION BY kind ORDER BY score DESC,id
+               ) AS rn,
+               SUM(score) OVER (
+                 PARTITION BY kind ORDER BY id
+               ) AS running_score
+        FROM json_scores;
+----------
+[SELECT] SELECT JSON_VALUE('[1,2]','$[*]' RETURNING SIGNED ERROR ON ERROR);
+----------
+[SELECT] SELECT JSON_VALUE('{"data":123}','$.num' RETURNING SIGNED DEFAULT 'asdf' ON EMPTY);
+----------
+[SELECT] SELECT JSON_VALUE('{"data":123}', '.data' RETURNING SIGNED ERROR ON ERROR);
+----------
+[SELECT] SELECT JSON_VALUE('{"data":"asd"}','$.data' RETURNING SIGNED DEFAULT 321 ON ERROR);
+----------
+[SELECT] SELECT JSON_VALUE('"abcd"','$' RETURNING CHAR(3) DEFAULT 'xyz' ON ERROR);
+----------
+[SELECT] SELECT * FROM JSON_TABLE('[{"a":1},{"a":[0,1]}]','$[*]' COLUMNS(a INT PATH '$.a' ERROR ON ERROR)) AS jt;
+----------
+[SELECT] SELECT * FROM JSON_TABLE('!bad','$[*]' COLUMNS(id FOR ORDINALITY)) AS jt;
+----------
+[SELECT] SELECT * FROM JSON_TABLE('[1]','!bad' COLUMNS(id FOR ORDINALITY)) AS jt;
+----------
+[SELECT] SELECT * FROM JSON_TABLE('[1]','$[*]' COLUMNS(x INT PATH '!bad')) AS jt;
+----------
+[SELECT] SELECT * FROM JSON_TABLE('[1]','$[*]' COLUMNS(id FOR ORDINALITY,id FOR ORDINALITY)) AS jt;
+----------
+[SELECT] SELECT * FROM JSON_TABLE('"asdf"','$' COLUMNS(a INT PATH '$' ERROR ON ERROR)) AS jt;
+----------
+[SELECT] SELECT * FROM JSON_TABLE('123.456','$' COLUMNS(a DECIMAL(2,1) PATH '$' ERROR ON ERROR)) AS jt;
+----------
+[SELECT] SELECT * FROM JSON_TABLE('{}','$' COLUMNS(x INT PATH '$.x' DEFAULT 0 ON EMPTY)) AS jt;
+----------
+[SELECT] SELECT JSON_SCHEMA_VALIDATION_REPORT();
+----------
+[SELECT] SELECT JSON_SCHEMA_VALIDATION_REPORT(NULL);
+----------
+[SELECT] SELECT JSON_SCHEMA_VALIDATION_REPORT(NULL,NULL,NULL);
+----------
+[SELECT] SELECT JSON_MERGE_PRESERVE();
+----------
+[SELECT] SELECT JSON_MERGE_PRESERVE('[1]');
+----------
+[SELECT] SELECT JSON_EXTRACT('{"a":1}', '$.a') AS je, COUNT(DISTINCT a) FROM split_json_rollup GROUP BY je WITH ROLLUP;
+----------
+[SELECT] SELECT SUM(col_int), col_int FROM split_json_column AS table1 WHERE table1.pk = table1.pk;
+----------
+[SELECT] SELECT JSON_ARRAY(_utf8mb4'abc') = JSON_ARRAY(_binary'abc');
+----------
+[SELECT] SELECT * FROM split_json_prepare WHERE JSON_LENGTH(?, a BETWEEN ? AND ?);
+----------
+[SELECT] SELECT JSON_SEARCH(?,?,?,?);
+----------
+[SELECT] SELECT JSON_SEARCH(?,?,?,"x",?);
+----------
+[SELECT] SELECT * FROM JSON_TABLE(?, '$[*]' COLUMNS(a INT PATH '$.a')) AS jt;
+----------
+[SELECT] SELECT CAST((SELECT 1) AS JSON);
+----------
+[SELECT] SELECT JSON_EXTRACT(col_json, ?) FROM t_reuse ORDER BY pk;
+----------
+[SELECT] SELECT JSON_CONTAINS('{"a":[1]}','[1]',?);
+----------
+[SELECT] SELECT JSON_CONTAINS_PATH('{"a":1}','all',?);
+----------
+[SELECT] SELECT JSON_LENGTH('{"a":[1]}',?);
+----------
+[SELECT] SELECT JSON_KEYS('[{"a":1}]',?);
+----------
+[SELECT] SELECT JSON_ARRAY_APPEND('{"a":[1]}',?,2);
+----------
+[SELECT] SELECT JSON_INSERT('{"a":[1]}',?,2);
+----------
+[SELECT] SELECT JSON_SET('{"a":[1]}',?,2);
+----------
+[SELECT] SELECT JSON_REPLACE('{"a":[1]}',?,2);
+----------
+[SELECT] SELECT JSON_REMOVE('{"a":[1]}',?);
+----------
+[SELECT] SELECT JSON_SEARCH('{"a":"foo"}','all','foo%',NULL,?);
+----------
+[SELECT] SELECT JSON_SEARCH('{"a":"foo"}',?,'foo%');
+----------
+[SELECT] SELECT JSON_CONTAINS_PATH('{"a":1}',?,'$.a','$.b');
+----------
+[SELECT] SELECT JSON_ARRAY(?,?,?,?,?,?);
+----------
+[SELECT] SELECT JSON_OBJECT('a',?,'b',?);
+----------
+[SELECT|SESSION_VARIABLE_RW] SELECT JSON_ARRAY_INSERT(@j,'$[1]',?);
+----------
+[SELECT] SELECT JSON_OVERLAPS('true',?);
+----------
+[SELECT] SELECT JSON_CONTAINS('{"a":"x"}',?,'$.a');
+----------
+[SELECT] SELECT JSON_MERGE_PATCH('[1,2]',?);
+----------
+[SELECT] SELECT JSON_MERGE_PRESERVE('[1,2]',?);
+----------
+[SELECT] SELECT * FROM t1 WHERE ? MEMBER OF (c1->'$');
+----------
+[SELECT] SELECT * FROM t1 WHERE j->'$.int'=?;
+----------
+[SELECT] SELECT * FROM t1 WHERE j->>'$.int'=?;
+----------
+[SELECT] SELECT CAST(? AS JSON);
+----------
+[SELECT] SELECT CAST('"123"' AS JSON)=JSON_EXTRACT(?,'$');
+----------
+[SELECT] SELECT CAST('"123"' AS JSON) IN (?,?);
+----------
+[SELECT] SELECT * FROM JSON_TABLE('"x"','$' COLUMNS(x VARCHAR(10) CHARSET utf8mb4 COLLATE utf8mb4_bin PATH '$')) AS jt;
+----------
+[SELECT] SELECT * FROM JSON_TABLE(JSON_OBJECT(),_utf8mb4'$' COLUMNS(NESTED PATH _utf8mb4'$.x' COLUMNS(y INT PATH _utf8mb4'$.y' DEFAULT _utf8mb4'1' ON EMPTY DEFAULT _utf8mb4'2' ON ERROR))) AS jt;
+----------
+[SELECT] SELECT jt1.data1,jt2.id2 FROM (SELECT CAST('[1,2]' AS JSON) AS jd) AS t,JSON_TABLE(jd,'$' COLUMNS(data1 JSON PATH '$')) AS jt1,JSON_TABLE(data1,'$[*]' COLUMNS(id2 INT PATH '$')) AS jt2;
+----------
+[SELECT] WITH cte_query AS (SELECT jtcol1 FROM (SELECT 1 AS i) AS t,JSON_TABLE(JSON_OBJECT('ISSKF',i),'$[*]' COLUMNS(jtcol1 INT EXISTS PATH '$[*]')) AS jt) SELECT jtcol1 FROM cte_query;
+----------
+[SELECT] SELECT jt.i FROM (SELECT 1) AS t STRAIGHT_JOIN JSON_TABLE(JSON_ARRAY(1),'$[*]' COLUMNS(i INT PATH '$')) AS jt;
+----------
+[SELECT] SELECT MAX(t.x) OVER () AS m,jt.* FROM (SELECT 1 AS x) AS t,JSON_TABLE(JSON_ARRAY(m),'$[*]' COLUMNS(i INT PATH '$')) AS jt;
+----------
+[SELECT] SELECT JSON_VALUE('{}','$.x' RETURNING CHAR(10) CHARSET utf16 DEFAULT 'abc' ON EMPTY);
+----------
+[SELECT] SELECT * FROM JSON_TABLE((SELECT '[1,2]'),'$[*]' COLUMNS(v INT PATH '$')) AS jt;
+----------
+[SELECT] SELECT * FROM JSON_TABLE('[{"a":2,"n":[{"l":1},{"l":11}]}]','$[*]' COLUMNS(id FOR ORDINALITY,jpath VARCHAR(50) PATH '$.a' DEFAULT '33' ON EMPTY DEFAULT '66' ON ERROR,jsn_path JSON PATH '$.n' DEFAULT '{"x":33}' ON EMPTY,jexst INT EXISTS PATH '$.b',NESTED PATH '$.n[*]' COLUMNS(id_n FOR ORDINALITY,jpath_n VARCHAR(50) PATH '$.l'),NESTED PATH '$.n[*]' COLUMNS(id_m FOR ORDINALITY,jpath_m VARCHAR(50) PATH '$.l'))) AS jt;

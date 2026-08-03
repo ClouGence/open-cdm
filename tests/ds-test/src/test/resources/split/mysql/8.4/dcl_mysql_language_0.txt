@@ -1,0 +1,203 @@
+/*!50000 START TRANSACTION */;
+/*!50000 COMMIT */;
+/*!50000 CREATE USER 'split_exec_84'@'%' IDENTIFIED BY 'ExecPass1!' */;
+/*!50000 GRANT SELECT ON split_exec_comment.* TO 'split_exec_84'@'%' */;
+/*!50000 REVOKE SELECT ON split_exec_comment.* FROM 'split_exec_84'@'%' */;
+/*!50000 DROP USER 'split_exec_84'@'%' */;
+/*!50000 FLUSH STATUS */;
+SET @join_outer_row := (SELECT ROW(1, 2) =
+                               ROW((SELECT 1 FROM join_set LEFT JOIN join_set AS joined_set ON 1), 1));
+SET external = 1;
+CREATE ROLE external;
+SET library = 1;
+CREATE ROLE library;
+SET sets = 1;
+CREATE ROLE sets;
+SET @max_allowed_packet=@@global.max_allowed_packet;
+SET @net_buffer_length=@@global.net_buffer_length;
+SET GLOBAL max_allowed_packet=100;
+SET GLOBAL net_buffer_length=100;
+SET GLOBAL max_allowed_packet=DEFAULT;
+SET GLOBAL net_buffer_length=DEFAULT;
+SET GLOBAL max_allowed_packet=@max_allowed_packet;
+SET GLOBAL net_buffer_length=@net_buffer_length;
+CHECK TABLE ``;
+CACHE INDEX `` IN cache_name;
+CACHE INDEX `` PARTITION (ALL) IN cache_name;
+LOAD INDEX INTO CACHE `` PARTITION (ALL);
+LOAD INDEX INTO CACHE ``;
+SET @parse_gcol_expr = 1;
+SET @@session.parser_max_mem_size=DEFAULT;
+SET @@session.parser_max_mem_size=500*1000*100;
+SET SESSION parser_max_mem_size=1000*1000*100;
+SET @@global.parser_max_mem_size=1000*1000*100;
+SET @@session.parser_max_mem_size='NOT_CHAR_TYPE';
+SET @@session.parser_max_mem_size=-10;
+SET @@session.parser_max_mem_size=0.5;
+SET @@session.parser_max_mem_size=TRUE;
+SET @@session.parser_max_mem_size=FALSE;
+SET @@global.parser_max_mem_size=DEFAULT;
+SET default_storage_engine=a.myisam;
+SET default_storage_engine = a.b.MyISAM;
+SET default_storage_engine = `a`.MyISAM;
+SET default_storage_engine = `a`.`MyISAM`;
+SET default_storage_engine = "a.MYISAM";
+SET default_storage_engine = 'a.MYISAM';
+SET default_storage_engine = `a.MYISAM`;
+COMMIT AND NO CHAIN NO RELEASE;
+COMMIT RELEASE;
+COMMIT NO RELEASE;
+ROLLBACK AND NO CHAIN NO RELEASE;
+ROLLBACK RELEASE;
+ROLLBACK NO RELEASE;
+START REPLICA SQL_THREAD;
+STOP REPLICA SQL_THREAD;
+SET SESSION sql_mode='HIGH_NOT_PRECEDENCE';
+SELECT NOT 1 BETWEEN -5 AND 5;
+SET SESSION sql_mode='PIPES_AS_CONCAT';
+SELECT 'a'||'b';
+SELECT 'ab' LIKE 'a' || '%';
+SELECT 'ab' NOT LIKE 'a' || '%';
+SELECT 'a%' LIKE 'a!' || '%' ESCAPE '!';
+SELECT 'a%' NOT LIKE 'a!' || '%' ESCAPE '!';
+SELECT 'a%' LIKE 'a!%' ESCAPE '' || '!';
+SELECT 'a%' NOT LIKE 'a!%' ESCAPE '' || '!';
+SELECT 1 ^ '10' || '0';
+SELECT -1 || '0';
+SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
+SET @myvar=(WITH qn AS (SELECT a,SUM(b) AS s FROM t1 GROUP BY a) SELECT s FROM qn GROUP BY a HAVING s IS NOT NULL);
+------------------------------------------------------------------------------------------
+[TRANSACTION] /*!50000 START TRANSACTION */;
+----------
+[TRANSACTION] /*!50000 COMMIT */;
+----------
+[CREATE_USER] /*!50000 CREATE USER 'split_exec_84'@'%' IDENTIFIED BY 'ExecPass1!' */;
+----------
+[GRANT] /*!50000 GRANT SELECT ON split_exec_comment.* TO 'split_exec_84'@'%' */;
+----------
+[REVOKE] /*!50000 REVOKE SELECT ON split_exec_comment.* FROM 'split_exec_84'@'%' */;
+----------
+[DROP_USER] /*!50000 DROP USER 'split_exec_84'@'%' */;
+----------
+[ADMIN_PERFORMANCE] /*!50000 FLUSH STATUS */;
+----------
+[SESSION_VARIABLE_RW|SELECT] SET @join_outer_row := (SELECT ROW(1, 2) =
+                               ROW((SELECT 1 FROM join_set LEFT JOIN join_set AS joined_set ON 1), 1));
+----------
+[SESSION_SETTING_WRITE] SET external = 1;
+----------
+[CREATE_ROLE] CREATE ROLE external;
+----------
+[SESSION_SETTING_WRITE] SET library = 1;
+----------
+[CREATE_ROLE] CREATE ROLE library;
+----------
+[SESSION_SETTING_WRITE] SET sets = 1;
+----------
+[CREATE_ROLE] CREATE ROLE sets;
+----------
+[SESSION_VARIABLE_RW] SET @max_allowed_packet=@@global.max_allowed_packet;
+----------
+[SESSION_VARIABLE_RW] SET @net_buffer_length=@@global.net_buffer_length;
+----------
+[SYSTEM_SETTING_WRITE] SET GLOBAL max_allowed_packet=100;
+----------
+[SYSTEM_SETTING_WRITE] SET GLOBAL net_buffer_length=100;
+----------
+[SYSTEM_SETTING_WRITE] SET GLOBAL max_allowed_packet=DEFAULT;
+----------
+[SYSTEM_SETTING_WRITE] SET GLOBAL net_buffer_length=DEFAULT;
+----------
+[SYSTEM_SETTING_WRITE|SESSION_VARIABLE_RW] SET GLOBAL max_allowed_packet=@max_allowed_packet;
+----------
+[SYSTEM_SETTING_WRITE|SESSION_VARIABLE_RW] SET GLOBAL net_buffer_length=@net_buffer_length;
+----------
+[ADMIN_TABLE] CHECK TABLE ``;
+----------
+[ADMIN_PERFORMANCE] CACHE INDEX `` IN cache_name;
+----------
+[ADMIN_PERFORMANCE] CACHE INDEX `` PARTITION (ALL) IN cache_name;
+----------
+[ADMIN_PERFORMANCE] LOAD INDEX INTO CACHE `` PARTITION (ALL);
+----------
+[ADMIN_PERFORMANCE] LOAD INDEX INTO CACHE ``;
+----------
+[SESSION_VARIABLE_RW] SET @parse_gcol_expr = 1;
+----------
+[SESSION_SETTING_WRITE] SET @@session.parser_max_mem_size=DEFAULT;
+----------
+[SESSION_SETTING_WRITE] SET @@session.parser_max_mem_size=500*1000*100;
+----------
+[SESSION_SETTING_WRITE] SET SESSION parser_max_mem_size=1000*1000*100;
+----------
+[SYSTEM_SETTING_WRITE] SET @@global.parser_max_mem_size=1000*1000*100;
+----------
+[SESSION_SETTING_WRITE] SET @@session.parser_max_mem_size='NOT_CHAR_TYPE';
+----------
+[SESSION_SETTING_WRITE] SET @@session.parser_max_mem_size=-10;
+----------
+[SESSION_SETTING_WRITE] SET @@session.parser_max_mem_size=0.5;
+----------
+[SESSION_SETTING_WRITE] SET @@session.parser_max_mem_size=TRUE;
+----------
+[SESSION_SETTING_WRITE] SET @@session.parser_max_mem_size=FALSE;
+----------
+[SYSTEM_SETTING_WRITE] SET @@global.parser_max_mem_size=DEFAULT;
+----------
+[SESSION_SETTING_WRITE] SET default_storage_engine=a.myisam;
+----------
+[SESSION_SETTING_WRITE] SET default_storage_engine = a.b.MyISAM;
+----------
+[SESSION_SETTING_WRITE] SET default_storage_engine = `a`.MyISAM;
+----------
+[SESSION_SETTING_WRITE] SET default_storage_engine = `a`.`MyISAM`;
+----------
+[SESSION_SETTING_WRITE] SET default_storage_engine = "a.MYISAM";
+----------
+[SESSION_SETTING_WRITE] SET default_storage_engine = 'a.MYISAM';
+----------
+[SESSION_SETTING_WRITE] SET default_storage_engine = `a.MYISAM`;
+----------
+[TRANSACTION] COMMIT AND NO CHAIN NO RELEASE;
+----------
+[TRANSACTION] COMMIT RELEASE;
+----------
+[TRANSACTION] COMMIT NO RELEASE;
+----------
+[TRANSACTION] ROLLBACK AND NO CHAIN NO RELEASE;
+----------
+[TRANSACTION] ROLLBACK RELEASE;
+----------
+[TRANSACTION] ROLLBACK NO RELEASE;
+----------
+[ALTER_REPLICATION] START REPLICA SQL_THREAD;
+----------
+[ALTER_REPLICATION] STOP REPLICA SQL_THREAD;
+----------
+[SESSION_SETTING_WRITE] SET SESSION sql_mode='HIGH_NOT_PRECEDENCE';
+----------
+[SELECT] SELECT NOT 1 BETWEEN -5 AND 5;
+----------
+[SESSION_SETTING_WRITE] SET SESSION sql_mode='PIPES_AS_CONCAT';
+----------
+[SELECT] SELECT 'a'||'b';
+----------
+[SELECT] SELECT 'ab' LIKE 'a' || '%';
+----------
+[SELECT] SELECT 'ab' NOT LIKE 'a' || '%';
+----------
+[SELECT] SELECT 'a%' LIKE 'a!' || '%' ESCAPE '!';
+----------
+[SELECT] SELECT 'a%' NOT LIKE 'a!' || '%' ESCAPE '!';
+----------
+[SELECT] SELECT 'a%' LIKE 'a!%' ESCAPE '' || '!';
+----------
+[SELECT] SELECT 'a%' NOT LIKE 'a!%' ESCAPE '' || '!';
+----------
+[SELECT] SELECT 1 ^ '10' || '0';
+----------
+[SELECT] SELECT -1 || '0';
+----------
+[SESSION_SETTING_WRITE|SELECT|SESSION_VARIABLE_RW] SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
+----------
+[SESSION_VARIABLE_RW|SELECT] SET @myvar=(WITH qn AS (SELECT a,SUM(b) AS s FROM t1 GROUP BY a) SELECT s FROM qn GROUP BY a HAVING s IS NOT NULL);

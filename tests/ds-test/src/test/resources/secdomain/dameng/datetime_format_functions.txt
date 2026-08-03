@@ -1,0 +1,15 @@
+[datetime_format_public_signatures]
+sql:
+select
+  date_format(timestamp '2024-02-29 13:14:15.123456','%Y-%m-%d') as mysql_style_value,
+  to_char(timestamp '2024-02-29 13:14:15.123456','YYYY-MM-DD') as formatted_value,
+  to_date('2024-02-29','YYYY-MM-DD') as date_value,
+  to_timestamp('2024-02-29 13:14:15.123456','YYYY-MM-DD HH24:MI:SS.FF6') as timestamp_value,
+  to_timestamp_tz('2024-02-29 13:14:15 +08:00','YYYY-MM-DD HH24:MI:SS TZH:TZM') as zoned_value
+from dual
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "table":"dual"}
+  ]
+}

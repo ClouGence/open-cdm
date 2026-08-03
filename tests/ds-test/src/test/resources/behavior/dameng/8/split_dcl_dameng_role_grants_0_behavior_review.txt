@@ -1,0 +1,376 @@
+[split_dcl_dameng_role_grants_0_001_behavior_review]
+sql:
+grant select on CODEX_DM8_ROLE_DATA_20260723 to CODEX_DM8_ROLE_SELECT_20260723;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "SchemaObject(1:16~1:44) /test/1/catalog1/schema1/CODEX_DM8_ROLE_DATA_20260723/",
+      "action" : "GRANT",
+      "target" : "UserOrRole(1:48~1:78) /test/1/CODEX_DM8_ROLE_SELECT_20260723/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_role_grants_0_002_behavior_review]
+sql:
+grant insert, update, delete on CODEX_DM8_ROLE_DATA_20260723 to CODEX_DM8_ROLE_DML_20260723;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "SchemaObject(1:32~1:60) /test/1/catalog1/schema1/CODEX_DM8_ROLE_DATA_20260723/",
+      "action" : "GRANT",
+      "target" : "UserOrRole(1:64~1:91) /test/1/CODEX_DM8_ROLE_DML_20260723/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_role_grants_0_003_behavior_review]
+sql:
+grant create table, create view to CODEX_DM8_ROLE_SYSTEM_20260723;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Table(1:13~1:18) /test/1/",
+      "action" : "GRANT",
+      "target" : "UserOrRole(1:35~1:65) /test/1/CODEX_DM8_ROLE_SYSTEM_20260723/"
+    },
+    {
+      "subject": "View(1:27~1:31) /test/1/",
+      "action" : "GRANT",
+      "target" : "UserOrRole(1:35~1:65) /test/1/CODEX_DM8_ROLE_SYSTEM_20260723/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_role_grants_0_004_behavior_review]
+sql:
+grant CODEX_DM8_ROLE_SELECT_20260723 to CODEX_DM8_ROLE_PARENT_20260723;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Role(1:6~1:36) /test/1/CODEX_DM8_ROLE_SELECT_20260723/",
+      "action" : "GRANT",
+      "target" : "UserOrRole(1:40~1:70) /test/1/CODEX_DM8_ROLE_PARENT_20260723/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_role_grants_0_005_behavior_review]
+sql:
+grant CODEX_DM8_ROLE_PARENT_20260723 to CODEX_DM8_ROLE_CHILD_20260723;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Role(1:6~1:36) /test/1/CODEX_DM8_ROLE_PARENT_20260723/",
+      "action" : "GRANT",
+      "target" : "UserOrRole(1:40~1:69) /test/1/CODEX_DM8_ROLE_CHILD_20260723/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_role_grants_0_006_behavior_review]
+sql:
+grant CODEX_DM8_ROLE_CHILD_20260723 to CODEX_DM8_ROLE_USER_A_20260723;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Role(1:6~1:35) /test/1/CODEX_DM8_ROLE_CHILD_20260723/",
+      "action" : "GRANT",
+      "target" : "UserOrRole(1:39~1:69) /test/1/CODEX_DM8_ROLE_USER_A_20260723/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_role_grants_0_007_behavior_review]
+sql:
+grant CODEX_DM8_ROLE_DML_20260723, CODEX_DM8_ROLE_SYSTEM_20260723 to CODEX_DM8_ROLE_USER_B_20260723;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Role(1:6~1:33) /test/1/CODEX_DM8_ROLE_DML_20260723/",
+      "action" : "GRANT",
+      "target" : "UserOrRole(1:69~1:99) /test/1/CODEX_DM8_ROLE_USER_B_20260723/"
+    },
+    {
+      "subject": "Role(1:35~1:65) /test/1/CODEX_DM8_ROLE_SYSTEM_20260723/",
+      "action" : "GRANT",
+      "target" : "UserOrRole(1:69~1:99) /test/1/CODEX_DM8_ROLE_USER_B_20260723/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_role_grants_0_008_behavior_review]
+sql:
+grant CODEX_DM8_ROLE_ADMIN_20260723 to CODEX_DM8_ROLE_DELEGATE_20260723 with admin option;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Role(1:6~1:35) /test/1/CODEX_DM8_ROLE_ADMIN_20260723/",
+      "action" : "GRANT",
+      "target" : "UserOrRole(1:39~1:71) /test/1/CODEX_DM8_ROLE_DELEGATE_20260723/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_role_grants_0_009_behavior_review]
+sql:
+grant CODEX_DM8_ROLE_MULTI_A_20260723, CODEX_DM8_ROLE_MULTI_B_20260723 to CODEX_DM8_ROLE_USER_A_20260723, CODEX_DM8_ROLE_USER_B_20260723;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Role(1:6~1:37) /test/1/CODEX_DM8_ROLE_MULTI_A_20260723/",
+      "action" : "GRANT",
+      "target" : [
+        "UserOrRole(1:74~1:104) /test/1/CODEX_DM8_ROLE_USER_A_20260723/",
+        "UserOrRole(1:106~1:136) /test/1/CODEX_DM8_ROLE_USER_B_20260723/"
+      ]
+    },
+    {
+      "subject": "Role(1:39~1:70) /test/1/CODEX_DM8_ROLE_MULTI_B_20260723/",
+      "action" : "GRANT",
+      "target" : [
+        "UserOrRole(1:74~1:104) /test/1/CODEX_DM8_ROLE_USER_A_20260723/",
+        "UserOrRole(1:106~1:136) /test/1/CODEX_DM8_ROLE_USER_B_20260723/"
+      ]
+    }
+  ]
+}
+----------
+[split_dcl_dameng_role_grants_0_010_behavior_review]
+sql:
+revoke admin option for CODEX_DM8_ROLE_ADMIN_20260723 from CODEX_DM8_ROLE_DELEGATE_20260723;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "Role(1:24~1:53) /test/1/CODEX_DM8_ROLE_ADMIN_20260723/",
+      "action" : "REVOKE",
+      "target" : "UserOrRole(1:59~1:91) /test/1/CODEX_DM8_ROLE_DELEGATE_20260723/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_role_grants_0_011_behavior_review]
+sql:
+revoke CODEX_DM8_ROLE_MULTI_A_20260723, CODEX_DM8_ROLE_MULTI_B_20260723 from CODEX_DM8_ROLE_USER_B_20260723;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "Role(1:7~1:38) /test/1/CODEX_DM8_ROLE_MULTI_A_20260723/",
+      "action" : "REVOKE",
+      "target" : "UserOrRole(1:77~1:107) /test/1/CODEX_DM8_ROLE_USER_B_20260723/"
+    },
+    {
+      "subject": "Role(1:40~1:71) /test/1/CODEX_DM8_ROLE_MULTI_B_20260723/",
+      "action" : "REVOKE",
+      "target" : "UserOrRole(1:77~1:107) /test/1/CODEX_DM8_ROLE_USER_B_20260723/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_role_grants_0_012_behavior_review]
+sql:
+revoke CODEX_DM8_ROLE_PARENT_20260723 from CODEX_DM8_ROLE_CHILD_20260723;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "Role(1:7~1:37) /test/1/CODEX_DM8_ROLE_PARENT_20260723/",
+      "action" : "REVOKE",
+      "target" : "UserOrRole(1:43~1:72) /test/1/CODEX_DM8_ROLE_CHILD_20260723/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_role_grants_0_013_behavior_review]
+sql:
+grant CODEX_DM8_ROLE_PARENT_20260723 to CODEX_DM8_ROLE_CHILD_20260723;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Role(1:6~1:36) /test/1/CODEX_DM8_ROLE_PARENT_20260723/",
+      "action" : "GRANT",
+      "target" : "UserOrRole(1:40~1:69) /test/1/CODEX_DM8_ROLE_CHILD_20260723/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_role_grants_0_014_behavior_review]
+sql:
+grant CODEX_DM8_ROLE_DROP_ASSIGNED_20260723 to CODEX_DM8_ROLE_USER_A_20260723;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Role(1:6~1:43) /test/1/CODEX_DM8_ROLE_DROP_ASSIGNED_20260723/",
+      "action" : "GRANT",
+      "target" : "UserOrRole(1:47~1:77) /test/1/CODEX_DM8_ROLE_USER_A_20260723/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_role_grants_0_015_behavior_review]
+sql:
+revoke CODEX_DM8_ROLE_CHILD_20260723 from CODEX_DM8_ROLE_USER_A_20260723;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "Role(1:7~1:36) /test/1/CODEX_DM8_ROLE_CHILD_20260723/",
+      "action" : "REVOKE",
+      "target" : "UserOrRole(1:42~1:72) /test/1/CODEX_DM8_ROLE_USER_A_20260723/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_role_grants_0_016_behavior_review]
+sql:
+revoke CODEX_DM8_ROLE_DML_20260723, CODEX_DM8_ROLE_SYSTEM_20260723 from CODEX_DM8_ROLE_USER_B_20260723;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "Role(1:7~1:34) /test/1/CODEX_DM8_ROLE_DML_20260723/",
+      "action" : "REVOKE",
+      "target" : "UserOrRole(1:72~1:102) /test/1/CODEX_DM8_ROLE_USER_B_20260723/"
+    },
+    {
+      "subject": "Role(1:36~1:66) /test/1/CODEX_DM8_ROLE_SYSTEM_20260723/",
+      "action" : "REVOKE",
+      "target" : "UserOrRole(1:72~1:102) /test/1/CODEX_DM8_ROLE_USER_B_20260723/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_role_grants_0_017_behavior_review]
+sql:
+revoke CODEX_DM8_ROLE_MULTI_A_20260723, CODEX_DM8_ROLE_MULTI_B_20260723 from CODEX_DM8_ROLE_USER_A_20260723;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "Role(1:7~1:38) /test/1/CODEX_DM8_ROLE_MULTI_A_20260723/",
+      "action" : "REVOKE",
+      "target" : "UserOrRole(1:77~1:107) /test/1/CODEX_DM8_ROLE_USER_A_20260723/"
+    },
+    {
+      "subject": "Role(1:40~1:71) /test/1/CODEX_DM8_ROLE_MULTI_B_20260723/",
+      "action" : "REVOKE",
+      "target" : "UserOrRole(1:77~1:107) /test/1/CODEX_DM8_ROLE_USER_A_20260723/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_role_grants_0_018_behavior_review]
+sql:
+revoke CODEX_DM8_ROLE_SELECT_20260723 from CODEX_DM8_ROLE_PARENT_20260723;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "Role(1:7~1:37) /test/1/CODEX_DM8_ROLE_SELECT_20260723/",
+      "action" : "REVOKE",
+      "target" : "UserOrRole(1:43~1:73) /test/1/CODEX_DM8_ROLE_PARENT_20260723/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_role_grants_0_019_behavior_review]
+sql:
+revoke select on CODEX_DM8_ROLE_DATA_20260723 from CODEX_DM8_ROLE_SELECT_20260723;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "SchemaObject(1:17~1:45) /test/1/catalog1/schema1/CODEX_DM8_ROLE_DATA_20260723/",
+      "action" : "REVOKE",
+      "target" : "UserOrRole(1:51~1:81) /test/1/CODEX_DM8_ROLE_SELECT_20260723/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_role_grants_0_020_behavior_review]
+sql:
+revoke insert, update, delete on CODEX_DM8_ROLE_DATA_20260723 from CODEX_DM8_ROLE_DML_20260723;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "SchemaObject(1:33~1:61) /test/1/catalog1/schema1/CODEX_DM8_ROLE_DATA_20260723/",
+      "action" : "REVOKE",
+      "target" : "UserOrRole(1:67~1:94) /test/1/CODEX_DM8_ROLE_DML_20260723/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_role_grants_0_021_behavior_review]
+sql:
+revoke create table, create view from CODEX_DM8_ROLE_SYSTEM_20260723;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "Table(1:14~1:19) /test/1/",
+      "action" : "REVOKE",
+      "target" : "UserOrRole(1:38~1:68) /test/1/CODEX_DM8_ROLE_SYSTEM_20260723/"
+    },
+    {
+      "subject": "View(1:28~1:32) /test/1/",
+      "action" : "REVOKE",
+      "target" : "UserOrRole(1:38~1:68) /test/1/CODEX_DM8_ROLE_SYSTEM_20260723/"
+    }
+  ]
+}

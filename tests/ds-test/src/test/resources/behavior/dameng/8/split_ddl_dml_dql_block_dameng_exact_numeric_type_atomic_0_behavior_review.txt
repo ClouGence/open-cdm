@@ -1,0 +1,811 @@
+[split_ddl_dml_dql_block_dameng_exact_numeric_type_atomic_0_001_behavior_review]
+sql:
+create table app.exact_num_t(
+  id int primary key,
+  c_numeric numeric(38,0) default 0 not null,
+  c_decimal decimal(38,38) default 0,
+  c_dec dec(10,2) default 0 check(c_dec between -99999999.99 and 99999999.99),
+  c_number number(10,2) default 0,
+  c_number_default number,
+  c_null numeric null,
+  constraint uk_exact_num unique(c_numeric,c_decimal,c_dec,c_number)
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/app/exact_num_t/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_exact_numeric_type_atomic_0_002_behavior_review]
+sql:
+create index app.idx_exact_num on app.exact_num_t(c_numeric,c_number,c_dec);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:30) /test/1/catalog1/app/idx_exact_num/",
+      "action": "CREATE",
+      "target": "Table(1:34~1:49) /test/1/catalog1/app/exact_num_t/"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_exact_numeric_type_atomic_0_003_behavior_review]
+sql:
+insert into app.exact_num_t values(1,
+  -99999999999999999999999999999999999999,
+  -0.99999999999999999999999999999999999999,-99999999.99,-99999999.99,
+  -99999999999999999999999999999999999999,null);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:27) /test/1/catalog1/app/exact_num_t/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_exact_numeric_type_atomic_0_004_behavior_review]
+sql:
+insert into app.exact_num_t values(2,
+  99999999999999999999999999999999999999,
+  0.99999999999999999999999999999999999999,99999999.99,99999999.99,
+  99999999999999999999999999999999999999,null);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:27) /test/1/catalog1/app/exact_num_t/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_exact_numeric_type_atomic_0_005_behavior_review]
+sql:
+insert into app.exact_num_t(id) values(3);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:27) /test/1/catalog1/app/exact_num_t/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_exact_numeric_type_atomic_0_006_behavior_review]
+sql:
+insert into app.exact_num_t values(4,'123','0.123456','12.345','67.895','999.5',null);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:27) /test/1/catalog1/app/exact_num_t/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_exact_numeric_type_atomic_0_007_behavior_review]
+sql:
+select id,c_numeric,c_decimal,c_dec,c_number,c_number_default,c_null
+  from app.exact_num_t order by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:7~2:22) /test/1/catalog1/app/exact_num_t/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_exact_numeric_type_atomic_0_008_behavior_review]
+sql:
+select round(c_dec,1),trunc(c_number,1),ceil(c_decimal),floor(c_decimal),
+  abs(c_numeric),power(c_dec,2) from app.exact_num_t where id=4;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/round/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:22~1:27) /test/1/catalog1/schema1/trunc/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:40~1:44) /test/1/catalog1/schema1/ceil/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:56~1:61) /test/1/catalog1/schema1/floor/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2~2:5) /test/1/catalog1/schema1/abs/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:17~2:22) /test/1/catalog1/schema1/power/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:37~2:52) /test/1/catalog1/app/exact_num_t/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_exact_numeric_type_atomic_0_009_behavior_review]
+sql:
+select cast(c_numeric as varchar(40)),cast(c_decimal as double),
+  cast(c_dec as int),cast(c_number as bigint),
+  cast(c_number_default as decimal(38,1)) from app.exact_num_t where id=4;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(3:47~3:62) /test/1/catalog1/app/exact_num_t/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_exact_numeric_type_atomic_0_010_behavior_review]
+sql:
+select min(c_numeric),max(c_decimal),sum(c_dec),avg(c_number),
+  count(c_number_default) from app.exact_num_t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/min/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:22~1:25) /test/1/catalog1/schema1/max/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:37~1:40) /test/1/catalog1/schema1/sum/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:48~1:51) /test/1/catalog1/schema1/avg/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2~2:7) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:31~2:46) /test/1/catalog1/app/exact_num_t/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_exact_numeric_type_atomic_0_011_behavior_review]
+sql:
+select id from app.exact_num_t index idx_exact_num
+  where c_numeric>=0 and c_number>=0 order by c_numeric;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:15~1:30) /test/1/catalog1/app/exact_num_t/",
+      "action": "READ"
+    },
+    {
+      "subject": "Index(1:37~1:50) /test/1/catalog1/app/idx_exact_num/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_exact_numeric_type_atomic_0_012_behavior_review]
+sql:
+create view app.exact_num_v as
+  select id,c_numeric,c_decimal,c_dec,c_number from app.exact_num_t where c_numeric>=0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:27) /test/1/catalog1/app/exact_num_v/",
+      "action": "CREATE",
+      "target": "Table(2:52~2:67) /test/1/catalog1/app/exact_num_t/"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_exact_numeric_type_atomic_0_013_behavior_review]
+sql:
+select c_numeric+c_dec as num_dec_sum,
+  c_number*c_dec as number_dec_product from app.exact_num_v
+  where id in(3,4) order by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:44~2:59) /test/1/catalog1/app/exact_num_v/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_exact_numeric_type_atomic_0_014_behavior_review]
+sql:
+update app.exact_num_v set c_number=c_number+0.01 where id=4;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:22) /test/1/catalog1/app/exact_num_v/",
+      "action": "UPDATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_exact_numeric_type_atomic_0_015_behavior_review]
+sql:
+create function app.exact_numeric_f(p_value numeric(38,0)) return numeric(38,0) as
+begin
+  return p_value;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:35) /test/1/catalog1/app/exact_numeric_f/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_exact_numeric_type_atomic_0_016_behavior_review]
+sql:
+create function app.exact_decimal_f(p_value decimal(38,38)) return decimal(38,38) as
+begin
+  return p_value;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:35) /test/1/catalog1/app/exact_decimal_f/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_exact_numeric_type_atomic_0_017_behavior_review]
+sql:
+create function app.exact_dec_f(p_value dec(10,2)) return dec(10,2) as
+begin
+  return p_value;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:31) /test/1/catalog1/app/exact_dec_f/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_exact_numeric_type_atomic_0_018_behavior_review]
+sql:
+create function app.exact_number_f(p_value number(10,2)) return number(10,2) as
+begin
+  return p_value;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:34) /test/1/catalog1/app/exact_number_f/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_exact_numeric_type_atomic_0_019_behavior_review]
+sql:
+select app.exact_numeric_f(99999999999999999999999999999999999999),
+  app.exact_decimal_f(0.99999999999999999999999999999999999999),
+  app.exact_dec_f(99999999.99),app.exact_number_f(-99999999.99) from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:26) /test/1/catalog1/app/exact_numeric_f/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2~2:21) /test/1/catalog1/app/exact_decimal_f/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(3:2~3:17) /test/1/catalog1/app/exact_dec_f/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(3:31~3:49) /test/1/catalog1/app/exact_number_f/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(3:69~3:73) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_exact_numeric_type_atomic_0_020_behavior_review]
+sql:
+create table app.exact_p_numeric(id numeric(38,0),v int)
+  partition by range(id)(partition p0 values less than(0),
+  partition p1 values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:32) /test/1/catalog1/app/exact_p_numeric/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_exact_numeric_type_atomic_0_021_behavior_review]
+sql:
+insert into app.exact_p_numeric values
+  (-99999999999999999999999999999999999999,1),
+  (99999999999999999999999999999999999999,2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/app/exact_p_numeric/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_exact_numeric_type_atomic_0_022_behavior_review]
+sql:
+select count(*) from app.exact_p_numeric partition for(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Partition(1:41~1:57) /test/1/catalog1/app/exact_p_numeric/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_exact_numeric_type_atomic_0_023_behavior_review]
+sql:
+create table app.exact_p_decimal(id decimal(38,0),v int)
+  partition by range(id)(partition p0 values less than(0),
+  partition p1 values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:32) /test/1/catalog1/app/exact_p_decimal/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_exact_numeric_type_atomic_0_024_behavior_review]
+sql:
+insert into app.exact_p_decimal values
+  (-99999999999999999999999999999999999999,1),
+  (99999999999999999999999999999999999999,2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/app/exact_p_decimal/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_exact_numeric_type_atomic_0_025_behavior_review]
+sql:
+select count(*) from app.exact_p_decimal partition for(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Partition(1:41~1:57) /test/1/catalog1/app/exact_p_decimal/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_exact_numeric_type_atomic_0_026_behavior_review]
+sql:
+create table app.exact_p_dec(id dec(38,0),v int)
+  partition by range(id)(partition p0 values less than(0),
+  partition p1 values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/app/exact_p_dec/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_exact_numeric_type_atomic_0_027_behavior_review]
+sql:
+insert into app.exact_p_dec values
+  (-99999999999999999999999999999999999999,1),
+  (99999999999999999999999999999999999999,2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:27) /test/1/catalog1/app/exact_p_dec/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_exact_numeric_type_atomic_0_028_behavior_review]
+sql:
+select count(*) from app.exact_p_dec partition for(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Partition(1:37~1:53) /test/1/catalog1/app/exact_p_dec/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_exact_numeric_type_atomic_0_029_behavior_review]
+sql:
+create table app.exact_p_number(id number(38,0),v int)
+  partition by range(id)(partition p0 values less than(0),
+  partition p1 values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/app/exact_p_number/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_exact_numeric_type_atomic_0_030_behavior_review]
+sql:
+insert into app.exact_p_number values
+  (-99999999999999999999999999999999999999,1),
+  (99999999999999999999999999999999999999,2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:30) /test/1/catalog1/app/exact_p_number/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_exact_numeric_type_atomic_0_031_behavior_review]
+sql:
+select count(*) from app.exact_p_number partition for(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Partition(1:40~1:56) /test/1/catalog1/app/exact_p_number/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_exact_numeric_type_atomic_0_032_behavior_review]
+sql:
+create table app.bad_numeric_p0(c numeric(0));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/app/bad_numeric_p0/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_exact_numeric_type_atomic_0_033_behavior_review]
+sql:
+create table app.bad_numeric_p39(c numeric(39));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:32) /test/1/catalog1/app/bad_numeric_p39/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_exact_numeric_type_atomic_0_034_behavior_review]
+sql:
+create table app.bad_numeric_scale(c numeric(3,4));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:34) /test/1/catalog1/app/bad_numeric_scale/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_exact_numeric_type_atomic_0_035_behavior_review]
+sql:
+create table app.bad_decimal_p0(c decimal(0));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/app/bad_decimal_p0/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_exact_numeric_type_atomic_0_036_behavior_review]
+sql:
+create table app.bad_decimal_p39(c decimal(39));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:32) /test/1/catalog1/app/bad_decimal_p39/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_exact_numeric_type_atomic_0_037_behavior_review]
+sql:
+create table app.bad_decimal_scale(c decimal(3,4));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:34) /test/1/catalog1/app/bad_decimal_scale/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_exact_numeric_type_atomic_0_038_behavior_review]
+sql:
+create table app.bad_dec_p0(c dec(0));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:27) /test/1/catalog1/app/bad_dec_p0/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_exact_numeric_type_atomic_0_039_behavior_review]
+sql:
+create table app.bad_dec_p39(c dec(39));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/app/bad_dec_p39/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_exact_numeric_type_atomic_0_040_behavior_review]
+sql:
+create table app.bad_dec_scale(c dec(3,4));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/app/bad_dec_scale/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_exact_numeric_type_atomic_0_041_behavior_review]
+sql:
+create table app.bad_number_p0(c number(0));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/app/bad_number_p0/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_exact_numeric_type_atomic_0_042_behavior_review]
+sql:
+create table app.bad_number_p39(c number(39));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/app/bad_number_p39/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_exact_numeric_type_atomic_0_043_behavior_review]
+sql:
+create table app.bad_number_scale(c number(3,4));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:33) /test/1/catalog1/app/bad_number_scale/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_exact_numeric_type_atomic_0_044_behavior_review]
+sql:
+insert into app.exact_num_t(id,c_numeric) values(101,
+  100000000000000000000000000000000000000);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:27) /test/1/catalog1/app/exact_num_t/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_exact_numeric_type_atomic_0_045_behavior_review]
+sql:
+insert into app.exact_num_t(id,c_numeric) values(102,null);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:27) /test/1/catalog1/app/exact_num_t/",
+      "action": "INSERT"
+    }
+  ]
+}

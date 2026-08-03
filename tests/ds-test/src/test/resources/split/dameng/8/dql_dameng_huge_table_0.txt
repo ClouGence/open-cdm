@@ -1,0 +1,21 @@
+select id, name, rowid from huge_main order by id;
+select count(*), min(id), max(id) from huge_main;
+select h.id, s.name from huge_main h join source_table s on h.id=s.id;
+select * from huge_main where id in(select id from source_table);
+with h as(select id, name from huge_main) select * from h;
+select id, row_number() over(order by id) as rn from huge_main;
+select dbms_metadata.get_ddl('TABLE','HUGE_MAIN',user) from dual;
+------------------------------------------------------------------------------------------
+[SELECT] select id, name, rowid from huge_main order by id;
+----------
+[SELECT] select count(*), min(id), max(id) from huge_main;
+----------
+[SELECT] select h.id, s.name from huge_main h join source_table s on h.id=s.id;
+----------
+[SELECT] select * from huge_main where id in(select id from source_table);
+----------
+[SELECT] with h as(select id, name from huge_main) select * from h;
+----------
+[SELECT] select id, row_number() over(order by id) as rn from huge_main;
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_metadata.get_ddl('TABLE','HUGE_MAIN',user) from dual;

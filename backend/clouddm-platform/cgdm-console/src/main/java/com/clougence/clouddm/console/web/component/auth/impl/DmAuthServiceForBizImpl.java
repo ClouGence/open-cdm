@@ -27,13 +27,19 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
+import com.clougence.clouddm.console.web.component.analysis.BehaviorRelations;
+import com.clougence.clouddm.console.web.component.analysis.BehaviorRequest;
 import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForBiz;
 import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForManage;
 import com.clougence.clouddm.console.web.component.auth.DmResAuthService;
+import com.clougence.clouddm.console.web.component.auth.model.QueryRelationAuthResult;
+import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
+import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
-import com.clougence.clouddm.console.web.service.envparam.DmEnvParamService;
+import com.clougence.clouddm.console.web.util.DmDsUtils;
+import com.clougence.clouddm.console.web.util.DsResPath;
 import com.clougence.clouddm.console.web.util.RdpAuthUtils;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
 import com.clougence.clouddm.platform.dal.access.DataSourceDal;
@@ -44,11 +50,12 @@ import com.clougence.clouddm.platform.dal.model.auth.DmAuthRoleDO;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.platform.dal.model.execution.DmExecFileDO;
-import com.clougence.clouddm.sdk.model.analysis.resource.DsResPath;
-import com.clougence.clouddm.sdk.model.env.EnvParamKeys;
+import com.clougence.clouddm.platform.plugin.PluginManager;
+import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.clouddm.sdk.security.auth.AuthInfo;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
-import com.clougence.clouddm.sdk.security.auth.def.SecDataAuthLabel;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorObject;
+import com.clougence.clouddm.sdk.sql.analysis.sysobj.SysObjectRegistrySpi;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.StringUtils;
 
@@ -72,7 +79,7 @@ public class DmAuthServiceForBizImpl implements DmAuthServiceForBiz {
     @Resource
     private DmAuthServiceForManage authServiceForManage;
     @Resource
-    private DmEnvParamService      dmEnvParamService;
+    private DmDsConfigService      dmDsConfigService;
 
     @Override
     public void checkResPath(String puid, String uid, long resId, AuthKind authKind, DsResPath resPath, String dataAuthLabel) {
@@ -101,20 +108,43 @@ public class DmAuthServiceForBizImpl implements DmAuthServiceForBiz {
 
     @Override
     public boolean checkResPathWithoutError(String puid, String uid, long resId, AuthKind authKind, DsResPath resPath, String dataAuthLabel) {
-        if (authKind == AuthKind.DataSource) {
-            DmDsDO dsDO = this.dsDal.dsMapper().selectById(resId);
-            String enable = this.dmEnvParamService.queryParam(puid, dsDO.getDsEnvId(), EnvParamKeys.DM_ALLOW_ALL_STATEMENTS);
-            if (StringUtils.equals(SecDataAuthLabel.DM_DAUTH_OTHER, dataAuthLabel) && StringUtils.equalsIgnoreCase("true", enable)) {
-                return false;
-            }
-        }
-
         try {
             return this.checkResAuthWithoutError(puid, uid, resId, resPath, dataAuthLabel, authKind);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return false;
         }
+    }
+
+    @Override
+    public QueryRelationAuthResult checkQueryRelationAuth(String puid, String uid, DsLevels levels, List<QueryRequest> requests) {
+        List<BehaviorRequest> deniedRequests = new ArrayList<>();
+        if (CollectionUtils.isEmpty(requests)) {
+            return new QueryRelationAuthResult(deniedRequests);
+        }
+
+        DmDsDO dsDO = levels.dsDO();
+        long dsId = dsDO.getId();
+        String sqlEngineName = this.dmDsConfigService.fetchSqlEngineSpi(dsId).name();
+        SysObjectRegistrySpi registry = PluginManager.findSpi(SysObjectRegistrySpi.class, sqlEngineName);
+        String currentResourcePath = DmDsUtils.currentResourcePath(levels.levelsParam());
+        String instanceResourcePath = DmDsUtils.instanceResourcePath(levels.levelsParam());
+        for (QueryRequest request : requests) {
+            List<BehaviorRequest> behaviors = BehaviorRelations.flattenResource(registry, dsDO.getVersion(), request.getRelations());
+            for (BehaviorRequest behavior : behaviors) {
+                if (behavior.authKind() == null) {
+                    continue;
+                }
+
+                BehaviorObject object = behavior.resource();
+                String resourcePath = BehaviorRelations.resourcePath(object, currentResourcePath, instanceResourcePath);
+                String authLabel = behavior.authKind().getAuthLabel();
+                if (!this.checkResPathWithoutError(puid, uid, dsId, AuthKind.DataSource, () -> resourcePath, authLabel)) {
+                    deniedRequests.add(behavior);
+                }
+            }
+        }
+        return new QueryRelationAuthResult(deniedRequests);
     }
 
     @Override
@@ -230,21 +260,6 @@ public class DmAuthServiceForBizImpl implements DmAuthServiceForBiz {
         }
     }
 
-    public void checkResOwnership(String puid, long resId, AuthKind authKind) {
-        if (authKind == AuthKind.DataSource) {
-            DmDsDO dsDO = dsDal.dsMapper().queryDsIdentityById(resId);
-            if (dsDO == null) {
-                throw new IllegalArgumentException(DmI18nUtils.getMessage(I18nRdpMsgKeys.DS_CHECK_NOT_EXIST_ERROR.name(), resId));
-            }
-
-            if (!dsDO.getUid().equals(puid)) {
-                throw new IllegalArgumentException(DmI18nUtils.getMessage(I18nRdpMsgKeys.DS_IS_NOT_BELONG_YOU_PRIMARY_ERROR.name(), resId));
-            }
-        } else {
-            throw new IllegalArgumentException("Unsupported auth kind:" + authKind);
-        }
-    }
-
     public boolean checkResAuthWithoutError(String puid, String uid, long resId, DsResPath resPath, String dataAuthLabel, AuthKind authKind) {
         if (authKind == AuthKind.DataSource) {
             DmDsDO dsDO = this.dsDal.dsMapper().queryDsIdentityById(resId);
@@ -323,30 +338,6 @@ public class DmAuthServiceForBizImpl implements DmAuthServiceForBiz {
             } else {
                 return resAuthDOList.stream().filter(r -> r.getAuthLabels().contains(RDP_DAUTH_DS_READ) && r.isEffective()).collect(Collectors.toList());
             }
-        } else {
-            throw new IllegalArgumentException("Unsupported auth kind:" + authKind);
-        }
-    }
-
-    public List<Long> listResByUser(String targetUid, AuthKind authKind) {
-        if (authKind == AuthKind.DataSource) {
-            DmAuthUserDO userDO = authDal.userMapper().queryByUid(targetUid);
-            if (userDO.getAccountType() == AccountType.PRIMARY_ACCOUNT
-                || CollectionUtils.isNotEmpty(this.authServiceForManage.listEffectiveGlobalAuth(targetUid, AuthKind.DataSource))) {
-                List<DmDsDO> dsDOs = this.dsDal.dsMapper().listByUserWithGmtOrder(AuthDal.ROOT_USER_UID);
-                return dsDOs.stream().map(DmDsDO::getId).collect(Collectors.toList());
-            } else {
-                List<DmAuthResDO> result = this.authDal.resMapper().listByKind(targetUid, AuthKind.DataSource);
-                return result.stream().map(DmAuthResDO::getResId).distinct().collect(Collectors.toList());
-            }
-        } else {
-            return Collections.emptyList();
-        }
-    }
-
-    public List<DmAuthResDO> listSpecifiedAuthOfUser(String targetUid, String dataAuthLabel, AuthKind authKind) {
-        if (authKind == AuthKind.DataSource) {
-            return listDsAuth(targetUid, Collections.singletonList(dataAuthLabel));
         } else {
             throw new IllegalArgumentException("Unsupported auth kind:" + authKind);
         }

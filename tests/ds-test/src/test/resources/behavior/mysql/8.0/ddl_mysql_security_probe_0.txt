@@ -1,0 +1,18 @@
+[create_table_call_prog_obj__001]
+sql:
+CREATE TABLE split_security_probe.default_select_probe (probe_value VARCHAR(64) DEFAULT ((SELECT DATABASE())));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:54) /test/1/catalog1/split_security_probe/default_select_probe/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:97~1:105) /test/1/catalog1/schema1/DATABASE/",
+      "action" : "CALL"
+    }
+  ]
+}

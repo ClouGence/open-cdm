@@ -1,0 +1,15 @@
+db.collection.insertOne({createdAt: new Date()});
+db.collection.insertOne({userId: new ObjectId()});
+db.collection.insertOne({score: new NumberInt(42)});
+db.collection.insertOne({balance: new NumberLong("123456789012345")});
+db.collection.insertOne({price: new NumberDecimal("99.99")});
+------------------------------------------------------------------------------------------
+[INSERT] db.collection.insertOne({createdAt: new Date()})
+----------
+[INSERT] db.collection.insertOne({userId: new ObjectId()})
+----------
+[INSERT] db.collection.insertOne({score: new NumberInt(42)})
+----------
+[INSERT] db.collection.insertOne({balance: new NumberLong("123456789012345")})
+----------
+[INSERT] db.collection.insertOne({price: new NumberDecimal("99.99")})

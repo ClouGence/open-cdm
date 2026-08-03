@@ -1,0 +1,15 @@
+insert into "test_sch"."table2" ("id", "b") values (2, 1);
+insert into "test_sch"."table2" ("id", "b") values (default, 1);
+insert into "test_schema"."table2" ("id", "b") values (null, 1);
+insert into "test_schema"."table2" ("id", "b") values ("testFunc"(1), 1);
+insert into "test_sch"."table2" select * from table;
+------------------------------------------------------------------------------------------
+[INSERT] insert into "test_sch"."table2" ("id", "b") values (2, 1);
+----------
+[INSERT] insert into "test_sch"."table2" ("id", "b") values (default, 1);
+----------
+[INSERT] insert into "test_schema"."table2" ("id", "b") values (null, 1);
+----------
+[INSERT] insert into "test_schema"."table2" ("id", "b") values ("testFunc"(1), 1);
+----------
+[INSERT|SELECT] insert into "test_sch"."table2" select * from table;

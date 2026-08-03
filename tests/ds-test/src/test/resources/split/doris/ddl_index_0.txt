@@ -1,0 +1,15 @@
+CREATE INDEX test_index ON test (c1, c2 ) comment 'sss';
+ALTER TABLE test ADD index www (c1,c2) comment 'sss';
+DROP INDEX idx_test ON test;
+alter table test DROP INDEX idx_test;
+DROP INDEX `idx_test` ON `test_schema1`.test;
+------------------------------------------------------------------------------------------
+[ADD_INDEX|COMMENT_INDEX] CREATE INDEX test_index ON test (c1, c2 ) comment 'sss';
+----------
+[ALTER_TABLE|ADD_INDEX|COMMENT_INDEX] ALTER TABLE test ADD index www (c1,c2) comment 'sss';
+----------
+[DROP_INDEX] DROP INDEX idx_test ON test;
+----------
+[ALTER_TABLE|DROP_INDEX] alter table test DROP INDEX idx_test;
+----------
+[DROP_INDEX] DROP INDEX `idx_test` ON `test_schema1`.test;

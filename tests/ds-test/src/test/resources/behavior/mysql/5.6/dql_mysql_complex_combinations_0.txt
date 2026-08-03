@@ -1,0 +1,649 @@
+[select__001]
+sql:
+SELECT * FROM t1 WHERE a IN (SELECT a FROM t1 UNION SELECT a FROM t1 ORDER BY (SELECT a)) UNION SELECT * FROM t1 ORDER BY (SELECT a);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:16) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__002]
+sql:
+SELECT a,1 FROM t1 UNION ALL SELECT a,COUNT(*) FROM t2 GROUP BY a WITH ROLLUP ORDER BY a UNION SELECT 1,1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:16~1:18) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(1:38~1:43) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:52~1:54) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__003]
+sql:
+SELECT 1 AS foo UNION SELECT 2 UNION SELECT 3 UNION (SELECT 4) ORDER BY MAX(42)+MAX(1)+MAX(1)+MAX(1)+MAX(1)+MAX(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:72~1:75) /test/1/catalog1/schema1/MAX/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__004]
+sql:
+SELECT * FROM (SELECT * FROM (SELECT * FROM t1 WHERE f1<7 GROUP BY f1) tt WHERE f1>2 GROUP BY f1) x JOIN (SELECT * FROM (SELECT * FROM t1 WHERE f1<7 GROUP BY f1) tt WHERE f1>2 GROUP BY f1) z ON x.f1=z.f1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:44~1:46) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__005]
+sql:
+SELECT * FROM ((SELECT a1,a2 FROM t ORDER BY a1,a2 ASC) ORDER BY a2/a1 DESC LIMIT 7) AS derived;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:34~1:35) /test/1/catalog1/schema1/t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__006]
+sql:
+SELECT SQL_SMALL_RESULT (SELECT COUNT(*) FROM tb2 WHERE b+5>AVG(tb1.id)+tb1.id2) FROM tb1 GROUP BY id2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:32~1:37) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:46~1:49) /test/1/catalog1/schema1/tb2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(1:60~1:63) /test/1/catalog1/schema1/AVG/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:86~1:89) /test/1/catalog1/schema1/tb1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__007]
+sql:
+SELECT ROUND(STDDEV(id2),5) FROM tb1 AS outer_t GROUP BY (SELECT (inner_t.id+inner_t.id2)%5 FROM tb1 AS inner_t WHERE inner_t.id=outer_t.id);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/ROUND/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:13~1:19) /test/1/catalog1/schema1/STDDEV/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:33~1:36) /test/1/catalog1/schema1/tb1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__008]
+sql:
+SELECT a,oref,a IN (SELECT SQL_SMALL_RESULT MAX(ie) FROM t1 WHERE t1.oref=t2.oref GROUP BY grp) AS z FROM t2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:44~1:47) /test/1/catalog1/schema1/MAX/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:57~1:59) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:106~1:108) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__009]
+sql:
+SELECT 1 FROM tfd AS ot WHERE 1<=(SELECT dt.b FROM (SELECT ot.b FROM tfd AS it1) AS dt JOIN tfd AS it2 ON dt.b=it2.b GROUP BY it2.b);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:17) /test/1/catalog1/schema1/tfd/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__010]
+sql:
+SELECT t1.*,t1.* FROM t1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:22~1:24) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__011]
+sql:
+SELECT t1.*,a,t1.* FROM t1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:24~1:26) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__012]
+sql:
+SELECT (SELECT d FROM t2 WHERE d>a),t1.* FROM t1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:22~1:24) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:46~1:48) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__013]
+sql:
+SELECT t1.*,(SELECT a FROM t2 WHERE d>a) FROM t1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:27~1:29) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:46~1:48) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__014]
+sql:
+SELECT (SELECT t2.* FROM t2) FROM t1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:25~1:27) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:34~1:36) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__015]
+sql:
+SELECT t1.*,(SELECT t2.* FROM t2) FROM t1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:30~1:32) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:39~1:41) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_call_prog_obj__016]
+sql:
+SELECT unresolved_udf(1 AS first_arg,2 second_arg);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:21) /test/1/catalog1/schema1/unresolved_udf/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__017]
+sql:
+SELECT POSITION(CAST(1|2 AS CHAR) IN CONCAT('x',CASE WHEN 1 THEN '3' ELSE '0' END));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/POSITION/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:16~1:20) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:37~1:43) /test/1/catalog1/schema1/CONCAT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__018]
+sql:
+SELECT (SELECT d.b FROM (SELECT SUM(i.a) b FROM t2 i GROUP BY o.a) d) FROM t1 o;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:32~1:35) /test/1/catalog1/schema1/SUM/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:48~1:50) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:75~1:77) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__019]
+sql:
+SELECT (SELECT d.b FROM (SELECT SUM(i.a) b FROM t2 i HAVING o.a=SUM(i.a)-1) d) FROM t1 o;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:32~1:35) /test/1/catalog1/schema1/SUM/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:48~1:50) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:84~1:86) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__020]
+sql:
+SELECT (SELECT d.b FROM (SELECT i.a b FROM t2 i ORDER BY IF(o.a=1,i.a,-i.a) LIMIT 1) d) FROM t1 o;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:43~1:45) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(1:57~1:59) /test/1/catalog1/schema1/IF/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:93~1:95) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__021]
+sql:
+SELECT * FROM t1 o WHERE o.a NOT IN (SELECT d.f+1 FROM (SELECT 0*o.a+i.a f FROM t2 i) d);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:16) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:80~1:82) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__022]
+sql:
+SELECT (SELECT * FROM (SELECT * FROM (SELECT o.a FROM t2) d LIMIT 1) d2) FROM t1 o;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:54~1:56) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:78~1:80) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_call_prog_obj__023]
+sql:
+SELECT SQL_SMALL_RESULT DISTINCT id2,ANY_VALUE(id) i FROM tb1 GROUP BY i+2 ORDER BY id2,i;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:37~1:46) /test/1/catalog1/schema1/ANY_VALUE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:58~1:61) /test/1/catalog1/schema1/tb1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__024]
+sql:
+SELECT SQL_SMALL_RESULT DISTINCT id2,id i FROM tb1 GROUP BY id2+3 HAVING id2<>i ORDER BY id2+2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:47~1:50) /test/1/catalog1/schema1/tb1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_call_prog_obj__025]
+sql:
+SELECT SQL_SMALL_RESULT DISTINCT ANY_VALUE(id2) i,id FROM tb2 HAVING i>10 ORDER BY i,id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:33~1:42) /test/1/catalog1/schema1/ANY_VALUE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:58~1:61) /test/1/catalog1/schema1/tb2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_call_prog_obj__026]
+sql:
+SELECT SQL_SMALL_RESULT ANY_VALUE(id2),ANY_VALUE(id) i FROM tb1 t1 GROUP BY id2+id HAVING i>10 ORDER BY (SELECT AVG(id) FROM tb1 t2 WHERE i<t2.id);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:24~1:33) /test/1/catalog1/schema1/ANY_VALUE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:60~1:63) /test/1/catalog1/schema1/tb1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(1:112~1:115) /test/1/catalog1/schema1/AVG/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__027]
+sql:
+SELECT SQL_SMALL_RESULT DISTINCT v,id2 FROM tb1 t GROUP BY id,id2 HAVING (SELECT t.id2 FROM tb1 t2 WHERE t.id2=t2.id2 LIMIT 1)>50 ORDER BY CONCAT(v,-id2) DESC,id2 DESC;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:44~1:47) /test/1/catalog1/schema1/tb1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(1:139~1:145) /test/1/catalog1/schema1/CONCAT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__028]
+sql:
+SELECT SQL_SMALL_RESULT DISTINCT t1.id2,t1.id2+1 i,(SELECT ABS(50-i)) FROM tb1 t1 JOIN tb1 t2 ON t1.id=t2.id GROUP BY t2.id,t1.id2 ORDER BY (SELECT DISTINCT ABS(50-x.id2) FROM tb1 x WHERE x.id2=t1.id2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:59~1:62) /test/1/catalog1/schema1/ABS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:75~1:78) /test/1/catalog1/schema1/tb1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__029]
+sql:
+SELECT SQL_SMALL_RESULT t1.id2,t1.id2+1 i,(SELECT ABS(50-i)) FROM tb1 t1 JOIN tb1 t2 ON t1.id=t2.id GROUP BY t2.id,t1.id2 HAVING EXISTS (SELECT * FROM tb1 h WHERE i=h.id2+1) ORDER BY (SELECT DISTINCT ABS(50-x.id2) FROM tb1 x WHERE x.id2=t1.id2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:50~1:53) /test/1/catalog1/schema1/ABS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:66~1:69) /test/1/catalog1/schema1/tb1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_call_prog_obj__030]
+sql:
+SELECT SQL_SMALL_RESULT DISTINCT AVG(id),JSON_ARRAYAGG(id) FROM tb1 GROUP BY id2,id WITH ROLLUP ORDER BY 1,2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:33~1:36) /test/1/catalog1/schema1/AVG/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:41~1:54) /test/1/catalog1/schema1/JSON_ARRAYAGG/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:64~1:67) /test/1/catalog1/schema1/tb1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__031]
+sql:
+SELECT MAX(t1.f1),(SELECT COUNT(f1) FROM t1) FROM (t1 JOIN (SELECT * FROM (SELECT DISTINCT * FROM t1) dt) t2 ON 1) WHERE ((SELECT f1 FROM t1) IS NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/MAX/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:26~1:31) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:41~1:43) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__032]
+sql:
+SELECT (SELECT ti1.a FROM t1 AS ti1,(SELECT to1.a AS c00,to1.a AS c11 FROM t1) AS subq_0 ORDER BY ti1.a DESC LIMIT 1) AS c1 FROM t1 AS to1 GROUP BY c1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:26~1:28) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__033]
+sql:
+SELECT to1.a AS c2,to1.a AS c3,(to1.a,to1.a) IN (SELECT to1.a AS c1,to1.a AS c2 FROM t1 AS ti1,(SELECT to1.a AS c00,to1.a AS c11 FROM t1) AS subq_0) AS c1 FROM t1 AS to1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:85~1:87) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__034]
+sql:
+SELECT g_t3.g_f1,g_t3.g_f2,g_t3.g_f3 FROM (SELECT g_t0.integer1 AS g_f1,g_t0.integer2 AS g_f2,g_t0.varchar1 AS g_f3 FROM t1 AS g_t0) AS g_t3 GROUP BY g_t3.g_f1,g_t3.g_f2,g_t3.g_f3 HAVING (g_t3.g_f3,3)=(SELECT g_t3.g_f1 AS c1,g_t3.g_f1 AS c2 FROM t2 ORDER BY c2 LIMIT 1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:121~1:123) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:246~1:248) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    }
+  ]
+}

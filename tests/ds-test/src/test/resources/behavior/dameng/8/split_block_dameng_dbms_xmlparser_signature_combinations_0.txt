@@ -1,0 +1,669 @@
+[split_block_dameng_dbms_xmlparser_signature_combinations_0_001]
+sql:
+-- FUNC-1027 FREEPARSER
+declare
+  p DBMS_XMLPARSER.PARSER;
+  doc DBMS_XMLDOM.DOMDOCUMENT;
+  doctype DBMS_XMLDOM.DOMDOCUMENTTYPE;
+  c clob:='<?xml version="1.0"?><root><item>clob</item></root>';
+  v varchar2(256);
+  b boolean;
+begin p:=DBMS_XMLPARSER.NEWPARSER(); DBMS_XMLPARSER.FREEPARSER(P=>p); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(3:4~3:25) /test/1/catalog1/DBMS_XMLPARSER/PARSER/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(4:6~4:29) /test/1/catalog1/DBMS_XMLDOM/DOMDOCUMENT/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(5:10~5:37) /test/1/catalog1/DBMS_XMLDOM/DOMDOCUMENTTYPE/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(9:37~9:62) /test/1/catalog1/DBMS_XMLPARSER/FREEPARSER/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(9:9~9:33) /test/1/catalog1/DBMS_XMLPARSER/NEWPARSER/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_xmlparser_signature_combinations_0_002]
+sql:
+-- FUNC-1028 GETBASEDIR
+declare
+  p DBMS_XMLPARSER.PARSER;
+  doc DBMS_XMLDOM.DOMDOCUMENT;
+  doctype DBMS_XMLDOM.DOMDOCUMENTTYPE;
+  c clob:='<?xml version="1.0"?><root><item>clob</item></root>';
+  v varchar2(256);
+  b boolean;
+begin v:=DBMS_XMLPARSER.GETBASEDIR(P=>p); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(3:4~3:25) /test/1/catalog1/DBMS_XMLPARSER/PARSER/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(4:6~4:29) /test/1/catalog1/DBMS_XMLDOM/DOMDOCUMENT/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(5:10~5:37) /test/1/catalog1/DBMS_XMLDOM/DOMDOCUMENTTYPE/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(9:9~9:34) /test/1/catalog1/DBMS_XMLPARSER/GETBASEDIR/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_xmlparser_signature_combinations_0_003]
+sql:
+-- FUNC-1029 GETDOCTYPE
+declare
+  p DBMS_XMLPARSER.PARSER;
+  doc DBMS_XMLDOM.DOMDOCUMENT;
+  doctype DBMS_XMLDOM.DOMDOCUMENTTYPE;
+  c clob:='<?xml version="1.0"?><root><item>clob</item></root>';
+  v varchar2(256);
+  b boolean;
+begin doctype:=DBMS_XMLPARSER.GETDOCTYPE(P=>p); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(3:4~3:25) /test/1/catalog1/DBMS_XMLPARSER/PARSER/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(4:6~4:29) /test/1/catalog1/DBMS_XMLDOM/DOMDOCUMENT/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(5:10~5:37) /test/1/catalog1/DBMS_XMLDOM/DOMDOCUMENTTYPE/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(9:15~9:40) /test/1/catalog1/DBMS_XMLPARSER/GETDOCTYPE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_xmlparser_signature_combinations_0_004]
+sql:
+-- FUNC-1030 GETDOCUMENTR
+declare
+  p DBMS_XMLPARSER.PARSER;
+  doc DBMS_XMLDOM.DOMDOCUMENT;
+  doctype DBMS_XMLDOM.DOMDOCUMENTTYPE;
+  c clob:='<?xml version="1.0"?><root><item>clob</item></root>';
+  v varchar2(256);
+  b boolean;
+begin doc:=DBMS_XMLPARSER.GETDOCUMENTR(P=>p); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(3:4~3:25) /test/1/catalog1/DBMS_XMLPARSER/PARSER/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(4:6~4:29) /test/1/catalog1/DBMS_XMLDOM/DOMDOCUMENT/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(5:10~5:37) /test/1/catalog1/DBMS_XMLDOM/DOMDOCUMENTTYPE/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(9:11~9:38) /test/1/catalog1/DBMS_XMLPARSER/GETDOCUMENTR/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_xmlparser_signature_combinations_0_005]
+sql:
+-- FUNC-1031 PARSE
+declare
+  p DBMS_XMLPARSER.PARSER;
+  doc DBMS_XMLDOM.DOMDOCUMENT;
+  doctype DBMS_XMLDOM.DOMDOCUMENTTYPE;
+  c clob:='<?xml version="1.0"?><root><item>clob</item></root>';
+  v varchar2(256);
+  b boolean;
+begin doc:=DBMS_XMLPARSER.PARSE(URL=>'/tmp/a.xml'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(3:4~3:25) /test/1/catalog1/DBMS_XMLPARSER/PARSER/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(4:6~4:29) /test/1/catalog1/DBMS_XMLDOM/DOMDOCUMENT/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(5:10~5:37) /test/1/catalog1/DBMS_XMLDOM/DOMDOCUMENTTYPE/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(9:11~9:31) /test/1/catalog1/DBMS_XMLPARSER/PARSE/",
+      "action": "CALL",
+      "target": "File(9:37~9:49) /test/1/tmp/a.xml/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_xmlparser_signature_combinations_0_006]
+sql:
+-- FUNC-1032 PARSE
+declare
+  p DBMS_XMLPARSER.PARSER;
+  doc DBMS_XMLDOM.DOMDOCUMENT;
+  doctype DBMS_XMLDOM.DOMDOCUMENTTYPE;
+  c clob:='<?xml version="1.0"?><root><item>clob</item></root>';
+  v varchar2(256);
+  b boolean;
+begin DBMS_XMLPARSER.PARSE(P=>p,URL=>'/tmp/a.xml'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(3:4~3:25) /test/1/catalog1/DBMS_XMLPARSER/PARSER/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(4:6~4:29) /test/1/catalog1/DBMS_XMLDOM/DOMDOCUMENT/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(5:10~5:37) /test/1/catalog1/DBMS_XMLDOM/DOMDOCUMENTTYPE/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(9:6~9:26) /test/1/catalog1/DBMS_XMLPARSER/PARSE/",
+      "action": "CALL",
+      "target": "File(9:37~9:49) /test/1/tmp/a.xml/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_xmlparser_signature_combinations_0_007]
+sql:
+-- FUNC-1033 PARSEBUFFER
+declare
+  p DBMS_XMLPARSER.PARSER;
+  doc DBMS_XMLDOM.DOMDOCUMENT;
+  doctype DBMS_XMLDOM.DOMDOCUMENTTYPE;
+  c clob:='<?xml version="1.0"?><root><item>clob</item></root>';
+  v varchar2(256);
+  b boolean;
+begin p:=DBMS_XMLPARSER.NEWPARSER(); DBMS_XMLPARSER.PARSEBUFFER(P=>p,DOC=>'<root/>'); DBMS_XMLPARSER.FREEPARSER(p); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(3:4~3:25) /test/1/catalog1/DBMS_XMLPARSER/PARSER/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(4:6~4:29) /test/1/catalog1/DBMS_XMLDOM/DOMDOCUMENT/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(5:10~5:37) /test/1/catalog1/DBMS_XMLDOM/DOMDOCUMENTTYPE/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(9:37~9:63) /test/1/catalog1/DBMS_XMLPARSER/PARSEBUFFER/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(9:86~9:111) /test/1/catalog1/DBMS_XMLPARSER/FREEPARSER/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(9:9~9:33) /test/1/catalog1/DBMS_XMLPARSER/NEWPARSER/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_xmlparser_signature_combinations_0_008]
+sql:
+-- FUNC-1034 PARSECLOB
+declare
+  p DBMS_XMLPARSER.PARSER;
+  doc DBMS_XMLDOM.DOMDOCUMENT;
+  doctype DBMS_XMLDOM.DOMDOCUMENTTYPE;
+  c clob:='<?xml version="1.0"?><root><item>clob</item></root>';
+  v varchar2(256);
+  b boolean;
+begin p:=DBMS_XMLPARSER.NEWPARSER(); DBMS_XMLPARSER.PARSECLOB(P=>p,DOC=>c); DBMS_XMLPARSER.FREEPARSER(p); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(3:4~3:25) /test/1/catalog1/DBMS_XMLPARSER/PARSER/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(4:6~4:29) /test/1/catalog1/DBMS_XMLDOM/DOMDOCUMENT/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(5:10~5:37) /test/1/catalog1/DBMS_XMLDOM/DOMDOCUMENTTYPE/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(9:37~9:61) /test/1/catalog1/DBMS_XMLPARSER/PARSECLOB/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(9:76~9:101) /test/1/catalog1/DBMS_XMLPARSER/FREEPARSER/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(9:9~9:33) /test/1/catalog1/DBMS_XMLPARSER/NEWPARSER/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_xmlparser_signature_combinations_0_009]
+sql:
+-- FUNC-1035 PARSEDTD
+declare
+  p DBMS_XMLPARSER.PARSER;
+  doc DBMS_XMLDOM.DOMDOCUMENT;
+  doctype DBMS_XMLDOM.DOMDOCUMENTTYPE;
+  c clob:='<?xml version="1.0"?><root><item>clob</item></root>';
+  v varchar2(256);
+  b boolean;
+begin DBMS_XMLPARSER.PARSEDTD(P=>p,URL=>'/tmp/a.dtd',ROOT=>'ROOT'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(3:4~3:25) /test/1/catalog1/DBMS_XMLPARSER/PARSER/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(4:6~4:29) /test/1/catalog1/DBMS_XMLDOM/DOMDOCUMENT/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(5:10~5:37) /test/1/catalog1/DBMS_XMLDOM/DOMDOCUMENTTYPE/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(9:6~9:29) /test/1/catalog1/DBMS_XMLPARSER/PARSEDTD/",
+      "action": "CALL",
+      "target": "File(9:40~9:52) /test/1/tmp/a.dtd/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_xmlparser_signature_combinations_0_010]
+sql:
+-- FUNC-1036 PARSEDTDBUFFER
+declare
+  p DBMS_XMLPARSER.PARSER;
+  doc DBMS_XMLDOM.DOMDOCUMENT;
+  doctype DBMS_XMLDOM.DOMDOCUMENTTYPE;
+  c clob:='<?xml version="1.0"?><root><item>clob</item></root>';
+  v varchar2(256);
+  b boolean;
+begin DBMS_XMLPARSER.PARSEDTDBUFFER(P=>p,DTD=>'<!ELEMENT ROOT EMPTY>',ROOT=>'ROOT'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(3:4~3:25) /test/1/catalog1/DBMS_XMLPARSER/PARSER/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(4:6~4:29) /test/1/catalog1/DBMS_XMLDOM/DOMDOCUMENT/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(5:10~5:37) /test/1/catalog1/DBMS_XMLDOM/DOMDOCUMENTTYPE/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(9:6~9:35) /test/1/catalog1/DBMS_XMLPARSER/PARSEDTDBUFFER/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_xmlparser_signature_combinations_0_011]
+sql:
+-- FUNC-1037 PARSEDTDCLOB
+declare
+  p DBMS_XMLPARSER.PARSER;
+  doc DBMS_XMLDOM.DOMDOCUMENT;
+  doctype DBMS_XMLDOM.DOMDOCUMENTTYPE;
+  c clob:='<?xml version="1.0"?><root><item>clob</item></root>';
+  v varchar2(256);
+  b boolean;
+begin c:='<!ELEMENT ROOT EMPTY>'; DBMS_XMLPARSER.PARSEDTDCLOB(P=>p,DTD=>c,ROOT=>'ROOT'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(3:4~3:25) /test/1/catalog1/DBMS_XMLPARSER/PARSER/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(4:6~4:29) /test/1/catalog1/DBMS_XMLDOM/DOMDOCUMENT/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(5:10~5:37) /test/1/catalog1/DBMS_XMLDOM/DOMDOCUMENTTYPE/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(9:34~9:61) /test/1/catalog1/DBMS_XMLPARSER/PARSEDTDCLOB/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_xmlparser_signature_combinations_0_012]
+sql:
+-- FUNC-1038 RESETPARAMS
+declare
+  p DBMS_XMLPARSER.PARSER;
+  doc DBMS_XMLDOM.DOMDOCUMENT;
+  doctype DBMS_XMLDOM.DOMDOCUMENTTYPE;
+  c clob:='<?xml version="1.0"?><root><item>clob</item></root>';
+  v varchar2(256);
+  b boolean;
+begin v:=DBMS_XMLPARSER.RESETPARAMS(); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(3:4~3:25) /test/1/catalog1/DBMS_XMLPARSER/PARSER/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(4:6~4:29) /test/1/catalog1/DBMS_XMLDOM/DOMDOCUMENT/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(5:10~5:37) /test/1/catalog1/DBMS_XMLDOM/DOMDOCUMENTTYPE/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(9:9~9:35) /test/1/catalog1/DBMS_XMLPARSER/RESETPARAMS/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_xmlparser_signature_combinations_0_013]
+sql:
+-- FUNC-1039 SETBASEDIR
+declare
+  p DBMS_XMLPARSER.PARSER;
+  doc DBMS_XMLDOM.DOMDOCUMENT;
+  doctype DBMS_XMLDOM.DOMDOCUMENTTYPE;
+  c clob:='<?xml version="1.0"?><root><item>clob</item></root>';
+  v varchar2(256);
+  b boolean;
+begin DBMS_XMLPARSER.SETBASEDIR(P=>p,DIR=>'/tmp'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(3:4~3:25) /test/1/catalog1/DBMS_XMLPARSER/PARSER/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(4:6~4:29) /test/1/catalog1/DBMS_XMLDOM/DOMDOCUMENT/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(5:10~5:37) /test/1/catalog1/DBMS_XMLDOM/DOMDOCUMENTTYPE/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(9:6~9:31) /test/1/catalog1/DBMS_XMLPARSER/SETBASEDIR/",
+      "action": "CALL",
+      "target": "File(9:42~9:48) /test/1/tmp/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_xmlparser_signature_combinations_0_014]
+sql:
+-- FUNC-1040 SETDOCTYPE
+declare
+  p DBMS_XMLPARSER.PARSER;
+  doc DBMS_XMLDOM.DOMDOCUMENT;
+  doctype DBMS_XMLDOM.DOMDOCUMENTTYPE;
+  c clob:='<?xml version="1.0"?><root><item>clob</item></root>';
+  v varchar2(256);
+  b boolean;
+begin DBMS_XMLPARSER.SETDOCTYPE(P=>p,DTD=>doctype); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(3:4~3:25) /test/1/catalog1/DBMS_XMLPARSER/PARSER/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(4:6~4:29) /test/1/catalog1/DBMS_XMLDOM/DOMDOCUMENT/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(5:10~5:37) /test/1/catalog1/DBMS_XMLDOM/DOMDOCUMENTTYPE/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(9:6~9:31) /test/1/catalog1/DBMS_XMLPARSER/SETDOCTYPE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_xmlparser_signature_combinations_0_015]
+sql:
+-- FUNC-1041 SETVALIDATIONMNODE
+declare
+  p DBMS_XMLPARSER.PARSER;
+  doc DBMS_XMLDOM.DOMDOCUMENT;
+  doctype DBMS_XMLDOM.DOMDOCUMENTTYPE;
+  c clob:='<?xml version="1.0"?><root><item>clob</item></root>';
+  v varchar2(256);
+  b boolean;
+begin DBMS_XMLPARSER.SETVALIDATIONMNODE(P=>p,YES=>TRUE); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(3:4~3:25) /test/1/catalog1/DBMS_XMLPARSER/PARSER/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(4:6~4:29) /test/1/catalog1/DBMS_XMLDOM/DOMDOCUMENT/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(5:10~5:37) /test/1/catalog1/DBMS_XMLDOM/DOMDOCUMENTTYPE/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(9:6~9:39) /test/1/catalog1/DBMS_XMLPARSER/SETVALIDATIONMNODE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_xmlparser_signature_combinations_0_016]
+sql:
+-- FUNC-1042 SETVALIDATIONMNODE
+declare
+  p DBMS_XMLPARSER.PARSER;
+  doc DBMS_XMLDOM.DOMDOCUMENT;
+  doctype DBMS_XMLDOM.DOMDOCUMENTTYPE;
+  c clob:='<?xml version="1.0"?><root><item>clob</item></root>';
+  v varchar2(256);
+  b boolean;
+begin b:=DBMS_XMLPARSER.SETVALIDATIONMNODE(P=>p); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(3:4~3:25) /test/1/catalog1/DBMS_XMLPARSER/PARSER/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(4:6~4:29) /test/1/catalog1/DBMS_XMLDOM/DOMDOCUMENT/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(5:10~5:37) /test/1/catalog1/DBMS_XMLDOM/DOMDOCUMENTTYPE/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(9:9~9:42) /test/1/catalog1/DBMS_XMLPARSER/SETVALIDATIONMNODE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_xmlparser_signature_combinations_0_017]
+sql:
+-- FUNC-1790 NEWPARSER
+declare
+  p DBMS_XMLPARSER.PARSER;
+  doc DBMS_XMLDOM.DOMDOCUMENT;
+  doctype DBMS_XMLDOM.DOMDOCUMENTTYPE;
+  c clob:='<?xml version="1.0"?><root><item>clob</item></root>';
+  v varchar2(256);
+  b boolean;
+begin p:=DBMS_XMLPARSER.NEWPARSER(); DBMS_XMLPARSER.FREEPARSER(p); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(3:4~3:25) /test/1/catalog1/DBMS_XMLPARSER/PARSER/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(4:6~4:29) /test/1/catalog1/DBMS_XMLDOM/DOMDOCUMENT/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(5:10~5:37) /test/1/catalog1/DBMS_XMLDOM/DOMDOCUMENTTYPE/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(9:37~9:62) /test/1/catalog1/DBMS_XMLPARSER/FREEPARSER/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(9:9~9:33) /test/1/catalog1/DBMS_XMLPARSER/NEWPARSER/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_xmlparser_signature_combinations_0_018]
+sql:
+-- FUNC-1791 GETDOCUMENT
+declare
+  p DBMS_XMLPARSER.PARSER;
+  doc DBMS_XMLDOM.DOMDOCUMENT;
+  doctype DBMS_XMLDOM.DOMDOCUMENTTYPE;
+  c clob:='<?xml version="1.0"?><root><item>clob</item></root>';
+  v varchar2(256);
+  b boolean;
+begin p:=DBMS_XMLPARSER.NEWPARSER(); DBMS_XMLPARSER.PARSEBUFFER(p,'<root/>'); doc:=DBMS_XMLPARSER.GETDOCUMENT(P=>p); DBMS_XMLPARSER.FREEPARSER(p); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(3:4~3:25) /test/1/catalog1/DBMS_XMLPARSER/PARSER/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(4:6~4:29) /test/1/catalog1/DBMS_XMLDOM/DOMDOCUMENT/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(5:10~5:37) /test/1/catalog1/DBMS_XMLDOM/DOMDOCUMENTTYPE/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(9:37~9:63) /test/1/catalog1/DBMS_XMLPARSER/PARSEBUFFER/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(9:117~9:142) /test/1/catalog1/DBMS_XMLPARSER/FREEPARSER/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(9:9~9:33) /test/1/catalog1/DBMS_XMLPARSER/NEWPARSER/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(9:83~9:109) /test/1/catalog1/DBMS_XMLPARSER/GETDOCUMENT/",
+      "action": "CALL"
+    }
+  ]
+}

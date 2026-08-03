@@ -1,0 +1,12 @@
+SELECT TIMESTAMP '2001-02-16 20:38:40' AT LOCAL AS timestamp_at_local,
+       TIMESTAMP WITH TIME ZONE '2001-02-16 20:38:40-05' AT LOCAL AS timestamptz_at_local,
+       TIME WITH TIME ZONE '20:38:40-05' AT LOCAL AS timetz_at_local;
+SELECT timezone(TIMESTAMP WITH TIME ZONE '2001-02-16 20:38:40-05') AS timezone_timestamptz_local,
+       timezone(TIME WITH TIME ZONE '05:34:17-05') AS timezone_timetz_local;
+------------------------------------------------------------------------------------------
+[SELECT] SELECT TIMESTAMP '2001-02-16 20:38:40' AT LOCAL AS timestamp_at_local,
+       TIMESTAMP WITH TIME ZONE '2001-02-16 20:38:40-05' AT LOCAL AS timestamptz_at_local,
+       TIME WITH TIME ZONE '20:38:40-05' AT LOCAL AS timetz_at_local;
+----------
+[SELECT] SELECT timezone(TIMESTAMP WITH TIME ZONE '2001-02-16 20:38:40-05') AS timezone_timestamptz_local,
+       timezone(TIME WITH TIME ZONE '05:34:17-05') AS timezone_timetz_local;

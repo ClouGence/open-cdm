@@ -45,7 +45,6 @@ import com.clougence.schema.DsType;
 import com.clougence.schema.SchemaBinder;
 import com.clougence.schema.SchemaFramework;
 import com.clougence.schema.SchemaPlugin;
-import com.clougence.sql.mysql.MySqlEngineSpi;
 
 /** @author mode 2024/12/25 15:13 */
 @Plugin(name = "i18n::" + MarDsI18nKeys.PLUGIN_NAME_MARIADB,                 //
@@ -83,8 +82,7 @@ public class MarDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
     private void configExecute(DsPluginBinder dsPlugin) {
         dsPlugin.bindDsSessionFactory(MarSessionFactory.class);
         dsPlugin.bindDsDriverFamily("MariaDB Java Client", "MySQL Connector/J");
-
-        dsPlugin.bindSqlEngine(MySqlEngineSpi.NAME);
+        dsPlugin.bindSqlEngine("MySQL");
 
         dsPlugin.addPluginSpi(new MySessionSpi());
         dsPlugin.addPluginSpi(new MySupportSpi());

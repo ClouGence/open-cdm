@@ -1,0 +1,93 @@
+begin dbms_aqadm.create_queue_table('SYSDBA.CODEX_DM8_QUEUE_TAB', 'RAW', multiple_consumers => true, tab_comment => 'CODEX queue table'); end;
+/
+select schm, name, table_comment from sys.aq$_queue_tables where name='CODEX_DM8_QUEUE_TAB';
+begin dbms_aqadm.alter_queue_table('SYSDBA.CODEX_DM8_QUEUE_TAB', 'CODEX queue table updated'); end;
+/
+begin dbms_aqadm.create_queue('SYSDBA.CODEX_DM8_QUEUE', 'SYSDBA.CODEX_DM8_QUEUE_TAB', queue_comment => 'CODEX queue'); end;
+/
+begin dbms_aqadm.alter_queue('SYSDBA.CODEX_DM8_QUEUE', max_retries => 3, retry_delay => 1, retention_time => 10, queue_comment => 'CODEX queue updated'); end;
+/
+begin dbms_aqadm.start_queue('SYSDBA.CODEX_DM8_QUEUE'); end;
+/
+select name, enable_flag, max_retries, retry_delay, ret_time from sys.aq$_queues where name='CODEX_DM8_QUEUE';
+begin dbms_aqadm.add_subscriber('SYSDBA.CODEX_DM8_QUEUE', sys.aq$_agent('CODEX_SUB', null, 0)); end;
+/
+select name from sys.aq$_queues where name='CODEX_DM8_QUEUE' and subscribers is not null;
+begin dbms_aq.register(sys.aq$_reg_info_list(sys.aq$_reg_info('SYSDBA.CODEX_DM8_QUEUE:CODEX_SUB', dbms_aq.namespace_aq, 'PLSQL://SYSDBA.CODEX_DM8_AQ_CALLBACK', hextoraw('FF'))), 1); end;
+/
+declare options_value dbms_aq.enqueue_options_t; msgid_value varbinary(16); begin dbms_aq.enqueue('SYSDBA.CODEX_DM8_QUEUE', options_value, null, hextoraw('434F4445585F41515F4D455353414745'), msgid_value); commit; end;
+/
+declare value int; begin dbms_lock.sleep(1); select count(*) into value from CODEX_DM8_SCHED_LOG where message='AQ_CALLBACK'; end;
+/
+declare options_value dbms_aq.dequeue_options_t; properties_value dbms_aq.message_properties_t; payload_value varbinary(8188); msgid_value varbinary(16); begin options_value.consumer_name := 'CODEX_SUB'; options_value.dequeue_mode := dbms_aq.browse; options_value.wait := dbms_aq.no_wait; dbms_aq.dequeue('SYSDBA.CODEX_DM8_QUEUE', options_value, properties_value, payload_value, msgid_value); end;
+/
+declare options_value dbms_aq.dequeue_options_t; properties_value dbms_aq.message_properties_t; payload_value varbinary(8188); msgid_value varbinary(16); begin options_value.consumer_name := 'CODEX_SUB'; options_value.dequeue_mode := dbms_aq.remove; options_value.wait := dbms_aq.no_wait; dbms_aq.dequeue('SYSDBA.CODEX_DM8_QUEUE', options_value, properties_value, payload_value, msgid_value); commit; end;
+/
+begin dbms_aq.unregister(sys.aq$_reg_info_list(sys.aq$_reg_info('SYSDBA.CODEX_DM8_QUEUE:CODEX_SUB', dbms_aq.namespace_aq, 'PLSQL://SYSDBA.CODEX_DM8_AQ_CALLBACK', hextoraw('FF'))), 1); end;
+/
+begin dbms_aqadm.stop_queue('SYSDBA.CODEX_DM8_QUEUE', dequeue => true, wait => false); end;
+/
+begin dbms_aqadm.start_queue('SYSDBA.CODEX_DM8_QUEUE', enqueue => false, dequeue => true); end;
+/
+begin dbms_aqadm.stop_queue('SYSDBA.CODEX_DM8_QUEUE', enqueue => true, dequeue => false, wait => false); end;
+/
+begin dbms_aqadm.start_queue('SYSDBA.CODEX_DM8_QUEUE', enqueue => true, dequeue => false); end;
+/
+begin dbms_aqadm.remove_subscriber('SYSDBA.CODEX_DM8_QUEUE', sys.aq$_agent('CODEX_SUB', null, 0)); end;
+/
+begin dbms_aqadm.stop_queue('SYSDBA.CODEX_DM8_QUEUE', true, true, false); end;
+/
+declare options_value dbms_aqadm.aq$_purge_options_t; begin dbms_aqadm.purge_queue_table('SYSDBA.CODEX_DM8_QUEUE_TAB', null, options_value); end;
+/
+begin dbms_aqadm.drop_queue('SYSDBA.CODEX_DM8_QUEUE'); end;
+/
+begin dbms_aqadm.drop_queue_table('SYSDBA.CODEX_DM8_QUEUE_TAB'); end;
+/
+------------------------------------------------------------------------------------------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_aqadm.create_queue_table('SYSDBA.CODEX_DM8_QUEUE_TAB', 'RAW', multiple_consumers => true, tab_comment => 'CODEX queue table'); end;
+----------
+[SELECT] select schm, name, table_comment from sys.aq$_queue_tables where name='CODEX_DM8_QUEUE_TAB';
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_aqadm.alter_queue_table('SYSDBA.CODEX_DM8_QUEUE_TAB', 'CODEX queue table updated'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_aqadm.create_queue('SYSDBA.CODEX_DM8_QUEUE', 'SYSDBA.CODEX_DM8_QUEUE_TAB', queue_comment => 'CODEX queue'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_aqadm.alter_queue('SYSDBA.CODEX_DM8_QUEUE', max_retries => 3, retry_delay => 1, retention_time => 10, queue_comment => 'CODEX queue updated'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_aqadm.start_queue('SYSDBA.CODEX_DM8_QUEUE'); end;
+----------
+[SELECT] select name, enable_flag, max_retries, retry_delay, ret_time from sys.aq$_queues where name='CODEX_DM8_QUEUE';
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_aqadm.add_subscriber('SYSDBA.CODEX_DM8_QUEUE', sys.aq$_agent('CODEX_SUB', null, 0)); end;
+----------
+[SELECT] select name from sys.aq$_queues where name='CODEX_DM8_QUEUE' and subscribers is not null;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_aq.register(sys.aq$_reg_info_list(sys.aq$_reg_info('SYSDBA.CODEX_DM8_QUEUE:CODEX_SUB', dbms_aq.namespace_aq, 'PLSQL://SYSDBA.CODEX_DM8_AQ_CALLBACK', hextoraw('FF'))), 1); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ,TRANSACTION)] declare options_value dbms_aq.enqueue_options_t; msgid_value varbinary(16); begin dbms_aq.enqueue('SYSDBA.CODEX_DM8_QUEUE', options_value, null, hextoraw('434F4445585F41515F4D455353414745'), msgid_value); commit; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ,SELECT)] declare value int; begin dbms_lock.sleep(1); select count(*) into value from CODEX_DM8_SCHED_LOG where message='AQ_CALLBACK'; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare options_value dbms_aq.dequeue_options_t; properties_value dbms_aq.message_properties_t; payload_value varbinary(8188); msgid_value varbinary(16); begin options_value.consumer_name := 'CODEX_SUB'; options_value.dequeue_mode := dbms_aq.browse; options_value.wait := dbms_aq.no_wait; dbms_aq.dequeue('SYSDBA.CODEX_DM8_QUEUE', options_value, properties_value, payload_value, msgid_value); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ,TRANSACTION)] declare options_value dbms_aq.dequeue_options_t; properties_value dbms_aq.message_properties_t; payload_value varbinary(8188); msgid_value varbinary(16); begin options_value.consumer_name := 'CODEX_SUB'; options_value.dequeue_mode := dbms_aq.remove; options_value.wait := dbms_aq.no_wait; dbms_aq.dequeue('SYSDBA.CODEX_DM8_QUEUE', options_value, properties_value, payload_value, msgid_value); commit; end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_aq.unregister(sys.aq$_reg_info_list(sys.aq$_reg_info('SYSDBA.CODEX_DM8_QUEUE:CODEX_SUB', dbms_aq.namespace_aq, 'PLSQL://SYSDBA.CODEX_DM8_AQ_CALLBACK', hextoraw('FF'))), 1); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_aqadm.stop_queue('SYSDBA.CODEX_DM8_QUEUE', dequeue => true, wait => false); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_aqadm.start_queue('SYSDBA.CODEX_DM8_QUEUE', enqueue => false, dequeue => true); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_aqadm.stop_queue('SYSDBA.CODEX_DM8_QUEUE', enqueue => true, dequeue => false, wait => false); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_aqadm.start_queue('SYSDBA.CODEX_DM8_QUEUE', enqueue => true, dequeue => false); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_aqadm.remove_subscriber('SYSDBA.CODEX_DM8_QUEUE', sys.aq$_agent('CODEX_SUB', null, 0)); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_aqadm.stop_queue('SYSDBA.CODEX_DM8_QUEUE', true, true, false); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare options_value dbms_aqadm.aq$_purge_options_t; begin dbms_aqadm.purge_queue_table('SYSDBA.CODEX_DM8_QUEUE_TAB', null, options_value); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_aqadm.drop_queue('SYSDBA.CODEX_DM8_QUEUE'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_aqadm.drop_queue_table('SYSDBA.CODEX_DM8_QUEUE_TAB'); end;

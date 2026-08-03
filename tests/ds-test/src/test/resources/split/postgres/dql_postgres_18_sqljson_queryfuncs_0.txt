@@ -1,0 +1,30 @@
+SELECT JSON_EXISTS(jsonb '{"key1":[1,2,3]}', 'strict $.key1[*] ? (@ > $x)' PASSING 2 AS x) AS has_gt_x;
+SELECT JSON_EXISTS(jsonb '{"a":[1,2,3]}', 'strict $.a[5]' UNKNOWN ON ERROR) AS unknown_on_error;
+SELECT JSON_QUERY(jsonb '[1,[2,3],null]', 'lax $[*][$off]' PASSING 1 AS off WITH CONDITIONAL WRAPPER) AS conditional_wrapper;
+SELECT JSON_QUERY(jsonb '{"a":"[1, 2]"}', 'lax $.a' OMIT QUOTES) AS omitted_quotes;
+SELECT JSON_QUERY(jsonb '["1"]', '$[*]' WITH UNCONDITIONAL ARRAY WRAPPER KEEP QUOTES) AS wrapped_string;
+SELECT JSON_QUERY(jsonb '{}', '$.missing' EMPTY ARRAY ON EMPTY) AS empty_array_on_empty;
+SELECT JSON_VALUE(jsonb '"123.45"', '$' RETURNING float) AS value_float;
+SELECT JSON_VALUE(jsonb '"03:04 2015-02-01"', '$.datetime("HH24:MI YYYY-MM-DD")' RETURNING date) AS value_date;
+SELECT JSON_VALUE(jsonb '[1,2]', 'strict $[$off]' PASSING 1 AS off RETURNING int) AS value_with_passing;
+SELECT JSON_VALUE(jsonb '[1,2]', 'strict $[*]' DEFAULT 9 ON ERROR) AS default_on_error;
+------------------------------------------------------------------------------------------
+[SELECT] SELECT JSON_EXISTS(jsonb '{"key1":[1,2,3]}', 'strict $.key1[*] ? (@ > $x)' PASSING 2 AS x) AS has_gt_x;
+----------
+[SELECT] SELECT JSON_EXISTS(jsonb '{"a":[1,2,3]}', 'strict $.a[5]' UNKNOWN ON ERROR) AS unknown_on_error;
+----------
+[SELECT] SELECT JSON_QUERY(jsonb '[1,[2,3],null]', 'lax $[*][$off]' PASSING 1 AS off WITH CONDITIONAL WRAPPER) AS conditional_wrapper;
+----------
+[SELECT] SELECT JSON_QUERY(jsonb '{"a":"[1, 2]"}', 'lax $.a' OMIT QUOTES) AS omitted_quotes;
+----------
+[SELECT] SELECT JSON_QUERY(jsonb '["1"]', '$[*]' WITH UNCONDITIONAL ARRAY WRAPPER KEEP QUOTES) AS wrapped_string;
+----------
+[SELECT] SELECT JSON_QUERY(jsonb '{}', '$.missing' EMPTY ARRAY ON EMPTY) AS empty_array_on_empty;
+----------
+[SELECT] SELECT JSON_VALUE(jsonb '"123.45"', '$' RETURNING float) AS value_float;
+----------
+[SELECT] SELECT JSON_VALUE(jsonb '"03:04 2015-02-01"', '$.datetime("HH24:MI YYYY-MM-DD")' RETURNING date) AS value_date;
+----------
+[SELECT] SELECT JSON_VALUE(jsonb '[1,2]', 'strict $[$off]' PASSING 1 AS off RETURNING int) AS value_with_passing;
+----------
+[SELECT] SELECT JSON_VALUE(jsonb '[1,2]', 'strict $[*]' DEFAULT 9 ON ERROR) AS default_on_error;

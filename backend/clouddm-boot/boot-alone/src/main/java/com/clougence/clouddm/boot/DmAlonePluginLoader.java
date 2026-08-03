@@ -29,7 +29,6 @@ import com.clougence.clouddm.sdk.service.config.ConfigService;
 import com.clougence.clouddm.sdk.service.config.ConsoleConfigService;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.clouddm.sdk.service.execute.SessionService;
-import com.clougence.clouddm.sdk.sql.column.QueryConstraintService;
 import com.clougence.clouddm.worker.component.report.ReportService;
 import com.clougence.clouddm.worker.services.SidecarConfigServiceImpl;
 import com.clougence.clouddm.worker.services.SidecarSessionServicesImpl;
@@ -54,8 +53,6 @@ public class DmAlonePluginLoader {
     @Resource
     private MetaService                metaService;
     @Resource
-    private QueryConstraintService     queryConstraintService;
-    @Resource
     private SidecarSessionServicesImpl sessionServices;
 
     public void loadPlugin(ClassLoader parentClassLoader) throws Exception {
@@ -65,7 +62,6 @@ public class DmAlonePluginLoader {
         PluginManager.putService(ConfigService.class, this.sidecarConfigService);
         PluginManager.putService(CacheService.class, this.cacheService);
         PluginManager.putService(MetaService.class, this.metaService);
-        PluginManager.putService(QueryConstraintService.class, this.queryConstraintService);
         PluginManager.putService(ApprovalRefreshService.class, this.refreshService);
         PluginManager.putService(ConsoleConfigService.class, this.consoleConfigService);
 

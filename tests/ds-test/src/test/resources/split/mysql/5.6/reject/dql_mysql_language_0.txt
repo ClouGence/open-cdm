@@ -1,0 +1,93 @@
+SELECT 1 /*!080100 +1*/ AS should_return_2;
+SELECT (SELECT 1 c WHERE 1 GROUP BY 1 HAVING 1 ORDER BY COUNT(1)) AS 'null is not expected';
+SELECT ((SELECT 1 AS f HAVING EXISTS(SELECT 1 FROM t1) IS TRUE ORDER BY f));
+SELECT /*!8000 1 */;
+/*!050651 SELECT 6 */;
+SELECT 1 /*!080410*/;
+SELECT 1 /*!080400
++ 1 */;
+SELECT 1 /*!080400+ 1 */;
+SELECT 1 /*!080400	+ 1 */;
+SELECT 1 /*!080400
++ 1 */;
+SELECT 1 /*!080400+ 1 */;
+SELECT 1 */;
+SELECT 1 /*!80000 + 1;
+WITH x AS (SELECT 1)
+SELECT 1 FROM x x, x x0, x x1, x x2, x x3, x x4, x x5, x x6, x x7, x x8, x x9, x x10, x x11, x x12, x x13, x x14, x x15, x x16, x x17, x x18, x x19, x x20, x x21, x x22, x x23, x x24, x x25, x x26, x x27, x x28, x x29, x x30, x x31, x x32, x x33, x x34, x x35, x x36, x x37, x x38, x x39, x x40, x x41, x x42, x x43, x x44, x x45, x x46, x x47, x x48, x x49, x x50, x x51, x x52, x x53, x x54, x x55, x x56, x x57, x x58, x x59, x x60, x x61, x x62, x x63;
+WITH cte AS (SELECT 0 /*! ) */ SELECT * FROM cte a, cte b;
+WITH cte AS /*! ( */ SELECT 0) SELECT * FROM cte a, cte b;
+EXPLAIN SELECT 1 INTO DUMPFILE '/tmp/codex_parser_file1' FROM DUAL INTO DUMPFILE '/tmp/codex_parser_file2';
+EXPLAIN SELECT 1 INTO OUTFILE '/tmp/codex_parser_file3' FROM DUAL INTO OUTFILE '/tmp/codex_parser_file4';
+EXPLAIN SELECT 1 INTO @x FROM DUAL INTO @y;
+SELECT 1 INTO DUMPFILE '/tmp/codex_parser_plain1' FROM DUAL INTO DUMPFILE '/tmp/codex_parser_plain2';
+SELECT 1 INTO OUTFILE '/tmp/codex_parser_plain3' FROM DUAL INTO OUTFILE '/tmp/codex_parser_plain4';
+SELECT 1 INTO @x FROM DUAL INTO @y;
+(SELECT 1) LIMIT 1 INTO @var;
+(SELECT 2 AS c) ORDER BY c INTO @var;
+(SELECT 3 AS c) ORDER BY c LIMIT 1 INTO @var;
+(SELECT 4) INTO @var;
+SELECT * FROM split_sample.t TABLESAMPLE SYSTEM (@sample_pct);
+SELECT 1/*!2*/;
+SELECT 1/*!000002*/;
+------------------------------------------------------------------------------------------
+[SELECT] SELECT 1 /*!080100 +1*/ AS should_return_2;
+----------
+[SELECT] SELECT (SELECT 1 c WHERE 1 GROUP BY 1 HAVING 1 ORDER BY COUNT(1)) AS 'null is not expected';
+----------
+[SELECT] SELECT ((SELECT 1 AS f HAVING EXISTS(SELECT 1 FROM t1) IS TRUE ORDER BY f));
+----------
+[SELECT] SELECT /*!8000 1 */;
+----------
+[SELECT] /*!050651 SELECT 6 */;
+----------
+[SELECT] SELECT 1 /*!080410*/;
+----------
+[SELECT] SELECT 1 /*!080400
++ 1 */;
+----------
+[SELECT] SELECT 1 /*!080400+ 1 */;
+----------
+[SELECT] SELECT 1 /*!080400	+ 1 */;
+----------
+[SELECT] SELECT 1 /*!080400
++ 1 */;
+----------
+[SELECT] SELECT 1 /*!080400+ 1 */;
+----------
+[SELECT] SELECT 1 */;
+----------
+[SELECT] SELECT 1 /*!80000 + 1;
+----------
+[SELECT] WITH x AS (SELECT 1)
+SELECT 1 FROM x x, x x0, x x1, x x2, x x3, x x4, x x5, x x6, x x7, x x8, x x9, x x10, x x11, x x12, x x13, x x14, x x15, x x16, x x17, x x18, x x19, x x20, x x21, x x22, x x23, x x24, x x25, x x26, x x27, x x28, x x29, x x30, x x31, x x32, x x33, x x34, x x35, x x36, x x37, x x38, x x39, x x40, x x41, x x42, x x43, x x44, x x45, x x46, x x47, x x48, x x49, x x50, x x51, x x52, x x53, x x54, x x55, x x56, x x57, x x58, x x59, x x60, x x61, x x62, x x63;
+----------
+[SELECT] WITH cte AS (SELECT 0 /*! ) */ SELECT * FROM cte a, cte b;
+----------
+[SELECT] WITH cte AS /*! ( */ SELECT 0) SELECT * FROM cte a, cte b;
+----------
+[PERFORMANCE] EXPLAIN SELECT 1 INTO DUMPFILE '/tmp/codex_parser_file1' FROM DUAL INTO DUMPFILE '/tmp/codex_parser_file2';
+----------
+[PERFORMANCE] EXPLAIN SELECT 1 INTO OUTFILE '/tmp/codex_parser_file3' FROM DUAL INTO OUTFILE '/tmp/codex_parser_file4';
+----------
+[PERFORMANCE] EXPLAIN SELECT 1 INTO @x FROM DUAL INTO @y;
+----------
+[DATA_EXPORT|SELECT] SELECT 1 INTO DUMPFILE '/tmp/codex_parser_plain1' FROM DUAL INTO DUMPFILE '/tmp/codex_parser_plain2';
+----------
+[DATA_EXPORT|SELECT] SELECT 1 INTO OUTFILE '/tmp/codex_parser_plain3' FROM DUAL INTO OUTFILE '/tmp/codex_parser_plain4';
+----------
+[SELECT|SESSION_VARIABLE_RW] SELECT 1 INTO @x FROM DUAL INTO @y;
+----------
+[SELECT|SESSION_VARIABLE_RW] (SELECT 1) LIMIT 1 INTO @var;
+----------
+[SELECT|SESSION_VARIABLE_RW] (SELECT 2 AS c) ORDER BY c INTO @var;
+----------
+[SELECT|SESSION_VARIABLE_RW] (SELECT 3 AS c) ORDER BY c LIMIT 1 INTO @var;
+----------
+[SELECT|SESSION_VARIABLE_RW] (SELECT 4) INTO @var;
+----------
+[SELECT] SELECT * FROM split_sample.t TABLESAMPLE SYSTEM (@sample_pct);
+----------
+[SELECT] SELECT 1/*!2*/;
+----------
+[SELECT] SELECT 1/*!000002*/;

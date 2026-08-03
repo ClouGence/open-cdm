@@ -8,7 +8,7 @@
               <span class="title-text-ellipsis">{{ changeInfo?.changeName || '-' }}</span>
             </Tooltip>
             <span class="change-status-pill" :class="changeStatusClass">{{ changeStatusLabel }}</span>
-            <span class="change-step-pill">{{ changeStepLabel }}</span>
+            <span class="change-step-pill" v-if="showChangeStepPill">{{ changeStepLabel }}</span>
             <Tooltip :content="changeInfo.remark" style="width: 450px" v-if="changeInfo.remark">
               <span class="collapse-text-ellipsis" :class="changeInfo.currentStatus === 'FAILED' ? 'red-text' : 'gray-text'" v-if="changeInfo.remark">
                 {{ '(' + changeInfo.remark + ')' }}
@@ -18,7 +18,13 @@
           <div class="release-grid change-detail-pipeline">
             <div class="release-panel">
               <div class="panel-subheading">
-                <CustomIcon :type="changeInfo?.scmType" size="24px" rightMargin="8px" />
+                <CustomIcon
+                  :resource="getScmIconResource(changeInfo?.scmType)"
+                  :type="changeInfo?.scmType"
+                  :alt="getScmDisplayName(changeInfo?.scmType)"
+                  size="24px"
+                  rightMargin="8px"
+                />
                 <span>{{ $t('cang-ku') }}</span>
               </div>
               <div class="endpoint-summary-lines">
@@ -86,7 +92,9 @@
             >
               {{ $t('zhong-xin-fa-qi-gong-dan') }}
             </Button>
-            <Button class="detail-action-btn" @click="closeChange" v-if="!isBtnOnlyRead">{{ $t('guan-bi-bian-geng') }}</Button>
+            <Button class="detail-action-btn" @click="closeChange" v-if="!isBtnOnlyRead">
+              {{ $t('guan-bi-bian-geng') }}
+            </Button>
             <Button class="detail-action-btn refresh-action-btn" @click="handleRefresh" :loading="loading">
               <CustomIcon type="icon-v2-Refresh" v-if="!loading" />
             </Button>
@@ -127,40 +135,31 @@
       </div>
       <div class="change-detail-body">
         <div class="content-wrap">
-          <Tabs v-model="currentTab" class="tab-wrap" @on-click="tabClick">
-            <TabPane
-              :label="renderDropdownTab"
-              name="sql-change"
-              :disabled="CHANGE_STATUS_MAP[changeInfo?.currentStep] < FLOW_STEP.S0 || changeInfo?.currentStep === 'INIT_SNAPSHOT'"
-            ></TabPane>
-            <TabPane
-              :label="$t('sql-shen-he')"
-              name="sql-audit"
-              :disabled="CHANGE_STATUS_MAP[changeInfo?.currentStep] < FLOW_STEP.S1 || changeInfo?.currentStep === 'INIT_SNAPSHOT'"
-            ></TabPane>
-
-            <TabPane
-              :label="$t('shen-pi-liu-cheng')"
-              name="approval"
-              :disabled="
-                CHANGE_STATUS_MAP[changeInfo?.currentStep] < FLOW_STEP.S2 || changeInfo?.currentStep === 'INIT_SNAPSHOT' || isDisabledApproval
-              "
-            ></TabPane>
-
-            <TabPane
-              :label="$t('bian-geng-zhi-xing')"
-              name="execute"
-              :disabled="CHANGE_STATUS_MAP[changeInfo?.currentStep] < FLOW_STEP.FINISH || changeInfo?.currentStep === 'INIT_SNAPSHOT' || isManualExec"
-            ></TabPane>
-          </Tabs>
+          <AppPageTabs v-model="currentTab" class="tab-wrap" :tabs="detailTabs" @change="tabClick">
+            <template #label="{ tab }">
+              <Dropdown v-if="tab.name === 'sql-change'" transfer @on-click="handleDropdownClick">
+                <span class="change-content-tab-label">
+                  {{ $t('sql-bian-geng-nei-rong') }}：{{ subTabLabel }}
+                  <CustomIcon type="icon-v2-ArrowDown" size="13px" leftMargin="3px" />
+                </span>
+                <template #list>
+                  <DropdownMenu>
+                    <DropdownItem name="result">{{ $t('bian-geng-jie-guo') }}</DropdownItem>
+                    <DropdownItem name="diff">{{ $t('bian-geng-diff') }}</DropdownItem>
+                  </DropdownMenu>
+                </template>
+              </Dropdown>
+              <span v-else>{{ tab.label }}</span>
+            </template>
+          </AppPageTabs>
           <div class="tab-item-wrap">
             <div v-if="currentTab === 'sql-change'" class="tab-item">
               <div v-if="isNotChangeReady" style="height: 100%">
-                <div v-if="subTabLabel === '结果'" style="height: 100%">
+                <div v-if="subTab === 'result'" style="height: 100%">
                   <read-only-editor :text="rowSql" key="raw" v-if="rowSql.length" :ds-type="changeInfo?.dsType" />
                   <CCEmptyContent v-else :content="changeInfo?.remark ? changeInfo?.remark : $t('wu-bian-geng-nei-rong')" />
                 </div>
-                <div v-if="subTabLabel === 'Diff'" style="height: 100%">
+                <div v-if="subTab === 'diff'" style="height: 100%">
                   <Collapse v-model="activeNames" accordion v-if="changeBody.length">
                     <Panel v-for="(item, index) in changeBody" :key="index" :name="index.toString()">
                       {{ item.contentName }}
@@ -227,10 +226,10 @@
                       <div class="exec-section-leading">
                         <div class="page-section__title exec-section-title">{{ $t('ren-wu-zhi-hang') }}</div>
                         <div class="exec-section-meta">
-                          <Poptip :content="autoExecJobInfo?.message" trigger="hover" v-if="!autoExecJobInfo?.normal">
+                          <Poptip :content="autoExecJobInfo.message" trigger="hover" v-if="autoExecJobInfo && !autoExecJobInfo.normal">
                             <Icon type="ios-alert-outline" />
                           </Poptip>
-                          <Tag :color="AUTO_EXEC_JOB_STATUS_COLOR[autoExecJobInfo?.status]">
+                          <Tag v-if="autoExecJobInfo?.status" :color="AUTO_EXEC_JOB_STATUS_COLOR[autoExecJobInfo.status]">
                             {{ AUTO_EXEC_JOB_STATUS_I18N[autoExecJobInfo?.status] }}
                           </Tag>
                           <div v-if="autoExecJobInfo?.execTime">
@@ -284,29 +283,33 @@
                         >
                           {{ $t('zhong-shi') }}
                         </Button>
-                        <Button type="text" size="small" @click="handleAutoExecLog(null)" :disabled="isBtnOnlyRead">
+                        <Button v-if="autoExecJobInfo?.id" type="text" size="small" @click="handleAutoExecLog(null)" :disabled="isBtnOnlyRead">
                           {{ $t('tiao-du-ri-zhi') }}
                         </Button>
                       </div>
                     </div>
-                    <Table :columns="autoExecTaskColumns" :data="autoExecTaskList" border stripe size="small">
+                    <Table
+                      v-if="executeLoading || autoExecJobInfo"
+                      :columns="autoExecTaskColumns"
+                      :data="autoExecTaskList"
+                      :loading="executeLoading"
+                      border
+                      stripe
+                      size="small"
+                    >
                       <template #status="{ row }">
                         <Tag :color="AUTO_EXEC_TASK_STATUS_COLOR[row?.status]">
                           {{ AUTO_EXEC_TASK_STATUS_I18N[row?.status] }}
                         </Tag>
                       </template>
-                      <template #sql="{ row }">
-                        <span style="display: inline-block; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">
-                          {{ row.execSql }}
-                        </span>
-                      </template>
+                      <template #actualStartTime="{ row }">{{ row.actualStartTime || '-' }}</template>
+                      <template #actualEndTime="{ row }">{{ row.actualEndTime || '-' }}</template>
                       <template #action="{ row }">
-                        <!--          <Button type="text" size="small" @click="handleAutoExecSQL(row)">{{ $t('cha-kan-sql') }}</Button>-->
                         <Button type="text" size="small" @click="handleAutoExecLog(row)">
                           {{ $t('ri-zhi') }}
                         </Button>
                         <Button type="text" size="small" @click="getSqlDetail(row?.execSql)">
-                          {{ $t('cha-kan') }}
+                          {{ $t('cha-kan-sql') }}
                         </Button>
                         <Button type="text" size="small" @click="handleShowSkipAutoExecTaskModal(row)" :disabled="isBtnOnlyRead" v-if="row.canSkip">
                           {{ $t('tiao-guo') }}
@@ -322,7 +325,8 @@
                         </Button>
                       </template>
                     </Table>
-                    <div style="width: 100%; text-align: right">
+                    <CCEmptyContent v-else :content="$t('zan-wu-shu-ju')" />
+                    <div v-if="total > pageSize" style="width: 100%; text-align: right">
                       <Page
                         v-model="page"
                         :page-size="pageSize"
@@ -429,14 +433,13 @@
     <CCModal v-model="showSkipAutoExecTaskModal" :title="$t('tiao-guo')" @ok="handleSkipAutoExecTask">
       {{ $t('tiao-guo-hou-zhong-shi-ren-wu-shi-jiang-hui-tiao-guo-gai-sql-zhi-hang') }}
     </CCModal>
-    <CCModal v-model="showContinueSkipAutoExecTaskModal" :title="$t('qu-xiao-tiao-guo')" @ok="handleContinueAutoExecTask">
+    <CCModal v-model="showContinueAutoExecTaskModal" :title="$t('qu-xiao-tiao-guo')" @ok="handleContinueAutoExecTask">
       {{ $t('qu-xiao-tiao-guo-hou-xia-ci-zhong-shi-ren-wu-shi-jiang-zhi-hang-gai-sql') }}
     </CCModal>
-    <CCModal v-model="showContinueSkipAutoExecTaskModal" :title="$t('qu-xiao-tiao-guo')" @ok="handleContinueAutoExecTask">
-      {{ $t('qu-xiao-tiao-guo-hou-xia-ci-zhong-shi-ren-wu-shi-jiang-zhi-hang-gai-sql') }}
-    </CCModal>
-    <CCModal width="800" v-model="showAllSql" :title="$t('cha-kan-wan-zheng-sql')">
-      <read-only-editor :text="allSql" key="raw" :max-height="300" :ds-type="changeInfo?.dsType" />
+    <CCModal v-model="showAllSql" :title="$t('cha-kan-sql')" :width="840" :draggable="false" footer-hide>
+      <div class="sql-viewer-panel">
+        <read-only-editor :text="allSql" key="raw" :border="0" :font-weight="400" :ds-type="changeInfo?.dsType" fit-viewport />
+      </div>
     </CCModal>
     <CCModal width="800" v-model="showFinishTicket" :title="$t('jie-shu-gong-dan')">
       <Alert type="warning">
@@ -465,8 +468,9 @@ import { encryptMixin } from '@/mixins/encryptMixin';
 import ReadOnlyEditor from '@/components/editor/ReadOnlyEditor';
 import { handleCopy } from '@/utils/clipboard';
 import CCEmptyContent from '@/components/widgets/CCEmptyContent';
+import AppPageTabs from '@/components/layout/AppPageTabs';
 import ChangeBodyDiff from './changeBodyDiff';
-import { h, resolveComponent } from 'vue';
+import { getScmDisplayName, getScmIconResource } from './utils';
 
 import {
   AUTO_EXEC_JOB_STATUS_COLOR,
@@ -488,6 +492,33 @@ export default {
   computed: {
     ...mapState(['userInfo', 'globalSetting', 'myCatLog', 'myAuth']),
     ...mapGetters(['isSaas']),
+    detailTabs() {
+      const currentStep = this.changeInfo?.currentStep;
+      const currentStepIndex = CHANGE_STATUS_MAP[currentStep] ?? -1;
+      const isSnapshot = currentStep === 'INIT_SNAPSHOT';
+      return [
+        {
+          name: 'sql-change',
+          label: this.$t('sql-bian-geng-nei-rong'),
+          disabled: currentStepIndex < FLOW_STEP.S0 || isSnapshot
+        },
+        {
+          name: 'sql-audit',
+          label: this.$t('sql-shen-he'),
+          disabled: currentStepIndex < FLOW_STEP.S1 || isSnapshot
+        },
+        {
+          name: 'approval',
+          label: this.$t('shen-pi-liu-cheng'),
+          disabled: currentStepIndex < FLOW_STEP.S2 || isSnapshot || this.isDisabledApproval
+        },
+        {
+          name: 'execute',
+          label: this.$t('bian-geng-zhi-xing'),
+          disabled: currentStepIndex < FLOW_STEP.FINISH || isSnapshot || this.isManualExec
+        }
+      ];
+    },
     approveStatusMap() {
       return {
         WAIT: {
@@ -569,6 +600,12 @@ export default {
       };
       return stepMap[this.changeInfo?.currentStep] || this.changeInfo?.currentStep || '-';
     },
+    showChangeStepPill() {
+      return this.changeStepLabel !== '-' && this.changeStepLabel !== this.changeStatusLabel;
+    },
+    subTabLabel() {
+      return this.subTab === 'diff' ? this.$t('bian-geng-diff') : this.$t('bian-geng-jie-guo');
+    },
     isBtnOnlyRead() {
       return this.changeInfo.locked;
     },
@@ -606,13 +643,14 @@ export default {
     }
   },
   components: {
+    AppPageTabs,
     ReadOnlyEditor,
     ChangeBodyDiff,
     CCEmptyContent
   },
   data() {
     return {
-      showContinueSkipAutoExecTaskModal: false,
+      showContinueAutoExecTaskModal: false,
       showSkipAutoExecTaskModal: false,
       showEndAutoExecJobModal: false,
       showRetryAutoExecJobModal: false,
@@ -624,6 +662,7 @@ export default {
       showAllSql: false,
       isManualExec: false,
       isScheduling: false,
+      executeLoading: false,
       activeNames: [],
       autoExecTaskList: [],
       autoExecJobLogList: [],
@@ -639,7 +678,7 @@ export default {
       checkedSql: [],
       changeBody: [],
       currentTab: '',
-      subTabLabel: this.$t('jie-guo'),
+      subTab: 'result',
       confirmInfo: {
         changeId: '',
         config: {
@@ -691,28 +730,34 @@ export default {
       ],
       autoExecTaskColumns: [
         {
-          title: '序号',
+          title: this.$t('xu-hao'),
           key: 'executeOrder',
           width: 80
         },
         {
-          title: '执行次数',
+          title: this.$t('zhi-xing-ci-shu'),
           key: 'execCount',
           width: 100
         },
         {
-          title: '状态',
+          title: this.$t('zhuang-tai'),
           slot: 'status',
           width: 100
         },
         {
-          title: 'SQL 语句',
-          slot: 'sql'
+          title: this.$t('shi-ji-kai-shi-shi-jian'),
+          slot: 'actualStartTime',
+          width: 180
         },
         {
-          title: '操作',
-          width: 200,
-          fixed: 'right',
+          title: this.$t('shi-ji-jie-shu-shi-jian'),
+          slot: 'actualEndTime',
+          width: 180
+        },
+        {
+          title: this.$t('cao-zuo'),
+          minWidth: 200,
+          align: 'right',
           slot: 'action'
         }
       ],
@@ -739,6 +784,8 @@ export default {
     await this.init();
   },
   methods: {
+    getScmDisplayName,
+    getScmIconResource,
     async init() {
       this.changeId = this.$route.params.id;
       await this.getDetail();
@@ -793,7 +840,7 @@ export default {
 
       this.loading = false;
       this.changeBody = res.data?.itemList || [];
-      this.rowSql = res.data?.changeBody;
+      this.rowSql = res.data?.changeBody || '';
     },
     async getApproval() {
       const res = await this.$services.dmCicdChangeApproval({
@@ -815,7 +862,7 @@ export default {
       });
 
       this.loading = false;
-      this.checkedSql = res.data;
+      this.checkedSql = res.data || [];
     },
 
     async getExecuteState() {
@@ -829,17 +876,24 @@ export default {
         }
       });
 
-      // Manual execution
-      if (res.success && res?.data) {
+      if (!res.success) {
         this.isScheduling = false;
-        if (res?.data?.execType === 'MANUAL_EXEC') {
-          this.isManualExec = true;
-          this.currentTab = 'sql-change';
-          this.$Message.info(this.$t('shou-dong-zhi-hang-mo-shi-xia-qing-zi-hang-fu-zhi-bian-geng-nei-rong-qian-qu-zhi-hang'));
-          return;
-        }
-        this.handleRefreshTaskList();
+        return;
       }
+
+      // Execution configuration and execution records are independent. A
+      // completed automatic change may have a job even when no EXECUTE item
+      // was persisted, so always load the job and tasks unless it is manual.
+      if (res?.data?.execType === 'MANUAL_EXEC') {
+        this.isManualExec = true;
+        this.currentTab = 'sql-change';
+        this.$Message.info(this.$t('shou-dong-zhi-hang-mo-shi-xia-qing-zi-hang-fu-zhi-bian-geng-nei-rong-qian-qu-zhi-hang'));
+        this.isScheduling = false;
+        return;
+      }
+
+      this.isManualExec = false;
+      await this.handleRefreshTaskList();
       this.isScheduling = false;
     },
     handleAdd() {
@@ -876,7 +930,7 @@ export default {
     },
 
     async tabClick(name) {
-      await await this.getDetail();
+      await this.getDetail();
       if (name === 'sql-change' && !this.isReadyStatus) {
         this.getRowSql();
       }
@@ -946,7 +1000,7 @@ export default {
       }
     },
     async queryAutoExecJobInfo() {
-      const res = await this.$services.dmTicketQueryAutoExecJobInfo({
+      const res = await this.$services.dmCicdChangeExecJobInfo({
         data: {
           changeId: this.changeId
         }
@@ -957,7 +1011,10 @@ export default {
       }
     },
     async handleAutoExecLog(task = null) {
-      const res = await this.$services.dmTicketAutoExecLog({
+      if (!this.autoExecJobInfo?.id) {
+        return;
+      }
+      const res = await this.$services.dmCicdChangeExecLog({
         data: {
           changeId: this.changeId,
           taskId: task ? task.taskId : null,
@@ -977,7 +1034,7 @@ export default {
       }
     },
     async queryAutoExecTaskList() {
-      const res = await this.$services.dmTicketQueryAutoExecTaskList({
+      const res = await this.$services.dmCicdChangeExecTaskList({
         data: {
           changeId: this.changeId,
           taskStatus: null,
@@ -989,14 +1046,15 @@ export default {
       });
 
       if (res.success) {
-        this.autoExecTaskList = res.data.records;
-        this.page = res.data.current;
-        this.pageSize = res.data.size;
-        this.total = res.data.total;
+        const pageData = res.data || {};
+        this.autoExecTaskList = pageData.records || [];
+        this.page = pageData.current || 1;
+        this.pageSize = pageData.size || this.pageSize;
+        this.total = pageData.total || 0;
       }
     },
     async handleStopAutoExecJob() {
-      const res = await this.$services.dmTicketStopAutoExecJob({
+      const res = await this.$services.dmCicdChangeExecJobPause({
         data: {
           changeId: this.changeId
         }
@@ -1010,7 +1068,11 @@ export default {
       }
     },
     async handleRetryAutoExecJob() {
-      const res = await this.$services.dmTicketRetryAutoExecJob({
+      let service = this.$services.dmCicdChangeExecJobRetry;
+      if (this.autoExecJobInfo?.canRestart) {
+        service = this.$services.dmCicdChangeExecJobStart;
+      }
+      const res = await service({
         data: {
           changeId: this.changeId
         }
@@ -1024,7 +1086,7 @@ export default {
       }
     },
     async handleEndAutoExecJob() {
-      const res = await this.$services.dmTicketEndAutoExecJob({
+      const res = await this.$services.dmCicdChangeExecJobAbort({
         data: {
           changeId: this.changeId
         }
@@ -1038,7 +1100,7 @@ export default {
       }
     },
     async handleSkipAutoExecTask() {
-      const res = await this.$services.dmTicketSkipAutoExecTask({
+      const res = await this.$services.dmCicdChangeExecTaskSkip({
         data: {
           taskId: this.selectedAutoExecTask.taskId,
           changeId: this.changeId
@@ -1058,10 +1120,10 @@ export default {
       this.moveToCurrentTab(curStep);
     },
     async handleContinueAutoExecTask() {
-      const res = await this.$services.dmTicketContinueAutoExecTask({
+      const res = await this.$services.dmCicdChangeExecTaskContinue({
         data: {
           taskId: this.selectedAutoExecTask.taskId,
-          ticketId: this.ticketId
+          changeId: this.changeId
         }
       });
 
@@ -1086,12 +1148,16 @@ export default {
       this.selectedAutoExecTask = task;
     },
     handleShowContinueAutoExecTaskModal(task) {
-      this.showContinueSkipAutoExecTaskModal = true;
+      this.showContinueAutoExecTaskModal = true;
       this.selectedAutoExecTask = task;
     },
-    handleRefreshTaskList() {
-      this.queryAutoExecJobInfo();
-      this.queryAutoExecTaskList();
+    async handleRefreshTaskList() {
+      this.executeLoading = true;
+      try {
+        await Promise.all([this.queryAutoExecJobInfo(), this.queryAutoExecTaskList()]);
+      } finally {
+        this.executeLoading = false;
+      }
     },
     handleTaskPageChange(page) {
       this.page = page;
@@ -1105,7 +1171,7 @@ export default {
       this.showRetryAutoExecJobModal = false;
       this.showEndAutoExecJobModal = false;
       this.showSkipAutoExecTaskModal = false;
-      this.showContinueSkipAutoExecTaskModal = false;
+      this.showContinueAutoExecTaskModal = false;
     },
     async skipCheck() {
       const res = await this.$services.dmCicdChangeSkipChecks({
@@ -1130,9 +1196,13 @@ export default {
       }
     },
     moveToCurrentTab(step = this.changeInfo.currentStep) {
-      // if (this.$route.query.tab) {
-      //   return;
-      // }
+      const requestedTab = this.$route.query.tab;
+      const requestedTabConfig = this.detailTabs.find((tab) => tab.name === requestedTab);
+      if (requestedTabConfig && !requestedTabConfig.disabled) {
+        this.currentTab = requestedTab;
+        return;
+      }
+
       switch (step) {
         case 'INIT':
           this.currentTab = 'sql-change';
@@ -1144,6 +1214,7 @@ export default {
           this.currentTab = 'approval';
           break;
         case 'EXECUTE':
+        case 'FINISH':
           this.currentTab = 'execute';
           break;
         default:
@@ -1151,50 +1222,7 @@ export default {
       }
     },
     handleDropdownClick(name) {
-      this.subTabLabel = name;
-    },
-    renderDropdownTab() {
-      return h(
-        resolveComponent('Dropdown'),
-        {
-          transfer: true,
-          'onOn-click': this.handleDropdownClick
-        },
-        {
-          default: () => [
-            h(
-              'span',
-              {
-                class: 'ivu-dropdown-link'
-              },
-              [
-                `${this.$t('sql-bian-geng-nei-rong')}：${this.subTabLabel}`,
-                h(resolveComponent('CustomIcon'), {
-                  type: 'icon-v2-ArrowDown',
-                  size: '13px',
-                  leftMargin: '3px'
-                })
-              ]
-            )
-          ],
-          list: () => [
-            h(
-              resolveComponent('DropdownItem'),
-              {
-                name: '结果'
-              },
-              () => this.$t('bian-geng-jie-guo')
-            ),
-            h(
-              resolveComponent('DropdownItem'),
-              {
-                name: 'Diff'
-              },
-              () => this.$t('bian-geng-diff')
-            )
-          ]
-        }
-      );
+      this.subTab = name;
     }
   }
 };
@@ -1575,25 +1603,9 @@ export default {
     width: 100%;
   }
 
-  :deep(.ivu-tabs-bar) {
-    margin-bottom: 0;
-    padding: 0;
-    border-bottom: 1px solid #e1ebf3;
-  }
-
-  :deep(.ivu-tabs-nav .ivu-tabs-tab) {
-    padding: 14px 16px;
-    color: #66758a;
-    font-size: 14px;
-    font-weight: 700;
-  }
-
-  :deep(.ivu-tabs-nav .ivu-tabs-tab-active) {
-    color: #0fac69;
-  }
-
-  :deep(.ivu-tabs-ink-bar) {
-    background-color: #14b86f;
+  .change-content-tab-label {
+    display: inline-flex;
+    align-items: center;
   }
 
   .tab-item-wrap {
@@ -1607,10 +1619,13 @@ export default {
     height: 100%;
     min-height: 0;
   }
+}
 
-  :deep(.ivu-tabs-content) {
-    height: auto;
-  }
+.sql-viewer-panel {
+  overflow: hidden;
+  border: 1px solid var(--border-primary);
+  border-radius: 6px;
+  background: var(--bg-secondary);
 }
 
 :deep(.ivu-table-wrapper) {

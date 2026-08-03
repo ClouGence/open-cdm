@@ -1,0 +1,987 @@
+[split_ddl_dml_dql_block_dameng_timezone_type_atomic_0_001_behavior_review]
+sql:
+set time zone '+08:00';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:13) /test/1/TIME_ZONE/",
+      "action": "CONFIGURE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_timezone_type_atomic_0_002_behavior_review]
+sql:
+select sessiontimezone,dbtimezone,tz_offset(sessiontimezone),tz_offset(dbtimezone) from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:22) /test/1/catalog1/schema1/sessiontimezone/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:23~1:33) /test/1/catalog1/schema1/dbtimezone/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:34~1:43) /test/1/catalog1/schema1/tz_offset/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:44~1:59) /test/1/catalog1/schema1/sessiontimezone/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:61~1:70) /test/1/catalog1/schema1/tz_offset/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:71~1:81) /test/1/catalog1/schema1/dbtimezone/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:88~1:92) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_timezone_type_atomic_0_003_behavior_review]
+sql:
+select current_time(0),current_time(6),curtime(6),current_timestamp(0),current_timestamp(9),localtime(6),localtimestamp(9) from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/current_time/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:23~1:35) /test/1/catalog1/schema1/current_time/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:39~1:46) /test/1/catalog1/schema1/curtime/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:50~1:67) /test/1/catalog1/schema1/current_timestamp/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:71~1:88) /test/1/catalog1/schema1/current_timestamp/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:92~1:101) /test/1/catalog1/schema1/localtime/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:105~1:119) /test/1/catalog1/schema1/localtimestamp/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:128~1:132) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_timezone_type_atomic_0_004_behavior_review]
+sql:
+create table app.tz_t(
+  id int primary key,t0 time(0) with time zone,t6 time(6) with time zone not null,
+  ts0 timestamp(0) with time zone,ts9 timestamp(9) with time zone,
+  l0 timestamp(0) with local time zone,l9 timestamp(9) with local time zone,
+  t_def time with time zone default current_time,
+  ts_def timestamp with time zone default current_timestamp,
+  l_def timestamp with local time zone default current_timestamp,
+  constraint ck_tz check(t6 is not null),constraint uk_tz unique(ts9));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:21) /test/1/catalog1/app/tz_t/",
+      "action": "CREATE"
+    },
+    {
+      "subject": "Function(5:36~5:48) /test/1/catalog1/schema1/current_time/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(6:42~6:59) /test/1/catalog1/schema1/current_timestamp/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(7:47~7:64) /test/1/catalog1/schema1/current_timestamp/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_timezone_type_atomic_0_005_behavior_review]
+sql:
+comment on column app.tz_t.t6 is 'time zone extrema';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "COMMENT_COLUMN": [
+    {
+      "subject": "Table(1:18~1:26) /test/1/catalog1/app/tz_t/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_timezone_type_atomic_0_006_behavior_review]
+sql:
+comment on column app.tz_t.ts9 is 'timestamp zone extrema';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "COMMENT_COLUMN": [
+    {
+      "subject": "Table(1:18~1:26) /test/1/catalog1/app/tz_t/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_timezone_type_atomic_0_007_behavior_review]
+sql:
+comment on column app.tz_t.l9 is 'session normalized timestamp';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "COMMENT_COLUMN": [
+    {
+      "subject": "Table(1:18~1:26) /test/1/catalog1/app/tz_t/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_timezone_type_atomic_0_008_behavior_review]
+sql:
+create index app.idx_tz on app.tz_t(t6,ts9);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:23) /test/1/catalog1/app/idx_tz/",
+      "action": "CREATE",
+      "target": "Table(1:27~1:35) /test/1/catalog1/app/tz_t/"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_timezone_type_atomic_0_009_behavior_review]
+sql:
+alter table app.tz_t add ts_alt timestamp(9) with time zone default current_timestamp(9);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_COLUMN": [
+    {
+      "subject": "Table(1:12~1:20) /test/1/catalog1/app/tz_t/",
+      "action": "ALTER"
+    },
+    {
+      "subject": "Function(1:68~1:85) /test/1/catalog1/schema1/current_timestamp/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_timezone_type_atomic_0_010_behavior_review]
+sql:
+insert into app.tz_t(id,t0,t6,ts0,ts9,l0,l9) values(1,
+  time '00:00:00.000000 -12:59',time '00:00:00.000000 -12:59',timestamp '-4712-01-01 00:00:00.000000000 -12:59',
+  timestamp '-4712-01-01 00:00:00.000000000 -12:59',timestamp '-4712-01-01 00:00:00.000000000 -12:59',timestamp '-4712-01-01 00:00:00.000000000 -12:59');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:20) /test/1/catalog1/app/tz_t/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_timezone_type_atomic_0_011_behavior_review]
+sql:
+insert into app.tz_t(id,t0,t6,ts0,ts9,l0,l9) values(2,
+  time '23:59:59.999999 +14:00',time '23:59:59.999999 +14:00',timestamp '9999-12-31 23:59:59.999999999 +14:00',
+  timestamp '9999-12-31 23:59:59.999999999 +14:00',timestamp '9999-12-31 23:59:59.999999999 +14:00',timestamp '9999-12-31 23:59:59.999999999 +14:00');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:20) /test/1/catalog1/app/tz_t/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_timezone_type_atomic_0_012_behavior_review]
+sql:
+insert into app.tz_t(id,t0,t6,ts0,ts9,l0,l9) values(3,
+  time '10:00:00.123456 +08:00',time '10:00:00.123456 +08:00',timestamp '2026-07-23 10:00:00.123456789 +08:00',
+  timestamp '2026-07-23 10:00:00.123456789 +08:00',timestamp '2026-07-23 10:00:00.123456789 +08:00',timestamp '2026-07-23 10:00:00.123456789 +08:00');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:20) /test/1/catalog1/app/tz_t/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_timezone_type_atomic_0_013_behavior_review]
+sql:
+insert into app.tz_t(id,t0,t6,ts0,ts9,l0,l9) values(4,
+  time '02:00:00.123456 +00:00',time '02:00:00.123456 +00:00',timestamp '2026-07-23 02:00:00.123457789 +00:00',
+  timestamp '2026-07-23 02:00:00.123457789 +00:00',timestamp '2026-07-23 02:00:00.123457789 +00:00',timestamp '2026-07-23 02:00:00.123457789 +00:00');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:20) /test/1/catalog1/app/tz_t/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_timezone_type_atomic_0_014_behavior_review]
+sql:
+insert into app.tz_t(id,t6) values(5,time '12:34:56 +08:00');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:20) /test/1/catalog1/app/tz_t/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_timezone_type_atomic_0_015_behavior_review]
+sql:
+update app.tz_t set t6=time '11:11:11.111111 +08:00' where id=3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:15) /test/1/catalog1/app/tz_t/",
+      "action": "UPDATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_timezone_type_atomic_0_016_behavior_review]
+sql:
+select * from app.tz_t order by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:22) /test/1/catalog1/app/tz_t/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_timezone_type_atomic_0_017_behavior_review]
+sql:
+select data_type,data_length,data_precision,data_scale from user_tab_columns where table_name='TZ_T' order by column_id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:60~1:76) /test/1/catalog1/schema1/user_tab_columns/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_timezone_type_atomic_0_018_behavior_review]
+sql:
+select case when time '10:00:00 +08:00'=time '02:00:00 +00:00' then 1 else 0 end,
+  case when timestamp '2026-07-23 10:00:00 +08:00'=timestamp '2026-07-23 02:00:00 +00:00' then 1 else 0 end from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(2:113~2:117) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_timezone_type_atomic_0_019_behavior_review]
+sql:
+select extract(hour from ts9),to_char(ts9,'YYYY-MM-DD HH24:MI:SS.FF9 TZH:TZM') from app.tz_t order by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/extract/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:30~1:37) /test/1/catalog1/schema1/to_char/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:84~1:92) /test/1/catalog1/app/tz_t/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_timezone_type_atomic_0_020_behavior_review]
+sql:
+select min(t6),max(t6),min(ts9),max(ts9),min(l9),max(l9) from app.tz_t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/min/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:15~1:18) /test/1/catalog1/schema1/max/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:23~1:26) /test/1/catalog1/schema1/min/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:32~1:35) /test/1/catalog1/schema1/max/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:41~1:44) /test/1/catalog1/schema1/min/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:49~1:52) /test/1/catalog1/schema1/max/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:62~1:70) /test/1/catalog1/app/tz_t/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_timezone_type_atomic_0_021_behavior_review]
+sql:
+select id from app.tz_t index idx_tz where t6>=time '00:00:00 +00:00' order by ts9;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:15~1:23) /test/1/catalog1/app/tz_t/",
+      "action": "READ"
+    },
+    {
+      "subject": "Index(1:30~1:36) /test/1/catalog1/app/idx_tz/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_timezone_type_atomic_0_022_behavior_review]
+sql:
+create view app.tz_v as select id,t6,ts9,l9 from app.tz_t where id>=3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:20) /test/1/catalog1/app/tz_v/",
+      "action": "CREATE",
+      "target": "Table(1:49~1:57) /test/1/catalog1/app/tz_t/"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_timezone_type_atomic_0_023_behavior_review]
+sql:
+select * from app.tz_v order by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:22) /test/1/catalog1/app/tz_v/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_timezone_type_atomic_0_024_behavior_review]
+sql:
+update app.tz_v set t6=time '10:10:10 +08:00' where id=3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:15) /test/1/catalog1/app/tz_v/",
+      "action": "UPDATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_timezone_type_atomic_0_025_behavior_review]
+sql:
+create function app.tz_time_f(p time(6) with time zone) return time(6) with time zone as
+begin return p;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:29) /test/1/catalog1/app/tz_time_f/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_timezone_type_atomic_0_026_behavior_review]
+sql:
+create function app.tz_ts_f(p timestamp(9) with time zone) return timestamp(9) with time zone as
+begin return p;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:27) /test/1/catalog1/app/tz_ts_f/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_timezone_type_atomic_0_027_behavior_review]
+sql:
+create function app.tz_local_f(p timestamp(9) with local time zone) return timestamp(9) with local time zone as
+begin return p;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:30) /test/1/catalog1/app/tz_local_f/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_timezone_type_atomic_0_028_behavior_review]
+sql:
+select app.tz_time_f(time '23:59:59.999999 +14:00'),
+  app.tz_ts_f(timestamp '9999-12-31 23:59:59.999999999 +14:00'),
+  app.tz_local_f(timestamp '2026-07-23 10:00:00.123456789 +08:00') from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:20) /test/1/catalog1/app/tz_time_f/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2~2:13) /test/1/catalog1/app/tz_ts_f/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(3:2~3:16) /test/1/catalog1/app/tz_local_f/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(3:72~3:76) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_timezone_type_atomic_0_029_behavior_review]
+sql:
+set time zone '-05:00';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:13) /test/1/TIME_ZONE/",
+      "action": "CONFIGURE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_timezone_type_atomic_0_030_behavior_review]
+sql:
+select sessiontimezone,id,ts9,l9 from app.tz_t where id in(3,4) order by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:22) /test/1/catalog1/schema1/sessiontimezone/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:38~1:46) /test/1/catalog1/app/tz_t/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_timezone_type_atomic_0_031_behavior_review]
+sql:
+set time zone local;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:13) /test/1/TIME_ZONE/",
+      "action": "CONFIGURE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_timezone_type_atomic_0_032_behavior_review]
+sql:
+create table app.tz_p_time(id time(6) with time zone,v int)
+  partition by range(id)(partition p0 values less than(time '12:00:00 +00:00'),
+  partition p1 values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:26) /test/1/catalog1/app/tz_p_time/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_timezone_type_atomic_0_033_behavior_review]
+sql:
+insert into app.tz_p_time values(time '12:00:00 +00:00',1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:25) /test/1/catalog1/app/tz_p_time/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_timezone_type_atomic_0_034_behavior_review]
+sql:
+create table app.tz_p_ts(id timestamp(9) with time zone,v int)
+  partition by range(id)(partition p0 values less than(timestamp '2026-01-01 00:00:00 +00:00'),
+  partition p1 values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:24) /test/1/catalog1/app/tz_p_ts/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_timezone_type_atomic_0_035_behavior_review]
+sql:
+insert into app.tz_p_ts values(timestamp '2026-01-01 00:00:00 +00:00',1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:23) /test/1/catalog1/app/tz_p_ts/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_timezone_type_atomic_0_036_behavior_review]
+sql:
+create table app.bad_tz(c time(7) with time zone);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:23) /test/1/catalog1/app/bad_tz/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_timezone_type_atomic_0_037_behavior_review]
+sql:
+create table app.bad_tz(c timestamp(10) with time zone);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:23) /test/1/catalog1/app/bad_tz/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_timezone_type_atomic_0_038_behavior_review]
+sql:
+create table app.bad_tz(c timestamp(10) with local time zone);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:23) /test/1/catalog1/app/bad_tz/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_timezone_type_atomic_0_039_behavior_review]
+sql:
+create table app.bad_tz(c timestamp with local time zone,v int) partition by range(c)(partition p values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:23) /test/1/catalog1/app/bad_tz/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_timezone_type_atomic_0_040_behavior_review]
+sql:
+select time '00:00:00 -13:00' from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:35~1:39) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_timezone_type_atomic_0_041_behavior_review]
+sql:
+select time '00:00:00 +14:01' from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:35~1:39) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_timezone_type_atomic_0_042_behavior_review]
+sql:
+select timestamp '2026-01-01 00:00:00 -13:00' from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:51~1:55) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_timezone_type_atomic_0_043_behavior_review]
+sql:
+select timestamp '2026-01-01 00:00:00 +14:01' from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:51~1:55) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_timezone_type_atomic_0_044_behavior_review]
+sql:
+select time '24:00:00 +08:00' from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:35~1:39) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_timezone_type_atomic_0_045_behavior_review]
+sql:
+select timestamp '2026-01-01 00:00:00.1234567890 +08:00' from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:62~1:66) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_timezone_type_atomic_0_046_behavior_review]
+sql:
+set time zone '+14:01';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:13) /test/1/TIME_ZONE/",
+      "action": "CONFIGURE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_timezone_type_atomic_0_047_behavior_review]
+sql:
+set time zone '-13:00';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:13) /test/1/TIME_ZONE/",
+      "action": "CONFIGURE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_timezone_type_atomic_0_048_behavior_review]
+sql:
+insert into app.tz_t(id,t6) values(101,null);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:20) /test/1/catalog1/app/tz_t/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_timezone_type_atomic_0_049_behavior_review]
+sql:
+insert into app.tz_t(id,t6,ts9) values(102,time '00:00:00 +00:00',
+    timestamp '2026-07-23 02:00:00.123456789 +00:00');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:20) /test/1/catalog1/app/tz_t/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_timezone_type_atomic_0_050_behavior_review]
+sql:
+drop view app.tz_v;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "View(1:10~1:18) /test/1/catalog1/app/tz_v/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_timezone_type_atomic_0_051_behavior_review]
+sql:
+drop function app.tz_time_f;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Function(1:14~1:27) /test/1/catalog1/app/tz_time_f/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_timezone_type_atomic_0_052_behavior_review]
+sql:
+drop function app.tz_ts_f;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Function(1:14~1:25) /test/1/catalog1/app/tz_ts_f/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_timezone_type_atomic_0_053_behavior_review]
+sql:
+drop function app.tz_local_f;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Function(1:14~1:28) /test/1/catalog1/app/tz_local_f/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_timezone_type_atomic_0_054_behavior_review]
+sql:
+drop table app.tz_p_time;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:24) /test/1/catalog1/app/tz_p_time/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_timezone_type_atomic_0_055_behavior_review]
+sql:
+drop table app.tz_p_ts;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:22) /test/1/catalog1/app/tz_p_ts/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_timezone_type_atomic_0_056_behavior_review]
+sql:
+drop table app.tz_t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:19) /test/1/catalog1/app/tz_t/",
+      "action": "DROP"
+    }
+  ]
+}

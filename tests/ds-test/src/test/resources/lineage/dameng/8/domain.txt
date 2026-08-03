@@ -1,0 +1,30 @@
+[domain_definition_has_no_result_lineage]
+sql:
+create domain app.positive_amount decimal(12,2) default 0 check(value >= 0)
+expect:
+{}
+----------
+[domain_table_columns]
+sql:
+select id, amount, status from catalog1.app.domain_orders
+expect:
+{
+  "id": ["/catalog1/app/domain_orders/id/"],
+  "amount": ["/catalog1/app/domain_orders/amount/"],
+  "status": ["/catalog1/app/domain_orders/status/"]
+}
+----------
+[domain_expression_columns]
+sql:
+select amount * 1.10 as taxed_amount
+from catalog1.app.domain_orders
+expect:
+{
+  "taxed_amount": ["/catalog1/app/domain_orders/amount/"]
+}
+----------
+[domain_system_privilege_has_no_column_lineage]
+sql:
+grant create domain, create any domain, drop any domain, usage any domain, grant any domain to domain_actor
+expect:
+{}

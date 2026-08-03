@@ -1,0 +1,119 @@
+[resize_logfile]
+sql:
+alter database resize logfile '/opt/dmdbms/data/DAMENG/CODEX03.log' to 300;
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"ADMIN", "name":"DATABASE"}
+  ]
+}
+----------
+[add_logfile]
+sql:
+alter database add logfile '/opt/dmdbms/data/DAMENG/CODEX03.log' size 256;
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"ADMIN", "name":"DATABASE"}
+  ]
+}
+----------
+[drop_logfile]
+sql:
+alter database drop logfile '/opt/dmdbms/data/DAMENG/CODEX03.log';
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"ADMIN", "name":"DATABASE"}
+  ]
+}
+----------
+[rename_logfile]
+sql:
+alter database rename logfile '/opt/dmdbms/data/DAMENG/CODEX03.log' to '/opt/dmdbms/data/DAMENG/CODEX03_NEW.log';
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"ADMIN", "name":"DATABASE"}
+  ]
+}
+----------
+[mount_database]
+sql:
+alter database mount;
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"ADMIN", "name":"DATABASE"}
+  ]
+}
+----------
+[normal_database]
+sql:
+alter database normal;
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"ADMIN", "name":"DATABASE"}
+  ]
+}
+----------
+[archivelog_database]
+sql:
+alter database archivelog;
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"ADMIN", "name":"DATABASE"}
+  ]
+}
+----------
+[archive_current]
+sql:
+alter database archivelog current;
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"ADMIN", "name":"DATABASE"}
+  ]
+}
+----------
+[add_local_archive]
+sql:
+alter database add archivelog 'TYPE = LOCAL, DEST = /opt/dmdbms/data/CODEX_ARCH';
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"ADMIN", "name":"DATABASE"}
+  ]
+}
+----------
+[modify_local_archive]
+sql:
+alter database modify archivelog 'TYPE = LOCAL, DEST = /opt/dmdbms/data/CODEX_ARCH, FILE_SIZE = 256, SPACE_LIMIT = 2048';
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"ADMIN", "name":"DATABASE"}
+  ]
+}
+----------
+[add_realtime_archive]
+sql:
+alter database add archivelog 'TYPE = REALTIME, DEST = CODEX_RT';
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"ADMIN", "name":"DATABASE"}
+  ]
+}
+----------
+[add_sync_archive]
+sql:
+alter database add archivelog 'TYPE = SYNC, DEST = CODEX_SYNC';
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"ADMIN", "name":"DATABASE"}
+  ]
+}

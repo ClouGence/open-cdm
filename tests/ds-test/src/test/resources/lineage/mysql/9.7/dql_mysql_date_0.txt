@@ -1,0 +1,144 @@
+[dql_mysql_date_0.0001]
+sql:
+SELECT a,CAST(a AS DATE) FROM t1;
+expect:
+{
+  "a" : [ "(1:7~1:8) /catalog1/schema1/t1/a/" ],
+  "CAST(a AS DATE)" : [ "(1:14~1:15) /catalog1/schema1/t1/a/" ]
+}
+----------
+[dql_mysql_date_0.0002]
+sql:
+SELECT CAST(CASE WHEN 0 THEN DATE'2001-01-01' END AS DATE);
+expect:
+{
+  "CAST(CASE WHEN 0 THEN DATE'2001-01-01' END AS DATE)" : [ ]
+}
+----------
+[dql_mysql_date_0.0003]
+sql:
+SELECT COALESCE(DATE(NULL));
+expect:
+{
+  "COALESCE(DATE(NULL))" : [ ]
+}
+----------
+[dql_mysql_date_0.0004]
+sql:
+SELECT CAST(LEAST(DATE(NULL),DATE(NULL)) AS CHAR);
+expect:
+{
+  "CAST(LEAST(DATE(NULL),DATE(NULL)) AS CHAR)" : [ ]
+}
+----------
+[dql_mysql_date_0.0005]
+sql:
+SELECT CAST(LEAST(20010101,20020202) AS DATE);
+expect:
+{
+  "CAST(LEAST(20010101,20020202) AS DATE)" : [ ]
+}
+----------
+[dql_mysql_date_0.0006]
+sql:
+SELECT 1 FROM t1 WHERE CAST('2000-01-01 12:01:01' AS DATETIME) BETWEEN start_date AND end_date;
+expect:
+{
+  "1" : [ ]
+}
+----------
+[dql_mysql_date_0.0007]
+sql:
+SELECT DATE'0000-01-02'-INTERVAL 1 DAY;
+expect:
+{
+  "DATE'0000-01-02'-INTERVAL 1 DAY" : [ ]
+}
+----------
+[dql_mysql_date_0.0008]
+sql:
+SELECT DATE'9999-12-31'+INTERVAL 1 DAY;
+expect:
+{
+  "DATE'9999-12-31'+INTERVAL 1 DAY" : [ ]
+}
+----------
+[dql_mysql_date_0.0009]
+sql:
+SELECT DATE '2014-02-31';
+expect:
+{
+  "DATE '2014-02-31'" : [ ]
+}
+----------
+[dql_mysql_date_0.0010]
+sql:
+SELECT DATE_FORMAT(DATE '2014-02-31','%Y%b%e');
+expect:
+{
+  "DATE_FORMAT(DATE '2014-02-31','%Y%b%e')" : [ ]
+}
+----------
+[dql_mysql_date_0.0011]
+sql:
+SELECT STR_TO_DATE(EXP(11463),'%S  %S   ');
+expect:
+{
+  "STR_TO_DATE(EXP(11463),'%S  %S   ')" : [ ]
+}
+----------
+[dql_mysql_date_0.0012]
+sql:
+SELECT STR_TO_DATE(COT(IS_IPV6(UUID_TO_BIN(UUID()))),COMPRESS('_&?_[$'));
+expect:
+{
+  "STR_TO_DATE(COT(IS_IPV6(UUID_TO_BIN(UUID()))),COMPRESS('_&?_[$'))" : [ ]
+}
+----------
+[dql_mysql_date_0.0013]
+sql:
+SELECT CAST(FROM_DAYS(-11797) AS UNSIGNED)^SLEEP(0);
+expect:
+{
+  "CAST(FROM_DAYS(-11797) AS UNSIGNED)^SLEEP(0)" : [ ]
+}
+----------
+[dql_mysql_date_0.0014]
+sql:
+SELECT CAST(CAST(FROM_DAYS(CURRENT_DATE()) AS UNSIGNED) AS SIGNED INTEGER);
+expect:
+{
+  "CAST(CAST(FROM_DAYS(CURRENT_DATE()) AS UNSIGNED) AS SIGNED INTEGER)" : [ ]
+}
+----------
+[dql_mysql_date_0.0015]
+sql:
+SELECT INET6_NTOA((SELECT CONVERT(FROM_DAYS(-15050),SIGNED)));
+expect:
+{
+  "INET6_NTOA((SELECT CONVERT(FROM_DAYS(-15050),SIGNED)))" : [ ]
+}
+----------
+[dql_mysql_date_0.0016]
+sql:
+SELECT TO_DAYS(FROM_DAYS(6)+INTERVAL 1933116476 SECOND_MICROSECOND);
+expect:
+{
+  "TO_DAYS(FROM_DAYS(6)+INTERVAL 1933116476 SECOND_MICROSECOND)" : [ ]
+}
+----------
+[dql_mysql_date_0.0017]
+sql:
+SELECT * FROM t WHERE a=DATE'2023-01-01';
+expect:
+{
+  "id" : [ "(1:7~1:8) /catalog1/schema1/t/id/" ]
+}
+----------
+[dql_mysql_date_0.0018]
+sql:
+SELECT * FROM t WHERE a=b AND b=DATE'2023-01-01';
+expect:
+{
+  "id" : [ "(1:7~1:8) /catalog1/schema1/t/id/" ]
+}

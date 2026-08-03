@@ -1,0 +1,118 @@
+[split_dql_dameng_dbms_metadata_signature_combinations_0_001]
+sql:
+-- FUNC-0626 GET_DDL minimum required arguments
+select DBMS_METADATA.GET_DDL('TABLE', 'CODEX_DBMS_META_BASE');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:28) /test/1/catalog1/DBMS_METADATA/GET_DDL/",
+      "action": "CALL",
+      "target": "Table(2:38~2:60) /test/1/catalog1/schema1/CODEX_DBMS_META_BASE/"
+    }
+  ]
+}
+----------
+[split_dql_dameng_dbms_metadata_signature_combinations_0_002]
+sql:
+-- FUNC-0626 GET_DDL full named reordered
+select DBMS_METADATA.GET_DDL(SCHNAME=>'SYSDBA', NAME=>'CODEX_DBMS_META_VIEW', OBJECT_TYPE=>'VIEW');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:28) /test/1/catalog1/DBMS_METADATA/GET_DDL/",
+      "action": "CALL",
+      "target": "View(2:54~2:76) /test/1/catalog1/SYSDBA/CODEX_DBMS_META_VIEW/"
+    }
+  ]
+}
+----------
+[split_dql_dameng_dbms_metadata_signature_combinations_0_003]
+sql:
+-- FUNC-0627 GET_DEPENDENT_DDL minimum required arguments
+select DBMS_METADATA.GET_DEPENDENT_DDL('INDEX', 'CODEX_DBMS_META_CHILD');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:38) /test/1/catalog1/DBMS_METADATA/GET_DEPENDENT_DDL/",
+      "action": "CALL",
+      "target": "Table(2:48~2:71) /test/1/catalog1/schema1/CODEX_DBMS_META_CHILD/"
+    }
+  ]
+}
+----------
+[split_dql_dameng_dbms_metadata_signature_combinations_0_004]
+sql:
+-- FUNC-0627 GET_DEPENDENT_DDL through schema optional
+select DBMS_METADATA.GET_DEPENDENT_DDL('INDEX', 'CODEX_DBMS_META_CHILD', 'SYSDBA');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:38) /test/1/catalog1/DBMS_METADATA/GET_DEPENDENT_DDL/",
+      "action": "CALL",
+      "target": "Table(2:48~2:71) /test/1/catalog1/SYSDBA/CODEX_DBMS_META_CHILD/"
+    }
+  ]
+}
+----------
+[split_dql_dameng_dbms_metadata_signature_combinations_0_005]
+sql:
+-- FUNC-0627 GET_DEPENDENT_DDL full named reordered
+select DBMS_METADATA.GET_DEPENDENT_DDL(OBJECT_COUNT=>10, BASE_OBJECT_SCHEMA=>'SYSDBA', BASE_OBJECT_NAME=>'CODEX_DBMS_META_CHILD', OBJECT_TYPE=>'INDEX');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:38) /test/1/catalog1/DBMS_METADATA/GET_DEPENDENT_DDL/",
+      "action": "CALL",
+      "target": "Table(2:105~2:128) /test/1/catalog1/SYSDBA/CODEX_DBMS_META_CHILD/"
+    }
+  ]
+}
+----------
+[split_dql_dameng_dbms_metadata_signature_combinations_0_006]
+sql:
+-- FUNC-0628 GET_GRANTED_DDL through grantee optional
+select DBMS_METADATA.GET_GRANTED_DDL('OBJECT_GRANT', 'PUBLIC');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:36) /test/1/catalog1/DBMS_METADATA/GET_GRANTED_DDL/",
+      "action": "CALL",
+      "target": "UserOrRole(2:53~2:61) /test/1/PUBLIC/"
+    }
+  ]
+}
+----------
+[split_dql_dameng_dbms_metadata_signature_combinations_0_007]
+sql:
+-- FUNC-0628 GET_GRANTED_DDL full named reordered
+select DBMS_METADATA.GET_GRANTED_DDL(OBJECT_COUNT=>10, GRANTEE=>'PUBLIC', OBJECT_TYPE=>'OBJECT_GRANT');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:36) /test/1/catalog1/DBMS_METADATA/GET_GRANTED_DDL/",
+      "action": "CALL",
+      "target": "UserOrRole(2:64~2:72) /test/1/PUBLIC/"
+    }
+  ]
+}

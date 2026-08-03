@@ -1,0 +1,1403 @@
+[select__001]
+sql:
+SELECT ST_INTERSECTION(MBRDISJOINT(1, POINT(8156, -19591)), (SELECT INTERVAL((-28347), (SELECT 1))));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:22) /test/1/catalog1/schema1/ST_INTERSECTION/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:23~1:34) /test/1/catalog1/schema1/MBRDISJOINT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:38~1:43) /test/1/catalog1/schema1/POINT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:68~1:76) /test/1/catalog1/schema1/INTERVAL/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__002]
+sql:
+SELECT product,country_id,year,SUM(profit) FROM split_olap_native_a.sales GROUP BY product,country_id,year WITH CUBE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:31~1:34) /test/1/catalog1/schema1/SUM/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:48~1:73) /test/1/catalog1/split_olap_native_a/sales/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__003]
+sql:
+SELECT product,country_id,year,SUM(profit) FROM split_olap_native_a.sales GROUP BY product,country_id,year WITH CUBE UNION ALL SELECT product,country_id,year,SUM(profit) FROM split_olap_native_a.sales GROUP BY product,country_id,year WITH ROLLUP;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:31~1:34) /test/1/catalog1/schema1/SUM/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:48~1:73) /test/1/catalog1/split_olap_native_a/sales/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_call_prog_obj__004]
+sql:
+SELECT a,b,GROUPING(c+c) FROM split_olap_grouping.t GROUP BY a,b,(c+c) WITH ROLLUP;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:11~1:19) /test/1/catalog1/schema1/GROUPING/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:30~1:51) /test/1/catalog1/split_olap_grouping/t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_call_prog_obj__005]
+sql:
+SELECT 1 FROM DUAL WHERE 2>ALL(SELECT GROUPING(a) FROM split_olap_grouping.t GROUP BY a WITH ROLLUP);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:18) /test/1/catalog1/schema1/DUAL/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(1:38~1:46) /test/1/catalog1/schema1/GROUPING/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:55~1:76) /test/1/catalog1/split_olap_grouping/t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_call_prog_obj__006]
+sql:
+SELECT IF(GROUPING(a)=1,'ALL',a),IF(GROUPING(b)=1,'ALL',b),SUM(c) FROM split_olap_grouping.t GROUP BY a,b WITH ROLLUP;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:9) /test/1/catalog1/schema1/IF/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:10~1:18) /test/1/catalog1/schema1/GROUPING/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:59~1:62) /test/1/catalog1/schema1/SUM/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:71~1:92) /test/1/catalog1/split_olap_grouping/t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_call_prog_obj__007]
+sql:
+SELECT DISTINCT GROUPING(a),GROUPING(b) FROM split_olap_grouping.t GROUP BY a,b WITH ROLLUP ORDER BY GROUPING(a),GROUPING(b);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:16~1:24) /test/1/catalog1/schema1/GROUPING/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:45~1:66) /test/1/catalog1/split_olap_grouping/t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_call_prog_obj__008]
+sql:
+SELECT a,b FROM split_olap_grouping.t GROUP BY GROUPING(a),GROUPING(b) WITH ROLLUP;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:16~1:37) /test/1/catalog1/split_olap_grouping/t/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(1:47~1:55) /test/1/catalog1/schema1/GROUPING/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select_call_prog_obj__009]
+sql:
+SELECT a,GROUPING(1) FROM split_olap_grouping.t GROUP BY 1 WITH ROLLUP;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:9~1:17) /test/1/catalog1/schema1/GROUPING/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:26~1:47) /test/1/catalog1/split_olap_grouping/t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_call_prog_obj__010]
+sql:
+SELECT a,GROUPING(SUM(a)) FROM split_olap_grouping.t GROUP BY a WITH ROLLUP;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:9~1:17) /test/1/catalog1/schema1/GROUPING/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:18~1:21) /test/1/catalog1/schema1/SUM/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:31~1:52) /test/1/catalog1/split_olap_grouping/t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_call_prog_obj__011]
+sql:
+SELECT GROUPING((SELECT MAX(b) FROM split_olap_grouping.t)) FROM split_olap_grouping.t GROUP BY (SELECT MAX(b) FROM split_olap_grouping.t) WITH ROLLUP;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/GROUPING/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:24~1:27) /test/1/catalog1/schema1/MAX/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:36~1:57) /test/1/catalog1/split_olap_grouping/t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_call_prog_obj__012]
+sql:
+SELECT GROUPING(f1) FROM split_olap_modern.p GROUP BY f1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/GROUPING/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:25~1:44) /test/1/catalog1/split_olap_modern/p/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_call_prog_obj__013]
+sql:
+SELECT f1,f1+GROUPING(f1) FROM split_olap_modern.p GROUP BY f1 HAVING GROUPING(f1)=0 ORDER BY GROUPING(f1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:13~1:21) /test/1/catalog1/schema1/GROUPING/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:31~1:50) /test/1/catalog1/split_olap_modern/p/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_call_prog_obj__014]
+sql:
+SELECT 1 FROM split_olap_modern.p GROUP BY (f1+f1) ORDER BY GROUPING(f1+f1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:33) /test/1/catalog1/split_olap_modern/p/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(1:60~1:68) /test/1/catalog1/schema1/GROUPING/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select_call_prog_obj__015]
+sql:
+SELECT NOW(),(SELECT 1),GROUPING((SELECT 1)) FROM split_olap_modern.p GROUP BY (SELECT 1) WITH ROLLUP;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/NOW/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:24~1:32) /test/1/catalog1/schema1/GROUPING/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:50~1:69) /test/1/catalog1/split_olap_modern/p/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_call_prog_obj__016]
+sql:
+SELECT RELEASE_ALL_LOCKS(),f1,GROUPING(f1) FROM split_olap_modern.p GROUP BY f1 WITH ROLLUP;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:24) /test/1/catalog1/schema1/RELEASE_ALL_LOCKS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:30~1:38) /test/1/catalog1/schema1/GROUPING/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:48~1:67) /test/1/catalog1/split_olap_modern/p/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_call_prog_obj__017]
+sql:
+SELECT GROUPING(r.pk) FROM split_olap_myisam.left_t AS l LEFT JOIN split_olap_myisam.right_t AS r ON 0 GROUP BY r.pk WITH ROLLUP ORDER BY GROUPING(r.pk);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/GROUPING/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:27~1:51) /test/1/catalog1/split_olap_myisam/left_t/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:67~1:92) /test/1/catalog1/split_olap_myisam/right_t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__018]
+sql:
+SELECT CONCAT(v.col_varchar_key,1) AS field1 FROM split_olap_myisam.varchar_t AS v RIGHT JOIN split_olap_myisam.one_t AS o ON v.pk=1 GROUP BY field1 WITH ROLLUP HAVING field1>='n' ORDER BY field1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/CONCAT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:50~1:77) /test/1/catalog1/split_olap_myisam/varchar_t/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:94~1:117) /test/1/catalog1/split_olap_myisam/one_t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_call_prog_obj__019]
+sql:
+SELECT int_t.col_int*int_t.col_int AS field2 FROM split_olap_myisam.int_t WHERE int_t.col_int<>1 OR int_t.pk GROUP BY field2 WITH ROLLUP HAVING field2<>239 ORDER BY GROUPING(field2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:50~1:73) /test/1/catalog1/split_olap_myisam/int_t/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(1:165~1:173) /test/1/catalog1/schema1/GROUPING/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__020]
+sql:
+SELECT product,SUM(profit) FROM split_olap_native_a.sales GROUP BY 1 WITH ROLLUP;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:15~1:18) /test/1/catalog1/schema1/SUM/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:32~1:57) /test/1/catalog1/split_olap_native_a/sales/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__021]
+sql:
+SELECT product,country_id,year,SUM(profit) FROM split_olap_native_a.sales GROUP BY product,country_id,year WITH ROLLUP;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:31~1:34) /test/1/catalog1/schema1/SUM/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:48~1:73) /test/1/catalog1/split_olap_native_a/sales/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__022]
+sql:
+SELECT product,country_id,year,SUM(profit) FROM split_olap_native_a.sales GROUP BY product,country_id,year WITH ROLLUP LIMIT 3,3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:31~1:34) /test/1/catalog1/schema1/SUM/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:48~1:73) /test/1/catalog1/split_olap_native_a/sales/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__023]
+sql:
+SELECT product,country_id,COUNT(*),COUNT(DISTINCT year) FROM split_olap_native_a.sales GROUP BY product,country_id WITH ROLLUP;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:26~1:31) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:61~1:86) /test/1/catalog1/split_olap_native_a/sales/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__024]
+sql:
+SELECT CONCAT(product,':',country_id) AS 'prod',CONCAT(':',year,':') AS 'year',1+1,SUM(profit)/COUNT(*) FROM split_olap_native_a.sales GROUP BY 1,2 WITH ROLLUP;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/CONCAT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:83~1:86) /test/1/catalog1/schema1/SUM/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:95~1:100) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:109~1:134) /test/1/catalog1/split_olap_native_a/sales/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__025]
+sql:
+SELECT product,country,year,SUM(profit) FROM split_olap_native_a.sales,split_olap_native_a.countries WHERE sales.country_id=countries.country_id GROUP BY product,country,year WITH ROLLUP;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:28~1:31) /test/1/catalog1/schema1/SUM/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:45~1:70) /test/1/catalog1/split_olap_native_a/sales/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:71~1:100) /test/1/catalog1/split_olap_native_a/countries/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__026]
+sql:
+SELECT product FROM split_olap_native_a.sales AS outer_sales WHERE EXISTS (SELECT product,country_id,SUM(profit) FROM split_olap_native_a.sales AS inner_sales WHERE outer_sales.product=inner_sales.product GROUP BY product,country_id WITH ROLLUP HAVING SUM(profit)>6000);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:20~1:45) /test/1/catalog1/split_olap_native_a/sales/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(1:101~1:104) /test/1/catalog1/schema1/SUM/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__027]
+sql:
+SELECT c1.i,c2.i,COUNT(*) FROM split_olap_native_a.c1,split_olap_native_a.c2 GROUP BY c1.i,c2.i WITH ROLLUP;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:17~1:22) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:31~1:53) /test/1/catalog1/split_olap_native_a/c1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:54~1:76) /test/1/catalog1/split_olap_native_a/c2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__028]
+sql:
+SELECT d.dt AS day,COUNT(d.user_id) AS sample,COUNT(next_day.user_id) AS not_cancelled FROM split_olap_native_a.user_day AS d LEFT JOIN split_olap_native_a.user_day AS next_day ON next_day.user_id=d.user_id AND next_day.dt=DATE_ADD(d.dt,INTERVAL 1 DAY) GROUP BY day WITH ROLLUP;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:19~1:24) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:92~1:120) /test/1/catalog1/split_olap_native_a/user_day/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(1:223~1:231) /test/1/catalog1/schema1/DATE_ADD/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__029]
+sql:
+SELECT SQL_CALC_FOUND_ROWS a,SUM(b) FROM split_olap_native_a.nums GROUP BY a WITH ROLLUP LIMIT 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:29~1:32) /test/1/catalog1/schema1/SUM/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:41~1:65) /test/1/catalog1/split_olap_native_a/nums/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__030]
+sql:
+SELECT a,SUM(a),SUM(a)+1 FROM (SELECT a FROM split_olap_native_a.nums UNION SELECT 2) AS derived_nums GROUP BY a WITH ROLLUP;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:9~1:12) /test/1/catalog1/schema1/SUM/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:45~1:69) /test/1/catalog1/split_olap_native_a/nums/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__031]
+sql:
+SELECT a,SUM(a),SUM(a)+1,CONCAT(SUM(a),'x'),SUM(a)+SUM(a) FROM (SELECT 1 AS a,2 AS b UNION SELECT 2,3 UNION SELECT 5,6) AS derived_nums GROUP BY a WITH ROLLUP;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:9~1:12) /test/1/catalog1/schema1/SUM/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:25~1:31) /test/1/catalog1/schema1/CONCAT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__032]
+sql:
+SELECT a,a+1,SUM(a) FROM split_olap_native_a.nums GROUP BY a WITH ROLLUP;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:13~1:16) /test/1/catalog1/schema1/SUM/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:25~1:49) /test/1/catalog1/split_olap_native_a/nums/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__033]
+sql:
+SELECT a,a+1 AS b_alias FROM split_olap_native_a.nums GROUP BY a WITH ROLLUP HAVING b_alias>2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:29~1:53) /test/1/catalog1/split_olap_native_a/nums/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__034]
+sql:
+SELECT IFNULL(a,'TEST'),COALESCE(b,'TEST') FROM split_olap_native_b.nums GROUP BY a,b WITH ROLLUP;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/IFNULL/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:24~1:32) /test/1/catalog1/schema1/COALESCE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:48~1:72) /test/1/catalog1/split_olap_native_b/nums/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__035]
+sql:
+SELECT a,b,a AS c,COUNT(*) AS row_count FROM split_olap_native_b.nums GROUP BY a,b,c WITH ROLLUP;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:18~1:23) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:45~1:69) /test/1/catalog1/split_olap_native_b/nums/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__036]
+sql:
+SELECT COUNT(a) FROM split_olap_native_b.nums GROUP BY NULL WITH ROLLUP;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:21~1:45) /test/1/catalog1/split_olap_native_b/nums/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__037]
+sql:
+SELECT 1 FROM split_olap_native_b.nums GROUP BY (DATE(NULL)) WITH ROLLUP;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:38) /test/1/catalog1/split_olap_native_b/nums/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(1:49~1:53) /test/1/catalog1/schema1/DATE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__038]
+sql:
+SELECT f1 FROM split_olap_native_b.dt GROUP BY (SELECT f1 FROM split_olap_native_b.dt HAVING f1<'2012-12-21 00:00:00') WITH ROLLUP;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:15~1:37) /test/1/catalog1/split_olap_native_b/dt/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__039]
+sql:
+SELECT f1 FROM split_olap_native_b.d GROUP BY (SELECT f1 FROM split_olap_native_b.d HAVING f1<'2012-12-21') WITH ROLLUP;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:15~1:36) /test/1/catalog1/split_olap_native_b/d/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__040]
+sql:
+SELECT f1 FROM split_olap_native_b.tm GROUP BY (SELECT f1 FROM split_olap_native_b.tm HAVING f1<'12:12:12') WITH ROLLUP;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:15~1:37) /test/1/catalog1/split_olap_native_b/tm/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__041]
+sql:
+SELECT NOW() FROM split_olap_native_b.nums GROUP BY (SELECT 1) WITH ROLLUP;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/NOW/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:18~1:42) /test/1/catalog1/split_olap_native_b/nums/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_call_prog_obj__042]
+sql:
+SELECT RELEASE_ALL_LOCKS() FROM split_olap_native_b.nums GROUP BY a WITH ROLLUP;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:24) /test/1/catalog1/schema1/RELEASE_ALL_LOCKS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:32~1:56) /test/1/catalog1/split_olap_native_b/nums/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_call_prog_obj__043]
+sql:
+SELECT GROUPING(table2.col_time) FROM split_olap_tail.ttime AS table1,split_olap_tail.ttime AS table2 WHERE table2.pk=1 GROUP BY table2.col_time WITH ROLLUP ORDER BY GROUPING(table2.col_time);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/GROUPING/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:38~1:59) /test/1/catalog1/split_olap_tail/ttime/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_call_prog_obj__044]
+sql:
+SELECT (a+1) IS NULL,GROUPING(a+1) FROM split_olap_tail.t GROUP BY a+1 WITH ROLLUP;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:21~1:29) /test/1/catalog1/schema1/GROUPING/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:40~1:57) /test/1/catalog1/split_olap_tail/t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__045]
+sql:
+SELECT a AS f1,'w' AS f2 FROM split_olap_tail.t GROUP BY f1,f2 WITH ROLLUP HAVING ISNULL(f2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:30~1:47) /test/1/catalog1/split_olap_tail/t/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(1:82~1:88) /test/1/catalog1/schema1/ISNULL/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__046]
+sql:
+SELECT a=3 OR a=3,a AS f1 FROM split_olap_tail.t GROUP BY f1 WITH ROLLUP;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:31~1:48) /test/1/catalog1/split_olap_tail/t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__047]
+sql:
+SELECT DISTINCT COUNT(*),a+b FROM split_olap_tail.t GROUP BY a+b WITH ROLLUP;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:16~1:21) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:34~1:51) /test/1/catalog1/split_olap_tail/t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__048]
+sql:
+SELECT (SELECT 'a') AS f1 FROM split_olap_tail.t AS alias1,split_olap_tail.t AS alias2 GROUP BY f1 WITH ROLLUP HAVING f1<7;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:31~1:48) /test/1/catalog1/split_olap_tail/t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__049]
+sql:
+SELECT CONCAT(INSTR(a,'w')) FROM split_olap_tail.t GROUP BY a WITH ROLLUP;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/CONCAT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:14~1:19) /test/1/catalog1/schema1/INSTR/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:33~1:50) /test/1/catalog1/split_olap_tail/t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__050]
+sql:
+SELECT REPLACE(IF(t2.a=t2.b,_latin1 'a','e'),'d','b') FROM split_olap_tail.tmix,split_olap_tail.tmix AS t2 GROUP BY REPLACE(IF(t2.a=t2.b,_latin1 'a','e'),'d','b') WITH ROLLUP;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/REPLACE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:15~1:17) /test/1/catalog1/schema1/IF/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:59~1:79) /test/1/catalog1/split_olap_tail/tmix/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_call_prog_obj__051]
+sql:
+SELECT a,GROUPING(a) AS ga FROM split_olap_tail.tj JOIN split_olap_tail.tj2 USING(b) GROUP BY a WITH ROLLUP HAVING ga=0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:9~1:17) /test/1/catalog1/schema1/GROUPING/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:32~1:50) /test/1/catalog1/split_olap_tail/tj/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:56~1:75) /test/1/catalog1/split_olap_tail/tj2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_call_prog_obj__052]
+sql:
+SELECT DISTINCT a,b,GROUPING(a),GROUPING(b),GROUPING(a+b),GROUPING(a)+GROUPING(b) FROM split_olap_tail.t GROUP BY a,b,a+b WITH ROLLUP ORDER BY a,b,a+b;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:20~1:28) /test/1/catalog1/schema1/GROUPING/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:87~1:104) /test/1/catalog1/split_olap_tail/t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_call_prog_obj__053]
+sql:
+SELECT RANK();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/RANK/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select_call_prog_obj__054]
+sql:
+SELECT NTILE(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/NTILE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select_call_prog_obj__055]
+sql:
+SELECT FIRST_VALUE(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/FIRST_VALUE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select_call_prog_obj__056]
+sql:
+SELECT LAST_VALUE(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/LAST_VALUE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select_call_prog_obj__057]
+sql:
+SELECT LAG(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/LAG/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select_call_prog_obj__058]
+sql:
+SELECT LEAD(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/LEAD/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select_call_prog_obj__059]
+sql:
+SELECT NTH_VALUE(1,1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/NTH_VALUE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select_call_prog_obj__060]
+sql:
+SELECT RANK(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/RANK/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select_call_prog_obj__061]
+sql:
+SELECT ROW_NUMBER(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/ROW_NUMBER/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select_call_prog_obj__062]
+sql:
+SELECT CUME_DIST(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/CUME_DIST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select_call_prog_obj__063]
+sql:
+SELECT DENSE_RANK(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/DENSE_RANK/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select_call_prog_obj__064]
+sql:
+SELECT PERCENT_RANK(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/PERCENT_RANK/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select_call_prog_obj__065]
+sql:
+SELECT NTILE();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/NTILE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select_call_prog_obj__066]
+sql:
+SELECT NTILE(1,2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/NTILE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select_call_prog_obj__067]
+sql:
+SELECT FIRST_VALUE();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/FIRST_VALUE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select_call_prog_obj__068]
+sql:
+SELECT FIRST_VALUE(1,2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/FIRST_VALUE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select_call_prog_obj__069]
+sql:
+SELECT LAST_VALUE();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/LAST_VALUE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select_call_prog_obj__070]
+sql:
+SELECT LAST_VALUE(1,2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/LAST_VALUE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select_call_prog_obj__071]
+sql:
+SELECT LAG();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/LAG/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select_call_prog_obj__072]
+sql:
+SELECT LAG(1,2,3,4);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/LAG/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select_call_prog_obj__073]
+sql:
+SELECT LEAD();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/LEAD/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select_call_prog_obj__074]
+sql:
+SELECT LEAD(1,2,3,4);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/LEAD/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select_call_prog_obj__075]
+sql:
+SELECT NTH_VALUE(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/NTH_VALUE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select_call_prog_obj__076]
+sql:
+SELECT NTH_VALUE(1,2,3);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/NTH_VALUE/",
+      "action" : "CALL"
+    }
+  ]
+}

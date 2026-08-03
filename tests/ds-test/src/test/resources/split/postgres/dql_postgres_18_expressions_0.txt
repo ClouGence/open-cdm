@@ -1,0 +1,50 @@
+SELECT 'abcdefg' SIMILAR TO '_bcd%' AS similar_true,
+       'abcdefg' NOT SIMILAR TO 'bcd%' AS similar_not,
+       'abcd%' SIMILAR TO '_bcd#%' ESCAPE '#' AS similar_escape;
+SELECT (DATE '2001-02-16', DATE '2001-12-21') OVERLAPS (DATE '2001-10-30', DATE '2002-10-30') AS overlap_dates,
+       (DATE '2001-02-16', INTERVAL '100 days') OVERLAPS (DATE '2001-10-30', DATE '2002-10-30') AS overlap_interval,
+       (TIME '00:00', INTERVAL '1 hour') OVERLAPS (TIME '00:30', INTERVAL '1 hour') AS overlap_times;
+SELECT TIMESTAMP '2001-02-16 20:38:40' AT TIME ZONE 'America/Denver' AS denver_ts,
+       TIMESTAMP WITH TIME ZONE '2001-02-16 20:38:40-05' AT LOCAL AS local_ts,
+       TIME WITH TIME ZONE '20:38:40-05' AT LOCAL AS local_time;
+SELECT U&'\0061\0308bc' IS NFD NORMALIZED AS nfd_ok,
+       U&'\00E4bc' IS NFC NORMALIZED AS nfc_ok,
+       U&'\0061\0308bc' IS NOT NFC NORMALIZED AS not_nfc;
+SELECT js,
+       js IS JSON AS is_json,
+       js IS JSON SCALAR AS is_scalar,
+       js IS JSON OBJECT AS is_object,
+       js IS JSON ARRAY AS is_array
+FROM (VALUES ('123'), ('"abc"'), ('{"a": "b"}'), ('[1,2]'), ('abc')) AS foo(js);
+SELECT js IS JSON ARRAY WITH UNIQUE KEYS AS array_unique,
+       js IS JSON ARRAY WITHOUT UNIQUE KEYS AS array_without_unique,
+       js IS NOT JSON OBJECT AS not_object
+FROM (VALUES ('[{"a":"1"}, {"b":"2","b":"3"}]')) AS foo(js);
+------------------------------------------------------------------------------------------
+[SELECT] SELECT 'abcdefg' SIMILAR TO '_bcd%' AS similar_true,
+       'abcdefg' NOT SIMILAR TO 'bcd%' AS similar_not,
+       'abcd%' SIMILAR TO '_bcd#%' ESCAPE '#' AS similar_escape;
+----------
+[SELECT] SELECT (DATE '2001-02-16', DATE '2001-12-21') OVERLAPS (DATE '2001-10-30', DATE '2002-10-30') AS overlap_dates,
+       (DATE '2001-02-16', INTERVAL '100 days') OVERLAPS (DATE '2001-10-30', DATE '2002-10-30') AS overlap_interval,
+       (TIME '00:00', INTERVAL '1 hour') OVERLAPS (TIME '00:30', INTERVAL '1 hour') AS overlap_times;
+----------
+[SELECT] SELECT TIMESTAMP '2001-02-16 20:38:40' AT TIME ZONE 'America/Denver' AS denver_ts,
+       TIMESTAMP WITH TIME ZONE '2001-02-16 20:38:40-05' AT LOCAL AS local_ts,
+       TIME WITH TIME ZONE '20:38:40-05' AT LOCAL AS local_time;
+----------
+[SELECT] SELECT U&'\0061\0308bc' IS NFD NORMALIZED AS nfd_ok,
+       U&'\00E4bc' IS NFC NORMALIZED AS nfc_ok,
+       U&'\0061\0308bc' IS NOT NFC NORMALIZED AS not_nfc;
+----------
+[SELECT] SELECT js,
+       js IS JSON AS is_json,
+       js IS JSON SCALAR AS is_scalar,
+       js IS JSON OBJECT AS is_object,
+       js IS JSON ARRAY AS is_array
+FROM (VALUES ('123'), ('"abc"'), ('{"a": "b"}'), ('[1,2]'), ('abc')) AS foo(js);
+----------
+[SELECT] SELECT js IS JSON ARRAY WITH UNIQUE KEYS AS array_unique,
+       js IS JSON ARRAY WITHOUT UNIQUE KEYS AS array_without_unique,
+       js IS NOT JSON OBJECT AS not_object
+FROM (VALUES ('[{"a":"1"}, {"b":"2","b":"3"}]')) AS foo(js);

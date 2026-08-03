@@ -1,0 +1,174 @@
+-- FUNC-0886 AWR_SET_INTERVAL positional minimum
+begin DBMS_WORKLOAD_REPOSITORY.AWR_SET_INTERVAL(10); end;
+/
+-- FUNC-0886 AWR_SET_INTERVAL Pack29 named
+begin DBMS_WORKLOAD_REPOSITORY.AWR_SET_INTERVAL(AWR_INTERVAL=>60); end;
+/
+-- FUNC-0886 AWR_SET_INTERVAL default
+begin DBMS_WORKLOAD_REPOSITORY.AWR_SET_INTERVAL; end;
+/
+-- FUNC-0886 AWR_SET_INTERVAL restore enabled minimum
+begin DBMS_WORKLOAD_REPOSITORY.AWR_SET_INTERVAL(10); end;
+/
+-- FUNC-0887 CREATE_SNAPSHOT default without parentheses
+declare snap_id int; begin snap_id:=DBMS_WORKLOAD_REPOSITORY.CREATE_SNAPSHOT; if snap_id is null then raise_application_error(-20001,'snapshot id null'); end if; end;
+/
+-- FUNC-0887 CREATE_SNAPSHOT ALL named
+declare snap_id int; begin snap_id:=DBMS_WORKLOAD_REPOSITORY.CREATE_SNAPSHOT(FLUSH_LEVEL=>'ALL'); if snap_id is null then raise_application_error(-20002,'snapshot id null'); end if; end;
+/
+-- FUNC-0887 CREATE_SNAPSHOT TYPICAL positional
+declare snap_id int; begin snap_id:=DBMS_WORKLOAD_REPOSITORY.CREATE_SNAPSHOT('TYPICAL'); if snap_id is null then raise_application_error(-20003,'snapshot id null'); end if; end;
+/
+-- FUNC-1615 AWR_REPORT_HTML pipelined report
+declare low_id int; high_id int; row_count int; begin select min(SNAP_ID),max(SNAP_ID) into low_id,high_id from SYS.WRM$_SNAPSHOT; select count(*) into row_count from table(DBMS_WORKLOAD_REPOSITORY.AWR_REPORT_HTML(low_id,high_id)); if row_count=0 then raise_application_error(-20004,'empty html report'); end if; end;
+/
+-- FUNC-1616 AWR_REPORT_TEXT named pipelined report
+declare low_id int; high_id int; row_count int; begin select min(SNAP_ID),max(SNAP_ID) into low_id,high_id from SYS.WRM$_SNAPSHOT; select count(*) into row_count from table(DBMS_WORKLOAD_REPOSITORY.AWR_REPORT_TEXT(END_SNAP_ID=>high_id,START_SNAP_ID=>low_id)); if row_count=0 then raise_application_error(-20005,'empty text report'); end if; end;
+/
+-- FUNC-1617 AWR_REPORT_HTML_MULTI Pack29 extension
+declare low_id int; high_id int; row_count int; begin select min(SNAP_ID),max(SNAP_ID) into low_id,high_id from SYS.WRM$_SNAPSHOT; select count(*) into row_count from table(DBMS_WORKLOAD_REPOSITORY.AWR_REPORT_HTML_MULTI(low_id,high_id)); if row_count=0 then raise_application_error(-20006,'empty multi report'); end if; end;
+/
+-- FUNC-1618 SYS.AWR_REPORT_HTML positional file report
+declare low_id int; high_id int; begin select min(SNAP_ID),max(SNAP_ID) into low_id,high_id from SYS.WRM$_SNAPSHOT; SYS.AWR_REPORT_HTML(low_id,high_id,'/tmp','CODEX_DM8_AWR_POSITIONAL.HTML'); end;
+/
+-- FUNC-1618 SYS.AWR_REPORT_HTML named and optional ID_IS_GLOBAL
+declare low_id int; high_id int; begin select min(SNAP_ID),max(SNAP_ID) into low_id,high_id from SYS.WRM$_SNAPSHOT; SYS.AWR_REPORT_HTML(DEST_FILE=>'CODEX_DM8_AWR_NAMED.HTML',DEST_DIR=>'/tmp',END_ID=>high_id,START_ID=>low_id,ID_IS_GLOBAL=>FALSE); end;
+/
+-- FUNC-1619 SYS.AWR_REPORT_TEXT positional file report
+declare low_id int; high_id int; begin select min(SNAP_ID),max(SNAP_ID) into low_id,high_id from SYS.WRM$_SNAPSHOT; SYS.AWR_REPORT_TEXT(low_id,high_id,'/tmp','CODEX_DM8_AWR_REPORT.TXT'); end;
+/
+-- FUNC-0889 DROP_SNAPSHOT_RANGE required arguments and no-op range
+begin DBMS_WORKLOAD_REPOSITORY.DROP_SNAPSHOT_RANGE(900000001,900000002); end;
+/
+-- FUNC-0889 DROP_SNAPSHOT_RANGE optional DBID prefix
+begin DBMS_WORKLOAD_REPOSITORY.DROP_SNAPSHOT_RANGE(900000001,900000002,NULL); end;
+/
+-- FUNC-0889 DROP_SNAPSHOT_RANGE all arguments named reordered
+begin DBMS_WORKLOAD_REPOSITORY.DROP_SNAPSHOT_RANGE(FREE_TS_SIZE=>FALSE,DBID=>NULL,HIGH_SNAP_ID=>900000002,LOW_SNAP_ID=>900000001); end;
+/
+-- FUNC-0888 DROP_SNAPSHOT_BY_TIME required END_DT no-op past
+begin DBMS_WORKLOAD_REPOSITORY.DROP_SNAPSHOT_BY_TIME(timestamp '1970-01-01 00:00:00'); end;
+/
+-- FUNC-0888 DROP_SNAPSHOT_BY_TIME all arguments named
+begin DBMS_WORKLOAD_REPOSITORY.DROP_SNAPSHOT_BY_TIME(FREE_TS_SIZE=>FALSE,END_DT=>timestamp '1970-01-01 00:00:00'); end;
+/
+-- FUNC-0890 MODIFY_SNAPSHOT_SETTINGS all defaults
+begin DBMS_WORKLOAD_REPOSITORY.MODIFY_SNAPSHOT_SETTINGS(); end;
+/
+-- FUNC-0890 MODIFY_SNAPSHOT_SETTINGS integer overload positional prefixes
+begin DBMS_WORKLOAD_REPOSITORY.MODIFY_SNAPSHOT_SETTINGS(1440); DBMS_WORKLOAD_REPOSITORY.MODIFY_SNAPSHOT_SETTINGS(1440,10); DBMS_WORKLOAD_REPOSITORY.MODIFY_SNAPSHOT_SETTINGS(1440,10,cast(30 as int)); DBMS_WORKLOAD_REPOSITORY.MODIFY_SNAPSHOT_SETTINGS(1440,10,cast(30 as int),NULL); end;
+/
+-- FUNC-0890 MODIFY_SNAPSHOT_SETTINGS Pack29 RAFT_NAME full named
+begin DBMS_WORKLOAD_REPOSITORY.MODIFY_SNAPSHOT_SETTINGS(RAFT_NAME=>NULL,DBID=>NULL,TOPNSQL=>cast(30 as int),AWR_INTERVAL=>10,RETENTION=>1440); end;
+/
+-- FUNC-0891 MODIFY_SNAPSHOT_SETTINGS VARCHAR DEFAULT
+begin DBMS_WORKLOAD_REPOSITORY.MODIFY_SNAPSHOT_SETTINGS(TOPNSQL=>'DEFAULT'); end;
+/
+-- FUNC-0891 MODIFY_SNAPSHOT_SETTINGS VARCHAR MAXIMUM
+begin DBMS_WORKLOAD_REPOSITORY.MODIFY_SNAPSHOT_SETTINGS(DBID=>NULL,TOPNSQL=>'MAXIMUM',AWR_INTERVAL=>10,RETENTION=>1440); end;
+/
+-- FUNC-0891 MODIFY_SNAPSHOT_SETTINGS VARCHAR numeric text
+begin DBMS_WORKLOAD_REPOSITORY.MODIFY_SNAPSHOT_SETTINGS(TOPNSQL=>'30'); end;
+/
+-- FUNC-0885 AWR_CLEAR_TMP_TABLE without parentheses
+begin DBMS_WORKLOAD_REPOSITORY.AWR_CLEAR_TMP_TABLE; end;
+/
+-- FUNC-0885 AWR_CLEAR_TMP_TABLE with parentheses
+begin DBMS_WORKLOAD_REPOSITORY.AWR_CLEAR_TMP_TABLE(); end;
+/
+-- FUNC-0884 AWR_CLEAR_HISTORY without parentheses
+begin DBMS_WORKLOAD_REPOSITORY.AWR_CLEAR_HISTORY; end;
+/
+-- FUNC-0884 AWR_CLEAR_HISTORY with parentheses and idempotent empty history
+begin DBMS_WORKLOAD_REPOSITORY.AWR_CLEAR_HISTORY(); end;
+/
+-- FUNC-0886 AWR_SET_INTERVAL zero disables automatic snapshots
+begin DBMS_WORKLOAD_REPOSITORY.AWR_SET_INTERVAL(0); end;
+/
+------------------------------------------------------------------------------------------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-0886 AWR_SET_INTERVAL positional minimum
+begin DBMS_WORKLOAD_REPOSITORY.AWR_SET_INTERVAL(10); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-0886 AWR_SET_INTERVAL Pack29 named
+begin DBMS_WORKLOAD_REPOSITORY.AWR_SET_INTERVAL(AWR_INTERVAL=>60); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-0886 AWR_SET_INTERVAL default
+begin DBMS_WORKLOAD_REPOSITORY.AWR_SET_INTERVAL; end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-0886 AWR_SET_INTERVAL restore enabled minimum
+begin DBMS_WORKLOAD_REPOSITORY.AWR_SET_INTERVAL(10); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0887 CREATE_SNAPSHOT default without parentheses
+declare snap_id int; begin snap_id:=DBMS_WORKLOAD_REPOSITORY.CREATE_SNAPSHOT; if snap_id is null then raise_application_error(-20001,'snapshot id null'); end if; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0887 CREATE_SNAPSHOT ALL named
+declare snap_id int; begin snap_id:=DBMS_WORKLOAD_REPOSITORY.CREATE_SNAPSHOT(FLUSH_LEVEL=>'ALL'); if snap_id is null then raise_application_error(-20002,'snapshot id null'); end if; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0887 CREATE_SNAPSHOT TYPICAL positional
+declare snap_id int; begin snap_id:=DBMS_WORKLOAD_REPOSITORY.CREATE_SNAPSHOT('TYPICAL'); if snap_id is null then raise_application_error(-20003,'snapshot id null'); end if; end;
+----------
+[BLOCK(PROGRAM_CONTROL,SELECT,CALL_PROG_OBJ)] -- FUNC-1615 AWR_REPORT_HTML pipelined report
+declare low_id int; high_id int; row_count int; begin select min(SNAP_ID),max(SNAP_ID) into low_id,high_id from SYS.WRM$_SNAPSHOT; select count(*) into row_count from table(DBMS_WORKLOAD_REPOSITORY.AWR_REPORT_HTML(low_id,high_id)); if row_count=0 then raise_application_error(-20004,'empty html report'); end if; end;
+----------
+[BLOCK(PROGRAM_CONTROL,SELECT,CALL_PROG_OBJ)] -- FUNC-1616 AWR_REPORT_TEXT named pipelined report
+declare low_id int; high_id int; row_count int; begin select min(SNAP_ID),max(SNAP_ID) into low_id,high_id from SYS.WRM$_SNAPSHOT; select count(*) into row_count from table(DBMS_WORKLOAD_REPOSITORY.AWR_REPORT_TEXT(END_SNAP_ID=>high_id,START_SNAP_ID=>low_id)); if row_count=0 then raise_application_error(-20005,'empty text report'); end if; end;
+----------
+[BLOCK(PROGRAM_CONTROL,SELECT,CALL_PROG_OBJ)] -- FUNC-1617 AWR_REPORT_HTML_MULTI Pack29 extension
+declare low_id int; high_id int; row_count int; begin select min(SNAP_ID),max(SNAP_ID) into low_id,high_id from SYS.WRM$_SNAPSHOT; select count(*) into row_count from table(DBMS_WORKLOAD_REPOSITORY.AWR_REPORT_HTML_MULTI(low_id,high_id)); if row_count=0 then raise_application_error(-20006,'empty multi report'); end if; end;
+----------
+[BLOCK(PROGRAM_CONTROL,SELECT,CALL_PROG_OBJ)] -- FUNC-1618 SYS.AWR_REPORT_HTML positional file report
+declare low_id int; high_id int; begin select min(SNAP_ID),max(SNAP_ID) into low_id,high_id from SYS.WRM$_SNAPSHOT; SYS.AWR_REPORT_HTML(low_id,high_id,'/tmp','CODEX_DM8_AWR_POSITIONAL.HTML'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,SELECT,CALL_PROG_OBJ)] -- FUNC-1618 SYS.AWR_REPORT_HTML named and optional ID_IS_GLOBAL
+declare low_id int; high_id int; begin select min(SNAP_ID),max(SNAP_ID) into low_id,high_id from SYS.WRM$_SNAPSHOT; SYS.AWR_REPORT_HTML(DEST_FILE=>'CODEX_DM8_AWR_NAMED.HTML',DEST_DIR=>'/tmp',END_ID=>high_id,START_ID=>low_id,ID_IS_GLOBAL=>FALSE); end;
+----------
+[BLOCK(PROGRAM_CONTROL,SELECT,CALL_PROG_OBJ)] -- FUNC-1619 SYS.AWR_REPORT_TEXT positional file report
+declare low_id int; high_id int; begin select min(SNAP_ID),max(SNAP_ID) into low_id,high_id from SYS.WRM$_SNAPSHOT; SYS.AWR_REPORT_TEXT(low_id,high_id,'/tmp','CODEX_DM8_AWR_REPORT.TXT'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-0889 DROP_SNAPSHOT_RANGE required arguments and no-op range
+begin DBMS_WORKLOAD_REPOSITORY.DROP_SNAPSHOT_RANGE(900000001,900000002); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-0889 DROP_SNAPSHOT_RANGE optional DBID prefix
+begin DBMS_WORKLOAD_REPOSITORY.DROP_SNAPSHOT_RANGE(900000001,900000002,NULL); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-0889 DROP_SNAPSHOT_RANGE all arguments named reordered
+begin DBMS_WORKLOAD_REPOSITORY.DROP_SNAPSHOT_RANGE(FREE_TS_SIZE=>FALSE,DBID=>NULL,HIGH_SNAP_ID=>900000002,LOW_SNAP_ID=>900000001); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-0888 DROP_SNAPSHOT_BY_TIME required END_DT no-op past
+begin DBMS_WORKLOAD_REPOSITORY.DROP_SNAPSHOT_BY_TIME(timestamp '1970-01-01 00:00:00'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-0888 DROP_SNAPSHOT_BY_TIME all arguments named
+begin DBMS_WORKLOAD_REPOSITORY.DROP_SNAPSHOT_BY_TIME(FREE_TS_SIZE=>FALSE,END_DT=>timestamp '1970-01-01 00:00:00'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-0890 MODIFY_SNAPSHOT_SETTINGS all defaults
+begin DBMS_WORKLOAD_REPOSITORY.MODIFY_SNAPSHOT_SETTINGS(); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-0890 MODIFY_SNAPSHOT_SETTINGS integer overload positional prefixes
+begin DBMS_WORKLOAD_REPOSITORY.MODIFY_SNAPSHOT_SETTINGS(1440); DBMS_WORKLOAD_REPOSITORY.MODIFY_SNAPSHOT_SETTINGS(1440,10); DBMS_WORKLOAD_REPOSITORY.MODIFY_SNAPSHOT_SETTINGS(1440,10,cast(30 as int)); DBMS_WORKLOAD_REPOSITORY.MODIFY_SNAPSHOT_SETTINGS(1440,10,cast(30 as int),NULL); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-0890 MODIFY_SNAPSHOT_SETTINGS Pack29 RAFT_NAME full named
+begin DBMS_WORKLOAD_REPOSITORY.MODIFY_SNAPSHOT_SETTINGS(RAFT_NAME=>NULL,DBID=>NULL,TOPNSQL=>cast(30 as int),AWR_INTERVAL=>10,RETENTION=>1440); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-0891 MODIFY_SNAPSHOT_SETTINGS VARCHAR DEFAULT
+begin DBMS_WORKLOAD_REPOSITORY.MODIFY_SNAPSHOT_SETTINGS(TOPNSQL=>'DEFAULT'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-0891 MODIFY_SNAPSHOT_SETTINGS VARCHAR MAXIMUM
+begin DBMS_WORKLOAD_REPOSITORY.MODIFY_SNAPSHOT_SETTINGS(DBID=>NULL,TOPNSQL=>'MAXIMUM',AWR_INTERVAL=>10,RETENTION=>1440); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-0891 MODIFY_SNAPSHOT_SETTINGS VARCHAR numeric text
+begin DBMS_WORKLOAD_REPOSITORY.MODIFY_SNAPSHOT_SETTINGS(TOPNSQL=>'30'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-0885 AWR_CLEAR_TMP_TABLE without parentheses
+begin DBMS_WORKLOAD_REPOSITORY.AWR_CLEAR_TMP_TABLE; end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-0885 AWR_CLEAR_TMP_TABLE with parentheses
+begin DBMS_WORKLOAD_REPOSITORY.AWR_CLEAR_TMP_TABLE(); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-0884 AWR_CLEAR_HISTORY without parentheses
+begin DBMS_WORKLOAD_REPOSITORY.AWR_CLEAR_HISTORY; end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-0884 AWR_CLEAR_HISTORY with parentheses and idempotent empty history
+begin DBMS_WORKLOAD_REPOSITORY.AWR_CLEAR_HISTORY(); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-0886 AWR_SET_INTERVAL zero disables automatic snapshots
+begin DBMS_WORKLOAD_REPOSITORY.AWR_SET_INTERVAL(0); end;

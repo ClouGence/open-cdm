@@ -1,0 +1,611 @@
+[split_ddl_dameng_table_semantic_gaps_0_001_behavior_review]
+sql:
+create local temporary table table_sem_local(id int) on commit preserve rows;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:29~1:44) /test/1/catalog1/schema1/table_sem_local/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_semantic_gaps_0_002_behavior_review]
+sql:
+create global temporary table table_sem_global(id int) on commit preserve rows;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:30~1:46) /test/1/catalog1/schema1/table_sem_global/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_semantic_gaps_0_003_behavior_review]
+sql:
+insert into table_sem_global values(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:28) /test/1/catalog1/schema1/table_sem_global/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_semantic_gaps_0_004_behavior_review]
+sql:
+commit;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[split_ddl_dameng_table_semantic_gaps_0_005_behavior_review]
+sql:
+select count(*) from table_sem_global;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:21~1:37) /test/1/catalog1/schema1/table_sem_global/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_semantic_gaps_0_006_behavior_review]
+sql:
+drop table table_sem_global purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:27) /test/1/catalog1/schema1/table_sem_global/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_semantic_gaps_0_007_behavior_review]
+sql:
+create table table_sem_pendant_parent(id int primary key);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:37) /test/1/catalog1/schema1/table_sem_pendant_parent/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_semantic_gaps_0_008_behavior_review]
+sql:
+insert into table_sem_pendant_parent values(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:36) /test/1/catalog1/schema1/table_sem_pendant_parent/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_semantic_gaps_0_009_behavior_review]
+sql:
+create table table_sem_pendant(id int references pendant table_sem_pendant_parent(id));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/schema1/table_sem_pendant/",
+      "action": "CREATE",
+      "target": "Table(1:57~1:81) /test/1/catalog1/schema1/table_sem_pendant_parent/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_semantic_gaps_0_010_behavior_review]
+sql:
+select constraint_name, constraint_type, status, validated from user_constraints where table_name='TABLE_SEM_PENDANT';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:64~1:80) /test/1/catalog1/schema1/user_constraints/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_semantic_gaps_0_011_behavior_review]
+sql:
+insert into table_sem_pendant values(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:29) /test/1/catalog1/schema1/table_sem_pendant/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_semantic_gaps_0_012_behavior_review]
+sql:
+insert into table_sem_pendant values(2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:29) /test/1/catalog1/schema1/table_sem_pendant/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_semantic_gaps_0_013_behavior_review]
+sql:
+select tabledef('SYSDBA', 'TABLE_SEM_PENDANT');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/tabledef/",
+      "action": "CALL",
+      "target": "Table(1:26~1:45) /test/1/catalog1/SYSDBA/TABLE_SEM_PENDANT/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_semantic_gaps_0_014_behavior_review]
+sql:
+drop table table_sem_pendant purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:28) /test/1/catalog1/schema1/table_sem_pendant/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_semantic_gaps_0_015_behavior_review]
+sql:
+drop table table_sem_pendant_parent purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:35) /test/1/catalog1/schema1/table_sem_pendant_parent/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_semantic_gaps_0_016_behavior_review]
+sql:
+create table table_sem_pendant(id int references pendant table_sem_missing_parent(id));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/schema1/table_sem_pendant/",
+      "action": "CREATE",
+      "target": "Table(1:57~1:81) /test/1/catalog1/schema1/table_sem_missing_parent/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_semantic_gaps_0_017_behavior_review]
+sql:
+create table table_sem_nonunique_parent(id int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:39) /test/1/catalog1/schema1/table_sem_nonunique_parent/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_semantic_gaps_0_018_behavior_review]
+sql:
+create table table_sem_pendant(id int references pendant table_sem_nonunique_parent(id));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/schema1/table_sem_pendant/",
+      "action": "CREATE",
+      "target": "Table(1:57~1:83) /test/1/catalog1/schema1/table_sem_nonunique_parent/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_semantic_gaps_0_019_behavior_review]
+sql:
+drop table table_sem_nonunique_parent purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:37) /test/1/catalog1/schema1/table_sem_nonunique_parent/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_semantic_gaps_0_020_behavior_review]
+sql:
+create table table_sem_nv_unique(id int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:32) /test/1/catalog1/schema1/table_sem_nv_unique/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_semantic_gaps_0_021_behavior_review]
+sql:
+insert into table_sem_nv_unique values(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/schema1/table_sem_nv_unique/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_semantic_gaps_0_022_behavior_review]
+sql:
+insert into table_sem_nv_unique values(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/schema1/table_sem_nv_unique/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_semantic_gaps_0_023_behavior_review]
+sql:
+alter table table_sem_nv_unique add constraint table_sem_nv_uq unique(id) novalidate;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_CONSTRAINT": [
+    {
+      "subject": "Constraint(1:47~1:62) /test/1/catalog1/schema1/table_sem_nv_uq/",
+      "action": "CREATE",
+      "target": "Table(1:12~1:31) /test/1/catalog1/schema1/table_sem_nv_unique/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_semantic_gaps_0_024_behavior_review]
+sql:
+select constraint_name, status, validated from user_constraints where table_name='TABLE_SEM_NV_UNIQUE';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:47~1:63) /test/1/catalog1/schema1/user_constraints/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_semantic_gaps_0_025_behavior_review]
+sql:
+insert into table_sem_nv_unique values(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/schema1/table_sem_nv_unique/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_semantic_gaps_0_026_behavior_review]
+sql:
+drop table table_sem_nv_unique purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:30) /test/1/catalog1/schema1/table_sem_nv_unique/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_semantic_gaps_0_027_behavior_review]
+sql:
+create table table_sem_nv_parent(id int primary key);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:32) /test/1/catalog1/schema1/table_sem_nv_parent/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_semantic_gaps_0_028_behavior_review]
+sql:
+insert into table_sem_nv_parent values(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/schema1/table_sem_nv_parent/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_semantic_gaps_0_029_behavior_review]
+sql:
+create table table_sem_nv_child(id int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/schema1/table_sem_nv_child/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_semantic_gaps_0_030_behavior_review]
+sql:
+insert into table_sem_nv_child values(2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:30) /test/1/catalog1/schema1/table_sem_nv_child/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_semantic_gaps_0_031_behavior_review]
+sql:
+alter table table_sem_nv_child add constraint table_sem_nv_fk foreign key(id) references table_sem_nv_parent(id) novalidate;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_CONSTRAINT": [
+    {
+      "subject": "Constraint(1:46~1:61) /test/1/catalog1/schema1/table_sem_nv_fk/",
+      "action": "CREATE",
+      "target": [
+        "Table(1:12~1:30) /test/1/catalog1/schema1/table_sem_nv_child/",
+        "Table(1:89~1:108) /test/1/catalog1/schema1/table_sem_nv_parent/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_semantic_gaps_0_032_behavior_review]
+sql:
+select constraint_name, status, validated from user_constraints where table_name='TABLE_SEM_NV_CHILD';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:47~1:63) /test/1/catalog1/schema1/user_constraints/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_semantic_gaps_0_033_behavior_review]
+sql:
+insert into table_sem_nv_child values(3);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:30) /test/1/catalog1/schema1/table_sem_nv_child/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_semantic_gaps_0_034_behavior_review]
+sql:
+insert into table_sem_nv_child values(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:30) /test/1/catalog1/schema1/table_sem_nv_child/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_semantic_gaps_0_035_behavior_review]
+sql:
+alter table table_sem_nv_child enable constraint table_sem_nv_fk validate;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_CONSTRAINT": [
+    {
+      "subject": "Constraint(1:49~1:64) /test/1/catalog1/schema1/table_sem_nv_fk/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_semantic_gaps_0_036_behavior_review]
+sql:
+select constraint_name, status, validated from user_constraints where table_name='TABLE_SEM_NV_CHILD';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:47~1:63) /test/1/catalog1/schema1/user_constraints/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_semantic_gaps_0_037_behavior_review]
+sql:
+alter table table_sem_nv_child modify constraint table_sem_nv_fk enable validate;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_CONSTRAINT": [
+    {
+      "subject": "Constraint(1:49~1:64) /test/1/catalog1/schema1/table_sem_nv_fk/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_semantic_gaps_0_038_behavior_review]
+sql:
+drop table table_sem_nv_child purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:29) /test/1/catalog1/schema1/table_sem_nv_child/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_semantic_gaps_0_039_behavior_review]
+sql:
+drop table table_sem_nv_parent purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:30) /test/1/catalog1/schema1/table_sem_nv_parent/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_semantic_gaps_0_040_behavior_review]
+sql:
+create table table_sem_ts_storage(id int) tablespace main storage(on main);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:33) /test/1/catalog1/schema1/table_sem_ts_storage/",
+      "action": "CREATE",
+      "target": [
+        "Tablespace(1:53~1:57) /test/1/main/",
+        "Tablespace(1:69~1:73) /test/1/main/"
+      ]
+    }
+  ]
+}

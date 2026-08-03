@@ -1,0 +1,7 @@
+SELECT pg_database_collation_actual_version(oid) IS NULL OR length(pg_database_collation_actual_version(oid)) >= 0 AS database_collation_version_known
+FROM pg_database
+WHERE datname = current_database();
+------------------------------------------------------------------------------------------
+[SELECT|METADATA] SELECT pg_database_collation_actual_version(oid) IS NULL OR length(pg_database_collation_actual_version(oid)) >= 0 AS database_collation_version_known
+FROM pg_database
+WHERE datname = current_database();

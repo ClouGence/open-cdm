@@ -1,0 +1,31 @@
+[Db2RuleInsertAllowWithTest#selectAndWithTest_1#001]
+rule: _rules/insert/insert-allow-with.rule
+expect: true
+vars:
+  allow: false
+sql:
+insert into table1 select * from table2
+----------
+[Db2RuleInsertAllowWithTest#selectAndWithTest_1#002]
+rule: _rules/insert/insert-allow-with.rule
+expect: false
+vars:
+  allow: false
+sql:
+insert into "table2" with tab1Cnt as (select id,name from table1) select * from tab1Cnt;
+----------
+[Db2RuleInsertAllowWithTest#selectAndWithTest_2#001]
+rule: _rules/insert/insert-allow-with.rule
+expect: true
+vars:
+  allow: true
+sql:
+insert into table1 select * from table2
+----------
+[Db2RuleInsertAllowWithTest#selectAndWithTest_2#002]
+rule: _rules/insert/insert-allow-with.rule
+expect: true
+vars:
+  allow: true
+sql:
+insert into "table2" with tab1Cnt as (select id,name from table1) select * from tab1Cnt;

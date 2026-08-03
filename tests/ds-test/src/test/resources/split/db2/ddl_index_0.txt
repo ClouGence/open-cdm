@@ -1,0 +1,6 @@
+create unique index app.idx_employee_name on app.employee (name asc);
+drop index app.idx_employee_name;
+------------------------------------------------------------------------------------------
+[ADD_INDEX] create unique index app.idx_employee_name on app.employee (name asc);
+----------
+[DROP_INDEX] drop index app.idx_employee_name;

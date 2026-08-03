@@ -1,0 +1,294 @@
+SELECT pg_input_is_valid('42', 'integer');
+SELECT pg_input_is_valid('42000000000', 'integer');
+SELECT pg_input_is_valid('1234.567', 'numeric(7,4)');
+SELECT * FROM pg_input_error_info('42000000000', 'integer');
+SELECT * FROM pg_input_error_info('42', 'integer');
+SELECT pg_input_is_valid('{1,2,3}', 'integer[]');
+SELECT pg_input_is_valid('{1,2', 'integer[]');
+SELECT pg_input_is_valid('{1,zed}', 'integer[]');
+SELECT * FROM pg_input_error_info('{1,zed}', 'integer[]');
+SELECT pg_input_is_valid('01010001', 'bit(10)');
+SELECT * FROM pg_input_error_info('01010001', 'bit(10)');
+SELECT pg_input_is_valid('01010Z01', 'bit(8)');
+SELECT * FROM pg_input_error_info('01010Z01', 'bit(8)');
+SELECT pg_input_is_valid('01010Z01', 'varbit');
+SELECT * FROM pg_input_error_info('01010Z01', 'varbit');
+SELECT pg_input_is_valid('true', 'bool');
+SELECT pg_input_is_valid('asdf', 'bool');
+SELECT * FROM pg_input_error_info('junk', 'bool');
+SELECT pg_input_is_valid('abcd  ', 'char(4)');
+SELECT pg_input_is_valid('abcde', 'char(4)');
+SELECT * FROM pg_input_error_info('abcde', 'char(4)');
+SELECT pg_input_is_valid('abcd  ', 'varchar(4)');
+SELECT pg_input_is_valid('abcde', 'varchar(4)');
+SELECT * FROM pg_input_error_info('abcde', 'varchar(4)');
+SELECT pg_input_is_valid('now', 'date');
+SELECT pg_input_is_valid('garbage', 'date');
+SELECT pg_input_is_valid('6874898-01-01', 'date');
+SELECT * FROM pg_input_error_info('garbage', 'date');
+SELECT pg_input_is_valid('34.5', 'numeric');
+SELECT pg_input_is_valid('34xyz', 'numeric');
+SELECT pg_input_is_valid('1e400000', 'numeric');
+SELECT * FROM pg_input_error_info('1e400000', 'numeric');
+SELECT * FROM pg_input_error_info('0x1234.567', 'numeric');
+SELECT pg_input_is_valid('34.5', 'float4');
+SELECT pg_input_is_valid('1e400', 'float4');
+SELECT * FROM pg_input_error_info('1e400', 'float4');
+SELECT pg_input_is_valid('1234', 'cidr');
+SELECT * FROM pg_input_error_info('1234', 'cidr');
+SELECT pg_input_is_valid('192.168.198.200/24', 'cidr');
+SELECT * FROM pg_input_error_info('192.168.198.200/24', 'cidr');
+SELECT pg_input_is_valid('1234', 'inet');
+SELECT * FROM pg_input_error_info('1234', 'inet');
+SELECT pg_input_is_valid('{[1,2], [4,5]}', 'int4multirange');
+SELECT pg_input_is_valid('{[1,2], [4,5]', 'int4multirange');
+SELECT * FROM pg_input_error_info('{[1,2], [4,5]', 'int4multirange');
+SELECT pg_input_is_valid('(1,4)', 'int4range');
+SELECT pg_input_is_valid('(1,4', 'int4range');
+SELECT * FROM pg_input_error_info('(1,4', 'int4range');
+SELECT pg_input_is_valid('(4,1)', 'int4range');
+SELECT * FROM pg_input_error_info('(4,1)', 'int4range');
+SELECT pg_input_is_valid('{"a":true}', 'json');
+SELECT pg_input_is_valid('{"a":true', 'json');
+SELECT * FROM pg_input_error_info('{"a":true', 'json');
+SELECT pg_input_is_valid('{"a":true}', 'jsonb');
+SELECT pg_input_is_valid('{"a":true', 'jsonb');
+SELECT * FROM pg_input_error_info('{"a":true', 'jsonb');
+SELECT * FROM pg_input_error_info('{"a":1e1000000}', 'jsonb');
+SELECT pg_input_is_valid('foo', 'jsonpath');
+SELECT * FROM pg_input_error_info('$.a ? (@ >)', 'jsonpath');
+SELECT pg_input_is_valid('08:00:2b:01:02:ZZ', 'macaddr');
+SELECT * FROM pg_input_error_info('08:00:2b:01:02:ZZ', 'macaddr');
+SELECT pg_input_is_valid('08:00:2b:01:02:03:04:ZZ', 'macaddr8');
+SELECT * FROM pg_input_error_info('08:00:2b:01:02:03:04:ZZ', 'macaddr8');
+SELECT pg_input_is_valid('11', 'uuid');
+SELECT * FROM pg_input_error_info('11', 'uuid');
+SELECT pg_input_is_valid('<value>one</value>', 'xml');
+SELECT pg_input_is_valid('<value>one</', 'xml');
+SELECT message FROM pg_input_error_info('<value>one</', 'xml');
+SELECT pg_input_is_valid(E'\\xDeAdBeE', 'bytea');
+SELECT * FROM pg_input_error_info(E'\\xDeAdBeEx', 'bytea');
+SELECT pg_input_is_valid('42', 'xid');
+SELECT pg_input_is_valid('asdf', 'xid');
+SELECT * FROM pg_input_error_info('0xffffffffff', 'xid');
+SELECT pg_input_is_valid('42', 'xid8');
+SELECT pg_input_is_valid('asdf', 'xid8');
+SELECT * FROM pg_input_error_info('0xffffffffffffffffffff', 'xid8');
+SELECT pg_input_is_valid('12:13:', 'pg_snapshot');
+SELECT pg_input_is_valid('31:12:', 'pg_snapshot');
+SELECT * FROM pg_input_error_info('31:12:', 'pg_snapshot');
+SELECT pg_input_is_valid('1234', 'oid');
+SELECT pg_input_is_valid('01XYZ', 'oid');
+SELECT * FROM pg_input_error_info('01XYZ', 'oid');
+SELECT pg_input_is_valid(' 1 2  4 ', 'oidvector');
+SELECT * FROM pg_input_error_info('01 01XYZ', 'oidvector');
+SELECT pg_input_is_valid('1,y', 'point');
+SELECT * FROM pg_input_error_info('1,y', 'point');
+SELECT pg_input_is_valid('(1', 'circle');
+SELECT * FROM pg_input_error_info('(1,2),-1', 'circle');
+SELECT pg_input_is_valid('[(1,2),(3)]', 'path');
+SELECT * FROM pg_input_error_info('[(1,2),(3)]', 'path');
+SELECT pg_input_is_valid('(2.0,xyz)', 'polygon');
+SELECT * FROM pg_input_error_info('(2.0,xyz)', 'polygon');
+SELECT pg_input_is_valid('foo', 'tsvector');
+SELECT pg_input_is_valid($$''$$, 'tsvector');
+SELECT * FROM pg_input_error_info($$''$$, 'tsvector');
+SELECT pg_input_is_valid('foo', 'tsquery');
+SELECT pg_input_is_valid('foo!', 'tsquery');
+SELECT * FROM pg_input_error_info('foo!', 'tsquery');
+------------------------------------------------------------------------------------------
+[SELECT] SELECT pg_input_is_valid('42', 'integer');
+----------
+[SELECT] SELECT pg_input_is_valid('42000000000', 'integer');
+----------
+[SELECT] SELECT pg_input_is_valid('1234.567', 'numeric(7,4)');
+----------
+[SELECT] SELECT * FROM pg_input_error_info('42000000000', 'integer');
+----------
+[SELECT] SELECT * FROM pg_input_error_info('42', 'integer');
+----------
+[SELECT] SELECT pg_input_is_valid('{1,2,3}', 'integer[]');
+----------
+[SELECT] SELECT pg_input_is_valid('{1,2', 'integer[]');
+----------
+[SELECT] SELECT pg_input_is_valid('{1,zed}', 'integer[]');
+----------
+[SELECT] SELECT * FROM pg_input_error_info('{1,zed}', 'integer[]');
+----------
+[SELECT] SELECT pg_input_is_valid('01010001', 'bit(10)');
+----------
+[SELECT] SELECT * FROM pg_input_error_info('01010001', 'bit(10)');
+----------
+[SELECT] SELECT pg_input_is_valid('01010Z01', 'bit(8)');
+----------
+[SELECT] SELECT * FROM pg_input_error_info('01010Z01', 'bit(8)');
+----------
+[SELECT] SELECT pg_input_is_valid('01010Z01', 'varbit');
+----------
+[SELECT] SELECT * FROM pg_input_error_info('01010Z01', 'varbit');
+----------
+[SELECT] SELECT pg_input_is_valid('true', 'bool');
+----------
+[SELECT] SELECT pg_input_is_valid('asdf', 'bool');
+----------
+[SELECT] SELECT * FROM pg_input_error_info('junk', 'bool');
+----------
+[SELECT] SELECT pg_input_is_valid('abcd  ', 'char(4)');
+----------
+[SELECT] SELECT pg_input_is_valid('abcde', 'char(4)');
+----------
+[SELECT] SELECT * FROM pg_input_error_info('abcde', 'char(4)');
+----------
+[SELECT] SELECT pg_input_is_valid('abcd  ', 'varchar(4)');
+----------
+[SELECT] SELECT pg_input_is_valid('abcde', 'varchar(4)');
+----------
+[SELECT] SELECT * FROM pg_input_error_info('abcde', 'varchar(4)');
+----------
+[SELECT] SELECT pg_input_is_valid('now', 'date');
+----------
+[SELECT] SELECT pg_input_is_valid('garbage', 'date');
+----------
+[SELECT] SELECT pg_input_is_valid('6874898-01-01', 'date');
+----------
+[SELECT] SELECT * FROM pg_input_error_info('garbage', 'date');
+----------
+[SELECT] SELECT pg_input_is_valid('34.5', 'numeric');
+----------
+[SELECT] SELECT pg_input_is_valid('34xyz', 'numeric');
+----------
+[SELECT] SELECT pg_input_is_valid('1e400000', 'numeric');
+----------
+[SELECT] SELECT * FROM pg_input_error_info('1e400000', 'numeric');
+----------
+[SELECT] SELECT * FROM pg_input_error_info('0x1234.567', 'numeric');
+----------
+[SELECT] SELECT pg_input_is_valid('34.5', 'float4');
+----------
+[SELECT] SELECT pg_input_is_valid('1e400', 'float4');
+----------
+[SELECT] SELECT * FROM pg_input_error_info('1e400', 'float4');
+----------
+[SELECT] SELECT pg_input_is_valid('1234', 'cidr');
+----------
+[SELECT] SELECT * FROM pg_input_error_info('1234', 'cidr');
+----------
+[SELECT] SELECT pg_input_is_valid('192.168.198.200/24', 'cidr');
+----------
+[SELECT] SELECT * FROM pg_input_error_info('192.168.198.200/24', 'cidr');
+----------
+[SELECT] SELECT pg_input_is_valid('1234', 'inet');
+----------
+[SELECT] SELECT * FROM pg_input_error_info('1234', 'inet');
+----------
+[SELECT] SELECT pg_input_is_valid('{[1,2], [4,5]}', 'int4multirange');
+----------
+[SELECT] SELECT pg_input_is_valid('{[1,2], [4,5]', 'int4multirange');
+----------
+[SELECT] SELECT * FROM pg_input_error_info('{[1,2], [4,5]', 'int4multirange');
+----------
+[SELECT] SELECT pg_input_is_valid('(1,4)', 'int4range');
+----------
+[SELECT] SELECT pg_input_is_valid('(1,4', 'int4range');
+----------
+[SELECT] SELECT * FROM pg_input_error_info('(1,4', 'int4range');
+----------
+[SELECT] SELECT pg_input_is_valid('(4,1)', 'int4range');
+----------
+[SELECT] SELECT * FROM pg_input_error_info('(4,1)', 'int4range');
+----------
+[SELECT] SELECT pg_input_is_valid('{"a":true}', 'json');
+----------
+[SELECT] SELECT pg_input_is_valid('{"a":true', 'json');
+----------
+[SELECT] SELECT * FROM pg_input_error_info('{"a":true', 'json');
+----------
+[SELECT] SELECT pg_input_is_valid('{"a":true}', 'jsonb');
+----------
+[SELECT] SELECT pg_input_is_valid('{"a":true', 'jsonb');
+----------
+[SELECT] SELECT * FROM pg_input_error_info('{"a":true', 'jsonb');
+----------
+[SELECT] SELECT * FROM pg_input_error_info('{"a":1e1000000}', 'jsonb');
+----------
+[SELECT] SELECT pg_input_is_valid('foo', 'jsonpath');
+----------
+[SELECT] SELECT * FROM pg_input_error_info('$.a ? (@ >)', 'jsonpath');
+----------
+[SELECT] SELECT pg_input_is_valid('08:00:2b:01:02:ZZ', 'macaddr');
+----------
+[SELECT] SELECT * FROM pg_input_error_info('08:00:2b:01:02:ZZ', 'macaddr');
+----------
+[SELECT] SELECT pg_input_is_valid('08:00:2b:01:02:03:04:ZZ', 'macaddr8');
+----------
+[SELECT] SELECT * FROM pg_input_error_info('08:00:2b:01:02:03:04:ZZ', 'macaddr8');
+----------
+[SELECT] SELECT pg_input_is_valid('11', 'uuid');
+----------
+[SELECT] SELECT * FROM pg_input_error_info('11', 'uuid');
+----------
+[SELECT] SELECT pg_input_is_valid('<value>one</value>', 'xml');
+----------
+[SELECT] SELECT pg_input_is_valid('<value>one</', 'xml');
+----------
+[SELECT] SELECT message FROM pg_input_error_info('<value>one</', 'xml');
+----------
+[SELECT] SELECT pg_input_is_valid(E'\\xDeAdBeE', 'bytea');
+----------
+[SELECT] SELECT * FROM pg_input_error_info(E'\\xDeAdBeEx', 'bytea');
+----------
+[SELECT] SELECT pg_input_is_valid('42', 'xid');
+----------
+[SELECT] SELECT pg_input_is_valid('asdf', 'xid');
+----------
+[SELECT] SELECT * FROM pg_input_error_info('0xffffffffff', 'xid');
+----------
+[SELECT] SELECT pg_input_is_valid('42', 'xid8');
+----------
+[SELECT] SELECT pg_input_is_valid('asdf', 'xid8');
+----------
+[SELECT] SELECT * FROM pg_input_error_info('0xffffffffffffffffffff', 'xid8');
+----------
+[SELECT] SELECT pg_input_is_valid('12:13:', 'pg_snapshot');
+----------
+[SELECT] SELECT pg_input_is_valid('31:12:', 'pg_snapshot');
+----------
+[SELECT] SELECT * FROM pg_input_error_info('31:12:', 'pg_snapshot');
+----------
+[SELECT] SELECT pg_input_is_valid('1234', 'oid');
+----------
+[SELECT] SELECT pg_input_is_valid('01XYZ', 'oid');
+----------
+[SELECT] SELECT * FROM pg_input_error_info('01XYZ', 'oid');
+----------
+[SELECT] SELECT pg_input_is_valid(' 1 2  4 ', 'oidvector');
+----------
+[SELECT] SELECT * FROM pg_input_error_info('01 01XYZ', 'oidvector');
+----------
+[SELECT] SELECT pg_input_is_valid('1,y', 'point');
+----------
+[SELECT] SELECT * FROM pg_input_error_info('1,y', 'point');
+----------
+[SELECT] SELECT pg_input_is_valid('(1', 'circle');
+----------
+[SELECT] SELECT * FROM pg_input_error_info('(1,2),-1', 'circle');
+----------
+[SELECT] SELECT pg_input_is_valid('[(1,2),(3)]', 'path');
+----------
+[SELECT] SELECT * FROM pg_input_error_info('[(1,2),(3)]', 'path');
+----------
+[SELECT] SELECT pg_input_is_valid('(2.0,xyz)', 'polygon');
+----------
+[SELECT] SELECT * FROM pg_input_error_info('(2.0,xyz)', 'polygon');
+----------
+[SELECT] SELECT pg_input_is_valid('foo', 'tsvector');
+----------
+[SELECT] SELECT pg_input_is_valid($$''$$, 'tsvector');
+----------
+[SELECT] SELECT * FROM pg_input_error_info($$''$$, 'tsvector');
+----------
+[SELECT] SELECT pg_input_is_valid('foo', 'tsquery');
+----------
+[SELECT] SELECT pg_input_is_valid('foo!', 'tsquery');
+----------
+[SELECT] SELECT * FROM pg_input_error_info('foo!', 'tsquery');

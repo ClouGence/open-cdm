@@ -1,0 +1,30 @@
+select dbms_stats.get_prefs('STALE_PERCENT', 'SYSDBA', 'CODEX_DM8_PERF_STATS') from dual;
+select dbms_stats.get_prefs('ESTIMATE_PERCENT', 'SYSDBA', 'CODEX_DM8_PERF_STATS') from dual;
+select SF_CHECK_AWR_SYS() from dual;
+select snap_id, begin_interval_time, end_interval_time from sys.wrm$_snapshot where snap_id in (select number_value from CODEX_DM8_PERF_CTL where label like 'AWR_%') order by snap_id;
+select * from table(dbms_workload_repository.awr_report_text((select number_value from CODEX_DM8_PERF_CTL where label='AWR_START'), (select number_value from CODEX_DM8_PERF_CTL where label='AWR_END')));
+select * from table(dbms_workload_repository.awr_report_html((select number_value from CODEX_DM8_PERF_CTL where label='AWR_START'), (select number_value from CODEX_DM8_PERF_CTL where label='AWR_END')));
+select dbms_sqltune.report_sql_monitor_list(session_id=>-1, top_n_count=>10, type=>'TEXT') from dual;
+select dbms_sqltune.report_sql_monitor(session_id=>-1, type=>'TEXT') from dual;
+select dbms_sqltune.report_tuning_task(task_name=>'CODEX_TUNE_MAIN', type=>'TEXT', level=>'TYPICAL', "SECTION"=>'ALL') from dual;
+select dbms_sqltune.report_tuning_task('CODEX_TUNE_PROC', level=>'BASIC', "SECTION"=>'SUMMARY') from dual;
+------------------------------------------------------------------------------------------
+[SELECT|CALL_PROG_OBJ] select dbms_stats.get_prefs('STALE_PERCENT', 'SYSDBA', 'CODEX_DM8_PERF_STATS') from dual;
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_stats.get_prefs('ESTIMATE_PERCENT', 'SYSDBA', 'CODEX_DM8_PERF_STATS') from dual;
+----------
+[SELECT|CALL_PROG_OBJ] select SF_CHECK_AWR_SYS() from dual;
+----------
+[SELECT] select snap_id, begin_interval_time, end_interval_time from sys.wrm$_snapshot where snap_id in (select number_value from CODEX_DM8_PERF_CTL where label like 'AWR_%') order by snap_id;
+----------
+[SELECT|CALL_PROG_OBJ] select * from table(dbms_workload_repository.awr_report_text((select number_value from CODEX_DM8_PERF_CTL where label='AWR_START'), (select number_value from CODEX_DM8_PERF_CTL where label='AWR_END')));
+----------
+[SELECT|CALL_PROG_OBJ] select * from table(dbms_workload_repository.awr_report_html((select number_value from CODEX_DM8_PERF_CTL where label='AWR_START'), (select number_value from CODEX_DM8_PERF_CTL where label='AWR_END')));
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_sqltune.report_sql_monitor_list(session_id=>-1, top_n_count=>10, type=>'TEXT') from dual;
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_sqltune.report_sql_monitor(session_id=>-1, type=>'TEXT') from dual;
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_sqltune.report_tuning_task(task_name=>'CODEX_TUNE_MAIN', type=>'TEXT', level=>'TYPICAL', "SECTION"=>'ALL') from dual;
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_sqltune.report_tuning_task('CODEX_TUNE_PROC', level=>'BASIC', "SECTION"=>'SUMMARY') from dual;

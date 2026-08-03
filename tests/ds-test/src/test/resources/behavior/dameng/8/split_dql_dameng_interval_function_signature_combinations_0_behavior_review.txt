@@ -1,0 +1,1095 @@
+[split_dql_dameng_interval_function_signature_combinations_0_001_behavior_review]
+sql:
+-- NUMTODS_DAY_INTEGER
+SELECT NUMTODSINTERVAL(2,'DAY') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:22) /test/1/catalog1/schema1/NUMTODSINTERVAL/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:37~2:41) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_interval_function_signature_combinations_0_002_behavior_review]
+sql:
+-- NUMTODS_DAY_FRACTION
+SELECT NUMTODSINTERVAL(2.5,'DAY') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:22) /test/1/catalog1/schema1/NUMTODSINTERVAL/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:39~2:43) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_interval_function_signature_combinations_0_003_behavior_review]
+sql:
+-- NUMTODS_DAY_NEGATIVE
+SELECT NUMTODSINTERVAL(-1.25,'DAY') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:22) /test/1/catalog1/schema1/NUMTODSINTERVAL/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:41~2:45) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_interval_function_signature_combinations_0_004_behavior_review]
+sql:
+-- NUMTODS_HOUR_INTEGER
+SELECT NUMTODSINTERVAL(25,'HOUR') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:22) /test/1/catalog1/schema1/NUMTODSINTERVAL/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:39~2:43) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_interval_function_signature_combinations_0_005_behavior_review]
+sql:
+-- NUMTODS_HOUR_FRACTION_LOWERCASE
+SELECT NUMTODSINTERVAL(1.5,'hour') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:22) /test/1/catalog1/schema1/NUMTODSINTERVAL/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:40~2:44) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_interval_function_signature_combinations_0_006_behavior_review]
+sql:
+-- NUMTODS_MINUTE_INTEGER
+SELECT NUMTODSINTERVAL(90,'MINUTE') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:22) /test/1/catalog1/schema1/NUMTODSINTERVAL/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:41~2:45) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_interval_function_signature_combinations_0_007_behavior_review]
+sql:
+-- NUMTODS_MINUTE_FRACTION
+SELECT NUMTODSINTERVAL(1.5,'MINUTE') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:22) /test/1/catalog1/schema1/NUMTODSINTERVAL/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:42~2:46) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_interval_function_signature_combinations_0_008_behavior_review]
+sql:
+-- NUMTODS_SECOND_INTEGER
+SELECT NUMTODSINTERVAL(90,'SECOND') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:22) /test/1/catalog1/schema1/NUMTODSINTERVAL/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:41~2:45) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_interval_function_signature_combinations_0_009_behavior_review]
+sql:
+-- NUMTODS_SECOND_FRACTION
+SELECT NUMTODSINTERVAL(1.123456,'SECOND') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:22) /test/1/catalog1/schema1/NUMTODSINTERVAL/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:47~2:51) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_interval_function_signature_combinations_0_010_behavior_review]
+sql:
+-- NUMTODS_ZERO
+SELECT NUMTODSINTERVAL(0,'DAY') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:22) /test/1/catalog1/schema1/NUMTODSINTERVAL/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:37~2:41) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_interval_function_signature_combinations_0_011_behavior_review]
+sql:
+-- NUMTODS_NUMERIC_STRING
+SELECT NUMTODSINTERVAL('1.5','SECOND') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:22) /test/1/catalog1/schema1/NUMTODSINTERVAL/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:44~2:48) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_interval_function_signature_combinations_0_012_behavior_review]
+sql:
+-- NUMTODS_EXPRESSION
+SELECT NUMTODSINTERVAL(1 + 0.5,'HOUR') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:22) /test/1/catalog1/schema1/NUMTODSINTERVAL/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:44~2:48) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_interval_function_signature_combinations_0_013_behavior_review]
+sql:
+-- NUMTODS_NULL_NUMBER
+SELECT NUMTODSINTERVAL(NULL,'DAY') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:22) /test/1/catalog1/schema1/NUMTODSINTERVAL/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:40~2:44) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_interval_function_signature_combinations_0_014_behavior_review]
+sql:
+-- NUMTODS_NULL_UNIT
+SELECT NUMTODSINTERVAL(1,NULL) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:22) /test/1/catalog1/schema1/NUMTODSINTERVAL/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:36~2:40) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_interval_function_signature_combinations_0_015_behavior_review]
+sql:
+-- NUMTODS_EMPTY_UNIT
+SELECT NUMTODSINTERVAL(1,'') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:22) /test/1/catalog1/schema1/NUMTODSINTERVAL/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:34~2:38) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_interval_function_signature_combinations_0_016_behavior_review]
+sql:
+-- NUMTOYM_YEAR_INTEGER
+SELECT NUMTOYMINTERVAL(2,'YEAR') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:22) /test/1/catalog1/schema1/NUMTOYMINTERVAL/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:38~2:42) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_interval_function_signature_combinations_0_017_behavior_review]
+sql:
+-- NUMTOYM_YEAR_FRACTION
+SELECT NUMTOYMINTERVAL(2.5,'YEAR') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:22) /test/1/catalog1/schema1/NUMTOYMINTERVAL/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:40~2:44) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_interval_function_signature_combinations_0_018_behavior_review]
+sql:
+-- NUMTOYM_YEAR_NEGATIVE
+SELECT NUMTOYMINTERVAL(-1.25,'YEAR') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:22) /test/1/catalog1/schema1/NUMTOYMINTERVAL/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:42~2:46) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_interval_function_signature_combinations_0_019_behavior_review]
+sql:
+-- NUMTOYM_YEAR_LOWERCASE
+SELECT NUMTOYMINTERVAL(1,'year') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:22) /test/1/catalog1/schema1/NUMTOYMINTERVAL/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:38~2:42) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_interval_function_signature_combinations_0_020_behavior_review]
+sql:
+-- NUMTOYM_MONTH_INTEGER
+SELECT NUMTOYMINTERVAL(14,'MONTH') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:22) /test/1/catalog1/schema1/NUMTOYMINTERVAL/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:40~2:44) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_interval_function_signature_combinations_0_021_behavior_review]
+sql:
+-- NUMTOYM_MONTH_FRACTION
+SELECT NUMTOYMINTERVAL(1.5,'MONTH') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:22) /test/1/catalog1/schema1/NUMTOYMINTERVAL/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:41~2:45) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_interval_function_signature_combinations_0_022_behavior_review]
+sql:
+-- NUMTOYM_MONTH_NEGATIVE
+SELECT NUMTOYMINTERVAL(-14,'MONTH') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:22) /test/1/catalog1/schema1/NUMTOYMINTERVAL/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:41~2:45) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_interval_function_signature_combinations_0_023_behavior_review]
+sql:
+-- NUMTOYM_MONTH_LOWERCASE
+SELECT NUMTOYMINTERVAL(1,'month') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:22) /test/1/catalog1/schema1/NUMTOYMINTERVAL/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:39~2:43) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_interval_function_signature_combinations_0_024_behavior_review]
+sql:
+-- NUMTOYM_ZERO
+SELECT NUMTOYMINTERVAL(0,'YEAR') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:22) /test/1/catalog1/schema1/NUMTOYMINTERVAL/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:38~2:42) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_interval_function_signature_combinations_0_025_behavior_review]
+sql:
+-- NUMTOYM_NUMERIC_STRING
+SELECT NUMTOYMINTERVAL('1.5','MONTH') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:22) /test/1/catalog1/schema1/NUMTOYMINTERVAL/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:43~2:47) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_interval_function_signature_combinations_0_026_behavior_review]
+sql:
+-- NUMTOYM_NULL_EACH
+SELECT NUMTOYMINTERVAL(NULL,'YEAR'),NUMTOYMINTERVAL(1,NULL) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:22) /test/1/catalog1/schema1/NUMTOYMINTERVAL/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:36~2:51) /test/1/catalog1/schema1/NUMTOYMINTERVAL/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:65~2:69) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_interval_function_signature_combinations_0_027_behavior_review]
+sql:
+-- NUMTOYM_EMPTY_UNIT
+SELECT NUMTOYMINTERVAL(1,'') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:22) /test/1/catalog1/schema1/NUMTOYMINTERVAL/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:34~2:38) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_interval_function_signature_combinations_0_028_behavior_review]
+sql:
+-- TO_DS_DOCUMENTED
+SELECT TO_DSINTERVAL('100 00:00:00') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:20) /test/1/catalog1/schema1/TO_DSINTERVAL/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:42~2:46) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_interval_function_signature_combinations_0_029_behavior_review]
+sql:
+-- TO_DS_NEGATIVE
+SELECT TO_DSINTERVAL('-1 02:03:04.5') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:20) /test/1/catalog1/schema1/TO_DSINTERVAL/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:43~2:47) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_interval_function_signature_combinations_0_030_behavior_review]
+sql:
+-- TO_DS_EXPLICIT_POSITIVE
+SELECT TO_DSINTERVAL('+0 00:00:00.000001') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:20) /test/1/catalog1/schema1/TO_DSINTERVAL/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:48~2:52) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_interval_function_signature_combinations_0_031_behavior_review]
+sql:
+-- TO_DS_ZERO
+SELECT TO_DSINTERVAL('0 00:00:00') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:20) /test/1/catalog1/schema1/TO_DSINTERVAL/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:40~2:44) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_interval_function_signature_combinations_0_032_behavior_review]
+sql:
+-- TO_DS_COMPONENT_MAXIMUMS
+SELECT TO_DSINTERVAL('9 23:59:59.999999') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:20) /test/1/catalog1/schema1/TO_DSINTERVAL/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:47~2:51) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_interval_function_signature_combinations_0_033_behavior_review]
+sql:
+-- TO_DS_LEADING_ZEROES
+SELECT TO_DSINTERVAL('001 01:02:03.004005') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:20) /test/1/catalog1/schema1/TO_DSINTERVAL/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:49~2:53) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_interval_function_signature_combinations_0_034_behavior_review]
+sql:
+-- TO_DS_NULL
+SELECT TO_DSINTERVAL(NULL) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:20) /test/1/catalog1/schema1/TO_DSINTERVAL/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:32~2:36) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_interval_function_signature_combinations_0_035_behavior_review]
+sql:
+-- TO_YM_DOCUMENTED
+SELECT TO_YMINTERVAL('01-02') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:20) /test/1/catalog1/schema1/TO_YMINTERVAL/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:35~2:39) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_interval_function_signature_combinations_0_036_behavior_review]
+sql:
+-- TO_YM_NEGATIVE
+SELECT TO_YMINTERVAL('-2-06') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:20) /test/1/catalog1/schema1/TO_YMINTERVAL/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:35~2:39) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_interval_function_signature_combinations_0_037_behavior_review]
+sql:
+-- TO_YM_EXPLICIT_POSITIVE
+SELECT TO_YMINTERVAL('+0-11') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:20) /test/1/catalog1/schema1/TO_YMINTERVAL/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:35~2:39) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_interval_function_signature_combinations_0_038_behavior_review]
+sql:
+-- TO_YM_ZERO
+SELECT TO_YMINTERVAL('0-0') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:20) /test/1/catalog1/schema1/TO_YMINTERVAL/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:33~2:37) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_interval_function_signature_combinations_0_039_behavior_review]
+sql:
+-- TO_YM_LEADING_ZEROES
+SELECT TO_YMINTERVAL('0002-01') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:20) /test/1/catalog1/schema1/TO_YMINTERVAL/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:37~2:41) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_interval_function_signature_combinations_0_040_behavior_review]
+sql:
+-- TO_YM_NULL
+SELECT TO_YMINTERVAL(NULL) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:20) /test/1/catalog1/schema1/TO_YMINTERVAL/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:32~2:36) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_interval_function_signature_combinations_0_041_behavior_review]
+sql:
+-- OVERLAPS_DATE_TRUE
+SELECT OVERLAPS(DATE '2024-01-01',DATE '2024-01-10',DATE '2024-01-05',DATE '2024-01-06') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/OVERLAPS/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:94~2:98) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_interval_function_signature_combinations_0_042_behavior_review]
+sql:
+-- OVERLAPS_DATE_FALSE
+SELECT OVERLAPS(DATE '2024-01-01',DATE '2024-01-10',DATE '2024-01-11',DATE '2024-01-12') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/OVERLAPS/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:94~2:98) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_interval_function_signature_combinations_0_043_behavior_review]
+sql:
+-- OVERLAPS_DATE_TOUCHING_TRUE
+SELECT OVERLAPS(DATE '2024-01-01',DATE '2024-01-10',DATE '2024-01-10',DATE '2024-01-11') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/OVERLAPS/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:94~2:98) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_interval_function_signature_combinations_0_044_behavior_review]
+sql:
+-- OVERLAPS_TIMESTAMP_TRUE
+SELECT OVERLAPS(TIMESTAMP '2024-01-01 12:00:00',TIMESTAMP '2024-01-01 13:00:00',TIMESTAMP '2024-01-01 12:30:00',TIMESTAMP '2024-01-01 14:00:00') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/OVERLAPS/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:150~2:154) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_interval_function_signature_combinations_0_045_behavior_review]
+sql:
+-- OVERLAPS_TIMESTAMP_FALSE
+SELECT OVERLAPS(TIMESTAMP '2024-01-01 12:00:00',TIMESTAMP '2024-01-01 13:00:00',TIMESTAMP '2024-01-01 13:00:00.000001',TIMESTAMP '2024-01-01 14:00:00') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/OVERLAPS/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:157~2:161) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_interval_function_signature_combinations_0_046_behavior_review]
+sql:
+-- OVERLAPS_DS_TRUE
+SELECT OVERLAPS(DATE '2024-01-01',INTERVAL '10' DAY,DATE '2024-01-05',INTERVAL '1' DAY) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/OVERLAPS/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:93~2:97) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_interval_function_signature_combinations_0_047_behavior_review]
+sql:
+-- OVERLAPS_DS_FALSE
+SELECT OVERLAPS(DATE '2024-01-01',INTERVAL '1' DAY,DATE '2024-01-05',INTERVAL '1' DAY) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/OVERLAPS/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:92~2:96) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_interval_function_signature_combinations_0_048_behavior_review]
+sql:
+-- OVERLAPS_DS_MIXED_QUALIFIER
+SELECT OVERLAPS(TIMESTAMP '2024-01-01 12:00:00',INTERVAL '2:30' HOUR TO MINUTE,TIMESTAMP '2024-01-01 13:00:00',INTERVAL '10' MINUTE) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/OVERLAPS/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:138~2:142) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_interval_function_signature_combinations_0_049_behavior_review]
+sql:
+-- OVERLAPS_YM_TRUE
+SELECT OVERLAPS(DATE '2024-01-01',INTERVAL '2' MONTH,DATE '2024-02-01',INTERVAL '1' MONTH) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/OVERLAPS/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:96~2:100) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_interval_function_signature_combinations_0_050_behavior_review]
+sql:
+-- OVERLAPS_YM_FALSE
+SELECT OVERLAPS(DATE '2024-01-01',INTERVAL '1' MONTH,DATE '2024-03-01',INTERVAL '1' MONTH) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/OVERLAPS/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:96~2:100) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_interval_function_signature_combinations_0_051_behavior_review]
+sql:
+-- OVERLAPS_YM_YEAR_TO_MONTH
+SELECT OVERLAPS(DATE '2024-01-01',INTERVAL '1-1' YEAR TO MONTH,DATE '2024-12-01',INTERVAL '2' MONTH) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/OVERLAPS/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:106~2:110) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_interval_function_signature_combinations_0_052_behavior_review]
+sql:
+-- OVERLAPS_STRING_DATETIMES
+SELECT OVERLAPS('2024-01-01','2024-01-10','2024-01-05','2024-01-06') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/OVERLAPS/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:74~2:78) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_interval_function_signature_combinations_0_053_behavior_review]
+sql:
+-- OVERLAPS_EQUAL_POINTS
+SELECT OVERLAPS(DATE '2024-01-01',DATE '2024-01-01',DATE '2024-01-01',DATE '2024-01-01') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/OVERLAPS/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:94~2:98) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_interval_function_signature_combinations_0_054_behavior_review]
+sql:
+-- OVERLAPS_NULL_POSITIONS
+SELECT OVERLAPS(NULL,DATE '2024-01-02',DATE '2024-01-03',DATE '2024-01-04'),OVERLAPS(DATE '2024-01-01',NULL,DATE '2024-01-03',DATE '2024-01-04'),OVERLAPS(DATE '2024-01-01',DATE '2024-01-02',NULL,DATE '2024-01-04'),OVERLAPS(DATE '2024-01-01',DATE '2024-01-02',DATE '2024-01-03',NULL) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/OVERLAPS/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:76~2:84) /test/1/catalog1/schema1/OVERLAPS/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:145~2:153) /test/1/catalog1/schema1/OVERLAPS/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:214~2:222) /test/1/catalog1/schema1/OVERLAPS/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:288~2:292) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}

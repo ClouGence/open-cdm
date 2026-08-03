@@ -17,7 +17,7 @@ package com.clougence.clouddm.sdk.service.secrules;
 
 import java.util.List;
 
-import com.clougence.clouddm.sdk.model.analysis.TargetType;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 
 import lombok.Getter;
 import lombok.Setter;

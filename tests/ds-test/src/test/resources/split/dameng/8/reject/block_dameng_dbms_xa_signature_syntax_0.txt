@@ -1,0 +1,28 @@
+-- missing closing parenthesis
+declare r int; begin r:=DBMS_XA.XA_START(DBMS_XA_XID(1),0; end;
+/
+-- trailing argument comma
+declare r int; begin r:=DBMS_XA.XA_COMMIT(DBMS_XA_XID(1),FALSE,); end;
+/
+-- missing named value
+declare r int; begin r:=DBMS_XA.XA_END(XID=>); end;
+/
+-- malformed zero arity
+declare a DBMS_XA_XID_ARRAY; begin a:=DBMS_XA.XA_RECOVER(,); end;
+/
+------------------------------------------------------------------------------------------
+[BLOCK] -- missing closing parenthesis
+declare r int; begin r:=DBMS_XA.XA_START(DBMS_XA_XID(1),0; end;
+/
+----------
+[BLOCK] -- trailing argument comma
+declare r int; begin r:=DBMS_XA.XA_COMMIT(DBMS_XA_XID(1),FALSE,); end;
+/
+----------
+[BLOCK] -- missing named value
+declare r int; begin r:=DBMS_XA.XA_END(XID=>); end;
+/
+----------
+[BLOCK] -- malformed zero arity
+declare a DBMS_XA_XID_ARRAY; begin a:=DBMS_XA.XA_RECOVER(,); end;
+/

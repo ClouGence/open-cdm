@@ -1,0 +1,237 @@
+SELECT BIT_LENGTH('ab');
+SELECT   CHAR(66),CHAR(67),CHAR(68) , CHAR(54992);
+SELECT CHAR_LENGTH('我们');
+SELECT  DIFFERENCE('she', 'he');
+SELECT   INITCAP('hello world');
+SELECT  INS ('abcdefg',1,3, 'kkk') ;
+SELECT  INSERT('That is a cake',2,3, 'his') ;
+SELECT INSTR('CORPORATE FLOOR', 'OR', 3, 2) "Instring";
+SELECT INSTRB('CORPORATE FLOOR', 'OR', 3, 2) "Instring";
+SELECT LCASE('ABC');
+SELECT  LEFT ('computer science',10);
+SELECT LEN ('hi,你好□□');
+SELECT LENGTH('hi,你好□□');
+SELECT LENGTH2('hi,你好□□');
+SELECT LENGTH4('□□hi,你好□□');
+SELECT LOCATE('man', 'The manager is a man', 10);
+SELECT LOCATE('man', 'The manager is a man');
+SELECT LPAD(LPAD('FX',19,'Teacher'),22,'BIG') "LPAD example";
+SELECT LTRIM('xyyxxxXxyLAST WORD', 'xy') "LTRIM example";
+SELECT LTRIM('我们的计算机', '我们');
+SELECT REPEAT ('Hello ',3);
+SELECT  REPLICATE('aaa',3);
+SELECT REVERSE('abcd');
+SELECT RIGHTSTR('computer',3);
+SELECT RPAD('FUXIN',11, 'BigBig') "RPAD example";
+SELECT RTRIM('TURNERyXxxxyyyxy', 'xy') "RTRIM e.g.";
+SELECT RTRIM('我们的计算机','我计算机');
+SELECT SOUNDEX('Hello');
+SELECT SPACE(5);
+SELECT CONCAT(CONCAT('Hello',SPACE(3)), 'world');
+SELECT STRPOSDEC('hello');
+SELECT STRPOSDEC('hello',3);
+SELECT STRPOSINC ('hello');
+SELECT STRPOSINC ('hello',3);
+SELECT STUFF('ABCDEFG',1,3, 'OOO');
+SELECT SUBSTR('我们的计算机',3,4) "Subs";
+SELECT SUBSTRB('我们的计算机',3,4) "Subs", LENGTHB( SUBSTRB('我们的计算机',3,4));
+SELECT SUBSTRB('ABCDEFG',3,3) "Subs";
+SELECT TO_CHAR('0110');
+SELECT TO_CHAR('123','99,99','NLS_ISO_CURRENCY=CHINA');
+SELECT  TRIM( '   Hello World   ');
+SELECT  UCASE('hello world');
+SELECT NLS_UPPER('abcd123') FROM DUAL;
+SELECT REGEXP_COUNT('AbCd', 'abcd', 1, 'i') FROM DUAL;
+SELECT REGEXP_COUNT('AbCd', 'abcd', 1, 'c') FROM DUAL;
+SELECT 1 FROM DUAL WHERE REGEXP_LIKE('DM database V7', 'dm', 'c');
+SELECT 1 FROM DUAL WHERE REGEXP_LIKE('DM database V7', 'dm', 'i');
+SELECT REGEXP_INSTR('a 为了aaac','aa') FROM DUAL;
+SELECT REGEXP_INSTR('a 为了aaac','aa',5) FROM DUAL;
+SELECT REGEXP_SUBSTR('a 为aa 了aac','(a*)',2) FROM DUAL;
+SELECT REGEXP_SUBSTR('a 为aa 了aac','(a+)',2) FROM DUAL;
+SELECT REGEXP_REPLACE('a 为了aaac','aa','bb') FROM DUAL;
+SELECT REGEXP_REPLACE('a 为了ac','aa','bb') FROM DUAL;
+SELECT REGEXP_REPLACE('a 为aa 了aac','aa','bb') FROM DUAL;
+SELECT REGEXP_REPLACE('www1234xxxx3q', '([[:alpha:]]+)', 'AAA\1') FROM DUAL;
+SELECT TEXT_EQUAL('a', 'b');
+SELECT TEXT_EQUAL('a','a');
+SELECT BLOB_EQUAL(0xFFFEE, 0xEEEFF);
+SELECT BLOB_EQUAL(0xFFFEE, 0xFFFEE);
+SELECT NLSSORT('abc') FROM DUAL;
+SELECT GREATEST('abb','abd', 'abc');
+SELECT GREAT ('abb','abd');
+SELECT LENGTHB(TO_SINGLE_BYTE('aa'));
+SELECT LENGTHB(TO_MULTI_BYTE('aa') );
+SELECT UNISTR('\803F\55B5\55B5kind 又\006e\0069\0063\0065') FROM DUAL;
+SELECT CONCAT_WS(',,','11','22','33');
+SELECT SUBSTRING_INDEX('blog.jb51.net', '.',2);
+SELECT SUBSTRING_INDEX('blog.jb51.net', '.',-2);
+select compose('da'||'meng') from dual ;
+select compose('a'||unistr('\0300')) from dual ;
+select compose('u'||unistr('\0308') || unistr('\0300')) from dual ;
+SELECT FIND_IN_SET('', '');
+SELECT FIND_IN_SET(' ', ' ');
+SELECT FIND_IN_SET('b', 'a,b,c');
+SELECT FIND_IN_SET('', 'a,b,,');
+SELECT FIND_IN_SET('ab', 'q8w8es8zcd8t8ab','8');
+SELECT FIND_IN_SET(NULL, '');
+select trunc('108011524.122','-6') from dual;
+select trunc('2010-09-01 10:59:59','yyyy');
+------------------------------------------------------------------------------------------
+[SELECT] SELECT BIT_LENGTH('ab');
+----------
+[SELECT] SELECT   CHAR(66),CHAR(67),CHAR(68) , CHAR(54992);
+----------
+[SELECT] SELECT CHAR_LENGTH('我们');
+----------
+[SELECT] SELECT  DIFFERENCE('she', 'he');
+----------
+[SELECT] SELECT   INITCAP('hello world');
+----------
+[SELECT] SELECT  INS ('abcdefg',1,3, 'kkk') ;
+----------
+[SELECT] SELECT  INSERT('That is a cake',2,3, 'his') ;
+----------
+[SELECT] SELECT INSTR('CORPORATE FLOOR', 'OR', 3, 2) "Instring";
+----------
+[SELECT] SELECT INSTRB('CORPORATE FLOOR', 'OR', 3, 2) "Instring";
+----------
+[SELECT] SELECT LCASE('ABC');
+----------
+[SELECT] SELECT  LEFT ('computer science',10);
+----------
+[SELECT] SELECT LEN ('hi,你好□□');
+----------
+[SELECT] SELECT LENGTH('hi,你好□□');
+----------
+[SELECT] SELECT LENGTH2('hi,你好□□');
+----------
+[SELECT] SELECT LENGTH4('□□hi,你好□□');
+----------
+[SELECT] SELECT LOCATE('man', 'The manager is a man', 10);
+----------
+[SELECT] SELECT LOCATE('man', 'The manager is a man');
+----------
+[SELECT] SELECT LPAD(LPAD('FX',19,'Teacher'),22,'BIG') "LPAD example";
+----------
+[SELECT] SELECT LTRIM('xyyxxxXxyLAST WORD', 'xy') "LTRIM example";
+----------
+[SELECT] SELECT LTRIM('我们的计算机', '我们');
+----------
+[SELECT] SELECT REPEAT ('Hello ',3);
+----------
+[SELECT] SELECT  REPLICATE('aaa',3);
+----------
+[SELECT] SELECT REVERSE('abcd');
+----------
+[SELECT] SELECT RIGHTSTR('computer',3);
+----------
+[SELECT] SELECT RPAD('FUXIN',11, 'BigBig') "RPAD example";
+----------
+[SELECT] SELECT RTRIM('TURNERyXxxxyyyxy', 'xy') "RTRIM e.g.";
+----------
+[SELECT] SELECT RTRIM('我们的计算机','我计算机');
+----------
+[SELECT] SELECT SOUNDEX('Hello');
+----------
+[SELECT] SELECT SPACE(5);
+----------
+[SELECT] SELECT CONCAT(CONCAT('Hello',SPACE(3)), 'world');
+----------
+[SELECT] SELECT STRPOSDEC('hello');
+----------
+[SELECT] SELECT STRPOSDEC('hello',3);
+----------
+[SELECT] SELECT STRPOSINC ('hello');
+----------
+[SELECT] SELECT STRPOSINC ('hello',3);
+----------
+[SELECT] SELECT STUFF('ABCDEFG',1,3, 'OOO');
+----------
+[SELECT] SELECT SUBSTR('我们的计算机',3,4) "Subs";
+----------
+[SELECT] SELECT SUBSTRB('我们的计算机',3,4) "Subs", LENGTHB( SUBSTRB('我们的计算机',3,4));
+----------
+[SELECT] SELECT SUBSTRB('ABCDEFG',3,3) "Subs";
+----------
+[SELECT] SELECT TO_CHAR('0110');
+----------
+[SELECT] SELECT TO_CHAR('123','99,99','NLS_ISO_CURRENCY=CHINA');
+----------
+[SELECT] SELECT  TRIM( '   Hello World   ');
+----------
+[SELECT] SELECT  UCASE('hello world');
+----------
+[SELECT] SELECT NLS_UPPER('abcd123') FROM DUAL;
+----------
+[SELECT] SELECT REGEXP_COUNT('AbCd', 'abcd', 1, 'i') FROM DUAL;
+----------
+[SELECT] SELECT REGEXP_COUNT('AbCd', 'abcd', 1, 'c') FROM DUAL;
+----------
+[SELECT] SELECT 1 FROM DUAL WHERE REGEXP_LIKE('DM database V7', 'dm', 'c');
+----------
+[SELECT] SELECT 1 FROM DUAL WHERE REGEXP_LIKE('DM database V7', 'dm', 'i');
+----------
+[SELECT] SELECT REGEXP_INSTR('a 为了aaac','aa') FROM DUAL;
+----------
+[SELECT] SELECT REGEXP_INSTR('a 为了aaac','aa',5) FROM DUAL;
+----------
+[SELECT] SELECT REGEXP_SUBSTR('a 为aa 了aac','(a*)',2) FROM DUAL;
+----------
+[SELECT] SELECT REGEXP_SUBSTR('a 为aa 了aac','(a+)',2) FROM DUAL;
+----------
+[SELECT] SELECT REGEXP_REPLACE('a 为了aaac','aa','bb') FROM DUAL;
+----------
+[SELECT] SELECT REGEXP_REPLACE('a 为了ac','aa','bb') FROM DUAL;
+----------
+[SELECT] SELECT REGEXP_REPLACE('a 为aa 了aac','aa','bb') FROM DUAL;
+----------
+[SELECT] SELECT REGEXP_REPLACE('www1234xxxx3q', '([[:alpha:]]+)', 'AAA\1') FROM DUAL;
+----------
+[SELECT] SELECT TEXT_EQUAL('a', 'b');
+----------
+[SELECT] SELECT TEXT_EQUAL('a','a');
+----------
+[SELECT] SELECT BLOB_EQUAL(0xFFFEE, 0xEEEFF);
+----------
+[SELECT] SELECT BLOB_EQUAL(0xFFFEE, 0xFFFEE);
+----------
+[SELECT] SELECT NLSSORT('abc') FROM DUAL;
+----------
+[SELECT] SELECT GREATEST('abb','abd', 'abc');
+----------
+[SELECT] SELECT GREAT ('abb','abd');
+----------
+[SELECT] SELECT LENGTHB(TO_SINGLE_BYTE('aa'));
+----------
+[SELECT] SELECT LENGTHB(TO_MULTI_BYTE('aa') );
+----------
+[SELECT] SELECT UNISTR('\803F\55B5\55B5kind 又\006e\0069\0063\0065') FROM DUAL;
+----------
+[SELECT] SELECT CONCAT_WS(',,','11','22','33');
+----------
+[SELECT] SELECT SUBSTRING_INDEX('blog.jb51.net', '.',2);
+----------
+[SELECT] SELECT SUBSTRING_INDEX('blog.jb51.net', '.',-2);
+----------
+[SELECT] select compose('da'||'meng') from dual ;
+----------
+[SELECT] select compose('a'||unistr('\0300')) from dual ;
+----------
+[SELECT] select compose('u'||unistr('\0308') || unistr('\0300')) from dual ;
+----------
+[SELECT] SELECT FIND_IN_SET('', '');
+----------
+[SELECT] SELECT FIND_IN_SET(' ', ' ');
+----------
+[SELECT] SELECT FIND_IN_SET('b', 'a,b,c');
+----------
+[SELECT] SELECT FIND_IN_SET('', 'a,b,,');
+----------
+[SELECT] SELECT FIND_IN_SET('ab', 'q8w8es8zcd8t8ab','8');
+----------
+[SELECT] SELECT FIND_IN_SET(NULL, '');
+----------
+[SELECT] select trunc('108011524.122','-6') from dual;
+----------
+[SELECT] select trunc('2010-09-01 10:59:59','yyyy');

@@ -1,0 +1,48 @@
+sp_create_audit_rule('CODEX_RT_DANGEROUS_SESSION','CONNECT','SYSDBA','NULL','NULL','ALL','"127.0.0.1"','MON "8:00:00" TO MON "9:00:00"',0,0);
+sp_drop_audit_rule('CODEX_RT_DANGEROUS_SESSION');
+sp_create_audit_rule('CODEX_RT_PWD_CRACK','CONNECT','NULL','NULL','NULL','FAIL','NULL','NULL',1,50);
+sp_drop_audit_rule('CODEX_RT_PWD_CRACK');
+sp_create_audit_rule('CODEX_RT_CREATE_USER','CREATE USER','NULL','NULL','NULL','SUCCESSFUL','NULL','NULL',0,0);
+sp_drop_audit_rule('CODEX_RT_CREATE_USER');
+sp_create_audit_rule('CODEX_RT_CREATE_ROLE','CREATE ROLE','SYSDBA','NULL','NULL','ALL','"127.0.0.1"','NULL',5,3);
+sp_drop_audit_rule('CODEX_RT_CREATE_ROLE');
+sp_create_audit_rule('CODEX_RT_CREATE_TABLE','CREATE TABLE','NULL','NULL','NULL','FAIL','NULL','TUE "00:00:00" TO TUE "23:59:59"',10,2);
+sp_drop_audit_rule('CODEX_RT_CREATE_TABLE');
+sp_create_audit_rule('CODEX_RT_GRANT','GRANT','NULL','NULL','NULL','ALL','"127.0.0.1","::1"','NULL',0,0);
+sp_drop_audit_rule('CODEX_RT_GRANT');
+sp_create_audit_rule('CODEX_RT_COMMIT','COMMIT','NULL','NULL','NULL','SUCCESSFUL','NULL','NULL',30,100);
+sp_drop_audit_rule('CODEX_RT_COMMIT');
+sp_create_audit_rule('CODEX_RT_SHUTDOWN','SHUTDOWN','NULL','NULL','NULL','ALL','NULL','NULL',0,0);
+sp_drop_audit_rule('CODEX_RT_SHUTDOWN');
+------------------------------------------------------------------------------------------
+[ADMIN] sp_create_audit_rule('CODEX_RT_DANGEROUS_SESSION','CONNECT','SYSDBA','NULL','NULL','ALL','"127.0.0.1"','MON "8:00:00" TO MON "9:00:00"',0,0);
+----------
+[ADMIN] sp_drop_audit_rule('CODEX_RT_DANGEROUS_SESSION');
+----------
+[ADMIN] sp_create_audit_rule('CODEX_RT_PWD_CRACK','CONNECT','NULL','NULL','NULL','FAIL','NULL','NULL',1,50);
+----------
+[ADMIN] sp_drop_audit_rule('CODEX_RT_PWD_CRACK');
+----------
+[ADMIN] sp_create_audit_rule('CODEX_RT_CREATE_USER','CREATE USER','NULL','NULL','NULL','SUCCESSFUL','NULL','NULL',0,0);
+----------
+[ADMIN] sp_drop_audit_rule('CODEX_RT_CREATE_USER');
+----------
+[ADMIN] sp_create_audit_rule('CODEX_RT_CREATE_ROLE','CREATE ROLE','SYSDBA','NULL','NULL','ALL','"127.0.0.1"','NULL',5,3);
+----------
+[ADMIN] sp_drop_audit_rule('CODEX_RT_CREATE_ROLE');
+----------
+[ADMIN] sp_create_audit_rule('CODEX_RT_CREATE_TABLE','CREATE TABLE','NULL','NULL','NULL','FAIL','NULL','TUE "00:00:00" TO TUE "23:59:59"',10,2);
+----------
+[ADMIN] sp_drop_audit_rule('CODEX_RT_CREATE_TABLE');
+----------
+[ADMIN] sp_create_audit_rule('CODEX_RT_GRANT','GRANT','NULL','NULL','NULL','ALL','"127.0.0.1","::1"','NULL',0,0);
+----------
+[ADMIN] sp_drop_audit_rule('CODEX_RT_GRANT');
+----------
+[ADMIN] sp_create_audit_rule('CODEX_RT_COMMIT','COMMIT','NULL','NULL','NULL','SUCCESSFUL','NULL','NULL',30,100);
+----------
+[ADMIN] sp_drop_audit_rule('CODEX_RT_COMMIT');
+----------
+[ADMIN] sp_create_audit_rule('CODEX_RT_SHUTDOWN','SHUTDOWN','NULL','NULL','NULL','ALL','NULL','NULL',0,0);
+----------
+[ADMIN] sp_drop_audit_rule('CODEX_RT_SHUTDOWN');

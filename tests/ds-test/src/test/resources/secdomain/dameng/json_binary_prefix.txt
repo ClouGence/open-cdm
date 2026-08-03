@@ -1,0 +1,56 @@
+[binary_table]
+sql:
+select binary t.c1 c1_hex
+from app.binary_t t
+where binary t.c2='a'
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"binary_t"}
+  ]
+}
+----------
+[binary_join]
+sql:
+select t.id
+from app.binary_t t join app.binary_dim d on binary t.c2=d.c1
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"binary_t"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"binary_dim"}
+  ]
+}
+----------
+[binary_cte]
+sql:
+with q as(select c1,c2 from app.binary_t)
+select q.c1 from q where binary q.c2='a'
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"binary_t"}
+  ]
+}
+----------
+[binary_update]
+sql:
+update app.binary_t set c3='X' where binary c2='a'
+expect:
+{
+  "contains": [
+    {"class":"RdbUpdateDomain", "sqlType":"UPDATE", "auditKind":"DML", "schema":"app", "table":"binary_t"}
+  ]
+}
+----------
+[binary_merge]
+sql:
+merge into app.binary_dim d using app.binary_t s on(binary d.c1=s.c2)
+when matched then update set d.c2=s.c3
+expect:
+{
+  "contains": [
+    {"class":"RdbUpdateDomain", "sqlType":"MERGE", "auditKind":"DML", "schema":"app", "table":"binary_dim"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"binary_t"}
+  ]
+}

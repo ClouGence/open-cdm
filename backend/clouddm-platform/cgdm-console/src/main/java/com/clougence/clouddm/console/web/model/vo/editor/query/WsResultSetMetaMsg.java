@@ -30,7 +30,6 @@ import lombok.Setter;
 public class WsResultSetMetaMsg extends WsQueryResult {
 
     private String       resultId;
-    private String       resource;
     private List<String> columnList;
     private List<String> columnType;
     private ReceiveMode  receiveMode;

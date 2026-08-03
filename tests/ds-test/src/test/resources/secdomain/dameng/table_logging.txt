@@ -1,0 +1,49 @@
+[table_advanced_enable]
+sql:
+alter table app.table_log_state with advanced log
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"ALTER_TABLE", "schema":"app", "table":"table_log_state"}
+  ]
+}
+----------
+[table_advanced_disable]
+sql:
+alter table app.table_log_state without advanced log
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"ALTER_TABLE", "schema":"app", "table":"table_log_state"}
+  ]
+}
+----------
+[table_advanced_truncate]
+sql:
+alter table app.table_log_state truncate advanced log
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"ALTER_TABLE", "schema":"app", "table":"table_log_state"}
+  ]
+}
+----------
+[table_logic_add]
+sql:
+alter table app.table_logic_state add logic log
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"ALTER_TABLE", "schema":"app", "table":"table_logic_state"}
+  ]
+}
+----------
+[table_advanced_log_select]
+sql:
+select op_type from app."TABLE_LOG_STATE$ALOG"
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "schema":"app", "table":"TABLE_LOG_STATE$ALOG"}
+  ]
+}

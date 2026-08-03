@@ -1,8 +1,11 @@
 <script>
+import appLogger from '@/utils/logger';
 import { PlusOutlined, QuestionCircleOutlined } from '@ant-design/icons-vue';
 import dayjs from 'dayjs';
 import { TAB_TYPE } from '@/const';
 import browseMixin from '@/mixins/browseMixin';
+import { cloneDeep as deepClone } from '@/utils/lodash';
+import IndexColumnsModal from './IndexColumnsModal';
 
 export default {
   name: 'CreateTableItem',
@@ -19,6 +22,7 @@ export default {
     selectedNode: Object
   },
   components: {
+    IndexColumnsModal,
     PlusOutlined,
     QuestionCircleOutlined
   },
@@ -30,6 +34,15 @@ export default {
       } else {
         return false;
       }
+    },
+    isIndexColumnsSelector() {
+      return this.nodeType === 'indexes' && this.schema.type === 'SelectColumns';
+    },
+    selectedIndexColumnNames() {
+      return (this.selectedData[this.schema.field] || [])
+        .map((column) => column.name)
+        .filter(Boolean)
+        .join(', ');
     }
   },
   data() {
@@ -44,7 +57,8 @@ export default {
       selectedLeaf: null,
       schema: {},
       inputVisible: false,
-      inputValue: ''
+      inputValue: '',
+      indexColumnsModalVisible: false
     };
   },
   watch: {
@@ -178,6 +192,17 @@ export default {
       this.selectedColumnIndex = index;
       this.selectedColumn = column;
     },
+    handleOpenIndexColumnsModal() {
+      this.indexColumnsModalVisible = true;
+    },
+    handleCloseIndexColumnsModal() {
+      this.indexColumnsModalVisible = false;
+    },
+    handleSaveIndexColumns(columns) {
+      this.selectedData[this.schema.field] = columns;
+      this.handleCloseIndexColumnsModal();
+      this.$forceUpdate();
+    },
     handleAddColumn(schema) {
       const column = {
         key: dayjs().valueOf()
@@ -209,6 +234,18 @@ export default {
       this.selectedData[schema.field].splice(index, 1);
       this.selectedColumn = {};
       this.selectedColumnIndex = -1;
+      this.$forceUpdate();
+    },
+    handleMoveColumn(schema, offset) {
+      const columns = this.selectedData[schema.field] || [];
+      const targetIndex = this.selectedColumnIndex + offset;
+      if (this.selectedColumnIndex < 0 || targetIndex < 0 || targetIndex >= columns.length) {
+        return;
+      }
+      const [column] = columns.splice(this.selectedColumnIndex, 1);
+      columns.splice(targetIndex, 0, column);
+      this.selectedColumnIndex = targetIndex;
+      this.selectedColumn = column;
       this.$forceUpdate();
     },
     handleAddTree(schema) {
@@ -324,7 +361,7 @@ export default {
       this.selectedTemplateIndex = this.selectedColumn[schema.field].length - 1;
     },
     handleDeleteTemplate(parentSchema, schema) {
-      console.log(this.selectedData[parentSchema.field], parentSchema.field, schema.field, this.selectedColumnIndex, this.selectedTemplateIndex);
+      appLogger.debug(this.selectedData[parentSchema.field], parentSchema.field, schema.field, this.selectedColumnIndex, this.selectedTemplateIndex);
       this.selectedData[parentSchema.field][this.selectedColumnIndex][schema.field].splice(this.selectedTemplateIndex, 1);
       this.selectedTemplate = {};
       this.selectedTemplateIndex = -1;
@@ -334,7 +371,7 @@ export default {
       this.selectedTemplate = template;
     },
     async handleReferenceSchemaOpenChange(open) {
-      console.log(open);
+      appLogger.debug(open);
       if (open) {
         const res = await this.$services.dmBrowseListLevels({
           data: {
@@ -430,14 +467,14 @@ export default {
       this.inputVisible = false;
     },
     async generateOptionSchema(options, value, schema) {
-      console.log('generateOptionSchema', value);
+      appLogger.debug('generateOptionSchema', value);
       for (let i = 0; i < options.length; i++) {
         const option = options[i];
         if (option.value === value && option.children && option.children.length) {
           schema.children = option.children;
           for (let j = 0; j < option.children.length; j++) {
             const child = option.children[j];
-            console.log(child.type);
+            appLogger.debug(child.type);
 
             if (!(child.field in this.selectedData)) {
               this.selectedData[child.field] = child.defaultVal;
@@ -613,6 +650,12 @@ export default {
             size="small"
           />
         </div>
+        <button v-else-if="isIndexColumnsSelector" type="button" class="index-columns-trigger" @click="handleOpenIndexColumnsModal">
+          <span :class="{ 'index-columns-trigger__placeholder': !selectedIndexColumnNames }">
+            {{ selectedIndexColumnNames || $t('qing-xuan-ze-lie') }}
+          </span>
+          <span class="index-columns-trigger__action">{{ $t('bian-ji') }}</span>
+        </button>
         <div
           v-else-if="
             schema.type === 'SelectColumns' || schema.type === 'ReferenceRelation' || schema.type === 'PartitionDefineList' || schema.type === 'Tree'
@@ -651,12 +694,30 @@ export default {
             </a-tree>
           </div>
           <div class="left" v-else style="width: 200px; border-right: 1px solid #ccc">
-            <div style="width: 100%; display: flex">
-              <a-button @click="handleAddColumn(schema)" size="small" style="flex: 1" :disabled="isReadOnly(schema)">
+            <div style="width: 100%; display: flex; flex-wrap: wrap">
+              <a-button @click="handleAddColumn(schema)" size="small" style="flex: 1 1 50%" :disabled="isReadOnly(schema)">
                 {{ $t('zeng-jia') }}
               </a-button>
-              <a-button @click="handleDeleteColumn(schema)" size="small" style="flex: 1" :disabled="isReadOnly(schema)">
+              <a-button @click="handleDeleteColumn(schema)" size="small" style="flex: 1 1 50%" :disabled="isReadOnly(schema)">
                 {{ $t('shan-chu') }}
+              </a-button>
+              <a-button
+                v-if="schema.type === 'SelectColumns'"
+                size="small"
+                style="flex: 1 1 50%"
+                :disabled="isReadOnly(schema) || selectedColumnIndex <= 0"
+                @click="handleMoveColumn(schema, -1)"
+              >
+                {{ $t('table-editor-move-up') }}
+              </a-button>
+              <a-button
+                v-if="schema.type === 'SelectColumns'"
+                size="small"
+                style="flex: 1 1 50%"
+                :disabled="isReadOnly(schema) || selectedColumnIndex < 0 || selectedColumnIndex >= (selectedData[schema.field] || []).length - 1"
+                @click="handleMoveColumn(schema, 1)"
+              >
+                {{ $t('table-editor-move-down') }}
               </a-button>
             </div>
             <div :style="`min-height: 80px;height: ${selectedData[schema.field] ? selectedData[schema.field].length * 20 : 0}px`">
@@ -856,6 +917,17 @@ export default {
           </template>
         </a-tooltip>
       </div>
+      <IndexColumnsModal
+        v-if="isIndexColumnsSelector"
+        :visible="indexColumnsModalVisible"
+        :schema="schema"
+        :value="selectedData[schema.field] || []"
+        :table-columns="formData.columns || []"
+        :tab-id="tab.tabId"
+        :read-only="isReadOnly(schema)"
+        @cancel="handleCloseIndexColumnsModal"
+        @confirm="handleSaveIndexColumns"
+      />
       <a-collapse v-if="schema.type === 'Fold'" size="small">
         <a-collapse-panel :header="schema.titleI18N">
           <CreateTableItem
@@ -885,6 +957,7 @@ export default {
         <CreateTableItem
           v-for="childSchema in schema.children"
           :key="childSchema.field"
+          class="create-table-item--nested"
           style="flex: 1; margin-left: -100px"
           :current-schema="childSchema"
           :node-type="nodeType"
@@ -932,5 +1005,38 @@ export default {
     flex: 1;
     border-left: 1px solid #ccc;
   }
+}
+
+.index-columns-trigger {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  min-height: 36px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 7px 12px;
+  border: 1px solid var(--border-primary);
+  border-radius: 6px;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  cursor: pointer;
+  text-align: left;
+}
+
+.index-columns-trigger > span:first-child {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.index-columns-trigger__placeholder {
+  color: var(--text-tertiary);
+}
+
+.index-columns-trigger__action {
+  flex: 0 0 auto;
+  color: var(--primary-color);
 }
 </style>

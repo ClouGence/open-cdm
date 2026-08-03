@@ -109,6 +109,7 @@ cd frontend && npm run check-i18n
 ```
 
 - 前端使用 `package-lock.json`，默认使用 `npm`，不要擅自切换到其他包管理器。
+- 修改任何前端源码后，必须从仓库根目录执行 `cd package && ./all_build.sh web`，且命令必须成功（退出码为 0）；若构建失败，必须修复所有阻塞错误后才能认定任务完成，不得以“既有问题”或“与本次改动无关”为由跳过。
 - 修改用户可见文案时，同步维护 `frontend/src/locales/`。
 
 ## 编码规则
@@ -130,7 +131,8 @@ cd frontend && npm run check-i18n
 - 不要增加只为测试存在的生产方法。
 - 没用到的字段、方法、分支、返回值要删掉。
 - 方法、字段可见性要明确，能 `private` 就不要保留为默认或 `public`。
-- 默认不要写内部类；能提成独立类就提成独立类。
+- 不要写内部类；类和枚举都必须定义在独立的 Java 源文件中。
+- 使用 Jakarta Bean Validation 注解时，不要设置 `message` 属性，直接使用注解的默认校验消息。
 - 不要使用 `@SneakyThrows`；需要 `try/catch` 异常时，用简短 `msg` 描述错误，并通过 `log.error(msg, e)` 打印异常。
 - Java 中能用 Lombok 解决 getter / setter 模板代码的地方，优先使用 Lombok。
 - 重复胶水代码要适度收敛，但收敛方式不能比原逻辑更难懂。
@@ -187,7 +189,7 @@ cd frontend && npm run check-i18n
 
 ## 测试要求
 
-- 默认不要新增无用测试类；除非用户主动要求“添加测试类测试一下”或明确要求补测试，否则不要新增测试类。
+- 用户没有主动明确要求新增测试类时，不要新增任何测试类。
 - 测试要覆盖真实风险路径，不要只覆盖表面分支。
 - 重点覆盖网络断开、重连、终态、不可恢复、重复执行、慢连接、资源释放等场景。
 - 后端改动优先运行相关模块测试；影响公共模块、DAO、初始化、权限、SQL 执行或插件协议时扩大验证范围。
@@ -204,3 +206,5 @@ cd frontend && npm run check-i18n
 - PR 说明要清楚描述改了什么、为什么改、如何验证。
 - 提交信息使用 Conventional Commits，例如 `feat(mysql): support prepared statement` 或 `fix(auth): avoid stale role cache`。
 - 提交前确认没有把本地构建产物、依赖目录、日志、临时文件或无关格式化改动带入 diff。
+
+@AGENTS.local.md

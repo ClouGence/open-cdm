@@ -1,0 +1,12 @@
+SELECT COUNT (1) AS builtin_count;
+SELECT PI(), PI ();
+SELECT split_mode_gap.PI(), split_mode_gap.PI ();
+SELECT /*!50000 COUNT (1) */;
+------------------------------------------------------------------------------------------
+[SELECT] SELECT COUNT (1) AS builtin_count;
+----------
+[SELECT] SELECT PI(), PI ();
+----------
+[SELECT|CALL_PROG_OBJ] SELECT split_mode_gap.PI(), split_mode_gap.PI ();
+----------
+[SELECT] SELECT /*!50000 COUNT (1) */;

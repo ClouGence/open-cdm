@@ -1,0 +1,357 @@
+[split_dql_admin_dameng_mpp_query_atomic_0_behavior_review_001]
+sql:
+-- PLAN_001_HASH_POINT_ROUTE
+explain select note from app.mpp_hash_a where id=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Table(2:25~2:39) /test/1/catalog1/app/mpp_hash_a/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_mpp_query_atomic_0_behavior_review_002]
+sql:
+-- PLAN_002_HASH_COLOCATED_JOIN
+explain select a.id,a.note,b.note from app.mpp_hash_a a join app.mpp_hash_b b on a.id=b.id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Table(2:39~2:53) /test/1/catalog1/app/mpp_hash_a/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:61~2:75) /test/1/catalog1/app/mpp_hash_b/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_mpp_query_atomic_0_behavior_review_003]
+sql:
+-- PLAN_003_HASH_REDISTRIBUTED_JOIN
+explain select a.id,b.id from app.mpp_hash_a a join app.mpp_hash_b b on a.grp_id=b.grp_id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Table(2:30~2:44) /test/1/catalog1/app/mpp_hash_a/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:52~2:66) /test/1/catalog1/app/mpp_hash_b/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_mpp_query_atomic_0_behavior_review_004]
+sql:
+-- PLAN_004_FULLY_JOIN
+explain select a.id,f.note from app.mpp_hash_a a join app.mpp_fully f on a.id=f.id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Table(2:32~2:46) /test/1/catalog1/app/mpp_hash_a/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:54~2:67) /test/1/catalog1/app/mpp_fully/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_mpp_query_atomic_0_behavior_review_005]
+sql:
+-- PLAN_005_GROUP_DISTRIBUTION_KEY
+explain select id,count(*) from app.mpp_hash_a group by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Function(2:18~2:23) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:32~2:46) /test/1/catalog1/app/mpp_hash_a/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_mpp_query_atomic_0_behavior_review_006]
+sql:
+-- PLAN_006_GROUP_NON_DISTRIBUTION_KEY
+explain select grp_id,count(*) from app.mpp_hash_a group by grp_id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Function(2:22~2:27) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:36~2:50) /test/1/catalog1/app/mpp_hash_a/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_mpp_query_atomic_0_behavior_review_007]
+sql:
+-- PLAN_007_RANGE_POINT_ROUTE
+explain select note from app.mpp_range where id=150;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Table(2:25~2:38) /test/1/catalog1/app/mpp_range/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_mpp_query_atomic_0_behavior_review_008]
+sql:
+-- PLAN_008_REAL_ROUTE_ROWS
+select id,sf_get_ep_seqno(rowid) as ep_no from app.mpp_range order by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:10~2:25) /test/1/catalog1/schema1/sf_get_ep_seqno/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:47~2:60) /test/1/catalog1/app/mpp_range/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_mpp_query_atomic_0_behavior_review_009]
+sql:
+-- API_001_LOCAL_DDL_ENABLE
+call sp_set_session_local_type(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:30) /test/1/catalog1/schema1/sp_set_session_local_type/",
+      "action": "CALL",
+      "target": "ConfigKey(2:5~2:30) /test/1/LOCAL_TYPE/"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_mpp_query_atomic_0_behavior_review_010]
+sql:
+-- API_002_LOCAL_DDL_DISABLE
+call sp_set_session_local_type(0);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:30) /test/1/catalog1/schema1/sp_set_session_local_type/",
+      "action": "CALL",
+      "target": "ConfigKey(2:5~2:30) /test/1/LOCAL_TYPE/"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_mpp_query_atomic_0_behavior_review_011]
+sql:
+-- API_003_DYNAMIC_ADD_INVALID_INSTANCE
+select sf_mpp_inst_add('', '') from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:22) /test/1/catalog1/schema1/sf_mpp_inst_add/",
+      "action": "ALTER"
+    },
+    {
+      "subject": "View(2:36~2:40) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_mpp_query_atomic_0_behavior_review_012]
+sql:
+-- API_004_DYNAMIC_REMOVE_MISSING_INSTANCE
+select sf_mpp_inst_remove('CODEX_MISSING_EP_27') from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:25) /test/1/catalog1/schema1/sf_mpp_inst_remove/",
+      "action": "UNSAFE",
+      "target": "Instance(2:26~2:47) /test/1/CODEX_MISSING_EP_27/"
+    },
+    {
+      "subject": "View(2:54~2:58) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_mpp_query_atomic_0_behavior_review_013]
+sql:
+-- ARITY_001_SET_MPP_LOCAL_MISSING
+call sp_set_session_mpp_select_local();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:36) /test/1/catalog1/schema1/sp_set_session_mpp_select_local/",
+      "action": "CALL",
+      "target": "ConfigKey(2:5~2:36) /test/1/MPP_SELECT_LOCAL/"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_mpp_query_atomic_0_behavior_review_014]
+sql:
+-- ARITY_002_GET_MPP_LOCAL_EXTRA
+select sf_get_session_mpp_select_local(1) from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:38) /test/1/catalog1/schema1/sf_get_session_mpp_select_local/",
+      "action": "READ",
+      "target": "ConfigKey(2:7~2:41) /test/1/MPP_SELECT_LOCAL/"
+    },
+    {
+      "subject": "View(2:47~2:51) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_mpp_query_atomic_0_behavior_review_015]
+sql:
+-- ARITY_003_SET_LOCAL_TYPE_MISSING
+call sp_set_session_local_type();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:30) /test/1/catalog1/schema1/sp_set_session_local_type/",
+      "action": "CALL",
+      "target": "ConfigKey(2:5~2:30) /test/1/LOCAL_TYPE/"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_mpp_query_atomic_0_behavior_review_016]
+sql:
+-- ARITY_004_SELF_EP_EXTRA
+select sf_get_self_ep_seqno(1) from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:27) /test/1/catalog1/schema1/sf_get_self_ep_seqno/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:36~2:40) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_mpp_query_atomic_0_behavior_review_017]
+sql:
+-- ARITY_005_EP_COUNT_MISSING
+call sp_get_ep_count('SYSDBA');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:20) /test/1/catalog1/schema1/sp_get_ep_count/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_mpp_query_atomic_0_behavior_review_018]
+sql:
+-- ARITY_006_INST_ADD_MISSING
+select sf_mpp_inst_add('ONLY_ONE') from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:22) /test/1/catalog1/schema1/sf_mpp_inst_add/",
+      "action": "ALTER"
+    },
+    {
+      "subject": "View(2:40~2:44) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_mpp_query_atomic_0_behavior_review_019]
+sql:
+-- ARITY_007_INST_REMOVE_MISSING
+select sf_mpp_inst_remove() from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:25) /test/1/catalog1/schema1/sf_mpp_inst_remove/",
+      "action": "UNSAFE"
+    },
+    {
+      "subject": "View(2:33~2:37) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}

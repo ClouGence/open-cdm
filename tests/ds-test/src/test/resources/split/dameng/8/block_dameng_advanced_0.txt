@@ -1,0 +1,886 @@
+declare
+  v_id int := 1;
+  v_name varchar(80) := 'ALPHA';
+  v_amount decimal(12,2) := 100.00;
+  v_enabled boolean := true;
+begin
+  if v_enabled then v_amount := v_amount + v_id; end if;
+end;
+/
+declare
+  v_name program_source.name%type;
+begin
+  select name into v_name from program_source where id = 1;
+end;
+/
+declare
+  v_row program_source%rowtype;
+begin
+  select * into v_row from program_source where id = 1;
+end;
+/
+declare
+  type rec_type is record(id int default 1, name varchar(80) := 'ALPHA');
+  v_rec rec_type;
+begin
+  v_rec.id := v_rec.id + 1;
+end;
+/
+declare
+  type time_type is record(hours int, minutes int);
+  type meeting_type is record(day_value date, time_value time_type);
+  v_meeting meeting_type;
+begin
+  v_meeting.day_value := current_date;
+  v_meeting.time_value.hours := 10;
+  v_meeting.time_value.minutes := 30;
+end;
+/
+declare
+  type arr_type is array int[3];
+  v_arr arr_type;
+begin
+  for i in 1 .. 3 loop v_arr[i] := i * 10; end loop;
+end;
+/
+declare
+  type arr_type is array int[2,3];
+  v_arr arr_type;
+begin
+  for i in 1 .. 2 loop
+    for j in 1 .. 3 loop v_arr[i][j] := i * 10 + j; end loop;
+  end loop;
+end;
+/
+declare
+  type arr_type is array varchar[];
+  v_arr arr_type;
+begin
+  v_arr := new varchar[4];
+  for i in 1 .. 4 loop v_arr[i] := cast(i as varchar); end loop;
+end;
+/
+declare
+  type list_type is varray(10) of int;
+  v_list list_type;
+begin
+  v_list := list_type();
+  v_list.extend(3);
+  v_list(1) := 10;
+  v_list(2) := 20;
+  v_list(3) := 30;
+end;
+/
+declare
+  type map_type is table of varchar(80) index by int;
+  v_map map_type;
+begin
+  v_map(1) := 'ALPHA';
+  v_map(2) := 'BETA';
+  v_map(3) := v_map(1) || v_map(2);
+end;
+/
+declare
+  type map_type is table of int index by varchar(20);
+  v_map map_type;
+begin
+  v_map('ALPHA') := 1;
+  v_map('BETA') := 2;
+end;
+/
+declare
+  type list_type is table of int;
+  v_list list_type := list_type(1, 2, 3);
+begin
+  v_list.extend();
+  v_list(4) := 4;
+end;
+/
+declare
+  subtype counter_type is number(5) not null;
+  v_counter counter_type := 1;
+begin
+  v_counter := v_counter + 1;
+end;
+/
+declare
+  type cursor_type is ref cursor;
+  v_cursor cursor_type;
+  v_id int;
+begin
+  open v_cursor for select id from program_source order by id;
+  fetch v_cursor into v_id;
+  close v_cursor;
+end;
+/
+declare
+  codex_error exception;
+begin
+  raise codex_error;
+exception
+  when codex_error then null;
+end;
+/
+declare
+  codex_error exception for -20001;
+begin
+  raise_application_error(-20001, 'CODEX');
+exception
+  when codex_error then null;
+end;
+/
+declare
+  v_value int := 2;
+begin
+  if v_value = 1 then
+    v_value := 10;
+  elsif v_value = 2 then
+    v_value := 20;
+  else
+    v_value := 30;
+  end if;
+end;
+/
+declare
+  v_value int := 2;
+begin
+  case v_value
+    when 1 then v_value := 10;
+    when 2 then v_value := 20;
+    else v_value := 30;
+  end case;
+end;
+/
+declare
+  v_value int := 0;
+begin
+  repeat
+    v_value := v_value + 1;
+  until v_value >= 3;
+end;
+/
+declare
+  v_value int := 0;
+begin
+  <<outer_loop>>
+  loop
+    v_value := v_value + 1;
+    exit outer_loop when v_value >= 2;
+  end loop outer_loop;
+end;
+/
+declare
+  v_total int := 0;
+begin
+  for i in 1 .. 5 loop
+    continue when mod(i, 2) = 0;
+    v_total := v_total + i;
+  end loop;
+end;
+/
+declare
+  v_value int := 1;
+begin
+  goto completed;
+  v_value := 2;
+  <<completed>>
+  null;
+end;
+/
+declare
+  v_value int := 1;
+begin
+  declare
+    v_inner int := 0;
+  begin
+    v_inner := 1 / v_inner;
+  exception
+    when others then v_value := 2;
+  end;
+end;
+/
+declare
+  cursor c_source is select id, name from program_source order by id;
+  v_id int;
+  v_name varchar(80);
+begin
+  open c_source;
+  fetch c_source into v_id, v_name;
+  close c_source;
+end;
+/
+declare
+  cursor c_source(p_min int default 1) is
+    select id, name from program_source where id >= p_min order by id;
+  v_id int;
+  v_name varchar(80);
+begin
+  open c_source(2);
+  fetch c_source into v_id, v_name;
+  close c_source;
+end;
+/
+declare
+  cursor c_source is select id, name from program_source order by id;
+  v_total int := 0;
+begin
+  for r in c_source loop
+    v_total := v_total + r.id;
+  end loop;
+end;
+/
+declare
+  v_name varchar(80);
+  v_amount decimal(12,2);
+begin
+  select name, amount into v_name, v_amount from program_source where id = 1;
+end;
+/
+declare
+  v_cursor cursor;
+  v_id int;
+begin
+  open v_cursor for select id from program_source order by id;
+  fetch v_cursor into v_id;
+  close v_cursor;
+end;
+/
+declare
+  v_cursor cursor;
+  v_id int;
+begin
+  open v_cursor for 'select id from program_source where id >= ? order by id' using 2;
+  fetch v_cursor into v_id;
+  close v_cursor;
+end;
+/
+declare
+  v_sql varchar(200) := 'create table program_dynamic(id int)';
+begin
+  execute immediate v_sql;
+  execute immediate 'drop table program_dynamic';
+end;
+/
+declare
+  v_name varchar(80);
+begin
+  execute immediate 'select name from program_source where id = ?' into v_name using 1;
+end;
+/
+declare
+  v_id int := 101;
+  v_name varchar(80) := 'DYNAMIC';
+begin
+  execute immediate 'insert into program_target(id, name, amount) values(?, ?, 1)' using v_id, v_name;
+  delete from program_target where id = v_id;
+end;
+/
+declare
+  v_amount decimal(12,2) := 10;
+begin
+  insert into program_target values(102, 'UPDATE', 1);
+  execute immediate 'update program_target set amount = ? where id = ?' using v_amount, 102;
+  delete from program_target where id = 102;
+end;
+/
+declare
+  v_id int := 103;
+begin
+  insert into program_target values(v_id, 'DELETE', 1);
+  execute immediate 'delete from program_target where id = ?' using v_id;
+end;
+/
+declare
+  v_name varchar(80);
+begin
+  execute immediate 'insert into program_target values(104, ''RETURNING'', 1) returning name into ?'
+    returning into v_name;
+  delete from program_target where id = 104;
+end;
+/
+declare
+  v_code int;
+  v_message varchar(200);
+begin
+  begin
+    raise_application_error(-20002, 'CODEX');
+  exception
+    when others then
+      v_code := sqlcode;
+      v_message := sqlerrm;
+  end;
+end;
+/
+declare
+  first_error exception;
+  second_error exception;
+begin
+  raise first_error;
+exception
+  when first_error or second_error then null;
+end;
+/
+declare
+  v_value int := 1;
+begin
+  raise_application_error(-20003, 'CODEX');
+exception
+  when others then v_value := -1;
+end;
+/
+declare
+  type id_list is table of int index by int;
+  v_ids id_list;
+begin
+  v_ids(1) := 201;
+  v_ids(2) := 202;
+  v_ids(3) := 203;
+  forall i in 1 .. 3
+    insert into program_target(id, name, amount) values(v_ids(i), 'FORALL', 1);
+  delete from program_target where id between 201 and 203;
+end;
+/
+declare
+  type row_list is table of program_source%rowtype;
+  v_rows row_list;
+begin
+  select * bulk collect into v_rows from program_source order by id;
+end;
+/
+declare
+  type id_list is table of int;
+  v_ids id_list;
+  cursor c_source is select id from program_source order by id;
+begin
+  open c_source;
+  fetch c_source bulk collect into v_ids;
+  close c_source;
+end;
+/
+declare
+  v_cursor cursor;
+  v_id int;
+begin
+  open with fast v_cursor for select id from program_source order by id;
+  fetch v_cursor into v_id;
+  close v_cursor;
+end;
+/
+declare
+  v_cursor cursor;
+  v_id int;
+begin
+  open v_cursor for select id from program_source order by id;
+  fetch next from v_cursor into v_id;
+  close v_cursor;
+end;
+/
+declare
+  v_cursor cursor;
+  v_id int;
+begin
+  open v_cursor for select id from program_source order by id;
+  fetch first from v_cursor into v_id;
+  close v_cursor;
+end;
+/
+declare
+  type list_type is varray(10) of int;
+  v_list list_type := list_type(10, 20, 30);
+  v_count int;
+  v_first int;
+  v_last int;
+begin
+  v_count := v_list.count();
+  v_first := v_list.first();
+  v_last := v_list.last();
+end;
+/
+declare
+  type list_type is table of int;
+  v_list list_type := list_type(10, 20, 30);
+begin
+  v_list.extend(2);
+  v_list.trim(1);
+  v_list.delete(2);
+end;
+/
+declare
+  type list_type is table of int;
+  v_list list_type := list_type(10, 20, 30);
+  v_found boolean;
+begin
+  v_found := 20 member of v_list;
+end;
+/
+declare
+  type rec_type is record(id int, name varchar(80));
+  v_left rec_type;
+  v_right rec_type;
+begin
+  select id, name into v_left from program_source where id = 1;
+  v_right := v_left;
+end;
+/
+declare
+  v_row program_source%rowtype;
+begin
+  select * into v_row from program_source where id = 1;
+  update program_target set name = v_row.name where id = -1;
+end;
+/
+declare
+  v_cursor cursor;
+  v_id int;
+begin
+  open v_cursor for select id from program_source order by id;
+  fetch absolute 2 from v_cursor into v_id;
+  fetch relative 1 from v_cursor into v_id;
+  fetch last from v_cursor into v_id;
+  fetch prior from v_cursor into v_id;
+  close v_cursor;
+end;
+/
+------------------------------------------------------------------------------------------
+[BLOCK(PROGRAM_CONTROL)] declare
+  v_id int := 1;
+  v_name varchar(80) := 'ALPHA';
+  v_amount decimal(12,2) := 100.00;
+  v_enabled boolean := true;
+begin
+  if v_enabled then v_amount := v_amount + v_id; end if;
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,SELECT)] declare
+  v_name program_source.name%type;
+begin
+  select name into v_name from program_source where id = 1;
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,SELECT)] declare
+  v_row program_source%rowtype;
+begin
+  select * into v_row from program_source where id = 1;
+end;
+----------
+[BLOCK(PROGRAM_CONTROL)] declare
+  type rec_type is record(id int default 1, name varchar(80) := 'ALPHA');
+  v_rec rec_type;
+begin
+  v_rec.id := v_rec.id + 1;
+end;
+----------
+[BLOCK(PROGRAM_CONTROL)] declare
+  type time_type is record(hours int, minutes int);
+  type meeting_type is record(day_value date, time_value time_type);
+  v_meeting meeting_type;
+begin
+  v_meeting.day_value := current_date;
+  v_meeting.time_value.hours := 10;
+  v_meeting.time_value.minutes := 30;
+end;
+----------
+[BLOCK(PROGRAM_CONTROL)] declare
+  type arr_type is array int[3];
+  v_arr arr_type;
+begin
+  for i in 1 .. 3 loop v_arr[i] := i * 10; end loop;
+end;
+----------
+[BLOCK(PROGRAM_CONTROL)] declare
+  type arr_type is array int[2,3];
+  v_arr arr_type;
+begin
+  for i in 1 .. 2 loop
+    for j in 1 .. 3 loop v_arr[i][j] := i * 10 + j; end loop;
+  end loop;
+end;
+----------
+[BLOCK(PROGRAM_CONTROL)] declare
+  type arr_type is array varchar[];
+  v_arr arr_type;
+begin
+  v_arr := new varchar[4];
+  for i in 1 .. 4 loop v_arr[i] := cast(i as varchar); end loop;
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare
+  type list_type is varray(10) of int;
+  v_list list_type;
+begin
+  v_list := list_type();
+  v_list.extend(3);
+  v_list(1) := 10;
+  v_list(2) := 20;
+  v_list(3) := 30;
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare
+  type map_type is table of varchar(80) index by int;
+  v_map map_type;
+begin
+  v_map(1) := 'ALPHA';
+  v_map(2) := 'BETA';
+  v_map(3) := v_map(1) || v_map(2);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL)] declare
+  type map_type is table of int index by varchar(20);
+  v_map map_type;
+begin
+  v_map('ALPHA') := 1;
+  v_map('BETA') := 2;
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare
+  type list_type is table of int;
+  v_list list_type := list_type(1, 2, 3);
+begin
+  v_list.extend();
+  v_list(4) := 4;
+end;
+----------
+[BLOCK(PROGRAM_CONTROL)] declare
+  subtype counter_type is number(5) not null;
+  v_counter counter_type := 1;
+begin
+  v_counter := v_counter + 1;
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,SELECT)] declare
+  type cursor_type is ref cursor;
+  v_cursor cursor_type;
+  v_id int;
+begin
+  open v_cursor for select id from program_source order by id;
+  fetch v_cursor into v_id;
+  close v_cursor;
+end;
+----------
+[BLOCK(PROGRAM_CONTROL)] declare
+  codex_error exception;
+begin
+  raise codex_error;
+exception
+  when codex_error then null;
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare
+  codex_error exception for -20001;
+begin
+  raise_application_error(-20001, 'CODEX');
+exception
+  when codex_error then null;
+end;
+----------
+[BLOCK(PROGRAM_CONTROL)] declare
+  v_value int := 2;
+begin
+  if v_value = 1 then
+    v_value := 10;
+  elsif v_value = 2 then
+    v_value := 20;
+  else
+    v_value := 30;
+  end if;
+end;
+----------
+[BLOCK(PROGRAM_CONTROL)] declare
+  v_value int := 2;
+begin
+  case v_value
+    when 1 then v_value := 10;
+    when 2 then v_value := 20;
+    else v_value := 30;
+  end case;
+end;
+----------
+[BLOCK(PROGRAM_CONTROL)] declare
+  v_value int := 0;
+begin
+  repeat
+    v_value := v_value + 1;
+  until v_value >= 3;
+end;
+----------
+[BLOCK(PROGRAM_CONTROL)] declare
+  v_value int := 0;
+begin
+  <<outer_loop>>
+  loop
+    v_value := v_value + 1;
+    exit outer_loop when v_value >= 2;
+  end loop outer_loop;
+end;
+----------
+[BLOCK(PROGRAM_CONTROL)] declare
+  v_total int := 0;
+begin
+  for i in 1 .. 5 loop
+    continue when mod(i, 2) = 0;
+    v_total := v_total + i;
+  end loop;
+end;
+----------
+[BLOCK(PROGRAM_CONTROL)] declare
+  v_value int := 1;
+begin
+  goto completed;
+  v_value := 2;
+  <<completed>>
+  null;
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,BLOCK)] declare
+  v_value int := 1;
+begin
+  declare
+    v_inner int := 0;
+  begin
+    v_inner := 1 / v_inner;
+  exception
+    when others then v_value := 2;
+  end;
+end;
+----------
+[BLOCK(SELECT,PROGRAM_CONTROL)] declare
+  cursor c_source is select id, name from program_source order by id;
+  v_id int;
+  v_name varchar(80);
+begin
+  open c_source;
+  fetch c_source into v_id, v_name;
+  close c_source;
+end;
+----------
+[BLOCK(SELECT,PROGRAM_CONTROL)] declare
+  cursor c_source(p_min int default 1) is
+    select id, name from program_source where id >= p_min order by id;
+  v_id int;
+  v_name varchar(80);
+begin
+  open c_source(2);
+  fetch c_source into v_id, v_name;
+  close c_source;
+end;
+----------
+[BLOCK(SELECT,PROGRAM_CONTROL)] declare
+  cursor c_source is select id, name from program_source order by id;
+  v_total int := 0;
+begin
+  for r in c_source loop
+    v_total := v_total + r.id;
+  end loop;
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,SELECT)] declare
+  v_name varchar(80);
+  v_amount decimal(12,2);
+begin
+  select name, amount into v_name, v_amount from program_source where id = 1;
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,SELECT)] declare
+  v_cursor cursor;
+  v_id int;
+begin
+  open v_cursor for select id from program_source order by id;
+  fetch v_cursor into v_id;
+  close v_cursor;
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,SELECT)] declare
+  v_cursor cursor;
+  v_id int;
+begin
+  open v_cursor for 'select id from program_source where id >= ? order by id' using 2;
+  fetch v_cursor into v_id;
+  close v_cursor;
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,UNSAFE)] declare
+  v_sql varchar(200) := 'create table program_dynamic(id int)';
+begin
+  execute immediate v_sql;
+  execute immediate 'drop table program_dynamic';
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,UNSAFE)] declare
+  v_name varchar(80);
+begin
+  execute immediate 'select name from program_source where id = ?' into v_name using 1;
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,UNSAFE,DELETE)] declare
+  v_id int := 101;
+  v_name varchar(80) := 'DYNAMIC';
+begin
+  execute immediate 'insert into program_target(id, name, amount) values(?, ?, 1)' using v_id, v_name;
+  delete from program_target where id = v_id;
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,INSERT,UNSAFE,DELETE)] declare
+  v_amount decimal(12,2) := 10;
+begin
+  insert into program_target values(102, 'UPDATE', 1);
+  execute immediate 'update program_target set amount = ? where id = ?' using v_amount, 102;
+  delete from program_target where id = 102;
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,INSERT,UNSAFE)] declare
+  v_id int := 103;
+begin
+  insert into program_target values(v_id, 'DELETE', 1);
+  execute immediate 'delete from program_target where id = ?' using v_id;
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,UNSAFE,DELETE)] declare
+  v_name varchar(80);
+begin
+  execute immediate 'insert into program_target values(104, ''RETURNING'', 1) returning name into ?'
+    returning into v_name;
+  delete from program_target where id = 104;
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,BLOCK,CALL_PROG_OBJ)] declare
+  v_code int;
+  v_message varchar(200);
+begin
+  begin
+    raise_application_error(-20002, 'CODEX');
+  exception
+    when others then
+      v_code := sqlcode;
+      v_message := sqlerrm;
+  end;
+end;
+----------
+[BLOCK(PROGRAM_CONTROL)] declare
+  first_error exception;
+  second_error exception;
+begin
+  raise first_error;
+exception
+  when first_error or second_error then null;
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare
+  v_value int := 1;
+begin
+  raise_application_error(-20003, 'CODEX');
+exception
+  when others then v_value := -1;
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,INSERT,CALL_PROG_OBJ,DELETE)] declare
+  type id_list is table of int index by int;
+  v_ids id_list;
+begin
+  v_ids(1) := 201;
+  v_ids(2) := 202;
+  v_ids(3) := 203;
+  forall i in 1 .. 3
+    insert into program_target(id, name, amount) values(v_ids(i), 'FORALL', 1);
+  delete from program_target where id between 201 and 203;
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,SELECT)] declare
+  type row_list is table of program_source%rowtype;
+  v_rows row_list;
+begin
+  select * bulk collect into v_rows from program_source order by id;
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,SELECT)] declare
+  type id_list is table of int;
+  v_ids id_list;
+  cursor c_source is select id from program_source order by id;
+begin
+  open c_source;
+  fetch c_source bulk collect into v_ids;
+  close c_source;
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,SELECT)] declare
+  v_cursor cursor;
+  v_id int;
+begin
+  open with fast v_cursor for select id from program_source order by id;
+  fetch v_cursor into v_id;
+  close v_cursor;
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,SELECT)] declare
+  v_cursor cursor;
+  v_id int;
+begin
+  open v_cursor for select id from program_source order by id;
+  fetch next from v_cursor into v_id;
+  close v_cursor;
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,SELECT)] declare
+  v_cursor cursor;
+  v_id int;
+begin
+  open v_cursor for select id from program_source order by id;
+  fetch first from v_cursor into v_id;
+  close v_cursor;
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare
+  type list_type is varray(10) of int;
+  v_list list_type := list_type(10, 20, 30);
+  v_count int;
+  v_first int;
+  v_last int;
+begin
+  v_count := v_list.count();
+  v_first := v_list.first();
+  v_last := v_list.last();
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare
+  type list_type is table of int;
+  v_list list_type := list_type(10, 20, 30);
+begin
+  v_list.extend(2);
+  v_list.trim(1);
+  v_list.delete(2);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL)] declare
+  type list_type is table of int;
+  v_list list_type := list_type(10, 20, 30);
+  v_found boolean;
+begin
+  v_found := 20 member of v_list;
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,SELECT)] declare
+  type rec_type is record(id int, name varchar(80));
+  v_left rec_type;
+  v_right rec_type;
+begin
+  select id, name into v_left from program_source where id = 1;
+  v_right := v_left;
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,SELECT,UPDATE)] declare
+  v_row program_source%rowtype;
+begin
+  select * into v_row from program_source where id = 1;
+  update program_target set name = v_row.name where id = -1;
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,SELECT)] declare
+  v_cursor cursor;
+  v_id int;
+begin
+  open v_cursor for select id from program_source order by id;
+  fetch absolute 2 from v_cursor into v_id;
+  fetch relative 1 from v_cursor into v_id;
+  fetch last from v_cursor into v_id;
+  fetch prior from v_cursor into v_id;
+  close v_cursor;
+end;

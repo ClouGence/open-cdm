@@ -1,0 +1,46 @@
+COPY split_copy_ext.copy_target (id, payload, qty)
+FROM PROGRAM 'printf "id,payload,qty\n1,\\D,10\n2,quoted,20\nbad,row,x\n3,,30\n"'
+WITH (
+    FORMAT csv,
+    HEADER MATCH,
+    DEFAULT '\D',
+    NULL '',
+    ON_ERROR ignore,
+    REJECT_LIMIT 5,
+    LOG_VERBOSITY verbose,
+    ENCODING 'UTF8',
+    FORCE_NOT_NULL (payload),
+    FORCE_NULL (payload)
+)
+WHERE qty >= 10;
+COPY split_copy_ext.copy_target TO STDOUT WITH (FORMAT csv, HEADER true, FORCE_QUOTE *, ENCODING 'UTF8');
+COPY (INSERT INTO split_copy_ext.copy_target VALUES (4, 'inserted', 40) RETURNING id, payload, qty) TO STDOUT WITH (FORMAT csv, HEADER false);
+COPY (UPDATE split_copy_ext.copy_target SET qty = qty + 1 WHERE id = 4 RETURNING id, qty) TO STDOUT WITH (FORMAT csv);
+COPY (DELETE FROM split_copy_ext.copy_target WHERE id = 4 RETURNING id, payload) TO STDOUT WITH (FORMAT csv, HEADER true);
+COPY split_copy_ext.copy_target TO PROGRAM 'cat > /tmp/split_copy_target.csv' WITH CSV HEADER FORCE QUOTE * ENCODING 'UTF8';
+------------------------------------------------------------------------------------------
+[DATA_IMPORT|UNSAFE] COPY split_copy_ext.copy_target (id, payload, qty)
+FROM PROGRAM 'printf "id,payload,qty\n1,\\D,10\n2,quoted,20\nbad,row,x\n3,,30\n"'
+WITH (
+    FORMAT csv,
+    HEADER MATCH,
+    DEFAULT '\D',
+    NULL '',
+    ON_ERROR ignore,
+    REJECT_LIMIT 5,
+    LOG_VERBOSITY verbose,
+    ENCODING 'UTF8',
+    FORCE_NOT_NULL (payload),
+    FORCE_NULL (payload)
+)
+WHERE qty >= 10;
+----------
+[DATA_EXPORT] COPY split_copy_ext.copy_target TO STDOUT WITH (FORMAT csv, HEADER true, FORCE_QUOTE *, ENCODING 'UTF8');
+----------
+[DATA_EXPORT|INSERT] COPY (INSERT INTO split_copy_ext.copy_target VALUES (4, 'inserted', 40) RETURNING id, payload, qty) TO STDOUT WITH (FORMAT csv, HEADER false);
+----------
+[DATA_EXPORT|UPDATE] COPY (UPDATE split_copy_ext.copy_target SET qty = qty + 1 WHERE id = 4 RETURNING id, qty) TO STDOUT WITH (FORMAT csv);
+----------
+[DATA_EXPORT|DELETE] COPY (DELETE FROM split_copy_ext.copy_target WHERE id = 4 RETURNING id, payload) TO STDOUT WITH (FORMAT csv, HEADER true);
+----------
+[DATA_EXPORT|UNSAFE] COPY split_copy_ext.copy_target TO PROGRAM 'cat > /tmp/split_copy_target.csv' WITH CSV HEADER FORCE QUOTE * ENCODING 'UTF8';

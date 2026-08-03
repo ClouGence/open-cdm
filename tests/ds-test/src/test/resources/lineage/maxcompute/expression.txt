@@ -1,0 +1,320 @@
+[supportschema::McParseColumnExpressionTest.test1]
+context:
+{
+  "levels" : {
+    "Schema" : "schema1",
+    "Catalog" : "catalog1"
+  },
+  "mcSchemaStyle" : true
+}
+sql:
+select 1 + 1 as w
+expect:
+{
+  "w" : []
+}
+----------
+[supportschema::McParseColumnExpressionTest.test2]
+context:
+{
+  "levels" : {
+    "Schema" : "schema1",
+    "Catalog" : "catalog1"
+  },
+  "mcSchemaStyle" : true
+}
+sql:
+select 1 + column1 as qq from table1
+expect:
+{
+  "qq" : [ "/catalog1/schema1/table1/column1/" ]
+}
+----------
+[supportschema::McParseColumnExpressionTest.test3]
+context:
+{
+  "levels" : {
+    "Schema" : "schema1",
+    "Catalog" : "catalog1"
+  },
+  "mcSchemaStyle" : true
+}
+sql:
+select 1 + column1 + (select column1 from table2 limit 1) as `xx` from table1
+expect:
+{
+  "xx" : [ "/catalog1/schema1/table1/column1/", "/catalog1/schema1/table2/column1/" ]
+}
+----------
+[supportschema::McParseColumnExpressionTest.test4]
+context:
+{
+  "levels" : {
+    "Schema" : "schema1",
+    "Catalog" : "catalog1"
+  },
+  "mcSchemaStyle" : true
+}
+sql:
+select 1 + column1 + (select column1 from table2 limit 1) + test(column2) as mbdv from table1
+expect:
+{
+  "mbdv" : [ "/catalog1/schema1/table1/column1/", "/catalog1/schema1/table2/column1/", "/catalog1/schema1/table1/column2/" ]
+}
+----------
+[supportschema::McParseColumnExpressionTest.test5]
+context:
+{
+  "levels" : {
+    "Schema" : "schema1",
+    "Catalog" : "catalog1"
+  },
+  "mcSchemaStyle" : true
+}
+sql:
+select 32 + column1 + test(2) + (select column1 from table2) as test from schema2.table1 a
+expect:
+{
+  "test" : [ "/catalog1/schema2/table1/column1/", "/catalog1/schema1/table2/column1/" ]
+}
+----------
+[supportschema::McParseColumnExpressionTest.test6]
+context:
+{
+  "levels" : {
+    "Schema" : "schema1",
+    "Catalog" : "catalog1"
+  },
+  "mcSchemaStyle" : true
+}
+sql:
+select 1 as f
+expect:
+{
+  "f" : []
+}
+----------
+[supportschema::McParseColumnExpressionTest.test7]
+context:
+{
+  "levels" : {
+    "Schema" : "schema1",
+    "Catalog" : "catalog1"
+  },
+  "mcSchemaStyle" : true
+}
+sql:
+select 1 as a
+expect:
+{
+  "a" : []
+}
+----------
+[supportschema::McParseColumnExpressionTest.test8]
+context:
+{
+  "levels" : {
+    "Schema" : "schema1",
+    "Catalog" : "catalog1"
+  },
+  "mcSchemaStyle" : true
+}
+sql:
+select 1 as a from table1
+expect:
+{
+  "a" : []
+}
+----------
+[supportschema::McParseColumnExpressionTest.test9]
+context:
+{
+  "levels" : {
+    "Schema" : "schema1",
+    "Catalog" : "catalog1"
+  },
+  "mcSchemaStyle" : true
+}
+sql:
+select column1 = 1 as a from table1
+expect:
+{
+  "a" : [ "/catalog1/schema1/table1/column1/" ]
+}
+----------
+[supportschema::McParseColumnExpressionTest.test10]
+context:
+{
+  "levels" : {
+    "Schema" : "schema1",
+    "Catalog" : "catalog1"
+  },
+  "mcSchemaStyle" : true
+}
+sql:
+select column1 + column2 = 1 as a from table1
+expect:
+{
+  "a" : [ "/catalog1/schema1/table1/column1/", "/catalog1/schema1/table1/column2/" ]
+}
+
+----------
+[notsupportschema::McParseColumnExpressionTest.test1]
+context:
+{
+  "levels" : {
+    "Schema" : "default",
+    "Catalog" : "catalog1"
+  },
+  "mcSchemaStyle" : false
+}
+sql:
+select 1 + 1 as w
+expect:
+{
+  "w" : []
+}
+----------
+[notsupportschema::McParseColumnExpressionTest.test2]
+context:
+{
+  "levels" : {
+    "Schema" : "default",
+    "Catalog" : "catalog1"
+  },
+  "mcSchemaStyle" : false
+}
+sql:
+select 1 + column1 as qq from table2
+expect:
+{
+  "qq" : [ "/catalog1/default/table2/column1/" ]
+}
+----------
+[notsupportschema::McParseColumnExpressionTest.test3]
+context:
+{
+  "levels" : {
+    "Schema" : "default",
+    "Catalog" : "catalog1"
+  },
+  "mcSchemaStyle" : false
+}
+sql:
+select 1 + column1 + (select column1 from table2 limit 1) as `xx` from table2
+expect:
+{
+  "xx" : [ "/catalog1/default/table2/column1/", "/catalog1/default/table2/column1/" ]
+}
+----------
+[notsupportschema::McParseColumnExpressionTest.test4]
+context:
+{
+  "levels" : {
+    "Schema" : "default",
+    "Catalog" : "catalog1"
+  },
+  "mcSchemaStyle" : false
+}
+sql:
+select 1 + column1 + (select column1 from table2 limit 1) + test(column2) as mbdv from table2
+expect:
+{
+  "mbdv" : [ "/catalog1/default/table2/column1/", "/catalog1/default/table2/column1/", "/catalog1/default/table2/column2/" ]
+}
+----------
+[notsupportschema::McParseColumnExpressionTest.test5]
+context:
+{
+  "levels" : {
+    "Schema" : "default",
+    "Catalog" : "catalog1"
+  },
+  "mcSchemaStyle" : false
+}
+sql:
+select 32 + column1 + test(2) + (select column1 from table2) as test from catalog2.table2 a
+expect:
+{
+  "test" : [ "/catalog2/default/table2/column1/", "/catalog1/default/table2/column1/" ]
+}
+----------
+[notsupportschema::McParseColumnExpressionTest.test6]
+context:
+{
+  "levels" : {
+    "Schema" : "default",
+    "Catalog" : "catalog1"
+  },
+  "mcSchemaStyle" : false
+}
+sql:
+select 1 as f
+expect:
+{
+  "f" : []
+}
+----------
+[notsupportschema::McParseColumnExpressionTest.test7]
+context:
+{
+  "levels" : {
+    "Schema" : "default",
+    "Catalog" : "catalog1"
+  },
+  "mcSchemaStyle" : false
+}
+sql:
+select 1 as a
+expect:
+{
+  "a" : []
+}
+----------
+[notsupportschema::McParseColumnExpressionTest.test8]
+context:
+{
+  "levels" : {
+    "Schema" : "default",
+    "Catalog" : "catalog1"
+  },
+  "mcSchemaStyle" : false
+}
+sql:
+select 1 as a from table2
+expect:
+{
+  "a" : []
+}
+----------
+[notsupportschema::McParseColumnExpressionTest.test9]
+context:
+{
+  "levels" : {
+    "Schema" : "default",
+    "Catalog" : "catalog1"
+  },
+  "mcSchemaStyle" : false
+}
+sql:
+select column1 = 1 as a from table2
+expect:
+{
+  "a" : [ "/catalog1/default/table2/column1/" ]
+}
+----------
+[notsupportschema::McParseColumnExpressionTest.test10]
+context:
+{
+  "levels" : {
+    "Schema" : "default",
+    "Catalog" : "catalog1"
+  },
+  "mcSchemaStyle" : false
+}
+sql:
+select column1 + column2 = 1 as a from table2
+expect:
+{
+  "a" : [ "/catalog1/default/table2/column1/", "/catalog1/default/table2/column2/" ]
+}

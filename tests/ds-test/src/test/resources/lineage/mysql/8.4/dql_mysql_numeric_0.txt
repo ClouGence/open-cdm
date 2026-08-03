@@ -1,0 +1,214 @@
+[dql_mysql_numeric_0.0001]
+sql:
+SELECT id,
+       decimal_value+numeric_value+fixed_value AS exact_sum,
+       decimal_value*numeric_value AS exact_product,
+       float_value+double_value+real_value AS approximate_sum,
+       double_value/NULLIF(float_value,0) AS approximate_ratio
+FROM numeric_lifecycle
+WHERE decimal_value BETWEEN fixed_value AND numeric_value
+   OR ABS(float_value-double_value)>0;
+expect:
+{
+  "id" : [ "(1:7~1:9) /catalog1/schema1/numeric_lifecycle/id/" ],
+  "exact_sum" : [ "(2:7~2:20) /catalog1/schema1/numeric_lifecycle/decimal_value/", "(2:21~2:34) /catalog1/schema1/numeric_lifecycle/numeric_value/", "(2:35~2:46) /catalog1/schema1/numeric_lifecycle/fixed_value/" ],
+  "exact_product" : [ "(3:7~3:20) /catalog1/schema1/numeric_lifecycle/decimal_value/", "(3:21~3:34) /catalog1/schema1/numeric_lifecycle/numeric_value/" ],
+  "approximate_sum" : [ "(4:7~4:18) /catalog1/schema1/numeric_lifecycle/float_value/", "(4:19~4:31) /catalog1/schema1/numeric_lifecycle/double_value/", "(4:32~4:42) /catalog1/schema1/numeric_lifecycle/real_value/" ],
+  "approximate_ratio" : [ "(5:7~5:19) /catalog1/schema1/numeric_lifecycle/double_value/", "(5:27~5:38) /catalog1/schema1/numeric_lifecycle/float_value/" ]
+}
+----------
+[dql_mysql_numeric_0.0002]
+sql:
+SELECT exact_row.id,approximate_row.id,
+       exact_row.decimal_value,approximate_row.double_value
+FROM numeric_lifecycle AS exact_row
+JOIN numeric_lifecycle AS approximate_row
+  ON exact_row.decimal_value=approximate_row.numeric_value
+ OR exact_row.float_value<=>approximate_row.double_value
+WHERE exact_row.fixed_value<=approximate_row.real_value;
+expect:
+[ {
+  "sources" : [ "(1:7~1:19) /catalog1/schema1/numeric_lifecycle/id/" ],
+  "column" : "id"
+}, {
+  "sources" : [ "(1:20~1:38) /catalog1/schema1/numeric_lifecycle/id/" ],
+  "column" : "id"
+}, {
+  "sources" : [ "(2:7~2:30) /catalog1/schema1/numeric_lifecycle/decimal_value/" ],
+  "column" : "decimal_value"
+}, {
+  "sources" : [ "(2:31~2:59) /catalog1/schema1/numeric_lifecycle/double_value/" ],
+  "column" : "double_value"
+} ]
+----------
+[dql_mysql_numeric_0.0003]
+sql:
+SELECT id,
+       (SELECT MAX(inner_numeric.decimal_value)
+        FROM numeric_lifecycle AS inner_numeric
+        WHERE inner_numeric.numeric_value<=outer_numeric.numeric_value) AS correlated_decimal,
+       (SELECT AVG(inner_numeric.double_value)
+        FROM numeric_lifecycle AS inner_numeric
+        WHERE inner_numeric.id<>outer_numeric.id) AS correlated_double
+FROM numeric_lifecycle AS outer_numeric
+WHERE outer_numeric.fixed_value > ALL (
+  SELECT inner_numeric.float_value
+  FROM numeric_lifecycle AS inner_numeric
+  WHERE inner_numeric.id<>outer_numeric.id
+);
+expect:
+{
+  "id" : [ "(1:7~1:9) /catalog1/schema1/numeric_lifecycle/id/" ],
+  "correlated_decimal" : [ "(2:19~2:46) /catalog1/schema1/numeric_lifecycle/decimal_value/" ],
+  "correlated_double" : [ "(5:19~5:45) /catalog1/schema1/numeric_lifecycle/double_value/" ]
+}
+----------
+[dql_mysql_numeric_0.0004]
+sql:
+SELECT id,
+       CASE
+         WHEN decimal_value<0 THEN fixed_value
+         WHEN float_value<0 THEN double_value
+         ELSE numeric_value
+       END AS chosen_numeric,
+       COALESCE(NULLIF(decimal_value,0),numeric_value,fixed_value) AS chosen_exact,
+       IF(real_value IS NULL,float_value,double_value) AS chosen_approximate
+FROM numeric_lifecycle;
+expect:
+{
+  "id" : [ "(1:7~1:9) /catalog1/schema1/numeric_lifecycle/id/" ],
+  "chosen_numeric" : [ "(3:14~3:27) /catalog1/schema1/numeric_lifecycle/decimal_value/", "(3:35~3:46) /catalog1/schema1/numeric_lifecycle/fixed_value/", "(4:14~4:25) /catalog1/schema1/numeric_lifecycle/float_value/", "(4:33~4:45) /catalog1/schema1/numeric_lifecycle/double_value/", "(5:14~5:27) /catalog1/schema1/numeric_lifecycle/numeric_value/" ],
+  "chosen_exact" : [ "(7:23~7:36) /catalog1/schema1/numeric_lifecycle/decimal_value/", "(7:40~7:53) /catalog1/schema1/numeric_lifecycle/numeric_value/", "(7:54~7:65) /catalog1/schema1/numeric_lifecycle/fixed_value/" ],
+  "chosen_approximate" : [ "(8:10~8:20) /catalog1/schema1/numeric_lifecycle/real_value/", "(8:29~8:40) /catalog1/schema1/numeric_lifecycle/float_value/", "(8:41~8:53) /catalog1/schema1/numeric_lifecycle/double_value/" ]
+}
+----------
+[dql_mysql_numeric_0.0005]
+sql:
+SELECT id,decimal_value,numeric_value,fixed_value,float_value,double_value,real_value
+FROM numeric_lifecycle
+WHERE decimal_value>=0
+UNION ALL
+SELECT id,decimal_value,numeric_value,fixed_value,float_value,double_value,real_value
+FROM numeric_lifecycle
+WHERE double_value<0
+ORDER BY id;
+expect:
+{
+  "id" : [ "(1:7~1:9) /catalog1/schema1/numeric_lifecycle/id/", "(5:7~5:9) /catalog1/schema1/numeric_lifecycle/id/" ],
+  "decimal_value" : [ "(1:10~1:23) /catalog1/schema1/numeric_lifecycle/decimal_value/", "(5:10~5:23) /catalog1/schema1/numeric_lifecycle/decimal_value/" ],
+  "numeric_value" : [ "(1:24~1:37) /catalog1/schema1/numeric_lifecycle/numeric_value/", "(5:24~5:37) /catalog1/schema1/numeric_lifecycle/numeric_value/" ],
+  "fixed_value" : [ "(1:38~1:49) /catalog1/schema1/numeric_lifecycle/fixed_value/", "(5:38~5:49) /catalog1/schema1/numeric_lifecycle/fixed_value/" ],
+  "float_value" : [ "(1:50~1:61) /catalog1/schema1/numeric_lifecycle/float_value/", "(5:50~5:61) /catalog1/schema1/numeric_lifecycle/float_value/" ],
+  "double_value" : [ "(1:62~1:74) /catalog1/schema1/numeric_lifecycle/double_value/", "(5:62~5:74) /catalog1/schema1/numeric_lifecycle/double_value/" ],
+  "real_value" : [ "(1:75~1:85) /catalog1/schema1/numeric_lifecycle/real_value/", "(5:75~5:85) /catalog1/schema1/numeric_lifecycle/real_value/" ]
+}
+----------
+[dql_mysql_numeric_0.0006]
+sql:
+SELECT derived.sign_group,
+       COUNT(*) AS row_count,
+       SUM(derived.exact_total) AS exact_total,
+       AVG(derived.approximate_total) AS approximate_average,
+       MIN(derived.minimum_value),
+       MAX(derived.maximum_value)
+FROM (
+  SELECT decimal_value<0 AS sign_group,
+         decimal_value+numeric_value+fixed_value AS exact_total,
+         float_value+double_value+real_value AS approximate_total,
+         LEAST(decimal_value,numeric_value,fixed_value,float_value,double_value,real_value) AS minimum_value,
+         GREATEST(decimal_value,numeric_value,fixed_value,float_value,double_value,real_value) AS maximum_value
+  FROM numeric_lifecycle
+) AS derived
+GROUP BY derived.sign_group
+HAVING SUM(derived.exact_total) IS NOT NULL
+ORDER BY exact_total DESC;
+expect:
+{
+  "sign_group" : [ "(8:9~8:22) /catalog1/schema1/numeric_lifecycle/decimal_value/" ],
+  "row_count" : [ ],
+  "exact_total" : [ "(9:9~9:22) /catalog1/schema1/numeric_lifecycle/decimal_value/", "(9:23~9:36) /catalog1/schema1/numeric_lifecycle/numeric_value/", "(9:37~9:48) /catalog1/schema1/numeric_lifecycle/fixed_value/" ],
+  "approximate_average" : [ "(10:9~10:20) /catalog1/schema1/numeric_lifecycle/float_value/", "(10:21~10:33) /catalog1/schema1/numeric_lifecycle/double_value/", "(10:34~10:44) /catalog1/schema1/numeric_lifecycle/real_value/" ],
+  "MIN(derived.minimum_value)" : [ "(11:15~11:28) /catalog1/schema1/numeric_lifecycle/decimal_value/", "(11:29~11:42) /catalog1/schema1/numeric_lifecycle/numeric_value/", "(11:43~11:54) /catalog1/schema1/numeric_lifecycle/fixed_value/", "(11:55~11:66) /catalog1/schema1/numeric_lifecycle/float_value/", "(11:67~11:79) /catalog1/schema1/numeric_lifecycle/double_value/", "(11:80~11:90) /catalog1/schema1/numeric_lifecycle/real_value/" ],
+  "MAX(derived.maximum_value)" : [ "(12:18~12:31) /catalog1/schema1/numeric_lifecycle/decimal_value/", "(12:32~12:45) /catalog1/schema1/numeric_lifecycle/numeric_value/", "(12:46~12:57) /catalog1/schema1/numeric_lifecycle/fixed_value/", "(12:58~12:69) /catalog1/schema1/numeric_lifecycle/float_value/", "(12:70~12:82) /catalog1/schema1/numeric_lifecycle/double_value/", "(12:83~12:93) /catalog1/schema1/numeric_lifecycle/real_value/" ]
+}
+----------
+[dql_mysql_numeric_0.0007]
+sql:
+SELECT id,
+       CAST(decimal_value AS DECIMAL(30,10)),
+       CAST(float_value AS DECIMAL(20,8)),
+       CONVERT(double_value,DECIMAL(30,10)),
+       CAST(real_value AS SIGNED),
+       CAST(fixed_value AS UNSIGNED)
+FROM numeric_lifecycle
+WHERE ROW(decimal_value,float_value) <= ROW(numeric_value,double_value);
+expect:
+{
+  "id" : [ "(1:7~1:9) /catalog1/schema1/numeric_lifecycle/id/" ],
+  "CAST(decimal_value AS DECIMAL(30,10))" : [ "(2:12~2:25) /catalog1/schema1/numeric_lifecycle/decimal_value/" ],
+  "CAST(float_value AS DECIMAL(20,8))" : [ "(3:12~3:23) /catalog1/schema1/numeric_lifecycle/float_value/" ],
+  "CONVERT(double_value,DECIMAL(30,10))" : [ "(4:15~4:27) /catalog1/schema1/numeric_lifecycle/double_value/" ],
+  "CAST(real_value AS SIGNED)" : [ "(5:12~5:22) /catalog1/schema1/numeric_lifecycle/real_value/" ],
+  "CAST(fixed_value AS UNSIGNED)" : [ "(6:12~6:23) /catalog1/schema1/numeric_lifecycle/fixed_value/" ]
+}
+----------
+[dql_mysql_numeric_0.0008]
+sql:
+WITH numeric_cte AS (
+  SELECT id,decimal_value,float_value,double_value,exact_total,approximate_total
+  FROM numeric_generated
+  WHERE decimal_value BETWEEN -100 AND 100
+)
+SELECT id,exact_total,approximate_total
+FROM numeric_cte
+WHERE double_value >= (SELECT AVG(double_value) FROM numeric_cte)
+ORDER BY exact_total,id;
+expect:
+{
+  "id" : [ "(2:9~2:11) /catalog1/schema1/numeric_generated/id/" ],
+  "exact_total" : [ "(2:51~2:62) /catalog1/schema1/numeric_generated/exact_total/" ],
+  "approximate_total" : [ "(2:63~2:80) /catalog1/schema1/numeric_generated/approximate_total/" ]
+}
+----------
+[dql_mysql_numeric_0.0009]
+sql:
+SELECT id,decimal_value,float_value,double_value,
+       SUM(decimal_value) OVER (
+         ORDER BY id
+         ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+       ) AS running_decimal,
+       AVG(double_value) OVER (
+         PARTITION BY decimal_value<0
+         ORDER BY id
+       ) AS running_double,
+       STDDEV_POP(float_value) OVER () AS float_stddev
+FROM numeric_generated;
+expect:
+{
+  "id" : [ "(1:7~1:9) /catalog1/schema1/numeric_generated/id/" ],
+  "decimal_value" : [ "(1:10~1:23) /catalog1/schema1/numeric_generated/decimal_value/" ],
+  "float_value" : [ "(1:24~1:35) /catalog1/schema1/numeric_generated/float_value/" ],
+  "double_value" : [ "(1:36~1:48) /catalog1/schema1/numeric_generated/double_value/" ],
+  "running_decimal" : [ "(2:11~2:24) /catalog1/schema1/numeric_generated/decimal_value/", "(1:7~1:9) /catalog1/schema1/numeric_generated/id/" ],
+  "running_double" : [ "(6:11~6:23) /catalog1/schema1/numeric_generated/double_value/", "(1:10~1:23) /catalog1/schema1/numeric_generated/decimal_value/", "(1:7~1:9) /catalog1/schema1/numeric_generated/id/" ],
+  "float_stddev" : [ "(10:18~10:29) /catalog1/schema1/numeric_generated/float_value/" ]
+}
+----------
+[dql_mysql_numeric_0.0010]
+sql:
+WITH RECURSIVE numeric_sequence(n,decimal_value,float_value,double_value) AS (
+  SELECT 1,CAST(1.25 AS DECIMAL(20,6)),CAST(2.5 AS DECIMAL(20,8)),3.75e0
+  UNION ALL
+  SELECT n+1,decimal_value+1.25,float_value*1.5,double_value/2
+  FROM numeric_sequence
+  WHERE n<4
+)
+SELECT n,decimal_value,float_value,double_value
+FROM numeric_sequence;
+expect:
+{
+  "n" : [ ],
+  "decimal_value" : [ ],
+  "float_value" : [ ],
+  "double_value" : [ ]
+}

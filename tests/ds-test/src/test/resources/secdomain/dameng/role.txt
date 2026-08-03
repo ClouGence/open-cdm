@@ -1,0 +1,77 @@
+[role_lifecycle]
+sql:
+create role codex_role;
+create role if not exists "Role_Mixed";
+drop role if exists codex_role cascade;
+drop role "Role_Mixed" restrict
+expect:
+{
+  "contains": [
+    {"class":"RdbRoleDomain", "sqlType":"CREATE_ROLE", "auditKind":"CREATE", "role":"codex_role"},
+    {"class":"RdbRoleDomain", "sqlType":"CREATE_ROLE", "auditKind":"CREATE", "role":"Role_Mixed"},
+    {"class":"RdbRoleDomain", "sqlType":"DROP_ROLE", "auditKind":"DROP", "role":"codex_role"},
+    {"class":"RdbRoleDomain", "sqlType":"DROP_ROLE", "auditKind":"DROP", "role":"Role_Mixed"}
+  ]
+}
+----------
+[role_grant_recipients]
+sql:
+grant child_role to parent_role, role_user with admin option
+expect:
+{
+  "contains": [
+    {"class":"RdbGrantDomain", "sqlType":"GRANT", "auditKind":"ALTER", "name":"parent_role"},
+    {"class":"RdbGrantDomain", "sqlType":"GRANT", "auditKind":"ALTER", "name":"role_user"}
+  ]
+}
+----------
+[role_revoke_recipients]
+sql:
+revoke admin option for child_role from role_user;
+revoke child_role from parent_role, role_user
+expect:
+{
+  "contains": [
+    {"class":"RdbRevokeDomain", "sqlType":"REVOKE", "auditKind":"ALTER", "name":"role_user"},
+    {"class":"RdbRevokeDomain", "sqlType":"REVOKE", "auditKind":"ALTER", "name":"parent_role"}
+  ]
+}
+----------
+[role_system_privilege_recipients]
+sql:
+grant create role, drop role to role_admin, public;
+revoke create role, drop role from role_admin, public
+expect:
+{
+  "contains": [
+    {"class":"RdbGrantDomain", "sqlType":"GRANT", "auditKind":"ALTER", "name":"role_admin"},
+    {"class":"RdbGrantDomain", "sqlType":"GRANT", "auditKind":"ALTER", "name":"public"},
+    {"class":"RdbRevokeDomain", "sqlType":"REVOKE", "auditKind":"ALTER", "name":"role_admin"},
+    {"class":"RdbRevokeDomain", "sqlType":"REVOKE", "auditKind":"ALTER", "name":"public"}
+  ]
+}
+----------
+[role_dictionary]
+sql:
+select role from sys.dba_roles;
+select grantee, granted_role from sys.dba_role_privs;
+select role from sys.session_roles
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"sys", "table":"dba_roles"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"sys", "table":"dba_role_privs"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"sys", "table":"session_roles"}
+  ]
+}
+----------
+[role_state_admin]
+sql:
+sp_set_role('CODEX_ROLE', 0);
+sp_set_role('CODEX_ROLE', 1)
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"ADMIN", "auditKind":"ADMIN", "name":"SECURITY"}
+  ]
+}

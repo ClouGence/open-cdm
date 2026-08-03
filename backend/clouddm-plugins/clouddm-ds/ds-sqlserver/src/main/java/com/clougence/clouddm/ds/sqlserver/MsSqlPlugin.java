@@ -42,12 +42,10 @@ import com.clougence.clouddm.sdk.DsPlugin;
 import com.clougence.clouddm.sdk.DsPluginBinder;
 import com.clougence.clouddm.sdk.Plugin;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
-import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
 import com.clougence.schema.DsType;
 import com.clougence.schema.SchemaBinder;
 import com.clougence.schema.SchemaFramework;
 import com.clougence.schema.SchemaPlugin;
-import com.clougence.sql.sqlserver.MsSqlSqlEngineSpi;
 
 /** @author mode 2024/12/25 15:13 */
 @Plugin(name = "i18n::" + MsSqlI18nKeys.PLUGIN_NAME_SQLSERVER,            //
@@ -84,9 +82,7 @@ public class MsSqlPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
     private void configExecute(DsPluginBinder dsPlugin) {
         dsPlugin.bindDsSessionFactory(MsSqlSessionFactory.class);
         dsPlugin.bindDsDriverFamily("SQL Server JDBC Driver", "jTDS");
-
-        dsPlugin.bindSqlEngine(MsSqlSqlEngineSpi.NAME);
-        dsPlugin.addGlobalSpi(SqlEngineSpi.class, MsSqlSqlEngineSpi.NAME, new MsSqlSqlEngineSpi(dsPlugin.findGlobalService(MetaService.class)));
+        dsPlugin.bindSqlEngine("MS T-SQL");
 
         dsPlugin.addPluginSpi(new MsSqlSessionSpi());
         dsPlugin.addPluginSpi(new MsSqlSupportSpi());

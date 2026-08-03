@@ -26,9 +26,7 @@ import lombok.Setter;
 public class ApprovalMO {
 
     private String  message;
-
     private boolean autoExec;
-
     private String  changeOwnerUid;
     private Long    changeId;
 }

@@ -1,0 +1,1203 @@
+[split_ddl_dameng_table_identity_extrema_0_001_behavior_review]
+sql:
+create table table_ident_min(id int identity(-2147483648,1), note int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/schema1/table_ident_min/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_002_behavior_review]
+sql:
+insert into table_ident_min(note) values(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:27) /test/1/catalog1/schema1/table_ident_min/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_003_behavior_review]
+sql:
+select id from table_ident_min;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:15~1:30) /test/1/catalog1/schema1/table_ident_min/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_004_behavior_review]
+sql:
+drop table table_ident_min purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:26) /test/1/catalog1/schema1/table_ident_min/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_005_behavior_review]
+sql:
+create table table_ident_max(id int identity(2147483647,-1), note int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/schema1/table_ident_max/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_006_behavior_review]
+sql:
+insert into table_ident_max(note) values(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:27) /test/1/catalog1/schema1/table_ident_max/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_007_behavior_review]
+sql:
+insert into table_ident_max(note) values(2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:27) /test/1/catalog1/schema1/table_ident_max/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_008_behavior_review]
+sql:
+select id from table_ident_max order by note;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:15~1:30) /test/1/catalog1/schema1/table_ident_max/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_009_behavior_review]
+sql:
+select ident_seed('SYSDBA.TABLE_IDENT_MAX'), ident_incr('SYSDBA.TABLE_IDENT_MAX');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/ident_seed/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:45~1:55) /test/1/catalog1/schema1/ident_incr/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_010_behavior_review]
+sql:
+drop table table_ident_max purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:26) /test/1/catalog1/schema1/table_ident_max/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_011_behavior_review]
+sql:
+create table table_ident_over(id int identity(2147483648,1));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:29) /test/1/catalog1/schema1/table_ident_over/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_012_behavior_review]
+sql:
+create table table_ident_under(id int identity(-2147483649,1));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/schema1/table_ident_under/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_013_behavior_review]
+sql:
+create table table_ident_zero(id int identity(1,0));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:29) /test/1/catalog1/schema1/table_ident_zero/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_014_behavior_review]
+sql:
+create table table_ident_step_max(id int identity(0,2147483647));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:33) /test/1/catalog1/schema1/table_ident_step_max/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_015_behavior_review]
+sql:
+insert into table_ident_step_max default values;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:32) /test/1/catalog1/schema1/table_ident_step_max/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_016_behavior_review]
+sql:
+insert into table_ident_step_max default values;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:32) /test/1/catalog1/schema1/table_ident_step_max/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_017_behavior_review]
+sql:
+insert into table_ident_step_max default values;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:32) /test/1/catalog1/schema1/table_ident_step_max/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_018_behavior_review]
+sql:
+drop table table_ident_step_max purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:31) /test/1/catalog1/schema1/table_ident_step_max/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_019_behavior_review]
+sql:
+create table table_ident_step_min(id int identity(0,-2147483648));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:33) /test/1/catalog1/schema1/table_ident_step_min/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_020_behavior_review]
+sql:
+insert into table_ident_step_min default values;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:32) /test/1/catalog1/schema1/table_ident_step_min/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_021_behavior_review]
+sql:
+insert into table_ident_step_min default values;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:32) /test/1/catalog1/schema1/table_ident_step_min/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_022_behavior_review]
+sql:
+insert into table_ident_step_min default values;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:32) /test/1/catalog1/schema1/table_ident_step_min/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_023_behavior_review]
+sql:
+drop table table_ident_step_min purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:31) /test/1/catalog1/schema1/table_ident_step_min/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_024_behavior_review]
+sql:
+create table table_ident_big_max(id bigint identity(9223372036854775806,-1), note int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:32) /test/1/catalog1/schema1/table_ident_big_max/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_025_behavior_review]
+sql:
+insert into table_ident_big_max(note) values(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/schema1/table_ident_big_max/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_026_behavior_review]
+sql:
+drop table table_ident_big_max purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:30) /test/1/catalog1/schema1/table_ident_big_max/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_027_behavior_review]
+sql:
+create table table_ident_big_edge(id bigint identity(9223372036854775807,-1));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:33) /test/1/catalog1/schema1/table_ident_big_edge/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_028_behavior_review]
+sql:
+create table table_ident_big_min(id bigint identity(-9223372036854775808,1), note int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:32) /test/1/catalog1/schema1/table_ident_big_min/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_029_behavior_review]
+sql:
+insert into table_ident_big_min(note) values(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/schema1/table_ident_big_min/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_030_behavior_review]
+sql:
+drop table table_ident_big_min purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:30) /test/1/catalog1/schema1/table_ident_big_min/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_031_behavior_review]
+sql:
+create table table_ident_decimal(id decimal(10) identity(9999999999,-1), note int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:32) /test/1/catalog1/schema1/table_ident_decimal/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_032_behavior_review]
+sql:
+insert into table_ident_decimal(note) values(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/schema1/table_ident_decimal/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_033_behavior_review]
+sql:
+drop table table_ident_decimal purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:30) /test/1/catalog1/schema1/table_ident_decimal/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_034_behavior_review]
+sql:
+create table table_ident_numeric(id numeric(20) identity);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:32) /test/1/catalog1/schema1/table_ident_numeric/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_035_behavior_review]
+sql:
+drop table table_ident_numeric purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:30) /test/1/catalog1/schema1/table_ident_numeric/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_036_behavior_review]
+sql:
+create table table_ident_scaled(id decimal(10,2) identity);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/schema1/table_ident_scaled/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_037_behavior_review]
+sql:
+create table table_ident_tiny(id tinyint identity);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:29) /test/1/catalog1/schema1/table_ident_tiny/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_038_behavior_review]
+sql:
+create table table_ident_small(id smallint identity);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/schema1/table_ident_small/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_039_behavior_review]
+sql:
+create global temporary table table_ident_temp(id int identity) on commit preserve rows;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:30~1:46) /test/1/catalog1/schema1/table_ident_temp/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_040_behavior_review]
+sql:
+create table table_ident_part(id int identity, note int) partition by range(note)(partition p1 values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:29) /test/1/catalog1/schema1/table_ident_part/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_041_behavior_review]
+sql:
+insert into table_ident_part(note) values(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:28) /test/1/catalog1/schema1/table_ident_part/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_042_behavior_review]
+sql:
+drop table table_ident_part purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:27) /test/1/catalog1/schema1/table_ident_part/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_043_behavior_review]
+sql:
+create table table_ident_two(id1 int identity, id2 int identity);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/schema1/table_ident_two/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_044_behavior_review]
+sql:
+create table table_ident_default(id int identity default 1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:32) /test/1/catalog1/schema1/table_ident_default/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_045_behavior_review]
+sql:
+create table table_auto_zero(id int auto_increment primary key, note int) auto_increment=0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/schema1/table_auto_zero/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_046_behavior_review]
+sql:
+insert into table_auto_zero(note) values(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:27) /test/1/catalog1/schema1/table_auto_zero/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_047_behavior_review]
+sql:
+drop table table_auto_zero purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:26) /test/1/catalog1/schema1/table_auto_zero/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_048_behavior_review]
+sql:
+create table table_auto_edge(id int auto_increment primary key, note int) auto_increment=2147483647;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/schema1/table_auto_edge/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_049_behavior_review]
+sql:
+insert into table_auto_edge(note) values(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:27) /test/1/catalog1/schema1/table_auto_edge/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_050_behavior_review]
+sql:
+insert into table_auto_edge(note) values(2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:27) /test/1/catalog1/schema1/table_auto_edge/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_051_behavior_review]
+sql:
+drop table table_auto_edge purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:26) /test/1/catalog1/schema1/table_auto_edge/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_052_behavior_review]
+sql:
+create table table_auto_over(id int auto_increment primary key, note int) auto_increment=2147483648;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/schema1/table_auto_over/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_053_behavior_review]
+sql:
+insert into table_auto_over(note) values(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:27) /test/1/catalog1/schema1/table_auto_over/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_054_behavior_review]
+sql:
+drop table table_auto_over purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:26) /test/1/catalog1/schema1/table_auto_over/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_055_behavior_review]
+sql:
+create table table_auto_big(id bigint auto_increment primary key, note int) auto_increment=9223372036854775806;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:27) /test/1/catalog1/schema1/table_auto_big/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_056_behavior_review]
+sql:
+insert into table_auto_big(note) values(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/table_auto_big/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_057_behavior_review]
+sql:
+insert into table_auto_big(note) values(2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/table_auto_big/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_058_behavior_review]
+sql:
+drop table table_auto_big purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:25) /test/1/catalog1/schema1/table_auto_big/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_059_behavior_review]
+sql:
+create table table_auto_alt(id int auto_increment primary key, note int) auto_increment=10;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:27) /test/1/catalog1/schema1/table_auto_alt/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_060_behavior_review]
+sql:
+insert into table_auto_alt(note) values(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/table_auto_alt/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_061_behavior_review]
+sql:
+alter table table_auto_alt auto_increment=5;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/table_auto_alt/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_062_behavior_review]
+sql:
+insert into table_auto_alt(note) values(2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/table_auto_alt/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_063_behavior_review]
+sql:
+alter table table_auto_alt auto_increment=20;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/table_auto_alt/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_064_behavior_review]
+sql:
+insert into table_auto_alt(note) values(3);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/table_auto_alt/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_065_behavior_review]
+sql:
+drop table table_auto_alt purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:25) /test/1/catalog1/schema1/table_auto_alt/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_066_behavior_review]
+sql:
+create table table_ident_state(id int identity, note int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/schema1/table_ident_state/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_067_behavior_review]
+sql:
+create table table_ident_other(id int identity, note int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/schema1/table_ident_other/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_068_behavior_review]
+sql:
+insert into table_ident_state(id,note) values(10,1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:29) /test/1/catalog1/schema1/table_ident_state/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_069_behavior_review]
+sql:
+set identity_insert table_ident_state on;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "Table(1:20~1:37) /test/1/catalog1/schema1/table_ident_state/",
+      "action": "CONFIGURE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_070_behavior_review]
+sql:
+insert into table_ident_state(id,note) values(100,2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:29) /test/1/catalog1/schema1/table_ident_state/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_071_behavior_review]
+sql:
+set identity_insert table_ident_state off;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "Table(1:20~1:37) /test/1/catalog1/schema1/table_ident_state/",
+      "action": "CONFIGURE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_072_behavior_review]
+sql:
+insert into table_ident_state(note) values(3);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:29) /test/1/catalog1/schema1/table_ident_state/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_073_behavior_review]
+sql:
+set identity_insert table_ident_state on with replace null;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "Table(1:20~1:37) /test/1/catalog1/schema1/table_ident_state/",
+      "action": "CONFIGURE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_074_behavior_review]
+sql:
+insert into table_ident_state(id,note) values(null,4);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:29) /test/1/catalog1/schema1/table_ident_state/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_075_behavior_review]
+sql:
+set identity_insert table_ident_other on;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "Table(1:20~1:37) /test/1/catalog1/schema1/table_ident_other/",
+      "action": "CONFIGURE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_076_behavior_review]
+sql:
+insert into table_ident_state(id,note) values(200,5);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:29) /test/1/catalog1/schema1/table_ident_state/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_077_behavior_review]
+sql:
+insert into table_ident_other(id,note) values(20,6);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:29) /test/1/catalog1/schema1/table_ident_other/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_078_behavior_review]
+sql:
+set identity_insert table_ident_other off;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "Table(1:20~1:37) /test/1/catalog1/schema1/table_ident_other/",
+      "action": "CONFIGURE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_079_behavior_review]
+sql:
+drop table table_ident_state purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:28) /test/1/catalog1/schema1/table_ident_state/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_identity_extrema_0_080_behavior_review]
+sql:
+drop table table_ident_other purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:28) /test/1/catalog1/schema1/table_ident_other/",
+      "action": "DROP"
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+[mpp_huge_route_columns]
+sql:
+select id, sf_get_ep_seqno(rowid) as ep_seqno
+from catalog1.app.mpp_huge_hash order by id
+expect:
+{
+  "id": ["/catalog1/app/mpp_huge_hash/id/"],
+  "ep_seqno": ["/catalog1/app/mpp_huge_hash/rowid/"]
+}
+----------
+[mpp_huge_cross_ep_join_columns]
+sql:
+select h.id, h.note, r.note as range_note
+from catalog1.app.mpp_huge_hash h
+join catalog1.app.mpp_huge_range r on r.id=150
+where h.id=2
+expect:
+{
+  "id": ["/catalog1/app/mpp_huge_hash/id/"],
+  "note": ["/catalog1/app/mpp_huge_hash/note/"],
+  "range_note": ["/catalog1/app/mpp_huge_range/note/"]
+}
+----------
+[mpp_huge_ctas_columns]
+sql:
+create huge table app.mpp_huge_ctas as
+select id, note from catalog1.app.mpp_huge_stage distributed by hash(id)
+expect:
+{
+  "id": ["/catalog1/app/mpp_huge_stage/id/"],
+  "note": ["/catalog1/app/mpp_huge_stage/note/"]
+}

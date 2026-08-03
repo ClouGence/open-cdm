@@ -1,0 +1,42 @@
+-- FUNC-0614 ADD_LOGFILE three-argument overload
+begin DBMS_LOGMNR.ADD_LOGFILE('/archive/A.log',DBMS_LOGMNR."NEW",0); end;
+/
+-- FUNC-0615 COLUMN_PRESENT
+declare n int; begin n:=DBMS_LOGMNR.COLUMN_PRESENT(0,'APP.T.C'); end;
+/
+-- FUNC-0616 END_LOGMNR
+begin DBMS_LOGMNR.END_LOGMNR(); end;
+/
+-- FUNC-0617 MINE_VALUE
+declare s varchar(100); begin s:=DBMS_LOGMNR.MINE_VALUE(0,'APP.T.C'); end;
+/
+-- FUNC-0618 REMOVE_LOGFILE
+begin DBMS_LOGMNR.REMOVE_LOGFILE('/archive/A.log'); end;
+/
+-- FUNC-0619 START_LOGMNR
+begin DBMS_LOGMNR.START_LOGMNR(options=>2128); end;
+/
+-- FUNC-1764 ADD_LOGFILE one/two-argument overload
+begin DBMS_LOGMNR.ADD_LOGFILE('/archive/A.log'); end;
+/
+------------------------------------------------------------------------------------------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-0614 ADD_LOGFILE three-argument overload
+begin DBMS_LOGMNR.ADD_LOGFILE('/archive/A.log',DBMS_LOGMNR."NEW",0); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0615 COLUMN_PRESENT
+declare n int; begin n:=DBMS_LOGMNR.COLUMN_PRESENT(0,'APP.T.C'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-0616 END_LOGMNR
+begin DBMS_LOGMNR.END_LOGMNR(); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0617 MINE_VALUE
+declare s varchar(100); begin s:=DBMS_LOGMNR.MINE_VALUE(0,'APP.T.C'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-0618 REMOVE_LOGFILE
+begin DBMS_LOGMNR.REMOVE_LOGFILE('/archive/A.log'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-0619 START_LOGMNR
+begin DBMS_LOGMNR.START_LOGMNR(options=>2128); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-1764 ADD_LOGFILE one/two-argument overload
+begin DBMS_LOGMNR.ADD_LOGFILE('/archive/A.log'); end;

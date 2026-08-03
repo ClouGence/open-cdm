@@ -1,0 +1,27 @@
+[dbms_sqltune_procedure_and_assignment_no_static_lineage]
+sql:
+begin
+  DBMS_SQLTUNE.DROP_TUNING_TASK();
+  DBMS_SQLTUNE.EXECUTE_TUNING_TASK();
+  DBMS_SQLTUNE.DROP_SQL_PROFILE();
+  DBMS_SQLTUNE.ALTER_SQL_PROFILE();
+  DBMS_SQLTUNE.IMPORT_SQL_PROFILE();
+  DBMS_SQLTUNE.ACCEPT_SQL_PROFILE();
+  DBMS_SQLTUNE.ACCEPT_ALL_SQL_PROFILES();
+  DBMS_SQLTUNE.CREATE_STGTAB_SQLPROF();
+  DBMS_SQLTUNE.PACK_STGTAB_SQLPROF();
+  DBMS_SQLTUNE.UNPACK_STGTAB_SQLPROF();
+  DBMS_SQLTUNE.REMAP_STGTAB_SQLPROF();
+end;
+declare lim double:=1; min_time double:=0; rc int;
+begin
+  rc:=DBMS_SQLTUNE.FIND_BEST_INI(3,'select 1','',lim,min_time);
+end;
+expect:
+{}
+----------
+[dbms_sqltune_function_output_expression]
+sql:
+select DBMS_SQLTUNE.SQLTEXT_TO_SIGNATURE('select 1') from dual
+expect:
+{"DBMS_SQLTUNE.SQLTEXT_TO_SIGNATURE('select 1')":[]}

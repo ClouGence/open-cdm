@@ -47,9 +47,9 @@ import com.clougence.clouddm.sdk.execute.session.MessageLevel;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.clouddm.sdk.execute.session.SessionContextDTO;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 import com.clougence.clouddm.sdk.security.auth.def.SecDataAuthLabel;
 import com.clougence.clouddm.sdk.service.secrules.Requester;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.clouddm.sdk.ui.editor.data.DataEditorSpi;
 import com.clougence.clouddm.sdk.ui.editor.data.DataEditorSqlType;
 import com.clougence.clouddm.sdk.ui.editor.data.DataEditorUiStyle;
@@ -284,9 +284,8 @@ public class DsDataEditorServiceImpl implements DsDataEditorService {
         QueryRequest request = DmDsUtils.createRequestCtx(dsConfig, levelsParam, sessionCtx, uid, clientIp, true);
         request.setQueryBody(countSql);
         request.setQueryArgs(Collections.emptyList());
-        request.setQueryType(SecQueryType.SELECT);
+        request.setQueryTypes(Set.of(SplitQueryType.SELECT));
         request.setRequester(Requester.CONSOLE);
-        request.setResource(Collections.singletonList(DmConvertUtils.convertToResource(levels, table)));
 
         // execute sql
         try {
@@ -326,9 +325,8 @@ public class DsDataEditorServiceImpl implements DsDataEditorService {
         QueryRequest request = DmDsUtils.createRequestCtx(dsConfig, levelsParam, sessionCtx, uid, clientIp, true);
         request.setQueryBody(fetchSql);
         request.setQueryArgs(Collections.emptyList());
-        request.setQueryType(SecQueryType.SELECT);
+        request.setQueryTypes(Set.of(SplitQueryType.SELECT));
         request.setRequester(Requester.CONSOLE);
-        request.setResource(Collections.singletonList(DmConvertUtils.convertToResource(levels, table)));
         request.setUsingValueProcess(!this.authCheckService
             .checkResPathWithoutError(puid, uid, levels.dsDO().getId(), AuthKind.DataSource, levels.asResPath(), SecDataAuthLabel.DM_DAUTH_SENSITIVE));
 
@@ -371,9 +369,8 @@ public class DsDataEditorServiceImpl implements DsDataEditorService {
         QueryRequest request = DmDsUtils.createRequestCtx(dsConfig, levelsParam, sessionCtx, uid, clientIp, true);
         request.setQueryBody(dmlChange.getSql());
         request.setQueryArgs(Collections.emptyList());
-        request.setQueryType(DmConvertUtils.convertToSecQueryType(dmlChange.getSqlType()));
+        request.setQueryTypes(Set.of(DmConvertUtils.convertToSecQueryType(dmlChange.getSqlType())));
         request.setRequester(Requester.CONSOLE);
-        request.setResource(Collections.singletonList(DmConvertUtils.convertToResource(levels, tableMeta.getName())));
 
         // ReloadSpi  request
         DataEditorReloadSpi extSpi = PluginManager.findDataEditorExtSpi(dsDO.getDataSourceType());

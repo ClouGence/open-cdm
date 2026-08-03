@@ -1,0 +1,38 @@
+create table app.bad_json(c json());
+create table app.bad_jsonb(c jsonb());
+create table app.bad_json_arg(c json(1));
+create table app.bad_jsonb_arg(c jsonb(1));
+create table app.bad_is_json(c varchar check(c is json()));
+create table app.bad_is_json(c varchar check(c is json(strict lax)));
+create table app.bad_unique(c varchar check(c is json with unique));
+select '[1]'::json-> from dual;
+select '[1]'::json->> from dual;
+select cast('{}' as) from dual;
+create function app.bad_json_f(p json()) return int
+as begin return 1;end;/
+declare j json();begin null;end;/
+------------------------------------------------------------------------------------------
+[CREATE_TABLE] create table app.bad_json(c json());
+----------
+[CREATE_TABLE] create table app.bad_jsonb(c jsonb());
+----------
+[CREATE_TABLE] create table app.bad_json_arg(c json(1));
+----------
+[CREATE_TABLE] create table app.bad_jsonb_arg(c jsonb(1));
+----------
+[CREATE_TABLE] create table app.bad_is_json(c varchar check(c is json()));
+----------
+[CREATE_TABLE] create table app.bad_is_json(c varchar check(c is json(strict lax)));
+----------
+[CREATE_TABLE] create table app.bad_unique(c varchar check(c is json with unique));
+----------
+[SELECT] select '[1]'::json-> from dual;
+----------
+[SELECT] select '[1]'::json->> from dual;
+----------
+[SELECT] select cast('{}' as) from dual;
+----------
+[CREATE_PROG_OBJ] create function app.bad_json_f(p json()) return int
+as begin return 1;end;/
+----------
+[BLOCK] declare j json();begin null;end;/

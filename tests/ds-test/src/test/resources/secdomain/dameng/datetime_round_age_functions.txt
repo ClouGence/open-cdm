@@ -1,0 +1,13 @@
+[datetime_round_age_public_signatures]
+sql:
+select
+  round(timestamp '2024-02-29 12:30:30.123456','MI') as rounded_value,
+  trunc(timestamp '2024-02-29 12:30:30.123456','MI') as truncated_value,
+  age(timestamp '2001-04-10',timestamp '1957-06-13') as age_value
+from dual
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "table":"dual"}
+  ]
+}

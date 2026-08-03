@@ -1,0 +1,165 @@
+[dql_mysql_integer_0.0001]
+sql:
+SELECT id,
+       tiny_signed+small_signed+medium_signed+int_signed+big_signed AS arithmetic_value,
+       (tiny_unsigned|small_unsigned)&int_unsigned AS bit_value,
+       big_unsigned DIV NULLIF(int_unsigned,0) AS division_value,
+       big_unsigned MOD NULLIF(small_unsigned,0) AS modulo_value
+FROM integer_lifecycle
+WHERE (tiny_signed<0 XOR bool_alias) OR boolean_alias;
+expect:
+{
+  "id" : [ "(1:7~1:9) /catalog1/schema1/integer_lifecycle/id/" ],
+  "arithmetic_value" : [ "(2:7~2:18) /catalog1/schema1/integer_lifecycle/tiny_signed/", "(2:19~2:31) /catalog1/schema1/integer_lifecycle/small_signed/", "(2:32~2:45) /catalog1/schema1/integer_lifecycle/medium_signed/", "(2:46~2:56) /catalog1/schema1/integer_lifecycle/int_signed/", "(2:57~2:67) /catalog1/schema1/integer_lifecycle/big_signed/" ],
+  "bit_value" : [ "(3:8~3:21) /catalog1/schema1/integer_lifecycle/tiny_unsigned/", "(3:22~3:36) /catalog1/schema1/integer_lifecycle/small_unsigned/", "(3:38~3:50) /catalog1/schema1/integer_lifecycle/int_unsigned/" ],
+  "division_value" : [ "(4:7~4:19) /catalog1/schema1/integer_lifecycle/big_unsigned/", "(4:31~4:43) /catalog1/schema1/integer_lifecycle/int_unsigned/" ],
+  "modulo_value" : [ "(5:7~5:19) /catalog1/schema1/integer_lifecycle/big_unsigned/", "(5:31~5:45) /catalog1/schema1/integer_lifecycle/small_unsigned/" ]
+}
+----------
+[dql_mysql_integer_0.0002]
+sql:
+SELECT signed_row.id,unsigned_row.id,
+       signed_row.big_signed,unsigned_row.big_unsigned
+FROM integer_lifecycle AS signed_row
+JOIN integer_lifecycle AS unsigned_row
+  ON signed_row.int_signed=CAST(unsigned_row.int_unsigned AS SIGNED)
+ AND signed_row.small_signed<=unsigned_row.small_unsigned
+WHERE signed_row.tiny_signed<>unsigned_row.tiny_unsigned;
+expect:
+[ {
+  "sources" : [ "(1:7~1:20) /catalog1/schema1/integer_lifecycle/id/" ],
+  "column" : "id"
+}, {
+  "sources" : [ "(1:21~1:36) /catalog1/schema1/integer_lifecycle/id/" ],
+  "column" : "id"
+}, {
+  "sources" : [ "(2:7~2:28) /catalog1/schema1/integer_lifecycle/big_signed/" ],
+  "column" : "big_signed"
+}, {
+  "sources" : [ "(2:29~2:54) /catalog1/schema1/integer_lifecycle/big_unsigned/" ],
+  "column" : "big_unsigned"
+} ]
+----------
+[dql_mysql_integer_0.0003]
+sql:
+SELECT bool_alias,
+       COUNT(DISTINCT tiny_signed),
+       SUM(small_signed),
+       AVG(medium_unsigned),
+       MIN(int_signed),
+       MAX(big_unsigned),
+       BIT_AND(tiny_unsigned),
+       BIT_OR(small_unsigned),
+       BIT_XOR(int_unsigned)
+FROM integer_lifecycle
+GROUP BY bool_alias
+HAVING SUM(big_signed) IS NOT NULL;
+expect:
+{
+  "bool_alias" : [ "(1:7~1:17) /catalog1/schema1/integer_lifecycle/bool_alias/" ],
+  "COUNT(DISTINCT tiny_signed)" : [ "(2:22~2:33) /catalog1/schema1/integer_lifecycle/tiny_signed/" ],
+  "SUM(small_signed)" : [ "(3:11~3:23) /catalog1/schema1/integer_lifecycle/small_signed/" ],
+  "AVG(medium_unsigned)" : [ "(4:11~4:26) /catalog1/schema1/integer_lifecycle/medium_unsigned/" ],
+  "MIN(int_signed)" : [ "(5:11~5:21) /catalog1/schema1/integer_lifecycle/int_signed/" ],
+  "MAX(big_unsigned)" : [ "(6:11~6:23) /catalog1/schema1/integer_lifecycle/big_unsigned/" ],
+  "BIT_AND(tiny_unsigned)" : [ "(7:15~7:28) /catalog1/schema1/integer_lifecycle/tiny_unsigned/" ],
+  "BIT_OR(small_unsigned)" : [ "(8:14~8:28) /catalog1/schema1/integer_lifecycle/small_unsigned/" ],
+  "BIT_XOR(int_unsigned)" : [ "(9:15~9:27) /catalog1/schema1/integer_lifecycle/int_unsigned/" ]
+}
+----------
+[dql_mysql_integer_0.0004]
+sql:
+SELECT outer_integer.id,
+       (SELECT MAX(inner_integer.big_unsigned)
+        FROM integer_lifecycle AS inner_integer
+        WHERE inner_integer.bool_alias=outer_integer.bool_alias
+          AND inner_integer.medium_signed<=outer_integer.medium_signed) AS correlated_max
+FROM integer_lifecycle AS outer_integer
+WHERE outer_integer.int_unsigned > ALL (
+  SELECT inner_integer.int_signed
+  FROM integer_lifecycle AS inner_integer
+  WHERE inner_integer.id<>outer_integer.id
+);
+expect:
+{
+  "id" : [ "(1:7~1:23) /catalog1/schema1/integer_lifecycle/id/" ],
+  "correlated_max" : [ "(2:19~2:45) /catalog1/schema1/integer_lifecycle/big_unsigned/" ]
+}
+----------
+[dql_mysql_integer_0.0005]
+sql:
+SELECT id,
+       CASE
+         WHEN tiny_signed<0 THEN big_signed
+         WHEN bool_alias THEN int_signed
+         ELSE medium_signed
+       END AS chosen_signed,
+       COALESCE(NULLIF(big_unsigned,0),int_unsigned,small_unsigned) AS chosen_unsigned,
+       IF(boolean_alias,tiny_unsigned,small_unsigned) AS chosen_boolean
+FROM integer_lifecycle;
+expect:
+{
+  "id" : [ "(1:7~1:9) /catalog1/schema1/integer_lifecycle/id/" ],
+  "chosen_signed" : [ "(3:14~3:25) /catalog1/schema1/integer_lifecycle/tiny_signed/", "(3:33~3:43) /catalog1/schema1/integer_lifecycle/big_signed/", "(4:14~4:24) /catalog1/schema1/integer_lifecycle/bool_alias/", "(4:30~4:40) /catalog1/schema1/integer_lifecycle/int_signed/", "(5:14~5:27) /catalog1/schema1/integer_lifecycle/medium_signed/" ],
+  "chosen_unsigned" : [ "(7:23~7:35) /catalog1/schema1/integer_lifecycle/big_unsigned/", "(7:39~7:51) /catalog1/schema1/integer_lifecycle/int_unsigned/", "(7:52~7:66) /catalog1/schema1/integer_lifecycle/small_unsigned/" ],
+  "chosen_boolean" : [ "(8:10~8:23) /catalog1/schema1/integer_lifecycle/boolean_alias/", "(8:24~8:37) /catalog1/schema1/integer_lifecycle/tiny_unsigned/", "(8:38~8:52) /catalog1/schema1/integer_lifecycle/small_unsigned/" ]
+}
+----------
+[dql_mysql_integer_0.0006]
+sql:
+SELECT id,tiny_signed,small_signed,medium_signed,int_signed,big_signed
+FROM integer_lifecycle
+WHERE bool_alias
+UNION ALL
+SELECT id,tiny_signed,small_signed,medium_signed,int_signed,big_signed
+FROM integer_lifecycle
+WHERE NOT boolean_alias
+ORDER BY id;
+expect:
+{
+  "id" : [ "(1:7~1:9) /catalog1/schema1/integer_lifecycle/id/", "(5:7~5:9) /catalog1/schema1/integer_lifecycle/id/" ],
+  "tiny_signed" : [ "(1:10~1:21) /catalog1/schema1/integer_lifecycle/tiny_signed/", "(5:10~5:21) /catalog1/schema1/integer_lifecycle/tiny_signed/" ],
+  "small_signed" : [ "(1:22~1:34) /catalog1/schema1/integer_lifecycle/small_signed/", "(5:22~5:34) /catalog1/schema1/integer_lifecycle/small_signed/" ],
+  "medium_signed" : [ "(1:35~1:48) /catalog1/schema1/integer_lifecycle/medium_signed/", "(5:35~5:48) /catalog1/schema1/integer_lifecycle/medium_signed/" ],
+  "int_signed" : [ "(1:49~1:59) /catalog1/schema1/integer_lifecycle/int_signed/", "(5:49~5:59) /catalog1/schema1/integer_lifecycle/int_signed/" ],
+  "big_signed" : [ "(1:60~1:70) /catalog1/schema1/integer_lifecycle/big_signed/", "(5:60~5:70) /catalog1/schema1/integer_lifecycle/big_signed/" ]
+}
+----------
+[dql_mysql_integer_0.0007]
+sql:
+SELECT derived.bool_alias,COUNT(*) AS row_count,
+       MIN(derived.smallest),MAX(derived.largest)
+FROM (
+  SELECT bool_alias,
+         LEAST(tiny_signed,small_signed,medium_signed,int_signed,big_signed) AS smallest,
+         GREATEST(tiny_unsigned,small_unsigned,medium_unsigned,int_unsigned,big_unsigned) AS largest
+  FROM integer_lifecycle
+) AS derived
+GROUP BY derived.bool_alias
+ORDER BY row_count DESC
+LIMIT 5;
+expect:
+{
+  "bool_alias" : [ "(4:9~4:19) /catalog1/schema1/integer_lifecycle/bool_alias/" ],
+  "row_count" : [ ],
+  "MIN(derived.smallest)" : [ "(5:15~5:26) /catalog1/schema1/integer_lifecycle/tiny_signed/", "(5:27~5:39) /catalog1/schema1/integer_lifecycle/small_signed/", "(5:40~5:53) /catalog1/schema1/integer_lifecycle/medium_signed/", "(5:54~5:64) /catalog1/schema1/integer_lifecycle/int_signed/", "(5:65~5:75) /catalog1/schema1/integer_lifecycle/big_signed/" ],
+  "MAX(derived.largest)" : [ "(6:18~6:31) /catalog1/schema1/integer_lifecycle/tiny_unsigned/", "(6:32~6:46) /catalog1/schema1/integer_lifecycle/small_unsigned/", "(6:47~6:62) /catalog1/schema1/integer_lifecycle/medium_unsigned/", "(6:63~6:75) /catalog1/schema1/integer_lifecycle/int_unsigned/", "(6:76~6:88) /catalog1/schema1/integer_lifecycle/big_unsigned/" ]
+}
+----------
+[dql_mysql_integer_0.0008]
+sql:
+SELECT id,
+       CAST(tiny_signed AS SIGNED),
+       CAST(small_unsigned AS UNSIGNED),
+       CONVERT(medium_signed,SIGNED INTEGER),
+       CONVERT(big_unsigned,UNSIGNED INTEGER)
+FROM integer_lifecycle
+WHERE ROW(tiny_signed,small_signed) <= ROW(medium_signed,int_signed);
+expect:
+{
+  "id" : [ "(1:7~1:9) /catalog1/schema1/integer_lifecycle/id/" ],
+  "CAST(tiny_signed AS SIGNED)" : [ "(2:12~2:23) /catalog1/schema1/integer_lifecycle/tiny_signed/" ],
+  "CAST(small_unsigned AS UNSIGNED)" : [ "(3:12~3:26) /catalog1/schema1/integer_lifecycle/small_unsigned/" ],
+  "CONVERT(medium_signed,SIGNED INTEGER)" : [ "(4:15~4:28) /catalog1/schema1/integer_lifecycle/medium_signed/" ],
+  "CONVERT(big_unsigned,UNSIGNED INTEGER)" : [ "(5:15~5:27) /catalog1/schema1/integer_lifecycle/big_unsigned/" ]
+}

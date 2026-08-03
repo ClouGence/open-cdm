@@ -1,0 +1,719 @@
+[split_dql_dameng_utl_match_signature_combinations_0_001]
+sql:
+-- EDIT_DISTANCE_DOCUMENTED
+SELECT UTL_MATCH.EDIT_DISTANCE('china','chin') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:30) /test/1/catalog1/UTL_MATCH/EDIT_DISTANCE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:52~2:56) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_match_signature_combinations_0_002]
+sql:
+-- EDIT_DISTANCE_IDENTICAL
+SELECT UTL_MATCH.EDIT_DISTANCE('DM8','DM8') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:30) /test/1/catalog1/UTL_MATCH/EDIT_DISTANCE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:49~2:53) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_match_signature_combinations_0_003]
+sql:
+-- EDIT_DISTANCE_DISJOINT
+SELECT UTL_MATCH.EDIT_DISTANCE('abc','xyz') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:30) /test/1/catalog1/UTL_MATCH/EDIT_DISTANCE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:49~2:53) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_match_signature_combinations_0_004]
+sql:
+-- EDIT_DISTANCE_EMPTY_LEFT
+SELECT UTL_MATCH.EDIT_DISTANCE('','DM8') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:30) /test/1/catalog1/UTL_MATCH/EDIT_DISTANCE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:46~2:50) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_match_signature_combinations_0_005]
+sql:
+-- EDIT_DISTANCE_EMPTY_RIGHT
+SELECT UTL_MATCH.EDIT_DISTANCE('DM8','') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:30) /test/1/catalog1/UTL_MATCH/EDIT_DISTANCE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:46~2:50) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_match_signature_combinations_0_006]
+sql:
+-- EDIT_DISTANCE_NULL_LEFT
+SELECT UTL_MATCH.EDIT_DISTANCE(CAST(NULL AS VARCHAR),'DM8') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:30) /test/1/catalog1/UTL_MATCH/EDIT_DISTANCE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:65~2:69) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_match_signature_combinations_0_007]
+sql:
+-- EDIT_DISTANCE_NULL_RIGHT
+SELECT UTL_MATCH.EDIT_DISTANCE('DM8',CAST(NULL AS VARCHAR)) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:30) /test/1/catalog1/UTL_MATCH/EDIT_DISTANCE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:65~2:69) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_match_signature_combinations_0_008]
+sql:
+-- EDIT_DISTANCE_NAMED_REVERSED
+SELECT UTL_MATCH.EDIT_DISTANCE(S2=>'abd',S1=>'abc') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:30) /test/1/catalog1/UTL_MATCH/EDIT_DISTANCE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:57~2:61) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_match_signature_combinations_0_009]
+sql:
+-- EDIT_DISTANCE_CASE_SENSITIVE
+SELECT UTL_MATCH.EDIT_DISTANCE('DM8','dm8') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:30) /test/1/catalog1/UTL_MATCH/EDIT_DISTANCE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:49~2:53) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_match_signature_combinations_0_010]
+sql:
+-- EDIT_DISTANCE_SIMILARITY_DOCUMENTED
+SELECT UTL_MATCH.EDIT_DISTANCE_SIMILARITY('china','chin') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:41) /test/1/catalog1/UTL_MATCH/EDIT_DISTANCE_SIMILARITY/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:63~2:67) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_match_signature_combinations_0_011]
+sql:
+-- EDIT_DISTANCE_SIMILARITY_IDENTICAL
+SELECT UTL_MATCH.EDIT_DISTANCE_SIMILARITY('DM8','DM8') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:41) /test/1/catalog1/UTL_MATCH/EDIT_DISTANCE_SIMILARITY/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:60~2:64) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_match_signature_combinations_0_012]
+sql:
+-- EDIT_DISTANCE_SIMILARITY_DISJOINT
+SELECT UTL_MATCH.EDIT_DISTANCE_SIMILARITY('abc','xyz') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:41) /test/1/catalog1/UTL_MATCH/EDIT_DISTANCE_SIMILARITY/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:60~2:64) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_match_signature_combinations_0_013]
+sql:
+-- EDIT_DISTANCE_SIMILARITY_EMPTY_LEFT
+SELECT UTL_MATCH.EDIT_DISTANCE_SIMILARITY('','DM8') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:41) /test/1/catalog1/UTL_MATCH/EDIT_DISTANCE_SIMILARITY/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:57~2:61) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_match_signature_combinations_0_014]
+sql:
+-- EDIT_DISTANCE_SIMILARITY_EMPTY_RIGHT
+SELECT UTL_MATCH.EDIT_DISTANCE_SIMILARITY('DM8','') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:41) /test/1/catalog1/UTL_MATCH/EDIT_DISTANCE_SIMILARITY/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:57~2:61) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_match_signature_combinations_0_015]
+sql:
+-- EDIT_DISTANCE_SIMILARITY_NULL_LEFT
+SELECT UTL_MATCH.EDIT_DISTANCE_SIMILARITY(CAST(NULL AS VARCHAR),'DM8') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:41) /test/1/catalog1/UTL_MATCH/EDIT_DISTANCE_SIMILARITY/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:76~2:80) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_match_signature_combinations_0_016]
+sql:
+-- EDIT_DISTANCE_SIMILARITY_NULL_RIGHT
+SELECT UTL_MATCH.EDIT_DISTANCE_SIMILARITY('DM8',CAST(NULL AS VARCHAR)) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:41) /test/1/catalog1/UTL_MATCH/EDIT_DISTANCE_SIMILARITY/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:76~2:80) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_match_signature_combinations_0_017]
+sql:
+-- EDIT_DISTANCE_SIMILARITY_NAMED_REVERSED
+SELECT UTL_MATCH.EDIT_DISTANCE_SIMILARITY(S2=>'abd',S1=>'abc') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:41) /test/1/catalog1/UTL_MATCH/EDIT_DISTANCE_SIMILARITY/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:68~2:72) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_match_signature_combinations_0_018]
+sql:
+-- EDIT_DISTANCE_SIMILARITY_CASE_SENSITIVE
+SELECT UTL_MATCH.EDIT_DISTANCE_SIMILARITY('DM8','dm8') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:41) /test/1/catalog1/UTL_MATCH/EDIT_DISTANCE_SIMILARITY/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:60~2:64) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_match_signature_combinations_0_019]
+sql:
+-- JARO_WINKLER_DOCUMENTED
+SELECT UTL_MATCH.JARO_WINKLER('china','chin') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:29) /test/1/catalog1/UTL_MATCH/JARO_WINKLER/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:51~2:55) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_match_signature_combinations_0_020]
+sql:
+-- JARO_WINKLER_IDENTICAL
+SELECT UTL_MATCH.JARO_WINKLER('DM8','DM8') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:29) /test/1/catalog1/UTL_MATCH/JARO_WINKLER/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:48~2:52) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_match_signature_combinations_0_021]
+sql:
+-- JARO_WINKLER_DISJOINT
+SELECT UTL_MATCH.JARO_WINKLER('abc','xyz') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:29) /test/1/catalog1/UTL_MATCH/JARO_WINKLER/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:48~2:52) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_match_signature_combinations_0_022]
+sql:
+-- JARO_WINKLER_EMPTY_LEFT
+SELECT UTL_MATCH.JARO_WINKLER('','DM8') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:29) /test/1/catalog1/UTL_MATCH/JARO_WINKLER/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:45~2:49) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_match_signature_combinations_0_023]
+sql:
+-- JARO_WINKLER_EMPTY_RIGHT
+SELECT UTL_MATCH.JARO_WINKLER('DM8','') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:29) /test/1/catalog1/UTL_MATCH/JARO_WINKLER/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:45~2:49) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_match_signature_combinations_0_024]
+sql:
+-- JARO_WINKLER_NULL_LEFT
+SELECT UTL_MATCH.JARO_WINKLER(CAST(NULL AS VARCHAR),'DM8') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:29) /test/1/catalog1/UTL_MATCH/JARO_WINKLER/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:64~2:68) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_match_signature_combinations_0_025]
+sql:
+-- JARO_WINKLER_NULL_RIGHT
+SELECT UTL_MATCH.JARO_WINKLER('DM8',CAST(NULL AS VARCHAR)) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:29) /test/1/catalog1/UTL_MATCH/JARO_WINKLER/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:64~2:68) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_match_signature_combinations_0_026]
+sql:
+-- JARO_WINKLER_NAMED_REVERSED
+SELECT UTL_MATCH.JARO_WINKLER(S2=>'abd',S1=>'abc') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:29) /test/1/catalog1/UTL_MATCH/JARO_WINKLER/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:56~2:60) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_match_signature_combinations_0_027]
+sql:
+-- JARO_WINKLER_CASE_SENSITIVE
+SELECT UTL_MATCH.JARO_WINKLER('DM8','dm8') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:29) /test/1/catalog1/UTL_MATCH/JARO_WINKLER/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:48~2:52) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_match_signature_combinations_0_028]
+sql:
+-- JARO_WINKLER_SIMILARITY_DOCUMENTED
+SELECT UTL_MATCH.JARO_WINKLER_SIMILARITY('china','chin') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:40) /test/1/catalog1/UTL_MATCH/JARO_WINKLER_SIMILARITY/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:62~2:66) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_match_signature_combinations_0_029]
+sql:
+-- JARO_WINKLER_SIMILARITY_IDENTICAL
+SELECT UTL_MATCH.JARO_WINKLER_SIMILARITY('DM8','DM8') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:40) /test/1/catalog1/UTL_MATCH/JARO_WINKLER_SIMILARITY/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:59~2:63) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_match_signature_combinations_0_030]
+sql:
+-- JARO_WINKLER_SIMILARITY_DISJOINT
+SELECT UTL_MATCH.JARO_WINKLER_SIMILARITY('abc','xyz') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:40) /test/1/catalog1/UTL_MATCH/JARO_WINKLER_SIMILARITY/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:59~2:63) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_match_signature_combinations_0_031]
+sql:
+-- JARO_WINKLER_SIMILARITY_EMPTY_LEFT
+SELECT UTL_MATCH.JARO_WINKLER_SIMILARITY('','DM8') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:40) /test/1/catalog1/UTL_MATCH/JARO_WINKLER_SIMILARITY/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:56~2:60) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_match_signature_combinations_0_032]
+sql:
+-- JARO_WINKLER_SIMILARITY_EMPTY_RIGHT
+SELECT UTL_MATCH.JARO_WINKLER_SIMILARITY('DM8','') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:40) /test/1/catalog1/UTL_MATCH/JARO_WINKLER_SIMILARITY/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:56~2:60) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_match_signature_combinations_0_033]
+sql:
+-- JARO_WINKLER_SIMILARITY_NULL_LEFT
+SELECT UTL_MATCH.JARO_WINKLER_SIMILARITY(CAST(NULL AS VARCHAR),'DM8') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:40) /test/1/catalog1/UTL_MATCH/JARO_WINKLER_SIMILARITY/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:75~2:79) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_match_signature_combinations_0_034]
+sql:
+-- JARO_WINKLER_SIMILARITY_NULL_RIGHT
+SELECT UTL_MATCH.JARO_WINKLER_SIMILARITY('DM8',CAST(NULL AS VARCHAR)) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:40) /test/1/catalog1/UTL_MATCH/JARO_WINKLER_SIMILARITY/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:75~2:79) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_match_signature_combinations_0_035]
+sql:
+-- JARO_WINKLER_SIMILARITY_NAMED_REVERSED
+SELECT UTL_MATCH.JARO_WINKLER_SIMILARITY(S2=>'abd',S1=>'abc') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:40) /test/1/catalog1/UTL_MATCH/JARO_WINKLER_SIMILARITY/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:67~2:71) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_match_signature_combinations_0_036]
+sql:
+-- JARO_WINKLER_SIMILARITY_CASE_SENSITIVE
+SELECT UTL_MATCH.JARO_WINKLER_SIMILARITY('DM8','dm8') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:40) /test/1/catalog1/UTL_MATCH/JARO_WINKLER_SIMILARITY/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:59~2:63) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}

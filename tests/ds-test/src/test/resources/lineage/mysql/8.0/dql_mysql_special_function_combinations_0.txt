@@ -1,0 +1,187 @@
+[dql_mysql_special_function_combinations_0.0001]
+sql:
+SELECT "1900-01-01 00:00:00" + INTERVAL "100000000:214748364700" MINUTE_SECOND;
+expect:
+{
+  "\"1900-01-01 00:00:00\" + INTERVAL \"100000000:214748364700\" MINUTE_SECOND" : [ ]
+}
+----------
+[dql_mysql_special_function_combinations_0.0002]
+sql:
+SELECT "1900-01-01 00:00:00" + INTERVAL 1<<37 SECOND;
+expect:
+{
+  "\"1900-01-01 00:00:00\" + INTERVAL 1<<37 SECOND" : [ ]
+}
+----------
+[dql_mysql_special_function_combinations_0.0004]
+sql:
+SELECT UTC_TIMESTAMP();
+expect:
+{
+  "UTC_TIMESTAMP()" : [ ]
+}
+----------
+[dql_mysql_special_function_combinations_0.0005]
+sql:
+SELECT ((@a:=@b:=1.0) DIV (@b:=@a:=GET_FORMAT(DATETIME, 'USA')));
+expect:
+{
+  "((@a:=@b:=1.0) DIV (@b:=@a:=GET_FORMAT(DATETIME, 'USA')))" : [ ]
+}
+----------
+[dql_mysql_special_function_combinations_0.0006]
+sql:
+SELECT POLYGON((SELECT 1 FROM (SELECT 1 IN (GROUP_CONCAT(t1.f1)) FROM t1, t1 t GROUP BY t.f1) d));
+expect:
+{
+  "POLYGON((SELECT 1 FROM (SELECT 1 IN (GROUP_CONCAT(t1.f1)) FROM t1, t1 t GROUP BY t.f1) d))" : [ ]
+}
+----------
+[dql_mysql_special_function_combinations_0.0007]
+sql:
+SELECT f(1 ^ ISNULL(ADDDATE(CURRENT_TIMESTAMP, INTERVAL 999999999999 DAY)) AND FOUND_ROWS()) <=> ANY_VALUE(JSON_OBJECTAGG('{}','{}'));
+expect:
+{
+  "f(1 ^ ISNULL(ADDDATE(CURRENT_TIMESTAMP, INTERVAL 999999999999 DAY)) AND FOUND_ROWS()) <=> ANY_VALUE(JSON_OBJECTAGG('{}','{}'))" : [ ]
+}
+----------
+[dql_mysql_special_function_combinations_0.0008]
+sql:
+SELECT ST_ISSIMPLE((SELECT CURRENT_TIME) IN (21, '-1-11-30 00:00:00'));
+expect:
+{
+  "ST_ISSIMPLE((SELECT CURRENT_TIME) IN (21, '-1-11-30 00:00:00'))" : [ ]
+}
+----------
+[dql_mysql_special_function_combinations_0.0009]
+sql:
+SELECT (SELECT 1 FROM t WHERE CONVERT(1 USING gb18030) <> GROUP_CONCAT(x'a3'));
+expect:
+{
+  "(SELECT 1 FROM t WHERE CONVERT(1 USING gb18030) <> GROUP_CONCAT(x'a3'))" : [ ]
+}
+----------
+[dql_mysql_special_function_combinations_0.0010]
+sql:
+SELECT GREATEST(-29858, 0x667adb23, 'zzzz', UTC_TIME() IN (0xebe4032e, '{"ac":0,"cacbb":false}', 31), 15720) AS greatest;
+expect:
+{
+  "greatest" : [ ]
+}
+----------
+[dql_mysql_special_function_combinations_0.0011]
+sql:
+SELECT a,b,c,GROUPING(a,b,c) FROM (SELECT 1 AS a,2 AS b,3 AS c) AS d GROUP BY a,b,c WITH ROLLUP;
+expect:
+{
+  "a" : [ ],
+  "b" : [ ],
+  "c" : [ ],
+  "GROUPING(a,b,c)" : [ ]
+}
+----------
+[dql_mysql_special_function_combinations_0.0012]
+sql:
+SELECT * FROM JSON_TABLE('{"a":[10,20]}','$' COLUMNS(NESTED PATH '$.a[*]' COLUMNS(ord FOR ORDINALITY,v INT PATH '$'))) AS jt;
+expect:
+{
+  "ord" : [ ],
+  "v" : [ ]
+}
+----------
+[dql_mysql_special_function_combinations_0.0013]
+sql:
+SELECT * FROM JSON_TABLE('{"a":[{}]}','$' COLUMNS(NESTED PATH '$.a[*]' COLUMNS(v INT PATH '$.missing' DEFAULT '7' ON EMPTY NULL ON ERROR))) AS jt;
+expect:
+{
+  "v" : [ ]
+}
+----------
+[dql_mysql_special_function_combinations_0.0014]
+sql:
+SELECT MATCH(title) AGAINST(CONCAT('a','b') IN NATURAL LANGUAGE MODE) FROM articles;
+expect:
+{
+  "MATCH(title) AGAINST(CONCAT('a','b') IN NATURAL LANGUAGE MODE)" : [ "(1:13~1:18) /catalog1/schema1/articles/title/" ]
+}
+----------
+[dql_mysql_special_function_combinations_0.0015]
+sql:
+SELECT id FROM articles WHERE MATCH title,body AGAINST('database');
+expect:
+{
+  "id" : [ "(1:7~1:9) /catalog1/schema1/articles/id/" ]
+}
+----------
+[dql_mysql_special_function_combinations_0.0016]
+sql:
+SELECT INTERVAL '1-2' YEAR_MONTH + DATE '2024-01-01';
+expect:
+{
+  "INTERVAL '1-2' YEAR_MONTH + DATE '2024-01-01'" : [ ]
+}
+----------
+[dql_mysql_special_function_combinations_0.0017]
+sql:
+SELECT TIMESTAMP '2024-03-04 05:06:07.000008' - INTERVAL '1 02:03:04.000005' DAY_MICROSECOND;
+expect:
+{
+  "TIMESTAMP '2024-03-04 05:06:07.000008' - INTERVAL '1 02:03:04.000005' DAY_MICROSECOND" : [ ]
+}
+----------
+[dql_mysql_special_function_combinations_0.0018]
+sql:
+SELECT ADDDATE(DATE '2024-01-01',INTERVAL '1-2' YEAR_MONTH);
+expect:
+{
+  "ADDDATE(DATE '2024-01-01',INTERVAL '1-2' YEAR_MONTH)" : [ ]
+}
+----------
+[dql_mysql_special_function_combinations_0.0019]
+sql:
+SELECT SUBDATE(TIMESTAMP '2024-03-04 05:06:07.000008',INTERVAL '1 02:03:04.000005' DAY_MICROSECOND);
+expect:
+{
+  "SUBDATE(TIMESTAMP '2024-03-04 05:06:07.000008',INTERVAL '1 02:03:04.000005' DAY_MICROSECOND)" : [ ]
+}
+----------
+[dql_mysql_special_function_combinations_0.0020]
+sql:
+SELECT CAST(TIMESTAMP '2024-01-01 00:00:00' AT TIME ZONE '+00:00' AS DATETIME(0));
+expect:
+{
+  "CAST(TIMESTAMP '2024-01-01 00:00:00' AT TIME ZONE '+00:00' AS DATETIME(0))" : [ ]
+}
+----------
+[dql_mysql_special_function_combinations_0.0021]
+sql:
+SELECT CAST(1 AT LOCAL AS SIGNED);
+expect:
+{
+  "CAST(1 AT LOCAL AS SIGNED)" : [ ]
+}
+----------
+[dql_mysql_special_function_combinations_0.0022]
+sql:
+SELECT CAST(_gb2312 X'CAFD' AS NATIONAL CHAR);
+expect:
+{
+  "CAST(_gb2312 X'CAFD' AS NATIONAL CHAR)" : [ ]
+}
+----------
+[dql_mysql_special_function_combinations_0.0023]
+sql:
+SELECT CONVERT(_gb2312 X'CAFD',NATIONAL CHAR);
+expect:
+{
+  "CONVERT(_gb2312 X'CAFD',NATIONAL CHAR)" : [ ]
+}
+----------
+[dql_mysql_special_function_combinations_0.0024]
+sql:
+SELECT CAST(1 XOR 0 AT LOCAL AS SIGNED);
+expect:
+{
+  "CAST(1 XOR 0 AT LOCAL AS SIGNED)" : [ ]
+}

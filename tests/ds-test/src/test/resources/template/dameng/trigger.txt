@@ -1,0 +1,281 @@
+[normalTest]
+type: createTrigger
+option:
+{
+  "targetName": "target_name",
+  "schema": "test_schema",
+  "delimited": true,
+  "data": {
+    "name": "test_trigger",
+    "triggerTable": "table",
+    "triggerTime": "before",
+    "triggerEvent": [
+      "insert"
+    ],
+    "sql": "begin insert table tmp values(1,2); end",
+    "rdbdm_trig": "row"
+  }
+}
+expect:
+<<<
+create trigger "test_trigger" 
+before insert 
+on "test_schema"."table"
+for each row
+begin insert table tmp values(1,2); end;
+>>>
+----------
+
+[newAliasTest]
+type: createTrigger
+option:
+{
+  "targetName": "target_name",
+  "schema": "test_schema",
+  "delimited": true,
+  "data": {
+    "name": "test_trigger",
+    "triggerTable": "table",
+    "triggerTime": "before",
+    "triggerEvent": [
+      "insert"
+    ],
+    "sql": "begin insert table tmp values(1,2); end",
+    "rdbdm_newal": "new_name",
+    "rdbdm_trig": "row"
+  }
+}
+expect:
+<<<
+create trigger "test_trigger" 
+before insert 
+on "test_schema"."table"
+referencing new row as "new_name"
+for each row
+begin insert table tmp values(1,2); end;
+>>>
+----------
+
+[oldAliasTest]
+type: createTrigger
+option:
+{
+  "targetName": "target_name",
+  "schema": "test_schema",
+  "delimited": true,
+  "data": {
+    "name": "test_trigger",
+    "triggerTable": "table",
+    "triggerTime": "before",
+    "triggerEvent": [
+      "insert"
+    ],
+    "sql": "begin insert table tmp values(1,2); end",
+    "rdbdm_oldal": "oldName",
+    "rdbdm_trig": "row"
+  }
+}
+expect:
+<<<
+create trigger "test_trigger" 
+before insert 
+on "test_schema"."table"
+referencing old row as "oldName"
+for each row
+begin insert table tmp values(1,2); end;
+>>>
+----------
+
+[oldAndNewAliasTest]
+type: createTrigger
+option:
+{
+  "targetName": "target_name",
+  "schema": "test_schema",
+  "delimited": true,
+  "data": {
+    "name": "test_trigger",
+    "triggerTable": "table",
+    "triggerTime": "before",
+    "triggerEvent": [
+      "insert"
+    ],
+    "sql": "begin insert table tmp values(1,2); end",
+    "rdbdm_oldal": "oldName",
+    "rdbdm_newal": "newName",
+    "rdbdm_trig": "row"
+  }
+}
+expect:
+<<<
+create trigger "test_trigger" 
+before insert 
+on "test_schema"."table"
+referencing old row as "oldName" new row as "newName"
+for each row
+begin insert table tmp values(1,2); end;
+>>>
+----------
+
+[conditionTest]
+type: createTrigger
+option:
+{
+  "targetName": "target_name",
+  "schema": "test_schema",
+  "delimited": true,
+  "data": {
+    "name": "test_trigger",
+    "triggerTable": "table",
+    "triggerTime": "before",
+    "triggerEvent": [
+      "insert"
+    ],
+    "sql": "begin insert table tmp values(1,2); end",
+    "rdbdm_cond": "1=1",
+    "rdbdm_trig": "row"
+  }
+}
+expect:
+<<<
+create trigger "test_trigger" 
+before insert 
+on "test_schema"."table"
+for each row
+when(1=1)
+begin insert table tmp values(1,2); end;
+>>>
+----------
+
+[twoTypeTest]
+type: createTrigger
+option:
+{
+  "targetName": "target_name",
+  "schema": "test_schema",
+  "delimited": true,
+  "data": {
+    "name": "test_trigger",
+    "triggerTable": "table",
+    "triggerTime": "before",
+    "triggerEvent": [
+      "insert",
+      "update"
+    ],
+    "sql": "begin insert table tmp values(1,2); end",
+    "rdbdm_cond": "1=1",
+    "rdbdm_trig": "row"
+  }
+}
+expect:
+<<<
+create trigger "test_trigger" 
+before insert or update  
+on "test_schema"."table"
+for each row
+when(1=1)
+begin insert table tmp values(1,2); end;
+>>>
+----------
+
+[updateColumnTest]
+type: createTrigger
+option:
+{
+  "targetName": "target_name",
+  "schema": "test_schema",
+  "delimited": true,
+  "data": {
+    "name": "test_trigger",
+    "triggerTable": "table",
+    "triggerTime": "before",
+    "triggerEvent": [
+      "insert",
+      "update"
+    ],
+    "triggerColumns": [
+      "a"
+    ],
+    "sql": "begin insert table tmp values(1,2); end",
+    "rdbdm_cond": "1=1",
+    "rdbdm_trig": "row"
+  }
+}
+expect:
+<<<
+create trigger "test_trigger" 
+before insert or update of "a" 
+on "test_schema"."table"
+for each row
+when(1=1)
+begin insert table tmp values(1,2); end;
+>>>
+----------
+
+[updateTwoColumnTest]
+type: createTrigger
+option:
+{
+  "targetName": "target_name",
+  "schema": "test_schema",
+  "delimited": true,
+  "data": {
+    "name": "test_trigger",
+    "triggerTable": "table",
+    "triggerTime": "before",
+    "triggerEvent": [
+      "insert",
+      "update"
+    ],
+    "triggerColumns": [
+      "a",
+      "b"
+    ],
+    "sql": "begin insert table tmp values(1,2); end",
+    "rdbdm_cond": "1=1",
+    "rdbdm_trig": "row"
+  }
+}
+expect:
+<<<
+create trigger "test_trigger" 
+before insert or update of "a","b" 
+on "test_schema"."table"
+for each row
+when(1=1)
+begin insert table tmp values(1,2); end;
+>>>
+----------
+
+[encryptionTest]
+type: createTrigger
+option:
+{
+  "targetName": "target_name",
+  "schema": "test_schema",
+  "delimited": true,
+  "data": {
+    "name": "test_trigger",
+    "triggerTable": "table",
+    "triggerTime": "before",
+    "triggerEvent": [
+      "insert",
+      "update"
+    ],
+    "triggerColumns": [
+      "a",
+      "b"
+    ],
+    "sql": "begin insert table tmp values(1,2); end",
+    "rdbdm_encry": "true"
+  }
+}
+expect:
+<<<
+create trigger "test_trigger" 
+with encryption 
+before insert or update of "a","b" 
+on "test_schema"."table"
+for each null
+begin insert table tmp values(1,2); end;
+>>>

@@ -1,0 +1,1145 @@
+[alter_table_drop_column_add_column_alter_partition__001]
+sql:
+ALTER TABLE codex_c13_22.t DROP COLUMN i, ADD COLUMN i INT DEFAULT 2, ALGORITHM=INPLACE PARTITION BY RANGE(i) (PARTITION p0 VALUES LESS THAN (0), PARTITION p1 VALUES LESS THAN MAXVALUE);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/codex_c13_22/t/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[create_table__002]
+sql:
+CREATE TABLE syntax_audit.c_hash_defs (id INT) ENGINE=InnoDB PARTITION BY HASH(id) PARTITIONS 2 (PARTITION h0, PARTITION h1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:37) /test/1/catalog1/syntax_audit/c_hash_defs/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__003]
+sql:
+CREATE TABLE syntax_audit.c_prefix_key (a VARCHAR(20), b INT, PRIMARY KEY(a(5),b)) ENGINE=InnoDB PARTITION BY KEY() PARTITIONS 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:38) /test/1/catalog1/syntax_audit/c_prefix_key/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Constraint(1:62~1:81) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__004]
+sql:
+CREATE TABLE syntax_audit.c_range_partitions (id INT) ENGINE=InnoDB PARTITION BY RANGE(id) PARTITIONS 2 (PARTITION p0 VALUES LESS THAN (10), PARTITION p1 VALUES LESS THAN MAXVALUE);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:44) /test/1/catalog1/syntax_audit/c_range_partitions/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[alter_table_alter_partition__005]
+sql:
+ALTER TABLE syntax_audit.c_reorg REORGANIZE PARTITION;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:32) /test/1/catalog1/syntax_audit/c_reorg/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[create_table__006]
+sql:
+CREATE TABLE syntax_audit.c_sub_hash_non_linear (id INT, grp INT) ENGINE=InnoDB PARTITION BY RANGE(id) SUBPARTITION BY HASH(grp) SUBPARTITIONS 2 (PARTITION p0 VALUES LESS THAN (10), PARTITION p1 VALUES LESS THAN MAXVALUE);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:47) /test/1/catalog1/syntax_audit/c_sub_hash_non_linear/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[alter_table_add_partition__007]
+sql:
+ALTER TABLE split_partition.p_range ADD PARTITION (PARTITION p2 VALUES LESS THAN (2030));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:35) /test/1/catalog1/split_partition/p_range/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_add_partition__008]
+sql:
+ALTER TABLE split_partition.p_hash ADD PARTITION LOCAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:34) /test/1/catalog1/split_partition/p_hash/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_add_partition__009]
+sql:
+ALTER TABLE split_partition.p_hash ADD PARTITION PARTITIONS 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:34) /test/1/catalog1/split_partition/p_hash/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_drop_partition__010]
+sql:
+ALTER TABLE split_partition.p_range DROP PARTITION p0,p1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:35) /test/1/catalog1/split_partition/p_range/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_admin_partition__011]
+sql:
+ALTER TABLE split_partition.p_range REBUILD PARTITION NO_WRITE_TO_BINLOG p0,p1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:35) /test/1/catalog1/split_partition/p_range/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_admin_partition__012]
+sql:
+ALTER TABLE split_partition.p_range OPTIMIZE PARTITION LOCAL ALL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:35) /test/1/catalog1/split_partition/p_range/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_admin_partition__013]
+sql:
+ALTER TABLE split_partition.p_range OPTIMIZE PARTITION p0 LOCAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:35) /test/1/catalog1/split_partition/p_range/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_admin_partition__014]
+sql:
+ALTER TABLE split_partition.p_range OPTIMIZE PARTITION p0 NO_WRITE_TO_BINLOG;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:35) /test/1/catalog1/split_partition/p_range/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_admin_partition__015]
+sql:
+ALTER TABLE split_partition.p_range OPTIMIZE PARTITION LOCAL p0 NO_WRITE_TO_BINLOG;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:35) /test/1/catalog1/split_partition/p_range/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_admin_partition__016]
+sql:
+ALTER TABLE split_partition.p_range ANALYZE PARTITION NO_WRITE_TO_BINLOG p0,p1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:35) /test/1/catalog1/split_partition/p_range/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_admin_partition__017]
+sql:
+ALTER TABLE split_partition.p_range CHECK PARTITION p0 QUICK FAST MEDIUM EXTENDED CHANGED FOR UPGRADE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:35) /test/1/catalog1/split_partition/p_range/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_admin_partition__018]
+sql:
+ALTER TABLE split_partition.p_range REPAIR PARTITION LOCAL p0 QUICK EXTENDED USE_FRM;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:35) /test/1/catalog1/split_partition/p_range/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_admin_partition__019]
+sql:
+ALTER TABLE split_partition.p_range REPAIR PARTITION p0 USE_FRM QUICK EXTENDED;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:35) /test/1/catalog1/split_partition/p_range/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_admin_partition__020]
+sql:
+ALTER TABLE split_partition.p_range REPAIR PARTITION p0 QUICK QUICK;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:35) /test/1/catalog1/split_partition/p_range/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_alter_partition__021]
+sql:
+ALTER TABLE split_partition.p_hash COALESCE PARTITION NO_WRITE_TO_BINLOG 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:34) /test/1/catalog1/split_partition/p_hash/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_alter_partition__022]
+sql:
+ALTER TABLE split_partition.p_range REORGANIZE PARTITION LOCAL p1,p2 INTO (PARTITION p1 VALUES LESS THAN (2025), PARTITION p2 VALUES LESS THAN MAXVALUE);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:35) /test/1/catalog1/split_partition/p_range/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_truncate_partition__023]
+sql:
+ALTER TABLE split_partition.p_range TRUNCATE PARTITION ALL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:35) /test/1/catalog1/split_partition/p_range/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_alter_partition__024]
+sql:
+ALTER TABLE split_partition.p_range EXCHANGE PARTITION p0 WITH TABLE split_partition.p_exchange;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:35) /test/1/catalog1/split_partition/p_range/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_alter_partition__025]
+sql:
+ALTER TABLE split_partition.p_range REMOVE PARTITIONING;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:35) /test/1/catalog1/split_partition/p_range/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_alter_partition__026]
+sql:
+ALTER TABLE split_partition.p_list PARTITION BY HASH(id) PARTITIONS 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:34) /test/1/catalog1/split_partition/p_list/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[create_table__027]
+sql:
+CREATE TABLE split_partition.p_range (id INT, d DATE) ENGINE=InnoDB PARTITION BY RANGE (YEAR(d)) (PARTITION p0 VALUES LESS THAN (2020), PARTITION p1 VALUES LESS THAN MAXVALUE);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:36) /test/1/catalog1/split_partition/p_range/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:88~1:92) /test/1/catalog1/schema1/YEAR/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_table__028]
+sql:
+CREATE TABLE split_partition.p_range_cols (a INT, b INT) ENGINE=InnoDB PARTITION BY RANGE COLUMNS(a,b) (PARTITION p0 VALUES LESS THAN (10,10), PARTITION p1 VALUES LESS THAN (MAXVALUE,MAXVALUE));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:41) /test/1/catalog1/split_partition/p_range_cols/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__029]
+sql:
+CREATE TABLE split_partition.p_list (id INT) ENGINE=InnoDB PARTITION BY LIST (id) (PARTITION p0 VALUES IN (1,3,5), PARTITION p1 VALUES IN (2,4,6));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:35) /test/1/catalog1/split_partition/p_list/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__030]
+sql:
+CREATE TABLE split_partition.p_list_cols (a INT, b VARCHAR(8)) ENGINE=InnoDB PARTITION BY LIST COLUMNS(a,b) (PARTITION p0 VALUES IN ((1,'a'),(2,'b')), PARTITION p1 VALUES IN ((3,'c'),(NULL,NULL)));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:40) /test/1/catalog1/split_partition/p_list_cols/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__031]
+sql:
+CREATE TABLE split_partition.p_hash (id INT) ENGINE=InnoDB PARTITION BY LINEAR HASH(id) PARTITIONS 4;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:35) /test/1/catalog1/split_partition/p_hash/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__032]
+sql:
+CREATE TABLE split_partition.p_key (id INT, code VARCHAR(8)) ENGINE=InnoDB PARTITION BY LINEAR KEY ALGORITHM=1 (id,code) PARTITIONS 4;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:34) /test/1/catalog1/split_partition/p_key/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__033]
+sql:
+CREATE TABLE split_partition.p_key_empty (id INT PRIMARY KEY, code VARCHAR(8)) ENGINE=InnoDB PARTITION BY KEY() PARTITIONS 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:40) /test/1/catalog1/split_partition/p_key_empty/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Constraint(1:49~1:60) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__034]
+sql:
+CREATE TABLE split_partition.p_sub_hash (id INT, grp INT) ENGINE=InnoDB PARTITION BY RANGE (id) SUBPARTITION BY LINEAR HASH(grp) SUBPARTITIONS 2 (PARTITION p0 VALUES LESS THAN (10), PARTITION p1 VALUES LESS THAN MAXVALUE);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:39) /test/1/catalog1/split_partition/p_sub_hash/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table_comment_partition__035]
+sql:
+CREATE TABLE split_partition.p_sub_key (id INT, grp INT) ENGINE=InnoDB PARTITION BY LIST (id) SUBPARTITION BY LINEAR KEY ALGORITHM=2 (grp) (PARTITION p0 VALUES IN (1,2) (SUBPARTITION p0s0 ENGINE=InnoDB COMMENT='s0', SUBPARTITION p0s1 ENGINE=InnoDB COMMENT='s1'), PARTITION p1 VALUES IN (3,4) (SUBPARTITION p1s0 ENGINE=InnoDB COMMENT='s2', SUBPARTITION p1s1 ENGINE=InnoDB COMMENT='s3'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:38) /test/1/catalog1/split_partition/p_sub_key/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table_comment_partition__036]
+sql:
+CREATE TABLE split_partition.p_opts (id INT) ENGINE=MyISAM PARTITION BY RANGE(id) (PARTITION p0 VALUES LESS THAN (10) ENGINE=MyISAM COMMENT='first' MAX_ROWS=100 MIN_ROWS=1, PARTITION p1 VALUES LESS THAN MAXVALUE ENGINE=MyISAM);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:35) /test/1/catalog1/split_partition/p_opts/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__037]
+sql:
+CREATE TABLE split_partition.p_storage_engine (id INT) ENGINE=MyISAM PARTITION BY RANGE(id) (PARTITION p0 VALUES LESS THAN (10) STORAGE ENGINE=MyISAM, PARTITION p1 VALUES LESS THAN MAXVALUE);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:45) /test/1/catalog1/split_partition/p_storage_engine/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__038]
+sql:
+CREATE TABLE split_partition.p_nodegroup (id INT) ENGINE=NDB PARTITION BY KEY(id) (PARTITION p0 NODEGROUP=3);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:40) /test/1/catalog1/split_partition/p_nodegroup/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__039]
+sql:
+CREATE TABLE split_partition.p_tablespace (id INT) ENGINE=InnoDB PARTITION BY RANGE(id) (PARTITION p0 VALUES LESS THAN (10) TABLESPACE=ts_missing, PARTITION p1 VALUES LESS THAN MAXVALUE);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:41) /test/1/catalog1/split_partition/p_tablespace/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table_comment_partition__040]
+sql:
+CREATE TABLE split_partition.p_directories (id INT) ENGINE=MyISAM PARTITION BY RANGE(id) (PARTITION p0 VALUES LESS THAN (10) DATA DIRECTORY='/tmp/split_part_data' INDEX DIRECTORY='/tmp/split_part_index' COMMENT='dirs', PARTITION p1 VALUES LESS THAN MAXVALUE);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:42) /test/1/catalog1/split_partition/p_directories/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[alter_table_truncate_partition__041]
+sql:
+ALTER TABLE codex_rename.part_t TRUNCATE PARTITION p0, p1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/codex_rename/part_t/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[create_table__042]
+sql:
+CREATE TABLE subpartitioned(a INT PRIMARY KEY) PARTITION BY RANGE(a) SUBPARTITION BY HASH(a) (PARTITION p0 VALUES LESS THAN(10) (SUBPARTITION sp0 TABLESPACE innodb_file_per_table, SUBPARTITION sp1 TABLESPACE innodb_system));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:27) /test/1/catalog1/schema1/subpartitioned/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Constraint(1:34~1:45) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[alter_table_add_partition__043]
+sql:
+ALTER TABLE subpartitioned ADD PARTITION (PARTITION p1 VALUES LESS THAN MAXVALUE (SUBPARTITION sp2 TABLESPACE innodb_file_per_table, SUBPARTITION sp3 TABLESPACE innodb_system));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/subpartitioned/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_alter_partition__044]
+sql:
+ALTER TABLE subpartitioned REORGANIZE PARTITION p1 INTO (PARTITION p1 VALUES LESS THAN MAXVALUE (SUBPARTITION sp2, SUBPARTITION sp3 TABLESPACE innodb_file_per_table));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/subpartitioned/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_add_partition__045]
+sql:
+ALTER TABLE tpart ADD PARTITION (PARTITION p2 VALUES LESS THAN(30) TABLESPACE=innodb_file_per_table, PARTITION p3 VALUES LESS THAN(40) TABLESPACE=innodb_file_per_table);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:17) /test/1/catalog1/schema1/tpart/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[create_table__046]
+sql:
+CREATE TABLE datetime_partition_range(id INT,dt DATETIME(6)) PARTITION BY RANGE COLUMNS(dt)(PARTITION p_before VALUES LESS THAN(TIMESTAMP'2000-01-01 00:00:00.000000'),PARTITION p_after VALUES LESS THAN(MAXVALUE));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:37) /test/1/catalog1/schema1/datetime_partition_range/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__047]
+sql:
+CREATE TABLE timestamp_partition_range(id INT,ts TIMESTAMP(6) NULL) PARTITION BY RANGE COLUMNS(ts)(PARTITION p_before VALUES LESS THAN(TIMESTAMP'2000-01-01 00:00:00.000000'),PARTITION p_after VALUES LESS THAN(MAXVALUE));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:38) /test/1/catalog1/schema1/timestamp_partition_range/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__048]
+sql:
+CREATE TABLE str_partition_binary (a BINARY(32) NOT NULL, PRIMARY KEY(a))
+PARTITION BY KEY(a) (
+  PARTITION p0 MAX_ROWS=20 MIN_ROWS=2,
+  PARTITION p1 MAX_ROWS=30 MIN_ROWS=3
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:33) /test/1/catalog1/schema1/str_partition_binary/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Constraint(1:58~1:72) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__049]
+sql:
+CREATE TABLE str_partition_varbinary (a VARBINARY(64) NOT NULL, PRIMARY KEY(a))
+PARTITION BY LINEAR KEY(a) PARTITIONS 4;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:36) /test/1/catalog1/schema1/str_partition_varbinary/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Constraint(1:64~1:78) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__050]
+sql:
+CREATE TABLE str_partition_char (a CHAR(32) NOT NULL, PRIMARY KEY(a))
+PARTITION BY KEY(a) PARTITIONS 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/schema1/str_partition_char/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Constraint(1:54~1:68) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__051]
+sql:
+CREATE TABLE str_partition_varchar (a VARCHAR(64) NOT NULL, PRIMARY KEY(a))
+PARTITION BY LINEAR KEY ALGORITHM=1(a) PARTITIONS 4;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:34) /test/1/catalog1/schema1/str_partition_varchar/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Constraint(1:60~1:74) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__052]
+sql:
+CREATE TABLE lob_partition_payload (
+  id INT NOT NULL,
+  binary_payload LONGBLOB,
+  text_payload LONGTEXT,
+  PRIMARY KEY(id)
+)
+PARTITION BY HASH(id) PARTITIONS 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:34) /test/1/catalog1/schema1/lob_partition_payload/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Constraint(5:2~5:17) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__053]
+sql:
+CREATE TABLE lob_partition_payload_range (
+  id INT NOT NULL,
+  binary_payload MEDIUMBLOB,
+  text_payload MEDIUMTEXT,
+  PRIMARY KEY(id)
+)
+PARTITION BY RANGE(id) (
+  PARTITION p0 VALUES LESS THAN (100),
+  PARTITION pmax VALUES LESS THAN MAXVALUE
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:40) /test/1/catalog1/schema1/lob_partition_payload_range/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Constraint(5:2~5:17) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__054]
+sql:
+CREATE TABLE split_type_enum_set.es_key_partition (
+      id INT,
+      e ENUM('one','two','three'),
+      s SET('red','green','blue'),
+      KEY idx_e (e),
+      KEY idx_s (s)
+    )
+    PARTITION BY KEY(e) PARTITIONS 3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Index(5:10~5:15) /test/1/catalog1/schema1/idx_e/",
+      "action" : "CREATE",
+      "target" : "Table(1:13~1:49) /test/1/catalog1/split_type_enum_set/es_key_partition/"
+    },
+    {
+      "subject": "Index(6:10~6:15) /test/1/catalog1/schema1/idx_s/",
+      "action" : "CREATE",
+      "target" : "Table(1:13~1:49) /test/1/catalog1/split_type_enum_set/es_key_partition/"
+    }
+  ]
+}
+----------
+[create_table__055]
+sql:
+CREATE TABLE spatial_partitioned (
+  id INT NOT NULL,
+  g GEOMETRY,
+  p POINT,
+  KEY (id)
+) PARTITION BY HASH(id) PARTITIONS 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Index(5:2~5:10) /test/1/catalog1/schema1/",
+      "action" : "CREATE",
+      "target" : "Table(1:13~1:32) /test/1/catalog1/schema1/spatial_partitioned/"
+    }
+  ]
+}
+----------
+[create_table__056]
+sql:
+CREATE TABLE integer_range_partition (
+  id INT NOT NULL,
+  partition_value MEDIUMINT NOT NULL,
+  tiny_payload TINYINT,
+  small_payload SMALLINT,
+  int_payload INTEGER,
+  big_payload BIGINT,
+  PRIMARY KEY(id,partition_value)
+)
+PARTITION BY RANGE(partition_value) (
+  PARTITION p_negative VALUES LESS THAN (0),
+  PARTITION p_small VALUES LESS THAN (1000),
+  PARTITION p_max VALUES LESS THAN MAXVALUE
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:36) /test/1/catalog1/schema1/integer_range_partition/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Constraint(8:2~8:33) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__057]
+sql:
+CREATE TABLE integer_key_partition (
+  id BIGINT UNSIGNED NOT NULL,
+  partition_value INT UNSIGNED NOT NULL,
+  flag BOOLEAN,
+  PRIMARY KEY(id,partition_value)
+)
+PARTITION BY KEY(partition_value) PARTITIONS 3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:34) /test/1/catalog1/schema1/integer_key_partition/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Constraint(5:2~5:33) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__058]
+sql:
+CREATE TABLE numeric_key_partition (
+  id INT NOT NULL,
+  decimal_key DECIMAL(18,9) NOT NULL,
+  numeric_payload NUMERIC(12,4),
+  fixed_payload FIXED(12,2),
+  PRIMARY KEY(id,decimal_key)
+)
+PARTITION BY KEY(decimal_key) PARTITIONS 4;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:34) /test/1/catalog1/schema1/numeric_key_partition/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Constraint(6:2~6:29) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__059]
+sql:
+CREATE TABLE numeric_range_partition (
+  id INT NOT NULL,
+  decimal_key DECIMAL(18,4) NOT NULL,
+  float_payload FLOAT,
+  double_payload DOUBLE,
+  PRIMARY KEY(id,decimal_key)
+)
+PARTITION BY RANGE(FLOOR(decimal_key))
+SUBPARTITION BY KEY(decimal_key)
+SUBPARTITIONS 2 (
+  PARTITION p_negative VALUES LESS THAN (0),
+  PARTITION p_small VALUES LESS THAN (1000),
+  PARTITION p_max VALUES LESS THAN MAXVALUE
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:36) /test/1/catalog1/schema1/numeric_range_partition/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Constraint(6:2~6:29) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(8:19~8:24) /test/1/catalog1/schema1/FLOOR/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_table__060]
+sql:
+CREATE TABLE approximate_key_partition (
+  id INT NOT NULL,
+  float_key FLOAT NOT NULL,
+  double_key DOUBLE NOT NULL,
+  real_payload REAL,
+  PRIMARY KEY(id,float_key,double_key)
+)
+PARTITION BY KEY(float_key,double_key) PARTITIONS 3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:38) /test/1/catalog1/schema1/approximate_key_partition/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Constraint(6:2~6:38) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__061]
+sql:
+CREATE TABLE split_partition_ctas (a INT, b CHAR(55), PRIMARY KEY(a)) ENGINE=InnoDB PARTITION BY KEY() AS SELECT * FROM split_partition_source;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:33) /test/1/catalog1/schema1/split_partition_ctas/",
+      "action" : "CREATE",
+      "target" : "Table(1:120~1:142) /test/1/catalog1/schema1/split_partition_source/"
+    },
+    {
+      "subject": "Constraint(1:54~1:68) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__062]
+sql:
+CREATE TABLE p_key_alg(a SERIAL) ENGINE=InnoDB PARTITION BY KEY ALGORITHM=1 () PARTITIONS 3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:22) /test/1/catalog1/schema1/p_key_alg/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[alter_table_admin_partition__063]
+sql:
+ALTER TABLE part_all REBUILD PARTITION ALL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:20) /test/1/catalog1/schema1/part_all/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_admin_partition__064]
+sql:
+ALTER TABLE part_all ANALYZE PARTITION ALL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:20) /test/1/catalog1/schema1/part_all/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_admin_partition__065]
+sql:
+ALTER TABLE part_all CHECK PARTITION ALL EXTENDED;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:20) /test/1/catalog1/schema1/part_all/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_admin_partition__066]
+sql:
+ALTER TABLE part_all REPAIR PARTITION ALL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:20) /test/1/catalog1/schema1/part_all/",
+      "action" : "ALTER"
+    }
+  ]
+}

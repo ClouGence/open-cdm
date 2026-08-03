@@ -1,0 +1,221 @@
+[select__001]
+sql:
+SELECT d.id,d.dt6,a.modified_at FROM datetime_widths AS d JOIN temporal_auto AS a ON d.dt6=a.created_at OR d.ts6=a.modified_at;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:37~1:52) /test/1/catalog1/schema1/datetime_widths/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:63~1:76) /test/1/catalog1/schema1/temporal_auto/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__002]
+sql:
+SELECT id,dt6,ts6 FROM datetime_widths WHERE(dt6,ts6) IN(SELECT created_at,modified_at FROM temporal_auto WHERE explicit_at IS NOT NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:23~1:38) /test/1/catalog1/schema1/datetime_widths/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:92~1:105) /test/1/catalog1/schema1/temporal_auto/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__003]
+sql:
+SELECT CASE WHEN id=1 THEN dt1 ELSE ts1 END AS temporal_case,IF(id>0,dt3,ts3) AS temporal_if,COALESCE(dt6,ts6,CURRENT_TIMESTAMP(6)) AS temporal_coalesce,NULLIF(dt5,ts5) AS temporal_nullif,LEAST(dt4,ts4) AS temporal_least,GREATEST(dt2,ts2) AS temporal_greatest FROM datetime_widths;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:61~1:63) /test/1/catalog1/schema1/IF/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:93~1:101) /test/1/catalog1/schema1/COALESCE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:110~1:127) /test/1/catalog1/schema1/CURRENT_TIMESTAMP/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:153~1:159) /test/1/catalog1/schema1/NULLIF/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:188~1:193) /test/1/catalog1/schema1/LEAST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:221~1:229) /test/1/catalog1/schema1/GREATEST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:265~1:280) /test/1/catalog1/schema1/datetime_widths/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__004]
+sql:
+SELECT dt6 AS temporal_value FROM datetime_widths UNION ALL SELECT modified_at FROM temporal_auto;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:34~1:49) /test/1/catalog1/schema1/datetime_widths/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:84~1:97) /test/1/catalog1/schema1/temporal_auto/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__005]
+sql:
+SELECT id,CAST(ts AT TIME ZONE INTERVAL '-05:30' AS DATETIME(6)) AS shifted FROM temporal_modern;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:10~1:14) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:81~1:96) /test/1/catalog1/schema1/temporal_modern/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__006]
+sql:
+SELECT dt FROM temporal_modern WHERE id<=2 INTERSECT SELECT CAST(ts AS DATETIME(6)) FROM temporal_modern WHERE id>=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:15~1:30) /test/1/catalog1/schema1/temporal_modern/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(1:60~1:64) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__007]
+sql:
+SELECT dt FROM temporal_modern EXCEPT SELECT CAST(ts AS DATETIME(6)) FROM temporal_modern WHERE id=2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:15~1:30) /test/1/catalog1/schema1/temporal_modern/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(1:45~1:49) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__008]
+sql:
+SELECT id,ts,LAG(ts,1,TIMESTAMP'2000-01-01 00:00:00') OVER(ORDER BY dt) AS previous_ts,MAX(dt) OVER(ORDER BY ts RANGE BETWEEN INTERVAL 1 DAY PRECEDING AND CURRENT ROW) AS rolling_max FROM temporal_modern;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:13~1:16) /test/1/catalog1/schema1/LAG/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:87~1:90) /test/1/catalog1/schema1/MAX/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:188~1:203) /test/1/catalog1/schema1/temporal_modern/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__009]
+sql:
+WITH RECURSIVE temporal_steps AS(SELECT TIMESTAMP'2020-01-01 00:00:00' AS dt UNION ALL SELECT dt+INTERVAL 1 DAY FROM temporal_steps WHERE dt<TIMESTAMP'2020-01-03 00:00:00') SELECT dt,TIMESTAMPDIFF(HOUR,TIMESTAMP'2020-01-01 00:00:00',dt) FROM temporal_steps;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:183~1:196) /test/1/catalog1/schema1/TIMESTAMPDIFF/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__010]
+sql:
+SELECT DATE(ts),COUNT(*),MAX(dt),ROW_NUMBER() OVER(ORDER BY MAX(dt)) AS aggregate_position FROM temporal_modern GROUP BY DATE(ts) WITH ROLLUP HAVING COUNT(*)>0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/DATE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:16~1:21) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:25~1:28) /test/1/catalog1/schema1/MAX/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:33~1:43) /test/1/catalog1/schema1/ROW_NUMBER/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:96~1:111) /test/1/catalog1/schema1/temporal_modern/",
+      "action" : "READ"
+    }
+  ]
+}

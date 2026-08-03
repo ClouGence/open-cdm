@@ -1,0 +1,9 @@
+SELECT 1 FROM split_table_derived.t1 WHERE NOT EXISTS(VALUES ROW(1),ROW(2));
+SELECT TRUE IS TRUE IS TRUE IS TRUE;
+SELECT FALSE IS NOT TRUE IS NOT TRUE IS NOT TRUE;
+------------------------------------------------------------------------------------------
+[SELECT] SELECT 1 FROM split_table_derived.t1 WHERE NOT EXISTS(VALUES ROW(1),ROW(2));
+----------
+[SELECT] SELECT TRUE IS TRUE IS TRUE IS TRUE;
+----------
+[SELECT] SELECT FALSE IS NOT TRUE IS NOT TRUE IS NOT TRUE;

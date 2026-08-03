@@ -45,7 +45,6 @@ import com.clougence.schema.DsType;
 import com.clougence.schema.SchemaBinder;
 import com.clougence.schema.SchemaFramework;
 import com.clougence.schema.SchemaPlugin;
-import com.clougence.sql.postgres.PgSqlEngineSpi;
 
 /** @author mode 2024/12/25 15:13 */
 @Plugin(name = "i18n::" + PorPgDsI18nKeys.PLUGIN_NAME_POLARDB_PG,               //
@@ -83,8 +82,7 @@ public class PorPgDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
     private void configExecute(DsPluginBinder dsPlugin) {
         dsPlugin.bindDsSessionFactory(PorPgSessionFactory.class);
         dsPlugin.bindDsDriverFamily("PostgreSQL JDBC");
-
-        dsPlugin.bindSqlEngine(PgSqlEngineSpi.NAME);
+        dsPlugin.bindSqlEngine("PG SQL");
 
         dsPlugin.addPluginSpi(new PgSessionSpi());
         dsPlugin.addPluginSpi(new PgSupportSpi());

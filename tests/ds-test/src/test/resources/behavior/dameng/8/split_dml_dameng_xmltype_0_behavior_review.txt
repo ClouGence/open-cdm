@@ -1,0 +1,155 @@
+[split_dml_dameng_xmltype_0_behavior_review_001]
+sql:
+INSERT INTO XMLTYPE_DOCS VALUES(1, XMLTYPE('<ROOT><ITEM ID="1">A</ITEM></ROOT>'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:24) /test/1/catalog1/schema1/XMLTYPE_DOCS/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:35~1:42) /test/1/catalog1/schema1/XMLTYPE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dml_dameng_xmltype_0_behavior_review_002]
+sql:
+INSERT INTO XMLTYPE_DOCS VALUES(2, XMLPARSE(DOCUMENT '<ROOT><ITEM ID="2">B</ITEM></ROOT>'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:24) /test/1/catalog1/schema1/XMLTYPE_DOCS/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:35~1:43) /test/1/catalog1/schema1/XMLPARSE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dml_dameng_xmltype_0_behavior_review_003]
+sql:
+INSERT INTO XMLTYPE_DOCS VALUES(3, XMLPARSE(CONTENT '<A>1</A><B>2</B>' WELLFORMED));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:24) /test/1/catalog1/schema1/XMLTYPE_DOCS/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:35~1:43) /test/1/catalog1/schema1/XMLPARSE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dml_dameng_xmltype_0_behavior_review_004]
+sql:
+INSERT INTO XMLTYPE_DOCS VALUES(4, NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:24) /test/1/catalog1/schema1/XMLTYPE_DOCS/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_xmltype_0_behavior_review_005]
+sql:
+INSERT INTO XMLTYPE_DOCS VALUES(5, XMLELEMENT(ROOT, XMLELEMENT(ITEM, 'C')));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:24) /test/1/catalog1/schema1/XMLTYPE_DOCS/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:35~1:45) /test/1/catalog1/schema1/XMLELEMENT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:52~1:62) /test/1/catalog1/schema1/XMLELEMENT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dml_dameng_xmltype_0_behavior_review_006]
+sql:
+INSERT INTO XMLTYPE_DOCS VALUES(6, XMLFOREST('A' AS ITEM_A, 'B' AS ITEM_B));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:24) /test/1/catalog1/schema1/XMLTYPE_DOCS/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:35~1:44) /test/1/catalog1/schema1/XMLFOREST/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dml_dameng_xmltype_0_behavior_review_007]
+sql:
+INSERT INTO XML_HOLDER_TAB VALUES(1, XML_HOLDER('A', XMLTYPE('<A>1</A>')));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/XML_HOLDER_TAB/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:37~1:47) /test/1/catalog1/schema1/XML_HOLDER/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:53~1:60) /test/1/catalog1/schema1/XMLTYPE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dml_dameng_xmltype_0_behavior_review_008]
+sql:
+INSERT INTO XMLTYPE_DOCS VALUES(10, XMLTYPE('<ROOT>'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:24) /test/1/catalog1/schema1/XMLTYPE_DOCS/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:36~1:43) /test/1/catalog1/schema1/XMLTYPE/",
+      "action": "CALL"
+    }
+  ]
+}

@@ -1,0 +1,106 @@
+-- OR_REPLACE
+create or replace function APP.AGG_REPLACE(INPUT number) return number aggregate using APP.MAX_IMPL;
+/
+-- ZERO_PARAMETERS
+create function APP.AGG_ZERO return number aggregate using APP.MAX_IMPL;
+/
+-- EMPTY_PARAMETERS
+create function APP.AGG_EMPTY() return number aggregate using APP.MAX_IMPL;
+/
+-- OUT_PARAMETER
+create function APP.AGG_OUT(INPUT out number) return number aggregate using APP.MAX_IMPL;
+/
+-- IN_OUT_PARAMETER
+create function APP.AGG_INOUT(INPUT in out number) return number aggregate using APP.MAX_IMPL;
+/
+-- OUT_IN_PARAMETER
+create function APP.AGG_OUTIN(INPUT out in number) return number aggregate using APP.MAX_IMPL;
+/
+-- ASSIGN_DEFAULT
+create function APP.AGG_DEFAULT(INPUT number := 7) return number aggregate using APP.MAX_IMPL;
+/
+-- TWO_PARAMETERS
+create function APP.AGG_PAIR(A number,B number) return number aggregate using APP.MAX_IMPL;
+/
+-- ROWID_PARAMETER
+create function APP.AGG_ROWID(INPUT rowid) return number aggregate using APP.MAX_IMPL;
+/
+-- DUPLICATE_DETERMINISTIC
+create function APP.AGG_DUP_DET(INPUT number) return number deterministic deterministic aggregate using APP.MAX_IMPL;
+/
+-- DUPLICATE_PARALLEL
+create function APP.AGG_DUP_PAR(INPUT number) return number parallel_enable parallel_enable aggregate using APP.MAX_IMPL;
+/
+-- ZERO_CALL_SERVER_BOUNDARY
+select APP.AGG_ZERO() from APP.AGG_SOURCE;
+-- OUT_CALL_SERVER_BOUNDARY
+select APP.AGG_OUT(N) from APP.AGG_SOURCE;
+-- PAIR_CALL_SERVER_BOUNDARY
+select APP.AGG_PAIR(N,ID) from APP.AGG_SOURCE;
+-- ROWID_CALL_SERVER_BOUNDARY
+select APP.AGG_ROWID(rowid) from APP.AGG_SOURCE;
+-- ALTER_COMPILE
+alter function APP.AGG_MAX compile;
+-- ALTER_COMPILE_DEBUG
+alter function APP.AGG_MAX compile debug;
+-- DROP_MISSING
+drop function APP.NO_SUCH_AGG;
+-- DROP_MISSING_IF_EXISTS
+drop function if exists APP.NO_SUCH_AGG;
+------------------------------------------------------------------------------------------
+[CREATE_PROG_OBJ] -- OR_REPLACE
+create or replace function APP.AGG_REPLACE(INPUT number) return number aggregate using APP.MAX_IMPL;
+----------
+[CREATE_PROG_OBJ] -- ZERO_PARAMETERS
+create function APP.AGG_ZERO return number aggregate using APP.MAX_IMPL;
+----------
+[CREATE_PROG_OBJ] -- EMPTY_PARAMETERS
+create function APP.AGG_EMPTY() return number aggregate using APP.MAX_IMPL;
+----------
+[CREATE_PROG_OBJ] -- OUT_PARAMETER
+create function APP.AGG_OUT(INPUT out number) return number aggregate using APP.MAX_IMPL;
+----------
+[CREATE_PROG_OBJ] -- IN_OUT_PARAMETER
+create function APP.AGG_INOUT(INPUT in out number) return number aggregate using APP.MAX_IMPL;
+----------
+[CREATE_PROG_OBJ] -- OUT_IN_PARAMETER
+create function APP.AGG_OUTIN(INPUT out in number) return number aggregate using APP.MAX_IMPL;
+----------
+[CREATE_PROG_OBJ] -- ASSIGN_DEFAULT
+create function APP.AGG_DEFAULT(INPUT number := 7) return number aggregate using APP.MAX_IMPL;
+----------
+[CREATE_PROG_OBJ] -- TWO_PARAMETERS
+create function APP.AGG_PAIR(A number,B number) return number aggregate using APP.MAX_IMPL;
+----------
+[CREATE_PROG_OBJ] -- ROWID_PARAMETER
+create function APP.AGG_ROWID(INPUT rowid) return number aggregate using APP.MAX_IMPL;
+----------
+[CREATE_PROG_OBJ] -- DUPLICATE_DETERMINISTIC
+create function APP.AGG_DUP_DET(INPUT number) return number deterministic deterministic aggregate using APP.MAX_IMPL;
+----------
+[CREATE_PROG_OBJ] -- DUPLICATE_PARALLEL
+create function APP.AGG_DUP_PAR(INPUT number) return number parallel_enable parallel_enable aggregate using APP.MAX_IMPL;
+----------
+[SELECT|CALL_PROG_OBJ] -- ZERO_CALL_SERVER_BOUNDARY
+select APP.AGG_ZERO() from APP.AGG_SOURCE;
+----------
+[SELECT|CALL_PROG_OBJ] -- OUT_CALL_SERVER_BOUNDARY
+select APP.AGG_OUT(N) from APP.AGG_SOURCE;
+----------
+[SELECT|CALL_PROG_OBJ] -- PAIR_CALL_SERVER_BOUNDARY
+select APP.AGG_PAIR(N,ID) from APP.AGG_SOURCE;
+----------
+[SELECT|CALL_PROG_OBJ] -- ROWID_CALL_SERVER_BOUNDARY
+select APP.AGG_ROWID(rowid) from APP.AGG_SOURCE;
+----------
+[ALTER_PROG_OBJ] -- ALTER_COMPILE
+alter function APP.AGG_MAX compile;
+----------
+[ALTER_PROG_OBJ] -- ALTER_COMPILE_DEBUG
+alter function APP.AGG_MAX compile debug;
+----------
+[DROP_PROG_OBJ] -- DROP_MISSING
+drop function APP.NO_SUCH_AGG;
+----------
+[DROP_PROG_OBJ] -- DROP_MISSING_IF_EXISTS
+drop function if exists APP.NO_SUCH_AGG;

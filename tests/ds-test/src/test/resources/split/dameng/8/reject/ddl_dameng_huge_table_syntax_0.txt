@@ -1,0 +1,72 @@
+create huge table huge_empty();
+create huge table huge_storage_empty(id int) storage();
+create huge table huge_storage_unknown(id int) storage(foo 1);
+create huge table huge_section_missing(id int) storage(section());
+create huge table huge_section_low(id int) storage(section(1023));
+create huge table huge_section_high(id int) storage(section(1048577));
+create huge table huge_filesize_missing(id int) storage(filesize());
+create huge table huge_filesize_low(id int) storage(filesize(15));
+create huge table huge_filesize_high(id int) storage(filesize(1048577));
+create huge table huge_stat_missing_columns(id int) storage(stat synchronous on());
+create huge table huge_delta_missing(id int) storage(with delta delta);
+create huge table huge_compress_negative(id int) compress level -1;
+create huge table huge_compress_high(id int) compress level 11;
+create huge table huge_compress_type(id int) compress for 'ARCHIVE HIGH';
+create huge table huge_compress_empty(id int) compress();
+create huge table huge_column_check(id int check(id > 0));
+create huge table huge_foreign(id int, foreign key(id) references parent_table(id));
+create huge table huge_identity(id int identity(1,1));
+create huge table huge_auto_increment(id int auto_increment primary key);
+create huge table huge_virtual(id int, v as(id + 1));
+create huge table huge_wrong_order(id int) log last compress level 2;
+create huge table huge_duplicate_log(id int) log last log all;
+create huge table huge_bad_log(id int) log current;
+create temporary huge table huge_temp(id int);
+------------------------------------------------------------------------------------------
+[CREATE_TABLE] create huge table huge_empty();
+----------
+[CREATE_TABLE] create huge table huge_storage_empty(id int) storage();
+----------
+[CREATE_TABLE] create huge table huge_storage_unknown(id int) storage(foo 1);
+----------
+[CREATE_TABLE] create huge table huge_section_missing(id int) storage(section());
+----------
+[CREATE_TABLE] create huge table huge_section_low(id int) storage(section(1023));
+----------
+[CREATE_TABLE] create huge table huge_section_high(id int) storage(section(1048577));
+----------
+[CREATE_TABLE] create huge table huge_filesize_missing(id int) storage(filesize());
+----------
+[CREATE_TABLE] create huge table huge_filesize_low(id int) storage(filesize(15));
+----------
+[CREATE_TABLE] create huge table huge_filesize_high(id int) storage(filesize(1048577));
+----------
+[CREATE_TABLE] create huge table huge_stat_missing_columns(id int) storage(stat synchronous on());
+----------
+[CREATE_TABLE] create huge table huge_delta_missing(id int) storage(with delta delta);
+----------
+[CREATE_TABLE] create huge table huge_compress_negative(id int) compress level -1;
+----------
+[CREATE_TABLE] create huge table huge_compress_high(id int) compress level 11;
+----------
+[CREATE_TABLE] create huge table huge_compress_type(id int) compress for 'ARCHIVE HIGH';
+----------
+[CREATE_TABLE] create huge table huge_compress_empty(id int) compress();
+----------
+[CREATE_TABLE] create huge table huge_column_check(id int check(id > 0));
+----------
+[CREATE_TABLE] create huge table huge_foreign(id int, foreign key(id) references parent_table(id));
+----------
+[CREATE_TABLE] create huge table huge_identity(id int identity(1,1));
+----------
+[CREATE_TABLE] create huge table huge_auto_increment(id int auto_increment primary key);
+----------
+[CREATE_TABLE] create huge table huge_virtual(id int, v as(id + 1));
+----------
+[CREATE_TABLE] create huge table huge_wrong_order(id int) log last compress level 2;
+----------
+[CREATE_TABLE] create huge table huge_duplicate_log(id int) log last log all;
+----------
+[CREATE_TABLE] create huge table huge_bad_log(id int) log current;
+----------
+[CREATE_TABLE] create temporary huge table huge_temp(id int);

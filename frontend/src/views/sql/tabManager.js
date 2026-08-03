@@ -1,3 +1,4 @@
+import appLogger from '@/utils/logger';
 import db, { isSupportSql } from '@/utils/sql';
 
 class TabManager {
@@ -50,7 +51,7 @@ class TabManager {
     if (!isSupportSql) {
       return Promise.resolve();
     }
-    console.log(id);
+    appLogger.debug(id);
     return this.tabTable.delete(id);
   }
 }

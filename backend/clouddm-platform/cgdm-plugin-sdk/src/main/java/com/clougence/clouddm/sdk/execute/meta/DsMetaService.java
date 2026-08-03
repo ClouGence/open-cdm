@@ -28,6 +28,8 @@ public interface DsMetaService {
 
     String getVersion();
 
+    Map<String, String> getSqlParserParameters();
+
     /** If not supported, null should be returned */
     String getCurrentCatalog();
 
@@ -42,9 +44,7 @@ public interface DsMetaService {
 
     Value detailLeaf(Map<UmiTypes, Object> levelsParam, UmiTypes leafType, String leafName);
 
-    default Value fetchSelectObject(Map<UmiTypes, Object> levelsParam, String leafName) {
-        throw new UnsupportedOperationException();
-    }
+    Value fetchSelectObject(Map<UmiTypes, Object> levelsParam, String leafName);
 
     Map<String, List<RdbColumn>> batchColumns(Map<UmiTypes, Object> levelsParam, UmiTypes leafType, List<String> leafNames);
 

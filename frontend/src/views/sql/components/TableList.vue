@@ -4,38 +4,54 @@
     <div class="table-list-content">
       <div class="search-header">
         <div class="search-border">
-          <a-dropdown trigger="click" placement="bottomLeft" style="margin-right: 10px">
-            <div class="btn-hint">
-              <CustomIcon
-                v-if="currentTab.leafType === 'TABLE'"
-                :type="`icon-v2-${currentTab.leafType}`"
-                :color="`${isDark ? '#fff' : ''}`"
-                hoverStyle
-                leftMargin="4px"
-                rightMargin="4px"
-              />
-              <CustomIcon v-else :type="`icon-v2-svg-${currentTab.leafType}`" hoverStyle leftMargin="4px" rightMargin="4px" />
-            </div>
+          <a-dropdown v-if="objectTypeTabs.length > 1" trigger="click" placement="bottomLeft" overlayClassName="object-type-dropdown">
+            <button type="button" class="object-type-trigger" :aria-label="currentObjectTypeLabel" :title="currentObjectTypeLabel">
+              <cc-svg-icon :size="16" :name="currentTab.leafType" />
+            </button>
             <template #overlay>
-              <a-menu :selected-keys="[currentTab.leafType]">
-                <a-menu-item v-for="leaf in currentTab.leafGroup" :key="leaf.type" :value="leaf.type" @click="handleChangeTab(leaf.type)">
-                  <!-- <CustomIcon :type="`icon-v2-svg-${leaf.type}`" /> -->
-                  <cc-svg-icon :name="leaf.type" style="display: inline-block" />
-                  <span style="margin-left: 5px">{{ leaf.i18n }}</span>
+              <a-menu :selectedKeys="[currentTab.leafType]">
+                <a-menu-item v-for="tab in objectTypeTabs" :key="tab.name" @click="handleChangeTab(tab.name)">
+                  <template #icon>
+                    <cc-svg-icon :size="16" :name="tab.name" :cursor="false" />
+                  </template>
+                  {{ tab.label }}
                 </a-menu-item>
               </a-menu>
             </template>
           </a-dropdown>
-          <Input
+          <span
+            v-else-if="objectTypeTabs.length === 1"
+            class="object-type-trigger object-type-trigger--static"
+            :aria-label="currentObjectTypeLabel"
+            :title="currentObjectTypeLabel"
+          >
+            <cc-svg-icon :size="16" :name="currentTab.leafType" :cursor="false" />
+          </span>
+          <a-input
+            ref="compactSearchInput"
             size="small"
-            allowClear
-            v-model="currentTab[currentTab.leafType].searchKey"
-            icon="ios-search"
-            @on-click="handleSearch"
-            @on-change="handleSearch"
-            @on-enter="handleSearch"
-          />
-          <CustomIcon type="icon-v2-Refresh" hoverStyle @click.native="handleRefreshTree" leftMargin="4px" rightMargin="4px" />
+            allow-clear
+            v-model:value="currentTab[currentTab.leafType].searchKey"
+            :placeholder="objectSearchPlaceholder"
+            @change="handleSearch"
+            @pressEnter="handleSearch"
+          >
+            <template #prefix>
+              <SearchOutlined class="object-search-icon" />
+            </template>
+          </a-input>
+          <button
+            type="button"
+            class="compact-search-button"
+            :aria-label="objectSearchPlaceholder"
+            :title="objectSearchPlaceholder"
+            @click="handleExpandCompactSearch"
+          >
+            <SearchOutlined aria-hidden="true" />
+          </button>
+          <button type="button" class="object-refresh-button" :aria-label="$t('shua-xin')" :title="$t('shua-xin')" @click="handleRefreshTree">
+            <cc-svg-icon :size="16" name="refresh" />
+          </button>
         </div>
       </div>
       <div
@@ -67,6 +83,40 @@
             </div>
           </template>
         </v-tree>
+      </div>
+      <div class="object-list-pagination">
+        <span class="object-list-pagination__total">{{ $t('gong') }}{{ filteredObjectCount }}{{ $t('tiao') }}</span>
+        <div class="object-list-pagination__actions">
+          <button
+            type="button"
+            class="object-list-pagination__button"
+            :disabled="currentObjectPagination.currentPage <= 1"
+            :aria-label="$t('shang-yi-ye')"
+            :title="$t('shang-yi-ye')"
+            @click="handlePreviousObjectPage"
+          >
+            <Icon type="ios-arrow-back" />
+          </button>
+          <span class="object-list-pagination__page">{{ currentObjectPagination.currentPage }}/{{ objectPageCount }}</span>
+          <button
+            type="button"
+            class="object-list-pagination__button"
+            :disabled="currentObjectPagination.currentPage >= objectPageCount"
+            :aria-label="$t('xia-yi-ye')"
+            :title="$t('xia-yi-ye')"
+            @click="handleNextObjectPage"
+          >
+            <Icon type="ios-arrow-forward" />
+          </button>
+        </div>
+        <Select
+          class="object-list-pagination__size"
+          size="small"
+          :model-value="currentObjectPagination.pageSize"
+          @on-change="handleObjectPageSizeChange"
+        >
+          <Option v-for="pageSize in objectPageSizeOptions" :key="pageSize" :value="pageSize">{{ pageSize }}</Option>
+        </Select>
       </div>
     </div>
     <CCModal :title="menuModal.title" v-model="menuModal.show" :mask-closable="false" :closable="false" :keyboard="false">
@@ -942,6 +992,7 @@
 </template>
 
 <script lang="jsx">
+import appLogger from '@/utils/logger';
 import { QuestionCircleOutlined, SearchOutlined } from '@ant-design/icons-vue';
 import VTree from '@wsfe/vue-tree';
 import Loading from 'vue-loading-overlay';
@@ -970,6 +1021,7 @@ const BG_COLOR = {
   Delete: 'rgb(250, 128, 114)',
   Update: 'yellow'
 };
+const SEARCH_PANEL_EXPANDED_WIDTH = 280;
 
 const EMPTY_PROCEDURE_DATA = {
   collapseKey: '',
@@ -1319,7 +1371,8 @@ export default {
       cellData: [],
       actionType: '',
       menuList: [],
-      tableListItemLength: 0,
+      objectPagination: {},
+      objectPageSizeOptions: [20, 50, 100],
       doActionLoading: false,
       timeoutMs: 10000,
       timeoutS: 10,
@@ -1399,19 +1452,75 @@ export default {
     }
     this.$bus.off('showFakerModal', this.showFakerDetail);
   },
+  watch: {
+    currentObjectSearchKey() {
+      const pagination = this.ensureObjectPagination();
+      pagination.currentPage = 1;
+      this.$nextTick(() => {
+        this.handleSetCurrentObjectPage();
+      });
+    }
+  },
   computed: {
     ...mapState(['globalDsSetting']),
-    ...mapGetters([
-      'isDesktop',
-      'getMenus',
-      'getBrowserMenus',
-      'getQuickQuery',
-      'getDsClassify',
-      'genQualifierText',
-      'targetDsList',
-      'ddlList',
-      'isDark'
-    ]),
+    ...mapGetters(['isDesktop', 'getMenus', 'getBrowserMenus', 'getQuickQuery', 'getDsClassify', 'genQualifierText', 'targetDsList', 'ddlList']),
+    objectTypeTabs() {
+      return (this.currentTab.leafGroup || []).map((leaf) => ({
+        name: leaf.type,
+        label: leaf.i18n
+      }));
+    },
+    currentObjectTypeLabel() {
+      const current = this.objectTypeTabs.find((tab) => tab.name === this.currentTab.leafType);
+      return current ? current.label : '';
+    },
+    objectSearchPlaceholder() {
+      const placeholderKeyMap = {
+        TABLE: 'object-browser-search-table-placeholder',
+        VIEW: 'object-browser-search-view-placeholder',
+        PROC: 'object-browser-search-procedure-placeholder',
+        FUNC: 'object-browser-search-function-placeholder',
+        TRIGGER: 'object-browser-search-trigger-placeholder'
+      };
+      return this.$t(placeholderKeyMap[this.currentTab.leafType] || 'object-browser-search-generic-placeholder');
+    },
+    currentObjectPaginationKey() {
+      return `${this.currentTab.key}:${this.currentTab.leafType}`;
+    },
+    currentObjectSearchKey() {
+      const currentLeaf = this.currentTab[this.currentTab.leafType];
+      return currentLeaf ? currentLeaf.searchKey : '';
+    },
+    currentObjectPagination() {
+      return (
+        this.objectPagination[this.currentObjectPaginationKey] || {
+          currentPage: 1,
+          pageSize: 100
+        }
+      );
+    },
+    filteredObjectList() {
+      const currentLeaf = this.currentTab[this.currentTab.leafType];
+      if (!currentLeaf || !currentLeaf.treeData) {
+        return [];
+      }
+
+      const searchKey = (currentLeaf.searchKey || '').trim().toLocaleLowerCase();
+      if (!searchKey) {
+        return currentLeaf.treeData;
+      }
+
+      return currentLeaf.treeData.filter((item) => {
+        const objectName = item.objName || item.title || '';
+        return objectName.toLocaleLowerCase().includes(searchKey);
+      });
+    },
+    filteredObjectCount() {
+      return this.filteredObjectList.length;
+    },
+    objectPageCount() {
+      return Math.max(1, Math.ceil(this.filteredObjectCount / this.currentObjectPagination.pageSize));
+    },
     // Return correctly according to current node type
     showTaskCancelBtn() {
       const { INIT, RUNNING, PAUSE, WAITING_RESUME, WAITING_PAUSE } = FAKER_TASK_STATUS;
@@ -1749,12 +1858,12 @@ export default {
       this.$refs.genDataTree.setSelected(record.key, true);
     },
     handleGoTableConfig() {
-      console.log(11223344, this.genDataModal.selectedNode.key);
+      appLogger.debug(11223344, this.genDataModal.selectedNode.key);
       const currentKey = this.genDataModal.selectedNode.key;
       const lastIndex = currentKey.lastIndexOf('.');
       const tableKey = currentKey.substring(0, lastIndex);
 
-      console.log('tableKey', tableKey);
+      appLogger.debug('tableKey', tableKey);
       this.$refs.genDataTree.setSelected(tableKey, true);
     },
     handlePreStep() {
@@ -1805,7 +1914,7 @@ export default {
     async handlePreview() {
       const { node } = this.currentTab;
       const checkedKeys = this.$refs.genDataTree.getCheckedKeys();
-      console.log('checkedKeys', checkedKeys);
+      appLogger.debug('checkedKeys', checkedKeys);
       const tableConfigs = [];
       const tableConfigColumns = {};
       this.genDataModal.tableConfigs.forEach((tableConfig) => {
@@ -2005,11 +2114,11 @@ export default {
         }
       } catch (e) {
         this.genDataModal.loading = false;
-        console.error(e);
+        appLogger.error(e);
       }
     },
     async getInitTableFaker(node, params = {}, resolve, reject) {
-      console.log('init faker');
+      appLogger.debug('init faker');
       const { checked, selected, expand, preTableConfig } = params;
       try {
         this.genDataModal.loading = true;
@@ -2057,27 +2166,27 @@ export default {
               await this.$refs.genDataTree.setExpand(node.key, true);
             }
             if (checked) {
-              console.log('checked', node.key);
+              appLogger.debug('checked', node.key);
               await this.$refs.genDataTree.setChecked(node.key, true);
             }
             resolve(children);
           }
         } else {
           if (reject) {
-            console.log('reject1');
+            appLogger.debug('reject1');
             reject();
           }
         }
       } catch (e) {
         this.genDataModal.loading = false;
         if (reject) {
-          console.error('reject2', e);
+          appLogger.error('reject2', e);
           reject(e);
         }
       }
     },
     async handleGenDataCheck(node) {
-      console.log('check');
+      appLogger.debug('check');
       if (!node.resume) {
         this.$refs.genDataTree.setSelected(node.key, true); // Set the selected status
         await this.$refs.genDataTree.setExpand(node.key, true);
@@ -2087,12 +2196,12 @@ export default {
       }
     },
     async handleGenDataSetCheckedKeys(keys, checked = true) {
-      console.log('handleGenDataSetCheckedKeys', keys);
+      appLogger.debug('handleGenDataSetCheckedKeys', keys);
       this.genDataModal.checkedKeys = keys;
       await this.$refs.genDataTree.setCheckedKeys(keys, checked);
     },
     async handleGenDataGetCheckedKeys() {
-      console.log('handleGenDataGetCheckedKeys');
+      appLogger.debug('handleGenDataGetCheckedKeys');
       const checkedKeys = await this.$refs.genDataTree.getCheckedKeys();
       return checkedKeys;
     },
@@ -2106,13 +2215,23 @@ export default {
       }
     },
     async handleSearch() {
-      await this.handleFilter(this.currentTab[this.currentTab.leafType].searchKey);
-      if (this.currentTab[this.currentTab.leafType].treeData && this.currentTab[this.currentTab.leafType].treeData.length) {
-        this.$refs.tableTree.scrollTo(this.currentTab[this.currentTab.leafType].treeData[0].key);
-      }
+      const pagination = this.ensureObjectPagination();
+      pagination.currentPage = 1;
+      await this.handleSetCurrentObjectPage();
+    },
+    handleExpandCompactSearch() {
+      const container = this.$el;
+      container.classList.add('table-list-container--animating');
+      window.requestAnimationFrame(() => {
+        container.style.setProperty('width', `${SEARCH_PANEL_EXPANDED_WIDTH}px`, 'important');
+        window.setTimeout(() => {
+          container.classList.remove('table-list-container--animating');
+          this.$refs.compactSearchInput?.focus();
+        }, 260);
+      });
     },
     handleDblClick(node) {
-      console.log('dbl click');
+      appLogger.debug('dbl click');
       let sql = '';
       const dsQueryMap = this.getQuickQuery(this.currentTab.dsType);
       const dsClassify = this.getDsClassify(this.currentTab.dsType);
@@ -2180,7 +2299,7 @@ export default {
       this.handleSetSelected(node);
     },
     async handleExpandLoadNode(node, resolve) {
-      console.log('handleExpandLoadNode');
+      appLogger.debug('handleExpandLoadNode');
       await this.getNodeData(node, {}, resolve);
     },
     async handleGenDataExpandLoadNode(node, resolve, reject) {
@@ -2207,7 +2326,7 @@ export default {
                     key: child.key
                   };
                   this.schemaDef.uiPanels.columnConfig.children.forEach((child2) => {
-                    console.log('child2', child2);
+                    appLogger.debug('child2', child2);
                     if (child2.type === 'Options') {
                       child2.options.forEach((option) => {
                         if (option.value === child.seedType) {
@@ -2237,22 +2356,23 @@ export default {
                 });
               }
             });
-            console.log('children', children);
+            appLogger.debug('children', children);
             resolve(children);
           },
           reject
         );
         node.expand = false;
-        console.log('node', node);
+        appLogger.debug('node', node);
       } else {
         resolve();
       }
     },
-    handleFilter(searchKey) {
-      console.log('searchKey', searchKey);
-      if (this.$refs.tableTree) {
-        this.$refs.tableTree.filter(searchKey);
-      }
+    async handleFilter(searchKey) {
+      appLogger.debug('searchKey', searchKey);
+      this.currentTab[this.currentTab.leafType].searchKey = searchKey;
+      const pagination = this.ensureObjectPagination();
+      pagination.currentPage = 1;
+      await this.handleSetCurrentObjectPage();
     },
     handleGenDataFilter(searchKey) {
       if (this.$refs.genDataTree) {
@@ -2261,12 +2381,10 @@ export default {
     },
     async handleSetData(data) {
       if (this.$refs.tableTree) {
-        this.top = this.scrollY;
-        await this.$refs.tableTree.setData(data);
-        await this.handleSearch();
-        this.$nextTick(() => {
-          this.handleEleScroll(this.top);
-        });
+        this.currentTab[this.currentTab.leafType].treeData = data;
+        const pagination = this.ensureObjectPagination();
+        pagination.currentPage = 1;
+        await this.handleSetCurrentObjectPage();
       }
     },
     handleGenDataSetData(data) {
@@ -2390,11 +2508,11 @@ export default {
       this.$refs.tableTree.setExpandAll(expand);
     },
     handleSelectTable(table) {
-      console.log('handle select table');
+      appLogger.debug('handle select table');
       this.handleSetSelected(table);
     },
     handleGenDataSelectTable(table) {
-      console.log('handleGenDataSelectTable');
+      appLogger.debug('handleGenDataSelectTable');
       this.handleGenDataSetSelected(table);
     },
     handleVTreeClick(table) {
@@ -2415,15 +2533,66 @@ export default {
     },
     handleChangeTab(leafType) {
       this.currentTab.leafType = leafType;
+      this.ensureObjectPagination();
       const refreshCache = true;
       this.listLeaf(refreshCache);
+    },
+    ensureObjectPagination() {
+      if (!this.objectPagination[this.currentObjectPaginationKey]) {
+        this.objectPagination[this.currentObjectPaginationKey] = {
+          currentPage: 1,
+          pageSize: 100
+        };
+      }
+      return this.objectPagination[this.currentObjectPaginationKey];
+    },
+    async handleSetCurrentObjectPage() {
+      if (!this.$refs.tableTree) {
+        return;
+      }
+
+      const pagination = this.ensureObjectPagination();
+      const pageCount = Math.max(1, Math.ceil(this.filteredObjectCount / pagination.pageSize));
+      if (pagination.currentPage > pageCount) {
+        pagination.currentPage = pageCount;
+      }
+
+      const start = (pagination.currentPage - 1) * pagination.pageSize;
+      const pageData = this.filteredObjectList.slice(start, start + pagination.pageSize);
+      await this.$refs.tableTree.setData(pageData);
+      this.scrollY = 0;
+      this.$nextTick(() => {
+        this.handleEleScroll(0);
+      });
+    },
+    async handleObjectPageSizeChange(pageSize) {
+      const pagination = this.ensureObjectPagination();
+      pagination.pageSize = pageSize;
+      pagination.currentPage = 1;
+      await this.handleSetCurrentObjectPage();
+    },
+    async handlePreviousObjectPage() {
+      const pagination = this.ensureObjectPagination();
+      if (pagination.currentPage <= 1) {
+        return;
+      }
+      pagination.currentPage -= 1;
+      await this.handleSetCurrentObjectPage();
+    },
+    async handleNextObjectPage() {
+      const pagination = this.ensureObjectPagination();
+      if (pagination.currentPage >= this.objectPageCount) {
+        return;
+      }
+      pagination.currentPage += 1;
+      await this.handleSetCurrentObjectPage();
     },
     onContextmenu(event) {
       const node = this.$refs.tableTree.getSelectedNode();
       const isNotNode = event.target.classList && event.target.classList.length && event.target.classList[0] === 'vtree-tree__block-area';
       const items = [];
       const menuList = this.getBrowserMenus(this.currentTab.dsType, isNotNode || !node ? this.currentTab.leafType : node.nodeType);
-      console.log(event, node, menuList);
+      appLogger.debug(event, node, menuList);
       if (menuList && menuList.length) {
         if (isNotNode || !node) {
           menuList.forEach((menu) => {
@@ -2561,7 +2730,7 @@ export default {
         setTimeout(() => {
           const ele = document.getElementById('log-list');
           if (ele) {
-            console.log(ele);
+            appLogger.debug(ele);
             ele.scrollTop = ele.scrollHeight;
           }
         }, 0);
@@ -2634,7 +2803,7 @@ export default {
       return selectedData;
     },
     handleMenuOptionChange(key, e) {
-      console.log(key, e);
+      appLogger.debug(key, e);
       if (this.menuModal.show) {
         if (e !== this.menuModal.options[key]) {
           this.menuModal.sql = '';
@@ -2657,7 +2826,7 @@ export default {
     },
     async handleRightClickMenu(actionType) {
       const tableNode = this.$refs.tableTree.getSelectedNode();
-      console.log(actionType, tableNode);
+      appLogger.debug(actionType, tableNode);
       this.actionType = actionType;
       const { node, selectedTable: table, leafType } = this.currentTab;
       const data = {
@@ -2681,7 +2850,7 @@ export default {
 
       switch (actionType) {
         case TABLE_RIGHT_CLICK_MENU_ITEM.MENU_BROWSE_PROPERTY:
-          console.log(this.selectedNode);
+          appLogger.debug(this.selectedNode);
           res = await this.$services.dmEditorPropertiesPropertiesDef({
             data: {
               levels: this.browseGenLevelsData(data.node),
@@ -2736,7 +2905,7 @@ export default {
               properties.push(property);
             });
 
-            console.log(properties);
+            appLogger.debug(properties);
             this.properties = properties;
             if (properties && properties.length) {
               this.propertiesModal.selectedProperties = properties[0];
@@ -2826,7 +2995,7 @@ export default {
                     }
                   );
                 } catch (e) {
-                  console.log(e);
+                  appLogger.debug(e);
                 }
               }
               tableConfigs.push(tableConfig);
@@ -3633,7 +3802,7 @@ export default {
     },
     async handleDoAction() {
       const callback = () => {
-        console.warn(1231232131, this.actionType);
+        appLogger.warn(1231232131, this.actionType);
         switch (this.actionType) {
           case TABLE_RIGHT_CLICK_MENU_ITEM.MENU_BROWSE_MATERIALIZED_DROP:
           case TABLE_RIGHT_CLICK_MENU_ITEM.MENU_BROWSE_USER_DROP:
@@ -3729,11 +3898,63 @@ export default {
 };
 </script>
 <style scoped lang="less">
-.search-header {
-  height: 36px;
-  display: flex;
+.object-type-trigger {
+  display: inline-flex;
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
   align-items: center;
+  justify-content: center;
   padding: 0;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease,
+    box-shadow 0.2s ease;
+
+  &:hover,
+  &:focus-visible {
+    color: var(--text-primary);
+    background: var(--bg-hover);
+    box-shadow: var(--shadow-sm);
+  }
+
+  &:focus-visible {
+    outline: 1px solid var(--primary-color);
+    outline-offset: 1px;
+  }
+
+  &--static {
+    cursor: default;
+
+    &:hover,
+    &:focus-visible {
+      color: var(--text-primary);
+      background: transparent;
+      box-shadow: none;
+    }
+  }
+}
+
+.table-list-container {
+  container-type: inline-size;
+
+  &.table-list-container--animating {
+    transition: width 0.26s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
+
+.search-header {
+  height: 44px;
+  display: flex;
+  flex: 0 0 44px;
+  align-items: center;
+  box-sizing: border-box;
+  padding: 6px 0px;
   background: var(--bg-secondary);
   border-bottom: 1px solid var(--border-primary);
 
@@ -3741,35 +3962,202 @@ export default {
     width: 100%;
     display: flex;
     align-items: center;
+    gap: 4px;
     margin: 0;
     border: none;
     border-radius: 0;
-    background: var(--bg-tertiary);
+    background: transparent;
 
-    :deep(.ivu-input) {
-      border: none !important;
-      border-radius: 0 !important;
-      background: transparent;
+    :deep(.ant-input-affix-wrapper) {
+      height: 32px;
+      flex: 1;
+      padding: 0 8px;
+      border-color: var(--border-primary);
+      border-radius: 6px;
+      background: var(--bg-primary);
       box-shadow: none !important;
     }
 
-    :deep(.ivu-input-wrapper) {
-      flex: 1;
-      border: none;
-      box-shadow: none;
+    :deep(.ant-input-prefix) {
+      margin-right: 4px;
+      color: var(--text-tertiary);
+      font-size: 14px;
+    }
+
+    :deep(.ant-input) {
+      background: transparent;
+      box-shadow: none !important;
+      font-size: 14px;
+    }
+
+    :deep(.ant-input-affix-wrapper:hover),
+    :deep(.ant-input-affix-wrapper-focused) {
+      border-color: var(--primary-color);
+      box-shadow: none !important;
+    }
+
+    :deep(.ant-input-prefix) {
+      color: var(--text-primary);
+    }
+  }
+}
+
+.compact-search-button {
+  display: none;
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease,
+    box-shadow 0.2s ease;
+  font-size: 16px;
+
+  :deep(svg) {
+    width: 16px;
+    height: 16px;
+    color: var(--text-primary);
+  }
+
+  &:hover,
+  &:focus-visible {
+    color: var(--text-primary);
+    background: var(--bg-hover);
+    box-shadow: var(--shadow-sm);
+  }
+
+  &:focus-visible {
+    outline: 1px solid var(--primary-color);
+    outline-offset: 1px;
+  }
+}
+
+.object-search-icon {
+  :deep(svg) {
+    width: 16px;
+    height: 16px;
+    color: var(--text-primary);
+  }
+}
+
+@container (max-width: 150px) {
+  .search-border {
+    :deep(.ant-input-affix-wrapper) {
+      display: none;
+    }
+
+    .compact-search-button {
+      display: inline-flex;
+    }
+  }
+}
+
+.object-refresh-button {
+  display: inline-flex;
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease,
+    box-shadow 0.2s ease;
+
+  &:hover,
+  &:focus-visible {
+    color: var(--text-primary);
+    background: var(--bg-hover);
+    box-shadow: var(--shadow-sm);
+  }
+
+  &:focus-visible {
+    outline: 1px solid var(--primary-color);
+    outline-offset: 1px;
+  }
+}
+
+.object-list-pagination {
+  display: flex;
+  height: 40px;
+  flex: 0 0 40px;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 4px 8px;
+  border-top: 1px solid var(--border-primary);
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  font-size: 12px;
+
+  &__size {
+    flex: 0 0 52px;
+    width: 52px;
+
+    :deep(.ivu-select-selection) {
+      height: 28px;
+      min-height: 28px;
+      border-color: var(--border-primary);
+      background: var(--bg-primary);
+    }
+
+    :deep(.ivu-select-selected-value) {
+      height: 28px;
+      padding-right: 20px;
+      padding-left: 6px;
+      line-height: 28px;
     }
   }
 
-  .btn-hint:before {
-    content: '';
-    width: 0;
-    height: 0;
-    position: absolute;
-    top: 19px;
-    left: 25px;
-    border-top: solid 8px transparent;
-    border-right: solid 8px #4b4b4b;
-    border-bottom: solid 0 transparent;
+  &__total {
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+
+  &__actions {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    margin-left: auto;
+  }
+
+  &__button {
+    display: inline-flex;
+    width: 24px;
+    height: 28px;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+
+    &:disabled {
+      color: var(--text-disabled);
+      cursor: not-allowed;
+    }
+  }
+
+  &__page {
+    min-width: 32px;
+    text-align: center;
+    white-space: nowrap;
   }
 }
 
@@ -4176,5 +4564,36 @@ export default {
 }
 
 [dark-theme='dark'] {
+}
+</style>
+
+<style lang="less">
+:global(.object-type-dropdown) {
+  min-width: 148px !important;
+}
+
+:global(.object-type-dropdown .ant-dropdown-menu) {
+  min-width: 148px;
+}
+
+:global(.object-type-dropdown .ant-dropdown-menu-item) {
+  display: flex;
+  align-items: center;
+  padding: 4px 12px;
+  white-space: nowrap;
+}
+
+:global(.object-type-dropdown .ant-dropdown-menu-item-icon) {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  min-width: 16px;
+  margin-inline-end: 8px;
+}
+
+:global(.object-type-dropdown .ant-dropdown-menu-title-content) {
+  flex: 1 1 auto;
+  white-space: nowrap;
 }
 </style>

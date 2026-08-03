@@ -1,0 +1,44 @@
+[datepart_public_signatures]
+sql:
+select
+  dateadd(day,1,date '2024-02-29') as dateadd_value,
+  datediff(day,date '2024-02-29',date '2024-03-02') as datediff_value,
+  bigdatediff(microsecond,timestamp '1900-01-01 00:00:00',
+    timestamp '2024-01-01 00:00:00') as bigdatediff_value,
+  datepart(year,date '2024-02-29') as datepart_value,
+  date_part(date '2024-02-29','year') as date_part_typed_value,
+  date_part('2024-02-29','year') as date_part_string_value,
+  date_part('year','2024-02-29') as date_part_field_first_value,
+  timestampadd(sql_tsi_day,1,date '2024-02-29') as timestampadd_value,
+  timestampdiff(sql_tsi_day,date '2024-02-29',
+    date '2024-03-02') as timestampdiff_value
+from dual
+expect:
+{
+  "dateadd_value": [],
+  "datediff_value": [],
+  "bigdatediff_value": [],
+  "datepart_value": [],
+  "date_part_typed_value": [],
+  "date_part_string_value": [],
+  "date_part_field_first_value": [],
+  "timestampadd_value": [],
+  "timestampdiff_value": []
+}
+----------
+[datepart_datetime_column_lineage]
+sql:
+select
+  dateadd(day,1,t.created_at) as shifted_at,
+  datediff(day,t.created_at,t.updated_at) as elapsed_days,
+  datepart(year,t.created_at) as created_year
+from catalog1.app.events t
+expect:
+{
+  "shifted_at": ["/catalog1/app/events/created_at/"],
+  "elapsed_days": [
+    "/catalog1/app/events/created_at/",
+    "/catalog1/app/events/updated_at/"
+  ],
+  "created_year": ["/catalog1/app/events/created_at/"]
+}

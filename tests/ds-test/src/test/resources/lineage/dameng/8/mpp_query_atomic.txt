@@ -1,0 +1,48 @@
+[mpp_colocated_join_columns]
+sql:
+select a.id,a.note,b.note as b_note
+from catalog1.app.mpp_hash_a a join catalog1.app.mpp_hash_b b on a.id=b.id
+expect:
+{
+  "id" : [ "/catalog1/app/mpp_hash_a/id/" ],
+  "note" : [ "/catalog1/app/mpp_hash_a/note/" ],
+  "b_note" : [ "/catalog1/app/mpp_hash_b/note/" ]
+}
+----------
+[mpp_redistributed_join_columns]
+sql:
+select a.id as a_id,b.id as b_id
+from catalog1.app.mpp_hash_a a join catalog1.app.mpp_hash_b b on a.grp_id=b.grp_id
+expect:
+{
+  "a_id" : [ "/catalog1/app/mpp_hash_a/id/" ],
+  "b_id" : [ "/catalog1/app/mpp_hash_b/id/" ]
+}
+----------
+[mpp_fully_join_columns]
+sql:
+select a.id,f.note as f_note
+from catalog1.app.mpp_hash_a a join catalog1.app.mpp_fully f on a.id=f.id
+expect:
+{
+  "id" : [ "/catalog1/app/mpp_hash_a/id/" ],
+  "f_note" : [ "/catalog1/app/mpp_fully/note/" ]
+}
+----------
+[mpp_group_distribution_key_columns]
+sql:
+select id,count(*) as row_count from catalog1.app.mpp_hash_a group by id
+expect:
+{
+  "id" : [ "/catalog1/app/mpp_hash_a/id/" ],
+  "row_count" : [ ]
+}
+----------
+[mpp_group_non_distribution_key_columns]
+sql:
+select grp_id,count(*) as row_count from catalog1.app.mpp_hash_a group by grp_id
+expect:
+{
+  "grp_id" : [ "/catalog1/app/mpp_hash_a/grp_id/" ],
+  "row_count" : [ ]
+}

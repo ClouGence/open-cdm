@@ -1,0 +1,53 @@
+[data_watcher_set_oguid_has_no_result_lineage]
+sql:
+sp_set_oguid(6220722)
+expect:
+{}
+----------
+[data_watcher_apply_keep_pkg_has_no_result_lineage]
+sql:
+sp_apply_keep_pkg()
+expect:
+{}
+----------
+[data_watcher_clear_all_arch_send_info_has_no_result_lineage]
+sql:
+sp_clear_arch_send_info()
+expect:
+{}
+----------
+[data_watcher_clear_one_arch_send_info_has_no_result_lineage]
+sql:
+sp_clear_arch_send_info('GRP6220722_DW2')
+expect:
+{}
+----------
+[data_watcher_clear_rapply_stat_has_no_result_lineage]
+sql:
+sp_clear_rapply_stat()
+expect:
+{}
+----------
+[data_watcher_rt_arch_status]
+sql:
+select sf_get_rt_arch_status() as rt_status
+expect:
+{
+  "rt_status" : []
+}
+----------
+[data_watcher_broadcast_address]
+sql:
+select sf_get_broadcast_address('172.31.22.11', '255.255.255.0') as broadcast_addr
+expect:
+{
+  "broadcast_addr" : []
+}
+----------
+[data_watcher_archive_size]
+sql:
+select sf_get_archive_size(0, 1, 46757) as archive_bytes
+expect:
+{
+  "archive_bytes" : []
+}

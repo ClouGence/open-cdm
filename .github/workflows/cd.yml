@@ -31,9 +31,11 @@ jobs:
   build-tgz:
     name: Build tgz
     runs-on: ubuntu-latest
+    env:
+      CG_CLOUDDM_MAIN_VERSION: ${{ inputs.version }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -45,11 +47,6 @@ jobs:
         run: |
           if [[ ! "$VERSION" =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-(alpha|beta|rc)\.(0|[1-9][0-9]*))?$ ]]; then
             echo "::error::version must look like 3.2.0 or 3.2.0-rc.1"
-            exit 1
-          fi
-          project_version="$(sed -n 's/^cg\.clouddm\.main\.version=//p' backend/gradle.properties | tr -d '[:space:]')"
-          if [[ "$VERSION" != "$project_version" ]]; then
-            echo "::error::version $VERSION does not match backend/gradle.properties ($project_version)"
             exit 1
           fi
           notes_file="docs/release-notes/v${VERSION}/index.en.md"
@@ -74,16 +71,16 @@ jobs:
           fi
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
 
       - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4
+        uses: gradle/actions/setup-gradle@v5
 
       - name: Set up Node.js 22.22.1
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: 22.22.1
           cache: npm
@@ -93,21 +90,39 @@ jobs:
         working-directory: frontend
         run: npm ci --no-audit --no-fund
 
+      - name: Cache built-in drivers bundle
+        uses: actions/cache@v6
+        with:
+          path: package/pkg/builtin-drivers/bundle
+          key: builtin-drivers-${{ hashFiles('package/pkg/builtin-drivers/built-in-drivers.xml') }}
+
       - name: Build tgz packages
         working-directory: package
+        env:
+          GRADLE_OPTS: -Dorg.gradle.jvmargs=-Xmx8g
         run: ./package.sh --build
 
-      - name: Generate built-in drivers
-        working-directory: backend
-        run: ./gradlew -Ptarget=all :pkg-builtin-drivers:generateBuiltinDrivers
-
-      - name: Upload tgz artifact
-        uses: actions/upload-artifact@v4
+      - name: Upload alone tgz artifact
+        uses: actions/upload-artifact@v7
         with:
-          name: cgdm-tgz
-          path: |
-            package/build/*.tar.gz
-            package/build/built-in-drivers
+          path: package/build/cgdm-alone.tar.gz
+          archive: false
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload console tgz artifact
+        uses: actions/upload-artifact@v7
+        with:
+          path: package/build/cgdm-console.tar.gz
+          archive: false
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload sidecar tgz artifact
+        uses: actions/upload-artifact@v7
+        with:
+          path: package/build/cgdm-sidecar.tar.gz
+          archive: false
           if-no-files-found: error
           retention-days: 14
 
@@ -121,12 +136,12 @@ jobs:
         service: [alone, console, sidecar]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Download tgz artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
-          name: cgdm-tgz
+          name: cgdm-${{ matrix.service }}.tar.gz
           path: docker-ctx
 
       - name: Stage docker build context
@@ -136,20 +151,23 @@ jobs:
           ls -R docker-ctx/shared
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
+        uses: docker/setup-qemu-action@v4
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
+
+      - name: Expose GitHub Actions runtime for buildx cache
+        uses: crazy-max/ghaction-github-runtime@v4
 
       - name: Log in to China registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ${{ env.CHINA_REGISTRY }}
           username: ${{ secrets.CGDM_DOCKER_CHINA_USERNAME }}
           password: ${{ secrets.CGDM_DOCKER_CHINA_PASSWORD }}
 
       - name: Log in to Docker Hub
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ${{ env.GLOBAL_REGISTRY }}
           username: ${{ secrets.CGDM_DOCKER_GLOBAL_USERNAME }}
@@ -157,7 +175,7 @@ jobs:
 
       - name: Generate image tags
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: |
             ${{ env.CHINA_IMAGE_PREFIX }}-${{ matrix.service }}
@@ -167,7 +185,7 @@ jobs:
             type=raw,value=latest,enable=${{ inputs.latest }}
 
       - name: Build and push ${{ matrix.service }}
-        uses: nick-fields/retry@v3
+        uses: nick-fields/retry@v4
         env:
           TAGS: ${{ steps.meta.outputs.tags }}
           SERVICE: ${{ matrix.service }}
@@ -185,23 +203,118 @@ jobs:
               --platform linux/amd64,linux/arm64 \
               --provenance=false \
               --push \
+              --cache-from "type=gha,scope=docker-${SERVICE}" \
+              --cache-to "type=gha,mode=max,scope=docker-${SERVICE}" \
               "${tag_args[@]}" \
               docker-ctx
+
+  export-images:
+    name: Export images ${{ matrix.arch }}
+    runs-on: ubuntu-latest
+    needs: [build-tgz, docker]
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [x86_64, arm64]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      # The three tgz artifacts are named cgdm-alone.tar.gz / cgdm-console.tar.gz / cgdm-sidecar.tar.gz.
+      # Merge them into one context dir so all three Dockerfiles can build from it.
+      - name: Download tgz artifacts
+        uses: actions/download-artifact@v8
+        with:
+          pattern: cgdm-*.tar.gz
+          merge-multiple: true
+          path: docker-ctx
+
+      - name: Stage docker build context
+        run: cp -r package/docker/shared docker-ctx/shared
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Expose GitHub Actions runtime for buildx cache
+        uses: crazy-max/ghaction-github-runtime@v4
+
+      # The base image lives in the private China registry; needed to pull on a cache miss.
+      - name: Log in to China registry
+        uses: docker/login-action@v4
+        with:
+          registry: ${{ env.CHINA_REGISTRY }}
+          username: ${{ secrets.CGDM_DOCKER_CHINA_USERNAME }}
+          password: ${{ secrets.CGDM_DOCKER_CHINA_PASSWORD }}
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v4
+        with:
+          registry: ${{ env.GLOBAL_REGISTRY }}
+          username: ${{ secrets.CGDM_DOCKER_GLOBAL_USERNAME }}
+          password: ${{ secrets.CGDM_DOCKER_GLOBAL_PASSWORD }}
+
+      - name: Build, save and gzip images
+        env:
+          VERSION: ${{ inputs.version }}
+          ARCH: ${{ matrix.arch }}
+          IMAGE_PREFIX: ${{ env.GLOBAL_IMAGE_PREFIX }}
+        run: |
+          set -euo pipefail
+          case "$ARCH" in
+            x86_64) platform=linux/amd64 ;;
+            arm64)  platform=linux/arm64 ;;
+          esac
+          for svc in alone console sidecar; do
+            docker buildx build \
+              --file "package/docker/${svc}.Dockerfile" \
+              --platform "$platform" \
+              --provenance=false \
+              --load \
+              --cache-from "type=gha,scope=docker-${svc}" \
+              --tag "${IMAGE_PREFIX}-${svc}:${VERSION}" \
+              docker-ctx
+          done
+          docker pull --platform "$platform" mysql:8.0
+          mkdir -p out
+          docker save "${IMAGE_PREFIX}-alone:${VERSION}" \
+            | gzip > "out/cgdm-alone-image-${ARCH}.tar.gz"
+          docker save "${IMAGE_PREFIX}-console:${VERSION}" "${IMAGE_PREFIX}-sidecar:${VERSION}" mysql:8.0 \
+            | gzip > "out/cgdm-cluster-image-${ARCH}.tar.gz"
+
+      - name: Upload alone image artifact
+        uses: actions/upload-artifact@v7
+        with:
+          path: out/cgdm-alone-image-${{ matrix.arch }}.tar.gz
+          archive: false
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload cluster image artifact
+        uses: actions/upload-artifact@v7
+        with:
+          path: out/cgdm-cluster-image-${{ matrix.arch }}.tar.gz
+          archive: false
+          if-no-files-found: error
+          retention-days: 14
 
   release:
     name: Publish GitHub Release
     runs-on: ubuntu-latest
-    needs: [build-tgz, docker]
+    needs: [build-tgz, docker, export-images]
     permissions:
       contents: write
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
-      - name: Download tgz artifact
-        uses: actions/download-artifact@v4
+      - name: Download tgz artifacts
+        uses: actions/download-artifact@v8
         with:
-          name: cgdm-tgz
+          pattern: cgdm-*.tar.gz
+          merge-multiple: true
           path: release-assets
 
       - name: Generate release deployment yml assets

@@ -1,0 +1,62 @@
+SELECT grp, val,
+       row_number() OVER (PARTITION BY grp ORDER BY val) AS rn,
+       rank() OVER (PARTITION BY grp ORDER BY val) AS rnk,
+       dense_rank() OVER (PARTITION BY grp ORDER BY val) AS dense_rnk,
+       percent_rank() OVER (PARTITION BY grp ORDER BY val) AS pct_rnk,
+       cume_dist() OVER (PARTITION BY grp ORDER BY val) AS cume,
+       ntile(3) OVER (PARTITION BY grp ORDER BY val) AS tile
+FROM (VALUES ('a', 10), ('a', 10), ('a', 20), ('a', 30), ('b', 5), ('b', 15)) AS t(grp, val)
+ORDER BY grp, val;
+SELECT id, amount,
+       lag(amount) OVER w AS prev_amount,
+       lag(amount, 2, 0) OVER w AS prev_two_or_zero,
+       lead(amount) OVER w AS next_amount,
+       lead(amount, 2, -1) OVER w AS next_two_or_minus_one
+FROM (VALUES (1, 10), (2, 20), (3, 30), (4, 40)) AS t(id, amount)
+WINDOW w AS (ORDER BY id)
+ORDER BY id;
+SELECT id, amount,
+       first_value(amount) OVER full_frame AS first_amount,
+       last_value(amount) OVER full_frame AS last_amount,
+       nth_value(amount, 2) OVER full_frame AS second_amount
+FROM (VALUES (1, 10), (2, 20), (3, 30)) AS t(id, amount)
+WINDOW full_frame AS (ORDER BY id ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING)
+ORDER BY id;
+SELECT grp, id, amount,
+       sum(amount) OVER (PARTITION BY grp) AS partition_sum,
+       avg(amount) OVER (PARTITION BY grp ORDER BY id ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS running_avg
+FROM (VALUES ('a', 1, 10), ('a', 2, 20), ('b', 1, 7), ('b', 2, 9)) AS t(grp, id, amount)
+ORDER BY grp, id;
+------------------------------------------------------------------------------------------
+[SELECT] SELECT grp, val,
+       row_number() OVER (PARTITION BY grp ORDER BY val) AS rn,
+       rank() OVER (PARTITION BY grp ORDER BY val) AS rnk,
+       dense_rank() OVER (PARTITION BY grp ORDER BY val) AS dense_rnk,
+       percent_rank() OVER (PARTITION BY grp ORDER BY val) AS pct_rnk,
+       cume_dist() OVER (PARTITION BY grp ORDER BY val) AS cume,
+       ntile(3) OVER (PARTITION BY grp ORDER BY val) AS tile
+FROM (VALUES ('a', 10), ('a', 10), ('a', 20), ('a', 30), ('b', 5), ('b', 15)) AS t(grp, val)
+ORDER BY grp, val;
+----------
+[SELECT] SELECT id, amount,
+       lag(amount) OVER w AS prev_amount,
+       lag(amount, 2, 0) OVER w AS prev_two_or_zero,
+       lead(amount) OVER w AS next_amount,
+       lead(amount, 2, -1) OVER w AS next_two_or_minus_one
+FROM (VALUES (1, 10), (2, 20), (3, 30), (4, 40)) AS t(id, amount)
+WINDOW w AS (ORDER BY id)
+ORDER BY id;
+----------
+[SELECT] SELECT id, amount,
+       first_value(amount) OVER full_frame AS first_amount,
+       last_value(amount) OVER full_frame AS last_amount,
+       nth_value(amount, 2) OVER full_frame AS second_amount
+FROM (VALUES (1, 10), (2, 20), (3, 30)) AS t(id, amount)
+WINDOW full_frame AS (ORDER BY id ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING)
+ORDER BY id;
+----------
+[SELECT] SELECT grp, id, amount,
+       sum(amount) OVER (PARTITION BY grp) AS partition_sum,
+       avg(amount) OVER (PARTITION BY grp ORDER BY id ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS running_avg
+FROM (VALUES ('a', 1, 10), ('a', 2, 20), ('b', 1, 7), ('b', 2, 9)) AS t(grp, id, amount)
+ORDER BY grp, id;

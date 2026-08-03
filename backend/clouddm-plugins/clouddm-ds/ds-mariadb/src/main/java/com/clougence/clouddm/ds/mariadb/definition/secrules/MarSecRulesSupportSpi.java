@@ -18,10 +18,13 @@ package com.clougence.clouddm.ds.mariadb.definition.secrules;
 import java.util.Arrays;
 import java.util.List;
 
-import com.clougence.clouddm.sdk.model.analysis.TargetType;
-import com.clougence.clouddm.dsfamily.mysql.definition.secrules.MySecRulesSupportSpi;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
+import com.clougence.clouddm.sdk.sql.analysis.security.SecRulesSupportSpi;
 
-public class MarSecRulesSupportSpi extends MySecRulesSupportSpi {
+public class MarSecRulesSupportSpi implements SecRulesSupportSpi {
+
+    @Override
+    public boolean isSupport() { return true; }
 
     @Override
     public List<TargetType> supportModel() {

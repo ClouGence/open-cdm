@@ -1,0 +1,33 @@
+[rewrite_rule_columns]
+sql:
+select owner, name, source_stmt, destination_stmt, rewrite_mode from catalog1.sys.sys_rewrite_equivalences
+expect:
+{
+  "owner" : [ "/catalog1/sys/sys_rewrite_equivalences/owner/" ],
+  "name" : [ "/catalog1/sys/sys_rewrite_equivalences/name/" ],
+  "source_stmt" : [ "/catalog1/sys/sys_rewrite_equivalences/source_stmt/" ],
+  "destination_stmt" : [ "/catalog1/sys/sys_rewrite_equivalences/destination_stmt/" ],
+  "rewrite_mode" : [ "/catalog1/sys/sys_rewrite_equivalences/rewrite_mode/" ]
+}
+----------
+[logmnr_contents_columns]
+sql:
+select operation_code, scn, sql_redo, seg_owner, table_name from catalog1.sys.v$logmnr_contents
+expect:
+{
+  "operation_code" : [ "/catalog1/sys/v$logmnr_contents/operation_code/" ],
+  "scn" : [ "/catalog1/sys/v$logmnr_contents/scn/" ],
+  "sql_redo" : [ "/catalog1/sys/v$logmnr_contents/sql_redo/" ],
+  "seg_owner" : [ "/catalog1/sys/v$logmnr_contents/seg_owner/" ],
+  "table_name" : [ "/catalog1/sys/v$logmnr_contents/table_name/" ]
+}
+----------
+[rls_filtered_columns]
+sql:
+select tenant_id, txt from catalog1.app.orders
+expect:
+{
+  "tenant_id" : [ "/catalog1/app/orders/tenant_id/" ],
+  "txt" : [ "/catalog1/app/orders/txt/" ]
+}
+

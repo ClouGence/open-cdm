@@ -1,0 +1,328 @@
+create table app.char_t(
+  id int primary key,c_char char(4) default 'A' not null,
+  c_character character(4) default 'B',c_varchar varchar(12) default 'C',
+  c_varchar2 varchar2(12) default 'D',c_char_sem char(4 char),
+  c_character_sem character(4 char),c_varchar_sem varchar(4 char),
+  c_varchar2_sem varchar2(4 char),c_char_byte char(12 byte),
+  c_character_byte character(12 byte),c_varchar_byte varchar(12 byte),
+  c_varchar2_byte varchar2(12 byte),c_null varchar2(12) null,
+  constraint ck_char check(length(c_varchar)<=12),
+  constraint uk_char unique(c_varchar,c_varchar2));
+comment on column app.char_t.c_char is 'fixed-width character';
+comment on column app.char_t.c_varchar2 is 'variable-width character';
+create index app.idx_char on app.char_t(c_varchar,c_char);
+alter table app.char_t add c_alter varchar2(8) default 'ALTERED';
+alter table app.char_t modify c_alter varchar2(16);
+insert into app.char_t(id,c_char,c_character,c_varchar,c_varchar2,
+  c_char_sem,c_character_sem,c_varchar_sem,c_varchar2_sem,c_char_byte,
+  c_character_byte,c_varchar_byte,c_varchar2_byte,c_null)
+values(1,'A','B','alpha','Beta','达梦数据','达梦数据','达梦数据','达梦数据',
+  '达梦数据','达梦数据','达梦数据','达梦数据',null);
+insert into app.char_t(id,c_char,c_character,c_varchar,c_varchar2,
+  c_char_sem,c_character_sem,c_varchar_sem,c_varchar2_sem,c_null)
+values(2,'XY','ZW','gamma','delta','AB','CD','EF','GH','nullable');
+insert into app.char_t(id) values(3);
+update app.char_t set c_varchar=upper(c_varchar),
+  c_varchar2=lower(c_varchar2),c_alter=c_alter||'_OK' where id=1;
+select id,length(c_char),lengthb(c_char),length(c_character),
+  lengthb(c_character),length(c_varchar),lengthb(c_varchar),
+  length(c_varchar2),lengthb(c_varchar2) from app.char_t order by id;
+select trim(c_char),ltrim(c_character),rtrim(c_character),
+  substr(c_varchar,1,3),instr(c_varchar2,'t'),replace(c_varchar,'A','a')
+  from app.char_t where id=1;
+select concat(c_varchar,c_varchar2),c_char||c_character,
+  lpad(c_varchar,12,'_'),rpad(c_varchar2,12,'_'),ascii(c_char),chr(65)
+  from app.char_t where id=1;
+select lower(c_varchar),upper(c_varchar2),initcap(c_varchar),
+  reverse(c_varchar2),translate(c_varchar,'abc','ABC')
+  from app.char_t where id=1;
+select cast(c_char as varchar2(20)),cast(c_varchar as char(12)),
+  convert(c_varchar2,'UTF-8','UTF-8'),to_char(12345),to_number('12345')
+  from app.char_t where id=1;
+select min(c_char),max(c_character),count(c_varchar),
+  count(distinct c_varchar2) from app.char_t;
+select id from app.char_t index idx_char
+  where c_varchar>='A' and c_char='A' order by c_varchar;
+create view app.char_v as
+  select id,c_char,c_character,c_varchar,c_varchar2,c_alter
+  from app.char_t where c_varchar is not null;
+select c_char||c_character as fixed_pair,
+  c_varchar||':'||c_varchar2 as variable_pair from app.char_v order by id;
+update app.char_v set c_varchar2='viewedit' where id=2;
+create function app.char_char_f(p_value char(32767)) return char(32767) as
+begin
+  return p_value;
+end;
+/
+create function app.char_character_f(p_value character(32767)) return character(32767) as
+begin
+  return p_value;
+end;
+/
+create function app.char_varchar_f(p_value varchar(32767)) return varchar(32767) as
+begin
+  return p_value;
+end;
+/
+create function app.char_varchar2_f(p_value varchar2(32767)) return varchar2(32767) as
+begin
+  return p_value;
+end;
+/
+select length(app.char_char_f('A')),length(app.char_character_f('B')),
+  length(app.char_varchar_f('varchar')),length(app.char_varchar2_f('varchar2')) from dual;
+create table app.char_p_char(id char(4),v int)
+  partition by range(id)(partition p0 values less than('M'),
+  partition p1 values less than(maxvalue));
+insert into app.char_p_char values('A',1),('Z',2);
+select count(*) from app.char_p_char partition for('A');
+create table app.char_p_character(id character(4),v int)
+  partition by range(id)(partition p0 values less than('M'),
+  partition p1 values less than(maxvalue));
+insert into app.char_p_character values('A',1),('Z',2);
+select count(*) from app.char_p_character partition for('A');
+create table app.char_p_varchar(id varchar(12),v int)
+  partition by range(id)(partition p0 values less than('M'),
+  partition p1 values less than(maxvalue));
+insert into app.char_p_varchar values('A',1),('Z',2);
+select count(*) from app.char_p_varchar partition for('A');
+create table app.char_p_varchar2(id varchar2(12),v int)
+  partition by range(id)(partition p0 values less than('M'),
+  partition p1 values less than(maxvalue));
+insert into app.char_p_varchar2 values('A',1),('Z',2);
+select count(*) from app.char_p_varchar2 partition for('A');
+create table app.char_long(
+  c_char char(32767),c_character character(32767),
+  c_varchar varchar(32767),c_varchar2 varchar2(32767))
+storage(using long row);
+insert into app.char_long values(rpad('A',32767,'A'),
+  rpad('B',32767,'B'),rpad('C',32767,'C'),rpad('D',32767,'D'));
+select data_type,data_length,data_scale from user_tab_columns
+  where table_name='CHAR_LONG' order by column_id;
+create table app.char_defaults(c1 char,c2 character,c3 varchar,c4 varchar2) storage(using long row);
+select column_name,data_type,data_length from user_tab_columns
+  where table_name='CHAR_DEFAULTS' order by column_id;
+insert into app.char_defaults(c1,c2,c3)
+  values('A','B',rpad('C',8188,'C'));
+insert into app.char_defaults(c1,c2,c4)
+  values('A','B',rpad('D',8188,'D'));
+create table app.char_ordinary(c char(32767),v varchar(32767));
+insert into app.char_ordinary values(rpad('C',7979,'C'),rpad('V',7979,'V'));
+create table app.bad_char_0(c char(0));
+create table app.bad_char_32768(c char(32768));
+create table app.bad_character_0(c character(0));
+create table app.bad_character_32768(c character(32768));
+create table app.bad_varchar_0(c varchar(0));
+create table app.bad_varchar_32768(c varchar(32768));
+create table app.bad_varchar2_0(c varchar2(0));
+create table app.bad_varchar2_32768(c varchar2(32768));
+insert into app.char_t(id,c_char) values(101,null);
+insert into app.char_t(id,c_char) values(102,'ABCDE');
+insert into app.char_t(id,c_character) values(103,'ABCDE');
+insert into app.char_t(id,c_varchar) values(104,'1234567890123');
+insert into app.char_t(id,c_varchar2) values(105,'1234567890123');
+insert into app.char_t(id,c_char_sem) values(106,'达梦数据库');
+insert into app.char_t(id,c_character_sem) values(107,'达梦数据库');
+insert into app.char_t(id,c_varchar_sem) values(108,'达梦数据库');
+insert into app.char_t(id,c_varchar2_sem) values(109,'达梦数据库');
+insert into app.char_defaults(c1,c2,c3) values('A','B',rpad('C',8189,'C'));
+insert into app.char_defaults(c1,c2,c4) values('A','B',rpad('D',8189,'D'));
+insert into app.char_long(c_varchar2) values(rpad('X',32768,'X'));
+insert into app.char_ordinary(c) values(rpad('X',7980,'X'));
+insert into app.char_ordinary(v) values(rpad('X',7980,'X'));
+------------------------------------------------------------------------------------------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table app.char_t(
+  id int primary key,c_char char(4) default 'A' not null,
+  c_character character(4) default 'B',c_varchar varchar(12) default 'C',
+  c_varchar2 varchar2(12) default 'D',c_char_sem char(4 char),
+  c_character_sem character(4 char),c_varchar_sem varchar(4 char),
+  c_varchar2_sem varchar2(4 char),c_char_byte char(12 byte),
+  c_character_byte character(12 byte),c_varchar_byte varchar(12 byte),
+  c_varchar2_byte varchar2(12 byte),c_null varchar2(12) null,
+  constraint ck_char check(length(c_varchar)<=12),
+  constraint uk_char unique(c_varchar,c_varchar2));
+----------
+[COMMENT_COLUMN] comment on column app.char_t.c_char is 'fixed-width character';
+----------
+[COMMENT_COLUMN] comment on column app.char_t.c_varchar2 is 'variable-width character';
+----------
+[ADD_INDEX] create index app.idx_char on app.char_t(c_varchar,c_char);
+----------
+[ALTER_TABLE|ADD_COLUMN] alter table app.char_t add c_alter varchar2(8) default 'ALTERED';
+----------
+[ALTER_TABLE|ALTER_COLUMN] alter table app.char_t modify c_alter varchar2(16);
+----------
+[INSERT] insert into app.char_t(id,c_char,c_character,c_varchar,c_varchar2,
+  c_char_sem,c_character_sem,c_varchar_sem,c_varchar2_sem,c_char_byte,
+  c_character_byte,c_varchar_byte,c_varchar2_byte,c_null)
+values(1,'A','B','alpha','Beta','达梦数据','达梦数据','达梦数据','达梦数据',
+  '达梦数据','达梦数据','达梦数据','达梦数据',null);
+----------
+[INSERT] insert into app.char_t(id,c_char,c_character,c_varchar,c_varchar2,
+  c_char_sem,c_character_sem,c_varchar_sem,c_varchar2_sem,c_null)
+values(2,'XY','ZW','gamma','delta','AB','CD','EF','GH','nullable');
+----------
+[INSERT] insert into app.char_t(id) values(3);
+----------
+[UPDATE] update app.char_t set c_varchar=upper(c_varchar),
+  c_varchar2=lower(c_varchar2),c_alter=c_alter||'_OK' where id=1;
+----------
+[SELECT] select id,length(c_char),lengthb(c_char),length(c_character),
+  lengthb(c_character),length(c_varchar),lengthb(c_varchar),
+  length(c_varchar2),lengthb(c_varchar2) from app.char_t order by id;
+----------
+[SELECT] select trim(c_char),ltrim(c_character),rtrim(c_character),
+  substr(c_varchar,1,3),instr(c_varchar2,'t'),replace(c_varchar,'A','a')
+  from app.char_t where id=1;
+----------
+[SELECT] select concat(c_varchar,c_varchar2),c_char||c_character,
+  lpad(c_varchar,12,'_'),rpad(c_varchar2,12,'_'),ascii(c_char),chr(65)
+  from app.char_t where id=1;
+----------
+[SELECT] select lower(c_varchar),upper(c_varchar2),initcap(c_varchar),
+  reverse(c_varchar2),translate(c_varchar,'abc','ABC')
+  from app.char_t where id=1;
+----------
+[SELECT] select cast(c_char as varchar2(20)),cast(c_varchar as char(12)),
+  convert(c_varchar2,'UTF-8','UTF-8'),to_char(12345),to_number('12345')
+  from app.char_t where id=1;
+----------
+[SELECT] select min(c_char),max(c_character),count(c_varchar),
+  count(distinct c_varchar2) from app.char_t;
+----------
+[SELECT] select id from app.char_t index idx_char
+  where c_varchar>='A' and c_char='A' order by c_varchar;
+----------
+[CREATE_VIEW(SELECT)] create view app.char_v as
+  select id,c_char,c_character,c_varchar,c_varchar2,c_alter
+  from app.char_t where c_varchar is not null;
+----------
+[SELECT] select c_char||c_character as fixed_pair,
+  c_varchar||':'||c_varchar2 as variable_pair from app.char_v order by id;
+----------
+[UPDATE] update app.char_v set c_varchar2='viewedit' where id=2;
+----------
+[CREATE_PROG_OBJ(BLOCK,PROGRAM_CONTROL)] create function app.char_char_f(p_value char(32767)) return char(32767) as
+begin
+  return p_value;
+end;
+----------
+[CREATE_PROG_OBJ(BLOCK,PROGRAM_CONTROL)] create function app.char_character_f(p_value character(32767)) return character(32767) as
+begin
+  return p_value;
+end;
+----------
+[CREATE_PROG_OBJ(BLOCK,PROGRAM_CONTROL)] create function app.char_varchar_f(p_value varchar(32767)) return varchar(32767) as
+begin
+  return p_value;
+end;
+----------
+[CREATE_PROG_OBJ(BLOCK,PROGRAM_CONTROL)] create function app.char_varchar2_f(p_value varchar2(32767)) return varchar2(32767) as
+begin
+  return p_value;
+end;
+----------
+[SELECT|CALL_PROG_OBJ] select length(app.char_char_f('A')),length(app.char_character_f('B')),
+  length(app.char_varchar_f('varchar')),length(app.char_varchar2_f('varchar2')) from dual;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.char_p_char(id char(4),v int)
+  partition by range(id)(partition p0 values less than('M'),
+  partition p1 values less than(maxvalue));
+----------
+[INSERT] insert into app.char_p_char values('A',1),('Z',2);
+----------
+[SELECT] select count(*) from app.char_p_char partition for('A');
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.char_p_character(id character(4),v int)
+  partition by range(id)(partition p0 values less than('M'),
+  partition p1 values less than(maxvalue));
+----------
+[INSERT] insert into app.char_p_character values('A',1),('Z',2);
+----------
+[SELECT] select count(*) from app.char_p_character partition for('A');
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.char_p_varchar(id varchar(12),v int)
+  partition by range(id)(partition p0 values less than('M'),
+  partition p1 values less than(maxvalue));
+----------
+[INSERT] insert into app.char_p_varchar values('A',1),('Z',2);
+----------
+[SELECT] select count(*) from app.char_p_varchar partition for('A');
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.char_p_varchar2(id varchar2(12),v int)
+  partition by range(id)(partition p0 values less than('M'),
+  partition p1 values less than(maxvalue));
+----------
+[INSERT] insert into app.char_p_varchar2 values('A',1),('Z',2);
+----------
+[SELECT] select count(*) from app.char_p_varchar2 partition for('A');
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.char_long(
+  c_char char(32767),c_character character(32767),
+  c_varchar varchar(32767),c_varchar2 varchar2(32767))
+storage(using long row);
+----------
+[INSERT] insert into app.char_long values(rpad('A',32767,'A'),
+  rpad('B',32767,'B'),rpad('C',32767,'C'),rpad('D',32767,'D'));
+----------
+[SELECT] select data_type,data_length,data_scale from user_tab_columns
+  where table_name='CHAR_LONG' order by column_id;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.char_defaults(c1 char,c2 character,c3 varchar,c4 varchar2) storage(using long row);
+----------
+[SELECT] select column_name,data_type,data_length from user_tab_columns
+  where table_name='CHAR_DEFAULTS' order by column_id;
+----------
+[INSERT] insert into app.char_defaults(c1,c2,c3)
+  values('A','B',rpad('C',8188,'C'));
+----------
+[INSERT] insert into app.char_defaults(c1,c2,c4)
+  values('A','B',rpad('D',8188,'D'));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.char_ordinary(c char(32767),v varchar(32767));
+----------
+[INSERT] insert into app.char_ordinary values(rpad('C',7979,'C'),rpad('V',7979,'V'));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.bad_char_0(c char(0));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.bad_char_32768(c char(32768));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.bad_character_0(c character(0));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.bad_character_32768(c character(32768));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.bad_varchar_0(c varchar(0));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.bad_varchar_32768(c varchar(32768));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.bad_varchar2_0(c varchar2(0));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.bad_varchar2_32768(c varchar2(32768));
+----------
+[INSERT] insert into app.char_t(id,c_char) values(101,null);
+----------
+[INSERT] insert into app.char_t(id,c_char) values(102,'ABCDE');
+----------
+[INSERT] insert into app.char_t(id,c_character) values(103,'ABCDE');
+----------
+[INSERT] insert into app.char_t(id,c_varchar) values(104,'1234567890123');
+----------
+[INSERT] insert into app.char_t(id,c_varchar2) values(105,'1234567890123');
+----------
+[INSERT] insert into app.char_t(id,c_char_sem) values(106,'达梦数据库');
+----------
+[INSERT] insert into app.char_t(id,c_character_sem) values(107,'达梦数据库');
+----------
+[INSERT] insert into app.char_t(id,c_varchar_sem) values(108,'达梦数据库');
+----------
+[INSERT] insert into app.char_t(id,c_varchar2_sem) values(109,'达梦数据库');
+----------
+[INSERT] insert into app.char_defaults(c1,c2,c3) values('A','B',rpad('C',8189,'C'));
+----------
+[INSERT] insert into app.char_defaults(c1,c2,c4) values('A','B',rpad('D',8189,'D'));
+----------
+[INSERT] insert into app.char_long(c_varchar2) values(rpad('X',32768,'X'));
+----------
+[INSERT] insert into app.char_ordinary(c) values(rpad('X',7980,'X'));
+----------
+[INSERT] insert into app.char_ordinary(v) values(rpad('X',7980,'X'));

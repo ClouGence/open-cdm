@@ -1,3 +1,4 @@
+import appLogger from '@/utils/logger';
 export const checkStatus = (res) => {
   const { status } = res;
 
@@ -22,7 +23,7 @@ export const checkStatus = (res) => {
           });
         }
       } catch (e) {
-        console.error(e);
+        appLogger.error(e);
       }
       return res.data;
     }

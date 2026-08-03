@@ -5,6 +5,6 @@
  */
 package com.clougence.clouddm.ds.language.completion;
 
-public record CompletionScriptCase(String path, String name, String languageClass, String sqlEngineClass, String meta, long dataSourceId, String catalog, String schema,
-                                   String sqlText, int cursorLineNumber, int cursorColNumber, String expectJson) {
+public record CompletionScriptCase(String path, String name, String languageClass, String meta, long dataSourceId, String catalog, String schema, String sqlText,
+                                   int cursorLineNumber, int cursorColNumber, String expectJson) {
 }

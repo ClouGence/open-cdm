@@ -1,0 +1,606 @@
+[permission_mysql_8_0_00010]
+source: permission/mysql/8.0/call.txt#call_procedure
+sql:
+CALL refresh_orders();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:5~1:19) /test/1/catalog1/schema1/refresh_orders/"
+  ]
+}
+----------
+[permission_mysql_8_0_00042]
+source: lineage/mysql/expression.txt#MyParseColumnExpressionTest.test4
+sql:
+select 1 + column1 + (select column1 from table2 limit 1) + test(column2) from table1
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Function(1:60~1:64) /test/1/catalog1/schema1/test/"
+  ]
+}
+----------
+[permission_mysql_8_0_00045]
+source: lineage/mysql/expression.txt#MyParseColumnExpressionTest.test5
+sql:
+select 32 + column1 + test(2) + (select column1 from table1) as test from schema2.table1 a
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Function(1:22~1:26) /test/1/catalog1/schema1/test/"
+  ]
+}
+----------
+[permission_mysql_8_0_00046]
+source: behavior/mysql/8.0/basic.txt#call_procedure
+sql:
+call proc1()
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:5~1:10) /test/1/catalog1/schema1/proc1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00062]
+source: behavior/mysql/8.0/basic.txt#aggregate_and_udf_are_calls
+sql:
+SELECT COUNT(*), SUM(a.score), db1.f_score(a.score), db2.f_label(b.kind)
+FROM db1.account a JOIN db2.profile b ON a.id = b.account_id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Function(1:31~1:42) /test/1/catalog1/db1/f_score/",
+    "Function(1:53~1:64) /test/1/catalog1/db2/f_label/"
+  ]
+}
+----------
+[permission_mysql_8_0_00065]
+source: behavior/mysql/8.0/basic.txt#all_functions_are_calls_except_case
+sql:
+SELECT COUNT(*), CONCAT('a', CAST(1 AS CHAR)), CASE WHEN 1 = 1 THEN NOW() ELSE 'x' END, score_udf(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Function(1:88~1:97) /test/1/catalog1/schema1/score_udf/"
+  ]
+}
+----------
+[permission_mysql_8_0_00074]
+source: lineage/mysql/function.txt#MyParseColumnFunctionTest.test1
+sql:
+select test_function(1) from table1
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Function(1:7~1:20) /test/1/catalog1/schema1/test_function/"
+  ]
+}
+----------
+[permission_mysql_8_0_00077]
+source: lineage/mysql/function.txt#MyParseColumnFunctionTest.test2
+sql:
+select test_function(column1) from table1
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Function(1:7~1:20) /test/1/catalog1/schema1/test_function/"
+  ]
+}
+----------
+[permission_mysql_8_0_00080]
+source: lineage/mysql/function.txt#MyParseColumnFunctionTest.test3
+sql:
+select test_function(32)
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Function(1:7~1:20) /test/1/catalog1/schema1/test_function/"
+  ]
+}
+----------
+[permission_mysql_8_0_00084]
+source: behavior/mysql/8.0/permission.txt#builtin_and_user_functions
+sql:
+SELECT COUNT(*), CAST('1' AS SIGNED), NOW(), score_udf(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Function(1:45~1:54) /test/1/catalog1/schema1/score_udf/"
+  ]
+}
+----------
+[permission_mysql_8_0_00087]
+source: behavior/mysql/8.0/permission.txt#qualified_and_quoted_builtin_names
+sql:
+SELECT app_schema.CAST(1), `COUNT`(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Function(1:7~1:22) /test/1/catalog1/app_schema/CAST/",
+    "Function(1:27~1:34) /test/1/catalog1/schema1/COUNT/"
+  ]
+}
+----------
+[permission_mysql_8_0_00089]
+source: lineage/mysql/function.txt#MyParseColumnFunctionTest.test6
+sql:
+select test_func((select column1 from table2)) from table1
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Function(1:7~1:16) /test/1/catalog1/schema1/test_func/"
+  ]
+}
+----------
+[permission_mysql_8_0_00091]
+source: lineage/mysql/function.txt#MyParseColumnFunctionTest.test7
+sql:
+select test_func((select test_func1((select column1 from schema2.table1),column1) from table2),column1) from table1
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Function(1:7~1:16) /test/1/catalog1/schema1/test_func/",
+    "Function(1:25~1:35) /test/1/catalog1/schema1/test_func1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00101]
+source: behavior/mysql/8.0/source_range.txt#document_offset
+sql:
+SELECT db1.f_score(t.score)
+FROM db1.t1 t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Function(1:7~1:18) /test/1/catalog1/db1/f_score/"
+  ]
+}
+----------
+[permission_mysql_8_0_00173]
+source: lineage/mysql/simple.txt#MyParseColumnSimpleTest.test9
+sql:
+select *,test(column1) as s from schema2.table1
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Function(1:9~1:13) /test/1/catalog1/schema1/test/"
+  ]
+}
+----------
+[permission_mysql_8_0_00251]
+source: split/mysql/5.6/dcl_mysql_extensions_0.txt#25
+sql:
+SET @des_nossl_before_flush=DES_DECRYPT(DES_ENCRYPT('hello'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Function(1:28~1:39) /test/1/catalog1/schema1/DES_DECRYPT/",
+    "Function(1:40~1:51) /test/1/catalog1/schema1/DES_ENCRYPT/"
+  ]
+}
+----------
+[permission_mysql_8_0_00783]
+source: split/mysql/5.6/ddl_mysql_query_objects_0.txt#44
+sql:
+CREATE VIEW rb_func_view AS SELECT rb_fail() FROM rb_select;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Function(1:35~1:42) /test/1/catalog1/schema1/rb_fail/"
+  ]
+}
+----------
+[permission_mysql_8_0_00784]
+source: split/mysql/5.6/ddl_mysql_query_objects_0.txt#45
+sql:
+CREATE TABLE rb_fail_ctas AS SELECT rb_fail() FROM rb_select;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Function(1:36~1:43) /test/1/catalog1/schema1/rb_fail/"
+  ]
+}
+----------
+[permission_mysql_8_0_01005]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#110
+sql:
+CREATE FUNCTION f10() RETURNS INT BEGIN DECLARE CONTINUE HANDLER FOR SQLEXCEPTION BEGIN END; BEGIN DECLARE CONTINUE HANDLER FOR SQLEXCEPTION RETURN f10(); BEGIN DECLARE CONTINUE HANDLER FOR SQLEXCEPTION RETURN f10(); RETURN f10(); END; END; RETURN 1; END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Function(1:148~1:151) /test/1/catalog1/schema1/f10/"
+  ]
+}
+----------
+[permission_mysql_8_0_01027]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#132
+sql:
+CREATE TRIGGER child_after_delete AFTER DELETE ON child FOR EACH ROW BEGIN SET @parent_count=get_parent_count(); DO insert_parent(); END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Function(1:93~1:109) /test/1/catalog1/schema1/get_parent_count/",
+    "Function(1:116~1:129) /test/1/catalog1/schema1/insert_parent/"
+  ]
+}
+----------
+[permission_mysql_8_0_01040]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#146
+sql:
+CREATE TRIGGER gap_trigger_call BEFORE INSERT ON gap_t FOR EACH ROW CALL gap_sink();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:73~1:81) /test/1/catalog1/schema1/gap_sink/"
+  ]
+}
+----------
+[permission_mysql_8_0_01045]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#151
+sql:
+CREATE PROCEDURE gap_proc_call() CALL gap_sink();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:38~1:46) /test/1/catalog1/schema1/gap_sink/"
+  ]
+}
+----------
+[permission_mysql_8_0_01269]
+source: split/mysql/5.6/dml_mysql_execution_0.txt#3
+sql:
+CALL splitv.call_no_args;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:5~1:24) /test/1/catalog1/splitv/call_no_args/"
+  ]
+}
+----------
+[permission_mysql_8_0_01270]
+source: split/mysql/5.6/dml_mysql_execution_0.txt#4
+sql:
+CALL splitv.call_no_args();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:5~1:24) /test/1/catalog1/splitv/call_no_args/"
+  ]
+}
+----------
+[permission_mysql_8_0_01271]
+source: split/mysql/5.6/dml_mysql_execution_0.txt#5
+sql:
+CALL splitv.call_in_expr(2 + 3, CONCAT('a', 'b'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:5~1:24) /test/1/catalog1/splitv/call_in_expr/"
+  ]
+}
+----------
+[permission_mysql_8_0_01272]
+source: split/mysql/5.6/dml_mysql_execution_0.txt#6
+sql:
+CALL splitv.call_out(@call_version);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:5~1:20) /test/1/catalog1/splitv/call_out/"
+  ]
+}
+----------
+[permission_mysql_8_0_01273]
+source: split/mysql/5.6/dml_mysql_execution_0.txt#7
+sql:
+CALL splitv.call_inout(@call_counter);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:5~1:22) /test/1/catalog1/splitv/call_inout/"
+  ]
+}
+----------
+[permission_mysql_8_0_01274]
+source: split/mysql/5.6/dml_mysql_execution_0.txt#8
+sql:
+CALL splitv.call_nested(2, 'cq', ABS(test1()));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:5~1:23) /test/1/catalog1/splitv/call_nested/",
+    "Function(1:37~1:42) /test/1/catalog1/schema1/test1/"
+  ]
+}
+----------
+[permission_mysql_8_0_01275]
+source: split/mysql/5.6/dml_mysql_execution_0.txt#9
+sql:
+CALL splitv.call_nested(3, 'hz', test3.test());
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:5~1:23) /test/1/catalog1/splitv/call_nested/",
+    "Function(1:33~1:43) /test/1/catalog1/test3/test/"
+  ]
+}
+----------
+[permission_mysql_8_0_01308]
+source: split/mysql/5.6/dml_mysql_execution_0.txt#61
+sql:
+CALL `proc name`();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:5~1:16) /test/1/catalog1/schema1/proc name/"
+  ]
+}
+----------
+[permission_mysql_8_0_01323]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#17
+sql:
+UPDATE des_storage SET des=DES_ENCRYPT('1234');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Function(1:27~1:38) /test/1/catalog1/schema1/DES_ENCRYPT/"
+  ]
+}
+----------
+[permission_mysql_8_0_01338]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#32
+sql:
+INSERT INTO rb_aux SET f1=1,f2=rb_fail();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Function(1:31~1:38) /test/1/catalog1/schema1/rb_fail/"
+  ]
+}
+----------
+[permission_mysql_8_0_01339]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#33
+sql:
+INSERT INTO rb_aux SELECT 1,rb_fail();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Function(1:28~1:35) /test/1/catalog1/schema1/rb_fail/"
+  ]
+}
+----------
+[permission_mysql_8_0_01340]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#34
+sql:
+INSERT INTO rb_aux VALUES(1,rb_fail());
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Function(1:28~1:35) /test/1/catalog1/schema1/rb_fail/"
+  ]
+}
+----------
+[permission_mysql_8_0_01341]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#35
+sql:
+DELETE FROM rb_aux WHERE f1=rb_fail();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Function(1:28~1:35) /test/1/catalog1/schema1/rb_fail/"
+  ]
+}
+----------
+[permission_mysql_8_0_01342]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#36
+sql:
+UPDATE rb_aux SET f2=rb_fail()+1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Function(1:21~1:28) /test/1/catalog1/schema1/rb_fail/"
+  ]
+}
+----------
+[permission_mysql_8_0_01561]
+source: split/mysql/5.6/dml_mysql_query_0.txt#22
+sql:
+call sp_test();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:5~1:12) /test/1/catalog1/schema1/sp_test/"
+  ]
+}
+----------
+[permission_mysql_8_0_01562]
+source: split/mysql/5.6/dml_mysql_query_0.txt#23
+sql:
+call sp_test(1, 'abc');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:5~1:12) /test/1/catalog1/schema1/sp_test/"
+  ]
+}
+----------
+[permission_mysql_8_0_01805]
+source: split/mysql/5.6/dql_mysql_aggregation_0.txt#104
+sql:
+SELECT seq_1_to_2() AS seq, COUNT(*) FROM seq_t1 GROUP BY seq;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Function(1:7~1:17) /test/1/catalog1/schema1/seq_1_to_2/"
+  ]
+}
+----------
+[permission_mysql_8_0_01806]
+source: split/mysql/5.6/dql_mysql_aggregation_0.txt#105
+sql:
+SELECT FLOOR(seq_1_to_2() * 2) AS val, COUNT(*) FROM seq_t1 GROUP BY val;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Function(1:13~1:23) /test/1/catalog1/schema1/seq_1_to_2/"
+  ]
+}
+----------
+[permission_mysql_8_0_01807]
+source: split/mysql/5.6/dql_mysql_aggregation_0.txt#106
+sql:
+SELECT val, COUNT(*) FROM (SELECT FLOOR(seq_1_to_2()) + 1 AS val FROM seq_t1) AS x GROUP BY x.val;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Function(1:40~1:50) /test/1/catalog1/schema1/seq_1_to_2/"
+  ]
+}
+----------
+[permission_mysql_8_0_01808]
+source: split/mysql/5.6/dql_mysql_aggregation_0.txt#107
+sql:
+SELECT plus_one(MAX(f1)) FROM udf_t1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Function(1:7~1:15) /test/1/catalog1/schema1/plus_one/"
+  ]
+}
+----------
+[permission_mysql_8_0_01952]
+source: split/mysql/5.6/dql_mysql_aggregation_0.txt#255
+sql:
+SELECT f.t,split_having_native_b.next_seq_value() AS r FROM split_having_native_b.function_t AS f FORCE INDEX(t) GROUP BY f.t HAVING r=1 ORDER BY f.u;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Function(1:11~1:47) /test/1/catalog1/split_having_native_b/next_seq_value/"
+  ]
+}
+----------
+[permission_mysql_8_0_01953]
+source: split/mysql/5.6/dql_mysql_aggregation_0.txt#256
+sql:
+SELECT DISTINCT f.t,split_having_native_b.next_seq_value() AS r FROM split_having_native_b.function_t AS f,split_having_native_b.function_t AS p WHERE p.t=f.t HAVING r=1 ORDER BY f.u;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Function(1:20~1:56) /test/1/catalog1/split_having_native_b/next_seq_value/"
+  ]
+}
+----------
+[permission_mysql_8_0_01954]
+source: split/mysql/5.6/dql_mysql_aggregation_0.txt#257
+sql:
+SELECT f.t,split_having_native_b.next_seq_value() AS r FROM split_having_native_b.function_t AS f FORCE INDEX(t) GROUP BY f.t HAVING (SELECT 1 FROM split_having_native_b.function_t AS i WHERE r=1 LIMIT 1) ORDER BY f.u;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Function(1:11~1:47) /test/1/catalog1/split_having_native_b/next_seq_value/"
+  ]
+}
+----------
+[permission_mysql_8_0_01955]
+source: split/mysql/5.6/dql_mysql_aggregation_0.txt#258
+sql:
+SELECT split_having_native_b.next_seq_value() AS r,MIN(f.u) FROM split_having_native_b.function_t AS f GROUP BY f.t HAVING r=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Function(1:7~1:43) /test/1/catalog1/split_having_native_b/next_seq_value/"
+  ]
+}

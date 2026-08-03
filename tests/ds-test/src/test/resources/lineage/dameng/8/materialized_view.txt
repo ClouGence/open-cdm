@@ -1,0 +1,46 @@
+[materialized_view_columns]
+sql:
+select m.id, m.amount from catalog1.app.mv_orders m where m.amount > 100
+expect:
+{
+  "id" : [ "/catalog1/app/mv_orders/id/" ],
+  "amount" : [ "/catalog1/app/mv_orders/amount/" ]
+}
+----------
+[materialized_join_columns]
+sql:
+select m.id, c.name from catalog1.app.mv_orders m join catalog1.app.customers c on m.customer_id = c.id
+expect:
+{
+  "id" : [ "/catalog1/app/mv_orders/id/" ],
+  "name" : [ "/catalog1/app/customers/name/" ]
+}
+----------
+[materialized_fast_rowid_columns]
+sql:
+select m.id, m.amount, m.source_rowid from catalog1.app.mv_fast_rowid m where m.amount > 100
+expect:
+{
+  "id" : [ "/catalog1/app/mv_fast_rowid/id/" ],
+  "amount" : [ "/catalog1/app/mv_fast_rowid/amount/" ],
+  "source_rowid" : [ "/catalog1/app/mv_fast_rowid/source_rowid/" ]
+}
+----------
+[materialized_dictionary_columns]
+sql:
+select m.mview_name, m.refresh_mode, m.staleness from catalog1.sys.user_mviews m where m.mview_name like 'MV_%'
+expect:
+{
+  "mview_name" : [ "/catalog1/sys/user_mviews/mview_name/" ],
+  "refresh_mode" : [ "/catalog1/sys/user_mviews/refresh_mode/" ],
+  "staleness" : [ "/catalog1/sys/user_mviews/staleness/" ]
+}
+----------
+[materialized_quoted_columns]
+sql:
+select m."Mv_Id", m."Mv_Amount" from catalog1.app."Mv_Mixed_20260722" m where m."Mv_Amount" > 0
+expect:
+{
+  "Mv_Id" : [ "/catalog1/app/Mv_Mixed_20260722/Mv_Id/" ],
+  "Mv_Amount" : [ "/catalog1/app/Mv_Mixed_20260722/Mv_Amount/" ]
+}

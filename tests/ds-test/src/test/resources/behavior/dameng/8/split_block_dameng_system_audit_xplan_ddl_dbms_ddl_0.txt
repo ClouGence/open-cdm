@@ -1,0 +1,113 @@
+[split_block_dameng_system_audit_xplan_ddl_dbms_ddl_0_001]
+sql:
+begin
+  dbms_ddl.create_wrapped(
+    'CREATE OR REPLACE FUNCTION CODEX_DM8_WRAPPED_F1 RETURN INT AS BEGIN RETURN 81; END;'
+  );
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:2~2:25) /test/1/catalog1/dbms_ddl/create_wrapped/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_system_audit_xplan_ddl_dbms_ddl_0_002]
+sql:
+declare
+  source_lines dbms_sql.varchar2a;
+  wrapped_lines dbms_sql.varchar2a;
+begin
+  source_lines(1) := 'CREATE OR REPLACE FUNCTION CODEX_DM8_WRAP_ARRAY_A RETURN INT AS ';
+  source_lines(2) := 'BEGIN RETURN 82; END;';
+  wrapped_lines := dbms_ddl.wrap(source_lines, 1, source_lines.count);
+  print length(wrapped_lines(1));
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:15~2:33) /test/1/catalog1/dbms_sql/varchar2a/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(3:16~3:34) /test/1/catalog1/dbms_sql/varchar2a/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(7:19~7:32) /test/1/catalog1/dbms_ddl/wrap/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(8:8~8:14) /test/1/catalog1/schema1/length/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_system_audit_xplan_ddl_dbms_ddl_0_003]
+sql:
+declare
+  source_lines dbms_sql.varchar2s;
+  wrapped_lines dbms_sql.varchar2s;
+begin
+  source_lines(1) := 'CREATE OR REPLACE FUNCTION CODEX_DM8_WRAP_ARRAY_S RETURN INT AS ';
+  source_lines(2) := 'BEGIN RETURN 83; END;';
+  wrapped_lines := dbms_ddl.wrap(source_lines, 1, source_lines.count);
+  print length(wrapped_lines(1));
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:15~2:33) /test/1/catalog1/dbms_sql/varchar2s/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(3:16~3:34) /test/1/catalog1/dbms_sql/varchar2s/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(7:19~7:32) /test/1/catalog1/dbms_ddl/wrap/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(8:8~8:14) /test/1/catalog1/schema1/length/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_system_audit_xplan_ddl_dbms_ddl_0_004]
+sql:
+declare
+  source_lines dbms_sql.varchar2a;
+begin
+  source_lines(1) := 'CREATE OR REPLACE FUNCTION CODEX_DM8_WRAPPED_F2 RETURN INT AS ';
+  source_lines(2) := 'BEGIN RETURN 84; END;';
+  dbms_ddl.create_wrapped(source_lines, 1, source_lines.count);
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:15~2:33) /test/1/catalog1/dbms_sql/varchar2a/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(6:2~6:25) /test/1/catalog1/dbms_ddl/create_wrapped/",
+      "action": "CALL"
+    }
+  ]
+}

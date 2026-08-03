@@ -1,0 +1,50 @@
+[create_custom_aggregate]
+sql:
+create function app.agg_max(input number default 1) return number
+deterministic aggregate using app.dm8_max_impl;
+/
+expect:
+{
+  "contains": [
+    {"class":"RdbFunctionDomain", "sqlType":"CREATE_PROG_OBJ", "auditKind":"CREATE", "schema":"app", "name":"agg_max"}
+  ]
+}
+----------
+[custom_aggregate_group_query]
+sql:
+select grp, app.agg_max(amount) as max_amount
+from app.agg_source
+group by grp
+having app.agg_max(amount) > 10
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"agg_source"}
+  ]
+}
+----------
+[custom_aggregate_update_subquery]
+sql:
+update app.agg_source
+set discount = discount + 1
+where amount = (select app.agg_max(amount) from app.agg_source)
+expect:
+{
+  "contains": [
+    {"class":"RdbUpdateDomain", "sqlType":"UPDATE", "auditKind":"DML", "schema":"app", "table":"agg_source"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"agg_source"}
+  ]
+}
+----------
+[custom_aggregate_create_view]
+sql:
+create view app.agg_view as
+select grp, app.agg_max(amount) as max_amount
+from app.agg_source group by grp
+expect:
+{
+  "contains": [
+    {"class":"RdbViewDomain", "sqlType":"CREATE_VIEW", "auditKind":"CREATE", "schema":"app"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"agg_source"}
+  ]
+}

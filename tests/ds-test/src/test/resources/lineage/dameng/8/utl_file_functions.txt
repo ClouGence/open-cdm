@@ -1,0 +1,19 @@
+[utl_file_payload_columns]
+sql:
+select DIRECTORY_NAME, FILE_NAME, OPEN_MODE, MAX_LINE_SIZE, TEXT_DATA, RAW_DATA,
+       START_LINE, END_LINE, ABSOLUTE_OFFSET, RELATIVE_OFFSET, READ_LENGTH
+from catalog1.app.utl_file_payload
+expect:
+{
+  "DIRECTORY_NAME": ["/catalog1/app/utl_file_payload/DIRECTORY_NAME/"],
+  "FILE_NAME": ["/catalog1/app/utl_file_payload/FILE_NAME/"],
+  "OPEN_MODE": ["/catalog1/app/utl_file_payload/OPEN_MODE/"],
+  "MAX_LINE_SIZE": ["/catalog1/app/utl_file_payload/MAX_LINE_SIZE/"],
+  "TEXT_DATA": ["/catalog1/app/utl_file_payload/TEXT_DATA/"],
+  "RAW_DATA": ["/catalog1/app/utl_file_payload/RAW_DATA/"],
+  "START_LINE": ["/catalog1/app/utl_file_payload/START_LINE/"],
+  "END_LINE": ["/catalog1/app/utl_file_payload/END_LINE/"],
+  "ABSOLUTE_OFFSET": ["/catalog1/app/utl_file_payload/ABSOLUTE_OFFSET/"],
+  "RELATIVE_OFFSET": ["/catalog1/app/utl_file_payload/RELATIVE_OFFSET/"],
+  "READ_LENGTH": ["/catalog1/app/utl_file_payload/READ_LENGTH/"]
+}

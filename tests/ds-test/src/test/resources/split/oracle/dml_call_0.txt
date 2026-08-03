@@ -1,0 +1,36 @@
+call testProcedure();
+call "testProcedure"();
+call test1.testProcedure();
+call "test1"."testProcedure"();
+call testProcedure(1);
+call testProcedure(2,'cq');
+call testProcedure(2,'cq',test());
+call testProcedure(2,'cq',test3.test());
+select test_function();
+select test.test_function(test2.test_function1());
+select test.test_function();
+call testProcedure(2,'cq',test(test1()));
+------------------------------------------------------------------------------------------
+[CALL_PROG_OBJ] call testProcedure();
+----------
+[CALL_PROG_OBJ] call "testProcedure"();
+----------
+[CALL_PROG_OBJ] call test1.testProcedure();
+----------
+[CALL_PROG_OBJ] call "test1"."testProcedure"();
+----------
+[CALL_PROG_OBJ] call testProcedure(1);
+----------
+[CALL_PROG_OBJ] call testProcedure(2,'cq');
+----------
+[CALL_PROG_OBJ] call testProcedure(2,'cq',test());
+----------
+[CALL_PROG_OBJ] call testProcedure(2,'cq',test3.test());
+----------
+[SELECT] select test_function();
+----------
+[SELECT] select test.test_function(test2.test_function1());
+----------
+[SELECT] select test.test_function();
+----------
+[CALL_PROG_OBJ] call testProcedure(2,'cq',test(test1()));

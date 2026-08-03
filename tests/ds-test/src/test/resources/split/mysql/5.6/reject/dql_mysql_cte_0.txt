@@ -1,0 +1,21 @@
+WITH x(y) AS (SELECT 1 UNION SELECT 1) SELECT (SELECT y FROM x WHERE y=1) FROM x;
+WITH cte AS (SELECT 1) (SELECT * FROM t ORDER BY a DESC LIMIT 3) LIMIT 2;
+SELECT derived0.cnct FROM split_scalar80_a.t1 AS t1 LEFT JOIN LATERAL (WITH RECURSIVE dt(a) AS (SELECT t1.a UNION ALL SELECT a+1 FROM dt WHERE a<10) SELECT t1.a*CONCAT(COUNT(*),'.',FLOOR(AVG(dt.a))) AS cnct FROM dt) AS derived0 ON TRUE;
+SELECT (WITH RECURSIVE dt(a) AS (SELECT t1.a UNION ALL SELECT a+1 FROM dt WHERE a<10) SELECT t1.a*CONCAT(COUNT(*),'.',FLOOR(AVG(dt.a))) FROM dt) AS subq FROM split_scalar80_a.t1 AS t1;
+SELECT alias1.col_time_gckey AS field1,alias1.col_datetime_gckey AS field2 FROM split_subquery_bugs_550.ct1 AS alias1,(SELECT DISTINCT sq1_alias2.* FROM split_subquery_bugs_550.ct1 AS sq1_alias1,split_subquery_bugs_550.ct1 AS sq1_alias2) AS alias2,(SELECT sq2_alias1.* FROM split_subquery_bugs_550.ct1 AS sq2_alias1 RIGHT OUTER JOIN split_subquery_bugs_550.ct1 AS sq2_alias2 INNER JOIN split_subquery_bugs_550.ct2 AS sq2_alias3 ON sq2_alias3.col_int_key=sq2_alias2.col_int_key ON sq2_alias3.col_varchar_key=sq2_alias2.col_varchar_key) AS alias3 WHERE alias2.col_int_key=SOME (WITH qn AS (SELECT sq3_alias1.pk FROM split_subquery_bugs_550.ct1 AS sq3_alias1 WHERE sq3_alias1.col_int_key=alias3.pk) SELECT /*+ MERGE(qn) */ * FROM qn);
+EXPLAIN FORMAT=JSON WITH qn(a) AS (SELECT 1 UNION ALL SELECT 2) SELECT * FROM qn WHERE a=(SELECT MIN(a) FROM qn);
+EXPLAIN FORMAT=TRADITIONAL WITH RECURSIVE qn(n) AS (SELECT 1 UNION ALL SELECT n+1 FROM qn WHERE n<3) SELECT * FROM qn;
+------------------------------------------------------------------------------------------
+[SELECT] WITH x(y) AS (SELECT 1 UNION SELECT 1) SELECT (SELECT y FROM x WHERE y=1) FROM x;
+----------
+[SELECT] WITH cte AS (SELECT 1) (SELECT * FROM t ORDER BY a DESC LIMIT 3) LIMIT 2;
+----------
+[SELECT] SELECT derived0.cnct FROM split_scalar80_a.t1 AS t1 LEFT JOIN LATERAL (WITH RECURSIVE dt(a) AS (SELECT t1.a UNION ALL SELECT a+1 FROM dt WHERE a<10) SELECT t1.a*CONCAT(COUNT(*),'.',FLOOR(AVG(dt.a))) AS cnct FROM dt) AS derived0 ON TRUE;
+----------
+[SELECT] SELECT (WITH RECURSIVE dt(a) AS (SELECT t1.a UNION ALL SELECT a+1 FROM dt WHERE a<10) SELECT t1.a*CONCAT(COUNT(*),'.',FLOOR(AVG(dt.a))) FROM dt) AS subq FROM split_scalar80_a.t1 AS t1;
+----------
+[SELECT] SELECT alias1.col_time_gckey AS field1,alias1.col_datetime_gckey AS field2 FROM split_subquery_bugs_550.ct1 AS alias1,(SELECT DISTINCT sq1_alias2.* FROM split_subquery_bugs_550.ct1 AS sq1_alias1,split_subquery_bugs_550.ct1 AS sq1_alias2) AS alias2,(SELECT sq2_alias1.* FROM split_subquery_bugs_550.ct1 AS sq2_alias1 RIGHT OUTER JOIN split_subquery_bugs_550.ct1 AS sq2_alias2 INNER JOIN split_subquery_bugs_550.ct2 AS sq2_alias3 ON sq2_alias3.col_int_key=sq2_alias2.col_int_key ON sq2_alias3.col_varchar_key=sq2_alias2.col_varchar_key) AS alias3 WHERE alias2.col_int_key=SOME (WITH qn AS (SELECT sq3_alias1.pk FROM split_subquery_bugs_550.ct1 AS sq3_alias1 WHERE sq3_alias1.col_int_key=alias3.pk) SELECT /*+ MERGE(qn) */ * FROM qn);
+----------
+[PERFORMANCE] EXPLAIN FORMAT=JSON WITH qn(a) AS (SELECT 1 UNION ALL SELECT 2) SELECT * FROM qn WHERE a=(SELECT MIN(a) FROM qn);
+----------
+[PERFORMANCE] EXPLAIN FORMAT=TRADITIONAL WITH RECURSIVE qn(n) AS (SELECT 1 UNION ALL SELECT n+1 FROM qn WHERE n<3) SELECT * FROM qn;

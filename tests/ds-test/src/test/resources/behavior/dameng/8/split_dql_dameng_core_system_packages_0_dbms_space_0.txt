@@ -1,0 +1,44 @@
+[split_dql_dameng_core_system_packages_0_012]
+sql:
+select dbms_space.ts_n_get();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:26) /test/1/catalog1/dbms_space/ts_n_get/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_core_system_packages_0_013]
+sql:
+select dbms_space.extent_size_get();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:33) /test/1/catalog1/dbms_space/extent_size_get/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_core_system_packages_0_014]
+sql:
+select dbms_space.page_n_get();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:28) /test/1/catalog1/dbms_space/page_n_get/",
+      "action": "CALL"
+    }
+  ]
+}

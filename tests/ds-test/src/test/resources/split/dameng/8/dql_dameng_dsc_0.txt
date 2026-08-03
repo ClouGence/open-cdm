@@ -1,0 +1,41 @@
+select EP_NAME, EP_SEQNO, EP_MODE, EP_STATUS from V$DSC_EP_INFO order by EP_SEQNO;
+select count(*) as REQUEST_TYPES from V$DSC_REQUEST_STATISTIC;
+select count(*) as REQUEST_PAGES from V$DSC_REQUEST_PAGE_STATISTIC;
+select EP_SEQNO, OK_FLAG, MIN_FIRST_MODIFIED_LSN, CRASH_LSN
+from V$DSC_CRASH_OVER_INFO order by EP_SEQNO;
+select TOTAL_SUCCESS, TOTAL_WAIT, TOTAL_DEADLOCK from V$DSC_GLS_SYS;
+select count(*) as ACTIVE_VIEWS from V$DSC_TRX_VIEW;
+select count(*) as ASM_ATTRIBUTES from V$ASMATTR;
+select count(*) as ASM_GROUPS from V$ASMGROUP;
+select count(*) as ASM_DISKS from V$ASMDISK;
+select checkpoint(0) as CHECKPOINT_RESULT;
+select ID, OWNER_EP, NOTE from CODEX_DM8_DSC.SHARED_T order by ID;
+select ID, OWNER_EP, NOTE from CODEX_DM8_DSC.SHARED_T order by ID;
+select count(*) as CHECKPOINT_EVENT_COUNT from CODEX_DM8_DSC.CHECKPOINT_EVENT_LOG;
+------------------------------------------------------------------------------------------
+[SELECT] select EP_NAME, EP_SEQNO, EP_MODE, EP_STATUS from V$DSC_EP_INFO order by EP_SEQNO;
+----------
+[SELECT] select count(*) as REQUEST_TYPES from V$DSC_REQUEST_STATISTIC;
+----------
+[SELECT] select count(*) as REQUEST_PAGES from V$DSC_REQUEST_PAGE_STATISTIC;
+----------
+[SELECT] select EP_SEQNO, OK_FLAG, MIN_FIRST_MODIFIED_LSN, CRASH_LSN
+from V$DSC_CRASH_OVER_INFO order by EP_SEQNO;
+----------
+[SELECT] select TOTAL_SUCCESS, TOTAL_WAIT, TOTAL_DEADLOCK from V$DSC_GLS_SYS;
+----------
+[SELECT] select count(*) as ACTIVE_VIEWS from V$DSC_TRX_VIEW;
+----------
+[SELECT] select count(*) as ASM_ATTRIBUTES from V$ASMATTR;
+----------
+[SELECT] select count(*) as ASM_GROUPS from V$ASMGROUP;
+----------
+[SELECT] select count(*) as ASM_DISKS from V$ASMDISK;
+----------
+[SELECT] select checkpoint(0) as CHECKPOINT_RESULT;
+----------
+[SELECT] select ID, OWNER_EP, NOTE from CODEX_DM8_DSC.SHARED_T order by ID;
+----------
+[SELECT] select ID, OWNER_EP, NOTE from CODEX_DM8_DSC.SHARED_T order by ID;
+----------
+[SELECT] select count(*) as CHECKPOINT_EVENT_COUNT from CODEX_DM8_DSC.CHECKPOINT_EVENT_LOG;

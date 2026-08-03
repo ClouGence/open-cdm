@@ -1,0 +1,57 @@
+create external table ext_bad_01() from datafile default directory ext_dir location ('x.csv');
+create external table ext_bad_02 from datafile default directory ext_dir location ('x.csv');
+create external table ext_bad_03(id int) from datafile default directory location ('x.csv');
+create external table ext_bad_04(id int) from datafile default directory ext_dir;
+create external table ext_bad_05(id int) from datafile default directory ext_dir location ();
+create external table ext_bad_06(id int) from datafile '/tmp/x.csv';
+create external table ext_bad_07(id int) from datafile default directory ext_dir location ('x.csv') parms();
+create external table ext_bad_08(id int) from default directory ext_dir location ('x.ctrl') parms(errors 1);
+create external table ext_bad_09(id int) from datafile default directory ext_dir location ('x.csv') parms(unknown 1);
+create external table ext_bad_10(id int) from datafile default directory ext_dir location ('x.csv') parms(fields delimited by);
+create external table ext_bad_11(id int) from datafile default directory ext_dir location ('x.csv') parms(fields delimited by 1);
+create external table ext_bad_12(id int) from datafile default directory ext_dir location ('x.csv') parms(errors);
+create external table ext_bad_13(id int) from datafile default directory ext_dir location ('x.csv') parms(badfile x_bad);
+create external table ext_bad_14(id int) from datafile default directory ext_dir location ('x.csv') parms(null_str);
+create external table ext_bad_15(id int) from datafile default directory ext_dir location ('x.csv') parms(skip -1);
+create external table ext_bad_16(id int) from datafile default directory ext_dir location ('x.csv') parms(errors 1,);
+create external table ext_bad_17(id int primary key) from datafile default directory ext_dir location ('x.csv');
+create external table ext_bad_18(id int default 1) from datafile default directory ext_dir location ('x.csv');
+create external table ext_bad_19(id int) from datafile default directory ext_dir location ('x.csv') parms(character_code GBK);
+------------------------------------------------------------------------------------------
+[CREATE_TABLE] create external table ext_bad_01() from datafile default directory ext_dir location ('x.csv');
+----------
+[CREATE_TABLE] create external table ext_bad_02 from datafile default directory ext_dir location ('x.csv');
+----------
+[CREATE_TABLE] create external table ext_bad_03(id int) from datafile default directory location ('x.csv');
+----------
+[CREATE_TABLE] create external table ext_bad_04(id int) from datafile default directory ext_dir;
+----------
+[CREATE_TABLE] create external table ext_bad_05(id int) from datafile default directory ext_dir location ();
+----------
+[CREATE_TABLE] create external table ext_bad_06(id int) from datafile '/tmp/x.csv';
+----------
+[CREATE_TABLE] create external table ext_bad_07(id int) from datafile default directory ext_dir location ('x.csv') parms();
+----------
+[CREATE_TABLE] create external table ext_bad_08(id int) from default directory ext_dir location ('x.ctrl') parms(errors 1);
+----------
+[CREATE_TABLE] create external table ext_bad_09(id int) from datafile default directory ext_dir location ('x.csv') parms(unknown 1);
+----------
+[CREATE_TABLE] create external table ext_bad_10(id int) from datafile default directory ext_dir location ('x.csv') parms(fields delimited by);
+----------
+[CREATE_TABLE] create external table ext_bad_11(id int) from datafile default directory ext_dir location ('x.csv') parms(fields delimited by 1);
+----------
+[CREATE_TABLE] create external table ext_bad_12(id int) from datafile default directory ext_dir location ('x.csv') parms(errors);
+----------
+[CREATE_TABLE] create external table ext_bad_13(id int) from datafile default directory ext_dir location ('x.csv') parms(badfile x_bad);
+----------
+[CREATE_TABLE] create external table ext_bad_14(id int) from datafile default directory ext_dir location ('x.csv') parms(null_str);
+----------
+[CREATE_TABLE] create external table ext_bad_15(id int) from datafile default directory ext_dir location ('x.csv') parms(skip -1);
+----------
+[CREATE_TABLE] create external table ext_bad_16(id int) from datafile default directory ext_dir location ('x.csv') parms(errors 1,);
+----------
+[CREATE_TABLE] create external table ext_bad_17(id int primary key) from datafile default directory ext_dir location ('x.csv');
+----------
+[CREATE_TABLE] create external table ext_bad_18(id int default 1) from datafile default directory ext_dir location ('x.csv');
+----------
+[CREATE_TABLE] create external table ext_bad_19(id int) from datafile default directory ext_dir location ('x.csv') parms(character_code GBK);

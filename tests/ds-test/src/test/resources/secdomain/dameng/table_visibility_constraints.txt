@@ -1,0 +1,48 @@
+[visibility_add_user]
+sql:
+alter table app.table_vis_data alter column secret add user(table_vis_u2)
+expect:
+{"contains":[{"class":"RdbTableDomain","sqlType":"ALTER_TABLE","schema":"app","table":"table_vis_data"}]}
+----------
+[visibility_drop_users]
+sql:
+alter table app.table_vis_data alter column secret drop user(table_vis_u1,table_vis_u2)
+expect:
+{"contains":[{"class":"RdbTableDomain","sqlType":"ALTER_TABLE","schema":"app","table":"table_vis_data"}]}
+----------
+[constraint_drop_cascade_index]
+sql:
+alter table app.table_cons_parent drop constraint table_cons_parent_uq cascade drop index
+expect:
+{"contains":[{"class":"RdbTableDomain","sqlType":"ALTER_TABLE","schema":"app","table":"table_cons_parent"}]}
+----------
+[constraint_drop_keep_index]
+sql:
+alter table app.table_cons_keep drop constraint table_cons_keep_uq keep index
+expect:
+{"contains":[{"class":"RdbTableDomain","sqlType":"ALTER_TABLE","schema":"app","table":"table_cons_keep"}]}
+----------
+[constraint_enable_novalidate]
+sql:
+alter table app.table_cons_state modify constraint table_cons_state_uq enable novalidate
+expect:
+{"contains":[{"class":"RdbTableDomain","sqlType":"ALTER_TABLE","schema":"app","table":"table_cons_state"}]}
+----------
+[constraint_to_check]
+sql:
+alter table app.table_cons_state modify constraint table_cons_state_uq to check(id>0) novalidate
+expect:
+{"contains":[{"class":"RdbTableDomain","sqlType":"ALTER_TABLE","schema":"app","table":"table_cons_state"}]}
+----------
+[visibility_select]
+sql:
+select id,secret from app.table_vis_data order by id
+expect:
+{"contains":[{"class":"RdbTableDomain","sqlType":"SELECT","schema":"app","table":"table_vis_data"}]}
+----------
+[constraint_state_select]
+sql:
+select id from app.table_cons_state
+expect:
+{"contains":[{"class":"RdbTableDomain","sqlType":"SELECT","schema":"app","table":"table_cons_state"}]}
+

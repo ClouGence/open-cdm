@@ -1,0 +1,356 @@
+-- RECORD_AS
+create type CODEX_DM8_TYPE.T_RECORD as record(ID int,NAME varchar(20));
+/
+-- RECORD_IS
+create type CODEX_DM8_TYPE.T_RECORD_IS is record(ID int);
+/
+-- RECORD_DEFAULT
+create type CODEX_DM8_TYPE.T_RECORD_DEFAULT as record(ID int default 1);
+/
+-- NAME_128
+create type CODEX_DM8_TYPE.TAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA as record(ID int);
+/
+-- NAME_129_SERVER_BOUNDARY
+create type CODEX_DM8_TYPE.TAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA as record(ID int);
+/
+-- QUOTED_NAME
+create type CODEX_DM8_TYPE."Mixed Type" as record(ID int);
+/
+-- WITH_ENCRYPTION
+create type CODEX_DM8_TYPE.T_ENCRYPTED with encryption as object(V int);
+/
+-- AUTHID_DEFINER
+create type CODEX_DM8_TYPE.T_DEFINER authid definer as record(ID int);
+/
+-- AUTHID_CURRENT_USER
+create type CODEX_DM8_TYPE.T_INVOKER authid current_user as record(ID int);
+/
+-- PERSISTABLE_ONLINE_VERSION
+create type CODEX_DM8_TYPE.T_PERSIST as object(V int) persistable;
+/
+-- NOT_PERSISTABLE_ONLINE_VERSION
+create type CODEX_DM8_TYPE.T_NOT_PERSIST as object(V int) not persistable;
+/
+-- OBJECT_ATTRIBUTES
+create type CODEX_DM8_TYPE.T_OBJECT as object(V int,NAME varchar(20));
+/
+-- OBJECT_FINAL
+create type CODEX_DM8_TYPE.T_FINAL as object(V int) final;
+/
+-- OBJECT_NOT_FINAL
+create type CODEX_DM8_TYPE.T_NOT_FINAL as object(V int) not final;
+/
+-- OBJECT_INSTANTIABLE
+create type CODEX_DM8_TYPE.T_INSTANTIABLE as object(V int) instantiable;
+/
+-- OBJECT_NOT_INSTANTIABLE
+create type CODEX_DM8_TYPE.T_ABSTRACT as object(V int,not instantiable member function F return int) not final not instantiable;
+/
+-- OBJECT_INVALID_FINAL_NOT_INSTANTIABLE
+create type CODEX_DM8_TYPE.T_BAD_ABSTRACT as object(V int) final not instantiable;
+/
+-- OBJECT_UNDER
+create type CODEX_DM8_TYPE.T_CHILD under CODEX_DM8_TYPE.T_NOT_FINAL(EXTRA int);
+/
+-- METHOD_OVERRIDING
+create type CODEX_DM8_TYPE.T_OVERRIDE under CODEX_DM8_TYPE.T_NOT_FINAL(EXTRA int,overriding member function F return int);
+/
+-- METHOD_ORDER_PACK_EXTENSION
+create type CODEX_DM8_TYPE.T_ORDER as object(V int,order member function CMP(X T_ORDER) return int);
+/
+-- METHOD_STATIC
+create type CODEX_DM8_TYPE.T_STATIC as object(V int,static function F(A int) return int);
+/
+-- METHOD_MEMBER
+create type CODEX_DM8_TYPE.T_MEMBER as object(V int,member function F return int);
+/
+-- METHOD_DEFAULT_MEMBER
+create type CODEX_DM8_TYPE.T_DEFAULT_MEMBER as object(V int,function F return int);
+/
+-- METHOD_MAP
+create type CODEX_DM8_TYPE.T_MAP as object(V int,map member function F return int);
+/
+-- METHOD_DETERMINISTIC
+create type CODEX_DM8_TYPE.T_DETERMINISTIC as object(V int,member function F return int deterministic);
+/
+-- METHOD_PIPELINED
+create type CODEX_DM8_TYPE.T_PIPELINED as object(V int,static function F return CODEX_DM8_TYPE.T_NESTED pipelined);
+/
+-- CONSTRUCTOR_SELF
+create type CODEX_DM8_TYPE.T_CONSTRUCTOR as object(V int,constructor function T_CONSTRUCTOR(SELF T_CONSTRUCTOR,V int) return self as result);
+/
+-- ARRAY_STATIC
+create type CODEX_DM8_TYPE.T_ARRAY_STATIC as array int[2];
+/
+-- ARRAY_DYNAMIC
+create type CODEX_DM8_TYPE.T_ARRAY_DYNAMIC as array int[];
+/
+-- ARRAY_MULTI
+create type CODEX_DM8_TYPE.T_ARRAY_MULTI as array int[2,3];
+/
+-- VARRAY_AS
+create type CODEX_DM8_TYPE.T_VARRAY as varray(3) of int;
+/
+-- VARRAY_IS
+create type CODEX_DM8_TYPE.T_VARRAY_IS is varray(3) of int;
+/
+-- VARRAY_CONSTANT_EXPRESSION
+create type CODEX_DM8_TYPE.T_VARRAY_EXPR as varray(1+2) of int;
+/
+-- VARRAY_NOT_NULL
+create type CODEX_DM8_TYPE.T_VARRAY_NN as varray(3) of int not null;
+/
+-- NESTED_TABLE
+create type CODEX_DM8_TYPE.T_NESTED as table of int not null;
+/
+-- INDEX_TABLE_INT
+create type CODEX_DM8_TYPE.T_INDEX_INT as table of int index by int;
+/
+-- INDEX_TABLE_VARCHAR
+create type CODEX_DM8_TYPE.T_INDEX_VARCHAR as table of int index by varchar(1024);
+/
+-- INDEX_TABLE_DATE_PACK_EXTENSION
+create type CODEX_DM8_TYPE.T_INDEX_DATE as table of int index by date;
+/
+-- NESTED_DYNAMIC_ARRAY_PACK_EXTENSION
+create type CODEX_DM8_TYPE.T_NESTED_DYNAMIC as table of CODEX_DM8_TYPE.T_ARRAY_DYNAMIC;
+/
+-- TYPE_BODY_METHODS
+create type body CODEX_DM8_TYPE.T_MEMBER as member function F return int is begin return V;end;end;
+/
+-- TYPE_BODY_PARAM_NAME_MISMATCH
+create or replace type body CODEX_DM8_TYPE.T_STATIC as static function F(B int) return int is begin return B;end;end;
+/
+-- TYPE_BODY_PARAM_TYPE_MISMATCH
+create or replace type body CODEX_DM8_TYPE.T_STATIC as static function F(A varchar) return int is begin return 1;end;end;
+/
+-- TYPE_BODY_WITHOUT_SPEC_SERVER_BOUNDARY
+create type body CODEX_DM8_TYPE.T_NO_SPEC as static function F return int is begin return 1;end;end;
+/
+-- TYPE_BODY_MISSING_DECLARED_MEMBER
+create type body CODEX_DM8_TYPE.T_MISSING_MEMBER as static function F return int is begin return 1;end;end;
+/
+-- TYPE_BODY_WITH_ENCRYPTION
+create type body CODEX_DM8_TYPE.T_MEMBER with encryption as member function F return int is begin return V;end;end;
+/
+-- ALTER_COMPILE
+alter type CODEX_DM8_TYPE.T_MEMBER compile;
+-- ALTER_COMPILE_DEBUG
+alter type CODEX_DM8_TYPE.T_MEMBER compile debug;
+-- DROP_TYPE
+drop type CODEX_DM8_TYPE.T_RECORD restrict;
+-- DROP_TYPE_IF_EXISTS
+drop type if exists CODEX_DM8_TYPE.T_NO_SUCH cascade;
+-- DROP_TYPE_BODY
+drop type body CODEX_DM8_TYPE.T_MEMBER restrict;
+-- DROP_TYPE_BODY_IF_EXISTS
+drop type body if exists CODEX_DM8_TYPE.T_NO_SUCH cascade;
+-- GRANT_CREATE_PACKAGE_FOR_TYPE
+grant create package to CODEX_DM8_TYPE_USER;
+-- AUTHID_DEFINER_METHOD_SPEC
+create type CODEX_DM8_TYPE.T_AUTH_DEFINER authid definer as object(static function READ_VALUE return int);
+/
+-- AUTHID_DEFINER_METHOD_BODY
+create type body CODEX_DM8_TYPE.T_AUTH_DEFINER as static function READ_VALUE return int is R int;begin select V into R from AUTH_SOURCE;return R;end;end;
+/
+-- AUTHID_INVOKER_METHOD_SPEC
+create type CODEX_DM8_TYPE.T_AUTH_INVOKER authid current_user as object(static function READ_VALUE return int);
+/
+-- AUTHID_INVOKER_METHOD_BODY
+create type body CODEX_DM8_TYPE.T_AUTH_INVOKER as static function READ_VALUE return int is R int;begin select V into R from AUTH_SOURCE;return R;end;end;
+/
+-- GRANT_EXECUTE_ON_TYPE
+grant execute on type CODEX_DM8_TYPE.T_AUTH_DEFINER to CODEX_DM8_TYPE_USER;
+-- GRANT_EXECUTE_ON_PACKAGE_TYPE
+grant execute on package CODEX_DM8_TYPE.T_AUTH_INVOKER to CODEX_DM8_TYPE_USER;
+-- REVOKE_EXECUTE_ON_PACKAGE_TYPE
+revoke execute on package CODEX_DM8_TYPE.T_AUTH_DEFINER from CODEX_DM8_TYPE_USER;
+-- OR_REPLACE_TYPE_PRESERVE_GRANT
+create or replace type CODEX_DM8_TYPE.T_RETAIN as object(static function F return int);
+/
+-- OR_REPLACE_TYPE_BODY
+create or replace type body CODEX_DM8_TYPE.T_RETAIN as static function F return int is begin return 2;end;end;
+/
+------------------------------------------------------------------------------------------
+[CREATE_TYPE] -- RECORD_AS
+create type CODEX_DM8_TYPE.T_RECORD as record(ID int,NAME varchar(20));
+----------
+[CREATE_TYPE] -- RECORD_IS
+create type CODEX_DM8_TYPE.T_RECORD_IS is record(ID int);
+----------
+[CREATE_TYPE] -- RECORD_DEFAULT
+create type CODEX_DM8_TYPE.T_RECORD_DEFAULT as record(ID int default 1);
+----------
+[CREATE_TYPE] -- NAME_128
+create type CODEX_DM8_TYPE.TAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA as record(ID int);
+----------
+[CREATE_TYPE] -- NAME_129_SERVER_BOUNDARY
+create type CODEX_DM8_TYPE.TAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA as record(ID int);
+----------
+[CREATE_TYPE] -- QUOTED_NAME
+create type CODEX_DM8_TYPE."Mixed Type" as record(ID int);
+----------
+[CREATE_TYPE] -- WITH_ENCRYPTION
+create type CODEX_DM8_TYPE.T_ENCRYPTED with encryption as object(V int);
+----------
+[CREATE_TYPE] -- AUTHID_DEFINER
+create type CODEX_DM8_TYPE.T_DEFINER authid definer as record(ID int);
+----------
+[CREATE_TYPE] -- AUTHID_CURRENT_USER
+create type CODEX_DM8_TYPE.T_INVOKER authid current_user as record(ID int);
+----------
+[CREATE_TYPE] -- PERSISTABLE_ONLINE_VERSION
+create type CODEX_DM8_TYPE.T_PERSIST as object(V int) persistable;
+----------
+[CREATE_TYPE] -- NOT_PERSISTABLE_ONLINE_VERSION
+create type CODEX_DM8_TYPE.T_NOT_PERSIST as object(V int) not persistable;
+----------
+[CREATE_TYPE] -- OBJECT_ATTRIBUTES
+create type CODEX_DM8_TYPE.T_OBJECT as object(V int,NAME varchar(20));
+----------
+[CREATE_TYPE] -- OBJECT_FINAL
+create type CODEX_DM8_TYPE.T_FINAL as object(V int) final;
+----------
+[CREATE_TYPE] -- OBJECT_NOT_FINAL
+create type CODEX_DM8_TYPE.T_NOT_FINAL as object(V int) not final;
+----------
+[CREATE_TYPE] -- OBJECT_INSTANTIABLE
+create type CODEX_DM8_TYPE.T_INSTANTIABLE as object(V int) instantiable;
+----------
+[CREATE_TYPE] -- OBJECT_NOT_INSTANTIABLE
+create type CODEX_DM8_TYPE.T_ABSTRACT as object(V int,not instantiable member function F return int) not final not instantiable;
+----------
+[CREATE_TYPE] -- OBJECT_INVALID_FINAL_NOT_INSTANTIABLE
+create type CODEX_DM8_TYPE.T_BAD_ABSTRACT as object(V int) final not instantiable;
+----------
+[CREATE_TYPE] -- OBJECT_UNDER
+create type CODEX_DM8_TYPE.T_CHILD under CODEX_DM8_TYPE.T_NOT_FINAL(EXTRA int);
+----------
+[CREATE_TYPE] -- METHOD_OVERRIDING
+create type CODEX_DM8_TYPE.T_OVERRIDE under CODEX_DM8_TYPE.T_NOT_FINAL(EXTRA int,overriding member function F return int);
+----------
+[CREATE_TYPE] -- METHOD_ORDER_PACK_EXTENSION
+create type CODEX_DM8_TYPE.T_ORDER as object(V int,order member function CMP(X T_ORDER) return int);
+----------
+[CREATE_TYPE] -- METHOD_STATIC
+create type CODEX_DM8_TYPE.T_STATIC as object(V int,static function F(A int) return int);
+----------
+[CREATE_TYPE] -- METHOD_MEMBER
+create type CODEX_DM8_TYPE.T_MEMBER as object(V int,member function F return int);
+----------
+[CREATE_TYPE] -- METHOD_DEFAULT_MEMBER
+create type CODEX_DM8_TYPE.T_DEFAULT_MEMBER as object(V int,function F return int);
+----------
+[CREATE_TYPE] -- METHOD_MAP
+create type CODEX_DM8_TYPE.T_MAP as object(V int,map member function F return int);
+----------
+[CREATE_TYPE] -- METHOD_DETERMINISTIC
+create type CODEX_DM8_TYPE.T_DETERMINISTIC as object(V int,member function F return int deterministic);
+----------
+[CREATE_TYPE] -- METHOD_PIPELINED
+create type CODEX_DM8_TYPE.T_PIPELINED as object(V int,static function F return CODEX_DM8_TYPE.T_NESTED pipelined);
+----------
+[CREATE_TYPE] -- CONSTRUCTOR_SELF
+create type CODEX_DM8_TYPE.T_CONSTRUCTOR as object(V int,constructor function T_CONSTRUCTOR(SELF T_CONSTRUCTOR,V int) return self as result);
+----------
+[CREATE_TYPE] -- ARRAY_STATIC
+create type CODEX_DM8_TYPE.T_ARRAY_STATIC as array int[2];
+----------
+[CREATE_TYPE] -- ARRAY_DYNAMIC
+create type CODEX_DM8_TYPE.T_ARRAY_DYNAMIC as array int[];
+----------
+[CREATE_TYPE] -- ARRAY_MULTI
+create type CODEX_DM8_TYPE.T_ARRAY_MULTI as array int[2,3];
+----------
+[CREATE_TYPE] -- VARRAY_AS
+create type CODEX_DM8_TYPE.T_VARRAY as varray(3) of int;
+----------
+[CREATE_TYPE] -- VARRAY_IS
+create type CODEX_DM8_TYPE.T_VARRAY_IS is varray(3) of int;
+----------
+[CREATE_TYPE] -- VARRAY_CONSTANT_EXPRESSION
+create type CODEX_DM8_TYPE.T_VARRAY_EXPR as varray(1+2) of int;
+----------
+[CREATE_TYPE] -- VARRAY_NOT_NULL
+create type CODEX_DM8_TYPE.T_VARRAY_NN as varray(3) of int not null;
+----------
+[CREATE_TYPE] -- NESTED_TABLE
+create type CODEX_DM8_TYPE.T_NESTED as table of int not null;
+----------
+[CREATE_TYPE] -- INDEX_TABLE_INT
+create type CODEX_DM8_TYPE.T_INDEX_INT as table of int index by int;
+----------
+[CREATE_TYPE] -- INDEX_TABLE_VARCHAR
+create type CODEX_DM8_TYPE.T_INDEX_VARCHAR as table of int index by varchar(1024);
+----------
+[CREATE_TYPE] -- INDEX_TABLE_DATE_PACK_EXTENSION
+create type CODEX_DM8_TYPE.T_INDEX_DATE as table of int index by date;
+----------
+[CREATE_TYPE] -- NESTED_DYNAMIC_ARRAY_PACK_EXTENSION
+create type CODEX_DM8_TYPE.T_NESTED_DYNAMIC as table of CODEX_DM8_TYPE.T_ARRAY_DYNAMIC;
+----------
+[CREATE_TYPE(PROGRAM_CONTROL)] -- TYPE_BODY_METHODS
+create type body CODEX_DM8_TYPE.T_MEMBER as member function F return int is begin return V;end;end;
+----------
+[CREATE_TYPE(PROGRAM_CONTROL)] -- TYPE_BODY_PARAM_NAME_MISMATCH
+create or replace type body CODEX_DM8_TYPE.T_STATIC as static function F(B int) return int is begin return B;end;end;
+----------
+[CREATE_TYPE(PROGRAM_CONTROL)] -- TYPE_BODY_PARAM_TYPE_MISMATCH
+create or replace type body CODEX_DM8_TYPE.T_STATIC as static function F(A varchar) return int is begin return 1;end;end;
+----------
+[CREATE_TYPE(PROGRAM_CONTROL)] -- TYPE_BODY_WITHOUT_SPEC_SERVER_BOUNDARY
+create type body CODEX_DM8_TYPE.T_NO_SPEC as static function F return int is begin return 1;end;end;
+----------
+[CREATE_TYPE(PROGRAM_CONTROL)] -- TYPE_BODY_MISSING_DECLARED_MEMBER
+create type body CODEX_DM8_TYPE.T_MISSING_MEMBER as static function F return int is begin return 1;end;end;
+----------
+[CREATE_TYPE(PROGRAM_CONTROL)] -- TYPE_BODY_WITH_ENCRYPTION
+create type body CODEX_DM8_TYPE.T_MEMBER with encryption as member function F return int is begin return V;end;end;
+----------
+[ALTER_TYPE] -- ALTER_COMPILE
+alter type CODEX_DM8_TYPE.T_MEMBER compile;
+----------
+[ALTER_TYPE] -- ALTER_COMPILE_DEBUG
+alter type CODEX_DM8_TYPE.T_MEMBER compile debug;
+----------
+[DROP_TYPE] -- DROP_TYPE
+drop type CODEX_DM8_TYPE.T_RECORD restrict;
+----------
+[DROP_TYPE] -- DROP_TYPE_IF_EXISTS
+drop type if exists CODEX_DM8_TYPE.T_NO_SUCH cascade;
+----------
+[DROP_TYPE] -- DROP_TYPE_BODY
+drop type body CODEX_DM8_TYPE.T_MEMBER restrict;
+----------
+[DROP_TYPE] -- DROP_TYPE_BODY_IF_EXISTS
+drop type body if exists CODEX_DM8_TYPE.T_NO_SUCH cascade;
+----------
+[GRANT] -- GRANT_CREATE_PACKAGE_FOR_TYPE
+grant create package to CODEX_DM8_TYPE_USER;
+----------
+[CREATE_TYPE] -- AUTHID_DEFINER_METHOD_SPEC
+create type CODEX_DM8_TYPE.T_AUTH_DEFINER authid definer as object(static function READ_VALUE return int);
+----------
+[CREATE_TYPE|SELECT(SELECT,PROGRAM_CONTROL)] -- AUTHID_DEFINER_METHOD_BODY
+create type body CODEX_DM8_TYPE.T_AUTH_DEFINER as static function READ_VALUE return int is R int;begin select V into R from AUTH_SOURCE;return R;end;end;
+----------
+[CREATE_TYPE] -- AUTHID_INVOKER_METHOD_SPEC
+create type CODEX_DM8_TYPE.T_AUTH_INVOKER authid current_user as object(static function READ_VALUE return int);
+----------
+[CREATE_TYPE|SELECT(SELECT,PROGRAM_CONTROL)] -- AUTHID_INVOKER_METHOD_BODY
+create type body CODEX_DM8_TYPE.T_AUTH_INVOKER as static function READ_VALUE return int is R int;begin select V into R from AUTH_SOURCE;return R;end;end;
+----------
+[GRANT] -- GRANT_EXECUTE_ON_TYPE
+grant execute on type CODEX_DM8_TYPE.T_AUTH_DEFINER to CODEX_DM8_TYPE_USER;
+----------
+[GRANT] -- GRANT_EXECUTE_ON_PACKAGE_TYPE
+grant execute on package CODEX_DM8_TYPE.T_AUTH_INVOKER to CODEX_DM8_TYPE_USER;
+----------
+[REVOKE] -- REVOKE_EXECUTE_ON_PACKAGE_TYPE
+revoke execute on package CODEX_DM8_TYPE.T_AUTH_DEFINER from CODEX_DM8_TYPE_USER;
+----------
+[CREATE_TYPE] -- OR_REPLACE_TYPE_PRESERVE_GRANT
+create or replace type CODEX_DM8_TYPE.T_RETAIN as object(static function F return int);
+----------
+[CREATE_TYPE(PROGRAM_CONTROL)] -- OR_REPLACE_TYPE_BODY
+create or replace type body CODEX_DM8_TYPE.T_RETAIN as static function F return int is begin return 2;end;end;

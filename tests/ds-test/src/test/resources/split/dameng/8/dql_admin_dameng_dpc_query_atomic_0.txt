@@ -1,0 +1,395 @@
+-- TOPOLOGY_001_ALL_INSTANCES
+select name,dpc_mode,sys_status,status from sys.dpc_instance order by raft_id;
+-- TOPOLOGY_002_V_INSTANCE
+select name from sys.v$instance order by name;
+-- TOPOLOGY_003_LOCAL_DPC_MODE
+select para_value from sys.v$dm_ini where para_name='DPC_MODE' and sf_get_ep_seqno(rowid)=sf_get_self_ep_seqno();
+-- ROUTE_001_RANGE
+select id,sf_get_ep_seqno(rowid) ep_no from app.dpc_q_range_a order by id;
+-- ROUTE_002_HASH
+select sf_get_ep_seqno(rowid) ep_no,count(*) row_count from app.dpc_q_hash group by sf_get_ep_seqno(rowid) order by ep_no;
+-- ROUTE_003_LIST
+select id,sf_get_ep_seqno(rowid) ep_no from app.dpc_q_list order by id;
+-- ROUTE_004_SELF_EP
+select sf_get_self_ep_seqno() self_ep from dual;
+-- ROUTE_005_CURRENT_INSTANCE
+select name from sys.v$instance where sf_get_ep_seqno(rowid)=sf_get_self_ep_seqno();
+-- ROUTE_006_LOCAL_SESSIONS
+select count(*) local_session_count from sys.v$sessions where sf_get_ep_seqno(rowid)=sf_get_self_ep_seqno();
+-- PLAN_001_RANGE_POINT
+explain select note from app.dpc_q_range_a where id=150;
+-- PLAN_002_COLOCATED_JOIN
+explain select a.id,a.note,b.note from app.dpc_q_range_a a join app.dpc_q_range_b b on a.id=b.id;
+-- PLAN_003_REDISTRIBUTED_JOIN
+explain select a.id,b.id from app.dpc_q_range_a a join app.dpc_q_range_b b on a.grp_id=b.grp_id;
+-- PLAN_004_CROSS_BP_ROWS
+select a.id,a.note,b.note from app.dpc_q_range_a a join app.dpc_q_range_b b on a.id=b.id order by a.id;
+-- HINT_001_L_NO_R_NO
+explain select /*+ DPC(1 L_NO_R_NO) */ a.id from app.dpc_q_range_a a join app.dpc_q_range_b b on a.grp_id=b.grp_id;
+-- HINT_002_L_BRO
+explain select /*+ DPC(1 L_BRO) */ a.id from app.dpc_q_range_a a join app.dpc_q_range_b b on a.grp_id=b.grp_id;
+-- HINT_003_R_BRO
+explain select /*+ DPC(1 R_BRO) */ a.id from app.dpc_q_range_a a join app.dpc_q_range_b b on a.grp_id=b.grp_id;
+-- HINT_004_L_DIS_R_DIS
+explain select /*+ DPC(1 L_DIS_R_DIS) */ a.id from app.dpc_q_range_a a join app.dpc_q_range_b b on a.grp_id=b.grp_id;
+-- HINT_005_L_DIS
+explain select /*+ DPC(1 L_DIS) */ a.id from app.dpc_q_range_a a join app.dpc_q_range_b b on a.grp_id=b.grp_id;
+-- HINT_006_R_DIS
+explain select /*+ DPC(1 R_DIS) */ a.id from app.dpc_q_range_a a join app.dpc_q_range_b b on a.grp_id=b.grp_id;
+-- HINT_007_L_GAT_R_GAT
+explain select /*+ DPC(1 L_GAT_R_GAT) */ a.id from app.dpc_q_range_a a join app.dpc_q_range_b b on a.grp_id=b.grp_id;
+-- HINT_008_ONE_GAT_ONLY
+explain select /*+ DPC(1 ONE_GAT_ONLY) */ a.id from app.dpc_q_range_a a join app.dpc_q_range_b b on a.grp_id=b.grp_id;
+-- HINT_009_ONE_PART_ONLY
+explain select /*+ DPC(1 ONE_PART_ONLY) */ a.id from app.dpc_q_range_a a join app.dpc_q_range_b b on a.grp_id=b.grp_id;
+-- HINT_010_X
+explain select /*+ DPC(1 X) */ grp_id,count(*) from app.dpc_q_range_a group by grp_id;
+-- HINT_011_X_DIS_X
+explain select /*+ DPC(1 X_DIS_X) */ grp_id,count(*) from app.dpc_q_range_a group by grp_id;
+-- HINT_012_DIS_X
+explain select /*+ DPC(1 DIS_X) */ grp_id,count(*) from app.dpc_q_range_a group by grp_id;
+-- HINT_013_DIS_SORT_X
+explain select /*+ DPC(1 DIS_SORT_X) */ grp_id,count(*) from app.dpc_q_range_a group by grp_id;
+-- HINT_014_X_GAT_X
+explain select /*+ DPC(1 X_GAT_X) */ grp_id,count(*) from app.dpc_q_range_a group by grp_id;
+-- HINT_015_GAT_X
+explain select /*+ DPC(1 GAT_X) */ grp_id,count(*) from app.dpc_q_range_a group by grp_id;
+-- HINT_016_GAT_SORT_X
+explain select /*+ DPC(1 GAT_SORT_X) */ grp_id,count(*) from app.dpc_q_range_a group by grp_id;
+-- HINT_017_X_MERGE
+explain select /*+ DPC(1 X_MERGE) */ id from app.dpc_q_range_a order by id;
+-- API_001_PARTGROUPDEF
+select partgroupdef('APP','DPC_Q_PG_RANGE') from dual;
+-- API_002_TABLEDEF
+select tabledef('APP','DPC_Q_RANGE_A') from dual;
+-- API_003_EP_COUNT
+call sp_get_ep_count('APP','DPC_Q_RANGE_A');
+-- API_004_TABLE_USED_PAGES
+select table_used_pages('APP','DPC_Q_RANGE_A') from dual;
+-- API_005_CLEAR_ROWCNT_CACHE
+call sp_clear_tab_rowcnt_cache(null,null);
+-- API_006_PHD_ON
+call sp_set_dbg_show('PHD',1);
+-- API_007_PHD_OFF
+call sp_set_dbg_show('PHD',0);
+-- SYS_001_DPC_NETWORK
+select count(*) from sys.dpc_network;
+-- SYS_002_DPC_HOST
+select count(*) from sys.dpc_host;
+-- SYS_003_DPC_HOST_ADDR
+select count(*) from sys.dpc_host_addr;
+-- SYS_004_DPC_FOLDER
+select count(*) from sys.dpc_folder;
+-- SYS_005_DPC_BP_DOMAIN
+select count(*) from sys.dpc_bp_domain;
+-- SYS_006_DPC_DOMAIN_FOLDER
+select count(*) from sys.dpc_domain_folder;
+-- SYS_007_DPC_FOLDER_INSTANCE
+select count(*) from sys.dpc_folder_instance;
+-- SYS_008_DPC_BP_GROUP
+select count(*) from sys.dpc_bp_group;
+-- SYS_009_DPC_BP_RAFT
+select count(*) from sys.dpc_bp_raft;
+-- SYS_010_DPC_INSTANCE
+select count(*) from sys.dpc_instance;
+-- SYS_011_DPC_NET_CONF
+select count(*) from sys.dpc_net_conf;
+-- SYS_012_DPC_TABLESPACE
+select count(*) from sys.dpc_tablespace;
+-- SYS_013_DPC_HTS
+select count(*) from sys.dpc_hts;
+-- VIEW_014_DPC_STASK_THRD
+select count(*) from sys.v$dpc_stask_thrd;
+-- VIEW_015_RLOG_RAFT_INFO
+select count(*) from sys.v$rlog_raft_info;
+-- VIEW_016_SQL_NODE_HISTORY
+select count(*) from sys.v$sql_node_history;
+-- VIEW_017_DPC_MP_CFG
+select count(*) from sys.v$dpc_mp_cfg;
+-- VIEW_018_DPC_QC_HISTORY
+select count(*) from sys.v$dpc_qc_history;
+-- VIEW_019_ARCH_STATUS
+select count(*) from sys.v$arch_status;
+-- VIEW_020_DPC_EGTS_MP_INFO
+select count(*) from sys.v$dpc_egts_mp_info;
+-- VIEW_021_DPC_ENET_HISTORY
+select count(*) from sys.v$dpc_enet_history;
+-- VIEW_022_ARCH_SYS
+select count(*) from sys.v$arch_sys;
+-- VIEW_023_DM_ARCH_INI
+select count(*) from sys.v$dm_arch_ini;
+-- VIEW_024_DPC_ESESS_STMTS
+select count(*) from sys.v$dpc_esess_stmts;
+-- VIEW_025_DPC_EXA_INFO
+select count(*) from sys.v$dpc_exa_info;
+-- VIEW_026_DPC_ROT_INFO
+select count(*) from sys.v$dpc_rot_info;
+-- VIEW_027_DPC_ESESS
+select count(*) from sys.v$dpc_esess;
+-- VIEW_028_DPC_EDCT_RAFT
+select count(*) from sys.v$dpc_edct_raft;
+-- VIEW_029_DPC_EDCT_INSTANCE
+select count(*) from sys.v$dpc_edct_instance;
+-- VIEW_030_EHTD_GRP
+select count(*) from sys.v$ehtd_grp;
+-- VIEW_031_TABLE_ROWCNT_CACHE
+select count(*) from sys.v$table_rowcnt_cache;
+-- VIEW_032_DPC_TS_MOVE
+select count(*) from sys.v$dpc_ts_move;
+-- VIEW_033_DPC_QC_SCHED_HISTORY
+select count(*) from sys.v$dpc_qc_sched_history;
+-- VIEW_034_GLOBAL_RAFT_INFO
+select count(*) from sys.v$global_raft_info;
+-- ARITY_001_SELF_EP_EXTRA
+select sf_get_self_ep_seqno(1) from dual;
+-- ARITY_002_EP_SEQNO_MISSING
+select sf_get_ep_seqno() from dual;
+-- ARITY_003_EP_COUNT_MISSING
+call sp_get_ep_count('APP');
+-- ARITY_004_TABLE_USED_PAGES_MISSING
+select table_used_pages('APP') from dual;
+-- ARITY_005_PARTGROUPDEF_MISSING
+select partgroupdef('APP') from dual;
+-- ARITY_006_TABLEDEF_MISSING
+select tabledef('APP') from dual;
+-- ARITY_007_CLEAR_CACHE_EXTRA
+call sp_clear_tab_rowcnt_cache(null,null,1);
+-- ARITY_008_DBG_SHOW_MISSING
+call sp_set_dbg_show('PHD');
+------------------------------------------------------------------------------------------
+[SELECT] -- TOPOLOGY_001_ALL_INSTANCES
+select name,dpc_mode,sys_status,status from sys.dpc_instance order by raft_id;
+----------
+[SELECT] -- TOPOLOGY_002_V_INSTANCE
+select name from sys.v$instance order by name;
+----------
+[SELECT] -- TOPOLOGY_003_LOCAL_DPC_MODE
+select para_value from sys.v$dm_ini where para_name='DPC_MODE' and sf_get_ep_seqno(rowid)=sf_get_self_ep_seqno();
+----------
+[SELECT] -- ROUTE_001_RANGE
+select id,sf_get_ep_seqno(rowid) ep_no from app.dpc_q_range_a order by id;
+----------
+[SELECT] -- ROUTE_002_HASH
+select sf_get_ep_seqno(rowid) ep_no,count(*) row_count from app.dpc_q_hash group by sf_get_ep_seqno(rowid) order by ep_no;
+----------
+[SELECT] -- ROUTE_003_LIST
+select id,sf_get_ep_seqno(rowid) ep_no from app.dpc_q_list order by id;
+----------
+[SELECT] -- ROUTE_004_SELF_EP
+select sf_get_self_ep_seqno() self_ep from dual;
+----------
+[SELECT] -- ROUTE_005_CURRENT_INSTANCE
+select name from sys.v$instance where sf_get_ep_seqno(rowid)=sf_get_self_ep_seqno();
+----------
+[SELECT] -- ROUTE_006_LOCAL_SESSIONS
+select count(*) local_session_count from sys.v$sessions where sf_get_ep_seqno(rowid)=sf_get_self_ep_seqno();
+----------
+[PERFORMANCE|SELECT] -- PLAN_001_RANGE_POINT
+explain select note from app.dpc_q_range_a where id=150;
+----------
+[PERFORMANCE|SELECT] -- PLAN_002_COLOCATED_JOIN
+explain select a.id,a.note,b.note from app.dpc_q_range_a a join app.dpc_q_range_b b on a.id=b.id;
+----------
+[PERFORMANCE|SELECT] -- PLAN_003_REDISTRIBUTED_JOIN
+explain select a.id,b.id from app.dpc_q_range_a a join app.dpc_q_range_b b on a.grp_id=b.grp_id;
+----------
+[SELECT] -- PLAN_004_CROSS_BP_ROWS
+select a.id,a.note,b.note from app.dpc_q_range_a a join app.dpc_q_range_b b on a.id=b.id order by a.id;
+----------
+[PERFORMANCE|SELECT] -- HINT_001_L_NO_R_NO
+explain select /*+ DPC(1 L_NO_R_NO) */ a.id from app.dpc_q_range_a a join app.dpc_q_range_b b on a.grp_id=b.grp_id;
+----------
+[PERFORMANCE|SELECT] -- HINT_002_L_BRO
+explain select /*+ DPC(1 L_BRO) */ a.id from app.dpc_q_range_a a join app.dpc_q_range_b b on a.grp_id=b.grp_id;
+----------
+[PERFORMANCE|SELECT] -- HINT_003_R_BRO
+explain select /*+ DPC(1 R_BRO) */ a.id from app.dpc_q_range_a a join app.dpc_q_range_b b on a.grp_id=b.grp_id;
+----------
+[PERFORMANCE|SELECT] -- HINT_004_L_DIS_R_DIS
+explain select /*+ DPC(1 L_DIS_R_DIS) */ a.id from app.dpc_q_range_a a join app.dpc_q_range_b b on a.grp_id=b.grp_id;
+----------
+[PERFORMANCE|SELECT] -- HINT_005_L_DIS
+explain select /*+ DPC(1 L_DIS) */ a.id from app.dpc_q_range_a a join app.dpc_q_range_b b on a.grp_id=b.grp_id;
+----------
+[PERFORMANCE|SELECT] -- HINT_006_R_DIS
+explain select /*+ DPC(1 R_DIS) */ a.id from app.dpc_q_range_a a join app.dpc_q_range_b b on a.grp_id=b.grp_id;
+----------
+[PERFORMANCE|SELECT] -- HINT_007_L_GAT_R_GAT
+explain select /*+ DPC(1 L_GAT_R_GAT) */ a.id from app.dpc_q_range_a a join app.dpc_q_range_b b on a.grp_id=b.grp_id;
+----------
+[PERFORMANCE|SELECT] -- HINT_008_ONE_GAT_ONLY
+explain select /*+ DPC(1 ONE_GAT_ONLY) */ a.id from app.dpc_q_range_a a join app.dpc_q_range_b b on a.grp_id=b.grp_id;
+----------
+[PERFORMANCE|SELECT] -- HINT_009_ONE_PART_ONLY
+explain select /*+ DPC(1 ONE_PART_ONLY) */ a.id from app.dpc_q_range_a a join app.dpc_q_range_b b on a.grp_id=b.grp_id;
+----------
+[PERFORMANCE|SELECT] -- HINT_010_X
+explain select /*+ DPC(1 X) */ grp_id,count(*) from app.dpc_q_range_a group by grp_id;
+----------
+[PERFORMANCE|SELECT] -- HINT_011_X_DIS_X
+explain select /*+ DPC(1 X_DIS_X) */ grp_id,count(*) from app.dpc_q_range_a group by grp_id;
+----------
+[PERFORMANCE|SELECT] -- HINT_012_DIS_X
+explain select /*+ DPC(1 DIS_X) */ grp_id,count(*) from app.dpc_q_range_a group by grp_id;
+----------
+[PERFORMANCE|SELECT] -- HINT_013_DIS_SORT_X
+explain select /*+ DPC(1 DIS_SORT_X) */ grp_id,count(*) from app.dpc_q_range_a group by grp_id;
+----------
+[PERFORMANCE|SELECT] -- HINT_014_X_GAT_X
+explain select /*+ DPC(1 X_GAT_X) */ grp_id,count(*) from app.dpc_q_range_a group by grp_id;
+----------
+[PERFORMANCE|SELECT] -- HINT_015_GAT_X
+explain select /*+ DPC(1 GAT_X) */ grp_id,count(*) from app.dpc_q_range_a group by grp_id;
+----------
+[PERFORMANCE|SELECT] -- HINT_016_GAT_SORT_X
+explain select /*+ DPC(1 GAT_SORT_X) */ grp_id,count(*) from app.dpc_q_range_a group by grp_id;
+----------
+[PERFORMANCE|SELECT] -- HINT_017_X_MERGE
+explain select /*+ DPC(1 X_MERGE) */ id from app.dpc_q_range_a order by id;
+----------
+[SELECT] -- API_001_PARTGROUPDEF
+select partgroupdef('APP','DPC_Q_PG_RANGE') from dual;
+----------
+[SELECT] -- API_002_TABLEDEF
+select tabledef('APP','DPC_Q_RANGE_A') from dual;
+----------
+[CALL_PROG_OBJ] -- API_003_EP_COUNT
+call sp_get_ep_count('APP','DPC_Q_RANGE_A');
+----------
+[SELECT] -- API_004_TABLE_USED_PAGES
+select table_used_pages('APP','DPC_Q_RANGE_A') from dual;
+----------
+[CALL_PROG_OBJ] -- API_005_CLEAR_ROWCNT_CACHE
+call sp_clear_tab_rowcnt_cache(null,null);
+----------
+[CALL_PROG_OBJ] -- API_006_PHD_ON
+call sp_set_dbg_show('PHD',1);
+----------
+[CALL_PROG_OBJ] -- API_007_PHD_OFF
+call sp_set_dbg_show('PHD',0);
+----------
+[SELECT] -- SYS_001_DPC_NETWORK
+select count(*) from sys.dpc_network;
+----------
+[SELECT] -- SYS_002_DPC_HOST
+select count(*) from sys.dpc_host;
+----------
+[SELECT] -- SYS_003_DPC_HOST_ADDR
+select count(*) from sys.dpc_host_addr;
+----------
+[SELECT] -- SYS_004_DPC_FOLDER
+select count(*) from sys.dpc_folder;
+----------
+[SELECT] -- SYS_005_DPC_BP_DOMAIN
+select count(*) from sys.dpc_bp_domain;
+----------
+[SELECT] -- SYS_006_DPC_DOMAIN_FOLDER
+select count(*) from sys.dpc_domain_folder;
+----------
+[SELECT] -- SYS_007_DPC_FOLDER_INSTANCE
+select count(*) from sys.dpc_folder_instance;
+----------
+[SELECT] -- SYS_008_DPC_BP_GROUP
+select count(*) from sys.dpc_bp_group;
+----------
+[SELECT] -- SYS_009_DPC_BP_RAFT
+select count(*) from sys.dpc_bp_raft;
+----------
+[SELECT] -- SYS_010_DPC_INSTANCE
+select count(*) from sys.dpc_instance;
+----------
+[SELECT] -- SYS_011_DPC_NET_CONF
+select count(*) from sys.dpc_net_conf;
+----------
+[SELECT] -- SYS_012_DPC_TABLESPACE
+select count(*) from sys.dpc_tablespace;
+----------
+[SELECT] -- SYS_013_DPC_HTS
+select count(*) from sys.dpc_hts;
+----------
+[SELECT] -- VIEW_014_DPC_STASK_THRD
+select count(*) from sys.v$dpc_stask_thrd;
+----------
+[SELECT] -- VIEW_015_RLOG_RAFT_INFO
+select count(*) from sys.v$rlog_raft_info;
+----------
+[SELECT] -- VIEW_016_SQL_NODE_HISTORY
+select count(*) from sys.v$sql_node_history;
+----------
+[SELECT] -- VIEW_017_DPC_MP_CFG
+select count(*) from sys.v$dpc_mp_cfg;
+----------
+[SELECT] -- VIEW_018_DPC_QC_HISTORY
+select count(*) from sys.v$dpc_qc_history;
+----------
+[SELECT] -- VIEW_019_ARCH_STATUS
+select count(*) from sys.v$arch_status;
+----------
+[SELECT] -- VIEW_020_DPC_EGTS_MP_INFO
+select count(*) from sys.v$dpc_egts_mp_info;
+----------
+[SELECT] -- VIEW_021_DPC_ENET_HISTORY
+select count(*) from sys.v$dpc_enet_history;
+----------
+[SELECT] -- VIEW_022_ARCH_SYS
+select count(*) from sys.v$arch_sys;
+----------
+[SELECT] -- VIEW_023_DM_ARCH_INI
+select count(*) from sys.v$dm_arch_ini;
+----------
+[SELECT] -- VIEW_024_DPC_ESESS_STMTS
+select count(*) from sys.v$dpc_esess_stmts;
+----------
+[SELECT] -- VIEW_025_DPC_EXA_INFO
+select count(*) from sys.v$dpc_exa_info;
+----------
+[SELECT] -- VIEW_026_DPC_ROT_INFO
+select count(*) from sys.v$dpc_rot_info;
+----------
+[SELECT] -- VIEW_027_DPC_ESESS
+select count(*) from sys.v$dpc_esess;
+----------
+[SELECT] -- VIEW_028_DPC_EDCT_RAFT
+select count(*) from sys.v$dpc_edct_raft;
+----------
+[SELECT] -- VIEW_029_DPC_EDCT_INSTANCE
+select count(*) from sys.v$dpc_edct_instance;
+----------
+[SELECT] -- VIEW_030_EHTD_GRP
+select count(*) from sys.v$ehtd_grp;
+----------
+[SELECT] -- VIEW_031_TABLE_ROWCNT_CACHE
+select count(*) from sys.v$table_rowcnt_cache;
+----------
+[SELECT] -- VIEW_032_DPC_TS_MOVE
+select count(*) from sys.v$dpc_ts_move;
+----------
+[SELECT] -- VIEW_033_DPC_QC_SCHED_HISTORY
+select count(*) from sys.v$dpc_qc_sched_history;
+----------
+[SELECT] -- VIEW_034_GLOBAL_RAFT_INFO
+select count(*) from sys.v$global_raft_info;
+----------
+[SELECT] -- ARITY_001_SELF_EP_EXTRA
+select sf_get_self_ep_seqno(1) from dual;
+----------
+[SELECT] -- ARITY_002_EP_SEQNO_MISSING
+select sf_get_ep_seqno() from dual;
+----------
+[CALL_PROG_OBJ] -- ARITY_003_EP_COUNT_MISSING
+call sp_get_ep_count('APP');
+----------
+[SELECT] -- ARITY_004_TABLE_USED_PAGES_MISSING
+select table_used_pages('APP') from dual;
+----------
+[SELECT] -- ARITY_005_PARTGROUPDEF_MISSING
+select partgroupdef('APP') from dual;
+----------
+[SELECT] -- ARITY_006_TABLEDEF_MISSING
+select tabledef('APP') from dual;
+----------
+[CALL_PROG_OBJ] -- ARITY_007_CLEAR_CACHE_EXTRA
+call sp_clear_tab_rowcnt_cache(null,null,1);
+----------
+[CALL_PROG_OBJ] -- ARITY_008_DBG_SHOW_MISSING
+call sp_set_dbg_show('PHD');

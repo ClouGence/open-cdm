@@ -1,0 +1,54 @@
+[datetime_format_public_signatures]
+sql:
+select
+  date_format(timestamp '2024-02-29 13:14:15.123456','%Y-%m-%d') as mysql_style_value,
+  to_char(timestamp '2024-02-29 13:14:15.123456','YYYY-MM-DD') as formatted_value,
+  to_date('2024-02-29','YYYY-MM-DD') as date_value,
+  to_timestamp('2024-02-29 13:14:15.123456','YYYY-MM-DD HH24:MI:SS.FF6') as timestamp_value,
+  to_timestamp_tz('2024-02-29 13:14:15 +08:00','YYYY-MM-DD HH24:MI:SS TZH:TZM') as zoned_value
+from dual
+expect:
+{
+  "mysql_style_value": [],
+  "formatted_value": [],
+  "date_value": [],
+  "timestamp_value": [],
+  "zoned_value": []
+}
+----------
+[datetime_format_column_lineage]
+sql:
+select
+  date_format(t.created_at,t.mysql_format) as mysql_style_value,
+  to_char(t.created_at,t.oracle_format,t.nls_clause) as formatted_value,
+  to_date(t.date_text,t.oracle_format,t.nls_clause) as date_value,
+  to_timestamp(t.timestamp_text,t.oracle_format,t.nls_clause) as timestamp_value,
+  to_timestamp_tz(t.zoned_text,t.oracle_format,t.nls_clause) as zoned_value
+from catalog1.app.events t
+expect:
+{
+  "mysql_style_value": [
+    "/catalog1/app/events/created_at/",
+    "/catalog1/app/events/mysql_format/"
+  ],
+  "formatted_value": [
+    "/catalog1/app/events/created_at/",
+    "/catalog1/app/events/oracle_format/",
+    "/catalog1/app/events/nls_clause/"
+  ],
+  "date_value": [
+    "/catalog1/app/events/date_text/",
+    "/catalog1/app/events/oracle_format/",
+    "/catalog1/app/events/nls_clause/"
+  ],
+  "timestamp_value": [
+    "/catalog1/app/events/timestamp_text/",
+    "/catalog1/app/events/oracle_format/",
+    "/catalog1/app/events/nls_clause/"
+  ],
+  "zoned_value": [
+    "/catalog1/app/events/zoned_text/",
+    "/catalog1/app/events/oracle_format/",
+    "/catalog1/app/events/nls_clause/"
+  ]
+}

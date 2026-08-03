@@ -1,0 +1,91 @@
+[split_block_dameng_core_system_packages_0_016]
+sql:
+begin dbms_session.set_identifier('CODEX_DM8_SESSION'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:6~1:33) /test/1/catalog1/dbms_session/set_identifier/",
+      "action": "CALL",
+      "target": "ConfigKey(1:6~1:33) /test/1/CLIENT_IDENTIFIER/"
+    }
+  ]
+}
+----------
+[split_block_dameng_core_system_packages_0_017]
+sql:
+declare contexts dbms_session.appctxtabtyp; context_size int; begin dbms_session.list_context(contexts, context_size); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:17~1:42) /test/1/catalog1/dbms_session/appctxtabtyp/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(1:68~1:93) /test/1/catalog1/dbms_session/list_context/",
+      "action": "CALL",
+      "target": "Environment(1:68~1:93) /test/1/"
+    }
+  ]
+}
+----------
+[split_block_dameng_core_system_packages_0_018]
+sql:
+begin dbms_session.reset_package(); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:6~1:32) /test/1/catalog1/dbms_session/reset_package/",
+      "action": "CALL",
+      "target": "Environment(1:6~1:32) /test/1/"
+    }
+  ]
+}
+----------
+[split_block_dameng_core_system_packages_0_019]
+sql:
+begin dbms_session.set_identifier('CODEX_DM8_SESSION_2'); dbms_session.set_identifier(null); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:6~1:33) /test/1/catalog1/dbms_session/set_identifier/",
+      "action": "CALL",
+      "target": "ConfigKey(1:6~1:33) /test/1/CLIENT_IDENTIFIER/"
+    },
+    {
+      "subject": "Procedure(1:58~1:85) /test/1/catalog1/dbms_session/set_identifier/",
+      "action": "CALL",
+      "target": "ConfigKey(1:58~1:85) /test/1/CLIENT_IDENTIFIER/"
+    }
+  ]
+}
+----------
+[split_block_dameng_core_system_packages_0_020]
+sql:
+declare session_id varchar(64); alive boolean; begin session_id := dbms_session.unique_session_id(); alive := dbms_session.is_session_alive(session_id); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(1:67~1:97) /test/1/catalog1/dbms_session/unique_session_id/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:110~1:139) /test/1/catalog1/dbms_session/is_session_alive/",
+      "action": "CALL"
+    }
+  ]
+}

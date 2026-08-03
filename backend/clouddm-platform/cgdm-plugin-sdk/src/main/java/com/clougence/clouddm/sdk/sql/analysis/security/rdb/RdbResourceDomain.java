@@ -1,0 +1,72 @@
+/*
+ * Copyright 2026 杭州开云集致科技有限公司
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.clougence.clouddm.sdk.sql.analysis.security.rdb;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
+import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
+import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
+import com.clougence.clouddm.sdk.service.secrules.SecQueryKind;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
+
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
+public class RdbResourceDomain extends RuleDomain {
+
+    private String     catalog;
+    private String     schema;
+    private String     name;
+
+    private TargetType target;
+
+    private boolean    needSupply;
+    //    private boolean    datasourceAuth;
+
+    public RdbResourceDomain(){
+    }
+
+    public RdbResourceDomain(RuleQueryType secQueryType, SecQueryKind kind){
+        this(secQueryType, kind, false, TargetType.Unknown);
+    }
+
+    public RdbResourceDomain(RuleQueryType secQueryType, SecQueryKind kind, boolean needSupply, TargetType type){
+        this.setSqlType(secQueryType);
+        this.setAuditKind(kind);
+        this.needSupply = needSupply;
+        this.target = type;
+    }
+
+    public TargetType getTarget() {
+        RuleQueryType queryType = getSqlType();
+        if (queryType == null) {
+            return this.target;
+        }
+        return switch (queryType) {
+            case CREATE_USER, DROP_USER, RENAME_USER, GRANT, REVOKE, TRANSFER_PRIVILEGE, CREATE_ROLE, DROP_ROLE, ALTER_USER -> queryType.getTarget();
+            default -> this.target;
+        };
+    }
+
+    @Override
+    public List<Map<TargetType, String>> resolveResource() {
+        return Collections.emptyList();
+    }
+}

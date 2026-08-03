@@ -1,0 +1,249 @@
+[split_block_dameng_debug_package_0_001]
+sql:
+declare
+  major_version int;
+  minor_version int;
+begin
+  dbms_debug.probe_version(major_version, minor_version);
+  merge into CODEX_DM8_DEBUG_CTL t
+  using (select 'PROBE_VERSION' label, major_version || '.' || minor_version text_value from dual) s
+  on (t.label=s.label)
+  when matched then update set t.text_value=s.text_value
+  when not matched then insert(label, text_value) values(s.label, s.text_value);
+  commit;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(5:2~5:26) /test/1/catalog1/dbms_debug/probe_version/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(6:13~6:32) /test/1/catalog1/schema1/CODEX_DM8_DEBUG_CTL/",
+      "action": "MERGE",
+      "target": "View(7:93~7:97) /test/1/catalog1/schema1/dual/"
+    },
+    {
+      "subject": "View(7:93~7:97) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_debug_package_0_002]
+sql:
+call dbms_debug.debug_on();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:5~1:24) /test/1/catalog1/dbms_debug/debug_on/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_debug_package_0_003]
+sql:
+call dbms_debug.attach_session('CODEX_DEBUG_20260722');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:5~1:30) /test/1/catalog1/dbms_debug/attach_session/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_debug_package_0_004]
+sql:
+declare
+  run_info dbms_debug.runtime_info;
+  rc int;
+begin
+  rc := dbms_debug.get_runtime_info(
+    dbms_debug.info_getBreakpoint + dbms_debug.info_getLineinfo,
+    run_info
+  );
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:11~2:34) /test/1/catalog1/dbms_debug/runtime_info/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(5:8~5:35) /test/1/catalog1/dbms_debug/get_runtime_info/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_debug_package_0_005]
+sql:
+declare
+  bp int;
+  rc int;
+begin
+  rc := dbms_debug.set_breakpoint(null, 1, bp);
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(5:8~5:33) /test/1/catalog1/dbms_debug/set_breakpoint/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_debug_package_0_006]
+sql:
+declare
+  run_info dbms_debug.runtime_info;
+  rc int;
+begin
+  rc := dbms_debug."CONTINUE"(
+    run_info,
+    0,
+    dbms_debug.info_getBreakpoint + dbms_debug.info_getLineinfo
+  );
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:11~2:34) /test/1/catalog1/dbms_debug/runtime_info/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(5:8~5:29) /test/1/catalog1/dbms_debug/CONTINUE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_debug_package_0_007]
+sql:
+declare
+  run_info dbms_debug.runtime_info;
+  rc int;
+begin
+  rc := dbms_debug."CONTINUE"(
+    run_info,
+    dbms_debug.break_any_call,
+    dbms_debug.info_getBreakpoint + dbms_debug.info_getLineinfo
+      + dbms_debug.info_getStackDepth + dbms_debug.info_getOerInfo
+  );
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:11~2:34) /test/1/catalog1/dbms_debug/runtime_info/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(5:8~5:29) /test/1/catalog1/dbms_debug/CONTINUE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_debug_package_0_008]
+sql:
+declare
+  run_info dbms_debug.runtime_info;
+  rc int;
+begin
+  loop
+    rc := dbms_debug."CONTINUE"(run_info, 0, dbms_debug.info_getLineinfo);
+    exit when rc <> dbms_debug.success;
+  end loop;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:11~2:34) /test/1/catalog1/dbms_debug/runtime_info/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(6:10~6:31) /test/1/catalog1/dbms_debug/CONTINUE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_debug_package_0_009]
+sql:
+declare
+  run_info dbms_debug.runtime_info;
+  rc int;
+begin
+  rc := dbms_debug."CONTINUE"(run_info, 0, 0);
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:11~2:34) /test/1/catalog1/dbms_debug/runtime_info/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(5:8~5:29) /test/1/catalog1/dbms_debug/CONTINUE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_debug_package_0_010]
+sql:
+call dbms_debug.detach_session();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:5~1:30) /test/1/catalog1/dbms_debug/detach_session/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_debug_package_0_011]
+sql:
+call dbms_debug.debug_off();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:5~1:25) /test/1/catalog1/dbms_debug/debug_off/",
+      "action": "CALL"
+    }
+  ]
+}

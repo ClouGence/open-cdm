@@ -1,0 +1,198 @@
+create huge table huge_min(id int);
+create huge table if not exists app.huge_if_absent(id int);
+create huge table huge_default(id int default on null 7 not null, name varchar(40) default 'unknown' comment 'huge name');
+create huge table huge_col_unique(id int unique using index tablespace default);
+create huge table huge_col_pk(id int primary key);
+create huge table huge_table_pk(id int, constraint huge_pk primary key(id));
+create huge table huge_table_unique(id int, unique(id) using index tablespace default);
+create huge table huge_table_check(id int, check(id > 0));
+create huge table huge_col_stat(id int, name varchar(40) storage(stat none) comment 'not statistically collected');
+create huge table huge_encrypt(id int encrypt, name varchar(20));
+create huge table huge_partitioned(id int, name varchar(20)) partition by range(id)(partition p1 values less than(100), partition pmax values less than(maxvalue));
+create huge table huge_tablespace(id int) tablespace main;
+create huge table huge_section_min(id int) storage(section(1024));
+create huge table huge_section_round(id int) storage(section(1025));
+create huge table huge_section_max(id int) storage(section(1048576));
+create huge table huge_initial(id int) storage(initial 1);
+create huge table huge_filesize_min(id int) storage(filesize(16));
+create huge table huge_filesize_round(id int) storage(filesize(17));
+create huge table huge_filesize_max(id int) storage(initial 1, filesize(1048576));
+create huge table huge_stat_default(id int) storage(stat);
+create huge table huge_stat_none(id int) storage(stat none);
+create huge table huge_stat_sync(id int) storage(stat synchronous);
+create huge table huge_stat_async(id int) storage(stat asynchronous, with delta);
+create huge table huge_stat_on(id int, name varchar(20)) storage(stat synchronous on(id));
+create huge table huge_stat_except(id int, name varchar(20)) storage(stat synchronous except(name));
+create huge table huge_with_delta(id int) storage(with delta);
+create huge table huge_without_delta(id int) storage(without delta) log last;
+create huge table huge_storage_on(id int) storage(on main);
+create huge table huge_storage_all(id int, name varchar(40)) storage(section(65536), initial 1, filesize(64), stat synchronous on(id), with delta, on main);
+create huge table huge_compress_default(id int, name varchar(40)) compress;
+create huge table huge_compress_level0(id int, name varchar(40)) compress level 0;
+create huge table huge_compress_level10(id int, name varchar(40)) compress level 10 for 'QUERY HIGH';
+create huge table huge_compress_columns(id int, name varchar(40)) compress level 2 for 'QUERY LOW'(name level 9 for 'QUERY HIGH');
+create huge table huge_compress_except(id int, name varchar(40)) compress level 1 except(id);
+create huge table huge_log_none(id int) storage(without delta) log none;
+create huge table huge_log_last(id int) storage(without delta) log last;
+create huge table huge_log_all(id int) storage(without delta) log all;
+create huge table huge_distributed_random(id int) distributed randomly;
+create huge table huge_distributed_full(id int) distributed fully;
+create huge table huge_distributed_hash(id int) distributed by hash(id);
+create huge table huge_distributed_range(id int) distributed by range(id)(values less than(100) on ep01, values equ or less than(maxvalue) on ep02);
+create huge table huge_distributed_list(id int) distributed by list(id)(values(1,2) on ep01, values(3,4) on ep02);
+create huge table huge_asm(id int) storage(with delta) striping 64 high;
+create huge table huge_ctas as select id, name from source_table;
+create huge table huge_blob_boundary(value blob);
+create huge table huge_custom_boundary(value app.custom_type);
+alter table huge_main add column extra varchar(30) default null compress level 2 for 'QUERY HIGH';
+alter table huge_main alter column extra set stat none;
+alter table huge_main alter column(id, name) set stat;
+alter table huge_main with delta;
+alter table huge_main set stat none;
+alter table huge_main set stat synchronous on(id, name);
+alter table huge_main set stat asynchronous;
+alter table huge_main refresh stat;
+alter table huge_main force column storage;
+alter table huge_main rebuild section;
+alter table huge_main modify name varchar(80);
+alter table huge_main alter column name set default 'unknown';
+alter table huge_main alter column name drop default;
+alter table huge_main alter column name rename to display_name;
+alter table huge_main rename constraint huge_pk to huge_pk_new;
+create index huge_name_idx on huge_main(name);
+drop index huge_name_idx;
+comment on table huge_main is 'huge table';
+comment on column huge_main.name is 'huge name';
+drop table if exists huge_main cascade;
+------------------------------------------------------------------------------------------
+[CREATE_TABLE|ADD_COLUMN] create huge table huge_min(id int);
+----------
+[CREATE_TABLE|ADD_COLUMN] create huge table if not exists app.huge_if_absent(id int);
+----------
+[CREATE_TABLE|ADD_COLUMN|COMMENT_COLUMN] create huge table huge_default(id int default on null 7 not null, name varchar(40) default 'unknown' comment 'huge name');
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create huge table huge_col_unique(id int unique using index tablespace default);
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create huge table huge_col_pk(id int primary key);
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create huge table huge_table_pk(id int, constraint huge_pk primary key(id));
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create huge table huge_table_unique(id int, unique(id) using index tablespace default);
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create huge table huge_table_check(id int, check(id > 0));
+----------
+[CREATE_TABLE|ADD_COLUMN|COMMENT_COLUMN] create huge table huge_col_stat(id int, name varchar(40) storage(stat none) comment 'not statistically collected');
+----------
+[CREATE_TABLE|ADD_COLUMN] create huge table huge_encrypt(id int encrypt, name varchar(20));
+----------
+[CREATE_TABLE|ADD_COLUMN] create huge table huge_partitioned(id int, name varchar(20)) partition by range(id)(partition p1 values less than(100), partition pmax values less than(maxvalue));
+----------
+[CREATE_TABLE|ADD_COLUMN] create huge table huge_tablespace(id int) tablespace main;
+----------
+[CREATE_TABLE|ADD_COLUMN] create huge table huge_section_min(id int) storage(section(1024));
+----------
+[CREATE_TABLE|ADD_COLUMN] create huge table huge_section_round(id int) storage(section(1025));
+----------
+[CREATE_TABLE|ADD_COLUMN] create huge table huge_section_max(id int) storage(section(1048576));
+----------
+[CREATE_TABLE|ADD_COLUMN] create huge table huge_initial(id int) storage(initial 1);
+----------
+[CREATE_TABLE|ADD_COLUMN] create huge table huge_filesize_min(id int) storage(filesize(16));
+----------
+[CREATE_TABLE|ADD_COLUMN] create huge table huge_filesize_round(id int) storage(filesize(17));
+----------
+[CREATE_TABLE|ADD_COLUMN] create huge table huge_filesize_max(id int) storage(initial 1, filesize(1048576));
+----------
+[CREATE_TABLE|ADD_COLUMN] create huge table huge_stat_default(id int) storage(stat);
+----------
+[CREATE_TABLE|ADD_COLUMN] create huge table huge_stat_none(id int) storage(stat none);
+----------
+[CREATE_TABLE|ADD_COLUMN] create huge table huge_stat_sync(id int) storage(stat synchronous);
+----------
+[CREATE_TABLE|ADD_COLUMN] create huge table huge_stat_async(id int) storage(stat asynchronous, with delta);
+----------
+[CREATE_TABLE|ADD_COLUMN] create huge table huge_stat_on(id int, name varchar(20)) storage(stat synchronous on(id));
+----------
+[CREATE_TABLE|ADD_COLUMN] create huge table huge_stat_except(id int, name varchar(20)) storage(stat synchronous except(name));
+----------
+[CREATE_TABLE|ADD_COLUMN] create huge table huge_with_delta(id int) storage(with delta);
+----------
+[CREATE_TABLE|ADD_COLUMN] create huge table huge_without_delta(id int) storage(without delta) log last;
+----------
+[CREATE_TABLE|ADD_COLUMN] create huge table huge_storage_on(id int) storage(on main);
+----------
+[CREATE_TABLE|ADD_COLUMN] create huge table huge_storage_all(id int, name varchar(40)) storage(section(65536), initial 1, filesize(64), stat synchronous on(id), with delta, on main);
+----------
+[CREATE_TABLE|ADD_COLUMN] create huge table huge_compress_default(id int, name varchar(40)) compress;
+----------
+[CREATE_TABLE|ADD_COLUMN] create huge table huge_compress_level0(id int, name varchar(40)) compress level 0;
+----------
+[CREATE_TABLE|ADD_COLUMN] create huge table huge_compress_level10(id int, name varchar(40)) compress level 10 for 'QUERY HIGH';
+----------
+[CREATE_TABLE|ADD_COLUMN] create huge table huge_compress_columns(id int, name varchar(40)) compress level 2 for 'QUERY LOW'(name level 9 for 'QUERY HIGH');
+----------
+[CREATE_TABLE|ADD_COLUMN] create huge table huge_compress_except(id int, name varchar(40)) compress level 1 except(id);
+----------
+[CREATE_TABLE|ADD_COLUMN] create huge table huge_log_none(id int) storage(without delta) log none;
+----------
+[CREATE_TABLE|ADD_COLUMN] create huge table huge_log_last(id int) storage(without delta) log last;
+----------
+[CREATE_TABLE|ADD_COLUMN] create huge table huge_log_all(id int) storage(without delta) log all;
+----------
+[CREATE_TABLE|ADD_COLUMN] create huge table huge_distributed_random(id int) distributed randomly;
+----------
+[CREATE_TABLE|ADD_COLUMN] create huge table huge_distributed_full(id int) distributed fully;
+----------
+[CREATE_TABLE|ADD_COLUMN] create huge table huge_distributed_hash(id int) distributed by hash(id);
+----------
+[CREATE_TABLE|ADD_COLUMN] create huge table huge_distributed_range(id int) distributed by range(id)(values less than(100) on ep01, values equ or less than(maxvalue) on ep02);
+----------
+[CREATE_TABLE|ADD_COLUMN] create huge table huge_distributed_list(id int) distributed by list(id)(values(1,2) on ep01, values(3,4) on ep02);
+----------
+[CREATE_TABLE|ADD_COLUMN] create huge table huge_asm(id int) storage(with delta) striping 64 high;
+----------
+[CREATE_TABLE|SELECT] create huge table huge_ctas as select id, name from source_table;
+----------
+[CREATE_TABLE|ADD_COLUMN] create huge table huge_blob_boundary(value blob);
+----------
+[CREATE_TABLE|ADD_COLUMN] create huge table huge_custom_boundary(value app.custom_type);
+----------
+[ALTER_TABLE|ADD_COLUMN] alter table huge_main add column extra varchar(30) default null compress level 2 for 'QUERY HIGH';
+----------
+[ALTER_TABLE|ALTER_COLUMN] alter table huge_main alter column extra set stat none;
+----------
+[ALTER_TABLE|ALTER_COLUMN] alter table huge_main alter column(id, name) set stat;
+----------
+[ALTER_TABLE] alter table huge_main with delta;
+----------
+[ALTER_TABLE] alter table huge_main set stat none;
+----------
+[ALTER_TABLE] alter table huge_main set stat synchronous on(id, name);
+----------
+[ALTER_TABLE] alter table huge_main set stat asynchronous;
+----------
+[ALTER_TABLE] alter table huge_main refresh stat;
+----------
+[ALTER_TABLE] alter table huge_main force column storage;
+----------
+[ALTER_TABLE] alter table huge_main rebuild section;
+----------
+[ALTER_TABLE|ALTER_COLUMN] alter table huge_main modify name varchar(80);
+----------
+[ALTER_TABLE|ALTER_COLUMN] alter table huge_main alter column name set default 'unknown';
+----------
+[ALTER_TABLE|ALTER_COLUMN] alter table huge_main alter column name drop default;
+----------
+[ALTER_TABLE|RENAME_COLUMN] alter table huge_main alter column name rename to display_name;
+----------
+[ALTER_TABLE|RENAME_CONSTRAINT] alter table huge_main rename constraint huge_pk to huge_pk_new;
+----------
+[ADD_INDEX] create index huge_name_idx on huge_main(name);
+----------
+[DROP_INDEX] drop index huge_name_idx;
+----------
+[COMMENT_TABLE] comment on table huge_main is 'huge table';
+----------
+[COMMENT_COLUMN] comment on column huge_main.name is 'huge name';
+----------
+[DROP_TABLE] drop table if exists huge_main cascade;

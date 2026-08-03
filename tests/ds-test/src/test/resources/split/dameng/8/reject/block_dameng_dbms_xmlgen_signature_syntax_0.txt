@@ -1,0 +1,28 @@
+-- empty argument slot
+begin DBMS_XMLGEN.CLOSECONTEXT(,); end;
+/
+-- double comma
+begin DBMS_XMLGEN.GETXML(1,,0); end;
+/
+-- dangling named
+begin DBMS_XMLGEN.SETMAXROWS(CTX=>); end;
+/
+-- unclosed call
+begin DBMS_XMLGEN.SETROWTAG(1,'ROW'; end;
+/
+------------------------------------------------------------------------------------------
+[BLOCK] -- empty argument slot
+begin DBMS_XMLGEN.CLOSECONTEXT(,); end;
+/
+----------
+[BLOCK] -- double comma
+begin DBMS_XMLGEN.GETXML(1,,0); end;
+/
+----------
+[BLOCK] -- dangling named
+begin DBMS_XMLGEN.SETMAXROWS(CTX=>); end;
+/
+----------
+[BLOCK] -- unclosed call
+begin DBMS_XMLGEN.SETROWTAG(1,'ROW'; end;
+/

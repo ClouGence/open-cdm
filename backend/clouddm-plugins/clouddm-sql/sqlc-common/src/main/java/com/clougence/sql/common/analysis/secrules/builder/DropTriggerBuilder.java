@@ -19,10 +19,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 import com.clougence.clouddm.sdk.service.secrules.Domain;
-import com.clougence.clouddm.sdk.sql.secrules.rdb.RdbTriggerDomain;
+import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
+import com.clougence.clouddm.sdk.service.secrules.SecQueryKind;
+import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbTriggerDomain;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.secrules.builder.enums.DomainSource;
 import com.clougence.sql.common.analysis.secrules.builder.mode.ObjNameDomain;
@@ -34,7 +34,7 @@ public class DropTriggerBuilder extends AbstractDomainBuilder {
 
     @Override
     public List<Domain> build() {
-        triggerDomain.setSqlType(SecQueryType.DROP_TRIGGER);
+        triggerDomain.setSqlType(RuleQueryType.DROP_TRIGGER);
         triggerDomain.setAuditKind(SecQueryKind.DROP);
 
         return Collections.singletonList(triggerDomain);

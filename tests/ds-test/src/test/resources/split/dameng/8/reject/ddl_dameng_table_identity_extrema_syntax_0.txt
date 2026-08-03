@@ -1,0 +1,36 @@
+create table table_ident_bad(id int identity(1));
+create table table_ident_bad(id int identity(1,));
+create table table_ident_bad(id int identity(,1));
+create table table_ident_bad(id int identity(1.5,1));
+create table table_auto_bad(id int auto_increment) auto_increment=-1;
+alter table table_auto_alt auto_increment=;
+alter table table_auto_alt drop identity extra;
+alter table table_auto_alt drop auto_increment extra;
+set identity_insert table_ident_state;
+set identity_insert table_ident_state on replace null;
+set identity_insert table_ident_state on with null;
+set identity_insert table_ident_state off with replace null;
+------------------------------------------------------------------------------------------
+[CREATE_TABLE] create table table_ident_bad(id int identity(1));
+----------
+[CREATE_TABLE] create table table_ident_bad(id int identity(1,));
+----------
+[CREATE_TABLE] create table table_ident_bad(id int identity(,1));
+----------
+[CREATE_TABLE] create table table_ident_bad(id int identity(1.5,1));
+----------
+[CREATE_TABLE] create table table_auto_bad(id int auto_increment) auto_increment=-1;
+----------
+[ALTER_TABLE] alter table table_auto_alt auto_increment=;
+----------
+[ALTER_TABLE] alter table table_auto_alt drop identity extra;
+----------
+[ALTER_TABLE] alter table table_auto_alt drop auto_increment extra;
+----------
+[TRANSACTION] set identity_insert table_ident_state;
+----------
+[TRANSACTION] set identity_insert table_ident_state on replace null;
+----------
+[TRANSACTION] set identity_insert table_ident_state on with null;
+----------
+[TRANSACTION] set identity_insert table_ident_state off with replace null;

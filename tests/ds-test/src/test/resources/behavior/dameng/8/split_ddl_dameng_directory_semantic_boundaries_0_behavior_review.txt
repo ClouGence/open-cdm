@@ -1,0 +1,128 @@
+[split_ddl_dameng_directory_semantic_boundaries_0_behavior_review_001]
+sql:
+create directory DIR_BOUNDARY_DUPLICATE as '/var/tmp';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:17~1:39) /test/1/catalog1/schema1/DIR_BOUNDARY_DUPLICATE/",
+      "action": "CONFIGURE",
+      "target": "File(1:43~1:53) /test/1/var/tmp/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_directory_semantic_boundaries_0_behavior_review_002]
+sql:
+create directory DIR_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA as '/tmp';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:17~1:146) /test/1/catalog1/schema1/DIR_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/",
+      "action": "CONFIGURE",
+      "target": "File(1:150~1:156) /test/1/tmp/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_directory_semantic_boundaries_0_behavior_review_003]
+sql:
+create directory DIR_BOUNDARY_PATH_257 as '/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:17~1:38) /test/1/catalog1/schema1/DIR_BOUNDARY_PATH_257/",
+      "action": "CONFIGURE",
+      "target": "File(1:42~1:301) /test/1/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_directory_semantic_boundaries_0_behavior_review_004]
+sql:
+create directory DIR_BOUNDARY_UTF8 as '/测';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:17~1:34) /test/1/catalog1/schema1/DIR_BOUNDARY_UTF8/",
+      "action": "CONFIGURE",
+      "target": "File(1:38~1:42) /test/1/测/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_directory_semantic_boundaries_0_behavior_review_005]
+sql:
+drop directory SYS.DIR_BOUNDARY_QUALIFIED;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:15~1:41) /test/1/catalog1/schema1/SYS.DIR_BOUNDARY_QUALIFIED/",
+      "action": "CONFIGURE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_directory_semantic_boundaries_0_behavior_review_006]
+sql:
+drop directory DIR_BOUNDARY_MISSING;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:15~1:35) /test/1/catalog1/schema1/DIR_BOUNDARY_MISSING/",
+      "action": "CONFIGURE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_directory_semantic_boundaries_0_behavior_review_007]
+sql:
+select count(*) from DIR_BOUNDARY_EXT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:21~1:37) /test/1/catalog1/schema1/DIR_BOUNDARY_EXT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_directory_semantic_boundaries_0_behavior_review_008]
+sql:
+grant read on directory to CODEX_DM8_DIRECTORY_USER_20260721;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "ConfigKey(1:14~1:23) /test/1/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:27~1:60) /test/1/CODEX_DM8_DIRECTORY_USER_20260721/"
+    }
+  ]
+}

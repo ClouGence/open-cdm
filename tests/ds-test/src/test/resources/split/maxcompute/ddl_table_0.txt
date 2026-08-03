@@ -1,0 +1,136 @@
+create table abc(id int);
+create table `abc`(`id` int) COMMENT 'desc';
+create table if not exists test.abc(id int);
+create table if not exists abc(id int);
+create table test.abc(id int(4), name varchar(25) not null);
+create table test.abc(id int(4) primary key, name varchar(25) not null);
+create table test.abc(id int(4), name varchar(25) not null,primary key (id));
+create table test.abc(id double(4,5), name varchar(25) not null);
+create table test.abc(id int(4), name varchar(25) not null);
+create table test.abc(id int(4), name varchar(25) not null);
+create table test.abc(id int(4), name varchar(25) not null);
+create table test.abc_copy like test.abc;
+create table abc_copy like abc;
+create table test.abc_select select * from test.abc;
+alter table schema1.abc rename to cba;
+drop table abc;CREATE TABLE test_default(
+tinyint_name tinyint NOT NULL default 1,
+smallint_name SMALLINT NOT NULL DEFAULT 1,
+int_name INT NOT NULL DEFAULT 1,
+bigint_name BIGINT NOT NULL DEFAULT 1,
+binary_name BINARY ,
+float_name FLOAT ,
+double_name DOUBLE NOT NULL DEFAULT 0.1,
+decimal_name DECIMAL(2, 1) NOT NULL DEFAULT 0.0,
+varchar_name VARCHAR(10) ,
+char_name CHAR(2) ,
+string_name STRING NOT NULL DEFAULT 'N',
+boolean_name BOOLEAN NOT NULL DEFAULT TRUE
+);
+CREATE TABLE IF NOT EXISTS auto_sale_detail(
+ shop_name     STRING,
+ customer_id   STRING,
+ total_price   DOUBLE,
+ sale_date    DATE )
+AUTO PARTITIONED BY (TRUNC_TIME(sale_date, 'month') AS sale_month);
+CREATE TABLE IF NOT EXISTS auto_sale_detail2(
+ shop_name     STRING,
+ customer_id   STRING,
+ total_price   DOUBLE,
+ _partitiontime TIMESTAMP_NTZ)
+AUTO PARTITIONED BY (TRUNC_TIME(_partitiontime, 'day') AS sale_date)
+TBLPROPERTIES('ingestion_time_partition'='true');
+CREATE TABLE sale_detail_like LIKE sale_detail LIFECYCLE 10;
+CREATE TABLE t3 (a STRING, b STRING, c BIGINT) RANGE CLUSTERED BY (c) SORTED BY (c) INTO 1024 buckets;
+CREATE TABLE t4 (a STRING, b STRING, c BIGINT)
+PARTITIONED BY (dt STRING) RANGE CLUSTERED BY (c) SORTED BY (c);
+CREATE TABLE t5(id BIGINT) TBLPROPERTIES ("transactional"="true");
+ALTER TABLE sale_detail SET COMMENT 'new comment for table sale_detail';
+ALTER TABLE sale_detail ADD IF NOT EXISTS PARTITION (sale_date='201312', region='hangzhou');
+ALTER TABLE sale_detail ADD IF NOT EXISTS PARTITION (sale_date='201312', region='beijing') PARTITION (sale_date='201312', region='shanghai');
+ALTER TABLE mf_tt3 SET tblproperties("write.bucket.num"="64");
+ALTER TABLE sale_detail PARTITION (sale_date = '201312', region = 'hangzhou') rename TO PARTITION (sale_date = '201310', region = 'beijing');
+ALTER TABLE intpstringstringstring MERGE IF EXISTS PARTITION(ds='20181101', hh='00', mm='00'), PARTITION(ds='20181101', hh='10', mm='00'),  partition(ds='20181101', hh='10', mm='10') overwrite partition(ds='20181101', hh='00', mm='00') purge;
+------------------------------------------------------------------------------------------
+[CREATE_TABLE] create table abc(id int);
+----------
+[CREATE_TABLE|COMMENT_TABLE] create table `abc`(`id` int) COMMENT 'desc';
+----------
+[CREATE_TABLE] create table if not exists test.abc(id int);
+----------
+[CREATE_TABLE] create table if not exists abc(id int);
+----------
+[CREATE_TABLE] create table test.abc(id int(4), name varchar(25) not null);
+----------
+[CREATE_TABLE] create table test.abc(id int(4) primary key, name varchar(25) not null);
+----------
+[CREATE_TABLE] create table test.abc(id int(4), name varchar(25) not null,primary key (id));
+----------
+[CREATE_TABLE] create table test.abc(id double(4,5), name varchar(25) not null);
+----------
+[CREATE_TABLE] create table test.abc(id int(4), name varchar(25) not null);
+----------
+[CREATE_TABLE] create table test.abc(id int(4), name varchar(25) not null);
+----------
+[CREATE_TABLE] create table test.abc(id int(4), name varchar(25) not null);
+----------
+[CREATE_TABLE] create table test.abc_copy like test.abc;
+----------
+[CREATE_TABLE] create table abc_copy like abc;
+----------
+[CREATE_TABLE] create table test.abc_select select * from test.abc;
+----------
+[ALTER_TABLE|RENAME_TABLE] alter table schema1.abc rename to cba;
+----------
+[DROP_TABLE] drop table abc;
+----------
+[CREATE_TABLE] CREATE TABLE test_default(
+tinyint_name tinyint NOT NULL default 1,
+smallint_name SMALLINT NOT NULL DEFAULT 1,
+int_name INT NOT NULL DEFAULT 1,
+bigint_name BIGINT NOT NULL DEFAULT 1,
+binary_name BINARY ,
+float_name FLOAT ,
+double_name DOUBLE NOT NULL DEFAULT 0.1,
+decimal_name DECIMAL(2, 1) NOT NULL DEFAULT 0.0,
+varchar_name VARCHAR(10) ,
+char_name CHAR(2) ,
+string_name STRING NOT NULL DEFAULT 'N',
+boolean_name BOOLEAN NOT NULL DEFAULT TRUE
+);
+----------
+[CREATE_TABLE] CREATE TABLE IF NOT EXISTS auto_sale_detail(
+ shop_name     STRING,
+ customer_id   STRING,
+ total_price   DOUBLE,
+ sale_date    DATE )
+AUTO PARTITIONED BY (TRUNC_TIME(sale_date, 'month') AS sale_month);
+----------
+[CREATE_TABLE] CREATE TABLE IF NOT EXISTS auto_sale_detail2(
+ shop_name     STRING,
+ customer_id   STRING,
+ total_price   DOUBLE,
+ _partitiontime TIMESTAMP_NTZ)
+AUTO PARTITIONED BY (TRUNC_TIME(_partitiontime, 'day') AS sale_date)
+TBLPROPERTIES('ingestion_time_partition'='true');
+----------
+[CREATE_TABLE] CREATE TABLE sale_detail_like LIKE sale_detail LIFECYCLE 10;
+----------
+[CREATE_TABLE] CREATE TABLE t3 (a STRING, b STRING, c BIGINT) RANGE CLUSTERED BY (c) SORTED BY (c) INTO 1024 buckets;
+----------
+[CREATE_TABLE] CREATE TABLE t4 (a STRING, b STRING, c BIGINT)
+PARTITIONED BY (dt STRING) RANGE CLUSTERED BY (c) SORTED BY (c);
+----------
+[CREATE_TABLE] CREATE TABLE t5(id BIGINT) TBLPROPERTIES ("transactional"="true");
+----------
+[ALTER_TABLE|COMMENT_TABLE] ALTER TABLE sale_detail SET COMMENT 'new comment for table sale_detail';
+----------
+[ALTER_TABLE|ADD_PARTITION] ALTER TABLE sale_detail ADD IF NOT EXISTS PARTITION (sale_date='201312', region='hangzhou');
+----------
+[ALTER_TABLE|ADD_PARTITION] ALTER TABLE sale_detail ADD IF NOT EXISTS PARTITION (sale_date='201312', region='beijing') PARTITION (sale_date='201312', region='shanghai');
+----------
+[ALTER_TABLE] ALTER TABLE mf_tt3 SET tblproperties("write.bucket.num"="64");
+----------
+[ALTER_TABLE|ALTER_PARTITION] ALTER TABLE sale_detail PARTITION (sale_date = '201312', region = 'hangzhou') rename TO PARTITION (sale_date = '201310', region = 'beijing');
+----------
+[ALTER_TABLE|ALTER_PARTITION] ALTER TABLE intpstringstringstring MERGE IF EXISTS PARTITION(ds='20181101', hh='00', mm='00'), PARTITION(ds='20181101', hh='10', mm='00'),  partition(ds='20181101', hh='10', mm='10') overwrite partition(ds='20181101', hh='00', mm='00') purge;

@@ -1,0 +1,54 @@
+[external_table_all_parameters]
+sql:
+create external table app.ext_all(id int comment 'id', label varchar(20), amount decimal(10,2))
+from datafile default directory ext_dir location ('all.csv')
+parms(fields delimited by '|', records delimited by 0x0a, errors 1,
+  badfile 'all.bad', log 'all.log', null_str 'NULL_TOKEN', skip 1,
+  character_code 'UTF-8')
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"CREATE_TABLE", "auditKind":"CREATE", "schema":"app", "table":"ext_all"},
+    {"class":"RdbObjectDomain", "sqlType":"SELECT", "auditKind":"QUERY", "name":"ext_dir"}
+  ]
+}
+----------
+[external_control_table]
+sql:
+create external table app.ext_control(id int, label varchar(20))
+from default directory ext_dir location ('external.ctrl')
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"CREATE_TABLE", "auditKind":"CREATE", "schema":"app", "table":"ext_control"},
+    {"class":"RdbObjectDomain", "sqlType":"SELECT", "auditKind":"QUERY", "name":"ext_dir"}
+  ]
+}
+----------
+[external_query_domains]
+sql:
+select id, label, rowid, user, uid from app.ext_all where amount > 0
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"ext_all"}
+  ]
+}
+----------
+[external_alter_comment_drop_domains]
+sql:
+alter table app.ext_all default directory ext_dir;
+alter table app.ext_all location ('alternate.csv');
+alter table app.ext_all modify path '/tmp/alternate.csv';
+comment on table app.ext_all is 'external';
+comment on column app.ext_all.id is 'external id';
+drop table app.ext_all
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"ALTER_TABLE", "auditKind":"ALTER", "schema":"app", "table":"ext_all"},
+    {"class":"RdbTableDomain", "sqlType":"COMMENT_TABLE", "auditKind":"ALTER", "schema":"app", "table":"ext_all"},
+    {"class":"RdbTableDomain", "sqlType":"COMMENT_COLUMN", "auditKind":"ALTER", "schema":"app", "table":"ext_all"},
+    {"class":"RdbTableDomain", "sqlType":"DROP_TABLE", "auditKind":"DROP", "schema":"app", "table":"ext_all"}
+  ]
+}

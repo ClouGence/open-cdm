@@ -1,0 +1,2273 @@
+[dql_mysql_select_0.0001]
+sql:
+SELECT CAST('1' AS BINARY ARRAY);
+expect:
+{
+  "CAST('1' AS BINARY ARRAY)" : [ ]
+}
+----------
+[dql_mysql_select_0.0002]
+sql:
+SELECT CAST('1' AS NCHAR ARRAY);
+expect:
+{
+  "CAST('1' AS NCHAR ARRAY)" : [ ]
+}
+----------
+[dql_mysql_select_0.0003]
+sql:
+SELECT CAST('1' AS CHAR ARRAY);
+expect:
+{
+  "CAST('1' AS CHAR ARRAY)" : [ ]
+}
+----------
+[dql_mysql_select_0.0004]
+sql:
+SELECT CAST('1' AS DATE ARRAY);
+expect:
+{
+  "CAST('1' AS DATE ARRAY)" : [ ]
+}
+----------
+[dql_mysql_select_0.0005]
+sql:
+SELECT CAST('1' AS DATETIME ARRAY);
+expect:
+{
+  "CAST('1' AS DATETIME ARRAY)" : [ ]
+}
+----------
+[dql_mysql_select_0.0006]
+sql:
+SELECT CAST('1' AS TIME ARRAY);
+expect:
+{
+  "CAST('1' AS TIME ARRAY)" : [ ]
+}
+----------
+[dql_mysql_select_0.0007]
+sql:
+SELECT CAST('1' AS JSON ARRAY);
+expect:
+{
+  "CAST('1' AS JSON ARRAY)" : [ ]
+}
+----------
+[dql_mysql_select_0.0008]
+sql:
+SELECT CAST('1' AS FLOAT ARRAY);
+expect:
+{
+  "CAST('1' AS FLOAT ARRAY)" : [ ]
+}
+----------
+[dql_mysql_select_0.0009]
+sql:
+SELECT CAST('1' AS DOUBLE ARRAY);
+expect:
+{
+  "CAST('1' AS DOUBLE ARRAY)" : [ ]
+}
+----------
+[dql_mysql_select_0.0010]
+sql:
+SELECT CAST('1' AS REAL ARRAY);
+expect:
+{
+  "CAST('1' AS REAL ARRAY)" : [ ]
+}
+----------
+[dql_mysql_select_0.0011]
+sql:
+SELECT CAST('1' AS YEAR ARRAY);
+expect:
+{
+  "CAST('1' AS YEAR ARRAY)" : [ ]
+}
+----------
+[dql_mysql_select_0.0012]
+sql:
+SELECT CAST('1' AS DECIMAL ARRAY);
+expect:
+{
+  "CAST('1' AS DECIMAL ARRAY)" : [ ]
+}
+----------
+[dql_mysql_select_0.0013]
+sql:
+SELECT CAST('1' AS SIGNED ARRAY);
+expect:
+{
+  "CAST('1' AS SIGNED ARRAY)" : [ ]
+}
+----------
+[dql_mysql_select_0.0014]
+sql:
+SELECT CAST('1' AS UNSIGNED ARRAY);
+expect:
+{
+  "CAST('1' AS UNSIGNED ARRAY)" : [ ]
+}
+----------
+[dql_mysql_select_0.0015]
+sql:
+SELECT CAST('1' AS LINESTRING ARRAY);
+expect:
+{
+  "CAST('1' AS LINESTRING ARRAY)" : [ ]
+}
+----------
+[dql_mysql_select_0.0016]
+sql:
+SELECT CAST('1' AS POLYGON ARRAY);
+expect:
+{
+  "CAST('1' AS POLYGON ARRAY)" : [ ]
+}
+----------
+[dql_mysql_select_0.0017]
+sql:
+SELECT CAST('1' AS MULTIPOINT ARRAY);
+expect:
+{
+  "CAST('1' AS MULTIPOINT ARRAY)" : [ ]
+}
+----------
+[dql_mysql_select_0.0018]
+sql:
+SELECT CAST('1' AS MULTILINESTRING ARRAY);
+expect:
+{
+  "CAST('1' AS MULTILINESTRING ARRAY)" : [ ]
+}
+----------
+[dql_mysql_select_0.0019]
+sql:
+SELECT CAST('1' AS MULTIPOLYGON ARRAY);
+expect:
+{
+  "CAST('1' AS MULTIPOLYGON ARRAY)" : [ ]
+}
+----------
+[dql_mysql_select_0.0020]
+sql:
+SELECT CAST('1' AS GEOMETRYCOLLECTION ARRAY);
+expect:
+{
+  "CAST('1' AS GEOMETRYCOLLECTION ARRAY)" : [ ]
+}
+----------
+[dql_mysql_select_0.0021]
+sql:
+SELECT CAST(TIMESTAMP '2020-01-01 00:00:00' AT LOCAL AS DATETIME);
+expect:
+{
+  "CAST(TIMESTAMP '2020-01-01 00:00:00' AT LOCAL AS DATETIME)" : [ ]
+}
+----------
+[dql_mysql_select_0.0022]
+sql:
+SELECT CAST(TIMESTAMP '2020-01-01 00:00:00' AT LOCAL AS DATETIME ARRAY);
+expect:
+{
+  "CAST(TIMESTAMP '2020-01-01 00:00:00' AT LOCAL AS DATETIME ARRAY)" : [ ]
+}
+----------
+[dql_mysql_select_0.0023]
+sql:
+SELECT CAST(TIMESTAMP '2019-10-10 10:11:12' AT TIME ZONE '+00:00' AS DATETIME);
+expect:
+{
+  "CAST(TIMESTAMP '2019-10-10 10:11:12' AT TIME ZONE '+00:00' AS DATETIME)" : [ ]
+}
+----------
+[dql_mysql_select_0.0024]
+sql:
+SELECT CAST(TIMESTAMP '2019-10-10 10:11:12.123456' AT TIME ZONE 'UTC' AS DATETIME(2));
+expect:
+{
+  "CAST(TIMESTAMP '2019-10-10 10:11:12.123456' AT TIME ZONE 'UTC' AS DATETIME(2))" : [ ]
+}
+----------
+[dql_mysql_select_0.0025]
+sql:
+SELECT CAST(TIMESTAMP '2019-10-10 10:11:12' AT TIME ZONE INTERVAL '+00:00' AS DATETIME(6));
+expect:
+{
+  "CAST(TIMESTAMP '2019-10-10 10:11:12' AT TIME ZONE INTERVAL '+00:00' AS DATETIME(6))" : [ ]
+}
+----------
+[dql_mysql_select_0.0026]
+sql:
+SELECT CAST(TIMESTAMP '2019-10-10 10:11:12+00:00' AT TIME ZONE '+00:00' AS DATETIME);
+expect:
+{
+  "CAST(TIMESTAMP '2019-10-10 10:11:12+00:00' AT TIME ZONE '+00:00' AS DATETIME)" : [ ]
+}
+----------
+[dql_mysql_select_0.0027]
+sql:
+SELECT CAST(a AT TIME ZONE '+00:00' AS DATETIME) FROM split_at_time_zone.t1;
+expect:
+{
+  "CAST(a AT TIME ZONE '+00:00' AS DATETIME)" : [ "(1:12~1:13) /catalog1/split_at_time_zone/t1/a/" ]
+}
+----------
+[dql_mysql_select_0.0028]
+sql:
+SELECT CAST(TIME '10:10' AT TIME ZONE 'UTC' AS DATETIME);
+expect:
+{
+  "CAST(TIME '10:10' AT TIME ZONE 'UTC' AS DATETIME)" : [ ]
+}
+----------
+[dql_mysql_select_0.0029]
+sql:
+SELECT CAST('2019-10-10' AT TIME ZONE 'UTC' AS DATETIME);
+expect:
+{
+  "CAST('2019-10-10' AT TIME ZONE 'UTC' AS DATETIME)" : [ ]
+}
+----------
+[dql_mysql_select_0.0030]
+sql:
+SELECT CAST(123 AT TIME ZONE 'UTC' AS DATETIME);
+expect:
+{
+  "CAST(123 AT TIME ZONE 'UTC' AS DATETIME)" : [ ]
+}
+----------
+[dql_mysql_select_0.0031]
+sql:
+SELECT CAST(b AT TIME ZONE '+00:00' AS DATETIME) FROM split_at_time_zone.t1;
+expect:
+{
+  "CAST(b AT TIME ZONE '+00:00' AS DATETIME)" : [ "(1:12~1:13) /catalog1/split_at_time_zone/t1/b/" ]
+}
+----------
+[dql_mysql_select_0.0032]
+sql:
+SELECT CAST('abc' AS BINARY(5)), CAST('abc' AS NCHAR(5)), CAST('abc' AS CHAR(5) CHARACTER SET utf8mb4), CAST('2020-01-02' AS DATE), CAST('2020-01-02 03:04:05' AS DATETIME), CAST('03:04:05' AS TIME), CAST('12.34' AS DECIMAL(10,2)), CAST('12' AS SIGNED INTEGER), CAST('12' AS UNSIGNED INTEGER);
+expect:
+{
+  "CAST('abc' AS BINARY(5))" : [ ],
+  "CAST('abc' AS NCHAR(5))" : [ ],
+  "CAST('abc' AS CHAR(5) CHARACTER SET utf8mb4)" : [ ],
+  "CAST('2020-01-02' AS DATE)" : [ ],
+  "CAST('2020-01-02 03:04:05' AS DATETIME)" : [ ],
+  "CAST('03:04:05' AS TIME)" : [ ],
+  "CAST('12.34' AS DECIMAL(10,2))" : [ ],
+  "CAST('12' AS SIGNED INTEGER)" : [ ],
+  "CAST('12' AS UNSIGNED INTEGER)" : [ ]
+}
+----------
+[dql_mysql_select_0.0033]
+sql:
+SELECT CAST('abc' AS CHAR(5) ASCII), CAST('abc' AS CHAR(5) UNICODE), CAST('abc' AS CHAR(5) BYTE), CAST('abc' AS CHAR(5) BINARY), CAST('abc' AS CHAR(5) CHARACTER SET utf8mb4 BINARY), CAST('abc' AS CHAR(5) BINARY CHARACTER SET utf8mb4);
+expect:
+{
+  "CAST('abc' AS CHAR(5) ASCII)" : [ ],
+  "CAST('abc' AS CHAR(5) UNICODE)" : [ ],
+  "CAST('abc' AS CHAR(5) BYTE)" : [ ],
+  "CAST('abc' AS CHAR(5) BINARY)" : [ ],
+  "CAST('abc' AS CHAR(5) CHARACTER SET utf8mb4 BINARY)" : [ ],
+  "CAST('abc' AS CHAR(5) BINARY CHARACTER SET utf8mb4)" : [ ]
+}
+----------
+[dql_mysql_select_0.0034]
+sql:
+SELECT CONVERT('abc', CHAR(5) ASCII), CONVERT('abc', CHAR(5) BINARY CHARACTER SET utf8mb4);
+expect:
+{
+  "CONVERT('abc', CHAR(5) ASCII)" : [ ],
+  "CONVERT('abc', CHAR(5) BINARY CHARACTER SET utf8mb4)" : [ ]
+}
+----------
+[dql_mysql_select_0.0035]
+sql:
+SELECT CAST('2020-01-02 03:04:05.123456' AS DATETIME(3)), CAST('03:04:05.123456' AS TIME(4));
+expect:
+{
+  "CAST('2020-01-02 03:04:05.123456' AS DATETIME(3))" : [ ],
+  "CAST('03:04:05.123456' AS TIME(4))" : [ ]
+}
+----------
+[dql_mysql_select_0.0036]
+sql:
+SELECT CONVERT('2020-01-02 03:04:05.123456', DATETIME(3)), CONVERT('03:04:05.123456', TIME(4));
+expect:
+{
+  "CONVERT('2020-01-02 03:04:05.123456', DATETIME(3))" : [ ],
+  "CONVERT('03:04:05.123456', TIME(4))" : [ ]
+}
+----------
+[dql_mysql_select_0.0037]
+sql:
+SELECT CAST('1.25' AS FLOAT(10)), CAST('1.25' AS DOUBLE PRECISION);
+expect:
+{
+  "CAST('1.25' AS FLOAT(10))" : [ ],
+  "CAST('1.25' AS DOUBLE PRECISION)" : [ ]
+}
+----------
+[dql_mysql_select_0.0038]
+sql:
+SELECT CONVERT('1.25', FLOAT(20)), CONVERT('1.25', DOUBLE PRECISION);
+expect:
+{
+  "CONVERT('1.25', FLOAT(20))" : [ ],
+  "CONVERT('1.25', DOUBLE PRECISION)" : [ ]
+}
+----------
+[dql_mysql_select_0.0039]
+sql:
+SELECT CAST('abc' AS BINARY), CAST('abc' AS NCHAR), CAST('abc' AS CHAR), CAST('12.34' AS DECIMAL), CAST('12.34' AS DECIMAL(10)), CAST('2020-01-02 03:04:05.987654' AS DATETIME(0)), CAST('03:04:05.987654' AS TIME(6));
+expect:
+{
+  "CAST('abc' AS BINARY)" : [ ],
+  "CAST('abc' AS NCHAR)" : [ ],
+  "CAST('abc' AS CHAR)" : [ ],
+  "CAST('12.34' AS DECIMAL)" : [ ],
+  "CAST('12.34' AS DECIMAL(10))" : [ ],
+  "CAST('2020-01-02 03:04:05.987654' AS DATETIME(0))" : [ ],
+  "CAST('03:04:05.987654' AS TIME(6))" : [ ]
+}
+----------
+[dql_mysql_select_0.0040]
+sql:
+SELECT CONVERT('abc', BINARY), CONVERT('abc', NCHAR), CONVERT('abc', CHAR), CONVERT('12.34', DECIMAL), CONVERT('12.34', DECIMAL(10)), CONVERT('2020-01-02 03:04:05.987654', DATETIME(0)), CONVERT('03:04:05.987654', TIME(6));
+expect:
+{
+  "CONVERT('abc', BINARY)" : [ ],
+  "CONVERT('abc', NCHAR)" : [ ],
+  "CONVERT('abc', CHAR)" : [ ],
+  "CONVERT('12.34', DECIMAL)" : [ ],
+  "CONVERT('12.34', DECIMAL(10))" : [ ],
+  "CONVERT('2020-01-02 03:04:05.987654', DATETIME(0))" : [ ],
+  "CONVERT('03:04:05.987654', TIME(6))" : [ ]
+}
+----------
+[dql_mysql_select_0.0041]
+sql:
+SELECT CAST('1.25' AS FLOAT), CAST('1.25' AS DOUBLE), CAST('1.25' AS REAL);
+expect:
+{
+  "CAST('1.25' AS FLOAT)" : [ ],
+  "CAST('1.25' AS DOUBLE)" : [ ],
+  "CAST('1.25' AS REAL)" : [ ]
+}
+----------
+[dql_mysql_select_0.0042]
+sql:
+SELECT CAST('2020' AS YEAR);
+expect:
+{
+  "CAST('2020' AS YEAR)" : [ ]
+}
+----------
+[dql_mysql_select_0.0043]
+sql:
+SELECT CONVERT('abc', BINARY(5)), CONVERT('abc', NCHAR(5)), CONVERT('abc', CHAR(5) CHARACTER SET utf8mb4), CONVERT('2020-01-02', DATE), CONVERT('2020-01-02 03:04:05', DATETIME), CONVERT('03:04:05', TIME), CONVERT('12.34', DECIMAL(10,2)), CONVERT('12', SIGNED INTEGER), CONVERT('12', UNSIGNED INTEGER);
+expect:
+{
+  "CONVERT('abc', BINARY(5))" : [ ],
+  "CONVERT('abc', NCHAR(5))" : [ ],
+  "CONVERT('abc', CHAR(5) CHARACTER SET utf8mb4)" : [ ],
+  "CONVERT('2020-01-02', DATE)" : [ ],
+  "CONVERT('2020-01-02 03:04:05', DATETIME)" : [ ],
+  "CONVERT('03:04:05', TIME)" : [ ],
+  "CONVERT('12.34', DECIMAL(10,2))" : [ ],
+  "CONVERT('12', SIGNED INTEGER)" : [ ],
+  "CONVERT('12', UNSIGNED INTEGER)" : [ ]
+}
+----------
+[dql_mysql_select_0.0044]
+sql:
+SELECT CONVERT('1.25', FLOAT), CONVERT('1.25', DOUBLE), CONVERT('1.25', REAL);
+expect:
+{
+  "CONVERT('1.25', FLOAT)" : [ ],
+  "CONVERT('1.25', DOUBLE)" : [ ],
+  "CONVERT('1.25', REAL)" : [ ]
+}
+----------
+[dql_mysql_select_0.0045]
+sql:
+SELECT CONVERT('2020', YEAR);
+expect:
+{
+  "CONVERT('2020', YEAR)" : [ ]
+}
+----------
+[dql_mysql_select_0.0046]
+sql:
+SELECT 1 AS col FROM split_subquery_57_delta.dual_t AS o WHERE o.a IN (SELECT o.a FROM DUAL HAVING 0);
+expect:
+{
+  "col" : [ ]
+}
+----------
+[dql_mysql_select_0.0047]
+sql:
+SELECT 1 FROM DUAL GROUP BY 1;
+expect:
+{
+  "1" : [ ]
+}
+----------
+[dql_mysql_select_0.0048]
+sql:
+SELECT 1 FROM DUAL ORDER BY 1;
+expect:
+{
+  "1" : [ ]
+}
+----------
+[dql_mysql_select_0.0049]
+sql:
+SELECT a.id FROM articles AS a WHERE MATCH(a.title,a.body) AGAINST('database');
+expect:
+{
+  "id" : [ "(1:7~1:11) /catalog1/schema1/articles/id/" ]
+}
+----------
+[dql_mysql_select_0.0050]
+sql:
+SELECT MATCH(title) AGAINST('database') FROM articles GROUP BY title WITH ROLLUP;
+expect:
+{
+  "MATCH(title) AGAINST('database')" : [ "(1:13~1:18) /catalog1/schema1/articles/title/" ]
+}
+----------
+[dql_mysql_select_0.0051]
+sql:
+SELECT id, MATCH(title,body) AGAINST('database') AS score FROM articles WHERE MATCH(title,body) AGAINST('database') ORDER BY score DESC;
+expect:
+{
+  "id" : [ "(1:7~1:9) /catalog1/schema1/articles/id/" ],
+  "score" : [ "(1:17~1:22) /catalog1/schema1/articles/title/", "(1:23~1:27) /catalog1/schema1/articles/body/" ]
+}
+----------
+[dql_mysql_select_0.0052]
+sql:
+SELECT id FROM articles WHERE MATCH(title,body) AGAINST('database' IN NATURAL LANGUAGE MODE);
+expect:
+{
+  "id" : [ "(1:7~1:9) /catalog1/schema1/articles/id/" ]
+}
+----------
+[dql_mysql_select_0.0053]
+sql:
+SELECT id FROM articles WHERE MATCH(title,body) AGAINST('+database +parser' IN BOOLEAN MODE);
+expect:
+{
+  "id" : [ "(1:7~1:9) /catalog1/schema1/articles/id/" ]
+}
+----------
+[dql_mysql_select_0.0054]
+sql:
+SELECT id FROM articles WHERE MATCH(title,body) AGAINST('database' WITH QUERY EXPANSION);
+expect:
+{
+  "id" : [ "(1:7~1:9) /catalog1/schema1/articles/id/" ]
+}
+----------
+[dql_mysql_select_0.0055]
+sql:
+SELECT id FROM articles WHERE MATCH(title,body) AGAINST('database' IN NATURAL LANGUAGE MODE WITH QUERY EXPANSION);
+expect:
+{
+  "id" : [ "(1:7~1:9) /catalog1/schema1/articles/id/" ]
+}
+----------
+[dql_mysql_select_0.0056]
+sql:
+SELECT id FROM articles WHERE MATCH title AGAINST ('database');
+expect:
+{
+  "id" : [ "(1:7~1:9) /catalog1/schema1/articles/id/" ]
+}
+----------
+[dql_mysql_select_0.0057]
+sql:
+SELECT id FROM split_hint84.t USE INDEX ();
+expect:
+{
+  "id" : [ "(1:7~1:9) /catalog1/split_hint84/t/id/" ]
+}
+----------
+[dql_mysql_select_0.0058]
+sql:
+SELECT id FROM split_hint84.t USE KEY ();
+expect:
+{
+  "id" : [ "(1:7~1:9) /catalog1/split_hint84/t/id/" ]
+}
+----------
+[dql_mysql_select_0.0059]
+sql:
+SELECT id FROM split_hint84.t FORCE INDEX (PRIMARY,idx_grp);
+expect:
+{
+  "id" : [ "(1:7~1:9) /catalog1/split_hint84/t/id/" ]
+}
+----------
+[dql_mysql_select_0.0060]
+sql:
+SELECT id FROM split_hint84.t IGNORE KEY (idx_grp,PRIMARY);
+expect:
+{
+  "id" : [ "(1:7~1:9) /catalog1/split_hint84/t/id/" ]
+}
+----------
+[dql_mysql_select_0.0061]
+sql:
+SELECT id FROM split_hint84.t USE INDEX FOR JOIN (idx_grp) IGNORE INDEX FOR ORDER BY (PRIMARY) ORDER BY id;
+expect:
+{
+  "id" : [ "(1:7~1:9) /catalog1/split_hint84/t/id/" ]
+}
+----------
+[dql_mysql_select_0.0062]
+sql:
+SELECT grp,COUNT(*) FROM split_hint84.t USE KEY FOR JOIN () IGNORE KEY FOR GROUP BY (idx_grp) GROUP BY grp;
+expect:
+{
+  "grp" : [ "(1:7~1:10) /catalog1/split_hint84/t/grp/" ],
+  "COUNT(*)" : [ ]
+}
+----------
+[dql_mysql_select_0.0063]
+sql:
+SELECT a.id,b.v FROM split_hint84.t AS a FORCE INDEX FOR JOIN (idx_grp,idx_v) JOIN split_hint84.t2 AS b USE KEY FOR JOIN (PRIMARY) ON a.id=b.id;
+expect:
+{
+  "id" : [ "(1:7~1:11) /catalog1/split_hint84/t/id/" ],
+  "v" : [ "(1:12~1:15) /catalog1/split_hint84/t2/v/" ]
+}
+----------
+[dql_mysql_select_0.0064]
+sql:
+SELECT a.id FROM split_hint84.t AS a IGNORE INDEX FOR JOIN (PRIMARY) FORCE INDEX FOR ORDER BY (idx_grp) LEFT JOIN split_hint84.t2 AS b USE INDEX () ON a.grp=b.grp ORDER BY a.grp;
+expect:
+{
+  "id" : [ "(1:7~1:11) /catalog1/split_hint84/t/id/" ]
+}
+----------
+[dql_mysql_select_0.0065]
+sql:
+(SELECT a FROM t LIMIT 7) ORDER BY a DESC LIMIT 4;
+expect:
+{
+  "a" : [ "(1:8~1:9) /catalog1/schema1/t/a/" ]
+}
+----------
+[dql_mysql_select_0.0066]
+sql:
+(SELECT a FROM t ORDER BY a DESC LIMIT 7 OFFSET 1) ORDER BY a LIMIT 4 OFFSET 2;
+expect:
+{
+  "a" : [ "(1:8~1:9) /catalog1/schema1/t/a/" ]
+}
+----------
+[dql_mysql_select_0.0067]
+sql:
+(SELECT a FROM t ORDER BY a DESC LIMIT 5 OFFSET 4) UNION ALL (SELECT a FROM t2 ORDER BY a DESC LIMIT 4 OFFSET 2) ORDER BY a LIMIT 7 OFFSET 1;
+expect:
+{
+  "a" : [ "(1:8~1:9) /catalog1/schema1/t/a/", "(1:69~1:70) /catalog1/schema1/t2/a/" ]
+}
+----------
+[dql_mysql_select_0.0068]
+sql:
+SELECT COUNT(*) FROM t LIMIT 1 OFFSET 3;
+expect:
+{
+  "COUNT(*)" : [ ]
+}
+----------
+[dql_mysql_select_0.0069]
+sql:
+SELECT d.pk FROM (SELECT DISTINCT * FROM t) AS d WHERE d.pk=1 LIMIT 1 OFFSET 2;
+expect:
+{
+  "pk" : [ "(1:34~1:35) /catalog1/schema1/t/pk/" ]
+}
+----------
+[dql_mysql_select_0.0070]
+sql:
+SELECT JSON_OBJECTAGG(NULL,'') FROM t,t2 GROUP BY t.pk LIMIT 2 OFFSET 5;
+expect:
+{
+  "JSON_OBJECTAGG(NULL,'')" : [ ]
+}
+----------
+[dql_mysql_select_0.0071]
+sql:
+SELECT * FROM (SELECT * FROM t ORDER BY a DESC LIMIT 3) AS alias LIMIT 2;
+expect:
+{
+  "id" : [ "(1:22~1:23) /catalog1/schema1/t/id/" ]
+}
+----------
+[dql_mysql_select_0.0072]
+sql:
+(SELECT * FROM t ORDER BY a DESC LIMIT 3) LIMIT 2;
+expect:
+{
+  "id" : [ "(1:8~1:9) /catalog1/schema1/t/id/" ]
+}
+----------
+[dql_mysql_select_0.0073]
+sql:
+SELECT STRAIGHT_JOIN t.pk FROM t JOIN t2 ON t.a=t2.a WHERE t2.pk<=t.b ORDER BY t.pk LIMIT 10;
+expect:
+{
+  "pk" : [ "(1:21~1:25) /catalog1/schema1/t/pk/" ]
+}
+----------
+[dql_mysql_select_0.0074]
+sql:
+SELECT (SELECT 1 LIMIT 10 OFFSET 1) AS res;
+expect:
+{
+  "res" : [ ]
+}
+----------
+[dql_mysql_select_0.0075]
+sql:
+SELECT (SELECT 1 LIMIT 0) AS res;
+expect:
+{
+  "res" : [ ]
+}
+----------
+[dql_mysql_select_0.0076]
+sql:
+SELECT (SELECT 1 LIMIT 10 OFFSET 0) AS res;
+expect:
+{
+  "res" : [ ]
+}
+----------
+[dql_mysql_select_0.0077]
+sql:
+SELECT (SELECT 1 LIMIT 1) AS res;
+expect:
+{
+  "res" : [ ]
+}
+----------
+[dql_mysql_select_0.0078]
+sql:
+(SELECT 1 WHERE 1);
+expect:
+{
+  "1" : [ ]
+}
+----------
+[dql_mysql_select_0.0079]
+sql:
+SELECT 1 UNION SELECT 2 WHERE 1;
+expect:
+{
+  "1" : [ ]
+}
+----------
+[dql_mysql_select_0.0080]
+sql:
+SELECT 1 UNION SELECT 2 GROUP BY 1;
+expect:
+{
+  "1" : [ ]
+}
+----------
+[dql_mysql_select_0.0081]
+sql:
+SELECT 1 UNION SELECT 2 HAVING 1;
+expect:
+{
+  "1" : [ ]
+}
+----------
+[dql_mysql_select_0.0082]
+sql:
+SELECT 1 WHERE 1;
+expect:
+{
+  "1" : [ ]
+}
+----------
+[dql_mysql_select_0.0083]
+sql:
+SELECT 1 GROUP BY 1;
+expect:
+{
+  "1" : [ ]
+}
+----------
+[dql_mysql_select_0.0084]
+sql:
+SELECT 1 HAVING 1;
+expect:
+{
+  "1" : [ ]
+}
+----------
+[dql_mysql_select_0.0085]
+sql:
+SELECT CONV(-17,10,-18), CONV('FFFFFFFFFFFFFFFF',16,-10);
+expect:
+{
+  "CONV(-17,10,-18)" : [ ],
+  "CONV('FFFFFFFFFFFFFFFF',16,-10)" : [ ]
+}
+----------
+[dql_mysql_select_0.0086]
+sql:
+SELECT ROUND(1234.567,-2), TRUNCATE(1234.567,-2);
+expect:
+{
+  "ROUND(1234.567,-2)" : [ ],
+  "TRUNCATE(1234.567,-2)" : [ ]
+}
+----------
+[dql_mysql_select_0.0087]
+sql:
+SELECT MOD(-7,3), MOD(7,-3), -7 % 3, -7 MOD 3;
+expect:
+{
+  "MOD(-7,3)" : [ ],
+  "MOD(7,-3)" : [ ],
+  "-7 % 3" : [ ],
+  "-7 MOD 3" : [ ]
+}
+----------
+[dql_mysql_select_0.0088]
+sql:
+SELECT LOG(10,1000), ATAN2(-1,-1), POW(2,-3);
+expect:
+{
+  "LOG(10,1000)" : [ ],
+  "ATAN2(-1,-1)" : [ ],
+  "POW(2,-3)" : [ ]
+}
+----------
+[dql_mysql_select_0.0089]
+sql:
+SELECT DISTINCT col_int FROM t1 WHERE col_varchar_key <> 'c' OR col_varchar_key > 'w' ORDER BY col_varchar_key LIMIT 100;
+expect:
+{
+  "col_int" : [ "(1:16~1:23) /catalog1/schema1/t1/col_int/" ]
+}
+----------
+[dql_mysql_select_0.0090]
+sql:
+SELECT STRAIGHT_JOIN t1.i1 AS field1 FROM t1 JOIN t2 ON t2.pk=t1.pk OR t2.col_int_unique=t1.i1 ORDER BY field1 LIMIT 2;
+expect:
+{
+  "field1" : [ "(1:21~1:26) /catalog1/schema1/t1/i1/" ]
+}
+----------
+[dql_mysql_select_0.0091]
+sql:
+SELECT /*+ ORDER_INDEX(t1 k1) */ col_varchar_key FROM t1 WHERE i1>3 ORDER BY pk ASC LIMIT 2;
+expect:
+{
+  "col_varchar_key" : [ "(1:33~1:48) /catalog1/schema1/t1/col_varchar_key/" ]
+}
+----------
+[dql_mysql_select_0.0092]
+sql:
+SELECT /*+ GROUP_INDEX(t1 k2) */ col_varchar_key FROM t1 WHERE pk>0 GROUP BY i1 LIMIT 1;
+expect:
+{
+  "col_varchar_key" : [ "(1:33~1:48) /catalog1/schema1/t1/col_varchar_key/" ]
+}
+----------
+[dql_mysql_select_0.0093]
+sql:
+SELECT * FROM t1 WHERE i1=4 AND i2>0 AND pk IN(1,2) ORDER BY i1 DESC,i2 DESC,pk DESC LIMIT 1;
+expect:
+{
+  "id" : [ "(1:7~1:8) /catalog1/schema1/t1/id/" ]
+}
+----------
+[dql_mysql_select_0.0094]
+sql:
+SELECT CONCAT(txt,a) AS name FROM t ORDER BY name;
+expect:
+{
+  "name" : [ "(1:14~1:17) /catalog1/schema1/t/txt/", "(1:18~1:19) /catalog1/schema1/t/a/" ]
+}
+----------
+[dql_mysql_select_0.0095]
+sql:
+SELECT DISTINCT a FROM t ORDER BY RAND(5);
+expect:
+{
+  "a" : [ "(1:16~1:17) /catalog1/schema1/t/a/" ]
+}
+----------
+[dql_mysql_select_0.0096]
+sql:
+SELECT DISTINCT a FROM t ORDER BY 1-a;
+expect:
+{
+  "a" : [ "(1:16~1:17) /catalog1/schema1/t/a/" ]
+}
+----------
+[dql_mysql_select_0.0097]
+sql:
+SELECT DISTINCT a FROM t ORDER BY MOD(a,2),a;
+expect:
+{
+  "a" : [ "(1:16~1:17) /catalog1/schema1/t/a/" ]
+}
+----------
+[dql_mysql_select_0.0098]
+sql:
+SELECT FIELD(SUBSTRING(txt,1,2),'aa','bb') AS sort_rank FROM t ORDER BY sort_rank;
+expect:
+{
+  "sort_rank" : [ "(1:23~1:26) /catalog1/schema1/t/txt/" ]
+}
+----------
+[dql_mysql_select_0.0099]
+sql:
+SELECT t.a,t.b,IF(t.b=1,t2.b,IF(t.b=2,t.txt,'')) AS v FROM t LEFT JOIN t2 USING(c) ORDER BY t.a;
+expect:
+{
+  "a" : [ "(1:7~1:10) /catalog1/schema1/t/a/" ],
+  "b" : [ "(1:11~1:14) /catalog1/schema1/t/b/" ],
+  "v" : [ "(1:18~1:21) /catalog1/schema1/t/b/", "(1:24~1:28) /catalog1/schema1/t2/b/", "(1:32~1:35) /catalog1/schema1/t/b/", "(1:38~1:43) /catalog1/schema1/t/txt/" ]
+}
+----------
+[dql_mysql_select_0.0100]
+sql:
+SELECT * FROM t ORDER BY a DESC,b ASC,c DESC;
+expect:
+{
+  "id" : [ "(1:7~1:8) /catalog1/schema1/t/id/" ]
+}
+----------
+[dql_mysql_select_0.0101]
+sql:
+SELECT * FROM t ORDER BY (a+b) DESC;
+expect:
+{
+  "id" : [ "(1:7~1:8) /catalog1/schema1/t/id/" ]
+}
+----------
+[dql_mysql_select_0.0102]
+sql:
+SELECT a AS b,b FROM t ORDER BY b;
+expect:
+[ {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/t/a/" ],
+  "column" : "b"
+}, {
+  "sources" : [ "(1:14~1:15) /catalog1/schema1/t/b/" ],
+  "column" : "b"
+} ]
+----------
+[dql_mysql_select_0.0103]
+sql:
+SELECT a AS x,b AS x FROM t ORDER BY x>1;
+expect:
+[ {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/t/a/" ],
+  "column" : "x"
+}, {
+  "sources" : [ "(1:14~1:15) /catalog1/schema1/t/b/" ],
+  "column" : "x"
+} ]
+----------
+[dql_mysql_select_0.0104]
+sql:
+SELECT a,a IN(1,2) FROM t ORDER BY a IN(1,2);
+expect:
+{
+  "a" : [ "(1:7~1:8) /catalog1/schema1/t/a/" ],
+  "a IN(1,2)" : [ "(1:9~1:10) /catalog1/schema1/t/a/" ]
+}
+----------
+[dql_mysql_select_0.0105]
+sql:
+SELECT a,IF(a NOT BETWEEN 2 AND 3,a,a+10) FROM t ORDER BY IF(a BETWEEN 2 AND 3,a,a+10);
+expect:
+{
+  "a" : [ "(1:7~1:8) /catalog1/schema1/t/a/" ],
+  "IF(a NOT BETWEEN 2 AND 3,a,a+10)" : [ "(1:12~1:13) /catalog1/schema1/t/a/", "(1:34~1:35) /catalog1/schema1/t/a/", "(1:36~1:37) /catalog1/schema1/t/a/" ]
+}
+----------
+[dql_mysql_select_0.0106]
+sql:
+(SELECT b,a FROM t ORDER BY a,b) ORDER BY b,a;
+expect:
+{
+  "b" : [ "(1:8~1:9) /catalog1/schema1/t/b/" ],
+  "a" : [ "(1:10~1:11) /catalog1/schema1/t/a/" ]
+}
+----------
+[dql_mysql_select_0.0107]
+sql:
+(SELECT b FROM t ORDER BY b DESC) ORDER BY b ASC;
+expect:
+{
+  "b" : [ "(1:8~1:9) /catalog1/schema1/t/b/" ]
+}
+----------
+[dql_mysql_select_0.0108]
+sql:
+SELECT a+1 AS num FROM t ORDER BY 30-num;
+expect:
+{
+  "num" : [ "(1:7~1:8) /catalog1/schema1/t/a/" ]
+}
+----------
+[dql_mysql_select_0.0109]
+sql:
+SELECT CONCAT('test',a) AS str FROM t ORDER BY UPPER(str);
+expect:
+{
+  "str" : [ "(1:21~1:22) /catalog1/schema1/t/a/" ]
+}
+----------
+[dql_mysql_select_0.0110]
+sql:
+SELECT a,b FROM t GROUP BY a,b ORDER BY SUM(c);
+expect:
+{
+  "a" : [ "(1:7~1:8) /catalog1/schema1/t/a/" ],
+  "b" : [ "(1:9~1:10) /catalog1/schema1/t/b/" ]
+}
+----------
+[dql_mysql_select_0.0111]
+sql:
+SELECT COUNT(*) ORDER BY MAX(1)+MIN(1);
+expect:
+{
+  "COUNT(*)" : [ ]
+}
+----------
+[dql_mysql_select_0.0112]
+sql:
+SELECT (SELECT i.a FROM t AS i WHERE i.a=o.a ORDER BY i.b DESC LIMIT 1) FROM t2 AS o;
+expect:
+{
+  "(SELECT i.a FROM t AS i WHERE i.a=o.a ORDER BY i.b DESC LIMIT 1)" : [ "(1:15~1:18) /catalog1/schema1/t/a/" ]
+}
+----------
+[dql_mysql_select_0.0113]
+sql:
+SELECT * FROM t IGNORE INDEX FOR ORDER BY (PRIMARY) ORDER BY a;
+expect:
+{
+  "id" : [ "(1:7~1:8) /catalog1/schema1/t/id/" ]
+}
+----------
+[dql_mysql_select_0.0114]
+sql:
+SELECT MIN(txt) AS min_b FROM t GROUP BY a ORDER BY COALESCE(min_b,'a') DESC;
+expect:
+{
+  "min_b" : [ "(1:11~1:14) /catalog1/schema1/t/txt/" ]
+}
+----------
+[dql_mysql_select_0.0115]
+sql:
+SELECT t2.b+t3.b AS expr FROM t LEFT JOIN (t2 JOIN t2 AS t3 ON t2.a=t3.a) ON t.a=t2.a AND t.a=t3.a AND t2.b+t3.b=20 ORDER BY expr;
+expect:
+{
+  "expr" : [ "(1:7~1:11) /catalog1/schema1/t2/b/", "(1:12~1:16) /catalog1/schema1/t2/b/" ]
+}
+----------
+[dql_mysql_select_0.0116]
+sql:
+SELECT id,col2,col3,col4 FROM t1 WHERE col2 IN (x'4142434445464748494a414243444546') AND col3 IN ('WRITEBACK') ORDER BY col2 DESC,col3 DESC,col4 DESC LIMIT 1;
+expect:
+{
+  "id" : [ "(1:7~1:9) /catalog1/schema1/t1/id/" ],
+  "col2" : [ "(1:10~1:14) /catalog1/schema1/t1/col2/" ],
+  "col3" : [ "(1:15~1:19) /catalog1/schema1/t1/col3/" ],
+  "col4" : [ "(1:20~1:24) /catalog1/schema1/t1/col4/" ]
+}
+----------
+[dql_mysql_select_0.0117]
+sql:
+SELECT * FROM t1 WHERE vc='2021-02-08' ORDER BY vc ASC;
+expect:
+{
+  "id" : [ "(1:7~1:8) /catalog1/schema1/t1/id/" ]
+}
+----------
+[dql_mysql_select_0.0118]
+sql:
+SELECT * FROM t1 WHERE vc=@strvar ORDER BY vc DESC;
+expect:
+{
+  "id" : [ "(1:7~1:8) /catalog1/schema1/t1/id/" ]
+}
+----------
+[dql_mysql_select_0.0119]
+sql:
+SELECT * FROM t1 WHERE vc=DATE'2021-02-08' ORDER BY vc DESC;
+expect:
+{
+  "id" : [ "(1:7~1:8) /catalog1/schema1/t1/id/" ]
+}
+----------
+[dql_mysql_select_0.0120]
+sql:
+SELECT length("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa") as len;
+expect:
+{
+  "len" : [ ]
+}
+----------
+[dql_mysql_select_0.0121]
+sql:
+SELECT REPEAT('a',2000);
+expect:
+{
+  "REPEAT('a',2000)" : [ ]
+}
+----------
+[dql_mysql_select_0.0122]
+sql:
+SELECT @@net_buffer_length,@@max_allowed_packet;
+expect:
+{
+  "@@net_buffer_length" : [ ],
+  "@@max_allowed_packet" : [ ]
+}
+----------
+[dql_mysql_select_0.0123]
+sql:
+SELECT LENGTH(REPEAT('a',2000));
+expect:
+{
+  "LENGTH(REPEAT('a',2000))" : [ ]
+}
+----------
+[dql_mysql_select_0.0124]
+sql:
+SELECT REPEAT('T',16777211);
+expect:
+{
+  "REPEAT('T',16777211)" : [ ]
+}
+----------
+[dql_mysql_select_0.0125]
+sql:
+SELECT id FROM qa_t1 PARTITION (p0,p1) ORDER BY id;
+expect:
+{
+  "id" : [ "(1:7~1:9) /catalog1/schema1/qa_t1/id/" ]
+}
+----------
+[dql_mysql_select_0.0126]
+sql:
+WITH RECURSIVE seq(n) AS (SELECT 1 UNION ALL SELECT n + 1 FROM seq WHERE n < 3) SELECT n FROM seq;
+expect:
+{
+  "n" : [ ]
+}
+----------
+[dql_mysql_select_0.0127]
+sql:
+SELECT id FROM t INTERSECT SELECT id FROM t2;
+expect:
+{
+  "id" : [ "(1:7~1:9) /catalog1/schema1/t/id/", "(1:34~1:36) /catalog1/schema1/t2/id/" ]
+}
+----------
+[dql_mysql_select_0.0128]
+sql:
+SELECT id FROM t EXCEPT SELECT id FROM t2;
+expect:
+{
+  "id" : [ "(1:7~1:9) /catalog1/schema1/t/id/", "(1:31~1:33) /catalog1/schema1/t2/id/" ]
+}
+----------
+[dql_mysql_select_0.0129]
+sql:
+SELECT dept, name, val, ROW_NUMBER() OVER w AS rn, SUM(val) OVER (PARTITION BY dept ORDER BY id ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS running_val FROM t WINDOW w AS (PARTITION BY dept ORDER BY val DESC);
+expect:
+{
+  "dept" : [ "(1:7~1:11) /catalog1/schema1/t/dept/" ],
+  "name" : [ "(1:13~1:17) /catalog1/schema1/t/name/" ],
+  "val" : [ "(1:19~1:22) /catalog1/schema1/t/val/" ],
+  "rn" : [ "(1:7~1:11) /catalog1/schema1/t/dept/", "(1:19~1:22) /catalog1/schema1/t/val/" ],
+  "running_val" : [ "(1:55~1:58) /catalog1/schema1/t/val/", "(1:7~1:11) /catalog1/schema1/t/dept/", "(1:93~1:95) /catalog1/schema1/t/id/" ]
+}
+----------
+[dql_mysql_select_0.0130]
+sql:
+SELECT * FROM t WHERE id = 1 FOR SHARE NOWAIT;
+expect:
+{
+  "id" : [ "(1:7~1:8) /catalog1/schema1/t/id/" ]
+}
+----------
+[dql_mysql_select_0.0131]
+sql:
+SELECT * FROM t WHERE id = 2 FOR UPDATE SKIP LOCKED;
+expect:
+{
+  "id" : [ "(1:7~1:8) /catalog1/schema1/t/id/" ]
+}
+----------
+[dql_mysql_select_0.0137]
+sql:
+SELECT OLD_PASSWORD();
+expect:
+{
+  "OLD_PASSWORD()" : [ ]
+}
+----------
+[dql_mysql_select_0.0138]
+sql:
+SELECT OLD_PASSWORD(1,2);
+expect:
+{
+  "OLD_PASSWORD(1,2)" : [ ]
+}
+----------
+[dql_mysql_select_0.0139]
+sql:
+SELECT ALL HIGH_PRIORITY STRAIGHT_JOIN SQL_SMALL_RESULT SQL_BUFFER_RESULT SQL_NO_CACHE SQL_CALC_FOUND_ROWS t.id FROM t STRAIGHT_JOIN t2 ON t.id = t2.id GROUP BY t.id;
+expect:
+{
+  "id" : [ "(1:107~1:111) /catalog1/schema1/t/id/" ]
+}
+----------
+[dql_mysql_select_0.0140]
+sql:
+SELECT DISTINCTROW SQL_BIG_RESULT grp FROM t GROUP BY grp;
+expect:
+{
+  "grp" : [ "(1:34~1:37) /catalog1/schema1/t/grp/" ]
+}
+----------
+[dql_mysql_select_0.0141]
+sql:
+SELECT id INTO @v1 FROM t WHERE id = 1;
+expect:
+{
+  "id" : [ "(1:7~1:9) /catalog1/schema1/t/id/" ]
+}
+----------
+[dql_mysql_select_0.0142]
+sql:
+SELECT id FROM t WHERE id = 1 INTO @v2;
+expect:
+{
+  "id" : [ "(1:7~1:9) /catalog1/schema1/t/id/" ]
+}
+----------
+[dql_mysql_select_0.0143]
+sql:
+SELECT 1, 2 INTO @split_first, @split_second FROM DUAL;
+expect:
+{
+  "1" : [ ],
+  "2" : [ ]
+}
+----------
+[dql_mysql_select_0.0144]
+sql:
+SELECT 3, 4 FROM DUAL INTO @split_third, @split_fourth;
+expect:
+{
+  "3" : [ ],
+  "4" : [ ]
+}
+----------
+[dql_mysql_select_0.0145]
+sql:
+(SELECT id FROM t WHERE id < 3 ORDER BY id LIMIT 1) UNION ALL (SELECT id FROM t2 WHERE id > 1 ORDER BY id LIMIT 1) ORDER BY id LIMIT 2;
+expect:
+{
+  "id" : [ "(1:8~1:10) /catalog1/schema1/t/id/", "(1:70~1:72) /catalog1/schema1/t2/id/" ]
+}
+----------
+[dql_mysql_select_0.0146]
+sql:
+SELECT MIN(c2), COUNT(*), MAX(c1) FROM split_select_native.t;
+expect:
+{
+  "MIN(c2)" : [ "(1:11~1:13) /catalog1/split_select_native/t/c2/" ],
+  "COUNT(*)" : [ ],
+  "MAX(c1)" : [ "(1:30~1:32) /catalog1/split_select_native/t/c1/" ]
+}
+----------
+[dql_mysql_select_0.0147]
+sql:
+SELECT COUNT(*) FROM split_select_native.t FORCE INDEX(c3_idx);
+expect:
+{
+  "COUNT(*)" : [ ]
+}
+----------
+[dql_mysql_select_0.0148]
+sql:
+SELECT COUNT(*) FROM (SELECT DISTINCT c1 FROM split_select_native.t) AS dt, split_select_native.t;
+expect:
+{
+  "COUNT(*)" : [ ]
+}
+----------
+[dql_mysql_select_0.0149]
+sql:
+SELECT @s, COUNT(*) FROM split_select_native.t;
+expect:
+{
+  "@s" : [ ],
+  "COUNT(*)" : [ ]
+}
+----------
+[dql_mysql_select_0.0150]
+sql:
+SELECT 1 AS c1, (SELECT COUNT(*) FROM split_select_native.t HAVING c1 > 0) FROM DUAL;
+expect:
+{
+  "c1" : [ ],
+  "(SELECT COUNT(*) FROM split_select_native.t HAVING c1 > 0)" : [ ]
+}
+----------
+[dql_mysql_select_0.0151]
+sql:
+SELECT COUNT(*) AS c FROM split_select_native.t LIMIT 10 OFFSET 5;
+expect:
+{
+  "c" : [ ]
+}
+----------
+[dql_mysql_select_0.0152]
+sql:
+SELECT SQL_BIG_RESULT COUNT(*) FROM split_select_native.t, split_select_native.t2;
+expect:
+{
+  "COUNT(*)" : [ ]
+}
+----------
+[dql_mysql_select_0.0153]
+sql:
+SELECT /*+ BNL(t2) */ -(t1.c1+t2.c1) FROM split_select_native.t AS t1, split_select_native.t AS t2 UNION ALL SELECT COUNT(*) FROM split_select_native.t;
+expect:
+{
+  "-(t1.c1+t2.c1)" : [ "(1:24~1:29) /catalog1/split_select_native/t/c1/", "(1:30~1:35) /catalog1/split_select_native/t/c1/" ]
+}
+----------
+[dql_mysql_select_0.0154]
+sql:
+SELECT SQL_BUFFER_RESULT SQL_CALC_FOUND_ROWS * FROM split_select_native.t LIMIT 1;
+expect:
+{
+  "id" : [ "(1:45~1:46) /catalog1/split_select_native/t/id/" ]
+}
+----------
+[dql_mysql_select_0.0155]
+sql:
+SELECT SQL_CALC_FOUND_ROWS DISTINCT b FROM split_select_native.t LIMIT 1;
+expect:
+{
+  "b" : [ "(1:36~1:37) /catalog1/split_select_native/t/b/" ]
+}
+----------
+[dql_mysql_select_0.0156]
+sql:
+SELECT SQL_CALC_FOUND_ROWS b,COUNT(*) AS c FROM split_select_native.t GROUP BY b ORDER BY c DESC LIMIT 1;
+expect:
+{
+  "b" : [ "(1:27~1:28) /catalog1/split_select_native/t/b/" ],
+  "c" : [ ]
+}
+----------
+[dql_mysql_select_0.0157]
+sql:
+SELECT SQL_CALC_FOUND_ROWS t.c1 FROM split_select_native.t AS t LEFT JOIN split_select_native.t2 AS t2 ON t.b=t2.c1 LIMIT 2,1;
+expect:
+{
+  "c1" : [ "(1:27~1:31) /catalog1/split_select_native/t/c1/" ]
+}
+----------
+[dql_mysql_select_0.0158]
+sql:
+SELECT SQL_CALC_FOUND_ROWS 1 FROM (SELECT 1) AS a LIMIT 0;
+expect:
+{
+  "1" : [ ]
+}
+----------
+[dql_mysql_select_0.0159]
+sql:
+SELECT SQL_CALC_FOUND_ROWS 'foo' LIMIT 0;
+expect:
+{
+  "'foo'" : [ ]
+}
+----------
+[dql_mysql_select_0.0160]
+sql:
+SELECT SQL_CALC_FOUND_ROWS 'foo' UNION SELECT 'bar' LIMIT 0;
+expect:
+{
+  "'foo'" : [ ]
+}
+----------
+[dql_mysql_select_0.0161]
+sql:
+(SELECT SQL_CALC_FOUND_ROWS c1 FROM split_select_native.t LIMIT 2 OFFSET 2) UNION ALL (SELECT 1 FROM split_select_native.t WHERE FALSE);
+expect:
+{
+  "c1" : [ "(1:28~1:30) /catalog1/split_select_native/t/c1/" ]
+}
+----------
+[dql_mysql_select_0.0162]
+sql:
+(SELECT SQL_CALC_FOUND_ROWS c1 FROM split_select_native.t WHERE FALSE LIMIT 8,1) UNION ALL (SELECT c1 FROM split_select_native.t LIMIT 4,4);
+expect:
+{
+  "c1" : [ "(1:28~1:30) /catalog1/split_select_native/t/c1/", "(1:99~1:101) /catalog1/split_select_native/t/c1/" ]
+}
+----------
+[dql_mysql_select_0.0163]
+sql:
+SELECT SQL_CALC_FOUND_ROWS col_text FROM tbl AS tbl1 UNION ALL SELECT col_text FROM tbl AS tbl2 ORDER BY col_text LIMIT 0,2;
+expect:
+{
+  "col_text" : [ "(1:27~1:35) /catalog1/schema1/tbl/col_text/", "(1:70~1:78) /catalog1/schema1/tbl/col_text/" ]
+}
+----------
+[dql_mysql_select_0.0164]
+sql:
+SELECT DISTINCT SUBSTRING(fld3,1,3) AS a FROM split_select_inc_a.t2 HAVING a LIKE 'A%' ORDER BY a LIMIT 10;
+expect:
+{
+  "a" : [ "(1:26~1:30) /catalog1/split_select_inc_a/t2/fld3/" ]
+}
+----------
+[dql_mysql_select_0.0165]
+sql:
+SELECT DISTINCT companynr,fld3,REPEAT('a',LENGTH(fld3)),COUNT(*) FROM split_select_inc_a.t2 GROUP BY companynr,fld3 ORDER BY companynr,fld3 LIMIT 100,10;
+expect:
+{
+  "companynr" : [ "(1:16~1:25) /catalog1/split_select_inc_a/t2/companynr/" ],
+  "fld3" : [ "(1:26~1:30) /catalog1/split_select_inc_a/t2/fld3/" ],
+  "REPEAT('a',LENGTH(fld3))" : [ "(1:49~1:53) /catalog1/split_select_inc_a/t2/fld3/" ],
+  "COUNT(*)" : [ ]
+}
+----------
+[dql_mysql_select_0.0166]
+sql:
+SELECT DISTINCT companynr,RTRIM(SPACE(32+companynr)) FROM split_select_inc_a.t3 ORDER BY 1,2;
+expect:
+{
+  "companynr" : [ "(1:16~1:25) /catalog1/split_select_inc_a/t3/companynr/" ],
+  "RTRIM(SPACE(32+companynr))" : [ "(1:41~1:50) /catalog1/split_select_inc_a/t3/companynr/" ]
+}
+----------
+[dql_mysql_select_0.0167]
+sql:
+SELECT t2.companynr,t4.companyname FROM split_select_inc_a.t2 LEFT JOIN split_select_inc_a.t4 USING(companynr) WHERE t4.companynr IS NULL;
+expect:
+{
+  "companynr" : [ "(1:7~1:19) /catalog1/split_select_inc_a/t2/companynr/" ],
+  "companyname" : [ "(1:20~1:34) /catalog1/split_select_inc_a/t4/companyname/" ]
+}
+----------
+[dql_mysql_select_0.0168]
+sql:
+SELECT companynr,t4.companyname FROM split_select_inc_a.t2 LEFT JOIN split_select_inc_a.t4 USING(companynr) WHERE companynr IS NULL;
+expect:
+{
+  "companynr" : [ "(1:7~1:16) /catalog1/split_select_inc_a/t2/companynr/", "(1:7~1:16) /catalog1/split_select_inc_a/t4/companynr/" ],
+  "companyname" : [ "(1:17~1:31) /catalog1/split_select_inc_a/t4/companyname/" ]
+}
+----------
+[dql_mysql_select_0.0169]
+sql:
+SELECT fld1 FROM split_select_inc_a.t2 WHERE fld1 IN (1,2,3,4,5,6) AND fld1>=2 AND fld1 NOT IN (5,6);
+expect:
+{
+  "fld1" : [ "(1:7~1:11) /catalog1/split_select_inc_a/t2/fld1/" ]
+}
+----------
+[dql_mysql_select_0.0170]
+sql:
+SELECT COUNT(*),MIN(fld4),MAX(fld4),SUM(fld1),AVG(fld1),STD(fld1),VARIANCE(fld1) FROM split_select_inc_a.t2 WHERE companynr=10 AND fld4<>'';
+expect:
+{
+  "COUNT(*)" : [ ],
+  "MIN(fld4)" : [ "(1:20~1:24) /catalog1/split_select_inc_a/t2/fld4/" ],
+  "MAX(fld4)" : [ "(1:30~1:34) /catalog1/split_select_inc_a/t2/fld4/" ],
+  "SUM(fld1)" : [ "(1:40~1:44) /catalog1/split_select_inc_a/t2/fld1/" ],
+  "AVG(fld1)" : [ "(1:50~1:54) /catalog1/split_select_inc_a/t2/fld1/" ],
+  "STD(fld1)" : [ "(1:60~1:64) /catalog1/split_select_inc_a/t2/fld1/" ],
+  "VARIANCE(fld1)" : [ "(1:75~1:79) /catalog1/split_select_inc_a/t2/fld1/" ]
+}
+----------
+[dql_mysql_select_0.0171]
+sql:
+SELECT companynr,COUNT(DISTINCT CONCAT(fld1,REPEAT(65,200))) FROM split_select_inc_a.t2 GROUP BY companynr;
+expect:
+{
+  "companynr" : [ "(1:7~1:16) /catalog1/split_select_inc_a/t2/companynr/" ],
+  "COUNT(DISTINCT CONCAT(fld1,REPEAT(65,200)))" : [ "(1:39~1:43) /catalog1/split_select_inc_a/t2/fld1/" ]
+}
+----------
+[dql_mysql_select_0.0172]
+sql:
+SELECT t3.companynr+0,t3.t2nr,t2.fld3,SUM(t3.price) FROM split_select_inc_a.t3 JOIN split_select_inc_a.t2 ON t2.fld1=t3.t2nr WHERE t3.companynr=10 GROUP BY 1,t3.t2nr,t2.fld3,t2.fld3,t2.fld3 ORDER BY t2.fld1;
+expect:
+{
+  "t3.companynr+0" : [ "(1:7~1:19) /catalog1/split_select_inc_a/t3/companynr/" ],
+  "t2nr" : [ "(1:22~1:29) /catalog1/split_select_inc_a/t3/t2nr/" ],
+  "fld3" : [ "(1:30~1:37) /catalog1/split_select_inc_a/t2/fld3/" ],
+  "SUM(t3.price)" : [ "(1:42~1:50) /catalog1/split_select_inc_a/t3/price/" ]
+}
+----------
+[dql_mysql_select_0.0173]
+sql:
+SELECT companynr,COUNT(*) AS row_count,SUM(fld1) AS fld_sum FROM split_select_inc_a.t2 GROUP BY companynr HAVING row_count>0 AND fld_sum/row_count>=1;
+expect:
+{
+  "companynr" : [ "(1:7~1:16) /catalog1/split_select_inc_a/t2/companynr/" ],
+  "row_count" : [ ],
+  "fld_sum" : [ "(1:43~1:47) /catalog1/split_select_inc_a/t2/fld1/" ]
+}
+----------
+[dql_mysql_select_0.0174]
+sql:
+SELECT a.gvid,SUM(CASE b.sampletid WHEN 140 THEN b.samplevalue ELSE 0 END) AS ok,SUM(CASE b.sampletid WHEN 141 THEN b.samplevalue ELSE 0 END) AS failed,SUM(CASE b.sampletid WHEN 142 THEN b.samplevalue ELSE 0 END) AS bytes,SUM(CASE b.sampletid WHEN 143 THEN b.samplevalue ELSE 0 END) AS elapsed FROM split_select_inc_b.a AS a,split_select_inc_b.b AS b WHERE a.hmid=b.hmid AND a.volid=b.volid AND b.sampletid IN (140,141,142,143) GROUP BY a.gvid;
+expect:
+{
+  "gvid" : [ "(1:7~1:13) /catalog1/split_select_inc_b/a/gvid/" ],
+  "ok" : [ "(1:23~1:34) /catalog1/split_select_inc_b/b/sampletid/", "(1:49~1:62) /catalog1/split_select_inc_b/b/samplevalue/" ],
+  "failed" : [ "(1:90~1:101) /catalog1/split_select_inc_b/b/sampletid/", "(1:116~1:129) /catalog1/split_select_inc_b/b/samplevalue/" ],
+  "bytes" : [ "(1:161~1:172) /catalog1/split_select_inc_b/b/sampletid/", "(1:187~1:200) /catalog1/split_select_inc_b/b/samplevalue/" ],
+  "elapsed" : [ "(1:231~1:242) /catalog1/split_select_inc_b/b/sampletid/", "(1:257~1:270) /catalog1/split_select_inc_b/b/samplevalue/" ]
+}
+----------
+[dql_mysql_select_0.0175]
+sql:
+SELECT ALL ALL fld1 FROM split_select_inc_a.t2;
+expect:
+{
+  "fld1" : [ "(1:15~1:19) /catalog1/split_select_inc_a/t2/fld1/" ]
+}
+----------
+[dql_mysql_select_0.0176]
+sql:
+SELECT DISTINCT DISTINCT fld1 FROM split_select_inc_a.t2;
+expect:
+{
+  "fld1" : [ "(1:25~1:29) /catalog1/split_select_inc_a/t2/fld1/" ]
+}
+----------
+[dql_mysql_select_0.0177]
+sql:
+SELECT ALL DISTINCT fld1 FROM split_select_inc_a.t2;
+expect:
+{
+  "fld1" : [ "(1:20~1:24) /catalog1/split_select_inc_a/t2/fld1/" ]
+}
+----------
+[dql_mysql_select_0.0178]
+sql:
+SELECT DISTINCT ALL fld1 FROM split_select_inc_a.t2;
+expect:
+{
+  "fld1" : [ "(1:20~1:24) /catalog1/split_select_inc_a/t2/fld1/" ]
+}
+----------
+[dql_mysql_select_0.0179]
+sql:
+SELECT * FROM split_select_inc_b.j3 LEFT JOIN split_select_inc_b.j1 ON j3.id=j1.uid,split_select_inc_b.j2 WHERE j2.ident IN (0,j1.gid,j3.id,0);
+expect:
+{
+  "id" : [ "(1:7~1:8) /catalog1/split_select_inc_b/j3/id/" ],
+  "uid" : [ "(1:7~1:8) /catalog1/split_select_inc_b/j1/uid/" ],
+  "gid" : [ "(1:7~1:8) /catalog1/split_select_inc_b/j1/gid/" ],
+  "ident" : [ "(1:7~1:8) /catalog1/split_select_inc_b/j2/ident/" ]
+}
+----------
+[dql_mysql_select_0.0180]
+sql:
+(SELECT a,b AS c FROM split_select_inc_b.ord) ORDER BY c+1;
+expect:
+{
+  "a" : [ "(1:8~1:9) /catalog1/split_select_inc_b/ord/a/" ],
+  "c" : [ "(1:10~1:11) /catalog1/split_select_inc_b/ord/b/" ]
+}
+----------
+[dql_mysql_select_0.0181]
+sql:
+(SELECT a,b AS c FROM split_select_inc_b.ord) ORDER BY b+1;
+expect:
+{
+  "a" : [ "(1:8~1:9) /catalog1/split_select_inc_b/ord/a/" ],
+  "c" : [ "(1:10~1:11) /catalog1/split_select_inc_b/ord/b/" ]
+}
+----------
+[dql_mysql_select_0.0182]
+sql:
+SELECT f1 FROM split_select_inc_b.p1,split_select_inc_b.p2 WHERE f1=f2 AND (f1,f2)=((1,1));
+expect:
+{
+  "f1" : [ "(1:7~1:9) /catalog1/split_select_inc_b/p1/f1/" ]
+}
+----------
+[dql_mysql_select_0.0183]
+sql:
+SELECT * FROM split_select_inc_b.p1,split_select_inc_b.p2 WHERE f1=f3 AND (f1,f2)<=>(2,NULL);
+expect:
+[ {
+  "sources" : [ "(1:7~1:8) /catalog1/split_select_inc_b/p1/id/" ],
+  "column" : "id"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/split_select_inc_b/p2/id/" ],
+  "column" : "id"
+} ]
+----------
+[dql_mysql_select_0.0184]
+sql:
+SELECT DISTINCT COUNT(g1.f2)>0 FROM split_select_inc_b.g1 LEFT JOIN split_select_inc_b.g2 ON g1.f1=g2.f3 GROUP BY g1.f1;
+expect:
+{
+  "COUNT(g1.f2)>0" : [ "(1:22~1:27) /catalog1/split_select_inc_b/g1/f2/" ]
+}
+----------
+[dql_mysql_select_0.0185]
+sql:
+SELECT * FROM split_select_inc_b.n1 WHERE f1 IN (SELECT f3 FROM split_select_inc_b.n2 WHERE (f3,f4)=(SELECT f3,f4 FROM split_select_inc_b.n2 LIMIT 1));
+expect:
+{
+  "id" : [ "(1:7~1:8) /catalog1/split_select_inc_b/n1/id/" ]
+}
+----------
+[dql_mysql_select_0.0186]
+sql:
+SELECT i='1e+01',i=1e+01,i IN (1e+01,1e+01),i IN ('1e+01','1e+01') FROM split_select_inc_b.conv;
+expect:
+{
+  "i='1e+01'" : [ "(1:7~1:8) /catalog1/split_select_inc_b/conv/i/" ],
+  "i=1e+01" : [ "(1:17~1:18) /catalog1/split_select_inc_b/conv/i/" ],
+  "i IN (1e+01,1e+01)" : [ "(1:25~1:26) /catalog1/split_select_inc_b/conv/i/" ],
+  "i IN ('1e+01','1e+01')" : [ "(1:44~1:45) /catalog1/split_select_inc_b/conv/i/" ]
+}
+----------
+[dql_mysql_select_0.0187]
+sql:
+SELECT * FROM split_select_inc_b.v1 JOIN split_select_inc_b.v2 ON v1.c0=v2.c0 WHERE (v1.c0<=>@@connect_timeout);
+expect:
+[ {
+  "sources" : [ "(1:7~1:8) /catalog1/split_select_inc_b/v1/c0/" ],
+  "column" : "c0"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/split_select_inc_b/v2/c0/" ],
+  "column" : "c0"
+} ]
+----------
+[dql_mysql_select_0.0188]
+sql:
+SELECT AVG(DISTINCT s1) FROM split_select_inc_c.roll_t GROUP BY s1 WITH ROLLUP;
+expect:
+{
+  "AVG(DISTINCT s1)" : [ "(1:20~1:22) /catalog1/split_select_inc_c/roll_t/s1/" ]
+}
+----------
+[dql_mysql_select_0.0189]
+sql:
+SELECT DISTINCT AVG(s1) AS x FROM split_select_inc_c.roll_t GROUP BY s1 WITH ROLLUP;
+expect:
+{
+  "x" : [ "(1:20~1:22) /catalog1/split_select_inc_c/roll_t/s1/" ]
+}
+----------
+[dql_mysql_select_0.0190]
+sql:
+SELECT * FROM split_select_inc_c.n1 NATURAL JOIN split_select_inc_c.n2 NATURAL JOIN split_select_inc_c.n3;
+expect:
+{
+  "id" : [ "(1:7~1:8) /catalog1/split_select_inc_c/n1/id/", "(1:7~1:8) /catalog1/split_select_inc_c/n2/id/", "(1:7~1:8) /catalog1/split_select_inc_c/n3/id/" ]
+}
+----------
+[dql_mysql_select_0.0191]
+sql:
+SELECT * FROM split_select_inc_c.n1 NATURAL JOIN split_select_inc_c.n3 NATURAL JOIN split_select_inc_c.n2;
+expect:
+{
+  "id" : [ "(1:7~1:8) /catalog1/split_select_inc_c/n1/id/", "(1:7~1:8) /catalog1/split_select_inc_c/n3/id/", "(1:7~1:8) /catalog1/split_select_inc_c/n2/id/" ]
+}
+----------
+[dql_mysql_select_0.0192]
+sql:
+SELECT * FROM split_select_inc_c.j1 JOIN split_select_inc_c.j2 JOIN split_select_inc_c.j3 ON (j2.b=j3.b AND j1.a=j3.a);
+expect:
+[ {
+  "sources" : [ "(1:7~1:8) /catalog1/split_select_inc_c/j1/a/" ],
+  "column" : "a"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/split_select_inc_c/j2/b/" ],
+  "column" : "b"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/split_select_inc_c/j3/b/" ],
+  "column" : "b"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/split_select_inc_c/j3/a/" ],
+  "column" : "a"
+} ]
+----------
+[dql_mysql_select_0.0193]
+sql:
+SELECT * FROM split_select_inc_c.j1,split_select_inc_c.j2 JOIN split_select_inc_c.j3 ON (j2.b=j3.b AND j1.a=j3.a);
+expect:
+[ {
+  "sources" : [ "(1:7~1:8) /catalog1/split_select_inc_c/j1/a/" ],
+  "column" : "a"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/split_select_inc_c/j2/b/" ],
+  "column" : "b"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/split_select_inc_c/j3/b/" ],
+  "column" : "b"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/split_select_inc_c/j3/a/" ],
+  "column" : "a"
+} ]
+----------
+[dql_mysql_select_0.0194]
+sql:
+SELECT * FROM split_select_inc_c.j1 JOIN split_select_inc_c.j2 JOIN split_select_inc_c.j3 JOIN split_select_inc_c.j4 ON (j1.a=j4.c AND j2.b=j4.c);
+expect:
+{
+  "a" : [ "(1:7~1:8) /catalog1/split_select_inc_c/j1/a/" ],
+  "b" : [ "(1:7~1:8) /catalog1/split_select_inc_c/j2/b/" ],
+  "id" : [ "(1:7~1:8) /catalog1/split_select_inc_c/j3/id/" ],
+  "c" : [ "(1:7~1:8) /catalog1/split_select_inc_c/j4/c/" ]
+}
+----------
+[dql_mysql_select_0.0195]
+sql:
+SELECT * FROM split_select_inc_c.j1 JOIN split_select_inc_c.j2 JOIN split_select_inc_c.j4 USING(c);
+expect:
+{
+  "id" : [ "(1:7~1:8) /catalog1/split_select_inc_c/j1/id/" ],
+  "c" : [ "(1:7~1:8) /catalog1/split_select_inc_c/j2/c/", "(1:7~1:8) /catalog1/split_select_inc_c/j4/c/" ]
+}
+----------
+[dql_mysql_select_0.0196]
+sql:
+SELECT * FROM split_select_inc_c.j1 JOIN split_select_inc_c.j2 LEFT JOIN split_select_inc_c.j3 ON (j1.a=j3.a);
+expect:
+[ {
+  "sources" : [ "(1:7~1:8) /catalog1/split_select_inc_c/j1/a/" ],
+  "column" : "a"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/split_select_inc_c/j2/id/" ],
+  "column" : "id"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/split_select_inc_c/j3/a/" ],
+  "column" : "a"
+} ]
+----------
+[dql_mysql_select_0.0197]
+sql:
+SELECT * FROM split_select_inc_c.j1 JOIN split_select_inc_c.j2 RIGHT JOIN split_select_inc_c.j3 ON (j1.a=j3.a);
+expect:
+[ {
+  "sources" : [ "(1:7~1:8) /catalog1/split_select_inc_c/j1/a/" ],
+  "column" : "a"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/split_select_inc_c/j2/id/" ],
+  "column" : "id"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/split_select_inc_c/j3/a/" ],
+  "column" : "a"
+} ]
+----------
+[dql_mysql_select_0.0198]
+sql:
+SELECT * FROM split_select_inc_c.j1 JOIN split_select_inc_c.j2 STRAIGHT_JOIN split_select_inc_c.j3 ON (j1.a=j3.a);
+expect:
+[ {
+  "sources" : [ "(1:7~1:8) /catalog1/split_select_inc_c/j1/a/" ],
+  "column" : "a"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/split_select_inc_c/j2/id/" ],
+  "column" : "id"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/split_select_inc_c/j3/a/" ],
+  "column" : "a"
+} ]
+----------
+[dql_mysql_select_0.0199]
+sql:
+SELECT DISTINCT MATCH(c1) AGAINST('z'),c2,c3,c4 FROM split_select_inc_c.ft WHERE c9=1 ORDER BY c2,c2;
+expect:
+{
+  "MATCH(c1) AGAINST('z')" : [ "(1:22~1:24) /catalog1/split_select_inc_c/ft/c1/" ],
+  "c2" : [ "(1:39~1:41) /catalog1/split_select_inc_c/ft/c2/" ],
+  "c3" : [ "(1:42~1:44) /catalog1/split_select_inc_c/ft/c3/" ],
+  "c4" : [ "(1:45~1:47) /catalog1/split_select_inc_c/ft/c4/" ]
+}
+----------
+[dql_mysql_select_0.0200]
+sql:
+SELECT * FROM split_select_inc_c.m1 LEFT JOIN split_select_inc_c.m2 ON m2.b=m1.a INNER JOIN split_select_inc_c.m3 ON m3.d=m1.id WHERE m1.id=2;
+expect:
+{
+  "a" : [ "(1:7~1:8) /catalog1/split_select_inc_c/m1/a/" ],
+  "id" : [ "(1:7~1:8) /catalog1/split_select_inc_c/m1/id/" ],
+  "b" : [ "(1:7~1:8) /catalog1/split_select_inc_c/m2/b/" ],
+  "d" : [ "(1:7~1:8) /catalog1/split_select_inc_c/m3/d/" ]
+}
+----------
+[dql_mysql_select_0.0201]
+sql:
+SELECT * FROM split_select_inc_d.dt_a LEFT JOIN split_select_inc_d.dt_b ON dt_a.a=dt_b.a WHERE dt_a.a=30 AND dt_a.ts BETWEEN dt_b.dt1 AND dt_b.dt2 AND dt_a.ts BETWEEN '2006-01-01' AND '2006-12-31';
+expect:
+[ {
+  "sources" : [ "(1:7~1:8) /catalog1/split_select_inc_d/dt_a/a/" ],
+  "column" : "a"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/split_select_inc_d/dt_a/ts/" ],
+  "column" : "ts"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/split_select_inc_d/dt_b/a/" ],
+  "column" : "a"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/split_select_inc_d/dt_b/dt1/" ],
+  "column" : "dt1"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/split_select_inc_d/dt_b/dt2/" ],
+  "column" : "dt2"
+} ]
+----------
+[dql_mysql_select_0.0202]
+sql:
+SELECT IF(1,9223372036854775808,1) AS i,CASE WHEN 1 THEN 9223372036854775808 ELSE 1 END AS c,COALESCE(9223372036854775808,1) AS co;
+expect:
+{
+  "i" : [ ],
+  "c" : [ ],
+  "co" : [ ]
+}
+----------
+[dql_mysql_select_0.0203]
+sql:
+SELECT faq_t.faq_id FROM split_select_inc_d.access_t INNER JOIN split_select_inc_d.faq_t IGNORE INDEX (idx1) ON access_t.access_id=faq_t.access_id LEFT JOIN split_select_inc_d.faq_t AS f ON f.faq_group_id=faq_t.faq_group_id AND FIND_IN_SET(f.access_id,'1,4')<FIND_IN_SET(faq_t.access_id,'1,4') WHERE faq_t.access_id IN (1,4) AND f.access_id IS NULL AND faq_t.faq_id IN (265);
+expect:
+{
+  "faq_id" : [ "(1:7~1:19) /catalog1/split_select_inc_d/faq_t/faq_id/" ]
+}
+----------
+[dql_mysql_select_0.0204]
+sql:
+SELECT j2.c1 FROM split_select_inc_d.or_t AS j0,split_select_inc_d.or_t AS j1,split_select_inc_d.or_t AS j2,split_select_inc_d.or_t AS j3,split_select_inc_d.or_t AS j4,split_select_inc_d.or_t AS j5,split_select_inc_d.or_t AS j6,split_select_inc_d.or_t AS j7 WHERE j0.c1=j1.c1 AND j1.c1=j2.c1 AND j2.c1=j3.c1 AND j3.c1=j4.c1 AND j4.c1=j5.c1 AND j5.c1=j6.c1 AND j6.c1=j7.c1 OR j0.c2<'?' AND j1.c2<'?' AND j2.c2>'?' AND j2.c2<'!' AND j3.c2>'?' AND j4.c2='?' AND j5.c2<>'?' AND j6.c2<>'?' AND j7.c2>='?' AND j0.c1=j1.c1 AND j1.c1=j2.c1 AND j2.c1=j3.c1 AND j3.c1=j4.c1 AND j4.c1=j5.c1 AND j5.c1=j6.c1 AND j6.c1=j7.c1 GROUP BY j3.c1,j2.c1,j7.c1,j1.c1,j0.c1;
+expect:
+{
+  "c1" : [ "(1:7~1:12) /catalog1/split_select_inc_d/or_t/c1/" ]
+}
+----------
+[dql_mysql_select_0.0205]
+sql:
+SELECT 1 AS ` `;
+expect:
+{
+  " " : [ ]
+}
+----------
+[dql_mysql_select_0.0206]
+sql:
+SELECT 1 AS `  `;
+expect:
+{
+  "  " : [ ]
+}
+----------
+[dql_mysql_select_0.0207]
+sql:
+SELECT STR_TO_DATE('2007-10-09','%Y-%m-%d') BETWEEN '2007/10/01 00:00:00 GMT' AND '2007/10/20 00:00:00 GMT';
+expect:
+{
+  "STR_TO_DATE('2007-10-09','%Y-%m-%d') BETWEEN '2007/10/01 00:00:00 GMT' AND '2007/10/20 00:00:00 GMT'" : [ ]
+}
+----------
+[dql_mysql_select_0.0208]
+sql:
+SELECT STR_TO_DATE('2007-10-01','%Y-%m-%d')='2007-10-1 00:00:00 GMT-6';
+expect:
+{
+  "STR_TO_DATE('2007-10-01','%Y-%m-%d')='2007-10-1 00:00:00 GMT-6'" : [ ]
+}
+----------
+[dql_mysql_select_0.0209]
+sql:
+SELECT * FROM split_select_inc_d.dt_a WHERE a>NULL+1;
+expect:
+{
+  "id" : [ "(1:7~1:8) /catalog1/split_select_inc_d/dt_a/id/" ]
+}
+----------
+[dql_mysql_select_0.0210]
+sql:
+SELECT * FROM split_select_inc_d.str_t WHERE a IN (CONCAT('foo',0),'bar');
+expect:
+{
+  "id" : [ "(1:7~1:8) /catalog1/split_select_inc_d/str_t/id/" ]
+}
+----------
+[dql_mysql_select_0.0211]
+sql:
+SELECT sales_a.f3,sales_cr.f4,COUNT(*) FROM split_select_inc_d.sales_a STRAIGHT_JOIN split_select_inc_d.sales_cr ON sales_cr.f2=sales_a.f1 LEFT JOIN (split_select_inc_d.sales_cr AS cr2 JOIN split_select_inc_d.sales_ae AS ae2 ON cr2.f3=ae2.f1) ON sales_a.f1=cr2.f2 AND ae2.f2<NOW()-INTERVAL 7 DAY AND sales_cr.f4=cr2.f4 GROUP BY sales_a.f3,sales_cr.f4;
+expect:
+{
+  "f3" : [ "(1:7~1:17) /catalog1/split_select_inc_d/sales_a/f3/" ],
+  "f4" : [ "(1:18~1:29) /catalog1/split_select_inc_d/sales_cr/f4/" ],
+  "COUNT(*)" : [ ]
+}
+----------
+[dql_mysql_select_0.0212]
+sql:
+SELECT 1 FROM split_select_inc_d.row_t WHERE a<>1 AND NOT ROW(1,a)<=>ROW(1,(SELECT 1 FROM split_select_inc_d.row_t)) INTO @var0;
+expect:
+{
+  "1" : [ ]
+}
+----------
+[dql_mysql_select_0.0213]
+sql:
+SELECT 1 FROM split_select_inc_d.row_empty JOIN split_select_inc_d.row_t ON 1=1 WHERE a!='1' AND NOT a>=b OR NOT ROW(b,a)<>ROW(a,a);
+expect:
+{
+  "1" : [ ]
+}
+----------
+[dql_mysql_select_0.0214]
+sql:
+SELECT jb.date_key FROM split_select_inc_d.join_b AS jb LEFT JOIN split_select_inc_d.join_b AS jb3 JOIN (split_select_inc_d.join_bb AS jbb JOIN split_select_inc_d.join_a AS ja ON jbb.varchar_nokey) ON jbb.int_nokey ON jbb.date_key WHERE NOT (jb.varchar_key AND ja.pk) GROUP BY jb.date_key;
+expect:
+{
+  "date_key" : [ "(1:7~1:18) /catalog1/split_select_inc_d/join_b/date_key/" ]
+}
+----------
+[dql_mysql_select_0.0215]
+sql:
+SELECT COALESCE(AVG(DISTINCT GEOMFROMTEXT('POINT(25379 -22010)'))) UNION ALL SELECT COALESCE(AVG(DISTINCT GEOMFROMTEXT('POINT(25379 -22010)'))) AS foo;
+expect:
+{
+  "COALESCE(AVG(DISTINCT GEOMFROMTEXT('POINT(25379 -22010)')))" : [ ]
+}
+----------
+[dql_mysql_select_0.0216]
+sql:
+SELECT AVG(DISTINCT text_t.a) FROM split_select_inc_d.text_t,split_select_inc_d.text_t AS t2 GROUP BY t2.a ORDER BY text_t.a;
+expect:
+{
+  "AVG(DISTINCT text_t.a)" : [ "(1:20~1:28) /catalog1/split_select_inc_d/text_t/a/" ]
+}
+----------
+[dql_mysql_select_0.0217]
+sql:
+SELECT (SELECT 1 FROM split_select_inc_d.nested_t1 GROUP BY a HAVING AVG(DISTINCT 1) ORDER BY MAX(a)) FROM split_select_inc_d.nested_t1,split_select_inc_d.nested_t2 GROUP BY a;
+expect:
+{
+  "(SELECT 1 FROM split_select_inc_d.nested_t1 GROUP BY a HAVING AVG(DISTINCT 1) ORDER BY MAX(a))" : [ ]
+}
+----------
+[dql_mysql_select_0.0218]
+sql:
+SELECT * FROM split_select_inc_d.null_join_t AS n1 LEFT JOIN split_select_inc_d.null_join_t AS n2 ON n1.f1=n2.f2 WHERE n2.f1 NOT BETWEEN 4 AND 12;
+expect:
+[ {
+  "sources" : [ "(1:7~1:8) /catalog1/split_select_inc_d/null_join_t/f1/" ],
+  "column" : "f1"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/split_select_inc_d/null_join_t/f2/" ],
+  "column" : "f2"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/split_select_inc_d/null_join_t/f1/" ],
+  "column" : "f1"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/split_select_inc_d/null_join_t/f2/" ],
+  "column" : "f2"
+} ]
+----------
+[dql_mysql_select_0.0219]
+sql:
+SELECT 1 FROM split_select_inc_d.enum_t ORDER BY a COLLATE latin1_german2_ci;
+expect:
+{
+  "1" : [ ]
+}
+----------
+[dql_mysql_select_0.0220]
+sql:
+SELECT a FROM split_select_inc_d.limit_t ORDER BY a LIMIT 2,4294967296;
+expect:
+{
+  "a" : [ "(1:7~1:8) /catalog1/split_select_inc_d/limit_t/a/" ]
+}
+----------
+[dql_mysql_select_0.0224]
+sql:
+SELECT id FROM t WHERE id = 1 FOR UPDATE OF t NOWAIT;
+expect:
+{
+  "id" : [ "(1:7~1:9) /catalog1/schema1/t/id/" ]
+}
+----------
+[dql_mysql_select_0.0225]
+sql:
+SELECT id FROM t WHERE id = 1 FOR UPDATE INTO @v3;
+expect:
+{
+  "id" : [ "(1:7~1:9) /catalog1/schema1/t/id/" ]
+}
+----------
+[dql_mysql_select_0.0226]
+sql:
+SELECT t.id, d.n FROM t JOIN LATERAL (SELECT t.id + 1 AS n) AS d ON TRUE ORDER BY t.id;
+expect:
+{
+  "id" : [ "(1:7~1:11) /catalog1/schema1/t/id/" ],
+  "n" : [ "(1:45~1:49) /catalog1/schema1/t/id/" ]
+}
+----------
+[dql_mysql_select_0.0227]
+sql:
+SELECT * FROM (SELECT 1 AS n UNION SELECT 2 UNION SELECT 3) AS x;
+expect:
+{
+  "n" : [ ]
+}
+----------
+[dql_mysql_select_0.0228]
+sql:
+SELECT COUNT(*) FROM split_select_safe.t1 AS t1,split_select_safe.t2 AS t2 WHERE t1.x=t2.x AND (SELECT MAX(t1.id+t2.id+t3.id) FROM split_select_safe.t2 AS t3);
+expect:
+{
+  "COUNT(*)" : [ ]
+}
+----------
+[dql_mysql_select_0.0229]
+sql:
+SELECT COUNT(*) FROM split_select_safe.t1 AS t1 LEFT JOIN split_select_safe.t2 AS t2 ON t1.x=t2.x AND (SELECT MAX(t1.id+t2.id+t3.id) FROM split_select_safe.t2 AS t3);
+expect:
+{
+  "COUNT(*)" : [ ]
+}
+----------
+[dql_mysql_select_0.0230]
+sql:
+SELECT COUNT(*) FROM split_select_safe.t1 AS t1,split_select_safe.t2 AS t2 WHERE t1.x=t2.x AND (SELECT DISTINCT t3.x>0 FROM split_select_safe.t2 AS t3);
+expect:
+{
+  "COUNT(*)" : [ ]
+}
+----------
+[dql_mysql_select_0.0231]
+sql:
+SELECT COUNT(*) FROM (SELECT DISTINCT x FROM split_select_safe.t1) AS dt1,(SELECT DISTINCT x FROM split_select_safe.t2) AS dt2 WHERE dt1.x=dt2.x;
+expect:
+{
+  "COUNT(*)" : [ ]
+}
+----------
+[dql_mysql_select_0.0232]
+sql:
+SELECT /*+ SET_VAR(max_join_size=110) */ COUNT(x) FROM split_select_safe.t1 UNION ALL SELECT COUNT(x) FROM split_select_safe.t2;
+expect:
+{
+  "COUNT(x)" : [ "(1:47~1:48) /catalog1/split_select_safe/t1/x/", "(1:99~1:100) /catalog1/split_select_safe/t2/x/" ]
+}
+----------
+[dql_mysql_select_0.0233]
+sql:
+(SELECT 1 FROM split_select_safe.t1 LIMIT 3) UNION DISTINCT (SELECT 1 FROM split_select_safe.t1 LIMIT 4) LIMIT 1;
+expect:
+{
+  "1" : [ ]
+}
+----------
+[dql_mysql_select_0.0234]
+sql:
+(SELECT 1 FROM split_select_safe.t1 LIMIT 3) UNION ALL (SELECT 1 FROM split_select_safe.t1 LIMIT 4) LIMIT 5;
+expect:
+{
+  "1" : [ ]
+}
+----------
+[dql_mysql_select_0.0235]
+sql:
+SELECT d.id AS 'column alias' FROM (SELECT 1 AS id) d;
+expect:
+{
+  "column alias" : [ ]
+}
+----------
+[dql_mysql_select_0.0236]
+sql:
+SELECT ABS(-2) 'function alias';
+expect:
+{
+  "function alias" : [ ]
+}
+----------
+[dql_mysql_select_0.0237]
+sql:
+SELECT 1 + 2 AS 'expression alias';
+expect:
+{
+  "expression alias" : [ ]
+}
+----------
+[dql_mysql_select_0.0238]
+sql:
+SELECT (SELECT 4) 'subquery alias';
+expect:
+{
+  "subquery alias" : [ ]
+}
+----------
+[dql_mysql_select_0.0239]
+sql:
+SELECT SQL_CALC_FOUND_ROWS a FROM codex_order_limit_audit_rows INTERSECT SELECT a FROM codex_order_limit_audit_rows LIMIT 1;
+expect:
+{
+  "a" : [ "(1:27~1:28) /catalog1/schema1/codex_order_limit_audit_rows/a/", "(1:80~1:81) /catalog1/schema1/codex_order_limit_audit_rows/a/" ]
+}
+----------
+[dql_mysql_select_0.0240]
+sql:
+SELECT SQL_CALC_FOUND_ROWS * FROM (SELECT a FROM codex_order_limit_audit_rows INTERSECT SELECT a FROM codex_order_limit_audit_rows) AS codex_order_limit_audit_d LIMIT 1;
+expect:
+{
+  "a" : [ "(1:42~1:43) /catalog1/schema1/codex_order_limit_audit_rows/a/", "(1:95~1:96) /catalog1/schema1/codex_order_limit_audit_rows/a/" ]
+}
+----------
+[dql_mysql_select_0.0241]
+sql:
+SELECT SQL_CALC_FOUND_ROWS * FROM (SELECT a FROM codex_order_limit_audit_rows INTERSECT SELECT a FROM codex_order_limit_audit_rows LIMIT 1) AS codex_order_limit_audit_d;
+expect:
+{
+  "a" : [ "(1:42~1:43) /catalog1/schema1/codex_order_limit_audit_rows/a/", "(1:95~1:96) /catalog1/schema1/codex_order_limit_audit_rows/a/" ]
+}
+----------
+[dql_mysql_select_0.0242]
+sql:
+((SELECT SQL_CALC_FOUND_ROWS a FROM codex_order_limit_audit_rows ORDER BY a LIMIT 5) ORDER BY -a LIMIT 4) ORDER BY a LIMIT 3;
+expect:
+{
+  "a" : [ "(1:29~1:30) /catalog1/schema1/codex_order_limit_audit_rows/a/" ]
+}
+----------
+[dql_mysql_select_0.0243]
+sql:
+SELECT POSITION(CONCAT('b','c') IN CONCAT('a','bc','d')), SUBSTRING(CONCAT('abcdef','gh') FROM 1+1 FOR 2+1), TRIM(BOTH CONCAT('x') FROM CONCAT('xx','abc','xx'));
+expect:
+{
+  "POSITION(CONCAT('b','c') IN CONCAT('a','bc','d'))" : [ ],
+  "SUBSTRING(CONCAT('abcdef','gh') FROM 1+1 FOR 2+1)" : [ ],
+  "TRIM(BOTH CONCAT('x') FROM CONCAT('xx','abc','xx'))" : [ ]
+}
+----------
+[dql_mysql_select_0.0244]
+sql:
+SELECT POSITION(needle IN haystack), SUBSTRING(haystack FROM start_pos FOR take_len), TRIM(BOTH trim_char FROM haystack) FROM (SELECT 'bc' AS needle,'xabcy' AS haystack,2 AS start_pos,3 AS take_len,'x' AS trim_char) AS d;
+expect:
+{
+  "POSITION(needle IN haystack)" : [ ],
+  "SUBSTRING(haystack FROM start_pos FOR take_len)" : [ ],
+  "TRIM(BOTH trim_char FROM haystack)" : [ ]
+}
+----------
+[dql_mysql_select_0.0245]
+sql:
+SELECT CHAR(77,121,83,81,76), CHAR(77 USING utf8mb4), CHAR(77,121 USING utf8mb4);
+expect:
+{
+  "CHAR(77,121,83,81,76)" : [ ],
+  "CHAR(77 USING utf8mb4)" : [ ],
+  "CHAR(77,121 USING utf8mb4)" : [ ]
+}
+----------
+[dql_mysql_select_0.0246]
+sql:
+SELECT EXPORT_SET(5,'Y','N'), EXPORT_SET(5,'Y','N','|'), EXPORT_SET(5,'Y','N','|',8);
+expect:
+{
+  "EXPORT_SET(5,'Y','N')" : [ ],
+  "EXPORT_SET(5,'Y','N','|')" : [ ],
+  "EXPORT_SET(5,'Y','N','|',8)" : [ ]
+}
+----------
+[dql_mysql_select_0.0247]
+sql:
+SELECT FORMAT(1234567.89,2,'de_DE');
+expect:
+{
+  "FORMAT(1234567.89,2,'de_DE')" : [ ]
+}
+----------
+[dql_mysql_select_0.0248]
+sql:
+SELECT LOCATE('bar','foobarbar',5), POSITION('bar' IN 'foobarbar');
+expect:
+{
+  "LOCATE('bar','foobarbar',5)" : [ ],
+  "POSITION('bar' IN 'foobarbar')" : [ ]
+}
+----------
+[dql_mysql_select_0.0249]
+sql:
+SELECT SUBSTRING('abcdef',2), SUBSTRING('abcdef',2,3);
+expect:
+{
+  "SUBSTRING('abcdef',2)" : [ ],
+  "SUBSTRING('abcdef',2,3)" : [ ]
+}
+----------
+[dql_mysql_select_0.0250]
+sql:
+SELECT SUBSTRING('abcdef' FROM 2), SUBSTRING('abcdef' FROM 2 FOR 3);
+expect:
+{
+  "SUBSTRING('abcdef' FROM 2)" : [ ],
+  "SUBSTRING('abcdef' FROM 2 FOR 3)" : [ ]
+}
+----------
+[dql_mysql_select_0.0251]
+sql:
+SELECT MID('abcdef',2), MID('abcdef',2,3);
+expect:
+{
+  "MID('abcdef',2)" : [ ],
+  "MID('abcdef',2,3)" : [ ]
+}
+----------
+[dql_mysql_select_0.0252]
+sql:
+SELECT TRIM('  abc  '), TRIM('x' FROM 'xxxabcxxx');
+expect:
+{
+  "TRIM('  abc  ')" : [ ],
+  "TRIM('x' FROM 'xxxabcxxx')" : [ ]
+}
+----------
+[dql_mysql_select_0.0253]
+sql:
+SELECT TRIM(BOTH 'x' FROM 'xxxabcxxx'), TRIM(LEADING 'x' FROM 'xxxabcxxx'), TRIM(TRAILING 'x' FROM 'xxxabcxxx');
+expect:
+{
+  "TRIM(BOTH 'x' FROM 'xxxabcxxx')" : [ ],
+  "TRIM(LEADING 'x' FROM 'xxxabcxxx')" : [ ],
+  "TRIM(TRAILING 'x' FROM 'xxxabcxxx')" : [ ]
+}
+----------
+[dql_mysql_select_0.0254]
+sql:
+SELECT TRIM(BOTH FROM '  abc  '), TRIM(LEADING FROM '  abc  '), TRIM(TRAILING FROM '  abc  ');
+expect:
+{
+  "TRIM(BOTH FROM '  abc  ')" : [ ],
+  "TRIM(LEADING FROM '  abc  ')" : [ ],
+  "TRIM(TRAILING FROM '  abc  ')" : [ ]
+}
+----------
+[dql_mysql_select_0.0255]
+sql:
+SELECT s1t1.column1 AS main_id, (SELECT MAX(s2t2.column3) FROM split_cpx84_s2.table2 s2t2 WHERE s2t2.column4=s1t1.column2) AS max_val, RANK() OVER (ORDER BY s1t2.column5 DESC) AS rank_level FROM split_cpx84_s1.table1 s1t1 JOIN split_cpx84_s1.table2 s1t2 ON s1t1.column3=s1t2.column1 LEFT JOIN split_cpx84_s2.table1 s2t1 ON s1t1.column4=s2t1.column5 WHERE s2t1.column6 IN (SELECT DISTINCT column2 FROM split_cpx84_s2.table2 WHERE column4>100);
+expect:
+{
+  "main_id" : [ "(1:7~1:19) /catalog1/split_cpx84_s1/table1/column1/" ],
+  "max_val" : [ "(1:44~1:56) /catalog1/split_cpx84_s2/table2/column3/" ],
+  "rank_level" : [ "(1:157~1:169) /catalog1/split_cpx84_s1/table2/column5/" ]
+}
+----------
+[dql_mysql_select_0.0256]
+sql:
+SELECT s1t1.column2 AS category, SUM(s2t1.column4) AS total_sum, AVG(s1t2.column5) OVER (PARTITION BY s1t1.column2) AS avg_value, (SELECT COUNT(*) FROM split_cpx84_s2.table2 WHERE column3=s1t1.column3) AS related_count FROM split_cpx84_s1.table1 s1t1 LEFT JOIN split_cpx84_s1.table2 s1t2 ON s1t1.column1=s1t2.column6 RIGHT JOIN split_cpx84_s2.table1 s2t1 ON s1t1.column4=s2t1.column3 GROUP BY s1t1.column2 HAVING total_sum>(SELECT AVG(column4)*1.5 FROM split_cpx84_s2.table1);
+expect:
+{
+  "category" : [ "(1:7~1:19) /catalog1/split_cpx84_s1/table1/column2/" ],
+  "total_sum" : [ "(1:37~1:49) /catalog1/split_cpx84_s2/table1/column4/" ],
+  "avg_value" : [ "(1:69~1:81) /catalog1/split_cpx84_s1/table2/column5/", "(1:102~1:114) /catalog1/split_cpx84_s1/table1/column2/" ],
+  "related_count" : [ ]
+}
+----------
+[dql_mysql_select_0.0257]
+sql:
+(SELECT s1t1.*,s2t2.column1 AS s2_col1,ROW_NUMBER() OVER (ORDER BY s1t2.column5) AS conflict_alias FROM split_cpx84_s1.table1 s1t1 LEFT JOIN split_cpx84_s2.table2 s2t2 ON s1t1.column6=s2t2.column3 LEFT JOIN split_cpx84_s1.table2 s1t2 ON s1t1.column2=s1t2.column4) UNION (SELECT s2t1.*,s1t2.column2 AS s1_col2,RANK() OVER (PARTITION BY s2t1.column3 ORDER BY s2t1.column4) AS conflict_alias FROM split_cpx84_s2.table1 s2t1 RIGHT JOIN split_cpx84_s1.table2 s1t2 ON s2t1.column5=s1t2.column1 WHERE s2t1.column6 IN (SELECT MAX(column6) FROM split_cpx84_s2.table2 GROUP BY column2)) ORDER BY CASE WHEN conflict_alias>100 THEN column1 ELSE column2 END DESC;
+expect:
+{
+  "column1" : [ "(1:8~1:14) /catalog1/split_cpx84_s1/table1/column1/", "(1:278~1:284) /catalog1/split_cpx84_s2/table1/column1/" ],
+  "column2" : [ "(1:8~1:14) /catalog1/split_cpx84_s1/table1/column2/", "(1:278~1:284) /catalog1/split_cpx84_s2/table1/column2/" ],
+  "column3" : [ "(1:8~1:14) /catalog1/split_cpx84_s1/table1/column3/", "(1:278~1:284) /catalog1/split_cpx84_s2/table1/column3/" ],
+  "column4" : [ "(1:8~1:14) /catalog1/split_cpx84_s1/table1/column4/", "(1:278~1:284) /catalog1/split_cpx84_s2/table1/column4/" ],
+  "column5" : [ "(1:8~1:14) /catalog1/split_cpx84_s1/table1/column5/", "(1:278~1:284) /catalog1/split_cpx84_s2/table1/column5/" ],
+  "column6" : [ "(1:8~1:14) /catalog1/split_cpx84_s1/table1/column6/", "(1:278~1:284) /catalog1/split_cpx84_s2/table1/column6/" ],
+  "s2_col1" : [ "(1:15~1:27) /catalog1/split_cpx84_s2/table2/column1/", "(1:285~1:297) /catalog1/split_cpx84_s1/table2/column2/" ],
+  "conflict_alias" : [ "(1:67~1:79) /catalog1/split_cpx84_s1/table2/column5/", "(1:335~1:347) /catalog1/split_cpx84_s2/table1/column3/", "(1:357~1:369) /catalog1/split_cpx84_s2/table1/column4/" ]
+}
+----------
+[dql_mysql_select_0.0258]
+sql:
+SELECT a.column1,b.column2 FROM (SELECT * FROM split_cpx84.table1 UNION SELECT * FROM split_cpx84_s1.table2) a LEFT JOIN (SELECT * FROM split_cpx84_s2.table1 UNION SELECT * FROM split_cpx84_s2.table2) b ON a.column1=b.column1;
+expect:
+{
+  "column1" : [ "(1:40~1:41) /catalog1/split_cpx84/table1/column1/", "(1:79~1:80) /catalog1/split_cpx84_s1/table2/column1/" ],
+  "column2" : [ "(1:129~1:130) /catalog1/split_cpx84_s2/table1/column2/", "(1:171~1:172) /catalog1/split_cpx84_s2/table2/column2/" ]
+}
+----------
+[dql_mysql_select_0.0259]
+sql:
+SELECT CAST(_gb2312 x'CAFD' AS NATIONAL CHAR(2));
+expect:
+{
+  "CAST(_gb2312 x'CAFD' AS NATIONAL CHAR(2))" : [ ]
+}
+----------
+[dql_mysql_select_0.0260]
+sql:
+SELECT CONVERT(_gb2312 x'CAFD', NATIONAL CHAR(2));
+expect:
+{
+  "CONVERT(_gb2312 x'CAFD', NATIONAL CHAR(2))" : [ ]
+}
+----------
+[dql_mysql_select_0.0261]
+sql:
+SELECT CAST(_gb2312 x'CAFD' AS NATIONAL CHAR(2) ARRAY);
+expect:
+{
+  "CAST(_gb2312 x'CAFD' AS NATIONAL CHAR(2) ARRAY)" : [ ]
+}
+----------
+[dql_mysql_select_0.0262]
+sql:
+SELECT STRAIGHT_JOIN DISTINCT t2.a,t2.b,t1.c FROM t1,t3,t2 WHERE t1.c=t2.a OR (t1.c=t3.a AND t2.a=t3.b) ORDER BY t2.b LIMIT 0,1;
+expect:
+{
+  "a" : [ "(1:30~1:34) /catalog1/schema1/t2/a/" ],
+  "b" : [ "(1:35~1:39) /catalog1/schema1/t2/b/" ],
+  "c" : [ "(1:40~1:44) /catalog1/schema1/t1/c/" ]
+}
+----------
+[dql_mysql_select_0.0263]
+sql:
+with tab1Cnt as (with one as (select 1) select * from table_1),     tab2Cnt as (select * from table_2)select * from tab1Cnt a join tab2Cnt b on a.id = b.id;
+expect:
+[ {
+  "sources" : [ "(1:47~1:48) /catalog1/schema1/table_1/id/" ],
+  "column" : "id"
+}, {
+  "sources" : [ "(1:87~1:88) /catalog1/schema1/table_2/id/" ],
+  "column" : "id"
+} ]

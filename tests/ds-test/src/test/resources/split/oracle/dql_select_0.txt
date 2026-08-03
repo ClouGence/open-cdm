@@ -1,0 +1,451 @@
+select 1 + 1 a;
+select 1 + column1 as xx from table1;
+select 1 + column1 + (select column1 from table2 ) as qq from table1;
+select 1 + column1 + (select column1 from table2 ) + test(column2) as "ffw" from table1;
+select 32 + column1 + test(2) + (select column1 from table2) as test from schema2.table1 a;
+select 1 as " fw ";
+select 1 as a;
+select 1 as a from table1;
+select column1 = 1 as a from table1;
+select column1 + column2 = 1 as a from table1;
+select test_function(1) as q from table1;
+select test_function(column1) as ww from table1;
+select test_function(32) as a;
+select cast(column1 as char) as f from table1;
+select f from (select cast(column1 as char) as f from table1)c;
+select test_func((select column1 from table2)) as ff from table1;
+select test_func((select test_func1((select column1 from schema2.table1),column1) as ww from table2),column1) as gg from table1;
+select * from table1 left join table2 on table1.column1 = table2.column1;
+select table1.column1,table2.column2 from table1 left join table2 on table1.column1 = table2.column1;
+select * from table1 a left join table2 b on a.column1 = b.column1;
+select * from table1 left join schema2.table2 on table1.column1 = table2.column1;
+select * from table1 a left join schema2.table2 b on a.column1 = b.column1;
+select a.*,b.* from table1 a left join schema2.table2 b on a.column1 = b.column1;
+select a.*,b.column1 from table1 a left join schema2.table2 b on a.column1 = b.column1;
+select column1,d from (select a.*,b.column1 as d from table1 a left join schema2.table2 b on a.column1 = b.column1)c;
+select a.column1,b.column2,c.column3 from table1 a left join table2 b on a.column1 = b.column1 left join schema2.table1 c on c.column1 = a.column1;
+select (select column1 from table1) as te from table2;
+select * from table1;
+select * from table1 a;
+select column1 from table1;
+select column1 as test from table1 a;
+select * from schema2.table1;
+select * from schema2.table1 a;
+select column1 from schema2.table1;
+select column1 as test from schema2.table1 a;
+select * from table1 union select * from table2;
+select column1 from (select column1  from table1 union select column2 from table2)c;
+select e from (select column1 as e  from table1 union select column2 as x from table2)c;
+select * from table1 union select * from table2 union select * from schema2.table1;
+select * from (select * from table1 union select * from table2) c;
+with test1 as (select * from table1) select * from test1;
+with test1 as (select * from table1) select * from (with test2 as (select * from table2) select * from test2);
+select * from (with test1 as (select * from table1) select * from (with test1 as (select * from table2) select * from test1)) t;
+select id,"name" from abc;
+select id,"name" from abc fetch first 10 row only;
+select all id,name from "tt".abc;
+select unique id,name from "abc";
+select (1 + a) as aa from users;
+select "tt"."ads_version"() from dual;
+select * from table_1;
+select * from table_1 where 1=1;
+select * from table_1 where id=id;
+select * from table_1 where id = (id);
+select * from table_1 where id between 1 and 34;
+select * from table_1 where id > 1;
+select * from table_1 where id is not null;
+select * from table_1 where 'abc' = name and id > 3;
+select * from table_1 where length(name) > 2;
+select * from table_1 where (name = 'abc' and id > 3) or id = 1;
+select * from table_1 where 1>1;
+select * from table_1 where id in (1,2,3);
+select * from table_1 where id in (1,'2',3);
+select * from table_1 where id in (select id from table_2);
+select * from table_1 where id in (select id from table_2  fetch first 10 row only);
+select id as "id1" from table_1;
+select id as id from table_1;
+select * from table_1 union select * from table_2;
+select * from (select * from table_1 union select * from table_2) t;
+select * from (select * from table_1  fetch first 10 row only union select * from table_2) t;
+select * from table_0 a join (select * from table_1 union select * from table_2) b;
+select id, name from table_1 where id in (select a.id from table_1 a left join (select * from table_1 union select * from table_2) b on a.id = b.id);
+select id = (select a.id from table_1 a left join (select * from table_1 union select * from table_2) b on a.id = b.id) from table_1;
+select id = (select a.id from table_1 a left join (select * from table_1 union select * from table_2) b on a.id = b.id  fetch first 10 row only) from table_1;
+select (select a.id from table_1 a left join (select * from table_1 union select * from table_2) b on a.id = b.id) = id from table_1;
+select * from table1 union  select * from table2;
+select * from table1 union  select * from table2 union all select * from table3 union  select * from table4;
+with tab1Cnt as (select * from table_1),     tab2Cnt as (select * from table_2)select * from tab1Cnt a join tab2Cnt b on a.id = b.id;
+with one as (select 1 as i),
+     tab1Cnt as (select * from table_1),
+     tab2Cnt as (select * from table_2 where (select i from one) = 1)
+select * from tab1Cnt a join tab2Cnt b on a.id = b.id;
+select * from table_1 a join (with one as (select 1) select * from table_1) b;
+select * from (with one as (select 1) select * from table_1) t;
+select * from table_1 where id in (with one as (select 1)  select id from table_1);
+select id,name from abc where id = 1 and name in('a','b');
+select id,name from abc where name in('a','b') and id = 1;
+select id,name from abc where id = 1 or name in('a','b');
+select id,name from abc where name in('a','b') or id = 1;
+SELECT LPAD(' ', (LEVEL - 1) * 4) || last_name AS indented_last_name,
+       employee_id,
+       manager_id,
+       job_title
+FROM abc
+START WITH manager_id IS NULL
+CONNECT BY PRIOR employee_id = manager_id
+ORDER SIBLINGS BY last_name;
+SELECT id,salary, CASE WHEN salary >= 1200 then salary WHEN salary >= 1000 THEN '一般' ELSE '继续努力' END AS type FROM employee;
+SELECT id,salary, CASE WHEN salary >= (select id from table1) then salary WHEN salary >= 1000 THEN '一般' ELSE '继续努力' END AS type FROM employee;
+SELECT id,"salary", CASE WHEN salary >= 1200 then salary WHEN "salary" >= 1000 THEN '一般' ELSE (select id from table1) END AS type FROM employee;
+select * from table_1 a join table_2 b on a.id = b.id;
+select * from table_1 a join table_2 b;
+select * from (table_1 a join table_2 b);
+select * from table_1 a join table_2 b on (a.id);
+select * from table_1, table_2;
+select * from table_1 a, table_2 b where a.id1 = b.id2;
+select * from table_1 a left join table_2 b on a.id = b.id right join table_3 c on a.id = c.id;
+select * from table_1 a inner join table_2 b on a.id = b.id;
+select * from table_1 a inner join table_2 b on (a.id);
+select * from table_1 a cross join table_2 b on a.id = b.id;
+select * from table_1 a cross join table_2 b;
+select * from table_1 a left join table_2 b on a.id = b.id;
+select * from table_1 a left join table_2 b on (a.id);
+select * from table_1 a left outer join table_2 b on a.id = b.id;
+select * from table_1 a left outer join table_2 b on (a.id);
+select * from table_1 a right join table_2 b on a.id = b.id;
+select * from table_1 a right join table_2 b;
+select * from table_1 a right join table_2 b on (a.id);
+select * from table_1 a right outer join table_2 b on a.id = b.id;
+select * from table_1 a right outer join table_2 b on (a.id);
+select * from (select 1 id,'name' name from table_1) a join table_2 b on a.id = b.id;
+select * from table_1 a join (select 1 id,'name' name from table_2) b on a.id = b.id;
+select a.id,b.name from table_1 a join (select id as id1, name from table_2) b on a.id = b.id1;
+select * from (select 1 id,'name' name from table_1) a inner join table_2 b on a.id = b.id;
+select * from table_1 a inner join (select 1 id,'name' name from table_2) b on a.id = b.id;
+select * from (select 1 id,'name' name from table_1) a cross join table_2 b;
+select * from table_1 a cross join (select 1 id,'name' name from table_2) b;
+select * from (select 1 id,'name' name from table_1) a left join table_2 b on a.id = b.id;
+select * from table_1 a left join (select 1 id,'name' name from table_2) b on a.id = b.id;
+select * from (select 1 id,'name' name from table_1) a left outer join table_2 b on a.id = b.id;
+select * from table_1 a left outer join (select 1 id,'name' name from table_2) b on a.id = b.id;
+select * from (select 1 id,'name' name from "table_1") a right join table_2 b on a.id = b.id;
+select * from table_1 a right join (select 1 id,'name' name from table_2) b on a.id = b.id;
+select * from (select 1 id,'name' name from table_1) a right outer join table_2 b on a.id = b.id;
+select * from table_1 a right outer join (select 1 id,'name' name from table_2) b on a.id = b.id;
+select * from (select a.id ,b.name from table_1 a left join table_2 b on a.id = b.id) t;
+select * from table_3 where id in (select a.id from table_1 a left join table_2 b on a.id = b.id);
+select * from table_1 where id = CAST((select a.id from table_2 a left join table_3 b on a.id = b.id where a.id = 1) as CHAR);
+select id = (select a.id from table_1 a left join table_2 b on a.id = b.id ) from table_3;
+select * from (select * from table_1) t;
+select t.id, t.name from (select * from table_1) t;
+select t.id1, t.name from (select id as id1, name from table_1) t;
+select * from table_1 where id in (select a.id from table_2);
+select id, name from table_1 where id in (select a.id from table_2 a left join (select * from table_3) b on a.id = b.id);
+select id, name from table_1 where id in (select a.id from table_2 a left join (select id as id1, name from table_3) b on a.id = b.id1);
+select id = (select a.id from table_1 a left join (select * from table_2) b on a.id = b.id) from table_3;
+select (select a.id from table_1 a left join (select * from table_2) b on a.id = b.id) = id from table_3;
+select (select a.id from table_1 a left join (select id as id1, name from table_2) b on a.id = b.id1) = id from table_3;
+select id = (select a.id from table_1 a left join table_2 b on a.id = b.id) from table_3;
+select (select a.id from table_1 a left join table_2 b on a.id = b.id) = id from table_3;
+select t1.id = (select a.id from table_1 a left join table_2 b on a.id = b.id)
+                    from (select * from table_3) t1 where t1.id in (select id from table_4);
+select sum(id) as c,cast(id AS SIGNED) as b from two_pk_table where  1=1;
+select sum(id) as c,CONCAT('1', cast(age AS SIGNED)),cast((select id from table_1) AS SIGNED) from two_pk_table where  1=1;
+select count(*) as cnt from table_1;
+------------------------------------------------------------------------------------------
+[SELECT] select 1 + 1 a;
+----------
+[SELECT] select 1 + column1 as xx from table1;
+----------
+[SELECT] select 1 + column1 + (select column1 from table2 ) as qq from table1;
+----------
+[SELECT] select 1 + column1 + (select column1 from table2 ) + test(column2) as "ffw" from table1;
+----------
+[SELECT] select 32 + column1 + test(2) + (select column1 from table2) as test from schema2.table1 a;
+----------
+[SELECT] select 1 as " fw ";
+----------
+[SELECT] select 1 as a;
+----------
+[SELECT] select 1 as a from table1;
+----------
+[SELECT] select column1 = 1 as a from table1;
+----------
+[SELECT] select column1 + column2 = 1 as a from table1;
+----------
+[SELECT] select test_function(1) as q from table1;
+----------
+[SELECT] select test_function(column1) as ww from table1;
+----------
+[SELECT] select test_function(32) as a;
+----------
+[SELECT] select cast(column1 as char) as f from table1;
+----------
+[SELECT] select f from (select cast(column1 as char) as f from table1)c;
+----------
+[SELECT] select test_func((select column1 from table2)) as ff from table1;
+----------
+[SELECT] select test_func((select test_func1((select column1 from schema2.table1),column1) as ww from table2),column1) as gg from table1;
+----------
+[SELECT] select * from table1 left join table2 on table1.column1 = table2.column1;
+----------
+[SELECT] select table1.column1,table2.column2 from table1 left join table2 on table1.column1 = table2.column1;
+----------
+[SELECT] select * from table1 a left join table2 b on a.column1 = b.column1;
+----------
+[SELECT] select * from table1 left join schema2.table2 on table1.column1 = table2.column1;
+----------
+[SELECT] select * from table1 a left join schema2.table2 b on a.column1 = b.column1;
+----------
+[SELECT] select a.*,b.* from table1 a left join schema2.table2 b on a.column1 = b.column1;
+----------
+[SELECT] select a.*,b.column1 from table1 a left join schema2.table2 b on a.column1 = b.column1;
+----------
+[SELECT] select column1,d from (select a.*,b.column1 as d from table1 a left join schema2.table2 b on a.column1 = b.column1)c;
+----------
+[SELECT] select a.column1,b.column2,c.column3 from table1 a left join table2 b on a.column1 = b.column1 left join schema2.table1 c on c.column1 = a.column1;
+----------
+[SELECT] select (select column1 from table1) as te from table2;
+----------
+[SELECT] select * from table1;
+----------
+[SELECT] select * from table1 a;
+----------
+[SELECT] select column1 from table1;
+----------
+[SELECT] select column1 as test from table1 a;
+----------
+[SELECT] select * from schema2.table1;
+----------
+[SELECT] select * from schema2.table1 a;
+----------
+[SELECT] select column1 from schema2.table1;
+----------
+[SELECT] select column1 as test from schema2.table1 a;
+----------
+[SELECT] select * from table1 union select * from table2;
+----------
+[SELECT] select column1 from (select column1  from table1 union select column2 from table2)c;
+----------
+[SELECT] select e from (select column1 as e  from table1 union select column2 as x from table2)c;
+----------
+[SELECT] select * from table1 union select * from table2 union select * from schema2.table1;
+----------
+[SELECT] select * from (select * from table1 union select * from table2) c;
+----------
+[SELECT] with test1 as (select * from table1) select * from test1;
+----------
+[SELECT] with test1 as (select * from table1) select * from (with test2 as (select * from table2) select * from test2);
+----------
+[SELECT] select * from (with test1 as (select * from table1) select * from (with test1 as (select * from table2) select * from test1)) t;
+----------
+[SELECT] select id,"name" from abc;
+----------
+[SELECT] select id,"name" from abc fetch first 10 row only;
+----------
+[SELECT] select all id,name from "tt".abc;
+----------
+[SELECT] select unique id,name from "abc";
+----------
+[SELECT] select (1 + a) as aa from users;
+----------
+[SELECT] select "tt"."ads_version"() from dual;
+----------
+[SELECT] select * from table_1;
+----------
+[SELECT] select * from table_1 where 1=1;
+----------
+[SELECT] select * from table_1 where id=id;
+----------
+[SELECT] select * from table_1 where id = (id);
+----------
+[SELECT] select * from table_1 where id between 1 and 34;
+----------
+[SELECT] select * from table_1 where id > 1;
+----------
+[SELECT] select * from table_1 where id is not null;
+----------
+[SELECT] select * from table_1 where 'abc' = name and id > 3;
+----------
+[SELECT] select * from table_1 where length(name) > 2;
+----------
+[SELECT] select * from table_1 where (name = 'abc' and id > 3) or id = 1;
+----------
+[SELECT] select * from table_1 where 1>1;
+----------
+[SELECT] select * from table_1 where id in (1,2,3);
+----------
+[SELECT] select * from table_1 where id in (1,'2',3);
+----------
+[SELECT] select * from table_1 where id in (select id from table_2);
+----------
+[SELECT] select * from table_1 where id in (select id from table_2  fetch first 10 row only);
+----------
+[SELECT] select id as "id1" from table_1;
+----------
+[SELECT] select id as id from table_1;
+----------
+[SELECT] select * from table_1 union select * from table_2;
+----------
+[SELECT] select * from (select * from table_1 union select * from table_2) t;
+----------
+[SELECT] select * from (select * from table_1  fetch first 10 row only union select * from table_2) t;
+----------
+[SELECT] select * from table_0 a join (select * from table_1 union select * from table_2) b;
+----------
+[SELECT] select id, name from table_1 where id in (select a.id from table_1 a left join (select * from table_1 union select * from table_2) b on a.id = b.id);
+----------
+[SELECT] select id = (select a.id from table_1 a left join (select * from table_1 union select * from table_2) b on a.id = b.id) from table_1;
+----------
+[SELECT] select id = (select a.id from table_1 a left join (select * from table_1 union select * from table_2) b on a.id = b.id  fetch first 10 row only) from table_1;
+----------
+[SELECT] select (select a.id from table_1 a left join (select * from table_1 union select * from table_2) b on a.id = b.id) = id from table_1;
+----------
+[SELECT] select * from table1 union  select * from table2;
+----------
+[SELECT] select * from table1 union  select * from table2 union all select * from table3 union  select * from table4;
+----------
+[SELECT] with tab1Cnt as (select * from table_1),     tab2Cnt as (select * from table_2)select * from tab1Cnt a join tab2Cnt b on a.id = b.id;
+----------
+[SELECT] with one as (select 1 as i),
+     tab1Cnt as (select * from table_1),
+     tab2Cnt as (select * from table_2 where (select i from one) = 1)
+select * from tab1Cnt a join tab2Cnt b on a.id = b.id;
+----------
+[SELECT] select * from table_1 a join (with one as (select 1) select * from table_1) b;
+----------
+[SELECT] select * from (with one as (select 1) select * from table_1) t;
+----------
+[SELECT] select * from table_1 where id in (with one as (select 1)  select id from table_1);
+----------
+[SELECT] select id,name from abc where id = 1 and name in('a','b');
+----------
+[SELECT] select id,name from abc where name in('a','b') and id = 1;
+----------
+[SELECT] select id,name from abc where id = 1 or name in('a','b');
+----------
+[SELECT] select id,name from abc where name in('a','b') or id = 1;
+----------
+[SELECT] SELECT LPAD(' ', (LEVEL - 1) * 4) || last_name AS indented_last_name,
+       employee_id,
+       manager_id,
+       job_title
+FROM abc
+START WITH manager_id IS NULL
+CONNECT BY PRIOR employee_id = manager_id
+ORDER SIBLINGS BY last_name;
+----------
+[SELECT] SELECT id,salary, CASE WHEN salary >= 1200 then salary WHEN salary >= 1000 THEN '一般' ELSE '继续努力' END AS type FROM employee;
+----------
+[SELECT] SELECT id,salary, CASE WHEN salary >= (select id from table1) then salary WHEN salary >= 1000 THEN '一般' ELSE '继续努力' END AS type FROM employee;
+----------
+[SELECT] SELECT id,"salary", CASE WHEN salary >= 1200 then salary WHEN "salary" >= 1000 THEN '一般' ELSE (select id from table1) END AS type FROM employee;
+----------
+[SELECT] select * from table_1 a join table_2 b on a.id = b.id;
+----------
+[SELECT] select * from table_1 a join table_2 b;
+----------
+[SELECT] select * from (table_1 a join table_2 b);
+----------
+[SELECT] select * from table_1 a join table_2 b on (a.id);
+----------
+[SELECT] select * from table_1, table_2;
+----------
+[SELECT] select * from table_1 a, table_2 b where a.id1 = b.id2;
+----------
+[SELECT] select * from table_1 a left join table_2 b on a.id = b.id right join table_3 c on a.id = c.id;
+----------
+[SELECT] select * from table_1 a inner join table_2 b on a.id = b.id;
+----------
+[SELECT] select * from table_1 a inner join table_2 b on (a.id);
+----------
+[SELECT] select * from table_1 a cross join table_2 b on a.id = b.id;
+----------
+[SELECT] select * from table_1 a cross join table_2 b;
+----------
+[SELECT] select * from table_1 a left join table_2 b on a.id = b.id;
+----------
+[SELECT] select * from table_1 a left join table_2 b on (a.id);
+----------
+[SELECT] select * from table_1 a left outer join table_2 b on a.id = b.id;
+----------
+[SELECT] select * from table_1 a left outer join table_2 b on (a.id);
+----------
+[SELECT] select * from table_1 a right join table_2 b on a.id = b.id;
+----------
+[SELECT] select * from table_1 a right join table_2 b;
+----------
+[SELECT] select * from table_1 a right join table_2 b on (a.id);
+----------
+[SELECT] select * from table_1 a right outer join table_2 b on a.id = b.id;
+----------
+[SELECT] select * from table_1 a right outer join table_2 b on (a.id);
+----------
+[SELECT] select * from (select 1 id,'name' name from table_1) a join table_2 b on a.id = b.id;
+----------
+[SELECT] select * from table_1 a join (select 1 id,'name' name from table_2) b on a.id = b.id;
+----------
+[SELECT] select a.id,b.name from table_1 a join (select id as id1, name from table_2) b on a.id = b.id1;
+----------
+[SELECT] select * from (select 1 id,'name' name from table_1) a inner join table_2 b on a.id = b.id;
+----------
+[SELECT] select * from table_1 a inner join (select 1 id,'name' name from table_2) b on a.id = b.id;
+----------
+[SELECT] select * from (select 1 id,'name' name from table_1) a cross join table_2 b;
+----------
+[SELECT] select * from table_1 a cross join (select 1 id,'name' name from table_2) b;
+----------
+[SELECT] select * from (select 1 id,'name' name from table_1) a left join table_2 b on a.id = b.id;
+----------
+[SELECT] select * from table_1 a left join (select 1 id,'name' name from table_2) b on a.id = b.id;
+----------
+[SELECT] select * from (select 1 id,'name' name from table_1) a left outer join table_2 b on a.id = b.id;
+----------
+[SELECT] select * from table_1 a left outer join (select 1 id,'name' name from table_2) b on a.id = b.id;
+----------
+[SELECT] select * from (select 1 id,'name' name from "table_1") a right join table_2 b on a.id = b.id;
+----------
+[SELECT] select * from table_1 a right join (select 1 id,'name' name from table_2) b on a.id = b.id;
+----------
+[SELECT] select * from (select 1 id,'name' name from table_1) a right outer join table_2 b on a.id = b.id;
+----------
+[SELECT] select * from table_1 a right outer join (select 1 id,'name' name from table_2) b on a.id = b.id;
+----------
+[SELECT] select * from (select a.id ,b.name from table_1 a left join table_2 b on a.id = b.id) t;
+----------
+[SELECT] select * from table_3 where id in (select a.id from table_1 a left join table_2 b on a.id = b.id);
+----------
+[SELECT] select * from table_1 where id = CAST((select a.id from table_2 a left join table_3 b on a.id = b.id where a.id = 1) as CHAR);
+----------
+[SELECT] select id = (select a.id from table_1 a left join table_2 b on a.id = b.id ) from table_3;
+----------
+[SELECT] select * from (select * from table_1) t;
+----------
+[SELECT] select t.id, t.name from (select * from table_1) t;
+----------
+[SELECT] select t.id1, t.name from (select id as id1, name from table_1) t;
+----------
+[SELECT] select * from table_1 where id in (select a.id from table_2);
+----------
+[SELECT] select id, name from table_1 where id in (select a.id from table_2 a left join (select * from table_3) b on a.id = b.id);
+----------
+[SELECT] select id, name from table_1 where id in (select a.id from table_2 a left join (select id as id1, name from table_3) b on a.id = b.id1);
+----------
+[SELECT] select id = (select a.id from table_1 a left join (select * from table_2) b on a.id = b.id) from table_3;
+----------
+[SELECT] select (select a.id from table_1 a left join (select * from table_2) b on a.id = b.id) = id from table_3;
+----------
+[SELECT] select (select a.id from table_1 a left join (select id as id1, name from table_2) b on a.id = b.id1) = id from table_3;
+----------
+[SELECT] select id = (select a.id from table_1 a left join table_2 b on a.id = b.id) from table_3;
+----------
+[SELECT] select (select a.id from table_1 a left join table_2 b on a.id = b.id) = id from table_3;
+----------
+[SELECT] select t1.id = (select a.id from table_1 a left join table_2 b on a.id = b.id)
+                    from (select * from table_3) t1 where t1.id in (select id from table_4);
+----------
+[SELECT] select sum(id) as c,cast(id AS SIGNED) as b from two_pk_table where  1=1;
+----------
+[SELECT] select sum(id) as c,CONCAT('1', cast(age AS SIGNED)),cast((select id from table_1) AS SIGNED) from two_pk_table where  1=1;
+----------
+[SELECT] select count(*) as cnt from table_1;

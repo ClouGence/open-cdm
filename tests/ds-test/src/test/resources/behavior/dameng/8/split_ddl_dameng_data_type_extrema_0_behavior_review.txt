@@ -1,0 +1,193 @@
+[split_ddl_dameng_data_type_extrema_0_001_behavior_review]
+sql:
+CREATE TABLE CODEX_DM8_TYPE_INTEGER
+(
+    ID INT PRIMARY KEY,
+    TINY_MIN TINYINT,
+    TINY_MAX BYTE,
+    SMALL_MIN SMALLINT,
+    SMALL_MAX SMALLINT,
+    INT_MIN INTEGER,
+    INT_MAX INT,
+    BIG_MIN BIGINT,
+    BIG_MAX BIGINT
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:35) /test/1/catalog1/schema1/CODEX_DM8_TYPE_INTEGER/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_type_extrema_0_002_behavior_review]
+sql:
+CREATE INDEX IDX_CODEX_DM8_TYPE_INTEGER ON CODEX_DM8_TYPE_INTEGER(BIG_MAX);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:39) /test/1/catalog1/schema1/IDX_CODEX_DM8_TYPE_INTEGER/",
+      "action": "CREATE",
+      "target": "Table(1:43~1:65) /test/1/catalog1/schema1/CODEX_DM8_TYPE_INTEGER/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_type_extrema_0_003_behavior_review]
+sql:
+CREATE TABLE CODEX_DM8_TYPE_NUMERIC
+(
+    ID INT PRIMARY KEY,
+    N_MIN NUMERIC(38,0),
+    N_MAX NUMBER(38,0),
+    N_SCALE_MIN DECIMAL(38,38),
+    N_SCALE_MAX DEC(38,38),
+    N_ROUND NUMERIC(4,1),
+    F_MIN FLOAT(1),
+    F_REAL FLOAT(24),
+    F_DOUBLE FLOAT(25),
+    F_MAX FLOAT(126),
+    D_MAX DOUBLE(126),
+    DP_MAX DOUBLE PRECISION(126),
+    R REAL
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:35) /test/1/catalog1/schema1/CODEX_DM8_TYPE_NUMERIC/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_type_extrema_0_004_behavior_review]
+sql:
+CREATE TABLE CODEX_DM8_TYPE_CHAR
+(
+    ID INT PRIMARY KEY,
+    C_MIN CHAR(1),
+    C_ALIAS CHARACTER(1),
+    V_MIN VARCHAR(1),
+    V_CHAR VARCHAR(4 CHAR),
+    V_ALIAS VARCHAR2(32767)
+) STORAGE(USING LONG ROW);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:32) /test/1/catalog1/schema1/CODEX_DM8_TYPE_CHAR/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_type_extrema_0_005_behavior_review]
+sql:
+CREATE TABLE CODEX_DM8_TYPE_BINARY
+(
+    ID INT PRIMARY KEY,
+    B_MIN BINARY(1),
+    VB_MIN VARBINARY(1),
+    RAW_MAX RAW(32767)
+) STORAGE(USING LONG ROW);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:34) /test/1/catalog1/schema1/CODEX_DM8_TYPE_BINARY/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_type_extrema_0_006_behavior_review]
+sql:
+CREATE TABLE CODEX_DM8_TYPE_DATETIME
+(
+    ID INT PRIMARY KEY,
+    DATE_MIN DATE,
+    DATE_MAX DATE,
+    TIME_MIN TIME(0),
+    TIME_MAX TIME(6),
+    TS_MIN TIMESTAMP(9),
+    TS_MAX DATETIME(9)
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:36) /test/1/catalog1/schema1/CODEX_DM8_TYPE_DATETIME/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_type_extrema_0_007_behavior_review]
+sql:
+CREATE TABLE CODEX_DM8_TYPE_INTERVAL
+(
+    ID INT PRIMARY KEY,
+    I_YM INTERVAL YEAR(9) TO MONTH,
+    I_Y INTERVAL YEAR(9),
+    I_M INTERVAL MONTH(9),
+    I_D INTERVAL DAY(9),
+    I_DH INTERVAL DAY(9) TO HOUR,
+    I_DM INTERVAL DAY(9) TO MINUTE,
+    I_DS INTERVAL DAY(9) TO SECOND(6),
+    I_H INTERVAL HOUR(9),
+    I_HM INTERVAL HOUR(9) TO MINUTE,
+    I_HS INTERVAL HOUR(9) TO SECOND(6),
+    I_MI INTERVAL MINUTE(9),
+    I_MS INTERVAL MINUTE(9) TO SECOND(6),
+    I_S INTERVAL SECOND(9,6)
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:36) /test/1/catalog1/schema1/CODEX_DM8_TYPE_INTERVAL/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_data_type_extrema_0_008_behavior_review]
+sql:
+CREATE TABLE CODEX_DM8_TYPE_TZ
+(
+    ID INT PRIMARY KEY,
+    T_NEG TIME(6) WITH TIME ZONE,
+    T_POS TIME(6) WITH TIME ZONE,
+    TS_NEG TIMESTAMP(9) WITH TIME ZONE,
+    TS_POS TIMESTAMP(9) WITH TIME ZONE,
+    TS_LOCAL TIMESTAMP(9) WITH LOCAL TIME ZONE
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/schema1/CODEX_DM8_TYPE_TZ/",
+      "action": "CREATE"
+    }
+  ]
+}

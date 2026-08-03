@@ -1,0 +1,60 @@
+[alert_set_defaults_domain]
+sql:
+call dbms_alert.set_defaults(1)
+expect:
+{
+  "contains": [
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_alert"}
+  ]
+}
+----------
+[job_run_domain]
+sql:
+call dbms_job.run(910002)
+expect:
+{
+  "contains": [
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_job"}
+  ]
+}
+----------
+[metadata_table_domain]
+sql:
+select dbms_metadata.get_ddl('TABLE', object_name, owner) from app.meta_catalog
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"meta_catalog"}
+  ]
+}
+----------
+[flashback_disable_domain]
+sql:
+call dbms_flashback.disable()
+expect:
+{
+  "contains": [
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_flashback"}
+  ]
+}
+----------
+[job_view_domain]
+sql:
+select job, next_date from app.job_status
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"job_status"}
+  ]
+}
+----------
+[alert_info_domain]
+sql:
+select name, changed, message from app.alert_info
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"alert_info"}
+  ]
+}
+

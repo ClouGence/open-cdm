@@ -1,0 +1,75 @@
+SADD myset "Hello" "World"
+SADD myset "World"
+SMEMBERS myset
+SCARD myset
+SDIFF key1 key2
+SDIFFSTORE key key1 key2
+SINTER key1 key2
+SINTERCARD 2 key1 key2
+SINTERCARD 2 key1 key2 LIMIT 1
+SINTERSTORE key key1 key2
+SISMEMBER myset "one"
+SMEMBERS myset
+SMISMEMBER myset "one" "notamember"
+SMOVE myset myotherset "two"
+SPOP myset
+SPOP myset 3
+SRANDMEMBER myset
+SRANDMEMBER myset 2
+SRANDMEMBER myset -5
+SREM myset "four"
+SSCAN myset 0
+SSCAN myset 0 match *11*
+SSCAN myset 176 match *11* count 1000
+SUNION key1 key2
+SUNIONSTORE key key1 key2
+------------------------------------------------------------------------------------------
+[INSERT] SADD myset "Hello" "World"
+----------
+[INSERT] SADD myset "World"
+----------
+[SELECT] SMEMBERS myset
+----------
+[SELECT] SCARD myset
+----------
+[SELECT] SDIFF key1 key2
+----------
+[MERGE|SELECT] SDIFFSTORE key key1 key2
+----------
+[SELECT] SINTER key1 key2
+----------
+[SELECT] SINTERCARD 2 key1 key2
+----------
+[SELECT] SINTERCARD 2 key1 key2 LIMIT 1
+----------
+[MERGE|SELECT] SINTERSTORE key key1 key2
+----------
+[SELECT] SISMEMBER myset "one"
+----------
+[SELECT] SMEMBERS myset
+----------
+[SELECT] SMISMEMBER myset "one" "notamember"
+----------
+[DELETE|INSERT] SMOVE myset myotherset "two"
+----------
+[DELETE] SPOP myset
+----------
+[DELETE] SPOP myset 3
+----------
+[SELECT] SRANDMEMBER myset
+----------
+[SELECT] SRANDMEMBER myset 2
+----------
+[SELECT] SRANDMEMBER myset -5
+----------
+[DELETE] SREM myset "four"
+----------
+[SELECT] SSCAN myset 0
+----------
+[SELECT] SSCAN myset 0 match *11*
+----------
+[SELECT] SSCAN myset 176 match *11* count 1000
+----------
+[SELECT] SUNION key1 key2
+----------
+[MERGE|SELECT] SUNIONSTORE key key1 key2

@@ -1,0 +1,60 @@
+select redefinition_id, base_table_owner, base_table_name, interim_object_name, operation, status, restartable from dba_redefinition_status where base_table_name='CODEX_REDEF_MAIN';
+select id, category, amount, note from CODEX_REDEF_MAIN_INT where id in (2,3,21) order by id;
+select object_type, object_owner, object_name, base_table_name, interim_object_name from dba_redefinition_objects where base_table_name='CODEX_REDEF_MAIN' order by object_type, object_name;
+select object_type, object_owner, object_name, err_no, err_txt from dba_redefinition_errors where base_table_name='CODEX_REDEF_MAIN' order by object_type, object_name;
+select id, category, amount, note from CODEX_REDEF_MAIN where id in (2,3,21) order by id;
+select constraint_type, count(*) object_count from user_constraints where table_name='CODEX_REDEF_MAIN' group by constraint_type order by constraint_type;
+select index_type, count(*) object_count from user_indexes where table_name='CODEX_REDEF_MAIN' group by index_type order by index_type;
+select id, payload from CODEX_REDEF_ABORT order by id;
+select count(*) status_count from dba_redefinition_status where base_table_name='CODEX_REDEF_ABORT';
+select id, payload from CODEX_REDEF_ROWID_INT order by id;
+select id, payload from CODEX_REDEF_ROWID order by id;
+select count(*) status_count from sys.sysredefstatus where obj_id=(select number_value from CODEX_DM8_PKG_CTL where label='REDEF_REDUNDANT_ID');
+select dbms_xa.xa_ok, dbms_xa.tmnoFlags, dbms_xa.tmsuccess, dbms_xa.tmsuspend, dbms_xa.tmresume from dual;
+select id, branch_name, amount from CODEX_DM8_XA where id=1;
+select id, branch_name, amount from CODEX_DM8_XA where id=2;
+select count(*) rollback_count from CODEX_DM8_XA where id=3;
+select id, branch_name, amount from CODEX_DM8_XA where id=4;
+select dbms_xa.xa_getlastoer() from dual;
+select label, number_value from CODEX_DM8_PKG_CTL where label like 'XA_%' order by label;
+select label, number_value, text_value from CODEX_DM8_PKG_CTL where label like 'XML_%' order by label;
+------------------------------------------------------------------------------------------
+[SELECT] select redefinition_id, base_table_owner, base_table_name, interim_object_name, operation, status, restartable from dba_redefinition_status where base_table_name='CODEX_REDEF_MAIN';
+----------
+[SELECT] select id, category, amount, note from CODEX_REDEF_MAIN_INT where id in (2,3,21) order by id;
+----------
+[SELECT] select object_type, object_owner, object_name, base_table_name, interim_object_name from dba_redefinition_objects where base_table_name='CODEX_REDEF_MAIN' order by object_type, object_name;
+----------
+[SELECT] select object_type, object_owner, object_name, err_no, err_txt from dba_redefinition_errors where base_table_name='CODEX_REDEF_MAIN' order by object_type, object_name;
+----------
+[SELECT] select id, category, amount, note from CODEX_REDEF_MAIN where id in (2,3,21) order by id;
+----------
+[SELECT] select constraint_type, count(*) object_count from user_constraints where table_name='CODEX_REDEF_MAIN' group by constraint_type order by constraint_type;
+----------
+[SELECT] select index_type, count(*) object_count from user_indexes where table_name='CODEX_REDEF_MAIN' group by index_type order by index_type;
+----------
+[SELECT] select id, payload from CODEX_REDEF_ABORT order by id;
+----------
+[SELECT] select count(*) status_count from dba_redefinition_status where base_table_name='CODEX_REDEF_ABORT';
+----------
+[SELECT] select id, payload from CODEX_REDEF_ROWID_INT order by id;
+----------
+[SELECT] select id, payload from CODEX_REDEF_ROWID order by id;
+----------
+[SELECT] select count(*) status_count from sys.sysredefstatus where obj_id=(select number_value from CODEX_DM8_PKG_CTL where label='REDEF_REDUNDANT_ID');
+----------
+[SELECT] select dbms_xa.xa_ok, dbms_xa.tmnoFlags, dbms_xa.tmsuccess, dbms_xa.tmsuspend, dbms_xa.tmresume from dual;
+----------
+[SELECT] select id, branch_name, amount from CODEX_DM8_XA where id=1;
+----------
+[SELECT] select id, branch_name, amount from CODEX_DM8_XA where id=2;
+----------
+[SELECT] select count(*) rollback_count from CODEX_DM8_XA where id=3;
+----------
+[SELECT] select id, branch_name, amount from CODEX_DM8_XA where id=4;
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_xa.xa_getlastoer() from dual;
+----------
+[SELECT] select label, number_value from CODEX_DM8_PKG_CTL where label like 'XA_%' order by label;
+----------
+[SELECT] select label, number_value, text_value from CODEX_DM8_PKG_CTL where label like 'XML_%' order by label;

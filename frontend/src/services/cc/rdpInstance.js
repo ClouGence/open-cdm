@@ -1,3 +1,4 @@
+import appLogger from '@/utils/logger';
 import axios from 'axios';
 import { Modal, Spin } from 'view-ui-plus';
 import { showActiveLicense } from '@/utils';
@@ -49,7 +50,7 @@ const instance = axios.create({
           try {
             data[key] = trimObj(data[key]);
           } catch (e) {
-            console.error(e);
+            appLogger.error(e);
           }
         }
         return null;

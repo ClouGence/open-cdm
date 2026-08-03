@@ -1,0 +1,30 @@
+[xml_query_columns]
+sql:
+select d.id, sf_xmlquery(d.payload, '/A/ITEM') as items from catalog1.app.xml_docs d
+expect:
+{
+  "id" : [ "/catalog1/app/xml_docs/id/" ],
+  "items" : [ "/catalog1/app/xml_docs/payload/" ]
+}
+----------
+[xml_forest_columns]
+sql:
+select xmlforest(d.id as DOC_ID, d.payload as DOC_XML) as xml_doc from catalog1.app.xml_docs d
+expect:
+{
+  "xml_doc" : [
+    "/catalog1/app/xml_docs/id/",
+    "/catalog1/app/xml_docs/payload/"
+  ]
+}
+----------
+[xml_agg_columns]
+sql:
+select xmlagg(xmlparse(content s.content wellformed) order by s.seq) as combined from catalog1.app.xml_agg_source s
+expect:
+{
+  "combined" : [
+    "/catalog1/app/xml_agg_source/content/",
+    "/catalog1/app/xml_agg_source/seq/"
+  ]
+}

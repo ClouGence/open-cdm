@@ -1,0 +1,9 @@
+db.collection.createIndex({name: 1});
+db.collection.createIndexes([{key: {email: 1}, name: "email_index"}, {key: {age: 1, name: 1}, name: "compound_index"}]);
+db.collection.dropIndexes("email_index");
+------------------------------------------------------------------------------------------
+[ADD_INDEX] db.collection.createIndex({name: 1})
+----------
+[ADD_INDEX] db.collection.createIndexes([{key: {email: 1}, name: "email_index"}, {key: {age: 1, name: 1}, name: "compound_index"}])
+----------
+[DROP_INDEX] db.collection.dropIndexes("email_index")

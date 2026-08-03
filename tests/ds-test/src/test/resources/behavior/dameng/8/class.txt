@@ -1,0 +1,95 @@
+[create_class]
+sql:
+create class app.account_class as id int;end;
+/
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:13~1:30) /test/1/catalog1/app/account_class/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_class_body]
+sql:
+create class body app.account_class as end;
+/
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:18~1:35) /test/1/catalog1/app/account_class/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_class_body_with_query]
+sql:
+create class body app.lookup_class as member function read_value return int as v int;begin select max(id) into v from app.source_table;return v;end;end;
+/
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:18~1:34) /test/1/catalog1/app/lookup_class/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:98~1:101) /test/1/catalog1/schema1/max/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:118~1:134) /test/1/catalog1/app/source_table/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[create_java_class]
+sql:
+create java class java_box {int value;public int read_value(){return value;}}
+/
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:18~1:26) /test/1/catalog1/schema1/java_box/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_java_class_with_query]
+sql:
+create java class java_lookup {public int read_value(){int v;select max(id) into v from app.source_table;return v;}}
+/
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:18~1:29) /test/1/catalog1/schema1/java_lookup/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:68~1:71) /test/1/catalog1/schema1/max/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:88~1:104) /test/1/catalog1/app/source_table/",
+      "action": "READ"
+    }
+  ]
+}

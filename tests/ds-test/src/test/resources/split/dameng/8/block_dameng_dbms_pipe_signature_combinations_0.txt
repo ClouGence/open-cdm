@@ -1,0 +1,528 @@
+-- FUNC-0672 CREATE_PIPE
+declare
+  ret int;
+  text_value varchar2(128);
+  int_value int;
+  bigint_value bigint;
+  double_value double;
+  number_value number;
+  date_value date;
+  rid rowid;
+begin ret:=DBMS_PIPE.CREATE_PIPE(PIPENAME=>'CODEX_PIPE',MAXPIPESIZE=>8192,IS_PRIVATE=>TRUE); end;
+/
+-- FUNC-0673 NEXT_ITEM_TYPE
+declare
+  ret int;
+  text_value varchar2(128);
+  int_value int;
+  bigint_value bigint;
+  double_value double;
+  number_value number;
+  date_value date;
+  rid rowid;
+begin ret:=DBMS_PIPE.NEXT_ITEM_TYPE(); end;
+/
+-- FUNC-0674 PACK_MESSAGE
+declare
+  ret int;
+  text_value varchar2(128);
+  int_value int;
+  bigint_value bigint;
+  double_value double;
+  number_value number;
+  date_value date;
+  rid rowid;
+begin DBMS_PIPE.PACK_MESSAGE(ITEM=>'TEXT'); end;
+/
+-- FUNC-0675 PACK_MESSAGE
+declare
+  ret int;
+  text_value varchar2(128);
+  int_value int;
+  bigint_value bigint;
+  double_value double;
+  number_value number;
+  date_value date;
+  rid rowid;
+begin DBMS_PIPE.PACK_MESSAGE(ITEM=>CAST(1 AS INT)); end;
+/
+-- FUNC-0676 PACK_MESSAGE
+declare
+  ret int;
+  text_value varchar2(128);
+  int_value int;
+  bigint_value bigint;
+  double_value double;
+  number_value number;
+  date_value date;
+  rid rowid;
+begin DBMS_PIPE.PACK_MESSAGE(ITEM=>CAST(2 AS BIGINT)); end;
+/
+-- FUNC-0677 PACK_MESSAGE
+declare
+  ret int;
+  text_value varchar2(128);
+  int_value int;
+  bigint_value bigint;
+  double_value double;
+  number_value number;
+  date_value date;
+  rid rowid;
+begin DBMS_PIPE.PACK_MESSAGE(ITEM=>CAST(3.5 AS DOUBLE)); end;
+/
+-- FUNC-0678 PACK_MESSAGE
+declare
+  ret int;
+  text_value varchar2(128);
+  int_value int;
+  bigint_value bigint;
+  double_value double;
+  number_value number;
+  date_value date;
+  rid rowid;
+begin DBMS_PIPE.PACK_MESSAGE(ITEM=>CAST(4.5 AS NUMBER)); end;
+/
+-- FUNC-0679 PACK_MESSAGE
+declare
+  ret int;
+  text_value varchar2(128);
+  int_value int;
+  bigint_value bigint;
+  double_value double;
+  number_value number;
+  date_value date;
+  rid rowid;
+begin DBMS_PIPE.PACK_MESSAGE(ITEM=>CAST('2026-07-27' AS DATE)); end;
+/
+-- FUNC-0680 PACK_MESSAGE_ROWID
+declare
+  ret int;
+  text_value varchar2(128);
+  int_value int;
+  bigint_value bigint;
+  double_value double;
+  number_value number;
+  date_value date;
+  rid rowid;
+begin DBMS_PIPE.PACK_MESSAGE_ROWID(ITEM=>rid); end;
+/
+-- FUNC-0681 PURGE
+declare
+  ret int;
+  text_value varchar2(128);
+  int_value int;
+  bigint_value bigint;
+  double_value double;
+  number_value number;
+  date_value date;
+  rid rowid;
+begin DBMS_PIPE.PURGE(PIPENAME=>'CODEX_PIPE'); end;
+/
+-- FUNC-0682 RECEIVE_MESSAGE
+declare
+  ret int;
+  text_value varchar2(128);
+  int_value int;
+  bigint_value bigint;
+  double_value double;
+  number_value number;
+  date_value date;
+  rid rowid;
+begin ret:=DBMS_PIPE.RECEIVE_MESSAGE(PIPENAME=>'CODEX_PIPE',TIMEOUT=>0); end;
+/
+-- FUNC-0683 REMOVE_PIPE
+declare
+  ret int;
+  text_value varchar2(128);
+  int_value int;
+  bigint_value bigint;
+  double_value double;
+  number_value number;
+  date_value date;
+  rid rowid;
+begin ret:=DBMS_PIPE.REMOVE_PIPE(PIPENAME=>'CODEX_PIPE'); end;
+/
+-- FUNC-0684 RESET_BUFFER
+declare
+  ret int;
+  text_value varchar2(128);
+  int_value int;
+  bigint_value bigint;
+  double_value double;
+  number_value number;
+  date_value date;
+  rid rowid;
+begin DBMS_PIPE.RESET_BUFFER(); end;
+/
+-- FUNC-0685 SEND_MESSAGE
+declare
+  ret int;
+  text_value varchar2(128);
+  int_value int;
+  bigint_value bigint;
+  double_value double;
+  number_value number;
+  date_value date;
+  rid rowid;
+begin ret:=DBMS_PIPE.SEND_MESSAGE(PIPENAME=>'CODEX_PIPE',TIMEOUT=>0,MAXPIPESIZE=>8192); end;
+/
+-- FUNC-0686 UNIQUE_SESSION_NAME
+declare
+  ret int;
+  text_value varchar2(128);
+  int_value int;
+  bigint_value bigint;
+  double_value double;
+  number_value number;
+  date_value date;
+  rid rowid;
+begin text_value:=DBMS_PIPE.UNIQUE_SESSION_NAME(); end;
+/
+-- FUNC-0687 UNPACK_MESSAGE
+declare
+  ret int;
+  text_value varchar2(128);
+  int_value int;
+  bigint_value bigint;
+  double_value double;
+  number_value number;
+  date_value date;
+  rid rowid;
+begin DBMS_PIPE.UNPACK_MESSAGE(ITEM=>text_value); end;
+/
+-- FUNC-0688 UNPACK_MESSAGE
+declare
+  ret int;
+  text_value varchar2(128);
+  int_value int;
+  bigint_value bigint;
+  double_value double;
+  number_value number;
+  date_value date;
+  rid rowid;
+begin DBMS_PIPE.UNPACK_MESSAGE(ITEM=>int_value); end;
+/
+-- FUNC-0689 UNPACK_MESSAGE
+declare
+  ret int;
+  text_value varchar2(128);
+  int_value int;
+  bigint_value bigint;
+  double_value double;
+  number_value number;
+  date_value date;
+  rid rowid;
+begin DBMS_PIPE.UNPACK_MESSAGE(ITEM=>bigint_value); end;
+/
+-- FUNC-0690 UNPACK_MESSAGE
+declare
+  ret int;
+  text_value varchar2(128);
+  int_value int;
+  bigint_value bigint;
+  double_value double;
+  number_value number;
+  date_value date;
+  rid rowid;
+begin DBMS_PIPE.UNPACK_MESSAGE(ITEM=>double_value); end;
+/
+-- FUNC-0691 UNPACK_MESSAGE
+declare
+  ret int;
+  text_value varchar2(128);
+  int_value int;
+  bigint_value bigint;
+  double_value double;
+  number_value number;
+  date_value date;
+  rid rowid;
+begin DBMS_PIPE.UNPACK_MESSAGE(ITEM=>number_value); end;
+/
+-- FUNC-0692 UNPACK_MESSAGE
+declare
+  ret int;
+  text_value varchar2(128);
+  int_value int;
+  bigint_value bigint;
+  double_value double;
+  number_value number;
+  date_value date;
+  rid rowid;
+begin DBMS_PIPE.UNPACK_MESSAGE(ITEM=>date_value); end;
+/
+-- FUNC-0693 UNPACK_MESSAGE_ROWID
+declare
+  ret int;
+  text_value varchar2(128);
+  int_value int;
+  bigint_value bigint;
+  double_value double;
+  number_value number;
+  date_value date;
+  rid rowid;
+begin DBMS_PIPE.UNPACK_MESSAGE_ROWID(ITEM=>rid); end;
+/
+------------------------------------------------------------------------------------------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0672 CREATE_PIPE
+declare
+  ret int;
+  text_value varchar2(128);
+  int_value int;
+  bigint_value bigint;
+  double_value double;
+  number_value number;
+  date_value date;
+  rid rowid;
+begin ret:=DBMS_PIPE.CREATE_PIPE(PIPENAME=>'CODEX_PIPE',MAXPIPESIZE=>8192,IS_PRIVATE=>TRUE); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0673 NEXT_ITEM_TYPE
+declare
+  ret int;
+  text_value varchar2(128);
+  int_value int;
+  bigint_value bigint;
+  double_value double;
+  number_value number;
+  date_value date;
+  rid rowid;
+begin ret:=DBMS_PIPE.NEXT_ITEM_TYPE(); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0674 PACK_MESSAGE
+declare
+  ret int;
+  text_value varchar2(128);
+  int_value int;
+  bigint_value bigint;
+  double_value double;
+  number_value number;
+  date_value date;
+  rid rowid;
+begin DBMS_PIPE.PACK_MESSAGE(ITEM=>'TEXT'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0675 PACK_MESSAGE
+declare
+  ret int;
+  text_value varchar2(128);
+  int_value int;
+  bigint_value bigint;
+  double_value double;
+  number_value number;
+  date_value date;
+  rid rowid;
+begin DBMS_PIPE.PACK_MESSAGE(ITEM=>CAST(1 AS INT)); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0676 PACK_MESSAGE
+declare
+  ret int;
+  text_value varchar2(128);
+  int_value int;
+  bigint_value bigint;
+  double_value double;
+  number_value number;
+  date_value date;
+  rid rowid;
+begin DBMS_PIPE.PACK_MESSAGE(ITEM=>CAST(2 AS BIGINT)); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0677 PACK_MESSAGE
+declare
+  ret int;
+  text_value varchar2(128);
+  int_value int;
+  bigint_value bigint;
+  double_value double;
+  number_value number;
+  date_value date;
+  rid rowid;
+begin DBMS_PIPE.PACK_MESSAGE(ITEM=>CAST(3.5 AS DOUBLE)); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0678 PACK_MESSAGE
+declare
+  ret int;
+  text_value varchar2(128);
+  int_value int;
+  bigint_value bigint;
+  double_value double;
+  number_value number;
+  date_value date;
+  rid rowid;
+begin DBMS_PIPE.PACK_MESSAGE(ITEM=>CAST(4.5 AS NUMBER)); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0679 PACK_MESSAGE
+declare
+  ret int;
+  text_value varchar2(128);
+  int_value int;
+  bigint_value bigint;
+  double_value double;
+  number_value number;
+  date_value date;
+  rid rowid;
+begin DBMS_PIPE.PACK_MESSAGE(ITEM=>CAST('2026-07-27' AS DATE)); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0680 PACK_MESSAGE_ROWID
+declare
+  ret int;
+  text_value varchar2(128);
+  int_value int;
+  bigint_value bigint;
+  double_value double;
+  number_value number;
+  date_value date;
+  rid rowid;
+begin DBMS_PIPE.PACK_MESSAGE_ROWID(ITEM=>rid); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0681 PURGE
+declare
+  ret int;
+  text_value varchar2(128);
+  int_value int;
+  bigint_value bigint;
+  double_value double;
+  number_value number;
+  date_value date;
+  rid rowid;
+begin DBMS_PIPE.PURGE(PIPENAME=>'CODEX_PIPE'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0682 RECEIVE_MESSAGE
+declare
+  ret int;
+  text_value varchar2(128);
+  int_value int;
+  bigint_value bigint;
+  double_value double;
+  number_value number;
+  date_value date;
+  rid rowid;
+begin ret:=DBMS_PIPE.RECEIVE_MESSAGE(PIPENAME=>'CODEX_PIPE',TIMEOUT=>0); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0683 REMOVE_PIPE
+declare
+  ret int;
+  text_value varchar2(128);
+  int_value int;
+  bigint_value bigint;
+  double_value double;
+  number_value number;
+  date_value date;
+  rid rowid;
+begin ret:=DBMS_PIPE.REMOVE_PIPE(PIPENAME=>'CODEX_PIPE'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0684 RESET_BUFFER
+declare
+  ret int;
+  text_value varchar2(128);
+  int_value int;
+  bigint_value bigint;
+  double_value double;
+  number_value number;
+  date_value date;
+  rid rowid;
+begin DBMS_PIPE.RESET_BUFFER(); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0685 SEND_MESSAGE
+declare
+  ret int;
+  text_value varchar2(128);
+  int_value int;
+  bigint_value bigint;
+  double_value double;
+  number_value number;
+  date_value date;
+  rid rowid;
+begin ret:=DBMS_PIPE.SEND_MESSAGE(PIPENAME=>'CODEX_PIPE',TIMEOUT=>0,MAXPIPESIZE=>8192); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0686 UNIQUE_SESSION_NAME
+declare
+  ret int;
+  text_value varchar2(128);
+  int_value int;
+  bigint_value bigint;
+  double_value double;
+  number_value number;
+  date_value date;
+  rid rowid;
+begin text_value:=DBMS_PIPE.UNIQUE_SESSION_NAME(); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0687 UNPACK_MESSAGE
+declare
+  ret int;
+  text_value varchar2(128);
+  int_value int;
+  bigint_value bigint;
+  double_value double;
+  number_value number;
+  date_value date;
+  rid rowid;
+begin DBMS_PIPE.UNPACK_MESSAGE(ITEM=>text_value); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0688 UNPACK_MESSAGE
+declare
+  ret int;
+  text_value varchar2(128);
+  int_value int;
+  bigint_value bigint;
+  double_value double;
+  number_value number;
+  date_value date;
+  rid rowid;
+begin DBMS_PIPE.UNPACK_MESSAGE(ITEM=>int_value); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0689 UNPACK_MESSAGE
+declare
+  ret int;
+  text_value varchar2(128);
+  int_value int;
+  bigint_value bigint;
+  double_value double;
+  number_value number;
+  date_value date;
+  rid rowid;
+begin DBMS_PIPE.UNPACK_MESSAGE(ITEM=>bigint_value); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0690 UNPACK_MESSAGE
+declare
+  ret int;
+  text_value varchar2(128);
+  int_value int;
+  bigint_value bigint;
+  double_value double;
+  number_value number;
+  date_value date;
+  rid rowid;
+begin DBMS_PIPE.UNPACK_MESSAGE(ITEM=>double_value); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0691 UNPACK_MESSAGE
+declare
+  ret int;
+  text_value varchar2(128);
+  int_value int;
+  bigint_value bigint;
+  double_value double;
+  number_value number;
+  date_value date;
+  rid rowid;
+begin DBMS_PIPE.UNPACK_MESSAGE(ITEM=>number_value); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0692 UNPACK_MESSAGE
+declare
+  ret int;
+  text_value varchar2(128);
+  int_value int;
+  bigint_value bigint;
+  double_value double;
+  number_value number;
+  date_value date;
+  rid rowid;
+begin DBMS_PIPE.UNPACK_MESSAGE(ITEM=>date_value); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0693 UNPACK_MESSAGE_ROWID
+declare
+  ret int;
+  text_value varchar2(128);
+  int_value int;
+  bigint_value bigint;
+  double_value double;
+  number_value number;
+  date_value date;
+  rid rowid;
+begin DBMS_PIPE.UNPACK_MESSAGE_ROWID(ITEM=>rid); end;

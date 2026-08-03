@@ -1,0 +1,282 @@
+create user codex_dm8_dcl_u01 identified by "Dm8@Test2026";
+create user codex_dm8_dcl_u02 identified by "Dm8@Test2026" password_policy 15;
+create user codex_dm8_dcl_u03 identified by "Dm8@Test2026" account lock;
+create user codex_dm8_dcl_u04 identified by "Dm8@Test2026" account unlock;
+create user codex_dm8_dcl_u05 identified by "Dm8@Test2026" read only;
+create user codex_dm8_dcl_u06 identified by "Dm8@Test2026" not read only;
+create user codex_dm8_dcl_u07 identified by "Dm8@Test2026" limit connect_time 30;
+create user codex_dm8_dcl_u08 identified by "Dm8@Test2026" limit session_per_user 3;
+create user codex_dm8_dcl_u09 identified by "Dm8@Test2026" default tablespace main;
+create user codex_dm8_dcl_u10 identified by "Dm8@Test2026" password expire;
+create user codex_dm8_dcl_u11 identified by "Dm8@Test2026" account unlock limit connect_idle_time 15;
+create user codex_dm8_dcl_u12 identified by "Dm8@Test2026" password_policy 15 not read only;
+alter user codex_dm8_dcl_u01 identified by "Dm8@Test2027";
+alter user codex_dm8_dcl_u02 account lock;
+alter user codex_dm8_dcl_u02 account unlock;
+alter user codex_dm8_dcl_u03 read only;
+alter user codex_dm8_dcl_u03 not read only;
+alter user codex_dm8_dcl_u04 limit connect_time 60;
+alter user codex_dm8_dcl_u05 password_policy 15;
+alter user codex_dm8_dcl_u06 default tablespace main;
+create role codex_dm8_dcl_r01;
+create role codex_dm8_dcl_r02;
+create role codex_dm8_dcl_r03;
+create role codex_dm8_dcl_r04;
+create role codex_dm8_dcl_r05;
+create role codex_dm8_dcl_r06;
+create role codex_dm8_dcl_r07;
+create role codex_dm8_dcl_r08;
+create role codex_dm8_dcl_r09;
+create role codex_dm8_dcl_r10;
+grant create table to codex_dm8_dcl_u01;
+grant create view to codex_dm8_dcl_u02;
+grant create sequence to codex_dm8_dcl_u03;
+grant create procedure to codex_dm8_dcl_u04;
+grant create table, create view to codex_dm8_dcl_u05;
+grant create table to codex_dm8_dcl_u06 with admin option;
+grant create table to codex_dm8_dcl_r01;
+grant create view to codex_dm8_dcl_r02;
+grant create sequence, create procedure to codex_dm8_dcl_r03;
+grant select on codex_dm8_dcl_object to codex_dm8_dcl_u01;
+grant insert on table codex_dm8_dcl_object to codex_dm8_dcl_u02;
+grant update on codex_dm8_dcl_object to codex_dm8_dcl_u03;
+grant delete on codex_dm8_dcl_object to codex_dm8_dcl_u04;
+grant references on codex_dm8_dcl_object to codex_dm8_dcl_u05;
+grant select, insert, update, delete on codex_dm8_dcl_object to codex_dm8_dcl_u06;
+grant all privileges on codex_dm8_dcl_object to codex_dm8_dcl_u07;
+grant select on codex_dm8_dcl_object to codex_dm8_dcl_u08 with grant option;
+grant update(id, name) on codex_dm8_dcl_object to codex_dm8_dcl_u09;
+grant select on table codex_dm8_dcl_object to codex_dm8_dcl_r04;
+grant insert, update on codex_dm8_dcl_object to codex_dm8_dcl_r05;
+grant all on codex_dm8_dcl_object to codex_dm8_dcl_r06;
+grant codex_dm8_dcl_r01 to codex_dm8_dcl_u01;
+grant codex_dm8_dcl_r02, codex_dm8_dcl_r03 to codex_dm8_dcl_u02;
+grant codex_dm8_dcl_r04 to codex_dm8_dcl_u03 with admin option;
+grant codex_dm8_dcl_r05 to codex_dm8_dcl_r07;
+grant codex_dm8_dcl_r06, codex_dm8_dcl_r07 to codex_dm8_dcl_u04;
+revoke create table from codex_dm8_dcl_u01;
+revoke admin option for create table from codex_dm8_dcl_u06;
+revoke create view from codex_dm8_dcl_u02;
+revoke create sequence from codex_dm8_dcl_u03;
+revoke create procedure from codex_dm8_dcl_u04;
+revoke select on codex_dm8_dcl_object from codex_dm8_dcl_u01;
+revoke insert on table codex_dm8_dcl_object from codex_dm8_dcl_u02;
+revoke update on codex_dm8_dcl_object from codex_dm8_dcl_u03;
+revoke delete on codex_dm8_dcl_object from codex_dm8_dcl_u04;
+revoke references on codex_dm8_dcl_object from codex_dm8_dcl_u05;
+revoke all privileges on codex_dm8_dcl_object from codex_dm8_dcl_u07;
+revoke grant option for select on codex_dm8_dcl_object from codex_dm8_dcl_u08 cascade;
+revoke update on codex_dm8_dcl_object from codex_dm8_dcl_u09;
+revoke codex_dm8_dcl_r01 from codex_dm8_dcl_u01;
+revoke codex_dm8_dcl_r02, codex_dm8_dcl_r03 from codex_dm8_dcl_u02;
+revoke admin option for codex_dm8_dcl_r04 from codex_dm8_dcl_u03;
+drop role codex_dm8_dcl_r01;
+drop role codex_dm8_dcl_r02;
+drop role codex_dm8_dcl_r03;
+drop role codex_dm8_dcl_r04;
+drop role codex_dm8_dcl_r05;
+drop role codex_dm8_dcl_r06;
+drop role codex_dm8_dcl_r07;
+drop role codex_dm8_dcl_r08;
+drop role codex_dm8_dcl_r09;
+drop role codex_dm8_dcl_r10;
+drop user codex_dm8_dcl_u01 cascade;
+drop user codex_dm8_dcl_u02 cascade;
+drop user codex_dm8_dcl_u03 cascade;
+drop user codex_dm8_dcl_u04 cascade;
+drop user codex_dm8_dcl_u05 cascade;
+drop user codex_dm8_dcl_u06 cascade;
+drop user codex_dm8_dcl_u07 cascade;
+drop user codex_dm8_dcl_u08 cascade;
+drop user codex_dm8_dcl_u09 cascade;
+drop user codex_dm8_dcl_u10 cascade;
+drop user codex_dm8_dcl_u11 cascade;
+drop user codex_dm8_dcl_u12 cascade;
+------------------------------------------------------------------------------------------
+[CREATE_USER] create user codex_dm8_dcl_u01 identified by "Dm8@Test2026";
+----------
+[CREATE_USER] create user codex_dm8_dcl_u02 identified by "Dm8@Test2026" password_policy 15;
+----------
+[CREATE_USER] create user codex_dm8_dcl_u03 identified by "Dm8@Test2026" account lock;
+----------
+[CREATE_USER] create user codex_dm8_dcl_u04 identified by "Dm8@Test2026" account unlock;
+----------
+[CREATE_USER] create user codex_dm8_dcl_u05 identified by "Dm8@Test2026" read only;
+----------
+[CREATE_USER] create user codex_dm8_dcl_u06 identified by "Dm8@Test2026" not read only;
+----------
+[CREATE_USER] create user codex_dm8_dcl_u07 identified by "Dm8@Test2026" limit connect_time 30;
+----------
+[CREATE_USER] create user codex_dm8_dcl_u08 identified by "Dm8@Test2026" limit session_per_user 3;
+----------
+[CREATE_USER] create user codex_dm8_dcl_u09 identified by "Dm8@Test2026" default tablespace main;
+----------
+[CREATE_USER] create user codex_dm8_dcl_u10 identified by "Dm8@Test2026" password expire;
+----------
+[CREATE_USER] create user codex_dm8_dcl_u11 identified by "Dm8@Test2026" account unlock limit connect_idle_time 15;
+----------
+[CREATE_USER] create user codex_dm8_dcl_u12 identified by "Dm8@Test2026" password_policy 15 not read only;
+----------
+[ALTER_USER] alter user codex_dm8_dcl_u01 identified by "Dm8@Test2027";
+----------
+[ALTER_USER] alter user codex_dm8_dcl_u02 account lock;
+----------
+[ALTER_USER] alter user codex_dm8_dcl_u02 account unlock;
+----------
+[ALTER_USER] alter user codex_dm8_dcl_u03 read only;
+----------
+[ALTER_USER] alter user codex_dm8_dcl_u03 not read only;
+----------
+[ALTER_USER] alter user codex_dm8_dcl_u04 limit connect_time 60;
+----------
+[ALTER_USER] alter user codex_dm8_dcl_u05 password_policy 15;
+----------
+[ALTER_USER] alter user codex_dm8_dcl_u06 default tablespace main;
+----------
+[CREATE_ROLE] create role codex_dm8_dcl_r01;
+----------
+[CREATE_ROLE] create role codex_dm8_dcl_r02;
+----------
+[CREATE_ROLE] create role codex_dm8_dcl_r03;
+----------
+[CREATE_ROLE] create role codex_dm8_dcl_r04;
+----------
+[CREATE_ROLE] create role codex_dm8_dcl_r05;
+----------
+[CREATE_ROLE] create role codex_dm8_dcl_r06;
+----------
+[CREATE_ROLE] create role codex_dm8_dcl_r07;
+----------
+[CREATE_ROLE] create role codex_dm8_dcl_r08;
+----------
+[CREATE_ROLE] create role codex_dm8_dcl_r09;
+----------
+[CREATE_ROLE] create role codex_dm8_dcl_r10;
+----------
+[GRANT] grant create table to codex_dm8_dcl_u01;
+----------
+[GRANT] grant create view to codex_dm8_dcl_u02;
+----------
+[GRANT] grant create sequence to codex_dm8_dcl_u03;
+----------
+[GRANT] grant create procedure to codex_dm8_dcl_u04;
+----------
+[GRANT] grant create table, create view to codex_dm8_dcl_u05;
+----------
+[GRANT] grant create table to codex_dm8_dcl_u06 with admin option;
+----------
+[GRANT] grant create table to codex_dm8_dcl_r01;
+----------
+[GRANT] grant create view to codex_dm8_dcl_r02;
+----------
+[GRANT] grant create sequence, create procedure to codex_dm8_dcl_r03;
+----------
+[GRANT] grant select on codex_dm8_dcl_object to codex_dm8_dcl_u01;
+----------
+[GRANT] grant insert on table codex_dm8_dcl_object to codex_dm8_dcl_u02;
+----------
+[GRANT] grant update on codex_dm8_dcl_object to codex_dm8_dcl_u03;
+----------
+[GRANT] grant delete on codex_dm8_dcl_object to codex_dm8_dcl_u04;
+----------
+[GRANT] grant references on codex_dm8_dcl_object to codex_dm8_dcl_u05;
+----------
+[GRANT] grant select, insert, update, delete on codex_dm8_dcl_object to codex_dm8_dcl_u06;
+----------
+[GRANT] grant all privileges on codex_dm8_dcl_object to codex_dm8_dcl_u07;
+----------
+[GRANT] grant select on codex_dm8_dcl_object to codex_dm8_dcl_u08 with grant option;
+----------
+[GRANT] grant update(id, name) on codex_dm8_dcl_object to codex_dm8_dcl_u09;
+----------
+[GRANT] grant select on table codex_dm8_dcl_object to codex_dm8_dcl_r04;
+----------
+[GRANT] grant insert, update on codex_dm8_dcl_object to codex_dm8_dcl_r05;
+----------
+[GRANT] grant all on codex_dm8_dcl_object to codex_dm8_dcl_r06;
+----------
+[GRANT] grant codex_dm8_dcl_r01 to codex_dm8_dcl_u01;
+----------
+[GRANT] grant codex_dm8_dcl_r02, codex_dm8_dcl_r03 to codex_dm8_dcl_u02;
+----------
+[GRANT] grant codex_dm8_dcl_r04 to codex_dm8_dcl_u03 with admin option;
+----------
+[GRANT] grant codex_dm8_dcl_r05 to codex_dm8_dcl_r07;
+----------
+[GRANT] grant codex_dm8_dcl_r06, codex_dm8_dcl_r07 to codex_dm8_dcl_u04;
+----------
+[REVOKE] revoke create table from codex_dm8_dcl_u01;
+----------
+[REVOKE] revoke admin option for create table from codex_dm8_dcl_u06;
+----------
+[REVOKE] revoke create view from codex_dm8_dcl_u02;
+----------
+[REVOKE] revoke create sequence from codex_dm8_dcl_u03;
+----------
+[REVOKE] revoke create procedure from codex_dm8_dcl_u04;
+----------
+[REVOKE] revoke select on codex_dm8_dcl_object from codex_dm8_dcl_u01;
+----------
+[REVOKE] revoke insert on table codex_dm8_dcl_object from codex_dm8_dcl_u02;
+----------
+[REVOKE] revoke update on codex_dm8_dcl_object from codex_dm8_dcl_u03;
+----------
+[REVOKE] revoke delete on codex_dm8_dcl_object from codex_dm8_dcl_u04;
+----------
+[REVOKE] revoke references on codex_dm8_dcl_object from codex_dm8_dcl_u05;
+----------
+[REVOKE] revoke all privileges on codex_dm8_dcl_object from codex_dm8_dcl_u07;
+----------
+[REVOKE] revoke grant option for select on codex_dm8_dcl_object from codex_dm8_dcl_u08 cascade;
+----------
+[REVOKE] revoke update on codex_dm8_dcl_object from codex_dm8_dcl_u09;
+----------
+[REVOKE] revoke codex_dm8_dcl_r01 from codex_dm8_dcl_u01;
+----------
+[REVOKE] revoke codex_dm8_dcl_r02, codex_dm8_dcl_r03 from codex_dm8_dcl_u02;
+----------
+[REVOKE] revoke admin option for codex_dm8_dcl_r04 from codex_dm8_dcl_u03;
+----------
+[DROP_ROLE] drop role codex_dm8_dcl_r01;
+----------
+[DROP_ROLE] drop role codex_dm8_dcl_r02;
+----------
+[DROP_ROLE] drop role codex_dm8_dcl_r03;
+----------
+[DROP_ROLE] drop role codex_dm8_dcl_r04;
+----------
+[DROP_ROLE] drop role codex_dm8_dcl_r05;
+----------
+[DROP_ROLE] drop role codex_dm8_dcl_r06;
+----------
+[DROP_ROLE] drop role codex_dm8_dcl_r07;
+----------
+[DROP_ROLE] drop role codex_dm8_dcl_r08;
+----------
+[DROP_ROLE] drop role codex_dm8_dcl_r09;
+----------
+[DROP_ROLE] drop role codex_dm8_dcl_r10;
+----------
+[DROP_USER] drop user codex_dm8_dcl_u01 cascade;
+----------
+[DROP_USER] drop user codex_dm8_dcl_u02 cascade;
+----------
+[DROP_USER] drop user codex_dm8_dcl_u03 cascade;
+----------
+[DROP_USER] drop user codex_dm8_dcl_u04 cascade;
+----------
+[DROP_USER] drop user codex_dm8_dcl_u05 cascade;
+----------
+[DROP_USER] drop user codex_dm8_dcl_u06 cascade;
+----------
+[DROP_USER] drop user codex_dm8_dcl_u07 cascade;
+----------
+[DROP_USER] drop user codex_dm8_dcl_u08 cascade;
+----------
+[DROP_USER] drop user codex_dm8_dcl_u09 cascade;
+----------
+[DROP_USER] drop user codex_dm8_dcl_u10 cascade;
+----------
+[DROP_USER] drop user codex_dm8_dcl_u11 cascade;
+----------
+[DROP_USER] drop user codex_dm8_dcl_u12 cascade;

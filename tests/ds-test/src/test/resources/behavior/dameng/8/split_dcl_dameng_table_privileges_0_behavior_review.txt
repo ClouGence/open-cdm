@@ -1,0 +1,773 @@
+[split_dcl_dameng_table_privileges_0_001_behavior_review]
+sql:
+create user table_priv_owner identified by "Dm8TablePrivilege2026";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:28) /test/1/table_priv_owner/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_table_privileges_0_002_behavior_review]
+sql:
+create user table_priv_create identified by "Dm8TablePrivilege2026";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:29) /test/1/table_priv_create/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_table_privileges_0_003_behavior_review]
+sql:
+create user table_priv_comment identified by "Dm8TablePrivilege2026";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:30) /test/1/table_priv_comment/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_table_privileges_0_004_behavior_review]
+sql:
+create user table_priv_any identified by "Dm8TablePrivilege2026";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:26) /test/1/table_priv_any/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_table_privileges_0_005_behavior_review]
+sql:
+create user table_priv_none identified by "Dm8TablePrivilege2026";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:27) /test/1/table_priv_none/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_table_privileges_0_006_behavior_review]
+sql:
+create user table_priv_object identified by "Dm8TablePrivilege2026";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:29) /test/1/table_priv_object/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_table_privileges_0_007_behavior_review]
+sql:
+create user table_priv_dba identified by "Dm8TablePrivilege2026";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:26) /test/1/table_priv_dba/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_table_privileges_0_008_behavior_review]
+sql:
+grant create table to table_priv_owner;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Table(1:13~1:18) /test/1/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:22~1:38) /test/1/table_priv_owner/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_table_privileges_0_009_behavior_review]
+sql:
+grant create table to table_priv_create;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Table(1:13~1:18) /test/1/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:22~1:39) /test/1/table_priv_create/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_table_privileges_0_010_behavior_review]
+sql:
+grant comment any table to table_priv_comment;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Table(1:18~1:23) /test/1/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:27~1:45) /test/1/table_priv_comment/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_table_privileges_0_011_behavior_review]
+sql:
+grant create any table to table_priv_any;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Table(1:17~1:22) /test/1/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:26~1:40) /test/1/table_priv_any/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_table_privileges_0_012_behavior_review]
+sql:
+grant alter any table to table_priv_any;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Table(1:16~1:21) /test/1/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:25~1:39) /test/1/table_priv_any/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_table_privileges_0_013_behavior_review]
+sql:
+grant drop any table to table_priv_any;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Table(1:15~1:20) /test/1/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:24~1:38) /test/1/table_priv_any/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_table_privileges_0_014_behavior_review]
+sql:
+grant dba to table_priv_dba;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Role(1:6~1:9) /test/1/dba/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:13~1:27) /test/1/table_priv_dba/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_table_privileges_0_015_behavior_review]
+sql:
+create table table_priv_owner.owner_lifecycle(id int, note varchar(20));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:45) /test/1/catalog1/table_priv_owner/owner_lifecycle/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_table_privileges_0_016_behavior_review]
+sql:
+create table table_priv_owner.alter_target(id int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:42) /test/1/catalog1/table_priv_owner/alter_target/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_table_privileges_0_017_behavior_review]
+sql:
+create table table_priv_owner.comment_target(id int, note varchar(20));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:44) /test/1/catalog1/table_priv_owner/comment_target/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_table_privileges_0_018_behavior_review]
+sql:
+create table table_priv_owner.drop_target(id int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:41) /test/1/catalog1/table_priv_owner/drop_target/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_table_privileges_0_019_behavior_review]
+sql:
+create table table_priv_owner.none_target(id int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:41) /test/1/catalog1/table_priv_owner/none_target/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_table_privileges_0_020_behavior_review]
+sql:
+alter table table_priv_owner.owner_lifecycle add owner_added int;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_COLUMN": [
+    {
+      "subject": "Table(1:12~1:44) /test/1/catalog1/table_priv_owner/owner_lifecycle/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_table_privileges_0_021_behavior_review]
+sql:
+comment on table table_priv_owner.owner_lifecycle is 'owner table comment';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "COMMENT_TABLE": [
+    {
+      "subject": "Table(1:17~1:49) /test/1/catalog1/table_priv_owner/owner_lifecycle/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_table_privileges_0_022_behavior_review]
+sql:
+comment on column table_priv_owner.owner_lifecycle.note is 'owner column comment';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "COMMENT_COLUMN": [
+    {
+      "subject": "Table(1:18~1:50) /test/1/catalog1/table_priv_owner/owner_lifecycle/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_table_privileges_0_023_behavior_review]
+sql:
+drop table table_priv_owner.owner_lifecycle purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:43) /test/1/catalog1/table_priv_owner/owner_lifecycle/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_table_privileges_0_024_behavior_review]
+sql:
+create table table_priv_create.own_target(id int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:41) /test/1/catalog1/table_priv_create/own_target/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_table_privileges_0_025_behavior_review]
+sql:
+drop table table_priv_create.own_target purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:39) /test/1/catalog1/table_priv_create/own_target/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_table_privileges_0_026_behavior_review]
+sql:
+comment on table table_priv_owner.comment_target is 'comment any table';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "COMMENT_TABLE": [
+    {
+      "subject": "Table(1:17~1:48) /test/1/catalog1/table_priv_owner/comment_target/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_table_privileges_0_027_behavior_review]
+sql:
+comment on column table_priv_owner.comment_target.note is 'comment any column';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "COMMENT_COLUMN": [
+    {
+      "subject": "Table(1:18~1:49) /test/1/catalog1/table_priv_owner/comment_target/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_table_privileges_0_028_behavior_review]
+sql:
+grant alter on table table_priv_owner.alter_target to table_priv_object;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Table(1:21~1:50) /test/1/catalog1/table_priv_owner/alter_target/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:54~1:71) /test/1/table_priv_object/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_table_privileges_0_029_behavior_review]
+sql:
+alter table table_priv_owner.alter_target add object_added int;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_COLUMN": [
+    {
+      "subject": "Table(1:12~1:41) /test/1/catalog1/table_priv_owner/alter_target/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_table_privileges_0_030_behavior_review]
+sql:
+revoke alter on table table_priv_owner.alter_target from table_priv_object;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "Table(1:22~1:51) /test/1/catalog1/table_priv_owner/alter_target/",
+      "action": "REVOKE",
+      "target": "UserOrRole(1:57~1:74) /test/1/table_priv_object/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_table_privileges_0_031_behavior_review]
+sql:
+alter table table_priv_owner.alter_target add object_denied int;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_COLUMN": [
+    {
+      "subject": "Table(1:12~1:41) /test/1/catalog1/table_priv_owner/alter_target/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_table_privileges_0_032_behavior_review]
+sql:
+create table table_priv_owner.dba_any_target(id int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:44) /test/1/catalog1/table_priv_owner/dba_any_target/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_table_privileges_0_033_behavior_review]
+sql:
+alter table table_priv_owner.alter_target add dba_added int;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_COLUMN": [
+    {
+      "subject": "Table(1:12~1:41) /test/1/catalog1/table_priv_owner/alter_target/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_table_privileges_0_034_behavior_review]
+sql:
+comment on table table_priv_owner.comment_target is 'dba table comment';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "COMMENT_TABLE": [
+    {
+      "subject": "Table(1:17~1:48) /test/1/catalog1/table_priv_owner/comment_target/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_table_privileges_0_035_behavior_review]
+sql:
+comment on column table_priv_owner.comment_target.note is 'dba column comment';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "COMMENT_COLUMN": [
+    {
+      "subject": "Table(1:18~1:49) /test/1/catalog1/table_priv_owner/comment_target/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_table_privileges_0_036_behavior_review]
+sql:
+drop table table_priv_owner.drop_target purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:39) /test/1/catalog1/table_priv_owner/drop_target/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_table_privileges_0_037_behavior_review]
+sql:
+create table table_priv_none.own_denied(id int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:39) /test/1/catalog1/table_priv_none/own_denied/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_table_privileges_0_038_behavior_review]
+sql:
+create table table_priv_owner.any_denied(id int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:40) /test/1/catalog1/table_priv_owner/any_denied/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_table_privileges_0_039_behavior_review]
+sql:
+alter table table_priv_owner.none_target add denied_col int;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_COLUMN": [
+    {
+      "subject": "Table(1:12~1:40) /test/1/catalog1/table_priv_owner/none_target/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_table_privileges_0_040_behavior_review]
+sql:
+comment on table table_priv_owner.none_target is 'denied';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "COMMENT_TABLE": [
+    {
+      "subject": "Table(1:17~1:45) /test/1/catalog1/table_priv_owner/none_target/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_table_privileges_0_041_behavior_review]
+sql:
+drop table table_priv_owner.none_target purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:39) /test/1/catalog1/table_priv_owner/none_target/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_table_privileges_0_042_behavior_review]
+sql:
+create table table_priv_owner.any_target(id int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:40) /test/1/catalog1/table_priv_owner/any_target/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_table_privileges_0_043_behavior_review]
+sql:
+alter table table_priv_owner.alter_target add any_added int;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_COLUMN": [
+    {
+      "subject": "Table(1:12~1:41) /test/1/catalog1/table_priv_owner/alter_target/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_table_privileges_0_044_behavior_review]
+sql:
+drop table table_priv_owner.none_target purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:39) /test/1/catalog1/table_priv_owner/none_target/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_table_privileges_0_045_behavior_review]
+sql:
+drop user table_priv_owner cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_USER": [
+    {
+      "subject": "User(1:10~1:26) /test/1/table_priv_owner/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_table_privileges_0_046_behavior_review]
+sql:
+drop user table_priv_create cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_USER": [
+    {
+      "subject": "User(1:10~1:27) /test/1/table_priv_create/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_table_privileges_0_047_behavior_review]
+sql:
+drop user table_priv_comment cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_USER": [
+    {
+      "subject": "User(1:10~1:28) /test/1/table_priv_comment/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_table_privileges_0_048_behavior_review]
+sql:
+drop user table_priv_any cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_USER": [
+    {
+      "subject": "User(1:10~1:24) /test/1/table_priv_any/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_table_privileges_0_049_behavior_review]
+sql:
+drop user table_priv_none cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_USER": [
+    {
+      "subject": "User(1:10~1:25) /test/1/table_priv_none/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_table_privileges_0_050_behavior_review]
+sql:
+drop user table_priv_object cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_USER": [
+    {
+      "subject": "User(1:10~1:27) /test/1/table_priv_object/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_table_privileges_0_051_behavior_review]
+sql:
+drop user table_priv_dba cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_USER": [
+    {
+      "subject": "User(1:10~1:24) /test/1/table_priv_dba/",
+      "action": "DROP"
+    }
+  ]
+}

@@ -1,0 +1,1155 @@
+[split_admin_dameng_backup_restore_0_001]
+sql:
+BACKUP TABLE CODEX_DM8_BACKUP_20260721.BACKUP_DATA BACKUPSET '/opt/dmdbms/data/backup/case_001_table_basic';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(1:61~1:107) /test/1/opt/dmdbms/data/backup/case_001_table_basic/",
+      "action": "EXPORT",
+      "target": "Table(1:13~1:50) /test/1/catalog1/CODEX_DM8_BACKUP_20260721/BACKUP_DATA/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backup_restore_0_002]
+sql:
+BACKUP TABLE CODEX_DM8_BACKUP_20260721.BACKUP_DATA TO CODEX_TABLE_BAK_002 BACKUPSET '/opt/dmdbms/data/backup/case_002_table_named';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(1:84~1:130) /test/1/opt/dmdbms/data/backup/case_002_table_named/",
+      "action": "EXPORT",
+      "target": "Table(1:13~1:50) /test/1/catalog1/CODEX_DM8_BACKUP_20260721/BACKUP_DATA/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backup_restore_0_003]
+sql:
+BACKUP TABLE CODEX_DM8_BACKUP_20260721.BACKUP_DATA BACKUPSET '/opt/dmdbms/data/backup/case_003_table_device' DEVICE TYPE DISK;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(1:61~1:108) /test/1/opt/dmdbms/data/backup/case_003_table_device/",
+      "action": "EXPORT",
+      "target": "Table(1:13~1:50) /test/1/catalog1/CODEX_DM8_BACKUP_20260721/BACKUP_DATA/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backup_restore_0_004]
+sql:
+BACKUP TABLE CODEX_DM8_BACKUP_20260721.BACKUP_DATA BACKUPSET '/opt/dmdbms/data/backup/case_004_table_info' BACKUPINFO 'CODEX TABLE BACKUP';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(1:61~1:106) /test/1/opt/dmdbms/data/backup/case_004_table_info/",
+      "action": "EXPORT",
+      "target": "Table(1:13~1:50) /test/1/catalog1/CODEX_DM8_BACKUP_20260721/BACKUP_DATA/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backup_restore_0_005]
+sql:
+BACKUP TABLE CODEX_DM8_BACKUP_20260721.BACKUP_DATA BACKUPSET '/opt/dmdbms/data/backup/case_005_table_piece' MAXPIECESIZE 128;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(1:61~1:107) /test/1/opt/dmdbms/data/backup/case_005_table_piece/",
+      "action": "EXPORT",
+      "target": "Table(1:13~1:50) /test/1/catalog1/CODEX_DM8_BACKUP_20260721/BACKUP_DATA/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backup_restore_0_006]
+sql:
+BACKUP TABLE CODEX_DM8_BACKUP_20260721.BACKUP_DATA BACKUPSET '/opt/dmdbms/data/backup/case_006_table_read' LIMIT READ SPEED 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(1:61~1:106) /test/1/opt/dmdbms/data/backup/case_006_table_read/",
+      "action": "EXPORT",
+      "target": "Table(1:13~1:50) /test/1/catalog1/CODEX_DM8_BACKUP_20260721/BACKUP_DATA/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backup_restore_0_007]
+sql:
+BACKUP TABLE CODEX_DM8_BACKUP_20260721.BACKUP_DATA BACKUPSET '/opt/dmdbms/data/backup/case_007_table_read_write' LIMIT READ SPEED 0 WRITE SPEED 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(1:61~1:112) /test/1/opt/dmdbms/data/backup/case_007_table_read_write/",
+      "action": "EXPORT",
+      "target": "Table(1:13~1:50) /test/1/catalog1/CODEX_DM8_BACKUP_20260721/BACKUP_DATA/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backup_restore_0_008]
+sql:
+BACKUP TABLE CODEX_DM8_BACKUP_20260721.BACKUP_DATA BACKUPSET '/opt/dmdbms/data/backup/case_008_table_write' LIMIT WRITE SPEED 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(1:61~1:107) /test/1/opt/dmdbms/data/backup/case_008_table_write/",
+      "action": "EXPORT",
+      "target": "Table(1:13~1:50) /test/1/catalog1/CODEX_DM8_BACKUP_20260721/BACKUP_DATA/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backup_restore_0_009]
+sql:
+BACKUP TABLE CODEX_DM8_BACKUP_20260721.BACKUP_DATA BACKUPSET '/opt/dmdbms/data/backup/case_009_table_compressed' COMPRESSED;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(1:61~1:112) /test/1/opt/dmdbms/data/backup/case_009_table_compressed/",
+      "action": "EXPORT",
+      "target": "Table(1:13~1:50) /test/1/catalog1/CODEX_DM8_BACKUP_20260721/BACKUP_DATA/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backup_restore_0_010]
+sql:
+BACKUP TABLE CODEX_DM8_BACKUP_20260721.BACKUP_DATA BACKUPSET '/opt/dmdbms/data/backup/case_010_table_level' COMPRESSED LEVEL 5;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(1:61~1:107) /test/1/opt/dmdbms/data/backup/case_010_table_level/",
+      "action": "EXPORT",
+      "target": "Table(1:13~1:50) /test/1/catalog1/CODEX_DM8_BACKUP_20260721/BACKUP_DATA/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backup_restore_0_011]
+sql:
+BACKUP TABLE CODEX_DM8_BACKUP_20260721.BACKUP_DATA BACKUPSET '/opt/dmdbms/data/backup/case_011_table_encrypted' IDENTIFIED BY "Dm8Test2026" WITH ENCRYPTION 2 ENCRYPT WITH AES256_CFB;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(1:61~1:111) /test/1/opt/dmdbms/data/backup/case_011_table_encrypted/",
+      "action": "EXPORT",
+      "target": "Table(1:13~1:50) /test/1/catalog1/CODEX_DM8_BACKUP_20260721/BACKUP_DATA/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backup_restore_0_012]
+sql:
+BACKUP TABLE CODEX_DM8_BACKUP_20260721.BACKUP_DATA BACKUPSET '/opt/dmdbms/data/backup/case_012_table_trace' TRACE FILE '/opt/dmdbms/data/trace/case_012_table_trace.log' TRACE LEVEL 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(1:61~1:107) /test/1/opt/dmdbms/data/backup/case_012_table_trace/",
+      "action": "EXPORT",
+      "target": "Table(1:13~1:50) /test/1/catalog1/CODEX_DM8_BACKUP_20260721/BACKUP_DATA/"
+    },
+    {
+      "subject": "File(1:119~1:168) /test/1/opt/dmdbms/data/trace/case_012_table_trace.log/",
+      "action": "EXPORT",
+      "target": "Table(1:13~1:50) /test/1/catalog1/CODEX_DM8_BACKUP_20260721/BACKUP_DATA/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backup_restore_0_013]
+sql:
+RESTORE TABLE CODEX_DM8_BACKUP_20260721.RESTORE_BASIC STRUCT FROM BACKUPSET '/opt/dmdbms/data/backup/setup_restore_basic';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Table(1:14~1:53) /test/1/catalog1/CODEX_DM8_BACKUP_20260721/RESTORE_BASIC/",
+      "action": "IMPORT",
+      "target": "File(1:76~1:121) /test/1/opt/dmdbms/data/backup/setup_restore_basic/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backup_restore_0_014]
+sql:
+RESTORE TABLE CODEX_DM8_BACKUP_20260721.RESTORE_BASIC FROM BACKUPSET '/opt/dmdbms/data/backup/setup_restore_basic';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Table(1:14~1:53) /test/1/catalog1/CODEX_DM8_BACKUP_20260721/RESTORE_BASIC/",
+      "action": "IMPORT",
+      "target": "File(1:69~1:114) /test/1/opt/dmdbms/data/backup/setup_restore_basic/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backup_restore_0_015]
+sql:
+RESTORE TABLE STRUCT WITHOUT INDEX FROM BACKUPSET '/opt/dmdbms/data/backup/setup_restore_no_index';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Table(1:8~1:13) /test/1/",
+      "action": "IMPORT",
+      "target": "File(1:50~1:98) /test/1/opt/dmdbms/data/backup/setup_restore_no_index/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backup_restore_0_016]
+sql:
+RESTORE TABLE WITHOUT INDEX FROM BACKUPSET '/opt/dmdbms/data/backup/setup_restore_no_index';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Table(1:8~1:13) /test/1/",
+      "action": "IMPORT",
+      "target": "File(1:43~1:91) /test/1/opt/dmdbms/data/backup/setup_restore_no_index/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backup_restore_0_017]
+sql:
+RESTORE TABLE STRUCT WITHOUT CONSTRAINT FROM BACKUPSET '/opt/dmdbms/data/backup/setup_restore_no_constraint';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Table(1:8~1:13) /test/1/",
+      "action": "IMPORT",
+      "target": "File(1:55~1:108) /test/1/opt/dmdbms/data/backup/setup_restore_no_constraint/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backup_restore_0_018]
+sql:
+RESTORE TABLE WITHOUT CONSTRAINT FROM BACKUPSET '/opt/dmdbms/data/backup/setup_restore_no_constraint';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Table(1:8~1:13) /test/1/",
+      "action": "IMPORT",
+      "target": "File(1:48~1:101) /test/1/opt/dmdbms/data/backup/setup_restore_no_constraint/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backup_restore_0_019]
+sql:
+RESTORE TABLE CODEX_DM8_BACKUP_20260721.BACKUP_DATA STRUCT FROM BACKUPSET '/opt/dmdbms/data/backup/case_011_table_encrypted' IDENTIFIED BY "Dm8Test2026" ENCRYPT WITH AES256_CFB;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Table(1:14~1:51) /test/1/catalog1/CODEX_DM8_BACKUP_20260721/BACKUP_DATA/",
+      "action": "IMPORT",
+      "target": "File(1:74~1:124) /test/1/opt/dmdbms/data/backup/case_011_table_encrypted/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backup_restore_0_020]
+sql:
+RESTORE TABLE CODEX_DM8_BACKUP_20260721.BACKUP_DATA FROM BACKUPSET '/opt/dmdbms/data/backup/case_011_table_encrypted' IDENTIFIED BY "Dm8Test2026" ENCRYPT WITH AES256_CFB;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Table(1:14~1:51) /test/1/catalog1/CODEX_DM8_BACKUP_20260721/BACKUP_DATA/",
+      "action": "IMPORT",
+      "target": "File(1:67~1:117) /test/1/opt/dmdbms/data/backup/case_011_table_encrypted/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backup_restore_0_021]
+sql:
+BACKUP DATABASE FULL BACKUPSET '/opt/dmdbms/data/backup/case_021_db_full';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(1:31~1:73) /test/1/opt/dmdbms/data/backup/case_021_db_full/",
+      "action": "EXPORT",
+      "target": "Instance(1:7~1:15) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backup_restore_0_022]
+sql:
+BACKUP DATABASE BACKUPSET '/opt/dmdbms/data/backup/case_022_db_default_full';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(1:26~1:76) /test/1/opt/dmdbms/data/backup/case_022_db_default_full/",
+      "action": "EXPORT",
+      "target": "Instance(1:7~1:15) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backup_restore_0_023]
+sql:
+BACKUP DATABASE FULL TO CODEX_DB_BAK_023 BACKUPSET '/opt/dmdbms/data/backup/case_023_db_named';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(1:51~1:94) /test/1/opt/dmdbms/data/backup/case_023_db_named/",
+      "action": "EXPORT",
+      "target": "Instance(1:7~1:15) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backup_restore_0_024]
+sql:
+BACKUP DATABASE FULL BACKUPSET '/opt/dmdbms/data/backup/case_024_db_device' DEVICE TYPE DISK;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(1:31~1:75) /test/1/opt/dmdbms/data/backup/case_024_db_device/",
+      "action": "EXPORT",
+      "target": "Instance(1:7~1:15) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backup_restore_0_025]
+sql:
+BACKUP DATABASE FULL BACKUPSET '/opt/dmdbms/data/backup/case_025_db_info' BACKUPINFO 'CODEX DATABASE BACKUP';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(1:31~1:73) /test/1/opt/dmdbms/data/backup/case_025_db_info/",
+      "action": "EXPORT",
+      "target": "Instance(1:7~1:15) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backup_restore_0_026]
+sql:
+BACKUP DATABASE FULL BACKUPSET '/opt/dmdbms/data/backup/case_026_db_piece' MAXPIECESIZE 128;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(1:31~1:74) /test/1/opt/dmdbms/data/backup/case_026_db_piece/",
+      "action": "EXPORT",
+      "target": "Instance(1:7~1:15) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backup_restore_0_027]
+sql:
+BACKUP DATABASE FULL BACKUPSET '/opt/dmdbms/data/backup/case_027_db_compressed' COMPRESSED LEVEL 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(1:31~1:79) /test/1/opt/dmdbms/data/backup/case_027_db_compressed/",
+      "action": "EXPORT",
+      "target": "Instance(1:7~1:15) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backup_restore_0_028]
+sql:
+BACKUP DATABASE FULL BACKUPSET '/opt/dmdbms/data/backup/case_028_db_task' TASK THREAD 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(1:31~1:73) /test/1/opt/dmdbms/data/backup/case_028_db_task/",
+      "action": "EXPORT",
+      "target": "Instance(1:7~1:15) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backup_restore_0_029]
+sql:
+BACKUP DATABASE FULL BACKUPSET '/opt/dmdbms/data/backup/case_029_db_parallel' PARALLEL 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(1:31~1:77) /test/1/opt/dmdbms/data/backup/case_029_db_parallel/",
+      "action": "EXPORT",
+      "target": "Instance(1:7~1:15) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backup_restore_0_030]
+sql:
+BACKUP DATABASE FULL BACKUPSET '/opt/dmdbms/data/backup/case_030_db_parallel_read' PARALLEL 2 READ SIZE 512;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(1:31~1:82) /test/1/opt/dmdbms/data/backup/case_030_db_parallel_read/",
+      "action": "EXPORT",
+      "target": "Instance(1:7~1:15) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backup_restore_0_031]
+sql:
+BACKUP DATABASE FULL BACKUPSET '/opt/dmdbms/data/backup/case_031_db_without_log' WITHOUT LOG;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(1:31~1:80) /test/1/opt/dmdbms/data/backup/case_031_db_without_log/",
+      "action": "EXPORT",
+      "target": "Instance(1:7~1:15) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backup_restore_0_032]
+sql:
+BACKUP DATABASE FULL BACKUPSET '/opt/dmdbms/data/backup/case_032_db_without_mirror' WITHOUT MIRROR;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(1:31~1:83) /test/1/opt/dmdbms/data/backup/case_032_db_without_mirror/",
+      "action": "EXPORT",
+      "target": "Instance(1:7~1:15) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backup_restore_0_033]
+sql:
+BACKUP DATABASE DDL_CLONE BACKUPSET '/opt/dmdbms/data/backup/case_033_db_ddl_clone';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(1:36~1:83) /test/1/opt/dmdbms/data/backup/case_033_db_ddl_clone/",
+      "action": "EXPORT",
+      "target": "Instance(1:7~1:15) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backup_restore_0_034]
+sql:
+BACKUP DATABASE FULL DDL_CLONE BACKUPSET '/opt/dmdbms/data/backup/case_034_db_full_ddl_clone';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(1:41~1:93) /test/1/opt/dmdbms/data/backup/case_034_db_full_ddl_clone/",
+      "action": "EXPORT",
+      "target": "Instance(1:7~1:15) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backup_restore_0_035]
+sql:
+BACKUP DATABASE SHADOW BACKUPSET '/opt/dmdbms/data/backup/case_035_db_shadow';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(1:33~1:77) /test/1/opt/dmdbms/data/backup/case_035_db_shadow/",
+      "action": "EXPORT",
+      "target": "Instance(1:7~1:15) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backup_restore_0_036]
+sql:
+BACKUP DATABASE FULL SHADOW BACKUPSET '/opt/dmdbms/data/backup/case_036_db_full_shadow';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(1:38~1:87) /test/1/opt/dmdbms/data/backup/case_036_db_full_shadow/",
+      "action": "EXPORT",
+      "target": "Instance(1:7~1:15) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backup_restore_0_037]
+sql:
+BACKUP DATABASE INCREMENT WITH BACKUPDIR '/opt/dmdbms/data/backup' BACKUPSET '/opt/dmdbms/data/backup/case_037_db_increment';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(1:77~1:124) /test/1/opt/dmdbms/data/backup/case_037_db_increment/",
+      "action": "EXPORT",
+      "target": [
+        "Instance(1:7~1:15) /test/1/",
+        "File(1:41~1:66) /test/1/opt/dmdbms/data/backup/"
+      ]
+    }
+  ]
+}
+----------
+[split_admin_dameng_backup_restore_0_038]
+sql:
+BACKUP DATABASE INCREMENT CUMULATIVE WITH BACKUPDIR '/opt/dmdbms/data/backup' BACKUPSET '/opt/dmdbms/data/backup/case_038_db_cumulative';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(1:88~1:136) /test/1/opt/dmdbms/data/backup/case_038_db_cumulative/",
+      "action": "EXPORT",
+      "target": [
+        "Instance(1:7~1:15) /test/1/",
+        "File(1:52~1:77) /test/1/opt/dmdbms/data/backup/"
+      ]
+    }
+  ]
+}
+----------
+[split_admin_dameng_backup_restore_0_039]
+sql:
+BACKUP DATABASE INCREMENT BASE ON BACKUPSET '/opt/dmdbms/data/backup/setup_db_full' BACKUPSET '/opt/dmdbms/data/backup/case_039_db_base_on';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(1:94~1:139) /test/1/opt/dmdbms/data/backup/case_039_db_base_on/",
+      "action": "EXPORT",
+      "target": [
+        "Instance(1:7~1:15) /test/1/",
+        "File(1:44~1:83) /test/1/opt/dmdbms/data/backup/setup_db_full/"
+      ]
+    }
+  ]
+}
+----------
+[split_admin_dameng_backup_restore_0_040]
+sql:
+BACKUP TABLESPACE CODEX_DM8_BACKUP_TS_20260721 BACKUPSET '/opt/dmdbms/data/backup/case_040_ts_basic';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(1:57~1:100) /test/1/opt/dmdbms/data/backup/case_040_ts_basic/",
+      "action": "EXPORT",
+      "target": "Tablespace(1:18~1:46) /test/1/CODEX_DM8_BACKUP_TS_20260721/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backup_restore_0_041]
+sql:
+BACKUP TABLESPACE CODEX_DM8_BACKUP_TS_20260721 FULL BACKUPSET '/opt/dmdbms/data/backup/case_041_ts_full';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(1:62~1:104) /test/1/opt/dmdbms/data/backup/case_041_ts_full/",
+      "action": "EXPORT",
+      "target": "Tablespace(1:18~1:46) /test/1/CODEX_DM8_BACKUP_TS_20260721/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backup_restore_0_042]
+sql:
+BACKUP TABLESPACE CODEX_DM8_BACKUP_TS_20260721 FULL TO CODEX_TS_BAK_042 BACKUPSET '/opt/dmdbms/data/backup/case_042_ts_named';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(1:82~1:125) /test/1/opt/dmdbms/data/backup/case_042_ts_named/",
+      "action": "EXPORT",
+      "target": "Tablespace(1:18~1:46) /test/1/CODEX_DM8_BACKUP_TS_20260721/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backup_restore_0_043]
+sql:
+BACKUP TABLESPACE CODEX_DM8_BACKUP_TS_20260721 FULL BACKUPSET '/opt/dmdbms/data/backup/case_043_ts_compressed' COMPRESSED LEVEL 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(1:62~1:110) /test/1/opt/dmdbms/data/backup/case_043_ts_compressed/",
+      "action": "EXPORT",
+      "target": "Tablespace(1:18~1:46) /test/1/CODEX_DM8_BACKUP_TS_20260721/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backup_restore_0_044]
+sql:
+BACKUP TABLESPACE CODEX_DM8_BACKUP_TS_20260721 FULL BACKUPSET '/opt/dmdbms/data/backup/case_044_ts_parallel' PARALLEL 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(1:62~1:108) /test/1/opt/dmdbms/data/backup/case_044_ts_parallel/",
+      "action": "EXPORT",
+      "target": "Tablespace(1:18~1:46) /test/1/CODEX_DM8_BACKUP_TS_20260721/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backup_restore_0_045]
+sql:
+BACKUP TABLESPACE CODEX_DM8_BACKUP_TS_20260721 INCREMENT BASE ON BACKUPSET '/opt/dmdbms/data/backup/case_040_ts_basic' BACKUPSET '/opt/dmdbms/data/backup/case_045_ts_increment';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(1:129~1:176) /test/1/opt/dmdbms/data/backup/case_045_ts_increment/",
+      "action": "EXPORT",
+      "target": [
+        "Tablespace(1:18~1:46) /test/1/CODEX_DM8_BACKUP_TS_20260721/",
+        "File(1:75~1:118) /test/1/opt/dmdbms/data/backup/case_040_ts_basic/"
+      ]
+    }
+  ]
+}
+----------
+[split_admin_dameng_backup_restore_0_046]
+sql:
+BACKUP ARCHIVE LOG ALL BACKUPSET '/opt/dmdbms/data/backup/case_046_arch_all';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(1:33~1:76) /test/1/opt/dmdbms/data/backup/case_046_arch_all/",
+      "action": "EXPORT",
+      "target": "Log(1:7~1:18) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backup_restore_0_047]
+sql:
+BACKUP ARCHIVELOG FROM LSN 1 BACKUPSET '/opt/dmdbms/data/backup/case_047_arch_from_lsn';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(1:39~1:87) /test/1/opt/dmdbms/data/backup/case_047_arch_from_lsn/",
+      "action": "EXPORT",
+      "target": "Log(1:7~1:17) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backup_restore_0_048]
+sql:
+BACKUP ARCHIVELOG UNTIL LSN 9223372036854775807 BACKUPSET '/opt/dmdbms/data/backup/case_048_arch_until_lsn';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(1:58~1:107) /test/1/opt/dmdbms/data/backup/case_048_arch_until_lsn/",
+      "action": "EXPORT",
+      "target": "Log(1:7~1:17) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backup_restore_0_049]
+sql:
+BACKUP ARCHIVELOG LSN BETWEEN 1 AND 9223372036854775807 BACKUPSET '/opt/dmdbms/data/backup/case_049_arch_between_lsn';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(1:66~1:117) /test/1/opt/dmdbms/data/backup/case_049_arch_between_lsn/",
+      "action": "EXPORT",
+      "target": "Log(1:7~1:17) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backup_restore_0_050]
+sql:
+BACKUP ARCHIVELOG FROM TIME '2026-07-21 00:00:00' BACKUPSET '/opt/dmdbms/data/backup/case_050_arch_from_time';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(1:60~1:109) /test/1/opt/dmdbms/data/backup/case_050_arch_from_time/",
+      "action": "EXPORT",
+      "target": "Log(1:7~1:17) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backup_restore_0_051]
+sql:
+BACKUP ARCHIVELOG UNTIL TIME '2026-07-22 00:00:00' BACKUPSET '/opt/dmdbms/data/backup/case_051_arch_until_time';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(1:61~1:111) /test/1/opt/dmdbms/data/backup/case_051_arch_until_time/",
+      "action": "EXPORT",
+      "target": "Log(1:7~1:17) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backup_restore_0_052]
+sql:
+BACKUP ARCHIVELOG TIME BETWEEN '2026-07-21 00:00:00' AND '2026-07-22 00:00:00' BACKUPSET '/opt/dmdbms/data/backup/case_052_arch_between_time';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(1:89~1:141) /test/1/opt/dmdbms/data/backup/case_052_arch_between_time/",
+      "action": "EXPORT",
+      "target": "Log(1:7~1:17) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backup_restore_0_053]
+sql:
+BACKUP ARCHIVELOG ALL NOT BACKED UP 100 TIMES BACKUPSET '/opt/dmdbms/data/backup/case_053_arch_not_backed_times';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(1:56~1:112) /test/1/opt/dmdbms/data/backup/case_053_arch_not_backed_times/",
+      "action": "EXPORT",
+      "target": "Log(1:7~1:17) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backup_restore_0_054]
+sql:
+BACKUP ARCHIVELOG ALL NOT BACKED UP SINCE TIME '2026-07-21 00:00:00' BACKUPSET '/opt/dmdbms/data/backup/case_054_arch_not_backed_since';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(1:79~1:135) /test/1/opt/dmdbms/data/backup/case_054_arch_not_backed_since/",
+      "action": "EXPORT",
+      "target": "Log(1:7~1:17) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backup_restore_0_055]
+sql:
+CHECK BACKUPSET '/opt/dmdbms/data/backup/case_001_table_basic';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(1:16~1:62) /test/1/opt/dmdbms/data/backup/case_001_table_basic/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backup_restore_0_056]
+sql:
+CHECK BACKUPSET '/opt/dmdbms/data/backup/case_021_db_full' DEVICE TYPE DISK;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(1:16~1:58) /test/1/opt/dmdbms/data/backup/case_021_db_full/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backup_restore_0_057]
+sql:
+CHECK BACKUPSET '/opt/dmdbms/data/backup/case_021_db_full' DATABASE '/opt/dmdbms/data/DAMENG/dm.ini';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(1:16~1:58) /test/1/opt/dmdbms/data/backup/case_021_db_full/",
+      "action": "READ"
+    },
+    {
+      "subject": "File(1:68~1:100) /test/1/opt/dmdbms/data/DAMENG/dm.ini/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backup_restore_0_058]
+sql:
+CONFIGURE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": []
+}
+----------
+[split_admin_dameng_backup_restore_0_059]
+sql:
+CONFIGURE DEFAULT DEVICE TYPE DISK;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "ConfigKey(1:18~1:29) /test/1/DEVICE_TYPE/",
+      "action": "CONFIGURE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backup_restore_0_060]
+sql:
+CONFIGURE DEFAULT TRACE LEVEL 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "ConfigKey(1:18~1:23) /test/1/TRACE/",
+      "action": "CONFIGURE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backup_restore_0_061]
+sql:
+CONFIGURE DEFAULT BACKUPDIR ADD '/opt/dmdbms/data/backup';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "ConfigKey(1:18~1:27) /test/1/BACKUPDIR/",
+      "action": "CONFIGURE",
+      "target": "File(1:32~1:57) /test/1/opt/dmdbms/data/backup/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backup_restore_0_062]
+sql:
+CONFIGURE DEFAULT BACKUPDIR DELETE '/opt/dmdbms/data/backup';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "ConfigKey(1:18~1:27) /test/1/BACKUPDIR/",
+      "action": "CONFIGURE",
+      "target": "File(1:35~1:60) /test/1/opt/dmdbms/data/backup/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backup_restore_0_063]
+sql:
+CONFIGURE DEFAULT ARCHIVEDIR ADD '/opt/dmdbms/data/arch';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "ConfigKey(1:18~1:28) /test/1/ARCHIVEDIR/",
+      "action": "CONFIGURE",
+      "target": "File(1:33~1:56) /test/1/opt/dmdbms/data/arch/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backup_restore_0_064]
+sql:
+CONFIGURE DEFAULT ARCHIVEDIR DELETE '/opt/dmdbms/data/arch';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "ConfigKey(1:18~1:28) /test/1/ARCHIVEDIR/",
+      "action": "CONFIGURE",
+      "target": "File(1:36~1:59) /test/1/opt/dmdbms/data/arch/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backup_restore_0_065]
+sql:
+CONFIGURE DEFAULT OPEN FILES 64;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "ConfigKey(1:18~1:28) /test/1/OPEN_FILES/",
+      "action": "CONFIGURE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backup_restore_0_066]
+sql:
+CONFIGURE DEFAULT OPEN FILES CLEAR;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "ConfigKey(1:18~1:28) /test/1/OPEN_FILES/",
+      "action": "CONFIGURE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backup_restore_0_067]
+sql:
+CONFIGURE DEFAULT TRACE CLEAR;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "ConfigKey(1:18~1:23) /test/1/TRACE/",
+      "action": "CONFIGURE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backup_restore_0_068]
+sql:
+CONFIGURE DEFAULT BACKUPDIR CLEAR;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "ConfigKey(1:18~1:27) /test/1/BACKUPDIR/",
+      "action": "CONFIGURE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backup_restore_0_069]
+sql:
+CONFIGURE DEFAULT ARCHIVEDIR CLEAR;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "ConfigKey(1:18~1:28) /test/1/ARCHIVEDIR/",
+      "action": "CONFIGURE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backup_restore_0_070]
+sql:
+RESTORE DATABASE TO '/opt/dmdbms/data/DAMENG_RESTORE_20260721' WITH CHECK FROM BACKUPSET '/opt/dmdbms/data/backup/case_021_db_full';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(1:20~1:62) /test/1/opt/dmdbms/data/DAMENG_RESTORE_20260721/",
+      "action": "IMPORT",
+      "target": "File(1:89~1:131) /test/1/opt/dmdbms/data/backup/case_021_db_full/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backup_restore_0_071]
+sql:
+RECOVER DATABASE '/opt/dmdbms/data/DAMENG_RESTORE_20260721/dm.ini' FROM BACKUPSET '/opt/dmdbms/data/backup/case_021_db_full';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(1:17~1:66) /test/1/opt/dmdbms/data/DAMENG_RESTORE_20260721/dm.ini/",
+      "action": "IMPORT",
+      "target": "File(1:82~1:124) /test/1/opt/dmdbms/data/backup/case_021_db_full/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_backup_restore_0_072]
+sql:
+RECOVER DATABASE '/opt/dmdbms/data/DAMENG_RESTORE_20260721/dm.ini' UPDATE DB_MAGIC;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(1:17~1:66) /test/1/opt/dmdbms/data/DAMENG_RESTORE_20260721/dm.ini/",
+      "action": "RECOVER"
+    }
+  ]
+}

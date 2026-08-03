@@ -1,0 +1,37 @@
+[with_function_select]
+sql:
+with function f(c int) return int as begin return c+1; end;
+select id,f(v) value from app.with_function_t
+/
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"with_function_t"}
+  ]
+}
+----------
+[with_function_cte_join]
+sql:
+with function f(c int) return int as begin return c+1; end;
+q as(select id,v from app.with_function_t)
+select f(q.v) from q join app.with_function_other o on q.id=o.id
+/
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"with_function_t"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"with_function_other"}
+  ]
+}
+----------
+[with_function_update]
+sql:
+with function f(c int) return int as begin return c+1; end;
+update app.with_function_t set v=f(v) where id=1
+/
+expect:
+{
+  "contains": [
+    {"class":"RdbUpdateDomain", "sqlType":"UPDATE", "auditKind":"DML", "schema":"app", "table":"with_function_t"}
+  ]
+}

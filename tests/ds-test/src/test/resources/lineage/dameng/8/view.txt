@@ -1,0 +1,26 @@
+[create_view_column_lineage]
+sql:
+create view app.v_orders as select o.id, o.amount from catalog1.app.orders o
+expect:
+{
+  "id" : [ "/catalog1/app/orders/id/" ],
+  "amount" : [ "/catalog1/app/orders/amount/" ]
+}
+----------
+[create_join_view_column_lineage]
+sql:
+create view app.v_order_customers(order_id, customer_name) as select o.id, c.name from catalog1.app.orders o join catalog1.app.customers c on o.customer_id=c.id
+expect:
+{
+  "order_id" : [ "/catalog1/app/orders/id/" ],
+  "customer_name" : [ "/catalog1/app/customers/name/" ]
+}
+----------
+[create_cte_view_column_lineage]
+sql:
+create view app.v_active_orders as with q as (select id, customer_id from catalog1.app.orders where status='A') select q.id, c.name from q join catalog1.app.customers c on q.customer_id=c.id
+expect:
+{
+  "id" : [ "/catalog1/app/orders/id/" ],
+  "name" : [ "/catalog1/app/customers/name/" ]
+}

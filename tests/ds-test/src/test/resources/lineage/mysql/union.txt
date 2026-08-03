@@ -1,0 +1,54 @@
+[MyParseColumnUnionTest.test1]
+sql:
+select * from table1 union select * from table2
+expect:
+{
+  "column1" : [ "(1:7~1:8) /catalog1/schema1/table1/column1/", "(1:34~1:35) /catalog1/schema1/table2/column1/" ],
+  "column2" : [ "(1:7~1:8) /catalog1/schema1/table1/column2/", "(1:34~1:35) /catalog1/schema1/table2/column2/" ],
+  "column3" : [ "(1:7~1:8) /catalog1/schema1/table1/column3/", "(1:34~1:35) /catalog1/schema1/table2/column3/" ],
+  "column4" : [ "(1:7~1:8) /catalog1/schema1/table1/column4/", "(1:34~1:35) /catalog1/schema1/table2/column4/" ],
+  "column5" : [ "(1:7~1:8) /catalog1/schema1/table1/column5/", "(1:34~1:35) /catalog1/schema1/table2/column5/" ],
+  "column6" : [ "(1:7~1:8) /catalog1/schema1/table1/column6/", "(1:34~1:35) /catalog1/schema1/table2/column6/" ]
+}
+----------
+[MyParseColumnUnionTest.test2]
+sql:
+select column1 from (select column1  from table1 union select column2 from table2)c
+expect:
+{
+  "column1" : [ "(1:28~1:35) /catalog1/schema1/table1/column1/", "(1:62~1:69) /catalog1/schema1/table2/column2/" ]
+}
+----------
+[MyParseColumnUnionTest.test3]
+sql:
+select e from (select column1 as e  from table1 union select column2 as x from table2)c
+expect:
+{
+  "e" : [ "(1:22~1:29) /catalog1/schema1/table1/column1/", "(1:61~1:68) /catalog1/schema1/table2/column2/" ]
+}
+----------
+[MyParseColumnUnionTest.test4]
+sql:
+select * from table1 union select * from table2 union select * from schema2.table1
+expect:
+{
+  "column1" : [ "(1:7~1:8) /catalog1/schema1/table1/column1/", "(1:34~1:35) /catalog1/schema1/table2/column1/", "(1:61~1:62) /catalog1/schema2/table1/column1/" ],
+  "column2" : [ "(1:7~1:8) /catalog1/schema1/table1/column2/", "(1:34~1:35) /catalog1/schema1/table2/column2/", "(1:61~1:62) /catalog1/schema2/table1/column2/" ],
+  "column3" : [ "(1:7~1:8) /catalog1/schema1/table1/column3/", "(1:34~1:35) /catalog1/schema1/table2/column3/", "(1:61~1:62) /catalog1/schema2/table1/column3/" ],
+  "column4" : [ "(1:7~1:8) /catalog1/schema1/table1/column4/", "(1:34~1:35) /catalog1/schema1/table2/column4/", "(1:61~1:62) /catalog1/schema2/table1/column4/" ],
+  "column5" : [ "(1:7~1:8) /catalog1/schema1/table1/column5/", "(1:34~1:35) /catalog1/schema1/table2/column5/", "(1:61~1:62) /catalog1/schema2/table1/column5/" ],
+  "column6" : [ "(1:7~1:8) /catalog1/schema1/table1/column6/", "(1:34~1:35) /catalog1/schema1/table2/column6/", "(1:61~1:62) /catalog1/schema2/table1/column6/" ]
+}
+----------
+[MyParseColumnUnionTest.test5]
+sql:
+select * from (select * from table1 union select * from table2) c
+expect:
+{
+  "column1" : [ "(1:22~1:23) /catalog1/schema1/table1/column1/", "(1:49~1:50) /catalog1/schema1/table2/column1/" ],
+  "column2" : [ "(1:22~1:23) /catalog1/schema1/table1/column2/", "(1:49~1:50) /catalog1/schema1/table2/column2/" ],
+  "column3" : [ "(1:22~1:23) /catalog1/schema1/table1/column3/", "(1:49~1:50) /catalog1/schema1/table2/column3/" ],
+  "column4" : [ "(1:22~1:23) /catalog1/schema1/table1/column4/", "(1:49~1:50) /catalog1/schema1/table2/column4/" ],
+  "column5" : [ "(1:22~1:23) /catalog1/schema1/table1/column5/", "(1:49~1:50) /catalog1/schema1/table2/column5/" ],
+  "column6" : [ "(1:22~1:23) /catalog1/schema1/table1/column6/", "(1:49~1:50) /catalog1/schema1/table2/column6/" ]
+}

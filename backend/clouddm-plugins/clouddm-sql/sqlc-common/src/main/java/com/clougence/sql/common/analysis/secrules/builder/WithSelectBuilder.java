@@ -19,8 +19,10 @@ import java.util.Collections;
 import java.util.List;
 
 import com.clougence.clouddm.sdk.service.secrules.Domain;
-import com.clougence.clouddm.sdk.sql.secrules.rdb.RdbQueryMode;
-import com.clougence.clouddm.sdk.sql.secrules.rdb.RdbSelectDomain;
+import com.clougence.clouddm.sdk.sql.analysis.security.column.QueryItem;
+import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbQueryMode;
+import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbSelectDomain;
+import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbTableDomain;
 import com.clougence.sql.common.analysis.secrules.builder.enums.Attribute;
 import com.clougence.sql.common.analysis.secrules.builder.enums.CommonAttribute;
 import com.clougence.sql.common.analysis.secrules.builder.enums.DomainSource;
@@ -28,12 +30,31 @@ import com.clougence.sql.common.analysis.secrules.builder.mode.WithSelectDomain;
 
 public class WithSelectBuilder implements DomainBuilder {
 
-    private final WithSelectDomain domain = new WithSelectDomain();
+    private final WithSelectDomain domain      = new WithSelectDomain();
+    private List<String>           columnNames = Collections.emptyList();
 
     @Override
     public List<Domain> build() {
-        domain.getSelectDomain().setMode(RdbQueryMode.WITH_BODY);
-        domain.getSelectDomain().setSimpleSelect(false);
+        RdbSelectDomain selectDomain = domain.getSelectDomain();
+        selectDomain.setMode(RdbQueryMode.WITH_BODY);
+        selectDomain.setSimpleSelect(false);
+        if (!columnNames.isEmpty()) {
+            RdbTableDomain source = new RdbTableDomain();
+            source.setTable(domain.getName());
+            source.setVirtual(true);
+            source.addChild(selectDomain);
+
+            RdbSelectDomain renamedDomain = new RdbSelectDomain();
+            renamedDomain.setMode(RdbQueryMode.WITH);
+            renamedDomain.setSimpleSelect(false);
+            renamedDomain.addChild(source);
+            for (String columnName : columnNames) {
+                QueryItem queryItem = new QueryItem();
+                queryItem.setColumn(columnName);
+                renamedDomain.getColumns().add(queryItem);
+            }
+            domain.setSelectDomain(renamedDomain);
+        }
         return Collections.singletonList(domain);
     }
 
@@ -49,6 +70,8 @@ public class WithSelectBuilder implements DomainBuilder {
     public void addAttr(Attribute attr, Object value) {
         if (attr == CommonAttribute.VALUE) {
             this.domain.setName((String) value);
+        } else if (attr == CommonAttribute.CTE_COLUMN_NAMES) {
+            this.columnNames = ((List<?>) value).stream().map(Object::toString).toList();
         }
     }
 

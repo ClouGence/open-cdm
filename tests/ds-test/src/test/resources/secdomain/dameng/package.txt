@@ -1,0 +1,73 @@
+[create_package_spec]
+sql:
+create package app.employee_api authid current_user as
+  procedure refresh_employee(p_id int);
+  function employee_name(p_id int) return varchar;
+end employee_api;
+/
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"CREATE_PROG_OBJ", "auditKind":"CREATE", "schema":"app", "name":"employee_api"}
+  ]
+}
+----------
+[create_package_body_with_dml]
+sql:
+create package body app.employee_api as
+  procedure refresh_employee(p_id int) as
+  begin
+    update app.employee set active=1 where id=p_id;
+  end refresh_employee;
+  function employee_name(p_id int) return varchar as
+    v_name varchar(80);
+  begin
+    select name into v_name from app.employee where id=p_id;
+    return v_name;
+  end employee_name;
+end employee_api;
+/
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"CREATE_PROG_OBJ", "auditKind":"CREATE", "schema":"app", "name":"employee_api"},
+    {"class":"RdbUpdateDomain", "sqlType":"UPDATE", "auditKind":"DML", "schema":"app", "table":"employee"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"employee"}
+  ]
+}
+----------
+[package_calls]
+sql:
+call app.employee_api.refresh_employee(1);
+call app.employee_api.refresh_employee(p_id=>2);
+expect:
+{
+  "contains": [
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "catalog":"app", "schema":"employee_api"}
+  ]
+}
+----------
+[package_grant_revoke]
+sql:
+grant execute on package app.employee_api to public;
+revoke execute on package app.employee_api from public;
+expect:
+{
+  "contains": [
+    {"class":"RdbGrantDomain", "sqlType":"GRANT", "auditKind":"ALTER", "name":"public"},
+    {"class":"RdbRevokeDomain", "sqlType":"REVOKE", "auditKind":"ALTER", "name":"public"}
+  ]
+}
+----------
+[alter_and_drop_package]
+sql:
+alter package app.employee_api compile cascade debug;
+drop package body app.employee_api restrict;
+drop package app.employee_api cascade;
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"ADMIN_PROG_OBJ", "auditKind":"ADMIN", "schema":"app", "name":"employee_api"},
+    {"class":"RdbObjectDomain", "sqlType":"DROP_PROG_OBJ", "auditKind":"DROP", "schema":"app", "name":"employee_api"}
+  ]
+}

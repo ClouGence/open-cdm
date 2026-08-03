@@ -1,0 +1,9 @@
+db.collection.insert({name: "john", age: 30});
+db.collection.insertOne({name: "jane", age: 25});
+db.collection.insertMany([{name: "bob", age: 35}, {name: "alice", age: 28}]);
+------------------------------------------------------------------------------------------
+[INSERT] db.collection.insert({name: "john", age: 30})
+----------
+[INSERT] db.collection.insertOne({name: "jane", age: 25})
+----------
+[INSERT] db.collection.insertMany([{name: "bob", age: 35}, {name: "alice", age: 28}])

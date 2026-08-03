@@ -1,0 +1,241 @@
+[select__001]
+sql:
+SELECT HEX(b),OCTET_LENGTH(mb),CHAR_LENGTH(t),LENGTH(lt)
+FROM lob_family
+WHERE HEX(b) LIKE '41%' AND t LIKE 'text%'
+ORDER BY t,b
+LIMIT 5;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/HEX/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:14~1:26) /test/1/catalog1/schema1/OCTET_LENGTH/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:31~1:42) /test/1/catalog1/schema1/CHAR_LENGTH/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:46~1:52) /test/1/catalog1/schema1/LENGTH/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(2:5~2:15) /test/1/catalog1/schema1/lob_family/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__002]
+sql:
+SELECT t,COUNT(*),MIN(HEX(b)),MAX(CHAR_LENGTH(lt))
+FROM lob_family
+GROUP BY t
+HAVING COUNT(*) >= 1
+ORDER BY t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:9~1:14) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:18~1:21) /test/1/catalog1/schema1/MIN/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:22~1:25) /test/1/catalog1/schema1/HEX/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:30~1:33) /test/1/catalog1/schema1/MAX/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:34~1:45) /test/1/catalog1/schema1/CHAR_LENGTH/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(2:5~2:15) /test/1/catalog1/schema1/lob_family/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__003]
+sql:
+SELECT outer_lob.t
+FROM lob_family AS outer_lob
+WHERE EXISTS (
+  SELECT 1 FROM lob_family AS inner_lob
+  WHERE inner_lob.b=outer_lob.b AND inner_lob.t=outer_lob.t
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:5~2:15) /test/1/catalog1/schema1/lob_family/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__004]
+sql:
+SELECT a.t,HEX(b.b)
+FROM lob_family AS a
+JOIN lob_family AS b ON a.b=b.b AND a.t=b.t
+WHERE a.mb IS NOT NULL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:11~1:14) /test/1/catalog1/schema1/HEX/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(2:5~2:15) /test/1/catalog1/schema1/lob_family/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__005]
+sql:
+SELECT CASE WHEN b IS NULL THEN CAST('none' AS CHAR) ELSE HEX(b) END,
+       COALESCE(t,mt,lt),
+       NULLIF(b,X'00')
+FROM lob_family;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:32~1:36) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:58~1:61) /test/1/catalog1/schema1/HEX/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/COALESCE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(3:7~3:13) /test/1/catalog1/schema1/NULLIF/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(4:5~4:15) /test/1/catalog1/schema1/lob_family/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__006]
+sql:
+SELECT t FROM lob_family
+UNION ALL
+SELECT CAST(b AS CHAR CHARACTER SET utf8mb4) FROM lob_family;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:24) /test/1/catalog1/schema1/lob_family/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(3:7~3:11) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__007]
+sql:
+SELECT (SELECT (b <> 1) FROM lob_family LIMIT 1) <> ALL
+       (SELECT 1681007452 FROM lob_family)
+FROM lob_family;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:29~1:39) /test/1/catalog1/schema1/lob_family/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__008]
+sql:
+WITH lob_cte(b,t) AS (
+  SELECT b,t FROM lob_generated
+  UNION ALL
+  SELECT lb,lt FROM lob_generated
+)
+SELECT HEX(b),t FROM lob_cte WHERE b IS NOT NULL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:18~2:31) /test/1/catalog1/schema1/lob_generated/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(6:7~6:10) /test/1/catalog1/schema1/HEX/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__009]
+sql:
+SELECT t,HEX(b),
+       ROW_NUMBER() OVER (PARTITION BY t ORDER BY b) AS rn,
+       FIRST_VALUE(t) OVER (ORDER BY b ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS first_t
+FROM lob_generated;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:9~1:12) /test/1/catalog1/schema1/HEX/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(2:7~2:17) /test/1/catalog1/schema1/ROW_NUMBER/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(3:7~3:18) /test/1/catalog1/schema1/FIRST_VALUE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(4:5~4:18) /test/1/catalog1/schema1/lob_generated/",
+      "action" : "READ"
+    }
+  ]
+}

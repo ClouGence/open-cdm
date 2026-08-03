@@ -1,0 +1,150 @@
+SET @aes_iva = REPEAT('a', 16), @aes_ivb = REPEAT('b', 16), @aes_key1 = REPEAT('c', 16), @aes_key2 = REPEAT('d', 16);
+SET SESSION block_encryption_mode = 'aes-128-cfb1';
+SET SESSION block_encryption_mode = 'aes-192-cfb1';
+SET SESSION block_encryption_mode = 'aes-256-cfb1';
+SET SESSION block_encryption_mode = 'aes-128-cfb8';
+SET SESSION block_encryption_mode = 'aes-192-cfb8';
+SET SESSION block_encryption_mode = 'aes-256-cfb8';
+SET SESSION block_encryption_mode = 'aes-128-cfb128';
+SET SESSION block_encryption_mode = 'aes-192-cfb128';
+SET SESSION block_encryption_mode = 'aes-256-cfb128';
+SET SESSION block_encryption_mode = 'aes-128-ofb';
+SET SESSION block_encryption_mode = 'aes-192-ofb';
+SET SESSION block_encryption_mode = 'aes-256-ofb';
+SET SESSION block_encryption_mode = DEFAULT;
+SET SESSION block_encryption_mode = 'aes-128-ecb';
+SET SESSION block_encryption_mode = 'aes-192-ecb';
+SET SESSION block_encryption_mode = 'aes-256-ecb';
+SET SESSION block_encryption_mode = 'aes-128-cbc';
+SET SESSION block_encryption_mode = 'aes-192-cbc';
+SET SESSION block_encryption_mode = 'aes-256-cbc';
+SET @aes_misc_short_key = RANDOM_BYTES(1), @aes_misc_long_key = RANDOM_BYTES(1024);
+SET GLOBAL old_passwords=1;
+SET SESSION old_passwords=0;
+SET old_passwords=2;
+SET @des_nossl_before_flush=DES_DECRYPT(DES_ENCRYPT('hello'));
+SET optimizer_switch='semijoin=on,materialization=on,firstmatch=on,loosescan=on,index_condition_pushdown=on,mrr=on,mrr_cost_based=off';
+SET optimizer_switch=DEFAULT;
+SET @old_collation_connection=@@collation_connection;
+SET collation_connection='utf8_general_ci';
+SET collation_connection=@old_collation_connection;
+SET @func_test_right:='11';
+SET TIMESTAMP=UNIX_TIMESTAMP('2025-01-01 00:00:00');
+SET TIMESTAMP=DEFAULT;
+SET time_zone='+03:00';
+SET time_zone=@@global.time_zone;
+SET time_zone=UTC;
+SET SESSION explicit_defaults_for_timestamp=OFF;
+SET TIMESTAMP=1000000019;
+SET @uuid_native = UUID();
+INSTALL PLUGIN split_missing_plugin_56 SONAME 'split_missing_plugin.so';
+UNINSTALL PLUGIN split_missing_plugin_56;
+CREATE FUNCTION split_missing_udf_56 RETURNS STRING SONAME 'split_missing_udf.so';
+CREATE AGGREGATE FUNCTION split_missing_agg_56 RETURNS REAL SONAME 'split_missing_agg.so';
+CREATE FUNCTION split_missing_int_56 RETURNS INTEGER SONAME 'split_missing_int.so';
+CREATE FUNCTION split_missing_decimal_56 RETURNS DECIMAL SONAME 'split_missing_decimal.so';
+DROP FUNCTION split_missing_udf_56;
+DROP FUNCTION IF EXISTS split_missing_udf_56;
+GRANT ALTER, ALTER ROUTINE, CREATE, CREATE ROUTINE, CREATE TABLESPACE, CREATE TEMPORARY TABLES, CREATE USER, CREATE VIEW, DELETE, DROP, EVENT, EXECUTE, FILE, GRANT OPTION, INDEX, INSERT, LOCK TABLES, PROCESS, REFERENCES, RELOAD, REPLICATION CLIENT, REPLICATION SLAVE, SELECT, SHOW DATABASES, SHOW VIEW, SHUTDOWN, SUPER, TRIGGER, UPDATE, USAGE ON *.* TO 'static_56'@'%';
+REVOKE ALTER, ALTER ROUTINE, CREATE, CREATE ROUTINE, CREATE TABLESPACE, CREATE TEMPORARY TABLES, CREATE USER, CREATE VIEW, DELETE, DROP, EVENT, EXECUTE, FILE, GRANT OPTION, INDEX, INSERT, LOCK TABLES, PROCESS, REFERENCES, RELOAD, REPLICATION CLIENT, REPLICATION SLAVE, SELECT, SHOW DATABASES, SHOW VIEW, SHUTDOWN, SUPER, TRIGGER, UPDATE, USAGE ON *.* FROM 'static_56'@'%';
+SET ENABLE_CASCADE_TRIGGERS=ON;
+------------------------------------------------------------------------------------------
+[SESSION_VARIABLE_RW] SET @aes_iva = REPEAT('a', 16), @aes_ivb = REPEAT('b', 16), @aes_key1 = REPEAT('c', 16), @aes_key2 = REPEAT('d', 16);
+----------
+[SESSION_SETTING_WRITE] SET SESSION block_encryption_mode = 'aes-128-cfb1';
+----------
+[SESSION_SETTING_WRITE] SET SESSION block_encryption_mode = 'aes-192-cfb1';
+----------
+[SESSION_SETTING_WRITE] SET SESSION block_encryption_mode = 'aes-256-cfb1';
+----------
+[SESSION_SETTING_WRITE] SET SESSION block_encryption_mode = 'aes-128-cfb8';
+----------
+[SESSION_SETTING_WRITE] SET SESSION block_encryption_mode = 'aes-192-cfb8';
+----------
+[SESSION_SETTING_WRITE] SET SESSION block_encryption_mode = 'aes-256-cfb8';
+----------
+[SESSION_SETTING_WRITE] SET SESSION block_encryption_mode = 'aes-128-cfb128';
+----------
+[SESSION_SETTING_WRITE] SET SESSION block_encryption_mode = 'aes-192-cfb128';
+----------
+[SESSION_SETTING_WRITE] SET SESSION block_encryption_mode = 'aes-256-cfb128';
+----------
+[SESSION_SETTING_WRITE] SET SESSION block_encryption_mode = 'aes-128-ofb';
+----------
+[SESSION_SETTING_WRITE] SET SESSION block_encryption_mode = 'aes-192-ofb';
+----------
+[SESSION_SETTING_WRITE] SET SESSION block_encryption_mode = 'aes-256-ofb';
+----------
+[SESSION_SETTING_WRITE] SET SESSION block_encryption_mode = DEFAULT;
+----------
+[SESSION_SETTING_WRITE] SET SESSION block_encryption_mode = 'aes-128-ecb';
+----------
+[SESSION_SETTING_WRITE] SET SESSION block_encryption_mode = 'aes-192-ecb';
+----------
+[SESSION_SETTING_WRITE] SET SESSION block_encryption_mode = 'aes-256-ecb';
+----------
+[SESSION_SETTING_WRITE] SET SESSION block_encryption_mode = 'aes-128-cbc';
+----------
+[SESSION_SETTING_WRITE] SET SESSION block_encryption_mode = 'aes-192-cbc';
+----------
+[SESSION_SETTING_WRITE] SET SESSION block_encryption_mode = 'aes-256-cbc';
+----------
+[SESSION_VARIABLE_RW] SET @aes_misc_short_key = RANDOM_BYTES(1), @aes_misc_long_key = RANDOM_BYTES(1024);
+----------
+[SYSTEM_SETTING_WRITE] SET GLOBAL old_passwords=1;
+----------
+[SESSION_SETTING_WRITE] SET SESSION old_passwords=0;
+----------
+[SESSION_SETTING_WRITE] SET old_passwords=2;
+----------
+[SESSION_VARIABLE_RW] SET @des_nossl_before_flush=DES_DECRYPT(DES_ENCRYPT('hello'));
+----------
+[SESSION_SETTING_WRITE] SET optimizer_switch='semijoin=on,materialization=on,firstmatch=on,loosescan=on,index_condition_pushdown=on,mrr=on,mrr_cost_based=off';
+----------
+[SESSION_SETTING_WRITE] SET optimizer_switch=DEFAULT;
+----------
+[SESSION_VARIABLE_RW] SET @old_collation_connection=@@collation_connection;
+----------
+[SESSION_SETTING_WRITE] SET collation_connection='utf8_general_ci';
+----------
+[SESSION_SETTING_WRITE|SESSION_VARIABLE_RW] SET collation_connection=@old_collation_connection;
+----------
+[SESSION_VARIABLE_RW] SET @func_test_right:='11';
+----------
+[SESSION_SETTING_WRITE] SET TIMESTAMP=UNIX_TIMESTAMP('2025-01-01 00:00:00');
+----------
+[SESSION_SETTING_WRITE] SET TIMESTAMP=DEFAULT;
+----------
+[SESSION_SETTING_WRITE] SET time_zone='+03:00';
+----------
+[SESSION_SETTING_WRITE] SET time_zone=@@global.time_zone;
+----------
+[SESSION_SETTING_WRITE] SET time_zone=UTC;
+----------
+[SESSION_SETTING_WRITE] SET SESSION explicit_defaults_for_timestamp=OFF;
+----------
+[SESSION_SETTING_WRITE] SET TIMESTAMP=1000000019;
+----------
+[SESSION_VARIABLE_RW] SET @uuid_native = UUID();
+----------
+[CREATE_LIBRARY] INSTALL PLUGIN split_missing_plugin_56 SONAME 'split_missing_plugin.so';
+----------
+[DROP_LIBRARY] UNINSTALL PLUGIN split_missing_plugin_56;
+----------
+[CREATE_PROG_OBJ|UNSAFE] CREATE FUNCTION split_missing_udf_56 RETURNS STRING SONAME 'split_missing_udf.so';
+----------
+[CREATE_PROG_OBJ|UNSAFE] CREATE AGGREGATE FUNCTION split_missing_agg_56 RETURNS REAL SONAME 'split_missing_agg.so';
+----------
+[CREATE_PROG_OBJ|UNSAFE] CREATE FUNCTION split_missing_int_56 RETURNS INTEGER SONAME 'split_missing_int.so';
+----------
+[CREATE_PROG_OBJ|UNSAFE] CREATE FUNCTION split_missing_decimal_56 RETURNS DECIMAL SONAME 'split_missing_decimal.so';
+----------
+[DROP_PROG_OBJ] DROP FUNCTION split_missing_udf_56;
+----------
+[DROP_PROG_OBJ] DROP FUNCTION IF EXISTS split_missing_udf_56;
+----------
+[GRANT] GRANT ALTER, ALTER ROUTINE, CREATE, CREATE ROUTINE, CREATE TABLESPACE, CREATE TEMPORARY TABLES, CREATE USER, CREATE VIEW, DELETE, DROP, EVENT, EXECUTE, FILE, GRANT OPTION, INDEX, INSERT, LOCK TABLES, PROCESS, REFERENCES, RELOAD, REPLICATION CLIENT, REPLICATION SLAVE, SELECT, SHOW DATABASES, SHOW VIEW, SHUTDOWN, SUPER, TRIGGER, UPDATE, USAGE ON *.* TO 'static_56'@'%';
+----------
+[REVOKE] REVOKE ALTER, ALTER ROUTINE, CREATE, CREATE ROUTINE, CREATE TABLESPACE, CREATE TEMPORARY TABLES, CREATE USER, CREATE VIEW, DELETE, DROP, EVENT, EXECUTE, FILE, GRANT OPTION, INDEX, INSERT, LOCK TABLES, PROCESS, REFERENCES, RELOAD, REPLICATION CLIENT, REPLICATION SLAVE, SELECT, SHOW DATABASES, SHOW VIEW, SHUTDOWN, SUPER, TRIGGER, UPDATE, USAGE ON *.* FROM 'static_56'@'%';
+----------
+[SESSION_SETTING_WRITE] SET ENABLE_CASCADE_TRIGGERS=ON;

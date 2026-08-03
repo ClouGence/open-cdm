@@ -1,0 +1,205 @@
+[dql_mysql_locking_0.0001]
+sql:
+SELECT a.id
+FROM split_select_lock_into.t AS a, split_select_lock_into.t AS b
+WHERE a.id = b.id
+FOR SHARE OF a NOWAIT
+FOR UPDATE OF b SKIP LOCKED
+INTO @split_multi;
+expect:
+{
+  "id" : [ "(1:7~1:11) /catalog1/split_select_lock_into/t/id/" ]
+}
+----------
+[dql_mysql_locking_0.0002]
+sql:
+SELECT id INTO @split_pre_update FROM split_select_lock_into.t WHERE id = 1 FOR UPDATE;
+expect:
+{
+  "id" : [ "(1:7~1:9) /catalog1/split_select_lock_into/t/id/" ]
+}
+----------
+[dql_mysql_locking_0.0003]
+sql:
+SELECT id FROM split_select_lock_into.t WHERE id = 1 INTO @split_tail_share LOCK IN SHARE MODE;
+expect:
+{
+  "id" : [ "(1:7~1:9) /catalog1/split_select_lock_into/t/id/" ]
+}
+----------
+[dql_mysql_locking_0.0004]
+sql:
+SELECT id FROM split_lock_combo.t WHERE id = (SELECT id FROM split_lock_combo.t2 WHERE id=1 FOR UPDATE) FOR UPDATE;
+expect:
+{
+  "id" : [ "(1:7~1:9) /catalog1/split_lock_combo/t/id/" ]
+}
+----------
+[dql_mysql_locking_0.0005]
+sql:
+SELECT id FROM split_lock_combo.t WHERE EXISTS (SELECT 1 FROM split_lock_combo.t2 WHERE t2.id=t.id LOCK IN SHARE MODE) FOR UPDATE;
+expect:
+{
+  "id" : [ "(1:7~1:9) /catalog1/split_lock_combo/t/id/" ]
+}
+----------
+[dql_mysql_locking_0.0006]
+sql:
+SELECT MAX(id) FROM split_lock_combo.t FOR UPDATE;
+expect:
+{
+  "MAX(id)" : [ "(1:11~1:13) /catalog1/split_lock_combo/t/id/" ]
+}
+----------
+[dql_mysql_locking_0.0007]
+sql:
+SELECT d.id FROM (SELECT id FROM split_lock_combo.t FOR UPDATE) AS d WHERE d.id>0 FOR UPDATE;
+expect:
+{
+  "id" : [ "(1:25~1:27) /catalog1/split_lock_combo/t/id/" ]
+}
+----------
+[dql_mysql_locking_0.0008]
+sql:
+SELECT grp,COUNT(*) FROM split_lock_combo.t GROUP BY grp HAVING COUNT(*)>0 FOR UPDATE;
+expect:
+{
+  "grp" : [ "(1:7~1:10) /catalog1/split_lock_combo/t/grp/" ],
+  "COUNT(*)" : [ ]
+}
+----------
+[dql_mysql_locking_0.0009]
+sql:
+WITH c AS (SELECT id FROM split_lock_combo.t2 FOR SHARE) SELECT t.id FROM split_lock_combo.t AS t JOIN c ON c.id=t.id FOR UPDATE OF t;
+expect:
+{
+  "id" : [ "(1:64~1:68) /catalog1/split_lock_combo/t/id/" ]
+}
+----------
+[dql_mysql_locking_0.0010]
+sql:
+SELECT id, ROW_NUMBER() OVER (ORDER BY id) AS rn FROM split_lock_combo.t FOR UPDATE;
+expect:
+{
+  "id" : [ "(1:7~1:9) /catalog1/split_lock_combo/t/id/" ],
+  "rn" : [ "(1:7~1:9) /catalog1/split_lock_combo/t/id/" ]
+}
+----------
+[dql_mysql_locking_0.0011]
+sql:
+SELECT id FROM t1 WHERE id = 1 FOR UPDATE;
+expect:
+{
+  "id" : [ "(1:7~1:9) /catalog1/schema1/t1/id/" ]
+}
+----------
+[dql_mysql_locking_0.0012]
+sql:
+SELECT id FROM t1 WHERE id = 1 LOCK IN SHARE MODE;
+expect:
+{
+  "id" : [ "(1:7~1:9) /catalog1/schema1/t1/id/" ]
+}
+----------
+[dql_mysql_locking_0.0013]
+sql:
+SELECT t1.id FROM t1, t2 WHERE t1.id = t2.id FOR SHARE OF t1 NOWAIT FOR UPDATE OF t2 SKIP LOCKED;
+expect:
+{
+  "id" : [ "(1:7~1:12) /catalog1/schema1/t1/id/" ]
+}
+----------
+[dql_mysql_locking_0.0014]
+sql:
+SELECT t1.id FROM t1, t2 WHERE t1.id = t2.id FOR UPDATE OF t1 FOR SHARE OF t2;
+expect:
+{
+  "id" : [ "(1:7~1:12) /catalog1/schema1/t1/id/" ]
+}
+----------
+[dql_mysql_locking_0.0015]
+sql:
+SELECT a.id FROM qa_t1 AS a,qa_t2 AS b WHERE a.id=b.id LOCK IN SHARE MODE FOR UPDATE OF a;
+expect:
+{
+  "id" : [ "(1:7~1:11) /catalog1/schema1/qa_t1/id/" ]
+}
+----------
+[dql_mysql_locking_0.0016]
+sql:
+SELECT a.id FROM qa_t1 AS a JOIN qa_t2 AS b ON a.id=b.id FOR UPDATE OF a,b NOWAIT;
+expect:
+{
+  "id" : [ "(1:7~1:11) /catalog1/schema1/qa_t1/id/" ]
+}
+----------
+[dql_mysql_locking_0.0018]
+sql:
+(SELECT * FROM t1 FOR UPDATE) LIMIT 1;
+expect:
+{
+  "id" : [ "(1:8~1:9) /catalog1/schema1/t1/id/" ]
+}
+----------
+[dql_mysql_locking_0.0019]
+sql:
+SELECT * FROM t1 FOR UPDATE NOWAIT;
+expect:
+{
+  "id" : [ "(1:7~1:8) /catalog1/schema1/t1/id/" ]
+}
+----------
+[dql_mysql_locking_0.0020]
+sql:
+SELECT * FROM t1 FOR SHARE SKIP LOCKED;
+expect:
+{
+  "id" : [ "(1:7~1:8) /catalog1/schema1/t1/id/" ]
+}
+----------
+[dql_mysql_locking_0.0021]
+sql:
+SELECT * FROM t1 FOR SHARE OF codex_next_gap.t1;
+expect:
+{
+  "id" : [ "(1:7~1:8) /catalog1/schema1/t1/id/" ]
+}
+----------
+[dql_mysql_locking_0.0022]
+sql:
+SELECT * FROM t1 AS t1a FOR SHARE OF t1;
+expect:
+{
+  "id" : [ "(1:7~1:8) /catalog1/schema1/t1/id/" ]
+}
+----------
+[dql_mysql_locking_0.0023]
+sql:
+SELECT * FROM t1 FOR UPDATE OF t1 FOR SHARE OF t1;
+expect:
+{
+  "id" : [ "(1:7~1:8) /catalog1/schema1/t1/id/" ]
+}
+----------
+[dql_mysql_locking_0.0024]
+sql:
+SELECT * FROM t1 FOR UPDATE FOR SHARE OF t1;
+expect:
+{
+  "id" : [ "(1:7~1:8) /catalog1/schema1/t1/id/" ]
+}
+----------
+[dql_mysql_locking_0.0025]
+sql:
+SELECT * FROM t1 LEFT JOIN t2 ON t1.c2=t2.c2 AND t2.c1=1 FOR UPDATE;
+expect:
+[ {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/t1/c2/" ],
+  "column" : "c2"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/t2/c2/" ],
+  "column" : "c2"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/t2/c1/" ],
+  "column" : "c1"
+} ]

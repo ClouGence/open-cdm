@@ -1,0 +1,850 @@
+[data_import__001]
+sql:
+LOAD DATA INFILE '/var/lib/mysql-files/split_load.tsv' INTO TABLE load_innodb;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_IMPORT": [
+    {
+      "subject": "Table(1:66~1:77) /test/1/catalog1/schema1/load_innodb/",
+      "action" : "IMPORT",
+      "target" : "File(1:17~1:54) /test/1/var/lib/mysql-files/split_load.tsv/"
+    }
+  ]
+}
+----------
+[data_import_session_variable_rw__002]
+sql:
+LOAD DATA LOW_PRIORITY LOCAL INFILE '/var/lib/mysql-files/split_load.csv' REPLACE INTO TABLE load_innodb CHARACTER SET utf8mb4 FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' ESCAPED BY '\\' LINES STARTING BY '' TERMINATED BY '\n' IGNORE 1 LINES (id, @raw_name, val) SET name = TRIM(@raw_name);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_IMPORT": [
+    {
+      "subject": "Table(1:93~1:104) /test/1/catalog1/schema1/load_innodb/",
+      "action" : "IMPORT",
+      "target" : "File(1:36~1:73) /test/1/var/lib/mysql-files/split_load.csv/"
+    },
+    {
+      "subject": "ConfigKey(1:255~1:264) /test/1/raw_name/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(1:282~1:286) /test/1/catalog1/schema1/TRIM/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[data_import__003]
+sql:
+LOAD DATA CONCURRENT INFILE '/var/lib/mysql-files/split_load.csv' IGNORE INTO TABLE load_myisam COLUMNS TERMINATED BY ',' ENCLOSED BY '"' ESCAPED BY '\\' LINES TERMINATED BY '\n' IGNORE 1 ROWS (id, name, val) SET val = DEFAULT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_IMPORT": [
+    {
+      "subject": "Table(1:84~1:95) /test/1/catalog1/schema1/load_myisam/",
+      "action" : "IMPORT",
+      "target" : "File(1:28~1:65) /test/1/var/lib/mysql-files/split_load.csv/"
+    }
+  ]
+}
+----------
+[data_import__004]
+sql:
+LOAD DATA INFILE '/var/lib/mysql-files/split_load.csv' INTO TABLE load_partition PARTITION (p0) FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' IGNORE 1 LINES;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_IMPORT": [
+    {
+      "subject": "Table(1:66~1:80) /test/1/catalog1/schema1/load_partition/",
+      "action" : "IMPORT",
+      "target" : "File(1:17~1:54) /test/1/var/lib/mysql-files/split_load.csv/"
+    }
+  ]
+}
+----------
+[data_import__005]
+sql:
+LOAD DATA INFILE '/var/lib/mysql-files/codex_load_audit_missing_empty.csv' INTO TABLE codex_load_audit_s.t ();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_IMPORT": [
+    {
+      "subject": "Table(1:86~1:106) /test/1/catalog1/codex_load_audit_s/t/",
+      "action" : "IMPORT",
+      "target" : "File(1:17~1:74) /test/1/var/lib/mysql-files/codex_load_audit_missing_empty.csv/"
+    }
+  ]
+}
+----------
+[data_import_session_variable_rw_select__006]
+sql:
+LOAD DATA INFILE '/var/lib/mysql-files/codex_load_audit_missing_subquery.csv' INTO TABLE codex_load_audit_s.t (@codex_load_audit_x) SET b = (SELECT 1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_IMPORT": [
+    {
+      "subject": "Table(1:89~1:109) /test/1/catalog1/codex_load_audit_s/t/",
+      "action" : "IMPORT",
+      "target" : "File(1:17~1:77) /test/1/var/lib/mysql-files/codex_load_audit_missing_subquery.csv/"
+    },
+    {
+      "subject": "ConfigKey(1:111~1:130) /test/1/codex_load_audit_x/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[data_import_session_variable_rw__007]
+sql:
+LOAD DATA INFILE '/var/lib/mysql-files/codex_missing.csv' INTO TABLE dml_audit.t (@x) SET v := @x;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_IMPORT": [
+    {
+      "subject": "Table(1:69~1:80) /test/1/catalog1/dml_audit/t/",
+      "action" : "IMPORT",
+      "target" : "File(1:17~1:57) /test/1/var/lib/mysql-files/codex_missing.csv/"
+    },
+    {
+      "subject": "ConfigKey(1:82~1:84) /test/1/x/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[data_import__008]
+sql:
+LOAD XML INFILE '/var/lib/mysql-files/split_load.xml' INTO TABLE load_innodb;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_IMPORT": [
+    {
+      "subject": "Table(1:65~1:76) /test/1/catalog1/schema1/load_innodb/",
+      "action" : "IMPORT",
+      "target" : "File(1:16~1:53) /test/1/var/lib/mysql-files/split_load.xml/"
+    }
+  ]
+}
+----------
+[data_import_session_variable_rw__009]
+sql:
+LOAD XML LOW_PRIORITY LOCAL INFILE '/var/lib/mysql-files/split_load.xml' REPLACE INTO TABLE load_innodb ROWS IDENTIFIED BY '<row>' IGNORE 0 ROWS (id, @raw_name, val) SET name = TRIM(@raw_name);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_IMPORT": [
+    {
+      "subject": "Table(1:92~1:103) /test/1/catalog1/schema1/load_innodb/",
+      "action" : "IMPORT",
+      "target" : "File(1:35~1:72) /test/1/var/lib/mysql-files/split_load.xml/"
+    },
+    {
+      "subject": "ConfigKey(1:150~1:159) /test/1/raw_name/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(1:177~1:181) /test/1/catalog1/schema1/TRIM/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[data_import__010]
+sql:
+LOAD XML CONCURRENT INFILE '/var/lib/mysql-files/split_load.xml' IGNORE INTO TABLE load_myisam ROWS IDENTIFIED BY '<row>';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_IMPORT": [
+    {
+      "subject": "Table(1:83~1:94) /test/1/catalog1/schema1/load_myisam/",
+      "action" : "IMPORT",
+      "target" : "File(1:27~1:64) /test/1/var/lib/mysql-files/split_load.xml/"
+    }
+  ]
+}
+----------
+[data_import__011]
+sql:
+LOAD XML INFILE '/var/lib/mysql-files/split_load.xml' INTO TABLE load_partition PARTITION (p0) ROWS IDENTIFIED BY '<row>';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_IMPORT": [
+    {
+      "subject": "Table(1:65~1:79) /test/1/catalog1/schema1/load_partition/",
+      "action" : "IMPORT",
+      "target" : "File(1:16~1:53) /test/1/var/lib/mysql-files/split_load.xml/"
+    }
+  ]
+}
+----------
+[data_import__012]
+sql:
+LOAD XML INFILE '/var/lib/mysql-files/split_load.xml' INTO TABLE load_innodb ROWS IDENTIFIED BY '<row>' COLUMNS TERMINATED BY ',' LINES STARTING BY '<' TERMINATED BY '>';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_IMPORT": [
+    {
+      "subject": "Table(1:65~1:76) /test/1/catalog1/schema1/load_innodb/",
+      "action" : "IMPORT",
+      "target" : "File(1:16~1:53) /test/1/var/lib/mysql-files/split_load.xml/"
+    }
+  ]
+}
+----------
+[data_import__013]
+sql:
+LOAD XML INFILE '/var/lib/mysql-files/codex_missing.xml' INTO TABLE dml_audit.t CHARACTER SET utf8mb4 ROWS IDENTIFIED BY '<row>';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_IMPORT": [
+    {
+      "subject": "Table(1:68~1:79) /test/1/catalog1/dml_audit/t/",
+      "action" : "IMPORT",
+      "target" : "File(1:16~1:56) /test/1/var/lib/mysql-files/codex_missing.xml/"
+    }
+  ]
+}
+----------
+[data_import__014]
+sql:
+LOAD XML INFILE '/var/lib/mysql-files/codex_missing.xml' INTO TABLE dml_audit.t ();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_IMPORT": [
+    {
+      "subject": "Table(1:68~1:79) /test/1/catalog1/dml_audit/t/",
+      "action" : "IMPORT",
+      "target" : "File(1:16~1:56) /test/1/var/lib/mysql-files/codex_missing.xml/"
+    }
+  ]
+}
+----------
+[data_import__015]
+sql:
+LOAD XML INFILE '/var/lib/mysql-files/codex_missing.xml' INTO TABLE dml_audit.t FIELDS TERMINATED BY ',';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_IMPORT": [
+    {
+      "subject": "Table(1:68~1:79) /test/1/catalog1/dml_audit/t/",
+      "action" : "IMPORT",
+      "target" : "File(1:16~1:56) /test/1/var/lib/mysql-files/codex_missing.xml/"
+    }
+  ]
+}
+----------
+[data_import_session_variable_rw__016]
+sql:
+LOAD XML INFILE '/var/lib/mysql-files/codex_missing.xml' INTO TABLE dml_audit.t (@x) SET v := @x;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_IMPORT": [
+    {
+      "subject": "Table(1:68~1:79) /test/1/catalog1/dml_audit/t/",
+      "action" : "IMPORT",
+      "target" : "File(1:16~1:56) /test/1/var/lib/mysql-files/codex_missing.xml/"
+    },
+    {
+      "subject": "ConfigKey(1:81~1:83) /test/1/x/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[data_import__017]
+sql:
+LOAD DATA INFILE '/var/lib/mysql-files/split_outfile_load_base.txt' INTO TABLE split_outfile_load_native.t2 FIELDS TERMINATED BY 'raker';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_IMPORT": [
+    {
+      "subject": "Table(1:79~1:107) /test/1/catalog1/split_outfile_load_native/t2/",
+      "action" : "IMPORT",
+      "target" : "File(1:17~1:67) /test/1/var/lib/mysql-files/split_outfile_load_base.txt/"
+    }
+  ]
+}
+----------
+[data_import__018]
+sql:
+LOAD DATA INFILE '/var/lib/mysql-files/split_outfile_load_base.txt' INTO TABLE split_outfile_load_native.t2 FIELDS ENCLOSED BY 0xC3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_IMPORT": [
+    {
+      "subject": "Table(1:79~1:107) /test/1/catalog1/split_outfile_load_native/t2/",
+      "action" : "IMPORT",
+      "target" : "File(1:17~1:67) /test/1/var/lib/mysql-files/split_outfile_load_base.txt/"
+    }
+  ]
+}
+----------
+[data_import__019]
+sql:
+LOAD DATA INFILE '/var/lib/mysql-files/split_outfile_load_base.txt' INTO TABLE split_outfile_load_native.t2 FIELDS ENCLOSED BY '12345';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_IMPORT": [
+    {
+      "subject": "Table(1:79~1:107) /test/1/catalog1/split_outfile_load_native/t2/",
+      "action" : "IMPORT",
+      "target" : "File(1:17~1:67) /test/1/var/lib/mysql-files/split_outfile_load_base.txt/"
+    }
+  ]
+}
+----------
+[data_import__020]
+sql:
+LOAD DATA INFILE '/var/lib/mysql-files/split_outfile_load_base.txt' INTO TABLE split_outfile_load_native.t2 FIELDS ESCAPED BY '12345';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_IMPORT": [
+    {
+      "subject": "Table(1:79~1:107) /test/1/catalog1/split_outfile_load_native/t2/",
+      "action" : "IMPORT",
+      "target" : "File(1:17~1:67) /test/1/var/lib/mysql-files/split_outfile_load_base.txt/"
+    }
+  ]
+}
+----------
+[data_import__021]
+sql:
+LOAD DATA INFILE '/var/lib/mysql-files/split_outfile_load_base.txt' INTO TABLE split_outfile_load_native.t2 CHARACTER SET binary FIELDS ENCLOSED BY 'ъ';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_IMPORT": [
+    {
+      "subject": "Table(1:79~1:107) /test/1/catalog1/split_outfile_load_native/t2/",
+      "action" : "IMPORT",
+      "target" : "File(1:17~1:67) /test/1/var/lib/mysql-files/split_outfile_load_base.txt/"
+    }
+  ]
+}
+----------
+[data_import__022]
+sql:
+LOAD DATA INFILE '/var/lib/mysql-files/split_outfile_load_base.txt' INTO TABLE split_outfile_load_native.t2 CHARACTER SET binary FIELDS ESCAPED BY 'ъ';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_IMPORT": [
+    {
+      "subject": "Table(1:79~1:107) /test/1/catalog1/split_outfile_load_native/t2/",
+      "action" : "IMPORT",
+      "target" : "File(1:17~1:67) /test/1/var/lib/mysql-files/split_outfile_load_base.txt/"
+    }
+  ]
+}
+----------
+[data_import__023]
+sql:
+LOAD DATA INFILE '/var/lib/mysql-files/split_outfile_load_base.txt' INTO TABLE split_outfile_load_native.t2 CHARACTER SET binary FIELDS TERMINATED BY 'ъ';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_IMPORT": [
+    {
+      "subject": "Table(1:79~1:107) /test/1/catalog1/split_outfile_load_native/t2/",
+      "action" : "IMPORT",
+      "target" : "File(1:17~1:67) /test/1/var/lib/mysql-files/split_outfile_load_base.txt/"
+    }
+  ]
+}
+----------
+[data_import__024]
+sql:
+LOAD DATA INFILE '/var/lib/mysql-files/split_outfile_load_base.txt' INTO TABLE split_outfile_load_native.t2 CHARACTER SET binary LINES STARTING BY 'ъ';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_IMPORT": [
+    {
+      "subject": "Table(1:79~1:107) /test/1/catalog1/split_outfile_load_native/t2/",
+      "action" : "IMPORT",
+      "target" : "File(1:17~1:67) /test/1/var/lib/mysql-files/split_outfile_load_base.txt/"
+    }
+  ]
+}
+----------
+[data_import__025]
+sql:
+LOAD DATA INFILE '/var/lib/mysql-files/split_outfile_load_base.txt' INTO TABLE split_outfile_load_native.t2 CHARACTER SET binary LINES TERMINATED BY 'ъ';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_IMPORT": [
+    {
+      "subject": "Table(1:79~1:107) /test/1/catalog1/split_outfile_load_native/t2/",
+      "action" : "IMPORT",
+      "target" : "File(1:17~1:67) /test/1/var/lib/mysql-files/split_outfile_load_base.txt/"
+    }
+  ]
+}
+----------
+[data_import__026]
+sql:
+LOAD DATA INFILE '/var/lib/mysql-files/split_outfile_load_base.txt' INTO TABLE split_outfile_load_native.t2 CHARACTER SET binary;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_IMPORT": [
+    {
+      "subject": "Table(1:79~1:107) /test/1/catalog1/split_outfile_load_native/t2/",
+      "action" : "IMPORT",
+      "target" : "File(1:17~1:67) /test/1/var/lib/mysql-files/split_outfile_load_base.txt/"
+    }
+  ]
+}
+----------
+[data_import__027]
+sql:
+LOAD DATA INFILE '/var/lib/mysql-files/split_outfile_load_base.txt' INTO TABLE split_outfile_load_native.t2 CHARACTER SET latin1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_IMPORT": [
+    {
+      "subject": "Table(1:79~1:107) /test/1/catalog1/split_outfile_load_native/t2/",
+      "action" : "IMPORT",
+      "target" : "File(1:17~1:67) /test/1/var/lib/mysql-files/split_outfile_load_base.txt/"
+    }
+  ]
+}
+----------
+[data_import__028]
+sql:
+LOAD DATA INFILE '/var/lib/mysql-files/split_outfile_load_base.txt' INTO TABLE split_outfile_load_native.t2 CHARACTER SET koi8r;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_IMPORT": [
+    {
+      "subject": "Table(1:79~1:107) /test/1/catalog1/split_outfile_load_native/t2/",
+      "action" : "IMPORT",
+      "target" : "File(1:17~1:67) /test/1/var/lib/mysql-files/split_outfile_load_base.txt/"
+    }
+  ]
+}
+----------
+[data_import__029]
+sql:
+LOAD DATA INFILE '/var/lib/mysql-files/split_outfile_load_base.txt' INTO TABLE split_outfile_load_native.t2 CHARACTER SET utf8;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_IMPORT": [
+    {
+      "subject": "Table(1:79~1:107) /test/1/catalog1/split_outfile_load_native/t2/",
+      "action" : "IMPORT",
+      "target" : "File(1:17~1:67) /test/1/var/lib/mysql-files/split_outfile_load_base.txt/"
+    }
+  ]
+}
+----------
+[data_import__030]
+sql:
+LOAD DATA INFILE '/var/lib/mysql-files/split_outfile_load_base.txt' INTO TABLE split_outfile_load_native.t2 FIELDS ENCLOSED BY 0b00100010;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_IMPORT": [
+    {
+      "subject": "Table(1:79~1:107) /test/1/catalog1/split_outfile_load_native/t2/",
+      "action" : "IMPORT",
+      "target" : "File(1:17~1:67) /test/1/var/lib/mysql-files/split_outfile_load_base.txt/"
+    }
+  ]
+}
+----------
+[data_import__031]
+sql:
+LOAD DATA INFILE '/var/lib/mysql-files/split_load.txt'
+INTO TABLE load_t FIELDS ESCAPED BY '\\' TERMINATED BY ' ';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_IMPORT": [
+    {
+      "subject": "Table(2:11~2:17) /test/1/catalog1/schema1/load_t/",
+      "action" : "IMPORT",
+      "target" : "File(1:17~1:54) /test/1/var/lib/mysql-files/split_load.txt/"
+    }
+  ]
+}
+----------
+[data_import_session_variable_rw__032]
+sql:
+LOAD DATA INFILE '/var/lib/mysql-files/split_load.txt'
+INTO TABLE load_t (a, @raw_b)
+SET b=@raw_b+10, c=CONCAT('b=', @raw_b);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_IMPORT": [
+    {
+      "subject": "Table(2:11~2:17) /test/1/catalog1/schema1/load_t/",
+      "action" : "IMPORT",
+      "target" : "File(1:17~1:54) /test/1/var/lib/mysql-files/split_load.txt/"
+    },
+    {
+      "subject": "ConfigKey(2:22~2:28) /test/1/raw_b/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(3:19~3:25) /test/1/catalog1/schema1/CONCAT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[data_import_session_variable_rw__033]
+sql:
+LOAD DATA INFILE '/var/lib/mysql-files/split_load.txt'
+INTO TABLE load_v(@a,@d) SET a=@a,d=@d;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_IMPORT": [
+    {
+      "subject": "Table(2:11~2:17) /test/1/catalog1/schema1/load_v/",
+      "action" : "IMPORT",
+      "target" : "File(1:17~1:54) /test/1/var/lib/mysql-files/split_load.txt/"
+    },
+    {
+      "subject": "ConfigKey(2:18~2:20) /test/1/a/",
+      "action" : "READ"
+    },
+    {
+      "subject": "ConfigKey(2:21~2:23) /test/1/d/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[data_import__034]
+sql:
+LOAD XML INFILE '/var/lib/mysql-files/split_load.xml' INTO TABLE load_v;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_IMPORT": [
+    {
+      "subject": "Table(1:65~1:71) /test/1/catalog1/schema1/load_v/",
+      "action" : "IMPORT",
+      "target" : "File(1:16~1:53) /test/1/var/lib/mysql-files/split_load.xml/"
+    }
+  ]
+}
+----------
+[data_import_session_variable_rw__035]
+sql:
+LOAD DATA INFILE '/tmp/codex_lob.csv'
+INTO TABLE lob_family
+CHARACTER SET binary
+FIELDS TERMINATED BY ','
+LINES TERMINATED BY '\n'
+(@b,@t)
+SET b=UNHEX(@b),t=CONVERT(@t USING utf8mb4);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_IMPORT": [
+    {
+      "subject": "Table(2:11~2:21) /test/1/catalog1/schema1/lob_family/",
+      "action" : "IMPORT",
+      "target" : "File(1:17~1:37) /test/1/tmp/codex_lob.csv/"
+    },
+    {
+      "subject": "ConfigKey(6:1~6:3) /test/1/b/",
+      "action" : "READ"
+    },
+    {
+      "subject": "ConfigKey(6:4~6:6) /test/1/t/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(7:6~7:11) /test/1/catalog1/schema1/UNHEX/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(7:18~7:25) /test/1/catalog1/schema1/CONVERT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[data_import__036]
+sql:
+LOAD DATA LOCAL INFILE '/tmp/nonexistent-enum-set.csv'
+    INTO TABLE split_type_enum_set.es_core
+    FIELDS TERMINATED BY ','
+    (id,e_basic,e_case,s_basic,s_case,e_added,s_flags);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_IMPORT": [
+    {
+      "subject": "Table(2:15~2:42) /test/1/catalog1/split_type_enum_set/es_core/",
+      "action" : "IMPORT",
+      "target" : "File(1:23~1:54) /test/1/tmp/nonexistent-enum-set.csv/"
+    }
+  ]
+}
+----------
+[data_import_session_variable_rw__037]
+sql:
+LOAD DATA INFILE '/var/lib/mysql-files/codex-spatial.csv'
+INTO TABLE spatial_lifecycle
+FIELDS TERMINATED BY ','
+LINES TERMINATED BY '\n'
+(@id,@wkt)
+SET id=@id,g=ST_GeomFromText(@wkt),p=ST_PointFromText(@wkt);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_IMPORT": [
+    {
+      "subject": "Table(2:11~2:28) /test/1/catalog1/schema1/spatial_lifecycle/",
+      "action" : "IMPORT",
+      "target" : "File(1:17~1:57) /test/1/var/lib/mysql-files/codex-spatial.csv/"
+    },
+    {
+      "subject": "ConfigKey(5:1~5:4) /test/1/id/",
+      "action" : "READ"
+    },
+    {
+      "subject": "ConfigKey(5:5~5:9) /test/1/wkt/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(6:13~6:28) /test/1/catalog1/schema1/ST_GeomFromText/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(6:37~6:53) /test/1/catalog1/schema1/ST_PointFromText/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[data_import_session_variable_rw__038]
+sql:
+LOAD DATA LOCAL INFILE '/tmp/nonexistent-integer.csv'
+INTO TABLE integer_lifecycle
+FIELDS TERMINATED BY ','
+(tiny_signed,tiny_unsigned,small_signed,small_unsigned,medium_signed,medium_unsigned,
+ int_signed,int_unsigned,big_signed,big_unsigned,@bool_value,note)
+SET bool_alias=CAST(@bool_value AS UNSIGNED),boolean_alias=NOT CAST(@bool_value AS UNSIGNED);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_IMPORT": [
+    {
+      "subject": "Table(2:11~2:28) /test/1/catalog1/schema1/integer_lifecycle/",
+      "action" : "IMPORT",
+      "target" : "File(1:23~1:53) /test/1/tmp/nonexistent-integer.csv/"
+    },
+    {
+      "subject": "ConfigKey(5:49~5:60) /test/1/bool_value/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(6:15~6:19) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[data_import_session_variable_rw__039]
+sql:
+LOAD DATA LOCAL INFILE '/tmp/nonexistent-numeric.csv'
+INTO TABLE numeric_lifecycle
+FIELDS TERMINATED BY ','
+(id,@decimal_value,@numeric_value,@fixed_value,@float_value,@double_value,@real_value,note)
+SET decimal_value=CAST(@decimal_value AS DECIMAL(20,6)),
+    numeric_value=CAST(@numeric_value AS DECIMAL(12,4)),
+    fixed_value=CAST(@fixed_value AS DECIMAL(18,2)),
+    float_value=@float_value+0e0,
+    double_value=@double_value+0e0,
+    real_value=@real_value+0e0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_IMPORT": [
+    {
+      "subject": "Table(2:11~2:28) /test/1/catalog1/schema1/numeric_lifecycle/",
+      "action" : "IMPORT",
+      "target" : "File(1:23~1:53) /test/1/tmp/nonexistent-numeric.csv/"
+    },
+    {
+      "subject": "ConfigKey(4:4~4:18) /test/1/decimal_value/",
+      "action" : "READ"
+    },
+    {
+      "subject": "ConfigKey(4:19~4:33) /test/1/numeric_value/",
+      "action" : "READ"
+    },
+    {
+      "subject": "ConfigKey(4:34~4:46) /test/1/fixed_value/",
+      "action" : "READ"
+    },
+    {
+      "subject": "ConfigKey(4:47~4:59) /test/1/float_value/",
+      "action" : "READ"
+    },
+    {
+      "subject": "ConfigKey(4:60~4:73) /test/1/double_value/",
+      "action" : "READ"
+    },
+    {
+      "subject": "ConfigKey(4:74~4:85) /test/1/real_value/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(5:18~5:22) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[data_import_session_variable_rw__040]
+sql:
+LOAD DATA INFILE '/tmp/codex_missing_load' INTO TABLE dst (@'raw value') SET id=@'raw value';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_IMPORT": [
+    {
+      "subject": "Table(1:54~1:57) /test/1/catalog1/schema1/dst/",
+      "action" : "IMPORT",
+      "target" : "File(1:17~1:42) /test/1/tmp/codex_missing_load/"
+    },
+    {
+      "subject": "ConfigKey(1:59~1:71) /test/1/raw value/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[data_import__041]
+sql:
+LOAD DATA INFILE '/tmp/x' INTO TABLE t FIELDS TERMINATED BY '' ENCLOSED BY '' LINES TERMINATED BY '' IGNORE 1 LINES;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_IMPORT": [
+    {
+      "subject": "Table(1:37~1:38) /test/1/catalog1/schema1/t/",
+      "action" : "IMPORT",
+      "target" : "File(1:17~1:25) /test/1/tmp/x/"
+    }
+  ]
+}
+----------
+[data_import__042]
+sql:
+LOAD DATA LOCAL INFILE '' REPLACE INTO TABLE v1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_IMPORT": [
+    {
+      "subject": "Table(1:45~1:47) /test/1/catalog1/schema1/v1/",
+      "action" : "IMPORT"
+    }
+  ]
+}
+----------
+[data_import__043]
+sql:
+LOAD DATA INFILE 'x' INTO TABLE v(a,d);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_IMPORT": [
+    {
+      "subject": "Table(1:32~1:33) /test/1/catalog1/schema1/v/",
+      "action" : "IMPORT",
+      "target" : "File(1:17~1:20) /test/1/x/"
+    }
+  ]
+}
+----------
+[data_import__044]
+sql:
+LOAD DATA INFILE 'loadtest.txt' INTO TABLE t1 PARTITION (pNeg,`p10-99`) CHARACTER SET latin1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_IMPORT": [
+    {
+      "subject": "Table(1:43~1:45) /test/1/catalog1/schema1/t1/",
+      "action" : "IMPORT",
+      "target" : "File(1:17~1:31) /test/1/loadtest.txt/"
+    }
+  ]
+}

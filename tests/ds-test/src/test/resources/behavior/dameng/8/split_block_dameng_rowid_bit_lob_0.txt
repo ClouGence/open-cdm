@@ -1,0 +1,25 @@
+[split_block_dameng_rowid_bit_lob_0_001]
+sql:
+DECLARE
+  FILE_VALUE BFILE;
+  DIRECTORY_NAME VARCHAR(128);
+  FILE_NAME VARCHAR(256);
+BEGIN
+  SELECT V INTO FILE_VALUE FROM CODEX_DM8_TYPE_BFILE WHERE ID = 1;
+  DBMS_LOB.FILEGETNAME(FILE_VALUE, DIRECTORY_NAME, FILE_NAME);
+END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(6:32~6:52) /test/1/catalog1/schema1/CODEX_DM8_TYPE_BFILE/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(7:2~7:22) /test/1/catalog1/DBMS_LOB/FILEGETNAME/",
+      "action": "CALL"
+    }
+  ]
+}

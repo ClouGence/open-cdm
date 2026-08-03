@@ -1,0 +1,54 @@
+[analytic_partition_order]
+sql:
+select id,row_number() over(partition by g order by v,id) rn
+from app.analytic_t
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"analytic_t"}
+  ]
+}
+----------
+[analytic_join]
+sql:
+select a.id,sum(b.v) over(partition by a.g order by b.id rows unbounded preceding) running_total
+from app.analytic_t a join app.analytic_other b on a.id=b.id
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"analytic_t"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"analytic_other"}
+  ]
+}
+----------
+[analytic_cte]
+sql:
+with q as(
+  select id,g,row_number() over(partition by g order by id) rn
+  from app.analytic_t
+)
+select id from q where rn=1
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"analytic_t"}
+  ]
+}
+----------
+[analytic_correlated]
+sql:
+select o.id
+from app.analytic_t o
+where exists(
+  select 1
+  from app.analytic_other i
+  where i.id=o.id
+    and row_number() over(partition by i.g order by i.id)=1
+)
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"analytic_t"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"analytic_other"}
+  ]
+}

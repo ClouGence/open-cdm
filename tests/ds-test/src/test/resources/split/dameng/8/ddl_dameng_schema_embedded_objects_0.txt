@@ -1,0 +1,121 @@
+create schema CODEX_DM8_SCHEMA_EMBED_DOMAIN authorization SYSDBA
+  create domain POSITIVE_ID int check(value > 0)
+  create table DOMAIN_TABLE(ID POSITIVE_ID);
+/
+insert into CODEX_DM8_SCHEMA_EMBED_DOMAIN.DOMAIN_TABLE values(1);
+select ID from CODEX_DM8_SCHEMA_EMBED_DOMAIN.DOMAIN_TABLE;
+create schema CODEX_DM8_SCHEMA_EMBED_ROUTINE authorization SYSDBA
+  create table ROUTINE_LOG(ID int)
+  create procedure ADD_LOG(P_ID int) as begin insert into ROUTINE_LOG values(P_ID); end;
+  create function PLUS_ONE(P_ID int) return int as begin return P_ID + 1; end;
+/
+call CODEX_DM8_SCHEMA_EMBED_ROUTINE.ADD_LOG(1);
+select CODEX_DM8_SCHEMA_EMBED_ROUTINE.PLUS_ONE(1) from dual;
+select ID from CODEX_DM8_SCHEMA_EMBED_ROUTINE.ROUTINE_LOG;
+create schema CODEX_DM8_SCHEMA_EMBED_TRIGGER authorization SYSDBA
+  create table TRIGGER_SOURCE(ID int)
+  create table TRIGGER_LOG(ID int)
+  create trigger TRG_SCHEMA after insert on TRIGGER_SOURCE for each row begin insert into TRIGGER_LOG values(:NEW.ID); end;
+/
+insert into CODEX_DM8_SCHEMA_EMBED_TRIGGER.TRIGGER_SOURCE values(2);
+select ID from CODEX_DM8_SCHEMA_EMBED_TRIGGER.TRIGGER_LOG;
+create schema CODEX_DM8_SCHEMA_EMBED_FULLTEXT authorization SYSDBA
+  create table FT_DOCS(ID int primary key, CONTENT varchar(200))
+  create context index FT_CONTENT_IDX on FT_DOCS(CONTENT) lexer english_lexer;
+/
+select count(*) from sysobjects where schid=(select id from sysobjects where type$='SCH' and name='CODEX_DM8_SCHEMA_EMBED_FULLTEXT') and name='FT_CONTENT_IDX';
+create schema CODEX_DM8_SCHEMA_EMBED_PACKAGE authorization SYSDBA
+  create package EMBED_PKG as function GET_VALUE return int; end EMBED_PKG;
+  create package body EMBED_PKG as function GET_VALUE return int as begin return 3; end; end EMBED_PKG;
+/
+select CODEX_DM8_SCHEMA_EMBED_PACKAGE.EMBED_PKG.GET_VALUE() from dual;
+create schema CODEX_DM8_SCHEMA_EMBED_CLASS authorization SYSDBA
+  create class EMBED_CLASS as VALUE int; member function GET_VALUE return int; end;
+  create class body EMBED_CLASS as member function GET_VALUE return int as begin return VALUE; end; end;
+/
+select CODEX_DM8_SCHEMA_EMBED_CLASS.EMBED_CLASS(4).GET_VALUE() from dual;
+create schema CODEX_DM8_SCHEMA_EMBED_LINK authorization SYSDBA
+  create link EMBED_LINK connect 'DPI' with BAD_USER identified by BAD_PASSWORD using '127.0.0.1:1';
+/
+select count(*) from sysobjects where schid=(select id from sysobjects where type$='SCH' and name='CODEX_DM8_SCHEMA_EMBED_LINK') and name='EMBED_LINK';
+create schema CODEX_DM8_SCHEMA_EMBED_MVIEW authorization SYSDBA
+  create table MV_BASE(ID int primary key, AMOUNT int)
+  create materialized view log on MV_BASE with primary key
+  create materialized view MV_EMBED refresh complete as select ID, AMOUNT from MV_BASE;
+/
+insert into CODEX_DM8_SCHEMA_EMBED_MVIEW.MV_BASE values(1, 5);
+refresh materialized view CODEX_DM8_SCHEMA_EMBED_MVIEW.MV_EMBED;
+select ID, AMOUNT from CODEX_DM8_SCHEMA_EMBED_MVIEW.MV_EMBED;
+create schema CODEX_DM8_SCHEMA_EMBED_OPERATOR authorization SYSDBA
+  create function OP_ADD(P_LEFT int, P_RIGHT int) return int as begin return P_LEFT + P_RIGHT; end;
+  create operator @^ (function OP_ADD, leftarg int, rightarg int);
+/
+select 5 operator(CODEX_DM8_SCHEMA_EMBED_OPERATOR.@^) 6 from dual;
+------------------------------------------------------------------------------------------
+[CREATE_SCHEMA|ADD_COLUMN] create schema CODEX_DM8_SCHEMA_EMBED_DOMAIN authorization SYSDBA
+  create domain POSITIVE_ID int check(value > 0)
+  create table DOMAIN_TABLE(ID POSITIVE_ID);
+----------
+[INSERT] insert into CODEX_DM8_SCHEMA_EMBED_DOMAIN.DOMAIN_TABLE values(1);
+----------
+[SELECT] select ID from CODEX_DM8_SCHEMA_EMBED_DOMAIN.DOMAIN_TABLE;
+----------
+[CREATE_SCHEMA|ADD_COLUMN(BLOCK,INSERT)] create schema CODEX_DM8_SCHEMA_EMBED_ROUTINE authorization SYSDBA
+  create table ROUTINE_LOG(ID int)
+  create procedure ADD_LOG(P_ID int) as begin insert into ROUTINE_LOG values(P_ID); end;
+  create function PLUS_ONE(P_ID int) return int as begin return P_ID + 1; end;
+----------
+[CALL_PROG_OBJ] call CODEX_DM8_SCHEMA_EMBED_ROUTINE.ADD_LOG(1);
+----------
+[SELECT|CALL_PROG_OBJ] select CODEX_DM8_SCHEMA_EMBED_ROUTINE.PLUS_ONE(1) from dual;
+----------
+[SELECT] select ID from CODEX_DM8_SCHEMA_EMBED_ROUTINE.ROUTINE_LOG;
+----------
+[CREATE_SCHEMA|ADD_COLUMN(BLOCK,INSERT)] create schema CODEX_DM8_SCHEMA_EMBED_TRIGGER authorization SYSDBA
+  create table TRIGGER_SOURCE(ID int)
+  create table TRIGGER_LOG(ID int)
+  create trigger TRG_SCHEMA after insert on TRIGGER_SOURCE for each row begin insert into TRIGGER_LOG values(:NEW.ID); end;
+----------
+[INSERT] insert into CODEX_DM8_SCHEMA_EMBED_TRIGGER.TRIGGER_SOURCE values(2);
+----------
+[SELECT] select ID from CODEX_DM8_SCHEMA_EMBED_TRIGGER.TRIGGER_LOG;
+----------
+[CREATE_SCHEMA|ADD_COLUMN|ADD_CONSTRAINT] create schema CODEX_DM8_SCHEMA_EMBED_FULLTEXT authorization SYSDBA
+  create table FT_DOCS(ID int primary key, CONTENT varchar(200))
+  create context index FT_CONTENT_IDX on FT_DOCS(CONTENT) lexer english_lexer;
+----------
+[SELECT] select count(*) from sysobjects where schid=(select id from sysobjects where type$='SCH' and name='CODEX_DM8_SCHEMA_EMBED_FULLTEXT') and name='FT_CONTENT_IDX';
+----------
+[CREATE_SCHEMA(PROGRAM_CONTROL)] create schema CODEX_DM8_SCHEMA_EMBED_PACKAGE authorization SYSDBA
+  create package EMBED_PKG as function GET_VALUE return int; end EMBED_PKG;
+  create package body EMBED_PKG as function GET_VALUE return int as begin return 3; end; end EMBED_PKG;
+----------
+[SELECT|CALL_PROG_OBJ] select CODEX_DM8_SCHEMA_EMBED_PACKAGE.EMBED_PKG.GET_VALUE() from dual;
+----------
+[CREATE_SCHEMA(PROGRAM_CONTROL)] create schema CODEX_DM8_SCHEMA_EMBED_CLASS authorization SYSDBA
+  create class EMBED_CLASS as VALUE int; member function GET_VALUE return int; end;
+  create class body EMBED_CLASS as member function GET_VALUE return int as begin return VALUE; end; end;
+----------
+[SELECT|CALL_PROG_OBJ] select CODEX_DM8_SCHEMA_EMBED_CLASS.EMBED_CLASS(4).GET_VALUE() from dual;
+----------
+[CREATE_SCHEMA] create schema CODEX_DM8_SCHEMA_EMBED_LINK authorization SYSDBA
+  create link EMBED_LINK connect 'DPI' with BAD_USER identified by BAD_PASSWORD using '127.0.0.1:1';
+----------
+[SELECT] select count(*) from sysobjects where schid=(select id from sysobjects where type$='SCH' and name='CODEX_DM8_SCHEMA_EMBED_LINK') and name='EMBED_LINK';
+----------
+[CREATE_SCHEMA|ADD_COLUMN|ADD_CONSTRAINT(SELECT)] create schema CODEX_DM8_SCHEMA_EMBED_MVIEW authorization SYSDBA
+  create table MV_BASE(ID int primary key, AMOUNT int)
+  create materialized view log on MV_BASE with primary key
+  create materialized view MV_EMBED refresh complete as select ID, AMOUNT from MV_BASE;
+----------
+[INSERT] insert into CODEX_DM8_SCHEMA_EMBED_MVIEW.MV_BASE values(1, 5);
+----------
+[ADMIN] refresh materialized view CODEX_DM8_SCHEMA_EMBED_MVIEW.MV_EMBED;
+----------
+[SELECT] select ID, AMOUNT from CODEX_DM8_SCHEMA_EMBED_MVIEW.MV_EMBED;
+----------
+[CREATE_SCHEMA(BLOCK,PROGRAM_CONTROL)] create schema CODEX_DM8_SCHEMA_EMBED_OPERATOR authorization SYSDBA
+  create function OP_ADD(P_LEFT int, P_RIGHT int) return int as begin return P_LEFT + P_RIGHT; end;
+  create operator @^ (function OP_ADD, leftarg int, rightarg int);
+----------
+[SELECT] select 5 operator(CODEX_DM8_SCHEMA_EMBED_OPERATOR.@^) 6 from dual;

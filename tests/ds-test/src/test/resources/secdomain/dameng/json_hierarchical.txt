@@ -1,0 +1,41 @@
+[hierarchical_table]
+sql:
+select d.id,d.parent_id,d.name
+from app.department d
+start with d.id=1
+connect by prior d.id=d.parent_id
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"department"}
+  ]
+}
+----------
+[hierarchical_join]
+sql:
+select d.name,m.label
+from app.department d join app.department_meta m on d.id=m.id
+start with d.id=1
+connect by prior d.id=d.parent_id
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"department"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"department_meta"}
+  ]
+}
+----------
+[hierarchical_cte]
+sql:
+with q as(
+  select d.id,d.parent_id,d.name from app.department d
+)
+select q.name from q
+start with q.id=1
+connect by prior q.id=q.parent_id
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"department"}
+  ]
+}

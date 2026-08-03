@@ -1,0 +1,71 @@
+[create_view_with_base_dependency]
+sql:
+create view app.v_orders as select id, amount from app.orders
+expect:
+{
+  "contains": [
+    {"class":"RdbViewDomain", "sqlType":"CREATE_VIEW", "auditKind":"CREATE", "schema":"app", "view":"v_orders"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"orders"}
+  ]
+}
+----------
+[create_view_with_join_dependencies]
+sql:
+create view app.v_order_customers as select o.id, c.name from app.orders o join app.customers c on o.customer_id = c.id
+expect:
+{
+  "contains": [
+    {"class":"RdbViewDomain", "sqlType":"CREATE_VIEW", "auditKind":"CREATE", "schema":"app", "view":"v_order_customers"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"orders"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"customers"}
+  ]
+}
+----------
+[create_view_with_cte_dependencies]
+sql:
+create view app.v_active_orders as with q as (select id, customer_id from app.orders where status='A') select q.id, c.name from q join app.customers c on q.customer_id=c.id
+expect:
+{
+  "contains": [
+    {"class":"RdbViewDomain", "sqlType":"CREATE_VIEW", "auditKind":"CREATE", "schema":"app", "view":"v_active_orders"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"orders"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"customers"}
+  ]
+}
+----------
+[alter_and_comment_view]
+sql:
+alter view app.v_orders compile;
+comment on view app.v_orders is 'orders view';
+expect:
+{
+  "contains": [
+    {"class":"RdbViewDomain", "sqlType":"ALTER_VIEW", "auditKind":"ALTER", "schema":"app", "view":"v_orders"}
+  ]
+}
+----------
+[view_dml]
+sql:
+insert into app.v_orders(id, amount) values(10, 20);
+update app.v_orders set amount=30 where id=10;
+delete from app.v_orders where id=10;
+expect:
+{
+  "contains": [
+    {"class":"RdbInsertDomain", "sqlType":"INSERT", "auditKind":"DML", "schema":"app", "table":"v_orders"},
+    {"class":"RdbUpdateDomain", "sqlType":"UPDATE", "auditKind":"DML", "schema":"app", "table":"v_orders"},
+    {"class":"RdbDeleteDomain", "sqlType":"DELETE", "auditKind":"DML", "schema":"app", "table":"v_orders"}
+  ]
+}
+----------
+[query_and_drop_view]
+sql:
+select id, amount from app.v_orders where amount>0;
+drop view app.v_orders cascade;
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"v_orders"},
+    {"class":"RdbViewDomain", "sqlType":"DROP_VIEW", "auditKind":"DROP", "schema":"app", "view":"v_orders"}
+  ]
+}

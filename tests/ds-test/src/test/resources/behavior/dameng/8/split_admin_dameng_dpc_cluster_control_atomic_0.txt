@@ -1,0 +1,752 @@
+[split_admin_dameng_dpc_cluster_control_atomic_0_001]
+sql:
+sp_create_dpc_bp_group('CODEX_CC_BG','cluster control evidence');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:0~1:22) /test/1/catalog1/schema1/sp_create_dpc_bp_group/",
+      "action": "CALL",
+      "target": "ResourceGroup(1:23~1:36) /test/1/CODEX_CC_BG/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_dpc_cluster_control_atomic_0_002]
+sql:
+sp_drop_dpc_bp_group('CODEX_CC_MISSING_BG');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:0~1:20) /test/1/catalog1/schema1/sp_drop_dpc_bp_group/",
+      "action": "CALL",
+      "target": "ResourceGroup(1:21~1:42) /test/1/CODEX_CC_MISSING_BG/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_dpc_cluster_control_atomic_0_003]
+sql:
+sp_create_dpc_sp_group('CODEX_CC_SPG','cluster control evidence');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:0~1:22) /test/1/catalog1/schema1/sp_create_dpc_sp_group/",
+      "action": "CALL",
+      "target": "ResourceGroup(1:23~1:37) /test/1/CODEX_CC_SPG/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_dpc_cluster_control_atomic_0_004]
+sql:
+sp_drop_dpc_sp_group('CODEX_CC_MISSING_SPG');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:0~1:20) /test/1/catalog1/schema1/sp_drop_dpc_sp_group/",
+      "action": "CALL",
+      "target": "ResourceGroup(1:21~1:43) /test/1/CODEX_CC_MISSING_SPG/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_dpc_cluster_control_atomic_0_005]
+sql:
+sp_create_dpc_raft('BP','CODEX_CC_MISSING_RAFT');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:0~1:18) /test/1/catalog1/schema1/sp_create_dpc_raft/",
+      "action": "CALL",
+      "target": "Replication(1:24~1:47) /test/1/CODEX_CC_MISSING_RAFT/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_dpc_cluster_control_atomic_0_006]
+sql:
+sp_drop_dpc_bp_raft('CODEX_CC_MISSING_RAFT');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:0~1:19) /test/1/catalog1/schema1/sp_drop_dpc_bp_raft/",
+      "action": "CALL",
+      "target": "Replication(1:20~1:43) /test/1/CODEX_CC_MISSING_RAFT/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_dpc_cluster_control_atomic_0_007]
+sql:
+sp_drop_dpc_raft('CODEX_CC_MISSING_RAFT');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:0~1:16) /test/1/catalog1/schema1/sp_drop_dpc_raft/",
+      "action": "CALL",
+      "target": "Replication(1:17~1:40) /test/1/CODEX_CC_MISSING_RAFT/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_dpc_cluster_control_atomic_0_008]
+sql:
+sp_create_dpc_instance('CODEX_CC_MISSING_RAFT','CODEX_CC_I9','BP',6091,5291,'127.0.0.1','NORMAL',0,'syntax evidence');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:0~1:22) /test/1/catalog1/schema1/sp_create_dpc_instance/",
+      "action": "CALL",
+      "target": [
+        "Replication(1:23~1:46) /test/1/CODEX_CC_MISSING_RAFT/",
+        "Instance(1:47~1:60) /test/1/CODEX_CC_I9/"
+      ]
+    }
+  ]
+}
+----------
+[split_admin_dameng_dpc_cluster_control_atomic_0_009]
+sql:
+sp_create_dpc_instance('CODEX_CC_MISSING_RAFT','CODEX_CC_I10','BP',6092,5292,'127.0.0.1','','NORMAL',0,'syntax evidence');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:0~1:22) /test/1/catalog1/schema1/sp_create_dpc_instance/",
+      "action": "CALL",
+      "target": [
+        "Replication(1:23~1:46) /test/1/CODEX_CC_MISSING_RAFT/",
+        "Instance(1:47~1:61) /test/1/CODEX_CC_I10/"
+      ]
+    }
+  ]
+}
+----------
+[split_admin_dameng_dpc_cluster_control_atomic_0_010]
+sql:
+sp_drop_dpc_instance('CODEX_CC_MISSING_INST');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:0~1:20) /test/1/catalog1/schema1/sp_drop_dpc_instance/",
+      "action": "CALL",
+      "target": "Instance(1:21~1:44) /test/1/CODEX_CC_MISSING_INST/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_dpc_cluster_control_atomic_0_011]
+sql:
+sp_modify_dpc_instance('CODEX_CC_MISSING_INST','','',6093,5293);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:0~1:22) /test/1/catalog1/schema1/sp_modify_dpc_instance/",
+      "action": "CALL",
+      "target": "Instance(1:23~1:46) /test/1/CODEX_CC_MISSING_INST/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_dpc_cluster_control_atomic_0_012]
+sql:
+sp_bp_group_add_raft('CODEX_CC_MISSING_BG','CODEX_CC_MISSING_RAFT');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:0~1:20) /test/1/catalog1/schema1/sp_bp_group_add_raft/",
+      "action": "CALL",
+      "target": [
+        "ResourceGroup(1:21~1:42) /test/1/CODEX_CC_MISSING_BG/",
+        "Replication(1:43~1:66) /test/1/CODEX_CC_MISSING_RAFT/"
+      ]
+    }
+  ]
+}
+----------
+[split_admin_dameng_dpc_cluster_control_atomic_0_013]
+sql:
+sp_bp_group_del_raft('CODEX_CC_MISSING_BG','CODEX_CC_MISSING_RAFT');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:0~1:20) /test/1/catalog1/schema1/sp_bp_group_del_raft/",
+      "action": "CALL",
+      "target": [
+        "ResourceGroup(1:21~1:42) /test/1/CODEX_CC_MISSING_BG/",
+        "Replication(1:43~1:66) /test/1/CODEX_CC_MISSING_RAFT/"
+      ]
+    }
+  ]
+}
+----------
+[split_admin_dameng_dpc_cluster_control_atomic_0_014]
+sql:
+sp_sp_group_add_raft('CODEX_CC_MISSING_SPG','CODEX_CC_MISSING_RAFT');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:0~1:20) /test/1/catalog1/schema1/sp_sp_group_add_raft/",
+      "action": "CALL",
+      "target": [
+        "ResourceGroup(1:21~1:43) /test/1/CODEX_CC_MISSING_SPG/",
+        "Replication(1:44~1:67) /test/1/CODEX_CC_MISSING_RAFT/"
+      ]
+    }
+  ]
+}
+----------
+[split_admin_dameng_dpc_cluster_control_atomic_0_015]
+sql:
+sp_sp_group_del_raft('CODEX_CC_MISSING_SPG','CODEX_CC_MISSING_RAFT');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:0~1:20) /test/1/catalog1/schema1/sp_sp_group_del_raft/",
+      "action": "CALL",
+      "target": [
+        "ResourceGroup(1:21~1:43) /test/1/CODEX_CC_MISSING_SPG/",
+        "Replication(1:44~1:67) /test/1/CODEX_CC_MISSING_RAFT/"
+      ]
+    }
+  ]
+}
+----------
+[split_admin_dameng_dpc_cluster_control_atomic_0_016]
+sql:
+sp_set_dpc_net_conf('CODEX_CC_INVALID_PARA','1');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:0~1:19) /test/1/catalog1/schema1/sp_set_dpc_net_conf/",
+      "action": "CALL",
+      "target": "ConfigKey(1:20~1:43) /test/1/CODEX_CC_INVALID_PARA/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_dpc_cluster_control_atomic_0_017]
+sql:
+sp_disable_dpc_raft('CODEX_CC_MISSING_RAFT');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:0~1:19) /test/1/catalog1/schema1/sp_disable_dpc_raft/",
+      "action": "CALL",
+      "target": "Replication(1:20~1:43) /test/1/CODEX_CC_MISSING_RAFT/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_dpc_cluster_control_atomic_0_018]
+sql:
+sp_enable_dpc_raft('CODEX_CC_MISSING_RAFT');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:0~1:18) /test/1/catalog1/schema1/sp_enable_dpc_raft/",
+      "action": "CALL",
+      "target": "Replication(1:19~1:42) /test/1/CODEX_CC_MISSING_RAFT/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_dpc_cluster_control_atomic_0_019]
+sql:
+sp_ts_group_create('CODEX_CC_TSG','cluster control evidence');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:0~1:18) /test/1/catalog1/schema1/sp_ts_group_create/",
+      "action": "CALL",
+      "target": "ResourceGroup(1:19~1:33) /test/1/CODEX_CC_TSG/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_dpc_cluster_control_atomic_0_020]
+sql:
+sp_ts_group_drop('CODEX_CC_TSG');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:0~1:16) /test/1/catalog1/schema1/sp_ts_group_drop/",
+      "action": "CALL",
+      "target": "ResourceGroup(1:17~1:31) /test/1/CODEX_CC_TSG/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_dpc_cluster_control_atomic_0_021]
+sql:
+sp_ts_group_add_ts('CODEX_CC_MISSING_TSG','CODEX_CC_MISSING_TS');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:0~1:18) /test/1/catalog1/schema1/sp_ts_group_add_ts/",
+      "action": "CALL",
+      "target": [
+        "ResourceGroup(1:19~1:41) /test/1/CODEX_CC_MISSING_TSG/",
+        "Tablespace(1:42~1:63) /test/1/CODEX_CC_MISSING_TS/"
+      ]
+    }
+  ]
+}
+----------
+[split_admin_dameng_dpc_cluster_control_atomic_0_022]
+sql:
+sp_ts_group_remove_ts('CODEX_CC_MISSING_TSG','CODEX_CC_MISSING_TS');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:0~1:21) /test/1/catalog1/schema1/sp_ts_group_remove_ts/",
+      "action": "CALL",
+      "target": [
+        "ResourceGroup(1:22~1:44) /test/1/CODEX_CC_MISSING_TSG/",
+        "Tablespace(1:45~1:66) /test/1/CODEX_CC_MISSING_TS/"
+      ]
+    }
+  ]
+}
+----------
+[split_admin_dameng_dpc_cluster_control_atomic_0_023]
+sql:
+sp_rename_dpc_instance('CODEX_CC_MISSING_INST','CODEX_CC_NEW_INST');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:0~1:22) /test/1/catalog1/schema1/sp_rename_dpc_instance/",
+      "action": "CALL",
+      "target": [
+        "Instance(1:23~1:46) /test/1/CODEX_CC_MISSING_INST/",
+        "Instance(1:47~1:66) /test/1/CODEX_CC_NEW_INST/"
+      ]
+    }
+  ]
+}
+----------
+[split_admin_dameng_dpc_cluster_control_atomic_0_024]
+sql:
+sp_alter_dpc_instance('CODEX_CC_MISSING_INST','NORMAL',4,1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:0~1:21) /test/1/catalog1/schema1/sp_alter_dpc_instance/",
+      "action": "CALL",
+      "target": "Instance(1:22~1:45) /test/1/CODEX_CC_MISSING_INST/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_dpc_cluster_control_atomic_0_025]
+sql:
+sp_dpc_move_ts_offline('CODEX_CC_MISSING_TS','CODEX_CC_MISSING_RAFT');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:0~1:22) /test/1/catalog1/schema1/sp_dpc_move_ts_offline/",
+      "action": "CALL",
+      "target": [
+        "Tablespace(1:23~1:44) /test/1/CODEX_CC_MISSING_TS/",
+        "Replication(1:45~1:68) /test/1/CODEX_CC_MISSING_RAFT/"
+      ]
+    }
+  ]
+}
+----------
+[split_admin_dameng_dpc_cluster_control_atomic_0_026]
+sql:
+sp_set_dpc_inst_aux('CODEX_CC_MISSING_SP',0);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:0~1:19) /test/1/catalog1/schema1/sp_set_dpc_inst_aux/",
+      "action": "CALL",
+      "target": "Instance(1:20~1:41) /test/1/CODEX_CC_MISSING_SP/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_dpc_cluster_control_atomic_0_027]
+sql:
+sp_add_raft_learner('CODEX_CC_LEARNER','127.0.0.1',6094,8);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:0~1:19) /test/1/catalog1/schema1/sp_add_raft_learner/",
+      "action": "CALL",
+      "target": "Replication(1:20~1:38) /test/1/CODEX_CC_LEARNER/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_dpc_cluster_control_atomic_0_028]
+sql:
+sp_delete_raft_learner('CODEX_CC_LEARNER');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:0~1:22) /test/1/catalog1/schema1/sp_delete_raft_learner/",
+      "action": "CALL",
+      "target": "Replication(1:23~1:41) /test/1/CODEX_CC_LEARNER/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_dpc_cluster_control_atomic_0_029]
+sql:
+sp_alter_raft_node('CODEX_CC_NODE1/CODEX_CC_NODE2/CODEX_CC_NODE3');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:0~1:18) /test/1/catalog1/schema1/sp_alter_raft_node/",
+      "action": "CALL",
+      "target": [
+        "Replication(1:20~1:34) /test/1/CODEX_CC_NODE1/",
+        "Replication(1:35~1:49) /test/1/CODEX_CC_NODE2/",
+        "Replication(1:50~1:64) /test/1/CODEX_CC_NODE3/"
+      ]
+    }
+  ]
+}
+----------
+[split_admin_dameng_dpc_cluster_control_atomic_0_030]
+sql:
+sp_add_raft_node('CODEX_CC_NODE1/CODEX_CC_NODE2');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:0~1:16) /test/1/catalog1/schema1/sp_add_raft_node/",
+      "action": "CALL",
+      "target": [
+        "Replication(1:18~1:32) /test/1/CODEX_CC_NODE1/",
+        "Replication(1:33~1:47) /test/1/CODEX_CC_NODE2/"
+      ]
+    }
+  ]
+}
+----------
+[split_admin_dameng_dpc_cluster_control_atomic_0_031]
+sql:
+sp_delete_raft_node('CODEX_CC_NODE1/CODEX_CC_NODE2');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:0~1:19) /test/1/catalog1/schema1/sp_delete_raft_node/",
+      "action": "CALL",
+      "target": [
+        "Replication(1:21~1:35) /test/1/CODEX_CC_NODE1/",
+        "Replication(1:36~1:50) /test/1/CODEX_CC_NODE2/"
+      ]
+    }
+  ]
+}
+----------
+[split_admin_dameng_dpc_cluster_control_atomic_0_032]
+sql:
+sp_replace_raft_node('CODEX_CC_OLD','CODEX_CC_NEW');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:0~1:20) /test/1/catalog1/schema1/sp_replace_raft_node/",
+      "action": "CALL",
+      "target": [
+        "Replication(1:21~1:35) /test/1/CODEX_CC_OLD/",
+        "Replication(1:36~1:50) /test/1/CODEX_CC_NEW/"
+      ]
+    }
+  ]
+}
+----------
+[split_admin_dameng_dpc_cluster_control_atomic_0_033]
+sql:
+sp_dpc_dump_inst('/CODEX_CC_MISSING_DIR/dpc_instance.txt');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:0~1:16) /test/1/catalog1/schema1/sp_dpc_dump_inst/",
+      "action": "CALL",
+      "target": "File(1:17~1:57) /test/1/CODEX_CC_MISSING_DIR/dpc_instance.txt/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_dpc_cluster_control_atomic_0_034]
+sql:
+sp_set_sp_upgrade('CODEX_CC_MISSING_SP');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:0~1:17) /test/1/catalog1/schema1/sp_set_sp_upgrade/",
+      "action": "CALL",
+      "target": "Instance(1:18~1:39) /test/1/CODEX_CC_MISSING_SP/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_dpc_cluster_control_atomic_0_035]
+sql:
+sp_reset_sp_upgrade('CODEX_CC_MISSING_SP');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:0~1:19) /test/1/catalog1/schema1/sp_reset_sp_upgrade/",
+      "action": "CALL",
+      "target": "Instance(1:20~1:41) /test/1/CODEX_CC_MISSING_SP/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_dpc_cluster_control_atomic_0_036]
+sql:
+sp_dpc_rebanlance_session(0);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:0~1:25) /test/1/catalog1/schema1/sp_dpc_rebanlance_session/",
+      "action": "CALL",
+      "target": "ConfigKey(1:0~1:25) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_dpc_cluster_control_atomic_0_037]
+sql:
+sp_raft_suspend_thread();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:0~1:22) /test/1/catalog1/schema1/sp_raft_suspend_thread/",
+      "action": "CALL",
+      "target": "Replication(1:0~1:22) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_dpc_cluster_control_atomic_0_038]
+sql:
+sp_raft_switchover();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:0~1:18) /test/1/catalog1/schema1/sp_raft_switchover/",
+      "action": "CALL",
+      "target": "Replication(1:0~1:18) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_dpc_cluster_control_atomic_0_039]
+sql:
+sp_raft_resume_thread('CODEX_CC_MISSING_INST');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:0~1:21) /test/1/catalog1/schema1/sp_raft_resume_thread/",
+      "action": "CALL",
+      "target": "Instance(1:22~1:45) /test/1/CODEX_CC_MISSING_INST/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_dpc_cluster_control_atomic_0_040]
+sql:
+sp_ts_drop_invalid();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:0~1:18) /test/1/catalog1/schema1/sp_ts_drop_invalid/",
+      "action": "CALL",
+      "target": "Tablespace(1:0~1:18) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_dpc_cluster_control_atomic_0_041]
+sql:
+sp_clear_tab_rowcnt_cache(null,null);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:0~1:25) /test/1/catalog1/schema1/sp_clear_tab_rowcnt_cache/",
+      "action": "CALL",
+      "target": "Environment(1:0~1:25) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_dpc_cluster_control_atomic_0_042]
+sql:
+sp_get_all_ts_by_tsgroup('CODEX_CC_MISSING_TSG');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:0~1:24) /test/1/catalog1/schema1/sp_get_all_ts_by_tsgroup/",
+      "action": "CALL",
+      "target": "ResourceGroup(1:25~1:47) /test/1/CODEX_CC_MISSING_TSG/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_dpc_cluster_control_atomic_0_043]
+sql:
+sp_set_raft_async_interval('CODEX_CC_MISSING_INST',30);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:0~1:26) /test/1/catalog1/schema1/sp_set_raft_async_interval/",
+      "action": "CALL",
+      "target": [
+        "Instance(1:27~1:50) /test/1/CODEX_CC_MISSING_INST/",
+        "ConfigKey(1:0~1:26) /test/1/RAFT_ASYNC_INTERVAL/"
+      ]
+    }
+  ]
+}
+----------
+[split_admin_dameng_dpc_cluster_control_atomic_0_044]
+sql:
+sp_get_raft_async_interval('CODEX_CC_MISSING_INST');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:0~1:26) /test/1/catalog1/schema1/sp_get_raft_async_interval/",
+      "action": "CALL",
+      "target": [
+        "Instance(1:27~1:50) /test/1/CODEX_CC_MISSING_INST/",
+        "ConfigKey(1:0~1:26) /test/1/RAFT_ASYNC_INTERVAL/"
+      ]
+    }
+  ]
+}

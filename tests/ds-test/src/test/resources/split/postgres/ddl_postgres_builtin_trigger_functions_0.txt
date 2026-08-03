@@ -1,0 +1,73 @@
+DROP SCHEMA IF EXISTS split_builtin_trigger CASCADE;
+CREATE SCHEMA split_builtin_trigger;
+CREATE TABLE split_builtin_trigger.redundant_updates (
+    id integer PRIMARY KEY,
+    payload text
+);
+CREATE TRIGGER z_min_update
+    BEFORE UPDATE ON split_builtin_trigger.redundant_updates
+    FOR EACH ROW
+    EXECUTE FUNCTION suppress_redundant_updates_trigger();
+CREATE TABLE split_builtin_trigger.messages_by_name (
+    id integer PRIMARY KEY,
+    title text,
+    body text,
+    document tsvector
+);
+CREATE TRIGGER messages_by_name_tsvector
+    BEFORE UPDATE OR INSERT ON split_builtin_trigger.messages_by_name
+    FOR EACH ROW
+    EXECUTE PROCEDURE tsvector_update_trigger(document, 'pg_catalog.english', title, body);
+CREATE TABLE split_builtin_trigger.messages_by_column (
+    id integer PRIMARY KEY,
+    text_search_config regconfig NOT NULL DEFAULT 'pg_catalog.english',
+    title text,
+    body text,
+    document tsvector
+);
+CREATE TRIGGER messages_by_column_tsvector
+    BEFORE INSERT OR UPDATE ON split_builtin_trigger.messages_by_column
+    FOR EACH ROW
+    EXECUTE FUNCTION tsvector_update_trigger_column(document, text_search_config, title, body);
+DROP SCHEMA split_builtin_trigger CASCADE;
+------------------------------------------------------------------------------------------
+[DROP_SCHEMA] DROP SCHEMA IF EXISTS split_builtin_trigger CASCADE;
+----------
+[CREATE_SCHEMA] CREATE SCHEMA split_builtin_trigger;
+----------
+[CREATE_TABLE] CREATE TABLE split_builtin_trigger.redundant_updates (
+    id integer PRIMARY KEY,
+    payload text
+);
+----------
+[CREATE_TRIGGER(CALL_PROG_OBJ)] CREATE TRIGGER z_min_update
+    BEFORE UPDATE ON split_builtin_trigger.redundant_updates
+    FOR EACH ROW
+    EXECUTE FUNCTION suppress_redundant_updates_trigger();
+----------
+[CREATE_TABLE] CREATE TABLE split_builtin_trigger.messages_by_name (
+    id integer PRIMARY KEY,
+    title text,
+    body text,
+    document tsvector
+);
+----------
+[CREATE_TRIGGER(CALL_PROG_OBJ)] CREATE TRIGGER messages_by_name_tsvector
+    BEFORE UPDATE OR INSERT ON split_builtin_trigger.messages_by_name
+    FOR EACH ROW
+    EXECUTE PROCEDURE tsvector_update_trigger(document, 'pg_catalog.english', title, body);
+----------
+[CREATE_TABLE] CREATE TABLE split_builtin_trigger.messages_by_column (
+    id integer PRIMARY KEY,
+    text_search_config regconfig NOT NULL DEFAULT 'pg_catalog.english',
+    title text,
+    body text,
+    document tsvector
+);
+----------
+[CREATE_TRIGGER(CALL_PROG_OBJ)] CREATE TRIGGER messages_by_column_tsvector
+    BEFORE INSERT OR UPDATE ON split_builtin_trigger.messages_by_column
+    FOR EACH ROW
+    EXECUTE FUNCTION tsvector_update_trigger_column(document, text_search_config, title, body);
+----------
+[DROP_SCHEMA] DROP SCHEMA split_builtin_trigger CASCADE;

@@ -1,0 +1,191 @@
+drop user if exists CODEX_DM8_DIR_ADMIN cascade;
+drop user if exists CODEX_DM8_DIR_READER cascade;
+drop user if exists CODEX_DM8_DIR_DELEGATE cascade;
+drop user if exists CODEX_DM8_DIR_DENIED cascade;
+create user CODEX_DM8_DIR_ADMIN identified by Dm8DirAdmin2026;
+create user CODEX_DM8_DIR_READER identified by Dm8DirReader2026;
+create user CODEX_DM8_DIR_DELEGATE identified by Dm8DirDelegate2026;
+create user CODEX_DM8_DIR_DENIED identified by Dm8DirDenied2026;
+grant DBA to CODEX_DM8_DIR_ADMIN;
+grant RESOURCE to CODEX_DM8_DIR_READER;
+grant RESOURCE to CODEX_DM8_DIR_DELEGATE;
+grant RESOURCE to CODEX_DM8_DIR_DENIED;
+create directory CODEX_DM8_DIR_PRIV_MAIN as '/tmp/codex_dm8_directory_priv_20260722';
+grant read, write on directory CODEX_DM8_DIR_PRIV_MAIN to CODEX_DM8_DIR_READER;
+create directory CODEX_DM8_DIR_PRIV_DELEGATE as '/tmp/codex_dm8_directory_priv_20260722';
+grant read on directory CODEX_DM8_DIR_PRIV_DELEGATE to CODEX_DM8_DIR_READER with grant option;
+create directory CODEX_DM8_DIR_PRIV_DENIED as '/tmp/codex_dm8_directory_priv_20260722';
+create directory CODEX_DM8_DIR_PRIV_REPLACE as '/tmp/codex_dm8_directory_priv_20260722';
+grant read on directory CODEX_DM8_DIR_PRIV_REPLACE to CODEX_DM8_DIR_READER;
+create or replace directory CODEX_DM8_DIR_PRIV_REPLACE as '/tmp/codex_dm8_directory_priv_20260722';
+create directory CODEX_DM8_DIR_PRIV_PUBLIC as '/tmp/codex_dm8_directory_priv_20260722';
+grant read on directory CODEX_DM8_DIR_PRIV_DELEGATE to CODEX_DM8_DIR_DELEGATE;
+create external table DIR_READER_EXT(id int, label varchar(20), amount decimal(10,2))
+from datafile default directory CODEX_DM8_DIR_PRIV_MAIN location ('data.csv')
+parms(fields delimited by '|', records delimited by 0x0a, character_code 'UTF-8');
+select count(*), sum(amount) from DIR_READER_EXT;
+drop table DIR_READER_EXT;
+create external table DIR_READER_REPLACE_EXT(id int, label varchar(20), amount decimal(10,2))
+from datafile default directory CODEX_DM8_DIR_PRIV_REPLACE location ('data.csv')
+parms(fields delimited by '|', records delimited by 0x0a, character_code 'UTF-8');
+drop table DIR_READER_REPLACE_EXT;
+create external table DIR_DENIED_EXT(id int, label varchar(20), amount decimal(10,2))
+from datafile default directory CODEX_DM8_DIR_PRIV_DENIED location ('data.csv')
+parms(fields delimited by '|', records delimited by 0x0a, character_code 'UTF-8');
+create external table DIR_DELEGATE_EXT(id int, label varchar(20), amount decimal(10,2))
+from datafile default directory CODEX_DM8_DIR_PRIV_DELEGATE location ('data.csv')
+parms(fields delimited by '|', records delimited by 0x0a, character_code 'UTF-8');
+select count(*) from DIR_DELEGATE_EXT;
+grant write on directory CODEX_DM8_DIR_PRIV_DELEGATE to CODEX_DM8_DIR_DELEGATE;
+grant read, write on directory CODEX_DM8_DIR_PRIV_PUBLIC to public;
+select count(*), sum(amount) from DIR_DELEGATE_EXT;
+drop table DIR_DELEGATE_EXT;
+create external table DIR_PUBLIC_EXT(id int, label varchar(20), amount decimal(10,2))
+from datafile default directory CODEX_DM8_DIR_PRIV_PUBLIC location ('data.csv')
+parms(fields delimited by '|', records delimited by 0x0a, character_code 'UTF-8');
+select count(*), sum(amount) from DIR_PUBLIC_EXT;
+drop table DIR_PUBLIC_EXT;
+revoke read, write on directory CODEX_DM8_DIR_PRIV_MAIN from CODEX_DM8_DIR_READER;
+revoke read on directory CODEX_DM8_DIR_PRIV_DELEGATE from CODEX_DM8_DIR_READER cascade;
+revoke write on directory CODEX_DM8_DIR_PRIV_DELEGATE from CODEX_DM8_DIR_DELEGATE;
+revoke read on directory CODEX_DM8_DIR_PRIV_REPLACE from CODEX_DM8_DIR_READER;
+revoke read, write on directory CODEX_DM8_DIR_PRIV_PUBLIC from public;
+drop directory CODEX_DM8_DIR_PRIV_MAIN;
+drop directory CODEX_DM8_DIR_PRIV_DELEGATE;
+drop directory CODEX_DM8_DIR_PRIV_DENIED;
+drop directory CODEX_DM8_DIR_PRIV_REPLACE;
+drop directory CODEX_DM8_DIR_PRIV_PUBLIC;
+grant create any directory to CODEX_DM8_DIR_READER;
+grant drop any directory to CODEX_DM8_DIR_READER;
+revoke DBA from CODEX_DM8_DIR_ADMIN;
+revoke RESOURCE from CODEX_DM8_DIR_READER;
+revoke RESOURCE from CODEX_DM8_DIR_DELEGATE;
+revoke RESOURCE from CODEX_DM8_DIR_DENIED;
+drop user CODEX_DM8_DIR_ADMIN cascade;
+drop user CODEX_DM8_DIR_READER cascade;
+drop user CODEX_DM8_DIR_DELEGATE cascade;
+drop user CODEX_DM8_DIR_DENIED cascade;
+------------------------------------------------------------------------------------------
+[DROP_USER] drop user if exists CODEX_DM8_DIR_ADMIN cascade;
+----------
+[DROP_USER] drop user if exists CODEX_DM8_DIR_READER cascade;
+----------
+[DROP_USER] drop user if exists CODEX_DM8_DIR_DELEGATE cascade;
+----------
+[DROP_USER] drop user if exists CODEX_DM8_DIR_DENIED cascade;
+----------
+[CREATE_USER] create user CODEX_DM8_DIR_ADMIN identified by Dm8DirAdmin2026;
+----------
+[CREATE_USER] create user CODEX_DM8_DIR_READER identified by Dm8DirReader2026;
+----------
+[CREATE_USER] create user CODEX_DM8_DIR_DELEGATE identified by Dm8DirDelegate2026;
+----------
+[CREATE_USER] create user CODEX_DM8_DIR_DENIED identified by Dm8DirDenied2026;
+----------
+[GRANT] grant DBA to CODEX_DM8_DIR_ADMIN;
+----------
+[GRANT] grant RESOURCE to CODEX_DM8_DIR_READER;
+----------
+[GRANT] grant RESOURCE to CODEX_DM8_DIR_DELEGATE;
+----------
+[GRANT] grant RESOURCE to CODEX_DM8_DIR_DENIED;
+----------
+[SYSTEM_SETTING_WRITE] create directory CODEX_DM8_DIR_PRIV_MAIN as '/tmp/codex_dm8_directory_priv_20260722';
+----------
+[GRANT] grant read, write on directory CODEX_DM8_DIR_PRIV_MAIN to CODEX_DM8_DIR_READER;
+----------
+[SYSTEM_SETTING_WRITE] create directory CODEX_DM8_DIR_PRIV_DELEGATE as '/tmp/codex_dm8_directory_priv_20260722';
+----------
+[GRANT] grant read on directory CODEX_DM8_DIR_PRIV_DELEGATE to CODEX_DM8_DIR_READER with grant option;
+----------
+[SYSTEM_SETTING_WRITE] create directory CODEX_DM8_DIR_PRIV_DENIED as '/tmp/codex_dm8_directory_priv_20260722';
+----------
+[SYSTEM_SETTING_WRITE] create directory CODEX_DM8_DIR_PRIV_REPLACE as '/tmp/codex_dm8_directory_priv_20260722';
+----------
+[GRANT] grant read on directory CODEX_DM8_DIR_PRIV_REPLACE to CODEX_DM8_DIR_READER;
+----------
+[SYSTEM_SETTING_WRITE] create or replace directory CODEX_DM8_DIR_PRIV_REPLACE as '/tmp/codex_dm8_directory_priv_20260722';
+----------
+[SYSTEM_SETTING_WRITE] create directory CODEX_DM8_DIR_PRIV_PUBLIC as '/tmp/codex_dm8_directory_priv_20260722';
+----------
+[GRANT] grant read on directory CODEX_DM8_DIR_PRIV_DELEGATE to CODEX_DM8_DIR_DELEGATE;
+----------
+[CREATE_TABLE] create external table DIR_READER_EXT(id int, label varchar(20), amount decimal(10,2))
+from datafile default directory CODEX_DM8_DIR_PRIV_MAIN location ('data.csv')
+parms(fields delimited by '|', records delimited by 0x0a, character_code 'UTF-8');
+----------
+[SELECT] select count(*), sum(amount) from DIR_READER_EXT;
+----------
+[DROP_TABLE] drop table DIR_READER_EXT;
+----------
+[CREATE_TABLE] create external table DIR_READER_REPLACE_EXT(id int, label varchar(20), amount decimal(10,2))
+from datafile default directory CODEX_DM8_DIR_PRIV_REPLACE location ('data.csv')
+parms(fields delimited by '|', records delimited by 0x0a, character_code 'UTF-8');
+----------
+[DROP_TABLE] drop table DIR_READER_REPLACE_EXT;
+----------
+[CREATE_TABLE] create external table DIR_DENIED_EXT(id int, label varchar(20), amount decimal(10,2))
+from datafile default directory CODEX_DM8_DIR_PRIV_DENIED location ('data.csv')
+parms(fields delimited by '|', records delimited by 0x0a, character_code 'UTF-8');
+----------
+[CREATE_TABLE] create external table DIR_DELEGATE_EXT(id int, label varchar(20), amount decimal(10,2))
+from datafile default directory CODEX_DM8_DIR_PRIV_DELEGATE location ('data.csv')
+parms(fields delimited by '|', records delimited by 0x0a, character_code 'UTF-8');
+----------
+[SELECT] select count(*) from DIR_DELEGATE_EXT;
+----------
+[GRANT] grant write on directory CODEX_DM8_DIR_PRIV_DELEGATE to CODEX_DM8_DIR_DELEGATE;
+----------
+[GRANT] grant read, write on directory CODEX_DM8_DIR_PRIV_PUBLIC to public;
+----------
+[SELECT] select count(*), sum(amount) from DIR_DELEGATE_EXT;
+----------
+[DROP_TABLE] drop table DIR_DELEGATE_EXT;
+----------
+[CREATE_TABLE] create external table DIR_PUBLIC_EXT(id int, label varchar(20), amount decimal(10,2))
+from datafile default directory CODEX_DM8_DIR_PRIV_PUBLIC location ('data.csv')
+parms(fields delimited by '|', records delimited by 0x0a, character_code 'UTF-8');
+----------
+[SELECT] select count(*), sum(amount) from DIR_PUBLIC_EXT;
+----------
+[DROP_TABLE] drop table DIR_PUBLIC_EXT;
+----------
+[REVOKE] revoke read, write on directory CODEX_DM8_DIR_PRIV_MAIN from CODEX_DM8_DIR_READER;
+----------
+[REVOKE] revoke read on directory CODEX_DM8_DIR_PRIV_DELEGATE from CODEX_DM8_DIR_READER cascade;
+----------
+[REVOKE] revoke write on directory CODEX_DM8_DIR_PRIV_DELEGATE from CODEX_DM8_DIR_DELEGATE;
+----------
+[REVOKE] revoke read on directory CODEX_DM8_DIR_PRIV_REPLACE from CODEX_DM8_DIR_READER;
+----------
+[REVOKE] revoke read, write on directory CODEX_DM8_DIR_PRIV_PUBLIC from public;
+----------
+[SYSTEM_SETTING_WRITE] drop directory CODEX_DM8_DIR_PRIV_MAIN;
+----------
+[SYSTEM_SETTING_WRITE] drop directory CODEX_DM8_DIR_PRIV_DELEGATE;
+----------
+[SYSTEM_SETTING_WRITE] drop directory CODEX_DM8_DIR_PRIV_DENIED;
+----------
+[SYSTEM_SETTING_WRITE] drop directory CODEX_DM8_DIR_PRIV_REPLACE;
+----------
+[SYSTEM_SETTING_WRITE] drop directory CODEX_DM8_DIR_PRIV_PUBLIC;
+----------
+[GRANT] grant create any directory to CODEX_DM8_DIR_READER;
+----------
+[GRANT] grant drop any directory to CODEX_DM8_DIR_READER;
+----------
+[REVOKE] revoke DBA from CODEX_DM8_DIR_ADMIN;
+----------
+[REVOKE] revoke RESOURCE from CODEX_DM8_DIR_READER;
+----------
+[REVOKE] revoke RESOURCE from CODEX_DM8_DIR_DELEGATE;
+----------
+[REVOKE] revoke RESOURCE from CODEX_DM8_DIR_DENIED;
+----------
+[DROP_USER] drop user CODEX_DM8_DIR_ADMIN cascade;
+----------
+[DROP_USER] drop user CODEX_DM8_DIR_READER cascade;
+----------
+[DROP_USER] drop user CODEX_DM8_DIR_DELEGATE cascade;
+----------
+[DROP_USER] drop user CODEX_DM8_DIR_DENIED cascade;

@@ -5,14 +5,6 @@
         <div class="content">
           <div class="option border-radius-card">
             <div class="left" style="align-items: center">
-              <Select v-model="auditLogType" style="width: 120px; margin-right: 10px" @on-change="handleChangeAuditLogType">
-                <Option value="operation" :label="$t('cao-zuo-shen-ji')">
-                  <span>{{ $t('cao-zuo-shen-ji') }}</span>
-                </Option>
-                <Option value="sql" :label="$t('nav-ri-zhi-shen-ji')">
-                  <span>{{ $t('nav-ri-zhi-shen-ji') }}</span>
-                </Option>
-              </Select>
               <span class="log-time-range-label">{{ $t('cao-zuo-shi-jian') }}</span>
               <a-range-picker
                 v-model:value="timeRange"
@@ -191,6 +183,7 @@
   </div>
 </template>
 <script>
+import appLogger from '@/utils/logger';
 import fecha from 'fecha';
 import Mapping from '@/views/util';
 import { mapState } from 'vuex';
@@ -204,17 +197,13 @@ export default {
   data() {
     return {
       resourceType: Mapping.resourceType,
-      auditLogType: 'operation',
       searchType: 'user',
-      noMoreData: false,
       refreshLoading: false,
       showAuditDetail: false,
       showExport: false,
       exportLoading: false,
-      firstId: 0,
-      lastId: 0,
-      prevFirst: [],
       page: 1,
+      total: 0,
       timeRange: [dayjs().subtract(1, 'day'), dayjs()],
       searchData: {
         uid: '',
@@ -223,7 +212,7 @@ export default {
         opEnd: '',
         // securityLevel:'',
         pageData: {
-          startId: 0,
+          pageNumber: 1,
           pageSize: 20
         }
       },
@@ -291,7 +280,7 @@ export default {
           ],
           filterRemote(value) {
             this.searchData.securityLevel = value[0];
-            this.handleSearch();
+            this.handleRefresh();
           }
         },
         {
@@ -381,12 +370,6 @@ export default {
     },
     pageSize() {
       return this.searchData.pageData.pageSize;
-    },
-    total() {
-      if (this.noMoreData) {
-        return (this.page - 1) * this.pageSize + this.logData.length;
-      }
-      return this.page * this.pageSize + 1;
     }
   },
   created() {
@@ -395,7 +378,6 @@ export default {
   mounted() {
     this.$bus.on(EVENT_BUS_NAME_LIST.WS_RES_EXPORT_EVENT, this.handleOpAuditExportEvent);
     this.handleSearch();
-    this.searchData.pageData.pageSize = 20;
   },
   beforeUnmount() {
     this.$bus.off(EVENT_BUS_NAME_LIST.WS_RES_EXPORT_EVENT, this.handleOpAuditExportEvent);
@@ -406,14 +388,6 @@ export default {
         e.preventDefault();
         this.handleRefresh();
       }
-    },
-
-    handleChangeAuditLogType(value) {
-      if (value === 'sql') {
-        this.$router.push('/manager/logs/sql');
-        return;
-      }
-      this.auditLogType = 'operation';
     },
 
     getLogDetail(detail) {
@@ -540,9 +514,7 @@ export default {
     },
     handleRefresh() {
       this.page = 1;
-      this.firstId = 0;
-      this.lastId = 0;
-      this.searchData.pageData.startId = 0;
+      this.searchData.pageData.pageNumber = 1;
       this.handleSearch();
     },
     syncTimeRangeQuery() {
@@ -562,80 +534,34 @@ export default {
         }
       });
     },
-    async handleSearch(type) {
+    async handleSearch() {
       this.refreshLoading = true;
       this.syncTimeRangeQuery();
-      this.searchData.pageData.pageSize = 20;
+      this.searchData.pageData.pageNumber = this.page;
       this.$services
         .rdpAuditQueryAll({ data: this.searchData })
         .then((res) => {
           if (res.success) {
-            this.logData = res.data;
-            if (type === 'next') {
-              if (!this.prevFirst[this.page - 1]) {
-                this.prevFirst.push(this.firstId);
-              }
-            }
-            if (this.logData.length > 0) {
-              this.firstId = this.logData[0].id;
-              this.lastId = this.logData[this.logData.length - 1].id;
-            } else {
-              this.firstId = 0;
-              this.lastId = 0;
-            }
+            this.logData = res.data.records;
+            this.total = res.data.total;
           }
           this.refreshLoading = false;
-          this.noMoreData = res.data.length < this.searchData.pageData.pageSize;
         })
         .catch(() => {
           this.refreshLoading = false;
         });
     },
-    handlePre() {
-      if (this.page <= 1) {
-        return;
-      }
-      this.page--;
-      let startId = this.prevFirst[this.page - 1] + 1;
-
-      if (startId < 0) {
-        startId = 0;
-      }
-      this.searchData.pageData.startId = startId;
-      this.handleSearch('prev');
-    },
-    handleNext() {
-      this.searchData.pageData.startId = this.lastId;
-      this.handleSearch('next');
-      this.page++;
-    },
     handlePageChange(nextPage) {
-      if (nextPage === this.page) {
-        return;
-      }
-      if (nextPage > this.page) {
-        if (this.noMoreData || nextPage !== this.page + 1) {
-          return;
-        }
-        this.handleNext();
-        return;
-      }
       this.page = nextPage;
-      let startId = 0;
-      if (nextPage > 1 && this.prevFirst[nextPage - 1] !== undefined) {
-        startId = this.prevFirst[nextPage - 1] + 1;
-      }
-      if (startId < 0) {
-        startId = 0;
-      }
-      this.searchData.pageData.startId = startId;
-      this.handleSearch('prev');
+      this.searchData.pageData.pageNumber = nextPage;
+      this.handleSearch();
     },
     handlePageSizeChange(pageSize) {
       this.searchData.pageData.pageSize = pageSize;
       this.handleRefresh();
     },
     handleChangeSearchType() {
+      this.page = 1;
       // Reset all search values when switching query type
       this.searchData = {
         uid: '',
@@ -644,7 +570,7 @@ export default {
         opEnd: '',
         // securityLevel:'',
         pageData: {
-          startId: 0,
+          pageNumber: 1,
           pageSize: 20
         }
       };
@@ -659,7 +585,7 @@ export default {
         })
         .then((res) => {
           if (res.success) {
-            console.log('res', res);
+            appLogger.debug('res', res);
             this.auditLogDetail = res.data;
             this.selectedRow = row;
             this.showAuditDetail = true;

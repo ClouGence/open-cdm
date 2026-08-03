@@ -1,0 +1,13 @@
+[ddl]
+sql:
+create table app.json_types(id int,j json,jb jsonb);
+create view app.json_v as select id,j from app.json_types
+expect:
+{"contains":[{"class":"RdbTableDomain","sqlType":"CREATE_TABLE","auditKind":"CREATE","schema":"app","table":"json_types"},{"class":"RdbViewDomain","sqlType":"CREATE_VIEW","auditKind":"CREATE","schema":"app","view":"json_v"},{"class":"RdbTableDomain","sqlType":"SELECT","auditKind":"QUERY","schema":"app","table":"json_types"}]}
+----------
+[dml]
+sql:
+insert into app.json_types values(1,'{"a":1}','{"a":1}');
+update app.json_types set jb='{"a":2}' where id=1
+expect:
+{"contains":[{"class":"RdbInsertDomain","sqlType":"INSERT","auditKind":"DML","schema":"app","table":"json_types"},{"class":"RdbUpdateDomain","sqlType":"UPDATE","auditKind":"DML","schema":"app","table":"json_types"}]}

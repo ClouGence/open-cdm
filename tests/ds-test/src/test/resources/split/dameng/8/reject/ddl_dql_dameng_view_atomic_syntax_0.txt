@@ -1,0 +1,63 @@
+comment on view app.v is null;
+comment on column app.v.c is null;
+create view app.v(a)(b) as select 1,2;
+create view app.v(a,b as select 1,2;
+create view app.v as select 1 with local check;
+create view app.v as select 1 with cascade check option;
+create view app.v as select 1 with read write;
+create or replace or replace view app.v as select 1;
+create force force view app.v as select 1;
+create view if not exists if not exists app.v as select 1;
+create view app.v as select top from app.t;
+create view app.v as select * from app.t limit;
+create view app.v as select * from app.t offset rows;
+create view app.v as select * from app.t sample();
+create view app.v as select * from app.t sample block 10;
+create view app.v as select * from app.t index;
+create view app.v as select * from app.t partition();
+create view app.v as select * from app.t partition for();
+create view app.v as select * from app.t versions between lsn 1;
+alter view app.v compile restrict;
+drop view app.v cascade restrict;
+------------------------------------------------------------------------------------------
+[ALTER_VIEW] comment on view app.v is null;
+----------
+[COMMENT_COLUMN] comment on column app.v.c is null;
+----------
+[CREATE_VIEW] create view app.v(a)(b) as select 1,2;
+----------
+[CREATE_VIEW] create view app.v(a,b as select 1,2;
+----------
+[CREATE_VIEW] create view app.v as select 1 with local check;
+----------
+[CREATE_VIEW] create view app.v as select 1 with cascade check option;
+----------
+[CREATE_VIEW] create view app.v as select 1 with read write;
+----------
+[CREATE_VIEW] create or replace or replace view app.v as select 1;
+----------
+[CREATE_VIEW] create force force view app.v as select 1;
+----------
+[CREATE_VIEW] create view if not exists if not exists app.v as select 1;
+----------
+[CREATE_VIEW] create view app.v as select top from app.t;
+----------
+[CREATE_VIEW] create view app.v as select * from app.t limit;
+----------
+[CREATE_VIEW] create view app.v as select * from app.t offset rows;
+----------
+[CREATE_VIEW] create view app.v as select * from app.t sample();
+----------
+[CREATE_VIEW] create view app.v as select * from app.t sample block 10;
+----------
+[CREATE_VIEW] create view app.v as select * from app.t index;
+----------
+[CREATE_VIEW] create view app.v as select * from app.t partition();
+----------
+[CREATE_VIEW] create view app.v as select * from app.t partition for();
+----------
+[CREATE_VIEW] create view app.v as select * from app.t versions between lsn 1;
+----------
+[ALTER_VIEW] alter view app.v compile restrict;
+----------
+[DROP_VIEW] drop view app.v cascade restrict;

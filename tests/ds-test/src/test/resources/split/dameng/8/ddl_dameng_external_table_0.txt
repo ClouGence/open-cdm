@@ -1,0 +1,102 @@
+create or replace directory ext_dir as '/tmp/dm8_external';
+create external table app.ext_all(
+  id int comment 'external id', label varchar(20) comment 'external label',
+  amount decimal(10,2), optional_value varchar(20)
+) from datafile default directory ext_dir location ('all.csv')
+parms(fields delimited by '|', records delimited by 0x0a, errors 1,
+  badfile 'all.bad', log 'all.log', null_str 'NULL_TOKEN', skip 1,
+  character_code 'UTF-8');
+select id, label, amount, optional_value from app.ext_all order by id;
+select id, rowid as rid, user as current_user_name, uid as current_user_id
+from app.ext_all order by id;
+select count(*) as null_count from app.ext_all where optional_value is null;
+create external table app.ext_control(id int, label varchar(20), amount decimal(10,2))
+from default directory ext_dir location ('external.ctrl');
+select id, label, amount from app.ext_control order by id;
+create external table if not exists app.ext_ifne(id int, label varchar(20), amount decimal(10,2))
+from datafile default directory ext_dir location ('data.csv')
+parms(fields delimited by ',', errors 0, skip 0, character_code 'GBK');
+create external table if not exists app.ext_ifne(id int, label varchar(20), amount decimal(10,2))
+from datafile default directory ext_dir location ('data.csv');
+create external table app.ext_charset(id int, label varchar(20), amount decimal(10,2))
+from datafile default directory ext_dir location ('data.csv')
+parms(fields delimited by ',', character_code 'SINGLE_BYTE');
+drop table app.ext_charset;
+create external table app.ext_charset(id int, label varchar(20), amount decimal(10,2))
+from datafile default directory ext_dir location ('data.csv')
+parms(fields delimited by ',', character_code 'EUC-KR');
+alter table app.ext_all default directory ext_dir;
+alter table app.ext_all location ('all.csv');
+alter table app.ext_all modify path '/tmp/dm8_external/all-alternate.csv';
+comment on table app.ext_all is 'external table comment';
+comment on column app.ext_all.id is 'external id comment';
+select comments from user_tab_comments where table_name='EXT_ALL';
+select comments from user_col_comments where table_name='EXT_ALL' and column_name='ID';
+drop table app.ext_all;
+drop table app.ext_control;
+drop table app.ext_ifne;
+drop table app.ext_charset;
+drop directory ext_dir;
+------------------------------------------------------------------------------------------
+[SYSTEM_SETTING_WRITE] create or replace directory ext_dir as '/tmp/dm8_external';
+----------
+[CREATE_TABLE] create external table app.ext_all(
+  id int comment 'external id', label varchar(20) comment 'external label',
+  amount decimal(10,2), optional_value varchar(20)
+) from datafile default directory ext_dir location ('all.csv')
+parms(fields delimited by '|', records delimited by 0x0a, errors 1,
+  badfile 'all.bad', log 'all.log', null_str 'NULL_TOKEN', skip 1,
+  character_code 'UTF-8');
+----------
+[SELECT] select id, label, amount, optional_value from app.ext_all order by id;
+----------
+[SELECT] select id, rowid as rid, user as current_user_name, uid as current_user_id
+from app.ext_all order by id;
+----------
+[SELECT] select count(*) as null_count from app.ext_all where optional_value is null;
+----------
+[CREATE_TABLE] create external table app.ext_control(id int, label varchar(20), amount decimal(10,2))
+from default directory ext_dir location ('external.ctrl');
+----------
+[SELECT] select id, label, amount from app.ext_control order by id;
+----------
+[CREATE_TABLE] create external table if not exists app.ext_ifne(id int, label varchar(20), amount decimal(10,2))
+from datafile default directory ext_dir location ('data.csv')
+parms(fields delimited by ',', errors 0, skip 0, character_code 'GBK');
+----------
+[CREATE_TABLE] create external table if not exists app.ext_ifne(id int, label varchar(20), amount decimal(10,2))
+from datafile default directory ext_dir location ('data.csv');
+----------
+[CREATE_TABLE] create external table app.ext_charset(id int, label varchar(20), amount decimal(10,2))
+from datafile default directory ext_dir location ('data.csv')
+parms(fields delimited by ',', character_code 'SINGLE_BYTE');
+----------
+[DROP_TABLE] drop table app.ext_charset;
+----------
+[CREATE_TABLE] create external table app.ext_charset(id int, label varchar(20), amount decimal(10,2))
+from datafile default directory ext_dir location ('data.csv')
+parms(fields delimited by ',', character_code 'EUC-KR');
+----------
+[ALTER_TABLE] alter table app.ext_all default directory ext_dir;
+----------
+[ALTER_TABLE] alter table app.ext_all location ('all.csv');
+----------
+[ALTER_TABLE] alter table app.ext_all modify path '/tmp/dm8_external/all-alternate.csv';
+----------
+[COMMENT_TABLE] comment on table app.ext_all is 'external table comment';
+----------
+[COMMENT_COLUMN] comment on column app.ext_all.id is 'external id comment';
+----------
+[SELECT] select comments from user_tab_comments where table_name='EXT_ALL';
+----------
+[SELECT] select comments from user_col_comments where table_name='EXT_ALL' and column_name='ID';
+----------
+[DROP_TABLE] drop table app.ext_all;
+----------
+[DROP_TABLE] drop table app.ext_control;
+----------
+[DROP_TABLE] drop table app.ext_ifne;
+----------
+[DROP_TABLE] drop table app.ext_charset;
+----------
+[SYSTEM_SETTING_WRITE] drop directory ext_dir;

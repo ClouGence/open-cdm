@@ -1,0 +1,12 @@
+select top from app.customer;
+select * from app.customer limit;
+select * from app.customer offset rows;
+select id from app.customer limit 1 union all select id from app.orders limit 1;
+------------------------------------------------------------------------------------------
+[SELECT] select top from app.customer;
+----------
+[SELECT] select * from app.customer limit;
+----------
+[SELECT] select * from app.customer offset rows;
+----------
+[SELECT] select id from app.customer limit 1 union all select id from app.orders limit 1;

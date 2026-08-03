@@ -1,0 +1,145 @@
+[MyParseColumnJoinTest.test1]
+sql:
+select * from table1 left join table2 on table1.column1 = table2.column1
+expect:
+{
+  "column1" : [ "(1:7~1:8) /catalog1/schema1/table1/column1/", "(1:7~1:8) /catalog1/schema1/table2/column1/" ],
+  "column2" : [ "(1:7~1:8) /catalog1/schema1/table1/column2/", "(1:7~1:8) /catalog1/schema1/table2/column2/" ],
+  "column3" : [ "(1:7~1:8) /catalog1/schema1/table1/column3/", "(1:7~1:8) /catalog1/schema1/table2/column3/" ],
+  "column4" : [ "(1:7~1:8) /catalog1/schema1/table1/column4/", "(1:7~1:8) /catalog1/schema1/table2/column4/" ],
+  "column5" : [ "(1:7~1:8) /catalog1/schema1/table1/column5/", "(1:7~1:8) /catalog1/schema1/table2/column5/" ],
+  "column6" : [ "(1:7~1:8) /catalog1/schema1/table1/column6/", "(1:7~1:8) /catalog1/schema1/table2/column6/" ]
+}
+----------
+[MyParseColumnJoinTest.test1_1]
+sql:
+select table1.column1,table2.column2 from table1 left join table2 on table1.column1 = table2.column1
+expect:
+{
+  "column1" : [ "(1:7~1:21) /catalog1/schema1/table1/column1/" ],
+  "column2" : [ "(1:22~1:36) /catalog1/schema1/table2/column2/" ]
+}
+----------
+[MyParseColumnJoinTest.test2]
+sql:
+select * from table1 a left join table2 b on a.column1 = b.column1
+expect:
+{
+  "column1" : [ "(1:7~1:8) /catalog1/schema1/table1/column1/", "(1:7~1:8) /catalog1/schema1/table2/column1/" ],
+  "column2" : [ "(1:7~1:8) /catalog1/schema1/table1/column2/", "(1:7~1:8) /catalog1/schema1/table2/column2/" ],
+  "column3" : [ "(1:7~1:8) /catalog1/schema1/table1/column3/", "(1:7~1:8) /catalog1/schema1/table2/column3/" ],
+  "column4" : [ "(1:7~1:8) /catalog1/schema1/table1/column4/", "(1:7~1:8) /catalog1/schema1/table2/column4/" ],
+  "column5" : [ "(1:7~1:8) /catalog1/schema1/table1/column5/", "(1:7~1:8) /catalog1/schema1/table2/column5/" ],
+  "column6" : [ "(1:7~1:8) /catalog1/schema1/table1/column6/", "(1:7~1:8) /catalog1/schema1/table2/column6/" ]
+}
+----------
+[MyParseColumnJoinTest.test3]
+sql:
+select * from table1 left join schema2.table2 on table1.column1 = table2.column1
+expect:
+{
+  "column1" : [ "(1:7~1:8) /catalog1/schema1/table1/column1/", "(1:7~1:8) /catalog1/schema2/table2/column1/" ],
+  "column2" : [ "(1:7~1:8) /catalog1/schema1/table1/column2/", "(1:7~1:8) /catalog1/schema2/table2/column2/" ],
+  "column3" : [ "(1:7~1:8) /catalog1/schema1/table1/column3/", "(1:7~1:8) /catalog1/schema2/table2/column3/" ],
+  "column4" : [ "(1:7~1:8) /catalog1/schema1/table1/column4/", "(1:7~1:8) /catalog1/schema2/table2/column4/" ],
+  "column5" : [ "(1:7~1:8) /catalog1/schema1/table1/column5/", "(1:7~1:8) /catalog1/schema2/table2/column5/" ],
+  "column6" : [ "(1:7~1:8) /catalog1/schema1/table1/column6/", "(1:7~1:8) /catalog1/schema2/table2/column6/" ]
+}
+----------
+[MyParseColumnJoinTest.test4]
+sql:
+select * from table1 a left join schema2.table2 b on a.column1 = b.column1
+expect:
+{
+  "column1" : [ "(1:7~1:8) /catalog1/schema1/table1/column1/", "(1:7~1:8) /catalog1/schema2/table2/column1/" ],
+  "column2" : [ "(1:7~1:8) /catalog1/schema1/table1/column2/", "(1:7~1:8) /catalog1/schema2/table2/column2/" ],
+  "column3" : [ "(1:7~1:8) /catalog1/schema1/table1/column3/", "(1:7~1:8) /catalog1/schema2/table2/column3/" ],
+  "column4" : [ "(1:7~1:8) /catalog1/schema1/table1/column4/", "(1:7~1:8) /catalog1/schema2/table2/column4/" ],
+  "column5" : [ "(1:7~1:8) /catalog1/schema1/table1/column5/", "(1:7~1:8) /catalog1/schema2/table2/column5/" ],
+  "column6" : [ "(1:7~1:8) /catalog1/schema1/table1/column6/", "(1:7~1:8) /catalog1/schema2/table2/column6/" ]
+}
+----------
+[MyParseColumnJoinTest.test5]
+sql:
+select a.*,b.* from table1 a left join schema2.table2 b on a.column1 = b.column1
+expect:
+{
+  "column1" : [ "(1:7~1:10) /catalog1/schema1/table1/column1/", "(1:11~1:14) /catalog1/schema2/table2/column1/" ],
+  "column2" : [ "(1:7~1:10) /catalog1/schema1/table1/column2/", "(1:11~1:14) /catalog1/schema2/table2/column2/" ],
+  "column3" : [ "(1:7~1:10) /catalog1/schema1/table1/column3/", "(1:11~1:14) /catalog1/schema2/table2/column3/" ],
+  "column4" : [ "(1:7~1:10) /catalog1/schema1/table1/column4/", "(1:11~1:14) /catalog1/schema2/table2/column4/" ],
+  "column5" : [ "(1:7~1:10) /catalog1/schema1/table1/column5/", "(1:11~1:14) /catalog1/schema2/table2/column5/" ],
+  "column6" : [ "(1:7~1:10) /catalog1/schema1/table1/column6/", "(1:11~1:14) /catalog1/schema2/table2/column6/" ]
+}
+----------
+[MyParseColumnJoinTest.test6]
+sql:
+select a.*,b.column1 from table1 a left join schema2.table2 b on a.column1 = b.column1
+expect:
+{
+  "column1" : [ "(1:7~1:10) /catalog1/schema1/table1/column1/", "(1:11~1:20) /catalog1/schema2/table2/column1/" ],
+  "column2" : [ "(1:7~1:10) /catalog1/schema1/table1/column2/" ],
+  "column3" : [ "(1:7~1:10) /catalog1/schema1/table1/column3/" ],
+  "column4" : [ "(1:7~1:10) /catalog1/schema1/table1/column4/" ],
+  "column5" : [ "(1:7~1:10) /catalog1/schema1/table1/column5/" ],
+  "column6" : [ "(1:7~1:10) /catalog1/schema1/table1/column6/" ]
+}
+----------
+[MyParseColumnJoinTest.test7]
+sql:
+select column1,d from (select a.*,b.column1 as d from table1 a left join schema2.table2 b on a.column1 = b.column1)c
+expect:
+{
+  "column1" : [ "(1:30~1:33) /catalog1/schema1/table1/column1/" ],
+  "d" : [ "(1:34~1:43) /catalog1/schema2/table2/column1/" ]
+}
+----------
+[MyParseColumnJoinTest.test8]
+sql:
+select a.column1,b.column2,c.column3 from table1 a left join table2 b on a.column1 = b.column1 left join schema2.table1 c on c.column1 = a.column1
+expect:
+{
+  "column1" : [ "(1:7~1:16) /catalog1/schema1/table1/column1/" ],
+  "column2" : [ "(1:17~1:26) /catalog1/schema1/table2/column2/" ],
+  "column3" : [ "(1:27~1:36) /catalog1/schema2/table1/column3/" ]
+}
+----------
+[lateral_chained_scope]
+sql:
+select d2.a from table1 o join lateral (select o.column1 as a) d on true join lateral (select d.a) d2 on true
+expect:
+{
+  "a" : [ "(1:47~1:56) /catalog1/schema1/table1/column1/" ]
+}
+----------
+[natural_join_merged_column]
+sql:
+select column1 from table1 natural join table2
+expect:
+{
+  "column1" : [ "(1:7~1:14) /catalog1/schema1/table1/column1/", "(1:7~1:14) /catalog1/schema1/table2/column1/" ]
+}
+----------
+[using_join_merged_column]
+sql:
+select column1 from table1 join table2 using (column1)
+expect:
+{
+  "column1" : [ "(1:7~1:14) /catalog1/schema1/table1/column1/", "(1:7~1:14) /catalog1/schema1/table2/column1/" ]
+}
+----------
+[ordinary_join_ambiguous_column]
+sql:
+select column1 from table1 join table2
+expect:
+{
+  "exception" : "IllegalArgumentException"
+}
+----------
+[non_lateral_derived_cannot_see_sibling]
+sql:
+select d.a from table1 o join (select o.column1 as a) d
+expect:
+{
+  "exception" : "IllegalArgumentException"
+}

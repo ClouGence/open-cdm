@@ -1,0 +1,12 @@
+WITH c AS (SELECT id FROM t2 WHERE id < 0) DELETE a FROM t1 AS a JOIN c ON a.id = c.id;
+DELETE LOW_PRIORITY FROM ptab AS p PARTITION (p0) WHERE p.id < 0;
+WITH cte AS (SELECT id FROM table1) DELETE FROM table2 WHERE id IN (SELECT id FROM cte);
+DELETE FROM t2 a2 WHERE NOT EXISTS (SELECT * FROM t1 WHERE t1.c1 = a2.c2);
+------------------------------------------------------------------------------------------
+[DELETE|SELECT] WITH c AS (SELECT id FROM t2 WHERE id < 0) DELETE a FROM t1 AS a JOIN c ON a.id = c.id;
+----------
+[DELETE] DELETE LOW_PRIORITY FROM ptab AS p PARTITION (p0) WHERE p.id < 0;
+----------
+[DELETE|SELECT] WITH cte AS (SELECT id FROM table1) DELETE FROM table2 WHERE id IN (SELECT id FROM cte);
+----------
+[DELETE|SELECT] DELETE FROM t2 a2 WHERE NOT EXISTS (SELECT * FROM t1 WHERE t1.c1 = a2.c2);

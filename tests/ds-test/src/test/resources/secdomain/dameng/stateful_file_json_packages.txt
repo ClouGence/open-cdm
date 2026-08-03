@@ -1,0 +1,42 @@
+[stateful_package_constant_query]
+sql:
+select dbms_pipe.unique_session_name()
+expect:
+{"size":0}
+----------
+[stateful_package_table_query]
+sql:
+select utl_compress.lz_compress(payload) as compressed_payload from app.binary_data where id=1
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"binary_data"}
+  ]
+}
+----------
+[stateful_package_lock_domains]
+sql:
+declare ret int; begin ret := dbms_lock.request(901001, 4, 0, false); ret := dbms_lock.release(901001); end;
+expect:
+{"size":0}
+----------
+[stateful_package_pipe_domains]
+sql:
+declare ret int; begin dbms_pipe.reset_buffer(); dbms_pipe.pack_message('A'); ret := dbms_pipe.send_message('P', 0); end;
+expect:
+{
+  "contains": [
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_pipe"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_pipe"}
+  ]
+}
+----------
+[stateful_package_json_domains]
+sql:
+declare obj json_object_t := json_object_t.parse('{"A":1}'); value number; begin value := obj.get_number('A'); obj.put('B', 2); end;
+expect:
+{
+  "contains": [
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"obj"}
+  ]
+}

@@ -1,0 +1,46 @@
+[calendar_extrema_public_signatures]
+sql:
+select
+  great(date '2024-01-01',date '2024-12-31') as great_value,
+  greatest(date '2024-01-01',date '2024-12-31',date '2024-06-30') as greatest_value,
+  least(date '2024-01-01',date '2024-12-31',date '2024-06-30') as least_value,
+  last_day(date '2024-02-01') as last_day_value,
+  next_day(date '2024-01-01','monday') as next_day_value
+from dual
+expect:
+{
+  "great_value": [],
+  "greatest_value": [],
+  "least_value": [],
+  "last_day_value": [],
+  "next_day_value": []
+}
+----------
+[calendar_extrema_column_lineage]
+sql:
+select
+  great(t.created_at,t.updated_at) as great_value,
+  greatest(t.created_at,t.updated_at,t.archived_at) as greatest_value,
+  least(t.created_at,t.updated_at,t.archived_at) as least_value,
+  last_day(t.created_at) as last_day_value,
+  next_day(t.updated_at,'FRI') as next_day_value
+from catalog1.app.events t
+expect:
+{
+  "great_value": [
+    "/catalog1/app/events/created_at/",
+    "/catalog1/app/events/updated_at/"
+  ],
+  "greatest_value": [
+    "/catalog1/app/events/created_at/",
+    "/catalog1/app/events/updated_at/",
+    "/catalog1/app/events/archived_at/"
+  ],
+  "least_value": [
+    "/catalog1/app/events/created_at/",
+    "/catalog1/app/events/updated_at/",
+    "/catalog1/app/events/archived_at/"
+  ],
+  "last_day_value": ["/catalog1/app/events/created_at/"],
+  "next_day_value": ["/catalog1/app/events/updated_at/"]
+}

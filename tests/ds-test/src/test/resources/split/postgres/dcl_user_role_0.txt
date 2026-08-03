@@ -1,0 +1,42 @@
+CREATE USER test_user WITH PASSWORD 'test_password';
+DROP USER test_user;
+DROP USER if exists test_user;
+DROP USER test_user,test_user2;
+create role test_role;
+DROP ROLE test_role;
+GRANT SELECT, INSERT ON TABLE employees TO test_user;
+GRANT SELECT, INSERT ON DATABASE employees TO test_user;
+GRANT SELECT, INSERT ON TABLE employees TO test_user,test_user2;
+REVOKE INSERT ON TABLE employees FROM test_user;
+REVOKE INSERT ON TABLE employees FROM test_user,test_user2;
+create role test_role;
+drop role role1;
+CREATE USER cc_sync WITH PASSWORD 'Clougence@2025!' REPLICATION;
+------------------------------------------------------------------------------------------
+[CREATE_USER] CREATE USER test_user WITH PASSWORD 'test_password';
+----------
+[DROP_USER] DROP USER test_user;
+----------
+[DROP_USER] DROP USER if exists test_user;
+----------
+[DROP_USER] DROP USER test_user,test_user2;
+----------
+[CREATE_ROLE] create role test_role;
+----------
+[DROP_ROLE] DROP ROLE test_role;
+----------
+[GRANT] GRANT SELECT, INSERT ON TABLE employees TO test_user;
+----------
+[GRANT] GRANT SELECT, INSERT ON DATABASE employees TO test_user;
+----------
+[GRANT] GRANT SELECT, INSERT ON TABLE employees TO test_user,test_user2;
+----------
+[REVOKE] REVOKE INSERT ON TABLE employees FROM test_user;
+----------
+[REVOKE] REVOKE INSERT ON TABLE employees FROM test_user,test_user2;
+----------
+[CREATE_ROLE] create role test_role;
+----------
+[DROP_ROLE] drop role role1;
+----------
+[CREATE_USER] CREATE USER cc_sync WITH PASSWORD 'Clougence@2025!' REPLICATION;

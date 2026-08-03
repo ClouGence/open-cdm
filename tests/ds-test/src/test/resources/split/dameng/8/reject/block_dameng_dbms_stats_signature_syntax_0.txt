@@ -1,0 +1,28 @@
+-- missing package method
+begin DBMS_STATS.; end;
+/
+-- missing call close
+begin DBMS_STATS.UPDATE_ALL_STATS(; end;
+/
+-- dangling named argument
+begin DBMS_STATS.GET_PREFS(PPNAME=>); end;
+/
+-- unclosed method call
+begin DBMS_STATS.SET_TABLE_PREFS(OWNNAME=>'SYSDBA'; end;
+/
+------------------------------------------------------------------------------------------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- missing package method
+begin DBMS_STATS.; end;
+/
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- missing call close
+begin DBMS_STATS.UPDATE_ALL_STATS(; end;
+/
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- dangling named argument
+begin DBMS_STATS.GET_PREFS(PPNAME=>); end;
+/
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- unclosed method call
+begin DBMS_STATS.SET_TABLE_PREFS(OWNNAME=>'SYSDBA'; end;
+/

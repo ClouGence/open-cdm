@@ -23,6 +23,7 @@
 </template>
 
 <script>
+import appLogger from '@/utils/logger';
 export default {
   name: 'ProcessModal',
   props: {
@@ -95,7 +96,7 @@ export default {
   watch: {
     'data.datasource': {
       handler(newValue) {
-        console.log(newValue);
+        appLogger.debug(newValue);
       },
       deep: true
     }

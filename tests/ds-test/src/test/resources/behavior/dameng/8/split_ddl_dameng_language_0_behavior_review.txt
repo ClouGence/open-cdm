@@ -1,0 +1,122 @@
+[split_ddl_dameng_language_0_001_behavior_review]
+sql:
+create table dm8_ddl_part_range(id int, created_at date) partition by range(created_at) (partition p2020 values less than (date '2021-01-01'), partition pmax values less than (maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/schema1/dm8_ddl_part_range/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_language_0_002_behavior_review]
+sql:
+create table dm8_ddl_part_list(id int, status varchar(8)) partition by list(status) (partition p_a values ('A'), partition p_b values ('B'), partition p_other values (default));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/schema1/dm8_ddl_part_list/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_language_0_003_behavior_review]
+sql:
+create table dm8_ddl_part_hash(id int, name varchar(32)) partition by hash(id) partitions 4;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/schema1/dm8_ddl_part_hash/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_language_0_004_behavior_review]
+sql:
+create table dm8_ddl_part_range2(id int, category int) partition by range(id, category) (partition p1 values less than (100, maxvalue), partition pmax values less than (maxvalue, maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:32) /test/1/catalog1/schema1/dm8_ddl_part_range2/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_language_0_005_behavior_review]
+sql:
+create materialized view mv_dm8_ddl_base as select id, name from dm8_ddl_base;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "Materialized(1:25~1:40) /test/1/catalog1/schema1/mv_dm8_ddl_base/",
+      "action": "CREATE",
+      "target": "Table(1:65~1:77) /test/1/catalog1/schema1/dm8_ddl_base/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_language_0_006_behavior_review]
+sql:
+create synonym syn_dm8_ddl_base for dm8_ddl_base;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SYNONYM": [
+    {
+      "subject": "Synonym(1:15~1:31) /test/1/catalog1/schema1/syn_dm8_ddl_base/",
+      "action": "CREATE",
+      "target": "SchemaObject(1:36~1:48) /test/1/catalog1/schema1/dm8_ddl_base/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_language_0_007_behavior_review]
+sql:
+create or replace synonym syn_dm8_ddl_base for dm8_ddl_base;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SYNONYM": [
+    {
+      "subject": "Synonym(1:26~1:42) /test/1/catalog1/schema1/syn_dm8_ddl_base/",
+      "action": "REPLACE",
+      "target": "SchemaObject(1:47~1:59) /test/1/catalog1/schema1/dm8_ddl_base/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_language_0_008_behavior_review]
+sql:
+drop synonym syn_dm8_ddl_base;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SYNONYM": [
+    {
+      "subject": "Synonym(1:13~1:29) /test/1/catalog1/schema1/syn_dm8_ddl_base/",
+      "action": "DROP"
+    }
+  ]
+}

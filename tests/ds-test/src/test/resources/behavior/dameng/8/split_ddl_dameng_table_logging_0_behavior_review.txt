@@ -1,0 +1,506 @@
+[split_ddl_dameng_table_logging_0_001_behavior_review]
+sql:
+create table table_log_state(id int primary key, note varchar(20));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/schema1/table_log_state/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_logging_0_002_behavior_review]
+sql:
+alter table table_log_state with advanced log;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:27) /test/1/catalog1/schema1/table_log_state/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_logging_0_003_behavior_review]
+sql:
+alter table table_log_state with advanced log;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:27) /test/1/catalog1/schema1/table_log_state/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_logging_0_004_behavior_review]
+sql:
+insert into table_log_state values(1,'a');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:27) /test/1/catalog1/schema1/table_log_state/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_logging_0_005_behavior_review]
+sql:
+select op_type, count(*) from "TABLE_LOG_STATE$ALOG" group by op_type;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:16~1:21) /test/1/catalog1/schema1/count/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:30~1:52) /test/1/catalog1/schema1/TABLE_LOG_STATE$ALOG/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_logging_0_006_behavior_review]
+sql:
+update table_log_state set note='b' where id=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:22) /test/1/catalog1/schema1/table_log_state/",
+      "action" : "UPDATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_logging_0_007_behavior_review]
+sql:
+delete from table_log_state where id=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:27) /test/1/catalog1/schema1/table_log_state/",
+      "action" : "DELETE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_logging_0_008_behavior_review]
+sql:
+alter table table_log_state add blocked_col int;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_COLUMN": [
+    {
+      "subject": "Table(1:12~1:27) /test/1/catalog1/schema1/table_log_state/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_logging_0_009_behavior_review]
+sql:
+alter table table_log_state truncate advanced log;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:27) /test/1/catalog1/schema1/table_log_state/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_logging_0_010_behavior_review]
+sql:
+select count(*) from "TABLE_LOG_STATE$ALOG";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:21~1:43) /test/1/catalog1/schema1/TABLE_LOG_STATE$ALOG/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_logging_0_011_behavior_review]
+sql:
+alter table table_log_state rename to table_log_renamed;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "RENAME_TABLE": [
+    {
+      "subject": "Table(1:12~1:27) /test/1/catalog1/schema1/table_log_state/",
+      "action" : "RENAME",
+      "target" : "Table(1:38~1:55) /test/1/catalog1/schema1/table_log_renamed/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_logging_0_012_behavior_review]
+sql:
+select count(*) from "TABLE_LOG_RENAMED$ALOG";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:21~1:45) /test/1/catalog1/schema1/TABLE_LOG_RENAMED$ALOG/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_logging_0_013_behavior_review]
+sql:
+alter table table_log_renamed without advanced log;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:29) /test/1/catalog1/schema1/table_log_renamed/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_logging_0_014_behavior_review]
+sql:
+alter table table_log_renamed without advanced log;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:29) /test/1/catalog1/schema1/table_log_renamed/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_logging_0_015_behavior_review]
+sql:
+alter table table_log_renamed truncate advanced log;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:29) /test/1/catalog1/schema1/table_log_renamed/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_logging_0_016_behavior_review]
+sql:
+drop table table_log_renamed purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:28) /test/1/catalog1/schema1/table_log_renamed/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_logging_0_017_behavior_review]
+sql:
+create table table_log_create(id int) with advanced log;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:29) /test/1/catalog1/schema1/table_log_create/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_logging_0_018_behavior_review]
+sql:
+select count(*) from "TABLE_LOG_CREATE$ALOG";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:21~1:44) /test/1/catalog1/schema1/TABLE_LOG_CREATE$ALOG/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_logging_0_019_behavior_review]
+sql:
+drop table table_log_create purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:27) /test/1/catalog1/schema1/table_log_create/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_logging_0_020_behavior_review]
+sql:
+create global temporary table table_log_temp(id int) on commit preserve rows with advanced log;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:30~1:44) /test/1/catalog1/schema1/table_log_temp/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_logging_0_021_behavior_review]
+sql:
+create table table_log_part(id int) partition by range(id)(partition p1 values less than(10), partition pmax values less than(maxvalue)) with advanced log;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:27) /test/1/catalog1/schema1/table_log_part/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_logging_0_022_behavior_review]
+sql:
+alter table table_log_part split partition p1 at(5) into(partition p0, partition p1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/table_log_part/",
+      "action" : "ALTER",
+      "target" : [
+        "Partition(1:43~1:45) /test/1/catalog1/schema1/table_log_part/p1/",
+        "Partition(1:67~1:69) /test/1/catalog1/schema1/table_log_part/p0/",
+        "Partition(1:81~1:83) /test/1/catalog1/schema1/table_log_part/p1/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_logging_0_023_behavior_review]
+sql:
+alter table table_log_part merge partitions p1,pmax into partition pmax;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/table_log_part/",
+      "action" : "ALTER",
+      "target" : [
+        "Partition(1:44~1:46) /test/1/catalog1/schema1/table_log_part/p1/",
+        "Partition(1:47~1:51) /test/1/catalog1/schema1/table_log_part/pmax/",
+        "Partition(1:67~1:71) /test/1/catalog1/schema1/table_log_part/pmax/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_logging_0_024_behavior_review]
+sql:
+drop table table_log_part purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:25) /test/1/catalog1/schema1/table_log_part/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_logging_0_025_behavior_review]
+sql:
+create table table_log_interval(id int) partition by range(id) interval(10)(partition p0 values less than(10)) with advanced log;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/schema1/table_log_interval/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_logging_0_026_behavior_review]
+sql:
+create table table_logic_state(id int) add logic log;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/schema1/table_logic_state/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_logging_0_027_behavior_review]
+sql:
+alter table table_logic_state drop logic log;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:29) /test/1/catalog1/schema1/table_logic_state/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_logging_0_028_behavior_review]
+sql:
+alter table table_logic_state add logic log;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:29) /test/1/catalog1/schema1/table_logic_state/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_logging_0_029_behavior_review]
+sql:
+alter table table_logic_state add logic log;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:29) /test/1/catalog1/schema1/table_logic_state/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_logging_0_030_behavior_review]
+sql:
+alter table table_logic_state drop logic log;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:29) /test/1/catalog1/schema1/table_logic_state/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_logging_0_031_behavior_review]
+sql:
+alter table table_logic_state drop logic log;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:29) /test/1/catalog1/schema1/table_logic_state/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_logging_0_032_behavior_review]
+sql:
+drop table table_logic_state purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:28) /test/1/catalog1/schema1/table_logic_state/",
+      "action" : "DROP"
+    }
+  ]
+}

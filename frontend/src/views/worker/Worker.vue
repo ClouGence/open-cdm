@@ -1138,6 +1138,7 @@
   </div>
 </template>
 <script>
+import appLogger from '@/utils/logger';
 import fecha from 'fecha';
 import store from '@/store';
 import JobOnWorker from '@/components/function/JobOnWorker';
@@ -1797,7 +1798,7 @@ export default {
     ...mapMutations(['updateSelectedWorker']),
     dayjs,
     handleGoTaskDetail() {
-      console.log('handle go task detail');
+      appLogger.debug('handle go task detail');
       this.$router.push({ path: `/ccsystem/state/task/${this.downloadTaskId}` });
     },
     // Bottom of scrolling log contents
@@ -1836,7 +1837,7 @@ export default {
         this.downloadLogLoading = false;
       } catch (e) {
         this.downloadLogLoading = false;
-        console.log(e);
+        appLogger.debug(e);
       }
     },
     disableUpgradeWorker(worker) {
@@ -1998,13 +1999,13 @@ export default {
           }
           this.resourceData = res.data;
           if (!this.selectWorker.id) {
-            console.log(1);
+            appLogger.debug(1);
             if (res.data.length > 0) {
               let hasSelectedWorker = false;
               if (this.$store.state.selectedWorker.clusterId === this.clusterId) {
                 this.resourceData.forEach((resource) => {
                   if (resource.id === this.$store.state.selectedWorker.id) {
-                    console.log(2, resource);
+                    appLogger.debug(2, resource);
                     this.selectWorker = resource;
                     hasSelectedWorker = true;
                   }
@@ -2709,7 +2710,7 @@ export default {
       this.useNewCredentials = false;
     },
     handleGoConsoleJob(worker) {
-      console.warn(123, worker);
+      appLogger.warn(123, worker);
 
       this.$router.push({ path: `/ccsystem/state/task/${worker.consoleJobId}` });
     },
@@ -2872,7 +2873,7 @@ export default {
       }
     },
     handleShowDispatchModal(row) {
-      console.log('handleShowDispatchModal');
+      appLogger.debug('handleShowDispatchModal');
       this.isBatch = false;
       this.showDispatch = true;
       this.selectedRow = row;
@@ -2942,7 +2943,7 @@ export default {
         }
         this.cleanLogLoading = false;
       } catch (err) {
-        console.error(err);
+        appLogger.error(err);
         this.cleanLogLoading = false;
       }
     },

@@ -1,0 +1,86 @@
+[MyParseColumnWithTest.test1]
+sql:
+with test1 as (select * from table1) select * from test1
+expect:
+{
+  "column1" : [ "(1:22~1:23) /catalog1/schema1/table1/column1/" ],
+  "column2" : [ "(1:22~1:23) /catalog1/schema1/table1/column2/" ],
+  "column3" : [ "(1:22~1:23) /catalog1/schema1/table1/column3/" ],
+  "column4" : [ "(1:22~1:23) /catalog1/schema1/table1/column4/" ],
+  "column5" : [ "(1:22~1:23) /catalog1/schema1/table1/column5/" ],
+  "column6" : [ "(1:22~1:23) /catalog1/schema1/table1/column6/" ]
+}
+----------
+[MyParseColumnWithTest.test2]
+sql:
+with test1 as (select * from table1) select * from (with test2 as (select * from table2) select * from test2)
+expect:
+{
+  "column1" : [ "(1:74~1:75) /catalog1/schema1/table2/column1/" ],
+  "column2" : [ "(1:74~1:75) /catalog1/schema1/table2/column2/" ],
+  "column3" : [ "(1:74~1:75) /catalog1/schema1/table2/column3/" ],
+  "column4" : [ "(1:74~1:75) /catalog1/schema1/table2/column4/" ],
+  "column5" : [ "(1:74~1:75) /catalog1/schema1/table2/column5/" ],
+  "column6" : [ "(1:74~1:75) /catalog1/schema1/table2/column6/" ]
+}
+----------
+[MyParseColumnWithTest.test3]
+sql:
+select * from (with test1 as (select * from table1) select * from (with test1 as (select * from table2) select * from test1)) t
+expect:
+{
+  "column1" : [ "(1:89~1:90) /catalog1/schema1/table2/column1/" ],
+  "column2" : [ "(1:89~1:90) /catalog1/schema1/table2/column2/" ],
+  "column3" : [ "(1:89~1:90) /catalog1/schema1/table2/column3/" ],
+  "column4" : [ "(1:89~1:90) /catalog1/schema1/table2/column4/" ],
+  "column5" : [ "(1:89~1:90) /catalog1/schema1/table2/column5/" ],
+  "column6" : [ "(1:89~1:90) /catalog1/schema1/table2/column6/" ]
+}
+----------
+[MyParseColumnWithTest.test4]
+sql:
+with test1 (a,b,c,d,e,f) as (select * from table1) select a from test1
+expect:
+{
+  "a" : [ "(1:36~1:37) /catalog1/schema1/table1/column1/" ]
+}
+----------
+[MyParseColumnWithTest.test5]
+sql:
+select * from (with test1 (a,b,c,d,e,f) as (select * from table1) select a from test1) c
+expect:
+{
+  "a" : [ "(1:51~1:52) /catalog1/schema1/table1/column1/" ]
+}
+----------
+[recursive_cte_anchor_source]
+sql:
+WITH RECURSIVE cte AS (SELECT column1 AS value FROM table1 UNION ALL SELECT value FROM cte) SELECT value FROM cte
+expect:
+{
+  "value" : [ "(1:30~1:37) /catalog1/schema1/table1/column1/" ]
+}
+----------
+[cte_sees_previous_definition]
+sql:
+with base as (select column1 from table1), next_cte as (select column1 from base) select column1 from next_cte
+expect:
+{
+  "column1" : [ "(1:21~1:28) /catalog1/schema1/table1/column1/" ]
+}
+----------
+[union_operand_local_cte]
+sql:
+select 1 as n union all (with c as (select column1 as n from table1) select n from c)
+expect:
+{
+  "n" : [ "(1:43~1:50) /catalog1/schema1/table1/column1/" ]
+}
+----------
+[parenthesized_union_cte_isolation]
+sql:
+(with c as (select column1 as n from table1) select n from c) union all (with c as (select column2 as n from table2) select n from c)
+expect:
+{
+  "n" : [ "(1:19~1:26) /catalog1/schema1/table1/column1/", "(1:91~1:98) /catalog1/schema1/table2/column2/" ]
+}

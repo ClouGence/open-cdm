@@ -80,7 +80,7 @@ public class InstallationReportStarter implements UnifiedPostConstruct {
     private boolean report(String version, String type) {
         try {
             String body = JsonUtils.toJson(Map.of("version", version, "type", type));
-            String reportUrl = "https://" + this.config.getUpgradeServer() + INSTALLATION_REPORT_PATH;
+            String reportUrl = "https://" + this.config.getReportServer() + INSTALLATION_REPORT_PATH;
             HttpRequest request = HttpRequest.newBuilder(URI.create(reportUrl))
                 .timeout(Duration.ofSeconds(5))
                 .header("Content-Type", "application/json")

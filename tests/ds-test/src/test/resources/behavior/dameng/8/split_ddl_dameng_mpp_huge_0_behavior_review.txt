@@ -1,0 +1,806 @@
+[split_ddl_dameng_mpp_huge_0_001_behavior_review]
+sql:
+create huge table mpp_huge_hash(id int, note varchar(40)) storage(stat none, with delta, section(1024), filesize(16)) distributed by hash(id);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:31) /test/1/catalog1/schema1/mpp_huge_hash/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_mpp_huge_0_002_behavior_review]
+sql:
+create huge table mpp_huge_random(id int, note varchar(40)) storage(stat none, with delta, section(1024), filesize(16)) distributed randomly;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:33) /test/1/catalog1/schema1/mpp_huge_random/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_mpp_huge_0_003_behavior_review]
+sql:
+create huge table mpp_huge_fully(id int, note varchar(40)) storage(stat none, with delta, section(1024), filesize(16)) distributed fully;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:32) /test/1/catalog1/schema1/mpp_huge_fully/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_mpp_huge_0_004_behavior_review]
+sql:
+create huge table mpp_huge_range(id int, note varchar(40)) storage(stat none, with delta, section(1024), filesize(16)) distributed by range(id)(values equ or less than(100) on ep01, values less than(maxvalue) on ep02);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:32) /test/1/catalog1/schema1/mpp_huge_range/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_mpp_huge_0_005_behavior_review]
+sql:
+create huge table mpp_huge_list(id int, note varchar(40)) storage(stat none, with delta, section(1024), filesize(16)) distributed by list(id)(values(1,3,5) on ep01, values(2,4,6) on ep02);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:31) /test/1/catalog1/schema1/mpp_huge_list/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_mpp_huge_0_006_behavior_review]
+sql:
+create huge table mpp_huge_part(id int, note varchar(40)) partition by range(id)(partition p10 values less than(10), partition pmax values less than(maxvalue)) storage(stat none, with delta, section(1024), filesize(16)) distributed by hash(id);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:31) /test/1/catalog1/schema1/mpp_huge_part/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_mpp_huge_0_007_behavior_review]
+sql:
+create huge table mpp_huge_ctas as select 8 as id, 'CTAS' as note from dual distributed by hash(id);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:31) /test/1/catalog1/schema1/mpp_huge_ctas/",
+      "action": "CREATE",
+      "target": "View(1:71~1:75) /test/1/catalog1/schema1/dual/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_mpp_huge_0_008_behavior_review]
+sql:
+create huge table mpp_huge_random_pk(id int primary key) distributed randomly;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:36) /test/1/catalog1/schema1/mpp_huge_random_pk/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_mpp_huge_0_009_behavior_review]
+sql:
+create huge table mpp_huge_fully_pk(id int primary key) distributed fully;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:35) /test/1/catalog1/schema1/mpp_huge_fully_pk/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_mpp_huge_0_010_behavior_review]
+sql:
+insert into mpp_huge_hash values(1, 'H1');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:25) /test/1/catalog1/schema1/mpp_huge_hash/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_mpp_huge_0_011_behavior_review]
+sql:
+insert into mpp_huge_hash values(2, 'H2');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:25) /test/1/catalog1/schema1/mpp_huge_hash/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_mpp_huge_0_012_behavior_review]
+sql:
+insert into mpp_huge_hash values(3, 'H3');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:25) /test/1/catalog1/schema1/mpp_huge_hash/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_mpp_huge_0_013_behavior_review]
+sql:
+insert into mpp_huge_hash values(4, 'H4');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:25) /test/1/catalog1/schema1/mpp_huge_hash/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_mpp_huge_0_014_behavior_review]
+sql:
+insert into mpp_huge_random values(10, 'R10');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:27) /test/1/catalog1/schema1/mpp_huge_random/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_mpp_huge_0_015_behavior_review]
+sql:
+insert into mpp_huge_random values(20, 'R20');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:27) /test/1/catalog1/schema1/mpp_huge_random/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_mpp_huge_0_016_behavior_review]
+sql:
+insert into mpp_huge_fully values(30, 'F30');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/mpp_huge_fully/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_mpp_huge_0_017_behavior_review]
+sql:
+insert into mpp_huge_range values(50, 'EP01_RANGE');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/mpp_huge_range/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_mpp_huge_0_018_behavior_review]
+sql:
+insert into mpp_huge_range values(150, 'EP02_RANGE');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/mpp_huge_range/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_mpp_huge_0_019_behavior_review]
+sql:
+insert into mpp_huge_list values(1, 'EP01_LIST');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:25) /test/1/catalog1/schema1/mpp_huge_list/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_mpp_huge_0_020_behavior_review]
+sql:
+insert into mpp_huge_list values(2, 'EP02_LIST');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:25) /test/1/catalog1/schema1/mpp_huge_list/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_mpp_huge_0_021_behavior_review]
+sql:
+insert into mpp_huge_part values(5, 'P10');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:25) /test/1/catalog1/schema1/mpp_huge_part/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_mpp_huge_0_022_behavior_review]
+sql:
+insert into mpp_huge_part values(15, 'PMAX');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:25) /test/1/catalog1/schema1/mpp_huge_part/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_mpp_huge_0_023_behavior_review]
+sql:
+commit;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[split_ddl_dameng_mpp_huge_0_024_behavior_review]
+sql:
+select id, sf_get_ep_seqno(rowid) as ep_seqno from mpp_huge_hash order by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:11~1:26) /test/1/catalog1/schema1/sf_get_ep_seqno/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:51~1:64) /test/1/catalog1/schema1/mpp_huge_hash/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_mpp_huge_0_025_behavior_review]
+sql:
+select id, sf_get_ep_seqno(rowid) as ep_seqno from mpp_huge_range order by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:11~1:26) /test/1/catalog1/schema1/sf_get_ep_seqno/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:51~1:65) /test/1/catalog1/schema1/mpp_huge_range/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_mpp_huge_0_026_behavior_review]
+sql:
+select id, sf_get_ep_seqno(rowid) as ep_seqno from mpp_huge_list order by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:11~1:26) /test/1/catalog1/schema1/sf_get_ep_seqno/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:51~1:64) /test/1/catalog1/schema1/mpp_huge_list/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_mpp_huge_0_027_behavior_review]
+sql:
+update mpp_huge_hash set note='UPDATED' where id=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:20) /test/1/catalog1/schema1/mpp_huge_hash/",
+      "action": "UPDATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_mpp_huge_0_028_behavior_review]
+sql:
+update mpp_huge_hash set id=101 where id=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:20) /test/1/catalog1/schema1/mpp_huge_hash/",
+      "action": "UPDATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_mpp_huge_0_029_behavior_review]
+sql:
+delete from mpp_huge_random where id=20;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:27) /test/1/catalog1/schema1/mpp_huge_random/",
+      "action": "DELETE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_mpp_huge_0_030_behavior_review]
+sql:
+select h.id, h.note, r.note as range_note from mpp_huge_hash h join mpp_huge_range r on r.id=150 where h.id=2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:47~1:60) /test/1/catalog1/schema1/mpp_huge_hash/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(1:68~1:82) /test/1/catalog1/schema1/mpp_huge_range/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_mpp_huge_0_031_behavior_review]
+sql:
+call sp_get_ep_count('SYSDBA', 'MPP_HUGE_HASH');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:5~1:20) /test/1/catalog1/schema1/sp_get_ep_count/",
+      "action": "CALL",
+      "target": "Table(1:31~1:46) /test/1/catalog1/SYSDBA/MPP_HUGE_HASH/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_mpp_huge_0_032_behavior_review]
+sql:
+select table_used_pages('SYSDBA', 'MPP_HUGE_HASH'), name from v$instance order by name;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:23) /test/1/catalog1/schema1/table_used_pages/",
+      "action": "CALL",
+      "target": "Table(1:34~1:49) /test/1/catalog1/SYSDBA/MPP_HUGE_HASH/"
+    },
+    {
+      "subject": "View(1:62~1:72) /test/1/catalog1/schema1/v$instance/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_mpp_huge_0_033_behavior_review]
+sql:
+select table_name, partitioned from user_tables where table_name like 'MPP_HUGE_%' order by table_name;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:36~1:47) /test/1/catalog1/schema1/user_tables/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_mpp_huge_0_034_behavior_review]
+sql:
+select dbms_metadata.get_ddl('TABLE', 'MPP_HUGE_RANGE', user) from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:28) /test/1/catalog1/dbms_metadata/get_ddl/",
+      "action": "CALL",
+      "target": "Table(1:38~1:54) /test/1/catalog1/schema1/MPP_HUGE_RANGE/"
+    },
+    {
+      "subject": "Function(1:56~1:60) /test/1/catalog1/schema1/user/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:67~1:71) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_mpp_huge_0_035_behavior_review]
+sql:
+call sp_set_session_mpp_select_local(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:5~1:36) /test/1/catalog1/schema1/sp_set_session_mpp_select_local/",
+      "action": "CALL",
+      "target": "ConfigKey(1:5~1:36) /test/1/MPP_SELECT_LOCAL/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_mpp_huge_0_036_behavior_review]
+sql:
+select sf_get_self_ep_seqno() as self_ep, count(*) as local_rows from mpp_huge_fully;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:27) /test/1/catalog1/schema1/sf_get_self_ep_seqno/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:42~1:47) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:70~1:84) /test/1/catalog1/schema1/mpp_huge_fully/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_mpp_huge_0_037_behavior_review]
+sql:
+call sp_set_session_mpp_select_local(0);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:5~1:36) /test/1/catalog1/schema1/sp_set_session_mpp_select_local/",
+      "action": "CALL",
+      "target": "ConfigKey(1:5~1:36) /test/1/MPP_SELECT_LOCAL/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_mpp_huge_0_038_behavior_review]
+sql:
+create or replace directory mpp_ext_dir as '/tmp';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:28~1:39) /test/1/catalog1/schema1/mpp_ext_dir/",
+      "action": "CONFIGURE",
+      "target": "File(1:43~1:49) /test/1/tmp/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_mpp_huge_0_039_behavior_review]
+sql:
+create external table mpp_external(id int) from datafile default directory mpp_ext_dir location('mpp.csv');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:22~1:34) /test/1/catalog1/schema1/mpp_external/",
+      "action": "CREATE",
+      "target": [
+        "ConfigKey(1:75~1:86) /test/1/catalog1/schema1/mpp_ext_dir/",
+        "File(1:96~1:105) /test/1/mpp_ext_dir/mpp.csv/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dameng_mpp_huge_0_040_behavior_review]
+sql:
+create huge table mpp_huge_bad_ep(id int) distributed by range(id)(values less than(maxvalue) on ep99);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:33) /test/1/catalog1/schema1/mpp_huge_bad_ep/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_mpp_huge_0_041_behavior_review]
+sql:
+insert into mpp_huge_list values(9, 'UNROUTED');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:25) /test/1/catalog1/schema1/mpp_huge_list/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_mpp_huge_0_042_behavior_review]
+sql:
+drop table mpp_huge_ctas purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:24) /test/1/catalog1/schema1/mpp_huge_ctas/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_mpp_huge_0_043_behavior_review]
+sql:
+drop table mpp_huge_part purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:24) /test/1/catalog1/schema1/mpp_huge_part/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_mpp_huge_0_044_behavior_review]
+sql:
+drop table mpp_huge_list purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:24) /test/1/catalog1/schema1/mpp_huge_list/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_mpp_huge_0_045_behavior_review]
+sql:
+drop table mpp_huge_range purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:25) /test/1/catalog1/schema1/mpp_huge_range/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_mpp_huge_0_046_behavior_review]
+sql:
+drop table mpp_huge_fully purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:25) /test/1/catalog1/schema1/mpp_huge_fully/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_mpp_huge_0_047_behavior_review]
+sql:
+drop table mpp_huge_random purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:26) /test/1/catalog1/schema1/mpp_huge_random/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_mpp_huge_0_048_behavior_review]
+sql:
+drop table mpp_huge_hash purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:24) /test/1/catalog1/schema1/mpp_huge_hash/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_mpp_huge_0_049_behavior_review]
+sql:
+drop table mpp_huge_random_pk purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:29) /test/1/catalog1/schema1/mpp_huge_random_pk/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_mpp_huge_0_050_behavior_review]
+sql:
+drop table mpp_huge_fully_pk purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:28) /test/1/catalog1/schema1/mpp_huge_fully_pk/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_mpp_huge_0_051_behavior_review]
+sql:
+drop directory mpp_ext_dir;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:15~1:26) /test/1/catalog1/schema1/mpp_ext_dir/",
+      "action": "CONFIGURE"
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+update `table` set id = 1;
+update `table` set id = 1 where id = 2 or name = 3 and zz =4;
+update `table` set id = 1,age = 2 where name = 'name';
+update table1 set name = 1 where id = cast(id AS SIGNED);
+update table1 set name = 1 where id = cast(id AS SIGNED);
+update table1 set name = 1 where id = avg((select id from table2));
+update ignore `table` set id = 1;
+update `table` set id = (select id2 from test limit 1);
+update `table` set id = 2 where table.name = (select id2 from test limit 1);
+------------------------------------------------------------------------------------------
+[UPDATE] update `table` set id = 1;
+----------
+[UPDATE] update `table` set id = 1 where id = 2 or name = 3 and zz =4;
+----------
+[UPDATE] update `table` set id = 1,age = 2 where name = 'name';
+----------
+[UPDATE] update table1 set name = 1 where id = cast(id AS SIGNED);
+----------
+[UPDATE] update table1 set name = 1 where id = cast(id AS SIGNED);
+----------
+[UPDATE|SELECT] update table1 set name = 1 where id = avg((select id from table2));
+----------
+[UPDATE] update ignore `table` set id = 1;
+----------
+[UPDATE|SELECT] update `table` set id = (select id2 from test limit 1);
+----------
+[UPDATE|SELECT] update `table` set id = 2 where table.name = (select id2 from test limit 1);

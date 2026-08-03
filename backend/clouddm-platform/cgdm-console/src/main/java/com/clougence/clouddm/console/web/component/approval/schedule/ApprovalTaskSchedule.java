@@ -159,7 +159,7 @@ public class ApprovalTaskSchedule {
                         Throwable rootException = ExceptionUtils.getRootCause(e);
                         log.error("processExplain failed msg:" + rootException.getMessage(), rootException);
                         String message = DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_STATUS_EXPLAIN_FAILED_MESSAGE.name()) + rootException.getMessage();
-                        this.approvalFlowService.closeTicket(afterCheck.getId(), message, puid);
+                        this.approvalFlowService.execFailTicket(afterCheck.getId(), message, puid);
                         // this.finishTask(FINISH_MSG);
                     }
                 }

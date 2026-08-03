@@ -21,6 +21,7 @@ import java.util.List;
 import com.baomidou.mybatisplus.annotation.*;
 import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import com.clougence.clouddm.platform.dal.handler.enums.RdpApprovalTypeHandler;
+import com.clougence.clouddm.platform.dal.handler.json.ApprovalBehaviorListTypeHandler;
 import com.clougence.utils.CollectionUtils;
 
 import lombok.Data;
@@ -30,49 +31,51 @@ import lombok.Data;
  * @date 2024/5/6 10:58
 */
 @Data
-@TableName(value = "dm_approval")
+@TableName(value = "dm_approval", autoResultMap = true)
 public class DmApprovalDO {
 
     @TableId(type = IdType.AUTO)
-    private Long           id;
-    private String         bizId;
+    private Long                   id;
+    private String                 bizId;
     @TableField(insertStrategy = FieldStrategy.NOT_NULL, updateStrategy = FieldStrategy.NOT_NULL)
-    private Date           gmtCreate;
+    private Date                   gmtCreate;
     @TableField(insertStrategy = FieldStrategy.NOT_NULL, updateStrategy = FieldStrategy.NOT_NULL)
-    private Date           gmtModified;
-    private String         ownerUid;
-    private Long           bindDsId;
-    private String         targetInfo;
+    private Date                   gmtModified;
+    private String                 ownerUid;
+    private Long                   bindDsId;
+    private String                 targetInfo;
     @TableField(typeHandler = RdpApprovalTypeHandler.class)
-    private ApprovalType   approType;
-    private ApprovalBiz    approBiz;
-    private String         approIdentity;
-    private String         approTemplateName;
-    private String         approTemplateIdentity;
-    private String         approComment;
-    private String         description;
-    private String         ticketTitle;
-    private ApprovalStatus ticketStatus;
-    private Date           finishTime;
-    private String         statusMessage;
-    private Boolean        deleted;
-    private Integer        errorCount;
-    private String         primaryUid;
-    private String         envName;
-    private String         approvalUrl;
-    private String         sessionId;
-    private String         explainSqlData;
-    private Integer        riskSqlCount;
-    private String         rawSql;
-    private Integer        totalCount;
+    private ApprovalType           approType;
+    private ApprovalBiz            approBiz;
+    private String                 approIdentity;
+    private String                 approTemplateName;
+    private String                 approTemplateIdentity;
+    private String                 approComment;
+    private String                 description;
+    private String                 ticketTitle;
+    private ApprovalStatus         ticketStatus;
+    private Date                   finishTime;
+    private String                 statusMessage;
+    private Boolean                deleted;
+    private Integer                errorCount;
+    private String                 primaryUid;
+    private String                 envName;
+    private String                 approvalUrl;
+    private String                 sessionId;
+    private String                 explainSqlData;
+    private Integer                riskSqlCount;
+    private String                 rawSql;
+    private Integer                totalCount;
     @TableField("`expected_affected_rows`")
-    private Long           expectedAffectedRows;
-    private Date           expectedExecTime;
-    private String         rollBackSql;
-    private String         ticketInfo;
+    private Long                   expectedAffectedRows;
+    private Date                   expectedExecTime;
+    private String                 rollBackSql;
+    private String                 ticketInfo;
     @TableField(value = "levels", typeHandler = JacksonTypeHandler.class)
-    private List<String>   levels;
-    private String         checkedInfo;
+    private List<String>           levels;
+    private String                 checkedInfo;
+    @TableField(value = "behaviors", typeHandler = ApprovalBehaviorListTypeHandler.class)
+    private List<ApprovalBehavior> behaviors;
 
     public String getLevelPath() {
         if (CollectionUtils.isEmpty(this.levels)) {

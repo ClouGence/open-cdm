@@ -1,0 +1,65 @@
+[createView]
+type: createView
+option:
+{
+  "targetName": "target_name",
+  "schema": "test_schema",
+  "delimited": true,
+  "data": {
+    "name": "test_name",
+    "sql": "test_sql",
+    "comment": "test_comment"
+  }
+}
+expect:
+<<<
+create view "test_schema"."test_name"
+as
+test_sql;
+>>>
+----------
+
+[createViewWithLOCAL]
+type: createView
+option:
+{
+  "targetName": "target_name",
+  "schema": "test_schema",
+  "delimited": true,
+  "data": {
+    "name": "test_name",
+    "sql": "test_sql",
+    "comment": "test_comment",
+    "rdbdb2_viewco": "local"
+  }
+}
+expect:
+<<<
+create view "test_schema"."test_name"
+as
+test_sql
+with local check option;
+>>>
+----------
+
+[createViewWithOption]
+type: createView
+option:
+{
+  "targetName": "target_name",
+  "schema": "test_schema",
+  "delimited": true,
+  "data": {
+    "name": "test_name",
+    "sql": "test_sql",
+    "comment": "test_comment",
+    "rdbdb2_viewco": "cascaded"
+  }
+}
+expect:
+<<<
+create view "test_schema"."test_name"
+as
+test_sql
+with cascaded check option;
+>>>

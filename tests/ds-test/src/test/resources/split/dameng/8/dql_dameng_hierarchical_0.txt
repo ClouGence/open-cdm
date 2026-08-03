@@ -1,0 +1,27 @@
+select high_dep,dep_name from department connect by prior dep_name=high_dep;
+select high_dep,dep_name from department connect by prior dep_name=high_dep start with dep_name='ROOT';
+select high_dep,dep_name from department start with dep_name='ROOT' connect by prior dep_name=high_dep;
+select high_dep,dep_name from department connect by nocycle prior dep_name=high_dep start with dep_name='ROOT';
+select level,connect_by_isleaf,connect_by_iscycle,high_dep,dep_name from department connect by nocycle prior dep_name=high_dep start with dep_name='ROOT';
+select level,high_dep,dep_name from department where high_dep='ROOT' connect by prior dep_name=high_dep;
+select high_dep,dep_name,level from department connect by prior dep_name=high_dep start with dep_name='ROOT' order siblings by dep_name;
+select connect_by_root dep_name,high_dep,dep_name from department connect by prior dep_name=high_dep start with dep_name='ROOT';
+select sys_connect_by_path(dep_name,'/') as dep_path,high_dep,dep_name from department connect by prior dep_name=high_dep start with dep_name='ROOT';
+------------------------------------------------------------------------------------------
+[SELECT] select high_dep,dep_name from department connect by prior dep_name=high_dep;
+----------
+[SELECT] select high_dep,dep_name from department connect by prior dep_name=high_dep start with dep_name='ROOT';
+----------
+[SELECT] select high_dep,dep_name from department start with dep_name='ROOT' connect by prior dep_name=high_dep;
+----------
+[SELECT] select high_dep,dep_name from department connect by nocycle prior dep_name=high_dep start with dep_name='ROOT';
+----------
+[SELECT] select level,connect_by_isleaf,connect_by_iscycle,high_dep,dep_name from department connect by nocycle prior dep_name=high_dep start with dep_name='ROOT';
+----------
+[SELECT] select level,high_dep,dep_name from department where high_dep='ROOT' connect by prior dep_name=high_dep;
+----------
+[SELECT] select high_dep,dep_name,level from department connect by prior dep_name=high_dep start with dep_name='ROOT' order siblings by dep_name;
+----------
+[SELECT] select connect_by_root dep_name,high_dep,dep_name from department connect by prior dep_name=high_dep start with dep_name='ROOT';
+----------
+[SELECT|CALL_PROG_OBJ] select sys_connect_by_path(dep_name,'/') as dep_path,high_dep,dep_name from department connect by prior dep_name=high_dep start with dep_name='ROOT';
