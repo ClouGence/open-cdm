@@ -15,16 +15,19 @@
  */
 package com.clougence.clouddm.worker.component.autoexec;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.security.MessageDigest;
-import java.util.*;
+import java.util.Collections;
+import java.util.HexFormat;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Stream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,10 +53,11 @@ import com.clougence.clouddm.worker.component.report.ReportUtils;
 import com.clougence.clouddm.worker.component.resource.TaskDsResourceManager;
 import com.clougence.clouddm.worker.component.session.SessionAgent;
 import com.clougence.clouddm.worker.component.session.SessionManager;
-import com.clougence.clouddm.worker.util.ZipUtils;
 import com.clougence.utils.JsonUtils;
 import com.clougence.utils.ThreadUtils;
-import com.clougence.utils.io.FileUtils;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.MappingIterator;
+import com.fasterxml.jackson.databind.ObjectReader;
 
 import jakarta.annotation.Resource;
 
@@ -83,7 +87,6 @@ public class AutoExecJob implements Runnable {
     }
 
     public void run() {
-        Path taskDirectory = null;
         Path taskPackageFile = null;
         boolean completed = false;
         try {
@@ -105,7 +108,6 @@ public class AutoExecJob implements Runnable {
                 Files.createDirectories(execDirectory);
                 taskPackageFile = execDirectory.resolve(this.job.getJobId() + ".tasks.zip");
                 prepareTaskPackage(taskPackageFile, taskPackage);
-                taskDirectory = extractTaskPackage(taskPackageFile);
             } catch (Throwable e) {
                 if (this.pauseRequested.get()) {
                     sendMessage(AutoExecMessageDTO.jobPauseMessage(job.getJobId()), true);
@@ -138,7 +140,7 @@ public class AutoExecJob implements Runnable {
             // exec job
             try {
                 log.info("job start");
-                JobResult result = jobWrap(taskDirectory);
+                JobResult result = jobWrap(taskPackageFile);
                 switch (result) {
                     case SUCCESS:
                         log.info("job success");
@@ -165,9 +167,8 @@ public class AutoExecJob implements Runnable {
                     log.error(e.getMessage(), e);
                 }
             }
-            this.deleteTaskPath(taskDirectory);
             if (completed) {
-                this.deleteTaskPath(taskPackageFile);
+                this.deleteTaskFile(taskPackageFile);
             }
         }
     }
@@ -230,20 +231,6 @@ public class AutoExecJob implements Runnable {
         throw new IllegalStateException("Download auto execution task package failed after retries, jobId: " + this.job.getJobId(), lastError);
     }
 
-    private Path extractTaskPackage(Path packageFile) throws Exception {
-        Path execDirectory = Paths.get(GlobalConfUtils.getTempDataHome(), "exec");
-        Files.createDirectories(execDirectory);
-        Path taskDirectory = execDirectory.resolve(this.job.getJobId().toString());
-        deleteTaskPath(taskDirectory);
-        try {
-            ZipUtils.extract(packageFile, taskDirectory);
-        } catch (IOException e) {
-            deleteTaskPath(taskDirectory);
-            throw e;
-        }
-        return taskDirectory;
-    }
-
     private String fileMd5(Path file) throws Exception {
         MessageDigest digest = MessageDigest.getInstance("MD5");
         byte[] buffer = new byte[64 * 1024];
@@ -262,7 +249,7 @@ public class AutoExecJob implements Runnable {
     // run job
     //
 
-    private JobResult jobWrap(Path taskDirectory) {
+    private JobResult jobWrap(Path taskPackageFile) {
         boolean transaction = job.isEnableTransactional();
         try {
             if (transaction) {
@@ -270,7 +257,7 @@ public class AutoExecJob implements Runnable {
                 sessionAgent.setAutoCommit(false);
             }
 
-            if (!jobRun(taskDirectory)) {
+            if (!jobRun(taskPackageFile)) {
                 if (transaction) {
                     sessionAgent.rollback();
                     log.warn("transaction rollback");
@@ -310,19 +297,24 @@ public class AutoExecJob implements Runnable {
         }
     }
 
-    private boolean jobRun(Path taskDirectory) throws IOException {
-        try (Stream<Path> taskFiles = Files.list(taskDirectory)) {
-            Iterator<Path> iterator = taskFiles.filter(Files::isRegularFile).sorted(Comparator.comparing(file -> file.getFileName().toString())).iterator();
-            while (iterator.hasNext()) {
-                try (BufferedReader reader = Files.newBufferedReader(iterator.next(), StandardCharsets.UTF_8)) {
-                    String taskJson;
-                    while ((taskJson = reader.readLine()) != null) {
-                        QueryRequest request = JsonUtils.toObj(taskJson, QueryRequest.class);
-                        if (!jobRunItem(request)) {
-                            return false;
+    private boolean jobRun(Path taskPackageFile) throws IOException {
+        ObjectReader requestReader = JsonUtils.defaultObjectMapper().readerFor(QueryRequest.class);
+        try (ZipInputStream zipInput = new ZipInputStream(Files.newInputStream(taskPackageFile), StandardCharsets.UTF_8)) {
+            ZipEntry entry;
+            while ((entry = zipInput.getNextEntry()) != null) {
+                if (!entry.isDirectory()) {
+                    try (JsonParser parser = JsonUtils.defaultObjectMapper().getFactory().createParser(zipInput)) {
+                        parser.disable(JsonParser.Feature.AUTO_CLOSE_SOURCE);
+                        try (MappingIterator<QueryRequest> requests = requestReader.readValues(parser)) {
+                            while (requests.hasNextValue()) {
+                                if (!jobRunItem(requests.nextValue())) {
+                                    return false;
+                                }
+                            }
                         }
                     }
                 }
+                zipInput.closeEntry();
             }
         }
         return true;
@@ -403,18 +395,14 @@ public class AutoExecJob implements Runnable {
     // life and utils
     //
 
-    private void deleteTaskPath(Path taskPath) {
-        if (taskPath == null || !Files.exists(taskPath)) {
+    private void deleteTaskFile(Path taskFile) {
+        if (taskFile == null) {
             return;
         }
         try {
-            if (Files.isDirectory(taskPath)) {
-                FileUtils.deleteDirectory(taskPath.toFile());
-            } else {
-                Files.deleteIfExists(taskPath);
-            }
+            Files.deleteIfExists(taskFile);
         } catch (IOException e) {
-            log.warn("delete auto execution task path failed: {}", taskPath, e);
+            log.warn("delete auto execution task file failed: {}", taskFile, e);
         }
     }
 

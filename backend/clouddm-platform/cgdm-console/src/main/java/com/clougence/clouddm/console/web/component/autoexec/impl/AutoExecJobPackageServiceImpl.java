@@ -26,6 +26,7 @@ import java.security.DigestOutputStream;
 import java.security.MessageDigest;
 import java.sql.Timestamp;
 import java.util.*;
+import java.util.stream.Stream;
 import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -52,8 +53,10 @@ import com.clougence.clouddm.platform.dal.model.execution.DmExecAutoTaskDO;
 import com.clougence.clouddm.platform.dal.model.execution.SQLJobBizType;
 import com.clougence.clouddm.platform.dal.model.system.SysAttachmentType;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
+import com.clougence.clouddm.sdk.execute.session.QueryResultConf;
 import com.clougence.clouddm.sdk.service.secrules.Requester;
 import com.clougence.utils.JsonUtils;
+import com.fasterxml.jackson.core.JsonGenerator;
 
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -104,6 +107,12 @@ public class AutoExecJobPackageServiceImpl implements AutoExecJobPackageService 
             .skip(QueryAnalysisFeature.REWRITE)
             .build();
 
+        QueryRequest template = DmDsUtils.createRequestCtx(dsConfig);
+        template.setRequester(requester);
+        DmDsUtils.fillRequestConfig(Collections.singletonList(template), dsDO.getId());
+        Long requestDsId = template.getDsId();
+        QueryResultConf requestResultConf = template.getResultConf();
+
         String packageFileName = jobId + ".tasks.zip";
         Path writingFile = Path.of(GlobalConfUtils.getTempDataHome(), "exec", packageFileName + ".tmp");
         try {
@@ -131,39 +140,43 @@ public class AutoExecJobPackageServiceImpl implements AutoExecJobPackageService 
                         throw new IllegalStateException("Auto execution tasks changed while creating package.");
                     }
 
-                    List<QueryRequest> requests = new ArrayList<>(tasks.size());
-                    for (DmExecAutoTaskDO task : tasks) {
-                        List<QueryRequest> analyzed;
-                        try (StringReader reader = new StringReader(task.getExecSql())) {
-                            analyzed = this.analysisService.analysisRequests(dsConfig, reader, Collections.emptyList(), 1, 0, options);
-                        }
-                        if (analyzed.size() != 1) {
-                            throw new IllegalStateException("Auto execution task must contain exactly one SQL statement.");
-                        }
-
-                        QueryRequest request = DmDsUtils.createRequestCtx(dsConfig);
-                        QueryRequest source = analyzed.get(0);
-                        request.setQueryId(task.getQueryId());
-                        request.setQueryBody(source.getQueryBody());
-                        request.setQueryArgs(source.getQueryArgs());
-                        request.setQueryTypes(source.getQueryTypes());
-                        request.setDsType(source.getDsType());
-                        request.setRelations(source.getRelations());
-                        request.setColumnList(source.getColumnList());
-                        request.setUsingValueProcess(source.isUsingValueProcess());
-                        request.setRequester(requester);
-                        request.setRequestTime(Timestamp.valueOf(task.getGmtCreate()));
-                        requests.add(request);
-                        this.auditService.prepareAudit(dsDO.getId(), job.getUid(), request);
-                    }
-
-                    DmDsUtils.fillRequestConfig(requests, dsDO.getId());
                     ZipEntry entry = new ZipEntry(String.format(Locale.ROOT, "%0" + fileNameWidth + "d", tasks.get(0).getExecOrder()));
                     entry.setTime(0L);
                     zipOutput.putNextEntry(entry);
-                    for (QueryRequest request : requests) {
-                        zipOutput.write(JsonUtils.toJson(request).getBytes(StandardCharsets.UTF_8));
-                        zipOutput.write('\n');
+                    try (JsonGenerator jsonOutput = JsonUtils.defaultObjectMapper().getFactory().createGenerator(zipOutput)) {
+                        jsonOutput.disable(JsonGenerator.Feature.AUTO_CLOSE_TARGET);
+                        jsonOutput.setRootValueSeparator(null);
+                        for (DmExecAutoTaskDO task : tasks) {
+                            try (StringReader reader = new StringReader(task.getExecSql());
+                                    Stream<QueryRequest> analyzed = this.analysisService.analysisRequestsStream(dsConfig, reader, Collections.emptyList(), 1, 0, options)) {
+                                Iterator<QueryRequest> iterator = analyzed.iterator();
+                                if (!iterator.hasNext()) {
+                                    throw new IllegalStateException("Auto execution task must contain exactly one SQL statement.");
+                                }
+
+                                QueryRequest source = iterator.next();
+                                if (iterator.hasNext()) {
+                                    throw new IllegalStateException("Auto execution task must contain exactly one SQL statement.");
+                                }
+
+                                QueryRequest request = DmDsUtils.createRequestCtx(dsConfig);
+                                request.setQueryId(task.getQueryId());
+                                request.setQueryBody(source.getQueryBody());
+                                request.setQueryArgs(source.getQueryArgs());
+                                request.setQueryTypes(source.getQueryTypes());
+                                request.setDsId(requestDsId);
+                                request.setDsType(source.getDsType());
+                                request.setRelations(source.getRelations());
+                                request.setColumnList(source.getColumnList());
+                                request.setUsingValueProcess(source.isUsingValueProcess());
+                                request.setRequester(requester);
+                                request.setRequestTime(Timestamp.valueOf(task.getGmtCreate()));
+                                request.setResultConf(requestResultConf.clone());
+                                this.auditService.prepareAudit(dsDO.getId(), job.getUid(), request);
+                                JsonUtils.defaultObjectMapper().writeValue(jsonOutput, request);
+                                jsonOutput.writeRaw('\n');
+                            }
+                        }
                     }
                     zipOutput.closeEntry();
                     afterExecOrder = tasks.get(tasks.size() - 1).getExecOrder();
