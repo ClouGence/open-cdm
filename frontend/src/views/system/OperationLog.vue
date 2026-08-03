@@ -184,12 +184,12 @@
 </template>
 <script>
 import appLogger from '@/utils/logger';
-import fecha from 'fecha';
 import Mapping from '@/views/util';
 import { mapState } from 'vuex';
 import copyMixin from '@/mixins/copyMixin';
 import { EVENT_BUS_NAME_LIST } from '@/utils/eventBusName';
 import dayjs from '@/utils/dayjsSetup';
+import { formatTime, toUtcISOString } from '@/utils';
 
 export default {
   name: 'OperationLog',
@@ -226,7 +226,7 @@ export default {
           title: this.$t('cao-zuo-shi-jian'),
           key: 'operateDate',
           width: 170,
-          render: (h, params) => h('div', {}, fecha.format(new Date(params.row.operateDate), 'YYYY-MM-DD HH:mm:ss'))
+          render: (h, params) => h('div', {}, formatTime(params.row.operateDate, 'YYYY-MM-DD HH:mm:ss'))
         },
         {
           title: this.$t('zi-yuan-lei-xing'),
@@ -519,8 +519,8 @@ export default {
     },
     syncTimeRangeQuery() {
       if (Array.isArray(this.timeRange) && this.timeRange[0] && this.timeRange[1]) {
-        this.searchData.opStart = dayjs(this.timeRange[0]).subtract(8, 'hour').format('YYYY-MM-DDTHH:mm:ss.SSS');
-        this.searchData.opEnd = dayjs(this.timeRange[1]).subtract(8, 'hour').format('YYYY-MM-DDTHH:mm:ss.SSS');
+        this.searchData.opStart = toUtcISOString(this.timeRange[0]);
+        this.searchData.opEnd = toUtcISOString(this.timeRange[1]);
         return;
       }
       this.searchData.opStart = '';

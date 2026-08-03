@@ -14,7 +14,14 @@
     :locale="tableLocale"
   >
     <template #bodyCell="{ column, record, index }">
-      <slot v-if="column.__slot" :name="column.__slot" :row="record" :index="index" />
+      <DmTableRenderCell
+        v-if="column.__legacyRender"
+        :render-cell="column.__legacyRender"
+        :row="record"
+        :column="column.__legacyColumn"
+        :index="index"
+      />
+      <slot v-else-if="column.__slot" :name="column.__slot" :row="record" :index="index" />
       <template v-else-if="column.dataIndex !== undefined && column.dataIndex !== null">
         {{ record[column.dataIndex] }}
       </template>
@@ -26,10 +33,41 @@
 </template>
 
 <script>
+import { h } from 'vue';
 import { convertTableColumns } from '@/utils/convertTableColumns';
+
+const DmTableRenderCell = {
+  name: 'DmTableRenderCell',
+  props: {
+    renderCell: {
+      type: Function,
+      required: true
+    },
+    row: {
+      type: Object,
+      required: true
+    },
+    column: {
+      type: Object,
+      required: true
+    },
+    index: {
+      type: Number,
+      required: true
+    }
+  },
+  render() {
+    return this.renderCell(h, {
+      row: this.row,
+      column: this.column,
+      index: this.index
+    });
+  }
+};
 
 export default {
   name: 'DmTable',
+  components: { DmTableRenderCell },
   props: {
     columns: {
       type: Array,

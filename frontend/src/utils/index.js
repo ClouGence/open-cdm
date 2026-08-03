@@ -5,6 +5,11 @@ import DataSourceGroup from '../views/dataSourceGroup.json';
 
 export const formatTime = (value, fmt = 'YYYY/MM/DD') => dayjs(value).format(fmt);
 
+export const toUtcISOString = (value) => {
+  const time = dayjs(value);
+  return time.isValid() ? time.toISOString() : '';
+};
+
 export const generateData = (list) => list;
 
 export const dsGroup = {
