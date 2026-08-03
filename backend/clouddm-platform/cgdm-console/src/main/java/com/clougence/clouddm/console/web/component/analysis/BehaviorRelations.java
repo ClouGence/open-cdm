@@ -113,7 +113,7 @@ public final class BehaviorRelations {
                 TargetType.Pipe, TargetType.SchedulerObject, TargetType.SchemaObject, TargetType.Library, //
                 TargetType.Replication, TargetType.PublicationSubscription, TargetType.Publication, TargetType.Subscription, //
                 TargetType.Log, TargetType.ConfigKey, //
-                TargetType.Policy, TargetType.RowAccessPolicy, TargetType.MaskingPolicy, TargetType.RedactionPolicy);
+                TargetType.Policy, TargetType.RowAccessPolicy, TargetType.MaskingPolicy, TargetType.RedactionPolicy, TargetType.PartitionGroup);
     }
 
     private static void registerMaintainAuthKinds(Map<TargetType, SecDataAuthKind> overrides) {

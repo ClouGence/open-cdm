@@ -16,6 +16,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorObject;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.ObjectName;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.utils.StringUtils;
@@ -74,15 +75,42 @@ public class RdbBehaviorObjectFactory {
         BehaviorObject object = new BehaviorObject();
         object.setObjectType(type);
         object.setObjectPath(path.isEmpty() ? "/" : "/" + String.join("/", path) + "/");
+        object.setObjectName(structuredName(type, names));
         object.setStartLine(line(start));
         object.setStartColumn(column(start));
-        object.setEndLine(line(stop));
-        object.setEndColumn(column(stop) + stop.getText().length());
+        object.setEndLine(endLine(stop));
+        object.setEndColumn(endColumn(stop));
         return object;
     }
 
     public BehaviorObject instanceObject(TargetType type, ParserRuleContext context, String name) {
         return instanceObject(type, context.getStart(), context.getStop(), name);
+    }
+
+    /**
+     * Builds a named object whose namespace is the current catalog, but not the current schema.
+     * PostgreSQL extensions, publications, subscriptions, event triggers, and notification
+     * channels use this scope.
+     */
+    public BehaviorObject catalogObject(TargetType type, ParserRuleContext context, String name) {
+        return catalogObject(type, context.getStart(), context.getStop(), name);
+    }
+
+    public BehaviorObject catalogObject(TargetType type, Token start, Token stop, String name) {
+        List<String> path = new ArrayList<>();
+        addLevelPath(path, UmiTypes.Instance);
+        addLevel(path, UmiTypes.Catalog);
+        path.add(name);
+
+        BehaviorObject object = new BehaviorObject();
+        object.setObjectType(type);
+        object.setObjectPath("/" + String.join("/", path) + "/");
+        object.setObjectName(new ObjectName(level(UmiTypes.Catalog), null, name));
+        object.setStartLine(line(start));
+        object.setStartColumn(column(start));
+        object.setEndLine(endLine(stop));
+        object.setEndColumn(endColumn(stop));
+        return object;
     }
 
     public BehaviorObject instanceObject(TargetType type, ParserRuleContext context) {
@@ -94,8 +122,8 @@ public class RdbBehaviorObjectFactory {
         object.setObjectPath(path.isEmpty() ? "/" : "/" + String.join("/", path) + "/");
         object.setStartLine(line(context.getStart()));
         object.setStartColumn(column(context.getStart()));
-        object.setEndLine(line(context.getStop()));
-        object.setEndColumn(column(context.getStop()) + context.getStop().getText().length());
+        object.setEndLine(endLine(context.getStop()));
+        object.setEndColumn(endColumn(context.getStop()));
         return object;
     }
 
@@ -108,8 +136,8 @@ public class RdbBehaviorObjectFactory {
         object.setObjectPath(path.isEmpty() ? "/" : "/" + String.join("/", path) + "/");
         object.setStartLine(line(token));
         object.setStartColumn(column(token));
-        object.setEndLine(line(token));
-        object.setEndColumn(column(token) + token.getText().length());
+        object.setEndLine(endLine(token));
+        object.setEndColumn(endColumn(token));
         return object;
     }
 
@@ -136,8 +164,8 @@ public class RdbBehaviorObjectFactory {
         object.setObjectPath(path.isEmpty() ? "/" : "/" + String.join("/", path) + "/");
         object.setStartLine(line(start));
         object.setStartColumn(column(start));
-        object.setEndLine(line(stop));
-        object.setEndColumn(column(stop) + stop.getText().length());
+        object.setEndLine(endLine(stop));
+        object.setEndColumn(endColumn(stop));
         return object;
     }
 
@@ -148,16 +176,39 @@ public class RdbBehaviorObjectFactory {
     public BehaviorObject instanceObject(TargetType type, Token start, Token stop, String name) {
         List<String> path = new ArrayList<>();
         addLevelPath(path, UmiTypes.Instance);
-        path.add(name);
+        String normalizedName = name;
+        while (normalizedName.startsWith("/")) {
+            normalizedName = normalizedName.substring(1);
+        }
+        path.add(normalizedName);
 
         BehaviorObject object = new BehaviorObject();
         object.setObjectType(type);
         object.setObjectPath("/" + String.join("/", path) + "/");
+        object.setObjectName(new ObjectName(null, null, normalizedName));
         object.setStartLine(line(start));
         object.setStartColumn(column(start));
-        object.setEndLine(line(stop));
-        object.setEndColumn(column(stop) + stop.getText().length());
+        object.setEndLine(endLine(stop));
+        object.setEndColumn(endColumn(stop));
         return object;
+    }
+
+    private ObjectName structuredName(TargetType type, List<String> names) {
+        String last = names.get(names.size() - 1);
+        if (type == TargetType.Catalog) {
+            return new ObjectName(last, null, null);
+        }
+        if (type == TargetType.Schema) {
+            String catalog = names.size() > 1 ? names.get(names.size() - 2) : level(UmiTypes.Catalog);
+            return new ObjectName(catalog, last, null);
+        }
+        if (names.size() >= 3) {
+            return new ObjectName(names.get(names.size() - 3), names.get(names.size() - 2), last);
+        }
+        if (names.size() == 2) {
+            return new ObjectName(level(UmiTypes.Catalog), names.get(0), last);
+        }
+        return new ObjectName(level(UmiTypes.Catalog), level(UmiTypes.Schema), last);
     }
 
     private void collectNames(ParseTree tree, int identifierTokenType, List<String> names) {
@@ -210,6 +261,31 @@ public class RdbBehaviorObjectFactory {
             return baseColumn + token.getCharPositionInLine();
         }
         return token.getCharPositionInLine();
+    }
+
+    private int endLine(Token token) {
+        String text = token.getText();
+        if (text == null || text.isEmpty()) {
+            return line(token);
+        }
+        int lines = 0;
+        for (int index = 0; index < text.length(); index++) {
+            if (text.charAt(index) == '\n') {
+                lines++;
+            }
+        }
+        return line(token) + lines;
+    }
+
+    private int endColumn(Token token) {
+        String text = token.getText();
+        if (text == null || text.isEmpty()) {
+            return column(token);
+        }
+        int lastNewline = text.lastIndexOf('\n');
+        int start = lastNewline < 0 ? 0 : lastNewline + 1;
+        int width = text.codePointCount(start, text.length());
+        return lastNewline < 0 ? column(token) + width : width;
     }
 
     private String unquote(String value) {

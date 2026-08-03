@@ -1,3 +1,0 @@
-CREATE TEMPORARY TABLE z2 (SELECT CAST(NULL AS TIME) AS c05 ORDER BY '1') ORDER BY '1';
-------------------------------------------------------------------------------------------
-[CREATE_TABLE] CREATE TEMPORARY TABLE z2 (SELECT CAST(NULL AS TIME) AS c05 ORDER BY '1') ORDER BY '1';

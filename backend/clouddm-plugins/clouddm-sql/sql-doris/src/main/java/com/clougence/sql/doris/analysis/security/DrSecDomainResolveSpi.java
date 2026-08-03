@@ -38,13 +38,19 @@ import com.clougence.sql.doris.parser.DrDslProvider;
 public class DrSecDomainResolveSpi implements SecDomainResolveSpi {
 
     private final MetaService metaService;
+    private final DslProvider provider;
 
     public DrSecDomainResolveSpi(MetaService metaService){
+        this(metaService, DrDslProvider.INSTANCE);
+    }
+
+    public DrSecDomainResolveSpi(MetaService metaService, DrDslProvider provider){
         this.metaService = metaService;
+        this.provider = provider;
     }
 
     protected DslProvider dslProvider() {
-        return DrDslProvider.INSTANCE;
+        return provider;
     }
 
     protected AbstractParseTreeVisitor<Void> parserVisitor(DrBuilderFactory domainBuilder, Parser parser) {

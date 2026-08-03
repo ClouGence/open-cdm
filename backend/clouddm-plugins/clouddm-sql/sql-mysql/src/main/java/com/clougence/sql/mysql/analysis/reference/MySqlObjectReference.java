@@ -28,7 +28,7 @@ import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
  * It carries no permission-check policy.</p>
  */
 public record MySqlObjectReference(SplitQueryType sqlType, TargetType targetType, boolean require, int startLine, int startColumn, int endLine, int endColumn,
-                                   List<String> nodes, BehaviorAction action) {
+                                   List<String> nodes, BehaviorAction action, boolean explicitName) {
 
     public MySqlObjectReference{
         nodes = nodes == null ? List.of() : List.copyOf(nodes);
@@ -36,6 +36,11 @@ public record MySqlObjectReference(SplitQueryType sqlType, TargetType targetType
 
     public MySqlObjectReference(SplitQueryType sqlType, TargetType targetType, boolean require, int startLine, int startColumn, int endLine, int endColumn,
                                 List<String> nodes){
-        this(sqlType, targetType, require, startLine, startColumn, endLine, endColumn, nodes, null);
+        this(sqlType, targetType, require, startLine, startColumn, endLine, endColumn, nodes, null, true);
+    }
+
+    public MySqlObjectReference(SplitQueryType sqlType, TargetType targetType, boolean require, int startLine, int startColumn, int endLine, int endColumn,
+                                List<String> nodes, BehaviorAction action){
+        this(sqlType, targetType, require, startLine, startColumn, endLine, endColumn, nodes, action, true);
     }
 }

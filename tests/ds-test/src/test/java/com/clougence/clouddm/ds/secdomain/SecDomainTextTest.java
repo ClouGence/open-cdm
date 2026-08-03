@@ -92,19 +92,20 @@ public final class SecDomainTextTest {
         }
 
         List<RuleDomain> domains;
+        JsonNode expectedException = expectedException(expected, dataSourceType);
         try {
             domains = flatten(resolveSpi.resolveDomain(dataSourceType, codeInfo(testCase.sql), contextInfo(testCase, contextInfo)));
         } catch (Exception e) {
-            if (expected.has("exception")) {
-                assertExpectedException(testCase, expected.get("exception"), e, failures);
+            if (expectedException != null) {
+                assertExpectedException(testCase, expectedException, e, failures);
                 return failures;
             }
             failures.add(prefix(testCase) + " unexpected exception: " + e.getMessage());
             return failures;
         }
 
-        if (expected.has("exception")) {
-            failures.add(prefix(testCase) + " expected exception=" + expected.get("exception").asText() + ", actual domains=" + summarize(domains));
+        if (expectedException != null) {
+            failures.add(prefix(testCase) + " expected exception=" + expectedException.asText() + ", actual domains=" + summarize(domains));
             return failures;
         }
 
@@ -184,6 +185,14 @@ public final class SecDomainTextTest {
         if (!Objects.equals(expectedName, actualClass.getSimpleName()) && !Objects.equals(expectedName, actualClass.getName())) {
             failures.add(prefix(testCase) + " exception: expected=" + expectedName + ", actual=" + actualClass.getName() + ": " + actual.getMessage());
         }
+    }
+
+    private static JsonNode expectedException(JsonNode expected, DataSourceType dataSourceType) {
+        JsonNode exception = expected.get("exception");
+        if (exception == null || exception.isTextual()) {
+            return exception;
+        }
+        return exception.get(dataSourceType.name());
     }
 
     private static void verifyDomainList(String label, JsonNode expectedDomains, List<RuleDomain> domains, boolean allowExtra, List<String> failures) {

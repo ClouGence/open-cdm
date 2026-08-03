@@ -55,6 +55,9 @@ public class PgStatementParser implements AntlrStatementParser {
 
     @Override
     public String getTextKeepComment(TokenStream tokens, ParseTree lastTree, Token startToken, Token endToken) {
+        if (endToken == null) {
+            endToken = findStatementEnd(tokens, startToken);
+        }
         for (int i = startToken.getTokenIndex() - 1; i >= 0; i--) {
             Token start = tokens.get(i);
             int type = start.getType();
@@ -85,5 +88,19 @@ public class PgStatementParser implements AntlrStatementParser {
         }
 
         return tokens.getTokenSource().getInputStream().getText(Interval.of(startToken.getStartIndex(), endToken.getStopIndex()));
+    }
+
+    private static Token findStatementEnd(TokenStream tokens, Token startToken) {
+        Token endToken = startToken;
+        for (int i = startToken.getTokenIndex() + 1; i < tokens.size(); i++) {
+            Token token = tokens.get(i);
+            if (token.getType() == Token.EOF || token.getType() == PgSqlLexer.SEMI) {
+                break;
+            }
+            if (token.getChannel() == Token.DEFAULT_CHANNEL) {
+                endToken = token;
+            }
+        }
+        return endToken;
     }
 }

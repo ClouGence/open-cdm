@@ -18,10 +18,6 @@ package com.clougence.sql.common.parser;
 import java.util.*;
 
 import org.antlr.v4.runtime.*;
-import org.antlr.v4.runtime.atn.ATN;
-import org.antlr.v4.runtime.atn.ParserATNSimulator;
-import org.antlr.v4.runtime.atn.PredictionContextCache;
-import org.antlr.v4.runtime.dfa.DFA;
 import org.antlr.v4.runtime.tree.*;
 
 import com.clougence.clouddm.sdk.execute.session.QueryArg;
@@ -44,6 +40,11 @@ public abstract class AbstractSplitAnalysisSpi implements SplitAnalysisSpi {
     protected abstract boolean isStatementContext(ParserRuleContext context);
 
     protected abstract AntlrStatementParser statementParser();
+
+    /** Stable value containing parser features which affect semantic predicates. */
+    protected Object predictionCacheScope() {
+        return null;
+    }
 
     protected SplitQueryType normalizeType(SplitQueryType type, String script) {
         return type == null ? SplitQueryType.UNKNOWN : type;
@@ -113,26 +114,18 @@ public abstract class AbstractSplitAnalysisSpi implements SplitAnalysisSpi {
         parser.removeErrorListeners();
         parser.addErrorListener(SyntaxErrorListener.INSTANCE);
         parser.setBuildParseTree(true);
-        isolatePredictionCaches(parser);
 
         if (!(parser.getTokenStream() instanceof CommonTokenStream tokens)) {
             throw new IllegalStateException("split requires CommonTokenStream");
         }
-        tokens.fill();
+        try (AntlrPredictionCaches.Lease ignored = AntlrPredictionCaches.acquire(lexer, parser, predictionCacheScope())) {
+            tokens.fill();
 
-        List<SplitScript> result = new ArrayList<>();
-        parser.addParseListener(new SplitListener(tokens, new LocationCursor(script, new CodeLocation(baseLine, baseColumn)), result));
-        parseRoot(parser);
-        return result;
-    }
-
-    protected static void isolatePredictionCaches(Parser parser) {
-        ATN atn = parser.getATN();
-        DFA[] decisionToDfa = new DFA[atn.getNumberOfDecisions()];
-        for (int i = 0; i < decisionToDfa.length; i++) {
-            decisionToDfa[i] = new DFA(atn.getDecisionState(i), i);
+            List<SplitScript> result = new ArrayList<>();
+            parser.addParseListener(new SplitListener(tokens, new LocationCursor(script, new CodeLocation(baseLine, baseColumn)), result));
+            parseRoot(parser);
+            return result;
         }
-        parser.setInterpreter(new ParserATNSimulator(parser, atn, decisionToDfa, new PredictionContextCache()));
     }
 
     private final class SplitListener implements ParseTreeListener {

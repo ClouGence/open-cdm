@@ -23,8 +23,8 @@ import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.RuleNode;
 
-import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.mysql.parser.MySqlVersion;
@@ -93,7 +93,7 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
         if (nodes.isEmpty()) {
             addUnnamedResource(sqlType, targetType, require, ctx);
         } else {
-            references.add(new MySqlObjectReference(sqlType, targetType, require, line(ctx), column(ctx), endLine(ctx), endColumn(ctx), nodes));
+            references.add(new MySqlObjectReference(sqlType, targetType, require, line(ctx), column(ctx), endLine(ctx), endColumn(ctx), nodes, null, false));
         }
     }
 
@@ -386,7 +386,7 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
             List<String> nodes = new ArrayList<>();
             addPart(nodes, level(UmiTypes.Catalog));
             addPart(nodes, level(UmiTypes.Schema));
-            addWithNodes(SplitQueryType.ALTER_SCHEMA, TargetType.Schema, true, ctx, nodes);
+            addWithNodes(SplitQueryType.ALTER_SCHEMA, TargetType.Schema, true, ctx, nodes, false);
         }
         return null;
     }
@@ -1199,7 +1199,7 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
             List<String> nodes = new ArrayList<>();
             addPart(nodes, level(UmiTypes.Catalog));
             addPart(nodes, level(UmiTypes.Schema));
-            addWithNodes(sqlType, TargetType.Schema, true, level, nodes);
+            addWithNodes(sqlType, TargetType.Schema, true, level, nodes, false);
         } else if (level instanceof DefiniteSchemaPrivLevelContext schema) {
             add(sqlType, TargetType.Schema, true, schema.uid());
         } else {
@@ -1352,11 +1352,37 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
         references.add(new MySqlObjectReference(sqlType, targetType, require, line(token), column(token), endLine(token), endColumn(token), nodes, action));
     }
 
+    protected final void addBehaviorResource(SplitQueryType sqlType, TargetType targetType, boolean require, TableNameContext ctx, BehaviorAction action) {
+        if (ctx == null) {
+            return;
+        }
+        List<String> parts = new ArrayList<>();
+        if (ctx.delphiName != null) {
+            addPart(parts, name(ctx.delphiName));
+        } else if (ctx.fullId() != null) {
+            for (UidContext uid : ctx.fullId().uid()) {
+                addPart(parts, name(uid));
+            }
+            if (ctx.fullId().identifierAfterDot != null) {
+                addPart(parts, ctx.fullId().identifierAfterDot.getText());
+            }
+        }
+        List<String> nodes = resolveNodes(targetType, parts);
+        if (nodes.isEmpty()) {
+            return;
+        }
+        references.add(new MySqlObjectReference(sqlType, targetType, require, line(ctx), column(ctx), endLine(ctx), endColumn(ctx), nodes, action));
+    }
+
     private void addWithNodes(SplitQueryType sqlType, TargetType targetType, boolean require, ParserRuleContext ctx, List<String> nodes) {
+        addWithNodes(sqlType, targetType, require, ctx, nodes, true);
+    }
+
+    private void addWithNodes(SplitQueryType sqlType, TargetType targetType, boolean require, ParserRuleContext ctx, List<String> nodes, boolean explicitName) {
         if (ctx == null || nodes.isEmpty()) {
             return;
         }
-        references.add(new MySqlObjectReference(sqlType, targetType, require, line(ctx), column(ctx), endLine(ctx), endColumn(ctx), nodes));
+        references.add(new MySqlObjectReference(sqlType, targetType, require, line(ctx), column(ctx), endLine(ctx), endColumn(ctx), nodes, null, explicitName));
     }
 
     private void addWithNodes(SplitQueryType sqlType, TargetType targetType, boolean require, Token token, List<String> nodes) {

@@ -34,9 +34,15 @@ import com.clougence.sql.doris.parser.antlr.DorisParser;
 
 public class DrRewriteSpi implements RewriteSpi {
 
+    private final DrDslProvider provider;
+
+    public DrRewriteSpi(DrDslProvider provider){
+        this.provider = provider;
+    }
+
     @Override
     public String rewriterQuery(QueryRequest request, RewriteContext context) {
-        List<AstSplitScript> scripts = DslHelper.splitDsl(DrDslProvider.INSTANCE, request.getQueryBody());
+        List<AstSplitScript> scripts = DslHelper.splitDsl(provider, request.getQueryBody());
         Parser parser = scripts.get(0).getParser();
         ParseTree astTree = scripts.get(0).getAstTree();
 

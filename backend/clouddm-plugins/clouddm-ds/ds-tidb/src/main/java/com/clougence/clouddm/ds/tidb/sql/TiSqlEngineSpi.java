@@ -15,11 +15,16 @@
  */
 package com.clougence.clouddm.ds.tidb.sql;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 import com.clougence.clouddm.ds.tidb.sql.analysis.behavior.TiBehaviorAnalysisSpi;
+import com.clougence.clouddm.ds.tidb.sql.analysis.lineage.TiLineageAnalysisSpi;
 import com.clougence.clouddm.ds.tidb.sql.analysis.security.TiSecDomainResolveSpi;
 import com.clougence.clouddm.ds.tidb.sql.editor.rewrite.TiRewriteSpi;
 import com.clougence.clouddm.ds.tidb.sql.parser.TiDBDslProvider;
-import com.clougence.clouddm.ds.tidb.sql.parser.TiSplitAnalysisSpi;
+import com.clougence.clouddm.ds.tidb.sql.parser.TiDBParserConfig;
+import com.clougence.clouddm.ds.tidb.sql.parser.TiDBSplitAnalysisSpi;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
 import com.clougence.clouddm.sdk.sql.SqlParserParameters;
@@ -32,20 +37,18 @@ import com.clougence.dslpaser.antlr.DslProvider;
 
 /** @author mode */
 public class TiSqlEngineSpi implements SqlEngineSpi {
-    public static final String        NAME = "TiDB SQL";
+    public static final String                               NAME               = "TiDB SQL";
 
-    private final SplitAnalysisSpi    splitAnalysisSpi;
-    private final SecDomainResolveSpi secDomainResolveSpi;
-    private final BehaviorAnalysisSpi behaviorAnalysisSpi;
-    private final LineageAnalysisSpi  lineageAnalysisSpi;
-    private final RewriteSpi          rewriteSpi;
+    private final Map<TiDBParserConfig, TiDBDslProvider>     providerCache      = new ConcurrentHashMap<>();
+    private final Map<TiDBParserConfig, SplitAnalysisSpi>    splitAnalysisCache = new ConcurrentHashMap<>();
+    private final Map<TiDBParserConfig, BehaviorAnalysisSpi> behaviorCache      = new ConcurrentHashMap<>();
+    private final Map<TiDBParserConfig, SecDomainResolveSpi> securityCache      = new ConcurrentHashMap<>();
+    private final Map<TiDBParserConfig, LineageAnalysisSpi>  lineageCache       = new ConcurrentHashMap<>();
+    private final Map<TiDBParserConfig, RewriteSpi>          rewriteCache       = new ConcurrentHashMap<>();
+    private final MetaService                                metaService;
 
     public TiSqlEngineSpi(MetaService metaService){
-        this.splitAnalysisSpi = new TiSplitAnalysisSpi();
-        this.secDomainResolveSpi = new TiSecDomainResolveSpi(metaService);
-        this.behaviorAnalysisSpi = new TiBehaviorAnalysisSpi();
-        this.lineageAnalysisSpi = LineageAnalysisSpi.EMPTY;
-        this.rewriteSpi = new TiRewriteSpi();
+        this.metaService = metaService;
     }
 
     public String name() {
@@ -54,32 +57,41 @@ public class TiSqlEngineSpi implements SqlEngineSpi {
 
     @Override
     public DslProvider dslProvider(SqlParserParameters parameters) {
-        return TiDBDslProvider.INSTANCE;
+        return provider(TiDBParserConfig.fromParameters(parameters));
     }
 
     @Override
     public SplitAnalysisSpi splitAnalysisSpi(SqlParserParameters parameters) {
-        return splitAnalysisSpi;
+        TiDBParserConfig config = TiDBParserConfig.fromParameters(parameters);
+        return splitAnalysisCache.computeIfAbsent(config, value -> new TiDBSplitAnalysisSpi(provider(value)));
+    }
+
+    private TiDBDslProvider provider(TiDBParserConfig config) {
+        return providerCache.computeIfAbsent(config, TiDBDslProvider::new);
     }
 
     @Override
     public SecDomainResolveSpi secDomainResolveSpi(SqlParserParameters parameters) {
-        return secDomainResolveSpi;
+        TiDBParserConfig config = TiDBParserConfig.fromParameters(parameters);
+        return securityCache.computeIfAbsent(config, value -> new TiSecDomainResolveSpi(metaService, provider(value)));
     }
 
     @Override
     public BehaviorAnalysisSpi behaviorAnalysisSpi(SqlParserParameters parameters) {
-        return behaviorAnalysisSpi;
+        TiDBParserConfig config = TiDBParserConfig.fromParameters(parameters);
+        return behaviorCache.computeIfAbsent(config, TiBehaviorAnalysisSpi::new);
     }
 
     @Override
     public LineageAnalysisSpi lineageAnalysisSpi(SqlParserParameters parameters) {
-        return lineageAnalysisSpi;
+        TiDBParserConfig config = TiDBParserConfig.fromParameters(parameters);
+        return lineageCache.computeIfAbsent(config, value -> new TiLineageAnalysisSpi(metaService, provider(value)));
     }
 
     @Override
     public RewriteSpi rewriteSpi(SqlParserParameters parameters) {
-        return rewriteSpi;
+        TiDBParserConfig config = TiDBParserConfig.fromParameters(parameters);
+        return rewriteCache.computeIfAbsent(config, value -> new TiRewriteSpi(provider(value)));
     }
 
 }

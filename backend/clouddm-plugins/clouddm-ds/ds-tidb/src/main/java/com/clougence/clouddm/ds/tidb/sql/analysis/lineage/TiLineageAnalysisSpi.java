@@ -34,8 +34,11 @@ import com.clougence.sql.mysql.analysis.security.builder.MyBuilderFactory;
 
 public class TiLineageAnalysisSpi extends AbstractLineageAnalysisSpi {
 
-    public TiLineageAnalysisSpi(MetaService metaService){
+    private final TiDBDslProvider provider;
+
+    public TiLineageAnalysisSpi(MetaService metaService, TiDBDslProvider provider){
         super(metaService);
+        this.provider = provider;
     }
 
     protected AbstractParseTreeVisitor<Void> parserVisitor(MyBuilderFactory domainBuilder, Parser parser) {
@@ -43,7 +46,7 @@ public class TiLineageAnalysisSpi extends AbstractLineageAnalysisSpi {
     }
 
     protected DslProvider dslProvider() {
-        return TiDBDslProvider.INSTANCE;
+        return provider;
     }
 
     @Override

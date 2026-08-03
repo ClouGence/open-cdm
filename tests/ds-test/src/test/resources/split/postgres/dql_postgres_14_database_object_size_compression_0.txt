@@ -1,3 +1,0 @@
-SELECT pg_column_compression(payload) IS NULL OR pg_column_compression(payload) IN ('pglz','lz4') AS payload_compression_known FROM split_obj_mgmt.size_probe WHERE id = 1;
-------------------------------------------------------------------------------------------
-[SELECT|METADATA] SELECT pg_column_compression(payload) IS NULL OR pg_column_compression(payload) IN ('pglz','lz4') AS payload_compression_known FROM split_obj_mgmt.size_probe WHERE id = 1;

@@ -63,6 +63,7 @@ sql:
 insert into table1 select * from table2
 ----------
 [PgRuleInsertRequireColumnsTest#requireColumns_1#001]
+exception: UnsupportedOperationException
 rule: _rules/insert/insert-require-columns.rule
 expect: false
 vars:
@@ -72,6 +73,7 @@ sql:
 insert into table1(id,bb) values(1,2,3)
 ----------
 [PgRuleInsertRequireColumnsTest#requireColumns_1#002]
+exception: UnsupportedOperationException
 rule: _rules/insert/insert-require-columns.rule
 expect: true
 vars:
@@ -90,6 +92,7 @@ sql:
 insert into table1 values(1,2,3)
 ----------
 [PgRuleInsertRequireColumnsTest#requireColumns_2#001]
+exception: UnsupportedOperationException
 rule: _rules/insert/insert-require-columns.rule
 expect: false
 vars:
@@ -99,6 +102,7 @@ sql:
 insert into table1(id,bb) values(1,2,3)
 ----------
 [PgRuleInsertRequireColumnsTest#requireColumns_2#002]
+exception: UnsupportedOperationException
 rule: _rules/insert/insert-require-columns.rule
 expect: true
 vars:
@@ -117,6 +121,7 @@ sql:
 insert into table1 values(1,2,3)
 ----------
 [PgRuleInsertRequireColumnsTest#requireColumns_3#001]
+exception: UnsupportedOperationException
 rule: _rules/insert/insert-require-columns.rule
 expect: true
 vars:
@@ -126,6 +131,7 @@ sql:
 insert into table1(id,bb) values(1,2,3)
 ----------
 [PgRuleInsertRequireColumnsTest#requireColumns_3#002]
+exception: UnsupportedOperationException
 rule: _rules/insert/insert-require-columns.rule
 expect: true
 vars:
@@ -144,6 +150,7 @@ sql:
 insert into table1 values(1,2,3)
 ----------
 [PgRuleInsertRequireColumnsTest#requireColumns_4#001]
+exception: UnsupportedOperationException
 rule: _rules/insert/insert-require-columns.rule
 expect: true
 vars:
@@ -153,6 +160,7 @@ sql:
 insert into table1(id,bb) values(1,2,3)
 ----------
 [PgRuleInsertRequireColumnsTest#requireColumns_4#002]
+exception: UnsupportedOperationException
 rule: _rules/insert/insert-require-columns.rule
 expect: true
 vars:

@@ -25,6 +25,7 @@ import com.clougence.clouddm.dsfamily.postgres.dialect.PostgreDialect;
 import com.clougence.clouddm.sdk.execute.session.Session;
 import com.clougence.clouddm.sdk.execute.session.rdb.DefaultRdbMetaService;
 import com.clougence.clouddm.sdk.execute.session.rdb.DmRdbUmiService;
+import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.schema.editor.provider.SqlBuilder;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.utils.ExceptionUtils;
@@ -41,6 +42,25 @@ public class PgMetaService extends DefaultRdbMetaService {
 
     public PgMetaService(Session rdbSession){
         super(rdbSession);
+    }
+
+    @Override
+    public Map<String, String> getSqlParserParameters() {
+        try {
+            return this.rdbSession.executeQuery(con -> {
+                try (Statement statement = con.createStatement(); ResultSet resultSet = statement.executeQuery("SHOW server_version")) {
+                    if (!resultSet.next()) {
+                        return Map.of();
+                    }
+
+                    String version = resultSet.getString(1);
+                    return StringUtils.isBlank(version) ? Map.of() : Map.of(SqlParserParameters.VERSION, version);
+                }
+            });
+        } catch (Exception e) {
+            log.warn("Get SQL parser parameters failed: {}", ExceptionUtils.getRootCauseMessage(e));
+            return Map.of();
+        }
     }
 
     @Override

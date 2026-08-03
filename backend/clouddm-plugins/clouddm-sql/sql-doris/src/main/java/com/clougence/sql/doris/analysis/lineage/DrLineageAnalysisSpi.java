@@ -33,12 +33,19 @@ import com.clougence.sql.doris.parser.DrDslProvider;
 
 public class DrLineageAnalysisSpi extends AbstractLineageAnalysisSpi {
 
+    private final DslProvider provider;
+
     public DrLineageAnalysisSpi(MetaService metaService){
+        this(metaService, DrDslProvider.INSTANCE);
+    }
+
+    public DrLineageAnalysisSpi(MetaService metaService, DrDslProvider provider){
         super(metaService);
+        this.provider = provider;
     }
 
     protected DslProvider dslProvider() {
-        return DrDslProvider.INSTANCE;
+        return provider;
     }
 
     protected AbstractParseTreeVisitor<Void> parserVisitor(DrBuilderFactory domainBuilder, Parser parser) {

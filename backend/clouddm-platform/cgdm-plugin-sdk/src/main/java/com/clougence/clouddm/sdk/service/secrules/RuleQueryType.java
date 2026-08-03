@@ -25,7 +25,6 @@ import lombok.Getter;
 @Getter
 @Deprecated
 public enum RuleQueryType {
-
     // DDL catalog
     CREATE_CATALOG(TargetType.Catalog, SecDataAuthKind.SPACE, SecQueryKind.CREATE),
     ALTER_CATALOG(TargetType.Catalog, SecDataAuthKind.SPACE, SecQueryKind.ALTER),
@@ -234,6 +233,19 @@ public enum RuleQueryType {
     CREATE_POLICY(TargetType.Policy, SecDataAuthKind.MANAGE, SecQueryKind.CREATE),
     ALTER_POLICY(TargetType.Policy, SecDataAuthKind.MANAGE, SecQueryKind.ALTER),
     DROP_POLICY(TargetType.Policy, SecDataAuthKind.MANAGE, SecQueryKind.DROP),
+
+    // Object-specific comments
+    COMMENT_MATERIALIZED_VIEW(TargetType.Materialized, SecDataAuthKind.DDL, SecQueryKind.ALTER),
+    COMMENT_DOMAIN(TargetType.Type, SecDataAuthKind.DDL, SecQueryKind.ALTER),
+    COMMENT_CLASS(TargetType.Type, SecDataAuthKind.DDL, SecQueryKind.ALTER),
+    COMMENT_FUNCTION(TargetType.Function, SecDataAuthKind.DDL, SecQueryKind.ALTER),
+    COMMENT_PROCEDURE(TargetType.Procedure, SecDataAuthKind.DDL, SecQueryKind.ALTER),
+    COMMENT_PACKAGE(TargetType.Package, SecDataAuthKind.DDL, SecQueryKind.ALTER),
+    COMMENT_OPERATOR(TargetType.Operator, SecDataAuthKind.DDL, SecQueryKind.ALTER),
+    COMMENT_CONTEXT(TargetType.Context, SecDataAuthKind.MANAGE, SecQueryKind.ALTER),
+    COMMENT_DIRECTORY(TargetType.ConfigKey, SecDataAuthKind.MANAGE, SecQueryKind.ALTER),
+    COMMENT_PROFILE(TargetType.Profile, SecDataAuthKind.MANAGE, SecQueryKind.ALTER),
+    COMMENT_LINK(TargetType.Link, SecDataAuthKind.MANAGE, SecQueryKind.ALTER),
 
     // dql and dml and call.
     SELECT(TargetType.Query, SecDataAuthKind.READ, SecQueryKind.QUERY, true),

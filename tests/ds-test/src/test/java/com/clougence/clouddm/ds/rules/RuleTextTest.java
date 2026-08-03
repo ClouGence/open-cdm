@@ -73,8 +73,18 @@ public final class RuleTextTest {
         try {
             List<RuleDomain> domains = resolveSpi.resolveDomain(dataSourceType, codeInfo(testCase.sql), contextInfo);
             boolean actual = runRuleScript(testCase.rule, DomainHelper.create(domains), testCase.vars);
+            if (testCase.exception != null) {
+                Assert.fail(testCase.caseId() + " expected exception: " + testCase.exception);
+            }
             Assert.assertEquals(testCase.caseId(), testCase.expect, actual);
         } catch (Exception e) {
+            if (testCase.exception != null) {
+                Class<?> exceptionType = e.getClass();
+                if (Objects.equals(testCase.exception, exceptionType.getSimpleName()) || Objects.equals(testCase.exception, exceptionType.getName())) {
+                    return;
+                }
+                Assert.fail(testCase.caseId() + " exception: expected=" + testCase.exception + ", actual=" + exceptionType.getName());
+            }
             AssertionError error = new AssertionError(testCase.caseId() + " unexpected exception: " + e.getClass().getName() + ": " + e.getMessage());
             error.initCause(e);
             throw error;
@@ -132,7 +142,8 @@ public final class RuleTextTest {
             return false;
         }
         String key = line.substring(0, split).trim();
-        return Objects.equals(key, "rule") || Objects.equals(key, "expect") || Objects.equals(key, "vars") || Objects.equals(key, "sql");
+        return Objects.equals(key, "rule") || Objects.equals(key, "expect") || Objects.equals(key, "exception") || Objects.equals(key, "vars")
+                || Objects.equals(key, "sql");
     }
 
     private static void flush(TestCase testCase, String key, StringBuilder value) {
@@ -143,6 +154,7 @@ public final class RuleTextTest {
         switch (key) {
             case "rule" -> testCase.rule = text;
             case "expect" -> testCase.expect = Boolean.parseBoolean(text);
+            case "exception" -> testCase.exception = text;
             case "vars" -> testCase.vars = parseVars(text);
             case "sql" -> testCase.sql = text;
             default -> throw new IllegalArgumentException("Unsupported field: " + key);
@@ -218,6 +230,7 @@ public final class RuleTextTest {
 
         String              rule;
         boolean             expect;
+        String              exception;
         Map<String, String> vars = Map.of();
         String              sql;
 

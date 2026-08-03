@@ -1,3 +1,0 @@
-CREATE TABLE "TEST2" ("ID" VARCHAR2(100));
-------------------------------------------------------------------------------------------
-[CREATE_TABLE] CREATE TABLE "TEST2" ("ID" VARCHAR2(100));

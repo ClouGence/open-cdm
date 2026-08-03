@@ -63,9 +63,16 @@ public class MySqlVersionConfigurationTest {
     @Test
     public void engineUsesLatestWhenVersionIsNull() {
         MySqlEngineSpi engine = new MySqlEngineSpi(null);
-        MyDslProvider provider = (MyDslProvider) engine.dslProvider(SqlParserParameters.empty());
+        MyDslProvider provider = (MyDslProvider) engine.dslProvider();
         Assertions.assertEquals(MySqlVersion.LATEST, provider.version());
         Assertions.assertEquals(MySqlVersion.LATEST.exactVersion(), provider.exactVersion());
+        Assertions.assertSame(provider, engine.dslProvider(null));
+        Assertions.assertSame(provider, engine.dslProvider(SqlParserParameters.empty()));
+        Assertions.assertSame(engine.splitAnalysisSpi(), engine.splitAnalysisSpi(null));
+        Assertions.assertSame(engine.behaviorAnalysisSpi(), engine.behaviorAnalysisSpi(null));
+        Assertions.assertSame(engine.lineageAnalysisSpi(), engine.lineageAnalysisSpi(null));
+        Assertions.assertSame(engine.secDomainResolveSpi(), engine.secDomainResolveSpi(null));
+        Assertions.assertSame(engine.rewriteSpi(), engine.rewriteSpi(null));
     }
 
     @Test

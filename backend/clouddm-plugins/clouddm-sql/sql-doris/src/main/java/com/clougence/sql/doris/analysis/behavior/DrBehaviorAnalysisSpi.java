@@ -19,6 +19,12 @@ import com.clougence.utils.StringUtils;
 
 public class DrBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
 
+    private final DrDslProvider provider;
+
+    public DrBehaviorAnalysisSpi(DrDslProvider provider){
+        this.provider = provider;
+    }
+
     @Override
     public List<StatementBehavior> analysisBehavior(String query, Map<UmiTypes, Object> levels, int baseLine, int baseColumn) {
         if (StringUtils.isBlank(query)) {
@@ -26,7 +32,7 @@ public class DrBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
         }
 
         DrBehaviorParserVisitor[] holder = new DrBehaviorParserVisitor[1];
-        DslHelper.doVisitor(DrDslProvider.INSTANCE, query, (lexer, parser) -> {
+        DslHelper.doVisitor(provider, query, (lexer, parser) -> {
             holder[0] = new DrBehaviorParserVisitor(parser, levels, baseLine, baseColumn);
             return holder[0];
         });

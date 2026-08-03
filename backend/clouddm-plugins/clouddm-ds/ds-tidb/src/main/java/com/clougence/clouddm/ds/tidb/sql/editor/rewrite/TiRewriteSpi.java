@@ -33,9 +33,15 @@ import com.clougence.dslpaser.parse.AstSplitScript;
 
 public class TiRewriteSpi implements RewriteSpi {
 
+    private final TiDBDslProvider provider;
+
+    public TiRewriteSpi(TiDBDslProvider provider){
+        this.provider = provider;
+    }
+
     @Override
     public String rewriterQuery(QueryRequest request, RewriteContext context) {
-        List<AstSplitScript> scripts = DslHelper.splitDsl(TiDBDslProvider.INSTANCE, request.getQueryBody());
+        List<AstSplitScript> scripts = DslHelper.splitDsl(provider, request.getQueryBody());
         Parser parser = scripts.get(0).getParser();
         ParseTree astTree = scripts.get(0).getAstTree();
 
@@ -53,34 +59,16 @@ public class TiRewriteSpi implements RewriteSpi {
     }
 
     private boolean rewriterLimit(TokenStreamRewriter rewriter, ParseTree astTree, long maxLimit) {
-        TiDBParser.DmlStatementContext dmlStat = ((TiDBParser.SqlStatementContext) astTree).dmlStatement();
-        if (dmlStat.selectStatement() != null) {
-            TiDBParser.SelectStatementContext s = dmlStat.selectStatement();
-            if (s instanceof TiDBParser.SimpleSelectContext) {
-                return rewriterLimit(rewriter, maxLimit, (TiDBParser.SimpleSelectContext) s);
-            } else {
-                // TODO: other select type
-            }
-        } else if (dmlStat.withSelectStatement() != null) {
-            TiDBParser.SelectStatementContext s = dmlStat.withSelectStatement().selectStatement();
-            if (s instanceof TiDBParser.SimpleSelectContext) {
-                return rewriterLimit(rewriter, maxLimit, (TiDBParser.SimpleSelectContext) s);
-            } else {
-                // TODO: other select type
-            }
-        }
-        return false;
-    }
-
-    private static boolean rewriterLimit(TokenStreamRewriter rewriter, long maxLimit, TiDBParser.SimpleSelectContext s) {
-        TiDBParser.QuerySpecificationContext querySpec = s.querySpecification();
-        if (querySpec.fromClause() == null) {
+        TiDBParser.QuerySpecificationContext query = findQuerySpecification(astTree);
+        if (query == null || query.fromClause() == null) {
             return false;
         }
-
-        if (querySpec.limitClause() != null) {
-            TiDBParser.LimitClauseContext limitClause = querySpec.limitClause();
-            TiDBParser.DecimalLiteralContext decimalLiteralCtx = limitClause.limit.decimalLiteral();
+        if (query.limitClause() != null) {
+            TiDBParser.LimitClauseContext limitClause = query.limitClause();
+            TiDBParser.UnsignedDecimalIntegerLiteralContext decimalLiteralCtx = limitClause.limit.unsignedDecimalIntegerLiteral();
+            if (decimalLiteralCtx == null) {
+                return false;
+            }
 
             long sqlLimit = Long.parseLong(decimalLiteralCtx.getText());
             long newLimit = Math.min(maxLimit, sqlLimit);
@@ -91,8 +79,21 @@ public class TiRewriteSpi implements RewriteSpi {
                 return false;
             }
         } else {
-            rewriter.insertAfter(querySpec.getStop(), " LIMIT " + maxLimit);
+            rewriter.insertAfter(query.getStop(), " LIMIT " + maxLimit);
             return true;
         }
+    }
+
+    private static TiDBParser.QuerySpecificationContext findQuerySpecification(ParseTree tree) {
+        if (tree instanceof TiDBParser.QuerySpecificationContext query) {
+            return query;
+        }
+        for (int i = 0; i < tree.getChildCount(); i++) {
+            TiDBParser.QuerySpecificationContext query = findQuerySpecification(tree.getChild(i));
+            if (query != null) {
+                return query;
+            }
+        }
+        return null;
     }
 }

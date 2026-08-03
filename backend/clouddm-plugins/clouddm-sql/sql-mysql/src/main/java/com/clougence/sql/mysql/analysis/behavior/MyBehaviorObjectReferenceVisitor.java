@@ -6,10 +6,7 @@
  */
 package com.clougence.sql.mysql.analysis.behavior;
 
-import java.util.HashSet;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.Parser;
@@ -282,6 +279,123 @@ final class MyBehaviorObjectReferenceVisitor extends MySqlObjectReferenceVisitor
         SplitQueryType type = ctx.duplicatedFirst == null ? SplitQueryType.INSERT : SplitQueryType.MERGE;
         addUnnamedAtCurrentSchema(type, TargetType.Table, true, ctx.tableName());
         return null;
+    }
+
+    @Override
+    public Void visitMultipleUpdateStatement(MultipleUpdateStatementContext ctx) {
+        if (ctx.withClause() != null) {
+            visit(ctx.withClause());
+        }
+        if (ctx.tableSources() == null) {
+            return null;
+        }
+        visit(ctx.tableSources());
+
+        List<AtomTableItemContext> tables = descendants(ctx.tableSources(), AtomTableItemContext.class).stream()
+            .filter(table -> topLevelUpdateTable(table, ctx.tableSources()))
+            .toList();
+        Set<AtomTableItemContext> targets = new LinkedHashSet<>();
+        boolean hasUnqualifiedAssignment = false;
+        for (UpdatedElementContext element : ctx.updatedElement()) {
+            List<String> parts = identifierParts(parser.getTokenStream().getText(element.fullColumnName().getStart(), element.fullColumnName().getStop()));
+            if (parts.size() < 2) {
+                hasUnqualifiedAssignment = true;
+                continue;
+            }
+            String qualifier = parts.get(parts.size() - 2);
+            tables.stream().filter(table -> matchesUpdateQualifier(table, qualifier)).forEach(targets::add);
+        }
+
+        BehaviorAction action = BehaviorAction.UPDATE;
+        if (targets.isEmpty() && hasUnqualifiedAssignment) {
+            if (tables.size() == 1) {
+                targets.add(tables.get(0));
+            } else {
+                targets.addAll(tables);
+                action = BehaviorAction.UNKNOWN;
+            }
+        }
+        for (AtomTableItemContext target : targets) {
+            addBehaviorResource(SplitQueryType.UPDATE, TargetType.Table, true, target.tableName(), action);
+        }
+        if (ctx.whereClause() != null) {
+            visit(ctx.whereClause());
+        }
+        return null;
+    }
+
+    private static boolean topLevelUpdateTable(AtomTableItemContext table, TableSourcesContext tableSources) {
+        ParseTree parent = table.getParent();
+        while (parent != null && parent != tableSources) {
+            if (parent instanceof SubqueryStatementContext) {
+                return false;
+            }
+            parent = parent.getParent();
+        }
+        return parent == tableSources;
+    }
+
+    private static boolean matchesUpdateQualifier(AtomTableItemContext table, String qualifier) {
+        if (table.aliasName() != null) {
+            return StringUtils.equalsIgnoreCase(unquoteUpdateIdentifier(table.aliasName().getText()), qualifier);
+        }
+        List<String> tableParts = identifierParts(table.tableName().getText());
+        return !tableParts.isEmpty() && StringUtils.equalsIgnoreCase(tableParts.get(tableParts.size() - 1), qualifier);
+    }
+
+    private static List<String> identifierParts(String value) {
+        List<String> parts = new ArrayList<>();
+        StringBuilder current = new StringBuilder();
+        char quote = 0;
+        for (int index = 0; index < value.length(); index++) {
+            char character = value.charAt(index);
+            if (quote != 0) {
+                current.append(character);
+                if (character == quote) {
+                    if (index + 1 < value.length() && value.charAt(index + 1) == quote) {
+                        current.append(value.charAt(++index));
+                    } else {
+                        quote = 0;
+                    }
+                }
+            } else if (character == '`' || character == '"') {
+                quote = character;
+                current.append(character);
+            } else if (character == '.') {
+                parts.add(unquoteUpdateIdentifier(current.toString().strip()));
+                current.setLength(0);
+            } else {
+                current.append(character);
+            }
+        }
+        parts.add(unquoteUpdateIdentifier(current.toString().strip()));
+        return parts;
+    }
+
+    private static String unquoteUpdateIdentifier(String value) {
+        if (value.length() >= 2) {
+            char quote = value.charAt(0);
+            if ((quote == '`' || quote == '"') && value.charAt(value.length() - 1) == quote) {
+                String delimiter = String.valueOf(quote);
+                return value.substring(1, value.length() - 1).replace(delimiter + delimiter, delimiter);
+            }
+        }
+        return value;
+    }
+
+    private static <T extends ParseTree> List<T> descendants(ParseTree root, Class<T> type) {
+        List<T> result = new ArrayList<>();
+        collectDescendants(root, type, result);
+        return result;
+    }
+
+    private static <T extends ParseTree> void collectDescendants(ParseTree node, Class<T> type, List<T> result) {
+        if (type.isInstance(node)) {
+            result.add(type.cast(node));
+        }
+        for (int index = 0; index < node.getChildCount(); index++) {
+            collectDescendants(node.getChild(index), type, result);
+        }
     }
 
     @Override

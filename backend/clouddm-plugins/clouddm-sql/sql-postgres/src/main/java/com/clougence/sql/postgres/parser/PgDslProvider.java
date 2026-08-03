@@ -36,7 +36,7 @@ public class PgDslProvider implements DslProvider {
     private final PostgresVersion      version;
 
     public PgDslProvider(PostgresVersion version){
-        this.version = version;
+        this.version = version == null ? PostgresVersion.LATEST : version;
     }
 
     public PostgresVersion version() {

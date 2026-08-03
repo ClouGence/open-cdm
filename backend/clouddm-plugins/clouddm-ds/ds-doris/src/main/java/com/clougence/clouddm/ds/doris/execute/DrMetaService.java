@@ -23,6 +23,7 @@ import com.clougence.clouddm.ds.doris.definition.ui.editor.table.DrEditorProvide
 import com.clougence.clouddm.dsfamily.mysql.execute.MyMetaService;
 import com.clougence.clouddm.sdk.execute.session.Session;
 import com.clougence.clouddm.sdk.execute.session.rdb.DmRdbUmiService;
+import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.schema.editor.EditorHelperDm;
 import com.clougence.schema.editor.domain.ETable;
 import com.clougence.schema.editor.provider.SqlBuilder;
@@ -46,6 +47,17 @@ public class DrMetaService extends MyMetaService {
 
     public DrMetaService(Session rdbSession){
         super(rdbSession);
+    }
+
+    @Override
+    public Map<String, String> getSqlParserParameters() {
+        try {
+            String version = getVersion();
+            return StringUtils.isBlank(version) ? Map.of() : Map.of(SqlParserParameters.VERSION, version);
+        } catch (Exception e) {
+            log.warn("Get Doris SQL parser parameters failed: {}", ExceptionUtils.getRootCauseMessage(e));
+            return Map.of();
+        }
     }
 
     @Override

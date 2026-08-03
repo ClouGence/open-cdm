@@ -24,10 +24,17 @@ dependencies {
     api "org.antlr:antlr4-runtime:${ANTLR_VERSION}"
     api project(':cg-dslparser')
     api project(':sqlc-common')
+
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.13.4'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.13.4'
 }
 
 description = 'sql-postgres'
 
 tasks.named('generateGrammarSource') {
     arguments += ['-visitor', '-package', 'com.clougence.sql.postgres.parser.antlr']
+}
+
+test {
+    useJUnitPlatform()
 }

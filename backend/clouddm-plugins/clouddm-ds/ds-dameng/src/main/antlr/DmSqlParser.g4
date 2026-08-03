@@ -3066,6 +3066,7 @@ alterTarget
     | TYPE qualifiedName alterObjectCompileAction
     | JAVA_LANGUAGE CLASS qualifiedName alterObjectCompileAction
     | CLASS qualifiedName alterObjectCompileAction
+    | OPERATOR operatorQualifiedName alterObjectCompileAction
     ;
 
 alterIndexAction
@@ -3414,6 +3415,26 @@ commentTarget
     : TABLE qualifiedName
     | VIEW qualifiedName
     | COLUMN qualifiedName
+    | MATERIALIZED VIEW qualifiedName
+    | SCHEMA qualifiedName
+    | TABLESPACE qualifiedName
+    | ROLE qualifiedName
+    | SEQUENCE qualifiedName
+    | INDEX qualifiedName
+    | TRIGGER qualifiedName
+    | TYPE qualifiedName
+    | SYNONYM qualifiedName
+    | CONTEXT qualifiedName
+    | DOMAIN qualifiedName
+    | DIRECTORY qualifiedName
+    | PROFILE qualifiedName
+    | LINK qualifiedName
+    | CLASS qualifiedName
+    | FUNCTION qualifiedName
+    | PACKAGE qualifiedName
+    | PROCEDURE qualifiedName
+    | OPERATOR operatorQualifiedName
+    | DATABASE
     ;
 
 grantStatement

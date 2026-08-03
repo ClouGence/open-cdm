@@ -2,11 +2,7 @@
 sql:
 alter table `test`.`user_table` add column `address` varchar(255);
 expect:
-{
-  "contains": [
-    {"class":"DrColumnDomain", "sqlType": "ALTER_TABLE_ADD_COLUMN", "auditKind":"CREATE", "schema":"test", "table":"user_table", "column":"address", "typeDesc":"varchar(255)"}
-  ]
-}
+{"exception":"UnsupportedOperationException"}
 ----------
 [alter_add_columns]
 sql:

@@ -27,7 +27,6 @@ import com.clougence.clouddm.console.web.component.analysis.BehaviorRequest;
 import com.clougence.clouddm.ds.TextCaseSupport;
 import com.clougence.clouddm.ds.TextCaseSupport.CaseBlock;
 import com.clougence.clouddm.ds.TextTestCase;
-import com.clougence.clouddm.ds.behavior.BehaviorCodeLine;
 import com.clougence.clouddm.sdk.security.auth.SecDataAuthKind;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAnalysisSpi;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorObject;

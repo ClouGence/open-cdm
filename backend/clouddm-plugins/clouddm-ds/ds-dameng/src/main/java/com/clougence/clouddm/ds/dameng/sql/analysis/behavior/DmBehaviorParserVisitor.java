@@ -44,6 +44,7 @@ final class DmBehaviorParserVisitor extends AbstractParseTreeVisitor<Void> {
     public Void visit(ParseTree tree) {
         DmStatementBehaviorVisitor visitor = new DmStatementBehaviorVisitor(levels, baseLine, baseColumn);
         visitor.visit(tree);
+        visitor.complete(tree);
         behaviors.add(visitor.behavior());
         return null;
     }
@@ -75,6 +76,55 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
 
     StatementBehavior behavior() {
         return behavior;
+    }
+
+    void complete(ParseTree tree) {
+        if (!behavior.getRelations().isEmpty() || !(tree instanceof ParserRuleContext context)) {
+            return;
+        }
+        String source = context.getStart().getInputStream().getText(Interval.of(context.getStart().getStartIndex(), context.getStop().getStopIndex()));
+        String normalized = stripLeadingComments(source).stripLeading().toUpperCase(Locale.ROOT);
+        SplitQueryType type = behavior.getStatementType();
+        if (normalized.startsWith("SHUTDOWN") || normalized.startsWith("EXECUTE IMMEDIATE") || normalized.matches("(?s).*\\bOPEN\\s+[^;]+?\\s+FOR\\s+(['\"]).*")) {
+            add(type == SplitQueryType.UNKNOWN ? SplitQueryType.UNSAFE : type, BehaviorAction.UNSAFE, objects
+                .unnamedObject(TargetType.PrepareStatement, context, UmiTypes.Instance));
+            return;
+        }
+        if (normalized.startsWith("CONFIGURE")) {
+            BehaviorAction action = normalized.matches("(?s)^CONFIGURE\\s+CLEAR\\b.*") ? BehaviorAction.RESET : BehaviorAction.READ;
+            add(SplitQueryType.ADMIN, action, objects.instanceObject(TargetType.ConfigKey, context, "DMRMAN_DEFAULTS"));
+            return;
+        }
+        if (type == SplitQueryType.SELECT) {
+            add(type, BehaviorAction.READ, objects.unnamedObject(TargetType.Query, context, UmiTypes.Instance));
+        } else if (type == SplitQueryType.TRANSACTION) {
+            BehaviorAction action = normalized
+                .startsWith("COMMIT") ? BehaviorAction.STOP : normalized.startsWith("BEGIN")
+                                                              || normalized.startsWith("START TRANSACTION") ? BehaviorAction.START : BehaviorAction.RESET;
+            add(type, action, objects.unnamedObject(TargetType.Transaction, context, UmiTypes.Instance));
+        } else if (type == SplitQueryType.PERFORMANCE) {
+            add(type, BehaviorAction.ANALYZE, objects.unnamedObject(TargetType.Query, context, UmiTypes.Instance));
+        } else if (type == SplitQueryType.ADMIN) {
+            add(type, BehaviorAction.UNKNOWN, objects.unnamedObject(TargetType.Instance, context, UmiTypes.Instance));
+        } else {
+            add(type, BehaviorAction.UNKNOWN, objects.unnamedObject(TargetType.Unknown, context, UmiTypes.Instance));
+        }
+    }
+
+    private static String stripLeadingComments(String sql) {
+        String value = sql;
+        while (true) {
+            String stripped = value.stripLeading();
+            if (stripped.startsWith("--")) {
+                int lineEnd = stripped.indexOf('\n');
+                value = lineEnd < 0 ? "" : stripped.substring(lineEnd + 1);
+            } else if (stripped.startsWith("/*")) {
+                int commentEnd = stripped.indexOf("*/", 2);
+                value = commentEnd < 0 ? "" : stripped.substring(commentEnd + 2);
+            } else {
+                return stripped;
+            }
+        }
     }
 
     @Override
@@ -503,6 +553,10 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
             }
             if (show.showBackupsetOutputClause() != null) {
                 add(SplitQueryType.ADMIN, BehaviorAction.EXPORT, fileObject(show.showBackupsetOutputClause().backupFilePath().getStart()), inputs);
+            } else if (inputs.isEmpty()) {
+                // Without an explicit directory DMRMAN reads backup-set metadata
+                // from its configured default backup directories.
+                add(SplitQueryType.ADMIN, BehaviorAction.READ, objects.instanceObject(TargetType.Backup, show));
             } else {
                 for (BehaviorObject input : inputs) {
                     add(SplitQueryType.ADMIN, BehaviorAction.READ, input);
@@ -600,7 +654,7 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
         }
         DmSqlParser.ConfigureStatementTailContext configure = ctx.configureStatementTail();
         if (ctx.CONFIGURE() != null && configure != null && configure.CLEAR() != null) {
-            add(SplitQueryType.ADMIN, BehaviorAction.CONFIGURE, objects.instanceObject(TargetType.ConfigKey, configure.CLEAR().getSymbol()));
+            add(SplitQueryType.ADMIN, BehaviorAction.RESET, objects.instanceObject(TargetType.ConfigKey, configure.CLEAR().getSymbol()));
             addFunctionCalls(ctx);
             return null;
         }
@@ -856,7 +910,7 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
         }
         for (DmSqlParser.PartitionGroupTableClauseContext group : descendants(ctx, DmSqlParser.PartitionGroupTableClauseContext.class)) {
             DmSqlParser.QualifiedNameContext groupName = group.qualifiedName();
-            addObject(sources, object(TargetType.ResourceGroup, groupName, schemaScoped(NameParts.from(groupName))));
+            addObject(sources, object(TargetType.PartitionGroup, groupName, schemaScoped(NameParts.from(groupName))));
         }
         for (DmSqlParser.ExternalTableDirectoryOptionContext directory : descendants(ctx, DmSqlParser.ExternalTableDirectoryOptionContext.class)) {
             DmSqlParser.IdentifierContext name = directory.identifier();
@@ -1001,9 +1055,9 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
                 }
             }
             DmSqlParser.QualifiedNameContext name = group.qualifiedName();
-            add(SplitQueryType.CREATE_RESOURCE_GROUP, BehaviorAction.CREATE, object(TargetType.ResourceGroup, name, schemaScoped(NameParts.from(name))), targets);
+            add(SplitQueryType.CREATE_POLICY, BehaviorAction.CREATE, object(TargetType.PartitionGroup, name, schemaScoped(NameParts.from(name))), targets);
             addFunctionCalls(group);
-            behavior.setStatementType(SplitQueryType.CREATE_RESOURCE_GROUP);
+            behavior.setStatementType(SplitQueryType.CREATE_POLICY);
             return null;
         }
         if (ctx.TABLESPACE() == null) {
@@ -1308,7 +1362,7 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
         } else if (triggerTail.eventTriggerCreateTail() != null) {
             DmSqlParser.EventTriggerTargetContext target = triggerTail.eventTriggerCreateTail().eventTriggerTarget();
             if (target.DATABASE() != null) {
-                addObject(targets, objects.object(TargetType.Catalog, target.DATABASE().getSymbol(), List.of(levels.get(UmiTypes.Catalog).toString())));
+                addObject(targets, objects.unnamedObject(TargetType.Catalog, target.DATABASE().getSymbol(), UmiTypes.Catalog));
             } else {
                 String schema = target.identifier() == null ? levels.get(UmiTypes.Schema).toString() : NameParts.clean(target.identifier().getText());
                 ParserRuleContext token = target.identifier() == null ? target : target.identifier();
@@ -1316,7 +1370,7 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
             }
         } else {
             DmSqlParser.TimerTriggerCreateTailContext tail = triggerTail.timerTriggerCreateTail();
-            addObject(targets, objects.object(TargetType.Catalog, tail.DATABASE().getSymbol(), List.of(levels.get(UmiTypes.Catalog).toString())));
+            addObject(targets, objects.unnamedObject(TargetType.Catalog, tail.DATABASE().getSymbol(), UmiTypes.Catalog));
         }
         add(SplitQueryType.CREATE_TRIGGER, createAction(ctx), object(TargetType.Trigger, ctx.qualifiedName(), schemaScoped(NameParts.from(ctx.qualifiedName()))), targets);
         blockLocals.push(blockLocalNames(ctx));
@@ -1428,7 +1482,11 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
                 if (selector.identifier() != null) {
                     addPartitionTarget(targets, name, selector.identifier());
                 } else {
-                    addObject(targets, objects.object(TargetType.Partition, action.partitionDropAction(), partitionPath(name)));
+                    BehaviorObject partition = objects.object(TargetType.Partition, action.partitionDropAction(), partitionPath(name));
+                    if (partition != null) {
+                        partition.setObjectName(null);
+                    }
+                    addObject(targets, partition);
                 }
             }
             if (action.EXCHANGE() != null) {
@@ -1511,6 +1569,9 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
             add(SplitQueryType.ALTER_TRIGGER, BehaviorAction.ALTER, object(TargetType.Trigger, qualified, name));
         } else if (ctx.PACKAGE() != null) {
             add(SplitQueryType.ADMIN_PROG_OBJ, BehaviorAction.ALTER, object(TargetType.Package, qualified, name));
+        } else if (ctx.OPERATOR() != null) {
+            DmSqlParser.OperatorQualifiedNameContext operator = ctx.operatorQualifiedName();
+            add(SplitQueryType.ALTER_PROG_OBJ, BehaviorAction.ALTER, object(TargetType.Operator, operator, schemaScoped(operatorName(operator))));
         } else if (ctx.TABLESPACE() != null) {
             DmSqlParser.TablespaceAlterActionContext action = ctx.tablespaceAlterAction();
             List<DmSqlParser.TablespaceFilePathContext> files = descendants(action, DmSqlParser.TablespaceFilePathContext.class);
@@ -1700,7 +1761,7 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
                 add(SplitQueryType.SYSTEM_SETTING_WRITE, BehaviorAction.DROP, objects.instanceObject(TargetType.Context, qualified, name.name()));
             }
         } else if (ctx.PARTITION() != null && ctx.GROUP() != null) {
-            add(SplitQueryType.DROP_RESOURCE_GROUP, BehaviorAction.DROP, object(TargetType.ResourceGroup, qualified, schemaScoped(name)));
+            add(SplitQueryType.DROP_POLICY, BehaviorAction.DROP, object(TargetType.PartitionGroup, qualified, schemaScoped(name)));
         }
         return null;
     }
@@ -1719,12 +1780,15 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
     @Override
     public Void visitCommentStatement(DmSqlParser.CommentStatementContext ctx) {
         DmSqlParser.CommentTargetContext target = ctx.commentTarget();
-        if (target.VIEW() != null) {
-            add(SplitQueryType.ALTER_VIEW, BehaviorAction.ALTER, object(TargetType.View, target.qualifiedName(), schemaScoped(NameParts.from(target.qualifiedName()))));
+        DmSqlParser.QualifiedNameContext qualified = target.qualifiedName();
+        if (target.MATERIALIZED() != null) {
+            add(SplitQueryType.COMMENT_MATERIALIZED_VIEW, BehaviorAction.ALTER, object(TargetType.Materialized, qualified, schemaScoped(NameParts.from(qualified))));
+        } else if (target.VIEW() != null) {
+            add(SplitQueryType.COMMENT_VIEW, BehaviorAction.ALTER, object(TargetType.View, qualified, schemaScoped(NameParts.from(qualified))));
         } else if (target.TABLE() != null) {
-            add(SplitQueryType.COMMENT_TABLE, BehaviorAction.ALTER, object(TargetType.Table, target.qualifiedName(), schemaScoped(NameParts.from(target.qualifiedName()))));
-        } else {
-            NameParts column = NameParts.from(target.qualifiedName());
+            add(SplitQueryType.COMMENT_TABLE, BehaviorAction.ALTER, object(TargetType.Table, qualified, schemaScoped(NameParts.from(qualified))));
+        } else if (target.COLUMN() != null) {
+            NameParts column = NameParts.from(qualified);
             String table = column.schema();
             List<String> names = new ArrayList<>();
             if (column.catalog() != null) {
@@ -1733,7 +1797,7 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
                 names.add(schemaScopes.get(schemaScopes.size() - 1));
             }
             names.add(table);
-            DmSqlParser.DottedNameContext dotted = target.qualifiedName().dottedName();
+            DmSqlParser.DottedNameContext dotted = qualified.dottedName();
             Token tableStart = dotted.identifier().getStart();
             List<DmSqlParser.DottedNamePartContext> parts = dotted.dottedNamePart();
             Token tableStop = dotted.identifier().getStop();
@@ -1741,6 +1805,49 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
                 tableStop = parts.get(parts.size() - 2).getStop();
             }
             add(SplitQueryType.COMMENT_COLUMN, BehaviorAction.ALTER, objects.object(TargetType.Table, tableStart, tableStop, names));
+        } else if (target.SCHEMA() != null) {
+            NameParts name = NameParts.from(qualified);
+            add(SplitQueryType.COMMENT_SCHEMA, BehaviorAction.ALTER, object(TargetType.Schema, qualified, new NameParts(name.catalog(), null, name.name())));
+        } else if (target.TABLESPACE() != null) {
+            add(SplitQueryType.COMMENT_TABLESPACE, BehaviorAction.ALTER, objects.instanceObject(TargetType.Tablespace, qualified, NameParts.clean(qualified.getText())));
+        } else if (target.ROLE() != null) {
+            add(SplitQueryType.COMMENT_ROLE, BehaviorAction.ALTER, objects.instanceObject(TargetType.Role, qualified, NameParts.clean(qualified.getText())));
+        } else if (target.SEQUENCE() != null) {
+            add(SplitQueryType.COMMENT_SEQUENCE, BehaviorAction.ALTER, object(TargetType.Sequence, qualified, schemaScoped(NameParts.from(qualified))));
+        } else if (target.INDEX() != null) {
+            add(SplitQueryType.COMMENT_INDEX, BehaviorAction.ALTER, object(TargetType.Index, qualified, schemaScoped(NameParts.from(qualified))));
+        } else if (target.TRIGGER() != null) {
+            add(SplitQueryType.COMMENT_TRIGGER, BehaviorAction.ALTER, object(TargetType.Trigger, qualified, schemaScoped(NameParts.from(qualified))));
+        } else if (target.TYPE() != null) {
+            add(SplitQueryType.COMMENT_TYPE, BehaviorAction.ALTER, object(TargetType.Type, qualified, schemaScoped(NameParts.from(qualified))));
+        } else if (target.SYNONYM() != null) {
+            add(SplitQueryType.COMMENT_SYNONYM, BehaviorAction.ALTER, object(TargetType.Synonym, qualified, schemaScoped(NameParts.from(qualified))));
+        } else if (target.CONTEXT() != null) {
+            add(SplitQueryType.COMMENT_CONTEXT, BehaviorAction.ALTER, objects.instanceObject(TargetType.Context, qualified, NameParts.clean(qualified.getText())));
+        } else if (target.DOMAIN() != null) {
+            add(SplitQueryType.COMMENT_DOMAIN, BehaviorAction.ALTER, object(TargetType.Type, qualified, schemaScoped(NameParts.from(qualified))));
+        } else if (target.DIRECTORY() != null) {
+            add(SplitQueryType.COMMENT_DIRECTORY, BehaviorAction.ALTER, object(TargetType.ConfigKey, qualified, schemaScoped(NameParts.from(qualified))));
+        } else if (target.PROFILE() != null) {
+            add(SplitQueryType.COMMENT_PROFILE, BehaviorAction.ALTER, objects.instanceObject(TargetType.Profile, qualified, NameParts.clean(qualified.getText())));
+        } else if (target.LINK() != null) {
+            add(SplitQueryType.COMMENT_LINK, BehaviorAction.ALTER, object(TargetType.Link, qualified, schemaScoped(NameParts.from(qualified))));
+        } else if (target.CLASS() != null) {
+            add(SplitQueryType.COMMENT_CLASS, BehaviorAction.ALTER, object(TargetType.Type, qualified, schemaScoped(NameParts.from(qualified))));
+        } else if (target.FUNCTION() != null) {
+            add(SplitQueryType.COMMENT_FUNCTION, BehaviorAction.ALTER, object(TargetType.Function, qualified, schemaScoped(NameParts.from(qualified))));
+        } else if (target.PACKAGE() != null) {
+            add(SplitQueryType.COMMENT_PACKAGE, BehaviorAction.ALTER, object(TargetType.Package, qualified, schemaScoped(NameParts.from(qualified))));
+        } else if (target.PROCEDURE() != null) {
+            add(SplitQueryType.COMMENT_PROCEDURE, BehaviorAction.ALTER, object(TargetType.Procedure, qualified, schemaScoped(NameParts.from(qualified))));
+        } else if (target.OPERATOR() != null) {
+            add(SplitQueryType.COMMENT_OPERATOR, BehaviorAction.ALTER, object(TargetType.Operator, target
+                .operatorQualifiedName(), schemaScoped(operatorName(target.operatorQualifiedName()))));
+        } else if (target.DATABASE() != null) {
+            // DM's COMMENT ON DATABASE addresses the current schema. DATABASE
+            // is a keyword here, not a schema identifier.
+            BehaviorObject database = objects.unnamedObject(TargetType.Schema, target.DATABASE().getSymbol(), UmiTypes.Schema);
+            add(SplitQueryType.COMMENT_SCHEMA, BehaviorAction.ALTER, database);
         }
         return null;
     }
@@ -2588,7 +2695,9 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
                 String groupParameter = "DROP_GROUPED_POLICY".equals(procedure) ? "POLICY_GROUP" : "GROUP_NAME";
                 Token group = rlsStringRoutineArgument(arguments, 2, groupParameter);
                 if (group == null && "DROP_GROUPED_POLICY".equals(procedure)) {
-                    addObject(targets, objects.instanceObject(TargetType.Policy, context, "SYS_DEFAULT"));
+                    BehaviorObject defaultGroup = objects.instanceObject(TargetType.Policy, context, "SYS_DEFAULT");
+                    defaultGroup.setObjectName(null);
+                    addObject(targets, defaultGroup);
                 } else if (group != null) {
                     addObject(targets, objects.instanceObject(TargetType.Policy, group, stringValue(group)));
                 }
@@ -2950,7 +3059,8 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
 
         Token errorTable = stringRoutineArgument(arguments, 1, "ERR_LOG_TABLE_NAME");
         String errorTableName = stringValue(errorTable);
-        if (errorTableName == null || errorTableName.equalsIgnoreCase("NULL")) {
+        boolean derivedErrorTable = errorTableName == null || errorTableName.equalsIgnoreCase("NULL");
+        if (derivedErrorTable) {
             errorTable = source;
             errorTableName = "ERR$_" + sourceNames.get(sourceNames.size() - 1);
         }
@@ -2961,7 +3071,11 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
             errorNames.add(NameParts.clean(ownerName));
         }
         errorNames.add(NameParts.clean(errorTableName));
-        addObject(targets, objects.object(TargetType.Table, errorTable, errorNames));
+        BehaviorObject errorTarget = objects.object(TargetType.Table, errorTable, errorNames);
+        if (derivedErrorTable && errorTarget != null) {
+            errorTarget.setObjectName(null);
+        }
+        addObject(targets, errorTarget);
 
         Token tablespace = stringRoutineArgument(arguments, 3, "ERR_LOG_TABLE_SPACE");
         String tablespaceName = stringValue(tablespace);
@@ -3878,7 +3992,7 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
         }
         if (name.schema() == null) {
             TargetType targetType = switch (name.name().toUpperCase(Locale.ROOT)) {
-                case "PARTGROUPDEF" -> TargetType.ResourceGroup;
+                case "PARTGROUPDEF" -> TargetType.PartitionGroup;
                 case "TABLEDEF", "TABLE_USED_PAGES" -> TargetType.Table;
                 default -> null;
             };
@@ -4177,7 +4291,14 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
             names.add(NameParts.clean(partition.identifier().getText()));
             context = partition.identifier();
         }
-        return objects.object(TargetType.Partition, context, names);
+        BehaviorObject object = objects.object(TargetType.Partition, context, names);
+        if (partition.identifier() == null && object != null) {
+            // PARTITION FOR(...) identifies a partition by key value. The table
+            // remains in the resource path, but it is not the partition's name
+            // and must not be attached to the clause's source coordinates.
+            object.setObjectName(null);
+        }
+        return object;
     }
 
     private void addPartitionTarget(List<BehaviorObject> targets, NameParts table, DmSqlParser.IdentifierContext partition) {

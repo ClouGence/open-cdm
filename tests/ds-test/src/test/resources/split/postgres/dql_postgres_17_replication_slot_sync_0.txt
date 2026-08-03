@@ -1,3 +1,0 @@
-SELECT pg_sync_replication_slots();
-------------------------------------------------------------------------------------------
-[SELECT|ADMIN_REPLICATION] SELECT pg_sync_replication_slots();

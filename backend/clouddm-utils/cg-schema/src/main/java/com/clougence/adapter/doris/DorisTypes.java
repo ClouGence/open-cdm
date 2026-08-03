@@ -94,7 +94,25 @@ public enum DorisTypes implements FieldType {
     /** Statistical value for approximate weight removal */
     HLL("HLL", JDBCType.BIGINT),
     /** Statistical value, often used to accelerate the count recount */
-    BITMAP("BITMAP", JDBCType.BIGINT),;
+    BITMAP("BITMAP", JDBCType.BIGINT),
+
+    /** MAP<key_type,value_type> */
+    MAP("MAP", JDBCType.JAVA_OBJECT),
+    /** STRUCT<field:type,...> */
+    STRUCT("STRUCT", JDBCType.STRUCT),
+    /** Aggregate function state */
+    AGG_STATE("AGG_STATE", JDBCType.JAVA_OBJECT),
+    /** Semi-structured variant value */
+    VARIANT("VARIANT", JDBCType.JAVA_OBJECT),
+    /** Binary value */
+    VARBINARY("VARBINARY", JDBCType.VARBINARY),
+    /** Time without a date */
+    TIME("TIME", JDBCType.TIME),
+    /** Timestamp with time zone */
+    TIMESTAMPTZ("TIMESTAMPTZ", JDBCType.TIMESTAMP_WITH_TIMEZONE),
+    /** IP address types */
+    IPV4("IPV4", JDBCType.VARCHAR),
+    IPV6("IPV6", JDBCType.VARCHAR),;
 
     private final String   codeKey;
     private final JDBCType jdbcType;
@@ -141,10 +159,10 @@ public enum DorisTypes implements FieldType {
     }
 
     @Override
-    public boolean isArray() { return false; }
+    public boolean isArray() { return this == ARRAY; }
 
     @Override
-    public boolean isStruct() { return false; }
+    public boolean isStruct() { return this == STRUCT || this == MAP; }
 
     @Override
     public boolean isNumber() {
@@ -169,7 +187,7 @@ public enum DorisTypes implements FieldType {
     public boolean isAccurateDecimal() { return this == DECIMAL || this == DECIMALV3; }
 
     @Override
-    public boolean isBinary() { return false; }
+    public boolean isBinary() { return this == VARBINARY; }
 
     @Override
     public boolean isString() {
@@ -177,6 +195,9 @@ public enum DorisTypes implements FieldType {
             case CHAR:
             case VARCHAR:
             case STRING:
+            case TEXT:
+            case IPV4:
+            case IPV6:
                 return true;
             default:
                 return false;
@@ -190,6 +211,8 @@ public enum DorisTypes implements FieldType {
             case DATE:
             case DATEV2:
             case DATETIMEV2:
+            case TIME:
+            case TIMESTAMPTZ:
                 return true;
             default:
                 return false;
@@ -221,6 +244,7 @@ public enum DorisTypes implements FieldType {
             case DATETIME:
             case DATEV2:
             case DATETIMEV2:
+            case TIMESTAMPTZ:
                 return true;
             default:
                 return false;
@@ -229,7 +253,8 @@ public enum DorisTypes implements FieldType {
 
     @Override
     public boolean hasTime() {
-        return this == DorisTypes.DATETIME;
+        return this == DorisTypes.DATETIME || this == DorisTypes.DATETIMEV2
+               || this == DorisTypes.TIME || this == DorisTypes.TIMESTAMPTZ;
     }
 
     @Override
@@ -250,5 +275,9 @@ public enum DorisTypes implements FieldType {
     static {
         ALIAS_NAMES_MAP.put("bigint unsigned", "LARGEINT");
         ALIAS_NAMES_MAP.put("unknown", "QUANTILE_STATE");
+        ALIAS_NAMES_MAP.put("integer", "INT");
+        ALIAS_NAMES_MAP.put("decimalv2", "DECIMAL");
+        ALIAS_NAMES_MAP.put("datev1", "DATE");
+        ALIAS_NAMES_MAP.put("datetimev1", "DATETIME");
     }
 }

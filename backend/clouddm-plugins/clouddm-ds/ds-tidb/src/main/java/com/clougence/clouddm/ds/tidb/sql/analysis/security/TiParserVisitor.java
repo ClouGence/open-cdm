@@ -92,7 +92,15 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
     }
 
     @Override
-    public Void visitParenthesisSelect(ParenthesisSelectContext ctx) {
+    public Void visitQueryExpressionSelect(QueryExpressionSelectContext ctx) {
+        builder.enterSelectDomain();
+        dmVisitChildren(ctx);
+        builder.exitSelectDomain();
+        return null;
+    }
+
+    @Override
+    public Void visitQuerySpecificationSelect(QuerySpecificationSelectContext ctx) {
         builder.enterSelectDomain();
         dmVisitChildren(ctx);
         builder.exitSelectDomain();
@@ -109,15 +117,6 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
             });
         }
         dmVisitChildren(ctx);
-        return null;
-    }
-
-    @Override
-    public Void visitSelectColumnElement(SelectColumnElementContext ctx) {
-        builder.handleBuildSelectItem(() -> {
-            builder.addAttr(CommonAttribute.VALUE, this.getText((ParserRuleContext) ctx.getChild(0)));
-            dmVisitChildren(ctx);
-        });
         return null;
     }
 
@@ -152,15 +151,6 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
     }
 
     @Override
-    public Void visitSelectFunctionElement(SelectFunctionElementContext ctx) {
-        builder.handleBuildSelectItem(() -> {
-            builder.addAttr(CommonAttribute.VALUE, this.getText((ParserRuleContext) ctx.getChild(0)));
-            dmVisitChildren(ctx);
-        });
-        return null;
-    }
-
-    @Override
     public Void visitAliasName(AliasNameContext ctx) {
         builder.addAttr(CommonAttribute.ALIAS, this.getText(ctx));
         return null;
@@ -174,8 +164,8 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
                 builder.addAttr(CommonAttribute.FUNC_ARG_NAME, ctx.datetimeFormat.getText());
                 builder.handleDomain(new RdbConstantDomain(ctx.datetimeFormat.getText()), DomainSource.CONSTANT);
 
-                builder.addAttr(CommonAttribute.FUNC_ARG_NAME, ctx.stringLiteral().getText());
-                ctx.stringLiteral().accept(this);
+                builder.addAttr(CommonAttribute.FUNC_ARG_NAME, ctx.expression().getText());
+                ctx.expression().accept(this);
             });
         });
         return null;
@@ -260,21 +250,10 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
      */
 
     @Override
-    public Void visitUdfFunctionCall(UdfFunctionCallContext ctx) {
-        builder.handleCall(() -> {
-            dmVisitChildren(ctx);
-        });
-        return null;
-    }
-
-    @Override
-    public Void visitScalarFunctionCall(ScalarFunctionCallContext ctx) {
+    public Void visitGenericFunctionCall(GenericFunctionCallContext ctx) {
         builder.addAttr(CommonAttribute.VALID_WHERE, true);
         builder.handleCall(() -> {
-            builder.handleDomain(new ObjNameDomain(ctx.scalarFunctionName().getText()), DomainSource.OBJ_NAME);
-            if (ctx.functionArgs() != null) {
-                ctx.functionArgs().accept(this);
-            }
+            dmVisitChildren(ctx);
         });
         return null;
     }
@@ -542,8 +521,8 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
                 if (stringDataTypeContext.collationName() != null) {
                     builder.addAttr(MyAttribute.COLLATE, stringDataTypeContext.collationName().getText());
                 }
-                if (stringDataTypeContext.charsetName() != null) {
-                    builder.addAttr(MyAttribute.CHARACTER_SET, stringDataTypeContext.charsetName().getText());
+                if (stringDataTypeContext.stringCharsetAttribute() != null && stringDataTypeContext.stringCharsetAttribute().charsetName() != null) {
+                    builder.addAttr(MyAttribute.CHARACTER_SET, stringDataTypeContext.stringCharsetAttribute().charsetName().getText());
                 }
             }
         });
@@ -590,7 +569,7 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
 
     @Override
     public Void visitCommentColumnConstraint(CommentColumnConstraintContext ctx) {
-        String text = ctx.STRING_LITERAL().getText();
+        String text = ctx.textLiteralToken().getText();
         builder.addAttr(CommonAttribute.COMMENT, text.substring(1, text.length() - 1));
         return null;
     }
@@ -1284,26 +1263,8 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
     }
 
     @Override
-    public Void visitUnionSelect(UnionSelectContext ctx) {
-        builder.enterSelectDomain();
-        builder.addAttr(CommonAttribute.UNION, true);
-        dmVisitChildren(ctx);
-        builder.exitSelectDomain();
-        return null;
-    }
-
-    @Override
-    public Void visitUnionParenthesisSelect(UnionParenthesisSelectContext ctx) {
-        builder.enterSelectDomain();
-        builder.addAttr(CommonAttribute.UNION, true);
-        dmVisitChildren(ctx);
-        builder.exitSelectDomain();
-        return null;
-    }
-
-    @Override
     public Void visitCommentInsertValue(CommentInsertValueContext ctx) {
-        if (ctx.expressionsWithDefaults() != null && ctx.expressionsWithDefaults().size() > 1) {
+        if (ctx.valuesRow().size() > 1) {
             builder.addAttr(CommonAttribute.MULTI_VALUE, true);
         }
 
@@ -1334,14 +1295,12 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
 
     @Override
     public Void visitSubqueryComparasionPredicate(SubqueryComparasionPredicateContext ctx) {
-        ctx.predicate().accept(this);
-
         builder.handleCall(() -> {
             builder.handleDomain(new ObjNameDomain(ctx.quantifier.getText()), DomainSource.OBJ_NAME);
 
             builder.handleFunctionArgs(() -> {
-                builder.addAttr(CommonAttribute.FUNC_ARG_NAME, getText(ctx.selectStatement()));
-                ctx.selectStatement().accept(this);
+                builder.addAttr(CommonAttribute.FUNC_ARG_NAME, getText(ctx.subqueryStatement()));
+                ctx.subqueryStatement().accept(this);
             });
         });
         return null;
@@ -1356,7 +1315,7 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
     public Void visitSingleDeleteStatement(SingleDeleteStatementContext ctx) {
         builder.handleDelete(() -> {
             dmVisitChildren(ctx);
-            if (ctx.ignore != null) {
+            if (ctx.deleteOption().stream().anyMatch(option -> option.IGNORE() != null)) {
                 builder.addAttr(CommonAttribute.IGNORE, true);
             }
             if (ctx.limit != null) {
@@ -1445,26 +1404,10 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
     }
 
     @Override
-    public Void visitQueryExpressionNointo(QueryExpressionNointoContext ctx) {
-        builder.enterSelectDomain();
-        dmVisitChildren(ctx);
-        builder.exitSelectDomain();
-        return null;
-    }
-
-    @Override
-    public Void visitQuerySpecificationNointo(QuerySpecificationNointoContext ctx) {
-        builder.enterSelectDomain();
-        dmVisitChildren(ctx);
-        builder.exitSelectDomain();
-        return null;
-    }
-
-    @Override
     public Void visitSelectStarElement(SelectStarElementContext ctx) {
         builder.handleBuildSelectItem(() -> {
             RdbColumnDomain rdbColumnDomain = new RdbColumnDomain();
-            rdbColumnDomain.setTable(getName(ctx.uid()));
+            rdbColumnDomain.setTable(ctx.table == null ? null : getName(ctx.table));
             rdbColumnDomain.setColumn("*");
             builder.handleDomain(rdbColumnDomain, DomainSource.COLUMN);
         });
@@ -1524,15 +1467,6 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
     public Void visitGrantStatement(GrantStatementContext ctx) {
         builder.enterGrant();
         dmVisitChildren(ctx);
-        for (UserAuthOptionContext userAuthOptionContext : ctx.userAuthOption()) {
-            for (ParseTree child : userAuthOptionContext.children) {
-                if (child instanceof TerminalNodeImpl) {
-                    if (((TerminalNodeImpl) child).getSymbol().getType() == PASSWORD) {
-                        throw new UnsupportedOperationException("not support grant with create user");
-                    }
-                }
-            }
-        }
         builder.exitGrant();
         return null;
     }
@@ -1540,10 +1474,7 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
     @Override
     public Void visitRevokeStatement(RevokeStatementContext ctx) {
         builder.enterRevoke();
-
-        for (UserNameContext context : ctx.userName()) {
-            context.accept(this);
-        }
+        dmVisitChildren(ctx);
         builder.exitRevoke();
         return null;
     }
@@ -1622,31 +1553,23 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
 
     @Override
     public Void visitSetVariable(SetVariableContext ctx) {
-        List<VariableClauseContext> configKeys = ctx.variableClause();
-        for (VariableClauseContext configKey : configKeys) {
-            MyScopeType scopeType;
-            String keyName;
-            if (configKey.GLOBAL_ID() != null) {
-                scopeType = MyScopeType.GLOBAL;
-                keyName = configKey.GLOBAL_ID().getText().substring(2);
-            } else if (configKey.GLOBAL() != null) {
-                scopeType = MyScopeType.GLOBAL;
-                keyName = configKey.uid().getText();
-            } else if (configKey.PERSIST() != null) {
-                scopeType = MyScopeType.GLOBAL;
-                keyName = configKey.uid().getText();
-            } else if (configKey.LOCAL_ID() != null) {
-                scopeType = MyScopeType.LOCAL;
-                keyName = configKey.LOCAL_ID().getText().substring(1);
-            } else if (configKey.LOCAL() != null) {
-                scopeType = MyScopeType.LOCAL;
-                keyName = configKey.uid().getText();
-            } else if (configKey.SESSION() != null) {
-                scopeType = MyScopeType.SESSION;
-                keyName = configKey.uid().getText();
-            } else {
-                throw new UnsupportedOperationException("unsupported SQL: " + this.getText(configKey));
+        for (SetVariableAssignmentContext assignment : ctx.setVariableAssignment()) {
+            VariableClauseContext configKey = assignment.variableClause();
+            if (configKey == null) {
+                continue;
             }
+            MyScopeType scopeType;
+            String text = configKey.getText();
+            String upper = text.toUpperCase(java.util.Locale.ROOT);
+            if (configKey.GLOBAL_ID() != null || upper.startsWith("GLOBAL") || upper.startsWith("PERSIST")) {
+                scopeType = MyScopeType.GLOBAL;
+            } else if (upper.startsWith("LOCAL") || upper.startsWith("@") && !upper.startsWith("@@")) {
+                scopeType = MyScopeType.LOCAL;
+            } else {
+                scopeType = MyScopeType.SESSION;
+            }
+            int separator = Math.max(text.lastIndexOf('.'), text.lastIndexOf('@'));
+            String keyName = text.substring(separator + 1).replace("`", "");
 
             MyConfigDomain domain = new MyConfigDomain(keyName, scopeType);
             domain.setSqlType(RuleQueryType.CONFIG_WRITE);
@@ -1785,16 +1708,22 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
     }
 
     @Override
-    public Void visitShowLogEvents(ShowLogEventsContext ctx) {
+    public Void visitShowBinlogEvents(ShowBinlogEventsContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
         myShowDomain.setSqlType(RuleQueryType.LOG_READ);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
-        if (ctx.logFormat.getType() == BINLOG) {
-            myShowDomain.setShowType(MyShowType.BINLOG_EVENTS);
-        } else {
-            myShowDomain.setShowType(MyShowType.RELAYLOG_EVENTS);
-        }
+        myShowDomain.setShowType(MyShowType.BINLOG_EVENTS);
+        myShowDomain.setTarget(TargetType.Environment);
+        builder.addDomain(myShowDomain);
+        return null;
+    }
 
+    @Override
+    public Void visitShowRelayLogEvents(ShowRelayLogEventsContext ctx) {
+        MyShowDomain myShowDomain = new MyShowDomain();
+        myShowDomain.setSqlType(RuleQueryType.LOG_READ);
+        myShowDomain.setAuditKind(SecQueryKind.QUERY);
+        myShowDomain.setShowType(MyShowType.RELAYLOG_EVENTS);
         myShowDomain.setTarget(TargetType.Environment);
         builder.addDomain(myShowDomain);
         return null;
@@ -2417,10 +2346,10 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
         }
         builder.handleDomain(columnTypeDomain, DomainSource.COLUMN_TYPE);
 
-        if (ctx.UNSIGNED() != null) {
+        if (ctx.numericFieldOption().stream().anyMatch(option -> option.UNSIGNED() != null)) {
             builder.addAttr(MyAttribute.UNSIGNED, true);
         }
-        if (ctx.ZEROFILL() != null) {
+        if (ctx.numericFieldOption().stream().anyMatch(option -> option.ZEROFILL() != null)) {
             builder.addAttr(MyAttribute.ZEROFILL, true);
         }
 
@@ -2611,9 +2540,7 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
     public Void visitNonAggregateFunction(NonAggregateFunctionContext ctx) {
         builder.handleCall(() -> {
             builder.addAttr(CommonAttribute.VALUE, ctx.getChild(0).getText());
-            if (ctx.functionArgs() != null) {
-                ctx.functionArgs().accept(this);
-            }
+            dmVisitChildren(ctx);
         });
         return null;
     }
@@ -2639,19 +2566,6 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
     public Void visitNotExpression(NotExpressionContext ctx) {
         builder.addAttr(CommonAttribute.VALID_WHERE, true);
         dmVisitChildren(ctx);
-        return null;
-    }
-
-    @Override
-    public Void visitSpecialTimeCall(SpecialTimeCallContext ctx) {
-        builder.handleCall(() -> {
-            builder.addAttr(CommonAttribute.VALUE, ctx.getChild(0).getText());
-
-            builder.handleFunctionArgs(() -> {
-                builder.addAttr(CommonAttribute.FUNC_ARG_NAME, getText(ctx.stringLiteral()));
-                ctx.stringLiteral().accept(this);
-            });
-        });
         return null;
     }
 
@@ -2781,12 +2695,6 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
     }
 
     @Override
-    public Void visitSimpleSelect(SimpleSelectContext ctx) {
-        dmVisitChildren(ctx);
-        return null;
-    }
-
-    @Override
     public Void visitUpdateStatement(UpdateStatementContext ctx) {
         dmVisitChildren(ctx);
         return null;
@@ -2817,25 +2725,14 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
     }
 
     @Override
-    public Void visitTableSourceWith(TableSourceWithContext ctx) {
-        dmVisitChildren(ctx);
-        return null;
-    }
-
-    @Override
     public Void visitQueryExpression(QueryExpressionContext ctx) {
         dmVisitChildren(ctx);
         return null;
     }
 
     @Override
-    public Void visitUnionParenthesis(UnionParenthesisContext ctx) {
-        dmVisitChildren(ctx);
-        return null;
-    }
-
-    @Override
     public Void visitUnionStatement(UnionStatementContext ctx) {
+        builder.addAttr(CommonAttribute.UNION, true);
         dmVisitChildren(ctx);
         return null;
     }
@@ -2896,18 +2793,6 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
 
     @Override
     public Void visitShowSlaveHosts(ShowSlaveHostsContext ctx) {
-        dmVisitChildren(ctx);
-        return null;
-    }
-
-    @Override
-    public Void visitShowAuthros(ShowAuthrosContext ctx) {
-        dmVisitChildren(ctx);
-        return null;
-    }
-
-    @Override
-    public Void visitShowContributors(ShowContributorsContext ctx) {
         dmVisitChildren(ctx);
         return null;
     }
@@ -3046,7 +2931,7 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
 
     @Override
     public Void visitUnaryExpressionAtom(UnaryExpressionAtomContext ctx) {
-        ctx.expressionAtom().accept(this);
+        ctx.unaryExpression().accept(this);
         return null;
     }
 
@@ -3118,12 +3003,6 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
     }
 
     @Override
-    public Void visitLogicalOperator(LogicalOperatorContext ctx) {
-        dmVisitChildren(ctx);
-        return null;
-    }
-
-    @Override
     public Void visitMathOperator(MathOperatorContext ctx) {
         dmVisitChildren(ctx);
         return null;
@@ -3142,25 +3021,26 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
     }
 
     @Override
-    public Void visitTidbTableOptionTTL(TidbTableOptionTTLContext ctx) {
-        if (ctx.parent instanceof AlterByTableOptionContext) {
+    public Void visitTableOptionTiDB(TableOptionTiDBContext ctx) {
+        if (ctx.TTL() != null && ctx.parent instanceof AlterByTableOptionContext) {
             MyTableDomain myTableDomain = new MyTableDomain();
             builder.handleDomain(myTableDomain, DomainSource.ALTER_TABLE_ITEM);
         }
+        dmVisitChildren(ctx);
         return null;
     }
 
     @Override
     public Void visitCreateSequence(CreateSequenceContext ctx) {
         builder.enterCreateSequence();
-        ctx.sequence_name().accept(this);
+        ctx.tableName().accept(this);
         builder.exitCreateSequence();
         return null;
     }
 
     @Override
     public Void visitDropSequence(DropSequenceContext ctx) {
-        for (Sequence_nameContext sequenceNameContext : ctx.sequence_name()) {
+        for (TableNameContext sequenceNameContext : ctx.tableName()) {
             builder.enterDropSequence();
             sequenceNameContext.accept(this);
             builder.exitDropSequence();
@@ -3169,22 +3049,8 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
     }
 
     @Override
-    public Void visitSecquenceCount(SecquenceCountContext ctx) {
+    public Void visitPartitionIntervalClause(PartitionIntervalClauseContext ctx) {
         dmVisitChildren(ctx);
-        return null;
-    }
-
-    @Override
-    public Void visitTiIntervalPartition(TiIntervalPartitionContext ctx) {
-        dmVisitChildren(ctx);
-        return null;
-    }
-
-    @Override
-    public Void visitSequence_name(Sequence_nameContext ctx) {
-        builder.enterObjName();
-        visitChildren(ctx);
-        builder.exitObjName();
         return null;
     }
 

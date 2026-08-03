@@ -43,6 +43,11 @@ public class MySplitAnalysisSpi extends AbstractSplitAnalysisSpi {
     }
 
     @Override
+    protected Object predictionCacheScope() {
+        return this.provider.config();
+    }
+
+    @Override
     protected AbstractParseTreeVisitor<SplitQueryType> splitVisitor() {
         return new MySplitVisitor(this.provider.version());
     }

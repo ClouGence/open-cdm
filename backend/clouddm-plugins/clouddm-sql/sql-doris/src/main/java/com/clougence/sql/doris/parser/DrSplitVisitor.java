@@ -60,32 +60,36 @@ public class DrSplitVisitor extends DorisParserBaseVisitor<SplitQueryType> {
 
     @Override
     public SplitQueryType visitAlterColumnStats(AlterColumnStatsContext ctx) {
-        return SplitQueryType.ALTER_TABLE;
+        return SplitQueryType.ADMIN_PERFORMANCE;
     }
 
     @Override
     public SplitQueryType visitCreateRepository(CreateRepositoryContext ctx) {
-        return SplitQueryType.ADMIN;
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
     }
 
     @Override
     public SplitQueryType visitCreateResource(CreateResourceContext ctx) {
-        return SplitQueryType.ADMIN;
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
     }
 
     @Override
     public SplitQueryType visitCreateStoragePolicy(CreateStoragePolicyContext ctx) {
-        return SplitQueryType.ADMIN;
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
     }
 
     @Override
     public SplitQueryType visitShowConfig(ShowConfigContext ctx) {
-        return SplitQueryType.ADMIN;
+        return SplitQueryType.METADATA;
     }
 
     @Override
     public SplitQueryType visitSupportedUnsetStatementAlias(SupportedUnsetStatementAliasContext ctx) {
-        return SplitQueryType.ADMIN;
+        SupportedUnsetStatementContext unset = ctx.supportedUnsetStatement();
+        if (unset.DEFAULT() != null) {
+            return SplitQueryType.SYSTEM_SETTING_WRITE;
+        }
+        return unset.statementScope() != null && unset.statementScope().GLOBAL() != null ? SplitQueryType.SYSTEM_SETTING_WRITE : SplitQueryType.SESSION_SETTING_WRITE;
     }
 
     @Override
@@ -100,7 +104,7 @@ public class DrSplitVisitor extends DorisParserBaseVisitor<SplitQueryType> {
 
     @Override
     public SplitQueryType visitShowCreateRoutineLoad(ShowCreateRoutineLoadContext ctx) {
-        return SplitQueryType.UNKNOWN;
+        return SplitQueryType.METADATA;
     }
 
     @Override
@@ -115,22 +119,22 @@ public class DrSplitVisitor extends DorisParserBaseVisitor<SplitQueryType> {
 
     @Override
     public SplitQueryType visitCreateRowPolicy(CreateRowPolicyContext ctx) {
-        return SplitQueryType.ADMIN;
+        return SplitQueryType.CREATE_POLICY;
     }
 
     @Override
     public SplitQueryType visitCreateWorkloadPolicy(CreateWorkloadPolicyContext ctx) {
-        return SplitQueryType.ADMIN;
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
     }
 
     @Override
     public SplitQueryType visitCreateEncryptkey(CreateEncryptkeyContext ctx) {
-        return SplitQueryType.ADMIN;
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
     }
 
     @Override
     public SplitQueryType visitCreateSqlBlockRule(CreateSqlBlockRuleContext ctx) {
-        return SplitQueryType.ADMIN;
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
     }
 
     @Override
@@ -160,22 +164,22 @@ public class DrSplitVisitor extends DorisParserBaseVisitor<SplitQueryType> {
 
     @Override
     public SplitQueryType visitAlterRole(AlterRoleContext ctx) {
-        return SplitQueryType.ADMIN;
+        return SplitQueryType.ALTER_ROLE;
     }
 
     @Override
     public SplitQueryType visitAlterWorkloadPolicy(AlterWorkloadPolicyContext ctx) {
-        return SplitQueryType.ADMIN;
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
     }
 
     @Override
     public SplitQueryType visitAlterStoragePolicy(AlterStoragePolicyContext ctx) {
-        return SplitQueryType.ADMIN;
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
     }
 
     @Override
     public SplitQueryType visitAlterSqlBlockRule(AlterSqlBlockRuleContext ctx) {
-        return SplitQueryType.ADMIN;
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
     }
 
     @Override
@@ -185,7 +189,7 @@ public class DrSplitVisitor extends DorisParserBaseVisitor<SplitQueryType> {
 
     @Override
     public SplitQueryType visitAlterStorageVault(AlterStorageVaultContext ctx) {
-        return SplitQueryType.ADMIN;
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
     }
 
     @Override
@@ -220,12 +224,12 @@ public class DrSplitVisitor extends DorisParserBaseVisitor<SplitQueryType> {
 
     @Override
     public SplitQueryType visitShowRoutineLoad(ShowRoutineLoadContext ctx) {
-        return SplitQueryType.UNKNOWN;
+        return SplitQueryType.METADATA;
     }
 
     @Override
     public SplitQueryType visitShowRoutineLoadTask(ShowRoutineLoadTaskContext ctx) {
-        return SplitQueryType.UNKNOWN;
+        return SplitQueryType.METADATA;
     }
 
     @Override
@@ -275,12 +279,11 @@ public class DrSplitVisitor extends DorisParserBaseVisitor<SplitQueryType> {
 
     @Override
     public SplitQueryType visitSupportedCleanStatementAlias(SupportedCleanStatementAliasContext ctx) {
+        SupportedCleanStatementContext clean = ctx.supportedCleanStatement();
+        if (clean instanceof CleanAllProfileContext || clean instanceof CleanQueryStatsContext || clean instanceof CleanAllQueryStatsContext) {
+            return SplitQueryType.ADMIN_PERFORMANCE;
+        }
         return SplitQueryType.ADMIN;
-    }
-
-    @Override
-    public SplitQueryType visitShowProcedureStatus(ShowProcedureStatusContext ctx) {
-        return SplitQueryType.UNKNOWN;
     }
 
     @Override
@@ -290,6 +293,31 @@ public class DrSplitVisitor extends DorisParserBaseVisitor<SplitQueryType> {
 
     @Override
     public SplitQueryType visitShowTableStats(ShowTableStatsContext ctx) {
+        return SplitQueryType.PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitShowColumnStats(ShowColumnStatsContext ctx) {
+        return SplitQueryType.PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitShowIndexStats(ShowIndexStatsContext ctx) {
+        return SplitQueryType.PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitShowAnalyze(ShowAnalyzeContext ctx) {
+        return SplitQueryType.PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitShowQueuedAnalyzeJobs(ShowQueuedAnalyzeJobsContext ctx) {
+        return SplitQueryType.PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitShowAnalyzeTask(ShowAnalyzeTaskContext ctx) {
         return SplitQueryType.PERFORMANCE;
     }
 
@@ -309,6 +337,11 @@ public class DrSplitVisitor extends DorisParserBaseVisitor<SplitQueryType> {
     }
 
     @Override
+    public SplitQueryType visitShowConstraint(ShowConstraintContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
     public SplitQueryType visitAlterDatabaseSetQuota(AlterDatabaseSetQuotaContext ctx) {
         return SplitQueryType.ALTER_SCHEMA;
     }
@@ -320,12 +353,47 @@ public class DrSplitVisitor extends DorisParserBaseVisitor<SplitQueryType> {
 
     @Override
     public SplitQueryType visitAlterResource(AlterResourceContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitAlterRepository(AlterRepositoryContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitAlterWorkloadGroup(AlterWorkloadGroupContext ctx) {
         return SplitQueryType.ALTER_RESOURCE_GROUP;
     }
 
     @Override
+    public SplitQueryType visitAlterComputeGroup(AlterComputeGroupContext ctx) {
+        return SplitQueryType.ALTER_RESOURCE_GROUP;
+    }
+
+    @Override
+    public SplitQueryType visitAlterTableExecute(AlterTableExecuteContext ctx) {
+        return SplitQueryType.ADMIN_TABLE;
+    }
+
+    @Override
+    public SplitQueryType visitAlterUser(AlterUserContext ctx) {
+        return SplitQueryType.ALTER_USER;
+    }
+
+    @Override
+    public SplitQueryType visitAlterJob(AlterJobContext ctx) {
+        return SplitQueryType.ALTER_JOB;
+    }
+
+    @Override
+    public SplitQueryType visitCancelJobTask(CancelJobTaskContext ctx) {
+        return SplitQueryType.ADMIN_JOB;
+    }
+
+    @Override
     public SplitQueryType visitDropSqlBlockRule(DropSqlBlockRuleContext ctx) {
-        return SplitQueryType.ADMIN;
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
     }
 
     @Override
@@ -335,22 +403,22 @@ public class DrSplitVisitor extends DorisParserBaseVisitor<SplitQueryType> {
 
     @Override
     public SplitQueryType visitDropWorkloadGroup(DropWorkloadGroupContext ctx) {
-        return SplitQueryType.ADMIN;
+        return SplitQueryType.DROP_RESOURCE_GROUP;
     }
 
     @Override
     public SplitQueryType visitDropWorkloadPolicy(DropWorkloadPolicyContext ctx) {
-        return SplitQueryType.ADMIN;
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
     }
 
     @Override
     public SplitQueryType visitDropStoragePolicy(DropStoragePolicyContext ctx) {
-        return SplitQueryType.ADMIN;
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
     }
 
     @Override
     public SplitQueryType visitDropEncryptkey(DropEncryptkeyContext ctx) {
-        return SplitQueryType.ADMIN;
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
     }
 
     @Override
@@ -399,12 +467,137 @@ public class DrSplitVisitor extends DorisParserBaseVisitor<SplitQueryType> {
     }
 
     @Override
+    public SplitQueryType visitBuildIndex(BuildIndexContext ctx) {
+        return SplitQueryType.ADMIN;
+    }
+
+    @Override
     public SplitQueryType visitCreateView(CreateViewContext ctx) {
         return SplitQueryType.CREATE_VIEW;
     }
 
     @Override
     public SplitQueryType visitCreateFile(CreateFileContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitDropResource(DropResourceContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitDropRepository(DropRepositoryContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitCreateDictionary(CreateDictionaryContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitDropDictionary(DropDictionaryContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitRefreshDictionary(RefreshDictionaryContext ctx) {
+        return SplitQueryType.ADMIN;
+    }
+
+    @Override
+    public SplitQueryType visitCreateAuthenticationIntegration(CreateAuthenticationIntegrationContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitAlterAuthenticationIntegrationProperties(AlterAuthenticationIntegrationPropertiesContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitAlterAuthenticationIntegrationUnsetProperties(AlterAuthenticationIntegrationUnsetPropertiesContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitAlterAuthenticationIntegrationComment(AlterAuthenticationIntegrationCommentContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitDropAuthenticationIntegration(DropAuthenticationIntegrationContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitCreateRoleMapping(CreateRoleMappingContext ctx) {
+        return SplitQueryType.GRANT;
+    }
+
+    @Override
+    public SplitQueryType visitDropRoleMapping(DropRoleMappingContext ctx) {
+        return SplitQueryType.REVOKE;
+    }
+
+    @Override
+    public SplitQueryType visitCreateStage(CreateStageContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitDropStage(DropStageContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitCreateIndexAnalyzer(CreateIndexAnalyzerContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitCreateIndexTokenizer(CreateIndexTokenizerContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitCreateIndexTokenFilter(CreateIndexTokenFilterContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitCreateIndexCharFilter(CreateIndexCharFilterContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitCreateIndexNormalizer(CreateIndexNormalizerContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitDropIndexAnalyzer(DropIndexAnalyzerContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitDropIndexTokenizer(DropIndexTokenizerContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitDropIndexTokenFilter(DropIndexTokenFilterContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitDropIndexCharFilter(DropIndexCharFilterContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitDropIndexNormalizer(DropIndexNormalizerContext ctx) {
         return SplitQueryType.SYSTEM_SETTING_WRITE;
     }
 
@@ -450,12 +643,52 @@ public class DrSplitVisitor extends DorisParserBaseVisitor<SplitQueryType> {
 
     @Override
     public SplitQueryType visitDescribeTable(DescribeTableContext ctx) {
-        return SplitQueryType.UNKNOWN;
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitSupportedDescribeStatementAlias(SupportedDescribeStatementAliasContext ctx) {
+        return SplitQueryType.METADATA;
     }
 
     @Override
     public SplitQueryType visitSupportedAdminStatementAlias(SupportedAdminStatementAliasContext ctx) {
         return SplitQueryType.ADMIN;
+    }
+
+    @Override
+    public SplitQueryType visitAnalyzeDatabase(AnalyzeDatabaseContext ctx) {
+        return SplitQueryType.ADMIN_PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitAlterTableStats(AlterTableStatsContext ctx) {
+        return SplitQueryType.ADMIN_PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitDropStats(DropStatsContext ctx) {
+        return SplitQueryType.ADMIN_PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitDropCachedStats(DropCachedStatsContext ctx) {
+        return SplitQueryType.ADMIN_PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitDropExpiredStats(DropExpiredStatsContext ctx) {
+        return SplitQueryType.ADMIN_PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitKillAnalyzeJob(KillAnalyzeJobContext ctx) {
+        return SplitQueryType.ADMIN_PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitDropAnalyzeJob(DropAnalyzeJobContext ctx) {
+        return SplitQueryType.ADMIN_PERFORMANCE;
     }
 
     @Override
@@ -560,7 +793,93 @@ public class DrSplitVisitor extends DorisParserBaseVisitor<SplitQueryType> {
 
     @Override
     public SplitQueryType visitSupportedShowStatementAlias(SupportedShowStatementAliasContext ctx) {
-        return SplitQueryType.UNKNOWN;
+        SupportedShowStatementContext show = ctx.supportedShowStatement();
+        if (show instanceof ShowProcessListContext || show instanceof ShowWarningErrorsContext || show instanceof ShowWarningErrorCountContext || show instanceof ShowStatusContext
+            || show instanceof ShowOpenTablesContext || show instanceof ShowLoadProfileContext || show instanceof ShowQueryProfileContext
+            || show instanceof ShowDiagnoseTabletContext || show instanceof ShowQueryStatsContext || show instanceof ShowDataSkewContext) {
+            return SplitQueryType.PERFORMANCE;
+        }
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitShowCreateMTMV(ShowCreateMTMVContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitShowCreateLoad(ShowCreateLoadContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitShowIndexAnalyzer(ShowIndexAnalyzerContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitShowIndexTokenizer(ShowIndexTokenizerContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitShowIndexTokenFilter(ShowIndexTokenFilterContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitShowIndexCharFilter(ShowIndexCharFilterContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitShowIndexNormalizer(ShowIndexNormalizerContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitHelp(HelpContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitBackup(BackupContext ctx) {
+        return SplitQueryType.DATA_EXPORT;
+    }
+
+    @Override
+    public SplitQueryType visitRestore(RestoreContext ctx) {
+        return SplitQueryType.DATA_IMPORT;
+    }
+
+    @Override
+    public SplitQueryType visitWarmUpCluster(WarmUpClusterContext ctx) {
+        return SplitQueryType.ADMIN_PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitWarmUpSelect(WarmUpSelectContext ctx) {
+        return SplitQueryType.ADMIN_PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitLockTables(LockTablesContext ctx) {
+        return SplitQueryType.SESSION_LOCK;
+    }
+
+    @Override
+    public SplitQueryType visitUnlockTables(UnlockTablesContext ctx) {
+        return SplitQueryType.SESSION_LOCK;
+    }
+
+    @Override
+    public SplitQueryType visitInstallPlugin(InstallPluginContext ctx) {
+        return SplitQueryType.CREATE_LIBRARY;
+    }
+
+    @Override
+    public SplitQueryType visitUninstallPlugin(UninstallPluginContext ctx) {
+        return SplitQueryType.DROP_LIBRARY;
     }
 
     @Override
@@ -589,6 +908,21 @@ public class DrSplitVisitor extends DorisParserBaseVisitor<SplitQueryType> {
     }
 
     @Override
+    public SplitQueryType visitInsertIntoTVF(InsertIntoTVFContext ctx) {
+        return SplitQueryType.INSERT;
+    }
+
+    @Override
+    public SplitQueryType visitMergeInto(MergeIntoContext ctx) {
+        return SplitQueryType.MERGE;
+    }
+
+    @Override
+    public SplitQueryType visitReplay(ReplayContext ctx) {
+        return SplitQueryType.PERFORMANCE;
+    }
+
+    @Override
     public SplitQueryType visitUpdate(UpdateContext ctx) {
         return SplitQueryType.UPDATE;
     }
@@ -611,6 +945,81 @@ public class DrSplitVisitor extends DorisParserBaseVisitor<SplitQueryType> {
     @Override
     public SplitQueryType visitDelete(DeleteContext ctx) {
         return SplitQueryType.DELETE;
+    }
+
+    @Override
+    public SplitQueryType visitSetUserProperties(SetUserPropertiesContext ctx) {
+        return SplitQueryType.ALTER_USER;
+    }
+
+    @Override
+    public SplitQueryType visitSetDefaultStorageVault(SetDefaultStorageVaultContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitSetLdapAdminPassword(SetLdapAdminPasswordContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitUseCloudCluster(UseCloudClusterContext ctx) {
+        return SplitQueryType.ADMIN_RESOURCE_GROUP;
+    }
+
+    @Override
+    public SplitQueryType visitCancelLoad(CancelLoadContext ctx) {
+        return SplitQueryType.DATA_IMPORT;
+    }
+
+    @Override
+    public SplitQueryType visitCancelExport(CancelExportContext ctx) {
+        return SplitQueryType.DATA_EXPORT;
+    }
+
+    @Override
+    public SplitQueryType visitCancelWarmUpJob(CancelWarmUpJobContext ctx) {
+        return SplitQueryType.ADMIN_PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitCancelDecommisionBackend(CancelDecommisionBackendContext ctx) {
+        return SplitQueryType.ADMIN;
+    }
+
+    @Override
+    public SplitQueryType visitCancelBackup(CancelBackupContext ctx) {
+        return SplitQueryType.ADMIN;
+    }
+
+    @Override
+    public SplitQueryType visitCancelRestore(CancelRestoreContext ctx) {
+        return SplitQueryType.ADMIN;
+    }
+
+    @Override
+    public SplitQueryType visitCancelBuildIndex(CancelBuildIndexContext ctx) {
+        return SplitQueryType.ADMIN;
+    }
+
+    @Override
+    public SplitQueryType visitDropRowPolicy(DropRowPolicyContext ctx) {
+        return SplitQueryType.DROP_POLICY;
+    }
+
+    @Override
+    public SplitQueryType visitPauseMTMV(PauseMTMVContext ctx) {
+        return SplitQueryType.ADMIN_JOB;
+    }
+
+    @Override
+    public SplitQueryType visitResumeMTMV(ResumeMTMVContext ctx) {
+        return SplitQueryType.ADMIN_JOB;
+    }
+
+    @Override
+    public SplitQueryType visitCancelMTMVTask(CancelMTMVTaskContext ctx) {
+        return SplitQueryType.ADMIN_JOB;
     }
 
     @Override

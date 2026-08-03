@@ -33,6 +33,10 @@ public class PgSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
     private final PgDslProvider        provider;
     private final ThreadLocal<Integer> lastStatementStart = new ThreadLocal<>();
 
+    public PgSplitAnalysisSpi(){
+        this(PostgresVersion.LATEST);
+    }
+
     public PgSplitAnalysisSpi(PostgresVersion version){
         this.provider = new PgDslProvider(version);
     }
@@ -43,6 +47,11 @@ public class PgSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
 
     protected DslProvider dslProvider() {
         return provider;
+    }
+
+    @Override
+    protected Object predictionCacheScope() {
+        return this.provider.version();
     }
 
     @Override

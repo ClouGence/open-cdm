@@ -98,3 +98,15 @@ expect:
     "Instance(1:6~1:14) /test/1/"
   ]
 }
+----------
+[dameng_permission_comment_database_as_schema]
+sql:
+comment on database is 'CODEX';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SPACE": [
+    "Schema(1:11~1:19) /test/1/catalog1/schema1/"
+  ]
+}

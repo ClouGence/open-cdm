@@ -55,6 +55,7 @@ options {
 
 @header {
 import com.clougence.sql.postgres.analysis.security.base.PgSqlLexerBase;
+import com.clougence.sql.postgres.parser.PostgresVersion;
 }
 
 // Insert here @header for C++ lexer.
@@ -62,8 +63,8 @@ import com.clougence.sql.postgres.analysis.security.base.PgSqlLexerBase;
 Dollar: '$';
 OPEN_PAREN: '(';
 CLOSE_PAREN: ')';
-OPEN_BRACKET: '[';
-CLOSE_BRACKET: ']';
+OPEN_BRACKET: '[' {enterBracket();};
+CLOSE_BRACKET: ']' {exitBracket();};
 COMMA: ',';
 SEMI: ';';
 COLON: ':';
@@ -468,6 +469,7 @@ NOTIFY: N O T I F Y;
 NOWAIT: N O W A I T;
 NULLS_P: N U L L S;
 OBJECT_P: O B J E C T;
+OBJECTS_P: O B J E C T S;
 OF: O F;
 OFF: O F F;
 OIDS: O I D S;
@@ -728,12 +730,9 @@ FORMAT: F O R M A T;
 Identifier: IdentifierStartChar IdentifierChar*;
 fragment IdentifierStartChar: // these are the valid identifier start characters below 0x7F
     [a-zA-Z_]
-    | // these are the valid characters from 0x80 to 0xFF
-    [\u00AA\u00B5\u00BA\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u00FF]
-    |                               // these are the letters above 0xFF which only need a single UTF-16 code unit
-    [\u0100-\uD7FF\uE000-\uFFFF]    {this.CharIsLetter()}?
-    |                               // letters which require multiple UTF-16 code units
-    [\uD800-\uDBFF] [\uDC00-\uDFFF] {this.CheckIfUtf32Letter()}?
+    | // PostgreSQL scan.l accepts every valid non-ASCII code point in an unquoted identifier.
+    [\u0080-\uD7FF\uE000-\uFFFF]
+    | [\u{10000}-\u{10FFFF}]
 ;
 fragment IdentifierChar: StrictIdentifierChar | '$';
 fragment StrictIdentifierChar: IdentifierStartChar | [0-9];
@@ -817,21 +816,39 @@ InvalidHexadecimalStringConstant: InvalidUnterminatedHexadecimalStringConstant '
 InvalidUnterminatedHexadecimalStringConstant: 'X' UnterminatedStringConstant;
 // Numeric Constants (4.1.2.6)
 
-Integral: Digits;
-BinaryIntegral: '0b' Digits;
-OctalIntegral: '0o' Digits;
-HexadecimalIntegral: '0x' Digits;
+InvalidNumericLiteral15:
+    {between(PostgresVersion.POSTGRES_15, PostgresVersion.POSTGRES_15)}? (
+        '0b' '_'? BinaryDigits ('_' BinaryDigits)*
+        | '0o' '_'? OctalDigits ('_' OctalDigits)*
+        | '0x' '_'? HexadecimalDigits ('_' HexadecimalDigits)*
+        | [0-9]+ ('_' [0-9]+)+ ('.' [0-9]+ ('_' [0-9]+)*)? (E [+-]? [0-9]+ ('_' [0-9]+)*)?
+        | '.' [0-9]+ ('_' [0-9]+)+ (E [+-]? [0-9]+ ('_' [0-9]+)*)?
+    )
+;
+Integral: {atLeast(PostgresVersion.POSTGRES_16)}? NumericDigits | Digits;
+BinaryIntegral: {atLeast(PostgresVersion.POSTGRES_16)}? '0b' '_'? BinaryDigits ('_' BinaryDigits)*;
+OctalIntegral: {atLeast(PostgresVersion.POSTGRES_16)}? '0o' '_'? OctalDigits ('_' OctalDigits)*;
+HexadecimalIntegral: {atLeast(PostgresVersion.POSTGRES_16)}? '0x' '_'? HexadecimalDigits ('_' HexadecimalDigits)*;
 NumericFail: Digits '..' {this.HandleNumericFail();};
 Numeric:
-    Digits '.' Digits? /*? replaced with + to solve problem with DOT_DOT .. but this surely must be rewriten */ (
-        'E' [+-]? Digits
+    {atLeast(PostgresVersion.POSTGRES_16)}? (
+        NumericDigits '.' NumericDigits? (E [+-]? NumericDigits)?
+        | '.' NumericDigits (E [+-]? NumericDigits)?
+        | NumericDigits E [+-]? NumericDigits
+    )
+    | Digits '.' Digits? /*? replaced with + to solve problem with DOT_DOT .. but this surely must be rewriten */ (
+        E [+-]? Digits
     )?
-    | '.' Digits ('E' [+-]? Digits)?
-    | Digits 'E' [+-]? Digits
+    | '.' Digits (E [+-]? Digits)?
+    | Digits E [+-]? Digits
 ;
 fragment Digits: [0-9]+;
-PLSQLVARIABLENAME: ':' [A-Z_] [A-Z_0-9$]*;
-PLSQLIDENTIFIER: ':"' ('\\' . | '""' | ~ ('"' | '\\'))* '"';
+fragment NumericDigits: [0-9]+ ('_' [0-9]+)*;
+fragment BinaryDigits: [01]+;
+fragment OctalDigits: [0-7]+;
+fragment HexadecimalDigits: [0-9A-F]+;
+PLSQLVARIABLENAME: {outsideBrackets()}? ':' [A-Z_] [A-Z_0-9$]*;
+PLSQLIDENTIFIER: {outsideBrackets()}? ':"' ('\\' . | '""' | ~ ('"' | '\\'))* '"';
 //
 
 // WHITESPACE (4.1)

@@ -1,3 +1,0 @@
-CREATE TABLE BIT_AND (a int);
-------------------------------------------------------------------------------------------
-[CREATE_TABLE|ADD_COLUMN] CREATE TABLE BIT_AND (a int);

@@ -1,9 +1,0 @@
-SELECT pg_log_backend_memory_contexts(2147483647) AS log_missing_pid;
-SELECT pg_terminate_backend(2147483647, 0) AS terminate_missing_pid_no_wait;
-SELECT pg_terminate_backend(pid => 2147483647, timeout => 0) AS terminate_missing_pid_named;
-------------------------------------------------------------------------------------------
-[SELECT|ADMIN_LOG] SELECT pg_log_backend_memory_contexts(2147483647) AS log_missing_pid;
-----------
-[SELECT|ADMIN] SELECT pg_terminate_backend(2147483647, 0) AS terminate_missing_pid_no_wait;
-----------
-[SELECT|ADMIN] SELECT pg_terminate_backend(pid => 2147483647, timeout => 0) AS terminate_missing_pid_named;

@@ -45,16 +45,15 @@ import com.clougence.sql.postgres.parser.antlr.PgSqlLexer;
 
 public abstract class PgSqlLexerBase extends Lexer {
 
-    protected final Stack<String> tags = new Stack<>();
+    protected final Stack<String> tags    = new Stack<>();
     private PostgresVersion       version = PostgresVersion.LATEST;
+    private int                   bracketDepth;
 
     protected PgSqlLexerBase(CharStream input){
         super(input);
     }
 
-    public final void setVersion(PostgresVersion version) {
-        this.version = version == null ? PostgresVersion.LATEST : version;
-    }
+    public final void setVersion(PostgresVersion version) { this.version = version == null ? PostgresVersion.LATEST : version; }
 
     protected final boolean atLeast(PostgresVersion minimum) {
         return version.atLeast(minimum);
@@ -66,6 +65,20 @@ public abstract class PgSqlLexerBase extends Lexer {
 
     protected final boolean between(PostgresVersion minimum, PostgresVersion maximum) {
         return version.between(minimum, maximum);
+    }
+
+    protected final void enterBracket() {
+        bracketDepth++;
+    }
+
+    protected final void exitBracket() {
+        if (bracketDepth > 0) {
+            bracketDepth--;
+        }
+    }
+
+    protected final boolean outsideBrackets() {
+        return bracketDepth == 0;
     }
 
     public void PushTag() {

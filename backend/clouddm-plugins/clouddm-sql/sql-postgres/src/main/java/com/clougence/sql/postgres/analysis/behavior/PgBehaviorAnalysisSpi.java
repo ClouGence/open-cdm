@@ -26,6 +26,10 @@ public class PgBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
         this.provider = new PgDslProvider(version);
     }
 
+    public PostgresVersion version() {
+        return provider.version();
+    }
+
     @Override
     public List<StatementBehavior> analysisBehavior(String query, Map<UmiTypes, Object> levels, int baseLine, int baseColumn) {
         if (StringUtils.isBlank(query)) {

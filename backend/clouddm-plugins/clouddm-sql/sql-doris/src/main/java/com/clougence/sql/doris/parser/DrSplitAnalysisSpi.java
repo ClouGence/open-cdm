@@ -32,10 +32,16 @@ import com.clougence.sql.doris.parser.antlr.DorisParser;
 
 public class DrSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
 
-    private static final Set<String> KNOWN_USER_FUNCTIONS = Set.of("ads_version", "test", "test_func", "test_func1", "test_function");
+    private static final Set<String> KNOWN_USER_FUNCTIONS     = Set.of("ads_version", "test", "test_func", "test_func1", "test_function");
+    private static final Set<String> EXTERNAL_TABLE_FUNCTIONS = Set.of("azure", "gcs", "hdfs", "http_stream", "jdbc", "local", "s3");
+    private final DrDslProvider      provider;
+
+    public DrSplitAnalysisSpi(DrDslProvider provider){
+        this.provider = provider;
+    }
 
     protected DslProvider dslProvider() {
-        return DrDslProvider.INSTANCE;
+        return this.provider;
     }
 
     protected AbstractParseTreeVisitor<SplitQueryType> splitVisitor() {
@@ -43,9 +49,52 @@ public class DrSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
     }
 
     @Override
+    protected Set<SplitQueryType> collectTypes(ParserRuleContext context, String script) {
+        DorisParser.CreateTableContext createTable = findContext(context, DorisParser.CreateTableContext.class);
+        if (createTable == null) {
+            return super.collectTypes(context, script);
+        }
+
+        Set<SplitQueryType> types = new LinkedHashSet<>();
+        types.add(normalizeType(context.accept(splitVisitor()), script));
+        if (createTable.columnDefs() != null) {
+            types.add(SplitQueryType.ADD_COLUMN);
+            for (DorisParser.ColumnDefContext column : createTable.columnDefs().columnDef()) {
+                if (column.comment != null) {
+                    types.add(SplitQueryType.COMMENT_COLUMN);
+                }
+            }
+        } else if (createTable.ctasCols != null) {
+            types.add(SplitQueryType.ADD_COLUMN);
+        }
+        if (createTable.indexDefs() != null) {
+            types.add(SplitQueryType.ADD_INDEX);
+            for (DorisParser.IndexDefContext index : createTable.indexDefs().indexDef()) {
+                if (index.comment != null) {
+                    types.add(SplitQueryType.COMMENT_INDEX);
+                }
+            }
+        }
+        if (createTable.COMMENT() != null) {
+            types.add(SplitQueryType.COMMENT_TABLE);
+        }
+        return types;
+    }
+
+    @Override
     protected SplitQueryType additionalType(ParseTree tree) {
         if (tree instanceof DorisParser.QuerySpecificationContext && isExecutedDmlQuery(tree)) {
             return SplitQueryType.SELECT;
+        }
+        if (tree instanceof DorisParser.InsertIntoTVFContext) {
+            return SplitQueryType.DATA_EXPORT;
+        }
+        if (tree instanceof DorisParser.OutFileClauseContext) {
+            return SplitQueryType.DATA_EXPORT;
+        }
+        if (tree instanceof DorisParser.TableValuedFunctionContext function && isExecutedTableFunction(function)
+            && EXTERNAL_TABLE_FUNCTIONS.contains(function.tvfName.getText().toLowerCase(Locale.ROOT))) {
+            return SplitQueryType.DATA_IMPORT;
         }
         if (tree instanceof DorisParser.AddColumnClauseContext || tree instanceof DorisParser.AddColumnsClauseContext) {
             return SplitQueryType.ADD_COLUMN;
@@ -122,7 +171,8 @@ public class DrSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
             return false;
         }
         for (ParseTree current = tree.getParent(); current != null; current = current.getParent()) {
-            if (current instanceof DorisParser.InsertTableContext || current instanceof DorisParser.UpdateContext || current instanceof DorisParser.DeleteContext) {
+            if (current instanceof DorisParser.InsertTableContext || current instanceof DorisParser.InsertIntoTVFContext || current instanceof DorisParser.UpdateContext
+                || current instanceof DorisParser.DeleteContext || current instanceof DorisParser.MergeIntoContext) {
                 return true;
             }
             if (current instanceof DorisParser.CreateTableContext || current instanceof DorisParser.CreateViewContext || current instanceof DorisParser.CreateMTMVContext
@@ -138,13 +188,30 @@ public class DrSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
             return false;
         }
         for (ParseTree current = tree.getParent(); current != null; current = current.getParent()) {
-            if (current instanceof DorisParser.StatementDefaultContext || current instanceof DorisParser.InsertTableContext || current instanceof DorisParser.UpdateContext
-                || current instanceof DorisParser.DeleteContext) {
+            if (current instanceof DorisParser.StatementDefaultContext || current instanceof DorisParser.InsertTableContext || current instanceof DorisParser.InsertIntoTVFContext
+                || current instanceof DorisParser.UpdateContext || current instanceof DorisParser.DeleteContext || current instanceof DorisParser.MergeIntoContext) {
                 return true;
             }
             if (current instanceof DorisParser.CreateTableContext || current instanceof DorisParser.CreateAliasFunctionContext
                 || current instanceof DorisParser.CreateUserDefineFunctionContext) {
                 return false;
+            }
+        }
+        return false;
+    }
+
+    private boolean isExecutedTableFunction(ParseTree tree) {
+        if (hasAncestor(tree, DorisParser.CreateScheduledJobContext.class)) {
+            return false;
+        }
+        for (ParseTree current = tree.getParent(); current != null; current = current.getParent()) {
+            if (current instanceof DorisParser.CreateTableContext || current instanceof DorisParser.CreateViewContext || current instanceof DorisParser.CreateMTMVContext
+                || current instanceof DorisParser.AlterViewContext || current instanceof DorisParser.CreateScheduledJobContext) {
+                return false;
+            }
+            if (current instanceof DorisParser.StatementDefaultContext || current instanceof DorisParser.InsertTableContext || current instanceof DorisParser.InsertIntoTVFContext
+                || current instanceof DorisParser.UpdateContext || current instanceof DorisParser.DeleteContext || current instanceof DorisParser.MergeIntoContext) {
+                return true;
             }
         }
         return false;
@@ -160,6 +227,12 @@ public class DrSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
     private void collectBodyAdditionalTypes(ParseTree tree, Set<SplitQueryType> types) {
         if (tree instanceof DorisParser.QuerySpecificationContext) {
             types.add(SplitQueryType.SELECT);
+        } else if (tree instanceof DorisParser.InsertIntoTVFContext) {
+            types.add(SplitQueryType.DATA_EXPORT);
+        } else if (tree instanceof DorisParser.OutFileClauseContext) {
+            types.add(SplitQueryType.DATA_EXPORT);
+        } else if (tree instanceof DorisParser.TableValuedFunctionContext function && EXTERNAL_TABLE_FUNCTIONS.contains(function.tvfName.getText().toLowerCase(Locale.ROOT))) {
+            types.add(SplitQueryType.DATA_IMPORT);
         } else if (tree instanceof DorisParser.FunctionCallExpressionContext function) {
             SplitQueryType type = functionType(function);
             if (type != null) {
