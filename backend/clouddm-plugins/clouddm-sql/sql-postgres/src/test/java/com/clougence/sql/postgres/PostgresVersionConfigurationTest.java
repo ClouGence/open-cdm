@@ -4,8 +4,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import com.clougence.clouddm.sdk.sql.SqlParserParameters;
+import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageAnalysisSpi;
 import com.clougence.sql.postgres.analysis.behavior.PgBehaviorAnalysisSpi;
-import com.clougence.sql.postgres.analysis.lineage.PgLineageAnalysisSpi;
 import com.clougence.sql.postgres.analysis.security.PgSecDomainResolveSpi;
 import com.clougence.sql.postgres.editor.rewrite.PgRewriteSpi;
 import com.clougence.sql.postgres.parser.PgDslProvider;
@@ -34,7 +34,7 @@ public class PostgresVersionConfigurationTest {
         Assertions.assertEquals(PostgresVersion.POSTGRES_16, ((PgSplitAnalysisSpi) engine.splitAnalysisSpi(parameters)).version());
         Assertions.assertEquals(PostgresVersion.POSTGRES_16, ((PgSecDomainResolveSpi) engine.secDomainResolveSpi(parameters)).version());
         Assertions.assertEquals(PostgresVersion.POSTGRES_16, ((PgBehaviorAnalysisSpi) engine.behaviorAnalysisSpi(parameters)).version());
-        Assertions.assertEquals(PostgresVersion.POSTGRES_16, ((PgLineageAnalysisSpi) engine.lineageAnalysisSpi(parameters)).version());
+        Assertions.assertSame(LineageAnalysisSpi.EMPTY, engine.lineageAnalysisSpi(parameters));
         Assertions.assertEquals(PostgresVersion.POSTGRES_16, ((PgRewriteSpi) engine.rewriteSpi(parameters)).version());
     }
 
@@ -50,7 +50,7 @@ public class PostgresVersionConfigurationTest {
         Assertions.assertEquals(PostgresVersion.LATEST, ((PgSplitAnalysisSpi) engine.splitAnalysisSpi()).version());
         Assertions.assertEquals(PostgresVersion.LATEST, ((PgSecDomainResolveSpi) engine.secDomainResolveSpi()).version());
         Assertions.assertEquals(PostgresVersion.LATEST, ((PgBehaviorAnalysisSpi) engine.behaviorAnalysisSpi()).version());
-        Assertions.assertEquals(PostgresVersion.LATEST, ((PgLineageAnalysisSpi) engine.lineageAnalysisSpi()).version());
+        Assertions.assertSame(LineageAnalysisSpi.EMPTY, engine.lineageAnalysisSpi());
         Assertions.assertEquals(PostgresVersion.LATEST, ((PgRewriteSpi) engine.rewriteSpi()).version());
         Assertions.assertEquals(PostgresVersion.LATEST, ((PgDslProvider) engine.dslProvider(SqlParserParameters.ofVersion("unsupported"))).version());
     }
