@@ -1,0 +1,1738 @@
+[alter_table_add_column__001]
+sql:
+ALTER TABLE codex_alter_audit_t ADD COLUMN y INT AFTER a, LOCK=NONE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/schema1/codex_alter_audit_t/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_add_constraint__002]
+sql:
+ALTER TABLE codex_constraint_c06 ADD CONSTRAINT CHECK (id > 0) NOT ENFORCED;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:32) /test/1/catalog1/schema1/codex_constraint_c06/",
+      "action" : "ALTER"
+    },
+    {
+      "subject": "Constraint(1:33~1:75) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[alter_table_add_column__003]
+sql:
+ALTER TABLE codex_alter_audit_t ADD COLUMN x INT FIRST, ALGORITHM=INPLACE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/schema1/codex_alter_audit_t/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_add_column_rename_column_drop_column__004]
+sql:
+ALTER TABLE codex_alter_audit_t ADD COLUMN d INT DEFAULT 5, RENAME COLUMN c TO b, DROP COLUMN b;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/schema1/codex_alter_audit_t/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_rename_index_alter_column__005]
+sql:
+ALTER TABLE codex_alter_audit_t ALGORITHM=INPLACE, RENAME KEY kkkk TO k, ALTER COLUMN i SET DEFAULT 100;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Index(1:62~1:66) /test/1/catalog1/schema1/kkkk/",
+      "action" : "RENAME",
+      "target" : "Index(1:70~1:71) /test/1/catalog1/schema1/k/"
+    },
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/schema1/codex_alter_audit_t/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_alter_column_rename_column__006]
+sql:
+ALTER TABLE codex_alter_audit_t CHANGE COLUMN c c_new INT AFTER a, ALGORITHM=INPLACE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/schema1/codex_alter_audit_t/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_alter_column_rename_column__007]
+sql:
+ALTER TABLE codex_alter_audit_t CHANGE COLUMN c c_new INT AFTER a, LOCK=NONE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/schema1/codex_alter_audit_t/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_alter_column_rename_column__008]
+sql:
+ALTER TABLE codex_alter_audit_t CHANGE COLUMN v1 v1_new INT GENERATED ALWAYS AS(a+b) VIRTUAL AFTER a, ALGORITHM=INPLACE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/schema1/codex_alter_audit_t/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_alter_column_rename_column__009]
+sql:
+ALTER TABLE codex_alter_audit_t CHANGE COLUMN a b INT, RENAME COLUMN b TO c, CHANGE COLUMN c d FLOAT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/schema1/codex_alter_audit_t/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table__010]
+sql:
+ALTER TABLE codex_alter_audit_t CHARACTER SET utf8, CHARACTER SET utf8;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/schema1/codex_alter_audit_t/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table__011]
+sql:
+ALTER TABLE codex_alter_audit_t CHARACTER SET utf8, CONVERT TO CHARACTER SET utf8;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/schema1/codex_alter_audit_t/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table__012]
+sql:
+ALTER TABLE codex_alter_audit_t CONVERT TO CHARACTER SET utf8, CHARACTER SET utf8;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/schema1/codex_alter_audit_t/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table__013]
+sql:
+ALTER TABLE codex_alter_audit_t CONVERT TO CHARACTER SET utf8, CONVERT TO CHARACTER SET utf8;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/schema1/codex_alter_audit_t/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_drop_column__014]
+sql:
+ALTER TABLE codex_alter_audit_t DROP COLUMN a, ALGORITHM=INPLACE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/schema1/codex_alter_audit_t/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_drop_column__015]
+sql:
+ALTER TABLE codex_alter_audit_t DROP COLUMN a, LOCK=NONE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/schema1/codex_alter_audit_t/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_drop_index_rename_index__016]
+sql:
+ALTER TABLE codex_alter_audit_t DROP KEY c, RENAME KEY d TO c;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Index(1:55~1:56) /test/1/catalog1/schema1/d/",
+      "action" : "RENAME",
+      "target" : "Index(1:60~1:61) /test/1/catalog1/schema1/c/"
+    },
+    {
+      "subject": "Index(1:41~1:42) /test/1/catalog1/schema1/c/",
+      "action" : "DROP",
+      "target" : "Table(1:12~1:31) /test/1/catalog1/schema1/codex_alter_audit_t/"
+    }
+  ]
+}
+----------
+[alter_table_admin_table__017]
+sql:
+ALTER TABLE codex_alter_audit_t ENABLE KEYS, ALGORITHM=INPLACE, LOCK=EXCLUSIVE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/schema1/codex_alter_audit_t/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_alter_column__018]
+sql:
+ALTER TABLE codex_alter_audit_t MODIFY fld3 INT GENERATED ALWAYS AS (-fld1) STORED DEFAULT -1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/schema1/codex_alter_audit_t/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_add_column__019]
+sql:
+ALTER TABLE codex_alter_audit_t ADD COLUMN c DATE GENERATED ALWAYS AS ('1999-09-09') STORED NOT NULL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/schema1/codex_alter_audit_t/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_add_column__020]
+sql:
+ALTER TABLE codex_alter_audit_t ADD COLUMN b DATE GENERATED ALWAYS AS ('1999-09-09') VIRTUAL NOT NULL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/schema1/codex_alter_audit_t/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[admin_log__021]
+sql:
+ALTER INSTANCE DISABLE INNODB REDO_LOG;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_LOG": [
+    {
+      "subject": "ConfigKey(1:0~1:38) /test/1/",
+      "action": "UNSAFE"
+    }
+  ]
+}
+----------
+[admin_log__022]
+sql:
+ALTER INSTANCE ENABLE INNODB REDO_LOG;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_LOG": [
+    {
+      "subject": "ConfigKey(1:0~1:37) /test/1/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[system_setting_write__023]
+sql:
+ALTER INSTANCE RELOAD TLS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:0~1:25) /test/1/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[system_setting_write__024]
+sql:
+ALTER INSTANCE RELOAD TLS NO ROLLBACK ON ERROR;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:0~1:46) /test/1/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[system_setting_write__025]
+sql:
+ALTER INSTANCE RELOAD TLS FOR CHANNEL mysql_main;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:0~1:48) /test/1/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[system_setting_write__026]
+sql:
+ALTER INSTANCE RELOAD TLS FOR CHANNEL mysql_main NO ROLLBACK ON ERROR;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:0~1:69) /test/1/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[system_setting_write__027]
+sql:
+ALTER INSTANCE RELOAD TLS FOR CHANNEL mysql_admin;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:0~1:49) /test/1/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[system_setting_write__028]
+sql:
+ALTER INSTANCE RELOAD TLS FOR CHANNEL mysql_admin NO ROLLBACK ON ERROR;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:0~1:70) /test/1/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[admin_log__029]
+sql:
+ALTER INSTANCE ROTATE BINLOG MASTER KEY;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_LOG": [
+    {
+      "subject": "ConfigKey(1:0~1:39) /test/1/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[system_setting_write__030]
+sql:
+ALTER INSTANCE RELOAD KEYRING;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:0~1:29) /test/1/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[system_setting_write__031]
+sql:
+ALTER INSTANCE ROTATE INNODB MASTER KEY;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:0~1:39) /test/1/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[alter_table_alter_column__032]
+sql:
+ALTER TABLE codex_alter_audit_t ALTER COLUMN i SET DEFAULT 11, ALGORITHM=INSTANT, LOCK=NONE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/schema1/codex_alter_audit_t/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_add_column_drop_column_alter_column_rename_column__033]
+sql:
+ALTER TABLE codex_alter_audit_t ADD COLUMN col4_5 VARCHAR(20) NOT NULL AFTER col4, ADD COLUMN col7 VARCHAR(30) NOT NULL AFTER col5, ADD COLUMN col8 DATETIME NOT NULL, DROP COLUMN to_be_deleted, CHANGE COLUMN col2 fourth VARCHAR(30) NOT NULL AFTER col3, MODIFY COLUMN col6 INT NOT NULL FIRST;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/schema1/codex_alter_audit_t/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_alter_column__034]
+sql:
+ALTER TABLE codex_alter_audit_t MODIFY COLUMN e INT AFTER a, ALGORITHM=INPLACE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/schema1/codex_alter_audit_t/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_alter_column__035]
+sql:
+ALTER TABLE codex_alter_audit_t MODIFY COLUMN e INT AFTER a, LOCK=NONE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/schema1/codex_alter_audit_t/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_alter_column_admin_table__036]
+sql:
+ALTER TABLE codex_alter_audit_t MODIFY a BIGINT, DISABLE KEYS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/schema1/codex_alter_audit_t/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_alter_column__037]
+sql:
+ALTER TABLE codex_alter_audit_t MODIFY COLUMN v1 INT GENERATED ALWAYS AS(a+b) VIRTUAL AFTER a, ALGORITHM=INPLACE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/schema1/codex_alter_audit_t/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_rename_column__038]
+sql:
+ALTER TABLE codex_alter_audit_t RENAME COLUMN m TO x, RENAME COLUMN b TO y, RENAME COLUMN c TO z;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/schema1/codex_alter_audit_t/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_rename_index_rename_table__039]
+sql:
+ALTER TABLE codex_alter_audit_t RENAME KEY k TO kk, RENAME TO codex_alter_audit_u;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Index(1:43~1:44) /test/1/catalog1/schema1/k/",
+      "action" : "RENAME",
+      "target" : "Index(1:48~1:50) /test/1/catalog1/schema1/kk/"
+    },
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/schema1/codex_alter_audit_t/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_rename_table_add_column_comment_column__040]
+sql:
+ALTER TABLE codex_alter_audit_t RENAME codex_alter_audit_u, ADD c CHAR(10) COMMENT 'no comment';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/schema1/codex_alter_audit_t/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table__041]
+sql:
+ALTER TABLE codex_alter_audit_t PACK_KEYS=1 PACK_KEYS=0 STATS_PERSISTENT=1 STATS_PERSISTENT=0 CHECKSUM=1 CHECKSUM=0 DELAY_KEY_WRITE=1 DELAY_KEY_WRITE=0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/schema1/codex_alter_audit_t/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table__042]
+sql:
+ALTER TABLE split_native_gap.t_compression COMPRESSION='none';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:42) /test/1/catalog1/split_native_gap/t_compression/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_alter_constraint__043]
+sql:
+ALTER TABLE t1 ALTER CHECK t1_chk_1 ENFORCED, ALGORITHM=COPY;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:14) /test/1/catalog1/schema1/t1/",
+      "action" : "ALTER"
+    },
+    {
+      "subject": "Constraint(1:27~1:35) /test/1/catalog1/schema1/t1_chk_1/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table__044]
+sql:
+ALTER TABLE split_table.alter_common;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:36) /test/1/catalog1/split_table/alter_common/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_add_column__045]
+sql:
+ALTER TABLE split_table.alter_common ADD COLUMN add_first INT FIRST;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:36) /test/1/catalog1/split_table/alter_common/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_add_column__046]
+sql:
+ALTER TABLE split_table.alter_common ADD add_after INT AFTER id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:36) /test/1/catalog1/split_table/alter_common/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_add_column__047]
+sql:
+ALTER TABLE split_table.alter_common ADD (multi_a INT, multi_b VARCHAR(20));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:36) /test/1/catalog1/split_table/alter_common/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_alter_column_rename_column__048]
+sql:
+ALTER TABLE split_table.alter_common CHANGE COLUMN c changed BIGINT NOT NULL DEFAULT 0 AFTER parent_id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:36) /test/1/catalog1/split_table/alter_common/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_alter_column__049]
+sql:
+ALTER TABLE split_table.alter_common MODIFY changed BIGINT NULL FIRST;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:36) /test/1/catalog1/split_table/alter_common/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_alter_column__050]
+sql:
+ALTER TABLE split_table.alter_common ALTER changed SET DEFAULT 5;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:36) /test/1/catalog1/split_table/alter_common/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_alter_column__051]
+sql:
+ALTER TABLE split_table.alter_common ALTER COLUMN changed DROP DEFAULT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:36) /test/1/catalog1/split_table/alter_common/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_add_constraint__052]
+sql:
+ALTER TABLE split_table.alter_common ADD CONSTRAINT chk_new CHECK (changed >= 0);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:36) /test/1/catalog1/split_table/alter_common/",
+      "action" : "ALTER"
+    },
+    {
+      "subject": "Constraint(1:52~1:59) /test/1/catalog1/schema1/chk_new/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[alter_table_add_constraint__053]
+sql:
+ALTER TABLE split_table.alter_common ADD CONSTRAINT fk_new FOREIGN KEY (parent_id) REFERENCES split_table.parent(id) ON DELETE CASCADE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:36) /test/1/catalog1/split_table/alter_common/",
+      "action" : "ALTER",
+      "target" : "Table(1:94~1:112) /test/1/catalog1/split_table/parent/"
+    },
+    {
+      "subject": "Constraint(1:52~1:58) /test/1/catalog1/schema1/fk_new/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[alter_table_drop_constraint__054]
+sql:
+ALTER TABLE split_table.alter_common DROP FOREIGN KEY fk_new;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:36) /test/1/catalog1/split_table/alter_common/",
+      "action" : "ALTER"
+    },
+    {
+      "subject": "Constraint(1:54~1:60) /test/1/catalog1/schema1/fk_new/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[alter_table_drop_column__055]
+sql:
+ALTER TABLE split_table.alter_common DROP COLUMN multi_b, DROP multi_a RESTRICT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:36) /test/1/catalog1/split_table/alter_common/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_admin_table__056]
+sql:
+ALTER TABLE split_table.alter_common DISABLE KEYS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:36) /test/1/catalog1/split_table/alter_common/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_admin_table__057]
+sql:
+ALTER TABLE split_table.alter_common ENABLE KEYS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:36) /test/1/catalog1/split_table/alter_common/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_admin_table__058]
+sql:
+ALTER TABLE split_table.alter_common ORDER BY changed DESC, id ASC;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:36) /test/1/catalog1/split_table/alter_common/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table__059]
+sql:
+ALTER TABLE split_table.alter_common CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:36) /test/1/catalog1/split_table/alter_common/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table__060]
+sql:
+ALTER TABLE split_table.alter_common DEFAULT CHARACTER SET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:36) /test/1/catalog1/split_table/alter_common/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_admin_table__061]
+sql:
+ALTER TABLE split_table.alter_common FORCE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:36) /test/1/catalog1/split_table/alter_common/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table__062]
+sql:
+ALTER TABLE split_table.alter_common ALGORITHM=INSTANT, LOCK=NONE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:36) /test/1/catalog1/split_table/alter_common/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_comment_table__063]
+sql:
+ALTER TABLE split_table.alter_common COMMENT='altered', ROW_FORMAT=COMPACT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:36) /test/1/catalog1/split_table/alter_common/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_admin_table__064]
+sql:
+ALTER TABLE split_table.alter_common DISCARD TABLESPACE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:36) /test/1/catalog1/split_table/alter_common/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_admin_table__065]
+sql:
+ALTER TABLE split_table.alter_common IMPORT TABLESPACE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:36) /test/1/catalog1/split_table/alter_common/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_rename_column__066]
+sql:
+ALTER TABLE split_table.alter_modern RENAME COLUMN c TO c_new;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:36) /test/1/catalog1/split_table/alter_modern/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_alter_constraint__067]
+sql:
+ALTER TABLE split_table.alter_modern ALTER CHECK chk_one NOT ENFORCED;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:36) /test/1/catalog1/split_table/alter_modern/",
+      "action" : "ALTER"
+    },
+    {
+      "subject": "Constraint(1:49~1:56) /test/1/catalog1/schema1/chk_one/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_alter_constraint__068]
+sql:
+ALTER TABLE split_table.alter_modern ALTER CONSTRAINT chk_two ENFORCED;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:36) /test/1/catalog1/split_table/alter_modern/",
+      "action" : "ALTER"
+    },
+    {
+      "subject": "Constraint(1:54~1:61) /test/1/catalog1/schema1/chk_two/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_alter_column__069]
+sql:
+ALTER TABLE split_table.alter_modern ALTER COLUMN visible_col SET INVISIBLE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:36) /test/1/catalog1/split_table/alter_modern/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_alter_column__070]
+sql:
+ALTER TABLE split_table.alter_modern ALTER visible_col SET VISIBLE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:36) /test/1/catalog1/split_table/alter_modern/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_drop_constraint__071]
+sql:
+ALTER TABLE split_table.alter_modern DROP CHECK chk_one;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:36) /test/1/catalog1/split_table/alter_modern/",
+      "action" : "ALTER"
+    },
+    {
+      "subject": "Constraint(1:48~1:55) /test/1/catalog1/schema1/chk_one/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[alter_table_drop_constraint__072]
+sql:
+ALTER TABLE split_table.alter_modern DROP CONSTRAINT chk_two;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:36) /test/1/catalog1/split_table/alter_modern/",
+      "action" : "ALTER"
+    },
+    {
+      "subject": "Constraint(1:53~1:60) /test/1/catalog1/schema1/chk_two/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[alter_table__073]
+sql:
+ALTER TABLE split_table.alter_probe WITH VALIDATION;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:35) /test/1/catalog1/split_table/alter_probe/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table__074]
+sql:
+ALTER TABLE split_table.alter_probe WITHOUT VALIDATION;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:35) /test/1/catalog1/split_table/alter_probe/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table__075]
+sql:
+ALTER TABLE test.t1 TABLESPACE ts STORAGE DISK ENGINE=NDB;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:19) /test/1/catalog1/test/t1/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_add_partition__076]
+sql:
+ALTER TABLE t1 ADD PARTITION (PARTITION p3 DATA DIRECTORY='G:/mysqltest/p3Data' INDEX DIRECTORY='H:/mysqltest/p3Index');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:14) /test/1/catalog1/schema1/t1/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table__077]
+sql:
+ALTER TABLE m1 ENGINE=MRG_MyISAM UNION=(t1,t2) INSERT_METHOD=LAST;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:14) /test/1/catalog1/schema1/m1/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table__078]
+sql:
+ALTER TABLE test_ps_auto_recalc STATS_AUTO_RECALC=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/schema1/test_ps_auto_recalc/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table__079]
+sql:
+ALTER TABLE test_ps_sample_pages_used STATS_SAMPLE_PAGES=14;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:37) /test/1/catalog1/schema1/test_ps_sample_pages_used/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table__080]
+sql:
+ALTER TABLE t1 AUTO_INCREMENT=10;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:14) /test/1/catalog1/schema1/t1/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_comment_table__081]
+sql:
+ALTER TABLE t1 AVG_ROW_LENGTH=0 CHECKSUM=0 COMMENT="" MIN_ROWS=0 MAX_ROWS=0 PACK_KEYS=DEFAULT DELAY_KEY_WRITE=0 ROW_FORMAT=DEFAULT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:14) /test/1/catalog1/schema1/t1/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_add_column__082]
+sql:
+ALTER TABLE /*+ MAX_EXECUTION_TIME(100) */ t1 ADD b VARCHAR(200);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:43~1:45) /test/1/catalog1/schema1/t1/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table__083]
+sql:
+ALTER TABLE t1 ENCRYPTION="Y", ALGORITHM=COPY;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:14) /test/1/catalog1/schema1/t1/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table__084]
+sql:
+ALTER TABLE t1 COMPRESSION="ZLIB" KEY_BLOCK_SIZE=2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:14) /test/1/catalog1/schema1/t1/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table__085]
+sql:
+ALTER TABLE t3 AUTOEXTEND_SIZE 4M;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:14) /test/1/catalog1/schema1/t3/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_add_column__086]
+sql:
+ALTER TABLE split_type_enum_set.es_core
+      ADD COLUMN e_added ENUM('new','old') AFTER e_case,
+      ADD COLUMN s_added SET('x','y','z') AFTER s_case;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:39) /test/1/catalog1/split_type_enum_set/es_core/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_alter_column_rename_column__087]
+sql:
+ALTER TABLE split_type_enum_set.es_core
+      MODIFY COLUMN e_added ENUM('new','old','archived') DEFAULT 'new',
+      CHANGE COLUMN s_added s_flags SET('x','y','z','w') DEFAULT 'x,w';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:39) /test/1/catalog1/split_type_enum_set/es_core/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_alter_column__088]
+sql:
+ALTER TABLE split_type_enum_set.es_alter
+      MODIFY e ENUM('a','b','c','d'),
+      MODIFY s SET('a1','a2','a3','a4'),
+      ALGORITHM=INPLACE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:40) /test/1/catalog1/split_type_enum_set/es_alter/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_alter_column__089]
+sql:
+ALTER TABLE split_type_enum_set.es_alter
+      CHANGE e e ENUM('a','b','c','d','') NOT NULL,
+      MODIFY s SET('a1','a2','a3'),
+      ALGORITHM=INPLACE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:40) /test/1/catalog1/split_type_enum_set/es_alter/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_add_column_alter_column_rename_column__090]
+sql:
+ALTER TABLE split_type_json.json_core
+      ADD COLUMN metadata JSON AFTER payload,
+      ADD COLUMN doc_kind VARCHAR(32)
+        GENERATED ALWAYS AS (
+          JSON_UNQUOTE(JSON_EXTRACT(doc,'$.kind'))
+        ) VIRTUAL,
+      MODIFY COLUMN payload JSON NULL,
+      CHANGE COLUMN metadata meta JSON;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:37) /test/1/catalog1/split_type_json/json_core/",
+      "action" : "ALTER"
+    },
+    {
+      "subject": "Function(5:10~5:22) /test/1/catalog1/schema1/JSON_UNQUOTE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(5:23~5:35) /test/1/catalog1/schema1/JSON_EXTRACT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[alter_table_add_constraint__091]
+sql:
+ALTER TABLE split_type_json.json_core
+    ADD CONSTRAINT chk_json_core
+    CHECK (
+      JSON_SCHEMA_VALID(
+        '{"type":"object","required":["name"],"properties":{"name":{"type":"string"}}}',
+        doc
+      )
+    );
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:37) /test/1/catalog1/split_type_json/json_core/",
+      "action" : "ALTER"
+    },
+    {
+      "subject": "Constraint(2:19~2:32) /test/1/catalog1/schema1/chk_json_core/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(4:6~4:23) /test/1/catalog1/schema1/JSON_SCHEMA_VALID/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[alter_table_alter_column__092]
+sql:
+ALTER TABLE split_type_json.json_core
+      ALTER COLUMN payload SET DEFAULT (JSON_ARRAY()),
+      ALTER COLUMN meta SET DEFAULT (JSON_OBJECT());
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:37) /test/1/catalog1/split_type_json/json_core/",
+      "action" : "ALTER"
+    },
+    {
+      "subject": "Function(2:40~2:50) /test/1/catalog1/schema1/JSON_ARRAY/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(3:37~3:48) /test/1/catalog1/schema1/JSON_OBJECT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[alter_table_add_constraint__093]
+sql:
+ALTER TABLE fk_self ADD CONSTRAINT fk_self_ab FOREIGN KEY(a,b) REFERENCES fk_self(a,b) ON DELETE NO ACTION ON UPDATE NO ACTION;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:19) /test/1/catalog1/schema1/fk_self/",
+      "action" : "ALTER",
+      "target" : "Table(1:74~1:81) /test/1/catalog1/schema1/fk_self/"
+    },
+    {
+      "subject": "Constraint(1:35~1:45) /test/1/catalog1/schema1/fk_self_ab/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[alter_table_drop_constraint__094]
+sql:
+ALTER TABLE fk_drop_child DROP FOREIGN KEY fk_drop1,DROP FOREIGN KEY fk_drop2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:25) /test/1/catalog1/schema1/fk_drop_child/",
+      "action" : "ALTER"
+    },
+    {
+      "subject": "Constraint(1:43~1:51) /test/1/catalog1/schema1/fk_drop1/",
+      "action" : "DROP"
+    },
+    {
+      "subject": "Constraint(1:69~1:77) /test/1/catalog1/schema1/fk_drop2/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[alter_table_add_constraint__095]
+sql:
+ALTER TABLE fk_named ADD CONSTRAINT fk_p1 FOREIGN KEY ref1_idx(ref1) REFERENCES fk_named(id1),ALGORITHM=COPY;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Index(1:54~1:62) /test/1/catalog1/schema1/ref1_idx/",
+      "action" : "CREATE",
+      "target" : "Table(1:12~1:20) /test/1/catalog1/schema1/fk_named/"
+    },
+    {
+      "subject": "Table(1:12~1:20) /test/1/catalog1/schema1/fk_named/",
+      "action" : "ALTER",
+      "target" : "Table(1:80~1:88) /test/1/catalog1/schema1/fk_named/"
+    },
+    {
+      "subject": "Constraint(1:36~1:41) /test/1/catalog1/schema1/fk_p1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[alter_table_add_index__096]
+sql:
+ALTER TABLE gap_attr ADD INDEX (m) ENGINE_ATTRIBUTE='{"algo":"inplace"}', ALGORITHM=INPLACE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Index(1:21~1:72) /test/1/catalog1/schema1/",
+      "action" : "CREATE",
+      "target" : "Table(1:12~1:20) /test/1/catalog1/schema1/gap_attr/"
+    }
+  ]
+}
+----------
+[alter_table_add_index_alter_index__097]
+sql:
+ALTER TABLE gap_idx ADD INDEX ab(a,b), ALTER INDEX ab INVISIBLE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Index(1:30~1:32) /test/1/catalog1/schema1/ab/",
+      "action" : "CREATE",
+      "target" : "Table(1:12~1:19) /test/1/catalog1/schema1/gap_idx/"
+    },
+    {
+      "subject": "Index(1:51~1:53) /test/1/catalog1/schema1/ab/",
+      "action" : "ALTER",
+      "target" : "Table(1:12~1:19) /test/1/catalog1/schema1/gap_idx/"
+    }
+  ]
+}
+----------
+[alter_table_rename_index_alter_index__098]
+sql:
+ALTER TABLE gap_idx RENAME INDEX a TO x, ALTER INDEX x INVISIBLE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Index(1:33~1:34) /test/1/catalog1/schema1/a/",
+      "action" : "RENAME",
+      "target" : "Index(1:38~1:39) /test/1/catalog1/schema1/x/"
+    },
+    {
+      "subject": "Index(1:53~1:54) /test/1/catalog1/schema1/x/",
+      "action" : "ALTER",
+      "target" : "Table(1:12~1:19) /test/1/catalog1/schema1/gap_idx/"
+    }
+  ]
+}
+----------
+[alter_table_add_index__099]
+sql:
+ALTER TABLE gap_mvi ADD INDEX mv USING HASH ((JSON_LENGTH(j1)),(CAST(j2->'$.k[*]' AS TIME ARRAY))) INVISIBLE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Index(1:30~1:32) /test/1/catalog1/schema1/mv/",
+      "action" : "CREATE",
+      "target" : "Table(1:12~1:19) /test/1/catalog1/schema1/gap_mvi/"
+    },
+    {
+      "subject": "Function(1:46~1:57) /test/1/catalog1/schema1/JSON_LENGTH/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[alter_table_add_column__100]
+sql:
+ALTER TABLE gap_chk ADD f2 INT CHECK (f2<10) NOT ENFORCED, ALGORITHM=INPLACE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:19) /test/1/catalog1/schema1/gap_chk/",
+      "action" : "ALTER"
+    },
+    {
+      "subject": "Constraint(1:31~1:57) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[alter_table_add_constraint_drop_constraint__101]
+sql:
+ALTER TABLE gap_chk ADD CONSTRAINT ck2 CHECK (f>0), DROP CHECK ck2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:19) /test/1/catalog1/schema1/gap_chk/",
+      "action" : "ALTER"
+    },
+    {
+      "subject": "Constraint(1:35~1:38) /test/1/catalog1/schema1/ck2/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Constraint(1:63~1:66) /test/1/catalog1/schema1/ck2/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[alter_table_alter_constraint__102]
+sql:
+ALTER TABLE gap_chk ALTER CHECK ck NOT ENFORCED, ALTER CONSTRAINT ck ENFORCED;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:19) /test/1/catalog1/schema1/gap_chk/",
+      "action" : "ALTER"
+    },
+    {
+      "subject": "Constraint(1:32~1:34) /test/1/catalog1/schema1/ck/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table__103]
+sql:
+ALTER TABLE gap_secondary SECONDARY_ENGINE MOCK, ALGORITHM=INPLACE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:25) /test/1/catalog1/schema1/gap_secondary/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table__104]
+sql:
+ALTER TABLE gap_enc TABLESPACE=gap_ts ENCRYPTION='N', ALGORITHM=INPLACE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:19) /test/1/catalog1/schema1/gap_enc/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_drop_column_add_column_add_constraint__105]
+sql:
+ALTER TABLE split_check_alter DROP COLUMN f1, ADD COLUMN f1 BIGINT, ADD CONSTRAINT CHECK (f1 != 0);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:29) /test/1/catalog1/schema1/split_check_alter/",
+      "action" : "ALTER"
+    },
+    {
+      "subject": "Constraint(1:68~1:98) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    }
+  ]
+}

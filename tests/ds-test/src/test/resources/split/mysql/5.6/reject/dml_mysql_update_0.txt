@@ -1,0 +1,14 @@
+WITH c AS (SELECT id, val FROM t2) UPDATE t1 JOIN c ON t1.id = c.id SET t1.val = c.val WHERE t1.id > 0;
+UPDATE t3 SET x=CASE WHEN EXISTS (SELECT ref_2.column2 AS c0 FROM t2 AS ref_2 WINDOW w AS (PARTITION BY ref_2.column3 ORDER BY ref_2.column4 DESC)) THEN NULL ELSE '24' END WHERE EXISTS (SELECT DISTINCT * FROM t1);
+with tab1Cnt as (select * from table1)
+                    update table2 set cc = 1 where id1 in (select id_1 from tab1Cnt) or id2 in (select id_2 from table3);
+UPDATE (VALUES ROW(2)) AS dt(a) JOIN split_native_gap.t_update AS t ON dt.a=t.a SET t.b=dt.a;
+------------------------------------------------------------------------------------------
+[UPDATE|SELECT] WITH c AS (SELECT id, val FROM t2) UPDATE t1 JOIN c ON t1.id = c.id SET t1.val = c.val WHERE t1.id > 0;
+----------
+[UPDATE|SELECT] UPDATE t3 SET x=CASE WHEN EXISTS (SELECT ref_2.column2 AS c0 FROM t2 AS ref_2 WINDOW w AS (PARTITION BY ref_2.column3 ORDER BY ref_2.column4 DESC)) THEN NULL ELSE '24' END WHERE EXISTS (SELECT DISTINCT * FROM t1);
+----------
+[UPDATE|SELECT] with tab1Cnt as (select * from table1)
+                    update table2 set cc = 1 where id1 in (select id_1 from tab1Cnt) or id2 in (select id_2 from table3);
+----------
+[UPDATE|SELECT] UPDATE (VALUES ROW(2)) AS dt(a) JOIN split_native_gap.t_update AS t ON dt.a=t.a SET t.b=dt.a;

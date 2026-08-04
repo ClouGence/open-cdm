@@ -1,0 +1,23 @@
+SHOW LIBRARY STATUS;
+SHOW LIBRARY STATUS LIKE 'split_js%';
+SHOW LIBRARY STATUS WHERE Db = DATABASE();
+SHOW CREATE LIBRARY split_js_lib;
+SHOW CREATE LIBRARY split97lib.split_js_lib;
+SHOW PARSE_TREE SELECT 1;
+------------------------------------------------------------------------------------------
+[METADATA]
+SHOW LIBRARY STATUS;
+----------
+[METADATA]
+SHOW LIBRARY STATUS LIKE 'split_js%';
+----------
+[METADATA]
+SHOW LIBRARY STATUS WHERE Db = DATABASE();
+----------
+[METADATA]
+SHOW CREATE LIBRARY split_js_lib;
+----------
+[METADATA]
+SHOW CREATE LIBRARY split97lib.split_js_lib;
+----------
+[PERFORMANCE] SHOW PARSE_TREE SELECT 1;

@@ -1,0 +1,59 @@
+[remote_select_resource]
+sql:
+select id,name from remote_app.employee@employee_link where id=1
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:20~1:53) /test/1/catalog1/remote_app/employee/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[remote_insert_resource]
+sql:
+insert into remote_app.employee@employee_link(id,name) values(2,'B')
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:45) /test/1/catalog1/remote_app/employee/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[remote_update_resource]
+sql:
+update remote_app.employee@employee_link set name='C' where id=2
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:40) /test/1/catalog1/remote_app/employee/",
+      "action": "UPDATE"
+    }
+  ]
+}
+----------
+[remote_call_resource]
+sql:
+call remote_app.refresh_employee@employee_link(1)
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:5~1:46) /test/1/catalog1/remote_app/refresh_employee/",
+      "action": "CALL"
+    }
+  ]
+}

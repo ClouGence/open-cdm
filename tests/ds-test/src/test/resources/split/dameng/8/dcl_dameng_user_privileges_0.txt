@@ -1,0 +1,37 @@
+grant create user, alter user, drop user to CODEX_DM8_USER_ADMIN with admin option;
+grant create user to CODEX_DM8_USER_CREATOR;
+grant alter user to CODEX_DM8_USER_ALTERER;
+grant drop user to CODEX_DM8_USER_DROPPER;
+grant create user, alter user, drop user to CODEX_DM8_USER_ROLE;
+grant create user to public;
+revoke admin option for create user, alter user, drop user from CODEX_DM8_USER_ADMIN;
+revoke create user from CODEX_DM8_USER_CREATOR;
+revoke alter user from CODEX_DM8_USER_ALTERER;
+revoke drop user from CODEX_DM8_USER_DROPPER;
+revoke create user, alter user, drop user from CODEX_DM8_USER_ROLE;
+revoke create user from public;
+------------------------------------------------------------------------------------------
+[GRANT] grant create user, alter user, drop user to CODEX_DM8_USER_ADMIN with admin option;
+----------
+[GRANT] grant create user to CODEX_DM8_USER_CREATOR;
+----------
+[GRANT] grant alter user to CODEX_DM8_USER_ALTERER;
+----------
+[GRANT] grant drop user to CODEX_DM8_USER_DROPPER;
+----------
+[GRANT] grant create user, alter user, drop user to CODEX_DM8_USER_ROLE;
+----------
+[GRANT] grant create user to public;
+----------
+[REVOKE] revoke admin option for create user, alter user, drop user from CODEX_DM8_USER_ADMIN;
+----------
+[REVOKE] revoke create user from CODEX_DM8_USER_CREATOR;
+----------
+[REVOKE] revoke alter user from CODEX_DM8_USER_ALTERER;
+----------
+[REVOKE] revoke drop user from CODEX_DM8_USER_DROPPER;
+----------
+[REVOKE] revoke create user, alter user, drop user from CODEX_DM8_USER_ROLE;
+----------
+[REVOKE] revoke create user from public;
+

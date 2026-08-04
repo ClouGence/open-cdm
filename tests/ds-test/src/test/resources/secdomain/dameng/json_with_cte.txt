@@ -1,0 +1,49 @@
+[cte_select]
+sql:
+with q as(select id,v from app.cte_t)
+select * from q
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"cte_t"}
+  ]
+}
+----------
+[cte_join]
+sql:
+with q as(select id,v from app.cte_t)
+select q.id,o.v from q join app.cte_other o on q.id=o.id
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"cte_t"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"cte_other"}
+  ]
+}
+----------
+[recursive_cte]
+sql:
+with tree(id,parent_id) as(
+  select id,parent_id from app.cte_tree where parent_id is null
+  union all
+  select t.id,t.parent_id from app.cte_tree t join tree q on t.parent_id=q.id
+)
+select * from tree
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"cte_tree"}
+  ]
+}
+----------
+[cte_update]
+sql:
+with q as(select id from app.cte_t where v>10)
+update app.cte_t set v=v+1 where id in(select id from q)
+expect:
+{
+  "contains": [
+    {"class":"RdbUpdateDomain", "sqlType":"UPDATE", "auditKind":"DML", "schema":"app", "table":"cte_t"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"cte_t"}
+  ]
+}

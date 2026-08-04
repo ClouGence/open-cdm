@@ -1,0 +1,78 @@
+-- CREATE_BARE
+create type CODEX_DM8_TYPE.T_BARE;
+/
+-- OBJECT_EMPTY
+create type CODEX_DM8_TYPE.T_EMPTY as object();
+/
+-- MODIFIER_REVERSED
+create type CODEX_DM8_TYPE.T_REVERSED authid definer with encryption as record(ID int);
+/
+-- AUTHID_DUPLICATE
+create type CODEX_DM8_TYPE.T_DUP_AUTH authid definer authid current_user as record(ID int);
+/
+-- ENCRYPTION_DUPLICATE
+create type CODEX_DM8_TYPE.T_DUP_ENCRYPT with encryption with encryption as record(ID int);
+/
+-- VARRAY_NULL
+create type CODEX_DM8_TYPE.T_VARRAY_NULL as varray(2) of int null;
+/
+-- TYPE_BODY_EMPTY
+create type body CODEX_DM8_TYPE.T_BODY as end;
+/
+-- TYPE_BODY_BARE
+create type body CODEX_DM8_TYPE.T_BODY;
+/
+-- TYPE_BODY_END_NAME
+create type body CODEX_DM8_TYPE.T_BODY as member function F return int is begin return 1;end;end T_BODY;
+/
+-- DROP_DUPLICATE_OPTIONS
+drop type CODEX_DM8_TYPE.T_RECORD restrict cascade;
+-- DROP_UNKNOWN_OPTION
+drop type CODEX_DM8_TYPE.T_RECORD nonsense;
+-- COMMENT_NOT_SUPPORTED
+comment on type CODEX_DM8_TYPE.T_RECORD is 'type comment';
+------------------------------------------------------------------------------------------
+[CREATE_TYPE] -- CREATE_BARE
+create type CODEX_DM8_TYPE.T_BARE;
+/
+----------
+[CREATE_TYPE] -- OBJECT_EMPTY
+create type CODEX_DM8_TYPE.T_EMPTY as object();
+/
+----------
+[CREATE_TYPE] -- MODIFIER_REVERSED
+create type CODEX_DM8_TYPE.T_REVERSED authid definer with encryption as record(ID int);
+/
+----------
+[CREATE_TYPE] -- AUTHID_DUPLICATE
+create type CODEX_DM8_TYPE.T_DUP_AUTH authid definer authid current_user as record(ID int);
+/
+----------
+[CREATE_TYPE] -- ENCRYPTION_DUPLICATE
+create type CODEX_DM8_TYPE.T_DUP_ENCRYPT with encryption with encryption as record(ID int);
+/
+----------
+[CREATE_TYPE] -- VARRAY_NULL
+create type CODEX_DM8_TYPE.T_VARRAY_NULL as varray(2) of int null;
+/
+----------
+[CREATE_TYPE] -- TYPE_BODY_EMPTY
+create type body CODEX_DM8_TYPE.T_BODY as end;
+/
+----------
+[CREATE_TYPE] -- TYPE_BODY_BARE
+create type body CODEX_DM8_TYPE.T_BODY;
+/
+----------
+[CREATE_TYPE] -- TYPE_BODY_END_NAME
+create type body CODEX_DM8_TYPE.T_BODY as member function F return int is begin return 1;end;end T_BODY;
+/
+----------
+[DROP_TYPE] -- DROP_DUPLICATE_OPTIONS
+drop type CODEX_DM8_TYPE.T_RECORD restrict cascade;
+----------
+[DROP_TYPE] -- DROP_UNKNOWN_OPTION
+drop type CODEX_DM8_TYPE.T_RECORD nonsense;
+----------
+[UNKNOWN] -- COMMENT_NOT_SUPPORTED
+comment on type CODEX_DM8_TYPE.T_RECORD is 'type comment';

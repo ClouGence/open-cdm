@@ -1,0 +1,225 @@
+[MongoSecDomainTest_commands_1]
+sql:
+db.aa.find();db.aa.drop();
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "func": "find",
+      "collection": "aa"
+    },
+    {
+      "sqlType": "DROP_TABLE",
+      "auditKind": "DROP",
+      "func": "drop",
+      "collection": "aa"
+    }
+  ]
+}
+----------
+[MongoSecDomainTest1_testReadOperations]
+sql:
+db.collection.find({name: 'test'}); db.collection.findOne({_id: 1}); db.collection.countDocuments({status: 'active'});
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "func": "find",
+      "collection": "collection"
+    },
+    {
+      "sqlType": "READ",
+      "auditKind":"QUERY",
+      "func": "findOne",
+      "collection": "collection"
+    },
+    {
+      "sqlType": "READ",
+      "auditKind":"QUERY",
+      "func": "countDocuments",
+      "collection": "collection"
+    }
+  ]
+}
+----------
+[MongoSecDomainTest1_testInsertOperations]
+sql:
+db.collection.insert({name: 'John'}); db.collection.insertOne({name: 'Jane'}); db.collection.insertMany([{name: 'Bob'}, {name: 'Alice'}]);
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "INSERT",
+      "auditKind": "DML",
+      "func": "insert",
+      "collection": "collection"
+    },
+    {
+      "sqlType": "INSERT",
+      "auditKind": "DML",
+      "func": "insertOne",
+      "collection": "collection"
+    },
+    {
+      "sqlType": "INSERT",
+      "auditKind": "DML",
+      "func": "insertMany",
+      "collection": "collection"
+    }
+  ]
+}
+----------
+[MongoSecDomainTest1_testUpdateOperations]
+sql:
+db.collection.update({name: 'John'}, {$set: {age: 30}}); db.collection.updateOne({name: 'Jane'}, {$inc: {score: 5}}); db.collection.replaceOne({name: 'Bob'}, {name: 'Robert'});
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "UPDATE",
+      "auditKind": "DML",
+      "func": "update",
+      "collection": "collection"
+    },
+    {
+      "sqlType": "UPDATE",
+      "auditKind": "DML",
+      "func": "updateOne",
+      "collection": "collection"
+    },
+    {
+      "sqlType": "UPDATE",
+      "auditKind": "DML",
+      "func": "replaceOne",
+      "collection": "collection"
+    }
+  ]
+}
+----------
+[MongoSecDomainTest1_testDeleteOperations]
+sql:
+db.collection.deleteOne({name: 'John'}); db.collection.deleteMany({status: 'inactive'}); db.collection.findOneAndDelete({priority: 'low'});
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "DELETE",
+      "auditKind": "DML",
+      "func": "deleteOne",
+      "collection": "collection"
+    },
+    {
+      "sqlType": "DELETE",
+      "auditKind": "DML",
+      "func": "deleteMany",
+      "collection": "collection"
+    },
+    {
+      "sqlType": "DELETE",
+      "auditKind": "DML",
+      "func": "findOneAndDelete",
+      "collection": "collection"
+    }
+  ]
+}
+----------
+[MongoSecDomainTest1_testIndexOperations]
+sql:
+db.collection.createIndex({name: 1}); db.collection.dropIndex({name: 1}); db.collection.dropIndexes();
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "ADD_INDEX",
+      "auditKind": "CREATE",
+      "func": "createIndex",
+      "collection": "collection"
+    },
+    {
+      "sqlType": "DROP_INDEX",
+      "auditKind": "DROP",
+      "func": "dropIndex",
+      "collection": "collection"
+    },
+    {
+      "sqlType": "DROP_INDEX",
+      "auditKind": "DROP",
+      "func": "dropIndexes",
+      "collection": "collection"
+    }
+  ]
+}
+----------
+[MongoSecDomainTest1_testCollectionOperations]
+sql:
+db.createCollection('newCollection'); db.collection.drop(); db.collection.renameCollection('oldCollection');
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CREATE_TABLE",
+      "auditKind": "CREATE",
+      "func": "createCollection"
+    },
+    {
+      "sqlType": "DROP_TABLE",
+      "auditKind": "DROP",
+      "func": "drop",
+      "collection": "collection"
+    },
+    {
+      "sqlType": "RENAME_TABLE",
+      "auditKind": "ALTER",
+      "func": "renameCollection",
+      "collection": "collection"
+    }
+  ]
+}
+----------
+[MongoSecDomainTest1_testDatabaseOperations]
+sql:
+use newDatabase; db.dropDatabase();
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "SWITCH_SCHEMA",
+      "auditKind": "QUERY",
+      "func": "use"
+    },
+    {
+      "sqlType": "DROP_SCHEMA",
+      "auditKind": "DROP",
+      "func": "dropDatabase"
+    }
+  ]
+}
+----------
+[MongoSecDomainTest1_testAdminOperations]
+sql:
+db.hostInfo(); db.serverStatus(); db.currentOp();
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "ADMIN",
+      "auditKind": "ADMIN",
+      "func": "hostInfo"
+    },
+    {
+      "sqlType": "ADMIN",
+      "auditKind": "ADMIN",
+      "func": "serverStatus"
+    },
+    {
+      "sqlType": "ADMIN",
+      "auditKind": "ADMIN",
+      "func": "currentOp"
+    }
+  ]
+}
+----------

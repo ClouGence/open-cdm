@@ -1,0 +1,115 @@
+select dbms_scheduler.generate_job_name('CODEX_DM8_GENERATED_');
+declare next_date timestamp with time zone; begin dbms_scheduler.evaluate_calendar_string('FREQ=DAILY;INTERVAL=1', current_timestamp, current_timestamp, next_date); end;
+/
+begin dbms_scheduler.create_schedule('CODEX_DM8_SCHEDULE', current_timestamp, 'FREQ=DAILY;INTERVAL=1', current_timestamp + interval '7' day, 'CODEX schedule'); end;
+/
+begin dbms_scheduler.create_program('CODEX_DM8_PROGRAM_NOARG', 'STORED_PROCEDURE', 'SYSDBA.CODEX_DM8_SCHED_NOARG', 0, false, 'CODEX noarg program'); end;
+/
+begin dbms_scheduler.enable('CODEX_DM8_PROGRAM_NOARG'); end;
+/
+begin dbms_scheduler.create_job(job_name => 'CODEX_DM8_JOB_NAMED', program_name => 'CODEX_DM8_PROGRAM_NOARG', schedule_name => 'CODEX_DM8_SCHEDULE', enabled => false, auto_drop => false, comments => 'CODEX named job'); end;
+/
+select job_name, enabled, program_name, schedule_name from user_scheduler_jobs where job_name='CODEX_DM8_JOB_NAMED';
+begin dbms_scheduler.enable('CODEX_DM8_JOB_NAMED'); dbms_scheduler.disable('CODEX_DM8_JOB_NAMED', true); end;
+/
+begin dbms_scheduler.run_job('CODEX_DM8_JOB_NAMED', true); end;
+/
+select count(*) from CODEX_DM8_SCHED_LOG where message='NOARG';
+declare value varchar(32767); begin dbms_scheduler.get_attribute('CODEX_DM8_JOB_NAMED', 'COMMENTS', value); end;
+/
+begin dbms_scheduler.set_attribute('CODEX_DM8_JOB_NAMED', 'COMMENTS', 'CODEX named job updated'); end;
+/
+begin dbms_scheduler.drop_job('CODEX_DM8_JOB_NAMED'); end;
+/
+begin dbms_scheduler.drop_program('CODEX_DM8_PROGRAM_NOARG'); end;
+/
+begin dbms_scheduler.drop_schedule('CODEX_DM8_SCHEDULE'); end;
+/
+begin dbms_scheduler.create_job('CODEX_DM8_JOB_INLINE', 'PLSQL_BLOCK', 'begin insert into CODEX_DM8_SCHED_LOG(message) values (''INLINE''); commit; end;', enabled => false, auto_drop => false, comments => 'CODEX inline job'); end;
+/
+begin dbms_scheduler.run_job('CODEX_DM8_JOB_INLINE', true); end;
+/
+select count(*) from CODEX_DM8_SCHED_LOG where message='INLINE';
+begin dbms_scheduler.drop_job('CODEX_DM8_JOB_INLINE'); end;
+/
+begin dbms_scheduler.create_program('CODEX_DM8_PROGRAM_ARG', 'STORED_PROCEDURE', 'SYSDBA.CODEX_DM8_SCHED_ARG', 1, false, 'CODEX argument program'); end;
+/
+begin dbms_scheduler.define_program_argument('CODEX_DM8_PROGRAM_ARG', 1, 'P_MESSAGE', 'VARCHAR', 'ARG_DEFAULT', false); end;
+/
+begin dbms_scheduler.enable('CODEX_DM8_PROGRAM_ARG'); end;
+/
+begin dbms_scheduler.create_job('CODEX_DM8_JOB_ARG', 'CODEX_DM8_PROGRAM_ARG', start_date => null, repeat_interval => null, enabled => false, auto_drop => false, comments => 'CODEX argument job'); end;
+/
+begin dbms_scheduler.set_job_argument_value('CODEX_DM8_JOB_ARG', 1, 'ARG_POSITION'); end;
+/
+begin dbms_scheduler.set_job_argument_value('CODEX_DM8_JOB_ARG', 'P_MESSAGE', 'ARG_NAME'); end;
+/
+begin dbms_scheduler.run_job('CODEX_DM8_JOB_ARG', true); end;
+/
+select count(*) from CODEX_DM8_SCHED_LOG where message='ARG_NAME';
+begin dbms_scheduler.disable('CODEX_DM8_JOB_ARG', true); dbms_scheduler.drop_job('CODEX_DM8_JOB_ARG'); dbms_scheduler.drop_program('CODEX_DM8_PROGRAM_ARG'); end;
+/
+declare value varchar(32767); begin dbms_scheduler.get_scheduler_attribute('EMAIL_SERVER', value); end;
+/
+begin dbms_scheduler.purge_log(0, 'JOB_AND_WINDOW_LOG', null); end;
+/
+------------------------------------------------------------------------------------------
+[SELECT|CALL_PROG_OBJ] select dbms_scheduler.generate_job_name('CODEX_DM8_GENERATED_');
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare next_date timestamp with time zone; begin dbms_scheduler.evaluate_calendar_string('FREQ=DAILY;INTERVAL=1', current_timestamp, current_timestamp, next_date); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_scheduler.create_schedule('CODEX_DM8_SCHEDULE', current_timestamp, 'FREQ=DAILY;INTERVAL=1', current_timestamp + interval '7' day, 'CODEX schedule'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_scheduler.create_program('CODEX_DM8_PROGRAM_NOARG', 'STORED_PROCEDURE', 'SYSDBA.CODEX_DM8_SCHED_NOARG', 0, false, 'CODEX noarg program'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_scheduler.enable('CODEX_DM8_PROGRAM_NOARG'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_scheduler.create_job(job_name => 'CODEX_DM8_JOB_NAMED', program_name => 'CODEX_DM8_PROGRAM_NOARG', schedule_name => 'CODEX_DM8_SCHEDULE', enabled => false, auto_drop => false, comments => 'CODEX named job'); end;
+----------
+[SELECT] select job_name, enabled, program_name, schedule_name from user_scheduler_jobs where job_name='CODEX_DM8_JOB_NAMED';
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_scheduler.enable('CODEX_DM8_JOB_NAMED'); dbms_scheduler.disable('CODEX_DM8_JOB_NAMED', true); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_scheduler.run_job('CODEX_DM8_JOB_NAMED', true); end;
+----------
+[SELECT] select count(*) from CODEX_DM8_SCHED_LOG where message='NOARG';
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare value varchar(32767); begin dbms_scheduler.get_attribute('CODEX_DM8_JOB_NAMED', 'COMMENTS', value); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_scheduler.set_attribute('CODEX_DM8_JOB_NAMED', 'COMMENTS', 'CODEX named job updated'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_scheduler.drop_job('CODEX_DM8_JOB_NAMED'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_scheduler.drop_program('CODEX_DM8_PROGRAM_NOARG'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_scheduler.drop_schedule('CODEX_DM8_SCHEDULE'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_scheduler.create_job('CODEX_DM8_JOB_INLINE', 'PLSQL_BLOCK', 'begin insert into CODEX_DM8_SCHED_LOG(message) values (''INLINE''); commit; end;', enabled => false, auto_drop => false, comments => 'CODEX inline job'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_scheduler.run_job('CODEX_DM8_JOB_INLINE', true); end;
+----------
+[SELECT] select count(*) from CODEX_DM8_SCHED_LOG where message='INLINE';
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_scheduler.drop_job('CODEX_DM8_JOB_INLINE'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_scheduler.create_program('CODEX_DM8_PROGRAM_ARG', 'STORED_PROCEDURE', 'SYSDBA.CODEX_DM8_SCHED_ARG', 1, false, 'CODEX argument program'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_scheduler.define_program_argument('CODEX_DM8_PROGRAM_ARG', 1, 'P_MESSAGE', 'VARCHAR', 'ARG_DEFAULT', false); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_scheduler.enable('CODEX_DM8_PROGRAM_ARG'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_scheduler.create_job('CODEX_DM8_JOB_ARG', 'CODEX_DM8_PROGRAM_ARG', start_date => null, repeat_interval => null, enabled => false, auto_drop => false, comments => 'CODEX argument job'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_scheduler.set_job_argument_value('CODEX_DM8_JOB_ARG', 1, 'ARG_POSITION'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_scheduler.set_job_argument_value('CODEX_DM8_JOB_ARG', 'P_MESSAGE', 'ARG_NAME'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_scheduler.run_job('CODEX_DM8_JOB_ARG', true); end;
+----------
+[SELECT] select count(*) from CODEX_DM8_SCHED_LOG where message='ARG_NAME';
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_scheduler.disable('CODEX_DM8_JOB_ARG', true); dbms_scheduler.drop_job('CODEX_DM8_JOB_ARG'); dbms_scheduler.drop_program('CODEX_DM8_PROGRAM_ARG'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare value varchar(32767); begin dbms_scheduler.get_scheduler_attribute('EMAIL_SERVER', value); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_scheduler.purge_log(0, 'JOB_AND_WINDOW_LOG', null); end;

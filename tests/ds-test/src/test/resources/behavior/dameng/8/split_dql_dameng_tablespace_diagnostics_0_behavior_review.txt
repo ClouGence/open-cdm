@@ -1,0 +1,175 @@
+[split_dql_dameng_tablespace_diagnostics_0_001_behavior_review]
+sql:
+select tablespace_name from dba_tablespaces where tablespace_name='CODEX_TS_IFNE_20260723';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:28~1:43) /test/1/catalog1/schema1/dba_tablespaces/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_tablespace_diagnostics_0_002_behavior_review]
+sql:
+select count(*) from dba_data_files where tablespace_name='CODEX_TS_MULTI_20260723';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:21~1:35) /test/1/catalog1/schema1/dba_data_files/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_tablespace_diagnostics_0_003_behavior_review]
+sql:
+select dbms_metadata.get_ddl('TABLESPACE', 'CODEX_TS_ENC_PLAIN_20260723') from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:28) /test/1/catalog1/dbms_metadata/get_ddl/",
+      "action": "CALL",
+      "target": "Tablespace(1:43~1:72) /test/1/CODEX_TS_ENC_PLAIN_20260723/"
+    },
+    {
+      "subject": "View(1:79~1:83) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_tablespace_diagnostics_0_004_behavior_review]
+sql:
+select tablespace_name, status, contents from dba_tablespaces where tablespace_name='CODEX_TS_DICT_20260723';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:46~1:61) /test/1/catalog1/schema1/dba_tablespaces/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_tablespace_diagnostics_0_005_behavior_review]
+sql:
+select tablespace_name, file_name, bytes, autoextensible, maxbytes, increment_by from dba_data_files where tablespace_name='CODEX_TS_DICT_20260723';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:86~1:100) /test/1/catalog1/schema1/dba_data_files/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_tablespace_diagnostics_0_006_behavior_review]
+sql:
+select id, name, status$ from v$tablespace where name='CODEX_TS_DICT_20260723';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:30~1:42) /test/1/catalog1/schema1/v$tablespace/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_tablespace_diagnostics_0_007_behavior_review]
+sql:
+select path, status$, total_size, auto_extend, next_size, max_size from v$datafile where group_id=(select id from v$tablespace where name='CODEX_TS_DICT_20260723');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:72~1:82) /test/1/catalog1/schema1/v$datafile/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:114~1:126) /test/1/catalog1/schema1/v$tablespace/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_tablespace_diagnostics_0_008_behavior_review]
+sql:
+select dbms_metadata.get_ddl('TABLESPACE', 'CODEX_TS_DICT_20260723') from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:28) /test/1/catalog1/dbms_metadata/get_ddl/",
+      "action": "CALL",
+      "target": "Tablespace(1:43~1:67) /test/1/CODEX_TS_DICT_20260723/"
+    },
+    {
+      "subject": "View(1:74~1:78) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_tablespace_diagnostics_0_009_behavior_review]
+sql:
+select count(*) from CODEX_TS_COMMIT_T_20260723;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:21~1:47) /test/1/catalog1/schema1/CODEX_TS_COMMIT_T_20260723/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_tablespace_diagnostics_0_010_behavior_review]
+sql:
+select path, mirror_path from v$datafile where group_id=(select id from v$tablespace where name='CODEX_TS_MIRROR_20260723');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:30~1:40) /test/1/catalog1/schema1/v$datafile/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:72~1:84) /test/1/catalog1/schema1/v$tablespace/",
+      "action": "READ"
+    }
+  ]
+}

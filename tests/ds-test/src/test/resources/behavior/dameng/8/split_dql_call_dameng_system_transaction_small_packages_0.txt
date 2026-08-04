@@ -1,0 +1,123 @@
+[split_dql_call_dameng_system_transaction_small_packages_0_001]
+sql:
+CALL DBMS_SYSTEM.KSDWRT(1,'CODEX_DM8_KSDWRT_DEST1');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:5~1:23) /test/1/catalog1/DBMS_SYSTEM/KSDWRT/",
+      "action": "CALL",
+      "target": "File(1:5~1:23) /test/1/"
+    }
+  ]
+}
+----------
+[split_dql_call_dameng_system_transaction_small_packages_0_002]
+sql:
+CALL DBMS_SYSTEM.KSDWRT(2,'CODEX_DM8_KSDWRT_DEST2');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:5~1:23) /test/1/catalog1/DBMS_SYSTEM/KSDWRT/",
+      "action": "CALL",
+      "target": "File(1:5~1:23) /test/1/"
+    }
+  ]
+}
+----------
+[split_dql_call_dameng_system_transaction_small_packages_0_003]
+sql:
+CALL DBMS_SYSTEM.KSDWRT(3,'CODEX_DM8_KSDWRT_DEST3');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:5~1:23) /test/1/catalog1/DBMS_SYSTEM/KSDWRT/",
+      "action": "CALL",
+      "target": "File(1:5~1:23) /test/1/"
+    }
+  ]
+}
+----------
+[split_dql_call_dameng_system_transaction_small_packages_0_004]
+sql:
+SELECT DBMS_TRANSACTION.LOCAL_TRANSACTION_ID() FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:44) /test/1/catalog1/DBMS_TRANSACTION/LOCAL_TRANSACTION_ID/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:52~1:56) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_call_dameng_system_transaction_small_packages_0_005]
+sql:
+SELECT DBMS_TRANSACTION.LOCAL_TRANSACTION_ID(FALSE) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:44) /test/1/catalog1/DBMS_TRANSACTION/LOCAL_TRANSACTION_ID/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:57~1:61) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_call_dameng_system_transaction_small_packages_0_006]
+sql:
+SELECT DBMS_TRANSACTION.LOCAL_TRANSACTION_ID(TRUE) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:44) /test/1/catalog1/DBMS_TRANSACTION/LOCAL_TRANSACTION_ID/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:56~1:60) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_call_dameng_system_transaction_small_packages_0_007]
+sql:
+SELECT DBMS_TRANSACTION.LOCAL_TRANSACTION_ID(CREATE_TRANSACTION=>FALSE) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:44) /test/1/catalog1/DBMS_TRANSACTION/LOCAL_TRANSACTION_ID/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:77~1:81) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}

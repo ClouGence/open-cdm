@@ -132,6 +132,7 @@ public class SessionAgent implements Session {
             this.statusMap.setReadOnly(this.session.isReadOnly());
             this.statusMap.setIsolation(this.session.getIsolation());
             this.statusMap.setHasUnCommitted(this.session.hasUnCommitted());
+            this.statusMap.setSqlParameters(this.session.getMetaService().getSqlParserParameters());
         } catch (Exception e) {
             log.error("session update status failed " + e.getMessage(), e);
         }

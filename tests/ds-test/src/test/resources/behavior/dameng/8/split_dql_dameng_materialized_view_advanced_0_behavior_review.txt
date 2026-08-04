@@ -1,0 +1,149 @@
+[split_dql_dameng_materialized_view_advanced_0_001_behavior_review]
+sql:
+select id, customer_id, amount from CODEX_DM8_MV_ADV_20260721.mv_prebuilt_default order by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:36~1:81) /test/1/catalog1/CODEX_DM8_MV_ADV_20260721/mv_prebuilt_default/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_materialized_view_advanced_0_002_behavior_review]
+sql:
+select count(*) from CODEX_DM8_MV_ADV_20260721.prebuilt_default;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:21~1:63) /test/1/catalog1/CODEX_DM8_MV_ADV_20260721/prebuilt_default/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_materialized_view_advanced_0_003_behavior_review]
+sql:
+select id, amount from CODEX_DM8_MV_ADV_20260721.mv_prebuilt_reduced order by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:23~1:68) /test/1/catalog1/CODEX_DM8_MV_ADV_20260721/mv_prebuilt_reduced/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_materialized_view_advanced_0_004_behavior_review]
+sql:
+select id, amount from CODEX_DM8_MV_ADV_20260721.mv_prebuilt_exact order by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:23~1:66) /test/1/catalog1/CODEX_DM8_MV_ADV_20260721/mv_prebuilt_exact/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_materialized_view_advanced_0_005_behavior_review]
+sql:
+select mview_name, mview_type, refresh_mode, refresh_method, staleness
+from sys.user_mviews
+where mview_name like 'MV_%'
+order by mview_name;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(2:5~2:20) /test/1/catalog1/sys/user_mviews/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_materialized_view_advanced_0_006_behavior_review]
+sql:
+select id, amount, source_rowid from CODEX_DM8_MV_ADV_20260721.mv_fast_rowid order by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:37~1:76) /test/1/catalog1/CODEX_DM8_MV_ADV_20260721/mv_fast_rowid/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_materialized_view_advanced_0_007_behavior_review]
+sql:
+select count(*) from CODEX_DM8_MV_ADV_20260721.mv_on_commit;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:21~1:59) /test/1/catalog1/CODEX_DM8_MV_ADV_20260721/mv_on_commit/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_materialized_view_advanced_0_008_behavior_review]
+sql:
+select id, amount from CODEX_DM8_MV_ADV_20260721.mv_storage order by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:23~1:59) /test/1/catalog1/CODEX_DM8_MV_ADV_20260721/mv_storage/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_materialized_view_advanced_0_009_behavior_review]
+sql:
+select trigger_name, triggering_event, status
+from dba_triggers
+where owner = 'CODEX_DM8_MV_ADV_20260721'
+  and trigger_name like 'MTRG_REFRESH_MVIEW_%'
+order by trigger_name;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(2:5~2:17) /test/1/catalog1/schema1/dba_triggers/",
+      "action": "READ"
+    }
+  ]
+}

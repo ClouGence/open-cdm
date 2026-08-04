@@ -1,0 +1,39 @@
+SELECT pg_collation_is_visible('pg_catalog.default'::regcollation::oid);
+SELECT pg_conversion_is_visible((SELECT oid FROM pg_conversion WHERE connamespace = 'pg_catalog'::regnamespace ORDER BY conname LIMIT 1));
+SELECT pg_function_is_visible('pg_catalog.lower(text)'::regprocedure::oid);
+SELECT pg_opclass_is_visible((SELECT oc.oid FROM pg_opclass oc JOIN pg_am am ON am.oid = oc.opcmethod WHERE am.amname = 'btree' AND oc.opcname = 'int4_ops'));
+SELECT pg_operator_is_visible('pg_catalog.+(integer,integer)'::regoperator::oid);
+SELECT pg_opfamily_is_visible((SELECT ofam.oid FROM pg_opfamily ofam JOIN pg_am am ON am.oid = ofam.opfmethod WHERE am.amname = 'btree' AND ofam.opfname = 'integer_ops'));
+SELECT pg_statistics_obj_is_visible((SELECT oid FROM pg_statistic_ext WHERE stxnamespace = 'split_visible'::regnamespace AND stxname = 's_visible'));
+SELECT pg_table_is_visible('pg_catalog.pg_class'::regclass::oid);
+SELECT pg_ts_config_is_visible('pg_catalog.english'::regconfig::oid);
+SELECT pg_ts_dict_is_visible('pg_catalog.english_stem'::regdictionary::oid);
+SELECT pg_ts_parser_is_visible((SELECT oid FROM pg_ts_parser WHERE prsnamespace = 'pg_catalog'::regnamespace AND prsname = 'default'));
+SELECT pg_ts_template_is_visible((SELECT oid FROM pg_ts_template WHERE tmplnamespace = 'pg_catalog'::regnamespace AND tmplname = 'snowball'));
+SELECT pg_type_is_visible('pg_catalog.int4'::regtype::oid);
+------------------------------------------------------------------------------------------
+[METADATA] SELECT pg_collation_is_visible('pg_catalog.default'::regcollation::oid);
+----------
+[SELECT|METADATA] SELECT pg_conversion_is_visible((SELECT oid FROM pg_conversion WHERE connamespace = 'pg_catalog'::regnamespace ORDER BY conname LIMIT 1));
+----------
+[METADATA] SELECT pg_function_is_visible('pg_catalog.lower(text)'::regprocedure::oid);
+----------
+[SELECT|METADATA] SELECT pg_opclass_is_visible((SELECT oc.oid FROM pg_opclass oc JOIN pg_am am ON am.oid = oc.opcmethod WHERE am.amname = 'btree' AND oc.opcname = 'int4_ops'));
+----------
+[METADATA] SELECT pg_operator_is_visible('pg_catalog.+(integer,integer)'::regoperator::oid);
+----------
+[SELECT|METADATA] SELECT pg_opfamily_is_visible((SELECT ofam.oid FROM pg_opfamily ofam JOIN pg_am am ON am.oid = ofam.opfmethod WHERE am.amname = 'btree' AND ofam.opfname = 'integer_ops'));
+----------
+[SELECT|METADATA|PERFORMANCE] SELECT pg_statistics_obj_is_visible((SELECT oid FROM pg_statistic_ext WHERE stxnamespace = 'split_visible'::regnamespace AND stxname = 's_visible'));
+----------
+[METADATA] SELECT pg_table_is_visible('pg_catalog.pg_class'::regclass::oid);
+----------
+[METADATA] SELECT pg_ts_config_is_visible('pg_catalog.english'::regconfig::oid);
+----------
+[METADATA] SELECT pg_ts_dict_is_visible('pg_catalog.english_stem'::regdictionary::oid);
+----------
+[SELECT|METADATA] SELECT pg_ts_parser_is_visible((SELECT oid FROM pg_ts_parser WHERE prsnamespace = 'pg_catalog'::regnamespace AND prsname = 'default'));
+----------
+[SELECT|METADATA] SELECT pg_ts_template_is_visible((SELECT oid FROM pg_ts_template WHERE tmplnamespace = 'pg_catalog'::regnamespace AND tmplname = 'snowball'));
+----------
+[METADATA] SELECT pg_type_is_visible('pg_catalog.int4'::regtype::oid);

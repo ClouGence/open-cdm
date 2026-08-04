@@ -1,0 +1,36 @@
+[dbms_workload_repository_procedure_domains]
+sql:
+begin
+  dbms_workload_repository.awr_clear_history;
+  dbms_workload_repository.awr_set_interval(10);
+  dbms_workload_repository.drop_snapshot_range(900000001,900000002);
+  dbms_workload_repository.drop_snapshot_by_time(timestamp '1970-01-01 00:00:00');
+  dbms_workload_repository.modify_snapshot_settings(topnsql=>cast(30 as int));
+  dbms_workload_repository.modify_snapshot_settings(topnsql=>'DEFAULT');
+  dbms_workload_repository.awr_clear_tmp_table;
+  sys.awr_report_html(1,2,'/tmp','CODEX.HTML');
+  sys.awr_report_text(1,2,'/tmp','CODEX.TXT');
+end;
+expect:
+{
+  "contains": [
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_workload_repository"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_workload_repository"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_workload_repository"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_workload_repository"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_workload_repository"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_workload_repository"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"sys"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"sys"}
+  ]
+}
+----------
+[dbms_workload_repository_function_expression_no_domain]
+sql:
+declare
+  snap_id int;
+begin
+  snap_id:=dbms_workload_repository.create_snapshot;
+end;
+expect:
+{"size":0}

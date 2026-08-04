@@ -1,0 +1,18 @@
+[split_dql_dameng_role_effects_0_001]
+sql:
+select count(*) from SYSDBA.CODEX_DM8_ROLE_STATE_DATA_20260723;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:21~1:62) /test/1/catalog1/SYSDBA/CODEX_DM8_ROLE_STATE_DATA_20260723/",
+      "action": "READ"
+    }
+  ]
+}

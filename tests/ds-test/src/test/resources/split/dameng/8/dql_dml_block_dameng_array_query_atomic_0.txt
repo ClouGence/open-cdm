@@ -1,0 +1,265 @@
+-- ARRAY_INT_FIXED
+select * from array new int[2]{1};
+-- ARRAY_INT_FULL
+select column_value from array new int[3]{1,2,3};
+-- ARRAY_VARCHAR
+select column_value from array new varchar[2]{'A','B'};
+-- ARRAY_DECIMAL
+select column_value from array new decimal[2]{1.25,2.5};
+-- ARRAY_DATE
+select column_value from array new date[2]{date'2026-01-01',date'2026-01-02'};
+-- ARRAY_ALIAS
+select A.column_value from array new int[2]{1,2} A;
+-- ARRAY_AS_ALIAS
+select A.column_value from array new int[2]{1,2} as A;
+-- ARRAY_WHERE_ORDER
+select column_value from array new int[4]{3,1,4,2} where column_value>1 order by column_value;
+-- ARRAY_GROUP_HAVING
+select column_value,count(*) from array new int[4]{1,1,2,2} group by column_value having count(*)=2 order by column_value;
+-- ARRAY_DISTINCT
+select distinct column_value from array new int[3]{1,1,2};
+-- ARRAY_TOP_LIMIT
+select top 2 column_value from array new int[4]{4,3,2,1} order by column_value limit 1;
+-- ARRAY_TOP
+select top 2 column_value from array new int[4]{4,3,2,1} order by column_value;
+-- ARRAY_LIMIT
+select column_value from array new int[4]{4,3,2,1} order by column_value limit 2;
+-- ARRAY_ANALYTIC
+select column_value,row_number() over(order by column_value) from array new int[2]{2,1};
+-- ARRAY_JOIN_TABLE
+select A.column_value,T.ID from array new int[2]{1,2} A join AQ_TARGET T on T.ID=A.column_value;
+-- ARRAY_COMMA_TABLE
+select A.column_value,T.ID from array new int[2]{1,2} A,AQ_TARGET T where T.ID=A.column_value;
+-- ARRAY_TWO_SOURCES
+select A.column_value,B.column_value from array new int[2]{1,2} A,array new int[2]{2,3} B where A.column_value=B.column_value;
+-- ARRAY_CTE
+with Q as(select column_value V from array new int[2]{1,2}) select V from Q;
+-- ARRAY_DERIVED_QUERY
+select * from(select column_value V from array new int[2]{1,2}) Q;
+-- ARRAY_IN_SUBQUERY
+select ID from AQ_TARGET where ID in(select column_value from array new int[2]{1,2});
+-- ARRAY_UNION
+select column_value from array new int[1]{1} union all select column_value from array new int[1]{2};
+-- ARRAY_INSERT_SELECT
+insert into AQ_TARGET select column_value,'ARRAY' from array new int[2]{3,4};
+-- ARRAY_UPDATE_EXISTS
+update AQ_TARGET set VALUE_TEXT='ARRAY' where exists(select 1 from array new int[1]{1});
+-- ARRAY_DELETE_IN
+delete from AQ_TARGET where ID in(select column_value from array new int[1]{1});
+-- ARRAY_MERGE
+merge into AQ_TARGET T using(select column_value ID from array new int[2]{1,2}) S on(T.ID=S.ID) when matched then update set T.VALUE_TEXT='ARRAY';
+-- ARRAY_STATIC_VARIABLE
+declare type A_T is array int[3]; A A_T; N int; begin A[1]=1;A[2]=2;A[3]=3;select count(*) into N from array A; end
+/
+-- ARRAY_DYNAMIC_VARIABLE
+declare type A_T is array int[]; A A_T; N int; begin A=new int[2]{1,2};select count(*) into N from array A; end
+/
+-- ARRAY_RECORD_VARIABLE
+declare type R_T is record(ID int,NAME varchar(20));type A_T is array R_T[];A A_T;N int;begin A=new R_T[2];A[1].ID=1;A[1].NAME='A';A[2].ID=2;A[2].NAME='B';select count(*) into N from array A X where X.ID>0;end
+/
+-- ARRAY_MULTIDIMENSION_FLAT
+select * from array new int[2,2]{1,2,3,4};
+-- ARRAY_MULTIDIMENSION_VARIABLE
+declare type A_T is array int[2,2];A A_T;N int;begin select count(*) into N from array A;end
+/
+-- ARRAY_NEGATIVE_LENGTH
+select * from array new int[-1]{};
+-- ARRAY_ZERO_LENGTH
+select * from array new int[0]{};
+-- ARRAY_NULL_FILLED
+select * from array new int[2];
+-- ARRAY_LENGTH_EXPRESSION
+select * from array new int[1+1]{1,2};
+-- ARRAY_INITIALIZER_OVERFLOW
+select * from array new int[1]{1,2};
+-- ARRAY_OBJECT_VALUE
+select * from array new AQ_OBJECT[1]{AQ_OBJECT(1,'A')};
+-- ARRAY_RECORD_NONSCALAR
+declare type R_T is record(ID int[2]);type A_T is array R_T[];A A_T;N int;begin A=new R_T[1];select count(*) into N from array A;end
+/
+-- TABLE_VARRAY_SUBQUERY
+select column_value from table(select V from AQ_COLLECTIONS where ID=2);
+-- TABLE_NESTED_SUBQUERY
+select column_value from table(select N from AQ_COLLECTIONS where ID=1);
+-- TABLE_CONSTRUCTOR
+select column_value from table(AQ_NESTED('X','Y'));
+-- TABLE_FUNCTION
+select column_value from table(AQ_VALUES(7));
+-- TABLE_OBJECT_ELEMENTS
+select * from table(select O from AQ_COLLECTIONS where ID=1) X;
+-- TABLE_ALIAS
+select X.column_value from table(AQ_VALUES(1)) X;
+-- TABLE_AS_ALIAS
+select X.column_value from table(AQ_VALUES(1)) as X;
+-- TABLE_JOIN
+select T.ID,X.column_value from AQ_TARGET T join table(AQ_VALUES(1)) X on T.ID=cast(X.column_value as int);
+-- TABLE_CTE
+with Q as(select column_value V from table(AQ_VALUES(1))) select * from Q;
+-- TABLE_GROUP
+select column_value,count(*) from table(AQ_NESTED('A','A','B')) group by column_value;
+-- TABLE_INSERT_SELECT
+insert into AQ_TARGET select cast(column_value as int),'TABLE' from table(AQ_VALUES(7));
+-- TABLE_SUBQUERY_ZERO_ROWS
+select * from table(select N from AQ_COLLECTIONS where ID=99);
+-- TABLE_SUBQUERY_MULTI_ROWS
+select * from table(select N from AQ_COLLECTIONS);
+-- TABLE_NON_COLLECTION
+select * from table(1);
+-- TABLE_FUNCTION_NON_COLLECTION
+select * from table(abs(1));
+------------------------------------------------------------------------------------------
+[SELECT] -- ARRAY_INT_FIXED
+select * from array new int[2]{1};
+----------
+[SELECT] -- ARRAY_INT_FULL
+select column_value from array new int[3]{1,2,3};
+----------
+[SELECT] -- ARRAY_VARCHAR
+select column_value from array new varchar[2]{'A','B'};
+----------
+[SELECT] -- ARRAY_DECIMAL
+select column_value from array new decimal[2]{1.25,2.5};
+----------
+[SELECT] -- ARRAY_DATE
+select column_value from array new date[2]{date'2026-01-01',date'2026-01-02'};
+----------
+[SELECT] -- ARRAY_ALIAS
+select A.column_value from array new int[2]{1,2} A;
+----------
+[SELECT] -- ARRAY_AS_ALIAS
+select A.column_value from array new int[2]{1,2} as A;
+----------
+[SELECT] -- ARRAY_WHERE_ORDER
+select column_value from array new int[4]{3,1,4,2} where column_value>1 order by column_value;
+----------
+[SELECT] -- ARRAY_GROUP_HAVING
+select column_value,count(*) from array new int[4]{1,1,2,2} group by column_value having count(*)=2 order by column_value;
+----------
+[SELECT] -- ARRAY_DISTINCT
+select distinct column_value from array new int[3]{1,1,2};
+----------
+[SELECT] -- ARRAY_TOP_LIMIT
+select top 2 column_value from array new int[4]{4,3,2,1} order by column_value limit 1;
+----------
+[SELECT] -- ARRAY_TOP
+select top 2 column_value from array new int[4]{4,3,2,1} order by column_value;
+----------
+[SELECT] -- ARRAY_LIMIT
+select column_value from array new int[4]{4,3,2,1} order by column_value limit 2;
+----------
+[SELECT] -- ARRAY_ANALYTIC
+select column_value,row_number() over(order by column_value) from array new int[2]{2,1};
+----------
+[SELECT] -- ARRAY_JOIN_TABLE
+select A.column_value,T.ID from array new int[2]{1,2} A join AQ_TARGET T on T.ID=A.column_value;
+----------
+[SELECT] -- ARRAY_COMMA_TABLE
+select A.column_value,T.ID from array new int[2]{1,2} A,AQ_TARGET T where T.ID=A.column_value;
+----------
+[SELECT] -- ARRAY_TWO_SOURCES
+select A.column_value,B.column_value from array new int[2]{1,2} A,array new int[2]{2,3} B where A.column_value=B.column_value;
+----------
+[SELECT] -- ARRAY_CTE
+with Q as(select column_value V from array new int[2]{1,2}) select V from Q;
+----------
+[SELECT] -- ARRAY_DERIVED_QUERY
+select * from(select column_value V from array new int[2]{1,2}) Q;
+----------
+[SELECT] -- ARRAY_IN_SUBQUERY
+select ID from AQ_TARGET where ID in(select column_value from array new int[2]{1,2});
+----------
+[SELECT] -- ARRAY_UNION
+select column_value from array new int[1]{1} union all select column_value from array new int[1]{2};
+----------
+[INSERT|SELECT] -- ARRAY_INSERT_SELECT
+insert into AQ_TARGET select column_value,'ARRAY' from array new int[2]{3,4};
+----------
+[UPDATE|SELECT] -- ARRAY_UPDATE_EXISTS
+update AQ_TARGET set VALUE_TEXT='ARRAY' where exists(select 1 from array new int[1]{1});
+----------
+[DELETE|SELECT] -- ARRAY_DELETE_IN
+delete from AQ_TARGET where ID in(select column_value from array new int[1]{1});
+----------
+[MERGE|SELECT] -- ARRAY_MERGE
+merge into AQ_TARGET T using(select column_value ID from array new int[2]{1,2}) S on(T.ID=S.ID) when matched then update set T.VALUE_TEXT='ARRAY';
+----------
+[BLOCK(PROGRAM_CONTROL,SELECT)] -- ARRAY_STATIC_VARIABLE
+declare type A_T is array int[3]; A A_T; N int; begin A[1]=1;A[2]=2;A[3]=3;select count(*) into N from array A; end
+----------
+[BLOCK(PROGRAM_CONTROL,SELECT)] -- ARRAY_DYNAMIC_VARIABLE
+declare type A_T is array int[]; A A_T; N int; begin A=new int[2]{1,2};select count(*) into N from array A; end
+----------
+[BLOCK(PROGRAM_CONTROL,SELECT)] -- ARRAY_RECORD_VARIABLE
+declare type R_T is record(ID int,NAME varchar(20));type A_T is array R_T[];A A_T;N int;begin A=new R_T[2];A[1].ID=1;A[1].NAME='A';A[2].ID=2;A[2].NAME='B';select count(*) into N from array A X where X.ID>0;end
+----------
+[SELECT] -- ARRAY_MULTIDIMENSION_FLAT
+select * from array new int[2,2]{1,2,3,4};
+----------
+[BLOCK(PROGRAM_CONTROL,SELECT)] -- ARRAY_MULTIDIMENSION_VARIABLE
+declare type A_T is array int[2,2];A A_T;N int;begin select count(*) into N from array A;end
+----------
+[SELECT] -- ARRAY_NEGATIVE_LENGTH
+select * from array new int[-1]{};
+----------
+[SELECT] -- ARRAY_ZERO_LENGTH
+select * from array new int[0]{};
+----------
+[SELECT] -- ARRAY_NULL_FILLED
+select * from array new int[2];
+----------
+[SELECT] -- ARRAY_LENGTH_EXPRESSION
+select * from array new int[1+1]{1,2};
+----------
+[SELECT] -- ARRAY_INITIALIZER_OVERFLOW
+select * from array new int[1]{1,2};
+----------
+[SELECT|CALL_PROG_OBJ] -- ARRAY_OBJECT_VALUE
+select * from array new AQ_OBJECT[1]{AQ_OBJECT(1,'A')};
+----------
+[BLOCK(PROGRAM_CONTROL,SELECT)] -- ARRAY_RECORD_NONSCALAR
+declare type R_T is record(ID int[2]);type A_T is array R_T[];A A_T;N int;begin A=new R_T[1];select count(*) into N from array A;end
+----------
+[SELECT] -- TABLE_VARRAY_SUBQUERY
+select column_value from table(select V from AQ_COLLECTIONS where ID=2);
+----------
+[SELECT] -- TABLE_NESTED_SUBQUERY
+select column_value from table(select N from AQ_COLLECTIONS where ID=1);
+----------
+[SELECT|CALL_PROG_OBJ] -- TABLE_CONSTRUCTOR
+select column_value from table(AQ_NESTED('X','Y'));
+----------
+[SELECT|CALL_PROG_OBJ] -- TABLE_FUNCTION
+select column_value from table(AQ_VALUES(7));
+----------
+[SELECT] -- TABLE_OBJECT_ELEMENTS
+select * from table(select O from AQ_COLLECTIONS where ID=1) X;
+----------
+[SELECT|CALL_PROG_OBJ] -- TABLE_ALIAS
+select X.column_value from table(AQ_VALUES(1)) X;
+----------
+[SELECT|CALL_PROG_OBJ] -- TABLE_AS_ALIAS
+select X.column_value from table(AQ_VALUES(1)) as X;
+----------
+[SELECT|CALL_PROG_OBJ] -- TABLE_JOIN
+select T.ID,X.column_value from AQ_TARGET T join table(AQ_VALUES(1)) X on T.ID=cast(X.column_value as int);
+----------
+[SELECT|CALL_PROG_OBJ] -- TABLE_CTE
+with Q as(select column_value V from table(AQ_VALUES(1))) select * from Q;
+----------
+[SELECT|CALL_PROG_OBJ] -- TABLE_GROUP
+select column_value,count(*) from table(AQ_NESTED('A','A','B')) group by column_value;
+----------
+[INSERT|SELECT|CALL_PROG_OBJ] -- TABLE_INSERT_SELECT
+insert into AQ_TARGET select cast(column_value as int),'TABLE' from table(AQ_VALUES(7));
+----------
+[SELECT] -- TABLE_SUBQUERY_ZERO_ROWS
+select * from table(select N from AQ_COLLECTIONS where ID=99);
+----------
+[SELECT] -- TABLE_SUBQUERY_MULTI_ROWS
+select * from table(select N from AQ_COLLECTIONS);
+----------
+[SELECT] -- TABLE_NON_COLLECTION
+select * from table(1);
+----------
+[SELECT] -- TABLE_FUNCTION_NON_COLLECTION
+select * from table(abs(1));

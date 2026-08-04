@@ -1,0 +1,859 @@
+[PgRuleColumnAllowDropTestFamily#dropColumn_1#001]
+rule: _rules/column/column-allow-drop.rule
+expect: true
+vars:
+  allow: true
+sql:
+alter table test.abc drop column id;
+----------
+[PgRuleColumnAllowDropTestFamily#dropColumn_2#001]
+rule: _rules/column/column-allow-drop.rule
+expect: false
+vars:
+  allow: false
+sql:
+alter table test.abc drop column id;
+----------
+[PgRuleColumnCharLengthTestFamily#columnChar_1#001]
+rule: _rules/column/column-char-length.rule
+expect: false
+vars:
+{}
+sql:
+create table test(a123 char);
+----------
+[PgRuleColumnCharLengthTestFamily#columnChar_1#002]
+rule: _rules/column/column-char-length.rule
+expect: true
+vars:
+{}
+sql:
+alter table test add a123 char(10);
+----------
+[PgRuleColumnCharLengthTestFamily#columnChar_1#003]
+rule: _rules/column/column-char-length.rule
+expect: true
+vars:
+{}
+sql:
+alter table test alter column a1 type char(10);
+----------
+[PgRuleColumnCharLengthTestFamily#columnChar_2#001]
+rule: _rules/column/column-char-length.rule
+expect: true
+vars:
+  allowEmpty: true
+sql:
+create table test(a123 char);
+----------
+[PgRuleColumnCharLengthTestFamily#columnChar_2#002]
+rule: _rules/column/column-char-length.rule
+expect: true
+vars:
+  allowEmpty: true
+sql:
+alter table test add a123 char(10);
+----------
+[PgRuleColumnCharLengthTestFamily#columnChar_2#003]
+rule: _rules/column/column-char-length.rule
+expect: true
+vars:
+  allowEmpty: true
+sql:
+alter table test alter column a1 type char(10);
+----------
+[PgRuleColumnCharLengthTestFamily#columnChar_3#001]
+rule: _rules/column/column-char-length.rule
+expect: false
+vars:
+  length: 5
+sql:
+create table test(a123 char);
+----------
+[PgRuleColumnCharLengthTestFamily#columnChar_3#002]
+rule: _rules/column/column-char-length.rule
+expect: false
+vars:
+  length: 5
+sql:
+alter table test add a123 char(10);
+----------
+[PgRuleColumnCharLengthTestFamily#columnChar_3#003]
+rule: _rules/column/column-char-length.rule
+expect: false
+vars:
+  length: 5
+sql:
+alter table test alter column a1 type char(10);
+----------
+[PgRuleColumnCharLengthTestFamily#columnNChar_1#001]
+rule: _rules/column/column-char-length.rule
+expect: false
+vars:
+{}
+sql:
+create table test(a123 nchar);
+----------
+[PgRuleColumnCharLengthTestFamily#columnNChar_1#002]
+rule: _rules/column/column-char-length.rule
+expect: true
+vars:
+{}
+sql:
+alter table test add a123 nchar(10);
+----------
+[PgRuleColumnCharLengthTestFamily#columnNChar_1#003]
+rule: _rules/column/column-char-length.rule
+expect: true
+vars:
+{}
+sql:
+alter table test alter column a1 type nchar(10);
+----------
+[PgRuleColumnCharLengthTestFamily#columnNChar_2#001]
+rule: _rules/column/column-char-length.rule
+expect: true
+vars:
+  allowEmpty: true
+sql:
+create table test(a123 nchar);
+----------
+[PgRuleColumnCharLengthTestFamily#columnNChar_2#002]
+rule: _rules/column/column-char-length.rule
+expect: true
+vars:
+  allowEmpty: true
+sql:
+alter table test add a123 nchar(10);
+----------
+[PgRuleColumnCharLengthTestFamily#columnNChar_2#003]
+rule: _rules/column/column-char-length.rule
+expect: true
+vars:
+  allowEmpty: true
+sql:
+alter table test alter column a1 type nchar(10);
+----------
+[PgRuleColumnCharLengthTestFamily#columnNChar_3#001]
+rule: _rules/column/column-char-length.rule
+expect: false
+vars:
+  length: 5
+sql:
+create table test(a123 nchar);
+----------
+[PgRuleColumnCharLengthTestFamily#columnNChar_3#002]
+rule: _rules/column/column-char-length.rule
+expect: false
+vars:
+  length: 5
+sql:
+alter table test add a123 nchar(10);
+----------
+[PgRuleColumnCharLengthTestFamily#columnNChar_3#003]
+rule: _rules/column/column-char-length.rule
+expect: false
+vars:
+  length: 5
+sql:
+alter table test alter column a1 type nchar(10);
+----------
+[PgRuleColumnCreateNeedDefaultTestFamily#columnNeedDefault_1#001]
+rule: _rules/column/column-create-need-default.rule
+expect: true
+vars:
+{}
+sql:
+create table test.abc_test(id int default 1);
+----------
+[PgRuleColumnCreateNeedDefaultTestFamily#columnNeedDefault_1#002]
+rule: _rules/column/column-create-need-default.rule
+expect: true
+vars:
+{}
+sql:
+alter table test.abc add name varchar(25) default 'aa';
+----------
+[PgRuleColumnCreateNeedDefaultTestFamily#columnNeedDefault_1#003]
+rule: _rules/column/column-create-need-default.rule
+expect: true
+vars:
+{}
+sql:
+alter table test.abc add name varchar(25) default '';
+----------
+[PgRuleColumnCreateNeedDefaultTestFamily#columnNeedDefault_2#001]
+rule: _rules/column/column-create-need-default.rule
+expect: false
+vars:
+{}
+sql:
+create table test.abc_test(id int);
+----------
+[PgRuleColumnCreateNeedDefaultTestFamily#columnNeedDefault_2#002]
+rule: _rules/column/column-create-need-default.rule
+expect: false
+vars:
+{}
+sql:
+alter table test.abc add name varchar(25);
+----------
+[PgRuleColumnNameLengthTestFamily#columnNameLength_1#001]
+rule: _rules/column/column-name-length.rule
+expect: true
+vars:
+{}
+sql:
+create table test(a123456 int);
+----------
+[PgRuleColumnNameLengthTestFamily#columnNameLength_1#002]
+rule: _rules/column/column-name-length.rule
+expect: true
+vars:
+{}
+sql:
+alter table test add a123456 int;
+----------
+[PgRuleColumnNameLengthTestFamily#columnNameLength_1#003]
+rule: _rules/column/column-name-length.rule
+expect: true
+vars:
+{}
+sql:
+alter table test rename column a1 to a123456;
+----------
+[PgRuleColumnNameLengthTestFamily#columnNameLength_2#001]
+rule: _rules/column/column-name-length.rule
+expect: false
+vars:
+  length: 5
+sql:
+create table test(a123456 int);
+----------
+[PgRuleColumnNameLengthTestFamily#columnNameLength_2#002]
+rule: _rules/column/column-name-length.rule
+expect: false
+vars:
+  length: 5
+sql:
+alter table test add a123456 int;
+----------
+[PgRuleColumnNameLengthTestFamily#columnNameLength_2#003]
+rule: _rules/column/column-name-length.rule
+expect: false
+vars:
+  length: 5
+sql:
+alter table test rename column a1 to a123456;
+----------
+[PgRuleColumnNotNullTestFamily#columnNotNull_1#001]
+rule: _rules/column/column-need-notnull.rule
+expect: false
+vars:
+{}
+sql:
+create table test.abc_test(id int);
+----------
+[PgRuleColumnNotNullTestFamily#columnNotNull_1#002]
+rule: _rules/column/column-need-notnull.rule
+expect: true
+vars:
+{}
+sql:
+create table test.abc_test(id int not null)
+----------
+[PgRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_1#001]
+rule: _rules/column/column-name-case-type.rule
+expect: true
+vars:
+  caseType: Upper case
+sql:
+alter table test_table alter column abc_test type int;
+----------
+[PgRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_1#002]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper case
+sql:
+create table test_table(abc_test int);
+----------
+[PgRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_1#003]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper case
+sql:
+alter table test_table add abc_test int;
+----------
+[PgRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_1#004]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper case
+sql:
+alter table test_table rename column c to abc_test;
+----------
+[PgRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_1#005]
+rule: _rules/column/column-name-case-type.rule
+expect: true
+vars:
+  caseType: Upper case
+sql:
+create table test_table(ABC_TEST int);
+----------
+[PgRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_1#006]
+rule: _rules/column/column-name-case-type.rule
+expect: true
+vars:
+  caseType: Upper case
+sql:
+alter table test_table add ABC_TEST int;
+----------
+[PgRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_1#007]
+rule: _rules/column/column-name-case-type.rule
+expect: true
+vars:
+  caseType: Upper case
+sql:
+alter table test_table rename column c to ABC_TEST;
+----------
+[PgRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_1#008]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper case
+sql:
+create table test_table(abcTest int);
+----------
+[PgRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_1#009]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper case
+sql:
+alter table test_table add abcTest int;
+----------
+[PgRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_1#010]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper case
+sql:
+alter table test_table rename column c to abcTest;
+----------
+[PgRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_1#011]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper case
+sql:
+create table test_table(AbcTest int);
+----------
+[PgRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_1#012]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper case
+sql:
+alter table test_table add AbcTest int;
+----------
+[PgRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_1#013]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper case
+sql:
+alter table test_table rename column c to AbcTest;
+----------
+[PgRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_2#001]
+rule: _rules/column/column-name-case-type.rule
+expect: true
+vars:
+  caseType: Lower case
+sql:
+alter table test_table alter column abc_test type int;
+----------
+[PgRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_2#002]
+rule: _rules/column/column-name-case-type.rule
+expect: true
+vars:
+  caseType: Lower case
+sql:
+create table test_table(abc_test int);
+----------
+[PgRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_2#003]
+rule: _rules/column/column-name-case-type.rule
+expect: true
+vars:
+  caseType: Lower case
+sql:
+alter table test_table add abc_test int;
+----------
+[PgRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_2#004]
+rule: _rules/column/column-name-case-type.rule
+expect: true
+vars:
+  caseType: Lower case
+sql:
+alter table test_table rename column c to abc_test;
+----------
+[PgRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_2#005]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower case
+sql:
+create table test_table(ABC_TEST int);
+----------
+[PgRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_2#006]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower case
+sql:
+alter table test_table add ABC_TEST int;
+----------
+[PgRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_2#007]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower case
+sql:
+alter table test_table rename column c to ABC_TEST;
+----------
+[PgRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_2#008]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower case
+sql:
+create table test_table(abcTest int);
+----------
+[PgRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_2#009]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower case
+sql:
+alter table test_table add abcTest int;
+----------
+[PgRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_2#010]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower case
+sql:
+alter table test_table rename column c to abcTest;
+----------
+[PgRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_2#011]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower case
+sql:
+create table test_table(AbcTest int);
+----------
+[PgRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_2#012]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower case
+sql:
+alter table test_table add AbcTest int;
+----------
+[PgRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_2#013]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower case
+sql:
+alter table test_table rename column c to AbcTest;
+----------
+[PgRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_3#001]
+rule: _rules/column/column-name-case-type.rule
+expect: true
+vars:
+  caseType: Lower camel case
+sql:
+alter table test_table alter column abc_test type int;
+----------
+[PgRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_3#002]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower camel case
+sql:
+create table test_table(abc_test int);
+----------
+[PgRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_3#003]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower camel case
+sql:
+alter table test_table add abc_test int;
+----------
+[PgRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_3#004]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower camel case
+sql:
+alter table test_table rename column c to abc_test;
+----------
+[PgRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_3#005]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower camel case
+sql:
+create table test_table(ABC_TEST int);
+----------
+[PgRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_3#006]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower camel case
+sql:
+alter table test_table add ABC_TEST int;
+----------
+[PgRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_3#007]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower camel case
+sql:
+alter table test_table rename column c to ABC_TEST;
+----------
+[PgRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_3#008]
+rule: _rules/column/column-name-case-type.rule
+expect: true
+vars:
+  caseType: Lower camel case
+sql:
+create table test_table(abcTest int);
+----------
+[PgRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_3#009]
+rule: _rules/column/column-name-case-type.rule
+expect: true
+vars:
+  caseType: Lower camel case
+sql:
+alter table test_table add abcTest int;
+----------
+[PgRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_3#010]
+rule: _rules/column/column-name-case-type.rule
+expect: true
+vars:
+  caseType: Lower camel case
+sql:
+alter table test_table rename column c to abcTest;
+----------
+[PgRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_3#011]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower camel case
+sql:
+create table test_table(AbcTest int);
+----------
+[PgRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_3#012]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower camel case
+sql:
+alter table test_table add AbcTest int;
+----------
+[PgRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_3#013]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower camel case
+sql:
+alter table test_table rename column c to AbcTest;
+----------
+[PgRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_4#001]
+rule: _rules/column/column-name-case-type.rule
+expect: true
+vars:
+  caseType: Upper camel case
+sql:
+alter table test_table alter column abc_test type int;
+----------
+[PgRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_4#002]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper camel case
+sql:
+create table test_table(abc_test int);
+----------
+[PgRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_4#003]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper camel case
+sql:
+alter table test_table add abc_test int;
+----------
+[PgRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_4#004]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper camel case
+sql:
+alter table test_table rename column c to abc_test;
+----------
+[PgRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_4#005]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper camel case
+sql:
+create table test_table(ABC_TEST int);
+----------
+[PgRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_4#006]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper camel case
+sql:
+alter table test_table add ABC_TEST int;
+----------
+[PgRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_4#007]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper camel case
+sql:
+alter table test_table rename column c to ABC_TEST;
+----------
+[PgRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_4#008]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper camel case
+sql:
+create table test_table(abcTest int);
+----------
+[PgRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_4#009]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper camel case
+sql:
+alter table test_table add abcTest int;
+----------
+[PgRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_4#010]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper camel case
+sql:
+alter table test_table rename column c to abcTest;
+----------
+[PgRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_4#011]
+rule: _rules/column/column-name-case-type.rule
+expect: true
+vars:
+  caseType: Upper camel case
+sql:
+create table test_table(AbcTest int);
+----------
+[PgRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_4#012]
+rule: _rules/column/column-name-case-type.rule
+expect: true
+vars:
+  caseType: Upper camel case
+sql:
+alter table test_table add AbcTest int;
+----------
+[PgRuleColumnTableNameCaseTypeTestFamily#columnTableNameCaseType_4#013]
+rule: _rules/column/column-name-case-type.rule
+expect: true
+vars:
+  caseType: Upper camel case
+sql:
+alter table test_table rename column c to AbcTest;
+----------
+[PgRuleColumnTypesTestFamily#columnTypes_1#001]
+rule: _rules/column/column-types.rule
+expect: true
+vars:
+  ruleType: AllowList
+  typeList: int,char,datetime
+sql:
+create table test.abc_test(id int)
+----------
+[PgRuleColumnTypesTestFamily#columnTypes_1#002]
+rule: _rules/column/column-types.rule
+expect: false
+vars:
+  ruleType: AllowList
+  typeList: int,char,datetime
+sql:
+create table test.abc_test(id varchar(4))
+----------
+[PgRuleColumnTypesTestFamily#columnTypes_2#001]
+rule: _rules/column/column-types.rule
+expect: false
+vars:
+  ruleType: BlockList
+  typeList: int,char,datetime
+sql:
+create table test.abc_test(id int)
+----------
+[PgRuleColumnTypesTestFamily#columnTypes_2#002]
+rule: _rules/column/column-types.rule
+expect: true
+vars:
+  ruleType: BlockList
+  typeList: int,char,datetime
+sql:
+create table test.abc_test(id varchar(4))
+----------
+[PgRuleColumnVarCharLengthTestFamily#columnVarchar_1#001]
+rule: _rules/column/column-varchar-length.rule
+expect: false
+vars:
+{}
+sql:
+create table test(a123 varchar);
+----------
+[PgRuleColumnVarCharLengthTestFamily#columnVarchar_1#002]
+rule: _rules/column/column-varchar-length.rule
+expect: true
+vars:
+{}
+sql:
+alter table test add a123 varchar(10);
+----------
+[PgRuleColumnVarCharLengthTestFamily#columnVarchar_1#003]
+rule: _rules/column/column-varchar-length.rule
+expect: true
+vars:
+{}
+sql:
+alter table abc alter column a1 type varchar(10);
+----------
+[PgRuleColumnVarCharLengthTestFamily#columnVarchar_2#001]
+rule: _rules/column/column-varchar-length.rule
+expect: true
+vars:
+  allowEmpty: true
+sql:
+create table test(a123 varchar);
+----------
+[PgRuleColumnVarCharLengthTestFamily#columnVarchar_2#002]
+rule: _rules/column/column-varchar-length.rule
+expect: true
+vars:
+  allowEmpty: true
+sql:
+alter table test add a123 varchar(10);
+----------
+[PgRuleColumnVarCharLengthTestFamily#columnVarchar_2#003]
+rule: _rules/column/column-varchar-length.rule
+expect: true
+vars:
+  allowEmpty: true
+sql:
+alter table abc alter column a1 type varchar(10);
+----------
+[PgRuleColumnVarCharLengthTestFamily#columnVarchar_3#001]
+rule: _rules/column/column-varchar-length.rule
+expect: false
+vars:
+  length: 5
+sql:
+create table test(a123 varchar);
+----------
+[PgRuleColumnVarCharLengthTestFamily#columnVarchar_3#002]
+rule: _rules/column/column-varchar-length.rule
+expect: false
+vars:
+  length: 5
+sql:
+alter table test add a123 varchar(10);
+----------
+[PgRuleColumnVarCharLengthTestFamily#columnVarchar_3#003]
+rule: _rules/column/column-varchar-length.rule
+expect: false
+vars:
+  length: 5
+sql:
+alter table abc alter column a1 type varchar(10);
+----------
+[PgRuleColumnVarCharLengthTestFamily#columnNVarchar_1#001]
+rule: _rules/column/column-varchar-length.rule
+expect: false
+vars:
+{}
+sql:
+create table test(a123 nvarchar);
+----------
+[PgRuleColumnVarCharLengthTestFamily#columnNVarchar_1#002]
+rule: _rules/column/column-varchar-length.rule
+expect: true
+vars:
+{}
+sql:
+alter table test add a123 nvarchar(10);
+----------
+[PgRuleColumnVarCharLengthTestFamily#columnNVarchar_1#003]
+rule: _rules/column/column-varchar-length.rule
+expect: true
+vars:
+{}
+sql:
+alter table abc alter column a1 type nvarchar(10);
+----------
+[PgRuleColumnVarCharLengthTestFamily#columnNVarchar_2#001]
+rule: _rules/column/column-varchar-length.rule
+expect: true
+vars:
+  allowEmpty: true
+sql:
+create table test(a123 nvarchar);
+----------
+[PgRuleColumnVarCharLengthTestFamily#columnNVarchar_2#002]
+rule: _rules/column/column-varchar-length.rule
+expect: true
+vars:
+  allowEmpty: true
+sql:
+alter table test add a123 nvarchar(10);
+----------
+[PgRuleColumnVarCharLengthTestFamily#columnNVarchar_2#003]
+rule: _rules/column/column-varchar-length.rule
+expect: true
+vars:
+  allowEmpty: true
+sql:
+alter table abc alter column a1 type nvarchar(10);
+----------
+[PgRuleColumnVarCharLengthTestFamily#columnNVarchar_3#001]
+rule: _rules/column/column-varchar-length.rule
+expect: false
+vars:
+  length: 5
+sql:
+create table test(a123 nvarchar);
+----------
+[PgRuleColumnVarCharLengthTestFamily#columnNVarchar_3#002]
+rule: _rules/column/column-varchar-length.rule
+expect: false
+vars:
+  length: 5
+sql:
+alter table test add a123 nvarchar(10);
+----------
+[PgRuleColumnVarCharLengthTestFamily#columnNVarchar_3#003]
+rule: _rules/column/column-varchar-length.rule
+expect: false
+vars:
+  length: 5
+sql:
+alter table abc alter column a1 type nvarchar(10);

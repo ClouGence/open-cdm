@@ -1,0 +1,2930 @@
+[select__001]
+sql:
+SELECT ST_GEOMFROMWKB(POINT(0,0));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:21) /test/1/catalog1/schema1/ST_GEOMFROMWKB/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:22~1:27) /test/1/catalog1/schema1/POINT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__002]
+sql:
+SELECT ST_GEOMFROMWKB(POINT(0,0),4326);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:21) /test/1/catalog1/schema1/ST_GEOMFROMWKB/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:22~1:27) /test/1/catalog1/schema1/POINT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__003]
+sql:
+SELECT ST_BUFFER_STRATEGY('point_square',20);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:25) /test/1/catalog1/schema1/ST_BUFFER_STRATEGY/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__004]
+sql:
+SELECT ST_BUFFER_STRATEGY('point_circle');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:25) /test/1/catalog1/schema1/ST_BUFFER_STRATEGY/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__005]
+sql:
+SELECT ST_BUFFER(ST_GEOMFROMTEXT('POINT(0 0)'),1,1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/ST_BUFFER/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:32) /test/1/catalog1/schema1/ST_GEOMFROMTEXT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__006]
+sql:
+SELECT ST_BUFFER(ST_GEOMFROMTEXT('POINT(0 0)'),5,ST_BUFFER_STRATEGY('join_miter',10),ST_BUFFER_STRATEGY('join_round',10));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/ST_BUFFER/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:32) /test/1/catalog1/schema1/ST_GEOMFROMTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:49~1:67) /test/1/catalog1/schema1/ST_BUFFER_STRATEGY/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__007]
+sql:
+SELECT ST_BUFFER(ST_GEOMFROMTEXT('POINT(0 0)'),-1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/ST_BUFFER/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:32) /test/1/catalog1/schema1/ST_GEOMFROMTEXT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__008]
+sql:
+SELECT ST_BUFFER(ST_GEOMFROMTEXT('LINESTRING(0 0,10 10)'),1,ST_BUFFER_STRATEGY('point_circle',10));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/ST_BUFFER/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:32) /test/1/catalog1/schema1/ST_GEOMFROMTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:60~1:78) /test/1/catalog1/schema1/ST_BUFFER_STRATEGY/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__009]
+sql:
+SELECT ST_MAKEENVELOPE(ST_GEOMFROMTEXT('POINT(0 1)'),ST_GEOMFROMTEXT('MULTIPOINT(0 0)'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:22) /test/1/catalog1/schema1/ST_MAKEENVELOPE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:23~1:38) /test/1/catalog1/schema1/ST_GEOMFROMTEXT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__010]
+sql:
+SELECT ST_MAKEENVELOPE(ST_GEOMFROMTEXT('MULTIPOINT(0 0)'),ST_GEOMFROMTEXT('POINT(0 1)'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:22) /test/1/catalog1/schema1/ST_MAKEENVELOPE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:23~1:38) /test/1/catalog1/schema1/ST_GEOMFROMTEXT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__011]
+sql:
+SELECT ST_BUFFER_STRATEGY();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:25) /test/1/catalog1/schema1/ST_BUFFER_STRATEGY/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__012]
+sql:
+SELECT ST_BUFFER_STRATEGY('end_round',10,100);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:25) /test/1/catalog1/schema1/ST_BUFFER_STRATEGY/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__013]
+sql:
+SELECT ST_MAKEENVELOPE(ST_GEOMFROMTEXT('POINT(0 0)',0),ST_GEOMFROMTEXT('POINT(-1 1)',4145));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:22) /test/1/catalog1/schema1/ST_MAKEENVELOPE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:23~1:38) /test/1/catalog1/schema1/ST_GEOMFROMTEXT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__014]
+sql:
+SELECT ST_SIMPLIFY(ST_GEOMFROMTEXT('POLYGON((0 0,0 10,10 10,10 0,0 0))'),0);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/ST_SIMPLIFY/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:19~1:34) /test/1/catalog1/schema1/ST_GEOMFROMTEXT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__015]
+sql:
+SELECT ST_SIMPLIFY(ST_GEOMFROMTEXT('POLYGON((0 0,0 10,10 10,10 0,0 0))'),'a');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/ST_SIMPLIFY/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:19~1:34) /test/1/catalog1/schema1/ST_GEOMFROMTEXT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__016]
+sql:
+SELECT ST_DISTANCE_SPHERE(ST_GEOMFROMTEXT('POINT(1 1)'),ST_GEOMFROMTEXT('POINT(0 0)'),-1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:25) /test/1/catalog1/schema1/ST_DISTANCE_SPHERE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:26~1:41) /test/1/catalog1/schema1/ST_GEOMFROMTEXT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__017]
+sql:
+SELECT ST_DISTANCE_SPHERE(ST_GEOMFROMTEXT('POINT(1 1)'),ST_GEOMFROMTEXT('POINT(0 0)'),200,300);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:25) /test/1/catalog1/schema1/ST_DISTANCE_SPHERE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:26~1:41) /test/1/catalog1/schema1/ST_GEOMFROMTEXT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__018]
+sql:
+SELECT ST_AsText(CAST(ST_GeomFromText('MULTIPOINT((1 2))') AS POINT));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/ST_AsText/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:21) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:22~1:37) /test/1/catalog1/schema1/ST_GeomFromText/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__019]
+sql:
+SELECT ST_AsText(CAST(ST_GeomFromText('MULTIPOINT((1 2),(3 4))') AS LINESTRING));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/ST_AsText/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:21) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:22~1:37) /test/1/catalog1/schema1/ST_GeomFromText/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__020]
+sql:
+SELECT ST_AsText(CAST(ST_GeomFromText('LINESTRING(0 0,1 0,1 1,0 0)') AS POLYGON));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/ST_AsText/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:21) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:22~1:37) /test/1/catalog1/schema1/ST_GeomFromText/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__021]
+sql:
+SELECT ST_AsText(CAST(ST_GeomFromText('POINT(1 2)') AS MULTIPOINT));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/ST_AsText/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:21) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:22~1:37) /test/1/catalog1/schema1/ST_GeomFromText/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__022]
+sql:
+SELECT ST_AsText(CAST(ST_GeomFromText('LINESTRING(0 0,1 1)') AS MULTILINESTRING));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/ST_AsText/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:21) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:22~1:37) /test/1/catalog1/schema1/ST_GeomFromText/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__023]
+sql:
+SELECT ST_AsText(CAST(ST_GeomFromText('POLYGON((0 0,1 0,1 1,0 0))') AS MULTIPOLYGON));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/ST_AsText/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:21) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:22~1:37) /test/1/catalog1/schema1/ST_GeomFromText/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__024]
+sql:
+SELECT ST_AsText(CAST(ST_GeomFromText('POINT(1 2)') AS GEOMETRYCOLLECTION));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/ST_AsText/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:21) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:22~1:37) /test/1/catalog1/schema1/ST_GeomFromText/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__025]
+sql:
+SELECT ST_AsText(CONVERT(ST_GeomFromText('POINT(1 2)'), GEOMCOLLECTION));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/ST_AsText/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:24) /test/1/catalog1/schema1/CONVERT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:25~1:40) /test/1/catalog1/schema1/ST_GeomFromText/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__026]
+sql:
+SELECT JSON_VALUE('{"p": 1}', '$.p' RETURNING POINT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/JSON_VALUE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__027]
+sql:
+SELECT CAST(ST_GeomFromText('POINT(1 2)') AS POINT ARRAY);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:12~1:27) /test/1/catalog1/schema1/ST_GeomFromText/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__028]
+sql:
+SELECT ST_ISVALID(ST_GEOMFROMTEXT('POINT(1 2)')), ST_VALIDATE(ST_GEOMFROMTEXT('POINT(1 2)')), ST_DISTANCE_SPHERE(ST_GEOMFROMTEXT('POINT(0 0)'),ST_GEOMFROMTEXT('POINT(1 1)')), ST_MAKEENVELOPE(ST_GEOMFROMTEXT('POINT(0 0)'),ST_GEOMFROMTEXT('POINT(1 1)'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/ST_ISVALID/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:18~1:33) /test/1/catalog1/schema1/ST_GEOMFROMTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:50~1:61) /test/1/catalog1/schema1/ST_VALIDATE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:94~1:112) /test/1/catalog1/schema1/ST_DISTANCE_SPHERE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:175~1:190) /test/1/catalog1/schema1/ST_MAKEENVELOPE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__029]
+sql:
+SELECT ST_ASGEOJSON(ST_GEOMFROMTEXT('POINT(1 2)')), ST_GEOMFROMGEOJSON('{"type":"Point","coordinates":[1,2]}'), ST_GEOHASH(1,2,8), ST_LATFROMGEOHASH(ST_GEOHASH(1,2,8)), ST_LONGFROMGEOHASH(ST_GEOHASH(1,2,8)), ST_POINTFROMGEOHASH(ST_GEOHASH(1,2,8),4326);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/ST_ASGEOJSON/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:20~1:35) /test/1/catalog1/schema1/ST_GEOMFROMTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:52~1:70) /test/1/catalog1/schema1/ST_GEOMFROMGEOJSON/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:112~1:122) /test/1/catalog1/schema1/ST_GEOHASH/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:131~1:148) /test/1/catalog1/schema1/ST_LATFROMGEOHASH/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:169~1:187) /test/1/catalog1/schema1/ST_LONGFROMGEOHASH/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:208~1:227) /test/1/catalog1/schema1/ST_POINTFROMGEOHASH/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__030]
+sql:
+SELECT ST_SIMPLIFY(ST_GEOMFROMTEXT('LINESTRING(0 0,1 0.1,2 0)'),0.2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/ST_SIMPLIFY/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:19~1:34) /test/1/catalog1/schema1/ST_GEOMFROMTEXT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__031]
+sql:
+SELECT HEX(ST_BUFFER_STRATEGY('join_round',32)), ST_ASTEXT(ST_CONVEXHULL(ST_GEOMFROMTEXT('MULTIPOINT(0 0,1 2,2 0)')));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/HEX/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:11~1:29) /test/1/catalog1/schema1/ST_BUFFER_STRATEGY/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:49~1:58) /test/1/catalog1/schema1/ST_ASTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:59~1:72) /test/1/catalog1/schema1/ST_CONVEXHULL/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:73~1:88) /test/1/catalog1/schema1/ST_GEOMFROMTEXT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__032]
+sql:
+SELECT ST_TRANSFORM(ST_GEOMFROMTEXT('POINT(0 0)',4326),3857), ST_FRECHETDISTANCE(ST_GEOMFROMTEXT('LINESTRING(0 0,1 1)'),ST_GEOMFROMTEXT('LINESTRING(0 0,2 2)')), ST_HAUSDORFFDISTANCE(ST_GEOMFROMTEXT('LINESTRING(0 0,1 1)'),ST_GEOMFROMTEXT('LINESTRING(0 0,2 2)')), ST_LINEINTERPOLATEPOINT(ST_GEOMFROMTEXT('LINESTRING(0 0,10 0)'),0.5), ST_POINTATDISTANCE(ST_GEOMFROMTEXT('LINESTRING(0 0,10 0)'),5);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/ST_TRANSFORM/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:20~1:35) /test/1/catalog1/schema1/ST_GEOMFROMTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:62~1:80) /test/1/catalog1/schema1/ST_FRECHETDISTANCE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:161~1:181) /test/1/catalog1/schema1/ST_HAUSDORFFDISTANCE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:262~1:285) /test/1/catalog1/schema1/ST_LINEINTERPOLATEPOINT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:332~1:350) /test/1/catalog1/schema1/ST_POINTATDISTANCE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__033]
+sql:
+SELECT ST_COLLECT(g) FROM (SELECT ST_GEOMFROMTEXT('POINT(0 0)') AS g UNION ALL SELECT ST_GEOMFROMTEXT('POINT(1 1)')) AS d;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/ST_COLLECT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:34~1:49) /test/1/catalog1/schema1/ST_GEOMFROMTEXT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__034]
+sql:
+SELECT ST_LATITUDE(ST_GEOMFROMTEXT('POINT(10 20)',4326)), ST_LONGITUDE(ST_GEOMFROMTEXT('POINT(10 20)',4326)), ST_ASTEXT(ST_SWAPXY(ST_GEOMFROMTEXT('POINT(1 2)'))), ST_ASTEXT(ST_LINEINTERPOLATEPOINTS(ST_GEOMFROMTEXT('LINESTRING(0 0,10 0)'),0.25));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/ST_LATITUDE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:19~1:34) /test/1/catalog1/schema1/ST_GEOMFROMTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:58~1:70) /test/1/catalog1/schema1/ST_LONGITUDE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:110~1:119) /test/1/catalog1/schema1/ST_ASTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:120~1:129) /test/1/catalog1/schema1/ST_SWAPXY/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:173~1:197) /test/1/catalog1/schema1/ST_LINEINTERPOLATEPOINTS/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__035]
+sql:
+SELECT ST_ASTEXT(ST_GEOMFROMTEXT('POINT(1 2)')), ST_ASBINARY(ST_GEOMFROMTEXT('POINT(1 2)')), ST_GEOMETRYTYPE(ST_GEOMFROMTEXT('POINT(1 2)')), ST_DIMENSION(ST_GEOMFROMTEXT('LINESTRING(0 0,1 1)')), ST_ISEMPTY(ST_GEOMFROMTEXT('GEOMETRYCOLLECTION()')), ST_ISSIMPLE(ST_GEOMFROMTEXT('LINESTRING(0 0,1 1)')), ST_SRID(ST_GEOMFROMTEXT('POINT(1 2)')), ST_X(ST_GEOMFROMTEXT('POINT(1 2)')), ST_Y(ST_GEOMFROMTEXT('POINT(1 2)'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/ST_ASTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:32) /test/1/catalog1/schema1/ST_GEOMFROMTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:49~1:60) /test/1/catalog1/schema1/ST_ASBINARY/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:93~1:108) /test/1/catalog1/schema1/ST_GEOMETRYTYPE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:141~1:153) /test/1/catalog1/schema1/ST_DIMENSION/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:195~1:205) /test/1/catalog1/schema1/ST_ISEMPTY/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:248~1:259) /test/1/catalog1/schema1/ST_ISSIMPLE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:301~1:308) /test/1/catalog1/schema1/ST_SRID/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:341~1:345) /test/1/catalog1/schema1/ST_X/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:378~1:382) /test/1/catalog1/schema1/ST_Y/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__036]
+sql:
+SELECT ST_NUMPOINTS(ST_GEOMFROMTEXT('LINESTRING(0 0,1 1,2 2)')), ST_POINTN(ST_GEOMFROMTEXT('LINESTRING(0 0,1 1,2 2)'),2), ST_STARTPOINT(ST_GEOMFROMTEXT('LINESTRING(0 0,1 1)')), ST_ENDPOINT(ST_GEOMFROMTEXT('LINESTRING(0 0,1 1)')), ST_LENGTH(ST_GEOMFROMTEXT('LINESTRING(0 0,3 4)')), ST_AREA(ST_GEOMFROMTEXT('POLYGON((0 0,0 2,2 2,2 0,0 0))')), ST_CENTROID(ST_GEOMFROMTEXT('POLYGON((0 0,0 2,2 2,2 0,0 0))')), ST_EXTERIORRING(ST_GEOMFROMTEXT('POLYGON((0 0,0 2,2 2,2 0,0 0))')), ST_NUMINTERIORRINGS(ST_GEOMFROMTEXT('POLYGON((0 0,0 2,2 2,2 0,0 0))')), ST_ENVELOPE(ST_GEOMFROMTEXT('LINESTRING(0 0,2 3)'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/ST_NUMPOINTS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:20~1:35) /test/1/catalog1/schema1/ST_GEOMFROMTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:65~1:74) /test/1/catalog1/schema1/ST_POINTN/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:122~1:135) /test/1/catalog1/schema1/ST_STARTPOINT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:177~1:188) /test/1/catalog1/schema1/ST_ENDPOINT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:230~1:239) /test/1/catalog1/schema1/ST_LENGTH/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:281~1:288) /test/1/catalog1/schema1/ST_AREA/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:341~1:352) /test/1/catalog1/schema1/ST_CENTROID/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:405~1:420) /test/1/catalog1/schema1/ST_EXTERIORRING/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:473~1:492) /test/1/catalog1/schema1/ST_NUMINTERIORRINGS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:545~1:556) /test/1/catalog1/schema1/ST_ENVELOPE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__037]
+sql:
+SELECT ST_NUMGEOMETRIES(ST_GEOMFROMTEXT('GEOMETRYCOLLECTION(POINT(0 0),POINT(1 1))')), ST_GEOMETRYN(ST_GEOMFROMTEXT('GEOMETRYCOLLECTION(POINT(0 0),POINT(1 1))'),2), ST_CONTAINS(ST_GEOMFROMTEXT('POLYGON((0 0,0 4,4 4,4 0,0 0))'),ST_GEOMFROMTEXT('POINT(1 1)')), ST_WITHIN(ST_GEOMFROMTEXT('POINT(1 1)'),ST_GEOMFROMTEXT('POLYGON((0 0,0 4,4 4,4 0,0 0))')), ST_EQUALS(ST_GEOMFROMTEXT('POINT(1 1)'),ST_GEOMFROMTEXT('POINT(1 1)')), ST_DISJOINT(ST_GEOMFROMTEXT('POINT(0 0)'),ST_GEOMFROMTEXT('POINT(1 1)')), ST_INTERSECTS(ST_GEOMFROMTEXT('LINESTRING(0 0,2 2)'),ST_GEOMFROMTEXT('LINESTRING(0 2,2 0)')), ST_TOUCHES(ST_GEOMFROMTEXT('LINESTRING(0 0,1 1)'),ST_GEOMFROMTEXT('LINESTRING(1 1,2 2)')), ST_CROSSES(ST_GEOMFROMTEXT('LINESTRING(0 0,2 2)'),ST_GEOMFROMTEXT('LINESTRING(0 2,2 0)')), ST_OVERLAPS(ST_GEOMFROMTEXT('POLYGON((0 0,0 3,3 3,3 0,0 0))'),ST_GEOMFROMTEXT('POLYGON((2 2,2 4,4 4,4 2,2 2))'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:23) /test/1/catalog1/schema1/ST_NUMGEOMETRIES/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:24~1:39) /test/1/catalog1/schema1/ST_GEOMFROMTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:87~1:99) /test/1/catalog1/schema1/ST_GEOMETRYN/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:165~1:176) /test/1/catalog1/schema1/ST_CONTAINS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:259~1:268) /test/1/catalog1/schema1/ST_WITHIN/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:351~1:360) /test/1/catalog1/schema1/ST_EQUALS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:423~1:434) /test/1/catalog1/schema1/ST_DISJOINT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:497~1:510) /test/1/catalog1/schema1/ST_INTERSECTS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:591~1:601) /test/1/catalog1/schema1/ST_TOUCHES/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:682~1:692) /test/1/catalog1/schema1/ST_CROSSES/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:773~1:784) /test/1/catalog1/schema1/ST_OVERLAPS/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__038]
+sql:
+SELECT ST_DISTANCE(ST_GEOMFROMTEXT('POINT(0 0)'),ST_GEOMFROMTEXT('POINT(3 4)')), ST_INTERSECTION(ST_GEOMFROMTEXT('LINESTRING(0 0,2 2)'),ST_GEOMFROMTEXT('LINESTRING(0 2,2 0)')), ST_UNION(ST_GEOMFROMTEXT('POINT(0 0)'),ST_GEOMFROMTEXT('POINT(1 1)')), ST_DIFFERENCE(ST_GEOMFROMTEXT('LINESTRING(0 0,2 2)'),ST_GEOMFROMTEXT('POINT(1 1)')), ST_SYMDIFFERENCE(ST_GEOMFROMTEXT('POINT(0 0)'),ST_GEOMFROMTEXT('POINT(1 1)')), ST_BUFFER(ST_GEOMFROMTEXT('POINT(0 0)'),1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/ST_DISTANCE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:19~1:34) /test/1/catalog1/schema1/ST_GEOMFROMTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:81~1:96) /test/1/catalog1/schema1/ST_INTERSECTION/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:177~1:185) /test/1/catalog1/schema1/ST_UNION/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:248~1:261) /test/1/catalog1/schema1/ST_DIFFERENCE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:333~1:349) /test/1/catalog1/schema1/ST_SYMDIFFERENCE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:412~1:421) /test/1/catalog1/schema1/ST_BUFFER/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__039]
+sql:
+SELECT ST_ASWKT(ST_GEOMFROMTEXT('POINT(1 2)')), HEX(ST_ASWKB(ST_GEOMFROMTEXT('POINT(1 2)'))), ST_ASTEXT(ST_GEOMETRYFROMTEXT('POINT(1 2)')), ST_ASTEXT(ST_GEOMCOLLFROMTEXT('GEOMETRYCOLLECTION(POINT(1 2))')), ST_ASTEXT(ST_GEOMETRYCOLLECTIONFROMTEXT('GEOMETRYCOLLECTION(POINT(1 2))')), ST_ASTEXT(ST_LINEFROMTEXT('LINESTRING(0 0,1 1)')), ST_ASTEXT(ST_LINESTRINGFROMTEXT('LINESTRING(0 0,1 1)')), ST_ASTEXT(ST_POINTFROMTEXT('POINT(1 2)')), ST_ASTEXT(ST_POLYFROMTEXT('POLYGON((0 0,0 1,1 1,0 0))')), ST_ASTEXT(ST_POLYGONFROMTEXT('POLYGON((0 0,0 1,1 1,0 0))')), ST_ASTEXT(ST_GEOMETRYFROMWKB(ST_ASWKB(ST_GEOMFROMTEXT('POINT(1 2)')))), ST_ASTEXT(ST_GEOMCOLLFROMWKB(ST_ASWKB(ST_GEOMFROMTEXT('GEOMETRYCOLLECTION(POINT(1 2))')))), ST_ASTEXT(ST_GEOMETRYCOLLECTIONFROMWKB(ST_ASWKB(ST_GEOMFROMTEXT('GEOMETRYCOLLECTION(POINT(1 2))')))), ST_ASTEXT(ST_LINEFROMWKB(ST_ASWKB(ST_GEOMFROMTEXT('LINESTRING(0 0,1 1)')))), ST_ASTEXT(ST_LINESTRINGFROMWKB(ST_ASWKB(ST_GEOMFROMTEXT('LINESTRING(0 0,1 1)')))), ST_ASTEXT(ST_POINTFROMWKB(ST_ASWKB(ST_GEOMFROMTEXT('POINT(1 2)')))), ST_ASTEXT(ST_POLYFROMWKB(ST_ASWKB(ST_GEOMFROMTEXT('POLYGON((0 0,0 1,1 1,0 0))')))), ST_ASTEXT(ST_POLYGONFROMWKB(ST_ASWKB(ST_GEOMFROMTEXT('POLYGON((0 0,0 1,1 1,0 0))'))));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/ST_ASWKT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:16~1:31) /test/1/catalog1/schema1/ST_GEOMFROMTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:48~1:51) /test/1/catalog1/schema1/HEX/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:52~1:60) /test/1/catalog1/schema1/ST_ASWKB/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:94~1:103) /test/1/catalog1/schema1/ST_ASTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:104~1:123) /test/1/catalog1/schema1/ST_GEOMETRYFROMTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:150~1:169) /test/1/catalog1/schema1/ST_GEOMCOLLFROMTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:216~1:245) /test/1/catalog1/schema1/ST_GEOMETRYCOLLECTIONFROMTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:292~1:307) /test/1/catalog1/schema1/ST_LINEFROMTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:343~1:364) /test/1/catalog1/schema1/ST_LINESTRINGFROMTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:400~1:416) /test/1/catalog1/schema1/ST_POINTFROMTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:443~1:458) /test/1/catalog1/schema1/ST_POLYFROMTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:501~1:519) /test/1/catalog1/schema1/ST_POLYGONFROMTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:562~1:580) /test/1/catalog1/schema1/ST_GEOMETRYFROMWKB/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:634~1:652) /test/1/catalog1/schema1/ST_GEOMCOLLFROMWKB/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:726~1:754) /test/1/catalog1/schema1/ST_GEOMETRYCOLLECTIONFROMWKB/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:828~1:842) /test/1/catalog1/schema1/ST_LINEFROMWKB/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:905~1:925) /test/1/catalog1/schema1/ST_LINESTRINGFROMWKB/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:988~1:1003) /test/1/catalog1/schema1/ST_POINTFROMWKB/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:1057~1:1071) /test/1/catalog1/schema1/ST_POLYFROMWKB/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:1141~1:1158) /test/1/catalog1/schema1/ST_POLYGONFROMWKB/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__040]
+sql:
+SELECT ST_ASTEXT(ST_GEOMFROMWKB(ST_ASWKB(ST_GEOMFROMTEXT('POINT(1 2)')),4326,'axis-order=long-lat')), ST_ASTEXT(ST_GEOMCOLLFROMTXT('GEOMETRYCOLLECTION(POINT(1 2))',4326,'axis-order=long-lat'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/ST_ASTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:31) /test/1/catalog1/schema1/ST_GEOMFROMWKB/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:32~1:40) /test/1/catalog1/schema1/ST_ASWKB/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:41~1:56) /test/1/catalog1/schema1/ST_GEOMFROMTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:112~1:130) /test/1/catalog1/schema1/ST_GEOMCOLLFROMTXT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__041]
+sql:
+SELECT ST_NUMINTERIORRING(ST_GEOMFROMTEXT('POLYGON((0 0,0 2,2 2,2 0,0 0))'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:25) /test/1/catalog1/schema1/ST_NUMINTERIORRING/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:26~1:41) /test/1/catalog1/schema1/ST_GEOMFROMTEXT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__042]
+sql:
+SELECT ST_ASTEXT(ST_MLINEFROMTEXT('MULTILINESTRING((0 0,1 1))')), ST_ASTEXT(ST_MULTILINESTRINGFROMTEXT('MULTILINESTRING((0 0,1 1))')), ST_ASTEXT(ST_MPOINTFROMTEXT('MULTIPOINT(0 0,1 1)')), ST_ASTEXT(ST_MULTIPOINTFROMTEXT('MULTIPOINT(0 0,1 1)')), ST_ASTEXT(ST_MPOLYFROMTEXT('MULTIPOLYGON(((0 0,0 1,1 1,0 0)))')), ST_ASTEXT(ST_MULTIPOLYGONFROMTEXT('MULTIPOLYGON(((0 0,0 1,1 1,0 0)))')), ST_ASTEXT(ST_MLINEFROMWKB(ST_ASWKB(ST_GEOMFROMTEXT('MULTILINESTRING((0 0,1 1))')))), ST_ASTEXT(ST_MULTILINESTRINGFROMWKB(ST_ASWKB(ST_GEOMFROMTEXT('MULTILINESTRING((0 0,1 1))')))), ST_ASTEXT(ST_MPOINTFROMWKB(ST_ASWKB(ST_GEOMFROMTEXT('MULTIPOINT(0 0,1 1)')))), ST_ASTEXT(ST_MULTIPOINTFROMWKB(ST_ASWKB(ST_GEOMFROMTEXT('MULTIPOINT(0 0,1 1)')))), ST_ASTEXT(ST_MPOLYFROMWKB(ST_ASWKB(ST_GEOMFROMTEXT('MULTIPOLYGON(((0 0,0 1,1 1,0 0)))')))), ST_ASTEXT(ST_MULTIPOLYGONFROMWKB(ST_ASWKB(ST_GEOMFROMTEXT('MULTIPOLYGON(((0 0,0 1,1 1,0 0)))'))));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/ST_ASTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:33) /test/1/catalog1/schema1/ST_MLINEFROMTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:76~1:102) /test/1/catalog1/schema1/ST_MULTILINESTRINGFROMTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:145~1:162) /test/1/catalog1/schema1/ST_MPOINTFROMTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:198~1:219) /test/1/catalog1/schema1/ST_MULTIPOINTFROMTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:255~1:271) /test/1/catalog1/schema1/ST_MPOLYFROMTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:321~1:344) /test/1/catalog1/schema1/ST_MULTIPOLYGONFROMTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:394~1:409) /test/1/catalog1/schema1/ST_MLINEFROMWKB/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:410~1:418) /test/1/catalog1/schema1/ST_ASWKB/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:419~1:434) /test/1/catalog1/schema1/ST_GEOMFROMTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:479~1:504) /test/1/catalog1/schema1/ST_MULTILINESTRINGFROMWKB/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:574~1:590) /test/1/catalog1/schema1/ST_MPOINTFROMWKB/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:653~1:673) /test/1/catalog1/schema1/ST_MULTIPOINTFROMWKB/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:736~1:751) /test/1/catalog1/schema1/ST_MPOLYFROMWKB/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:828~1:850) /test/1/catalog1/schema1/ST_MULTIPOLYGONFROMWKB/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__043]
+sql:
+SELECT ST_ISCLOSED(ST_GEOMFROMTEXT('LINESTRING(0 0,1 1,0 0)')), ST_ASTEXT(ST_INTERIORRINGN(ST_GEOMFROMTEXT('POLYGON((0 0,0 4,4 4,4 0,0 0),(1 1,3 1,3 3,1 3,1 1))'),1));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/ST_ISCLOSED/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:19~1:34) /test/1/catalog1/schema1/ST_GEOMFROMTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:64~1:73) /test/1/catalog1/schema1/ST_ASTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:74~1:90) /test/1/catalog1/schema1/ST_INTERIORRINGN/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__044]
+sql:
+SELECT ST_ASTEXT(ST_GEOMCOLLFROMTXT('GEOMETRYCOLLECTION(POINT(1 2))')), ST_SRID(ST_GEOMCOLLFROMTXT('GEOMETRYCOLLECTION(POINT(1 2))',4326));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/ST_ASTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:35) /test/1/catalog1/schema1/ST_GEOMCOLLFROMTXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:72~1:79) /test/1/catalog1/schema1/ST_SRID/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__045]
+sql:
+SELECT ST_ASTEXT(ST_GEOMFROMWKB(ST_ASWKB(ST_GEOMFROMTEXT('POINT(1 2)')))), ST_SRID(ST_GEOMFROMWKB(ST_ASWKB(ST_GEOMFROMTEXT('POINT(1 2)')),4326));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/ST_ASTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:31) /test/1/catalog1/schema1/ST_GEOMFROMWKB/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:32~1:40) /test/1/catalog1/schema1/ST_ASWKB/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:41~1:56) /test/1/catalog1/schema1/ST_GEOMFROMTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:75~1:82) /test/1/catalog1/schema1/ST_SRID/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__046]
+sql:
+SELECT GEOMETRYCOLLECTION();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:25) /test/1/catalog1/schema1/GEOMETRYCOLLECTION/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__047]
+sql:
+SELECT ST_ASGEOJSON(ST_GEOMFROMTEXT('POINT(11.111 22.222)'),2,1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/ST_ASGEOJSON/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:20~1:35) /test/1/catalog1/schema1/ST_GEOMFROMTEXT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__048]
+sql:
+SELECT ST_ASTEXT(ST_GEOMFROMTEXT('POINT(11 22)',4326),'axis-order=long-lat');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/ST_ASTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:32) /test/1/catalog1/schema1/ST_GEOMFROMTEXT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__049]
+sql:
+SELECT HEX(ST_ASWKB(ST_GEOMFROMTEXT('POINT(11 22)',4326),'axis-order=long-lat'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/HEX/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:11~1:19) /test/1/catalog1/schema1/ST_ASWKB/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:20~1:35) /test/1/catalog1/schema1/ST_GEOMFROMTEXT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__050]
+sql:
+SELECT ST_ASTEXT(ST_BUFFER(ST_GEOMFROMTEXT('GEOMETRYCOLLECTION(POINT(0 0),LINESTRING(0 0,1 1))'),1,ST_BUFFER_STRATEGY('point_square'),ST_BUFFER_STRATEGY('join_round',8),ST_BUFFER_STRATEGY('end_flat')));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/ST_ASTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:26) /test/1/catalog1/schema1/ST_BUFFER/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:27~1:42) /test/1/catalog1/schema1/ST_GEOMFROMTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:99~1:117) /test/1/catalog1/schema1/ST_BUFFER_STRATEGY/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__051]
+sql:
+SELECT ST_DISTANCE_SPHERE(ST_GEOMFROMTEXT('POINT(0 0)'),ST_GEOMFROMTEXT('POINT(1 1)'),6371000);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:25) /test/1/catalog1/schema1/ST_DISTANCE_SPHERE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:26~1:41) /test/1/catalog1/schema1/ST_GEOMFROMTEXT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__052]
+sql:
+SELECT ST_DISTANCE(ST_GEOMFROMTEXT('POINT(0 0)',4326),ST_GEOMFROMTEXT('POINT(1 1)',4326),'kilometre');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/ST_DISTANCE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:19~1:34) /test/1/catalog1/schema1/ST_GEOMFROMTEXT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__053]
+sql:
+SELECT ST_FRECHETDISTANCE(ST_GEOMFROMTEXT('LINESTRING(0 0,1 1)',4326),ST_GEOMFROMTEXT('LINESTRING(0 0,2 2)',4326),'metre');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:25) /test/1/catalog1/schema1/ST_FRECHETDISTANCE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:26~1:41) /test/1/catalog1/schema1/ST_GEOMFROMTEXT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__054]
+sql:
+SELECT ST_GEOHASH(ST_GEOMFROMTEXT('POINT(11 22)'),8);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/ST_GEOHASH/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:18~1:33) /test/1/catalog1/schema1/ST_GEOMFROMTEXT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__055]
+sql:
+SELECT ST_ASTEXT(ST_GEOMFROMGEOJSON('{"type":"Point","coordinates":[11,22]}',2,4326));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/ST_ASTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:35) /test/1/catalog1/schema1/ST_GEOMFROMGEOJSON/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__056]
+sql:
+SELECT ST_HAUSDORFFDISTANCE(ST_GEOMFROMTEXT('LINESTRING(0 0,1 1)',4326),ST_GEOMFROMTEXT('LINESTRING(0 0,2 2)',4326),'metre');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:27) /test/1/catalog1/schema1/ST_HAUSDORFFDISTANCE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:28~1:43) /test/1/catalog1/schema1/ST_GEOMFROMTEXT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__057]
+sql:
+SELECT ST_ASTEXT(ST_LATITUDE(ST_GEOMFROMTEXT('POINT(10 20)',4326),21));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/ST_ASTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:28) /test/1/catalog1/schema1/ST_LATITUDE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:29~1:44) /test/1/catalog1/schema1/ST_GEOMFROMTEXT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__058]
+sql:
+SELECT ST_LENGTH(ST_GEOMFROMTEXT('LINESTRING(0 0,1 1)',4326),'kilometre');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/ST_LENGTH/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:32) /test/1/catalog1/schema1/ST_GEOMFROMTEXT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__059]
+sql:
+SELECT ST_ASTEXT(ST_LONGITUDE(ST_GEOMFROMTEXT('POINT(10 20)',4326),11));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/ST_ASTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:29) /test/1/catalog1/schema1/ST_LONGITUDE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:30~1:45) /test/1/catalog1/schema1/ST_GEOMFROMTEXT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__060]
+sql:
+SELECT ST_ASTEXT(ST_SRID(ST_GEOMFROMTEXT('POINT(1 2)'),4326));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/ST_ASTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:24) /test/1/catalog1/schema1/ST_SRID/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:25~1:40) /test/1/catalog1/schema1/ST_GEOMFROMTEXT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__061]
+sql:
+SELECT ST_ASTEXT(ST_X(ST_GEOMFROMTEXT('POINT(1 2)'),9));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/ST_ASTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:21) /test/1/catalog1/schema1/ST_X/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:22~1:37) /test/1/catalog1/schema1/ST_GEOMFROMTEXT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__062]
+sql:
+SELECT ST_ASTEXT(ST_Y(ST_GEOMFROMTEXT('POINT(1 2)'),9));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/ST_ASTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:21) /test/1/catalog1/schema1/ST_Y/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:22~1:37) /test/1/catalog1/schema1/ST_GEOMFROMTEXT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__063]
+sql:
+SELECT ST_ASTEXT(ST_COLLECT(DISTINCT g) OVER (ORDER BY n ROWS BETWEEN 1 PRECEDING AND CURRENT ROW)) FROM (SELECT 1 n, ST_GEOMFROMTEXT('POINT(0 0)') g UNION ALL SELECT 2, ST_GEOMFROMTEXT('POINT(0 0)')) s;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/ST_ASTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:27) /test/1/catalog1/schema1/ST_COLLECT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:118~1:133) /test/1/catalog1/schema1/ST_GEOMFROMTEXT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__064]
+sql:
+SELECT ST_COLLECT(1), COUNT(DISTINCT 2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/ST_COLLECT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:22~1:27) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__065]
+sql:
+SELECT ST_ASGEOJSON(ST_GEOMFROMTEXT('POINT(1.23456 2.34567)'),3);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/ST_ASGEOJSON/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:20~1:35) /test/1/catalog1/schema1/ST_GEOMFROMTEXT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__066]
+sql:
+SELECT ST_ASTEXT(ST_BUFFER(ST_GEOMFROMTEXT('POINT(0 0)'),1,ST_BUFFER_STRATEGY('point_square')));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/ST_ASTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:26) /test/1/catalog1/schema1/ST_BUFFER/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:27~1:42) /test/1/catalog1/schema1/ST_GEOMFROMTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:59~1:77) /test/1/catalog1/schema1/ST_BUFFER_STRATEGY/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__067]
+sql:
+SELECT ST_ASTEXT(ST_BUFFER(ST_GEOMFROMTEXT('LINESTRING(0 0,1 1)'),1,ST_BUFFER_STRATEGY('join_round',8),ST_BUFFER_STRATEGY('end_flat')));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/ST_ASTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:26) /test/1/catalog1/schema1/ST_BUFFER/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:27~1:42) /test/1/catalog1/schema1/ST_GEOMFROMTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:68~1:86) /test/1/catalog1/schema1/ST_BUFFER_STRATEGY/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__068]
+sql:
+SELECT ST_ASTEXT(ST_GEOMFROMGEOJSON('{"type":"Point","coordinates":[1,2]}',1));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/ST_ASTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:35) /test/1/catalog1/schema1/ST_GEOMFROMGEOJSON/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__069]
+sql:
+SELECT ST_ASTEXT(ST_GEOMFROMTEXT('POINT(10 20)',4326,'axis-order=long-lat'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/ST_ASTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:32) /test/1/catalog1/schema1/ST_GEOMFROMTEXT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__070]
+sql:
+SELECT ST_EQUALS(CAST(ST_GEOMFROMTEXT('MULTIPOINT((1 1))') AS POINT), CONVERT(ST_GEOMFROMTEXT('MULTIPOINT((1 1))'), POINT));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/ST_EQUALS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:21) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:22~1:37) /test/1/catalog1/schema1/ST_GEOMFROMTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:70~1:77) /test/1/catalog1/schema1/CONVERT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__071]
+sql:
+SELECT CAST(ST_GEOMFROMTEXT('POINT(1 1)') AS DOUBLE);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:12~1:27) /test/1/catalog1/schema1/ST_GEOMFROMTEXT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__072]
+sql:
+SELECT CAST(ST_GEOMFROMTEXT('POINT(1 1)') AS JSON);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:12~1:27) /test/1/catalog1/schema1/ST_GEOMFROMTEXT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__073]
+sql:
+SELECT CAST(NULL AS POINT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__074]
+sql:
+SELECT ST_SRID(CAST(ST_GEOMFROMTEXT('POINT(45 90)', 4326) AS POINT));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/ST_SRID/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:15~1:19) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:20~1:35) /test/1/catalog1/schema1/ST_GEOMFROMTEXT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__075]
+sql:
+SELECT a.id,ST_AsText(a.g),ST_Distance(a.p,b.p)
+FROM spatial_lifecycle AS a
+JOIN spatial_lifecycle AS b
+  ON ST_Intersects(a.g,ST_Buffer(b.p,1))
+WHERE a.id<>b.id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:12~1:21) /test/1/catalog1/schema1/ST_AsText/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:27~1:38) /test/1/catalog1/schema1/ST_Distance/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(2:5~2:22) /test/1/catalog1/schema1/spatial_lifecycle/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(4:5~4:18) /test/1/catalog1/schema1/ST_Intersects/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(4:23~4:32) /test/1/catalog1/schema1/ST_Buffer/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__076]
+sql:
+SELECT s.id,
+       (SELECT ST_AsText(ST_Union(i.g,s.g))
+        FROM spatial_lifecycle AS i
+        WHERE i.id=s.id) AS merged_wkt
+FROM spatial_lifecycle AS s
+WHERE EXISTS (
+  SELECT 1 FROM spatial_lifecycle AS x
+  WHERE x.id=s.id AND ST_Equals(x.p,s.p)
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:15~2:24) /test/1/catalog1/schema1/ST_AsText/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(2:25~2:33) /test/1/catalog1/schema1/ST_Union/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(3:13~3:30) /test/1/catalog1/schema1/spatial_lifecycle/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(8:22~8:31) /test/1/catalog1/schema1/ST_Equals/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__077]
+sql:
+SELECT d.kind,COUNT(*),ST_AsText(ST_Collect(d.g))
+FROM (
+  SELECT ST_GeometryType(g) AS kind,g
+  FROM spatial_lifecycle
+) AS d
+GROUP BY d.kind
+HAVING COUNT(*)>=0
+ORDER BY d.kind;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:14~1:19) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:23~1:32) /test/1/catalog1/schema1/ST_AsText/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:33~1:43) /test/1/catalog1/schema1/ST_Collect/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(3:9~3:24) /test/1/catalog1/schema1/ST_GeometryType/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(4:7~4:24) /test/1/catalog1/schema1/spatial_lifecycle/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__078]
+sql:
+SELECT id,
+       ST_AsText(CASE WHEN p IS NULL THEN g ELSE p END),
+       ST_AsText(COALESCE(p,g)),
+       NULLIF(ST_AsText(g),ST_AsText(p))
+FROM spatial_lifecycle;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:16) /test/1/catalog1/schema1/ST_AsText/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(3:17~3:25) /test/1/catalog1/schema1/COALESCE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(4:7~4:13) /test/1/catalog1/schema1/NULLIF/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(5:5~5:22) /test/1/catalog1/schema1/spatial_lifecycle/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__079]
+sql:
+SELECT id,g,p FROM spatial_lifecycle WHERE id<10
+UNION ALL
+SELECT id,g,p FROM spatial_lifecycle WHERE id>=10
+ORDER BY id LIMIT 5;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:19~1:36) /test/1/catalog1/schema1/spatial_lifecycle/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__080]
+sql:
+WITH spatial_cte AS (
+  SELECT id,p,g,ST_Distance(p,ST_GeomFromText('POINT(11 21)',4326),'metre') AS distance_m
+  FROM spatial_modern
+)
+SELECT id,ST_AsText(p),distance_m
+FROM spatial_cte
+WHERE distance_m>=0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:16~2:27) /test/1/catalog1/schema1/ST_Distance/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(2:30~2:45) /test/1/catalog1/schema1/ST_GeomFromText/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(3:7~3:21) /test/1/catalog1/schema1/spatial_modern/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(5:10~5:19) /test/1/catalog1/schema1/ST_AsText/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__081]
+sql:
+SELECT id,
+       ST_AsText(ST_Collect(p) OVER (
+         ORDER BY id ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+       )) AS accumulated_points
+FROM spatial_modern;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:16) /test/1/catalog1/schema1/ST_AsText/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(2:17~2:27) /test/1/catalog1/schema1/ST_Collect/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(5:5~5:19) /test/1/catalog1/schema1/spatial_modern/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__082]
+sql:
+SELECT s.id,j.kind,j.wkt
+FROM spatial_modern AS s
+JOIN JSON_TABLE(
+  JSON_ARRAY(
+    JSON_OBJECT('kind',ST_GeometryType(s.p),'wkt',ST_AsText(s.p)),
+    JSON_OBJECT('kind',ST_GeometryType(s.g),'wkt',ST_AsText(s.g))
+  ),
+  '$[*]' COLUMNS(
+    kind VARCHAR(32) PATH '$.kind',
+    wkt VARCHAR(255) PATH '$.wkt'
+  )
+) AS j ON TRUE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:5~2:19) /test/1/catalog1/schema1/spatial_modern/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(4:2~4:12) /test/1/catalog1/schema1/JSON_ARRAY/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(5:4~5:15) /test/1/catalog1/schema1/JSON_OBJECT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(5:23~5:38) /test/1/catalog1/schema1/ST_GeometryType/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(5:50~5:59) /test/1/catalog1/schema1/ST_AsText/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__083]
+sql:
+WITH RECURSIVE spatial_walk(id,p,n) AS (
+  SELECT id,p,1 FROM spatial_modern
+  UNION ALL
+  SELECT id,ST_SRID(POINT(ST_X(p)+1,ST_Y(p)+1),4326),n+1
+  FROM spatial_walk
+  WHERE n<3
+)
+SELECT id,n,ST_AsText(p)
+FROM spatial_walk
+ORDER BY id,n;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:21~2:35) /test/1/catalog1/schema1/spatial_modern/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(4:12~4:19) /test/1/catalog1/schema1/ST_SRID/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(4:20~4:25) /test/1/catalog1/schema1/POINT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(4:26~4:30) /test/1/catalog1/schema1/ST_X/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(4:36~4:40) /test/1/catalog1/schema1/ST_Y/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(8:12~8:21) /test/1/catalog1/schema1/ST_AsText/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[performance__084]
+sql:
+EXPLAIN FORMAT=TREE SELECT ST_Distance(location,POINT(0,0)) AS d FROM cafe ORDER BY d;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Function(1:27~1:38) /test/1/catalog1/schema1/ST_Distance/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:48~1:53) /test/1/catalog1/schema1/POINT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:70~1:74) /test/1/catalog1/schema1/cafe/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[performance__085]
+sql:
+EXPLAIN FORMAT=TREE SELECT ST_Distance(location1,location2) AS d FROM cafe2 ORDER BY d LIMIT 5;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Function(1:27~1:38) /test/1/catalog1/schema1/ST_Distance/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:70~1:75) /test/1/catalog1/schema1/cafe2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[performance__086]
+sql:
+EXPLAIN FORMAT=TREE SELECT ST_Distance(location1,POINT(0,0)) AS d1,ST_Distance(location2,POINT(0,0)) AS d2 FROM cafe2 ORDER BY d1,d2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Function(1:27~1:38) /test/1/catalog1/schema1/ST_Distance/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:49~1:54) /test/1/catalog1/schema1/POINT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:112~1:117) /test/1/catalog1/schema1/cafe2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[performance__087]
+sql:
+EXPLAIN FORMAT=TREE SELECT a.id,ST_Distance(a.location,POINT(0,0)) AS d FROM cafe a JOIN cafe2 b ON b.id=a.id ORDER BY d;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Function(1:32~1:43) /test/1/catalog1/schema1/ST_Distance/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:55~1:60) /test/1/catalog1/schema1/POINT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:77~1:81) /test/1/catalog1/schema1/cafe/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:89~1:94) /test/1/catalog1/schema1/cafe2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__088]
+sql:
+SELECT RANK() OVER(ORDER BY ST_Distance(location,POINT(0,0))),RANK() OVER(ORDER BY ST_Distance(location,POINT(5,5))),ROW_NUMBER() OVER(ORDER BY ST_Distance(location,POINT(5,5))) FROM cafe;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/RANK/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:28~1:39) /test/1/catalog1/schema1/ST_Distance/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:49~1:54) /test/1/catalog1/schema1/POINT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:117~1:127) /test/1/catalog1/schema1/ROW_NUMBER/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:183~1:187) /test/1/catalog1/schema1/cafe/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__089]
+sql:
+SELECT ST_LONGFROMGEOHASH();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:25) /test/1/catalog1/schema1/ST_LONGFROMGEOHASH/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__090]
+sql:
+SELECT ST_LONGFROMGEOHASH('123','456');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:25) /test/1/catalog1/schema1/ST_LONGFROMGEOHASH/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__091]
+sql:
+SELECT ST_ASTEXT(ST_POINTFROMGEOHASH('zz'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/ST_ASTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:36) /test/1/catalog1/schema1/ST_POINTFROMGEOHASH/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__092]
+sql:
+SELECT ST_ASTEXT(ST_POINTFROMGEOHASH());
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/ST_ASTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:36) /test/1/catalog1/schema1/ST_POINTFROMGEOHASH/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__093]
+sql:
+SELECT ST_GEOHASH();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/ST_GEOHASH/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__094]
+sql:
+SELECT ST_GEOHASH(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/ST_GEOHASH/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__095]
+sql:
+SELECT ST_ASGEOJSON();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/ST_ASGEOJSON/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__096]
+sql:
+SELECT ST_ASGEOJSON(ST_GEOMFROMTEXT('POINT(10 11)'),10,0,0);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/ST_ASGEOJSON/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:20~1:35) /test/1/catalog1/schema1/ST_GEOMFROMTEXT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__097]
+sql:
+SELECT 1 FROM split_spatial_rollup GROUP BY ST_ASGEOJSON(POINT(1, 1)) WITH ROLLUP;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:34) /test/1/catalog1/schema1/split_spatial_rollup/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(1:44~1:56) /test/1/catalog1/schema1/ST_ASGEOJSON/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:57~1:62) /test/1/catalog1/schema1/POINT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__098]
+sql:
+SELECT ST_ASGEOJSON(ST_GEOMFROMTEXT('POINT(1.2345678901234567890 2.345678901234567890)'), SUM(3));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/ST_ASGEOJSON/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:20~1:35) /test/1/catalog1/schema1/ST_GEOMFROMTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:90~1:93) /test/1/catalog1/schema1/SUM/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select_session_variable_rw__099]
+sql:
+SELECT ST_ASTEXT(ST_UNION(ST_INTERSECTION(ST_INTERSECTION(ST_GEOMFROMTEXT(@star_elem_horizontal), ST_GEOMFROMTEXT(@star_elem_vertical)), ST_GEOMFROMTEXT(@star_2)), ST_INTERSECTION(ST_GEOMFROMTEXT(@star_1), ST_GEOMFROMTEXT(@star_2))));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/ST_ASTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:25) /test/1/catalog1/schema1/ST_UNION/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:26~1:41) /test/1/catalog1/schema1/ST_INTERSECTION/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:58~1:73) /test/1/catalog1/schema1/ST_GEOMFROMTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "ConfigKey(1:74~1:95) /test/1/star_elem_horizontal/",
+      "action" : "READ"
+    },
+    {
+      "subject": "ConfigKey(1:114~1:133) /test/1/star_elem_vertical/",
+      "action" : "READ"
+    },
+    {
+      "subject": "ConfigKey(1:153~1:160) /test/1/star_2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "ConfigKey(1:196~1:203) /test/1/star_1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__100]
+sql:
+SELECT ST_ASTEXT(ST_GEOMFROMWKB(ST_ASWKB(g,'axis-order=lat-long'))) FROM gis_point;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/ST_ASTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:31) /test/1/catalog1/schema1/ST_GEOMFROMWKB/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:32~1:40) /test/1/catalog1/schema1/ST_ASWKB/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:73~1:82) /test/1/catalog1/schema1/gis_point/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__101]
+sql:
+SELECT ST_ASTEXT(ST_POINTFROMWKB(ST_ASWKB(POINT(1,2)),31000000,'axis-order=lat-long'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/ST_ASTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:32) /test/1/catalog1/schema1/ST_POINTFROMWKB/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:33~1:41) /test/1/catalog1/schema1/ST_ASWKB/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:42~1:47) /test/1/catalog1/schema1/POINT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select_session_variable_rw__102]
+sql:
+SELECT ST_ASTEXT(ST_LINEFROMWKB(@wkb_ln,31000000,'axis-order=lat-long'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/ST_ASTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:31) /test/1/catalog1/schema1/ST_LINEFROMWKB/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "ConfigKey(1:32~1:39) /test/1/wkb_ln/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_session_variable_rw__103]
+sql:
+SELECT ST_ASTEXT(ST_POLYFROMWKB(@wkb_py,31000000,'axis-order=lat-long'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/ST_ASTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:31) /test/1/catalog1/schema1/ST_POLYFROMWKB/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "ConfigKey(1:32~1:39) /test/1/wkb_py/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_session_variable_rw__104]
+sql:
+SELECT ST_ASTEXT(ST_MPOINTFROMWKB(@wkb_mpt,31000000,'axis-order=lat-long'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/ST_ASTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:33) /test/1/catalog1/schema1/ST_MPOINTFROMWKB/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "ConfigKey(1:34~1:42) /test/1/wkb_mpt/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_session_variable_rw__105]
+sql:
+SELECT ST_ASTEXT(ST_MLINEFROMWKB(@wkb_mln,31000000,'axis-order=lat-long'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/ST_ASTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:32) /test/1/catalog1/schema1/ST_MLINEFROMWKB/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "ConfigKey(1:33~1:41) /test/1/wkb_mln/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_session_variable_rw__106]
+sql:
+SELECT ST_ASTEXT(ST_MPOLYFROMWKB(@wkb_mpy,31000000,'axis-order=lat-long'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/ST_ASTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:32) /test/1/catalog1/schema1/ST_MPOLYFROMWKB/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "ConfigKey(1:33~1:41) /test/1/wkb_mpy/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_session_variable_rw__107]
+sql:
+SELECT ST_ASTEXT(ST_GEOMETRYFROMWKB(@wkb_pt,31000000,'axis-order=long-lat'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/ST_ASTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:35) /test/1/catalog1/schema1/ST_GEOMETRYFROMWKB/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "ConfigKey(1:36~1:43) /test/1/wkb_pt/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_session_variable_rw__108]
+sql:
+SELECT ST_ASTEXT(ST_GEOMCOLLFROMWKB(@wkb_gc,31000000,'axis-order=long-lat'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/ST_ASTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:35) /test/1/catalog1/schema1/ST_GEOMCOLLFROMWKB/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "ConfigKey(1:36~1:43) /test/1/wkb_gc/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_session_variable_rw__109]
+sql:
+SELECT ST_ASTEXT(ST_GEOMETRYCOLLECTIONFROMWKB(@wkb_gc,31000000,'axis-order=long-lat'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/ST_ASTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:45) /test/1/catalog1/schema1/ST_GEOMETRYCOLLECTIONFROMWKB/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "ConfigKey(1:46~1:53) /test/1/wkb_gc/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__110]
+sql:
+SELECT ST_ASTEXT(ST_GEOMFROMWKB(ST_ASBINARY(g,'axis-order=srid-defined'))) FROM gis_geometrycollection ORDER BY fid;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/ST_ASTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:31) /test/1/catalog1/schema1/ST_GEOMFROMWKB/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:32~1:43) /test/1/catalog1/schema1/ST_ASBINARY/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:80~1:102) /test/1/catalog1/schema1/gis_geometrycollection/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_session_variable_rw__111]
+sql:
+SELECT ST_ASTEXT(ST_LINESTRINGFROMWKB(@wkb_ln,31000000,'axis-order=long-lat'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/ST_ASTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:37) /test/1/catalog1/schema1/ST_LINESTRINGFROMWKB/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "ConfigKey(1:38~1:45) /test/1/wkb_ln/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_session_variable_rw__112]
+sql:
+SELECT ST_ASTEXT(ST_POLYGONFROMWKB(@wkb_py,31000000,'axis-order=long-lat'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/ST_ASTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:34) /test/1/catalog1/schema1/ST_POLYGONFROMWKB/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "ConfigKey(1:35~1:42) /test/1/wkb_py/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_session_variable_rw__113]
+sql:
+SELECT ST_ASTEXT(ST_MULTIPOINTFROMWKB(@wkb_mpt,31000000,'axis-order=long-lat'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/ST_ASTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:37) /test/1/catalog1/schema1/ST_MULTIPOINTFROMWKB/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "ConfigKey(1:38~1:46) /test/1/wkb_mpt/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_session_variable_rw__114]
+sql:
+SELECT ST_ASTEXT(ST_MULTILINESTRINGFROMWKB(@wkb_mln,31000000,'axis-order=long-lat'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/ST_ASTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:42) /test/1/catalog1/schema1/ST_MULTILINESTRINGFROMWKB/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "ConfigKey(1:43~1:51) /test/1/wkb_mln/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_session_variable_rw__115]
+sql:
+SELECT ST_ASTEXT(ST_MULTIPOLYGONFROMWKB(@wkb_mpy,31000000,'axis-order=long-lat'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/ST_ASTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:39) /test/1/catalog1/schema1/ST_MULTIPOLYGONFROMWKB/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "ConfigKey(1:40~1:48) /test/1/wkb_mpy/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__116]
+sql:
+SELECT ST_ASTEXT(GEOMETRYCOLLECTION(POINT(1,2),LINESTRING(POINT(0,0),POINT(1,1))));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/ST_ASTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:35) /test/1/catalog1/schema1/GEOMETRYCOLLECTION/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:36~1:41) /test/1/catalog1/schema1/POINT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:47~1:57) /test/1/catalog1/schema1/LINESTRING/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__117]
+sql:
+SELECT ST_ASTEXT(GEOMCOLLECTION()), ST_ASTEXT(GEOMCOLLECTION(POINT(1,2),LINESTRING(POINT(0,0),POINT(1,1)))), ST_ASTEXT(GEOMCOLLECTION(GEOMETRYCOLLECTION(),POINT(2,3)));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/ST_ASTEXT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:31) /test/1/catalog1/schema1/GEOMCOLLECTION/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:61~1:66) /test/1/catalog1/schema1/POINT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:72~1:82) /test/1/catalog1/schema1/LINESTRING/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:134~1:152) /test/1/catalog1/schema1/GEOMETRYCOLLECTION/",
+      "action" : "CALL"
+    }
+  ]
+}

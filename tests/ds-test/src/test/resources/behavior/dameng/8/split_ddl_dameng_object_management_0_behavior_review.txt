@@ -1,0 +1,464 @@
+[split_ddl_dameng_object_management_0_001_behavior_review]
+sql:
+create type codex_dm8_type_01 as record(id int,name varchar(20));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:12~1:29) /test/1/catalog1/schema1/codex_dm8_type_01/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_object_management_0_002_behavior_review]
+sql:
+create type codex_dm8_type_02 as array int[];
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:12~1:29) /test/1/catalog1/schema1/codex_dm8_type_02/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_object_management_0_003_behavior_review]
+sql:
+create type codex_dm8_type_03 as array int[3];
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:12~1:29) /test/1/catalog1/schema1/codex_dm8_type_03/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_object_management_0_004_behavior_review]
+sql:
+create type codex_dm8_type_04 as array int[2,3];
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:12~1:29) /test/1/catalog1/schema1/codex_dm8_type_04/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_object_management_0_005_behavior_review]
+sql:
+create type codex_dm8_type_05 as varray(10) of int;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:12~1:29) /test/1/catalog1/schema1/codex_dm8_type_05/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_object_management_0_006_behavior_review]
+sql:
+create type codex_dm8_type_06 as varray(5) of varchar(20) not null;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:12~1:29) /test/1/catalog1/schema1/codex_dm8_type_06/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_object_management_0_007_behavior_review]
+sql:
+create type codex_dm8_type_07 as table of int;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:12~1:29) /test/1/catalog1/schema1/codex_dm8_type_07/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_object_management_0_008_behavior_review]
+sql:
+create type codex_dm8_type_08 as table of varchar(20) not null;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:12~1:29) /test/1/catalog1/schema1/codex_dm8_type_08/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_object_management_0_009_behavior_review]
+sql:
+create type codex_dm8_type_09 as table of int index by int;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:12~1:29) /test/1/catalog1/schema1/codex_dm8_type_09/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_object_management_0_010_behavior_review]
+sql:
+create type codex_dm8_type_10 as table of varchar(20) index by varchar(20);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:12~1:29) /test/1/catalog1/schema1/codex_dm8_type_10/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_object_management_0_011_behavior_review]
+sql:
+create type codex_dm8_type_11 authid definer as record(id int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:12~1:29) /test/1/catalog1/schema1/codex_dm8_type_11/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_object_management_0_012_behavior_review]
+sql:
+create type codex_dm8_type_12 authid current_user as record(id int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:12~1:29) /test/1/catalog1/schema1/codex_dm8_type_12/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_object_management_0_013_behavior_review]
+sql:
+create type codex_dm8_type_13 as object(id int,name varchar(20));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:12~1:29) /test/1/catalog1/schema1/codex_dm8_type_13/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_object_management_0_014_behavior_review]
+sql:
+create type codex_dm8_type_14 as object(id int) final;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:12~1:29) /test/1/catalog1/schema1/codex_dm8_type_14/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_object_management_0_015_behavior_review]
+sql:
+create type codex_dm8_type_15 as object(id int) not final;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:12~1:29) /test/1/catalog1/schema1/codex_dm8_type_15/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_object_management_0_016_behavior_review]
+sql:
+alter type codex_dm8_type_01 compile;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TYPE": [
+    {
+      "subject": "Type(1:11~1:28) /test/1/catalog1/schema1/codex_dm8_type_01/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_object_management_0_017_behavior_review]
+sql:
+drop type codex_dm8_type_01;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:10~1:27) /test/1/catalog1/schema1/codex_dm8_type_01/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_object_management_0_018_behavior_review]
+sql:
+drop type codex_dm8_type_02;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:10~1:27) /test/1/catalog1/schema1/codex_dm8_type_02/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_object_management_0_019_behavior_review]
+sql:
+drop type codex_dm8_type_03;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:10~1:27) /test/1/catalog1/schema1/codex_dm8_type_03/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_object_management_0_020_behavior_review]
+sql:
+drop type codex_dm8_type_04;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:10~1:27) /test/1/catalog1/schema1/codex_dm8_type_04/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_object_management_0_021_behavior_review]
+sql:
+drop type codex_dm8_type_05;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:10~1:27) /test/1/catalog1/schema1/codex_dm8_type_05/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_object_management_0_022_behavior_review]
+sql:
+drop type codex_dm8_type_06;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:10~1:27) /test/1/catalog1/schema1/codex_dm8_type_06/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_object_management_0_023_behavior_review]
+sql:
+drop type codex_dm8_type_07;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:10~1:27) /test/1/catalog1/schema1/codex_dm8_type_07/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_object_management_0_024_behavior_review]
+sql:
+drop type codex_dm8_type_08;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:10~1:27) /test/1/catalog1/schema1/codex_dm8_type_08/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_object_management_0_025_behavior_review]
+sql:
+drop type codex_dm8_type_09;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:10~1:27) /test/1/catalog1/schema1/codex_dm8_type_09/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_object_management_0_026_behavior_review]
+sql:
+drop type codex_dm8_type_10;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:10~1:27) /test/1/catalog1/schema1/codex_dm8_type_10/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_object_management_0_027_behavior_review]
+sql:
+drop type codex_dm8_type_11;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:10~1:27) /test/1/catalog1/schema1/codex_dm8_type_11/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_object_management_0_028_behavior_review]
+sql:
+drop type codex_dm8_type_12;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:10~1:27) /test/1/catalog1/schema1/codex_dm8_type_12/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_object_management_0_029_behavior_review]
+sql:
+drop type codex_dm8_type_13;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:10~1:27) /test/1/catalog1/schema1/codex_dm8_type_13/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_object_management_0_030_behavior_review]
+sql:
+drop type codex_dm8_type_14;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:10~1:27) /test/1/catalog1/schema1/codex_dm8_type_14/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_object_management_0_031_behavior_review]
+sql:
+drop type codex_dm8_type_15;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:10~1:27) /test/1/catalog1/schema1/codex_dm8_type_15/",
+      "action" : "DROP"
+    }
+  ]
+}

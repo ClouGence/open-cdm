@@ -1,0 +1,1167 @@
+[split_ddl_dameng_materialized_view_0_001_behavior_review]
+sql:
+create materialized view mv_basic as select id, customer_id, amount, status from mv_orders;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "Materialized(1:25~1:33) /test/1/catalog1/schema1/mv_basic/",
+      "action": "CREATE",
+      "target": "Table(1:81~1:90) /test/1/catalog1/schema1/mv_orders/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_0_002_behavior_review]
+sql:
+create materialized view mv_columns(order_id, order_amount) as select id, amount from mv_orders;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "Materialized(1:25~1:35) /test/1/catalog1/schema1/mv_columns/",
+      "action": "CREATE",
+      "target": "Table(1:86~1:95) /test/1/catalog1/schema1/mv_orders/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_0_003_behavior_review]
+sql:
+create materialized view mv_build_immediate build immediate as select id, amount from mv_orders;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "Materialized(1:25~1:43) /test/1/catalog1/schema1/mv_build_immediate/",
+      "action": "CREATE",
+      "target": "Table(1:86~1:95) /test/1/catalog1/schema1/mv_orders/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_0_004_behavior_review]
+sql:
+create materialized view mv_build_deferred build deferred as select id, amount from mv_orders;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "Materialized(1:25~1:42) /test/1/catalog1/schema1/mv_build_deferred/",
+      "action": "CREATE",
+      "target": "Table(1:84~1:93) /test/1/catalog1/schema1/mv_orders/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_0_005_behavior_review]
+sql:
+create materialized view mv_refresh_complete refresh complete as select id, amount from mv_orders;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "Materialized(1:25~1:44) /test/1/catalog1/schema1/mv_refresh_complete/",
+      "action": "CREATE",
+      "target": "Table(1:88~1:97) /test/1/catalog1/schema1/mv_orders/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_0_006_behavior_review]
+sql:
+create materialized view mv_refresh_force refresh force as select id, amount from mv_orders;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "Materialized(1:25~1:41) /test/1/catalog1/schema1/mv_refresh_force/",
+      "action": "CREATE",
+      "target": "Table(1:82~1:91) /test/1/catalog1/schema1/mv_orders/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_0_007_behavior_review]
+sql:
+create materialized view mv_never_refresh never refresh as select id, amount from mv_orders;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "Materialized(1:25~1:41) /test/1/catalog1/schema1/mv_never_refresh/",
+      "action": "CREATE",
+      "target": "Table(1:82~1:91) /test/1/catalog1/schema1/mv_orders/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_0_008_behavior_review]
+sql:
+create materialized view mv_on_demand refresh complete on demand as select id, amount from mv_orders;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "Materialized(1:25~1:37) /test/1/catalog1/schema1/mv_on_demand/",
+      "action": "CREATE",
+      "target": "Table(1:91~1:100) /test/1/catalog1/schema1/mv_orders/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_0_009_behavior_review]
+sql:
+create materialized view mv_primary_key refresh complete with primary key as select id, amount from mv_orders;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "Materialized(1:25~1:39) /test/1/catalog1/schema1/mv_primary_key/",
+      "action": "CREATE",
+      "target": "Table(1:100~1:109) /test/1/catalog1/schema1/mv_orders/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_0_010_behavior_review]
+sql:
+create materialized view mv_rowid refresh complete with rowid as select id, amount from mv_orders;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "Materialized(1:25~1:33) /test/1/catalog1/schema1/mv_rowid/",
+      "action": "CREATE",
+      "target": "Table(1:88~1:97) /test/1/catalog1/schema1/mv_orders/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_0_011_behavior_review]
+sql:
+create materialized view mv_using_default refresh complete using default as select id, amount from mv_orders;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "Materialized(1:25~1:41) /test/1/catalog1/schema1/mv_using_default/",
+      "action": "CREATE",
+      "target": "Table(1:99~1:108) /test/1/catalog1/schema1/mv_orders/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_0_012_behavior_review]
+sql:
+create materialized view mv_using_truncate refresh complete using truncate as select id, amount from mv_orders;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "Materialized(1:25~1:42) /test/1/catalog1/schema1/mv_using_truncate/",
+      "action": "CREATE",
+      "target": "Table(1:101~1:110) /test/1/catalog1/schema1/mv_orders/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_0_013_behavior_review]
+sql:
+create materialized view mv_using_delete refresh complete using delete as select id, amount from mv_orders;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "Materialized(1:25~1:40) /test/1/catalog1/schema1/mv_using_delete/",
+      "action": "CREATE",
+      "target": "Table(1:97~1:106) /test/1/catalog1/schema1/mv_orders/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_0_014_behavior_review]
+sql:
+create materialized view mv_disable_rewrite disable query rewrite as select id, amount from mv_orders;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "Materialized(1:25~1:43) /test/1/catalog1/schema1/mv_disable_rewrite/",
+      "action": "CREATE",
+      "target": "Table(1:92~1:101) /test/1/catalog1/schema1/mv_orders/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_0_015_behavior_review]
+sql:
+create materialized view mv_enable_rewrite enable query rewrite as select id, amount from mv_orders;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "Materialized(1:25~1:42) /test/1/catalog1/schema1/mv_enable_rewrite/",
+      "action": "CREATE",
+      "target": "Table(1:90~1:99) /test/1/catalog1/schema1/mv_orders/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_0_016_behavior_review]
+sql:
+create materialized view mv_filtered as select id, amount from mv_orders where status = 'OPEN';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "Materialized(1:25~1:36) /test/1/catalog1/schema1/mv_filtered/",
+      "action": "CREATE",
+      "target": "Table(1:63~1:72) /test/1/catalog1/schema1/mv_orders/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_0_017_behavior_review]
+sql:
+create materialized view mv_join as select o.id, o.amount, c.name, c.region from mv_orders o join mv_customers c on o.customer_id = c.id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "Materialized(1:25~1:32) /test/1/catalog1/schema1/mv_join/",
+      "action": "CREATE",
+      "target": [
+        "Table(1:81~1:90) /test/1/catalog1/schema1/mv_orders/",
+        "Table(1:98~1:110) /test/1/catalog1/schema1/mv_customers/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_0_018_behavior_review]
+sql:
+create materialized view mv_aggregate as select customer_id, count(*) as order_count, sum(amount) as total_amount from mv_orders group by customer_id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "Materialized(1:25~1:37) /test/1/catalog1/schema1/mv_aggregate/",
+      "action": "CREATE",
+      "target": "Table(1:119~1:128) /test/1/catalog1/schema1/mv_orders/"
+    },
+    {
+      "subject": "Function(1:61~1:66) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:86~1:89) /test/1/catalog1/schema1/sum/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_0_019_behavior_review]
+sql:
+create materialized view mv_subquery as select id, amount from mv_orders where customer_id in(select id from mv_customers where region = 'EAST');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "Materialized(1:25~1:36) /test/1/catalog1/schema1/mv_subquery/",
+      "action": "CREATE",
+      "target": [
+        "Table(1:63~1:72) /test/1/catalog1/schema1/mv_orders/",
+        "Table(1:109~1:121) /test/1/catalog1/schema1/mv_customers/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_0_020_behavior_review]
+sql:
+create materialized view mv_union as select id, amount from mv_orders where status = 'OPEN' union all select id, amount from mv_orders where status = 'CLOSED';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "Materialized(1:25~1:33) /test/1/catalog1/schema1/mv_union/",
+      "action": "CREATE",
+      "target": [
+        "Table(1:60~1:69) /test/1/catalog1/schema1/mv_orders/",
+        "Table(1:125~1:134) /test/1/catalog1/schema1/mv_orders/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_0_021_behavior_review]
+sql:
+create materialized view mv_ordered as select id, amount from mv_orders order by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "Materialized(1:25~1:35) /test/1/catalog1/schema1/mv_ordered/",
+      "action": "CREATE",
+      "target": "Table(1:62~1:71) /test/1/catalog1/schema1/mv_orders/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_0_022_behavior_review]
+sql:
+create materialized view mv_distinct as select distinct customer_id from mv_orders;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "Materialized(1:25~1:36) /test/1/catalog1/schema1/mv_distinct/",
+      "action": "CREATE",
+      "target": "Table(1:73~1:82) /test/1/catalog1/schema1/mv_orders/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_0_023_behavior_review]
+sql:
+create materialized view mv_expression as select id, amount * 1.1 as adjusted_amount from mv_orders;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "Materialized(1:25~1:38) /test/1/catalog1/schema1/mv_expression/",
+      "action": "CREATE",
+      "target": "Table(1:90~1:99) /test/1/catalog1/schema1/mv_orders/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_0_024_behavior_review]
+sql:
+create materialized view mv_case as select id, case when amount >= 100 then 'HIGH' else 'LOW' end as amount_level from mv_orders;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "Materialized(1:25~1:32) /test/1/catalog1/schema1/mv_case/",
+      "action": "CREATE",
+      "target": "Table(1:119~1:128) /test/1/catalog1/schema1/mv_orders/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_0_025_behavior_review]
+sql:
+create materialized view mv_cte as with open_orders as (select id, amount from mv_orders where status = 'OPEN') select * from open_orders;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "Materialized(1:25~1:31) /test/1/catalog1/schema1/mv_cte/",
+      "action": "CREATE",
+      "target": "Table(1:79~1:88) /test/1/catalog1/schema1/mv_orders/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_0_026_behavior_review]
+sql:
+alter materialized view mv_basic enable query rewrite;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_VIEW": [
+    {
+      "subject": "Materialized(1:24~1:32) /test/1/catalog1/schema1/mv_basic/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_0_027_behavior_review]
+sql:
+alter materialized view mv_basic disable query rewrite;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_VIEW": [
+    {
+      "subject": "Materialized(1:24~1:32) /test/1/catalog1/schema1/mv_basic/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_0_028_behavior_review]
+sql:
+alter materialized view mv_basic refresh complete;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_VIEW": [
+    {
+      "subject": "Materialized(1:24~1:32) /test/1/catalog1/schema1/mv_basic/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_0_029_behavior_review]
+sql:
+alter materialized view mv_basic refresh force;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_VIEW": [
+    {
+      "subject": "Materialized(1:24~1:32) /test/1/catalog1/schema1/mv_basic/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_0_030_behavior_review]
+sql:
+alter materialized view mv_basic refresh complete on demand;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_VIEW": [
+    {
+      "subject": "Materialized(1:24~1:32) /test/1/catalog1/schema1/mv_basic/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_0_031_behavior_review]
+sql:
+alter materialized view mv_basic refresh complete with primary key;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_VIEW": [
+    {
+      "subject": "Materialized(1:24~1:32) /test/1/catalog1/schema1/mv_basic/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_0_032_behavior_review]
+sql:
+alter materialized view mv_basic refresh complete using default;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_VIEW": [
+    {
+      "subject": "Materialized(1:24~1:32) /test/1/catalog1/schema1/mv_basic/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_0_033_behavior_review]
+sql:
+alter materialized view mv_basic refresh complete using truncate;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_VIEW": [
+    {
+      "subject": "Materialized(1:24~1:32) /test/1/catalog1/schema1/mv_basic/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_0_034_behavior_review]
+sql:
+alter materialized view mv_basic refresh complete using delete;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_VIEW": [
+    {
+      "subject": "Materialized(1:24~1:32) /test/1/catalog1/schema1/mv_basic/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_0_035_behavior_review]
+sql:
+alter materialized view mv_basic never refresh;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_VIEW": [
+    {
+      "subject": "Materialized(1:24~1:32) /test/1/catalog1/schema1/mv_basic/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_0_036_behavior_review]
+sql:
+alter materialized view mv_basic refresh complete disable query rewrite;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_VIEW": [
+    {
+      "subject": "Materialized(1:24~1:32) /test/1/catalog1/schema1/mv_basic/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_0_037_behavior_review]
+sql:
+alter materialized view mv_basic compile;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_VIEW": [
+    {
+      "subject": "Materialized(1:24~1:32) /test/1/catalog1/schema1/mv_basic/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_0_038_behavior_review]
+sql:
+refresh materialized view mv_basic;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Materialized(1:26~1:34) /test/1/catalog1/schema1/mv_basic/",
+      "action": "REFRESH"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_0_039_behavior_review]
+sql:
+refresh materialized view mv_basic complete;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Materialized(1:26~1:34) /test/1/catalog1/schema1/mv_basic/",
+      "action": "REFRESH"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_0_040_behavior_review]
+sql:
+refresh materialized view mv_basic complete using default;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Materialized(1:26~1:34) /test/1/catalog1/schema1/mv_basic/",
+      "action": "REFRESH"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_0_041_behavior_review]
+sql:
+refresh materialized view mv_basic complete using truncate;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Materialized(1:26~1:34) /test/1/catalog1/schema1/mv_basic/",
+      "action": "REFRESH"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_0_042_behavior_review]
+sql:
+refresh materialized view mv_basic complete using delete;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Materialized(1:26~1:34) /test/1/catalog1/schema1/mv_basic/",
+      "action": "REFRESH"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_0_043_behavior_review]
+sql:
+refresh materialized view mv_basic force;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Materialized(1:26~1:34) /test/1/catalog1/schema1/mv_basic/",
+      "action": "REFRESH"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_0_044_behavior_review]
+sql:
+refresh materialized view mv_basic force using default;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Materialized(1:26~1:34) /test/1/catalog1/schema1/mv_basic/",
+      "action": "REFRESH"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_0_045_behavior_review]
+sql:
+refresh materialized view mv_basic force using truncate;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Materialized(1:26~1:34) /test/1/catalog1/schema1/mv_basic/",
+      "action": "REFRESH"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_0_046_behavior_review]
+sql:
+refresh materialized view mv_basic force using delete;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Materialized(1:26~1:34) /test/1/catalog1/schema1/mv_basic/",
+      "action": "REFRESH"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_0_047_behavior_review]
+sql:
+create materialized view mv_fast refresh fast with primary key as select id, customer_id, amount, status from mv_orders;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "Materialized(1:25~1:32) /test/1/catalog1/schema1/mv_fast/",
+      "action": "CREATE",
+      "target": "Table(1:110~1:119) /test/1/catalog1/schema1/mv_orders/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_0_048_behavior_review]
+sql:
+refresh materialized view mv_fast fast;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Materialized(1:26~1:33) /test/1/catalog1/schema1/mv_fast/",
+      "action": "REFRESH"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_0_049_behavior_review]
+sql:
+drop materialized view mv_fast;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "Materialized(1:23~1:30) /test/1/catalog1/schema1/mv_fast/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_0_050_behavior_review]
+sql:
+drop materialized view mv_basic;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "Materialized(1:23~1:31) /test/1/catalog1/schema1/mv_basic/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_0_051_behavior_review]
+sql:
+drop materialized view if exists mv_columns;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "Materialized(1:33~1:43) /test/1/catalog1/schema1/mv_columns/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_0_052_behavior_review]
+sql:
+drop materialized view mv_build_immediate;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "Materialized(1:23~1:41) /test/1/catalog1/schema1/mv_build_immediate/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_0_053_behavior_review]
+sql:
+drop materialized view mv_build_deferred;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "Materialized(1:23~1:40) /test/1/catalog1/schema1/mv_build_deferred/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_0_054_behavior_review]
+sql:
+drop materialized view mv_refresh_complete;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "Materialized(1:23~1:42) /test/1/catalog1/schema1/mv_refresh_complete/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_0_055_behavior_review]
+sql:
+drop materialized view mv_refresh_force;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "Materialized(1:23~1:39) /test/1/catalog1/schema1/mv_refresh_force/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_0_056_behavior_review]
+sql:
+drop materialized view mv_never_refresh;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "Materialized(1:23~1:39) /test/1/catalog1/schema1/mv_never_refresh/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_0_057_behavior_review]
+sql:
+drop materialized view mv_on_demand;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "Materialized(1:23~1:35) /test/1/catalog1/schema1/mv_on_demand/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_0_058_behavior_review]
+sql:
+drop materialized view mv_primary_key;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "Materialized(1:23~1:37) /test/1/catalog1/schema1/mv_primary_key/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_0_059_behavior_review]
+sql:
+drop materialized view mv_rowid;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "Materialized(1:23~1:31) /test/1/catalog1/schema1/mv_rowid/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_0_060_behavior_review]
+sql:
+drop materialized view mv_using_default;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "Materialized(1:23~1:39) /test/1/catalog1/schema1/mv_using_default/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_0_061_behavior_review]
+sql:
+drop materialized view mv_using_truncate;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "Materialized(1:23~1:40) /test/1/catalog1/schema1/mv_using_truncate/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_0_062_behavior_review]
+sql:
+drop materialized view mv_using_delete;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "Materialized(1:23~1:38) /test/1/catalog1/schema1/mv_using_delete/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_0_063_behavior_review]
+sql:
+drop materialized view mv_disable_rewrite;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "Materialized(1:23~1:41) /test/1/catalog1/schema1/mv_disable_rewrite/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_0_064_behavior_review]
+sql:
+drop materialized view mv_enable_rewrite;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "Materialized(1:23~1:40) /test/1/catalog1/schema1/mv_enable_rewrite/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_0_065_behavior_review]
+sql:
+drop materialized view mv_filtered;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "Materialized(1:23~1:34) /test/1/catalog1/schema1/mv_filtered/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_0_066_behavior_review]
+sql:
+drop materialized view mv_join;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "Materialized(1:23~1:30) /test/1/catalog1/schema1/mv_join/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_0_067_behavior_review]
+sql:
+drop materialized view mv_aggregate;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "Materialized(1:23~1:35) /test/1/catalog1/schema1/mv_aggregate/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_0_068_behavior_review]
+sql:
+drop materialized view mv_subquery;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "Materialized(1:23~1:34) /test/1/catalog1/schema1/mv_subquery/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_0_069_behavior_review]
+sql:
+drop materialized view mv_union;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "Materialized(1:23~1:31) /test/1/catalog1/schema1/mv_union/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_0_070_behavior_review]
+sql:
+drop materialized view mv_ordered;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "Materialized(1:23~1:33) /test/1/catalog1/schema1/mv_ordered/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_0_071_behavior_review]
+sql:
+drop materialized view mv_distinct;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "Materialized(1:23~1:34) /test/1/catalog1/schema1/mv_distinct/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_0_072_behavior_review]
+sql:
+drop materialized view mv_expression;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "Materialized(1:23~1:36) /test/1/catalog1/schema1/mv_expression/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_0_073_behavior_review]
+sql:
+drop materialized view mv_case;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "Materialized(1:23~1:30) /test/1/catalog1/schema1/mv_case/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_0_074_behavior_review]
+sql:
+drop materialized view mv_cte;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "Materialized(1:23~1:29) /test/1/catalog1/schema1/mv_cte/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_0_075_behavior_review]
+sql:
+drop materialized view if exists mv_missing;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "Materialized(1:33~1:43) /test/1/catalog1/schema1/mv_missing/",
+      "action": "DROP"
+    }
+  ]
+}

@@ -1,0 +1,620 @@
+[split_dql_dameng_general_system_packages_0_029]
+sql:
+select utl_raw.xrange(utl_raw.cast_to_raw('A'), utl_raw.cast_to_raw('Z'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:21) /test/1/catalog1/utl_raw/xrange/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:22~1:41) /test/1/catalog1/utl_raw/cast_to_raw/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:48~1:67) /test/1/catalog1/utl_raw/cast_to_raw/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_general_system_packages_0_030]
+sql:
+select utl_raw.bit_and('0102F3', 'F30201');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:22) /test/1/catalog1/utl_raw/bit_and/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_general_system_packages_0_031]
+sql:
+select utl_raw.bit_complement('0102F3');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:29) /test/1/catalog1/utl_raw/bit_complement/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_general_system_packages_0_032]
+sql:
+select utl_raw.bit_or('0102F3', 'F30201');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:21) /test/1/catalog1/utl_raw/bit_or/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_general_system_packages_0_033]
+sql:
+select utl_raw.bit_xor('0102F3', 'F30201');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:22) /test/1/catalog1/utl_raw/bit_xor/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_general_system_packages_0_034]
+sql:
+select utl_raw.compare(utl_raw.cast_to_raw('ABC'), utl_raw.cast_to_raw('ABCD'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:22) /test/1/catalog1/utl_raw/compare/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:23~1:42) /test/1/catalog1/utl_raw/cast_to_raw/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:51~1:70) /test/1/catalog1/utl_raw/cast_to_raw/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_general_system_packages_0_035]
+sql:
+select utl_raw.concat('A', '41', 'B', '42');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:21) /test/1/catalog1/utl_raw/concat/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_general_system_packages_0_036]
+sql:
+select utl_raw.convert_raw('E4B8ADE69687', 'GBK', 'UTF8');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:26) /test/1/catalog1/utl_raw/convert_raw/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_general_system_packages_0_037]
+sql:
+select utl_raw.convert_raw('D6D0CEC4', 'UTF8', 'GBK');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:26) /test/1/catalog1/utl_raw/convert_raw/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_general_system_packages_0_038]
+sql:
+select utl_raw.copies('A', 6);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:21) /test/1/catalog1/utl_raw/copies/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_general_system_packages_0_039]
+sql:
+select utl_raw.length(utl_raw.cast_to_raw('ABCD'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:21) /test/1/catalog1/utl_raw/length/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:22~1:41) /test/1/catalog1/utl_raw/cast_to_raw/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_general_system_packages_0_040]
+sql:
+select utl_raw.overlay_raw(utl_raw.cast_to_raw('D'), utl_raw.cast_to_raw('AAAC'), 1, 1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:26) /test/1/catalog1/utl_raw/overlay_raw/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:27~1:46) /test/1/catalog1/utl_raw/cast_to_raw/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:53~1:72) /test/1/catalog1/utl_raw/cast_to_raw/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_general_system_packages_0_041]
+sql:
+select utl_raw.overlay_raw(utl_raw.cast_to_raw('D'), utl_raw.cast_to_raw('AAAC'), 1, 2, utl_raw.cast_to_raw(' '));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:26) /test/1/catalog1/utl_raw/overlay_raw/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:27~1:46) /test/1/catalog1/utl_raw/cast_to_raw/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:53~1:72) /test/1/catalog1/utl_raw/cast_to_raw/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:88~1:107) /test/1/catalog1/utl_raw/cast_to_raw/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_general_system_packages_0_042]
+sql:
+select utl_raw.reverse_raw(utl_raw.cast_to_raw('123'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:26) /test/1/catalog1/utl_raw/reverse_raw/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:27~1:46) /test/1/catalog1/utl_raw/cast_to_raw/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_general_system_packages_0_043]
+sql:
+select utl_raw.substr(cast('414243444541424344454142434445' as varbinary(128)), 6, 2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:21) /test/1/catalog1/utl_raw/substr/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_general_system_packages_0_044]
+sql:
+select utl_raw.translate(utl_raw.cast_to_raw('aDe'), utl_raw.cast_to_raw('AD'), utl_raw.cast_to_raw('ad'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:24) /test/1/catalog1/utl_raw/translate/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:25~1:44) /test/1/catalog1/utl_raw/cast_to_raw/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:53~1:72) /test/1/catalog1/utl_raw/cast_to_raw/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:80~1:99) /test/1/catalog1/utl_raw/cast_to_raw/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_general_system_packages_0_045]
+sql:
+select utl_raw.transliterate(utl_raw.cast_to_raw('FaDe'), utl_raw.cast_to_raw('adef'), utl_raw.cast_to_raw('ADEF'), utl_raw.cast_to_raw(' '));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:28) /test/1/catalog1/utl_raw/transliterate/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:29~1:48) /test/1/catalog1/utl_raw/cast_to_raw/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:58~1:77) /test/1/catalog1/utl_raw/cast_to_raw/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:87~1:106) /test/1/catalog1/utl_raw/cast_to_raw/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:116~1:135) /test/1/catalog1/utl_raw/cast_to_raw/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_general_system_packages_0_046]
+sql:
+select utl_raw.cast_to_raw(10);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:26) /test/1/catalog1/utl_raw/cast_to_raw/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_general_system_packages_0_047]
+sql:
+select utl_raw.cast_to_varchar2('40');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:31) /test/1/catalog1/utl_raw/cast_to_varchar2/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_general_system_packages_0_048]
+sql:
+select utl_raw.cast_to_int('00000064', 1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:26) /test/1/catalog1/utl_raw/cast_to_int/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_general_system_packages_0_049]
+sql:
+select utl_raw.cast_to_int('00000064', 2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:26) /test/1/catalog1/utl_raw/cast_to_int/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_general_system_packages_0_050]
+sql:
+select utl_raw.cast_from_int(10);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:28) /test/1/catalog1/utl_raw/cast_from_int/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_general_system_packages_0_051]
+sql:
+select utl_raw.cast_from_int(94311, 2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:28) /test/1/catalog1/utl_raw/cast_from_int/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_general_system_packages_0_052]
+sql:
+select utl_raw.cast_from_number(10);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:31) /test/1/catalog1/utl_raw/cast_from_number/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_general_system_packages_0_053]
+sql:
+select utl_raw.xrange();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:21) /test/1/catalog1/utl_raw/xrange/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_general_system_packages_0_054]
+sql:
+select utl_raw.compare('0102', '0103', 'FF');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:22) /test/1/catalog1/utl_raw/compare/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_general_system_packages_0_055]
+sql:
+select utl_raw.concat('01', '02', '03', '04', '05', '06');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:21) /test/1/catalog1/utl_raw/concat/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_general_system_packages_0_056]
+sql:
+select utl_raw.substr(cast('4142434445' as varbinary(64)), 3);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:21) /test/1/catalog1/utl_raw/substr/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_general_system_packages_0_057]
+sql:
+select utl_raw.overlay_raw('41', '424344');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:26) /test/1/catalog1/utl_raw/overlay_raw/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_general_system_packages_0_058]
+sql:
+select utl_raw.cast_to_binary_integer(utl_raw.cast_from_binary_integer(123456, 1), 1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:37) /test/1/catalog1/utl_raw/cast_to_binary_integer/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:38~1:70) /test/1/catalog1/utl_raw/cast_from_binary_integer/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_general_system_packages_0_059]
+sql:
+select utl_raw.cast_to_binary_integer(utl_raw.cast_from_binary_integer(123456, 2), 2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:37) /test/1/catalog1/utl_raw/cast_to_binary_integer/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:38~1:70) /test/1/catalog1/utl_raw/cast_from_binary_integer/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_general_system_packages_0_060]
+sql:
+select utl_raw.cast_to_binary_integer(utl_raw.cast_from_binary_integer(123456, 3), 3);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:37) /test/1/catalog1/utl_raw/cast_to_binary_integer/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:38~1:70) /test/1/catalog1/utl_raw/cast_from_binary_integer/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_general_system_packages_0_061]
+sql:
+select utl_raw.cast_to_binary_double(utl_raw.cast_from_binary_double(123.5, 1), 1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:36) /test/1/catalog1/utl_raw/cast_to_binary_double/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:37~1:68) /test/1/catalog1/utl_raw/cast_from_binary_double/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_general_system_packages_0_062]
+sql:
+select utl_raw.cast_to_binary_float(utl_raw.cast_from_binary_float(12.5, 2), 2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:35) /test/1/catalog1/utl_raw/cast_to_binary_float/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:36~1:66) /test/1/catalog1/utl_raw/cast_from_binary_float/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_general_system_packages_0_063]
+sql:
+select utl_raw.cast_to_number(utl_raw.cast_from_number(12345.678));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:29) /test/1/catalog1/utl_raw/cast_to_number/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:30~1:54) /test/1/catalog1/utl_raw/cast_from_number/",
+      "action": "CALL"
+    }
+  ]
+}

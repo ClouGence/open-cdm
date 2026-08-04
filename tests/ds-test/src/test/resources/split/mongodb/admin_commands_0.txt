@@ -1,0 +1,9 @@
+db.runCommand({profile: 2});
+db.runCommand({killOp: 1, op: 12345});
+db.runCommand({currentOp: 1});
+------------------------------------------------------------------------------------------
+[SYSTEM_SETTING_WRITE] db.runCommand({profile: 2})
+----------
+[ADMIN] db.runCommand({killOp: 1, op: 12345})
+----------
+[PERFORMANCE] db.runCommand({currentOp: 1})

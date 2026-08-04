@@ -33,15 +33,12 @@ public class Db2AntlrStatementParser implements AntlrStatementParser {
     @Override
     public List<ParseTree> statementList(Lexer lexer, Parser parser) {
         List<ParseTree> result = new ArrayList<>();
-        List<ParseTree> children = ((Db2SqlParser) parser).root().children;
-        for (ParseTree child : children) {
-            if (child instanceof Db2SqlParser.SqlStatementsContext) {
-                for (ParseTree parseTree : ((Db2SqlParser.SqlStatementsContext) child).children) {
-                    if (parseTree instanceof Db2SqlParser.SqlStatementContext) {
-                        result.add(parseTree);
-                    }
-                }
-            }
+        Db2SqlParser.Db2_fileContext file = ((Db2SqlParser) parser).db2_file();
+        if (file.batch() == null) {
+            return result;
+        }
+        for (Db2SqlParser.Sql_statementContext statement : file.batch().sql_statement()) {
+            result.add(statement);
         }
         return result;
     }
@@ -50,11 +47,11 @@ public class Db2AntlrStatementParser implements AntlrStatementParser {
     public String getTextKeepComment(TokenStream tokens, ParseTree lastTree, Token startToken, Token endToken) {
         for (int i = startToken.getTokenIndex() - 1; i >= 0; i--) {
             Token start = tokens.get(i);
-            if (start.getType() == Db2SqlLexer.SPACE) {
+            if (start.getType() == Db2SqlLexer.WHITE_SPACE) {
                 // ignore
             } else if (start.getType() == Db2SqlLexer.SEMI) {
                 break;
-            } else if (start.getType() == Db2SqlLexer.SPEC_MYSQL_COMMENT || start.getType() == Db2SqlLexer.COMMENT_INPUT || start.getType() == Db2SqlLexer.LINE_COMMENT) {
+            } else if (start.getType() == Db2SqlLexer.SQL_COMMENT || start.getType() == Db2SqlLexer.LINE_COMMENT) {
                 startToken = start;
             } else {
                 break;
@@ -63,12 +60,12 @@ public class Db2AntlrStatementParser implements AntlrStatementParser {
 
         for (int i = endToken.getTokenIndex() + 1; i < tokens.size(); i++) {
             Token end = tokens.get(i);
-            if (end.getType() == Db2SqlLexer.SPACE) {
+            if (end.getType() == Db2SqlLexer.WHITE_SPACE) {
                 //ignore
             } else if (end.getType() == Db2SqlLexer.SEMI) {
                 endToken = end;
                 break;
-            } else if (end.getType() == Db2SqlLexer.SPEC_MYSQL_COMMENT || end.getType() == Db2SqlLexer.COMMENT_INPUT || end.getType() == Db2SqlLexer.LINE_COMMENT) {
+            } else if (end.getType() == Db2SqlLexer.SQL_COMMENT || end.getType() == Db2SqlLexer.LINE_COMMENT) {
                 endToken = end;
             } else {
                 break;

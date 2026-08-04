@@ -1,0 +1,1015 @@
+[split_dql_dameng_calendar_extrema_function_signature_combinations_0_behavior_review_001]
+sql:
+-- GREAT_DATE_FORWARD
+SELECT GREAT(DATE '2024-01-01',DATE '2024-12-31') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/GREAT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:55~2:59) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_calendar_extrema_function_signature_combinations_0_behavior_review_002]
+sql:
+-- GREAT_DATE_REVERSE
+SELECT GREAT(DATE '2024-12-31',DATE '2024-01-01') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/GREAT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:55~2:59) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_calendar_extrema_function_signature_combinations_0_behavior_review_003]
+sql:
+-- GREAT_TIMESTAMP
+SELECT GREAT(TIMESTAMP '2024-01-01 12:00:00',TIMESTAMP '2024-01-01 13:00:00') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/GREAT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:83~2:87) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_calendar_extrema_function_signature_combinations_0_behavior_review_004]
+sql:
+-- GREAT_MIXED_DATE_FIRST
+SELECT GREAT(DATE '2024-01-01',TIMESTAMP '2024-01-02 12:00:00') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/GREAT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:69~2:73) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_calendar_extrema_function_signature_combinations_0_behavior_review_005]
+sql:
+-- GREAT_MIXED_TIMESTAMP_FIRST
+SELECT GREAT(TIMESTAMP '2024-01-02 12:00:00',DATE '2024-01-01') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/GREAT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:69~2:73) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_calendar_extrema_function_signature_combinations_0_behavior_review_006]
+sql:
+-- GREAT_EQUAL
+SELECT GREAT(DATE '2024-02-29',DATE '2024-02-29') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/GREAT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:55~2:59) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_calendar_extrema_function_signature_combinations_0_behavior_review_007]
+sql:
+-- GREAT_NULL_EACH
+SELECT GREAT(NULL,DATE '2024-01-01'),GREAT(DATE '2024-01-01',NULL) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/GREAT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:37~2:42) /test/1/catalog1/schema1/GREAT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:72~2:76) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_calendar_extrema_function_signature_combinations_0_behavior_review_008]
+sql:
+-- GREATEST_ONE
+SELECT GREATEST(DATE '2024-01-01') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/GREATEST/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:40~2:44) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_calendar_extrema_function_signature_combinations_0_behavior_review_009]
+sql:
+-- GREATEST_TWO
+SELECT GREATEST(DATE '2024-01-01',DATE '2024-12-31') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/GREATEST/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:58~2:62) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_calendar_extrema_function_signature_combinations_0_behavior_review_010]
+sql:
+-- GREATEST_THREE
+SELECT GREATEST(DATE '2024-01-01',DATE '2024-12-31',DATE '2024-06-30') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/GREATEST/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:76~2:80) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_calendar_extrema_function_signature_combinations_0_behavior_review_011]
+sql:
+-- GREATEST_TIMESTAMP
+SELECT GREATEST(TIMESTAMP '2024-01-01 12:00:00',TIMESTAMP '2024-01-01 13:00:00') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/GREATEST/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:86~2:90) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_calendar_extrema_function_signature_combinations_0_behavior_review_012]
+sql:
+-- GREATEST_MIXED_DATE_TIMESTAMP
+SELECT GREATEST(DATE '2024-01-01',TIMESTAMP '2024-01-02 12:00:00') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/GREATEST/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:72~2:76) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_calendar_extrema_function_signature_combinations_0_behavior_review_013]
+sql:
+-- GREATEST_MIXED_TIMESTAMP_DATE
+SELECT GREATEST(TIMESTAMP '2024-01-02 12:00:00',DATE '2024-01-01') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/GREATEST/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:72~2:76) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_calendar_extrema_function_signature_combinations_0_behavior_review_014]
+sql:
+-- GREATEST_DUPLICATE
+SELECT GREATEST(DATE '2024-02-29',DATE '2024-02-29',DATE '2024-02-29') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/GREATEST/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:76~2:80) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_calendar_extrema_function_signature_combinations_0_behavior_review_015]
+sql:
+-- GREATEST_NULL_FIRST
+SELECT GREATEST(NULL,DATE '2024-01-01',DATE '2024-01-02') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/GREATEST/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:63~2:67) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_calendar_extrema_function_signature_combinations_0_behavior_review_016]
+sql:
+-- GREATEST_NULL_MIDDLE_LAST
+SELECT GREATEST(DATE '2024-01-01',NULL,DATE '2024-01-02'),GREATEST(DATE '2024-01-01',NULL) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/GREATEST/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:58~2:66) /test/1/catalog1/schema1/GREATEST/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:96~2:100) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_calendar_extrema_function_signature_combinations_0_behavior_review_017]
+sql:
+-- LEAST_ONE
+SELECT LEAST(DATE '2024-01-01') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/LEAST/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:37~2:41) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_calendar_extrema_function_signature_combinations_0_behavior_review_018]
+sql:
+-- LEAST_TWO
+SELECT LEAST(DATE '2024-12-31',DATE '2024-01-01') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/LEAST/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:55~2:59) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_calendar_extrema_function_signature_combinations_0_behavior_review_019]
+sql:
+-- LEAST_THREE
+SELECT LEAST(DATE '2024-12-31',DATE '2024-01-01',DATE '2024-06-30') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/LEAST/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:73~2:77) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_calendar_extrema_function_signature_combinations_0_behavior_review_020]
+sql:
+-- LEAST_TIMESTAMP
+SELECT LEAST(TIMESTAMP '2024-01-01 12:00:00',TIMESTAMP '2024-01-01 13:00:00') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/LEAST/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:83~2:87) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_calendar_extrema_function_signature_combinations_0_behavior_review_021]
+sql:
+-- LEAST_MIXED_DATE_TIMESTAMP
+SELECT LEAST(DATE '2024-01-01',TIMESTAMP '2024-01-02 12:00:00') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/LEAST/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:69~2:73) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_calendar_extrema_function_signature_combinations_0_behavior_review_022]
+sql:
+-- LEAST_MIXED_TIMESTAMP_DATE
+SELECT LEAST(TIMESTAMP '2024-01-02 12:00:00',DATE '2024-01-01') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/LEAST/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:69~2:73) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_calendar_extrema_function_signature_combinations_0_behavior_review_023]
+sql:
+-- LEAST_DUPLICATE
+SELECT LEAST(DATE '2024-02-29',DATE '2024-02-29',DATE '2024-02-29') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/LEAST/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:73~2:77) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_calendar_extrema_function_signature_combinations_0_behavior_review_024]
+sql:
+-- LEAST_NULL_FIRST
+SELECT LEAST(NULL,DATE '2024-01-01',DATE '2024-01-02') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/LEAST/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:60~2:64) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_calendar_extrema_function_signature_combinations_0_behavior_review_025]
+sql:
+-- LEAST_NULL_MIDDLE_LAST
+SELECT LEAST(DATE '2024-01-01',NULL,DATE '2024-01-02'),LEAST(DATE '2024-01-01',NULL) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/LEAST/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:55~2:60) /test/1/catalog1/schema1/LEAST/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:90~2:94) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_calendar_extrema_function_signature_combinations_0_behavior_review_026]
+sql:
+-- LAST_DAY_LEAP_FEBRUARY
+SELECT LAST_DAY(DATE '2024-02-01') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/LAST_DAY/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:40~2:44) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_calendar_extrema_function_signature_combinations_0_behavior_review_027]
+sql:
+-- LAST_DAY_NON_LEAP_FEBRUARY
+SELECT LAST_DAY(DATE '2023-02-28') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/LAST_DAY/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:40~2:44) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_calendar_extrema_function_signature_combinations_0_behavior_review_028]
+sql:
+-- LAST_DAY_THIRTY_DAY_MONTH
+SELECT LAST_DAY(DATE '2024-04-15') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/LAST_DAY/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:40~2:44) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_calendar_extrema_function_signature_combinations_0_behavior_review_029]
+sql:
+-- LAST_DAY_TIMESTAMP
+SELECT LAST_DAY(TIMESTAMP '2024-01-11 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/LAST_DAY/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:61~2:65) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_calendar_extrema_function_signature_combinations_0_behavior_review_030]
+sql:
+-- LAST_DAY_STRING
+SELECT LAST_DAY('2024-12-01 12:34:56') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/LAST_DAY/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:44~2:48) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_calendar_extrema_function_signature_combinations_0_behavior_review_031]
+sql:
+-- LAST_DAY_NULL
+SELECT LAST_DAY(NULL) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/LAST_DAY/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:27~2:31) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_calendar_extrema_function_signature_combinations_0_behavior_review_032]
+sql:
+-- NEXT_DAY_SUN
+SELECT NEXT_DAY(DATE '2024-01-01','SUN') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/NEXT_DAY/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:46~2:50) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_calendar_extrema_function_signature_combinations_0_behavior_review_033]
+sql:
+-- NEXT_DAY_SUNDAY
+SELECT NEXT_DAY(DATE '2024-01-01','SUNDAY') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/NEXT_DAY/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:49~2:53) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_calendar_extrema_function_signature_combinations_0_behavior_review_034]
+sql:
+-- NEXT_DAY_MON
+SELECT NEXT_DAY(DATE '2024-01-01','MON') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/NEXT_DAY/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:46~2:50) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_calendar_extrema_function_signature_combinations_0_behavior_review_035]
+sql:
+-- NEXT_DAY_MONDAY
+SELECT NEXT_DAY(DATE '2024-01-01','MONDAY') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/NEXT_DAY/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:49~2:53) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_calendar_extrema_function_signature_combinations_0_behavior_review_036]
+sql:
+-- NEXT_DAY_TUES
+SELECT NEXT_DAY(DATE '2024-01-01','TUES') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/NEXT_DAY/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:47~2:51) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_calendar_extrema_function_signature_combinations_0_behavior_review_037]
+sql:
+-- NEXT_DAY_TUESDAY
+SELECT NEXT_DAY(DATE '2024-01-01','TUESDAY') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/NEXT_DAY/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:50~2:54) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_calendar_extrema_function_signature_combinations_0_behavior_review_038]
+sql:
+-- NEXT_DAY_WED
+SELECT NEXT_DAY(DATE '2024-01-01','WED') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/NEXT_DAY/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:46~2:50) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_calendar_extrema_function_signature_combinations_0_behavior_review_039]
+sql:
+-- NEXT_DAY_WEDNESDAY
+SELECT NEXT_DAY(DATE '2024-01-01','WEDNESDAY') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/NEXT_DAY/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:52~2:56) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_calendar_extrema_function_signature_combinations_0_behavior_review_040]
+sql:
+-- NEXT_DAY_THURS
+SELECT NEXT_DAY(DATE '2024-01-01','THURS') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/NEXT_DAY/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:48~2:52) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_calendar_extrema_function_signature_combinations_0_behavior_review_041]
+sql:
+-- NEXT_DAY_THURSDAY
+SELECT NEXT_DAY(DATE '2024-01-01','THURSDAY') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/NEXT_DAY/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:51~2:55) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_calendar_extrema_function_signature_combinations_0_behavior_review_042]
+sql:
+-- NEXT_DAY_FRI
+SELECT NEXT_DAY(DATE '2024-01-01','FRI') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/NEXT_DAY/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:46~2:50) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_calendar_extrema_function_signature_combinations_0_behavior_review_043]
+sql:
+-- NEXT_DAY_FRIDAY
+SELECT NEXT_DAY(DATE '2024-01-01','FRIDAY') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/NEXT_DAY/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:49~2:53) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_calendar_extrema_function_signature_combinations_0_behavior_review_044]
+sql:
+-- NEXT_DAY_SAT
+SELECT NEXT_DAY(DATE '2024-01-01','SAT') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/NEXT_DAY/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:46~2:50) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_calendar_extrema_function_signature_combinations_0_behavior_review_045]
+sql:
+-- NEXT_DAY_SATURDAY
+SELECT NEXT_DAY(DATE '2024-01-01','SATURDAY') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/NEXT_DAY/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:51~2:55) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_calendar_extrema_function_signature_combinations_0_behavior_review_046]
+sql:
+-- NEXT_DAY_LOWERCASE
+SELECT NEXT_DAY(DATE '2024-01-01','monday') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/NEXT_DAY/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:49~2:53) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_calendar_extrema_function_signature_combinations_0_behavior_review_047]
+sql:
+-- NEXT_DAY_TIMESTAMP
+SELECT NEXT_DAY(TIMESTAMP '2024-01-01 12:34:56.123456','FRI') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/NEXT_DAY/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:67~2:71) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_calendar_extrema_function_signature_combinations_0_behavior_review_048]
+sql:
+-- NEXT_DAY_STRING
+SELECT NEXT_DAY('2024-01-01 12:34:56','SATURDAY') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/NEXT_DAY/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:55~2:59) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_calendar_extrema_function_signature_combinations_0_behavior_review_049]
+sql:
+-- NEXT_DAY_YEAR_BOUNDARY
+SELECT NEXT_DAY(DATE '2024-12-31','MON') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/NEXT_DAY/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:46~2:50) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_calendar_extrema_function_signature_combinations_0_behavior_review_050]
+sql:
+-- NEXT_DAY_NULL_EACH
+SELECT NEXT_DAY(NULL,'MON'),NEXT_DAY(DATE '2024-01-01',NULL) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/NEXT_DAY/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:28~2:36) /test/1/catalog1/schema1/NEXT_DAY/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:66~2:70) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}

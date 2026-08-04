@@ -1,0 +1,120 @@
+-- FUNC-0630 OPEN and FUNC-0622 CLOSE positional
+declare handle_value int; begin handle_value:=DBMS_METADATA."OPEN"('TABLE'); DBMS_METADATA."CLOSE"(handle_value); end;
+/
+-- FUNC-0622 CLOSE named argument
+declare handle_value int; begin handle_value:=DBMS_METADATA."OPEN"('TABLE'); DBMS_METADATA."CLOSE"(HANDLE=>handle_value); end;
+/
+-- FUNC-0623 CLOSE_ALL zero argument
+declare handle_a int; handle_b int; begin handle_a:=DBMS_METADATA."OPEN"('TABLE'); handle_b:=DBMS_METADATA."OPEN"('VIEW'); DBMS_METADATA.CLOSE_ALL(); end;
+/
+-- FUNC-0621 CHECK_HANDLE zero argument
+begin DBMS_METADATA.CHECK_HANDLE; end;
+/
+-- FUNC-0624 FETCH_CLOB positional lifecycle
+declare handle_value int; document_value clob; begin handle_value:=DBMS_METADATA."OPEN"('TABLE'); DBMS_METADATA.SET_FILTER(handle_value, 'SCHEMA', 'SYSDBA'); DBMS_METADATA.SET_FILTER(handle_value, 'NAME', 'CODEX_DBMS_META_BASE'); document_value:=DBMS_METADATA.FETCH_CLOB(handle_value); DBMS_METADATA."CLOSE"(handle_value); end;
+/
+-- FUNC-0625 FETCH_DDL named lifecycle
+declare handle_value int; documents_value DBMS_METADATA.KU$_DDLS; begin handle_value:=DBMS_METADATA."OPEN"('TABLE'); DBMS_METADATA.SET_FILTER(handle_value, 'SCHEMA', 'SYSDBA'); DBMS_METADATA.SET_FILTER(handle_value, 'NAME', 'CODEX_DBMS_META_BASE'); DBMS_METADATA.SET_PARSE_ITEM(handle_value, 'NAME'); documents_value:=DBMS_METADATA.FETCH_DDL(HANDLE=>handle_value); DBMS_METADATA."CLOSE"(handle_value); end;
+/
+-- FUNC-0620 ADD_TRANSFORM minimum required arguments
+declare handle_value int; transform_value number; begin handle_value:=DBMS_METADATA."OPEN"('TABLE'); transform_value:=DBMS_METADATA.ADD_TRANSFORM(handle_value, 'DDL'); DBMS_METADATA."CLOSE"(handle_value); end;
+/
+-- FUNC-0620 ADD_TRANSFORM through encoding optional
+declare handle_value int; transform_value number; begin handle_value:=DBMS_METADATA."OPEN"('TABLE'); transform_value:=DBMS_METADATA.ADD_TRANSFORM(handle_value, 'DDL', 'UTF-8'); DBMS_METADATA."CLOSE"(handle_value); end;
+/
+-- FUNC-0620 ADD_TRANSFORM full named reordered
+declare handle_value int; transform_value number; begin handle_value:=DBMS_METADATA."OPEN"('TABLE'); transform_value:=DBMS_METADATA.ADD_TRANSFORM(OBJECT_TYPE=>'TABLE', ENCODING=>NULL, NAME=>'DDL', HANDLE=>handle_value); DBMS_METADATA."CLOSE"(handle_value); end;
+/
+-- FUNC-0629 GET_QUERY named lifecycle
+declare handle_value int; query_value varchar(32767); begin handle_value:=DBMS_METADATA."OPEN"('TABLE'); DBMS_METADATA.SET_FILTER(handle_value, 'SCHEMA', 'SYSDBA'); query_value:=DBMS_METADATA.GET_QUERY(HANDLE=>handle_value); DBMS_METADATA."CLOSE"(handle_value); end;
+/
+-- FUNC-0631 SET_COUNT named reordered
+declare handle_value int; begin handle_value:=DBMS_METADATA."OPEN"('TABLE'); DBMS_METADATA.SET_COUNT(VALUE=>1, HANDLE=>handle_value); DBMS_METADATA."CLOSE"(handle_value); end;
+/
+-- FUNC-0632 SET_FILTER minimum required arguments
+declare handle_value int; begin handle_value:=DBMS_METADATA."OPEN"('TABLE'); DBMS_METADATA.SET_FILTER(handle_value, 'SCHEMA', 'SYSDBA'); DBMS_METADATA."CLOSE"(handle_value); end;
+/
+-- FUNC-0632 SET_FILTER full named reordered
+declare handle_value int; begin handle_value:=DBMS_METADATA."OPEN"('TABLE'); DBMS_METADATA.SET_FILTER(OBJECT_TYPE_PATH=>'TABLE', VAL=>'CODEX_DBMS_META_BASE', NAME=>'NAME', HANDLE=>handle_value); DBMS_METADATA."CLOSE"(handle_value); end;
+/
+-- FUNC-0633 SET_PARSE_ITEM minimum required arguments
+declare handle_value int; begin handle_value:=DBMS_METADATA."OPEN"('TABLE'); DBMS_METADATA.SET_PARSE_ITEM(handle_value, 'NAME'); DBMS_METADATA."CLOSE"(handle_value); end;
+/
+-- FUNC-0633 SET_PARSE_ITEM full named reordered
+declare handle_value int; begin handle_value:=DBMS_METADATA."OPEN"('TABLE'); DBMS_METADATA.SET_PARSE_ITEM(OBJECT_TYPE=>'TABLE', NAME=>'SCHEMA', HANDLE=>handle_value); DBMS_METADATA."CLOSE"(handle_value); end;
+/
+-- FUNC-0634 SET_TRANSFORM_PARAM minimum required arguments
+begin DBMS_METADATA.SET_TRANSFORM_PARAM(DBMS_METADATA.SESSION_TRANSFORM, 'STORAGE'); end;
+/
+-- FUNC-0634 SET_TRANSFORM_PARAM through value optional
+begin DBMS_METADATA.SET_TRANSFORM_PARAM(DBMS_METADATA.SESSION_TRANSFORM, 'CONSTRAINTS', false); end;
+/
+-- FUNC-0634 SET_TRANSFORM_PARAM full named reordered
+begin DBMS_METADATA.SET_TRANSFORM_PARAM(OBJECT_TYPE=>'TABLE', VALUE=>false, NAME=>'CONSTRAINTS', TRANSFORM_HANDLE=>DBMS_METADATA.SESSION_TRANSFORM); end;
+/
+-- FUNC-0631 SET_COUNT Pack29 accepts zero
+declare handle_value int; begin handle_value:=DBMS_METADATA."OPEN"('TABLE'); DBMS_METADATA.SET_COUNT(handle_value, 0); DBMS_METADATA."CLOSE"(handle_value); end;
+/
+-- FUNC-0620 ADD_TRANSFORM Pack29 accepts unsupported name as no-op
+declare handle_value int; transform_value number; begin handle_value:=DBMS_METADATA."OPEN"('TABLE'); transform_value:=DBMS_METADATA.ADD_TRANSFORM(handle_value, 'INVALID'); DBMS_METADATA."CLOSE"(handle_value); end;
+/
+------------------------------------------------------------------------------------------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0630 OPEN and FUNC-0622 CLOSE positional
+declare handle_value int; begin handle_value:=DBMS_METADATA."OPEN"('TABLE'); DBMS_METADATA."CLOSE"(handle_value); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0622 CLOSE named argument
+declare handle_value int; begin handle_value:=DBMS_METADATA."OPEN"('TABLE'); DBMS_METADATA."CLOSE"(HANDLE=>handle_value); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0623 CLOSE_ALL zero argument
+declare handle_a int; handle_b int; begin handle_a:=DBMS_METADATA."OPEN"('TABLE'); handle_b:=DBMS_METADATA."OPEN"('VIEW'); DBMS_METADATA.CLOSE_ALL(); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-0621 CHECK_HANDLE zero argument
+begin DBMS_METADATA.CHECK_HANDLE; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0624 FETCH_CLOB positional lifecycle
+declare handle_value int; document_value clob; begin handle_value:=DBMS_METADATA."OPEN"('TABLE'); DBMS_METADATA.SET_FILTER(handle_value, 'SCHEMA', 'SYSDBA'); DBMS_METADATA.SET_FILTER(handle_value, 'NAME', 'CODEX_DBMS_META_BASE'); document_value:=DBMS_METADATA.FETCH_CLOB(handle_value); DBMS_METADATA."CLOSE"(handle_value); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0625 FETCH_DDL named lifecycle
+declare handle_value int; documents_value DBMS_METADATA.KU$_DDLS; begin handle_value:=DBMS_METADATA."OPEN"('TABLE'); DBMS_METADATA.SET_FILTER(handle_value, 'SCHEMA', 'SYSDBA'); DBMS_METADATA.SET_FILTER(handle_value, 'NAME', 'CODEX_DBMS_META_BASE'); DBMS_METADATA.SET_PARSE_ITEM(handle_value, 'NAME'); documents_value:=DBMS_METADATA.FETCH_DDL(HANDLE=>handle_value); DBMS_METADATA."CLOSE"(handle_value); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0620 ADD_TRANSFORM minimum required arguments
+declare handle_value int; transform_value number; begin handle_value:=DBMS_METADATA."OPEN"('TABLE'); transform_value:=DBMS_METADATA.ADD_TRANSFORM(handle_value, 'DDL'); DBMS_METADATA."CLOSE"(handle_value); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0620 ADD_TRANSFORM through encoding optional
+declare handle_value int; transform_value number; begin handle_value:=DBMS_METADATA."OPEN"('TABLE'); transform_value:=DBMS_METADATA.ADD_TRANSFORM(handle_value, 'DDL', 'UTF-8'); DBMS_METADATA."CLOSE"(handle_value); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0620 ADD_TRANSFORM full named reordered
+declare handle_value int; transform_value number; begin handle_value:=DBMS_METADATA."OPEN"('TABLE'); transform_value:=DBMS_METADATA.ADD_TRANSFORM(OBJECT_TYPE=>'TABLE', ENCODING=>NULL, NAME=>'DDL', HANDLE=>handle_value); DBMS_METADATA."CLOSE"(handle_value); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0629 GET_QUERY named lifecycle
+declare handle_value int; query_value varchar(32767); begin handle_value:=DBMS_METADATA."OPEN"('TABLE'); DBMS_METADATA.SET_FILTER(handle_value, 'SCHEMA', 'SYSDBA'); query_value:=DBMS_METADATA.GET_QUERY(HANDLE=>handle_value); DBMS_METADATA."CLOSE"(handle_value); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0631 SET_COUNT named reordered
+declare handle_value int; begin handle_value:=DBMS_METADATA."OPEN"('TABLE'); DBMS_METADATA.SET_COUNT(VALUE=>1, HANDLE=>handle_value); DBMS_METADATA."CLOSE"(handle_value); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0632 SET_FILTER minimum required arguments
+declare handle_value int; begin handle_value:=DBMS_METADATA."OPEN"('TABLE'); DBMS_METADATA.SET_FILTER(handle_value, 'SCHEMA', 'SYSDBA'); DBMS_METADATA."CLOSE"(handle_value); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0632 SET_FILTER full named reordered
+declare handle_value int; begin handle_value:=DBMS_METADATA."OPEN"('TABLE'); DBMS_METADATA.SET_FILTER(OBJECT_TYPE_PATH=>'TABLE', VAL=>'CODEX_DBMS_META_BASE', NAME=>'NAME', HANDLE=>handle_value); DBMS_METADATA."CLOSE"(handle_value); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0633 SET_PARSE_ITEM minimum required arguments
+declare handle_value int; begin handle_value:=DBMS_METADATA."OPEN"('TABLE'); DBMS_METADATA.SET_PARSE_ITEM(handle_value, 'NAME'); DBMS_METADATA."CLOSE"(handle_value); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0633 SET_PARSE_ITEM full named reordered
+declare handle_value int; begin handle_value:=DBMS_METADATA."OPEN"('TABLE'); DBMS_METADATA.SET_PARSE_ITEM(OBJECT_TYPE=>'TABLE', NAME=>'SCHEMA', HANDLE=>handle_value); DBMS_METADATA."CLOSE"(handle_value); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-0634 SET_TRANSFORM_PARAM minimum required arguments
+begin DBMS_METADATA.SET_TRANSFORM_PARAM(DBMS_METADATA.SESSION_TRANSFORM, 'STORAGE'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-0634 SET_TRANSFORM_PARAM through value optional
+begin DBMS_METADATA.SET_TRANSFORM_PARAM(DBMS_METADATA.SESSION_TRANSFORM, 'CONSTRAINTS', false); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-0634 SET_TRANSFORM_PARAM full named reordered
+begin DBMS_METADATA.SET_TRANSFORM_PARAM(OBJECT_TYPE=>'TABLE', VALUE=>false, NAME=>'CONSTRAINTS', TRANSFORM_HANDLE=>DBMS_METADATA.SESSION_TRANSFORM); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0631 SET_COUNT Pack29 accepts zero
+declare handle_value int; begin handle_value:=DBMS_METADATA."OPEN"('TABLE'); DBMS_METADATA.SET_COUNT(handle_value, 0); DBMS_METADATA."CLOSE"(handle_value); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0620 ADD_TRANSFORM Pack29 accepts unsupported name as no-op
+declare handle_value int; transform_value number; begin handle_value:=DBMS_METADATA."OPEN"('TABLE'); transform_value:=DBMS_METADATA.ADD_TRANSFORM(handle_value, 'INVALID'); DBMS_METADATA."CLOSE"(handle_value); end;

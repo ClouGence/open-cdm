@@ -1,0 +1,15 @@
+db.collection.find({});
+db.collection.findOne({});
+db.collection.findOneAndDelete({status: "inactive"});
+db.collection.findOneAndUpdate({name: "john"}, {$set: {age: 30}});
+db.collection.findOneAndReplace({name: "john"}, {name: "john", age: 35});
+------------------------------------------------------------------------------------------
+[SELECT] db.collection.find({})
+----------
+[SELECT] db.collection.findOne({})
+----------
+[DELETE] db.collection.findOneAndDelete({status: "inactive"})
+----------
+[UPDATE] db.collection.findOneAndUpdate({name: "john"}, {$set: {age: 30}})
+----------
+[UPDATE] db.collection.findOneAndReplace({name: "john"}, {name: "john", age: 35})

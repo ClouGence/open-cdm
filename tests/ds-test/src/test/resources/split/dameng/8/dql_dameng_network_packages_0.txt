@@ -1,0 +1,6 @@
+select utl_http.request('http://host.docker.internal:18080/dm8?case=request');
+select utl_tcp.crlf;
+------------------------------------------------------------------------------------------
+[SELECT|CALL_PROG_OBJ] select utl_http.request('http://host.docker.internal:18080/dm8?case=request');
+----------
+[SELECT] select utl_tcp.crlf;

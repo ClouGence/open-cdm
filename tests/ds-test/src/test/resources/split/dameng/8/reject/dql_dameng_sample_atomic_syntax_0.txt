@@ -1,0 +1,9 @@
+select count(*) from app.sample_target sample 10;
+select count(*) from app.sample_target seed(1);
+select count(*) from app.sample_target sample(10) seed(1) seed(2);
+------------------------------------------------------------------------------------------
+[SELECT] select count(*) from app.sample_target sample 10;
+----------
+[SELECT] select count(*) from app.sample_target seed(1);
+----------
+[SELECT] select count(*) from app.sample_target sample(10) seed(1) seed(2);

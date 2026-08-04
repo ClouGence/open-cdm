@@ -1,0 +1,25 @@
+[dbms_space_argument_columns]
+sql:
+select TS_ID, FILE_ID, OFFSET_VALUE, NUM_VALUE, SEG_ID, LINK_TYPE,
+       DIRECTION_VALUE, HEADER_PAGE_NO, HEADER_OFFSET, SEGMENT_OWNER,
+       SEGMENT_NAME, SEGMENT_TYPE, FREELIST_GROUP_ID, SCAN_LIMIT,
+       PARTITION_NAME
+from catalog1.app.dbms_space_payload
+expect:
+{
+  "TS_ID": ["/catalog1/app/dbms_space_payload/TS_ID/"],
+  "FILE_ID": ["/catalog1/app/dbms_space_payload/FILE_ID/"],
+  "OFFSET_VALUE": ["/catalog1/app/dbms_space_payload/OFFSET_VALUE/"],
+  "NUM_VALUE": ["/catalog1/app/dbms_space_payload/NUM_VALUE/"],
+  "SEG_ID": ["/catalog1/app/dbms_space_payload/SEG_ID/"],
+  "LINK_TYPE": ["/catalog1/app/dbms_space_payload/LINK_TYPE/"],
+  "DIRECTION_VALUE": ["/catalog1/app/dbms_space_payload/DIRECTION_VALUE/"],
+  "HEADER_PAGE_NO": ["/catalog1/app/dbms_space_payload/HEADER_PAGE_NO/"],
+  "HEADER_OFFSET": ["/catalog1/app/dbms_space_payload/HEADER_OFFSET/"],
+  "SEGMENT_OWNER": ["/catalog1/app/dbms_space_payload/SEGMENT_OWNER/"],
+  "SEGMENT_NAME": ["/catalog1/app/dbms_space_payload/SEGMENT_NAME/"],
+  "SEGMENT_TYPE": ["/catalog1/app/dbms_space_payload/SEGMENT_TYPE/"],
+  "FREELIST_GROUP_ID": ["/catalog1/app/dbms_space_payload/FREELIST_GROUP_ID/"],
+  "SCAN_LIMIT": ["/catalog1/app/dbms_space_payload/SCAN_LIMIT/"],
+  "PARTITION_NAME": ["/catalog1/app/dbms_space_payload/PARTITION_NAME/"]
+}

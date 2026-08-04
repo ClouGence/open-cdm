@@ -1,0 +1,711 @@
+[split_dql_dameng_flashback_0_behavior_review_001]
+sql:
+select * from flash_target when timestamp sysdate - 3/86400;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:42~1:49) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:14~1:26) /test/1/catalog1/schema1/flash_target/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_flashback_0_behavior_review_002]
+sql:
+select * from flash_target as of timestamp sysdate - 3/86400;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:43~1:50) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:14~1:26) /test/1/catalog1/schema1/flash_target/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_flashback_0_behavior_review_003]
+sql:
+select id, name from flash_target as of timestamp sysdate - 3/86400;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:50~1:57) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:21~1:33) /test/1/catalog1/schema1/flash_target/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_flashback_0_behavior_review_004]
+sql:
+select id, amount from flash_target as of timestamp sysdate - 3/86400 where id = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:52~1:59) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:23~1:35) /test/1/catalog1/schema1/flash_target/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_flashback_0_behavior_review_005]
+sql:
+select f.id, f.name from flash_target as of timestamp sysdate - 3/86400 f;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:54~1:61) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:25~1:37) /test/1/catalog1/schema1/flash_target/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_flashback_0_behavior_review_006]
+sql:
+select f.id, f.amount from flash_target when timestamp sysdate - 3/86400 as f where f.amount < 100;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:55~1:62) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:27~1:39) /test/1/catalog1/schema1/flash_target/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_flashback_0_behavior_review_007]
+sql:
+select count(*) from flash_target as of timestamp sysdate - 3/86400;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:50~1:57) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:21~1:33) /test/1/catalog1/schema1/flash_target/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_flashback_0_behavior_review_008]
+sql:
+select sum(amount), min(amount), max(amount) from flash_target as of timestamp sysdate - 3/86400;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/sum/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:20~1:23) /test/1/catalog1/schema1/min/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:33~1:36) /test/1/catalog1/schema1/max/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:79~1:86) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:50~1:62) /test/1/catalog1/schema1/flash_target/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_flashback_0_behavior_review_009]
+sql:
+select id, name from flash_target as of timestamp sysdate - 3/86400 order by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:50~1:57) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:21~1:33) /test/1/catalog1/schema1/flash_target/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_flashback_0_behavior_review_010]
+sql:
+select id, name from flash_target as of timestamp sysdate - 3/86400 limit 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:50~1:57) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:21~1:33) /test/1/catalog1/schema1/flash_target/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_flashback_0_behavior_review_011]
+sql:
+select f.id, o.label from flash_target as of timestamp sysdate - 3/86400 f join flash_other o on f.id = o.id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:55~1:62) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:26~1:38) /test/1/catalog1/schema1/flash_target/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(1:80~1:91) /test/1/catalog1/schema1/flash_other/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_flashback_0_behavior_review_012]
+sql:
+select f.id, o.label from flash_target f join flash_other as of timestamp sysdate - 3/86400 o on f.id = o.id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:74~1:81) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:26~1:38) /test/1/catalog1/schema1/flash_target/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(1:46~1:57) /test/1/catalog1/schema1/flash_other/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_flashback_0_behavior_review_013]
+sql:
+select f.id, o.label from flash_target as of timestamp sysdate - 3/86400 f join flash_other as of timestamp sysdate - 3/86400 o on f.id = o.id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:55~1:62) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:108~1:115) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:26~1:38) /test/1/catalog1/schema1/flash_target/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(1:80~1:91) /test/1/catalog1/schema1/flash_other/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_flashback_0_behavior_review_014]
+sql:
+select * from (select id, name from flash_target as of timestamp sysdate - 3/86400) x;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:65~1:72) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:36~1:48) /test/1/catalog1/schema1/flash_target/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_flashback_0_behavior_review_015]
+sql:
+select id from flash_target as of timestamp sysdate - 3/86400 where exists(select 1 from flash_other where flash_other.id = flash_target.id);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:44~1:51) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:15~1:27) /test/1/catalog1/schema1/flash_target/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(1:89~1:100) /test/1/catalog1/schema1/flash_other/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_flashback_0_behavior_review_016]
+sql:
+select id from flash_target as of timestamp sysdate - 3/86400 where id in(select id from flash_other);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:44~1:51) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:15~1:27) /test/1/catalog1/schema1/flash_target/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(1:89~1:100) /test/1/catalog1/schema1/flash_other/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_flashback_0_behavior_review_017]
+sql:
+select * from flash_target versions between timestamp sysdate - 3/86400 and sysdate;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:54~1:61) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:76~1:83) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:14~1:26) /test/1/catalog1/schema1/flash_target/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_flashback_0_behavior_review_018]
+sql:
+select versions_startscn, versions_endscn, id, amount from flash_target versions between timestamp sysdate - 3/86400 and sysdate;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:99~1:106) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:121~1:128) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:59~1:71) /test/1/catalog1/schema1/flash_target/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_flashback_0_behavior_review_019]
+sql:
+select versions_starttime, versions_endtime, versions_operation, id from flash_target versions between timestamp sysdate - 3/86400 and sysdate;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:113~1:120) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:135~1:142) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:73~1:85) /test/1/catalog1/schema1/flash_target/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_flashback_0_behavior_review_020]
+sql:
+select id, name from flash_target versions between timestamp sysdate - 3/86400 and sysdate where id = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:61~1:68) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:83~1:90) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:21~1:33) /test/1/catalog1/schema1/flash_target/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_flashback_0_behavior_review_021]
+sql:
+select id, count(*) from flash_target versions between timestamp sysdate - 3/86400 and sysdate group by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:11~1:16) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:65~1:72) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:87~1:94) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:25~1:37) /test/1/catalog1/schema1/flash_target/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_flashback_0_behavior_review_022]
+sql:
+select f.id, f.versions_operation from flash_target versions between timestamp sysdate - 3/86400 and sysdate f;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:79~1:86) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:101~1:108) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:39~1:51) /test/1/catalog1/schema1/flash_target/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_flashback_0_behavior_review_023]
+sql:
+select * from v$flashback_trx_info where commit_timestamp > sysdate - 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:60~1:67) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:14~1:34) /test/1/catalog1/schema1/v$flashback_trx_info/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_flashback_0_behavior_review_024]
+sql:
+select start_trxid, commit_trxid, commit_timestamp, login_user, commit_lsn from v$flashback_trx_info where commit_timestamp > sysdate - 1 order by commit_timestamp;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:126~1:133) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:80~1:100) /test/1/catalog1/schema1/v$flashback_trx_info/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_flashback_0_behavior_review_025]
+sql:
+with old_rows as (select id, name, amount from flash_target as of timestamp sysdate - 3/86400) select * from old_rows order by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:76~1:83) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:47~1:59) /test/1/catalog1/schema1/flash_target/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_flashback_0_behavior_review_026]
+sql:
+select id, name from flash_target as of timestamp sysdate - 3/86400 union all select id, name from flash_target as of timestamp sysdate - 3/86400;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:50~1:57) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:128~1:135) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:21~1:33) /test/1/catalog1/schema1/flash_target/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(1:99~1:111) /test/1/catalog1/schema1/flash_target/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_flashback_0_behavior_review_027]
+sql:
+select (select max(amount) from flash_target as of timestamp sysdate - 3/86400) as old_max from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:15~1:18) /test/1/catalog1/schema1/max/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:61~1:68) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:32~1:44) /test/1/catalog1/schema1/flash_target/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:96~1:100) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_flashback_0_behavior_review_028]
+sql:
+select f.id from flash_target as of timestamp sysdate - 3/86400 f where exists(select 1 from flash_target as of timestamp sysdate - 3/86400 o where o.id = f.id);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:46~1:53) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:122~1:129) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:17~1:29) /test/1/catalog1/schema1/flash_target/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(1:93~1:105) /test/1/catalog1/schema1/flash_target/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_flashback_0_behavior_review_029]
+sql:
+select f.id, o.name from flash_target as of timestamp sysdate - 3/86400 f cross join flash_target as of timestamp sysdate - 3/86400 o where f.id = o.id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:54~1:61) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:114~1:121) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:25~1:37) /test/1/catalog1/schema1/flash_target/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(1:85~1:97) /test/1/catalog1/schema1/flash_target/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_flashback_0_behavior_review_030]
+sql:
+select id, name from flash_target as of timestamp cast(sysdate - 3/86400 as datetime);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:55~1:62) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:21~1:33) /test/1/catalog1/schema1/flash_target/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_flashback_0_behavior_review_031]
+sql:
+select versions_startscn, versions_endscn, versions_operation, id from flash_target versions between timestamp sysdate - 3/86400 and sysdate order by versions_startscn;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:111~1:118) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:133~1:140) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:71~1:83) /test/1/catalog1/schema1/flash_target/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_flashback_0_behavior_review_032]
+sql:
+select start_timestamp, commit_timestamp, operation, table_name, table_owner, undo_sql from v$flashback_trx_info where commit_timestamp > sysdate - 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:138~1:145) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:92~1:112) /test/1/catalog1/schema1/v$flashback_trx_info/",
+      "action": "READ"
+    }
+  ]
+}

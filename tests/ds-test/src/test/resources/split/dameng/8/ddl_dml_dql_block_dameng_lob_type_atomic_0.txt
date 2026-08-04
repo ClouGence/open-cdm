@@ -1,0 +1,485 @@
+create table app.lob_t(
+  id int primary key,c_text text,c_long long,c_longvarchar longvarchar,
+  c_image image,c_longvarbinary longvarbinary,c_blob blob,c_clob clob,
+  c_text_def text default 'TEXT_DEFAULT',c_blob_def blob default 0x0102,
+  c_clob_def clob default 'CLOB_DEFAULT');
+comment on column app.lob_t.c_text is 'text value';
+comment on column app.lob_t.c_image is 'image value';
+comment on column app.lob_t.c_blob is 'binary large object';
+comment on column app.lob_t.c_clob is 'character large object';
+alter table app.lob_t add c_alter clob default 'ALTER_DEFAULT';
+insert into app.lob_t(id,c_text,c_long,c_longvarchar,c_image,
+  c_longvarbinary,c_blob,c_clob) values(1,'ABCD','LONG','LONGVARCHAR',
+  0x61626364,0x00010203,to_blob(0x0FFFEE),'达梦CLOB');
+insert into app.lob_t(id,c_text,c_long,c_longvarchar,c_image,
+  c_longvarbinary,c_blob,c_clob) values(2,'','',null,0x00,0x00,null,'');
+insert into app.lob_t(id,c_longvarchar,c_clob) values(3,'TEXT','TEXT');
+update app.lob_t set c_text=c_text||'-UPDATE',
+  c_clob=c_clob||'-UPDATE',c_blob=to_blob(0x01020304) where id=1;
+select * from app.lob_t order by id;
+select data_type,data_length,data_precision,data_scale
+  from user_tab_columns where table_name='LOB_T' order by column_id;
+select id,length(c_text),length(c_long),length(c_longvarchar),
+  lengthb(c_image),lengthb(c_longvarbinary),lengthb(c_blob),length(c_clob)
+  from app.lob_t order by id;
+select text_equal(c_text,c_clob),blob_equal(c_image,c_blob) from app.lob_t where id=1;
+select dbms_lob.getlength(c_text),dbms_lob.getlength(c_image),
+  dbms_lob.getlength(c_blob),dbms_lob.getlength(c_clob) from app.lob_t where id=1;
+select dbms_lob.substr(c_text,4,1),dbms_lob.substr(c_clob,4,1),
+  dbms_lob.substr(c_image,4,1),dbms_lob.substr(c_blob,4,1)
+  from app.lob_t where id=1;
+select to_char(c_text),to_char(c_clob),to_blob(c_image),to_blob(c_blob)
+  from app.lob_t where id=1;
+select case when c_text='ABCD-UPDATE' then 1 else 0 end,
+  case when c_clob='达梦CLOB-UPDATE' then 1 else 0 end from app.lob_t where id=1;
+select c_text from app.lob_t where c_text=(select c_clob from app.lob_t where id=3);
+select c_text,count(*) from app.lob_t group by c_text;
+select c_clob from app.lob_t order by c_clob;
+select distinct c_blob from app.lob_t;
+select min(c_text),max(c_clob),min(c_blob) from app.lob_t;
+create view app.lob_v as select id,c_text,c_image,c_blob,c_clob
+  from app.lob_t where id>=1;
+select id,length(c_text),lengthb(c_blob),length(c_clob) from app.lob_v order by id;
+update app.lob_v set c_clob='VIEW_UPDATE' where id=3;
+create function app.lob_text_f(p text) return text
+as begin return p;end;
+/
+create function app.lob_long_f(p long) return long
+as begin return p;end;
+/
+create function app.lob_longvarchar_f(p longvarchar) return longvarchar
+as begin return p;end;
+/
+create function app.lob_image_f(p image) return image
+as begin return p;end;
+/
+create function app.lob_longvarbinary_f(p longvarbinary) return longvarbinary
+as begin return p;end;
+/
+create function app.lob_blob_f(p blob) return blob
+as begin return p;end;
+/
+create function app.lob_clob_f(p clob) return clob
+as begin return p;end;
+/
+select length(app.lob_text_f('TEXT')),length(app.lob_long_f('LONG')),
+  length(app.lob_longvarchar_f('LONGVARCHAR')),lengthb(app.lob_image_f(0x0102)),
+  lengthb(app.lob_longvarbinary_f(0x0102)),lengthb(app.lob_blob_f(to_blob(0x0102))),
+  length(app.lob_clob_f(cast('CLOB' as clob))) from dual;
+create table app.lob_text_p1(c text(1));
+insert into app.lob_text_p1 values('TEXT');
+create table app.lob_text_pmax(c text(2147483647));
+create table app.lob_text_p0(c text(0));
+create table app.lob_text_pnext(c text(2147483648));
+create index app.idx_lob_text on app.lob_t(c_text);
+create table app.lob_text_part(c text,v int)
+  partition by range(c)(partition p0 values less than('M'),
+  partition p1 values less than(maxvalue));
+create table app.lob_long_p1(c long(1));
+insert into app.lob_long_p1 values('LONG');
+create table app.lob_long_pmax(c long(2147483647));
+create table app.lob_long_p0(c long(0));
+create table app.lob_long_pnext(c long(2147483648));
+create index app.idx_lob_long on app.lob_t(c_long);
+create table app.lob_long_part(c long,v int)
+  partition by range(c)(partition p0 values less than('M'),
+  partition p1 values less than(maxvalue));
+create table app.lob_longvarchar_p1(c longvarchar(1));
+insert into app.lob_longvarchar_p1 values('LONGVARCHAR');
+create table app.lob_longvarchar_pmax(c longvarchar(2147483647));
+create table app.lob_longvarchar_p0(c longvarchar(0));
+create table app.lob_longvarchar_pnext(c longvarchar(2147483648));
+create index app.idx_lob_longvarchar on app.lob_t(c_longvarchar);
+create table app.lob_longvarchar_part(c longvarchar,v int)
+  partition by range(c)(partition p0 values less than('M'),
+  partition p1 values less than(maxvalue));
+create table app.lob_image_p1(c image(1));
+insert into app.lob_image_p1 values(0x0102);
+create table app.lob_image_pmax(c image(2147483647));
+create table app.lob_image_p0(c image(0));
+create table app.lob_image_pnext(c image(2147483648));
+create index app.idx_lob_image on app.lob_t(c_image);
+create table app.lob_image_part(c image,v int)
+  partition by range(c)(partition p0 values less than('M'),
+  partition p1 values less than(maxvalue));
+create table app.lob_longvarbinary_p1(c longvarbinary(1));
+insert into app.lob_longvarbinary_p1 values(0x0102);
+create table app.lob_longvarbinary_pmax(c longvarbinary(2147483647));
+create table app.lob_longvarbinary_p0(c longvarbinary(0));
+create table app.lob_longvarbinary_pnext(c longvarbinary(2147483648));
+create index app.idx_lob_longvarbinary on app.lob_t(c_longvarbinary);
+create table app.lob_longvarbinary_part(c longvarbinary,v int)
+  partition by range(c)(partition p0 values less than('M'),
+  partition p1 values less than(maxvalue));
+create table app.lob_blob_p1(c blob(1));
+insert into app.lob_blob_p1 values(to_blob(0x0102));
+create table app.lob_blob_pmax(c blob(2147483647));
+create table app.lob_blob_p0(c blob(0));
+create table app.lob_blob_pnext(c blob(2147483648));
+create index app.idx_lob_blob on app.lob_t(c_blob);
+create table app.lob_blob_part(c blob,v int)
+  partition by range(c)(partition p0 values less than('M'),
+  partition p1 values less than(maxvalue));
+create table app.lob_clob_p1(c clob(1));
+insert into app.lob_clob_p1 values(cast('CLOB' as clob));
+create table app.lob_clob_pmax(c clob(2147483647));
+create table app.lob_clob_p0(c clob(0));
+create table app.lob_clob_pnext(c clob(2147483648));
+create index app.idx_lob_clob on app.lob_t(c_clob);
+create table app.lob_clob_part(c clob,v int)
+  partition by range(c)(partition p0 values less than('M'),
+  partition p1 values less than(maxvalue));
+create table app.lob_check(c text check(c is not null));
+insert into app.lob_check values(null);
+insert into app.lob_check values('CHECK_OK');
+create table app.lob_unique(c clob unique);
+create table app.lob_pk(c blob primary key);
+alter table app.lob_t modify c_text clob;
+alter table app.lob_t modify c_clob text;
+alter table app.lob_t modify c_blob image;
+alter table app.lob_t modify c_image blob;
+alter table app.lob_t modify c_text varchar(100);
+create directory lob_dir as '/opt/dmdbms/data/DAMENG';
+create table app.lob_bfile_t(id int primary key,c bfile);
+comment on column app.lob_bfile_t.c is 'external read only file';
+insert into app.lob_bfile_t values(
+  1,bfilename('LOB_DIR','codex_lob_bfile.bin'));
+select id,dbms_lob.fileexists(c),dbms_lob.getlength(c) from app.lob_bfile_t;
+select dbms_lob.fileexists(bfilename('LOB_DIR','missing.bin')) from dual;
+declare f bfile;d varchar(128);n varchar(256);begin
+  select c into f from app.lob_bfile_t where id=1;
+  dbms_lob.filegetname(f,d,n);dbms_lob.fileopen(f,dbms_lob.file_readonly);
+  dbms_lob.fileclose(f);end;
+/
+create function app.lob_bfile_f(p bfile) return bfile
+as begin return p;end;
+/
+select dbms_lob.fileexists(app.lob_bfile_f(
+  bfilename('LOB_DIR','codex_lob_bfile.bin'))) from dual;
+create table app.lob_bad_bfile(c bfile(1));
+create index app.idx_lob_bfile on app.lob_bfile_t(c);
+create table app.lob_bfile_part(c bfile,v int)
+  partition by range(c)(partition p0 values less than('M'),
+  partition p1 values less than(maxvalue));
+insert into app.lob_bfile_t values(2,'codex_lob_bfile.bin');
+alter table app.lob_bfile_t modify c blob;
+drop function app.lob_text_f;
+drop function app.lob_long_f;
+drop function app.lob_longvarchar_f;
+drop function app.lob_image_f;
+drop function app.lob_longvarbinary_f;
+drop function app.lob_blob_f;
+drop function app.lob_clob_f;
+drop function app.lob_bfile_f;
+drop view app.lob_v;
+drop table app.lob_bfile_t;
+drop directory lob_dir;
+drop table app.lob_t;
+create table app.bad_lob_text_pair(c text(1,2));
+create table app.bad_lob_long_pair(c long(1,2));
+create table app.bad_lob_longvarchar_pair(c longvarchar(1,2));
+create table app.bad_lob_image_pair(c image(1,2));
+create table app.bad_lob_longvarbinary_pair(c longvarbinary(1,2));
+create table app.bad_lob_blob_pair(c blob(1,2));
+create table app.bad_lob_clob_pair(c clob(1,2));
+------------------------------------------------------------------------------------------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table app.lob_t(
+  id int primary key,c_text text,c_long long,c_longvarchar longvarchar,
+  c_image image,c_longvarbinary longvarbinary,c_blob blob,c_clob clob,
+  c_text_def text default 'TEXT_DEFAULT',c_blob_def blob default 0x0102,
+  c_clob_def clob default 'CLOB_DEFAULT');
+----------
+[COMMENT_COLUMN] comment on column app.lob_t.c_text is 'text value';
+----------
+[COMMENT_COLUMN] comment on column app.lob_t.c_image is 'image value';
+----------
+[COMMENT_COLUMN] comment on column app.lob_t.c_blob is 'binary large object';
+----------
+[COMMENT_COLUMN] comment on column app.lob_t.c_clob is 'character large object';
+----------
+[ALTER_TABLE|ADD_COLUMN] alter table app.lob_t add c_alter clob default 'ALTER_DEFAULT';
+----------
+[INSERT] insert into app.lob_t(id,c_text,c_long,c_longvarchar,c_image,
+  c_longvarbinary,c_blob,c_clob) values(1,'ABCD','LONG','LONGVARCHAR',
+  0x61626364,0x00010203,to_blob(0x0FFFEE),'达梦CLOB');
+----------
+[INSERT] insert into app.lob_t(id,c_text,c_long,c_longvarchar,c_image,
+  c_longvarbinary,c_blob,c_clob) values(2,'','',null,0x00,0x00,null,'');
+----------
+[INSERT] insert into app.lob_t(id,c_longvarchar,c_clob) values(3,'TEXT','TEXT');
+----------
+[UPDATE] update app.lob_t set c_text=c_text||'-UPDATE',
+  c_clob=c_clob||'-UPDATE',c_blob=to_blob(0x01020304) where id=1;
+----------
+[SELECT] select * from app.lob_t order by id;
+----------
+[SELECT] select data_type,data_length,data_precision,data_scale
+  from user_tab_columns where table_name='LOB_T' order by column_id;
+----------
+[SELECT] select id,length(c_text),length(c_long),length(c_longvarchar),
+  lengthb(c_image),lengthb(c_longvarbinary),lengthb(c_blob),length(c_clob)
+  from app.lob_t order by id;
+----------
+[SELECT] select text_equal(c_text,c_clob),blob_equal(c_image,c_blob) from app.lob_t where id=1;
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_lob.getlength(c_text),dbms_lob.getlength(c_image),
+  dbms_lob.getlength(c_blob),dbms_lob.getlength(c_clob) from app.lob_t where id=1;
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_lob.substr(c_text,4,1),dbms_lob.substr(c_clob,4,1),
+  dbms_lob.substr(c_image,4,1),dbms_lob.substr(c_blob,4,1)
+  from app.lob_t where id=1;
+----------
+[SELECT] select to_char(c_text),to_char(c_clob),to_blob(c_image),to_blob(c_blob)
+  from app.lob_t where id=1;
+----------
+[SELECT] select case when c_text='ABCD-UPDATE' then 1 else 0 end,
+  case when c_clob='达梦CLOB-UPDATE' then 1 else 0 end from app.lob_t where id=1;
+----------
+[SELECT] select c_text from app.lob_t where c_text=(select c_clob from app.lob_t where id=3);
+----------
+[SELECT] select c_text,count(*) from app.lob_t group by c_text;
+----------
+[SELECT] select c_clob from app.lob_t order by c_clob;
+----------
+[SELECT] select distinct c_blob from app.lob_t;
+----------
+[SELECT] select min(c_text),max(c_clob),min(c_blob) from app.lob_t;
+----------
+[CREATE_VIEW(SELECT)] create view app.lob_v as select id,c_text,c_image,c_blob,c_clob
+  from app.lob_t where id>=1;
+----------
+[SELECT] select id,length(c_text),lengthb(c_blob),length(c_clob) from app.lob_v order by id;
+----------
+[UPDATE] update app.lob_v set c_clob='VIEW_UPDATE' where id=3;
+----------
+[CREATE_PROG_OBJ(BLOCK,PROGRAM_CONTROL)] create function app.lob_text_f(p text) return text
+as begin return p;end;
+----------
+[CREATE_PROG_OBJ(BLOCK,PROGRAM_CONTROL)] create function app.lob_long_f(p long) return long
+as begin return p;end;
+----------
+[CREATE_PROG_OBJ(BLOCK,PROGRAM_CONTROL)] create function app.lob_longvarchar_f(p longvarchar) return longvarchar
+as begin return p;end;
+----------
+[CREATE_PROG_OBJ(BLOCK,PROGRAM_CONTROL)] create function app.lob_image_f(p image) return image
+as begin return p;end;
+----------
+[CREATE_PROG_OBJ(BLOCK,PROGRAM_CONTROL)] create function app.lob_longvarbinary_f(p longvarbinary) return longvarbinary
+as begin return p;end;
+----------
+[CREATE_PROG_OBJ(BLOCK,PROGRAM_CONTROL)] create function app.lob_blob_f(p blob) return blob
+as begin return p;end;
+----------
+[CREATE_PROG_OBJ(BLOCK,PROGRAM_CONTROL)] create function app.lob_clob_f(p clob) return clob
+as begin return p;end;
+----------
+[SELECT|CALL_PROG_OBJ] select length(app.lob_text_f('TEXT')),length(app.lob_long_f('LONG')),
+  length(app.lob_longvarchar_f('LONGVARCHAR')),lengthb(app.lob_image_f(0x0102)),
+  lengthb(app.lob_longvarbinary_f(0x0102)),lengthb(app.lob_blob_f(to_blob(0x0102))),
+  length(app.lob_clob_f(cast('CLOB' as clob))) from dual;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.lob_text_p1(c text(1));
+----------
+[INSERT] insert into app.lob_text_p1 values('TEXT');
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.lob_text_pmax(c text(2147483647));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.lob_text_p0(c text(0));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.lob_text_pnext(c text(2147483648));
+----------
+[ADD_INDEX] create index app.idx_lob_text on app.lob_t(c_text);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.lob_text_part(c text,v int)
+  partition by range(c)(partition p0 values less than('M'),
+  partition p1 values less than(maxvalue));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.lob_long_p1(c long(1));
+----------
+[INSERT] insert into app.lob_long_p1 values('LONG');
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.lob_long_pmax(c long(2147483647));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.lob_long_p0(c long(0));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.lob_long_pnext(c long(2147483648));
+----------
+[ADD_INDEX] create index app.idx_lob_long on app.lob_t(c_long);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.lob_long_part(c long,v int)
+  partition by range(c)(partition p0 values less than('M'),
+  partition p1 values less than(maxvalue));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.lob_longvarchar_p1(c longvarchar(1));
+----------
+[INSERT] insert into app.lob_longvarchar_p1 values('LONGVARCHAR');
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.lob_longvarchar_pmax(c longvarchar(2147483647));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.lob_longvarchar_p0(c longvarchar(0));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.lob_longvarchar_pnext(c longvarchar(2147483648));
+----------
+[ADD_INDEX] create index app.idx_lob_longvarchar on app.lob_t(c_longvarchar);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.lob_longvarchar_part(c longvarchar,v int)
+  partition by range(c)(partition p0 values less than('M'),
+  partition p1 values less than(maxvalue));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.lob_image_p1(c image(1));
+----------
+[INSERT] insert into app.lob_image_p1 values(0x0102);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.lob_image_pmax(c image(2147483647));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.lob_image_p0(c image(0));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.lob_image_pnext(c image(2147483648));
+----------
+[ADD_INDEX] create index app.idx_lob_image on app.lob_t(c_image);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.lob_image_part(c image,v int)
+  partition by range(c)(partition p0 values less than('M'),
+  partition p1 values less than(maxvalue));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.lob_longvarbinary_p1(c longvarbinary(1));
+----------
+[INSERT] insert into app.lob_longvarbinary_p1 values(0x0102);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.lob_longvarbinary_pmax(c longvarbinary(2147483647));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.lob_longvarbinary_p0(c longvarbinary(0));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.lob_longvarbinary_pnext(c longvarbinary(2147483648));
+----------
+[ADD_INDEX] create index app.idx_lob_longvarbinary on app.lob_t(c_longvarbinary);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.lob_longvarbinary_part(c longvarbinary,v int)
+  partition by range(c)(partition p0 values less than('M'),
+  partition p1 values less than(maxvalue));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.lob_blob_p1(c blob(1));
+----------
+[INSERT] insert into app.lob_blob_p1 values(to_blob(0x0102));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.lob_blob_pmax(c blob(2147483647));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.lob_blob_p0(c blob(0));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.lob_blob_pnext(c blob(2147483648));
+----------
+[ADD_INDEX] create index app.idx_lob_blob on app.lob_t(c_blob);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.lob_blob_part(c blob,v int)
+  partition by range(c)(partition p0 values less than('M'),
+  partition p1 values less than(maxvalue));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.lob_clob_p1(c clob(1));
+----------
+[INSERT] insert into app.lob_clob_p1 values(cast('CLOB' as clob));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.lob_clob_pmax(c clob(2147483647));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.lob_clob_p0(c clob(0));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.lob_clob_pnext(c clob(2147483648));
+----------
+[ADD_INDEX] create index app.idx_lob_clob on app.lob_t(c_clob);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.lob_clob_part(c clob,v int)
+  partition by range(c)(partition p0 values less than('M'),
+  partition p1 values less than(maxvalue));
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table app.lob_check(c text check(c is not null));
+----------
+[INSERT] insert into app.lob_check values(null);
+----------
+[INSERT] insert into app.lob_check values('CHECK_OK');
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table app.lob_unique(c clob unique);
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table app.lob_pk(c blob primary key);
+----------
+[ALTER_TABLE|ALTER_COLUMN] alter table app.lob_t modify c_text clob;
+----------
+[ALTER_TABLE|ALTER_COLUMN] alter table app.lob_t modify c_clob text;
+----------
+[ALTER_TABLE|ALTER_COLUMN] alter table app.lob_t modify c_blob image;
+----------
+[ALTER_TABLE|ALTER_COLUMN] alter table app.lob_t modify c_image blob;
+----------
+[ALTER_TABLE|ALTER_COLUMN] alter table app.lob_t modify c_text varchar(100);
+----------
+[SYSTEM_SETTING_WRITE] create directory lob_dir as '/opt/dmdbms/data/DAMENG';
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table app.lob_bfile_t(id int primary key,c bfile);
+----------
+[COMMENT_COLUMN] comment on column app.lob_bfile_t.c is 'external read only file';
+----------
+[INSERT|CALL_PROG_OBJ] insert into app.lob_bfile_t values(
+  1,bfilename('LOB_DIR','codex_lob_bfile.bin'));
+----------
+[SELECT|CALL_PROG_OBJ] select id,dbms_lob.fileexists(c),dbms_lob.getlength(c) from app.lob_bfile_t;
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_lob.fileexists(bfilename('LOB_DIR','missing.bin')) from dual;
+----------
+[BLOCK(PROGRAM_CONTROL,SELECT,CALL_PROG_OBJ)] declare f bfile;d varchar(128);n varchar(256);begin
+  select c into f from app.lob_bfile_t where id=1;
+  dbms_lob.filegetname(f,d,n);dbms_lob.fileopen(f,dbms_lob.file_readonly);
+  dbms_lob.fileclose(f);end;
+----------
+[CREATE_PROG_OBJ(BLOCK,PROGRAM_CONTROL)] create function app.lob_bfile_f(p bfile) return bfile
+as begin return p;end;
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_lob.fileexists(app.lob_bfile_f(
+  bfilename('LOB_DIR','codex_lob_bfile.bin'))) from dual;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.lob_bad_bfile(c bfile(1));
+----------
+[ADD_INDEX] create index app.idx_lob_bfile on app.lob_bfile_t(c);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.lob_bfile_part(c bfile,v int)
+  partition by range(c)(partition p0 values less than('M'),
+  partition p1 values less than(maxvalue));
+----------
+[INSERT] insert into app.lob_bfile_t values(2,'codex_lob_bfile.bin');
+----------
+[ALTER_TABLE|ALTER_COLUMN] alter table app.lob_bfile_t modify c blob;
+----------
+[DROP_PROG_OBJ] drop function app.lob_text_f;
+----------
+[DROP_PROG_OBJ] drop function app.lob_long_f;
+----------
+[DROP_PROG_OBJ] drop function app.lob_longvarchar_f;
+----------
+[DROP_PROG_OBJ] drop function app.lob_image_f;
+----------
+[DROP_PROG_OBJ] drop function app.lob_longvarbinary_f;
+----------
+[DROP_PROG_OBJ] drop function app.lob_blob_f;
+----------
+[DROP_PROG_OBJ] drop function app.lob_clob_f;
+----------
+[DROP_PROG_OBJ] drop function app.lob_bfile_f;
+----------
+[DROP_VIEW] drop view app.lob_v;
+----------
+[DROP_TABLE] drop table app.lob_bfile_t;
+----------
+[SYSTEM_SETTING_WRITE] drop directory lob_dir;
+----------
+[DROP_TABLE] drop table app.lob_t;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.bad_lob_text_pair(c text(1,2));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.bad_lob_long_pair(c long(1,2));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.bad_lob_longvarchar_pair(c longvarchar(1,2));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.bad_lob_image_pair(c image(1,2));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.bad_lob_longvarbinary_pair(c longvarbinary(1,2));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.bad_lob_blob_pair(c blob(1,2));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.bad_lob_clob_pair(c clob(1,2));

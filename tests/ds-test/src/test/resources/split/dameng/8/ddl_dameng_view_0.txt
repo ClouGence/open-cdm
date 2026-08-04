@@ -1,0 +1,466 @@
+drop schema if exists CODEX_DM8_VIEW_20260721 cascade;
+create schema CODEX_DM8_VIEW_20260721 authorization SYSDBA;
+/
+set schema CODEX_DM8_VIEW_20260721;
+create table VIEW_BASE(ID int primary key, NAME varchar(40), AMOUNT decimal(10,2), STATUS varchar(8), DEPT_ID int);
+create table VIEW_DEPT(ID int primary key, DEPT_NAME varchar(40));
+create table VIEW_AUDIT(ID int, ACTION_NAME varchar(40));
+insert into VIEW_BASE values(1, 'ALPHA', 10, 'A', 10);
+insert into VIEW_BASE values(2, 'BETA', 20, 'B', 20);
+insert into VIEW_BASE values(3, 'GAMMA', 30, 'A', 10);
+insert into VIEW_DEPT values(10, 'SALES');
+insert into VIEW_DEPT values(20, 'DEV');
+commit;
+create view V_BASIC as select ID, NAME from VIEW_BASE;
+select ID, NAME from V_BASIC order by ID;
+create view CODEX_DM8_VIEW_20260721.V_QUALIFIED as select ID, AMOUNT from CODEX_DM8_VIEW_20260721.VIEW_BASE;
+select count(*) from CODEX_DM8_VIEW_20260721.V_QUALIFIED;
+create view "V_Quoted" as select ID, NAME from VIEW_BASE;
+select ID from "V_Quoted" where ID = 1;
+create view V_COLUMNS(VIEW_ID, VIEW_NAME) as select ID, NAME from VIEW_BASE;
+select VIEW_ID, VIEW_NAME from V_COLUMNS order by VIEW_ID;
+create view V_EXPRESSION(ID, DOUBLE_AMOUNT) as select ID, AMOUNT * 2 from VIEW_BASE;
+select ID, DOUBLE_AMOUNT from V_EXPRESSION where DOUBLE_AMOUNT >= 40;
+create or replace view V_BASIC as select ID, NAME, STATUS from VIEW_BASE;
+select STATUS from V_BASIC where ID = 1;
+create view if not exists V_BASIC as select ID from VIEW_BASE;
+create or replace view if not exists V_BASIC as select ID, NAME, AMOUNT from VIEW_BASE;
+select AMOUNT from V_BASIC where ID = 2;
+create force view V_FORCE_VALID as select ID, NAME from VIEW_BASE;
+alter view V_FORCE_VALID compile;
+create force view V_FORCE_MISSING as select ID from VIEW_NOT_CREATED;
+select VALID from SYSOBJECTS where NAME = 'V_FORCE_MISSING';
+drop view V_FORCE_MISSING;
+create or replace force view if not exists V_FORCE_COMBINED as select ID, NAME from VIEW_BASE;
+select count(*) from V_FORCE_COMBINED;
+create view V_CHECK_DEFAULT as select ID, NAME, AMOUNT, STATUS, DEPT_ID from VIEW_BASE where STATUS = 'A' with check option;
+create view V_CHECK_LOCAL as select ID, NAME, AMOUNT, STATUS, DEPT_ID from VIEW_BASE where AMOUNT >= 10 with local check option;
+create view V_CHECK_CASCADED as select ID, NAME, AMOUNT, STATUS, DEPT_ID from V_CHECK_DEFAULT where AMOUNT <= 100 with cascaded check option;
+create view V_READ_ONLY as select ID, NAME from VIEW_BASE with read only;
+select count(*) from V_CHECK_DEFAULT;
+select count(*) from V_CHECK_LOCAL;
+select count(*) from V_CHECK_CASCADED;
+select count(*) from V_READ_ONLY;
+create view V_FILTER as select ID, NAME, AMOUNT from VIEW_BASE where STATUS = 'A';
+create view V_DISTINCT as select distinct STATUS from VIEW_BASE;
+create view V_GROUPED(STATUS, ITEM_COUNT, TOTAL_AMOUNT) as select STATUS, count(*), sum(AMOUNT) from VIEW_BASE group by STATUS;
+create view V_GROUP_HAVING(STATUS, ITEM_COUNT) as select STATUS, count(*) from VIEW_BASE group by STATUS having count(*) >= 1;
+create view V_ORDERED as select ID, NAME, AMOUNT from VIEW_BASE order by AMOUNT desc;
+create view V_JOIN as select B.ID, B.NAME, D.DEPT_NAME from VIEW_BASE B join VIEW_DEPT D on B.DEPT_ID = D.ID;
+create view V_LEFT_JOIN as select B.ID, B.NAME, D.DEPT_NAME from VIEW_BASE B left join VIEW_DEPT D on B.DEPT_ID = D.ID;
+create view V_SELF_JOIN as select A.ID A_ID, B.ID B_ID from VIEW_BASE A join VIEW_BASE B on A.DEPT_ID = B.DEPT_ID where A.ID < B.ID;
+create view V_SUBQUERY as select ID, NAME from VIEW_BASE where DEPT_ID in (select ID from VIEW_DEPT where DEPT_NAME = 'SALES');
+create view V_CORRELATED as select B.ID, B.NAME from VIEW_BASE B where exists (select 1 from VIEW_DEPT D where D.ID = B.DEPT_ID);
+create view V_SCALAR(ID, NAME, DEPT_NAME) as select B.ID, B.NAME, (select D.DEPT_NAME from VIEW_DEPT D where D.ID = B.DEPT_ID) from VIEW_BASE B;
+create view V_CTE as with C as (select ID, NAME from VIEW_BASE where STATUS = 'A') select ID, NAME from C;
+create view V_CTE_MULTI as with A as (select ID, DEPT_ID from VIEW_BASE), D as (select ID, DEPT_NAME from VIEW_DEPT) select A.ID, D.DEPT_NAME from A join D on A.DEPT_ID = D.ID;
+create view V_UNION as select ID from VIEW_BASE where STATUS = 'A' union select ID from VIEW_BASE where STATUS = 'B';
+create view V_UNION_ALL as select ID from VIEW_BASE where STATUS = 'A' union all select ID from VIEW_BASE where STATUS = 'B';
+create view V_INTERSECT as select DEPT_ID from VIEW_BASE intersect select ID from VIEW_DEPT;
+create view V_MINUS as select ID from VIEW_DEPT minus select DEPT_ID from VIEW_BASE where STATUS = 'B';
+create view V_WINDOW as select ID, STATUS, sum(AMOUNT) over(partition by STATUS order by ID rows between unbounded preceding and current row) RUNNING_AMOUNT from VIEW_BASE;
+create view V_ROW_NUMBER as select ID, row_number() over(order by AMOUNT desc) RN from VIEW_BASE;
+create view V_CASE as select ID, case STATUS when 'A' then 'ACTIVE' else 'OTHER' end STATUS_NAME from VIEW_BASE;
+create view V_COALESCE as select ID, coalesce(NAME, 'UNKNOWN') NAME_VALUE from VIEW_BASE;
+create view V_NESTED as select ID, NAME from V_FILTER where AMOUNT >= 20;
+create view V_NESTED_CHECK as select ID, NAME, AMOUNT, STATUS, DEPT_ID from V_CHECK_LOCAL where AMOUNT <= 50 with local check option;
+select * from V_FILTER order by ID;
+select * from V_GROUPED order by STATUS;
+select * from V_JOIN order by ID;
+select * from V_CTE order by ID;
+select * from V_UNION order by ID;
+select * from V_WINDOW order by ID;
+select V.ID, D.DEPT_NAME from V_BASIC V join VIEW_DEPT D on V.ID = D.ID where 1 = 0;
+select ID from VIEW_BASE where exists (select 1 from V_FILTER V where V.ID = VIEW_BASE.ID);
+select * from (select ID, NAME from V_BASIC) X where X.ID <= 2;
+with X as (select ID from V_BASIC) select count(*) from X;
+create view V_UPDATABLE as select ID, NAME, AMOUNT, STATUS, DEPT_ID from VIEW_BASE where ID >= 1 with check option;
+insert into V_UPDATABLE(ID, NAME, AMOUNT, STATUS, DEPT_ID) values(4, 'DELTA', 40, 'A', 20);
+update V_UPDATABLE set AMOUNT = 45 where ID = 4;
+select AMOUNT from VIEW_BASE where ID = 4;
+delete from V_UPDATABLE where ID = 4;
+insert into V_CHECK_DEFAULT(ID, NAME, AMOUNT, STATUS, DEPT_ID) values(5, 'EPSILON', 50, 'A', 10);
+update V_CHECK_DEFAULT set AMOUNT = 55 where ID = 5;
+delete from V_CHECK_DEFAULT where ID = 5;
+commit;
+comment on view V_BASIC is 'DM8 ordinary view';
+comment on column V_BASIC.NAME is 'view name column';
+select VIEW_NAME from USER_VIEWS where VIEW_NAME in ('V_BASIC', 'V_JOIN') order by VIEW_NAME;
+select NAME, VALID from SYSOBJECTS where NAME in ('V_BASIC', 'V_JOIN') order by NAME;
+alter view V_BASIC compile;
+alter view CODEX_DM8_VIEW_20260721.V_QUALIFIED compile;
+create user CODEX_DM8_VIEW_USER_20260721 identified by "Dm8@View2026";
+create role CODEX_DM8_VIEW_ROLE_20260721;
+grant create view to CODEX_DM8_VIEW_ROLE_20260721;
+grant CODEX_DM8_VIEW_ROLE_20260721 to CODEX_DM8_VIEW_USER_20260721;
+grant select on V_BASIC to CODEX_DM8_VIEW_USER_20260721;
+grant select, insert, update, delete on V_UPDATABLE to CODEX_DM8_VIEW_ROLE_20260721;
+revoke select, insert, update, delete on V_UPDATABLE from CODEX_DM8_VIEW_ROLE_20260721;
+revoke select on V_BASIC from CODEX_DM8_VIEW_USER_20260721;
+revoke CODEX_DM8_VIEW_ROLE_20260721 from CODEX_DM8_VIEW_USER_20260721;
+revoke create view from CODEX_DM8_VIEW_ROLE_20260721;
+drop role CODEX_DM8_VIEW_ROLE_20260721;
+drop user CODEX_DM8_VIEW_USER_20260721 cascade;
+create view V_DROP_PLAIN as select ID from VIEW_BASE;
+drop view V_DROP_PLAIN;
+create view V_DROP_RESTRICT as select ID from VIEW_BASE;
+drop view V_DROP_RESTRICT restrict;
+create view V_DROP_CASCADE as select ID from VIEW_BASE;
+drop view V_DROP_CASCADE cascade;
+drop view if exists V_DROP_MISSING;
+drop view if exists V_DROP_MISSING restrict;
+drop view if exists V_DROP_MISSING cascade;
+create view V_PARENT as select ID, NAME from VIEW_BASE;
+create view V_CHILD as select ID from V_PARENT;
+select count(*) from V_CHILD;
+drop view V_CHILD restrict;
+drop view V_PARENT cascade;
+drop view V_NESTED_CHECK;
+drop view V_NESTED;
+drop view V_UPDATABLE;
+drop view V_COALESCE;
+drop view V_CASE;
+drop view V_ROW_NUMBER;
+drop view V_WINDOW;
+drop view V_MINUS;
+drop view V_INTERSECT;
+drop view V_UNION_ALL;
+drop view V_UNION;
+drop view V_CTE_MULTI;
+drop view V_CTE;
+drop view V_SCALAR;
+drop view V_CORRELATED;
+drop view V_SUBQUERY;
+drop view V_SELF_JOIN;
+drop view V_LEFT_JOIN;
+drop view V_JOIN;
+drop view V_ORDERED;
+drop view V_GROUP_HAVING;
+drop view V_GROUPED;
+drop view V_DISTINCT;
+drop view V_FILTER;
+drop view V_READ_ONLY;
+drop view V_CHECK_CASCADED;
+drop view V_CHECK_LOCAL;
+drop view V_CHECK_DEFAULT;
+drop view V_FORCE_COMBINED;
+drop view V_EXPRESSION;
+drop view V_COLUMNS;
+drop view "V_Quoted";
+drop view V_QUALIFIED;
+drop view V_BASIC;
+drop table VIEW_AUDIT;
+drop table VIEW_DEPT;
+drop table VIEW_BASE;
+set schema SYSDBA;
+drop schema CODEX_DM8_VIEW_20260721 cascade;
+------------------------------------------------------------------------------------------
+[DROP_SCHEMA] drop schema if exists CODEX_DM8_VIEW_20260721 cascade;
+----------
+[CREATE_SCHEMA] create schema CODEX_DM8_VIEW_20260721 authorization SYSDBA;
+----------
+[SWITCH_SCHEMA] set schema CODEX_DM8_VIEW_20260721;
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table VIEW_BASE(ID int primary key, NAME varchar(40), AMOUNT decimal(10,2), STATUS varchar(8), DEPT_ID int);
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table VIEW_DEPT(ID int primary key, DEPT_NAME varchar(40));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table VIEW_AUDIT(ID int, ACTION_NAME varchar(40));
+----------
+[INSERT] insert into VIEW_BASE values(1, 'ALPHA', 10, 'A', 10);
+----------
+[INSERT] insert into VIEW_BASE values(2, 'BETA', 20, 'B', 20);
+----------
+[INSERT] insert into VIEW_BASE values(3, 'GAMMA', 30, 'A', 10);
+----------
+[INSERT] insert into VIEW_DEPT values(10, 'SALES');
+----------
+[INSERT] insert into VIEW_DEPT values(20, 'DEV');
+----------
+[TRANSACTION] commit;
+----------
+[CREATE_VIEW(SELECT)] create view V_BASIC as select ID, NAME from VIEW_BASE;
+----------
+[SELECT] select ID, NAME from V_BASIC order by ID;
+----------
+[CREATE_VIEW(SELECT)] create view CODEX_DM8_VIEW_20260721.V_QUALIFIED as select ID, AMOUNT from CODEX_DM8_VIEW_20260721.VIEW_BASE;
+----------
+[SELECT] select count(*) from CODEX_DM8_VIEW_20260721.V_QUALIFIED;
+----------
+[CREATE_VIEW(SELECT)] create view "V_Quoted" as select ID, NAME from VIEW_BASE;
+----------
+[SELECT] select ID from "V_Quoted" where ID = 1;
+----------
+[CREATE_VIEW(SELECT)] create view V_COLUMNS(VIEW_ID, VIEW_NAME) as select ID, NAME from VIEW_BASE;
+----------
+[SELECT] select VIEW_ID, VIEW_NAME from V_COLUMNS order by VIEW_ID;
+----------
+[CREATE_VIEW(SELECT)] create view V_EXPRESSION(ID, DOUBLE_AMOUNT) as select ID, AMOUNT * 2 from VIEW_BASE;
+----------
+[SELECT] select ID, DOUBLE_AMOUNT from V_EXPRESSION where DOUBLE_AMOUNT >= 40;
+----------
+[CREATE_VIEW(SELECT)] create or replace view V_BASIC as select ID, NAME, STATUS from VIEW_BASE;
+----------
+[SELECT] select STATUS from V_BASIC where ID = 1;
+----------
+[CREATE_VIEW(SELECT)] create view if not exists V_BASIC as select ID from VIEW_BASE;
+----------
+[CREATE_VIEW(SELECT)] create or replace view if not exists V_BASIC as select ID, NAME, AMOUNT from VIEW_BASE;
+----------
+[SELECT] select AMOUNT from V_BASIC where ID = 2;
+----------
+[CREATE_VIEW(SELECT)] create force view V_FORCE_VALID as select ID, NAME from VIEW_BASE;
+----------
+[ALTER_VIEW] alter view V_FORCE_VALID compile;
+----------
+[CREATE_VIEW(SELECT)] create force view V_FORCE_MISSING as select ID from VIEW_NOT_CREATED;
+----------
+[SELECT] select VALID from SYSOBJECTS where NAME = 'V_FORCE_MISSING';
+----------
+[DROP_VIEW] drop view V_FORCE_MISSING;
+----------
+[CREATE_VIEW(SELECT)] create or replace force view if not exists V_FORCE_COMBINED as select ID, NAME from VIEW_BASE;
+----------
+[SELECT] select count(*) from V_FORCE_COMBINED;
+----------
+[CREATE_VIEW(SELECT)] create view V_CHECK_DEFAULT as select ID, NAME, AMOUNT, STATUS, DEPT_ID from VIEW_BASE where STATUS = 'A' with check option;
+----------
+[CREATE_VIEW(SELECT)] create view V_CHECK_LOCAL as select ID, NAME, AMOUNT, STATUS, DEPT_ID from VIEW_BASE where AMOUNT >= 10 with local check option;
+----------
+[CREATE_VIEW(SELECT)] create view V_CHECK_CASCADED as select ID, NAME, AMOUNT, STATUS, DEPT_ID from V_CHECK_DEFAULT where AMOUNT <= 100 with cascaded check option;
+----------
+[CREATE_VIEW(SELECT)] create view V_READ_ONLY as select ID, NAME from VIEW_BASE with read only;
+----------
+[SELECT] select count(*) from V_CHECK_DEFAULT;
+----------
+[SELECT] select count(*) from V_CHECK_LOCAL;
+----------
+[SELECT] select count(*) from V_CHECK_CASCADED;
+----------
+[SELECT] select count(*) from V_READ_ONLY;
+----------
+[CREATE_VIEW(SELECT)] create view V_FILTER as select ID, NAME, AMOUNT from VIEW_BASE where STATUS = 'A';
+----------
+[CREATE_VIEW(SELECT)] create view V_DISTINCT as select distinct STATUS from VIEW_BASE;
+----------
+[CREATE_VIEW(SELECT)] create view V_GROUPED(STATUS, ITEM_COUNT, TOTAL_AMOUNT) as select STATUS, count(*), sum(AMOUNT) from VIEW_BASE group by STATUS;
+----------
+[CREATE_VIEW(SELECT)] create view V_GROUP_HAVING(STATUS, ITEM_COUNT) as select STATUS, count(*) from VIEW_BASE group by STATUS having count(*) >= 1;
+----------
+[CREATE_VIEW(SELECT)] create view V_ORDERED as select ID, NAME, AMOUNT from VIEW_BASE order by AMOUNT desc;
+----------
+[CREATE_VIEW(SELECT)] create view V_JOIN as select B.ID, B.NAME, D.DEPT_NAME from VIEW_BASE B join VIEW_DEPT D on B.DEPT_ID = D.ID;
+----------
+[CREATE_VIEW(SELECT)] create view V_LEFT_JOIN as select B.ID, B.NAME, D.DEPT_NAME from VIEW_BASE B left join VIEW_DEPT D on B.DEPT_ID = D.ID;
+----------
+[CREATE_VIEW(SELECT)] create view V_SELF_JOIN as select A.ID A_ID, B.ID B_ID from VIEW_BASE A join VIEW_BASE B on A.DEPT_ID = B.DEPT_ID where A.ID < B.ID;
+----------
+[CREATE_VIEW(SELECT)] create view V_SUBQUERY as select ID, NAME from VIEW_BASE where DEPT_ID in (select ID from VIEW_DEPT where DEPT_NAME = 'SALES');
+----------
+[CREATE_VIEW(SELECT)] create view V_CORRELATED as select B.ID, B.NAME from VIEW_BASE B where exists (select 1 from VIEW_DEPT D where D.ID = B.DEPT_ID);
+----------
+[CREATE_VIEW(SELECT)] create view V_SCALAR(ID, NAME, DEPT_NAME) as select B.ID, B.NAME, (select D.DEPT_NAME from VIEW_DEPT D where D.ID = B.DEPT_ID) from VIEW_BASE B;
+----------
+[CREATE_VIEW(SELECT)] create view V_CTE as with C as (select ID, NAME from VIEW_BASE where STATUS = 'A') select ID, NAME from C;
+----------
+[CREATE_VIEW(SELECT)] create view V_CTE_MULTI as with A as (select ID, DEPT_ID from VIEW_BASE), D as (select ID, DEPT_NAME from VIEW_DEPT) select A.ID, D.DEPT_NAME from A join D on A.DEPT_ID = D.ID;
+----------
+[CREATE_VIEW(SELECT)] create view V_UNION as select ID from VIEW_BASE where STATUS = 'A' union select ID from VIEW_BASE where STATUS = 'B';
+----------
+[CREATE_VIEW(SELECT)] create view V_UNION_ALL as select ID from VIEW_BASE where STATUS = 'A' union all select ID from VIEW_BASE where STATUS = 'B';
+----------
+[CREATE_VIEW(SELECT)] create view V_INTERSECT as select DEPT_ID from VIEW_BASE intersect select ID from VIEW_DEPT;
+----------
+[CREATE_VIEW(SELECT)] create view V_MINUS as select ID from VIEW_DEPT minus select DEPT_ID from VIEW_BASE where STATUS = 'B';
+----------
+[CREATE_VIEW(SELECT)] create view V_WINDOW as select ID, STATUS, sum(AMOUNT) over(partition by STATUS order by ID rows between unbounded preceding and current row) RUNNING_AMOUNT from VIEW_BASE;
+----------
+[CREATE_VIEW(SELECT)] create view V_ROW_NUMBER as select ID, row_number() over(order by AMOUNT desc) RN from VIEW_BASE;
+----------
+[CREATE_VIEW(SELECT)] create view V_CASE as select ID, case STATUS when 'A' then 'ACTIVE' else 'OTHER' end STATUS_NAME from VIEW_BASE;
+----------
+[CREATE_VIEW(SELECT)] create view V_COALESCE as select ID, coalesce(NAME, 'UNKNOWN') NAME_VALUE from VIEW_BASE;
+----------
+[CREATE_VIEW(SELECT)] create view V_NESTED as select ID, NAME from V_FILTER where AMOUNT >= 20;
+----------
+[CREATE_VIEW(SELECT)] create view V_NESTED_CHECK as select ID, NAME, AMOUNT, STATUS, DEPT_ID from V_CHECK_LOCAL where AMOUNT <= 50 with local check option;
+----------
+[SELECT] select * from V_FILTER order by ID;
+----------
+[SELECT] select * from V_GROUPED order by STATUS;
+----------
+[SELECT] select * from V_JOIN order by ID;
+----------
+[SELECT] select * from V_CTE order by ID;
+----------
+[SELECT] select * from V_UNION order by ID;
+----------
+[SELECT] select * from V_WINDOW order by ID;
+----------
+[SELECT] select V.ID, D.DEPT_NAME from V_BASIC V join VIEW_DEPT D on V.ID = D.ID where 1 = 0;
+----------
+[SELECT] select ID from VIEW_BASE where exists (select 1 from V_FILTER V where V.ID = VIEW_BASE.ID);
+----------
+[SELECT] select * from (select ID, NAME from V_BASIC) X where X.ID <= 2;
+----------
+[SELECT] with X as (select ID from V_BASIC) select count(*) from X;
+----------
+[CREATE_VIEW(SELECT)] create view V_UPDATABLE as select ID, NAME, AMOUNT, STATUS, DEPT_ID from VIEW_BASE where ID >= 1 with check option;
+----------
+[INSERT] insert into V_UPDATABLE(ID, NAME, AMOUNT, STATUS, DEPT_ID) values(4, 'DELTA', 40, 'A', 20);
+----------
+[UPDATE] update V_UPDATABLE set AMOUNT = 45 where ID = 4;
+----------
+[SELECT] select AMOUNT from VIEW_BASE where ID = 4;
+----------
+[DELETE] delete from V_UPDATABLE where ID = 4;
+----------
+[INSERT] insert into V_CHECK_DEFAULT(ID, NAME, AMOUNT, STATUS, DEPT_ID) values(5, 'EPSILON', 50, 'A', 10);
+----------
+[UPDATE] update V_CHECK_DEFAULT set AMOUNT = 55 where ID = 5;
+----------
+[DELETE] delete from V_CHECK_DEFAULT where ID = 5;
+----------
+[TRANSACTION] commit;
+----------
+[COMMENT_VIEW] comment on view V_BASIC is 'DM8 ordinary view';
+----------
+[COMMENT_COLUMN] comment on column V_BASIC.NAME is 'view name column';
+----------
+[SELECT] select VIEW_NAME from USER_VIEWS where VIEW_NAME in ('V_BASIC', 'V_JOIN') order by VIEW_NAME;
+----------
+[SELECT] select NAME, VALID from SYSOBJECTS where NAME in ('V_BASIC', 'V_JOIN') order by NAME;
+----------
+[ALTER_VIEW] alter view V_BASIC compile;
+----------
+[ALTER_VIEW] alter view CODEX_DM8_VIEW_20260721.V_QUALIFIED compile;
+----------
+[CREATE_USER] create user CODEX_DM8_VIEW_USER_20260721 identified by "Dm8@View2026";
+----------
+[CREATE_ROLE] create role CODEX_DM8_VIEW_ROLE_20260721;
+----------
+[GRANT] grant create view to CODEX_DM8_VIEW_ROLE_20260721;
+----------
+[GRANT] grant CODEX_DM8_VIEW_ROLE_20260721 to CODEX_DM8_VIEW_USER_20260721;
+----------
+[GRANT] grant select on V_BASIC to CODEX_DM8_VIEW_USER_20260721;
+----------
+[GRANT] grant select, insert, update, delete on V_UPDATABLE to CODEX_DM8_VIEW_ROLE_20260721;
+----------
+[REVOKE] revoke select, insert, update, delete on V_UPDATABLE from CODEX_DM8_VIEW_ROLE_20260721;
+----------
+[REVOKE] revoke select on V_BASIC from CODEX_DM8_VIEW_USER_20260721;
+----------
+[REVOKE] revoke CODEX_DM8_VIEW_ROLE_20260721 from CODEX_DM8_VIEW_USER_20260721;
+----------
+[REVOKE] revoke create view from CODEX_DM8_VIEW_ROLE_20260721;
+----------
+[DROP_ROLE] drop role CODEX_DM8_VIEW_ROLE_20260721;
+----------
+[DROP_USER] drop user CODEX_DM8_VIEW_USER_20260721 cascade;
+----------
+[CREATE_VIEW(SELECT)] create view V_DROP_PLAIN as select ID from VIEW_BASE;
+----------
+[DROP_VIEW] drop view V_DROP_PLAIN;
+----------
+[CREATE_VIEW(SELECT)] create view V_DROP_RESTRICT as select ID from VIEW_BASE;
+----------
+[DROP_VIEW] drop view V_DROP_RESTRICT restrict;
+----------
+[CREATE_VIEW(SELECT)] create view V_DROP_CASCADE as select ID from VIEW_BASE;
+----------
+[DROP_VIEW] drop view V_DROP_CASCADE cascade;
+----------
+[DROP_VIEW] drop view if exists V_DROP_MISSING;
+----------
+[DROP_VIEW] drop view if exists V_DROP_MISSING restrict;
+----------
+[DROP_VIEW] drop view if exists V_DROP_MISSING cascade;
+----------
+[CREATE_VIEW(SELECT)] create view V_PARENT as select ID, NAME from VIEW_BASE;
+----------
+[CREATE_VIEW(SELECT)] create view V_CHILD as select ID from V_PARENT;
+----------
+[SELECT] select count(*) from V_CHILD;
+----------
+[DROP_VIEW] drop view V_CHILD restrict;
+----------
+[DROP_VIEW] drop view V_PARENT cascade;
+----------
+[DROP_VIEW] drop view V_NESTED_CHECK;
+----------
+[DROP_VIEW] drop view V_NESTED;
+----------
+[DROP_VIEW] drop view V_UPDATABLE;
+----------
+[DROP_VIEW] drop view V_COALESCE;
+----------
+[DROP_VIEW] drop view V_CASE;
+----------
+[DROP_VIEW] drop view V_ROW_NUMBER;
+----------
+[DROP_VIEW] drop view V_WINDOW;
+----------
+[DROP_VIEW] drop view V_MINUS;
+----------
+[DROP_VIEW] drop view V_INTERSECT;
+----------
+[DROP_VIEW] drop view V_UNION_ALL;
+----------
+[DROP_VIEW] drop view V_UNION;
+----------
+[DROP_VIEW] drop view V_CTE_MULTI;
+----------
+[DROP_VIEW] drop view V_CTE;
+----------
+[DROP_VIEW] drop view V_SCALAR;
+----------
+[DROP_VIEW] drop view V_CORRELATED;
+----------
+[DROP_VIEW] drop view V_SUBQUERY;
+----------
+[DROP_VIEW] drop view V_SELF_JOIN;
+----------
+[DROP_VIEW] drop view V_LEFT_JOIN;
+----------
+[DROP_VIEW] drop view V_JOIN;
+----------
+[DROP_VIEW] drop view V_ORDERED;
+----------
+[DROP_VIEW] drop view V_GROUP_HAVING;
+----------
+[DROP_VIEW] drop view V_GROUPED;
+----------
+[DROP_VIEW] drop view V_DISTINCT;
+----------
+[DROP_VIEW] drop view V_FILTER;
+----------
+[DROP_VIEW] drop view V_READ_ONLY;
+----------
+[DROP_VIEW] drop view V_CHECK_CASCADED;
+----------
+[DROP_VIEW] drop view V_CHECK_LOCAL;
+----------
+[DROP_VIEW] drop view V_CHECK_DEFAULT;
+----------
+[DROP_VIEW] drop view V_FORCE_COMBINED;
+----------
+[DROP_VIEW] drop view V_EXPRESSION;
+----------
+[DROP_VIEW] drop view V_COLUMNS;
+----------
+[DROP_VIEW] drop view "V_Quoted";
+----------
+[DROP_VIEW] drop view V_QUALIFIED;
+----------
+[DROP_VIEW] drop view V_BASIC;
+----------
+[DROP_TABLE] drop table VIEW_AUDIT;
+----------
+[DROP_TABLE] drop table VIEW_DEPT;
+----------
+[DROP_TABLE] drop table VIEW_BASE;
+----------
+[SWITCH_SCHEMA] set schema SYSDBA;
+----------
+[DROP_SCHEMA] drop schema CODEX_DM8_VIEW_20260721 cascade;

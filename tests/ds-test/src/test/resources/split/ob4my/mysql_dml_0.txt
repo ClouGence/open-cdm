@@ -1,0 +1,66 @@
+select * from test;
+select id, name from test where id > 10;
+select count(*) from test group by name having count(*) > 1;
+select a.id, b.name from test a join test2 b on a.id = b.id;
+select * from test order by id desc limit 10;
+select * from test where id in (select id from test2);
+insert into test (id, name) values (1, 'abc');
+insert into test values (1, 'abc');
+insert into test (id, name) values (1, 'a'), (2, 'b'), (3, 'c');
+insert into test (id, name) select id, name from test2;
+insert into test set id = 1, name = 'abc';
+replace into test (id, name) values (1, 'abc');
+replace into test set id = 1, name = 'abc';
+update test set name = 'abc' where id = 1;
+update test set name = 'abc', age = 20 where id = 1;
+update test a join test2 b on a.id = b.id set a.name = b.name;
+delete from test where id = 1;
+delete from test where id > 10 order by id limit 5;
+delete a from test a join test2 b on a.id = b.id;
+truncate table test;
+call sp_test();
+call sp_test(1, 'abc');
+------------------------------------------------------------------------------------------
+[SELECT] select * from test;
+----------
+[SELECT] select id, name from test where id > 10;
+----------
+[SELECT] select count(*) from test group by name having count(*) > 1;
+----------
+[SELECT] select a.id, b.name from test a join test2 b on a.id = b.id;
+----------
+[SELECT] select * from test order by id desc limit 10;
+----------
+[SELECT] select * from test where id in (select id from test2);
+----------
+[INSERT] insert into test (id, name) values (1, 'abc');
+----------
+[INSERT] insert into test values (1, 'abc');
+----------
+[INSERT] insert into test (id, name) values (1, 'a'), (2, 'b'), (3, 'c');
+----------
+[INSERT|SELECT] insert into test (id, name) select id, name from test2;
+----------
+[INSERT] insert into test set id = 1, name = 'abc';
+----------
+[MERGE] replace into test (id, name) values (1, 'abc');
+----------
+[MERGE] replace into test set id = 1, name = 'abc';
+----------
+[UPDATE] update test set name = 'abc' where id = 1;
+----------
+[UPDATE] update test set name = 'abc', age = 20 where id = 1;
+----------
+[UPDATE] update test a join test2 b on a.id = b.id set a.name = b.name;
+----------
+[DELETE] delete from test where id = 1;
+----------
+[DELETE] delete from test where id > 10 order by id limit 5;
+----------
+[DELETE] delete a from test a join test2 b on a.id = b.id;
+----------
+[TRUNCATE_TABLE] truncate table test;
+----------
+[CALL_PROG_OBJ] call sp_test();
+----------
+[CALL_PROG_OBJ] call sp_test(1, 'abc');

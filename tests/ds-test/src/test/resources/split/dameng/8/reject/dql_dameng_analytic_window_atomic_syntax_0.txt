@@ -1,0 +1,35 @@
+-- parenthesized named window
+select first_value(v) over(w) from app.analytic_t window w as(order by id);
+-- PARTITION BY missing expression
+select sum(v) over(partition by) from app.analytic_t;
+-- ORDER BY missing expression
+select sum(v) over(order by) from app.analytic_t;
+-- ROWS BETWEEN missing AND
+select sum(v) over(order by id rows between 1 preceding current row) from app.analytic_t;
+-- RANGE missing bound
+select sum(v) over(order by id range) from app.analytic_t;
+-- WINDOW missing AS
+select sum(v) over w from app.analytic_t window w(partition by g);
+-- NULLS missing treatment
+select lag(v) nulls over(order by id) from app.analytic_t;
+------------------------------------------------------------------------------------------
+[SELECT] -- parenthesized named window
+select first_value(v) over(w) from app.analytic_t window w as(order by id);
+----------
+[SELECT] -- PARTITION BY missing expression
+select sum(v) over(partition by) from app.analytic_t;
+----------
+[SELECT] -- ORDER BY missing expression
+select sum(v) over(order by) from app.analytic_t;
+----------
+[SELECT] -- ROWS BETWEEN missing AND
+select sum(v) over(order by id rows between 1 preceding current row) from app.analytic_t;
+----------
+[SELECT] -- RANGE missing bound
+select sum(v) over(order by id range) from app.analytic_t;
+----------
+[SELECT] -- WINDOW missing AS
+select sum(v) over w from app.analytic_t window w(partition by g);
+----------
+[SELECT] -- NULLS missing treatment
+select lag(v) nulls over(order by id) from app.analytic_t;

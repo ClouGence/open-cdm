@@ -1,0 +1,51 @@
+SELECT xmlpi(name php, 'echo "hello world";');
+SELECT xmlroot(xml '<foo/>', VERSION NO VALUE, STANDALONE NO VALUE);
+SELECT xmlroot(xml '<?xml version="1.1"?><foo/>', VERSION NO VALUE, STANDALONE YES);
+SELECT xmlagg(x ORDER BY y DESC) FROM (VALUES (1, XMLPARSE(CONTENT '<foo>abc</foo>')), (2, XMLPARSE(CONTENT '<bar/>'))) AS t(y,x);
+SELECT XMLPARSE(DOCUMENT '<foo/>') IS DOCUMENT;
+SELECT XMLPARSE(CONTENT '<foo/><bar/>') IS NOT DOCUMENT;
+SELECT xml_is_well_formed_document('<pg:foo xmlns:pg="http://postgresql.org/stuff">bar</pg:foo>');
+SELECT xml_is_well_formed_document('<pg:foo xmlns:pg="http://postgresql.org/stuff">bar</my:foo>');
+SELECT xml_is_well_formed_content('abc');
+SELECT xml_is_well_formed('<>');
+SELECT xpath('/my:a/text()', XMLPARSE(DOCUMENT '<my:a xmlns:my="http://example.com">test</my:a>'), ARRAY[ARRAY['my', 'http://example.com']]);
+SELECT xpath('//mydefns:b/text()', XMLPARSE(DOCUMENT '<a xmlns="http://example.com"><b>test</b></a>'), ARRAY[ARRAY['mydefns', 'http://example.com']]);
+SELECT xpath_exists('/my:a/text()', XMLPARSE(DOCUMENT '<my:a xmlns:my="http://example.com">test</my:a>'), ARRAY[ARRAY['my', 'http://example.com']]);
+SELECT * FROM XMLTABLE('*' PASSING XMLPARSE(DOCUMENT '<a>a</a>') COLUMNS a xml PATH '.', b text PATH '.', c text PATH '"hi"', d boolean PATH '. = "a"', e integer PATH 'string-length(.)');
+SELECT query_to_xml('SELECT 1 AS one, NULL::text AS maybe_null', true, false, '');
+SELECT query_to_xmlschema('SELECT 1 AS one, NULL::text AS maybe_null', true, false, '');
+SELECT query_to_xml_and_xmlschema('SELECT 1 AS one', false, false, '');
+------------------------------------------------------------------------------------------
+[SELECT] SELECT xmlpi(name php, 'echo "hello world";');
+----------
+[SELECT] SELECT xmlroot(xml '<foo/>', VERSION NO VALUE, STANDALONE NO VALUE);
+----------
+[SELECT] SELECT xmlroot(xml '<?xml version="1.1"?><foo/>', VERSION NO VALUE, STANDALONE YES);
+----------
+[SELECT] SELECT xmlagg(x ORDER BY y DESC) FROM (VALUES (1, XMLPARSE(CONTENT '<foo>abc</foo>')), (2, XMLPARSE(CONTENT '<bar/>'))) AS t(y,x);
+----------
+[SELECT] SELECT XMLPARSE(DOCUMENT '<foo/>') IS DOCUMENT;
+----------
+[SELECT] SELECT XMLPARSE(CONTENT '<foo/><bar/>') IS NOT DOCUMENT;
+----------
+[SELECT] SELECT xml_is_well_formed_document('<pg:foo xmlns:pg="http://postgresql.org/stuff">bar</pg:foo>');
+----------
+[SELECT] SELECT xml_is_well_formed_document('<pg:foo xmlns:pg="http://postgresql.org/stuff">bar</my:foo>');
+----------
+[SELECT] SELECT xml_is_well_formed_content('abc');
+----------
+[SELECT] SELECT xml_is_well_formed('<>');
+----------
+[SELECT] SELECT xpath('/my:a/text()', XMLPARSE(DOCUMENT '<my:a xmlns:my="http://example.com">test</my:a>'), ARRAY[ARRAY['my', 'http://example.com']]);
+----------
+[SELECT] SELECT xpath('//mydefns:b/text()', XMLPARSE(DOCUMENT '<a xmlns="http://example.com"><b>test</b></a>'), ARRAY[ARRAY['mydefns', 'http://example.com']]);
+----------
+[SELECT] SELECT xpath_exists('/my:a/text()', XMLPARSE(DOCUMENT '<my:a xmlns:my="http://example.com">test</my:a>'), ARRAY[ARRAY['my', 'http://example.com']]);
+----------
+[SELECT] SELECT * FROM XMLTABLE('*' PASSING XMLPARSE(DOCUMENT '<a>a</a>') COLUMNS a xml PATH '.', b text PATH '.', c text PATH '"hi"', d boolean PATH '. = "a"', e integer PATH 'string-length(.)');
+----------
+[SELECT] SELECT query_to_xml('SELECT 1 AS one, NULL::text AS maybe_null', true, false, '');
+----------
+[SELECT] SELECT query_to_xmlschema('SELECT 1 AS one, NULL::text AS maybe_null', true, false, '');
+----------
+[SELECT] SELECT query_to_xml_and_xmlschema('SELECT 1 AS one', false, false, '');

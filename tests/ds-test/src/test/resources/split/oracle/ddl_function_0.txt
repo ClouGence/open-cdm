@@ -1,0 +1,24 @@
+CREATE OR REPLACE FUNCTION test_func RETURN NUMBER AS
+begin
+    return 1;
+end;
+CREATE OR REPLACE FUNCTION "SCOTT"."F_ADD" (p1 NUMBER, p2 NUMBER) RETURN NUMBER AS
+begin
+    return p1 + p2;
+end;
+alter function test_func compile;
+drop function test_func;
+------------------------------------------------------------------------------------------
+[CREATE_PROG_OBJ(BLOCK,PROGRAM_CONTROL)] CREATE OR REPLACE FUNCTION test_func RETURN NUMBER AS
+begin
+    return 1;
+end;
+----------
+[CREATE_PROG_OBJ(BLOCK,PROGRAM_CONTROL)] CREATE OR REPLACE FUNCTION "SCOTT"."F_ADD" (p1 NUMBER, p2 NUMBER) RETURN NUMBER AS
+begin
+    return p1 + p2;
+end;
+----------
+[ALTER_PROG_OBJ] alter function test_func compile;
+----------
+[DROP_PROG_OBJ] drop function test_func;

@@ -1,0 +1,18 @@
+CREATE CATALOG m1 PROPERTIES (  "type"="jdbc",  "user"="root",  "password"="123456789",  "jdbc_url" = "jdbc:mysql://192.168.0.180:3306/clouddm1?useSSL=false",  "driver_url" = "https://doris-community-test-1308700295.cos.ap-hongkong.myqcloud.com/jdbc_driver/mysql-connector-java-8.0.25.jar",  "driver_class" = "com.mysql.cj.jdbc.Driver" );
+CREATE CATALOG m1 comment 'testttt' PROPERTIES (  "type"="jdbc",  "user"="root",  "password"="123456789",  "jdbc_url" = "jdbc:mysql://192.168.0.180:3306/clouddm1?useSSL=false",  "driver_url" = "https://doris-community-test-1308700295.cos.ap-hongkong.myqcloud.com/jdbc_driver/mysql-connector-java-8.0.25.jar",  "driver_class" = "com.mysql.cj.jdbc.Driver" );
+drop CATALOG m1;
+drop CATALOG if exists `m1`;
+ALTER CATALOG catalog_name RENAME new_catalog_name;
+ALTER CATALOG catalog_name MODIFY COMMENT "new catalog comment";
+------------------------------------------------------------------------------------------
+[CREATE_CATALOG] CREATE CATALOG m1 PROPERTIES (  "type"="jdbc",  "user"="root",  "password"="123456789",  "jdbc_url" = "jdbc:mysql://192.168.0.180:3306/clouddm1?useSSL=false",  "driver_url" = "https://doris-community-test-1308700295.cos.ap-hongkong.myqcloud.com/jdbc_driver/mysql-connector-java-8.0.25.jar",  "driver_class" = "com.mysql.cj.jdbc.Driver" );
+----------
+[CREATE_CATALOG] CREATE CATALOG m1 comment 'testttt' PROPERTIES (  "type"="jdbc",  "user"="root",  "password"="123456789",  "jdbc_url" = "jdbc:mysql://192.168.0.180:3306/clouddm1?useSSL=false",  "driver_url" = "https://doris-community-test-1308700295.cos.ap-hongkong.myqcloud.com/jdbc_driver/mysql-connector-java-8.0.25.jar",  "driver_class" = "com.mysql.cj.jdbc.Driver" );
+----------
+[DROP_CATALOG] drop CATALOG m1;
+----------
+[DROP_CATALOG] drop CATALOG if exists `m1`;
+----------
+[RENAME_CATALOG] ALTER CATALOG catalog_name RENAME new_catalog_name;
+----------
+[COMMENT_CATALOG] ALTER CATALOG catalog_name MODIFY COMMENT "new catalog comment";

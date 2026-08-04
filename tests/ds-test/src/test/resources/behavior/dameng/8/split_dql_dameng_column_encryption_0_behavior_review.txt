@@ -1,0 +1,254 @@
+[split_dql_dameng_column_encryption_0_001_behavior_review]
+sql:
+select SECRET from CODEX_ENC_T01 where ID = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:19~1:32) /test/1/catalog1/schema1/CODEX_ENC_T01/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_column_encryption_0_002_behavior_review]
+sql:
+select SECRET from CODEX_ENC_K05 where ID = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:19~1:32) /test/1/catalog1/schema1/CODEX_ENC_K05/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_column_encryption_0_003_behavior_review]
+sql:
+select SECRET from CODEX_COLKEY_AUTO where ID=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:19~1:36) /test/1/catalog1/schema1/CODEX_COLKEY_AUTO/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_column_encryption_0_004_behavior_review]
+sql:
+select SECRET from CODEX_COLKEY_AUTO_HASH where ID=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:19~1:41) /test/1/catalog1/schema1/CODEX_COLKEY_AUTO_HASH/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_column_encryption_0_005_behavior_review]
+sql:
+select SECRET from CODEX_COLKEY_MANUAL where ID=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:19~1:38) /test/1/catalog1/schema1/CODEX_COLKEY_MANUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_column_encryption_0_006_behavior_review]
+sql:
+select SECRET from CODEX_COLKEY_MANUAL_VISIBLE where ID=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:19~1:46) /test/1/catalog1/schema1/CODEX_COLKEY_MANUAL_VISIBLE/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_column_encryption_0_007_behavior_review]
+sql:
+select AUTO_SECRET,MANUAL_SECRET from CODEX_COLKEY_ALTER where ID=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:38~1:56) /test/1/catalog1/schema1/CODEX_COLKEY_ALTER/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_column_encryption_0_008_behavior_review]
+sql:
+select SECRET from CODEX_WRAP_AUTO_20260722 where ID=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:19~1:43) /test/1/catalog1/schema1/CODEX_WRAP_AUTO_20260722/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_column_encryption_0_009_behavior_review]
+sql:
+select SECRET from CODEX_WRAP_MANUAL_20260722 where ID=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:19~1:45) /test/1/catalog1/schema1/CODEX_WRAP_MANUAL_20260722/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_column_encryption_0_010_behavior_review]
+sql:
+select SECRET from CODEX_WRAP_ALTER_20260722 where ID=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:19~1:44) /test/1/catalog1/schema1/CODEX_WRAP_ALTER_20260722/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_column_encryption_0_011_behavior_review]
+sql:
+select SECRET from CODEX_WRAP_AUTO_20260722 where ID=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:19~1:43) /test/1/catalog1/schema1/CODEX_WRAP_AUTO_20260722/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_column_encryption_0_012_behavior_review]
+sql:
+select SECRET from CODEX_WRAP_MANUAL_20260722 where ID=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:19~1:45) /test/1/catalog1/schema1/CODEX_WRAP_MANUAL_20260722/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_column_encryption_0_013_behavior_review]
+sql:
+select SECRET from CODEX_WRAP_ALTER_20260722 where ID=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:19~1:44) /test/1/catalog1/schema1/CODEX_WRAP_ALTER_20260722/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_column_encryption_0_014_behavior_review]
+sql:
+select SECRET from CODEX_ENC_USER1.MANUAL_OWNER_DATA where ID = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:19~1:52) /test/1/catalog1/CODEX_ENC_USER1/MANUAL_OWNER_DATA/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_column_encryption_0_015_behavior_review]
+sql:
+select SECRET from CODEX_ENC_USER1.MANUAL_VISIBLE_DATA where ID = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:19~1:54) /test/1/catalog1/CODEX_ENC_USER1/MANUAL_VISIBLE_DATA/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_column_encryption_0_016_behavior_review]
+sql:
+select SECRET from CODEX_ENC_USER1.MANUAL_OWNER_DATA where ID = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:19~1:52) /test/1/catalog1/CODEX_ENC_USER1/MANUAL_OWNER_DATA/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_column_encryption_0_017_behavior_review]
+sql:
+select SECRET from CODEX_ENC_USER1.MANUAL_OWNER_DATA where ID = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:19~1:52) /test/1/catalog1/CODEX_ENC_USER1/MANUAL_OWNER_DATA/",
+      "action": "READ"
+    }
+  ]
+}

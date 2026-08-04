@@ -1,0 +1,492 @@
+[admin_performance__001]
+sql:
+LOAD INDEX INTO CACHE utility_audit.missing_part PARTITION (p0,p1) KEY (PRIMARY,idx_v);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_PERFORMANCE": [
+    {
+      "subject": "Instance(1:0~1:86) /test/1/",
+      "action" : "LOAD"
+    }
+  ]
+}
+----------
+[data_export_select__002]
+sql:
+SELECT * INTO OUTFILE '/var/lib/mysql-files/split_outfile_load_01.txt' FIELDS TERMINATED BY 'raker' FROM split_outfile_load_native.t1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_EXPORT": [
+    {
+      "subject": "File(1:22~1:70) /test/1/var/lib/mysql-files/split_outfile_load_01.txt/",
+      "action" : "EXPORT",
+      "target" : "Table(1:105~1:133) /test/1/catalog1/split_outfile_load_native/t1/"
+    }
+  ]
+}
+----------
+[data_export_select__003]
+sql:
+SELECT * INTO OUTFILE '/var/lib/mysql-files/split_outfile_load_02.txt' FIELDS ENCLOSED BY 0xC3 FROM split_outfile_load_native.t1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_EXPORT": [
+    {
+      "subject": "File(1:22~1:70) /test/1/var/lib/mysql-files/split_outfile_load_02.txt/",
+      "action" : "EXPORT",
+      "target" : "Table(1:100~1:128) /test/1/catalog1/split_outfile_load_native/t1/"
+    }
+  ]
+}
+----------
+[data_export_select__004]
+sql:
+SELECT * INTO OUTFILE '/var/lib/mysql-files/split_outfile_load_03.txt' FIELDS ENCLOSED BY '12345' FROM split_outfile_load_native.t1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_EXPORT": [
+    {
+      "subject": "File(1:22~1:70) /test/1/var/lib/mysql-files/split_outfile_load_03.txt/",
+      "action" : "EXPORT",
+      "target" : "Table(1:103~1:131) /test/1/catalog1/split_outfile_load_native/t1/"
+    }
+  ]
+}
+----------
+[data_export_select__005]
+sql:
+SELECT * INTO OUTFILE '/var/lib/mysql-files/split_outfile_load_04.txt' FIELDS ESCAPED BY '12345' FROM split_outfile_load_native.t1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_EXPORT": [
+    {
+      "subject": "File(1:22~1:70) /test/1/var/lib/mysql-files/split_outfile_load_04.txt/",
+      "action" : "EXPORT",
+      "target" : "Table(1:102~1:130) /test/1/catalog1/split_outfile_load_native/t1/"
+    }
+  ]
+}
+----------
+[data_export_select__006]
+sql:
+SELECT * INTO OUTFILE '/var/lib/mysql-files/split_outfile_load_05.txt' FIELDS ENCLOSED BY 'ъ' FROM split_outfile_load_native.t1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_EXPORT": [
+    {
+      "subject": "File(1:22~1:70) /test/1/var/lib/mysql-files/split_outfile_load_05.txt/",
+      "action" : "EXPORT",
+      "target" : "Table(1:99~1:127) /test/1/catalog1/split_outfile_load_native/t1/"
+    }
+  ]
+}
+----------
+[data_export_select__007]
+sql:
+SELECT * INTO OUTFILE '/var/lib/mysql-files/split_outfile_load_06.txt' FIELDS ESCAPED BY 'ъ' FROM split_outfile_load_native.t1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_EXPORT": [
+    {
+      "subject": "File(1:22~1:70) /test/1/var/lib/mysql-files/split_outfile_load_06.txt/",
+      "action" : "EXPORT",
+      "target" : "Table(1:98~1:126) /test/1/catalog1/split_outfile_load_native/t1/"
+    }
+  ]
+}
+----------
+[data_export_select__008]
+sql:
+SELECT * INTO OUTFILE '/var/lib/mysql-files/split_outfile_load_07.txt' FIELDS TERMINATED BY 'ъ' FROM split_outfile_load_native.t1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_EXPORT": [
+    {
+      "subject": "File(1:22~1:70) /test/1/var/lib/mysql-files/split_outfile_load_07.txt/",
+      "action" : "EXPORT",
+      "target" : "Table(1:101~1:129) /test/1/catalog1/split_outfile_load_native/t1/"
+    }
+  ]
+}
+----------
+[data_export_select__009]
+sql:
+SELECT * INTO OUTFILE '/var/lib/mysql-files/split_outfile_load_08.txt' LINES STARTING BY 'ъ' FROM split_outfile_load_native.t1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_EXPORT": [
+    {
+      "subject": "File(1:22~1:70) /test/1/var/lib/mysql-files/split_outfile_load_08.txt/",
+      "action" : "EXPORT",
+      "target" : "Table(1:98~1:126) /test/1/catalog1/split_outfile_load_native/t1/"
+    }
+  ]
+}
+----------
+[data_export_select__010]
+sql:
+SELECT * INTO OUTFILE '/var/lib/mysql-files/split_outfile_load_09.txt' LINES TERMINATED BY 'ъ' FROM split_outfile_load_native.t1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_EXPORT": [
+    {
+      "subject": "File(1:22~1:70) /test/1/var/lib/mysql-files/split_outfile_load_09.txt/",
+      "action" : "EXPORT",
+      "target" : "Table(1:100~1:128) /test/1/catalog1/split_outfile_load_native/t1/"
+    }
+  ]
+}
+----------
+[data_export_select__011]
+sql:
+SELECT * INTO OUTFILE '/var/lib/mysql-files/split_outfile_load_10.txt' CHARACTER SET binary FROM split_outfile_load_native.t1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_EXPORT": [
+    {
+      "subject": "File(1:22~1:70) /test/1/var/lib/mysql-files/split_outfile_load_10.txt/",
+      "action" : "EXPORT",
+      "target" : "Table(1:97~1:125) /test/1/catalog1/split_outfile_load_native/t1/"
+    }
+  ]
+}
+----------
+[data_export_select__012]
+sql:
+SELECT * INTO OUTFILE '/var/lib/mysql-files/split_outfile_load_11.txt' CHARACTER SET latin1 FROM split_outfile_load_native.t1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_EXPORT": [
+    {
+      "subject": "File(1:22~1:70) /test/1/var/lib/mysql-files/split_outfile_load_11.txt/",
+      "action" : "EXPORT",
+      "target" : "Table(1:97~1:125) /test/1/catalog1/split_outfile_load_native/t1/"
+    }
+  ]
+}
+----------
+[data_export_select__013]
+sql:
+SELECT * INTO OUTFILE '/var/lib/mysql-files/split_outfile_load_12.txt' CHARACTER SET koi8r FROM split_outfile_load_native.t1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_EXPORT": [
+    {
+      "subject": "File(1:22~1:70) /test/1/var/lib/mysql-files/split_outfile_load_12.txt/",
+      "action" : "EXPORT",
+      "target" : "Table(1:96~1:124) /test/1/catalog1/split_outfile_load_native/t1/"
+    }
+  ]
+}
+----------
+[data_export_select__014]
+sql:
+SELECT * INTO OUTFILE '/var/lib/mysql-files/split_outfile_load_13.txt' CHARACTER SET utf8mb3 FROM split_outfile_load_native.t1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_EXPORT": [
+    {
+      "subject": "File(1:22~1:70) /test/1/var/lib/mysql-files/split_outfile_load_13.txt/",
+      "action" : "EXPORT",
+      "target" : "Table(1:98~1:126) /test/1/catalog1/split_outfile_load_native/t1/"
+    }
+  ]
+}
+----------
+[data_export_select__015]
+sql:
+SELECT * INTO OUTFILE '/var/lib/mysql-files/split_outfile_load_14.txt' FIELDS ENCLOSED BY 0b00100010 FROM split_outfile_load_native.t1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_EXPORT": [
+    {
+      "subject": "File(1:22~1:70) /test/1/var/lib/mysql-files/split_outfile_load_14.txt/",
+      "action" : "EXPORT",
+      "target" : "Table(1:106~1:134) /test/1/catalog1/split_outfile_load_native/t1/"
+    }
+  ]
+}
+----------
+[data_export_select__016]
+sql:
+SELECT 1 INTO OUTFILE '/var/lib/mysql-files/split_outfile_native_no_from.txt';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_EXPORT": [
+    {
+      "subject": "File(1:22~1:77) /test/1/var/lib/mysql-files/split_outfile_native_no_from.txt/",
+      "action" : "EXPORT"
+    }
+  ]
+}
+----------
+[data_export_select__017]
+sql:
+SELECT * INTO DUMPFILE '/var/lib/mysql-files/split_outfile_native_limit.bin' FROM split_outfile_native.t1 LIMIT 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_EXPORT": [
+    {
+      "subject": "File(1:23~1:76) /test/1/var/lib/mysql-files/split_outfile_native_limit.bin/",
+      "action" : "EXPORT",
+      "target" : "Table(1:82~1:105) /test/1/catalog1/split_outfile_native/t1/"
+    }
+  ]
+}
+----------
+[performance__018]
+sql:
+EXPLAIN SELECT * INTO OUTFILE '/var/lib/mysql-files/split_outfile_native_explain.txt' FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' LINES TERMINATED BY '\r\n' FROM split_outfile_native.t1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "File(1:30~1:85) /test/1/var/lib/mysql-files/split_outfile_native_explain.txt/",
+      "action" : "EXPORT",
+      "target" : "Table(1:170~1:193) /test/1/catalog1/split_outfile_native/t1/"
+    }
+  ]
+}
+----------
+[data_export_metadata__019]
+sql:
+SELECT schema_name INTO OUTFILE '/var/lib/mysql-files/split_outfile_native_schema.txt' FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' LINES TERMINATED BY '\n' FROM information_schema.schemata WHERE schema_name LIKE 'split_outfile%' LIMIT 0, 5;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_EXPORT": [
+    {
+      "subject": "File(1:32~1:86) /test/1/var/lib/mysql-files/split_outfile_native_schema.txt/",
+      "action" : "EXPORT",
+      "target" : "Table(1:169~1:196) /test/1/catalog1/information_schema/schemata/"
+    }
+  ]
+}
+----------
+[data_export_select__020]
+sql:
+SELECT 1 INTO OUTFILE URI 's3://split-bucket/out.csv';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_EXPORT": [
+    {
+      "subject": "File(1:26~1:53) /test/1/s3:/split-bucket/out.csv/",
+      "action" : "EXPORT"
+    }
+  ]
+}
+----------
+[data_export_select__021]
+sql:
+SELECT 1 INTO OUTFILE URL 'https://example.com/out.csv';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_EXPORT": [
+    {
+      "subject": "File(1:26~1:55) /test/1/https:/example.com/out.csv/",
+      "action" : "EXPORT"
+    }
+  ]
+}
+----------
+[data_export_select__022]
+sql:
+SELECT 1 AS id, 'alpha' AS name
+INTO OUTFILE URI 's3://split-bucket/full.csv'
+FORMAT CSV
+COMPRESSION GZIP
+HEADER ON
+CHARACTER SET utf8mb4
+FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' ESCAPED BY '\\'
+LINES TERMINATED BY '\n';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_EXPORT": [
+    {
+      "subject": "File(2:17~2:45) /test/1/s3:/split-bucket/full.csv/",
+      "action" : "EXPORT"
+    }
+  ]
+}
+----------
+[data_export_select__023]
+sql:
+SELECT 1 INTO OUTFILE URL 'https://example.com/no-header.csv' HEADER OFF;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_EXPORT": [
+    {
+      "subject": "File(1:26~1:61) /test/1/https:/example.com/no-header.csv/",
+      "action" : "EXPORT"
+    }
+  ]
+}
+----------
+[data_export_select__024]
+sql:
+SELECT 1 INTO OUTFILE WITH PARAMETERS '{"uri":"s3://split-bucket/params.csv","format":"csv"}';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_EXPORT": [
+    {
+      "subject": "File(1:38~1:93) /test/1/{\"uri\":\"s3:/split-bucket/params.csv\",\"format\":\"csv\"}/",
+      "action" : "EXPORT"
+    }
+  ]
+}
+----------
+[data_export_select__025]
+sql:
+SELECT 1 INTO OUTFILE '/tmp/x.csv' FORMAT CSV;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_EXPORT": [
+    {
+      "subject": "File(1:22~1:34) /test/1/tmp/x.csv/",
+      "action" : "EXPORT"
+    }
+  ]
+}
+----------
+[data_export_select__026]
+sql:
+SELECT 1 INTO OUTFILE '/tmp/x.gz' COMPRESSION GZIP;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_EXPORT": [
+    {
+      "subject": "File(1:22~1:33) /test/1/tmp/x.gz/",
+      "action" : "EXPORT"
+    }
+  ]
+}
+----------
+[data_export_select__027]
+sql:
+SELECT 1 INTO OUTFILE '/tmp/x.csv' HEADER ON;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_EXPORT": [
+    {
+      "subject": "File(1:22~1:34) /test/1/tmp/x.csv/",
+      "action" : "EXPORT"
+    }
+  ]
+}
+----------
+[data_export_select__028]
+sql:
+SELECT a INTO OUTFILE '/var/lib/mysql-files/split_union_derived.out' FROM (SELECT a FROM t1 UNION SELECT a FROM t1 WHERE 0) alias;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_EXPORT": [
+    {
+      "subject": "File(1:22~1:68) /test/1/var/lib/mysql-files/split_union_derived.out/",
+      "action" : "EXPORT",
+      "target" : "Table(1:89~1:91) /test/1/catalog1/schema1/t1/"
+    }
+  ]
+}
+----------
+[data_export_select__029]
+sql:
+SELECT a INTO DUMPFILE '/var/lib/mysql-files/split_union_derived.dump' FROM (SELECT a FROM t1 UNION SELECT a FROM t1 WHERE 0) alias;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_EXPORT": [
+    {
+      "subject": "File(1:23~1:70) /test/1/var/lib/mysql-files/split_union_derived.dump/",
+      "action" : "EXPORT",
+      "target" : "Table(1:91~1:93) /test/1/catalog1/schema1/t1/"
+    }
+  ]
+}
+----------
+[data_export_select__030]
+sql:
+SELECT (SELECT a UNION SELECT a) INTO OUTFILE '/var/lib/mysql-files/split_union_scalar.out' FROM t1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_EXPORT": [
+    {
+      "subject": "File(1:46~1:91) /test/1/var/lib/mysql-files/split_union_scalar.out/",
+      "action" : "EXPORT",
+      "target" : "Table(1:97~1:99) /test/1/catalog1/schema1/t1/"
+    }
+  ]
+}
+----------
+[data_export_select__031]
+sql:
+SELECT (SELECT a UNION SELECT a) INTO DUMPFILE '/var/lib/mysql-files/split_union_scalar.dump' FROM t1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_EXPORT": [
+    {
+      "subject": "File(1:47~1:93) /test/1/var/lib/mysql-files/split_union_scalar.dump/",
+      "action" : "EXPORT",
+      "target" : "Table(1:99~1:101) /test/1/catalog1/schema1/t1/"
+    }
+  ]
+}

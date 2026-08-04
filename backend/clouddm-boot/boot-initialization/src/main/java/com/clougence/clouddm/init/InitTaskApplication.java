@@ -27,7 +27,6 @@ import com.clougence.clouddm.console.web.service.envparam.DmEnvParamServiceImpl;
 import com.clougence.clouddm.console.web.service.login.LoginMFAServiceImpl;
 import com.clougence.clouddm.console.web.service.sdk.ConsoleCacheServiceImpl;
 import com.clougence.clouddm.console.web.service.sdk.ConsolePluginConfigServiceImpl;
-import com.clougence.clouddm.console.web.service.sdk.ConsoleQueryConstraintServiceImpl;
 import com.clougence.clouddm.console.web.service.security.CheckRulesServiceImpl;
 import com.clougence.clouddm.init.constant.I18nInitFieldKeys;
 
@@ -37,10 +36,10 @@ import com.clougence.clouddm.init.constant.I18nInitFieldKeys;
  */
 @SpringBootApplication(excludeName = "org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration")
 @ComponentScan(basePackages = { "com.clougence.clouddm.init.component.flyway", "com.clougence.clouddm.init.component.fixtasks",
-                                "com.clougence.clouddm.console.web.component.config", "com.clougence.clouddm.base", "com.clougence.clouddm.platform",
-                                "com.clougence.clouddm.sdk", "com.clougence.clouddm.api" })
-@Import({ DmAuthLabelServiceImpl.class, DmEnvParamServiceImpl.class, LoginMFAServiceImpl.class, CheckRulesServiceImpl.class,
-          ConsoleCacheServiceImpl.class, ConsolePluginConfigServiceImpl.class, ConsoleQueryConstraintServiceImpl.class })
+                                "com.clougence.clouddm.console.web.component.config", "com.clougence.clouddm.base", "com.clougence.clouddm.platform", "com.clougence.clouddm.sdk",
+                                "com.clougence.clouddm.api" })
+@Import({ DmAuthLabelServiceImpl.class, DmEnvParamServiceImpl.class, LoginMFAServiceImpl.class, CheckRulesServiceImpl.class, ConsoleCacheServiceImpl.class,
+          ConsolePluginConfigServiceImpl.class })
 public class InitTaskApplication {
 
     @Bean

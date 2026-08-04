@@ -1,0 +1,19 @@
+[dbms_xplan_display_domain]
+sql:
+call dbms_xplan.display_planhist('select C2 from APP.XPLAN_SOURCE where C1=1;')
+expect:
+{
+  "contains": [
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_xplan"}
+  ]
+}
+----------
+[dbms_xplan_clear_domain]
+sql:
+call dbms_xplan.clear_planhist(null,sysdate)
+expect:
+{
+  "contains": [
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_xplan"}
+  ]
+}

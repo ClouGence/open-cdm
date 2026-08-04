@@ -1,0 +1,4620 @@
+[split_ddl_dql_dcl_dameng_index_atomic_0_001_behavior_review]
+sql:
+create index idx_basic on app.idx_base(c1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:22) /test/1/catalog1/schema1/idx_basic/",
+      "action": "CREATE",
+      "target": "Table(1:26~1:38) /test/1/catalog1/app/idx_base/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_002_behavior_review]
+sql:
+create unique index idx_unique on app.idx_base(c2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:20~1:30) /test/1/catalog1/schema1/idx_unique/",
+      "action": "CREATE",
+      "target": "Table(1:34~1:46) /test/1/catalog1/app/idx_base/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_003_behavior_review]
+sql:
+create cluster index idx_cluster on app.idx_base(id);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:21~1:32) /test/1/catalog1/schema1/idx_cluster/",
+      "action": "CREATE",
+      "target": "Table(1:36~1:48) /test/1/catalog1/app/idx_base/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_004_behavior_review]
+sql:
+create not partial index idx_not_partial on app.idx_base(c3);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:25~1:40) /test/1/catalog1/schema1/idx_not_partial/",
+      "action": "CREATE",
+      "target": "Table(1:44~1:56) /test/1/catalog1/app/idx_base/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_005_behavior_review]
+sql:
+create index if not exists idx_basic on app.idx_base(c1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:27~1:36) /test/1/catalog1/schema1/idx_basic/",
+      "action": "CREATE",
+      "target": "Table(1:40~1:52) /test/1/catalog1/app/idx_base/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_006_behavior_review]
+sql:
+create or replace index idx_basic on app.idx_base(c1 desc);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:24~1:33) /test/1/catalog1/schema1/idx_basic/",
+      "action": "REPLACE",
+      "target": "Table(1:37~1:49) /test/1/catalog1/app/idx_base/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_007_behavior_review]
+sql:
+create or replace index if not exists idx_basic on app.idx_base(c1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:38~1:47) /test/1/catalog1/schema1/idx_basic/",
+      "action": "REPLACE",
+      "target": "Table(1:51~1:63) /test/1/catalog1/app/idx_base/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_008_behavior_review]
+sql:
+create index app.idx_schema on app.idx_base(c1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:27) /test/1/catalog1/app/idx_schema/",
+      "action": "CREATE",
+      "target": "Table(1:31~1:43) /test/1/catalog1/app/idx_base/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_009_behavior_review]
+sql:
+create index idx_sort on app.idx_base(c1 asc,c2 desc);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:21) /test/1/catalog1/schema1/idx_sort/",
+      "action": "CREATE",
+      "target": "Table(1:25~1:37) /test/1/catalog1/app/idx_base/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_010_behavior_review]
+sql:
+create index idx_expr on app.idx_base(upper(c3));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:21) /test/1/catalog1/schema1/idx_expr/",
+      "action": "CREATE",
+      "target": "Table(1:25~1:37) /test/1/catalog1/app/idx_base/"
+    },
+    {
+      "subject": "Function(1:38~1:43) /test/1/catalog1/schema1/upper/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_011_behavior_review]
+sql:
+create index idx_tablespace on app.idx_base(c1) tablespace main;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:27) /test/1/catalog1/schema1/idx_tablespace/",
+      "action": "CREATE",
+      "target": [
+        "Table(1:31~1:43) /test/1/catalog1/app/idx_base/",
+        "Tablespace(1:59~1:63) /test/1/main/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_012_behavior_review]
+sql:
+create index idx_storage on app.idx_base(c1) storage(initial 1,next 1,minextents 1,on main,fillfactor 80);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:24) /test/1/catalog1/schema1/idx_storage/",
+      "action": "CREATE",
+      "target": [
+        "Table(1:28~1:40) /test/1/catalog1/app/idx_base/",
+        "Tablespace(1:86~1:90) /test/1/main/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_013_behavior_review]
+sql:
+create index idx_storage_on on app.idx_base(c1) storage on main;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:27) /test/1/catalog1/schema1/idx_storage_on/",
+      "action": "CREATE",
+      "target": [
+        "Table(1:31~1:43) /test/1/catalog1/app/idx_base/",
+        "Tablespace(1:59~1:63) /test/1/main/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_014_behavior_review]
+sql:
+create index idx_nosort on app.idx_base(c1) nosort;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:23) /test/1/catalog1/schema1/idx_nosort/",
+      "action": "CREATE",
+      "target": "Table(1:27~1:39) /test/1/catalog1/app/idx_base/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_015_behavior_review]
+sql:
+create index idx_online on app.idx_base(c1) online;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:23) /test/1/catalog1/schema1/idx_online/",
+      "action": "CREATE",
+      "target": "Table(1:27~1:39) /test/1/catalog1/app/idx_base/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_016_behavior_review]
+sql:
+create index idx_reverse on app.idx_base(c3) reverse;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:24) /test/1/catalog1/schema1/idx_reverse/",
+      "action": "CREATE",
+      "target": "Table(1:28~1:40) /test/1/catalog1/app/idx_base/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_017_behavior_review]
+sql:
+create index idx_unusable on app.idx_base(c1) unusable;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:25) /test/1/catalog1/schema1/idx_unusable/",
+      "action": "CREATE",
+      "target": "Table(1:29~1:41) /test/1/catalog1/app/idx_base/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_018_behavior_review]
+sql:
+create index idx_parallel on app.idx_base(c1) parallel;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:25) /test/1/catalog1/schema1/idx_parallel/",
+      "action": "CREATE",
+      "target": "Table(1:29~1:41) /test/1/catalog1/app/idx_base/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_019_behavior_review]
+sql:
+create index idx_parallel0 on app.idx_base(c1) parallel 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:26) /test/1/catalog1/schema1/idx_parallel0/",
+      "action": "CREATE",
+      "target": "Table(1:30~1:42) /test/1/catalog1/app/idx_base/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_020_behavior_review]
+sql:
+create index idx_parallel1 on app.idx_base(c1) parallel 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:26) /test/1/catalog1/schema1/idx_parallel1/",
+      "action": "CREATE",
+      "target": "Table(1:30~1:42) /test/1/catalog1/app/idx_base/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_021_behavior_review]
+sql:
+create index idx_parallel2 on app.idx_base(c1) parallel 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:26) /test/1/catalog1/schema1/idx_parallel2/",
+      "action": "CREATE",
+      "target": "Table(1:30~1:42) /test/1/catalog1/app/idx_base/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_022_behavior_review]
+sql:
+create index idx_noparallel on app.idx_base(c1) noparallel;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:27) /test/1/catalog1/schema1/idx_noparallel/",
+      "action": "CREATE",
+      "target": "Table(1:31~1:43) /test/1/catalog1/app/idx_base/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_023_behavior_review]
+sql:
+create index idx_part_default on app.idx_part(id,c1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:29) /test/1/catalog1/schema1/idx_part_default/",
+      "action": "CREATE",
+      "target": "Table(1:33~1:45) /test/1/catalog1/app/idx_part/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_024_behavior_review]
+sql:
+create index idx_part_local on app.idx_part(id,c2) local;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:27) /test/1/catalog1/schema1/idx_part_local/",
+      "action": "CREATE",
+      "target": "Table(1:31~1:43) /test/1/catalog1/app/idx_part/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_025_behavior_review]
+sql:
+create index idx_part_global on app.idx_part(c1) global;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:28) /test/1/catalog1/schema1/idx_part_global/",
+      "action": "CREATE",
+      "target": "Table(1:32~1:44) /test/1/catalog1/app/idx_part/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_026_behavior_review]
+sql:
+create unique index idx_part_unique_local on app.idx_part(id,c1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:20~1:41) /test/1/catalog1/schema1/idx_part_unique_local/",
+      "action": "CREATE",
+      "target": "Table(1:45~1:57) /test/1/catalog1/app/idx_part/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_027_behavior_review]
+sql:
+create unique index idx_part_unique_bad on app.idx_part(c2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:20~1:39) /test/1/catalog1/schema1/idx_part_unique_bad/",
+      "action": "CREATE",
+      "target": "Table(1:43~1:55) /test/1/catalog1/app/idx_part/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_028_behavior_review]
+sql:
+create cluster index idx_part_cluster_global on app.idx_part(id) global;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:21~1:44) /test/1/catalog1/schema1/idx_part_cluster_global/",
+      "action": "CREATE",
+      "target": "Table(1:48~1:60) /test/1/catalog1/app/idx_part/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_029_behavior_review]
+sql:
+create index idx_initial_0 on app.idx_base(c1) storage(initial 0);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:26) /test/1/catalog1/schema1/idx_initial_0/",
+      "action": "CREATE",
+      "target": "Table(1:30~1:42) /test/1/catalog1/app/idx_base/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_030_behavior_review]
+sql:
+create index idx_initial_1 on app.idx_base(c1) storage(initial 1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:26) /test/1/catalog1/schema1/idx_initial_1/",
+      "action": "CREATE",
+      "target": "Table(1:30~1:42) /test/1/catalog1/app/idx_base/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_031_behavior_review]
+sql:
+create index idx_initial_256 on app.idx_base(c1) storage(initial 256);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:28) /test/1/catalog1/schema1/idx_initial_256/",
+      "action": "CREATE",
+      "target": "Table(1:32~1:44) /test/1/catalog1/app/idx_base/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_032_behavior_review]
+sql:
+create index idx_initial_257 on app.idx_base(c1) storage(initial 257);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:28) /test/1/catalog1/schema1/idx_initial_257/",
+      "action": "CREATE",
+      "target": "Table(1:32~1:44) /test/1/catalog1/app/idx_base/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_033_behavior_review]
+sql:
+create index idx_next_0 on app.idx_base(c1) storage(next 0);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:23) /test/1/catalog1/schema1/idx_next_0/",
+      "action": "CREATE",
+      "target": "Table(1:27~1:39) /test/1/catalog1/app/idx_base/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_034_behavior_review]
+sql:
+create index idx_next_1 on app.idx_base(c1) storage(next 1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:23) /test/1/catalog1/schema1/idx_next_1/",
+      "action": "CREATE",
+      "target": "Table(1:27~1:39) /test/1/catalog1/app/idx_base/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_035_behavior_review]
+sql:
+create index idx_next_256 on app.idx_base(c1) storage(next 256);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:25) /test/1/catalog1/schema1/idx_next_256/",
+      "action": "CREATE",
+      "target": "Table(1:29~1:41) /test/1/catalog1/app/idx_base/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_036_behavior_review]
+sql:
+create index idx_next_257 on app.idx_base(c1) storage(next 257);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:25) /test/1/catalog1/schema1/idx_next_257/",
+      "action": "CREATE",
+      "target": "Table(1:29~1:41) /test/1/catalog1/app/idx_base/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_037_behavior_review]
+sql:
+create index idx_minextents_0 on app.idx_base(c1) storage(minextents 0);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:29) /test/1/catalog1/schema1/idx_minextents_0/",
+      "action": "CREATE",
+      "target": "Table(1:33~1:45) /test/1/catalog1/app/idx_base/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_038_behavior_review]
+sql:
+create index idx_minextents_1 on app.idx_base(c1) storage(minextents 1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:29) /test/1/catalog1/schema1/idx_minextents_1/",
+      "action": "CREATE",
+      "target": "Table(1:33~1:45) /test/1/catalog1/app/idx_base/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_039_behavior_review]
+sql:
+create index idx_minextents_256 on app.idx_base(c1) storage(minextents 256);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:31) /test/1/catalog1/schema1/idx_minextents_256/",
+      "action": "CREATE",
+      "target": "Table(1:35~1:47) /test/1/catalog1/app/idx_base/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_040_behavior_review]
+sql:
+create index idx_minextents_257 on app.idx_base(c1) storage(minextents 257);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:31) /test/1/catalog1/schema1/idx_minextents_257/",
+      "action": "CREATE",
+      "target": "Table(1:35~1:47) /test/1/catalog1/app/idx_base/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_041_behavior_review]
+sql:
+create index idx_fillfactor_n1 on app.idx_base(c1) storage(fillfactor -1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:30) /test/1/catalog1/schema1/idx_fillfactor_n1/",
+      "action": "CREATE",
+      "target": "Table(1:34~1:46) /test/1/catalog1/app/idx_base/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_042_behavior_review]
+sql:
+create index idx_fillfactor_0 on app.idx_base(c1) storage(fillfactor 0);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:29) /test/1/catalog1/schema1/idx_fillfactor_0/",
+      "action": "CREATE",
+      "target": "Table(1:33~1:45) /test/1/catalog1/app/idx_base/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_043_behavior_review]
+sql:
+create index idx_fillfactor_1 on app.idx_base(c1) storage(fillfactor 1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:29) /test/1/catalog1/schema1/idx_fillfactor_1/",
+      "action": "CREATE",
+      "target": "Table(1:33~1:45) /test/1/catalog1/app/idx_base/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_044_behavior_review]
+sql:
+create index idx_fillfactor_100 on app.idx_base(c1) storage(fillfactor 100);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:31) /test/1/catalog1/schema1/idx_fillfactor_100/",
+      "action": "CREATE",
+      "target": "Table(1:35~1:47) /test/1/catalog1/app/idx_base/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_045_behavior_review]
+sql:
+create index idx_fillfactor_101 on app.idx_base(c1) storage(fillfactor 101);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:31) /test/1/catalog1/schema1/idx_fillfactor_101/",
+      "action": "CREATE",
+      "target": "Table(1:35~1:47) /test/1/catalog1/app/idx_base/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_046_behavior_review]
+sql:
+create index idx_storage_45 on app.idx_base(c1) storage(branch 1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:27) /test/1/catalog1/schema1/idx_storage_45/",
+      "action": "CREATE",
+      "target": "Table(1:31~1:43) /test/1/catalog1/app/idx_base/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_047_behavior_review]
+sql:
+create index idx_storage_46 on app.idx_base(c1) storage(branch(2,1));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:27) /test/1/catalog1/schema1/idx_storage_46/",
+      "action": "CREATE",
+      "target": "Table(1:31~1:43) /test/1/catalog1/app/idx_base/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_048_behavior_review]
+sql:
+create index idx_storage_47 on app.idx_base(c1) storage(nobranch);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:27) /test/1/catalog1/schema1/idx_storage_47/",
+      "action": "CREATE",
+      "target": "Table(1:31~1:43) /test/1/catalog1/app/idx_base/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_049_behavior_review]
+sql:
+create index idx_storage_48 on app.idx_base(c1) storage(clusterbtr);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:27) /test/1/catalog1/schema1/idx_storage_48/",
+      "action": "CREATE",
+      "target": "Table(1:31~1:43) /test/1/catalog1/app/idx_base/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_050_behavior_review]
+sql:
+create index idx_storage_49 on app.idx_base(c1) storage(stat none);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:27) /test/1/catalog1/schema1/idx_storage_49/",
+      "action": "CREATE",
+      "target": "Table(1:31~1:43) /test/1/catalog1/app/idx_base/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_051_behavior_review]
+sql:
+create index idx_storage_50 on app.idx_base(c1) storage(section(1));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:27) /test/1/catalog1/schema1/idx_storage_50/",
+      "action": "CREATE",
+      "target": "Table(1:31~1:43) /test/1/catalog1/app/idx_base/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_052_behavior_review]
+sql:
+create index idx_cols_63 on app.idx_64(c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16,c17,c18,c19,c20,c21,c22,c23,c24,c25,c26,c27,c28,c29,c30,c31,c32,c33,c34,c35,c36,c37,c38,c39,c40,c41,c42,c43,c44,c45,c46,c47,c48,c49,c50,c51,c52,c53,c54,c55,c56,c57,c58,c59,c60,c61,c62,c63);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:24) /test/1/catalog1/schema1/idx_cols_63/",
+      "action": "CREATE",
+      "target": "Table(1:28~1:38) /test/1/catalog1/app/idx_64/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_053_behavior_review]
+sql:
+create index idx_cols_64 on app.idx_64(c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16,c17,c18,c19,c20,c21,c22,c23,c24,c25,c26,c27,c28,c29,c30,c31,c32,c33,c34,c35,c36,c37,c38,c39,c40,c41,c42,c43,c44,c45,c46,c47,c48,c49,c50,c51,c52,c53,c54,c55,c56,c57,c58,c59,c60,c61,c62,c63,c64);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:24) /test/1/catalog1/schema1/idx_cols_64/",
+      "action": "CREATE",
+      "target": "Table(1:28~1:38) /test/1/catalog1/app/idx_64/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_054_behavior_review]
+sql:
+create index idx_duplicate on app.idx_base(c1,c1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:26) /test/1/catalog1/schema1/idx_duplicate/",
+      "action": "CREATE",
+      "target": "Table(1:30~1:42) /test/1/catalog1/app/idx_base/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_055_behavior_review]
+sql:
+create index iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii on app.idx_name(c1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:141) /test/1/catalog1/schema1/iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii/",
+      "action": "CREATE",
+      "target": "Table(1:145~1:157) /test/1/catalog1/app/idx_name/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_056_behavior_review]
+sql:
+create index iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii on app.idx_name(c2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:142) /test/1/catalog1/schema1/iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii/",
+      "action": "CREATE",
+      "target": "Table(1:146~1:158) /test/1/catalog1/app/idx_name/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_057_behavior_review]
+sql:
+create index index33554432 on app.idx_name(c1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:26) /test/1/catalog1/schema1/index33554432/",
+      "action": "CREATE",
+      "target": "Table(1:30~1:42) /test/1/catalog1/app/idx_name/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_058_behavior_review]
+sql:
+create index cons134217728 on app.idx_name(c2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:26) /test/1/catalog1/schema1/cons134217728/",
+      "action": "CREATE",
+      "target": "Table(1:30~1:42) /test/1/catalog1/app/idx_name/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_059_behavior_review]
+sql:
+create table app.idx_key_3000(c varchar(3000));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:29) /test/1/catalog1/app/idx_key_3000/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_060_behavior_review]
+sql:
+insert into app.idx_key_3000 values(repeat('x',3000));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:28) /test/1/catalog1/app/idx_key_3000/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:36~1:42) /test/1/catalog1/schema1/repeat/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_061_behavior_review]
+sql:
+create index idx_key_3000 on app.idx_key_3000(c);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:25) /test/1/catalog1/schema1/idx_key_3000/",
+      "action": "CREATE",
+      "target": "Table(1:29~1:45) /test/1/catalog1/app/idx_key_3000/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_062_behavior_review]
+sql:
+create table app.idx_key_3200(c varchar(3200));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:29) /test/1/catalog1/app/idx_key_3200/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_063_behavior_review]
+sql:
+insert into app.idx_key_3200 values(repeat('x',3200));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:28) /test/1/catalog1/app/idx_key_3200/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:36~1:42) /test/1/catalog1/schema1/repeat/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_064_behavior_review]
+sql:
+create index idx_key_3200 on app.idx_key_3200(c);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:25) /test/1/catalog1/schema1/idx_key_3200/",
+      "action": "CREATE",
+      "target": "Table(1:29~1:45) /test/1/catalog1/app/idx_key_3200/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_065_behavior_review]
+sql:
+create table app.idx_type_char(c char(10));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/app/idx_type_char/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_066_behavior_review]
+sql:
+create index idx_type_char on app.idx_type_char(c);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:26) /test/1/catalog1/schema1/idx_type_char/",
+      "action": "CREATE",
+      "target": "Table(1:30~1:47) /test/1/catalog1/app/idx_type_char/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_067_behavior_review]
+sql:
+create table app.idx_type_character(c character(10));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:35) /test/1/catalog1/app/idx_type_character/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_068_behavior_review]
+sql:
+create index idx_type_character on app.idx_type_character(c);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:31) /test/1/catalog1/schema1/idx_type_character/",
+      "action": "CREATE",
+      "target": "Table(1:35~1:57) /test/1/catalog1/app/idx_type_character/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_069_behavior_review]
+sql:
+create table app.idx_type_varchar(c varchar(20));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:33) /test/1/catalog1/app/idx_type_varchar/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_070_behavior_review]
+sql:
+create index idx_type_varchar on app.idx_type_varchar(c);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:29) /test/1/catalog1/schema1/idx_type_varchar/",
+      "action": "CREATE",
+      "target": "Table(1:33~1:53) /test/1/catalog1/app/idx_type_varchar/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_071_behavior_review]
+sql:
+create table app.idx_type_varchar2(c varchar2(20));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:34) /test/1/catalog1/app/idx_type_varchar2/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_072_behavior_review]
+sql:
+create index idx_type_varchar2 on app.idx_type_varchar2(c);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:30) /test/1/catalog1/schema1/idx_type_varchar2/",
+      "action": "CREATE",
+      "target": "Table(1:34~1:55) /test/1/catalog1/app/idx_type_varchar2/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_073_behavior_review]
+sql:
+create table app.idx_type_nchar(c nchar(10));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/app/idx_type_nchar/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_074_behavior_review]
+sql:
+create index idx_type_nchar on app.idx_type_nchar(c);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:27) /test/1/catalog1/schema1/idx_type_nchar/",
+      "action": "CREATE",
+      "target": "Table(1:31~1:49) /test/1/catalog1/app/idx_type_nchar/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_075_behavior_review]
+sql:
+create table app.idx_type_national_char(c national char(10));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:39) /test/1/catalog1/app/idx_type_national_char/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_076_behavior_review]
+sql:
+create index idx_type_national_char on app.idx_type_national_char(c);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:35) /test/1/catalog1/schema1/idx_type_national_char/",
+      "action": "CREATE",
+      "target": "Table(1:39~1:65) /test/1/catalog1/app/idx_type_national_char/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_077_behavior_review]
+sql:
+create table app.idx_type_char_vary(c character varying(20));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:35) /test/1/catalog1/app/idx_type_char_vary/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_078_behavior_review]
+sql:
+create index idx_type_char_vary on app.idx_type_char_vary(c);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:31) /test/1/catalog1/schema1/idx_type_char_vary/",
+      "action": "CREATE",
+      "target": "Table(1:35~1:57) /test/1/catalog1/app/idx_type_char_vary/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_079_behavior_review]
+sql:
+create table app.idx_type_nchar_vary(c nchar varying(20));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:36) /test/1/catalog1/app/idx_type_nchar_vary/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_080_behavior_review]
+sql:
+create index idx_type_nchar_vary on app.idx_type_nchar_vary(c);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:32) /test/1/catalog1/schema1/idx_type_nchar_vary/",
+      "action": "CREATE",
+      "target": "Table(1:36~1:59) /test/1/catalog1/app/idx_type_nchar_vary/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_081_behavior_review]
+sql:
+create table app.idx_type_national_vary(c national character varying(20));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:39) /test/1/catalog1/app/idx_type_national_vary/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_082_behavior_review]
+sql:
+create index idx_type_national_vary on app.idx_type_national_vary(c);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:35) /test/1/catalog1/schema1/idx_type_national_vary/",
+      "action": "CREATE",
+      "target": "Table(1:39~1:65) /test/1/catalog1/app/idx_type_national_vary/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_083_behavior_review]
+sql:
+create table app.idx_type_numeric(c numeric);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:33) /test/1/catalog1/app/idx_type_numeric/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_084_behavior_review]
+sql:
+create index idx_type_numeric on app.idx_type_numeric(c);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:29) /test/1/catalog1/schema1/idx_type_numeric/",
+      "action": "CREATE",
+      "target": "Table(1:33~1:53) /test/1/catalog1/app/idx_type_numeric/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_085_behavior_review]
+sql:
+create table app.idx_type_decimal(c decimal);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:33) /test/1/catalog1/app/idx_type_decimal/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_086_behavior_review]
+sql:
+create index idx_type_decimal on app.idx_type_decimal(c);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:29) /test/1/catalog1/schema1/idx_type_decimal/",
+      "action": "CREATE",
+      "target": "Table(1:33~1:53) /test/1/catalog1/app/idx_type_decimal/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_087_behavior_review]
+sql:
+create table app.idx_type_dec(c dec);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:29) /test/1/catalog1/app/idx_type_dec/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_088_behavior_review]
+sql:
+create index idx_type_dec on app.idx_type_dec(c);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:25) /test/1/catalog1/schema1/idx_type_dec/",
+      "action": "CREATE",
+      "target": "Table(1:29~1:45) /test/1/catalog1/app/idx_type_dec/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_089_behavior_review]
+sql:
+create table app.idx_type_number(c number);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:32) /test/1/catalog1/app/idx_type_number/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_090_behavior_review]
+sql:
+create index idx_type_number on app.idx_type_number(c);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:28) /test/1/catalog1/schema1/idx_type_number/",
+      "action": "CREATE",
+      "target": "Table(1:32~1:51) /test/1/catalog1/app/idx_type_number/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_091_behavior_review]
+sql:
+create table app.idx_type_integer(c integer);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:33) /test/1/catalog1/app/idx_type_integer/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_092_behavior_review]
+sql:
+create index idx_type_integer on app.idx_type_integer(c);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:29) /test/1/catalog1/schema1/idx_type_integer/",
+      "action": "CREATE",
+      "target": "Table(1:33~1:53) /test/1/catalog1/app/idx_type_integer/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_093_behavior_review]
+sql:
+create table app.idx_type_int(c int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:29) /test/1/catalog1/app/idx_type_int/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_094_behavior_review]
+sql:
+create index idx_type_int on app.idx_type_int(c);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:25) /test/1/catalog1/schema1/idx_type_int/",
+      "action": "CREATE",
+      "target": "Table(1:29~1:45) /test/1/catalog1/app/idx_type_int/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_095_behavior_review]
+sql:
+create table app.idx_type_bigint(c bigint);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:32) /test/1/catalog1/app/idx_type_bigint/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_096_behavior_review]
+sql:
+create index idx_type_bigint on app.idx_type_bigint(c);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:28) /test/1/catalog1/schema1/idx_type_bigint/",
+      "action": "CREATE",
+      "target": "Table(1:32~1:51) /test/1/catalog1/app/idx_type_bigint/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_097_behavior_review]
+sql:
+create table app.idx_type_tinyint(c tinyint);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:33) /test/1/catalog1/app/idx_type_tinyint/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_098_behavior_review]
+sql:
+create index idx_type_tinyint on app.idx_type_tinyint(c);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:29) /test/1/catalog1/schema1/idx_type_tinyint/",
+      "action": "CREATE",
+      "target": "Table(1:33~1:53) /test/1/catalog1/app/idx_type_tinyint/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_099_behavior_review]
+sql:
+create table app.idx_type_byte(c byte);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/app/idx_type_byte/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_100_behavior_review]
+sql:
+create index idx_type_byte on app.idx_type_byte(c);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:26) /test/1/catalog1/schema1/idx_type_byte/",
+      "action": "CREATE",
+      "target": "Table(1:30~1:47) /test/1/catalog1/app/idx_type_byte/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_101_behavior_review]
+sql:
+create table app.idx_type_smallint(c smallint);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:34) /test/1/catalog1/app/idx_type_smallint/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_102_behavior_review]
+sql:
+create index idx_type_smallint on app.idx_type_smallint(c);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:30) /test/1/catalog1/schema1/idx_type_smallint/",
+      "action": "CREATE",
+      "target": "Table(1:34~1:55) /test/1/catalog1/app/idx_type_smallint/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_103_behavior_review]
+sql:
+create table app.idx_type_float(c float);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/app/idx_type_float/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_104_behavior_review]
+sql:
+create index idx_type_float on app.idx_type_float(c);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:27) /test/1/catalog1/schema1/idx_type_float/",
+      "action": "CREATE",
+      "target": "Table(1:31~1:49) /test/1/catalog1/app/idx_type_float/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_105_behavior_review]
+sql:
+create table app.idx_type_double(c double);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:32) /test/1/catalog1/app/idx_type_double/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_106_behavior_review]
+sql:
+create index idx_type_double on app.idx_type_double(c);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:28) /test/1/catalog1/schema1/idx_type_double/",
+      "action": "CREATE",
+      "target": "Table(1:32~1:51) /test/1/catalog1/app/idx_type_double/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_107_behavior_review]
+sql:
+create table app.idx_type_real(c real);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/app/idx_type_real/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_108_behavior_review]
+sql:
+create index idx_type_real on app.idx_type_real(c);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:26) /test/1/catalog1/schema1/idx_type_real/",
+      "action": "CREATE",
+      "target": "Table(1:30~1:47) /test/1/catalog1/app/idx_type_real/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_109_behavior_review]
+sql:
+create table app.idx_type_double_precision(c double precision);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:42) /test/1/catalog1/app/idx_type_double_precision/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_110_behavior_review]
+sql:
+create index idx_type_double_precision on app.idx_type_double_precision(c);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:38) /test/1/catalog1/schema1/idx_type_double_precision/",
+      "action": "CREATE",
+      "target": "Table(1:42~1:71) /test/1/catalog1/app/idx_type_double_precision/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_111_behavior_review]
+sql:
+create table app.idx_type_date(c date);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/app/idx_type_date/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_112_behavior_review]
+sql:
+create index idx_type_date on app.idx_type_date(c);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:26) /test/1/catalog1/schema1/idx_type_date/",
+      "action": "CREATE",
+      "target": "Table(1:30~1:47) /test/1/catalog1/app/idx_type_date/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_113_behavior_review]
+sql:
+create table app.idx_type_time(c time);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/app/idx_type_time/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_114_behavior_review]
+sql:
+create index idx_type_time on app.idx_type_time(c);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:26) /test/1/catalog1/schema1/idx_type_time/",
+      "action": "CREATE",
+      "target": "Table(1:30~1:47) /test/1/catalog1/app/idx_type_time/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_115_behavior_review]
+sql:
+create table app.idx_type_timestamp(c timestamp);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:35) /test/1/catalog1/app/idx_type_timestamp/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_116_behavior_review]
+sql:
+create index idx_type_timestamp on app.idx_type_timestamp(c);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:31) /test/1/catalog1/schema1/idx_type_timestamp/",
+      "action": "CREATE",
+      "target": "Table(1:35~1:57) /test/1/catalog1/app/idx_type_timestamp/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_117_behavior_review]
+sql:
+create table app.idx_type_datetime(c datetime);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:34) /test/1/catalog1/app/idx_type_datetime/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_118_behavior_review]
+sql:
+create index idx_type_datetime on app.idx_type_datetime(c);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:30) /test/1/catalog1/schema1/idx_type_datetime/",
+      "action": "CREATE",
+      "target": "Table(1:34~1:55) /test/1/catalog1/app/idx_type_datetime/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_119_behavior_review]
+sql:
+create table app.idx_type_time_tz(c time with time zone);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:33) /test/1/catalog1/app/idx_type_time_tz/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_120_behavior_review]
+sql:
+create index idx_type_time_tz on app.idx_type_time_tz(c);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:29) /test/1/catalog1/schema1/idx_type_time_tz/",
+      "action": "CREATE",
+      "target": "Table(1:33~1:53) /test/1/catalog1/app/idx_type_time_tz/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_121_behavior_review]
+sql:
+create table app.idx_type_timestamp_tz(c timestamp with time zone);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:38) /test/1/catalog1/app/idx_type_timestamp_tz/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_122_behavior_review]
+sql:
+create index idx_type_timestamp_tz on app.idx_type_timestamp_tz(c);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:34) /test/1/catalog1/schema1/idx_type_timestamp_tz/",
+      "action": "CREATE",
+      "target": "Table(1:38~1:63) /test/1/catalog1/app/idx_type_timestamp_tz/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_123_behavior_review]
+sql:
+create table app.idx_type_datetime_tz(c datetime with time zone);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:37) /test/1/catalog1/app/idx_type_datetime_tz/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_124_behavior_review]
+sql:
+create index idx_type_datetime_tz on app.idx_type_datetime_tz(c);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:33) /test/1/catalog1/schema1/idx_type_datetime_tz/",
+      "action": "CREATE",
+      "target": "Table(1:37~1:61) /test/1/catalog1/app/idx_type_datetime_tz/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_125_behavior_review]
+sql:
+create table app.idx_type_timestamp_local_tz(c timestamp with local time zone);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:44) /test/1/catalog1/app/idx_type_timestamp_local_tz/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_126_behavior_review]
+sql:
+create index idx_type_timestamp_local_tz on app.idx_type_timestamp_local_tz(c);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:40) /test/1/catalog1/schema1/idx_type_timestamp_local_tz/",
+      "action": "CREATE",
+      "target": "Table(1:44~1:75) /test/1/catalog1/app/idx_type_timestamp_local_tz/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_127_behavior_review]
+sql:
+create table app.idx_type_interval_ym(c interval year to month);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:37) /test/1/catalog1/app/idx_type_interval_ym/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_128_behavior_review]
+sql:
+create index idx_type_interval_ym on app.idx_type_interval_ym(c);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:33) /test/1/catalog1/schema1/idx_type_interval_ym/",
+      "action": "CREATE",
+      "target": "Table(1:37~1:61) /test/1/catalog1/app/idx_type_interval_ym/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_129_behavior_review]
+sql:
+create table app.idx_type_interval_ds(c interval day to second);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:37) /test/1/catalog1/app/idx_type_interval_ds/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_130_behavior_review]
+sql:
+create index idx_type_interval_ds on app.idx_type_interval_ds(c);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:33) /test/1/catalog1/schema1/idx_type_interval_ds/",
+      "action": "CREATE",
+      "target": "Table(1:37~1:61) /test/1/catalog1/app/idx_type_interval_ds/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_131_behavior_review]
+sql:
+create table app.idx_type_bit(c bit);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:29) /test/1/catalog1/app/idx_type_bit/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_132_behavior_review]
+sql:
+create index idx_type_bit on app.idx_type_bit(c);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:25) /test/1/catalog1/schema1/idx_type_bit/",
+      "action": "CREATE",
+      "target": "Table(1:29~1:45) /test/1/catalog1/app/idx_type_bit/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_133_behavior_review]
+sql:
+create table app.idx_type_binary(c binary(10));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:32) /test/1/catalog1/app/idx_type_binary/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_134_behavior_review]
+sql:
+create index idx_type_binary on app.idx_type_binary(c);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:28) /test/1/catalog1/schema1/idx_type_binary/",
+      "action": "CREATE",
+      "target": "Table(1:32~1:51) /test/1/catalog1/app/idx_type_binary/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_135_behavior_review]
+sql:
+create table app.idx_type_varbinary(c varbinary(10));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:35) /test/1/catalog1/app/idx_type_varbinary/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_136_behavior_review]
+sql:
+create index idx_type_varbinary on app.idx_type_varbinary(c);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:31) /test/1/catalog1/schema1/idx_type_varbinary/",
+      "action": "CREATE",
+      "target": "Table(1:35~1:57) /test/1/catalog1/app/idx_type_varbinary/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_137_behavior_review]
+sql:
+create table app.idx_type_raw(c raw(10));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:29) /test/1/catalog1/app/idx_type_raw/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_138_behavior_review]
+sql:
+create index idx_type_raw on app.idx_type_raw(c);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:25) /test/1/catalog1/schema1/idx_type_raw/",
+      "action": "CREATE",
+      "target": "Table(1:29~1:45) /test/1/catalog1/app/idx_type_raw/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_139_behavior_review]
+sql:
+create table app.idx_type_text(c text);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/app/idx_type_text/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_140_behavior_review]
+sql:
+create index idx_type_text on app.idx_type_text(c);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:26) /test/1/catalog1/schema1/idx_type_text/",
+      "action": "CREATE",
+      "target": "Table(1:30~1:47) /test/1/catalog1/app/idx_type_text/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_141_behavior_review]
+sql:
+create table app.idx_type_long(c long);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/app/idx_type_long/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_142_behavior_review]
+sql:
+create index idx_type_long on app.idx_type_long(c);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:26) /test/1/catalog1/schema1/idx_type_long/",
+      "action": "CREATE",
+      "target": "Table(1:30~1:47) /test/1/catalog1/app/idx_type_long/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_143_behavior_review]
+sql:
+create table app.idx_type_longvarchar(c longvarchar);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:37) /test/1/catalog1/app/idx_type_longvarchar/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_144_behavior_review]
+sql:
+create index idx_type_longvarchar on app.idx_type_longvarchar(c);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:33) /test/1/catalog1/schema1/idx_type_longvarchar/",
+      "action": "CREATE",
+      "target": "Table(1:37~1:61) /test/1/catalog1/app/idx_type_longvarchar/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_145_behavior_review]
+sql:
+create table app.idx_type_image(c image);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/app/idx_type_image/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_146_behavior_review]
+sql:
+create index idx_type_image on app.idx_type_image(c);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:27) /test/1/catalog1/schema1/idx_type_image/",
+      "action": "CREATE",
+      "target": "Table(1:31~1:49) /test/1/catalog1/app/idx_type_image/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_147_behavior_review]
+sql:
+create table app.idx_type_longvarbinary(c longvarbinary);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:39) /test/1/catalog1/app/idx_type_longvarbinary/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_148_behavior_review]
+sql:
+create index idx_type_longvarbinary on app.idx_type_longvarbinary(c);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:35) /test/1/catalog1/schema1/idx_type_longvarbinary/",
+      "action": "CREATE",
+      "target": "Table(1:39~1:65) /test/1/catalog1/app/idx_type_longvarbinary/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_149_behavior_review]
+sql:
+create table app.idx_type_blob(c blob);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/app/idx_type_blob/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_150_behavior_review]
+sql:
+create index idx_type_blob on app.idx_type_blob(c);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:26) /test/1/catalog1/schema1/idx_type_blob/",
+      "action": "CREATE",
+      "target": "Table(1:30~1:47) /test/1/catalog1/app/idx_type_blob/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_151_behavior_review]
+sql:
+create table app.idx_type_clob(c clob);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/app/idx_type_clob/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_152_behavior_review]
+sql:
+create index idx_type_clob on app.idx_type_clob(c);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:26) /test/1/catalog1/schema1/idx_type_clob/",
+      "action": "CREATE",
+      "target": "Table(1:30~1:47) /test/1/catalog1/app/idx_type_clob/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_153_behavior_review]
+sql:
+create table app.idx_type_bfile(c bfile);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/app/idx_type_bfile/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_154_behavior_review]
+sql:
+create index idx_type_bfile on app.idx_type_bfile(c);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:27) /test/1/catalog1/schema1/idx_type_bfile/",
+      "action": "CREATE",
+      "target": "Table(1:31~1:49) /test/1/catalog1/app/idx_type_bfile/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_155_behavior_review]
+sql:
+create table app.idx_type_rowid(c rowid);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/app/idx_type_rowid/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_156_behavior_review]
+sql:
+create index idx_type_rowid on app.idx_type_rowid(c);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:27) /test/1/catalog1/schema1/idx_type_rowid/",
+      "action": "CREATE",
+      "target": "Table(1:31~1:49) /test/1/catalog1/app/idx_type_rowid/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_157_behavior_review]
+sql:
+create index idx_func_arith on app.idx_base(c1+c2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:27) /test/1/catalog1/schema1/idx_func_arith/",
+      "action": "CREATE",
+      "target": "Table(1:31~1:43) /test/1/catalog1/app/idx_base/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_158_behavior_review]
+sql:
+create unique index idx_func_unique on app.idx_base(upper(c3));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:20~1:35) /test/1/catalog1/schema1/idx_func_unique/",
+      "action": "CREATE",
+      "target": "Table(1:39~1:51) /test/1/catalog1/app/idx_base/"
+    },
+    {
+      "subject": "Function(1:52~1:57) /test/1/catalog1/schema1/upper/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_159_behavior_review]
+sql:
+create index idx_func_online on app.idx_base(upper(c3)) online;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:28) /test/1/catalog1/schema1/idx_func_online/",
+      "action": "CREATE",
+      "target": "Table(1:32~1:44) /test/1/catalog1/app/idx_base/"
+    },
+    {
+      "subject": "Function(1:45~1:50) /test/1/catalog1/schema1/upper/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_160_behavior_review]
+sql:
+create index idx_func_agg on app.idx_base(sum(c1));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:25) /test/1/catalog1/schema1/idx_func_agg/",
+      "action": "CREATE",
+      "target": "Table(1:29~1:41) /test/1/catalog1/app/idx_base/"
+    },
+    {
+      "subject": "Function(1:42~1:45) /test/1/catalog1/schema1/sum/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_161_behavior_review]
+sql:
+create index idx_func_rand on app.idx_base(rand());
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:26) /test/1/catalog1/schema1/idx_func_rand/",
+      "action": "CREATE",
+      "target": "Table(1:30~1:42) /test/1/catalog1/app/idx_base/"
+    },
+    {
+      "subject": "Function(1:43~1:47) /test/1/catalog1/schema1/rand/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_162_behavior_review]
+sql:
+create index idx_func_now on app.idx_base(now());
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:25) /test/1/catalog1/schema1/idx_func_now/",
+      "action": "CREATE",
+      "target": "Table(1:29~1:41) /test/1/catalog1/app/idx_base/"
+    },
+    {
+      "subject": "Function(1:42~1:45) /test/1/catalog1/schema1/now/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_163_behavior_review]
+sql:
+create cluster index idx_func_cluster on app.idx_base(upper(c3));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:21~1:37) /test/1/catalog1/schema1/idx_func_cluster/",
+      "action": "CREATE",
+      "target": "Table(1:41~1:53) /test/1/catalog1/app/idx_base/"
+    },
+    {
+      "subject": "Function(1:54~1:59) /test/1/catalog1/schema1/upper/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_164_behavior_review]
+sql:
+create index idx_reverse_raw on app.idx_base(raw_col) reverse;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:28) /test/1/catalog1/schema1/idx_reverse_raw/",
+      "action": "CREATE",
+      "target": "Table(1:32~1:44) /test/1/catalog1/app/idx_base/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_165_behavior_review]
+sql:
+create index idx_reverse_bit on app.idx_base(bit_col) reverse;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:28) /test/1/catalog1/schema1/idx_reverse_bit/",
+      "action": "CREATE",
+      "target": "Table(1:32~1:44) /test/1/catalog1/app/idx_base/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_166_behavior_review]
+sql:
+create index idx_reverse_interval on app.idx_base(interval_col) reverse;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:33) /test/1/catalog1/schema1/idx_reverse_interval/",
+      "action": "CREATE",
+      "target": "Table(1:37~1:49) /test/1/catalog1/app/idx_base/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_167_behavior_review]
+sql:
+create bitmap index idx_bitmap_reverse on app.idx_fact(dim_id) reverse;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:20~1:38) /test/1/catalog1/schema1/idx_bitmap_reverse/",
+      "action": "CREATE",
+      "target": "Table(1:42~1:54) /test/1/catalog1/app/idx_fact/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_168_behavior_review]
+sql:
+create cluster index idx_cluster_reverse on app.idx_base(c1) reverse;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:21~1:40) /test/1/catalog1/schema1/idx_cluster_reverse/",
+      "action": "CREATE",
+      "target": "Table(1:44~1:56) /test/1/catalog1/app/idx_base/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_169_behavior_review]
+sql:
+create index idx_nosort_online on app.idx_base(c1) nosort online;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:30) /test/1/catalog1/schema1/idx_nosort_online/",
+      "action": "CREATE",
+      "target": "Table(1:34~1:46) /test/1/catalog1/app/idx_base/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_170_behavior_review]
+sql:
+create index idx_nosort_reverse on app.idx_base(c2) nosort reverse;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:31) /test/1/catalog1/schema1/idx_nosort_reverse/",
+      "action": "CREATE",
+      "target": "Table(1:35~1:47) /test/1/catalog1/app/idx_base/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_171_behavior_review]
+sql:
+create or replace index idx_replace_nosort on app.idx_base(c3) nosort;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:24~1:42) /test/1/catalog1/schema1/idx_replace_nosort/",
+      "action": "REPLACE",
+      "target": "Table(1:46~1:58) /test/1/catalog1/app/idx_base/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_172_behavior_review]
+sql:
+create index idx_unusable_nosort on app.idx_base(c1) unusable nosort;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:32) /test/1/catalog1/schema1/idx_unusable_nosort/",
+      "action": "CREATE",
+      "target": "Table(1:36~1:48) /test/1/catalog1/app/idx_base/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_173_behavior_review]
+sql:
+create index idx_unusable_online on app.idx_base(c2) unusable online;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:32) /test/1/catalog1/schema1/idx_unusable_online/",
+      "action": "CREATE",
+      "target": "Table(1:36~1:48) /test/1/catalog1/app/idx_base/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_174_behavior_review]
+sql:
+create bitmap index idx_bitmap on app.idx_fact(dim_id);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:20~1:30) /test/1/catalog1/schema1/idx_bitmap/",
+      "action": "CREATE",
+      "target": "Table(1:34~1:46) /test/1/catalog1/app/idx_fact/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_175_behavior_review]
+sql:
+create bitmap index idx_bitmap_expr on app.idx_fact(amount+1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:20~1:35) /test/1/catalog1/schema1/idx_bitmap_expr/",
+      "action": "CREATE",
+      "target": "Table(1:39~1:51) /test/1/catalog1/app/idx_fact/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_176_behavior_review]
+sql:
+create bitmap index idx_bitmap_pk on app.idx_unique(id);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:20~1:33) /test/1/catalog1/schema1/idx_bitmap_pk/",
+      "action": "CREATE",
+      "target": "Table(1:37~1:51) /test/1/catalog1/app/idx_unique/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_177_behavior_review]
+sql:
+create bitmap index idx_bitmap_unique on app.idx_unique(u);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:20~1:37) /test/1/catalog1/schema1/idx_bitmap_unique/",
+      "action": "CREATE",
+      "target": "Table(1:41~1:55) /test/1/catalog1/app/idx_unique/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_178_behavior_review]
+sql:
+create bitmap index idx_bitmap_global on app.idx_part(c1) global;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:20~1:37) /test/1/catalog1/schema1/idx_bitmap_global/",
+      "action": "CREATE",
+      "target": "Table(1:41~1:53) /test/1/catalog1/app/idx_part/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_179_behavior_review]
+sql:
+create bitmap index idx_bitmap_interval on app.idx_interval(c1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:20~1:39) /test/1/catalog1/schema1/idx_bitmap_interval/",
+      "action": "CREATE",
+      "target": "Table(1:43~1:59) /test/1/catalog1/app/idx_interval/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_180_behavior_review]
+sql:
+create bitmap index idx_bmj on app.idx_fact(app.idx_dim.label) from app.idx_dim,app.idx_fact where app.idx_dim.id=app.idx_fact.dim_id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:20~1:27) /test/1/catalog1/schema1/idx_bmj/",
+      "action": "CREATE",
+      "target": [
+        "Table(1:31~1:43) /test/1/catalog1/app/idx_fact/",
+        "Table(1:68~1:79) /test/1/catalog1/app/idx_dim/",
+        "Table(1:80~1:92) /test/1/catalog1/app/idx_fact/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_181_behavior_review]
+sql:
+create bitmap index idx_bmj_bad_key on app.idx_fact(app.idx_dim.label) from app.idx_dim,app.idx_fact where app.idx_dim.label=app.idx_fact.dim_id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:20~1:35) /test/1/catalog1/schema1/idx_bmj_bad_key/",
+      "action": "CREATE",
+      "target": [
+        "Table(1:39~1:51) /test/1/catalog1/app/idx_fact/",
+        "Table(1:76~1:87) /test/1/catalog1/app/idx_dim/",
+        "Table(1:88~1:100) /test/1/catalog1/app/idx_fact/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_182_behavior_review]
+sql:
+create bitmap index idx_bmj_dup on app.idx_fact(app.idx_dim.label) from app.idx_dim,app.idx_fact f1,app.idx_fact f2 where app.idx_dim.id=f1.dim_id and app.idx_dim.id=f2.dim_id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:20~1:31) /test/1/catalog1/schema1/idx_bmj_dup/",
+      "action": "CREATE",
+      "target": [
+        "Table(1:35~1:47) /test/1/catalog1/app/idx_fact/",
+        "Table(1:72~1:83) /test/1/catalog1/app/idx_dim/",
+        "Table(1:84~1:96) /test/1/catalog1/app/idx_fact/",
+        "Table(1:100~1:112) /test/1/catalog1/app/idx_fact/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_183_behavior_review]
+sql:
+create bitmap index idx_bmj_sec4 on app.idx_fact(app.idx_dim.label) from app.idx_dim,app.idx_fact where app.idx_dim.id=app.idx_fact.dim_id storage(section(4));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:20~1:32) /test/1/catalog1/schema1/idx_bmj_sec4/",
+      "action": "CREATE",
+      "target": [
+        "Table(1:36~1:48) /test/1/catalog1/app/idx_fact/",
+        "Table(1:73~1:84) /test/1/catalog1/app/idx_dim/",
+        "Table(1:85~1:97) /test/1/catalog1/app/idx_fact/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_184_behavior_review]
+sql:
+create bitmap index idx_bmj_sec2048 on app.idx_fact(app.idx_dim.label) from app.idx_dim,app.idx_fact where app.idx_dim.id=app.idx_fact.dim_id storage(section(2048));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:20~1:35) /test/1/catalog1/schema1/idx_bmj_sec2048/",
+      "action": "CREATE",
+      "target": [
+        "Table(1:39~1:51) /test/1/catalog1/app/idx_fact/",
+        "Table(1:76~1:87) /test/1/catalog1/app/idx_dim/",
+        "Table(1:88~1:100) /test/1/catalog1/app/idx_fact/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_185_behavior_review]
+sql:
+create bitmap index idx_bmj_sec3 on app.idx_fact(app.idx_dim.label) from app.idx_dim,app.idx_fact where app.idx_dim.id=app.idx_fact.dim_id storage(section(3));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:20~1:32) /test/1/catalog1/schema1/idx_bmj_sec3/",
+      "action": "CREATE",
+      "target": [
+        "Table(1:36~1:48) /test/1/catalog1/app/idx_fact/",
+        "Table(1:73~1:84) /test/1/catalog1/app/idx_dim/",
+        "Table(1:85~1:97) /test/1/catalog1/app/idx_fact/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_186_behavior_review]
+sql:
+create bitmap index idx_bmj_sec2049 on app.idx_fact(app.idx_dim.label) from app.idx_dim,app.idx_fact where app.idx_dim.id=app.idx_fact.dim_id storage(section(2049));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:20~1:35) /test/1/catalog1/schema1/idx_bmj_sec2049/",
+      "action": "CREATE",
+      "target": [
+        "Table(1:39~1:51) /test/1/catalog1/app/idx_fact/",
+        "Table(1:76~1:87) /test/1/catalog1/app/idx_dim/",
+        "Table(1:88~1:100) /test/1/catalog1/app/idx_fact/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_187_behavior_review]
+sql:
+create index idx_dpc_global on app.dpc_idx_t(code,note) global partition by range(code)(partition ip1 values less than(2) storage(on dpc_ts1),partition ip2 values less than(maxvalue) storage(on dpc_ts2));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:27) /test/1/catalog1/schema1/idx_dpc_global/",
+      "action": "CREATE",
+      "target": [
+        "Table(1:31~1:44) /test/1/catalog1/app/dpc_idx_t/",
+        "Tablespace(1:133~1:140) /test/1/dpc_ts1/",
+        "Tablespace(1:194~1:201) /test/1/dpc_ts2/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_188_behavior_review]
+sql:
+create index idx_dpc_second on app.dpc_idx_t(alt1,note) global partition by list(alt1)(partition il1 values(1) storage(on dpc_ts1),partition il2 values(default) storage(on dpc_ts2));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:27) /test/1/catalog1/schema1/idx_dpc_second/",
+      "action": "CREATE",
+      "target": [
+        "Table(1:31~1:44) /test/1/catalog1/app/dpc_idx_t/",
+        "Tablespace(1:122~1:129) /test/1/dpc_ts1/",
+        "Tablespace(1:172~1:179) /test/1/dpc_ts2/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_189_behavior_review]
+sql:
+create index idx_dpc_list on app.dpc_idx_t(alt1,note) global partition by list(alt1)(partition il1 values(1) storage(on dpc_ts1),partition il2 values(default) storage(on dpc_ts2));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:25) /test/1/catalog1/schema1/idx_dpc_list/",
+      "action": "CREATE",
+      "target": [
+        "Table(1:29~1:42) /test/1/catalog1/app/dpc_idx_t/",
+        "Tablespace(1:120~1:127) /test/1/dpc_ts1/",
+        "Tablespace(1:170~1:177) /test/1/dpc_ts2/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_190_behavior_review]
+sql:
+create index idx_dpc_hash on app.dpc_idx_t(alt2,note) global partition by hash(alt2)(partition ih1 storage(on dpc_ts1),partition ih2 storage(on dpc_ts2));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:25) /test/1/catalog1/schema1/idx_dpc_hash/",
+      "action": "CREATE",
+      "target": [
+        "Table(1:29~1:42) /test/1/catalog1/app/dpc_idx_t/",
+        "Tablespace(1:110~1:117) /test/1/dpc_ts1/",
+        "Tablespace(1:144~1:151) /test/1/dpc_ts2/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_191_behavior_review]
+sql:
+create unique index idx_dpc_unique on app.dpc_idx_t(uq,note) global partition by range(uq)(partition iu1 values less than(102) storage(on dpc_ts1),partition iu2 values less than(maxvalue) storage(on dpc_ts2));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:20~1:34) /test/1/catalog1/schema1/idx_dpc_unique/",
+      "action": "CREATE",
+      "target": [
+        "Table(1:38~1:51) /test/1/catalog1/app/dpc_idx_t/",
+        "Tablespace(1:138~1:145) /test/1/dpc_ts1/",
+        "Tablespace(1:199~1:206) /test/1/dpc_ts2/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_192_behavior_review]
+sql:
+alter table app.dpc_idx_t truncate partition p1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:25) /test/1/catalog1/app/dpc_idx_t/",
+      "action": "ALTER",
+      "target": "Partition(1:45~1:47) /test/1/catalog1/app/dpc_idx_t/p1/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_193_behavior_review]
+sql:
+drop index app.idx_dpc_global;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_INDEX": [
+    {
+      "subject": "Index(1:11~1:29) /test/1/catalog1/app/idx_dpc_global/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_194_behavior_review]
+sql:
+alter table app.dpc_idx_t truncate partition p1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:25) /test/1/catalog1/app/dpc_idx_t/",
+      "action": "ALTER",
+      "target": "Partition(1:45~1:47) /test/1/catalog1/app/dpc_idx_t/p1/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_195_behavior_review]
+sql:
+create index idx_dpc_heap on app.dpc_heap(code) global partition by range(code)(partition ip1 values less than(2) storage(on dpc_ts1),partition ip2 values less than(maxvalue) storage(on dpc_ts1));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:25) /test/1/catalog1/schema1/idx_dpc_heap/",
+      "action": "CREATE",
+      "target": [
+        "Table(1:29~1:41) /test/1/catalog1/app/dpc_heap/",
+        "Tablespace(1:125~1:132) /test/1/dpc_ts1/",
+        "Tablespace(1:186~1:193) /test/1/dpc_ts1/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_196_behavior_review]
+sql:
+create index idx_dpc_no_part on app.dpc_idx_t(note) global;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:28) /test/1/catalog1/schema1/idx_dpc_no_part/",
+      "action": "CREATE",
+      "target": "Table(1:32~1:45) /test/1/catalog1/app/dpc_idx_t/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_197_behavior_review]
+sql:
+create index idx_dpc_func on app.dpc_idx_t(code,upper(note)) global partition by range(code)(partition ip1 values less than(2) storage(on dpc_ts1),partition ip2 values less than(maxvalue) storage(on dpc_ts2));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:25) /test/1/catalog1/schema1/idx_dpc_func/",
+      "action": "CREATE",
+      "target": [
+        "Table(1:29~1:42) /test/1/catalog1/app/dpc_idx_t/",
+        "Tablespace(1:138~1:145) /test/1/dpc_ts1/",
+        "Tablespace(1:199~1:206) /test/1/dpc_ts2/"
+      ]
+    },
+    {
+      "subject": "Function(1:48~1:53) /test/1/catalog1/schema1/upper/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_198_behavior_review]
+sql:
+create index idx_dpc_online on app.dpc_idx_t(code,note) global partition by range(code)(partition ip1 values less than(2) storage(on dpc_ts1),partition ip2 values less than(maxvalue) storage(on dpc_ts2)) online;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:27) /test/1/catalog1/schema1/idx_dpc_online/",
+      "action": "CREATE",
+      "target": [
+        "Table(1:31~1:44) /test/1/catalog1/app/dpc_idx_t/",
+        "Tablespace(1:133~1:140) /test/1/dpc_ts1/",
+        "Tablespace(1:194~1:201) /test/1/dpc_ts2/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_199_behavior_review]
+sql:
+create index idx_dpc_nonlead on app.dpc_idx_t(note,code) global partition by range(code)(partition ip1 values less than(2) storage(on dpc_ts1),partition ip2 values less than(maxvalue) storage(on dpc_ts2));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:28) /test/1/catalog1/schema1/idx_dpc_nonlead/",
+      "action": "CREATE",
+      "target": [
+        "Table(1:32~1:45) /test/1/catalog1/app/dpc_idx_t/",
+        "Tablespace(1:134~1:141) /test/1/dpc_ts1/",
+        "Tablespace(1:195~1:202) /test/1/dpc_ts2/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_200_behavior_review]
+sql:
+create index idx_dpc_no_max on app.dpc_idx_t(code,note) global partition by range(code)(partition ip1 values less than(2) storage(on dpc_ts1));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:27) /test/1/catalog1/schema1/idx_dpc_no_max/",
+      "action": "CREATE",
+      "target": [
+        "Table(1:31~1:44) /test/1/catalog1/app/dpc_idx_t/",
+        "Tablespace(1:133~1:140) /test/1/dpc_ts1/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_201_behavior_review]
+sql:
+create index idx_dpc_no_default on app.dpc_idx_t(code,note) global partition by list(code)(partition ip1 values(1) storage(on dpc_ts1),partition ip2 values(2) storage(on dpc_ts2));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:31) /test/1/catalog1/schema1/idx_dpc_no_default/",
+      "action": "CREATE",
+      "target": [
+        "Table(1:35~1:48) /test/1/catalog1/app/dpc_idx_t/",
+        "Tablespace(1:126~1:133) /test/1/dpc_ts1/",
+        "Tablespace(1:170~1:177) /test/1/dpc_ts2/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_202_behavior_review]
+sql:
+create index idx_dpc_bad_ts on app.dpc_idx_t(code,note) global partition by range(code)(partition ip1 values less than(2) storage(on system),partition ip2 values less than(maxvalue) storage(on system));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:27) /test/1/catalog1/schema1/idx_dpc_bad_ts/",
+      "action": "CREATE",
+      "target": [
+        "Table(1:31~1:44) /test/1/catalog1/app/dpc_idx_t/",
+        "Tablespace(1:133~1:139) /test/1/system/",
+        "Tablespace(1:193~1:199) /test/1/system/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_203_behavior_review]
+sql:
+alter index app.idx_basic rebuild;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_INDEX": [
+    {
+      "subject": "Index(1:12~1:25) /test/1/catalog1/app/idx_basic/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_204_behavior_review]
+sql:
+alter index app.idx_basic rebuild nosort;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_INDEX": [
+    {
+      "subject": "Index(1:12~1:25) /test/1/catalog1/app/idx_basic/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_205_behavior_review]
+sql:
+alter index app.idx_basic rebuild online;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_INDEX": [
+    {
+      "subject": "Index(1:12~1:25) /test/1/catalog1/app/idx_basic/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_206_behavior_review]
+sql:
+alter index app.idx_unusable unusable;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_INDEX": [
+    {
+      "subject": "Index(1:12~1:28) /test/1/catalog1/app/idx_unusable/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_207_behavior_review]
+sql:
+alter index app.idx_unusable rebuild share;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_INDEX": [
+    {
+      "subject": "Index(1:12~1:28) /test/1/catalog1/app/idx_unusable/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_208_behavior_review]
+sql:
+alter index app.idx_unusable rebuild share asynchronous;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_INDEX": [
+    {
+      "subject": "Index(1:12~1:28) /test/1/catalog1/app/idx_unusable/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_209_behavior_review]
+sql:
+alter index app.idx_unusable rebuild share asynchronous 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_INDEX": [
+    {
+      "subject": "Index(1:12~1:28) /test/1/catalog1/app/idx_unusable/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_210_behavior_review]
+sql:
+alter index app.idx_unusable rebuild share asynchronous 100;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_INDEX": [
+    {
+      "subject": "Index(1:12~1:28) /test/1/catalog1/app/idx_unusable/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_211_behavior_review]
+sql:
+alter index app.idx_unusable rebuild share asynchronous 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_INDEX": [
+    {
+      "subject": "Index(1:12~1:28) /test/1/catalog1/app/idx_unusable/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_212_behavior_review]
+sql:
+alter index app.idx_unusable rebuild share asynchronous 101;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_INDEX": [
+    {
+      "subject": "Index(1:12~1:28) /test/1/catalog1/app/idx_unusable/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_213_behavior_review]
+sql:
+alter index app.idx_basic rebuild exclusive;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_INDEX": [
+    {
+      "subject": "Index(1:12~1:25) /test/1/catalog1/app/idx_basic/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_214_behavior_review]
+sql:
+alter index app.idx_basic rebuild parallel;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_INDEX": [
+    {
+      "subject": "Index(1:12~1:25) /test/1/catalog1/app/idx_basic/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_215_behavior_review]
+sql:
+alter index app.idx_basic rebuild parallel 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_INDEX": [
+    {
+      "subject": "Index(1:12~1:25) /test/1/catalog1/app/idx_basic/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_216_behavior_review]
+sql:
+alter index app.idx_basic rebuild noparallel;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_INDEX": [
+    {
+      "subject": "Index(1:12~1:25) /test/1/catalog1/app/idx_basic/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_217_behavior_review]
+sql:
+alter index app.idx_basic invisible;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_INDEX": [
+    {
+      "subject": "Index(1:12~1:25) /test/1/catalog1/app/idx_basic/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_218_behavior_review]
+sql:
+alter index app.idx_basic visible;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_INDEX": [
+    {
+      "subject": "Index(1:12~1:25) /test/1/catalog1/app/idx_basic/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_219_behavior_review]
+sql:
+alter index app.idx_basic monitoring usage;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_INDEX": [
+    {
+      "subject": "Index(1:12~1:25) /test/1/catalog1/app/idx_basic/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_220_behavior_review]
+sql:
+alter index app.idx_basic nomonitoring usage;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_INDEX": [
+    {
+      "subject": "Index(1:12~1:25) /test/1/catalog1/app/idx_basic/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_221_behavior_review]
+sql:
+alter index app.idx_basic rename to app.idx_basic_renamed;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "RENAME_INDEX": [
+    {
+      "subject": "Index(1:12~1:25) /test/1/catalog1/app/idx_basic/",
+      "action": "RENAME",
+      "target": "Index(1:36~1:57) /test/1/catalog1/app/idx_basic_renamed/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_222_behavior_review]
+sql:
+create table app.ft_type_char(c char(10));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:29) /test/1/catalog1/app/ft_type_char/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_223_behavior_review]
+sql:
+create context index ft_type_char on app.ft_type_char(c);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:21~1:33) /test/1/catalog1/schema1/ft_type_char/",
+      "action": "CREATE",
+      "target": "Table(1:37~1:53) /test/1/catalog1/app/ft_type_char/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_224_behavior_review]
+sql:
+create table app.ft_type_character(c character(10));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:34) /test/1/catalog1/app/ft_type_character/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_225_behavior_review]
+sql:
+create context index ft_type_character on app.ft_type_character(c);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:21~1:38) /test/1/catalog1/schema1/ft_type_character/",
+      "action": "CREATE",
+      "target": "Table(1:42~1:63) /test/1/catalog1/app/ft_type_character/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_226_behavior_review]
+sql:
+create table app.ft_type_varchar(c varchar(20));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:32) /test/1/catalog1/app/ft_type_varchar/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_227_behavior_review]
+sql:
+create context index ft_type_varchar on app.ft_type_varchar(c);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:21~1:36) /test/1/catalog1/schema1/ft_type_varchar/",
+      "action": "CREATE",
+      "target": "Table(1:40~1:59) /test/1/catalog1/app/ft_type_varchar/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_228_behavior_review]
+sql:
+create table app.ft_type_varchar2(c varchar2(20));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:33) /test/1/catalog1/app/ft_type_varchar2/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_229_behavior_review]
+sql:
+create context index ft_type_varchar2 on app.ft_type_varchar2(c);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:21~1:37) /test/1/catalog1/schema1/ft_type_varchar2/",
+      "action": "CREATE",
+      "target": "Table(1:41~1:61) /test/1/catalog1/app/ft_type_varchar2/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_230_behavior_review]
+sql:
+create table app.ft_type_longvarchar(c longvarchar);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:36) /test/1/catalog1/app/ft_type_longvarchar/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_231_behavior_review]
+sql:
+create context index ft_type_longvarchar on app.ft_type_longvarchar(c);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:21~1:40) /test/1/catalog1/schema1/ft_type_longvarchar/",
+      "action": "CREATE",
+      "target": "Table(1:44~1:67) /test/1/catalog1/app/ft_type_longvarchar/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_232_behavior_review]
+sql:
+create table app.ft_type_text(c text);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:29) /test/1/catalog1/app/ft_type_text/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_233_behavior_review]
+sql:
+create context index ft_type_text on app.ft_type_text(c);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:21~1:33) /test/1/catalog1/schema1/ft_type_text/",
+      "action": "CREATE",
+      "target": "Table(1:37~1:53) /test/1/catalog1/app/ft_type_text/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_234_behavior_review]
+sql:
+create table app.ft_type_clob(c clob);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:29) /test/1/catalog1/app/ft_type_clob/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_235_behavior_review]
+sql:
+create context index ft_type_clob on app.ft_type_clob(c);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:21~1:33) /test/1/catalog1/schema1/ft_type_clob/",
+      "action": "CREATE",
+      "target": "Table(1:37~1:53) /test/1/catalog1/app/ft_type_clob/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_236_behavior_review]
+sql:
+create table app.ft_type_nchar(c nchar(10));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/app/ft_type_nchar/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_237_behavior_review]
+sql:
+create context index ft_type_nchar on app.ft_type_nchar(c);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:21~1:34) /test/1/catalog1/schema1/ft_type_nchar/",
+      "action": "CREATE",
+      "target": "Table(1:38~1:55) /test/1/catalog1/app/ft_type_nchar/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_238_behavior_review]
+sql:
+create table app.ft_type_nvarchar(c nvarchar(20));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:33) /test/1/catalog1/app/ft_type_nvarchar/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_239_behavior_review]
+sql:
+create context index ft_type_nvarchar on app.ft_type_nvarchar(c);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:21~1:37) /test/1/catalog1/schema1/ft_type_nvarchar/",
+      "action": "CREATE",
+      "target": "Table(1:41~1:61) /test/1/catalog1/app/ft_type_nvarchar/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_240_behavior_review]
+sql:
+create table app.ft_type_long(c long);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:29) /test/1/catalog1/app/ft_type_long/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_241_behavior_review]
+sql:
+create context index ft_type_long on app.ft_type_long(c);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:21~1:33) /test/1/catalog1/schema1/ft_type_long/",
+      "action": "CREATE",
+      "target": "Table(1:37~1:53) /test/1/catalog1/app/ft_type_long/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_242_behavior_review]
+sql:
+create table app.ft_type_image(c image);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/app/ft_type_image/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_243_behavior_review]
+sql:
+create context index ft_type_image on app.ft_type_image(c);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:21~1:34) /test/1/catalog1/schema1/ft_type_image/",
+      "action": "CREATE",
+      "target": "Table(1:38~1:55) /test/1/catalog1/app/ft_type_image/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_244_behavior_review]
+sql:
+create table app.ft_type_blob(c blob);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:29) /test/1/catalog1/app/ft_type_blob/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_245_behavior_review]
+sql:
+create context index ft_type_blob on app.ft_type_blob(c);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:21~1:33) /test/1/catalog1/schema1/ft_type_blob/",
+      "action": "CREATE",
+      "target": "Table(1:37~1:53) /test/1/catalog1/app/ft_type_blob/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_246_behavior_review]
+sql:
+create table app.ft_type_int(c int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/app/ft_type_int/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_247_behavior_review]
+sql:
+create context index ft_type_int on app.ft_type_int(c);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:21~1:32) /test/1/catalog1/schema1/ft_type_int/",
+      "action": "CREATE",
+      "target": "Table(1:36~1:51) /test/1/catalog1/app/ft_type_int/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_248_behavior_review]
+sql:
+create context index fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff on app.ft_name(c);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:21~1:142) /test/1/catalog1/schema1/fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff/",
+      "action": "CREATE",
+      "target": "Table(1:146~1:157) /test/1/catalog1/app/ft_name/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_249_behavior_review]
+sql:
+create context index ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff on app.ft_name(c);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:21~1:143) /test/1/catalog1/schema1/ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff/",
+      "action": "CREATE",
+      "target": "Table(1:147~1:158) /test/1/catalog1/app/ft_name/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_250_behavior_review]
+sql:
+create context index ft_basic on app.ft_docs(content);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:21~1:29) /test/1/catalog1/schema1/ft_basic/",
+      "action": "CREATE",
+      "target": "Table(1:33~1:44) /test/1/catalog1/app/ft_docs/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_251_behavior_review]
+sql:
+create context index if not exists ft_lexer on app.ft_docs(content) lexer english_lexer;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:35~1:43) /test/1/catalog1/schema1/ft_lexer/",
+      "action": "CREATE",
+      "target": "Table(1:47~1:58) /test/1/catalog1/app/ft_docs/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_252_behavior_review]
+sql:
+create context index ft_sync on app.ft_docs(content) sync;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:21~1:28) /test/1/catalog1/schema1/ft_sync/",
+      "action": "CREATE",
+      "target": "Table(1:32~1:43) /test/1/catalog1/app/ft_docs/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_253_behavior_review]
+sql:
+create context index ft_sync_tx on app.ft_docs(content) sync transaction;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:21~1:31) /test/1/catalog1/schema1/ft_sync_tx/",
+      "action": "CREATE",
+      "target": "Table(1:35~1:46) /test/1/catalog1/app/ft_docs/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_254_behavior_review]
+sql:
+create context index ft_ts on app.ft_docs(content) tablespace main;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:21~1:26) /test/1/catalog1/schema1/ft_ts/",
+      "action": "CREATE",
+      "target": [
+        "Table(1:30~1:41) /test/1/catalog1/app/ft_docs/",
+        "Tablespace(1:62~1:66) /test/1/main/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_255_behavior_review]
+sql:
+create context index ft_storage on app.ft_docs(content) storage on main;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:21~1:31) /test/1/catalog1/schema1/ft_storage/",
+      "action": "CREATE",
+      "target": [
+        "Table(1:35~1:46) /test/1/catalog1/app/ft_docs/",
+        "Tablespace(1:67~1:71) /test/1/main/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_256_behavior_review]
+sql:
+alter context index ft_basic on app.ft_docs rebuild;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_INDEX": [
+    {
+      "subject": "Index(1:20~1:28) /test/1/catalog1/schema1/ft_basic/",
+      "action": "ALTER",
+      "target": "Table(1:32~1:43) /test/1/catalog1/app/ft_docs/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_257_behavior_review]
+sql:
+alter context index ft_basic on app.ft_docs rebuild online lexer english_lexer;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_INDEX": [
+    {
+      "subject": "Index(1:20~1:28) /test/1/catalog1/schema1/ft_basic/",
+      "action": "ALTER",
+      "target": "Table(1:32~1:43) /test/1/catalog1/app/ft_docs/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_258_behavior_review]
+sql:
+alter context index ft_basic on app.ft_docs increment;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_INDEX": [
+    {
+      "subject": "Index(1:20~1:28) /test/1/catalog1/schema1/ft_basic/",
+      "action": "ALTER",
+      "target": "Table(1:32~1:43) /test/1/catalog1/app/ft_docs/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_259_behavior_review]
+sql:
+alter context index ft_basic on app.ft_docs increment online;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_INDEX": [
+    {
+      "subject": "Index(1:20~1:28) /test/1/catalog1/schema1/ft_basic/",
+      "action": "ALTER",
+      "target": "Table(1:32~1:43) /test/1/catalog1/app/ft_docs/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_260_behavior_review]
+sql:
+alter context index ft_basic on app.ft_docs optimize;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_INDEX": [
+    {
+      "subject": "Index(1:20~1:28) /test/1/catalog1/schema1/ft_basic/",
+      "action": "ALTER",
+      "target": "Table(1:32~1:43) /test/1/catalog1/app/ft_docs/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_261_behavior_review]
+sql:
+alter context index ft_basic on app.ft_docs optimize online;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_INDEX": [
+    {
+      "subject": "Index(1:20~1:28) /test/1/catalog1/schema1/ft_basic/",
+      "action": "ALTER",
+      "target": "Table(1:32~1:43) /test/1/catalog1/app/ft_docs/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_262_behavior_review]
+sql:
+drop context index ft_basic on app.ft_docs;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_INDEX": [
+    {
+      "subject": "Index(1:19~1:27) /test/1/catalog1/schema1/ft_basic/",
+      "action": "DROP",
+      "target": "Table(1:31~1:42) /test/1/catalog1/app/ft_docs/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_263_behavior_review]
+sql:
+drop context index if exists ft_missing on app.ft_docs;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_INDEX": [
+    {
+      "subject": "Index(1:29~1:39) /test/1/catalog1/schema1/ft_missing/",
+      "action": "DROP",
+      "target": "Table(1:43~1:54) /test/1/catalog1/app/ft_docs/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_264_behavior_review]
+sql:
+create array index idx_arr_varray on app.idx_array(v1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:19~1:33) /test/1/catalog1/schema1/idx_arr_varray/",
+      "action": "CREATE",
+      "target": "Table(1:37~1:50) /test/1/catalog1/app/idx_array/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_265_behavior_review]
+sql:
+create array index idx_arr_nested on app.idx_array(v2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:19~1:33) /test/1/catalog1/schema1/idx_arr_nested/",
+      "action": "CREATE",
+      "target": "Table(1:37~1:50) /test/1/catalog1/app/idx_array/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_266_behavior_review]
+sql:
+create array index idx_arr_dynamic on app.idx_array(v3);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:19~1:34) /test/1/catalog1/schema1/idx_arr_dynamic/",
+      "action": "CREATE",
+      "target": "Table(1:38~1:51) /test/1/catalog1/app/idx_array/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_267_behavior_review]
+sql:
+create array index idx_arr_static on app.idx_array(v4);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:19~1:33) /test/1/catalog1/schema1/idx_arr_static/",
+      "action": "CREATE",
+      "target": "Table(1:37~1:50) /test/1/catalog1/app/idx_array/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_268_behavior_review]
+sql:
+create array index if not exists idx_arr_varray on app.idx_array(v1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:33~1:47) /test/1/catalog1/schema1/idx_arr_varray/",
+      "action": "CREATE",
+      "target": "Table(1:51~1:64) /test/1/catalog1/app/idx_array/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_269_behavior_review]
+sql:
+alter index app.idx_arr_varray unusable;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_INDEX": [
+    {
+      "subject": "Index(1:12~1:30) /test/1/catalog1/app/idx_arr_varray/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_270_behavior_review]
+sql:
+alter index app.idx_arr_varray rebuild;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_INDEX": [
+    {
+      "subject": "Index(1:12~1:30) /test/1/catalog1/app/idx_arr_varray/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_271_behavior_review]
+sql:
+alter index app.idx_arr_varray invisible;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_INDEX": [
+    {
+      "subject": "Index(1:12~1:30) /test/1/catalog1/app/idx_arr_varray/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_272_behavior_review]
+sql:
+alter index app.idx_arr_varray visible;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_INDEX": [
+    {
+      "subject": "Index(1:12~1:30) /test/1/catalog1/app/idx_arr_varray/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_273_behavior_review]
+sql:
+alter index app.idx_arr_varray rename to app.idx_arr_renamed;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "RENAME_INDEX": [
+    {
+      "subject": "Index(1:12~1:30) /test/1/catalog1/app/idx_arr_varray/",
+      "action": "RENAME",
+      "target": "Index(1:41~1:60) /test/1/catalog1/app/idx_arr_renamed/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_274_behavior_review]
+sql:
+alter index app.idx_arr_varray rebuild nosort;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_INDEX": [
+    {
+      "subject": "Index(1:12~1:30) /test/1/catalog1/app/idx_arr_varray/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_275_behavior_review]
+sql:
+alter index app.idx_arr_varray rebuild online;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_INDEX": [
+    {
+      "subject": "Index(1:12~1:30) /test/1/catalog1/app/idx_arr_varray/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_276_behavior_review]
+sql:
+drop index app.idx_arr_varray;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_INDEX": [
+    {
+      "subject": "Index(1:11~1:29) /test/1/catalog1/app/idx_arr_varray/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_277_behavior_review]
+sql:
+select id from app.idx_array where contains(v1,1,2,3);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:35~1:43) /test/1/catalog1/schema1/contains/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:15~1:28) /test/1/catalog1/app/idx_array/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_278_behavior_review]
+sql:
+create spatial index idx_spatial on app.idx_geo(geom);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:21~1:32) /test/1/catalog1/schema1/idx_spatial/",
+      "action": "CREATE",
+      "target": "Table(1:36~1:47) /test/1/catalog1/app/idx_geo/"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_279_behavior_review]
+sql:
+drop index if exists app.idx_spatial;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_INDEX": [
+    {
+      "subject": "Index(1:21~1:36) /test/1/catalog1/app/idx_spatial/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_280_behavior_review]
+sql:
+stat 50 on index app.idx_basic;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Index(1:17~1:30) /test/1/catalog1/app/idx_basic/",
+      "action": "ANALYZE"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_281_behavior_review]
+sql:
+select * from app.idx_base index idx_basic where c1=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:26) /test/1/catalog1/app/idx_base/",
+      "action": "READ"
+    },
+    {
+      "subject": "Index(1:33~1:42) /test/1/catalog1/app/idx_basic/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_282_behavior_review]
+sql:
+select indexdef(id,0) from sysobjects where name='IDX_BASIC';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/indexdef/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:27~1:37) /test/1/catalog1/schema1/sysobjects/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_283_behavior_review]
+sql:
+drop index if exists app.idx_missing;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_INDEX": [
+    {
+      "subject": "Index(1:21~1:36) /test/1/catalog1/app/idx_missing/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_284_behavior_review]
+sql:
+drop index app.idx_basic;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_INDEX": [
+    {
+      "subject": "Index(1:11~1:24) /test/1/catalog1/app/idx_basic/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_285_behavior_review]
+sql:
+drop index app.idx_basic restrict;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_INDEX": [
+    {
+      "subject": "Index(1:11~1:24) /test/1/catalog1/app/idx_basic/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dql_dcl_dameng_index_atomic_0_286_behavior_review]
+sql:
+drop index app.idx_basic cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_INDEX": [
+    {
+      "subject": "Index(1:11~1:24) /test/1/catalog1/app/idx_basic/",
+      "action": "DROP"
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+-- CONNECT without BY
+select * from department connect id=parent_id;
+-- empty CONNECT BY
+select * from department connect by;
+-- standalone START WITH
+select * from department start with id=1;
+-- empty START WITH
+select * from department start with connect by prior id=parent_id;
+-- standalone NOCYCLE
+select * from department nocycle;
+-- empty NOCYCLE condition
+select * from department connect by nocycle;
+-- duplicate START WITH
+select * from department start with id=1 start with id=2 connect by prior id=parent_id;
+-- SIBLINGS without hierarchy
+select * from department order siblings by name;
+-- empty SIBLINGS order
+select * from department connect by prior id=parent_id order siblings by;
+-- PRIOR without operand
+select prior from department connect by prior id=parent_id;
+-- CONNECT_BY_ROOT without operand
+select connect_by_root from department connect by prior id=parent_id;
+------------------------------------------------------------------------------------------
+[SELECT] -- CONNECT without BY
+select * from department connect id=parent_id;
+----------
+[SELECT] -- empty CONNECT BY
+select * from department connect by;
+----------
+[SELECT] -- standalone START WITH
+select * from department start with id=1;
+----------
+[SELECT] -- empty START WITH
+select * from department start with connect by prior id=parent_id;
+----------
+[SELECT] -- standalone NOCYCLE
+select * from department nocycle;
+----------
+[SELECT] -- empty NOCYCLE condition
+select * from department connect by nocycle;
+----------
+[SELECT] -- duplicate START WITH
+select * from department start with id=1 start with id=2 connect by prior id=parent_id;
+----------
+[SELECT] -- SIBLINGS without hierarchy
+select * from department order siblings by name;
+----------
+[SELECT] -- empty SIBLINGS order
+select * from department connect by prior id=parent_id order siblings by;
+----------
+[SELECT] -- PRIOR without operand
+select prior from department connect by prior id=parent_id;
+----------
+[SELECT] -- CONNECT_BY_ROOT without operand
+select connect_by_root from department connect by prior id=parent_id;

@@ -1,0 +1,35 @@
+[MongoRuleCommandCheckTest#commandCheck_1#001]
+rule: _rules/command/func-check.rule
+expect: true
+vars:
+  checkMode: Allow
+  functions: find;deleteOne
+sql:
+db.aa.find()
+----------
+[MongoRuleCommandCheckTest#commandCheck_1#002]
+rule: _rules/command/func-check.rule
+expect: false
+vars:
+  checkMode: Allow
+  functions: find;deleteOne
+sql:
+db.aa.findOne()
+----------
+[MongoRuleCommandCheckTest#commandCheck_2#001]
+rule: _rules/command/func-check.rule
+expect: false
+vars:
+  checkMode: Reject
+  functions: find;deleteOne
+sql:
+db.aa.find()
+----------
+[MongoRuleCommandCheckTest#commandCheck_2#002]
+rule: _rules/command/func-check.rule
+expect: true
+vars:
+  checkMode: Reject
+  functions: find;deleteOne
+sql:
+db.aa.drop()

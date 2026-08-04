@@ -1,0 +1,569 @@
+[alter_table__001]
+sql:
+ALTER TABLE codex_alter_audit_t TABLESPACE codex_alter_audit_space;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/schema1/codex_alter_audit_t/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[create_tablespace__002]
+sql:
+CREATE TABLESPACE split_general_a ADD DATAFILE 'split_general_a.ibd' ENGINE=InnoDB;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLESPACE": [
+    {
+      "subject": "Tablespace(1:18~1:33) /test/1/catalog1/schema1/split_general_a/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[drop_tablespace__003]
+sql:
+DROP TABLESPACE split_general_a;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLESPACE": [
+    {
+      "subject": "Tablespace(1:16~1:31) /test/1/catalog1/schema1/split_general_a/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[alter_log__004]
+sql:
+ALTER LOGFILE GROUP audit_lg ADD UNDOFILE 'audit_lg2.dat' ENGINE=NDB;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_LOG": [
+    {
+      "subject": "Log(1:20~1:28) /test/1/catalog1/schema1/audit_lg/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[create_log__005]
+sql:
+CREATE LOGFILE GROUP audit_lg ADD UNDOFILE 'audit_lg.dat' ENGINE=NDB;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_LOG": [
+    {
+      "subject": "Log(1:21~1:29) /test/1/catalog1/schema1/audit_lg/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[drop_log__006]
+sql:
+DROP LOGFILE GROUP audit_lg ENGINE NDB;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_LOG": [
+    {
+      "subject": "Log(1:19~1:27) /test/1/catalog1/schema1/audit_lg/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[create_log__007]
+sql:
+CREATE LOGFILE GROUP split_lg ADD UNDOFILE 'split_undo.dat' INITIAL_SIZE=16M UNDO_BUFFER_SIZE=1M ENGINE=NDB;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_LOG": [
+    {
+      "subject": "Log(1:21~1:29) /test/1/catalog1/schema1/split_lg/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[alter_log__008]
+sql:
+ALTER LOGFILE GROUP split_lg ADD UNDOFILE 'split_undo2.dat' INITIAL_SIZE=4M ENGINE=NDB;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_LOG": [
+    {
+      "subject": "Log(1:20~1:28) /test/1/catalog1/schema1/split_lg/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[alter_log__009]
+sql:
+ALTER LOGFILE GROUP split_lg ADD REDOFILE 'split_redo.dat' INITIAL_SIZE=4M ENGINE=NDB;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_LOG": [
+    {
+      "subject": "Log(1:20~1:28) /test/1/catalog1/schema1/split_lg/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[create_tablespace__010]
+sql:
+CREATE TABLESPACE split_ts ADD DATAFILE 'split_data.dat' USE LOGFILE GROUP split_lg INITIAL_SIZE=12M ENGINE=NDB;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLESPACE": [
+    {
+      "subject": "Tablespace(1:18~1:26) /test/1/catalog1/schema1/split_ts/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[alter_tablespace__011]
+sql:
+ALTER TABLESPACE split_ts ADD DATAFILE 'split_data2.dat' INITIAL_SIZE=4M ENGINE=NDB;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLESPACE": [
+    {
+      "subject": "Tablespace(1:17~1:25) /test/1/catalog1/schema1/split_ts/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_tablespace__012]
+sql:
+ALTER TABLESPACE split_ts DROP DATAFILE 'split_data2.dat' ENGINE=NDB;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLESPACE": [
+    {
+      "subject": "Tablespace(1:17~1:25) /test/1/catalog1/schema1/split_ts/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[drop_tablespace__013]
+sql:
+DROP TABLESPACE split_ts ENGINE=NDB;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLESPACE": [
+    {
+      "subject": "Tablespace(1:16~1:24) /test/1/catalog1/schema1/split_ts/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[drop_log__014]
+sql:
+DROP LOGFILE GROUP split_lg ENGINE=NDB;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_LOG": [
+    {
+      "subject": "Log(1:19~1:27) /test/1/catalog1/schema1/split_lg/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[system_setting_write__015]
+sql:
+DROP SERVER IF EXISTS split_srv_57;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:22~1:34) /test/1/catalog1/schema1/split_srv_57/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[system_setting_write__016]
+sql:
+CREATE SERVER split_srv_57 FOREIGN DATA WRAPPER mysql OPTIONS (HOST '127.0.0.1', DATABASE 'split57', USER 'root', PASSWORD '123456', SOCKET '/tmp/mysql.sock', OWNER 'split_owner', PORT 3306);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:14~1:26) /test/1/catalog1/schema1/split_srv_57/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[system_setting_write__017]
+sql:
+ALTER SERVER split_srv_57 OPTIONS (USER 'split_user', HOST 'localhost', PORT 3307);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:13~1:25) /test/1/catalog1/schema1/split_srv_57/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[system_setting_write__018]
+sql:
+DROP SERVER split_srv_57;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:12~1:24) /test/1/catalog1/schema1/split_srv_57/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[system_setting_write__019]
+sql:
+DROP SERVER IF EXISTS split_srv_57;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:22~1:34) /test/1/catalog1/schema1/split_srv_57/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[system_setting_write__020]
+sql:
+ALTER SERVER audit_srv_missing OPTIONS (PASSWORD 'x');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:13~1:30) /test/1/catalog1/schema1/audit_srv_missing/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[system_setting_write__021]
+sql:
+CREATE SERVER audit_srv_min FOREIGN DATA WRAPPER mysql OPTIONS (HOST '127.0.0.1');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:14~1:27) /test/1/catalog1/schema1/audit_srv_min/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[system_setting_write__022]
+sql:
+ALTER SERVER 'audit_srv_q' OPTIONS (USER 'u');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:13~1:26) /test/1/catalog1/schema1/audit_srv_q/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[system_setting_write__023]
+sql:
+CREATE SERVER 'audit_srv_q' FOREIGN DATA WRAPPER 'mysql' OPTIONS (HOST '127.0.0.1');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:14~1:27) /test/1/catalog1/schema1/audit_srv_q/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[system_setting_write__024]
+sql:
+DROP SERVER IF EXISTS 'audit_srv_q';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:22~1:35) /test/1/catalog1/schema1/audit_srv_q/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[create_table__025]
+sql:
+CREATE TABLE split_storage_memory (c INT STORAGE MEMORY);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:33) /test/1/catalog1/schema1/split_storage_memory/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_tablespace__026]
+sql:
+CREATE TABLESPACE split_ts_file_block ADD DATAFILE 'split_ts_file_block.ibd' FILE_BLOCK_SIZE=16K STORAGE ENGINE=InnoDB;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLESPACE": [
+    {
+      "subject": "Tablespace(1:18~1:37) /test/1/catalog1/schema1/split_ts_file_block/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[drop_tablespace__027]
+sql:
+DROP TABLESPACE split_ts_file_block;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLESPACE": [
+    {
+      "subject": "Tablespace(1:16~1:35) /test/1/catalog1/schema1/split_ts_file_block/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[alter_tablespace__028]
+sql:
+ALTER TABLESPACE split_ts_legacy CHANGE DATAFILE 'split_ts_legacy.dat' INITIAL_SIZE=1M AUTOEXTEND_SIZE=1M MAX_SIZE=2M;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLESPACE": [
+    {
+      "subject": "Tablespace(1:17~1:32) /test/1/catalog1/schema1/split_ts_legacy/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_tablespace__029]
+sql:
+ALTER TABLESPACE split_ts_legacy READ_ONLY;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLESPACE": [
+    {
+      "subject": "Tablespace(1:17~1:32) /test/1/catalog1/schema1/split_ts_legacy/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_tablespace__030]
+sql:
+ALTER TABLESPACE split_ts_legacy READ_WRITE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLESPACE": [
+    {
+      "subject": "Tablespace(1:17~1:32) /test/1/catalog1/schema1/split_ts_legacy/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_tablespace__031]
+sql:
+ALTER TABLESPACE split_ts_legacy NOT ACCESSIBLE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLESPACE": [
+    {
+      "subject": "Tablespace(1:17~1:32) /test/1/catalog1/schema1/split_ts_legacy/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[create_tablespace_comment_tablespace__032]
+sql:
+CREATE TABLESPACE split_ts_options_all ADD DATAFILE 'split_ts_options_all.ibd' COMMENT='all options', NODEGROUP=1 MAX_SIZE=64M AUTOEXTEND_SIZE=4M INITIAL_SIZE=16M EXTENT_SIZE=1M WAIT STORAGE ENGINE=InnoDB;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLESPACE": [
+    {
+      "subject": "Tablespace(1:18~1:38) /test/1/catalog1/schema1/split_ts_options_all/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_log__033]
+sql:
+CREATE LOGFILE GROUP split_lg_options ADD UNDOFILE 'split_undo_options.dat' COMMENT='all options', NODEGROUP=1 REDO_BUFFER_SIZE=2M UNDO_BUFFER_SIZE=1M INITIAL_SIZE=16M WAIT STORAGE ENGINE=NDB;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_LOG": [
+    {
+      "subject": "Log(1:21~1:37) /test/1/catalog1/schema1/split_lg_options/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[alter_log__034]
+sql:
+ALTER LOGFILE GROUP split_lg_options ADD UNDOFILE 'split_undo_options_2.dat' WAIT, INITIAL_SIZE=4M STORAGE ENGINE=NDB;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_LOG": [
+    {
+      "subject": "Log(1:20~1:36) /test/1/catalog1/schema1/split_lg_options/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[create_tablespace_comment_tablespace__035]
+sql:
+CREATE TABLESPACE split_ts_ndb_options ADD DATAFILE 'split_data_options.dat' USE LOGFILE GROUP split_lg_options COMMENT='all options', NODEGROUP=1 MAX_SIZE=64M AUTOEXTEND_SIZE=4M INITIAL_SIZE=16M EXTENT_SIZE=1M WAIT STORAGE ENGINE=NDB;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLESPACE": [
+    {
+      "subject": "Tablespace(1:18~1:38) /test/1/catalog1/schema1/split_ts_ndb_options/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[alter_tablespace__036]
+sql:
+ALTER TABLESPACE split_ts_ndb_options ADD DATAFILE 'split_data_options_2.dat' WAIT, MAX_SIZE=64M AUTOEXTEND_SIZE=4M INITIAL_SIZE=8M STORAGE ENGINE=NDB;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLESPACE": [
+    {
+      "subject": "Tablespace(1:17~1:37) /test/1/catalog1/schema1/split_ts_ndb_options/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[drop_tablespace__037]
+sql:
+DROP TABLESPACE split_ts_options_all;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLESPACE": [
+    {
+      "subject": "Tablespace(1:16~1:36) /test/1/catalog1/schema1/split_ts_options_all/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[alter_tablespace__038]
+sql:
+ALTER TABLESPACE s_def ADD DATAFILE 'bad2.ibd' NO_WAIT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLESPACE": [
+    {
+      "subject": "Tablespace(1:17~1:22) /test/1/catalog1/schema1/s_def/",
+      "action" : "ALTER"
+    }
+  ]
+}

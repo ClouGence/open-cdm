@@ -1,0 +1,76 @@
+-- empty argument slot
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.APPEND(,b2); end;
+/
+-- double comma
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.COPY(b1,,2); end;
+/
+-- dangling named argument
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.TRIM(LOB_LOC=>b1,NEWLEN=>); end;
+/
+-- unclosed call
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.GETLENGTH(b1; end;
+/
+------------------------------------------------------------------------------------------
+[BLOCK] -- empty argument slot
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.APPEND(,b2); end;
+/
+----------
+[BLOCK] -- double comma
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.COPY(b1,,2); end;
+/
+----------
+[BLOCK] -- dangling named argument
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.TRIM(LOB_LOC=>b1,NEWLEN=>); end;
+/
+----------
+[BLOCK] -- unclosed call
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.GETLENGTH(b1; end;
+/

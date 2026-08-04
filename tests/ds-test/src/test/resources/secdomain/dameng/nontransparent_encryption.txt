@@ -1,0 +1,45 @@
+[encryption_constant_query_has_no_domain]
+sql:
+select sf_decrypt_to_char(sf_encrypt_char('CODEX', 514, 'KEY', null), 514, 'KEY', null) as plain_text
+expect:
+{"size":0}
+----------
+[encryption_table_query]
+sql:
+select sf_decrypt_to_char(c_char, 514, 'KEY', null) as plain_char from app.crypto_data where id = 1
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"crypto_data"}
+  ]
+}
+----------
+[encryption_insert]
+sql:
+insert into app.crypto_data(id, c_char) values(1, sf_encrypt_char('CODEX', 514, 'KEY', null))
+expect:
+{
+  "contains": [
+    {"class":"RdbInsertDomain", "sqlType":"INSERT", "auditKind":"DML", "schema":"app", "table":"crypto_data"}
+  ]
+}
+----------
+[encryption_update]
+sql:
+update app.crypto_data set c_char = sf_encrypt_char('UPDATED', 514, 'KEY', null) where id = 1
+expect:
+{
+  "contains": [
+    {"class":"RdbUpdateDomain", "sqlType":"UPDATE", "auditKind":"DML", "schema":"app", "table":"crypto_data"}
+  ]
+}
+----------
+[encryption_delete]
+sql:
+delete from app.crypto_data where id = 1
+expect:
+{
+  "contains": [
+    {"class":"RdbDeleteDomain", "sqlType":"DELETE", "auditKind":"DML", "schema":"app", "table":"crypto_data"}
+  ]
+}

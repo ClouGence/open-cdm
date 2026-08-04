@@ -1,0 +1,15 @@
+SELECT "quoted_identifier" FROM (SELECT 1 AS "quoted_identifier") AS "quoted_table";
+SELECT * FROM "table1";
+SELECT "a\\b", "a\\\'b", "a""\\b", "a""\\\'b";
+SELECT /*!50000 "quoted_identifier" */ FROM (SELECT 1 AS "quoted_identifier") AS "quoted_table";
+SELECT _utf8mb4'a' "b";
+------------------------------------------------------------------------------------------
+[SELECT] SELECT "quoted_identifier" FROM (SELECT 1 AS "quoted_identifier") AS "quoted_table";
+----------
+[SELECT] SELECT * FROM "table1";
+----------
+[SELECT] SELECT "a\\b", "a\\\'b", "a""\\b", "a""\\\'b";
+----------
+[SELECT] SELECT /*!50000 "quoted_identifier" */ FROM (SELECT 1 AS "quoted_identifier") AS "quoted_table";
+----------
+[SELECT] SELECT _utf8mb4'a' "b";

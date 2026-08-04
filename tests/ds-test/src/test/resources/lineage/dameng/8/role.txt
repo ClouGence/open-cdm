@@ -1,0 +1,39 @@
+[role_statements_have_no_lineage]
+sql:
+create role codex_role;
+grant create role, drop role to codex_role;
+grant child_role to codex_role with admin option;
+revoke admin option for child_role from codex_role;
+sp_set_role('CODEX_ROLE', 0);
+drop role codex_role cascade
+expect:
+{}
+----------
+[role_dictionary_columns]
+sql:
+select r.role, r.password_required, r.authentication_type from catalog1.sys.dba_roles r
+expect:
+{
+  "role": ["/catalog1/sys/dba_roles/role/"],
+  "password_required": ["/catalog1/sys/dba_roles/password_required/"],
+  "authentication_type": ["/catalog1/sys/dba_roles/authentication_type/"]
+}
+----------
+[role_grant_dictionary_columns]
+sql:
+select p.grantee, p.granted_role, p.admin_option, p.default_role from catalog1.sys.dba_role_privs p
+expect:
+{
+  "grantee": ["/catalog1/sys/dba_role_privs/grantee/"],
+  "granted_role": ["/catalog1/sys/dba_role_privs/granted_role/"],
+  "admin_option": ["/catalog1/sys/dba_role_privs/admin_option/"],
+  "default_role": ["/catalog1/sys/dba_role_privs/default_role/"]
+}
+----------
+[session_role_dictionary_column]
+sql:
+select s.role from catalog1.sys.session_roles s
+expect:
+{
+  "role": ["/catalog1/sys/session_roles/role/"]
+}

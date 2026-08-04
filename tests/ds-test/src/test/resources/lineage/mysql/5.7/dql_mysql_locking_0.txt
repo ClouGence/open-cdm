@@ -1,0 +1,103 @@
+[dql_mysql_locking_0.0001]
+sql:
+SELECT id INTO @split_pre_update FROM split_select_lock_into.t WHERE id = 1 FOR UPDATE;
+expect:
+{
+  "id" : [ "(1:7~1:9) /catalog1/split_select_lock_into/t/id/" ]
+}
+----------
+[dql_mysql_locking_0.0002]
+sql:
+SELECT id FROM split_select_lock_into.t WHERE id = 1 INTO @split_tail_share LOCK IN SHARE MODE;
+expect:
+{
+  "id" : [ "(1:7~1:9) /catalog1/split_select_lock_into/t/id/" ]
+}
+----------
+[dql_mysql_locking_0.0003]
+sql:
+SELECT id FROM split_lock_combo.t WHERE id = (SELECT id FROM split_lock_combo.t2 WHERE id=1 FOR UPDATE) FOR UPDATE;
+expect:
+{
+  "id" : [ "(1:7~1:9) /catalog1/split_lock_combo/t/id/" ]
+}
+----------
+[dql_mysql_locking_0.0004]
+sql:
+SELECT id FROM split_lock_combo.t WHERE EXISTS (SELECT 1 FROM split_lock_combo.t2 WHERE t2.id=t.id LOCK IN SHARE MODE) FOR UPDATE;
+expect:
+{
+  "id" : [ "(1:7~1:9) /catalog1/split_lock_combo/t/id/" ]
+}
+----------
+[dql_mysql_locking_0.0005]
+sql:
+SELECT MAX(id) FROM split_lock_combo.t FOR UPDATE;
+expect:
+{
+  "MAX(id)" : [ "(1:11~1:13) /catalog1/split_lock_combo/t/id/" ]
+}
+----------
+[dql_mysql_locking_0.0006]
+sql:
+SELECT d.id FROM (SELECT id FROM split_lock_combo.t FOR UPDATE) AS d WHERE d.id>0 FOR UPDATE;
+expect:
+{
+  "id" : [ "(1:25~1:27) /catalog1/split_lock_combo/t/id/" ]
+}
+----------
+[dql_mysql_locking_0.0007]
+sql:
+SELECT grp,COUNT(*) FROM split_lock_combo.t GROUP BY grp HAVING COUNT(*)>0 FOR UPDATE;
+expect:
+{
+  "grp" : [ "(1:7~1:10) /catalog1/split_lock_combo/t/grp/" ],
+  "COUNT(*)" : [ ]
+}
+----------
+[dql_mysql_locking_0.0008]
+sql:
+SELECT id FROM t1 WHERE id = 1 FOR UPDATE;
+expect:
+{
+  "id" : [ "(1:7~1:9) /catalog1/schema1/t1/id/" ]
+}
+----------
+[dql_mysql_locking_0.0009]
+sql:
+SELECT id FROM t1 WHERE id = 1 LOCK IN SHARE MODE;
+expect:
+{
+  "id" : [ "(1:7~1:9) /catalog1/schema1/t1/id/" ]
+}
+----------
+[dql_mysql_locking_0.0011]
+sql:
+(SELECT * FROM t1 FOR UPDATE) LIMIT 1;
+expect:
+{
+  "id" : [ "(1:8~1:9) /catalog1/schema1/t1/id/" ]
+}
+----------
+[dql_mysql_locking_0.0012]
+sql:
+SELECT * FROM t1 LEFT JOIN t2 ON t1.c2=t2.c2 AND t2.c1=1 FOR UPDATE;
+expect:
+[ {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/t1/c2/" ],
+  "column" : "c2"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/t2/c2/" ],
+  "column" : "c2"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/t2/c1/" ],
+  "column" : "c1"
+} ]
+----------
+[dql_mysql_locking_0.0013]
+sql:
+SELECT 1 FOR UPDATE UNION SELECT 2;
+expect:
+{
+  "1" : [ ]
+}

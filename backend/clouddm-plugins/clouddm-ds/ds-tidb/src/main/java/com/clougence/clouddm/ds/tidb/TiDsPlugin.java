@@ -35,7 +35,6 @@ import com.clougence.clouddm.ds.tidb.i18n.TiConfigI18nKeys;
 import com.clougence.clouddm.ds.tidb.i18n.TiDsI18nKeys;
 import com.clougence.clouddm.ds.tidb.language.TiLanguageSpi;
 import com.clougence.clouddm.ds.tidb.resource.TiEditorResourceSpi;
-import com.clougence.clouddm.ds.tidb.sql.TiSqlEngineSpi;
 import com.clougence.clouddm.dsfamily.definition.TypeMapUtils;
 import com.clougence.clouddm.dsfamily.mysql.definition.ui.template.MyCmdTemplateSpi;
 import com.clougence.clouddm.dsfamily.mysql.execute.MySessionSpi;
@@ -43,7 +42,6 @@ import com.clougence.clouddm.sdk.DsPlugin;
 import com.clougence.clouddm.sdk.DsPluginBinder;
 import com.clougence.clouddm.sdk.Plugin;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
-import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
 import com.clougence.schema.DsType;
 import com.clougence.schema.SchemaBinder;
 import com.clougence.schema.SchemaFramework;
@@ -85,9 +83,7 @@ public class TiDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
     private void configExecute(DsPluginBinder dsPlugin) {
         dsPlugin.bindDsSessionFactory(TiSessionFactory.class);
         dsPlugin.bindDsDriverFamily("MySQL Connector/J");
-
-        dsPlugin.bindSqlEngine(TiSqlEngineSpi.NAME);
-        dsPlugin.addGlobalSpi(SqlEngineSpi.class, TiSqlEngineSpi.NAME, new TiSqlEngineSpi(dsPlugin.findGlobalService(MetaService.class)));
+        dsPlugin.bindSqlEngine("TiDB SQL");
 
         dsPlugin.addPluginSpi(new MySessionSpi());
         dsPlugin.addPluginSpi(new TiSupportSpi());

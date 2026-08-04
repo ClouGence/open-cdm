@@ -1,0 +1,75 @@
+[split_block_dameng_rewrite_logmnr_rls_0_001]
+sql:
+begin dbms_advanced_rewrite.declare_rewrite_equivalence('CODEX_REWRITE_RULE', 'SELECT COUNT(*) FROM CODEX_REWRITE_SOURCE', 'SELECT COUNT(*) FROM CODEX_REWRITE_TARGET', false, 'TEXT_MATCH'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:6~1:55) /test/1/catalog1/dbms_advanced_rewrite/declare_rewrite_equivalence/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_rewrite_logmnr_rls_0_002]
+sql:
+begin dbms_advanced_rewrite.validate_rewrite_equivalence('CODEX_REWRITE_RULE'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:6~1:56) /test/1/catalog1/dbms_advanced_rewrite/validate_rewrite_equivalence/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_rewrite_logmnr_rls_0_003]
+sql:
+begin dbms_advanced_rewrite.alter_rewrite_equivalence('CODEX_REWRITE_RULE', 'DISABLED'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:6~1:53) /test/1/catalog1/dbms_advanced_rewrite/alter_rewrite_equivalence/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_rewrite_logmnr_rls_0_004]
+sql:
+begin dbms_advanced_rewrite.alter_rewrite_equivalence(name=>'CODEX_REWRITE_RULE', rewrite_mode=>'TEXT_MATCH'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:6~1:53) /test/1/catalog1/dbms_advanced_rewrite/alter_rewrite_equivalence/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_rewrite_logmnr_rls_0_005]
+sql:
+begin dbms_advanced_rewrite.drop_rewrite_equivalence('CODEX_REWRITE_RULE'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:6~1:52) /test/1/catalog1/dbms_advanced_rewrite/drop_rewrite_equivalence/",
+      "action": "CALL"
+    }
+  ]
+}
+

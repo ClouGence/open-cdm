@@ -1,0 +1,27 @@
+[mysql_flush_modern_options]
+sql:
+FLUSH BINARY LOGS, ENGINE LOGS, ERROR LOGS, GENERAL LOGS, RELAY LOGS FOR CHANNEL 'split_chan', SLOW LOGS, OPTIMIZER_COSTS, USER_RESOURCES;
+expect:
+{
+  "contains": [
+    { "sqlType": "MYSQL_FLUSH", "flushType": "BINARY_LOGS" },
+    { "sqlType": "MYSQL_FLUSH", "flushType": "ENGINE_LOGS" },
+    { "sqlType": "MYSQL_FLUSH", "flushType": "ERROR_LOGS" },
+    { "sqlType": "MYSQL_FLUSH", "flushType": "GENERAL_LOGS" },
+    { "sqlType": "MYSQL_FLUSH", "flushType": "RELAY_LOGS" },
+    { "sqlType": "MYSQL_FLUSH", "flushType": "SLOW_LOGS" },
+    { "sqlType": "MYSQL_FLUSH", "flushType": "OPTIMIZER_COSTS" },
+    { "sqlType": "MYSQL_FLUSH", "flushType": "USER_RESOURCE" }
+  ]
+}
+----------
+
+[mysql_flush_table_synonym]
+sql:
+FLUSH TABLE split_verify.flush_a;
+expect:
+{
+  "contains": [
+    { "sqlType": "MYSQL_FLUSH", "flushType": "TABLES" }
+  ]
+}

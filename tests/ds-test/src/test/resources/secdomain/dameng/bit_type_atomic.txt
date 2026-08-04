@@ -1,0 +1,13 @@
+[ddl]
+sql:
+create table app.bit_t(id int,flag bit);
+create view app.bit_v as select id,flag from app.bit_t
+expect:
+{"contains":[{"class":"RdbTableDomain","sqlType":"CREATE_TABLE","auditKind":"CREATE","schema":"app","table":"bit_t"},{"class":"RdbViewDomain","sqlType":"CREATE_VIEW","auditKind":"CREATE","schema":"app","view":"bit_v"},{"class":"RdbTableDomain","sqlType":"SELECT","auditKind":"QUERY","schema":"app","table":"bit_t"}]}
+----------
+[dml]
+sql:
+insert into app.bit_t values(1,1);
+update app.bit_t set flag=0 where id=1;delete from app.bit_t where id=1
+expect:
+{"contains":[{"class":"RdbInsertDomain","sqlType":"INSERT","auditKind":"DML","schema":"app","table":"bit_t"},{"class":"RdbUpdateDomain","sqlType":"UPDATE","auditKind":"DML","schema":"app","table":"bit_t"},{"class":"RdbDeleteDomain","sqlType":"DELETE","auditKind":"DML","schema":"app","table":"bit_t"}]}

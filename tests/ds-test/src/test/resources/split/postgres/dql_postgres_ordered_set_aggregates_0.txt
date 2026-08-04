@@ -1,0 +1,40 @@
+SELECT percentile_cont(0.5) WITHIN GROUP (ORDER BY v::double precision) AS median_cont,
+       percentile_disc(0.5) WITHIN GROUP (ORDER BY label) AS median_label,
+       mode() WITHIN GROUP (ORDER BY label) AS common_label
+FROM (VALUES (1.0, 'a'), (2.0, 'b'), (3.0, 'b'), (4.0, 'c')) AS t(v, label);
+SELECT percentile_cont(ARRAY[0.25, 0.5, 0.75]) WITHIN GROUP (ORDER BY v::double precision) AS quartiles,
+       percentile_disc(ARRAY[0.25, 0.75]) WITHIN GROUP (ORDER BY label) AS label_steps
+FROM (VALUES (1.0, 'a'), (2.0, 'b'), (3.0, 'c'), (4.0, 'd')) AS t(v, label);
+SELECT rank(3) WITHIN GROUP (ORDER BY v) AS hypo_rank,
+       dense_rank(3) WITHIN GROUP (ORDER BY v) AS hypo_dense_rank,
+       percent_rank(3) WITHIN GROUP (ORDER BY v) AS hypo_percent_rank,
+       cume_dist(3) WITHIN GROUP (ORDER BY v) AS hypo_cume_dist
+FROM (VALUES (1), (2), (2), (4)) AS t(v);
+SELECT bucket,
+       percentile_disc(0.5) WITHIN GROUP (ORDER BY v) FILTER (WHERE v IS NOT NULL) AS bucket_median,
+       rank(10, bucket) WITHIN GROUP (ORDER BY v DESC NULLS LAST, bucket) AS hypo_composite_rank
+FROM (VALUES ('a', 10), ('a', 20), ('a', NULL), ('b', 5), ('b', 15)) AS t(bucket, v)
+GROUP BY bucket
+ORDER BY bucket;
+------------------------------------------------------------------------------------------
+[SELECT] SELECT percentile_cont(0.5) WITHIN GROUP (ORDER BY v::double precision) AS median_cont,
+       percentile_disc(0.5) WITHIN GROUP (ORDER BY label) AS median_label,
+       mode() WITHIN GROUP (ORDER BY label) AS common_label
+FROM (VALUES (1.0, 'a'), (2.0, 'b'), (3.0, 'b'), (4.0, 'c')) AS t(v, label);
+----------
+[SELECT] SELECT percentile_cont(ARRAY[0.25, 0.5, 0.75]) WITHIN GROUP (ORDER BY v::double precision) AS quartiles,
+       percentile_disc(ARRAY[0.25, 0.75]) WITHIN GROUP (ORDER BY label) AS label_steps
+FROM (VALUES (1.0, 'a'), (2.0, 'b'), (3.0, 'c'), (4.0, 'd')) AS t(v, label);
+----------
+[SELECT] SELECT rank(3) WITHIN GROUP (ORDER BY v) AS hypo_rank,
+       dense_rank(3) WITHIN GROUP (ORDER BY v) AS hypo_dense_rank,
+       percent_rank(3) WITHIN GROUP (ORDER BY v) AS hypo_percent_rank,
+       cume_dist(3) WITHIN GROUP (ORDER BY v) AS hypo_cume_dist
+FROM (VALUES (1), (2), (2), (4)) AS t(v);
+----------
+[SELECT] SELECT bucket,
+       percentile_disc(0.5) WITHIN GROUP (ORDER BY v) FILTER (WHERE v IS NOT NULL) AS bucket_median,
+       rank(10, bucket) WITHIN GROUP (ORDER BY v DESC NULLS LAST, bucket) AS hypo_composite_rank
+FROM (VALUES ('a', 10), ('a', 20), ('a', NULL), ('b', 5), ('b', 15)) AS t(bucket, v)
+GROUP BY bucket
+ORDER BY bucket;

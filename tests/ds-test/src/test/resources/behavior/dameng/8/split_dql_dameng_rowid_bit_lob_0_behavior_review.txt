@@ -1,0 +1,459 @@
+[split_dql_dameng_rowid_bit_lob_0_001_behavior_review]
+sql:
+SELECT ID, RID, ROWID AS PHYSICAL_ROWID FROM CODEX_DM8_TYPE_ROWID ORDER BY RID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:45~1:65) /test/1/catalog1/schema1/CODEX_DM8_TYPE_ROWID/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_rowid_bit_lob_0_002_behavior_review]
+sql:
+SELECT MIN(RID) AS MIN_RID, MAX(RID) AS MAX_RID FROM CODEX_DM8_TYPE_ROWID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/MIN/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:28~1:31) /test/1/catalog1/schema1/MAX/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:53~1:73) /test/1/catalog1/schema1/CODEX_DM8_TYPE_ROWID/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_rowid_bit_lob_0_003_behavior_review]
+sql:
+SELECT ID, FLAG, CAST(FLAG AS INT) AS FLAG_INT FROM CODEX_DM8_TYPE_BIT ORDER BY ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:52~1:70) /test/1/catalog1/schema1/CODEX_DM8_TYPE_BIT/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_rowid_bit_lob_0_004_behavior_review]
+sql:
+SELECT COUNT(*) AS TRUE_COUNT FROM CODEX_DM8_TYPE_BIT WHERE FLAG = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:35~1:53) /test/1/catalog1/schema1/CODEX_DM8_TYPE_BIT/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_rowid_bit_lob_0_005_behavior_review]
+sql:
+SELECT COUNT(*) AS FALSE_COUNT FROM CODEX_DM8_TYPE_BIT WHERE FLAG = 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:36~1:54) /test/1/catalog1/schema1/CODEX_DM8_TYPE_BIT/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_rowid_bit_lob_0_006_behavior_review]
+sql:
+SELECT ID, LENGTH(V) AS VALUE_LENGTH FROM CODEX_DM8_TYPE_TEXT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:11~1:17) /test/1/catalog1/schema1/LENGTH/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:42~1:61) /test/1/catalog1/schema1/CODEX_DM8_TYPE_TEXT/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_rowid_bit_lob_0_007_behavior_review]
+sql:
+SELECT ID, LENGTH(V) AS VALUE_LENGTH FROM CODEX_DM8_TYPE_LONG;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:11~1:17) /test/1/catalog1/schema1/LENGTH/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:42~1:61) /test/1/catalog1/schema1/CODEX_DM8_TYPE_LONG/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_rowid_bit_lob_0_008_behavior_review]
+sql:
+SELECT ID, LENGTH(V) AS VALUE_LENGTH FROM CODEX_DM8_TYPE_LONGVARCHAR;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:11~1:17) /test/1/catalog1/schema1/LENGTH/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:42~1:68) /test/1/catalog1/schema1/CODEX_DM8_TYPE_LONGVARCHAR/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_rowid_bit_lob_0_009_behavior_review]
+sql:
+SELECT ID, LENGTHB(V) AS VALUE_LENGTH FROM CODEX_DM8_TYPE_IMAGE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:11~1:18) /test/1/catalog1/schema1/LENGTHB/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:43~1:63) /test/1/catalog1/schema1/CODEX_DM8_TYPE_IMAGE/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_rowid_bit_lob_0_010_behavior_review]
+sql:
+SELECT ID, LENGTHB(V) AS VALUE_LENGTH FROM CODEX_DM8_TYPE_LONGVARBINARY;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:11~1:18) /test/1/catalog1/schema1/LENGTHB/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:43~1:71) /test/1/catalog1/schema1/CODEX_DM8_TYPE_LONGVARBINARY/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_rowid_bit_lob_0_011_behavior_review]
+sql:
+SELECT ID, DBMS_LOB.GETLENGTH(V) AS VALUE_LENGTH FROM CODEX_DM8_TYPE_BLOB;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:11~1:29) /test/1/catalog1/DBMS_LOB/GETLENGTH/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:54~1:73) /test/1/catalog1/schema1/CODEX_DM8_TYPE_BLOB/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_rowid_bit_lob_0_012_behavior_review]
+sql:
+SELECT ID, DBMS_LOB.GETLENGTH(V) AS VALUE_LENGTH FROM CODEX_DM8_TYPE_CLOB;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:11~1:29) /test/1/catalog1/DBMS_LOB/GETLENGTH/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:54~1:73) /test/1/catalog1/schema1/CODEX_DM8_TYPE_CLOB/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_rowid_bit_lob_0_013_behavior_review]
+sql:
+SELECT ID, DBMS_LOB.FILEEXISTS(V) AS FILE_EXISTS, DBMS_LOB.GETLENGTH(V) AS FILE_LENGTH
+FROM CODEX_DM8_TYPE_BFILE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:11~1:30) /test/1/catalog1/DBMS_LOB/FILEEXISTS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:50~1:68) /test/1/catalog1/DBMS_LOB/GETLENGTH/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(2:5~2:25) /test/1/catalog1/schema1/CODEX_DM8_TYPE_BFILE/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_rowid_bit_lob_0_014_behavior_review]
+sql:
+SELECT TEXT_EQUAL(V, 'TEXT-VALUE') AS IS_EQUAL FROM CODEX_DM8_TYPE_TEXT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/TEXT_EQUAL/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:52~1:71) /test/1/catalog1/schema1/CODEX_DM8_TYPE_TEXT/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_rowid_bit_lob_0_015_behavior_review]
+sql:
+SELECT BLOB_EQUAL(V, 0x494D414745) AS IS_EQUAL FROM CODEX_DM8_TYPE_IMAGE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/BLOB_EQUAL/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:52~1:72) /test/1/catalog1/schema1/CODEX_DM8_TYPE_IMAGE/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_rowid_bit_lob_0_016_behavior_review]
+sql:
+SELECT DBMS_LOB.FILEEXISTS(BFILENAME('CODEX_DM8_BFILE_DIR', 'missing.bin')) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:26) /test/1/catalog1/DBMS_LOB/FILEEXISTS/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:27~1:36) /test/1/catalog1/schema1/BFILENAME/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:81~1:85) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_rowid_bit_lob_0_017_behavior_review]
+sql:
+SELECT TABLE_NAME, COLUMN_NAME, DATA_TYPE, DATA_LENGTH, DATA_PRECISION, DATA_SCALE
+FROM USER_TAB_COLUMNS
+WHERE TABLE_NAME LIKE 'CODEX_DM8_BAD_%' AND COLUMN_NAME = 'V'
+ORDER BY TABLE_NAME;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(2:5~2:21) /test/1/catalog1/schema1/USER_TAB_COLUMNS/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_rowid_bit_lob_0_018_behavior_review]
+sql:
+SELECT LENGTH(V) AS VALUE_LENGTH FROM CODEX_DM8_BAD_TEXT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/LENGTH/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:38~1:56) /test/1/catalog1/schema1/CODEX_DM8_BAD_TEXT/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_rowid_bit_lob_0_019_behavior_review]
+sql:
+SELECT LENGTH(V) AS VALUE_LENGTH FROM CODEX_DM8_BAD_LONG;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/LENGTH/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:38~1:56) /test/1/catalog1/schema1/CODEX_DM8_BAD_LONG/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_rowid_bit_lob_0_020_behavior_review]
+sql:
+SELECT LENGTH(V) AS VALUE_LENGTH FROM CODEX_DM8_BAD_LONGVARCHAR;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/LENGTH/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:38~1:63) /test/1/catalog1/schema1/CODEX_DM8_BAD_LONGVARCHAR/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_rowid_bit_lob_0_021_behavior_review]
+sql:
+SELECT LENGTHB(V) AS VALUE_LENGTH FROM CODEX_DM8_BAD_IMAGE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/LENGTHB/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:39~1:58) /test/1/catalog1/schema1/CODEX_DM8_BAD_IMAGE/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_rowid_bit_lob_0_022_behavior_review]
+sql:
+SELECT LENGTHB(V) AS VALUE_LENGTH FROM CODEX_DM8_BAD_LONGVARBINARY;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/LENGTHB/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:39~1:66) /test/1/catalog1/schema1/CODEX_DM8_BAD_LONGVARBINARY/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_rowid_bit_lob_0_023_behavior_review]
+sql:
+SELECT DBMS_LOB.GETLENGTH(V) AS VALUE_LENGTH FROM CODEX_DM8_BAD_BLOB;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:25) /test/1/catalog1/DBMS_LOB/GETLENGTH/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:50~1:68) /test/1/catalog1/schema1/CODEX_DM8_BAD_BLOB/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_rowid_bit_lob_0_024_behavior_review]
+sql:
+SELECT DBMS_LOB.GETLENGTH(V) AS VALUE_LENGTH FROM CODEX_DM8_BAD_CLOB;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:25) /test/1/catalog1/DBMS_LOB/GETLENGTH/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:50~1:68) /test/1/catalog1/schema1/CODEX_DM8_BAD_CLOB/",
+      "action" : "READ"
+    }
+  ]
+}

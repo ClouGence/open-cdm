@@ -1,0 +1,163 @@
+[create_library]
+sql:
+CREATE LIBRARY split_lib LANGUAGE JAVASCRIPT AS $$export function f() { return 1; }$$
+expect:
+{
+  "contains": [
+    {"sqlType": "CREATE_LIBRARY", "auditKind":"CREATE", "target":"Library", "needSupply":false}
+  ]
+}
+----------
+[alter_library]
+sql:
+ALTER LIBRARY split_lib COMMENT 'updated'
+expect:
+{
+  "contains": [
+    {"sqlType": "ALTER_LIBRARY", "auditKind":"ALTER", "target":"Library", "needSupply":false}
+  ]
+}
+----------
+[drop_library]
+sql:
+DROP LIBRARY IF EXISTS split_lib
+expect:
+{
+  "contains": [
+    {"sqlType": "DROP_LIBRARY", "auditKind":"DROP", "target":"Library", "needSupply":false}
+  ]
+}
+----------
+[show_create_library]
+sql:
+SHOW CREATE LIBRARY split_lib
+expect:
+{
+  "contains": [
+    {"sqlType": "SHOW", "auditKind":"QUERY", "showType":"CREATE_LIBRARY", "showKind":"DDL", "target":"Object"}
+  ]
+}
+----------
+[show_library_status]
+sql:
+SHOW LIBRARY STATUS
+expect:
+{
+  "contains": [
+    {"sqlType": "SHOW", "auditKind":"QUERY", "showType":"LIBRARY_STATUS", "showKind":"METADATA", "target":"Object"}
+  ]
+}
+----------
+[alter_table_masking]
+sql:
+ALTER TABLE t_mask ALTER COLUMN ssn SET MASKING POLICY split_mask
+expect:
+{
+  "contains": [
+    {"class":"MyColumnDomain", "sqlType": "ALTER_TABLE_ALTER_COLUMN", "auditKind":"ALTER", "table":"t_mask", "column":"ssn"}
+  ]
+}
+----------
+[create_json_duality_view]
+sql:
+CREATE JSON DUALITY VIEW jdv AS SELECT JSON_DUALITY_OBJECT('_id' : id) FROM root_doc
+expect:
+{
+  "contains": [
+    {"sqlType": "CREATE_VIEW", "auditKind":"CREATE", "view":"jdv", "materialized":false}
+  ]
+}
+----------
+[create_vector_table]
+sql:
+CREATE TABLE vector_t (embedding VECTOR(3))
+expect:
+{
+  "contains": [
+    {"sqlType": "CREATE_TABLE", "auditKind":"CREATE", "table":"vector_t"}
+  ]
+}
+----------
+[alter_user_mfa]
+sql:
+ALTER USER 'split_mfa_accept'@'%' ADD 2 FACTOR IDENTIFIED WITH caching_sha2_password BY 'Mfa2!' ADD 3 FACTOR IDENTIFIED WITH caching_sha2_password BY 'Mfa3!'
+expect:
+{
+  "contains": [
+    {"sqlType": "ALTER_USER", "auditKind":"ADMIN", "target":"UserOrRole", "needSupply":false}
+  ]
+}
+----------
+[odbc_function_escape]
+sql:
+SELECT {fn CONCAT(a1,a2)} FROM t1
+expect:
+{
+  "contains": [
+    {"sqlType": "SELECT", "auditKind":"QUERY", "selectFunc":["CONCAT"], "funcInSelect":true},
+    {"class":"RdbCallDomain", "sqlType": "CALL_PROG_OBJ", "auditKind":"CALL", "callName":"CONCAT", "childrenSize":2}
+  ]
+}
+----------
+[schema_table_wildcard]
+sql:
+SELECT split_parser_identifier.star_t.* FROM star_t
+expect:
+{
+  "contains": [
+    {"class":"MySelectDomain", "sqlType": "SELECT", "auditKind":"QUERY", "hasSelectAll":true}
+  ]
+}
+----------
+[set_persist_only]
+sql:
+SET PERSIST_ONLY back_log = 1000
+expect:
+{
+  "contains": [
+    {"class":"MyConfigDomain", "sqlType": "CONFIG_WRITE", "auditKind":"OTHER", "configKey":"back_log", "type":"GLOBAL"}
+  ]
+}
+----------
+[set_at_persist_only]
+sql:
+SET @@PERSIST_ONLY.back_log = 1001
+expect:
+{
+  "contains": [
+    {"class":"MyConfigDomain", "sqlType": "CONFIG_WRITE", "auditKind":"OTHER", "configKey":"back_log", "type":"GLOBAL"}
+  ]
+}
+----------
+[start_group_replication]
+sql:
+START GROUP_REPLICATION USER='repl_user', PASSWORD='secret', DEFAULT_AUTH='caching_sha2_password'
+expect:
+{
+  "contains": [
+    {"sqlType": "ALTER_REPLICATION", "auditKind":"ALTER", "target":"Replication", "needSupply":false}
+  ]
+}
+----------
+[stop_group_replication]
+sql:
+STOP GROUP_REPLICATION
+expect:
+{
+  "contains": [
+    {"sqlType": "ALTER_REPLICATION", "auditKind":"ALTER", "target":"Replication", "needSupply":false}
+  ]
+}
+----------
+[right_deep_straight_join]
+sql:
+SELECT a.col_varchar
+FROM t1 a STRAIGHT_JOIN t2 b INNER JOIN t1 c
+ON c.col_varchar=b.col_varchar_key
+ON c.col_int=b.pk
+expect:
+{
+  "contains": [
+    {"class":"MySelectDomain", "sqlType": "SELECT", "auditKind":"QUERY", "joinTypes":["INNER_JOIN"]}
+  ]
+}

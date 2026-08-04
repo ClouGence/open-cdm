@@ -15,10 +15,12 @@
  */
 package com.clougence.sql.common.analysis.secrules.builder.mode;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import com.clougence.clouddm.sdk.service.secrules.ModeDomain;
-import com.clougence.clouddm.sdk.sql.secrules.rdb.RdbJoinType;
+import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbJoinType;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -30,6 +32,7 @@ public class JoinDomain implements ModeDomain {
     private RdbJoinType         joinType;
 
     private Map<String, String> options;
+    private List<String>        usingColumns = new ArrayList<>();
 
     public JoinDomain(RdbJoinType joinType){
         this.joinType = joinType;

@@ -1,0 +1,40 @@
+[rewrite_declare_domain]
+sql:
+call dbms_advanced_rewrite.declare_rewrite_equivalence('R1', 'SELECT 1', 'SELECT 2', false, 'TEXT_MATCH')
+expect:
+{
+  "contains": [
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_advanced_rewrite"}
+  ]
+}
+----------
+[logmnr_start_domain]
+sql:
+call dbms_logmnr.start_logmnr(options=>2128)
+expect:
+{
+  "contains": [
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_logmnr"}
+  ]
+}
+----------
+[rls_policy_domain]
+sql:
+call dbms_rls.enable_policy('APP', 'ORDERS', 'TENANT_POLICY', 1)
+expect:
+{
+  "contains": [
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_rls"}
+  ]
+}
+----------
+[logmnr_contents_domain]
+sql:
+select operation_code, scn, sql_redo from sys.v$logmnr_contents where seg_owner='APP'
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"sys", "table":"v$logmnr_contents"}
+  ]
+}
+

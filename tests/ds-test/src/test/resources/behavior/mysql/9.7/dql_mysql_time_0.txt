@@ -1,0 +1,319 @@
+[select__001]
+sql:
+SELECT CAST(235959.123456 AS TIME),CAST(0.235959123456e+6 AS TIME(6)),CAST(235959123456e-6 AS TIME(6));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__002]
+sql:
+SELECT CAST('100:55:50' AS TIME)<CAST('024:00:00' AS TIME),CAST('300:55:50' AS TIME)>CAST('240:00:00' AS TIME);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__003]
+sql:
+SELECT CAST(IF(TRUE,TIME'00:00:00',TIME'01:01:01') AS CHAR),CAST(CASE WHEN FALSE THEN '01:01:01' ELSE TIME'02:02:02' END AS TIME(6));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:12~1:14) /test/1/catalog1/schema1/IF/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__004]
+sql:
+SELECT CAST(COALESCE(t6,t5) AS SIGNED),CAST(COALESCE(t6,t5) AS DECIMAL(23,6)),CAST(SUM(TIME_TO_SEC(t6)) AS TIME(6)) FROM time_widths;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:12~1:20) /test/1/catalog1/schema1/COALESCE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:83~1:86) /test/1/catalog1/schema1/SUM/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:87~1:98) /test/1/catalog1/schema1/TIME_TO_SEC/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:121~1:132) /test/1/catalog1/schema1/time_widths/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__005]
+sql:
+SELECT TIME('10000090000:10:10.1999999999999'),TIME(154559.616+0e0),TIME(NAME_CONST('time_name',0));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/TIME/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:73~1:83) /test/1/catalog1/schema1/NAME_CONST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__006]
+sql:
+SELECT t6,TIME_TO_SEC(t6),SEC_TO_TIME(TIME_TO_SEC(t6)) FROM time_widths WHERE t6<=>TIME'19:20:30' OR t6<=>192030 ORDER BY t6;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:10~1:21) /test/1/catalog1/schema1/TIME_TO_SEC/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:26~1:37) /test/1/catalog1/schema1/SEC_TO_TIME/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:60~1:71) /test/1/catalog1/schema1/time_widths/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__007]
+sql:
+SELECT CAST('1 00:00:00' AS TIME),EXTRACT(HOUR FROM '1 00:00:00'),HOUR('1 00:00:00');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:34~1:41) /test/1/catalog1/schema1/EXTRACT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:66~1:70) /test/1/catalog1/schema1/HOUR/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__008]
+sql:
+SELECT LEAST(CAST('00:00:00.1' AS TIME(6)),'00:00:01.1'),GREATEST(TIME'00:00:00.1',TIME'00:00:00.12');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/LEAST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:13~1:17) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:57~1:65) /test/1/catalog1/schema1/GREATEST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__009]
+sql:
+SELECT TIME_FORMAT(TIME'-250:07:38.935647','%H:%i:%s.%f'),ADDTIME(TIME'838:59:58.999999','00:00:00.000001'),SUBTIME(TIME'-838:59:58.999999','00:00:00.000001');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/TIME_FORMAT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:58~1:65) /test/1/catalog1/schema1/ADDTIME/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:108~1:115) /test/1/catalog1/schema1/SUBTIME/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__010]
+sql:
+SELECT * FROM time_widths AS a JOIN time_widths AS b ON a.t6=b.t WHERE a.t6 BETWEEN TIME'-01:02:03.456789' AND TIME'01:02:03.456789';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:25) /test/1/catalog1/schema1/time_widths/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__011]
+sql:
+SELECT t6 FROM time_widths UNION ALL SELECT CAST(id AS TIME(6)) FROM time_widths ORDER BY 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:15~1:26) /test/1/catalog1/schema1/time_widths/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(1:44~1:48) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__012]
+sql:
+SELECT id,t6,LAG(t6) OVER (ORDER BY t6) AS previous_time,MAX(t6) OVER (PARTITION BY HOUR(t6)) AS hour_max FROM time_widths;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:13~1:16) /test/1/catalog1/schema1/LAG/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:57~1:60) /test/1/catalog1/schema1/MAX/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:84~1:88) /test/1/catalog1/schema1/HOUR/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:111~1:122) /test/1/catalog1/schema1/time_widths/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__013]
+sql:
+WITH RECURSIVE time_cte(n,t) AS (SELECT 1,TIME'-00:00:00.000001' UNION ALL SELECT n+1,ADDTIME(t,'00:00:00.000001') FROM time_cte WHERE n<3) SELECT * FROM time_cte WHERE t IN (TIME'-00:00:00.000001',TIME'00:00:00.000001');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:86~1:93) /test/1/catalog1/schema1/ADDTIME/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select_session_variable_rw__014]
+sql:
+SELECT 1 FROM time_widths WHERE DEFAULT(t6)>t6 AND @time_probe=t6;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:25) /test/1/catalog1/schema1/time_widths/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(1:32~1:39) /test/1/catalog1/schema1/DEFAULT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "ConfigKey(1:51~1:62) /test/1/time_probe/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__015]
+sql:
+SELECT CAST(70503052756 AS TIME),CAST(70503052756.123456 AS TIME(6)),CAST(70503052756.123456E0 AS TIME(6)),CAST(20250101.123456 AS TIME(6));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__016]
+sql:
+SELECT CAST(-0.971042 AS TIME),CAST('21:07:58'/-1345980785 AS TIME(6)),CAST(9/'-1317798799' AS TIME);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}

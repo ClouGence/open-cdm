@@ -1,0 +1,12 @@
+GRANT ALLOW_NONEXISTENT_DEFINER ON *.* TO 'dynamic_80'@'%';
+GRANT FLUSH_PRIVILEGES ON *.* TO 'dynamic_80'@'%';
+GRANT MANAGE_DATA_MASKING_POLICY ON *.* TO 'dynamic_modern'@'%';
+GRANT OPTIMIZE_LOCAL_TABLE ON *.* TO 'dynamic_80'@'%';
+------------------------------------------------------------------------------------------
+[GRANT] GRANT ALLOW_NONEXISTENT_DEFINER ON *.* TO 'dynamic_80'@'%';
+----------
+[GRANT] GRANT FLUSH_PRIVILEGES ON *.* TO 'dynamic_80'@'%';
+----------
+[GRANT] GRANT MANAGE_DATA_MASKING_POLICY ON *.* TO 'dynamic_modern'@'%';
+----------
+[GRANT] GRANT OPTIMIZE_LOCAL_TABLE ON *.* TO 'dynamic_80'@'%';

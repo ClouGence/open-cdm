@@ -1,0 +1,56 @@
+[split_block_dameng_redefinition_xa_xmldom_0_016]
+sql:
+declare rid int; begin select redefinition_id into rid from dba_redefinition_status where base_table_name='CODEX_REDEF_REDUNDANT'; insert into CODEX_DM8_PKG_CTL(label, number_value) values('REDEF_REDUNDANT_ID', rid); commit; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "View(1:60~1:83) /test/1/catalog1/schema1/dba_redefinition_status/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(1:143~1:160) /test/1/catalog1/schema1/CODEX_DM8_PKG_CTL/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dql_dameng_performance_packages_0_003]
+sql:
+select SF_CHECK_AWR_SYS() from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:23) /test/1/catalog1/schema1/SF_CHECK_AWR_SYS/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:31~1:35) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_performance_packages_0_004]
+sql:
+select snap_id, begin_interval_time, end_interval_time from sys.wrm$_snapshot where snap_id in (select number_value from CODEX_DM8_PERF_CTL where label like 'AWR_%') order by snap_id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:60~1:77) /test/1/catalog1/sys/wrm$_snapshot/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(1:121~1:139) /test/1/catalog1/schema1/CODEX_DM8_PERF_CTL/",
+      "action": "READ"
+    }
+  ]
+}

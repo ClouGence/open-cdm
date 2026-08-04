@@ -1,0 +1,13 @@
+[ddl]
+sql:
+create table app.dt_t(id int,c_date date,c_ts timestamp(9));
+create view app.dt_v as select id,c_date,c_ts from app.dt_t
+expect:
+{"contains":[{"class":"RdbTableDomain","sqlType":"CREATE_TABLE","auditKind":"CREATE","schema":"app","table":"dt_t"},{"class":"RdbViewDomain","sqlType":"CREATE_VIEW","auditKind":"CREATE","schema":"app","view":"dt_v"},{"class":"RdbTableDomain","sqlType":"SELECT","auditKind":"QUERY","schema":"app","table":"dt_t"}]}
+----------
+[dml]
+sql:
+insert into app.dt_t values(1,date '2026-07-23',timestamp '2026-07-23 12:34:56');
+update app.dt_t set c_date=c_date+1 where id=1;delete from app.dt_t where id=1
+expect:
+{"contains":[{"class":"RdbInsertDomain","sqlType":"INSERT","auditKind":"DML","schema":"app","table":"dt_t"},{"class":"RdbUpdateDomain","sqlType":"UPDATE","auditKind":"DML","schema":"app","table":"dt_t"},{"class":"RdbDeleteDomain","sqlType":"DELETE","auditKind":"DML","schema":"app","table":"dt_t"}]}

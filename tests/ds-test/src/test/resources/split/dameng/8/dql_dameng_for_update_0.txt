@@ -1,0 +1,90 @@
+select * from lock_target for read only;
+select id, name from lock_target where id = 1 for read only;
+select id, name from lock_target order by id for read only;
+select id, name from lock_target limit 2 for read only;
+select id, name from lock_target for read only limit 2;
+select id, name from lock_target order by id for read only limit 2;
+select id, name from lock_target order by id limit 2 for read only;
+select * from lock_target for update;
+select id, name from lock_target where id = 1 for update;
+select id, name from lock_target for update of name;
+select id, name from lock_target for update of lock_target.name;
+select id, name from lock_target for update nowait;
+select id, name from lock_target for update wait 1;
+select id, name from lock_target for update skip locked;
+select id, name from lock_target for update 1 skip locked;
+select id, name from lock_target for update 3 skip locked;
+select id, name from lock_target for update of name nowait;
+select id, name from lock_target for update of name wait 1;
+select id, name from lock_target for update of name skip locked;
+select id, name from lock_target order by id for update;
+select id, name from lock_target order by id for update nowait;
+select id, name from lock_target for update limit 2;
+select id, name from lock_target limit 2 for update;
+select id, name from lock_target order by id for update limit 2;
+select id, name from lock_target order by id limit 2 for update;
+select id, name from lock_target offset 1 rows fetch next 2 rows only for update;
+select id, name from lock_target order by id offset 1 rows fetch next 2 rows only for update;
+select a.id, a.name from lock_target a for update of a.name;
+select a.id, a.name, b.amount from lock_target a join lock_target b on a.id = b.id for update of a.name;
+select a.id, b.name from lock_target a, lock_target b where a.id = b.id for update of a.id, b.name;
+------------------------------------------------------------------------------------------
+[SELECT] select * from lock_target for read only;
+----------
+[SELECT] select id, name from lock_target where id = 1 for read only;
+----------
+[SELECT] select id, name from lock_target order by id for read only;
+----------
+[SELECT] select id, name from lock_target limit 2 for read only;
+----------
+[SELECT] select id, name from lock_target for read only limit 2;
+----------
+[SELECT] select id, name from lock_target order by id for read only limit 2;
+----------
+[SELECT] select id, name from lock_target order by id limit 2 for read only;
+----------
+[SELECT|QUERY_LOCK] select * from lock_target for update;
+----------
+[SELECT|QUERY_LOCK] select id, name from lock_target where id = 1 for update;
+----------
+[SELECT|QUERY_LOCK] select id, name from lock_target for update of name;
+----------
+[SELECT|QUERY_LOCK] select id, name from lock_target for update of lock_target.name;
+----------
+[SELECT|QUERY_LOCK] select id, name from lock_target for update nowait;
+----------
+[SELECT|QUERY_LOCK] select id, name from lock_target for update wait 1;
+----------
+[SELECT|QUERY_LOCK] select id, name from lock_target for update skip locked;
+----------
+[SELECT|QUERY_LOCK] select id, name from lock_target for update 1 skip locked;
+----------
+[SELECT|QUERY_LOCK] select id, name from lock_target for update 3 skip locked;
+----------
+[SELECT|QUERY_LOCK] select id, name from lock_target for update of name nowait;
+----------
+[SELECT|QUERY_LOCK] select id, name from lock_target for update of name wait 1;
+----------
+[SELECT|QUERY_LOCK] select id, name from lock_target for update of name skip locked;
+----------
+[SELECT|QUERY_LOCK] select id, name from lock_target order by id for update;
+----------
+[SELECT|QUERY_LOCK] select id, name from lock_target order by id for update nowait;
+----------
+[SELECT|QUERY_LOCK] select id, name from lock_target for update limit 2;
+----------
+[SELECT|QUERY_LOCK] select id, name from lock_target limit 2 for update;
+----------
+[SELECT|QUERY_LOCK] select id, name from lock_target order by id for update limit 2;
+----------
+[SELECT|QUERY_LOCK] select id, name from lock_target order by id limit 2 for update;
+----------
+[SELECT|QUERY_LOCK] select id, name from lock_target offset 1 rows fetch next 2 rows only for update;
+----------
+[SELECT|QUERY_LOCK] select id, name from lock_target order by id offset 1 rows fetch next 2 rows only for update;
+----------
+[SELECT|QUERY_LOCK] select a.id, a.name from lock_target a for update of a.name;
+----------
+[SELECT|QUERY_LOCK] select a.id, a.name, b.amount from lock_target a join lock_target b on a.id = b.id for update of a.name;
+----------
+[SELECT|QUERY_LOCK] select a.id, b.name from lock_target a, lock_target b where a.id = b.id for update of a.id, b.name;

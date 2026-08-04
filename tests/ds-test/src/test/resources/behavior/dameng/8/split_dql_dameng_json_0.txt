@@ -1,0 +1,1542 @@
+[split_dql_dameng_json_0_001]
+sql:
+select to_json(null);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/to_json/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_002]
+sql:
+select to_json(true);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/to_json/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_003]
+sql:
+select to_json(false);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/to_json/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_004]
+sql:
+select to_json(-12.3);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/to_json/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_005]
+sql:
+select to_json('{"b":1,"a":2}');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/to_json/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_006]
+sql:
+select to_json('-12.3'::json);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/to_json/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_007]
+sql:
+select to_json('true'::json);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/to_json/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_008]
+sql:
+select to_json('"str"'::json);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/to_json/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_009]
+sql:
+select to_json('{"b":1,"a":2}'::json);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/to_json/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_010]
+sql:
+select json_value('{"c":2}', '$.c');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/json_value/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_011]
+sql:
+select json_value('[1,"a",true]', '$[1]');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/json_value/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_012]
+sql:
+select json_value('{"c":true}', '$.c' returning number);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/json_value/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_013]
+sql:
+select json_value('{"c":10}', '$.c' returning decimal(10,2));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/json_value/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_014]
+sql:
+select json_value('{"c":"2026-07-21"}', '$.c' returning date);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/json_value/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_015]
+sql:
+select json_value('{"c":"abc"}', '$.c' returning varchar2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/json_value/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_016]
+sql:
+select json_value('{"c":"abc"}', '$.c' returning varchar2 ascii);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/json_value/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_017]
+sql:
+select json_value('{"c":null}', '$.c' null on error);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/json_value/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_018]
+sql:
+select json_value('{"c":[1]}', '$.c' default 'fallback' on error);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/json_value/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_019]
+sql:
+select json_value('[aa]', '$[0]' returning number default '1' on error);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/json_value/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_020]
+sql:
+select json_query('{"c":{"a":1}}', '$.c');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/json_query/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_021]
+sql:
+select json_query('{"c":[1,true]}', '$.c');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/json_query/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_022]
+sql:
+select json_query('{"c":2}', '$.c' with wrapper);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/json_query/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_023]
+sql:
+select json_query('{"c":"x"}', '$.c' with array wrapper);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/json_query/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_024]
+sql:
+select json_query('{"c":[1,2]}', '$.c' without wrapper);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/json_query/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_025]
+sql:
+select json_query('{"c":{"a":1}}', '$.c' returning varchar2 pretty);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/json_query/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_026]
+sql:
+select json_query('{"c":{"a":"中"}}', '$.c' returning varchar2 ascii);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/json_query/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_027]
+sql:
+select json_query('{"c":2}', '$.c' with conditional wrapper null on error);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/json_query/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_028]
+sql:
+select * from json_table('{a:100,b:200,c:{d:300,e:400}}', '$.c' columns(c1 dec path '$.d', c2 dec path '$.e'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:14~1:24) /test/1/catalog1/schema1/json_table/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_029]
+sql:
+select * from json_table('[{"id":1},{"id":2}]', '$[*]' columns(id int path '$.id'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:14~1:24) /test/1/catalog1/schema1/json_table/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_030]
+sql:
+select * from json_table('[{"id":1,"name":"A"}]', '$[*]' columns(ord for ordinality, id int path '$.id', name varchar(20) path '$.name'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:14~1:24) /test/1/catalog1/schema1/json_table/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_031]
+sql:
+select * from json_table('{"items":[{"v":10},{"v":20}]}', '$.items[*]' columns(v int path '$.v'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:14~1:24) /test/1/catalog1/schema1/json_table/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_032]
+sql:
+select * from json_table('{"a":"x"}', '$' columns(a varchar(20) path '$.a' default 'n/a' on error));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:14~1:24) /test/1/catalog1/schema1/json_table/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_033]
+sql:
+select json_overlaps(null, null);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:20) /test/1/catalog1/schema1/json_overlaps/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_034]
+sql:
+select json_overlaps('{"a":1,"a":2,"a":3,"b":4}', '{"a":1}');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:20) /test/1/catalog1/schema1/json_overlaps/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_035]
+sql:
+select json_overlaps('{"a":1,"a":2,"a":3,"b":4}', '{"a":3}');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:20) /test/1/catalog1/schema1/json_overlaps/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_036]
+sql:
+select json_overlaps('{"a":{"b":2,"b":3}}', '{"a":{"b":2}}');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:20) /test/1/catalog1/schema1/json_overlaps/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_037]
+sql:
+select json_overlaps('{"a":{"b":2,"b":3}}', '{"a":{"b":3}}');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:20) /test/1/catalog1/schema1/json_overlaps/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_038]
+sql:
+select json_overlaps('[1,{"a":2,"a":3}]', '{"a":2}');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:20) /test/1/catalog1/schema1/json_overlaps/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_039]
+sql:
+select json_overlaps('[1,{"a":2,"a":3}]', '{"a":3}');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:20) /test/1/catalog1/schema1/json_overlaps/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_040]
+sql:
+select json_overlaps('[1,[2,3],{"a":2,"b":4}]', '1');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:20) /test/1/catalog1/schema1/json_overlaps/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_041]
+sql:
+select json_overlaps('[1,[2,3],{"a":2,"b":4}]', '2');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:20) /test/1/catalog1/schema1/json_overlaps/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_042]
+sql:
+select json_overlaps('[1,[2,3],{"a":2,"b":4}]', '[2,3]');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:20) /test/1/catalog1/schema1/json_overlaps/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_043]
+sql:
+select json_overlaps('[1,[2,3],{"a":2,"b":4}]', '[[2,3]]');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:20) /test/1/catalog1/schema1/json_overlaps/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_044]
+sql:
+select json_overlaps('[1,[2,3],{"a":2,"b":4}]', '[[3,2]]');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:20) /test/1/catalog1/schema1/json_overlaps/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_045]
+sql:
+select json_overlaps('[1,[2,3],{"a":2,"b":4}]', '{"a":2}');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:20) /test/1/catalog1/schema1/json_overlaps/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_046]
+sql:
+select json_overlaps('[1,[2,3],{"a":2,"b":4}]', '{"a":2,"b":4}');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:20) /test/1/catalog1/schema1/json_overlaps/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_047]
+sql:
+select json_set(null, '$.f1.a', 15);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/json_set/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_048]
+sql:
+select json_set('{"f1":{"a":1}}', '$.f1.a', 15);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/json_set/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_049]
+sql:
+select json_set('{"f1":{"a":1}}', '$.f1.a', 'str');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/json_set/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_050]
+sql:
+select json_set('[{"f1":{"a":1}}]', '$[0]', true);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/json_set/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_051]
+sql:
+select json_set('[{"f1":{"a":1}},2,"b"]', '$[0].f1.a', 15, '$[1]', 'c');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/json_set/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_052]
+sql:
+select json_set('{"f1":{"a":1}}', '$.f1.b', 15);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/json_set/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_053]
+sql:
+select json_replace('[{"f1":{"a":1}},2,"b"]', '$[0].f1.a', 15, '$[1]', 'c');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/json_replace/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_054]
+sql:
+select json_insert('{"f1":{"a":1}}', '$.f1.b', 15);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/json_insert/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_055]
+sql:
+select json_insert('[1,2]', '$[2]', 3);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/json_insert/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_056]
+sql:
+select json_set('{"a":1}', '$.a[1]', 2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/json_set/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_057]
+sql:
+select json_array(1, 'a', true, null);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/json_array/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_058]
+sql:
+select json_object('name', 'DM8', 'version', 8);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/json_object/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_059]
+sql:
+select json_build_array(1, 'a', true);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:23) /test/1/catalog1/schema1/json_build_array/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_060]
+sql:
+select json_build_object('name', 'DM8', 'version', 8);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:24) /test/1/catalog1/schema1/json_build_object/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_061]
+sql:
+select json_contains_path('{"a":{"b":1}}', 'one', '$.a.b');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:25) /test/1/catalog1/schema1/json_contains_path/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_062]
+sql:
+select json_contains_path('{"a":1,"b":2}', 'all', '$.a', '$.b');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:25) /test/1/catalog1/schema1/json_contains_path/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_063]
+sql:
+select json_keys('{"b":2,"a":1}');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/json_keys/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_064]
+sql:
+select json_keys('{"a":{"b":1}}', '$.a');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/json_keys/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_065]
+sql:
+select json_type('{"a":1}');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/json_type/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_066]
+sql:
+select json_type('[1,2]');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/json_type/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_067]
+sql:
+select json_type('true');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/json_type/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_068]
+sql:
+select json_typeof('{"a":1}');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/json_typeof/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_069]
+sql:
+select json_typeof('[1,2]');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/json_typeof/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_070]
+sql:
+select json_contains('{"a":1,"b":2}', '{"a":1}');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:20) /test/1/catalog1/schema1/json_contains/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_071]
+sql:
+select to_jsonb(null);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/to_jsonb/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_072]
+sql:
+select to_jsonb(true);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/to_jsonb/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_073]
+sql:
+select to_jsonb(false);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/to_jsonb/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_074]
+sql:
+select to_jsonb(-12.3);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/to_jsonb/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_075]
+sql:
+select to_jsonb('{"b":1,"a":2}');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/to_jsonb/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_076]
+sql:
+select to_jsonb('-12.3'::jsonb);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/to_jsonb/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_077]
+sql:
+select to_jsonb('true'::jsonb);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/to_jsonb/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_078]
+sql:
+select to_jsonb('"str"'::jsonb);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/to_jsonb/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_079]
+sql:
+select to_jsonb('{"b":1,"a":2}'::jsonb);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/to_jsonb/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_080]
+sql:
+select jsonb_set('[{"f1":{"a":1}}]', '{0,f1,a}', '15');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/jsonb_set/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_081]
+sql:
+select jsonb_set('[{"f1":{"a":1}}]', '{0,f1,b}', '15', true);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/jsonb_set/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_082]
+sql:
+select jsonb_set('[{"f1":{"a":1}}]', '{0,f1,b}', '15', false);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/jsonb_set/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_083]
+sql:
+select jsonb_concat(null, '1');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/jsonb_concat/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_084]
+sql:
+select jsonb_concat('1', '"abc"');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/jsonb_concat/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_085]
+sql:
+select jsonb_object_agg('a', jsonb_concat('1', '2'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:23) /test/1/catalog1/schema1/jsonb_object_agg/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:29~1:41) /test/1/catalog1/schema1/jsonb_concat/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_086]
+sql:
+select jsonb_object_agg('a', '[1,2]');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:23) /test/1/catalog1/schema1/jsonb_object_agg/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_087]
+sql:
+select * from jsonb_object_keys('{"F2":"ABC","F1":{"F3":"A"}}');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:14~1:31) /test/1/catalog1/schema1/jsonb_object_keys/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_088]
+sql:
+select * from jsonb_object_keys('{"F1":"ABC","F1":"X"}');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:14~1:31) /test/1/catalog1/schema1/jsonb_object_keys/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_089]
+sql:
+select cast('{"a":1}' as jsonb);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[split_dql_dameng_json_0_090]
+sql:
+select null::json;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[split_dql_dameng_json_0_091]
+sql:
+select '"str"'::json;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[split_dql_dameng_json_0_092]
+sql:
+select '[1,true,"a",{"b":1}]'::json;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[split_dql_dameng_json_0_093]
+sql:
+select null::jsonb;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[split_dql_dameng_json_0_094]
+sql:
+select '"str"'::jsonb;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[split_dql_dameng_json_0_095]
+sql:
+select '{"a":1,"b":2}'::jsonb @> '{"b":2}'::jsonb;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Operator(1:30~1:32) /test/1/catalog1/schema1/@>/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_096]
+sql:
+select '{"a":1,"b":2}'::jsonb @> '{"b":2,"b":2}';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Operator(1:30~1:32) /test/1/catalog1/schema1/@>/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_097]
+sql:
+select json_value('{"a":{"b":[0,{"c":true}]}}', '$.a.b[1].c');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/json_value/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_098]
+sql:
+select id, json_value(payload, '$.name') from json_docs;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:11~1:21) /test/1/catalog1/schema1/json_value/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:46~1:55) /test/1/catalog1/schema1/json_docs/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_099]
+sql:
+select id, json_query(payload, '$.items') from json_docs order by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:11~1:21) /test/1/catalog1/schema1/json_query/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:47~1:56) /test/1/catalog1/schema1/json_docs/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_100]
+sql:
+select d.id, jt.v from json_docs d, json_table(d.payload, '$.items[*]' columns(v int path '$.v')) jt order by d.id, jt.v;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:36~1:46) /test/1/catalog1/schema1/json_table/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:23~1:32) /test/1/catalog1/schema1/json_docs/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_101]
+sql:
+select count(*) from json_docs where payload is json;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:21~1:30) /test/1/catalog1/schema1/json_docs/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_102]
+sql:
+select id from json_docs where json_value(payload, '$.name') = 'ALPHA';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:31~1:41) /test/1/catalog1/schema1/json_value/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:15~1:24) /test/1/catalog1/schema1/json_docs/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_0_103]
+sql:
+select d.id, jt.ord, jt.v from json_docs d, json_table(d.payload, '$.items[*]' columns(ord for ordinality, v int path '$.v')) jt;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:44~1:54) /test/1/catalog1/schema1/json_table/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:31~1:40) /test/1/catalog1/schema1/json_docs/",
+      "action": "READ"
+    }
+  ]
+}

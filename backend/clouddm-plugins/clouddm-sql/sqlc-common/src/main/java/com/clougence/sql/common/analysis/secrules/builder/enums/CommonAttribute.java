@@ -23,6 +23,10 @@ public enum CommonAttribute implements Attribute {
 
     VALUE,
 
+    CTE_COLUMN_NAMES,
+    DERIVED_COLUMN_NAMES,
+    JOIN_USING_COLUMNS,
+
     // func
     FUNC_ARG_NAME,
 
@@ -39,6 +43,7 @@ public enum CommonAttribute implements Attribute {
     //    INSERT_IGNORE,
     //    INSERT_UPDATE,
     INSERT_CONFLICT,
+    STATEMENT_TYPE,
 
     //where
     VALID_WHERE,

@@ -1,0 +1,44 @@
+[split_dql_dameng_data_watcher_0_001]
+sql:
+SELECT SF_GET_RT_ARCH_STATUS() AS RT_STATUS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:28) /test/1/catalog1/schema1/SF_GET_RT_ARCH_STATUS/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_data_watcher_0_002]
+sql:
+SELECT SF_GET_BROADCAST_ADDRESS('172.31.22.11', '255.255.255.0') AS BROADCAST_ADDR;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:31) /test/1/catalog1/schema1/SF_GET_BROADCAST_ADDRESS/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_data_watcher_0_003]
+sql:
+SELECT SF_GET_ARCHIVE_SIZE(0, 1, 46757) AS ARCHIVE_BYTES;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:26) /test/1/catalog1/schema1/SF_GET_ARCHIVE_SIZE/",
+      "action": "CALL"
+    }
+  ]
+}

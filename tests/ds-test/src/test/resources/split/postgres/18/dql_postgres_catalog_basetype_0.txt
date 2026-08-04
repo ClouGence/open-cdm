@@ -1,0 +1,10 @@
+SELECT pg_basetype('split_catalog_version.mytext'::regtype);
+SELECT pg_basetype('split_catalog_version.mytext2'::regtype);
+SELECT pg_basetype('pg_catalog.int4'::regtype);
+------------------------------------------------------------------------------------------
+[SELECT] SELECT pg_basetype('split_catalog_version.mytext'::regtype);
+----------
+[SELECT] SELECT pg_basetype('split_catalog_version.mytext2'::regtype);
+----------
+[SELECT] SELECT pg_basetype('pg_catalog.int4'::regtype);
+

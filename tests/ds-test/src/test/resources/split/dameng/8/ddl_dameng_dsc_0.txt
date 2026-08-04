@@ -1,0 +1,36 @@
+create schema CODEX_DM8_DSC authorization SYSDBA;
+/
+create table CODEX_DM8_DSC.SHARED_T(ID int primary key, OWNER_EP int, NOTE varchar(40));
+create table CODEX_DM8_DSC.CHECKPOINT_EVENT_LOG(ID int identity, SOURCE_EP int, NOTE varchar(40));
+create or replace trigger CODEX_DM8_DSC.EVT_CHECKPOINT_DSC
+after checkpoint on database execute at 0
+begin
+  insert into CODEX_DM8_DSC.CHECKPOINT_EVENT_LOG(SOURCE_EP, NOTE)
+  values(0, 'DSC_CHECKPOINT');
+end;
+/
+drop trigger CODEX_DM8_DSC.EVT_CHECKPOINT_DSC;
+drop table CODEX_DM8_DSC.CHECKPOINT_EVENT_LOG purge;
+drop table CODEX_DM8_DSC.SHARED_T purge;
+drop schema CODEX_DM8_DSC cascade;
+------------------------------------------------------------------------------------------
+[CREATE_SCHEMA] create schema CODEX_DM8_DSC authorization SYSDBA;
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table CODEX_DM8_DSC.SHARED_T(ID int primary key, OWNER_EP int, NOTE varchar(40));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table CODEX_DM8_DSC.CHECKPOINT_EVENT_LOG(ID int identity, SOURCE_EP int, NOTE varchar(40));
+----------
+[CREATE_TRIGGER(BLOCK,INSERT)] create or replace trigger CODEX_DM8_DSC.EVT_CHECKPOINT_DSC
+after checkpoint on database execute at 0
+begin
+  insert into CODEX_DM8_DSC.CHECKPOINT_EVENT_LOG(SOURCE_EP, NOTE)
+  values(0, 'DSC_CHECKPOINT');
+end;
+----------
+[DROP_TRIGGER] drop trigger CODEX_DM8_DSC.EVT_CHECKPOINT_DSC;
+----------
+[DROP_TABLE] drop table CODEX_DM8_DSC.CHECKPOINT_EVENT_LOG purge;
+----------
+[DROP_TABLE] drop table CODEX_DM8_DSC.SHARED_T purge;
+----------
+[DROP_SCHEMA] drop schema CODEX_DM8_DSC cascade;

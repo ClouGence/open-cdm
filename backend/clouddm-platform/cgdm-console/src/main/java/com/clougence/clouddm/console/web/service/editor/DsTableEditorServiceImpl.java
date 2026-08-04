@@ -37,7 +37,6 @@ import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.model.fo.editor.table.*;
 import com.clougence.clouddm.console.web.model.vo.editor.table.TableEditorForm;
 import com.clougence.clouddm.console.web.service.editor.model.ResultSetDTO;
-import com.clougence.clouddm.console.web.util.DmConvertUtils;
 import com.clougence.clouddm.console.web.util.DmDsUtils;
 import com.clougence.clouddm.console.web.util.TableEditorUiDataUtils;
 import com.clougence.clouddm.console.web.util.UiWebUtil;
@@ -49,8 +48,8 @@ import com.clougence.clouddm.sdk.execute.resultset.echo.ResultMessage;
 import com.clougence.clouddm.sdk.execute.resultset.echo.ResultType;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.clouddm.sdk.execute.session.SessionContextDTO;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 import com.clougence.clouddm.sdk.service.secrules.Requester;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.clouddm.sdk.ui.editor.EditorViewMode;
 import com.clougence.clouddm.sdk.ui.editor.table.TableEditorUiData;
 import com.clougence.clouddm.sdk.ui.editor.table.TableEditorUiDataSpi;
@@ -231,9 +230,8 @@ public class DsTableEditorServiceImpl implements DsTableEditorService {
                 QueryRequest request = queryDTO.clone();
                 request.setQueryBody(sql);
                 request.setQueryArgs(Collections.emptyList());
-                request.setQueryType(SecQueryType.UNKNOWN); // TODO bad way
+                request.setQueryTypes(Set.of(SplitQueryType.UNKNOWN)); // TODO bad way
                 request.setRequester(Requester.CONSOLE);
-                request.setResource(Collections.singletonList(DmConvertUtils.convertToResource(levels, execFO.getTable())));
 
                 ResultList list = this.queryService.syncExecuteQuery(uid, sessionId, request);
                 List<Result> collect = list.getResultList().stream().filter(r -> r.getResultType() == ResultType.ResultCount).collect(Collectors.toList());
@@ -244,12 +242,10 @@ public class DsTableEditorServiceImpl implements DsTableEditorService {
                     ResultMessage rm = (ResultMessage) results.get(0);
                     resultDTO.setSuccess(false);
                     resultDTO.setMessage(rm.getMessage());
-                    //resultDTO.setResource(rc.getResource());
                 } else {
                     ResultCount rc = (ResultCount) collect.get(0);
                     resultDTO.setSuccess(rc.isSuccess());
                     resultDTO.setMessage(rc.getMessage());
-                    //resultDTO.setResource(rc.getResource());
                 }
 
                 resultDTO.setSql(sql);

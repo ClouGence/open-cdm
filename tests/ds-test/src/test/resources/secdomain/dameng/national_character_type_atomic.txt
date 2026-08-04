@@ -1,0 +1,14 @@
+[ddl]
+sql:
+create table app.nchar_t(id int,c_nchar nchar(4),c_nvarchar nvarchar(4));
+create view app.nchar_v as select id,c_nchar,c_nvarchar from app.nchar_t
+expect:
+{"contains":[{"class":"RdbTableDomain","sqlType":"CREATE_TABLE","auditKind":"CREATE","schema":"app","table":"nchar_t"},{"class":"RdbViewDomain","sqlType":"CREATE_VIEW","auditKind":"CREATE","schema":"app","view":"nchar_v"},{"class":"RdbTableDomain","sqlType":"SELECT","auditKind":"QUERY","schema":"app","table":"nchar_t"}]}
+----------
+[dml]
+sql:
+insert into app.nchar_t values(1,'A','B');
+update app.nchar_t set c_nvarchar=upper(c_nvarchar) where id=1;
+delete from app.nchar_t where id=1
+expect:
+{"contains":[{"class":"RdbInsertDomain","sqlType":"INSERT","auditKind":"DML","schema":"app","table":"nchar_t"},{"class":"RdbUpdateDomain","sqlType":"UPDATE","auditKind":"DML","schema":"app","table":"nchar_t"},{"class":"RdbDeleteDomain","sqlType":"DELETE","auditKind":"DML","schema":"app","table":"nchar_t"}]}

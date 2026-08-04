@@ -1,0 +1,44 @@
+[utl_compress_procedure_domains]
+sql:
+declare
+  b blob; b2 blob; f bfile; r varbinary(32767); h int;
+begin
+  utl_compress.lz_compress(b,b2);
+  utl_compress.lz_compress(f,b2);
+  utl_compress.lz_compress_add(h,b,r);
+  utl_compress.lz_compress_close(h,b);
+  utl_compress.lz_uncompress(b,b2);
+  utl_compress.lz_uncompress(f,b2);
+  utl_compress.lz_uncompress_extract(h,r);
+  utl_compress.lz_uncompress_extract(h,r,1);
+  utl_compress.lz_uncompress_close(h);
+end;
+expect:
+{
+  "contains": [
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"utl_compress"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"utl_compress"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"utl_compress"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"utl_compress"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"utl_compress"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"utl_compress"}
+  ]
+}
+----------
+[utl_compress_function_expressions_no_domain]
+sql:
+declare
+  b blob; f bfile; r varbinary(32767); h int;
+begin
+  r:=utl_compress.lz_compress(r);
+  b:=utl_compress.lz_compress(b);
+  b:=utl_compress.lz_compress(f);
+  r:=utl_compress.lz_uncompress(r);
+  b:=utl_compress.lz_uncompress(b);
+  b:=utl_compress.lz_uncompress(f);
+  h:=utl_compress.lz_compress_open(b);
+  h:=utl_compress.lz_uncompress_open(b);
+  h:=utl_compress.isopen(h);
+end;
+expect:
+{"size":0}

@@ -1,0 +1,208 @@
+[select__001]
+sql:
+SELECT LENGTH(v), CHAR_LENGTH(v), OCTET_LENGTH(v), HEX(fixed_binary), HEX(variable_binary)
+FROM str_lifecycle
+WHERE v LIKE 'a%' AND c BETWEEN 'a' AND 'z'
+ORDER BY BINARY v;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/LENGTH/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:18~1:29) /test/1/catalog1/schema1/CHAR_LENGTH/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:34~1:46) /test/1/catalog1/schema1/OCTET_LENGTH/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:51~1:54) /test/1/catalog1/schema1/HEX/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(2:5~2:18) /test/1/catalog1/schema1/str_lifecycle/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__002]
+sql:
+SELECT v, COUNT(*), MIN(HEX(variable_binary))
+FROM str_lifecycle
+GROUP BY v
+HAVING COUNT(*) >= 1
+ORDER BY v
+LIMIT 5;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:10~1:15) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:20~1:23) /test/1/catalog1/schema1/MIN/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:24~1:27) /test/1/catalog1/schema1/HEX/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(2:5~2:18) /test/1/catalog1/schema1/str_lifecycle/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__003]
+sql:
+SELECT s.v
+FROM str_lifecycle AS s
+WHERE EXISTS (
+  SELECT 1 FROM str_lifecycle AS i
+  WHERE i.variable_binary=s.variable_binary AND i.c=s.c
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:5~2:18) /test/1/catalog1/schema1/str_lifecycle/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__004]
+sql:
+SELECT f.text
+FROM str_foos AS f
+JOIN str_parents AS p ON p.id=f.parent_id
+JOIN str_bars AS b ON b.parent_id=p.id
+WHERE b.parent_id=X'93222796CABA43CA979F5C96EB6898B7';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:5~2:13) /test/1/catalog1/schema1/str_foos/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(3:5~3:16) /test/1/catalog1/schema1/str_parents/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(4:5~4:13) /test/1/catalog1/schema1/str_bars/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__005]
+sql:
+SELECT CASE WHEN BINARY 'a'=BINARY 'A' THEN CAST('same' AS CHAR) ELSE CAST('different' AS CHAR) END,
+       COALESCE(CAST(NULL AS CHAR), CAST('fallback' AS CHAR)),
+       NULLIF(CAST(X'41' AS BINARY), CAST(X'41' AS BINARY));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:44~1:48) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/COALESCE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(3:7~3:13) /test/1/catalog1/schema1/NULLIF/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__006]
+sql:
+SELECT CAST('a ' AS CHAR(3)) AS value_col
+UNION ALL
+SELECT CAST(X'6100' AS BINARY(3));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__007]
+sql:
+WITH str_cte(c,v,b,vb) AS (
+  SELECT c,v,b,vb FROM str_generated
+  UNION ALL
+  SELECT gc,gv,gb,gvb FROM str_generated
+)
+SELECT c,v,HEX(b),HEX(vb) FROM str_cte WHERE vb IS NOT NULL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:23~2:36) /test/1/catalog1/schema1/str_generated/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(6:11~6:14) /test/1/catalog1/schema1/HEX/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__008]
+sql:
+SELECT v, HEX(vb),
+       ROW_NUMBER() OVER (PARTITION BY vb ORDER BY BINARY v) AS rn,
+       FIRST_VALUE(c) OVER (ORDER BY b ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS first_c
+FROM str_generated;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:10~1:13) /test/1/catalog1/schema1/HEX/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(2:7~2:17) /test/1/catalog1/schema1/ROW_NUMBER/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(3:7~3:18) /test/1/catalog1/schema1/FIRST_VALUE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(4:5~4:18) /test/1/catalog1/schema1/str_generated/",
+      "action" : "READ"
+    }
+  ]
+}

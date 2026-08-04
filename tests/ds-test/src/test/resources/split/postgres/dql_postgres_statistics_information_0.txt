@@ -1,0 +1,40 @@
+SELECT m.*
+FROM pg_statistic_ext AS s,
+     pg_statistic_ext_data AS d,
+     pg_mcv_list_items(d.stxdmcv) AS m
+WHERE s.stxnamespace = 'split_mcv'::regnamespace
+  AND s.stxname = 'items_mcv'
+  AND d.stxoid = s.oid
+ORDER BY m.index;
+SELECT
+    array_agg(m.values ORDER BY m.index) AS most_common_values,
+    array_agg(m.nulls ORDER BY m.index) AS most_common_value_nulls,
+    array_agg(m.frequency ORDER BY m.index) AS most_common_frequencies,
+    array_agg(m.base_frequency ORDER BY m.index) AS most_common_base_frequencies
+FROM pg_statistic_ext AS s
+JOIN pg_statistic_ext_data AS d ON d.stxoid = s.oid
+LEFT JOIN LATERAL pg_mcv_list_items(d.stxdmcv) AS m
+    ON d.stxdmcv IS NOT NULL
+WHERE s.stxnamespace = 'split_mcv'::regnamespace
+  AND s.stxname = 'items_mcv';
+------------------------------------------------------------------------------------------
+[SELECT|PERFORMANCE] SELECT m.*
+FROM pg_statistic_ext AS s,
+     pg_statistic_ext_data AS d,
+     pg_mcv_list_items(d.stxdmcv) AS m
+WHERE s.stxnamespace = 'split_mcv'::regnamespace
+  AND s.stxname = 'items_mcv'
+  AND d.stxoid = s.oid
+ORDER BY m.index;
+----------
+[SELECT|PERFORMANCE] SELECT
+    array_agg(m.values ORDER BY m.index) AS most_common_values,
+    array_agg(m.nulls ORDER BY m.index) AS most_common_value_nulls,
+    array_agg(m.frequency ORDER BY m.index) AS most_common_frequencies,
+    array_agg(m.base_frequency ORDER BY m.index) AS most_common_base_frequencies
+FROM pg_statistic_ext AS s
+JOIN pg_statistic_ext_data AS d ON d.stxoid = s.oid
+LEFT JOIN LATERAL pg_mcv_list_items(d.stxdmcv) AS m
+    ON d.stxdmcv IS NOT NULL
+WHERE s.stxnamespace = 'split_mcv'::regnamespace
+  AND s.stxname = 'items_mcv';

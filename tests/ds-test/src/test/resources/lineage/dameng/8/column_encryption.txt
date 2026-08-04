@@ -1,0 +1,38 @@
+[column_encryption_direct_columns]
+sql:
+select transparent_value, owner_value, shared_value from catalog1.app.secret_data where id=1
+expect:
+{
+  "transparent_value" : [ "/catalog1/app/secret_data/transparent_value/" ],
+  "owner_value" : [ "/catalog1/app/secret_data/owner_value/" ],
+  "shared_value" : [ "/catalog1/app/secret_data/shared_value/" ]
+}
+----------
+[column_encryption_expression_columns]
+sql:
+select coalesce(owner_value, 'MASKED') as visible_value, case when shared_value is null then transparent_value else shared_value end as selected_value from catalog1.app.secret_data
+expect:
+{
+  "visible_value" : [ "/catalog1/app/secret_data/owner_value/" ],
+  "selected_value" : [ "/catalog1/app/secret_data/shared_value/", "/catalog1/app/secret_data/transparent_value/", "/catalog1/app/secret_data/shared_value/" ]
+}
+----------
+[explicit_key_column_encryption_columns]
+sql:
+select auto_value,manual_value,extra_value from catalog1.app.explicit_secret where id=1
+expect:
+{
+  "auto_value" : [ "/catalog1/app/explicit_secret/auto_value/" ],
+  "manual_value" : [ "/catalog1/app/explicit_secret/manual_value/" ],
+  "extra_value" : [ "/catalog1/app/explicit_secret/extra_value/" ]
+}
+----------
+[wrapped_key_column_encryption_columns]
+sql:
+select auto_value,manual_value,extra_value from catalog1.app.wrapped_secret where id=1
+expect:
+{
+  "auto_value" : [ "/catalog1/app/wrapped_secret/auto_value/" ],
+  "manual_value" : [ "/catalog1/app/wrapped_secret/manual_value/" ],
+  "extra_value" : [ "/catalog1/app/wrapped_secret/extra_value/" ]
+}

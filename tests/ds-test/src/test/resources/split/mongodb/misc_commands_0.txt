@@ -1,0 +1,18 @@
+use myDatabase;
+db.collection.countDocuments({status: "active"});
+db.collection.count({status: "active"});
+db.collection.aggregate([{$match: {status: "active"}}, {$group: {_id: "$category", count: {$sum: 1}}}]);
+db.collection.distinct("category");
+db.collection.validate({full: true});
+------------------------------------------------------------------------------------------
+[SWITCH_SCHEMA] use myDatabase
+----------
+[SELECT] db.collection.countDocuments({status: "active"})
+----------
+[SELECT] db.collection.count({status: "active"})
+----------
+[SELECT] db.collection.aggregate([{$match: {status: "active"}}, {$group: {_id: "$category", count: {$sum: 1}}}])
+----------
+[SELECT] db.collection.distinct("category")
+----------
+[ADMIN_TABLE] db.collection.validate({full: true})

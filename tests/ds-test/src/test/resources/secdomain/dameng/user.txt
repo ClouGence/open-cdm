@@ -1,0 +1,56 @@
+[user_lifecycle]
+sql:
+create user codex_user identified by "Dm8User#2026" diskspace unlimited;
+create user if not exists "User Mixed" identified externally radius;
+alter user codex_user limit session_per_user 10 account lock;
+drop user if exists codex_user cascade;
+drop user "User Mixed" restrict
+expect:
+{
+  "contains": [
+    {"class":"RdbUserDomain", "sqlType":"CREATE_USER", "auditKind":"CREATE", "user":"codex_user"},
+    {"class":"RdbUserDomain", "sqlType":"CREATE_USER", "auditKind":"CREATE", "user":"User Mixed"},
+    {"class":"RdbUserDomain", "sqlType":"ALTER_USER", "auditKind":"ALTER", "user":"codex_user"},
+    {"class":"RdbUserDomain", "sqlType":"DROP_USER", "auditKind":"DROP", "user":"codex_user"},
+    {"class":"RdbUserDomain", "sqlType":"DROP_USER", "auditKind":"DROP", "user":"User Mixed"}
+  ]
+}
+----------
+[user_proxy_changes]
+sql:
+alter user target_user grant connect through proxy_user;
+alter user target_user revoke connect through proxy_user
+expect:
+{
+  "contains": [
+    {"class":"RdbUserDomain", "sqlType":"ALTER_USER", "auditKind":"ALTER", "user":"target_user"}
+  ]
+}
+----------
+[user_privilege_recipients]
+sql:
+grant create user, alter user, drop user to user_admin, public with admin option;
+revoke create user, alter user, drop user from user_admin, public
+expect:
+{
+  "contains": [
+    {"class":"RdbGrantDomain", "sqlType":"GRANT", "auditKind":"ALTER", "name":"user_admin"},
+    {"class":"RdbGrantDomain", "sqlType":"GRANT", "auditKind":"ALTER", "name":"public"},
+    {"class":"RdbRevokeDomain", "sqlType":"REVOKE", "auditKind":"ALTER", "name":"user_admin"},
+    {"class":"RdbRevokeDomain", "sqlType":"REVOKE", "auditKind":"ALTER", "name":"public"}
+  ]
+}
+----------
+[user_dictionary]
+sql:
+select username, account_status from sys.dba_users;
+select username, user_id from sys.all_users;
+select grantee, privilege from sys.dba_sys_privs
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"sys", "table":"dba_users"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"sys", "table":"all_users"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"sys", "table":"dba_sys_privs"}
+  ]
+}

@@ -1,0 +1,78 @@
+[java_parent_method_query]
+sql:
+create or replace java class j_resource_parent
+{
+  public int read_value()
+  {
+    int v_value;
+    select max(id) into v_value from app.java_parent_source;
+    return v_value;
+  }
+}
+/
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"CREATE_TYPE", "auditKind":"CREATE", "name":"j_resource_parent"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"java_parent_source"}
+  ]
+}
+----------
+[java_child_override_query]
+sql:
+create or replace java class j_resource_child extends j_resource_parent
+{
+  int child_marker;
+  public override int read_value()
+  {
+    int v_value;
+    select max(id) into v_value from app.java_child_source where id > 0;
+    return v_value;
+  }
+}
+/
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"CREATE_TYPE", "auditKind":"CREATE", "name":"j_resource_child"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"java_child_source"}
+  ]
+}
+----------
+[java_abstract_method_declarations]
+sql:
+create or replace java abstract class j_abstract_resource
+{
+  int value;
+  public abstract int first_value();
+  public abstract int second_value();
+}
+/
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"CREATE_TYPE", "auditKind":"CREATE", "name":"j_abstract_resource"}
+  ]
+}
+----------
+[java_constructor_overloads]
+sql:
+create or replace java class j_constructor_resource
+{
+  int value;
+  j_constructor_resource()
+  {
+    this.value = 1;
+  }
+  j_constructor_resource(int p_value)
+  {
+    this.value = p_value;
+  }
+}
+/
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"CREATE_TYPE", "auditKind":"CREATE", "name":"j_constructor_resource"}
+  ]
+}

@@ -1,0 +1,12 @@
+MODULE LIST
+MODULE LOAD /agadf/fadsfas/fasd abc 123 345
+MODULE LOADEX /agadf/fadsfas/fasd config c1 123 config c2 345 ARGS arg1 arg2 arg3
+MODULE UNLOAD name
+------------------------------------------------------------------------------------------
+[METADATA] MODULE LIST
+----------
+[SYSTEM_SETTING_WRITE|UNSAFE] MODULE LOAD /agadf/fadsfas/fasd abc 123 345
+----------
+[SYSTEM_SETTING_WRITE|UNSAFE] MODULE LOADEX /agadf/fadsfas/fasd config c1 123 config c2 345 ARGS arg1 arg2 arg3
+----------
+[SYSTEM_SETTING_WRITE|UNSAFE] MODULE UNLOAD name

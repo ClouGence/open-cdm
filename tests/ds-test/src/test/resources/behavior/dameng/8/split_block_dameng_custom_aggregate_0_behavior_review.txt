@@ -1,0 +1,1224 @@
+[split_block_dameng_custom_aggregate_0_001_behavior_review]
+sql:
+create table agg_source(
+  id int primary key,
+  grp varchar(20),
+  amount number,
+  discount decimal(5,2)
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:23) /test/1/catalog1/schema1/agg_source/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_custom_aggregate_0_002_behavior_review]
+sql:
+insert into agg_source values
+  (1, 'A', 10, 1.10),
+  (2, 'A', 30, 1.30),
+  (3, 'A', 20, 1.20),
+  (4, 'B', 40, 2.40),
+  (5, 'B', 15, 2.15),
+  (6, 'B', null, 2.00),
+  (7, 'C', -5, 3.05),
+  (8, 'C', 25, 3.25);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:22) /test/1/catalog1/schema1/agg_source/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_block_dameng_custom_aggregate_0_003_behavior_review]
+sql:
+create table agg_result(grp varchar(20), max_amount number);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:23) /test/1/catalog1/schema1/agg_result/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_custom_aggregate_0_004_behavior_review]
+sql:
+create type dm8_max_impl as object(
+  max_value number,
+  static function ODCIAggregateInitialize(sctx in out dm8_max_impl) return number,
+  member function ODCIAggregateIterate(self in out dm8_max_impl, value in number) return number,
+  member function ODCIAggregateTerminate(self in dm8_max_impl,
+    return_value out number, flags in number) return number
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:12~1:24) /test/1/catalog1/schema1/dm8_max_impl/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_custom_aggregate_0_005_behavior_review]
+sql:
+create type body dm8_max_impl is
+  static function ODCIAggregateInitialize(sctx in out dm8_max_impl) return number is
+  begin
+    sctx := dm8_max_impl(-999999999);
+    return ODCIConst.Success;
+  end;
+  member function ODCIAggregateIterate(self in out dm8_max_impl,
+    value in number) return number is
+  begin
+    if value > self.max_value then
+      self.max_value := value;
+    end if;
+    return ODCIConst.Success;
+  end;
+  member function ODCIAggregateTerminate(self in dm8_max_impl,
+    return_value out number, flags in number) return number is
+  begin
+    return_value := self.max_value;
+    return ODCIConst.Success;
+  end;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:17~1:29) /test/1/catalog1/schema1/dm8_max_impl/",
+      "action": "CREATE"
+    },
+    {
+      "subject": "Function(4:12~4:24) /test/1/catalog1/schema1/dm8_max_impl/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_custom_aggregate_0_006_behavior_review]
+sql:
+create type dm8_sum_impl as object(
+  sum_value number,
+  static function ODCIAggregateInitialize(sctx in out dm8_sum_impl) return number,
+  member function ODCIAggregateIterate(self in out dm8_sum_impl, value in number) return number,
+  member function ODCIAggregateTerminate(self in dm8_sum_impl,
+    return_value out number, flags in number) return number
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:12~1:24) /test/1/catalog1/schema1/dm8_sum_impl/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_custom_aggregate_0_007_behavior_review]
+sql:
+create type body dm8_sum_impl is
+  static function ODCIAggregateInitialize(sctx in out dm8_sum_impl) return number is
+  begin
+    sctx := dm8_sum_impl(0);
+    return ODCIConst.Success;
+  end;
+  member function ODCIAggregateIterate(self in out dm8_sum_impl,
+    value in number) return number is
+  begin
+    self.sum_value := self.sum_value + value;
+    return ODCIConst.Success;
+  end;
+  member function ODCIAggregateTerminate(self in dm8_sum_impl,
+    return_value out number, flags in number) return number is
+  begin
+    return_value := self.sum_value;
+    return ODCIConst.Success;
+  end;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:17~1:29) /test/1/catalog1/schema1/dm8_sum_impl/",
+      "action": "CREATE"
+    },
+    {
+      "subject": "Function(4:12~4:24) /test/1/catalog1/schema1/dm8_sum_impl/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_custom_aggregate_0_008_behavior_review]
+sql:
+create function agg_max(input number) return number
+aggregate using dm8_max_impl;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:23) /test/1/catalog1/schema1/agg_max/",
+      "action": "CREATE",
+      "target": "Function(2:16~2:28) /test/1/catalog1/schema1/dm8_max_impl/"
+    }
+  ]
+}
+----------
+[split_block_dameng_custom_aggregate_0_009_behavior_review]
+sql:
+create function agg_max_in(input in number) return number
+aggregate using dm8_max_impl;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:26) /test/1/catalog1/schema1/agg_max_in/",
+      "action": "CREATE",
+      "target": "Function(2:16~2:28) /test/1/catalog1/schema1/dm8_max_impl/"
+    }
+  ]
+}
+----------
+[split_block_dameng_custom_aggregate_0_010_behavior_review]
+sql:
+create function agg_max_det(input number) return number
+deterministic aggregate using dm8_max_impl;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:27) /test/1/catalog1/schema1/agg_max_det/",
+      "action": "CREATE",
+      "target": "Function(2:30~2:42) /test/1/catalog1/schema1/dm8_max_impl/"
+    }
+  ]
+}
+----------
+[split_block_dameng_custom_aggregate_0_011_behavior_review]
+sql:
+create function agg_max_parallel(input number) return number
+parallel_enable aggregate using dm8_max_impl;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:32) /test/1/catalog1/schema1/agg_max_parallel/",
+      "action": "CREATE",
+      "target": "Function(2:32~2:44) /test/1/catalog1/schema1/dm8_max_impl/"
+    }
+  ]
+}
+----------
+[split_block_dameng_custom_aggregate_0_012_behavior_review]
+sql:
+create function agg_max_pd(input number) return number
+parallel_enable deterministic aggregate using dm8_max_impl;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:26) /test/1/catalog1/schema1/agg_max_pd/",
+      "action": "CREATE",
+      "target": "Function(2:46~2:58) /test/1/catalog1/schema1/dm8_max_impl/"
+    }
+  ]
+}
+----------
+[split_block_dameng_custom_aggregate_0_013_behavior_review]
+sql:
+create function agg_max_dp(input number) return number
+deterministic parallel_enable aggregate using dm8_max_impl;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:26) /test/1/catalog1/schema1/agg_max_dp/",
+      "action": "CREATE",
+      "target": "Function(2:46~2:58) /test/1/catalog1/schema1/dm8_max_impl/"
+    }
+  ]
+}
+----------
+[split_block_dameng_custom_aggregate_0_014_behavior_review]
+sql:
+create function CODEX_DM8_CUSTOM_AGGREGATE_20260721.agg_sum(input number)
+return number aggregate using CODEX_DM8_CUSTOM_AGGREGATE_20260721.dm8_sum_impl;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:59) /test/1/catalog1/CODEX_DM8_CUSTOM_AGGREGATE_20260721/agg_sum/",
+      "action": "CREATE",
+      "target": "Function(2:30~2:78) /test/1/catalog1/CODEX_DM8_CUSTOM_AGGREGATE_20260721/dm8_sum_impl/"
+    }
+  ]
+}
+----------
+[split_block_dameng_custom_aggregate_0_015_behavior_review]
+sql:
+create function if not exists agg_max_ifne(input number) return number
+aggregate using dm8_max_impl;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:30~1:42) /test/1/catalog1/schema1/agg_max_ifne/",
+      "action": "CREATE",
+      "target": "Function(2:16~2:28) /test/1/catalog1/schema1/dm8_max_impl/"
+    }
+  ]
+}
+----------
+[split_block_dameng_custom_aggregate_0_016_behavior_review]
+sql:
+create function agg_max_default(input number default 1) return number
+aggregate using dm8_max_impl;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:31) /test/1/catalog1/schema1/agg_max_default/",
+      "action": "CREATE",
+      "target": "Function(2:16~2:28) /test/1/catalog1/schema1/dm8_max_impl/"
+    }
+  ]
+}
+----------
+[split_block_dameng_custom_aggregate_0_017_behavior_review]
+sql:
+select agg_max(amount) from agg_source;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/agg_max/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:28~1:38) /test/1/catalog1/schema1/agg_source/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_custom_aggregate_0_018_behavior_review]
+sql:
+select agg_sum(amount) from agg_source;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/agg_sum/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:28~1:38) /test/1/catalog1/schema1/agg_source/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_custom_aggregate_0_019_behavior_review]
+sql:
+select agg_max(distinct amount) from agg_source;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/agg_max/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:37~1:47) /test/1/catalog1/schema1/agg_source/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_custom_aggregate_0_020_behavior_review]
+sql:
+select agg_max(all amount) from agg_source;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/agg_max/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:32~1:42) /test/1/catalog1/schema1/agg_source/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_custom_aggregate_0_021_behavior_review]
+sql:
+select grp, agg_max(amount) from agg_source group by grp order by grp;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:12~1:19) /test/1/catalog1/schema1/agg_max/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:33~1:43) /test/1/catalog1/schema1/agg_source/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_custom_aggregate_0_022_behavior_review]
+sql:
+select grp, agg_sum(amount) from agg_source group by grp order by grp;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:12~1:19) /test/1/catalog1/schema1/agg_sum/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:33~1:43) /test/1/catalog1/schema1/agg_source/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_custom_aggregate_0_023_behavior_review]
+sql:
+select grp, agg_max(amount) as max_amount
+from agg_source
+group by grp
+having agg_max(amount) > 20
+order by agg_max(amount);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:12~1:19) /test/1/catalog1/schema1/agg_max/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(4:7~4:14) /test/1/catalog1/schema1/agg_max/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(5:9~5:16) /test/1/catalog1/schema1/agg_max/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:5~2:15) /test/1/catalog1/schema1/agg_source/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_custom_aggregate_0_024_behavior_review]
+sql:
+select agg_max(amount), grp from agg_source group by rollup(grp);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/agg_max/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:33~1:43) /test/1/catalog1/schema1/agg_source/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_custom_aggregate_0_025_behavior_review]
+sql:
+select agg_sum(amount), grp from agg_source group by cube(grp);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/agg_sum/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:33~1:43) /test/1/catalog1/schema1/agg_source/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_custom_aggregate_0_026_behavior_review]
+sql:
+select id, grp, amount,
+  agg_max(amount) over(partition by grp) as group_max
+from agg_source
+order by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:2~2:9) /test/1/catalog1/schema1/agg_max/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(3:5~3:15) /test/1/catalog1/schema1/agg_source/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_custom_aggregate_0_027_behavior_review]
+sql:
+select id, amount,
+  agg_sum(amount) over(order by id rows between unbounded preceding and current row) as running_sum
+from agg_source
+order by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:2~2:9) /test/1/catalog1/schema1/agg_sum/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(3:5~3:15) /test/1/catalog1/schema1/agg_source/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_custom_aggregate_0_028_behavior_review]
+sql:
+select grp, max_amount
+from (select grp, agg_max(amount) as max_amount from agg_source group by grp) s
+where max_amount >= 25
+order by grp;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:18~2:25) /test/1/catalog1/schema1/agg_max/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:53~2:63) /test/1/catalog1/schema1/agg_source/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_custom_aggregate_0_029_behavior_review]
+sql:
+select agg_max(amount + discount) from agg_source;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/agg_max/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:39~1:49) /test/1/catalog1/schema1/agg_source/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_custom_aggregate_0_030_behavior_review]
+sql:
+select agg_max(case when grp = 'A' then amount end) from agg_source;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/agg_max/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:57~1:67) /test/1/catalog1/schema1/agg_source/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_custom_aggregate_0_031_behavior_review]
+sql:
+select coalesce(agg_max(amount), 0) from agg_source where id < 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/coalesce/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:16~1:23) /test/1/catalog1/schema1/agg_max/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:41~1:51) /test/1/catalog1/schema1/agg_source/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_custom_aggregate_0_032_behavior_review]
+sql:
+select agg_max_parallel(amount) from agg_source;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:23) /test/1/catalog1/schema1/agg_max_parallel/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:37~1:47) /test/1/catalog1/schema1/agg_source/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_custom_aggregate_0_033_behavior_review]
+sql:
+select agg_max_pd(amount) from agg_source;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/agg_max_pd/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:31~1:41) /test/1/catalog1/schema1/agg_source/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_custom_aggregate_0_034_behavior_review]
+sql:
+select agg_max_dp(amount) from agg_source;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/agg_max_dp/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:31~1:41) /test/1/catalog1/schema1/agg_source/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_custom_aggregate_0_035_behavior_review]
+sql:
+insert into agg_result
+select grp, agg_max(amount) from agg_source group by grp;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:22) /test/1/catalog1/schema1/agg_result/",
+      "action": "INSERT",
+      "target": "Table(2:33~2:43) /test/1/catalog1/schema1/agg_source/"
+    },
+    {
+      "subject": "Function(2:12~2:19) /test/1/catalog1/schema1/agg_max/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_custom_aggregate_0_036_behavior_review]
+sql:
+select grp, max_amount from agg_result order by grp;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:28~1:38) /test/1/catalog1/schema1/agg_result/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_custom_aggregate_0_037_behavior_review]
+sql:
+update agg_source
+set discount = discount + 1
+where amount = (select agg_max(amount) from agg_source);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:17) /test/1/catalog1/schema1/agg_source/",
+      "action": "UPDATE",
+      "target": "Table(3:44~3:54) /test/1/catalog1/schema1/agg_source/"
+    },
+    {
+      "subject": "Function(3:23~3:30) /test/1/catalog1/schema1/agg_max/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_custom_aggregate_0_038_behavior_review]
+sql:
+select id, discount from agg_source where amount = 40;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:25~1:35) /test/1/catalog1/schema1/agg_source/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_custom_aggregate_0_039_behavior_review]
+sql:
+delete from agg_result
+where max_amount < (select agg_max(amount) from agg_source where grp = 'B');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:22) /test/1/catalog1/schema1/agg_result/",
+      "action": "DELETE",
+      "target": "Table(2:48~2:58) /test/1/catalog1/schema1/agg_source/"
+    },
+    {
+      "subject": "Function(2:27~2:34) /test/1/catalog1/schema1/agg_max/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_custom_aggregate_0_040_behavior_review]
+sql:
+select grp, max_amount from agg_result order by grp;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:28~1:38) /test/1/catalog1/schema1/agg_result/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_custom_aggregate_0_041_behavior_review]
+sql:
+create table agg_ctas as
+select grp, agg_max(amount) as max_amount
+from agg_source group by grp;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:21) /test/1/catalog1/schema1/agg_ctas/",
+      "action": "CREATE",
+      "target": "Table(3:5~3:15) /test/1/catalog1/schema1/agg_source/"
+    },
+    {
+      "subject": "Function(2:12~2:19) /test/1/catalog1/schema1/agg_max/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_custom_aggregate_0_042_behavior_review]
+sql:
+select grp, max_amount from agg_ctas order by grp;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:28~1:36) /test/1/catalog1/schema1/agg_ctas/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_custom_aggregate_0_043_behavior_review]
+sql:
+create view agg_view as
+select grp, agg_sum(amount) as total_amount
+from agg_source group by grp;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:20) /test/1/catalog1/schema1/agg_view/",
+      "action": "CREATE",
+      "target": "Table(3:5~3:15) /test/1/catalog1/schema1/agg_source/"
+    },
+    {
+      "subject": "Function(2:12~2:19) /test/1/catalog1/schema1/agg_sum/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_custom_aggregate_0_044_behavior_review]
+sql:
+select grp, total_amount from agg_view order by grp;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:30~1:38) /test/1/catalog1/schema1/agg_view/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_custom_aggregate_0_045_behavior_review]
+sql:
+create materialized view agg_mv
+enable query rewrite as
+select grp, agg_max_det(amount) as max_amount
+from agg_source group by grp;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "Materialized(1:25~1:31) /test/1/catalog1/schema1/agg_mv/",
+      "action": "CREATE",
+      "target": "Table(4:5~4:15) /test/1/catalog1/schema1/agg_source/"
+    },
+    {
+      "subject": "Function(3:12~3:23) /test/1/catalog1/schema1/agg_max_det/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_custom_aggregate_0_046_behavior_review]
+sql:
+select grp, max_amount from agg_mv order by grp;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:28~1:34) /test/1/catalog1/schema1/agg_mv/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_custom_aggregate_0_047_behavior_review]
+sql:
+drop materialized view agg_mv;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "Materialized(1:23~1:29) /test/1/catalog1/schema1/agg_mv/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_custom_aggregate_0_048_behavior_review]
+sql:
+drop view agg_view;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "View(1:10~1:18) /test/1/catalog1/schema1/agg_view/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_custom_aggregate_0_049_behavior_review]
+sql:
+drop table agg_ctas;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:19) /test/1/catalog1/schema1/agg_ctas/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_custom_aggregate_0_050_behavior_review]
+sql:
+drop table agg_result;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:21) /test/1/catalog1/schema1/agg_result/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_custom_aggregate_0_051_behavior_review]
+sql:
+drop function agg_sum;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Function(1:14~1:21) /test/1/catalog1/schema1/agg_sum/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_custom_aggregate_0_052_behavior_review]
+sql:
+drop function agg_max_dp;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Function(1:14~1:24) /test/1/catalog1/schema1/agg_max_dp/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_custom_aggregate_0_053_behavior_review]
+sql:
+drop function agg_max_pd;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Function(1:14~1:24) /test/1/catalog1/schema1/agg_max_pd/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_custom_aggregate_0_054_behavior_review]
+sql:
+drop function agg_max_parallel;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Function(1:14~1:30) /test/1/catalog1/schema1/agg_max_parallel/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_custom_aggregate_0_055_behavior_review]
+sql:
+drop function agg_max_det;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Function(1:14~1:25) /test/1/catalog1/schema1/agg_max_det/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_custom_aggregate_0_056_behavior_review]
+sql:
+drop function agg_max_in;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Function(1:14~1:24) /test/1/catalog1/schema1/agg_max_in/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_custom_aggregate_0_057_behavior_review]
+sql:
+drop function agg_max;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Function(1:14~1:21) /test/1/catalog1/schema1/agg_max/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_custom_aggregate_0_058_behavior_review]
+sql:
+select agg_max_ifne(amount) from agg_source;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/agg_max_ifne/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:33~1:43) /test/1/catalog1/schema1/agg_source/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_custom_aggregate_0_059_behavior_review]
+sql:
+select agg_max_default(amount) from agg_source;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:22) /test/1/catalog1/schema1/agg_max_default/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:36~1:46) /test/1/catalog1/schema1/agg_source/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_custom_aggregate_0_060_behavior_review]
+sql:
+drop function agg_max_default;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Function(1:14~1:29) /test/1/catalog1/schema1/agg_max_default/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_custom_aggregate_0_061_behavior_review]
+sql:
+drop function agg_max_ifne;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Function(1:14~1:26) /test/1/catalog1/schema1/agg_max_ifne/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_custom_aggregate_0_062_behavior_review]
+sql:
+drop type body dm8_sum_impl;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:15~1:27) /test/1/catalog1/schema1/dm8_sum_impl/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_custom_aggregate_0_063_behavior_review]
+sql:
+drop type dm8_sum_impl;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:10~1:22) /test/1/catalog1/schema1/dm8_sum_impl/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_custom_aggregate_0_064_behavior_review]
+sql:
+drop type body dm8_max_impl;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:15~1:27) /test/1/catalog1/schema1/dm8_max_impl/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_custom_aggregate_0_065_behavior_review]
+sql:
+drop type dm8_max_impl;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:10~1:22) /test/1/catalog1/schema1/dm8_max_impl/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_custom_aggregate_0_066_behavior_review]
+sql:
+drop table agg_source;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:21) /test/1/catalog1/schema1/agg_source/",
+      "action": "DROP"
+    }
+  ]
+}

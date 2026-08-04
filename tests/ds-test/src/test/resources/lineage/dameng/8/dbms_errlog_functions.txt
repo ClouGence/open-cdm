@@ -1,0 +1,8 @@
+[dbms_errlog_output_columns]
+sql:
+select DM_ERR_NUMBER$ as error_number, ID as source_id from catalog1.app.err_orders
+expect:
+{
+  "error_number": ["/catalog1/app/err_orders/DM_ERR_NUMBER$/"],
+  "source_id": ["/catalog1/app/err_orders/ID/"]
+}

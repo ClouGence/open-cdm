@@ -1,0 +1,33 @@
+[dbms_rls_literal_arguments_have_no_static_lineage]
+sql:
+begin
+  DBMS_RLS.ADD_GROUPED_POLICY(object_name=>'RLS_T',policy_group=>'G',policy_name=>'P',policy_function=>'RLS_POLICY');
+  DBMS_RLS.ADD_POLICY(object_name=>'RLS_T',policy_name=>'P',policy_function=>'RLS_POLICY');
+  DBMS_RLS.ADD_POLICY_CONTEXT(object_name=>'RLS_T',namespace=>'NS',attribute=>'A');
+  DBMS_RLS.CREATE_POLICY_GROUP(object_name=>'RLS_T',policy_group=>'G');
+  DBMS_RLS.DELETE_POLICY_GROUP(object_name=>'RLS_T',policy_group=>'G');
+  DBMS_RLS.DISABLE_GROUPED_POLICY(object_name=>'RLS_T',group_name=>'SYS_DEFAULT',policy_name=>'P');
+  DBMS_RLS.DROP_GROUPED_POLICY(object_name=>'RLS_T',policy_name=>'P');
+  DBMS_RLS.DROP_POLICY(object_name=>'RLS_T',policy_name=>'P');
+  DBMS_RLS.DROP_POLICY_CONTEXT(object_name=>'RLS_T',namespace=>'NS',attribute=>'A');
+  DBMS_RLS.ENABLE_GROUPED_POLICY(object_name=>'RLS_T',group_name=>'SYS_DEFAULT',policy_name=>'P');
+  DBMS_RLS.ENABLE_POLICY(object_name=>'RLS_T',policy_name=>'P');
+  DBMS_RLS.REFRESH_POLICY(object_name=>'RLS_T',policy_name=>'P');
+  DBMS_RLS.REFRESH_GROUPED_POLICY(object_name=>'RLS_T',group_name=>'SYS_DEFAULT',policy_name=>'P');
+  DBMS_RLS.ADD_MASK('APP','RLS_T','TXT','APP',NULL,'MASK_VALUE');
+  DBMS_RLS.DROP_MASK('APP','RLS_T','TXT');
+end;
+expect:
+{}
+----------
+[dbms_rls_documented_external_initializer_no_lineage]
+sql:
+call SP_INIT_RLS_SYS(1)
+expect:
+{}
+----------
+[dbms_rls_documented_external_checker_no_lineage]
+sql:
+select SF_CHECK_RLS_SYS() from dual
+expect:
+{"SF_CHECK_RLS_SYS()":[]}

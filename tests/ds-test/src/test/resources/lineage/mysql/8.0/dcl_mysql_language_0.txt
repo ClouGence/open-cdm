@@ -1,0 +1,79 @@
+[dcl_mysql_language_0.0057]
+sql:
+SELECT NOT 1 BETWEEN -5 AND 5;
+expect:
+{
+  "NOT 1 BETWEEN -5 AND 5" : [ ]
+}
+----------
+[dcl_mysql_language_0.0059]
+sql:
+SELECT 'a'||'b';
+expect:
+{
+  "'a'||'b'" : [ ]
+}
+----------
+[dcl_mysql_language_0.0060]
+sql:
+SELECT 'ab' LIKE 'a' || '%';
+expect:
+{
+  "'ab' LIKE 'a' || '%'" : [ ]
+}
+----------
+[dcl_mysql_language_0.0061]
+sql:
+SELECT 'ab' NOT LIKE 'a' || '%';
+expect:
+{
+  "'ab' NOT LIKE 'a' || '%'" : [ ]
+}
+----------
+[dcl_mysql_language_0.0062]
+sql:
+SELECT 'a%' LIKE 'a!' || '%' ESCAPE '!';
+expect:
+{
+  "'a%' LIKE 'a!' || '%' ESCAPE '!'" : [ ]
+}
+----------
+[dcl_mysql_language_0.0063]
+sql:
+SELECT 'a%' NOT LIKE 'a!' || '%' ESCAPE '!';
+expect:
+{
+  "'a%' NOT LIKE 'a!' || '%' ESCAPE '!'" : [ ]
+}
+----------
+[dcl_mysql_language_0.0064]
+sql:
+SELECT 'a%' LIKE 'a!%' ESCAPE '' || '!';
+expect:
+{
+  "'a%' LIKE 'a!%' ESCAPE '' || '!'" : [ ]
+}
+----------
+[dcl_mysql_language_0.0065]
+sql:
+SELECT 'a%' NOT LIKE 'a!%' ESCAPE '' || '!';
+expect:
+{
+  "'a%' NOT LIKE 'a!%' ESCAPE '' || '!'" : [ ]
+}
+----------
+[dcl_mysql_language_0.0066]
+sql:
+SELECT 1 ^ '10' || '0';
+expect:
+{
+  "1 ^ '10' || '0'" : [ ]
+}
+----------
+[dcl_mysql_language_0.0067]
+sql:
+SELECT -1 || '0';
+expect:
+{
+  "-1 || '0'" : [ ]
+}

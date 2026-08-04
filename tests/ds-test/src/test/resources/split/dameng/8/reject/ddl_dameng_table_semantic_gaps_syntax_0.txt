@@ -1,0 +1,24 @@
+create local table table_sem_bad_local(id int);
+create local temporary table table_sem_bad_local(id int) on commit rows;
+create table table_sem_bad_pendant(id int references pendant table_sem_parent());
+create table table_sem_bad_pendant(id int references pendant table_sem_parent(id,));
+alter table table_sem_nv_child enable constraint;
+alter table table_sem_nv_child enable constraint table_sem_nv_fk validate novalidate;
+alter table table_sem_nv_child add constraint table_sem_nv_fk unique(id) validate novalidate;
+create table table_sem_bad_storage(id int) tablespace storage(on main);
+------------------------------------------------------------------------------------------
+[CREATE_TABLE] create local table table_sem_bad_local(id int);
+----------
+[CREATE_TABLE] create local temporary table table_sem_bad_local(id int) on commit rows;
+----------
+[CREATE_TABLE] create table table_sem_bad_pendant(id int references pendant table_sem_parent());
+----------
+[CREATE_TABLE] create table table_sem_bad_pendant(id int references pendant table_sem_parent(id,));
+----------
+[ALTER_TABLE] alter table table_sem_nv_child enable constraint;
+----------
+[ALTER_TABLE] alter table table_sem_nv_child enable constraint table_sem_nv_fk validate novalidate;
+----------
+[ALTER_TABLE] alter table table_sem_nv_child add constraint table_sem_nv_fk unique(id) validate novalidate;
+----------
+[CREATE_TABLE] create table table_sem_bad_storage(id int) tablespace storage(on main);

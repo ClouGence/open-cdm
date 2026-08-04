@@ -1,0 +1,7 @@
+EXEC sp_rename 'dbo.table_name', table_name1, 'OBJECT';EXEC sp_rename 'dbo.table_name.col1', col2, 'COLUMN';EXEC sp_rename 'dbo.table_name', table_name1;
+------------------------------------------------------------------------------------------
+[RENAME_TABLE] EXEC sp_rename 'dbo.table_name', table_name1, 'OBJECT';
+----------
+[RENAME_COLUMN] EXEC sp_rename 'dbo.table_name.col1', col2, 'COLUMN';
+----------
+[CALL_PROG_OBJ] EXEC sp_rename 'dbo.table_name', table_name1;

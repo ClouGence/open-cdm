@@ -1,0 +1,101 @@
+[mpp_hash_table_create]
+sql:
+create table app.mpp_hash(id int, grp_id int, note varchar(40)) distributed by hash(id)
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"CREATE_TABLE", "auditKind":"CREATE", "schema":"app", "table":"mpp_hash"}
+  ]
+}
+----------
+[mpp_range_table_create]
+sql:
+create table app.mpp_range(id int, note varchar(40)) distributed by range(id)
+(values equ or less than(100) on ep01, values less than(maxvalue) on ep02)
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"CREATE_TABLE", "auditKind":"CREATE", "schema":"app", "table":"mpp_range"}
+  ]
+}
+----------
+[mpp_partitioned_table_create]
+sql:
+create table app.mpp_hash_part(id int, note varchar(40))
+partition by range(id)(partition p1 values less than(10), partition p2 values less than(maxvalue))
+distributed by hash(id)
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"CREATE_TABLE", "auditKind":"CREATE", "schema":"app", "table":"mpp_hash_part"}
+  ]
+}
+----------
+[mpp_ctas_domains]
+sql:
+create table app.mpp_ctas as select id, note from app.mpp_stage distributed randomly
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"CREATE_TABLE_SELECT", "auditKind":"CREATE", "schema":"app", "table":"mpp_ctas"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"mpp_stage"}
+  ]
+}
+----------
+[mpp_insert_select_domains]
+sql:
+insert into app.mpp_hash(id, grp_id, note) select id, grp_id, note from app.mpp_stage
+expect:
+{
+  "contains": [
+    {"class":"RdbInsertDomain", "sqlType":"INSERT", "auditKind":"DML", "schema":"app", "table":"mpp_hash"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"mpp_stage"}
+  ]
+}
+----------
+[mpp_distribution_key_update]
+sql:
+update app.mpp_hash set id=id+100 where id=1
+expect:
+{
+  "contains": [
+    {"class":"RdbUpdateDomain", "sqlType":"UPDATE", "auditKind":"DML", "schema":"app", "table":"mpp_hash"}
+  ]
+}
+----------
+[mpp_cross_ep_join]
+sql:
+select h.id, h.note, r.note as range_note from app.mpp_hash h join app.mpp_range r on r.id=150 where h.id=2
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"mpp_hash"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"mpp_range"}
+  ]
+}
+----------
+[mpp_system_view]
+sql:
+select distinct inst_name, ep_seqno from sys.v$mpp_cfg_item order by ep_seqno
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"sys", "table":"v$mpp_cfg_item"}
+  ]
+}
+----------
+[mpp_session_procedure]
+sql:
+call sysdba.sp_set_session_mpp_select_local(1)
+expect:
+{
+  "contains": [
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"sysdba", "callName":"sp_set_session_mpp_select_local"}
+  ]
+}
+----------
+[mpp_scalar_functions]
+sql:
+select sf_get_self_ep_seqno(), table_used_pages('APP', 'MPP_HASH')
+expect:
+{"size":0}

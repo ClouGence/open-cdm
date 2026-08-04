@@ -1,0 +1,80 @@
+[create_unqualified_procedure_with_dml]
+sql:
+create procedure refresh_employee(p_id int) authid current_user as
+begin
+  update employee set active = 1 where id = p_id;
+end refresh_employee;
+/
+expect:
+{
+  "contains": [
+    {"class":"RdbProcedureDomain", "sqlType":"CREATE_PROG_OBJ", "auditKind":"CREATE", "name":"refresh_employee"},
+    {"class":"RdbUpdateDomain", "sqlType":"UPDATE", "auditKind":"DML", "table":"employee"}
+  ]
+}
+----------
+[create_function_with_query]
+sql:
+create function app.employee_name(p_id int) return varchar authid definer as
+  v_name varchar(80);
+begin
+  select name into v_name from app.employee where id = p_id;
+  return v_name;
+end employee_name;
+/
+expect:
+{
+  "contains": [
+    {"class":"RdbFunctionDomain", "sqlType":"CREATE_PROG_OBJ", "auditKind":"CREATE", "schema":"app", "name":"employee_name"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"employee"}
+  ]
+}
+----------
+[alter_routines_cascade_debug]
+sql:
+alter procedure app.refresh_employee compile cascade debug;
+alter function app.employee_name compile cascade debug;
+expect:
+{
+  "contains": [
+    {"class":"RdbProcedureDomain", "sqlType":"ALTER_PROG_OBJ", "auditKind":"ALTER", "schema":"app", "name":"refresh_employee"},
+    {"class":"RdbFunctionDomain", "sqlType":"ALTER_PROG_OBJ", "auditKind":"ALTER", "schema":"app", "name":"employee_name"}
+  ]
+}
+----------
+[call_routine_forms]
+sql:
+call app.refresh_employee(1);
+exec app.refresh_employee 2;
+execute app.refresh_employee 3;
+app.refresh_employee(4);
+expect:
+{
+  "contains": [
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"app"}
+  ]
+}
+----------
+[routine_grant_revoke]
+sql:
+grant execute on procedure app.refresh_employee to public;
+revoke execute on function app.employee_name from public;
+expect:
+{
+  "contains": [
+    {"class":"RdbGrantDomain", "sqlType":"GRANT", "auditKind":"ALTER", "name":"public"},
+    {"class":"RdbRevokeDomain", "sqlType":"REVOKE", "auditKind":"ALTER", "name":"public"}
+  ]
+}
+----------
+[drop_routines_with_behavior]
+sql:
+drop procedure app.refresh_employee cascade;
+drop function app.employee_name restrict;
+expect:
+{
+  "contains": [
+    {"class":"RdbProcedureDomain", "sqlType":"DROP_PROG_OBJ", "auditKind":"DROP", "schema":"app", "name":"refresh_employee"},
+    {"class":"RdbFunctionDomain", "sqlType":"DROP_PROG_OBJ", "auditKind":"DROP", "schema":"app", "name":"employee_name"}
+  ]
+}

@@ -1,0 +1,14 @@
+[PgParseColumnSelectInColumnTestFamily.test1]
+context:
+{
+  "levels" : {
+    "Schema" : "schema1",
+    "Catalog" : "catalog1"
+  }
+}
+sql:
+select (select column1 from table1) as ww from table2
+expect:
+{
+  "ww" : [ "/catalog1/schema1/table1/column1/" ]
+}

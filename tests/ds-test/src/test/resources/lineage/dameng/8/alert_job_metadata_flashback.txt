@@ -1,0 +1,24 @@
+[metadata_expression_columns]
+sql:
+select dbms_metadata.get_ddl('TABLE', object_name, owner) ddl_text from catalog1.app.meta_catalog
+expect:
+{
+  "ddl_text" : [ "/catalog1/app/meta_catalog/object_name/", "/catalog1/app/meta_catalog/owner/" ]
+}
+----------
+[flashback_value_column]
+sql:
+select value_text from catalog1.app.flash_base as of timestamp sysdate - 1/86400
+expect:
+{
+  "value_text" : [ "/catalog1/app/flash_base/value_text/" ]
+}
+----------
+[job_status_columns]
+sql:
+select job, next_date from catalog1.app.job_status
+expect:
+{
+  "job" : [ "/catalog1/app/job_status/job/" ],
+  "next_date" : [ "/catalog1/app/job_status/next_date/" ]
+}

@@ -1,0 +1,88 @@
+[split_block_dameng_general_system_packages_dbms_output_0_001]
+sql:
+declare
+  v_line varchar2(200);
+  v_status integer;
+begin
+  dbms_output.enable(2000);
+  dbms_output.put('CODEX');
+  dbms_output.put_line('_DM8');
+  dbms_output.new_line();
+  dbms_output.get_line(v_line, v_status);
+  dbms_output.disable();
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(5:2~5:20) /test/1/catalog1/dbms_output/enable/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(6:2~6:17) /test/1/catalog1/dbms_output/put/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(7:2~7:22) /test/1/catalog1/dbms_output/put_line/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(8:2~8:22) /test/1/catalog1/dbms_output/new_line/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(9:2~9:22) /test/1/catalog1/dbms_output/get_line/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(10:2~10:21) /test/1/catalog1/dbms_output/disable/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_general_system_packages_dbms_output_0_002]
+sql:
+declare
+  v_lines dbms_output.chararr;
+  v_count integer := 2;
+begin
+  dbms_output.enable();
+  dbms_output.put_line('LINE_1');
+  dbms_output.put_line('LINE_2');
+  dbms_output.get_lines(v_lines, v_count);
+  dbms_output.disable();
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:29) /test/1/catalog1/dbms_output/chararr/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(5:2~5:20) /test/1/catalog1/dbms_output/enable/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(6:2~6:22) /test/1/catalog1/dbms_output/put_line/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(7:2~7:22) /test/1/catalog1/dbms_output/put_line/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(8:2~8:23) /test/1/catalog1/dbms_output/get_lines/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(9:2~9:21) /test/1/catalog1/dbms_output/disable/",
+      "action": "CALL"
+    }
+  ]
+}

@@ -1,0 +1,615 @@
+[split_dql_ddl_dml_block_dameng_bool_boolean_type_atomic_0_behavior_review_001]
+sql:
+select cast(0 as boolean),cast(1 as boolean),
+  cast(-1 as boolean),cast(2 as boolean),cast(null as boolean) from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(2:68~2:72) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_ddl_dml_block_dameng_bool_boolean_type_atomic_0_behavior_review_002]
+sql:
+select cast(false as int),cast(true as int),
+  cast(cast(0 as boolean) as int),cast(cast(9 as boolean) as varchar(5))
+  from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(3:7~3:11) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_ddl_dml_block_dameng_bool_boolean_type_atomic_0_behavior_review_003]
+sql:
+select cast('1900-01-01 00:00:00.000000' as boolean),
+  cast('0' as boolean),cast('1' as boolean),cast('-7' as boolean) from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(2:71~2:75) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_ddl_dml_block_dameng_bool_boolean_type_atomic_0_behavior_review_004]
+sql:
+select case when cast(null as boolean) is null then 1 else 0 end,
+  case when cast('' as boolean) is null then 1 else 0 end,
+  cast('TRUE' as boolean),cast('FALSE' as boolean) from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(3:56~3:60) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_ddl_dml_block_dameng_bool_boolean_type_atomic_0_behavior_review_005]
+sql:
+select case when cast(0 as boolean) then 'T' else 'F' end,
+  case when cast(2 as boolean) then 'T' else 'F' end from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(2:58~2:62) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_ddl_dml_block_dameng_bool_boolean_type_atomic_0_behavior_review_008]
+sql:
+create function app.bool_f(p bool default true) return bool as
+begin return p; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:26) /test/1/catalog1/app/bool_f/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dql_ddl_dml_block_dameng_bool_boolean_type_atomic_0_behavior_review_009]
+sql:
+create function app.boolean_f(p boolean default false)
+  return boolean as
+begin return not p; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:29) /test/1/catalog1/app/boolean_f/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dql_ddl_dml_block_dameng_bool_boolean_type_atomic_0_behavior_review_010]
+sql:
+select app.bool_f(true),app.bool_f(false),app.bool_f(2),
+  app.boolean_f(true),app.boolean_f(false),app.boolean_f(0) from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/app/bool_f/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:24~1:34) /test/1/catalog1/app/bool_f/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:42~1:52) /test/1/catalog1/app/bool_f/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2~2:15) /test/1/catalog1/app/boolean_f/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:22~2:35) /test/1/catalog1/app/boolean_f/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:43~2:56) /test/1/catalog1/app/boolean_f/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:65~2:69) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_ddl_dml_block_dameng_bool_boolean_type_atomic_0_behavior_review_011]
+sql:
+select cast(app.bool_f() as int),cast(app.boolean_f() as int) from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:12~1:22) /test/1/catalog1/app/bool_f/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:38~1:51) /test/1/catalog1/app/boolean_f/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:67~1:71) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_ddl_dml_block_dameng_bool_boolean_type_atomic_0_behavior_review_012]
+sql:
+create procedure app.bool_p(
+  p_in bool,p_out out boolean,p_io in out bool) as
+begin p_out:=not p_in;p_io:=p_io and p_in;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:17~1:27) /test/1/catalog1/app/bool_p/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dql_ddl_dml_block_dameng_bool_boolean_type_atomic_0_behavior_review_014]
+sql:
+create package app.bool_pkg as
+  g_bool bool:=true;function flip(p boolean) return bool;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Package(1:15~1:27) /test/1/catalog1/app/bool_pkg/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dql_ddl_dml_block_dameng_bool_boolean_type_atomic_0_behavior_review_015]
+sql:
+create package body app.bool_pkg as
+  function flip(p boolean) return bool as begin return not p;end;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Package(1:20~1:32) /test/1/catalog1/app/bool_pkg/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dql_ddl_dml_block_dameng_bool_boolean_type_atomic_0_behavior_review_016]
+sql:
+select app.bool_pkg.flip(true),app.bool_pkg.flip(false) from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:24) /test/1/app/bool_pkg/flip/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:31~1:48) /test/1/app/bool_pkg/flip/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:61~1:65) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_ddl_dml_block_dameng_bool_boolean_type_atomic_0_behavior_review_017]
+sql:
+create type app.bool_obj as object(b bool);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:12~1:24) /test/1/catalog1/app/bool_obj/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dql_ddl_dml_block_dameng_bool_boolean_type_atomic_0_behavior_review_019]
+sql:
+create table app.bool_obj_t(v app.bool_obj);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:27) /test/1/catalog1/app/bool_obj_t/",
+      "action": "CREATE",
+      "target": "Type(1:30~1:42) /test/1/catalog1/app/bool_obj/"
+    }
+  ]
+}
+----------
+[split_dql_ddl_dml_block_dameng_bool_boolean_type_atomic_0_behavior_review_020]
+sql:
+insert into app.bool_obj_t values(app.bool_obj(true));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/app/bool_obj_t/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:34~1:46) /test/1/catalog1/app/bool_obj/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_ddl_dml_block_dameng_bool_boolean_type_atomic_0_behavior_review_021]
+sql:
+select cast(t.v.b as int) from app.bool_obj_t t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:31~1:45) /test/1/catalog1/app/bool_obj_t/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_ddl_dml_block_dameng_bool_boolean_type_atomic_0_behavior_review_022]
+sql:
+create function app.bool_det_f(p boolean)
+  return boolean deterministic as
+begin return p;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:30) /test/1/catalog1/app/bool_det_f/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dql_ddl_dml_block_dameng_bool_boolean_type_atomic_0_behavior_review_023]
+sql:
+select app.bool_det_f(true),app.bool_det_f(false) from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:21) /test/1/catalog1/app/bool_det_f/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:28~1:42) /test/1/catalog1/app/bool_det_f/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:55~1:59) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_ddl_dml_block_dameng_bool_boolean_type_atomic_0_behavior_review_024]
+sql:
+create table app.bool_expr(id int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:26) /test/1/catalog1/app/bool_expr/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dql_ddl_dml_block_dameng_bool_boolean_type_atomic_0_behavior_review_025]
+sql:
+insert into app.bool_expr values(0),(1),(2),(-1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:25) /test/1/catalog1/app/bool_expr/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dql_ddl_dml_block_dameng_bool_boolean_type_atomic_0_behavior_review_026]
+sql:
+select id,app.bool_f(id),app.boolean_f(id)
+  from app.bool_expr where app.bool_f(id) order by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:10~1:20) /test/1/catalog1/app/bool_f/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:25~1:38) /test/1/catalog1/app/boolean_f/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:27~2:37) /test/1/catalog1/app/bool_f/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:7~2:20) /test/1/catalog1/app/bool_expr/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_ddl_dml_block_dameng_bool_boolean_type_atomic_0_behavior_review_027]
+sql:
+create table app.bad_bool_column(c bool);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:32) /test/1/catalog1/app/bad_bool_column/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dql_ddl_dml_block_dameng_bool_boolean_type_atomic_0_behavior_review_028]
+sql:
+create table app.bad_boolean_column(c boolean);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:35) /test/1/catalog1/app/bad_boolean_column/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dql_ddl_dml_block_dameng_bool_boolean_type_atomic_0_behavior_review_029]
+sql:
+create index app.bad_bool_idx on app.bool_expr(app.bool_det_f(id));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:29) /test/1/catalog1/app/bad_bool_idx/",
+      "action": "CREATE",
+      "target": "Table(1:33~1:46) /test/1/catalog1/app/bool_expr/"
+    },
+    {
+      "subject": "Function(1:47~1:61) /test/1/catalog1/app/bool_det_f/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_ddl_dml_block_dameng_bool_boolean_type_atomic_0_behavior_review_030]
+sql:
+create function app.bad_bool_arg_f(p bool(1)) return int as
+begin return 1;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:34) /test/1/catalog1/app/bad_bool_arg_f/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dql_ddl_dml_block_dameng_bool_boolean_type_atomic_0_behavior_review_031]
+sql:
+select cast(1 as boolean(1)) from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:34~1:38) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_ddl_dml_block_dameng_bool_boolean_type_atomic_0_behavior_review_032]
+sql:
+drop package app.bool_pkg;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Package(1:13~1:25) /test/1/catalog1/app/bool_pkg/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dql_ddl_dml_block_dameng_bool_boolean_type_atomic_0_behavior_review_033]
+sql:
+drop procedure app.bool_p;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:15~1:25) /test/1/catalog1/app/bool_p/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dql_ddl_dml_block_dameng_bool_boolean_type_atomic_0_behavior_review_034]
+sql:
+drop function app.bool_f;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Function(1:14~1:24) /test/1/catalog1/app/bool_f/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dql_ddl_dml_block_dameng_bool_boolean_type_atomic_0_behavior_review_035]
+sql:
+drop function app.boolean_f;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Function(1:14~1:27) /test/1/catalog1/app/boolean_f/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dql_ddl_dml_block_dameng_bool_boolean_type_atomic_0_behavior_review_036]
+sql:
+drop function app.bool_det_f;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Function(1:14~1:28) /test/1/catalog1/app/bool_det_f/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dql_ddl_dml_block_dameng_bool_boolean_type_atomic_0_behavior_review_037]
+sql:
+drop table app.bool_obj_t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:25) /test/1/catalog1/app/bool_obj_t/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dql_ddl_dml_block_dameng_bool_boolean_type_atomic_0_behavior_review_038]
+sql:
+drop type app.bool_obj;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:10~1:22) /test/1/catalog1/app/bool_obj/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dql_ddl_dml_block_dameng_bool_boolean_type_atomic_0_behavior_review_039]
+sql:
+drop table app.bool_expr;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:24) /test/1/catalog1/app/bool_expr/",
+      "action": "DROP"
+    }
+  ]
+}

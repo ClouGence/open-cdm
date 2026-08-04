@@ -5283,7 +5283,14 @@ public class DefaultRedisParserVisitor<T> extends AbstractLocationParseTreeVisit
 
     @Override
     public T visitCmdSwapDB(CmdSwapDBContext ctx) {
-        throw new UnsupportedOperationException(); // TODO
+        ctx.index1.accept(this);
+        IntToken index1 = (IntToken) this.instStack.pop();
+        ctx.index2.accept(this);
+        IntToken index2 = (IntToken) this.instStack.pop();
+
+        SwapDbRedisCmd cmd = code(new SwapDbRedisCmd(index1, index2), ctx);
+        this.instStack.push(cmd);
+        return null;
     }
 
     @Override

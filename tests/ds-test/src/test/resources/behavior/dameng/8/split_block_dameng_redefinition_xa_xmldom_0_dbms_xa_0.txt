@@ -1,0 +1,314 @@
+[split_block_dameng_redefinition_xa_xmldom_0_018]
+sql:
+declare rc int; begin rc:=dbms_xa.xa_settimeout(60); insert into CODEX_DM8_PKG_CTL(label, number_value) values('XA_TIMEOUT_RC', rc); commit; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(1:65~1:82) /test/1/catalog1/schema1/CODEX_DM8_PKG_CTL/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:26~1:47) /test/1/catalog1/dbms_xa/xa_settimeout/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_redefinition_xa_xmldom_0_019]
+sql:
+declare xid dbms_xa_xid:=dbms_xa_xid(72022001); rc int; begin rc:=dbms_xa.xa_start(xid, dbms_xa.tmnoFlags); insert into CODEX_DM8_XA values(1, 'TWO_PHASE', 10); insert into CODEX_DM8_PKG_CTL(label, number_value) values('XA_START_1', rc); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:12~1:23) /test/1/catalog1/schema1/dbms_xa_xid/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(1:120~1:132) /test/1/catalog1/schema1/CODEX_DM8_XA/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Table(1:173~1:190) /test/1/catalog1/schema1/CODEX_DM8_PKG_CTL/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:25~1:36) /test/1/catalog1/schema1/dbms_xa_xid/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:66~1:82) /test/1/catalog1/dbms_xa/xa_start/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_redefinition_xa_xmldom_0_020]
+sql:
+declare xid dbms_xa_xid:=dbms_xa_xid(72022001); rc int; begin rc:=dbms_xa.xa_end(xid, dbms_xa.tmsuccess); insert into CODEX_DM8_PKG_CTL(label, number_value) values('XA_END_1', rc); commit; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:12~1:23) /test/1/catalog1/schema1/dbms_xa_xid/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(1:118~1:135) /test/1/catalog1/schema1/CODEX_DM8_PKG_CTL/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:25~1:36) /test/1/catalog1/schema1/dbms_xa_xid/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:66~1:80) /test/1/catalog1/dbms_xa/xa_end/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_redefinition_xa_xmldom_0_021]
+sql:
+declare xid dbms_xa_xid:=dbms_xa_xid(72022001); rc int; begin rc:=dbms_xa.xa_prepare(xid); insert into CODEX_DM8_PKG_CTL(label, number_value) values('XA_PREPARE_1', rc); commit; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:12~1:23) /test/1/catalog1/schema1/dbms_xa_xid/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(1:103~1:120) /test/1/catalog1/schema1/CODEX_DM8_PKG_CTL/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:25~1:36) /test/1/catalog1/schema1/dbms_xa_xid/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:66~1:84) /test/1/catalog1/dbms_xa/xa_prepare/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_redefinition_xa_xmldom_0_022]
+sql:
+declare xids dbms_xa_xid_array; begin xids:=dbms_xa.xa_recover(); merge into CODEX_DM8_PKG_CTL t using (select 'XA_RECOVER_COUNT' label, xids.count number_value from dual) s on (t.label=s.label) when matched then update set t.number_value=s.number_value when not matched then insert(label, number_value) values(s.label, s.number_value); commit; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:13~1:30) /test/1/catalog1/schema1/dbms_xa_xid_array/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(1:77~1:94) /test/1/catalog1/schema1/CODEX_DM8_PKG_CTL/",
+      "action": "MERGE",
+      "target": "View(1:166~1:170) /test/1/catalog1/schema1/dual/"
+    },
+    {
+      "subject": "View(1:166~1:170) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(1:44~1:62) /test/1/catalog1/dbms_xa/xa_recover/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_redefinition_xa_xmldom_0_023]
+sql:
+declare xid dbms_xa_xid:=dbms_xa_xid(72022001); rc int; begin rc:=dbms_xa.xa_commit(xid, false); insert into CODEX_DM8_PKG_CTL(label, number_value) values('XA_COMMIT_1', rc); commit; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:12~1:23) /test/1/catalog1/schema1/dbms_xa_xid/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(1:109~1:126) /test/1/catalog1/schema1/CODEX_DM8_PKG_CTL/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:25~1:36) /test/1/catalog1/schema1/dbms_xa_xid/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:66~1:83) /test/1/catalog1/dbms_xa/xa_commit/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_redefinition_xa_xmldom_0_024]
+sql:
+declare xid dbms_xa_xid:=dbms_xa_xid(72022002); rc int; begin rc:=dbms_xa.xa_start(xid, dbms_xa.tmnoFlags); insert into CODEX_DM8_XA values(2, 'ONE_PHASE', 20); rc:=dbms_xa.xa_end(xid, dbms_xa.tmsuccess); rc:=dbms_xa.xa_commit(xid, true); insert into CODEX_DM8_PKG_CTL(label, number_value) values('XA_COMMIT_2', rc); commit; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:12~1:23) /test/1/catalog1/schema1/dbms_xa_xid/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(1:120~1:132) /test/1/catalog1/schema1/CODEX_DM8_XA/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Table(1:251~1:268) /test/1/catalog1/schema1/CODEX_DM8_PKG_CTL/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:25~1:36) /test/1/catalog1/schema1/dbms_xa_xid/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:66~1:82) /test/1/catalog1/dbms_xa/xa_start/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:165~1:179) /test/1/catalog1/dbms_xa/xa_end/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:209~1:226) /test/1/catalog1/dbms_xa/xa_commit/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_redefinition_xa_xmldom_0_025]
+sql:
+declare xid dbms_xa_xid:=dbms_xa_xid(72022003); rc int; begin rc:=dbms_xa.xa_start(xid, dbms_xa.tmnoFlags); insert into CODEX_DM8_XA values(3, 'ROLLBACK', 30); rc:=dbms_xa.xa_end(xid, dbms_xa.tmsuccess); rc:=dbms_xa.xa_rollback(xid); insert into CODEX_DM8_PKG_CTL(label, number_value) values('XA_ROLLBACK_3', rc); commit; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:12~1:23) /test/1/catalog1/schema1/dbms_xa_xid/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(1:120~1:132) /test/1/catalog1/schema1/CODEX_DM8_XA/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Table(1:246~1:263) /test/1/catalog1/schema1/CODEX_DM8_PKG_CTL/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:25~1:36) /test/1/catalog1/schema1/dbms_xa_xid/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:66~1:82) /test/1/catalog1/dbms_xa/xa_start/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:164~1:178) /test/1/catalog1/dbms_xa/xa_end/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:208~1:227) /test/1/catalog1/dbms_xa/xa_rollback/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_redefinition_xa_xmldom_0_026]
+sql:
+declare xid dbms_xa_xid:=dbms_xa_xid(72022004); rc int; begin rc:=dbms_xa.xa_start(xid, dbms_xa.tmnoFlags); insert into CODEX_DM8_XA values(4, 'SUSPEND', 40); rc:=dbms_xa.xa_end(xid, dbms_xa.tmsuspend); rc:=dbms_xa.xa_start(xid, dbms_xa.tmresume); update CODEX_DM8_XA set amount=44 where id=4; rc:=dbms_xa.xa_end(xid, dbms_xa.tmsuccess); rc:=dbms_xa.xa_commit(xid, true); insert into CODEX_DM8_PKG_CTL(label, number_value) values('XA_RESUME_4', rc); commit; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:12~1:23) /test/1/catalog1/schema1/dbms_xa_xid/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(1:120~1:132) /test/1/catalog1/schema1/CODEX_DM8_XA/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Table(1:255~1:267) /test/1/catalog1/schema1/CODEX_DM8_XA/",
+      "action": "UPDATE"
+    },
+    {
+      "subject": "Table(1:384~1:401) /test/1/catalog1/schema1/CODEX_DM8_PKG_CTL/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:25~1:36) /test/1/catalog1/schema1/dbms_xa_xid/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:66~1:82) /test/1/catalog1/dbms_xa/xa_start/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:163~1:177) /test/1/catalog1/dbms_xa/xa_end/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:207~1:223) /test/1/catalog1/dbms_xa/xa_start/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:298~1:312) /test/1/catalog1/dbms_xa/xa_end/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:342~1:359) /test/1/catalog1/dbms_xa/xa_commit/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_redefinition_xa_xmldom_0_027]
+sql:
+declare xid dbms_xa_xid:=dbms_xa_xid(99999999); rc int; begin rc:=dbms_xa.xa_forget(xid); insert into CODEX_DM8_PKG_CTL(label, number_value) values('XA_FORGET_UNKNOWN', rc); commit; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:12~1:23) /test/1/catalog1/schema1/dbms_xa_xid/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(1:102~1:119) /test/1/catalog1/schema1/CODEX_DM8_PKG_CTL/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:25~1:36) /test/1/catalog1/schema1/dbms_xa_xid/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:66~1:83) /test/1/catalog1/dbms_xa/xa_forget/",
+      "action": "CALL"
+    }
+  ]
+}

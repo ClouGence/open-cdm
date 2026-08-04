@@ -37,8 +37,9 @@ import com.clougence.utils.StringUtils;
 
 public class DetectRuleDslProvider implements DslProvider {
 
-    private final String[]                 dslName;
-    private final List<DetectRulesFeature> features;
+    public static final DetectRuleDslProvider INSTANCE = new DetectRuleDslProvider();
+    private final String[]                    dslName;
+    private final List<DetectRulesFeature>    features;
 
     public DetectRuleDslProvider(){
         this("full-featured", DetectRulesFeature.values());

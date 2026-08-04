@@ -1,0 +1,12 @@
+SELECT version();
+SELECT version() ~ '^PostgreSQL ' AS has_postgresql_prefix;
+SELECT current_setting('server_version') AS server_version_text;
+SELECT current_setting('server_version_num')::integer > 0 AS has_server_version_num;
+------------------------------------------------------------------------------------------
+[SELECT] SELECT version();
+----------
+[SELECT] SELECT version() ~ '^PostgreSQL ' AS has_postgresql_prefix;
+----------
+[SELECT] SELECT current_setting('server_version') AS server_version_text;
+----------
+[SELECT] SELECT current_setting('server_version_num')::integer > 0 AS has_server_version_num;

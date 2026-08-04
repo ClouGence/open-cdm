@@ -1,0 +1,69 @@
+LOAD INDEX INTO CACHE utility_audit.missing_part PARTITION (p0,p1) KEY (PRIMARY,idx_v);
+SELECT * INTO OUTFILE '/var/lib/mysql-files/split_outfile_load_01.txt' FIELDS TERMINATED BY 'raker' FROM split_outfile_load_native.t1;
+SELECT * INTO OUTFILE '/var/lib/mysql-files/split_outfile_load_02.txt' FIELDS ENCLOSED BY 0xC3 FROM split_outfile_load_native.t1;
+SELECT * INTO OUTFILE '/var/lib/mysql-files/split_outfile_load_03.txt' FIELDS ENCLOSED BY '12345' FROM split_outfile_load_native.t1;
+SELECT * INTO OUTFILE '/var/lib/mysql-files/split_outfile_load_04.txt' FIELDS ESCAPED BY '12345' FROM split_outfile_load_native.t1;
+SELECT * INTO OUTFILE '/var/lib/mysql-files/split_outfile_load_05.txt' FIELDS ENCLOSED BY 'ъ' FROM split_outfile_load_native.t1;
+SELECT * INTO OUTFILE '/var/lib/mysql-files/split_outfile_load_06.txt' FIELDS ESCAPED BY 'ъ' FROM split_outfile_load_native.t1;
+SELECT * INTO OUTFILE '/var/lib/mysql-files/split_outfile_load_07.txt' FIELDS TERMINATED BY 'ъ' FROM split_outfile_load_native.t1;
+SELECT * INTO OUTFILE '/var/lib/mysql-files/split_outfile_load_08.txt' LINES STARTING BY 'ъ' FROM split_outfile_load_native.t1;
+SELECT * INTO OUTFILE '/var/lib/mysql-files/split_outfile_load_09.txt' LINES TERMINATED BY 'ъ' FROM split_outfile_load_native.t1;
+SELECT * INTO OUTFILE '/var/lib/mysql-files/split_outfile_load_10.txt' CHARACTER SET binary FROM split_outfile_load_native.t1;
+SELECT * INTO OUTFILE '/var/lib/mysql-files/split_outfile_load_11.txt' CHARACTER SET latin1 FROM split_outfile_load_native.t1;
+SELECT * INTO OUTFILE '/var/lib/mysql-files/split_outfile_load_12.txt' CHARACTER SET koi8r FROM split_outfile_load_native.t1;
+SELECT * INTO OUTFILE '/var/lib/mysql-files/split_outfile_load_13.txt' CHARACTER SET utf8mb3 FROM split_outfile_load_native.t1;
+SELECT * INTO OUTFILE '/var/lib/mysql-files/split_outfile_load_14.txt' FIELDS ENCLOSED BY 0b00100010 FROM split_outfile_load_native.t1;
+SELECT 1 INTO OUTFILE '/var/lib/mysql-files/split_outfile_native_no_from.txt';
+SELECT * INTO DUMPFILE '/var/lib/mysql-files/split_outfile_native_limit.bin' FROM split_outfile_native.t1 LIMIT 1;
+EXPLAIN SELECT * INTO OUTFILE '/var/lib/mysql-files/split_outfile_native_explain.txt' FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' LINES TERMINATED BY '\r\n' FROM split_outfile_native.t1;
+SELECT schema_name INTO OUTFILE '/var/lib/mysql-files/split_outfile_native_schema.txt' FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' LINES TERMINATED BY '\n' FROM information_schema.schemata WHERE schema_name LIKE 'split_outfile%' LIMIT 0, 5;
+SELECT a INTO OUTFILE '/var/lib/mysql-files/split_union_derived.out' FROM (SELECT a FROM t1 UNION SELECT a FROM t1 WHERE 0) alias;
+SELECT a INTO DUMPFILE '/var/lib/mysql-files/split_union_derived.dump' FROM (SELECT a FROM t1 UNION SELECT a FROM t1 WHERE 0) alias;
+SELECT (SELECT a UNION SELECT a) INTO OUTFILE '/var/lib/mysql-files/split_union_scalar.out' FROM t1;
+SELECT (SELECT a UNION SELECT a) INTO DUMPFILE '/var/lib/mysql-files/split_union_scalar.dump' FROM t1;
+------------------------------------------------------------------------------------------
+[ADMIN_PERFORMANCE] LOAD INDEX INTO CACHE utility_audit.missing_part PARTITION (p0,p1) KEY (PRIMARY,idx_v);
+----------
+[DATA_EXPORT|SELECT] SELECT * INTO OUTFILE '/var/lib/mysql-files/split_outfile_load_01.txt' FIELDS TERMINATED BY 'raker' FROM split_outfile_load_native.t1;
+----------
+[DATA_EXPORT|SELECT] SELECT * INTO OUTFILE '/var/lib/mysql-files/split_outfile_load_02.txt' FIELDS ENCLOSED BY 0xC3 FROM split_outfile_load_native.t1;
+----------
+[DATA_EXPORT|SELECT] SELECT * INTO OUTFILE '/var/lib/mysql-files/split_outfile_load_03.txt' FIELDS ENCLOSED BY '12345' FROM split_outfile_load_native.t1;
+----------
+[DATA_EXPORT|SELECT] SELECT * INTO OUTFILE '/var/lib/mysql-files/split_outfile_load_04.txt' FIELDS ESCAPED BY '12345' FROM split_outfile_load_native.t1;
+----------
+[DATA_EXPORT|SELECT] SELECT * INTO OUTFILE '/var/lib/mysql-files/split_outfile_load_05.txt' FIELDS ENCLOSED BY 'ъ' FROM split_outfile_load_native.t1;
+----------
+[DATA_EXPORT|SELECT] SELECT * INTO OUTFILE '/var/lib/mysql-files/split_outfile_load_06.txt' FIELDS ESCAPED BY 'ъ' FROM split_outfile_load_native.t1;
+----------
+[DATA_EXPORT|SELECT] SELECT * INTO OUTFILE '/var/lib/mysql-files/split_outfile_load_07.txt' FIELDS TERMINATED BY 'ъ' FROM split_outfile_load_native.t1;
+----------
+[DATA_EXPORT|SELECT] SELECT * INTO OUTFILE '/var/lib/mysql-files/split_outfile_load_08.txt' LINES STARTING BY 'ъ' FROM split_outfile_load_native.t1;
+----------
+[DATA_EXPORT|SELECT] SELECT * INTO OUTFILE '/var/lib/mysql-files/split_outfile_load_09.txt' LINES TERMINATED BY 'ъ' FROM split_outfile_load_native.t1;
+----------
+[DATA_EXPORT|SELECT] SELECT * INTO OUTFILE '/var/lib/mysql-files/split_outfile_load_10.txt' CHARACTER SET binary FROM split_outfile_load_native.t1;
+----------
+[DATA_EXPORT|SELECT] SELECT * INTO OUTFILE '/var/lib/mysql-files/split_outfile_load_11.txt' CHARACTER SET latin1 FROM split_outfile_load_native.t1;
+----------
+[DATA_EXPORT|SELECT] SELECT * INTO OUTFILE '/var/lib/mysql-files/split_outfile_load_12.txt' CHARACTER SET koi8r FROM split_outfile_load_native.t1;
+----------
+[DATA_EXPORT|SELECT] SELECT * INTO OUTFILE '/var/lib/mysql-files/split_outfile_load_13.txt' CHARACTER SET utf8mb3 FROM split_outfile_load_native.t1;
+----------
+[DATA_EXPORT|SELECT] SELECT * INTO OUTFILE '/var/lib/mysql-files/split_outfile_load_14.txt' FIELDS ENCLOSED BY 0b00100010 FROM split_outfile_load_native.t1;
+----------
+[DATA_EXPORT|SELECT] SELECT 1 INTO OUTFILE '/var/lib/mysql-files/split_outfile_native_no_from.txt';
+----------
+[DATA_EXPORT|SELECT] SELECT * INTO DUMPFILE '/var/lib/mysql-files/split_outfile_native_limit.bin' FROM split_outfile_native.t1 LIMIT 1;
+----------
+[PERFORMANCE] EXPLAIN SELECT * INTO OUTFILE '/var/lib/mysql-files/split_outfile_native_explain.txt' FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' LINES TERMINATED BY '\r\n' FROM split_outfile_native.t1;
+----------
+[DATA_EXPORT|METADATA] SELECT schema_name INTO OUTFILE '/var/lib/mysql-files/split_outfile_native_schema.txt' FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' LINES TERMINATED BY '\n' FROM information_schema.schemata WHERE schema_name LIKE 'split_outfile%' LIMIT 0, 5;
+----------
+[DATA_EXPORT|SELECT] SELECT a INTO OUTFILE '/var/lib/mysql-files/split_union_derived.out' FROM (SELECT a FROM t1 UNION SELECT a FROM t1 WHERE 0) alias;
+----------
+[DATA_EXPORT|SELECT] SELECT a INTO DUMPFILE '/var/lib/mysql-files/split_union_derived.dump' FROM (SELECT a FROM t1 UNION SELECT a FROM t1 WHERE 0) alias;
+----------
+[DATA_EXPORT|SELECT] SELECT (SELECT a UNION SELECT a) INTO OUTFILE '/var/lib/mysql-files/split_union_scalar.out' FROM t1;
+----------
+[DATA_EXPORT|SELECT] SELECT (SELECT a UNION SELECT a) INTO DUMPFILE '/var/lib/mysql-files/split_union_scalar.dump' FROM t1;

@@ -1,0 +1,869 @@
+[split_dql_dameng_xml_0_behavior_review_001]
+sql:
+select sf_xmlquery('<a><b>b</b></a>', '/a');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/sf_xmlquery/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_xml_0_behavior_review_002]
+sql:
+select sf_xmlquery('<a><b>b</b></a>', '/a/b');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/sf_xmlquery/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_xml_0_behavior_review_003]
+sql:
+select sf_xmlquery('<a><b>1</b><b>2</b></a>', '/a/b');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/sf_xmlquery/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_xml_0_behavior_review_004]
+sql:
+select sf_xmlquery(null, '/a');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/sf_xmlquery/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_xml_0_behavior_review_005]
+sql:
+select xmlquery('<a><b>b</b></a>', '/a');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/xmlquery/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_xml_0_behavior_review_006]
+sql:
+select xmlquery('<a><b>b</b></a>', '/a/b');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/xmlquery/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_xml_0_behavior_review_007]
+sql:
+select xmlquery('<a><b>1</b><b>2</b></a>', '/a/b');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/xmlquery/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_xml_0_behavior_review_008]
+sql:
+select xmlquery(null, '/a');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/xmlquery/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_xml_0_behavior_review_009]
+sql:
+select existsnode('<a><b>b</b></a>', '/a');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/existsnode/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_xml_0_behavior_review_010]
+sql:
+select existsnode('<a><b>b</b></a>', '/a/b');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/existsnode/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_xml_0_behavior_review_011]
+sql:
+select existsnode('<a><b>b</b></a>', '/a/c');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/existsnode/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_xml_0_behavior_review_012]
+sql:
+select existsnode(null, '/a');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/existsnode/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_xml_0_behavior_review_013]
+sql:
+select extractvalue('<a><b>b</b></a>', '/a/b');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/extractvalue/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_xml_0_behavior_review_014]
+sql:
+select extractvalue('<a><b code="x">text</b></a>', '/a/b/@code');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/extractvalue/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_xml_0_behavior_review_015]
+sql:
+select extractvalue('<a><b>1</b></a>', '/a/b/text()');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/extractvalue/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_xml_0_behavior_review_016]
+sql:
+select extractvalue(null, '/a/b');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/extractvalue/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_xml_0_behavior_review_017]
+sql:
+select appendchildxml('<a><b>b</b></a>', '/a', '<d>xxx</d>');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:21) /test/1/catalog1/schema1/appendchildxml/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_xml_0_behavior_review_018]
+sql:
+select appendchildxml('<a/>', '/a', '<b>1</b>');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:21) /test/1/catalog1/schema1/appendchildxml/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_xml_0_behavior_review_019]
+sql:
+select appendchildxml('<a/>', '/a', '<b><c>1</c></b>');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:21) /test/1/catalog1/schema1/appendchildxml/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_xml_0_behavior_review_020]
+sql:
+select xmlparse(document '<a>good</a>' wellformed);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/xmlparse/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_xml_0_behavior_review_021]
+sql:
+select xmlparse(document '<a><b>text</b></a>');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/xmlparse/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_xml_0_behavior_review_022]
+sql:
+select xmlparse(content '<a>one</a><b>two</b>' wellformed);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/xmlparse/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_xml_0_behavior_review_023]
+sql:
+select xmlparse(content 'plain text' wellformed);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/xmlparse/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_xml_0_behavior_review_024]
+sql:
+select x1, x2 from xml_docs d, xmltable('/A/ITEM' passing d.payload columns x1 varchar(12) path '@CODE', x2 varchar(20) path 'text()');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:31~1:39) /test/1/catalog1/schema1/xmltable/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:19~1:27) /test/1/catalog1/schema1/xml_docs/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_xml_0_behavior_review_025]
+sql:
+select d.id, x.item_text from xml_docs d, xmltable('/A/ITEM' passing d.payload columns item_text varchar(20) path 'text()') x order by d.id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:42~1:50) /test/1/catalog1/schema1/xmltable/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:30~1:38) /test/1/catalog1/schema1/xml_docs/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_xml_0_behavior_review_026]
+sql:
+select d.id, x.item_code, x.item_text from xml_docs d, xmltable('/A/ITEM' passing d.payload columns item_code varchar(10) path '@CODE', item_text varchar(20) path 'text()') x;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:55~1:63) /test/1/catalog1/schema1/xmltable/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:43~1:51) /test/1/catalog1/schema1/xml_docs/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_xml_0_behavior_review_027]
+sql:
+select x.item_code from xml_docs d, xmltable('/A/ITEM' passing d.payload columns item_code varchar(10) path '@CODE') x where d.id = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:36~1:44) /test/1/catalog1/schema1/xmltable/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:24~1:32) /test/1/catalog1/schema1/xml_docs/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_xml_0_behavior_review_028]
+sql:
+select * from table(xmlsequence(extract('<a><b>shanghai</b><b>dameng</b></a>', '/a/b')));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:20~1:31) /test/1/catalog1/schema1/xmlsequence/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:32~1:39) /test/1/catalog1/schema1/extract/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_xml_0_behavior_review_029]
+sql:
+select * from table(xmlsequence(extract('<a><b>1</b></a>', '/a/b')));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:20~1:31) /test/1/catalog1/schema1/xmlsequence/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:32~1:39) /test/1/catalog1/schema1/extract/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_xml_0_behavior_review_030]
+sql:
+select xmlelement(DM, 'TXT1', 'TXT2') from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/xmlelement/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:43~1:47) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_xml_0_behavior_review_031]
+sql:
+select xmlelement(ROOT, 'TXT') from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/xmlelement/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:36~1:40) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_xml_0_behavior_review_032]
+sql:
+select xmlelement(DM, 1, 2, 3) from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/xmlelement/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:36~1:40) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_xml_0_behavior_review_033]
+sql:
+select xmlelement(DM, null) from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/xmlelement/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:33~1:37) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_xml_0_behavior_review_034]
+sql:
+select xmlelement(DM, xmlattributes('A' as CODE), 'TXT') from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/xmlelement/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:22~1:35) /test/1/catalog1/schema1/xmlattributes/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:62~1:66) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_xml_0_behavior_review_035]
+sql:
+select xmlelement(ROOT, xmlelement(CHILD, 'VALUE')) from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/xmlelement/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:24~1:34) /test/1/catalog1/schema1/xmlelement/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:57~1:61) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_xml_0_behavior_review_036]
+sql:
+select xmlforest('TXT1' as A, 'TXT2' as B) from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/xmlforest/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:48~1:52) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_xml_0_behavior_review_037]
+sql:
+select xmlforest(id, category) from xml_docs where id = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/xmlforest/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:36~1:44) /test/1/catalog1/schema1/xml_docs/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_xml_0_behavior_review_038]
+sql:
+select xmlforest(id as DOC_ID, payload as DOC_XML) from xml_docs where id = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/xmlforest/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:56~1:64) /test/1/catalog1/schema1/xml_docs/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_xml_0_behavior_review_039]
+sql:
+select xmlforest(null as A, 'TXT' as B) from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/xmlforest/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:45~1:49) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_xml_0_behavior_review_040]
+sql:
+select xmlagg(xmlparse(content content wellformed) order by seq) from xml_agg_source;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/xmlagg/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:14~1:22) /test/1/catalog1/schema1/xmlparse/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:70~1:84) /test/1/catalog1/schema1/xml_agg_source/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_xml_0_behavior_review_041]
+sql:
+select xmlagg(xmlelement(ITEM, content) order by seq) from xml_agg_source;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/xmlagg/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:14~1:24) /test/1/catalog1/schema1/xmlelement/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:59~1:73) /test/1/catalog1/schema1/xml_agg_source/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_xml_0_behavior_review_042]
+sql:
+select xmlagg(xmlelement(ITEM, content)) from xml_agg_source;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/xmlagg/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:14~1:24) /test/1/catalog1/schema1/xmlelement/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:46~1:60) /test/1/catalog1/schema1/xml_agg_source/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_xml_0_behavior_review_043]
+sql:
+select deletexml('<a><b2>local<c>d</c></b2><b2>dd</b2></a>', 'a/b2/c');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/deletexml/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_xml_0_behavior_review_044]
+sql:
+select insertchildxml('<a><b2>local</b2><b2>dd</b2></a>', 'a/b2', 'c', xmltype('<c>china</c>'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:21) /test/1/catalog1/schema1/insertchildxml/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:71~1:78) /test/1/catalog1/schema1/xmltype/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_xml_0_behavior_review_045]
+sql:
+select insertchildxmlafter('<a><b2>local</b2><b2>dd</b2></a>', 'a/', 'b2', xmltype('<c>china</c>'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:26) /test/1/catalog1/schema1/insertchildxmlafter/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:75~1:82) /test/1/catalog1/schema1/xmltype/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_xml_0_behavior_review_046]
+sql:
+select insertchildxmlbefore('<a><b2>local</b2><b2>dd</b2></a>', 'a/', 'b2', xmltype('<c>china</c>'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:27) /test/1/catalog1/schema1/insertchildxmlbefore/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:76~1:83) /test/1/catalog1/schema1/xmltype/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_xml_0_behavior_review_047]
+sql:
+select insertxmlbefore('<a><b2>hello</b2><b2>dd</b2></a>', '/a/b2[1]', xmltype('<c>china</c>'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:22) /test/1/catalog1/schema1/insertxmlbefore/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:71~1:78) /test/1/catalog1/schema1/xmltype/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_xml_0_behavior_review_048]
+sql:
+select insertxmlafter(xmltype('<a><b2>local</b2><b2>dd</b2></a>'), 'a/b2', xmltype('<c>china</c>'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:21) /test/1/catalog1/schema1/insertxmlafter/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:22~1:29) /test/1/catalog1/schema1/xmltype/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:75~1:82) /test/1/catalog1/schema1/xmltype/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_xml_0_behavior_review_049]
+sql:
+select updatexml('<a><a1>d1</a1><a2>d2</a2></a>', '/a/a2', '<x>f</x>');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/updatexml/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_xml_0_behavior_review_050]
+sql:
+select updatexml('<a><a1>d1</a1></a>', '/a/a1', '<x>updated</x>');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/updatexml/",
+      "action": "CALL"
+    }
+  ]
+}

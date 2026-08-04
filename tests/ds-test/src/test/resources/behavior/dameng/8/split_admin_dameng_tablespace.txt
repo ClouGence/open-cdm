@@ -1,0 +1,30 @@
+[split_admin_dameng_tablespace_001]
+sql:
+create tablespace ts_dm_test datafile 'ts_dm_test.dbf' size 128;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLESPACE": [
+    {
+      "subject": "Tablespace(1:18~1:28) /test/1/ts_dm_test/",
+      "action": "CREATE",
+      "target": "File(1:38~1:54) /test/1/ts_dm_test.dbf/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_tablespace_002]
+sql:
+drop tablespace ts_dm_test;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLESPACE": [
+    {
+      "subject": "Tablespace(1:16~1:26) /test/1/ts_dm_test/",
+      "action": "DROP"
+    }
+  ]
+}

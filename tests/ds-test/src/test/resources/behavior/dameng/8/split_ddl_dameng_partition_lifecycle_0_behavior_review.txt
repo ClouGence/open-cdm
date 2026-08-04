@@ -1,0 +1,1260 @@
+[split_ddl_dameng_partition_lifecycle_0_001_behavior_review]
+sql:
+create table part_range_basic(id int, name varchar(30))
+partition by range(id)(partition p1 values less than(10), partition p2 values less than(20), partition pmax values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:29) /test/1/catalog1/schema1/part_range_basic/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_partition_lifecycle_0_002_behavior_review]
+sql:
+create table part_range_equ(id int, name varchar(30))
+partition by range(id)(partition p1 values equ or less than(10), partition p2 values equ or less than(20));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:27) /test/1/catalog1/schema1/part_range_equ/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_partition_lifecycle_0_003_behavior_review]
+sql:
+create table part_range_date(id int, created_at date)
+partition by range(created_at)(partition p2020 values less than(date '2021-01-01'), partition p2021 values less than(date '2022-01-01'), partition pmax values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/schema1/part_range_date/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_partition_lifecycle_0_004_behavior_review]
+sql:
+create table part_range_multi(id int, category int, name varchar(30))
+partition by range(id, category)(partition p1 values less than(10, 10), partition p2 values less than(20, 20), partition pmax values less than(maxvalue, maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:29) /test/1/catalog1/schema1/part_range_multi/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_partition_lifecycle_0_005_behavior_review]
+sql:
+create table part_interval_number(id int, name varchar(30))
+partition by range(id) interval(10)(partition p1 values equ or less than(10), partition p2 values equ or less than(20));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:33) /test/1/catalog1/schema1/part_interval_number/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_partition_lifecycle_0_006_behavior_review]
+sql:
+create table part_interval_date(id int, created_at date)
+partition by range(created_at) interval(numtoyminterval(1, 'MONTH'))(partition p1 values less than(date '2024-01-01'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/schema1/part_interval_date/",
+      "action": "CREATE"
+    },
+    {
+      "subject": "Function(2:40~2:55) /test/1/catalog1/schema1/numtoyminterval/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_partition_lifecycle_0_007_behavior_review]
+sql:
+create table part_list_basic(id int, category varchar(10), name varchar(30))
+partition by list(category)(partition p_ab values('A', 'B'), partition p_cd values('C', 'D'), partition p_other values(default));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/schema1/part_list_basic/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_partition_lifecycle_0_008_behavior_review]
+sql:
+create table part_hash_named(id int, name varchar(30))
+partition by hash(id)(partition p1, partition p2, partition p3, partition p4);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/schema1/part_hash_named/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_partition_lifecycle_0_009_behavior_review]
+sql:
+create table part_hash_count(id int, name varchar(30)) partition by hash(id) partitions 4;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/schema1/part_hash_count/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_partition_lifecycle_0_010_behavior_review]
+sql:
+create table part_range_hash(id int, category int, name varchar(30))
+partition by range(id)
+subpartition by hash(category) subpartition template subpartitions 2
+(partition p1 values less than(10), partition p2 values less than(20), partition pmax values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/schema1/part_range_hash/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_partition_lifecycle_0_011_behavior_review]
+sql:
+create table part_list_range(id int, category varchar(10), created_at date)
+partition by list(category)
+subpartition by range(created_at) subpartition template(
+  subpartition sp2020 values less than(date '2021-01-01'),
+  subpartition spmax values less than(maxvalue)
+)(partition p_a values('A'), partition p_b values('B'), partition p_other values(default));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/schema1/part_list_range/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_partition_lifecycle_0_012_behavior_review]
+sql:
+create table part_range_list(id int, category varchar(10), name varchar(30))
+partition by range(id)
+subpartition by list(category) subpartition template(
+  subpartition sp_a values('A'),
+  subpartition sp_b values('B'),
+  subpartition sp_other values(default)
+)(partition p1 values less than(10), partition pmax values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/schema1/part_range_list/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_partition_lifecycle_0_013_behavior_review]
+sql:
+create table part_list_hash(id int, category varchar(10), name varchar(30))
+partition by list(category)
+subpartition by hash(id) subpartition template(subpartition sp1, subpartition sp2)
+(partition p_a values('A'), partition p_b values('B'), partition p_other values(default));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:27) /test/1/catalog1/schema1/part_list_hash/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_partition_lifecycle_0_014_behavior_review]
+sql:
+create table part_lock_partitions(id int, name varchar(30))
+partition by range(id)(partition p1 values less than(10), partition pmax values less than(maxvalue)) lock partitions;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:33) /test/1/catalog1/schema1/part_lock_partitions/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_partition_lifecycle_0_015_behavior_review]
+sql:
+create table part_lock_root(id int, name varchar(30))
+partition by range(id)(partition p1 values less than(10), partition pmax values less than(maxvalue)) lock root;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:27) /test/1/catalog1/schema1/part_lock_root/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_partition_lifecycle_0_016_behavior_review]
+sql:
+create table part_row_movement(id int, name varchar(30))
+partition by range(id)(partition p1 values less than(10), partition pmax values less than(maxvalue)) enable row movement;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/schema1/part_row_movement/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_partition_lifecycle_0_017_behavior_review]
+sql:
+insert into part_range_basic values(1, 'ONE');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:28) /test/1/catalog1/schema1/part_range_basic/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_partition_lifecycle_0_018_behavior_review]
+sql:
+insert into part_range_basic partition(p2) values(11, 'ELEVEN');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Partition(1:39~1:41) /test/1/catalog1/schema1/part_range_basic/p2/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_partition_lifecycle_0_019_behavior_review]
+sql:
+insert into part_range_basic partition for(25) values(25, 'TWENTY_FIVE');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Partition(1:29~1:46) /test/1/catalog1/schema1/part_range_basic/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_partition_lifecycle_0_020_behavior_review]
+sql:
+insert into part_list_basic values(1, 'A', 'ALPHA');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:27) /test/1/catalog1/schema1/part_list_basic/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_partition_lifecycle_0_021_behavior_review]
+sql:
+insert into part_hash_named values(1, 'HASH_ONE');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:27) /test/1/catalog1/schema1/part_hash_named/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_partition_lifecycle_0_022_behavior_review]
+sql:
+insert into part_range_hash values(1, 1, 'RANGE_HASH');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:27) /test/1/catalog1/schema1/part_range_hash/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_partition_lifecycle_0_023_behavior_review]
+sql:
+insert into part_list_range values(1, 'A', date '2020-01-01');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:27) /test/1/catalog1/schema1/part_list_range/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_partition_lifecycle_0_024_behavior_review]
+sql:
+insert into part_range_list values(1, 'A', 'RANGE_LIST');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:27) /test/1/catalog1/schema1/part_range_list/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_partition_lifecycle_0_025_behavior_review]
+sql:
+select * from part_range_basic partition(p1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Partition(1:41~1:43) /test/1/catalog1/schema1/part_range_basic/p1/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_partition_lifecycle_0_026_behavior_review]
+sql:
+select * from part_range_basic partition for(11);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Partition(1:31~1:48) /test/1/catalog1/schema1/part_range_basic/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_partition_lifecycle_0_027_behavior_review]
+sql:
+select * from part_range_hash subpartition for(1, 1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Partition(1:30~1:52) /test/1/catalog1/schema1/part_range_hash/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_partition_lifecycle_0_028_behavior_review]
+sql:
+select * from part_list_range subpartition(p_a_sp2020);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Partition(1:43~1:53) /test/1/catalog1/schema1/part_list_range/p_a_sp2020/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_partition_lifecycle_0_029_behavior_review]
+sql:
+select * from part_range_list subpartition for(1, 'A');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Partition(1:30~1:54) /test/1/catalog1/schema1/part_range_list/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_partition_lifecycle_0_030_behavior_review]
+sql:
+select count(*) from part_hash_named partition(p1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Partition(1:47~1:49) /test/1/catalog1/schema1/part_hash_named/p1/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_partition_lifecycle_0_031_behavior_review]
+sql:
+create table part_range_lifecycle(id int, name varchar(30))
+partition by range(id)(partition p1 values less than(10), partition p2 values less than(20));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:33) /test/1/catalog1/schema1/part_range_lifecycle/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_partition_lifecycle_0_032_behavior_review]
+sql:
+alter table part_range_lifecycle add partition p3 values less than(30);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:32) /test/1/catalog1/schema1/part_range_lifecycle/",
+      "action": "ALTER",
+      "target": "Partition(1:47~1:49) /test/1/catalog1/schema1/part_range_lifecycle/p3/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_partition_lifecycle_0_033_behavior_review]
+sql:
+alter table part_range_lifecycle add partition pmax values less than(maxvalue);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:32) /test/1/catalog1/schema1/part_range_lifecycle/",
+      "action": "ALTER",
+      "target": "Partition(1:47~1:51) /test/1/catalog1/schema1/part_range_lifecycle/pmax/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_partition_lifecycle_0_034_behavior_review]
+sql:
+alter table part_range_lifecycle truncate partition p1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:32) /test/1/catalog1/schema1/part_range_lifecycle/",
+      "action": "ALTER",
+      "target": "Partition(1:52~1:54) /test/1/catalog1/schema1/part_range_lifecycle/p1/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_partition_lifecycle_0_035_behavior_review]
+sql:
+alter table part_range_lifecycle split partition p2 at(15) into(partition p2a, partition p2b);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:32) /test/1/catalog1/schema1/part_range_lifecycle/",
+      "action": "ALTER",
+      "target": [
+        "Partition(1:49~1:51) /test/1/catalog1/schema1/part_range_lifecycle/p2/",
+        "Partition(1:74~1:77) /test/1/catalog1/schema1/part_range_lifecycle/p2a/",
+        "Partition(1:89~1:92) /test/1/catalog1/schema1/part_range_lifecycle/p2b/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dameng_partition_lifecycle_0_036_behavior_review]
+sql:
+alter table part_range_lifecycle merge partitions p2a, p2b into partition p2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:32) /test/1/catalog1/schema1/part_range_lifecycle/",
+      "action": "ALTER",
+      "target": [
+        "Partition(1:50~1:53) /test/1/catalog1/schema1/part_range_lifecycle/p2a/",
+        "Partition(1:55~1:58) /test/1/catalog1/schema1/part_range_lifecycle/p2b/",
+        "Partition(1:74~1:76) /test/1/catalog1/schema1/part_range_lifecycle/p2/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dameng_partition_lifecycle_0_037_behavior_review]
+sql:
+alter table part_range_lifecycle rename partition p3 to p30;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Partition(1:50~1:52) /test/1/catalog1/schema1/part_range_lifecycle/p3/",
+      "action": "RENAME",
+      "target": "Partition(1:56~1:59) /test/1/catalog1/schema1/part_range_lifecycle/p30/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_partition_lifecycle_0_038_behavior_review]
+sql:
+alter table part_range_lifecycle enable row movement;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:32) /test/1/catalog1/schema1/part_range_lifecycle/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_partition_lifecycle_0_039_behavior_review]
+sql:
+alter table part_range_lifecycle disable row movement;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:32) /test/1/catalog1/schema1/part_range_lifecycle/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_partition_lifecycle_0_040_behavior_review]
+sql:
+alter table part_range_lifecycle lock partitions;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:32) /test/1/catalog1/schema1/part_range_lifecycle/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_partition_lifecycle_0_041_behavior_review]
+sql:
+alter table part_range_lifecycle lock root;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:32) /test/1/catalog1/schema1/part_range_lifecycle/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_partition_lifecycle_0_042_behavior_review]
+sql:
+create table part_exchange(id int, name varchar(30));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:26) /test/1/catalog1/schema1/part_exchange/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_partition_lifecycle_0_043_behavior_review]
+sql:
+alter table part_range_lifecycle exchange partition p1 with table part_exchange;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:32) /test/1/catalog1/schema1/part_range_lifecycle/",
+      "action": "ALTER",
+      "target": [
+        "Partition(1:52~1:54) /test/1/catalog1/schema1/part_range_lifecycle/p1/",
+        "Table(1:66~1:79) /test/1/catalog1/schema1/part_exchange/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dameng_partition_lifecycle_0_044_behavior_review]
+sql:
+alter table part_range_lifecycle drop partition p30;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:32) /test/1/catalog1/schema1/part_range_lifecycle/",
+      "action": "ALTER",
+      "target": "Partition(1:48~1:51) /test/1/catalog1/schema1/part_range_lifecycle/p30/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_partition_lifecycle_0_045_behavior_review]
+sql:
+alter table part_range_lifecycle drop partition for(1000);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:32) /test/1/catalog1/schema1/part_range_lifecycle/",
+      "action": "ALTER",
+      "target": "Partition(1:38~1:57) /test/1/catalog1/schema1/part_range_lifecycle/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_partition_lifecycle_0_046_behavior_review]
+sql:
+create table part_list_lifecycle(id int, category int)
+partition by list(category)(partition p12 values(1, 2), partition p34 values(3, 4), partition pother values(default));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:32) /test/1/catalog1/schema1/part_list_lifecycle/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_partition_lifecycle_0_047_behavior_review]
+sql:
+alter table part_list_lifecycle modify partition p12 add values(5, 6);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/schema1/part_list_lifecycle/",
+      "action": "ALTER",
+      "target": "Partition(1:49~1:52) /test/1/catalog1/schema1/part_list_lifecycle/p12/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_partition_lifecycle_0_048_behavior_review]
+sql:
+alter table part_list_lifecycle modify partition p12 drop values(2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/schema1/part_list_lifecycle/",
+      "action": "ALTER",
+      "target": "Partition(1:49~1:52) /test/1/catalog1/schema1/part_list_lifecycle/p12/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_partition_lifecycle_0_049_behavior_review]
+sql:
+alter table part_list_lifecycle split partition p34 values(3) into(partition p3, partition p4);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/schema1/part_list_lifecycle/",
+      "action": "ALTER",
+      "target": [
+        "Partition(1:48~1:51) /test/1/catalog1/schema1/part_list_lifecycle/p34/",
+        "Partition(1:77~1:79) /test/1/catalog1/schema1/part_list_lifecycle/p3/",
+        "Partition(1:91~1:93) /test/1/catalog1/schema1/part_list_lifecycle/p4/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dameng_partition_lifecycle_0_050_behavior_review]
+sql:
+alter table part_list_lifecycle merge partitions p3, p4 into partition p34;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/schema1/part_list_lifecycle/",
+      "action": "ALTER",
+      "target": [
+        "Partition(1:49~1:51) /test/1/catalog1/schema1/part_list_lifecycle/p3/",
+        "Partition(1:53~1:55) /test/1/catalog1/schema1/part_list_lifecycle/p4/",
+        "Partition(1:71~1:74) /test/1/catalog1/schema1/part_list_lifecycle/p34/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dameng_partition_lifecycle_0_051_behavior_review]
+sql:
+alter table part_list_lifecycle truncate partition p12;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/schema1/part_list_lifecycle/",
+      "action": "ALTER",
+      "target": "Partition(1:51~1:54) /test/1/catalog1/schema1/part_list_lifecycle/p12/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_partition_lifecycle_0_052_behavior_review]
+sql:
+alter table part_list_lifecycle drop partition if exists p34;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/schema1/part_list_lifecycle/",
+      "action": "ALTER",
+      "target": "Partition(1:57~1:60) /test/1/catalog1/schema1/part_list_lifecycle/p34/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_partition_lifecycle_0_053_behavior_review]
+sql:
+create table part_sub_lifecycle(id int, category int)
+partition by range(id)
+subpartition by range(category)(
+  partition p1 values less than(10)(
+    subpartition sp1 values less than(10),
+    subpartition sp2 values less than(20)
+  ),
+  partition pmax values less than(maxvalue)(
+    subpartition sp1 values less than(10),
+    subpartition spmax values less than(maxvalue)
+  )
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/schema1/part_sub_lifecycle/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_partition_lifecycle_0_054_behavior_review]
+sql:
+alter table part_sub_lifecycle modify partition p1 add subpartition sp_extra values less than(30);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:30) /test/1/catalog1/schema1/part_sub_lifecycle/",
+      "action": "ALTER",
+      "target": [
+        "Partition(1:48~1:50) /test/1/catalog1/schema1/part_sub_lifecycle/p1/",
+        "Partition(1:68~1:76) /test/1/catalog1/schema1/part_sub_lifecycle/sp_extra/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dameng_partition_lifecycle_0_055_behavior_review]
+sql:
+alter table part_sub_lifecycle truncate subpartition p1_sp1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:30) /test/1/catalog1/schema1/part_sub_lifecycle/",
+      "action": "ALTER",
+      "target": "Partition(1:53~1:59) /test/1/catalog1/schema1/part_sub_lifecycle/p1_sp1/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_partition_lifecycle_0_056_behavior_review]
+sql:
+alter table part_sub_lifecycle drop subpartition p1_sp_extra;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:30) /test/1/catalog1/schema1/part_sub_lifecycle/",
+      "action": "ALTER",
+      "target": "Partition(1:49~1:60) /test/1/catalog1/schema1/part_sub_lifecycle/p1_sp_extra/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_partition_lifecycle_0_057_behavior_review]
+sql:
+truncate table part_range_basic partition(p1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRUNCATE_TABLE": [
+    {
+      "subject": "Table(1:15~1:31) /test/1/catalog1/schema1/part_range_basic/",
+      "action": "ALTER",
+      "target": "Partition(1:42~1:44) /test/1/catalog1/schema1/part_range_basic/p1/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_partition_lifecycle_0_058_behavior_review]
+sql:
+truncate table part_range_basic partition(p2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRUNCATE_TABLE": [
+    {
+      "subject": "Table(1:15~1:31) /test/1/catalog1/schema1/part_range_basic/",
+      "action": "ALTER",
+      "target": "Partition(1:42~1:44) /test/1/catalog1/schema1/part_range_basic/p2/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_partition_lifecycle_0_059_behavior_review]
+sql:
+drop table part_range_basic;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:27) /test/1/catalog1/schema1/part_range_basic/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_partition_lifecycle_0_060_behavior_review]
+sql:
+drop table part_range_equ;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:25) /test/1/catalog1/schema1/part_range_equ/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_partition_lifecycle_0_061_behavior_review]
+sql:
+drop table part_range_date;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:26) /test/1/catalog1/schema1/part_range_date/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_partition_lifecycle_0_062_behavior_review]
+sql:
+drop table part_range_multi;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:27) /test/1/catalog1/schema1/part_range_multi/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_partition_lifecycle_0_063_behavior_review]
+sql:
+drop table part_interval_number;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:31) /test/1/catalog1/schema1/part_interval_number/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_partition_lifecycle_0_064_behavior_review]
+sql:
+drop table part_interval_date;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:29) /test/1/catalog1/schema1/part_interval_date/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_partition_lifecycle_0_065_behavior_review]
+sql:
+drop table part_list_basic;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:26) /test/1/catalog1/schema1/part_list_basic/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_partition_lifecycle_0_066_behavior_review]
+sql:
+drop table part_hash_named;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:26) /test/1/catalog1/schema1/part_hash_named/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_partition_lifecycle_0_067_behavior_review]
+sql:
+drop table part_hash_count;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:26) /test/1/catalog1/schema1/part_hash_count/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_partition_lifecycle_0_068_behavior_review]
+sql:
+drop table part_range_hash;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:26) /test/1/catalog1/schema1/part_range_hash/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_partition_lifecycle_0_069_behavior_review]
+sql:
+drop table part_list_range;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:26) /test/1/catalog1/schema1/part_list_range/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_partition_lifecycle_0_070_behavior_review]
+sql:
+drop table part_range_list;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:26) /test/1/catalog1/schema1/part_range_list/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_partition_lifecycle_0_071_behavior_review]
+sql:
+drop table part_list_hash;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:25) /test/1/catalog1/schema1/part_list_hash/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_partition_lifecycle_0_072_behavior_review]
+sql:
+drop table part_lock_partitions;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:31) /test/1/catalog1/schema1/part_lock_partitions/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_partition_lifecycle_0_073_behavior_review]
+sql:
+drop table part_lock_root;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:25) /test/1/catalog1/schema1/part_lock_root/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_partition_lifecycle_0_074_behavior_review]
+sql:
+drop table part_row_movement;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:28) /test/1/catalog1/schema1/part_row_movement/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_partition_lifecycle_0_075_behavior_review]
+sql:
+drop table part_range_lifecycle;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:31) /test/1/catalog1/schema1/part_range_lifecycle/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_partition_lifecycle_0_076_behavior_review]
+sql:
+drop table part_exchange;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:24) /test/1/catalog1/schema1/part_exchange/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_partition_lifecycle_0_077_behavior_review]
+sql:
+drop table part_list_lifecycle;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:30) /test/1/catalog1/schema1/part_list_lifecycle/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_partition_lifecycle_0_078_behavior_review]
+sql:
+drop table part_sub_lifecycle;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:29) /test/1/catalog1/schema1/part_sub_lifecycle/",
+      "action": "DROP"
+    }
+  ]
+}

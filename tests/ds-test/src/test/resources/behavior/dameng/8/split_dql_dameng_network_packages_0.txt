@@ -1,0 +1,24 @@
+[split_dql_dameng_network_packages_0_001]
+sql:
+select utl_http.request('http://host.docker.internal:18080/dm8?case=request');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:23) /test/1/catalog1/utl_http/request/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_network_packages_0_002]
+sql:
+select utl_tcp.crlf;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}

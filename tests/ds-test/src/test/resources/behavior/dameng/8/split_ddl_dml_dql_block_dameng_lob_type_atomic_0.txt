@@ -1,0 +1,2180 @@
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_001]
+sql:
+create table app.lob_t(
+  id int primary key,c_text text,c_long long,c_longvarchar longvarchar,
+  c_image image,c_longvarbinary longvarbinary,c_blob blob,c_clob clob,
+  c_text_def text default 'TEXT_DEFAULT',c_blob_def blob default 0x0102,
+  c_clob_def clob default 'CLOB_DEFAULT');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:22) /test/1/catalog1/app/lob_t/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_002]
+sql:
+comment on column app.lob_t.c_text is 'text value';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "COMMENT_COLUMN": [
+    {
+      "subject": "Table(1:18~1:27) /test/1/catalog1/app/lob_t/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_003]
+sql:
+comment on column app.lob_t.c_image is 'image value';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "COMMENT_COLUMN": [
+    {
+      "subject": "Table(1:18~1:27) /test/1/catalog1/app/lob_t/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_004]
+sql:
+comment on column app.lob_t.c_blob is 'binary large object';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "COMMENT_COLUMN": [
+    {
+      "subject": "Table(1:18~1:27) /test/1/catalog1/app/lob_t/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_005]
+sql:
+comment on column app.lob_t.c_clob is 'character large object';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "COMMENT_COLUMN": [
+    {
+      "subject": "Table(1:18~1:27) /test/1/catalog1/app/lob_t/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_006]
+sql:
+alter table app.lob_t add c_alter clob default 'ALTER_DEFAULT';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_COLUMN": [
+    {
+      "subject": "Table(1:12~1:21) /test/1/catalog1/app/lob_t/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_007]
+sql:
+insert into app.lob_t(id,c_text,c_long,c_longvarchar,c_image,
+  c_longvarbinary,c_blob,c_clob) values(1,'ABCD','LONG','LONGVARCHAR',
+  0x61626364,0x00010203,to_blob(0x0FFFEE),'达梦CLOB');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:21) /test/1/catalog1/app/lob_t/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(3:24~3:31) /test/1/catalog1/schema1/to_blob/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_008]
+sql:
+insert into app.lob_t(id,c_text,c_long,c_longvarchar,c_image,
+  c_longvarbinary,c_blob,c_clob) values(2,'','',null,0x00,0x00,null,'');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:21) /test/1/catalog1/app/lob_t/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_009]
+sql:
+insert into app.lob_t(id,c_longvarchar,c_clob) values(3,'TEXT','TEXT');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:21) /test/1/catalog1/app/lob_t/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_010]
+sql:
+update app.lob_t set c_text=c_text||'-UPDATE',
+  c_clob=c_clob||'-UPDATE',c_blob=to_blob(0x01020304) where id=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:16) /test/1/catalog1/app/lob_t/",
+      "action": "UPDATE"
+    },
+    {
+      "subject": "Function(2:34~2:41) /test/1/catalog1/schema1/to_blob/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_011]
+sql:
+select * from app.lob_t order by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:23) /test/1/catalog1/app/lob_t/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_012]
+sql:
+select data_type,data_length,data_precision,data_scale
+  from user_tab_columns where table_name='LOB_T' order by column_id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(2:7~2:23) /test/1/catalog1/schema1/user_tab_columns/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_013]
+sql:
+select id,length(c_text),length(c_long),length(c_longvarchar),
+  lengthb(c_image),lengthb(c_longvarbinary),lengthb(c_blob),length(c_clob)
+  from app.lob_t order by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:10~1:16) /test/1/catalog1/schema1/length/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:25~1:31) /test/1/catalog1/schema1/length/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:40~1:46) /test/1/catalog1/schema1/length/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2~2:9) /test/1/catalog1/schema1/lengthb/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:19~2:26) /test/1/catalog1/schema1/lengthb/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:44~2:51) /test/1/catalog1/schema1/lengthb/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:60~2:66) /test/1/catalog1/schema1/length/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(3:7~3:16) /test/1/catalog1/app/lob_t/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_014]
+sql:
+select text_equal(c_text,c_clob),blob_equal(c_image,c_blob) from app.lob_t where id=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/text_equal/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:33~1:43) /test/1/catalog1/schema1/blob_equal/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:65~1:74) /test/1/catalog1/app/lob_t/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_015]
+sql:
+select dbms_lob.getlength(c_text),dbms_lob.getlength(c_image),
+  dbms_lob.getlength(c_blob),dbms_lob.getlength(c_clob) from app.lob_t where id=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:25) /test/1/catalog1/dbms_lob/getlength/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:34~1:52) /test/1/catalog1/dbms_lob/getlength/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2~2:20) /test/1/catalog1/dbms_lob/getlength/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:29~2:47) /test/1/catalog1/dbms_lob/getlength/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:61~2:70) /test/1/catalog1/app/lob_t/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_016]
+sql:
+select dbms_lob.substr(c_text,4,1),dbms_lob.substr(c_clob,4,1),
+  dbms_lob.substr(c_image,4,1),dbms_lob.substr(c_blob,4,1)
+  from app.lob_t where id=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:22) /test/1/catalog1/dbms_lob/substr/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:35~1:50) /test/1/catalog1/dbms_lob/substr/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2~2:17) /test/1/catalog1/dbms_lob/substr/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:31~2:46) /test/1/catalog1/dbms_lob/substr/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(3:7~3:16) /test/1/catalog1/app/lob_t/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_017]
+sql:
+select to_char(c_text),to_char(c_clob),to_blob(c_image),to_blob(c_blob)
+  from app.lob_t where id=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/to_char/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:23~1:30) /test/1/catalog1/schema1/to_char/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:39~1:46) /test/1/catalog1/schema1/to_blob/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:56~1:63) /test/1/catalog1/schema1/to_blob/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:7~2:16) /test/1/catalog1/app/lob_t/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_018]
+sql:
+select case when c_text='ABCD-UPDATE' then 1 else 0 end,
+  case when c_clob='达梦CLOB-UPDATE' then 1 else 0 end from app.lob_t where id=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:58~2:67) /test/1/catalog1/app/lob_t/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_019]
+sql:
+select c_text from app.lob_t where c_text=(select c_clob from app.lob_t where id=3);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:19~1:28) /test/1/catalog1/app/lob_t/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(1:62~1:71) /test/1/catalog1/app/lob_t/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_020]
+sql:
+select c_text,count(*) from app.lob_t group by c_text;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:14~1:19) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:28~1:37) /test/1/catalog1/app/lob_t/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_021]
+sql:
+select c_clob from app.lob_t order by c_clob;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:19~1:28) /test/1/catalog1/app/lob_t/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_022]
+sql:
+select distinct c_blob from app.lob_t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:28~1:37) /test/1/catalog1/app/lob_t/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_023]
+sql:
+select min(c_text),max(c_clob),min(c_blob) from app.lob_t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/min/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:19~1:22) /test/1/catalog1/schema1/max/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:31~1:34) /test/1/catalog1/schema1/min/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:48~1:57) /test/1/catalog1/app/lob_t/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_024]
+sql:
+create view app.lob_v as select id,c_text,c_image,c_blob,c_clob
+  from app.lob_t where id>=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:21) /test/1/catalog1/app/lob_v/",
+      "action": "CREATE",
+      "target": "Table(2:7~2:16) /test/1/catalog1/app/lob_t/"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_025]
+sql:
+select id,length(c_text),lengthb(c_blob),length(c_clob) from app.lob_v order by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:10~1:16) /test/1/catalog1/schema1/length/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:25~1:32) /test/1/catalog1/schema1/lengthb/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:41~1:47) /test/1/catalog1/schema1/length/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:61~1:70) /test/1/catalog1/app/lob_v/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_026]
+sql:
+update app.lob_v set c_clob='VIEW_UPDATE' where id=3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:16) /test/1/catalog1/app/lob_v/",
+      "action": "UPDATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_027]
+sql:
+create function app.lob_text_f(p text) return text
+as begin return p;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:30) /test/1/catalog1/app/lob_text_f/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_028]
+sql:
+create function app.lob_long_f(p long) return long
+as begin return p;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:30) /test/1/catalog1/app/lob_long_f/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_029]
+sql:
+create function app.lob_longvarchar_f(p longvarchar) return longvarchar
+as begin return p;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:37) /test/1/catalog1/app/lob_longvarchar_f/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_030]
+sql:
+create function app.lob_image_f(p image) return image
+as begin return p;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:31) /test/1/catalog1/app/lob_image_f/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_031]
+sql:
+create function app.lob_longvarbinary_f(p longvarbinary) return longvarbinary
+as begin return p;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:39) /test/1/catalog1/app/lob_longvarbinary_f/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_032]
+sql:
+create function app.lob_blob_f(p blob) return blob
+as begin return p;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:30) /test/1/catalog1/app/lob_blob_f/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_033]
+sql:
+create function app.lob_clob_f(p clob) return clob
+as begin return p;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:30) /test/1/catalog1/app/lob_clob_f/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_034]
+sql:
+select length(app.lob_text_f('TEXT')),length(app.lob_long_f('LONG')),
+  length(app.lob_longvarchar_f('LONGVARCHAR')),lengthb(app.lob_image_f(0x0102)),
+  lengthb(app.lob_longvarbinary_f(0x0102)),lengthb(app.lob_blob_f(to_blob(0x0102))),
+  length(app.lob_clob_f(cast('CLOB' as clob))) from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/length/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:14~1:28) /test/1/catalog1/app/lob_text_f/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:38~1:44) /test/1/catalog1/schema1/length/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:45~1:59) /test/1/catalog1/app/lob_long_f/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2~2:8) /test/1/catalog1/schema1/length/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:9~2:30) /test/1/catalog1/app/lob_longvarchar_f/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:47~2:54) /test/1/catalog1/schema1/lengthb/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:55~2:70) /test/1/catalog1/app/lob_image_f/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(3:2~3:9) /test/1/catalog1/schema1/lengthb/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(3:10~3:33) /test/1/catalog1/app/lob_longvarbinary_f/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(3:43~3:50) /test/1/catalog1/schema1/lengthb/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(3:51~3:65) /test/1/catalog1/app/lob_blob_f/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(3:66~3:73) /test/1/catalog1/schema1/to_blob/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(4:2~4:8) /test/1/catalog1/schema1/length/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(4:9~4:23) /test/1/catalog1/app/lob_clob_f/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(4:52~4:56) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_035]
+sql:
+create table app.lob_text_p1(c text(1));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/app/lob_text_p1/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_036]
+sql:
+insert into app.lob_text_p1 values('TEXT');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:27) /test/1/catalog1/app/lob_text_p1/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_037]
+sql:
+create table app.lob_text_pmax(c text(2147483647));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/app/lob_text_pmax/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_038]
+sql:
+create table app.lob_text_p0(c text(0));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/app/lob_text_p0/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_039]
+sql:
+create table app.lob_text_pnext(c text(2147483648));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/app/lob_text_pnext/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_040]
+sql:
+create index app.idx_lob_text on app.lob_t(c_text);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:29) /test/1/catalog1/app/idx_lob_text/",
+      "action": "CREATE",
+      "target": "Table(1:33~1:42) /test/1/catalog1/app/lob_t/"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_041]
+sql:
+create table app.lob_text_part(c text,v int)
+  partition by range(c)(partition p0 values less than('M'),
+  partition p1 values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/app/lob_text_part/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_042]
+sql:
+create table app.lob_long_p1(c long(1));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/app/lob_long_p1/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_043]
+sql:
+insert into app.lob_long_p1 values('LONG');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:27) /test/1/catalog1/app/lob_long_p1/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_044]
+sql:
+create table app.lob_long_pmax(c long(2147483647));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/app/lob_long_pmax/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_045]
+sql:
+create table app.lob_long_p0(c long(0));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/app/lob_long_p0/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_046]
+sql:
+create table app.lob_long_pnext(c long(2147483648));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/app/lob_long_pnext/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_047]
+sql:
+create index app.idx_lob_long on app.lob_t(c_long);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:29) /test/1/catalog1/app/idx_lob_long/",
+      "action": "CREATE",
+      "target": "Table(1:33~1:42) /test/1/catalog1/app/lob_t/"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_048]
+sql:
+create table app.lob_long_part(c long,v int)
+  partition by range(c)(partition p0 values less than('M'),
+  partition p1 values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/app/lob_long_part/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_049]
+sql:
+create table app.lob_longvarchar_p1(c longvarchar(1));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:35) /test/1/catalog1/app/lob_longvarchar_p1/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_050]
+sql:
+insert into app.lob_longvarchar_p1 values('LONGVARCHAR');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:34) /test/1/catalog1/app/lob_longvarchar_p1/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_051]
+sql:
+create table app.lob_longvarchar_pmax(c longvarchar(2147483647));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:37) /test/1/catalog1/app/lob_longvarchar_pmax/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_052]
+sql:
+create table app.lob_longvarchar_p0(c longvarchar(0));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:35) /test/1/catalog1/app/lob_longvarchar_p0/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_053]
+sql:
+create table app.lob_longvarchar_pnext(c longvarchar(2147483648));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:38) /test/1/catalog1/app/lob_longvarchar_pnext/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_054]
+sql:
+create index app.idx_lob_longvarchar on app.lob_t(c_longvarchar);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:36) /test/1/catalog1/app/idx_lob_longvarchar/",
+      "action": "CREATE",
+      "target": "Table(1:40~1:49) /test/1/catalog1/app/lob_t/"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_055]
+sql:
+create table app.lob_longvarchar_part(c longvarchar,v int)
+  partition by range(c)(partition p0 values less than('M'),
+  partition p1 values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:37) /test/1/catalog1/app/lob_longvarchar_part/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_056]
+sql:
+create table app.lob_image_p1(c image(1));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:29) /test/1/catalog1/app/lob_image_p1/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_057]
+sql:
+insert into app.lob_image_p1 values(0x0102);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:28) /test/1/catalog1/app/lob_image_p1/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_058]
+sql:
+create table app.lob_image_pmax(c image(2147483647));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/app/lob_image_pmax/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_059]
+sql:
+create table app.lob_image_p0(c image(0));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:29) /test/1/catalog1/app/lob_image_p0/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_060]
+sql:
+create table app.lob_image_pnext(c image(2147483648));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:32) /test/1/catalog1/app/lob_image_pnext/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_061]
+sql:
+create index app.idx_lob_image on app.lob_t(c_image);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:30) /test/1/catalog1/app/idx_lob_image/",
+      "action": "CREATE",
+      "target": "Table(1:34~1:43) /test/1/catalog1/app/lob_t/"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_062]
+sql:
+create table app.lob_image_part(c image,v int)
+  partition by range(c)(partition p0 values less than('M'),
+  partition p1 values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/app/lob_image_part/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_063]
+sql:
+create table app.lob_longvarbinary_p1(c longvarbinary(1));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:37) /test/1/catalog1/app/lob_longvarbinary_p1/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_064]
+sql:
+insert into app.lob_longvarbinary_p1 values(0x0102);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:36) /test/1/catalog1/app/lob_longvarbinary_p1/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_065]
+sql:
+create table app.lob_longvarbinary_pmax(c longvarbinary(2147483647));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:39) /test/1/catalog1/app/lob_longvarbinary_pmax/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_066]
+sql:
+create table app.lob_longvarbinary_p0(c longvarbinary(0));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:37) /test/1/catalog1/app/lob_longvarbinary_p0/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_067]
+sql:
+create table app.lob_longvarbinary_pnext(c longvarbinary(2147483648));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:40) /test/1/catalog1/app/lob_longvarbinary_pnext/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_068]
+sql:
+create index app.idx_lob_longvarbinary on app.lob_t(c_longvarbinary);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:38) /test/1/catalog1/app/idx_lob_longvarbinary/",
+      "action": "CREATE",
+      "target": "Table(1:42~1:51) /test/1/catalog1/app/lob_t/"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_069]
+sql:
+create table app.lob_longvarbinary_part(c longvarbinary,v int)
+  partition by range(c)(partition p0 values less than('M'),
+  partition p1 values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:39) /test/1/catalog1/app/lob_longvarbinary_part/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_070]
+sql:
+create table app.lob_blob_p1(c blob(1));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/app/lob_blob_p1/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_071]
+sql:
+insert into app.lob_blob_p1 values(to_blob(0x0102));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:27) /test/1/catalog1/app/lob_blob_p1/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:35~1:42) /test/1/catalog1/schema1/to_blob/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_072]
+sql:
+create table app.lob_blob_pmax(c blob(2147483647));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/app/lob_blob_pmax/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_073]
+sql:
+create table app.lob_blob_p0(c blob(0));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/app/lob_blob_p0/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_074]
+sql:
+create table app.lob_blob_pnext(c blob(2147483648));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/app/lob_blob_pnext/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_075]
+sql:
+create index app.idx_lob_blob on app.lob_t(c_blob);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:29) /test/1/catalog1/app/idx_lob_blob/",
+      "action": "CREATE",
+      "target": "Table(1:33~1:42) /test/1/catalog1/app/lob_t/"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_076]
+sql:
+create table app.lob_blob_part(c blob,v int)
+  partition by range(c)(partition p0 values less than('M'),
+  partition p1 values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/app/lob_blob_part/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_077]
+sql:
+create table app.lob_clob_p1(c clob(1));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/app/lob_clob_p1/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_078]
+sql:
+insert into app.lob_clob_p1 values(cast('CLOB' as clob));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:27) /test/1/catalog1/app/lob_clob_p1/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_079]
+sql:
+create table app.lob_clob_pmax(c clob(2147483647));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/app/lob_clob_pmax/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_080]
+sql:
+create table app.lob_clob_p0(c clob(0));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/app/lob_clob_p0/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_081]
+sql:
+create table app.lob_clob_pnext(c clob(2147483648));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/app/lob_clob_pnext/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_082]
+sql:
+create index app.idx_lob_clob on app.lob_t(c_clob);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:29) /test/1/catalog1/app/idx_lob_clob/",
+      "action": "CREATE",
+      "target": "Table(1:33~1:42) /test/1/catalog1/app/lob_t/"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_083]
+sql:
+create table app.lob_clob_part(c clob,v int)
+  partition by range(c)(partition p0 values less than('M'),
+  partition p1 values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/app/lob_clob_part/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_084]
+sql:
+create table app.lob_check(c text check(c is not null));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:26) /test/1/catalog1/app/lob_check/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_085]
+sql:
+insert into app.lob_check values(null);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:25) /test/1/catalog1/app/lob_check/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_086]
+sql:
+insert into app.lob_check values('CHECK_OK');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:25) /test/1/catalog1/app/lob_check/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_087]
+sql:
+create table app.lob_unique(c clob unique);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:27) /test/1/catalog1/app/lob_unique/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_088]
+sql:
+create table app.lob_pk(c blob primary key);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:23) /test/1/catalog1/app/lob_pk/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_089]
+sql:
+alter table app.lob_t modify c_text clob;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_COLUMN": [
+    {
+      "subject": "Table(1:12~1:21) /test/1/catalog1/app/lob_t/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_090]
+sql:
+alter table app.lob_t modify c_clob text;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_COLUMN": [
+    {
+      "subject": "Table(1:12~1:21) /test/1/catalog1/app/lob_t/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_091]
+sql:
+alter table app.lob_t modify c_blob image;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_COLUMN": [
+    {
+      "subject": "Table(1:12~1:21) /test/1/catalog1/app/lob_t/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_092]
+sql:
+alter table app.lob_t modify c_image blob;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_COLUMN": [
+    {
+      "subject": "Table(1:12~1:21) /test/1/catalog1/app/lob_t/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_093]
+sql:
+alter table app.lob_t modify c_text varchar(100);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_COLUMN": [
+    {
+      "subject": "Table(1:12~1:21) /test/1/catalog1/app/lob_t/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_094]
+sql:
+create directory lob_dir as '/opt/dmdbms/data/DAMENG';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:17~1:24) /test/1/catalog1/schema1/lob_dir/",
+      "action": "CONFIGURE",
+      "target": "File(1:28~1:53) /test/1/opt/dmdbms/data/DAMENG/"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_095]
+sql:
+create table app.lob_bfile_t(id int primary key,c bfile);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/app/lob_bfile_t/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_096]
+sql:
+comment on column app.lob_bfile_t.c is 'external read only file';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "COMMENT_COLUMN": [
+    {
+      "subject": "Table(1:18~1:33) /test/1/catalog1/app/lob_bfile_t/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_097]
+sql:
+insert into app.lob_bfile_t values(
+  1,bfilename('LOB_DIR','codex_lob_bfile.bin'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:27) /test/1/catalog1/app/lob_bfile_t/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(2:4~2:13) /test/1/catalog1/schema1/bfilename/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_098]
+sql:
+select id,dbms_lob.fileexists(c),dbms_lob.getlength(c) from app.lob_bfile_t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:10~1:29) /test/1/catalog1/dbms_lob/fileexists/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:33~1:51) /test/1/catalog1/dbms_lob/getlength/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:60~1:75) /test/1/catalog1/app/lob_bfile_t/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_099]
+sql:
+select dbms_lob.fileexists(bfilename('LOB_DIR','missing.bin')) from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:26) /test/1/catalog1/dbms_lob/fileexists/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:27~1:36) /test/1/catalog1/schema1/bfilename/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:68~1:72) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_100]
+sql:
+declare f bfile;d varchar(128);n varchar(256);begin
+  select c into f from app.lob_bfile_t where id=1;
+  dbms_lob.filegetname(f,d,n);dbms_lob.fileopen(f,dbms_lob.file_readonly);
+  dbms_lob.fileclose(f);end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(2:23~2:38) /test/1/catalog1/app/lob_bfile_t/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(3:2~3:22) /test/1/catalog1/dbms_lob/filegetname/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(3:30~3:47) /test/1/catalog1/dbms_lob/fileopen/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(4:2~4:20) /test/1/catalog1/dbms_lob/fileclose/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_101]
+sql:
+create function app.lob_bfile_f(p bfile) return bfile
+as begin return p;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:31) /test/1/catalog1/app/lob_bfile_f/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_102]
+sql:
+select dbms_lob.fileexists(app.lob_bfile_f(
+  bfilename('LOB_DIR','codex_lob_bfile.bin'))) from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:26) /test/1/catalog1/dbms_lob/fileexists/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:27~1:42) /test/1/catalog1/app/lob_bfile_f/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2~2:11) /test/1/catalog1/schema1/bfilename/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:52~2:56) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_103]
+sql:
+create table app.lob_bad_bfile(c bfile(1));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/app/lob_bad_bfile/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_104]
+sql:
+create index app.idx_lob_bfile on app.lob_bfile_t(c);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:30) /test/1/catalog1/app/idx_lob_bfile/",
+      "action": "CREATE",
+      "target": "Table(1:34~1:49) /test/1/catalog1/app/lob_bfile_t/"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_105]
+sql:
+create table app.lob_bfile_part(c bfile,v int)
+  partition by range(c)(partition p0 values less than('M'),
+  partition p1 values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/app/lob_bfile_part/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_106]
+sql:
+insert into app.lob_bfile_t values(2,'codex_lob_bfile.bin');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:27) /test/1/catalog1/app/lob_bfile_t/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_107]
+sql:
+alter table app.lob_bfile_t modify c blob;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_COLUMN": [
+    {
+      "subject": "Table(1:12~1:27) /test/1/catalog1/app/lob_bfile_t/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_108]
+sql:
+drop function app.lob_text_f;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Function(1:14~1:28) /test/1/catalog1/app/lob_text_f/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_109]
+sql:
+drop function app.lob_long_f;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Function(1:14~1:28) /test/1/catalog1/app/lob_long_f/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_110]
+sql:
+drop function app.lob_longvarchar_f;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Function(1:14~1:35) /test/1/catalog1/app/lob_longvarchar_f/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_111]
+sql:
+drop function app.lob_image_f;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Function(1:14~1:29) /test/1/catalog1/app/lob_image_f/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_112]
+sql:
+drop function app.lob_longvarbinary_f;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Function(1:14~1:37) /test/1/catalog1/app/lob_longvarbinary_f/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_113]
+sql:
+drop function app.lob_blob_f;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Function(1:14~1:28) /test/1/catalog1/app/lob_blob_f/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_114]
+sql:
+drop function app.lob_clob_f;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Function(1:14~1:28) /test/1/catalog1/app/lob_clob_f/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_115]
+sql:
+drop function app.lob_bfile_f;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Function(1:14~1:29) /test/1/catalog1/app/lob_bfile_f/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_116]
+sql:
+drop view app.lob_v;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "View(1:10~1:19) /test/1/catalog1/app/lob_v/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_117]
+sql:
+drop table app.lob_bfile_t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:26) /test/1/catalog1/app/lob_bfile_t/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_118]
+sql:
+drop directory lob_dir;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:15~1:22) /test/1/catalog1/schema1/lob_dir/",
+      "action": "CONFIGURE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_119]
+sql:
+drop table app.lob_t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:20) /test/1/catalog1/app/lob_t/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_120]
+sql:
+create table app.bad_lob_text_pair(c text(1,2));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:34) /test/1/catalog1/app/bad_lob_text_pair/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_121]
+sql:
+create table app.bad_lob_long_pair(c long(1,2));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:34) /test/1/catalog1/app/bad_lob_long_pair/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_122]
+sql:
+create table app.bad_lob_longvarchar_pair(c longvarchar(1,2));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:41) /test/1/catalog1/app/bad_lob_longvarchar_pair/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_123]
+sql:
+create table app.bad_lob_image_pair(c image(1,2));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:35) /test/1/catalog1/app/bad_lob_image_pair/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_124]
+sql:
+create table app.bad_lob_longvarbinary_pair(c longvarbinary(1,2));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:43) /test/1/catalog1/app/bad_lob_longvarbinary_pair/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_125]
+sql:
+create table app.bad_lob_blob_pair(c blob(1,2));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:34) /test/1/catalog1/app/bad_lob_blob_pair/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_lob_type_atomic_0_126]
+sql:
+create table app.bad_lob_clob_pair(c clob(1,2));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:34) /test/1/catalog1/app/bad_lob_clob_pair/",
+      "action": "CREATE"
+    }
+  ]
+}

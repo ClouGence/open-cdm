@@ -1,0 +1,27 @@
+[package_definition_has_no_result_lineage]
+sql:
+create package app.employee_api as
+  procedure refresh_employee(p_id int);
+  function employee_name(p_id int) return varchar;
+end employee_api;
+/
+expect:
+{}
+----------
+[package_body_has_no_result_lineage]
+sql:
+create package body app.employee_api as
+  procedure refresh_employee(p_id int) as
+  begin
+    update app.employee set active=1 where id=p_id;
+  end refresh_employee;
+end employee_api;
+/
+expect:
+{}
+----------
+[package_call_has_no_result_lineage]
+sql:
+call app.employee_api.refresh_employee(1);
+expect:
+{}

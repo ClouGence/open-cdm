@@ -1,0 +1,1296 @@
+[split_block_dameng_class_atomic_0_001_behavior_review]
+sql:
+-- CLASS_AS
+create class CODEX_DM8_CLASS.C_AS as V int;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:13~2:33) /test/1/catalog1/CODEX_DM8_CLASS/C_AS/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_002_behavior_review]
+sql:
+-- CLASS_IS
+create class CODEX_DM8_CLASS.C_IS is V int;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:13~2:33) /test/1/catalog1/CODEX_DM8_CLASS/C_IS/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_003_behavior_review]
+sql:
+-- CLASS_OR_REPLACE
+create or replace class CODEX_DM8_CLASS.C_REPLACE as V int;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:24~2:49) /test/1/catalog1/CODEX_DM8_CLASS/C_REPLACE/",
+      "action": "REPLACE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_004_behavior_review]
+sql:
+-- CLASS_IF_NOT_EXISTS
+create class if not exists CODEX_DM8_CLASS.C_IFNE as V int;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:27~2:49) /test/1/catalog1/CODEX_DM8_CLASS/C_IFNE/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_005_behavior_review]
+sql:
+-- CLASS_NAME_128
+create class CODEX_DM8_CLASS.CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA as V int;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:13~2:157) /test/1/catalog1/CODEX_DM8_CLASS/CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_006_behavior_review]
+sql:
+-- CLASS_NAME_129_SERVER_BOUNDARY
+create class CODEX_DM8_CLASS.CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA as V int;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:13~2:158) /test/1/catalog1/CODEX_DM8_CLASS/CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_007_behavior_review]
+sql:
+-- CLASS_QUOTED_NAME
+create class CODEX_DM8_CLASS."Mixed Class" as V int;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:13~2:42) /test/1/catalog1/CODEX_DM8_CLASS/Mixed Class/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_008_behavior_review]
+sql:
+-- CLASS_WITH_ENCRYPTION
+create class CODEX_DM8_CLASS.C_ENCRYPT with encryption as V int;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:13~2:38) /test/1/catalog1/CODEX_DM8_CLASS/C_ENCRYPT/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_009_behavior_review]
+sql:
+-- CLASS_FINAL
+create class CODEX_DM8_CLASS.C_FINAL final as V int;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:13~2:36) /test/1/catalog1/CODEX_DM8_CLASS/C_FINAL/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_010_behavior_review]
+sql:
+-- CLASS_NOT_FINAL
+create class CODEX_DM8_CLASS.C_NOT_FINAL not final as V int;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:13~2:40) /test/1/catalog1/CODEX_DM8_CLASS/C_NOT_FINAL/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_011_behavior_review]
+sql:
+-- CLASS_INSTANTIABLE
+create class CODEX_DM8_CLASS.C_INST instantiable as V int;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:13~2:35) /test/1/catalog1/CODEX_DM8_CLASS/C_INST/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_012_behavior_review]
+sql:
+-- CLASS_NOT_INSTANTIABLE
+create class CODEX_DM8_CLASS.C_ABSTRACT not final not instantiable as not instantiable member function F return int;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:13~2:39) /test/1/catalog1/CODEX_DM8_CLASS/C_ABSTRACT/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_013_behavior_review]
+sql:
+-- CLASS_PERSISTABLE_ONLINE_VERSION
+create class CODEX_DM8_CLASS.C_PERSIST persistable as V int;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:13~2:38) /test/1/catalog1/CODEX_DM8_CLASS/C_PERSIST/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_014_behavior_review]
+sql:
+-- CLASS_NOT_PERSISTABLE_ONLINE_VERSION
+create class CODEX_DM8_CLASS.C_NOT_PERSIST not persistable as V int;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:13~2:42) /test/1/catalog1/CODEX_DM8_CLASS/C_NOT_PERSIST/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_015_behavior_review]
+sql:
+-- CLASS_AUTHID_DEFINER
+create class CODEX_DM8_CLASS.C_DEFINER authid definer as V int;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:13~2:38) /test/1/catalog1/CODEX_DM8_CLASS/C_DEFINER/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_016_behavior_review]
+sql:
+-- CLASS_AUTHID_CURRENT_USER
+create class CODEX_DM8_CLASS.C_INVOKER authid current_user as V int;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:13~2:38) /test/1/catalog1/CODEX_DM8_CLASS/C_INVOKER/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_017_behavior_review]
+sql:
+-- CLASS_ORDERED_MODIFIERS
+create class CODEX_DM8_CLASS.C_MOD with encryption not final instantiable authid current_user as V int;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:13~2:34) /test/1/catalog1/CODEX_DM8_CLASS/C_MOD/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_018_behavior_review]
+sql:
+-- CLASS_UNDER
+create class CODEX_DM8_CLASS.C_CHILD under CODEX_DM8_CLASS.C_NOT_FINAL as X int;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:13~2:36) /test/1/catalog1/CODEX_DM8_CLASS/C_CHILD/",
+      "action": "CREATE",
+      "target": "Type(2:43~2:70) /test/1/catalog1/CODEX_DM8_CLASS/C_NOT_FINAL/"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_019_behavior_review]
+sql:
+-- CLASS_END_NAME
+create class CODEX_DM8_CLASS.C_END as V int;end C_END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:13~2:34) /test/1/catalog1/CODEX_DM8_CLASS/C_END/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_020_behavior_review]
+sql:
+-- CLASS_END_WRONG_NAME_PACK_EXTENSION
+create class CODEX_DM8_CLASS.C_END_WRONG as V int;end WRONG;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:13~2:40) /test/1/catalog1/CODEX_DM8_CLASS/C_END_WRONG/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_021_behavior_review]
+sql:
+-- CLASS_VARIABLE_MULTI_DEFAULT
+create class CODEX_DM8_CLASS.C_VARIABLE as FIRST_VALUE,SECOND_VALUE int default 3;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:13~2:39) /test/1/catalog1/CODEX_DM8_CLASS/C_VARIABLE/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_022_behavior_review]
+sql:
+-- CLASS_INTERNAL_RECORD
+create class CODEX_DM8_CLASS.C_RECORD as type R is record(A int,B varchar(10));V R;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:13~2:37) /test/1/catalog1/CODEX_DM8_CLASS/C_RECORD/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_023_behavior_review]
+sql:
+-- CLASS_INTERNAL_ARRAY
+create class CODEX_DM8_CLASS.C_ARRAY as type A is array int[2];V A;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:13~2:36) /test/1/catalog1/CODEX_DM8_CLASS/C_ARRAY/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_024_behavior_review]
+sql:
+-- CLASS_INTERNAL_INDEX_TABLE
+create class CODEX_DM8_CLASS.C_INDEX as type I is table of int index by int;V I;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:13~2:36) /test/1/catalog1/CODEX_DM8_CLASS/C_INDEX/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_025_behavior_review]
+sql:
+-- CLASS_CURSOR_MEMBER_PACK_EXTENSION
+create class CODEX_DM8_CLASS.C_CURSOR as cursor C for select V from SOURCE_TABLE;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:13~2:37) /test/1/catalog1/CODEX_DM8_CLASS/C_CURSOR/",
+      "action": "CREATE"
+    },
+    {
+      "subject": "Table(2:68~2:80) /test/1/catalog1/schema1/SOURCE_TABLE/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_026_behavior_review]
+sql:
+-- CLASS_EXCEPTION_MEMBER_PACK_EXTENSION
+create class CODEX_DM8_CLASS.C_EXCEPTION as E exception;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:13~2:40) /test/1/catalog1/CODEX_DM8_CLASS/C_EXCEPTION/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_027_behavior_review]
+sql:
+-- CLASS_STATIC_FUNCTION
+create class CODEX_DM8_CLASS.C_STATIC as static function F(A int) return int;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:13~2:37) /test/1/catalog1/CODEX_DM8_CLASS/C_STATIC/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_028_behavior_review]
+sql:
+-- CLASS_MEMBER_FUNCTION
+create class CODEX_DM8_CLASS.C_MEMBER as member function F return int;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:13~2:37) /test/1/catalog1/CODEX_DM8_CLASS/C_MEMBER/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_029_behavior_review]
+sql:
+-- CLASS_DEFAULT_MEMBER_FUNCTION
+create class CODEX_DM8_CLASS.C_DEFAULT_MEMBER as function F return int;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:13~2:45) /test/1/catalog1/CODEX_DM8_CLASS/C_DEFAULT_MEMBER/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_030_behavior_review]
+sql:
+-- CLASS_MEMBER_PROCEDURE
+create class CODEX_DM8_CLASS.C_PROCEDURE as member procedure P(A int);end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:13~2:40) /test/1/catalog1/CODEX_DM8_CLASS/C_PROCEDURE/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_031_behavior_review]
+sql:
+-- CLASS_MAP_FUNCTION
+create class CODEX_DM8_CLASS.C_MAP as map member function F return int;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:13~2:34) /test/1/catalog1/CODEX_DM8_CLASS/C_MAP/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_032_behavior_review]
+sql:
+-- CLASS_DETERMINISTIC_FUNCTION
+create class CODEX_DM8_CLASS.C_DETERMINISTIC as member function F return int deterministic;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:13~2:44) /test/1/catalog1/CODEX_DM8_CLASS/C_DETERMINISTIC/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_033_behavior_review]
+sql:
+-- CLASS_PIPELINED_FUNCTION
+create class CODEX_DM8_CLASS.C_PIPELINED as static function F return CODEX_DM8_CLASS.C_NOT_FINAL pipelined;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:13~2:40) /test/1/catalog1/CODEX_DM8_CLASS/C_PIPELINED/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_034_behavior_review]
+sql:
+-- CLASS_CONSTRUCTOR
+create class CODEX_DM8_CLASS.C_CONSTRUCTOR as V int;function C_CONSTRUCTOR(A int) return C_CONSTRUCTOR;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:13~2:42) /test/1/catalog1/CODEX_DM8_CLASS/C_CONSTRUCTOR/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_035_behavior_review]
+sql:
+-- CLASS_BODY_AS
+create class body CODEX_DM8_CLASS.C_MEMBER as member function F return int as begin return 1;end;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:18~2:42) /test/1/catalog1/CODEX_DM8_CLASS/C_MEMBER/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_036_behavior_review]
+sql:
+-- CLASS_BODY_IS
+create class body CODEX_DM8_CLASS.C_MEMBER is member function F return int is begin return 1;end;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:18~2:42) /test/1/catalog1/CODEX_DM8_CLASS/C_MEMBER/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_037_behavior_review]
+sql:
+-- CLASS_BODY_OR_REPLACE
+create or replace class body CODEX_DM8_CLASS.C_MEMBER as member function F return int as begin return 2;end;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:29~2:53) /test/1/catalog1/CODEX_DM8_CLASS/C_MEMBER/",
+      "action": "REPLACE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_038_behavior_review]
+sql:
+-- CLASS_BODY_WITH_ENCRYPTION
+create class body CODEX_DM8_CLASS.C_ENCRYPT with encryption as end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:18~2:43) /test/1/catalog1/CODEX_DM8_CLASS/C_ENCRYPT/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_039_behavior_review]
+sql:
+-- CLASS_BODY_EMPTY_PACK_EXTENSION
+create class body CODEX_DM8_CLASS.C_VARIABLE as end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:18~2:44) /test/1/catalog1/CODEX_DM8_CLASS/C_VARIABLE/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_040_behavior_review]
+sql:
+-- CLASS_BODY_END_NAME
+create class body CODEX_DM8_CLASS.C_MEMBER as member function F return int as begin return 1;end;end C_MEMBER;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:18~2:42) /test/1/catalog1/CODEX_DM8_CLASS/C_MEMBER/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_041_behavior_review]
+sql:
+-- CLASS_BODY_END_WRONG_NAME_PACK_EXTENSION
+create class body CODEX_DM8_CLASS.C_MEMBER as member function F return int as begin return 1;end;end WRONG;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:18~2:42) /test/1/catalog1/CODEX_DM8_CLASS/C_MEMBER/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_042_behavior_review]
+sql:
+-- CLASS_BODY_INITIALIZER
+create class body CODEX_DM8_CLASS.C_VARIABLE as begin FIRST_VALUE=7;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:18~2:44) /test/1/catalog1/CODEX_DM8_CLASS/C_VARIABLE/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_043_behavior_review]
+sql:
+-- CLASS_BODY_WITHOUT_SPEC_SERVER_BOUNDARY
+create class body CODEX_DM8_CLASS.C_NO_SPEC as static function F return int as begin return 1;end;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:18~2:43) /test/1/catalog1/CODEX_DM8_CLASS/C_NO_SPEC/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_044_behavior_review]
+sql:
+-- CLASS_BODY_MISMATCH_SERVER_BOUNDARY
+create class body CODEX_DM8_CLASS.C_STATIC as static function F(B int) return int as begin return B;end;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:18~2:42) /test/1/catalog1/CODEX_DM8_CLASS/C_STATIC/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_045_behavior_review]
+sql:
+-- ALTER_CLASS_COMPILE
+alter class CODEX_DM8_CLASS.C_MEMBER compile;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TYPE": [
+    {
+      "subject": "Type(2:12~2:36) /test/1/catalog1/CODEX_DM8_CLASS/C_MEMBER/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_046_behavior_review]
+sql:
+-- ALTER_CLASS_COMPILE_DEBUG
+alter class CODEX_DM8_CLASS.C_MEMBER compile debug;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TYPE": [
+    {
+      "subject": "Type(2:12~2:36) /test/1/catalog1/CODEX_DM8_CLASS/C_MEMBER/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_047_behavior_review]
+sql:
+-- DROP_CLASS
+drop class CODEX_DM8_CLASS.C_AS restrict;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(2:11~2:31) /test/1/catalog1/CODEX_DM8_CLASS/C_AS/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_048_behavior_review]
+sql:
+-- DROP_CLASS_CASCADE
+drop class CODEX_DM8_CLASS.C_NOT_FINAL cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(2:11~2:38) /test/1/catalog1/CODEX_DM8_CLASS/C_NOT_FINAL/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_049_behavior_review]
+sql:
+-- DROP_CLASS_IF_EXISTS
+drop class if exists CODEX_DM8_CLASS.C_NO_SUCH;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(2:21~2:46) /test/1/catalog1/CODEX_DM8_CLASS/C_NO_SUCH/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_050_behavior_review]
+sql:
+-- DROP_CLASS_BODY
+drop class body CODEX_DM8_CLASS.C_MEMBER restrict;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(2:16~2:40) /test/1/catalog1/CODEX_DM8_CLASS/C_MEMBER/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_051_behavior_review]
+sql:
+-- DROP_CLASS_BODY_IF_EXISTS
+drop class body if exists CODEX_DM8_CLASS.C_NO_SUCH cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(2:26~2:51) /test/1/catalog1/CODEX_DM8_CLASS/C_NO_SUCH/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_052_behavior_review]
+sql:
+-- JAVA_BASIC
+create java class J_BASIC {int V;}
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:18~2:25) /test/1/catalog1/schema1/J_BASIC/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_053_behavior_review]
+sql:
+-- JAVA_PUBLIC
+create java public class J_PUBLIC {int V;}
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:25~2:33) /test/1/catalog1/schema1/J_PUBLIC/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_054_behavior_review]
+sql:
+-- JAVA_ABSTRACT
+create java abstract class J_ABSTRACT {public abstract int F();}
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:27~2:37) /test/1/catalog1/schema1/J_ABSTRACT/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_055_behavior_review]
+sql:
+-- JAVA_FINAL
+create java final class J_FINAL {int V;}
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:24~2:31) /test/1/catalog1/schema1/J_FINAL/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_056_behavior_review]
+sql:
+-- JAVA_MODIFIER_ORDER_PACK_EXTENSION
+create java final public class J_ORDER {int V;}
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:31~2:38) /test/1/catalog1/schema1/J_ORDER/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_057_behavior_review]
+sql:
+-- JAVA_DUPLICATE_PUBLIC_PACK_EXTENSION
+create java public public class J_DUP_PUBLIC {int V;}
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:32~2:44) /test/1/catalog1/schema1/J_DUP_PUBLIC/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_058_behavior_review]
+sql:
+-- JAVA_DUPLICATE_FINAL_PACK_EXTENSION
+create java final final class J_DUP_FINAL {int V;}
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:30~2:41) /test/1/catalog1/schema1/J_DUP_FINAL/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_059_behavior_review]
+sql:
+-- JAVA_ABSTRACT_FINAL_INVALID_OBJECT
+create java abstract final class J_ABSTRACT_FINAL {public abstract int F();}
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:33~2:49) /test/1/catalog1/schema1/J_ABSTRACT_FINAL/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_060_behavior_review]
+sql:
+-- JAVA_FIELD_PUBLIC
+create java class J_FIELD_PUBLIC {public int V;}
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:18~2:32) /test/1/catalog1/schema1/J_FIELD_PUBLIC/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_061_behavior_review]
+sql:
+-- JAVA_FIELD_PRIVATE
+create java class J_FIELD_PRIVATE {private int V;}
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:18~2:33) /test/1/catalog1/schema1/J_FIELD_PRIVATE/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_062_behavior_review]
+sql:
+-- JAVA_FIELD_STATIC
+create java class J_FIELD_STATIC {public static int V;}
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:18~2:32) /test/1/catalog1/schema1/J_FIELD_STATIC/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_063_behavior_review]
+sql:
+-- JAVA_FIELD_FINAL_INVALID_OBJECT
+create java class J_FIELD_FINAL {public static final int V=25;}
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:18~2:31) /test/1/catalog1/schema1/J_FIELD_FINAL/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_064_behavior_review]
+sql:
+-- JAVA_METHOD_MEMBER
+create java class J_METHOD {public int F(int A){return A;}}
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:18~2:26) /test/1/catalog1/schema1/J_METHOD/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_065_behavior_review]
+sql:
+-- JAVA_METHOD_STATIC
+create java class J_STATIC {public static int F(int A){return A;}}
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:18~2:26) /test/1/catalog1/schema1/J_STATIC/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_066_behavior_review]
+sql:
+-- JAVA_METHOD_PRIVATE
+create java class J_PRIVATE {private int F(){return 1;}}
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:18~2:27) /test/1/catalog1/schema1/J_PRIVATE/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_067_behavior_review]
+sql:
+-- JAVA_METHOD_FINAL
+create java class J_METHOD_FINAL {public final int F(){return 1;}}
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:18~2:32) /test/1/catalog1/schema1/J_METHOD_FINAL/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_068_behavior_review]
+sql:
+-- JAVA_METHOD_ABSTRACT_STATIC_PACK_EXTENSION
+create java abstract class J_ABS_STATIC {public abstract static int F();}
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:27~2:39) /test/1/catalog1/schema1/J_ABS_STATIC/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_069_behavior_review]
+sql:
+-- JAVA_METHOD_OVERRIDE_STATIC_INVALID_OBJECT
+create java class J_OVR_STATIC {public override static int F(){return 1;}}
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:18~2:30) /test/1/catalog1/schema1/J_OVR_STATIC/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_070_behavior_review]
+sql:
+-- JAVA_CONSTRUCTOR_ZERO
+create java class J_CTOR0 {int V;J_CTOR0(){this.V=1;}}
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:18~2:25) /test/1/catalog1/schema1/J_CTOR0/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_071_behavior_review]
+sql:
+-- JAVA_CONSTRUCTOR_ARGS
+create java class J_CTOR1 {int V;J_CTOR1(int A){this.V=A;}}
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:18~2:25) /test/1/catalog1/schema1/J_CTOR1/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_072_behavior_review]
+sql:
+-- JAVA_EXTENDS
+create java class J_CHILD extends J_BASIC {int X;}
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:18~2:25) /test/1/catalog1/schema1/J_CHILD/",
+      "action": "CREATE",
+      "target": "Type(2:34~2:41) /test/1/catalog1/schema1/J_BASIC/"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_073_behavior_review]
+sql:
+-- JAVA_METHOD_SELECT_RESOURCE
+create java class J_SELECT {public int F(){int V;select max(ID) into V from SOURCE_TABLE;return V;}}
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:18~2:26) /test/1/catalog1/schema1/J_SELECT/",
+      "action": "CREATE"
+    },
+    {
+      "subject": "Function(2:56~2:59) /test/1/catalog1/schema1/max/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:76~2:88) /test/1/catalog1/schema1/SOURCE_TABLE/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_074_behavior_review]
+sql:
+-- ALTER_JAVA_CLASS_LOCAL_FORM
+alter class CODEX_DM8_CLASS.J_BASIC compile;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TYPE": [
+    {
+      "subject": "Type(2:12~2:35) /test/1/catalog1/CODEX_DM8_CLASS/J_BASIC/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_075_behavior_review]
+sql:
+-- ALTER_JAVA_CLASS_ONLINE_VERSION
+alter java class CODEX_DM8_CLASS.J_BASIC compile;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TYPE": [
+    {
+      "subject": "Type(2:17~2:40) /test/1/catalog1/CODEX_DM8_CLASS/J_BASIC/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_076_behavior_review]
+sql:
+-- DROP_JAVA_CLASS
+drop class CODEX_DM8_CLASS.J_BASIC;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(2:11~2:34) /test/1/catalog1/CODEX_DM8_CLASS/J_BASIC/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_077_behavior_review]
+sql:
+-- DROP_JAVA_CLASS_BODY_PACK_EXTENSION
+drop class body CODEX_DM8_CLASS.J_BASIC;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(2:16~2:39) /test/1/catalog1/CODEX_DM8_CLASS/J_BASIC/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_078_behavior_review]
+sql:
+-- GRANT_CREATE_PACKAGE_FOR_CLASS
+grant create package to CODEX_DM8_CLASS_USER;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Package(2:13~2:20) /test/1/",
+      "action": "GRANT",
+      "target": "UserOrRole(2:24~2:44) /test/1/CODEX_DM8_CLASS_USER/"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_079_behavior_review]
+sql:
+-- GRANT_EXECUTE_CLASS
+grant execute on package CODEX_DM8_CLASS.C_DEFINER to CODEX_DM8_CLASS_USER;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Package(2:25~2:50) /test/1/catalog1/CODEX_DM8_CLASS/C_DEFINER/",
+      "action": "GRANT",
+      "target": "UserOrRole(2:54~2:74) /test/1/CODEX_DM8_CLASS_USER/"
+    }
+  ]
+}
+----------
+[split_block_dameng_class_atomic_0_080_behavior_review]
+sql:
+-- REVOKE_EXECUTE_CLASS
+revoke execute on package CODEX_DM8_CLASS.C_DEFINER from CODEX_DM8_CLASS_USER;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "Package(2:26~2:51) /test/1/catalog1/CODEX_DM8_CLASS/C_DEFINER/",
+      "action": "REVOKE",
+      "target": "UserOrRole(2:57~2:77) /test/1/CODEX_DM8_CLASS_USER/"
+    }
+  ]
+}

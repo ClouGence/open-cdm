@@ -1,0 +1,13 @@
+[functions]
+sql:
+select round(t.c_float,2) as rounded,sqrt(t.c_double) as rooted,
+t.c_real+t.c_dp as approx_sum from catalog1.app.approx_t t
+expect:
+{"rounded":["/catalog1/app/approx_t/c_float/"],"rooted":["/catalog1/app/approx_t/c_double/"],"approx_sum":["/catalog1/app/approx_t/c_real/","/catalog1/app/approx_t/c_dp/"]}
+----------
+[aggregate]
+sql:
+select min(t.c_float) as min_float,max(t.c_double) as max_double,
+sum(t.c_real) as sum_real,avg(t.c_dp) as avg_dp from catalog1.app.approx_t t
+expect:
+{"min_float":["/catalog1/app/approx_t/c_float/"],"max_double":["/catalog1/app/approx_t/c_double/"],"sum_real":["/catalog1/app/approx_t/c_real/"],"avg_dp":["/catalog1/app/approx_t/c_dp/"]}

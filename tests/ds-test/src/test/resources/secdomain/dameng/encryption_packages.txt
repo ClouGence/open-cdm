@@ -1,0 +1,21 @@
+[encryption_package_constant_query]
+sql:
+select dbms_obfuscation_toolkit.md5('DM123456')
+expect:
+{"size":0}
+----------
+[encryption_package_table_query]
+sql:
+select dbms_crypto.hash(secret_value, dbms_crypto.hash_sh512) as secret_hash from app.crypto_pkg_data where id=1
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"crypto_pkg_data"}
+  ]
+}
+----------
+[encryption_package_block_has_no_domain]
+sql:
+declare v_hash varbinary(100); begin v_hash := dbms_crypto.hash(cast('AA' as varbinary(10)), dbms_crypto.hash_md5); end;
+expect:
+{"size":0}

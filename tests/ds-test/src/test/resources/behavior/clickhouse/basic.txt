@@ -1,0 +1,31 @@
+[create_table_select]
+sql:
+create table target_tab as select * from source_tab
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:23) /test/1/catalog1/schema1/target_tab/",
+      "action" : "CREATE",
+      "target" : "Table(1:41~1:51) /test/1/catalog1/schema1/source_tab/"
+    }
+  ]
+}
+----------
+[rename_table]
+sql:
+rename table old_tab to new_tab
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "RENAME_TABLE": [
+    {
+      "subject": "Table(1:13~1:20) /test/1/catalog1/schema1/old_tab/",
+      "action" : "RENAME",
+      "target" : "Table(1:24~1:31) /test/1/catalog1/schema1/new_tab/"
+    }
+  ]
+}

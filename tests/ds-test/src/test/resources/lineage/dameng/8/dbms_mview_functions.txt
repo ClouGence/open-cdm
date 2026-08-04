@@ -1,0 +1,8 @@
+[dbms_mview_output_columns]
+sql:
+select ID, AMOUNT from catalog1.app.mv_orders
+expect:
+{
+  "ID": ["/catalog1/app/mv_orders/ID/"],
+  "AMOUNT": ["/catalog1/app/mv_orders/AMOUNT/"]
+}

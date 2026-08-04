@@ -1,0 +1,3155 @@
+[split_dql_dameng_hierarchical_atomic_0_001_behavior_review]
+sql:
+-- CONNECT_ONLY
+select count(*) from DEPARTMENT connect by prior ID=PARENT_ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:21~2:31) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_002_behavior_review]
+sql:
+-- CONNECT_THEN_START
+select count(*) from DEPARTMENT connect by prior ID=PARENT_ID start with ID=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:21~2:31) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_003_behavior_review]
+sql:
+-- START_THEN_CONNECT
+select count(*) from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:21~2:31) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_004_behavior_review]
+sql:
+-- NOCYCLE
+select count(*) from DEPARTMENT start with ID=1 connect by nocycle prior ID=PARENT_ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:21~2:31) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_005_behavior_review]
+sql:
+-- PRIOR_RIGHT
+select count(*) from DEPARTMENT start with ID=4 connect by ID=prior PARENT_ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:21~2:31) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_006_behavior_review]
+sql:
+-- LEVEL_GENERATOR
+select max(level) from dual connect by level<=10;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:10) /test/1/catalog1/schema1/max/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:23~2:27) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_007_behavior_review]
+sql:
+-- CYCLE_WITHOUT_NOCYCLE
+select count(*) from CYCLE_NODE start with ID=1 connect by prior ID=PARENT_ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:21~2:31) /test/1/catalog1/schema1/CYCLE_NODE/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_008_behavior_review]
+sql:
+-- CYCLE_WITH_NOCYCLE
+select count(*) from CYCLE_NODE start with ID=1 connect by nocycle prior ID=PARENT_ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:21~2:31) /test/1/catalog1/schema1/CYCLE_NODE/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_009_behavior_review]
+sql:
+-- PSEUDO_COLUMNS
+select max(level),max(connect_by_isleaf),max(connect_by_iscycle) from DEPARTMENT start with ID=1 connect by nocycle prior ID=PARENT_ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:10) /test/1/catalog1/schema1/max/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:18~2:21) /test/1/catalog1/schema1/max/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:41~2:44) /test/1/catalog1/schema1/max/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:70~2:80) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_010_behavior_review]
+sql:
+-- ISCYCLE_WITHOUT_NOCYCLE
+select max(connect_by_iscycle) from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:10) /test/1/catalog1/schema1/max/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:36~2:46) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_011_behavior_review]
+sql:
+-- PRIOR_SELECT
+select prior NAME from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:23~2:33) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_012_behavior_review]
+sql:
+-- PRIOR_WHERE
+select NAME from DEPARTMENT where prior NAME is null start with ID=1 connect by prior ID=PARENT_ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:17~2:27) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_013_behavior_review]
+sql:
+-- PRIOR_GROUP
+select prior NAME,count(*) from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID group by prior NAME;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:18~2:23) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:32~2:42) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_014_behavior_review]
+sql:
+-- PRIOR_GROUP_ONLY
+select count(*) from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID group by prior NAME;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:21~2:31) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_015_behavior_review]
+sql:
+-- PRIOR_ORDER
+select NAME from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID order by prior NAME;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:17~2:27) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_016_behavior_review]
+sql:
+-- PRIOR_AGGREGATE
+select max(prior NAME) from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:10) /test/1/catalog1/schema1/max/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:28~2:38) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_017_behavior_review]
+sql:
+-- PRIOR_FUNCTION_ARGUMENT
+select upper(prior NAME) from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/upper/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:30~2:40) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_018_behavior_review]
+sql:
+-- CONNECT_BY_ROOT
+select connect_by_root NAME from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:33~2:43) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_019_behavior_review]
+sql:
+-- SYS_CONNECT_BY_PATH
+select sys_connect_by_path(NAME,'/') from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:26) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:42~2:52) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_020_behavior_review]
+sql:
+-- PATH_LEVEL
+select sys_connect_by_path(level,'/') from dual connect by level<=5;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:26) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:43~2:47) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_021_behavior_review]
+sql:
+-- PATH_EMPTY_DELIMITER
+select sys_connect_by_path(NAME,'') from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:26) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:41~2:51) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_022_behavior_review]
+sql:
+-- PATH_NULL_DELIMITER
+select sys_connect_by_path(NAME,null) from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:26) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:43~2:53) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_023_behavior_review]
+sql:
+-- ORDER_SIBLINGS
+select NAME from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID order siblings by SORT_KEY;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:17~2:27) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_024_behavior_review]
+sql:
+-- ORDER_SIBLINGS_DESC_NULLS
+select NAME from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID order siblings by SORT_KEY desc nulls last;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:17~2:27) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_025_behavior_review]
+sql:
+-- ORDER_SIBLINGS_MULTIPLE
+select NAME from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID order siblings by SORT_KEY,NAME;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:17~2:27) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_026_behavior_review]
+sql:
+-- CTE_COMBINATION
+with Q as(select * from DEPARTMENT) select count(*) from Q start with ID=1 connect by prior ID=PARENT_ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:43~2:48) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:24~2:34) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_027_behavior_review]
+sql:
+-- DERIVED_COMBINATION
+select count(*) from(select * from DEPARTMENT) D start with ID=1 connect by prior ID=PARENT_ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:35~2:45) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_028_behavior_review]
+sql:
+-- UNION_COMBINATION
+select NAME from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID union all select 'TAIL' from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:17~2:27) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(2:103~2:107) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_029_behavior_review]
+sql:
+-- SCALAR_SUBQUERY_COMBINATION
+select (select max(ID) from DEPARTMENT) from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:15~2:18) /test/1/catalog1/schema1/max/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:28~2:38) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:45~2:55) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_030_behavior_review]
+sql:
+-- JOIN_COMBINATION
+select count(*) from DEPARTMENT D join DEPARTMENT X on D.ID=X.ID start with D.ID=1 connect by prior D.ID=D.PARENT_ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:21~2:31) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:39~2:49) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_031_behavior_review]
+sql:
+-- DUPLICATE_CONNECT_BY
+select * from DEPARTMENT connect by prior ID=PARENT_ID connect by prior ID=PARENT_ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:14~2:24) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_032_behavior_review]
+sql:
+-- THREE_CONNECT_BY
+select count(*) from DEPARTMENT connect by prior ID=PARENT_ID connect by prior ID=PARENT_ID connect by prior ID=PARENT_ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:21~2:31) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_033_behavior_review]
+sql:
+-- START_THEN_TWO_CONNECT_BY
+select count(*) from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID connect by prior ID=PARENT_ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:21~2:31) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_034_behavior_review]
+sql:
+-- TWO_CONNECT_BY_THEN_START
+select count(*) from DEPARTMENT connect by prior ID=PARENT_ID connect by prior ID=PARENT_ID start with ID=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:21~2:31) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_035_behavior_review]
+sql:
+-- CONNECT_AGGREGATE
+select count(*) from DEPARTMENT connect by prior ID=PARENT_ID and count(*)>0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:66~2:71) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:21~2:31) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_036_behavior_review]
+sql:
+-- CONNECT_NESTED_AGGREGATE
+select count(*) from DEPARTMENT connect by prior ID=PARENT_ID and max(count(ID))>0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:66~2:69) /test/1/catalog1/schema1/max/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:70~2:75) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:21~2:31) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_037_behavior_review]
+sql:
+-- CONNECT_TRXID
+select count(*) from DEPARTMENT connect by prior ID=PARENT_ID and trxid is null;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:21~2:31) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_038_behavior_review]
+sql:
+-- CONNECT_GROUPING
+select count(*) from DEPARTMENT connect by prior ID=PARENT_ID and grouping(ID)=0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:66~2:74) /test/1/catalog1/schema1/grouping/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:21~2:31) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_039_behavior_review]
+sql:
+-- START_AGGREGATE
+select count(*) from DEPARTMENT start with count(*)>0 connect by prior ID=PARENT_ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:43~2:48) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:21~2:31) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_040_behavior_review]
+sql:
+-- START_NESTED_AGGREGATE
+select count(*) from DEPARTMENT start with max(count(ID))>0 connect by prior ID=PARENT_ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:43~2:46) /test/1/catalog1/schema1/max/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:47~2:52) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:21~2:31) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_041_behavior_review]
+sql:
+-- START_TRXID
+select count(*) from DEPARTMENT start with trxid is null connect by prior ID=PARENT_ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:21~2:31) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_042_behavior_review]
+sql:
+-- START_GROUPING
+select count(*) from DEPARTMENT start with grouping(ID)=0 connect by prior ID=PARENT_ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:43~2:51) /test/1/catalog1/schema1/grouping/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:21~2:31) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_043_behavior_review]
+sql:
+-- START_LEVEL
+select count(*) from DEPARTMENT start with level=1 connect by prior ID=PARENT_ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:21~2:31) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_044_behavior_review]
+sql:
+-- START_ISLEAF
+select count(*) from DEPARTMENT start with connect_by_isleaf=0 connect by prior ID=PARENT_ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:21~2:31) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_045_behavior_review]
+sql:
+-- START_ISCYCLE
+select count(*) from DEPARTMENT start with connect_by_iscycle=0 connect by nocycle prior ID=PARENT_ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:21~2:31) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_046_behavior_review]
+sql:
+-- START_PATH
+select count(*) from DEPARTMENT start with sys_connect_by_path(NAME,'/')='ROOT' connect by prior ID=PARENT_ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:43~2:62) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:21~2:31) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_047_behavior_review]
+sql:
+-- START_ROOT
+select count(*) from DEPARTMENT start with connect_by_root ID=1 connect by prior ID=PARENT_ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:21~2:31) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_048_behavior_review]
+sql:
+-- START_PRIOR
+select count(*) from DEPARTMENT start with prior ID is null connect by prior ID=PARENT_ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:21~2:31) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_049_behavior_review]
+sql:
+-- HIERARCHICAL_FOR_UPDATE
+select * from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID for update;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:14~2:24) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:14~2:24) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "LOCK"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_050_behavior_review]
+sql:
+-- SIBLINGS_LEVEL
+select NAME from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID order siblings by level;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:17~2:27) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_051_behavior_review]
+sql:
+-- SIBLINGS_ISLEAF
+select NAME from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID order siblings by connect_by_isleaf;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:17~2:27) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_052_behavior_review]
+sql:
+-- SIBLINGS_ISCYCLE
+select NAME from DEPARTMENT start with ID=1 connect by nocycle prior ID=PARENT_ID order siblings by connect_by_iscycle;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:17~2:27) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_053_behavior_review]
+sql:
+-- SIBLINGS_PATH
+select NAME from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID order siblings by sys_connect_by_path(NAME,'/');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:92~2:111) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:17~2:27) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_054_behavior_review]
+sql:
+-- SIBLINGS_ROOT
+select NAME from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID order siblings by connect_by_root NAME;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:17~2:27) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_055_behavior_review]
+sql:
+-- SIBLINGS_PRIOR
+select NAME from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID order siblings by prior NAME;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:17~2:27) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_056_behavior_review]
+sql:
+-- SIBLINGS_ROWNUM
+select NAME from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID order siblings by rownum;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:17~2:27) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_057_behavior_review]
+sql:
+-- SIBLINGS_SUBQUERY
+select NAME from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID order siblings by(select max(ID) from DEPARTMENT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:99~2:102) /test/1/catalog1/schema1/max/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:17~2:27) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:112~2:122) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_058_behavior_review]
+sql:
+-- SIBLINGS_CONSTANT_SUBQUERY
+select NAME from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID order siblings by(select 1 from dual);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:17~2:27) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(2:106~2:110) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_059_behavior_review]
+sql:
+-- SIBLINGS_GROUP_BY
+select NAME,count(*) from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID group by NAME order siblings by NAME;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:12~2:17) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:26~2:36) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_060_behavior_review]
+sql:
+-- JOIN_ON_LEVEL
+select count(*) from DEPARTMENT D join DEPARTMENT X on D.ID=X.ID and level=1 start with D.ID=1 connect by prior D.ID=D.PARENT_ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:21~2:31) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:39~2:49) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_061_behavior_review]
+sql:
+-- JOIN_ON_ISLEAF
+select count(*) from DEPARTMENT D join DEPARTMENT X on D.ID=X.ID and connect_by_isleaf=0 start with D.ID=1 connect by prior D.ID=D.PARENT_ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:21~2:31) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:39~2:49) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_062_behavior_review]
+sql:
+-- JOIN_ON_PATH
+select count(*) from DEPARTMENT D join DEPARTMENT X on D.ID=X.ID and sys_connect_by_path(D.NAME,'/') is not null start with D.ID=1 connect by prior D.ID=D.PARENT_ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:69~2:88) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:21~2:31) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:39~2:49) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_063_behavior_review]
+sql:
+-- JOIN_ON_ROOT
+select count(*) from DEPARTMENT D join DEPARTMENT X on D.ID=X.ID and connect_by_root D.ID=1 start with D.ID=1 connect by prior D.ID=D.PARENT_ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:21~2:31) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:39~2:49) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_064_behavior_review]
+sql:
+-- JOIN_ON_PRIOR
+select count(*) from DEPARTMENT D join DEPARTMENT X on D.ID=X.ID and prior D.ID is not null start with D.ID=1 connect by prior D.ID=D.PARENT_ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:21~2:31) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:39~2:49) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_065_behavior_review]
+sql:
+-- PRIOR_LEVEL
+select prior level from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:24~2:34) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_066_behavior_review]
+sql:
+-- PRIOR_ISLEAF
+select prior connect_by_isleaf from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:36~2:46) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_067_behavior_review]
+sql:
+-- PRIOR_ISCYCLE
+select prior connect_by_iscycle from DEPARTMENT start with ID=1 connect by nocycle prior ID=PARENT_ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:37~2:47) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_068_behavior_review]
+sql:
+-- PRIOR_PATH
+select prior sys_connect_by_path(NAME,'/') from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:13~2:32) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:48~2:58) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_069_behavior_review]
+sql:
+-- PRIOR_ROOT
+select prior connect_by_root NAME from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:39~2:49) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_070_behavior_review]
+sql:
+-- PRIOR_PRIOR
+select prior prior NAME from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:29~2:39) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_071_behavior_review]
+sql:
+-- PRIOR_ROWNUM
+select prior rownum from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:25~2:35) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_072_behavior_review]
+sql:
+-- ROOT_LEVEL
+select connect_by_root level from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:34~2:44) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_073_behavior_review]
+sql:
+-- ROOT_PATH
+select connect_by_root sys_connect_by_path(NAME,'/') from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:23~2:42) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:58~2:68) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_074_behavior_review]
+sql:
+-- ROOT_ROWNUM
+select connect_by_root rownum from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:35~2:45) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_075_behavior_review]
+sql:
+-- PATH_ISLEAF
+select sys_connect_by_path(connect_by_isleaf,'/') from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:26) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:55~2:65) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_076_behavior_review]
+sql:
+-- PATH_ISCYCLE
+select sys_connect_by_path(connect_by_iscycle,'/') from DEPARTMENT start with ID=1 connect by nocycle prior ID=PARENT_ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:26) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:56~2:66) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_077_behavior_review]
+sql:
+-- PATH_NESTED_PATH
+select sys_connect_by_path(sys_connect_by_path(NAME,'/'),'/') from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:26) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:27~2:46) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:67~2:77) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_078_behavior_review]
+sql:
+-- PATH_ROOT
+select sys_connect_by_path(connect_by_root NAME,'/') from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:26) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:58~2:68) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_079_behavior_review]
+sql:
+-- PATH_DYNAMIC_DELIMITER
+select sys_connect_by_path(NAME,NAME) from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:26) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:43~2:53) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_080_behavior_review]
+sql:
+-- PATH_EXPRESSION_DELIMITER
+select sys_connect_by_path(NAME,'/'||'') from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:26) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:46~2:56) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_081_behavior_review]
+sql:
+-- PATH_LENGTH_32767
+select max(length(sys_connect_by_path(rpad('X',case when level=32 then 1053 else 1022 end,'X'),'/'))) from dual connect by level<=32;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:10) /test/1/catalog1/schema1/max/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:11~2:17) /test/1/catalog1/schema1/length/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:18~2:37) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:38~2:42) /test/1/catalog1/schema1/rpad/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:107~2:111) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_082_behavior_review]
+sql:
+-- PATH_LENGTH_32768
+select max(length(sys_connect_by_path(rpad('X',case when level=32 then 1054 else 1022 end,'X'),'/'))) from dual connect by level<=32;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:10) /test/1/catalog1/schema1/max/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:11~2:17) /test/1/catalog1/schema1/length/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:18~2:37) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:38~2:42) /test/1/catalog1/schema1/rpad/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:107~2:111) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_083_behavior_review]
+sql:
+-- PATH_FUNCTION_COUNT_64
+select sys_connect_by_path(NAME,'/') as P1,sys_connect_by_path(NAME,'/') as P2,sys_connect_by_path(NAME,'/') as P3,sys_connect_by_path(NAME,'/') as P4,sys_connect_by_path(NAME,'/') as P5,sys_connect_by_path(NAME,'/') as P6,sys_connect_by_path(NAME,'/') as P7,sys_connect_by_path(NAME,'/') as P8,sys_connect_by_path(NAME,'/') as P9,sys_connect_by_path(NAME,'/') as P10,sys_connect_by_path(NAME,'/') as P11,sys_connect_by_path(NAME,'/') as P12,sys_connect_by_path(NAME,'/') as P13,sys_connect_by_path(NAME,'/') as P14,sys_connect_by_path(NAME,'/') as P15,sys_connect_by_path(NAME,'/') as P16,sys_connect_by_path(NAME,'/') as P17,sys_connect_by_path(NAME,'/') as P18,sys_connect_by_path(NAME,'/') as P19,sys_connect_by_path(NAME,'/') as P20,sys_connect_by_path(NAME,'/') as P21,sys_connect_by_path(NAME,'/') as P22,sys_connect_by_path(NAME,'/') as P23,sys_connect_by_path(NAME,'/') as P24,sys_connect_by_path(NAME,'/') as P25,sys_connect_by_path(NAME,'/') as P26,sys_connect_by_path(NAME,'/') as P27,sys_connect_by_path(NAME,'/') as P28,sys_connect_by_path(NAME,'/') as P29,sys_connect_by_path(NAME,'/') as P30,sys_connect_by_path(NAME,'/') as P31,sys_connect_by_path(NAME,'/') as P32,sys_connect_by_path(NAME,'/') as P33,sys_connect_by_path(NAME,'/') as P34,sys_connect_by_path(NAME,'/') as P35,sys_connect_by_path(NAME,'/') as P36,sys_connect_by_path(NAME,'/') as P37,sys_connect_by_path(NAME,'/') as P38,sys_connect_by_path(NAME,'/') as P39,sys_connect_by_path(NAME,'/') as P40,sys_connect_by_path(NAME,'/') as P41,sys_connect_by_path(NAME,'/') as P42,sys_connect_by_path(NAME,'/') as P43,sys_connect_by_path(NAME,'/') as P44,sys_connect_by_path(NAME,'/') as P45,sys_connect_by_path(NAME,'/') as P46,sys_connect_by_path(NAME,'/') as P47,sys_connect_by_path(NAME,'/') as P48,sys_connect_by_path(NAME,'/') as P49,sys_connect_by_path(NAME,'/') as P50,sys_connect_by_path(NAME,'/') as P51,sys_connect_by_path(NAME,'/') as P52,sys_connect_by_path(NAME,'/') as P53,sys_connect_by_path(NAME,'/') as P54,sys_connect_by_path(NAME,'/') as P55,sys_connect_by_path(NAME,'/') as P56,sys_connect_by_path(NAME,'/') as P57,sys_connect_by_path(NAME,'/') as P58,sys_connect_by_path(NAME,'/') as P59,sys_connect_by_path(NAME,'/') as P60,sys_connect_by_path(NAME,'/') as P61,sys_connect_by_path(NAME,'/') as P62,sys_connect_by_path(NAME,'/') as P63,sys_connect_by_path(NAME,'/') as P64 from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:26) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:43~2:62) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:79~2:98) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:115~2:134) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:151~2:170) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:187~2:206) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:223~2:242) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:259~2:278) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:295~2:314) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:331~2:350) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:368~2:387) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:405~2:424) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:442~2:461) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:479~2:498) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:516~2:535) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:553~2:572) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:590~2:609) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:627~2:646) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:664~2:683) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:701~2:720) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:738~2:757) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:775~2:794) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:812~2:831) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:849~2:868) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:886~2:905) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:923~2:942) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:960~2:979) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:997~2:1016) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1034~2:1053) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1071~2:1090) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1108~2:1127) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1145~2:1164) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1182~2:1201) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1219~2:1238) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1256~2:1275) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1293~2:1312) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1330~2:1349) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1367~2:1386) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1404~2:1423) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1441~2:1460) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1478~2:1497) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1515~2:1534) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1552~2:1571) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1589~2:1608) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1626~2:1645) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1663~2:1682) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1700~2:1719) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1737~2:1756) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1774~2:1793) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1811~2:1830) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1848~2:1867) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1885~2:1904) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1922~2:1941) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1959~2:1978) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1996~2:2015) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2033~2:2052) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2070~2:2089) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2107~2:2126) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2144~2:2163) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2181~2:2200) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2218~2:2237) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2255~2:2274) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2292~2:2311) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2329~2:2348) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:2371~2:2381) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_084_behavior_review]
+sql:
+-- PATH_FUNCTION_COUNT_65
+select sys_connect_by_path(NAME,'/') as P1,sys_connect_by_path(NAME,'/') as P2,sys_connect_by_path(NAME,'/') as P3,sys_connect_by_path(NAME,'/') as P4,sys_connect_by_path(NAME,'/') as P5,sys_connect_by_path(NAME,'/') as P6,sys_connect_by_path(NAME,'/') as P7,sys_connect_by_path(NAME,'/') as P8,sys_connect_by_path(NAME,'/') as P9,sys_connect_by_path(NAME,'/') as P10,sys_connect_by_path(NAME,'/') as P11,sys_connect_by_path(NAME,'/') as P12,sys_connect_by_path(NAME,'/') as P13,sys_connect_by_path(NAME,'/') as P14,sys_connect_by_path(NAME,'/') as P15,sys_connect_by_path(NAME,'/') as P16,sys_connect_by_path(NAME,'/') as P17,sys_connect_by_path(NAME,'/') as P18,sys_connect_by_path(NAME,'/') as P19,sys_connect_by_path(NAME,'/') as P20,sys_connect_by_path(NAME,'/') as P21,sys_connect_by_path(NAME,'/') as P22,sys_connect_by_path(NAME,'/') as P23,sys_connect_by_path(NAME,'/') as P24,sys_connect_by_path(NAME,'/') as P25,sys_connect_by_path(NAME,'/') as P26,sys_connect_by_path(NAME,'/') as P27,sys_connect_by_path(NAME,'/') as P28,sys_connect_by_path(NAME,'/') as P29,sys_connect_by_path(NAME,'/') as P30,sys_connect_by_path(NAME,'/') as P31,sys_connect_by_path(NAME,'/') as P32,sys_connect_by_path(NAME,'/') as P33,sys_connect_by_path(NAME,'/') as P34,sys_connect_by_path(NAME,'/') as P35,sys_connect_by_path(NAME,'/') as P36,sys_connect_by_path(NAME,'/') as P37,sys_connect_by_path(NAME,'/') as P38,sys_connect_by_path(NAME,'/') as P39,sys_connect_by_path(NAME,'/') as P40,sys_connect_by_path(NAME,'/') as P41,sys_connect_by_path(NAME,'/') as P42,sys_connect_by_path(NAME,'/') as P43,sys_connect_by_path(NAME,'/') as P44,sys_connect_by_path(NAME,'/') as P45,sys_connect_by_path(NAME,'/') as P46,sys_connect_by_path(NAME,'/') as P47,sys_connect_by_path(NAME,'/') as P48,sys_connect_by_path(NAME,'/') as P49,sys_connect_by_path(NAME,'/') as P50,sys_connect_by_path(NAME,'/') as P51,sys_connect_by_path(NAME,'/') as P52,sys_connect_by_path(NAME,'/') as P53,sys_connect_by_path(NAME,'/') as P54,sys_connect_by_path(NAME,'/') as P55,sys_connect_by_path(NAME,'/') as P56,sys_connect_by_path(NAME,'/') as P57,sys_connect_by_path(NAME,'/') as P58,sys_connect_by_path(NAME,'/') as P59,sys_connect_by_path(NAME,'/') as P60,sys_connect_by_path(NAME,'/') as P61,sys_connect_by_path(NAME,'/') as P62,sys_connect_by_path(NAME,'/') as P63,sys_connect_by_path(NAME,'/') as P64,sys_connect_by_path(NAME,'/') as P65 from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:26) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:43~2:62) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:79~2:98) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:115~2:134) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:151~2:170) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:187~2:206) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:223~2:242) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:259~2:278) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:295~2:314) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:331~2:350) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:368~2:387) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:405~2:424) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:442~2:461) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:479~2:498) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:516~2:535) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:553~2:572) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:590~2:609) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:627~2:646) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:664~2:683) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:701~2:720) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:738~2:757) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:775~2:794) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:812~2:831) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:849~2:868) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:886~2:905) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:923~2:942) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:960~2:979) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:997~2:1016) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1034~2:1053) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1071~2:1090) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1108~2:1127) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1145~2:1164) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1182~2:1201) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1219~2:1238) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1256~2:1275) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1293~2:1312) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1330~2:1349) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1367~2:1386) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1404~2:1423) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1441~2:1460) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1478~2:1497) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1515~2:1534) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1552~2:1571) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1589~2:1608) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1626~2:1645) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1663~2:1682) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1700~2:1719) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1737~2:1756) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1774~2:1793) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1811~2:1830) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1848~2:1867) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1885~2:1904) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1922~2:1941) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1959~2:1978) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1996~2:2015) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2033~2:2052) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2070~2:2089) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2107~2:2126) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2144~2:2163) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2181~2:2200) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2218~2:2237) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2255~2:2274) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2292~2:2311) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2329~2:2348) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2366~2:2385) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:2408~2:2418) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_085_behavior_review]
+sql:
+-- PATH_DISTINCT_FUNCTION_COUNT_64
+select sys_connect_by_path(NAME||'1','/') as P1,sys_connect_by_path(NAME||'2','/') as P2,sys_connect_by_path(NAME||'3','/') as P3,sys_connect_by_path(NAME||'4','/') as P4,sys_connect_by_path(NAME||'5','/') as P5,sys_connect_by_path(NAME||'6','/') as P6,sys_connect_by_path(NAME||'7','/') as P7,sys_connect_by_path(NAME||'8','/') as P8,sys_connect_by_path(NAME||'9','/') as P9,sys_connect_by_path(NAME||'10','/') as P10,sys_connect_by_path(NAME||'11','/') as P11,sys_connect_by_path(NAME||'12','/') as P12,sys_connect_by_path(NAME||'13','/') as P13,sys_connect_by_path(NAME||'14','/') as P14,sys_connect_by_path(NAME||'15','/') as P15,sys_connect_by_path(NAME||'16','/') as P16,sys_connect_by_path(NAME||'17','/') as P17,sys_connect_by_path(NAME||'18','/') as P18,sys_connect_by_path(NAME||'19','/') as P19,sys_connect_by_path(NAME||'20','/') as P20,sys_connect_by_path(NAME||'21','/') as P21,sys_connect_by_path(NAME||'22','/') as P22,sys_connect_by_path(NAME||'23','/') as P23,sys_connect_by_path(NAME||'24','/') as P24,sys_connect_by_path(NAME||'25','/') as P25,sys_connect_by_path(NAME||'26','/') as P26,sys_connect_by_path(NAME||'27','/') as P27,sys_connect_by_path(NAME||'28','/') as P28,sys_connect_by_path(NAME||'29','/') as P29,sys_connect_by_path(NAME||'30','/') as P30,sys_connect_by_path(NAME||'31','/') as P31,sys_connect_by_path(NAME||'32','/') as P32,sys_connect_by_path(NAME||'33','/') as P33,sys_connect_by_path(NAME||'34','/') as P34,sys_connect_by_path(NAME||'35','/') as P35,sys_connect_by_path(NAME||'36','/') as P36,sys_connect_by_path(NAME||'37','/') as P37,sys_connect_by_path(NAME||'38','/') as P38,sys_connect_by_path(NAME||'39','/') as P39,sys_connect_by_path(NAME||'40','/') as P40,sys_connect_by_path(NAME||'41','/') as P41,sys_connect_by_path(NAME||'42','/') as P42,sys_connect_by_path(NAME||'43','/') as P43,sys_connect_by_path(NAME||'44','/') as P44,sys_connect_by_path(NAME||'45','/') as P45,sys_connect_by_path(NAME||'46','/') as P46,sys_connect_by_path(NAME||'47','/') as P47,sys_connect_by_path(NAME||'48','/') as P48,sys_connect_by_path(NAME||'49','/') as P49,sys_connect_by_path(NAME||'50','/') as P50,sys_connect_by_path(NAME||'51','/') as P51,sys_connect_by_path(NAME||'52','/') as P52,sys_connect_by_path(NAME||'53','/') as P53,sys_connect_by_path(NAME||'54','/') as P54,sys_connect_by_path(NAME||'55','/') as P55,sys_connect_by_path(NAME||'56','/') as P56,sys_connect_by_path(NAME||'57','/') as P57,sys_connect_by_path(NAME||'58','/') as P58,sys_connect_by_path(NAME||'59','/') as P59,sys_connect_by_path(NAME||'60','/') as P60,sys_connect_by_path(NAME||'61','/') as P61,sys_connect_by_path(NAME||'62','/') as P62,sys_connect_by_path(NAME||'63','/') as P63,sys_connect_by_path(NAME||'64','/') as P64 from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:26) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:48~2:67) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:89~2:108) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:130~2:149) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:171~2:190) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:212~2:231) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:253~2:272) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:294~2:313) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:335~2:354) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:376~2:395) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:419~2:438) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:462~2:481) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:505~2:524) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:548~2:567) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:591~2:610) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:634~2:653) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:677~2:696) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:720~2:739) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:763~2:782) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:806~2:825) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:849~2:868) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:892~2:911) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:935~2:954) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:978~2:997) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1021~2:1040) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1064~2:1083) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1107~2:1126) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1150~2:1169) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1193~2:1212) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1236~2:1255) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1279~2:1298) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1322~2:1341) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1365~2:1384) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1408~2:1427) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1451~2:1470) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1494~2:1513) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1537~2:1556) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1580~2:1599) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1623~2:1642) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1666~2:1685) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1709~2:1728) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1752~2:1771) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1795~2:1814) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1838~2:1857) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1881~2:1900) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1924~2:1943) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1967~2:1986) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2010~2:2029) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2053~2:2072) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2096~2:2115) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2139~2:2158) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2182~2:2201) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2225~2:2244) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2268~2:2287) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2311~2:2330) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2354~2:2373) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2397~2:2416) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2440~2:2459) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2483~2:2502) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2526~2:2545) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2569~2:2588) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2612~2:2631) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2655~2:2674) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2698~2:2717) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:2746~2:2756) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_086_behavior_review]
+sql:
+-- PATH_DISTINCT_FUNCTION_COUNT_65
+select sys_connect_by_path(NAME||'1','/') as P1,sys_connect_by_path(NAME||'2','/') as P2,sys_connect_by_path(NAME||'3','/') as P3,sys_connect_by_path(NAME||'4','/') as P4,sys_connect_by_path(NAME||'5','/') as P5,sys_connect_by_path(NAME||'6','/') as P6,sys_connect_by_path(NAME||'7','/') as P7,sys_connect_by_path(NAME||'8','/') as P8,sys_connect_by_path(NAME||'9','/') as P9,sys_connect_by_path(NAME||'10','/') as P10,sys_connect_by_path(NAME||'11','/') as P11,sys_connect_by_path(NAME||'12','/') as P12,sys_connect_by_path(NAME||'13','/') as P13,sys_connect_by_path(NAME||'14','/') as P14,sys_connect_by_path(NAME||'15','/') as P15,sys_connect_by_path(NAME||'16','/') as P16,sys_connect_by_path(NAME||'17','/') as P17,sys_connect_by_path(NAME||'18','/') as P18,sys_connect_by_path(NAME||'19','/') as P19,sys_connect_by_path(NAME||'20','/') as P20,sys_connect_by_path(NAME||'21','/') as P21,sys_connect_by_path(NAME||'22','/') as P22,sys_connect_by_path(NAME||'23','/') as P23,sys_connect_by_path(NAME||'24','/') as P24,sys_connect_by_path(NAME||'25','/') as P25,sys_connect_by_path(NAME||'26','/') as P26,sys_connect_by_path(NAME||'27','/') as P27,sys_connect_by_path(NAME||'28','/') as P28,sys_connect_by_path(NAME||'29','/') as P29,sys_connect_by_path(NAME||'30','/') as P30,sys_connect_by_path(NAME||'31','/') as P31,sys_connect_by_path(NAME||'32','/') as P32,sys_connect_by_path(NAME||'33','/') as P33,sys_connect_by_path(NAME||'34','/') as P34,sys_connect_by_path(NAME||'35','/') as P35,sys_connect_by_path(NAME||'36','/') as P36,sys_connect_by_path(NAME||'37','/') as P37,sys_connect_by_path(NAME||'38','/') as P38,sys_connect_by_path(NAME||'39','/') as P39,sys_connect_by_path(NAME||'40','/') as P40,sys_connect_by_path(NAME||'41','/') as P41,sys_connect_by_path(NAME||'42','/') as P42,sys_connect_by_path(NAME||'43','/') as P43,sys_connect_by_path(NAME||'44','/') as P44,sys_connect_by_path(NAME||'45','/') as P45,sys_connect_by_path(NAME||'46','/') as P46,sys_connect_by_path(NAME||'47','/') as P47,sys_connect_by_path(NAME||'48','/') as P48,sys_connect_by_path(NAME||'49','/') as P49,sys_connect_by_path(NAME||'50','/') as P50,sys_connect_by_path(NAME||'51','/') as P51,sys_connect_by_path(NAME||'52','/') as P52,sys_connect_by_path(NAME||'53','/') as P53,sys_connect_by_path(NAME||'54','/') as P54,sys_connect_by_path(NAME||'55','/') as P55,sys_connect_by_path(NAME||'56','/') as P56,sys_connect_by_path(NAME||'57','/') as P57,sys_connect_by_path(NAME||'58','/') as P58,sys_connect_by_path(NAME||'59','/') as P59,sys_connect_by_path(NAME||'60','/') as P60,sys_connect_by_path(NAME||'61','/') as P61,sys_connect_by_path(NAME||'62','/') as P62,sys_connect_by_path(NAME||'63','/') as P63,sys_connect_by_path(NAME||'64','/') as P64,sys_connect_by_path(NAME||'65','/') as P65 from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:26) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:48~2:67) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:89~2:108) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:130~2:149) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:171~2:190) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:212~2:231) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:253~2:272) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:294~2:313) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:335~2:354) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:376~2:395) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:419~2:438) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:462~2:481) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:505~2:524) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:548~2:567) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:591~2:610) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:634~2:653) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:677~2:696) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:720~2:739) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:763~2:782) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:806~2:825) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:849~2:868) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:892~2:911) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:935~2:954) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:978~2:997) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1021~2:1040) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1064~2:1083) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1107~2:1126) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1150~2:1169) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1193~2:1212) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1236~2:1255) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1279~2:1298) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1322~2:1341) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1365~2:1384) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1408~2:1427) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1451~2:1470) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1494~2:1513) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1537~2:1556) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1580~2:1599) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1623~2:1642) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1666~2:1685) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1709~2:1728) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1752~2:1771) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1795~2:1814) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1838~2:1857) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1881~2:1900) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1924~2:1943) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1967~2:1986) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2010~2:2029) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2053~2:2072) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2096~2:2115) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2139~2:2158) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2182~2:2201) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2225~2:2244) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2268~2:2287) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2311~2:2330) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2354~2:2373) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2397~2:2416) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2440~2:2459) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2483~2:2502) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2526~2:2545) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2569~2:2588) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2612~2:2631) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2655~2:2674) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2698~2:2717) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2741~2:2760) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:2789~2:2799) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_087_behavior_review]
+sql:
+-- PATH_DISTINCT_FUNCTION_COUNT_66
+select sys_connect_by_path(NAME||'1','/') as P1,sys_connect_by_path(NAME||'2','/') as P2,sys_connect_by_path(NAME||'3','/') as P3,sys_connect_by_path(NAME||'4','/') as P4,sys_connect_by_path(NAME||'5','/') as P5,sys_connect_by_path(NAME||'6','/') as P6,sys_connect_by_path(NAME||'7','/') as P7,sys_connect_by_path(NAME||'8','/') as P8,sys_connect_by_path(NAME||'9','/') as P9,sys_connect_by_path(NAME||'10','/') as P10,sys_connect_by_path(NAME||'11','/') as P11,sys_connect_by_path(NAME||'12','/') as P12,sys_connect_by_path(NAME||'13','/') as P13,sys_connect_by_path(NAME||'14','/') as P14,sys_connect_by_path(NAME||'15','/') as P15,sys_connect_by_path(NAME||'16','/') as P16,sys_connect_by_path(NAME||'17','/') as P17,sys_connect_by_path(NAME||'18','/') as P18,sys_connect_by_path(NAME||'19','/') as P19,sys_connect_by_path(NAME||'20','/') as P20,sys_connect_by_path(NAME||'21','/') as P21,sys_connect_by_path(NAME||'22','/') as P22,sys_connect_by_path(NAME||'23','/') as P23,sys_connect_by_path(NAME||'24','/') as P24,sys_connect_by_path(NAME||'25','/') as P25,sys_connect_by_path(NAME||'26','/') as P26,sys_connect_by_path(NAME||'27','/') as P27,sys_connect_by_path(NAME||'28','/') as P28,sys_connect_by_path(NAME||'29','/') as P29,sys_connect_by_path(NAME||'30','/') as P30,sys_connect_by_path(NAME||'31','/') as P31,sys_connect_by_path(NAME||'32','/') as P32,sys_connect_by_path(NAME||'33','/') as P33,sys_connect_by_path(NAME||'34','/') as P34,sys_connect_by_path(NAME||'35','/') as P35,sys_connect_by_path(NAME||'36','/') as P36,sys_connect_by_path(NAME||'37','/') as P37,sys_connect_by_path(NAME||'38','/') as P38,sys_connect_by_path(NAME||'39','/') as P39,sys_connect_by_path(NAME||'40','/') as P40,sys_connect_by_path(NAME||'41','/') as P41,sys_connect_by_path(NAME||'42','/') as P42,sys_connect_by_path(NAME||'43','/') as P43,sys_connect_by_path(NAME||'44','/') as P44,sys_connect_by_path(NAME||'45','/') as P45,sys_connect_by_path(NAME||'46','/') as P46,sys_connect_by_path(NAME||'47','/') as P47,sys_connect_by_path(NAME||'48','/') as P48,sys_connect_by_path(NAME||'49','/') as P49,sys_connect_by_path(NAME||'50','/') as P50,sys_connect_by_path(NAME||'51','/') as P51,sys_connect_by_path(NAME||'52','/') as P52,sys_connect_by_path(NAME||'53','/') as P53,sys_connect_by_path(NAME||'54','/') as P54,sys_connect_by_path(NAME||'55','/') as P55,sys_connect_by_path(NAME||'56','/') as P56,sys_connect_by_path(NAME||'57','/') as P57,sys_connect_by_path(NAME||'58','/') as P58,sys_connect_by_path(NAME||'59','/') as P59,sys_connect_by_path(NAME||'60','/') as P60,sys_connect_by_path(NAME||'61','/') as P61,sys_connect_by_path(NAME||'62','/') as P62,sys_connect_by_path(NAME||'63','/') as P63,sys_connect_by_path(NAME||'64','/') as P64,sys_connect_by_path(NAME||'65','/') as P65,sys_connect_by_path(NAME||'66','/') as P66 from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:26) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:48~2:67) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:89~2:108) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:130~2:149) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:171~2:190) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:212~2:231) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:253~2:272) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:294~2:313) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:335~2:354) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:376~2:395) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:419~2:438) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:462~2:481) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:505~2:524) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:548~2:567) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:591~2:610) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:634~2:653) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:677~2:696) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:720~2:739) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:763~2:782) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:806~2:825) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:849~2:868) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:892~2:911) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:935~2:954) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:978~2:997) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1021~2:1040) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1064~2:1083) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1107~2:1126) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1150~2:1169) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1193~2:1212) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1236~2:1255) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1279~2:1298) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1322~2:1341) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1365~2:1384) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1408~2:1427) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1451~2:1470) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1494~2:1513) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1537~2:1556) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1580~2:1599) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1623~2:1642) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1666~2:1685) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1709~2:1728) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1752~2:1771) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1795~2:1814) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1838~2:1857) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1881~2:1900) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1924~2:1943) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1967~2:1986) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2010~2:2029) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2053~2:2072) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2096~2:2115) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2139~2:2158) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2182~2:2201) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2225~2:2244) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2268~2:2287) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2311~2:2330) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2354~2:2373) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2397~2:2416) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2440~2:2459) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2483~2:2502) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2526~2:2545) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2569~2:2588) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2612~2:2631) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2655~2:2674) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2698~2:2717) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2741~2:2760) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2784~2:2803) /test/1/catalog1/schema1/sys_connect_by_path/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:2832~2:2842) /test/1/catalog1/schema1/DEPARTMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_088_behavior_review]
+sql:
+-- CNNTB_LEVEL_20000
+select max(level) from dual connect by level<=20000;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:10) /test/1/catalog1/schema1/max/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:23~2:27) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_089_behavior_review]
+sql:
+-- CNNTB_LEVEL_20001
+select max(level) from dual connect by level<=20001;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:10) /test/1/catalog1/schema1/max/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:23~2:27) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_090_behavior_review]
+sql:
+-- CNNTB_LEVEL_20002
+select max(level) from dual connect by level<=20002;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:10) /test/1/catalog1/schema1/max/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:23~2:27) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_091_behavior_review]
+sql:
+-- CNNTB_CHAIN_20000
+select max(level) from CHAIN_NODE start with ID=1 connect by prior ID=PARENT_ID and PARENT_ID<20000;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:10) /test/1/catalog1/schema1/max/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:23~2:33) /test/1/catalog1/schema1/CHAIN_NODE/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_092_behavior_review]
+sql:
+-- CNNTB_CHAIN_20001
+select max(level) from CHAIN_NODE start with ID=1 connect by prior ID=PARENT_ID and PARENT_ID<20001;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:10) /test/1/catalog1/schema1/max/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:23~2:33) /test/1/catalog1/schema1/CHAIN_NODE/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_hierarchical_atomic_0_093_behavior_review]
+sql:
+-- CNNTB_CHAIN_20002
+select max(level) from CHAIN_NODE start with ID=1 connect by prior ID=PARENT_ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:10) /test/1/catalog1/schema1/max/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:23~2:33) /test/1/catalog1/schema1/CHAIN_NODE/",
+      "action": "READ"
+    }
+  ]
+}

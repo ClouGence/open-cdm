@@ -1,0 +1,29 @@
+CREATE SPATIAL REFERENCE SYSTEM 70000011 NAME 'split_reject' DEFINITION 'GEOGCS["split_reject",DATUM["split_datum",SPHEROID["split_spheroid",6378137,298.257223563]],PRIMEM["Greenwich",0],UNIT["degree",0.017453292519943278],AXIS["Lat",NORTH],AXIS["Lon",EAST]]';
+DROP SPATIAL REFERENCE SYSTEM IF EXISTS 70000011;
+CREATE SPATIAL REFERENCE SYSTEM IF NOT EXISTS 70000011 NAME 'split_reject' DEFINITION 'GEOGCS["split_reject",DATUM["split_datum",SPHEROID["split_spheroid",6378137,298.257223563]],PRIMEM["Greenwich",0],UNIT["degree",0.017453292519943278],AXIS["Lat",NORTH],AXIS["Lon",EAST]]';
+CREATE OR REPLACE SPATIAL REFERENCE SYSTEM 70000011 NAME 'split_reject' DEFINITION 'GEOGCS["split_reject",DATUM["split_datum",SPHEROID["split_spheroid",6378137,298.257223563]],PRIMEM["Greenwich",0],UNIT["degree",0.017453292519943278],AXIS["Lat",NORTH],AXIS["Lon",EAST]]';
+CREATE TABLE type_geom_alias (c_collection GEOMCOLLECTION);
+CREATE TABLE type_spatial_srid_type_reject (c_geom GEOMETRY SRID 0);
+CREATE TABLE type_srid (c_point POINT NOT NULL SRID 4326, SPATIAL INDEX (c_point));
+CREATE TABLE splitvector.t_vector_default (id INT PRIMARY KEY, embedding VECTOR);
+CREATE TABLE splitvector.t_vector_dims (id INT PRIMARY KEY, embedding VECTOR(3));
+------------------------------------------------------------------------------------------
+[SYSTEM_SETTING_WRITE] CREATE SPATIAL REFERENCE SYSTEM 70000011 NAME 'split_reject' DEFINITION 'GEOGCS["split_reject",DATUM["split_datum",SPHEROID["split_spheroid",6378137,298.257223563]],PRIMEM["Greenwich",0],UNIT["degree",0.017453292519943278],AXIS["Lat",NORTH],AXIS["Lon",EAST]]';
+----------
+[SYSTEM_SETTING_WRITE] DROP SPATIAL REFERENCE SYSTEM IF EXISTS 70000011;
+----------
+[SYSTEM_SETTING_WRITE] CREATE SPATIAL REFERENCE SYSTEM IF NOT EXISTS 70000011 NAME 'split_reject' DEFINITION 'GEOGCS["split_reject",DATUM["split_datum",SPHEROID["split_spheroid",6378137,298.257223563]],PRIMEM["Greenwich",0],UNIT["degree",0.017453292519943278],AXIS["Lat",NORTH],AXIS["Lon",EAST]]';
+----------
+[SYSTEM_SETTING_WRITE] CREATE OR REPLACE SPATIAL REFERENCE SYSTEM 70000011 NAME 'split_reject' DEFINITION 'GEOGCS["split_reject",DATUM["split_datum",SPHEROID["split_spheroid",6378137,298.257223563]],PRIMEM["Greenwich",0],UNIT["degree",0.017453292519943278],AXIS["Lat",NORTH],AXIS["Lon",EAST]]';
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE type_geom_alias (c_collection GEOMCOLLECTION);
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE type_spatial_srid_type_reject (c_geom GEOMETRY SRID 0);
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_INDEX] CREATE TABLE type_srid (c_point POINT NOT NULL SRID 4326, SPATIAL INDEX (c_point));
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT]
+CREATE TABLE splitvector.t_vector_default (id INT PRIMARY KEY, embedding VECTOR);
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT]
+CREATE TABLE splitvector.t_vector_dims (id INT PRIMARY KEY, embedding VECTOR(3));

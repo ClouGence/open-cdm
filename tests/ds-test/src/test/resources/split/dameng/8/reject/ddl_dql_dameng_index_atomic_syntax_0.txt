@@ -1,0 +1,114 @@
+create index;
+create index idx_bad;
+create index idx_bad on;
+create index idx_bad on app.t;
+create index idx_bad on app.t();
+create index idx_bad on app.t(c1,);
+create index idx_bad on app.t(,c1);
+create index idx_bad on app.t(c1 asc desc);
+create if not exists index idx_bad on app.t(c1);
+create index if exists idx_bad on app.t(c1);
+create or index idx_bad on app.t(c1);
+create replace index idx_bad on app.t(c1);
+create index idx_bad on app.t(c1) storage;
+create index idx_bad on app.t(c1) storage();
+create index idx_bad on app.t(c1) tablespace;
+create index idx_bad on app.t(c1) parallel by 2;
+create array index;
+create array index idx_bad on app.t();
+create array index idx_bad on app.t(c1) online;
+create array index idx_bad on app.t(c1) tablespace main;
+create context index;
+create context index ft_bad on app.t();
+create context index ft_bad on app.t(c) sync transaction online;
+alter index;
+alter index app.i;
+alter index app.i invisible visible;
+alter index app.i rename;
+alter index app.i monitoring;
+alter index app.i rebuild share asynchronous by 2;
+alter context index ft on app.t;
+alter context index ft on app.t increment lexer english_lexer;
+drop index;
+drop index if not exists app.i;
+drop index app.i,app.j;
+drop context index ft;
+drop context index ft on app.t cascade;
+select * from app.t index;
+comment on index app.i is 'x';
+------------------------------------------------------------------------------------------
+[ADD_INDEX] create index;
+----------
+[ADD_INDEX] create index idx_bad;
+----------
+[ADD_INDEX] create index idx_bad on;
+----------
+[ADD_INDEX] create index idx_bad on app.t;
+----------
+[ADD_INDEX] create index idx_bad on app.t();
+----------
+[ADD_INDEX] create index idx_bad on app.t(c1,);
+----------
+[ADD_INDEX] create index idx_bad on app.t(,c1);
+----------
+[ADD_INDEX] create index idx_bad on app.t(c1 asc desc);
+----------
+[ADD_INDEX] create if not exists index idx_bad on app.t(c1);
+----------
+[ADD_INDEX] create index if exists idx_bad on app.t(c1);
+----------
+[ADD_INDEX] create or index idx_bad on app.t(c1);
+----------
+[ADD_INDEX] create replace index idx_bad on app.t(c1);
+----------
+[ADD_INDEX] create index idx_bad on app.t(c1) storage;
+----------
+[ADD_INDEX] create index idx_bad on app.t(c1) storage();
+----------
+[ADD_INDEX] create index idx_bad on app.t(c1) tablespace;
+----------
+[ADD_INDEX] create index idx_bad on app.t(c1) parallel by 2;
+----------
+[ADD_INDEX] create array index;
+----------
+[ADD_INDEX] create array index idx_bad on app.t();
+----------
+[ADD_INDEX] create array index idx_bad on app.t(c1) online;
+----------
+[ADD_INDEX] create array index idx_bad on app.t(c1) tablespace main;
+----------
+[ADD_INDEX] create context index;
+----------
+[ADD_INDEX] create context index ft_bad on app.t();
+----------
+[ADD_INDEX] create context index ft_bad on app.t(c) sync transaction online;
+----------
+[ALTER_INDEX] alter index;
+----------
+[ALTER_INDEX] alter index app.i;
+----------
+[ALTER_INDEX] alter index app.i invisible visible;
+----------
+[ALTER_INDEX] alter index app.i rename;
+----------
+[ALTER_INDEX] alter index app.i monitoring;
+----------
+[ALTER_INDEX] alter index app.i rebuild share asynchronous by 2;
+----------
+[ALTER_INDEX] alter context index ft on app.t;
+----------
+[ALTER_INDEX] alter context index ft on app.t increment lexer english_lexer;
+----------
+[DROP_INDEX] drop index;
+----------
+[DROP_INDEX] drop index if not exists app.i;
+----------
+[DROP_INDEX] drop index app.i,app.j;
+----------
+[DROP_INDEX] drop context index ft;
+----------
+[DROP_INDEX] drop context index ft on app.t cascade;
+----------
+[SELECT] select * from app.t index;
+----------
+[UNKNOWN] comment on index app.i is 'x';

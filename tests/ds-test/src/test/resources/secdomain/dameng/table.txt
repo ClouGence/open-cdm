@@ -1,0 +1,61 @@
+[create_table]
+sql:
+create table app.orders(id int primary key, amount decimal(12,2))
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"CREATE_TABLE", "auditKind":"CREATE", "schema":"app", "table":"orders"}
+  ]
+}
+----------
+[create_table_like]
+sql:
+create table app.orders_copy like app.orders
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"CREATE_TABLE_LIKE", "auditKind":"CREATE", "schema":"app", "table":"orders_copy"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"orders"}
+  ]
+}
+----------
+[create_table_as_select]
+sql:
+create table app.orders_archive as select o.id, o.amount from app.orders o where o.amount>0
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"CREATE_TABLE_SELECT", "auditKind":"CREATE", "schema":"app", "table":"orders_archive"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"orders"}
+  ]
+}
+----------
+[alter_truncate_drop_table]
+sql:
+alter table app.orders add note varchar(40);
+truncate table app.orders;
+drop table app.orders cascade;
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"TRUNCATE", "auditKind":"ALTER", "schema":"app", "table":"orders"},
+    {"class":"RdbTableDomain", "sqlType":"ALTER_TABLE", "auditKind":"ALTER", "schema":"app", "table":"orders"},
+    {"class":"RdbTableDomain", "sqlType":"DROP_TABLE", "auditKind":"DROP", "schema":"app", "table":"orders"}
+  ]
+}
+----------
+[table_dml_and_query]
+sql:
+insert into app.orders(id,amount) values(1,10);
+update app.orders set amount=20 where id=1;
+delete from app.orders where id=1;
+select id,amount from app.orders;
+expect:
+{
+  "contains": [
+    {"class":"RdbInsertDomain", "sqlType":"INSERT", "auditKind":"DML", "schema":"app", "table":"orders"},
+    {"class":"RdbUpdateDomain", "sqlType":"UPDATE", "auditKind":"DML", "schema":"app", "table":"orders"},
+    {"class":"RdbDeleteDomain", "sqlType":"DELETE", "auditKind":"DML", "schema":"app", "table":"orders"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"orders"}
+  ]
+}

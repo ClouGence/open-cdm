@@ -1,0 +1,6 @@
+DELETE JSON_TABLE('{}','$' COLUMNS(a INT PATH '$.a')) AS jt FROM t1;
+DELETE t1,JSON_TABLE('{}','$' COLUMNS(a INT PATH '$.a')) AS jt USING t1;
+------------------------------------------------------------------------------------------
+[DELETE] DELETE JSON_TABLE('{}','$' COLUMNS(a INT PATH '$.a')) AS jt FROM t1;
+----------
+[DELETE] DELETE t1,JSON_TABLE('{}','$' COLUMNS(a INT PATH '$.a')) AS jt USING t1;

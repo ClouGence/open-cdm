@@ -1,0 +1,396 @@
+[split_ddl_dameng_role_semantic_boundaries_0_001_behavior_review]
+sql:
+create role CODEX_DM8_ROLE_BOUND_A_20260723;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_ROLE": [
+    {
+      "subject": "Role(1:12~1:43) /test/1/CODEX_DM8_ROLE_BOUND_A_20260723/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_role_semantic_boundaries_0_002_behavior_review]
+sql:
+create role RXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_ROLE": [
+    {
+      "subject": "Role(1:12~1:141) /test/1/RXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_role_semantic_boundaries_0_003_behavior_review]
+sql:
+create role CODEX_DM8_ROLE_NAME_CONFLICT_20260723;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_ROLE": [
+    {
+      "subject": "Role(1:12~1:49) /test/1/CODEX_DM8_ROLE_NAME_CONFLICT_20260723/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_role_semantic_boundaries_0_004_behavior_review]
+sql:
+drop role CODEX_DM8_ROLE_MISSING_20260723;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_ROLE": [
+    {
+      "subject": "Role(1:10~1:41) /test/1/CODEX_DM8_ROLE_MISSING_20260723/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_role_semantic_boundaries_0_005_behavior_review]
+sql:
+drop role DBA;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_ROLE": [
+    {
+      "subject": "Role(1:10~1:13) /test/1/DBA/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_role_semantic_boundaries_0_006_behavior_review]
+sql:
+sp_set_role('CODEX_DM8_ROLE_MISSING_20260723', 0);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:0~1:11) /test/1/catalog1/schema1/sp_set_role/",
+      "action" : "CALL",
+      "target" : "Role(1:12~1:45) /test/1/CODEX_DM8_ROLE_MISSING_20260723/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_role_semantic_boundaries_0_007_behavior_review]
+sql:
+sp_set_role('CODEX_DM8_ROLE_BOUND_A_20260723', -1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:0~1:11) /test/1/catalog1/schema1/sp_set_role/",
+      "action" : "CALL",
+      "target" : "Role(1:12~1:45) /test/1/CODEX_DM8_ROLE_BOUND_A_20260723/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_role_semantic_boundaries_0_008_behavior_review]
+sql:
+sp_set_role('CODEX_DM8_ROLE_BOUND_A_20260723', 2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:0~1:11) /test/1/catalog1/schema1/sp_set_role/",
+      "action" : "CALL",
+      "target" : "Role(1:12~1:45) /test/1/CODEX_DM8_ROLE_BOUND_A_20260723/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_role_semantic_boundaries_0_009_behavior_review]
+sql:
+sp_set_role('DBA', 0);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:0~1:11) /test/1/catalog1/schema1/sp_set_role/",
+      "action" : "CALL",
+      "target" : "Role(1:12~1:17) /test/1/DBA/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_role_semantic_boundaries_0_010_behavior_review]
+sql:
+grant CODEX_DM8_ROLE_BOUND_B_20260723 to CODEX_DM8_ROLE_BOUND_A_20260723;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Role(1:6~1:37) /test/1/CODEX_DM8_ROLE_BOUND_B_20260723/",
+      "action" : "GRANT",
+      "target" : "UserOrRole(1:41~1:72) /test/1/CODEX_DM8_ROLE_BOUND_A_20260723/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_role_semantic_boundaries_0_011_behavior_review]
+sql:
+grant CODEX_DM8_ROLE_BOUND_A_20260723 to CODEX_DM8_ROLE_BOUND_A_20260723;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Role(1:6~1:37) /test/1/CODEX_DM8_ROLE_BOUND_A_20260723/",
+      "action" : "GRANT",
+      "target" : "UserOrRole(1:41~1:72) /test/1/CODEX_DM8_ROLE_BOUND_A_20260723/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_role_semantic_boundaries_0_012_behavior_review]
+sql:
+grant CODEX_DM8_ROLE_MISSING_20260723 to CODEX_DM8_ROLE_BOUND_USER_20260723;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Role(1:6~1:37) /test/1/CODEX_DM8_ROLE_MISSING_20260723/",
+      "action" : "GRANT",
+      "target" : "UserOrRole(1:41~1:75) /test/1/CODEX_DM8_ROLE_BOUND_USER_20260723/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_role_semantic_boundaries_0_013_behavior_review]
+sql:
+grant CODEX_DM8_ROLE_BOUND_A_20260723 to CODEX_DM8_ROLE_MISSING_GRANTEE_20260723;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Role(1:6~1:37) /test/1/CODEX_DM8_ROLE_BOUND_A_20260723/",
+      "action" : "GRANT",
+      "target" : "UserOrRole(1:41~1:80) /test/1/CODEX_DM8_ROLE_MISSING_GRANTEE_20260723/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_role_semantic_boundaries_0_014_behavior_review]
+sql:
+revoke CODEX_DM8_ROLE_BOUND_C_20260723 from CODEX_DM8_ROLE_BOUND_USER_20260723;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "Role(1:7~1:38) /test/1/CODEX_DM8_ROLE_BOUND_C_20260723/",
+      "action" : "REVOKE",
+      "target" : "UserOrRole(1:44~1:78) /test/1/CODEX_DM8_ROLE_BOUND_USER_20260723/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_role_semantic_boundaries_0_015_behavior_review]
+sql:
+revoke admin option for CODEX_DM8_ROLE_BOUND_A_20260723 from CODEX_DM8_ROLE_BOUND_USER_20260723;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "Role(1:24~1:55) /test/1/CODEX_DM8_ROLE_BOUND_A_20260723/",
+      "action" : "REVOKE",
+      "target" : "UserOrRole(1:61~1:95) /test/1/CODEX_DM8_ROLE_BOUND_USER_20260723/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_role_semantic_boundaries_0_016_behavior_review]
+sql:
+grant SVI to PUBLIC;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Role(1:6~1:9) /test/1/SVI/",
+      "action" : "GRANT",
+      "target" : "UserOrRole(1:13~1:19) /test/1/PUBLIC/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_role_semantic_boundaries_0_017_behavior_review]
+sql:
+sp_set_role();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:0~1:11) /test/1/catalog1/schema1/sp_set_role/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_role_semantic_boundaries_0_018_behavior_review]
+sql:
+sp_set_role('CODEX_DM8_ROLE_BOUND_A_20260723');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:0~1:11) /test/1/catalog1/schema1/sp_set_role/",
+      "action" : "CALL",
+      "target" : "Role(1:12~1:45) /test/1/CODEX_DM8_ROLE_BOUND_A_20260723/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_role_semantic_boundaries_0_019_behavior_review]
+sql:
+sp_set_role('CODEX_DM8_ROLE_BOUND_A_20260723', 1, 2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:0~1:11) /test/1/catalog1/schema1/sp_set_role/",
+      "action" : "CALL",
+      "target" : "Role(1:12~1:45) /test/1/CODEX_DM8_ROLE_BOUND_A_20260723/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_role_semantic_boundaries_0_020_behavior_review]
+sql:
+grant CODEX_DM8_ROLE_BAD_A to CODEX_DM8_ROLE_BAD_B with grant option;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Role(1:6~1:26) /test/1/CODEX_DM8_ROLE_BAD_A/",
+      "action" : "GRANT",
+      "target" : "UserOrRole(1:30~1:50) /test/1/CODEX_DM8_ROLE_BAD_B/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_role_semantic_boundaries_0_021_behavior_review]
+sql:
+revoke grant option for CODEX_DM8_ROLE_BAD_A from CODEX_DM8_ROLE_BAD_B;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "Role(1:24~1:44) /test/1/CODEX_DM8_ROLE_BAD_A/",
+      "action" : "REVOKE",
+      "target" : "UserOrRole(1:50~1:70) /test/1/CODEX_DM8_ROLE_BAD_B/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_role_semantic_boundaries_0_022_behavior_review]
+sql:
+revoke grant admin for CODEX_DM8_ROLE_BAD_A from CODEX_DM8_ROLE_BAD_B;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "Role(1:23~1:43) /test/1/CODEX_DM8_ROLE_BAD_A/",
+      "action" : "REVOKE",
+      "target" : "UserOrRole(1:49~1:69) /test/1/CODEX_DM8_ROLE_BAD_B/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_role_semantic_boundaries_0_023_behavior_review]
+sql:
+revoke CODEX_DM8_ROLE_BAD_A from CODEX_DM8_ROLE_BAD_B cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "Role(1:7~1:27) /test/1/CODEX_DM8_ROLE_BAD_A/",
+      "action" : "REVOKE",
+      "target" : "UserOrRole(1:33~1:53) /test/1/CODEX_DM8_ROLE_BAD_B/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_role_semantic_boundaries_0_024_behavior_review]
+sql:
+revoke CODEX_DM8_ROLE_BAD_A from CODEX_DM8_ROLE_BAD_B restrict;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "Role(1:7~1:27) /test/1/CODEX_DM8_ROLE_BAD_A/",
+      "action" : "REVOKE",
+      "target" : "UserOrRole(1:33~1:53) /test/1/CODEX_DM8_ROLE_BAD_B/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_role_semantic_boundaries_0_025_behavior_review]
+sql:
+select count(*) from SYSDBA.CODEX_DM8_ROLE_STATE_DATA_20260723;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:21~1:62) /test/1/catalog1/SYSDBA/CODEX_DM8_ROLE_STATE_DATA_20260723/",
+      "action" : "READ"
+    }
+  ]
+}

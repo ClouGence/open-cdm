@@ -1,0 +1,15 @@
+create table app.bad_pls_s01(c pls_integer());
+create table app.bad_pls_s02(c pls_integer(,));
+create table app.bad_pls_s03(c pls_integer(1,));
+create table app.bad_pls_s04(c pls_integer pls_integer);
+create function app.bad_pls_f(p pls_integer()) return int as begin return 1; end;/
+------------------------------------------------------------------------------------------
+[CREATE_TABLE] create table app.bad_pls_s01(c pls_integer());
+----------
+[CREATE_TABLE] create table app.bad_pls_s02(c pls_integer(,));
+----------
+[CREATE_TABLE] create table app.bad_pls_s03(c pls_integer(1,));
+----------
+[CREATE_TABLE] create table app.bad_pls_s04(c pls_integer pls_integer);
+----------
+[CREATE_PROG_OBJ] create function app.bad_pls_f(p pls_integer()) return int as begin return 1; end;/

@@ -1,0 +1,1112 @@
+[grant__001]
+sql:
+GRANT SELECT,INSERT,UPDATE,DELETE,CREATE,DROP ON test2.* TO PUBLIC@'%';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Schema(1:49~1:54) /test/1/catalog1/test2/",
+      "action" : "GRANT",
+      "target" : "UserOrRole(1:60~1:70) /test/1/PUBLIC@%/"
+    }
+  ]
+}
+----------
+[revoke__002]
+sql:
+REVOKE SELECT(c1) ON FUNCTION *.* FROM u1@localhost;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "Instance(1:30~1:33) /test/1/",
+      "action" : "REVOKE",
+      "target" : "UserOrRole(1:39~1:51) /test/1/u1@localhost/"
+    }
+  ]
+}
+----------
+[grant__003]
+sql:
+GRANT SELECT(c1) ON FUNCTION *.* TO u1@localhost;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Instance(1:29~1:32) /test/1/",
+      "action" : "GRANT",
+      "target" : "UserOrRole(1:36~1:48) /test/1/u1@localhost/"
+    }
+  ]
+}
+----------
+[create_user__004]
+sql:
+CREATE USER IF NOT EXISTS 'split_acc57_a'@'%' IDENTIFIED BY 'Acc57a!' REQUIRE NONE PASSWORD EXPIRE DEFAULT ACCOUNT LOCK;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:26~1:45) /test/1/split_acc57_a@%/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_user__005]
+sql:
+CREATE USER 'split_acc57_b'@'%' IDENTIFIED BY 'Acc57b!' PASSWORD EXPIRE NEVER ACCOUNT UNLOCK;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:31) /test/1/split_acc57_b@%/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[alter_user__006]
+sql:
+ALTER USER 'split_acc57_a'@'%' PASSWORD EXPIRE INTERVAL 90 DAY ACCOUNT UNLOCK;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:30) /test/1/split_acc57_a@%/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_user__007]
+sql:
+ALTER USER 'split_acc57_b'@'%' PASSWORD EXPIRE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:30) /test/1/split_acc57_b@%/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[create_user__008]
+sql:
+CREATE USER 'sat57'@'%' IDENTIFIED BY 'Tls57!' REQUIRE CIPHER 'DHE-RSA-AES256-SHA' AND ISSUER '/C=US/O=Example/OU=CA/CN=issuer' AND SUBJECT '/C=US/O=Example/OU=client/CN=user' WITH MAX_QUERIES_PER_HOUR 10 MAX_UPDATES_PER_HOUR 20 MAX_CONNECTIONS_PER_HOUR 30 MAX_USER_CONNECTIONS 4 PASSWORD EXPIRE INTERVAL 90 DAY ACCOUNT LOCK;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:23) /test/1/sat57@%/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[alter_user__009]
+sql:
+ALTER USER 'sat57'@'%' REQUIRE SSL WITH MAX_QUERIES_PER_HOUR 11 MAX_UPDATES_PER_HOUR 21 MAX_CONNECTIONS_PER_HOUR 31 MAX_USER_CONNECTIONS 5 ACCOUNT UNLOCK;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:22) /test/1/sat57@%/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[grant__010]
+sql:
+GRANT SELECT, INSERT(note), UPDATE ON split_acl57.t TO 'split_acl_57'@'%';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Table(1:38~1:51) /test/1/catalog1/split_acl57/t/",
+      "action" : "GRANT",
+      "target" : "UserOrRole(1:55~1:73) /test/1/split_acl_57@%/"
+    }
+  ]
+}
+----------
+[grant__011]
+sql:
+GRANT EXECUTE ON PROCEDURE split_acl57.p TO 'split_acl_57'@'%';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Procedure(1:27~1:40) /test/1/catalog1/split_acl57/p/",
+      "action" : "GRANT",
+      "target" : "UserOrRole(1:44~1:62) /test/1/split_acl_57@%/"
+    }
+  ]
+}
+----------
+[grant__012]
+sql:
+GRANT EXECUTE ON FUNCTION split_acl57.f TO 'split_acl_57'@'%';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Function(1:26~1:39) /test/1/catalog1/split_acl57/f/",
+      "action" : "GRANT",
+      "target" : "UserOrRole(1:43~1:61) /test/1/split_acl_57@%/"
+    }
+  ]
+}
+----------
+[grant__013]
+sql:
+GRANT ALL PRIVILEGES ON split_acl57.* TO 'split_acl_57'@'%' WITH GRANT OPTION;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Schema(1:24~1:35) /test/1/catalog1/split_acl57/",
+      "action" : "GRANT",
+      "target" : "UserOrRole(1:41~1:59) /test/1/split_acl_57@%/"
+    }
+  ]
+}
+----------
+[grant__014]
+sql:
+GRANT PROXY ON 'root'@'%' TO 'split_acl_57'@'%' WITH GRANT OPTION;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "UserOrRole(1:15~1:25) /test/1/root@%/",
+      "action" : "GRANT",
+      "target" : "UserOrRole(1:29~1:47) /test/1/split_acl_57@%/"
+    }
+  ]
+}
+----------
+[revoke__015]
+sql:
+REVOKE SELECT, INSERT(note), UPDATE ON split_acl57.t FROM 'split_acl_57'@'%';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "Table(1:39~1:52) /test/1/catalog1/split_acl57/t/",
+      "action" : "REVOKE",
+      "target" : "UserOrRole(1:58~1:76) /test/1/split_acl_57@%/"
+    }
+  ]
+}
+----------
+[revoke__016]
+sql:
+REVOKE EXECUTE ON PROCEDURE split_acl57.p FROM 'split_acl_57'@'%';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "Procedure(1:28~1:41) /test/1/catalog1/split_acl57/p/",
+      "action" : "REVOKE",
+      "target" : "UserOrRole(1:47~1:65) /test/1/split_acl_57@%/"
+    }
+  ]
+}
+----------
+[revoke__017]
+sql:
+REVOKE EXECUTE ON FUNCTION split_acl57.f FROM 'split_acl_57'@'%';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "Function(1:27~1:40) /test/1/catalog1/split_acl57/f/",
+      "action" : "REVOKE",
+      "target" : "UserOrRole(1:46~1:64) /test/1/split_acl_57@%/"
+    }
+  ]
+}
+----------
+[revoke__018]
+sql:
+REVOKE PROXY ON 'root'@'%' FROM 'split_acl_57'@'%';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "UserOrRole(1:16~1:26) /test/1/root@%/",
+      "action" : "REVOKE",
+      "target" : "UserOrRole(1:32~1:50) /test/1/split_acl_57@%/"
+    }
+  ]
+}
+----------
+[revoke__019]
+sql:
+REVOKE ALL PRIVILEGES, GRANT OPTION FROM 'split_acl_57'@'%';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "UserOrRole(1:41~1:59) /test/1/split_acl_57@%/",
+      "action" : "REVOKE"
+    }
+  ]
+}
+----------
+[grant__020]
+sql:
+GRANT SELECT, INSERT ON cda17db.* TO 'cda04a'@'%', 'cda04b'@'%';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Schema(1:24~1:31) /test/1/catalog1/cda17db/",
+      "action" : "GRANT",
+      "target" : [
+        "UserOrRole(1:37~1:49) /test/1/cda04a@%/",
+        "UserOrRole(1:51~1:63) /test/1/cda04b@%/"
+      ]
+    }
+  ]
+}
+----------
+[revoke__021]
+sql:
+REVOKE SELECT, INSERT ON cda17db.* FROM 'cda05a'@'%', 'cda05b'@'%';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "Schema(1:25~1:32) /test/1/catalog1/cda17db/",
+      "action" : "REVOKE",
+      "target" : [
+        "UserOrRole(1:40~1:52) /test/1/cda05a@%/",
+        "UserOrRole(1:54~1:66) /test/1/cda05b@%/"
+      ]
+    }
+  ]
+}
+----------
+[revoke__022]
+sql:
+REVOKE GRANT OPTION ON cda17db.* FROM 'cda06a'@'%';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "Schema(1:23~1:30) /test/1/catalog1/cda17db/",
+      "action" : "REVOKE",
+      "target" : "UserOrRole(1:38~1:50) /test/1/cda06a@%/"
+    }
+  ]
+}
+----------
+[alter_user__023]
+sql:
+ALTER USER 'cda15a'@'%';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:23) /test/1/cda15a@%/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_user__024]
+sql:
+ALTER USER 'cda02a'@'%' IDENTIFIED BY 'Cda#New02x9', 'cda02b'@'%' IDENTIFIED BY 'Cda#New02y9' PASSWORD EXPIRE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:23) /test/1/cda02a@%/",
+      "action" : "ALTER"
+    },
+    {
+      "subject": "User(1:53~1:65) /test/1/cda02b@%/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_user__025]
+sql:
+ALTER USER USER() IDENTIFIED BY '123456';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:0~1:40) /test/1/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[create_user__026]
+sql:
+CREATE USER 'cda01a'@'%' IDENTIFIED BY 'Cda#One01x9', 'cda01b'@'%' IDENTIFIED BY 'Cda#One01y9';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:24) /test/1/cda01a@%/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "User(1:54~1:66) /test/1/cda01b@%/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_user__027]
+sql:
+CREATE USER 'split_x509_57'@'%' REQUIRE X509;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:31) /test/1/split_x509_57@%/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[grant__028]
+sql:
+GRANT SELECT ON split_acl57.* TO 'sg57a'@'%' IDENTIFIED BY 'Grant57!' REQUIRE SSL WITH GRANT OPTION MAX_QUERIES_PER_HOUR 10 MAX_UPDATES_PER_HOUR 20 MAX_CONNECTIONS_PER_HOUR 30 MAX_USER_CONNECTIONS 4;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Schema(1:16~1:27) /test/1/catalog1/split_acl57/",
+      "action" : "GRANT",
+      "target" : "UserOrRole(1:33~1:44) /test/1/sg57a@%/"
+    }
+  ]
+}
+----------
+[grant__029]
+sql:
+GRANT USAGE ON *.* TO 'sg57b'@'%' IDENTIFIED BY PASSWORD '*2470C0C06DEE42FD1618BB99005ADCA2EC9D1E19' REQUIRE X509;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Instance(1:15~1:18) /test/1/",
+      "action" : "GRANT",
+      "target" : "UserOrRole(1:22~1:33) /test/1/sg57b@%/"
+    }
+  ]
+}
+----------
+[grant__030]
+sql:
+GRANT SELECT ON cda17db.* TO 'cda14a'@'%' IDENTIFIED WITH mysql_native_password AS '*6C387FC3893DBA1E3BA155E74754DA6682400F26';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Schema(1:16~1:23) /test/1/catalog1/cda17db/",
+      "action" : "GRANT",
+      "target" : "UserOrRole(1:29~1:41) /test/1/cda14a@%/"
+    }
+  ]
+}
+----------
+[grant__031]
+sql:
+GRANT PROXY ON 'split_proxy_from'@'%' TO 'split_proxy_to_a'@'%', 'split_proxy_to_b'@'%';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "UserOrRole(1:15~1:37) /test/1/split_proxy_from@%/",
+      "action" : "GRANT",
+      "target" : [
+        "UserOrRole(1:41~1:63) /test/1/split_proxy_to_a@%/",
+        "UserOrRole(1:65~1:87) /test/1/split_proxy_to_b@%/"
+      ]
+    }
+  ]
+}
+----------
+[revoke__032]
+sql:
+REVOKE PROXY ON 'split_proxy_from'@'%' FROM 'split_proxy_to_a'@'%', 'split_proxy_to_b'@'%';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "UserOrRole(1:16~1:38) /test/1/split_proxy_from@%/",
+      "action" : "REVOKE",
+      "target" : [
+        "UserOrRole(1:44~1:66) /test/1/split_proxy_to_a@%/",
+        "UserOrRole(1:68~1:90) /test/1/split_proxy_to_b@%/"
+      ]
+    }
+  ]
+}
+----------
+[grant__033]
+sql:
+GRANT PROXY ON 'split_proxy_from'@'%' TO 'split_proxy_to_a'@'%' WITH GRANT OPTION;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "UserOrRole(1:15~1:37) /test/1/split_proxy_from@%/",
+      "action" : "GRANT",
+      "target" : "UserOrRole(1:41~1:63) /test/1/split_proxy_to_a@%/"
+    }
+  ]
+}
+----------
+[revoke__034]
+sql:
+REVOKE PROXY ON 'split_proxy_from'@'%' FROM 'split_proxy_to_a'@'%';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "UserOrRole(1:16~1:38) /test/1/split_proxy_from@%/",
+      "action" : "REVOKE",
+      "target" : "UserOrRole(1:44~1:66) /test/1/split_proxy_to_a@%/"
+    }
+  ]
+}
+----------
+[rename_user__035]
+sql:
+RENAME USER 'cdra57a'@'localhost' TO 'cdra57c'@'localhost', 'cdra57b'@'localhost' TO 'cdra57d'@'localhost';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "RENAME_USER": [
+    {
+      "subject": "User(1:12~1:33) /test/1/cdra57a@localhost/",
+      "action" : "RENAME",
+      "target" : "User(1:37~1:58) /test/1/cdra57c@localhost/"
+    },
+    {
+      "subject": "User(1:60~1:81) /test/1/cdra57b@localhost/",
+      "action" : "RENAME",
+      "target" : "User(1:85~1:106) /test/1/cdra57d@localhost/"
+    }
+  ]
+}
+----------
+[create_user__036]
+sql:
+CREATE USER 'split_life_57_a'@'%' IDENTIFIED BY 'Life57a!';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:33) /test/1/split_life_57_a@%/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_user__037]
+sql:
+CREATE USER 'split_life_57_b'@'localhost' IDENTIFIED WITH mysql_native_password BY 'Life57b!';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:41) /test/1/split_life_57_b@localhost/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[alter_user__038]
+sql:
+ALTER USER 'split_life_57_a'@'%' IDENTIFIED BY 'Life57c!';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:32) /test/1/split_life_57_a@%/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[rename_user__039]
+sql:
+RENAME USER 'split_life_57_b'@'localhost' TO 'split_life_57_c'@'localhost';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "RENAME_USER": [
+    {
+      "subject": "User(1:12~1:41) /test/1/split_life_57_b@localhost/",
+      "action" : "RENAME",
+      "target" : "User(1:45~1:74) /test/1/split_life_57_c@localhost/"
+    }
+  ]
+}
+----------
+[drop_user__040]
+sql:
+DROP USER 'split_life_57_a'@'%','split_life_57_c'@'localhost';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_USER": [
+    {
+      "subject": "User(1:10~1:31) /test/1/split_life_57_a@%/",
+      "action" : "DROP"
+    },
+    {
+      "subject": "User(1:32~1:61) /test/1/split_life_57_c@localhost/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[drop_user__041]
+sql:
+DROP USER IF EXISTS 'split_life_57_missing'@'%';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_USER": [
+    {
+      "subject": "User(1:20~1:47) /test/1/split_life_57_missing@%/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[session_variable_rw__042]
+sql:
+SET @plain.name$ = 1, @'hyphen-name' := 2, @"space name" = 3, @`tick-name` := 4;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_VARIABLE_RW": [
+    {
+      "subject": "ConfigKey(1:4~1:16) /test/1/plain.name$/",
+      "action" : "READ"
+    },
+    {
+      "subject": "ConfigKey(1:22~1:36) /test/1/hyphen-name/",
+      "action" : "READ"
+    },
+    {
+      "subject": "ConfigKey(1:43~1:56) /test/1/spacename/",
+      "action" : "READ"
+    },
+    {
+      "subject": "ConfigKey(1:62~1:74) /test/1/tick-name/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[grant__043]
+sql:
+GRANT SELECT(id,c) ON codex_next_audit.base_t TO 'codex_next_u'@'localhost';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Table(1:22~1:45) /test/1/catalog1/codex_next_audit/base_t/",
+      "action" : "GRANT",
+      "target" : "UserOrRole(1:49~1:75) /test/1/codex_next_u@localhost/"
+    }
+  ]
+}
+----------
+[grant__044]
+sql:
+GRANT REFERENCES(id) ON codex_next_audit.base_t TO 'codex_next_u'@'localhost';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Table(1:24~1:47) /test/1/catalog1/codex_next_audit/base_t/",
+      "action" : "GRANT",
+      "target" : "UserOrRole(1:51~1:77) /test/1/codex_next_u@localhost/"
+    }
+  ]
+}
+----------
+[grant__045]
+sql:
+GRANT USAGE ON *.* TO 'codex_next_tls'@'localhost' REQUIRE NONE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Instance(1:15~1:18) /test/1/",
+      "action" : "GRANT",
+      "target" : "UserOrRole(1:22~1:50) /test/1/codex_next_tls@localhost/"
+    }
+  ]
+}
+----------
+[grant__046]
+sql:
+GRANT USAGE ON *.* TO 'codex_next_tls'@'localhost' REQUIRE CIPHER 'x' SUBJECT 's' ISSUER 'i';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Instance(1:15~1:18) /test/1/",
+      "action" : "GRANT",
+      "target" : "UserOrRole(1:22~1:50) /test/1/codex_next_tls@localhost/"
+    }
+  ]
+}
+----------
+[create_user__047]
+sql:
+CREATE USER 'mysqltest_1', 'mysqltest_2' IDENTIFIED BY 'Mysqltest-2', 'mysqltest_3' IDENTIFIED BY PASSWORD '*14074898176C592FD9086364071BDE91F3FE74AC';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:25) /test/1/mysqltest_1/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "User(1:27~1:40) /test/1/mysqltest_2/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "User(1:70~1:83) /test/1/mysqltest_3/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_user__048]
+sql:
+CREATE USER noauth@localhost IDENTIFIED WITH 'mysql_no_login';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:28) /test/1/noauth@localhost/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[grant__049]
+sql:
+GRANT EXECUTE ON * TO `a@`@localhost;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Schema(1:17~1:18) /test/1/catalog1/schema1/",
+      "action" : "GRANT",
+      "target" : "UserOrRole(1:22~1:36) /test/1/a@@localhost/"
+    }
+  ]
+}
+----------
+[alter_user__050]
+sql:
+ALTER USER IF EXISTS u1@localhost IDENTIFIED WITH mysql_native_password BY 'pass_native3';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:21~1:33) /test/1/u1@localhost/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[create_user__051]
+sql:
+CREATE USER IF NOT EXISTS u1 IDENTIFIED WITH 'mysql_native_password', u2 IDENTIFIED BY 'pass', u3 IDENTIFIED WITH 'sha256_password';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:26~1:28) /test/1/u1/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "User(1:70~1:72) /test/1/u2/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "User(1:95~1:97) /test/1/u3/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[alter_user__052]
+sql:
+ALTER USER 20553132_u2@localhost IDENTIFIED BY 'abcd', 20553132_u1@localhost IDENTIFIED BY 'defg' PASSWORD EXPIRE NEVER;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:32) /test/1/20553132_u2@localhost/",
+      "action" : "ALTER"
+    },
+    {
+      "subject": "User(1:55~1:76) /test/1/20553132_u1@localhost/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[grant__053]
+sql:
+GRANT CREATE, INSERT, SELECT ON TABLE test.t1 TO CURRENT_USER();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Table(1:38~1:45) /test/1/catalog1/test/t1/",
+      "action" : "GRANT",
+      "target" : "UserOrRole(1:49~1:61) /test/1/"
+    }
+  ]
+}
+----------
+[revoke__054]
+sql:
+REVOKE ALL PRIVILEGES, GRANT OPTION FROM CURRENT_USER();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "UserOrRole(1:41~1:53) /test/1/",
+      "action" : "REVOKE"
+    }
+  ]
+}
+----------
+[session_variable_rw__055]
+sql:
+SET @library := 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_VARIABLE_RW": [
+    {
+      "subject": "ConfigKey(1:4~1:12) /test/1/library/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[grant__056]
+sql:
+GRANT INSERT ON *.* TO CURRENT_USER() IDENTIFIED BY 'NewPass!';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Instance(1:16~1:19) /test/1/",
+      "action" : "GRANT",
+      "target" : "UserOrRole(1:23~1:35) /test/1/"
+    }
+  ]
+}
+----------
+[create_user__057]
+sql:
+CREATE USER ca_sub@localhost REQUIRE SUBJECT '/C=CN/O=Example/CN=u';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:28) /test/1/ca_sub@localhost/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[alter_user__058]
+sql:
+ALTER USER ca_sub@localhost REQUIRE ISSUER '/C=CN/O=Example/CN=ca';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:27) /test/1/ca_sub@localhost/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[create_user__059]
+sql:
+CREATE USER ca_res@localhost WITH MAX_QUERIES_PER_HOUR 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:28) /test/1/ca_res@localhost/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[alter_user__060]
+sql:
+ALTER USER ca_sub@localhost IDENTIFIED WITH 'mysql_native_password';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:27) /test/1/ca_sub@localhost/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_user__061]
+sql:
+ALTER USER ca_sub@localhost IDENTIFIED WITH 'sha256_password', ca_res@localhost, ca_third@localhost IDENTIFIED BY 'p' PASSWORD EXPIRE DEFAULT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:27) /test/1/ca_sub@localhost/",
+      "action" : "ALTER"
+    },
+    {
+      "subject": "User(1:63~1:79) /test/1/ca_res@localhost/",
+      "action" : "ALTER"
+    },
+    {
+      "subject": "User(1:81~1:99) /test/1/ca_third@localhost/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[grant__062]
+sql:
+GRANT ALL ON *.*TO 'split_native_gap'@'localhost' WITH GRANT OPTION;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Instance(1:13~1:16) /test/1/",
+      "action" : "GRANT",
+      "target" : "UserOrRole(1:19~1:49) /test/1/split_native_gap@localhost/"
+    }
+  ]
+}
+----------
+[rename_user__063]
+sql:
+RENAME USER CURRENT_USER TO 'renamed'@'localhost';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "RENAME_USER": [
+    {
+      "subject": "User(1:12~1:24) /test/1/",
+      "action" : "RENAME",
+      "target" : "User(1:28~1:49) /test/1/renamed@localhost/"
+    }
+  ]
+}
+----------
+[drop_user__064]
+sql:
+DROP USER CURRENT_USER();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_USER": [
+    {
+      "subject": "User(1:0~1:24) /test/1/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[create_user__065]
+sql:
+CREATE USER 'c4u1'@'%', 'c4u2'@'%' IDENTIFIED BY 'p' REQUIRE SSL WITH MAX_USER_CONNECTIONS 1 PASSWORD EXPIRE NEVER;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:22) /test/1/c4u1@%/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "User(1:24~1:34) /test/1/c4u2@%/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[grant__066]
+sql:
+GRANT USAGE ON PROCEDURE split_acl_native.split_native_acl_p TO 'split_acl_0720b'@'%' WITH GRANT OPTION;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Procedure(1:25~1:60) /test/1/catalog1/split_acl_native/split_native_acl_p/",
+      "action" : "GRANT",
+      "target" : "UserOrRole(1:64~1:85) /test/1/split_acl_0720b@%/"
+    }
+  ]
+}
+----------
+[grant__067]
+sql:
+GRANT USAGE ON *.* TO 'split_tls_and'@'localhost' REQUIRE CIPHER 'DHE-RSA-AES256-SHA' AND ISSUER '/C=US/O=Example/CN=issuer' AND SUBJECT '/C=US/O=Example/CN=client';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Instance(1:15~1:18) /test/1/",
+      "action" : "GRANT",
+      "target" : "UserOrRole(1:22~1:49) /test/1/split_tls_and@localhost/"
+    }
+  ]
+}

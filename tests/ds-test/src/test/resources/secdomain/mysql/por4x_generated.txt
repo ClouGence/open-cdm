@@ -1,0 +1,1602 @@
+[PoXSecDomainResolve4DatabaseTest_createDatabase_2]
+sql:
+CREATE DATABASE db1 default CHARACTER SET = UTF8;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CREATE_SCHEMA",
+      "auditKind": "CREATE",
+      "options": {},
+      "schema": "db1",
+      "ifNotExists": false,
+      "ifExists": false,
+      "characterSet": "UTF8"
+    }
+  ]
+}
+----------
+[PoXSecDomainResolve4InsertTest_insertColumn_1]
+sql:
+insert low_priority into test (a) values(1);
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "INSERT",
+      "auditKind": "DML",
+      "hasWith": false,
+      "table": "test",
+      "columns": [
+        "a"
+      ],
+      "onlyValues": false,
+      "multipleValues": false,
+      "conflict": "NONE",
+      "fromSelect": false,
+      "hasSubQuery": false,
+      "hasNullValue": false
+    }
+  ]
+}
+----------
+[PoXSecDomainResolve4InsertTest_insertColumn_2]
+sql:
+insert low_priority into test (a) values(1) ON DUPLICATE KEY UPDATE col_name = 1;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "MERGE",
+      "auditKind": "DML",
+      "hasWith": false,
+      "table": "test",
+      "columns": [
+        "a",
+        "col_name"
+      ],
+      "onlyValues": false,
+      "multipleValues": false,
+      "conflict": "UPDATE",
+      "fromSelect": false,
+      "hasSubQuery": false,
+      "hasNullValue": false
+    }
+  ]
+}
+----------
+[PoXSecDomainResolve4InsertTest_insertSet_1]
+sql:
+insert DELAYED into test set a=1,b=3;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "INSERT",
+      "auditKind": "DML",
+      "hasWith": false,
+      "table": "test",
+      "columns": [
+        "a",
+        "b"
+      ],
+      "onlyValues": false,
+      "multipleValues": false,
+      "conflict": "NONE",
+      "fromSelect": false,
+      "hasSubQuery": false,
+      "hasNullValue": false
+    }
+  ]
+}
+----------
+[PoXSecDomainResolve4InsertTest_insertSet_2]
+sql:
+insert DELAYED into test set a=1,b=3  ON DUPLICATE KEY UPDATE col_name = 1;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "MERGE",
+      "auditKind": "DML",
+      "hasWith": false,
+      "table": "test",
+      "columns": [
+        "a",
+        "b",
+        "col_name"
+      ],
+      "onlyValues": false,
+      "multipleValues": false,
+      "conflict": "UPDATE",
+      "fromSelect": false,
+      "hasSubQuery": false,
+      "hasNullValue": false
+    }
+  ]
+}
+----------
+[PoXSecDomainResolve4InsertTest_insertSelect_1]
+sql:
+insert HIGH_PRIORITY into test select * from test1;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "INSERT",
+      "auditKind": "DML",
+      "hasWith": false,
+      "table": "test",
+      "columns": [],
+      "onlyValues": true,
+      "multipleValues": false,
+      "conflict": "NONE",
+      "fromSelect": true,
+      "hasSubQuery": false,
+      "hasNullValue": false
+    },
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": false,
+      "whereColumns": [],
+      "selectInWhere": false,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": true,
+      "mode": "INSERT",
+      "virtual": false,
+      "hasAs": false,
+      "hasSelectAll": true,
+      "selectInSelect": false,
+      "funcInSelect": false,
+      "exprInSelect": false,
+      "selectColumns": [],
+      "selectVariables": [],
+      "selectFunc": [],
+      "selectValue": [],
+      "selectInFrom": false,
+      "emptyFrom": false,
+      "joinTypes": [],
+      "hasLimit": false
+    }
+  ]
+}
+----------
+[PoXSecDomainResolve4InsertTest_insertSelect_2]
+sql:
+insert HIGH_PRIORITY into test select * from test1  ON DUPLICATE KEY UPDATE col_name = 1;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "MERGE",
+      "auditKind": "DML",
+      "hasWith": false,
+      "table": "test",
+      "columns": [
+        "col_name"
+      ],
+      "onlyValues": false,
+      "multipleValues": false,
+      "conflict": "UPDATE",
+      "fromSelect": true,
+      "hasSubQuery": false,
+      "hasNullValue": false
+    },
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": false,
+      "whereColumns": [],
+      "selectInWhere": false,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": true,
+      "mode": "INSERT",
+      "virtual": false,
+      "hasAs": false,
+      "hasSelectAll": true,
+      "selectInSelect": false,
+      "funcInSelect": false,
+      "exprInSelect": false,
+      "selectColumns": [],
+      "selectVariables": [],
+      "selectFunc": [],
+      "selectValue": [],
+      "selectInFrom": false,
+      "emptyFrom": false,
+      "joinTypes": [],
+      "hasLimit": false
+    }
+  ]
+}
+----------
+[PoXSecDomainResolve4TableTest_createTable_1]
+sql:
+CREATE TABLE single_tbl( id bigint not null auto_increment,  name varchar(30), primary key(id));
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CREATE_TABLE",
+      "auditKind": "CREATE",
+      "options": {},
+      "table": "single_tbl",
+      "hasPrimary": true,
+      "hasUnique": false,
+      "hasForeignKey": false,
+      "hasIndex": false,
+      "columns": [
+        "id",
+        "name"
+      ],
+      "virtual": false,
+      "ifNotExists": false,
+      "ifExists": false,
+      "temporary": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "single_tbl",
+      "column": "id",
+      "typeName": "bigint",
+      "typeDesc": "bigint",
+      "nullable": false,
+      "primary": true,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "auto": true,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "single_tbl",
+      "column": "name",
+      "typeName": "varchar",
+      "typeDesc": "varchar(30)",
+      "nullable": true,
+      "primary": false,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "length": "30",
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
+      "auditKind": "CREATE",
+      "tableName": "single_tbl",
+      "type": "Primary",
+      "columns": [
+        "id"
+      ]
+    }
+  ]
+}
+----------
+[PoXSecDomainResolve4TableTest_createTable_2]
+sql:
+CREATE TABLE tb1 (id int) LOCALITY='dn=polardbx-storage-0-master';
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CREATE_TABLE",
+      "auditKind": "CREATE",
+      "options": {},
+      "table": "tb1",
+      "hasPrimary": false,
+      "hasUnique": false,
+      "hasForeignKey": false,
+      "hasIndex": false,
+      "columns": [
+        "id"
+      ],
+      "virtual": false,
+      "ifNotExists": false,
+      "ifExists": false,
+      "temporary": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "tb1",
+      "column": "id",
+      "typeName": "int",
+      "typeDesc": "int",
+      "nullable": true,
+      "primary": false,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    }
+  ]
+}
+----------
+[PoXSecDomainResolve4TableTest_createTable_3]
+sql:
+CREATE TABLE multi_db_single_tbl(  id bigint not null auto_increment,   name varchar(30),   primary key(id)) dbpartition by hash(id);
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CREATE_TABLE",
+      "auditKind": "CREATE",
+      "options": {},
+      "table": "multi_db_single_tbl",
+      "hasPrimary": true,
+      "hasUnique": false,
+      "hasForeignKey": false,
+      "hasIndex": false,
+      "columns": [
+        "id",
+        "name"
+      ],
+      "virtual": false,
+      "ifNotExists": false,
+      "ifExists": false,
+      "temporary": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "multi_db_single_tbl",
+      "column": "id",
+      "typeName": "bigint",
+      "typeDesc": "bigint",
+      "nullable": false,
+      "primary": true,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "auto": true,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "multi_db_single_tbl",
+      "column": "name",
+      "typeName": "varchar",
+      "typeDesc": "varchar(30)",
+      "nullable": true,
+      "primary": false,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "length": "30",
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
+      "auditKind": "CREATE",
+      "tableName": "multi_db_single_tbl",
+      "type": "Primary",
+      "columns": [
+        "id"
+      ]
+    }
+  ]
+}
+----------
+[PoXSecDomainResolve4TableTest_createTableHash_1]
+sql:
+CREATE TABLE multi_db_multi_tbl( id bigint not null auto_increment,  bid int,  name varchar(30),  primary key(id)) dbpartition by hash(id) tbpartition by hash(bid) tbpartitions 3;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CREATE_TABLE",
+      "auditKind": "CREATE",
+      "options": {},
+      "table": "multi_db_multi_tbl",
+      "hasPrimary": true,
+      "hasUnique": false,
+      "hasForeignKey": false,
+      "hasIndex": false,
+      "columns": [
+        "id",
+        "bid",
+        "name"
+      ],
+      "virtual": false,
+      "ifNotExists": false,
+      "ifExists": false,
+      "temporary": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "multi_db_multi_tbl",
+      "column": "id",
+      "typeName": "bigint",
+      "typeDesc": "bigint",
+      "nullable": false,
+      "primary": true,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "auto": true,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "multi_db_multi_tbl",
+      "column": "bid",
+      "typeName": "int",
+      "typeDesc": "int",
+      "nullable": true,
+      "primary": false,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "multi_db_multi_tbl",
+      "column": "name",
+      "typeName": "varchar",
+      "typeDesc": "varchar(30)",
+      "nullable": true,
+      "primary": false,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "length": "30",
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
+      "auditKind": "CREATE",
+      "tableName": "multi_db_multi_tbl",
+      "type": "Primary",
+      "columns": [
+        "id"
+      ]
+    }
+  ]
+}
+----------
+[PoXSecDomainResolve4TableTest_createTableHash_2]
+sql:
+create table test_order_tb ( id bigint not null auto_increment, seller_id varchar(30) DEFAULT NULL, order_id varchar(30) DEFAULT NULL, buyer_id varchar(30) DEFAULT NULL, create_time datetime DEFAULT NULL,primary key(id)) ENGINE=InnoDB DEFAULT CHARSET=utf8 dbpartition by RANGE_HASH(buyer_id, order_id, 10) tbpartition by RANGE_HASH(buyer_id, order_id, 10) tbpartitions 3;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CREATE_TABLE",
+      "auditKind": "CREATE",
+      "options": {},
+      "table": "test_order_tb",
+      "hasPrimary": true,
+      "hasUnique": false,
+      "hasForeignKey": false,
+      "hasIndex": false,
+      "columns": [
+        "id",
+        "seller_id",
+        "order_id",
+        "buyer_id",
+        "create_time"
+      ],
+      "virtual": false,
+      "ifNotExists": false,
+      "ifExists": false,
+      "characterSet": "utf8",
+      "engine": "InnoDB",
+      "temporary": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "test_order_tb",
+      "column": "id",
+      "typeName": "bigint",
+      "typeDesc": "bigint",
+      "nullable": false,
+      "primary": true,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "auto": true,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "test_order_tb",
+      "column": "seller_id",
+      "typeName": "varchar",
+      "typeDesc": "varchar(30)",
+      "nullable": true,
+      "primary": false,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "length": "30",
+      "defaultValue": "NULL",
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "test_order_tb",
+      "column": "order_id",
+      "typeName": "varchar",
+      "typeDesc": "varchar(30)",
+      "nullable": true,
+      "primary": false,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "length": "30",
+      "defaultValue": "NULL",
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "test_order_tb",
+      "column": "buyer_id",
+      "typeName": "varchar",
+      "typeDesc": "varchar(30)",
+      "nullable": true,
+      "primary": false,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "length": "30",
+      "defaultValue": "NULL",
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "test_order_tb",
+      "column": "create_time",
+      "typeName": "datetime",
+      "typeDesc": "datetime",
+      "nullable": true,
+      "primary": false,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "defaultValue": "NULL",
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
+      "auditKind": "CREATE",
+      "tableName": "test_order_tb",
+      "type": "Primary",
+      "columns": [
+        "id"
+      ]
+    }
+  ]
+}
+----------
+[PoXSecDomainResolve4TableTest_createTableHash_3]
+sql:
+CREATE TABLE user_log( userId int,  name varchar(30),  operation varchar(30),  actionDate DATE) dbpartition by hash(userId) tbpartition by WEEK(actionDate) tbpartitions 7;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CREATE_TABLE",
+      "auditKind": "CREATE",
+      "options": {},
+      "table": "user_log",
+      "hasPrimary": false,
+      "hasUnique": false,
+      "hasForeignKey": false,
+      "hasIndex": false,
+      "columns": [
+        "userId",
+        "name",
+        "operation",
+        "actionDate"
+      ],
+      "virtual": false,
+      "ifNotExists": false,
+      "ifExists": false,
+      "temporary": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "user_log",
+      "column": "userId",
+      "typeName": "int",
+      "typeDesc": "int",
+      "nullable": true,
+      "primary": false,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "user_log",
+      "column": "name",
+      "typeName": "varchar",
+      "typeDesc": "varchar(30)",
+      "nullable": true,
+      "primary": false,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "length": "30",
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "user_log",
+      "column": "operation",
+      "typeName": "varchar",
+      "typeDesc": "varchar(30)",
+      "nullable": true,
+      "primary": false,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "length": "30",
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "user_log",
+      "column": "actionDate",
+      "typeName": "DATE",
+      "typeDesc": "DATE",
+      "nullable": true,
+      "primary": false,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    }
+  ]
+}
+----------
+[PoXSecDomainResolve4TableTest_createTableHash_4]
+sql:
+CREATE TABLE multi_db_single_tbl( id bigint not null auto_increment, name varchar(30),   primary key(id)) dbpartition by hash(id);
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CREATE_TABLE",
+      "auditKind": "CREATE",
+      "options": {},
+      "table": "multi_db_single_tbl",
+      "hasPrimary": true,
+      "hasUnique": false,
+      "hasForeignKey": false,
+      "hasIndex": false,
+      "columns": [
+        "id",
+        "name"
+      ],
+      "virtual": false,
+      "ifNotExists": false,
+      "ifExists": false,
+      "temporary": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "multi_db_single_tbl",
+      "column": "id",
+      "typeName": "bigint",
+      "typeDesc": "bigint",
+      "nullable": false,
+      "primary": true,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "auto": true,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "multi_db_single_tbl",
+      "column": "name",
+      "typeName": "varchar",
+      "typeDesc": "varchar(30)",
+      "nullable": true,
+      "primary": false,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "length": "30",
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
+      "auditKind": "CREATE",
+      "tableName": "multi_db_single_tbl",
+      "type": "Primary",
+      "columns": [
+        "id"
+      ]
+    }
+  ]
+}
+----------
+[PoXSecDomainResolve4TableTest_createPriKeyTbl_1]
+sql:
+CREATE TABLE prmkey_tbl( id bigint not null auto_increment,  name varchar(30),  primary key(id)) dbpartition by hash();
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CREATE_TABLE",
+      "auditKind": "CREATE",
+      "options": {},
+      "table": "prmkey_tbl",
+      "hasPrimary": true,
+      "hasUnique": false,
+      "hasForeignKey": false,
+      "hasIndex": false,
+      "columns": [
+        "id",
+        "name"
+      ],
+      "virtual": false,
+      "ifNotExists": false,
+      "ifExists": false,
+      "temporary": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "prmkey_tbl",
+      "column": "id",
+      "typeName": "bigint",
+      "typeDesc": "bigint",
+      "nullable": false,
+      "primary": true,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "auto": true,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "prmkey_tbl",
+      "column": "name",
+      "typeName": "varchar",
+      "typeDesc": "varchar(30)",
+      "nullable": true,
+      "primary": false,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "length": "30",
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
+      "auditKind": "CREATE",
+      "tableName": "prmkey_tbl",
+      "type": "Primary",
+      "columns": [
+        "id"
+      ]
+    }
+  ]
+}
+----------
+[PoXSecDomainResolve4TableTest_createPriKeyTbl_2]
+sql:
+CREATE TABLE prmkey_multi_tbl( id bigint not null auto_increment, name varchar(30), primary key(id)) dbpartition by hash() tbpartition by hash() tbpartitions 3;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CREATE_TABLE",
+      "auditKind": "CREATE",
+      "options": {},
+      "table": "prmkey_multi_tbl",
+      "hasPrimary": true,
+      "hasUnique": false,
+      "hasForeignKey": false,
+      "hasIndex": false,
+      "columns": [
+        "id",
+        "name"
+      ],
+      "virtual": false,
+      "ifNotExists": false,
+      "ifExists": false,
+      "temporary": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "prmkey_multi_tbl",
+      "column": "id",
+      "typeName": "bigint",
+      "typeDesc": "bigint",
+      "nullable": false,
+      "primary": true,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "auto": true,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "prmkey_multi_tbl",
+      "column": "name",
+      "typeName": "varchar",
+      "typeDesc": "varchar(30)",
+      "nullable": true,
+      "primary": false,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "length": "30",
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
+      "auditKind": "CREATE",
+      "tableName": "prmkey_multi_tbl",
+      "type": "Primary",
+      "columns": [
+        "id"
+      ]
+    }
+  ]
+}
+----------
+[PoXSecDomainResolve4TableTest_createTableBroadcast_1]
+sql:
+CREATE TABLE brd_tbl( id bigint not null auto_increment,  name varchar(30),  primary key(id)) ENGINE=InnoDB DEFAULT CHARSET=utf8 BROADCAST;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CREATE_TABLE",
+      "auditKind": "CREATE",
+      "options": {},
+      "table": "brd_tbl",
+      "hasPrimary": true,
+      "hasUnique": false,
+      "hasForeignKey": false,
+      "hasIndex": false,
+      "columns": [
+        "id",
+        "name"
+      ],
+      "virtual": false,
+      "ifNotExists": false,
+      "ifExists": false,
+      "characterSet": "utf8",
+      "engine": "InnoDB",
+      "temporary": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "brd_tbl",
+      "column": "id",
+      "typeName": "bigint",
+      "typeDesc": "bigint",
+      "nullable": false,
+      "primary": true,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "auto": true,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "brd_tbl",
+      "column": "name",
+      "typeName": "varchar",
+      "typeDesc": "varchar(30)",
+      "nullable": true,
+      "primary": false,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "length": "30",
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
+      "auditKind": "CREATE",
+      "tableName": "brd_tbl",
+      "type": "Primary",
+      "columns": [
+        "id"
+      ]
+    }
+  ]
+}
+----------
+[PoXSecDomainResolve4TableTest_createTableBroadcast_2]
+sql:
+CREATE TABLE multi_db_multi_tbl( id bigint not null auto_increment, name varchar(30), primary key(id)) ENGINE=InnoDB DEFAULT CHARSET=utf8 dbpartition by hash(id) tbpartition by hash(id) tbpartitions 3;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CREATE_TABLE",
+      "auditKind": "CREATE",
+      "options": {},
+      "table": "multi_db_multi_tbl",
+      "hasPrimary": true,
+      "hasUnique": false,
+      "hasForeignKey": false,
+      "hasIndex": false,
+      "columns": [
+        "id",
+        "name"
+      ],
+      "virtual": false,
+      "ifNotExists": false,
+      "ifExists": false,
+      "characterSet": "utf8",
+      "engine": "InnoDB",
+      "temporary": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "multi_db_multi_tbl",
+      "column": "id",
+      "typeName": "bigint",
+      "typeDesc": "bigint",
+      "nullable": false,
+      "primary": true,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "auto": true,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "multi_db_multi_tbl",
+      "column": "name",
+      "typeName": "varchar",
+      "typeDesc": "varchar(30)",
+      "nullable": true,
+      "primary": false,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "length": "30",
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
+      "auditKind": "CREATE",
+      "tableName": "multi_db_multi_tbl",
+      "type": "Primary",
+      "columns": [
+        "id"
+      ]
+    }
+  ]
+}
+----------
+[PoXSecDomainResolve4TableTest_createTableIndex_1]
+sql:
+CREATE TABLE t_order (
+ `id` bigint(11) NOT NULL AUTO_INCREMENT,
+ `order_id` varchar(20) DEFAULT NULL,
+ `buyer_id` varchar(20) DEFAULT NULL,
+ `seller_id` varchar(20) DEFAULT NULL,
+ `order_snapshot` longtext DEFAULT NULL,
+ `order_detail` longtext DEFAULT NULL,
+ PRIMARY KEY (`id`),
+ GLOBAL INDEX `g_i_seller`(`seller_id`) dbpartition by hash(`seller_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 dbpartition by hash(`order_id`);
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CREATE_TABLE",
+      "auditKind": "CREATE",
+      "options": {},
+      "table": "t_order",
+      "hasPrimary": true,
+      "hasUnique": false,
+      "hasForeignKey": false,
+      "hasIndex": true,
+      "columns": [
+        "id",
+        "order_id",
+        "buyer_id",
+        "seller_id",
+        "order_snapshot",
+        "order_detail"
+      ],
+      "virtual": false,
+      "ifNotExists": false,
+      "ifExists": false,
+      "characterSet": "utf8",
+      "engine": "InnoDB",
+      "temporary": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "t_order",
+      "column": "id",
+      "typeName": "bigint",
+      "typeDesc": "bigint(11)",
+      "nullable": false,
+      "primary": true,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "length": "11",
+      "auto": true,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "t_order",
+      "column": "order_id",
+      "typeName": "varchar",
+      "typeDesc": "varchar(20)",
+      "nullable": true,
+      "primary": false,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "length": "20",
+      "defaultValue": "NULL",
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "t_order",
+      "column": "buyer_id",
+      "typeName": "varchar",
+      "typeDesc": "varchar(20)",
+      "nullable": true,
+      "primary": false,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "length": "20",
+      "defaultValue": "NULL",
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "t_order",
+      "column": "seller_id",
+      "typeName": "varchar",
+      "typeDesc": "varchar(20)",
+      "nullable": true,
+      "primary": false,
+      "unique": false,
+      "foreign": false,
+      "index": true,
+      "length": "20",
+      "defaultValue": "NULL",
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "t_order",
+      "column": "order_snapshot",
+      "typeName": "longtext",
+      "typeDesc": "longtext",
+      "nullable": true,
+      "primary": false,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "defaultValue": "NULL",
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "t_order",
+      "column": "order_detail",
+      "typeName": "longtext",
+      "typeDesc": "longtext",
+      "nullable": true,
+      "primary": false,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "defaultValue": "NULL",
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
+      "auditKind": "CREATE",
+      "tableName": "t_order",
+      "type": "Primary",
+      "columns": [
+        "id"
+      ]
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_INDEX",
+      "auditKind": "CREATE",
+      "tableName": "t_order",
+      "type": "index",
+      "name": "g_i_seller",
+      "columns": [
+        "seller_id"
+      ]
+    }
+  ]
+}
+----------
+[PoXSecDomainResolve4TableTest_createTableIndex_2]
+sql:
+CREATE TABLE t_order (
+ `id` bigint(11) NOT NULL AUTO_INCREMENT,
+ `order_id` varchar(20) DEFAULT NULL,
+ `buyer_id` varchar(20) DEFAULT NULL,
+ `seller_id` varchar(20) DEFAULT NULL,
+ `order_snapshot` longtext DEFAULT NULL,
+ `order_detail` longtext DEFAULT NULL,
+ PRIMARY KEY (`id`),
+ UNIQUE GLOBAL INDEX `g_i_buyer`(`buyer_id`) COVERING(`seller_id`, `order_snapshot`) 
+   dbpartition by hash(`buyer_id`) tbpartition by hash(`buyer_id`) tbpartitions 3
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 dbpartition by hash(`order_id`);
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CREATE_TABLE",
+      "auditKind": "CREATE",
+      "options": {},
+      "table": "t_order",
+      "hasPrimary": true,
+      "hasUnique": false,
+      "hasForeignKey": false,
+      "hasIndex": true,
+      "columns": [
+        "id",
+        "order_id",
+        "buyer_id",
+        "seller_id",
+        "order_snapshot",
+        "order_detail"
+      ],
+      "virtual": false,
+      "ifNotExists": false,
+      "ifExists": false,
+      "characterSet": "utf8",
+      "engine": "InnoDB",
+      "temporary": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "t_order",
+      "column": "id",
+      "typeName": "bigint",
+      "typeDesc": "bigint(11)",
+      "nullable": false,
+      "primary": true,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "length": "11",
+      "auto": true,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "t_order",
+      "column": "order_id",
+      "typeName": "varchar",
+      "typeDesc": "varchar(20)",
+      "nullable": true,
+      "primary": false,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "length": "20",
+      "defaultValue": "NULL",
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "t_order",
+      "column": "buyer_id",
+      "typeName": "varchar",
+      "typeDesc": "varchar(20)",
+      "nullable": true,
+      "primary": false,
+      "unique": false,
+      "foreign": false,
+      "index": true,
+      "length": "20",
+      "defaultValue": "NULL",
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "t_order",
+      "column": "seller_id",
+      "typeName": "varchar",
+      "typeDesc": "varchar(20)",
+      "nullable": true,
+      "primary": false,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "length": "20",
+      "defaultValue": "NULL",
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "t_order",
+      "column": "order_snapshot",
+      "typeName": "longtext",
+      "typeDesc": "longtext",
+      "nullable": true,
+      "primary": false,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "defaultValue": "NULL",
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "t_order",
+      "column": "order_detail",
+      "typeName": "longtext",
+      "typeDesc": "longtext",
+      "nullable": true,
+      "primary": false,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "defaultValue": "NULL",
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
+      "auditKind": "CREATE",
+      "tableName": "t_order",
+      "type": "Primary",
+      "columns": [
+        "id"
+      ]
+    },
+    {
+      "sqlType": "CREATE_TABLE_ADD_INDEX",
+      "auditKind": "CREATE",
+      "tableName": "t_order",
+      "type": "index",
+      "name": "g_i_buyer",
+      "columns": [
+        "buyer_id"
+      ]
+    }
+  ]
+}
+----------
+[PoXSecDomainResolve4TableTest_alterTableOnline_1]
+sql:
+ALTER online TABLE user_log ADD COLUMN idcard varchar(30);
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "ALTER_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "user_log",
+      "column": "idcard",
+      "typeName": "varchar",
+      "typeDesc": "varchar(30)",
+      "nullable": true,
+      "primary": false,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "length": "30",
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    }
+  ]
+}
+----------
+[PoXSecDomainResolve4TableTest_alterTableOnline_2]
+sql:
+ALTER OFFLINE TABLE user_log ADD COLUMN idcard varchar(30);
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "ALTER_TABLE_ADD_COLUMN",
+      "auditKind": "CREATE",
+      "table": "user_log",
+      "column": "idcard",
+      "typeName": "varchar",
+      "typeDesc": "varchar(30)",
+      "nullable": true,
+      "primary": false,
+      "unique": false,
+      "foreign": false,
+      "index": false,
+      "length": "30",
+      "auto": false,
+      "zerofill": false,
+      "unsigned": false
+    }
+  ]
+}
+----------
+[PoXSecDomainResolve4TableTest_alterTableIndex_1]
+sql:
+ALTER TABLE t_order ADD UNIQUE GLOBAL INDEX `g_i_buyer` (`buyer_id`) COVERING (`order_snapshot`) dbpartition by hash(`buyer_id`);
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "ALTER_TABLE_ADD_INDEX",
+      "auditKind": "CREATE",
+      "tableName": "t_order",
+      "type": "unique",
+      "name": "g_i_buyer",
+      "columns": [
+        "buyer_id"
+      ]
+    }
+  ]
+}
+----------
+[PoXSecDomainResolve4TableTest_alterTableIndex_2]
+sql:
+ALTER TABLE t_order ADD CONSTRAINT UNIQUE GLOBAL INDEX `g_i_buyer` (`buyer_id`) COVERING (`order_snapshot`) dbpartition by hash(`buyer_id`);
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "ALTER_TABLE_ADD_INDEX",
+      "auditKind": "CREATE",
+      "tableName": "t_order",
+      "type": "unique",
+      "name": "g_i_buyer",
+      "columns": [
+        "buyer_id"
+      ]
+    }
+  ]
+}
+----------
+[PoXSecDomainResolve4TableTest_alterTableIndex_3]
+sql:
+ALTER TABLE t_order rename index a to b;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "ALTER_INDEX",
+      "auditKind": "ALTER",
+      "tableName": "t_order",
+      "name": "a",
+      "newName": "b"
+    }
+  ]
+}
+----------
+[PoXSecDomainResolve4TableTest_createIndex_1]
+sql:
+create unique global index test on table1(a,b) dbpartition by hash();
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "ADD_INDEX",
+      "auditKind": "CREATE",
+      "tableName": "table1",
+      "type": "unique",
+      "name": "test",
+      "columns": [
+        "a",
+        "b"
+      ]
+    }
+  ]
+}
+----------
+[PoXSecDomainResolve4TableTest_createIndex_2]
+sql:
+create unique global index  test on table1(a,b) dbpartition by hash();
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "ADD_INDEX",
+      "auditKind": "CREATE",
+      "tableName": "table1",
+      "type": "unique",
+      "name": "test",
+      "columns": [
+        "a",
+        "b"
+      ]
+    }
+  ]
+}
+----------
+[PoXSecDomainResolve4TableTest_createIndex_3]
+sql:
+ALTER TABLE t_order ADD UNIQUE GLOBAL INDEX `g_i_buyer` (`buyer_id`) COVERING (`order_snapshot`) dbpartition by hash(`buyer_id`);
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "ALTER_TABLE_ADD_INDEX",
+      "auditKind": "CREATE",
+      "tableName": "t_order",
+      "type": "unique",
+      "name": "g_i_buyer",
+      "columns": [
+        "buyer_id"
+      ]
+    }
+  ]
+}
+----------
+[PoXSecDomainResolve4TableTest_createIndex_4]
+sql:
+ALTER TABLE t_order ADD UNIQUE GLOBAL INDEX `g_i_buyer` (`buyer_id`) COVERING (`order_snapshot`) dbpartition by hash(`buyer_id`) lock = default;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "ALTER_TABLE_ADD_INDEX",
+      "auditKind": "CREATE",
+      "tableName": "t_order",
+      "type": "unique",
+      "name": "g_i_buyer",
+      "columns": [
+        "buyer_id"
+      ]
+    }
+  ]
+}
+----------
+[PoXSecDomainResolve4UpdateTest_columnIgnore_1]
+sql:
+update low_priority ignore table_name set aa = default where id = 1
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "UPDATE",
+      "auditKind": "DML",
+      "hasWith": false,
+      "hasWhere": true,
+      "whereColumns": [
+        "id"
+      ],
+      "selectInWhere": false,
+      "hasUnion": false,
+      "table": "table_name",
+      "setColumns": [
+        "aa"
+      ],
+      "selectInSet": false,
+      "multiUpdate": false,
+      "joinTypes": [],
+      "hasLimit": false,
+      "hasIgnore": true
+    }
+  ]
+}
+----------

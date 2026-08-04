@@ -1,0 +1,44 @@
+DROP SCHEMA IF EXISTS split_pgvector_probe CASCADE;
+CREATE SCHEMA split_pgvector_probe;
+CREATE EXTENSION IF NOT EXISTS vector;
+CREATE TABLE split_pgvector_probe.items (
+    id bigserial PRIMARY KEY,
+    category_id integer,
+    embedding vector(3),
+    half_embedding halfvec(3),
+    sparse_embedding sparsevec(5),
+    signature bit(4)
+);
+CREATE INDEX idx_pgvector_items_hnsw_l2 ON split_pgvector_probe.items USING hnsw (embedding vector_l2_ops) WITH (m = 16, ef_construction = 64);
+CREATE INDEX idx_pgvector_items_ivfflat_cosine ON split_pgvector_probe.items USING ivfflat (embedding vector_cosine_ops) WITH (lists = 1);
+CREATE INDEX idx_pgvector_items_half_l2 ON split_pgvector_probe.items USING hnsw (half_embedding halfvec_l2_ops);
+CREATE INDEX idx_pgvector_items_sparse_l2 ON split_pgvector_probe.items USING hnsw (sparse_embedding sparsevec_l2_ops);
+CREATE INDEX idx_pgvector_items_bit_hamming ON split_pgvector_probe.items USING hnsw (signature bit_hamming_ops);
+DROP SCHEMA IF EXISTS split_pgvector_probe CASCADE;
+------------------------------------------------------------------------------------------
+[DROP_SCHEMA] DROP SCHEMA IF EXISTS split_pgvector_probe CASCADE;
+----------
+[CREATE_SCHEMA] CREATE SCHEMA split_pgvector_probe;
+----------
+[CREATE_LIBRARY] CREATE EXTENSION IF NOT EXISTS vector;
+----------
+[CREATE_TABLE] CREATE TABLE split_pgvector_probe.items (
+    id bigserial PRIMARY KEY,
+    category_id integer,
+    embedding vector(3),
+    half_embedding halfvec(3),
+    sparse_embedding sparsevec(5),
+    signature bit(4)
+);
+----------
+[ADD_INDEX] CREATE INDEX idx_pgvector_items_hnsw_l2 ON split_pgvector_probe.items USING hnsw (embedding vector_l2_ops) WITH (m = 16, ef_construction = 64);
+----------
+[ADD_INDEX] CREATE INDEX idx_pgvector_items_ivfflat_cosine ON split_pgvector_probe.items USING ivfflat (embedding vector_cosine_ops) WITH (lists = 1);
+----------
+[ADD_INDEX] CREATE INDEX idx_pgvector_items_half_l2 ON split_pgvector_probe.items USING hnsw (half_embedding halfvec_l2_ops);
+----------
+[ADD_INDEX] CREATE INDEX idx_pgvector_items_sparse_l2 ON split_pgvector_probe.items USING hnsw (sparse_embedding sparsevec_l2_ops);
+----------
+[ADD_INDEX] CREATE INDEX idx_pgvector_items_bit_hamming ON split_pgvector_probe.items USING hnsw (signature bit_hamming_ops);
+----------
+[DROP_SCHEMA] DROP SCHEMA IF EXISTS split_pgvector_probe CASCADE;

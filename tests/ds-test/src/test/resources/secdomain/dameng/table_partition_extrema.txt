@@ -1,0 +1,131 @@
+[create_range]
+sql:
+create table app.part_an_range(id int,note varchar(20)) partition by range(id)(partition p10 values less than(10),partition pmax values less than(maxvalue))
+expect:
+{"contains":[{"class":"RdbTableDomain","sqlType":"CREATE_TABLE","schema":"app","table":"part_an_range"}]}
+----------
+[create_list]
+sql:
+create table app.part_an_list(id int,note varchar(20)) partition by list(id)(partition p12 values(1,2),partition pdef values(default))
+expect:
+{"contains":[{"class":"RdbTableDomain","sqlType":"CREATE_TABLE","schema":"app","table":"part_an_list"}]}
+----------
+[create_hash]
+sql:
+create table app.part_an_hash(id int,note varchar(20)) storage(hashpartmap(3)) partition by hash(id) partitions 4
+expect:
+{"contains":[{"class":"RdbTableDomain","sqlType":"CREATE_TABLE","schema":"app","table":"part_an_hash"}]}
+----------
+[create_interval]
+sql:
+create table app.part_an_interval(id int,note varchar(20)) partition by range(id) interval(10)(partition p0 values less than(10))
+expect:
+{"contains":[{"class":"RdbTableDomain","sqlType":"CREATE_TABLE","schema":"app","table":"part_an_interval"}]}
+----------
+[create_multilevel]
+sql:
+create table app.part_an_multi(id int,kind int,note varchar(20)) partition by range(id) subpartition by list(kind) subpartition template(subpartition s1 values(1),subpartition sd values(default))(partition p10 values less than(10))
+expect:
+{"contains":[{"class":"RdbTableDomain","sqlType":"CREATE_TABLE","schema":"app","table":"part_an_multi"}]}
+----------
+[alter_add]
+sql:
+alter table app.part_an_range add partition p100 values less than(100)
+expect:
+{"contains":[{"class":"RdbTableDomain","sqlType":"ALTER_TABLE","schema":"app","table":"part_an_range"}]}
+----------
+[alter_drop]
+sql:
+alter table app.part_an_range drop partition p100
+expect:
+{"contains":[{"class":"RdbTableDomain","sqlType":"ALTER_TABLE","schema":"app","table":"part_an_range"}]}
+----------
+[alter_split]
+sql:
+alter table app.part_an_range split partition pmax at(20) into(partition p20,partition pmax)
+expect:
+{"contains":[{"class":"RdbTableDomain","sqlType":"ALTER_TABLE","schema":"app","table":"part_an_range"}]}
+----------
+[alter_merge]
+sql:
+alter table app.part_an_range merge partitions p20,pmax into partition pmax
+expect:
+{"contains":[{"class":"RdbTableDomain","sqlType":"ALTER_TABLE","schema":"app","table":"part_an_range"}]}
+----------
+[alter_rename]
+sql:
+alter table app.part_an_range rename partition p10 to p10_new
+expect:
+{"contains":[{"class":"RdbTableDomain","sqlType":"ALTER_TABLE","schema":"app","table":"part_an_range"}]}
+----------
+[alter_truncate]
+sql:
+alter table app.part_an_range truncate partition p10_new reuse storage
+expect:
+{"contains":[{"class":"RdbTableDomain","sqlType":"ALTER_TABLE","schema":"app","table":"part_an_range"}]}
+----------
+[alter_lock]
+sql:
+alter table app.part_an_range lock partitions
+expect:
+{"contains":[{"class":"RdbTableDomain","sqlType":"ALTER_TABLE","schema":"app","table":"part_an_range"}]}
+----------
+[alter_row_move]
+sql:
+alter table app.part_an_range enable row movement
+expect:
+{"contains":[{"class":"RdbTableDomain","sqlType":"ALTER_TABLE","schema":"app","table":"part_an_range"}]}
+----------
+[insert_partition]
+sql:
+insert into app.part_an_range partition(p10)(id,note) values(1,'a')
+expect:
+{"contains":[{"class":"RdbInsertDomain","sqlType":"INSERT","schema":"app","table":"part_an_range"}]}
+----------
+[update_partition]
+sql:
+update app.part_an_range partition(p10) set note='b' where id=1
+expect:
+{"contains":[{"class":"RdbUpdateDomain","sqlType":"UPDATE","schema":"app","table":"part_an_range"}]}
+----------
+[delete_partition]
+sql:
+delete from app.part_an_range partition(p10) where id=1
+expect:
+{"contains":[{"class":"RdbDeleteDomain","sqlType":"DELETE","schema":"app","table":"part_an_range"}]}
+----------
+[select_partition]
+sql:
+select id,note from app.part_an_range partition(p10)
+expect:
+{"contains":[{"class":"RdbTableDomain","sqlType":"SELECT","schema":"app","table":"part_an_range"}]}
+----------
+[select_partition_for]
+sql:
+select id,note from app.part_an_range partition for(1)
+expect:
+{"contains":[{"class":"RdbTableDomain","sqlType":"SELECT","schema":"app","table":"part_an_range"}]}
+----------
+[select_subpartition]
+sql:
+select id,kind,note from app.part_an_multi subpartition(s1)
+expect:
+{"contains":[{"class":"RdbTableDomain","sqlType":"SELECT","schema":"app","table":"part_an_multi"}]}
+----------
+[select_join]
+sql:
+select r.id,l.note from app.part_an_range partition(p10) r join app.part_an_list partition(p12) l on r.id=l.id
+expect:
+{"contains":[{"class":"RdbTableDomain","sqlType":"SELECT","schema":"app","table":"part_an_range"},{"class":"RdbTableDomain","sqlType":"SELECT","schema":"app","table":"part_an_list"}]}
+----------
+[truncate_partition]
+sql:
+truncate table app.part_an_range partition(p10) reuse storage
+expect:
+{"contains":[{"class":"RdbTableDomain","sqlType":"TRUNCATE","schema":"app","table":"part_an_range"}]}
+----------
+[drop_range]
+sql:
+drop table app.part_an_range purge
+expect:
+{"contains":[{"class":"RdbTableDomain","sqlType":"DROP_TABLE","schema":"app","table":"part_an_range"}]}

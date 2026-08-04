@@ -1,0 +1,74 @@
+[split_dql_dameng_user_diagnostics_0_001]
+sql:
+select username, user_id, account_status, default_tablespace, default_index_tablespace, profile, authentication_type from sys.dba_users;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:122~1:135) /test/1/catalog1/sys/dba_users/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_user_diagnostics_0_002]
+sql:
+select username, user_id, created from sys.all_users;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:39~1:52) /test/1/catalog1/sys/all_users/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_user_diagnostics_0_003]
+sql:
+select username, user_id, account_status from sys.user_users;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:46~1:60) /test/1/catalog1/sys/user_users/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_user_diagnostics_0_004]
+sql:
+select name, id, type$, subtype$ from sys.sysobjects where subtype$='USER';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:38~1:52) /test/1/catalog1/sys/sysobjects/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_user_diagnostics_0_005]
+sql:
+select grantee, privilege, admin_option from sys.dba_sys_privs where privilege in ('CREATE USER','ALTER USER','DROP USER');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:45~1:62) /test/1/catalog1/sys/dba_sys_privs/",
+      "action": "READ"
+    }
+  ]
+}

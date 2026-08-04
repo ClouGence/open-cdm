@@ -1,0 +1,716 @@
+[split_dql_dameng_fulltext_0_001_behavior_review]
+sql:
+select id, title from ft_docs where contains(content, 'database');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:36~1:44) /test/1/catalog1/schema1/contains/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:22~1:29) /test/1/catalog1/schema1/ft_docs/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_fulltext_0_002_behavior_review]
+sql:
+select id from ft_docs where contains(content, 'database' and 'language');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:29~1:37) /test/1/catalog1/schema1/contains/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:15~1:22) /test/1/catalog1/schema1/ft_docs/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_fulltext_0_003_behavior_review]
+sql:
+select id from ft_docs where contains(content, 'database' or 'parser');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:29~1:37) /test/1/catalog1/schema1/contains/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:15~1:22) /test/1/catalog1/schema1/ft_docs/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_fulltext_0_004_behavior_review]
+sql:
+select id from ft_docs where contains(content, 'database' and not 'parser');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:29~1:37) /test/1/catalog1/schema1/contains/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:15~1:22) /test/1/catalog1/schema1/ft_docs/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_fulltext_0_005_behavior_review]
+sql:
+select id from ft_docs where not contains(content, 'security');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:33~1:41) /test/1/catalog1/schema1/contains/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:15~1:22) /test/1/catalog1/schema1/ft_docs/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_fulltext_0_006_behavior_review]
+sql:
+select id from ft_docs where contains(content, 'database language');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:29~1:37) /test/1/catalog1/schema1/contains/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:15~1:22) /test/1/catalog1/schema1/ft_docs/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_fulltext_0_007_behavior_review]
+sql:
+select id from ft_docs where contains(content, 'DATABASE');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:29~1:37) /test/1/catalog1/schema1/contains/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:15~1:22) /test/1/catalog1/schema1/ft_docs/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_fulltext_0_008_behavior_review]
+sql:
+select id from ft_docs where contains(content, 'database', 0);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:29~1:37) /test/1/catalog1/schema1/contains/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:15~1:22) /test/1/catalog1/schema1/ft_docs/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_fulltext_0_009_behavior_review]
+sql:
+select id from ft_docs where contains(content, 'database', 1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:29~1:37) /test/1/catalog1/schema1/contains/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:15~1:22) /test/1/catalog1/schema1/ft_docs/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_fulltext_0_010_behavior_review]
+sql:
+select id from ft_docs where contains(content, 'database', 100000);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:29~1:37) /test/1/catalog1/schema1/contains/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:15~1:22) /test/1/catalog1/schema1/ft_docs/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_fulltext_0_011_behavior_review]
+sql:
+select d.id from ft_docs d where contains(d.content, 'database');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:33~1:41) /test/1/catalog1/schema1/contains/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:17~1:24) /test/1/catalog1/schema1/ft_docs/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_fulltext_0_012_behavior_review]
+sql:
+select d.id, d.title from ft_docs as d where contains(d.content, 'database') and d.id > 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:45~1:53) /test/1/catalog1/schema1/contains/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:26~1:33) /test/1/catalog1/schema1/ft_docs/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_fulltext_0_013_behavior_review]
+sql:
+select id from ft_docs where contains(content, 'database', 1) and contains(content, 'language', 2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:29~1:37) /test/1/catalog1/schema1/contains/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:66~1:74) /test/1/catalog1/schema1/contains/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:15~1:22) /test/1/catalog1/schema1/ft_docs/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_fulltext_0_014_behavior_review]
+sql:
+select id from ft_docs where contains(content, 'database', 1) or contains(content, 'security', 2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:29~1:37) /test/1/catalog1/schema1/contains/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:65~1:73) /test/1/catalog1/schema1/contains/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:15~1:22) /test/1/catalog1/schema1/ft_docs/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_fulltext_0_015_behavior_review]
+sql:
+select count(*) from ft_docs where contains(content, 'database');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:35~1:43) /test/1/catalog1/schema1/contains/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:21~1:28) /test/1/catalog1/schema1/ft_docs/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_fulltext_0_016_behavior_review]
+sql:
+select id, count(*) from ft_docs where contains(content, 'database') group by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:11~1:16) /test/1/catalog1/schema1/count/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:39~1:47) /test/1/catalog1/schema1/contains/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:25~1:32) /test/1/catalog1/schema1/ft_docs/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_fulltext_0_017_behavior_review]
+sql:
+select id from ft_docs where contains(content, 'database') order by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:29~1:37) /test/1/catalog1/schema1/contains/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:15~1:22) /test/1/catalog1/schema1/ft_docs/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_fulltext_0_018_behavior_review]
+sql:
+select id from ft_docs where contains(content, 'database') limit 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:29~1:37) /test/1/catalog1/schema1/contains/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:15~1:22) /test/1/catalog1/schema1/ft_docs/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_fulltext_0_019_behavior_review]
+sql:
+select * from (select id, title from ft_docs where contains(content, 'database')) x;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:51~1:59) /test/1/catalog1/schema1/contains/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:37~1:44) /test/1/catalog1/schema1/ft_docs/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_fulltext_0_020_behavior_review]
+sql:
+with matched as (select id, title from ft_docs where contains(content, 'database')) select * from matched;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:53~1:61) /test/1/catalog1/schema1/contains/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:39~1:46) /test/1/catalog1/schema1/ft_docs/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_fulltext_0_021_behavior_review]
+sql:
+select id from ft_docs where exists(select 1 from ft_other where ft_other.id = ft_docs.id and contains(ft_other.body, 'reference'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:94~1:102) /test/1/catalog1/schema1/contains/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:15~1:22) /test/1/catalog1/schema1/ft_docs/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:50~1:58) /test/1/catalog1/schema1/ft_other/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_fulltext_0_022_behavior_review]
+sql:
+select d.id, o.body from ft_docs d join ft_other o on d.id = o.id where contains(d.content, 'database') and contains(o.body, 'reference');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:72~1:80) /test/1/catalog1/schema1/contains/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:108~1:116) /test/1/catalog1/schema1/contains/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:25~1:32) /test/1/catalog1/schema1/ft_docs/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:40~1:48) /test/1/catalog1/schema1/ft_other/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_fulltext_0_023_behavior_review]
+sql:
+select id from ft_docs where contains(content, 'database') union all select id from ft_docs where contains(content, 'parser');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:29~1:37) /test/1/catalog1/schema1/contains/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:98~1:106) /test/1/catalog1/schema1/contains/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:15~1:22) /test/1/catalog1/schema1/ft_docs/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:84~1:91) /test/1/catalog1/schema1/ft_docs/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_fulltext_0_024_behavior_review]
+sql:
+select id from ft_docs where contains(content, 'database') intersect select id from ft_docs where id > 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:29~1:37) /test/1/catalog1/schema1/contains/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:15~1:22) /test/1/catalog1/schema1/ft_docs/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:84~1:91) /test/1/catalog1/schema1/ft_docs/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_fulltext_0_025_behavior_review]
+sql:
+select id from ft_docs where contains(content, 'database') minus select id from ft_docs where contains(content, 'security');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:29~1:37) /test/1/catalog1/schema1/contains/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:94~1:102) /test/1/catalog1/schema1/contains/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:15~1:22) /test/1/catalog1/schema1/ft_docs/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:80~1:87) /test/1/catalog1/schema1/ft_docs/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_fulltext_0_026_behavior_review]
+sql:
+select id, row_number() over(order by id) as rn from ft_docs where contains(content, 'database');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:11~1:21) /test/1/catalog1/schema1/row_number/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:67~1:75) /test/1/catalog1/schema1/contains/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:53~1:60) /test/1/catalog1/schema1/ft_docs/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_fulltext_0_027_behavior_review]
+sql:
+select id from ft_docs where contains(content_default, 'database');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:29~1:37) /test/1/catalog1/schema1/contains/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:15~1:22) /test/1/catalog1/schema1/ft_docs/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_fulltext_0_028_behavior_review]
+sql:
+select id from ft_docs where contains(content_cn, 'database');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:29~1:37) /test/1/catalog1/schema1/contains/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:15~1:22) /test/1/catalog1/schema1/ft_docs/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_fulltext_0_029_behavior_review]
+sql:
+select id from ft_docs where contains(content_vgram, 'full text');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:29~1:37) /test/1/catalog1/schema1/contains/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:15~1:22) /test/1/catalog1/schema1/ft_docs/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_fulltext_0_030_behavior_review]
+sql:
+select id from ft_docs where contains(content_fp, 'security');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:29~1:37) /test/1/catalog1/schema1/contains/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:15~1:22) /test/1/catalog1/schema1/ft_docs/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_fulltext_0_031_behavior_review]
+sql:
+select id from ft_docs where contains(content_sync, 'automatic');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:29~1:37) /test/1/catalog1/schema1/contains/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:15~1:22) /test/1/catalog1/schema1/ft_docs/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_fulltext_0_032_behavior_review]
+sql:
+select id from ft_other where contains(body, 'reference');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:30~1:38) /test/1/catalog1/schema1/contains/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:15~1:23) /test/1/catalog1/schema1/ft_other/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_fulltext_0_033_behavior_review]
+sql:
+select id from ft_docs where contains(content, 'database' and 'language' or 'parser');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:29~1:37) /test/1/catalog1/schema1/contains/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:15~1:22) /test/1/catalog1/schema1/ft_docs/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_fulltext_0_034_behavior_review]
+sql:
+select id from ft_docs where contains(content, 'database' or 'parser' and 'language');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:29~1:37) /test/1/catalog1/schema1/contains/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:15~1:22) /test/1/catalog1/schema1/ft_docs/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_fulltext_0_035_behavior_review]
+sql:
+select id from ft_docs where contains(content, 'database' and not 'security' or 'parser');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:29~1:37) /test/1/catalog1/schema1/contains/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:15~1:22) /test/1/catalog1/schema1/ft_docs/",
+      "action" : "READ"
+    }
+  ]
+}

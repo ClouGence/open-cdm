@@ -1,0 +1,172 @@
+[split_ddl_dameng_materialized_view_semantic_boundaries_0_behavior_review_001]
+sql:
+alter materialized view MV_MISSING;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_VIEW": [
+    {
+      "subject": "Materialized(1:24~1:34) /test/1/catalog1/schema1/MV_MISSING/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_semantic_boundaries_0_behavior_review_002]
+sql:
+create materialized view MV_BOTH_TIMING refresh complete on demand on commit as select ID from MV_BASE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "Materialized(1:25~1:39) /test/1/catalog1/schema1/MV_BOTH_TIMING/",
+      "action": "CREATE",
+      "target": "Table(1:95~1:102) /test/1/catalog1/schema1/MV_BASE/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_semantic_boundaries_0_behavior_review_003]
+sql:
+create materialized view MV_BOTH_RULE refresh complete with primary key with rowid as select ID, ROWID as RID from MV_BASE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "Materialized(1:25~1:37) /test/1/catalog1/schema1/MV_BOTH_RULE/",
+      "action": "CREATE",
+      "target": "Table(1:115~1:122) /test/1/catalog1/schema1/MV_BASE/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_semantic_boundaries_0_behavior_review_004]
+sql:
+create materialized view MV_BOTH_METHOD refresh complete using delete using truncate as select ID from MV_BASE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "Materialized(1:25~1:39) /test/1/catalog1/schema1/MV_BOTH_METHOD/",
+      "action": "CREATE",
+      "target": "Table(1:103~1:110) /test/1/catalog1/schema1/MV_BASE/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_semantic_boundaries_0_behavior_review_005]
+sql:
+drop materialized view MV_MISSING cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "Materialized(1:23~1:33) /test/1/catalog1/schema1/MV_MISSING/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_semantic_boundaries_0_behavior_review_006]
+sql:
+refresh materialized view MV_MISSING using delete;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Materialized(1:26~1:36) /test/1/catalog1/schema1/MV_MISSING/",
+      "action": "REFRESH"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_semantic_boundaries_0_behavior_review_007]
+sql:
+create materialized view MXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX as select ID from MV_BASE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "Materialized(1:25~1:147) /test/1/catalog1/schema1/MXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX/",
+      "action": "CREATE",
+      "target": "Table(1:166~1:173) /test/1/catalog1/schema1/MV_BASE/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_semantic_boundaries_0_behavior_review_008]
+sql:
+create materialized view MXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX as select ID from MV_BASE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "Materialized(1:25~1:148) /test/1/catalog1/schema1/MXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX/",
+      "action": "CREATE",
+      "target": "Table(1:167~1:174) /test/1/catalog1/schema1/MV_BASE/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_semantic_boundaries_0_behavior_review_009]
+sql:
+create materialized view log on TXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX with primary key;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_LOG": [
+    {
+      "subject": "Log(1:32~1:154) /test/1/catalog1/schema1/TXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX/",
+      "action": "CREATE",
+      "target": "Table(1:32~1:154) /test/1/catalog1/schema1/TXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_semantic_boundaries_0_behavior_review_010]
+sql:
+create materialized view log on TXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX with primary key;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_LOG": [
+    {
+      "subject": "Log(1:32~1:155) /test/1/catalog1/schema1/TXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX/",
+      "action": "CREATE",
+      "target": "Table(1:32~1:155) /test/1/catalog1/schema1/TXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_semantic_boundaries_0_behavior_review_011]
+sql:
+create materialized view log on WXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX with primary key;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_LOG": [
+    {
+      "subject": "Log(1:32~1:154) /test/1/catalog1/schema1/WXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX/",
+      "action": "CREATE",
+      "target": "Table(1:32~1:154) /test/1/catalog1/schema1/WXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX/"
+    }
+  ]
+}

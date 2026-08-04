@@ -1,0 +1,27 @@
+db.collection.update({}, {$set: {"address": "sample_value"}}, {multi: true});
+db.collection.updateMany({}, {$set: {"address": "sample_value"}});
+db.collection.updateOne({}, {$unset: {"address": ""}});
+db.collection.update({}, {$rename: {"a1": "a123456"}}, {multi: true});
+db.collection.updateMany({}, {$set: {"customer_name": "sample", "education": 1}});
+db.collection.update({}, {$set: {"customer_name": "sample", "education": 1}}, {upsert: true});
+db.collection.updateMany({}, {$unset: {"shop_name": "", "customer_id": ""}});
+db.collection.update({}, {$rename: {"customer_name": "customer"}}, {multi: true});
+db.collection.update({}, {$set: {"customer": "sample_comment"}}, {multi: true});
+------------------------------------------------------------------------------------------
+[UPDATE] db.collection.update({}, {$set: {"address": "sample_value"}}, {multi: true})
+----------
+[UPDATE] db.collection.updateMany({}, {$set: {"address": "sample_value"}})
+----------
+[UPDATE] db.collection.updateOne({}, {$unset: {"address": ""}})
+----------
+[UPDATE] db.collection.update({}, {$rename: {"a1": "a123456"}}, {multi: true})
+----------
+[UPDATE] db.collection.updateMany({}, {$set: {"customer_name": "sample", "education": 1}})
+----------
+[MERGE] db.collection.update({}, {$set: {"customer_name": "sample", "education": 1}}, {upsert: true})
+----------
+[UPDATE] db.collection.updateMany({}, {$unset: {"shop_name": "", "customer_id": ""}})
+----------
+[UPDATE] db.collection.update({}, {$rename: {"customer_name": "customer"}}, {multi: true})
+----------
+[UPDATE] db.collection.update({}, {$set: {"customer": "sample_comment"}}, {multi: true})

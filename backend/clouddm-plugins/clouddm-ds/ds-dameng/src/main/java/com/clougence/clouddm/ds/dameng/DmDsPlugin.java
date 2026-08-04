@@ -49,7 +49,7 @@ import com.clougence.schema.SchemaPlugin;
 @Plugin(name = "i18n::" + DmDsI18nKeys.PLUGIN_NAME_DAMENG,              //
         includePackages = { "com.clougence.clouddm.dsfamily.execute.*", //
                             "com.clougence.clouddm.ds.dameng.execute.*" //
-        }, dsProduct = DataSourceType.Dameng, display = false)
+        }, dsProduct = DataSourceType.Dameng)
 public class DmDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
 
     @Override
@@ -80,7 +80,7 @@ public class DmDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
     private void configExecute(DsPluginBinder dsPlugin) {
         dsPlugin.bindDsSessionFactory(DmSessionFactory.class);
         dsPlugin.bindDsDriverFamily("Dameng JDBC Driver");
-        dsPlugin.bindSqlEngine("Oracle SQL", "MySQL", "PG SQL", "MS T-SQL");
+        dsPlugin.bindSqlEngine("Dameng SQL", "ISO-SQL-92", "ISO-SQL-99", "Oracle SQL", "MySQL", "PG SQL", "MS T-SQL");
 
         dsPlugin.addPluginSpi(new DmSessionSpi());
         dsPlugin.addPluginSpi(new DmSupportSpi());

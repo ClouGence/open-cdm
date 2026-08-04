@@ -1,0 +1,44 @@
+[xmltype_ddl]
+sql:
+create table app.xmltype_docs(id int primary key,doc xmltype); create or replace type app.xml_holder as object(name varchar2(20),doc xmltype);
+/
+create table app.xml_holder_tab(id int primary key,value app.xml_holder);
+expect:
+{
+  "contains":[
+    {"class":"RdbTableDomain","sqlType":"CREATE_TABLE","auditKind":"CREATE","schema":"app","table":"xmltype_docs"},
+    {"class":"RdbObjectDomain","sqlType":"CREATE_TYPE","auditKind":"CREATE","schema":"app","name":"xml_holder"},
+    {"class":"RdbTableDomain","sqlType":"CREATE_TABLE","auditKind":"CREATE","schema":"app","table":"xml_holder_tab"}
+  ]
+}
+----------
+[xmltype_dml]
+sql:
+insert into app.xmltype_docs values(1,xmltype('<ROOT><ITEM ID="1">A</ITEM></ROOT>')); insert into app.xml_holder_tab values(1,app.xml_holder('A',xmltype('<A>1</A>')));
+expect:
+{
+  "contains":[
+    {"class":"RdbInsertDomain","sqlType":"INSERT","auditKind":"DML","schema":"app","table":"xmltype_docs"},
+    {"class":"RdbInsertDomain","sqlType":"INSERT","auditKind":"DML","schema":"app","table":"xml_holder_tab"}
+  ]
+}
+----------
+[xmltype_queries]
+sql:
+select id,doc from app.xmltype_docs; select id,xmlquery(doc,'/ROOT/ITEM') from app.xmltype_docs; select d.id,x.item_id,x.item_text from app.xmltype_docs d,xmltable('/ROOT/ITEM' passing d.doc columns item_id int path '@ID',item_text varchar2(20) path 'text()') x; select id,t.value.name,t.value.doc from app.xml_holder_tab t;
+expect:
+{
+  "contains":[
+    {"class":"RdbTableDomain","sqlType":"SELECT","auditKind":"QUERY","schema":"app","table":"xmltype_docs"},
+    {"class":"RdbTableDomain","sqlType":"SELECT","auditKind":"QUERY","schema":"app","table":"xml_holder_tab"}
+  ]
+}
+----------
+[xmltype_block]
+sql:
+declare v xmltype; begin select doc into v from app.xmltype_docs where id=1; print v; end;
+/
+expect:
+{
+  "contains":[{"class":"RdbTableDomain","sqlType":"SELECT","auditKind":"QUERY","schema":"app","table":"xmltype_docs"}]
+}

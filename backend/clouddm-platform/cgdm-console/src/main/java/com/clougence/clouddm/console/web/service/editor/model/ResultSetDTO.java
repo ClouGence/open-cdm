@@ -47,7 +47,6 @@ public class ResultSetDTO {
     private long                      updateCount;
 
     private String                    sql;
-    //private String                    resource;
     private List<String>              columnList;
     private List<String>              columnType;
     private List<ResultSetRow>        rowSet;

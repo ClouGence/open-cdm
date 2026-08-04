@@ -1,0 +1,69 @@
+[array_direct]
+sql:
+select a.column_value
+from array new int[2]{1,2} a
+expect:
+{}
+----------
+[array_join]
+sql:
+select a.column_value,t.id
+from array new int[2]{1,2} a
+join app.array_target t on t.id=a.column_value
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"array_target"}
+  ]
+}
+----------
+[array_cte]
+sql:
+with q as(
+  select column_value v from array new int[2]{1,2}
+)
+select q.v,t.value_text
+from q join app.array_target t on t.id=q.v
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"array_target"}
+  ]
+}
+----------
+[table_collection_subquery]
+sql:
+select x.column_value
+from table(
+  select c.values_col from app.array_collections c where c.id=1
+) x
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"array_collections"}
+  ]
+}
+----------
+[array_insert_select]
+sql:
+insert into app.array_target(id,value_text)
+select column_value,'ARRAY' from array new int[2]{3,4}
+expect:
+{
+  "contains": [
+    {"class":"RdbInsertDomain", "sqlType":"INSERT", "auditKind":"DML", "schema":"app", "table":"array_target"}
+  ]
+}
+----------
+[array_merge]
+sql:
+merge into app.array_target t
+using(select column_value id from array new int[2]{1,2}) s
+on(t.id=s.id)
+when matched then update set t.value_text='ARRAY'
+expect:
+{
+  "contains": [
+    {"class":"RdbUpdateDomain", "sqlType":"MERGE", "auditKind":"DML", "schema":"app", "table":"array_target"}
+  ]
+}

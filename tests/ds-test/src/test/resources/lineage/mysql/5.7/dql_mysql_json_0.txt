@@ -1,0 +1,780 @@
+[dql_mysql_json_0.0001]
+sql:
+SELECT CAST('{"a":1}' AS JSON);
+expect:
+{
+  "CAST('{\"a\":1}' AS JSON)" : [ ]
+}
+----------
+[dql_mysql_json_0.0002]
+sql:
+SELECT CONVERT('{"a":1}', JSON);
+expect:
+{
+  "CONVERT('{\"a\":1}', JSON)" : [ ]
+}
+----------
+[dql_mysql_json_0.0003]
+sql:
+SELECT * FROM (SELECT alias2.pk AS field1 FROM split_derived_json57.t1 AS alias1 LEFT OUTER JOIN split_derived_json57.t2 AS alias2 ON JSON_UNQUOTE(JSON_EXTRACT(alias1.col_varchar,'$.varc')) COLLATE utf8mb4_general_ci=alias2.col_date_key GROUP BY JSON_QUOTE(JSON_EXTRACT(field1,'$.intc'))) AS dt;
+expect:
+{
+  "field1" : [ "(1:22~1:31) /catalog1/split_derived_json57/t2/pk/" ]
+}
+----------
+[dql_mysql_json_0.0004]
+sql:
+SELECT 'a' LIKE '%' ESCAPE CAST('' AS JSON);
+expect:
+{
+  "'a' LIKE '%' ESCAPE CAST('' AS JSON)" : [ ]
+}
+----------
+[dql_mysql_json_0.0005]
+sql:
+SELECT JSON_ARRAY(1,'a',NULL), JSON_OBJECT('a',1,'b',JSON_ARRAY(2,3)), JSON_QUOTE('a"b'), JSON_UNQUOTE('"abc"'), JSON_EXTRACT('{"a":[1,2]}','$.a[0]'), JSON_CONTAINS('[1,2,3]','2'), JSON_CONTAINS_PATH('{"a":1}','one','$.a'), JSON_KEYS('{"a":1,"b":2}'), JSON_SEARCH('["abc","def"]','one','def'), JSON_SET('{"a":1}','$.b',2), JSON_INSERT('{"a":1}','$.b',2), JSON_REPLACE('{"a":1}','$.a',2), JSON_REMOVE('{"a":1,"b":2}','$.b'), JSON_ARRAY_APPEND('[1,2]','$',3), JSON_ARRAY_INSERT('[1,2]','$[1]',9), JSON_MERGE('{"a":1}','{"b":2}'), JSON_DEPTH('{"a":[1]}'), JSON_LENGTH('[1,2]'), JSON_TYPE('1'), JSON_VALID('{"a":1}');
+expect:
+{
+  "JSON_ARRAY(1,'a',NULL)" : [ ],
+  "JSON_OBJECT('a',1,'b',JSON_ARRAY(2,3))" : [ ],
+  "JSON_QUOTE('a\"b')" : [ ],
+  "JSON_UNQUOTE('\"abc\"')" : [ ],
+  "JSON_EXTRACT('{\"a\":[1,2]}','$.a[0]')" : [ ],
+  "JSON_CONTAINS('[1,2,3]','2')" : [ ],
+  "JSON_CONTAINS_PATH('{\"a\":1}','one','$.a')" : [ ],
+  "JSON_KEYS('{\"a\":1,\"b\":2}')" : [ ],
+  "JSON_SEARCH('[\"abc\",\"def\"]','one','def')" : [ ],
+  "JSON_SET('{\"a\":1}','$.b',2)" : [ ],
+  "JSON_INSERT('{\"a\":1}','$.b',2)" : [ ],
+  "JSON_REPLACE('{\"a\":1}','$.a',2)" : [ ],
+  "JSON_REMOVE('{\"a\":1,\"b\":2}','$.b')" : [ ],
+  "JSON_ARRAY_APPEND('[1,2]','$',3)" : [ ],
+  "JSON_ARRAY_INSERT('[1,2]','$[1]',9)" : [ ],
+  "JSON_MERGE('{\"a\":1}','{\"b\":2}')" : [ ],
+  "JSON_DEPTH('{\"a\":[1]}')" : [ ],
+  "JSON_LENGTH('[1,2]')" : [ ],
+  "JSON_TYPE('1')" : [ ],
+  "JSON_VALID('{\"a\":1}')" : [ ]
+}
+----------
+[dql_mysql_json_0.0006]
+sql:
+SELECT JSON_MERGE_PATCH('{"a":1}','{"a":2}'), JSON_MERGE_PRESERVE('{"a":1}','{"a":2}'), JSON_PRETTY('{"a":1}'), JSON_STORAGE_SIZE('{"a":1}');
+expect:
+{
+  "JSON_MERGE_PATCH('{\"a\":1}','{\"a\":2}')" : [ ],
+  "JSON_MERGE_PRESERVE('{\"a\":1}','{\"a\":2}')" : [ ],
+  "JSON_PRETTY('{\"a\":1}')" : [ ],
+  "JSON_STORAGE_SIZE('{\"a\":1}')" : [ ]
+}
+----------
+[dql_mysql_json_0.0007]
+sql:
+SELECT JSON_ARRAYAGG(x), JSON_OBJECTAGG(x, x * x) FROM (SELECT 1 AS x UNION ALL SELECT 2) AS d;
+expect:
+{
+  "JSON_ARRAYAGG(x)" : [ ],
+  "JSON_OBJECTAGG(x, x * x)" : [ ]
+}
+----------
+[dql_mysql_json_0.0008]
+sql:
+SELECT (SELECT JSON_ARRAYAGG(i.t1) FROM agg_t AS i WHERE i.t2=o.t2 LIMIT 1) FROM agg_t AS o GROUP BY o.t2;
+expect:
+{
+  "(SELECT JSON_ARRAYAGG(i.t1) FROM agg_t AS i WHERE i.t2=o.t2 LIMIT 1)" : [ "(1:29~1:33) /catalog1/schema1/agg_t/t1/" ]
+}
+----------
+[dql_mysql_json_0.0009]
+sql:
+SELECT (SELECT 1 FROM agg_t AS i WHERE JSON_ARRAYAGG(1 IN (SELECT 1 FROM agg_t AS d))) FROM agg_t AS o LIMIT 1;
+expect:
+{
+  "(SELECT 1 FROM agg_t AS i WHERE JSON_ARRAYAGG(1 IN (SELECT 1 FROM agg_t AS d)))" : [ ]
+}
+----------
+[dql_mysql_json_0.0010]
+sql:
+SELECT JSON_ARRAY();
+expect:
+{
+  "JSON_ARRAY()" : [ ]
+}
+----------
+[dql_mysql_json_0.0011]
+sql:
+SELECT JSON_OBJECT();
+expect:
+{
+  "JSON_OBJECT()" : [ ]
+}
+----------
+[dql_mysql_json_0.0012]
+sql:
+SELECT JSON_VALUE('{"x":1}', '$.x'), JSON_TABLE(1,2);
+expect:
+{
+  "JSON_VALUE('{\"x\":1}', '$.x')" : [ ],
+  "JSON_TABLE(1,2)" : [ ]
+}
+----------
+[dql_mysql_json_0.0013]
+sql:
+SELECT JSON_OVERLAPS('[1,2]', '[2,3]');
+expect:
+{
+  "JSON_OVERLAPS('[1,2]', '[2,3]')" : [ ]
+}
+----------
+[dql_mysql_json_0.0014]
+sql:
+SELECT JSON_SCHEMA_VALID('{"type":"integer"}', '1');
+expect:
+{
+  "JSON_SCHEMA_VALID('{\"type\":\"integer\"}', '1')" : [ ]
+}
+----------
+[dql_mysql_json_0.0015]
+sql:
+SELECT JSON_SCHEMA_VALIDATION_REPORT('{"type":"integer"}', '"x"');
+expect:
+{
+  "JSON_SCHEMA_VALIDATION_REPORT('{\"type\":\"integer\"}', '\"x\"')" : [ ]
+}
+----------
+[dql_mysql_json_0.0016]
+sql:
+SELECT JSON_STORAGE_FREE('{"a":1}');
+expect:
+{
+  "JSON_STORAGE_FREE('{\"a\":1}')" : [ ]
+}
+----------
+[dql_mysql_json_0.0017]
+sql:
+SELECT JSON_OBJECTAGG(t.col_int,t.col_int), (SELECT JSON_ARRAYAGG(s.col_int) FROM CC AS s WHERE s.col_int<>t.col_int) AS field5 FROM CC AS t WHERE t.col_int<>ALL(SELECT q.col_int FROM CC AS q STRAIGHT_JOIN C) GROUP BY field5;
+expect:
+{
+  "JSON_OBJECTAGG(t.col_int,t.col_int)" : [ "(1:22~1:31) /catalog1/schema1/CC/col_int/", "(1:32~1:41) /catalog1/schema1/CC/col_int/" ],
+  "field5" : [ "(1:66~1:75) /catalog1/schema1/CC/col_int/" ]
+}
+----------
+[dql_mysql_json_0.0018]
+sql:
+SELECT JSON_EXTRACT('{"a":1,"b":2}', '$.a', '$.b');
+expect:
+{
+  "JSON_EXTRACT('{\"a\":1,\"b\":2}', '$.a', '$.b')" : [ ]
+}
+----------
+[dql_mysql_json_0.0019]
+sql:
+SELECT JSON_CONTAINS('{"a":[1,2]}', '2', '$.a');
+expect:
+{
+  "JSON_CONTAINS('{\"a\":[1,2]}', '2', '$.a')" : [ ]
+}
+----------
+[dql_mysql_json_0.0020]
+sql:
+SELECT JSON_CONTAINS_PATH('{"a":1,"b":2}', 'all', '$.a', '$.b');
+expect:
+{
+  "JSON_CONTAINS_PATH('{\"a\":1,\"b\":2}', 'all', '$.a', '$.b')" : [ ]
+}
+----------
+[dql_mysql_json_0.0021]
+sql:
+SELECT JSON_KEYS('{"a":{"b":1}}', '$.a');
+expect:
+{
+  "JSON_KEYS('{\"a\":{\"b\":1}}', '$.a')" : [ ]
+}
+----------
+[dql_mysql_json_0.0022]
+sql:
+SELECT JSON_LENGTH('{"a":[1,2]}', '$.a');
+expect:
+{
+  "JSON_LENGTH('{\"a\":[1,2]}', '$.a')" : [ ]
+}
+----------
+[dql_mysql_json_0.0023]
+sql:
+SELECT JSON_SEARCH('{"a":["ab_c","def"],"b":"abxc"}', 'all', 'ab!_c', '!', '$.a[*]', '$.b');
+expect:
+{
+  "JSON_SEARCH('{\"a\":[\"ab_c\",\"def\"],\"b\":\"abxc\"}', 'all', 'ab!_c', '!', '$.a[*]', '$.b')" : [ ]
+}
+----------
+[dql_mysql_json_0.0024]
+sql:
+SELECT JSON_SET('{"a":1}', '$.b', 2, '$.c', 3);
+expect:
+{
+  "JSON_SET('{\"a\":1}', '$.b', 2, '$.c', 3)" : [ ]
+}
+----------
+[dql_mysql_json_0.0025]
+sql:
+SELECT JSON_INSERT('{"a":1}', '$.b', 2, '$.c', 3);
+expect:
+{
+  "JSON_INSERT('{\"a\":1}', '$.b', 2, '$.c', 3)" : [ ]
+}
+----------
+[dql_mysql_json_0.0026]
+sql:
+SELECT JSON_REPLACE('{"a":1,"b":2}', '$.a', 9, '$.b', 8);
+expect:
+{
+  "JSON_REPLACE('{\"a\":1,\"b\":2}', '$.a', 9, '$.b', 8)" : [ ]
+}
+----------
+[dql_mysql_json_0.0027]
+sql:
+SELECT JSON_REMOVE('{"a":1,"b":2,"c":3}', '$.a', '$.b');
+expect:
+{
+  "JSON_REMOVE('{\"a\":1,\"b\":2,\"c\":3}', '$.a', '$.b')" : [ ]
+}
+----------
+[dql_mysql_json_0.0028]
+sql:
+SELECT JSON_ARRAY_APPEND('{"a":[1],"b":[2]}', '$.a', 3, '$.b', 4);
+expect:
+{
+  "JSON_ARRAY_APPEND('{\"a\":[1],\"b\":[2]}', '$.a', 3, '$.b', 4)" : [ ]
+}
+----------
+[dql_mysql_json_0.0029]
+sql:
+SELECT JSON_ARRAY_INSERT('[1,2,3]', '$[1]', 8, '$[3]', 9);
+expect:
+{
+  "JSON_ARRAY_INSERT('[1,2,3]', '$[1]', 8, '$[3]', 9)" : [ ]
+}
+----------
+[dql_mysql_json_0.0030]
+sql:
+SELECT JSON_MERGE('{"a":1}', '{"b":2}', '{"c":3}');
+expect:
+{
+  "JSON_MERGE('{\"a\":1}', '{\"b\":2}', '{\"c\":3}')" : [ ]
+}
+----------
+[dql_mysql_json_0.0031]
+sql:
+SELECT JSON_MERGE_PATCH('{"a":1}', '{"b":2}', '{"c":3}');
+expect:
+{
+  "JSON_MERGE_PATCH('{\"a\":1}', '{\"b\":2}', '{\"c\":3}')" : [ ]
+}
+----------
+[dql_mysql_json_0.0032]
+sql:
+SELECT JSON_MERGE_PRESERVE('{"a":1}', '{"b":2}', '{"c":3}');
+expect:
+{
+  "JSON_MERGE_PRESERVE('{\"a\":1}', '{\"b\":2}', '{\"c\":3}')" : [ ]
+}
+----------
+[dql_mysql_json_0.0033]
+sql:
+SELECT JSON_EXTRACT('{"quoted key":1}', '$."quoted key"');
+expect:
+{
+  "JSON_EXTRACT('{\"quoted key\":1}', '$.\"quoted key\"')" : [ ]
+}
+----------
+[dql_mysql_json_0.0034]
+sql:
+SELECT JSON_EXTRACT('{"a":1,"b":2}', '$.*');
+expect:
+{
+  "JSON_EXTRACT('{\"a\":1,\"b\":2}', '$.*')" : [ ]
+}
+----------
+[dql_mysql_json_0.0035]
+sql:
+SELECT JSON_EXTRACT('[1,2,3]', '$[*]');
+expect:
+{
+  "JSON_EXTRACT('[1,2,3]', '$[*]')" : [ ]
+}
+----------
+[dql_mysql_json_0.0036]
+sql:
+SELECT JSON_EXTRACT('{"a":{"x":1},"b":{"x":2}}', '$**.x');
+expect:
+{
+  "JSON_EXTRACT('{\"a\":{\"x\":1},\"b\":{\"x\":2}}', '$**.x')" : [ ]
+}
+----------
+[dql_mysql_json_0.0037]
+sql:
+SELECT JSON_EXTRACT('[1,2,3]', '$[last]');
+expect:
+{
+  "JSON_EXTRACT('[1,2,3]', '$[last]')" : [ ]
+}
+----------
+[dql_mysql_json_0.0038]
+sql:
+SELECT JSON_EXTRACT('[1,2,3]', '$[last-1]');
+expect:
+{
+  "JSON_EXTRACT('[1,2,3]', '$[last-1]')" : [ ]
+}
+----------
+[dql_mysql_json_0.0039]
+sql:
+SELECT JSON_EXTRACT('[1,2,3,4]', '$[1 to 2]');
+expect:
+{
+  "JSON_EXTRACT('[1,2,3,4]', '$[1 to 2]')" : [ ]
+}
+----------
+[dql_mysql_json_0.0040]
+sql:
+SELECT JSON_EXTRACT('[1,2,3,4]', '$[last-2 to last]');
+expect:
+{
+  "JSON_EXTRACT('[1,2,3,4]', '$[last-2 to last]')" : [ ]
+}
+----------
+[dql_mysql_json_0.0041]
+sql:
+SELECT JSON_SCHEMA_VALID(t2.j,t2.j) FROM schema_t, (SELECT * FROM schema_t WHERE pk=1) AS t2;
+expect:
+{
+  "JSON_SCHEMA_VALID(t2.j,t2.j)" : [ "(1:59~1:60) /catalog1/schema1/schema_t/j/", "(1:59~1:60) /catalog1/schema1/schema_t/j/" ]
+}
+----------
+[dql_mysql_json_0.0042]
+sql:
+SELECT JSON_SCHEMA_VALIDATION_REPORT(t2.j,t2.j) FROM schema_t, (SELECT * FROM schema_t WHERE pk=1) AS t2;
+expect:
+{
+  "JSON_SCHEMA_VALIDATION_REPORT(t2.j,t2.j)" : [ "(1:71~1:72) /catalog1/schema1/schema_t/j/", "(1:71~1:72) /catalog1/schema1/schema_t/j/" ]
+}
+----------
+[dql_mysql_json_0.0043]
+sql:
+SELECT JSON_VALUE();
+expect:
+{
+  "JSON_VALUE()" : [ ]
+}
+----------
+[dql_mysql_json_0.0044]
+sql:
+SELECT JSON_VALUE('{}');
+expect:
+{
+  "JSON_VALUE('{}')" : [ ]
+}
+----------
+[dql_mysql_json_0.0045]
+sql:
+SELECT JSON_VALUE('{}','$.a',1);
+expect:
+{
+  "JSON_VALUE('{}','$.a',1)" : [ ]
+}
+----------
+[dql_mysql_json_0.0046]
+sql:
+SELECT j->'$.a', j->>'$.a' FROM json_op;
+expect:
+{
+  "j->'$.a'" : [ "(1:7~1:8) /catalog1/schema1/json_op/j/" ],
+  "j->>'$.a'" : [ "(1:17~1:18) /catalog1/schema1/json_op/j/" ]
+}
+----------
+[dql_mysql_json_0.0047]
+sql:
+SELECT id,doc,doc->'$.score',doc->>'$.name',
+               JSON_TYPE(doc),JSON_DEPTH(doc),JSON_STORAGE_SIZE(doc)
+        FROM split_type_json.json_core
+        ORDER BY CAST(doc->>'$.score' AS UNSIGNED),id;
+expect:
+{
+  "id" : [ "(1:7~1:9) /catalog1/split_type_json/json_core/id/" ],
+  "doc" : [ "(1:10~1:13) /catalog1/split_type_json/json_core/doc/" ],
+  "doc->'$.score'" : [ "(1:14~1:17) /catalog1/split_type_json/json_core/doc/" ],
+  "doc->>'$.name'" : [ "(1:29~1:32) /catalog1/split_type_json/json_core/doc/" ],
+  "JSON_TYPE(doc)" : [ "(2:25~2:28) /catalog1/split_type_json/json_core/doc/" ],
+  "JSON_DEPTH(doc)" : [ "(2:41~2:44) /catalog1/split_type_json/json_core/doc/" ],
+  "JSON_STORAGE_SIZE(doc)" : [ "(2:64~2:67) /catalog1/split_type_json/json_core/doc/" ]
+}
+----------
+[dql_mysql_json_0.0048]
+sql:
+SELECT a.id,b.id,a.doc->>'$.name'
+        FROM split_type_json.json_core AS a
+        JOIN split_type_json.json_core AS b
+          ON a.doc->>'$.kind'=b.doc->>'$.kind'
+         AND JSON_OVERLAPS(a.payload,b.payload)
+        WHERE a.id<b.id
+        ORDER BY a.id,b.id;
+expect:
+[ {
+  "sources" : [ "(1:7~1:11) /catalog1/split_type_json/json_core/id/" ],
+  "column" : "id"
+}, {
+  "sources" : [ "(1:12~1:16) /catalog1/split_type_json/json_core/id/" ],
+  "column" : "id"
+}, {
+  "sources" : [ "(1:17~1:22) /catalog1/split_type_json/json_core/doc/" ],
+  "column" : "a.doc->>'$.name'"
+} ]
+----------
+[dql_mysql_json_0.0049]
+sql:
+SELECT o.id,o.doc
+        FROM split_type_json.json_core AS o
+        WHERE EXISTS (
+          SELECT 1 FROM split_type_json.json_core AS i
+          WHERE i.id<>o.id
+            AND JSON_CONTAINS(
+                  i.payload,JSON_QUOTE(o.doc->>'$.kind'),'$.tags'
+                )
+        );
+expect:
+{
+  "id" : [ "(1:7~1:11) /catalog1/split_type_json/json_core/id/" ],
+  "doc" : [ "(1:12~1:17) /catalog1/split_type_json/json_core/doc/" ]
+}
+----------
+[dql_mysql_json_0.0050]
+sql:
+SELECT d.kind,COUNT(*),JSON_ARRAYAGG(d.name_text),
+               JSON_OBJECTAGG(d.id,d.score)
+        FROM (
+          SELECT id,doc->>'$.kind' AS kind,
+                 doc->>'$.name' AS name_text,
+                 CAST(doc->>'$.score' AS UNSIGNED) AS score
+          FROM split_type_json.json_core
+        ) AS d
+        GROUP BY d.kind
+        HAVING MAX(d.score)>=10;
+expect:
+{
+  "kind" : [ "(4:20~4:23) /catalog1/split_type_json/json_core/doc/" ],
+  "COUNT(*)" : [ ],
+  "JSON_ARRAYAGG(d.name_text)" : [ "(5:17~5:20) /catalog1/split_type_json/json_core/doc/" ],
+  "JSON_OBJECTAGG(d.id,d.score)" : [ "(4:17~4:19) /catalog1/split_type_json/json_core/id/", "(6:22~6:25) /catalog1/split_type_json/json_core/doc/" ]
+}
+----------
+[dql_mysql_json_0.0051]
+sql:
+SELECT doc FROM split_type_json.json_core WHERE id<3
+        UNION ALL
+        SELECT JSON_OBJECT(
+                 'max_score',
+                 (SELECT MAX(CAST(doc->>'$.score' AS UNSIGNED))
+                  FROM split_type_json.json_core)
+               );
+expect:
+{
+  "doc" : [ "(1:7~1:10) /catalog1/split_type_json/json_core/doc/", "(5:34~5:37) /catalog1/split_type_json/json_core/doc/" ]
+}
+----------
+[dql_mysql_json_0.0052]
+sql:
+SELECT JSON_SCHEMA_VALIDATION_REPORT();
+expect:
+{
+  "JSON_SCHEMA_VALIDATION_REPORT()" : [ ]
+}
+----------
+[dql_mysql_json_0.0053]
+sql:
+SELECT JSON_SCHEMA_VALIDATION_REPORT(NULL);
+expect:
+{
+  "JSON_SCHEMA_VALIDATION_REPORT(NULL)" : [ ]
+}
+----------
+[dql_mysql_json_0.0054]
+sql:
+SELECT JSON_SCHEMA_VALIDATION_REPORT(NULL,NULL,NULL);
+expect:
+{
+  "JSON_SCHEMA_VALIDATION_REPORT(NULL,NULL,NULL)" : [ ]
+}
+----------
+[dql_mysql_json_0.0055]
+sql:
+SELECT JSON_MERGE_PRESERVE();
+expect:
+{
+  "JSON_MERGE_PRESERVE()" : [ ]
+}
+----------
+[dql_mysql_json_0.0056]
+sql:
+SELECT JSON_MERGE_PRESERVE('[1]');
+expect:
+{
+  "JSON_MERGE_PRESERVE('[1]')" : [ ]
+}
+----------
+[dql_mysql_json_0.0057]
+sql:
+SELECT JSON_EXTRACT('{"a":1}', '$.a') AS je, COUNT(DISTINCT a) FROM split_json_rollup GROUP BY je WITH ROLLUP;
+expect:
+{
+  "je" : [ ],
+  "COUNT(DISTINCT a)" : [ "(1:60~1:61) /catalog1/schema1/split_json_rollup/a/" ]
+}
+----------
+[dql_mysql_json_0.0058]
+sql:
+SELECT SUM(col_int), col_int FROM split_json_column AS table1 WHERE table1.pk = table1.pk;
+expect:
+{
+  "SUM(col_int)" : [ "(1:11~1:18) /catalog1/schema1/split_json_column/col_int/" ],
+  "col_int" : [ "(1:21~1:28) /catalog1/schema1/split_json_column/col_int/" ]
+}
+----------
+[dql_mysql_json_0.0059]
+sql:
+SELECT JSON_ARRAY(_utf8mb4'abc') = JSON_ARRAY(_binary'abc');
+expect:
+{
+  "JSON_ARRAY(_utf8mb4'abc') = JSON_ARRAY(_binary'abc')" : [ ]
+}
+----------
+[dql_mysql_json_0.0060]
+sql:
+SELECT * FROM split_json_prepare WHERE JSON_LENGTH(?, a BETWEEN ? AND ?);
+expect:
+{
+  "id" : [ "(1:7~1:8) /catalog1/schema1/split_json_prepare/id/" ]
+}
+----------
+[dql_mysql_json_0.0061]
+sql:
+SELECT JSON_SEARCH(?,?,?,?);
+expect:
+{
+  "JSON_SEARCH(?,?,?,?)" : [ ]
+}
+----------
+[dql_mysql_json_0.0062]
+sql:
+SELECT JSON_SEARCH(?,?,?,"x",?);
+expect:
+{
+  "JSON_SEARCH(?,?,?,\"x\",?)" : [ ]
+}
+----------
+[dql_mysql_json_0.0063]
+sql:
+SELECT CAST((SELECT 1) AS JSON);
+expect:
+{
+  "CAST((SELECT 1) AS JSON)" : [ ]
+}
+----------
+[dql_mysql_json_0.0064]
+sql:
+SELECT JSON_EXTRACT(col_json, ?) FROM t_reuse ORDER BY pk;
+expect:
+{
+  "JSON_EXTRACT(col_json, ?)" : [ "(1:20~1:28) /catalog1/schema1/t_reuse/col_json/" ]
+}
+----------
+[dql_mysql_json_0.0065]
+sql:
+SELECT JSON_CONTAINS('{"a":[1]}','[1]',?);
+expect:
+{
+  "JSON_CONTAINS('{\"a\":[1]}','[1]',?)" : [ ]
+}
+----------
+[dql_mysql_json_0.0066]
+sql:
+SELECT JSON_CONTAINS_PATH('{"a":1}','all',?);
+expect:
+{
+  "JSON_CONTAINS_PATH('{\"a\":1}','all',?)" : [ ]
+}
+----------
+[dql_mysql_json_0.0067]
+sql:
+SELECT JSON_LENGTH('{"a":[1]}',?);
+expect:
+{
+  "JSON_LENGTH('{\"a\":[1]}',?)" : [ ]
+}
+----------
+[dql_mysql_json_0.0068]
+sql:
+SELECT JSON_KEYS('[{"a":1}]',?);
+expect:
+{
+  "JSON_KEYS('[{\"a\":1}]',?)" : [ ]
+}
+----------
+[dql_mysql_json_0.0069]
+sql:
+SELECT JSON_ARRAY_APPEND('{"a":[1]}',?,2);
+expect:
+{
+  "JSON_ARRAY_APPEND('{\"a\":[1]}',?,2)" : [ ]
+}
+----------
+[dql_mysql_json_0.0070]
+sql:
+SELECT JSON_INSERT('{"a":[1]}',?,2);
+expect:
+{
+  "JSON_INSERT('{\"a\":[1]}',?,2)" : [ ]
+}
+----------
+[dql_mysql_json_0.0071]
+sql:
+SELECT JSON_SET('{"a":[1]}',?,2);
+expect:
+{
+  "JSON_SET('{\"a\":[1]}',?,2)" : [ ]
+}
+----------
+[dql_mysql_json_0.0072]
+sql:
+SELECT JSON_REPLACE('{"a":[1]}',?,2);
+expect:
+{
+  "JSON_REPLACE('{\"a\":[1]}',?,2)" : [ ]
+}
+----------
+[dql_mysql_json_0.0073]
+sql:
+SELECT JSON_REMOVE('{"a":[1]}',?);
+expect:
+{
+  "JSON_REMOVE('{\"a\":[1]}',?)" : [ ]
+}
+----------
+[dql_mysql_json_0.0074]
+sql:
+SELECT JSON_SEARCH('{"a":"foo"}','all','foo%',NULL,?);
+expect:
+{
+  "JSON_SEARCH('{\"a\":\"foo\"}','all','foo%',NULL,?)" : [ ]
+}
+----------
+[dql_mysql_json_0.0075]
+sql:
+SELECT JSON_SEARCH('{"a":"foo"}',?,'foo%');
+expect:
+{
+  "JSON_SEARCH('{\"a\":\"foo\"}',?,'foo%')" : [ ]
+}
+----------
+[dql_mysql_json_0.0076]
+sql:
+SELECT JSON_CONTAINS_PATH('{"a":1}',?,'$.a','$.b');
+expect:
+{
+  "JSON_CONTAINS_PATH('{\"a\":1}',?,'$.a','$.b')" : [ ]
+}
+----------
+[dql_mysql_json_0.0077]
+sql:
+SELECT JSON_ARRAY(?,?,?,?,?,?);
+expect:
+{
+  "JSON_ARRAY(?,?,?,?,?,?)" : [ ]
+}
+----------
+[dql_mysql_json_0.0078]
+sql:
+SELECT JSON_OBJECT('a',?,'b',?);
+expect:
+{
+  "JSON_OBJECT('a',?,'b',?)" : [ ]
+}
+----------
+[dql_mysql_json_0.0079]
+sql:
+SELECT JSON_ARRAY_INSERT(@j,'$[1]',?);
+expect:
+{
+  "JSON_ARRAY_INSERT(@j,'$[1]',?)" : [ ]
+}
+----------
+[dql_mysql_json_0.0080]
+sql:
+SELECT JSON_OVERLAPS('true',?);
+expect:
+{
+  "JSON_OVERLAPS('true',?)" : [ ]
+}
+----------
+[dql_mysql_json_0.0081]
+sql:
+SELECT JSON_CONTAINS('{"a":"x"}',?,'$.a');
+expect:
+{
+  "JSON_CONTAINS('{\"a\":\"x\"}',?,'$.a')" : [ ]
+}
+----------
+[dql_mysql_json_0.0082]
+sql:
+SELECT JSON_MERGE_PATCH('[1,2]',?);
+expect:
+{
+  "JSON_MERGE_PATCH('[1,2]',?)" : [ ]
+}
+----------
+[dql_mysql_json_0.0083]
+sql:
+SELECT JSON_MERGE_PRESERVE('[1,2]',?);
+expect:
+{
+  "JSON_MERGE_PRESERVE('[1,2]',?)" : [ ]
+}
+----------
+[dql_mysql_json_0.0084]
+sql:
+SELECT * FROM t1 WHERE j->'$.int'=?;
+expect:
+{
+  "id" : [ "(1:7~1:8) /catalog1/schema1/t1/id/" ]
+}
+----------
+[dql_mysql_json_0.0085]
+sql:
+SELECT * FROM t1 WHERE j->>'$.int'=?;
+expect:
+{
+  "id" : [ "(1:7~1:8) /catalog1/schema1/t1/id/" ]
+}
+----------
+[dql_mysql_json_0.0086]
+sql:
+SELECT CAST(? AS JSON);
+expect:
+{
+  "CAST(? AS JSON)" : [ ]
+}
+----------
+[dql_mysql_json_0.0087]
+sql:
+SELECT CAST('"123"' AS JSON)=JSON_EXTRACT(?,'$');
+expect:
+{
+  "CAST('\"123\"' AS JSON)=JSON_EXTRACT(?,'$')" : [ ]
+}
+----------
+[dql_mysql_json_0.0088]
+sql:
+SELECT CAST('"123"' AS JSON) IN (?,?);
+expect:
+{
+  "CAST('\"123\"' AS JSON) IN (?,?)" : [ ]
+}

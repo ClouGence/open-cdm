@@ -1,0 +1,359 @@
+-- CASE_001_FOR_XML_PATH_DEFAULT_COLUMNS
+SELECT ID, CATEGORY FROM app.xml_docs ORDER BY ID FOR XML PATH('row');
+-- CASE_002_FOR_XML_PATH_ALIASES
+SELECT ID AS "id_num", CATEGORY AS "name_text"
+FROM app.xml_docs ORDER BY ID FOR XML PATH('entry');
+-- CASE_003_XMLTABLE_NAMESPACES
+SELECT * FROM XMLTABLE(
+  XMLNAMESPACES('http://example.com/d' AS "d", 'http://example.com/d' AS "f"),
+  '/a' PASSING XMLTYPE('<a xmlns:n="http://example.com/d"><n:b>text</n:b></a>')
+  COLUMNS V VARCHAR(20) PATH '/a/f:b'
+);
+-- CASE_004_EXISTSNODE_NAMESPACE
+SELECT EXISTSNODE(
+  XMLTYPE('<a xmlns:n="http://example.com/d"><n:b>text</n:b></a>'),
+  '/a/n:b', 'xmlns:n="http://example.com/d"'
+);
+-- CASE_006_EXTRACT_FUNCTION
+SELECT EXTRACT(XMLTYPE('<a><b>text</b></a>'), '/a/b') FROM DUAL;
+-- CASE_007_EXTRACT_FUNCTION_NAMESPACE
+SELECT EXTRACT(
+  XMLTYPE('<a xmlns:n="http://example.com/d"><n:b>text</n:b></a>'),
+  '/a/n:b', 'xmlns:n="http://example.com/d"'
+) FROM DUAL;
+-- CASE_008_EXTRACT_METHOD
+SELECT XMLTYPE('<a><b>text</b></a>').EXTRACT('/a/b') FROM DUAL;
+-- CASE_009_EXTRACT_METHOD_NAMESPACE
+SELECT XMLTYPE('<a xmlns:n="http://example.com/d"><n:b>text</n:b></a>')
+  .EXTRACT('/a/n:b', 'xmlns:n="http://example.com/d"') FROM DUAL;
+-- CASE_010_XMLSEQUENCE_NAMESPACE
+SELECT T.* FROM TABLE(XMLSEQUENCE(EXTRACT(
+  XMLTYPE('<a xmlns:n="http://example.com/d"><n:b>one</n:b><n:b>two</n:b></a>'),
+  '/a/n:b', 'xmlns:n="http://example.com/d"'
+))) T;
+-- CASE_019_XMLTRANSFORM
+SELECT XMLTRANSFORM(
+  XMLTYPE('<root><v>one</v></root>'),
+  XMLTYPE('<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0"><xsl:template match="/"><out><xsl:value-of select="/root/v"/></out></xsl:template></xsl:stylesheet>')
+);
+-- CASE_020_XMLSERIALIZE_CONTENT_CLOB
+SELECT XMLSERIALIZE(CONTENT XMLTYPE('<a><b>x</b></a>') AS CLOB) FROM DUAL;
+-- CASE_021_XMLSERIALIZE_DOCUMENT_VARCHAR
+SELECT XMLSERIALIZE(DOCUMENT XMLTYPE('<a><b>x</b></a>') AS VARCHAR(200)) FROM DUAL;
+-- CASE_022_XMLSERIALIZE_BLOB_ENCODING
+SELECT XMLSERIALIZE(
+  CONTENT XMLTYPE('<?xml version="1.0" encoding="UTF-8"?><a>x</a>')
+  AS BLOB ENCODING 'UTF-8'
+) FROM DUAL;
+-- CASE_023_XMLSERIALIZE_VERSION
+SELECT XMLSERIALIZE(
+  CONTENT XMLTYPE('<a>x</a>') AS CLOB VERSION '1.2'
+) FROM DUAL;
+-- CASE_024_XMLSERIALIZE_HIDE_DEFAULTS
+SELECT XMLSERIALIZE(
+  CONTENT XMLTYPE('<a><b>x</b></a>') AS CLOB HIDE DEFAULTS
+) FROM DUAL;
+-- CASE_025_XMLSERIALIZE_INDENT_SHOW
+SELECT XMLSERIALIZE(
+  CONTENT XMLTYPE('<a><b>x</b></a>') AS CLOB INDENT SIZE = 2 SHOW DEFAULTS
+) FROM DUAL;
+-- CASE_026_XMLSERIALIZE_INDENT_ZERO
+SELECT XMLSERIALIZE(
+  CONTENT XMLTYPE('<a><b>x</b></a>') AS CLOB INDENT SIZE = 0
+) FROM DUAL;
+-- CASE_027_XMLSERIALIZE_INDENT_MAX
+SELECT XMLSERIALIZE(
+  CONTENT XMLTYPE('<a><b>x</b></a>') AS CLOB INDENT SIZE = 20
+) FROM DUAL;
+-- CASE_028_XMLCAST_VARCHAR
+SELECT XMLCAST(XMLTYPE('<a>123</a>') AS VARCHAR(40)) FROM DUAL;
+-- CASE_029_XMLCAST_NUMBER
+SELECT XMLCAST(XMLTYPE('<a>123</a>') AS NUMBER) FROM DUAL;
+-- CASE_031_XMLSERIALIZE_DEFAULT_TYPE
+SELECT XMLSERIALIZE(CONTENT XMLTYPE('<a><b>x</b></a>')) FROM DUAL;
+-- CASE_032_FOR_XML_PATH_EMPTY_NAME
+SELECT ID FROM app.xml_docs ORDER BY ID FOR XML PATH('');
+-- CASE_033_EXTRACT_EMBEDDED_NAMESPACE
+SELECT EXTRACT(
+  XMLTYPE('<a xmlns:n="http://example.com/d"><n:b>text</n:b></a>'),
+  '/a/n:b'
+) FROM DUAL;
+-- CASE_034_XMLCAST_NESTED_CONTENT_NUMBER
+SELECT XMLCAST(XMLTYPE('<a><b>123</b></a>') AS NUMBER) FROM DUAL;
+-- CASE_035_XMLTRANSFORM_NON_STYLESHEET
+SELECT XMLTRANSFORM(XMLTYPE('<a/>'), XMLTYPE('<bad/>'));
+-- SEM_002_XMLTABLE_NAMESPACE_UNDEFINED
+SELECT * FROM XMLTABLE(
+  '/a/n:b' PASSING XMLTYPE('<a xmlns:n="http://example.com/d"><n:b>text</n:b></a>')
+  COLUMNS V VARCHAR(20) PATH 'text()'
+);
+-- SEM_003_XMLSERIALIZE_INDENT_OVER_MAX
+SELECT XMLSERIALIZE(
+  CONTENT XMLTYPE('<a><b>x</b></a>') AS CLOB INDENT SIZE = 21
+) FROM DUAL;
+-- SEM_004_XMLSERIALIZE_ENCODING_WITH_CLOB
+SELECT XMLSERIALIZE(
+  CONTENT XMLTYPE('<a>x</a>') AS CLOB ENCODING 'UTF-8'
+) FROM DUAL;
+-- SEM_005_XMLSERIALIZE_BAD_ENCODING
+SELECT XMLSERIALIZE(
+  CONTENT XMLTYPE('<a>x</a>') AS BLOB ENCODING 'BAD'
+) FROM DUAL;
+-- SEM_008_EXTRACTVALUE_MULTIPLE_NODES
+SELECT EXTRACTVALUE(XMLTYPE('<a><b>1</b><b>2</b></a>'), '/a/b');
+-- SEM_009_EXTRACTVALUE_NAMESPACE_DOC_DELTA
+SELECT EXTRACTVALUE(
+  XMLTYPE('<a xmlns:n="http://example.com/d"><n:b>text</n:b></a>'),
+  '/a/n:b', 'xmlns:n="http://example.com/d"'
+);
+-- SEM_010_DELETEXML_NAMESPACE_DOC_DELTA
+SELECT DELETEXML(
+  XMLTYPE('<n:a xmlns:n="http://example.com/d"><b><c>x</c></b></n:a>'),
+  'n:a/b/c', 'xmlns:n="http://example.com/d"'
+);
+-- SEM_011_APPENDCHILDXML_NAMESPACE_DOC_DELTA
+SELECT APPENDCHILDXML(
+  XMLTYPE('<n:a xmlns:n="http://example.com/d"><b>x</b></n:a>'),
+  '/n:a', XMLTYPE('<c>y</c>'), 'xmlns:n="http://example.com/d"'
+);
+-- SEM_012_INSERTCHILDXML_NAMESPACE_DOC_DELTA
+SELECT INSERTCHILDXML(
+  XMLTYPE('<n:a xmlns:n="http://example.com/d"><b>x</b></n:a>'),
+  'n:a/b', 'c', XMLTYPE('<c>y</c>'), 'xmlns:n="http://example.com/d"'
+);
+-- SEM_013_INSERTCHILDXMLAFTER_NAMESPACE_DOC_DELTA
+SELECT INSERTCHILDXMLAFTER(
+  XMLTYPE('<n:a xmlns:n="http://example.com/d"><b>x</b></n:a>'),
+  'n:a/', 'b', XMLTYPE('<c>y</c>'), 'xmlns:n="http://example.com/d"'
+);
+-- SEM_014_INSERTCHILDXMLBEFORE_NAMESPACE_DOC_DELTA
+SELECT INSERTCHILDXMLBEFORE(
+  XMLTYPE('<n:a xmlns:n="http://example.com/d"><b>x</b></n:a>'),
+  'n:a/', 'b', XMLTYPE('<c>y</c>'), 'xmlns:n="http://example.com/d"'
+);
+-- SEM_015_INSERTXMLBEFORE_NAMESPACE_DOC_DELTA
+SELECT INSERTXMLBEFORE(
+  XMLTYPE('<n:a xmlns:n="http://example.com/d"><b>x</b></n:a>'),
+  '/n:a/b', XMLTYPE('<c>y</c>'), 'xmlns:n="http://example.com/d"'
+);
+-- SEM_016_INSERTXMLAFTER_NAMESPACE_DOC_DELTA
+SELECT INSERTXMLAFTER(
+  XMLTYPE('<n:a xmlns:n="http://example.com/d"><b>x</b></n:a>'),
+  '/n:a/b', XMLTYPE('<c>y</c>'), 'xmlns:n="http://example.com/d"'
+);
+-- SEM_017_UPDATEXML_NAMESPACE_DOC_DELTA
+SELECT UPDATEXML(
+  XMLTYPE('<n:a xmlns:n="http://example.com/d"><b>x</b></n:a>'),
+  '/n:a/b', XMLTYPE('<c>y</c>'), 'xmlns:n="http://example.com/d"'
+);
+-- SEM_018_XMLCAST_TYPED_NULL_DOC_DELTA
+SELECT XMLCAST(CAST(NULL AS XMLTYPE) AS VARCHAR(40)) FROM DUAL;
+-- SEM_019_XMLSERIALIZE_NO_INDENT_DOC_DELTA
+SELECT XMLSERIALIZE(
+  CONTENT XMLTYPE('<a><b>x</b></a>') AS CLOB NO INDENT
+) FROM DUAL;
+-- SEM_020_XMLTRANSFORM_MISSING_XSLT
+SELECT XMLTRANSFORM(XMLTYPE('<a/>'));
+-- SEM_021_EXTRACT_MISSING_PATH_PARSER_PERMISSIVE
+SELECT EXTRACT(XMLTYPE('<a/>')) FROM DUAL;
+------------------------------------------------------------------------------------------
+[SELECT] -- CASE_001_FOR_XML_PATH_DEFAULT_COLUMNS
+SELECT ID, CATEGORY FROM app.xml_docs ORDER BY ID FOR XML PATH('row');
+----------
+[SELECT] -- CASE_002_FOR_XML_PATH_ALIASES
+SELECT ID AS "id_num", CATEGORY AS "name_text"
+FROM app.xml_docs ORDER BY ID FOR XML PATH('entry');
+----------
+[SELECT] -- CASE_003_XMLTABLE_NAMESPACES
+SELECT * FROM XMLTABLE(
+  XMLNAMESPACES('http://example.com/d' AS "d", 'http://example.com/d' AS "f"),
+  '/a' PASSING XMLTYPE('<a xmlns:n="http://example.com/d"><n:b>text</n:b></a>')
+  COLUMNS V VARCHAR(20) PATH '/a/f:b'
+);
+----------
+[SELECT] -- CASE_004_EXISTSNODE_NAMESPACE
+SELECT EXISTSNODE(
+  XMLTYPE('<a xmlns:n="http://example.com/d"><n:b>text</n:b></a>'),
+  '/a/n:b', 'xmlns:n="http://example.com/d"'
+);
+----------
+[SELECT] -- CASE_006_EXTRACT_FUNCTION
+SELECT EXTRACT(XMLTYPE('<a><b>text</b></a>'), '/a/b') FROM DUAL;
+----------
+[SELECT] -- CASE_007_EXTRACT_FUNCTION_NAMESPACE
+SELECT EXTRACT(
+  XMLTYPE('<a xmlns:n="http://example.com/d"><n:b>text</n:b></a>'),
+  '/a/n:b', 'xmlns:n="http://example.com/d"'
+) FROM DUAL;
+----------
+[SELECT] -- CASE_008_EXTRACT_METHOD
+SELECT XMLTYPE('<a><b>text</b></a>').EXTRACT('/a/b') FROM DUAL;
+----------
+[SELECT] -- CASE_009_EXTRACT_METHOD_NAMESPACE
+SELECT XMLTYPE('<a xmlns:n="http://example.com/d"><n:b>text</n:b></a>')
+  .EXTRACT('/a/n:b', 'xmlns:n="http://example.com/d"') FROM DUAL;
+----------
+[SELECT] -- CASE_010_XMLSEQUENCE_NAMESPACE
+SELECT T.* FROM TABLE(XMLSEQUENCE(EXTRACT(
+  XMLTYPE('<a xmlns:n="http://example.com/d"><n:b>one</n:b><n:b>two</n:b></a>'),
+  '/a/n:b', 'xmlns:n="http://example.com/d"'
+))) T;
+----------
+[SELECT|CALL_PROG_OBJ] -- CASE_019_XMLTRANSFORM
+SELECT XMLTRANSFORM(
+  XMLTYPE('<root><v>one</v></root>'),
+  XMLTYPE('<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0"><xsl:template match="/"><out><xsl:value-of select="/root/v"/></out></xsl:template></xsl:stylesheet>')
+);
+----------
+[SELECT] -- CASE_020_XMLSERIALIZE_CONTENT_CLOB
+SELECT XMLSERIALIZE(CONTENT XMLTYPE('<a><b>x</b></a>') AS CLOB) FROM DUAL;
+----------
+[SELECT] -- CASE_021_XMLSERIALIZE_DOCUMENT_VARCHAR
+SELECT XMLSERIALIZE(DOCUMENT XMLTYPE('<a><b>x</b></a>') AS VARCHAR(200)) FROM DUAL;
+----------
+[SELECT] -- CASE_022_XMLSERIALIZE_BLOB_ENCODING
+SELECT XMLSERIALIZE(
+  CONTENT XMLTYPE('<?xml version="1.0" encoding="UTF-8"?><a>x</a>')
+  AS BLOB ENCODING 'UTF-8'
+) FROM DUAL;
+----------
+[SELECT] -- CASE_023_XMLSERIALIZE_VERSION
+SELECT XMLSERIALIZE(
+  CONTENT XMLTYPE('<a>x</a>') AS CLOB VERSION '1.2'
+) FROM DUAL;
+----------
+[SELECT] -- CASE_024_XMLSERIALIZE_HIDE_DEFAULTS
+SELECT XMLSERIALIZE(
+  CONTENT XMLTYPE('<a><b>x</b></a>') AS CLOB HIDE DEFAULTS
+) FROM DUAL;
+----------
+[SELECT] -- CASE_025_XMLSERIALIZE_INDENT_SHOW
+SELECT XMLSERIALIZE(
+  CONTENT XMLTYPE('<a><b>x</b></a>') AS CLOB INDENT SIZE = 2 SHOW DEFAULTS
+) FROM DUAL;
+----------
+[SELECT] -- CASE_026_XMLSERIALIZE_INDENT_ZERO
+SELECT XMLSERIALIZE(
+  CONTENT XMLTYPE('<a><b>x</b></a>') AS CLOB INDENT SIZE = 0
+) FROM DUAL;
+----------
+[SELECT] -- CASE_027_XMLSERIALIZE_INDENT_MAX
+SELECT XMLSERIALIZE(
+  CONTENT XMLTYPE('<a><b>x</b></a>') AS CLOB INDENT SIZE = 20
+) FROM DUAL;
+----------
+[SELECT] -- CASE_028_XMLCAST_VARCHAR
+SELECT XMLCAST(XMLTYPE('<a>123</a>') AS VARCHAR(40)) FROM DUAL;
+----------
+[SELECT] -- CASE_029_XMLCAST_NUMBER
+SELECT XMLCAST(XMLTYPE('<a>123</a>') AS NUMBER) FROM DUAL;
+----------
+[SELECT] -- CASE_031_XMLSERIALIZE_DEFAULT_TYPE
+SELECT XMLSERIALIZE(CONTENT XMLTYPE('<a><b>x</b></a>')) FROM DUAL;
+----------
+[SELECT] -- CASE_032_FOR_XML_PATH_EMPTY_NAME
+SELECT ID FROM app.xml_docs ORDER BY ID FOR XML PATH('');
+----------
+[SELECT] -- CASE_033_EXTRACT_EMBEDDED_NAMESPACE
+SELECT EXTRACT(
+  XMLTYPE('<a xmlns:n="http://example.com/d"><n:b>text</n:b></a>'),
+  '/a/n:b'
+) FROM DUAL;
+----------
+[SELECT] -- CASE_034_XMLCAST_NESTED_CONTENT_NUMBER
+SELECT XMLCAST(XMLTYPE('<a><b>123</b></a>') AS NUMBER) FROM DUAL;
+----------
+[SELECT|CALL_PROG_OBJ] -- CASE_035_XMLTRANSFORM_NON_STYLESHEET
+SELECT XMLTRANSFORM(XMLTYPE('<a/>'), XMLTYPE('<bad/>'));
+----------
+[SELECT] -- SEM_002_XMLTABLE_NAMESPACE_UNDEFINED
+SELECT * FROM XMLTABLE(
+  '/a/n:b' PASSING XMLTYPE('<a xmlns:n="http://example.com/d"><n:b>text</n:b></a>')
+  COLUMNS V VARCHAR(20) PATH 'text()'
+);
+----------
+[SELECT] -- SEM_003_XMLSERIALIZE_INDENT_OVER_MAX
+SELECT XMLSERIALIZE(
+  CONTENT XMLTYPE('<a><b>x</b></a>') AS CLOB INDENT SIZE = 21
+) FROM DUAL;
+----------
+[SELECT] -- SEM_004_XMLSERIALIZE_ENCODING_WITH_CLOB
+SELECT XMLSERIALIZE(
+  CONTENT XMLTYPE('<a>x</a>') AS CLOB ENCODING 'UTF-8'
+) FROM DUAL;
+----------
+[SELECT] -- SEM_005_XMLSERIALIZE_BAD_ENCODING
+SELECT XMLSERIALIZE(
+  CONTENT XMLTYPE('<a>x</a>') AS BLOB ENCODING 'BAD'
+) FROM DUAL;
+----------
+[SELECT] -- SEM_008_EXTRACTVALUE_MULTIPLE_NODES
+SELECT EXTRACTVALUE(XMLTYPE('<a><b>1</b><b>2</b></a>'), '/a/b');
+----------
+[SELECT] -- SEM_009_EXTRACTVALUE_NAMESPACE_DOC_DELTA
+SELECT EXTRACTVALUE(
+  XMLTYPE('<a xmlns:n="http://example.com/d"><n:b>text</n:b></a>'),
+  '/a/n:b', 'xmlns:n="http://example.com/d"'
+);
+----------
+[SELECT] -- SEM_010_DELETEXML_NAMESPACE_DOC_DELTA
+SELECT DELETEXML(
+  XMLTYPE('<n:a xmlns:n="http://example.com/d"><b><c>x</c></b></n:a>'),
+  'n:a/b/c', 'xmlns:n="http://example.com/d"'
+);
+----------
+[SELECT] -- SEM_011_APPENDCHILDXML_NAMESPACE_DOC_DELTA
+SELECT APPENDCHILDXML(
+  XMLTYPE('<n:a xmlns:n="http://example.com/d"><b>x</b></n:a>'),
+  '/n:a', XMLTYPE('<c>y</c>'), 'xmlns:n="http://example.com/d"'
+);
+----------
+[SELECT|CALL_PROG_OBJ] -- SEM_012_INSERTCHILDXML_NAMESPACE_DOC_DELTA
+SELECT INSERTCHILDXML(
+  XMLTYPE('<n:a xmlns:n="http://example.com/d"><b>x</b></n:a>'),
+  'n:a/b', 'c', XMLTYPE('<c>y</c>'), 'xmlns:n="http://example.com/d"'
+);
+----------
+[SELECT|CALL_PROG_OBJ] -- SEM_013_INSERTCHILDXMLAFTER_NAMESPACE_DOC_DELTA
+SELECT INSERTCHILDXMLAFTER(
+  XMLTYPE('<n:a xmlns:n="http://example.com/d"><b>x</b></n:a>'),
+  'n:a/', 'b', XMLTYPE('<c>y</c>'), 'xmlns:n="http://example.com/d"'
+);
+----------
+[SELECT|CALL_PROG_OBJ] -- SEM_014_INSERTCHILDXMLBEFORE_NAMESPACE_DOC_DELTA
+SELECT INSERTCHILDXMLBEFORE(
+  XMLTYPE('<n:a xmlns:n="http://example.com/d"><b>x</b></n:a>'),
+  'n:a/', 'b', XMLTYPE('<c>y</c>'), 'xmlns:n="http://example.com/d"'
+);
+----------
+[SELECT|CALL_PROG_OBJ] -- SEM_015_INSERTXMLBEFORE_NAMESPACE_DOC_DELTA
+SELECT INSERTXMLBEFORE(
+  XMLTYPE('<n:a xmlns:n="http://example.com/d"><b>x</b></n:a>'),
+  '/n:a/b', XMLTYPE('<c>y</c>'), 'xmlns:n="http://example.com/d"'
+);
+----------
+[SELECT|CALL_PROG_OBJ] -- SEM_016_INSERTXMLAFTER_NAMESPACE_DOC_DELTA
+SELECT INSERTXMLAFTER(
+  XMLTYPE('<n:a xmlns:n="http://example.com/d"><b>x</b></n:a>'),
+  '/n:a/b', XMLTYPE('<c>y</c>'), 'xmlns:n="http://example.com/d"'
+);
+----------
+[SELECT] -- SEM_017_UPDATEXML_NAMESPACE_DOC_DELTA
+SELECT UPDATEXML(
+  XMLTYPE('<n:a xmlns:n="http://example.com/d"><b>x</b></n:a>'),
+  '/n:a/b', XMLTYPE('<c>y</c>'), 'xmlns:n="http://example.com/d"'
+);
+----------
+[SELECT] -- SEM_018_XMLCAST_TYPED_NULL_DOC_DELTA
+SELECT XMLCAST(CAST(NULL AS XMLTYPE) AS VARCHAR(40)) FROM DUAL;
+----------
+[SELECT] -- SEM_019_XMLSERIALIZE_NO_INDENT_DOC_DELTA
+SELECT XMLSERIALIZE(
+  CONTENT XMLTYPE('<a><b>x</b></a>') AS CLOB NO INDENT
+) FROM DUAL;
+----------
+[SELECT|CALL_PROG_OBJ] -- SEM_020_XMLTRANSFORM_MISSING_XSLT
+SELECT XMLTRANSFORM(XMLTYPE('<a/>'));
+----------
+[SELECT] -- SEM_021_EXTRACT_MISSING_PATH_PARSER_PERMISSIVE
+SELECT EXTRACT(XMLTYPE('<a/>')) FROM DUAL;

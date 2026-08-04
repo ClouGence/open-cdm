@@ -1,0 +1,8 @@
+CREATE TABLE splitvector.t_vector_default (id INT PRIMARY KEY, embedding VECTOR);
+CREATE TABLE splitvector.t_vector_dims (id INT PRIMARY KEY, embedding VECTOR(3));
+------------------------------------------------------------------------------------------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT]
+CREATE TABLE splitvector.t_vector_default (id INT PRIMARY KEY, embedding VECTOR);
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT]
+CREATE TABLE splitvector.t_vector_dims (id INT PRIMARY KEY, embedding VECTOR(3));

@@ -1,0 +1,72 @@
+select * from sample_target sample(10);
+select * from sample_target sample(10) seed(5);
+select * from sample_target sample block(10);
+select * from sample_target sample block(10) seed(5);
+select id, name from sample_target sample(1);
+select id, name from sample_target sample(25.5);
+select id, name from sample_target sample(99.999999);
+select id from sample_target sample(50) seed(0);
+select id from sample_target sample(50) seed(4294967295);
+select id from sample_target sample block(0.000001);
+select id from sample_target sample block(50.25);
+select id from sample_target sample block(99.999999) seed(42);
+select id, category from sample_target sample(30) where category = 2;
+select id, amount from sample_target sample(30) seed(9) where amount > 100;
+select category, count(*) from sample_target sample(40) group by category;
+select category, sum(amount) from sample_target sample(40) seed(7) group by category having count(*) > 0;
+select id, name from sample_target sample(20) order by id;
+select id, name from sample_target sample(20) seed(3) order by id limit 5;
+select s.id, s.name from sample_target sample(20) s where s.id > 10;
+select s.id from sample_target sample block(20) seed(3) as s order by s.id;
+select count(*) from sample_target sample(10);
+select min(id), max(id), avg(amount) from sample_target sample(60) seed(11);
+select * from sample_view sample(15);
+select id, category from sample_view sample(15) seed(15) where category in (1, 3);
+------------------------------------------------------------------------------------------
+[SELECT] select * from sample_target sample(10);
+----------
+[SELECT] select * from sample_target sample(10) seed(5);
+----------
+[SELECT] select * from sample_target sample block(10);
+----------
+[SELECT] select * from sample_target sample block(10) seed(5);
+----------
+[SELECT] select id, name from sample_target sample(1);
+----------
+[SELECT] select id, name from sample_target sample(25.5);
+----------
+[SELECT] select id, name from sample_target sample(99.999999);
+----------
+[SELECT] select id from sample_target sample(50) seed(0);
+----------
+[SELECT] select id from sample_target sample(50) seed(4294967295);
+----------
+[SELECT] select id from sample_target sample block(0.000001);
+----------
+[SELECT] select id from sample_target sample block(50.25);
+----------
+[SELECT] select id from sample_target sample block(99.999999) seed(42);
+----------
+[SELECT] select id, category from sample_target sample(30) where category = 2;
+----------
+[SELECT] select id, amount from sample_target sample(30) seed(9) where amount > 100;
+----------
+[SELECT] select category, count(*) from sample_target sample(40) group by category;
+----------
+[SELECT] select category, sum(amount) from sample_target sample(40) seed(7) group by category having count(*) > 0;
+----------
+[SELECT] select id, name from sample_target sample(20) order by id;
+----------
+[SELECT] select id, name from sample_target sample(20) seed(3) order by id limit 5;
+----------
+[SELECT] select s.id, s.name from sample_target sample(20) s where s.id > 10;
+----------
+[SELECT] select s.id from sample_target sample block(20) seed(3) as s order by s.id;
+----------
+[SELECT] select count(*) from sample_target sample(10);
+----------
+[SELECT] select min(id), max(id), avg(amount) from sample_target sample(60) seed(11);
+----------
+[SELECT] select * from sample_view sample(15);
+----------
+[SELECT] select id, category from sample_view sample(15) seed(15) where category in (1, 3);

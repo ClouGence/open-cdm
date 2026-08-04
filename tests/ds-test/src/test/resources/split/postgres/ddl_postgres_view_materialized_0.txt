@@ -1,0 +1,69 @@
+CREATE VIEW split_view_probe.base_view (id, qty, note) WITH (security_barrier = true, security_invoker = true) AS SELECT id, qty, note FROM split_view_probe.base_table WHERE qty > 0 WITH LOCAL CHECK OPTION;
+CREATE OR REPLACE VIEW split_view_probe.base_view (id, qty, note, doubled_qty) WITH (security_barrier = false) AS SELECT id, qty, note, qty * 2 FROM split_view_probe.base_table WHERE qty > 0 WITH CASCADED CHECK OPTION;
+CREATE TEMPORARY VIEW split_temp_view AS VALUES (1, 'one'), (2, 'two');
+CREATE RECURSIVE VIEW split_view_probe.counting_view(n) AS SELECT 1 UNION ALL SELECT n + 1 FROM split_view_probe.counting_view WHERE n < 3;
+ALTER VIEW split_view_probe.base_view ALTER COLUMN note SET DEFAULT 'auto';
+ALTER VIEW IF EXISTS split_view_probe.base_view ALTER COLUMN note DROP DEFAULT;
+ALTER VIEW split_view_probe.base_view SET (security_barrier = true, security_invoker = false, check_option = cascaded);
+ALTER VIEW split_view_probe.base_view RESET (security_barrier, security_invoker, check_option);
+ALTER VIEW split_view_probe.base_view RENAME COLUMN qty TO amount;
+ALTER VIEW IF EXISTS split_view_probe.base_view RENAME TO base_view_renamed;
+ALTER VIEW split_view_probe.base_view_renamed SET SCHEMA split_view_next;
+CREATE MATERIALIZED VIEW split_view_probe.base_mv (id, qty) USING heap WITH (fillfactor = 100) AS SELECT id, qty FROM split_view_probe.base_table WITH NO DATA;
+REFRESH MATERIALIZED VIEW split_view_probe.base_mv WITH DATA;
+CREATE UNIQUE INDEX base_mv_id_idx ON split_view_probe.base_mv (id);
+REFRESH MATERIALIZED VIEW CONCURRENTLY split_view_probe.base_mv WITH DATA;
+ALTER MATERIALIZED VIEW split_view_probe.base_mv RENAME COLUMN qty TO amount;
+ALTER MATERIALIZED VIEW IF EXISTS split_view_probe.base_mv RENAME TO base_mv_renamed;
+ALTER MATERIALIZED VIEW split_view_probe.base_mv_renamed SET (fillfactor = 90);
+ALTER MATERIALIZED VIEW split_view_probe.base_mv_renamed RESET (fillfactor);
+ALTER MATERIALIZED VIEW split_view_probe.base_mv_renamed SET SCHEMA split_view_next;
+DROP MATERIALIZED VIEW IF EXISTS split_view_next.base_mv_renamed CASCADE;
+DROP VIEW IF EXISTS split_view_next.base_view_renamed CASCADE;
+DROP VIEW IF EXISTS split_view_probe.counting_view RESTRICT;
+------------------------------------------------------------------------------------------
+[CREATE_VIEW(SELECT)] CREATE VIEW split_view_probe.base_view (id, qty, note) WITH (security_barrier = true, security_invoker = true) AS SELECT id, qty, note FROM split_view_probe.base_table WHERE qty > 0 WITH LOCAL CHECK OPTION;
+----------
+[CREATE_VIEW(SELECT)] CREATE OR REPLACE VIEW split_view_probe.base_view (id, qty, note, doubled_qty) WITH (security_barrier = false) AS SELECT id, qty, note, qty * 2 FROM split_view_probe.base_table WHERE qty > 0 WITH CASCADED CHECK OPTION;
+----------
+[CREATE_VIEW(SELECT)] CREATE TEMPORARY VIEW split_temp_view AS VALUES (1, 'one'), (2, 'two');
+----------
+[CREATE_VIEW(SELECT)] CREATE RECURSIVE VIEW split_view_probe.counting_view(n) AS SELECT 1 UNION ALL SELECT n + 1 FROM split_view_probe.counting_view WHERE n < 3;
+----------
+[ALTER_VIEW|ALTER_COLUMN] ALTER VIEW split_view_probe.base_view ALTER COLUMN note SET DEFAULT 'auto';
+----------
+[ALTER_VIEW|ALTER_COLUMN] ALTER VIEW IF EXISTS split_view_probe.base_view ALTER COLUMN note DROP DEFAULT;
+----------
+[ALTER_VIEW] ALTER VIEW split_view_probe.base_view SET (security_barrier = true, security_invoker = false, check_option = cascaded);
+----------
+[ALTER_VIEW] ALTER VIEW split_view_probe.base_view RESET (security_barrier, security_invoker, check_option);
+----------
+[RENAME_COLUMN] ALTER VIEW split_view_probe.base_view RENAME COLUMN qty TO amount;
+----------
+[RENAME_VIEW] ALTER VIEW IF EXISTS split_view_probe.base_view RENAME TO base_view_renamed;
+----------
+[ALTER_VIEW] ALTER VIEW split_view_probe.base_view_renamed SET SCHEMA split_view_next;
+----------
+[CREATE_VIEW(SELECT)] CREATE MATERIALIZED VIEW split_view_probe.base_mv (id, qty) USING heap WITH (fillfactor = 100) AS SELECT id, qty FROM split_view_probe.base_table WITH NO DATA;
+----------
+[ADMIN] REFRESH MATERIALIZED VIEW split_view_probe.base_mv WITH DATA;
+----------
+[ADD_INDEX] CREATE UNIQUE INDEX base_mv_id_idx ON split_view_probe.base_mv (id);
+----------
+[ADMIN] REFRESH MATERIALIZED VIEW CONCURRENTLY split_view_probe.base_mv WITH DATA;
+----------
+[RENAME_COLUMN] ALTER MATERIALIZED VIEW split_view_probe.base_mv RENAME COLUMN qty TO amount;
+----------
+[RENAME_VIEW] ALTER MATERIALIZED VIEW IF EXISTS split_view_probe.base_mv RENAME TO base_mv_renamed;
+----------
+[ALTER_VIEW] ALTER MATERIALIZED VIEW split_view_probe.base_mv_renamed SET (fillfactor = 90);
+----------
+[ALTER_VIEW] ALTER MATERIALIZED VIEW split_view_probe.base_mv_renamed RESET (fillfactor);
+----------
+[ALTER_VIEW] ALTER MATERIALIZED VIEW split_view_probe.base_mv_renamed SET SCHEMA split_view_next;
+----------
+[DROP_VIEW] DROP MATERIALIZED VIEW IF EXISTS split_view_next.base_mv_renamed CASCADE;
+----------
+[DROP_VIEW] DROP VIEW IF EXISTS split_view_next.base_view_renamed CASCADE;
+----------
+[DROP_VIEW] DROP VIEW IF EXISTS split_view_probe.counting_view RESTRICT;

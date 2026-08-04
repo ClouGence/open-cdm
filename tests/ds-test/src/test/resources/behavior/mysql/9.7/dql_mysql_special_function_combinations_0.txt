@@ -1,0 +1,389 @@
+[select__001]
+sql:
+SELECT "1900-01-01 00:00:00" + INTERVAL "100000000:214748364700" MINUTE_SECOND;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__002]
+sql:
+SELECT "1900-01-01 00:00:00" + INTERVAL 1<<37 SECOND;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[session_setting_write__003]
+sql:
+SET TIMESTAMP=-147490000;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:13) /test/1/TIMESTAMP/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[select__004]
+sql:
+SELECT UTC_TIMESTAMP();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:20) /test/1/catalog1/schema1/UTC_TIMESTAMP/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select_session_variable_rw__005]
+sql:
+SELECT ((@a:=@b:=1.0) DIV (@b:=@a:=GET_FORMAT(DATETIME, 'USA')));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "ConfigKey(1:9~1:11) /test/1/a/",
+      "action" : "READ"
+    },
+    {
+      "subject": "ConfigKey(1:13~1:15) /test/1/b/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(1:35~1:45) /test/1/catalog1/schema1/GET_FORMAT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__006]
+sql:
+SELECT POLYGON((SELECT 1 FROM (SELECT 1 IN (GROUP_CONCAT(t1.f1)) FROM t1, t1 t GROUP BY t.f1) d));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/POLYGON/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:44~1:56) /test/1/catalog1/schema1/GROUP_CONCAT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:70~1:72) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_call_prog_obj__007]
+sql:
+SELECT f(1 ^ ISNULL(ADDDATE(CURRENT_TIMESTAMP, INTERVAL 999999999999 DAY)) AND FOUND_ROWS()) <=> ANY_VALUE(JSON_OBJECTAGG('{}','{}'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:8) /test/1/catalog1/schema1/f/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:13~1:19) /test/1/catalog1/schema1/ISNULL/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:20~1:27) /test/1/catalog1/schema1/ADDDATE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:28~1:45) /test/1/catalog1/schema1/CURRENT_TIMESTAMP/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:79~1:89) /test/1/catalog1/schema1/FOUND_ROWS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:97~1:106) /test/1/catalog1/schema1/ANY_VALUE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:107~1:121) /test/1/catalog1/schema1/JSON_OBJECTAGG/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__008]
+sql:
+SELECT ST_ISSIMPLE((SELECT CURRENT_TIME) IN (21, '-1-11-30 00:00:00'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/ST_ISSIMPLE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:27~1:39) /test/1/catalog1/schema1/CURRENT_TIME/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__009]
+sql:
+SELECT (SELECT 1 FROM t WHERE CONVERT(1 USING gb18030) <> GROUP_CONCAT(x'a3'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:22~1:23) /test/1/catalog1/schema1/t/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(1:30~1:37) /test/1/catalog1/schema1/CONVERT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:58~1:70) /test/1/catalog1/schema1/GROUP_CONCAT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__010]
+sql:
+SELECT GREATEST(-29858, 0x667adb23, 'zzzz', UTC_TIME() IN (0xebe4032e, '{"ac":0,"cacbb":false}', 31), 15720) AS greatest;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/GREATEST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:44~1:52) /test/1/catalog1/schema1/UTC_TIME/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__011]
+sql:
+SELECT a,b,c,GROUPING(a,b,c) FROM (SELECT 1 AS a,2 AS b,3 AS c) AS d GROUP BY a,b,c WITH ROLLUP;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:13~1:21) /test/1/catalog1/schema1/GROUPING/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__012]
+sql:
+SELECT * FROM JSON_TABLE('{"a":[10,20]}','$' COLUMNS(NESTED PATH '$.a[*]' COLUMNS(ord FOR ORDINALITY,v INT PATH '$'))) AS jt;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__013]
+sql:
+SELECT * FROM JSON_TABLE('{"a":[{}]}','$' COLUMNS(NESTED PATH '$.a[*]' COLUMNS(v INT PATH '$.missing' DEFAULT '7' ON EMPTY NULL ON ERROR))) AS jt;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__014]
+sql:
+SELECT MATCH(title) AGAINST(CONCAT('a','b') IN NATURAL LANGUAGE MODE) FROM articles;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:28~1:34) /test/1/catalog1/schema1/CONCAT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:75~1:83) /test/1/catalog1/schema1/articles/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__015]
+sql:
+SELECT id FROM articles WHERE MATCH title,body AGAINST('database');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:15~1:23) /test/1/catalog1/schema1/articles/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__016]
+sql:
+SELECT INTERVAL '1-2' YEAR_MONTH + DATE '2024-01-01';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__017]
+sql:
+SELECT TIMESTAMP '2024-03-04 05:06:07.000008' - INTERVAL '1 02:03:04.000005' DAY_MICROSECOND;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__018]
+sql:
+SELECT ADDDATE(DATE '2024-01-01',INTERVAL '1-2' YEAR_MONTH);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/ADDDATE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__019]
+sql:
+SELECT SUBDATE(TIMESTAMP '2024-03-04 05:06:07.000008',INTERVAL '1 02:03:04.000005' DAY_MICROSECOND);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/SUBDATE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__020]
+sql:
+SELECT CAST(TIMESTAMP '2024-01-01 00:00:00' AT TIME ZONE '+00:00' AS DATETIME(0));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__021]
+sql:
+SELECT CAST(1 AT LOCAL AS SIGNED);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__022]
+sql:
+SELECT CAST(_gb2312 X'CAFD' AS NATIONAL CHAR);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__023]
+sql:
+SELECT CONVERT(_gb2312 X'CAFD',NATIONAL CHAR);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/CONVERT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__024]
+sql:
+SELECT CAST(1 XOR 0 AT LOCAL AS SIGNED);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}

@@ -19,9 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.clougence.clouddm.api.console.autoexec.ErrorStrategy;
-import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.sdk.execute.session.SessionContextDTO;
-import com.clougence.clouddm.sdk.service.secrules.Requester;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -31,13 +29,6 @@ import lombok.Setter;
 public class AutoExecJobDTO {
 
     private Long                  jobId;
-    private Requester             requester;
-    private String                uid;
-    private List<String>          levels;
-
-    private boolean               jobIsExecByAnother;
-    private boolean               jobNotExists;
-
     private boolean               enableTransactional;
     private ErrorStrategy         errorStrategy;
 
@@ -49,6 +40,4 @@ public class AutoExecJobDTO {
     private SessionContextDTO     contextDTO;
 
     private Long                  dsId;
-    private DataSourceType        dsType;
-
 }

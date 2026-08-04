@@ -1,0 +1,932 @@
+[transaction__001]
+sql:
+LOCK TABLES t1=a READ;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_LOCK": [
+    {
+      "subject": "Table(1:12~1:14) /test/1/catalog1/schema1/t1/",
+      "action" : "LOCK"
+    }
+  ]
+}
+----------
+[transaction__002]
+sql:
+BEGIN;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[transaction__003]
+sql:
+COMMIT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[transaction__004]
+sql:
+COMMIT AND CHAIN;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[performance_session_variable_rw__005]
+sql:
+GET DIAGNOSTICS @p1 = NUMBER, @p2 = ROW_COUNT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "ConfigKey(1:16~1:19) /test/1/p1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "ConfigKey(1:30~1:33) /test/1/p2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[performance_session_variable_rw__006]
+sql:
+GET CURRENT DIAGNOSTICS CONDITION 1 @state = RETURNED_SQLSTATE, @msg = MESSAGE_TEXT, @errno = MYSQL_ERRNO;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "ConfigKey(1:36~1:42) /test/1/state/",
+      "action" : "READ"
+    },
+    {
+      "subject": "ConfigKey(1:64~1:68) /test/1/msg/",
+      "action" : "READ"
+    },
+    {
+      "subject": "ConfigKey(1:85~1:91) /test/1/errno/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[program_control__007]
+sql:
+SIGNAL SQLSTATE VALUE '45000' SET MESSAGE_TEXT = 'split signal', MYSQL_ERRNO = 1644;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM_CONTROL": []
+}
+----------
+[program_control__008]
+sql:
+RESIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'split resignal';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM_CONTROL": []
+}
+----------
+[program_control__009]
+sql:
+RESIGNAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM_CONTROL": []
+}
+----------
+[transaction__010]
+sql:
+ROLLBACK;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[transaction__011]
+sql:
+ROLLBACK AND CHAIN;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[transaction__012]
+sql:
+ROLLBACK TO audit_sp;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[transaction_system_setting_write__013]
+sql:
+SET GLOBAL TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[transaction_session_setting_write__014]
+sql:
+SET SESSION TRANSACTION READ WRITE, ISOLATION LEVEL READ COMMITTED;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[transaction__015]
+sql:
+SET TRANSACTION ISOLATION LEVEL SERIALIZABLE, READ ONLY;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[transaction__016]
+sql:
+SET TRANSACTION READ ONLY;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[transaction__017]
+sql:
+START TRANSACTION;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[transaction__018]
+sql:
+START TRANSACTION READ ONLY;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[transaction__019]
+sql:
+START TRANSACTION READ ONLY, WITH CONSISTENT SNAPSHOT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[transaction__020]
+sql:
+START TRANSACTION READ ONLY, WITH CONSISTENT SNAPSHOT, READ ONLY, WITH CONSISTENT SNAPSHOT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[transaction_session_setting_write__021]
+sql:
+SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[transaction__022]
+sql:
+SET TRANSACTION ISOLATION LEVEL REPEATABLE READ, READ WRITE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[session_setting_write__023]
+sql:
+SET AUTOCOMMIT = 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:14) /test/1/AUTOCOMMIT/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[transaction__024]
+sql:
+START TRANSACTION WITH CONSISTENT SNAPSHOT, READ WRITE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[transaction__025]
+sql:
+SAVEPOINT sp_tx1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[transaction__026]
+sql:
+ROLLBACK WORK TO SAVEPOINT sp_tx1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[transaction__027]
+sql:
+RELEASE SAVEPOINT sp_tx1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[transaction__028]
+sql:
+COMMIT WORK AND NO CHAIN NO RELEASE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[transaction__029]
+sql:
+COMMIT WORK AND NO CHAIN RELEASE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[transaction__030]
+sql:
+BEGIN WORK;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[transaction__031]
+sql:
+ROLLBACK WORK AND NO CHAIN NO RELEASE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[transaction__032]
+sql:
+ROLLBACK WORK AND NO CHAIN RELEASE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[session_setting_write__033]
+sql:
+SET autocommit = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:14) /test/1/autocommit/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[transaction__034]
+sql:
+LOCK TABLE split84.txn_read READ LOCAL, split84.txn_write AS tw WRITE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_LOCK": [
+    {
+      "subject": "Table(1:11~1:27) /test/1/catalog1/split84/txn_read/",
+      "action" : "LOCK"
+    },
+    {
+      "subject": "Table(1:40~1:57) /test/1/catalog1/split84/txn_write/",
+      "action" : "LOCK"
+    }
+  ]
+}
+----------
+[transaction__035]
+sql:
+UNLOCK TABLE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_LOCK": [
+    {
+      "subject": "Instance(1:0~1:12) /test/1/",
+      "action" : "LOCK"
+    }
+  ]
+}
+----------
+[transaction__036]
+sql:
+LOCK TABLES split84.txn_read AS tr READ, split84.txn_write WRITE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_LOCK": [
+    {
+      "subject": "Table(1:12~1:28) /test/1/catalog1/split84/txn_read/",
+      "action" : "LOCK"
+    },
+    {
+      "subject": "Table(1:41~1:58) /test/1/catalog1/split84/txn_write/",
+      "action" : "LOCK"
+    }
+  ]
+}
+----------
+[transaction__037]
+sql:
+UNLOCK TABLES;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_LOCK": [
+    {
+      "subject": "Instance(1:0~1:13) /test/1/",
+      "action" : "LOCK"
+    }
+  ]
+}
+----------
+[transaction__038]
+sql:
+XA START 'xa_tx1', 'bq', 42;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[transaction__039]
+sql:
+XA END 'xa_tx1', 'bq', 42;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[transaction__040]
+sql:
+XA PREPARE 'xa_tx1', 'bq', 42;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[transaction__041]
+sql:
+XA COMMIT 'xa_tx1', 'bq', 42;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[transaction__042]
+sql:
+XA START 'xa_tx4';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[transaction__043]
+sql:
+XA END 'xa_tx4';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[transaction__044]
+sql:
+XA ROLLBACK 'xa_tx4';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[transaction__045]
+sql:
+XA BEGIN 'xa_tx5';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[transaction__046]
+sql:
+XA END 'xa_tx5';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[transaction__047]
+sql:
+XA ROLLBACK 'xa_tx5';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[transaction__048]
+sql:
+XA START 'xa_tx3';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[transaction__049]
+sql:
+XA END 'xa_tx3';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[transaction__050]
+sql:
+XA COMMIT 'xa_tx3' ONE PHASE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[transaction__051]
+sql:
+XA RECOVER;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[transaction__052]
+sql:
+XA RECOVER CONVERT XID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[transaction__053]
+sql:
+XA START 'split_xa_join' JOIN;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[transaction__054]
+sql:
+XA START 'split_xa_resume' RESUME;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[transaction__055]
+sql:
+XA END 'split_xa_suspend' SUSPEND;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[transaction__056]
+sql:
+XA END 'split_xa_migrate' SUSPEND FOR MIGRATE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[transaction__057]
+sql:
+XA START X'61756469745F67', B'01100001';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[transaction__058]
+sql:
+XA START 0x61756469745F67, 0x62;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[transaction__059]
+sql:
+XA START 'audit_g','audit_b';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[transaction_system_setting_write__060]
+sql:
+SET GLOBAL TRANSACTION READ ONLY;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[transaction__061]
+sql:
+ROLLBACK WORK AND CHAIN NO RELEASE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[transaction__062]
+sql:
+LOCK TABLES t1 READ, t1 AS t0 WRITE, t1 AS t2 READ;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_LOCK": [
+    {
+      "subject": "Table(1:12~1:14) /test/1/catalog1/schema1/t1/",
+      "action" : "LOCK"
+    }
+  ]
+}
+----------
+[transaction__063]
+sql:
+XA START 0x7465737462, 0x2030405060, 0xb;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[transaction__064]
+sql:
+XA START'','';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[transaction__065]
+sql:
+SAVEPOINT `my_savepoint`;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[transaction__066]
+sql:
+SAVEPOINT commit;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[transaction__067]
+sql:
+SAVEPOINT library;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[performance_session_variable_rw__068]
+sql:
+GET STACKED DIAGNOSTICS @utility_number = NUMBER;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "ConfigKey(1:24~1:39) /test/1/utility_number/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[transaction__069]
+sql:
+COMMIT WORK;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[transaction__070]
+sql:
+ROLLBACK WORK;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[transaction__071]
+sql:
+START TRANSACTION READ WRITE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[transaction__072]
+sql:
+START TRANSACTION READ WRITE, WITH CONSISTENT SNAPSHOT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[transaction__073]
+sql:
+START TRANSACTION WITH CONSISTENT SNAPSHOT, READ ONLY;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[transaction__074]
+sql:
+ROLLBACK TO SAVEPOINT sp1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[transaction__075]
+sql:
+XA END 0x636f646578, 0x676170, 0x2a;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[transaction__076]
+sql:
+XA PREPARE 0x636f646578, 0x676170, 0x2a;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[transaction__077]
+sql:
+XA ROLLBACK 0x636f646578, 0x676170, 0x2a;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[performance_session_variable_rw__078]
+sql:
+GET DIAGNOSTICS CONDITION @d_condition @d_state=RETURNED_SQLSTATE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "ConfigKey(1:26~1:38) /test/1/d_condition/",
+      "action" : "READ"
+    },
+    {
+      "subject": "ConfigKey(1:39~1:47) /test/1/d_state/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[transaction__079]
+sql:
+SET TRANSACTION READ ONLY, ISOLATION LEVEL READ COMMITTED;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[transaction__080]
+sql:
+COMMIT AND NO CHAIN;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[transaction__081]
+sql:
+ROLLBACK AND NO CHAIN;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[transaction__082]
+sql:
+XA START "xa1";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[program_control__083]
+sql:
+SIGNAL SQLSTATE '45000' SET CLASS_ORIGIN=0, SUBCLASS_ORIGIN=1.5, MESSAGE_TEXT=1e2, MYSQL_ERRNO=TRUE, CONSTRAINT_CATALOG=FALSE, CONSTRAINT_SCHEMA=0x6162, CONSTRAINT_NAME=b'01100001', CATALOG_NAME=_utf8 0x61, SCHEMA_NAME=DATE '2024-01-01', TABLE_NAME=TIME '12:00:00', COLUMN_NAME=TIMESTAMP '2024-01-01 12:00:00', CURSOR_NAME=NULL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM_CONTROL": []
+}
+----------
+[program_control__084]
+sql:
+SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT=@signal_user_message, CLASS_ORIGIN=@@version;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM_CONTROL": [
+    {
+      "subject": "ConfigKey(1:41~1:61) /test/1/signal_user_message/",
+      "action" : "READ"
+    },
+    {
+      "subject": "ConfigKey(1:76~1:85) /test/1/version/",
+      "action" : "READ"
+    }
+  ]
+}

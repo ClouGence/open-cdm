@@ -1,0 +1,403 @@
+create table agg_source(
+  id int primary key,
+  grp varchar(20),
+  amount number,
+  discount decimal(5,2)
+);
+insert into agg_source values
+  (1, 'A', 10, 1.10),
+  (2, 'A', 30, 1.30),
+  (3, 'A', 20, 1.20),
+  (4, 'B', 40, 2.40),
+  (5, 'B', 15, 2.15),
+  (6, 'B', null, 2.00),
+  (7, 'C', -5, 3.05),
+  (8, 'C', 25, 3.25);
+create table agg_result(grp varchar(20), max_amount number);
+create type dm8_max_impl as object(
+  max_value number,
+  static function ODCIAggregateInitialize(sctx in out dm8_max_impl) return number,
+  member function ODCIAggregateIterate(self in out dm8_max_impl, value in number) return number,
+  member function ODCIAggregateTerminate(self in dm8_max_impl,
+    return_value out number, flags in number) return number
+);
+/
+create type body dm8_max_impl is
+  static function ODCIAggregateInitialize(sctx in out dm8_max_impl) return number is
+  begin
+    sctx := dm8_max_impl(-999999999);
+    return ODCIConst.Success;
+  end;
+  member function ODCIAggregateIterate(self in out dm8_max_impl,
+    value in number) return number is
+  begin
+    if value > self.max_value then
+      self.max_value := value;
+    end if;
+    return ODCIConst.Success;
+  end;
+  member function ODCIAggregateTerminate(self in dm8_max_impl,
+    return_value out number, flags in number) return number is
+  begin
+    return_value := self.max_value;
+    return ODCIConst.Success;
+  end;
+end;
+/
+create type dm8_sum_impl as object(
+  sum_value number,
+  static function ODCIAggregateInitialize(sctx in out dm8_sum_impl) return number,
+  member function ODCIAggregateIterate(self in out dm8_sum_impl, value in number) return number,
+  member function ODCIAggregateTerminate(self in dm8_sum_impl,
+    return_value out number, flags in number) return number
+);
+/
+create type body dm8_sum_impl is
+  static function ODCIAggregateInitialize(sctx in out dm8_sum_impl) return number is
+  begin
+    sctx := dm8_sum_impl(0);
+    return ODCIConst.Success;
+  end;
+  member function ODCIAggregateIterate(self in out dm8_sum_impl,
+    value in number) return number is
+  begin
+    self.sum_value := self.sum_value + value;
+    return ODCIConst.Success;
+  end;
+  member function ODCIAggregateTerminate(self in dm8_sum_impl,
+    return_value out number, flags in number) return number is
+  begin
+    return_value := self.sum_value;
+    return ODCIConst.Success;
+  end;
+end;
+/
+create function agg_max(input number) return number
+aggregate using dm8_max_impl;
+/
+create function agg_max_in(input in number) return number
+aggregate using dm8_max_impl;
+/
+create function agg_max_det(input number) return number
+deterministic aggregate using dm8_max_impl;
+/
+create function agg_max_parallel(input number) return number
+parallel_enable aggregate using dm8_max_impl;
+/
+create function agg_max_pd(input number) return number
+parallel_enable deterministic aggregate using dm8_max_impl;
+/
+create function agg_max_dp(input number) return number
+deterministic parallel_enable aggregate using dm8_max_impl;
+/
+create function CODEX_DM8_CUSTOM_AGGREGATE_20260721.agg_sum(input number)
+return number aggregate using CODEX_DM8_CUSTOM_AGGREGATE_20260721.dm8_sum_impl;
+/
+create function if not exists agg_max_ifne(input number) return number
+aggregate using dm8_max_impl;
+/
+create function agg_max_default(input number default 1) return number
+aggregate using dm8_max_impl;
+/
+select agg_max(amount) from agg_source;
+select agg_sum(amount) from agg_source;
+select agg_max(distinct amount) from agg_source;
+select agg_max(all amount) from agg_source;
+select grp, agg_max(amount) from agg_source group by grp order by grp;
+select grp, agg_sum(amount) from agg_source group by grp order by grp;
+select grp, agg_max(amount) as max_amount
+from agg_source
+group by grp
+having agg_max(amount) > 20
+order by agg_max(amount);
+select agg_max(amount), grp from agg_source group by rollup(grp);
+select agg_sum(amount), grp from agg_source group by cube(grp);
+select id, grp, amount,
+  agg_max(amount) over(partition by grp) as group_max
+from agg_source
+order by id;
+select id, amount,
+  agg_sum(amount) over(order by id rows between unbounded preceding and current row) as running_sum
+from agg_source
+order by id;
+select grp, max_amount
+from (select grp, agg_max(amount) as max_amount from agg_source group by grp) s
+where max_amount >= 25
+order by grp;
+select agg_max(amount + discount) from agg_source;
+select agg_max(case when grp = 'A' then amount end) from agg_source;
+select coalesce(agg_max(amount), 0) from agg_source where id < 0;
+select agg_max_parallel(amount) from agg_source;
+select agg_max_pd(amount) from agg_source;
+select agg_max_dp(amount) from agg_source;
+insert into agg_result
+select grp, agg_max(amount) from agg_source group by grp;
+select grp, max_amount from agg_result order by grp;
+update agg_source
+set discount = discount + 1
+where amount = (select agg_max(amount) from agg_source);
+select id, discount from agg_source where amount = 40;
+delete from agg_result
+where max_amount < (select agg_max(amount) from agg_source where grp = 'B');
+select grp, max_amount from agg_result order by grp;
+create table agg_ctas as
+select grp, agg_max(amount) as max_amount
+from agg_source group by grp;
+select grp, max_amount from agg_ctas order by grp;
+create view agg_view as
+select grp, agg_sum(amount) as total_amount
+from agg_source group by grp;
+select grp, total_amount from agg_view order by grp;
+create materialized view agg_mv
+enable query rewrite as
+select grp, agg_max_det(amount) as max_amount
+from agg_source group by grp;
+select grp, max_amount from agg_mv order by grp;
+drop materialized view agg_mv;
+drop view agg_view;
+drop table agg_ctas;
+drop table agg_result;
+drop function agg_sum;
+drop function agg_max_dp;
+drop function agg_max_pd;
+drop function agg_max_parallel;
+drop function agg_max_det;
+drop function agg_max_in;
+drop function agg_max;
+select agg_max_ifne(amount) from agg_source;
+select agg_max_default(amount) from agg_source;
+drop function agg_max_default;
+drop function agg_max_ifne;
+drop type body dm8_sum_impl;
+drop type dm8_sum_impl;
+drop type body dm8_max_impl;
+drop type dm8_max_impl;
+drop table agg_source;
+------------------------------------------------------------------------------------------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table agg_source(
+  id int primary key,
+  grp varchar(20),
+  amount number,
+  discount decimal(5,2)
+);
+----------
+[INSERT] insert into agg_source values
+  (1, 'A', 10, 1.10),
+  (2, 'A', 30, 1.30),
+  (3, 'A', 20, 1.20),
+  (4, 'B', 40, 2.40),
+  (5, 'B', 15, 2.15),
+  (6, 'B', null, 2.00),
+  (7, 'C', -5, 3.05),
+  (8, 'C', 25, 3.25);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table agg_result(grp varchar(20), max_amount number);
+----------
+[CREATE_TYPE] create type dm8_max_impl as object(
+  max_value number,
+  static function ODCIAggregateInitialize(sctx in out dm8_max_impl) return number,
+  member function ODCIAggregateIterate(self in out dm8_max_impl, value in number) return number,
+  member function ODCIAggregateTerminate(self in dm8_max_impl,
+    return_value out number, flags in number) return number
+);
+----------
+[CREATE_TYPE|CALL_PROG_OBJ(PROGRAM_CONTROL,CALL_PROG_OBJ)] create type body dm8_max_impl is
+  static function ODCIAggregateInitialize(sctx in out dm8_max_impl) return number is
+  begin
+    sctx := dm8_max_impl(-999999999);
+    return ODCIConst.Success;
+  end;
+  member function ODCIAggregateIterate(self in out dm8_max_impl,
+    value in number) return number is
+  begin
+    if value > self.max_value then
+      self.max_value := value;
+    end if;
+    return ODCIConst.Success;
+  end;
+  member function ODCIAggregateTerminate(self in dm8_max_impl,
+    return_value out number, flags in number) return number is
+  begin
+    return_value := self.max_value;
+    return ODCIConst.Success;
+  end;
+end;
+----------
+[CREATE_TYPE] create type dm8_sum_impl as object(
+  sum_value number,
+  static function ODCIAggregateInitialize(sctx in out dm8_sum_impl) return number,
+  member function ODCIAggregateIterate(self in out dm8_sum_impl, value in number) return number,
+  member function ODCIAggregateTerminate(self in dm8_sum_impl,
+    return_value out number, flags in number) return number
+);
+----------
+[CREATE_TYPE|CALL_PROG_OBJ(PROGRAM_CONTROL,CALL_PROG_OBJ)] create type body dm8_sum_impl is
+  static function ODCIAggregateInitialize(sctx in out dm8_sum_impl) return number is
+  begin
+    sctx := dm8_sum_impl(0);
+    return ODCIConst.Success;
+  end;
+  member function ODCIAggregateIterate(self in out dm8_sum_impl,
+    value in number) return number is
+  begin
+    self.sum_value := self.sum_value + value;
+    return ODCIConst.Success;
+  end;
+  member function ODCIAggregateTerminate(self in dm8_sum_impl,
+    return_value out number, flags in number) return number is
+  begin
+    return_value := self.sum_value;
+    return ODCIConst.Success;
+  end;
+end;
+----------
+[CREATE_PROG_OBJ] create function agg_max(input number) return number
+aggregate using dm8_max_impl;
+----------
+[CREATE_PROG_OBJ] create function agg_max_in(input in number) return number
+aggregate using dm8_max_impl;
+----------
+[CREATE_PROG_OBJ] create function agg_max_det(input number) return number
+deterministic aggregate using dm8_max_impl;
+----------
+[CREATE_PROG_OBJ] create function agg_max_parallel(input number) return number
+parallel_enable aggregate using dm8_max_impl;
+----------
+[CREATE_PROG_OBJ] create function agg_max_pd(input number) return number
+parallel_enable deterministic aggregate using dm8_max_impl;
+----------
+[CREATE_PROG_OBJ] create function agg_max_dp(input number) return number
+deterministic parallel_enable aggregate using dm8_max_impl;
+----------
+[CREATE_PROG_OBJ] create function CODEX_DM8_CUSTOM_AGGREGATE_20260721.agg_sum(input number)
+return number aggregate using CODEX_DM8_CUSTOM_AGGREGATE_20260721.dm8_sum_impl;
+----------
+[CREATE_PROG_OBJ] create function if not exists agg_max_ifne(input number) return number
+aggregate using dm8_max_impl;
+----------
+[CREATE_PROG_OBJ] create function agg_max_default(input number default 1) return number
+aggregate using dm8_max_impl;
+----------
+[SELECT|CALL_PROG_OBJ] select agg_max(amount) from agg_source;
+----------
+[SELECT|CALL_PROG_OBJ] select agg_sum(amount) from agg_source;
+----------
+[SELECT|CALL_PROG_OBJ] select agg_max(distinct amount) from agg_source;
+----------
+[SELECT|CALL_PROG_OBJ] select agg_max(all amount) from agg_source;
+----------
+[SELECT|CALL_PROG_OBJ] select grp, agg_max(amount) from agg_source group by grp order by grp;
+----------
+[SELECT|CALL_PROG_OBJ] select grp, agg_sum(amount) from agg_source group by grp order by grp;
+----------
+[SELECT|CALL_PROG_OBJ] select grp, agg_max(amount) as max_amount
+from agg_source
+group by grp
+having agg_max(amount) > 20
+order by agg_max(amount);
+----------
+[SELECT|CALL_PROG_OBJ] select agg_max(amount), grp from agg_source group by rollup(grp);
+----------
+[SELECT|CALL_PROG_OBJ] select agg_sum(amount), grp from agg_source group by cube(grp);
+----------
+[SELECT|CALL_PROG_OBJ] select id, grp, amount,
+  agg_max(amount) over(partition by grp) as group_max
+from agg_source
+order by id;
+----------
+[SELECT|CALL_PROG_OBJ] select id, amount,
+  agg_sum(amount) over(order by id rows between unbounded preceding and current row) as running_sum
+from agg_source
+order by id;
+----------
+[SELECT|CALL_PROG_OBJ] select grp, max_amount
+from (select grp, agg_max(amount) as max_amount from agg_source group by grp) s
+where max_amount >= 25
+order by grp;
+----------
+[SELECT|CALL_PROG_OBJ] select agg_max(amount + discount) from agg_source;
+----------
+[SELECT|CALL_PROG_OBJ] select agg_max(case when grp = 'A' then amount end) from agg_source;
+----------
+[SELECT|CALL_PROG_OBJ] select coalesce(agg_max(amount), 0) from agg_source where id < 0;
+----------
+[SELECT|CALL_PROG_OBJ] select agg_max_parallel(amount) from agg_source;
+----------
+[SELECT|CALL_PROG_OBJ] select agg_max_pd(amount) from agg_source;
+----------
+[SELECT|CALL_PROG_OBJ] select agg_max_dp(amount) from agg_source;
+----------
+[INSERT|SELECT|CALL_PROG_OBJ] insert into agg_result
+select grp, agg_max(amount) from agg_source group by grp;
+----------
+[SELECT] select grp, max_amount from agg_result order by grp;
+----------
+[UPDATE|SELECT|CALL_PROG_OBJ] update agg_source
+set discount = discount + 1
+where amount = (select agg_max(amount) from agg_source);
+----------
+[SELECT] select id, discount from agg_source where amount = 40;
+----------
+[DELETE|SELECT|CALL_PROG_OBJ] delete from agg_result
+where max_amount < (select agg_max(amount) from agg_source where grp = 'B');
+----------
+[SELECT] select grp, max_amount from agg_result order by grp;
+----------
+[CREATE_TABLE|SELECT|CALL_PROG_OBJ] create table agg_ctas as
+select grp, agg_max(amount) as max_amount
+from agg_source group by grp;
+----------
+[SELECT] select grp, max_amount from agg_ctas order by grp;
+----------
+[CREATE_VIEW(SELECT,CALL_PROG_OBJ)] create view agg_view as
+select grp, agg_sum(amount) as total_amount
+from agg_source group by grp;
+----------
+[SELECT] select grp, total_amount from agg_view order by grp;
+----------
+[CREATE_VIEW(SELECT,CALL_PROG_OBJ)] create materialized view agg_mv
+enable query rewrite as
+select grp, agg_max_det(amount) as max_amount
+from agg_source group by grp;
+----------
+[SELECT] select grp, max_amount from agg_mv order by grp;
+----------
+[DROP_VIEW] drop materialized view agg_mv;
+----------
+[DROP_VIEW] drop view agg_view;
+----------
+[DROP_TABLE] drop table agg_ctas;
+----------
+[DROP_TABLE] drop table agg_result;
+----------
+[DROP_PROG_OBJ] drop function agg_sum;
+----------
+[DROP_PROG_OBJ] drop function agg_max_dp;
+----------
+[DROP_PROG_OBJ] drop function agg_max_pd;
+----------
+[DROP_PROG_OBJ] drop function agg_max_parallel;
+----------
+[DROP_PROG_OBJ] drop function agg_max_det;
+----------
+[DROP_PROG_OBJ] drop function agg_max_in;
+----------
+[DROP_PROG_OBJ] drop function agg_max;
+----------
+[SELECT|CALL_PROG_OBJ] select agg_max_ifne(amount) from agg_source;
+----------
+[SELECT|CALL_PROG_OBJ] select agg_max_default(amount) from agg_source;
+----------
+[DROP_PROG_OBJ] drop function agg_max_default;
+----------
+[DROP_PROG_OBJ] drop function agg_max_ifne;
+----------
+[DROP_TYPE] drop type body dm8_sum_impl;
+----------
+[DROP_TYPE] drop type dm8_sum_impl;
+----------
+[DROP_TYPE] drop type body dm8_max_impl;
+----------
+[DROP_TYPE] drop type dm8_max_impl;
+----------
+[DROP_TABLE] drop table agg_source;

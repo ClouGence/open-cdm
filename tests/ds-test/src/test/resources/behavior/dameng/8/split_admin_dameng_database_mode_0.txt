@@ -1,0 +1,209 @@
+[split_admin_dameng_database_mode_0_001]
+sql:
+ALTER DATABASE MOUNT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Instance(1:6~1:14) /test/1/",
+      "action": "UNSAFE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_database_mode_0_002]
+sql:
+ALTER DATABASE ARCHIVELOG;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Instance(1:6~1:14) /test/1/",
+      "action": "UNSAFE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_database_mode_0_003]
+sql:
+ALTER DATABASE PRIMARY;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Instance(1:6~1:14) /test/1/",
+      "action": "UNSAFE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_database_mode_0_004]
+sql:
+ALTER DATABASE OPEN FORCE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Instance(1:6~1:14) /test/1/",
+      "action": "UNSAFE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_database_mode_0_005]
+sql:
+ALTER DATABASE STANDBY FORCE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Instance(1:6~1:14) /test/1/",
+      "action": "UNSAFE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_database_mode_0_006]
+sql:
+ALTER DATABASE PRIMARY FORCE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Instance(1:6~1:14) /test/1/",
+      "action": "UNSAFE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_database_mode_0_007]
+sql:
+ALTER DATABASE NORMAL FORCE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Instance(1:6~1:14) /test/1/",
+      "action": "UNSAFE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_database_mode_0_008]
+sql:
+ALTER DATABASE MOUNT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Instance(1:6~1:14) /test/1/",
+      "action": "UNSAFE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_database_mode_0_009]
+sql:
+ALTER DATABASE STANDBY;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Instance(1:6~1:14) /test/1/",
+      "action": "UNSAFE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_database_mode_0_010]
+sql:
+ALTER DATABASE OPEN FORCE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Instance(1:6~1:14) /test/1/",
+      "action": "UNSAFE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_database_mode_0_011]
+sql:
+ALTER DATABASE MOUNT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Instance(1:6~1:14) /test/1/",
+      "action": "UNSAFE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_database_mode_0_012]
+sql:
+ALTER DATABASE NORMAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Instance(1:6~1:14) /test/1/",
+      "action": "UNSAFE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_database_mode_0_013]
+sql:
+ALTER DATABASE NOARCHIVELOG;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Instance(1:6~1:14) /test/1/",
+      "action": "UNSAFE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_database_mode_0_014]
+sql:
+ALTER DATABASE OPEN;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Instance(1:6~1:14) /test/1/",
+      "action": "UNSAFE"
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+[dbms_ddl_procedure_domain]
+sql:
+declare
+  a dbms_sql.varchar2a; s dbms_sql.varchar2s;
+begin
+  dbms_ddl.create_wrapped('create or replace procedure P as begin null; end;');
+  dbms_ddl.create_wrapped(a,1,1);
+  dbms_ddl.create_wrapped(s,1,1);
+end;
+expect:
+{
+  "contains": [
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_ddl"}
+  ]
+}
+----------
+[dbms_ddl_function_expressions_no_domain]
+sql:
+declare
+  a dbms_sql.varchar2a; a2 dbms_sql.varchar2a;
+  s dbms_sql.varchar2s; s2 dbms_sql.varchar2s; t clob;
+begin
+  t:=dbms_ddl.wrap('create or replace procedure P as begin null; end;');
+  a2:=dbms_ddl.wrap(a,1,1);
+  s2:=dbms_ddl.wrap(s,1,1);
+end;
+expect:
+{"size":0}

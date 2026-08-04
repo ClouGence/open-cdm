@@ -1,0 +1,60 @@
+-- DIRECT_AS_WITHOUT_FOR
+explain as EX_PLAN_1 select * from EX_TARGET;
+-- AS_MISSING_NAME
+explain as for select * from EX_TARGET;
+-- FOR_MISSING_TARGET
+explain for;
+-- DOUBLE_FOR
+explain for for select * from EX_TARGET;
+-- DOUBLE_AS
+explain as P1 as P2 for select * from EX_TARGET;
+-- AS_DOTTED_NAME
+explain as APP.P1 for select * from EX_TARGET;
+-- AS_STRING_NAME
+explain as 'P1' for select * from EX_TARGET;
+-- UNSUPPORTED_ALTER
+explain alter table EX_TARGET add C2 int;
+-- UNSUPPORTED_GRANT
+explain grant select on EX_TARGET to public;
+-- UNSUPPORTED_BLOCK
+explain begin null;end;
+-- NESTED_EXPLAIN
+explain explain select * from EX_TARGET;
+-- EMPTY_EXPLAIN
+explain;
+------------------------------------------------------------------------------------------
+[PERFORMANCE|SELECT] -- DIRECT_AS_WITHOUT_FOR
+explain as EX_PLAN_1 select * from EX_TARGET;
+----------
+[PERFORMANCE|SELECT] -- AS_MISSING_NAME
+explain as for select * from EX_TARGET;
+----------
+[PERFORMANCE] -- FOR_MISSING_TARGET
+explain for;
+----------
+[PERFORMANCE|SELECT] -- DOUBLE_FOR
+explain for for select * from EX_TARGET;
+----------
+[PERFORMANCE|SELECT] -- DOUBLE_AS
+explain as P1 as P2 for select * from EX_TARGET;
+----------
+[PERFORMANCE|SELECT] -- AS_DOTTED_NAME
+explain as APP.P1 for select * from EX_TARGET;
+----------
+[PERFORMANCE|SELECT] -- AS_STRING_NAME
+explain as 'P1' for select * from EX_TARGET;
+----------
+[PERFORMANCE] -- UNSUPPORTED_ALTER
+explain alter table EX_TARGET add C2 int;
+----------
+[PERFORMANCE|SELECT] -- UNSUPPORTED_GRANT
+explain grant select on EX_TARGET to public;
+----------
+[PERFORMANCE] -- UNSUPPORTED_BLOCK
+explain begin null;end;
+----------
+[PERFORMANCE|SELECT] -- NESTED_EXPLAIN
+explain explain select * from EX_TARGET;
+----------
+[PERFORMANCE] -- EMPTY_EXPLAIN
+explain;

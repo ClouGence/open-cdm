@@ -1,0 +1,106 @@
+[dql_mysql_string_0.0001]
+sql:
+SELECT LENGTH(v), CHAR_LENGTH(v), OCTET_LENGTH(v), HEX(fixed_binary), HEX(variable_binary)
+FROM str_lifecycle
+WHERE v LIKE 'a%' AND c BETWEEN 'a' AND 'z'
+ORDER BY BINARY v;
+expect:
+{
+  "LENGTH(v)" : [ "(1:14~1:15) /catalog1/schema1/str_lifecycle/v/" ],
+  "CHAR_LENGTH(v)" : [ "(1:30~1:31) /catalog1/schema1/str_lifecycle/v/" ],
+  "OCTET_LENGTH(v)" : [ "(1:47~1:48) /catalog1/schema1/str_lifecycle/v/" ],
+  "HEX(fixed_binary)" : [ "(1:55~1:67) /catalog1/schema1/str_lifecycle/fixed_binary/" ],
+  "HEX(variable_binary)" : [ "(1:74~1:89) /catalog1/schema1/str_lifecycle/variable_binary/" ]
+}
+----------
+[dql_mysql_string_0.0002]
+sql:
+SELECT v, COUNT(*), MIN(HEX(variable_binary))
+FROM str_lifecycle
+GROUP BY v
+HAVING COUNT(*) >= 1
+ORDER BY v
+LIMIT 5;
+expect:
+{
+  "v" : [ "(1:7~1:8) /catalog1/schema1/str_lifecycle/v/" ],
+  "COUNT(*)" : [ ],
+  "MIN(HEX(variable_binary))" : [ "(1:28~1:43) /catalog1/schema1/str_lifecycle/variable_binary/" ]
+}
+----------
+[dql_mysql_string_0.0003]
+sql:
+SELECT s.v
+FROM str_lifecycle AS s
+WHERE EXISTS (
+  SELECT 1 FROM str_lifecycle AS i
+  WHERE i.variable_binary=s.variable_binary AND i.c=s.c
+);
+expect:
+{
+  "v" : [ "(1:7~1:10) /catalog1/schema1/str_lifecycle/v/" ]
+}
+----------
+[dql_mysql_string_0.0004]
+sql:
+SELECT f.text
+FROM str_foos AS f
+JOIN str_parents AS p ON p.id=f.parent_id
+JOIN str_bars AS b ON b.parent_id=p.id
+WHERE b.parent_id=X'93222796CABA43CA979F5C96EB6898B7';
+expect:
+{
+  "text" : [ "(1:7~1:13) /catalog1/schema1/str_foos/text/" ]
+}
+----------
+[dql_mysql_string_0.0005]
+sql:
+SELECT CASE WHEN BINARY 'a'=BINARY 'A' THEN CAST('same' AS CHAR) ELSE CAST('different' AS CHAR) END,
+       COALESCE(CAST(NULL AS CHAR), CAST('fallback' AS CHAR)),
+       NULLIF(CAST(X'41' AS BINARY), CAST(X'41' AS BINARY));
+expect:
+{
+  "CASE WHEN BINARY 'a'=BINARY 'A' THEN CAST('same' AS CHAR) ELSE CAST('different' AS CHAR) END" : [ ],
+  "COALESCE(CAST(NULL AS CHAR), CAST('fallback' AS CHAR))" : [ ],
+  "NULLIF(CAST(X'41' AS BINARY), CAST(X'41' AS BINARY))" : [ ]
+}
+----------
+[dql_mysql_string_0.0006]
+sql:
+SELECT CAST('a ' AS CHAR(3)) AS value_col
+UNION ALL
+SELECT CAST(X'6100' AS BINARY(3));
+expect:
+{
+  "value_col" : [ ]
+}
+----------
+[dql_mysql_string_0.0007]
+sql:
+WITH str_cte(c,v,b,vb) AS (
+  SELECT c,v,b,vb FROM str_generated
+  UNION ALL
+  SELECT gc,gv,gb,gvb FROM str_generated
+)
+SELECT c,v,HEX(b),HEX(vb) FROM str_cte WHERE vb IS NOT NULL;
+expect:
+{
+  "c" : [ "(2:9~2:10) /catalog1/schema1/str_generated/c/", "(4:9~4:11) /catalog1/schema1/str_generated/gc/" ],
+  "v" : [ "(2:11~2:12) /catalog1/schema1/str_generated/v/", "(4:12~4:14) /catalog1/schema1/str_generated/gv/" ],
+  "HEX(b)" : [ "(2:13~2:14) /catalog1/schema1/str_generated/b/", "(4:15~4:17) /catalog1/schema1/str_generated/gb/" ],
+  "HEX(vb)" : [ "(2:15~2:17) /catalog1/schema1/str_generated/vb/", "(4:18~4:21) /catalog1/schema1/str_generated/gvb/" ]
+}
+----------
+[dql_mysql_string_0.0008]
+sql:
+SELECT v, HEX(vb),
+       ROW_NUMBER() OVER (PARTITION BY vb ORDER BY BINARY v) AS rn,
+       FIRST_VALUE(c) OVER (ORDER BY b ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS first_c
+FROM str_generated;
+expect:
+{
+  "v" : [ "(1:7~1:8) /catalog1/schema1/str_generated/v/" ],
+  "HEX(vb)" : [ "(1:14~1:16) /catalog1/schema1/str_generated/vb/" ],
+  "rn" : [ "(2:39~2:41) /catalog1/schema1/str_generated/vb/", "(1:7~1:8) /catalog1/schema1/str_generated/v/" ],
+  "first_c" : [ "(3:19~3:20) /catalog1/schema1/str_generated/c/", "(3:37~3:38) /catalog1/schema1/str_generated/b/" ]
+}

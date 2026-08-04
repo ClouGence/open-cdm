@@ -1,0 +1,141 @@
+[MyParseColumnExpressionTest.test1]
+sql:
+select 1 + 1
+expect:
+{
+  "1 + 1" : []
+}
+----------
+[MyParseColumnExpressionTest.test2]
+sql:
+select 1 + column1 from table1
+expect:
+{
+  "1 + column1" : [ "(1:11~1:18) /catalog1/schema1/table1/column1/" ]
+}
+----------
+[MyParseColumnExpressionTest.test3]
+sql:
+select 1 + column1 + (select column1 from table2 limit 1) from table1
+expect:
+{
+  "1 + column1 + (select column1 from table2 limit 1)" : [ "(1:11~1:18) /catalog1/schema1/table1/column1/", "(1:29~1:36) /catalog1/schema1/table2/column1/" ]
+}
+----------
+[MyParseColumnExpressionTest.test4]
+sql:
+select 1 + column1 + (select column1 from table2 limit 1) + test(column2) from table1
+expect:
+{
+  "1 + column1 + (select column1 from table2 limit 1) + test(column2)" : [ "(1:11~1:18) /catalog1/schema1/table1/column1/", "(1:29~1:36) /catalog1/schema1/table2/column1/", "(1:65~1:72) /catalog1/schema1/table1/column2/" ]
+}
+----------
+[MyParseColumnExpressionTest.test5]
+sql:
+select 32 + column1 + test(2) + (select column1 from table1) as test from schema2.table1 a
+expect:
+{
+  "test" : [ "(1:12~1:19) /catalog1/schema2/table1/column1/", "(1:40~1:47) /catalog1/schema1/table1/column1/" ]
+}
+----------
+[MyParseColumnExpressionTest.test6]
+sql:
+select 1
+expect:
+{
+  "1" : []
+}
+----------
+[MyParseColumnExpressionTest.test7]
+sql:
+select 1 as a
+expect:
+{
+  "a" : []
+}
+----------
+[MyParseColumnExpressionTest.test8]
+sql:
+select 1 as a from table1
+expect:
+{
+  "a" : []
+}
+----------
+[MyParseColumnExpressionTest.test9]
+sql:
+select column1 = 1 as a from table1
+expect:
+{
+  "a" : [ "(1:7~1:14) /catalog1/schema1/table1/column1/" ]
+}
+----------
+[MyParseColumnExpressionTest.test10]
+sql:
+select column1 + column2 = 1 as a from table1
+expect:
+{
+  "a" : [ "(1:7~1:14) /catalog1/schema1/table1/column1/", "(1:17~1:24) /catalog1/schema1/table1/column2/" ]
+}
+----------
+[row_value_in_subquery]
+sql:
+select (column1, column2) in (select column1, column2 from table2) as matched from table1
+expect:
+{
+  "matched" : [
+    "(1:8~1:15) /catalog1/schema1/table1/column1/",
+    "(1:17~1:24) /catalog1/schema1/table1/column2/",
+    "(1:37~1:44) /catalog1/schema1/table2/column1/",
+    "(1:46~1:53) /catalog1/schema1/table2/column2/"
+  ]
+}
+----------
+[sounds_like_predicate]
+sql:
+select column1 sounds like 'hello' as matched from table1
+expect:
+{
+  "matched" : [ "(1:7~1:14) /catalog1/schema1/table1/column1/" ]
+}
+----------
+[parameter_marker_expression]
+sql:
+select column1 + ? as computed from table1
+expect:
+{
+  "computed" : [ "(1:7~1:14) /catalog1/schema1/table1/column1/" ]
+}
+----------
+[variable_in_where]
+sql:
+select column1 from table1 where column2 < @maxint
+expect:
+{
+  "column1" : [ "(1:7~1:14) /catalog1/schema1/table1/column1/" ]
+}
+----------
+[typed_temporal_literal]
+sql:
+select TIMESTAMP'2024-01-02 03:04:05' as literal
+expect:
+{
+  "literal" : []
+}
+----------
+[repeated_column_reference_positions]
+sql:
+select column1 + column1 as doubled from table1
+expect:
+{
+  "doubled" : [ "(1:7~1:14) /catalog1/schema1/table1/column1/", "(1:17~1:24) /catalog1/schema1/table1/column1/" ]
+}
+----------
+[quoted_identifier_position]
+sql:
+select `t`.`column1` from table1 as `t`
+expect:
+{
+  "column1" : [ "(1:7~1:20) /catalog1/schema1/table1/column1/" ]
+}
+----------

@@ -22,12 +22,10 @@ import lombok.Setter;
 @Setter
 public class FuncGroup {
 
-    public static final FuncGroup INSTANCE   = new FuncGroup();
+    public static final FuncGroup INSTANCE = new FuncGroup();
 
-    private FuncNumberUtils       number     = new FuncNumberUtils();
-    private FuncStringUtils       string     = new FuncStringUtils();
-    private FuncArrayUtils        array      = new FuncArrayUtils();
-    private FuncLoggerUtils       log        = new FuncLoggerUtils();
-
-    private FuncConstraintUtils   constraint = FuncConstraintUtils.INSTANCE;
+    private FuncNumberUtils       number   = new FuncNumberUtils();
+    private FuncStringUtils       string   = new FuncStringUtils();
+    private FuncArrayUtils        array    = new FuncArrayUtils();
+    private FuncLoggerUtils       log      = new FuncLoggerUtils();
 }

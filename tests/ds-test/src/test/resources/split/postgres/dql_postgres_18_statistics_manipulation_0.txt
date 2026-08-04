@@ -1,0 +1,226 @@
+SELECT * FROM pg_catalog.pg_restore_relation_stats(
+    'version', 180000::integer,
+    'schemaname', 'stats_import',
+    'relname', 'test',
+    'relpages', 18::integer,
+    'reltuples', 21::real,
+    'relallvisible', 24::integer,
+    'relallfrozen', 27::integer);
+SELECT pg_catalog.pg_restore_relation_stats(
+    'schemaname', 'stats_import',
+    'relname', 'test',
+    'relpages', 16::integer);
+SELECT pg_catalog.pg_restore_relation_stats(
+    'schemaname', 'stats_import',
+    'relname', 'test_i',
+    'relpages', 3::integer);
+SELECT pg_catalog.pg_restore_relation_stats(
+    'schemaname', 'stats_import',
+    'relname', 'part_parent_i',
+    'relpages', 2::integer);
+SELECT pg_catalog.pg_clear_relation_stats(schemaname => 'stats_import', relname => 'test');
+SELECT pg_clear_relation_stats('stats_import', 'test_i');
+SELECT * FROM pg_catalog.pg_restore_attribute_stats(
+    'version', 180000::integer,
+    'schemaname', 'stats_import',
+    'relname', 'test',
+    'attname', 'id',
+    'inherited', false::boolean,
+    'null_frac', 0.2::real,
+    'avg_width', 5::integer,
+    'n_distinct', 0.6::real);
+SELECT pg_catalog.pg_restore_attribute_stats(
+    'schemaname', 'stats_import',
+    'relname', 'test',
+    'attnum', 1::smallint,
+    'inherited', false::boolean,
+    'null_frac', 0.4::real);
+SELECT pg_catalog.pg_restore_attribute_stats(
+    'schemaname', 'stats_import',
+    'relname', 'test',
+    'attname', 'id',
+    'inherited', false::boolean,
+    'most_common_vals', '{2,1,3}'::text,
+    'most_common_freqs', '{0.3,0.25,0.05}'::real[],
+    'histogram_bounds', '{1,2,3,4}'::text,
+    'correlation', 0.7::real);
+SELECT pg_catalog.pg_restore_attribute_stats(
+    'schemaname', 'stats_import',
+    'relname', 'test',
+    'attname', 'tags',
+    'inherited', false::boolean,
+    'most_common_elems', '{one,three}'::text,
+    'most_common_elem_freqs', '{0.3,0.2,0.2,0.3,0.0}'::real[],
+    'elem_count_histogram', '{1,1,1,1,1,1,1,1,1,1}'::real[]);
+SELECT pg_catalog.pg_restore_attribute_stats(
+    'schemaname', 'stats_import',
+    'relname', 'test',
+    'attname', 'arange',
+    'inherited', false::boolean,
+    'range_empty_frac', 0.5::real,
+    'range_length_histogram', '{399,499,Infinity}'::text,
+    'range_bounds_histogram', '{"[-1,1)","[0,4)","[1,4)","[1,100)"}'::text);
+SELECT s.schemaname, s.tablename, s.attname, r.*
+FROM pg_catalog.pg_stats AS s
+CROSS JOIN LATERAL pg_catalog.pg_restore_attribute_stats(
+    'schemaname', 'stats_import',
+    'relname', 'test_clone',
+    'attname', s.attname::text,
+    'inherited', s.inherited,
+    'version', 180000::integer,
+    'null_frac', s.null_frac,
+    'avg_width', s.avg_width,
+    'n_distinct', s.n_distinct,
+    'most_common_vals', s.most_common_vals::text,
+    'most_common_freqs', s.most_common_freqs,
+    'histogram_bounds', s.histogram_bounds::text,
+    'correlation', s.correlation,
+    'most_common_elems', s.most_common_elems::text,
+    'most_common_elem_freqs', s.most_common_elem_freqs,
+    'elem_count_histogram', s.elem_count_histogram,
+    'range_bounds_histogram', s.range_bounds_histogram::text,
+    'range_empty_frac', s.range_empty_frac,
+    'range_length_histogram', s.range_length_histogram::text) AS r
+WHERE s.schemaname = 'stats_import'
+AND s.tablename = 'test'
+ORDER BY s.attname, s.inherited;
+SELECT pg_catalog.pg_clear_attribute_stats(
+    schemaname => 'stats_import',
+    relname => 'test',
+    attname => 'arange',
+    inherited => false);
+SELECT pg_clear_attribute_stats('stats_import', 'test', 'id', false);
+SELECT pg_restore_relation_stats(
+    'schemaname', 'pg_temp',
+    'relname', 'stats_temp',
+    'relpages', 19::integer,
+    'reltuples', 401::real,
+    'relallvisible', 5::integer,
+    'relallfrozen', 3::integer);
+SELECT pg_catalog.pg_restore_attribute_stats(
+    'schemaname', 'pg_temp',
+    'relname', 'stats_temp',
+    'attname', 'i',
+    'inherited', false::boolean,
+    'null_frac', 0.0123::real);
+------------------------------------------------------------------------------------------
+[SELECT|ADMIN_PERFORMANCE] SELECT * FROM pg_catalog.pg_restore_relation_stats(
+    'version', 180000::integer,
+    'schemaname', 'stats_import',
+    'relname', 'test',
+    'relpages', 18::integer,
+    'reltuples', 21::real,
+    'relallvisible', 24::integer,
+    'relallfrozen', 27::integer);
+----------
+[SELECT|ADMIN_PERFORMANCE] SELECT pg_catalog.pg_restore_relation_stats(
+    'schemaname', 'stats_import',
+    'relname', 'test',
+    'relpages', 16::integer);
+----------
+[SELECT|ADMIN_PERFORMANCE] SELECT pg_catalog.pg_restore_relation_stats(
+    'schemaname', 'stats_import',
+    'relname', 'test_i',
+    'relpages', 3::integer);
+----------
+[SELECT|ADMIN_PERFORMANCE] SELECT pg_catalog.pg_restore_relation_stats(
+    'schemaname', 'stats_import',
+    'relname', 'part_parent_i',
+    'relpages', 2::integer);
+----------
+[SELECT|ADMIN_PERFORMANCE] SELECT pg_catalog.pg_clear_relation_stats(schemaname => 'stats_import', relname => 'test');
+----------
+[SELECT|ADMIN_PERFORMANCE] SELECT pg_clear_relation_stats('stats_import', 'test_i');
+----------
+[SELECT|ADMIN_PERFORMANCE] SELECT * FROM pg_catalog.pg_restore_attribute_stats(
+    'version', 180000::integer,
+    'schemaname', 'stats_import',
+    'relname', 'test',
+    'attname', 'id',
+    'inherited', false::boolean,
+    'null_frac', 0.2::real,
+    'avg_width', 5::integer,
+    'n_distinct', 0.6::real);
+----------
+[SELECT|ADMIN_PERFORMANCE] SELECT pg_catalog.pg_restore_attribute_stats(
+    'schemaname', 'stats_import',
+    'relname', 'test',
+    'attnum', 1::smallint,
+    'inherited', false::boolean,
+    'null_frac', 0.4::real);
+----------
+[SELECT|ADMIN_PERFORMANCE] SELECT pg_catalog.pg_restore_attribute_stats(
+    'schemaname', 'stats_import',
+    'relname', 'test',
+    'attname', 'id',
+    'inherited', false::boolean,
+    'most_common_vals', '{2,1,3}'::text,
+    'most_common_freqs', '{0.3,0.25,0.05}'::real[],
+    'histogram_bounds', '{1,2,3,4}'::text,
+    'correlation', 0.7::real);
+----------
+[SELECT|ADMIN_PERFORMANCE] SELECT pg_catalog.pg_restore_attribute_stats(
+    'schemaname', 'stats_import',
+    'relname', 'test',
+    'attname', 'tags',
+    'inherited', false::boolean,
+    'most_common_elems', '{one,three}'::text,
+    'most_common_elem_freqs', '{0.3,0.2,0.2,0.3,0.0}'::real[],
+    'elem_count_histogram', '{1,1,1,1,1,1,1,1,1,1}'::real[]);
+----------
+[SELECT|ADMIN_PERFORMANCE] SELECT pg_catalog.pg_restore_attribute_stats(
+    'schemaname', 'stats_import',
+    'relname', 'test',
+    'attname', 'arange',
+    'inherited', false::boolean,
+    'range_empty_frac', 0.5::real,
+    'range_length_histogram', '{399,499,Infinity}'::text,
+    'range_bounds_histogram', '{"[-1,1)","[0,4)","[1,4)","[1,100)"}'::text);
+----------
+[SELECT|PERFORMANCE|ADMIN_PERFORMANCE] SELECT s.schemaname, s.tablename, s.attname, r.*
+FROM pg_catalog.pg_stats AS s
+CROSS JOIN LATERAL pg_catalog.pg_restore_attribute_stats(
+    'schemaname', 'stats_import',
+    'relname', 'test_clone',
+    'attname', s.attname::text,
+    'inherited', s.inherited,
+    'version', 180000::integer,
+    'null_frac', s.null_frac,
+    'avg_width', s.avg_width,
+    'n_distinct', s.n_distinct,
+    'most_common_vals', s.most_common_vals::text,
+    'most_common_freqs', s.most_common_freqs,
+    'histogram_bounds', s.histogram_bounds::text,
+    'correlation', s.correlation,
+    'most_common_elems', s.most_common_elems::text,
+    'most_common_elem_freqs', s.most_common_elem_freqs,
+    'elem_count_histogram', s.elem_count_histogram,
+    'range_bounds_histogram', s.range_bounds_histogram::text,
+    'range_empty_frac', s.range_empty_frac,
+    'range_length_histogram', s.range_length_histogram::text) AS r
+WHERE s.schemaname = 'stats_import'
+AND s.tablename = 'test'
+ORDER BY s.attname, s.inherited;
+----------
+[SELECT|ADMIN_PERFORMANCE] SELECT pg_catalog.pg_clear_attribute_stats(
+    schemaname => 'stats_import',
+    relname => 'test',
+    attname => 'arange',
+    inherited => false);
+----------
+[SELECT|ADMIN_PERFORMANCE] SELECT pg_clear_attribute_stats('stats_import', 'test', 'id', false);
+----------
+[SELECT|ADMIN_PERFORMANCE] SELECT pg_restore_relation_stats(
+    'schemaname', 'pg_temp',
+    'relname', 'stats_temp',
+    'relpages', 19::integer,
+    'reltuples', 401::real,
+    'relallvisible', 5::integer,
+    'relallfrozen', 3::integer);
+----------
+[SELECT|ADMIN_PERFORMANCE] SELECT pg_catalog.pg_restore_attribute_stats(
+    'schemaname', 'pg_temp',
+    'relname', 'stats_temp',
+    'attname', 'i',
+    'inherited', false::boolean,
+    'null_frac', 0.0123::real);

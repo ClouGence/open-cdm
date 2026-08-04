@@ -12,8 +12,6 @@ public interface ExecutionDal {
 
     DmExecFileMapper fileMapper();
 
-    DmExecQueryConstraintsMapper queryConstraintsMapper();
-
     DmExecSessionMapper sessionMapper();
 
     DmExecSqlAuditMapper sqlAuditMapper();

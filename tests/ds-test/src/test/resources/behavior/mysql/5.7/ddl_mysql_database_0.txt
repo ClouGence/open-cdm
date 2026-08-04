@@ -1,0 +1,194 @@
+[alter_schema__001]
+sql:
+ALTER DATABASE DEFAULT CHARACTER SET = utf8mb4;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_SCHEMA": [
+    {
+      "subject": "Schema(1:0~1:46) /test/1/catalog1/schema1/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_schema__002]
+sql:
+ALTER SCHEMA DEFAULT COLLATE = utf8mb4_bin;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_SCHEMA": [
+    {
+      "subject": "Schema(1:0~1:42) /test/1/catalog1/schema1/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[drop_schema__003]
+sql:
+DROP DATABASE IF EXISTS split_db57;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SCHEMA": [
+    {
+      "subject": "Schema(1:24~1:34) /test/1/catalog1/split_db57/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[drop_schema__004]
+sql:
+DROP SCHEMA IF EXISTS split_db57_schema;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SCHEMA": [
+    {
+      "subject": "Schema(1:22~1:39) /test/1/catalog1/split_db57_schema/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[create_schema__005]
+sql:
+CREATE DATABASE IF NOT EXISTS split_db57 DEFAULT CHARACTER SET = utf8mb4 DEFAULT COLLATE = utf8mb4_general_ci;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SCHEMA": [
+    {
+      "subject": "Schema(1:30~1:40) /test/1/catalog1/split_db57/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[alter_schema__006]
+sql:
+ALTER DATABASE split_db57 DEFAULT CHARACTER SET utf8mb4 DEFAULT COLLATE utf8mb4_bin;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_SCHEMA": [
+    {
+      "subject": "Schema(1:15~1:25) /test/1/catalog1/split_db57/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[create_schema__007]
+sql:
+CREATE SCHEMA IF NOT EXISTS split_db57_schema CHARSET utf8mb4 COLLATE utf8mb4_general_ci;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SCHEMA": [
+    {
+      "subject": "Schema(1:28~1:45) /test/1/catalog1/split_db57_schema/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[alter_schema__008]
+sql:
+ALTER SCHEMA split_db57_schema DEFAULT CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_SCHEMA": [
+    {
+      "subject": "Schema(1:13~1:30) /test/1/catalog1/split_db57_schema/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[drop_schema__009]
+sql:
+DROP DATABASE split_db57;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SCHEMA": [
+    {
+      "subject": "Schema(1:14~1:24) /test/1/catalog1/split_db57/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[drop_schema__010]
+sql:
+DROP SCHEMA IF EXISTS split_db57_schema;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SCHEMA": [
+    {
+      "subject": "Schema(1:22~1:39) /test/1/catalog1/split_db57_schema/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[alter_schema__011]
+sql:
+ALTER DATABASE split_db57 UPGRADE DATA DIRECTORY NAME;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_SCHEMA": [
+    {
+      "subject": "Schema(1:15~1:25) /test/1/catalog1/split_db57/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[create_schema__012]
+sql:
+CREATE DATABASE db345678901234567890123456789012345678901234567890123456789012345;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SCHEMA": [
+    {
+      "subject": "Schema(1:16~1:81) /test/1/catalog1/db345678901234567890123456789012345678901234567890123456789012345/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_schema__013]
+sql:
+CREATE DATABASE db34567890123456789012345678901234567890123456789012345678901234;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SCHEMA": [
+    {
+      "subject": "Schema(1:16~1:80) /test/1/catalog1/db34567890123456789012345678901234567890123456789012345678901234/",
+      "action" : "CREATE"
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+SELECT array_agg(v ORDER BY v DESC), count(*), count(v), avg(v), sum(v) FILTER (WHERE v > 1), min(v), max(v)
+FROM (VALUES (1), (NULL), (3), (2)) AS t(v);
+SELECT bit_and(v), bit_or(v), bit_xor(v), bit_xor(bits)
+FROM (VALUES (1, B'1010'::bit(4)), (3, B'1100'::bit(4)), (7, B'0110'::bit(4))) AS t(v, bits);
+SELECT bool_and(flag), bool_or(flag), every(flag)
+FROM (VALUES (true), (false), (NULL)) AS t(flag);
+SELECT string_agg(label, ',' ORDER BY label), string_agg(payload, '\x2c'::bytea ORDER BY payload)
+FROM (VALUES ('b', '\x62'::bytea), ('a', '\x61'::bytea), ('c', '\x63'::bytea)) AS t(label, payload);
+SELECT corr(y, x), covar_pop(y, x), covar_samp(y, x)
+FROM (VALUES (2.0, 1.0), (4.0, 2.0), (6.0, 3.0), (NULL, 4.0)) AS t(y, x);
+SELECT regr_avgx(y, x), regr_avgy(y, x), regr_count(y, x), regr_intercept(y, x), regr_r2(y, x), regr_slope(y, x), regr_sxx(y, x), regr_sxy(y, x), regr_syy(y, x)
+FROM (VALUES (2.0, 1.0), (4.0, 2.0), (6.0, 3.0), (NULL, 4.0)) AS t(y, x);
+SELECT stddev(v), stddev_pop(v), stddev_samp(v), variance(v), var_pop(v), var_samp(v)
+FROM (VALUES (1.0), (2.0), (3.0), (4.0)) AS t(v);
+------------------------------------------------------------------------------------------
+[SELECT] SELECT array_agg(v ORDER BY v DESC), count(*), count(v), avg(v), sum(v) FILTER (WHERE v > 1), min(v), max(v)
+FROM (VALUES (1), (NULL), (3), (2)) AS t(v);
+----------
+[SELECT] SELECT bit_and(v), bit_or(v), bit_xor(v), bit_xor(bits)
+FROM (VALUES (1, B'1010'::bit(4)), (3, B'1100'::bit(4)), (7, B'0110'::bit(4))) AS t(v, bits);
+----------
+[SELECT] SELECT bool_and(flag), bool_or(flag), every(flag)
+FROM (VALUES (true), (false), (NULL)) AS t(flag);
+----------
+[SELECT] SELECT string_agg(label, ',' ORDER BY label), string_agg(payload, '\x2c'::bytea ORDER BY payload)
+FROM (VALUES ('b', '\x62'::bytea), ('a', '\x61'::bytea), ('c', '\x63'::bytea)) AS t(label, payload);
+----------
+[SELECT] SELECT corr(y, x), covar_pop(y, x), covar_samp(y, x)
+FROM (VALUES (2.0, 1.0), (4.0, 2.0), (6.0, 3.0), (NULL, 4.0)) AS t(y, x);
+----------
+[SELECT] SELECT regr_avgx(y, x), regr_avgy(y, x), regr_count(y, x), regr_intercept(y, x), regr_r2(y, x), regr_slope(y, x), regr_sxx(y, x), regr_sxy(y, x), regr_syy(y, x)
+FROM (VALUES (2.0, 1.0), (4.0, 2.0), (6.0, 3.0), (NULL, 4.0)) AS t(y, x);
+----------
+[SELECT] SELECT stddev(v), stddev_pop(v), stddev_samp(v), variance(v), var_pop(v), var_samp(v)
+FROM (VALUES (1.0), (2.0), (3.0), (4.0)) AS t(v);

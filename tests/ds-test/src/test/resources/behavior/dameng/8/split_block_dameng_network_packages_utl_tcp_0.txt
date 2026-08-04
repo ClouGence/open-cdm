@@ -1,0 +1,254 @@
+[split_block_dameng_network_packages_utl_tcp_0_001]
+sql:
+declare connection_value utl_tcp.connection; greeting_value varchar(128); begin connection_value := utl_tcp.open_connection('host.docker.internal', 18081, tx_timeout => 5); greeting_value := utl_tcp.get_line(connection_value, true); utl_tcp.close_connection(connection_value); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:25~1:43) /test/1/catalog1/utl_tcp/connection/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(1:233~1:257) /test/1/catalog1/utl_tcp/close_connection/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:100~1:123) /test/1/catalog1/utl_tcp/open_connection/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:191~1:207) /test/1/catalog1/utl_tcp/get_line/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_network_packages_utl_tcp_0_002]
+sql:
+declare connection_value utl_tcp.connection; greeting_value varchar(128); reply_value varchar(128); written_value int; begin connection_value := utl_tcp.open_connection('host.docker.internal', 18081, tx_timeout => 5); greeting_value := utl_tcp.get_line(connection_value, true); written_value := utl_tcp.write_line(connection_value, 'DM8_TCP_LINE'); reply_value := utl_tcp.get_line(connection_value, true); utl_tcp.close_connection(connection_value); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:25~1:43) /test/1/catalog1/utl_tcp/connection/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(1:406~1:430) /test/1/catalog1/utl_tcp/close_connection/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:145~1:168) /test/1/catalog1/utl_tcp/open_connection/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:236~1:252) /test/1/catalog1/utl_tcp/get_line/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:295~1:313) /test/1/catalog1/utl_tcp/write_line/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:364~1:380) /test/1/catalog1/utl_tcp/get_line/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_network_packages_utl_tcp_0_003]
+sql:
+declare connection_value utl_tcp.connection; greeting_value varchar(128); reply_value varchar(128); written_value int; begin connection_value := utl_tcp.open_connection('host.docker.internal', 18081, tx_timeout => 5); greeting_value := utl_tcp.get_line(connection_value, true); written_value := utl_tcp.write_text(connection_value, 'DM8_TCP_TEXT' || utl_tcp.crlf); utl_tcp.flush(connection_value); reply_value := utl_tcp.get_text(connection_value, 19); utl_tcp.close_connection(connection_value); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:25~1:43) /test/1/catalog1/utl_tcp/connection/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(1:365~1:378) /test/1/catalog1/utl_tcp/flush/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:453~1:477) /test/1/catalog1/utl_tcp/close_connection/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:145~1:168) /test/1/catalog1/utl_tcp/open_connection/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:236~1:252) /test/1/catalog1/utl_tcp/get_line/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:295~1:313) /test/1/catalog1/utl_tcp/write_text/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:413~1:429) /test/1/catalog1/utl_tcp/get_text/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_network_packages_utl_tcp_0_004]
+sql:
+declare connection_value utl_tcp.connection; greeting_value varchar(128); reply_value varbinary(32767); written_value int; read_value int; begin connection_value := utl_tcp.open_connection('host.docker.internal', 18081, tx_timeout => 5); greeting_value := utl_tcp.get_line(connection_value, true); written_value := utl_tcp.write_raw(connection_value, cast('444D385F5443505F5241570D0A' as varbinary(64))); read_value := utl_tcp.read_raw(connection_value, reply_value, 18); utl_tcp.close_connection(connection_value); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:25~1:43) /test/1/catalog1/utl_tcp/connection/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(1:472~1:496) /test/1/catalog1/utl_tcp/close_connection/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:165~1:188) /test/1/catalog1/utl_tcp/open_connection/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:256~1:272) /test/1/catalog1/utl_tcp/get_line/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:315~1:332) /test/1/catalog1/utl_tcp/write_raw/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:419~1:435) /test/1/catalog1/utl_tcp/read_raw/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_network_packages_utl_tcp_0_005]
+sql:
+declare connection_value utl_tcp.connection; available_value int; greeting_value varchar(128); begin connection_value := utl_tcp.open_connection('host.docker.internal', 18081, tx_timeout => 5); available_value := utl_tcp.available(connection_value, 1); greeting_value := utl_tcp.get_text(connection_value, available_value); utl_tcp.close_connection(connection_value); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:25~1:43) /test/1/catalog1/utl_tcp/connection/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(1:324~1:348) /test/1/catalog1/utl_tcp/close_connection/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:121~1:144) /test/1/catalog1/utl_tcp/open_connection/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:213~1:230) /test/1/catalog1/utl_tcp/available/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:271~1:287) /test/1/catalog1/utl_tcp/get_text/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_network_packages_utl_tcp_0_006]
+sql:
+declare connection_value utl_tcp.connection; greeting_value varbinary(32767); begin connection_value := utl_tcp.open_connection('host.docker.internal', 18081, tx_timeout => 5); greeting_value := utl_tcp.get_raw(connection_value, 13, true); greeting_value := utl_tcp.get_raw(connection_value, 13, false); utl_tcp.close_connection(connection_value); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:25~1:43) /test/1/catalog1/utl_tcp/connection/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(1:304~1:328) /test/1/catalog1/utl_tcp/close_connection/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:104~1:127) /test/1/catalog1/utl_tcp/open_connection/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:195~1:210) /test/1/catalog1/utl_tcp/get_raw/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:258~1:273) /test/1/catalog1/utl_tcp/get_raw/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_network_packages_utl_tcp_0_007]
+sql:
+begin utl_tcp.close_all_connection(); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:6~1:34) /test/1/catalog1/utl_tcp/close_all_connection/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_network_packages_utl_tcp_0_008]
+sql:
+begin utl_tcp.close_all_connections(); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:6~1:35) /test/1/catalog1/utl_tcp/close_all_connections/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_network_packages_utl_tcp_0_009]
+sql:
+declare connection_value utl_tcp.connection; greeting_value varchar(128); begin connection_value := utl_tcp.open_connection(remote_host => 'host.docker.internal', remote_port => 18081, charset => 'UTF-8', newline => utl_tcp.crlf, tx_timeout => 5); greeting_value := utl_tcp.get_line(connection_value, true); utl_tcp.close_connection(connection_value); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:25~1:43) /test/1/catalog1/utl_tcp/connection/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(1:308~1:332) /test/1/catalog1/utl_tcp/close_connection/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:100~1:123) /test/1/catalog1/utl_tcp/open_connection/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:266~1:282) /test/1/catalog1/utl_tcp/get_line/",
+      "action": "CALL"
+    }
+  ]
+}

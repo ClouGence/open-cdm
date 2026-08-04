@@ -66,8 +66,8 @@ public class SqlAuditController {
     public ResWebData<?> queryAll(@Valid @RequestBody SqlAuditFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
 
-        DmPageVO<SqlAuditVO> auditPage = sqlAuditService.pageUserAllAudit(puid, fo.getUserUid(), fo.getSqlKind(), fo.getResourcePath(), fo.getDsId(), fo.getRequester(), fo
-            .getStatus(), fo.getOpStart(), fo.getOpEnd(), fo.getPageData().getPageNumber(), fo.getPageData().getPageSize());
+        DmPageVO<SqlAuditVO> auditPage = sqlAuditService.pageUserAllAudit(puid, fo.getUserUid(), fo.getDsId(), fo.getRequester(), fo.getStatus(), fo.getOpStart(), fo.getOpEnd(),
+                fo.getPageData().getPageNumber(), fo.getPageData().getPageSize());
 
         return ResWebDataUtils.buildSuccess(auditPage);
     }

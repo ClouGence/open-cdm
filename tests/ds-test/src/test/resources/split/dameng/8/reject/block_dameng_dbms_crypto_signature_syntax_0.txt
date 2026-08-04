@@ -1,0 +1,28 @@
+-- missing expression
+declare r varbinary; begin r:=DBMS_CRYPTO.HASH(,DBMS_CRYPTO.HASH_MD5); end;
+/
+-- dangling named arrow
+declare r varbinary; begin r:=DBMS_CRYPTO.ENCRYPT(SRC=>); end;
+/
+-- double comma
+begin DBMS_CRYPTO.ENCRYPT(,,); end;
+/
+-- unclosed call
+declare r varbinary; begin r:=DBMS_CRYPTO.DECRYPT(0x01,1,0x01; end;
+/
+------------------------------------------------------------------------------------------
+[BLOCK] -- missing expression
+declare r varbinary; begin r:=DBMS_CRYPTO.HASH(,DBMS_CRYPTO.HASH_MD5); end;
+/
+----------
+[BLOCK] -- dangling named arrow
+declare r varbinary; begin r:=DBMS_CRYPTO.ENCRYPT(SRC=>); end;
+/
+----------
+[BLOCK] -- double comma
+begin DBMS_CRYPTO.ENCRYPT(,,); end;
+/
+----------
+[BLOCK] -- unclosed call
+declare r varbinary; begin r:=DBMS_CRYPTO.DECRYPT(0x01,1,0x01; end;
+/

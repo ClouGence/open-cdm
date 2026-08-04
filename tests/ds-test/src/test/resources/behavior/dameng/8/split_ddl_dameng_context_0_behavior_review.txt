@@ -1,0 +1,594 @@
+[split_ddl_dameng_context_0_001_behavior_review]
+sql:
+create or replace package app_context_pkg as
+  procedure set_value(namespace_name varchar, attribute_name varchar, attribute_value varchar);
+end app_context_pkg;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Package(1:26~1:41) /test/1/catalog1/schema1/app_context_pkg/",
+      "action": "REPLACE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_0_003_behavior_review]
+sql:
+create or replace package replacement_context_pkg as
+  procedure set_value(namespace_name varchar, attribute_name varchar, attribute_value varchar);
+end replacement_context_pkg;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Package(1:26~1:49) /test/1/catalog1/schema1/replacement_context_pkg/",
+      "action": "REPLACE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_0_005_behavior_review]
+sql:
+create context CODEX_CTX_MAIN_20260721
+using CODEX_DM8_CONTEXT_20260721.app_context_pkg;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Context(1:15~1:38) /test/1/CODEX_CTX_MAIN_20260721/",
+      "action": "CREATE",
+      "target": "Package(2:6~2:48) /test/1/catalog1/CODEX_DM8_CONTEXT_20260721/app_context_pkg/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_0_006_behavior_review]
+sql:
+select name, info5, info6
+from sysobjects
+where subtype$ = 'CONTEXT' and name = 'CODEX_CTX_MAIN_20260721';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(2:5~2:15) /test/1/catalog1/schema1/sysobjects/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_0_007_behavior_review]
+sql:
+call app_context_pkg.set_value('CODEX_CTX_MAIN_20260721', 'TENANT', 'ALPHA');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:5~1:30) /test/1/catalog1/app_context_pkg/set_value/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_0_008_behavior_review]
+sql:
+select sys_context('CODEX_CTX_MAIN_20260721', 'TENANT');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/sys_context/",
+      "action": "CALL",
+      "target": "ConfigKey(1:46~1:54) /test/1/CODEX_CTX_MAIN_20260721/TENANT/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_0_009_behavior_review]
+sql:
+select sys_context('CODEX_CTX_MAIN_20260721', 'TENANT', 1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/sys_context/",
+      "action": "CALL",
+      "target": "ConfigKey(1:46~1:54) /test/1/CODEX_CTX_MAIN_20260721/TENANT/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_0_010_behavior_review]
+sql:
+select sys_context('CODEX_CTX_MAIN_20260721', 'TENANT', 4000);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/sys_context/",
+      "action": "CALL",
+      "target": "ConfigKey(1:46~1:54) /test/1/CODEX_CTX_MAIN_20260721/TENANT/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_0_011_behavior_review]
+sql:
+select namespace, attribute, value
+from v$context
+where namespace = 'CODEX_CTX_MAIN_20260721';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(2:5~2:14) /test/1/catalog1/schema1/v$context/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_0_012_behavior_review]
+sql:
+call app_context_pkg.set_value('CODEX_CTX_MAIN_20260721', 'ROLE_NAME', 'WRITER');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:5~1:30) /test/1/catalog1/app_context_pkg/set_value/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_0_013_behavior_review]
+sql:
+select sys_context('CODEX_CTX_MAIN_20260721', 'TENANT'),
+  sys_context('CODEX_CTX_MAIN_20260721', 'ROLE_NAME');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/sys_context/",
+      "action": "CALL",
+      "target": "ConfigKey(1:46~1:54) /test/1/CODEX_CTX_MAIN_20260721/TENANT/"
+    },
+    {
+      "subject": "Function(2:2~2:13) /test/1/catalog1/schema1/sys_context/",
+      "action": "CALL",
+      "target": "ConfigKey(2:41~2:52) /test/1/CODEX_CTX_MAIN_20260721/ROLE_NAME/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_0_014_behavior_review]
+sql:
+create or replace context CODEX_CTX_MAIN_20260721
+using CODEX_DM8_CONTEXT_20260721.replacement_context_pkg;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Context(1:26~1:49) /test/1/CODEX_CTX_MAIN_20260721/",
+      "action": "REPLACE",
+      "target": "Package(2:6~2:56) /test/1/catalog1/CODEX_DM8_CONTEXT_20260721/replacement_context_pkg/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_0_015_behavior_review]
+sql:
+call replacement_context_pkg.set_value('CODEX_CTX_MAIN_20260721', 'TENANT', 'BETA');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:5~1:38) /test/1/catalog1/replacement_context_pkg/set_value/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_0_016_behavior_review]
+sql:
+select sys_context('CODEX_CTX_MAIN_20260721', 'TENANT');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/sys_context/",
+      "action": "CALL",
+      "target": "ConfigKey(1:46~1:54) /test/1/CODEX_CTX_MAIN_20260721/TENANT/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_0_017_behavior_review]
+sql:
+create context if not exists CODEX_CTX_MAIN_20260721
+using CODEX_DM8_CONTEXT_20260721.app_context_pkg;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Context(1:29~1:52) /test/1/CODEX_CTX_MAIN_20260721/",
+      "action": "CREATE",
+      "target": "Package(2:6~2:48) /test/1/catalog1/CODEX_DM8_CONTEXT_20260721/app_context_pkg/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_0_018_behavior_review]
+sql:
+call replacement_context_pkg.set_value('CODEX_CTX_MAIN_20260721', 'TENANT', 'GAMMA');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:5~1:38) /test/1/catalog1/replacement_context_pkg/set_value/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_0_019_behavior_review]
+sql:
+select sys_context('CODEX_CTX_MAIN_20260721', 'TENANT');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/sys_context/",
+      "action": "CALL",
+      "target": "ConfigKey(1:46~1:54) /test/1/CODEX_CTX_MAIN_20260721/TENANT/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_0_020_behavior_review]
+sql:
+create context "Codex_Ctx_Quoted_20260721"
+using CODEX_DM8_CONTEXT_20260721.app_context_pkg;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Context(1:15~1:42) /test/1/Codex_Ctx_Quoted_20260721/",
+      "action": "CREATE",
+      "target": "Package(2:6~2:48) /test/1/catalog1/CODEX_DM8_CONTEXT_20260721/app_context_pkg/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_0_021_behavior_review]
+sql:
+select name from sysobjects
+where subtype$ = 'CONTEXT' and name = 'Codex_Ctx_Quoted_20260721';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:17~1:27) /test/1/catalog1/schema1/sysobjects/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_0_022_behavior_review]
+sql:
+select sys_context('Codex_Ctx_Quoted_20260721', 'Mixed_Key');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/sys_context/",
+      "action": "CALL",
+      "target": "ConfigKey(1:48~1:59) /test/1/Codex_Ctx_Quoted_20260721/Mixed_Key/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_0_023_behavior_review]
+sql:
+drop context SYS."Codex_Ctx_Quoted_20260721";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Context(1:13~1:44) /test/1/Codex_Ctx_Quoted_20260721/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_0_024_behavior_review]
+sql:
+create context CODEX_CTX_AUX_20260721 using app_context_pkg;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Context(1:15~1:37) /test/1/CODEX_CTX_AUX_20260721/",
+      "action": "CREATE",
+      "target": "Package(1:44~1:59) /test/1/catalog1/schema1/app_context_pkg/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_0_025_behavior_review]
+sql:
+call app_context_pkg.set_value('CODEX_CTX_AUX_20260721', 'AUX_KEY', 'AUX_VALUE');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:5~1:30) /test/1/catalog1/app_context_pkg/set_value/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_0_026_behavior_review]
+sql:
+select sys_context('CODEX_CTX_AUX_20260721', 'AUX_KEY', 256);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/sys_context/",
+      "action": "CALL",
+      "target": "ConfigKey(1:45~1:54) /test/1/CODEX_CTX_AUX_20260721/AUX_KEY/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_0_027_behavior_review]
+sql:
+drop context SYS.CODEX_CTX_AUX_20260721;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Context(1:13~1:39) /test/1/CODEX_CTX_AUX_20260721/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_0_028_behavior_review]
+sql:
+drop context SYS.CODEX_CTX_MAIN_20260721;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Context(1:13~1:40) /test/1/CODEX_CTX_MAIN_20260721/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_0_029_behavior_review]
+sql:
+select sys_context('CODEX_CTX_MAIN_20260721', 'TENANT');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/sys_context/",
+      "action": "CALL",
+      "target": "ConfigKey(1:46~1:54) /test/1/CODEX_CTX_MAIN_20260721/TENANT/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_0_030_behavior_review]
+sql:
+drop context if exists SYS.CODEX_CTX_MAIN_20260721;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Context(1:23~1:50) /test/1/CODEX_CTX_MAIN_20260721/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_0_031_behavior_review]
+sql:
+select sys_context('USERENV', 'CURRENT_SCHEMA');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/sys_context/",
+      "action": "CALL",
+      "target": "ConfigKey(1:30~1:46) /test/1/USERENV/CURRENT_SCHEMA/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_0_032_behavior_review]
+sql:
+select sys_context('USERENV', 'CURRENT_USER');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/sys_context/",
+      "action": "CALL",
+      "target": "ConfigKey(1:30~1:44) /test/1/USERENV/CURRENT_USER/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_0_033_behavior_review]
+sql:
+select sys_context('USERENV', 'SID');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/sys_context/",
+      "action": "CALL",
+      "target": "ConfigKey(1:30~1:35) /test/1/USERENV/SID/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_0_034_behavior_review]
+sql:
+select sys_context('USERENV', 'DB_NAME', 4000);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/sys_context/",
+      "action": "CALL",
+      "target": "ConfigKey(1:30~1:39) /test/1/USERENV/DB_NAME/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_0_035_behavior_review]
+sql:
+create or replace context if not exists CODEX_CTX_BOTH_20260721
+using CODEX_DM8_CONTEXT_20260721.app_context_pkg;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Context(1:40~1:63) /test/1/CODEX_CTX_BOTH_20260721/",
+      "action": "REPLACE",
+      "target": "Package(2:6~2:48) /test/1/catalog1/CODEX_DM8_CONTEXT_20260721/app_context_pkg/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_0_036_behavior_review]
+sql:
+select name, info5, info6 from sysobjects
+where subtype$ = 'CONTEXT' and name = 'CODEX_CTX_BOTH_20260721';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:31~1:41) /test/1/catalog1/schema1/sysobjects/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_0_037_behavior_review]
+sql:
+drop context SYS.CODEX_CTX_BOTH_20260721;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Context(1:13~1:40) /test/1/CODEX_CTX_BOTH_20260721/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_0_038_behavior_review]
+sql:
+drop package replacement_context_pkg;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Package(1:13~1:36) /test/1/catalog1/schema1/replacement_context_pkg/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_0_039_behavior_review]
+sql:
+drop package app_context_pkg;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Package(1:13~1:28) /test/1/catalog1/schema1/app_context_pkg/",
+      "action": "DROP"
+    }
+  ]
+}

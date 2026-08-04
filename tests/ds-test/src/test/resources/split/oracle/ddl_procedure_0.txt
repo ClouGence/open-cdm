@@ -1,0 +1,26 @@
+CREATE OR REPLACE EDITIONABLE PROCEDURE "JIERUI"."AD_TABLE_AM" (p_id in number) as
+    v_cnt number(10);
+begin
+    insert into tab_time values(sysdate);
+end AD_TABLE_AM;
+CREATE OR REPLACE PROCEDURE proc_log AS
+begin
+    null;
+end proc_log;
+alter procedure AD_TABLE_AM compile;
+drop procedure AD_TABLE_AM;
+------------------------------------------------------------------------------------------
+[CREATE_PROG_OBJ(PROGRAM_CONTROL,BLOCK,INSERT)] CREATE OR REPLACE EDITIONABLE PROCEDURE "JIERUI"."AD_TABLE_AM" (p_id in number) as
+    v_cnt number(10);
+begin
+    insert into tab_time values(sysdate);
+end AD_TABLE_AM;
+----------
+[CREATE_PROG_OBJ(BLOCK,PROGRAM_CONTROL)] CREATE OR REPLACE PROCEDURE proc_log AS
+begin
+    null;
+end proc_log;
+----------
+[ALTER_PROG_OBJ] alter procedure AD_TABLE_AM compile;
+----------
+[DROP_PROG_OBJ] drop procedure AD_TABLE_AM;

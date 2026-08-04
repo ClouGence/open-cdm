@@ -1,0 +1,12 @@
+config get *max-*-entries* maxmemory
+CONFIG RESETSTAT
+CONFIG REWRITE
+CONFIG SET abc *max-*-entries*
+------------------------------------------------------------------------------------------
+[METADATA] config get *max-*-entries* maxmemory
+----------
+[ADMIN_PERFORMANCE] CONFIG RESETSTAT
+----------
+[SYSTEM_SETTING_WRITE] CONFIG REWRITE
+----------
+[SYSTEM_SETTING_WRITE] CONFIG SET abc *max-*-entries*

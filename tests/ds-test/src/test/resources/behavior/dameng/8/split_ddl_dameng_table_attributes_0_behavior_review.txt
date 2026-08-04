@@ -1,0 +1,866 @@
+[split_ddl_dameng_table_attributes_0_001_behavior_review]
+sql:
+create table t_storage_all (id int) storage (initial 1, next 1, minextents 1, fillfactor 80, branch (2, 2), with counter, using long row);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:26) /test/1/catalog1/schema1/t_storage_all/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_attributes_0_002_behavior_review]
+sql:
+create table t_storage_clusterbtr (id int, constraint pk_storage_cluster primary key (id)) storage (clusterbtr);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:33) /test/1/catalog1/schema1/t_storage_clusterbtr/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_attributes_0_003_behavior_review]
+sql:
+create table t_segment_immediate (id int) segment creation immediate;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:32) /test/1/catalog1/schema1/t_segment_immediate/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_attributes_0_004_behavior_review]
+sql:
+create table t_segment_deferred (id int) segment creation deferred;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/schema1/t_segment_deferred/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_attributes_0_005_behavior_review]
+sql:
+create table t_parallel (id int) parallel 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:23) /test/1/catalog1/schema1/t_parallel/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_attributes_0_006_behavior_review]
+sql:
+create table t_noparallel (id int) noparallel;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/t_noparallel/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_attributes_0_007_behavior_review]
+sql:
+create table t_advanced_log (id int) with advanced log;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:27) /test/1/catalog1/schema1/t_advanced_log/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_attributes_0_008_behavior_review]
+sql:
+create table t_parent (id int primary key, code int unique);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:21) /test/1/catalog1/schema1/t_parent/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_attributes_0_009_behavior_review]
+sql:
+create table t_pk_index_ts (id int primary key using index tablespace default);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:26) /test/1/catalog1/schema1/t_pk_index_ts/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_attributes_0_010_behavior_review]
+sql:
+create table t_not_cluster_pk (id int not cluster primary key);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:29) /test/1/catalog1/schema1/t_not_cluster_pk/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_attributes_0_011_behavior_review]
+sql:
+create table t_cluster_pk (id int cluster primary key);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/t_cluster_pk/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_attributes_0_012_behavior_review]
+sql:
+create table t_cluster_key (id int cluster key);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:26) /test/1/catalog1/schema1/t_cluster_key/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_attributes_0_013_behavior_review]
+sql:
+create table t_cluster_unique_key (id int cluster unique key);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:33) /test/1/catalog1/schema1/t_cluster_unique_key/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_attributes_0_014_behavior_review]
+sql:
+create table t_fk_update_cascade (id int, pid int references t_parent(id) on update cascade);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:32) /test/1/catalog1/schema1/t_fk_update_cascade/",
+      "action": "CREATE",
+      "target": "Table(1:61~1:69) /test/1/catalog1/schema1/t_parent/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_attributes_0_015_behavior_review]
+sql:
+create table t_fk_update_null (id int, pid int references t_parent(id) on update set null);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:29) /test/1/catalog1/schema1/t_fk_update_null/",
+      "action": "CREATE",
+      "target": "Table(1:58~1:66) /test/1/catalog1/schema1/t_parent/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_attributes_0_016_behavior_review]
+sql:
+create table t_fk_update_default (id int, pid int default 1 references t_parent(id) on update set default);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:32) /test/1/catalog1/schema1/t_fk_update_default/",
+      "action": "CREATE",
+      "target": "Table(1:71~1:79) /test/1/catalog1/schema1/t_parent/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_attributes_0_017_behavior_review]
+sql:
+create table t_fk_match_partial (id int, pid int references t_parent(id) match partial);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/schema1/t_fk_match_partial/",
+      "action": "CREATE",
+      "target": "Table(1:60~1:68) /test/1/catalog1/schema1/t_parent/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_attributes_0_018_behavior_review]
+sql:
+create table t_fk_match_simple (id int, pid int references t_parent(id) match simple);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/schema1/t_fk_match_simple/",
+      "action": "CREATE",
+      "target": "Table(1:59~1:67) /test/1/catalog1/schema1/t_parent/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_attributes_0_019_behavior_review]
+sql:
+create table t_constraint_disabled (id int constraint ck_disabled check (id > 0) disable);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:34) /test/1/catalog1/schema1/t_constraint_disabled/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_attributes_0_020_behavior_review]
+sql:
+create table t_constraint_deferred (id int, constraint uk_deferred unique (id) enable deferrable initially deferred);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:34) /test/1/catalog1/schema1/t_constraint_deferred/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_attributes_0_021_behavior_review]
+sql:
+create table t_table_novalidate (id int, constraint ck_novalidate check (id > 0) novalidate);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/schema1/t_table_novalidate/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_attributes_0_022_behavior_review]
+sql:
+create table t_default_on_null (id int default on null 7, note varchar(20));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/schema1/t_default_on_null/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_attributes_0_023_behavior_review]
+sql:
+create table t_virtual_no_type (a int, b generated always as (a + 1) virtual visible);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/schema1/t_virtual_no_type/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_attributes_0_024_behavior_review]
+sql:
+create table t_column_storage (id int storage (fillfactor 80), note varchar(20));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:29) /test/1/catalog1/schema1/t_column_storage/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_attributes_0_025_behavior_review]
+sql:
+create table t_ctas_source (id int, note varchar(20));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:26) /test/1/catalog1/schema1/t_ctas_source/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_attributes_0_026_behavior_review]
+sql:
+insert into t_ctas_source values (1, 'A');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:25) /test/1/catalog1/schema1/t_ctas_source/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_attributes_0_027_behavior_review]
+sql:
+create table t_ctas_named (new_id, new_note) as select id, note from t_ctas_source;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/t_ctas_named/",
+      "action": "CREATE",
+      "target": "Table(1:69~1:82) /test/1/catalog1/schema1/t_ctas_source/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_attributes_0_028_behavior_review]
+sql:
+create table t_ctas_default (new_id default 7, new_note) as select id, note from t_ctas_source;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:27) /test/1/catalog1/schema1/t_ctas_default/",
+      "action": "CREATE",
+      "target": "Table(1:81~1:94) /test/1/catalog1/schema1/t_ctas_source/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_attributes_0_029_behavior_review]
+sql:
+create table t_ctas_storage tablespace main parallel 2 add logic log as select id, note from t_ctas_source;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:27) /test/1/catalog1/schema1/t_ctas_storage/",
+      "action": "CREATE",
+      "target": [
+        "Table(1:93~1:106) /test/1/catalog1/schema1/t_ctas_source/",
+        "Tablespace(1:39~1:43) /test/1/main/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_attributes_0_030_behavior_review]
+sql:
+create table t_alter (id int, c1 int, c2 varchar(20));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:20) /test/1/catalog1/schema1/t_alter/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_attributes_0_031_behavior_review]
+sql:
+alter table t_alter add column if not exists c3 int default 3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_COLUMN": [
+    {
+      "subject": "Table(1:12~1:19) /test/1/catalog1/schema1/t_alter/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_attributes_0_032_behavior_review]
+sql:
+alter table t_alter add column if not exists (c4 int, c5 varchar(20));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_COLUMN": [
+    {
+      "subject": "Table(1:12~1:19) /test/1/catalog1/schema1/t_alter/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_attributes_0_033_behavior_review]
+sql:
+alter table t_alter modify c2 default 'M' not null;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_COLUMN": [
+    {
+      "subject": "Table(1:12~1:19) /test/1/catalog1/schema1/t_alter/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_attributes_0_034_behavior_review]
+sql:
+alter table t_alter alter column c2 set default on null 'N';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_COLUMN": [
+    {
+      "subject": "Table(1:12~1:19) /test/1/catalog1/schema1/t_alter/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_attributes_0_035_behavior_review]
+sql:
+alter table t_alter drop column if exists c5;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_COLUMN": [
+    {
+      "subject": "Table(1:12~1:19) /test/1/catalog1/schema1/t_alter/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_attributes_0_036_behavior_review]
+sql:
+alter table t_alter enable all triggers;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:19) /test/1/catalog1/schema1/t_alter/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_attributes_0_037_behavior_review]
+sql:
+alter table t_alter disable all triggers;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:19) /test/1/catalog1/schema1/t_alter/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_attributes_0_038_behavior_review]
+sql:
+alter table t_alter enable using long row;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:19) /test/1/catalog1/schema1/t_alter/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_attributes_0_039_behavior_review]
+sql:
+alter table t_alter disable using long row;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:19) /test/1/catalog1/schema1/t_alter/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_attributes_0_040_behavior_review]
+sql:
+alter table t_alter read only;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:19) /test/1/catalog1/schema1/t_alter/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_attributes_0_041_behavior_review]
+sql:
+alter table t_alter read write;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:19) /test/1/catalog1/schema1/t_alter/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_attributes_0_042_behavior_review]
+sql:
+alter table t_alter parallel 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:19) /test/1/catalog1/schema1/t_alter/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_attributes_0_043_behavior_review]
+sql:
+alter table t_alter noparallel;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:19) /test/1/catalog1/schema1/t_alter/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_attributes_0_044_behavior_review]
+sql:
+comment on table t_alter is 'table atom comment';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "COMMENT_TABLE": [
+    {
+      "subject": "Table(1:17~1:24) /test/1/catalog1/schema1/t_alter/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_attributes_0_045_behavior_review]
+sql:
+comment on column t_alter.c1 is 'column atom comment';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "COMMENT_COLUMN": [
+    {
+      "subject": "Table(1:18~1:25) /test/1/catalog1/schema1/t_alter/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_attributes_0_046_behavior_review]
+sql:
+select table_name, comments from user_tab_comments where table_name='T_ALTER';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:33~1:50) /test/1/catalog1/schema1/user_tab_comments/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_attributes_0_047_behavior_review]
+sql:
+select table_name, column_name, comments from user_col_comments where table_name='T_ALTER' and column_name='C1';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:46~1:63) /test/1/catalog1/schema1/user_col_comments/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_attributes_0_048_behavior_review]
+sql:
+comment on table t_alter is '';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "COMMENT_TABLE": [
+    {
+      "subject": "Table(1:17~1:24) /test/1/catalog1/schema1/t_alter/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_attributes_0_049_behavior_review]
+sql:
+comment on column t_alter.c1 is '';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "COMMENT_COLUMN": [
+    {
+      "subject": "Table(1:18~1:25) /test/1/catalog1/schema1/t_alter/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_attributes_0_050_behavior_review]
+sql:
+create table t_drop_parent (id int primary key);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:26) /test/1/catalog1/schema1/t_drop_parent/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_attributes_0_051_behavior_review]
+sql:
+create table t_drop_child (id int, pid int references t_drop_parent(id));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/t_drop_child/",
+      "action": "CREATE",
+      "target": "Table(1:54~1:67) /test/1/catalog1/schema1/t_drop_parent/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_attributes_0_052_behavior_review]
+sql:
+drop table t_drop_parent restrict;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:24) /test/1/catalog1/schema1/t_drop_parent/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_attributes_0_053_behavior_review]
+sql:
+drop table t_drop_parent cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:24) /test/1/catalog1/schema1/t_drop_parent/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_attributes_0_054_behavior_review]
+sql:
+drop table t_drop_child;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:23) /test/1/catalog1/schema1/t_drop_child/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_attributes_0_055_behavior_review]
+sql:
+create table t_drop_purge (id int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/t_drop_purge/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_attributes_0_056_behavior_review]
+sql:
+drop table t_drop_purge purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:23) /test/1/catalog1/schema1/t_drop_purge/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_attributes_0_057_behavior_review]
+sql:
+drop table if exists t_drop_missing;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:21~1:35) /test/1/catalog1/schema1/t_drop_missing/",
+      "action": "DROP"
+    }
+  ]
+}

@@ -1,0 +1,2951 @@
+[select__001]
+sql:
+SELECT id, JSON_ARRAYAGG(val) OVER (PARTITION BY grp ORDER BY id ROWS UNBOUNDED PRECEDING) AS values_so_far, JSON_OBJECTAGG(id, val) OVER (PARTITION BY grp ORDER BY id ROWS UNBOUNDED PRECEDING) AS values_by_id FROM t ORDER BY id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:11~1:24) /test/1/catalog1/schema1/JSON_ARRAYAGG/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:109~1:123) /test/1/catalog1/schema1/JSON_OBJECTAGG/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:215~1:216) /test/1/catalog1/schema1/t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__002]
+sql:
+SELECT CAST('{"a":1}' AS JSON);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__003]
+sql:
+SELECT CONVERT('{"a":1}', JSON);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/CONVERT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__004]
+sql:
+SELECT * FROM (SELECT alias2.pk AS field1 FROM split_derived_json57.t1 AS alias1 LEFT OUTER JOIN split_derived_json57.t2 AS alias2 ON JSON_UNQUOTE(JSON_EXTRACT(alias1.col_varchar,'$.varc')) COLLATE utf8mb4_general_ci=alias2.col_date_key GROUP BY JSON_QUOTE(JSON_EXTRACT(field1,'$.intc'))) AS dt;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:47~1:70) /test/1/catalog1/split_derived_json57/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:97~1:120) /test/1/catalog1/split_derived_json57/t2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(1:134~1:146) /test/1/catalog1/schema1/JSON_UNQUOTE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:147~1:159) /test/1/catalog1/schema1/JSON_EXTRACT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:246~1:256) /test/1/catalog1/schema1/JSON_QUOTE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__005]
+sql:
+SELECT 'a' LIKE '%' ESCAPE CAST('' AS JSON);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:27~1:31) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__006]
+sql:
+SELECT JSON_ARRAY(1,'a',NULL), JSON_OBJECT('a',1,'b',JSON_ARRAY(2,3)), JSON_QUOTE('a"b'), JSON_UNQUOTE('"abc"'), JSON_EXTRACT('{"a":[1,2]}','$.a[0]'), JSON_CONTAINS('[1,2,3]','2'), JSON_CONTAINS_PATH('{"a":1}','one','$.a'), JSON_KEYS('{"a":1,"b":2}'), JSON_SEARCH('["abc","def"]','one','def'), JSON_SET('{"a":1}','$.b',2), JSON_INSERT('{"a":1}','$.b',2), JSON_REPLACE('{"a":1}','$.a',2), JSON_REMOVE('{"a":1,"b":2}','$.b'), JSON_ARRAY_APPEND('[1,2]','$',3), JSON_ARRAY_INSERT('[1,2]','$[1]',9), JSON_MERGE('{"a":1}','{"b":2}'), JSON_DEPTH('{"a":[1]}'), JSON_LENGTH('[1,2]'), JSON_TYPE('1'), JSON_VALID('{"a":1}');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/JSON_ARRAY/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:31~1:42) /test/1/catalog1/schema1/JSON_OBJECT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:71~1:81) /test/1/catalog1/schema1/JSON_QUOTE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:90~1:102) /test/1/catalog1/schema1/JSON_UNQUOTE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:113~1:125) /test/1/catalog1/schema1/JSON_EXTRACT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:151~1:164) /test/1/catalog1/schema1/JSON_CONTAINS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:181~1:199) /test/1/catalog1/schema1/JSON_CONTAINS_PATH/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:224~1:233) /test/1/catalog1/schema1/JSON_KEYS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:252~1:263) /test/1/catalog1/schema1/JSON_SEARCH/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:294~1:302) /test/1/catalog1/schema1/JSON_SET/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:323~1:334) /test/1/catalog1/schema1/JSON_INSERT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:355~1:367) /test/1/catalog1/schema1/JSON_REPLACE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:388~1:399) /test/1/catalog1/schema1/JSON_REMOVE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:424~1:441) /test/1/catalog1/schema1/JSON_ARRAY_APPEND/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:458~1:475) /test/1/catalog1/schema1/JSON_ARRAY_INSERT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:495~1:505) /test/1/catalog1/schema1/JSON_MERGE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:528~1:538) /test/1/catalog1/schema1/JSON_DEPTH/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:553~1:564) /test/1/catalog1/schema1/JSON_LENGTH/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:575~1:584) /test/1/catalog1/schema1/JSON_TYPE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:591~1:601) /test/1/catalog1/schema1/JSON_VALID/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__007]
+sql:
+SELECT JSON_MERGE_PATCH('{"a":1}','{"a":2}'), JSON_MERGE_PRESERVE('{"a":1}','{"a":2}'), JSON_PRETTY('{"a":1}'), JSON_STORAGE_SIZE('{"a":1}');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:23) /test/1/catalog1/schema1/JSON_MERGE_PATCH/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:46~1:65) /test/1/catalog1/schema1/JSON_MERGE_PRESERVE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:88~1:99) /test/1/catalog1/schema1/JSON_PRETTY/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:112~1:129) /test/1/catalog1/schema1/JSON_STORAGE_SIZE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__008]
+sql:
+SELECT JSON_ARRAYAGG(x), JSON_OBJECTAGG(x, x * x) FROM (SELECT 1 AS x UNION ALL SELECT 2) AS d;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:20) /test/1/catalog1/schema1/JSON_ARRAYAGG/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:25~1:39) /test/1/catalog1/schema1/JSON_OBJECTAGG/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__009]
+sql:
+SELECT JSON_OVERLAPS('[1,2]','[2,3]'), PS_CURRENT_THREAD_ID(), PS_THREAD_ID(CONNECTION_ID());
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:20) /test/1/catalog1/schema1/JSON_OVERLAPS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:39~1:59) /test/1/catalog1/schema1/PS_CURRENT_THREAD_ID/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:63~1:75) /test/1/catalog1/schema1/PS_THREAD_ID/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:76~1:89) /test/1/catalog1/schema1/CONNECTION_ID/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__010]
+sql:
+SELECT JSON_SCHEMA_VALID('{"type":"object","properties":{"a":{"type":"integer"}},"required":["a"]}', '{"a":1}'), JSON_SCHEMA_VALIDATION_REPORT('{"type":"object","properties":{"a":{"type":"integer"}},"required":["a"]}', '{"a":"x"}'), JSON_STORAGE_FREE('{"a":1}');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:24) /test/1/catalog1/schema1/JSON_SCHEMA_VALID/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:113~1:142) /test/1/catalog1/schema1/JSON_SCHEMA_VALIDATION_REPORT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:233~1:250) /test/1/catalog1/schema1/JSON_STORAGE_FREE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__011]
+sql:
+SELECT (SELECT JSON_ARRAYAGG(i.t1) FROM agg_t AS i WHERE i.t2=o.t2 LIMIT 1) FROM agg_t AS o GROUP BY o.t2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:15~1:28) /test/1/catalog1/schema1/JSON_ARRAYAGG/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:40~1:45) /test/1/catalog1/schema1/agg_t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__012]
+sql:
+SELECT (SELECT 1 FROM agg_t AS i WHERE JSON_ARRAYAGG(1 IN (SELECT 1 FROM agg_t AS d))) FROM agg_t AS o LIMIT 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:22~1:27) /test/1/catalog1/schema1/agg_t/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(1:39~1:52) /test/1/catalog1/schema1/JSON_ARRAYAGG/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__013]
+sql:
+SELECT JSON_ARRAY();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/JSON_ARRAY/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__014]
+sql:
+SELECT JSON_OBJECT();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/JSON_OBJECT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__015]
+sql:
+SELECT JSON_OBJECTAGG(t.col_int,t.col_int), (SELECT JSON_ARRAYAGG(s.col_int) FROM CC AS s WHERE s.col_int<>t.col_int) AS field5 FROM CC AS t WHERE t.col_int<>ALL(SELECT q.col_int FROM CC AS q STRAIGHT_JOIN C) GROUP BY field5;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:21) /test/1/catalog1/schema1/JSON_OBJECTAGG/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:52~1:65) /test/1/catalog1/schema1/JSON_ARRAYAGG/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:82~1:84) /test/1/catalog1/schema1/CC/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:206~1:207) /test/1/catalog1/schema1/C/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__016]
+sql:
+SELECT JSON_EXTRACT('{"a":1,"b":2}', '$.a', '$.b');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/JSON_EXTRACT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__017]
+sql:
+SELECT JSON_CONTAINS('{"a":[1,2]}', '2', '$.a');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:20) /test/1/catalog1/schema1/JSON_CONTAINS/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__018]
+sql:
+SELECT JSON_CONTAINS_PATH('{"a":1,"b":2}', 'all', '$.a', '$.b');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:25) /test/1/catalog1/schema1/JSON_CONTAINS_PATH/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__019]
+sql:
+SELECT JSON_KEYS('{"a":{"b":1}}', '$.a');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/JSON_KEYS/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__020]
+sql:
+SELECT JSON_LENGTH('{"a":[1,2]}', '$.a');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/JSON_LENGTH/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__021]
+sql:
+SELECT JSON_SEARCH('{"a":["ab_c","def"],"b":"abxc"}', 'all', 'ab!_c', '!', '$.a[*]', '$.b');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/JSON_SEARCH/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__022]
+sql:
+SELECT JSON_SET('{"a":1}', '$.b', 2, '$.c', 3);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/JSON_SET/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__023]
+sql:
+SELECT JSON_INSERT('{"a":1}', '$.b', 2, '$.c', 3);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/JSON_INSERT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__024]
+sql:
+SELECT JSON_REPLACE('{"a":1,"b":2}', '$.a', 9, '$.b', 8);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/JSON_REPLACE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__025]
+sql:
+SELECT JSON_REMOVE('{"a":1,"b":2,"c":3}', '$.a', '$.b');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/JSON_REMOVE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__026]
+sql:
+SELECT JSON_ARRAY_APPEND('{"a":[1],"b":[2]}', '$.a', 3, '$.b', 4);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:24) /test/1/catalog1/schema1/JSON_ARRAY_APPEND/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__027]
+sql:
+SELECT JSON_ARRAY_INSERT('[1,2,3]', '$[1]', 8, '$[3]', 9);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:24) /test/1/catalog1/schema1/JSON_ARRAY_INSERT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__028]
+sql:
+SELECT JSON_MERGE('{"a":1}', '{"b":2}', '{"c":3}');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/JSON_MERGE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__029]
+sql:
+SELECT JSON_MERGE_PATCH('{"a":1}', '{"b":2}', '{"c":3}');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:23) /test/1/catalog1/schema1/JSON_MERGE_PATCH/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__030]
+sql:
+SELECT JSON_MERGE_PRESERVE('{"a":1}', '{"b":2}', '{"c":3}');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:26) /test/1/catalog1/schema1/JSON_MERGE_PRESERVE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__031]
+sql:
+SELECT JSON_EXTRACT('{"quoted key":1}', '$."quoted key"');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/JSON_EXTRACT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__032]
+sql:
+SELECT JSON_EXTRACT('{"a":1,"b":2}', '$.*');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/JSON_EXTRACT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__033]
+sql:
+SELECT JSON_EXTRACT('[1,2,3]', '$[*]');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/JSON_EXTRACT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__034]
+sql:
+SELECT JSON_EXTRACT('{"a":{"x":1},"b":{"x":2}}', '$**.x');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/JSON_EXTRACT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__035]
+sql:
+SELECT JSON_EXTRACT('[1,2,3]', '$[last]');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/JSON_EXTRACT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__036]
+sql:
+SELECT JSON_EXTRACT('[1,2,3]', '$[last-1]');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/JSON_EXTRACT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__037]
+sql:
+SELECT JSON_EXTRACT('[1,2,3,4]', '$[1 to 2]');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/JSON_EXTRACT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__038]
+sql:
+SELECT JSON_EXTRACT('[1,2,3,4]', '$[last-2 to last]');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/JSON_EXTRACT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__039]
+sql:
+SELECT JSON_SCHEMA_VALID(t2.j,t2.j) FROM schema_t, (SELECT * FROM schema_t WHERE pk=1) AS t2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:24) /test/1/catalog1/schema1/JSON_SCHEMA_VALID/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:41~1:49) /test/1/catalog1/schema1/schema_t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__040]
+sql:
+SELECT JSON_SCHEMA_VALIDATION_REPORT(t2.j,t2.j) FROM schema_t, (SELECT * FROM schema_t WHERE pk=1) AS t2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:36) /test/1/catalog1/schema1/JSON_SCHEMA_VALIDATION_REPORT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:53~1:61) /test/1/catalog1/schema1/schema_t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__041]
+sql:
+SELECT id FROM jt_src WHERE EXISTS (SELECT * FROM JSON_TABLE(jt_src.x, '$[*]' COLUMNS (i INT PATH '$')) AS jt WHERE i=2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:15~1:21) /test/1/catalog1/schema1/jt_src/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__042]
+sql:
+SELECT * FROM JSON_TABLE('{"x":1}', '$' COLUMNS (c_bit BIT(8) PATH '$.x', c_bool BOOL PATH '$.x', c_boolean BOOLEAN PATH '$.x', c_tiny TINYINT UNSIGNED PATH '$.x', c_small SMALLINT PATH '$.x', c_medium MEDIUMINT PATH '$.x', c_int INT PATH '$.x', c_integer INTEGER PATH '$.x', c_big BIGINT PATH '$.x', c_decimal DECIMAL(10,2) PATH '$.x', c_dec DEC(10,2) PATH '$.x', c_fixed FIXED(10,2) PATH '$.x', c_numeric NUMERIC(10,2) PATH '$.x', c_float FLOAT(10) PATH '$.x', c_double DOUBLE PRECISION PATH '$.x', c_real REAL PATH '$.x', c_date DATE PATH '$.x', c_time TIME(6) PATH '$.x', c_datetime DATETIME(6) PATH '$.x', c_timestamp TIMESTAMP(6) PATH '$.x', c_year YEAR PATH '$.x')) AS jt;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__043]
+sql:
+SELECT * FROM JSON_TABLE('{"x":1}', '$' COLUMNS (c_char CHAR(5) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci PATH '$.x', c_nchar NCHAR(5) PATH '$.x', c_varchar VARCHAR(10) PATH '$.x', c_nvarchar NVARCHAR(10) PATH '$.x', c_binary BINARY(5) PATH '$.x', c_varbinary VARBINARY(10) PATH '$.x', c_tinyblob TINYBLOB PATH '$.x', c_blob BLOB PATH '$.x', c_mediumblob MEDIUMBLOB PATH '$.x', c_longblob LONGBLOB PATH '$.x', c_tinytext TINYTEXT PATH '$.x', c_text TEXT PATH '$.x', c_mediumtext MEDIUMTEXT PATH '$.x', c_longtext LONGTEXT PATH '$.x', c_enum ENUM('1','2') PATH '$.x', c_set SET('1','2') PATH '$.x', c_json JSON PATH '$.x', c_serial SERIAL PATH '$.x', c_long_varchar LONG VARCHAR PATH '$.x', c_long_varbinary LONG VARBINARY PATH '$.x')) AS jt;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__044]
+sql:
+SELECT * FROM JSON_TABLE('{"x":1}', '$' COLUMNS (c_geometry GEOMETRY PATH '$.x', c_point POINT PATH '$.x', c_linestring LINESTRING PATH '$.x', c_polygon POLYGON PATH '$.x', c_multipoint MULTIPOINT PATH '$.x', c_multilinestring MULTILINESTRING PATH '$.x', c_multipolygon MULTIPOLYGON PATH '$.x', c_geometrycollection GEOMETRYCOLLECTION PATH '$.x')) AS jt;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__045]
+sql:
+SELECT description FROM JSON_TABLE('{"operation":"root","inputs":[{"operation":"child"}]}', '$**.operation' COLUMNS (o FOR ORDINALITY, description TEXT PATH '$')) AS jt ORDER BY o;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__046]
+sql:
+SELECT * FROM JSON_TABLE('{}', '$' COLUMNS (e_err INT PATH '$.x' ERROR ON EMPTY, e_null INT PATH '$.x' NULL ON EMPTY, e_def INT PATH '$.x' DEFAULT '1' ON EMPTY, r_err INT PATH '$.x' ERROR ON ERROR, r_null INT PATH '$.x' NULL ON ERROR, r_def INT PATH '$.x' DEFAULT '2' ON ERROR)) AS jt;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__047]
+sql:
+SELECT * FROM JSON_TABLE('{}', '$' COLUMNS (ee INT PATH '$.x' ERROR ON EMPTY ERROR ON ERROR, en INT PATH '$.x' ERROR ON EMPTY NULL ON ERROR, ed INT PATH '$.x' ERROR ON EMPTY DEFAULT '2' ON ERROR, ne INT PATH '$.x' NULL ON EMPTY ERROR ON ERROR, nn INT PATH '$.x' NULL ON EMPTY NULL ON ERROR, nd INT PATH '$.x' NULL ON EMPTY DEFAULT '2' ON ERROR, de INT PATH '$.x' DEFAULT '1' ON EMPTY ERROR ON ERROR, dn INT PATH '$.x' DEFAULT '1' ON EMPTY NULL ON ERROR, dd INT PATH '$.x' DEFAULT '1' ON EMPTY DEFAULT '2' ON ERROR)) AS jt;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__048]
+sql:
+SELECT * FROM JSON_TABLE('{}', '$' COLUMNS (ee INT PATH '$.x' ERROR ON ERROR ERROR ON EMPTY, en INT PATH '$.x' NULL ON ERROR ERROR ON EMPTY, ed INT PATH '$.x' DEFAULT '2' ON ERROR ERROR ON EMPTY, ne INT PATH '$.x' ERROR ON ERROR NULL ON EMPTY, nn INT PATH '$.x' NULL ON ERROR NULL ON EMPTY, nd INT PATH '$.x' DEFAULT '2' ON ERROR NULL ON EMPTY, de INT PATH '$.x' ERROR ON ERROR DEFAULT '1' ON EMPTY, dn INT PATH '$.x' NULL ON ERROR DEFAULT '1' ON EMPTY, dd INT PATH '$.x' DEFAULT '2' ON ERROR DEFAULT '1' ON EMPTY)) AS jt;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__049]
+sql:
+SELECT * FROM JSON_TABLE('{"x":1}', '$' COLUMNS (a INT EXISTS PATH '$.x' NULL ON EMPTY NULL ON ERROR, b INT EXISTS PATH '$.y' DEFAULT '0' ON ERROR ERROR ON EMPTY)) AS jt;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__050]
+sql:
+SELECT * FROM JSON_TABLE('{}', '$' COLUMNS (x DATE PATH '$.x' DEFAULT DATE '2020-01-02' ON EMPTY)) AS jt;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__051]
+sql:
+SELECT 1 FROM JSON_TABLE(ROW(1,2), '$' COLUMNS (o FOR ORDINALITY)) AS jt;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__052]
+sql:
+SELECT tt2.id FROM jt_src AS tt2, JSON_TABLE(tt2.f1, '$' COLUMNS (ord FOR ORDINALITY)) AS tbl STRAIGHT_JOIN jt_src AS tt3 LIMIT 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:19~1:25) /test/1/catalog1/schema1/jt_src/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__053]
+sql:
+SELECT * FROM JSON_TABLE('{"a":[1],"b":[2]}', '$' COLUMNS (NESTED PATH '$.a[*]' COLUMNS (ax INT PATH '$'), NESTED PATH '$.b[*]' COLUMNS (bx INT PATH '$'))) AS jt;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__054]
+sql:
+SELECT * FROM JSON_TABLE('{"a":[{"b":[{"c":3}]}]}', '$' COLUMNS (NESTED PATH '$.a[*]' COLUMNS (NESTED PATH '$.b[*]' COLUMNS (NESTED PATH '$.c' COLUMNS (c INT PATH '$'))))) AS jt;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__055]
+sql:
+SELECT * FROM JSON_TABLE('[1]', '$[*]' COLUMNS (x INT PATH '$'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__056]
+sql:
+SELECT * FROM JSON_TABLE('[1,2,3]', '$[*]' COLUMNS (x INT PATH '$')) AS jt;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__057]
+sql:
+SELECT jt.ord, jt.id, jt.has_name, jt.name FROM JSON_TABLE('[{"id":1,"name":"a"},{"id":2}]', '$[*]' COLUMNS (ord FOR ORDINALITY, id INT PATH '$.id', has_name INT EXISTS PATH '$.name', name VARCHAR(20) PATH '$.name' NULL ON EMPTY NULL ON ERROR)) AS jt;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__058]
+sql:
+SELECT jt.id, jt.tag FROM JSON_TABLE('[{"id":1,"tags":["a","b"]}]', '$[*]' COLUMNS (id INT PATH '$.id', NESTED PATH '$.tags[*]' COLUMNS (tag VARCHAR(10) PATH '$'))) AS jt;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__059]
+sql:
+SELECT JSON_VALUE('{"price":"49.95"}', '$.price' RETURNING DECIMAL(5,2) DEFAULT 0 ON EMPTY DEFAULT 0 ON ERROR);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/JSON_VALUE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__060]
+sql:
+SELECT JSON_VALUE('{"x":1}', '$.x');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/JSON_VALUE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__061]
+sql:
+SELECT JSON_VALUE('{}', '$.x' ERROR ON EMPTY);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/JSON_VALUE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__062]
+sql:
+SELECT JSON_VALUE('{}', '$.x' NULL ON EMPTY);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/JSON_VALUE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__063]
+sql:
+SELECT JSON_VALUE('{}', '$.x' DEFAULT -1 ON EMPTY);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/JSON_VALUE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__064]
+sql:
+SELECT JSON_VALUE('{bad}', '$.x' ERROR ON ERROR);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/JSON_VALUE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__065]
+sql:
+SELECT JSON_VALUE('{bad}', '$.x' NULL ON ERROR);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/JSON_VALUE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__066]
+sql:
+SELECT JSON_VALUE('{bad}', '$.x' DEFAULT TRUE ON ERROR);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/JSON_VALUE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__067]
+sql:
+SELECT JSON_VALUE('{}', '$.x' ERROR ON EMPTY ERROR ON ERROR);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/JSON_VALUE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__068]
+sql:
+SELECT JSON_VALUE('{}', '$.x' ERROR ON EMPTY NULL ON ERROR);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/JSON_VALUE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__069]
+sql:
+SELECT JSON_VALUE('{}', '$.x' ERROR ON EMPTY DEFAULT 2 ON ERROR);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/JSON_VALUE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__070]
+sql:
+SELECT JSON_VALUE('{}', '$.x' NULL ON EMPTY ERROR ON ERROR);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/JSON_VALUE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__071]
+sql:
+SELECT JSON_VALUE('{}', '$.x' NULL ON EMPTY NULL ON ERROR);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/JSON_VALUE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__072]
+sql:
+SELECT JSON_VALUE('{}', '$.x' NULL ON EMPTY DEFAULT 2 ON ERROR);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/JSON_VALUE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__073]
+sql:
+SELECT JSON_VALUE('{}', '$.x' DEFAULT -1 ON EMPTY ERROR ON ERROR);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/JSON_VALUE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__074]
+sql:
+SELECT JSON_VALUE('{}', '$.x' DEFAULT -1 ON EMPTY NULL ON ERROR);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/JSON_VALUE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__075]
+sql:
+SELECT JSON_VALUE('{}', '$.x' DEFAULT X'31' ON EMPTY DEFAULT DATE '2020-01-02' ON ERROR);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/JSON_VALUE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__076]
+sql:
+SELECT JSON_VALUE('{"x":1}', '$.x' RETURNING BINARY);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/JSON_VALUE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__077]
+sql:
+SELECT JSON_VALUE('{"x":1}', '$.x' RETURNING NCHAR);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/JSON_VALUE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__078]
+sql:
+SELECT JSON_VALUE('{"x":1}', '$.x' RETURNING CHAR);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/JSON_VALUE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__079]
+sql:
+SELECT JSON_VALUE('{"x":1}', '$.x' RETURNING DATE);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/JSON_VALUE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__080]
+sql:
+SELECT JSON_VALUE('{"x":1}', '$.x' RETURNING DATETIME);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/JSON_VALUE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__081]
+sql:
+SELECT JSON_VALUE('{"x":1}', '$.x' RETURNING TIME);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/JSON_VALUE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__082]
+sql:
+SELECT JSON_VALUE('{"x":1}', '$.x' RETURNING JSON);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/JSON_VALUE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__083]
+sql:
+SELECT JSON_VALUE('{"x":1}', '$.x' RETURNING FLOAT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/JSON_VALUE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__084]
+sql:
+SELECT JSON_VALUE('{"x":1}', '$.x' RETURNING DOUBLE);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/JSON_VALUE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__085]
+sql:
+SELECT JSON_VALUE('{"x":1}', '$.x' RETURNING REAL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/JSON_VALUE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__086]
+sql:
+SELECT JSON_VALUE('{"x":1}', '$.x' RETURNING YEAR);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/JSON_VALUE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__087]
+sql:
+SELECT JSON_VALUE('{"x":1}', '$.x' RETURNING SIGNED);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/JSON_VALUE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__088]
+sql:
+SELECT JSON_VALUE('{"x":1}', '$.x' RETURNING UNSIGNED);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/JSON_VALUE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__089]
+sql:
+SELECT JSON_VALUE('{"x":1}', '$.x' RETURNING LINESTRING);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/JSON_VALUE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__090]
+sql:
+SELECT JSON_VALUE('{"x":1}', '$.x' RETURNING POLYGON);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/JSON_VALUE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__091]
+sql:
+SELECT JSON_VALUE('{"x":1}', '$.x' RETURNING MULTIPOINT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/JSON_VALUE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__092]
+sql:
+SELECT JSON_VALUE('{"x":1}', '$.x' RETURNING MULTILINESTRING);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/JSON_VALUE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__093]
+sql:
+SELECT JSON_VALUE('{"x":1}', '$.x' RETURNING MULTIPOLYGON);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/JSON_VALUE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__094]
+sql:
+SELECT JSON_VALUE('{"x":1}', '$.x' RETURNING GEOMETRYCOLLECTION);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/JSON_VALUE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__095]
+sql:
+SELECT j->'$.a', j->>'$.a' FROM json_op;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:32~1:39) /test/1/catalog1/schema1/json_op/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__096]
+sql:
+SELECT 17 MEMBER OF('[23, 17]');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__097]
+sql:
+SELECT NOT (17 MEMBER OF('[23, 17]'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__098]
+sql:
+SELECT j,i,f,JSON_ARRAYAGG(i) OVER w,JSON_ARRAYAGG(f) OVER w FROM split_window_json.t1 WINDOW w AS (ORDER BY j);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:13~1:26) /test/1/catalog1/schema1/JSON_ARRAYAGG/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:66~1:86) /test/1/catalog1/split_window_json/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__099]
+sql:
+SELECT i,f,JSON_ARRAYAGG(i) OVER w,JSON_ARRAYAGG(f) OVER w FROM split_window_json.t1 GROUP BY i,f WITH ROLLUP HAVING GROUPING(f)=1 WINDOW w AS (ORDER BY f,i ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:11~1:24) /test/1/catalog1/schema1/JSON_ARRAYAGG/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:64~1:84) /test/1/catalog1/split_window_json/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(1:117~1:125) /test/1/catalog1/schema1/GROUPING/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__100]
+sql:
+SELECT i,f,RANK() OVER w,NTH_VALUE(i,3) OVER w,LEAD(f,2) OVER w,LAG(f,2) OVER w,JSON_ARRAYAGG(i) OVER w FROM split_window_json.t1 WINDOW w AS (ORDER BY f);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:11~1:15) /test/1/catalog1/schema1/RANK/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:25~1:34) /test/1/catalog1/schema1/NTH_VALUE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:47~1:51) /test/1/catalog1/schema1/LEAD/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:64~1:67) /test/1/catalog1/schema1/LAG/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:80~1:93) /test/1/catalog1/schema1/JSON_ARRAYAGG/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:109~1:129) /test/1/catalog1/split_window_json/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__101]
+sql:
+SELECT i,f,PERCENT_RANK() OVER w,JSON_ARRAYAGG(i) OVER w FROM split_window_json.t1 WINDOW w AS (PARTITION BY i ORDER BY f RANGE BETWEEN 2.1 FOLLOWING AND 4.5 FOLLOWING);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:11~1:23) /test/1/catalog1/schema1/PERCENT_RANK/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:33~1:46) /test/1/catalog1/schema1/JSON_ARRAYAGG/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:62~1:82) /test/1/catalog1/split_window_json/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__102]
+sql:
+SELECT i,j,JSON_OBJECTAGG(j,f) OVER w,JSON_OBJECTAGG(j,s) OVER w FROM split_window_json.t1 WINDOW w AS (PARTITION BY i ORDER BY j);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:11~1:25) /test/1/catalog1/schema1/JSON_OBJECTAGG/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:70~1:90) /test/1/catalog1/split_window_json/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__103]
+sql:
+SELECT i,JSON_OBJECTAGG(i,f) OVER w FROM split_window_json.t1 GROUP BY i,f WITH ROLLUP HAVING GROUPING(f)=1 WINDOW w AS (ORDER BY f);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:9~1:23) /test/1/catalog1/schema1/JSON_OBJECTAGG/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:41~1:61) /test/1/catalog1/split_window_json/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(1:94~1:102) /test/1/catalog1/schema1/GROUPING/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__104]
+sql:
+SELECT i,j,f,JSON_OBJECTAGG(i,j) OVER w,RANK() OVER w,NTH_VALUE(i,2) OVER w,LEAD(f,1) OVER w,LAG(f,1) OVER w FROM split_window_json.t1 WINDOW w AS (PARTITION BY i ORDER BY j);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:13~1:27) /test/1/catalog1/schema1/JSON_OBJECTAGG/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:40~1:44) /test/1/catalog1/schema1/RANK/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:54~1:63) /test/1/catalog1/schema1/NTH_VALUE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:76~1:80) /test/1/catalog1/schema1/LEAD/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:93~1:96) /test/1/catalog1/schema1/LAG/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:114~1:134) /test/1/catalog1/split_window_json/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__105]
+sql:
+SELECT i,j,f,JSON_OBJECTAGG(i,j) OVER w,RANK() OVER w FROM split_window_json.t1 WINDOW w AS (PARTITION BY f ORDER BY j ROWS BETWEEN 2 PRECEDING AND 1 PRECEDING);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:13~1:27) /test/1/catalog1/schema1/JSON_OBJECTAGG/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:40~1:44) /test/1/catalog1/schema1/RANK/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:59~1:79) /test/1/catalog1/split_window_json/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__106]
+sql:
+SELECT 0&(JSON_ARRAYAGG(1) OVER w) FROM (SELECT 1) d WINDOW w AS ();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:10~1:23) /test/1/catalog1/schema1/JSON_ARRAYAGG/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__107]
+sql:
+SELECT MAKETIME(1<=>JSON_OBJECTAGG('1',1) OVER (),'1',1),MAKETIME(1<=>(2*JSON_OBJECTAGG('1',1) OVER ()),'1',1),1+CAST(JSON_OBJECTAGG(1,2) OVER () AS DECIMAL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/MAKETIME/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:20~1:34) /test/1/catalog1/schema1/JSON_OBJECTAGG/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:113~1:117) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__108]
+sql:
+SELECT JSON_OBJECTAGG(k,i) OVER (ORDER BY k ROWS CURRENT ROW),JSON_OBJECTAGG(k,i) OVER (ORDER BY i ROWS CURRENT ROW) FROM split_window_json.dup;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:21) /test/1/catalog1/schema1/JSON_OBJECTAGG/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:122~1:143) /test/1/catalog1/split_window_json/dup/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__109]
+sql:
+SELECT 1 MEMBER (JSON_ARRAY(1,2));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:17~1:27) /test/1/catalog1/schema1/JSON_ARRAY/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__110]
+sql:
+SELECT id,doc,doc->'$.score',doc->>'$.name',
+               JSON_TYPE(doc),JSON_DEPTH(doc),JSON_STORAGE_SIZE(doc)
+        FROM split_type_json.json_core
+        ORDER BY CAST(doc->>'$.score' AS UNSIGNED),id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:15~2:24) /test/1/catalog1/schema1/JSON_TYPE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(2:30~2:40) /test/1/catalog1/schema1/JSON_DEPTH/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(2:46~2:63) /test/1/catalog1/schema1/JSON_STORAGE_SIZE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(3:13~3:38) /test/1/catalog1/split_type_json/json_core/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(4:17~4:21) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__111]
+sql:
+SELECT a.id,b.id,a.doc->>'$.name'
+        FROM split_type_json.json_core AS a
+        JOIN split_type_json.json_core AS b
+          ON a.doc->>'$.kind'=b.doc->>'$.kind'
+         AND JSON_OVERLAPS(a.payload,b.payload)
+        WHERE a.id<b.id
+        ORDER BY a.id,b.id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:13~2:38) /test/1/catalog1/split_type_json/json_core/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(5:13~5:26) /test/1/catalog1/schema1/JSON_OVERLAPS/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__112]
+sql:
+SELECT o.id,o.doc
+        FROM split_type_json.json_core AS o
+        WHERE EXISTS (
+          SELECT 1 FROM split_type_json.json_core AS i
+          WHERE i.id<>o.id
+            AND JSON_CONTAINS(
+                  i.payload,JSON_QUOTE(o.doc->>'$.kind'),'$.tags'
+                )
+        );
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:13~2:38) /test/1/catalog1/split_type_json/json_core/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(6:16~6:29) /test/1/catalog1/schema1/JSON_CONTAINS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(7:28~7:38) /test/1/catalog1/schema1/JSON_QUOTE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__113]
+sql:
+SELECT d.kind,COUNT(*),JSON_ARRAYAGG(d.name_text),
+               JSON_OBJECTAGG(d.id,d.score)
+        FROM (
+          SELECT id,doc->>'$.kind' AS kind,
+                 doc->>'$.name' AS name_text,
+                 CAST(doc->>'$.score' AS UNSIGNED) AS score
+          FROM split_type_json.json_core
+        ) AS d
+        GROUP BY d.kind
+        HAVING MAX(d.score)>=10;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:14~1:19) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:23~1:36) /test/1/catalog1/schema1/JSON_ARRAYAGG/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(2:15~2:29) /test/1/catalog1/schema1/JSON_OBJECTAGG/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(6:17~6:21) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(7:15~7:40) /test/1/catalog1/split_type_json/json_core/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(10:15~10:18) /test/1/catalog1/schema1/MAX/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__114]
+sql:
+SELECT doc FROM split_type_json.json_core WHERE id<3
+        UNION ALL
+        SELECT JSON_OBJECT(
+                 'max_score',
+                 (SELECT MAX(CAST(doc->>'$.score' AS UNSIGNED))
+                  FROM split_type_json.json_core)
+               );
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:16~1:41) /test/1/catalog1/split_type_json/json_core/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(3:15~3:26) /test/1/catalog1/schema1/JSON_OBJECT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(5:25~5:28) /test/1/catalog1/schema1/MAX/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(5:29~5:33) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__115]
+sql:
+SELECT id,doc
+        FROM split_type_json.json_mvi_inline
+        WHERE 94536 MEMBER OF (doc->'$.zipcodes')
+           OR JSON_CONTAINS(doc->'$.zipcodes','94536')
+           OR JSON_OVERLAPS(doc->'$.zipcodes','[94536,94582]');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:13~2:44) /test/1/catalog1/split_type_json/json_mvi_inline/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(4:14~4:27) /test/1/catalog1/schema1/JSON_CONTAINS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(5:14~5:27) /test/1/catalog1/schema1/JSON_OVERLAPS/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__116]
+sql:
+SELECT c.id,jt.ord,jt.tag
+        FROM split_type_json.json_core AS c
+        JOIN JSON_TABLE(
+               c.payload,
+               '$.tags[*]' COLUMNS (
+                 ord FOR ORDINALITY,
+                 tag VARCHAR(32) PATH '$'
+               )
+             ) AS jt
+        WHERE jt.tag IS NOT NULL
+        ORDER BY c.id,jt.ord;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:13~2:38) /test/1/catalog1/split_type_json/json_core/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__117]
+sql:
+WITH json_scores AS (
+          SELECT id,
+                 JSON_VALUE(
+                   doc,'$.kind' RETURNING CHAR(32)
+                 ) AS kind,
+                 JSON_VALUE(
+                   doc,'$.score' RETURNING UNSIGNED
+                   DEFAULT 0 ON EMPTY
+                 ) AS score
+          FROM split_type_json.json_core
+        )
+        SELECT id,kind,score,
+               ROW_NUMBER() OVER (
+                 PARTITION BY kind ORDER BY score DESC,id
+               ) AS rn,
+               SUM(score) OVER (
+                 PARTITION BY kind ORDER BY id
+               ) AS running_score
+        FROM json_scores;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(3:17~3:27) /test/1/catalog1/schema1/JSON_VALUE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(10:15~10:40) /test/1/catalog1/split_type_json/json_core/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(13:15~13:25) /test/1/catalog1/schema1/ROW_NUMBER/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(16:15~16:18) /test/1/catalog1/schema1/SUM/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__118]
+sql:
+SELECT JSON_VALUE('[1,2]','$[*]' RETURNING SIGNED ERROR ON ERROR);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/JSON_VALUE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__119]
+sql:
+SELECT JSON_VALUE('{"data":123}','$.num' RETURNING SIGNED DEFAULT 'asdf' ON EMPTY);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/JSON_VALUE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__120]
+sql:
+SELECT JSON_VALUE('{"data":123}', '.data' RETURNING SIGNED ERROR ON ERROR);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/JSON_VALUE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__121]
+sql:
+SELECT JSON_VALUE('{"data":"asd"}','$.data' RETURNING SIGNED DEFAULT 321 ON ERROR);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/JSON_VALUE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__122]
+sql:
+SELECT JSON_VALUE('"abcd"','$' RETURNING CHAR(3) DEFAULT 'xyz' ON ERROR);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/JSON_VALUE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__123]
+sql:
+SELECT * FROM JSON_TABLE('[{"a":1},{"a":[0,1]}]','$[*]' COLUMNS(a INT PATH '$.a' ERROR ON ERROR)) AS jt;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__124]
+sql:
+SELECT * FROM JSON_TABLE('!bad','$[*]' COLUMNS(id FOR ORDINALITY)) AS jt;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__125]
+sql:
+SELECT * FROM JSON_TABLE('[1]','!bad' COLUMNS(id FOR ORDINALITY)) AS jt;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__126]
+sql:
+SELECT * FROM JSON_TABLE('[1]','$[*]' COLUMNS(x INT PATH '!bad')) AS jt;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__127]
+sql:
+SELECT * FROM JSON_TABLE('[1]','$[*]' COLUMNS(id FOR ORDINALITY,id FOR ORDINALITY)) AS jt;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__128]
+sql:
+SELECT * FROM JSON_TABLE('"asdf"','$' COLUMNS(a INT PATH '$' ERROR ON ERROR)) AS jt;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__129]
+sql:
+SELECT * FROM JSON_TABLE('123.456','$' COLUMNS(a DECIMAL(2,1) PATH '$' ERROR ON ERROR)) AS jt;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__130]
+sql:
+SELECT * FROM JSON_TABLE('{}','$' COLUMNS(x INT PATH '$.x' DEFAULT 0 ON EMPTY)) AS jt;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__131]
+sql:
+SELECT JSON_SCHEMA_VALIDATION_REPORT();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:36) /test/1/catalog1/schema1/JSON_SCHEMA_VALIDATION_REPORT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__132]
+sql:
+SELECT JSON_SCHEMA_VALIDATION_REPORT(NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:36) /test/1/catalog1/schema1/JSON_SCHEMA_VALIDATION_REPORT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__133]
+sql:
+SELECT JSON_SCHEMA_VALIDATION_REPORT(NULL,NULL,NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:36) /test/1/catalog1/schema1/JSON_SCHEMA_VALIDATION_REPORT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__134]
+sql:
+SELECT JSON_MERGE_PRESERVE();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:26) /test/1/catalog1/schema1/JSON_MERGE_PRESERVE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__135]
+sql:
+SELECT JSON_MERGE_PRESERVE('[1]');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:26) /test/1/catalog1/schema1/JSON_MERGE_PRESERVE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__136]
+sql:
+SELECT JSON_EXTRACT('{"a":1}', '$.a') AS je, COUNT(DISTINCT a) FROM split_json_rollup GROUP BY je WITH ROLLUP;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/JSON_EXTRACT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:45~1:50) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:68~1:85) /test/1/catalog1/schema1/split_json_rollup/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__137]
+sql:
+SELECT SUM(col_int), col_int FROM split_json_column AS table1 WHERE table1.pk = table1.pk;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/SUM/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:34~1:51) /test/1/catalog1/schema1/split_json_column/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__138]
+sql:
+SELECT JSON_ARRAY(_utf8mb4'abc') = JSON_ARRAY(_binary'abc');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/JSON_ARRAY/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__139]
+sql:
+SELECT * FROM split_json_prepare WHERE JSON_LENGTH(?, a BETWEEN ? AND ?);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:32) /test/1/catalog1/schema1/split_json_prepare/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(1:39~1:50) /test/1/catalog1/schema1/JSON_LENGTH/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__140]
+sql:
+SELECT JSON_SEARCH(?,?,?,?);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/JSON_SEARCH/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__141]
+sql:
+SELECT JSON_SEARCH(?,?,?,"x",?);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/JSON_SEARCH/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__142]
+sql:
+SELECT * FROM JSON_TABLE(?, '$[*]' COLUMNS(a INT PATH '$.a')) AS jt;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__143]
+sql:
+SELECT CAST((SELECT 1) AS JSON);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__144]
+sql:
+SELECT JSON_EXTRACT(col_json, ?) FROM t_reuse ORDER BY pk;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/JSON_EXTRACT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:38~1:45) /test/1/catalog1/schema1/t_reuse/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__145]
+sql:
+SELECT JSON_CONTAINS('{"a":[1]}','[1]',?);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:20) /test/1/catalog1/schema1/JSON_CONTAINS/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__146]
+sql:
+SELECT JSON_CONTAINS_PATH('{"a":1}','all',?);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:25) /test/1/catalog1/schema1/JSON_CONTAINS_PATH/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__147]
+sql:
+SELECT JSON_LENGTH('{"a":[1]}',?);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/JSON_LENGTH/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__148]
+sql:
+SELECT JSON_KEYS('[{"a":1}]',?);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/JSON_KEYS/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__149]
+sql:
+SELECT JSON_ARRAY_APPEND('{"a":[1]}',?,2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:24) /test/1/catalog1/schema1/JSON_ARRAY_APPEND/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__150]
+sql:
+SELECT JSON_INSERT('{"a":[1]}',?,2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/JSON_INSERT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__151]
+sql:
+SELECT JSON_SET('{"a":[1]}',?,2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/JSON_SET/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__152]
+sql:
+SELECT JSON_REPLACE('{"a":[1]}',?,2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/JSON_REPLACE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__153]
+sql:
+SELECT JSON_REMOVE('{"a":[1]}',?);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/JSON_REMOVE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__154]
+sql:
+SELECT JSON_SEARCH('{"a":"foo"}','all','foo%',NULL,?);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/JSON_SEARCH/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__155]
+sql:
+SELECT JSON_SEARCH('{"a":"foo"}',?,'foo%');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/JSON_SEARCH/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__156]
+sql:
+SELECT JSON_CONTAINS_PATH('{"a":1}',?,'$.a','$.b');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:25) /test/1/catalog1/schema1/JSON_CONTAINS_PATH/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__157]
+sql:
+SELECT JSON_ARRAY(?,?,?,?,?,?);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/JSON_ARRAY/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__158]
+sql:
+SELECT JSON_OBJECT('a',?,'b',?);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/JSON_OBJECT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select_session_variable_rw__159]
+sql:
+SELECT JSON_ARRAY_INSERT(@j,'$[1]',?);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:24) /test/1/catalog1/schema1/JSON_ARRAY_INSERT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "ConfigKey(1:25~1:27) /test/1/j/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__160]
+sql:
+SELECT JSON_OVERLAPS('true',?);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:20) /test/1/catalog1/schema1/JSON_OVERLAPS/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__161]
+sql:
+SELECT JSON_CONTAINS('{"a":"x"}',?,'$.a');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:20) /test/1/catalog1/schema1/JSON_CONTAINS/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__162]
+sql:
+SELECT JSON_MERGE_PATCH('[1,2]',?);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:23) /test/1/catalog1/schema1/JSON_MERGE_PATCH/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__163]
+sql:
+SELECT JSON_MERGE_PRESERVE('[1,2]',?);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:26) /test/1/catalog1/schema1/JSON_MERGE_PRESERVE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__164]
+sql:
+SELECT * FROM t1 WHERE ? MEMBER OF (c1->'$');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:16) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__165]
+sql:
+SELECT * FROM t1 WHERE j->'$.int'=?;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:16) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__166]
+sql:
+SELECT * FROM t1 WHERE j->>'$.int'=?;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:16) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__167]
+sql:
+SELECT CAST(? AS JSON);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__168]
+sql:
+SELECT CAST('"123"' AS JSON)=JSON_EXTRACT(?,'$');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:29~1:41) /test/1/catalog1/schema1/JSON_EXTRACT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__169]
+sql:
+SELECT CAST('"123"' AS JSON) IN (?,?);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__170]
+sql:
+SELECT * FROM JSON_TABLE('"x"','$' COLUMNS(x VARCHAR(10) CHARSET utf8mb4 COLLATE utf8mb4_bin PATH '$')) AS jt;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__171]
+sql:
+SELECT * FROM JSON_TABLE(JSON_OBJECT(),_utf8mb4'$' COLUMNS(NESTED PATH _utf8mb4'$.x' COLUMNS(y INT PATH _utf8mb4'$.y' DEFAULT _utf8mb4'1' ON EMPTY DEFAULT _utf8mb4'2' ON ERROR))) AS jt;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:25~1:36) /test/1/catalog1/schema1/JSON_OBJECT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__172]
+sql:
+SELECT jt1.data1,jt2.id2 FROM (SELECT CAST('[1,2]' AS JSON) AS jd) AS t,JSON_TABLE(jd,'$' COLUMNS(data1 JSON PATH '$')) AS jt1,JSON_TABLE(data1,'$[*]' COLUMNS(id2 INT PATH '$')) AS jt2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:38~1:42) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__173]
+sql:
+WITH cte_query AS (SELECT jtcol1 FROM (SELECT 1 AS i) AS t,JSON_TABLE(JSON_OBJECT('ISSKF',i),'$[*]' COLUMNS(jtcol1 INT EXISTS PATH '$[*]')) AS jt) SELECT jtcol1 FROM cte_query;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:70~1:81) /test/1/catalog1/schema1/JSON_OBJECT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__174]
+sql:
+SELECT jt.i FROM (SELECT 1) AS t STRAIGHT_JOIN JSON_TABLE(JSON_ARRAY(1),'$[*]' COLUMNS(i INT PATH '$')) AS jt;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:58~1:68) /test/1/catalog1/schema1/JSON_ARRAY/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__175]
+sql:
+SELECT MAX(t.x) OVER () AS m,jt.* FROM (SELECT 1 AS x) AS t,JSON_TABLE(JSON_ARRAY(m),'$[*]' COLUMNS(i INT PATH '$')) AS jt;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/MAX/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:71~1:81) /test/1/catalog1/schema1/JSON_ARRAY/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__176]
+sql:
+SELECT JSON_VALUE('{}','$.x' RETURNING CHAR(10) CHARSET utf16 DEFAULT 'abc' ON EMPTY);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/JSON_VALUE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__177]
+sql:
+SELECT * FROM JSON_TABLE((SELECT '[1,2]'),'$[*]' COLUMNS(v INT PATH '$')) AS jt;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__178]
+sql:
+SELECT * FROM JSON_TABLE('[{"a":2,"n":[{"l":1},{"l":11}]}]','$[*]' COLUMNS(id FOR ORDINALITY,jpath VARCHAR(50) PATH '$.a' DEFAULT '33' ON EMPTY DEFAULT '66' ON ERROR,jsn_path JSON PATH '$.n' DEFAULT '{"x":33}' ON EMPTY,jexst INT EXISTS PATH '$.b',NESTED PATH '$.n[*]' COLUMNS(id_n FOR ORDINALITY,jpath_n VARCHAR(50) PATH '$.l'),NESTED PATH '$.n[*]' COLUMNS(id_m FOR ORDINALITY,jpath_m VARCHAR(50) PATH '$.l'))) AS jt;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}

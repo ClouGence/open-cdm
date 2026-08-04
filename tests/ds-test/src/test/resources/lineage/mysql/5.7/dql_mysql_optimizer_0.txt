@@ -1,0 +1,495 @@
+[dql_mysql_optimizer_0.0012]
+sql:
+SELECT /*+ INDEX_MERGE(t1) INDEX_MERGE(t1 f2,f3,f4) */ f2 FROM split_opt_hints_merge.t1 AS t1 WHERE f4='h' AND f2=2 AND f3='b';
+expect:
+{
+  "f2" : [ "(1:55~1:57) /catalog1/split_opt_hints_merge/t1/f2/" ]
+}
+----------
+[dql_mysql_optimizer_0.0013]
+sql:
+SELECT /*+ INDEX_MERGE(t1 f2,f3,f4) NO_INDEX_MERGE(t1) */ f2 FROM split_opt_hints_merge.t1 AS t1 WHERE f4='h' AND f2=2 AND f3='b';
+expect:
+{
+  "f2" : [ "(1:58~1:60) /catalog1/split_opt_hints_merge/t1/f2/" ]
+}
+----------
+[dql_mysql_optimizer_0.0014]
+sql:
+SELECT /*+ INDEX_MERGE(missing f9,f10) */ f2 FROM split_opt_hints_merge.t1 AS t1 WHERE f4='h' AND f2=2 AND f3='b';
+expect:
+{
+  "f2" : [ "(1:42~1:44) /catalog1/split_opt_hints_merge/t1/f2/" ]
+}
+----------
+[dql_mysql_optimizer_0.0015]
+sql:
+SELECT /*+ INDEX_MERGE(t1 f4,f2) */ COUNT(*) FROM split_opt_hints_merge.t1 AS t1 WHERE f4='h' AND f2=2;
+expect:
+{
+  "COUNT(*)" : [ ]
+}
+----------
+[dql_mysql_optimizer_0.0016]
+sql:
+SELECT /*+ INDEX_MERGE(t1 PRIMARY,f4,f3) */ COUNT(*) FROM split_opt_hints_merge.t1 AS t1 WHERE f4='h' AND f3='b' AND f5='i';
+expect:
+{
+  "COUNT(*)" : [ ]
+}
+----------
+[dql_mysql_optimizer_0.0017]
+sql:
+SELECT /*+ NO_INDEX_MERGE(t1) */ COUNT(*) FROM split_opt_hints_merge.t1 AS t1 WHERE f4='h' AND f2=2 AND f3='b';
+expect:
+{
+  "COUNT(*)" : [ ]
+}
+----------
+[dql_mysql_optimizer_0.0018]
+sql:
+SELECT /*+ NO_INDEX_MERGE(t1 f4) */ COUNT(*) FROM split_opt_hints_merge.t1 AS t1 WHERE f4='h' AND f2=2;
+expect:
+{
+  "COUNT(*)" : [ ]
+}
+----------
+[dql_mysql_optimizer_0.0019]
+sql:
+SELECT /*+ INDEX_MERGE(t1 f2,f3,f4) */ f1 FROM split_opt_hints_merge.t1 AS t1 WHERE f2=5 OR f3='c' OR f4='f';
+expect:
+{
+  "f1" : [ "(1:39~1:41) /catalog1/split_opt_hints_merge/t1/f1/" ]
+}
+----------
+[dql_mysql_optimizer_0.0020]
+sql:
+SELECT /*+ NO_INDEX_MERGE(t1 f2,f3,f4) */ f1 FROM split_opt_hints_merge.t1 AS t1 WHERE f2=5 OR f3='c' OR f4='f';
+expect:
+{
+  "f1" : [ "(1:42~1:44) /catalog1/split_opt_hints_merge/t1/f1/" ]
+}
+----------
+[dql_mysql_optimizer_0.0021]
+sql:
+SELECT /*+ INDEX_MERGE(t1 f2,f4) */ * FROM split_opt_hints_merge.t1 AS t1 WHERE (f2 BETWEEN 5 AND 6 OR f3='c') AND (f2 BETWEEN 5 AND 6 OR f4='f');
+expect:
+{
+  "id" : [ "(1:36~1:37) /catalog1/split_opt_hints_merge/t1/id/" ]
+}
+----------
+[dql_mysql_optimizer_0.0022]
+sql:
+SELECT /*+ INDEX_MERGE(t1) */ COUNT(*) FROM split_opt_hints_merge.t1 AS t1 WHERE (f4='h' AND f2=2 AND f3='b') OR (f7='d' AND f6='e');
+expect:
+{
+  "COUNT(*)" : [ ]
+}
+----------
+[dql_mysql_optimizer_0.0023]
+sql:
+SELECT /*+ INDEX_MERGE(t1 f3,f4) */ * FROM split_opt_hints_merge.t1 AS t1 IGNORE INDEX(f3) WHERE f2=400 AND (f3='x' OR f4='n');
+expect:
+{
+  "id" : [ "(1:36~1:37) /catalog1/split_opt_hints_merge/t1/id/" ]
+}
+----------
+[dql_mysql_optimizer_0.0024]
+sql:
+SELECT /*+ INDEX_MERGE(t1 f2,f3,f4) */ f2 FROM split_opt_hints_merge.t1 AS t1 FORCE INDEX(f2,f3) WHERE f4='h' AND f2=2 AND f3='b';
+expect:
+{
+  "f2" : [ "(1:39~1:41) /catalog1/split_opt_hints_merge/t1/f2/" ]
+}
+----------
+[dql_mysql_optimizer_0.0025]
+sql:
+SELECT /*+ INDEX_MERGE(t1 f2,f3,f4) */ f2 FROM split_opt_hints_merge.t1 AS t1 USE INDEX(f2,f3) WHERE f4='h' AND f2=2 AND f3='b';
+expect:
+{
+  "f2" : [ "(1:39~1:41) /catalog1/split_opt_hints_merge/t1/f2/" ]
+}
+----------
+[dql_mysql_optimizer_0.0026]
+sql:
+SELECT /*+ INDEX_MERGE(t1 f3,PRIMARY) */ f2 FROM split_opt_hints_merge.t1 AS t1 WHERE f1=99 AND f2=f3 AND f3<='4';
+expect:
+{
+  "f2" : [ "(1:41~1:43) /catalog1/split_opt_hints_merge/t1/f2/" ]
+}
+----------
+[dql_mysql_optimizer_0.0027]
+sql:
+SELECT /*+ QB_NAME(q1) INDEX_MERGE(@q1 t1 f2,f3) NO_INDEX_MERGE(t1@q1 f4) */ f1 FROM split_opt_hints_merge.t1 AS t1 WHERE f2=5 OR f3='c' OR f4='f';
+expect:
+{
+  "f1" : [ "(1:77~1:79) /catalog1/split_opt_hints_merge/t1/f1/" ]
+}
+----------
+[dql_mysql_optimizer_0.0028]
+sql:
+SELECT /*+ INDEX(t1) JOIN_INDEX(t1) */ a FROM split_opt_hints_index.t1 AS t1;
+expect:
+{
+  "a" : [ "(1:39~1:40) /catalog1/split_opt_hints_index/t1/a/" ]
+}
+----------
+[dql_mysql_optimizer_0.0029]
+sql:
+SELECT /*+ INDEX(t1 i_a,i_b,i_c) INDEX(t1 i_d) */ a FROM split_opt_hints_index.t1 AS t1;
+expect:
+{
+  "a" : [ "(1:50~1:51) /catalog1/split_opt_hints_index/t1/a/" ]
+}
+----------
+[dql_mysql_optimizer_0.0030]
+sql:
+SELECT /*+ INDEX(t1 i_a) JOIN_INDEX(t1 i_a,i_b) GROUP_INDEX(t1 i_b) ORDER_INDEX(t1 i_c) */ a FROM split_opt_hints_index.t1 AS t1 WHERE a=1 AND b=1 GROUP BY a ORDER BY a;
+expect:
+{
+  "a" : [ "(1:91~1:92) /catalog1/split_opt_hints_index/t1/a/" ]
+}
+----------
+[dql_mysql_optimizer_0.0031]
+sql:
+SELECT /*+ INDEX(t1 i_a,i_b) */ a FROM split_opt_hints_index.t1 AS t1 WHERE a=1 AND b=2 AND c=3;
+expect:
+{
+  "a" : [ "(1:32~1:33) /catalog1/split_opt_hints_index/t1/a/" ]
+}
+----------
+[dql_mysql_optimizer_0.0032]
+sql:
+SELECT /*+ NO_INDEX(t1 i_ab) */ a,MAX(b) FROM split_opt_hints_index.t1 AS t1 WHERE b=2 GROUP BY a;
+expect:
+{
+  "a" : [ "(1:32~1:33) /catalog1/split_opt_hints_index/t1/a/" ],
+  "MAX(b)" : [ "(1:38~1:39) /catalog1/split_opt_hints_index/t1/b/" ]
+}
+----------
+[dql_mysql_optimizer_0.0033]
+sql:
+SELECT /*+ NO_JOIN_INDEX(t1 i_ab) */ a,MAX(b) FROM split_opt_hints_index.t1 AS t1 WHERE b=2 GROUP BY a;
+expect:
+{
+  "a" : [ "(1:37~1:38) /catalog1/split_opt_hints_index/t1/a/" ],
+  "MAX(b)" : [ "(1:43~1:44) /catalog1/split_opt_hints_index/t1/b/" ]
+}
+----------
+[dql_mysql_optimizer_0.0034]
+sql:
+SELECT /*+ NO_GROUP_INDEX(t1 i_a) */ a,COUNT(*) FROM split_opt_hints_index.t1 AS t1 GROUP BY a;
+expect:
+{
+  "a" : [ "(1:37~1:38) /catalog1/split_opt_hints_index/t1/a/" ],
+  "COUNT(*)" : [ ]
+}
+----------
+[dql_mysql_optimizer_0.0035]
+sql:
+SELECT /*+ NO_ORDER_INDEX(t1 i_ab) */ a FROM split_opt_hints_index.t1 AS t1 ORDER BY a;
+expect:
+{
+  "a" : [ "(1:38~1:39) /catalog1/split_opt_hints_index/t1/a/" ]
+}
+----------
+[dql_mysql_optimizer_0.0036]
+sql:
+SELECT /*+ NO_INDEX(t1) */ * FROM split_opt_hints_index.t1 AS t1 WHERE a=1 AND b=2 AND c=3;
+expect:
+{
+  "id" : [ "(1:27~1:28) /catalog1/split_opt_hints_index/t1/id/" ]
+}
+----------
+[dql_mysql_optimizer_0.0037]
+sql:
+SELECT /*+ INDEX_MERGE(t1) */ * FROM split_opt_hints_index.t1 AS t1 IGNORE INDEX(i_a) WHERE a=1 AND b=2 AND c=3;
+expect:
+{
+  "id" : [ "(1:30~1:31) /catalog1/split_opt_hints_index/t1/id/" ]
+}
+----------
+[dql_mysql_optimizer_0.0038]
+sql:
+SELECT /*+ INDEX(t1 i_a) */ * FROM split_opt_hints_index.t1 AS t1 IGNORE INDEX(i_a) WHERE a=1 AND b=2 AND c=3;
+expect:
+{
+  "id" : [ "(1:28~1:29) /catalog1/split_opt_hints_index/t1/id/" ]
+}
+----------
+[dql_mysql_optimizer_0.0039]
+sql:
+SELECT /*+ NO_ORDER_INDEX(ft ft_x) */ doc_id,MATCH(x) AGAINST('abc') AS m FROM split_opt_hints_index.ft AS ft WHERE MATCH(x) AGAINST('abc') ORDER BY MATCH(x) AGAINST('abc') DESC;
+expect:
+{
+  "doc_id" : [ "(1:38~1:44) /catalog1/split_opt_hints_index/ft/doc_id/" ],
+  "m" : [ "(1:51~1:52) /catalog1/split_opt_hints_index/ft/x/" ]
+}
+----------
+[dql_mysql_optimizer_0.0040]
+sql:
+SELECT /*+ ORDER_INDEX(ft ft_x) */ doc_id,MATCH(x) AGAINST('abc') AS m FROM split_opt_hints_index.ft AS ft WHERE MATCH(x) AGAINST('abc') ORDER BY MATCH(x) AGAINST('abc') DESC;
+expect:
+{
+  "doc_id" : [ "(1:35~1:41) /catalog1/split_opt_hints_index/ft/doc_id/" ],
+  "m" : [ "(1:48~1:49) /catalog1/split_opt_hints_index/ft/x/" ]
+}
+----------
+[dql_mysql_optimizer_0.0041]
+sql:
+SELECT /*+ JOIN_INDEX(ft ft_x) */ * FROM split_opt_hints_index.ft AS ft WHERE MATCH(x) AGAINST('abc');
+expect:
+{
+  "id" : [ "(1:34~1:35) /catalog1/split_opt_hints_index/ft/id/" ]
+}
+----------
+[dql_mysql_optimizer_0.0042]
+sql:
+SELECT /*+ NO_JOIN_INDEX(ft ft_x) */ * FROM split_opt_hints_index.ft AS ft WHERE MATCH(x) AGAINST('abc');
+expect:
+{
+  "id" : [ "(1:37~1:38) /catalog1/split_opt_hints_index/ft/id/" ]
+}
+----------
+[dql_mysql_optimizer_0.0043]
+sql:
+SELECT /*+ NO_JOIN_INDEX(t1) */ a FROM split_opt_hints_index.t1 AS t1 WHERE a=1;
+expect:
+{
+  "a" : [ "(1:32~1:33) /catalog1/split_opt_hints_index/t1/a/" ]
+}
+----------
+[dql_mysql_optimizer_0.0044]
+sql:
+SELECT /*+ QB_NAME(q1) INDEX(@q1 t1 i_a) NO_INDEX(t1@q1 i_b) */ * FROM split_opt_hints_index.t1 AS t1 WHERE a>=1;
+expect:
+{
+  "id" : [ "(1:64~1:65) /catalog1/split_opt_hints_index/t1/id/" ]
+}
+----------
+[dql_mysql_optimizer_0.0047]
+sql:
+SELECT /*+ NO_RANGE_OPTIMIZATION(t1 PRIMARY, idx_b) */ a FROM split_opt_hints_native.t1 WHERE a BETWEEN 1 AND 3;
+expect:
+{
+  "a" : [ "(1:55~1:56) /catalog1/split_opt_hints_native/t1/a/" ]
+}
+----------
+[dql_mysql_optimizer_0.0048]
+sql:
+SELECT /*+ NO_ICP(t1@inner_q idx_c) */ c FROM (SELECT /*+ QB_NAME(inner_q) */ a,b,c FROM split_opt_hints_native.t1 WHERE c='x') AS d WHERE d.a>0;
+expect:
+{
+  "c" : [ "(1:82~1:83) /catalog1/split_opt_hints_native/t1/c/" ]
+}
+----------
+[dql_mysql_optimizer_0.0049]
+sql:
+SELECT /*+ BKA() */ t2.a FROM split_opt_hints_native.t1 JOIN split_opt_hints_native.t2 ON t1.a=t2.a;
+expect:
+{
+  "a" : [ "(1:20~1:24) /catalog1/split_opt_hints_native/t2/a/" ]
+}
+----------
+[dql_mysql_optimizer_0.0050]
+sql:
+SELECT /*+ QB_NAME(outer_q) BKA(t2@outer_q) NO_BKA(t3@outer_q) */ t1.a FROM split_opt_hints_native.t1 JOIN split_opt_hints_native.t2 ON t1.a=t2.a JOIN split_opt_hints_native.t3 ON t3.b=t2.b;
+expect:
+{
+  "a" : [ "(1:66~1:70) /catalog1/split_opt_hints_native/t1/a/" ]
+}
+----------
+[dql_mysql_optimizer_0.0051]
+sql:
+SELECT /*+ BKA(@inner_q t2) */ * FROM (SELECT /*+ QB_NAME(inner_q) */ t2.a,t2.b FROM split_opt_hints_native.t1 JOIN split_opt_hints_native.t2 ON t1.a=t2.a) AS d;
+expect:
+{
+  "a" : [ "(1:70~1:74) /catalog1/split_opt_hints_native/t2/a/" ],
+  "b" : [ "(1:75~1:79) /catalog1/split_opt_hints_native/t2/b/" ]
+}
+----------
+[dql_mysql_optimizer_0.0052]
+sql:
+SELECT * FROM (SELECT /*+ QB_NAME(inner_q) BKA(@inner_q t1@inner_q, t2@inner_q, t3) */ t1.a FROM split_opt_hints_native.t1,split_opt_hints_native.t2,split_opt_hints_native.t3) AS d;
+expect:
+{
+  "a" : [ "(1:87~1:91) /catalog1/split_opt_hints_native/t1/a/" ]
+}
+----------
+[dql_mysql_optimizer_0.0053]
+sql:
+SELECT * FROM (SELECT /*+ QB_NAME(inner_q) NO_BKA(@inner_q t1@inner_q, t2@inner_q, t3) */ t1.a FROM split_opt_hints_native.t1,split_opt_hints_native.t2,split_opt_hints_native.t3) AS d;
+expect:
+{
+  "a" : [ "(1:90~1:94) /catalog1/split_opt_hints_native/t1/a/" ]
+}
+----------
+[dql_mysql_optimizer_0.0054]
+sql:
+SELECT /*+ BNL(t2,t3) */ t1.a FROM split_opt_hints_native.t1,split_opt_hints_native.t2,split_opt_hints_native.t3 WHERE t1.a=t2.a AND t2.b=t3.b;
+expect:
+{
+  "a" : [ "(1:25~1:29) /catalog1/split_opt_hints_native/t1/a/" ]
+}
+----------
+[dql_mysql_optimizer_0.0055]
+sql:
+SELECT /*+ QB_NAME(outer_q) NO_BNL(t1,t2) */ t1.a FROM split_opt_hints_native.t1 JOIN split_opt_hints_native.t2 ON t1.a=t2.a;
+expect:
+{
+  "a" : [ "(1:45~1:49) /catalog1/split_opt_hints_native/t1/a/" ]
+}
+----------
+[dql_mysql_optimizer_0.0056]
+sql:
+SELECT /*+ NO_BNL(@sub_q t2,t3) */ t1.a FROM split_opt_hints_native.t1 WHERE t1.a IN (SELECT /*+ QB_NAME(sub_q) */ t2.a FROM split_opt_hints_native.t2 JOIN split_opt_hints_native.t3 ON t2.b=t3.b);
+expect:
+{
+  "a" : [ "(1:35~1:39) /catalog1/split_opt_hints_native/t1/a/" ]
+}
+----------
+[dql_mysql_optimizer_0.0057]
+sql:
+SELECT /*+ MRR(t1 idx_b) */ * FROM split_opt_hints_native.t1 WHERE b BETWEEN 1 AND 3;
+expect:
+{
+  "id" : [ "(1:28~1:29) /catalog1/split_opt_hints_native/t1/id/" ]
+}
+----------
+[dql_mysql_optimizer_0.0058]
+sql:
+SELECT /*+ NO_MRR(t1 idx_b, idx_c) */ * FROM split_opt_hints_native.t1 WHERE b<=3 AND c='x';
+expect:
+{
+  "id" : [ "(1:38~1:39) /catalog1/split_opt_hints_native/t1/id/" ]
+}
+----------
+[dql_mysql_optimizer_0.0059]
+sql:
+SELECT /*+ QB_NAME(q1) NO_ICP(@q1 t1 PRIMARY) NO_ICP(@q1 t1 PRIMARY) */ * FROM split_opt_hints_native.t1;
+expect:
+{
+  "id" : [ "(1:72~1:73) /catalog1/split_opt_hints_native/t1/id/" ]
+}
+----------
+[dql_mysql_optimizer_0.0060]
+sql:
+SELECT /*+ QB_NAME(`a b`) BKA(t1@`a b`) */ * FROM split_opt_hints_native.t1;
+expect:
+{
+  "id" : [ "(1:43~1:44) /catalog1/split_opt_hints_native/t1/id/" ]
+}
+----------
+[dql_mysql_optimizer_0.0061]
+sql:
+SELECT /*+ QB_NAME(1a) BKA(t1@1a) */ * FROM split_opt_hints_native.t1;
+expect:
+{
+  "id" : [ "(1:37~1:38) /catalog1/split_opt_hints_native/t1/id/" ]
+}
+----------
+[dql_mysql_optimizer_0.0062]
+sql:
+SELECT /*+*/ 1;
+expect:
+{
+  "1" : [ ]
+}
+----------
+[dql_mysql_optimizer_0.0063]
+sql:
+SELECT /*+ NO_ICP( */ 1;
+expect:
+{
+  "1" : [ ]
+}
+----------
+[dql_mysql_optimizer_0.0064]
+sql:
+SELECT t1.a FROM split_opt_hints_native.t1 AS t1 /*+ regular commentary, not a hint */ WHERE t1.a=1;
+expect:
+{
+  "a" : [ "(1:7~1:11) /catalog1/split_opt_hints_native/t1/a/" ]
+}
+----------
+[dql_mysql_optimizer_0.0065]
+sql:
+SELECT /*+ MERGE(dt1) NO_MERGE(dt2) */ * FROM (SELECT a FROM split_opt_hints_native.t1) AS dt1 JOIN (SELECT a FROM split_opt_hints_native.t2) AS dt2 USING(a);
+expect:
+{
+  "a" : [ "(1:54~1:55) /catalog1/split_opt_hints_native/t1/a/", "(1:108~1:109) /catalog1/split_opt_hints_native/t2/a/" ]
+}
+----------
+[dql_mysql_optimizer_0.0066]
+sql:
+SELECT /*+ NO_MERGE(@sub_q dt) */ t1.a FROM split_opt_hints_native.t1 WHERE t1.a IN (SELECT /*+ QB_NAME(sub_q) */ dt.a FROM (SELECT a FROM split_opt_hints_native.t2) AS dt);
+expect:
+{
+  "a" : [ "(1:34~1:38) /catalog1/split_opt_hints_native/t1/a/" ]
+}
+----------
+[dql_mysql_optimizer_0.0067]
+sql:
+SELECT /*+ NO_BKA(t2) NO_BNL(t3) BKA(t4) */ t1.a FROM split_opt_hints_native.t1 AS t1 JOIN split_opt_hints_native.t2 AS t2 ON t1.a=t2.a LEFT JOIN split_opt_hints_native.t2 AS t3 ON t2.b=t3.b LEFT JOIN split_opt_hints_native.t2 AS t4 ON t3.a=t4.a;
+expect:
+{
+  "a" : [ "(1:44~1:48) /catalog1/split_opt_hints_native/t1/a/" ]
+}
+----------
+[dql_mysql_optimizer_0.0068]
+sql:
+SELECT /*+ QB_NAME(q1) MRR(t1@q1 idx_b) NO_MRR(t1@q1 idx_c) */ * FROM split_opt_hints_native.t1 AS t1 WHERE b>=1;
+expect:
+{
+  "id" : [ "(1:63~1:64) /catalog1/split_opt_hints_native/t1/id/" ]
+}
+----------
+[dql_mysql_optimizer_0.0069]
+sql:
+SELECT /*+
+  BKA(t1@qb1)
+  BNL(@qb1 t1)
+  DUPSWEEDOUT
+  FIRSTMATCH
+  INTOEXISTS
+  LOOSESCAN
+  MATERIALIZATION
+  MRR(t1)
+  NO_BKA(t2)
+  NO_BNL(t2)
+  NO_ICP(t2)
+  NO_MRR(t2)
+  NO_RANGE_OPTIMIZATION(t2)
+  NO_SEMIJOIN(t2)
+  QB_NAME(qb1)
+  SEMIJOIN(t1)
+  SUBQUERY(t1)
+*/ * FROM t1, t2;
+expect:
+[ {
+  "sources" : [ "(19:3~19:4) /catalog1/schema1/t1/id/" ],
+  "column" : "id"
+}, {
+  "sources" : [ "(19:3~19:4) /catalog1/schema1/t2/id/" ],
+  "column" : "id"
+} ]
+----------
+[dql_mysql_optimizer_0.0071]
+sql:
+SELECT /*+ MAX_EXECUTION_TIME(4294967295) */ * FROM t2, t1;
+expect:
+[ {
+  "sources" : [ "(1:45~1:46) /catalog1/schema1/t2/id/" ],
+  "column" : "id"
+}, {
+  "sources" : [ "(1:45~1:46) /catalog1/schema1/t1/id/" ],
+  "column" : "id"
+} ]
+----------
+[dql_mysql_optimizer_0.0072]
+sql:
+SELECT /*+ bad_hint_also_goes_to_digest */ 1;
+expect:
+{
+  "1" : [ ]
+}

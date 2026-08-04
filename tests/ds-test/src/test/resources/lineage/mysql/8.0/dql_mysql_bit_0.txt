@@ -1,0 +1,134 @@
+[dql_mysql_bit_0.0001]
+sql:
+SELECT CHARSET(b'1000001'),CHARSET(0b1100001);
+expect:
+{
+  "CHARSET(b'1000001')" : [ ],
+  "CHARSET(0b1100001)" : [ ]
+}
+----------
+[dql_mysql_bit_0.0002]
+sql:
+SELECT _latin1 b'1000001',_utf8mb4 0b1000001 COLLATE utf8mb4_danish_ci;
+expect:
+{
+  "_latin1 b'1000001'" : [ ],
+  "_utf8mb4 0b1000001 COLLATE utf8mb4_danish_ci" : [ ]
+}
+----------
+[dql_mysql_bit_0.0003]
+sql:
+SELECT CHARSET(b''),LENGTH(b''),b''+0;
+expect:
+{
+  "CHARSET(b'')" : [ ],
+  "LENGTH(b'')" : [ ],
+  "b''+0" : [ ]
+}
+----------
+[dql_mysql_bit_0.0004]
+sql:
+SELECT b'1100001',b'1100001'+0,CAST(b'1100001' AS UNSIGNED);
+expect:
+{
+  "b'1100001'" : [ ],
+  "b'1100001'+0" : [ ],
+  "CAST(b'1100001' AS UNSIGNED)" : [ ]
+}
+----------
+[dql_mysql_bit_0.0005]
+sql:
+SELECT HEX(_binary b'000010101' | _binary b'000101010');
+expect:
+{
+  "HEX(_binary b'000010101' | _binary b'000101010')" : [ ]
+}
+----------
+[dql_mysql_bit_0.0006]
+sql:
+SELECT BIN(0b11111111),OCT(0b11111111),HEX(0b11111111),BIN(0xFF),OCT(0xFF),HEX(0xFF);
+expect:
+{
+  "BIN(0b11111111)" : [ ],
+  "OCT(0b11111111)" : [ ],
+  "HEX(0b11111111)" : [ ],
+  "BIN(0xFF)" : [ ],
+  "OCT(0xFF)" : [ ],
+  "HEX(0xFF)" : [ ]
+}
+----------
+[dql_mysql_bit_0.0007]
+sql:
+SELECT HEX(MIN(b)),HEX(MAX(b)),b+0,COUNT(DISTINCT a) FROM bit_t GROUP BY b;
+expect:
+{
+  "HEX(MIN(b))" : [ "(1:15~1:16) /catalog1/schema1/bit_t/b/" ],
+  "HEX(MAX(b))" : [ "(1:27~1:28) /catalog1/schema1/bit_t/b/" ],
+  "b+0" : [ "(1:31~1:32) /catalog1/schema1/bit_t/b/" ],
+  "COUNT(DISTINCT a)" : [ "(1:50~1:51) /catalog1/schema1/bit_t/a/" ]
+}
+----------
+[dql_mysql_bit_0.0008]
+sql:
+SELECT HEX(GROUP_CONCAT(DISTINCT b)) FROM bit_t GROUP BY a;
+expect:
+{
+  "HEX(GROUP_CONCAT(DISTINCT b))" : [ "(1:33~1:34) /catalog1/schema1/bit_t/b/" ]
+}
+----------
+[dql_mysql_bit_0.0009]
+sql:
+SELECT SQL_SMALL_RESULT b FROM bit_t WHERE b<=1 AND b>0 GROUP BY b ORDER BY b;
+expect:
+{
+  "b" : [ "(1:24~1:25) /catalog1/schema1/bit_t/b/" ]
+}
+----------
+[dql_mysql_bit_0.0010]
+sql:
+SELECT b+0,CONCAT(b),BIN(b+0),OCT(b+0),HEX(b),CONV(b+0,10,2) FROM bit_values;
+expect:
+{
+  "b+0" : [ "(1:7~1:8) /catalog1/schema1/bit_values/b/" ],
+  "CONCAT(b)" : [ "(1:18~1:19) /catalog1/schema1/bit_values/b/" ],
+  "BIN(b+0)" : [ "(1:25~1:26) /catalog1/schema1/bit_values/b/" ],
+  "OCT(b+0)" : [ "(1:34~1:35) /catalog1/schema1/bit_values/b/" ],
+  "HEX(b)" : [ "(1:43~1:44) /catalog1/schema1/bit_values/b/" ],
+  "CONV(b+0,10,2)" : [ "(1:51~1:52) /catalog1/schema1/bit_values/b/" ]
+}
+----------
+[dql_mysql_bit_0.0011]
+sql:
+SELECT id,b+0 FROM bit_values WHERE b=TRUE OR b=FALSE OR b<0 OR b BETWEEN b'1' AND 255 ORDER BY b DESC;
+expect:
+{
+  "id" : [ "(1:7~1:9) /catalog1/schema1/bit_values/id/" ],
+  "b+0" : [ "(1:10~1:11) /catalog1/schema1/bit_values/b/" ]
+}
+----------
+[dql_mysql_bit_0.0012]
+sql:
+SELECT v.id,v.b+0,i.n FROM bit_values AS v JOIN bit_ints AS i ON v.b=i.n WHERE v.b IS NOT NULL;
+expect:
+{
+  "id" : [ "(1:7~1:11) /catalog1/schema1/bit_values/id/" ],
+  "v.b+0" : [ "(1:12~1:15) /catalog1/schema1/bit_values/b/" ],
+  "n" : [ "(1:18~1:21) /catalog1/schema1/bit_ints/n/" ]
+}
+----------
+[dql_mysql_bit_0.0013]
+sql:
+SELECT b FROM bit_values UNION ALL SELECT NULL UNION ALL SELECT 1 UNION ALL SELECT b'10';
+expect:
+{
+  "b" : [ "(1:7~1:8) /catalog1/schema1/bit_values/b/" ]
+}
+----------
+[dql_mysql_bit_0.0014]
+sql:
+SELECT HEX(b),COUNT(a) OVER(PARTITION BY b) FROM bit_t;
+expect:
+{
+  "HEX(b)" : [ "(1:11~1:12) /catalog1/schema1/bit_t/b/" ],
+  "COUNT(a) OVER(PARTITION BY b)" : [ "(1:20~1:21) /catalog1/schema1/bit_t/a/", "(1:41~1:42) /catalog1/schema1/bit_t/b/" ]
+}

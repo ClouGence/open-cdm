@@ -1,0 +1,17 @@
+[split_dql_dameng_xmlparser_0_001]
+sql:
+select object_name, object_type, status
+from dba_objects
+where object_name='DBMS_XMLPARSER'
+order by object_type;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(2:5~2:16) /test/1/catalog1/schema1/dba_objects/",
+      "action": "READ"
+    }
+  ]
+}

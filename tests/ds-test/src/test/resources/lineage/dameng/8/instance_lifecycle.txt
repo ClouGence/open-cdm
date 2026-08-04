@@ -1,0 +1,47 @@
+[instance_mount_has_no_result_lineage]
+sql:
+alter database mount
+expect:
+{}
+----------
+[instance_open_has_no_result_lineage]
+sql:
+alter database open
+expect:
+{}
+----------
+[instance_suspend_has_no_result_lineage]
+sql:
+alter database suspend
+expect:
+{}
+----------
+[instance_archivelog_has_no_result_lineage]
+sql:
+alter database archivelog
+expect:
+{}
+----------
+[instance_archive_current_has_no_result_lineage]
+sql:
+alter database archivelog current
+expect:
+{}
+----------
+[instance_noarchivelog_has_no_result_lineage]
+sql:
+alter database noarchivelog
+expect:
+{}
+----------
+[instance_open_force_has_no_result_lineage]
+sql:
+alter database open force
+expect:
+{}
+----------
+[instance_normal_has_no_result_lineage]
+sql:
+alter database normal
+expect:
+{}

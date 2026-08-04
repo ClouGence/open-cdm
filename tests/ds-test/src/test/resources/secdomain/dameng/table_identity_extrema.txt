@@ -1,0 +1,49 @@
+[table_identity_create]
+sql:
+create table app.table_ident_max(id int identity(2147483647,-1), note int)
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"CREATE_TABLE", "schema":"app", "table":"table_ident_max"}
+  ]
+}
+----------
+[table_auto_alter]
+sql:
+alter table app.table_auto_alt auto_increment=20
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"ALTER_TABLE", "schema":"app", "table":"table_auto_alt"}
+  ]
+}
+----------
+[table_identity_insert_on]
+sql:
+set identity_insert app.table_ident_state on with replace null
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"TRANSACTION", "schema":"app", "table":"table_ident_state"}
+  ]
+}
+----------
+[table_identity_insert_off]
+sql:
+set identity_insert app.table_ident_state off
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"TRANSACTION", "schema":"app", "table":"table_ident_state"}
+  ]
+}
+----------
+[table_identity_select]
+sql:
+select id,note from app.table_ident_state
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "schema":"app", "table":"table_ident_state"}
+  ]
+}

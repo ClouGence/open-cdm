@@ -1,0 +1,79 @@
+[split_block_dameng_dbms_advanced_rewrite_signature_combinations_0_001]
+sql:
+-- FUNC-0235 ALTER_REWRITE_EQUIVALENCE Pack29 public signature
+begin DBMS_ADVANCED_REWRITE.ALTER_REWRITE_EQUIVALENCE('CODEX_AR_RULE','DISABLED'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:53) /test/1/catalog1/DBMS_ADVANCED_REWRITE/ALTER_REWRITE_EQUIVALENCE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_advanced_rewrite_signature_combinations_0_002]
+sql:
+-- FUNC-0236 DECLARE_REWRITE_EQUIVALENCE Pack29 public signature
+begin DBMS_ADVANCED_REWRITE.DECLARE_REWRITE_EQUIVALENCE('CODEX_AR_RULE','SELECT 1 FROM DUAL','SELECT 2 FROM DUAL',FALSE,'TEXT_MATCH'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:55) /test/1/catalog1/DBMS_ADVANCED_REWRITE/DECLARE_REWRITE_EQUIVALENCE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_advanced_rewrite_signature_combinations_0_003]
+sql:
+-- FUNC-0237 DROP_REWRITE_EQUIVALENCE Pack29 one-argument signature
+begin DBMS_ADVANCED_REWRITE.DROP_REWRITE_EQUIVALENCE('CODEX_AR_RULE'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:52) /test/1/catalog1/DBMS_ADVANCED_REWRITE/DROP_REWRITE_EQUIVALENCE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_advanced_rewrite_signature_combinations_0_004]
+sql:
+-- FUNC-0238 DROP_REWRITE_EQUIVALENCE documented two-argument Pack29 gap
+begin DBMS_ADVANCED_REWRITE.DROP_REWRITE_EQUIVALENCE('CODEX_AR_RULE','SYSDBA'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:52) /test/1/catalog1/DBMS_ADVANCED_REWRITE/DROP_REWRITE_EQUIVALENCE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_advanced_rewrite_signature_combinations_0_005]
+sql:
+-- FUNC-0239 VALIDATE_REWRITE_EQUIVALENCE Pack29 public signature
+begin DBMS_ADVANCED_REWRITE.VALIDATE_REWRITE_EQUIVALENCE('CODEX_AR_RULE'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:56) /test/1/catalog1/DBMS_ADVANCED_REWRITE/VALIDATE_REWRITE_EQUIVALENCE/",
+      "action": "CALL"
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+select dbms_lock.request(901001, 1, 0, true);
+select dbms_lock.request(901002, 2, 0, true);
+select dbms_lock.request(901003, 3, 0, true);
+select dbms_lock.request(901004, 4, 0, true);
+select dbms_lock.request(901005, 5, 0, true);
+select dbms_lock.request(901006, 6, 0, true);
+select dbms_lock.release(901014);
+select count(*) from v$dbms_locks;
+select dbms_pipe.unique_session_name();
+select dbms_pipe.create_pipe('CODEX_DM8_PIPE_017', 8192, false);
+select dbms_pipe.remove_pipe('CODEX_DM8_PIPE_017');
+select dbms_pipe.receive_message('CODEX_DM8_PIPE_025', 0);
+select count(*) from v$db_pipes;
+select utl_compress.lz_compress(cast('434F444558' as varbinary(64)));
+select utl_compress.lz_compress(cast('434F444558' as varbinary(64)), 1);
+select utl_compress.lz_compress(cast('434F444558' as varbinary(64)), 6);
+select utl_compress.lz_compress(cast('434F444558' as varbinary(64)), 9);
+select utl_compress.lz_uncompress(utl_compress.lz_compress(cast('434F444558' as varbinary(64))));
+select utl_compress.lz_compress(src => cast('434F444558' as varbinary(64)), quality => 5);
+select utl_compress.lz_uncompress(src => utl_compress.lz_compress(cast('434F444558' as varbinary(64))));
+select utl_compress.lz_compress(cast('' as varbinary(64)));
+select utl_compress.lz_uncompress(utl_compress.lz_compress(cast('' as varbinary(64))));
+select utl_compress.lz_compress(cast('434F4445582D444D382D434F4D5052455353' as varbinary(128)), 9);
+select name, subtype$, valid from sysobjects where name in ('JDOM_T', 'JSON_ELEMENT_T', 'JSON_SCALAR_T', 'JSON_ARRAY_T', 'JSON_OBJECT_T', 'JSON_KEY_LIST') order by name, type$;
+------------------------------------------------------------------------------------------
+[SELECT|CALL_PROG_OBJ] select dbms_lock.request(901001, 1, 0, true);
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_lock.request(901002, 2, 0, true);
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_lock.request(901003, 3, 0, true);
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_lock.request(901004, 4, 0, true);
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_lock.request(901005, 5, 0, true);
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_lock.request(901006, 6, 0, true);
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_lock.release(901014);
+----------
+[SELECT] select count(*) from v$dbms_locks;
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_pipe.unique_session_name();
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_pipe.create_pipe('CODEX_DM8_PIPE_017', 8192, false);
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_pipe.remove_pipe('CODEX_DM8_PIPE_017');
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_pipe.receive_message('CODEX_DM8_PIPE_025', 0);
+----------
+[SELECT] select count(*) from v$db_pipes;
+----------
+[SELECT|CALL_PROG_OBJ] select utl_compress.lz_compress(cast('434F444558' as varbinary(64)));
+----------
+[SELECT|CALL_PROG_OBJ] select utl_compress.lz_compress(cast('434F444558' as varbinary(64)), 1);
+----------
+[SELECT|CALL_PROG_OBJ] select utl_compress.lz_compress(cast('434F444558' as varbinary(64)), 6);
+----------
+[SELECT|CALL_PROG_OBJ] select utl_compress.lz_compress(cast('434F444558' as varbinary(64)), 9);
+----------
+[SELECT|CALL_PROG_OBJ] select utl_compress.lz_uncompress(utl_compress.lz_compress(cast('434F444558' as varbinary(64))));
+----------
+[SELECT|CALL_PROG_OBJ] select utl_compress.lz_compress(src => cast('434F444558' as varbinary(64)), quality => 5);
+----------
+[SELECT|CALL_PROG_OBJ] select utl_compress.lz_uncompress(src => utl_compress.lz_compress(cast('434F444558' as varbinary(64))));
+----------
+[SELECT|CALL_PROG_OBJ] select utl_compress.lz_compress(cast('' as varbinary(64)));
+----------
+[SELECT|CALL_PROG_OBJ] select utl_compress.lz_uncompress(utl_compress.lz_compress(cast('' as varbinary(64))));
+----------
+[SELECT|CALL_PROG_OBJ] select utl_compress.lz_compress(cast('434F4445582D444D382D434F4D5052455353' as varbinary(128)), 9);
+----------
+[SELECT] select name, subtype$, valid from sysobjects where name in ('JDOM_T', 'JSON_ELEMENT_T', 'JSON_SCALAR_T', 'JSON_ARRAY_T', 'JSON_OBJECT_T', 'JSON_KEY_LIST') order by name, type$;

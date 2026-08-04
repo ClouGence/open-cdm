@@ -1,0 +1,64 @@
+[select_join]
+sql:
+select * from owner1.t1 join t2 on t1.id = t2.id
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:23) /test/1/catalog1/owner1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:29~1:31) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[create_view]
+sql:
+create view v1 as select * from source_tab
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:14) /test/1/catalog1/schema1/v1/",
+      "action" : "CREATE",
+      "target" : "Table(1:32~1:42) /test/1/catalog1/schema1/source_tab/"
+    }
+  ]
+}
+----------
+[call_procedure]
+sql:
+call proc1()
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:5~1:10) /test/1/catalog1/schema1/proc1/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[constant_select_from_dual]
+sql:
+select 1 from dual
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:18) /test/1/catalog1/schema1/dual/",
+      "action" : "READ"
+    }
+  ]
+}

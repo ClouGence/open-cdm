@@ -1,0 +1,29 @@
+SELECT 1 AS id, 'alpha' AS name
+INTO OUTFILE URI 's3://split-bucket/full.csv'
+FORMAT CSV
+COMPRESSION GZIP
+HEADER ON
+CHARACTER SET utf8mb4
+FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' ESCAPED BY '\\'
+LINES TERMINATED BY '\n';
+SELECT 1 INTO OUTFILE URL 'https://example.com/no-header.csv' HEADER OFF;
+SELECT 1 INTO OUTFILE WITH PARAMETERS '{"uri":"s3://split-bucket/params.csv","format":"csv"}';
+SELECT 1 INTO OUTFILE URI 's3://split-bucket/out.csv';
+SELECT 1 INTO OUTFILE URL 'https://example.com/out.csv';
+------------------------------------------------------------------------------------------
+[DATA_EXPORT|SELECT] SELECT 1 AS id, 'alpha' AS name
+INTO OUTFILE URI 's3://split-bucket/full.csv'
+FORMAT CSV
+COMPRESSION GZIP
+HEADER ON
+CHARACTER SET utf8mb4
+FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' ESCAPED BY '\\'
+LINES TERMINATED BY '\n';
+----------
+[DATA_EXPORT|SELECT] SELECT 1 INTO OUTFILE URL 'https://example.com/no-header.csv' HEADER OFF;
+----------
+[DATA_EXPORT|SELECT] SELECT 1 INTO OUTFILE WITH PARAMETERS '{"uri":"s3://split-bucket/params.csv","format":"csv"}';
+----------
+[DATA_EXPORT|SELECT] SELECT 1 INTO OUTFILE URI 's3://split-bucket/out.csv';
+----------
+[DATA_EXPORT|SELECT] SELECT 1 INTO OUTFILE URL 'https://example.com/out.csv';

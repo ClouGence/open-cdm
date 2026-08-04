@@ -1,0 +1,44 @@
+[utl_smtp_procedure_domains]
+sql:
+declare c utl_smtp.connection; begin
+c:=utl_smtp.open_connection('smtp.example.invalid');
+utl_smtp.helo(c,'dm8.local');
+utl_smtp.command(c,'AUTH LOGIN');
+utl_smtp.mail(c,'sender@example.invalid');
+utl_smtp.rcpt(c,'receiver@example.invalid');
+utl_smtp.open_data(c);
+utl_smtp.write_data(c,'text');
+utl_smtp.write_raw_data(c,cast('41' as varbinary(8)));
+utl_smtp.close_data(c);
+utl_smtp.quit(c);
+end;
+expect:
+{
+  "contains": [
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"utl_smtp"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"utl_smtp"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"utl_smtp"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"utl_smtp"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"utl_smtp"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"utl_smtp"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"utl_smtp"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"utl_smtp"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"utl_smtp"}
+  ]
+}
+----------
+[utl_smtp_function_expressions_no_domain]
+sql:
+declare c utl_smtp.connection; r utl_smtp.reply; rs utl_smtp.replies; begin
+c:=utl_smtp.open_connection('smtp.example.invalid');
+r:=utl_smtp.helo(c,'dm8.local');
+rs:=utl_smtp.ehlo(c,'dm8.local');
+r:=utl_smtp.command(c,'NOOP');
+r:=utl_smtp.mail(c,'sender@example.invalid');
+r:=utl_smtp.rcpt(c,'receiver@example.invalid');
+r:=utl_smtp.open_data(c);
+r:=utl_smtp.close_data(c);
+r:=utl_smtp.quit(c);
+end;
+expect:
+{"size":0}

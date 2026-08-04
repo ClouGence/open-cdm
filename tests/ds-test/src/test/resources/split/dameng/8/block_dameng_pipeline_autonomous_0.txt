@@ -1,0 +1,343 @@
+create type pipe_row_type as object(
+  id int,
+  name varchar(80)
+);
+/
+create type pipe_table_type as table of pipe_row_type;
+/
+create or replace function pipe_all_rows return pipe_table_type pipelined
+is
+  v_row pipe_row_type;
+begin
+  for rec in (select id, name from pipeline_source order by id) loop
+    v_row := pipe_row_type(rec.id, rec.name);
+    pipe row(v_row);
+  end loop;
+exception
+  when others then null;
+end;
+/
+select * from table(pipe_all_rows()) order by id;
+select p.id, p.name from table(pipe_all_rows()) p where p.id >= 2 order by p.id;
+select count(*), min(id), max(id) from table(pipe_all_rows());
+select p.id, s.name from table(pipe_all_rows()) p join pipeline_source s on s.id = p.id order by p.id;
+with piped as (select * from table(pipe_all_rows())) select * from piped where id = 1;
+select * from pipeline_source where id in (select id from table(pipe_all_rows())) order by id;
+create or replace function pipe_limited_rows(p_limit int) return pipe_table_type authid current_user pipelined
+is
+begin
+  for rec in (select id, name from pipeline_source where id <= p_limit order by id) loop
+    pipe row(pipe_row_type(rec.id, rec.name));
+  end loop;
+end;
+/
+select * from table(pipe_limited_rows(2)) order by id;
+select id, row_number() over(order by id) as rn from table(pipe_limited_rows(3));
+create or replace function pipe_empty_rows return pipe_table_type deterministic pipelined
+is
+begin
+  null;
+exception
+  when others then null;
+end;
+/
+select count(*) from table(pipe_empty_rows());
+alter function pipe_all_rows compile;
+declare
+  pragma autonomous_transaction;
+begin
+  insert into autonomous_log values(101, 'ANON_COMMIT');
+  commit;
+end;
+/
+declare
+  pragma autonomous_transaction;
+begin
+  insert into autonomous_log values(102, 'ROLLED_BACK');
+  rollback;
+  insert into autonomous_log values(103, 'ANON_SECOND');
+  commit;
+end;
+/
+create or replace procedure autonomous_insert(p_id int, p_message varchar)
+is
+  pragma autonomous_transaction;
+begin
+  insert into autonomous_log values(p_id, p_message);
+  commit;
+end;
+/
+call autonomous_insert(104, 'PROCEDURE');
+create or replace procedure autonomous_multi_tx
+is
+  pragma autonomous_transaction;
+begin
+  insert into autonomous_log values(105, 'ROLLBACK_FIRST');
+  rollback;
+  insert into autonomous_log values(106, 'COMMIT_SECOND');
+  commit;
+end;
+/
+call autonomous_multi_tx;
+create or replace procedure autonomous_child
+is
+  pragma autonomous_transaction;
+begin
+  insert into autonomous_log values(107, 'NESTED_CHILD');
+  commit;
+end;
+/
+create or replace procedure autonomous_parent
+is
+  pragma autonomous_transaction;
+begin
+  call autonomous_child;
+  insert into autonomous_log values(108, 'NESTED_PARENT');
+  commit;
+end;
+/
+call autonomous_parent;
+create or replace trigger autonomous_log_trigger
+after insert on autonomous_trigger_source
+for each row
+declare
+  pragma autonomous_transaction;
+begin
+  insert into autonomous_log values(:new.id + 1000, :new.name);
+  commit;
+end;
+/
+insert into autonomous_trigger_source values(1, 'TRIGGER');
+select id, message from autonomous_log order by id;
+declare
+  pragma autonomous_transaction;
+begin
+  execute immediate 'insert into autonomous_log values(109, ''DYNAMIC'')';
+  commit;
+end;
+/
+declare
+  procedure nested_autonomous(p_id int) is
+    pragma autonomous_transaction;
+  begin
+    insert into autonomous_log values(p_id, 'LOCAL_PROCEDURE');
+    commit;
+  end;
+begin
+  nested_autonomous(110);
+end;
+/
+declare
+  pragma autonomous_transaction;
+begin
+  insert into autonomous_log values(111, 'SAVEPOINT_REMOVE');
+  savepoint before_second;
+  insert into autonomous_log values(112, 'SAVEPOINT_KEEP');
+  rollback to before_second;
+  insert into autonomous_log values(113, 'SAVEPOINT_FINAL');
+  commit;
+end;
+/
+declare
+  pragma autonomous_transaction;
+begin
+  insert into autonomous_log values(101, 'DUPLICATE');
+  commit;
+exception
+  when others then rollback;
+end;
+/
+drop trigger autonomous_log_trigger;
+drop procedure autonomous_parent;
+drop procedure autonomous_child;
+drop procedure autonomous_multi_tx;
+drop procedure autonomous_insert;
+drop function pipe_empty_rows;
+drop function pipe_limited_rows;
+drop function pipe_all_rows;
+drop type pipe_table_type;
+drop type pipe_row_type;
+------------------------------------------------------------------------------------------
+[CREATE_TYPE] create type pipe_row_type as object(
+  id int,
+  name varchar(80)
+);
+----------
+[CREATE_TYPE] create type pipe_table_type as table of pipe_row_type;
+----------
+[CREATE_PROG_OBJ(PROGRAM_CONTROL,BLOCK,CALL_PROG_OBJ)] create or replace function pipe_all_rows return pipe_table_type pipelined
+is
+  v_row pipe_row_type;
+begin
+  for rec in (select id, name from pipeline_source order by id) loop
+    v_row := pipe_row_type(rec.id, rec.name);
+    pipe row(v_row);
+  end loop;
+exception
+  when others then null;
+end;
+----------
+[SELECT|CALL_PROG_OBJ] select * from table(pipe_all_rows()) order by id;
+----------
+[SELECT|CALL_PROG_OBJ] select p.id, p.name from table(pipe_all_rows()) p where p.id >= 2 order by p.id;
+----------
+[SELECT|CALL_PROG_OBJ] select count(*), min(id), max(id) from table(pipe_all_rows());
+----------
+[SELECT|CALL_PROG_OBJ] select p.id, s.name from table(pipe_all_rows()) p join pipeline_source s on s.id = p.id order by p.id;
+----------
+[SELECT|CALL_PROG_OBJ] with piped as (select * from table(pipe_all_rows())) select * from piped where id = 1;
+----------
+[SELECT|CALL_PROG_OBJ] select * from pipeline_source where id in (select id from table(pipe_all_rows())) order by id;
+----------
+[CREATE_PROG_OBJ(BLOCK,PROGRAM_CONTROL,CALL_PROG_OBJ)] create or replace function pipe_limited_rows(p_limit int) return pipe_table_type authid current_user pipelined
+is
+begin
+  for rec in (select id, name from pipeline_source where id <= p_limit order by id) loop
+    pipe row(pipe_row_type(rec.id, rec.name));
+  end loop;
+end;
+----------
+[SELECT|CALL_PROG_OBJ] select * from table(pipe_limited_rows(2)) order by id;
+----------
+[SELECT|CALL_PROG_OBJ] select id, row_number() over(order by id) as rn from table(pipe_limited_rows(3));
+----------
+[CREATE_PROG_OBJ(BLOCK,PROGRAM_CONTROL)] create or replace function pipe_empty_rows return pipe_table_type deterministic pipelined
+is
+begin
+  null;
+exception
+  when others then null;
+end;
+----------
+[SELECT|CALL_PROG_OBJ] select count(*) from table(pipe_empty_rows());
+----------
+[ALTER_PROG_OBJ] alter function pipe_all_rows compile;
+----------
+[BLOCK(PROGRAM_CONTROL,INSERT,TRANSACTION)] declare
+  pragma autonomous_transaction;
+begin
+  insert into autonomous_log values(101, 'ANON_COMMIT');
+  commit;
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,INSERT,TRANSACTION)] declare
+  pragma autonomous_transaction;
+begin
+  insert into autonomous_log values(102, 'ROLLED_BACK');
+  rollback;
+  insert into autonomous_log values(103, 'ANON_SECOND');
+  commit;
+end;
+----------
+[CREATE_PROG_OBJ(PROGRAM_CONTROL,BLOCK,INSERT,TRANSACTION)] create or replace procedure autonomous_insert(p_id int, p_message varchar)
+is
+  pragma autonomous_transaction;
+begin
+  insert into autonomous_log values(p_id, p_message);
+  commit;
+end;
+----------
+[CALL_PROG_OBJ] call autonomous_insert(104, 'PROCEDURE');
+----------
+[CREATE_PROG_OBJ(PROGRAM_CONTROL,BLOCK,INSERT,TRANSACTION)] create or replace procedure autonomous_multi_tx
+is
+  pragma autonomous_transaction;
+begin
+  insert into autonomous_log values(105, 'ROLLBACK_FIRST');
+  rollback;
+  insert into autonomous_log values(106, 'COMMIT_SECOND');
+  commit;
+end;
+----------
+[CALL_PROG_OBJ] call autonomous_multi_tx;
+----------
+[CREATE_PROG_OBJ(PROGRAM_CONTROL,BLOCK,INSERT,TRANSACTION)] create or replace procedure autonomous_child
+is
+  pragma autonomous_transaction;
+begin
+  insert into autonomous_log values(107, 'NESTED_CHILD');
+  commit;
+end;
+----------
+[CREATE_PROG_OBJ(PROGRAM_CONTROL,BLOCK,CALL_PROG_OBJ,INSERT,TRANSACTION)] create or replace procedure autonomous_parent
+is
+  pragma autonomous_transaction;
+begin
+  call autonomous_child;
+  insert into autonomous_log values(108, 'NESTED_PARENT');
+  commit;
+end;
+----------
+[CALL_PROG_OBJ] call autonomous_parent;
+----------
+[CREATE_TRIGGER(BLOCK,PROGRAM_CONTROL,INSERT,TRANSACTION)] create or replace trigger autonomous_log_trigger
+after insert on autonomous_trigger_source
+for each row
+declare
+  pragma autonomous_transaction;
+begin
+  insert into autonomous_log values(:new.id + 1000, :new.name);
+  commit;
+end;
+----------
+[INSERT] insert into autonomous_trigger_source values(1, 'TRIGGER');
+----------
+[SELECT] select id, message from autonomous_log order by id;
+----------
+[BLOCK(PROGRAM_CONTROL,UNSAFE,TRANSACTION)] declare
+  pragma autonomous_transaction;
+begin
+  execute immediate 'insert into autonomous_log values(109, ''DYNAMIC'')';
+  commit;
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare
+  procedure nested_autonomous(p_id int) is
+    pragma autonomous_transaction;
+  begin
+    insert into autonomous_log values(p_id, 'LOCAL_PROCEDURE');
+    commit;
+  end;
+begin
+  nested_autonomous(110);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,INSERT,TRANSACTION)] declare
+  pragma autonomous_transaction;
+begin
+  insert into autonomous_log values(111, 'SAVEPOINT_REMOVE');
+  savepoint before_second;
+  insert into autonomous_log values(112, 'SAVEPOINT_KEEP');
+  rollback to before_second;
+  insert into autonomous_log values(113, 'SAVEPOINT_FINAL');
+  commit;
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,INSERT,TRANSACTION)] declare
+  pragma autonomous_transaction;
+begin
+  insert into autonomous_log values(101, 'DUPLICATE');
+  commit;
+exception
+  when others then rollback;
+end;
+----------
+[DROP_TRIGGER] drop trigger autonomous_log_trigger;
+----------
+[DROP_PROG_OBJ] drop procedure autonomous_parent;
+----------
+[DROP_PROG_OBJ] drop procedure autonomous_child;
+----------
+[DROP_PROG_OBJ] drop procedure autonomous_multi_tx;
+----------
+[DROP_PROG_OBJ] drop procedure autonomous_insert;
+----------
+[DROP_PROG_OBJ] drop function pipe_empty_rows;
+----------
+[DROP_PROG_OBJ] drop function pipe_limited_rows;
+----------
+[DROP_PROG_OBJ] drop function pipe_all_rows;
+----------
+[DROP_TYPE] drop type pipe_table_type;
+----------
+[DROP_TYPE] drop type pipe_row_type;

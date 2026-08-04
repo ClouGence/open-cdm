@@ -1079,8 +1079,8 @@ export default {
     },
     generateRowInsert(row) {
       const { dsType } = this.tab;
-      const { columnList, columnType, resource } = this.selectedTab;
-      const tableName = this.currentTableName || resource || 'my_table';
+      const { columnList, columnType } = this.selectedTab;
+      const tableName = this.currentTableName || 'my_table';
       this.currentTableName = tableName;
       let keyStr = '';
       const qualifier = this.getQualifier(dsType);
@@ -1323,7 +1323,7 @@ export default {
     },
     resetInsertOption() {
       const columns = Array.isArray(this.selectedTab?.columnList) ? this.selectedTab.columnList : [];
-      const tableName = this.selectedTab?.resource || 'table_name';
+      const tableName = 'table_name';
 
       let offset = 0;
       let limit = -1;

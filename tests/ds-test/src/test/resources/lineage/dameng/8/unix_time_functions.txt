@@ -1,0 +1,36 @@
+[unix_time_public_signatures]
+sql:
+select
+  unix_timestamp(timestamp '1970-01-01 00:00:00') as unix_value,
+  unix_timestamp() as current_unix_value,
+  from_unixtime(0) as timestamp_value,
+  from_unixtime(0,'%Y-%m-%d %H:%i:%s') as formatted_value,
+  to_days(date '1970-01-01') as day_value
+from dual
+expect:
+{
+  "unix_value": [],
+  "current_unix_value": [],
+  "timestamp_value": [],
+  "formatted_value": [],
+  "day_value": []
+}
+----------
+[unix_time_column_lineage]
+sql:
+select
+  unix_timestamp(t.created_at) as unix_value,
+  from_unixtime(t.epoch_seconds) as timestamp_value,
+  from_unixtime(t.epoch_seconds,t.date_format) as formatted_value,
+  to_days(t.updated_at) as day_value
+from catalog1.app.events t
+expect:
+{
+  "unix_value": ["/catalog1/app/events/created_at/"],
+  "timestamp_value": ["/catalog1/app/events/epoch_seconds/"],
+  "formatted_value": [
+    "/catalog1/app/events/epoch_seconds/",
+    "/catalog1/app/events/date_format/"
+  ],
+  "day_value": ["/catalog1/app/events/updated_at/"]
+}

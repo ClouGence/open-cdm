@@ -1,0 +1,177 @@
+create user table_vis_u1 identified by "Dm8Visible2026" encrypt by "Dm8VisibleKeyU1";
+create user table_vis_u2 identified by "Dm8Visible2026" encrypt by "Dm8VisibleKeyU2";
+create user table_vis_u3 identified by "Dm8Visible2026" encrypt by "Dm8VisibleKeyU3";
+create table table_vis_data(id int, secret varchar(40) encrypt manual user(table_vis_u1));
+grant select,insert,update on table_vis_data to table_vis_u1,table_vis_u2,table_vis_u3;
+insert into table_vis_data values(1,'U1_BEFORE_ADD');
+select id,secret from table_vis_data order by id;
+alter table table_vis_data alter column secret add user(table_vis_u2);
+select tabledef('SYSDBA','TABLE_VIS_DATA');
+select id,secret from table_vis_data order by id;
+insert into table_vis_data values(2,'U2_AFTER_ADD');
+alter table table_vis_data alter column secret drop user(table_vis_u1);
+select id,secret from table_vis_data order by id;
+alter table table_vis_data alter column secret drop user(table_vis_u1);
+alter table table_vis_data alter column secret add user(table_vis_u2);
+alter table table_vis_data alter column secret add user(table_vis_missing);
+alter table table_vis_data alter column secret add user(table_vis_u1,table_vis_u3);
+select tabledef('SYSDBA','TABLE_VIS_DATA');
+alter table table_vis_data alter column secret drop user(table_vis_u1,table_vis_u2,table_vis_u3);
+select tabledef('SYSDBA','TABLE_VIS_DATA');
+alter table table_vis_data alter column id add user(table_vis_u1);
+create table table_vis_transparent(id int, secret varchar(20) encrypt);
+alter table table_vis_transparent alter column secret add user(table_vis_u1);
+drop table table_vis_transparent purge;
+drop table table_vis_data purge;
+drop user table_vis_u1 cascade;
+drop user table_vis_u2 cascade;
+drop user table_vis_u3 cascade;
+create table table_cons_keep(id int constraint table_cons_keep_uq unique);
+alter table table_cons_keep drop constraint table_cons_keep_uq keep index;
+drop table table_cons_keep purge;
+create table table_cons_drop(id int constraint table_cons_drop_uq unique);
+alter table table_cons_drop drop constraint table_cons_drop_uq drop index;
+select count(*) from user_indexes where table_name='TABLE_CONS_DROP' and uniqueness='UNIQUE';
+drop table table_cons_drop purge;
+create table table_cons_default(id int constraint table_cons_default_uq unique);
+alter table table_cons_default drop constraint table_cons_default_uq;
+drop table table_cons_default purge;
+create table table_cons_parent(id int constraint table_cons_parent_uq unique);
+create table table_cons_child(id int constraint table_cons_child_fk references table_cons_parent(id));
+alter table table_cons_parent drop constraint table_cons_parent_uq restrict;
+alter table table_cons_parent drop constraint table_cons_parent_uq cascade drop index;
+select count(*) from user_constraints where constraint_name in('TABLE_CONS_PARENT_UQ','TABLE_CONS_CHILD_FK');
+drop table table_cons_child purge;
+drop table table_cons_parent purge;
+create table table_cons_check(id int constraint table_cons_check_ck check(id>0));
+alter table table_cons_check drop constraint table_cons_check_ck keep index;
+drop table table_cons_check purge;
+create table table_cons_state(id int);
+insert into table_cons_state values(1);
+insert into table_cons_state values(1);
+alter table table_cons_state add constraint table_cons_state_uq unique(id) novalidate;
+select status,validated from user_constraints where constraint_name='TABLE_CONS_STATE_UQ';
+alter table table_cons_state disable constraint table_cons_state_uq novalidate cascade;
+alter table table_cons_state modify constraint table_cons_state_uq enable novalidate;
+alter table table_cons_state modify constraint table_cons_state_uq disable validate cascade;
+alter table table_cons_state modify constraint table_cons_state_uq to check(id>0) novalidate;
+select constraint_type,status,validated from user_constraints where constraint_name='TABLE_CONS_STATE_UQ';
+drop table table_cons_state purge;
+------------------------------------------------------------------------------------------
+[CREATE_USER] create user table_vis_u1 identified by "Dm8Visible2026" encrypt by "Dm8VisibleKeyU1";
+----------
+[CREATE_USER] create user table_vis_u2 identified by "Dm8Visible2026" encrypt by "Dm8VisibleKeyU2";
+----------
+[CREATE_USER] create user table_vis_u3 identified by "Dm8Visible2026" encrypt by "Dm8VisibleKeyU3";
+----------
+[CREATE_TABLE|ADD_COLUMN] create table table_vis_data(id int, secret varchar(40) encrypt manual user(table_vis_u1));
+----------
+[GRANT] grant select,insert,update on table_vis_data to table_vis_u1,table_vis_u2,table_vis_u3;
+----------
+[INSERT] insert into table_vis_data values(1,'U1_BEFORE_ADD');
+----------
+[SELECT] select id,secret from table_vis_data order by id;
+----------
+[ALTER_TABLE|ALTER_COLUMN] alter table table_vis_data alter column secret add user(table_vis_u2);
+----------
+[SELECT] select tabledef('SYSDBA','TABLE_VIS_DATA');
+----------
+[SELECT] select id,secret from table_vis_data order by id;
+----------
+[INSERT] insert into table_vis_data values(2,'U2_AFTER_ADD');
+----------
+[ALTER_TABLE|ALTER_COLUMN] alter table table_vis_data alter column secret drop user(table_vis_u1);
+----------
+[SELECT] select id,secret from table_vis_data order by id;
+----------
+[ALTER_TABLE|ALTER_COLUMN] alter table table_vis_data alter column secret drop user(table_vis_u1);
+----------
+[ALTER_TABLE|ALTER_COLUMN] alter table table_vis_data alter column secret add user(table_vis_u2);
+----------
+[ALTER_TABLE|ALTER_COLUMN] alter table table_vis_data alter column secret add user(table_vis_missing);
+----------
+[ALTER_TABLE|ALTER_COLUMN] alter table table_vis_data alter column secret add user(table_vis_u1,table_vis_u3);
+----------
+[SELECT] select tabledef('SYSDBA','TABLE_VIS_DATA');
+----------
+[ALTER_TABLE|ALTER_COLUMN] alter table table_vis_data alter column secret drop user(table_vis_u1,table_vis_u2,table_vis_u3);
+----------
+[SELECT] select tabledef('SYSDBA','TABLE_VIS_DATA');
+----------
+[ALTER_TABLE|ALTER_COLUMN] alter table table_vis_data alter column id add user(table_vis_u1);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table table_vis_transparent(id int, secret varchar(20) encrypt);
+----------
+[ALTER_TABLE|ALTER_COLUMN] alter table table_vis_transparent alter column secret add user(table_vis_u1);
+----------
+[DROP_TABLE] drop table table_vis_transparent purge;
+----------
+[DROP_TABLE] drop table table_vis_data purge;
+----------
+[DROP_USER] drop user table_vis_u1 cascade;
+----------
+[DROP_USER] drop user table_vis_u2 cascade;
+----------
+[DROP_USER] drop user table_vis_u3 cascade;
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table table_cons_keep(id int constraint table_cons_keep_uq unique);
+----------
+[ALTER_TABLE|DROP_CONSTRAINT] alter table table_cons_keep drop constraint table_cons_keep_uq keep index;
+----------
+[DROP_TABLE] drop table table_cons_keep purge;
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table table_cons_drop(id int constraint table_cons_drop_uq unique);
+----------
+[ALTER_TABLE|DROP_CONSTRAINT] alter table table_cons_drop drop constraint table_cons_drop_uq drop index;
+----------
+[SELECT] select count(*) from user_indexes where table_name='TABLE_CONS_DROP' and uniqueness='UNIQUE';
+----------
+[DROP_TABLE] drop table table_cons_drop purge;
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table table_cons_default(id int constraint table_cons_default_uq unique);
+----------
+[ALTER_TABLE|DROP_CONSTRAINT] alter table table_cons_default drop constraint table_cons_default_uq;
+----------
+[DROP_TABLE] drop table table_cons_default purge;
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table table_cons_parent(id int constraint table_cons_parent_uq unique);
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table table_cons_child(id int constraint table_cons_child_fk references table_cons_parent(id));
+----------
+[ALTER_TABLE|DROP_CONSTRAINT] alter table table_cons_parent drop constraint table_cons_parent_uq restrict;
+----------
+[ALTER_TABLE|DROP_CONSTRAINT] alter table table_cons_parent drop constraint table_cons_parent_uq cascade drop index;
+----------
+[SELECT] select count(*) from user_constraints where constraint_name in('TABLE_CONS_PARENT_UQ','TABLE_CONS_CHILD_FK');
+----------
+[DROP_TABLE] drop table table_cons_child purge;
+----------
+[DROP_TABLE] drop table table_cons_parent purge;
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table table_cons_check(id int constraint table_cons_check_ck check(id>0));
+----------
+[ALTER_TABLE|DROP_CONSTRAINT] alter table table_cons_check drop constraint table_cons_check_ck keep index;
+----------
+[DROP_TABLE] drop table table_cons_check purge;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table table_cons_state(id int);
+----------
+[INSERT] insert into table_cons_state values(1);
+----------
+[INSERT] insert into table_cons_state values(1);
+----------
+[ALTER_TABLE|ADD_CONSTRAINT] alter table table_cons_state add constraint table_cons_state_uq unique(id) novalidate;
+----------
+[SELECT] select status,validated from user_constraints where constraint_name='TABLE_CONS_STATE_UQ';
+----------
+[ALTER_TABLE|DROP_CONSTRAINT] alter table table_cons_state disable constraint table_cons_state_uq novalidate cascade;
+----------
+[ALTER_TABLE|ALTER_CONSTRAINT] alter table table_cons_state modify constraint table_cons_state_uq enable novalidate;
+----------
+[ALTER_TABLE|ALTER_CONSTRAINT] alter table table_cons_state modify constraint table_cons_state_uq disable validate cascade;
+----------
+[ALTER_TABLE|ALTER_CONSTRAINT] alter table table_cons_state modify constraint table_cons_state_uq to check(id>0) novalidate;
+----------
+[SELECT] select constraint_type,status,validated from user_constraints where constraint_name='TABLE_CONS_STATE_UQ';
+----------
+[DROP_TABLE] drop table table_cons_state purge;

@@ -1,0 +1,48 @@
+[tablespace_lifecycle]
+sql:
+create tablespace codex_ts datafile '/opt/dmdbms/data/DAMENG/codex_ts.dbf' size 64;
+alter tablespace codex_ts cache=normal;
+drop tablespace codex_ts;
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"CREATE_TABLESPACE", "auditKind":"CREATE", "name":"codex_ts"},
+    {"class":"RdbObjectDomain", "sqlType":"ALTER_TABLESPACE", "auditKind":"ALTER", "name":"codex_ts"},
+    {"class":"RdbObjectDomain", "sqlType":"DROP_TABLESPACE", "auditKind":"DROP", "name":"codex_ts"}
+  ]
+}
+----------
+[tablespace_ordered_attributes]
+sql:
+create tablespace codex_ts_ordered datafile '/opt/dmdbms/data/DAMENG/codex_ts_ordered.dbf' size 64 autoextend on next 1 maxsize 128 cache=normal encrypt with DES_CFB by Dm8Pass2026 with huge path '/opt/dmdbms/data/DAMENG/codex_ts_ordered_huge' storage(on codex_raft)
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"CREATE_TABLESPACE", "auditKind":"CREATE", "name":"codex_ts_ordered"}
+  ]
+}
+----------
+[tablespace_rename_and_datafile]
+sql:
+alter tablespace codex_ts rename to codex_ts_new;
+alter tablespace codex_ts rename datafile '/opt/dmdbms/data/DAMENG/codex_ts.dbf' to '/opt/dmdbms/data/DAMENG/codex_ts_new.dbf';
+alter tablespace codex_ts add datafile '/opt/dmdbms/data/DAMENG/codex_ts_2.dbf' size 64;
+alter tablespace codex_ts drop datafile '/opt/dmdbms/data/DAMENG/codex_ts_2.dbf';
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"ALTER_TABLESPACE", "auditKind":"ALTER", "name":"codex_ts"}
+  ]
+}
+----------
+[tablespace_dictionary]
+sql:
+select tablespace_name, status, contents from sys.dba_tablespaces;
+select tablespace_name, file_name, bytes from sys.dba_data_files;
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"sys", "table":"dba_tablespaces"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"sys", "table":"dba_data_files"}
+  ]
+}

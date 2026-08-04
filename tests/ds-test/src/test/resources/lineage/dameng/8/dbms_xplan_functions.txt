@@ -1,0 +1,8 @@
+[dbms_xplan_history_columns]
+sql:
+select PLAN_HASH_VALUE, SQL_STR from catalog1.sys.sysplanhist
+expect:
+{
+  "PLAN_HASH_VALUE": ["/catalog1/sys/sysplanhist/PLAN_HASH_VALUE/"],
+  "SQL_STR": ["/catalog1/sys/sysplanhist/SQL_STR/"]
+}

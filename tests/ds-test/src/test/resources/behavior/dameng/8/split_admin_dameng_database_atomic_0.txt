@@ -1,0 +1,651 @@
+[split_admin_dameng_database_atomic_0_001]
+sql:
+-- RESIZE_LOGFILE
+alter database resize logfile '/opt/dmdbms/data/DAMENG/CODEX03.log' to 300;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:30~2:67) /test/1/opt/dmdbms/data/DAMENG/CODEX03.log/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_admin_dameng_database_atomic_0_002]
+sql:
+-- ADD_LOGFILE_ONE
+alter database add logfile '/opt/dmdbms/data/DAMENG/CODEX03.log' size 256;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:27~2:64) /test/1/opt/dmdbms/data/DAMENG/CODEX03.log/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_database_atomic_0_003]
+sql:
+-- ADD_LOGFILE_MULTIPLE
+alter database add logfile '/opt/dmdbms/data/DAMENG/CODEX04.log' size 256, '/opt/dmdbms/data/DAMENG/CODEX05.log' size 256;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:27~2:64) /test/1/opt/dmdbms/data/DAMENG/CODEX04.log/",
+      "action": "CREATE"
+    },
+    {
+      "subject": "File(2:75~2:112) /test/1/opt/dmdbms/data/DAMENG/CODEX05.log/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_database_atomic_0_004]
+sql:
+-- DROP_LOGFILE_CURRENT_OFFICIAL
+alter database drop logfile '/opt/dmdbms/data/DAMENG/CODEX03.log';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:28~2:65) /test/1/opt/dmdbms/data/DAMENG/CODEX03.log/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_admin_dameng_database_atomic_0_005]
+sql:
+-- ADD_NODE_LOGFILE_TWO
+alter database add node logfile '/opt/dmdbms/data/DAMENG/CODEX_NODE01.log' size 256, '/opt/dmdbms/data/DAMENG/CODEX_NODE02.log' size 256;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:32~2:74) /test/1/opt/dmdbms/data/DAMENG/CODEX_NODE01.log/",
+      "action": "CREATE"
+    },
+    {
+      "subject": "File(2:85~2:127) /test/1/opt/dmdbms/data/DAMENG/CODEX_NODE02.log/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_database_atomic_0_006]
+sql:
+-- ADD_NODE_LOGFILE_MULTIPLE
+alter database add node logfile '/opt/dmdbms/data/DAMENG/CODEX_NODE01.log' size 256, '/opt/dmdbms/data/DAMENG/CODEX_NODE02.log' size 256, '/opt/dmdbms/data/DAMENG/CODEX_NODE03.log' size 256;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:32~2:74) /test/1/opt/dmdbms/data/DAMENG/CODEX_NODE01.log/",
+      "action": "CREATE"
+    },
+    {
+      "subject": "File(2:85~2:127) /test/1/opt/dmdbms/data/DAMENG/CODEX_NODE02.log/",
+      "action": "CREATE"
+    },
+    {
+      "subject": "File(2:138~2:180) /test/1/opt/dmdbms/data/DAMENG/CODEX_NODE03.log/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_database_atomic_0_007]
+sql:
+-- RENAME_LOGFILE_ONE
+alter database rename logfile '/opt/dmdbms/data/DAMENG/CODEX03.log' to '/opt/dmdbms/data/DAMENG/CODEX03_NEW.log';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:30~2:67) /test/1/opt/dmdbms/data/DAMENG/CODEX03.log/",
+      "action": "RENAME",
+      "target": "File(2:71~2:112) /test/1/opt/dmdbms/data/DAMENG/CODEX03_NEW.log/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_database_atomic_0_008]
+sql:
+-- RENAME_LOGFILE_MULTIPLE
+alter database rename logfile '/opt/dmdbms/data/DAMENG/CODEX04.log', '/opt/dmdbms/data/DAMENG/CODEX05.log' to '/opt/dmdbms/data/DAMENG/CODEX04_NEW.log', '/opt/dmdbms/data/DAMENG/CODEX05_NEW.log';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:30~2:67) /test/1/opt/dmdbms/data/DAMENG/CODEX04.log/",
+      "action": "RENAME",
+      "target": "File(2:110~2:151) /test/1/opt/dmdbms/data/DAMENG/CODEX04_NEW.log/"
+    },
+    {
+      "subject": "File(2:69~2:106) /test/1/opt/dmdbms/data/DAMENG/CODEX05.log/",
+      "action": "RENAME",
+      "target": "File(2:153~2:194) /test/1/opt/dmdbms/data/DAMENG/CODEX05_NEW.log/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_database_atomic_0_009]
+sql:
+-- OPEN
+alter database open;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Instance(2:6~2:14) /test/1/",
+      "action": "UNSAFE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_database_atomic_0_010]
+sql:
+-- OPEN_FORCE
+alter database open force;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Instance(2:6~2:14) /test/1/",
+      "action": "UNSAFE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_database_atomic_0_011]
+sql:
+-- MOUNT
+alter database mount;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Instance(2:6~2:14) /test/1/",
+      "action": "UNSAFE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_database_atomic_0_012]
+sql:
+-- SUSPEND
+alter database suspend;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Instance(2:6~2:14) /test/1/",
+      "action": "UNSAFE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_database_atomic_0_013]
+sql:
+-- NORMAL
+alter database normal;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Instance(2:6~2:14) /test/1/",
+      "action": "UNSAFE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_database_atomic_0_014]
+sql:
+-- NORMAL_FORCE
+alter database normal force;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Instance(2:6~2:14) /test/1/",
+      "action": "UNSAFE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_database_atomic_0_015]
+sql:
+-- PRIMARY
+alter database primary;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Instance(2:6~2:14) /test/1/",
+      "action": "UNSAFE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_database_atomic_0_016]
+sql:
+-- PRIMARY_FORCE
+alter database primary force;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Instance(2:6~2:14) /test/1/",
+      "action": "UNSAFE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_database_atomic_0_017]
+sql:
+-- STANDBY
+alter database standby;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Instance(2:6~2:14) /test/1/",
+      "action": "UNSAFE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_database_atomic_0_018]
+sql:
+-- STANDBY_FORCE
+alter database standby force;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Instance(2:6~2:14) /test/1/",
+      "action": "UNSAFE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_database_atomic_0_019]
+sql:
+-- ARCHIVELOG
+alter database archivelog;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Instance(2:6~2:14) /test/1/",
+      "action": "UNSAFE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_database_atomic_0_020]
+sql:
+-- NOARCHIVELOG
+alter database noarchivelog;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Instance(2:6~2:14) /test/1/",
+      "action": "UNSAFE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_database_atomic_0_021]
+sql:
+-- ARCHIVELOG_CURRENT
+alter database archivelog current;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Instance(2:6~2:14) /test/1/",
+      "action": "UNSAFE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_database_atomic_0_022]
+sql:
+-- ADD_ARCHIVELOG_LOCAL
+alter database add archivelog 'TYPE = LOCAL, DEST = /opt/dmdbms/data/CODEX_ARCH';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:52~2:79) /test/1/opt/dmdbms/data/CODEX_ARCH/",
+      "action": "CONFIGURE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_database_atomic_0_023]
+sql:
+-- ADD_ARCHIVELOG_LOCAL_FILE_SIZE
+alter database add archivelog 'TYPE = LOCAL, DEST = /opt/dmdbms/data/CODEX_ARCH, FILE_SIZE = 128';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:52~2:79) /test/1/opt/dmdbms/data/CODEX_ARCH/",
+      "action": "CONFIGURE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_database_atomic_0_024]
+sql:
+-- ADD_ARCHIVELOG_LOCAL_SPACE_LIMIT
+alter database add archivelog 'TYPE = LOCAL, DEST = /opt/dmdbms/data/CODEX_ARCH, SPACE_LIMIT = 1024';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:52~2:79) /test/1/opt/dmdbms/data/CODEX_ARCH/",
+      "action": "CONFIGURE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_database_atomic_0_025]
+sql:
+-- ADD_ARCHIVELOG_LOCAL_FLUSH_HANG
+alter database add archivelog 'TYPE = LOCAL, DEST = /opt/dmdbms/data/CODEX_ARCH, ARCH_FLUSH_BUF_SIZE = 0, HANG_FLAG = 1';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:52~2:79) /test/1/opt/dmdbms/data/CODEX_ARCH/",
+      "action": "CONFIGURE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_database_atomic_0_026]
+sql:
+-- MODIFY_ARCHIVELOG_LOCAL
+alter database modify archivelog 'TYPE = LOCAL, DEST = /opt/dmdbms/data/CODEX_ARCH, FILE_SIZE = 256, SPACE_LIMIT = 2048';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:55~2:82) /test/1/opt/dmdbms/data/CODEX_ARCH/",
+      "action": "CONFIGURE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_database_atomic_0_027]
+sql:
+-- DELETE_ARCHIVELOG_LOCAL
+alter database delete archivelog 'TYPE = LOCAL, DEST = /opt/dmdbms/data/CODEX_ARCH';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "File(2:55~2:82) /test/1/opt/dmdbms/data/CODEX_ARCH/",
+      "action": "CONFIGURE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_database_atomic_0_028]
+sql:
+-- ADD_ARCHIVELOG_REALTIME
+alter database add archivelog 'TYPE = REALTIME, DEST = CODEX_RT';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Replication(2:55~2:63) /test/1/CODEX_RT/",
+      "action": "CONFIGURE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_database_atomic_0_029]
+sql:
+-- ADD_ARCHIVELOG_REALTIME_WAIT_APPLY
+alter database add archivelog 'TYPE = REALTIME, DEST = CODEX_RT, WAIT_APPLY = 1';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Replication(2:55~2:63) /test/1/CODEX_RT/",
+      "action": "CONFIGURE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_database_atomic_0_030]
+sql:
+-- ADD_ARCHIVELOG_ASYNC
+alter database add archivelog 'TYPE = ASYNC, DEST = CODEX_ASYNC, ARCH_TIMER_NAME = CODEX_TIMER';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Replication(2:52~2:63) /test/1/CODEX_ASYNC/",
+      "action": "CONFIGURE",
+      "target": "ConfigKey(2:83~2:94) /test/1/CODEX_TIMER/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_database_atomic_0_031]
+sql:
+-- ADD_ARCHIVELOG_ASYNC_DELAY
+alter database add archivelog 'TYPE = ASYNC, DEST = CODEX_ASYNC, ARCH_TIMER_NAME = CODEX_TIMER, ARCH_SEND_DELAY = 10';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Replication(2:52~2:63) /test/1/CODEX_ASYNC/",
+      "action": "CONFIGURE",
+      "target": "ConfigKey(2:83~2:94) /test/1/CODEX_TIMER/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_database_atomic_0_032]
+sql:
+-- ADD_ARCHIVELOG_SYNC
+alter database add archivelog 'TYPE = SYNC, DEST = CODEX_SYNC';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Replication(2:51~2:61) /test/1/CODEX_SYNC/",
+      "action": "CONFIGURE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_database_atomic_0_033]
+sql:
+-- ADD_ARCHIVELOG_SYNC_RECOVER_TIME
+alter database add archivelog 'TYPE = SYNC, DEST = CODEX_SYNC, ARCH_RECOVER_TIME = 1';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Replication(2:51~2:61) /test/1/CODEX_SYNC/",
+      "action": "CONFIGURE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_database_atomic_0_034]
+sql:
+-- ADD_ARCHIVELOG_REMOTE
+alter database add archivelog 'TYPE = REMOTE, DEST = CODEX_REMOTE';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Replication(2:53~2:65) /test/1/CODEX_REMOTE/",
+      "action": "CONFIGURE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_database_atomic_0_035]
+sql:
+-- ADD_ARCHIVELOG_REMOTE_INCOMING
+alter database add archivelog 'TYPE = REMOTE, DEST = CODEX_REMOTE, INCOMING_PATH = /opt/dmdbms/data/CODEX_INCOMING';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Replication(2:53~2:65) /test/1/CODEX_REMOTE/",
+      "action": "CONFIGURE",
+      "target": "File(2:83~2:114) /test/1/opt/dmdbms/data/CODEX_INCOMING/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_database_atomic_0_036]
+sql:
+-- ADD_ARCHIVELOG_TIMELY
+alter database add archivelog 'TYPE = TIMELY, DEST = CODEX_TIMELY';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Replication(2:53~2:65) /test/1/CODEX_TIMELY/",
+      "action": "CONFIGURE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_database_atomic_0_037]
+sql:
+-- ADD_ARCHIVELOG_TIMELY_WAIT_APPLY
+alter database add archivelog 'TYPE = TIMELY, DEST = CODEX_TIMELY, WAIT_APPLY = 0';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Replication(2:53~2:65) /test/1/CODEX_TIMELY/",
+      "action": "CONFIGURE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_database_atomic_0_038]
+sql:
+-- GRANT_ALTER_DATABASE
+grant alter database to CODEX_DB_PRIV;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Instance(2:12~2:20) /test/1/",
+      "action": "GRANT",
+      "target": "UserOrRole(2:24~2:37) /test/1/CODEX_DB_PRIV/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_database_atomic_0_039]
+sql:
+-- REVOKE_ALTER_DATABASE
+revoke alter database from CODEX_DB_PRIV;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "Instance(2:13~2:21) /test/1/",
+      "action": "REVOKE",
+      "target": "UserOrRole(2:27~2:40) /test/1/CODEX_DB_PRIV/"
+    }
+  ]
+}

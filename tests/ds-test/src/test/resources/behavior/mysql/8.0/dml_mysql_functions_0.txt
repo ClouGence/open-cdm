@@ -1,0 +1,1446 @@
+[update__001]
+sql:
+UPDATE default_function_t SET a = DEFAULT(a), b = DEFAULT(b) WHERE id = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:25) /test/1/catalog1/schema1/default_function_t/",
+      "action" : "UPDATE"
+    },
+    {
+      "subject": "Function(1:34~1:41) /test/1/catalog1/schema1/DEFAULT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[insert__002]
+sql:
+INSERT INTO aes_feedback_modes (a) VALUES (REPEAT('a', 128)), (REPEAT(0x00313233, 32));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:30) /test/1/catalog1/schema1/aes_feedback_modes/",
+      "action" : "INSERT"
+    },
+    {
+      "subject": "Function(1:43~1:49) /test/1/catalog1/schema1/REPEAT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[update_session_variable_rw__003]
+sql:
+UPDATE aes_feedback_modes SET b128 = AES_ENCRYPT(a, @aes_key1, @aes_iva), b192 = AES_ENCRYPT(a, @aes_key1, @aes_iva), b256 = AES_ENCRYPT(a, @aes_key1, @aes_iva);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:25) /test/1/catalog1/schema1/aes_feedback_modes/",
+      "action" : "UPDATE"
+    },
+    {
+      "subject": "Function(1:37~1:48) /test/1/catalog1/schema1/AES_ENCRYPT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "ConfigKey(1:52~1:61) /test/1/aes_key1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "ConfigKey(1:63~1:71) /test/1/aes_iva/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[insert__004]
+sql:
+INSERT INTO aes_cipher_keys VALUES (AES_ENCRYPT('a', 'a'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:27) /test/1/catalog1/schema1/aes_cipher_keys/",
+      "action" : "INSERT"
+    },
+    {
+      "subject": "Function(1:36~1:47) /test/1/catalog1/schema1/AES_ENCRYPT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[insert__005]
+sql:
+INSERT INTO aes_cipher_keys VALUES (AES_ENCRYPT('b', 'a'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:27) /test/1/catalog1/schema1/aes_cipher_keys/",
+      "action" : "INSERT"
+    },
+    {
+      "subject": "Function(1:36~1:47) /test/1/catalog1/schema1/AES_ENCRYPT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[insert__006]
+sql:
+INSERT INTO aes_ecb_modes (a) VALUES ('a'), ('Жоро'), (REPEAT('a', 10));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:25) /test/1/catalog1/schema1/aes_ecb_modes/",
+      "action" : "INSERT"
+    },
+    {
+      "subject": "Function(1:55~1:61) /test/1/catalog1/schema1/REPEAT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[update__007]
+sql:
+UPDATE aes_ecb_modes SET b128 = AES_ENCRYPT(a, 'a'), b192 = AES_ENCRYPT(a, 'a'), b256 = AES_ENCRYPT(a, 'a');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:20) /test/1/catalog1/schema1/aes_ecb_modes/",
+      "action" : "UPDATE"
+    },
+    {
+      "subject": "Function(1:32~1:43) /test/1/catalog1/schema1/AES_ENCRYPT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[insert_session_variable_rw__008]
+sql:
+INSERT INTO aes_misc_cipher VALUES (AES_ENCRYPT(@aes_misc_plain, @aes_misc_key, @aes_misc_iv));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:27) /test/1/catalog1/schema1/aes_misc_cipher/",
+      "action" : "INSERT"
+    },
+    {
+      "subject": "Function(1:36~1:47) /test/1/catalog1/schema1/AES_ENCRYPT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "ConfigKey(1:48~1:63) /test/1/aes_misc_plain/",
+      "action" : "READ"
+    },
+    {
+      "subject": "ConfigKey(1:65~1:78) /test/1/aes_misc_key/",
+      "action" : "READ"
+    },
+    {
+      "subject": "ConfigKey(1:80~1:92) /test/1/aes_misc_iv/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[insert_session_variable_rw__009]
+sql:
+INSERT INTO compress_columns_t(a,b,c) VALUES(COMPRESS(@test_compress_string),COMPRESS(@test_compress_string),'d ');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:30) /test/1/catalog1/schema1/compress_columns_t/",
+      "action" : "INSERT"
+    },
+    {
+      "subject": "Function(1:45~1:53) /test/1/catalog1/schema1/COMPRESS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "ConfigKey(1:54~1:75) /test/1/test_compress_string/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[insert__010]
+sql:
+INSERT compress_blob_t VALUES(COMPRESS(NULL)),('A\0\0\0BBBBBBBB'),(COMPRESS(SPACE(50000))),(SPACE(50000));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:7~1:22) /test/1/catalog1/schema1/compress_blob_t/",
+      "action" : "INSERT"
+    },
+    {
+      "subject": "Function(1:30~1:38) /test/1/catalog1/schema1/COMPRESS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:76~1:81) /test/1/catalog1/schema1/SPACE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[insert_select__011]
+sql:
+INSERT INTO codex_func_date_add.invalid_t(d) SELECT DATE_SUB('2000-01-01',INTERVAL 2001 YEAR);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:41) /test/1/catalog1/codex_func_date_add/invalid_t/",
+      "action" : "INSERT"
+    },
+    {
+      "subject": "Function(1:52~1:60) /test/1/catalog1/schema1/DATE_SUB/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[insert_select__012]
+sql:
+INSERT INTO codex_func_date_add.invalid_t(d) SELECT DATE_ADD('2000-01-01',INTERVAL 8000 YEAR);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:41) /test/1/catalog1/codex_func_date_add/invalid_t/",
+      "action" : "INSERT"
+    },
+    {
+      "subject": "Function(1:52~1:60) /test/1/catalog1/schema1/DATE_ADD/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[insert__013]
+sql:
+INSERT INTO codex_func_date_add.invalid_t VALUES(DATE_ADD(NULL,INTERVAL 1 DAY));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:41) /test/1/catalog1/codex_func_date_add/invalid_t/",
+      "action" : "INSERT"
+    },
+    {
+      "subject": "Function(1:49~1:57) /test/1/catalog1/schema1/DATE_ADD/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[insert__014]
+sql:
+INSERT INTO codex_func_date_add.invalid_t VALUES(DATE_ADD('2000-01-04',INTERVAL NULL DAY));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:41) /test/1/catalog1/codex_func_date_add/invalid_t/",
+      "action" : "INSERT"
+    },
+    {
+      "subject": "Function(1:49~1:57) /test/1/catalog1/schema1/DATE_ADD/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[insert__015]
+sql:
+INSERT INTO t1 VALUES(1,NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:14) /test/1/catalog1/schema1/t1/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[insert__016]
+sql:
+INSERT INTO t2 VALUES(1,NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:14) /test/1/catalog1/schema1/t2/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[insert_session_variable_rw__017]
+sql:
+INSERT INTO func_test_type_mix VALUES('2017-02-02 12:00:00',@a,@a,@a,@a,@a);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:30) /test/1/catalog1/schema1/func_test_type_mix/",
+      "action" : "INSERT"
+    },
+    {
+      "subject": "ConfigKey(1:60~1:62) /test/1/a/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[insert_select__018]
+sql:
+INSERT INTO agg_out SELECT grp,MAX(a)+MAX(grp),MAX(c) FROM fg GROUP BY grp;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:19) /test/1/catalog1/schema1/agg_out/",
+      "action" : "INSERT",
+      "target" : "Table(1:59~1:61) /test/1/catalog1/schema1/fg/"
+    },
+    {
+      "subject": "Function(1:31~1:34) /test/1/catalog1/schema1/MAX/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[update_select__019]
+sql:
+UPDATE IGNORE e1 AS outr1, b1 AS outr2
+SET outr1.col_date = JSON_SET(outr1.col_date, CONCAT('$','[',1,']','.','cdate'), '2007-07-12')
+WHERE outr1.pk <= ANY (
+  SELECT DISTINCT innr1.col_int_key AS y
+  FROM bb4 AS innr2
+  LEFT JOIN bb4 AS innr1 ON innr2.col_int_key <> innr1.col_int_key
+  WHERE innr1.col_int_key = 4
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:14~1:16) /test/1/catalog1/schema1/e1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:27~1:29) /test/1/catalog1/schema1/b1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(2:21~2:29) /test/1/catalog1/schema1/JSON_SET/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(2:46~2:52) /test/1/catalog1/schema1/CONCAT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(5:7~5:10) /test/1/catalog1/schema1/bb4/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[update__020]
+sql:
+UPDATE update_t SET c1=2 WHERE IF(TRUE,'2015-01-01','2015-01-01') IS NOT NULL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:15) /test/1/catalog1/schema1/update_t/",
+      "action" : "UPDATE"
+    },
+    {
+      "subject": "Function(1:31~1:33) /test/1/catalog1/schema1/IF/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[insert__021]
+sql:
+INSERT INTO datetime_t SET t_date=NULLIF(NOW(),'');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:22) /test/1/catalog1/schema1/datetime_t/",
+      "action" : "INSERT"
+    },
+    {
+      "subject": "Function(1:34~1:40) /test/1/catalog1/schema1/NULLIF/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:41~1:44) /test/1/catalog1/schema1/NOW/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[delete__022]
+sql:
+DELETE FROM codex_func_in.nullable_field WHERE field NOT IN (NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:40) /test/1/catalog1/codex_func_in/nullable_field/",
+      "action" : "DELETE"
+    }
+  ]
+}
+----------
+[update__023]
+sql:
+UPDATE codex_func_in.update_t SET b=1 WHERE a NOT IN (0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:29) /test/1/catalog1/codex_func_in/update_t/",
+      "action" : "UPDATE"
+    }
+  ]
+}
+----------
+[insert__024]
+sql:
+INSERT INTO t1 VALUES(1,1.1,1.1e100,'1','1',DATE'2020-01-01',TIME'01:01:01',TIMESTAMP'2020-01-01 01:01:01','{"i":1,"s":"1"}','1','"1"'),(2,2.2,2.2e100,'2','2',DATE'2020-02-02',TIME'02:02:02',TIMESTAMP'2020-02-02 02:02:02','{"i":2,"s":"2"}','2','"2"');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:14) /test/1/catalog1/schema1/t1/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[insert__025]
+sql:
+INSERT INTO func_least_faq VALUES (82,82,1),(82,83,3);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/func_least_faq/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[insert__026]
+sql:
+INSERT INTO func_least_access_rank VALUES (1,2),(2,3),(3,1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:34) /test/1/catalog1/schema1/func_least_access_rank/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[insert_select__027]
+sql:
+INSERT INTO codex_func_rand.t SELECT MAX(i1),FLOOR(RAND(0)*1000) FROM codex_func_rand.t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:29) /test/1/catalog1/codex_func_rand/t/",
+      "action" : "INSERT",
+      "target" : "Table(1:70~1:87) /test/1/catalog1/codex_func_rand/t/"
+    },
+    {
+      "subject": "Function(1:37~1:40) /test/1/catalog1/schema1/MAX/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:45~1:50) /test/1/catalog1/schema1/FLOOR/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:51~1:55) /test/1/catalog1/schema1/RAND/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[insert_select__028]
+sql:
+INSERT INTO codex_func_rand.t SELECT MAX(i1),FLOOR(RAND(0)*1000)+EXTRACT(YEAR FROM NOW()) DIV 1000 FROM codex_func_rand.t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:29) /test/1/catalog1/codex_func_rand/t/",
+      "action" : "INSERT",
+      "target" : "Table(1:104~1:121) /test/1/catalog1/codex_func_rand/t/"
+    },
+    {
+      "subject": "Function(1:37~1:40) /test/1/catalog1/schema1/MAX/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:45~1:50) /test/1/catalog1/schema1/FLOOR/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:51~1:55) /test/1/catalog1/schema1/RAND/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:65~1:72) /test/1/catalog1/schema1/EXTRACT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:83~1:86) /test/1/catalog1/schema1/NOW/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[insert_select__029]
+sql:
+INSERT INTO codex_func_rand.t SELECT MAX(i1),FLOOR(RAND(0)*1000)+EXTRACT(YEAR FROM NOW()) DIV 1000 FROM codex_func_rand.t GROUP BY i2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:29) /test/1/catalog1/codex_func_rand/t/",
+      "action" : "INSERT",
+      "target" : "Table(1:104~1:121) /test/1/catalog1/codex_func_rand/t/"
+    },
+    {
+      "subject": "Function(1:37~1:40) /test/1/catalog1/schema1/MAX/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:45~1:50) /test/1/catalog1/schema1/FLOOR/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:51~1:55) /test/1/catalog1/schema1/RAND/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:65~1:72) /test/1/catalog1/schema1/EXTRACT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:83~1:86) /test/1/catalog1/schema1/NOW/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[insert_call_prog_obj__030]
+sql:
+INSERT INTO rb_aux SET f1=1,f2=rb_fail();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:18) /test/1/catalog1/schema1/rb_aux/",
+      "action" : "INSERT"
+    },
+    {
+      "subject": "Function(1:31~1:38) /test/1/catalog1/schema1/rb_fail/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[insert_select_call_prog_obj__031]
+sql:
+INSERT INTO rb_aux SELECT 1,rb_fail();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:18) /test/1/catalog1/schema1/rb_aux/",
+      "action" : "INSERT"
+    },
+    {
+      "subject": "Function(1:28~1:35) /test/1/catalog1/schema1/rb_fail/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[insert_call_prog_obj__032]
+sql:
+INSERT INTO rb_aux VALUES(1,rb_fail());
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:18) /test/1/catalog1/schema1/rb_aux/",
+      "action" : "INSERT"
+    },
+    {
+      "subject": "Function(1:28~1:35) /test/1/catalog1/schema1/rb_fail/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[delete_call_prog_obj__033]
+sql:
+DELETE FROM rb_aux WHERE f1=rb_fail();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:18) /test/1/catalog1/schema1/rb_aux/",
+      "action" : "DELETE"
+    },
+    {
+      "subject": "Function(1:28~1:35) /test/1/catalog1/schema1/rb_fail/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[update_call_prog_obj__034]
+sql:
+UPDATE rb_aux SET f2=rb_fail()+1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:13) /test/1/catalog1/schema1/rb_aux/",
+      "action" : "UPDATE"
+    },
+    {
+      "subject": "Function(1:21~1:28) /test/1/catalog1/schema1/rb_fail/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[insert_select__035]
+sql:
+INSERT INTO base64_encoded(encoded_value) SELECT TO_BASE64(binary_value) FROM base64_binary_values;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/base64_encoded/",
+      "action" : "INSERT",
+      "target" : "Table(1:78~1:98) /test/1/catalog1/schema1/base64_binary_values/"
+    },
+    {
+      "subject": "Function(1:49~1:58) /test/1/catalog1/schema1/TO_BASE64/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[update__036]
+sql:
+UPDATE base64_encoded SET encoded_value = TO_BASE64(FROM_BASE64(encoded_value)) WHERE encoded_value IS NOT NULL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:21) /test/1/catalog1/schema1/base64_encoded/",
+      "action" : "UPDATE"
+    },
+    {
+      "subject": "Function(1:42~1:51) /test/1/catalog1/schema1/TO_BASE64/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:52~1:63) /test/1/catalog1/schema1/FROM_BASE64/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[delete__037]
+sql:
+DELETE FROM inet_values ORDER BY INET_NTOA(a) DESC LIMIT 10;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:23) /test/1/catalog1/schema1/inet_values/",
+      "action" : "DELETE"
+    },
+    {
+      "subject": "Function(1:33~1:42) /test/1/catalog1/schema1/INET_NTOA/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[update__038]
+sql:
+UPDATE t_update SET c0=1 WHERE (t_update.c0 IS NULL)>>('');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:15) /test/1/catalog1/schema1/t_update/",
+      "action" : "UPDATE"
+    }
+  ]
+}
+----------
+[update__039]
+sql:
+UPDATE t_update SET c0=1 WHERE (t_update.c0 IS NULL)>>('' COLLATE 'utf8mb4_0900_ai_ci');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:15) /test/1/catalog1/schema1/t_update/",
+      "action" : "UPDATE"
+    }
+  ]
+}
+----------
+[insert__040]
+sql:
+INSERT IGNORE INTO int_values VALUES ('21474836461','21474836461');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:19~1:29) /test/1/catalog1/schema1/int_values/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[insert__041]
+sql:
+INSERT IGNORE INTO int_values VALUES ('-21474836461','-21474836461');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:19~1:29) /test/1/catalog1/schema1/int_values/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[insert_select__042]
+sql:
+INSERT INTO t_dst SELECT IF(a, 1, 0) FROM t_src;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:17) /test/1/catalog1/schema1/t_dst/",
+      "action" : "INSERT",
+      "target" : "Table(1:42~1:47) /test/1/catalog1/schema1/t_src/"
+    },
+    {
+      "subject": "Function(1:25~1:27) /test/1/catalog1/schema1/IF/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[insert_select__043]
+sql:
+INSERT INTO t_dst SELECT IF(a <> 0, 1, 0) FROM t_src;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:17) /test/1/catalog1/schema1/t_dst/",
+      "action" : "INSERT",
+      "target" : "Table(1:47~1:52) /test/1/catalog1/schema1/t_src/"
+    },
+    {
+      "subject": "Function(1:25~1:27) /test/1/catalog1/schema1/IF/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[insert_select__044]
+sql:
+INSERT INTO t_dst SELECT a | 2147483647 FROM t_src;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:17) /test/1/catalog1/schema1/t_dst/",
+      "action" : "INSERT",
+      "target" : "Table(1:45~1:50) /test/1/catalog1/schema1/t_src/"
+    }
+  ]
+}
+----------
+[insert_select__045]
+sql:
+INSERT INTO t_dst SELECT CAST(a AS DECIMAL) FROM t_src;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:17) /test/1/catalog1/schema1/t_dst/",
+      "action" : "INSERT",
+      "target" : "Table(1:49~1:54) /test/1/catalog1/schema1/t_src/"
+    },
+    {
+      "subject": "Function(1:25~1:29) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[insert__046]
+sql:
+INSERT INTO func_test_nullable_self VALUES(NULL,2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:35) /test/1/catalog1/schema1/func_test_nullable_self/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[insert__047]
+sql:
+INSERT INTO func_test_not_between VALUES(1,2),(2,3),(3,4),(4,5);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:33) /test/1/catalog1/schema1/func_test_not_between/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[insert__048]
+sql:
+INSERT INTO func_test_null_unsigned VALUES(0);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:35) /test/1/catalog1/schema1/func_test_null_unsigned/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[insert__049]
+sql:
+INSERT INTO func_test_unsigned_pair VALUES(202,1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:35) /test/1/catalog1/schema1/func_test_unsigned_pair/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[merge__050]
+sql:
+INSERT INTO func_test_duplicate VALUES(1,13836376518955650385) ON DUPLICATE KEY UPDATE b=GREATEST(b,VALUES(b));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/schema1/func_test_duplicate/",
+      "action" : "MERGE"
+    },
+    {
+      "subject": "Function(1:89~1:97) /test/1/catalog1/schema1/GREATEST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:100~1:106) /test/1/catalog1/schema1/VALUES/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[insert_select__051]
+sql:
+INSERT INTO insert_time_source SELECT MAX(1),NOW() FROM insert_time_source;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:30) /test/1/catalog1/schema1/insert_time_source/",
+      "action" : "INSERT",
+      "target" : "Table(1:56~1:74) /test/1/catalog1/schema1/insert_time_source/"
+    },
+    {
+      "subject": "Function(1:38~1:41) /test/1/catalog1/schema1/MAX/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:45~1:48) /test/1/catalog1/schema1/NOW/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[insert__052]
+sql:
+INSERT INTO timestamp_source (f2,f3) VALUES (NOW(),FROM_UNIXTIME('9999999999'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:28) /test/1/catalog1/schema1/timestamp_source/",
+      "action" : "INSERT"
+    },
+    {
+      "subject": "Function(1:45~1:48) /test/1/catalog1/schema1/NOW/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:51~1:64) /test/1/catalog1/schema1/FROM_UNIXTIME/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[insert__053]
+sql:
+INSERT INTO timestamp_source (f2,f3) VALUES (NOW(),ASCII(NULL));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:28) /test/1/catalog1/schema1/timestamp_source/",
+      "action" : "INSERT"
+    },
+    {
+      "subject": "Function(1:45~1:48) /test/1/catalog1/schema1/NOW/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:51~1:56) /test/1/catalog1/schema1/ASCII/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[insert__054]
+sql:
+INSERT INTO timestamp_source (f2,f3) VALUES (NOW(),COALESCE(FROM_UNIXTIME('9999999999'),'0000-00-00 00:00:00'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:28) /test/1/catalog1/schema1/timestamp_source/",
+      "action" : "INSERT"
+    },
+    {
+      "subject": "Function(1:45~1:48) /test/1/catalog1/schema1/NOW/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:51~1:59) /test/1/catalog1/schema1/COALESCE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:60~1:73) /test/1/catalog1/schema1/FROM_UNIXTIME/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[insert__055]
+sql:
+INSERT INTO timestamp_source (f2,f3) VALUES (NOW(),FROM_UNIXTIME(99999999990));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:28) /test/1/catalog1/schema1/timestamp_source/",
+      "action" : "INSERT"
+    },
+    {
+      "subject": "Function(1:45~1:48) /test/1/catalog1/schema1/NOW/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:51~1:64) /test/1/catalog1/schema1/FROM_UNIXTIME/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[update__056]
+sql:
+UPDATE timestamp_source SET f2=NOW(),f3=FROM_UNIXTIME('9999999999') WHERE f1=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:23) /test/1/catalog1/schema1/timestamp_source/",
+      "action" : "UPDATE"
+    },
+    {
+      "subject": "Function(1:31~1:34) /test/1/catalog1/schema1/NOW/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:40~1:53) /test/1/catalog1/schema1/FROM_UNIXTIME/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[insert__057]
+sql:
+INSERT INTO uuid_binary_rows VALUES (UNHEX('7f9d04ae61b34468ac798ffcc984ab68')), (UUID_TO_BIN('d00653b2-90b9-40d1-93c2-194456bd4f3d'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:28) /test/1/catalog1/schema1/uuid_binary_rows/",
+      "action" : "INSERT"
+    },
+    {
+      "subject": "Function(1:37~1:42) /test/1/catalog1/schema1/UNHEX/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:82~1:93) /test/1/catalog1/schema1/UUID_TO_BIN/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[data_import__058]
+sql:
+LOAD DATA INFILE '/var/lib/mysql-files/function_defaults_fixed.dat'
+INTO TABLE fd_load_target
+FIELDS TERMINATED BY '' ENCLOSED BY '';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_IMPORT": [
+    {
+      "subject": "Table(2:11~2:25) /test/1/catalog1/schema1/fd_load_target/",
+      "action" : "IMPORT",
+      "target" : "File(1:17~1:67) /test/1/var/lib/mysql-files/function_defaults_fixed.dat/"
+    }
+  ]
+}
+----------
+[update__059]
+sql:
+UPDATE fd_update_target STRAIGHT_JOIN fd_update_source
+SET fd_update_target.b=fd_update_target.b+1
+WHERE fd_update_target.a=fd_update_source.a
+  AND fd_update_target.ts>='2000-09-28 00:00:00';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:23) /test/1/catalog1/schema1/fd_update_target/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:38~1:54) /test/1/catalog1/schema1/fd_update_source/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[insert__060]
+sql:
+INSERT INTO fd_dml_values VALUES (NULL,NULL,1),(DEFAULT,DEFAULT,2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:25) /test/1/catalog1/schema1/fd_dml_values/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[insert__061]
+sql:
+INSERT INTO fd_dml_values VALUES ();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:25) /test/1/catalog1/schema1/fd_dml_values/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[merge__062]
+sql:
+REPLACE INTO fd_dml_values VALUES (DEFAULT,DEFAULT,3);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:13~1:26) /test/1/catalog1/schema1/fd_dml_values/",
+      "action" : "MERGE"
+    }
+  ]
+}
+----------
+[insert_select__063]
+sql:
+INSERT INTO split_scalar80_c.pct SELECT s2.avg_us,IFNULL(SUM(s1.cnt)/NULLIF((SELECT COUNT(*) FROM split_scalar80_c.digests),0),0) FROM split_scalar80_c.lat1 AS s1 JOIN split_scalar80_c.lat2 AS s2 ON s1.avg_us<=s2.avg_us GROUP BY s2.avg_us HAVING IFNULL(SUM(s1.cnt)/NULLIF((SELECT COUNT(*) FROM split_scalar80_c.digests),0),0)>0.95 ORDER BY 2 LIMIT 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:32) /test/1/catalog1/split_scalar80_c/pct/",
+      "action" : "INSERT",
+      "target" : [
+        "Table(1:98~1:122) /test/1/catalog1/split_scalar80_c/digests/",
+        "Table(1:135~1:156) /test/1/catalog1/split_scalar80_c/lat1/",
+        "Table(1:168~1:189) /test/1/catalog1/split_scalar80_c/lat2/"
+      ]
+    },
+    {
+      "subject": "Function(1:50~1:56) /test/1/catalog1/schema1/IFNULL/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:57~1:60) /test/1/catalog1/schema1/SUM/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:69~1:75) /test/1/catalog1/schema1/NULLIF/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:84~1:89) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[insert_select__064]
+sql:
+INSERT INTO split_scalar80_d.dst SELECT COUNT(q1.id),(SELECT MIN(q4.s) FROM split_scalar80_d.q AS q4) FROM split_scalar80_d.q AS q1 JOIN (split_scalar80_d.q AS q2 JOIN split_scalar80_d.q AS q3 ON TRUE) ON TRUE WHERE 1<>(SELECT COUNT(*) FROM split_scalar80_d.q AS q5);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:32) /test/1/catalog1/split_scalar80_d/dst/",
+      "action" : "INSERT",
+      "target" : "Table(1:76~1:94) /test/1/catalog1/split_scalar80_d/q/"
+    },
+    {
+      "subject": "Function(1:40~1:45) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:61~1:64) /test/1/catalog1/schema1/MIN/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[insert_alter_policy__065]
+sql:
+INSERT INTO split_management_function_probe(id,status_code) VALUES (1,set_firewall_mode('fwuser@localhost','RECORDING'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:43) /test/1/catalog1/schema1/split_management_function_probe/",
+      "action" : "INSERT"
+    },
+    {
+      "subject": "Function(1:70~1:87) /test/1/catalog1/schema1/set_firewall_mode/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[update_admin_performance_alter_policy__066]
+sql:
+UPDATE split_management_function_probe SET status_code=mysql_firewall_flush_status() WHERE set_firewall_mode('fwuser@localhost','RECORDING') IS NOT NULL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:38) /test/1/catalog1/schema1/split_management_function_probe/",
+      "action" : "UPDATE"
+    },
+    {
+      "subject": "Function(1:55~1:82) /test/1/catalog1/schema1/mysql_firewall_flush_status/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:91~1:108) /test/1/catalog1/schema1/set_firewall_mode/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[delete_alter_policy__067]
+sql:
+DELETE FROM split_management_function_probe WHERE set_firewall_mode('fwuser@localhost','RECORDING') IS NOT NULL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:43) /test/1/catalog1/schema1/split_management_function_probe/",
+      "action" : "DELETE"
+    },
+    {
+      "subject": "Function(1:50~1:67) /test/1/catalog1/schema1/set_firewall_mode/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[insert_select_alter_policy_admin_performance__068]
+sql:
+INSERT INTO split_management_function_probe(id,status_code) SELECT id,set_firewall_mode('fwuser@localhost','RECORDING') FROM split_management_function_source WHERE mysql_firewall_flush_status()=0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:43) /test/1/catalog1/schema1/split_management_function_probe/",
+      "action" : "INSERT",
+      "target" : "Table(1:125~1:157) /test/1/catalog1/schema1/split_management_function_source/"
+    },
+    {
+      "subject": "Function(1:70~1:87) /test/1/catalog1/schema1/set_firewall_mode/",
+      "action" : "CONFIGURE"
+    },
+    {
+      "subject": "Function(1:164~1:191) /test/1/catalog1/schema1/mysql_firewall_flush_status/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[insert_admin_replication__069]
+sql:
+INSERT INTO split_replication_wait_probe(wait_result) VALUES (SOURCE_POS_WAIT('missing-binlog.000001',4,0));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:40) /test/1/catalog1/schema1/split_replication_wait_probe/",
+      "action" : "INSERT"
+    },
+    {
+      "subject": "Function(1:62~1:77) /test/1/catalog1/schema1/SOURCE_POS_WAIT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[update_admin_replication__070]
+sql:
+UPDATE split_replication_wait_probe SET wait_result=WAIT_FOR_EXECUTED_GTID_SET('',0) WHERE id=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:35) /test/1/catalog1/schema1/split_replication_wait_probe/",
+      "action" : "UPDATE"
+    },
+    {
+      "subject": "Function(1:52~1:78) /test/1/catalog1/schema1/WAIT_FOR_EXECUTED_GTID_SET/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[delete_admin_replication__071]
+sql:
+DELETE FROM split_replication_wait_probe WHERE WAIT_UNTIL_SQL_THREAD_AFTER_GTIDS('',0) IS NULL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:40) /test/1/catalog1/schema1/split_replication_wait_probe/",
+      "action" : "DELETE"
+    },
+    {
+      "subject": "Function(1:47~1:80) /test/1/catalog1/schema1/WAIT_UNTIL_SQL_THREAD_AFTER_GTIDS/",
+      "action" : "CALL"
+    }
+  ]
+}

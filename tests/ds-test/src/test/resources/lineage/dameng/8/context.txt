@@ -1,0 +1,14 @@
+[context_definition_has_no_result_lineage]
+sql:
+create context codex_ctx using app.context_pkg
+expect:
+{}
+----------
+[context_filter_preserves_result_column]
+sql:
+select id from catalog1.app.context_data
+where tenant = sys_context('CODEX_CTX', 'TENANT')
+expect:
+{
+  "id": ["/catalog1/app/context_data/id/"]
+}

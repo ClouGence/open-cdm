@@ -1,0 +1,435 @@
+[split_dcl_dameng_context_privileges_0_001_behavior_review]
+sql:
+create user CODEX_DM8_CTX_CREATOR_20260722 identified by "Dm8Ctx2026";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:42) /test/1/CODEX_DM8_CTX_CREATOR_20260722/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_context_privileges_0_002_behavior_review]
+sql:
+create user CODEX_DM8_CTX_DROPPER_20260722 identified by "Dm8Ctx2026";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:42) /test/1/CODEX_DM8_CTX_DROPPER_20260722/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_context_privileges_0_003_behavior_review]
+sql:
+create user CODEX_DM8_CTX_OTHER_20260722 identified by "Dm8Ctx2026";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:40) /test/1/CODEX_DM8_CTX_OTHER_20260722/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_context_privileges_0_004_behavior_review]
+sql:
+grant dba to CODEX_DM8_CTX_CREATOR_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Role(1:6~1:9) /test/1/dba/",
+      "action" : "GRANT",
+      "target" : "UserOrRole(1:13~1:43) /test/1/CODEX_DM8_CTX_CREATOR_20260722/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_context_privileges_0_005_behavior_review]
+sql:
+grant dba to CODEX_DM8_CTX_DROPPER_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Role(1:6~1:9) /test/1/dba/",
+      "action" : "GRANT",
+      "target" : "UserOrRole(1:13~1:43) /test/1/CODEX_DM8_CTX_DROPPER_20260722/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_context_privileges_0_006_behavior_review]
+sql:
+create context CODEX_CTX_PRIV_20260722 using CODEX_DM8_CTX_CREATOR_20260722.no_such_package;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Context(1:15~1:38) /test/1/CODEX_CTX_PRIV_20260722/",
+      "action" : "CREATE",
+      "target" : "Package(1:45~1:91) /test/1/catalog1/CODEX_DM8_CTX_CREATOR_20260722/no_such_package/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_context_privileges_0_007_behavior_review]
+sql:
+select name, schid, info5, info6 from sysobjects where name='CODEX_CTX_PRIV_20260722';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:38~1:48) /test/1/catalog1/schema1/sysobjects/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_context_privileges_0_008_behavior_review]
+sql:
+create context CODEX_CTX_NOAUTH_20260722 using CODEX_DM8_CTX_OTHER_20260722.no_such_package;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Context(1:15~1:40) /test/1/CODEX_CTX_NOAUTH_20260722/",
+      "action" : "CREATE",
+      "target" : "Package(1:47~1:91) /test/1/catalog1/CODEX_DM8_CTX_OTHER_20260722/no_such_package/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_context_privileges_0_009_behavior_review]
+sql:
+drop context SYS.CODEX_CTX_PRIV_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Context(1:13~1:40) /test/1/CODEX_CTX_PRIV_20260722/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_context_privileges_0_010_behavior_review]
+sql:
+drop context SYS.CODEX_CTX_PRIV_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Context(1:13~1:40) /test/1/CODEX_CTX_PRIV_20260722/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_context_privileges_0_011_behavior_review]
+sql:
+create context CODEX_CTX_OBJECT_ADMIN_20260722
+using CODEX_DM8_CTX_DROPPER_20260722.no_such_package;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Context(1:15~1:46) /test/1/CODEX_CTX_OBJECT_ADMIN_20260722/",
+      "action" : "CREATE",
+      "target" : "Package(2:6~2:52) /test/1/catalog1/CODEX_DM8_CTX_DROPPER_20260722/no_such_package/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_context_privileges_0_012_behavior_review]
+sql:
+drop context SYS.CODEX_CTX_OBJECT_ADMIN_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Context(1:13~1:48) /test/1/CODEX_CTX_OBJECT_ADMIN_20260722/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_context_privileges_0_013_behavior_review]
+sql:
+grant grant any context to CODEX_DM8_CTX_CREATOR_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Context(1:16~1:23) /test/1/",
+      "action" : "GRANT",
+      "target" : "UserOrRole(1:27~1:57) /test/1/CODEX_DM8_CTX_CREATOR_20260722/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_context_privileges_0_014_behavior_review]
+sql:
+grant create any context, drop any context to CODEX_DM8_CTX_OTHER_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Context(1:17~1:24) /test/1/",
+      "action" : "GRANT",
+      "target" : "UserOrRole(1:46~1:74) /test/1/CODEX_DM8_CTX_OTHER_20260722/"
+    },
+    {
+      "subject": "Context(1:35~1:42) /test/1/",
+      "action" : "GRANT",
+      "target" : "UserOrRole(1:46~1:74) /test/1/CODEX_DM8_CTX_OTHER_20260722/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_context_privileges_0_015_behavior_review]
+sql:
+grant create any context, drop any context to public;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Context(1:17~1:24) /test/1/",
+      "action" : "GRANT",
+      "target" : "UserOrRole(1:46~1:52) /test/1/public/"
+    },
+    {
+      "subject": "Context(1:35~1:42) /test/1/",
+      "action" : "GRANT",
+      "target" : "UserOrRole(1:46~1:52) /test/1/public/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_context_privileges_0_016_behavior_review]
+sql:
+grant create any context, drop any context to CODEX_DM8_CTX_OTHER_20260722 with admin option;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Context(1:17~1:24) /test/1/",
+      "action" : "GRANT",
+      "target" : "UserOrRole(1:46~1:74) /test/1/CODEX_DM8_CTX_OTHER_20260722/"
+    },
+    {
+      "subject": "Context(1:35~1:42) /test/1/",
+      "action" : "GRANT",
+      "target" : "UserOrRole(1:46~1:74) /test/1/CODEX_DM8_CTX_OTHER_20260722/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_context_privileges_0_017_behavior_review]
+sql:
+revoke grant any context from CODEX_DM8_CTX_CREATOR_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "Context(1:17~1:24) /test/1/",
+      "action" : "REVOKE",
+      "target" : "UserOrRole(1:30~1:60) /test/1/CODEX_DM8_CTX_CREATOR_20260722/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_context_privileges_0_018_behavior_review]
+sql:
+grant create any context to CODEX_DM8_CTX_OTHER_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Context(1:17~1:24) /test/1/",
+      "action" : "GRANT",
+      "target" : "UserOrRole(1:28~1:56) /test/1/CODEX_DM8_CTX_OTHER_20260722/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_context_privileges_0_019_behavior_review]
+sql:
+grant drop any context to CODEX_DM8_CTX_OTHER_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Context(1:15~1:22) /test/1/",
+      "action" : "GRANT",
+      "target" : "UserOrRole(1:26~1:54) /test/1/CODEX_DM8_CTX_OTHER_20260722/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_context_privileges_0_020_behavior_review]
+sql:
+revoke create any context from CODEX_DM8_CTX_OTHER_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "Context(1:18~1:25) /test/1/",
+      "action" : "REVOKE",
+      "target" : "UserOrRole(1:31~1:59) /test/1/CODEX_DM8_CTX_OTHER_20260722/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_context_privileges_0_021_behavior_review]
+sql:
+revoke drop any context from CODEX_DM8_CTX_OTHER_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "Context(1:16~1:23) /test/1/",
+      "action" : "REVOKE",
+      "target" : "UserOrRole(1:29~1:57) /test/1/CODEX_DM8_CTX_OTHER_20260722/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_context_privileges_0_022_behavior_review]
+sql:
+grant db_object_admin to CODEX_DM8_CTX_OTHER_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Role(1:6~1:21) /test/1/db_object_admin/",
+      "action" : "GRANT",
+      "target" : "UserOrRole(1:25~1:53) /test/1/CODEX_DM8_CTX_OTHER_20260722/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_context_privileges_0_023_behavior_review]
+sql:
+drop context if exists SYS.CODEX_CTX_PRIV_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Context(1:23~1:50) /test/1/CODEX_CTX_PRIV_20260722/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_context_privileges_0_024_behavior_review]
+sql:
+drop context if exists SYS.CODEX_CTX_OBJECT_ADMIN_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Context(1:23~1:58) /test/1/CODEX_CTX_OBJECT_ADMIN_20260722/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_context_privileges_0_025_behavior_review]
+sql:
+drop user CODEX_DM8_CTX_CREATOR_20260722 cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_USER": [
+    {
+      "subject": "User(1:10~1:40) /test/1/CODEX_DM8_CTX_CREATOR_20260722/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_context_privileges_0_026_behavior_review]
+sql:
+drop user CODEX_DM8_CTX_DROPPER_20260722 cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_USER": [
+    {
+      "subject": "User(1:10~1:40) /test/1/CODEX_DM8_CTX_DROPPER_20260722/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_context_privileges_0_027_behavior_review]
+sql:
+drop user CODEX_DM8_CTX_OTHER_20260722 cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_USER": [
+    {
+      "subject": "User(1:10~1:38) /test/1/CODEX_DM8_CTX_OTHER_20260722/",
+      "action" : "DROP"
+    }
+  ]
+}

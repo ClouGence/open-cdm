@@ -18,7 +18,6 @@ package com.clougence.clouddm.console.web.component.cicd.model;
 import java.util.List;
 
 import com.clougence.clouddm.platform.dal.model.secrule.WarnLevel;
-import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -28,7 +27,6 @@ import lombok.Setter;
 public class ChangeCheckMO {
 
     private String                  content;
-    private SecQueryKind            contentKind;
     private List<ChangeCheckItemMO> checkList;
     private WarnLevel               level;
 

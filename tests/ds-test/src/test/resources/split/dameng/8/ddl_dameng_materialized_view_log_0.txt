@@ -1,0 +1,42 @@
+create materialized view log on mv_orders with primary key;
+drop materialized view log on mv_orders;
+create materialized view log on mv_orders with rowid(id, customer_id, amount, status);
+drop materialized view log on mv_orders;
+create materialized view log on mv_orders with sequence;
+drop materialized view log on mv_orders;
+create materialized view log on mv_orders with (amount, status);
+drop materialized view log on mv_orders;
+create materialized view log on mv_orders purge immediate synchronous;
+drop materialized view log on mv_orders;
+create materialized view log on mv_orders purge next sysdate + 1;
+drop materialized view log on mv_orders;
+create materialized view log on mv_orders purge repeat interval '1' day;
+drop materialized view log on mv_orders;
+------------------------------------------------------------------------------------------
+[CREATE_LOG] create materialized view log on mv_orders with primary key;
+----------
+[DROP_LOG] drop materialized view log on mv_orders;
+----------
+[CREATE_LOG] create materialized view log on mv_orders with rowid(id, customer_id, amount, status);
+----------
+[DROP_LOG] drop materialized view log on mv_orders;
+----------
+[CREATE_LOG] create materialized view log on mv_orders with sequence;
+----------
+[DROP_LOG] drop materialized view log on mv_orders;
+----------
+[CREATE_LOG] create materialized view log on mv_orders with (amount, status);
+----------
+[DROP_LOG] drop materialized view log on mv_orders;
+----------
+[CREATE_LOG] create materialized view log on mv_orders purge immediate synchronous;
+----------
+[DROP_LOG] drop materialized view log on mv_orders;
+----------
+[CREATE_LOG] create materialized view log on mv_orders purge next sysdate + 1;
+----------
+[DROP_LOG] drop materialized view log on mv_orders;
+----------
+[CREATE_LOG] create materialized view log on mv_orders purge repeat interval '1' day;
+----------
+[DROP_LOG] drop materialized view log on mv_orders;

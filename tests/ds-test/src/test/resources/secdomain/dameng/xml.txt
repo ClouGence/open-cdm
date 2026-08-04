@@ -1,0 +1,39 @@
+[xml_query_table]
+sql:
+select id, sf_xmlquery(payload, '/A/ITEM') as items from app.xml_docs
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"xml_docs"}
+  ]
+}
+----------
+[xml_table_lateral]
+sql:
+select d.id, x.item_text from app.xml_docs d, xmltable('/A/ITEM' passing d.payload columns item_text varchar(20) path 'text()') x
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"xml_docs"}
+  ]
+}
+----------
+[xml_forest_table]
+sql:
+select xmlforest(id as DOC_ID, payload as DOC_XML) from app.xml_docs
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"xml_docs"}
+  ]
+}
+----------
+[xml_agg_table]
+sql:
+select xmlagg(xmlparse(content content wellformed) order by seq) from app.xml_agg_source
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"xml_agg_source"}
+  ]
+}

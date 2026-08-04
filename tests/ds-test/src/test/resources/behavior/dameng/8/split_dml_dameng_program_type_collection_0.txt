@@ -1,0 +1,29 @@
+[split_dml_dameng_program_type_collection_0_001]
+sql:
+INSERT INTO TYPE_BASE VALUES(1, 'DM8', 88.25);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:21) /test/1/catalog1/schema1/TYPE_BASE/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_program_type_collection_0_002]
+sql:
+INSERT INTO INDEX_COLUMN_COMPAT VALUES(1, NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/schema1/INDEX_COLUMN_COMPAT/",
+      "action": "INSERT"
+    }
+  ]
+}

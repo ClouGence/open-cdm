@@ -1,0 +1,9 @@
+insert into app.customer(name, status) values('Alice', 'A');
+update app.customer set status = 'I' where id = 1;
+delete from app.customer where id = 1;
+------------------------------------------------------------------------------------------
+[INSERT] insert into app.customer(name, status) values('Alice', 'A');
+----------
+[UPDATE] update app.customer set status = 'I' where id = 1;
+----------
+[DELETE] delete from app.customer where id = 1;

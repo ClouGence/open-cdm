@@ -1,0 +1,20 @@
+-- empty first argument
+call SP_CREATE_SYSTEM_PACKAGES(,'DBMS_BINARY');
+-- double comma
+call SP_INIT_AWR_SYS(,,);
+-- dangling named arrow
+call SP_INIT_JOB_SYS(CREATE_FLAG=>);
+-- unclosed function
+select SF_CHECK_SYSTEM_PACKAGE('DBMS_BINARY' from dual;
+------------------------------------------------------------------------------------------
+[CALL_PROG_OBJ] -- empty first argument
+call SP_CREATE_SYSTEM_PACKAGES(,'DBMS_BINARY');
+----------
+[CALL_PROG_OBJ] -- double comma
+call SP_INIT_AWR_SYS(,,);
+----------
+[CALL_PROG_OBJ] -- dangling named arrow
+call SP_INIT_JOB_SYS(CREATE_FLAG=>);
+----------
+[SELECT|CALL_PROG_OBJ] -- unclosed function
+select SF_CHECK_SYSTEM_PACKAGE('DBMS_BINARY' from dual;

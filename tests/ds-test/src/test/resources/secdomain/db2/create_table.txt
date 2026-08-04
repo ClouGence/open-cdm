@@ -1,0 +1,33 @@
+[createTable_basic]
+sql:
+create table abc(id int)
+expect:
+{
+  "contains": [
+    {"class":"Db2TableDomain", "sqlType": "CREATE_TABLE", "auditKind":"CREATE", "table":"abc"},
+    {"class":"Db2ColumnDomain", "sqlType": "CREATE_TABLE_ADD_COLUMN", "auditKind":"CREATE", "table":"abc", "column":"id", "typeDesc":"int"}
+  ]
+}
+----------
+[createTable_columns_constraints_index]
+sql:
+create table app.employee(
+  id int not null,
+  dept_id int,
+  name varchar(50) default 'n/a',
+  constraint pk_employee primary key (id),
+  constraint uq_employee unique (name),
+  constraint fk_employee foreign key (dept_id) references app.department(id),
+  index idx_employee_name (name)
+)
+expect:
+{
+  "contains": [
+    {"class":"Db2TableDomain", "sqlType": "CREATE_TABLE", "auditKind":"CREATE", "schema":"app", "table":"employee", "hasPrimary":true, "hasUnique":true, "hasForeignKey":true, "hasIndex":true, "columns":["id","dept_id","name"]},
+    {"class":"Db2ColumnDomain", "sqlType": "CREATE_TABLE_ADD_COLUMN", "auditKind":"CREATE", "schema":"app", "table":"employee", "column":"id", "typeDesc":"int", "typeName":"int", "nullable":false, "primary":true},
+    {"class":"Db2ColumnDomain", "sqlType": "CREATE_TABLE_ADD_COLUMN", "auditKind":"CREATE", "schema":"app", "table":"employee", "column":"name", "typeDesc":"varchar(50)", "typeName":"varchar", "defaultValue":"n/a", "unique":true},
+    {"class":"RdbConstraintDomain", "sqlType": "CREATE_TABLE_ADD_CONSTRAINT", "auditKind":"CREATE", "tableSchema":"app", "tableName":"employee", "name":"pk_employee", "type":"Primary", "columns":["id"]},
+    {"class":"RdbConstraintDomain", "sqlType": "CREATE_TABLE_ADD_CONSTRAINT", "auditKind":"CREATE", "tableSchema":"app", "tableName":"employee", "name":"fk_employee", "type":"ForeignKey", "columns":["dept_id"]},
+    {"class":"RdbIndexDomain", "sqlType": "CREATE_TABLE_ADD_INDEX", "auditKind":"CREATE", "tableSchema":"app", "tableName":"employee", "columns":["name"]}
+  ]
+}

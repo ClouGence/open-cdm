@@ -1,0 +1,39 @@
+UPDATE audit_log SET display_name = INITCAP(NVL(display_name, 'oracle parser')), expire_ts = SYSTIMESTAMP + NUMTODSINTERVAL(5, 'MINUTE'), biz_day = ADD_MONTHS(TRUNC(SYSDATE), 1) WHERE REGEXP_SUBSTR(display_name, '[A-Z]+', 1, 1) IS NOT NULL;
+
+UPDATE audit_log SET digest = SUBSTR(RAWTOHEX(SYS_GUID()), 1, 16), payload = TO_CLOB(DECODE(status, 'A', 'ACTIVE', 'INACTIVE')) WHERE NVL(status, 'N') <> 'X';
+
+UPDATE audit_log SET created_ts = TO_TIMESTAMP('2024-03-01 10:20:30', 'YYYY-MM-DD HH24:MI:SS') WHERE created_at < SYSDATE + NUMTODSINTERVAL(1, 'DAY');
+
+UPDATE audit_log a
+SET display_name = (
+    WITH latest_name AS (
+        SELECT INITCAP('oracle with update') AS v FROM dual
+    )
+    SELECT v FROM latest_name
+)
+WHERE EXISTS (
+    WITH checker AS (
+        SELECT 1 AS flag FROM dual
+    )
+    SELECT 1 FROM checker WHERE flag = 1
+);
+------------------------------------------------------------------------------------------
+[UPDATE] UPDATE audit_log SET display_name = INITCAP(NVL(display_name, 'oracle parser')), expire_ts = SYSTIMESTAMP + NUMTODSINTERVAL(5, 'MINUTE'), biz_day = ADD_MONTHS(TRUNC(SYSDATE), 1) WHERE REGEXP_SUBSTR(display_name, '[A-Z]+', 1, 1) IS NOT NULL;
+----------
+[UPDATE] UPDATE audit_log SET digest = SUBSTR(RAWTOHEX(SYS_GUID()), 1, 16), payload = TO_CLOB(DECODE(status, 'A', 'ACTIVE', 'INACTIVE')) WHERE NVL(status, 'N') <> 'X';
+----------
+[UPDATE] UPDATE audit_log SET created_ts = TO_TIMESTAMP('2024-03-01 10:20:30', 'YYYY-MM-DD HH24:MI:SS') WHERE created_at < SYSDATE + NUMTODSINTERVAL(1, 'DAY');
+----------
+[UPDATE|SELECT] UPDATE audit_log a
+SET display_name = (
+    WITH latest_name AS (
+        SELECT INITCAP('oracle with update') AS v FROM dual
+    )
+    SELECT v FROM latest_name
+)
+WHERE EXISTS (
+    WITH checker AS (
+        SELECT 1 AS flag FROM dual
+    )
+    SELECT 1 FROM checker WHERE flag = 1
+);

@@ -1,0 +1,255 @@
+[MsRuleCatalogNameCaseTypeTest#createCatalogNameCaseType_1#001]
+rule: _rules/catalog/catalog-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper case
+sql:
+create database abc_test
+----------
+[MsRuleCatalogNameCaseTypeTest#createCatalogNameCaseType_1#002]
+rule: _rules/catalog/catalog-name-case-type.rule
+expect: true
+vars:
+  caseType: Upper case
+sql:
+create database ABC_TEST
+----------
+[MsRuleCatalogNameCaseTypeTest#createCatalogNameCaseType_1#003]
+rule: _rules/catalog/catalog-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper case
+sql:
+create database abcTest
+----------
+[MsRuleCatalogNameCaseTypeTest#createCatalogNameCaseType_1#004]
+rule: _rules/catalog/catalog-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper case
+sql:
+create database AbcTest
+----------
+[MsRuleCatalogNameCaseTypeTest#createCatalogNameCaseType_2#001]
+rule: _rules/catalog/catalog-name-case-type.rule
+expect: true
+vars:
+  caseType: Lower case
+sql:
+create database abc_test
+----------
+[MsRuleCatalogNameCaseTypeTest#createCatalogNameCaseType_2#002]
+rule: _rules/catalog/catalog-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower case
+sql:
+create database ABC_TEST
+----------
+[MsRuleCatalogNameCaseTypeTest#createCatalogNameCaseType_2#003]
+rule: _rules/catalog/catalog-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower case
+sql:
+create database abcTest
+----------
+[MsRuleCatalogNameCaseTypeTest#createCatalogNameCaseType_2#004]
+rule: _rules/catalog/catalog-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower case
+sql:
+create database AbcTest
+----------
+[MsRuleCatalogNameCaseTypeTest#createCatalogNameCaseType_3#001]
+rule: _rules/catalog/catalog-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower camel case
+sql:
+create database abc_test
+----------
+[MsRuleCatalogNameCaseTypeTest#createCatalogNameCaseType_3#002]
+rule: _rules/catalog/catalog-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower camel case
+sql:
+create database ABC_TEST
+----------
+[MsRuleCatalogNameCaseTypeTest#createCatalogNameCaseType_3#003]
+rule: _rules/catalog/catalog-name-case-type.rule
+expect: true
+vars:
+  caseType: Lower camel case
+sql:
+create database abcTest
+----------
+[MsRuleCatalogNameCaseTypeTest#createCatalogNameCaseType_3#004]
+rule: _rules/catalog/catalog-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower camel case
+sql:
+create database AbcTest
+----------
+[MsRuleCatalogNameCaseTypeTest#createCatalogNameCaseType_4#001]
+rule: _rules/catalog/catalog-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper camel case
+sql:
+create database abc_test
+----------
+[MsRuleCatalogNameCaseTypeTest#createCatalogNameCaseType_4#002]
+rule: _rules/catalog/catalog-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper camel case
+sql:
+create database ABC_TEST
+----------
+[MsRuleCatalogNameCaseTypeTest#createCatalogNameCaseType_4#003]
+rule: _rules/catalog/catalog-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper camel case
+sql:
+create database abcTest
+----------
+[MsRuleCatalogNameCaseTypeTest#createCatalogNameCaseType_4#004]
+rule: _rules/catalog/catalog-name-case-type.rule
+expect: true
+vars:
+  caseType: Upper camel case
+sql:
+create database AbcTest
+----------
+[MsRuleCatalogNameCaseTypeTest#alterCatalogNameCaseType_1#001]
+rule: _rules/catalog/catalog-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper case
+sql:
+exec sp_rename abc, abc_test, 'DATABASE';
+----------
+[MsRuleCatalogNameCaseTypeTest#alterCatalogNameCaseType_1#002]
+rule: _rules/catalog/catalog-name-case-type.rule
+expect: true
+vars:
+  caseType: Upper case
+sql:
+exec sp_rename abc, ABC_TEST, 'DATABASE';
+----------
+[MsRuleCatalogNameCaseTypeTest#alterCatalogNameCaseType_1#003]
+rule: _rules/catalog/catalog-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper case
+sql:
+exec sp_rename abc, abcTest, 'DATABASE';
+----------
+[MsRuleCatalogNameCaseTypeTest#alterCatalogNameCaseType_1#004]
+rule: _rules/catalog/catalog-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper case
+sql:
+exec sp_rename abc, AbcTest, 'DATABASE';
+----------
+[MsRuleCatalogNameCaseTypeTest#alterCatalogNameCaseType_2#001]
+rule: _rules/catalog/catalog-name-case-type.rule
+expect: true
+vars:
+  caseType: Lower case
+sql:
+exec sp_rename abc, abc_test, 'DATABASE';
+----------
+[MsRuleCatalogNameCaseTypeTest#alterCatalogNameCaseType_2#002]
+rule: _rules/catalog/catalog-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower case
+sql:
+exec sp_rename abc, ABC_TEST, 'DATABASE';
+----------
+[MsRuleCatalogNameCaseTypeTest#alterCatalogNameCaseType_2#003]
+rule: _rules/catalog/catalog-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower case
+sql:
+exec sp_rename abc, abcTest, 'DATABASE';
+----------
+[MsRuleCatalogNameCaseTypeTest#alterCatalogNameCaseType_2#004]
+rule: _rules/catalog/catalog-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower case
+sql:
+exec sp_rename abc, AbcTest, 'DATABASE';
+----------
+[MsRuleCatalogNameCaseTypeTest#alterCatalogNameCaseType_3#001]
+rule: _rules/catalog/catalog-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower camel case
+sql:
+exec sp_rename abc, abc_test, 'DATABASE';
+----------
+[MsRuleCatalogNameCaseTypeTest#alterCatalogNameCaseType_3#002]
+rule: _rules/catalog/catalog-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower camel case
+sql:
+exec sp_rename abc, ABC_TEST, 'DATABASE';
+----------
+[MsRuleCatalogNameCaseTypeTest#alterCatalogNameCaseType_3#003]
+rule: _rules/catalog/catalog-name-case-type.rule
+expect: true
+vars:
+  caseType: Lower camel case
+sql:
+exec sp_rename abc, abcTest, 'DATABASE';
+----------
+[MsRuleCatalogNameCaseTypeTest#alterCatalogNameCaseType_3#004]
+rule: _rules/catalog/catalog-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower camel case
+sql:
+exec sp_rename abc, AbcTest, 'DATABASE';
+----------
+[MsRuleCatalogNameCaseTypeTest#alterCatalogNameCaseType_4#001]
+rule: _rules/catalog/catalog-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper camel case
+sql:
+exec sp_rename abc, abc_test, 'DATABASE';
+----------
+[MsRuleCatalogNameCaseTypeTest#alterCatalogNameCaseType_4#002]
+rule: _rules/catalog/catalog-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper camel case
+sql:
+exec sp_rename abc, ABC_TEST, 'DATABASE';
+----------
+[MsRuleCatalogNameCaseTypeTest#alterCatalogNameCaseType_4#003]
+rule: _rules/catalog/catalog-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper camel case
+sql:
+exec sp_rename abc, abcTEST, 'DATABASE';
+----------
+[MsRuleCatalogNameCaseTypeTest#alterCatalogNameCaseType_4#004]
+rule: _rules/catalog/catalog-name-case-type.rule
+expect: true
+vars:
+  caseType: Upper camel case
+sql:
+exec sp_rename abc, AbcTest, 'DATABASE';

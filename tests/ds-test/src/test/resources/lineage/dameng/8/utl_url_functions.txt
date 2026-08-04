@@ -1,0 +1,11 @@
+[utl_url_column_lineage]
+sql:
+select
+  utl_url.escape(t.url_value,false,'UTF8') as escaped_value,
+  utl_url.unescape(t.escaped_value,'UTF8') as unescaped_value
+from catalog1.app.url_source t
+expect:
+{
+  "escaped_value": ["/catalog1/app/url_source/url_value/"],
+  "unescaped_value": ["/catalog1/app/url_source/escaped_value/"]
+}

@@ -1,0 +1,173 @@
+create table t_storage_all (id int) storage (initial 1, next 1, minextents 1, fillfactor 80, branch (2, 2), with counter, using long row);
+create table t_storage_clusterbtr (id int, constraint pk_storage_cluster primary key (id)) storage (clusterbtr);
+create table t_segment_immediate (id int) segment creation immediate;
+create table t_segment_deferred (id int) segment creation deferred;
+create table t_parallel (id int) parallel 2;
+create table t_noparallel (id int) noparallel;
+create table t_advanced_log (id int) with advanced log;
+create table t_parent (id int primary key, code int unique);
+create table t_pk_index_ts (id int primary key using index tablespace default);
+create table t_not_cluster_pk (id int not cluster primary key);
+create table t_cluster_pk (id int cluster primary key);
+create table t_cluster_key (id int cluster key);
+create table t_cluster_unique_key (id int cluster unique key);
+create table t_fk_update_cascade (id int, pid int references t_parent(id) on update cascade);
+create table t_fk_update_null (id int, pid int references t_parent(id) on update set null);
+create table t_fk_update_default (id int, pid int default 1 references t_parent(id) on update set default);
+create table t_fk_match_partial (id int, pid int references t_parent(id) match partial);
+create table t_fk_match_simple (id int, pid int references t_parent(id) match simple);
+create table t_constraint_disabled (id int constraint ck_disabled check (id > 0) disable);
+create table t_constraint_deferred (id int, constraint uk_deferred unique (id) enable deferrable initially deferred);
+create table t_table_novalidate (id int, constraint ck_novalidate check (id > 0) novalidate);
+create table t_default_on_null (id int default on null 7, note varchar(20));
+create table t_virtual_no_type (a int, b generated always as (a + 1) virtual visible);
+create table t_column_storage (id int storage (fillfactor 80), note varchar(20));
+create table t_ctas_source (id int, note varchar(20));
+insert into t_ctas_source values (1, 'A');
+create table t_ctas_named (new_id, new_note) as select id, note from t_ctas_source;
+create table t_ctas_default (new_id default 7, new_note) as select id, note from t_ctas_source;
+create table t_ctas_storage tablespace main parallel 2 add logic log as select id, note from t_ctas_source;
+create table t_alter (id int, c1 int, c2 varchar(20));
+alter table t_alter add column if not exists c3 int default 3;
+alter table t_alter add column if not exists (c4 int, c5 varchar(20));
+alter table t_alter modify c2 default 'M' not null;
+alter table t_alter alter column c2 set default on null 'N';
+alter table t_alter drop column if exists c5;
+alter table t_alter enable all triggers;
+alter table t_alter disable all triggers;
+alter table t_alter enable using long row;
+alter table t_alter disable using long row;
+alter table t_alter read only;
+alter table t_alter read write;
+alter table t_alter parallel 2;
+alter table t_alter noparallel;
+comment on table t_alter is 'table atom comment';
+comment on column t_alter.c1 is 'column atom comment';
+select table_name, comments from user_tab_comments where table_name='T_ALTER';
+select table_name, column_name, comments from user_col_comments where table_name='T_ALTER' and column_name='C1';
+comment on table t_alter is '';
+comment on column t_alter.c1 is '';
+create table t_drop_parent (id int primary key);
+create table t_drop_child (id int, pid int references t_drop_parent(id));
+drop table t_drop_parent restrict;
+drop table t_drop_parent cascade;
+drop table t_drop_child;
+create table t_drop_purge (id int);
+drop table t_drop_purge purge;
+drop table if exists t_drop_missing;
+
+------------------------------------------------------------------------------------------
+[CREATE_TABLE|ADD_COLUMN] create table t_storage_all (id int) storage (initial 1, next 1, minextents 1, fillfactor 80, branch (2, 2), with counter, using long row);
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table t_storage_clusterbtr (id int, constraint pk_storage_cluster primary key (id)) storage (clusterbtr);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table t_segment_immediate (id int) segment creation immediate;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table t_segment_deferred (id int) segment creation deferred;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table t_parallel (id int) parallel 2;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table t_noparallel (id int) noparallel;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table t_advanced_log (id int) with advanced log;
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table t_parent (id int primary key, code int unique);
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table t_pk_index_ts (id int primary key using index tablespace default);
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table t_not_cluster_pk (id int not cluster primary key);
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table t_cluster_pk (id int cluster primary key);
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table t_cluster_key (id int cluster key);
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table t_cluster_unique_key (id int cluster unique key);
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table t_fk_update_cascade (id int, pid int references t_parent(id) on update cascade);
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table t_fk_update_null (id int, pid int references t_parent(id) on update set null);
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table t_fk_update_default (id int, pid int default 1 references t_parent(id) on update set default);
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table t_fk_match_partial (id int, pid int references t_parent(id) match partial);
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table t_fk_match_simple (id int, pid int references t_parent(id) match simple);
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table t_constraint_disabled (id int constraint ck_disabled check (id > 0) disable);
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table t_constraint_deferred (id int, constraint uk_deferred unique (id) enable deferrable initially deferred);
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table t_table_novalidate (id int, constraint ck_novalidate check (id > 0) novalidate);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table t_default_on_null (id int default on null 7, note varchar(20));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table t_virtual_no_type (a int, b generated always as (a + 1) virtual visible);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table t_column_storage (id int storage (fillfactor 80), note varchar(20));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table t_ctas_source (id int, note varchar(20));
+----------
+[INSERT] insert into t_ctas_source values (1, 'A');
+----------
+[CREATE_TABLE|ADD_COLUMN|SELECT] create table t_ctas_named (new_id, new_note) as select id, note from t_ctas_source;
+----------
+[CREATE_TABLE|ADD_COLUMN|SELECT] create table t_ctas_default (new_id default 7, new_note) as select id, note from t_ctas_source;
+----------
+[CREATE_TABLE|SELECT] create table t_ctas_storage tablespace main parallel 2 add logic log as select id, note from t_ctas_source;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table t_alter (id int, c1 int, c2 varchar(20));
+----------
+[ALTER_TABLE|ADD_COLUMN] alter table t_alter add column if not exists c3 int default 3;
+----------
+[ALTER_TABLE|ADD_COLUMN] alter table t_alter add column if not exists (c4 int, c5 varchar(20));
+----------
+[ALTER_TABLE|ALTER_COLUMN] alter table t_alter modify c2 default 'M' not null;
+----------
+[ALTER_TABLE|ALTER_COLUMN] alter table t_alter alter column c2 set default on null 'N';
+----------
+[ALTER_TABLE|DROP_COLUMN] alter table t_alter drop column if exists c5;
+----------
+[ALTER_TABLE] alter table t_alter enable all triggers;
+----------
+[ALTER_TABLE] alter table t_alter disable all triggers;
+----------
+[ALTER_TABLE] alter table t_alter enable using long row;
+----------
+[ALTER_TABLE] alter table t_alter disable using long row;
+----------
+[ALTER_TABLE] alter table t_alter read only;
+----------
+[ALTER_TABLE] alter table t_alter read write;
+----------
+[ALTER_TABLE] alter table t_alter parallel 2;
+----------
+[ALTER_TABLE] alter table t_alter noparallel;
+----------
+[COMMENT_TABLE] comment on table t_alter is 'table atom comment';
+----------
+[COMMENT_COLUMN] comment on column t_alter.c1 is 'column atom comment';
+----------
+[SELECT] select table_name, comments from user_tab_comments where table_name='T_ALTER';
+----------
+[SELECT] select table_name, column_name, comments from user_col_comments where table_name='T_ALTER' and column_name='C1';
+----------
+[COMMENT_TABLE] comment on table t_alter is '';
+----------
+[COMMENT_COLUMN] comment on column t_alter.c1 is '';
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table t_drop_parent (id int primary key);
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table t_drop_child (id int, pid int references t_drop_parent(id));
+----------
+[DROP_TABLE] drop table t_drop_parent restrict;
+----------
+[DROP_TABLE] drop table t_drop_parent cascade;
+----------
+[DROP_TABLE] drop table t_drop_child;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table t_drop_purge (id int);
+----------
+[DROP_TABLE] drop table t_drop_purge purge;
+----------
+[DROP_TABLE] drop table if exists t_drop_missing;
+

@@ -1,0 +1,27 @@
+insert into huge_main(id, name) values(1, 'alpha');
+insert into huge_main(id, name) values(null, default);
+insert into huge_main select id, name from source_table;
+update huge_main set name=upper(name) where id=1;
+delete from huge_main where id=2;
+merge into huge_main h using source_table s on(h.id=s.id) when matched then update set h.name=s.name when not matched then insert(id,name) values(s.id,s.name);
+truncate table huge_main;
+commit;
+rollback;
+------------------------------------------------------------------------------------------
+[INSERT] insert into huge_main(id, name) values(1, 'alpha');
+----------
+[INSERT] insert into huge_main(id, name) values(null, default);
+----------
+[INSERT|SELECT] insert into huge_main select id, name from source_table;
+----------
+[UPDATE] update huge_main set name=upper(name) where id=1;
+----------
+[DELETE] delete from huge_main where id=2;
+----------
+[MERGE] merge into huge_main h using source_table s on(h.id=s.id) when matched then update set h.name=s.name when not matched then insert(id,name) values(s.id,s.name);
+----------
+[TRUNCATE_TABLE] truncate table huge_main;
+----------
+[TRANSACTION] commit;
+----------
+[TRANSACTION] rollback;

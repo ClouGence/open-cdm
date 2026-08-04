@@ -1,0 +1,17 @@
+[encryption_constant_columns]
+sql:
+select sf_decrypt_to_char(sf_encrypt_char('CODEX', 514, 'KEY', null), 514, 'KEY', null) as plain_text
+expect:
+{
+  "plain_text" : []
+}
+----------
+[encryption_table_columns]
+sql:
+select sf_decrypt_to_char(c_char, 514, 'KEY', null) as plain_char, sf_decrypt_to_date(c_date, 514, 'KEY', null) as plain_date, sf_decrypt_to_dec(c_dec, 514, 'KEY', null) as plain_dec from catalog1.app.crypto_data where id = 1
+expect:
+{
+  "plain_char" : [ "/catalog1/app/crypto_data/c_char/" ],
+  "plain_date" : [ "/catalog1/app/crypto_data/c_date/" ],
+  "plain_dec" : [ "/catalog1/app/crypto_data/c_dec/" ]
+}

@@ -1,0 +1,27 @@
+[table_identity_values]
+sql:
+select id,note from catalog1.app.table_ident_state order by note
+expect:
+{
+  "id": ["/catalog1/app/table_ident_state/id/"],
+  "note": ["/catalog1/app/table_ident_state/note/"]
+}
+----------
+[table_identity_function_values]
+sql:
+select ident_seed('APP.TABLE_IDENT_STATE') as seed_value,
+       ident_incr('APP.TABLE_IDENT_STATE') as increment_value
+expect:
+{
+  "seed_value": [],
+  "increment_value": []
+}
+----------
+[table_auto_values]
+sql:
+select id,note from catalog1.app.table_auto_alt order by note
+expect:
+{
+  "id": ["/catalog1/app/table_auto_alt/id/"],
+  "note": ["/catalog1/app/table_auto_alt/note/"]
+}

@@ -12,18 +12,19 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */package com.clougence.clouddm.worker.provider;
-
-import jakarta.annotation.Resource;
+ */
+package com.clougence.clouddm.worker.provider;
 
 import org.springframework.stereotype.Service;
 
+import com.clougence.clouddm.api.sidecar.autoexec.AutoExecJobDTO;
 import com.clougence.clouddm.api.sidecar.autoexec.AutoExecRService;
 import com.clougence.clouddm.comm.RSocketApiClass;
 import com.clougence.clouddm.comm.model.RSocketSendDTO;
 import com.clougence.clouddm.worker.component.autoexec.AutoExecJobManager;
 import com.clougence.utils.ExceptionUtils;
 
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -35,8 +36,8 @@ public class AutoExecRServiceProvider implements AutoExecRService {
     private AutoExecJobManager autoExecJobManager;
 
     @Override
-    public void dispatchJob(RSocketSendDTO dto, Long jobId) {
-        this.autoExecJobManager.submit(jobId);
+    public void dispatchJob(RSocketSendDTO dto, AutoExecJobDTO job) {
+        this.autoExecJobManager.submit(job);
     }
 
     public void pauseJob(RSocketSendDTO dto, Long jobId) {

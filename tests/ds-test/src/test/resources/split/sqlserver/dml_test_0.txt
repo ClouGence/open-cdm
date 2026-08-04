@@ -1,0 +1,35 @@
+-- 步骤 1: 插入部门数据
+-- 假设这将生成 ID 1, 2, 3
+INSERT INTO Departments (DepartmentName) VALUES (N'技术部');
+INSERT INTO Departments (DepartmentName) VALUES (N'人事部');
+INSERT INTO Departments (DepartmentName) VALUES (N'市场部');
+GO
+
+-- 步骤 2: 插入员工数据，明确指定每一列的值
+-- 此处硬编码 DepartmentID 的值为 1, 2, 3，对应上面插入的部门
+INSERT INTO Employees (FirstName, LastName, DepartmentID) VALUES (N'三', N'张', 1); -- 1: 技术部
+INSERT INTO Employees (FirstName, LastName, DepartmentID) VALUES (N'四', N'李', 1); -- 1: 技术部
+INSERT INTO Employees (FirstName, LastName, DepartmentID) VALUES (N'五', N'王', 2); -- 2: 人事部
+INSERT INTO Employees (FirstName, LastName, DepartmentID) VALUES (N'六', N'赵', 3); -- 3: 市场部
+GO
+------------------------------------------------------------------------------------------
+[INSERT] -- 步骤 1: 插入部门数据
+-- 假设这将生成 ID 1, 2, 3
+INSERT INTO Departments (DepartmentName) VALUES (N'技术部');
+----------
+[INSERT] INSERT INTO Departments (DepartmentName) VALUES (N'人事部');
+----------
+[INSERT] INSERT INTO Departments (DepartmentName) VALUES (N'市场部');
+----------
+[INSERT] -- 步骤 2: 插入员工数据，明确指定每一列的值
+-- 此处硬编码 DepartmentID 的值为 1, 2, 3，对应上面插入的部门
+INSERT INTO Employees (FirstName, LastName, DepartmentID) VALUES (N'三', N'张', 1);
+----------
+[INSERT] -- 1: 技术部
+INSERT INTO Employees (FirstName, LastName, DepartmentID) VALUES (N'四', N'李', 1);
+----------
+[INSERT] -- 1: 技术部
+INSERT INTO Employees (FirstName, LastName, DepartmentID) VALUES (N'五', N'王', 2);
+----------
+[INSERT] -- 2: 人事部
+INSERT INTO Employees (FirstName, LastName, DepartmentID) VALUES (N'六', N'赵', 3);

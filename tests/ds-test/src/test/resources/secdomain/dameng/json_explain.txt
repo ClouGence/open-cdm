@@ -1,0 +1,55 @@
+[explain_select]
+sql:
+explain select t.id,t.v from app.ex_target t where t.id=1
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"ex_target"}
+  ]
+}
+----------
+[explain_join]
+sql:
+explain for select t.id,s.name
+from app.ex_target t join app.ex_source s on s.id=t.id
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"ex_target"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"ex_source"}
+  ]
+}
+----------
+[explain_insert]
+sql:
+explain insert into app.ex_target
+select id+10,v,name from app.ex_source
+expect:
+{
+  "contains": [
+    {"class":"RdbInsertDomain", "sqlType":"INSERT", "auditKind":"DML", "schema":"app", "table":"ex_target"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"ex_source"}
+  ]
+}
+----------
+[explain_update]
+sql:
+explain for update app.ex_target set v=v+1 where id=1
+expect:
+{
+  "contains": [
+    {"class":"RdbUpdateDomain", "sqlType":"UPDATE", "auditKind":"DML", "schema":"app", "table":"ex_target"}
+  ]
+}
+----------
+[explain_merge]
+sql:
+explain merge into app.ex_target t using app.ex_source s on(t.id=s.id)
+when matched then update set t.v=s.v
+expect:
+{
+  "contains": [
+    {"class":"RdbUpdateDomain", "sqlType":"MERGE", "auditKind":"DML", "schema":"app", "table":"ex_target"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"ex_source"}
+  ]
+}

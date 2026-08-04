@@ -1,0 +1,29 @@
+create table app.bad_tz_s01(c time() with time zone);
+create table app.bad_tz_s02(c timestamp() with time zone);
+create table app.bad_tz_s03(c timestamp() with local time zone);
+create table app.bad_tz_s04(c time(-1) with time zone);
+create table app.bad_tz_s05(c timestamp(-1) with time zone);
+create table app.bad_tz_s06(c timestamp(-1) with local time zone);
+set time zone;
+set time zone '+08:00' extra;
+create function app.bad_tz_f(p timestamp() with time zone)
+return int as begin return 1;end;/
+------------------------------------------------------------------------------------------
+[CREATE_TABLE] create table app.bad_tz_s01(c time() with time zone);
+----------
+[CREATE_TABLE] create table app.bad_tz_s02(c timestamp() with time zone);
+----------
+[CREATE_TABLE] create table app.bad_tz_s03(c timestamp() with local time zone);
+----------
+[CREATE_TABLE] create table app.bad_tz_s04(c time(-1) with time zone);
+----------
+[CREATE_TABLE] create table app.bad_tz_s05(c timestamp(-1) with time zone);
+----------
+[CREATE_TABLE] create table app.bad_tz_s06(c timestamp(-1) with local time zone);
+----------
+[SYSTEM_SETTING_WRITE] set time zone;
+----------
+[SYSTEM_SETTING_WRITE] set time zone '+08:00' extra;
+----------
+[CREATE_PROG_OBJ] create function app.bad_tz_f(p timestamp() with time zone)
+return int as begin return 1;end;/

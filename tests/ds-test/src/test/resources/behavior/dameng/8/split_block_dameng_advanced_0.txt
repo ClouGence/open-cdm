@@ -1,0 +1,1050 @@
+[split_block_dameng_advanced_0_001]
+sql:
+declare
+  v_id int := 1;
+  v_name varchar(80) := 'ALPHA';
+  v_amount decimal(12,2) := 100.00;
+  v_enabled boolean := true;
+begin
+  if v_enabled then v_amount := v_amount + v_id; end if;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": []
+}
+----------
+[split_block_dameng_advanced_0_002]
+sql:
+declare
+  v_name program_source.name%type;
+begin
+  select name into v_name from program_source where id = 1;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(4:31~4:45) /test/1/catalog1/schema1/program_source/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_advanced_0_003]
+sql:
+declare
+  v_row program_source%rowtype;
+begin
+  select * into v_row from program_source where id = 1;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(4:27~4:41) /test/1/catalog1/schema1/program_source/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_advanced_0_004]
+sql:
+declare
+  type rec_type is record(id int default 1, name varchar(80) := 'ALPHA');
+  v_rec rec_type;
+begin
+  v_rec.id := v_rec.id + 1;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": []
+}
+----------
+[split_block_dameng_advanced_0_005]
+sql:
+declare
+  type time_type is record(hours int, minutes int);
+  type meeting_type is record(day_value date, time_value time_type);
+  v_meeting meeting_type;
+begin
+  v_meeting.day_value := current_date;
+  v_meeting.time_value.hours := 10;
+  v_meeting.time_value.minutes := 30;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(6:25~6:37) /test/1/catalog1/schema1/current_date/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_advanced_0_006]
+sql:
+declare
+  type arr_type is array int[3];
+  v_arr arr_type;
+begin
+  for i in 1 .. 3 loop v_arr[i] := i * 10; end loop;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": []
+}
+----------
+[split_block_dameng_advanced_0_007]
+sql:
+declare
+  type arr_type is array int[2,3];
+  v_arr arr_type;
+begin
+  for i in 1 .. 2 loop
+    for j in 1 .. 3 loop v_arr[i][j] := i * 10 + j; end loop;
+  end loop;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": []
+}
+----------
+[split_block_dameng_advanced_0_008]
+sql:
+declare
+  type arr_type is array varchar[];
+  v_arr arr_type;
+begin
+  v_arr := new varchar[4];
+  for i in 1 .. 4 loop v_arr[i] := cast(i as varchar); end loop;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": []
+}
+----------
+[split_block_dameng_advanced_0_009]
+sql:
+declare
+  type list_type is varray(10) of int;
+  v_list list_type;
+begin
+  v_list := list_type();
+  v_list.extend(3);
+  v_list(1) := 10;
+  v_list(2) := 20;
+  v_list(3) := 30;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(6:9~6:15) /test/1/catalog1/list_type/extend/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_advanced_0_010]
+sql:
+declare
+  type map_type is table of varchar(80) index by int;
+  v_map map_type;
+begin
+  v_map(1) := 'ALPHA';
+  v_map(2) := 'BETA';
+  v_map(3) := v_map(1) || v_map(2);
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": []
+}
+----------
+[split_block_dameng_advanced_0_011]
+sql:
+declare
+  type map_type is table of int index by varchar(20);
+  v_map map_type;
+begin
+  v_map('ALPHA') := 1;
+  v_map('BETA') := 2;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": []
+}
+----------
+[split_block_dameng_advanced_0_012]
+sql:
+declare
+  type list_type is table of int;
+  v_list list_type := list_type(1, 2, 3);
+begin
+  v_list.extend();
+  v_list(4) := 4;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(5:9~5:15) /test/1/catalog1/list_type/extend/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_advanced_0_013]
+sql:
+declare
+  subtype counter_type is number(5) not null;
+  v_counter counter_type := 1;
+begin
+  v_counter := v_counter + 1;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": []
+}
+----------
+[split_block_dameng_advanced_0_014]
+sql:
+declare
+  type cursor_type is ref cursor;
+  v_cursor cursor_type;
+  v_id int;
+begin
+  open v_cursor for select id from program_source order by id;
+  fetch v_cursor into v_id;
+  close v_cursor;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(6:35~6:49) /test/1/catalog1/schema1/program_source/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_advanced_0_015]
+sql:
+declare
+  codex_error exception;
+begin
+  raise codex_error;
+exception
+  when codex_error then null;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": []
+}
+----------
+[split_block_dameng_advanced_0_016]
+sql:
+declare
+  codex_error exception for -20001;
+begin
+  raise_application_error(-20001, 'CODEX');
+exception
+  when codex_error then null;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(4:2~4:25) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_advanced_0_017]
+sql:
+declare
+  v_value int := 2;
+begin
+  if v_value = 1 then
+    v_value := 10;
+  elsif v_value = 2 then
+    v_value := 20;
+  else
+    v_value := 30;
+  end if;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": []
+}
+----------
+[split_block_dameng_advanced_0_018]
+sql:
+declare
+  v_value int := 2;
+begin
+  case v_value
+    when 1 then v_value := 10;
+    when 2 then v_value := 20;
+    else v_value := 30;
+  end case;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": []
+}
+----------
+[split_block_dameng_advanced_0_019]
+sql:
+declare
+  v_value int := 0;
+begin
+  repeat
+    v_value := v_value + 1;
+  until v_value >= 3;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": []
+}
+----------
+[split_block_dameng_advanced_0_020]
+sql:
+declare
+  v_value int := 0;
+begin
+  <<outer_loop>>
+  loop
+    v_value := v_value + 1;
+    exit outer_loop when v_value >= 2;
+  end loop outer_loop;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": []
+}
+----------
+[split_block_dameng_advanced_0_021]
+sql:
+declare
+  v_total int := 0;
+begin
+  for i in 1 .. 5 loop
+    continue when mod(i, 2) = 0;
+    v_total := v_total + i;
+  end loop;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(5:18~5:21) /test/1/catalog1/schema1/mod/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_advanced_0_022]
+sql:
+declare
+  v_value int := 1;
+begin
+  goto completed;
+  v_value := 2;
+  <<completed>>
+  null;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": []
+}
+----------
+[split_block_dameng_advanced_0_023]
+sql:
+declare
+  v_value int := 1;
+begin
+  declare
+    v_inner int := 0;
+  begin
+    v_inner := 1 / v_inner;
+  exception
+    when others then v_value := 2;
+  end;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": []
+}
+----------
+[split_block_dameng_advanced_0_024]
+sql:
+declare
+  cursor c_source is select id, name from program_source order by id;
+  v_id int;
+  v_name varchar(80);
+begin
+  open c_source;
+  fetch c_source into v_id, v_name;
+  close c_source;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(2:42~2:56) /test/1/catalog1/schema1/program_source/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_advanced_0_025]
+sql:
+declare
+  cursor c_source(p_min int default 1) is
+    select id, name from program_source where id >= p_min order by id;
+  v_id int;
+  v_name varchar(80);
+begin
+  open c_source(2);
+  fetch c_source into v_id, v_name;
+  close c_source;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(3:25~3:39) /test/1/catalog1/schema1/program_source/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_advanced_0_026]
+sql:
+declare
+  cursor c_source is select id, name from program_source order by id;
+  v_total int := 0;
+begin
+  for r in c_source loop
+    v_total := v_total + r.id;
+  end loop;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(2:42~2:56) /test/1/catalog1/schema1/program_source/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_advanced_0_027]
+sql:
+declare
+  v_name varchar(80);
+  v_amount decimal(12,2);
+begin
+  select name, amount into v_name, v_amount from program_source where id = 1;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(5:49~5:63) /test/1/catalog1/schema1/program_source/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_advanced_0_028]
+sql:
+declare
+  v_cursor cursor;
+  v_id int;
+begin
+  open v_cursor for select id from program_source order by id;
+  fetch v_cursor into v_id;
+  close v_cursor;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(5:35~5:49) /test/1/catalog1/schema1/program_source/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_advanced_0_029]
+sql:
+declare
+  v_cursor cursor;
+  v_id int;
+begin
+  open v_cursor for 'select id from program_source where id >= ? order by id' using 2;
+  fetch v_cursor into v_id;
+  close v_cursor;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": []
+}
+----------
+[split_block_dameng_advanced_0_030]
+sql:
+declare
+  v_sql varchar(200) := 'create table program_dynamic(id int)';
+begin
+  execute immediate v_sql;
+  execute immediate 'drop table program_dynamic';
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "PrepareStatement(4:2~4:9) /test/1/",
+      "action": "UNSAFE"
+    },
+    {
+      "subject": "PrepareStatement(5:2~5:9) /test/1/",
+      "action": "UNSAFE"
+    }
+  ]
+}
+----------
+[split_block_dameng_advanced_0_031]
+sql:
+declare
+  v_name varchar(80);
+begin
+  execute immediate 'select name from program_source where id = ?' into v_name using 1;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "PrepareStatement(4:2~4:9) /test/1/",
+      "action": "UNSAFE"
+    }
+  ]
+}
+----------
+[split_block_dameng_advanced_0_032]
+sql:
+declare
+  v_id int := 101;
+  v_name varchar(80) := 'DYNAMIC';
+begin
+  execute immediate 'insert into program_target(id, name, amount) values(?, ?, 1)' using v_id, v_name;
+  delete from program_target where id = v_id;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "PrepareStatement(5:2~5:9) /test/1/",
+      "action": "UNSAFE"
+    },
+    {
+      "subject": "Table(6:14~6:28) /test/1/catalog1/schema1/program_target/",
+      "action": "DELETE"
+    }
+  ]
+}
+----------
+[split_block_dameng_advanced_0_033]
+sql:
+declare
+  v_amount decimal(12,2) := 10;
+begin
+  insert into program_target values(102, 'UPDATE', 1);
+  execute immediate 'update program_target set amount = ? where id = ?' using v_amount, 102;
+  delete from program_target where id = 102;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(4:14~4:28) /test/1/catalog1/schema1/program_target/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "PrepareStatement(5:2~5:9) /test/1/",
+      "action": "UNSAFE"
+    },
+    {
+      "subject": "Table(6:14~6:28) /test/1/catalog1/schema1/program_target/",
+      "action": "DELETE"
+    }
+  ]
+}
+----------
+[split_block_dameng_advanced_0_034]
+sql:
+declare
+  v_id int := 103;
+begin
+  insert into program_target values(v_id, 'DELETE', 1);
+  execute immediate 'delete from program_target where id = ?' using v_id;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(4:14~4:28) /test/1/catalog1/schema1/program_target/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "PrepareStatement(5:2~5:9) /test/1/",
+      "action": "UNSAFE"
+    }
+  ]
+}
+----------
+[split_block_dameng_advanced_0_035]
+sql:
+declare
+  v_name varchar(80);
+begin
+  execute immediate 'insert into program_target values(104, ''RETURNING'', 1) returning name into ?'
+    returning into v_name;
+  delete from program_target where id = 104;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "PrepareStatement(4:2~4:9) /test/1/",
+      "action": "UNSAFE"
+    },
+    {
+      "subject": "Table(6:14~6:28) /test/1/catalog1/schema1/program_target/",
+      "action": "DELETE"
+    }
+  ]
+}
+----------
+[split_block_dameng_advanced_0_036]
+sql:
+declare
+  v_code int;
+  v_message varchar(200);
+begin
+  begin
+    raise_application_error(-20002, 'CODEX');
+  exception
+    when others then
+      v_code := sqlcode;
+      v_message := sqlerrm;
+  end;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(6:4~6:27) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_advanced_0_037]
+sql:
+declare
+  first_error exception;
+  second_error exception;
+begin
+  raise first_error;
+exception
+  when first_error or second_error then null;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": []
+}
+----------
+[split_block_dameng_advanced_0_038]
+sql:
+declare
+  v_value int := 1;
+begin
+  raise_application_error(-20003, 'CODEX');
+exception
+  when others then v_value := -1;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(4:2~4:25) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_advanced_0_039]
+sql:
+declare
+  type id_list is table of int index by int;
+  v_ids id_list;
+begin
+  v_ids(1) := 201;
+  v_ids(2) := 202;
+  v_ids(3) := 203;
+  forall i in 1 .. 3
+    insert into program_target(id, name, amount) values(v_ids(i), 'FORALL', 1);
+  delete from program_target where id between 201 and 203;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(9:16~9:30) /test/1/catalog1/schema1/program_target/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Table(10:14~10:28) /test/1/catalog1/schema1/program_target/",
+      "action": "DELETE"
+    }
+  ]
+}
+----------
+[split_block_dameng_advanced_0_040]
+sql:
+declare
+  type row_list is table of program_source%rowtype;
+  v_rows row_list;
+begin
+  select * bulk collect into v_rows from program_source order by id;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(5:41~5:55) /test/1/catalog1/schema1/program_source/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_advanced_0_041]
+sql:
+declare
+  type id_list is table of int;
+  v_ids id_list;
+  cursor c_source is select id from program_source order by id;
+begin
+  open c_source;
+  fetch c_source bulk collect into v_ids;
+  close c_source;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(4:36~4:50) /test/1/catalog1/schema1/program_source/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_advanced_0_042]
+sql:
+declare
+  v_cursor cursor;
+  v_id int;
+begin
+  open with fast v_cursor for select id from program_source order by id;
+  fetch v_cursor into v_id;
+  close v_cursor;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(5:45~5:59) /test/1/catalog1/schema1/program_source/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_advanced_0_043]
+sql:
+declare
+  v_cursor cursor;
+  v_id int;
+begin
+  open v_cursor for select id from program_source order by id;
+  fetch next from v_cursor into v_id;
+  close v_cursor;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(5:35~5:49) /test/1/catalog1/schema1/program_source/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_advanced_0_044]
+sql:
+declare
+  v_cursor cursor;
+  v_id int;
+begin
+  open v_cursor for select id from program_source order by id;
+  fetch first from v_cursor into v_id;
+  close v_cursor;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(5:35~5:49) /test/1/catalog1/schema1/program_source/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_advanced_0_045]
+sql:
+declare
+  type list_type is varray(10) of int;
+  v_list list_type := list_type(10, 20, 30);
+  v_count int;
+  v_first int;
+  v_last int;
+begin
+  v_count := v_list.count();
+  v_first := v_list.first();
+  v_last := v_list.last();
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(8:20~8:25) /test/1/catalog1/list_type/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(9:20~9:25) /test/1/catalog1/list_type/first/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(10:19~10:23) /test/1/catalog1/list_type/last/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_advanced_0_046]
+sql:
+declare
+  type list_type is table of int;
+  v_list list_type := list_type(10, 20, 30);
+begin
+  v_list.extend(2);
+  v_list.trim(1);
+  v_list.delete(2);
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(5:9~5:15) /test/1/catalog1/list_type/extend/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(6:9~6:13) /test/1/catalog1/list_type/trim/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(7:9~7:15) /test/1/catalog1/list_type/delete/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_advanced_0_047]
+sql:
+declare
+  type list_type is table of int;
+  v_list list_type := list_type(10, 20, 30);
+  v_found boolean;
+begin
+  v_found := 20 member of v_list;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": []
+}
+----------
+[split_block_dameng_advanced_0_048]
+sql:
+declare
+  type rec_type is record(id int, name varchar(80));
+  v_left rec_type;
+  v_right rec_type;
+begin
+  select id, name into v_left from program_source where id = 1;
+  v_right := v_left;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(6:35~6:49) /test/1/catalog1/schema1/program_source/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_advanced_0_049]
+sql:
+declare
+  v_row program_source%rowtype;
+begin
+  select * into v_row from program_source where id = 1;
+  update program_target set name = v_row.name where id = -1;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(4:27~4:41) /test/1/catalog1/schema1/program_source/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(5:9~5:23) /test/1/catalog1/schema1/program_target/",
+      "action": "UPDATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_advanced_0_050]
+sql:
+declare
+  v_cursor cursor;
+  v_id int;
+begin
+  open v_cursor for select id from program_source order by id;
+  fetch absolute 2 from v_cursor into v_id;
+  fetch relative 1 from v_cursor into v_id;
+  fetch last from v_cursor into v_id;
+  fetch prior from v_cursor into v_id;
+  close v_cursor;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(5:35~5:49) /test/1/catalog1/schema1/program_source/",
+      "action": "READ"
+    }
+  ]
+}

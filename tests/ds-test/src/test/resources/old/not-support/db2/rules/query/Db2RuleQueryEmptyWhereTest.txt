@@ -1,0 +1,79 @@
+[Db2RuleQueryEmptyWhereTest#emptyWhereTest_1#001]
+rule: _rules/query/query-empty-where.rule
+expect: false
+vars:
+  allow: false
+sql:
+select * from abc
+----------
+[Db2RuleQueryEmptyWhereTest#emptyWhereTest_1#002]
+rule: _rules/query/query-empty-where.rule
+expect: false
+vars:
+  allow: false
+sql:
+select * from table_1 where 1=1
+----------
+[Db2RuleQueryEmptyWhereTest#emptyWhereTest_1#003]
+rule: _rules/query/query-empty-where.rule
+expect: false
+vars:
+  allow: false
+sql:
+select * from table_1 where a=a
+----------
+[Db2RuleQueryEmptyWhereTest#emptyWhereTest_2#001]
+rule: _rules/query/query-empty-where.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from abc
+----------
+[Db2RuleQueryEmptyWhereTest#emptyWhereTest_2#002]
+rule: _rules/query/query-empty-where.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from table_1 where 1=1
+----------
+[Db2RuleQueryEmptyWhereTest#emptyWhereTest_2#003]
+rule: _rules/query/query-empty-where.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from table_1 where a=a
+----------
+[Db2RuleQueryEmptyWhereTest#emptyWhereTest_3#001]
+rule: _rules/query/query-empty-where.rule
+expect: true
+vars:
+  allow: false
+sql:
+select * from table_1 where 1>1
+----------
+[Db2RuleQueryEmptyWhereTest#emptyWhereTest_3#002]
+rule: _rules/query/query-empty-where.rule
+expect: true
+vars:
+  allow: false
+sql:
+select * from table_1 where 1=1 and a = '123'
+----------
+[Db2RuleQueryEmptyWhereTest#emptyWhereTest_4#001]
+rule: _rules/query/query-empty-where.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from table_1 where 1>1
+----------
+[Db2RuleQueryEmptyWhereTest#emptyWhereTest_4#002]
+rule: _rules/query/query-empty-where.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from table_1 where 1=1 and a = '123'

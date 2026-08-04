@@ -1,0 +1,51 @@
+[contains_columns]
+sql:
+select d.id,d.title from catalog1.app.ft_docs d where contains(d.body,'database',1)
+expect:
+{
+  "id": [
+    "/catalog1/app/ft_docs/id/"
+  ],
+  "title": [
+    "/catalog1/app/ft_docs/title/"
+  ]
+}
+----------
+[contains_join_columns]
+sql:
+select d.id,o.body from catalog1.app.ft_docs d join catalog1.app.ft_other o on o.id=d.id where contains(d.body,'database',1) and contains(o.body,'reference',2)
+expect:
+{
+  "id": [
+    "/catalog1/app/ft_docs/id/"
+  ],
+  "body": [
+    "/catalog1/app/ft_other/body/"
+  ]
+}
+----------
+[contains_cte_columns]
+sql:
+with q as(select id,title from catalog1.app.ft_docs where contains(body,'database')) select id,title from q
+expect:
+{
+  "id": [
+    "/catalog1/app/ft_docs/id/"
+  ],
+  "title": [
+    "/catalog1/app/ft_docs/title/"
+  ]
+}
+----------
+[contains_view_columns]
+sql:
+select id,body from catalog1.app.v_docs where contains(body,'database')
+expect:
+{
+  "id": [
+    "/catalog1/app/v_docs/id/"
+  ],
+  "body": [
+    "/catalog1/app/v_docs/body/"
+  ]
+}

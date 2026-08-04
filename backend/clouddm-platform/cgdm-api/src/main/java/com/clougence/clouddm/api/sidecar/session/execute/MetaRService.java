@@ -38,6 +38,8 @@ public interface MetaRService {
 
     String getVersion(RSocketSendDTO sendDTO, DataSourceConfig dbConfig, Map<UmiTypes, Object> levelsParam);
 
+    Map<String, String> getSqlParserParameters(RSocketSendDTO sendDTO, DataSourceConfig dbConfig, Map<UmiTypes, Object> levelsParam);
+
     List<DsElement> listLevels(RSocketSendDTO sendDTO, DataSourceConfig dbConfig, List<UmiTypes> levels, Map<UmiTypes, Object> levelsParam);
 
     DsElement detailLevel(RSocketSendDTO sendDTO, DataSourceConfig dsConfig, List<UmiTypes> levels, Map<UmiTypes, Object> levelsParam);

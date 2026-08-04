@@ -1,0 +1,31 @@
+[dbms_job_procedure_domains]
+sql:
+declare
+  j int; t varchar(1800);
+begin
+  dbms_job.broken(j,false);
+  dbms_job."CHANGE"(j,t,sysdate,null);
+  dbms_job."INTERVAL"(j,null);
+  dbms_job.isubmit(j,t,sysdate);
+  dbms_job.next_date(j,sysdate);
+  dbms_job.remove(j);
+  dbms_job.run(j);
+  dbms_job.submit(j,t);
+  dbms_job.what(j,t);
+  dbms_job.job_config_commit(t);
+end;
+expect:
+{
+  "contains": [
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_job"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_job"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_job"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_job"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_job"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_job"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_job"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_job"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_job"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_job"}
+  ]
+}

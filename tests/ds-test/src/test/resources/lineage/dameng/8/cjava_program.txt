@@ -1,0 +1,28 @@
+[c_block_has_no_result_lineage]
+sql:
+{
+  int v_id;
+  varchar v_name;
+  select id, name into v_id, v_name from catalog1.app.cjava_source where id = 1;
+}
+/
+expect:
+{}
+----------
+[java_class_definition_has_no_result_lineage]
+sql:
+create or replace java class j_cursor_reader
+{
+  int v_id;
+  int first_id()
+  {
+    cursor csr for select id from catalog1.app.cjava_source order by id;
+    open cursor csr;
+    fetch cursor csr into v_id;
+    close cursor csr;
+    return v_id;
+  }
+}
+/
+expect:
+{}

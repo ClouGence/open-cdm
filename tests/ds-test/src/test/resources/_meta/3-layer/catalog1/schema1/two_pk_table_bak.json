@@ -1,0 +1,24 @@
+[
+  {
+    "columns": [
+      {
+        "column": "id",
+        "table": "two_pk_table_bak",
+        "schema": "schema1",
+        "catalog": "catalog1"
+      }
+    ],
+    "itemAlias": "id"
+  },
+  {
+    "columns": [
+      {
+        "column": "age",
+        "table": "two_pk_table_bak",
+        "schema": "schema1",
+        "catalog": "catalog1"
+      }
+    ],
+    "itemAlias": "age"
+  }
+]

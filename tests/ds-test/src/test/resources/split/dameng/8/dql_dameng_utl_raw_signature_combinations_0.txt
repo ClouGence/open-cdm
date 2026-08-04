@@ -1,0 +1,460 @@
+-- XRANGE_DEFAULTS
+select utl_raw.xrange() from dual;
+-- XRANGE_A_Z
+select utl_raw.xrange(utl_raw.cast_to_raw('A'),utl_raw.cast_to_raw('Z')) from dual;
+-- XRANGE_WRAP
+select utl_raw.xrange('FE','01') from dual;
+-- XRANGE_NAMED_REORDERED
+select utl_raw.xrange(END_BYTE=>'02',START_BYTE=>'00') from dual;
+-- BIT_AND_EQUAL
+select utl_raw.bit_and('0102F3','F30201') from dual;
+-- BIT_AND_UNEQUAL_NAMED
+select utl_raw.bit_and(R2=>'FF',R1=>'0102') from dual;
+-- BIT_COMPLEMENT
+select utl_raw.bit_complement('0102F3') from dual;
+-- BIT_COMPLEMENT_NAMED
+select utl_raw.bit_complement(R=>'00FF') from dual;
+-- BIT_OR_EQUAL
+select utl_raw.bit_or('0102F3','F30201') from dual;
+-- BIT_OR_UNEQUAL_NAMED
+select utl_raw.bit_or(R2=>'01',R1=>'0102') from dual;
+-- BIT_XOR_EQUAL
+select utl_raw.bit_xor('0102F3','F30201') from dual;
+-- BIT_XOR_UNEQUAL_NAMED
+select utl_raw.bit_xor(R2=>'01',R1=>'0102') from dual;
+-- COMPARE_DEFAULT
+select utl_raw.compare(utl_raw.cast_to_raw('ABC'),utl_raw.cast_to_raw('ABCD')) from dual;
+-- COMPARE_EQUAL
+select utl_raw.compare('0102','0102') from dual;
+-- COMPARE_CUSTOM_PAD
+select utl_raw.compare('0102','0103','FF') from dual;
+-- COMPARE_NAMED_REORDERED
+select utl_raw.compare(PAD=>'00',R2=>'0102',R1=>'01') from dual;
+-- CONCAT_ZERO
+select utl_raw.concat() from dual;
+-- CONCAT_ONE
+select utl_raw.concat('01') from dual;
+-- CONCAT_SIX
+select utl_raw.concat('01','02','03','04','05','06') from dual;
+-- CONCAT_TWELVE
+select utl_raw.concat('01','02','03','04','05','06','07','08','09','0A','0B','0C') from dual;
+-- CONCAT_NAMED_SPARSE
+select utl_raw.concat(R12=>'0C',R1=>'01',R6=>'06') from dual;
+-- CONVERT_UTF8_GBK
+select utl_raw.convert_raw('E4B8ADE69687','GBK','UTF8') from dual;
+-- CONVERT_GBK_UTF8
+select utl_raw.convert_raw('D6D0CEC4','UTF8','GBK') from dual;
+-- CONVERT_NAMED_REORDERED
+select utl_raw.convert_raw(FROM_CHARSET=>'UTF8',TO_CHARSET=>'SQL_ASCII',R=>'4142') from dual;
+-- COPIES_ONE
+select utl_raw.copies('AA',1) from dual;
+-- COPIES_SIX
+select utl_raw.copies('0A',6) from dual;
+-- COPIES_FRACTION
+select utl_raw.copies(N=>2.5,R=>'AA') from dual;
+-- LENGTH_BASIC
+select utl_raw.length(utl_raw.cast_to_raw('ABCD')) from dual;
+-- LENGTH_NAMED
+select utl_raw.length(R=>'000102') from dual;
+-- OVERLAY_DEFAULTS
+select utl_raw.overlay_raw('41','424344') from dual;
+-- OVERLAY_POSITION_LENGTH
+select utl_raw.overlay_raw(utl_raw.cast_to_raw('D'),utl_raw.cast_to_raw('AAAC'),1,1) from dual;
+-- OVERLAY_FULL
+select utl_raw.overlay_raw(utl_raw.cast_to_raw('D'),utl_raw.cast_to_raw('AAAC'),1,2,utl_raw.cast_to_raw(' ')) from dual;
+-- OVERLAY_NAMED_REORDERED
+select utl_raw.overlay_raw(PAD=>'20',LEN=>2,POS=>2,TARGET=>'414243',OVERLAY_STR=>'44') from dual;
+-- REVERSE_BASIC
+select utl_raw.reverse_raw(utl_raw.cast_to_raw('123')) from dual;
+-- REVERSE_NAMED
+select utl_raw.reverse_raw(R=>'010203') from dual;
+-- SUBSTR_DEFAULT_LENGTH
+select utl_raw.substr(cast('4142434445' as varbinary(64)),3) from dual;
+-- SUBSTR_POSITION_LENGTH
+select utl_raw.substr(cast('414243444541424344454142434445' as varbinary(128)),6,2) from dual;
+-- SUBSTR_ZERO_POSITION
+select utl_raw.substr('010203',0) from dual;
+-- SUBSTR_NEGATIVE_POSITION
+select utl_raw.substr('010203',-1) from dual;
+-- SUBSTR_NAMED_REORDERED
+select utl_raw.substr(LEN=>2,POS=>2,R=>'01020304') from dual;
+-- TRANSLATE_BASIC
+select utl_raw.translate(utl_raw.cast_to_raw('aDe'),utl_raw.cast_to_raw('AD'),utl_raw.cast_to_raw('ad')) from dual;
+-- TRANSLATE_NAMED_REORDERED
+select utl_raw.translate(TO_SET=>'6162',FROM_SET=>'4142',R=>'414243') from dual;
+-- TRANSLITERATE_R_ONLY
+select utl_raw.transliterate('4142') from dual;
+-- TRANSLITERATE_FULL
+select utl_raw.transliterate(utl_raw.cast_to_raw('FaDe'),utl_raw.cast_to_raw('adef'),utl_raw.cast_to_raw('ADEF'),utl_raw.cast_to_raw(' ')) from dual;
+-- TRANSLITERATE_NAMED_REORDERED
+select utl_raw.transliterate(PAD=>'20',FROM_SET=>'4142',TO_SET=>'6162',R=>'414243') from dual;
+-- CAST_TO_RAW_TEXT
+select utl_raw.cast_to_raw('DM8') from dual;
+-- CAST_TO_RAW_NUMBER_COERCION
+select utl_raw.cast_to_raw(10) from dual;
+-- CAST_TO_RAW_NAMED
+select utl_raw.cast_to_raw(C=>'AB') from dual;
+-- CAST_TO_VARCHAR2_VARBINARY
+select utl_raw.cast_to_varchar2(cast('4142' as varbinary(8))) from dual;
+-- CAST_TO_VARCHAR2_VARBINARY_NAMED
+select utl_raw.cast_to_varchar2(R=>cast('444D38' as varbinary(8))) from dual;
+-- CAST_TO_VARCHAR2_BLOB
+select utl_raw.cast_to_varchar2(to_blob(cast('424C4F42' as varbinary(8)))) from dual;
+-- CAST_TO_INT_DEFAULT
+select utl_raw.cast_to_int('00000064') from dual;
+-- CAST_TO_INT_ENDIAN_1
+select utl_raw.cast_to_int('00000064',1) from dual;
+-- CAST_TO_INT_ENDIAN_2
+select utl_raw.cast_to_int('00000064',2) from dual;
+-- CAST_TO_INT_ENDIAN_3_NAMED
+select utl_raw.cast_to_int(ENDIANESS=>3,R=>'00000064') from dual;
+-- CAST_FROM_INT_DEFAULT
+select utl_raw.cast_from_int(10) from dual;
+-- CAST_FROM_INT_ENDIAN_2
+select utl_raw.cast_from_int(94311,2) from dual;
+-- CAST_FROM_INT_ENDIAN_3_NAMED
+select utl_raw.cast_from_int(ENDIANESS=>3,N=>100) from dual;
+-- BINARY_INTEGER_ROUNDTRIP_1
+select utl_raw.cast_to_binary_integer(utl_raw.cast_from_binary_integer(123456,1),1) from dual;
+-- BINARY_INTEGER_ROUNDTRIP_2
+select utl_raw.cast_to_binary_integer(utl_raw.cast_from_binary_integer(123456,2),2) from dual;
+-- BINARY_INTEGER_ROUNDTRIP_3_NAMED
+select utl_raw.cast_to_binary_integer(ENDIANESS=>3,R=>utl_raw.cast_from_binary_integer(ENDIANESS=>3,N=>123456)) from dual;
+-- BINARY_DOUBLE_ROUNDTRIP_1
+select utl_raw.cast_to_binary_double(utl_raw.cast_from_binary_double(123.5,1),1) from dual;
+-- BINARY_DOUBLE_ROUNDTRIP_2
+select utl_raw.cast_to_binary_double(utl_raw.cast_from_binary_double(123.5,2),2) from dual;
+-- BINARY_DOUBLE_ROUNDTRIP_3_NAMED
+select utl_raw.cast_to_binary_double(ENDIANESS=>3,R=>utl_raw.cast_from_binary_double(ENDIANESS=>3,N=>123.5)) from dual;
+-- BINARY_FLOAT_ROUNDTRIP_1
+select utl_raw.cast_to_binary_float(utl_raw.cast_from_binary_float(12.5,1),1) from dual;
+-- BINARY_FLOAT_ROUNDTRIP_2
+select utl_raw.cast_to_binary_float(utl_raw.cast_from_binary_float(12.5,2),2) from dual;
+-- BINARY_FLOAT_ROUNDTRIP_3_NAMED
+select utl_raw.cast_to_binary_float(ENDIANESS=>3,R=>utl_raw.cast_from_binary_float(ENDIANESS=>3,N=>12.5)) from dual;
+-- NUMBER_FROM_BASIC
+select utl_raw.cast_from_number(10) from dual;
+-- NUMBER_ROUNDTRIP
+select utl_raw.cast_to_number(utl_raw.cast_from_number(12345.678)) from dual;
+-- NUMBER_NAMED_ROUNDTRIP
+select utl_raw.cast_to_number(R=>utl_raw.cast_from_number(N=>-12345.678)) from dual;
+-- XRANGE_EXPLICIT_NULLS
+select utl_raw.xrange(null,null) from dual;
+-- BIT_AND_NULLS
+select utl_raw.bit_and(null,null) from dual;
+-- BIT_COMPLEMENT_NULL
+select utl_raw.bit_complement(null) from dual;
+-- BIT_OR_NULLS
+select utl_raw.bit_or(null,null) from dual;
+-- BIT_XOR_NULLS
+select utl_raw.bit_xor(null,null) from dual;
+-- COMPARE_NULLS
+select utl_raw.compare(null,null,null) from dual;
+-- CONCAT_NULLS
+select utl_raw.concat(null,null) from dual;
+-- COPIES_NULL_RAW
+select utl_raw.copies(null,2) from dual;
+-- LENGTH_NULL
+select utl_raw.length(null) from dual;
+-- CAST_TO_RAW_NULL
+select utl_raw.cast_to_raw(null) from dual;
+-- CAST_TO_VARCHAR2_VARBINARY_NULL
+select utl_raw.cast_to_varchar2(cast(null as varbinary)) from dual;
+-- CAST_TO_VARCHAR2_BLOB_NULL
+select utl_raw.cast_to_varchar2(cast(null as blob)) from dual;
+-- CAST_TO_INT_NULLS
+select utl_raw.cast_to_int(null,null) from dual;
+-- CAST_FROM_INT_NULLS
+select utl_raw.cast_from_int(null,null) from dual;
+-- CAST_TO_BINARY_INTEGER_NULLS
+select utl_raw.cast_to_binary_integer(null,null) from dual;
+-- CAST_FROM_BINARY_INTEGER_NULLS
+select utl_raw.cast_from_binary_integer(null,null) from dual;
+-- CAST_TO_BINARY_DOUBLE_NULLS
+select utl_raw.cast_to_binary_double(null,null) from dual;
+-- CAST_FROM_BINARY_DOUBLE_NULLS
+select utl_raw.cast_from_binary_double(null,null) from dual;
+-- CAST_TO_BINARY_FLOAT_NULLS
+select utl_raw.cast_to_binary_float(null,null) from dual;
+-- CAST_FROM_BINARY_FLOAT_NULLS
+select utl_raw.cast_from_binary_float(null,null) from dual;
+-- CAST_TO_NUMBER_NULL
+select utl_raw.cast_to_number(null) from dual;
+-- CAST_FROM_NUMBER_NULL
+select utl_raw.cast_from_number(null) from dual;
+------------------------------------------------------------------------------------------
+[SELECT|CALL_PROG_OBJ] -- XRANGE_DEFAULTS
+select utl_raw.xrange() from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- XRANGE_A_Z
+select utl_raw.xrange(utl_raw.cast_to_raw('A'),utl_raw.cast_to_raw('Z')) from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- XRANGE_WRAP
+select utl_raw.xrange('FE','01') from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- XRANGE_NAMED_REORDERED
+select utl_raw.xrange(END_BYTE=>'02',START_BYTE=>'00') from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- BIT_AND_EQUAL
+select utl_raw.bit_and('0102F3','F30201') from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- BIT_AND_UNEQUAL_NAMED
+select utl_raw.bit_and(R2=>'FF',R1=>'0102') from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- BIT_COMPLEMENT
+select utl_raw.bit_complement('0102F3') from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- BIT_COMPLEMENT_NAMED
+select utl_raw.bit_complement(R=>'00FF') from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- BIT_OR_EQUAL
+select utl_raw.bit_or('0102F3','F30201') from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- BIT_OR_UNEQUAL_NAMED
+select utl_raw.bit_or(R2=>'01',R1=>'0102') from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- BIT_XOR_EQUAL
+select utl_raw.bit_xor('0102F3','F30201') from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- BIT_XOR_UNEQUAL_NAMED
+select utl_raw.bit_xor(R2=>'01',R1=>'0102') from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- COMPARE_DEFAULT
+select utl_raw.compare(utl_raw.cast_to_raw('ABC'),utl_raw.cast_to_raw('ABCD')) from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- COMPARE_EQUAL
+select utl_raw.compare('0102','0102') from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- COMPARE_CUSTOM_PAD
+select utl_raw.compare('0102','0103','FF') from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- COMPARE_NAMED_REORDERED
+select utl_raw.compare(PAD=>'00',R2=>'0102',R1=>'01') from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- CONCAT_ZERO
+select utl_raw.concat() from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- CONCAT_ONE
+select utl_raw.concat('01') from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- CONCAT_SIX
+select utl_raw.concat('01','02','03','04','05','06') from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- CONCAT_TWELVE
+select utl_raw.concat('01','02','03','04','05','06','07','08','09','0A','0B','0C') from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- CONCAT_NAMED_SPARSE
+select utl_raw.concat(R12=>'0C',R1=>'01',R6=>'06') from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- CONVERT_UTF8_GBK
+select utl_raw.convert_raw('E4B8ADE69687','GBK','UTF8') from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- CONVERT_GBK_UTF8
+select utl_raw.convert_raw('D6D0CEC4','UTF8','GBK') from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- CONVERT_NAMED_REORDERED
+select utl_raw.convert_raw(FROM_CHARSET=>'UTF8',TO_CHARSET=>'SQL_ASCII',R=>'4142') from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- COPIES_ONE
+select utl_raw.copies('AA',1) from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- COPIES_SIX
+select utl_raw.copies('0A',6) from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- COPIES_FRACTION
+select utl_raw.copies(N=>2.5,R=>'AA') from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- LENGTH_BASIC
+select utl_raw.length(utl_raw.cast_to_raw('ABCD')) from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- LENGTH_NAMED
+select utl_raw.length(R=>'000102') from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- OVERLAY_DEFAULTS
+select utl_raw.overlay_raw('41','424344') from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- OVERLAY_POSITION_LENGTH
+select utl_raw.overlay_raw(utl_raw.cast_to_raw('D'),utl_raw.cast_to_raw('AAAC'),1,1) from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- OVERLAY_FULL
+select utl_raw.overlay_raw(utl_raw.cast_to_raw('D'),utl_raw.cast_to_raw('AAAC'),1,2,utl_raw.cast_to_raw(' ')) from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- OVERLAY_NAMED_REORDERED
+select utl_raw.overlay_raw(PAD=>'20',LEN=>2,POS=>2,TARGET=>'414243',OVERLAY_STR=>'44') from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- REVERSE_BASIC
+select utl_raw.reverse_raw(utl_raw.cast_to_raw('123')) from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- REVERSE_NAMED
+select utl_raw.reverse_raw(R=>'010203') from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- SUBSTR_DEFAULT_LENGTH
+select utl_raw.substr(cast('4142434445' as varbinary(64)),3) from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- SUBSTR_POSITION_LENGTH
+select utl_raw.substr(cast('414243444541424344454142434445' as varbinary(128)),6,2) from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- SUBSTR_ZERO_POSITION
+select utl_raw.substr('010203',0) from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- SUBSTR_NEGATIVE_POSITION
+select utl_raw.substr('010203',-1) from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- SUBSTR_NAMED_REORDERED
+select utl_raw.substr(LEN=>2,POS=>2,R=>'01020304') from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- TRANSLATE_BASIC
+select utl_raw.translate(utl_raw.cast_to_raw('aDe'),utl_raw.cast_to_raw('AD'),utl_raw.cast_to_raw('ad')) from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- TRANSLATE_NAMED_REORDERED
+select utl_raw.translate(TO_SET=>'6162',FROM_SET=>'4142',R=>'414243') from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- TRANSLITERATE_R_ONLY
+select utl_raw.transliterate('4142') from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- TRANSLITERATE_FULL
+select utl_raw.transliterate(utl_raw.cast_to_raw('FaDe'),utl_raw.cast_to_raw('adef'),utl_raw.cast_to_raw('ADEF'),utl_raw.cast_to_raw(' ')) from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- TRANSLITERATE_NAMED_REORDERED
+select utl_raw.transliterate(PAD=>'20',FROM_SET=>'4142',TO_SET=>'6162',R=>'414243') from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- CAST_TO_RAW_TEXT
+select utl_raw.cast_to_raw('DM8') from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- CAST_TO_RAW_NUMBER_COERCION
+select utl_raw.cast_to_raw(10) from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- CAST_TO_RAW_NAMED
+select utl_raw.cast_to_raw(C=>'AB') from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- CAST_TO_VARCHAR2_VARBINARY
+select utl_raw.cast_to_varchar2(cast('4142' as varbinary(8))) from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- CAST_TO_VARCHAR2_VARBINARY_NAMED
+select utl_raw.cast_to_varchar2(R=>cast('444D38' as varbinary(8))) from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- CAST_TO_VARCHAR2_BLOB
+select utl_raw.cast_to_varchar2(to_blob(cast('424C4F42' as varbinary(8)))) from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- CAST_TO_INT_DEFAULT
+select utl_raw.cast_to_int('00000064') from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- CAST_TO_INT_ENDIAN_1
+select utl_raw.cast_to_int('00000064',1) from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- CAST_TO_INT_ENDIAN_2
+select utl_raw.cast_to_int('00000064',2) from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- CAST_TO_INT_ENDIAN_3_NAMED
+select utl_raw.cast_to_int(ENDIANESS=>3,R=>'00000064') from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- CAST_FROM_INT_DEFAULT
+select utl_raw.cast_from_int(10) from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- CAST_FROM_INT_ENDIAN_2
+select utl_raw.cast_from_int(94311,2) from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- CAST_FROM_INT_ENDIAN_3_NAMED
+select utl_raw.cast_from_int(ENDIANESS=>3,N=>100) from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- BINARY_INTEGER_ROUNDTRIP_1
+select utl_raw.cast_to_binary_integer(utl_raw.cast_from_binary_integer(123456,1),1) from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- BINARY_INTEGER_ROUNDTRIP_2
+select utl_raw.cast_to_binary_integer(utl_raw.cast_from_binary_integer(123456,2),2) from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- BINARY_INTEGER_ROUNDTRIP_3_NAMED
+select utl_raw.cast_to_binary_integer(ENDIANESS=>3,R=>utl_raw.cast_from_binary_integer(ENDIANESS=>3,N=>123456)) from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- BINARY_DOUBLE_ROUNDTRIP_1
+select utl_raw.cast_to_binary_double(utl_raw.cast_from_binary_double(123.5,1),1) from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- BINARY_DOUBLE_ROUNDTRIP_2
+select utl_raw.cast_to_binary_double(utl_raw.cast_from_binary_double(123.5,2),2) from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- BINARY_DOUBLE_ROUNDTRIP_3_NAMED
+select utl_raw.cast_to_binary_double(ENDIANESS=>3,R=>utl_raw.cast_from_binary_double(ENDIANESS=>3,N=>123.5)) from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- BINARY_FLOAT_ROUNDTRIP_1
+select utl_raw.cast_to_binary_float(utl_raw.cast_from_binary_float(12.5,1),1) from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- BINARY_FLOAT_ROUNDTRIP_2
+select utl_raw.cast_to_binary_float(utl_raw.cast_from_binary_float(12.5,2),2) from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- BINARY_FLOAT_ROUNDTRIP_3_NAMED
+select utl_raw.cast_to_binary_float(ENDIANESS=>3,R=>utl_raw.cast_from_binary_float(ENDIANESS=>3,N=>12.5)) from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- NUMBER_FROM_BASIC
+select utl_raw.cast_from_number(10) from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- NUMBER_ROUNDTRIP
+select utl_raw.cast_to_number(utl_raw.cast_from_number(12345.678)) from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- NUMBER_NAMED_ROUNDTRIP
+select utl_raw.cast_to_number(R=>utl_raw.cast_from_number(N=>-12345.678)) from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- XRANGE_EXPLICIT_NULLS
+select utl_raw.xrange(null,null) from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- BIT_AND_NULLS
+select utl_raw.bit_and(null,null) from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- BIT_COMPLEMENT_NULL
+select utl_raw.bit_complement(null) from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- BIT_OR_NULLS
+select utl_raw.bit_or(null,null) from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- BIT_XOR_NULLS
+select utl_raw.bit_xor(null,null) from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- COMPARE_NULLS
+select utl_raw.compare(null,null,null) from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- CONCAT_NULLS
+select utl_raw.concat(null,null) from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- COPIES_NULL_RAW
+select utl_raw.copies(null,2) from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- LENGTH_NULL
+select utl_raw.length(null) from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- CAST_TO_RAW_NULL
+select utl_raw.cast_to_raw(null) from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- CAST_TO_VARCHAR2_VARBINARY_NULL
+select utl_raw.cast_to_varchar2(cast(null as varbinary)) from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- CAST_TO_VARCHAR2_BLOB_NULL
+select utl_raw.cast_to_varchar2(cast(null as blob)) from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- CAST_TO_INT_NULLS
+select utl_raw.cast_to_int(null,null) from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- CAST_FROM_INT_NULLS
+select utl_raw.cast_from_int(null,null) from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- CAST_TO_BINARY_INTEGER_NULLS
+select utl_raw.cast_to_binary_integer(null,null) from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- CAST_FROM_BINARY_INTEGER_NULLS
+select utl_raw.cast_from_binary_integer(null,null) from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- CAST_TO_BINARY_DOUBLE_NULLS
+select utl_raw.cast_to_binary_double(null,null) from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- CAST_FROM_BINARY_DOUBLE_NULLS
+select utl_raw.cast_from_binary_double(null,null) from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- CAST_TO_BINARY_FLOAT_NULLS
+select utl_raw.cast_to_binary_float(null,null) from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- CAST_FROM_BINARY_FLOAT_NULLS
+select utl_raw.cast_from_binary_float(null,null) from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- CAST_TO_NUMBER_NULL
+select utl_raw.cast_to_number(null) from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- CAST_FROM_NUMBER_NULL
+select utl_raw.cast_from_number(null) from dual;

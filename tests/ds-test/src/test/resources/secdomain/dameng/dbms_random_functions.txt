@@ -1,0 +1,29 @@
+[dbms_random_procedure_domains]
+sql:
+begin
+  dbms_random.initialize(1);
+  dbms_random.seed(cast(2 as int));
+  dbms_random.seed(cast('S' as varchar(20)));
+  dbms_random.terminate;
+end;
+expect:
+{
+  "contains": [
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_random"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_random"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_random"}
+  ]
+}
+----------
+[dbms_random_function_expressions_no_domain]
+sql:
+declare n number; i int; t varchar(32767);
+begin
+  n:=dbms_random.random_normal;
+  i:=dbms_random.random;
+  t:=dbms_random.random_string('X',8);
+  t:=dbms_random.string('X',8);
+  n:=dbms_random.value(0,1);
+end;
+expect:
+{"size":0}

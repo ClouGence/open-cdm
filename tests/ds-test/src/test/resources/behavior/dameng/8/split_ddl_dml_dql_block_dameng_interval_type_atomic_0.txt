@@ -1,0 +1,1923 @@
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_001_behavior_review]
+sql:
+create table app.iv_t(
+  id int primary key,
+  i_ym interval year(9) to month not null,
+  i_y interval year(9),
+  i_m interval month(9),
+  i_d interval day(9),
+  i_dh interval day(9) to hour,
+  i_dm interval day(9) to minute,
+  i_ds interval day(9) to second(6),
+  i_h interval hour(9),
+  i_hm interval hour(9) to minute,
+  i_hs interval hour(9) to second(6),
+  i_mi interval minute(9),
+  i_ms interval minute(9) to second(6),
+  i_s interval second(9,6),
+  constraint ck_iv check(i_ym>=interval '-999999999-11' year(9) to month));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:21) /test/1/catalog1/app/iv_t/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_002_behavior_review]
+sql:
+comment on column app.iv_t.i_ym is 'year to month extrema';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "COMMENT_COLUMN": [
+    {
+      "subject": "Table(1:18~1:26) /test/1/catalog1/app/iv_t/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_003_behavior_review]
+sql:
+comment on column app.iv_t.i_ds is 'day to microsecond extrema';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "COMMENT_COLUMN": [
+    {
+      "subject": "Table(1:18~1:26) /test/1/catalog1/app/iv_t/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_004_behavior_review]
+sql:
+create index app.idx_iv on app.iv_t(i_ym,i_ds);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:23) /test/1/catalog1/app/idx_iv/",
+      "action": "CREATE",
+      "target": "Table(1:27~1:35) /test/1/catalog1/app/iv_t/"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_005_behavior_review]
+sql:
+alter table app.iv_t add i_alter interval second(9,6)
+  default interval '0' second;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_COLUMN": [
+    {
+      "subject": "Table(1:12~1:20) /test/1/catalog1/app/iv_t/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_006_behavior_review]
+sql:
+insert into app.iv_t values(
+  1,interval '999999999-11' year(9) to month,interval '999999999' year(9),interval '999999999' month(9),interval '999999999' day(9),interval '999999999 23' day(9) to hour,interval '999999999 23:59' day(9) to minute,interval '999999999 23:59:59.999999' day(9) to second(6),interval '999999999' hour(9),interval '999999999:59' hour(9) to minute,interval '999999999:59:59.999999' hour(9) to second(6),interval '999999999' minute(9),interval '999999999:59.999999' minute(9) to second(6),interval '999999999.999999' second(9,6),interval '0' second);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:20) /test/1/catalog1/app/iv_t/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_007_behavior_review]
+sql:
+insert into app.iv_t values(
+  2,interval '-999999999-11' year(9) to month,interval '-999999999' year(9),interval '-999999999' month(9),interval '-999999999' day(9),interval '-999999999 23' day(9) to hour,interval '-999999999 23:59' day(9) to minute,interval '-999999999 23:59:59.999999' day(9) to second(6),interval '-999999999' hour(9),interval '-999999999:59' hour(9) to minute,interval '-999999999:59:59.999999' hour(9) to second(6),interval '-999999999' minute(9),interval '-999999999:59.999999' minute(9) to second(6),interval '-999999999.999999' second(9,6),interval '0' second);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:20) /test/1/catalog1/app/iv_t/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_008_behavior_review]
+sql:
+insert into app.iv_t values(
+  3,interval '0-0' year to month,interval '0' year,interval '0' month,interval '0' day,interval '0 0' day to hour,interval '0 0:0' day to minute,interval '0 0:0:0' day to second,interval '0' hour,interval '0:0' hour to minute,interval '0:0:0' hour to second,interval '0' minute,interval '0:0' minute to second,interval '0' second,interval '0' second);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:20) /test/1/catalog1/app/iv_t/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_009_behavior_review]
+sql:
+update app.iv_t set i_alter=i_s+interval '0.000001' second where id=3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:15) /test/1/catalog1/app/iv_t/",
+      "action": "UPDATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_010_behavior_review]
+sql:
+select * from app.iv_t order by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:22) /test/1/catalog1/app/iv_t/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_011_behavior_review]
+sql:
+select data_type,data_length,data_precision,data_scale
+  from user_tab_columns where table_name='IV_T' order by column_id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(2:7~2:23) /test/1/catalog1/schema1/user_tab_columns/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_012_behavior_review]
+sql:
+select extract(year from i_ym),extract(month from i_ym),
+  extract(day from i_ds),extract(hour from i_ds),extract(minute from i_ds),
+  extract(second from i_ds) from app.iv_t where id=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/extract/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:31~1:38) /test/1/catalog1/schema1/extract/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2~2:9) /test/1/catalog1/schema1/extract/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:25~2:32) /test/1/catalog1/schema1/extract/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:49~2:56) /test/1/catalog1/schema1/extract/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(3:2~3:9) /test/1/catalog1/schema1/extract/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(3:33~3:41) /test/1/catalog1/app/iv_t/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_013_behavior_review]
+sql:
+select i_ym+interval '1-1' year to month,
+  i_ds+interval '1 1:1:1.1' day to second,i_s*2,i_h/2
+  from app.iv_t where id=3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(3:7~3:15) /test/1/catalog1/app/iv_t/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_014_behavior_review]
+sql:
+select min(i_ym),max(i_ym),min(i_ds),max(i_ds),min(i_s),max(i_s) from app.iv_t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/min/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:20) /test/1/catalog1/schema1/max/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:27~1:30) /test/1/catalog1/schema1/min/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:37~1:40) /test/1/catalog1/schema1/max/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:47~1:50) /test/1/catalog1/schema1/min/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:56~1:59) /test/1/catalog1/schema1/max/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:70~1:78) /test/1/catalog1/app/iv_t/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_015_behavior_review]
+sql:
+select id from app.iv_t index idx_iv
+  where i_ym>=interval '0-0' year to month order by i_ds;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:15~1:23) /test/1/catalog1/app/iv_t/",
+      "action": "READ"
+    },
+    {
+      "subject": "Index(1:30~1:36) /test/1/catalog1/app/idx_iv/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_016_behavior_review]
+sql:
+create view app.iv_v as select id,i_ym,i_ds,i_s
+  from app.iv_t where i_ym>=interval '0-0' year to month;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:20) /test/1/catalog1/app/iv_v/",
+      "action": "CREATE",
+      "target": "Table(2:7~2:15) /test/1/catalog1/app/iv_t/"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_017_behavior_review]
+sql:
+select id,i_ym+interval '1' year,i_ds+interval '1' day
+  from app.iv_v where id=3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:7~2:15) /test/1/catalog1/app/iv_v/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_018_behavior_review]
+sql:
+update app.iv_v set i_s=interval '1.000001' second where id=3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:15) /test/1/catalog1/app/iv_v/",
+      "action": "UPDATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_019_behavior_review]
+sql:
+create table app.iv_defaults(
+  i_ym interval year to month,
+  i_y interval year,
+  i_m interval month,
+  i_d interval day,
+  i_dh interval day to hour,
+  i_dm interval day to minute,
+  i_ds interval day to second,
+  i_h interval hour,
+  i_hm interval hour to minute,
+  i_hs interval hour to second,
+  i_mi interval minute,
+  i_ms interval minute to second,
+  i_s interval second);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/app/iv_defaults/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_020_behavior_review]
+sql:
+select data_type,data_length,data_precision,data_scale
+  from user_tab_columns where table_name='IV_DEFAULTS' order by column_id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(2:7~2:23) /test/1/catalog1/schema1/user_tab_columns/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_021_behavior_review]
+sql:
+create function app.iv_ym_f(p interval year(9) to month) return interval year(9) to month as
+begin return p;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:27) /test/1/catalog1/app/iv_ym_f/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_022_behavior_review]
+sql:
+create function app.iv_y_f(p interval year(9)) return interval year(9) as
+begin return p;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:26) /test/1/catalog1/app/iv_y_f/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_023_behavior_review]
+sql:
+create function app.iv_m_f(p interval month(9)) return interval month(9) as
+begin return p;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:26) /test/1/catalog1/app/iv_m_f/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_024_behavior_review]
+sql:
+create function app.iv_d_f(p interval day(9)) return interval day(9) as
+begin return p;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:26) /test/1/catalog1/app/iv_d_f/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_025_behavior_review]
+sql:
+create function app.iv_dh_f(p interval day(9) to hour) return interval day(9) to hour as
+begin return p;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:27) /test/1/catalog1/app/iv_dh_f/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_026_behavior_review]
+sql:
+create function app.iv_dm_f(p interval day(9) to minute) return interval day(9) to minute as
+begin return p;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:27) /test/1/catalog1/app/iv_dm_f/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_027_behavior_review]
+sql:
+create function app.iv_ds_f(p interval day(9) to second(6)) return interval day(9) to second(6) as
+begin return p;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:27) /test/1/catalog1/app/iv_ds_f/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_028_behavior_review]
+sql:
+create function app.iv_h_f(p interval hour(9)) return interval hour(9) as
+begin return p;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:26) /test/1/catalog1/app/iv_h_f/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_029_behavior_review]
+sql:
+create function app.iv_hm_f(p interval hour(9) to minute) return interval hour(9) to minute as
+begin return p;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:27) /test/1/catalog1/app/iv_hm_f/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_030_behavior_review]
+sql:
+create function app.iv_hs_f(p interval hour(9) to second(6)) return interval hour(9) to second(6) as
+begin return p;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:27) /test/1/catalog1/app/iv_hs_f/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_031_behavior_review]
+sql:
+create function app.iv_mi_f(p interval minute(9)) return interval minute(9) as
+begin return p;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:27) /test/1/catalog1/app/iv_mi_f/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_032_behavior_review]
+sql:
+create function app.iv_ms_f(p interval minute(9) to second(6)) return interval minute(9) to second(6) as
+begin return p;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:27) /test/1/catalog1/app/iv_ms_f/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_033_behavior_review]
+sql:
+create function app.iv_s_f(p interval second(9,6)) return interval second(9,6) as
+begin return p;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:26) /test/1/catalog1/app/iv_s_f/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_034_behavior_review]
+sql:
+select app.iv_ym_f(interval '0-0' year to month),
+  app.iv_y_f(interval '0' year),
+  app.iv_m_f(interval '0' month),
+  app.iv_d_f(interval '0' day),
+  app.iv_dh_f(interval '0 0' day to hour),
+  app.iv_dm_f(interval '0 0:0' day to minute),
+  app.iv_ds_f(interval '0 0:0:0' day to second),
+  app.iv_h_f(interval '0' hour),
+  app.iv_hm_f(interval '0:0' hour to minute),
+  app.iv_hs_f(interval '0:0:0' hour to second),
+  app.iv_mi_f(interval '0' minute),
+  app.iv_ms_f(interval '0:0' minute to second),
+  app.iv_s_f(interval '0' second)
+  from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/app/iv_ym_f/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2~2:12) /test/1/catalog1/app/iv_y_f/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(3:2~3:12) /test/1/catalog1/app/iv_m_f/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(4:2~4:12) /test/1/catalog1/app/iv_d_f/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(5:2~5:13) /test/1/catalog1/app/iv_dh_f/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(6:2~6:13) /test/1/catalog1/app/iv_dm_f/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(7:2~7:13) /test/1/catalog1/app/iv_ds_f/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(8:2~8:12) /test/1/catalog1/app/iv_h_f/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(9:2~9:13) /test/1/catalog1/app/iv_hm_f/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(10:2~10:13) /test/1/catalog1/app/iv_hs_f/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(11:2~11:13) /test/1/catalog1/app/iv_mi_f/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(12:2~12:13) /test/1/catalog1/app/iv_ms_f/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(13:2~13:12) /test/1/catalog1/app/iv_s_f/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(14:7~14:11) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_035_behavior_review]
+sql:
+create table app.bad_iv_p_ym(id interval year(9) to month,v int)
+  partition by range(id)(partition p0 values less than(interval '0-0' year to month),
+  partition p1 values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/app/bad_iv_p_ym/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_036_behavior_review]
+sql:
+create table app.bad_iv_ym_p0(c interval year(0) to month);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:29) /test/1/catalog1/app/bad_iv_ym_p0/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_037_behavior_review]
+sql:
+create table app.bad_iv_ym_p10(c interval year(10) to month);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/app/bad_iv_ym_p10/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_038_behavior_review]
+sql:
+select interval '1000000000-0' year(9) to month from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:53~1:57) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_039_behavior_review]
+sql:
+create table app.bad_iv_p_y(id interval year(9),v int)
+  partition by range(id)(partition p0 values less than(interval '0' year),
+  partition p1 values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:27) /test/1/catalog1/app/bad_iv_p_y/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_040_behavior_review]
+sql:
+create table app.bad_iv_y_p0(c interval year(0));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/app/bad_iv_y_p0/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_041_behavior_review]
+sql:
+create table app.bad_iv_y_p10(c interval year(10));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:29) /test/1/catalog1/app/bad_iv_y_p10/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_042_behavior_review]
+sql:
+select interval '1000000000' year(9) from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:42~1:46) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_043_behavior_review]
+sql:
+create table app.bad_iv_p_m(id interval month(9),v int)
+  partition by range(id)(partition p0 values less than(interval '0' month),
+  partition p1 values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:27) /test/1/catalog1/app/bad_iv_p_m/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_044_behavior_review]
+sql:
+create table app.bad_iv_m_p0(c interval month(0));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/app/bad_iv_m_p0/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_045_behavior_review]
+sql:
+create table app.bad_iv_m_p10(c interval month(10));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:29) /test/1/catalog1/app/bad_iv_m_p10/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_046_behavior_review]
+sql:
+select interval '1000000000' month(9) from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:43~1:47) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_047_behavior_review]
+sql:
+create table app.bad_iv_p_d(id interval day(9),v int)
+  partition by range(id)(partition p0 values less than(interval '0' day),
+  partition p1 values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:27) /test/1/catalog1/app/bad_iv_p_d/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_048_behavior_review]
+sql:
+create table app.bad_iv_d_p0(c interval day(0));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/app/bad_iv_d_p0/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_049_behavior_review]
+sql:
+create table app.bad_iv_d_p10(c interval day(10));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:29) /test/1/catalog1/app/bad_iv_d_p10/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_050_behavior_review]
+sql:
+select interval '1000000000' day(9) from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:41~1:45) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_051_behavior_review]
+sql:
+create table app.bad_iv_p_dh(id interval day(9) to hour,v int)
+  partition by range(id)(partition p0 values less than(interval '0 0' day to hour),
+  partition p1 values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/app/bad_iv_p_dh/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_052_behavior_review]
+sql:
+create table app.bad_iv_dh_p0(c interval day(0) to hour);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:29) /test/1/catalog1/app/bad_iv_dh_p0/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_053_behavior_review]
+sql:
+create table app.bad_iv_dh_p10(c interval day(10) to hour);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/app/bad_iv_dh_p10/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_054_behavior_review]
+sql:
+select interval '1000000000 0' day(9) to hour from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:51~1:55) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_055_behavior_review]
+sql:
+create table app.bad_iv_p_dm(id interval day(9) to minute,v int)
+  partition by range(id)(partition p0 values less than(interval '0 0:0' day to minute),
+  partition p1 values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/app/bad_iv_p_dm/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_056_behavior_review]
+sql:
+create table app.bad_iv_dm_p0(c interval day(0) to minute);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:29) /test/1/catalog1/app/bad_iv_dm_p0/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_057_behavior_review]
+sql:
+create table app.bad_iv_dm_p10(c interval day(10) to minute);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/app/bad_iv_dm_p10/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_058_behavior_review]
+sql:
+select interval '1000000000 0:0' day(9) to minute from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:55~1:59) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_059_behavior_review]
+sql:
+create table app.bad_iv_p_ds(id interval day(9) to second(6),v int)
+  partition by range(id)(partition p0 values less than(interval '0 0:0:0' day to second),
+  partition p1 values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/app/bad_iv_p_ds/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_060_behavior_review]
+sql:
+create table app.bad_iv_ds_p0(c interval day(0) to second);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:29) /test/1/catalog1/app/bad_iv_ds_p0/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_061_behavior_review]
+sql:
+create table app.bad_iv_ds_p10(c interval day(10) to second);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/app/bad_iv_ds_p10/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_062_behavior_review]
+sql:
+select interval '1000000000 0:0:0' day(9) to second from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:57~1:61) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_063_behavior_review]
+sql:
+create table app.bad_iv_ds_s7(c interval day to second(7));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:29) /test/1/catalog1/app/bad_iv_ds_s7/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_064_behavior_review]
+sql:
+create table app.bad_iv_p_h(id interval hour(9),v int)
+  partition by range(id)(partition p0 values less than(interval '0' hour),
+  partition p1 values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:27) /test/1/catalog1/app/bad_iv_p_h/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_065_behavior_review]
+sql:
+create table app.bad_iv_h_p0(c interval hour(0));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/app/bad_iv_h_p0/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_066_behavior_review]
+sql:
+create table app.bad_iv_h_p10(c interval hour(10));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:29) /test/1/catalog1/app/bad_iv_h_p10/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_067_behavior_review]
+sql:
+select interval '1000000000' hour(9) from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:42~1:46) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_068_behavior_review]
+sql:
+create table app.bad_iv_p_hm(id interval hour(9) to minute,v int)
+  partition by range(id)(partition p0 values less than(interval '0:0' hour to minute),
+  partition p1 values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/app/bad_iv_p_hm/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_069_behavior_review]
+sql:
+create table app.bad_iv_hm_p0(c interval hour(0) to minute);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:29) /test/1/catalog1/app/bad_iv_hm_p0/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_070_behavior_review]
+sql:
+create table app.bad_iv_hm_p10(c interval hour(10) to minute);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/app/bad_iv_hm_p10/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_071_behavior_review]
+sql:
+select interval '1000000000:0' hour(9) to minute from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:54~1:58) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_072_behavior_review]
+sql:
+create table app.bad_iv_p_hs(id interval hour(9) to second(6),v int)
+  partition by range(id)(partition p0 values less than(interval '0:0:0' hour to second),
+  partition p1 values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/app/bad_iv_p_hs/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_073_behavior_review]
+sql:
+create table app.bad_iv_hs_p0(c interval hour(0) to second);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:29) /test/1/catalog1/app/bad_iv_hs_p0/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_074_behavior_review]
+sql:
+create table app.bad_iv_hs_p10(c interval hour(10) to second);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/app/bad_iv_hs_p10/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_075_behavior_review]
+sql:
+select interval '1000000000:0:0' hour(9) to second from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:56~1:60) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_076_behavior_review]
+sql:
+create table app.bad_iv_hs_s7(c interval hour to second(7));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:29) /test/1/catalog1/app/bad_iv_hs_s7/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_077_behavior_review]
+sql:
+create table app.bad_iv_p_mi(id interval minute(9),v int)
+  partition by range(id)(partition p0 values less than(interval '0' minute),
+  partition p1 values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/app/bad_iv_p_mi/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_078_behavior_review]
+sql:
+create table app.bad_iv_mi_p0(c interval minute(0));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:29) /test/1/catalog1/app/bad_iv_mi_p0/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_079_behavior_review]
+sql:
+create table app.bad_iv_mi_p10(c interval minute(10));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/app/bad_iv_mi_p10/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_080_behavior_review]
+sql:
+select interval '1000000000' minute(9) from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:44~1:48) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_081_behavior_review]
+sql:
+create table app.bad_iv_p_ms(id interval minute(9) to second(6),v int)
+  partition by range(id)(partition p0 values less than(interval '0:0' minute to second),
+  partition p1 values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/app/bad_iv_p_ms/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_082_behavior_review]
+sql:
+create table app.bad_iv_ms_p0(c interval minute(0) to second);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:29) /test/1/catalog1/app/bad_iv_ms_p0/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_083_behavior_review]
+sql:
+create table app.bad_iv_ms_p10(c interval minute(10) to second);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/app/bad_iv_ms_p10/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_084_behavior_review]
+sql:
+select interval '1000000000:0' minute(9) to second from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:56~1:60) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_085_behavior_review]
+sql:
+create table app.bad_iv_ms_s7(c interval minute to second(7));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:29) /test/1/catalog1/app/bad_iv_ms_s7/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_086_behavior_review]
+sql:
+create table app.bad_iv_p_s(id interval second(9,6),v int)
+  partition by range(id)(partition p0 values less than(interval '0' second),
+  partition p1 values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:27) /test/1/catalog1/app/bad_iv_p_s/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_087_behavior_review]
+sql:
+create table app.bad_iv_s_p0(c interval second(0,0));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/app/bad_iv_s_p0/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_088_behavior_review]
+sql:
+create table app.bad_iv_s_p10(c interval second(10,6));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:29) /test/1/catalog1/app/bad_iv_s_p10/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_089_behavior_review]
+sql:
+select interval '1000000000.000000' second(9,6) from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:53~1:57) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_090_behavior_review]
+sql:
+create table app.bad_iv_s_s7(c interval second(9,7));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/app/bad_iv_s_s7/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_091_behavior_review]
+sql:
+insert into app.iv_t(id,i_ym) values(101,null);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:20) /test/1/catalog1/app/iv_t/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_092_behavior_review]
+sql:
+select interval '9-12' year(1) to month from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:45~1:49) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_093_behavior_review]
+sql:
+select interval '9 24' day(1) to hour from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:43~1:47) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_094_behavior_review]
+sql:
+select interval '9 23:60' day(1) to minute from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:48~1:52) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_095_behavior_review]
+sql:
+select interval '9 23:59:60' day(1) to second from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:51~1:55) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_096_behavior_review]
+sql:
+select interval '9:60' hour(1) to minute from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:46~1:50) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_097_behavior_review]
+sql:
+select interval '9:59:60' hour(1) to second from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:49~1:53) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_098_behavior_review]
+sql:
+select interval '9:60' minute(1) to second from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:48~1:52) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_099_behavior_review]
+sql:
+select interval '10' year(1) from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:34~1:38) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_100_behavior_review]
+sql:
+drop function app.iv_ym_f;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Function(1:14~1:25) /test/1/catalog1/app/iv_ym_f/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_101_behavior_review]
+sql:
+drop function app.iv_y_f;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Function(1:14~1:24) /test/1/catalog1/app/iv_y_f/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_102_behavior_review]
+sql:
+drop function app.iv_m_f;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Function(1:14~1:24) /test/1/catalog1/app/iv_m_f/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_103_behavior_review]
+sql:
+drop function app.iv_d_f;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Function(1:14~1:24) /test/1/catalog1/app/iv_d_f/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_104_behavior_review]
+sql:
+drop function app.iv_dh_f;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Function(1:14~1:25) /test/1/catalog1/app/iv_dh_f/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_105_behavior_review]
+sql:
+drop function app.iv_dm_f;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Function(1:14~1:25) /test/1/catalog1/app/iv_dm_f/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_106_behavior_review]
+sql:
+drop function app.iv_ds_f;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Function(1:14~1:25) /test/1/catalog1/app/iv_ds_f/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_107_behavior_review]
+sql:
+drop function app.iv_h_f;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Function(1:14~1:24) /test/1/catalog1/app/iv_h_f/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_108_behavior_review]
+sql:
+drop function app.iv_hm_f;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Function(1:14~1:25) /test/1/catalog1/app/iv_hm_f/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_109_behavior_review]
+sql:
+drop function app.iv_hs_f;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Function(1:14~1:25) /test/1/catalog1/app/iv_hs_f/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_110_behavior_review]
+sql:
+drop function app.iv_mi_f;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Function(1:14~1:25) /test/1/catalog1/app/iv_mi_f/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_111_behavior_review]
+sql:
+drop function app.iv_ms_f;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Function(1:14~1:25) /test/1/catalog1/app/iv_ms_f/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_112_behavior_review]
+sql:
+drop function app.iv_s_f;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Function(1:14~1:24) /test/1/catalog1/app/iv_s_f/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_113_behavior_review]
+sql:
+drop view app.iv_v;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "View(1:10~1:18) /test/1/catalog1/app/iv_v/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_114_behavior_review]
+sql:
+drop table app.iv_defaults;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:26) /test/1/catalog1/app/iv_defaults/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_interval_type_atomic_0_115_behavior_review]
+sql:
+drop table app.iv_t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:19) /test/1/catalog1/app/iv_t/",
+      "action": "DROP"
+    }
+  ]
+}

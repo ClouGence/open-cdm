@@ -1,0 +1,711 @@
+[split_block_dameng_dbms_random_signature_combinations_0_001]
+sql:
+-- FUNC-0694 INITIALIZE ordinary integer
+begin DBMS_RANDOM.INITIALIZE(15); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:28) /test/1/catalog1/DBMS_RANDOM/INITIALIZE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_random_signature_combinations_0_002]
+sql:
+-- FUNC-0694 INITIALIZE minimum documented integer
+begin DBMS_RANDOM.INITIALIZE(-2147483648); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:28) /test/1/catalog1/DBMS_RANDOM/INITIALIZE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_random_signature_combinations_0_003]
+sql:
+-- FUNC-0694 INITIALIZE maximum documented integer
+begin DBMS_RANDOM.INITIALIZE(2147483647); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:28) /test/1/catalog1/DBMS_RANDOM/INITIALIZE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_random_signature_combinations_0_005]
+sql:
+-- FUNC-0700 SEED integer ordinary
+begin DBMS_RANDOM.SEED(20260724); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:22) /test/1/catalog1/DBMS_RANDOM/SEED/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_random_signature_combinations_0_006]
+sql:
+-- FUNC-0700 SEED integer minimum
+begin DBMS_RANDOM.SEED(-2147483648); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:22) /test/1/catalog1/DBMS_RANDOM/SEED/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_random_signature_combinations_0_007]
+sql:
+-- FUNC-0700 SEED integer maximum
+begin DBMS_RANDOM.SEED(2147483647); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:22) /test/1/catalog1/DBMS_RANDOM/SEED/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_random_signature_combinations_0_008]
+sql:
+-- FUNC-0700 SEED integer named
+begin DBMS_RANDOM.SEED(VAL=>42); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:22) /test/1/catalog1/DBMS_RANDOM/SEED/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_random_signature_combinations_0_009]
+sql:
+-- FUNC-0701 SEED VARCHAR arbitrary text
+begin DBMS_RANDOM.SEED('CODEX_DM8_SEED'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:22) /test/1/catalog1/DBMS_RANDOM/SEED/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_random_signature_combinations_0_011]
+sql:
+-- FUNC-0703 TERMINATE without parentheses
+begin DBMS_RANDOM.TERMINATE; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:27) /test/1/catalog1/DBMS_RANDOM/TERMINATE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_random_signature_combinations_0_012]
+sql:
+-- FUNC-0703 TERMINATE with parentheses
+begin DBMS_RANDOM.TERMINATE(); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:27) /test/1/catalog1/DBMS_RANDOM/TERMINATE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_random_signature_combinations_0_014]
+sql:
+-- FUNC-0697 RANDOM returns an integer
+declare value_number int; begin value_number:=DBMS_RANDOM.RANDOM(); if value_number is null then raise_application_error(-20004,'random null'); end if; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:97~2:120) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:46~2:64) /test/1/catalog1/DBMS_RANDOM/RANDOM/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_random_signature_combinations_0_015]
+sql:
+-- FUNC-0699 RANDOM_STRING uppercase mode
+declare value_text varchar(32767); begin value_text:=DBMS_RANDOM.RANDOM_STRING('U',12); if lengthb(value_text)<>12 or not regexp_like(value_text,'^[A-Z]+$') then raise_application_error(-20005,'uppercase mismatch'); end if; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:162~2:185) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:53~2:78) /test/1/catalog1/DBMS_RANDOM/RANDOM_STRING/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:91~2:98) /test/1/catalog1/schema1/lengthb/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:122~2:133) /test/1/catalog1/schema1/regexp_like/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_random_signature_combinations_0_016]
+sql:
+-- FUNC-0699 RANDOM_STRING lowercase mode
+declare value_text varchar(32767); begin value_text:=DBMS_RANDOM.RANDOM_STRING('l',12); if lengthb(value_text)<>12 or not regexp_like(value_text,'^[a-z]+$') then raise_application_error(-20006,'lowercase mismatch'); end if; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:162~2:185) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:53~2:78) /test/1/catalog1/DBMS_RANDOM/RANDOM_STRING/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:91~2:98) /test/1/catalog1/schema1/lengthb/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:122~2:133) /test/1/catalog1/schema1/regexp_like/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_random_signature_combinations_0_017]
+sql:
+-- FUNC-0699 RANDOM_STRING alphabetic mixed mode
+declare value_text varchar(32767); begin value_text:=DBMS_RANDOM.RANDOM_STRING('A',12); if lengthb(value_text)<>12 or not regexp_like(value_text,'^[A-Za-z]+$') then raise_application_error(-20007,'alphabetic mismatch'); end if; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:165~2:188) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:53~2:78) /test/1/catalog1/DBMS_RANDOM/RANDOM_STRING/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:91~2:98) /test/1/catalog1/schema1/lengthb/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:122~2:133) /test/1/catalog1/schema1/regexp_like/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_random_signature_combinations_0_018]
+sql:
+-- FUNC-0699 RANDOM_STRING alphanumeric mode
+declare value_text varchar(32767); begin value_text:=DBMS_RANDOM.RANDOM_STRING('x',12); if lengthb(value_text)<>12 or not regexp_like(value_text,'^[A-Z0-9]+$') then raise_application_error(-20008,'alphanumeric mismatch'); end if; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:165~2:188) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:53~2:78) /test/1/catalog1/DBMS_RANDOM/RANDOM_STRING/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:91~2:98) /test/1/catalog1/schema1/lengthb/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:122~2:133) /test/1/catalog1/schema1/regexp_like/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_random_signature_combinations_0_019]
+sql:
+-- FUNC-0699 RANDOM_STRING printable mode
+declare value_text varchar(32767); begin value_text:=DBMS_RANDOM.RANDOM_STRING('P',12); if lengthb(value_text)<>12 then raise_application_error(-20009,'printable length mismatch'); end if; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:120~2:143) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:53~2:78) /test/1/catalog1/DBMS_RANDOM/RANDOM_STRING/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:91~2:98) /test/1/catalog1/schema1/lengthb/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_random_signature_combinations_0_020]
+sql:
+-- FUNC-0699 RANDOM_STRING unknown mode defaults to uppercase
+declare value_text varchar(32767); begin value_text:=DBMS_RANDOM.RANDOM_STRING('?',12); if lengthb(value_text)<>12 or not regexp_like(value_text,'^[A-Z]+$') then raise_application_error(-20010,'unknown mode mismatch'); end if; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:162~2:185) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:53~2:78) /test/1/catalog1/DBMS_RANDOM/RANDOM_STRING/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:91~2:98) /test/1/catalog1/schema1/lengthb/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:122~2:133) /test/1/catalog1/schema1/regexp_like/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_random_signature_combinations_0_021]
+sql:
+-- FUNC-0699 RANDOM_STRING zero length
+declare value_text varchar(32767); begin value_text:=DBMS_RANDOM.RANDOM_STRING('X',0); if lengthb(value_text)<>0 then raise_application_error(-20011,'zero length mismatch'); end if; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:118~2:141) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:53~2:78) /test/1/catalog1/DBMS_RANDOM/RANDOM_STRING/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:90~2:97) /test/1/catalog1/schema1/lengthb/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_random_signature_combinations_0_022]
+sql:
+-- FUNC-0699 RANDOM_STRING maximum documented length
+declare value_text varchar(32767); begin value_text:=DBMS_RANDOM.RANDOM_STRING('X',32767); if lengthb(value_text)<>32767 then raise_application_error(-20012,'maximum length mismatch'); end if; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:126~2:149) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:53~2:78) /test/1/catalog1/DBMS_RANDOM/RANDOM_STRING/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:94~2:101) /test/1/catalog1/schema1/lengthb/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_random_signature_combinations_0_023]
+sql:
+-- FUNC-0699 RANDOM_STRING above maximum clamps to 32767
+declare value_text varchar(32767); begin value_text:=DBMS_RANDOM.RANDOM_STRING('X',32768); if lengthb(value_text)<>32767 then raise_application_error(-20013,'clamped length mismatch'); end if; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:126~2:149) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:53~2:78) /test/1/catalog1/DBMS_RANDOM/RANDOM_STRING/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:94~2:101) /test/1/catalog1/schema1/lengthb/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_random_signature_combinations_0_024]
+sql:
+-- FUNC-0702 STRING uppercase mode
+declare value_text varchar(32767); begin value_text:=DBMS_RANDOM.STRING('U',8); if lengthb(value_text)<>8 or not regexp_like(value_text,'^[A-Z]+$') then raise_application_error(-20014,'string mismatch'); end if; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:153~2:176) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:53~2:71) /test/1/catalog1/DBMS_RANDOM/STRING/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:83~2:90) /test/1/catalog1/schema1/lengthb/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:113~2:124) /test/1/catalog1/schema1/regexp_like/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_random_signature_combinations_0_025]
+sql:
+-- FUNC-0702 STRING named reordered
+declare value_text varchar(32767); begin value_text:=DBMS_RANDOM.STRING(LEN=>8,OPT=>'l'); if lengthb(value_text)<>8 or not regexp_like(value_text,'^[a-z]+$') then raise_application_error(-20015,'named string mismatch'); end if; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:163~2:186) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:53~2:71) /test/1/catalog1/DBMS_RANDOM/STRING/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:93~2:100) /test/1/catalog1/schema1/lengthb/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:123~2:134) /test/1/catalog1/schema1/regexp_like/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_random_signature_combinations_0_027]
+sql:
+-- FUNC-0704 VALUE low only with reversed effective interval
+declare value_number number; begin value_number:=DBMS_RANDOM.VALUE(10); if value_number<1 or value_number>10 then raise_application_error(-20017,'single range mismatch'); end if; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:114~2:137) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:49~2:66) /test/1/catalog1/DBMS_RANDOM/VALUE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_random_signature_combinations_0_028]
+sql:
+-- FUNC-0704 VALUE ascending interval
+declare value_number number; begin value_number:=DBMS_RANDOM.VALUE(10,100); if value_number<10 or value_number>100 then raise_application_error(-20018,'ascending range mismatch'); end if; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:120~2:143) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:49~2:66) /test/1/catalog1/DBMS_RANDOM/VALUE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_random_signature_combinations_0_029]
+sql:
+-- FUNC-0704 VALUE descending interval
+declare value_number number; begin value_number:=DBMS_RANDOM.VALUE(100,10); if value_number<10 or value_number>100 then raise_application_error(-20019,'descending range mismatch'); end if; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:120~2:143) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:49~2:66) /test/1/catalog1/DBMS_RANDOM/VALUE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_random_signature_combinations_0_030]
+sql:
+-- FUNC-0704 VALUE equal endpoints
+declare value_number number; begin value_number:=DBMS_RANDOM.VALUE(42,42); if value_number<>42 then raise_application_error(-20020,'equal range mismatch'); end if; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:100~2:123) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:49~2:66) /test/1/catalog1/DBMS_RANDOM/VALUE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_random_signature_combinations_0_031]
+sql:
+-- FUNC-0704 VALUE named reordered negative interval
+declare value_number number; begin value_number:=DBMS_RANDOM.VALUE(HIGH=>-10,LOW=>-100); if value_number < -100 or value_number > -10 then raise_application_error(-20021,'named range mismatch'); end if; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:139~2:162) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:49~2:66) /test/1/catalog1/DBMS_RANDOM/VALUE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_random_signature_combinations_0_032]
+sql:
+-- FUNC-0694 INITIALIZE Pack29 accepts NULL
+begin DBMS_RANDOM.INITIALIZE(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:28) /test/1/catalog1/DBMS_RANDOM/INITIALIZE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_random_signature_combinations_0_033]
+sql:
+-- FUNC-0700 SEED integer overload accepts NULL
+declare value_int int:=NULL; begin DBMS_RANDOM.SEED(value_int); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:35~2:51) /test/1/catalog1/DBMS_RANDOM/SEED/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_random_signature_combinations_0_034]
+sql:
+-- FUNC-0701 SEED VARCHAR overload accepts NULL
+declare value_text varchar(20):=NULL; begin DBMS_RANDOM.SEED(value_text); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:44~2:60) /test/1/catalog1/DBMS_RANDOM/SEED/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_random_signature_combinations_0_035]
+sql:
+-- FUNC-0699 RANDOM_STRING NULL mode defaults to uppercase
+declare value_text varchar(32767); begin value_text:=DBMS_RANDOM.RANDOM_STRING(NULL,8); if lengthb(value_text)<>8 or not regexp_like(value_text,'^[A-Z]+$') then raise_application_error(-20022,'null mode mismatch'); end if; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:161~2:184) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:53~2:78) /test/1/catalog1/DBMS_RANDOM/RANDOM_STRING/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:91~2:98) /test/1/catalog1/schema1/lengthb/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:121~2:132) /test/1/catalog1/schema1/regexp_like/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_random_signature_combinations_0_036]
+sql:
+-- FUNC-0699 RANDOM_STRING negative length returns NULL
+declare value_text varchar(32767); begin value_text:=DBMS_RANDOM.RANDOM_STRING('X',-1); if value_text is not null then raise_application_error(-20023,'negative length mismatch'); end if; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:119~2:142) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:53~2:78) /test/1/catalog1/DBMS_RANDOM/RANDOM_STRING/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_random_signature_combinations_0_037]
+sql:
+-- FUNC-0699 RANDOM_STRING fractional length rounds to three
+declare value_text varchar(32767); begin value_text:=DBMS_RANDOM.RANDOM_STRING('X',2.5); if lengthb(value_text)<>3 then raise_application_error(-20024,'fractional length mismatch'); end if; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:120~2:143) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:53~2:78) /test/1/catalog1/DBMS_RANDOM/RANDOM_STRING/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:92~2:99) /test/1/catalog1/schema1/lengthb/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_random_signature_combinations_0_038]
+sql:
+-- FUNC-0704 VALUE NULL bound returns NULL
+declare value_number number; begin value_number:=DBMS_RANDOM.VALUE(NULL,1); if value_number is not null then raise_application_error(-20025,'null range mismatch'); end if; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:109~2:132) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:49~2:66) /test/1/catalog1/DBMS_RANDOM/VALUE/",
+      "action": "CALL"
+    }
+  ]
+}

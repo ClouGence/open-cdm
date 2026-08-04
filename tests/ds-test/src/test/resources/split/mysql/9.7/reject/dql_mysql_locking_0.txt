@@ -1,0 +1,6 @@
+SELECT * FROM t1 FOR SHARE WAIT NOWAIT;
+SELECT 1 FROM DUAL LIMIT 1 INTO @var FOR UPDATE INTO @var;
+------------------------------------------------------------------------------------------
+[SELECT] SELECT * FROM t1 FOR SHARE WAIT NOWAIT;
+----------
+[SELECT|SESSION_VARIABLE_RW] SELECT 1 FROM DUAL LIMIT 1 INTO @var FOR UPDATE INTO @var;

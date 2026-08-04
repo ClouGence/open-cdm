@@ -1,0 +1,79 @@
+[OraParseColumnExpressionTestFamily.test1]
+sql:
+select 1 + 1 a
+expect:
+{
+  "a" : []
+}
+----------
+[OraParseColumnExpressionTestFamily.test2]
+sql:
+select 1 + column1 as xx from table1
+expect:
+{
+  "xx" : [ "/catalog1/schema1/table1/column1/" ]
+}
+----------
+[OraParseColumnExpressionTestFamily.test3]
+sql:
+select 1 + column1 + (select column1 from table2 ) as qq from table1
+expect:
+{
+  "qq" : [ "/catalog1/schema1/table1/column1/", "/catalog1/schema1/table2/column1/" ]
+}
+----------
+[OraParseColumnExpressionTestFamily.test4]
+sql:
+select 1 + column1 + (select column1 from table2 ) + test(column2) as "ffw" from table1
+expect:
+{
+  "ffw" : [ "/catalog1/schema1/table1/column1/", "/catalog1/schema1/table2/column1/", "/catalog1/schema1/table1/column2/" ]
+}
+----------
+[OraParseColumnExpressionTestFamily.test5]
+sql:
+select 32 + column1 + test(2) + (select column1 from table2) as test from schema2.table1 a
+expect:
+{
+  "test" : [ "/catalog1/schema2/table1/column1/", "/catalog1/schema1/table2/column1/" ]
+}
+----------
+[OraParseColumnExpressionTestFamily.test6]
+sql:
+select 1 as " fw "
+expect:
+{
+  " fw " : []
+}
+----------
+[OraParseColumnExpressionTestFamily.test7]
+sql:
+select 1 as a
+expect:
+{
+  "a" : []
+}
+----------
+[OraParseColumnExpressionTestFamily.test8]
+sql:
+select 1 as a from table1
+expect:
+{
+  "a" : []
+}
+----------
+[OraParseColumnExpressionTestFamily.test9]
+sql:
+select column1 = 1 as a from table1
+expect:
+{
+  "a" : [ "/catalog1/schema1/table1/column1/" ]
+}
+----------
+[OraParseColumnExpressionTestFamily.test10]
+sql:
+select column1 + column2 = 1 as a from table1
+expect:
+{
+  "a" : [ "/catalog1/schema1/table1/column1/", "/catalog1/schema1/table1/column2/" ]
+}

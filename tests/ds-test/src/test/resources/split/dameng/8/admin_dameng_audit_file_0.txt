@@ -1,0 +1,39 @@
+sp_switch_audit_file(1);
+sp_switch_audit_file(+1);
+sp_switch_audit_file(cast(1 as int));
+sp_switch_audit_file(2);
+sp_audit_set_enc('AES128_CBC', 'CodexDm8AuditKey');
+sp_switch_audit_file(1);
+sp_audit_set_enc('AES256_CFB', 'CodexDm8AuditEncryptionKey2026');
+sp_switch_audit_file(1);
+sp_audit_set_enc('RC4', 'CodexDm8AuditKey');
+sp_switch_audit_file(1);
+sp_audit_set_enc('SM4_CBC', 'CodexDm8AuditKey');
+sp_switch_audit_file(1);
+sp_drop_audit_file(sysdate + 1, 0);
+------------------------------------------------------------------------------------------
+[ADMIN] sp_switch_audit_file(1);
+----------
+[ADMIN] sp_switch_audit_file(+1);
+----------
+[ADMIN] sp_switch_audit_file(cast(1 as int));
+----------
+[ADMIN] sp_switch_audit_file(2);
+----------
+[ADMIN] sp_audit_set_enc('AES128_CBC', 'CodexDm8AuditKey');
+----------
+[ADMIN] sp_switch_audit_file(1);
+----------
+[ADMIN] sp_audit_set_enc('AES256_CFB', 'CodexDm8AuditEncryptionKey2026');
+----------
+[ADMIN] sp_switch_audit_file(1);
+----------
+[ADMIN] sp_audit_set_enc('RC4', 'CodexDm8AuditKey');
+----------
+[ADMIN] sp_switch_audit_file(1);
+----------
+[ADMIN] sp_audit_set_enc('SM4_CBC', 'CodexDm8AuditKey');
+----------
+[ADMIN] sp_switch_audit_file(1);
+----------
+[ADMIN] sp_drop_audit_file(sysdate + 1, 0);

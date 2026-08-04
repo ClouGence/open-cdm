@@ -1,0 +1,45 @@
+#define "require" as bool
+        default "false"
+        enum ["true", "false"]
+        hint "强制要求设置字符集"
+#define "character_set" as string
+        default "utf8mb4"
+        enum ["utf8", "utf8mb4"]
+        hint "允许使用的字符集"
+
+// 对于 modify/change 语句，只有当设置了 character set 选项时候才进行校验
+if
+  @domain.sqlType == 'ALTER_TABLE_ALTER_COLUMN' and
+  @func.string.isNotBlank(@domain.characterSet)
+then
+
+    if @func.string.isBlank(#{character_set}) then
+      return false //规则配置错误
+    else
+      return @func.string.equalsIgnoreCase(@domain.characterSet, #{character_set})
+    end
+
+end
+
+// 对于 add column or create table 语句，检测是否必须设置 character set 选项
+if @domain.sqlType in ['CREATE_TABLE_ADD_COLUMN', 'ALTER_TABLE_ADD_COLUMN'] then
+
+  if cast(#{require} as bool) then
+
+    if @func.string.isBlank(#{character_set}) then
+      return false //规则配置错误
+    else
+      return @func.string.equalsIgnoreCase(@domain.characterSet, #{character_set})
+    end
+
+  else
+
+    if @func.string.isBlank(@domain.characterSet) then
+      return true
+    else
+      return @func.string.equalsIgnoreCase(@domain.characterSet, #{character_set})
+    end
+
+  end
+
+end

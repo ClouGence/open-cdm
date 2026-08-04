@@ -1,0 +1,902 @@
+[split_block_dameng_java_constructor_chain_0_001_behavior_review]
+sql:
+create or replace java class j_chain_parent
+{
+  int base_value;
+  j_chain_parent()
+  {
+    this.base_value = 1;
+  }
+  j_chain_parent(int p_value)
+  {
+    this.base_value = p_value;
+  }
+  public int get_base()
+  {
+    return base_value;
+  }
+}
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:29~1:43) /test/1/catalog1/schema1/j_chain_parent/",
+      "action": "REPLACE"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_constructor_chain_0_002_behavior_review]
+sql:
+select j_chain_parent().get_base(), j_chain_parent(5).get_base();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:21) /test/1/catalog1/schema1/j_chain_parent/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:24~1:32) /test/1/catalog1/schema1/get_base/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:36~1:50) /test/1/catalog1/schema1/j_chain_parent/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:54~1:62) /test/1/catalog1/schema1/get_base/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_constructor_chain_0_003_behavior_review]
+sql:
+create or replace java class j_super_child extends j_chain_parent
+{
+  int child_value;
+  j_super_child()
+  {
+    this.child_value = 10;
+  }
+  j_super_child(int p_child)
+  {
+    this.child_value = p_child;
+  }
+  public int get_parent_value()
+  {
+    return super().get_base();
+  }
+}
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:29~1:42) /test/1/catalog1/schema1/j_super_child/",
+      "action": "REPLACE",
+      "target": "Type(1:51~1:65) /test/1/catalog1/schema1/j_chain_parent/"
+    },
+    {
+      "subject": "Function(14:19~14:27) /test/1/catalog1/j_chain_parent/get_base/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_constructor_chain_0_004_behavior_review]
+sql:
+select j_super_child().get_parent_value(), j_super_child().child_value;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:20) /test/1/catalog1/schema1/j_super_child/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:23~1:39) /test/1/catalog1/schema1/get_parent_value/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:43~1:56) /test/1/catalog1/schema1/j_super_child/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_constructor_chain_0_005_behavior_review]
+sql:
+select j_super_child(12).get_parent_value(), j_super_child(12).child_value;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:20) /test/1/catalog1/schema1/j_super_child/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:25~1:41) /test/1/catalog1/schema1/get_parent_value/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:45~1:58) /test/1/catalog1/schema1/j_super_child/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_constructor_chain_0_006_behavior_review]
+sql:
+declare
+  v_parent j_chain_parent;
+  v_child j_super_child;
+begin
+  v_parent = new j_super_child(13);
+  v_child = v_parent;
+  print v_child.get_parent_value();
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:11~2:25) /test/1/catalog1/schema1/j_chain_parent/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(3:10~3:23) /test/1/catalog1/schema1/j_super_child/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(5:17~5:30) /test/1/catalog1/schema1/j_super_child/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(7:16~7:32) /test/1/catalog1/j_super_child/get_parent_value/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_constructor_chain_0_007_behavior_review]
+sql:
+create or replace java class j_this_chain
+{
+  int value;
+  varchar name;
+  int code;
+  j_this_chain()
+  {
+    this.value = 1;
+    this.name = 'ZERO';
+    this.code = 0;
+  }
+  j_this_chain(int p_value)
+  {
+    this();
+    this.value = p_value;
+    this.name = 'ONE';
+  }
+  j_this_chain(int p_value, varchar p_name)
+  {
+    this(p_value);
+    this.name = p_name;
+    this.code = 2;
+  }
+  public int get_value()
+  {
+    return value;
+  }
+  public varchar get_name()
+  {
+    return name;
+  }
+  public int get_code()
+  {
+    return code;
+  }
+}
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:29~1:41) /test/1/catalog1/schema1/j_this_chain/",
+      "action": "REPLACE"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_constructor_chain_0_008_behavior_review]
+sql:
+select j_this_chain().get_value(), j_this_chain().get_name(), j_this_chain().get_code();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/j_this_chain/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:22~1:31) /test/1/catalog1/schema1/get_value/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:35~1:47) /test/1/catalog1/schema1/j_this_chain/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:50~1:58) /test/1/catalog1/schema1/get_name/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:62~1:74) /test/1/catalog1/schema1/j_this_chain/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:77~1:85) /test/1/catalog1/schema1/get_code/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_constructor_chain_0_009_behavior_review]
+sql:
+select j_this_chain(7).get_value(), j_this_chain(7).get_name(), j_this_chain(7).get_code();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/j_this_chain/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:23~1:32) /test/1/catalog1/schema1/get_value/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:36~1:48) /test/1/catalog1/schema1/j_this_chain/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:52~1:60) /test/1/catalog1/schema1/get_name/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:64~1:76) /test/1/catalog1/schema1/j_this_chain/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:80~1:88) /test/1/catalog1/schema1/get_code/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_constructor_chain_0_010_behavior_review]
+sql:
+select j_this_chain(8, 'TWO').get_value(), j_this_chain(8, 'TWO').get_name(), j_this_chain(8, 'TWO').get_code();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/j_this_chain/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:30~1:39) /test/1/catalog1/schema1/get_value/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:43~1:55) /test/1/catalog1/schema1/j_this_chain/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:66~1:74) /test/1/catalog1/schema1/get_name/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:78~1:90) /test/1/catalog1/schema1/j_this_chain/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:101~1:109) /test/1/catalog1/schema1/get_code/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_constructor_chain_0_011_behavior_review]
+sql:
+select j_this_chain(9, 'THREE', 3).get_value(), j_this_chain(9, 'THREE', 3).get_name(), j_this_chain(9, 'THREE', 3).get_code();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/j_this_chain/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:35~1:44) /test/1/catalog1/schema1/get_value/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:48~1:60) /test/1/catalog1/schema1/j_this_chain/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:76~1:84) /test/1/catalog1/schema1/get_name/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:88~1:100) /test/1/catalog1/schema1/j_this_chain/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:116~1:124) /test/1/catalog1/schema1/get_code/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_constructor_chain_0_012_behavior_review]
+sql:
+create or replace java public final class j_standalone_final
+{
+  int value;
+  public int get_value()
+  {
+    return value;
+  }
+}
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:42~1:60) /test/1/catalog1/schema1/j_standalone_final/",
+      "action": "REPLACE"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_constructor_chain_0_013_behavior_review]
+sql:
+select j_standalone_final(14).get_value();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:25) /test/1/catalog1/schema1/j_standalone_final/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:30~1:39) /test/1/catalog1/schema1/get_value/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_constructor_chain_0_014_behavior_review]
+sql:
+alter class j_standalone_final compile debug;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TYPE": [
+    {
+      "subject": "Type(1:12~1:30) /test/1/catalog1/schema1/j_standalone_final/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_constructor_chain_0_015_behavior_review]
+sql:
+create or replace java class j_final_method_parent
+{
+  int value;
+  public final int stable_value()
+  {
+    return value;
+  }
+}
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:29~1:50) /test/1/catalog1/schema1/j_final_method_parent/",
+      "action": "REPLACE"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_constructor_chain_0_016_behavior_review]
+sql:
+create or replace java class j_final_method_child extends j_final_method_parent
+{
+  int extra;
+  public int extra_value()
+  {
+    return extra;
+  }
+}
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:29~1:49) /test/1/catalog1/schema1/j_final_method_child/",
+      "action": "REPLACE",
+      "target": "Type(1:58~1:79) /test/1/catalog1/schema1/j_final_method_parent/"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_constructor_chain_0_017_behavior_review]
+sql:
+select j_final_method_child(15, 16).stable_value(), j_final_method_child(15, 16).extra_value();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:27) /test/1/catalog1/schema1/j_final_method_child/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:36~1:48) /test/1/catalog1/schema1/stable_value/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:52~1:72) /test/1/catalog1/schema1/j_final_method_child/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:81~1:92) /test/1/catalog1/schema1/extra_value/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_constructor_chain_0_018_behavior_review]
+sql:
+create or replace java abstract class j_mixed_abstract
+{
+  int value;
+  public abstract int calculate();
+  public int stable()
+  {
+    return value;
+  }
+  public static int twice(int p_value)
+  {
+    return p_value * 2;
+  }
+}
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:38~1:54) /test/1/catalog1/schema1/j_mixed_abstract/",
+      "action": "REPLACE"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_constructor_chain_0_019_behavior_review]
+sql:
+select j_mixed_abstract.twice(4);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:29) /test/1/catalog1/j_mixed_abstract/twice/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_constructor_chain_0_020_behavior_review]
+sql:
+create or replace java final class j_mixed_concrete extends j_mixed_abstract
+{
+  int extra;
+  public override int calculate()
+  {
+    return value + extra;
+  }
+}
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:35~1:51) /test/1/catalog1/schema1/j_mixed_concrete/",
+      "action": "REPLACE",
+      "target": "Type(1:60~1:76) /test/1/catalog1/schema1/j_mixed_abstract/"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_constructor_chain_0_021_behavior_review]
+sql:
+select j_mixed_concrete(2, 3).calculate(), j_mixed_concrete(2, 3).stable();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:23) /test/1/catalog1/schema1/j_mixed_concrete/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:30~1:39) /test/1/catalog1/schema1/calculate/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:43~1:59) /test/1/catalog1/schema1/j_mixed_concrete/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:66~1:72) /test/1/catalog1/schema1/stable/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_constructor_chain_0_022_behavior_review]
+sql:
+create or replace java class j_overload_parent
+{
+  int value;
+  public int calculate(int p_value)
+  {
+    return p_value;
+  }
+}
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:29~1:46) /test/1/catalog1/schema1/j_overload_parent/",
+      "action": "REPLACE"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_constructor_chain_0_023_behavior_review]
+sql:
+create or replace java class j_overload_child extends j_overload_parent
+{
+  int extra;
+  public varchar calculate(varchar p_value)
+  {
+    return p_value;
+  }
+}
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:29~1:45) /test/1/catalog1/schema1/j_overload_child/",
+      "action": "REPLACE",
+      "target": "Type(1:54~1:71) /test/1/catalog1/schema1/j_overload_parent/"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_constructor_chain_0_024_behavior_review]
+sql:
+select j_overload_child(1, 2).calculate(17);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:23) /test/1/catalog1/schema1/j_overload_child/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:30~1:39) /test/1/catalog1/schema1/calculate/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_constructor_chain_0_025_behavior_review]
+sql:
+select j_overload_child(1, 2).calculate('DM8');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:23) /test/1/catalog1/schema1/j_overload_child/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:30~1:39) /test/1/catalog1/schema1/calculate/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_constructor_chain_0_026_behavior_review]
+sql:
+create table java_chain_object_table(id int primary key, obj j_chain_parent);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:36) /test/1/catalog1/schema1/java_chain_object_table/",
+      "action": "CREATE",
+      "target": "Type(1:61~1:75) /test/1/catalog1/schema1/j_chain_parent/"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_constructor_chain_0_027_behavior_review]
+sql:
+insert into java_chain_object_table values(1, j_chain_parent(18));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:35) /test/1/catalog1/schema1/java_chain_object_table/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:46~1:60) /test/1/catalog1/schema1/j_chain_parent/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_constructor_chain_0_028_behavior_review]
+sql:
+insert into java_chain_object_table values(2, j_super_child(19));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:35) /test/1/catalog1/schema1/java_chain_object_table/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:46~1:59) /test/1/catalog1/schema1/j_super_child/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_constructor_chain_0_029_behavior_review]
+sql:
+select id, t.obj.base_value, t.obj.get_base() from java_chain_object_table t order by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:35~1:43) /test/1/catalog1/schema1/get_base/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:51~1:74) /test/1/catalog1/schema1/java_chain_object_table/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_constructor_chain_0_030_behavior_review]
+sql:
+drop table java_chain_object_table;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:34) /test/1/catalog1/schema1/java_chain_object_table/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_constructor_chain_0_031_behavior_review]
+sql:
+drop class j_overload_child;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:11~1:27) /test/1/catalog1/schema1/j_overload_child/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_constructor_chain_0_032_behavior_review]
+sql:
+drop class j_overload_parent;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:11~1:28) /test/1/catalog1/schema1/j_overload_parent/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_constructor_chain_0_033_behavior_review]
+sql:
+drop class j_mixed_concrete;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:11~1:27) /test/1/catalog1/schema1/j_mixed_concrete/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_constructor_chain_0_034_behavior_review]
+sql:
+drop class j_mixed_abstract;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:11~1:27) /test/1/catalog1/schema1/j_mixed_abstract/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_constructor_chain_0_035_behavior_review]
+sql:
+drop class j_final_method_child;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:11~1:31) /test/1/catalog1/schema1/j_final_method_child/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_constructor_chain_0_036_behavior_review]
+sql:
+drop class j_final_method_parent;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:11~1:32) /test/1/catalog1/schema1/j_final_method_parent/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_constructor_chain_0_037_behavior_review]
+sql:
+drop class j_standalone_final;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:11~1:29) /test/1/catalog1/schema1/j_standalone_final/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_constructor_chain_0_038_behavior_review]
+sql:
+drop class j_this_chain;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:11~1:23) /test/1/catalog1/schema1/j_this_chain/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_constructor_chain_0_039_behavior_review]
+sql:
+drop class j_super_child;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:11~1:24) /test/1/catalog1/schema1/j_super_child/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_java_constructor_chain_0_040_behavior_review]
+sql:
+drop class j_chain_parent;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:11~1:25) /test/1/catalog1/schema1/j_chain_parent/",
+      "action": "DROP"
+    }
+  ]
+}

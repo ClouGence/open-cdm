@@ -1,0 +1,175 @@
+[select__001]
+sql:
+SELECT COUNT(*), MIN(id), MAX(id), SUM(id), AVG(id) FROM target_tab;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:20) /test/1/catalog1/schema1/MIN/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:26~1:29) /test/1/catalog1/schema1/MAX/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:35~1:38) /test/1/catalog1/schema1/SUM/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:44~1:47) /test/1/catalog1/schema1/AVG/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:57~1:67) /test/1/catalog1/schema1/target_tab/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_call_prog_obj__002]
+sql:
+SELECT app_func(id) FROM target_tab;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/app_func/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:25~1:35) /test/1/catalog1/schema1/target_tab/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_call_prog_obj__003]
+sql:
+SELECT app_aggregate(id) FROM target_tab;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:20) /test/1/catalog1/schema1/app_aggregate/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:30~1:40) /test/1/catalog1/schema1/target_tab/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_call_prog_obj__004]
+sql:
+SELECT app_func(app_aggregate(MAX(id))), COUNT(*) FROM target_tab;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/app_func/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:16~1:29) /test/1/catalog1/schema1/app_aggregate/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:30~1:33) /test/1/catalog1/schema1/MAX/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:41~1:46) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:55~1:65) /test/1/catalog1/schema1/target_tab/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_call_prog_obj__005]
+sql:
+SELECT analytics.COUNT(id) FROM target_tab;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:22) /test/1/catalog1/analytics/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:32~1:42) /test/1/catalog1/schema1/target_tab/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_call_prog_obj__006]
+sql:
+SELECT `COUNT`(id) FROM target_tab;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:24~1:34) /test/1/catalog1/schema1/target_tab/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[update_call_prog_obj__007]
+sql:
+UPDATE target_tab SET value_col = app_func(value_col);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:17) /test/1/catalog1/schema1/target_tab/",
+      "action" : "UPDATE"
+    },
+    {
+      "subject": "Function(1:34~1:42) /test/1/catalog1/schema1/app_func/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[block_call_prog_obj__008]
+sql:
+DO app_func(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(1:3~1:11) /test/1/catalog1/schema1/app_func/",
+      "action" : "CALL"
+    }
+  ]
+}

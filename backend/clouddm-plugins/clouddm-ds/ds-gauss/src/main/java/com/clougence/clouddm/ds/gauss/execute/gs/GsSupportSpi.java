@@ -78,9 +78,4 @@ public class GsSupportSpi implements RdbSupportSpi {
     public List<RdbIsolation> supportIsolation() {
         return this.isolationDef;
     }
-
-    @Override
-    public boolean supportMultiStatement(boolean isDesktop) {
-        return true;
-    }
 }

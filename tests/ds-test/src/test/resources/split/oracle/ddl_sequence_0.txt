@@ -1,0 +1,18 @@
+create sequence seq_users start with 1 increment by 1;
+create sequence "SCOTT"."SEQ_ORDER" minvalue 1 maxvalue 999999 start with 100 increment by 10 cache 20 nocycle;
+alter sequence seq_users increment by 2;
+alter sequence "SCOTT"."SEQ_ORDER" cache 100;
+drop sequence seq_users;
+drop sequence "SCOTT"."SEQ_ORDER";
+------------------------------------------------------------------------------------------
+[CREATE_SEQUENCE] create sequence seq_users start with 1 increment by 1;
+----------
+[CREATE_SEQUENCE] create sequence "SCOTT"."SEQ_ORDER" minvalue 1 maxvalue 999999 start with 100 increment by 10 cache 20 nocycle;
+----------
+[ALTER_SEQUENCE] alter sequence seq_users increment by 2;
+----------
+[ALTER_SEQUENCE] alter sequence "SCOTT"."SEQ_ORDER" cache 100;
+----------
+[DROP_SEQUENCE] drop sequence seq_users;
+----------
+[DROP_SEQUENCE] drop sequence "SCOTT"."SEQ_ORDER";

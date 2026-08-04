@@ -1,0 +1,105 @@
+-- CREATE_DATABASE_NOT_SQL
+create database CODEX_DB;
+-- DROP_DATABASE_NOT_SQL
+drop database CODEX_DB;
+-- COMMENT_DATABASE_NOT_SUPPORTED
+comment on database is 'CODEX';
+-- MISSING_ACTION
+alter database;
+-- RESIZE_MISSING_TO
+alter database resize logfile '/opt/CODEX.log';
+-- RESIZE_MISSING_PATH
+alter database resize logfile to 300;
+-- RESIZE_MISSING_SIZE
+alter database resize logfile '/opt/CODEX.log' to;
+-- ADD_LOGFILE_MISSING_ITEM
+alter database add logfile;
+-- ADD_LOGFILE_MISSING_SIZE
+alter database add logfile '/opt/CODEX.log';
+-- ADD_NODE_ONLY_ONE
+alter database add node logfile '/opt/CODEX_NODE.log' size 256;
+-- RENAME_MISSING_TO
+alter database rename logfile '/opt/CODEX.log';
+-- RENAME_MISSING_TARGET
+alter database rename logfile '/opt/CODEX.log' to;
+-- OPEN_INVALID_CURRENT
+alter database open current;
+-- MOUNT_INVALID_FORCE
+alter database mount force;
+-- SUSPEND_INVALID_FORCE
+alter database suspend force;
+-- NORMAL_INVALID_CURRENT
+alter database normal current;
+-- ARCHIVELOG_INVALID_FORCE
+alter database archivelog force;
+-- NOARCHIVELOG_INVALID_CURRENT
+alter database noarchivelog current;
+-- ADD_ARCHIVELOG_MISSING_CONFIG
+alter database add archivelog;
+-- MODIFY_ARCHIVELOG_MISSING_CONFIG
+alter database modify archivelog;
+-- DELETE_ARCHIVELOG_MISSING_CONFIG
+alter database delete archivelog;
+------------------------------------------------------------------------------------------
+[UNKNOWN] -- CREATE_DATABASE_NOT_SQL
+create database CODEX_DB;
+----------
+[UNKNOWN] -- DROP_DATABASE_NOT_SQL
+drop database CODEX_DB;
+----------
+[UNKNOWN] -- COMMENT_DATABASE_NOT_SUPPORTED
+comment on database is 'CODEX';
+----------
+[ADMIN] -- MISSING_ACTION
+alter database;
+----------
+[ADMIN] -- RESIZE_MISSING_TO
+alter database resize logfile '/opt/CODEX.log';
+----------
+[ADMIN] -- RESIZE_MISSING_PATH
+alter database resize logfile to 300;
+----------
+[ADMIN] -- RESIZE_MISSING_SIZE
+alter database resize logfile '/opt/CODEX.log' to;
+----------
+[ADMIN] -- ADD_LOGFILE_MISSING_ITEM
+alter database add logfile;
+----------
+[ADMIN] -- ADD_LOGFILE_MISSING_SIZE
+alter database add logfile '/opt/CODEX.log';
+----------
+[ADMIN] -- ADD_NODE_ONLY_ONE
+alter database add node logfile '/opt/CODEX_NODE.log' size 256;
+----------
+[ADMIN] -- RENAME_MISSING_TO
+alter database rename logfile '/opt/CODEX.log';
+----------
+[ADMIN] -- RENAME_MISSING_TARGET
+alter database rename logfile '/opt/CODEX.log' to;
+----------
+[ADMIN] -- OPEN_INVALID_CURRENT
+alter database open current;
+----------
+[ADMIN] -- MOUNT_INVALID_FORCE
+alter database mount force;
+----------
+[ADMIN] -- SUSPEND_INVALID_FORCE
+alter database suspend force;
+----------
+[ADMIN] -- NORMAL_INVALID_CURRENT
+alter database normal current;
+----------
+[ADMIN] -- ARCHIVELOG_INVALID_FORCE
+alter database archivelog force;
+----------
+[ADMIN] -- NOARCHIVELOG_INVALID_CURRENT
+alter database noarchivelog current;
+----------
+[ADMIN] -- ADD_ARCHIVELOG_MISSING_CONFIG
+alter database add archivelog;
+----------
+[ADMIN] -- MODIFY_ARCHIVELOG_MISSING_CONFIG
+alter database modify archivelog;
+----------
+[ADMIN] -- DELETE_ARCHIVELOG_MISSING_CONFIG
+alter database delete archivelog;

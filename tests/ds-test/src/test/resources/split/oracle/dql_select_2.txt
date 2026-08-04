@@ -1,0 +1,39 @@
+WITH dept_stats AS (
+    SELECT department_id, COUNT(*) AS cnt
+    FROM employees
+    GROUP BY department_id
+)
+SELECT department_id, cnt
+FROM dept_stats
+WHERE cnt > 1;
+
+SELECT employee_id,
+       last_name,
+       LEVEL AS lvl
+FROM employees
+START WITH manager_id IS NULL
+CONNECT BY PRIOR employee_id = manager_id;
+
+SELECT 'a;b;c' AS semicolon_text,
+       'x;y;z' AS semicolon_text_2
+FROM dual;
+------------------------------------------------------------------------------------------
+[SELECT] WITH dept_stats AS (
+    SELECT department_id, COUNT(*) AS cnt
+    FROM employees
+    GROUP BY department_id
+)
+SELECT department_id, cnt
+FROM dept_stats
+WHERE cnt > 1;
+----------
+[SELECT] SELECT employee_id,
+       last_name,
+       LEVEL AS lvl
+FROM employees
+START WITH manager_id IS NULL
+CONNECT BY PRIOR employee_id = manager_id;
+----------
+[SELECT] SELECT 'a;b;c' AS semicolon_text,
+       'x;y;z' AS semicolon_text_2
+FROM dual;

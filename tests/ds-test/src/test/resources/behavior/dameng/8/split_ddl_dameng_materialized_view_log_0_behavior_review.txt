@@ -1,0 +1,248 @@
+[split_ddl_dameng_materialized_view_log_0_behavior_review_001]
+sql:
+create materialized view log on mv_orders with primary key;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_LOG": [
+    {
+      "subject": "Log(1:32~1:41) /test/1/catalog1/schema1/mv_orders/",
+      "action": "CREATE",
+      "target": "Table(1:32~1:41) /test/1/catalog1/schema1/mv_orders/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_log_0_behavior_review_002]
+sql:
+drop materialized view log on mv_orders;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_LOG": [
+    {
+      "subject": "Log(1:30~1:39) /test/1/catalog1/schema1/mv_orders/",
+      "action": "DROP"
+    },
+    {
+      "subject": "Table(1:30~1:39) /test/1/catalog1/schema1/mv_orders/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_log_0_behavior_review_003]
+sql:
+create materialized view log on mv_orders with rowid(id, customer_id, amount, status);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_LOG": [
+    {
+      "subject": "Log(1:32~1:41) /test/1/catalog1/schema1/mv_orders/",
+      "action": "CREATE",
+      "target": "Table(1:32~1:41) /test/1/catalog1/schema1/mv_orders/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_log_0_behavior_review_004]
+sql:
+drop materialized view log on mv_orders;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_LOG": [
+    {
+      "subject": "Log(1:30~1:39) /test/1/catalog1/schema1/mv_orders/",
+      "action": "DROP"
+    },
+    {
+      "subject": "Table(1:30~1:39) /test/1/catalog1/schema1/mv_orders/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_log_0_behavior_review_005]
+sql:
+create materialized view log on mv_orders with sequence;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_LOG": [
+    {
+      "subject": "Log(1:32~1:41) /test/1/catalog1/schema1/mv_orders/",
+      "action": "CREATE",
+      "target": "Table(1:32~1:41) /test/1/catalog1/schema1/mv_orders/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_log_0_behavior_review_006]
+sql:
+drop materialized view log on mv_orders;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_LOG": [
+    {
+      "subject": "Log(1:30~1:39) /test/1/catalog1/schema1/mv_orders/",
+      "action": "DROP"
+    },
+    {
+      "subject": "Table(1:30~1:39) /test/1/catalog1/schema1/mv_orders/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_log_0_behavior_review_007]
+sql:
+create materialized view log on mv_orders with (amount, status);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_LOG": [
+    {
+      "subject": "Log(1:32~1:41) /test/1/catalog1/schema1/mv_orders/",
+      "action": "CREATE",
+      "target": "Table(1:32~1:41) /test/1/catalog1/schema1/mv_orders/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_log_0_behavior_review_008]
+sql:
+drop materialized view log on mv_orders;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_LOG": [
+    {
+      "subject": "Log(1:30~1:39) /test/1/catalog1/schema1/mv_orders/",
+      "action": "DROP"
+    },
+    {
+      "subject": "Table(1:30~1:39) /test/1/catalog1/schema1/mv_orders/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_log_0_behavior_review_009]
+sql:
+create materialized view log on mv_orders purge immediate synchronous;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_LOG": [
+    {
+      "subject": "Log(1:32~1:41) /test/1/catalog1/schema1/mv_orders/",
+      "action": "CREATE",
+      "target": "Table(1:32~1:41) /test/1/catalog1/schema1/mv_orders/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_log_0_behavior_review_010]
+sql:
+drop materialized view log on mv_orders;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_LOG": [
+    {
+      "subject": "Log(1:30~1:39) /test/1/catalog1/schema1/mv_orders/",
+      "action": "DROP"
+    },
+    {
+      "subject": "Table(1:30~1:39) /test/1/catalog1/schema1/mv_orders/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_log_0_behavior_review_011]
+sql:
+create materialized view log on mv_orders purge next sysdate + 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_LOG": [
+    {
+      "subject": "Log(1:32~1:41) /test/1/catalog1/schema1/mv_orders/",
+      "action": "CREATE",
+      "target": "Table(1:32~1:41) /test/1/catalog1/schema1/mv_orders/"
+    },
+    {
+      "subject": "Function(1:53~1:60) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_log_0_behavior_review_012]
+sql:
+drop materialized view log on mv_orders;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_LOG": [
+    {
+      "subject": "Log(1:30~1:39) /test/1/catalog1/schema1/mv_orders/",
+      "action": "DROP"
+    },
+    {
+      "subject": "Table(1:30~1:39) /test/1/catalog1/schema1/mv_orders/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_log_0_behavior_review_013]
+sql:
+create materialized view log on mv_orders purge repeat interval '1' day;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_LOG": [
+    {
+      "subject": "Log(1:32~1:41) /test/1/catalog1/schema1/mv_orders/",
+      "action": "CREATE",
+      "target": "Table(1:32~1:41) /test/1/catalog1/schema1/mv_orders/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_materialized_view_log_0_behavior_review_014]
+sql:
+drop materialized view log on mv_orders;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_LOG": [
+    {
+      "subject": "Log(1:30~1:39) /test/1/catalog1/schema1/mv_orders/",
+      "action": "DROP"
+    },
+    {
+      "subject": "Table(1:30~1:39) /test/1/catalog1/schema1/mv_orders/",
+      "action": "ALTER"
+    }
+  ]
+}

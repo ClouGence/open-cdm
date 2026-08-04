@@ -1,0 +1,51 @@
+[split_block_dameng_general_system_packages_0_005]
+sql:
+declare
+  v_len integer := 0;
+  v_array dbms_utility.lname_array;
+begin
+  dbms_utility.comma_to_table('HOPE,HOPE.WORLD.PEACE,"#*!:,A123"', v_len, v_array);
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(3:10~3:34) /test/1/catalog1/dbms_utility/lname_array/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(5:2~5:29) /test/1/catalog1/dbms_utility/comma_to_table/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_general_system_packages_0_006]
+sql:
+declare
+  v_len integer := 0;
+  v_array dbms_utility.lname_array;
+  v_result varchar2(200);
+begin
+  v_array[1] := 'AA';
+  v_array[2] := 'BB';
+  v_array[3] := null;
+  dbms_utility.table_to_comma(v_array, v_len, v_result);
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(3:10~3:34) /test/1/catalog1/dbms_utility/lname_array/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(9:2~9:29) /test/1/catalog1/dbms_utility/table_to_comma/",
+      "action": "CALL"
+    }
+  ]
+}

@@ -1,0 +1,69 @@
+[dsc_shared_table_create]
+sql:
+create table app.dsc_shared(id int primary key, owner_ep int, note varchar(40))
+expect:
+{"contains":[{"class":"RdbTableDomain", "sqlType":"CREATE_TABLE", "auditKind":"CREATE", "schema":"app", "table":"dsc_shared"}]}
+----------
+[dsc_shared_insert]
+sql:
+insert into app.dsc_shared values(1, 0, 'DSC01')
+expect:
+{"contains":[{"class":"RdbInsertDomain", "sqlType":"INSERT", "auditKind":"DML", "schema":"app", "table":"dsc_shared"}]}
+----------
+[dsc_shared_update]
+sql:
+update app.dsc_shared set note='DSC02' where id=1
+expect:
+{"contains":[{"class":"RdbUpdateDomain", "sqlType":"UPDATE", "auditKind":"DML", "schema":"app", "table":"dsc_shared"}]}
+----------
+[dsc_shared_delete]
+sql:
+delete from app.dsc_shared where id=2
+expect:
+{"contains":[{"class":"RdbDeleteDomain", "sqlType":"DELETE", "auditKind":"DML", "schema":"app", "table":"dsc_shared"}]}
+----------
+[dsc_shared_select]
+sql:
+select id, owner_ep, note from app.dsc_shared order by id
+expect:
+{"contains":[{"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"dsc_shared"}]}
+----------
+[dsc_ep_info]
+sql:
+select ep_name, ep_seqno, ep_mode, ep_status from sys.v$dsc_ep_info order by ep_seqno
+expect:
+{"contains":[{"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"sys", "table":"v$dsc_ep_info"}]}
+----------
+[dsc_crash_info]
+sql:
+select ep_seqno, ok_flag, crash_lsn from sys.v$dsc_crash_over_info order by ep_seqno
+expect:
+{"contains":[{"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"sys", "table":"v$dsc_crash_over_info"}]}
+----------
+[dsc_asm_attributes]
+sql:
+select count(*) from sys.v$asmattr
+expect:
+{"contains":[{"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"sys", "table":"v$asmattr"}]}
+----------
+[dsc_checkpoint_trigger]
+sql:
+create or replace trigger app.evt_dsc_checkpoint
+after checkpoint on database execute at 0
+begin
+  insert into app.dsc_checkpoint_log(source_ep) values(0);
+end;
+/
+expect:
+{
+  "contains": [
+    {"class":"RdbTriggerDomain", "sqlType":"CREATE_TRIGGER", "auditKind":"CREATE", "schema":"app", "name":"evt_dsc_checkpoint"},
+    {"class":"RdbInsertDomain", "sqlType":"INSERT", "auditKind":"DML", "schema":"app", "table":"dsc_checkpoint_log"}
+  ]
+}
+----------
+[dsc_checkpoint_admin]
+sql:
+checkpoint(1)
+expect:
+{"contains":[{"class":"RdbObjectDomain", "sqlType":"ADMIN", "name":"DATABASE"}]}

@@ -1,0 +1,51 @@
+[commit_has_no_domain]
+sql:
+commit work immediate nowait
+expect:
+{
+  "size": 0
+}
+----------
+[lock_table]
+sql:
+lock table app.employee in share intent exclusive mode nowait
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"TRANSACTION", "schema":"app", "table":"employee"}
+  ]
+}
+----------
+[pivot_source]
+sql:
+select * from (select salesman,product_name,amount from app.sales_order)
+pivot (sum(amount) for product_name in('APPLE' as apple,'ORANGE' as orange))
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"sales_order"}
+  ]
+}
+----------
+[unpivot_source]
+sql:
+select * from app.sales_wide
+unpivot include nulls (amount for product_name in(apple as 'APPLE',orange as 'ORANGE'))
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"sales_wide"}
+  ]
+}
+----------
+[hierarchy_source]
+sql:
+select high_dep,dep_name,level from app.department
+connect by prior dep_name=high_dep start with dep_name='ROOT'
+order siblings by dep_name
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"department"}
+  ]
+}

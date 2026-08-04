@@ -1,0 +1,245 @@
+[split_dcl_dameng_huge_privileges_0_001_behavior_review]
+sql:
+grant create table to codex_huge_creator;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Table(1:13~1:18) /test/1/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:22~1:40) /test/1/codex_huge_creator/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_huge_privileges_0_002_behavior_review]
+sql:
+grant create any table to codex_huge_any_creator;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Table(1:17~1:22) /test/1/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:26~1:48) /test/1/codex_huge_any_creator/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_huge_privileges_0_003_behavior_review]
+sql:
+grant alter any table to codex_huge_alterer;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Table(1:16~1:21) /test/1/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:25~1:43) /test/1/codex_huge_alterer/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_huge_privileges_0_004_behavior_review]
+sql:
+grant comment any table to codex_huge_commenter;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Table(1:18~1:23) /test/1/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:27~1:47) /test/1/codex_huge_commenter/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_huge_privileges_0_005_behavior_review]
+sql:
+grant drop any table to codex_huge_dropper;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Table(1:15~1:20) /test/1/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:24~1:42) /test/1/codex_huge_dropper/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_huge_privileges_0_006_behavior_review]
+sql:
+grant dba to codex_huge_dba;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Role(1:6~1:9) /test/1/dba/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:13~1:27) /test/1/codex_huge_dba/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_huge_privileges_0_007_behavior_review]
+sql:
+create huge table codex_huge_creator.own_target(id int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:47) /test/1/catalog1/codex_huge_creator/own_target/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_huge_privileges_0_008_behavior_review]
+sql:
+create huge table codex_huge_owner.any_target(id int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:45) /test/1/catalog1/codex_huge_owner/any_target/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_huge_privileges_0_009_behavior_review]
+sql:
+alter table codex_huge_owner.alter_target add column added_col int;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_COLUMN": [
+    {
+      "subject": "Table(1:12~1:41) /test/1/catalog1/codex_huge_owner/alter_target/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_huge_privileges_0_010_behavior_review]
+sql:
+comment on table codex_huge_owner.comment_target is 'huge comment';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "COMMENT_TABLE": [
+    {
+      "subject": "Table(1:17~1:48) /test/1/catalog1/codex_huge_owner/comment_target/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_huge_privileges_0_011_behavior_review]
+sql:
+comment on column codex_huge_owner.comment_target.note is 'huge column';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "COMMENT_COLUMN": [
+    {
+      "subject": "Table(1:18~1:49) /test/1/catalog1/codex_huge_owner/comment_target/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_huge_privileges_0_012_behavior_review]
+sql:
+drop table codex_huge_owner.drop_target;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:39) /test/1/catalog1/codex_huge_owner/drop_target/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_huge_privileges_0_013_behavior_review]
+sql:
+create huge table codex_huge_none.own_denied(id int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:44) /test/1/catalog1/codex_huge_none/own_denied/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_huge_privileges_0_014_behavior_review]
+sql:
+alter table codex_huge_owner.none_target add column denied_col int;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_COLUMN": [
+    {
+      "subject": "Table(1:12~1:40) /test/1/catalog1/codex_huge_owner/none_target/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_huge_privileges_0_015_behavior_review]
+sql:
+comment on table codex_huge_owner.none_target is 'denied';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "COMMENT_TABLE": [
+    {
+      "subject": "Table(1:17~1:45) /test/1/catalog1/codex_huge_owner/none_target/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_huge_privileges_0_016_behavior_review]
+sql:
+drop table codex_huge_owner.none_target;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:39) /test/1/catalog1/codex_huge_owner/none_target/",
+      "action": "DROP"
+    }
+  ]
+}

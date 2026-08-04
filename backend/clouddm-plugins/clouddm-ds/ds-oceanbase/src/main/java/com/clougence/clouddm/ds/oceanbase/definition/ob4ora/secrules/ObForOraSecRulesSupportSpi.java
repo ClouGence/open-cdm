@@ -18,10 +18,13 @@ package com.clougence.clouddm.ds.oceanbase.definition.ob4ora.secrules;
 import java.util.Arrays;
 import java.util.List;
 
-import com.clougence.clouddm.dsfamily.oracle.definition.secrules.OraSecRulesSupportSpi;
-import com.clougence.clouddm.sdk.model.analysis.TargetType;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
+import com.clougence.clouddm.sdk.sql.analysis.security.SecRulesSupportSpi;
 
-public class ObForOraSecRulesSupportSpi extends OraSecRulesSupportSpi {
+public class ObForOraSecRulesSupportSpi implements SecRulesSupportSpi {
+
+    @Override
+    public boolean isSupport() { return true; }
 
     @Override
     public List<TargetType> supportModel() {

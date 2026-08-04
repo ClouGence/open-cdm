@@ -1,0 +1,360 @@
+ALTER FUNCTION missing_external_function LANGUAGE JAVASCRIPT;
+ALTER PROCEDURE missing_external_procedure LANGUAGE JAVASCRIPT;
+CREATE EXTERNAL TABLE split_ext.ext_format (
+  id INT,
+  event_time DATETIME EXTERNAL_FORMAT 'yyyy-MM-dd HH:mm:ss',
+  event_date DATE EXTERNAL_FORMAT 'yyyy-MM-dd'
+);
+CREATE TABLE split_ext.regular_format (
+  id INT,
+  event_time DATETIME EXTERNAL_FORMAT 'yyyy-MM-dd HH:mm:ss'
+);
+CREATE FUNCTION f_ext_dollar(n INTEGER) RETURNS INTEGER LANGUAGE JAVASCRIPT AS $$ return n; $$;
+CREATE FUNCTION f_ext_string(n INTEGER) RETURNS INTEGER LANGUAGE JAVASCRIPT AS 'return n;';
+CREATE FUNCTION codex_tagged(n INTEGER) RETURNS INTEGER DETERMINISTIC LANGUAGE JAVASCRIPT AS $abdc_1234$ const marker = "$$ $other$"; return n; $abdc_1234$;
+CREATE PROCEDURE p_ext_dollar(n INTEGER) LANGUAGE JAVASCRIPT AS $$ let x = n; $$;
+ALTER FUNCTION split_ext.ext_f COMMENT 'updated function' USING (split_ext.lib1 AS imported1);
+ALTER FUNCTION split_ext.ext_f USING (split_ext.lib2 AS imported2, split_ext.lib1);
+ALTER PROCEDURE split_ext.ext_p USING ();
+CREATE FUNCTION split_ext.ext_f(n INTEGER)
+RETURNS INTEGER
+DETERMINISTIC
+NO SQL
+LANGUAGE JAVASCRIPT
+USING (split_ext.lib1 AS imported1, split_ext.lib2 imported2)
+COMMENT 'external function'
+AS 'return imported1.f(n) + imported2.g(n)';
+CREATE PROCEDURE split_ext.ext_p(n INTEGER)
+USING (split_ext.lib1, split_ext.lib2 AS imported2)
+LANGUAGE JAVASCRIPT
+COMMENT 'external procedure'
+AS 'let a = n';
+CREATE EXTERNAL TABLE split_keywords.ext_basic (id INT);
+CREATE EXTERNAL TABLE split_keywords.ext_both (id INT) ENGINE=InnoDB SECONDARY_ENGINE=NULL;
+CREATE EXTERNAL TABLE split_keywords.ext_complex (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  status ENUM('active', 'inactive', 'pending') DEFAULT 'pending',
+  data JSON,
+  INDEX idx_name (name),
+  FULLTEXT idx_data (data)
+);
+CREATE EXTERNAL TABLE split_keywords.ext_engine (id INT) ENGINE=InnoDB;
+CREATE EXTERNAL TABLE split_keywords.ext_options (id INT)
+FILE_FORMAT=(FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' ESCAPED BY '\\' LINES STARTING BY '' TERMINATED BY '\n' IGNORE 1 LINES)
+FILES=(URI='s3://bucket/a.csv' FILE_NAME='a.csv' FILE_PATTERN='*.csv' FILE_PREFIX='prefix/' ALLOW_MISSING_FILES=1 STRICT_LOAD=0, URL='https://example.com/b.csv')
+ALLOW_MISSING_FILES=DEFAULT
+VERIFY_KEY_CONSTRAINTS=1
+STRICT_LOAD=DEFAULT
+AUTO_REFRESH=0
+AUTO_REFRESH_SOURCE='split_source';
+CREATE EXTERNAL TABLE IF NOT EXISTS split_keywords.ext_if (id INT, name VARCHAR(20));
+CREATE EXTERNAL TABLE split_keywords.ext_like LIKE split_keywords.ext_source;
+CREATE EXTERNAL TABLE split_keywords.ext_secondary (id INT) SECONDARY_ENGINE=NULL;
+CREATE PROCEDURE p1()
+BEGIN
+parse_gcol_expr: LOOP
+  SELECT 1;
+  LEAVE parse_gcol_expr;
+END LOOP parse_gcol_expr;
+END;
+CREATE FUNCTION fn_label_account() RETURNS INT
+BEGIN
+  ACCOUNT: LOOP RETURN 1; END LOOP;
+END;
+CREATE FUNCTION fn_label_always() RETURNS INT
+BEGIN
+  ALWAYS: LOOP RETURN 1; END LOOP;
+END;
+CREATE FUNCTION fn_label_backup() RETURNS INT
+BEGIN
+  BACKUP: LOOP RETURN 1; END LOOP;
+END;
+CREATE FUNCTION fn_label_close() RETURNS INT
+BEGIN
+  CLOSE: LOOP RETURN 1; END LOOP;
+END;
+CREATE FUNCTION fn_label_format() RETURNS INT
+BEGIN
+  FORMAT: LOOP RETURN 1; END LOOP;
+END;
+CREATE FUNCTION fn_label_group_replication() RETURNS INT
+BEGIN
+  GROUP_REPLICATION: LOOP RETURN 1; END LOOP;
+END;
+CREATE FUNCTION fn_label_host() RETURNS INT
+BEGIN
+  HOST: LOOP RETURN 1; END LOOP;
+END;
+CREATE FUNCTION fn_label_open() RETURNS INT
+BEGIN
+  OPEN: LOOP RETURN 1; END LOOP;
+END;
+CREATE FUNCTION fn_label_options() RETURNS INT
+BEGIN
+  OPTIONS: LOOP RETURN 1; END LOOP;
+END;
+CREATE FUNCTION fn_label_owner() RETURNS INT
+BEGIN
+  OWNER: LOOP RETURN 1; END LOOP;
+END;
+CREATE FUNCTION fn_label_parser() RETURNS INT
+BEGIN
+  PARSER: LOOP RETURN 1; END LOOP;
+END;
+CREATE FUNCTION fn_label_port() RETURNS INT
+BEGIN
+  PORT: LOOP RETURN 1; END LOOP;
+END;
+CREATE FUNCTION fn_label_remove() RETURNS INT
+BEGIN
+  REMOVE: LOOP RETURN 1; END LOOP;
+END;
+CREATE FUNCTION fn_label_restore() RETURNS INT
+BEGIN
+  RESTORE: LOOP RETURN 1; END LOOP;
+END;
+CREATE FUNCTION fn_label_security() RETURNS INT
+BEGIN
+  SECURITY: LOOP RETURN 1; END LOOP;
+END;
+CREATE FUNCTION fn_label_server() RETURNS INT
+BEGIN
+  SERVER: LOOP RETURN 1; END LOOP;
+END;
+CREATE FUNCTION fn_label_socket() RETURNS INT
+BEGIN
+  SOCKET: LOOP RETURN 1; END LOOP;
+END;
+CREATE FUNCTION fn_label_soname() RETURNS INT
+BEGIN
+  SONAME: LOOP RETURN 1; END LOOP;
+END;
+CREATE FUNCTION fn_label_upgrade() RETURNS INT
+BEGIN
+  UPGRADE: LOOP RETURN 1; END LOOP;
+END;
+CREATE FUNCTION fn_label_wrapper() RETURNS INT
+BEGIN
+  WRAPPER: LOOP RETURN 1; END LOOP;
+END;
+CREATE TABLE split_removed_84 (master_bind INT, master_ssl_verify_server_cert INT);
+CREATE EXTERNAL TABLE audit_ext_table AS TABLE audit_source;
+CREATE EXTERNAL TABLE audit_ext_values AS VALUES ROW(1,'a');
+CREATE EXTERNAL TABLE audit_ext_cte AS WITH q AS (SELECT 1 AS id) SELECT id FROM q;
+CREATE EXTERNAL TABLE audit_ext_format(id INT) FILE_FORMAT=(FORMAT CSV);
+CREATE EXTERNAL TABLE audit_ext_compression(id INT) FILE_FORMAT=(COMPRESSION GZIP);
+CREATE EXTERNAL TABLE audit_ext_header(id INT) FILE_FORMAT=(HEADER OFF);
+ALTER FUNCTION audit_f USING ();
+CREATE TABLE split_keywords.reject_generated (generated INT);
+CREATE TABLE split_keywords.reject_optimizer_costs (optimizer_costs INT);
+CREATE TABLE split_keywords.reject_stored (stored INT);
+CREATE TABLE split_keywords.reject_virtual (virtual INT);
+------------------------------------------------------------------------------------------
+[ALTER_PROG_OBJ|UNSAFE] ALTER FUNCTION missing_external_function LANGUAGE JAVASCRIPT;
+----------
+[ALTER_PROG_OBJ|UNSAFE] ALTER PROCEDURE missing_external_procedure LANGUAGE JAVASCRIPT;
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE EXTERNAL TABLE split_ext.ext_format (
+  id INT,
+  event_time DATETIME EXTERNAL_FORMAT 'yyyy-MM-dd HH:mm:ss',
+  event_date DATE EXTERNAL_FORMAT 'yyyy-MM-dd'
+);
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE split_ext.regular_format (
+  id INT,
+  event_time DATETIME EXTERNAL_FORMAT 'yyyy-MM-dd HH:mm:ss'
+);
+----------
+[CREATE_PROG_OBJ|UNSAFE] CREATE FUNCTION f_ext_dollar(n INTEGER) RETURNS INTEGER LANGUAGE JAVASCRIPT AS $$ return n; $$;
+----------
+[CREATE_PROG_OBJ|UNSAFE] CREATE FUNCTION f_ext_string(n INTEGER) RETURNS INTEGER LANGUAGE JAVASCRIPT AS 'return n;';
+----------
+[CREATE_PROG_OBJ|UNSAFE] CREATE FUNCTION codex_tagged(n INTEGER) RETURNS INTEGER DETERMINISTIC LANGUAGE JAVASCRIPT AS $abdc_1234$ const marker = "$$ $other$"; return n; $abdc_1234$;
+----------
+[CREATE_PROG_OBJ|UNSAFE] CREATE PROCEDURE p_ext_dollar(n INTEGER) LANGUAGE JAVASCRIPT AS $$ let x = n; $$;
+----------
+[ALTER_PROG_OBJ|COMMENT_PROG_OBJ|UNSAFE] ALTER FUNCTION split_ext.ext_f COMMENT 'updated function' USING (split_ext.lib1 AS imported1);
+----------
+[ALTER_PROG_OBJ|UNSAFE] ALTER FUNCTION split_ext.ext_f USING (split_ext.lib2 AS imported2, split_ext.lib1);
+----------
+[ALTER_PROG_OBJ|UNSAFE] ALTER PROCEDURE split_ext.ext_p USING ();
+----------
+[CREATE_PROG_OBJ|COMMENT_PROG_OBJ|UNSAFE] CREATE FUNCTION split_ext.ext_f(n INTEGER)
+RETURNS INTEGER
+DETERMINISTIC
+NO SQL
+LANGUAGE JAVASCRIPT
+USING (split_ext.lib1 AS imported1, split_ext.lib2 imported2)
+COMMENT 'external function'
+AS 'return imported1.f(n) + imported2.g(n)';
+----------
+[CREATE_PROG_OBJ|COMMENT_PROG_OBJ|UNSAFE] CREATE PROCEDURE split_ext.ext_p(n INTEGER)
+USING (split_ext.lib1, split_ext.lib2 AS imported2)
+LANGUAGE JAVASCRIPT
+COMMENT 'external procedure'
+AS 'let a = n';
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE EXTERNAL TABLE split_keywords.ext_basic (id INT);
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE EXTERNAL TABLE split_keywords.ext_both (id INT) ENGINE=InnoDB SECONDARY_ENGINE=NULL;
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT|ADD_INDEX] CREATE EXTERNAL TABLE split_keywords.ext_complex (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  status ENUM('active', 'inactive', 'pending') DEFAULT 'pending',
+  data JSON,
+  INDEX idx_name (name),
+  FULLTEXT idx_data (data)
+);
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE EXTERNAL TABLE split_keywords.ext_engine (id INT) ENGINE=InnoDB;
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE EXTERNAL TABLE split_keywords.ext_options (id INT)
+FILE_FORMAT=(FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' ESCAPED BY '\\' LINES STARTING BY '' TERMINATED BY '\n' IGNORE 1 LINES)
+FILES=(URI='s3://bucket/a.csv' FILE_NAME='a.csv' FILE_PATTERN='*.csv' FILE_PREFIX='prefix/' ALLOW_MISSING_FILES=1 STRICT_LOAD=0, URL='https://example.com/b.csv')
+ALLOW_MISSING_FILES=DEFAULT
+VERIFY_KEY_CONSTRAINTS=1
+STRICT_LOAD=DEFAULT
+AUTO_REFRESH=0
+AUTO_REFRESH_SOURCE='split_source';
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE EXTERNAL TABLE IF NOT EXISTS split_keywords.ext_if (id INT, name VARCHAR(20));
+----------
+[CREATE_TABLE] CREATE EXTERNAL TABLE split_keywords.ext_like LIKE split_keywords.ext_source;
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE EXTERNAL TABLE split_keywords.ext_secondary (id INT) SECONDARY_ENGINE=NULL;
+----------
+[CREATE_PROG_OBJ] CREATE PROCEDURE p1()
+BEGIN
+parse_gcol_expr: LOOP
+  SELECT 1;
+  LEAVE parse_gcol_expr;
+END LOOP parse_gcol_expr;
+END;
+----------
+[CREATE_PROG_OBJ] CREATE FUNCTION fn_label_account() RETURNS INT
+BEGIN
+  ACCOUNT: LOOP RETURN 1; END LOOP;
+END;
+----------
+[CREATE_PROG_OBJ] CREATE FUNCTION fn_label_always() RETURNS INT
+BEGIN
+  ALWAYS: LOOP RETURN 1; END LOOP;
+END;
+----------
+[CREATE_PROG_OBJ] CREATE FUNCTION fn_label_backup() RETURNS INT
+BEGIN
+  BACKUP: LOOP RETURN 1; END LOOP;
+END;
+----------
+[CREATE_PROG_OBJ] CREATE FUNCTION fn_label_close() RETURNS INT
+BEGIN
+  CLOSE: LOOP RETURN 1; END LOOP;
+END;
+----------
+[CREATE_PROG_OBJ] CREATE FUNCTION fn_label_format() RETURNS INT
+BEGIN
+  FORMAT: LOOP RETURN 1; END LOOP;
+END;
+----------
+[CREATE_PROG_OBJ] CREATE FUNCTION fn_label_group_replication() RETURNS INT
+BEGIN
+  GROUP_REPLICATION: LOOP RETURN 1; END LOOP;
+END;
+----------
+[CREATE_PROG_OBJ] CREATE FUNCTION fn_label_host() RETURNS INT
+BEGIN
+  HOST: LOOP RETURN 1; END LOOP;
+END;
+----------
+[CREATE_PROG_OBJ] CREATE FUNCTION fn_label_open() RETURNS INT
+BEGIN
+  OPEN: LOOP RETURN 1; END LOOP;
+END;
+----------
+[CREATE_PROG_OBJ] CREATE FUNCTION fn_label_options() RETURNS INT
+BEGIN
+  OPTIONS: LOOP RETURN 1; END LOOP;
+END;
+----------
+[CREATE_PROG_OBJ] CREATE FUNCTION fn_label_owner() RETURNS INT
+BEGIN
+  OWNER: LOOP RETURN 1; END LOOP;
+END;
+----------
+[CREATE_PROG_OBJ] CREATE FUNCTION fn_label_parser() RETURNS INT
+BEGIN
+  PARSER: LOOP RETURN 1; END LOOP;
+END;
+----------
+[CREATE_PROG_OBJ] CREATE FUNCTION fn_label_port() RETURNS INT
+BEGIN
+  PORT: LOOP RETURN 1; END LOOP;
+END;
+----------
+[CREATE_PROG_OBJ] CREATE FUNCTION fn_label_remove() RETURNS INT
+BEGIN
+  REMOVE: LOOP RETURN 1; END LOOP;
+END;
+----------
+[CREATE_PROG_OBJ] CREATE FUNCTION fn_label_restore() RETURNS INT
+BEGIN
+  RESTORE: LOOP RETURN 1; END LOOP;
+END;
+----------
+[CREATE_PROG_OBJ] CREATE FUNCTION fn_label_security() RETURNS INT
+BEGIN
+  SECURITY: LOOP RETURN 1; END LOOP;
+END;
+----------
+[CREATE_PROG_OBJ] CREATE FUNCTION fn_label_server() RETURNS INT
+BEGIN
+  SERVER: LOOP RETURN 1; END LOOP;
+END;
+----------
+[CREATE_PROG_OBJ] CREATE FUNCTION fn_label_socket() RETURNS INT
+BEGIN
+  SOCKET: LOOP RETURN 1; END LOOP;
+END;
+----------
+[CREATE_PROG_OBJ] CREATE FUNCTION fn_label_soname() RETURNS INT
+BEGIN
+  SONAME: LOOP RETURN 1; END LOOP;
+END;
+----------
+[CREATE_PROG_OBJ] CREATE FUNCTION fn_label_upgrade() RETURNS INT
+BEGIN
+  UPGRADE: LOOP RETURN 1; END LOOP;
+END;
+----------
+[CREATE_PROG_OBJ] CREATE FUNCTION fn_label_wrapper() RETURNS INT
+BEGIN
+  WRAPPER: LOOP RETURN 1; END LOOP;
+END;
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE split_removed_84 (master_bind INT, master_ssl_verify_server_cert INT);
+----------
+[CREATE_TABLE] CREATE EXTERNAL TABLE audit_ext_table AS TABLE audit_source;
+----------
+[CREATE_TABLE] CREATE EXTERNAL TABLE audit_ext_values AS VALUES ROW(1,'a');
+----------
+[CREATE_TABLE] CREATE EXTERNAL TABLE audit_ext_cte AS WITH q AS (SELECT 1 AS id) SELECT id FROM q;
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE EXTERNAL TABLE audit_ext_format(id INT) FILE_FORMAT=(FORMAT CSV);
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE EXTERNAL TABLE audit_ext_compression(id INT) FILE_FORMAT=(COMPRESSION GZIP);
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE EXTERNAL TABLE audit_ext_header(id INT) FILE_FORMAT=(HEADER OFF);
+----------
+[ALTER_PROG_OBJ|UNSAFE] ALTER FUNCTION audit_f USING ();
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE split_keywords.reject_generated (generated INT);
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE split_keywords.reject_optimizer_costs (optimizer_costs INT);
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE split_keywords.reject_stored (stored INT);
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE split_keywords.reject_virtual (virtual INT);

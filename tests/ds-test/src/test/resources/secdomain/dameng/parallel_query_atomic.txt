@@ -1,0 +1,115 @@
+[parallel_select]
+sql:
+select /*+ parallel(4) */ id from app.t_base
+expect:
+{
+  "contains": [
+    {
+      "class": "RdbTableDomain",
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "schema": "app",
+      "table": "t_base"
+    }
+  ]
+}
+----------
+[parallel_join]
+sql:
+select /*+ parallel(4) */ b.id,d.label from app.t_base b join app.t_dim d on d.group_id=b.group_id
+expect:
+{
+  "contains": [
+    {
+      "class": "RdbTableDomain",
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "schema": "app",
+      "table": "t_base"
+    },
+    {
+      "class": "RdbTableDomain",
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "schema": "app",
+      "table": "t_dim"
+    }
+  ]
+}
+----------
+[parallel_partition]
+sql:
+select /*+ parallel(t_part 4) */ id from app.t_part partition(p2)
+expect:
+{
+  "contains": [
+    {
+      "class": "RdbTableDomain",
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "schema": "app",
+      "table": "t_part"
+    }
+  ]
+}
+----------
+[parallel_cte]
+sql:
+with q as(select /*+ parallel(4) */ id,group_id from app.t_base) select id from q
+expect:
+{
+  "contains": [
+    {
+      "class": "RdbTableDomain",
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "schema": "app",
+      "table": "t_base"
+    }
+  ]
+}
+----------
+[parallel_dml_switch]
+sql:
+alter session enable parallel dml
+expect:
+{
+  "contains": [
+    {
+      "class": "RdbConfigDomain",
+      "sqlType": "CONFIG_WRITE",
+      "auditKind": "OTHER",
+      "configKey": "PARALLEL_POLICY"
+    }
+  ]
+}
+----------
+[parallel_query_switch]
+sql:
+alter session enable parallel query
+expect:
+{
+  "contains": [
+    {
+      "class": "RdbConfigDomain",
+      "sqlType": "CONFIG_WRITE",
+      "auditKind": "OTHER",
+      "configKey": "PARALLEL_POLICY"
+    }
+  ]
+}
+----------
+[parallel_ddl_switch]
+sql:
+alter session disable parallel ddl
+expect:
+{
+  "contains": [
+    {
+      "class": "RdbConfigDomain",
+      "sqlType": "CONFIG_WRITE",
+      "auditKind": "OTHER",
+      "configKey": "PARALLEL_POLICY"
+    }
+  ]
+}

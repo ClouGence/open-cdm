@@ -1,0 +1,168 @@
+[split_block_dameng_rewrite_logmnr_rls_0_006_dbms_logmnr_review]
+sql:
+declare first_file int := 1; begin for r in (select name from v$archived_log order by first_change#) loop if first_file=1 then dbms_logmnr.add_logfile(r.name, dbms_logmnr."NEW"); first_file:=0; else dbms_logmnr.add_logfile(r.name, dbms_logmnr.ADDFILE); end if; end loop; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "View(1:62~1:76) /test/1/catalog1/schema1/v$archived_log/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(1:127~1:150) /test/1/catalog1/dbms_logmnr/add_logfile/",
+      "action": "CALL",
+      "target": "File(1:151~1:157) /test/1/"
+    },
+    {
+      "subject": "Procedure(1:199~1:222) /test/1/catalog1/dbms_logmnr/add_logfile/",
+      "action": "CALL",
+      "target": "File(1:223~1:229) /test/1/"
+    }
+  ]
+}
+----------
+[split_block_dameng_rewrite_logmnr_rls_0_007_dbms_logmnr_review]
+sql:
+begin dbms_logmnr.start_logmnr(options=>dbms_logmnr.COMMITTED_DATA_ONLY + dbms_logmnr.DICT_FROM_ONLINE_CATALOG + dbms_logmnr.NO_SQL_DELIMITER + dbms_logmnr.NO_ROWID_IN_STMT); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:6~1:30) /test/1/catalog1/dbms_logmnr/start_logmnr/",
+      "action": "CALL",
+      "target": "Environment(1:6~1:30) /test/1/"
+    }
+  ]
+}
+----------
+[split_block_dameng_rewrite_logmnr_rls_0_008_dbms_logmnr_review]
+sql:
+begin dbms_logmnr.end_logmnr(); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:6~1:28) /test/1/catalog1/dbms_logmnr/end_logmnr/",
+      "action": "CALL",
+      "target": "Environment(1:6~1:28) /test/1/"
+    }
+  ]
+}
+----------
+[split_block_dameng_rewrite_logmnr_rls_0_009_dbms_logmnr_review]
+sql:
+declare log_file varchar(32767); begin select name into log_file from (select name from v$archived_log order by first_change# desc) where rownum=1; dbms_logmnr.add_logfile(log_file, dbms_logmnr."NEW"); dbms_logmnr.remove_logfile(log_file); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "View(1:88~1:102) /test/1/catalog1/schema1/v$archived_log/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(1:148~1:171) /test/1/catalog1/dbms_logmnr/add_logfile/",
+      "action": "CALL",
+      "target": "File(1:172~1:180) /test/1/"
+    },
+    {
+      "subject": "Procedure(1:202~1:228) /test/1/catalog1/dbms_logmnr/remove_logfile/",
+      "action": "CALL",
+      "target": "File(1:229~1:237) /test/1/"
+    }
+  ]
+}
+----------
+[split_block_dameng_rewrite_logmnr_rls_0_010_dbms_logmnr_review]
+sql:
+declare log_file varchar(32767); begin select name into log_file from (select name from v$archived_log order by first_change# desc) where rownum=1; dbms_logmnr.add_logfile(log_file, dbms_logmnr."NEW"); dbms_logmnr.start_logmnr(startscn=>0, endscn=>0, starttime=>to_date('1988-01-01','YYYY-MM-DD'), endtime=>to_date('2110-12-31','YYYY-MM-DD'), dictfilename=>'', options=>0); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "View(1:88~1:102) /test/1/catalog1/schema1/v$archived_log/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(1:148~1:171) /test/1/catalog1/dbms_logmnr/add_logfile/",
+      "action": "CALL",
+      "target": "File(1:172~1:180) /test/1/"
+    },
+    {
+      "subject": "Procedure(1:202~1:226) /test/1/catalog1/dbms_logmnr/start_logmnr/",
+      "action": "CALL",
+      "target": "Environment(1:202~1:226) /test/1/"
+    },
+    {
+      "subject": "Function(1:262~1:269) /test/1/catalog1/schema1/to_date/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:307~1:314) /test/1/catalog1/schema1/to_date/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_rewrite_logmnr_rls_0_011_dbms_logmnr_review]
+sql:
+begin dbms_logmnr.end_logmnr(); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:6~1:28) /test/1/catalog1/dbms_logmnr/end_logmnr/",
+      "action": "CALL",
+      "target": "Environment(1:6~1:28) /test/1/"
+    }
+  ]
+}
+----------
+[split_dql_dameng_rewrite_logmnr_rls_0_005_dbms_logmnr_review]
+sql:
+select dbms_logmnr.column_present(redo_value, 'CODEX_DM8_RLS.CODEX_LOGMNR_T.TXT') from v$logmnr_contents where seg_owner='CODEX_DM8_RLS' and table_name='CODEX_LOGMNR_T' and operation_code=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:33) /test/1/catalog1/dbms_logmnr/column_present/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:87~1:104) /test/1/catalog1/schema1/v$logmnr_contents/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_rewrite_logmnr_rls_0_006_dbms_logmnr_review]
+sql:
+select dbms_logmnr.mine_value(redo_value, 'CODEX_DM8_RLS.CODEX_LOGMNR_T.TXT') from v$logmnr_contents where seg_owner='CODEX_DM8_RLS' and table_name='CODEX_LOGMNR_T' and operation_code=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:29) /test/1/catalog1/dbms_logmnr/mine_value/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:83~1:100) /test/1/catalog1/schema1/v$logmnr_contents/",
+      "action": "READ"
+    }
+  ]
+}

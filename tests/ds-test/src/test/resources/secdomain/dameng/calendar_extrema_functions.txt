@@ -1,0 +1,15 @@
+[calendar_extrema_public_signatures]
+sql:
+select
+  great(date '2024-01-01',date '2024-12-31') as great_value,
+  greatest(date '2024-01-01',date '2024-12-31',date '2024-06-30') as greatest_value,
+  least(date '2024-01-01',date '2024-12-31',date '2024-06-30') as least_value,
+  last_day(date '2024-02-01') as last_day_value,
+  next_day(date '2024-01-01','monday') as next_day_value
+from dual
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "table":"dual"}
+  ]
+}

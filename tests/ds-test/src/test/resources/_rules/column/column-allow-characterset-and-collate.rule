@@ -1,0 +1,22 @@
+#define "allow" as string
+        default "Both"
+        enum ["Nothing", "Both", "Character set", "Collate"]
+        hint "是否允许字符集和排序规则出现在列上"
+
+if
+  @domain.sqlType in ['CREATE_TABLE_ADD_COLUMN', 'ALTER_TABLE_ADD_COLUMN', 'ALTER_TABLE_ALTER_COLUMN']
+then
+
+  if @func.string.isNotBlank(@domain.characterSet) then
+    if #{allow} not in ['Both', 'Character set'] then
+      return false
+    end
+  end
+
+  if @func.string.isNotBlank(@domain.collate) then
+    if #{allow} not in ['Both', 'Collate'] then
+      return false
+    end
+  end
+
+end

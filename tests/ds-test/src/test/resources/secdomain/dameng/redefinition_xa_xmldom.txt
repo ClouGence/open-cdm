@@ -1,0 +1,55 @@
+[redefinition_start_domain]
+sql:
+call dbms_redefinition.start_redef_table('SYSDBA', 'CODEX_REDEF_MAIN', 'CODEX_REDEF_MAIN_INT')
+expect:
+{
+  "contains": [
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_redefinition"}
+  ]
+}
+----------
+[xa_recover_domain]
+sql:
+call dbms_xa.xa_recover()
+expect:
+{
+  "contains": [
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_xa"}
+  ]
+}
+----------
+[xmldom_new_document_domain]
+sql:
+call dbms_xmldom.newdomdocument('<ROOT/>')
+expect:
+{
+  "contains": [
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_xmldom"}
+  ]
+}
+----------
+[redefinition_status_domain]
+sql:
+select redefinition_id, base_table_owner, base_table_name, interim_object_name, operation, status, restartable
+from sys.dba_redefinition_status
+where base_table_name='CODEX_REDEF_MAIN'
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"sys", "table":"dba_redefinition_status"}
+  ]
+}
+----------
+[redefinition_merge_domain]
+sql:
+merge into app.codex_dm8_pkg_ctl t
+using (select 'REDEF_COPY_ERRORS' label, n_err number_value from dual) s
+on (t.label=s.label)
+when matched then update set t.number_value=s.number_value
+when not matched then insert(label, number_value) values(s.label, s.number_value)
+expect:
+{
+  "contains": [
+    {"class":"RdbUpdateDomain", "sqlType":"MERGE", "auditKind":"DML", "schema":"app", "table":"codex_dm8_pkg_ctl"}
+  ]
+}

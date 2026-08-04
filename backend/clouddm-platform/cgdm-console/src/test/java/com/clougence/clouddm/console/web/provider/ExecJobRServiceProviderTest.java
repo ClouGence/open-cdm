@@ -75,7 +75,7 @@ public class ExecJobRServiceProviderTest {
         when(jobMapper.pauseJobIfActive(6L)).thenReturn(1);
 
         provider = new ExecJobRServiceProvider();
-        ReflectionTestUtils.setField(provider, "executionDal", executionDal);
+        ReflectionTestUtils.setField(provider, "execDal", executionDal);
         ReflectionTestUtils.setField(provider, "monitorDal", monitorDal);
         ReflectionTestUtils.setField(provider, "execHelperService", helperService);
     }
@@ -140,7 +140,7 @@ public class ExecJobRServiceProviderTest {
     }
 
     private DmExecAutoTaskMapper providerTaskMapper() {
-        ExecutionDal executionDal = (ExecutionDal) ReflectionTestUtils.getField(provider, "executionDal");
+        ExecutionDal executionDal = (ExecutionDal) ReflectionTestUtils.getField(provider, "execDal");
         return executionDal.autoTaskMapper();
     }
 }

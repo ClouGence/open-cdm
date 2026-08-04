@@ -1,0 +1,123 @@
+[normalTest]
+type: createTrigger
+option:
+{
+  "targetName": "target_name",
+  "schema": "test_schema",
+  "delimited": true,
+  "data": {
+    "name": "test_trigger",
+    "triggerTable": "table",
+    "triggerTime": "before",
+    "triggerEvent": [
+      "insert"
+    ],
+    "sql": "begin insert table tmp values(1,2); end",
+    "rdbdm_trig": "row"
+  }
+}
+expect:
+<<<
+CREATE TRIGGER "test_schema"."test_trigger"
+before INSERT 
+ON "test_schema"."table"
+FOR EACH ROW 
+begin insert table tmp values(1,2); end;
+>>>
+----------
+
+[twoTypeTest]
+type: createTrigger
+option:
+{
+  "targetName": "target_name",
+  "schema": "test_schema",
+  "delimited": true,
+  "data": {
+    "name": "test_trigger",
+    "triggerTable": "table",
+    "triggerTime": "before",
+    "triggerEvent": [
+      "insert",
+      "update"
+    ],
+    "sql": "begin insert table tmp values(1,2); end",
+    "rdbdm_cond": "1=1",
+    "rdbdm_trig": "row"
+  }
+}
+expect:
+<<<
+CREATE TRIGGER "test_schema"."test_trigger"
+before INSERT OR UPDATE 
+ON "test_schema"."table"
+FOR EACH ROW 
+begin insert table tmp values(1,2); end;
+>>>
+----------
+
+[updateColumnTest]
+type: createTrigger
+option:
+{
+  "targetName": "target_name",
+  "schema": "test_schema",
+  "delimited": true,
+  "data": {
+    "name": "test_trigger",
+    "triggerTable": "table",
+    "triggerTime": "before",
+    "triggerEvent": [
+      "insert",
+      "update"
+    ],
+    "triggerColumns": [
+      "a"
+    ],
+    "sql": "begin insert table tmp values(1,2); end",
+    "rdbdm_cond": "1=1",
+    "rdbdm_trig": "row"
+  }
+}
+expect:
+<<<
+CREATE TRIGGER "test_schema"."test_trigger"
+before INSERT OR UPDATE OF "a" 
+ON "test_schema"."table"
+FOR EACH ROW 
+begin insert table tmp values(1,2); end;
+>>>
+----------
+
+[updateTwoColumnTest]
+type: createTrigger
+option:
+{
+  "targetName": "target_name",
+  "schema": "test_schema",
+  "delimited": true,
+  "data": {
+    "name": "test_trigger",
+    "triggerTable": "table",
+    "triggerTime": "before",
+    "triggerEvent": [
+      "insert",
+      "update"
+    ],
+    "triggerColumns": [
+      "a",
+      "b"
+    ],
+    "sql": "begin insert table tmp values(1,2); end",
+    "rdbdm_cond": "1=1",
+    "rdbdm_trig": "row"
+  }
+}
+expect:
+<<<
+CREATE TRIGGER "test_schema"."test_trigger"
+before INSERT OR UPDATE OF "a","b" 
+ON "test_schema"."table"
+FOR EACH ROW 
+begin insert table tmp values(1,2); end;
+>>>

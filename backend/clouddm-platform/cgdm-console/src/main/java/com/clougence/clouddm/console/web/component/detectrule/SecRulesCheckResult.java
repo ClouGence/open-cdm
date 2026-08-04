@@ -19,7 +19,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import com.clougence.clouddm.sdk.service.secrules.RuleLevel;
-import com.clougence.clouddm.sdk.sql.split.SplitScript;
+import com.clougence.clouddm.sdk.sql.parser.SplitScript;
 import com.clougence.utils.CollectionUtils;
 
 import lombok.Getter;

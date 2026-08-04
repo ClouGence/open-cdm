@@ -1,0 +1,12 @@
+EXPLAIN PLAN FOR SELECT * FROM employees;
+EXPLAIN PLAN FOR
+SELECT department_id, COUNT(*)
+FROM employees
+GROUP BY department_id;
+------------------------------------------------------------------------------------------
+[SELECT] EXPLAIN PLAN FOR SELECT * FROM employees;
+----------
+[SELECT] EXPLAIN PLAN FOR
+SELECT department_id, COUNT(*)
+FROM employees
+GROUP BY department_id;

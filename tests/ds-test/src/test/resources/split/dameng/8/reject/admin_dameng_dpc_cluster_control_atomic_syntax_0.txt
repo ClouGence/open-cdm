@@ -1,0 +1,30 @@
+sp_create_dpc_bp_group(,'x');
+sp_create_dpc_instance('R','I','BP',6001,5236,'127.0.0.1','NORMAL',1,);
+sp_create_dpc_instance('R','I','BP',6001,5236,'127.0.0.1',,'NORMAL',1,'x');
+sp_set_dpc_net_conf('TIMEOUT',);
+sp_add_raft_learner('I','127.0.0.1',6001,);
+sp_replace_raft_node('OLD',);
+sp_raft_switchover(,);
+sp_clear_tab_rowcnt_cache(null,);
+sp_set_raft_async_interval('I',);
+sp_get_raft_async_interval(,);
+------------------------------------------------------------------------------------------
+[CALL_PROG_OBJ] sp_create_dpc_bp_group(,'x');
+----------
+[CALL_PROG_OBJ] sp_create_dpc_instance('R','I','BP',6001,5236,'127.0.0.1','NORMAL',1,);
+----------
+[CALL_PROG_OBJ] sp_create_dpc_instance('R','I','BP',6001,5236,'127.0.0.1',,'NORMAL',1,'x');
+----------
+[CALL_PROG_OBJ] sp_set_dpc_net_conf('TIMEOUT',);
+----------
+[CALL_PROG_OBJ] sp_add_raft_learner('I','127.0.0.1',6001,);
+----------
+[CALL_PROG_OBJ] sp_replace_raft_node('OLD',);
+----------
+[CALL_PROG_OBJ] sp_raft_switchover(,);
+----------
+[CALL_PROG_OBJ] sp_clear_tab_rowcnt_cache(null,);
+----------
+[CALL_PROG_OBJ] sp_set_raft_async_interval('I',);
+----------
+[CALL_PROG_OBJ] sp_get_raft_async_interval(,);

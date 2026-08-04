@@ -1,0 +1,44 @@
+[split_ddl_dameng_alter_001]
+sql:
+alter table app.customer add email varchar(200);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_COLUMN": [
+    {
+      "subject": "Table(1:12~1:24) /test/1/catalog1/app/customer/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_alter_002]
+sql:
+alter table app.customer modify email varchar(255);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_COLUMN": [
+    {
+      "subject": "Table(1:12~1:24) /test/1/catalog1/app/customer/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_alter_003]
+sql:
+alter table app.customer drop column email;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_COLUMN": [
+    {
+      "subject": "Table(1:12~1:24) /test/1/catalog1/app/customer/",
+      "action": "ALTER"
+    }
+  ]
+}

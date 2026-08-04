@@ -1,0 +1,39 @@
+[union_tables]
+sql:
+select a from app.set_left
+union all
+select a from app.set_right
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"set_left"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"set_right"}
+  ]
+}
+----------
+[intersect_tables]
+sql:
+select a from app.set_left
+intersect
+select a from app.set_right
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"set_left"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"set_right"}
+  ]
+}
+----------
+[set_cte]
+sql:
+with q as(select a from app.set_left)
+select a from q
+minus
+select a from app.set_right
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"set_left"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"set_right"}
+  ]
+}

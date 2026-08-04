@@ -1,0 +1,1211 @@
+[split_ddl_dml_dql_block_dameng_program_type_collection_atomic_0_001_behavior_review]
+sql:
+create table app.program_type_base(
+  id int primary key,name varchar2(30),amount number(10,2)
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:34) /test/1/catalog1/app/program_type_base/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_program_type_collection_atomic_0_002_behavior_review]
+sql:
+insert into app.program_type_base values(1,'DM8',88.25);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:33) /test/1/catalog1/app/program_type_base/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_program_type_collection_atomic_0_003_behavior_review]
+sql:
+create type app.program_record as record(
+  id int default 7,name varchar2(30):='REC'
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:12~1:30) /test/1/catalog1/app/program_record/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_program_type_collection_atomic_0_004_behavior_review]
+sql:
+create type app.static_one as array int[1];
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:12~1:26) /test/1/catalog1/app/static_one/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_program_type_collection_atomic_0_005_behavior_review]
+sql:
+create type app.static_max as array int[65534];
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:12~1:26) /test/1/catalog1/app/static_max/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_program_type_collection_atomic_0_006_behavior_review]
+sql:
+create type app.static_multi as array int[2,3];
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:12~1:28) /test/1/catalog1/app/static_multi/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_program_type_collection_atomic_0_007_behavior_review]
+sql:
+create type app.dynamic_one as array int[];
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:12~1:27) /test/1/catalog1/app/dynamic_one/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_program_type_collection_atomic_0_008_behavior_review]
+sql:
+create type app.dynamic_multi as array int[,];
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:12~1:29) /test/1/catalog1/app/dynamic_multi/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_program_type_collection_atomic_0_009_behavior_review]
+sql:
+create type app.varray_one as varray(1) of int;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:12~1:26) /test/1/catalog1/app/varray_one/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_program_type_collection_atomic_0_010_behavior_review]
+sql:
+create type app.varray_max as varray(2147483647) of int;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:12~1:26) /test/1/catalog1/app/varray_max/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_program_type_collection_atomic_0_011_behavior_review]
+sql:
+create type app.varray_nn as varray(2) of int not null;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:12~1:25) /test/1/catalog1/app/varray_nn/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_program_type_collection_atomic_0_012_behavior_review]
+sql:
+create type app.nested_int as table of int;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:12~1:26) /test/1/catalog1/app/nested_int/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_program_type_collection_atomic_0_013_behavior_review]
+sql:
+create type app.nested_nn as table of int not null;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:12~1:25) /test/1/catalog1/app/nested_nn/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_program_type_collection_atomic_0_014_behavior_review]
+sql:
+create type app.index_int as table of varchar2(30) index by int;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:12~1:25) /test/1/catalog1/app/index_int/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_program_type_collection_atomic_0_015_behavior_review]
+sql:
+create type app.index_varchar_1025 as table of int index by varchar2(1025);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:12~1:34) /test/1/catalog1/app/index_varchar_1025/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_program_type_collection_atomic_0_016_behavior_review]
+sql:
+create function app.percent_type_echo(
+  p_value app.program_type_base.name%type)
+  return app.program_type_base.name%type as
+begin return p_value;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:37) /test/1/catalog1/app/percent_type_echo/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_program_type_collection_atomic_0_017_behavior_review]
+sql:
+select app.percent_type_echo(name)
+  from app.program_type_base where id=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:28) /test/1/catalog1/app/percent_type_echo/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(2:7~2:28) /test/1/catalog1/app/program_type_base/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_program_type_collection_atomic_0_018_behavior_review]
+sql:
+create procedure app.percent_row_echo(
+  p_row app.program_type_base%rowtype) as
+begin print p_row.id;print p_row.name;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:17~1:37) /test/1/catalog1/app/percent_row_echo/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_program_type_collection_atomic_0_019_behavior_review]
+sql:
+declare r app.program_type_base%rowtype;
+begin
+  select * into r from app.program_type_base where id=1;
+  app.percent_row_echo(r);
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(3:23~3:44) /test/1/catalog1/app/program_type_base/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Procedure(4:2~4:22) /test/1/catalog1/app/percent_row_echo/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_program_type_collection_atomic_0_020_behavior_review]
+sql:
+alter table app.program_type_base modify name varchar2(100);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_COLUMN": [
+    {
+      "subject": "Table(1:12~1:33) /test/1/catalog1/app/program_type_base/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_program_type_collection_atomic_0_021_behavior_review]
+sql:
+alter table app.program_type_base add extra_col int default 9;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_COLUMN": [
+    {
+      "subject": "Table(1:12~1:33) /test/1/catalog1/app/program_type_base/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_program_type_collection_atomic_0_022_behavior_review]
+sql:
+declare
+  cursor c return app.program_type_base%rowtype is
+    select * from app.program_type_base order by id;
+  r c%rowtype;
+begin open c;fetch c into r;print r.extra_col;close c;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(3:18~3:39) /test/1/catalog1/app/program_type_base/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_program_type_collection_atomic_0_023_behavior_review]
+sql:
+declare
+  type inner_record is record(x int default 11);
+  type outer_record is record(i inner_record,r app.program_record,a app.static_one);
+  v1 outer_record;v2 outer_record;
+begin
+  v1.i.x=12;v1.r.id=13;v1.r.name='NESTED';v1.a[1]=14;
+  v2=v1;print v2.i.x+v2.r.id+v2.a[1];
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_program_type_collection_atomic_0_024_behavior_review]
+sql:
+create function app.record_echo(p app.program_record)
+  return app.program_record as
+begin return p;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:31) /test/1/catalog1/app/record_echo/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_program_type_collection_atomic_0_025_behavior_review]
+sql:
+declare a app.static_max;m app.static_multi;
+begin
+  a[1]=1;a[65534]=2;m[1][1]=3;m[2][3]=4;
+  print a[1]+a[65534]+m[1][1]+m[2][3];
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:10~1:24) /test/1/catalog1/app/static_max/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(1:27~1:43) /test/1/catalog1/app/static_multi/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_program_type_collection_atomic_0_026_behavior_review]
+sql:
+declare
+  type record_array is array app.program_record[2];
+  r record_array;
+begin r[1].id=31;r[1].name='R';print r[1].id;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_program_type_collection_atomic_0_027_behavior_review]
+sql:
+declare a app.dynamic_one;m app.dynamic_multi;
+begin
+  a=new int[3];a[1]=1;a[3]=3;
+  m=new int[2][];m[1]=new int[2];m[2]=new int[3];m[2][3]=23;
+  m=new int[2,3];m[2][3]=6;print a[1]+a[3]+m[2][3];
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:10~1:25) /test/1/catalog1/app/dynamic_one/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(1:28~1:45) /test/1/catalog1/app/dynamic_multi/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_program_type_collection_atomic_0_028_behavior_review]
+sql:
+declare a app.dynamic_one;
+begin
+  a=new int[10485760];a[1]=1;a[10485760]=2;
+  print a[1]+a[10485760];
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:10~1:25) /test/1/catalog1/app/dynamic_one/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_program_type_collection_atomic_0_029_behavior_review]
+sql:
+declare a app.dynamic_one;
+begin
+  a=new int[10485761];a[1]=1;a[10485761]=2;
+  print a[1]+a[10485761];
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:10~1:25) /test/1/catalog1/app/dynamic_one/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_program_type_collection_atomic_0_030_behavior_review]
+sql:
+declare
+  type record_dynamic is array app.program_record[];
+  r record_dynamic;
+begin r=new app.program_record[2];r[1].id=41;print r[1].id;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(4:12~4:30) /test/1/catalog1/app/program_record/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_program_type_collection_atomic_0_031_behavior_review]
+sql:
+create table app.varray_tab(id int primary key,v app.varray_max);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:27) /test/1/catalog1/app/varray_tab/",
+      "action" : "CREATE",
+      "target" : "Type(1:49~1:63) /test/1/catalog1/app/varray_max/"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_program_type_collection_atomic_0_032_behavior_review]
+sql:
+insert into app.varray_tab values(1,app.varray_max(1,2,3));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/app/varray_tab/",
+      "action" : "INSERT"
+    },
+    {
+      "subject": "Function(1:36~1:50) /test/1/catalog1/app/varray_max/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_program_type_collection_atomic_0_033_behavior_review]
+sql:
+declare v app.varray_max;
+begin
+  v=app.varray_max(10,20,30);
+  print v.count;print v.limit;print v.first;print v.last;
+  print v.next(1);print v.prior(3);
+  if v.exists(2) then print v[2];end if;
+  v.extend();v[4]=40;v.extend(1);v[5]=50;v.trim();v.delete();
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:10~1:24) /test/1/catalog1/app/varray_max/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(7:4~7:10) /test/1/catalog1/app/varray_max/extend/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(7:23~7:29) /test/1/catalog1/app/varray_max/extend/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(7:43~7:47) /test/1/catalog1/app/varray_max/trim/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(7:52~7:58) /test/1/catalog1/app/varray_max/delete/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(3:4~3:18) /test/1/catalog1/app/varray_max/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(5:10~5:14) /test/1/catalog1/app/varray_max/next/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(5:26~5:31) /test/1/catalog1/app/varray_max/prior/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(6:7~6:13) /test/1/catalog1/app/varray_max/exists/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_program_type_collection_atomic_0_034_behavior_review]
+sql:
+declare v app.varray_one;
+begin v=app.varray_one(1,2);end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:10~1:24) /test/1/catalog1/app/varray_one/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(2:8~2:22) /test/1/catalog1/app/varray_one/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_program_type_collection_atomic_0_035_behavior_review]
+sql:
+declare v app.varray_nn;
+begin v=app.varray_nn(1,null);end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:10~1:23) /test/1/catalog1/app/varray_nn/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(2:8~2:21) /test/1/catalog1/app/varray_nn/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_program_type_collection_atomic_0_036_behavior_review]
+sql:
+declare v app.varray_max;
+begin v=app.varray_max(1,2,3);v.delete(2);end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:10~1:24) /test/1/catalog1/app/varray_max/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:32~2:38) /test/1/catalog1/app/varray_max/delete/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:8~2:22) /test/1/catalog1/app/varray_max/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_program_type_collection_atomic_0_037_behavior_review]
+sql:
+create table app.nested_tab(id int primary key,v app.nested_int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:27) /test/1/catalog1/app/nested_tab/",
+      "action" : "CREATE",
+      "target" : "Type(1:49~1:63) /test/1/catalog1/app/nested_int/"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_program_type_collection_atomic_0_038_behavior_review]
+sql:
+insert into app.nested_tab values(1,app.nested_int(2,4,6));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/app/nested_tab/",
+      "action" : "INSERT"
+    },
+    {
+      "subject": "Function(1:36~1:50) /test/1/catalog1/app/nested_int/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_program_type_collection_atomic_0_039_behavior_review]
+sql:
+select t.id,x.column_value
+  from app.nested_tab t,table(t.v) x order by x.column_value;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:7~2:21) /test/1/catalog1/app/nested_tab/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_program_type_collection_atomic_0_040_behavior_review]
+sql:
+declare v app.nested_int;
+begin
+  v=app.nested_int(1,2,3,4,5);
+  print v.count;print v.first;print v.last;print v.next(1);print v.prior(5);
+  if v.exists(3) then print v[3];end if;
+  v.delete(2);v.delete(3,4);v.extend();v[6]=6;
+  v.extend(2);v[7]=7;v[8]=8;v.extend(1,1);v.trim();v.trim(1);v.delete();
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:10~1:24) /test/1/catalog1/app/nested_int/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(6:4~6:10) /test/1/catalog1/app/nested_int/delete/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(6:16~6:22) /test/1/catalog1/app/nested_int/delete/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(6:30~6:36) /test/1/catalog1/app/nested_int/extend/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(7:4~7:10) /test/1/catalog1/app/nested_int/extend/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(7:30~7:36) /test/1/catalog1/app/nested_int/extend/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(7:44~7:48) /test/1/catalog1/app/nested_int/trim/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(7:53~7:57) /test/1/catalog1/app/nested_int/trim/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(7:63~7:69) /test/1/catalog1/app/nested_int/delete/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(3:4~3:18) /test/1/catalog1/app/nested_int/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(4:51~4:55) /test/1/catalog1/app/nested_int/next/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(4:67~4:72) /test/1/catalog1/app/nested_int/prior/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(5:7~5:13) /test/1/catalog1/app/nested_int/exists/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_program_type_collection_atomic_0_041_behavior_review]
+sql:
+declare v app.nested_nn;
+begin v=app.nested_nn(1,null);end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:10~1:23) /test/1/catalog1/app/nested_nn/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(2:8~2:21) /test/1/catalog1/app/nested_nn/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_program_type_collection_atomic_0_042_behavior_review]
+sql:
+create table app.index_tab(id int primary key,v app.index_int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:26) /test/1/catalog1/app/index_tab/",
+      "action" : "CREATE",
+      "target" : "Type(1:48~1:61) /test/1/catalog1/app/index_int/"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_program_type_collection_atomic_0_043_behavior_review]
+sql:
+declare v app.index_int;
+begin
+  v(1)='A';v(3)='C';insert into app.index_tab values(1,v);
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:10~1:23) /test/1/catalog1/app/index_int/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(3:32~3:45) /test/1/catalog1/app/index_tab/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_program_type_collection_atomic_0_044_behavior_review]
+sql:
+select id,v from app.index_tab;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:17~1:30) /test/1/catalog1/app/index_tab/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_program_type_collection_atomic_0_045_behavior_review]
+sql:
+declare v app.index_int;k int;
+begin
+  v(-2147483648)='MIN';v(0)='ZERO';v(2147483647)='MAX';
+  print v.count;print v.first;print v.last;k=v.next(v.first);print v(k);
+  print v.prior(v.last);v.delete(0);v.delete(-2147483648,2147483647);
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:10~1:23) /test/1/catalog1/app/index_int/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(5:26~5:32) /test/1/catalog1/app/index_int/delete/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(5:38~5:44) /test/1/catalog1/app/index_int/delete/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(4:47~4:51) /test/1/catalog1/app/index_int/next/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(5:10~5:15) /test/1/catalog1/app/index_int/prior/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_program_type_collection_atomic_0_046_behavior_review]
+sql:
+declare v app.index_varchar_1025;k varchar2(1025);
+begin k=rpad('K',1025,'K');v(k)=1025;print v(k);end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:10~1:32) /test/1/catalog1/app/index_varchar_1025/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(2:8~2:12) /test/1/catalog1/schema1/rpad/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_program_type_collection_atomic_0_047_behavior_review]
+sql:
+create type app.index_dynamic_bad as table of app.dynamic_one index by int;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:12~1:33) /test/1/catalog1/app/index_dynamic_bad/",
+      "action" : "CREATE",
+      "target" : "Type(1:46~1:61) /test/1/catalog1/app/dynamic_one/"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_program_type_collection_atomic_0_048_behavior_review]
+sql:
+declare
+  subtype money_t is number(5,2) not null;
+  function echo(p money_t) return money_t as begin return p;end;
+  v_min money_t=-999.99;v_max money_t default 999.99;
+begin print echo(v_min);print echo(v_max);end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_program_type_collection_atomic_0_049_behavior_review]
+sql:
+declare subtype money_t is number(5,2);v money_t=1000;
+begin print v;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_program_type_collection_atomic_0_050_behavior_review]
+sql:
+declare subtype money_t is number(5,2);v money_t=-1000;
+begin print v;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_program_type_collection_atomic_0_051_behavior_review]
+sql:
+declare subtype money_t is number(5,2) not null;v money_t=null;
+begin print v;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_program_type_collection_atomic_0_052_behavior_review]
+sql:
+declare
+  cursor c return app.program_type_base%rowtype is
+    select * from app.program_type_base order by id;
+  type rc_type is ref cursor return app.program_type_base%rowtype;
+  r app.program_type_base%rowtype;rc rc_type;sys_rc sys_refcursor;v_id int;
+begin
+  open c;fetch c into r;close c;
+  open rc for select * from app.program_type_base;fetch rc into r;close rc;
+  open sys_rc for select id from app.program_type_base;fetch sys_rc into v_id;close sys_rc;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(3:18~3:39) /test/1/catalog1/app/program_type_base/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(8:28~8:49) /test/1/catalog1/app/program_type_base/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(9:33~9:54) /test/1/catalog1/app/program_type_base/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_program_type_collection_atomic_0_053_behavior_review]
+sql:
+create procedure app.open_program_rows(p_rc out sys_refcursor) as
+begin open p_rc for select id,name from app.program_type_base order by id;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:17~1:38) /test/1/catalog1/app/open_program_rows/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Table(2:40~2:61) /test/1/catalog1/app/program_type_base/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_program_type_collection_atomic_0_054_behavior_review]
+sql:
+create function app.open_program_one return sys_refcursor as
+  v_rc sys_refcursor;
+begin
+  open v_rc for select id from app.program_type_base where id=1;return v_rc;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:36) /test/1/catalog1/app/open_program_one/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Table(4:31~4:52) /test/1/catalog1/app/program_type_base/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_program_type_collection_atomic_0_055_behavior_review]
+sql:
+create type app.static_zero as array int[0];
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:12~1:27) /test/1/catalog1/app/static_zero/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_program_type_collection_atomic_0_056_behavior_review]
+sql:
+create type app.static_over as array int[65535];
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:12~1:27) /test/1/catalog1/app/static_over/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_program_type_collection_atomic_0_057_behavior_review]
+sql:
+create type app.varray_zero as varray(0) of int;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:12~1:27) /test/1/catalog1/app/varray_zero/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_program_type_collection_atomic_0_058_behavior_review]
+sql:
+create table app.bad_record(v app.program_record);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:27) /test/1/catalog1/app/bad_record/",
+      "action" : "CREATE",
+      "target" : "Type(1:30~1:48) /test/1/catalog1/app/program_record/"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_program_type_collection_atomic_0_059_behavior_review]
+sql:
+create table app.bad_static(v app.static_one);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:27) /test/1/catalog1/app/bad_static/",
+      "action" : "CREATE",
+      "target" : "Type(1:30~1:44) /test/1/catalog1/app/static_one/"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_program_type_collection_atomic_0_060_behavior_review]
+sql:
+create table app.bad_dynamic(v app.dynamic_one);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/app/bad_dynamic/",
+      "action" : "CREATE",
+      "target" : "Type(1:31~1:46) /test/1/catalog1/app/dynamic_one/"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_program_type_collection_atomic_0_061_behavior_review]
+sql:
+declare a app.static_one;begin a[0]=1;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:10~1:24) /test/1/catalog1/app/static_one/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_program_type_collection_atomic_0_062_behavior_review]
+sql:
+declare a app.static_one;begin a[2]=1;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:10~1:24) /test/1/catalog1/app/static_one/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_program_type_collection_atomic_0_063_behavior_review]
+sql:
+declare a app.dynamic_one;begin a=new int[0];end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:10~1:25) /test/1/catalog1/app/dynamic_one/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_program_type_collection_atomic_0_064_behavior_review]
+sql:
+declare a app.dynamic_one;begin a=new int[-1];end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:10~1:25) /test/1/catalog1/app/dynamic_one/",
+      "action": "READ"
+    }
+  ]
+}

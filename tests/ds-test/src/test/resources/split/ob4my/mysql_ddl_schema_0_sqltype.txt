@@ -1,0 +1,30 @@
+create database test;
+create database if not exists test;
+create database test character set utf8mb4;
+create database test character set utf8mb4 collate utf8mb4_unicode_ci;
+create schema test_schema;
+drop database test;
+drop database if exists test;
+drop schema test_schema;
+alter database test character set utf8mb4;
+alter database test character set utf8mb4 collate utf8mb4_unicode_ci;
+------------------------------------------------------------------------------------------
+[CREATE_SCHEMA] create database test;
+----------
+[CREATE_SCHEMA] create database if not exists test;
+----------
+[CREATE_SCHEMA] create database test character set utf8mb4;
+----------
+[CREATE_SCHEMA] create database test character set utf8mb4 collate utf8mb4_unicode_ci;
+----------
+[CREATE_SCHEMA] create schema test_schema;
+----------
+[DROP_SCHEMA] drop database test;
+----------
+[DROP_SCHEMA] drop database if exists test;
+----------
+[DROP_SCHEMA] drop schema test_schema;
+----------
+[ALTER_SCHEMA] alter database test character set utf8mb4;
+----------
+[ALTER_SCHEMA] alter database test character set utf8mb4 collate utf8mb4_unicode_ci;

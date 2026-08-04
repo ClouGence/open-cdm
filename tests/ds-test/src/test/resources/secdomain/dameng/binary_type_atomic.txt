@@ -1,0 +1,13 @@
+[ddl]
+sql:
+create table app.bin_t(id int,c_binary binary(4),c_varbinary varbinary(8),c_raw raw(8));
+create view app.bin_v as select id,c_binary,c_varbinary,c_raw from app.bin_t
+expect:
+{"contains":[{"class":"RdbTableDomain","sqlType":"CREATE_TABLE","auditKind":"CREATE","schema":"app","table":"bin_t"},{"class":"RdbViewDomain","sqlType":"CREATE_VIEW","auditKind":"CREATE","schema":"app","view":"bin_v"},{"class":"RdbTableDomain","sqlType":"SELECT","auditKind":"QUERY","schema":"app","table":"bin_t"}]}
+----------
+[dml]
+sql:
+insert into app.bin_t values(1,0x01,0x02,0x03);
+update app.bin_t set c_raw=hextoraw('AB') where id=1;delete from app.bin_t where id=1
+expect:
+{"contains":[{"class":"RdbInsertDomain","sqlType":"INSERT","auditKind":"DML","schema":"app","table":"bin_t"},{"class":"RdbUpdateDomain","sqlType":"UPDATE","auditKind":"DML","schema":"app","table":"bin_t"},{"class":"RdbDeleteDomain","sqlType":"DELETE","auditKind":"DML","schema":"app","table":"bin_t"}]}

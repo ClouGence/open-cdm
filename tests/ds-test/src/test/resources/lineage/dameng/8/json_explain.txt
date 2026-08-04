@@ -1,0 +1,46 @@
+[explain_select_columns]
+sql:
+explain select t.id,t.v
+from catalog1.app.ex_target t
+where t.id=1
+expect:
+{
+  "id": ["/catalog1/app/ex_target/id/"],
+  "v": ["/catalog1/app/ex_target/v/"]
+}
+----------
+[explain_join_columns]
+sql:
+explain for select t.id,s.name
+from catalog1.app.ex_target t
+join catalog1.app.ex_source s on s.id=t.id
+expect:
+{
+  "id": ["/catalog1/app/ex_target/id/"],
+  "name": ["/catalog1/app/ex_source/name/"]
+}
+----------
+[explain_cte_columns]
+sql:
+explain as CTE_PLAN for
+with q as(
+  select t.id,t.v from catalog1.app.ex_target t
+)
+select q.id,q.v from q
+expect:
+{
+  "id": ["/catalog1/app/ex_target/id/"],
+  "v": ["/catalog1/app/ex_target/v/"]
+}
+----------
+[explain_insert_select_columns]
+sql:
+explain insert into catalog1.app.ex_target
+select s.id+10 new_id,s.v,s.name
+from catalog1.app.ex_source s
+expect:
+{
+  "new_id": ["/catalog1/app/ex_source/id/"],
+  "v": ["/catalog1/app/ex_source/v/"],
+  "name": ["/catalog1/app/ex_source/name/"]
+}

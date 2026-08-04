@@ -1,0 +1,42 @@
+[create_schema_embedded_view_lineage]
+sql:
+create schema app authorization SYSDBA
+create table orders(id int primary key, amount decimal(12,2))
+create view v_orders(order_id, order_amount) as select id, amount from orders
+expect:
+{
+  "order_id" : [ "/catalog1/app/orders/id/" ],
+  "order_amount" : [ "/catalog1/app/orders/amount/" ]
+}
+----------
+[create_schema_authorization_embedded_view_lineage]
+sql:
+create schema authorization app_owner
+create view v_orders as select id, amount from orders
+expect:
+{
+  "id" : [ "/catalog1/app_owner/orders/id/" ],
+  "amount" : [ "/catalog1/app_owner/orders/amount/" ]
+}
+----------
+[create_schema_preserves_explicit_source_schema]
+sql:
+create schema app_archive authorization SYSDBA
+create view v_orders as select o.id, o.amount from catalog1.source_app.orders o
+expect:
+{
+  "id" : [ "/catalog1/source_app/orders/id/" ],
+  "amount" : [ "/catalog1/source_app/orders/amount/" ]
+}
+----------
+[create_schema_materialized_view_lineage]
+sql:
+create schema app authorization SYSDBA
+create table base_table(id int primary key, amount int)
+create materialized view mv_embed(order_id, order_amount) as select id, amount from base_table;
+/
+expect:
+{
+  "order_id" : [ "/catalog1/app/base_table/id/" ],
+  "order_amount" : [ "/catalog1/app/base_table/amount/" ]
+}

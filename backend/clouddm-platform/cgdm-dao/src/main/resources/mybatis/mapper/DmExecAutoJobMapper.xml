@@ -88,6 +88,14 @@
         set last_report_time = now()
         where id in <foreach collection="jobIdList" item="item" separator="," open="(" close=")">#{item}</foreach>
     </update>
+    <update id="startJob">
+        update dm_exec_auto_job
+        set status = 'EXECUTING',
+            last_report_time = now()
+        where id = #{jobId}
+          and worker_seq_number = #{wsn}
+          and status = 'WAIT_EXEC'
+    </update>
     <update id="updateOverOutJob">
         update dm_exec_auto_job
         set status = 'INIT'

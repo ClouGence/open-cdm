@@ -1,0 +1,24 @@
+SELECT col_description('split_comment.t_comment'::regclass::oid, 2);
+SELECT obj_description('split_comment.t_comment'::regclass::oid, 'pg_class');
+SELECT obj_description('split_comment.t_comment_note_idx'::regclass::oid, 'pg_class');
+SELECT obj_description((SELECT oid FROM pg_constraint WHERE conrelid = 'split_comment.t_comment'::regclass AND conname = 't_comment_id_check'), 'pg_constraint');
+SELECT obj_description('split_comment.f_comment(integer)'::regprocedure::oid, 'pg_proc');
+SELECT obj_description('split_comment.t_comment'::regclass::oid);
+SELECT shobj_description((SELECT oid FROM pg_database WHERE datname = current_database()), 'pg_database');
+SELECT col_description('split_comment.t_comment'::regclass::oid, 1) IS NULL AS missing_column_comment;
+------------------------------------------------------------------------------------------
+[METADATA] SELECT col_description('split_comment.t_comment'::regclass::oid, 2);
+----------
+[METADATA] SELECT obj_description('split_comment.t_comment'::regclass::oid, 'pg_class');
+----------
+[METADATA] SELECT obj_description('split_comment.t_comment_note_idx'::regclass::oid, 'pg_class');
+----------
+[SELECT|METADATA] SELECT obj_description((SELECT oid FROM pg_constraint WHERE conrelid = 'split_comment.t_comment'::regclass AND conname = 't_comment_id_check'), 'pg_constraint');
+----------
+[METADATA] SELECT obj_description('split_comment.f_comment(integer)'::regprocedure::oid, 'pg_proc');
+----------
+[METADATA] SELECT obj_description('split_comment.t_comment'::regclass::oid);
+----------
+[SELECT|METADATA] SELECT shobj_description((SELECT oid FROM pg_database WHERE datname = current_database()), 'pg_database');
+----------
+[METADATA] SELECT col_description('split_comment.t_comment'::regclass::oid, 1) IS NULL AS missing_column_comment;

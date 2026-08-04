@@ -1,0 +1,156 @@
+CREATE USER 'random_57'@'%' IDENTIFIED BY RANDOM PASSWORD;
+ALTER USER USER() DISCARD OLD PASSWORD;
+ALTER USER 'split_mfa_accept'@'%' ADD 2 FACTOR IDENTIFIED WITH caching_sha2_password BY 'Mfa2!';
+ALTER USER 'split_mfa_accept'@'%' ADD 2 FACTOR IDENTIFIED WITH caching_sha2_password BY 'Mfa2!' ADD 3 FACTOR IDENTIFIED WITH caching_sha2_password BY 'Mfa3!';
+ALTER USER 'split_mfa_accept'@'%' MODIFY 2 FACTOR IDENTIFIED WITH caching_sha2_password BY RANDOM PASSWORD;
+ALTER USER 'split_mfa_accept'@'%' MODIFY 2 FACTOR IDENTIFIED WITH caching_sha2_password BY 'Mfa2!' MODIFY 3 FACTOR IDENTIFIED WITH caching_sha2_password BY 'Mfa3!';
+ALTER USER 'split_mfa_accept'@'%' DROP 2 FACTOR;
+ALTER USER 'split_mfa_accept'@'%' DROP 2 FACTOR DROP 3 FACTOR;
+ALTER USER 'split_mfa_accept'@'%' 2 FACTOR INITIATE REGISTRATION;
+ALTER USER 'split_mfa_accept'@'%' 2 FACTOR UNREGISTER;
+ALTER USER 'split_mfa_accept'@'%' 2 FACTOR FINISH REGISTRATION SET CHALLENGE_RESPONSE AS 'challenge';
+ALTER USER 'codex_c20a'@'localhost' IDENTIFIED BY 'New#C20a9' RETAIN CURRENT PASSWORD, 'codex_c20b'@'localhost' IDENTIFIED BY 'New#C20b9' RETAIN CURRENT PASSWORD;
+GRANT SELECT ON *.* TO 'cda12a'@'%' AS CURRENT_USER WITH ROLE ALL EXCEPT 'cda12r'@'%';
+GRANT SELECT ON *.* TO 'cda11a'@'%' AS CURRENT_USER WITH ROLE ALL;
+GRANT SELECT ON *.* TO 'cda13a'@'%' AS CURRENT_USER WITH ROLE DEFAULT;
+START GROUP_REPLICATION USER='repl_user';
+REVOKE IF EXISTS ALL PRIVILEGES, GRANT OPTION FROM 'split_revoke_missing'@'%' IGNORE UNKNOWN USER;
+REVOKE IF EXISTS DELETE ON *.* FROM 'split_revoke_to'@'%' IGNORE UNKNOWN USER;
+REVOKE IF EXISTS SELECT ON *.* FROM 'missing_revoke_user'@'%' IGNORE UNKNOWN USER;
+REVOKE IF EXISTS 'split_revoke_role' FROM 'split_revoke_to'@'%' IGNORE UNKNOWN USER;
+REVOKE IF EXISTS PROXY ON 'split_proxy_from'@'%' FROM 'split_proxy_to'@'%' IGNORE UNKNOWN USER;
+REVOKE ALL PRIVILEGES, GRANT OPTION FROM 'split_revoke_to'@'%' IGNORE UNKNOWN USER;
+ALTER USER 'split_role_user'@'%' DEFAULT ROLE ALL;
+CREATE ROLE 'split_role_a','split_role_b';
+DROP ROLE IF EXISTS 'split_role_a';
+GRANT 'split_role_a' TO 'split_role_user'@'%' WITH ADMIN OPTION;
+REVOKE 'split_role_a' FROM 'split_role_user'@'%';
+SET ROLE ALL EXCEPT 'split_role_a';
+SET DEFAULT ROLE ALL TO 'split_role_user'@'%';
+GRANT CREATE ROLE, DROP ROLE ON *.* TO 'role_old'@'%';
+CREATE USER 'pwless84'@'localhost' IDENTIFIED WITH 'passwordless_plugin' INITIAL AUTHENTICATION IDENTIFIED BY RANDOM PASSWORD;
+CREATE USER foo@localhost IDENTIFIED WITH 'caching_sha2_password' AS 0x244124303035240C4D7A6D25436F2C0A08515310644615383E2A123961484C6276734178425A446172436B58446A582F6178544A692E6F644E4F2F4E596E666276454B563336 PASSWORD HISTORY DEFAULT;
+GRANT EXECUTE ON LIBRARY codex_library_acl.lib_acl TO 'codex_library_u'@'localhost';
+REVOKE EXECUTE ON LIBRARY codex_library_acl.lib_acl FROM 'codex_library_u'@'localhost';
+CREATE USER 'gap_mfa2'@'%' IDENTIFIED BY 'P1!' AND IDENTIFIED WITH caching_sha2_password BY 'P2!';
+CREATE USER 'gap_mfa3'@'%' IDENTIFIED BY 'P1!' AND IDENTIFIED BY 'P2!' AND IDENTIFIED BY RANDOM PASSWORD;
+CREATE USER 'gap_pwless1'@'%' IDENTIFIED WITH 'passwordless_plugin' INITIAL AUTHENTICATION IDENTIFIED BY 'Bootstrap1!';
+CREATE USER 'gap_pwless2'@'%' IDENTIFIED WITH 'passwordless_plugin' INITIAL AUTHENTICATION IDENTIFIED WITH caching_sha2_password AS 'hash';
+ALTER USER CURRENT_USER() IDENTIFIED BY RANDOM PASSWORD REPLACE 'Old1!' RETAIN CURRENT PASSWORD;
+ALTER USER 'gap_mfa3'@'%' 3 FACTOR UNREGISTER;
+CREATE ROLE EVENT;
+CREATE ROLE FILE;
+CREATE ROLE NONE;
+CREATE ROLE PROCESS;
+CREATE ROLE PROXY;
+CREATE ROLE RELOAD;
+CREATE ROLE REPLICATION;
+CREATE ROLE RESOURCE;
+CREATE ROLE SUPER;
+------------------------------------------------------------------------------------------
+[CREATE_USER] CREATE USER 'random_57'@'%' IDENTIFIED BY RANDOM PASSWORD;
+----------
+[ALTER_USER] ALTER USER USER() DISCARD OLD PASSWORD;
+----------
+[ALTER_USER]
+ALTER USER 'split_mfa_accept'@'%' ADD 2 FACTOR IDENTIFIED WITH caching_sha2_password BY 'Mfa2!';
+----------
+[ALTER_USER]
+ALTER USER 'split_mfa_accept'@'%' ADD 2 FACTOR IDENTIFIED WITH caching_sha2_password BY 'Mfa2!' ADD 3 FACTOR IDENTIFIED WITH caching_sha2_password BY 'Mfa3!';
+----------
+[ALTER_USER]
+ALTER USER 'split_mfa_accept'@'%' MODIFY 2 FACTOR IDENTIFIED WITH caching_sha2_password BY RANDOM PASSWORD;
+----------
+[ALTER_USER]
+ALTER USER 'split_mfa_accept'@'%' MODIFY 2 FACTOR IDENTIFIED WITH caching_sha2_password BY 'Mfa2!' MODIFY 3 FACTOR IDENTIFIED WITH caching_sha2_password BY 'Mfa3!';
+----------
+[ALTER_USER]
+ALTER USER 'split_mfa_accept'@'%' DROP 2 FACTOR;
+----------
+[ALTER_USER]
+ALTER USER 'split_mfa_accept'@'%' DROP 2 FACTOR DROP 3 FACTOR;
+----------
+[ALTER_USER]
+ALTER USER 'split_mfa_accept'@'%' 2 FACTOR INITIATE REGISTRATION;
+----------
+[ALTER_USER]
+ALTER USER 'split_mfa_accept'@'%' 2 FACTOR UNREGISTER;
+----------
+[ALTER_USER]
+ALTER USER 'split_mfa_accept'@'%' 2 FACTOR FINISH REGISTRATION SET CHALLENGE_RESPONSE AS 'challenge';
+----------
+[ALTER_USER] ALTER USER 'codex_c20a'@'localhost' IDENTIFIED BY 'New#C20a9' RETAIN CURRENT PASSWORD, 'codex_c20b'@'localhost' IDENTIFIED BY 'New#C20b9' RETAIN CURRENT PASSWORD;
+----------
+[GRANT] GRANT SELECT ON *.* TO 'cda12a'@'%' AS CURRENT_USER WITH ROLE ALL EXCEPT 'cda12r'@'%';
+----------
+[GRANT] GRANT SELECT ON *.* TO 'cda11a'@'%' AS CURRENT_USER WITH ROLE ALL;
+----------
+[GRANT] GRANT SELECT ON *.* TO 'cda13a'@'%' AS CURRENT_USER WITH ROLE DEFAULT;
+----------
+[ALTER_REPLICATION] START GROUP_REPLICATION USER='repl_user';
+----------
+[REVOKE] REVOKE IF EXISTS ALL PRIVILEGES, GRANT OPTION FROM 'split_revoke_missing'@'%' IGNORE UNKNOWN USER;
+----------
+[REVOKE] REVOKE IF EXISTS DELETE ON *.* FROM 'split_revoke_to'@'%' IGNORE UNKNOWN USER;
+----------
+[REVOKE] REVOKE IF EXISTS SELECT ON *.* FROM 'missing_revoke_user'@'%' IGNORE UNKNOWN USER;
+----------
+[REVOKE] REVOKE IF EXISTS 'split_revoke_role' FROM 'split_revoke_to'@'%' IGNORE UNKNOWN USER;
+----------
+[REVOKE] REVOKE IF EXISTS PROXY ON 'split_proxy_from'@'%' FROM 'split_proxy_to'@'%' IGNORE UNKNOWN USER;
+----------
+[REVOKE] REVOKE ALL PRIVILEGES, GRANT OPTION FROM 'split_revoke_to'@'%' IGNORE UNKNOWN USER;
+----------
+[ALTER_USER] ALTER USER 'split_role_user'@'%' DEFAULT ROLE ALL;
+----------
+[CREATE_ROLE] CREATE ROLE 'split_role_a','split_role_b';
+----------
+[DROP_ROLE] DROP ROLE IF EXISTS 'split_role_a';
+----------
+[GRANT] GRANT 'split_role_a' TO 'split_role_user'@'%' WITH ADMIN OPTION;
+----------
+[REVOKE] REVOKE 'split_role_a' FROM 'split_role_user'@'%';
+----------
+[SWITCH_ROLE] SET ROLE ALL EXCEPT 'split_role_a';
+----------
+[ALTER_USER] SET DEFAULT ROLE ALL TO 'split_role_user'@'%';
+----------
+[GRANT] GRANT CREATE ROLE, DROP ROLE ON *.* TO 'role_old'@'%';
+----------
+[CREATE_USER] CREATE USER 'pwless84'@'localhost' IDENTIFIED WITH 'passwordless_plugin' INITIAL AUTHENTICATION IDENTIFIED BY RANDOM PASSWORD;
+----------
+[CREATE_USER] CREATE USER foo@localhost IDENTIFIED WITH 'caching_sha2_password' AS 0x244124303035240C4D7A6D25436F2C0A08515310644615383E2A123961484C6276734178425A446172436B58446A582F6178544A692E6F644E4F2F4E596E666276454B563336 PASSWORD HISTORY DEFAULT;
+----------
+[GRANT] GRANT EXECUTE ON LIBRARY codex_library_acl.lib_acl TO 'codex_library_u'@'localhost';
+----------
+[REVOKE] REVOKE EXECUTE ON LIBRARY codex_library_acl.lib_acl FROM 'codex_library_u'@'localhost';
+----------
+[CREATE_USER] CREATE USER 'gap_mfa2'@'%' IDENTIFIED BY 'P1!' AND IDENTIFIED WITH caching_sha2_password BY 'P2!';
+----------
+[CREATE_USER] CREATE USER 'gap_mfa3'@'%' IDENTIFIED BY 'P1!' AND IDENTIFIED BY 'P2!' AND IDENTIFIED BY RANDOM PASSWORD;
+----------
+[CREATE_USER] CREATE USER 'gap_pwless1'@'%' IDENTIFIED WITH 'passwordless_plugin' INITIAL AUTHENTICATION IDENTIFIED BY 'Bootstrap1!';
+----------
+[CREATE_USER] CREATE USER 'gap_pwless2'@'%' IDENTIFIED WITH 'passwordless_plugin' INITIAL AUTHENTICATION IDENTIFIED WITH caching_sha2_password AS 'hash';
+----------
+[ALTER_USER] ALTER USER CURRENT_USER() IDENTIFIED BY RANDOM PASSWORD REPLACE 'Old1!' RETAIN CURRENT PASSWORD;
+----------
+[ALTER_USER] ALTER USER 'gap_mfa3'@'%' 3 FACTOR UNREGISTER;
+----------
+[CREATE_ROLE] CREATE ROLE EVENT;
+----------
+[CREATE_ROLE] CREATE ROLE FILE;
+----------
+[CREATE_ROLE] CREATE ROLE NONE;
+----------
+[CREATE_ROLE] CREATE ROLE PROCESS;
+----------
+[CREATE_ROLE] CREATE ROLE PROXY;
+----------
+[CREATE_ROLE] CREATE ROLE RELOAD;
+----------
+[CREATE_ROLE] CREATE ROLE REPLICATION;
+----------
+[CREATE_ROLE] CREATE ROLE RESOURCE;
+----------
+[CREATE_ROLE] CREATE ROLE SUPER;

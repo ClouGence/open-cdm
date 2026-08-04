@@ -1,0 +1,18 @@
+insert into CODEX_DM8_DSC.SHARED_T values(1, 0, 'FROM_DSC01');
+commit;
+update CODEX_DM8_DSC.SHARED_T set NOTE='UPDATED_DSC02' where ID=1;
+insert into CODEX_DM8_DSC.SHARED_T values(2, 1, 'FROM_DSC02');
+commit;
+delete from CODEX_DM8_DSC.SHARED_T where ID=2;
+------------------------------------------------------------------------------------------
+[INSERT] insert into CODEX_DM8_DSC.SHARED_T values(1, 0, 'FROM_DSC01');
+----------
+[TRANSACTION] commit;
+----------
+[UPDATE] update CODEX_DM8_DSC.SHARED_T set NOTE='UPDATED_DSC02' where ID=1;
+----------
+[INSERT] insert into CODEX_DM8_DSC.SHARED_T values(2, 1, 'FROM_DSC02');
+----------
+[TRANSACTION] commit;
+----------
+[DELETE] delete from CODEX_DM8_DSC.SHARED_T where ID=2;

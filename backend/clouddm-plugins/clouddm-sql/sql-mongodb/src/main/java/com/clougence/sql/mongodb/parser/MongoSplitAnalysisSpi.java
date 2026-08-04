@@ -1,0 +1,98 @@
+/*
+ * Copyright 2026 杭州开云集致科技有限公司
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.clougence.sql.mongodb.parser;
+
+import java.util.Collections;
+import java.util.List;
+
+import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.Parser;
+import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
+import org.antlr.v4.runtime.tree.ParseTree;
+
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.clouddm.sdk.sql.parser.SplitScript;
+import com.clougence.dslpaser.antlr.DslProvider;
+import com.clougence.dslpaser.parse.AntlrStatementParser;
+import com.clougence.sql.common.parser.AbstractSplitAnalysisSpi;
+import com.clougence.sql.mongodb.parser.antlr.MongoParser;
+
+public class MongoSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
+
+    @Override
+    protected DslProvider dslProvider() {
+        return MongoDslProvider.INSTANCE;
+    }
+
+    @Override
+    protected AbstractParseTreeVisitor<SplitQueryType> splitVisitor() {
+        return MongoSplitVisitor.INSTANCE;
+    }
+
+    @Override
+    protected void parseRoot(Parser parser) {
+        ((MongoParser) parser).root();
+    }
+
+    @Override
+    protected boolean isStatementContext(ParserRuleContext context) {
+        return context instanceof MongoParser.CommandContext && context.getParent() instanceof MongoParser.RootContext;
+    }
+
+    @Override
+    protected AntlrStatementParser statementParser() {
+        return new MongoAntlrStatementParser();
+    }
+
+    @Override
+    protected List<SplitScript> collectChildren(ParserRuleContext context, CommonTokenStream tokens) {
+        MongoParser.DbCreateViewContext createView = find(context, MongoParser.DbCreateViewContext.class);
+        if (createView != null) {
+            return Collections.singletonList(createChild(createView.pipeline, tokens, Collections.singleton(SplitQueryType.SELECT), Collections.emptyList()));
+        }
+
+        MongoParser.RunCommandContext runCommand = find(context, MongoParser.RunCommandContext.class);
+        if (runCommand == null || runCommand.obj().pair().isEmpty() || !"create".equals(MongoSplitVisitor.keyText(runCommand.obj().pair(0).key()))
+            || !hasKey(runCommand.obj(), "viewOn")) {
+            return Collections.emptyList();
+        }
+
+        for (MongoParser.PairContext pair : runCommand.obj().pair()) {
+            if ("pipeline".equals(MongoSplitVisitor.keyText(pair.key())) && pair.value().arr() != null) {
+                return Collections.singletonList(createChild(pair.value().arr(), tokens, Collections.singleton(SplitQueryType.SELECT), Collections.emptyList()));
+            }
+        }
+        return Collections.emptyList();
+    }
+
+    private static boolean hasKey(MongoParser.ObjContext object, String expected) {
+        return object.pair().stream().anyMatch(pair -> expected.equals(MongoSplitVisitor.keyText(pair.key())));
+    }
+
+    private static <T extends ParseTree> T find(ParseTree tree, Class<T> type) {
+        if (type.isInstance(tree)) {
+            return type.cast(tree);
+        }
+        for (int i = 0; i < tree.getChildCount(); i++) {
+            T result = find(tree.getChild(i), type);
+            if (result != null) {
+                return result;
+            }
+        }
+        return null;
+    }
+}

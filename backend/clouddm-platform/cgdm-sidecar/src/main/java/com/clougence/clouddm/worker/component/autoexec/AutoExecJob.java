@@ -69,34 +69,24 @@ public class AutoExecJob implements Runnable {
     private AutoExecJobDTO           job;
     private SessionAgent             sessionAgent;
     private List<AutoExecMessageDTO> messageList = new LinkedList<>();
-    private Long                     jobId;
     private long                     runningTaskId;
     private WorkerIdentity           workerIdentity;
     private final AtomicInteger      status      = new AtomicInteger(RUNNING);
 
-    public void init(Long jobId) {
-        this.jobId = jobId;
+    public void init(AutoExecJobDTO job) {
+        this.job = job;
     }
 
     public void run() {
-        try {
-            this.job = execJobRService.fetchJobInfo(identity(), jobId);
-            if (this.job == null || this.job.isJobIsExecByAnother() || this.job.isJobNotExists()) {
-                log.warn("job not exists or job is exec by another worker");
-                return;
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
         if (status.get() == PAUSE) {
             sendMessage(AutoExecMessageDTO.jobPauseMessage(job.getJobId()), true);
             log.info("job paused");
             return;
         }
 
-        DataSourceConfig dataSourceConfig = configRService.fetchDsConfig(job.getDsId());
+        DataSourceConfig dsConfig = configRService.fetchDsConfig(job.getDsId());
         try {
-            this.sessionAgent = sessionManager.createSession(backgroundRM, dataSourceConfig, job.getContextDTO());
+            this.sessionAgent = sessionManager.createSession(backgroundRM, dsConfig, job.getContextDTO());
             String currentQueryId = this.sessionAgent.getCurrentQueryId();
             sendMessage(AutoExecMessageDTO.createQueryIdMessage(job.getJobId(), currentQueryId), true);
             log.info("create session success,query id: " + currentQueryId);
@@ -194,7 +184,7 @@ public class AutoExecJob implements Runnable {
             this.runningTaskId = taskDTO.getTaskId();
             log.info("sql start exec,sql order:{}，task id: {},sql:[{}]", taskDTO.getExecOrder(), taskDTO.getTaskId(), taskDTO.getExecSql());
             sendMessage(AutoExecMessageDTO.taskStartMessage(taskDTO.getTaskId()), true);
-            sidecarSqlNotifyService.recodeSqlForAutoExec(job.getUid(), taskDTO.getExecSql(), job.getRequester(), job.getDsId(), sessionAgent.getSessionId(), job.getLevels());
+            sidecarSqlNotifyService.beginForAutoExec(taskDTO.getQueryId(), sessionAgent.getSessionId());
             PreparedStatement ps = con.prepareStatement(taskDTO.getExecSql());
 
             try {
@@ -203,17 +193,15 @@ public class AutoExecJob implements Runnable {
                 affectLine = Math.max(0, affectLine);
                 log.info("sql exec success,affect line: {}", affectLine);
                 if (job.isEnableTransactional()) {
-                    sidecarSqlNotifyService
-                        .finishForAutoExec(sessionAgent.getSessionId(), null, affectLine, taskDTO.getExecSql(), SqlStatus.WAIT_CONFIRM, job.getLevels(), job.getDsId());
+                    sidecarSqlNotifyService.finishForAutoExec(taskDTO.getQueryId(), sessionAgent.getSessionId(), null, affectLine, SqlStatus.WAIT_CONFIRM);
                     sendMessage(AutoExecMessageDTO.taskWaitConfirmMessage(taskDTO.getTaskId(), affectLine, retryCount + 1), false);
                 } else {
-                    sidecarSqlNotifyService
-                        .finishForAutoExec(sessionAgent.getSessionId(), null, affectLine, taskDTO.getExecSql(), SqlStatus.SUCCESS, job.getLevels(), job.getDsId());
+                    sidecarSqlNotifyService.finishForAutoExec(taskDTO.getQueryId(), sessionAgent.getSessionId(), null, affectLine, SqlStatus.SUCCESS);
                     sendMessage(AutoExecMessageDTO.taskFinishMessage(taskDTO.getTaskId(), affectLine, retryCount + 1), false);
                 }
                 retryCount = 0;
             } catch (Throwable e) {
-                sidecarSqlNotifyService.finishForAutoExec(sessionAgent.getSessionId(), e.getMessage(), 0L, taskDTO.getExecSql(), SqlStatus.FAILURE, job.getLevels(), job.getDsId());
+                sidecarSqlNotifyService.finishForAutoExec(taskDTO.getQueryId(), sessionAgent.getSessionId(), e.getMessage(), 0L, SqlStatus.FAILURE);
                 if (job.getErrorStrategy() == ErrorStrategy.RETRY && retryCount < job.getRetryCount()) {
                     log.warn("sql exec failed,wait next retry,retry count :{},error msg:{}", retryCount + 1, e.getMessage());
                     sendMessage(AutoExecMessageDTO.taskRetryMessage(taskDTO.getTaskId()), true);

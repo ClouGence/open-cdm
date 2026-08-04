@@ -1,0 +1,23 @@
+[create_base]
+sql:
+create view app.v_orders as select id,amount from app.orders
+expect:
+{"contains":[{"class":"RdbViewDomain","sqlType":"CREATE_VIEW","auditKind":"CREATE","schema":"app","view":"v_orders"},{"class":"RdbTableDomain","sqlType":"SELECT","auditKind":"QUERY","schema":"app","table":"orders"}]}
+----------
+[create_full_join]
+sql:
+create view app.v_full(order_id,customer_id) as select o.id,c.id from app.orders o full join app.customers c on o.customer_id=c.id
+expect:
+{"contains":[{"class":"RdbViewDomain","sqlType":"CREATE_VIEW","auditKind":"CREATE","schema":"app","view":"v_full"},{"class":"RdbTableDomain","sqlType":"SELECT","auditKind":"QUERY","schema":"app","table":"orders"},{"class":"RdbTableDomain","sqlType":"SELECT","auditKind":"QUERY","schema":"app","table":"customers"}]}
+----------
+[view_dml]
+sql:
+insert into app.v_orders(id,amount) values(1,10);update app.v_orders set amount=20 where id=1;delete from app.v_orders where id=1
+expect:
+{"contains":[{"class":"RdbInsertDomain","sqlType":"INSERT","auditKind":"DML","schema":"app","table":"v_orders"},{"class":"RdbUpdateDomain","sqlType":"UPDATE","auditKind":"DML","schema":"app","table":"v_orders"},{"class":"RdbDeleteDomain","sqlType":"DELETE","auditKind":"DML","schema":"app","table":"v_orders"}]}
+----------
+[view_lifecycle]
+sql:
+comment on view app.v_orders is 'x';alter view app.v_orders compile;drop view app.v_orders cascade
+expect:
+{"contains":[{"class":"RdbViewDomain","sqlType":"ALTER_VIEW","auditKind":"ALTER","schema":"app","view":"v_orders"},{"class":"RdbViewDomain","sqlType":"DROP_VIEW","auditKind":"DROP","schema":"app","view":"v_orders"}]}

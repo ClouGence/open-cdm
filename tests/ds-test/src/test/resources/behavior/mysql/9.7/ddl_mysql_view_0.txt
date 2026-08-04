@@ -1,0 +1,1503 @@
+[create_view_select___001]
+sql:
+CREATE VIEW v_rpad AS SELECT RPAD('x', 1 NOT IN (0), 1) AS c;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:18) /test/1/catalog1/schema1/v_rpad/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:29~1:33) /test/1/catalog1/schema1/RPAD/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_view_select___002]
+sql:
+CREATE VIEW v_sha2 AS SELECT SHA2('x', 1 NOT IN (0)) AS c;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:18) /test/1/catalog1/schema1/v_sha2/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:29~1:33) /test/1/catalog1/schema1/SHA2/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_view_select___003]
+sql:
+CREATE VIEW v_substr_pos AS SELECT SUBSTR('x', 1 NOT IN (0)) AS c;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:24) /test/1/catalog1/schema1/v_substr_pos/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:35~1:41) /test/1/catalog1/schema1/SUBSTR/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_view_select___004]
+sql:
+CREATE VIEW v_repeat AS SELECT REPEAT('x', 1 NOT IN (0)) AS c;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:20) /test/1/catalog1/schema1/v_repeat/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:31~1:37) /test/1/catalog1/schema1/REPEAT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_view_select___005]
+sql:
+CREATE VIEW v_space AS SELECT SPACE(1 NOT IN (0)) AS c;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:19) /test/1/catalog1/schema1/v_space/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:30~1:35) /test/1/catalog1/schema1/SPACE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_view_select___006]
+sql:
+CREATE VIEW v_left AS SELECT LEFT('x', 1 NOT IN (0)) AS c;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:18) /test/1/catalog1/schema1/v_left/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:29~1:33) /test/1/catalog1/schema1/LEFT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_view_select___007]
+sql:
+CREATE VIEW v_right AS SELECT RIGHT('x', 1 NOT IN (0)) AS c;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:19) /test/1/catalog1/schema1/v_right/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:30~1:35) /test/1/catalog1/schema1/RIGHT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_view_select___008]
+sql:
+CREATE VIEW v_str_to_date AS SELECT STR_TO_DATE('2020', 1 NOT IN (0)) AS c;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:25) /test/1/catalog1/schema1/v_str_to_date/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:36~1:47) /test/1/catalog1/schema1/STR_TO_DATE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_view_select___009]
+sql:
+CREATE JSON DUALITY VIEW splitjdv.jdv_basic AS SELECT JSON_DUALITY_OBJECT('_id' : id, 'name' : name) FROM splitjdv.root_doc;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:25~1:43) /test/1/catalog1/splitjdv/jdv_basic/",
+      "action" : "CREATE",
+      "target" : "Table(1:106~1:123) /test/1/catalog1/splitjdv/root_doc/"
+    },
+    {
+      "subject": "Function(1:54~1:73) /test/1/catalog1/schema1/JSON_DUALITY_OBJECT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[alter_view_select___010]
+sql:
+ALTER JSON DUALITY VIEW splitjdv.jdv_basic AS SELECT JSON_DUALITY_OBJECT('_id' : id, 'label' : name) FROM splitjdv.root_doc;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_VIEW": [
+    {
+      "subject": "View(1:24~1:42) /test/1/catalog1/splitjdv/jdv_basic/",
+      "action" : "ALTER",
+      "target" : "Table(1:106~1:123) /test/1/catalog1/splitjdv/root_doc/"
+    },
+    {
+      "subject": "Function(1:53~1:72) /test/1/catalog1/schema1/JSON_DUALITY_OBJECT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[alter_view_select___011]
+sql:
+CREATE OR REPLACE ALGORITHM = MERGE SQL SECURITY INVOKER JSON RELATIONAL DUALITY VIEW splitjdv.jdv_rel AS SELECT JSON_DUALITY_OBJECT(WITH (INSERT, UPDATE, NO DELETE) '_id' : id, 'name' : name) FROM splitjdv.root_doc;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_VIEW": [
+    {
+      "subject": "View(1:86~1:102) /test/1/catalog1/splitjdv/jdv_rel/",
+      "action" : "REPLACE",
+      "target" : "Table(1:198~1:215) /test/1/catalog1/splitjdv/root_doc/"
+    },
+    {
+      "subject": "Function(1:113~1:132) /test/1/catalog1/schema1/JSON_DUALITY_OBJECT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_view_select___012]
+sql:
+CREATE DEFINER = CURRENT_USER SQL SECURITY DEFINER JSON DUALITY VIEW splitjdv.jdv_def AS SELECT JSON_DUALITY_OBJECT('_id' : id, 'name' : name) FROM splitjdv.root_doc;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:69~1:85) /test/1/catalog1/splitjdv/jdv_def/",
+      "action" : "CREATE",
+      "target" : "Table(1:148~1:165) /test/1/catalog1/splitjdv/root_doc/"
+    },
+    {
+      "subject": "Function(1:96~1:115) /test/1/catalog1/schema1/JSON_DUALITY_OBJECT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_view_select___013]
+sql:
+CREATE JSON DUALITY VIEW IF NOT EXISTS splitjdv.jdv_exists AS SELECT JSON_DUALITY_OBJECT('_id' : id, 'name' : name) FROM splitjdv.root_doc AS r;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:39~1:58) /test/1/catalog1/splitjdv/jdv_exists/",
+      "action" : "CREATE",
+      "target" : "Table(1:121~1:138) /test/1/catalog1/splitjdv/root_doc/"
+    },
+    {
+      "subject": "Function(1:69~1:88) /test/1/catalog1/schema1/JSON_DUALITY_OBJECT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[drop_view__014]
+sql:
+DROP VIEW splitjdv.jdv_basic, splitjdv.jdv_rel, splitjdv.jdv_def, splitjdv.jdv_exists;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "View(1:10~1:28) /test/1/catalog1/splitjdv/jdv_basic/",
+      "action" : "DROP"
+    },
+    {
+      "subject": "View(1:30~1:46) /test/1/catalog1/splitjdv/jdv_rel/",
+      "action" : "DROP"
+    },
+    {
+      "subject": "View(1:48~1:64) /test/1/catalog1/splitjdv/jdv_def/",
+      "action" : "DROP"
+    },
+    {
+      "subject": "View(1:66~1:85) /test/1/catalog1/splitjdv/jdv_exists/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[create_view_select___015]
+sql:
+CREATE JSON DUALITY VIEW jdv_single_tag AS SELECT JSON_DUALITY_OBJECT(WITH INSERT '_id' : id, 'name' : name) FROM root_doc;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:25~1:39) /test/1/catalog1/schema1/jdv_single_tag/",
+      "action" : "CREATE",
+      "target" : "Table(1:114~1:122) /test/1/catalog1/schema1/root_doc/"
+    },
+    {
+      "subject": "Function(1:50~1:69) /test/1/catalog1/schema1/JSON_DUALITY_OBJECT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_view_select___016]
+sql:
+CREATE MATERIALIZED VIEW split_ext.mv_basic AS SELECT 1 AS id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "Materialized(1:25~1:43) /test/1/catalog1/split_ext/mv_basic/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[alter_view_select___017]
+sql:
+CREATE OR REPLACE ALGORITHM=MERGE MATERIALIZED VIEW split_ext.mv_replace AS SELECT 2 AS id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_VIEW": [
+    {
+      "subject": "Materialized(1:52~1:72) /test/1/catalog1/split_ext/mv_replace/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[alter_view_select___018]
+sql:
+ALTER MATERIALIZED VIEW split_ext.mv_basic AS SELECT 3 AS id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_VIEW": [
+    {
+      "subject": "Materialized(1:24~1:42) /test/1/catalog1/split_ext/mv_basic/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_view_select___019]
+sql:
+CREATE OR REPLACE VIEW v_where AS SELECT 1 WHERE 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_VIEW": [
+    {
+      "subject": "View(1:23~1:30) /test/1/catalog1/schema1/v_where/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_view_select___020]
+sql:
+CREATE VIEW split_subquery_bugs_860.v_alias AS SELECT 1 FROM (SELECT 1) AS table1(pk) JOIN (SELECT 1) AS table2 ON table1.pk=(SELECT 1) WHERE table1.pk IN ((SELECT 1),2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:43) /test/1/catalog1/split_subquery_bugs_860/v_alias/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_view_select___021]
+sql:
+CREATE VIEW split_subquery_bugs_1800.v1 AS SELECT vt3.c2 AS vc1,vt3.c3 AS vc2,vt4.c1 AS vc3 FROM (((split_subquery_bugs_1800.vt3 LEFT JOIN split_subquery_bugs_1800.vt1 ON vt1.c1=vt3.c5) LEFT JOIN split_subquery_bugs_1800.vt2 ON vt3.c4=vt2.c1) JOIN split_subquery_bugs_1800.vt4);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:39) /test/1/catalog1/split_subquery_bugs_1800/v1/",
+      "action" : "CREATE",
+      "target" : [
+        "Table(1:100~1:128) /test/1/catalog1/split_subquery_bugs_1800/vt3/",
+        "Table(1:139~1:167) /test/1/catalog1/split_subquery_bugs_1800/vt1/",
+        "Table(1:196~1:224) /test/1/catalog1/split_subquery_bugs_1800/vt2/",
+        "Table(1:248~1:276) /test/1/catalog1/split_subquery_bugs_1800/vt4/"
+      ]
+    }
+  ]
+}
+----------
+[create_view_select___022]
+sql:
+CREATE VIEW split_subquery_bugs_550.v1 AS SELECT * FROM split_subquery_bugs_550.vb WHERE 5 IN (SELECT 1) IS UNKNOWN;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:38) /test/1/catalog1/split_subquery_bugs_550/v1/",
+      "action" : "CREATE",
+      "target" : "Table(1:56~1:82) /test/1/catalog1/split_subquery_bugs_550/vb/"
+    }
+  ]
+}
+----------
+[create_view_select___023]
+sql:
+CREATE VIEW split_subquery_twelfth.v_nested AS SELECT alias2.col_varchar_nokey FROM split_subquery_twelfth.v_base AS alias1 RIGHT JOIN split_subquery_twelfth.view_base AS alias2 ON 1 WHERE alias2.col_varchar_key IN (SELECT sq1.col_varchar_nokey FROM split_subquery_twelfth.v_base AS sq1 LEFT JOIN split_subquery_twelfth.view_base AS sq2 ON sq2.col_int_key=sq1.pk WHERE sq1.pk<>alias1.col_int_key AND sq1.col_varchar_key>alias1.col_varchar_key);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:43) /test/1/catalog1/split_subquery_twelfth/v_nested/",
+      "action" : "CREATE",
+      "target" : [
+        "Table(1:84~1:113) /test/1/catalog1/split_subquery_twelfth/v_base/",
+        "Table(1:135~1:167) /test/1/catalog1/split_subquery_twelfth/view_base/"
+      ]
+    }
+  ]
+}
+----------
+[create_view_select___024]
+sql:
+CREATE VIEW split_subquery_eleventh.v_predicates AS SELECT 1 LIKE (1 IN (SELECT 1)) AS p1,1 LIKE '%' ESCAPE (1 IN (SELECT 1)) AS p2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:48) /test/1/catalog1/split_subquery_eleventh/v_predicates/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_view_select___025]
+sql:
+CREATE VIEW split_subquery_tenth.v_check AS SELECT r.c AS c FROM split_subquery_tenth.view_left AS l,split_subquery_tenth.view_right AS r WHERE l.id=r.id AND 1 IN (SELECT i.id FROM split_subquery_tenth.view_left AS i) WITH CHECK OPTION;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:40) /test/1/catalog1/split_subquery_tenth/v_check/",
+      "action" : "CREATE",
+      "target" : [
+        "Table(1:65~1:95) /test/1/catalog1/split_subquery_tenth/view_left/",
+        "Table(1:101~1:132) /test/1/catalog1/split_subquery_tenth/view_right/"
+      ]
+    }
+  ]
+}
+----------
+[drop_view__026]
+sql:
+DROP VIEW IF EXISTS split_view97.v_base, split_view97.v_joined;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "View(1:20~1:39) /test/1/catalog1/split_view97/v_base/",
+      "action" : "DROP"
+    },
+    {
+      "subject": "View(1:41~1:62) /test/1/catalog1/split_view97/v_joined/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[alter_view_select___027]
+sql:
+CREATE OR REPLACE ALGORITHM = MERGE DEFINER = CURRENT_USER SQL SECURITY DEFINER VIEW split_view97.v_base (id, amount) AS
+SELECT id, amount FROM split_view97.src WHERE amount >= 0 WITH CASCADED CHECK OPTION;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_VIEW": [
+    {
+      "subject": "View(1:85~1:104) /test/1/catalog1/split_view97/v_base/",
+      "action" : "REPLACE",
+      "target" : "Table(2:23~2:39) /test/1/catalog1/split_view97/src/"
+    }
+  ]
+}
+----------
+[alter_view_select___028]
+sql:
+ALTER ALGORITHM = UNDEFINED DEFINER = CURRENT_USER SQL SECURITY INVOKER VIEW split_view97.v_base (id, amount) AS
+SELECT id, amount FROM split_view97.src WHERE amount BETWEEN 0 AND 100 WITH LOCAL CHECK OPTION;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_VIEW": [
+    {
+      "subject": "View(1:77~1:96) /test/1/catalog1/split_view97/v_base/",
+      "action" : "ALTER",
+      "target" : "Table(2:23~2:39) /test/1/catalog1/split_view97/src/"
+    }
+  ]
+}
+----------
+[create_view_select___029]
+sql:
+CREATE ALGORITHM = TEMPTABLE VIEW split_view97.v_joined AS
+SELECT s.id, a.action_name FROM split_view97.src AS s LEFT JOIN split_view97.audit AS a ON a.src_id = s.id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:34~1:55) /test/1/catalog1/split_view97/v_joined/",
+      "action" : "CREATE",
+      "target" : [
+        "Table(2:32~2:48) /test/1/catalog1/split_view97/src/",
+        "Table(2:64~2:82) /test/1/catalog1/split_view97/audit/"
+      ]
+    }
+  ]
+}
+----------
+[drop_view__030]
+sql:
+DROP VIEW IF EXISTS split_view97.v_joined RESTRICT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "View(1:20~1:41) /test/1/catalog1/split_view97/v_joined/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[drop_view__031]
+sql:
+DROP VIEW split_view97.v_base CASCADE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "View(1:10~1:29) /test/1/catalog1/split_view97/v_base/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[create_view_select___032]
+sql:
+CREATE VIEW IF NOT EXISTS v_ifne(v_a) AS SELECT a FROM t1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:26~1:32) /test/1/catalog1/schema1/v_ifne/",
+      "action" : "CREATE",
+      "target" : "Table(1:55~1:57) /test/1/catalog1/schema1/t1/"
+    }
+  ]
+}
+----------
+[create_view_select___033]
+sql:
+CREATE ALGORITHM=MERGE DEFINER=CURRENT_USER SQL SECURITY INVOKER VIEW IF NOT EXISTS v_ifne_full(v_a) AS SELECT a FROM t1 WITH CASCADED CHECK OPTION;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:84~1:95) /test/1/catalog1/schema1/v_ifne_full/",
+      "action" : "CREATE",
+      "target" : "Table(1:118~1:120) /test/1/catalog1/schema1/t1/"
+    }
+  ]
+}
+----------
+[create_view_select___034]
+sql:
+CREATE VIEW split_view97.v_cte AS WITH cte AS (SELECT id, amount FROM split_view97.src) SELECT id, amount FROM cte;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:30) /test/1/catalog1/split_view97/v_cte/",
+      "action" : "CREATE",
+      "target" : "Table(1:70~1:86) /test/1/catalog1/split_view97/src/"
+    }
+  ]
+}
+----------
+[create_view_select___035]
+sql:
+CREATE VIEW split_view97.v_table AS TABLE split_view97.src;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:32) /test/1/catalog1/split_view97/v_table/",
+      "action" : "CREATE",
+      "target" : "Table(1:42~1:58) /test/1/catalog1/split_view97/src/"
+    }
+  ]
+}
+----------
+[create_view_select___036]
+sql:
+CREATE VIEW split_view97.v_values AS VALUES ROW(1, 10, 'a'), ROW(2, 20, 'b');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:33) /test/1/catalog1/split_view97/v_values/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[drop_view__037]
+sql:
+DROP VIEW split_view97.v_cte, split_view97.v_table, split_view97.v_values;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "View(1:10~1:28) /test/1/catalog1/split_view97/v_cte/",
+      "action" : "DROP"
+    },
+    {
+      "subject": "View(1:30~1:50) /test/1/catalog1/split_view97/v_table/",
+      "action" : "DROP"
+    },
+    {
+      "subject": "View(1:52~1:73) /test/1/catalog1/split_view97/v_values/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[create_view_select_session_variable_rw___038]
+sql:
+CREATE VIEW codex_load_audit_s.v AS SELECT 1 INTO @codex_load_audit_v;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:32) /test/1/catalog1/codex_load_audit_s/v/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "ConfigKey(1:50~1:69) /test/1/codex_load_audit_v/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[create_view_select___039]
+sql:
+CREATE VIEW split_window_minmax.v AS SELECT id,SUM(id) OVER w AS total,MIN(id) OVER w AS min_id,MAX(id) OVER w AS max_id,sex FROM split_window_minmax.people WINDOW w AS (PARTITION BY sex ORDER BY id ROWS BETWEEN 2 PRECEDING AND 1 PRECEDING);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:33) /test/1/catalog1/split_window_minmax/v/",
+      "action" : "CREATE",
+      "target" : "Table(1:130~1:156) /test/1/catalog1/split_window_minmax/people/"
+    },
+    {
+      "subject": "Function(1:47~1:50) /test/1/catalog1/schema1/SUM/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:71~1:74) /test/1/catalog1/schema1/MIN/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:96~1:99) /test/1/catalog1/schema1/MAX/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_view_select___040]
+sql:
+CREATE VIEW split_window_stats.v_stats AS SELECT id,SUM(id) OVER w AS total,STD(id) OVER w AS std_id,VARIANCE(id) OVER w AS var_id,sex FROM split_window_stats.people WINDOW w AS (PARTITION BY sex ORDER BY id ROWS BETWEEN 2 PRECEDING AND 1 PRECEDING);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:38) /test/1/catalog1/split_window_stats/v_stats/",
+      "action" : "CREATE",
+      "target" : "Table(1:140~1:165) /test/1/catalog1/split_window_stats/people/"
+    },
+    {
+      "subject": "Function(1:52~1:55) /test/1/catalog1/schema1/SUM/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:76~1:79) /test/1/catalog1/schema1/STD/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:101~1:109) /test/1/catalog1/schema1/VARIANCE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_view_select___041]
+sql:
+CREATE VIEW split_window_view.v_native AS SELECT COUNT(*) OVER w0 AS c0,COUNT(*) OVER w AS c1,COUNT(*) OVER w1 AS c2 FROM split_window_view.t WINDOW w0 AS (),w AS (w0 ORDER BY tm),w1 AS (w RANGE BETWEEN INTERVAL 24 HOUR PRECEDING AND INTERVAL '2:2' MINUTE_SECOND FOLLOWING);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:38) /test/1/catalog1/split_window_view/v_native/",
+      "action" : "CREATE",
+      "target" : "Table(1:122~1:141) /test/1/catalog1/split_window_view/t/"
+    },
+    {
+      "subject": "Function(1:49~1:54) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_view_select___042]
+sql:
+CREATE JSON DUALITY VIEW codex_func_gap2.ann_no_dv AS SELECT JSON_DUALITY_OBJECT(WITH (NO INSERT, NO UPDATE, NO DELETE) '_id':ppk,'pc2':pc2) FROM codex_func_gap2.parent;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:25~1:50) /test/1/catalog1/codex_func_gap2/ann_no_dv/",
+      "action" : "CREATE",
+      "target" : "Table(1:146~1:168) /test/1/catalog1/codex_func_gap2/parent/"
+    },
+    {
+      "subject": "Function(1:61~1:80) /test/1/catalog1/schema1/JSON_DUALITY_OBJECT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[alter_view_select___043]
+sql:
+ALTER DEFINER=no_such@user_1 VIEW v1 AS SELECT * FROM t1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_VIEW": [
+    {
+      "subject": "View(1:34~1:36) /test/1/catalog1/schema1/v1/",
+      "action" : "ALTER",
+      "target" : "Table(1:54~1:56) /test/1/catalog1/schema1/t1/"
+    }
+  ]
+}
+----------
+[create_view_select___044]
+sql:
+CREATE VIEW v_distinct_check AS
+SELECT DISTINCT a FROM t1 WITH CHECK OPTION;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:28) /test/1/catalog1/schema1/v_distinct_check/",
+      "action" : "CREATE",
+      "target" : "Table(2:23~2:25) /test/1/catalog1/schema1/t1/"
+    }
+  ]
+}
+----------
+[create_view_select___045]
+sql:
+CREATE JSON DUALITY VIEW dv_columns(data) AS SELECT JSON_DUALITY_OBJECT('_id':c1) FROM t1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:25~1:35) /test/1/catalog1/schema1/dv_columns/",
+      "action" : "CREATE",
+      "target" : "Table(1:87~1:89) /test/1/catalog1/schema1/t1/"
+    },
+    {
+      "subject": "Function(1:52~1:71) /test/1/catalog1/schema1/JSON_DUALITY_OBJECT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[alter_view_select___046]
+sql:
+ALTER JSON DUALITY VIEW dv_base(data) AS SELECT JSON_DUALITY_OBJECT('_id':c1) FROM t1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_VIEW": [
+    {
+      "subject": "View(1:24~1:31) /test/1/catalog1/schema1/dv_base/",
+      "action" : "ALTER",
+      "target" : "Table(1:83~1:85) /test/1/catalog1/schema1/t1/"
+    },
+    {
+      "subject": "Function(1:48~1:67) /test/1/catalog1/schema1/JSON_DUALITY_OBJECT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_view_select___047]
+sql:
+CREATE VIEW v_jdv_object AS SELECT JSON_DUALITY_OBJECT('c1':c1) FROM t1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:24) /test/1/catalog1/schema1/v_jdv_object/",
+      "action" : "CREATE",
+      "target" : "Table(1:69~1:71) /test/1/catalog1/schema1/t1/"
+    },
+    {
+      "subject": "Function(1:35~1:54) /test/1/catalog1/schema1/JSON_DUALITY_OBJECT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_view_select___048]
+sql:
+CREATE JSON DUALITY VIEW dv_multi_projection AS SELECT JSON_DUALITY_OBJECT('_id':c1),1 FROM t1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:25~1:44) /test/1/catalog1/schema1/dv_multi_projection/",
+      "action" : "CREATE",
+      "target" : "Table(1:92~1:94) /test/1/catalog1/schema1/t1/"
+    },
+    {
+      "subject": "Function(1:55~1:74) /test/1/catalog1/schema1/JSON_DUALITY_OBJECT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_view_select___049]
+sql:
+CREATE JSON DUALITY VIEW dv_literal AS SELECT JSON_DUALITY_OBJECT('_id':c1,'v':1) FROM t1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:25~1:35) /test/1/catalog1/schema1/dv_literal/",
+      "action" : "CREATE",
+      "target" : "Table(1:87~1:89) /test/1/catalog1/schema1/t1/"
+    },
+    {
+      "subject": "Function(1:46~1:65) /test/1/catalog1/schema1/JSON_DUALITY_OBJECT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_view_select___050]
+sql:
+CREATE JSON DUALITY VIEW dv_binary AS SELECT JSON_DUALITY_OBJECT('_id':c1,'v':c1+c2) FROM t1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:25~1:34) /test/1/catalog1/schema1/dv_binary/",
+      "action" : "CREATE",
+      "target" : "Table(1:90~1:92) /test/1/catalog1/schema1/t1/"
+    },
+    {
+      "subject": "Function(1:45~1:64) /test/1/catalog1/schema1/JSON_DUALITY_OBJECT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_view_select___051]
+sql:
+CREATE JSON DUALITY VIEW dv_union AS SELECT JSON_DUALITY_OBJECT('_id':c1) FROM t1 UNION SELECT JSON_DUALITY_OBJECT('_id':c1) FROM t2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:25~1:33) /test/1/catalog1/schema1/dv_union/",
+      "action" : "CREATE",
+      "target" : [
+        "Table(1:79~1:81) /test/1/catalog1/schema1/t1/",
+        "Table(1:130~1:132) /test/1/catalog1/schema1/t2/"
+      ]
+    },
+    {
+      "subject": "Function(1:44~1:63) /test/1/catalog1/schema1/JSON_DUALITY_OBJECT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_view_select___052]
+sql:
+CREATE JSON DUALITY VIEW dv_intersect AS SELECT JSON_DUALITY_OBJECT('_id':c1) FROM t1 INTERSECT SELECT JSON_DUALITY_OBJECT('_id':c1) FROM t2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:25~1:37) /test/1/catalog1/schema1/dv_intersect/",
+      "action" : "CREATE",
+      "target" : [
+        "Table(1:83~1:85) /test/1/catalog1/schema1/t1/",
+        "Table(1:138~1:140) /test/1/catalog1/schema1/t2/"
+      ]
+    },
+    {
+      "subject": "Function(1:48~1:67) /test/1/catalog1/schema1/JSON_DUALITY_OBJECT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_view_select___053]
+sql:
+CREATE JSON DUALITY VIEW dv_except AS SELECT JSON_DUALITY_OBJECT('_id':c1) FROM t1 EXCEPT SELECT JSON_DUALITY_OBJECT('_id':c1) FROM t2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:25~1:34) /test/1/catalog1/schema1/dv_except/",
+      "action" : "CREATE",
+      "target" : [
+        "Table(1:80~1:82) /test/1/catalog1/schema1/t1/",
+        "Table(1:132~1:134) /test/1/catalog1/schema1/t2/"
+      ]
+    },
+    {
+      "subject": "Function(1:45~1:64) /test/1/catalog1/schema1/JSON_DUALITY_OBJECT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_view_select___054]
+sql:
+CREATE JSON DUALITY VIEW dv_cte AS WITH q AS (SELECT c1 FROM t1) SELECT JSON_DUALITY_OBJECT('_id':c1) FROM q;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:25~1:31) /test/1/catalog1/schema1/dv_cte/",
+      "action" : "CREATE",
+      "target" : "Table(1:61~1:63) /test/1/catalog1/schema1/t1/"
+    },
+    {
+      "subject": "Function(1:72~1:91) /test/1/catalog1/schema1/JSON_DUALITY_OBJECT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_view_select___055]
+sql:
+CREATE JSON DUALITY VIEW dv_window AS SELECT JSON_DUALITY_OBJECT('_id':c1,'r':RANK() OVER(ORDER BY c2)) FROM t1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:25~1:34) /test/1/catalog1/schema1/dv_window/",
+      "action" : "CREATE",
+      "target" : "Table(1:109~1:111) /test/1/catalog1/schema1/t1/"
+    },
+    {
+      "subject": "Function(1:45~1:64) /test/1/catalog1/schema1/JSON_DUALITY_OBJECT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:78~1:82) /test/1/catalog1/schema1/RANK/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_view_select___056]
+sql:
+CREATE ALGORITHM=TEMPTABLE JSON DUALITY VIEW dv_temptable AS SELECT JSON_DUALITY_OBJECT('_id':c1) FROM t1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:45~1:57) /test/1/catalog1/schema1/dv_temptable/",
+      "action" : "CREATE",
+      "target" : "Table(1:103~1:105) /test/1/catalog1/schema1/t1/"
+    },
+    {
+      "subject": "Function(1:68~1:87) /test/1/catalog1/schema1/JSON_DUALITY_OBJECT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_view_select___057]
+sql:
+CREATE ALGORITHM=UNDEFINED JSON DUALITY VIEW dv_undefined AS SELECT JSON_DUALITY_OBJECT('_id':c1) FROM t1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:45~1:57) /test/1/catalog1/schema1/dv_undefined/",
+      "action" : "CREATE",
+      "target" : "Table(1:103~1:105) /test/1/catalog1/schema1/t1/"
+    },
+    {
+      "subject": "Function(1:68~1:87) /test/1/catalog1/schema1/JSON_DUALITY_OBJECT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_view_select___058]
+sql:
+CREATE JSON DUALITY VIEW dv_check AS SELECT JSON_DUALITY_OBJECT('_id':c1) FROM t1 WITH CHECK OPTION;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:25~1:33) /test/1/catalog1/schema1/dv_check/",
+      "action" : "CREATE",
+      "target" : "Table(1:79~1:81) /test/1/catalog1/schema1/t1/"
+    },
+    {
+      "subject": "Function(1:44~1:63) /test/1/catalog1/schema1/JSON_DUALITY_OBJECT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_view_select___059]
+sql:
+CREATE JSON DUALITY VIEW dv_local_check AS SELECT JSON_DUALITY_OBJECT('_id':c1) FROM t1 WITH LOCAL CHECK OPTION;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:25~1:39) /test/1/catalog1/schema1/dv_local_check/",
+      "action" : "CREATE",
+      "target" : "Table(1:85~1:87) /test/1/catalog1/schema1/t1/"
+    },
+    {
+      "subject": "Function(1:50~1:69) /test/1/catalog1/schema1/JSON_DUALITY_OBJECT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_view_select___060]
+sql:
+CREATE JSON DUALITY VIEW dv_alias AS SELECT JSON_DUALITY_OBJECT('_id':c1) AS data_object FROM t1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:25~1:33) /test/1/catalog1/schema1/dv_alias/",
+      "action" : "CREATE",
+      "target" : "Table(1:94~1:96) /test/1/catalog1/schema1/t1/"
+    },
+    {
+      "subject": "Function(1:44~1:63) /test/1/catalog1/schema1/JSON_DUALITY_OBJECT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_view_select___061]
+sql:
+CREATE JSON DUALITY VIEW dv_inner_cte AS SELECT JSON_DUALITY_OBJECT('_id':t1.c1,'children':(WITH q AS (SELECT c1 FROM t2) SELECT JSON_ARRAYAGG(JSON_DUALITY_OBJECT('id':c1)) FROM q)) FROM t1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:25~1:37) /test/1/catalog1/schema1/dv_inner_cte/",
+      "action" : "CREATE",
+      "target" : [
+        "Table(1:118~1:120) /test/1/catalog1/schema1/t2/",
+        "Table(1:187~1:189) /test/1/catalog1/schema1/t1/"
+      ]
+    },
+    {
+      "subject": "Function(1:48~1:67) /test/1/catalog1/schema1/JSON_DUALITY_OBJECT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:129~1:142) /test/1/catalog1/schema1/JSON_ARRAYAGG/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[alter_view_select___062]
+sql:
+CREATE OR REPLACE JSON DUALITY VIEW dv_gap AS SELECT JSON_DUALITY_OBJECT(WITH (INSERT,UPDATE,DELETE) '_id':T1.C1,'T2':(SELECT JSON_DUALITY_OBJECT(WITH DELETE 'C1':T2.C1,'C2':T2.C2) FROM T2 WHERE T1.C1=T2.C1)) FROM T1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_VIEW": [
+    {
+      "subject": "View(1:36~1:42) /test/1/catalog1/schema1/dv_gap/",
+      "action" : "REPLACE",
+      "target" : [
+        "Table(1:186~1:188) /test/1/catalog1/schema1/T2/",
+        "Table(1:214~1:216) /test/1/catalog1/schema1/T1/"
+      ]
+    },
+    {
+      "subject": "Function(1:53~1:72) /test/1/catalog1/schema1/JSON_DUALITY_OBJECT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_view_select___063]
+sql:
+CREATE VIEW v_union_gap AS (SELECT 1 AS a) UNION (SELECT 2 AS a);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:23) /test/1/catalog1/schema1/v_union_gap/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[alter_view_select___064]
+sql:
+ALTER ALGORITHM=MERGE VIEW v_base_gap AS SELECT a FROM t1 WHERE a>=0 WITH CASCADED CHECK OPTION;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_VIEW": [
+    {
+      "subject": "View(1:27~1:37) /test/1/catalog1/schema1/v_base_gap/",
+      "action" : "ALTER",
+      "target" : "Table(1:55~1:57) /test/1/catalog1/schema1/t1/"
+    }
+  ]
+}
+----------
+[create_view_select___065]
+sql:
+CREATE DEFINER=root@localhost SQL SECURITY INVOKER VIEW v_def_gap AS SELECT a FROM t1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:56~1:65) /test/1/catalog1/schema1/v_def_gap/",
+      "action" : "CREATE",
+      "target" : "Table(1:83~1:85) /test/1/catalog1/schema1/t1/"
+    }
+  ]
+}
+----------
+[create_view_data_export_select___066]
+sql:
+CREATE VIEW split_view_outfile AS SELECT 5 INTO OUTFILE '/tmp/split_native_gap_view.txt';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:30) /test/1/catalog1/schema1/split_view_outfile/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "File(1:56~1:88) /test/1/tmp/split_native_gap_view.txt/",
+      "action" : "EXPORT"
+    }
+  ]
+}
+----------
+[create_view_select___067]
+sql:
+CREATE VIEW split_view_order_limit AS SELECT a + 1 FROM split_view_source ORDER BY 1 DESC LIMIT 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:34) /test/1/catalog1/schema1/split_view_order_limit/",
+      "action" : "CREATE",
+      "target" : "Table(1:56~1:73) /test/1/catalog1/schema1/split_view_source/"
+    }
+  ]
+}
+----------
+[create_view_select___068]
+sql:
+CREATE VIEW split_view_system_variable (c,d) AS SELECT a, b + @@global.max_user_connections FROM split_view_source;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:38) /test/1/catalog1/schema1/split_view_system_variable/",
+      "action" : "CREATE",
+      "target" : "Table(1:97~1:114) /test/1/catalog1/schema1/split_view_source/"
+    },
+    {
+      "subject": "ConfigKey(1:62~1:91) /test/1/max_user_connections/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[alter_view_select___069]
+sql:
+ALTER VIEW audit_v AS TABLE audit_source;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_VIEW": [
+    {
+      "subject": "View(1:11~1:18) /test/1/catalog1/schema1/audit_v/",
+      "action" : "ALTER",
+      "target" : "Table(1:28~1:40) /test/1/catalog1/schema1/audit_source/"
+    }
+  ]
+}
+----------
+[alter_view_select___070]
+sql:
+ALTER VIEW audit_v AS VALUES ROW(1,'a'), ROW(2,'b');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_VIEW": [
+    {
+      "subject": "View(1:11~1:18) /test/1/catalog1/schema1/audit_v/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_view_select___071]
+sql:
+ALTER VIEW audit_v AS WITH q AS (SELECT 1 AS id) SELECT id FROM q;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_VIEW": [
+    {
+      "subject": "View(1:11~1:18) /test/1/catalog1/schema1/audit_v/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[create_view_select___072]
+sql:
+CREATE MATERIALIZED VIEW IF NOT EXISTS audit_mv_ifne AS SELECT 1 AS id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "Materialized(1:39~1:52) /test/1/catalog1/schema1/audit_mv_ifne/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_view_select___073]
+sql:
+CREATE MATERIALIZED DEFINER=CURRENT_USER SQL SECURITY INVOKER VIEW audit_mv_def AS SELECT 1 AS id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "Materialized(1:67~1:79) /test/1/catalog1/schema1/audit_mv_def/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_view_select___074]
+sql:
+CREATE MATERIALIZED VIEW audit_mv_table AS TABLE audit_source;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "Materialized(1:25~1:39) /test/1/catalog1/schema1/audit_mv_table/",
+      "action" : "CREATE",
+      "target" : "Table(1:49~1:61) /test/1/catalog1/schema1/audit_source/"
+    }
+  ]
+}
+----------
+[create_view_select___075]
+sql:
+CREATE MATERIALIZED VIEW audit_mv_values AS VALUES ROW(1), ROW(2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "Materialized(1:25~1:40) /test/1/catalog1/schema1/audit_mv_values/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_view_select___076]
+sql:
+CREATE MATERIALIZED VIEW audit_mv_cte AS WITH q AS (SELECT 1 AS id) SELECT id FROM q;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "Materialized(1:25~1:37) /test/1/catalog1/schema1/audit_mv_cte/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[alter_view_select___077]
+sql:
+ALTER ALGORITHM=TEMPTABLE MATERIALIZED VIEW audit_mv_ifne AS SELECT 2 AS id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_VIEW": [
+    {
+      "subject": "Materialized(1:44~1:57) /test/1/catalog1/schema1/audit_mv_ifne/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_view_select___078]
+sql:
+ALTER MATERIALIZED DEFINER=CURRENT_USER SQL SECURITY INVOKER VIEW audit_mv_ifne AS SELECT 2 AS id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_VIEW": [
+    {
+      "subject": "Materialized(1:66~1:79) /test/1/catalog1/schema1/audit_mv_ifne/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[create_view_select___079]
+sql:
+CREATE VIEW v AS SELECT (WITH qn AS (SELECT 'with') SELECT * FROM qn) AS scal_subq FROM dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:13) /test/1/catalog1/schema1/v/",
+      "action" : "CREATE",
+      "target" : "Table(1:88~1:92) /test/1/catalog1/schema1/dual/"
+    }
+  ]
+}
+----------
+[create_view_select___080]
+sql:
+CREATE VIEW v AS SELECT * FROM (WITH qn AS (SELECT 'with') SELECT * FROM qn) AS dt;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:13) /test/1/catalog1/schema1/v/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_view_select___081]
+sql:
+CREATE VIEW json_value_view AS SELECT JSON_VALUE('{"don''t":"panic"}','$."don''t"') AS x,JSON_VALUE('""','$' RETURNING CHAR(10) DEFAULT 'it''s empty' ON EMPTY DEFAULT 'it''s wrong' ON ERROR) AS y,JSON_VALUE('""','$' NULL ON EMPTY ERROR ON ERROR) AS z,JSON_VALUE('""','$' ERROR ON EMPTY NULL ON ERROR) AS w;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:27) /test/1/catalog1/schema1/json_value_view/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:38~1:48) /test/1/catalog1/schema1/JSON_VALUE/",
+      "action" : "CALL"
+    }
+  ]
+}

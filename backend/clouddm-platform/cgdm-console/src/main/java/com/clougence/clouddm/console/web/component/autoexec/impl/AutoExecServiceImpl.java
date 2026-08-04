@@ -18,6 +18,7 @@ package com.clougence.clouddm.console.web.component.autoexec.impl;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -49,8 +50,8 @@ import com.clougence.clouddm.platform.dal.model.monitor.Loglevel;
 import com.clougence.clouddm.platform.dal.model.system.DmSysWorkerDO;
 import com.clougence.clouddm.platform.dal.util.PageObj;
 import com.clougence.clouddm.platform.dal.util.PageUtils;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
-import com.clougence.clouddm.sdk.sql.split.SplitScript;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.clouddm.sdk.sql.parser.SplitScript;
 import com.clougence.utils.format.DateFormatType;
 
 import jakarta.annotation.Resource;
@@ -251,7 +252,6 @@ public class AutoExecServiceImpl implements AutoExecService {
         for (DmExecAutoTaskDO taskDO : iPage.getRecords()) {
             DmAutoExecTaskVO vo = new DmAutoExecTaskVO();
             vo.setTaskId(taskDO.getId());
-            vo.setSqlType(taskDO.getSqlType());
             vo.setStatus(taskDO.getStatus());
             vo.setExecSql(taskDO.getExecSql());
             if (taskDO.getAffectRow() != null) {
@@ -323,17 +323,14 @@ public class AutoExecServiceImpl implements AutoExecService {
         this.executionDal.autoJobMapper().insert(job);
 
         int order = 1;
-        for (int i = 0; i < scripts.size(); i++) {
-            SplitScript splitScript = scripts.get(i);
-            if (splitScript.getType() == SecQueryType.SWITCH_CATALOG || splitScript.getType() == SecQueryType.SWITCH_SCHEMA) {
-                throw new UnsupportedOperationException(DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_JOB_NONSUPPORT_SWITCH_CTX_ERROR.name()));
-            } else if (splitScript.getType() == SecQueryType.TRANSACTION) {
+        for (SplitScript script : scripts) {
+            Set<SplitQueryType> queryTypes = script.getType();
+            if (queryTypes.contains(SplitQueryType.TRANSACTION)) {
                 throw new UnsupportedOperationException(DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_JOB_NONSUPPORT_TRANSACTION_OPERATE_ERROR.name()));
             }
 
             DmExecAutoTaskDO execTask = new DmExecAutoTaskDO();
-            execTask.setExecSql(splitScript.getScript());
-            execTask.setSqlType(splitScript.getType());
+            execTask.setExecSql(script.getScript());
             execTask.setExecOrder(order++);
             execTask.setStatus(AutoExecTaskStatus.WAIT_EXEC);
 

@@ -1,0 +1,45 @@
+DROP SCHEMA IF EXISTS split_conversion_probe CASCADE;
+DROP SCHEMA IF EXISTS split_conversion_probe_next CASCADE;
+CREATE SCHEMA split_conversion_probe;
+CREATE SCHEMA split_conversion_probe_next;
+CREATE CONVERSION split_conversion_probe.latin1_to_utf8_probe FOR 'LATIN1' TO 'UTF8' FROM iso8859_1_to_utf8;
+CREATE DEFAULT CONVERSION split_conversion_probe.default_latin1_to_utf8_probe FOR 'LATIN1' TO 'UTF8' FROM iso8859_1_to_utf8;
+ALTER CONVERSION split_conversion_probe.latin1_to_utf8_probe RENAME TO latin1_to_utf8_renamed;
+ALTER CONVERSION split_conversion_probe.latin1_to_utf8_renamed OWNER TO CURRENT_USER;
+ALTER CONVERSION split_conversion_probe.latin1_to_utf8_renamed SET SCHEMA split_conversion_probe_next;
+COMMENT ON CONVERSION split_conversion_probe_next.latin1_to_utf8_renamed IS 'split conversion comment';
+COMMENT ON CONVERSION split_conversion_probe_next.latin1_to_utf8_renamed IS NULL;
+DROP CONVERSION IF EXISTS split_conversion_probe.default_latin1_to_utf8_probe CASCADE;
+DROP CONVERSION IF EXISTS split_conversion_probe_next.latin1_to_utf8_renamed RESTRICT;
+DROP SCHEMA IF EXISTS split_conversion_probe CASCADE;
+DROP SCHEMA IF EXISTS split_conversion_probe_next CASCADE;
+------------------------------------------------------------------------------------------
+[DROP_SCHEMA] DROP SCHEMA IF EXISTS split_conversion_probe CASCADE;
+----------
+[DROP_SCHEMA] DROP SCHEMA IF EXISTS split_conversion_probe_next CASCADE;
+----------
+[CREATE_SCHEMA] CREATE SCHEMA split_conversion_probe;
+----------
+[CREATE_SCHEMA] CREATE SCHEMA split_conversion_probe_next;
+----------
+[CREATE_POLICY] CREATE CONVERSION split_conversion_probe.latin1_to_utf8_probe FOR 'LATIN1' TO 'UTF8' FROM iso8859_1_to_utf8;
+----------
+[CREATE_POLICY] CREATE DEFAULT CONVERSION split_conversion_probe.default_latin1_to_utf8_probe FOR 'LATIN1' TO 'UTF8' FROM iso8859_1_to_utf8;
+----------
+[ALTER_POLICY] ALTER CONVERSION split_conversion_probe.latin1_to_utf8_probe RENAME TO latin1_to_utf8_renamed;
+----------
+[TRANSFER_PRIVILEGE] ALTER CONVERSION split_conversion_probe.latin1_to_utf8_renamed OWNER TO CURRENT_USER;
+----------
+[ALTER_POLICY] ALTER CONVERSION split_conversion_probe.latin1_to_utf8_renamed SET SCHEMA split_conversion_probe_next;
+----------
+[ALTER_POLICY] COMMENT ON CONVERSION split_conversion_probe_next.latin1_to_utf8_renamed IS 'split conversion comment';
+----------
+[ALTER_POLICY] COMMENT ON CONVERSION split_conversion_probe_next.latin1_to_utf8_renamed IS NULL;
+----------
+[DROP_POLICY] DROP CONVERSION IF EXISTS split_conversion_probe.default_latin1_to_utf8_probe CASCADE;
+----------
+[DROP_POLICY] DROP CONVERSION IF EXISTS split_conversion_probe_next.latin1_to_utf8_renamed RESTRICT;
+----------
+[DROP_SCHEMA] DROP SCHEMA IF EXISTS split_conversion_probe CASCADE;
+----------
+[DROP_SCHEMA] DROP SCHEMA IF EXISTS split_conversion_probe_next CASCADE;

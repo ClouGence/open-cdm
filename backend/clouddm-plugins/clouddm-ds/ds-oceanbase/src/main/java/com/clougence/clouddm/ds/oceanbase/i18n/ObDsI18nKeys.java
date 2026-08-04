@@ -15,8 +15,8 @@
  */
 package com.clougence.clouddm.ds.oceanbase.i18n;
 
-import com.clougence.clouddm.dsfamily.oracle.i18n.Ora18nKeys;
 import com.clougence.clouddm.dsfamily.mysql.i18n.MyDsI18nKeys;
+import com.clougence.clouddm.dsfamily.oracle.i18n.Ora18nKeys;
 import com.clougence.utils.i18n.I18nResource;
 
 /**
@@ -28,7 +28,6 @@ public interface ObDsI18nKeys extends MyDsI18nKeys, Ora18nKeys {
 
     String PLUGIN_NAME_OCEANBASE                      = "PLUGIN_NAME_OCEANBASE";
     String PLUGIN_NAME_OB_FOR_ORACLE                  = "PLUGIN_NAME_OB_FOR_ORACLE";
-
     String EDITOR_TABLEINFO_ROWFORMAT_DEFAULT_LABEL   = "UI_EDITOR_TABLEINFO_ROWFORMAT_DEFAULT_LABEL";
     String EDITOR_TABLEINFO_ROWFORMAT_CONDENSED_LABEL = "UI_EDITOR_TABLEINFO_ROWFORMAT_CONDENSED_LABEL";
 }

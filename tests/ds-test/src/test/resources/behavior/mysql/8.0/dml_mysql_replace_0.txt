@@ -1,0 +1,606 @@
+[merge__001]
+sql:
+REPLACE LOW_PRIORITY INTO ptab PARTITION (p0) (id, name, val) VALUES (2, 'replace', DEFAULT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:26~1:30) /test/1/catalog1/schema1/ptab/",
+      "action" : "MERGE"
+    }
+  ]
+}
+----------
+[merge__002]
+sql:
+REPLACE DELAYED INTO myisam_t SET id = 2, name = 'replace-delayed', val = DEFAULT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:21~1:29) /test/1/catalog1/schema1/myisam_t/",
+      "action" : "MERGE"
+    }
+  ]
+}
+----------
+[merge__003]
+sql:
+REPLACE DELAYED myisam_t VALUES (12, 'replace-no-into', DEFAULT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:16~1:24) /test/1/catalog1/schema1/myisam_t/",
+      "action" : "MERGE"
+    }
+  ]
+}
+----------
+[merge_select__004]
+sql:
+REPLACE INTO target (id, name, val) SELECT id, name, val FROM src;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:13~1:19) /test/1/catalog1/schema1/target/",
+      "action" : "MERGE",
+      "target" : "Table(1:62~1:65) /test/1/catalog1/schema1/src/"
+    }
+  ]
+}
+----------
+[merge_select__005]
+sql:
+REPLACE INTO table2 (id, name) WITH cte AS (SELECT id, name FROM table1) SELECT id, name FROM cte;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:13~1:19) /test/1/catalog1/schema1/table2/",
+      "action" : "MERGE",
+      "target" : "Table(1:65~1:71) /test/1/catalog1/schema1/table1/"
+    }
+  ]
+}
+----------
+[merge_select__006]
+sql:
+REPLACE INTO dml_audit.defaults_t () SELECT 1,'x';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:13~1:33) /test/1/catalog1/dml_audit/defaults_t/",
+      "action" : "MERGE"
+    }
+  ]
+}
+----------
+[merge_select__007]
+sql:
+REPLACE INTO dml_audit.defaults_t VALUES ROW();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:13~1:33) /test/1/catalog1/dml_audit/defaults_t/",
+      "action" : "MERGE"
+    }
+  ]
+}
+----------
+[merge__008]
+sql:
+REPLACE INTO dml_audit.defaults_t () VALUES ();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:13~1:33) /test/1/catalog1/dml_audit/defaults_t/",
+      "action" : "MERGE"
+    }
+  ]
+}
+----------
+[merge_select__009]
+sql:
+REPLACE INTO codex_group_having_audit_dst(b) SELECT '' AS b FROM codex_group_having_audit_src GROUP BY VALUES(b);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:13~1:41) /test/1/catalog1/schema1/codex_group_having_audit_dst/",
+      "action" : "MERGE",
+      "target" : "Table(1:65~1:93) /test/1/catalog1/schema1/codex_group_having_audit_src/"
+    },
+    {
+      "subject": "Function(1:103~1:109) /test/1/catalog1/schema1/VALUES/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[merge_select__010]
+sql:
+REPLACE INTO target TABLE src;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:13~1:19) /test/1/catalog1/schema1/target/",
+      "action" : "MERGE",
+      "target" : "Table(1:26~1:29) /test/1/catalog1/schema1/src/"
+    }
+  ]
+}
+----------
+[merge_select__011]
+sql:
+REPLACE INTO target VALUES ROW(101, 'rt');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:13~1:19) /test/1/catalog1/schema1/target/",
+      "action" : "MERGE"
+    }
+  ]
+}
+----------
+[merge__012]
+sql:
+REPLACE INTO dml_audit.t SET id := 22, v := 'r03';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:13~1:24) /test/1/catalog1/dml_audit/t/",
+      "action" : "MERGE"
+    }
+  ]
+}
+----------
+[merge__013]
+sql:
+REPLACE INTO dml_audit.t (id,v) VALUE (21,'r01');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:13~1:24) /test/1/catalog1/dml_audit/t/",
+      "action" : "MERGE"
+    }
+  ]
+}
+----------
+[merge__014]
+sql:
+REPLACE INTO part_t PARTITION(p0,p1) VALUES(3,5),(13,6);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:13~1:19) /test/1/catalog1/schema1/part_t/",
+      "action" : "MERGE"
+    }
+  ]
+}
+----------
+[merge_select__015]
+sql:
+REPLACE DELAYED INTO d10_t1 PARTITION(p0, p1) (c1, c2) SELECT c1, 'a' FROM d10_t2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:21~1:27) /test/1/catalog1/schema1/d10_t1/",
+      "action" : "MERGE",
+      "target" : "Table(1:75~1:81) /test/1/catalog1/schema1/d10_t2/"
+    }
+  ]
+}
+----------
+[merge_select__016]
+sql:
+REPLACE INTO d11_t1 PARTITION(p0, p1) SET c1 = (SELECT c1 FROM d11_t2 LIMIT 1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:13~1:19) /test/1/catalog1/schema1/d11_t1/",
+      "action" : "MERGE",
+      "target" : "Table(1:63~1:69) /test/1/catalog1/schema1/d11_t2/"
+    }
+  ]
+}
+----------
+[merge_select__017]
+sql:
+REPLACE INTO split_dml_dst PARTITION(p0)(id,v)
+  WITH c AS (SELECT id,v FROM split_dml_src WHERE id<100)
+  SELECT id,v FROM c ORDER BY id LIMIT 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:13~1:26) /test/1/catalog1/schema1/split_dml_dst/",
+      "action" : "MERGE",
+      "target" : "Table(2:30~2:43) /test/1/catalog1/schema1/split_dml_src/"
+    }
+  ]
+}
+----------
+[merge__018]
+sql:
+REPLACE INTO bit_values(id,b) VALUES(7,b'10101010');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:13~1:23) /test/1/catalog1/schema1/bit_values/",
+      "action" : "MERGE"
+    }
+  ]
+}
+----------
+[merge__019]
+sql:
+REPLACE INTO time_widths(id,t6) VALUES(8,TIME'-00:00:00.000001');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:13~1:24) /test/1/catalog1/schema1/time_widths/",
+      "action" : "MERGE"
+    }
+  ]
+}
+----------
+[merge__020]
+sql:
+REPLACE INTO temporal_auto(id,created_at,modified_at,explicit_at,payload) VALUES(4,'2010-01-02 03:04:05.123456',DEFAULT,NULL,'replaced');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:13~1:26) /test/1/catalog1/schema1/temporal_auto/",
+      "action" : "MERGE"
+    }
+  ]
+}
+----------
+[merge__021]
+sql:
+REPLACE INTO str_lifecycle(v,c,fixed_binary,variable_binary,t) VALUES('r','r',X'52',X'5200','replace');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:13~1:26) /test/1/catalog1/schema1/str_lifecycle/",
+      "action" : "MERGE"
+    }
+  ]
+}
+----------
+[merge__022]
+sql:
+REPLACE INTO lob_family(tb,b,mb,lb,tt,t,mt,lt)
+VALUES(X'02',X'52',X'53',X'54','replace','replace','replace','replace');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:13~1:23) /test/1/catalog1/schema1/lob_family/",
+      "action" : "MERGE"
+    }
+  ]
+}
+----------
+[merge__023]
+sql:
+REPLACE INTO split_type_enum_set.es_core
+      (id,e_basic,e_case,s_basic,s_case,e_added,s_flags)
+    VALUES (6,'trailing ','a','red,green','A','old','x,y');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:13~1:40) /test/1/catalog1/split_type_enum_set/es_core/",
+      "action" : "MERGE"
+    }
+  ]
+}
+----------
+[merge__024]
+sql:
+REPLACE INTO split_type_json.json_core(id,doc,payload,meta)
+    VALUES (4,'{"name":"Mia","kind":"person","score":41}',
+            '{"tags":["replace"]}',JSON_OBJECT('replaced',TRUE));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:13~1:38) /test/1/catalog1/split_type_json/json_core/",
+      "action" : "MERGE"
+    },
+    {
+      "subject": "Function(3:35~3:46) /test/1/catalog1/schema1/JSON_OBJECT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[merge__025]
+sql:
+REPLACE INTO spatial_lifecycle
+  (id,g,p,ls,pg,mp,mls,mpg,gc,p_changed)
+VALUES
+  (4,
+   ST_GeomFromText('POINT(4 4)'),
+   ST_PointFromText('POINT(4 4)'),
+   ST_LineStringFromText('LINESTRING(4 4,5 5)'),
+   ST_PolygonFromText('POLYGON((0 0,0 4,4 4,0 0))'),
+   ST_MultiPointFromText('MULTIPOINT(4 4,5 5)'),
+   ST_MultiLineStringFromText('MULTILINESTRING((4 4,5 5))'),
+   ST_MultiPolygonFromText('MULTIPOLYGON(((0 0,0 4,4 4,0 0)))'),
+   ST_GeometryCollectionFromText('GEOMETRYCOLLECTION(POINT(4 4))'),
+   ST_LineStringFromText('LINESTRING(4 4,6 6)'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/schema1/spatial_lifecycle/",
+      "action" : "MERGE"
+    },
+    {
+      "subject": "Function(5:3~5:18) /test/1/catalog1/schema1/ST_GeomFromText/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(6:3~6:19) /test/1/catalog1/schema1/ST_PointFromText/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(7:3~7:24) /test/1/catalog1/schema1/ST_LineStringFromText/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(8:3~8:21) /test/1/catalog1/schema1/ST_PolygonFromText/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(9:3~9:24) /test/1/catalog1/schema1/ST_MultiPointFromText/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(10:3~10:29) /test/1/catalog1/schema1/ST_MultiLineStringFromText/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(11:3~11:26) /test/1/catalog1/schema1/ST_MultiPolygonFromText/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(12:3~12:32) /test/1/catalog1/schema1/ST_GeometryCollectionFromText/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[merge__026]
+sql:
+REPLACE INTO integer_lifecycle
+  (id,tiny_signed,tiny_unsigned,small_signed,small_unsigned,medium_signed,medium_unsigned,
+   int_signed,int_unsigned,big_signed,big_unsigned,note)
+VALUES (20,-1,1,-2,2,-3,3,-4,120,-5,5,'replace');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/schema1/integer_lifecycle/",
+      "action" : "MERGE"
+    }
+  ]
+}
+----------
+[merge__027]
+sql:
+REPLACE INTO numeric_lifecycle
+  (id,decimal_value,numeric_value,fixed_value,float_value,float_scale,
+   double_value,real_value,note)
+VALUES (20,1.125,2.25,3.5,4.75e-5,5.875,6.125e25,7.5,'replace');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/schema1/numeric_lifecycle/",
+      "action" : "MERGE"
+    }
+  ]
+}
+----------
+[merge_select_query_lock__028]
+sql:
+REPLACE INTO dst SELECT * FROM src LOCK IN SHARE MODE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:13~1:16) /test/1/catalog1/schema1/dst/",
+      "action" : "MERGE",
+      "target" : "Table(1:31~1:34) /test/1/catalog1/schema1/src/"
+    }
+  ]
+}
+----------
+[merge_select_query_lock__029]
+sql:
+REPLACE INTO dst SELECT * FROM src FOR UPDATE SKIP LOCKED;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:13~1:16) /test/1/catalog1/schema1/dst/",
+      "action" : "MERGE",
+      "target" : "Table(1:31~1:34) /test/1/catalog1/schema1/src/"
+    }
+  ]
+}
+----------
+[merge_select__030]
+sql:
+REPLACE INTO dst (id,v) TABLE src;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:13~1:16) /test/1/catalog1/schema1/dst/",
+      "action" : "MERGE",
+      "target" : "Table(1:30~1:33) /test/1/catalog1/schema1/src/"
+    }
+  ]
+}
+----------
+[merge_select__031]
+sql:
+REPLACE INTO t3 SELECT a,b AS c FROM t1 UNION ALL SELECT a,b FROM t2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:13~1:15) /test/1/catalog1/schema1/t3/",
+      "action" : "MERGE",
+      "target" : [
+        "Table(1:37~1:39) /test/1/catalog1/schema1/t1/",
+        "Table(1:66~1:68) /test/1/catalog1/schema1/t2/"
+      ]
+    }
+  ]
+}
+----------
+[merge_select__032]
+sql:
+REPLACE t1 SELECT * FROM t2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:8~1:10) /test/1/catalog1/schema1/t1/",
+      "action" : "MERGE",
+      "target" : "Table(1:25~1:27) /test/1/catalog1/schema1/t2/"
+    }
+  ]
+}
+----------
+[merge_select__033]
+sql:
+REPLACE t2 SET a=((1) IN (SELECT * FROM t1));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:8~1:10) /test/1/catalog1/schema1/t2/",
+      "action" : "MERGE",
+      "target" : "Table(1:40~1:42) /test/1/catalog1/schema1/t1/"
+    }
+  ]
+}
+----------
+[merge_select__034]
+sql:
+REPLACE /*+ MAX_EXECUTION_TIME(1) */ INTO t2 SELECT 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:42~1:44) /test/1/catalog1/schema1/t2/",
+      "action" : "MERGE"
+    }
+  ]
+}
+----------
+[merge_select__035]
+sql:
+REPLACE INTO t2 SELECT grp,a,c FROM t1 LIMIT 2,1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:13~1:15) /test/1/catalog1/schema1/t2/",
+      "action" : "MERGE",
+      "target" : "Table(1:36~1:38) /test/1/catalog1/schema1/t1/"
+    }
+  ]
+}

@@ -16,36 +16,82 @@
 package com.clougence.sql.mysql.parser;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
-
 import org.antlr.v4.runtime.*;
+import org.antlr.v4.runtime.atn.ATN;
+import org.antlr.v4.runtime.atn.LexerATNSimulator;
+import org.antlr.v4.runtime.atn.ParserATNSimulator;
+import org.antlr.v4.runtime.atn.PredictionContextCache;
+import org.antlr.v4.runtime.dfa.DFA;
+import org.antlr.v4.runtime.misc.Interval;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 import org.antlr.v4.runtime.tree.ParseTree;
-
+import com.clougence.dslpaser.antlr.AntlerSyntaxException;
+import com.clougence.dslpaser.antlr.DslHelper;
 import com.clougence.dslpaser.antlr.DslProvider;
 import com.clougence.dslpaser.ast.StatementSet;
 import com.clougence.dslpaser.parse.AntlrStatementParser;
 import com.clougence.dslpaser.parse.AstSplitScript;
 import com.clougence.sql.mysql.MySqlEngineSpi;
+import com.clougence.sql.mysql.parser.MySqlParserConfig.Feature;
 import com.clougence.sql.mysql.parser.antlr.MySqlLexer;
 import com.clougence.sql.mysql.parser.antlr.MySqlParser;
 
 public class MyDslProvider implements DslProvider {
 
-    public static final DslProvider    INSTANCE    = new MyDslProvider();
     private final AntlrStatementParser TREE_PARSER = new MyStatementParser();
+    private final MySqlParserConfig    config;
+    private final boolean              noBackslashEscapesFallback;
+
+    public MyDslProvider(MySqlParserConfig config){
+        this(config, false);
+    }
+
+    private MyDslProvider(MySqlParserConfig config, boolean noBackslashEscapesFallback){
+        this.config = config;
+        this.noBackslashEscapesFallback = noBackslashEscapesFallback;
+    }
+
+    public MySqlVersion version() {
+        return config.grammarVersion();
+    }
+
+    public int exactVersion() {
+        return config.exactVersion();
+    }
+
+    public MySqlParserConfig config() {
+        return config;
+    }
 
     @Override
     public String[] getDslName() { return new String[] { MySqlEngineSpi.NAME }; }
 
     @Override
     public Lexer createLexer(CharStream charStream) {
-        return new MySqlLexer(charStream);
+        MySqlLexer lexer = new MySqlLexer(charStream);
+        lexer.setConfig(config);
+        ATN atn = lexer.getATN();
+        lexer.setInterpreter(new LexerATNSimulator(lexer, atn, isolatedDecisionDfa(atn), new PredictionContextCache()));
+        return lexer;
     }
 
     @Override
     public Parser createParser(Lexer lexer) {
-        return new MySqlParser(new CommonTokenStream(lexer));
+        MySqlParser parser = new MySqlParser(new CommonTokenStream(lexer));
+        parser.setConfig(config);
+        ATN atn = parser.getATN();
+        parser.setInterpreter(new ParserATNSimulator(parser, atn, isolatedDecisionDfa(atn), new PredictionContextCache()));
+        return parser;
+    }
+
+    private static DFA[] isolatedDecisionDfa(ATN atn) {
+        DFA[] decisionToDfa = new DFA[atn.getNumberOfDecisions()];
+        for (int i = 0; i < decisionToDfa.length; i++) {
+            decisionToDfa[i] = new DFA(atn.getDecisionState(i), i);
+        }
+        return decisionToDfa;
     }
 
     protected AntlrStatementParser treeParser() {
@@ -59,6 +105,22 @@ public class MyDslProvider implements DslProvider {
 
     @Override
     public List<AstSplitScript> doSplit(Lexer lexer, Parser parser) {
+        try {
+            return split(lexer, parser);
+        } catch (AntlerSyntaxException firstFailure) {
+            if (config.isSqlModeKnown() || noBackslashEscapesFallback) {
+                throw firstFailure;
+            }
+            try {
+                return DslHelper.splitDsl(withNoBackslashEscapesFallback(), sourceText(lexer));
+            } catch (RuntimeException fallbackFailure) {
+                firstFailure.addSuppressed(fallbackFailure);
+                throw firstFailure;
+            }
+        }
+    }
+
+    private List<AstSplitScript> split(Lexer lexer, Parser parser) {
         TokenStream tokenStream = parser.getTokenStream();
         List<ParseTree> astList = this.treeParser().statementList(lexer, parser);
 
@@ -84,9 +146,44 @@ public class MyDslProvider implements DslProvider {
 
     @Override
     public void doVisitor(Lexer lexer, Parser parser, AbstractParseTreeVisitor<?> visitor) {
-        List<ParseTree> astList = this.treeParser().statementList(lexer, parser);
-        for (ParseTree astTree : astList) {
+        try {
+            visit(lexer, parser, visitor);
+        } catch (AntlerSyntaxException firstFailure) {
+            if (config.isSqlModeKnown() || noBackslashEscapesFallback) {
+                throw firstFailure;
+            }
+            try {
+                for (AstSplitScript script : DslHelper.splitDsl(withNoBackslashEscapesFallback(), sourceText(lexer))) {
+                    visitor.visit(script.getAstTree());
+                }
+            } catch (RuntimeException fallbackFailure) {
+                firstFailure.addSuppressed(fallbackFailure);
+                throw firstFailure;
+            }
+        }
+    }
+
+    private void visit(Lexer lexer, Parser parser, AbstractParseTreeVisitor<?> visitor) {
+        for (ParseTree astTree : this.treeParser().statementList(lexer, parser)) {
             visitor.visit(astTree);
         }
+    }
+
+    private MyDslProvider withNoBackslashEscapesFallback() {
+        EnumSet<Feature> features = EnumSet.noneOf(Feature.class);
+        features.addAll(config.features());
+        features.add(Feature.NO_BACKSLASH_ESCAPES);
+        MySqlParserConfig fallbackConfig = MySqlParserConfig.of(
+                config.grammarVersion().versionString(),
+                config.grammarVersion().versionString(),
+                Integer.toString(config.exactVersion()),
+                false,
+                features);
+        return new MyDslProvider(fallbackConfig, true);
+    }
+
+    private static String sourceText(Lexer lexer) {
+        CharStream input = lexer.getInputStream();
+        return input.size() == 0 ? "" : input.getText(Interval.of(0, input.size() - 1));
     }
 }

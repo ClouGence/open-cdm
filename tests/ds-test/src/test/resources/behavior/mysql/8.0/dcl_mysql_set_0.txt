@@ -1,0 +1,783 @@
+[create_library__001]
+sql:
+INSTALL COMPONENT 'file://component_validate_password' SET length = 12;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_LIBRARY": [
+    {
+      "subject": "Library(1:0~1:70) /test/1/",
+      "action": "UNSAFE"
+    }
+  ]
+}
+----------
+[drop_library__002]
+sql:
+UNINSTALL COMPONENT 'file://component_validate_password';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_LIBRARY": [
+    {
+      "subject": "Library(1:0~1:56) /test/1/",
+      "action": "UNSAFE"
+    }
+  ]
+}
+----------
+[create_library__003]
+sql:
+INSTALL COMPONENT 'file://component_validate_password' SET GLOBAL validate_password.length = 12;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_LIBRARY": [
+    {
+      "subject": "Library(1:0~1:95) /test/1/",
+      "action": "UNSAFE"
+    }
+  ]
+}
+----------
+[drop_library__004]
+sql:
+UNINSTALL COMPONENT 'file://component_validate_password';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_LIBRARY": [
+    {
+      "subject": "Library(1:0~1:56) /test/1/",
+      "action": "UNSAFE"
+    }
+  ]
+}
+----------
+[create_library__005]
+sql:
+INSTALL COMPONENT 'file://component_validate_password' SET PERSIST validate_password.length = 12;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_LIBRARY": [
+    {
+      "subject": "Library(1:0~1:96) /test/1/",
+      "action": "UNSAFE"
+    }
+  ]
+}
+----------
+[drop_library__006]
+sql:
+UNINSTALL COMPONENT 'file://component_validate_password';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_LIBRARY": [
+    {
+      "subject": "Library(1:0~1:56) /test/1/",
+      "action": "UNSAFE"
+    }
+  ]
+}
+----------
+[create_library__007]
+sql:
+INSTALL COMPONENT 'file://component_validate_password' SET length = 12 + 3, validate_password.check_user_name = ON;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_LIBRARY": [
+    {
+      "subject": "Library(1:0~1:114) /test/1/",
+      "action": "UNSAFE"
+    }
+  ]
+}
+----------
+[drop_library__008]
+sql:
+UNINSTALL COMPONENT 'file://component_validate_password';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_LIBRARY": [
+    {
+      "subject": "Library(1:0~1:56) /test/1/",
+      "action": "UNSAFE"
+    }
+  ]
+}
+----------
+[create_library__009]
+sql:
+INSTALL COMPONENT 'file://component_validate_password' SET validate_password.length = 16, PERSIST validate_password.number_count = 13;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_LIBRARY": [
+    {
+      "subject": "Library(1:0~1:133) /test/1/",
+      "action": "UNSAFE"
+    }
+  ]
+}
+----------
+[drop_library__010]
+sql:
+UNINSTALL COMPONENT 'file://component_validate_password';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_LIBRARY": [
+    {
+      "subject": "Library(1:0~1:56) /test/1/",
+      "action": "UNSAFE"
+    }
+  ]
+}
+----------
+[session_setting_write__011]
+sql:
+SET @@LOCAL.generated_random_password_length = '4';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:44) /test/1/generated_random_password_length/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[session_setting_write__012]
+sql:
+SET NAMES utf8mb4;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:0~1:17) /test/1/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[session_setting_write__013]
+sql:
+SET NAMES 'latin1' COLLATE 'latin1_swedish_ci';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:0~1:46) /test/1/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[session_setting_write__014]
+sql:
+SET NAMES DEFAULT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:0~1:17) /test/1/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[session_setting_write__015]
+sql:
+SET CHARACTER SET utf8mb4;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:0~1:25) /test/1/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[session_setting_write__016]
+sql:
+SET CHARSET latin1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:0~1:18) /test/1/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[session_setting_write__017]
+sql:
+SET CHARACTER SET DEFAULT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:0~1:25) /test/1/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[session_setting_write__018]
+sql:
+SET CHARACTER SET cp1250_latin2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:0~1:31) /test/1/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[session_setting_write__019]
+sql:
+SET LOCAL generated_random_password_length = '10';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:42) /test/1/generated_random_password_length/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[alter_user__020]
+sql:
+SET PASSWORD = 'Self80a!' REPLACE 'Start80!' RETAIN CURRENT PASSWORD;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:0~1:68) /test/1/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_user__021]
+sql:
+SET PASSWORD TO RANDOM;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:0~1:22) /test/1/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_user__022]
+sql:
+SET PASSWORD TO RANDOM RETAIN CURRENT PASSWORD;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:0~1:46) /test/1/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_user__023]
+sql:
+SET PASSWORD FOR 'split_pw_for'@'%' = 'For80a!';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:0~1:47) /test/1/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_user__024]
+sql:
+SET PASSWORD FOR 'split_pw_for'@'%' = 'For80b!' RETAIN CURRENT PASSWORD;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:0~1:71) /test/1/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_user__025]
+sql:
+SET PASSWORD FOR 'split_pw_for'@'%' TO RANDOM;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:0~1:45) /test/1/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_user__026]
+sql:
+SET PASSWORD FOR 'split_pw_for'@'%' TO RANDOM RETAIN CURRENT PASSWORD;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:0~1:69) /test/1/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_user__027]
+sql:
+SET PASSWORD FOR 'cda16a'@'%' = 'Cda#New16x9' REPLACE 'Cda#Old16x9';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:0~1:67) /test/1/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[system_setting_write__028]
+sql:
+SET PERSIST max_connections = 1000;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:27) /test/1/max_connections/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[system_setting_write__029]
+sql:
+SET @@PERSIST.max_connections = 1001;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:29) /test/1/max_connections/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[system_setting_write__030]
+sql:
+SET PERSIST_ONLY back_log = 1000;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:25) /test/1/back_log/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[system_setting_write__031]
+sql:
+SET @@PERSIST_ONLY.back_log = 1001;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:27) /test/1/back_log/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[system_setting_write__032]
+sql:
+SET GLOBAL max_binlog_cache_size = 1024 * 1024 * 1024;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:32) /test/1/max_binlog_cache_size/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[session_setting_write__033]
+sql:
+set @@max_binlog_cache_size = 1024;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:27) /test/1/max_binlog_cache_size/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[session_variable_rw__034]
+sql:
+SET @select = @@SESSION.sql_mode;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_VARIABLE_RW": [
+    {
+      "subject": "ConfigKey(1:4~1:11) /test/1/select/",
+      "action" : "READ"
+    },
+    {
+      "subject": "ConfigKey(1:14~1:32) /test/1/sql_mode/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[session_setting_write__035]
+sql:
+SET @@SESSION.sql_auto_is_null = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:30) /test/1/sql_auto_is_null/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[session_setting_write__036]
+sql:
+SET @@SESSION.sql_auto_is_null = DEFAULT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:30) /test/1/sql_auto_is_null/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[create_library__037]
+sql:
+INSTALL COMPONENT 'file://component_split_missing' SET length=NULL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_LIBRARY": [
+    {
+      "subject": "Library(1:0~1:66) /test/1/",
+      "action": "UNSAFE"
+    }
+  ]
+}
+----------
+[create_library__038]
+sql:
+INSTALL COMPONENT 'file://component_split_missing' SET length=@gizmo;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_LIBRARY": [
+    {
+      "subject": "Library(1:0~1:68) /test/1/",
+      "action": "UNSAFE"
+    }
+  ]
+}
+----------
+[create_library__039]
+sql:
+INSTALL COMPONENT 'file://component_split_missing' SET length=@@global.max_connections;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_LIBRARY": [
+    {
+      "subject": "Library(1:0~1:86) /test/1/",
+      "action": "UNSAFE"
+    }
+  ]
+}
+----------
+[create_library__040]
+sql:
+INSTALL COMPONENT 'file://component_split_missing' SET length=CAST(RAND()*10 AS SIGNED);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_LIBRARY": [
+    {
+      "subject": "Library(1:0~1:87) /test/1/",
+      "action": "UNSAFE"
+    }
+  ]
+}
+----------
+[create_library__041]
+sql:
+INSTALL COMPONENT 'file://component_split_missing' SET length=SUM(100);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_LIBRARY": [
+    {
+      "subject": "Library(1:0~1:70) /test/1/",
+      "action": "UNSAFE"
+    }
+  ]
+}
+----------
+[alter_user__042]
+sql:
+SET PASSWORD FOR CURRENT_USER() = 'NewPass!';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:0~1:44) /test/1/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_user__043]
+sql:
+SET PASSWORD TO RANDOM REPLACE 'Split#Old1';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:0~1:43) /test/1/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_user__044]
+sql:
+SET PASSWORD FOR split_gap_foo TO RANDOM REPLACE 'Split#Old1';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:0~1:61) /test/1/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_replication__045]
+sql:
+SET SESSION GTID_NEXT = '11111111-1111-1111-1111-111111111111:audit:1';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_REPLICATION": [
+    {
+      "subject": "ConfigKey(1:4~1:21) /test/1/GTID_NEXT/",
+      "action": "CONFIGURE"
+    }
+  ]
+}
+----------
+[alter_replication__046]
+sql:
+SET SESSION GTID_NEXT = 'AUTOMATIC:audit';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_REPLICATION": [
+    {
+      "subject": "ConfigKey(1:4~1:21) /test/1/GTID_NEXT/",
+      "action": "CONFIGURE"
+    }
+  ]
+}
+----------
+[alter_replication__047]
+sql:
+SET GLOBAL GTID_PURGED = '+11111111-1111-1111-1111-111111111111:audit:1';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_REPLICATION": [
+    {
+      "subject": "ConfigKey(1:4~1:22) /test/1/GTID_PURGED/",
+      "action": "UNSAFE"
+    }
+  ]
+}
+----------
+[alter_replication__048]
+sql:
+SET GLOBAL sql_slave_skip_counter=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_REPLICATION": [
+    {
+      "subject": "ConfigKey(1:4~1:33) /test/1/sql_slave_skip_counter/",
+      "action": "UNSAFE"
+    }
+  ]
+}
+----------
+[session_setting_write__049]
+sql:
+SET INSERT_ID=128;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:13) /test/1/INSERT_ID/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[session_setting_write__050]
+sql:
+SET LAST_INSERT_ID=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:18) /test/1/LAST_INSERT_ID/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[alter_replication__051]
+sql:
+SET @@SESSION.pseudo_slave_mode=DEFAULT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_REPLICATION": [
+    {
+      "subject": "ConfigKey(1:4~1:31) /test/1/pseudo_slave_mode/",
+      "action": "CONFIGURE"
+    }
+  ]
+}
+----------
+[session_setting_write__052]
+sql:
+SET SESSION debug='d,force_fake_uuid';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:4~1:17) /test/1/debug/",
+      "action": "UNSAFE"
+    }
+  ]
+}

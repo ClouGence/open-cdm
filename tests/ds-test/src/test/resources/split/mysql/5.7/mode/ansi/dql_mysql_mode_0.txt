@@ -1,0 +1,12 @@
+SELECT "quoted_identifier" FROM (SELECT 1 AS "quoted_identifier") AS "quoted_table";
+SELECT COUNT (1) AS builtin_count;
+SELECT 'a' || 'b' AS ansi_concat;
+SELECT /*!50000 "quoted_identifier", 'a' || 'b', COUNT (1) */ FROM (SELECT 1 AS "quoted_identifier") AS "quoted_table";
+------------------------------------------------------------------------------------------
+[SELECT] SELECT "quoted_identifier" FROM (SELECT 1 AS "quoted_identifier") AS "quoted_table";
+----------
+[SELECT] SELECT COUNT (1) AS builtin_count;
+----------
+[SELECT] SELECT 'a' || 'b' AS ansi_concat;
+----------
+[SELECT] SELECT /*!50000 "quoted_identifier", 'a' || 'b', COUNT (1) */ FROM (SELECT 1 AS "quoted_identifier") AS "quoted_table";

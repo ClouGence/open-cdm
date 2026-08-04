@@ -1,0 +1,47 @@
+[split_block_dameng_system_package_signature_combinations_0_001]
+sql:
+begin dbms_session.clear_context('CODEX_FUNC_CTX_133'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:6~1:32) /test/1/catalog1/dbms_session/clear_context/",
+      "action": "CALL",
+      "target": "ConfigKey(1:33~1:53) /test/1/CODEX_FUNC_CTX_133/"
+    }
+  ]
+}
+----------
+[split_block_dameng_system_package_signature_combinations_0_002]
+sql:
+begin dbms_session.clear_context('CODEX_FUNC_CTX_133', null); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:6~1:32) /test/1/catalog1/dbms_session/clear_context/",
+      "action": "CALL",
+      "target": "ConfigKey(1:33~1:53) /test/1/CODEX_FUNC_CTX_133/"
+    }
+  ]
+}
+----------
+[split_block_dameng_system_package_signature_combinations_0_003]
+sql:
+begin dbms_session.clear_context(attribute => 'A', namespace => 'CODEX_FUNC_CTX_133', client_id => null); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:6~1:32) /test/1/catalog1/dbms_session/clear_context/",
+      "action": "CALL",
+      "target": "ConfigKey(1:64~1:84) /test/1/CODEX_FUNC_CTX_133/"
+    }
+  ]
+}

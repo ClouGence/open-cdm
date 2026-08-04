@@ -1,0 +1,22 @@
+[table_privilege_ddl_has_no_lineage]
+sql:
+grant alter on table app.alter_target to table_priv_object;
+revoke alter on table app.alter_target from table_priv_object;
+alter table app.alter_target add object_added int;
+comment on table app.comment_target is 'comment any table';
+drop table app.drop_target purge
+expect:
+{}
+----------
+[table_privilege_dictionary_columns]
+sql:
+select grantee, owner, table_name, privilege
+from catalog1.sys.dba_tab_privs
+where grantee='TABLE_PRIV_OBJECT'
+expect:
+{
+  "grantee": ["/catalog1/sys/dba_tab_privs/grantee/"],
+  "owner": ["/catalog1/sys/dba_tab_privs/owner/"],
+  "table_name": ["/catalog1/sys/dba_tab_privs/table_name/"],
+  "privilege": ["/catalog1/sys/dba_tab_privs/privilege/"]
+}

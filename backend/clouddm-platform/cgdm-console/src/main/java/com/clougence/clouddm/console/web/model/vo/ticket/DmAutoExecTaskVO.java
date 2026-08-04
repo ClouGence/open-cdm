@@ -16,7 +16,6 @@
 package com.clougence.clouddm.console.web.model.vo.ticket;
 
 import com.clougence.clouddm.platform.dal.model.execution.AutoExecTaskStatus;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -27,7 +26,6 @@ public class DmAutoExecTaskVO {
 
     private Long               taskId;
     private Integer            transactionGroup;
-    private SecQueryType       sqlType;
     private Long               affectLine;
     private AutoExecTaskStatus status;
     private String             execSql;

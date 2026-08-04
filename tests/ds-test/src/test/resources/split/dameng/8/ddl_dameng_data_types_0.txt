@@ -1,0 +1,261 @@
+create table dm8_type_001(c1 CHAR);
+create table dm8_type_002(c1 CHAR(10));
+create table dm8_type_003(c1 CHARACTER);
+create table dm8_type_004(c1 CHARACTER(10));
+create table dm8_type_005(c1 VARCHAR);
+create table dm8_type_006(c1 VARCHAR(100));
+create table dm8_type_007(c1 VARCHAR(100 CHAR));
+create table dm8_type_008(c1 VARCHAR2);
+create table dm8_type_009(c1 VARCHAR2(100));
+create table dm8_type_010(c1 ROWID);
+create table dm8_type_011(c1 NUMERIC);
+create table dm8_type_012(c1 NUMERIC(10));
+create table dm8_type_013(c1 NUMERIC(10,2));
+create table dm8_type_014(c1 DECIMAL);
+create table dm8_type_015(c1 DECIMAL(10,2));
+create table dm8_type_016(c1 DEC);
+create table dm8_type_017(c1 DEC(10,2));
+create table dm8_type_018(c1 NUMBER);
+create table dm8_type_019(c1 NUMBER(10,2));
+create table dm8_type_020(c1 INTEGER);
+create table dm8_type_021(c1 INT);
+create table dm8_type_022(c1 BIGINT);
+create table dm8_type_023(c1 TINYINT);
+create table dm8_type_024(c1 BYTE);
+create table dm8_type_025(c1 SMALLINT);
+create table dm8_type_026(c1 BINARY);
+create table dm8_type_027(c1 BINARY(10));
+create table dm8_type_028(c1 VARBINARY);
+create table dm8_type_029(c1 VARBINARY(10));
+create table dm8_type_030(c1 RAW);
+create table dm8_type_031(c1 RAW(10));
+create table dm8_type_032(c1 FLOAT);
+create table dm8_type_033(c1 FLOAT(24));
+create table dm8_type_034(c1 FLOAT(126));
+create table dm8_type_035(c1 DOUBLE);
+create table dm8_type_036(c1 DOUBLE(53));
+create table dm8_type_037(c1 REAL);
+create table dm8_type_038(c1 DOUBLE PRECISION);
+create table dm8_type_039(c1 DOUBLE PRECISION(53));
+create table dm8_type_040(c1 BIT);
+create table dm8_type_041(c1 DATE);
+create table dm8_type_042(c1 TIME);
+create table dm8_type_043(c1 TIME(6));
+create table dm8_type_044(c1 TIMESTAMP);
+create table dm8_type_045(c1 TIMESTAMP(9));
+create table dm8_type_046(c1 DATETIME);
+create table dm8_type_047(c1 DATETIME(9));
+create table dm8_type_048(c1 INTERVAL YEAR TO MONTH);
+create table dm8_type_049(c1 INTERVAL YEAR(4) TO MONTH);
+create table dm8_type_050(c1 INTERVAL YEAR);
+create table dm8_type_051(c1 INTERVAL YEAR(4));
+create table dm8_type_052(c1 INTERVAL MONTH);
+create table dm8_type_053(c1 INTERVAL MONTH(4));
+create table dm8_type_054(c1 INTERVAL DAY);
+create table dm8_type_055(c1 INTERVAL DAY(3));
+create table dm8_type_056(c1 INTERVAL DAY TO HOUR);
+create table dm8_type_057(c1 INTERVAL DAY(3) TO HOUR);
+create table dm8_type_058(c1 INTERVAL DAY TO MINUTE);
+create table dm8_type_059(c1 INTERVAL DAY(3) TO MINUTE);
+create table dm8_type_060(c1 INTERVAL DAY TO SECOND);
+create table dm8_type_061(c1 INTERVAL DAY(3) TO SECOND(6));
+create table dm8_type_062(c1 INTERVAL HOUR);
+create table dm8_type_063(c1 INTERVAL HOUR(3));
+create table dm8_type_064(c1 INTERVAL HOUR TO MINUTE);
+create table dm8_type_065(c1 INTERVAL HOUR(3) TO MINUTE);
+create table dm8_type_066(c1 INTERVAL HOUR TO SECOND);
+create table dm8_type_067(c1 INTERVAL HOUR(3) TO SECOND(6));
+create table dm8_type_068(c1 INTERVAL MINUTE);
+create table dm8_type_069(c1 INTERVAL MINUTE(3));
+create table dm8_type_070(c1 INTERVAL MINUTE TO SECOND);
+create table dm8_type_071(c1 INTERVAL MINUTE(3) TO SECOND(6));
+create table dm8_type_072(c1 INTERVAL SECOND);
+create table dm8_type_073(c1 INTERVAL SECOND(3,6));
+create table dm8_type_074(c1 TIME WITH TIME ZONE);
+create table dm8_type_075(c1 TIME(6) WITH TIME ZONE);
+create table dm8_type_076(c1 TIMESTAMP WITH TIME ZONE);
+create table dm8_type_077(c1 TIMESTAMP(9) WITH TIME ZONE);
+create table dm8_type_078(c1 TIMESTAMP WITH LOCAL TIME ZONE);
+create table dm8_type_079(c1 TIMESTAMP(9) WITH LOCAL TIME ZONE);
+create table dm8_type_080(c1 TEXT);
+create table dm8_type_081(c1 LONG);
+create table dm8_type_082(c1 LONGVARCHAR);
+create table dm8_type_083(c1 IMAGE);
+create table dm8_type_084(c1 LONGVARBINARY);
+create table dm8_type_085(c1 BLOB);
+create table dm8_type_086(c1 CLOB);
+create table dm8_type_087(c1 BFILE);
+------------------------------------------------------------------------------------------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_001(c1 CHAR);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_002(c1 CHAR(10));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_003(c1 CHARACTER);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_004(c1 CHARACTER(10));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_005(c1 VARCHAR);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_006(c1 VARCHAR(100));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_007(c1 VARCHAR(100 CHAR));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_008(c1 VARCHAR2);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_009(c1 VARCHAR2(100));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_010(c1 ROWID);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_011(c1 NUMERIC);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_012(c1 NUMERIC(10));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_013(c1 NUMERIC(10,2));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_014(c1 DECIMAL);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_015(c1 DECIMAL(10,2));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_016(c1 DEC);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_017(c1 DEC(10,2));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_018(c1 NUMBER);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_019(c1 NUMBER(10,2));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_020(c1 INTEGER);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_021(c1 INT);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_022(c1 BIGINT);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_023(c1 TINYINT);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_024(c1 BYTE);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_025(c1 SMALLINT);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_026(c1 BINARY);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_027(c1 BINARY(10));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_028(c1 VARBINARY);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_029(c1 VARBINARY(10));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_030(c1 RAW);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_031(c1 RAW(10));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_032(c1 FLOAT);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_033(c1 FLOAT(24));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_034(c1 FLOAT(126));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_035(c1 DOUBLE);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_036(c1 DOUBLE(53));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_037(c1 REAL);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_038(c1 DOUBLE PRECISION);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_039(c1 DOUBLE PRECISION(53));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_040(c1 BIT);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_041(c1 DATE);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_042(c1 TIME);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_043(c1 TIME(6));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_044(c1 TIMESTAMP);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_045(c1 TIMESTAMP(9));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_046(c1 DATETIME);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_047(c1 DATETIME(9));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_048(c1 INTERVAL YEAR TO MONTH);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_049(c1 INTERVAL YEAR(4) TO MONTH);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_050(c1 INTERVAL YEAR);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_051(c1 INTERVAL YEAR(4));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_052(c1 INTERVAL MONTH);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_053(c1 INTERVAL MONTH(4));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_054(c1 INTERVAL DAY);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_055(c1 INTERVAL DAY(3));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_056(c1 INTERVAL DAY TO HOUR);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_057(c1 INTERVAL DAY(3) TO HOUR);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_058(c1 INTERVAL DAY TO MINUTE);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_059(c1 INTERVAL DAY(3) TO MINUTE);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_060(c1 INTERVAL DAY TO SECOND);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_061(c1 INTERVAL DAY(3) TO SECOND(6));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_062(c1 INTERVAL HOUR);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_063(c1 INTERVAL HOUR(3));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_064(c1 INTERVAL HOUR TO MINUTE);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_065(c1 INTERVAL HOUR(3) TO MINUTE);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_066(c1 INTERVAL HOUR TO SECOND);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_067(c1 INTERVAL HOUR(3) TO SECOND(6));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_068(c1 INTERVAL MINUTE);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_069(c1 INTERVAL MINUTE(3));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_070(c1 INTERVAL MINUTE TO SECOND);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_071(c1 INTERVAL MINUTE(3) TO SECOND(6));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_072(c1 INTERVAL SECOND);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_073(c1 INTERVAL SECOND(3,6));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_074(c1 TIME WITH TIME ZONE);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_075(c1 TIME(6) WITH TIME ZONE);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_076(c1 TIMESTAMP WITH TIME ZONE);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_077(c1 TIMESTAMP(9) WITH TIME ZONE);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_078(c1 TIMESTAMP WITH LOCAL TIME ZONE);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_079(c1 TIMESTAMP(9) WITH LOCAL TIME ZONE);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_080(c1 TEXT);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_081(c1 LONG);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_082(c1 LONGVARCHAR);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_083(c1 IMAGE);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_084(c1 LONGVARBINARY);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_085(c1 BLOB);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_086(c1 CLOB);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_type_087(c1 BFILE);

@@ -1,0 +1,539 @@
+[split_ddl_dameng_profile_semantic_boundaries_0_001_behavior_review]
+sql:
+create profile CODEX_DM8_PFX_LOW_GSPU limit GLOBAL_SESSION_PER_USER 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:15~1:37) /test/1/CODEX_DM8_PFX_LOW_GSPU/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_semantic_boundaries_0_002_behavior_review]
+sql:
+create profile CODEX_DM8_PFX_HIGH_GSPU limit GLOBAL_SESSION_PER_USER 32769;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:15~1:38) /test/1/CODEX_DM8_PFX_HIGH_GSPU/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_semantic_boundaries_0_003_behavior_review]
+sql:
+create profile CODEX_DM8_PFX_LOW_SPU limit SESSION_PER_USER 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:15~1:36) /test/1/CODEX_DM8_PFX_LOW_SPU/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_semantic_boundaries_0_004_behavior_review]
+sql:
+create profile CODEX_DM8_PFX_HIGH_SPU limit SESSION_PER_USER 32769;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:15~1:37) /test/1/CODEX_DM8_PFX_HIGH_SPU/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_semantic_boundaries_0_005_behavior_review]
+sql:
+create profile CODEX_DM8_PFX_LOW_IDLE limit CONNECT_IDLE_TIME 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:15~1:37) /test/1/CODEX_DM8_PFX_LOW_IDLE/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_semantic_boundaries_0_006_behavior_review]
+sql:
+create profile CODEX_DM8_PFX_HIGH_IDLE limit CONNECT_IDLE_TIME 1441;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:15~1:38) /test/1/CODEX_DM8_PFX_HIGH_IDLE/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_semantic_boundaries_0_007_behavior_review]
+sql:
+create profile CODEX_DM8_PFX_LOW_CONN limit CONNECT_TIME 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:15~1:37) /test/1/CODEX_DM8_PFX_LOW_CONN/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_semantic_boundaries_0_008_behavior_review]
+sql:
+create profile CODEX_DM8_PFX_HIGH_CONN limit CONNECT_TIME 1441;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:15~1:38) /test/1/CODEX_DM8_PFX_HIGH_CONN/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_semantic_boundaries_0_009_behavior_review]
+sql:
+create profile CODEX_DM8_PFX_LOW_CPUC limit CPU_PER_CALL 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:15~1:37) /test/1/CODEX_DM8_PFX_LOW_CPUC/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_semantic_boundaries_0_010_behavior_review]
+sql:
+create profile CODEX_DM8_PFX_HIGH_CPUC limit CPU_PER_CALL 86401;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:15~1:38) /test/1/CODEX_DM8_PFX_HIGH_CPUC/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_semantic_boundaries_0_011_behavior_review]
+sql:
+create profile CODEX_DM8_PFX_LOW_CPUS limit CPU_PER_SESSION 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:15~1:37) /test/1/CODEX_DM8_PFX_LOW_CPUS/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_semantic_boundaries_0_012_behavior_review]
+sql:
+create profile CODEX_DM8_PFX_HIGH_CPUS limit CPU_PER_SESSION 31536001;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:15~1:38) /test/1/CODEX_DM8_PFX_HIGH_CPUS/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_semantic_boundaries_0_013_behavior_review]
+sql:
+create profile CODEX_DM8_PFX_LOW_MEM limit MEM_SPACE 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:15~1:36) /test/1/CODEX_DM8_PFX_LOW_MEM/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_semantic_boundaries_0_014_behavior_review]
+sql:
+create profile CODEX_DM8_PFX_HIGH_MEM limit MEM_SPACE 2147483648;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:15~1:37) /test/1/CODEX_DM8_PFX_HIGH_MEM/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_semantic_boundaries_0_015_behavior_review]
+sql:
+create profile CODEX_DM8_PFX_LOW_READC limit READ_PER_CALL 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:15~1:38) /test/1/CODEX_DM8_PFX_LOW_READC/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_semantic_boundaries_0_016_behavior_review]
+sql:
+create profile CODEX_DM8_PFX_HIGH_READC limit READ_PER_CALL 2147483647;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:15~1:39) /test/1/CODEX_DM8_PFX_HIGH_READC/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_semantic_boundaries_0_017_behavior_review]
+sql:
+create profile CODEX_DM8_PFX_LOW_READS limit READ_PER_SESSION 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:15~1:38) /test/1/CODEX_DM8_PFX_LOW_READS/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_semantic_boundaries_0_018_behavior_review]
+sql:
+create profile CODEX_DM8_PFX_HIGH_READS limit READ_PER_SESSION 2147483647;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:15~1:39) /test/1/CODEX_DM8_PFX_HIGH_READS/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_semantic_boundaries_0_019_behavior_review]
+sql:
+create profile CODEX_DM8_PFX_LOW_FAIL limit FAILED_LOGIN_ATTEMPTS 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:15~1:37) /test/1/CODEX_DM8_PFX_LOW_FAIL/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_semantic_boundaries_0_020_behavior_review]
+sql:
+create profile CODEX_DM8_PFX_HIGH_FAIL limit FAILED_LOGIN_ATTEMPTS 101;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:15~1:38) /test/1/CODEX_DM8_PFX_HIGH_FAIL/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_semantic_boundaries_0_021_behavior_review]
+sql:
+create profile CODEX_DM8_PFX_LOW_LIFE limit PASSWORD_LIFE_TIME 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:15~1:37) /test/1/CODEX_DM8_PFX_LOW_LIFE/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_semantic_boundaries_0_022_behavior_review]
+sql:
+create profile CODEX_DM8_PFX_HIGH_LIFE limit PASSWORD_LIFE_TIME 366;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:15~1:38) /test/1/CODEX_DM8_PFX_HIGH_LIFE/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_semantic_boundaries_0_023_behavior_review]
+sql:
+create profile CODEX_DM8_PFX_LOW_RTIME limit PASSWORD_REUSE_TIME 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:15~1:38) /test/1/CODEX_DM8_PFX_LOW_RTIME/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_semantic_boundaries_0_024_behavior_review]
+sql:
+create profile CODEX_DM8_PFX_HIGH_RTIME limit PASSWORD_REUSE_TIME 366;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:15~1:39) /test/1/CODEX_DM8_PFX_HIGH_RTIME/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_semantic_boundaries_0_025_behavior_review]
+sql:
+create profile CODEX_DM8_PFX_LOW_RMAX limit PASSWORD_REUSE_MAX 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:15~1:37) /test/1/CODEX_DM8_PFX_LOW_RMAX/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_semantic_boundaries_0_026_behavior_review]
+sql:
+create profile CODEX_DM8_PFX_HIGH_RMAX limit PASSWORD_REUSE_MAX 32769;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:15~1:38) /test/1/CODEX_DM8_PFX_HIGH_RMAX/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_semantic_boundaries_0_027_behavior_review]
+sql:
+create profile CODEX_DM8_PFX_LOW_LOCK limit PASSWORD_LOCK_TIME 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:15~1:37) /test/1/CODEX_DM8_PFX_LOW_LOCK/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_semantic_boundaries_0_028_behavior_review]
+sql:
+create profile CODEX_DM8_PFX_HIGH_LOCK limit PASSWORD_LOCK_TIME 1441;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:15~1:38) /test/1/CODEX_DM8_PFX_HIGH_LOCK/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_semantic_boundaries_0_029_behavior_review]
+sql:
+create profile CODEX_DM8_PFX_LOW_GRACE limit PASSWORD_GRACE_TIME 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:15~1:38) /test/1/CODEX_DM8_PFX_LOW_GRACE/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_semantic_boundaries_0_030_behavior_review]
+sql:
+create profile CODEX_DM8_PFX_HIGH_GRACE limit PASSWORD_GRACE_TIME 31;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:15~1:39) /test/1/CODEX_DM8_PFX_HIGH_GRACE/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_semantic_boundaries_0_031_behavior_review]
+sql:
+create profile CODEX_DM8_PFX_LOW_INACTIVE limit INACTIVE_ACCOUNT_TIME 14;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:15~1:41) /test/1/CODEX_DM8_PFX_LOW_INACTIVE/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_semantic_boundaries_0_032_behavior_review]
+sql:
+create profile CODEX_DM8_PFX_HIGH_INACTIVE limit INACTIVE_ACCOUNT_TIME 24856;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:15~1:42) /test/1/CODEX_DM8_PFX_HIGH_INACTIVE/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_semantic_boundaries_0_033_behavior_review]
+sql:
+create profile "PBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:15~1:146) /test/1/PBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_semantic_boundaries_0_034_behavior_review]
+sql:
+create profile CODEX_DM8_PFX_DUP_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:15~1:41) /test/1/CODEX_DM8_PFX_DUP_20260722/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_semantic_boundaries_0_035_behavior_review]
+sql:
+alter profile CODEX_DM8_PFX_MISSING_20260722 limit session_per_user 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:14~1:44) /test/1/CODEX_DM8_PFX_MISSING_20260722/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_semantic_boundaries_0_036_behavior_review]
+sql:
+drop profile CODEX_DM8_PFX_MISSING_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:13~1:43) /test/1/CODEX_DM8_PFX_MISSING_20260722/",
+      "action" : "DROP"
+    }
+  ]
+}

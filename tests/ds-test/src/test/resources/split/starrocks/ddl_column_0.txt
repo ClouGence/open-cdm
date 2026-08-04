@@ -1,0 +1,18 @@
+alter table `test`.`user_table` add column `address` varchar(255);
+alter table `test`.`user_table` add column (`address` varchar(255), aa int);
+alter table user_table drop column address;
+alter table user_table modify column address varchar(25) default '1';
+alter table user_table modify column address varchar(25) default '1' comment '222';
+alter table user_table rename column c1 to c2;
+------------------------------------------------------------------------------------------
+[ALTER_TABLE|ADD_COLUMN] alter table `test`.`user_table` add column `address` varchar(255);
+----------
+[ALTER_TABLE|ADD_COLUMN] alter table `test`.`user_table` add column (`address` varchar(255), aa int);
+----------
+[ALTER_TABLE|DROP_COLUMN] alter table user_table drop column address;
+----------
+[ALTER_TABLE|ALTER_COLUMN] alter table user_table modify column address varchar(25) default '1';
+----------
+[ALTER_TABLE|ALTER_COLUMN|COMMENT_COLUMN] alter table user_table modify column address varchar(25) default '1' comment '222';
+----------
+[ALTER_TABLE|RENAME_COLUMN] alter table user_table rename column c1 to c2;

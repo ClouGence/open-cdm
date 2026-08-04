@@ -1,0 +1,81 @@
+DROP USER IF EXISTS split_user_renamed, split_user_probe;
+DROP ROLE IF EXISTS split_role_member_renamed, split_role_member, split_role_admin;
+DROP GROUP IF EXISTS split_group_renamed, split_group_probe;
+DROP ROLE IF EXISTS split_role_base;
+CREATE ROLE split_role_base;
+CREATE ROLE split_role_member LOGIN PASSWORD 'role secret' VALID UNTIL 'infinity' CONNECTION LIMIT 3 IN ROLE split_role_base;
+CREATE ROLE split_role_admin NOSUPERUSER CREATEDB CREATEROLE INHERIT LOGIN REPLICATION BYPASSRLS PASSWORD NULL ADMIN split_role_base;
+CREATE USER split_user_probe WITH PASSWORD 'user secret' CREATEDB NOCREATEROLE NOINHERIT CONNECTION LIMIT 2 VALID UNTIL '2030-01-01 00:00:00+00' IN GROUP split_role_base;
+CREATE GROUP split_group_probe WITH USER split_user_probe SYSID 12345;
+ALTER ROLE split_role_member WITH NOCREATEDB NOCREATEROLE NOREPLICATION NOBYPASSRLS CONNECTION LIMIT -1 PASSWORD NULL VALID UNTIL 'infinity';
+ALTER ROLE split_role_member IN DATABASE postgres SET work_mem = '16MB';
+ALTER ROLE split_role_member RESET ALL;
+ALTER ROLE ALL RESET statement_timeout;
+ALTER USER split_user_probe WITH LOGIN ENCRYPTED PASSWORD 'changed secret' VALID UNTIL 'infinity';
+ALTER USER split_user_probe IN DATABASE postgres SET search_path FROM CURRENT;
+ALTER USER ALL IN DATABASE postgres RESET ALL;
+ALTER GROUP split_group_probe ADD USER split_role_member, split_user_probe;
+ALTER GROUP split_group_probe DROP USER split_role_member;
+COMMENT ON ROLE split_role_member IS 'split role comment';
+COMMENT ON ROLE split_role_member IS NULL;
+ALTER ROLE split_role_member RENAME TO split_role_member_renamed;
+ALTER USER split_user_probe RENAME TO split_user_renamed;
+ALTER GROUP split_group_probe RENAME TO split_group_renamed;
+DROP USER IF EXISTS split_user_renamed;
+DROP ROLE IF EXISTS split_role_member_renamed, split_role_admin;
+DROP GROUP IF EXISTS split_group_renamed;
+DROP ROLE IF EXISTS split_role_base;
+------------------------------------------------------------------------------------------
+[DROP_USER] DROP USER IF EXISTS split_user_renamed, split_user_probe;
+----------
+[DROP_ROLE] DROP ROLE IF EXISTS split_role_member_renamed, split_role_member, split_role_admin;
+----------
+[DROP_ROLE] DROP GROUP IF EXISTS split_group_renamed, split_group_probe;
+----------
+[DROP_ROLE] DROP ROLE IF EXISTS split_role_base;
+----------
+[CREATE_ROLE] CREATE ROLE split_role_base;
+----------
+[CREATE_ROLE] CREATE ROLE split_role_member LOGIN PASSWORD 'role secret' VALID UNTIL 'infinity' CONNECTION LIMIT 3 IN ROLE split_role_base;
+----------
+[CREATE_ROLE] CREATE ROLE split_role_admin NOSUPERUSER CREATEDB CREATEROLE INHERIT LOGIN REPLICATION BYPASSRLS PASSWORD NULL ADMIN split_role_base;
+----------
+[CREATE_USER] CREATE USER split_user_probe WITH PASSWORD 'user secret' CREATEDB NOCREATEROLE NOINHERIT CONNECTION LIMIT 2 VALID UNTIL '2030-01-01 00:00:00+00' IN GROUP split_role_base;
+----------
+[CREATE_ROLE] CREATE GROUP split_group_probe WITH USER split_user_probe SYSID 12345;
+----------
+[ALTER_USER] ALTER ROLE split_role_member WITH NOCREATEDB NOCREATEROLE NOREPLICATION NOBYPASSRLS CONNECTION LIMIT -1 PASSWORD NULL VALID UNTIL 'infinity';
+----------
+[ALTER_USER] ALTER ROLE split_role_member IN DATABASE postgres SET work_mem = '16MB';
+----------
+[ALTER_USER] ALTER ROLE split_role_member RESET ALL;
+----------
+[ALTER_USER] ALTER ROLE ALL RESET statement_timeout;
+----------
+[ALTER_USER] ALTER USER split_user_probe WITH LOGIN ENCRYPTED PASSWORD 'changed secret' VALID UNTIL 'infinity';
+----------
+[ALTER_USER] ALTER USER split_user_probe IN DATABASE postgres SET search_path FROM CURRENT;
+----------
+[ALTER_USER] ALTER USER ALL IN DATABASE postgres RESET ALL;
+----------
+[ALTER_USER] ALTER GROUP split_group_probe ADD USER split_role_member, split_user_probe;
+----------
+[ALTER_USER] ALTER GROUP split_group_probe DROP USER split_role_member;
+----------
+[COMMENT_ROLE] COMMENT ON ROLE split_role_member IS 'split role comment';
+----------
+[COMMENT_ROLE] COMMENT ON ROLE split_role_member IS NULL;
+----------
+[RENAME_ROLE] ALTER ROLE split_role_member RENAME TO split_role_member_renamed;
+----------
+[RENAME_USER] ALTER USER split_user_probe RENAME TO split_user_renamed;
+----------
+[RENAME_ROLE] ALTER GROUP split_group_probe RENAME TO split_group_renamed;
+----------
+[DROP_USER] DROP USER IF EXISTS split_user_renamed;
+----------
+[DROP_ROLE] DROP ROLE IF EXISTS split_role_member_renamed, split_role_admin;
+----------
+[DROP_ROLE] DROP GROUP IF EXISTS split_group_renamed;
+----------
+[DROP_ROLE] DROP ROLE IF EXISTS split_role_base;

@@ -1,0 +1,15 @@
+[general_system_package_match_columns]
+sql:
+select utl_match.edit_distance(first_name, last_name) as name_distance from catalog1.app.customer
+expect:
+{
+  "name_distance" : [ "/catalog1/app/customer/first_name/", "/catalog1/app/customer/last_name/" ]
+}
+----------
+[general_system_package_raw_columns]
+sql:
+select utl_raw.bit_xor(raw_left, raw_right) as raw_diff from catalog1.app.raw_data
+expect:
+{
+  "raw_diff" : [ "/catalog1/app/raw_data/raw_left/", "/catalog1/app/raw_data/raw_right/" ]
+}

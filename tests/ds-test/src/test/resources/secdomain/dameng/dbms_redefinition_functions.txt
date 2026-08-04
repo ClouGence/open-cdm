@@ -1,0 +1,25 @@
+[dbms_redefinition_public_procedure_domains]
+sql:
+declare n int;
+begin
+  DBMS_REDEFINITION.ABORT_REDEF_TABLE('SYSDBA','T','TI');
+  DBMS_REDEFINITION.CAN_REDEF_TABLE('SYSDBA','T');
+  DBMS_REDEFINITION.COPY_TABLE_DEPENDENTS(
+    'SYSDBA','T','TI',NUM_ERRORS=>n);
+  DBMS_REDEFINITION.FINISH_REDEF_TABLE('SYSDBA','T','TI');
+  DBMS_REDEFINITION.DELETE_REDUNDANT_RECORD(1);
+  DBMS_REDEFINITION.SET_PARAM('1','REFRESH_DEP_MVIEWS','0');
+  DBMS_REDEFINITION.START_REDEF_TABLE('SYSDBA','T','TI');
+  DBMS_REDEFINITION.SYNC_INTERIM_TABLE('SYSDBA','T','TI');
+end;
+expect:
+{"contains":[
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"DBMS_REDEFINITION"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"DBMS_REDEFINITION"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"DBMS_REDEFINITION"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"DBMS_REDEFINITION"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"DBMS_REDEFINITION"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"DBMS_REDEFINITION"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"DBMS_REDEFINITION"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"DBMS_REDEFINITION"}
+]}

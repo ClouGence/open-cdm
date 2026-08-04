@@ -1,0 +1,12 @@
+flashback table fb_time_1 to timestamp sysdate - 3/86400;
+flashback table fb_time_2 to timestamp sysdate - 3/86400 disable triggers;
+flashback table fb_time_3 to timestamp sysdate - 3/86400 enable triggers;
+flashback table fb_time_4, flash_other to timestamp sysdate - 3/86400;
+------------------------------------------------------------------------------------------
+[ADMIN_TABLE] flashback table fb_time_1 to timestamp sysdate - 3/86400;
+----------
+[ADMIN_TABLE] flashback table fb_time_2 to timestamp sysdate - 3/86400 disable triggers;
+----------
+[ADMIN_TABLE] flashback table fb_time_3 to timestamp sysdate - 3/86400 enable triggers;
+----------
+[ADMIN_TABLE] flashback table fb_time_4, flash_other to timestamp sysdate - 3/86400;

@@ -1,0 +1,235 @@
+[select__001]
+sql:
+SELECT id,
+       decimal_value+numeric_value+fixed_value AS exact_sum,
+       decimal_value*numeric_value AS exact_product,
+       float_value+double_value+real_value AS approximate_sum,
+       double_value/NULLIF(float_value,0) AS approximate_ratio
+FROM numeric_lifecycle
+WHERE decimal_value BETWEEN fixed_value AND numeric_value
+   OR ABS(float_value-double_value)>0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(5:20~5:26) /test/1/catalog1/schema1/NULLIF/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(6:5~6:22) /test/1/catalog1/schema1/numeric_lifecycle/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(8:6~8:9) /test/1/catalog1/schema1/ABS/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__002]
+sql:
+SELECT exact_row.id,approximate_row.id,
+       exact_row.decimal_value,approximate_row.double_value
+FROM numeric_lifecycle AS exact_row
+JOIN numeric_lifecycle AS approximate_row
+  ON exact_row.decimal_value=approximate_row.numeric_value
+ OR exact_row.float_value<=>approximate_row.double_value
+WHERE exact_row.fixed_value<=approximate_row.real_value;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(3:5~3:22) /test/1/catalog1/schema1/numeric_lifecycle/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__003]
+sql:
+SELECT id,
+       (SELECT MAX(inner_numeric.decimal_value)
+        FROM numeric_lifecycle AS inner_numeric
+        WHERE inner_numeric.numeric_value<=outer_numeric.numeric_value) AS correlated_decimal,
+       (SELECT AVG(inner_numeric.double_value)
+        FROM numeric_lifecycle AS inner_numeric
+        WHERE inner_numeric.id<>outer_numeric.id) AS correlated_double
+FROM numeric_lifecycle AS outer_numeric
+WHERE outer_numeric.fixed_value > ALL (
+  SELECT inner_numeric.float_value
+  FROM numeric_lifecycle AS inner_numeric
+  WHERE inner_numeric.id<>outer_numeric.id
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:15~2:18) /test/1/catalog1/schema1/MAX/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(3:13~3:30) /test/1/catalog1/schema1/numeric_lifecycle/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(5:15~5:18) /test/1/catalog1/schema1/AVG/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__004]
+sql:
+SELECT id,
+       CASE
+         WHEN decimal_value<0 THEN fixed_value
+         WHEN float_value<0 THEN double_value
+         ELSE numeric_value
+       END AS chosen_numeric,
+       COALESCE(NULLIF(decimal_value,0),numeric_value,fixed_value) AS chosen_exact,
+       IF(real_value IS NULL,float_value,double_value) AS chosen_approximate
+FROM numeric_lifecycle;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(7:7~7:15) /test/1/catalog1/schema1/COALESCE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(7:16~7:22) /test/1/catalog1/schema1/NULLIF/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(8:7~8:9) /test/1/catalog1/schema1/IF/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(9:5~9:22) /test/1/catalog1/schema1/numeric_lifecycle/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__005]
+sql:
+SELECT id,decimal_value,numeric_value,fixed_value,float_value,double_value,real_value
+FROM numeric_lifecycle
+WHERE decimal_value>=0
+UNION ALL
+SELECT id,decimal_value,numeric_value,fixed_value,float_value,double_value,real_value
+FROM numeric_lifecycle
+WHERE double_value<0
+ORDER BY id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:5~2:22) /test/1/catalog1/schema1/numeric_lifecycle/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__006]
+sql:
+SELECT derived.sign_group,
+       COUNT(*) AS row_count,
+       SUM(derived.exact_total) AS exact_total,
+       AVG(derived.approximate_total) AS approximate_average,
+       MIN(derived.minimum_value),
+       MAX(derived.maximum_value)
+FROM (
+  SELECT decimal_value<0 AS sign_group,
+         decimal_value+numeric_value+fixed_value AS exact_total,
+         float_value+double_value+real_value AS approximate_total,
+         LEAST(decimal_value,numeric_value,fixed_value,float_value,double_value,real_value) AS minimum_value,
+         GREATEST(decimal_value,numeric_value,fixed_value,float_value,double_value,real_value) AS maximum_value
+  FROM numeric_lifecycle
+) AS derived
+GROUP BY derived.sign_group
+HAVING SUM(derived.exact_total) IS NOT NULL
+ORDER BY exact_total DESC;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(3:7~3:10) /test/1/catalog1/schema1/SUM/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(4:7~4:10) /test/1/catalog1/schema1/AVG/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(5:7~5:10) /test/1/catalog1/schema1/MIN/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(6:7~6:10) /test/1/catalog1/schema1/MAX/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(11:9~11:14) /test/1/catalog1/schema1/LEAST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(12:9~12:17) /test/1/catalog1/schema1/GREATEST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(13:7~13:24) /test/1/catalog1/schema1/numeric_lifecycle/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__007]
+sql:
+SELECT id,
+       CAST(decimal_value AS DECIMAL(30,10)),
+       CAST(float_value AS DECIMAL(20,8)),
+       CONVERT(double_value,DECIMAL(30,10)),
+       CAST(real_value AS SIGNED),
+       CAST(fixed_value AS UNSIGNED)
+FROM numeric_lifecycle
+WHERE ROW(decimal_value,float_value) <= ROW(numeric_value,double_value);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:11) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(4:7~4:14) /test/1/catalog1/schema1/CONVERT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(7:5~7:22) /test/1/catalog1/schema1/numeric_lifecycle/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(8:6~8:9) /test/1/catalog1/schema1/ROW/",
+      "action" : "CALL"
+    }
+  ]
+}

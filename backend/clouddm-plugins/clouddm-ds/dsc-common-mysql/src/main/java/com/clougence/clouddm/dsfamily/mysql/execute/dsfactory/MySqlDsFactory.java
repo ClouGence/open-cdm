@@ -61,7 +61,6 @@ public class MySqlDsFactory implements DsFactory<Connection> {
         String tcpKeepAlive = dsConfig.getProperty(DsConfigKeys.TCP_KEEP_ALIVE.getConfigKey());
         String autoCommit = dsConfig.getProperty(DsConfigKeys.AUTO_COMMIT.getConfigKey());
 
-        String mySqlMode = dsConfig.getProperty(DsConfigKeys.MY_SQL_MODE.getConfigKey());
         String myMaxAllowedPacket = dsConfig.getProperty(DsConfigKeys.MY_MAX_ALLOWED_PACKET.getConfigKey());
 
         if (StringUtils.isNotBlank(username)) {
@@ -92,18 +91,6 @@ public class MySqlDsFactory implements DsFactory<Connection> {
 
             if (StringUtils.isNotBlank(autoCommit)) {
                 myConnect.setAutoCommit(!StringUtils.equalsIgnoreCase("false", autoCommit));
-            }
-            if (StringUtils.isNotBlank(mySqlMode)) {
-                if ("EMPTY".equalsIgnoreCase(mySqlMode)) {
-                    try (PreparedStatement ps = myConnect.prepareStatement("set sql_mode=''")) {
-                        ps.execute();
-                    }
-                } else {
-                    try (PreparedStatement ps = myConnect.prepareStatement("set sql_mode= ?")) {
-                        ps.setString(1, mySqlMode);
-                        ps.execute();
-                    }
-                }
             }
             if (StringUtils.isNotBlank(myMaxAllowedPacket)) {
                 try (PreparedStatement ps = myConnect.prepareStatement("set global max_allowed_packet= ?")) {

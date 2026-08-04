@@ -36,12 +36,10 @@ import com.clougence.clouddm.sdk.DsPlugin;
 import com.clougence.clouddm.sdk.DsPluginBinder;
 import com.clougence.clouddm.sdk.Plugin;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
-import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
 import com.clougence.schema.DsType;
 import com.clougence.schema.SchemaBinder;
 import com.clougence.schema.SchemaFramework;
 import com.clougence.schema.SchemaPlugin;
-import com.clougence.sql.redis.RedisSqlEngineSpi;
 
 /** @author mode 2024/12/25 15:13 */
 @Plugin(name = "i18n::" + RedisDsI18nKeys.PLUGIN_NAME_REDIS,            //
@@ -77,9 +75,7 @@ public class RedisDsPlugin implements DsPlugin, SchemaPlugin {
     private void configExecute(DsPluginBinder dsPlugin) {
         dsPlugin.bindDsSessionFactory(RedisSessionFactory.class);
         dsPlugin.bindDsDriverFamily("Jedis");
-
-        dsPlugin.bindSqlEngine(RedisSqlEngineSpi.NAME);
-        dsPlugin.addGlobalSpi(SqlEngineSpi.class, RedisSqlEngineSpi.NAME, new RedisSqlEngineSpi(dsPlugin.findGlobalService(MetaService.class)));
+        dsPlugin.bindSqlEngine("Redis Commands");
 
         dsPlugin.addPluginSpi(new RedisSessionSpi());
         dsPlugin.addPluginSpi(new RedisSupportSpi());

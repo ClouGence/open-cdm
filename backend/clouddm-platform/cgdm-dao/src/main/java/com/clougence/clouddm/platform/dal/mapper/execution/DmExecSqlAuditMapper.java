@@ -23,18 +23,27 @@ import org.apache.ibatis.annotations.Param;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.clougence.clouddm.api.console.sqlaudit.SqlStatus;
 import com.clougence.clouddm.platform.dal.model.execution.DmExecSqlAuditDO;
-import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
 import com.clougence.clouddm.sdk.service.secrules.Requester;
 
 public interface DmExecSqlAuditMapper extends BaseMapper<DmExecSqlAuditDO> {
 
-    int updateBySessionId(@Param("sessionId") String sessionId, @Param("status") String status, @Param("affectLine") long affectLine, @Param("message") String message,
-                          @Param("time") Date time);
+    int markRunningByQueryId(DmExecSqlAuditDO audit);
 
-    List<DmExecSqlAuditDO> pageByCondition(String puid, String uid, SecQueryKind sqlKind, String resourcePath, Long dsId, Requester requester, SqlStatus status, Date dateStart,
-                                           Date dateEnd, int offset, int pageSize);
+    int completeByQueryId(@Param("queryId") String queryId, @Param("sessionId") String sessionId, @Param("status") String status, @Param("affectLine") long affectLine,
+                          @Param("message") String message, @Param("time") Date time);
 
-    long countByCondition(String puid, String uid, SecQueryKind sqlKind, String resourcePath, Long dsId, Requester requester, SqlStatus status, Date dateStart, Date dateEnd);
+    List<DmExecSqlAuditDO> pageByCondition(@Param("puid") String puid, @Param("uid") String uid, @Param("dsId") Long dsId, @Param("requester") Requester requester,
+                                           @Param("status") SqlStatus status, @Param("dateStart") Date dateStart, @Param("dateEnd") Date dateEnd,
+                                           @Param("offset") int offset, @Param("pageSize") int pageSize);
+
+    long countByCondition(@Param("puid") String puid, @Param("uid") String uid, @Param("dsId") Long dsId, @Param("requester") Requester requester,
+                          @Param("status") SqlStatus status, @Param("dateStart") Date dateStart, @Param("dateEnd") Date dateEnd);
+
+    DmExecSqlAuditDO queryByQueryId(@Param("queryId") String queryId);
+
+    List<DmExecSqlAuditDO> queryWaitConfirmBySessionId(@Param("sessionId") String sessionId);
+
+    List<DmExecSqlAuditDO> queryByCondition(String uid, Long dsId, Requester requester, SqlStatus status, Date dateStart, Date dateEnd, long startId, int pageSize);
 
     void confirmSession(String sessionId);
 

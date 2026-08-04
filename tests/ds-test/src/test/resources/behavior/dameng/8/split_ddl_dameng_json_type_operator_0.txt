@@ -1,0 +1,74 @@
+[split_ddl_dameng_json_type_operator_0_001]
+sql:
+CREATE TABLE JSON_STRICT(ID INT PRIMARY KEY, DOC VARCHAR2(2000) CHECK(DOC IS JSON(STRICT)));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:24) /test/1/catalog1/schema1/JSON_STRICT/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_json_type_operator_0_002]
+sql:
+CREATE TABLE JSON_LAX(ID INT PRIMARY KEY, DOC VARCHAR2(2000) CHECK(DOC IS JSON(LAX)));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:21) /test/1/catalog1/schema1/JSON_LAX/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_json_type_operator_0_003]
+sql:
+CREATE TABLE JSON_UNIQUE(ID INT PRIMARY KEY, DOC CLOB CHECK(DOC IS JSON WITH UNIQUE KEYS));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:24) /test/1/catalog1/schema1/JSON_UNIQUE/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_json_type_operator_0_004]
+sql:
+CREATE TABLE JSON_NONUNIQUE(ID INT PRIMARY KEY, DOC TEXT CHECK(DOC IS JSON WITHOUT UNIQUE KEYS));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:27) /test/1/catalog1/schema1/JSON_NONUNIQUE/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_json_type_operator_0_005]
+sql:
+CREATE TABLE JSON_LONG(ID INT PRIMARY KEY, DOC LONGVARCHAR CHECK(DOC IS JSON));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:22) /test/1/catalog1/schema1/JSON_LONG/",
+      "action": "CREATE"
+    }
+  ]
+}

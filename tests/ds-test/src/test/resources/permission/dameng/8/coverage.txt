@@ -1,0 +1,100 @@
+[dameng_permission_read]
+sql:
+select * from dm1.t1 join t2 on t1.id = t2.id
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "READ": [
+    "Table(1:14~1:20) /test/1/catalog1/dm1/t1/",
+    "Table(1:26~1:28) /test/1/catalog1/schema1/t2/"
+  ]
+}
+----------
+[dameng_permission_write]
+sql:
+INSERT INTO TYPE_BASE VALUES(1, 'DM8', 88.25);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:21) /test/1/catalog1/schema1/TYPE_BASE/"
+  ]
+}
+----------
+[dameng_permission_ddl]
+sql:
+create index idx_t1_name on t1(name)
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DDL": [
+    "Index(1:13~1:24) /test/1/catalog1/schema1/idx_t1_name/",
+    "Table(1:28~1:30) /test/1/catalog1/schema1/t1/"
+  ]
+}
+----------
+[dameng_permission_program]
+sql:
+exec sys.sp_task 1, 'x'
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:5~1:16) /test/1/catalog1/sys/sp_task/"
+  ]
+}
+----------
+[dameng_permission_manage]
+sql:
+create user CODEX_DM8_USER_P8 identified by Aa123456;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MANAGE": [
+    "User(1:12~1:29) /test/1/CODEX_DM8_USER_P8/"
+  ]
+}
+----------
+[dameng_permission_maintain]
+sql:
+stat 50 on index app.idx_basic;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Index(1:17~1:30) /test/1/catalog1/app/idx_basic/"
+  ]
+}
+----------
+[dameng_permission_space]
+sql:
+create schema app authorization SYSDBA;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SPACE": [
+    "Schema(1:14~1:17) /test/1/catalog1/app/"
+  ],
+  "READ": [
+    "User(1:32~1:38) /test/1/SYSDBA/"
+  ]
+}
+----------
+[dameng_permission_unsafe]
+sql:
+ALTER DATABASE MOUNT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UNSAFE": [
+    "Instance(1:6~1:14) /test/1/"
+  ]
+}

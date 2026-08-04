@@ -1,0 +1,464 @@
+{
+  int i = 0;
+  i++;
+  print i;
+}
+/
+{
+  varchar v_name = 'DM8';
+  int v_value = 8;
+  v_name = concat(v_name, cast(v_value as varchar));
+  print v_name;
+}
+/
+{
+  int v_value = 1;
+  if(v_value = 1)
+  {
+    print 'ONE';
+  }
+}
+/
+{
+  int v_value = 2;
+  if(v_value = 1)
+  {
+    print 'ONE';
+  }
+  else
+  {
+    print 'OTHER';
+  }
+}
+/
+{
+  int i = 0;
+  while(i < 3)
+  {
+    i++;
+  }
+  print i;
+}
+/
+{
+  int v_total = 0;
+  for(int i = 1; i <= 4; i++)
+  {
+    v_total = v_total + i;
+  }
+  print v_total;
+}
+/
+{
+  int v_total = 0;
+  for(int i = 1; i <= 2; i++)
+  {
+    for(int j = 1; j <= 2; j++)
+    {
+      v_total = v_total + i * j;
+    }
+  }
+  print v_total;
+}
+/
+{
+  int v_value = 2;
+  switch(v_value)
+  {
+    case 1:
+      print 'ONE';
+      break;
+    case 2:
+      print 'TWO';
+      break;
+    default:
+      print 'OTHER';
+      break;
+  }
+}
+/
+{
+  try
+  {
+    int v_value = 1;
+    print v_value;
+  }
+  catch(exception ex)
+  {
+    print 'UNEXPECTED';
+  }
+}
+/
+{
+  int v_id;
+  varchar v_name;
+  select id, name into v_id, v_name from cjava_source where id = 1;
+  print v_name;
+}
+/
+{
+  insert into cjava_target values(101, 'C_INSERT');
+  commit;
+}
+/
+{
+  update cjava_target set name = 'C_UPDATE' where id = 101;
+  delete from cjava_target where id = 101;
+  commit;
+}
+/
+{
+  varchar v_name;
+  int v_id;
+  cursor csr is select id, name from cjava_source order by id;
+  open cursor csr;
+  fetch cursor csr into v_id, v_name;
+  close cursor csr;
+}
+/
+create or replace procedure cjava_helper(p_id int)
+as
+begin
+  insert into cjava_target values(p_id, 'C_CALL');
+end;
+/
+{
+  cjava_helper(102);
+  commit;
+}
+/
+create or replace java public class j_basic
+{
+  int b = 5;
+  j_basic(int a)
+  {
+    this.b = a;
+  }
+  int test_fun(int a)
+  {
+    b = a;
+    return b;
+  }
+}
+/
+declare
+  c1 j_basic;
+begin
+  c1 = new j_basic();
+  print c1.b;
+  print c1.test_fun(9);
+end;
+/
+declare
+  c1 j_basic;
+begin
+  c1 = new j_basic(8);
+  print c1.test_fun(c1.b);
+end;
+/
+create or replace java class j_math
+{
+  int a;
+  public static int add_two(int a, int b)
+  {
+    return a + b;
+  }
+  public int add_three(int a, int b, int c)
+  {
+    return a + b + c;
+  }
+}
+/
+select j_math.add_two(1, 2);
+select j_math().add_three(1, 2, 3);
+create table cjava_class_table(
+  id int primary key,
+  obj j_math
+);
+insert into cjava_class_table values(j_math.add_two(1, 2), j_math(1));
+insert into cjava_class_table values(j_math().add_three(1, 2, 3), j_math(2));
+select id, t.obj.a from cjava_class_table t order by id;
+create or replace java final class j_final_value
+{
+  int value;
+  public int get_value()
+  {
+    return value;
+  }
+}
+/
+declare
+  v_obj j_final_value;
+begin
+  v_obj = new j_final_value(27);
+  print v_obj.get_value();
+end;
+/
+create or replace java class j_cursor_reader
+{
+  varchar v_name;
+  int v_id;
+  int first_id()
+  {
+    cursor csr for select id, name from cjava_source order by id;
+    open cursor csr;
+    fetch cursor csr into v_id, v_name;
+    close cursor csr;
+    return v_id;
+  }
+}
+/
+declare
+  v_reader j_cursor_reader;
+begin
+  v_reader = new j_cursor_reader();
+  print v_reader.first_id();
+end;
+/
+alter class j_basic compile;
+alter class j_math compile debug;
+drop table cjava_class_table;
+drop class j_cursor_reader;
+drop class j_final_value;
+drop class j_math;
+drop class j_basic;
+drop procedure cjava_helper;
+------------------------------------------------------------------------------------------
+[BLOCK] {
+  int i = 0;
+  i++;
+  print i;
+}
+----------
+[BLOCK] {
+  varchar v_name = 'DM8';
+  int v_value = 8;
+  v_name = concat(v_name, cast(v_value as varchar));
+  print v_name;
+}
+----------
+[BLOCK] {
+  int v_value = 1;
+  if(v_value = 1)
+  {
+    print 'ONE';
+  }
+}
+----------
+[BLOCK] {
+  int v_value = 2;
+  if(v_value = 1)
+  {
+    print 'ONE';
+  }
+  else
+  {
+    print 'OTHER';
+  }
+}
+----------
+[BLOCK] {
+  int i = 0;
+  while(i < 3)
+  {
+    i++;
+  }
+  print i;
+}
+----------
+[BLOCK] {
+  int v_total = 0;
+  for(int i = 1; i <= 4; i++)
+  {
+    v_total = v_total + i;
+  }
+  print v_total;
+}
+----------
+[BLOCK] {
+  int v_total = 0;
+  for(int i = 1; i <= 2; i++)
+  {
+    for(int j = 1; j <= 2; j++)
+    {
+      v_total = v_total + i * j;
+    }
+  }
+  print v_total;
+}
+----------
+[BLOCK] {
+  int v_value = 2;
+  switch(v_value)
+  {
+    case 1:
+      print 'ONE';
+      break;
+    case 2:
+      print 'TWO';
+      break;
+    default:
+      print 'OTHER';
+      break;
+  }
+}
+----------
+[BLOCK] {
+  try
+  {
+    int v_value = 1;
+    print v_value;
+  }
+  catch(exception ex)
+  {
+    print 'UNEXPECTED';
+  }
+}
+----------
+[BLOCK] {
+  int v_id;
+  varchar v_name;
+  select id, name into v_id, v_name from cjava_source where id = 1;
+  print v_name;
+}
+----------
+[BLOCK] {
+  insert into cjava_target values(101, 'C_INSERT');
+  commit;
+}
+----------
+[BLOCK] {
+  update cjava_target set name = 'C_UPDATE' where id = 101;
+  delete from cjava_target where id = 101;
+  commit;
+}
+----------
+[BLOCK] {
+  varchar v_name;
+  int v_id;
+  cursor csr is select id, name from cjava_source order by id;
+  open cursor csr;
+  fetch cursor csr into v_id, v_name;
+  close cursor csr;
+}
+----------
+[CREATE_PROG_OBJ(BLOCK,INSERT)] create or replace procedure cjava_helper(p_id int)
+as
+begin
+  insert into cjava_target values(p_id, 'C_CALL');
+end;
+----------
+[BLOCK] {
+  cjava_helper(102);
+  commit;
+}
+----------
+[CREATE_TYPE] create or replace java public class j_basic
+{
+  int b = 5;
+  j_basic(int a)
+  {
+    this.b = a;
+  }
+  int test_fun(int a)
+  {
+    b = a;
+    return b;
+  }
+}
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare
+  c1 j_basic;
+begin
+  c1 = new j_basic();
+  print c1.b;
+  print c1.test_fun(9);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare
+  c1 j_basic;
+begin
+  c1 = new j_basic(8);
+  print c1.test_fun(c1.b);
+end;
+----------
+[CREATE_TYPE] create or replace java class j_math
+{
+  int a;
+  public static int add_two(int a, int b)
+  {
+    return a + b;
+  }
+  public int add_three(int a, int b, int c)
+  {
+    return a + b + c;
+  }
+}
+----------
+[SELECT|CALL_PROG_OBJ] select j_math.add_two(1, 2);
+----------
+[SELECT|CALL_PROG_OBJ] select j_math().add_three(1, 2, 3);
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table cjava_class_table(
+  id int primary key,
+  obj j_math
+);
+----------
+[INSERT|CALL_PROG_OBJ] insert into cjava_class_table values(j_math.add_two(1, 2), j_math(1));
+----------
+[INSERT|CALL_PROG_OBJ] insert into cjava_class_table values(j_math().add_three(1, 2, 3), j_math(2));
+----------
+[SELECT] select id, t.obj.a from cjava_class_table t order by id;
+----------
+[CREATE_TYPE] create or replace java final class j_final_value
+{
+  int value;
+  public int get_value()
+  {
+    return value;
+  }
+}
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare
+  v_obj j_final_value;
+begin
+  v_obj = new j_final_value(27);
+  print v_obj.get_value();
+end;
+----------
+[CREATE_TYPE|SELECT] create or replace java class j_cursor_reader
+{
+  varchar v_name;
+  int v_id;
+  int first_id()
+  {
+    cursor csr for select id, name from cjava_source order by id;
+    open cursor csr;
+    fetch cursor csr into v_id, v_name;
+    close cursor csr;
+    return v_id;
+  }
+}
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare
+  v_reader j_cursor_reader;
+begin
+  v_reader = new j_cursor_reader();
+  print v_reader.first_id();
+end;
+----------
+[ALTER_TYPE] alter class j_basic compile;
+----------
+[ALTER_TYPE] alter class j_math compile debug;
+----------
+[DROP_TABLE] drop table cjava_class_table;
+----------
+[DROP_TYPE] drop class j_cursor_reader;
+----------
+[DROP_TYPE] drop class j_final_value;
+----------
+[DROP_TYPE] drop class j_math;
+----------
+[DROP_TYPE] drop class j_basic;
+----------
+[DROP_PROG_OBJ] drop procedure cjava_helper;

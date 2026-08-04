@@ -1,0 +1,23 @@
+[visibility_columns]
+sql:
+select id,secret from catalog1.app.table_vis_data order by id
+expect:
+{"id":["/catalog1/app/table_vis_data/id/"],"secret":["/catalog1/app/table_vis_data/secret/"]}
+----------
+[visibility_expression]
+sql:
+select id,coalesce(secret,'MASKED') as visible_secret from catalog1.app.table_vis_data
+expect:
+{"id":["/catalog1/app/table_vis_data/id/"],"visible_secret":["/catalog1/app/table_vis_data/secret/"]}
+----------
+[constraint_state_column]
+sql:
+select id from catalog1.app.table_cons_state
+expect:
+{"id":["/catalog1/app/table_cons_state/id/"]}
+----------
+[constraint_predicate_column]
+sql:
+select id from catalog1.app.table_cons_state where id>0
+expect:
+{"id":["/catalog1/app/table_cons_state/id/"]}

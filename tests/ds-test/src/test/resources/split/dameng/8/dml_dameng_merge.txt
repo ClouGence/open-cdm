@@ -1,0 +1,11 @@
+merge into app.customer target
+using (select 1 as id, 'Bob' as name, 'A' as status from dual) source
+on (target.id = source.id)
+when matched then update set target.status = source.status
+when not matched then insert (name, status) values (source.name, source.status);
+------------------------------------------------------------------------------------------
+[MERGE|SELECT] merge into app.customer target
+using (select 1 as id, 'Bob' as name, 'A' as status from dual) source
+on (target.id = source.id)
+when matched then update set target.status = source.status
+when not matched then insert (name, status) values (source.name, source.status);

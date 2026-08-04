@@ -1,0 +1,20 @@
+CREATE TABLE `tbl_rrs_req` (
+  `ID` bigint(20) NOT NULL,
+  `AMT` decimal(18,2) DEFAULT NULL ,
+  PRIMARY KEY (`ID`)
+);
+ALTER TABLE `tbl_rrs_req` ADD COLUMN `AMT2` decimal(18,2) DEFAULT NULL ;
+ALTER TABLE `tbl_rrs_req` MODIFY COLUMN `AMT` decimal(20,4) DEFAULT NULL ;
+ALTER TABLE `tbl_rrs_req` CHANGE COLUMN `AMT` `AMT` decimal(20,4) DEFAULT NULL ;
+------------------------------------------------------------------------------------------
+[CREATE_TABLE] CREATE TABLE `tbl_rrs_req` (
+  `ID` bigint(20) NOT NULL,
+  `AMT` decimal(18,2) DEFAULT NULL ,
+  PRIMARY KEY (`ID`)
+);
+----------
+[ALTER_TABLE|ADD_COLUMN] ALTER TABLE `tbl_rrs_req` ADD COLUMN `AMT2` decimal(18,2) DEFAULT NULL ;
+----------
+[ALTER_TABLE|ALTER_COLUMN] ALTER TABLE `tbl_rrs_req` MODIFY COLUMN `AMT` decimal(20,4) DEFAULT NULL ;
+----------
+[ALTER_TABLE|ALTER_COLUMN] ALTER TABLE `tbl_rrs_req` CHANGE COLUMN `AMT` `AMT` decimal(20,4) DEFAULT NULL ;

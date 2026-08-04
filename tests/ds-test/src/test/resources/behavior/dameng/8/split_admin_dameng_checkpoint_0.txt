@@ -1,0 +1,89 @@
+[split_admin_dameng_checkpoint_0_001]
+sql:
+select checkpoint(0);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/checkpoint/",
+      "action": "CHECKPOINT"
+    }
+  ]
+}
+----------
+[split_admin_dameng_checkpoint_0_002]
+sql:
+select checkpoint(30);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/checkpoint/",
+      "action": "CHECKPOINT"
+    }
+  ]
+}
+----------
+[split_admin_dameng_checkpoint_0_003]
+sql:
+select checkpoint(100);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/checkpoint/",
+      "action": "CHECKPOINT"
+    }
+  ]
+}
+----------
+[split_admin_dameng_checkpoint_0_004]
+sql:
+checkpoint(0);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Instance(1:0~1:10) /test/1/",
+      "action": "CHECKPOINT"
+    }
+  ]
+}
+----------
+[split_admin_dameng_checkpoint_0_005]
+sql:
+checkpoint(30);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Instance(1:0~1:10) /test/1/",
+      "action": "CHECKPOINT"
+    }
+  ]
+}
+----------
+[split_admin_dameng_checkpoint_0_006]
+sql:
+checkpoint(100);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    {
+      "subject": "Instance(1:0~1:10) /test/1/",
+      "action": "CHECKPOINT"
+    }
+  ]
+}

@@ -38,9 +38,6 @@ public interface RedisDataAuthLabel {
 
     @AuthLabel(order = 2, category = SecAuthCategory.CAT_DM_FOR_DAUTH_STATEMENTS, usedOfRole = false, kind = { AuthKind.DataSource }, i18nKey = SecAuthI18nKeys.AUTH_DATA_DM_REDIS_ADMIN)
     @AuthKindCondition(kind = AuthKind.DataSource, condition = { AuthElementType.Instance, AuthElementType.Schema })
-    String DM_DAUTH_REDIS_ADMIN = SecDataAuthLabel.DM_DAUTH_DCL;
+    String DM_DAUTH_REDIS_ADMIN = SecDataAuthLabel.DM_DAUTH_MANAGE;
 
-    @AuthLabel(order = 3, category = SecAuthCategory.CAT_DM_FOR_DAUTH_STATEMENTS, usedOfRole = false, kind = { AuthKind.DataSource }, i18nKey = SecAuthI18nKeys.AUTH_DATA_DM_REDIS_OTHER)
-    @AuthKindCondition(kind = AuthKind.DataSource, condition = { AuthElementType.Instance, AuthElementType.Schema })
-    String DM_DAUTH_REDIS_OTHER = SecDataAuthLabel.DM_DAUTH_OTHER;
 }

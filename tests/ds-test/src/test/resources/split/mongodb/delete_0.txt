@@ -1,0 +1,18 @@
+db.collection.deleteOne({"status": "inactive"});
+db.users.deleteOne({"name": "Alice"});
+db.products.deleteMany({"price": {$lt: 5}});
+db.orders.deleteMany({"status": "cancelled"});
+db.inventory.findOneAndDelete({"qty": 0});
+db.sales.findOneAndDelete({"date": {$lt: "2022-01-01"}}, {projection: {"_id": 1, "amount": 1}});
+------------------------------------------------------------------------------------------
+[DELETE] db.collection.deleteOne({"status": "inactive"})
+----------
+[DELETE] db.users.deleteOne({"name": "Alice"})
+----------
+[DELETE] db.products.deleteMany({"price": {$lt: 5}})
+----------
+[DELETE] db.orders.deleteMany({"status": "cancelled"})
+----------
+[DELETE] db.inventory.findOneAndDelete({"qty": 0})
+----------
+[DELETE] db.sales.findOneAndDelete({"date": {$lt: "2022-01-01"}}, {projection: {"_id": 1, "amount": 1}})

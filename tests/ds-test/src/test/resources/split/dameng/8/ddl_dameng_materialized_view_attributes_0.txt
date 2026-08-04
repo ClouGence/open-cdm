@@ -1,0 +1,101 @@
+create materialized view "Mv_Mixed_20260722"("Mv_Id", "Mv_Amount") as select ID, AMOUNT from MV_BASE;
+comment on view "Mv_Mixed_20260722" is 'materialized view comment';
+comment on column "Mv_Mixed_20260722"."Mv_Amount" is 'materialized amount';
+drop materialized view "Mv_Mixed_20260722";
+create materialized view log on MV_BASE;
+drop materialized view log on MV_BASE;
+create materialized view log on MV_BASE purge immediate;
+drop materialized view log on MV_BASE;
+create materialized view log on MV_BASE purge immediate synchronous;
+drop materialized view log on MV_BASE;
+create materialized view log on MV_BASE purge immediate asynchronous;
+drop materialized view log on MV_BASE;
+create materialized view log on MV_BASE purge start with sysdate + 1 next sysdate + 2;
+drop materialized view log on MV_BASE;
+create materialized view log on MV_BASE purge start with sysdate + 1 repeat interval '2' hour;
+drop materialized view log on MV_BASE;
+create materialized view log on MV_BASE tablespace main storage(initial 1, next 1) with sequence;
+drop materialized view log on MV_BASE;
+create materialized view MV_LOG_SOURCE for MV_PREBUILT_LOG on prebuilt table
+as select ID, GROUP_ID, AMOUNT from MV_BASE;
+create materialized view log on MV_LOG_SOURCE with sequence;
+drop materialized view log on MV_LOG_SOURCE;
+drop materialized view MV_LOG_SOURCE;
+create table MV_DROP_BASE(ID int primary key, AMOUNT int);
+create materialized view log on MV_DROP_BASE with primary key;
+drop table MV_DROP_BASE;
+create materialized view MV_AUTOCOMMIT as select ID, AMOUNT from MV_BASE;
+refresh materialized view MV_AUTOCOMMIT complete;
+drop materialized view MV_AUTOCOMMIT;
+create materialized view MV_PACK_REFRESH as select ID, AMOUNT from MV_BASE;
+refresh materialized view MV_PACK_REFRESH using default;
+refresh materialized view MV_PACK_REFRESH using truncate;
+refresh materialized view MV_PACK_REFRESH using delete;
+drop materialized view MV_PACK_REFRESH cascade;
+------------------------------------------------------------------------------------------
+[CREATE_VIEW(SELECT)] create materialized view "Mv_Mixed_20260722"("Mv_Id", "Mv_Amount") as select ID, AMOUNT from MV_BASE;
+----------
+[COMMENT_VIEW] comment on view "Mv_Mixed_20260722" is 'materialized view comment';
+----------
+[COMMENT_COLUMN] comment on column "Mv_Mixed_20260722"."Mv_Amount" is 'materialized amount';
+----------
+[DROP_VIEW] drop materialized view "Mv_Mixed_20260722";
+----------
+[CREATE_LOG] create materialized view log on MV_BASE;
+----------
+[DROP_LOG] drop materialized view log on MV_BASE;
+----------
+[CREATE_LOG] create materialized view log on MV_BASE purge immediate;
+----------
+[DROP_LOG] drop materialized view log on MV_BASE;
+----------
+[CREATE_LOG] create materialized view log on MV_BASE purge immediate synchronous;
+----------
+[DROP_LOG] drop materialized view log on MV_BASE;
+----------
+[CREATE_LOG] create materialized view log on MV_BASE purge immediate asynchronous;
+----------
+[DROP_LOG] drop materialized view log on MV_BASE;
+----------
+[CREATE_LOG] create materialized view log on MV_BASE purge start with sysdate + 1 next sysdate + 2;
+----------
+[DROP_LOG] drop materialized view log on MV_BASE;
+----------
+[CREATE_LOG] create materialized view log on MV_BASE purge start with sysdate + 1 repeat interval '2' hour;
+----------
+[DROP_LOG] drop materialized view log on MV_BASE;
+----------
+[CREATE_LOG] create materialized view log on MV_BASE tablespace main storage(initial 1, next 1) with sequence;
+----------
+[DROP_LOG] drop materialized view log on MV_BASE;
+----------
+[CREATE_VIEW(SELECT)] create materialized view MV_LOG_SOURCE for MV_PREBUILT_LOG on prebuilt table
+as select ID, GROUP_ID, AMOUNT from MV_BASE;
+----------
+[CREATE_LOG] create materialized view log on MV_LOG_SOURCE with sequence;
+----------
+[DROP_LOG] drop materialized view log on MV_LOG_SOURCE;
+----------
+[DROP_VIEW] drop materialized view MV_LOG_SOURCE;
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table MV_DROP_BASE(ID int primary key, AMOUNT int);
+----------
+[CREATE_LOG] create materialized view log on MV_DROP_BASE with primary key;
+----------
+[DROP_TABLE] drop table MV_DROP_BASE;
+----------
+[CREATE_VIEW(SELECT)] create materialized view MV_AUTOCOMMIT as select ID, AMOUNT from MV_BASE;
+----------
+[ADMIN] refresh materialized view MV_AUTOCOMMIT complete;
+----------
+[DROP_VIEW] drop materialized view MV_AUTOCOMMIT;
+----------
+[CREATE_VIEW(SELECT)] create materialized view MV_PACK_REFRESH as select ID, AMOUNT from MV_BASE;
+----------
+[ADMIN] refresh materialized view MV_PACK_REFRESH using default;
+----------
+[ADMIN] refresh materialized view MV_PACK_REFRESH using truncate;
+----------
+[ADMIN] refresh materialized view MV_PACK_REFRESH using delete;
+----------
+[DROP_VIEW] drop materialized view MV_PACK_REFRESH cascade;

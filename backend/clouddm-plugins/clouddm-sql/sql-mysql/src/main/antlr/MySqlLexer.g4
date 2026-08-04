@@ -16,20 +16,45 @@
 
 lexer grammar MySqlLexer;
 
+options { superClass=MySqlLexerBase; }
+
 channels { MYSQLCOMMENT, ERRORCHANNEL }
 
 // SKIP
 
-EXEC_COMMENT_LEFT :             '/*!' DEC_DIGIT*;
+EXEC_COMMENT_LEFT :             '/*!' (
+                                      DEC_DIGIT DEC_DIGIT DEC_DIGIT DEC_DIGIT DEC_DIGIT DEC_DIGIT
+                                      | DEC_DIGIT DEC_DIGIT DEC_DIGIT DEC_DIGIT DEC_DIGIT
+                                    )? {
+                                      normalizeExecutableCommentPrefix();
+                                      if (!hasExecutableCommentEndAhead()) {
+                                          setChannel(DEFAULT_TOKEN_CHANNEL);
+                                      } else if (isExecutableCommentActive()) {
+                                          enterExecutableComment();
+                                          setChannel(HIDDEN);
+                                      } else {
+                                          setType(COMMENT_INPUT);
+                                          setChannel(HIDDEN);
+                                      }
+                                    };
 
-EXEC_COMMENT_RIGHT :            '*/';
+EXEC_COMMENT_RIGHT :            '*/' {
+                                      if (isInsideExecutableComment()) {
+                                          leaveExecutableComment();
+                                          setChannel(HIDDEN);
+                                      }
+                                    };
 
-SPACE:                               [ \t\r\n]+    -> channel(HIDDEN);
+SPACE:                               [ \t\r\n\u000B\u000C]+    -> channel(HIDDEN);
 //SPEC_MYSQL_COMMENT:                  '/*!' .+? '*/' ;
-COMMENT_INPUT:                       '/*' ~'!' .*? '*/' -> channel(HIDDEN);
+COMMENT_INPUT:                       (
+                                       '/**/'
+                                       | '/*' (~[!*] | '*' ~[/]) .*? '*/'
+                                     ) -> channel(HIDDEN);
 LINE_COMMENT:                        (
-                                       ('--' [ \t] | '#') ~[\r\n]* ('\r'? '\n' | EOF) 
-                                       | '--' ('\r'? '\n' | EOF) 
+                                       ('--' [\u0000-\u0009\u000B\u000C\u000E-\u0020\u007F] | '#')
+                                         ~[\r\n]* ('\r'? '\n' | '\r' | EOF)
+                                       | '--' ('\r'? '\n' | '\r' | EOF)
                                      ) -> channel(HIDDEN);
 
 
@@ -37,32 +62,40 @@ LINE_COMMENT:                        (
 // Common Keywords
 
 ADD:                                 A D D;
+ABSENT:                              A B S E N T;
 ALL:                                 A L L;
 ALTER:                               A L T E R;
 ALWAYS:                              A L W A Y S;
 ANALYZE:                             A N A L Y Z E;
+ANALYSE:                             A N A L Y S E;
 AND:                                 A N D;
+ARRAY:                               A R R A Y;
 AS:                                  A S;
 ASC:                                 A S C;
+AUTHENTICATION:                      A U T H E N T I C A T I O N;
 BEFORE:                              B E F O R E;
 BETWEEN:                             B E T W E E N;
 BOTH:                                B O T H;
 BY:                                  B Y;
+BYTE:                                B Y T E;
 CALL:                                C A L L;
 CASCADE:                             C A S C A D E;
 CASE:                                C A S E;
 CAST:                                C A S T;
 CHANGE:                              C H A N G E;
+ACCESSIBLE:                          A C C E S S I B L E;
 CHARACTER:                           C H A R A C T E R;
 CHECK:                               C H E C K;
 COLLATE:                             C O L L A T E;
 COLUMN:                              C O L U M N;
+COMPONENT:                           C O M P O N E N T;
 CONDITION:                           C O N D I T I O N;
 CONSTRAINT:                          C O N S T R A I N T;
 CONTINUE:                            C O N T I N U E;
 CONVERT:                             C O N V E R T;
 CREATE:                              C R E A T E;
 CROSS:                               C R O S S;
+CLONE:                               C L O N E;
 CURRENT:                             C U R R E N T;
 CURRENT_USER:                        C U R R E N T '_' U S E R;
 CURSOR:                              C U R S O R;
@@ -70,10 +103,12 @@ DATABASE:                            D A T A B A S E;
 DATABASES:                           D A T A B A S E S;
 DECLARE:                             D E C L A R E;
 DEFAULT:                             D E F A U L T;
+DEFINITION:                          D E F I N I T I O N;
 DELAYED:                             D E L A Y E D;
 DELETE:                              D E L E T E;
 DESC:                                D E S C;
 DESCRIBE:                            D E S C R I B E;
+DESCRIPTION:                         D E S C R I P T I O N;
 DETERMINISTIC:                       D E T E R M I N I S T I C;
 DIAGNOSTICS:                         D I A G N O S T I C S;
 DISTINCT:                            D I S T I N C T;
@@ -89,6 +124,7 @@ EXCEPT:                              E X C E P T;
 EXISTS:                              E X I S T S;
 EXIT:                                E X I T;
 EXPLAIN:                             E X P L A I N;
+EXCLUDE:                             E X C L U D E;
 FALSE:                               F A L S E;
 FETCH:                               F E T C H;
 FOR:                                 F O R;
@@ -97,9 +133,12 @@ FOREIGN:                             F O R E I G N;
 FROM:                                F R O M;
 FULLTEXT:                            F U L L T E X T;
 GENERATED:                           G E N E R A T E D;
+GENERATE:                            G E N E R A T E;
 GET:                                 G E T;
 GRANT:                               G R A N T;
 GROUP:                               G R O U P;
+GROUPS:                              G R O U P S;
+GROUPING:                            G R O U P I N G;
 HAVING:                              H A V I N G;
 HIGH_PRIORITY:                       H I G H '_' P R I O R I T Y;
 IF:                                  I F;
@@ -110,11 +149,14 @@ INFILE:                              I N F I L E;
 INNER:                               I N N E R;
 INOUT:                               I N O U T;
 INSERT:                              I N S E R T;
+INITIAL:                             I N I T I A L;
+INTERSECT:                           I N T E R S E C T;
 INTERVAL:                            I N T E R V A L;
 INTO:                                I N T O;
 IS:                                  I S;
 ITERATE:                             I T E R A T E;
 JOIN:                                J O I N;
+LATERAL:                             L A T E R A L;
 KEY:                                 K E Y;
 KEYS:                                K E Y S;
 KILL:                                K I L L;
@@ -127,6 +169,7 @@ LINEAR:                              L I N E A R;
 LINES:                               L I N E S;
 LOAD:                                L O A D;
 LOCK:                                L O C K;
+LOCKED:                              L O C K E D;
 LOOP:                                L O O P;
 LOW_PRIORITY:                        L O W '_' P R I O R I T Y;
 PRIORITY:                            P R I O R I T Y;
@@ -135,14 +178,20 @@ MASTER_SSL_VERIFY_SERVER_CERT:       M A S T E R '_' S S L '_' V E R I F Y '_' S
 MATCH:                               M A T C H;
 AGAINST:                             A G A I N S T;
 EXPANSION:                           E X P A N S I O N;
+BACKUP:                              B A C K U P;
 MAXVALUE:                            M A X V A L U E;
 MODIFIES:                            M O D I F I E S;
 NATURAL:                             N A T U R A L;
+NESTED:                              N E S T E D;
 NOT:                                 N O T;
 NO_WRITE_TO_BINLOG:                  N O '_' W R I T E '_' T O '_' B I N L O G;
+NO_WAIT:                             N O '_' W A I T;
+NOWAIT:                              N O W A I T;
 NULL_LITERAL:                        N U L L;
+NULLS:                               N U L L S;
 NUMBER:                              N U M B E R;
 ON:                                  O N;
+OFF:                                 O F F;
 OPTIMIZE:                            O P T I M I Z E;
 OPTION:                              O P T I O N;
 OPTIONAL:                            O P T I O N A L;
@@ -152,33 +201,48 @@ ORDER:                               O R D E R;
 OUT:                                 O U T;
 OUTER:                               O U T E R;
 OUTFILE:                             O U T F I L E;
+ORDINALITY:                          O R D I N A L I T Y;
+ORGANIZATION:                        O R G A N I Z A T I O N;
 PARTITION:                           P A R T I T I O N;
+PATH:                                P A T H;
 PRIMARY:                             P R I M A R Y;
 PROCEDURE:                           P R O C E D U R E;
 PURGE:                               P U R G E;
 RANGE:                               R A N G E;
 READ:                                R E A D;
 READS:                               R E A D S;
+REFERENCE:                           R E F E R E N C E;
 REFERENCES:                          R E F E R E N C E S;
 REGEXP:                              R E G E X P;
+READ_ONLY:                           R E A D '_' O N L Y;
+READ_WRITE:                          R E A D '_' W R I T E;
 RELEASE:                             R E L E A S E;
 RENAME:                              R E N A M E;
 REPEAT:                              R E P E A T;
 REPLACE:                             R E P L A C E;
 REQUIRE:                             R E Q U I R E;
+RECURSIVE:                           R E C U R S I V E;
 RESIGNAL:                            R E S I G N A L;
 RESTRICT:                            R E S T R I C T;
 RETURN:                              R E T U R N;
 REVOKE:                              R E V O K E;
 RIGHT:                               R I G H T;
 RLIKE:                               R L I K E;
+RTREE:                               R T R E E;
 SCHEMA:                              S C H E M A;
 SCHEMAS:                             S C H E M A S;
 SELECT:                              S E L E C T;
+TABLESAMPLE:                         T A B L E S A M P L E;
+BERNOULLI:                           B E R N O U L L I;
+SECONDARY_ENGINE_ATTRIBUTE:          S E C O N D A R Y '_' E N G I N E '_' A T T R I B U T E;
+SECONDARY_ENGINE:                    S E C O N D A R Y '_' E N G I N E;
+SECONDARY_LOAD:                      S E C O N D A R Y '_' L O A D;
+SECONDARY_UNLOAD:                    S E C O N D A R Y '_' U N L O A D;
 SET:                                 S E T;
 PERSIST:                             P E R S I S T;
 SEPARATOR:                           S E P A R A T O R;
 SHOW:                                S H O W;
+SKIP_SYMBOL:                         S K I P;
 SIGNAL:                              S I G N A L;
 SPATIAL:                             S P A T I A L;
 SQL:                                 S Q L;
@@ -198,9 +262,13 @@ THEN:                                T H E N;
 TO:                                  T O;
 TRAILING:                            T R A I L I N G;
 TRIGGER:                             T R I G G E R;
+TREE:                                T R E E;
 TRUE:                                T R U E;
+ACTIVE:                              A C T I V E;
+INACTIVE:                            I N A C T I V E;
 UNDO:                                U N D O;
 UNION:                               U N I O N;
+UNICODE:                             U N I C O D E;
 UNIQUE:                              U N I Q U E;
 UNLOCK:                              U N L O C K;
 UNSIGNED:                            U N S I G N E D;
@@ -212,6 +280,7 @@ VALUES:                              V A L U E S;
 WHEN:                                W H E N;
 WHERE:                               W H E R E;
 WHILE:                               W H I L E;
+WINDOW:                              W I N D O W;
 WITH:                                W I T H;
 WRITE:                               W R I T E;
 XOR:                                 X O R;
@@ -245,9 +314,9 @@ DATE:                                D A T E;
 TIME:                                T I M E;
 TIMESTAMP:                           T I M E S T A M P;
 DATETIME:                            D A T E T I M E;
-YEAR:                                Y E A R;
+YEAR:                                (S Q L '_' T S I '_')? Y E A R;
 CHAR:                                C H A R;
-VARCHAR:                             V A R C H A R;
+VARCHAR:                             V A R C H A R (A C T E R)?;
 NVARCHAR:                            N V A R C H A R;
 NATIONAL:                            N A T I O N A L;
 BINARY:                              B I N A R Y;
@@ -282,6 +351,8 @@ DAY_MICROSECOND:                     D A Y '_' M I C R O S E C O N D;
 
 // JSON keywords
 JSON_ARRAY:                          J S O N '_' A R R A Y;
+JSON_DUALITY_OBJECT:                 J S O N '_' D U A L I T Y '_' O B J E C T;
+ST_COLLECT:                          S T '_' C O L L E C T;
 JSON_OBJECT:                         J S O N '_' O B J E C T;
 JSON_QUOTE:                          J S O N '_' Q U O T E;
 JSON_CONTAINS:                       J S O N '_' C O N T A I N S;
@@ -334,6 +405,7 @@ VAR_SAMP:                            V A R '_' S A M P;
 VARIANCE:                            V A R I A N C E;
 
 CUME_DIST:                           C U M E '_' D I S T;
+CUBE:                                C U B E;
 DENSE_RANK:                          D E N S E '_' R A N K;
 FIRST_VALUE:                         F I R S T '_' V A L U E;
 LAG:                                 L A G;
@@ -377,7 +449,9 @@ AGGREGATE:                           A G G R E G A T E;
 ALGORITHM:                           A L G O R I T H M;
 ANY:                                 A N Y;
 AT:                                  A T;
+ATTRIBUTE:                           A T T R I B U T E;
 AUTHORS:                             A U T H O R S;
+AUTO:                                A U T O;
 AUTOCOMMIT:                          A U T O C O M M I T;
 AUTOEXTEND_SIZE:                     A U T O E X T E N D '_' S I Z E;
 AUTO_INCREMENT:                      A U T O '_' I N C R E M E N T;
@@ -389,6 +463,7 @@ BLOCK:                               B L O C K;
 BOOL:                                B O O L;
 BOOLEAN:                             B O O L E A N;
 BTREE:                               B T R E E;
+BUCKETS:                             B U C K E T S;
 CACHE:                               C A C H E;
 CASCADED:                            C A S C A D E D;
 CHAIN:                               C H A I N;
@@ -410,7 +485,8 @@ COMMIT:                              C O M M I T;
 COMPACT:                             C O M P A C T;
 COMPLETION:                          C O M P L E T I O N;
 COMPRESSED:                          C O M P R E S S E D;
-COMPRESSION:                         Q U O T E '_' S Y M B ?   C O M P R E S S I O N   Q U O T E '_' S Y M B?;
+COMPRESSION:                         C O M P R E S S I O N
+                                     | Q U O T E '_' S Y M B ?   C O M P R E S S I O N   Q U O T E '_' S Y M B?;
 CONCURRENT:                          C O N C U R R E N T;
 CONNECT:                             C O N N E C T;
 CONNECTION:                          C O N N E C T I O N;
@@ -436,14 +512,17 @@ DISABLE:                             D I S A B L E;
 DISCARD:                             D I S C A R D;
 DISK:                                D I S K;
 DO:                                  D O;
+DUALITY:                             D U A L I T Y;
 DUMPFILE:                            D U M P F I L E;
 DUPLICATE:                           D U P L I C A T E;
 DYNAMIC:                             D Y N A M I C;
 ENABLE:                              E N A B L E;
 ENCRYPTION:                          E N C R Y P T I O N;
+ENFORCED:                            E N F O R C E D;
 END:                                 E N D;
 ENDS:                                E N D S;
 ENGINE:                              E N G I N E;
+ENGINE_ATTRIBUTE:                    E N G I N E '_' A T T R I B U T E;
 ENGINES:                             E N G I N E S;
 ERROR:                               E R R O R;
 ERRORS:                              E R R O R S;
@@ -455,6 +534,8 @@ EVERY:                               E V E R Y;
 EXCHANGE:                            E X C H A N G E;
 EXCLUSIVE:                           E X C L U S I V E;
 EXPIRE:                              E X P I R E;
+EXTERNAL:                            E X T E R N A L;
+EXTERNAL_FORMAT:                     E X T E R N A L '_' F O R M A T;
 EXPORT:                              E X P O R T;
 EXTENDED:                            E X T E N D E D;
 EXTENT_SIZE:                         E X T E N T '_' S I Z E;
@@ -478,6 +559,7 @@ GROUP_REPLICATION:                   G R O U P '_' R E P L I C A T I O N;
 HANDLER:                             H A N D L E R;
 HASH:                                H A S H;
 HELP:                                H E L P;
+HISTOGRAM:                           H I S T O G R A M;
 HISTORY:                             H I S T O R Y;
 HOST:                                H O S T;
 HOSTS:                               H O S T S;
@@ -505,10 +587,12 @@ LAST:                                L A S T;
 LEAVES:                              L E A V E S;
 LESS:                                L E S S;
 LEVEL:                               L E V E L;
+LIBRARY:                             L I B R A R Y;
 LIST:                                L I S T;
 LOCAL:                               L O C A L;
 LOGFILE:                             L O G F I L E;
 LOGS:                                L O G S;
+MANUAL:                              M A N U A L;
 MASTER:                              M A S T E R;
 MASTER_AUTO_POSITION:                M A S T E R '_' A U T O '_' P O S I T I O N;
 MASTER_CONNECT_RETRY:                M A S T E R '_' C O N N E C T '_' R E T R Y;
@@ -530,6 +614,7 @@ MASTER_SSL_CRLPATH:                  M A S T E R '_' S S L '_' C R L P A T H;
 MASTER_SSL_KEY:                      M A S T E R '_' S S L '_' K E Y;
 MASTER_TLS_VERSION:                  M A S T E R '_' T L S '_' V E R S I O N;
 MASTER_USER:                         M A S T E R '_' U S E R;
+MASKING:                             M A S K I N G;
 MAX_CONNECTIONS_PER_HOUR:            M A X '_' C O N N E C T I O N S '_' P E R '_' H O U R;
 MAX_QUERIES_PER_HOUR:                M A X '_' Q U E R I E S '_' P E R '_' H O U R;
 MAX_ROWS:                            M A X '_' R O W S;
@@ -545,6 +630,12 @@ MIGRATE:                             M I G R A T E;
 MIN_ROWS:                            M I N '_' R O W S;
 MODE:                                M O D E;
 MODIFY:                              M O D I F Y;
+FACTOR:                              F A C T O R;
+INITIATE:                            I N I T I A T E;
+REGISTRATION:                        R E G I S T R A T I O N;
+UNREGISTER:                          U N R E G I S T E R;
+FINISH:                              F I N I S H;
+CHALLENGE_RESPONSE:                  C H A L L E N G E '_' R E S P O N S E;
 MUTEX:                               M U T E X;
 MYSQL:                               M Y S Q L;
 MYSQL_ERRNO:                         M Y S Q L '_' E R R N O;
@@ -561,10 +652,15 @@ OFFLINE:                             O F F L I N E;
 OFFSET:                              O F F S E T;
 OF:                                  O F;
 OJ:                                  O J;
+OTHERS:                              O T H E R S;
+TIES:                                T I E S;
+OLD:                                 O L D;
 OLD_PASSWORD:                        O L D '_' P A S S W O R D;
 ONE:                                 O N E;
 ONLINE:                              O N L I N E;
 ONLY:                                O N L Y;
+GUIDED:                              G U I D E D;
+VALIDATE:                            V A L I D A T E;
 OPEN:                                O P E N;
 OPTIMIZER_COSTS:                     O P T I M I Z E R '_' C O S T S;
 OPTIONS:                             O P T I O N S;
@@ -577,10 +673,12 @@ PARTITIONING:                        P A R T I T I O N I N G;
 PARTITIONS:                          P A R T I T I O N S;
 PASSWORD:                            P A S S W O R D;
 PASSWORD_LOCK_TIME:                  P A S S W O R D '_' L O C K '_' T I M E;
+PARSE_TREE:                          P A R S E '_' T R E E;
 PHASE:                               P H A S E;
 PLUGIN:                              P L U G I N;
 PLUGIN_DIR:                          P L U G I N '_' D I R;
 PLUGINS:                             P L U G I N S;
+POLICY:                              P O L I C Y;
 PORT:                                P O R T;
 PRECEDES:                            P R E C E D E S;
 PREPARE:                             P R E P A R E;
@@ -592,10 +690,12 @@ PROFILES:                            P R O F I L E S;
 PROXY:                               P R O X Y;
 OVER:                                O V E R;
 QUERY:                               Q U E R Y;
+QUALIFY:                             Q U A L I F Y;
 QUICK:                               Q U I C K;
 REBUILD:                             R E B U I L D;
 RECOVER:                             R E C O V E R;
 REDO_BUFFER_SIZE:                    R E D O '_' B U F F E R '_' S I Z E;
+REDOFILE:                            R E D O F I L E;
 REDUNDANT:                           R E D U N D A N T;
 RELAY:                               R E L A Y;
 RELAY_LOG_FILE:                      R E L A Y '_' L O G '_' F I L E;
@@ -604,6 +704,7 @@ RELAYLOG:                            R E L A Y L O G;
 REMOVE:                              R E M O V E;
 REORGANIZE:                          R E O R G A N I Z E;
 REPAIR:                              R E P A I R;
+RELATIONAL:                          R E L A T I O N A L;
 REPLICATE_DO_DB:                     R E P L I C A T E '_' D O '_' D B;
 REPLICATE_DO_TABLE:                  R E P L I C A T E '_' D O '_' T A B L E;
 REPLICATE_IGNORE_DB:                 R E P L I C A T E '_' I G N O R E '_' D B;
@@ -613,10 +714,14 @@ REPLICATE_WILD_DO_TABLE:             R E P L I C A T E '_' W I L D '_' D O '_' T
 REPLICATE_WILD_IGNORE_TABLE:         R E P L I C A T E '_' W I L D '_' I G N O R E '_' T A B L E;
 REPLICATION:                         R E P L I C A T I O N;
 RESET:                               R E S E T;
+RESTART:                             R E S T A R T;
+RESPECT:                             R E S P E C T;
+RESOURCE:                            R E S O U R C E;
 RESUME:                              R E S U M E;
 RETURNED_SQLSTATE:                   R E T U R N E D '_' S Q L S T A T E;
 RETURNING:                           R E T U R N I N G;
 RETURNS:                             R E T U R N S;
+RETAIN:                              R E T A I N;
 REUSE:                               R E U S E;
 ROLE:                                R O L E;
 ROLLBACK:                            R O L L B A C K;
@@ -642,6 +747,8 @@ SOME:                                S O M E;
 SONAME:                              S O N A M E;
 SOUNDS:                              S O U N D S;
 SOURCE:                              S O U R C E;
+SOURCE_LOG_FILE:                     S O U R C E '_' L O G '_' F I L E;
+SOURCE_LOG_POS:                      S O U R C E '_' L O G '_' P O S;
 SQL_AFTER_GTIDS:                     S Q L '_' A F T E R '_' G T I D S;
 SQL_AFTER_MTS_GAPS:                  S Q L '_' A F T E R '_' M T S '_' G A P S;
 SQL_BEFORE_GTIDS:                    S Q L '_' B E F O R E '_' G T I D S;
@@ -655,6 +762,7 @@ STATS_AUTO_RECALC:                   S T A T S '_' A U T O '_' R E C A L C;
 STATS_PERSISTENT:                    S T A T S '_' P E R S I S T E N T;
 STATS_SAMPLE_PAGES:                  S T A T S '_' S A M P L E '_' P A G E S;
 STATUS:                              S T A T U S;
+STREAM:                              S T R E A M;
 STOP:                                S T O P;
 STORAGE:                             S T O R A G E;
 STORED:                              S T O R E D;
@@ -666,17 +774,20 @@ SUBPARTITIONS:                       S U B P A R T I T I O N S;
 SUSPEND:                             S U S P E N D;
 SWAPS:                               S W A P S;
 SWITCHES:                            S W I T C H E S;
+SYSTEM:                              S Y S T E M;
 TABLE_NAME:                          T A B L E '_' N A M E;
 TABLESPACE:                          T A B L E S P A C E;
 TABLE_TYPE:                          T A B L E '_' T Y P E;
 TEMPORARY:                           T E M P O R A R Y;
 TEMPTABLE:                           T E M P T A B L E;
 THAN:                                T H A N;
+THREAD_PRIORITY:                     T H R E A D '_' P R I O R I T Y;
 TRADITIONAL:                         T R A D I T I O N A L;
 TRANSACTION:                         T R A N S A C T I O N;
 TRANSACTIONAL:                       T R A N S A C T I O N A L;
 TRIGGERS:                            T R I G G E R S;
 TRUNCATE:                            T R U N C A T E;
+TYPE:                                T Y P E;
 UNBOUNDED:                           U N B O U N D E D;
 PRECEDING:                           P R E C E D I N G;
 FOLLOWING:                           F O L L O W I N G;
@@ -693,9 +804,30 @@ USER_RESOURCES:                      U S E R '_' R E S O U R C E S;
 VALIDATION:                          V A L I D A T I O N;
 VALUE:                               V A L U E;
 VARIABLES:                           V A R I A B L E S;
+VECTOR:                              V E C T O R;
+URL:                                 U R L;
+URI:                                 U R I;
+HEADER:                              H E A D E R;
+PARAMETERS:                          P A R A M E T E R S;
+MATERIALIZED:                        M A T E R I A L I Z E D;
+SETS:                                S E T S;
+ALLOW_MISSING_FILES:                 A L L O W '_' M I S S I N G '_' F I L E S;
+AUTO_REFRESH:                        A U T O '_' R E F R E S H;
+AUTO_REFRESH_SOURCE:                 A U T O '_' R E F R E S H '_' S O U R C E;
+FILES:                               F I L E S;
+FILE_FORMAT:                         F I L E '_' F O R M A T;
+FILE_NAME:                           F I L E '_' N A M E;
+FILE_PATTERN:                        F I L E '_' P A T T E R N;
+FILE_PREFIX:                         F I L E '_' P R E F I X;
+STRICT_LOAD:                         S T R I C T '_' L O A D;
+VERIFY_KEY_CONSTRAINTS:              V E R I F Y '_' K E Y '_' C O N S T R A I N T S;
+S3:                                  S '3';
+PARALLEL:                            P A R A L L E L;
+BULK:                                B U L K;
 VIEW:                                V I E W;
 VIRTUAL:                             V I R T U A L;
 VISIBLE:                             V I S I B L E;
+VCPU:                                V C P U;
 WAIT:                                W A I T;
 WARNINGS:                            W A R N I N G S;
 WITHOUT:                             W I T H O U T;
@@ -704,6 +836,7 @@ WRAPPER:                             W R A P P E R;
 X509:                                X '5' '0' '9';
 XA:                                  X A;
 XML:                                 X M L;
+ZONE:                                Z O N E;
 
 
 // Date format Keywords
@@ -717,13 +850,13 @@ INTERNAL:                            I N T E R N A L;
 
 // Interval type Keywords
 
-QUARTER:                             Q U A R T E R;
-MONTH:                               M O N T H;
-DAY:                                 D A Y;
-HOUR:                                H O U R;
-MINUTE:                              M I N U T E;
-WEEK:                                W E E K;
-SECOND:                              S E C O N D;
+QUARTER:                             (S Q L '_' T S I '_')? Q U A R T E R;
+MONTH:                               (S Q L '_' T S I '_')? M O N T H;
+DAY:                                 (S Q L '_' T S I '_')? D A Y;
+HOUR:                                (S Q L '_' T S I '_')? H O U R;
+MINUTE:                              (S Q L '_' T S I '_')? M I N U T E;
+WEEK:                                (S Q L '_' T S I '_')? W E E K;
+SECOND:                              (S Q L '_' T S I '_')? S E C O N D;
 MICROSECOND:                         M I C R O S E C O N D;
 
 
@@ -754,8 +887,10 @@ FLUSH_STATUS:                        F L U S H '_' S T A T U S;
 FLUSH_TABLES:                        F L U S H '_' T A B L E S;
 FLUSH_USER_RESOURCES:                F L U S H '_' U S E R '_' R E S O U R C E S;
 GROUP_REPLICATION_ADMIN:             G R O U P '_' R E P L I C A T I O N '_' A D M I N;
+KEYRING:                             K E Y R I N G;
 INNODB_REDO_LOG_ARCHIVE:             I N N O D B '_' R E D O '_' L O G '_' A R C H I V E;
 INNODB_REDO_LOG_ENABLE:              I N N O D B '_' R E D O '_' L O G '_' E N A B L E;
+REDO_LOG:                            R E D O '_' L O G;
 NDB_STORED_USER:                     N D B '_' S T O R E D '_' U S E R;
 PERSIST_RO_VARIABLES_ADMIN:          P E R S I S T '_' R O '_' V A R I A B L E S '_' A D M I N;
 REPLICATION_APPLIER:                 R E P L I C A T I O N '_' A P P L I E R;
@@ -770,6 +905,7 @@ SHOW_ROUTINE:                        S H O W '_' R O U T I N E;
 SYSTEM_VARIABLES_ADMIN:              S Y S T E M '_' V A R I A B L E S '_' A D M I N;
 TABLE_ENCRYPTION_ADMIN:              T A B L E '_' E N C R Y P T I O N '_' A D M I N;
 VERSION_TOKEN_ADMIN:                 V E R S I O N '_' T O K E N '_' A D M I N;
+TLS:                                 T L S;
 XA_RECOVER_ADMIN:                    X A '_' R E C O V E R '_' A D M I N;
 
 
@@ -789,6 +925,7 @@ CP932:                               C P '9' '3' '2';
 DEC8:                                D E C '8';
 EUCJPMS:                             E U C J P M S;
 EUCKR:                               E U C K R;
+GB18030:                             G B '1' '8' '0' '3' '0';
 GB2312:                              G B '2' '3' '1' '2';
 GBK:                                 G B K;
 GEOSTD8:                             G E O S T D '8';
@@ -1034,6 +1171,7 @@ POWER:                               P O W E R;
 QUOTE:                               Q U O T E;
 RADIANS:                             R A D I A N S;
 RAND:                                R A N D;
+RANDOM:                              R A N D O M;
 RANDOM_BYTES:                        R A N D O M '_' B Y T E S;
 RELEASE_LOCK:                        R E L E A S E '_' L O C K;
 REVERSE:                             R E V E R S E;
@@ -1162,7 +1300,9 @@ BINLOG_REPLAY:                       B I N L O G '_' R E P L A Y;
 FEDERATED_ADMIN:                     F E D E R A T E D '_' A D M I N;
 READ_ONLY_ADMIN:                     R E A D '_' O N L Y '_' A D M I N;
 REPLICA:                             R E P L I C A;
+REPLICAS:                            R E P L I C A S;
 REPLICATION_MASTER_ADMIN:            R E P L I C A T I O N '_' M A S T E R '_' A D M I N;
+GTIDS:                               G T I D S;
 
 // Operators
 // Operators. Assigns
@@ -1201,6 +1341,9 @@ EXCLAMATION_SYMBOL:                  '!';
 // Operators. Bit
 
 BIT_NOT_OP:                          '~';
+PIPES_CONCAT:                        {isPipesAsConcat()}? '||';
+PIPES_LOGICAL_OR:                    {!isPipesAsConcat() && !isSqlModeUnknown()}? '||';
+PIPES_AMBIGUOUS:                     {isSqlModeUnknown()}? '||';
 BIT_OR_OP:                           '|';
 BIT_AND_OP:                          '&';
 BIT_XOR_OP:                          '^';
@@ -1211,12 +1354,18 @@ BIT_XOR_OP:                          '^';
 DOT:                                 '.';
 LR_BRACKET:                          '(';
 RR_BRACKET:                          ')';
+LCURLY_BRACKET:                      '{';
+RCURLY_BRACKET:                      '}';
 COMMA:                               ',';
-SEMI:                                ';';
+SEMI:                                ';' {
+                                      if (isInsideExecutableComment()) {
+                                          setChannel(HIDDEN);
+                                      }
+                                    };
 AT_SIGN:                             '@';
-ZERO_DECIMAL:                        '0';
-ONE_DECIMAL:                         '1';
-TWO_DECIMAL:                         '2';
+ZERO_DECIMAL:                        '0' {notIdentifierPartExceptDollarAhead()}?;
+ONE_DECIMAL:                         '1' {notIdentifierPartExceptDollarAhead()}?;
+TWO_DECIMAL:                         '2' {notIdentifierPartExceptDollarAhead()}?;
 SINGLE_QUOTE_SYMB:                   '\'';
 DOUBLE_QUOTE_SYMB:                   '"';
 REVERSE_QUOTE_SYMB:                  '`';
@@ -1245,27 +1394,27 @@ FILESIZE_LITERAL:                    DEC_DIGIT+ (K|M|G|T);
 
 
 START_NATIONAL_STRING_LITERAL:       'N' SQUOTA_STRING;
-STRING_LITERAL:                      DQUOTA_STRING | SQUOTA_STRING;
-DECIMAL_LITERAL:                     DEC_DIGIT+;
-HEXADECIMAL_LITERAL:                 'X' '\'' (HEX_DIGIT HEX_DIGIT)+ '\''
-                                     | '0X' HEX_DIGIT+;
+DOLLAR_QUOTED_STRING:                '$';
+DOUBLE_QUOTE_ID:                     {isAnsiQuotes()}? DQUOTA_IDENTIFIER;
+DOUBLE_QUOTE_STRING_LITERAL:         {!isAnsiQuotes() && !isSqlModeUnknown()}? DQUOTA_STRING;
+DOUBLE_QUOTE_AMBIGUOUS:              {isSqlModeUnknown()}? DQUOTA_STRING;
+STRING_LITERAL:                      SQUOTA_STRING;
+DECIMAL_LITERAL:                     DEC_DIGIT+ {notIdentifierPartExceptDollarAhead()}?;
+HEXADECIMAL_LITERAL:                 [xX] '\'' (HEX_DIGIT HEX_DIGIT)* '\''
+                                     | '0' [xX] HEX_DIGIT+;
 
-REAL_LITERAL:                        (DEC_DIGIT+)? '.' DEC_DIGIT+
+REAL_LITERAL:                        DEC_DIGIT+ '.' DEC_DIGIT+
+                                     | {isLeadingDotRealAllowed()}? '.' DEC_DIGIT+
+                                     | DEC_DIGIT+ '.'
                                      | DEC_DIGIT+ '.' EXPONENT_NUM_PART
                                      | (DEC_DIGIT+)? '.' (DEC_DIGIT+ EXPONENT_NUM_PART)
                                      | DEC_DIGIT+ EXPONENT_NUM_PART;
+PARAM_MARKER:                        '?';
 NULL_SPEC_LITERAL:                   '\\' 'N';
 BIT_STRING:                          BIT_STRING_L;
-STRING_CHARSET_NAME:                 '_' CHARSET_NAME;
+STRING_CHARSET_NAME:                 '_' CHARSET_NAME
+                                   | '_' F I L E N A M E;
 
-
-
-
-// Hack for dotID
-// Prevent recognize string:         .123somelatin AS ((.123), FLOAT_LITERAL), ((somelatin), ID)
-//  it must recoginze:               .123somelatin AS ((.), DOT), (123somelatin, ID)
-
-//DOT_ID:                              '.' ID_LITERAL;
 
 
 
@@ -1273,7 +1422,7 @@ STRING_CHARSET_NAME:                 '_' CHARSET_NAME;
 
 ID:                                  ID_LITERAL;
 // DOUBLE_QUOTE_ID:                  '"' ~'"'+ '"';
-REVERSE_QUOTE_ID:                    '`' ~'`'+ '`';
+REVERSE_QUOTE_ID:                    BQUOTA_STRING;
 //STRING_USER_NAME:                    (
 //                                       SQUOTA_STRING | DQUOTA_STRING
 //                                       | BQUOTA_STRING | ID_LITERAL | STRING_LITERAL
@@ -1298,21 +1447,28 @@ GLOBAL_ID:                           '@' '@'
 fragment CHARSET_NAME:               ARMSCII8 | ASCII | BIG5 | BINARY | CP1250 
                                      | CP1251 | CP1256 | CP1257 | CP850 
                                      | CP852 | CP866 | CP932 | DEC8 | EUCJPMS 
-                                     | EUCKR | GB2312 | GBK | GEOSTD8 | GREEK 
+                                     | EUCKR | GB18030 | GB2312 | GBK | GEOSTD8 | GREEK
                                      | HEBREW | HP8 | KEYBCS2 | KOI8R | KOI8U 
                                      | LATIN1 | LATIN2 | LATIN5 | LATIN7 
                                      | MACCE | MACROMAN | SJIS | SWE7 | TIS620 
                                      | UCS2 | UJIS | UTF16 | UTF16LE | UTF32 
                                      | UTF8 | UTF8MB3 | UTF8MB4;
 
-fragment EXPONENT_NUM_PART:          'E' [-+]? DEC_DIGIT+;
-fragment ID_LITERAL:                 [a-zA-Z_$0-9\u0080-\uFFFF]*?[a-zA-Z_$\u0080-\uFFFF]+?[a-zA-Z_$0-9\u0080-\uFFFF]*;
-fragment DQUOTA_STRING:              '"' ( '\\'. | '""' | ~('"'| '\\') )* '"';
-fragment SQUOTA_STRING:              '\'' ('\\'. | '\'\'' | ~('\'' | '\\'))* '\'';
+fragment EXPONENT_NUM_PART:          E [-+]? DEC_DIGIT+;
+fragment ID_LITERAL:                 [0-9]* [a-zA-Z_$\u0080-\uFFFF] [a-zA-Z_$0-9\u0080-\uFFFF]*;
+fragment DQUOTA_IDENTIFIER:          '"' ('""' | ~'"')* '"';
+fragment DQUOTA_STRING:              {isNoBackslashEscapes()}?
+                                     '"' ('""' | ~'"')* '"'
+                                   | {!isNoBackslashEscapes()}?
+                                     '"' ('\\'. | '""' | ~('"' | '\\'))* '"';
+fragment SQUOTA_STRING:              {isNoBackslashEscapes()}?
+                                     '\'' ('\'\'' | ~'\'')* '\''
+                                   | {!isNoBackslashEscapes()}?
+                                     '\'' ('\\'. | '\'\'' | ~('\'' | '\\'))* '\'';
 fragment BQUOTA_STRING:              '`' ( '\\'. | '``' | ~('`'|'\\'))* '`';
-fragment HEX_DIGIT:                  [0-9A-F];
+fragment HEX_DIGIT:                  [0-9a-fA-F];
 fragment DEC_DIGIT:                  [0-9];
-fragment BIT_STRING_L:               'B' '\'' [01]+ '\'';
+fragment BIT_STRING_L:               B '\'' [01]* '\'' | '0' B [01]+;
 
 fragment A: [aA];
 fragment B: [bB];

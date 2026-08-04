@@ -1,0 +1,387 @@
+create table app.json_types(
+ id int primary key,j json default '{}',jb jsonb default '{}' not null,
+ v varchar2(32767) check(v is json(strict) with unique keys),
+ c clob check(c is json(lax) without unique keys),
+ t text check(t is json),l longvarchar check(l is json)) storage(using long row);
+comment on table app.json_types is 'JSON type matrix';
+comment on column app.json_types.j is 'text preserving JSON';
+comment on column app.json_types.jb is 'normalized JSONB';
+comment on column app.json_types.v is 'strict unique JSON';
+comment on column app.json_types.c is 'lax nonunique JSON';
+comment on column app.json_types.t is 'TEXT JSON';
+comment on column app.json_types.l is 'LONGVARCHAR JSON';
+alter table app.json_types add j_alt json default 'null';
+alter table app.json_types add jb_alt jsonb default '[]';
+alter table app.json_types add v_alt varchar(100)
+ check(v_alt is json(lax) without unique keys);
+insert into app.json_types(id,j,jb) values(1,'"达梦\\t\\u0041"','"达梦\\t\\u0041"');
+insert into app.json_types(id,j,jb) values(2,'0','0');
+insert into app.json_types(id,j,jb) values(3,'-0','-0');
+insert into app.json_types(id,j,jb) values(4,'-123.456E+78','-123.456E+78');
+insert into app.json_types(id,j,jb) values(5,'1.7976931348623157E308','1.7976931348623157E308');
+insert into app.json_types(id,j,jb) values(6,'1E309','1E309');
+insert into app.json_types(id,j,jb) values(7,'true','true');
+insert into app.json_types(id,j,jb) values(8,'false','false');
+insert into app.json_types(id,j,jb) values(9,'null','null');
+insert into app.json_types(id,j,jb) values(10,'{}','{}');
+insert into app.json_types(id,j,jb) values(11,'{"a":{"b":[1,true,null,"x"]}}','{"a":{"b":[1,true,null,"x"]}}');
+insert into app.json_types(id,j,jb) values(12,'[]','[]');
+insert into app.json_types(id,j,jb) values(13,'["",0,true,false,null,{},[],[1]]','["",0,true,false,null,{},[],[1]]');
+insert into app.json_types(id,jb) values(20,'{}');
+insert into app.json_types(id,j,jb) values(
+ 21,'{"z":0,"a":1,"a":2}','{"z":0,"a":1,"a":2}');
+insert into app.json_types(id,c,t,l) values(
+ 22,'{"a":1,"a":2}','{"carrier":"TEXT"}','{"carrier":"LONGVARCHAR"}');
+insert into app.json_types(id,v) values(
+ 23,'"VARCHAR2 JSON"');
+update app.json_types set j='{"updated":true}',
+ jb='{"updated":true}' where id=1;
+merge into app.json_types t using(select 1 id from dual)s on(t.id=s.id)
+ when matched then update set t.j='{"merged":true}',t.jb='{"merged":true}';
+delete from app.json_types where id=23;
+select cast('"达梦\\t\\u0041"' as json),cast('"达梦\\t\\u0041"' as jsonb) from dual;
+select cast('0' as json),cast('0' as jsonb) from dual;
+select cast('-0' as json),cast('-0' as jsonb) from dual;
+select cast('-123.456E+78' as json),cast('-123.456E+78' as jsonb) from dual;
+select cast('1.7976931348623157E308' as json),cast('1.7976931348623157E308' as jsonb) from dual;
+select cast('1E309' as json),cast('1E309' as jsonb) from dual;
+select cast('true' as json),cast('true' as jsonb) from dual;
+select cast('false' as json),cast('false' as jsonb) from dual;
+select cast('null' as json),cast('null' as jsonb) from dual;
+select cast('{}' as json),cast('{}' as jsonb) from dual;
+select cast('{"a":{"b":[1,true,null,"x"]}}' as json),cast('{"a":{"b":[1,true,null,"x"]}}' as jsonb) from dual;
+select cast('[]' as json),cast('[]' as jsonb) from dual;
+select cast('["",0,true,false,null,{},[],[1]]' as json),cast('["",0,true,false,null,{},[],[1]]' as jsonb) from dual;
+select jsonb_typeof('"s"'),jsonb_typeof('1'),jsonb_typeof('true'),
+ jsonb_typeof('null'),jsonb_typeof('{}'),jsonb_typeof('[]') from dual;
+select j,jb from app.json_types where id=21;
+select j->'a',jb->'a' from app.json_types where id=21;
+select j->>0,jb->>0 from app.json_types where id=13;
+select j->'$.a.b',j->>'$.a.b[3]' from app.json_types where id=11;
+select jb-'a' from app.json_types where id=21;
+select '[1,2,3]'::jsonb-1 from dual;
+select '[1,2,3]'::jsonb-'a' from dual;
+select jb @> '{"a":2}'::jsonb from app.json_types where id=21;
+select * from jsonb_object_keys('{"b":2,"a":1,"a":3}');
+select * from jsonb_each(
+ '{"s":"x","n":1,"b":true,"z":null,"o":{},"a":[]}');
+select * from jsonb_array_elements(
+ '["x",1,true,null,{},[]]');
+select jsonb_build_object(
+ 's','x','n',1,'b',true,'z',null,'o','{}'::jsonb) from dual;
+select jsonb_build_array(
+ 'x',1,true,null,'{}'::jsonb,'[]'::jsonb) from dual;
+select jsonb_strip_nulls(
+ '{"a":null,"b":[null,{"c":null,"d":1}]}') from dual;
+select jsonb_agg(id) from app.json_types;
+select jsonb_object_agg(cast(id as varchar),j) from app.json_types;
+select json_value(j,'$.a.b[0]' returning number) from app.json_types;
+select json_query(j,'$.a.b' with wrapper) from app.json_types;
+select jt.* from json_table(
+ '[{"n":1},{"n":2}]','$[*]' columns(n number path '$.n'))jt order by n;
+select table_name,column_name,format,data_type
+ from user_json_columns order by table_name,column_name;
+select case when 'invalid' is not json then 1 else 0 end,
+ case when null is json then 1 else 0 end from dual;
+select distinct j from app.json_types;
+select jb from app.json_types order by jb;
+select min(jb) from app.json_types;
+create view app.json_types_v as
+ select id,j,jb,j->'a' as a from app.json_types;
+select id,a from app.json_types_v where id=21;
+create function app.json_identity(p json) return json
+as begin return p;end;
+/
+create function app.jsonb_identity(p jsonb) return jsonb
+as begin return p;end;
+/
+select app.json_identity('{"a":1}'),
+ app.jsonb_identity('{"a":1}') from dual;
+declare j json;jb jsonb;begin
+ j:='{"a":1,"a":2}';jb:='{"a":1,"a":2}';
+ insert into app.json_types(id,j,jb) values(99,j,jb);end;
+/
+create type app.json_static_array as array json[2];
+/
+create type app.jsonb_static_array as array jsonb[2];
+/
+insert into app.json_types(id,j,jb) values(101,'{"a":','{}');
+insert into app.json_types(id,j,jb) values(102,'{}','{"a":');
+insert into app.json_types(id,jb) values(103,null);
+insert into app.json_types(id,v) values(104,'TRUE');
+insert into app.json_types(id,v) values(105,'01');
+insert into app.json_types(id,v) values(106,'[1,]');
+insert into app.json_types(id,v) values(107,'{"a":1,"a":2}');
+insert into app.json_types(id,c) values(108,'{a:1,}');
+insert into app.json_types(id,c) values(109,'0x10');
+create table app.json_unique(c json unique);
+create table app.jsonb_unique(c jsonb unique);
+create table app.json_pk(c json primary key);
+create table app.jsonb_pk(c jsonb primary key);
+create index app.idx_json on app.json_types(j);
+create index app.idx_jsonb on app.json_types(jb);
+create table app.json_part(c json,v int)
+ partition by range(c)(partition p0 values less than('{"m":0}'),
+ partition p1 values less than(maxvalue));
+create table app.jsonb_part(c jsonb,v int)
+ partition by range(c)(partition p0 values less than('{"m":0}'),
+ partition p1 values less than(maxvalue));
+select j,count(*) from app.json_types group by j;
+select * from app.json_types where j=jb;
+alter table app.json_types modify j jsonb;
+alter table app.json_types modify jb json;
+select '{"a":1}'::json->'a' from dual;
+select '{"a":1}'::json->'$.a' from dual;
+select '{"a":1}'::jsonb-1 from dual;
+select '{"a":1}'::jsonb @> '{"a":1}'::json from dual;
+drop type app.json_static_array;
+drop type app.jsonb_static_array;
+drop function app.json_identity;
+drop function app.jsonb_identity;
+drop view app.json_types_v;
+drop table app.json_types;
+------------------------------------------------------------------------------------------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table app.json_types(
+ id int primary key,j json default '{}',jb jsonb default '{}' not null,
+ v varchar2(32767) check(v is json(strict) with unique keys),
+ c clob check(c is json(lax) without unique keys),
+ t text check(t is json),l longvarchar check(l is json)) storage(using long row);
+----------
+[COMMENT_TABLE] comment on table app.json_types is 'JSON type matrix';
+----------
+[COMMENT_COLUMN] comment on column app.json_types.j is 'text preserving JSON';
+----------
+[COMMENT_COLUMN] comment on column app.json_types.jb is 'normalized JSONB';
+----------
+[COMMENT_COLUMN] comment on column app.json_types.v is 'strict unique JSON';
+----------
+[COMMENT_COLUMN] comment on column app.json_types.c is 'lax nonunique JSON';
+----------
+[COMMENT_COLUMN] comment on column app.json_types.t is 'TEXT JSON';
+----------
+[COMMENT_COLUMN] comment on column app.json_types.l is 'LONGVARCHAR JSON';
+----------
+[ALTER_TABLE|ADD_COLUMN] alter table app.json_types add j_alt json default 'null';
+----------
+[ALTER_TABLE|ADD_COLUMN] alter table app.json_types add jb_alt jsonb default '[]';
+----------
+[ALTER_TABLE|ADD_COLUMN|ADD_CONSTRAINT] alter table app.json_types add v_alt varchar(100)
+ check(v_alt is json(lax) without unique keys);
+----------
+[INSERT] insert into app.json_types(id,j,jb) values(1,'"达梦\\t\\u0041"','"达梦\\t\\u0041"');
+----------
+[INSERT] insert into app.json_types(id,j,jb) values(2,'0','0');
+----------
+[INSERT] insert into app.json_types(id,j,jb) values(3,'-0','-0');
+----------
+[INSERT] insert into app.json_types(id,j,jb) values(4,'-123.456E+78','-123.456E+78');
+----------
+[INSERT] insert into app.json_types(id,j,jb) values(5,'1.7976931348623157E308','1.7976931348623157E308');
+----------
+[INSERT] insert into app.json_types(id,j,jb) values(6,'1E309','1E309');
+----------
+[INSERT] insert into app.json_types(id,j,jb) values(7,'true','true');
+----------
+[INSERT] insert into app.json_types(id,j,jb) values(8,'false','false');
+----------
+[INSERT] insert into app.json_types(id,j,jb) values(9,'null','null');
+----------
+[INSERT] insert into app.json_types(id,j,jb) values(10,'{}','{}');
+----------
+[INSERT] insert into app.json_types(id,j,jb) values(11,'{"a":{"b":[1,true,null,"x"]}}','{"a":{"b":[1,true,null,"x"]}}');
+----------
+[INSERT] insert into app.json_types(id,j,jb) values(12,'[]','[]');
+----------
+[INSERT] insert into app.json_types(id,j,jb) values(13,'["",0,true,false,null,{},[],[1]]','["",0,true,false,null,{},[],[1]]');
+----------
+[INSERT] insert into app.json_types(id,jb) values(20,'{}');
+----------
+[INSERT] insert into app.json_types(id,j,jb) values(
+ 21,'{"z":0,"a":1,"a":2}','{"z":0,"a":1,"a":2}');
+----------
+[INSERT] insert into app.json_types(id,c,t,l) values(
+ 22,'{"a":1,"a":2}','{"carrier":"TEXT"}','{"carrier":"LONGVARCHAR"}');
+----------
+[INSERT] insert into app.json_types(id,v) values(
+ 23,'"VARCHAR2 JSON"');
+----------
+[UPDATE] update app.json_types set j='{"updated":true}',
+ jb='{"updated":true}' where id=1;
+----------
+[MERGE|SELECT] merge into app.json_types t using(select 1 id from dual)s on(t.id=s.id)
+ when matched then update set t.j='{"merged":true}',t.jb='{"merged":true}';
+----------
+[DELETE] delete from app.json_types where id=23;
+----------
+[SELECT] select cast('"达梦\\t\\u0041"' as json),cast('"达梦\\t\\u0041"' as jsonb) from dual;
+----------
+[SELECT] select cast('0' as json),cast('0' as jsonb) from dual;
+----------
+[SELECT] select cast('-0' as json),cast('-0' as jsonb) from dual;
+----------
+[SELECT] select cast('-123.456E+78' as json),cast('-123.456E+78' as jsonb) from dual;
+----------
+[SELECT] select cast('1.7976931348623157E308' as json),cast('1.7976931348623157E308' as jsonb) from dual;
+----------
+[SELECT] select cast('1E309' as json),cast('1E309' as jsonb) from dual;
+----------
+[SELECT] select cast('true' as json),cast('true' as jsonb) from dual;
+----------
+[SELECT] select cast('false' as json),cast('false' as jsonb) from dual;
+----------
+[SELECT] select cast('null' as json),cast('null' as jsonb) from dual;
+----------
+[SELECT] select cast('{}' as json),cast('{}' as jsonb) from dual;
+----------
+[SELECT] select cast('{"a":{"b":[1,true,null,"x"]}}' as json),cast('{"a":{"b":[1,true,null,"x"]}}' as jsonb) from dual;
+----------
+[SELECT] select cast('[]' as json),cast('[]' as jsonb) from dual;
+----------
+[SELECT] select cast('["",0,true,false,null,{},[],[1]]' as json),cast('["",0,true,false,null,{},[],[1]]' as jsonb) from dual;
+----------
+[SELECT|CALL_PROG_OBJ] select jsonb_typeof('"s"'),jsonb_typeof('1'),jsonb_typeof('true'),
+ jsonb_typeof('null'),jsonb_typeof('{}'),jsonb_typeof('[]') from dual;
+----------
+[SELECT] select j,jb from app.json_types where id=21;
+----------
+[SELECT] select j->'a',jb->'a' from app.json_types where id=21;
+----------
+[SELECT] select j->>0,jb->>0 from app.json_types where id=13;
+----------
+[SELECT] select j->'$.a.b',j->>'$.a.b[3]' from app.json_types where id=11;
+----------
+[SELECT] select jb-'a' from app.json_types where id=21;
+----------
+[SELECT] select '[1,2,3]'::jsonb-1 from dual;
+----------
+[SELECT] select '[1,2,3]'::jsonb-'a' from dual;
+----------
+[SELECT] select jb @> '{"a":2}'::jsonb from app.json_types where id=21;
+----------
+[SELECT] select * from jsonb_object_keys('{"b":2,"a":1,"a":3}');
+----------
+[SELECT] select * from jsonb_each(
+ '{"s":"x","n":1,"b":true,"z":null,"o":{},"a":[]}');
+----------
+[SELECT] select * from jsonb_array_elements(
+ '["x",1,true,null,{},[]]');
+----------
+[SELECT|CALL_PROG_OBJ] select jsonb_build_object(
+ 's','x','n',1,'b',true,'z',null,'o','{}'::jsonb) from dual;
+----------
+[SELECT|CALL_PROG_OBJ] select jsonb_build_array(
+ 'x',1,true,null,'{}'::jsonb,'[]'::jsonb) from dual;
+----------
+[SELECT|CALL_PROG_OBJ] select jsonb_strip_nulls(
+ '{"a":null,"b":[null,{"c":null,"d":1}]}') from dual;
+----------
+[SELECT|CALL_PROG_OBJ] select jsonb_agg(id) from app.json_types;
+----------
+[SELECT|CALL_PROG_OBJ] select jsonb_object_agg(cast(id as varchar),j) from app.json_types;
+----------
+[SELECT] select json_value(j,'$.a.b[0]' returning number) from app.json_types;
+----------
+[SELECT] select json_query(j,'$.a.b' with wrapper) from app.json_types;
+----------
+[SELECT] select jt.* from json_table(
+ '[{"n":1},{"n":2}]','$[*]' columns(n number path '$.n'))jt order by n;
+----------
+[SELECT] select table_name,column_name,format,data_type
+ from user_json_columns order by table_name,column_name;
+----------
+[SELECT] select case when 'invalid' is not json then 1 else 0 end,
+ case when null is json then 1 else 0 end from dual;
+----------
+[SELECT] select distinct j from app.json_types;
+----------
+[SELECT] select jb from app.json_types order by jb;
+----------
+[SELECT] select min(jb) from app.json_types;
+----------
+[CREATE_VIEW(SELECT)] create view app.json_types_v as
+ select id,j,jb,j->'a' as a from app.json_types;
+----------
+[SELECT] select id,a from app.json_types_v where id=21;
+----------
+[CREATE_PROG_OBJ(BLOCK,PROGRAM_CONTROL)] create function app.json_identity(p json) return json
+as begin return p;end;
+----------
+[CREATE_PROG_OBJ(BLOCK,PROGRAM_CONTROL)] create function app.jsonb_identity(p jsonb) return jsonb
+as begin return p;end;
+----------
+[SELECT|CALL_PROG_OBJ] select app.json_identity('{"a":1}'),
+ app.jsonb_identity('{"a":1}') from dual;
+----------
+[BLOCK(PROGRAM_CONTROL,INSERT)] declare j json;jb jsonb;begin
+ j:='{"a":1,"a":2}';jb:='{"a":1,"a":2}';
+ insert into app.json_types(id,j,jb) values(99,j,jb);end;
+----------
+[CREATE_TYPE] create type app.json_static_array as array json[2];
+----------
+[CREATE_TYPE] create type app.jsonb_static_array as array jsonb[2];
+----------
+[INSERT] insert into app.json_types(id,j,jb) values(101,'{"a":','{}');
+----------
+[INSERT] insert into app.json_types(id,j,jb) values(102,'{}','{"a":');
+----------
+[INSERT] insert into app.json_types(id,jb) values(103,null);
+----------
+[INSERT] insert into app.json_types(id,v) values(104,'TRUE');
+----------
+[INSERT] insert into app.json_types(id,v) values(105,'01');
+----------
+[INSERT] insert into app.json_types(id,v) values(106,'[1,]');
+----------
+[INSERT] insert into app.json_types(id,v) values(107,'{"a":1,"a":2}');
+----------
+[INSERT] insert into app.json_types(id,c) values(108,'{a:1,}');
+----------
+[INSERT] insert into app.json_types(id,c) values(109,'0x10');
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table app.json_unique(c json unique);
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table app.jsonb_unique(c jsonb unique);
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table app.json_pk(c json primary key);
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table app.jsonb_pk(c jsonb primary key);
+----------
+[ADD_INDEX] create index app.idx_json on app.json_types(j);
+----------
+[ADD_INDEX] create index app.idx_jsonb on app.json_types(jb);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.json_part(c json,v int)
+ partition by range(c)(partition p0 values less than('{"m":0}'),
+ partition p1 values less than(maxvalue));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.jsonb_part(c jsonb,v int)
+ partition by range(c)(partition p0 values less than('{"m":0}'),
+ partition p1 values less than(maxvalue));
+----------
+[SELECT] select j,count(*) from app.json_types group by j;
+----------
+[SELECT] select * from app.json_types where j=jb;
+----------
+[ALTER_TABLE|ALTER_COLUMN] alter table app.json_types modify j jsonb;
+----------
+[ALTER_TABLE|ALTER_COLUMN] alter table app.json_types modify jb json;
+----------
+[SELECT] select '{"a":1}'::json->'a' from dual;
+----------
+[SELECT] select '{"a":1}'::json->'$.a' from dual;
+----------
+[SELECT] select '{"a":1}'::jsonb-1 from dual;
+----------
+[SELECT] select '{"a":1}'::jsonb @> '{"a":1}'::json from dual;
+----------
+[DROP_TYPE] drop type app.json_static_array;
+----------
+[DROP_TYPE] drop type app.jsonb_static_array;
+----------
+[DROP_PROG_OBJ] drop function app.json_identity;
+----------
+[DROP_PROG_OBJ] drop function app.jsonb_identity;
+----------
+[DROP_VIEW] drop view app.json_types_v;
+----------
+[DROP_TABLE] drop table app.json_types;

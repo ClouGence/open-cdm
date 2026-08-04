@@ -1,0 +1,21 @@
+show tables;
+show tables like '*a*';
+show create table aa;
+show history for tables;
+show history for tables like '*ergg*';
+show history for table aa;
+show partitions `aa`;
+------------------------------------------------------------------------------------------
+[METADATA] show tables;
+----------
+[METADATA] show tables like '*a*';
+----------
+[METADATA] show create table aa;
+----------
+[METADATA] show history for tables;
+----------
+[METADATA] show history for tables like '*ergg*';
+----------
+[METADATA] show history for table aa;
+----------
+[METADATA] show partitions `aa`;

@@ -1,0 +1,7 @@
+DELETE FROM audit_log WHERE created_ts < SYSTIMESTAMP - NUMTODSINTERVAL(1, 'DAY') AND NVL(status, 'N') = 'N';
+
+DELETE FROM audit_log WHERE REGEXP_SUBSTR(display_name, '[^ ]+', 1, 1) = INITCAP('oracle');
+------------------------------------------------------------------------------------------
+[DELETE] DELETE FROM audit_log WHERE created_ts < SYSTIMESTAMP - NUMTODSINTERVAL(1, 'DAY') AND NVL(status, 'N') = 'N';
+----------
+[DELETE] DELETE FROM audit_log WHERE REGEXP_SUBSTR(display_name, '[^ ]+', 1, 1) = INITCAP('oracle');

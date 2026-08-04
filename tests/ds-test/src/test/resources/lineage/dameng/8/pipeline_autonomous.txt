@@ -1,0 +1,31 @@
+[pipeline_function_result_uses_virtual_relation_lineage]
+sql:
+select p.id, p.name from table(app.pipe_rows()) p
+expect:
+{
+  "id" : [ "/p/id/" ],
+  "name" : [ "/p/name/" ]
+}
+----------
+[pipeline_query_preserves_static_join_lineage]
+sql:
+select p.id, s.name
+from table(app.pipe_rows()) p
+join catalog1.app.pipeline_source s on s.id = p.id
+expect:
+{
+  "id" : [ "/p/id/" ],
+  "name" : [ "/catalog1/app/pipeline_source/name/" ]
+}
+----------
+[autonomous_block_has_no_result_lineage]
+sql:
+declare
+  pragma autonomous_transaction;
+begin
+  insert into catalog1.app.autonomous_log values(1, 'ANON');
+  commit;
+end;
+/
+expect:
+{}

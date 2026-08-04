@@ -1,0 +1,311 @@
+[permission_mysql_8_0_00022]
+source: permission/mysql/8.0/space.txt#create_database
+sql:
+CREATE DATABASE reporting;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SPACE": [
+    "Schema(1:16~1:25) /test/1/catalog1/reporting/"
+  ]
+}
+----------
+[permission_mysql_8_0_00385]
+source: split/mysql/5.6/ddl_mysql_data_types_0.txt#3
+sql:
+DROP database AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SPACE": [
+    "Schema(1:14~1:204) /test/1/catalog1/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/"
+  ]
+}
+----------
+[permission_mysql_8_0_00491]
+source: split/mysql/5.6/ddl_mysql_database_0.txt#1
+sql:
+ALTER DATABASE DEFAULT CHARACTER SET = utf8mb4;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SPACE": [
+    "Schema(1:0~1:46) /test/1/catalog1/schema1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00492]
+source: split/mysql/5.6/ddl_mysql_database_0.txt#2
+sql:
+ALTER SCHEMA DEFAULT COLLATE = utf8mb4_bin;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SPACE": [
+    "Schema(1:0~1:42) /test/1/catalog1/schema1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00493]
+source: split/mysql/5.6/ddl_mysql_database_0.txt#3
+sql:
+DROP DATABASE IF EXISTS split_db56;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SPACE": [
+    "Schema(1:24~1:34) /test/1/catalog1/split_db56/"
+  ]
+}
+----------
+[permission_mysql_8_0_00494]
+source: split/mysql/5.6/ddl_mysql_database_0.txt#4
+sql:
+DROP SCHEMA IF EXISTS split_db56_schema;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SPACE": [
+    "Schema(1:22~1:39) /test/1/catalog1/split_db56_schema/"
+  ]
+}
+----------
+[permission_mysql_8_0_00495]
+source: split/mysql/5.6/ddl_mysql_database_0.txt#5
+sql:
+CREATE DATABASE IF NOT EXISTS split_db56 DEFAULT CHARACTER SET = utf8mb4 DEFAULT COLLATE = utf8mb4_general_ci;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SPACE": [
+    "Schema(1:30~1:40) /test/1/catalog1/split_db56/"
+  ]
+}
+----------
+[permission_mysql_8_0_00496]
+source: split/mysql/5.6/ddl_mysql_database_0.txt#6
+sql:
+ALTER DATABASE split_db56 DEFAULT CHARACTER SET utf8mb4 DEFAULT COLLATE utf8mb4_bin;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SPACE": [
+    "Schema(1:15~1:25) /test/1/catalog1/split_db56/"
+  ]
+}
+----------
+[permission_mysql_8_0_00497]
+source: split/mysql/5.6/ddl_mysql_database_0.txt#7
+sql:
+CREATE SCHEMA IF NOT EXISTS split_db56_schema CHARSET utf8mb4 COLLATE utf8mb4_general_ci;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SPACE": [
+    "Schema(1:28~1:45) /test/1/catalog1/split_db56_schema/"
+  ]
+}
+----------
+[permission_mysql_8_0_00498]
+source: split/mysql/5.6/ddl_mysql_database_0.txt#8
+sql:
+ALTER SCHEMA split_db56_schema DEFAULT CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SPACE": [
+    "Schema(1:13~1:30) /test/1/catalog1/split_db56_schema/"
+  ]
+}
+----------
+[permission_mysql_8_0_00499]
+source: split/mysql/5.6/ddl_mysql_database_0.txt#9
+sql:
+DROP DATABASE split_db56;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SPACE": [
+    "Schema(1:14~1:24) /test/1/catalog1/split_db56/"
+  ]
+}
+----------
+[permission_mysql_8_0_00500]
+source: split/mysql/5.6/ddl_mysql_database_0.txt#12
+sql:
+CREATE DATABASE db345678901234567890123456789012345678901234567890123456789012345;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SPACE": [
+    "Schema(1:16~1:81) /test/1/catalog1/db345678901234567890123456789012345678901234567890123456789012345/"
+  ]
+}
+----------
+[permission_mysql_8_0_00501]
+source: split/mysql/5.6/ddl_mysql_database_0.txt#13
+sql:
+CREATE DATABASE db34567890123456789012345678901234567890123456789012345678901234;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SPACE": [
+    "Schema(1:16~1:80) /test/1/catalog1/db34567890123456789012345678901234567890123456789012345678901234/"
+  ]
+}
+----------
+[permission_mysql_8_0_00869]
+source: split/mysql/5.6/ddl_mysql_storage_0.txt#2
+sql:
+CREATE TABLESPACE split_general_a ADD DATAFILE 'split_general_a.ibd' ENGINE=InnoDB;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SPACE": [
+    "Tablespace(1:18~1:33) /test/1/catalog1/schema1/split_general_a/"
+  ]
+}
+----------
+[permission_mysql_8_0_00870]
+source: split/mysql/5.6/ddl_mysql_storage_0.txt#3
+sql:
+DROP TABLESPACE split_general_a;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SPACE": [
+    "Tablespace(1:16~1:31) /test/1/catalog1/schema1/split_general_a/"
+  ]
+}
+----------
+[permission_mysql_8_0_00876]
+source: split/mysql/5.6/ddl_mysql_storage_0.txt#10
+sql:
+CREATE TABLESPACE split_ts ADD DATAFILE 'split_data.dat' USE LOGFILE GROUP split_lg INITIAL_SIZE=12M ENGINE=NDB;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SPACE": [
+    "Tablespace(1:18~1:26) /test/1/catalog1/schema1/split_ts/"
+  ]
+}
+----------
+[permission_mysql_8_0_00877]
+source: split/mysql/5.6/ddl_mysql_storage_0.txt#11
+sql:
+ALTER TABLESPACE split_ts ADD DATAFILE 'split_data2.dat' INITIAL_SIZE=4M ENGINE=NDB;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SPACE": [
+    "Tablespace(1:17~1:25) /test/1/catalog1/schema1/split_ts/"
+  ]
+}
+----------
+[permission_mysql_8_0_00878]
+source: split/mysql/5.6/ddl_mysql_storage_0.txt#12
+sql:
+ALTER TABLESPACE split_ts DROP DATAFILE 'split_data2.dat' ENGINE=NDB;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SPACE": [
+    "Tablespace(1:17~1:25) /test/1/catalog1/schema1/split_ts/"
+  ]
+}
+----------
+[permission_mysql_8_0_00879]
+source: split/mysql/5.6/ddl_mysql_storage_0.txt#13
+sql:
+DROP TABLESPACE split_ts ENGINE=NDB;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SPACE": [
+    "Tablespace(1:16~1:24) /test/1/catalog1/schema1/split_ts/"
+  ]
+}
+----------
+[permission_mysql_8_0_00891]
+source: split/mysql/5.6/ddl_mysql_storage_0.txt#30
+sql:
+CREATE TABLESPACE split_ts_options_all ADD DATAFILE 'split_ts_options_all.ibd' COMMENT='all options', NODEGROUP=1 MAX_SIZE=64M AUTOEXTEND_SIZE=4M INITIAL_SIZE=16M EXTENT_SIZE=1M WAIT STORAGE ENGINE=InnoDB;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SPACE": [
+    "Tablespace(1:18~1:38) /test/1/catalog1/schema1/split_ts_options_all/"
+  ]
+}
+----------
+[permission_mysql_8_0_00894]
+source: split/mysql/5.6/ddl_mysql_storage_0.txt#33
+sql:
+CREATE TABLESPACE split_ts_ndb_options ADD DATAFILE 'split_data_options.dat' USE LOGFILE GROUP split_lg_options COMMENT='all options', NODEGROUP=1 MAX_SIZE=64M AUTOEXTEND_SIZE=4M INITIAL_SIZE=16M EXTENT_SIZE=1M WAIT STORAGE ENGINE=NDB;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SPACE": [
+    "Tablespace(1:18~1:38) /test/1/catalog1/schema1/split_ts_ndb_options/"
+  ]
+}
+----------
+[permission_mysql_8_0_00895]
+source: split/mysql/5.6/ddl_mysql_storage_0.txt#34
+sql:
+ALTER TABLESPACE split_ts_ndb_options ADD DATAFILE 'split_data_options_2.dat' WAIT, MAX_SIZE=64M AUTOEXTEND_SIZE=4M INITIAL_SIZE=8M STORAGE ENGINE=NDB;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SPACE": [
+    "Tablespace(1:17~1:37) /test/1/catalog1/schema1/split_ts_ndb_options/"
+  ]
+}
+----------
+[permission_mysql_8_0_00896]
+source: split/mysql/5.6/ddl_mysql_storage_0.txt#35
+sql:
+DROP TABLESPACE split_ts_options_all;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SPACE": [
+    "Tablespace(1:16~1:36) /test/1/catalog1/schema1/split_ts_options_all/"
+  ]
+}
+----------
+[permission_mysql_8_0_00897]
+source: split/mysql/5.6/ddl_mysql_storage_0.txt#36
+sql:
+ALTER TABLESPACE s_def ADD DATAFILE 'bad2.ibd' NO_WAIT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SPACE": [
+    "Tablespace(1:17~1:22) /test/1/catalog1/schema1/s_def/"
+  ]
+}

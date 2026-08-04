@@ -1,0 +1,802 @@
+[split_block_dameng_pipeline_autonomous_0_behavior_review_001]
+sql:
+create type pipe_row_type as object(
+  id int,
+  name varchar(80)
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:12~1:25) /test/1/catalog1/schema1/pipe_row_type/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_pipeline_autonomous_0_behavior_review_002]
+sql:
+create type pipe_table_type as table of pipe_row_type;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:12~1:27) /test/1/catalog1/schema1/pipe_table_type/",
+      "action": "CREATE",
+      "target": "Type(1:40~1:53) /test/1/catalog1/schema1/pipe_row_type/"
+    }
+  ]
+}
+----------
+[split_block_dameng_pipeline_autonomous_0_behavior_review_003]
+sql:
+create or replace function pipe_all_rows return pipe_table_type pipelined
+is
+  v_row pipe_row_type;
+begin
+  for rec in (select id, name from pipeline_source order by id) loop
+    v_row := pipe_row_type(rec.id, rec.name);
+    pipe row(v_row);
+  end loop;
+exception
+  when others then null;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:27~1:40) /test/1/catalog1/schema1/pipe_all_rows/",
+      "action": "REPLACE"
+    },
+    {
+      "subject": "Table(5:35~5:50) /test/1/catalog1/schema1/pipeline_source/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(6:13~6:26) /test/1/catalog1/schema1/pipe_row_type/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_pipeline_autonomous_0_behavior_review_004]
+sql:
+select * from table(pipe_all_rows()) order by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:20~1:33) /test/1/catalog1/schema1/pipe_all_rows/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_pipeline_autonomous_0_behavior_review_005]
+sql:
+select p.id, p.name from table(pipe_all_rows()) p where p.id >= 2 order by p.id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:31~1:44) /test/1/catalog1/schema1/pipe_all_rows/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_pipeline_autonomous_0_behavior_review_006]
+sql:
+select count(*), min(id), max(id) from table(pipe_all_rows());
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:20) /test/1/catalog1/schema1/min/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:26~1:29) /test/1/catalog1/schema1/max/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:45~1:58) /test/1/catalog1/schema1/pipe_all_rows/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_pipeline_autonomous_0_behavior_review_007]
+sql:
+select p.id, s.name from table(pipe_all_rows()) p join pipeline_source s on s.id = p.id order by p.id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:31~1:44) /test/1/catalog1/schema1/pipe_all_rows/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:55~1:70) /test/1/catalog1/schema1/pipeline_source/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_pipeline_autonomous_0_behavior_review_008]
+sql:
+with piped as (select * from table(pipe_all_rows())) select * from piped where id = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:35~1:48) /test/1/catalog1/schema1/pipe_all_rows/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_pipeline_autonomous_0_behavior_review_009]
+sql:
+select * from pipeline_source where id in (select id from table(pipe_all_rows())) order by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:64~1:77) /test/1/catalog1/schema1/pipe_all_rows/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:14~1:29) /test/1/catalog1/schema1/pipeline_source/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_pipeline_autonomous_0_behavior_review_010]
+sql:
+create or replace function pipe_limited_rows(p_limit int) return pipe_table_type authid current_user pipelined
+is
+begin
+  for rec in (select id, name from pipeline_source where id <= p_limit order by id) loop
+    pipe row(pipe_row_type(rec.id, rec.name));
+  end loop;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:27~1:44) /test/1/catalog1/schema1/pipe_limited_rows/",
+      "action": "REPLACE"
+    },
+    {
+      "subject": "Table(4:35~4:50) /test/1/catalog1/schema1/pipeline_source/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(5:13~5:26) /test/1/catalog1/schema1/pipe_row_type/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_pipeline_autonomous_0_behavior_review_011]
+sql:
+select * from table(pipe_limited_rows(2)) order by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:20~1:37) /test/1/catalog1/schema1/pipe_limited_rows/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_pipeline_autonomous_0_behavior_review_012]
+sql:
+select id, row_number() over(order by id) as rn from table(pipe_limited_rows(3));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:11~1:21) /test/1/catalog1/schema1/row_number/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:59~1:76) /test/1/catalog1/schema1/pipe_limited_rows/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_pipeline_autonomous_0_behavior_review_013]
+sql:
+create or replace function pipe_empty_rows return pipe_table_type deterministic pipelined
+is
+begin
+  null;
+exception
+  when others then null;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:27~1:42) /test/1/catalog1/schema1/pipe_empty_rows/",
+      "action": "REPLACE"
+    }
+  ]
+}
+----------
+[split_block_dameng_pipeline_autonomous_0_behavior_review_014]
+sql:
+select count(*) from table(pipe_empty_rows());
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:27~1:42) /test/1/catalog1/schema1/pipe_empty_rows/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_pipeline_autonomous_0_behavior_review_015]
+sql:
+alter function pipe_all_rows compile;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_PROG_OBJ": [
+    {
+      "subject": "Function(1:15~1:28) /test/1/catalog1/schema1/pipe_all_rows/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_block_dameng_pipeline_autonomous_0_behavior_review_016]
+sql:
+declare
+  pragma autonomous_transaction;
+begin
+  insert into autonomous_log values(101, 'ANON_COMMIT');
+  commit;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(4:14~4:28) /test/1/catalog1/schema1/autonomous_log/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_block_dameng_pipeline_autonomous_0_behavior_review_017]
+sql:
+declare
+  pragma autonomous_transaction;
+begin
+  insert into autonomous_log values(102, 'ROLLED_BACK');
+  rollback;
+  insert into autonomous_log values(103, 'ANON_SECOND');
+  commit;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(4:14~4:28) /test/1/catalog1/schema1/autonomous_log/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Table(6:14~6:28) /test/1/catalog1/schema1/autonomous_log/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_block_dameng_pipeline_autonomous_0_behavior_review_018]
+sql:
+create or replace procedure autonomous_insert(p_id int, p_message varchar)
+is
+  pragma autonomous_transaction;
+begin
+  insert into autonomous_log values(p_id, p_message);
+  commit;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:28~1:45) /test/1/catalog1/schema1/autonomous_insert/",
+      "action": "REPLACE"
+    },
+    {
+      "subject": "Table(5:14~5:28) /test/1/catalog1/schema1/autonomous_log/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_block_dameng_pipeline_autonomous_0_behavior_review_019]
+sql:
+call autonomous_insert(104, 'PROCEDURE');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:5~1:22) /test/1/catalog1/schema1/autonomous_insert/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_pipeline_autonomous_0_behavior_review_020]
+sql:
+create or replace procedure autonomous_multi_tx
+is
+  pragma autonomous_transaction;
+begin
+  insert into autonomous_log values(105, 'ROLLBACK_FIRST');
+  rollback;
+  insert into autonomous_log values(106, 'COMMIT_SECOND');
+  commit;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:28~1:47) /test/1/catalog1/schema1/autonomous_multi_tx/",
+      "action": "REPLACE"
+    },
+    {
+      "subject": "Table(5:14~5:28) /test/1/catalog1/schema1/autonomous_log/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Table(7:14~7:28) /test/1/catalog1/schema1/autonomous_log/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_block_dameng_pipeline_autonomous_0_behavior_review_021]
+sql:
+call autonomous_multi_tx;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:5~1:24) /test/1/catalog1/schema1/autonomous_multi_tx/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_pipeline_autonomous_0_behavior_review_022]
+sql:
+create or replace procedure autonomous_child
+is
+  pragma autonomous_transaction;
+begin
+  insert into autonomous_log values(107, 'NESTED_CHILD');
+  commit;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:28~1:44) /test/1/catalog1/schema1/autonomous_child/",
+      "action": "REPLACE"
+    },
+    {
+      "subject": "Table(5:14~5:28) /test/1/catalog1/schema1/autonomous_log/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_block_dameng_pipeline_autonomous_0_behavior_review_023]
+sql:
+create or replace procedure autonomous_parent
+is
+  pragma autonomous_transaction;
+begin
+  call autonomous_child;
+  insert into autonomous_log values(108, 'NESTED_PARENT');
+  commit;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:28~1:45) /test/1/catalog1/schema1/autonomous_parent/",
+      "action": "REPLACE"
+    },
+    {
+      "subject": "Procedure(5:7~5:23) /test/1/catalog1/schema1/autonomous_child/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(6:14~6:28) /test/1/catalog1/schema1/autonomous_log/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_block_dameng_pipeline_autonomous_0_behavior_review_024]
+sql:
+call autonomous_parent;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:5~1:22) /test/1/catalog1/schema1/autonomous_parent/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_pipeline_autonomous_0_behavior_review_025]
+sql:
+create or replace trigger autonomous_log_trigger
+after insert on autonomous_trigger_source
+for each row
+declare
+  pragma autonomous_transaction;
+begin
+  insert into autonomous_log values(:new.id + 1000, :new.name);
+  commit;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(1:26~1:48) /test/1/catalog1/schema1/autonomous_log_trigger/",
+      "action": "REPLACE",
+      "target": "Table(2:16~2:41) /test/1/catalog1/schema1/autonomous_trigger_source/"
+    },
+    {
+      "subject": "Table(7:14~7:28) /test/1/catalog1/schema1/autonomous_log/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_block_dameng_pipeline_autonomous_0_behavior_review_026]
+sql:
+insert into autonomous_trigger_source values(1, 'TRIGGER');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:37) /test/1/catalog1/schema1/autonomous_trigger_source/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_block_dameng_pipeline_autonomous_0_behavior_review_027]
+sql:
+select id, message from autonomous_log order by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:24~1:38) /test/1/catalog1/schema1/autonomous_log/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_pipeline_autonomous_0_behavior_review_028]
+sql:
+declare
+  pragma autonomous_transaction;
+begin
+  execute immediate 'insert into autonomous_log values(109, ''DYNAMIC'')';
+  commit;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "PrepareStatement(4:2~4:9) /test/1/",
+      "action": "UNSAFE"
+    }
+  ]
+}
+----------
+[split_block_dameng_pipeline_autonomous_0_behavior_review_029]
+sql:
+declare
+  procedure nested_autonomous(p_id int) is
+    pragma autonomous_transaction;
+  begin
+    insert into autonomous_log values(p_id, 'LOCAL_PROCEDURE');
+    commit;
+  end;
+begin
+  nested_autonomous(110);
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(5:16~5:30) /test/1/catalog1/schema1/autonomous_log/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_block_dameng_pipeline_autonomous_0_behavior_review_030]
+sql:
+declare
+  pragma autonomous_transaction;
+begin
+  insert into autonomous_log values(111, 'SAVEPOINT_REMOVE');
+  savepoint before_second;
+  insert into autonomous_log values(112, 'SAVEPOINT_KEEP');
+  rollback to before_second;
+  insert into autonomous_log values(113, 'SAVEPOINT_FINAL');
+  commit;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(4:14~4:28) /test/1/catalog1/schema1/autonomous_log/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Table(6:14~6:28) /test/1/catalog1/schema1/autonomous_log/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Table(8:14~8:28) /test/1/catalog1/schema1/autonomous_log/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_block_dameng_pipeline_autonomous_0_behavior_review_031]
+sql:
+declare
+  pragma autonomous_transaction;
+begin
+  insert into autonomous_log values(101, 'DUPLICATE');
+  commit;
+exception
+  when others then rollback;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(4:14~4:28) /test/1/catalog1/schema1/autonomous_log/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_block_dameng_pipeline_autonomous_0_behavior_review_032]
+sql:
+drop trigger autonomous_log_trigger;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TRIGGER": [
+    {
+      "subject": "Trigger(1:13~1:35) /test/1/catalog1/schema1/autonomous_log_trigger/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_pipeline_autonomous_0_behavior_review_033]
+sql:
+drop procedure autonomous_parent;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:15~1:32) /test/1/catalog1/schema1/autonomous_parent/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_pipeline_autonomous_0_behavior_review_034]
+sql:
+drop procedure autonomous_child;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:15~1:31) /test/1/catalog1/schema1/autonomous_child/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_pipeline_autonomous_0_behavior_review_035]
+sql:
+drop procedure autonomous_multi_tx;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:15~1:34) /test/1/catalog1/schema1/autonomous_multi_tx/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_pipeline_autonomous_0_behavior_review_036]
+sql:
+drop procedure autonomous_insert;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:15~1:32) /test/1/catalog1/schema1/autonomous_insert/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_pipeline_autonomous_0_behavior_review_037]
+sql:
+drop function pipe_empty_rows;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Function(1:14~1:29) /test/1/catalog1/schema1/pipe_empty_rows/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_pipeline_autonomous_0_behavior_review_038]
+sql:
+drop function pipe_limited_rows;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Function(1:14~1:31) /test/1/catalog1/schema1/pipe_limited_rows/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_pipeline_autonomous_0_behavior_review_039]
+sql:
+drop function pipe_all_rows;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Function(1:14~1:27) /test/1/catalog1/schema1/pipe_all_rows/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_pipeline_autonomous_0_behavior_review_040]
+sql:
+drop type pipe_table_type;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:10~1:25) /test/1/catalog1/schema1/pipe_table_type/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_pipeline_autonomous_0_behavior_review_041]
+sql:
+drop type pipe_row_type;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:10~1:23) /test/1/catalog1/schema1/pipe_row_type/",
+      "action": "DROP"
+    }
+  ]
+}

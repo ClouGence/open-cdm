@@ -1,0 +1,14 @@
+[utl_encode_table_domain]
+sql:
+select
+  utl_encode.base64_encode(t.raw_value) as raw_encoded,
+  utl_encode.base64_encode(t.blob_value) as blob_encoded,
+  utl_encode.base64_decode(t.base64_value) as decoded,
+  utl_encode.base64_decode2(t.base64_value) as decoded2
+from catalog1.app.encode_source t
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"encode_source"}
+  ]
+}

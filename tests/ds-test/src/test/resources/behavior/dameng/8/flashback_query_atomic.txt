@@ -1,0 +1,63 @@
+[as_of_lsn_resource]
+sql:
+select id from app.t_base as of lsn 60000
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:15~1:25) /test/1/catalog1/app/t_base/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[partition_snapshot_resource]
+sql:
+select id from app.t_part partition(p1) as of lsn 60000
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Partition(1:36~1:38) /test/1/catalog1/app/t_part/p1/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[flashback_table_resource]
+sql:
+flashback table app.t_fb1 to lsn 60000
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:16~1:25) /test/1/catalog1/app/t_fb1/",
+      "action": "RESTORE"
+    }
+  ]
+}
+----------
+[flashback_multi_resource]
+sql:
+flashback table app.t_fb2, app.t_fb3 to lsn 60000 disable triggers
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:16~1:25) /test/1/catalog1/app/t_fb2/",
+      "action": "RESTORE"
+    },
+    {
+      "subject": "Table(1:27~1:36) /test/1/catalog1/app/t_fb3/",
+      "action": "RESTORE"
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+[pivot_table]
+sql:
+select * from app.pivot_t
+pivot(sum(amount) for product in('APPLE' as apple,'ORANGE' as orange))
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"pivot_t"}
+  ]
+}
+----------
+[pivot_xml_subquery]
+sql:
+select * from(
+  select salesman,product,amount from app.pivot_t
+) pivot xml(
+  sum(amount) for product in(select product from app.pivot_filter)
+)
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"pivot_t"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"pivot_filter"}
+  ]
+}
+----------
+[unpivot_table]
+sql:
+select * from app.wide_t
+unpivot include nulls(amount for product in(apple,orange))
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"wide_t"}
+  ]
+}
+----------
+[pivot_join_source]
+sql:
+select * from(
+  select p.salesman,p.product,p.amount
+  from app.pivot_t p join app.pivot_dim d on p.product=d.product
+) pivot(sum(amount) for product in('APPLE'))
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"pivot_t"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"pivot_dim"}
+  ]
+}

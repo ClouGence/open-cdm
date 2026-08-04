@@ -1,0 +1,49 @@
+[dml_mysql_query_0.0002]
+sql:
+select * from test;
+expect:
+{
+  "id" : [ "(1:7~1:8) /catalog1/schema1/test/id/" ]
+}
+----------
+[dml_mysql_query_0.0003]
+sql:
+select id, name from test where id > 10;
+expect:
+{
+  "id" : [ "(1:7~1:9) /catalog1/schema1/test/id/" ],
+  "name" : [ "(1:11~1:15) /catalog1/schema1/test/name/" ]
+}
+----------
+[dml_mysql_query_0.0004]
+sql:
+select count(*) from test group by name having count(*) > 1;
+expect:
+{
+  "count(*)" : [ ]
+}
+----------
+[dml_mysql_query_0.0005]
+sql:
+select a.id, b.name from test a join test2 b on a.id = b.id;
+expect:
+{
+  "id" : [ "(1:7~1:11) /catalog1/schema1/test/id/" ],
+  "name" : [ "(1:13~1:19) /catalog1/schema1/test2/name/" ]
+}
+----------
+[dml_mysql_query_0.0006]
+sql:
+select * from test order by id desc limit 10;
+expect:
+{
+  "id" : [ "(1:7~1:8) /catalog1/schema1/test/id/" ]
+}
+----------
+[dml_mysql_query_0.0007]
+sql:
+select * from test where id in (select id from test2);
+expect:
+{
+  "id" : [ "(1:7~1:8) /catalog1/schema1/test/id/" ]
+}

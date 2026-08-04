@@ -1,0 +1,161 @@
+[dmgeo_package_calls_no_static_lineage]
+sql:
+declare v varchar2(32767); begin v:=DMGEO.ST_CREATEANNULARSECTOR(NULL,NULL,NULL,NULL,NULL); end;
+/
+declare v varchar2(32767); begin v:=DMGEO.ST_SIMPLIFYPRESERVETOPOLOGY(NULL,NULL); end;
+/
+declare v varchar2(32767); begin DMGEO.ST_ADD_SPATIAL_REF(NULL,NULL,NULL,NULL); end;
+/
+declare v varchar2(32767); begin v:=DMGEO.ST_AREA(NULL); end;
+/
+declare v varchar2(32767); begin v:=DMGEO.ST_ASBINARY(NULL); end;
+/
+declare v varchar2(32767); begin v:=DMGEO.ST_ASGEOJSON(NULL); end;
+/
+declare v varchar2(32767); begin v:=DMGEO.ST_ASTEXT(NULL); end;
+/
+declare v varchar2(32767); begin v:=DMGEO.ST_ASTEXT(NULL,NULL); end;
+/
+declare v varchar2(32767); begin v:=DMGEO.ST_BOUNDARY(NULL); end;
+/
+declare v varchar2(32767); begin v:=DMGEO.ST_BUFFER(NULL,NULL); end;
+/
+declare v varchar2(32767); begin v:=DMGEO.ST_CENTROID(NULL); end;
+/
+declare v varchar2(32767); begin v:=DMGEO.ST_CONTAINS(NULL,NULL); end;
+/
+declare v varchar2(32767); begin v:=DMGEO.ST_CONVEXHULL(NULL); end;
+/
+declare v varchar2(32767); begin v:=DMGEO.ST_COORDDIM(NULL); end;
+/
+declare v varchar2(32767); begin v:=DMGEO.ST_CREATEANNULUS(NULL,NULL,NULL); end;
+/
+declare v varchar2(32767); begin v:=DMGEO.ST_CREATEARC(NULL,NULL,NULL,NULL); end;
+/
+declare v varchar2(32767); begin v:=DMGEO.ST_CREATEARCPOLYGON(NULL,NULL,NULL,NULL); end;
+/
+declare v varchar2(32767); begin v:=DMGEO.ST_CREATECIRCLE(NULL,NULL); end;
+/
+declare v varchar2(32767); begin v:=DMGEO.ST_CROSSES(NULL,NULL); end;
+/
+declare v varchar2(32767); begin DMGEO.ST_DEL_SPATIAL_REF(NULL); end;
+/
+declare v varchar2(32767); begin v:=DMGEO.ST_DIFFERENCE(NULL,NULL); end;
+/
+declare v varchar2(32767); begin v:=DMGEO.ST_DIMENSION(NULL); end;
+/
+declare v varchar2(32767); begin v:=DMGEO.ST_DISJOINT(NULL,NULL); end;
+/
+declare v varchar2(32767); begin v:=DMGEO.ST_DISTANCE(NULL,NULL); end;
+/
+declare v varchar2(32767); begin v:=DMGEO.ST_ENDPOINT(NULL); end;
+/
+declare v varchar2(32767); begin v:=DMGEO.ST_ENVELOPE(NULL); end;
+/
+declare v varchar2(32767); begin v:=DMGEO.ST_EQUALS(NULL,NULL); end;
+/
+declare v varchar2(32767); begin v:=DMGEO.ST_EXTERIORRING(NULL); end;
+/
+declare v varchar2(32767); begin v:=DMGEO.ST_GEO_VALID_CHECK(NULL); end;
+/
+declare v varchar2(32767); begin v:=DMGEO.ST_GEOMETRYN(NULL,NULL); end;
+/
+declare v varchar2(32767); begin v:=DMGEO.ST_GEOMETRYTYPE(NULL); end;
+/
+declare v varchar2(32767); begin v:=DMGEO.ST_GEOMFROMTEXT(NULL,NULL); end;
+/
+declare v varchar2(32767); begin v:=DMGEO.ST_GEOMFROMWKB(NULL,NULL); end;
+/
+declare v varchar2(32767); begin v:=DMGEO.ST_INTERIORRINGN(NULL,NULL); end;
+/
+declare v varchar2(32767); begin v:=DMGEO.ST_INTERSECTION(NULL,NULL); end;
+/
+declare v varchar2(32767); begin v:=DMGEO.ST_INTERSECTS(NULL,NULL); end;
+/
+declare v varchar2(32767); begin v:=DMGEO.ST_ISCLOSED(NULL); end;
+/
+declare v varchar2(32767); begin v:=DMGEO.ST_ISEMPTY(NULL); end;
+/
+declare v varchar2(32767); begin v:=DMGEO.ST_ISRING(NULL); end;
+/
+declare v varchar2(32767); begin v:=DMGEO.ST_ISSIMPLE(NULL); end;
+/
+declare v varchar2(32767); begin v:=DMGEO.ST_ISVALID(NULL); end;
+/
+declare v varchar2(32767); begin v:=DMGEO.ST_LENGTH(NULL); end;
+/
+declare v varchar2(32767); begin v:=DMGEO.ST_LINEFROMTEXT(NULL,NULL); end;
+/
+declare v varchar2(32767); begin v:=DMGEO.ST_LINEFROMWKB(NULL,NULL); end;
+/
+declare v varchar2(32767); begin v:=DMGEO.ST_MAKEVALID(NULL); end;
+/
+declare v varchar2(32767); begin v:=DMGEO.ST_MAXX(NULL); end;
+/
+declare v varchar2(32767); begin v:=DMGEO.ST_MAXY(NULL); end;
+/
+declare v varchar2(32767); begin v:=DMGEO.ST_MINX(NULL); end;
+/
+declare v varchar2(32767); begin v:=DMGEO.ST_MINY(NULL); end;
+/
+declare v varchar2(32767); begin v:=DMGEO.ST_MLINEFROMTEXT(NULL,NULL); end;
+/
+declare v varchar2(32767); begin v:=DMGEO.ST_MLINEFROMWKB(NULL,NULL); end;
+/
+declare v varchar2(32767); begin v:=DMGEO.ST_MPOINTFROMTEXT(NULL,NULL); end;
+/
+declare v varchar2(32767); begin v:=DMGEO.ST_MPOINTFROMWKB(NULL,NULL); end;
+/
+declare v varchar2(32767); begin v:=DMGEO.ST_MPOLYFROMTEXT(NULL,NULL); end;
+/
+declare v varchar2(32767); begin v:=DMGEO.ST_MPOLYFROMWKB(NULL,NULL); end;
+/
+declare v varchar2(32767); begin v:=DMGEO.ST_NUMGEOMETRIES(NULL); end;
+/
+declare v varchar2(32767); begin v:=DMGEO.ST_NUMINTERIORRING(NULL); end;
+/
+declare v varchar2(32767); begin v:=DMGEO.ST_NUMPOINTS(NULL); end;
+/
+declare v varchar2(32767); begin v:=DMGEO.ST_OVERLAPS(NULL,NULL); end;
+/
+declare v varchar2(32767); begin v:=DMGEO.ST_PERIMETER(NULL); end;
+/
+declare v varchar2(32767); begin v:=DMGEO.ST_POINTFROMTEXT(NULL,NULL); end;
+/
+declare v varchar2(32767); begin v:=DMGEO.ST_POINTFROMWKB(NULL,NULL); end;
+/
+declare v varchar2(32767); begin v:=DMGEO.ST_POINTN(NULL,NULL); end;
+/
+declare v varchar2(32767); begin v:=DMGEO.ST_POINTONSURFACE(NULL); end;
+/
+declare v varchar2(32767); begin v:=DMGEO.ST_POLYFROMTEXT(NULL,NULL); end;
+/
+declare v varchar2(32767); begin v:=DMGEO.ST_POLYFROMWKB(NULL,NULL); end;
+/
+declare v varchar2(32767); begin v:=DMGEO.ST_RELATE(NULL,NULL,NULL); end;
+/
+declare v varchar2(32767); begin v:=DMGEO.ST_SETSRID(NULL,NULL); end;
+/
+declare v varchar2(32767); begin v:=DMGEO.ST_SPLIT(NULL,NULL); end;
+/
+declare v varchar2(32767); begin v:=DMGEO.ST_SRID(NULL); end;
+/
+declare v varchar2(32767); begin v:=DMGEO.ST_STARTPOINT(NULL); end;
+/
+declare v varchar2(32767); begin v:=DMGEO.ST_SYMDIFFERENCE(NULL,NULL); end;
+/
+declare v varchar2(32767); begin v:=DMGEO.ST_TOUCHES(NULL,NULL); end;
+/
+declare v varchar2(32767); begin v:=DMGEO.ST_TRANSFORM(NULL,NULL); end;
+/
+declare v varchar2(32767); begin v:=DMGEO.ST_UNION(NULL,NULL); end;
+/
+declare v varchar2(32767); begin DMGEO.ST_UPDATE_SRID(NULL,NULL,NULL,NULL); end;
+/
+declare v varchar2(32767); begin v:=DMGEO.ST_WITHIN(NULL,NULL); end;
+/
+declare v varchar2(32767); begin v:=DMGEO.ST_X(NULL); end;
+/
+declare v varchar2(32767); begin v:=DMGEO.ST_Y(NULL); end;
+expect:
+{}

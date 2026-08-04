@@ -1,0 +1,145 @@
+CREATE VIEW v_rpad AS SELECT RPAD('x', 1 NOT IN (0), 1) AS c;
+CREATE VIEW v_sha2 AS SELECT SHA2('x', 1 NOT IN (0)) AS c;
+CREATE VIEW v_substr_pos AS SELECT SUBSTR('x', 1 NOT IN (0)) AS c;
+CREATE VIEW v_repeat AS SELECT REPEAT('x', 1 NOT IN (0)) AS c;
+CREATE VIEW v_space AS SELECT SPACE(1 NOT IN (0)) AS c;
+CREATE VIEW v_left AS SELECT LEFT('x', 1 NOT IN (0)) AS c;
+CREATE VIEW v_right AS SELECT RIGHT('x', 1 NOT IN (0)) AS c;
+CREATE VIEW v_str_to_date AS SELECT STR_TO_DATE('2020', 1 NOT IN (0)) AS c;
+CREATE OR REPLACE VIEW v_where AS SELECT 1 WHERE 1;
+CREATE VIEW split_subquery_bugs_860.v_alias AS SELECT 1 FROM (SELECT 1) AS table1(pk) JOIN (SELECT 1) AS table2 ON table1.pk=(SELECT 1) WHERE table1.pk IN ((SELECT 1),2);
+CREATE VIEW split_subquery_bugs_1800.v1 AS SELECT vt3.c2 AS vc1,vt3.c3 AS vc2,vt4.c1 AS vc3 FROM (((split_subquery_bugs_1800.vt3 LEFT JOIN split_subquery_bugs_1800.vt1 ON vt1.c1=vt3.c5) LEFT JOIN split_subquery_bugs_1800.vt2 ON vt3.c4=vt2.c1) JOIN split_subquery_bugs_1800.vt4);
+CREATE VIEW split_subquery_bugs_550.v1 AS SELECT * FROM split_subquery_bugs_550.vb WHERE 5 IN (SELECT 1) IS UNKNOWN;
+CREATE VIEW split_subquery_twelfth.v_nested AS SELECT alias2.col_varchar_nokey FROM split_subquery_twelfth.v_base AS alias1 RIGHT JOIN split_subquery_twelfth.view_base AS alias2 ON 1 WHERE alias2.col_varchar_key IN (SELECT sq1.col_varchar_nokey FROM split_subquery_twelfth.v_base AS sq1 LEFT JOIN split_subquery_twelfth.view_base AS sq2 ON sq2.col_int_key=sq1.pk WHERE sq1.pk<>alias1.col_int_key AND sq1.col_varchar_key>alias1.col_varchar_key);
+CREATE VIEW split_subquery_eleventh.v_predicates AS SELECT 1 LIKE (1 IN (SELECT 1)) AS p1,1 LIKE '%' ESCAPE (1 IN (SELECT 1)) AS p2;
+CREATE VIEW split_subquery_tenth.v_check AS SELECT r.c AS c FROM split_subquery_tenth.view_left AS l,split_subquery_tenth.view_right AS r WHERE l.id=r.id AND 1 IN (SELECT i.id FROM split_subquery_tenth.view_left AS i) WITH CHECK OPTION;
+DROP VIEW IF EXISTS split84.v84_base, split84.v84_joined, split84.v84_table_stmt, split84.v84_values_stmt, split84.v84_cte;
+CREATE OR REPLACE ALGORITHM = TEMPTABLE DEFINER = CURRENT_USER SQL SECURITY DEFINER VIEW split84.v84_base (id, amount_label) AS
+SELECT id, CONCAT('amt:', amount) FROM split84.trigger_src WHERE amount >= 0;
+ALTER ALGORITHM = MERGE SQL SECURITY INVOKER VIEW split84.v84_base (id, amount) AS
+SELECT id, amount FROM split84.trigger_src WHERE amount BETWEEN 0 AND 100 WITH LOCAL CHECK OPTION;
+CREATE VIEW split84.v84_joined AS
+SELECT s.id, a.action_name
+FROM split84.trigger_src AS s
+LEFT JOIN split84.trigger_audit AS a ON a.src_id = s.id;
+CREATE VIEW split84.v84_table_stmt AS TABLE split84.trigger_src;
+CREATE VIEW split84.v84_values_stmt AS VALUES ROW(1, 'a'), ROW(2, 'b');
+CREATE VIEW split84.v84_cte AS
+WITH cte AS (SELECT id, amount FROM split84.trigger_src WHERE amount >= 0)
+SELECT id, amount FROM cte;
+DROP VIEW split84.v84_base CASCADE;
+DROP VIEW IF EXISTS split84.v84_base, split84.v84_joined, split84.v84_table_stmt, split84.v84_values_stmt, split84.v84_cte RESTRICT;
+CREATE VIEW codex_load_audit_s.v AS SELECT 1 INTO @codex_load_audit_v;
+CREATE VIEW split_window_minmax.v AS SELECT id,SUM(id) OVER w AS total,MIN(id) OVER w AS min_id,MAX(id) OVER w AS max_id,sex FROM split_window_minmax.people WINDOW w AS (PARTITION BY sex ORDER BY id ROWS BETWEEN 2 PRECEDING AND 1 PRECEDING);
+CREATE VIEW split_window_stats.v_stats AS SELECT id,SUM(id) OVER w AS total,STD(id) OVER w AS std_id,VARIANCE(id) OVER w AS var_id,sex FROM split_window_stats.people WINDOW w AS (PARTITION BY sex ORDER BY id ROWS BETWEEN 2 PRECEDING AND 1 PRECEDING);
+CREATE VIEW split_window_view.v_native AS SELECT COUNT(*) OVER w0 AS c0,COUNT(*) OVER w AS c1,COUNT(*) OVER w1 AS c2 FROM split_window_view.t WINDOW w0 AS (),w AS (w0 ORDER BY tm),w1 AS (w RANGE BETWEEN INTERVAL 24 HOUR PRECEDING AND INTERVAL '2:2' MINUTE_SECOND FOLLOWING);
+ALTER DEFINER=no_such@user_1 VIEW v1 AS SELECT * FROM t1;
+CREATE VIEW v_distinct_check AS
+SELECT DISTINCT a FROM t1 WITH CHECK OPTION;
+CREATE VIEW v_union_gap AS (SELECT 1 AS a) UNION (SELECT 2 AS a);
+ALTER ALGORITHM=MERGE VIEW v_base_gap AS SELECT a FROM t1 WHERE a>=0 WITH CASCADED CHECK OPTION;
+CREATE DEFINER=root@localhost SQL SECURITY INVOKER VIEW v_def_gap AS SELECT a FROM t1;
+CREATE VIEW split_view_outfile AS SELECT 5 INTO OUTFILE '/tmp/split_native_gap_view.txt';
+CREATE VIEW split_view_order_limit AS SELECT a + 1 FROM split_view_source ORDER BY 1 DESC LIMIT 2;
+CREATE VIEW split_view_system_variable (c,d) AS SELECT a, b + @@global.max_user_connections FROM split_view_source;
+ALTER VIEW audit_v AS TABLE audit_source;
+ALTER VIEW audit_v AS VALUES ROW(1,'a'), ROW(2,'b');
+ALTER VIEW audit_v AS WITH q AS (SELECT 1 AS id) SELECT id FROM q;
+CREATE VIEW v AS SELECT (WITH qn AS (SELECT 'with') SELECT * FROM qn) AS scal_subq FROM dual;
+CREATE VIEW v AS SELECT * FROM (WITH qn AS (SELECT 'with') SELECT * FROM qn) AS dt;
+CREATE VIEW json_value_view AS SELECT JSON_VALUE('{"don''t":"panic"}','$."don''t"') AS x,JSON_VALUE('""','$' RETURNING CHAR(10) DEFAULT 'it''s empty' ON EMPTY DEFAULT 'it''s wrong' ON ERROR) AS y,JSON_VALUE('""','$' NULL ON EMPTY ERROR ON ERROR) AS z,JSON_VALUE('""','$' ERROR ON EMPTY NULL ON ERROR) AS w;
+ALTER ALGORITHM = UNDEFINED DEFINER = CURRENT_USER() SQL SECURITY INVOKER VIEW split_info_current_user_v AS SELECT 2 AS id;
+------------------------------------------------------------------------------------------
+[CREATE_VIEW(SELECT)] CREATE VIEW v_rpad AS SELECT RPAD('x', 1 NOT IN (0), 1) AS c;
+----------
+[CREATE_VIEW(SELECT)] CREATE VIEW v_sha2 AS SELECT SHA2('x', 1 NOT IN (0)) AS c;
+----------
+[CREATE_VIEW(SELECT)] CREATE VIEW v_substr_pos AS SELECT SUBSTR('x', 1 NOT IN (0)) AS c;
+----------
+[CREATE_VIEW(SELECT)] CREATE VIEW v_repeat AS SELECT REPEAT('x', 1 NOT IN (0)) AS c;
+----------
+[CREATE_VIEW(SELECT)] CREATE VIEW v_space AS SELECT SPACE(1 NOT IN (0)) AS c;
+----------
+[CREATE_VIEW(SELECT)] CREATE VIEW v_left AS SELECT LEFT('x', 1 NOT IN (0)) AS c;
+----------
+[CREATE_VIEW(SELECT)] CREATE VIEW v_right AS SELECT RIGHT('x', 1 NOT IN (0)) AS c;
+----------
+[CREATE_VIEW(SELECT)] CREATE VIEW v_str_to_date AS SELECT STR_TO_DATE('2020', 1 NOT IN (0)) AS c;
+----------
+[ALTER_VIEW(SELECT)] CREATE OR REPLACE VIEW v_where AS SELECT 1 WHERE 1;
+----------
+[CREATE_VIEW(SELECT)] CREATE VIEW split_subquery_bugs_860.v_alias AS SELECT 1 FROM (SELECT 1) AS table1(pk) JOIN (SELECT 1) AS table2 ON table1.pk=(SELECT 1) WHERE table1.pk IN ((SELECT 1),2);
+----------
+[CREATE_VIEW(SELECT)] CREATE VIEW split_subquery_bugs_1800.v1 AS SELECT vt3.c2 AS vc1,vt3.c3 AS vc2,vt4.c1 AS vc3 FROM (((split_subquery_bugs_1800.vt3 LEFT JOIN split_subquery_bugs_1800.vt1 ON vt1.c1=vt3.c5) LEFT JOIN split_subquery_bugs_1800.vt2 ON vt3.c4=vt2.c1) JOIN split_subquery_bugs_1800.vt4);
+----------
+[CREATE_VIEW(SELECT)] CREATE VIEW split_subquery_bugs_550.v1 AS SELECT * FROM split_subquery_bugs_550.vb WHERE 5 IN (SELECT 1) IS UNKNOWN;
+----------
+[CREATE_VIEW(SELECT)] CREATE VIEW split_subquery_twelfth.v_nested AS SELECT alias2.col_varchar_nokey FROM split_subquery_twelfth.v_base AS alias1 RIGHT JOIN split_subquery_twelfth.view_base AS alias2 ON 1 WHERE alias2.col_varchar_key IN (SELECT sq1.col_varchar_nokey FROM split_subquery_twelfth.v_base AS sq1 LEFT JOIN split_subquery_twelfth.view_base AS sq2 ON sq2.col_int_key=sq1.pk WHERE sq1.pk<>alias1.col_int_key AND sq1.col_varchar_key>alias1.col_varchar_key);
+----------
+[CREATE_VIEW(SELECT)] CREATE VIEW split_subquery_eleventh.v_predicates AS SELECT 1 LIKE (1 IN (SELECT 1)) AS p1,1 LIKE '%' ESCAPE (1 IN (SELECT 1)) AS p2;
+----------
+[CREATE_VIEW(SELECT)] CREATE VIEW split_subquery_tenth.v_check AS SELECT r.c AS c FROM split_subquery_tenth.view_left AS l,split_subquery_tenth.view_right AS r WHERE l.id=r.id AND 1 IN (SELECT i.id FROM split_subquery_tenth.view_left AS i) WITH CHECK OPTION;
+----------
+[DROP_VIEW] DROP VIEW IF EXISTS split84.v84_base, split84.v84_joined, split84.v84_table_stmt, split84.v84_values_stmt, split84.v84_cte;
+----------
+[ALTER_VIEW(SELECT)] CREATE OR REPLACE ALGORITHM = TEMPTABLE DEFINER = CURRENT_USER SQL SECURITY DEFINER VIEW split84.v84_base (id, amount_label) AS
+SELECT id, CONCAT('amt:', amount) FROM split84.trigger_src WHERE amount >= 0;
+----------
+[ALTER_VIEW(SELECT)] ALTER ALGORITHM = MERGE SQL SECURITY INVOKER VIEW split84.v84_base (id, amount) AS
+SELECT id, amount FROM split84.trigger_src WHERE amount BETWEEN 0 AND 100 WITH LOCAL CHECK OPTION;
+----------
+[CREATE_VIEW(SELECT)] CREATE VIEW split84.v84_joined AS
+SELECT s.id, a.action_name
+FROM split84.trigger_src AS s
+LEFT JOIN split84.trigger_audit AS a ON a.src_id = s.id;
+----------
+[CREATE_VIEW(SELECT)] CREATE VIEW split84.v84_table_stmt AS TABLE split84.trigger_src;
+----------
+[CREATE_VIEW(SELECT)] CREATE VIEW split84.v84_values_stmt AS VALUES ROW(1, 'a'), ROW(2, 'b');
+----------
+[CREATE_VIEW(SELECT)] CREATE VIEW split84.v84_cte AS
+WITH cte AS (SELECT id, amount FROM split84.trigger_src WHERE amount >= 0)
+SELECT id, amount FROM cte;
+----------
+[DROP_VIEW] DROP VIEW split84.v84_base CASCADE;
+----------
+[DROP_VIEW] DROP VIEW IF EXISTS split84.v84_base, split84.v84_joined, split84.v84_table_stmt, split84.v84_values_stmt, split84.v84_cte RESTRICT;
+----------
+[CREATE_VIEW(SELECT,SESSION_VARIABLE_RW)] CREATE VIEW codex_load_audit_s.v AS SELECT 1 INTO @codex_load_audit_v;
+----------
+[CREATE_VIEW(SELECT)] CREATE VIEW split_window_minmax.v AS SELECT id,SUM(id) OVER w AS total,MIN(id) OVER w AS min_id,MAX(id) OVER w AS max_id,sex FROM split_window_minmax.people WINDOW w AS (PARTITION BY sex ORDER BY id ROWS BETWEEN 2 PRECEDING AND 1 PRECEDING);
+----------
+[CREATE_VIEW(SELECT)] CREATE VIEW split_window_stats.v_stats AS SELECT id,SUM(id) OVER w AS total,STD(id) OVER w AS std_id,VARIANCE(id) OVER w AS var_id,sex FROM split_window_stats.people WINDOW w AS (PARTITION BY sex ORDER BY id ROWS BETWEEN 2 PRECEDING AND 1 PRECEDING);
+----------
+[CREATE_VIEW(SELECT)] CREATE VIEW split_window_view.v_native AS SELECT COUNT(*) OVER w0 AS c0,COUNT(*) OVER w AS c1,COUNT(*) OVER w1 AS c2 FROM split_window_view.t WINDOW w0 AS (),w AS (w0 ORDER BY tm),w1 AS (w RANGE BETWEEN INTERVAL 24 HOUR PRECEDING AND INTERVAL '2:2' MINUTE_SECOND FOLLOWING);
+----------
+[ALTER_VIEW(SELECT)] ALTER DEFINER=no_such@user_1 VIEW v1 AS SELECT * FROM t1;
+----------
+[CREATE_VIEW(SELECT)] CREATE VIEW v_distinct_check AS
+SELECT DISTINCT a FROM t1 WITH CHECK OPTION;
+----------
+[CREATE_VIEW(SELECT)] CREATE VIEW v_union_gap AS (SELECT 1 AS a) UNION (SELECT 2 AS a);
+----------
+[ALTER_VIEW(SELECT)] ALTER ALGORITHM=MERGE VIEW v_base_gap AS SELECT a FROM t1 WHERE a>=0 WITH CASCADED CHECK OPTION;
+----------
+[CREATE_VIEW(SELECT)] CREATE DEFINER=root@localhost SQL SECURITY INVOKER VIEW v_def_gap AS SELECT a FROM t1;
+----------
+[CREATE_VIEW(DATA_EXPORT,SELECT)] CREATE VIEW split_view_outfile AS SELECT 5 INTO OUTFILE '/tmp/split_native_gap_view.txt';
+----------
+[CREATE_VIEW(SELECT)] CREATE VIEW split_view_order_limit AS SELECT a + 1 FROM split_view_source ORDER BY 1 DESC LIMIT 2;
+----------
+[CREATE_VIEW(SELECT)] CREATE VIEW split_view_system_variable (c,d) AS SELECT a, b + @@global.max_user_connections FROM split_view_source;
+----------
+[ALTER_VIEW(SELECT)] ALTER VIEW audit_v AS TABLE audit_source;
+----------
+[ALTER_VIEW(SELECT)] ALTER VIEW audit_v AS VALUES ROW(1,'a'), ROW(2,'b');
+----------
+[ALTER_VIEW(SELECT)] ALTER VIEW audit_v AS WITH q AS (SELECT 1 AS id) SELECT id FROM q;
+----------
+[CREATE_VIEW(SELECT)] CREATE VIEW v AS SELECT (WITH qn AS (SELECT 'with') SELECT * FROM qn) AS scal_subq FROM dual;
+----------
+[CREATE_VIEW(SELECT)] CREATE VIEW v AS SELECT * FROM (WITH qn AS (SELECT 'with') SELECT * FROM qn) AS dt;
+----------
+[CREATE_VIEW(SELECT)] CREATE VIEW json_value_view AS SELECT JSON_VALUE('{"don''t":"panic"}','$."don''t"') AS x,JSON_VALUE('""','$' RETURNING CHAR(10) DEFAULT 'it''s empty' ON EMPTY DEFAULT 'it''s wrong' ON ERROR) AS y,JSON_VALUE('""','$' NULL ON EMPTY ERROR ON ERROR) AS z,JSON_VALUE('""','$' ERROR ON EMPTY NULL ON ERROR) AS w;
+----------
+[ALTER_VIEW(SELECT)] ALTER ALGORITHM = UNDEFINED DEFINER = CURRENT_USER() SQL SECURITY INVOKER VIEW split_info_current_user_v AS SELECT 2 AS id;

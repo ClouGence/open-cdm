@@ -1,0 +1,15 @@
+[dbms_output_argument_columns]
+sql:
+select BUFFER_SIZE, OUTPUT_TEXT, OUTPUT_LINE, LINE_VALUE, STATUS_VALUE,
+       LINES_VALUE, NUMLINES_VALUE
+from catalog1.app.dbms_output_payload
+expect:
+{
+  "BUFFER_SIZE": ["/catalog1/app/dbms_output_payload/BUFFER_SIZE/"],
+  "OUTPUT_TEXT": ["/catalog1/app/dbms_output_payload/OUTPUT_TEXT/"],
+  "OUTPUT_LINE": ["/catalog1/app/dbms_output_payload/OUTPUT_LINE/"],
+  "LINE_VALUE": ["/catalog1/app/dbms_output_payload/LINE_VALUE/"],
+  "STATUS_VALUE": ["/catalog1/app/dbms_output_payload/STATUS_VALUE/"],
+  "LINES_VALUE": ["/catalog1/app/dbms_output_payload/LINES_VALUE/"],
+  "NUMLINES_VALUE": ["/catalog1/app/dbms_output_payload/NUMLINES_VALUE/"]
+}

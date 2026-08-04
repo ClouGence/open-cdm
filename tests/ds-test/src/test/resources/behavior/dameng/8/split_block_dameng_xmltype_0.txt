@@ -1,0 +1,52 @@
+[split_block_dameng_xmltype_0_001]
+sql:
+DECLARE V XMLTYPE; BEGIN SELECT DOC INTO V FROM XMLTYPE_DOCS WHERE ID=1; PRINT V; END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(1:48~1:60) /test/1/catalog1/schema1/XMLTYPE_DOCS/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_xmltype_0_002]
+sql:
+CREATE OR REPLACE PROCEDURE XMLTYPE_PROC(P_DOC IN XMLTYPE, P_RESULT OUT XMLTYPE) AS BEGIN P_RESULT=APPENDCHILDXML(P_DOC,'/ROOT','<P>1</P>'); END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:28~1:40) /test/1/catalog1/schema1/XMLTYPE_PROC/",
+      "action": "REPLACE"
+    },
+    {
+      "subject": "Function(1:99~1:113) /test/1/catalog1/schema1/APPENDCHILDXML/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_xmltype_0_003]
+sql:
+DECLARE V XMLTYPE; BEGIN XMLTYPE_PROC(XMLTYPE('<ROOT/>'),V); PRINT V; END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:25~1:37) /test/1/catalog1/schema1/XMLTYPE_PROC/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:38~1:45) /test/1/catalog1/schema1/XMLTYPE/",
+      "action": "CALL"
+    }
+  ]
+}

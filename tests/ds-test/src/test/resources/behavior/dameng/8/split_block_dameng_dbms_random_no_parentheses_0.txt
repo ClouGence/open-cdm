@@ -1,0 +1,103 @@
+[split_block_dameng_dbms_random_no_parentheses_0_001]
+sql:
+-- FUNC-0694 INITIALIZE deterministic RANDOM sequence
+declare first_value int; second_value int; begin DBMS_RANDOM.INITIALIZE(20260724); first_value:=DBMS_RANDOM.RANDOM; DBMS_RANDOM.INITIALIZE(20260724); second_value:=DBMS_RANDOM.RANDOM; if first_value<>second_value then raise_application_error(-20001,'initialize determinism mismatch'); end if; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:49~2:71) /test/1/catalog1/DBMS_RANDOM/INITIALIZE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:116~2:138) /test/1/catalog1/DBMS_RANDOM/INITIALIZE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:218~2:241) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:96~2:114) /test/1/catalog1/DBMS_RANDOM/RANDOM/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:164~2:182) /test/1/catalog1/DBMS_RANDOM/RANDOM/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_random_no_parentheses_0_002]
+sql:
+-- FUNC-0701 SEED VARCHAR named and deterministic
+declare first_value int; second_value int; begin DBMS_RANDOM.SEED(VAL=>'CODEX_TEXT_SEED'); first_value:=DBMS_RANDOM.RANDOM; DBMS_RANDOM.SEED(VAL=>'CODEX_TEXT_SEED'); second_value:=DBMS_RANDOM.RANDOM; if first_value<>second_value then raise_application_error(-20002,'text seed determinism mismatch'); end if; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:49~2:65) /test/1/catalog1/DBMS_RANDOM/SEED/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:124~2:140) /test/1/catalog1/DBMS_RANDOM/SEED/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:234~2:257) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:104~2:122) /test/1/catalog1/DBMS_RANDOM/RANDOM/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:180~2:198) /test/1/catalog1/DBMS_RANDOM/RANDOM/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_random_no_parentheses_0_003]
+sql:
+-- FUNC-0698 RANDOM_NORMAL returns a number
+declare value_number number; begin value_number:=DBMS_RANDOM.RANDOM_NORMAL; if value_number is null then raise_application_error(-20003,'normal null'); end if; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:105~2:128) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:49~2:74) /test/1/catalog1/DBMS_RANDOM/RANDOM_NORMAL/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_random_no_parentheses_0_004]
+sql:
+-- FUNC-0704 VALUE all defaults
+declare value_number number; begin value_number:=DBMS_RANDOM.VALUE; if value_number<0 or value_number>1 then raise_application_error(-20016,'default range mismatch'); end if; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:109~2:132) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:49~2:66) /test/1/catalog1/DBMS_RANDOM/VALUE/",
+      "action": "CALL"
+    }
+  ]
+}

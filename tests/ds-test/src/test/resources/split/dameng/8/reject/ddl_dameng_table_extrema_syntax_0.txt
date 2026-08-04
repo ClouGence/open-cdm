@@ -1,0 +1,24 @@
+create table table_ext_bad_empty();
+create table table_ext_bad_leading_comma(,id int);
+create table table_ext_bad_double_comma(id int,,value int);
+create table table_ext_bad_default(id int default);
+create table table_ext_bad_type(id);
+comment on table table_ext_comment 'missing is';
+comment on table is 'missing table';
+comment on column table_ext_comment.id is;
+------------------------------------------------------------------------------------------
+[CREATE_TABLE] create table table_ext_bad_empty();
+----------
+[CREATE_TABLE] create table table_ext_bad_leading_comma(,id int);
+----------
+[CREATE_TABLE] create table table_ext_bad_double_comma(id int,,value int);
+----------
+[CREATE_TABLE] create table table_ext_bad_default(id int default);
+----------
+[CREATE_TABLE] create table table_ext_bad_type(id);
+----------
+[COMMENT_TABLE] comment on table table_ext_comment 'missing is';
+----------
+[COMMENT_TABLE] comment on table is 'missing table';
+----------
+[COMMENT_COLUMN] comment on column table_ext_comment.id is;

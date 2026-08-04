@@ -1,0 +1,86 @@
+[exec_cdc_procedures]
+sql:
+exec sys.sp_cdc_enable_db;exec sys.sp_cdc_disable_db;
+levels:
+/test/1/catalog1/dbo
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:5~1:25) /test/1/catalog1/sys/sp_cdc_enable_db/",
+      "action" : "CALL"
+    }
+  ],
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:31~1:52) /test/1/catalog1/sys/sp_cdc_disable_db/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[exec_user_procedure]
+sql:
+exec dbo.user_defined_proc;
+levels:
+/test/1/catalog1/dbo
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:5~1:26) /test/1/catalog1/dbo/user_defined_proc/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select_join]
+sql:
+select * from dbo.t1 join t2 on t1.id = t2.id
+levels:
+/test/1/catalog1/dbo
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:20) /test/1/catalog1/dbo/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:26~1:28) /test/1/catalog1/dbo/t2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[create_view]
+sql:
+create view dbo.v1 as select * from dbo.t1
+levels:
+/test/1/catalog1/dbo
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:18) /test/1/catalog1/dbo/v1/",
+      "action" : "CREATE",
+      "target" : "Table(1:36~1:42) /test/1/catalog1/dbo/t1/"
+    }
+  ]
+}
+----------
+[create_index]
+sql:
+create index idx_t1_name on dbo.t1(name)
+levels:
+/test/1/catalog1/dbo
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:24) /test/1/catalog1/dbo/idx_t1_name/",
+      "action" : "CREATE",
+      "target" : "Table(1:28~1:34) /test/1/catalog1/dbo/t1/"
+    }
+  ]
+}

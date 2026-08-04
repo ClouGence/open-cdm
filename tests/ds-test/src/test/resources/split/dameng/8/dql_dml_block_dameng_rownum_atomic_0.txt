@@ -1,0 +1,290 @@
+-- PROJECTION
+select rownum,ID from T;
+-- PROJECTION_ALIAS
+select rownum as RN,ID from T;
+-- ARITHMETIC_ADD
+select rownum+1 from T where rownum<=3;
+-- ARITHMETIC_SUBTRACT
+select rownum-1 from T where rownum<=3;
+-- ARITHMETIC_MULTIPLY
+select rownum*2 from T where rownum<=3;
+-- ARITHMETIC_DIVIDE
+select rownum/2 from T where rownum<=3;
+-- ARITHMETIC_MOD
+select mod(rownum,2) from T where rownum<=3;
+-- ARITHMETIC_CAST
+select cast(rownum as bigint) from T where rownum<=3;
+-- PREDICATE_LT
+select ID from T where rownum<3;
+-- PREDICATE_LE
+select ID from T where rownum<=3;
+-- PREDICATE_GT
+select ID from T where rownum>3;
+-- PREDICATE_GE
+select ID from T where rownum>=3;
+-- PREDICATE_EQ_ONE
+select ID from T where rownum=1;
+-- PREDICATE_EQ_FIVE
+select ID from T where rownum=5;
+-- PREDICATE_NE
+select ID from T where rownum<>3;
+-- PREDICATE_DECIMAL
+select ID from T where rownum<=3.5;
+-- PREDICATE_SCIENTIFIC
+select ID from T where rownum<2e1;
+-- PREDICATE_NEGATIVE
+select ID from T where rownum<=-1;
+-- PREDICATE_ZERO
+select ID from T where rownum<=0;
+-- PREDICATE_BIGINT_MAX
+select ID from T where rownum<=9223372036854775807;
+-- PREDICATE_PARAMETER
+select ID from T where rownum<=?;
+-- PREDICATE_AND
+select ID from T where rownum<=5 and GRP=1;
+-- PREDICATE_OR
+select ID from T where rownum<=2 or ID=20;
+-- ORDER_AFTER_FILTER
+select ID from T where rownum<=5 order by ID desc;
+-- ORDER_BEFORE_FILTER
+select ID from(select ID from T order by ID desc) where rownum<=5;
+-- AGGREGATE_PROJECTION
+select max(rownum),count(*) from T;
+-- GROUP_PROJECTION
+select GRP,max(rownum) from T group by GRP order by GRP;
+-- HAVING_PREDICATE
+select GRP,count(*) from T group by GRP having rownum<=2;
+-- NONCORRELATED_EXISTS
+select ID from T where exists(select 1 from T2 where rownum<=1);
+-- NONCORRELATED_SCALAR
+select ID,(select ID from T2 where rownum=1) FIRST_ID from T where rownum<=2;
+-- NONCORRELATED_ORDER
+select ID from T where exists(select 1 from T2 where rownum<=1 order by ID);
+-- NONCORRELATED_GROUP
+select ID from T where exists(select count(*) from T2 where rownum<=1 group by FLAG);
+-- CORRELATED_PARAMETER_ZERO
+select O.ID,0 MODE_FLAG from T O where exists(select 1 from T2 I where I.ID=O.ID and rownum<=1);
+-- CORRELATED_PARAMETER_ONE
+select O.ID,1 MODE_FLAG from T O where exists(select 1 from T2 I where I.ID=O.ID and rownum<=1);
+-- JOIN_ON_ROWNUM
+select T.ID from T join T2 on T.ID=T2.ID and rownum<=3;
+-- DERIVED_ROWNUM_ALIAS
+select RN,ID from(select rownum RN,ID from T) where RN between 3 and 5;
+-- CTE_ROWNUM
+with Q as(select rownum RN,ID from T) select ID from Q where RN<=3;
+-- UNION_ROWNUM
+select ID from T where rownum<=2 union all select ID from T2 where rownum<=2;
+-- FOR_UPDATE_ROWNUM
+select ID from T where rownum<=2 for update;
+-- TOP_ROWNUM
+select top 5 rownum,ID from T order by ID desc;
+-- LIMIT_ROWNUM
+select rownum,ID from T order by ID limit 5;
+-- UPDATE_ROWNUM
+update T set NAME=NAME||'_U' where rownum<=2;
+-- DELETE_ROWNUM
+delete from T where rownum<=2;
+-- INSERT_SELECT_ROWNUM
+insert into T2 select ID+100,rownum from T where rownum<=2;
+-- MERGE_ROWNUM
+merge into T2 D using T S on(D.ID=S.ID) when matched then update set D.FLAG=rownum;
+-- PLSQL_VARIABLE
+declare N int:=3; C int; begin select count(*) into C from T where rownum<=N; end;
+-- REVERSE_COMPARISON
+select ID from T where 3>=rownum;
+-- COLUMN_EXPRESSION
+select ID from T where rownum<=ID;
+-- FUNCTION_EXPRESSION
+select ID from T where rownum<=abs(3);
+-- CAST_EXPRESSION
+select ID from T where rownum<=cast(3 as int);
+-- SUBQUERY_EXPRESSION
+select ID from T where rownum<=(select max(ID) from T2);
+-- NULL_EXPRESSION
+select ID from T where rownum<=null;
+-- BETWEEN_PREDICATE
+select ID from T where rownum between 1 and 3;
+-- IN_PREDICATE
+select ID from T where rownum in(1,2,3);
+-- IS_NULL_PREDICATE
+select ID from T where rownum is null;
+-- QUALIFIED_ROWNUM
+select T.rownum from T;
+-- QUOTED_PHYSICAL_COLUMN
+select "ROWNUM",rownum from QUOTED_ROWNUM;
+-- ROWNUM_STANDALONE
+select rownum;
+------------------------------------------------------------------------------------------
+[SELECT] -- PROJECTION
+select rownum,ID from T;
+----------
+[SELECT] -- PROJECTION_ALIAS
+select rownum as RN,ID from T;
+----------
+[SELECT] -- ARITHMETIC_ADD
+select rownum+1 from T where rownum<=3;
+----------
+[SELECT] -- ARITHMETIC_SUBTRACT
+select rownum-1 from T where rownum<=3;
+----------
+[SELECT] -- ARITHMETIC_MULTIPLY
+select rownum*2 from T where rownum<=3;
+----------
+[SELECT] -- ARITHMETIC_DIVIDE
+select rownum/2 from T where rownum<=3;
+----------
+[SELECT] -- ARITHMETIC_MOD
+select mod(rownum,2) from T where rownum<=3;
+----------
+[SELECT] -- ARITHMETIC_CAST
+select cast(rownum as bigint) from T where rownum<=3;
+----------
+[SELECT] -- PREDICATE_LT
+select ID from T where rownum<3;
+----------
+[SELECT] -- PREDICATE_LE
+select ID from T where rownum<=3;
+----------
+[SELECT] -- PREDICATE_GT
+select ID from T where rownum>3;
+----------
+[SELECT] -- PREDICATE_GE
+select ID from T where rownum>=3;
+----------
+[SELECT] -- PREDICATE_EQ_ONE
+select ID from T where rownum=1;
+----------
+[SELECT] -- PREDICATE_EQ_FIVE
+select ID from T where rownum=5;
+----------
+[SELECT] -- PREDICATE_NE
+select ID from T where rownum<>3;
+----------
+[SELECT] -- PREDICATE_DECIMAL
+select ID from T where rownum<=3.5;
+----------
+[SELECT] -- PREDICATE_SCIENTIFIC
+select ID from T where rownum<2e1;
+----------
+[SELECT] -- PREDICATE_NEGATIVE
+select ID from T where rownum<=-1;
+----------
+[SELECT] -- PREDICATE_ZERO
+select ID from T where rownum<=0;
+----------
+[SELECT] -- PREDICATE_BIGINT_MAX
+select ID from T where rownum<=9223372036854775807;
+----------
+[SELECT] -- PREDICATE_PARAMETER
+select ID from T where rownum<=?;
+----------
+[SELECT] -- PREDICATE_AND
+select ID from T where rownum<=5 and GRP=1;
+----------
+[SELECT] -- PREDICATE_OR
+select ID from T where rownum<=2 or ID=20;
+----------
+[SELECT] -- ORDER_AFTER_FILTER
+select ID from T where rownum<=5 order by ID desc;
+----------
+[SELECT] -- ORDER_BEFORE_FILTER
+select ID from(select ID from T order by ID desc) where rownum<=5;
+----------
+[SELECT] -- AGGREGATE_PROJECTION
+select max(rownum),count(*) from T;
+----------
+[SELECT] -- GROUP_PROJECTION
+select GRP,max(rownum) from T group by GRP order by GRP;
+----------
+[SELECT] -- HAVING_PREDICATE
+select GRP,count(*) from T group by GRP having rownum<=2;
+----------
+[SELECT] -- NONCORRELATED_EXISTS
+select ID from T where exists(select 1 from T2 where rownum<=1);
+----------
+[SELECT] -- NONCORRELATED_SCALAR
+select ID,(select ID from T2 where rownum=1) FIRST_ID from T where rownum<=2;
+----------
+[SELECT] -- NONCORRELATED_ORDER
+select ID from T where exists(select 1 from T2 where rownum<=1 order by ID);
+----------
+[SELECT] -- NONCORRELATED_GROUP
+select ID from T where exists(select count(*) from T2 where rownum<=1 group by FLAG);
+----------
+[SELECT] -- CORRELATED_PARAMETER_ZERO
+select O.ID,0 MODE_FLAG from T O where exists(select 1 from T2 I where I.ID=O.ID and rownum<=1);
+----------
+[SELECT] -- CORRELATED_PARAMETER_ONE
+select O.ID,1 MODE_FLAG from T O where exists(select 1 from T2 I where I.ID=O.ID and rownum<=1);
+----------
+[SELECT] -- JOIN_ON_ROWNUM
+select T.ID from T join T2 on T.ID=T2.ID and rownum<=3;
+----------
+[SELECT] -- DERIVED_ROWNUM_ALIAS
+select RN,ID from(select rownum RN,ID from T) where RN between 3 and 5;
+----------
+[SELECT] -- CTE_ROWNUM
+with Q as(select rownum RN,ID from T) select ID from Q where RN<=3;
+----------
+[SELECT] -- UNION_ROWNUM
+select ID from T where rownum<=2 union all select ID from T2 where rownum<=2;
+----------
+[SELECT|QUERY_LOCK] -- FOR_UPDATE_ROWNUM
+select ID from T where rownum<=2 for update;
+----------
+[SELECT] -- TOP_ROWNUM
+select top 5 rownum,ID from T order by ID desc;
+----------
+[SELECT] -- LIMIT_ROWNUM
+select rownum,ID from T order by ID limit 5;
+----------
+[UPDATE] -- UPDATE_ROWNUM
+update T set NAME=NAME||'_U' where rownum<=2;
+----------
+[DELETE] -- DELETE_ROWNUM
+delete from T where rownum<=2;
+----------
+[INSERT|SELECT] -- INSERT_SELECT_ROWNUM
+insert into T2 select ID+100,rownum from T where rownum<=2;
+----------
+[MERGE] -- MERGE_ROWNUM
+merge into T2 D using T S on(D.ID=S.ID) when matched then update set D.FLAG=rownum;
+----------
+[BLOCK(PROGRAM_CONTROL,SELECT)] -- PLSQL_VARIABLE
+declare N int:=3; C int; begin select count(*) into C from T where rownum<=N; end;
+----------
+[SELECT] -- REVERSE_COMPARISON
+select ID from T where 3>=rownum;
+----------
+[SELECT] -- COLUMN_EXPRESSION
+select ID from T where rownum<=ID;
+----------
+[SELECT] -- FUNCTION_EXPRESSION
+select ID from T where rownum<=abs(3);
+----------
+[SELECT] -- CAST_EXPRESSION
+select ID from T where rownum<=cast(3 as int);
+----------
+[SELECT] -- SUBQUERY_EXPRESSION
+select ID from T where rownum<=(select max(ID) from T2);
+----------
+[SELECT] -- NULL_EXPRESSION
+select ID from T where rownum<=null;
+----------
+[SELECT] -- BETWEEN_PREDICATE
+select ID from T where rownum between 1 and 3;
+----------
+[SELECT] -- IN_PREDICATE
+select ID from T where rownum in(1,2,3);
+----------
+[SELECT] -- IS_NULL_PREDICATE
+select ID from T where rownum is null;
+----------
+[SELECT] -- QUALIFIED_ROWNUM
+select T.rownum from T;
+----------
+[SELECT] -- QUOTED_PHYSICAL_COLUMN
+select "ROWNUM",rownum from QUOTED_ROWNUM;
+----------
+[SELECT] -- ROWNUM_STANDALONE
+select rownum;

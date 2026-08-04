@@ -1,0 +1,73 @@
+[dbms_space_procedure_domains]
+sql:
+declare
+  ts_arr DBMS_SPACE.TS_ARR_T; ts_ids DBMS_SPACE.TS_ALL_ARR_T; ts_n int;
+  file_arr DBMS_SPACE.FILE_ARR_T; file_ids DBMS_SPACE.FILE_ALL_ARR_T;
+  seg DBMS_SPACE.SEG_T; seg_ids DBMS_SPACE.SEG_ID_ARR_T;
+  extents DBMS_SPACE.EXTENT_ARR_T; pages DBMS_SPACE.PAGE_ADDR_ARR_T;
+  n int; a number;
+begin
+  DBMS_SPACE.EXTENT_SIZE_LOAD(n);
+  DBMS_SPACE.EXTENT_XDESC_PAGE_NO_LOAD(4,0,pages);
+  DBMS_SPACE.FILE_ALL_LOAD(4,file_ids);
+  DBMS_SPACE.FILE_LOAD(4,0,file_arr);
+  DBMS_SPACE.IPAGE_NO_ALL_LOAD(4,pages);
+  DBMS_SPACE.PAGE_N_LOAD(n);
+  DBMS_SPACE.SEG_ALL_LOAD(4,seg_ids);
+  DBMS_SPACE.SEG_EXTENT_LST_LOAD(4,CODEX_DM8_SPACE_SEGID(),extents);
+  DBMS_SPACE.SEG_LOAD_BY_HEADER(4,0,10,62,seg);
+  DBMS_SPACE.SEG_LOAD_BY_ID(4,CODEX_DM8_SPACE_SEGID(),seg);
+  DBMS_SPACE.TS_ALL_LOAD(ts_ids);
+  DBMS_SPACE.TS_LOAD(4,ts_arr);
+  DBMS_SPACE.TS_N_LOAD(ts_n);
+  DBMS_SPACE.FREE_BLOCKS('SYSDBA','T','TABLE',0,a);
+  DBMS_SPACE.SPACE_USAGE('SYSDBA','T','TABLE',a,a,a,a,a,a,a,a,a,a,a,a);
+  DBMS_SPACE.UNUSED_SPACE('SYSDBA','T','TABLE',a,a,a,a,a,a,a);
+end;
+expect:
+{
+  "contains": [
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"DBMS_SPACE"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"DBMS_SPACE"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"DBMS_SPACE"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"DBMS_SPACE"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"DBMS_SPACE"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"DBMS_SPACE"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"DBMS_SPACE"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"DBMS_SPACE"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"DBMS_SPACE"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"DBMS_SPACE"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"DBMS_SPACE"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"DBMS_SPACE"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"DBMS_SPACE"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"DBMS_SPACE"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"DBMS_SPACE"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"DBMS_SPACE"}
+  ]
+}
+----------
+[dbms_space_function_expression_no_domain]
+sql:
+declare
+  ts_arr DBMS_SPACE.TS_ARR_T; ts_ids DBMS_SPACE.TS_ALL_ARR_T;
+  file_arr DBMS_SPACE.FILE_ARR_T; file_ids DBMS_SPACE.FILE_ALL_ARR_T;
+  seg DBMS_SPACE.SEG_T; seg_ids DBMS_SPACE.SEG_ID_ARR_T;
+  extents DBMS_SPACE.EXTENT_ARR_T; pages DBMS_SPACE.PAGE_ADDR_ARR_T;
+  n int;
+begin
+  n:=DBMS_SPACE.EXTENT_SIZE_GET;
+  pages:=DBMS_SPACE.EXTENT_XDESC_PAGE_NO_GET(4,0);
+  file_ids:=DBMS_SPACE.FILE_ALL_GET(4);
+  file_arr:=DBMS_SPACE.FILE_GET(4,0);
+  pages:=DBMS_SPACE.IPAGE_NO_ALL_GET(4);
+  n:=DBMS_SPACE.PAGE_N_GET;
+  seg_ids:=DBMS_SPACE.SEG_ALL_GET(4);
+  extents:=DBMS_SPACE.SEG_EXTENT_LST_GET(4,CODEX_DM8_SPACE_SEGID());
+  seg:=DBMS_SPACE.SEG_GET_BY_HEADER(4,0,10,62);
+  seg:=DBMS_SPACE.SEG_GET_BY_ID(4,CODEX_DM8_SPACE_SEGID());
+  ts_ids:=DBMS_SPACE.TS_ALL_GET;
+  ts_arr:=DBMS_SPACE.TS_GET(4);
+  n:=DBMS_SPACE.TS_N_GET;
+end;
+expect:
+{"size":0}

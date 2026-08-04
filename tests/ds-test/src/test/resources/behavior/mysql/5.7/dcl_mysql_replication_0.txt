@@ -1,0 +1,917 @@
+[alter_replication__001]
+sql:
+STOP SLAVE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_REPLICATION": [
+    {
+      "subject": "Replication(1:0~1:10) /test/1/",
+      "action": "STOP"
+    }
+  ]
+}
+----------
+[alter_replication__002]
+sql:
+START SLAVE FOR CHANNEL 'any_channel';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_REPLICATION": [
+    {
+      "subject": "Replication(1:0~1:37) /test/1/",
+      "action": "START"
+    }
+  ]
+}
+----------
+[alter_replication__003]
+sql:
+START SLAVE IO_THREAD, SQL_THREAD UNTIL MASTER_LOG_FILE='dummy-log.000001', MASTER_LOG_POS=116 USER='root' PASSWORD='secret' DEFAULT_AUTH='auth_test_plugin' PLUGIN_DIR='/usr/lib/mysql/plugin';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_REPLICATION": [
+    {
+      "subject": "Replication(1:0~1:191) /test/1/",
+      "action": "START"
+    }
+  ]
+}
+----------
+[alter_replication__004]
+sql:
+START SLAVE IO_THREAD, SQL_THREAD UNTIL RELAY_LOG_FILE='dummy-log.000001', RELAY_LOG_POS=116 USER='root' PASSWORD='secret' DEFAULT_AUTH='auth_test_plugin' PLUGIN_DIR='/usr/lib/mysql/plugin';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_REPLICATION": [
+    {
+      "subject": "Replication(1:0~1:189) /test/1/",
+      "action": "START"
+    }
+  ]
+}
+----------
+[admin_replication__005]
+sql:
+BINLOG 'U2EZYw8CAAAAdwAAAHsAAAAAAAQANS43LjM2LWxvZwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEzgNAAgAEgAEBAQEEgAAXwAEGggAAAAICAgCAAAACgoKKioAEjQAAYA9mSk=';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_REPLICATION": [
+    {
+      "subject": "Log(1:0~1:169) /test/1/",
+      "action": "UNSAFE"
+    }
+  ]
+}
+----------
+[system_setting_write__006]
+sql:
+FLUSH DES_KEY_FILE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:0~1:18) /test/1/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[admin_performance__007]
+sql:
+FLUSH QUERY CACHE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_PERFORMANCE": [
+    {
+      "subject": "Instance(1:0~1:17) /test/1/",
+      "action" : "FLUSH"
+    }
+  ]
+}
+----------
+[alter_replication__008]
+sql:
+START GROUP_REPLICATION;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_REPLICATION": [
+    {
+      "subject": "Replication(1:0~1:23) /test/1/",
+      "action": "START"
+    }
+  ]
+}
+----------
+[alter_replication__009]
+sql:
+STOP GROUP_REPLICATION;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_REPLICATION": [
+    {
+      "subject": "Replication(1:0~1:22) /test/1/",
+      "action": "STOP"
+    }
+  ]
+}
+----------
+[alter_replication__010]
+sql:
+CHANGE MASTER TO MASTER_HOST='localhost', MASTER_PORT=3306, MASTER_USER='repl', MASTER_PASSWORD='pw', MASTER_AUTO_POSITION=0 FOR CHANNEL 'legacy80';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_REPLICATION": [
+    {
+      "subject": "Replication(1:0~1:147) /test/1/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[metadata__011]
+sql:
+SHOW SLAVE STATUS FOR CHANNEL 'legacy80';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:40) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[alter_replication__012]
+sql:
+START SLAVE IO_THREAD FOR CHANNEL 'legacy80';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_REPLICATION": [
+    {
+      "subject": "Replication(1:0~1:44) /test/1/",
+      "action": "START"
+    }
+  ]
+}
+----------
+[alter_replication__013]
+sql:
+STOP SLAVE IO_THREAD FOR CHANNEL 'legacy80';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_REPLICATION": [
+    {
+      "subject": "Replication(1:0~1:43) /test/1/",
+      "action": "STOP"
+    }
+  ]
+}
+----------
+[alter_replication__014]
+sql:
+RESET SLAVE ALL FOR CHANNEL 'legacy80';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_REPLICATION": [
+    {
+      "subject": "Replication(1:0~1:38) /test/1/",
+      "action": "RESET"
+    }
+  ]
+}
+----------
+[log_read__015]
+sql:
+SHOW MASTER STATUS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "LOG_READ": [
+    {
+      "subject": "Log(1:0~1:18) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[alter_replication__016]
+sql:
+CHANGE MASTER TO MASTER_HOST='127.0.0.1', MASTER_PORT=9, MASTER_USER='split_repl', MASTER_PASSWORD='pw', MASTER_AUTO_POSITION=0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_REPLICATION": [
+    {
+      "subject": "Replication(1:0~1:127) /test/1/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[metadata__017]
+sql:
+SHOW SLAVE STATUS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:17) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[alter_replication__018]
+sql:
+START SLAVE IO_THREAD;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_REPLICATION": [
+    {
+      "subject": "Replication(1:0~1:21) /test/1/",
+      "action": "START"
+    }
+  ]
+}
+----------
+[alter_replication__019]
+sql:
+STOP SLAVE IO_THREAD;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_REPLICATION": [
+    {
+      "subject": "Replication(1:0~1:20) /test/1/",
+      "action": "STOP"
+    }
+  ]
+}
+----------
+[alter_replication__020]
+sql:
+RESET SLAVE ALL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_REPLICATION": [
+    {
+      "subject": "Replication(1:0~1:15) /test/1/",
+      "action": "RESET"
+    }
+  ]
+}
+----------
+[log_read__021]
+sql:
+SHOW MASTER STATUS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "LOG_READ": [
+    {
+      "subject": "Log(1:0~1:18) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[transaction__022]
+sql:
+LOCK TABLES splitv.lock_write LOW_PRIORITY WRITE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_LOCK": [
+    {
+      "subject": "Table(1:12~1:29) /test/1/catalog1/splitv/lock_write/",
+      "action" : "LOCK"
+    }
+  ]
+}
+----------
+[alter_replication__023]
+sql:
+CHANGE REPLICATION FILTER REPLICATE_DO_DB=();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_REPLICATION": [
+    {
+      "subject": "Replication(1:0~1:44) /test/1/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[alter_replication__024]
+sql:
+CHANGE REPLICATION FILTER REPLICATE_DO_DB=(audit_db1,audit_db2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_REPLICATION": [
+    {
+      "subject": "Replication(1:0~1:63) /test/1/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[alter_replication__025]
+sql:
+CHANGE REPLICATION FILTER REPLICATE_DO_TABLE=();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_REPLICATION": [
+    {
+      "subject": "Replication(1:0~1:47) /test/1/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[alter_replication__026]
+sql:
+CHANGE REPLICATION FILTER REPLICATE_DO_TABLE=(audit_db1.t1,audit_db2.t2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_REPLICATION": [
+    {
+      "subject": "Replication(1:0~1:72) /test/1/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[alter_replication__027]
+sql:
+CHANGE REPLICATION FILTER REPLICATE_IGNORE_DB=();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_REPLICATION": [
+    {
+      "subject": "Replication(1:0~1:48) /test/1/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[alter_replication__028]
+sql:
+CHANGE REPLICATION FILTER REPLICATE_IGNORE_DB=(audit_db3,audit_db4);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_REPLICATION": [
+    {
+      "subject": "Replication(1:0~1:67) /test/1/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[alter_replication__029]
+sql:
+CHANGE REPLICATION FILTER REPLICATE_IGNORE_TABLE=();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_REPLICATION": [
+    {
+      "subject": "Replication(1:0~1:51) /test/1/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[alter_replication__030]
+sql:
+CHANGE REPLICATION FILTER REPLICATE_IGNORE_TABLE=(audit_db1.t3,audit_db2.t4);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_REPLICATION": [
+    {
+      "subject": "Replication(1:0~1:76) /test/1/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[alter_replication__031]
+sql:
+CHANGE REPLICATION FILTER REPLICATE_DO_DB=(audit_db1), REPLICATE_IGNORE_TABLE=(audit_db2.t2), REPLICATE_WILD_DO_TABLE=('audit_db3.%'), REPLICATE_REWRITE_DB=((audit_old,audit_new));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_REPLICATION": [
+    {
+      "subject": "Replication(1:0~1:179) /test/1/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[alter_replication__032]
+sql:
+CHANGE REPLICATION FILTER REPLICATE_DO_DB=(audit_first), REPLICATE_DO_DB=(audit_last);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_REPLICATION": [
+    {
+      "subject": "Replication(1:0~1:85) /test/1/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[alter_replication__033]
+sql:
+CHANGE REPLICATION FILTER REPLICATE_REWRITE_DB=();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_REPLICATION": [
+    {
+      "subject": "Replication(1:0~1:49) /test/1/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[alter_replication__034]
+sql:
+CHANGE REPLICATION FILTER REPLICATE_REWRITE_DB=((audit_old1,audit_new1),(audit_old2,audit_new2));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_REPLICATION": [
+    {
+      "subject": "Replication(1:0~1:96) /test/1/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[alter_replication__035]
+sql:
+CHANGE REPLICATION FILTER REPLICATE_WILD_DO_TABLE=();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_REPLICATION": [
+    {
+      "subject": "Replication(1:0~1:52) /test/1/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[alter_replication__036]
+sql:
+CHANGE REPLICATION FILTER REPLICATE_WILD_DO_TABLE=('audit_db1.%','audit_db2.t%');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_REPLICATION": [
+    {
+      "subject": "Replication(1:0~1:80) /test/1/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[alter_replication__037]
+sql:
+CHANGE REPLICATION FILTER REPLICATE_WILD_IGNORE_TABLE=();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_REPLICATION": [
+    {
+      "subject": "Replication(1:0~1:56) /test/1/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[alter_replication__038]
+sql:
+CHANGE REPLICATION FILTER REPLICATE_WILD_IGNORE_TABLE=('audit_db3.%','audit_db4.t%');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_REPLICATION": [
+    {
+      "subject": "Replication(1:0~1:84) /test/1/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[alter_replication__039]
+sql:
+CHANGE MASTER TO MASTER_LOG_FILE='binlog.000001', MASTER_LOG_POS=4;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_REPLICATION": [
+    {
+      "subject": "Replication(1:0~1:66) /test/1/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[alter_replication__040]
+sql:
+CHANGE MASTER TO MASTER_BIND='', MASTER_CONNECT_RETRY=7, MASTER_RETRY_COUNT=3, MASTER_DELAY=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_REPLICATION": [
+    {
+      "subject": "Replication(1:0~1:93) /test/1/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[alter_replication__041]
+sql:
+CHANGE MASTER TO IGNORE_SERVER_IDS=();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_REPLICATION": [
+    {
+      "subject": "Replication(1:0~1:37) /test/1/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[alter_replication__042]
+sql:
+CHANGE MASTER TO MASTER_HEARTBEAT_PERIOD=0.5, IGNORE_SERVER_IDS=(2,3);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_REPLICATION": [
+    {
+      "subject": "Replication(1:0~1:69) /test/1/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[alter_replication__043]
+sql:
+CHANGE MASTER TO RELAY_LOG_FILE='relay-bin.000001', RELAY_LOG_POS=4;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_REPLICATION": [
+    {
+      "subject": "Replication(1:0~1:67) /test/1/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[alter_replication__044]
+sql:
+CHANGE MASTER TO MASTER_SSL=1, MASTER_SSL_CA='', MASTER_SSL_CAPATH='', MASTER_SSL_CERT='', MASTER_SSL_KEY='', MASTER_SSL_CIPHER='', MASTER_SSL_VERIFY_SERVER_CERT=0, MASTER_SSL_CRL='', MASTER_SSL_CRLPATH='';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_REPLICATION": [
+    {
+      "subject": "Replication(1:0~1:205) /test/1/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[alter_replication__045]
+sql:
+CHANGE MASTER TO MASTER_TLS_VERSION='TLSv1.2';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_REPLICATION": [
+    {
+      "subject": "Replication(1:0~1:45) /test/1/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[alter_replication__046]
+sql:
+RESET SLAVE FOR CHANNEL 'audit_slave';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_REPLICATION": [
+    {
+      "subject": "Replication(1:0~1:37) /test/1/",
+      "action": "RESET"
+    }
+  ]
+}
+----------
+[alter_replication__047]
+sql:
+START SLAVE SQL_THREAD UNTIL SQL_AFTER_GTIDS='aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa:1';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_REPLICATION": [
+    {
+      "subject": "Replication(1:0~1:85) /test/1/",
+      "action": "START"
+    }
+  ]
+}
+----------
+[alter_replication__048]
+sql:
+START SLAVE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_REPLICATION": [
+    {
+      "subject": "Replication(1:0~1:11) /test/1/",
+      "action": "START"
+    }
+  ]
+}
+----------
+[alter_replication__049]
+sql:
+START SLAVE SQL_THREAD UNTIL SQL_BEFORE_GTIDS='aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa:1';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_REPLICATION": [
+    {
+      "subject": "Replication(1:0~1:86) /test/1/",
+      "action": "START"
+    }
+  ]
+}
+----------
+[alter_replication__050]
+sql:
+START SLAVE SQL_THREAD FOR CHANNEL 'audit_slave';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_REPLICATION": [
+    {
+      "subject": "Replication(1:0~1:48) /test/1/",
+      "action": "START"
+    }
+  ]
+}
+----------
+[alter_replication__051]
+sql:
+START SLAVE USER='root' PASSWORD='123456' DEFAULT_AUTH='mysql_native_password' PLUGIN_DIR='/usr/lib/mysql/plugin';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_REPLICATION": [
+    {
+      "subject": "Replication(1:0~1:113) /test/1/",
+      "action": "START"
+    }
+  ]
+}
+----------
+[alter_replication__052]
+sql:
+START SLAVE IO_THREAD UNTIL MASTER_LOG_FILE='binlog.000001', MASTER_LOG_POS=4;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_REPLICATION": [
+    {
+      "subject": "Replication(1:0~1:77) /test/1/",
+      "action": "START"
+    }
+  ]
+}
+----------
+[alter_replication__053]
+sql:
+START SLAVE UNTIL SQL_AFTER_MTS_GAPS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_REPLICATION": [
+    {
+      "subject": "Replication(1:0~1:36) /test/1/",
+      "action": "START"
+    }
+  ]
+}
+----------
+[alter_replication__054]
+sql:
+START SLAVE SQL_THREAD UNTIL RELAY_LOG_FILE='relay-bin.000001', RELAY_LOG_POS=4;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_REPLICATION": [
+    {
+      "subject": "Replication(1:0~1:79) /test/1/",
+      "action": "START"
+    }
+  ]
+}
+----------
+[alter_replication__055]
+sql:
+START SLAVE IO_THREAD, SQL_THREAD;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_REPLICATION": [
+    {
+      "subject": "Replication(1:0~1:33) /test/1/",
+      "action": "START"
+    }
+  ]
+}
+----------
+[alter_replication__056]
+sql:
+STOP SLAVE IO_THREAD, SQL_THREAD;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_REPLICATION": [
+    {
+      "subject": "Replication(1:0~1:32) /test/1/",
+      "action": "STOP"
+    }
+  ]
+}
+----------
+[alter_replication__057]
+sql:
+START SLAVE UNTIL MASTER_LOG_FILE = 'master-bin.000001', MASTER_LOG_POS = 4;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_REPLICATION": [
+    {
+      "subject": "Replication(1:0~1:75) /test/1/",
+      "action": "START"
+    }
+  ]
+}
+----------
+[alter_replication__058]
+sql:
+START SLAVE IO_THREAD UNTIL SQL_BEFORE_GTIDS='aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa:4-5';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_REPLICATION": [
+    {
+      "subject": "Replication(1:0~1:87) /test/1/",
+      "action": "START"
+    }
+  ]
+}
+----------
+[alter_replication__059]
+sql:
+CHANGE REPLICATION FILTER REPLICATE_DO_DB=(db1,`db,3`);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_REPLICATION": [
+    {
+      "subject": "Replication(1:0~1:54) /test/1/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[alter_replication__060]
+sql:
+CHANGE REPLICATION FILTER REPLICATE_DO_DB=(d1), REPLICATE_IGNORE_DB=(d2), REPLICATE_DO_TABLE=(d1.t1), REPLICATE_IGNORE_TABLE=(d2.t2), REPLICATE_WILD_DO_TABLE=('d3.%'), REPLICATE_WILD_IGNORE_TABLE=('d4.%'), REPLICATE_REWRITE_DB=((old_db,new_db));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_REPLICATION": [
+    {
+      "subject": "Replication(1:0~1:244) /test/1/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[admin_replication__061]
+sql:
+BINLOG '
+SVtYRxMBAAAAKQAAADQBAAAAABAAAAAAAAAABHRlc3QAAnQxAAEDAAE=
+SVtYRxcBAAAAIgAAAFYBAAAQABAAAAAAAAEAAf/+AgAAAA==
+';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_REPLICATION": [
+    {
+      "subject": "Log(1:0~4:1) /test/1/",
+      "action": "UNSAFE"
+    }
+  ]
+}

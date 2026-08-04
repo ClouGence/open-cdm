@@ -1,0 +1,3150 @@
+-- DBMS_SQL SIGNATURE_001 PROCEDURE DBMS_SQL.BIND_ARRAY(C IN INTEGER, NAME IN VARCHAR2, VAR IN DBMS_SQL.CLOB_TABLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_array(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_002 PROCEDURE DBMS_SQL.BIND_ARRAY(C IN INTEGER, NAME IN VARCHAR2, VAR IN DBMS_SQL.BINARY_FLOAT_TABLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_array(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_003 PROCEDURE DBMS_SQL.BIND_ARRAY(C IN INTEGER, NAME IN VARCHAR2, VAR IN DBMS_SQL.BLOB_TABLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_array(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_004 PROCEDURE DBMS_SQL.BIND_ARRAY(C IN INTEGER, NAME IN VARCHAR2, VAR IN DBMS_SQL.DATE_TABLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_array(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_005 PROCEDURE DBMS_SQL.BIND_ARRAY(C IN INTEGER, NAME IN VARCHAR2, VAR IN DBMS_SQL.NUMBER_TABLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_array(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_006 PROCEDURE DBMS_SQL.BIND_ARRAY(C IN INTEGER, NAME IN VARCHAR2, VAR IN DBMS_SQL.VARCHAR2_TABLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_array(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_007 PROCEDURE DBMS_SQL.BIND_ARRAY(C IN INTEGER, NAME IN VARCHAR2, VAR IN DBMS_SQL.INT_TABLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_array(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_008 PROCEDURE DBMS_SQL.BIND_ARRAY(C IN INTEGER, NAME IN VARCHAR2, VAR IN DBMS_SQL.TIME_TABLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_array(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_009 PROCEDURE DBMS_SQL.BIND_ARRAY(C IN INTEGER, NAME IN VARCHAR2, VAR IN DBMS_SQL.TIME_WITH_TIME_ZONE_TABLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_array(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_010 PROCEDURE DBMS_SQL.BIND_ARRAY(C IN INTEGER, NAME IN VARCHAR2, VAR IN DBMS_SQL.INTERVAL_DAY_TO_SECOND_TABLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_array(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_011 PROCEDURE DBMS_SQL.BIND_ARRAY(C IN INTEGER, NAME IN VARCHAR2, VAR IN DBMS_SQL.INTERVAL_YEAR_TO_MONTH_TABLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_array(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_012 PROCEDURE DBMS_SQL.BIND_ARRAY(C IN INTEGER, NAME IN VARCHAR2, VAR IN DBMS_SQL.TIMESTAMP_WITH_TIME_ZONE_TABLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_array(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_013 PROCEDURE DBMS_SQL.BIND_ARRAY(C IN INTEGER, NAME IN VARCHAR2, VAR IN DBMS_SQL.CLOB_TABLE, INDEX1 IN INTEGER, INDEX2 IN INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_array(v,v,v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_014 PROCEDURE DBMS_SQL.BIND_ARRAY(C IN INTEGER, NAME IN VARCHAR2, VAR IN DBMS_SQL.BINARY_FLOAT_TABLE, INDEX1 IN INTEGER, INDEX2 IN INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_array(v,v,v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_015 PROCEDURE DBMS_SQL.BIND_ARRAY(C IN INTEGER, NAME IN VARCHAR2, VAR IN DBMS_SQL.BLOB_TABLE, INDEX1 IN INTEGER, INDEX2 IN INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_array(v,v,v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_016 PROCEDURE DBMS_SQL.BIND_ARRAY(C IN INTEGER, NAME IN VARCHAR2, VAR IN DBMS_SQL.DATE_TABLE, INDEX1 IN INTEGER, INDEX2 IN INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_array(v,v,v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_017 PROCEDURE DBMS_SQL.BIND_ARRAY(C IN INTEGER, NAME IN VARCHAR2, VAR IN DBMS_SQL.NUMBER_TABLE, INDEX1 IN INTEGER, INDEX2 IN INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_array(v,v,v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_018 PROCEDURE DBMS_SQL.BIND_ARRAY(C IN INTEGER, NAME IN VARCHAR2, VAR IN DBMS_SQL.VARCHAR2_TABLE, INDEX1 IN INTEGER, INDEX2 IN INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_array(v,v,v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_019 PROCEDURE DBMS_SQL.BIND_ARRAY(C IN INTEGER, NAME IN VARCHAR2, VAR IN DBMS_SQL.INT_TABLE, INDEX1 IN INTEGER, INDEX2 IN INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_array(v,v,v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_020 PROCEDURE DBMS_SQL.BIND_ARRAY(C IN INTEGER, NAME IN VARCHAR2, VAR IN DBMS_SQL.TIME_TABLE, INDEX1 IN INTEGER, INDEX2 IN INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_array(v,v,v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_021 PROCEDURE DBMS_SQL.BIND_ARRAY(C IN INTEGER, NAME IN VARCHAR2, VAR IN DBMS_SQL.TIME_WITH_TIME_ZONE_TABLE, INDEX1 IN INTEGER, INDEX2 IN INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_array(v,v,v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_022 PROCEDURE DBMS_SQL.BIND_ARRAY(C IN INTEGER, NAME IN VARCHAR2, VAR IN DBMS_SQL.INTERVAL_DAY_TO_SECOND_TABLE, INDEX1 IN INTEGER, INDEX2 IN INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_array(v,v,v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_023 PROCEDURE DBMS_SQL.BIND_ARRAY(C IN INTEGER, NAME IN VARCHAR2, VAR IN DBMS_SQL.INTERVAL_YEAR_TO_MONTH_TABLE, INDEX1 IN INTEGER, INDEX2 IN INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_array(v,v,v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_024 PROCEDURE DBMS_SQL.BIND_ARRAY(C IN INTEGER, NAME IN VARCHAR2, VAR IN DBMS_SQL.TIMESTAMP_WITH_TIME_ZONE_TABLE, INDEX1 IN INTEGER, INDEX2 IN INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_array(v,v,v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_025 PROCEDURE DBMS_SQL.BIND_VARIABLE(C IN INTEGER, NAME IN VARCHAR2, VALUE IN DOUBLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_variable(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_026 PROCEDURE DBMS_SQL.BIND_VARIABLE(C IN INTEGER, NAME IN VARCHAR2, VALUE IN BLOB)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_variable(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_027 PROCEDURE DBMS_SQL.BIND_VARIABLE(C IN INTEGER, NAME IN VARCHAR2, VALUE IN CLOB)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_variable(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_028 PROCEDURE DBMS_SQL.BIND_VARIABLE(C IN INTEGER, NAME IN VARCHAR2, VALUE IN DATETIME)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_variable(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_029 PROCEDURE DBMS_SQL.BIND_VARIABLE(C IN INTEGER, NAME IN VARCHAR2, VALUE IN INTERVAL DAY TO SECOND)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_variable(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_030 PROCEDURE DBMS_SQL.BIND_VARIABLE(C IN INTEGER, NAME IN VARCHAR2, VALUE IN NUMBER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_variable(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_031 PROCEDURE DBMS_SQL.BIND_VARIABLE(C IN INTEGER, NAME IN VARCHAR2, VALUE IN TIME)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_variable(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_032 PROCEDURE DBMS_SQL.BIND_VARIABLE(C IN INTEGER, NAME IN VARCHAR2, VALUE IN TIME WITH TIME ZONE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_variable(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_033 PROCEDURE DBMS_SQL.BIND_VARIABLE(C IN INTEGER, NAME IN VARCHAR2, VALUE IN TIMESTAMP WITH TIME ZONE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_variable(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_034 PROCEDURE DBMS_SQL.BIND_VARIABLE(C IN INTEGER, NAME IN VARCHAR2, VALUE IN VARCHAR2)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_variable(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_035 PROCEDURE DBMS_SQL.BIND_VARIABLE(C IN INTEGER, NAME IN VARCHAR2, VALUE IN VARBINARY)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_variable(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_036 PROCEDURE DBMS_SQL.BIND_VARIABLE(C IN INTEGER, NAME IN VARCHAR2, VALUE IN INTERVAL YEAR TO MONTH)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_variable(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_037 PROCEDURE DBMS_SQL.BIND_VARIABLE(C IN INTEGER, NAME IN VARCHAR2, VALUE IN "<TABLE_1>")
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_variable(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_038 PROCEDURE DBMS_SQL.BIND_VARIABLE(C IN INTEGER, NAME IN VARCHAR2, VALUE IN VARCHAR2, CHAR_SIZE IN INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_variable(v,v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_039 PROCEDURE DBMS_SQL.BIND_VARIABLE(C IN INTEGER, NAME IN VARCHAR2, VALUE IN VARBINARY, CHAR_SIZE IN INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_variable(v,v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_040 PROCEDURE DBMS_SQL.BIND_VARIABLE_CHAR(C IN INTEGER, NAME IN VARCHAR2, VALUE IN VARCHAR)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_variable_char(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_041 PROCEDURE DBMS_SQL.BIND_VARIABLE_CHAR(C IN INTEGER, NAME IN VARCHAR2, VALUE IN VARCHAR, OUT_VALUE_SIZE IN INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_variable_char(v,v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_042 PROCEDURE DBMS_SQL.BIND_VARIABLE_RAW(C IN INTEGER, NAME IN VARCHAR2, VALUE IN VARBINARY)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_variable_raw(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_043 PROCEDURE DBMS_SQL.BIND_VARIABLE_RAW(C IN INTEGER, NAME IN VARCHAR2, VALUE IN VARBINARY, OUT_VALUE_SIZE IN INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_variable_raw(v,v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_044 PROCEDURE DBMS_SQL.BIND_VARIABLE_ROWID(C IN INTEGER, NAME IN VARCHAR2, VALUE IN BIGINT)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_variable_rowid(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_045 PROCEDURE DBMS_SQL.CLOSE_CURSOR(C IN OUT INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.close_cursor(v);
+end;
+/
+-- DBMS_SQL SIGNATURE_046 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE OUT DOUBLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_047 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE OUT BLOB)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_048 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE OUT CLOB)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_049 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE OUT DATETIME)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_050 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE OUT INTERVAL DAY TO SECOND)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_051 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE OUT NUMBER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_052 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE OUT TIME)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_053 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE OUT TIME WITH TIME ZONE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_054 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE OUT TIMESTAMP WITH TIME ZONE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_055 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE OUT VARCHAR2)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_056 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE OUT VARBINARY)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_057 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE OUT INTERVAL YEAR TO MONTH)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_058 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE OUT "<ADT_1>")
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_059 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE OUT DOUBLE, COLUMN_ERROR OUT NUMBER, ACTUAL_LENGTH OUT INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_060 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE OUT BLOB, COLUMN_ERROR OUT NUMBER, ACTUAL_LENGTH OUT INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_061 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE OUT CLOB, COLUMN_ERROR OUT NUMBER, ACTUAL_LENGTH OUT INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_062 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE OUT DATETIME, COLUMN_ERROR OUT NUMBER, ACTUAL_LENGTH OUT INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_063 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE OUT INTERVAL DAY TO SECOND, COLUMN_ERROR OUT NUMBER, ACTUAL_LENGTH OUT INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_064 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE OUT NUMBER, COLUMN_ERROR OUT NUMBER, ACTUAL_LENGTH OUT INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_065 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE OUT TIME, COLUMN_ERROR OUT NUMBER, ACTUAL_LENGTH OUT INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_066 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE OUT TIME WITH TIME ZONE, COLUMN_ERROR OUT NUMBER, ACTUAL_LENGTH OUT INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_067 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE OUT TIMESTAMP WITH TIME ZONE, COLUMN_ERROR OUT NUMBER, ACTUAL_LENGTH OUT INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_068 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE OUT VARCHAR2, COLUMN_ERROR OUT NUMBER, ACTUAL_LENGTH OUT INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_069 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE OUT VARBINARY, COLUMN_ERROR OUT NUMBER, ACTUAL_LENGTH OUT INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_070 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE OUT INTERVAL YEAR TO MONTH, COLUMN_ERROR OUT NUMBER, ACTUAL_LENGTH OUT INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_071 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE IN OUT NOCOPY DBMS_SQL.BINARY_FLOAT_TABLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_072 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE IN OUT NOCOPY DBMS_SQL.CLOB_TABLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_073 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE IN OUT NOCOPY DBMS_SQL.DATE_TABLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_074 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE IN OUT NOCOPY DBMS_SQL.INTERVAL_DAY_TO_SECOND_TABLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_075 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE IN OUT NOCOPY DBMS_SQL.INTERVAL_YEAR_TO_MONTH_TABLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_076 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE IN OUT NOCOPY DBMS_SQL.NUMBER_TABLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_077 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE IN OUT NOCOPY DBMS_SQL.TIME_TABLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_078 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE IN OUT NOCOPY DBMS_SQL.TIMESTAMP_WITH_TIME_ZONE_TABLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_079 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE IN OUT NOCOPY DBMS_SQL.VARCHAR2_TABLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_080 PROCEDURE DBMS_SQL.COLUMN_VALUE_CHAR(C IN INTEGER, POSITION IN INTEGER, VALUE OUT VARCHAR)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value_char(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_081 PROCEDURE DBMS_SQL.COLUMN_VALUE_RAW(C IN INTEGER, POSITION IN INTEGER, VALUE OUT RAW)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value_raw(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_082 PROCEDURE DBMS_SQL.COLUMN_VALUE_ROWID(C IN INTEGER, POSITION IN INTEGER, VALUE OUT BIGINT)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value_rowid(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_083 PROCEDURE DBMS_SQL.COLUMN_VALUE_ROWID(C IN INTEGER, POSITION IN INTEGER, VALUE OUT BIGINT, COLUMN_ERROR OUT NUMBER, ACTUAL_LENGTH OUT INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value_rowid(v,v,v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_084 PROCEDURE DBMS_SQL.COLUMN_VALUE_LONG(C IN INTEGER, POSITION IN INTEGER, LENGTH IN INTEGER, OFFSET IN INTEGER, VALUE OUT VARCHAR2, VALUE_LENGTH OUT INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value_long(v,v,v,v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_085 PROCEDURE DBMS_SQL.DEFINE_ARRAY(C IN INTEGER, POSITION IN INTEGER, COL IN DBMS_SQL.CLOB_TABLE, LEAST_FETCH IN INTEGER, START_OP IN INTEGER DEFAULT 1)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.define_array(v,v,v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_086 PROCEDURE DBMS_SQL.DEFINE_ARRAY(C IN INTEGER, POSITION IN INTEGER, COL IN DBMS_SQL.BINARY_FLOAT_TABLE, LEAST_FETCH IN INTEGER, START_OP IN INTEGER DEFAULT 1)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.define_array(v,v,v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_087 PROCEDURE DBMS_SQL.DEFINE_ARRAY(C IN INTEGER, POSITION IN INTEGER, COL IN DBMS_SQL.BLOB_TABLE, LEAST_FETCH IN INTEGER, START_OP IN INTEGER DEFAULT 1)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.define_array(v,v,v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_088 PROCEDURE DBMS_SQL.DEFINE_ARRAY(C IN INTEGER, POSITION IN INTEGER, COL IN DBMS_SQL.DATE_TABLE, LEAST_FETCH IN INTEGER, START_OP IN INTEGER DEFAULT 1)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.define_array(v,v,v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_089 PROCEDURE DBMS_SQL.DEFINE_ARRAY(C IN INTEGER, POSITION IN INTEGER, COL IN DBMS_SQL.NUMBER_TABLE, LEAST_FETCH IN INTEGER, START_OP IN INTEGER DEFAULT 1)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.define_array(v,v,v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_090 PROCEDURE DBMS_SQL.DEFINE_ARRAY(C IN INTEGER, POSITION IN INTEGER, COL IN DBMS_SQL.VARCHAR2_TABLE, LEAST_FETCH IN INTEGER, START_OP IN INTEGER DEFAULT 1)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.define_array(v,v,v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_091 PROCEDURE DBMS_SQL.DEFINE_ARRAY(C IN INTEGER, POSITION IN INTEGER, COL IN DBMS_SQL.INT_TABLE, LEAST_FETCH IN INTEGER, START_OP IN INTEGER DEFAULT 1)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.define_array(v,v,v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_092 PROCEDURE DBMS_SQL.DEFINE_ARRAY(C IN INTEGER, POSITION IN INTEGER, COL IN DBMS_SQL.TIME_TABLE, LEAST_FETCH IN INTEGER, START_OP IN INTEGER DEFAULT 1)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.define_array(v,v,v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_093 PROCEDURE DBMS_SQL.DEFINE_ARRAY(C IN INTEGER, POSITION IN INTEGER, COL IN DBMS_SQL.TIME_WITH_TIME_ZONE_TABLE, LEAST_FETCH IN INTEGER, START_OP IN INTEGER DEFAULT 1)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.define_array(v,v,v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_094 PROCEDURE DBMS_SQL.DEFINE_ARRAY(C IN INTEGER, POSITION IN INTEGER, COL IN DBMS_SQL.INTERVAL_DAY_TO_SECOND_TABLE, LEAST_FETCH IN INTEGER, START_OP IN INTEGER DEFAULT 1)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.define_array(v,v,v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_095 PROCEDURE DBMS_SQL.DEFINE_ARRAY(C IN INTEGER, POSITION IN INTEGER, COL IN DBMS_SQL.INTERVAL_YEAR_TO_MONTH_TABLE, LEAST_FETCH IN INTEGER, START_OP IN INTEGER DEFAULT 1)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.define_array(v,v,v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_096 PROCEDURE DBMS_SQL.DEFINE_ARRAY(C IN INTEGER, POSITION IN INTEGER, COL IN DBMS_SQL.TIMESTAMP_WITH_TIME_ZONE_TABLE, LEAST_FETCH IN INTEGER, START_OP IN INTEGER DEFAULT 1)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.define_array(v,v,v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_097 PROCEDURE DBMS_SQL.DEFINE_COLUMN(C IN INTEGER, POSITION IN INTEGER, COL IN DOUBLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.define_column(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_098 PROCEDURE DBMS_SQL.DEFINE_COLUMN(C IN INTEGER, POSITION IN INTEGER, COL IN BLOB)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.define_column(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_099 PROCEDURE DBMS_SQL.DEFINE_COLUMN(C IN INTEGER, POSITION IN INTEGER, COL IN CLOB)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.define_column(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_100 PROCEDURE DBMS_SQL.DEFINE_COLUMN(C IN INTEGER, POSITION IN INTEGER, COL IN DATETIME)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.define_column(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_101 PROCEDURE DBMS_SQL.DEFINE_COLUMN(C IN INTEGER, POSITION IN INTEGER, COL IN INTERVAL DAY TO SECOND)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.define_column(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_102 PROCEDURE DBMS_SQL.DEFINE_COLUMN(C IN INTEGER, POSITION IN INTEGER, COL IN NUMBER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.define_column(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_103 PROCEDURE DBMS_SQL.DEFINE_COLUMN(C IN INTEGER, POSITION IN INTEGER, COL IN TIME)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.define_column(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_104 PROCEDURE DBMS_SQL.DEFINE_COLUMN(C IN INTEGER, POSITION IN INTEGER, COL IN TIME WITH TIME ZONE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.define_column(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_105 PROCEDURE DBMS_SQL.DEFINE_COLUMN(C IN INTEGER, POSITION IN INTEGER, COL IN TIMESTAMP WITH TIME ZONE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.define_column(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_106 PROCEDURE DBMS_SQL.DEFINE_COLUMN(C IN INTEGER, POSITION IN INTEGER, COL IN VARCHAR2)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.define_column(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_107 PROCEDURE DBMS_SQL.DEFINE_COLUMN(C IN INTEGER, POSITION IN INTEGER, COL IN VARBINARY)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.define_column(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_108 PROCEDURE DBMS_SQL.DEFINE_COLUMN(C IN INTEGER, POSITION IN INTEGER, COL IN INTERVAL YEAR TO MONTH)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.define_column(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_109 PROCEDURE DBMS_SQL.DEFINE_COLUMN(C IN INTEGER, POSITION IN INTEGER, COL IN "<ADT_1>")
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.define_column(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_110 PROCEDURE DBMS_SQL.DEFINE_COLUMN(C IN INTEGER, POSITION IN INTEGER, COL IN VARCHAR2, COLUMN_SIZE IN INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.define_column(v,v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_111 PROCEDURE DBMS_SQL.DEFINE_COLUMN(C IN INTEGER, POSITION IN INTEGER, COL IN VARBINARY, COLUMN_SIZE IN INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.define_column(v,v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_112 PROCEDURE DBMS_SQL.DEFINE_COLUMN_RAW(C IN INTEGER, POSITION IN INTEGER, COL IN RAW, COLUMN_SIZE IN INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.define_column_raw(v,v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_113 PROCEDURE DBMS_SQL.DEFINE_COLUMN_CHAR(C IN INTEGER, POSITION IN INTEGER, COL IN VARCHAR, COLUMN_SIZE IN INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.define_column_char(v,v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_114 PROCEDURE DBMS_SQL.DEFINE_COLUMN_LONG(C IN INTEGER, POSITION IN INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.define_column_long(v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_115 PROCEDURE DBMS_SQL.DEFINE_COLUMN_ROWID(C IN INTEGER, POSITION IN INTEGER, COL IN BIGINT)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.define_column_rowid(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_116 PROCEDURE DBMS_SQL.DESCRIBE_COLUMNS(C IN INTEGER, COL_CNT OUT INTEGER, DESC_T OUT DBMS_SQL.DESC_TAB)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.describe_columns(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_117 PROCEDURE DBMS_SQL.DESCRIBE_COLUMNS2(C IN INTEGER, COL_CNT OUT INTEGER, DESC_T OUT DBMS_SQL.DESC_TAB2)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.describe_columns2(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_118 PROCEDURE DBMS_SQL.DESCRIBE_COLUMNS3(C IN INTEGER, COL_CNT OUT INTEGER, DESC_T OUT DBMS_SQL.DESC_TAB3)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.describe_columns3(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_119 FUNCTION DBMS_SQL.EXECUTE(C IN INTEGER) RETURN INTEGER
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  v:=dbms_sql.execute(v);
+end;
+/
+-- DBMS_SQL SIGNATURE_120 FUNCTION DBMS_SQL.EXECUTE_AND_FETCH(C IN INTEGER, EXACT IN BOOLEAN DEFAULT FALSE) RETURN INTEGER
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  v:=dbms_sql.execute_and_fetch(v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_121 FUNCTION DBMS_SQL.FETCH_ROWS(C IN INTEGER) RETURN INTEGER
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  v:=dbms_sql.fetch_rows(v);
+end;
+/
+-- DBMS_SQL SIGNATURE_122 FUNCTION DBMS_SQL.IS_OPEN(C IN INTEGER) RETURN BOOLEAN
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  b:=dbms_sql.is_open(v);
+end;
+/
+-- DBMS_SQL SIGNATURE_123 FUNCTION DBMS_SQL.LAST_ERROR_POSITION() RETURN INTEGER
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  v:=dbms_sql.last_error_position();
+end;
+/
+-- DBMS_SQL SIGNATURE_124 FUNCTION DBMS_SQL.LAST_ROW_COUNT() RETURN INTEGER
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  v:=dbms_sql.last_row_count();
+end;
+/
+-- DBMS_SQL SIGNATURE_125 FUNCTION DBMS_SQL.LAST_SQL_FUNCTION_CODE() RETURN INTEGER
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  v:=dbms_sql.last_sql_function_code();
+end;
+/
+-- DBMS_SQL SIGNATURE_126 FUNCTION DBMS_SQL.OPEN_CURSOR() RETURN INTEGER
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  v:=dbms_sql.open_cursor();
+end;
+/
+-- DBMS_SQL SIGNATURE_127 FUNCTION DBMS_SQL.OPEN_CURSOR(SECURITY_LEVEL IN INTEGER) RETURN INTEGER
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  v:=dbms_sql.open_cursor(v);
+end;
+/
+-- DBMS_SQL SIGNATURE_128 PROCEDURE DBMS_SQL.PARSE(C IN INTEGER, STATEMENT IN VARCHAR2, LANGUAGE_FLAG IN NUMBER DEFAULT 1, EDITION IN VARCHAR2 DEFAULT NULL, APPLY_CROSSEDITION_TRIGGER IN VARCHAR2 DEFAULT NULL, FIRE_APPLY_TRIGGER IN BOOLEAN DEFAULT TRUE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.parse(v,v,v,v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_129 PROCEDURE DBMS_SQL.PARSE(C IN INTEGER, STATEMENT IN CLOB, LANGUAGE_FLAG IN NUMBER DEFAULT 1, EDITION IN VARCHAR2 DEFAULT NULL, APPLY_CROSSEDITION_TRIGGER IN VARCHAR2 DEFAULT NULL, FIRE_APPLY_TRIGGER IN BOOLEAN DEFAULT TRUE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.parse(v,v,v,v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_130 PROCEDURE DBMS_SQL.PARSE(C IN INTEGER, STATEMENT IN DBMS_SQL.VARCHAR2A, LB IN INTEGER, UB IN INTEGER, LFFLG IN BOOLEAN, LANGUAGE_FLAG IN NUMBER DEFAULT 1, EDITION IN VARCHAR2 DEFAULT NULL, APPLY_CROSSEDITION_TRIGGER IN VARCHAR2 DEFAULT NULL, FIRE_APPLY_TRIGGER IN BOOLEAN DEFAULT TRUE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.parse(v,v,v,v,v,v,v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_131 PROCEDURE DBMS_SQL.PARSE(C IN INTEGER, STATEMENT IN DBMS_SQL.VARCHAR2S, LB IN INTEGER, UB IN INTEGER, LFFLG IN BOOLEAN, LANGUAGE_FLAG IN NUMBER DEFAULT 1, EDITION IN VARCHAR2 DEFAULT NULL, APPLY_CROSSEDITION_TRIGGER IN VARCHAR2 DEFAULT NULL, FIRE_APPLY_TRIGGER IN BOOLEAN DEFAULT TRUE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.parse(v,v,v,v,v,v,v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_132 PROCEDURE DBMS_SQL.VARIABLE_VALUE(C IN INTEGER, NAME IN VARCHAR2, VALUE OUT NOCOPY DOUBLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.variable_value(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_133 PROCEDURE DBMS_SQL.VARIABLE_VALUE(C IN INTEGER, NAME IN VARCHAR2, VALUE OUT NOCOPY BLOB)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.variable_value(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_134 PROCEDURE DBMS_SQL.VARIABLE_VALUE(C IN INTEGER, NAME IN VARCHAR2, VALUE OUT NOCOPY CLOB)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.variable_value(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_135 PROCEDURE DBMS_SQL.VARIABLE_VALUE(C IN INTEGER, NAME IN VARCHAR2, VALUE OUT NOCOPY DATETIME)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.variable_value(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_136 PROCEDURE DBMS_SQL.VARIABLE_VALUE(C IN INTEGER, NAME IN VARCHAR2, VALUE OUT NOCOPY INTERVAL DAY TO SECOND)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.variable_value(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_137 PROCEDURE DBMS_SQL.VARIABLE_VALUE(C IN INTEGER, NAME IN VARCHAR2, VALUE OUT NOCOPY NUMBER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.variable_value(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_138 PROCEDURE DBMS_SQL.VARIABLE_VALUE(C IN INTEGER, NAME IN VARCHAR2, VALUE OUT NOCOPY TIME)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.variable_value(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_139 PROCEDURE DBMS_SQL.VARIABLE_VALUE(C IN INTEGER, NAME IN VARCHAR2, VALUE OUT NOCOPY TIME WITH TIME ZONE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.variable_value(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_140 PROCEDURE DBMS_SQL.VARIABLE_VALUE(C IN INTEGER, NAME IN VARCHAR2, VALUE OUT NOCOPY TIMESTAMP WITH TIME ZONE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.variable_value(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_141 PROCEDURE DBMS_SQL.VARIABLE_VALUE(C IN INTEGER, NAME IN VARCHAR2, VALUE OUT NOCOPY VARCHAR2)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.variable_value(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_142 PROCEDURE DBMS_SQL.VARIABLE_VALUE(C IN INTEGER, NAME IN VARCHAR2, VALUE OUT NOCOPY VARBINARY)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.variable_value(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_143 PROCEDURE DBMS_SQL.VARIABLE_VALUE(C IN INTEGER, NAME IN VARCHAR2, VALUE OUT NOCOPY INTERVAL YEAR TO MONTH)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.variable_value(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_144 PROCEDURE DBMS_SQL.VARIABLE_VALUE(C IN INTEGER, NAME IN VARCHAR2, VALUE OUT NOCOPY "<TABLE_1>")
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.variable_value(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_145 PROCEDURE DBMS_SQL.VARIABLE_VALUE(C IN INTEGER, NAME IN VARCHAR2, VALUE OUT NOCOPY DBMS_SQL.BINARY_FLOAT_TABLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.variable_value(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_146 PROCEDURE DBMS_SQL.VARIABLE_VALUE(C IN INTEGER, NAME IN VARCHAR2, VALUE OUT NOCOPY DBMS_SQL.CLOB_TABLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.variable_value(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_147 PROCEDURE DBMS_SQL.VARIABLE_VALUE(C IN INTEGER, NAME IN VARCHAR2, VALUE OUT NOCOPY DBMS_SQL.DATE_TABLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.variable_value(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_148 PROCEDURE DBMS_SQL.VARIABLE_VALUE(C IN INTEGER, NAME IN VARCHAR2, VALUE OUT NOCOPY DBMS_SQL.INTERVAL_DAY_TO_SECOND_TABLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.variable_value(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_149 PROCEDURE DBMS_SQL.VARIABLE_VALUE(C IN INTEGER, NAME IN VARCHAR2, VALUE OUT NOCOPY DBMS_SQL.INTERVAL_YEAR_TO_MONTH_TABLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.variable_value(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_150 PROCEDURE DBMS_SQL.VARIABLE_VALUE(C IN INTEGER, NAME IN VARCHAR2, VALUE OUT NOCOPY DBMS_SQL.NUMBER_TABLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.variable_value(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_151 PROCEDURE DBMS_SQL.VARIABLE_VALUE(C IN INTEGER, NAME IN VARCHAR2, VALUE OUT NOCOPY DBMS_SQL.TIME_TABLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.variable_value(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_152 PROCEDURE DBMS_SQL.VARIABLE_VALUE(C IN INTEGER, NAME IN VARCHAR2, VALUE OUT NOCOPY DBMS_SQL.TIME_WITH_TIME_ZONE_TABLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.variable_value(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_153 PROCEDURE DBMS_SQL.VARIABLE_VALUE(C IN INTEGER, NAME IN VARCHAR2, VALUE OUT NOCOPY DBMS_SQL.TIMESTAMP_WITH_TIME_ZONE_TABLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.variable_value(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_154 PROCEDURE DBMS_SQL.VARIABLE_VALUE(C IN INTEGER, NAME IN VARCHAR2, VALUE OUT NOCOPY DBMS_SQL.VARCHAR2_TABLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.variable_value(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_155 PROCEDURE DBMS_SQL.VARIABLE_VALUE_CHAR(C IN INTEGER, NAME IN VARCHAR2, VALUE OUT VARCHAR)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.variable_value_char(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_156 PROCEDURE DBMS_SQL.VARIABLE_VALUE_RAW(C IN INTEGER, NAME IN VARCHAR2, VALUE OUT VARBINARY)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.variable_value_raw(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_157 PROCEDURE DBMS_SQL.VARIABLE_VALUE_ROWID(C IN INTEGER, NAME IN VARCHAR2, VALUE OUT BIGINT)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.variable_value_rowid(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_158 FUNCTION DBMS_SQL.TO_REFCURSOR(CURSOR_NUMBER IN INTEGER) RETURN SYS_REFCURSOR
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  rc:=dbms_sql.to_refcursor(v);
+end;
+/
+-- DBMS_SQL SIGNATURE_159 FUNCTION DBMS_SQL.TO_CURSOR_NUMBER(RC IN OUT SYS_REFCURSOR) RETURN INTEGER
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  v:=dbms_sql.to_cursor_number(rc);
+end;
+/
+-- DBMS_SQL SIGNATURE_160 PROCEDURE DBMS_SQL.BIND_ARRAY(C IN INTEGER, NAME IN VARCHAR2, VAR IN DBMS_SQL.TIMESTAMP_WITH_LTZ_TABLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_array(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_161 PROCEDURE DBMS_SQL.BIND_ARRAY(C IN INTEGER, NAME IN VARCHAR2, VAR IN DBMS_SQL.TIMESTAMP_WITH_LTZ_TABLE, INDEX1 IN INTEGER, INDEX2 IN INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_array(v,v,v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_162 PROCEDURE DBMS_SQL.BIND_ARRAY(C IN INTEGER, NAME IN VARCHAR2, VAR IN DBMS_SQL.VARCHAR2A)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_array(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_163 PROCEDURE DBMS_SQL.BIND_ARRAY(C IN INTEGER, NAME IN VARCHAR2, VAR IN DBMS_SQL.VARCHAR2A, INDEX1 IN INTEGER, INDEX2 IN INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_array(v,v,v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_164 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE IN OUT NOCOPY DBMS_SQL.BLOB_TABLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_165 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE IN OUT NOCOPY DBMS_SQL.INT_TABLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_166 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE IN OUT NOCOPY DBMS_SQL.TIME_WITH_TIME_ZONE_TABLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_167 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE IN OUT NOCOPY DBMS_SQL.TIMESTAMP_WITH_LTZ_TABLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_168 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE IN OUT NOCOPY DBMS_SQL.VARCHAR2A)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_169 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE OUT <DATATYPE>, COLUMN_ERROR OUT NUMBER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_170 PROCEDURE DBMS_SQL.COLUMN_VALUE_CHAR(C IN INTEGER, POSITION IN INTEGER, VALUE OUT CHAR, COLUMN_ERROR OUT NUMBER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value_char(v,v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_171 PROCEDURE DBMS_SQL.COLUMN_VALUE_CHAR(C IN INTEGER, POSITION IN INTEGER, VALUE OUT CHAR, COLUMN_ERROR OUT NUMBER, ACTUAL_LENGTH OUT INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value_char(v,v,v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_172 PROCEDURE DBMS_SQL.COLUMN_VALUE_RAW(C IN INTEGER, POSITION IN INTEGER, VALUE OUT BINARY, COLUMN_ERROR OUT NUMBER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value_raw(v,v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_173 PROCEDURE DBMS_SQL.COLUMN_VALUE_RAW(C IN INTEGER, POSITION IN INTEGER, VALUE OUT BINARY, COLUMN_ERROR OUT NUMBER, ACTUAL_LENGTH OUT INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value_raw(v,v,v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_174 PROCEDURE DBMS_SQL.DEFINE_ARRAY(C IN INTEGER, POSITION IN INTEGER, COL IN DBMS_SQL.TIMESTAMP_WITH_LTZ_TABLE, LEAST_FETCH IN INTEGER, START_OP IN INTEGER DEFAULT 1)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.define_array(v,v,v,v);
+end;
+/
+-- DBMS_SQL SIGNATURE_175 PROCEDURE DBMS_SQL.DEFINE_ARRAY(C IN INTEGER, POSITION IN INTEGER, COL IN DBMS_SQL.VARCHAR2A, LEAST_FETCH IN INTEGER, START_OP IN INTEGER DEFAULT 1)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.define_array(v,v,v,v);
+end;
+/
+------------------------------------------------------------------------------------------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_001 PROCEDURE DBMS_SQL.BIND_ARRAY(C IN INTEGER, NAME IN VARCHAR2, VAR IN DBMS_SQL.CLOB_TABLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_array(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_002 PROCEDURE DBMS_SQL.BIND_ARRAY(C IN INTEGER, NAME IN VARCHAR2, VAR IN DBMS_SQL.BINARY_FLOAT_TABLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_array(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_003 PROCEDURE DBMS_SQL.BIND_ARRAY(C IN INTEGER, NAME IN VARCHAR2, VAR IN DBMS_SQL.BLOB_TABLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_array(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_004 PROCEDURE DBMS_SQL.BIND_ARRAY(C IN INTEGER, NAME IN VARCHAR2, VAR IN DBMS_SQL.DATE_TABLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_array(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_005 PROCEDURE DBMS_SQL.BIND_ARRAY(C IN INTEGER, NAME IN VARCHAR2, VAR IN DBMS_SQL.NUMBER_TABLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_array(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_006 PROCEDURE DBMS_SQL.BIND_ARRAY(C IN INTEGER, NAME IN VARCHAR2, VAR IN DBMS_SQL.VARCHAR2_TABLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_array(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_007 PROCEDURE DBMS_SQL.BIND_ARRAY(C IN INTEGER, NAME IN VARCHAR2, VAR IN DBMS_SQL.INT_TABLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_array(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_008 PROCEDURE DBMS_SQL.BIND_ARRAY(C IN INTEGER, NAME IN VARCHAR2, VAR IN DBMS_SQL.TIME_TABLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_array(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_009 PROCEDURE DBMS_SQL.BIND_ARRAY(C IN INTEGER, NAME IN VARCHAR2, VAR IN DBMS_SQL.TIME_WITH_TIME_ZONE_TABLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_array(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_010 PROCEDURE DBMS_SQL.BIND_ARRAY(C IN INTEGER, NAME IN VARCHAR2, VAR IN DBMS_SQL.INTERVAL_DAY_TO_SECOND_TABLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_array(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_011 PROCEDURE DBMS_SQL.BIND_ARRAY(C IN INTEGER, NAME IN VARCHAR2, VAR IN DBMS_SQL.INTERVAL_YEAR_TO_MONTH_TABLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_array(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_012 PROCEDURE DBMS_SQL.BIND_ARRAY(C IN INTEGER, NAME IN VARCHAR2, VAR IN DBMS_SQL.TIMESTAMP_WITH_TIME_ZONE_TABLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_array(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_013 PROCEDURE DBMS_SQL.BIND_ARRAY(C IN INTEGER, NAME IN VARCHAR2, VAR IN DBMS_SQL.CLOB_TABLE, INDEX1 IN INTEGER, INDEX2 IN INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_array(v,v,v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_014 PROCEDURE DBMS_SQL.BIND_ARRAY(C IN INTEGER, NAME IN VARCHAR2, VAR IN DBMS_SQL.BINARY_FLOAT_TABLE, INDEX1 IN INTEGER, INDEX2 IN INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_array(v,v,v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_015 PROCEDURE DBMS_SQL.BIND_ARRAY(C IN INTEGER, NAME IN VARCHAR2, VAR IN DBMS_SQL.BLOB_TABLE, INDEX1 IN INTEGER, INDEX2 IN INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_array(v,v,v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_016 PROCEDURE DBMS_SQL.BIND_ARRAY(C IN INTEGER, NAME IN VARCHAR2, VAR IN DBMS_SQL.DATE_TABLE, INDEX1 IN INTEGER, INDEX2 IN INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_array(v,v,v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_017 PROCEDURE DBMS_SQL.BIND_ARRAY(C IN INTEGER, NAME IN VARCHAR2, VAR IN DBMS_SQL.NUMBER_TABLE, INDEX1 IN INTEGER, INDEX2 IN INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_array(v,v,v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_018 PROCEDURE DBMS_SQL.BIND_ARRAY(C IN INTEGER, NAME IN VARCHAR2, VAR IN DBMS_SQL.VARCHAR2_TABLE, INDEX1 IN INTEGER, INDEX2 IN INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_array(v,v,v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_019 PROCEDURE DBMS_SQL.BIND_ARRAY(C IN INTEGER, NAME IN VARCHAR2, VAR IN DBMS_SQL.INT_TABLE, INDEX1 IN INTEGER, INDEX2 IN INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_array(v,v,v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_020 PROCEDURE DBMS_SQL.BIND_ARRAY(C IN INTEGER, NAME IN VARCHAR2, VAR IN DBMS_SQL.TIME_TABLE, INDEX1 IN INTEGER, INDEX2 IN INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_array(v,v,v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_021 PROCEDURE DBMS_SQL.BIND_ARRAY(C IN INTEGER, NAME IN VARCHAR2, VAR IN DBMS_SQL.TIME_WITH_TIME_ZONE_TABLE, INDEX1 IN INTEGER, INDEX2 IN INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_array(v,v,v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_022 PROCEDURE DBMS_SQL.BIND_ARRAY(C IN INTEGER, NAME IN VARCHAR2, VAR IN DBMS_SQL.INTERVAL_DAY_TO_SECOND_TABLE, INDEX1 IN INTEGER, INDEX2 IN INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_array(v,v,v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_023 PROCEDURE DBMS_SQL.BIND_ARRAY(C IN INTEGER, NAME IN VARCHAR2, VAR IN DBMS_SQL.INTERVAL_YEAR_TO_MONTH_TABLE, INDEX1 IN INTEGER, INDEX2 IN INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_array(v,v,v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_024 PROCEDURE DBMS_SQL.BIND_ARRAY(C IN INTEGER, NAME IN VARCHAR2, VAR IN DBMS_SQL.TIMESTAMP_WITH_TIME_ZONE_TABLE, INDEX1 IN INTEGER, INDEX2 IN INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_array(v,v,v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_025 PROCEDURE DBMS_SQL.BIND_VARIABLE(C IN INTEGER, NAME IN VARCHAR2, VALUE IN DOUBLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_variable(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_026 PROCEDURE DBMS_SQL.BIND_VARIABLE(C IN INTEGER, NAME IN VARCHAR2, VALUE IN BLOB)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_variable(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_027 PROCEDURE DBMS_SQL.BIND_VARIABLE(C IN INTEGER, NAME IN VARCHAR2, VALUE IN CLOB)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_variable(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_028 PROCEDURE DBMS_SQL.BIND_VARIABLE(C IN INTEGER, NAME IN VARCHAR2, VALUE IN DATETIME)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_variable(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_029 PROCEDURE DBMS_SQL.BIND_VARIABLE(C IN INTEGER, NAME IN VARCHAR2, VALUE IN INTERVAL DAY TO SECOND)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_variable(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_030 PROCEDURE DBMS_SQL.BIND_VARIABLE(C IN INTEGER, NAME IN VARCHAR2, VALUE IN NUMBER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_variable(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_031 PROCEDURE DBMS_SQL.BIND_VARIABLE(C IN INTEGER, NAME IN VARCHAR2, VALUE IN TIME)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_variable(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_032 PROCEDURE DBMS_SQL.BIND_VARIABLE(C IN INTEGER, NAME IN VARCHAR2, VALUE IN TIME WITH TIME ZONE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_variable(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_033 PROCEDURE DBMS_SQL.BIND_VARIABLE(C IN INTEGER, NAME IN VARCHAR2, VALUE IN TIMESTAMP WITH TIME ZONE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_variable(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_034 PROCEDURE DBMS_SQL.BIND_VARIABLE(C IN INTEGER, NAME IN VARCHAR2, VALUE IN VARCHAR2)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_variable(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_035 PROCEDURE DBMS_SQL.BIND_VARIABLE(C IN INTEGER, NAME IN VARCHAR2, VALUE IN VARBINARY)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_variable(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_036 PROCEDURE DBMS_SQL.BIND_VARIABLE(C IN INTEGER, NAME IN VARCHAR2, VALUE IN INTERVAL YEAR TO MONTH)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_variable(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_037 PROCEDURE DBMS_SQL.BIND_VARIABLE(C IN INTEGER, NAME IN VARCHAR2, VALUE IN "<TABLE_1>")
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_variable(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_038 PROCEDURE DBMS_SQL.BIND_VARIABLE(C IN INTEGER, NAME IN VARCHAR2, VALUE IN VARCHAR2, CHAR_SIZE IN INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_variable(v,v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_039 PROCEDURE DBMS_SQL.BIND_VARIABLE(C IN INTEGER, NAME IN VARCHAR2, VALUE IN VARBINARY, CHAR_SIZE IN INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_variable(v,v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_040 PROCEDURE DBMS_SQL.BIND_VARIABLE_CHAR(C IN INTEGER, NAME IN VARCHAR2, VALUE IN VARCHAR)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_variable_char(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_041 PROCEDURE DBMS_SQL.BIND_VARIABLE_CHAR(C IN INTEGER, NAME IN VARCHAR2, VALUE IN VARCHAR, OUT_VALUE_SIZE IN INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_variable_char(v,v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_042 PROCEDURE DBMS_SQL.BIND_VARIABLE_RAW(C IN INTEGER, NAME IN VARCHAR2, VALUE IN VARBINARY)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_variable_raw(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_043 PROCEDURE DBMS_SQL.BIND_VARIABLE_RAW(C IN INTEGER, NAME IN VARCHAR2, VALUE IN VARBINARY, OUT_VALUE_SIZE IN INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_variable_raw(v,v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_044 PROCEDURE DBMS_SQL.BIND_VARIABLE_ROWID(C IN INTEGER, NAME IN VARCHAR2, VALUE IN BIGINT)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_variable_rowid(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_045 PROCEDURE DBMS_SQL.CLOSE_CURSOR(C IN OUT INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.close_cursor(v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_046 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE OUT DOUBLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_047 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE OUT BLOB)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_048 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE OUT CLOB)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_049 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE OUT DATETIME)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_050 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE OUT INTERVAL DAY TO SECOND)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_051 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE OUT NUMBER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_052 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE OUT TIME)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_053 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE OUT TIME WITH TIME ZONE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_054 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE OUT TIMESTAMP WITH TIME ZONE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_055 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE OUT VARCHAR2)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_056 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE OUT VARBINARY)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_057 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE OUT INTERVAL YEAR TO MONTH)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_058 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE OUT "<ADT_1>")
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_059 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE OUT DOUBLE, COLUMN_ERROR OUT NUMBER, ACTUAL_LENGTH OUT INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_060 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE OUT BLOB, COLUMN_ERROR OUT NUMBER, ACTUAL_LENGTH OUT INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_061 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE OUT CLOB, COLUMN_ERROR OUT NUMBER, ACTUAL_LENGTH OUT INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_062 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE OUT DATETIME, COLUMN_ERROR OUT NUMBER, ACTUAL_LENGTH OUT INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_063 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE OUT INTERVAL DAY TO SECOND, COLUMN_ERROR OUT NUMBER, ACTUAL_LENGTH OUT INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_064 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE OUT NUMBER, COLUMN_ERROR OUT NUMBER, ACTUAL_LENGTH OUT INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_065 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE OUT TIME, COLUMN_ERROR OUT NUMBER, ACTUAL_LENGTH OUT INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_066 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE OUT TIME WITH TIME ZONE, COLUMN_ERROR OUT NUMBER, ACTUAL_LENGTH OUT INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_067 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE OUT TIMESTAMP WITH TIME ZONE, COLUMN_ERROR OUT NUMBER, ACTUAL_LENGTH OUT INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_068 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE OUT VARCHAR2, COLUMN_ERROR OUT NUMBER, ACTUAL_LENGTH OUT INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_069 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE OUT VARBINARY, COLUMN_ERROR OUT NUMBER, ACTUAL_LENGTH OUT INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_070 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE OUT INTERVAL YEAR TO MONTH, COLUMN_ERROR OUT NUMBER, ACTUAL_LENGTH OUT INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_071 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE IN OUT NOCOPY DBMS_SQL.BINARY_FLOAT_TABLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_072 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE IN OUT NOCOPY DBMS_SQL.CLOB_TABLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_073 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE IN OUT NOCOPY DBMS_SQL.DATE_TABLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_074 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE IN OUT NOCOPY DBMS_SQL.INTERVAL_DAY_TO_SECOND_TABLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_075 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE IN OUT NOCOPY DBMS_SQL.INTERVAL_YEAR_TO_MONTH_TABLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_076 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE IN OUT NOCOPY DBMS_SQL.NUMBER_TABLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_077 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE IN OUT NOCOPY DBMS_SQL.TIME_TABLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_078 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE IN OUT NOCOPY DBMS_SQL.TIMESTAMP_WITH_TIME_ZONE_TABLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_079 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE IN OUT NOCOPY DBMS_SQL.VARCHAR2_TABLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_080 PROCEDURE DBMS_SQL.COLUMN_VALUE_CHAR(C IN INTEGER, POSITION IN INTEGER, VALUE OUT VARCHAR)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value_char(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_081 PROCEDURE DBMS_SQL.COLUMN_VALUE_RAW(C IN INTEGER, POSITION IN INTEGER, VALUE OUT RAW)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value_raw(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_082 PROCEDURE DBMS_SQL.COLUMN_VALUE_ROWID(C IN INTEGER, POSITION IN INTEGER, VALUE OUT BIGINT)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value_rowid(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_083 PROCEDURE DBMS_SQL.COLUMN_VALUE_ROWID(C IN INTEGER, POSITION IN INTEGER, VALUE OUT BIGINT, COLUMN_ERROR OUT NUMBER, ACTUAL_LENGTH OUT INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value_rowid(v,v,v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_084 PROCEDURE DBMS_SQL.COLUMN_VALUE_LONG(C IN INTEGER, POSITION IN INTEGER, LENGTH IN INTEGER, OFFSET IN INTEGER, VALUE OUT VARCHAR2, VALUE_LENGTH OUT INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value_long(v,v,v,v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_085 PROCEDURE DBMS_SQL.DEFINE_ARRAY(C IN INTEGER, POSITION IN INTEGER, COL IN DBMS_SQL.CLOB_TABLE, LEAST_FETCH IN INTEGER, START_OP IN INTEGER DEFAULT 1)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.define_array(v,v,v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_086 PROCEDURE DBMS_SQL.DEFINE_ARRAY(C IN INTEGER, POSITION IN INTEGER, COL IN DBMS_SQL.BINARY_FLOAT_TABLE, LEAST_FETCH IN INTEGER, START_OP IN INTEGER DEFAULT 1)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.define_array(v,v,v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_087 PROCEDURE DBMS_SQL.DEFINE_ARRAY(C IN INTEGER, POSITION IN INTEGER, COL IN DBMS_SQL.BLOB_TABLE, LEAST_FETCH IN INTEGER, START_OP IN INTEGER DEFAULT 1)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.define_array(v,v,v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_088 PROCEDURE DBMS_SQL.DEFINE_ARRAY(C IN INTEGER, POSITION IN INTEGER, COL IN DBMS_SQL.DATE_TABLE, LEAST_FETCH IN INTEGER, START_OP IN INTEGER DEFAULT 1)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.define_array(v,v,v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_089 PROCEDURE DBMS_SQL.DEFINE_ARRAY(C IN INTEGER, POSITION IN INTEGER, COL IN DBMS_SQL.NUMBER_TABLE, LEAST_FETCH IN INTEGER, START_OP IN INTEGER DEFAULT 1)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.define_array(v,v,v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_090 PROCEDURE DBMS_SQL.DEFINE_ARRAY(C IN INTEGER, POSITION IN INTEGER, COL IN DBMS_SQL.VARCHAR2_TABLE, LEAST_FETCH IN INTEGER, START_OP IN INTEGER DEFAULT 1)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.define_array(v,v,v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_091 PROCEDURE DBMS_SQL.DEFINE_ARRAY(C IN INTEGER, POSITION IN INTEGER, COL IN DBMS_SQL.INT_TABLE, LEAST_FETCH IN INTEGER, START_OP IN INTEGER DEFAULT 1)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.define_array(v,v,v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_092 PROCEDURE DBMS_SQL.DEFINE_ARRAY(C IN INTEGER, POSITION IN INTEGER, COL IN DBMS_SQL.TIME_TABLE, LEAST_FETCH IN INTEGER, START_OP IN INTEGER DEFAULT 1)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.define_array(v,v,v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_093 PROCEDURE DBMS_SQL.DEFINE_ARRAY(C IN INTEGER, POSITION IN INTEGER, COL IN DBMS_SQL.TIME_WITH_TIME_ZONE_TABLE, LEAST_FETCH IN INTEGER, START_OP IN INTEGER DEFAULT 1)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.define_array(v,v,v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_094 PROCEDURE DBMS_SQL.DEFINE_ARRAY(C IN INTEGER, POSITION IN INTEGER, COL IN DBMS_SQL.INTERVAL_DAY_TO_SECOND_TABLE, LEAST_FETCH IN INTEGER, START_OP IN INTEGER DEFAULT 1)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.define_array(v,v,v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_095 PROCEDURE DBMS_SQL.DEFINE_ARRAY(C IN INTEGER, POSITION IN INTEGER, COL IN DBMS_SQL.INTERVAL_YEAR_TO_MONTH_TABLE, LEAST_FETCH IN INTEGER, START_OP IN INTEGER DEFAULT 1)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.define_array(v,v,v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_096 PROCEDURE DBMS_SQL.DEFINE_ARRAY(C IN INTEGER, POSITION IN INTEGER, COL IN DBMS_SQL.TIMESTAMP_WITH_TIME_ZONE_TABLE, LEAST_FETCH IN INTEGER, START_OP IN INTEGER DEFAULT 1)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.define_array(v,v,v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_097 PROCEDURE DBMS_SQL.DEFINE_COLUMN(C IN INTEGER, POSITION IN INTEGER, COL IN DOUBLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.define_column(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_098 PROCEDURE DBMS_SQL.DEFINE_COLUMN(C IN INTEGER, POSITION IN INTEGER, COL IN BLOB)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.define_column(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_099 PROCEDURE DBMS_SQL.DEFINE_COLUMN(C IN INTEGER, POSITION IN INTEGER, COL IN CLOB)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.define_column(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_100 PROCEDURE DBMS_SQL.DEFINE_COLUMN(C IN INTEGER, POSITION IN INTEGER, COL IN DATETIME)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.define_column(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_101 PROCEDURE DBMS_SQL.DEFINE_COLUMN(C IN INTEGER, POSITION IN INTEGER, COL IN INTERVAL DAY TO SECOND)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.define_column(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_102 PROCEDURE DBMS_SQL.DEFINE_COLUMN(C IN INTEGER, POSITION IN INTEGER, COL IN NUMBER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.define_column(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_103 PROCEDURE DBMS_SQL.DEFINE_COLUMN(C IN INTEGER, POSITION IN INTEGER, COL IN TIME)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.define_column(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_104 PROCEDURE DBMS_SQL.DEFINE_COLUMN(C IN INTEGER, POSITION IN INTEGER, COL IN TIME WITH TIME ZONE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.define_column(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_105 PROCEDURE DBMS_SQL.DEFINE_COLUMN(C IN INTEGER, POSITION IN INTEGER, COL IN TIMESTAMP WITH TIME ZONE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.define_column(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_106 PROCEDURE DBMS_SQL.DEFINE_COLUMN(C IN INTEGER, POSITION IN INTEGER, COL IN VARCHAR2)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.define_column(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_107 PROCEDURE DBMS_SQL.DEFINE_COLUMN(C IN INTEGER, POSITION IN INTEGER, COL IN VARBINARY)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.define_column(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_108 PROCEDURE DBMS_SQL.DEFINE_COLUMN(C IN INTEGER, POSITION IN INTEGER, COL IN INTERVAL YEAR TO MONTH)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.define_column(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_109 PROCEDURE DBMS_SQL.DEFINE_COLUMN(C IN INTEGER, POSITION IN INTEGER, COL IN "<ADT_1>")
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.define_column(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_110 PROCEDURE DBMS_SQL.DEFINE_COLUMN(C IN INTEGER, POSITION IN INTEGER, COL IN VARCHAR2, COLUMN_SIZE IN INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.define_column(v,v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_111 PROCEDURE DBMS_SQL.DEFINE_COLUMN(C IN INTEGER, POSITION IN INTEGER, COL IN VARBINARY, COLUMN_SIZE IN INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.define_column(v,v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_112 PROCEDURE DBMS_SQL.DEFINE_COLUMN_RAW(C IN INTEGER, POSITION IN INTEGER, COL IN RAW, COLUMN_SIZE IN INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.define_column_raw(v,v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_113 PROCEDURE DBMS_SQL.DEFINE_COLUMN_CHAR(C IN INTEGER, POSITION IN INTEGER, COL IN VARCHAR, COLUMN_SIZE IN INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.define_column_char(v,v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_114 PROCEDURE DBMS_SQL.DEFINE_COLUMN_LONG(C IN INTEGER, POSITION IN INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.define_column_long(v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_115 PROCEDURE DBMS_SQL.DEFINE_COLUMN_ROWID(C IN INTEGER, POSITION IN INTEGER, COL IN BIGINT)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.define_column_rowid(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_116 PROCEDURE DBMS_SQL.DESCRIBE_COLUMNS(C IN INTEGER, COL_CNT OUT INTEGER, DESC_T OUT DBMS_SQL.DESC_TAB)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.describe_columns(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_117 PROCEDURE DBMS_SQL.DESCRIBE_COLUMNS2(C IN INTEGER, COL_CNT OUT INTEGER, DESC_T OUT DBMS_SQL.DESC_TAB2)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.describe_columns2(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_118 PROCEDURE DBMS_SQL.DESCRIBE_COLUMNS3(C IN INTEGER, COL_CNT OUT INTEGER, DESC_T OUT DBMS_SQL.DESC_TAB3)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.describe_columns3(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_119 FUNCTION DBMS_SQL.EXECUTE(C IN INTEGER) RETURN INTEGER
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  v:=dbms_sql.execute(v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_120 FUNCTION DBMS_SQL.EXECUTE_AND_FETCH(C IN INTEGER, EXACT IN BOOLEAN DEFAULT FALSE) RETURN INTEGER
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  v:=dbms_sql.execute_and_fetch(v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_121 FUNCTION DBMS_SQL.FETCH_ROWS(C IN INTEGER) RETURN INTEGER
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  v:=dbms_sql.fetch_rows(v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_122 FUNCTION DBMS_SQL.IS_OPEN(C IN INTEGER) RETURN BOOLEAN
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  b:=dbms_sql.is_open(v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_123 FUNCTION DBMS_SQL.LAST_ERROR_POSITION() RETURN INTEGER
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  v:=dbms_sql.last_error_position();
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_124 FUNCTION DBMS_SQL.LAST_ROW_COUNT() RETURN INTEGER
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  v:=dbms_sql.last_row_count();
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_125 FUNCTION DBMS_SQL.LAST_SQL_FUNCTION_CODE() RETURN INTEGER
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  v:=dbms_sql.last_sql_function_code();
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_126 FUNCTION DBMS_SQL.OPEN_CURSOR() RETURN INTEGER
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  v:=dbms_sql.open_cursor();
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_127 FUNCTION DBMS_SQL.OPEN_CURSOR(SECURITY_LEVEL IN INTEGER) RETURN INTEGER
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  v:=dbms_sql.open_cursor(v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_128 PROCEDURE DBMS_SQL.PARSE(C IN INTEGER, STATEMENT IN VARCHAR2, LANGUAGE_FLAG IN NUMBER DEFAULT 1, EDITION IN VARCHAR2 DEFAULT NULL, APPLY_CROSSEDITION_TRIGGER IN VARCHAR2 DEFAULT NULL, FIRE_APPLY_TRIGGER IN BOOLEAN DEFAULT TRUE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.parse(v,v,v,v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_129 PROCEDURE DBMS_SQL.PARSE(C IN INTEGER, STATEMENT IN CLOB, LANGUAGE_FLAG IN NUMBER DEFAULT 1, EDITION IN VARCHAR2 DEFAULT NULL, APPLY_CROSSEDITION_TRIGGER IN VARCHAR2 DEFAULT NULL, FIRE_APPLY_TRIGGER IN BOOLEAN DEFAULT TRUE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.parse(v,v,v,v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_130 PROCEDURE DBMS_SQL.PARSE(C IN INTEGER, STATEMENT IN DBMS_SQL.VARCHAR2A, LB IN INTEGER, UB IN INTEGER, LFFLG IN BOOLEAN, LANGUAGE_FLAG IN NUMBER DEFAULT 1, EDITION IN VARCHAR2 DEFAULT NULL, APPLY_CROSSEDITION_TRIGGER IN VARCHAR2 DEFAULT NULL, FIRE_APPLY_TRIGGER IN BOOLEAN DEFAULT TRUE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.parse(v,v,v,v,v,v,v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_131 PROCEDURE DBMS_SQL.PARSE(C IN INTEGER, STATEMENT IN DBMS_SQL.VARCHAR2S, LB IN INTEGER, UB IN INTEGER, LFFLG IN BOOLEAN, LANGUAGE_FLAG IN NUMBER DEFAULT 1, EDITION IN VARCHAR2 DEFAULT NULL, APPLY_CROSSEDITION_TRIGGER IN VARCHAR2 DEFAULT NULL, FIRE_APPLY_TRIGGER IN BOOLEAN DEFAULT TRUE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.parse(v,v,v,v,v,v,v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_132 PROCEDURE DBMS_SQL.VARIABLE_VALUE(C IN INTEGER, NAME IN VARCHAR2, VALUE OUT NOCOPY DOUBLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.variable_value(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_133 PROCEDURE DBMS_SQL.VARIABLE_VALUE(C IN INTEGER, NAME IN VARCHAR2, VALUE OUT NOCOPY BLOB)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.variable_value(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_134 PROCEDURE DBMS_SQL.VARIABLE_VALUE(C IN INTEGER, NAME IN VARCHAR2, VALUE OUT NOCOPY CLOB)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.variable_value(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_135 PROCEDURE DBMS_SQL.VARIABLE_VALUE(C IN INTEGER, NAME IN VARCHAR2, VALUE OUT NOCOPY DATETIME)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.variable_value(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_136 PROCEDURE DBMS_SQL.VARIABLE_VALUE(C IN INTEGER, NAME IN VARCHAR2, VALUE OUT NOCOPY INTERVAL DAY TO SECOND)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.variable_value(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_137 PROCEDURE DBMS_SQL.VARIABLE_VALUE(C IN INTEGER, NAME IN VARCHAR2, VALUE OUT NOCOPY NUMBER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.variable_value(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_138 PROCEDURE DBMS_SQL.VARIABLE_VALUE(C IN INTEGER, NAME IN VARCHAR2, VALUE OUT NOCOPY TIME)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.variable_value(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_139 PROCEDURE DBMS_SQL.VARIABLE_VALUE(C IN INTEGER, NAME IN VARCHAR2, VALUE OUT NOCOPY TIME WITH TIME ZONE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.variable_value(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_140 PROCEDURE DBMS_SQL.VARIABLE_VALUE(C IN INTEGER, NAME IN VARCHAR2, VALUE OUT NOCOPY TIMESTAMP WITH TIME ZONE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.variable_value(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_141 PROCEDURE DBMS_SQL.VARIABLE_VALUE(C IN INTEGER, NAME IN VARCHAR2, VALUE OUT NOCOPY VARCHAR2)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.variable_value(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_142 PROCEDURE DBMS_SQL.VARIABLE_VALUE(C IN INTEGER, NAME IN VARCHAR2, VALUE OUT NOCOPY VARBINARY)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.variable_value(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_143 PROCEDURE DBMS_SQL.VARIABLE_VALUE(C IN INTEGER, NAME IN VARCHAR2, VALUE OUT NOCOPY INTERVAL YEAR TO MONTH)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.variable_value(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_144 PROCEDURE DBMS_SQL.VARIABLE_VALUE(C IN INTEGER, NAME IN VARCHAR2, VALUE OUT NOCOPY "<TABLE_1>")
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.variable_value(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_145 PROCEDURE DBMS_SQL.VARIABLE_VALUE(C IN INTEGER, NAME IN VARCHAR2, VALUE OUT NOCOPY DBMS_SQL.BINARY_FLOAT_TABLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.variable_value(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_146 PROCEDURE DBMS_SQL.VARIABLE_VALUE(C IN INTEGER, NAME IN VARCHAR2, VALUE OUT NOCOPY DBMS_SQL.CLOB_TABLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.variable_value(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_147 PROCEDURE DBMS_SQL.VARIABLE_VALUE(C IN INTEGER, NAME IN VARCHAR2, VALUE OUT NOCOPY DBMS_SQL.DATE_TABLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.variable_value(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_148 PROCEDURE DBMS_SQL.VARIABLE_VALUE(C IN INTEGER, NAME IN VARCHAR2, VALUE OUT NOCOPY DBMS_SQL.INTERVAL_DAY_TO_SECOND_TABLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.variable_value(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_149 PROCEDURE DBMS_SQL.VARIABLE_VALUE(C IN INTEGER, NAME IN VARCHAR2, VALUE OUT NOCOPY DBMS_SQL.INTERVAL_YEAR_TO_MONTH_TABLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.variable_value(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_150 PROCEDURE DBMS_SQL.VARIABLE_VALUE(C IN INTEGER, NAME IN VARCHAR2, VALUE OUT NOCOPY DBMS_SQL.NUMBER_TABLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.variable_value(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_151 PROCEDURE DBMS_SQL.VARIABLE_VALUE(C IN INTEGER, NAME IN VARCHAR2, VALUE OUT NOCOPY DBMS_SQL.TIME_TABLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.variable_value(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_152 PROCEDURE DBMS_SQL.VARIABLE_VALUE(C IN INTEGER, NAME IN VARCHAR2, VALUE OUT NOCOPY DBMS_SQL.TIME_WITH_TIME_ZONE_TABLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.variable_value(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_153 PROCEDURE DBMS_SQL.VARIABLE_VALUE(C IN INTEGER, NAME IN VARCHAR2, VALUE OUT NOCOPY DBMS_SQL.TIMESTAMP_WITH_TIME_ZONE_TABLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.variable_value(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_154 PROCEDURE DBMS_SQL.VARIABLE_VALUE(C IN INTEGER, NAME IN VARCHAR2, VALUE OUT NOCOPY DBMS_SQL.VARCHAR2_TABLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.variable_value(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_155 PROCEDURE DBMS_SQL.VARIABLE_VALUE_CHAR(C IN INTEGER, NAME IN VARCHAR2, VALUE OUT VARCHAR)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.variable_value_char(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_156 PROCEDURE DBMS_SQL.VARIABLE_VALUE_RAW(C IN INTEGER, NAME IN VARCHAR2, VALUE OUT VARBINARY)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.variable_value_raw(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_157 PROCEDURE DBMS_SQL.VARIABLE_VALUE_ROWID(C IN INTEGER, NAME IN VARCHAR2, VALUE OUT BIGINT)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.variable_value_rowid(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_158 FUNCTION DBMS_SQL.TO_REFCURSOR(CURSOR_NUMBER IN INTEGER) RETURN SYS_REFCURSOR
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  rc:=dbms_sql.to_refcursor(v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_159 FUNCTION DBMS_SQL.TO_CURSOR_NUMBER(RC IN OUT SYS_REFCURSOR) RETURN INTEGER
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  v:=dbms_sql.to_cursor_number(rc);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_160 PROCEDURE DBMS_SQL.BIND_ARRAY(C IN INTEGER, NAME IN VARCHAR2, VAR IN DBMS_SQL.TIMESTAMP_WITH_LTZ_TABLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_array(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_161 PROCEDURE DBMS_SQL.BIND_ARRAY(C IN INTEGER, NAME IN VARCHAR2, VAR IN DBMS_SQL.TIMESTAMP_WITH_LTZ_TABLE, INDEX1 IN INTEGER, INDEX2 IN INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_array(v,v,v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_162 PROCEDURE DBMS_SQL.BIND_ARRAY(C IN INTEGER, NAME IN VARCHAR2, VAR IN DBMS_SQL.VARCHAR2A)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_array(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_163 PROCEDURE DBMS_SQL.BIND_ARRAY(C IN INTEGER, NAME IN VARCHAR2, VAR IN DBMS_SQL.VARCHAR2A, INDEX1 IN INTEGER, INDEX2 IN INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.bind_array(v,v,v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_164 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE IN OUT NOCOPY DBMS_SQL.BLOB_TABLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_165 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE IN OUT NOCOPY DBMS_SQL.INT_TABLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_166 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE IN OUT NOCOPY DBMS_SQL.TIME_WITH_TIME_ZONE_TABLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_167 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE IN OUT NOCOPY DBMS_SQL.TIMESTAMP_WITH_LTZ_TABLE)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_168 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE IN OUT NOCOPY DBMS_SQL.VARCHAR2A)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_169 PROCEDURE DBMS_SQL.COLUMN_VALUE(C IN INTEGER, POSITION IN INTEGER, VALUE OUT <DATATYPE>, COLUMN_ERROR OUT NUMBER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value(v,v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_170 PROCEDURE DBMS_SQL.COLUMN_VALUE_CHAR(C IN INTEGER, POSITION IN INTEGER, VALUE OUT CHAR, COLUMN_ERROR OUT NUMBER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value_char(v,v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_171 PROCEDURE DBMS_SQL.COLUMN_VALUE_CHAR(C IN INTEGER, POSITION IN INTEGER, VALUE OUT CHAR, COLUMN_ERROR OUT NUMBER, ACTUAL_LENGTH OUT INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value_char(v,v,v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_172 PROCEDURE DBMS_SQL.COLUMN_VALUE_RAW(C IN INTEGER, POSITION IN INTEGER, VALUE OUT BINARY, COLUMN_ERROR OUT NUMBER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value_raw(v,v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_173 PROCEDURE DBMS_SQL.COLUMN_VALUE_RAW(C IN INTEGER, POSITION IN INTEGER, VALUE OUT BINARY, COLUMN_ERROR OUT NUMBER, ACTUAL_LENGTH OUT INTEGER)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.column_value_raw(v,v,v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_174 PROCEDURE DBMS_SQL.DEFINE_ARRAY(C IN INTEGER, POSITION IN INTEGER, COL IN DBMS_SQL.TIMESTAMP_WITH_LTZ_TABLE, LEAST_FETCH IN INTEGER, START_OP IN INTEGER DEFAULT 1)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.define_array(v,v,v,v);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DBMS_SQL SIGNATURE_175 PROCEDURE DBMS_SQL.DEFINE_ARRAY(C IN INTEGER, POSITION IN INTEGER, COL IN DBMS_SQL.VARCHAR2A, LEAST_FETCH IN INTEGER, START_OP IN INTEGER DEFAULT 1)
+declare
+  v integer;
+  b boolean;
+  rc sys_refcursor;
+begin
+  dbms_sql.define_array(v,v,v,v);
+end;

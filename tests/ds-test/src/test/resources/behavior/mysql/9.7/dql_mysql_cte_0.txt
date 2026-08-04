@@ -1,0 +1,946 @@
+[select__001]
+sql:
+WITH c AS (TABLE qa_t1) SELECT id FROM c ORDER BY id LIMIT 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:17~1:22) /test/1/catalog1/schema1/qa_t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__002]
+sql:
+WITH c(a,b) AS (VALUES ROW(1,2),ROW(3,4)) SELECT a,b FROM c ORDER BY a;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__003]
+sql:
+WITH c1(a, b) AS (SELECT id, grp FROM t), c2 AS (SELECT a, b FROM c1 WHERE EXISTS (SELECT 1 FROM t2 WHERE t2.id = c1.a)) SELECT a, b FROM c2 ORDER BY a;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:38~1:39) /test/1/catalog1/schema1/t/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:97~1:99) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__004]
+sql:
+WITH RECURSIVE seq(n) AS (SELECT 1 UNION DISTINCT SELECT n + 1 FROM seq WHERE n < 3) SELECT n FROM seq ORDER BY n;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__005]
+sql:
+WITH RECURSIVE seq(n) AS (SELECT 1 UNION ALL SELECT n + 1 FROM seq WHERE n < 3 UNION ALL SELECT n + 10 FROM seq WHERE n < 2) SELECT n FROM seq ORDER BY n;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__006]
+sql:
+SELECT id, (WITH c AS (SELECT MAX(id) AS m FROM t2) SELECT m FROM c) AS max_id FROM t ORDER BY id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:30~1:33) /test/1/catalog1/schema1/MAX/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:48~1:50) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:84~1:85) /test/1/catalog1/schema1/t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__007]
+sql:
+WITH cte AS (SELECT 1 AS n) SELECT outer_cte.n, d.n FROM cte AS outer_cte JOIN (WITH cte AS (SELECT 2 AS n) SELECT n FROM cte) AS d ON TRUE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__008]
+sql:
+WITH cte AS (SELECT SUM(c) AS c,SUM(b) AS b,a FROM split_derived_cte80.t1 GROUP BY a) SELECT t2.a,(SELECT MIN(c) FROM cte AS cte2 WHERE t2.d=cte2.b) FROM split_derived_cte80.t2 LEFT JOIN cte AS cte1 ON t2.a=cte1.a LEFT JOIN split_derived_cte80.t2 AS tx ON tx.e=cte1.c;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:20~1:23) /test/1/catalog1/schema1/SUM/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:51~1:73) /test/1/catalog1/split_derived_cte80/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(1:106~1:109) /test/1/catalog1/schema1/MIN/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:154~1:176) /test/1/catalog1/split_derived_cte80/t2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__009]
+sql:
+WITH x(y) AS (SELECT 1 UNION SELECT 1) SELECT (SELECT y FROM x WHERE y=1) FROM x;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__010]
+sql:
+WITH cte1 AS (SELECT (SELECT a) AS a FROM split_derived_97inc.base_t AS r WHERE a>0 GROUP BY r.a,r.a) SELECT a,a FROM cte1 WHERE cte1.a<=r.a;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:42~1:68) /test/1/catalog1/split_derived_97inc/base_t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__011]
+sql:
+WITH cte AS (SELECT 1) (SELECT * FROM t ORDER BY a DESC LIMIT 3) LIMIT 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:38~1:39) /test/1/catalog1/schema1/t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__012]
+sql:
+WITH RECURSIVE c(n) AS (SELECT 1 UNION ALL SELECT n+1 FROM c LIMIT 3 OFFSET 1) SELECT n FROM c;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__013]
+sql:
+SELECT FALSE IS NULL IS NULL, TRUE IS NOT NULL IS NOT NULL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__014]
+sql:
+SELECT NOT NOT TRUE, NOT NOT NOT FALSE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__015]
+sql:
+SELECT 1 AS n UNION ALL (WITH c AS (SELECT 2 AS n) SELECT n FROM c);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__016]
+sql:
+WITH c AS (SELECT 1 AS n) TABLE c;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__017]
+sql:
+WITH c AS (SELECT 1 AS n) VALUES ROW(2),ROW(3);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__018]
+sql:
+WITH RECURSIVE employees_extended(id,name,path) AS (SELECT id,name,CAST(id AS CHAR(200)) FROM employees WHERE manager_id IS NULL UNION ALL SELECT s.id,s.name,CONCAT(m.path,',',s.id) FROM employees_extended m STRAIGHT_JOIN employees s ON m.id=s.manager_id) SELECT * FROM employees_extended ORDER BY path;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:67~1:71) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:94~1:103) /test/1/catalog1/schema1/employees/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(1:158~1:164) /test/1/catalog1/schema1/CONCAT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__019]
+sql:
+WITH RECURSIVE employees_extended(id,name,path) AS (SELECT id,name,CAST(id AS CHAR(200)) FROM employees WHERE manager_id IS NULL UNION ALL SELECT s.id,s.name,CONCAT(m.path,',',s.id) FROM employees_extended m STRAIGHT_JOIN employees s ON m.id=s.manager_id), john_id AS (SELECT id FROM employees WHERE name='John') SELECT e.* FROM employees_extended e,john_id WHERE FIND_IN_SET(john_id.id,path) AND e.id<>john_id.id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:67~1:71) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:94~1:103) /test/1/catalog1/schema1/employees/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(1:158~1:164) /test/1/catalog1/schema1/CONCAT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:364~1:375) /test/1/catalog1/schema1/FIND_IN_SET/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__020]
+sql:
+WITH RECURSIVE cte AS (((SELECT 1 AS n UNION SELECT 2) EXCEPT SELECT 2) UNION ALL SELECT n+1 FROM cte WHERE n<5) SELECT n FROM cte;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__021]
+sql:
+WITH RECURSIVE qn AS (SELECT * FROM t INTERSECT VALUES ROW(1,1,1) UNION ALL SELECT 1+n, unp1, un+unp1 FROM qn WHERE n<10) SELECT * FROM qn;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:36~1:37) /test/1/catalog1/schema1/t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__022]
+sql:
+WITH RECURSIVE cte AS (SELECT 0 AS i UNION SELECT 1 AS i UNION SELECT i+2 FROM cte WHERE i+2<10) SELECT i FROM cte;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__023]
+sql:
+SELECT * FROM ((WITH qn AS (SELECT 10*f1 AS f1 FROM t1), qn2 AS (SELECT 3*f1 AS f2 FROM qn) SELECT * FROM qn2)) AS dt WHERE f2>1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:52~1:54) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__024]
+sql:
+WITH RECURSIVE inner_ AS (SELECT 123 AS a UNION ALL SELECT 1+a FROM inner_ WHERE a<125), outer_ AS (SELECT * FROM inner_ LIMIT 10) SELECT * FROM outer_,outer_ AS outer1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__025]
+sql:
+WITH RECURSIVE inner_ AS (SELECT 123 AS a UNION ALL SELECT 1+a FROM inner_ WHERE a<125), outer_ AS (SELECT a FROM inner_ UNION ALL SELECT a*2 FROM outer_ WHERE a<1000) SELECT a FROM outer_;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__026]
+sql:
+WITH RECURSIVE q(b) AS (SELECT 1 UNION ALL SELECT 1+b FROM q WHERE b<10) SELECT (SELECT q1.b FROM q AS q2 WHERE q2.b=3) FROM q AS q1 WHERE q1.b=3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__027]
+sql:
+WITH cte AS (SELECT a FROM t1 UNION DISTINCT SELECT a+2 FROM t1 LIMIT 15 OFFSET 1) SELECT * FROM cte LIMIT 2 OFFSET 7;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:27~1:29) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__028]
+sql:
+WITH cte AS (SELECT a FROM t1 UNION SELECT a+2 FROM t1 LIMIT 10 OFFSET 8) SELECT /*+ NO_BNL() */ * FROM cte AS cte1,cte AS cte2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:27~1:29) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__029]
+sql:
+WITH cte AS (SELECT a FROM t1 UNION SELECT a+2 FROM t1 LIMIT 10 OFFSET 8) SELECT /*+ NO_BNL() */ * FROM cte AS cte1,(SELECT 100 AS n UNION SELECT 101) AS dt;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:27~1:29) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__030]
+sql:
+WITH RECURSIVE cte AS (SELECT 1 AS a UNION DISTINCT SELECT a+1 FROM cte LIMIT 5) SELECT * FROM cte;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__031]
+sql:
+WITH RECURSIVE cte AS (SELECT 1 AS a UNION ALL SELECT a+1 FROM cte LIMIT 5 OFFSET 1) SELECT * FROM cte LIMIT 1 OFFSET 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__032]
+sql:
+WITH RECURSIVE qn(n,tag) AS (SELECT 1,0 UNION DISTINCT SELECT 1,0 UNION ALL SELECT n+1,tag FROM qn WHERE n<2 UNION ALL SELECT n+10,tag FROM qn WHERE n<2) SELECT * FROM qn;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__033]
+sql:
+WITH RECURSIVE tree AS (SELECT id,leftpar,rightpar,name,CAST(id AS CHAR(200)) path FROM nodes WHERE name='A' UNION ALL SELECT n.*,CONCAT(tree.path,',',n.id) FROM nodes n JOIN tree ON n.id=tree.leftpar UNION ALL SELECT n.*,CONCAT(tree.path,',',n.id) FROM nodes n JOIN tree ON n.id=tree.rightpar) SELECT * FROM tree;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:56~1:60) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:88~1:93) /test/1/catalog1/schema1/nodes/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(1:130~1:136) /test/1/catalog1/schema1/CONCAT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__034]
+sql:
+WITH RECURSIVE cte(n) AS (SELECT 1 UNION ALL SELECT n+1 FROM cte WHERE n<20) SELECT SUM(c1.n*c2.n*c3.n) FROM cte c1,cte c2,cte c3 WHERE c1.n=c2.n+1 AND c2.n=c3.n+1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:84~1:87) /test/1/catalog1/schema1/SUM/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__035]
+sql:
+WITH RECURSIVE qn(a) AS (SELECT RANK() OVER (ORDER BY b) FROM t1 UNION SELECT a FROM qn) SELECT * FROM qn;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:32~1:36) /test/1/catalog1/schema1/RANK/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:62~1:64) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__036]
+sql:
+WITH RECURSIVE qn(a) AS (SELECT 1 UNION ALL SELECT MAX(a) FROM qn) SELECT * FROM qn;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:51~1:54) /test/1/catalog1/schema1/MAX/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__037]
+sql:
+SELECT * FROM (VALUES ROW(1),ROW(1)) AS dt(a) WHERE NOT EXISTS (WITH RECURSIVE qn(b) AS (SELECT a*0 UNION ALL SELECT b+1 FROM qn WHERE b=0) SELECT * FROM qn WHERE b=a);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[performance__038]
+sql:
+EXPLAIN FORMAT=JSON WITH qn(a) AS (SELECT 1 UNION ALL SELECT 2) SELECT * FROM qn WHERE a=(SELECT MIN(a) FROM qn);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Instance(1:0~1:112) /test/1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(1:97~1:100) /test/1/catalog1/schema1/MIN/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[performance__039]
+sql:
+EXPLAIN FORMAT=TRADITIONAL WITH RECURSIVE qn(n) AS (SELECT 1 UNION ALL SELECT n+1 FROM qn WHERE n<3) SELECT * FROM qn;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Instance(1:0~1:117) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__040]
+sql:
+WITH RECURSIVE q(b) AS (SELECT 1 UNION ALL SELECT b+1 FROM q WHERE b<4) SELECT MIN(q.b),MAX(q1.b),AVG(q.b) FROM q,q AS q1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:79~1:82) /test/1/catalog1/schema1/MIN/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:88~1:91) /test/1/catalog1/schema1/MAX/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:98~1:101) /test/1/catalog1/schema1/AVG/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__041]
+sql:
+WITH RECURSIVE q(b) AS (SELECT 1 UNION ALL SELECT b+1 FROM q WHERE b<4) SELECT MIN(q.b),MAX(q1.b),AVG(q.b) FROM q RIGHT JOIN q AS q1 ON 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:79~1:82) /test/1/catalog1/schema1/MIN/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:88~1:91) /test/1/catalog1/schema1/MAX/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:98~1:101) /test/1/catalog1/schema1/AVG/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select_session_variable_rw__042]
+sql:
+WITH RECURSIVE q(b,c) AS (SELECT 1,1 UNION ALL SELECT b+1,(@c:=@c+1) FROM q WHERE b<4) SELECT SUM(b*c) FROM q;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "ConfigKey(1:59~1:61) /test/1/c/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(1:94~1:97) /test/1/catalog1/schema1/SUM/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__043]
+sql:
+WITH RECURSIVE qn AS (SELECT * FROM qn2), qn2 AS (SELECT * FROM qn) SELECT * FROM qn;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__044]
+sql:
+WITH RECURSIVE qn AS (SELECT 1 FROM qn) SELECT * FROM qn;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__045]
+sql:
+WITH RECURSIVE qn AS (SELECT 1 FROM qn UNION ALL SELECT 1 FROM DUAL) SELECT * FROM qn;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:63~1:67) /test/1/catalog1/schema1/DUAL/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__046]
+sql:
+WITH RECURSIVE qn AS (SELECT b AS a FROM t1 UNION SELECT RANK() OVER (ORDER BY a) FROM qn) SELECT * FROM qn;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:41~1:43) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(1:57~1:61) /test/1/catalog1/schema1/RANK/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__047]
+sql:
+WITH RECURSIVE qn AS (SELECT 1 AS a FROM DUAL UNION ALL SELECT a FROM qn GROUP BY a) SELECT * FROM qn;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:41~1:45) /test/1/catalog1/schema1/DUAL/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__048]
+sql:
+WITH RECURSIVE qn AS (SELECT 1 FROM DUAL UNION ALL SELECT 1 FROM DUAL WHERE 1 NOT IN (SELECT * FROM qn)) SELECT * FROM qn;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:36~1:40) /test/1/catalog1/schema1/DUAL/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__049]
+sql:
+WITH RECURSIVE qn AS (SELECT 1 FROM DUAL UNION ALL SELECT 1 FROM qn ORDER BY (SELECT * FROM qn)) SELECT * FROM qn;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:36~1:40) /test/1/catalog1/schema1/DUAL/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__050]
+sql:
+WITH RECURSIVE qn AS (SELECT 1 FROM DUAL UNION ALL SELECT * FROM (SELECT * FROM qn) AS dt) SELECT * FROM qn;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:36~1:40) /test/1/catalog1/schema1/DUAL/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__051]
+sql:
+WITH RECURSIVE qn AS (SELECT 1 AS a FROM DUAL UNION ALL SELECT 1 FROM qn ORDER BY a) SELECT * FROM qn;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:41~1:45) /test/1/catalog1/schema1/DUAL/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__052]
+sql:
+WITH RECURSIVE qn AS (SELECT 1 AS a FROM DUAL UNION ALL (SELECT 1 FROM qn ORDER BY a)) SELECT * FROM qn;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:41~1:45) /test/1/catalog1/schema1/DUAL/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__053]
+sql:
+WITH RECURSIVE qn AS (SELECT 1 AS a FROM DUAL UNION ALL (SELECT 1 FROM qn LIMIT 10)) SELECT * FROM qn;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:41~1:45) /test/1/catalog1/schema1/DUAL/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__054]
+sql:
+WITH RECURSIVE qn AS (SELECT 1 UNION ALL SELECT DISTINCT 3 FROM qn) SELECT * FROM qn;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__055]
+sql:
+WITH RECURSIVE qn AS (SELECT 123 AS a UNION ALL SELECT 1+qn.a FROM qn,qn AS qn1 WHERE qn1.a<130) SELECT * FROM qn;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__056]
+sql:
+WITH RECURSIVE qn AS (SELECT 1 FROM t1 UNION ALL SELECT 1 FROM t1 STRAIGHT_JOIN qn) SELECT * FROM qn;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:36~1:38) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__057]
+sql:
+WITH RECURSIVE qn AS (SELECT 1 FROM t1 UNION ALL SELECT 1 FROM t1 LEFT JOIN qn ON 1) SELECT * FROM qn;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:36~1:38) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__058]
+sql:
+WITH RECURSIVE cte AS (SELECT alias2.col_int2 AS field1 FROM D AS alias1 RIGHT JOIN ((C AS alias2 LEFT JOIN BB AS alias3 ON alias3.pk=alias2.col_int AND alias3.pk=alias2.pk)) ON alias3.col_int<>alias2.col_int2 HAVING field1<=0 UNION SELECT cte.field1 FROM cte) SELECT * FROM cte;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:61~1:62) /test/1/catalog1/schema1/D/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:86~1:87) /test/1/catalog1/schema1/C/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:108~1:110) /test/1/catalog1/schema1/BB/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__059]
+sql:
+EXPLAIN ANALYZE WITH RECURSIVE cte(n) AS (SELECT 1 UNION ALL SELECT n+1 FROM cte WHERE n<5) SELECT * FROM cte;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[performance__060]
+sql:
+EXPLAIN WITH qn AS (SELECT a+2 AS a,b FROM t2) UPDATE /*+ NO_MERGE(qn) */ t1,qn SET t1.a=qn.a+10 WHERE t1.a-qn.a=0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Table(1:43~1:45) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:74~1:76) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[performance__061]
+sql:
+EXPLAIN WITH qn AS (SELECT a+2 AS a,b FROM t2) UPDATE t1 SET t1.a=(SELECT qn.a+10 FROM qn WHERE t1.a-qn.a=0 LIMIT 1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Table(1:54~1:56) /test/1/catalog1/schema1/t1/",
+      "action" : "UPDATE",
+      "target" : "Table(1:43~1:45) /test/1/catalog1/schema1/t2/"
+    }
+  ]
+}
+----------
+[performance__062]
+sql:
+EXPLAIN WITH qn AS (SELECT a+2 AS a,b FROM t2) DELETE /*+ NO_MERGE(qn) */ t1 FROM t1,qn WHERE t1.a-qn.a=0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Table(1:74~1:76) /test/1/catalog1/schema1/t1/",
+      "action" : "DELETE",
+      "target" : [
+        "Table(1:43~1:45) /test/1/catalog1/schema1/t2/",
+        "Table(1:82~1:84) /test/1/catalog1/schema1/t1/"
+      ]
+    }
+  ]
+}
+----------
+[performance__063]
+sql:
+EXPLAIN WITH qn AS (SELECT a+2 AS a,b FROM t2) DELETE FROM t1 WHERE t1.a=(SELECT qn.a FROM qn WHERE t1.a-qn.a=0 LIMIT 1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Table(1:59~1:61) /test/1/catalog1/schema1/t1/",
+      "action" : "DELETE",
+      "target" : "Table(1:43~1:45) /test/1/catalog1/schema1/t2/"
+    }
+  ]
+}
+----------
+[performance__064]
+sql:
+EXPLAIN WITH cte AS (SELECT alias1.col_time_key AS field1 FROM cc AS alias1 LEFT OUTER JOIN view_c AS alias2 ON alias1.col_varchar_key=alias2.col_blob_key WHERE alias2.col_varchar_key>='n' ORDER BY field1 LIMIT 1000 OFFSET 9) DELETE FROM outr1.*,outr2.* USING c AS outr1 RIGHT OUTER JOIN c AS outr2 ON outr1.col_blob_key=outr2.col_blob RIGHT JOIN cte AS outrcte ON outr2.col_blob=outrcte.field1 WHERE outr1.col_blob_key<>(SELECT DISTINCT innr1.col_blob AS y FROM bb AS innr1 LEFT JOIN cte AS innrcte ON innr1.pk<>innrcte.field1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Table(1:238~1:243) /test/1/catalog1/schema1/outr1/",
+      "action" : "DELETE",
+      "target" : [
+        "Table(1:63~1:65) /test/1/catalog1/schema1/cc/",
+        "Table(1:92~1:98) /test/1/catalog1/schema1/view_c/",
+        "Table(1:260~1:261) /test/1/catalog1/schema1/c/",
+        "Table(1:463~1:465) /test/1/catalog1/schema1/bb/"
+      ]
+    },
+    {
+      "subject": "Table(1:246~1:251) /test/1/catalog1/schema1/outr2/",
+      "action" : "DELETE"
+    }
+  ]
+}

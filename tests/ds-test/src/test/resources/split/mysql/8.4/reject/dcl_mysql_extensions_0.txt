@@ -1,0 +1,3 @@
+GRANT MANAGE_DATA_MASKING_POLICY ON *.* TO 'dynamic_modern'@'%';
+------------------------------------------------------------------------------------------
+[GRANT] GRANT MANAGE_DATA_MASKING_POLICY ON *.* TO 'dynamic_modern'@'%';

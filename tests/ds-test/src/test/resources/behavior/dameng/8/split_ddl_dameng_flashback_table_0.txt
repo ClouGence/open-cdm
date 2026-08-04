@@ -1,0 +1,63 @@
+[split_ddl_dameng_flashback_table_0_001]
+sql:
+flashback table fb_time_1 to timestamp sysdate - 3/86400;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:16~1:25) /test/1/catalog1/schema1/fb_time_1/",
+      "action": "RESTORE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_flashback_table_0_002]
+sql:
+flashback table fb_time_2 to timestamp sysdate - 3/86400 disable triggers;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:16~1:25) /test/1/catalog1/schema1/fb_time_2/",
+      "action": "RESTORE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_flashback_table_0_003]
+sql:
+flashback table fb_time_3 to timestamp sysdate - 3/86400 enable triggers;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:16~1:25) /test/1/catalog1/schema1/fb_time_3/",
+      "action": "RESTORE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_flashback_table_0_004]
+sql:
+flashback table fb_time_4, flash_other to timestamp sysdate - 3/86400;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:16~1:25) /test/1/catalog1/schema1/fb_time_4/",
+      "action": "RESTORE"
+    },
+    {
+      "subject": "Table(1:27~1:38) /test/1/catalog1/schema1/flash_other/",
+      "action": "RESTORE"
+    }
+  ]
+}

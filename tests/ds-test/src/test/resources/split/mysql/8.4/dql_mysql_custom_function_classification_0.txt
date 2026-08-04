@@ -1,0 +1,24 @@
+SELECT COUNT(*), MIN(id), MAX(id), SUM(id), AVG(id) FROM target_tab;
+SELECT app_func(id) FROM target_tab;
+SELECT app_aggregate(id) FROM target_tab;
+SELECT app_func(app_aggregate(MAX(id))), COUNT(*) FROM target_tab;
+SELECT analytics.COUNT(id) FROM target_tab;
+SELECT `COUNT`(id) FROM target_tab;
+UPDATE target_tab SET value_col = app_func(value_col);
+DO app_func(1);
+------------------------------------------------------------------------------------------
+[SELECT] SELECT COUNT(*), MIN(id), MAX(id), SUM(id), AVG(id) FROM target_tab;
+----------
+[SELECT|CALL_PROG_OBJ] SELECT app_func(id) FROM target_tab;
+----------
+[SELECT|CALL_PROG_OBJ] SELECT app_aggregate(id) FROM target_tab;
+----------
+[SELECT|CALL_PROG_OBJ] SELECT app_func(app_aggregate(MAX(id))), COUNT(*) FROM target_tab;
+----------
+[SELECT|CALL_PROG_OBJ] SELECT analytics.COUNT(id) FROM target_tab;
+----------
+[SELECT|CALL_PROG_OBJ] SELECT `COUNT`(id) FROM target_tab;
+----------
+[UPDATE|CALL_PROG_OBJ] UPDATE target_tab SET value_col = app_func(value_col);
+----------
+[BLOCK|CALL_PROG_OBJ] DO app_func(1);

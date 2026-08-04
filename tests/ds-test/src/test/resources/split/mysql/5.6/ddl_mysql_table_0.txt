@@ -1,0 +1,237 @@
+CREATE TABLE t1(pk INT, KEY(pk)) ENGINE=MYISAM; INSERT INTO t1 VALUES(1);
+ALTER TABLE t1 ADD CONSTRAINT CHECK (c1 > 10), ALGORITHM=COPY;
+CREATE TABLE t1 (f1 INT CHECK (f1 = DEFAULT(f1)));
+ALTER TABLE t1 MODIFY COLUMN f1 INT DEFAULT 20, ALGORITHM=INPLACE;
+CREATE TABLE split_column_format_default (c INT COLUMN_FORMAT DEFAULT);
+CREATE TABLE split_column_format_dynamic (c INT COLUMN_FORMAT DYNAMIC);
+CREATE TABLE codex_constraint_c02 (id INT, CONSTRAINT CHECK (id > 0));
+CREATE TABLE codex_constraint_c01 (id INT, CONSTRAINT UNIQUE (id));
+CREATE TABLE codex_create_audit_enum_byte (a ENUM(b'10010010') BYTE);
+CREATE TABLE IF NOT EXISTS codex_create_audit_ifne_like LIKE codex_create_audit_src;
+CREATE TABLE t1 SELECT CEIL(ST_LINESTRINGFROMWKB(1) DIV NULL);
+CREATE TABLE r SELECT 0 AS c, HEX(@a << 0) AS sl, HEX(@a >> 0) AS sr;
+ALTER TABLE child ADD COLUMN uncle_id INT, DROP COLUMN c, ADD CONSTRAINT FOREIGN KEY (uncle_id) REFERENCES uncle(id), ALGORITHM=INPLACE;
+ALTER TABLE t2 ADD FOREIGN KEY (fk) REFERENCES t1(pk), ENGINE=InnoDB, RENAME TO t3, ALGORITHM=COPY;
+CREATE TABLE codex_constraint_c04 (id INT PRIMARY KEY, parent_id INT, CONSTRAINT fk_c04 FOREIGN KEY (parent_id) REFERENCES codex_constraint_c04(id) ON DELETE SET DEFAULT);
+CREATE TABLE codex_constraint_c10 (parent_id INT REFERENCES codex_constraint_c10p);
+CREATE TEMPORARY TABLE tv AS SELECT /*+ SET_VAR(default_tmp_storage_engine=InnoDB) */ id FROM t1;
+CREATE OR REPLACE VIEW vv AS SELECT /*+ SET_VAR(sql_select_limit=1) */ id FROM t1;
+RENAME TABLES codex_rename.r1 TO codex_rename.r1_new, codex_rename.r2 TO codex_rename.r2_new;
+CREATE TABLE split_table.parent(id INT PRIMARY KEY) ENGINE=InnoDB;
+CREATE TABLE split_table.constraints_common (
+  id BIGINT SERIAL DEFAULT VALUE,
+  required_col INT NOT NULL DEFAULT 0 COMMENT 'required',
+  unique_col INT UNIQUE KEY,
+  text_col VARCHAR(40) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'x',
+  ts_col TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  format_col INT COLUMN_FORMAT FIXED STORAGE DISK,
+  parent_inline INT REFERENCES split_table.parent(id) MATCH SIMPLE ON DELETE SET NULL ON UPDATE CASCADE,
+  parent_table INT,
+  CONSTRAINT pk_constraints PRIMARY KEY (id) USING BTREE COMMENT 'primary',
+  CONSTRAINT uk_constraints UNIQUE KEY uq_constraints (unique_col) USING BTREE COMMENT 'unique',
+  CONSTRAINT fk_constraints FOREIGN KEY fk_parent (parent_table) REFERENCES split_table.parent(id) MATCH FULL ON UPDATE NO ACTION ON DELETE RESTRICT,
+  CONSTRAINT chk_constraints CHECK (required_col >= 0),
+  KEY idx_text (text_col(12) DESC) COMMENT 'inline index'
+) ENGINE=InnoDB;
+CREATE TABLE split_table.match_partial(id INT, parent_id INT, FOREIGN KEY(parent_id) REFERENCES split_table.parent(id) MATCH PARTIAL ON DELETE CASCADE);
+DROP TABLE IF EXISTS split_table.base, split_table.like_a, split_table.like_b;
+DROP TABLES IF EXISTS split_table.drop_plural_a, split_table.drop_plural_b;
+CREATE TABLE IF NOT EXISTS split_table.base (id INT PRIMARY KEY, note VARCHAR(40)) ENGINE=InnoDB;
+CREATE TEMPORARY TABLE IF NOT EXISTS split_table.tmp_session (id INT, note VARCHAR(40));
+CREATE TEMPORARY TABLE split_table.tmp_drop_no_if_exists (id INT);
+CREATE TABLE split_table.like_a LIKE split_table.base;
+CREATE TABLE split_table.like_b (LIKE split_table.base);
+CREATE TABLE split_table.as_select AS SELECT id, note FROM split_table.base;
+CREATE TABLE split_table.as_no_keyword SELECT id, note FROM split_table.base;
+CREATE TABLE split_table.ignore_select (id INT PRIMARY KEY, note VARCHAR(40)) IGNORE AS SELECT id, note FROM split_table.base;
+CREATE TABLE split_table.replace_select (id INT PRIMARY KEY, note VARCHAR(40)) REPLACE SELECT id, note FROM split_table.base;
+RENAME TABLE split_table.like_a TO split_table.swap_tmp, split_table.like_b TO split_table.like_a, split_table.swap_tmp TO split_table.like_b;
+RENAME TABLE split_table.as_select TO split_table2.moved;
+ALTER TABLE split_table2.moved RENAME TO split_table.as_select;
+ALTER TABLE split_table.as_no_keyword RENAME AS split_table.as_renamed;
+TRUNCATE TABLE split_table.as_select;
+TRUNCATE split_table.as_renamed;
+DROP TABLE split_table.like_a RESTRICT;
+DROP TABLE split_table.like_b CASCADE;
+DROP TABLE IF EXISTS split_table.as_select, split_table.as_renamed, split_table.ignore_select, split_table.replace_select CASCADE;
+DROP TEMPORARY TABLE IF EXISTS split_table.tmp_session RESTRICT;
+DROP TEMPORARY TABLE split_table.tmp_drop_no_if_exists;
+CREATE TABLE split_table.options_common (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, note VARCHAR(40)) COMMENT='all common', MAX_ROWS=1000 MIN_ROWS=1 AVG_ROW_LENGTH=128 AUTO_INCREMENT=10 CHECKSUM=2 DELAY_KEY_WRITE=2 KEY_BLOCK_SIZE=8 PACK_KEYS=DEFAULT PASSWORD='secret' ROW_FORMAT=COMPACT STATS_AUTO_RECALC=DEFAULT STATS_PERSISTENT=1 STATS_SAMPLE_PAGES=DEFAULT DEFAULT CHARACTER SET=utf8mb4 COLLATE=utf8mb4_unicode_ci CONNECTION='mysql://host/db/table' DATA DIRECTORY='/var/lib/mysql-files' INDEX DIRECTORY='/var/lib/mysql-files' INSERT_METHOD=NO STORAGE DISK UNION=(split_table.base) ENGINE=MyISAM;
+CREATE PROCEDURE split_table_derived.del_rows() DELETE o.* FROM split_table_derived.t1 AS o,(SELECT 1) AS d WHERE o.b<0 OR o.a IN(SELECT i.a+1 FROM split_table_derived.t2 AS i);
+CREATE TABLE split_table_derived.ctas AS SELECT 1 AS c1 FROM split_table_derived.t1 AS o WHERE o.b IN(SELECT 1 FROM split_table_derived.t1 AS i WHERE ('f','f') IN(SELECT 1,COUNT(1) FROM split_table_derived.t1));
+CREATE TABLE split_row_format.dynamic_t(id INT) ENGINE=InnoDB ROW_FORMAT=DYNAMIC;
+CREATE TABLE split_row_format.compressed_t(id INT) ENGINE=InnoDB ROW_FORMAT=COMPRESSED;
+CREATE TABLE split_row_format.redundant_t(id INT) ENGINE=InnoDB ROW_FORMAT=REDUNDANT;
+CREATE TABLE split_row_format.fixed_t(id INT) ENGINE=MyISAM ROW_FORMAT=FIXED;
+CREATE TABLE split_merge.first_t(id INT) ENGINE=MRG_MYISAM UNION=(merge_a,merge_b) INSERT_METHOD=FIRST;
+CREATE TABLE split_fk.update_null(id INT PRIMARY KEY,parent_id INT,CONSTRAINT fk_update_parent FOREIGN KEY(parent_id) REFERENCES parent_t(id) ON UPDATE SET NULL) ENGINE=InnoDB;
+CREATE TABLE split_fk.delete_no_action(id INT PRIMARY KEY,parent_id INT,CONSTRAINT fk_delete_parent FOREIGN KEY(parent_id) REFERENCES parent_t(id) ON DELETE NO ACTION) ENGINE=InnoDB;
+CREATE TEMPORARY TABLE IF NOT EXISTS tmp_t_like LIKE base_t;
+CREATE TABLE m1(a INT) ENGINE=MERGE UNION=();
+ALTER TABLE m1 UNION=();
+ALTER TABLE t1 MODIFY COLUMN l INT STORAGE DISK STORAGE MEMORY;
+CREATE TABLE fk_two(c1 INT,c2 INT,FOREIGN KEY(c1) REFERENCES fk_parent1(a),FOREIGN KEY(c2) REFERENCES fk_parent2(b));
+CREATE TABLE fk_child_composite(a INT,d INT,b INT,c INT,FOREIGN KEY(a,d) REFERENCES fk_parent_composite(a,d) ON DELETE CASCADE ON UPDATE CASCADE,CONSTRAINT fk_bc FOREIGN KEY(b,c) REFERENCES fk_parent_composite(b,c) ON DELETE CASCADE ON UPDATE CASCADE);
+CREATE TABLE gap_zip (a INT, b TEXT) ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=4 TABLESPACE gap_ts;
+CREATE TABLE split_check_forward (CHECK((f1 + f2) > 10), f1 INT CHECK (f1 < 10), f2 INT);
+CREATE TEMPORARY TABLE split_check_forward_tmp (CHECK((f1 + f2) > 10), f1 INT CHECK (f1 < 12), f2 INT);
+DROP TEMPORARY TABLE IF EXISTS t_tmp CASCADE;
+ALTER TABLE storage_table STORAGE MEMORY;
+ALTER TABLE storage_add ADD COLUMN j INT STORAGE DISK,ADD COLUMN k INT STORAGE MEMORY NOT NULL;
+ALTER TABLE storage_change CHANGE COLUMN a a INT STORAGE MEMORY;
+ALTER TABLE storage_modify MODIFY COLUMN m INT STORAGE DISK STORAGE DEFAULT;
+------------------------------------------------------------------------------------------
+[CREATE_TABLE|ADD_COLUMN|ADD_INDEX] CREATE TABLE t1(pk INT, KEY(pk)) ENGINE=MYISAM;
+----------
+[INSERT] INSERT INTO t1 VALUES(1);
+----------
+
+
+[ALTER_TABLE|ADD_CONSTRAINT] ALTER TABLE t1 ADD CONSTRAINT CHECK (c1 > 10), ALGORITHM=COPY;
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] CREATE TABLE t1 (f1 INT CHECK (f1 = DEFAULT(f1)));
+----------
+[ALTER_TABLE|ALTER_COLUMN] ALTER TABLE t1 MODIFY COLUMN f1 INT DEFAULT 20, ALGORITHM=INPLACE;
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE split_column_format_default (c INT COLUMN_FORMAT DEFAULT);
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE split_column_format_dynamic (c INT COLUMN_FORMAT DYNAMIC);
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] CREATE TABLE codex_constraint_c02 (id INT, CONSTRAINT CHECK (id > 0));
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] CREATE TABLE codex_constraint_c01 (id INT, CONSTRAINT UNIQUE (id));
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE codex_create_audit_enum_byte (a ENUM(b'10010010') BYTE);
+----------
+[CREATE_TABLE] CREATE TABLE IF NOT EXISTS codex_create_audit_ifne_like LIKE codex_create_audit_src;
+----------
+[CREATE_TABLE] CREATE TABLE t1 SELECT CEIL(ST_LINESTRINGFROMWKB(1) DIV NULL);
+----------
+[CREATE_TABLE] CREATE TABLE r SELECT 0 AS c, HEX(@a << 0) AS sl, HEX(@a >> 0) AS sr;
+----------
+[ALTER_TABLE|ADD_COLUMN|DROP_COLUMN|ADD_CONSTRAINT] ALTER TABLE child ADD COLUMN uncle_id INT, DROP COLUMN c, ADD CONSTRAINT FOREIGN KEY (uncle_id) REFERENCES uncle(id), ALGORITHM=INPLACE;
+----------
+[ALTER_TABLE|ADD_CONSTRAINT|RENAME_TABLE] ALTER TABLE t2 ADD FOREIGN KEY (fk) REFERENCES t1(pk), ENGINE=InnoDB, RENAME TO t3, ALGORITHM=COPY;
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] CREATE TABLE codex_constraint_c04 (id INT PRIMARY KEY, parent_id INT, CONSTRAINT fk_c04 FOREIGN KEY (parent_id) REFERENCES codex_constraint_c04(id) ON DELETE SET DEFAULT);
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] CREATE TABLE codex_constraint_c10 (parent_id INT REFERENCES codex_constraint_c10p);
+----------
+[CREATE_TABLE] CREATE TEMPORARY TABLE tv AS SELECT /*+ SET_VAR(default_tmp_storage_engine=InnoDB) */ id FROM t1;
+----------
+[ALTER_VIEW(SELECT)] CREATE OR REPLACE VIEW vv AS SELECT /*+ SET_VAR(sql_select_limit=1) */ id FROM t1;
+----------
+[RENAME_TABLE] RENAME TABLES codex_rename.r1 TO codex_rename.r1_new, codex_rename.r2 TO codex_rename.r2_new;
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] CREATE TABLE split_table.parent(id INT PRIMARY KEY) ENGINE=InnoDB;
+----------
+[CREATE_TABLE|ADD_COLUMN|COMMENT_COLUMN|ADD_CONSTRAINT|ADD_INDEX|COMMENT_INDEX] CREATE TABLE split_table.constraints_common (
+  id BIGINT SERIAL DEFAULT VALUE,
+  required_col INT NOT NULL DEFAULT 0 COMMENT 'required',
+  unique_col INT UNIQUE KEY,
+  text_col VARCHAR(40) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'x',
+  ts_col TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  format_col INT COLUMN_FORMAT FIXED STORAGE DISK,
+  parent_inline INT REFERENCES split_table.parent(id) MATCH SIMPLE ON DELETE SET NULL ON UPDATE CASCADE,
+  parent_table INT,
+  CONSTRAINT pk_constraints PRIMARY KEY (id) USING BTREE COMMENT 'primary',
+  CONSTRAINT uk_constraints UNIQUE KEY uq_constraints (unique_col) USING BTREE COMMENT 'unique',
+  CONSTRAINT fk_constraints FOREIGN KEY fk_parent (parent_table) REFERENCES split_table.parent(id) MATCH FULL ON UPDATE NO ACTION ON DELETE RESTRICT,
+  CONSTRAINT chk_constraints CHECK (required_col >= 0),
+  KEY idx_text (text_col(12) DESC) COMMENT 'inline index'
+) ENGINE=InnoDB;
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] CREATE TABLE split_table.match_partial(id INT, parent_id INT, FOREIGN KEY(parent_id) REFERENCES split_table.parent(id) MATCH PARTIAL ON DELETE CASCADE);
+----------
+[DROP_TABLE] DROP TABLE IF EXISTS split_table.base, split_table.like_a, split_table.like_b;
+----------
+[DROP_TABLE] DROP TABLES IF EXISTS split_table.drop_plural_a, split_table.drop_plural_b;
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] CREATE TABLE IF NOT EXISTS split_table.base (id INT PRIMARY KEY, note VARCHAR(40)) ENGINE=InnoDB;
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TEMPORARY TABLE IF NOT EXISTS split_table.tmp_session (id INT, note VARCHAR(40));
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TEMPORARY TABLE split_table.tmp_drop_no_if_exists (id INT);
+----------
+[CREATE_TABLE] CREATE TABLE split_table.like_a LIKE split_table.base;
+----------
+[CREATE_TABLE] CREATE TABLE split_table.like_b (LIKE split_table.base);
+----------
+[CREATE_TABLE] CREATE TABLE split_table.as_select AS SELECT id, note FROM split_table.base;
+----------
+[CREATE_TABLE] CREATE TABLE split_table.as_no_keyword SELECT id, note FROM split_table.base;
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] CREATE TABLE split_table.ignore_select (id INT PRIMARY KEY, note VARCHAR(40)) IGNORE AS SELECT id, note FROM split_table.base;
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] CREATE TABLE split_table.replace_select (id INT PRIMARY KEY, note VARCHAR(40)) REPLACE SELECT id, note FROM split_table.base;
+----------
+[RENAME_TABLE] RENAME TABLE split_table.like_a TO split_table.swap_tmp, split_table.like_b TO split_table.like_a, split_table.swap_tmp TO split_table.like_b;
+----------
+[RENAME_TABLE] RENAME TABLE split_table.as_select TO split_table2.moved;
+----------
+[ALTER_TABLE|RENAME_TABLE] ALTER TABLE split_table2.moved RENAME TO split_table.as_select;
+----------
+[ALTER_TABLE|RENAME_TABLE] ALTER TABLE split_table.as_no_keyword RENAME AS split_table.as_renamed;
+----------
+[TRUNCATE_TABLE] TRUNCATE TABLE split_table.as_select;
+----------
+[TRUNCATE_TABLE] TRUNCATE split_table.as_renamed;
+----------
+[DROP_TABLE] DROP TABLE split_table.like_a RESTRICT;
+----------
+[DROP_TABLE] DROP TABLE split_table.like_b CASCADE;
+----------
+[DROP_TABLE] DROP TABLE IF EXISTS split_table.as_select, split_table.as_renamed, split_table.ignore_select, split_table.replace_select CASCADE;
+----------
+[DROP_TABLE] DROP TEMPORARY TABLE IF EXISTS split_table.tmp_session RESTRICT;
+----------
+[DROP_TABLE] DROP TEMPORARY TABLE split_table.tmp_drop_no_if_exists;
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT|COMMENT_TABLE] CREATE TABLE split_table.options_common (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, note VARCHAR(40)) COMMENT='all common', MAX_ROWS=1000 MIN_ROWS=1 AVG_ROW_LENGTH=128 AUTO_INCREMENT=10 CHECKSUM=2 DELAY_KEY_WRITE=2 KEY_BLOCK_SIZE=8 PACK_KEYS=DEFAULT PASSWORD='secret' ROW_FORMAT=COMPACT STATS_AUTO_RECALC=DEFAULT STATS_PERSISTENT=1 STATS_SAMPLE_PAGES=DEFAULT DEFAULT CHARACTER SET=utf8mb4 COLLATE=utf8mb4_unicode_ci CONNECTION='mysql://host/db/table' DATA DIRECTORY='/var/lib/mysql-files' INDEX DIRECTORY='/var/lib/mysql-files' INSERT_METHOD=NO STORAGE DISK UNION=(split_table.base) ENGINE=MyISAM;
+----------
+[CREATE_PROG_OBJ(DELETE,SELECT)] CREATE PROCEDURE split_table_derived.del_rows() DELETE o.* FROM split_table_derived.t1 AS o,(SELECT 1) AS d WHERE o.b<0 OR o.a IN(SELECT i.a+1 FROM split_table_derived.t2 AS i);
+----------
+[CREATE_TABLE] CREATE TABLE split_table_derived.ctas AS SELECT 1 AS c1 FROM split_table_derived.t1 AS o WHERE o.b IN(SELECT 1 FROM split_table_derived.t1 AS i WHERE ('f','f') IN(SELECT 1,COUNT(1) FROM split_table_derived.t1));
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE split_row_format.dynamic_t(id INT) ENGINE=InnoDB ROW_FORMAT=DYNAMIC;
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE split_row_format.compressed_t(id INT) ENGINE=InnoDB ROW_FORMAT=COMPRESSED;
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE split_row_format.redundant_t(id INT) ENGINE=InnoDB ROW_FORMAT=REDUNDANT;
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE split_row_format.fixed_t(id INT) ENGINE=MyISAM ROW_FORMAT=FIXED;
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE split_merge.first_t(id INT) ENGINE=MRG_MYISAM UNION=(merge_a,merge_b) INSERT_METHOD=FIRST;
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] CREATE TABLE split_fk.update_null(id INT PRIMARY KEY,parent_id INT,CONSTRAINT fk_update_parent FOREIGN KEY(parent_id) REFERENCES parent_t(id) ON UPDATE SET NULL) ENGINE=InnoDB;
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] CREATE TABLE split_fk.delete_no_action(id INT PRIMARY KEY,parent_id INT,CONSTRAINT fk_delete_parent FOREIGN KEY(parent_id) REFERENCES parent_t(id) ON DELETE NO ACTION) ENGINE=InnoDB;
+----------
+[CREATE_TABLE] CREATE TEMPORARY TABLE IF NOT EXISTS tmp_t_like LIKE base_t;
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE m1(a INT) ENGINE=MERGE UNION=();
+----------
+[ALTER_TABLE] ALTER TABLE m1 UNION=();
+----------
+[ALTER_TABLE|ALTER_COLUMN] ALTER TABLE t1 MODIFY COLUMN l INT STORAGE DISK STORAGE MEMORY;
+
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] CREATE TABLE fk_two(c1 INT,c2 INT,FOREIGN KEY(c1) REFERENCES fk_parent1(a),FOREIGN KEY(c2) REFERENCES fk_parent2(b));
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] CREATE TABLE fk_child_composite(a INT,d INT,b INT,c INT,FOREIGN KEY(a,d) REFERENCES fk_parent_composite(a,d) ON DELETE CASCADE ON UPDATE CASCADE,CONSTRAINT fk_bc FOREIGN KEY(b,c) REFERENCES fk_parent_composite(b,c) ON DELETE CASCADE ON UPDATE CASCADE);
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE gap_zip (a INT, b TEXT) ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=4 TABLESPACE gap_ts;
+----------
+[CREATE_TABLE|ADD_CONSTRAINT|ADD_COLUMN] CREATE TABLE split_check_forward (CHECK((f1 + f2) > 10), f1 INT CHECK (f1 < 10), f2 INT);
+----------
+[CREATE_TABLE|ADD_CONSTRAINT|ADD_COLUMN] CREATE TEMPORARY TABLE split_check_forward_tmp (CHECK((f1 + f2) > 10), f1 INT CHECK (f1 < 12), f2 INT);
+----------
+[DROP_TABLE] DROP TEMPORARY TABLE IF EXISTS t_tmp CASCADE;
+----------
+[ALTER_TABLE] ALTER TABLE storage_table STORAGE MEMORY;
+----------
+[ALTER_TABLE|ADD_COLUMN] ALTER TABLE storage_add ADD COLUMN j INT STORAGE DISK,ADD COLUMN k INT STORAGE MEMORY NOT NULL;
+----------
+[ALTER_TABLE|ALTER_COLUMN] ALTER TABLE storage_change CHANGE COLUMN a a INT STORAGE MEMORY;
+----------
+[ALTER_TABLE|ALTER_COLUMN] ALTER TABLE storage_modify MODIFY COLUMN m INT STORAGE DISK STORAGE DEFAULT;

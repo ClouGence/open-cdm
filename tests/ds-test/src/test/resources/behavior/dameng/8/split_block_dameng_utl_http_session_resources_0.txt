@@ -1,0 +1,136 @@
+[split_block_dameng_utl_http_session_resources_0_001]
+sql:
+-- SET_BODY_CHARSET_SESSION_DEFAULT
+begin utl_http.set_body_charset(); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:31) /test/1/catalog1/utl_http/set_body_charset/",
+      "action": "CALL",
+      "target": "ConfigKey(2:6~2:31) /test/1/BODY_CHARSET/"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_http_session_resources_0_002]
+sql:
+-- SET_TRANSFER_TIMEOUT_SESSION_DEFAULT
+begin utl_http.set_transfer_timeout(); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:35) /test/1/catalog1/utl_http/set_transfer_timeout/",
+      "action": "CALL",
+      "target": "ConfigKey(2:6~2:35) /test/1/TRANSFER_TIMEOUT/"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_http_session_resources_0_003]
+sql:
+-- SET_PERSISTENT_SESSION_DEFAULT_MAX
+begin utl_http.set_persistent_conn_support(true); utl_http.set_persistent_conn_support(false); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:42) /test/1/catalog1/utl_http/set_persistent_conn_support/",
+      "action": "CALL",
+      "target": "ConfigKey(2:6~2:42) /test/1/PERSISTENT_CONN_SUPPORT/"
+    },
+    {
+      "subject": "Procedure(2:50~2:86) /test/1/catalog1/utl_http/set_persistent_conn_support/",
+      "action": "CALL",
+      "target": "ConfigKey(2:50~2:86) /test/1/PERSISTENT_CONN_SUPPORT/"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_http_session_resources_0_004]
+sql:
+-- SET_PROXY_DEFAULT_NO_PROXY
+declare p varchar(32767); n varchar(32767); begin utl_http.set_proxy('http://proxy.example.invalid:8080'); utl_http.get_proxy(p,n); utl_http.set_proxy(null,null); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:50~2:68) /test/1/catalog1/utl_http/set_proxy/",
+      "action": "CALL",
+      "target": "ConfigKey(2:50~2:68) /test/1/PROXY/"
+    },
+    {
+      "subject": "Procedure(2:107~2:125) /test/1/catalog1/utl_http/get_proxy/",
+      "action": "CALL",
+      "target": "ConfigKey(2:107~2:125) /test/1/PROXY/"
+    },
+    {
+      "subject": "Procedure(2:132~2:150) /test/1/catalog1/utl_http/set_proxy/",
+      "action": "CALL",
+      "target": "ConfigKey(2:132~2:150) /test/1/PROXY/"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_http_session_resources_0_005]
+sql:
+-- SET_WALLET_DEFAULT_PASSWORD
+begin utl_http.set_wallet('/tmp/dm8-wallet'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:25) /test/1/catalog1/utl_http/set_wallet/",
+      "action": "CALL",
+      "target": [
+        "ConfigKey(2:6~2:25) /test/1/WALLET/",
+        "File(2:26~2:43) /test/1/tmp/dm8-wallet/"
+      ]
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_http_session_resources_0_006]
+sql:
+-- SET_DETAILED_EXCP_DEFAULT
+begin utl_http.set_detailed_excp_support(); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:40) /test/1/catalog1/utl_http/set_detailed_excp_support/",
+      "action": "CALL",
+      "target": "ConfigKey(2:6~2:40) /test/1/DETAILED_EXCP_SUPPORT/"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_http_session_resources_0_007]
+sql:
+-- SET_RESPONSE_ERROR_CHECK_DEFAULT
+begin utl_http.set_response_error_check(); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:39) /test/1/catalog1/utl_http/set_response_error_check/",
+      "action": "CALL",
+      "target": "ConfigKey(2:6~2:39) /test/1/RESPONSE_ERROR_CHECK/"
+    }
+  ]
+}

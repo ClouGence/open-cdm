@@ -1,0 +1,45 @@
+create user test_user identified by "test_password";
+create user "test_user" identified by test_password;
+alter user test_user identified by "test_password2";
+alter user "test_user" account unlock;
+drop user test_user;
+drop user "test_user";
+GRANT SELECT ON mydatabase.test TO test_user;
+GRANT SELECT, INSERT ON mydatabase.test_table TO "test_user";
+GRANT ALL PRIVILEGES TO test_user;
+REVOKE SELECT ON mydatabase.test_table FROM test_user;
+REVOKE ALL PRIVILEGES ON mydatabase FROM test_user;
+create role test_role;
+create role "test_role";
+drop role test_role;
+alter session set current_schema = test_schema;
+------------------------------------------------------------------------------------------
+[CREATE_USER] create user test_user identified by "test_password";
+----------
+[CREATE_USER] create user "test_user" identified by test_password;
+----------
+[ALTER_USER] alter user test_user identified by "test_password2";
+----------
+[ALTER_USER] alter user "test_user" account unlock;
+----------
+[DROP_USER] drop user test_user;
+----------
+[DROP_USER] drop user "test_user";
+----------
+[GRANT] GRANT SELECT ON mydatabase.test TO test_user;
+----------
+[GRANT] GRANT SELECT, INSERT ON mydatabase.test_table TO "test_user";
+----------
+[GRANT] GRANT ALL PRIVILEGES TO test_user;
+----------
+[REVOKE] REVOKE SELECT ON mydatabase.test_table FROM test_user;
+----------
+[REVOKE] REVOKE ALL PRIVILEGES ON mydatabase FROM test_user;
+----------
+[CREATE_ROLE] create role test_role;
+----------
+[CREATE_ROLE] create role "test_role";
+----------
+[DROP_ROLE] drop role test_role;
+----------
+[SWITCH_SCHEMA] alter session set current_schema = test_schema;

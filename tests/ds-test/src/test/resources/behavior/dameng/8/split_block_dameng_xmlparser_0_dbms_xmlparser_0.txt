@@ -1,0 +1,461 @@
+[split_block_dameng_xmlparser_0_001]
+sql:
+declare
+  parser_handle dbms_xmlparser.parser;
+begin
+  parser_handle := dbms_xmlparser.newparser();
+  dbms_xmlparser.freeparser(parser_handle);
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:16~2:37) /test/1/catalog1/dbms_xmlparser/parser/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(5:2~5:27) /test/1/catalog1/dbms_xmlparser/freeparser/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(4:19~4:43) /test/1/catalog1/dbms_xmlparser/newparser/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_xmlparser_0_002]
+sql:
+declare
+  parser_handle dbms_xmlparser.parser;
+  document_node dbms_xmldom.domdocument;
+  root_node dbms_xmldom.domelement;
+begin
+  parser_handle := dbms_xmlparser.newparser();
+  dbms_xmlparser.parsebuffer(parser_handle, '<ROOT><A>one</A></ROOT>');
+  document_node := dbms_xmlparser.getdocument(parser_handle);
+  root_node := dbms_xmldom.getdocumentelement(document_node);
+  print dbms_xmldom.gettagname(root_node);
+  dbms_xmlparser.freeparser(parser_handle);
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:16~2:37) /test/1/catalog1/dbms_xmlparser/parser/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(3:16~3:39) /test/1/catalog1/dbms_xmldom/domdocument/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(4:12~4:34) /test/1/catalog1/dbms_xmldom/domelement/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(7:2~7:28) /test/1/catalog1/dbms_xmlparser/parsebuffer/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(11:2~11:27) /test/1/catalog1/dbms_xmlparser/freeparser/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(6:19~6:43) /test/1/catalog1/dbms_xmlparser/newparser/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(8:19~8:45) /test/1/catalog1/dbms_xmlparser/getdocument/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(9:15~9:45) /test/1/catalog1/dbms_xmldom/getdocumentelement/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(10:8~10:30) /test/1/catalog1/dbms_xmldom/gettagname/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_xmlparser_0_003]
+sql:
+declare
+  parser_handle dbms_xmlparser.parser;
+  document_node dbms_xmldom.domdocument;
+  root_node dbms_xmldom.domelement;
+  xml_text clob := '<CLOB_ROOT ATTR="yes"/>';
+begin
+  parser_handle := dbms_xmlparser.newparser();
+  dbms_xmlparser.parseclob(parser_handle, xml_text);
+  document_node := dbms_xmlparser.getdocument(parser_handle);
+  root_node := dbms_xmldom.getdocumentelement(document_node);
+  print dbms_xmldom.getattribute(root_node, 'ATTR');
+  dbms_xmlparser.freeparser(parser_handle);
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:16~2:37) /test/1/catalog1/dbms_xmlparser/parser/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(3:16~3:39) /test/1/catalog1/dbms_xmldom/domdocument/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(4:12~4:34) /test/1/catalog1/dbms_xmldom/domelement/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(8:2~8:26) /test/1/catalog1/dbms_xmlparser/parseclob/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(12:2~12:27) /test/1/catalog1/dbms_xmlparser/freeparser/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(7:19~7:43) /test/1/catalog1/dbms_xmlparser/newparser/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(9:19~9:45) /test/1/catalog1/dbms_xmlparser/getdocument/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(10:15~10:45) /test/1/catalog1/dbms_xmldom/getdocumentelement/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(11:8~11:32) /test/1/catalog1/dbms_xmldom/getattribute/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_xmlparser_0_004]
+sql:
+declare
+  parser_handle dbms_xmlparser.parser;
+  document_node dbms_xmldom.domdocument;
+  root_node dbms_xmldom.domnode;
+  child_nodes dbms_xmldom.domnodelist;
+begin
+  parser_handle := dbms_xmlparser.newparser();
+  dbms_xmlparser.parsebuffer(parser_handle, '<ROOT><A/><B/><C/></ROOT>');
+  document_node := dbms_xmlparser.getdocument(parser_handle);
+  root_node := dbms_xmldom.makenode(dbms_xmldom.getdocumentelement(document_node));
+  child_nodes := dbms_xmldom.getchildnodes(root_node);
+  print dbms_xmldom.getlength(child_nodes);
+  dbms_xmldom.freenodelist(child_nodes);
+  dbms_xmlparser.freeparser(parser_handle);
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:16~2:37) /test/1/catalog1/dbms_xmlparser/parser/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(3:16~3:39) /test/1/catalog1/dbms_xmldom/domdocument/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(4:12~4:31) /test/1/catalog1/dbms_xmldom/domnode/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(5:14~5:37) /test/1/catalog1/dbms_xmldom/domnodelist/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(8:2~8:28) /test/1/catalog1/dbms_xmlparser/parsebuffer/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(13:2~13:26) /test/1/catalog1/dbms_xmldom/freenodelist/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(14:2~14:27) /test/1/catalog1/dbms_xmlparser/freeparser/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(7:19~7:43) /test/1/catalog1/dbms_xmlparser/newparser/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(9:19~9:45) /test/1/catalog1/dbms_xmlparser/getdocument/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(10:15~10:35) /test/1/catalog1/dbms_xmldom/makenode/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(10:36~10:66) /test/1/catalog1/dbms_xmldom/getdocumentelement/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(11:17~11:42) /test/1/catalog1/dbms_xmldom/getchildnodes/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(12:8~12:29) /test/1/catalog1/dbms_xmldom/getlength/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_xmlparser_0_005]
+sql:
+declare
+  parser_handle dbms_xmlparser.parser;
+  document_node dbms_xmldom.domdocument;
+  root_node dbms_xmldom.domelement;
+begin
+  parser_handle := dbms_xmlparser.newparser();
+  dbms_xmlparser.parsebuffer(parser_handle, '<?xml version="1.0" encoding="UTF-8"?><ENCODED>&#20540;</ENCODED>');
+  document_node := dbms_xmlparser.getdocument(parser_handle);
+  root_node := dbms_xmldom.getdocumentelement(document_node);
+  print dbms_xmldom.gettagname(root_node);
+  dbms_xmlparser.freeparser(parser_handle);
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:16~2:37) /test/1/catalog1/dbms_xmlparser/parser/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(3:16~3:39) /test/1/catalog1/dbms_xmldom/domdocument/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(4:12~4:34) /test/1/catalog1/dbms_xmldom/domelement/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(7:2~7:28) /test/1/catalog1/dbms_xmlparser/parsebuffer/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(11:2~11:27) /test/1/catalog1/dbms_xmlparser/freeparser/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(6:19~6:43) /test/1/catalog1/dbms_xmlparser/newparser/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(8:19~8:45) /test/1/catalog1/dbms_xmlparser/getdocument/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(9:15~9:45) /test/1/catalog1/dbms_xmldom/getdocumentelement/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(10:8~10:30) /test/1/catalog1/dbms_xmldom/gettagname/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_xmlparser_0_006]
+sql:
+declare
+  parser_handle dbms_xmlparser.parser;
+  document_node dbms_xmldom.domdocument;
+  root_node dbms_xmldom.domelement;
+begin
+  parser_handle := dbms_xmlparser.newparser();
+  dbms_xmlparser.parsebuffer(parser_handle, '<ROOT><![CDATA[a<b]]></ROOT>');
+  document_node := dbms_xmlparser.getdocument(parser_handle);
+  root_node := dbms_xmldom.getdocumentelement(document_node);
+  print dbms_xmldom.gettagname(root_node);
+  dbms_xmlparser.freeparser(parser_handle);
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:16~2:37) /test/1/catalog1/dbms_xmlparser/parser/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(3:16~3:39) /test/1/catalog1/dbms_xmldom/domdocument/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(4:12~4:34) /test/1/catalog1/dbms_xmldom/domelement/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(7:2~7:28) /test/1/catalog1/dbms_xmlparser/parsebuffer/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(11:2~11:27) /test/1/catalog1/dbms_xmlparser/freeparser/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(6:19~6:43) /test/1/catalog1/dbms_xmlparser/newparser/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(8:19~8:45) /test/1/catalog1/dbms_xmlparser/getdocument/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(9:15~9:45) /test/1/catalog1/dbms_xmldom/getdocumentelement/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(10:8~10:30) /test/1/catalog1/dbms_xmldom/gettagname/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_xmlparser_0_007]
+sql:
+declare
+  parser_handle dbms_xmlparser.parser;
+  document_node dbms_xmldom.domdocument;
+begin
+  parser_handle := dbms_xmlparser.newparser();
+  dbms_xmlparser.parsebuffer(parser_handle, '<FIRST/>');
+  dbms_xmlparser.parsebuffer(parser_handle, '<SECOND/>');
+  document_node := dbms_xmlparser.getdocument(parser_handle);
+  print dbms_xmldom.gettagname(dbms_xmldom.getdocumentelement(document_node));
+  dbms_xmlparser.freeparser(parser_handle);
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:16~2:37) /test/1/catalog1/dbms_xmlparser/parser/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(3:16~3:39) /test/1/catalog1/dbms_xmldom/domdocument/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(6:2~6:28) /test/1/catalog1/dbms_xmlparser/parsebuffer/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(7:2~7:28) /test/1/catalog1/dbms_xmlparser/parsebuffer/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(10:2~10:27) /test/1/catalog1/dbms_xmlparser/freeparser/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(5:19~5:43) /test/1/catalog1/dbms_xmlparser/newparser/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(8:19~8:45) /test/1/catalog1/dbms_xmlparser/getdocument/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(9:8~9:30) /test/1/catalog1/dbms_xmldom/gettagname/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(9:31~9:61) /test/1/catalog1/dbms_xmldom/getdocumentelement/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_xmlparser_0_008]
+sql:
+declare
+  parser_handle dbms_xmlparser.parser;
+begin
+  parser_handle := dbms_xmlparser.newparser();
+  dbms_xmlparser.parsebuffer(p=>parser_handle, doc=>'<NAMED_BUFFER/>');
+  dbms_xmlparser.freeparser(p=>parser_handle);
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:16~2:37) /test/1/catalog1/dbms_xmlparser/parser/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(5:2~5:28) /test/1/catalog1/dbms_xmlparser/parsebuffer/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(6:2~6:27) /test/1/catalog1/dbms_xmlparser/freeparser/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(4:19~4:43) /test/1/catalog1/dbms_xmlparser/newparser/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_xmlparser_0_009]
+sql:
+declare
+  parser_handle dbms_xmlparser.parser;
+  xml_text clob := '<NAMED_CLOB><VALUE>10</VALUE></NAMED_CLOB>';
+begin
+  parser_handle := dbms_xmlparser.newparser();
+  dbms_xmlparser.parseclob(p=>parser_handle, doc=>xml_text);
+  dbms_xmlparser.freeparser(p=>parser_handle);
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:16~2:37) /test/1/catalog1/dbms_xmlparser/parser/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(6:2~6:26) /test/1/catalog1/dbms_xmlparser/parseclob/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(7:2~7:27) /test/1/catalog1/dbms_xmlparser/freeparser/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(5:19~5:43) /test/1/catalog1/dbms_xmlparser/newparser/",
+      "action": "CALL"
+    }
+  ]
+}

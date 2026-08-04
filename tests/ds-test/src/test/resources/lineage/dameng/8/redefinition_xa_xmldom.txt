@@ -1,0 +1,53 @@
+[redefinition_status_columns]
+sql:
+select redefinition_id, base_table_owner, base_table_name, interim_object_name, operation, status, restartable
+from catalog1.sys.dba_redefinition_status
+where base_table_name='CODEX_REDEF_MAIN'
+expect:
+{
+  "redefinition_id" : [ "/catalog1/sys/dba_redefinition_status/redefinition_id/" ],
+  "base_table_owner" : [ "/catalog1/sys/dba_redefinition_status/base_table_owner/" ],
+  "base_table_name" : [ "/catalog1/sys/dba_redefinition_status/base_table_name/" ],
+  "interim_object_name" : [ "/catalog1/sys/dba_redefinition_status/interim_object_name/" ],
+  "operation" : [ "/catalog1/sys/dba_redefinition_status/operation/" ],
+  "status" : [ "/catalog1/sys/dba_redefinition_status/status/" ],
+  "restartable" : [ "/catalog1/sys/dba_redefinition_status/restartable/" ]
+}
+----------
+[redefinition_object_columns]
+sql:
+select object_type, object_owner, object_name, base_table_name, interim_object_name
+from catalog1.sys.dba_redefinition_objects
+where base_table_name='CODEX_REDEF_MAIN'
+expect:
+{
+  "object_type" : [ "/catalog1/sys/dba_redefinition_objects/object_type/" ],
+  "object_owner" : [ "/catalog1/sys/dba_redefinition_objects/object_owner/" ],
+  "object_name" : [ "/catalog1/sys/dba_redefinition_objects/object_name/" ],
+  "base_table_name" : [ "/catalog1/sys/dba_redefinition_objects/base_table_name/" ],
+  "interim_object_name" : [ "/catalog1/sys/dba_redefinition_objects/interim_object_name/" ]
+}
+----------
+[redefinition_error_columns]
+sql:
+select object_type, object_owner, object_name, err_no, err_txt
+from catalog1.sys.dba_redefinition_errors
+where base_table_name='CODEX_REDEF_MAIN'
+expect:
+{
+  "object_type" : [ "/catalog1/sys/dba_redefinition_errors/object_type/" ],
+  "object_owner" : [ "/catalog1/sys/dba_redefinition_errors/object_owner/" ],
+  "object_name" : [ "/catalog1/sys/dba_redefinition_errors/object_name/" ],
+  "err_no" : [ "/catalog1/sys/dba_redefinition_errors/err_no/" ],
+  "err_txt" : [ "/catalog1/sys/dba_redefinition_errors/err_txt/" ]
+}
+----------
+[xa_result_columns]
+sql:
+select id, phase, amount from catalog1.app.codex_dm8_xa where id in (1,2,3,4)
+expect:
+{
+  "id" : [ "/catalog1/app/codex_dm8_xa/id/" ],
+  "phase" : [ "/catalog1/app/codex_dm8_xa/phase/" ],
+  "amount" : [ "/catalog1/app/codex_dm8_xa/amount/" ]
+}

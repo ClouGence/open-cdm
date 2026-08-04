@@ -1,0 +1,9 @@
+sp_file_sys_check();
+sp_tablespace_prepare_recover('CODEX_TS_RECOVER_20260723');
+sp_tablespace_recover('CODEX_TS_RECOVER_20260723');
+------------------------------------------------------------------------------------------
+[CALL_PROG_OBJ] sp_file_sys_check();
+----------
+[CALL_PROG_OBJ] sp_tablespace_prepare_recover('CODEX_TS_RECOVER_20260723');
+----------
+[CALL_PROG_OBJ] sp_tablespace_recover('CODEX_TS_RECOVER_20260723');

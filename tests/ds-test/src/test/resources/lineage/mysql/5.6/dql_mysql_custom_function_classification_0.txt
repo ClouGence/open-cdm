@@ -1,0 +1,52 @@
+[dql_mysql_custom_function_classification_0.0001]
+sql:
+SELECT COUNT(*), MIN(id), MAX(id), SUM(id), AVG(id) FROM target_tab;
+expect:
+{
+  "COUNT(*)" : [ ],
+  "MIN(id)" : [ "(1:21~1:23) /catalog1/schema1/target_tab/id/" ],
+  "MAX(id)" : [ "(1:30~1:32) /catalog1/schema1/target_tab/id/" ],
+  "SUM(id)" : [ "(1:39~1:41) /catalog1/schema1/target_tab/id/" ],
+  "AVG(id)" : [ "(1:48~1:50) /catalog1/schema1/target_tab/id/" ]
+}
+----------
+[dql_mysql_custom_function_classification_0.0002]
+sql:
+SELECT app_func(id) FROM target_tab;
+expect:
+{
+  "app_func(id)" : [ "(1:16~1:18) /catalog1/schema1/target_tab/id/" ]
+}
+----------
+[dql_mysql_custom_function_classification_0.0003]
+sql:
+SELECT app_aggregate(id) FROM target_tab;
+expect:
+{
+  "app_aggregate(id)" : [ "(1:21~1:23) /catalog1/schema1/target_tab/id/" ]
+}
+----------
+[dql_mysql_custom_function_classification_0.0004]
+sql:
+SELECT app_func(app_aggregate(MAX(id))), COUNT(*) FROM target_tab;
+expect:
+{
+  "app_func(app_aggregate(MAX(id)))" : [ "(1:34~1:36) /catalog1/schema1/target_tab/id/" ],
+  "COUNT(*)" : [ ]
+}
+----------
+[dql_mysql_custom_function_classification_0.0005]
+sql:
+SELECT analytics.COUNT(id) FROM target_tab;
+expect:
+{
+  "analytics.COUNT(id)" : [ "(1:23~1:25) /catalog1/schema1/target_tab/id/" ]
+}
+----------
+[dql_mysql_custom_function_classification_0.0006]
+sql:
+SELECT `COUNT`(id) FROM target_tab;
+expect:
+{
+  "`COUNT`(id)" : [ "(1:15~1:17) /catalog1/schema1/target_tab/id/" ]
+}

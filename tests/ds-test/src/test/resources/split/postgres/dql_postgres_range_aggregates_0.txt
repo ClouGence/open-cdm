@@ -1,0 +1,98 @@
+SELECT range_agg(r)
+FROM (VALUES (daterange('2018-07-01', '2018-07-07')),
+             (daterange('2018-07-07', '2018-07-14')),
+             (daterange('2018-07-20', '2018-07-22'))) AS t(r);
+SELECT room_id, range_agg(booked_during ORDER BY booked_during) FILTER (WHERE booked_during IS NOT NULL)
+FROM (VALUES (1, daterange('2018-07-01', '2018-07-07')),
+             (1, daterange('2018-07-07', '2018-07-14')),
+             (2, NULL::daterange),
+             (2, daterange('2018-07-20', '2018-07-22'))) AS reservations(room_id, booked_during)
+GROUP BY room_id
+ORDER BY room_id;
+SELECT range_agg(r)
+FROM (VALUES (int4range(1, 3)),
+             (int4range(5, 7)),
+             (NULL::int4range)) AS t(r);
+SELECT range_agg(mr)
+FROM (VALUES ('{[1,2], [5,6]}'::nummultirange),
+             ('{[2,3]}'::nummultirange)) AS t(mr);
+SELECT range_agg(mr)
+FROM (VALUES ('{}'::nummultirange),
+             ('{}'::nummultirange)) AS t(mr);
+SELECT range_agg(NULL::nummultirange)
+FROM (VALUES (1), (2)) AS t(id);
+SELECT range_intersect_agg(r)
+FROM (VALUES (numrange(1.0, 6.0)),
+             (numrange(3.0, 12.0)),
+             (numrange(4.0, 8.0))) AS t(r);
+SELECT range_intersect_agg(r) FILTER (WHERE r && numrange(2.0, 7.0))
+FROM (VALUES (numrange(1.0, 6.0)),
+             (numrange(3.0, 12.0)),
+             (numrange(20.0, 30.0))) AS t(r);
+SELECT range_intersect_agg(mr)
+FROM (VALUES ('{[1,6], [10,12]}'::nummultirange),
+             ('{[4,14]}'::nummultirange)) AS t(mr);
+SELECT range_intersect_agg(mr)
+FROM (VALUES ('{}'::nummultirange)) AS t(mr);
+SELECT range_intersect_agg(NULL::nummultirange)
+FROM (VALUES (1), (2)) AS t(id);
+SELECT id, range_agg(r) OVER (ORDER BY id ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)
+FROM (VALUES (1, int4range(1, 3)),
+             (2, int4range(3, 5)),
+             (3, int4range(8, 9))) AS t(id, r)
+ORDER BY id;
+------------------------------------------------------------------------------------------
+[SELECT] SELECT range_agg(r)
+FROM (VALUES (daterange('2018-07-01', '2018-07-07')),
+             (daterange('2018-07-07', '2018-07-14')),
+             (daterange('2018-07-20', '2018-07-22'))) AS t(r);
+----------
+[SELECT] SELECT room_id, range_agg(booked_during ORDER BY booked_during) FILTER (WHERE booked_during IS NOT NULL)
+FROM (VALUES (1, daterange('2018-07-01', '2018-07-07')),
+             (1, daterange('2018-07-07', '2018-07-14')),
+             (2, NULL::daterange),
+             (2, daterange('2018-07-20', '2018-07-22'))) AS reservations(room_id, booked_during)
+GROUP BY room_id
+ORDER BY room_id;
+----------
+[SELECT] SELECT range_agg(r)
+FROM (VALUES (int4range(1, 3)),
+             (int4range(5, 7)),
+             (NULL::int4range)) AS t(r);
+----------
+[SELECT] SELECT range_agg(mr)
+FROM (VALUES ('{[1,2], [5,6]}'::nummultirange),
+             ('{[2,3]}'::nummultirange)) AS t(mr);
+----------
+[SELECT] SELECT range_agg(mr)
+FROM (VALUES ('{}'::nummultirange),
+             ('{}'::nummultirange)) AS t(mr);
+----------
+[SELECT] SELECT range_agg(NULL::nummultirange)
+FROM (VALUES (1), (2)) AS t(id);
+----------
+[SELECT] SELECT range_intersect_agg(r)
+FROM (VALUES (numrange(1.0, 6.0)),
+             (numrange(3.0, 12.0)),
+             (numrange(4.0, 8.0))) AS t(r);
+----------
+[SELECT] SELECT range_intersect_agg(r) FILTER (WHERE r && numrange(2.0, 7.0))
+FROM (VALUES (numrange(1.0, 6.0)),
+             (numrange(3.0, 12.0)),
+             (numrange(20.0, 30.0))) AS t(r);
+----------
+[SELECT] SELECT range_intersect_agg(mr)
+FROM (VALUES ('{[1,6], [10,12]}'::nummultirange),
+             ('{[4,14]}'::nummultirange)) AS t(mr);
+----------
+[SELECT] SELECT range_intersect_agg(mr)
+FROM (VALUES ('{}'::nummultirange)) AS t(mr);
+----------
+[SELECT] SELECT range_intersect_agg(NULL::nummultirange)
+FROM (VALUES (1), (2)) AS t(id);
+----------
+[SELECT] SELECT id, range_agg(r) OVER (ORDER BY id ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)
+FROM (VALUES (1, int4range(1, 3)),
+             (2, int4range(3, 5)),
+             (3, int4range(8, 9))) AS t(id, r)
+ORDER BY id;

@@ -1,0 +1,57 @@
+DROP SCHEMA IF EXISTS split_sequence_next CASCADE;
+CREATE SCHEMA split_sequence_next;
+CREATE TABLE split_sequence_next.owner_table (id integer);
+CREATE SEQUENCE split_sequence_next.seq_full AS integer INCREMENT BY 2 MINVALUE 1 MAXVALUE 99 START WITH 5 CACHE 3 CYCLE OWNED BY split_sequence_next.owner_table.id;
+CREATE TEMP SEQUENCE temp_seq_probe AS smallint START WITH -3 INCREMENT BY -1 MINVALUE -10 MAXVALUE -1 CACHE 1 NO CYCLE;
+CREATE UNLOGGED SEQUENCE split_sequence_next.seq_unlogged START WITH 10;
+CREATE SEQUENCE IF NOT EXISTS split_sequence_next.seq_default NO MINVALUE NO MAXVALUE OWNED BY NONE;
+ALTER SEQUENCE IF EXISTS split_sequence_next.seq_full AS bigint INCREMENT BY 3 NO MINVALUE NO MAXVALUE START WITH 7 RESTART WITH 11 CACHE 2 NO CYCLE OWNED BY NONE;
+ALTER SEQUENCE split_sequence_next.seq_full RESTART;
+ALTER SEQUENCE split_sequence_next.seq_full SET UNLOGGED;
+ALTER SEQUENCE split_sequence_next.seq_full SET LOGGED;
+ALTER SEQUENCE split_sequence_next.seq_full OWNER TO CURRENT_USER;
+ALTER SEQUENCE split_sequence_next.seq_full RENAME TO seq_renamed;
+ALTER SEQUENCE IF EXISTS split_sequence_next.seq_renamed SET SCHEMA public;
+ALTER SEQUENCE IF EXISTS public.seq_renamed SET SCHEMA split_sequence_next;
+DROP SEQUENCE IF EXISTS split_sequence_next.seq_unlogged, split_sequence_next.seq_default, split_sequence_next.seq_renamed CASCADE;
+DROP SEQUENCE IF EXISTS temp_seq_probe;
+DROP TABLE IF EXISTS split_sequence_next.owner_table;
+DROP SCHEMA IF EXISTS split_sequence_next CASCADE;
+------------------------------------------------------------------------------------------
+[DROP_SCHEMA] DROP SCHEMA IF EXISTS split_sequence_next CASCADE;
+----------
+[CREATE_SCHEMA] CREATE SCHEMA split_sequence_next;
+----------
+[CREATE_TABLE] CREATE TABLE split_sequence_next.owner_table (id integer);
+----------
+[CREATE_SEQUENCE] CREATE SEQUENCE split_sequence_next.seq_full AS integer INCREMENT BY 2 MINVALUE 1 MAXVALUE 99 START WITH 5 CACHE 3 CYCLE OWNED BY split_sequence_next.owner_table.id;
+----------
+[CREATE_SEQUENCE] CREATE TEMP SEQUENCE temp_seq_probe AS smallint START WITH -3 INCREMENT BY -1 MINVALUE -10 MAXVALUE -1 CACHE 1 NO CYCLE;
+----------
+[CREATE_SEQUENCE] CREATE UNLOGGED SEQUENCE split_sequence_next.seq_unlogged START WITH 10;
+----------
+[CREATE_SEQUENCE] CREATE SEQUENCE IF NOT EXISTS split_sequence_next.seq_default NO MINVALUE NO MAXVALUE OWNED BY NONE;
+----------
+[ALTER_SEQUENCE] ALTER SEQUENCE IF EXISTS split_sequence_next.seq_full AS bigint INCREMENT BY 3 NO MINVALUE NO MAXVALUE START WITH 7 RESTART WITH 11 CACHE 2 NO CYCLE OWNED BY NONE;
+----------
+[ALTER_SEQUENCE] ALTER SEQUENCE split_sequence_next.seq_full RESTART;
+----------
+[ALTER_SEQUENCE] ALTER SEQUENCE split_sequence_next.seq_full SET UNLOGGED;
+----------
+[ALTER_SEQUENCE] ALTER SEQUENCE split_sequence_next.seq_full SET LOGGED;
+----------
+[TRANSFER_PRIVILEGE] ALTER SEQUENCE split_sequence_next.seq_full OWNER TO CURRENT_USER;
+----------
+[RENAME_SEQUENCE] ALTER SEQUENCE split_sequence_next.seq_full RENAME TO seq_renamed;
+----------
+[ALTER_SEQUENCE] ALTER SEQUENCE IF EXISTS split_sequence_next.seq_renamed SET SCHEMA public;
+----------
+[ALTER_SEQUENCE] ALTER SEQUENCE IF EXISTS public.seq_renamed SET SCHEMA split_sequence_next;
+----------
+[DROP_SEQUENCE] DROP SEQUENCE IF EXISTS split_sequence_next.seq_unlogged, split_sequence_next.seq_default, split_sequence_next.seq_renamed CASCADE;
+----------
+[DROP_SEQUENCE] DROP SEQUENCE IF EXISTS temp_seq_probe;
+----------
+[DROP_TABLE] DROP TABLE IF EXISTS split_sequence_next.owner_table;
+----------
+[DROP_SCHEMA] DROP SCHEMA IF EXISTS split_sequence_next CASCADE;

@@ -1,0 +1,30 @@
+SELECT current_catalog, current_database(), current_query();
+SELECT current_role, current_schema, current_schema(), current_schemas(false), current_schemas(true);
+SELECT current_user, session_user, user;
+SELECT inet_client_addr(), inet_client_port(), inet_server_addr(), inet_server_port();
+SELECT pg_backend_pid(), pg_blocking_pids(pg_backend_pid()), pg_safe_snapshot_blocking_pids(pg_backend_pid());
+SELECT pg_conf_load_time(), pg_postmaster_start_time(), pg_trigger_depth();
+SELECT pg_current_logfile(), pg_current_logfile('stderr');
+SELECT pg_my_temp_schema(), pg_is_other_temp_schema(pg_my_temp_schema());
+SELECT pg_jit_available(), pg_notification_queue_usage();
+SELECT * FROM pg_listening_channels();
+------------------------------------------------------------------------------------------
+[SELECT] SELECT current_catalog, current_database(), current_query();
+----------
+[SELECT] SELECT current_role, current_schema, current_schema(), current_schemas(false), current_schemas(true);
+----------
+[SELECT] SELECT current_user, session_user, user;
+----------
+[SELECT] SELECT inet_client_addr(), inet_client_port(), inet_server_addr(), inet_server_port();
+----------
+[SELECT|PERFORMANCE] SELECT pg_backend_pid(), pg_blocking_pids(pg_backend_pid()), pg_safe_snapshot_blocking_pids(pg_backend_pid());
+----------
+[SELECT] SELECT pg_conf_load_time(), pg_postmaster_start_time(), pg_trigger_depth();
+----------
+[SELECT|LOG_READ] SELECT pg_current_logfile(), pg_current_logfile('stderr');
+----------
+[SELECT] SELECT pg_my_temp_schema(), pg_is_other_temp_schema(pg_my_temp_schema());
+----------
+[SELECT|PERFORMANCE] SELECT pg_jit_available(), pg_notification_queue_usage();
+----------
+[METADATA] SELECT * FROM pg_listening_channels();

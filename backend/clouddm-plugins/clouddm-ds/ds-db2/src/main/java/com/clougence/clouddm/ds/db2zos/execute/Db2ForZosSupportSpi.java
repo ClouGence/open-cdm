@@ -83,9 +83,4 @@ public class Db2ForZosSupportSpi implements RdbSupportSpi {
     public List<RdbIsolation> supportIsolation() {
         return this.isolationDef;
     }
-
-    @Override
-    public boolean supportMultiStatement(boolean isDesktop) {
-        return isDesktop;
-    }
 }

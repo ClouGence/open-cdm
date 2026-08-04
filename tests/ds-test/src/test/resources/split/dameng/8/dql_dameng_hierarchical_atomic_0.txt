@@ -1,0 +1,465 @@
+-- CONNECT_ONLY
+select count(*) from DEPARTMENT connect by prior ID=PARENT_ID;
+-- CONNECT_THEN_START
+select count(*) from DEPARTMENT connect by prior ID=PARENT_ID start with ID=1;
+-- START_THEN_CONNECT
+select count(*) from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+-- NOCYCLE
+select count(*) from DEPARTMENT start with ID=1 connect by nocycle prior ID=PARENT_ID;
+-- PRIOR_RIGHT
+select count(*) from DEPARTMENT start with ID=4 connect by ID=prior PARENT_ID;
+-- LEVEL_GENERATOR
+select max(level) from dual connect by level<=10;
+-- CYCLE_WITHOUT_NOCYCLE
+select count(*) from CYCLE_NODE start with ID=1 connect by prior ID=PARENT_ID;
+-- CYCLE_WITH_NOCYCLE
+select count(*) from CYCLE_NODE start with ID=1 connect by nocycle prior ID=PARENT_ID;
+-- PSEUDO_COLUMNS
+select max(level),max(connect_by_isleaf),max(connect_by_iscycle) from DEPARTMENT start with ID=1 connect by nocycle prior ID=PARENT_ID;
+-- ISCYCLE_WITHOUT_NOCYCLE
+select max(connect_by_iscycle) from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+-- PRIOR_SELECT
+select prior NAME from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+-- PRIOR_WHERE
+select NAME from DEPARTMENT where prior NAME is null start with ID=1 connect by prior ID=PARENT_ID;
+-- PRIOR_GROUP
+select prior NAME,count(*) from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID group by prior NAME;
+-- PRIOR_GROUP_ONLY
+select count(*) from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID group by prior NAME;
+-- PRIOR_ORDER
+select NAME from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID order by prior NAME;
+-- PRIOR_AGGREGATE
+select max(prior NAME) from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+-- PRIOR_FUNCTION_ARGUMENT
+select upper(prior NAME) from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+-- CONNECT_BY_ROOT
+select connect_by_root NAME from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+-- SYS_CONNECT_BY_PATH
+select sys_connect_by_path(NAME,'/') from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+-- PATH_LEVEL
+select sys_connect_by_path(level,'/') from dual connect by level<=5;
+-- PATH_EMPTY_DELIMITER
+select sys_connect_by_path(NAME,'') from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+-- PATH_NULL_DELIMITER
+select sys_connect_by_path(NAME,null) from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+-- ORDER_SIBLINGS
+select NAME from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID order siblings by SORT_KEY;
+-- ORDER_SIBLINGS_DESC_NULLS
+select NAME from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID order siblings by SORT_KEY desc nulls last;
+-- ORDER_SIBLINGS_MULTIPLE
+select NAME from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID order siblings by SORT_KEY,NAME;
+-- CTE_COMBINATION
+with Q as(select * from DEPARTMENT) select count(*) from Q start with ID=1 connect by prior ID=PARENT_ID;
+-- DERIVED_COMBINATION
+select count(*) from(select * from DEPARTMENT) D start with ID=1 connect by prior ID=PARENT_ID;
+-- UNION_COMBINATION
+select NAME from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID union all select 'TAIL' from dual;
+-- SCALAR_SUBQUERY_COMBINATION
+select (select max(ID) from DEPARTMENT) from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+-- JOIN_COMBINATION
+select count(*) from DEPARTMENT D join DEPARTMENT X on D.ID=X.ID start with D.ID=1 connect by prior D.ID=D.PARENT_ID;
+-- DUPLICATE_CONNECT_BY
+select * from DEPARTMENT connect by prior ID=PARENT_ID connect by prior ID=PARENT_ID;
+-- THREE_CONNECT_BY
+select count(*) from DEPARTMENT connect by prior ID=PARENT_ID connect by prior ID=PARENT_ID connect by prior ID=PARENT_ID;
+-- START_THEN_TWO_CONNECT_BY
+select count(*) from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID connect by prior ID=PARENT_ID;
+-- TWO_CONNECT_BY_THEN_START
+select count(*) from DEPARTMENT connect by prior ID=PARENT_ID connect by prior ID=PARENT_ID start with ID=1;
+-- CONNECT_AGGREGATE
+select count(*) from DEPARTMENT connect by prior ID=PARENT_ID and count(*)>0;
+-- CONNECT_NESTED_AGGREGATE
+select count(*) from DEPARTMENT connect by prior ID=PARENT_ID and max(count(ID))>0;
+-- CONNECT_TRXID
+select count(*) from DEPARTMENT connect by prior ID=PARENT_ID and trxid is null;
+-- CONNECT_GROUPING
+select count(*) from DEPARTMENT connect by prior ID=PARENT_ID and grouping(ID)=0;
+-- START_AGGREGATE
+select count(*) from DEPARTMENT start with count(*)>0 connect by prior ID=PARENT_ID;
+-- START_NESTED_AGGREGATE
+select count(*) from DEPARTMENT start with max(count(ID))>0 connect by prior ID=PARENT_ID;
+-- START_TRXID
+select count(*) from DEPARTMENT start with trxid is null connect by prior ID=PARENT_ID;
+-- START_GROUPING
+select count(*) from DEPARTMENT start with grouping(ID)=0 connect by prior ID=PARENT_ID;
+-- START_LEVEL
+select count(*) from DEPARTMENT start with level=1 connect by prior ID=PARENT_ID;
+-- START_ISLEAF
+select count(*) from DEPARTMENT start with connect_by_isleaf=0 connect by prior ID=PARENT_ID;
+-- START_ISCYCLE
+select count(*) from DEPARTMENT start with connect_by_iscycle=0 connect by nocycle prior ID=PARENT_ID;
+-- START_PATH
+select count(*) from DEPARTMENT start with sys_connect_by_path(NAME,'/')='ROOT' connect by prior ID=PARENT_ID;
+-- START_ROOT
+select count(*) from DEPARTMENT start with connect_by_root ID=1 connect by prior ID=PARENT_ID;
+-- START_PRIOR
+select count(*) from DEPARTMENT start with prior ID is null connect by prior ID=PARENT_ID;
+-- HIERARCHICAL_FOR_UPDATE
+select * from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID for update;
+-- SIBLINGS_LEVEL
+select NAME from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID order siblings by level;
+-- SIBLINGS_ISLEAF
+select NAME from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID order siblings by connect_by_isleaf;
+-- SIBLINGS_ISCYCLE
+select NAME from DEPARTMENT start with ID=1 connect by nocycle prior ID=PARENT_ID order siblings by connect_by_iscycle;
+-- SIBLINGS_PATH
+select NAME from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID order siblings by sys_connect_by_path(NAME,'/');
+-- SIBLINGS_ROOT
+select NAME from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID order siblings by connect_by_root NAME;
+-- SIBLINGS_PRIOR
+select NAME from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID order siblings by prior NAME;
+-- SIBLINGS_ROWNUM
+select NAME from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID order siblings by rownum;
+-- SIBLINGS_SUBQUERY
+select NAME from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID order siblings by(select max(ID) from DEPARTMENT);
+-- SIBLINGS_CONSTANT_SUBQUERY
+select NAME from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID order siblings by(select 1 from dual);
+-- SIBLINGS_GROUP_BY
+select NAME,count(*) from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID group by NAME order siblings by NAME;
+-- JOIN_ON_LEVEL
+select count(*) from DEPARTMENT D join DEPARTMENT X on D.ID=X.ID and level=1 start with D.ID=1 connect by prior D.ID=D.PARENT_ID;
+-- JOIN_ON_ISLEAF
+select count(*) from DEPARTMENT D join DEPARTMENT X on D.ID=X.ID and connect_by_isleaf=0 start with D.ID=1 connect by prior D.ID=D.PARENT_ID;
+-- JOIN_ON_PATH
+select count(*) from DEPARTMENT D join DEPARTMENT X on D.ID=X.ID and sys_connect_by_path(D.NAME,'/') is not null start with D.ID=1 connect by prior D.ID=D.PARENT_ID;
+-- JOIN_ON_ROOT
+select count(*) from DEPARTMENT D join DEPARTMENT X on D.ID=X.ID and connect_by_root D.ID=1 start with D.ID=1 connect by prior D.ID=D.PARENT_ID;
+-- JOIN_ON_PRIOR
+select count(*) from DEPARTMENT D join DEPARTMENT X on D.ID=X.ID and prior D.ID is not null start with D.ID=1 connect by prior D.ID=D.PARENT_ID;
+-- PRIOR_LEVEL
+select prior level from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+-- PRIOR_ISLEAF
+select prior connect_by_isleaf from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+-- PRIOR_ISCYCLE
+select prior connect_by_iscycle from DEPARTMENT start with ID=1 connect by nocycle prior ID=PARENT_ID;
+-- PRIOR_PATH
+select prior sys_connect_by_path(NAME,'/') from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+-- PRIOR_ROOT
+select prior connect_by_root NAME from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+-- PRIOR_PRIOR
+select prior prior NAME from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+-- PRIOR_ROWNUM
+select prior rownum from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+-- ROOT_LEVEL
+select connect_by_root level from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+-- ROOT_PATH
+select connect_by_root sys_connect_by_path(NAME,'/') from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+-- ROOT_ROWNUM
+select connect_by_root rownum from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+-- PATH_ISLEAF
+select sys_connect_by_path(connect_by_isleaf,'/') from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+-- PATH_ISCYCLE
+select sys_connect_by_path(connect_by_iscycle,'/') from DEPARTMENT start with ID=1 connect by nocycle prior ID=PARENT_ID;
+-- PATH_NESTED_PATH
+select sys_connect_by_path(sys_connect_by_path(NAME,'/'),'/') from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+-- PATH_ROOT
+select sys_connect_by_path(connect_by_root NAME,'/') from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+-- PATH_DYNAMIC_DELIMITER
+select sys_connect_by_path(NAME,NAME) from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+-- PATH_EXPRESSION_DELIMITER
+select sys_connect_by_path(NAME,'/'||'') from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+-- PATH_LENGTH_32767
+select max(length(sys_connect_by_path(rpad('X',case when level=32 then 1053 else 1022 end,'X'),'/'))) from dual connect by level<=32;
+-- PATH_LENGTH_32768
+select max(length(sys_connect_by_path(rpad('X',case when level=32 then 1054 else 1022 end,'X'),'/'))) from dual connect by level<=32;
+-- PATH_FUNCTION_COUNT_64
+select sys_connect_by_path(NAME,'/') as P1,sys_connect_by_path(NAME,'/') as P2,sys_connect_by_path(NAME,'/') as P3,sys_connect_by_path(NAME,'/') as P4,sys_connect_by_path(NAME,'/') as P5,sys_connect_by_path(NAME,'/') as P6,sys_connect_by_path(NAME,'/') as P7,sys_connect_by_path(NAME,'/') as P8,sys_connect_by_path(NAME,'/') as P9,sys_connect_by_path(NAME,'/') as P10,sys_connect_by_path(NAME,'/') as P11,sys_connect_by_path(NAME,'/') as P12,sys_connect_by_path(NAME,'/') as P13,sys_connect_by_path(NAME,'/') as P14,sys_connect_by_path(NAME,'/') as P15,sys_connect_by_path(NAME,'/') as P16,sys_connect_by_path(NAME,'/') as P17,sys_connect_by_path(NAME,'/') as P18,sys_connect_by_path(NAME,'/') as P19,sys_connect_by_path(NAME,'/') as P20,sys_connect_by_path(NAME,'/') as P21,sys_connect_by_path(NAME,'/') as P22,sys_connect_by_path(NAME,'/') as P23,sys_connect_by_path(NAME,'/') as P24,sys_connect_by_path(NAME,'/') as P25,sys_connect_by_path(NAME,'/') as P26,sys_connect_by_path(NAME,'/') as P27,sys_connect_by_path(NAME,'/') as P28,sys_connect_by_path(NAME,'/') as P29,sys_connect_by_path(NAME,'/') as P30,sys_connect_by_path(NAME,'/') as P31,sys_connect_by_path(NAME,'/') as P32,sys_connect_by_path(NAME,'/') as P33,sys_connect_by_path(NAME,'/') as P34,sys_connect_by_path(NAME,'/') as P35,sys_connect_by_path(NAME,'/') as P36,sys_connect_by_path(NAME,'/') as P37,sys_connect_by_path(NAME,'/') as P38,sys_connect_by_path(NAME,'/') as P39,sys_connect_by_path(NAME,'/') as P40,sys_connect_by_path(NAME,'/') as P41,sys_connect_by_path(NAME,'/') as P42,sys_connect_by_path(NAME,'/') as P43,sys_connect_by_path(NAME,'/') as P44,sys_connect_by_path(NAME,'/') as P45,sys_connect_by_path(NAME,'/') as P46,sys_connect_by_path(NAME,'/') as P47,sys_connect_by_path(NAME,'/') as P48,sys_connect_by_path(NAME,'/') as P49,sys_connect_by_path(NAME,'/') as P50,sys_connect_by_path(NAME,'/') as P51,sys_connect_by_path(NAME,'/') as P52,sys_connect_by_path(NAME,'/') as P53,sys_connect_by_path(NAME,'/') as P54,sys_connect_by_path(NAME,'/') as P55,sys_connect_by_path(NAME,'/') as P56,sys_connect_by_path(NAME,'/') as P57,sys_connect_by_path(NAME,'/') as P58,sys_connect_by_path(NAME,'/') as P59,sys_connect_by_path(NAME,'/') as P60,sys_connect_by_path(NAME,'/') as P61,sys_connect_by_path(NAME,'/') as P62,sys_connect_by_path(NAME,'/') as P63,sys_connect_by_path(NAME,'/') as P64 from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+-- PATH_FUNCTION_COUNT_65
+select sys_connect_by_path(NAME,'/') as P1,sys_connect_by_path(NAME,'/') as P2,sys_connect_by_path(NAME,'/') as P3,sys_connect_by_path(NAME,'/') as P4,sys_connect_by_path(NAME,'/') as P5,sys_connect_by_path(NAME,'/') as P6,sys_connect_by_path(NAME,'/') as P7,sys_connect_by_path(NAME,'/') as P8,sys_connect_by_path(NAME,'/') as P9,sys_connect_by_path(NAME,'/') as P10,sys_connect_by_path(NAME,'/') as P11,sys_connect_by_path(NAME,'/') as P12,sys_connect_by_path(NAME,'/') as P13,sys_connect_by_path(NAME,'/') as P14,sys_connect_by_path(NAME,'/') as P15,sys_connect_by_path(NAME,'/') as P16,sys_connect_by_path(NAME,'/') as P17,sys_connect_by_path(NAME,'/') as P18,sys_connect_by_path(NAME,'/') as P19,sys_connect_by_path(NAME,'/') as P20,sys_connect_by_path(NAME,'/') as P21,sys_connect_by_path(NAME,'/') as P22,sys_connect_by_path(NAME,'/') as P23,sys_connect_by_path(NAME,'/') as P24,sys_connect_by_path(NAME,'/') as P25,sys_connect_by_path(NAME,'/') as P26,sys_connect_by_path(NAME,'/') as P27,sys_connect_by_path(NAME,'/') as P28,sys_connect_by_path(NAME,'/') as P29,sys_connect_by_path(NAME,'/') as P30,sys_connect_by_path(NAME,'/') as P31,sys_connect_by_path(NAME,'/') as P32,sys_connect_by_path(NAME,'/') as P33,sys_connect_by_path(NAME,'/') as P34,sys_connect_by_path(NAME,'/') as P35,sys_connect_by_path(NAME,'/') as P36,sys_connect_by_path(NAME,'/') as P37,sys_connect_by_path(NAME,'/') as P38,sys_connect_by_path(NAME,'/') as P39,sys_connect_by_path(NAME,'/') as P40,sys_connect_by_path(NAME,'/') as P41,sys_connect_by_path(NAME,'/') as P42,sys_connect_by_path(NAME,'/') as P43,sys_connect_by_path(NAME,'/') as P44,sys_connect_by_path(NAME,'/') as P45,sys_connect_by_path(NAME,'/') as P46,sys_connect_by_path(NAME,'/') as P47,sys_connect_by_path(NAME,'/') as P48,sys_connect_by_path(NAME,'/') as P49,sys_connect_by_path(NAME,'/') as P50,sys_connect_by_path(NAME,'/') as P51,sys_connect_by_path(NAME,'/') as P52,sys_connect_by_path(NAME,'/') as P53,sys_connect_by_path(NAME,'/') as P54,sys_connect_by_path(NAME,'/') as P55,sys_connect_by_path(NAME,'/') as P56,sys_connect_by_path(NAME,'/') as P57,sys_connect_by_path(NAME,'/') as P58,sys_connect_by_path(NAME,'/') as P59,sys_connect_by_path(NAME,'/') as P60,sys_connect_by_path(NAME,'/') as P61,sys_connect_by_path(NAME,'/') as P62,sys_connect_by_path(NAME,'/') as P63,sys_connect_by_path(NAME,'/') as P64,sys_connect_by_path(NAME,'/') as P65 from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+-- PATH_DISTINCT_FUNCTION_COUNT_64
+select sys_connect_by_path(NAME||'1','/') as P1,sys_connect_by_path(NAME||'2','/') as P2,sys_connect_by_path(NAME||'3','/') as P3,sys_connect_by_path(NAME||'4','/') as P4,sys_connect_by_path(NAME||'5','/') as P5,sys_connect_by_path(NAME||'6','/') as P6,sys_connect_by_path(NAME||'7','/') as P7,sys_connect_by_path(NAME||'8','/') as P8,sys_connect_by_path(NAME||'9','/') as P9,sys_connect_by_path(NAME||'10','/') as P10,sys_connect_by_path(NAME||'11','/') as P11,sys_connect_by_path(NAME||'12','/') as P12,sys_connect_by_path(NAME||'13','/') as P13,sys_connect_by_path(NAME||'14','/') as P14,sys_connect_by_path(NAME||'15','/') as P15,sys_connect_by_path(NAME||'16','/') as P16,sys_connect_by_path(NAME||'17','/') as P17,sys_connect_by_path(NAME||'18','/') as P18,sys_connect_by_path(NAME||'19','/') as P19,sys_connect_by_path(NAME||'20','/') as P20,sys_connect_by_path(NAME||'21','/') as P21,sys_connect_by_path(NAME||'22','/') as P22,sys_connect_by_path(NAME||'23','/') as P23,sys_connect_by_path(NAME||'24','/') as P24,sys_connect_by_path(NAME||'25','/') as P25,sys_connect_by_path(NAME||'26','/') as P26,sys_connect_by_path(NAME||'27','/') as P27,sys_connect_by_path(NAME||'28','/') as P28,sys_connect_by_path(NAME||'29','/') as P29,sys_connect_by_path(NAME||'30','/') as P30,sys_connect_by_path(NAME||'31','/') as P31,sys_connect_by_path(NAME||'32','/') as P32,sys_connect_by_path(NAME||'33','/') as P33,sys_connect_by_path(NAME||'34','/') as P34,sys_connect_by_path(NAME||'35','/') as P35,sys_connect_by_path(NAME||'36','/') as P36,sys_connect_by_path(NAME||'37','/') as P37,sys_connect_by_path(NAME||'38','/') as P38,sys_connect_by_path(NAME||'39','/') as P39,sys_connect_by_path(NAME||'40','/') as P40,sys_connect_by_path(NAME||'41','/') as P41,sys_connect_by_path(NAME||'42','/') as P42,sys_connect_by_path(NAME||'43','/') as P43,sys_connect_by_path(NAME||'44','/') as P44,sys_connect_by_path(NAME||'45','/') as P45,sys_connect_by_path(NAME||'46','/') as P46,sys_connect_by_path(NAME||'47','/') as P47,sys_connect_by_path(NAME||'48','/') as P48,sys_connect_by_path(NAME||'49','/') as P49,sys_connect_by_path(NAME||'50','/') as P50,sys_connect_by_path(NAME||'51','/') as P51,sys_connect_by_path(NAME||'52','/') as P52,sys_connect_by_path(NAME||'53','/') as P53,sys_connect_by_path(NAME||'54','/') as P54,sys_connect_by_path(NAME||'55','/') as P55,sys_connect_by_path(NAME||'56','/') as P56,sys_connect_by_path(NAME||'57','/') as P57,sys_connect_by_path(NAME||'58','/') as P58,sys_connect_by_path(NAME||'59','/') as P59,sys_connect_by_path(NAME||'60','/') as P60,sys_connect_by_path(NAME||'61','/') as P61,sys_connect_by_path(NAME||'62','/') as P62,sys_connect_by_path(NAME||'63','/') as P63,sys_connect_by_path(NAME||'64','/') as P64 from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+-- PATH_DISTINCT_FUNCTION_COUNT_65
+select sys_connect_by_path(NAME||'1','/') as P1,sys_connect_by_path(NAME||'2','/') as P2,sys_connect_by_path(NAME||'3','/') as P3,sys_connect_by_path(NAME||'4','/') as P4,sys_connect_by_path(NAME||'5','/') as P5,sys_connect_by_path(NAME||'6','/') as P6,sys_connect_by_path(NAME||'7','/') as P7,sys_connect_by_path(NAME||'8','/') as P8,sys_connect_by_path(NAME||'9','/') as P9,sys_connect_by_path(NAME||'10','/') as P10,sys_connect_by_path(NAME||'11','/') as P11,sys_connect_by_path(NAME||'12','/') as P12,sys_connect_by_path(NAME||'13','/') as P13,sys_connect_by_path(NAME||'14','/') as P14,sys_connect_by_path(NAME||'15','/') as P15,sys_connect_by_path(NAME||'16','/') as P16,sys_connect_by_path(NAME||'17','/') as P17,sys_connect_by_path(NAME||'18','/') as P18,sys_connect_by_path(NAME||'19','/') as P19,sys_connect_by_path(NAME||'20','/') as P20,sys_connect_by_path(NAME||'21','/') as P21,sys_connect_by_path(NAME||'22','/') as P22,sys_connect_by_path(NAME||'23','/') as P23,sys_connect_by_path(NAME||'24','/') as P24,sys_connect_by_path(NAME||'25','/') as P25,sys_connect_by_path(NAME||'26','/') as P26,sys_connect_by_path(NAME||'27','/') as P27,sys_connect_by_path(NAME||'28','/') as P28,sys_connect_by_path(NAME||'29','/') as P29,sys_connect_by_path(NAME||'30','/') as P30,sys_connect_by_path(NAME||'31','/') as P31,sys_connect_by_path(NAME||'32','/') as P32,sys_connect_by_path(NAME||'33','/') as P33,sys_connect_by_path(NAME||'34','/') as P34,sys_connect_by_path(NAME||'35','/') as P35,sys_connect_by_path(NAME||'36','/') as P36,sys_connect_by_path(NAME||'37','/') as P37,sys_connect_by_path(NAME||'38','/') as P38,sys_connect_by_path(NAME||'39','/') as P39,sys_connect_by_path(NAME||'40','/') as P40,sys_connect_by_path(NAME||'41','/') as P41,sys_connect_by_path(NAME||'42','/') as P42,sys_connect_by_path(NAME||'43','/') as P43,sys_connect_by_path(NAME||'44','/') as P44,sys_connect_by_path(NAME||'45','/') as P45,sys_connect_by_path(NAME||'46','/') as P46,sys_connect_by_path(NAME||'47','/') as P47,sys_connect_by_path(NAME||'48','/') as P48,sys_connect_by_path(NAME||'49','/') as P49,sys_connect_by_path(NAME||'50','/') as P50,sys_connect_by_path(NAME||'51','/') as P51,sys_connect_by_path(NAME||'52','/') as P52,sys_connect_by_path(NAME||'53','/') as P53,sys_connect_by_path(NAME||'54','/') as P54,sys_connect_by_path(NAME||'55','/') as P55,sys_connect_by_path(NAME||'56','/') as P56,sys_connect_by_path(NAME||'57','/') as P57,sys_connect_by_path(NAME||'58','/') as P58,sys_connect_by_path(NAME||'59','/') as P59,sys_connect_by_path(NAME||'60','/') as P60,sys_connect_by_path(NAME||'61','/') as P61,sys_connect_by_path(NAME||'62','/') as P62,sys_connect_by_path(NAME||'63','/') as P63,sys_connect_by_path(NAME||'64','/') as P64,sys_connect_by_path(NAME||'65','/') as P65 from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+-- PATH_DISTINCT_FUNCTION_COUNT_66
+select sys_connect_by_path(NAME||'1','/') as P1,sys_connect_by_path(NAME||'2','/') as P2,sys_connect_by_path(NAME||'3','/') as P3,sys_connect_by_path(NAME||'4','/') as P4,sys_connect_by_path(NAME||'5','/') as P5,sys_connect_by_path(NAME||'6','/') as P6,sys_connect_by_path(NAME||'7','/') as P7,sys_connect_by_path(NAME||'8','/') as P8,sys_connect_by_path(NAME||'9','/') as P9,sys_connect_by_path(NAME||'10','/') as P10,sys_connect_by_path(NAME||'11','/') as P11,sys_connect_by_path(NAME||'12','/') as P12,sys_connect_by_path(NAME||'13','/') as P13,sys_connect_by_path(NAME||'14','/') as P14,sys_connect_by_path(NAME||'15','/') as P15,sys_connect_by_path(NAME||'16','/') as P16,sys_connect_by_path(NAME||'17','/') as P17,sys_connect_by_path(NAME||'18','/') as P18,sys_connect_by_path(NAME||'19','/') as P19,sys_connect_by_path(NAME||'20','/') as P20,sys_connect_by_path(NAME||'21','/') as P21,sys_connect_by_path(NAME||'22','/') as P22,sys_connect_by_path(NAME||'23','/') as P23,sys_connect_by_path(NAME||'24','/') as P24,sys_connect_by_path(NAME||'25','/') as P25,sys_connect_by_path(NAME||'26','/') as P26,sys_connect_by_path(NAME||'27','/') as P27,sys_connect_by_path(NAME||'28','/') as P28,sys_connect_by_path(NAME||'29','/') as P29,sys_connect_by_path(NAME||'30','/') as P30,sys_connect_by_path(NAME||'31','/') as P31,sys_connect_by_path(NAME||'32','/') as P32,sys_connect_by_path(NAME||'33','/') as P33,sys_connect_by_path(NAME||'34','/') as P34,sys_connect_by_path(NAME||'35','/') as P35,sys_connect_by_path(NAME||'36','/') as P36,sys_connect_by_path(NAME||'37','/') as P37,sys_connect_by_path(NAME||'38','/') as P38,sys_connect_by_path(NAME||'39','/') as P39,sys_connect_by_path(NAME||'40','/') as P40,sys_connect_by_path(NAME||'41','/') as P41,sys_connect_by_path(NAME||'42','/') as P42,sys_connect_by_path(NAME||'43','/') as P43,sys_connect_by_path(NAME||'44','/') as P44,sys_connect_by_path(NAME||'45','/') as P45,sys_connect_by_path(NAME||'46','/') as P46,sys_connect_by_path(NAME||'47','/') as P47,sys_connect_by_path(NAME||'48','/') as P48,sys_connect_by_path(NAME||'49','/') as P49,sys_connect_by_path(NAME||'50','/') as P50,sys_connect_by_path(NAME||'51','/') as P51,sys_connect_by_path(NAME||'52','/') as P52,sys_connect_by_path(NAME||'53','/') as P53,sys_connect_by_path(NAME||'54','/') as P54,sys_connect_by_path(NAME||'55','/') as P55,sys_connect_by_path(NAME||'56','/') as P56,sys_connect_by_path(NAME||'57','/') as P57,sys_connect_by_path(NAME||'58','/') as P58,sys_connect_by_path(NAME||'59','/') as P59,sys_connect_by_path(NAME||'60','/') as P60,sys_connect_by_path(NAME||'61','/') as P61,sys_connect_by_path(NAME||'62','/') as P62,sys_connect_by_path(NAME||'63','/') as P63,sys_connect_by_path(NAME||'64','/') as P64,sys_connect_by_path(NAME||'65','/') as P65,sys_connect_by_path(NAME||'66','/') as P66 from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+-- CNNTB_LEVEL_20000
+select max(level) from dual connect by level<=20000;
+-- CNNTB_LEVEL_20001
+select max(level) from dual connect by level<=20001;
+-- CNNTB_LEVEL_20002
+select max(level) from dual connect by level<=20002;
+-- CNNTB_CHAIN_20000
+select max(level) from CHAIN_NODE start with ID=1 connect by prior ID=PARENT_ID and PARENT_ID<20000;
+-- CNNTB_CHAIN_20001
+select max(level) from CHAIN_NODE start with ID=1 connect by prior ID=PARENT_ID and PARENT_ID<20001;
+-- CNNTB_CHAIN_20002
+select max(level) from CHAIN_NODE start with ID=1 connect by prior ID=PARENT_ID;
+------------------------------------------------------------------------------------------
+[SELECT] -- CONNECT_ONLY
+select count(*) from DEPARTMENT connect by prior ID=PARENT_ID;
+----------
+[SELECT] -- CONNECT_THEN_START
+select count(*) from DEPARTMENT connect by prior ID=PARENT_ID start with ID=1;
+----------
+[SELECT] -- START_THEN_CONNECT
+select count(*) from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+----------
+[SELECT] -- NOCYCLE
+select count(*) from DEPARTMENT start with ID=1 connect by nocycle prior ID=PARENT_ID;
+----------
+[SELECT] -- PRIOR_RIGHT
+select count(*) from DEPARTMENT start with ID=4 connect by ID=prior PARENT_ID;
+----------
+[SELECT] -- LEVEL_GENERATOR
+select max(level) from dual connect by level<=10;
+----------
+[SELECT] -- CYCLE_WITHOUT_NOCYCLE
+select count(*) from CYCLE_NODE start with ID=1 connect by prior ID=PARENT_ID;
+----------
+[SELECT] -- CYCLE_WITH_NOCYCLE
+select count(*) from CYCLE_NODE start with ID=1 connect by nocycle prior ID=PARENT_ID;
+----------
+[SELECT] -- PSEUDO_COLUMNS
+select max(level),max(connect_by_isleaf),max(connect_by_iscycle) from DEPARTMENT start with ID=1 connect by nocycle prior ID=PARENT_ID;
+----------
+[SELECT] -- ISCYCLE_WITHOUT_NOCYCLE
+select max(connect_by_iscycle) from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+----------
+[SELECT] -- PRIOR_SELECT
+select prior NAME from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+----------
+[SELECT] -- PRIOR_WHERE
+select NAME from DEPARTMENT where prior NAME is null start with ID=1 connect by prior ID=PARENT_ID;
+----------
+[SELECT] -- PRIOR_GROUP
+select prior NAME,count(*) from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID group by prior NAME;
+----------
+[SELECT] -- PRIOR_GROUP_ONLY
+select count(*) from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID group by prior NAME;
+----------
+[SELECT] -- PRIOR_ORDER
+select NAME from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID order by prior NAME;
+----------
+[SELECT] -- PRIOR_AGGREGATE
+select max(prior NAME) from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+----------
+[SELECT] -- PRIOR_FUNCTION_ARGUMENT
+select upper(prior NAME) from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+----------
+[SELECT] -- CONNECT_BY_ROOT
+select connect_by_root NAME from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+----------
+[SELECT|CALL_PROG_OBJ] -- SYS_CONNECT_BY_PATH
+select sys_connect_by_path(NAME,'/') from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+----------
+[SELECT|CALL_PROG_OBJ] -- PATH_LEVEL
+select sys_connect_by_path(level,'/') from dual connect by level<=5;
+----------
+[SELECT|CALL_PROG_OBJ] -- PATH_EMPTY_DELIMITER
+select sys_connect_by_path(NAME,'') from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+----------
+[SELECT|CALL_PROG_OBJ] -- PATH_NULL_DELIMITER
+select sys_connect_by_path(NAME,null) from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+----------
+[SELECT] -- ORDER_SIBLINGS
+select NAME from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID order siblings by SORT_KEY;
+----------
+[SELECT] -- ORDER_SIBLINGS_DESC_NULLS
+select NAME from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID order siblings by SORT_KEY desc nulls last;
+----------
+[SELECT] -- ORDER_SIBLINGS_MULTIPLE
+select NAME from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID order siblings by SORT_KEY,NAME;
+----------
+[SELECT] -- CTE_COMBINATION
+with Q as(select * from DEPARTMENT) select count(*) from Q start with ID=1 connect by prior ID=PARENT_ID;
+----------
+[SELECT] -- DERIVED_COMBINATION
+select count(*) from(select * from DEPARTMENT) D start with ID=1 connect by prior ID=PARENT_ID;
+----------
+[SELECT] -- UNION_COMBINATION
+select NAME from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID union all select 'TAIL' from dual;
+----------
+[SELECT] -- SCALAR_SUBQUERY_COMBINATION
+select (select max(ID) from DEPARTMENT) from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+----------
+[SELECT] -- JOIN_COMBINATION
+select count(*) from DEPARTMENT D join DEPARTMENT X on D.ID=X.ID start with D.ID=1 connect by prior D.ID=D.PARENT_ID;
+----------
+[SELECT] -- DUPLICATE_CONNECT_BY
+select * from DEPARTMENT connect by prior ID=PARENT_ID connect by prior ID=PARENT_ID;
+----------
+[SELECT] -- THREE_CONNECT_BY
+select count(*) from DEPARTMENT connect by prior ID=PARENT_ID connect by prior ID=PARENT_ID connect by prior ID=PARENT_ID;
+----------
+[SELECT] -- START_THEN_TWO_CONNECT_BY
+select count(*) from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID connect by prior ID=PARENT_ID;
+----------
+[SELECT] -- TWO_CONNECT_BY_THEN_START
+select count(*) from DEPARTMENT connect by prior ID=PARENT_ID connect by prior ID=PARENT_ID start with ID=1;
+----------
+[SELECT] -- CONNECT_AGGREGATE
+select count(*) from DEPARTMENT connect by prior ID=PARENT_ID and count(*)>0;
+----------
+[SELECT] -- CONNECT_NESTED_AGGREGATE
+select count(*) from DEPARTMENT connect by prior ID=PARENT_ID and max(count(ID))>0;
+----------
+[SELECT] -- CONNECT_TRXID
+select count(*) from DEPARTMENT connect by prior ID=PARENT_ID and trxid is null;
+----------
+[SELECT|CALL_PROG_OBJ] -- CONNECT_GROUPING
+select count(*) from DEPARTMENT connect by prior ID=PARENT_ID and grouping(ID)=0;
+----------
+[SELECT] -- START_AGGREGATE
+select count(*) from DEPARTMENT start with count(*)>0 connect by prior ID=PARENT_ID;
+----------
+[SELECT] -- START_NESTED_AGGREGATE
+select count(*) from DEPARTMENT start with max(count(ID))>0 connect by prior ID=PARENT_ID;
+----------
+[SELECT] -- START_TRXID
+select count(*) from DEPARTMENT start with trxid is null connect by prior ID=PARENT_ID;
+----------
+[SELECT|CALL_PROG_OBJ] -- START_GROUPING
+select count(*) from DEPARTMENT start with grouping(ID)=0 connect by prior ID=PARENT_ID;
+----------
+[SELECT] -- START_LEVEL
+select count(*) from DEPARTMENT start with level=1 connect by prior ID=PARENT_ID;
+----------
+[SELECT] -- START_ISLEAF
+select count(*) from DEPARTMENT start with connect_by_isleaf=0 connect by prior ID=PARENT_ID;
+----------
+[SELECT] -- START_ISCYCLE
+select count(*) from DEPARTMENT start with connect_by_iscycle=0 connect by nocycle prior ID=PARENT_ID;
+----------
+[SELECT|CALL_PROG_OBJ] -- START_PATH
+select count(*) from DEPARTMENT start with sys_connect_by_path(NAME,'/')='ROOT' connect by prior ID=PARENT_ID;
+----------
+[SELECT] -- START_ROOT
+select count(*) from DEPARTMENT start with connect_by_root ID=1 connect by prior ID=PARENT_ID;
+----------
+[SELECT] -- START_PRIOR
+select count(*) from DEPARTMENT start with prior ID is null connect by prior ID=PARENT_ID;
+----------
+[SELECT|QUERY_LOCK] -- HIERARCHICAL_FOR_UPDATE
+select * from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID for update;
+----------
+[SELECT] -- SIBLINGS_LEVEL
+select NAME from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID order siblings by level;
+----------
+[SELECT] -- SIBLINGS_ISLEAF
+select NAME from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID order siblings by connect_by_isleaf;
+----------
+[SELECT] -- SIBLINGS_ISCYCLE
+select NAME from DEPARTMENT start with ID=1 connect by nocycle prior ID=PARENT_ID order siblings by connect_by_iscycle;
+----------
+[SELECT|CALL_PROG_OBJ] -- SIBLINGS_PATH
+select NAME from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID order siblings by sys_connect_by_path(NAME,'/');
+----------
+[SELECT] -- SIBLINGS_ROOT
+select NAME from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID order siblings by connect_by_root NAME;
+----------
+[SELECT] -- SIBLINGS_PRIOR
+select NAME from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID order siblings by prior NAME;
+----------
+[SELECT] -- SIBLINGS_ROWNUM
+select NAME from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID order siblings by rownum;
+----------
+[SELECT] -- SIBLINGS_SUBQUERY
+select NAME from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID order siblings by(select max(ID) from DEPARTMENT);
+----------
+[SELECT] -- SIBLINGS_CONSTANT_SUBQUERY
+select NAME from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID order siblings by(select 1 from dual);
+----------
+[SELECT] -- SIBLINGS_GROUP_BY
+select NAME,count(*) from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID group by NAME order siblings by NAME;
+----------
+[SELECT] -- JOIN_ON_LEVEL
+select count(*) from DEPARTMENT D join DEPARTMENT X on D.ID=X.ID and level=1 start with D.ID=1 connect by prior D.ID=D.PARENT_ID;
+----------
+[SELECT] -- JOIN_ON_ISLEAF
+select count(*) from DEPARTMENT D join DEPARTMENT X on D.ID=X.ID and connect_by_isleaf=0 start with D.ID=1 connect by prior D.ID=D.PARENT_ID;
+----------
+[SELECT|CALL_PROG_OBJ] -- JOIN_ON_PATH
+select count(*) from DEPARTMENT D join DEPARTMENT X on D.ID=X.ID and sys_connect_by_path(D.NAME,'/') is not null start with D.ID=1 connect by prior D.ID=D.PARENT_ID;
+----------
+[SELECT] -- JOIN_ON_ROOT
+select count(*) from DEPARTMENT D join DEPARTMENT X on D.ID=X.ID and connect_by_root D.ID=1 start with D.ID=1 connect by prior D.ID=D.PARENT_ID;
+----------
+[SELECT] -- JOIN_ON_PRIOR
+select count(*) from DEPARTMENT D join DEPARTMENT X on D.ID=X.ID and prior D.ID is not null start with D.ID=1 connect by prior D.ID=D.PARENT_ID;
+----------
+[SELECT] -- PRIOR_LEVEL
+select prior level from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+----------
+[SELECT] -- PRIOR_ISLEAF
+select prior connect_by_isleaf from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+----------
+[SELECT] -- PRIOR_ISCYCLE
+select prior connect_by_iscycle from DEPARTMENT start with ID=1 connect by nocycle prior ID=PARENT_ID;
+----------
+[SELECT|CALL_PROG_OBJ] -- PRIOR_PATH
+select prior sys_connect_by_path(NAME,'/') from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+----------
+[SELECT] -- PRIOR_ROOT
+select prior connect_by_root NAME from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+----------
+[SELECT] -- PRIOR_PRIOR
+select prior prior NAME from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+----------
+[SELECT] -- PRIOR_ROWNUM
+select prior rownum from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+----------
+[SELECT] -- ROOT_LEVEL
+select connect_by_root level from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+----------
+[SELECT|CALL_PROG_OBJ] -- ROOT_PATH
+select connect_by_root sys_connect_by_path(NAME,'/') from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+----------
+[SELECT] -- ROOT_ROWNUM
+select connect_by_root rownum from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+----------
+[SELECT|CALL_PROG_OBJ] -- PATH_ISLEAF
+select sys_connect_by_path(connect_by_isleaf,'/') from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+----------
+[SELECT|CALL_PROG_OBJ] -- PATH_ISCYCLE
+select sys_connect_by_path(connect_by_iscycle,'/') from DEPARTMENT start with ID=1 connect by nocycle prior ID=PARENT_ID;
+----------
+[SELECT|CALL_PROG_OBJ] -- PATH_NESTED_PATH
+select sys_connect_by_path(sys_connect_by_path(NAME,'/'),'/') from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+----------
+[SELECT|CALL_PROG_OBJ] -- PATH_ROOT
+select sys_connect_by_path(connect_by_root NAME,'/') from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+----------
+[SELECT|CALL_PROG_OBJ] -- PATH_DYNAMIC_DELIMITER
+select sys_connect_by_path(NAME,NAME) from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+----------
+[SELECT|CALL_PROG_OBJ] -- PATH_EXPRESSION_DELIMITER
+select sys_connect_by_path(NAME,'/'||'') from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+----------
+[SELECT|CALL_PROG_OBJ] -- PATH_LENGTH_32767
+select max(length(sys_connect_by_path(rpad('X',case when level=32 then 1053 else 1022 end,'X'),'/'))) from dual connect by level<=32;
+----------
+[SELECT|CALL_PROG_OBJ] -- PATH_LENGTH_32768
+select max(length(sys_connect_by_path(rpad('X',case when level=32 then 1054 else 1022 end,'X'),'/'))) from dual connect by level<=32;
+----------
+[SELECT|CALL_PROG_OBJ] -- PATH_FUNCTION_COUNT_64
+select sys_connect_by_path(NAME,'/') as P1,sys_connect_by_path(NAME,'/') as P2,sys_connect_by_path(NAME,'/') as P3,sys_connect_by_path(NAME,'/') as P4,sys_connect_by_path(NAME,'/') as P5,sys_connect_by_path(NAME,'/') as P6,sys_connect_by_path(NAME,'/') as P7,sys_connect_by_path(NAME,'/') as P8,sys_connect_by_path(NAME,'/') as P9,sys_connect_by_path(NAME,'/') as P10,sys_connect_by_path(NAME,'/') as P11,sys_connect_by_path(NAME,'/') as P12,sys_connect_by_path(NAME,'/') as P13,sys_connect_by_path(NAME,'/') as P14,sys_connect_by_path(NAME,'/') as P15,sys_connect_by_path(NAME,'/') as P16,sys_connect_by_path(NAME,'/') as P17,sys_connect_by_path(NAME,'/') as P18,sys_connect_by_path(NAME,'/') as P19,sys_connect_by_path(NAME,'/') as P20,sys_connect_by_path(NAME,'/') as P21,sys_connect_by_path(NAME,'/') as P22,sys_connect_by_path(NAME,'/') as P23,sys_connect_by_path(NAME,'/') as P24,sys_connect_by_path(NAME,'/') as P25,sys_connect_by_path(NAME,'/') as P26,sys_connect_by_path(NAME,'/') as P27,sys_connect_by_path(NAME,'/') as P28,sys_connect_by_path(NAME,'/') as P29,sys_connect_by_path(NAME,'/') as P30,sys_connect_by_path(NAME,'/') as P31,sys_connect_by_path(NAME,'/') as P32,sys_connect_by_path(NAME,'/') as P33,sys_connect_by_path(NAME,'/') as P34,sys_connect_by_path(NAME,'/') as P35,sys_connect_by_path(NAME,'/') as P36,sys_connect_by_path(NAME,'/') as P37,sys_connect_by_path(NAME,'/') as P38,sys_connect_by_path(NAME,'/') as P39,sys_connect_by_path(NAME,'/') as P40,sys_connect_by_path(NAME,'/') as P41,sys_connect_by_path(NAME,'/') as P42,sys_connect_by_path(NAME,'/') as P43,sys_connect_by_path(NAME,'/') as P44,sys_connect_by_path(NAME,'/') as P45,sys_connect_by_path(NAME,'/') as P46,sys_connect_by_path(NAME,'/') as P47,sys_connect_by_path(NAME,'/') as P48,sys_connect_by_path(NAME,'/') as P49,sys_connect_by_path(NAME,'/') as P50,sys_connect_by_path(NAME,'/') as P51,sys_connect_by_path(NAME,'/') as P52,sys_connect_by_path(NAME,'/') as P53,sys_connect_by_path(NAME,'/') as P54,sys_connect_by_path(NAME,'/') as P55,sys_connect_by_path(NAME,'/') as P56,sys_connect_by_path(NAME,'/') as P57,sys_connect_by_path(NAME,'/') as P58,sys_connect_by_path(NAME,'/') as P59,sys_connect_by_path(NAME,'/') as P60,sys_connect_by_path(NAME,'/') as P61,sys_connect_by_path(NAME,'/') as P62,sys_connect_by_path(NAME,'/') as P63,sys_connect_by_path(NAME,'/') as P64 from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+----------
+[SELECT|CALL_PROG_OBJ] -- PATH_FUNCTION_COUNT_65
+select sys_connect_by_path(NAME,'/') as P1,sys_connect_by_path(NAME,'/') as P2,sys_connect_by_path(NAME,'/') as P3,sys_connect_by_path(NAME,'/') as P4,sys_connect_by_path(NAME,'/') as P5,sys_connect_by_path(NAME,'/') as P6,sys_connect_by_path(NAME,'/') as P7,sys_connect_by_path(NAME,'/') as P8,sys_connect_by_path(NAME,'/') as P9,sys_connect_by_path(NAME,'/') as P10,sys_connect_by_path(NAME,'/') as P11,sys_connect_by_path(NAME,'/') as P12,sys_connect_by_path(NAME,'/') as P13,sys_connect_by_path(NAME,'/') as P14,sys_connect_by_path(NAME,'/') as P15,sys_connect_by_path(NAME,'/') as P16,sys_connect_by_path(NAME,'/') as P17,sys_connect_by_path(NAME,'/') as P18,sys_connect_by_path(NAME,'/') as P19,sys_connect_by_path(NAME,'/') as P20,sys_connect_by_path(NAME,'/') as P21,sys_connect_by_path(NAME,'/') as P22,sys_connect_by_path(NAME,'/') as P23,sys_connect_by_path(NAME,'/') as P24,sys_connect_by_path(NAME,'/') as P25,sys_connect_by_path(NAME,'/') as P26,sys_connect_by_path(NAME,'/') as P27,sys_connect_by_path(NAME,'/') as P28,sys_connect_by_path(NAME,'/') as P29,sys_connect_by_path(NAME,'/') as P30,sys_connect_by_path(NAME,'/') as P31,sys_connect_by_path(NAME,'/') as P32,sys_connect_by_path(NAME,'/') as P33,sys_connect_by_path(NAME,'/') as P34,sys_connect_by_path(NAME,'/') as P35,sys_connect_by_path(NAME,'/') as P36,sys_connect_by_path(NAME,'/') as P37,sys_connect_by_path(NAME,'/') as P38,sys_connect_by_path(NAME,'/') as P39,sys_connect_by_path(NAME,'/') as P40,sys_connect_by_path(NAME,'/') as P41,sys_connect_by_path(NAME,'/') as P42,sys_connect_by_path(NAME,'/') as P43,sys_connect_by_path(NAME,'/') as P44,sys_connect_by_path(NAME,'/') as P45,sys_connect_by_path(NAME,'/') as P46,sys_connect_by_path(NAME,'/') as P47,sys_connect_by_path(NAME,'/') as P48,sys_connect_by_path(NAME,'/') as P49,sys_connect_by_path(NAME,'/') as P50,sys_connect_by_path(NAME,'/') as P51,sys_connect_by_path(NAME,'/') as P52,sys_connect_by_path(NAME,'/') as P53,sys_connect_by_path(NAME,'/') as P54,sys_connect_by_path(NAME,'/') as P55,sys_connect_by_path(NAME,'/') as P56,sys_connect_by_path(NAME,'/') as P57,sys_connect_by_path(NAME,'/') as P58,sys_connect_by_path(NAME,'/') as P59,sys_connect_by_path(NAME,'/') as P60,sys_connect_by_path(NAME,'/') as P61,sys_connect_by_path(NAME,'/') as P62,sys_connect_by_path(NAME,'/') as P63,sys_connect_by_path(NAME,'/') as P64,sys_connect_by_path(NAME,'/') as P65 from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+----------
+[SELECT|CALL_PROG_OBJ] -- PATH_DISTINCT_FUNCTION_COUNT_64
+select sys_connect_by_path(NAME||'1','/') as P1,sys_connect_by_path(NAME||'2','/') as P2,sys_connect_by_path(NAME||'3','/') as P3,sys_connect_by_path(NAME||'4','/') as P4,sys_connect_by_path(NAME||'5','/') as P5,sys_connect_by_path(NAME||'6','/') as P6,sys_connect_by_path(NAME||'7','/') as P7,sys_connect_by_path(NAME||'8','/') as P8,sys_connect_by_path(NAME||'9','/') as P9,sys_connect_by_path(NAME||'10','/') as P10,sys_connect_by_path(NAME||'11','/') as P11,sys_connect_by_path(NAME||'12','/') as P12,sys_connect_by_path(NAME||'13','/') as P13,sys_connect_by_path(NAME||'14','/') as P14,sys_connect_by_path(NAME||'15','/') as P15,sys_connect_by_path(NAME||'16','/') as P16,sys_connect_by_path(NAME||'17','/') as P17,sys_connect_by_path(NAME||'18','/') as P18,sys_connect_by_path(NAME||'19','/') as P19,sys_connect_by_path(NAME||'20','/') as P20,sys_connect_by_path(NAME||'21','/') as P21,sys_connect_by_path(NAME||'22','/') as P22,sys_connect_by_path(NAME||'23','/') as P23,sys_connect_by_path(NAME||'24','/') as P24,sys_connect_by_path(NAME||'25','/') as P25,sys_connect_by_path(NAME||'26','/') as P26,sys_connect_by_path(NAME||'27','/') as P27,sys_connect_by_path(NAME||'28','/') as P28,sys_connect_by_path(NAME||'29','/') as P29,sys_connect_by_path(NAME||'30','/') as P30,sys_connect_by_path(NAME||'31','/') as P31,sys_connect_by_path(NAME||'32','/') as P32,sys_connect_by_path(NAME||'33','/') as P33,sys_connect_by_path(NAME||'34','/') as P34,sys_connect_by_path(NAME||'35','/') as P35,sys_connect_by_path(NAME||'36','/') as P36,sys_connect_by_path(NAME||'37','/') as P37,sys_connect_by_path(NAME||'38','/') as P38,sys_connect_by_path(NAME||'39','/') as P39,sys_connect_by_path(NAME||'40','/') as P40,sys_connect_by_path(NAME||'41','/') as P41,sys_connect_by_path(NAME||'42','/') as P42,sys_connect_by_path(NAME||'43','/') as P43,sys_connect_by_path(NAME||'44','/') as P44,sys_connect_by_path(NAME||'45','/') as P45,sys_connect_by_path(NAME||'46','/') as P46,sys_connect_by_path(NAME||'47','/') as P47,sys_connect_by_path(NAME||'48','/') as P48,sys_connect_by_path(NAME||'49','/') as P49,sys_connect_by_path(NAME||'50','/') as P50,sys_connect_by_path(NAME||'51','/') as P51,sys_connect_by_path(NAME||'52','/') as P52,sys_connect_by_path(NAME||'53','/') as P53,sys_connect_by_path(NAME||'54','/') as P54,sys_connect_by_path(NAME||'55','/') as P55,sys_connect_by_path(NAME||'56','/') as P56,sys_connect_by_path(NAME||'57','/') as P57,sys_connect_by_path(NAME||'58','/') as P58,sys_connect_by_path(NAME||'59','/') as P59,sys_connect_by_path(NAME||'60','/') as P60,sys_connect_by_path(NAME||'61','/') as P61,sys_connect_by_path(NAME||'62','/') as P62,sys_connect_by_path(NAME||'63','/') as P63,sys_connect_by_path(NAME||'64','/') as P64 from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+----------
+[SELECT|CALL_PROG_OBJ] -- PATH_DISTINCT_FUNCTION_COUNT_65
+select sys_connect_by_path(NAME||'1','/') as P1,sys_connect_by_path(NAME||'2','/') as P2,sys_connect_by_path(NAME||'3','/') as P3,sys_connect_by_path(NAME||'4','/') as P4,sys_connect_by_path(NAME||'5','/') as P5,sys_connect_by_path(NAME||'6','/') as P6,sys_connect_by_path(NAME||'7','/') as P7,sys_connect_by_path(NAME||'8','/') as P8,sys_connect_by_path(NAME||'9','/') as P9,sys_connect_by_path(NAME||'10','/') as P10,sys_connect_by_path(NAME||'11','/') as P11,sys_connect_by_path(NAME||'12','/') as P12,sys_connect_by_path(NAME||'13','/') as P13,sys_connect_by_path(NAME||'14','/') as P14,sys_connect_by_path(NAME||'15','/') as P15,sys_connect_by_path(NAME||'16','/') as P16,sys_connect_by_path(NAME||'17','/') as P17,sys_connect_by_path(NAME||'18','/') as P18,sys_connect_by_path(NAME||'19','/') as P19,sys_connect_by_path(NAME||'20','/') as P20,sys_connect_by_path(NAME||'21','/') as P21,sys_connect_by_path(NAME||'22','/') as P22,sys_connect_by_path(NAME||'23','/') as P23,sys_connect_by_path(NAME||'24','/') as P24,sys_connect_by_path(NAME||'25','/') as P25,sys_connect_by_path(NAME||'26','/') as P26,sys_connect_by_path(NAME||'27','/') as P27,sys_connect_by_path(NAME||'28','/') as P28,sys_connect_by_path(NAME||'29','/') as P29,sys_connect_by_path(NAME||'30','/') as P30,sys_connect_by_path(NAME||'31','/') as P31,sys_connect_by_path(NAME||'32','/') as P32,sys_connect_by_path(NAME||'33','/') as P33,sys_connect_by_path(NAME||'34','/') as P34,sys_connect_by_path(NAME||'35','/') as P35,sys_connect_by_path(NAME||'36','/') as P36,sys_connect_by_path(NAME||'37','/') as P37,sys_connect_by_path(NAME||'38','/') as P38,sys_connect_by_path(NAME||'39','/') as P39,sys_connect_by_path(NAME||'40','/') as P40,sys_connect_by_path(NAME||'41','/') as P41,sys_connect_by_path(NAME||'42','/') as P42,sys_connect_by_path(NAME||'43','/') as P43,sys_connect_by_path(NAME||'44','/') as P44,sys_connect_by_path(NAME||'45','/') as P45,sys_connect_by_path(NAME||'46','/') as P46,sys_connect_by_path(NAME||'47','/') as P47,sys_connect_by_path(NAME||'48','/') as P48,sys_connect_by_path(NAME||'49','/') as P49,sys_connect_by_path(NAME||'50','/') as P50,sys_connect_by_path(NAME||'51','/') as P51,sys_connect_by_path(NAME||'52','/') as P52,sys_connect_by_path(NAME||'53','/') as P53,sys_connect_by_path(NAME||'54','/') as P54,sys_connect_by_path(NAME||'55','/') as P55,sys_connect_by_path(NAME||'56','/') as P56,sys_connect_by_path(NAME||'57','/') as P57,sys_connect_by_path(NAME||'58','/') as P58,sys_connect_by_path(NAME||'59','/') as P59,sys_connect_by_path(NAME||'60','/') as P60,sys_connect_by_path(NAME||'61','/') as P61,sys_connect_by_path(NAME||'62','/') as P62,sys_connect_by_path(NAME||'63','/') as P63,sys_connect_by_path(NAME||'64','/') as P64,sys_connect_by_path(NAME||'65','/') as P65 from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+----------
+[SELECT|CALL_PROG_OBJ] -- PATH_DISTINCT_FUNCTION_COUNT_66
+select sys_connect_by_path(NAME||'1','/') as P1,sys_connect_by_path(NAME||'2','/') as P2,sys_connect_by_path(NAME||'3','/') as P3,sys_connect_by_path(NAME||'4','/') as P4,sys_connect_by_path(NAME||'5','/') as P5,sys_connect_by_path(NAME||'6','/') as P6,sys_connect_by_path(NAME||'7','/') as P7,sys_connect_by_path(NAME||'8','/') as P8,sys_connect_by_path(NAME||'9','/') as P9,sys_connect_by_path(NAME||'10','/') as P10,sys_connect_by_path(NAME||'11','/') as P11,sys_connect_by_path(NAME||'12','/') as P12,sys_connect_by_path(NAME||'13','/') as P13,sys_connect_by_path(NAME||'14','/') as P14,sys_connect_by_path(NAME||'15','/') as P15,sys_connect_by_path(NAME||'16','/') as P16,sys_connect_by_path(NAME||'17','/') as P17,sys_connect_by_path(NAME||'18','/') as P18,sys_connect_by_path(NAME||'19','/') as P19,sys_connect_by_path(NAME||'20','/') as P20,sys_connect_by_path(NAME||'21','/') as P21,sys_connect_by_path(NAME||'22','/') as P22,sys_connect_by_path(NAME||'23','/') as P23,sys_connect_by_path(NAME||'24','/') as P24,sys_connect_by_path(NAME||'25','/') as P25,sys_connect_by_path(NAME||'26','/') as P26,sys_connect_by_path(NAME||'27','/') as P27,sys_connect_by_path(NAME||'28','/') as P28,sys_connect_by_path(NAME||'29','/') as P29,sys_connect_by_path(NAME||'30','/') as P30,sys_connect_by_path(NAME||'31','/') as P31,sys_connect_by_path(NAME||'32','/') as P32,sys_connect_by_path(NAME||'33','/') as P33,sys_connect_by_path(NAME||'34','/') as P34,sys_connect_by_path(NAME||'35','/') as P35,sys_connect_by_path(NAME||'36','/') as P36,sys_connect_by_path(NAME||'37','/') as P37,sys_connect_by_path(NAME||'38','/') as P38,sys_connect_by_path(NAME||'39','/') as P39,sys_connect_by_path(NAME||'40','/') as P40,sys_connect_by_path(NAME||'41','/') as P41,sys_connect_by_path(NAME||'42','/') as P42,sys_connect_by_path(NAME||'43','/') as P43,sys_connect_by_path(NAME||'44','/') as P44,sys_connect_by_path(NAME||'45','/') as P45,sys_connect_by_path(NAME||'46','/') as P46,sys_connect_by_path(NAME||'47','/') as P47,sys_connect_by_path(NAME||'48','/') as P48,sys_connect_by_path(NAME||'49','/') as P49,sys_connect_by_path(NAME||'50','/') as P50,sys_connect_by_path(NAME||'51','/') as P51,sys_connect_by_path(NAME||'52','/') as P52,sys_connect_by_path(NAME||'53','/') as P53,sys_connect_by_path(NAME||'54','/') as P54,sys_connect_by_path(NAME||'55','/') as P55,sys_connect_by_path(NAME||'56','/') as P56,sys_connect_by_path(NAME||'57','/') as P57,sys_connect_by_path(NAME||'58','/') as P58,sys_connect_by_path(NAME||'59','/') as P59,sys_connect_by_path(NAME||'60','/') as P60,sys_connect_by_path(NAME||'61','/') as P61,sys_connect_by_path(NAME||'62','/') as P62,sys_connect_by_path(NAME||'63','/') as P63,sys_connect_by_path(NAME||'64','/') as P64,sys_connect_by_path(NAME||'65','/') as P65,sys_connect_by_path(NAME||'66','/') as P66 from DEPARTMENT start with ID=1 connect by prior ID=PARENT_ID;
+----------
+[SELECT] -- CNNTB_LEVEL_20000
+select max(level) from dual connect by level<=20000;
+----------
+[SELECT] -- CNNTB_LEVEL_20001
+select max(level) from dual connect by level<=20001;
+----------
+[SELECT] -- CNNTB_LEVEL_20002
+select max(level) from dual connect by level<=20002;
+----------
+[SELECT] -- CNNTB_CHAIN_20000
+select max(level) from CHAIN_NODE start with ID=1 connect by prior ID=PARENT_ID and PARENT_ID<20000;
+----------
+[SELECT] -- CNNTB_CHAIN_20001
+select max(level) from CHAIN_NODE start with ID=1 connect by prior ID=PARENT_ID and PARENT_ID<20001;
+----------
+[SELECT] -- CNNTB_CHAIN_20002
+select max(level) from CHAIN_NODE start with ID=1 connect by prior ID=PARENT_ID;

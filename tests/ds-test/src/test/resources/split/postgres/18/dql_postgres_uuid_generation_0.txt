@@ -1,0 +1,19 @@
+SELECT uuidv4();
+SELECT uuidv7();
+SELECT uuidv7(INTERVAL '1 hour');
+SELECT uuid_extract_version(uuidv4());
+SELECT uuid_extract_version(uuidv7());
+SELECT uuid_extract_timestamp(uuidv7());
+------------------------------------------------------------------------------------------
+[SELECT] SELECT uuidv4();
+----------
+[SELECT] SELECT uuidv7();
+----------
+[SELECT] SELECT uuidv7(INTERVAL '1 hour');
+----------
+[SELECT] SELECT uuid_extract_version(uuidv4());
+----------
+[SELECT] SELECT uuid_extract_version(uuidv7());
+----------
+[SELECT] SELECT uuid_extract_timestamp(uuidv7());
+

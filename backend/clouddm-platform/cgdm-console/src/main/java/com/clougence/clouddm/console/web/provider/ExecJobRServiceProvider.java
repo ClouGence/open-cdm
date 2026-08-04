@@ -15,37 +15,29 @@
  */
 package com.clougence.clouddm.console.web.provider;
 
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.clougence.clouddm.api.console.autoexec.ExecJobRService;
-import com.clougence.clouddm.api.sidecar.autoexec.AutoExecJobDTO;
 import com.clougence.clouddm.api.sidecar.autoexec.AutoExecMessageDTO;
-import com.clougence.clouddm.api.sidecar.autoexec.AutoExecTaskDTO;
-import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.comm.RSocketApiClass;
 import com.clougence.clouddm.comm.model.auth.WorkerIdentity;
 import com.clougence.clouddm.console.web.component.autoexec.AutoExecHelperService;
-import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
-import com.clougence.clouddm.platform.dal.access.DataSourceDal;
 import com.clougence.clouddm.platform.dal.access.ExecutionDal;
 import com.clougence.clouddm.platform.dal.access.MonitorDal;
-import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
-import com.clougence.clouddm.platform.dal.model.execution.*;
+import com.clougence.clouddm.platform.dal.model.execution.AutoExecJobStatus;
+import com.clougence.clouddm.platform.dal.model.execution.AutoExecTaskStatus;
+import com.clougence.clouddm.platform.dal.model.execution.DmExecAutoJobDO;
+import com.clougence.clouddm.platform.dal.model.execution.DmExecAutoTaskDO;
 import com.clougence.clouddm.platform.dal.model.monitor.DmMonBizLogDO;
 import com.clougence.clouddm.platform.dal.model.monitor.LogDependBizType;
 import com.clougence.clouddm.platform.dal.model.monitor.Loglevel;
-import com.clougence.clouddm.platform.plugin.PluginManager;
-import com.clougence.clouddm.sdk.execute.session.SessionContextDTO;
-import com.clougence.clouddm.sdk.execute.session.SessionSpi;
-import com.clougence.clouddm.sdk.service.secrules.Requester;
-import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.utils.CollectionUtils;
-import com.clougence.utils.StringUtils;
 
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -57,79 +49,17 @@ public class ExecJobRServiceProvider extends AbstractBasicProvider implements Ex
     @Resource
     private MonitorDal            monitorDal;
     @Resource
-    private ExecutionDal          executionDal;
-    @Resource
-    private DataSourceDal         dsDal;
-    @Resource
-    private DmDsConfigService     dmDsConfigService;
+    private ExecutionDal          execDal;
     @Resource
     private AutoExecHelperService execHelperService;
 
-    @Transactional(rollbackFor = Throwable.class)
     @Override
-    public AutoExecJobDTO fetchJobInfo(WorkerIdentity identity, Long jobId) {
+    @Transactional(rollbackFor = Throwable.class)
+    public boolean startJob(WorkerIdentity identity, Long jobId) {
         if (!checkAccessKey(identity)) {
-            return null;
+            return false;
         }
-        DmExecAutoJobDO dmAutoExecJobDO = executionDal.autoJobMapper().queryByIdForUpdate(jobId);
-
-        AutoExecJobDTO jobDTO = new AutoExecJobDTO();
-        if (dmAutoExecJobDO == null) {
-            jobDTO.setJobNotExists(true);
-            return jobDTO;
-        }
-        if (dmAutoExecJobDO.getStatus() == AutoExecJobStatus.EXECUTING) {
-            jobDTO.setJobIsExecByAnother(true);
-            return jobDTO;
-        }
-        if (dmAutoExecJobDO.getDependOnBizType() == SQLJobBizType.TICKET) {
-            jobDTO.setRequester(Requester.TICKET);
-        } else if (dmAutoExecJobDO.getDependOnBizType() == SQLJobBizType.CHANGE) {
-            jobDTO.setRequester(Requester.CHANGE);
-        } else {
-            throw new UnsupportedOperationException("Unsupported type : " + dmAutoExecJobDO.getDependOnBizType());
-        }
-        jobDTO.setLevels(dmAutoExecJobDO.getLevels());
-        jobDTO.setUid(dmAutoExecJobDO.getUid());
-        jobDTO.setErrorStrategy(dmAutoExecJobDO.getConfig().getErrorStrategy());
-        jobDTO.setRetryCount(dmAutoExecJobDO.getConfig().getRetryCount());
-        jobDTO.setRetryWaitTime(dmAutoExecJobDO.getConfig().getRetryWaitTime());
-        jobDTO.setEnableTransactional(dmAutoExecJobDO.getConfig().isEnableTransactional());
-        DmDsDO dsDO = dsDal.dsMapper().queryDsIdentityById(dmAutoExecJobDO.getDataSourceId());
-        DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromExists(dsDO.getId());
-
-        ArrayList<String> levels = new ArrayList<>();
-        levels.add(dsDO.getDsEnvId().toString());
-        levels.add(dsDO.getId().toString());
-        levels.addAll(dmAutoExecJobDO.getLevels());
-
-        SessionSpi sessionSpi = PluginManager.findSessionSpi(dsDO.getDataSourceType());
-
-        //
-        Map<String, Object> params = new HashMap<>();
-        Map<UmiTypes, Object> levelsParam = this.dmDsConfigService.parseLevels(levels).levelsParam();
-        params.put(SessionSpi.PARAMS_DEFAULT_DB, StringUtils.toString(levelsParam.get(UmiTypes.Catalog)));
-        params.put(SessionSpi.PARAMS_DEFAULT_SCHEMA, StringUtils.toString(levelsParam.get(UmiTypes.Schema)));
-        SessionContextDTO contextDTO = sessionSpi.createSessionContext(dsConfig, params);
-
-        List<DmExecAutoTaskDO> dmAutoExecTaskDOS = executionDal.autoTaskMapper().queryNeedExecTaskList(jobId);
-        for (DmExecAutoTaskDO task : dmAutoExecTaskDOS) {
-            AutoExecTaskDTO taskDTO = new AutoExecTaskDTO();
-            taskDTO.setTaskId(task.getId());
-            taskDTO.setExecSql(task.getExecSql());
-            //            taskDTO.setTransactionGroup(task.getTransactionalGroup());
-            taskDTO.setExecOrder(task.getExecOrder());
-            jobDTO.getTaskList().add(taskDTO);
-        }
-        jobDTO.setContextDTO(contextDTO);
-        jobDTO.setDsId(dsDO.getId());
-        jobDTO.setDsType(dsDO.getDataSourceType());
-        jobDTO.setJobId(dmAutoExecJobDO.getId());
-
-        dmAutoExecJobDO.setStatus(AutoExecJobStatus.EXECUTING);
-        executionDal.autoJobMapper().updateById(dmAutoExecJobDO);
-
-        return jobDTO;
+        return this.execDal.autoJobMapper().startJob(jobId, identity.getWorkerSeqNumber()) > 0;
     }
 
     @Override
@@ -137,7 +67,7 @@ public class ExecJobRServiceProvider extends AbstractBasicProvider implements Ex
         if (!checkAccessKey(identity) || CollectionUtils.isEmpty(jobIdList)) {
             return;
         }
-        this.executionDal.autoJobMapper().updateReportTime(jobIdList);
+        this.execDal.autoJobMapper().updateReportTime(jobIdList);
     }
 
     @Transactional(rollbackFor = Throwable.class)
@@ -187,7 +117,7 @@ public class ExecJobRServiceProvider extends AbstractBasicProvider implements Ex
                     break;
                 }
                 case QUERY_ID: {
-                    this.executionDal.autoJobMapper().updateQueryIdByJobId(message.getJobId(), message.getQueryId());
+                    this.execDal.autoJobMapper().updateQueryIdByJobId(message.getJobId(), message.getQueryId());
                     break;
                 }
                 case TRANSACTION_FINISH: {
@@ -207,12 +137,12 @@ public class ExecJobRServiceProvider extends AbstractBasicProvider implements Ex
     }
 
     private void taskSkip(AutoExecMessageDTO dto) {
-        DmExecAutoTaskDO taskDO = executionDal.autoTaskMapper().selectById(dto.getTaskId());
+        DmExecAutoTaskDO taskDO = execDal.autoTaskMapper().selectById(dto.getTaskId());
         if (taskDO == null || taskDO.getStatus() == AutoExecTaskStatus.CANCELED) {
             return;
         }
 
-        int updateCount = this.executionDal.autoTaskMapper().taskSkip(dto.getJobId(), dto.getTaskId());
+        int updateCount = this.execDal.autoTaskMapper().taskSkip(dto.getJobId(), dto.getTaskId());
         if (updateCount == 0) {
             return;
         }
@@ -224,22 +154,22 @@ public class ExecJobRServiceProvider extends AbstractBasicProvider implements Ex
     }
 
     private void jobPause(AutoExecMessageDTO dto) {
-        DmExecAutoJobDO jobDO = this.executionDal.autoJobMapper().selectById(dto.getJobId());
+        DmExecAutoJobDO jobDO = this.execDal.autoJobMapper().selectById(dto.getJobId());
         if (jobDO == null) {
             return;
         }
-        if (this.executionDal.autoJobMapper().pauseJobIfActive(dto.getJobId()) == 0) {
+        if (this.execDal.autoJobMapper().pauseJobIfActive(dto.getJobId()) == 0) {
             return;
         }
         this.jobLog(Loglevel.INFO, DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_JOB_PAUSE_MESSAGE.name()), dto.getJobId());
     }
 
     private void transactionRollback(AutoExecMessageDTO message) {
-        int updateCount = this.executionDal.autoTaskMapper().transactionRollback(message.getJobId());
+        int updateCount = this.execDal.autoTaskMapper().transactionRollback(message.getJobId());
         if (updateCount == 0) {
             return;
         }
-        List<DmExecAutoTaskDO> taskList = this.executionDal.autoTaskMapper().queryGroupTaskListByStatus(message.getJobId(), AutoExecTaskStatus.WAIT_CONFIRM);
+        List<DmExecAutoTaskDO> taskList = this.execDal.autoTaskMapper().queryGroupTaskListByStatus(message.getJobId(), AutoExecTaskStatus.WAIT_CONFIRM);
         for (DmExecAutoTaskDO execTaskDO : taskList) {
             this.taskLogByBizId(Loglevel.WARING, DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_TASK_ROLLBACK_MESSAGE.name()), execTaskDO.getBizId());
         }
@@ -247,15 +177,15 @@ public class ExecJobRServiceProvider extends AbstractBasicProvider implements Ex
     }
 
     private void transactionFinish(AutoExecMessageDTO dto) {
-        this.executionDal.autoTaskMapper().transactionCommit(dto.getJobId());
+        this.execDal.autoTaskMapper().transactionCommit(dto.getJobId());
     }
 
     private void createSessionFailed(AutoExecMessageDTO dto) {
-        DmExecAutoJobDO jobDO = this.executionDal.autoJobMapper().selectById(dto.getJobId());
+        DmExecAutoJobDO jobDO = this.execDal.autoJobMapper().selectById(dto.getJobId());
         if (jobDO == null) {
             return;
         }
-        if (this.executionDal.autoJobMapper().markJobFailedIfActive(dto.getJobId()) == 0) {
+        if (this.execDal.autoJobMapper().markJobFailedIfActive(dto.getJobId()) == 0) {
             return;
         }
         this.jobLog(Loglevel.ERROR, DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_CREATE_SESSION_ERROR_MESSAGE.name(), dto.getMessage()), dto.getJobId());
@@ -264,11 +194,11 @@ public class ExecJobRServiceProvider extends AbstractBasicProvider implements Ex
     }
 
     private void jobFinish(AutoExecMessageDTO dto) {
-        DmExecAutoJobDO jobDO = this.executionDal.autoJobMapper().selectById(dto.getJobId());
+        DmExecAutoJobDO jobDO = this.execDal.autoJobMapper().selectById(dto.getJobId());
         if (jobDO == null) {
             return;
         }
-        if (this.executionDal.autoJobMapper().finishJobIfActive(dto.getJobId()) == 0) {
+        if (this.execDal.autoJobMapper().finishJobIfActive(dto.getJobId()) == 0) {
             return;
         }
         this.jobLog(Loglevel.INFO, DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_JOB_FINISH_MESSAGE.name()), dto.getJobId());
@@ -277,12 +207,12 @@ public class ExecJobRServiceProvider extends AbstractBasicProvider implements Ex
     }
 
     private void jobFailed(AutoExecMessageDTO dto) {
-        DmExecAutoJobDO jobDO = this.executionDal.autoJobMapper().selectById(dto.getJobId());
-        DmExecAutoTaskDO taskDO = executionDal.autoTaskMapper().selectById(dto.getTaskId());
+        DmExecAutoJobDO jobDO = this.execDal.autoJobMapper().selectById(dto.getJobId());
+        DmExecAutoTaskDO taskDO = execDal.autoTaskMapper().selectById(dto.getTaskId());
         if (jobDO == null || taskDO == null || !Objects.equals(taskDO.getAutoExecJobId(), jobDO.getId())) {
             return;
         }
-        if (this.executionDal.autoJobMapper().markJobFailedIfActive(dto.getJobId()) == 0) {
+        if (this.execDal.autoJobMapper().markJobFailedIfActive(dto.getJobId()) == 0) {
             return;
         }
         String msg = DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_JOB_FAILED_MESSAGE.name(), taskDO.getExecOrder(), taskDO.getExecSql());
@@ -296,7 +226,7 @@ public class ExecJobRServiceProvider extends AbstractBasicProvider implements Ex
     }
 
     private void taskWaitConfirm(AutoExecMessageDTO message) {
-        DmExecAutoTaskDO taskDO = executionDal.autoTaskMapper().selectById(message.getTaskId());
+        DmExecAutoTaskDO taskDO = execDal.autoTaskMapper().selectById(message.getTaskId());
         if (taskDO == null || taskDO.getStatus() == AutoExecTaskStatus.WAIT_CONFIRM) {
             return;
         }
@@ -304,12 +234,12 @@ public class ExecJobRServiceProvider extends AbstractBasicProvider implements Ex
         taskDO.setExecCount(taskDO.getExecCount() + message.getExecCount());
         taskDO.setAffectRow(message.getAffectLine());
         taskDO.setGmtLastEnd(message.getTime());
-        executionDal.autoTaskMapper().updateById(taskDO);
+        execDal.autoTaskMapper().updateById(taskDO);
         taskLogByBizId(Loglevel.INFO, DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_TASK_FINISH_MESSAGE.name()), message.getTaskId());
     }
 
     private void taskFinish(AutoExecMessageDTO dto) {
-        DmExecAutoTaskDO taskDO = executionDal.autoTaskMapper().selectById(dto.getTaskId());
+        DmExecAutoTaskDO taskDO = execDal.autoTaskMapper().selectById(dto.getTaskId());
         if (taskDO == null || taskDO.getStatus() == AutoExecTaskStatus.FINISH) {
             return;
         }
@@ -317,12 +247,12 @@ public class ExecJobRServiceProvider extends AbstractBasicProvider implements Ex
         taskDO.setExecCount(taskDO.getExecCount() + dto.getExecCount());
         taskDO.setAffectRow(dto.getAffectLine());
         taskDO.setGmtLastEnd(dto.getTime());
-        executionDal.autoTaskMapper().updateById(taskDO);
+        execDal.autoTaskMapper().updateById(taskDO);
         taskLogByBizId(Loglevel.INFO, DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_TASK_FINISH_MESSAGE.name()), dto.getTaskId());
     }
 
     private void taskFailed(AutoExecMessageDTO message) {
-        DmExecAutoTaskDO taskDO = executionDal.autoTaskMapper().selectById(message.getTaskId());
+        DmExecAutoTaskDO taskDO = execDal.autoTaskMapper().selectById(message.getTaskId());
         if (taskDO == null || taskDO.getStatus() == AutoExecTaskStatus.FAILED) {
             return;
         }
@@ -330,24 +260,24 @@ public class ExecJobRServiceProvider extends AbstractBasicProvider implements Ex
         taskDO.setExecCount(taskDO.getExecCount() + message.getExecCount());
         taskDO.setAffectRow(0L);
         taskDO.setGmtLastEnd(message.getTime());
-        executionDal.autoTaskMapper().updateById(taskDO);
+        execDal.autoTaskMapper().updateById(taskDO);
         taskLogByBizId(Loglevel.ERROR, message.getMessage(), message.getTaskId());
     }
 
     private void taskStart(AutoExecMessageDTO message) {
-        DmExecAutoTaskDO taskDO = executionDal.autoTaskMapper().selectById(message.getTaskId());
+        DmExecAutoTaskDO taskDO = execDal.autoTaskMapper().selectById(message.getTaskId());
         // repeat message
         if (taskDO == null || taskDO.getStatus() == AutoExecTaskStatus.EXECUTING) {
             return;
         }
         taskDO.setStatus(AutoExecTaskStatus.EXECUTING);
         taskDO.setGmtLastStart(message.getTime());
-        executionDal.autoTaskMapper().updateById(taskDO);
+        execDal.autoTaskMapper().updateById(taskDO);
         taskLogByBizId(Loglevel.INFO, DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_TASK_START_MESSAGE.name()), message.getTaskId());
     }
 
     private void taskLogByBizId(Loglevel logLevel, String message, Long taskId) {
-        DmExecAutoTaskDO execTaskDO = executionDal.autoTaskMapper().selectById(taskId);
+        DmExecAutoTaskDO execTaskDO = execDal.autoTaskMapper().selectById(taskId);
         DmMonBizLogDO logDO = new DmMonBizLogDO(logLevel, message, LogDependBizType.AUTO_EXEC_TASK, execTaskDO.getBizId());
         monitorDal.bizLogMapper().insert(logDO);
     }
@@ -358,7 +288,7 @@ public class ExecJobRServiceProvider extends AbstractBasicProvider implements Ex
     }
 
     private void jobLog(Loglevel logLevel, String message, Long jobId) {
-        DmExecAutoJobDO job = executionDal.autoJobMapper().selectById(jobId);
+        DmExecAutoJobDO job = execDal.autoJobMapper().selectById(jobId);
         DmMonBizLogDO logDO = new DmMonBizLogDO(logLevel, message, LogDependBizType.AUTO_EXEC_JOB, job.getBizId());
         monitorDal.bizLogMapper().insert(logDO);
     }

@@ -87,9 +87,4 @@ public class HanaSupportSpi implements RdbSupportSpi {
         //  - Snapshot
         return this.isolationDef;
     }
-
-    @Override
-    public boolean supportMultiStatement(boolean isDesktop) {
-        return isDesktop;
-    }
 }

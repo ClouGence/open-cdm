@@ -1,0 +1,147 @@
+[split_block_dameng_performance_packages_0_030]
+sql:
+begin dbms_workload_repository.awr_set_interval(10); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:6~1:47) /test/1/catalog1/dbms_workload_repository/awr_set_interval/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_performance_packages_0_031]
+sql:
+begin dbms_workload_repository.modify_snapshot_settings(retention=>1440, awr_interval=>10, topnsql=>30); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:6~1:55) /test/1/catalog1/dbms_workload_repository/modify_snapshot_settings/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_performance_packages_0_032]
+sql:
+declare snap_id int; begin snap_id := dbms_workload_repository.create_snapshot('TYPICAL'); insert into CODEX_DM8_PERF_CTL values('AWR_START', snap_id, null); commit; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(1:103~1:121) /test/1/catalog1/schema1/CODEX_DM8_PERF_CTL/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:38~1:78) /test/1/catalog1/dbms_workload_repository/create_snapshot/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_performance_packages_0_033]
+sql:
+declare snap_id int; begin snap_id := dbms_workload_repository.create_snapshot('ALL'); insert into CODEX_DM8_PERF_CTL values('AWR_END', snap_id, null); commit; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(1:99~1:117) /test/1/catalog1/schema1/CODEX_DM8_PERF_CTL/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:38~1:78) /test/1/catalog1/dbms_workload_repository/create_snapshot/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_performance_packages_0_034]
+sql:
+begin dbms_workload_repository.awr_clear_tmp_table(); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:6~1:50) /test/1/catalog1/dbms_workload_repository/awr_clear_tmp_table/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_performance_packages_0_035]
+sql:
+declare snap_id int; begin snap_id := dbms_workload_repository.create_snapshot(); dbms_workload_repository.drop_snapshot_range(snap_id, snap_id); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:82~1:126) /test/1/catalog1/dbms_workload_repository/drop_snapshot_range/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:38~1:78) /test/1/catalog1/dbms_workload_repository/create_snapshot/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_performance_packages_0_041]
+sql:
+begin dbms_workload_repository.drop_snapshot_range((select min(number_value) from CODEX_DM8_PERF_CTL where label like 'AWR_%'), (select max(number_value) from CODEX_DM8_PERF_CTL where label like 'AWR_%')); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:6~1:50) /test/1/catalog1/dbms_workload_repository/drop_snapshot_range/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:59~1:62) /test/1/catalog1/schema1/min/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:136~1:139) /test/1/catalog1/schema1/max/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:82~1:100) /test/1/catalog1/schema1/CODEX_DM8_PERF_CTL/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(1:159~1:177) /test/1/catalog1/schema1/CODEX_DM8_PERF_CTL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_performance_packages_0_042]
+sql:
+begin dbms_workload_repository.awr_clear_history(); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:6~1:48) /test/1/catalog1/dbms_workload_repository/awr_clear_history/",
+      "action": "CALL"
+    }
+  ]
+}

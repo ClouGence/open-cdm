@@ -1,0 +1,12 @@
+db.createCollection("test_collection");
+db.runCommand({create: "test_view", viewOn: "source_coll", pipeline: [{$match: {}}]});
+db.test_collection.drop();
+show collections;
+------------------------------------------------------------------------------------------
+[CREATE_TABLE] db.createCollection("test_collection")
+----------
+[CREATE_VIEW(SELECT)] db.runCommand({create: "test_view", viewOn: "source_coll", pipeline: [{$match: {}}]})
+----------
+[DROP_TABLE] db.test_collection.drop()
+----------
+[METADATA] show collections

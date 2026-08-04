@@ -1,0 +1,64 @@
+[create_function]
+sql:
+create function app.f_basic return int as begin return 1;end;
+expect:
+{
+  "contains": [
+    {"class":"RdbFunctionDomain", "sqlType":"CREATE_PROG_OBJ", "auditKind":"CREATE", "schema":"app", "name":"f_basic"}
+  ]
+}
+----------
+[create_function_with_query]
+sql:
+create function app.f_value(p_id int) return int authid current_user as
+  x int;
+begin
+  select v into x from app.func_data where id=p_id;
+  return x;
+end f_value;
+/
+expect:
+{
+  "contains": [
+    {"class":"RdbFunctionDomain", "sqlType":"CREATE_PROG_OBJ", "auditKind":"CREATE", "schema":"app", "name":"f_value"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"func_data"}
+  ]
+}
+----------
+[alter_function]
+sql:
+alter function app.f_basic compile cascade debug;
+expect:
+{
+  "contains": [
+    {"class":"RdbFunctionDomain", "sqlType":"ALTER_PROG_OBJ", "auditKind":"ALTER", "schema":"app", "name":"f_basic"}
+  ]
+}
+----------
+[select_function]
+sql:
+select app.f_basic()
+expect:
+{"size":0}
+----------
+[grant_revoke_function]
+sql:
+grant execute on function app.f_basic to public;
+revoke execute on function app.f_basic from public;
+expect:
+{
+  "contains": [
+    {"class":"RdbGrantDomain", "sqlType":"GRANT", "auditKind":"ALTER", "name":"public"},
+    {"class":"RdbRevokeDomain", "sqlType":"REVOKE", "auditKind":"ALTER", "name":"public"}
+  ]
+}
+----------
+[drop_function]
+sql:
+drop function app.f_basic cascade;
+expect:
+{
+  "contains": [
+    {"class":"RdbFunctionDomain", "sqlType":"DROP_PROG_OBJ", "auditKind":"DROP", "schema":"app", "name":"f_basic"}
+  ]
+}

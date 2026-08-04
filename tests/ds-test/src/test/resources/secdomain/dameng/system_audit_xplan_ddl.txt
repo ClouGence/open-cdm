@@ -1,0 +1,50 @@
+[system_log_domain]
+sql:
+call dbms_system.ksdwrt(2, 'CODEX_DM8_DBMS_SYSTEM_KSDWRT')
+expect:
+{
+  "contains": [
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_system"}
+  ]
+}
+----------
+[xplan_display_domain]
+sql:
+call dbms_xplan.display_planhist('select C2 from CODEX_DM8_XPLAN_T where C1=1;')
+expect:
+{
+  "contains": [
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_xplan"}
+  ]
+}
+----------
+[ddl_create_wrapped_domain]
+sql:
+call dbms_ddl.create_wrapped('CREATE OR REPLACE FUNCTION CODEX_DM8_WRAPPED_F1 RETURN INT AS BEGIN RETURN 81; END;')
+expect:
+{
+  "contains": [
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_ddl"}
+  ]
+}
+----------
+[audit_start_domain]
+sql:
+call dbms_audit.start_aud()
+expect:
+{
+  "contains": [
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_audit"}
+  ]
+}
+----------
+[xplan_source_domain]
+sql:
+select c1, c2 from app.codex_dm8_xplan_t where c1=1
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"codex_dm8_xplan_t"}
+  ]
+}
+

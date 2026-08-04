@@ -1,0 +1,57 @@
+[dsc_query_shared_table_columns]
+sql:
+select id,owner_ep,note
+from catalog1.app.dsc_q_shared_t order by id
+expect:
+{
+  "id" : [ "/catalog1/app/dsc_q_shared_t/id/" ],
+  "owner_ep" : [ "/catalog1/app/dsc_q_shared_t/owner_ep/" ],
+  "note" : [ "/catalog1/app/dsc_q_shared_t/note/" ]
+}
+----------
+[dsc_query_ep_view_columns]
+sql:
+select ep_name,ep_seqno,ep_mode,ep_status
+from catalog1.sys.v$dsc_ep_info order by ep_seqno
+expect:
+{
+  "ep_name" : [ "/catalog1/sys/v$dsc_ep_info/ep_name/" ],
+  "ep_seqno" : [ "/catalog1/sys/v$dsc_ep_info/ep_seqno/" ],
+  "ep_mode" : [ "/catalog1/sys/v$dsc_ep_info/ep_mode/" ],
+  "ep_status" : [ "/catalog1/sys/v$dsc_ep_info/ep_status/" ]
+}
+----------
+[dsc_query_crash_view_columns]
+sql:
+select ep_seqno,ok_flag,min_first_modified_lsn,crash_lsn
+from catalog1.sys.v$dsc_crash_over_info order by ep_seqno
+expect:
+{
+  "ep_seqno" : [ "/catalog1/sys/v$dsc_crash_over_info/ep_seqno/" ],
+  "ok_flag" : [ "/catalog1/sys/v$dsc_crash_over_info/ok_flag/" ],
+  "min_first_modified_lsn" : [ "/catalog1/sys/v$dsc_crash_over_info/min_first_modified_lsn/" ],
+  "crash_lsn" : [ "/catalog1/sys/v$dsc_crash_over_info/crash_lsn/" ]
+}
+----------
+[dsc_query_asm_group_columns]
+sql:
+select group_id,name,state,type
+from catalog1.sys.v$asmgroup order by group_id
+expect:
+{
+  "group_id" : [ "/catalog1/sys/v$asmgroup/group_id/" ],
+  "name" : [ "/catalog1/sys/v$asmgroup/name/" ],
+  "state" : [ "/catalog1/sys/v$asmgroup/state/" ],
+  "type" : [ "/catalog1/sys/v$asmgroup/type/" ]
+}
+----------
+[dsc_query_dcr_group_columns]
+sql:
+select group_id,group_name,group_type
+from catalog1.sys.v$dcr_group order by group_id
+expect:
+{
+  "group_id" : [ "/catalog1/sys/v$dcr_group/group_id/" ],
+  "group_name" : [ "/catalog1/sys/v$dcr_group/group_name/" ],
+  "group_type" : [ "/catalog1/sys/v$dcr_group/group_type/" ]
+}

@@ -1,0 +1,30 @@
+insert into CODEX_DM8_ERR_BASE values (2, 'TWO', 2) log errors into CODEX_DM8_ERR_LOG ('VALID_INSERT') reject limit unlimited;
+insert into CODEX_DM8_ERR_BASE values (1, 'DUP', 2) log errors into CODEX_DM8_ERR_LOG ('DUP_INSERT') reject limit unlimited;
+insert into CODEX_DM8_ERR_BASE values (3, null, 3) log errors into CODEX_DM8_ERR_LOG ('NULL_INSERT') reject limit 10;
+update CODEX_DM8_ERR_BASE set code=null where id=2 log errors into CODEX_DM8_ERR_LOG ('NULL_UPDATE') reject limit 10;
+delete from CODEX_DM8_ERR_BASE where id=999 log errors into CODEX_DM8_ERR_LOG ('DELETE_NONE') reject limit unlimited;
+insert into CODEX_DM8_ERR_DEFAULT values (1, 'ONE') log errors reject limit unlimited;
+insert into CODEX_DM8_ERR_DEFAULT values (1, 'DUP') log errors ('DEFAULT_DUP') reject limit unlimited;
+insert into CODEX_DM8_ERR_BASE values (5, 'FIV', 5) log errors into CODEX_DM8_ERR_LOG reject limit 0;
+delete from CODEX_DM8_ERR_BASE where id=5 log errors into CODEX_DM8_ERR_LOG reject limit unlimited;
+insert into CODEX_DM8_MV_BASE values (3, 30);
+------------------------------------------------------------------------------------------
+[INSERT] insert into CODEX_DM8_ERR_BASE values (2, 'TWO', 2) log errors into CODEX_DM8_ERR_LOG ('VALID_INSERT') reject limit unlimited;
+----------
+[INSERT] insert into CODEX_DM8_ERR_BASE values (1, 'DUP', 2) log errors into CODEX_DM8_ERR_LOG ('DUP_INSERT') reject limit unlimited;
+----------
+[INSERT] insert into CODEX_DM8_ERR_BASE values (3, null, 3) log errors into CODEX_DM8_ERR_LOG ('NULL_INSERT') reject limit 10;
+----------
+[UPDATE] update CODEX_DM8_ERR_BASE set code=null where id=2 log errors into CODEX_DM8_ERR_LOG ('NULL_UPDATE') reject limit 10;
+----------
+[DELETE] delete from CODEX_DM8_ERR_BASE where id=999 log errors into CODEX_DM8_ERR_LOG ('DELETE_NONE') reject limit unlimited;
+----------
+[INSERT] insert into CODEX_DM8_ERR_DEFAULT values (1, 'ONE') log errors reject limit unlimited;
+----------
+[INSERT] insert into CODEX_DM8_ERR_DEFAULT values (1, 'DUP') log errors ('DEFAULT_DUP') reject limit unlimited;
+----------
+[INSERT] insert into CODEX_DM8_ERR_BASE values (5, 'FIV', 5) log errors into CODEX_DM8_ERR_LOG reject limit 0;
+----------
+[DELETE] delete from CODEX_DM8_ERR_BASE where id=5 log errors into CODEX_DM8_ERR_LOG reject limit unlimited;
+----------
+[INSERT] insert into CODEX_DM8_MV_BASE values (3, 30);

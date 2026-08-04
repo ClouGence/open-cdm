@@ -1,0 +1,3719 @@
+[select__001]
+sql:
+SELECT * FROM {oj t1 LEFT OUTER JOIN t2 ON t1.a1=t2.a3} WHERE t1.a2 > 10;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:18~1:20) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:37~1:39) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__002]
+sql:
+SELECT a.col_varchar FROM t1 a STRAIGHT_JOIN t2 b INNER JOIN t1 c ON c.col_varchar=b.col_varchar_key ON c.col_int=b.pk;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:26~1:28) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:45~1:47) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[admin_table__003]
+sql:
+ANALYZE TABLE utility_audit.maint_a, utility_audit.maint_b;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:14~1:35) /test/1/catalog1/utility_audit/maint_a/",
+      "action" : "ANALYZE"
+    },
+    {
+      "subject": "Table(1:37~1:58) /test/1/catalog1/utility_audit/maint_b/",
+      "action" : "ANALYZE"
+    }
+  ]
+}
+----------
+[admin_performance__004]
+sql:
+CACHE INDEX utility_audit.myisam_a, utility_audit.myisam_b IN DEFAULT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_PERFORMANCE": [
+    {
+      "subject": "Index(1:12~1:34) /test/1/catalog1/utility_audit/myisam_a/",
+      "action" : "LOAD"
+    },
+    {
+      "subject": "Index(1:36~1:58) /test/1/catalog1/utility_audit/myisam_b/",
+      "action" : "LOAD"
+    }
+  ]
+}
+----------
+[admin_table__005]
+sql:
+CHECK TABLE utility_audit.maint_a, utility_audit.maint_b QUICK;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:12~1:33) /test/1/catalog1/utility_audit/maint_a/",
+      "action" : "VALIDATE"
+    },
+    {
+      "subject": "Table(1:35~1:56) /test/1/catalog1/utility_audit/maint_b/",
+      "action" : "VALIDATE"
+    }
+  ]
+}
+----------
+[admin_table__006]
+sql:
+CHECKSUM TABLE utility_audit.maint_a, utility_audit.maint_b;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:15~1:36) /test/1/catalog1/utility_audit/maint_a/",
+      "action" : "CHECKSUM"
+    },
+    {
+      "subject": "Table(1:38~1:59) /test/1/catalog1/utility_audit/maint_b/",
+      "action" : "CHECKSUM"
+    }
+  ]
+}
+----------
+[performance__007]
+sql:
+EXPLAIN TABLE utility_audit.maint_a;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Instance(1:0~1:35) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[performance__008]
+sql:
+EXPLAIN UPDATE t1 JOIN t2 USING(a) SET t2.a = t2.a + 1 WHERE t1.b > 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Table(1:15~1:17) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:23~1:25) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__009]
+sql:
+SELECT a.id FROM articles AS a LEFT JOIN articles AS b ON b.id=a.id AND MATCH(b.title) AGAINST('database');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:17~1:25) /test/1/catalog1/schema1/articles/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__010]
+sql:
+SELECT f_acc.`rank`,a1.`rank`,a2.`rank`
+FROM func_least_faq
+LEFT JOIN func_least_faq AS f1 ON (f1.access_id=1 AND f1.faq_group_id=func_least_faq.faq_group_id)
+LEFT JOIN func_least_access_rank AS a1 ON (a1.access_id=f1.access_id)
+LEFT JOIN func_least_faq AS f2 ON (f2.access_id=3 AND f2.faq_group_id=func_least_faq.faq_group_id)
+LEFT JOIN func_least_access_rank AS a2 ON (a2.access_id=f2.access_id),
+func_least_access_rank AS f_acc
+WHERE LEAST(a1.`rank`,a2.`rank`)=f_acc.`rank`;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:5~2:19) /test/1/catalog1/schema1/func_least_faq/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(4:10~4:32) /test/1/catalog1/schema1/func_least_access_rank/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(8:6~8:11) /test/1/catalog1/schema1/LEAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__011]
+sql:
+SELECT DISTINCT
+       projects.project_id,
+       projects.project_name,
+       projects.client_ptr,
+       projects.comments,
+       SUM(budgets.amount_received) + SUM(budgets.adjustment) AS total_budget
+FROM join_crash_periods AS client_period,
+     join_crash_periods AS project_period,
+     join_crash_budgets AS budgets
+LEFT JOIN join_crash_projects AS projects
+  ON budgets.project_ptr = projects.project_id
+ AND budgets.date_received <= '2001-03-22 14:15:09'
+LEFT JOIN join_crash_clients AS clients
+  ON clients.client_id = projects.client_ptr
+WHERE client_period.period_type = 'client_table'
+  AND client_period.period_key = clients.client_id
+  AND (client_period.start_date <= '2001-03-22 14:15:09' OR ISNULL(client_period.start_date))
+  AND (client_period.end_date > '2001-03-21 14:15:09' OR ISNULL(client_period.end_date))
+  AND project_period.period_type = 'project_table'
+  AND project_period.period_key = projects.project_id
+  AND (project_period.start_date <= '2001-03-22 14:15:09' OR ISNULL(project_period.start_date))
+  AND (project_period.end_date > '2001-03-21 14:15:09' OR ISNULL(project_period.end_date))
+GROUP BY clients.client_id,
+         projects.project_id,
+         client_period.period_id,
+         project_period.period_id
+ORDER BY clients.client_name ASC,
+         projects.project_name ASC;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(6:7~6:10) /test/1/catalog1/schema1/SUM/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(7:5~7:23) /test/1/catalog1/schema1/join_crash_periods/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(9:5~9:23) /test/1/catalog1/schema1/join_crash_budgets/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(10:10~10:29) /test/1/catalog1/schema1/join_crash_projects/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(13:10~13:28) /test/1/catalog1/schema1/join_crash_clients/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(17:60~17:66) /test/1/catalog1/schema1/ISNULL/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__012]
+sql:
+SELECT t1.id FROM (t1, t2) JOIN t3 ON t2.id = t3.id WHERE t1.id = t2.id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:19~1:21) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:23~1:25) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:32~1:34) /test/1/catalog1/schema1/t3/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__013]
+sql:
+SELECT t1.id FROM t1 CROSS JOIN t2 ON t1.id = t2.id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:18~1:20) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:32~1:34) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__014]
+sql:
+SELECT t1.id FROM t1 JOIN t2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:18~1:20) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:26~1:28) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__015]
+sql:
+SELECT t1.id FROM t1 INNER JOIN t2 USING (id);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:18~1:20) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:32~1:34) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__016]
+sql:
+SELECT t1.id FROM t1 LEFT OUTER JOIN t2 USING (id);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:18~1:20) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:37~1:39) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__017]
+sql:
+SELECT t1.id FROM t1 RIGHT JOIN t2 ON t1.id = t2.id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:18~1:20) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:32~1:34) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__018]
+sql:
+SELECT id, grp, v FROM t1 NATURAL JOIN t2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:23~1:25) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:39~1:41) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__019]
+sql:
+SELECT id, grp, v FROM t1 NATURAL LEFT OUTER JOIN t2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:23~1:25) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:50~1:52) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__020]
+sql:
+SELECT id, grp, v FROM t1 NATURAL RIGHT OUTER JOIN t2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:23~1:25) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:51~1:53) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__021]
+sql:
+SELECT t1.id FROM t1 STRAIGHT_JOIN t2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:18~1:20) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:35~1:37) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__022]
+sql:
+SELECT t1.id FROM (((t1))) JOIN t2 ON t1.id = t2.id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:21~1:23) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:32~1:34) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__023]
+sql:
+SELECT t1.id FROM t1 JOIN t2 JOIN t3 ON t2.id = t3.id ON t1.id = t2.id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:18~1:20) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:26~1:28) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:34~1:36) /test/1/catalog1/schema1/t3/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__024]
+sql:
+SELECT id, grp, v FROM t1 NATURAL INNER JOIN t2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:23~1:25) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:45~1:47) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__025]
+sql:
+SELECT t1.*,dt.c FROM jt AS t1 CROSS JOIN LATERAL (SELECT COUNT(*) AS c FROM jt AS t2 LEFT JOIN jt AS t3 ON t3.a>t2.a-t1.a) AS dt;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:22~1:24) /test/1/catalog1/schema1/jt/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(1:58~1:63) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__026]
+sql:
+SELECT * FROM (n1 NATURAL JOIN n2) NATURAL JOIN (n3 NATURAL JOIN n4);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:15~1:17) /test/1/catalog1/schema1/n1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:31~1:33) /test/1/catalog1/schema1/n2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:49~1:51) /test/1/catalog1/schema1/n3/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:65~1:67) /test/1/catalog1/schema1/n4/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__027]
+sql:
+SELECT * FROM (n1 NATURAL JOIN n2) NATURAL LEFT JOIN (n3 NATURAL JOIN n4);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:15~1:17) /test/1/catalog1/schema1/n1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:31~1:33) /test/1/catalog1/schema1/n2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:54~1:56) /test/1/catalog1/schema1/n3/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:70~1:72) /test/1/catalog1/schema1/n4/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__028]
+sql:
+SELECT * FROM (n3 NATURAL JOIN n4) NATURAL RIGHT JOIN (n1 NATURAL JOIN n2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:15~1:17) /test/1/catalog1/schema1/n3/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:31~1:33) /test/1/catalog1/schema1/n4/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:55~1:57) /test/1/catalog1/schema1/n1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:71~1:73) /test/1/catalog1/schema1/n2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__029]
+sql:
+SELECT * FROM n5 NATURAL RIGHT JOIN (n4 NATURAL RIGHT JOIN ((n2 NATURAL RIGHT JOIN n1) NATURAL RIGHT JOIN n3));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:16) /test/1/catalog1/schema1/n5/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:37~1:39) /test/1/catalog1/schema1/n4/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:61~1:63) /test/1/catalog1/schema1/n2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:83~1:85) /test/1/catalog1/schema1/n1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:106~1:108) /test/1/catalog1/schema1/n3/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__030]
+sql:
+SELECT * FROM n5 NATURAL JOIN ((n1 NATURAL JOIN n2), (n3 NATURAL JOIN n4));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:16) /test/1/catalog1/schema1/n5/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:32~1:34) /test/1/catalog1/schema1/n1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:48~1:50) /test/1/catalog1/schema1/n2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:54~1:56) /test/1/catalog1/schema1/n3/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:70~1:72) /test/1/catalog1/schema1/n4/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__031]
+sql:
+SELECT * FROM ((n1 NATURAL JOIN n2) CROSS JOIN (n3 NATURAL JOIN n4)) NATURAL JOIN n5;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:16~1:18) /test/1/catalog1/schema1/n1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:32~1:34) /test/1/catalog1/schema1/n2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:48~1:50) /test/1/catalog1/schema1/n3/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:64~1:66) /test/1/catalog1/schema1/n4/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:82~1:84) /test/1/catalog1/schema1/n5/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__032]
+sql:
+SELECT * FROM (n1 JOIN n2 USING (b)) JOIN (n3 JOIN n4 USING (c)) USING (c);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:15~1:17) /test/1/catalog1/schema1/n1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:23~1:25) /test/1/catalog1/schema1/n2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:43~1:45) /test/1/catalog1/schema1/n3/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:51~1:53) /test/1/catalog1/schema1/n4/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__033]
+sql:
+SELECT * FROM (n1 JOIN n2 USING (b)) NATURAL JOIN (n3 JOIN n4 USING (c));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:15~1:17) /test/1/catalog1/schema1/n1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:23~1:25) /test/1/catalog1/schema1/n2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:51~1:53) /test/1/catalog1/schema1/n3/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:59~1:61) /test/1/catalog1/schema1/n4/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__034]
+sql:
+SELECT a,b,c FROM (n1 NATURAL JOIN n2) NATURAL JOIN (n3 NATURAL JOIN n4) WHERE b+1=y OR b+10=y GROUP BY b,c,a HAVING MIN(b)<MAX(y) ORDER BY a;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:19~1:21) /test/1/catalog1/schema1/n1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:35~1:37) /test/1/catalog1/schema1/n2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:53~1:55) /test/1/catalog1/schema1/n3/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:69~1:71) /test/1/catalog1/schema1/n4/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(1:117~1:120) /test/1/catalog1/schema1/MIN/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:124~1:127) /test/1/catalog1/schema1/MAX/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__035]
+sql:
+SELECT * FROM n1 NATURAL JOIN n2 WHERE n1.b>0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:16) /test/1/catalog1/schema1/n1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:30~1:32) /test/1/catalog1/schema1/n2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__036]
+sql:
+SELECT n1.*,n2.* FROM n1 NATURAL JOIN n2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:22~1:24) /test/1/catalog1/schema1/n1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:38~1:40) /test/1/catalog1/schema1/n2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__037]
+sql:
+SELECT * FROM (SELECT * FROM n1 NATURAL JOIN n2) AS n12 NATURAL LEFT JOIN (SELECT * FROM n3 NATURAL JOIN n4) AS n34;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:29~1:31) /test/1/catalog1/schema1/n1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:45~1:47) /test/1/catalog1/schema1/n2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:89~1:91) /test/1/catalog1/schema1/n3/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:105~1:107) /test/1/catalog1/schema1/n4/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__038]
+sql:
+SELECT * FROM (n1,n2) JOIN (n3,n4) ON (n2.a<n4.y AND n2.b<n3.c);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:15~1:17) /test/1/catalog1/schema1/n1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:18~1:20) /test/1/catalog1/schema1/n2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:28~1:30) /test/1/catalog1/schema1/n3/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:31~1:33) /test/1/catalog1/schema1/n4/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__039]
+sql:
+SELECT * FROM ((n3 JOIN (n1 JOIN n2 ON n1.c>n2.a) ON n3.b<n2.a) JOIN n4 ON n4.y>n1.c) JOIN n5 ON n5.z=n1.b+3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:16~1:18) /test/1/catalog1/schema1/n3/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:25~1:27) /test/1/catalog1/schema1/n1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:33~1:35) /test/1/catalog1/schema1/n2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:69~1:71) /test/1/catalog1/schema1/n4/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:91~1:93) /test/1/catalog1/schema1/n5/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__040]
+sql:
+SELECT m1.a2 FROM ((m1 JOIN m2 USING (a1)) JOIN m3 ON m2.b=m3.c1) JOIN m4 USING (c2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:20~1:22) /test/1/catalog1/schema1/m1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:28~1:30) /test/1/catalog1/schema1/m2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:48~1:50) /test/1/catalog1/schema1/m3/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:71~1:73) /test/1/catalog1/schema1/m4/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__041]
+sql:
+SELECT * FROM u1 JOIN u2 ON u1.a1=u2.a1 LEFT JOIN ((u3 LEFT JOIN u4 ON u3.a1=u4.a1) LEFT JOIN (n1 LEFT JOIN n2 ON n1.b=n2.b) ON u4.a1=n2.a) ON u1.a1=u3.a1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:16) /test/1/catalog1/schema1/u1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:22~1:24) /test/1/catalog1/schema1/u2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:52~1:54) /test/1/catalog1/schema1/u3/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:65~1:67) /test/1/catalog1/schema1/u4/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:95~1:97) /test/1/catalog1/schema1/n1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:108~1:110) /test/1/catalog1/schema1/n2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__042]
+sql:
+SELECT 1 FROM r1 LEFT JOIN r1 AS r2 ON 1 WHERE ROW(r1.a,1111.11)=ROW(1111.11,1111.11) AND ROW(r1.b,1111.11)<=>ROW('','');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:16) /test/1/catalog1/schema1/r1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__043]
+sql:
+SELECT * FROM u1 STRAIGHT_JOIN u2 ON u1.a1=u2.a1 AND u1.a1=u2.b ORDER BY u2.a1,u1.a1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:16) /test/1/catalog1/schema1/u1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:31~1:33) /test/1/catalog1/schema1/u2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__044]
+sql:
+SELECT u2.a2 AS f1 FROM u1 LEFT JOIN u2 ON u1.a1=u2.a1 RIGHT JOIN u3 ON u1.a1=u3.a1 GROUP BY f1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:24~1:26) /test/1/catalog1/schema1/u1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:37~1:39) /test/1/catalog1/schema1/u2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:66~1:68) /test/1/catalog1/schema1/u3/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__045]
+sql:
+SELECT * FROM s4 JOIN (s1 JOIN s3 ON s3.ref_s1=s1.c1 JOIN s2 ON s2.ref_s1=s1.c1) ON s4.ref_s1=s1.c1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:16) /test/1/catalog1/schema1/s4/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:23~1:25) /test/1/catalog1/schema1/s1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:31~1:33) /test/1/catalog1/schema1/s3/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:58~1:60) /test/1/catalog1/schema1/s2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__046]
+sql:
+SELECT STRAIGHT_JOIN * FROM s4 JOIN (s1 JOIN s3 ON s3.ref_s1=s1.c1 JOIN s2 ON s2.ref_s1=s1.c1) ON s4.ref_s1=s1.c1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:28~1:30) /test/1/catalog1/schema1/s4/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:37~1:39) /test/1/catalog1/schema1/s1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:45~1:47) /test/1/catalog1/schema1/s3/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:72~1:74) /test/1/catalog1/schema1/s2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__047]
+sql:
+SELECT * FROM s4 STRAIGHT_JOIN (s1 JOIN s3 ON s3.ref_s1=s1.c1 JOIN s2 ON s2.ref_s1=s1.c1) ON s4.ref_s1=s1.c1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:16) /test/1/catalog1/schema1/s4/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:32~1:34) /test/1/catalog1/schema1/s1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:40~1:42) /test/1/catalog1/schema1/s3/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:67~1:69) /test/1/catalog1/schema1/s2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__048]
+sql:
+SELECT * FROM split_join_native_a.stress01 LEFT JOIN split_join_native_a.stress02 USING (id) LEFT JOIN split_join_native_a.stress03 USING (id) LEFT JOIN split_join_native_a.stress04 USING (id) LEFT JOIN split_join_native_a.stress05 USING (id) LEFT JOIN split_join_native_a.stress06 USING (id) LEFT JOIN split_join_native_a.stress07 USING (id) LEFT JOIN split_join_native_a.stress08 USING (id) LEFT JOIN split_join_native_a.stress09 USING (id) LEFT JOIN split_join_native_a.stress10 USING (id) LEFT JOIN split_join_native_a.stress11 USING (id) LEFT JOIN split_join_native_a.stress12 USING (id) LEFT JOIN split_join_native_a.stress13 USING (id) LEFT JOIN split_join_native_a.stress14 USING (id) LEFT JOIN split_join_native_a.stress15 USING (id) LEFT JOIN split_join_native_a.stress16 USING (id) LEFT JOIN split_join_native_a.stress17 USING (id) LEFT JOIN split_join_native_a.stress18 USING (id) LEFT JOIN split_join_native_a.stress19 USING (id) LEFT JOIN split_join_native_a.stress20 USING (id) LEFT JOIN split_join_native_a.stress21 USING (id) LEFT JOIN split_join_native_a.stress22 USING (id) LEFT JOIN split_join_native_a.stress23 USING (id) LEFT JOIN split_join_native_a.stress24 USING (id) LEFT JOIN split_join_native_a.stress25 USING (id) LEFT JOIN split_join_native_a.stress26 USING (id) LEFT JOIN split_join_native_a.stress27 USING (id) LEFT JOIN split_join_native_a.stress28 USING (id) LEFT JOIN split_join_native_a.stress29 USING (id) LEFT JOIN split_join_native_a.stress30 USING (id) LEFT JOIN split_join_native_a.stress31 USING (id);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:42) /test/1/catalog1/split_join_native_a/stress01/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:53~1:81) /test/1/catalog1/split_join_native_a/stress02/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:103~1:131) /test/1/catalog1/split_join_native_a/stress03/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:153~1:181) /test/1/catalog1/split_join_native_a/stress04/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:203~1:231) /test/1/catalog1/split_join_native_a/stress05/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:253~1:281) /test/1/catalog1/split_join_native_a/stress06/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:303~1:331) /test/1/catalog1/split_join_native_a/stress07/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:353~1:381) /test/1/catalog1/split_join_native_a/stress08/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:403~1:431) /test/1/catalog1/split_join_native_a/stress09/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:453~1:481) /test/1/catalog1/split_join_native_a/stress10/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:503~1:531) /test/1/catalog1/split_join_native_a/stress11/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:553~1:581) /test/1/catalog1/split_join_native_a/stress12/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:603~1:631) /test/1/catalog1/split_join_native_a/stress13/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:653~1:681) /test/1/catalog1/split_join_native_a/stress14/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:703~1:731) /test/1/catalog1/split_join_native_a/stress15/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:753~1:781) /test/1/catalog1/split_join_native_a/stress16/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:803~1:831) /test/1/catalog1/split_join_native_a/stress17/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:853~1:881) /test/1/catalog1/split_join_native_a/stress18/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:903~1:931) /test/1/catalog1/split_join_native_a/stress19/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:953~1:981) /test/1/catalog1/split_join_native_a/stress20/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:1003~1:1031) /test/1/catalog1/split_join_native_a/stress21/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:1053~1:1081) /test/1/catalog1/split_join_native_a/stress22/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:1103~1:1131) /test/1/catalog1/split_join_native_a/stress23/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:1153~1:1181) /test/1/catalog1/split_join_native_a/stress24/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:1203~1:1231) /test/1/catalog1/split_join_native_a/stress25/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:1253~1:1281) /test/1/catalog1/split_join_native_a/stress26/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:1303~1:1331) /test/1/catalog1/split_join_native_a/stress27/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:1353~1:1381) /test/1/catalog1/split_join_native_a/stress28/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:1403~1:1431) /test/1/catalog1/split_join_native_a/stress29/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:1453~1:1481) /test/1/catalog1/split_join_native_a/stress30/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:1503~1:1531) /test/1/catalog1/split_join_native_a/stress31/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__049]
+sql:
+SELECT * FROM split_join_native_a.stress01 LEFT JOIN split_join_native_a.stress02 USING (id) LEFT JOIN split_join_native_a.stress03 USING (id) LEFT JOIN split_join_native_a.stress04 USING (id) LEFT JOIN split_join_native_a.stress05 USING (id) LEFT JOIN split_join_native_a.stress06 USING (id) LEFT JOIN split_join_native_a.stress07 USING (id) LEFT JOIN split_join_native_a.stress08 USING (id) LEFT JOIN split_join_native_a.stress09 USING (id) LEFT JOIN split_join_native_a.stress10 USING (id) LEFT JOIN split_join_native_a.stress11 USING (id) LEFT JOIN split_join_native_a.stress12 USING (id) LEFT JOIN split_join_native_a.stress13 USING (id) LEFT JOIN split_join_native_a.stress14 USING (id) LEFT JOIN split_join_native_a.stress15 USING (id) LEFT JOIN split_join_native_a.stress16 USING (id) LEFT JOIN split_join_native_a.stress17 USING (id) LEFT JOIN split_join_native_a.stress18 USING (id) LEFT JOIN split_join_native_a.stress19 USING (id) LEFT JOIN split_join_native_a.stress20 USING (id) LEFT JOIN split_join_native_a.stress21 USING (id) LEFT JOIN split_join_native_a.stress22 USING (id) LEFT JOIN split_join_native_a.stress23 USING (id) LEFT JOIN split_join_native_a.stress24 USING (id) LEFT JOIN split_join_native_a.stress25 USING (id) LEFT JOIN split_join_native_a.stress26 USING (id) LEFT JOIN split_join_native_a.stress27 USING (id) LEFT JOIN split_join_native_a.stress28 USING (id) LEFT JOIN split_join_native_a.stress29 USING (id) LEFT JOIN split_join_native_a.stress30 USING (id) LEFT JOIN split_join_native_a.stress31 USING (id) LEFT JOIN split_join_native_a.stress32 USING (id) LEFT JOIN split_join_native_a.stress33 USING (id) LEFT JOIN split_join_native_a.stress34 USING (id) LEFT JOIN split_join_native_a.stress35 USING (id) LEFT JOIN split_join_native_a.stress36 USING (id) LEFT JOIN split_join_native_a.stress37 USING (id) LEFT JOIN split_join_native_a.stress38 USING (id) LEFT JOIN split_join_native_a.stress39 USING (id) LEFT JOIN split_join_native_a.stress40 USING (id) LEFT JOIN split_join_native_a.stress41 USING (id) LEFT JOIN split_join_native_a.stress42 USING (id) LEFT JOIN split_join_native_a.stress43 USING (id) LEFT JOIN split_join_native_a.stress44 USING (id) LEFT JOIN split_join_native_a.stress45 USING (id) LEFT JOIN split_join_native_a.stress46 USING (id) LEFT JOIN split_join_native_a.stress47 USING (id) LEFT JOIN split_join_native_a.stress48 USING (id) LEFT JOIN split_join_native_a.stress49 USING (id) LEFT JOIN split_join_native_a.stress50 USING (id) LEFT JOIN split_join_native_a.stress51 USING (id) LEFT JOIN split_join_native_a.stress52 USING (id) LEFT JOIN split_join_native_a.stress53 USING (id) LEFT JOIN split_join_native_a.stress54 USING (id) LEFT JOIN split_join_native_a.stress55 USING (id) LEFT JOIN split_join_native_a.stress56 USING (id) LEFT JOIN split_join_native_a.stress57 USING (id) LEFT JOIN split_join_native_a.stress58 USING (id) LEFT JOIN split_join_native_a.stress59 USING (id) LEFT JOIN split_join_native_a.stress60 USING (id) LEFT JOIN split_join_native_a.stress61 USING (id) LEFT JOIN split_join_native_a.stress62 USING (id) LEFT JOIN split_join_native_a.stress63 USING (id) LEFT JOIN split_join_native_a.stress64 USING (id) LEFT JOIN split_join_native_a.stress65 USING (id);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:42) /test/1/catalog1/split_join_native_a/stress01/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:53~1:81) /test/1/catalog1/split_join_native_a/stress02/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:103~1:131) /test/1/catalog1/split_join_native_a/stress03/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:153~1:181) /test/1/catalog1/split_join_native_a/stress04/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:203~1:231) /test/1/catalog1/split_join_native_a/stress05/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:253~1:281) /test/1/catalog1/split_join_native_a/stress06/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:303~1:331) /test/1/catalog1/split_join_native_a/stress07/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:353~1:381) /test/1/catalog1/split_join_native_a/stress08/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:403~1:431) /test/1/catalog1/split_join_native_a/stress09/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:453~1:481) /test/1/catalog1/split_join_native_a/stress10/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:503~1:531) /test/1/catalog1/split_join_native_a/stress11/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:553~1:581) /test/1/catalog1/split_join_native_a/stress12/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:603~1:631) /test/1/catalog1/split_join_native_a/stress13/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:653~1:681) /test/1/catalog1/split_join_native_a/stress14/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:703~1:731) /test/1/catalog1/split_join_native_a/stress15/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:753~1:781) /test/1/catalog1/split_join_native_a/stress16/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:803~1:831) /test/1/catalog1/split_join_native_a/stress17/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:853~1:881) /test/1/catalog1/split_join_native_a/stress18/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:903~1:931) /test/1/catalog1/split_join_native_a/stress19/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:953~1:981) /test/1/catalog1/split_join_native_a/stress20/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:1003~1:1031) /test/1/catalog1/split_join_native_a/stress21/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:1053~1:1081) /test/1/catalog1/split_join_native_a/stress22/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:1103~1:1131) /test/1/catalog1/split_join_native_a/stress23/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:1153~1:1181) /test/1/catalog1/split_join_native_a/stress24/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:1203~1:1231) /test/1/catalog1/split_join_native_a/stress25/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:1253~1:1281) /test/1/catalog1/split_join_native_a/stress26/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:1303~1:1331) /test/1/catalog1/split_join_native_a/stress27/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:1353~1:1381) /test/1/catalog1/split_join_native_a/stress28/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:1403~1:1431) /test/1/catalog1/split_join_native_a/stress29/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:1453~1:1481) /test/1/catalog1/split_join_native_a/stress30/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:1503~1:1531) /test/1/catalog1/split_join_native_a/stress31/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:1553~1:1581) /test/1/catalog1/split_join_native_a/stress32/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:1603~1:1631) /test/1/catalog1/split_join_native_a/stress33/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:1653~1:1681) /test/1/catalog1/split_join_native_a/stress34/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:1703~1:1731) /test/1/catalog1/split_join_native_a/stress35/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:1753~1:1781) /test/1/catalog1/split_join_native_a/stress36/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:1803~1:1831) /test/1/catalog1/split_join_native_a/stress37/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:1853~1:1881) /test/1/catalog1/split_join_native_a/stress38/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:1903~1:1931) /test/1/catalog1/split_join_native_a/stress39/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:1953~1:1981) /test/1/catalog1/split_join_native_a/stress40/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:2003~1:2031) /test/1/catalog1/split_join_native_a/stress41/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:2053~1:2081) /test/1/catalog1/split_join_native_a/stress42/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:2103~1:2131) /test/1/catalog1/split_join_native_a/stress43/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:2153~1:2181) /test/1/catalog1/split_join_native_a/stress44/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:2203~1:2231) /test/1/catalog1/split_join_native_a/stress45/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:2253~1:2281) /test/1/catalog1/split_join_native_a/stress46/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:2303~1:2331) /test/1/catalog1/split_join_native_a/stress47/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:2353~1:2381) /test/1/catalog1/split_join_native_a/stress48/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:2403~1:2431) /test/1/catalog1/split_join_native_a/stress49/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:2453~1:2481) /test/1/catalog1/split_join_native_a/stress50/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:2503~1:2531) /test/1/catalog1/split_join_native_a/stress51/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:2553~1:2581) /test/1/catalog1/split_join_native_a/stress52/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:2603~1:2631) /test/1/catalog1/split_join_native_a/stress53/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:2653~1:2681) /test/1/catalog1/split_join_native_a/stress54/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:2703~1:2731) /test/1/catalog1/split_join_native_a/stress55/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:2753~1:2781) /test/1/catalog1/split_join_native_a/stress56/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:2803~1:2831) /test/1/catalog1/split_join_native_a/stress57/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:2853~1:2881) /test/1/catalog1/split_join_native_a/stress58/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:2903~1:2931) /test/1/catalog1/split_join_native_a/stress59/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:2953~1:2981) /test/1/catalog1/split_join_native_a/stress60/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:3003~1:3031) /test/1/catalog1/split_join_native_a/stress61/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:3053~1:3081) /test/1/catalog1/split_join_native_a/stress62/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:3103~1:3131) /test/1/catalog1/split_join_native_a/stress63/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:3153~1:3181) /test/1/catalog1/split_join_native_a/stress64/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:3203~1:3231) /test/1/catalog1/split_join_native_a/stress65/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__050]
+sql:
+SELECT 1 FROM (SELECT 1 FROM jt WHERE a) AS q NATURAL LEFT JOIN jt NATURAL LEFT JOIN jt AS t2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:29~1:31) /test/1/catalog1/schema1/jt/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__051]
+sql:
+SELECT 1 FROM jt NATURAL RIGHT JOIN jt AS t2 NATURAL RIGHT JOIN (SELECT 1 FROM jt WHERE a) AS q;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:16) /test/1/catalog1/schema1/jt/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__052]
+sql:
+SELECT t1.*,(SELECT COUNT(*) FROM jt AS t2 LEFT JOIN jt AS t3 ON t3.a>t2.a-t1.a) FROM jt AS t1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:20~1:25) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:34~1:36) /test/1/catalog1/schema1/jt/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__053]
+sql:
+SELECT t1.*,(SELECT * FROM (SELECT COUNT(*) FROM jt AS t2 LEFT JOIN jt AS t3 ON t3.a>t2.a-t1.a) AS dt) FROM jt AS t1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:35~1:40) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:49~1:51) /test/1/catalog1/schema1/jt/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__054]
+sql:
+SELECT t1.*,dt.c FROM jt AS t1,(SELECT COUNT(*) AS c FROM jt AS t2 LEFT JOIN jt AS t3 ON t3.a>t2.a-t1.a) AS dt;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:22~1:24) /test/1/catalog1/schema1/jt/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(1:39~1:44) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__055]
+sql:
+SELECT t1.* FROM jt AS t0 CROSS JOIN (jt AS t1 JOIN jt AS t2 ON 100=(SELECT COUNT(*) FROM jt AS t3 LEFT JOIN jt AS t4 ON t4.a>t3.a-t0.a));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:17~1:19) /test/1/catalog1/schema1/jt/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(1:76~1:81) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__056]
+sql:
+SELECT t1.* FROM jt AS t0 CROSS JOIN jt AS t1 JOIN jt AS t2 ON 100=(SELECT COUNT(*) FROM jt AS t3 LEFT JOIN jt AS t4 ON t4.a>t3.a-t0.a);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:17~1:19) /test/1/catalog1/schema1/jt/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(1:75~1:80) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__057]
+sql:
+SELECT * FROM (pk_t AS t2 LEFT JOIN pk_t AS t3 ON t2.pk IS NULL) LEFT JOIN jt AS t1 ON t1.a=t3.a;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:15~1:19) /test/1/catalog1/schema1/pk_t/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:75~1:77) /test/1/catalog1/schema1/jt/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__058]
+sql:
+SELECT * FROM jt AS t1 LEFT JOIN jt AS t2 ON TRUE WHERE t2.pk<=>3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:16) /test/1/catalog1/schema1/jt/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__059]
+sql:
+SELECT COUNT(*) FROM jt AS t1 LEFT JOIN jt AS t2 ON t1.x=t2.x AND t2.ts<=t1.ts JOIN jt AS t3 ON t1.y=t3.y AND t3.ts<=t1.ts LEFT JOIN jt AS t4 ON t3.z=t4.z;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:21~1:23) /test/1/catalog1/schema1/jt/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__060]
+sql:
+SELECT * FROM jt AS t1 LEFT JOIN jt AS t2 ON TRUE LEFT JOIN (jt AS t1i JOIN jt AS t2i ON t1i.a=t2i.a) ON t2.a=t2i.a WHERE t1i.a='' OR t2i.a='';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:16) /test/1/catalog1/schema1/jt/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__061]
+sql:
+SELECT * FROM wide61 NATURAL JOIN (SELECT t2.* FROM wide61 AS t2 JOIN wide61 AS t3 ON t3.c1=t2.c1 WHERE t2.c3<>ANY(SELECT c3 FROM wide61)) AS d1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:20) /test/1/catalog1/schema1/wide61/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__062]
+sql:
+SELECT * FROM (jt AS t1 STRAIGHT_JOIN jt AS t2) JOIN jt AS t3 ON t1.a=t3.a WHERE t2.a=t3.a ORDER BY t1.a;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:15~1:17) /test/1/catalog1/schema1/jt/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__063]
+sql:
+SELECT * FROM (jt AS t1 STRAIGHT_JOIN jt AS t2 ON t1.b=t2.b) JOIN jt AS t3 ON t1.a=t3.b WHERE t1.a<t2.b AND t2.a<t3.b ORDER BY t1.b;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:15~1:17) /test/1/catalog1/schema1/jt/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__064]
+sql:
+SELECT * FROM jt AS t1 JOIN jt AS t2 ON t1.pk=t2.pk JOIN jt AS t3 LEFT JOIN jt AS t4 ON t2.pk=t3.pk AND t4.pk=135;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:16) /test/1/catalog1/schema1/jt/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__065]
+sql:
+SELECT * FROM jt AS t1 JOIN jt AS t2 ON t1.a=t2.b LEFT JOIN jt AS t3 ON t2.b=t3.b LEFT JOIN (jt AS t4 JOIN jt AS t5 ON t4.b=t5.b) ON t2.b=t4.a WHERE t1.b>=6 OR t3.b<>t4.b;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:16) /test/1/catalog1/schema1/jt/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__066]
+sql:
+SELECT * FROM jt AS t1 JOIN jt AS t2 ON t1.b=t2.b JOIN jt AS t3 JOIN (jt AS t4 STRAIGHT_JOIN jt AS t5 ON t4.a=t5.b) ON t1.b=t4.b WHERE t1.a=t5.b;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:16) /test/1/catalog1/schema1/jt/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__067]
+sql:
+SELECT * FROM jt AS t1 LEFT JOIN (jt AS t2 LEFT JOIN jt AS t3 ON FALSE) ON t1.a<=>t3.a WHERE t1.a<=>t3.a;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:16) /test/1/catalog1/schema1/jt/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__068]
+sql:
+SELECT * FROM jt AS t1 LEFT JOIN (SELECT i FROM (SELECT a AS i FROM jt) AS q WHERE FALSE) AS d1 ON t1.a=d1.i WHERE NOT EXISTS(SELECT 1 FROM jt AS inner_t1 WHERE inner_t1.a=d1.i);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:16) /test/1/catalog1/schema1/jt/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__069]
+sql:
+SELECT 1 FROM jt NATURAL JOIN jt AS t2 NATURAL JOIN jt AS t3 WHERE jt.a<>(SELECT SUM(a) FROM jt);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:16) /test/1/catalog1/schema1/jt/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(1:81~1:84) /test/1/catalog1/schema1/SUM/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__070]
+sql:
+SELECT DISTINCT t1.col_int FROM jt AS t2 LEFT OUTER JOIN jt AS t1 ON t2.pk=t1.col_int WHERE CAST(t2.pk AS SIGNED INTEGER)<>t1.col_date;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:32~1:34) /test/1/catalog1/schema1/jt/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(1:92~1:96) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__071]
+sql:
+SELECT t1.id FROM split_join_matrix.t1 AS t1 INNER JOIN split_join_matrix.t2 AS t2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:18~1:38) /test/1/catalog1/split_join_matrix/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:56~1:76) /test/1/catalog1/split_join_matrix/t2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__072]
+sql:
+SELECT t1.id FROM split_join_matrix.t1 AS t1 CROSS JOIN split_join_matrix.t2 AS t2 USING (id);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:18~1:38) /test/1/catalog1/split_join_matrix/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:56~1:76) /test/1/catalog1/split_join_matrix/t2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__073]
+sql:
+SELECT t1.id FROM split_join_matrix.t1 AS t1 LEFT JOIN split_join_matrix.t2 AS t2 USING (id);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:18~1:38) /test/1/catalog1/split_join_matrix/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:55~1:75) /test/1/catalog1/split_join_matrix/t2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__074]
+sql:
+SELECT t1.id FROM split_join_matrix.t1 AS t1 RIGHT OUTER JOIN split_join_matrix.t2 AS t2 ON t1.id=t2.id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:18~1:38) /test/1/catalog1/split_join_matrix/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:62~1:82) /test/1/catalog1/split_join_matrix/t2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__075]
+sql:
+SELECT t1.id FROM split_join_matrix.t1 AS t1 JOIN split_join_matrix.t2 AS t2 USING (id,grp);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:18~1:38) /test/1/catalog1/split_join_matrix/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:50~1:70) /test/1/catalog1/split_join_matrix/t2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__076]
+sql:
+SELECT id,grp,v FROM split_join_matrix.t1 NATURAL LEFT JOIN split_join_matrix.t2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:21~1:41) /test/1/catalog1/split_join_matrix/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:60~1:80) /test/1/catalog1/split_join_matrix/t2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__077]
+sql:
+SELECT id,grp,v FROM split_join_matrix.t1 NATURAL RIGHT JOIN split_join_matrix.t2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:21~1:41) /test/1/catalog1/split_join_matrix/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:61~1:81) /test/1/catalog1/split_join_matrix/t2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__078]
+sql:
+SELECT t1.id FROM (split_join_matrix.t1 AS t1 LEFT JOIN split_join_matrix.t2 AS t2 USING (id)) RIGHT JOIN split_join_matrix.t3 AS t3 USING (id);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:19~1:39) /test/1/catalog1/split_join_matrix/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:56~1:76) /test/1/catalog1/split_join_matrix/t2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:106~1:126) /test/1/catalog1/split_join_matrix/t3/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__079]
+sql:
+SELECT t1.id FROM split_join_matrix.t1 AS t1 JOIN (split_join_matrix.t2 AS t2, split_join_matrix.t3 AS t3) ON t1.id=t2.id AND t2.id=t3.id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:18~1:38) /test/1/catalog1/split_join_matrix/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:51~1:71) /test/1/catalog1/split_join_matrix/t2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:79~1:99) /test/1/catalog1/split_join_matrix/t3/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__080]
+sql:
+SELECT *
+FROM join84_bool_0
+LEFT JOIN join84_bool_1 ON FALSE
+RIGHT JOIN join84_bool_2
+  ON (join84_bool_1.c0 IS NOT NULL) = (join84_bool_2.c0 = 1000);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:5~2:18) /test/1/catalog1/schema1/join84_bool_0/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(3:10~3:23) /test/1/catalog1/schema1/join84_bool_1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(4:11~4:24) /test/1/catalog1/schema1/join84_bool_2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__081]
+sql:
+SELECT STRAIGHT_JOIN
+       join80_cross_1.col_int_unique,
+       join80_cross_2.col_int_key,
+       join80_cross_3.pk
+FROM (join80_cross_1
+      LEFT JOIN join80_cross_2
+        ON join80_cross_1.col_int_unique = join80_cross_2.col_int_key)
+LEFT JOIN join80_cross_3
+  ON join80_cross_3.pk = join80_cross_1.col_int_unique
+ AND join80_cross_1.col_int_unique = join80_cross_2.col_int_key;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(5:6~5:20) /test/1/catalog1/schema1/join80_cross_1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(6:16~6:30) /test/1/catalog1/schema1/join80_cross_2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(8:10~8:24) /test/1/catalog1/schema1/join80_cross_3/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__082]
+sql:
+SELECT STRAIGHT_JOIN
+       join80_const_3.col_int,
+       join80_const_4.col_int,
+       join80_const_3.col_int = join80_const_4.col_int OR join80_const_4.col_int IS NULL AS nullable_match
+FROM join80_const_1
+LEFT JOIN join80_const_2
+  ON join80_const_1.col_int_key = join80_const_2.col_int_key
+ AND join80_const_1.col_int_unique = join80_const_2.col_int_unique
+LEFT JOIN join80_const_3
+  ON join80_const_3.col_char_unique = join80_const_2.col_char_unique
+LEFT JOIN join80_const_4
+  ON join80_const_4.col_int = join80_const_3.col_int
+ AND join80_const_4.col_int_unique = join80_const_1.col_int_unique
+WHERE join80_const_1.col_int_unique = 5;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(5:5~5:19) /test/1/catalog1/schema1/join80_const_1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(6:10~6:24) /test/1/catalog1/schema1/join80_const_2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(9:10~9:24) /test/1/catalog1/schema1/join80_const_3/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(11:10~11:24) /test/1/catalog1/schema1/join80_const_4/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__083]
+sql:
+SELECT * FROM join_h1 AS t1 LEFT JOIN join_h2 AS t2 ON t1.a=t2.a HAVING NOT (t2.a <=> t1.a);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:21) /test/1/catalog1/schema1/join_h1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:38~1:45) /test/1/catalog1/schema1/join_h2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__084]
+sql:
+SELECT * FROM join_row1 AS t1 LEFT JOIN join_row2 AS t2 ON t1.f2=t2.f2 WHERE (COALESCE(t1.f1,t2.f1),f3) IN ((1,3),(2,2));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:23) /test/1/catalog1/schema1/join_row1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:40~1:49) /test/1/catalog1/schema1/join_row2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(1:78~1:86) /test/1/catalog1/schema1/COALESCE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__085]
+sql:
+SELECT *
+FROM join80_sub_1
+RIGHT JOIN (SELECT * FROM join80_sub_3 WHERE DAYNAME('1995')) AS derived_day
+  ON ((join80_sub_1.f1, join80_sub_1.pk) IN (SELECT 7,4 UNION SELECT 9,2))
+WHERE NOT EXISTS (
+    SELECT join80_sub_1.f1
+    FROM join80_sub_1
+    INNER JOIN join80_sub_2 ON join80_sub_1.pk = join80_sub_2.f1
+    WHERE 0 IS NOT NULL
+  )
+  AND join80_sub_1.f1 > 50;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:5~2:17) /test/1/catalog1/schema1/join80_sub_1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(3:26~3:38) /test/1/catalog1/schema1/join80_sub_3/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(3:45~3:52) /test/1/catalog1/schema1/DAYNAME/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(8:15~8:27) /test/1/catalog1/schema1/join80_sub_2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__086]
+sql:
+SELECT joined_b.c2 AS f1
+FROM join80_nested_2 AS joined_a
+JOIN (
+    join80_nested_2 AS joined_b
+    JOIN join80_nested_2 AS joined_c ON joined_c.c3 = joined_b.c3
+) ON joined_c.c1 = joined_b.c2
+WHERE joined_c.c3 IN (
+    SELECT sub_b.c3
+    FROM join80_nested_1 AS sub_a
+    JOIN join80_nested_2 AS sub_b ON sub_b.c1 = sub_a.c1
+)
+AND (joined_a.c1 = joined_a.c1 AND (SELECT '' FROM DUAL) IS NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:5~2:20) /test/1/catalog1/schema1/join80_nested_2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(9:9~9:24) /test/1/catalog1/schema1/join80_nested_1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(12:51~12:55) /test/1/catalog1/schema1/DUAL/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__087]
+sql:
+SELECT * FROM join80_truth_1 LEFT JOIN join80_truth_2 ON c1=c2
+WHERE (c2 IS NOT NULL) IS TRUE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:28) /test/1/catalog1/schema1/join80_truth_1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:39~1:53) /test/1/catalog1/schema1/join80_truth_2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__088]
+sql:
+SELECT * FROM join80_truth_1 LEFT JOIN join80_truth_2 ON c1=c2
+WHERE (c2 IS NOT NULL) IS FALSE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:28) /test/1/catalog1/schema1/join80_truth_1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:39~1:53) /test/1/catalog1/schema1/join80_truth_2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__089]
+sql:
+SELECT *
+FROM join80_hint_2 USE INDEX(idx2)
+LEFT JOIN join80_hint_1 USE INDEX(idx1)
+  ON join80_hint_1.f2 = join80_hint_2.f2
+ AND join80_hint_1.f3 = 20
+ AND join80_hint_1.f4 > 10
+ AND join80_hint_1.f5 > 20;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:5~2:18) /test/1/catalog1/schema1/join80_hint_2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(3:10~3:23) /test/1/catalog1/schema1/join80_hint_1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__090]
+sql:
+SELECT join80_false_2.f1
+FROM join80_false_1
+RIGHT JOIN join80_false_2
+  ON join80_false_1.f1 = join80_false_2.f1 AND 1=2
+LEFT JOIN join80_false_3
+  ON join80_false_1.f1 = join80_false_3.f1 AND 1=2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:5~2:19) /test/1/catalog1/schema1/join80_false_1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(3:11~3:25) /test/1/catalog1/schema1/join80_false_2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(5:10~5:24) /test/1/catalog1/schema1/join80_false_3/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__091]
+sql:
+SELECT (SELECT * FROM (SELECT 'a') AS scalar_derived) AS f1
+HAVING (f1 = 'a' OR TRUE);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__092]
+sql:
+SELECT (SELECT * FROM (SELECT 'a') AS scalar_derived) + 1 AS f1
+HAVING (f1 = 'a' OR TRUE);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__093]
+sql:
+SELECT 1 + (SELECT * FROM (SELECT 'a') AS scalar_derived) AS f1
+HAVING (f1 = 'a' OR TRUE);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__094]
+sql:
+WITH subq(x) AS (
+    SELECT 1 AS x
+    FROM join80_cte_1 AS cte_a, join80_cte_1 AS cte_b, join80_cte_2
+    WHERE FALSE
+)
+SELECT 1
+FROM join80_cte_1
+LEFT JOIN subq ON join80_cte_1.x = subq.x
+ORDER BY subq.x;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(3:9~3:21) /test/1/catalog1/schema1/join80_cte_1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(3:55~3:67) /test/1/catalog1/schema1/join80_cte_2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__095]
+sql:
+SELECT t1.*,t2.*,t3.a FROM t1 LEFT JOIN t2 ON (t3.a=t2.a) LEFT JOIN t1 AS t3 ON (t1.a=t3.a);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:27~1:29) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:40~1:42) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[admin_performance__096]
+sql:
+LOAD INDEX INTO CACHE utility_audit.myisam_a, utility_audit.myisam_b IGNORE LEAVES;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_PERFORMANCE": [
+    {
+      "subject": "Instance(1:0~1:82) /test/1/",
+      "action" : "LOAD"
+    }
+  ]
+}
+----------
+[select__097]
+sql:
+SELECT /*+ JOIN_PREFIX(t1) */ 1 FROM t1,LATERAL (SELECT DISTINCT t2.val FROM t2 WHERE t1.val=t2.val) AS dt;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:37~1:39) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:77~1:79) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__098]
+sql:
+SELECT /*+ JOIN_PREFIX(dt) */ 1 FROM t1,LATERAL (SELECT DISTINCT t2.val FROM t2 WHERE t1.val=t2.val) AS dt;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:37~1:39) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:77~1:79) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__099]
+sql:
+SELECT /*+ JOIN_FIXED_ORDER() */ COUNT(*) FROM t1 JOIN t2 USING(val) JOIN t3 USING(val);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:33~1:38) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:47~1:49) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:55~1:57) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:74~1:76) /test/1/catalog1/schema1/t3/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__100]
+sql:
+SELECT /*+ QB_NAME(q1) JOIN_FIXED_ORDER(@q1) */ COUNT(*) FROM t1 JOIN t2 USING(val) JOIN t3 USING(val);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:48~1:53) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:62~1:64) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:70~1:72) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:89~1:91) /test/1/catalog1/schema1/t3/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__101]
+sql:
+SELECT /*+ JOIN_PREFIX(t3,t1,t2) */ COUNT(*) FROM t1 JOIN t2 USING(val) JOIN t3 USING(val);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:36~1:41) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:50~1:52) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:58~1:60) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:77~1:79) /test/1/catalog1/schema1/t3/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__102]
+sql:
+SELECT /*+ JOIN_SUFFIX(t1,t3,t2) */ COUNT(*) FROM t1 JOIN t2 USING(val) JOIN t3 USING(val);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:36~1:41) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:50~1:52) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:58~1:60) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:77~1:79) /test/1/catalog1/schema1/t3/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__103]
+sql:
+SELECT /*+ JOIN_ORDER(t3,t2) */ COUNT(*) FROM t1 JOIN t2 USING(val) JOIN t3 USING(val);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:32~1:37) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:46~1:48) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:54~1:56) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:73~1:75) /test/1/catalog1/schema1/t3/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__104]
+sql:
+SELECT /*+ QB_NAME(q1) JOIN_PREFIX(t3,t2,t2@subq2) */ COUNT(*) FROM t1 JOIN t2 JOIN t3 WHERE t1.f1 IN (SELECT /*+ QB_NAME(subq1) */ f1 FROM t2) AND t2.f1 IN (SELECT /*+ QB_NAME(subq2) */ f1 FROM t2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:54~1:59) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:68~1:70) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:76~1:78) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:84~1:86) /test/1/catalog1/schema1/t3/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__105]
+sql:
+SELECT /*+ JOIN_PREFIX(t2,t5@subq2,t4@subq1) JOIN_ORDER(t4@subq1,t3) JOIN_SUFFIX(t1) */ COUNT(*) FROM t1 JOIN t2 JOIN t3 WHERE t1.f1 IN (SELECT /*+ QB_NAME(subq1) */ f1 FROM t4) AND t2.f1 IN (SELECT /*+ QB_NAME(subq2) */ f1 FROM t5);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:88~1:93) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:102~1:104) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:110~1:112) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:118~1:120) /test/1/catalog1/schema1/t3/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:174~1:176) /test/1/catalog1/schema1/t4/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:229~1:231) /test/1/catalog1/schema1/t5/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__106]
+sql:
+SELECT /*+ JOIN_PREFIX(t3,t2,t1) JOIN_PREFIX(t2,t1) */ COUNT(*) FROM t1 JOIN t2 JOIN t3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:55~1:60) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:69~1:71) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:77~1:79) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:85~1:87) /test/1/catalog1/schema1/t3/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__107]
+sql:
+SELECT /*+ JOIN_SUFFIX(t3,t2) JOIN_SUFFIX(t2,t1) */ COUNT(*) FROM t1 JOIN t2 JOIN t3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:52~1:57) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:66~1:68) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:74~1:76) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:82~1:84) /test/1/catalog1/schema1/t3/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__108]
+sql:
+SELECT /*+ JOIN_ORDER(t3,t2) JOIN_ORDER(t1,t2,t5) */ COUNT(*) FROM t1 JOIN t2 JOIN t3 WHERE t2.f1 IN (SELECT f1 FROM t5);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:53~1:58) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:67~1:69) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:75~1:77) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:83~1:85) /test/1/catalog1/schema1/t3/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:117~1:119) /test/1/catalog1/schema1/t5/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__109]
+sql:
+SELECT /*+ JOIN_ORDER(t1,t7_missing,t5) */ COUNT(*) FROM t1 JOIN t2 JOIN t3 WHERE t2.f1 IN (SELECT f1 FROM t5);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:43~1:48) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:57~1:59) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:65~1:67) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:73~1:75) /test/1/catalog1/schema1/t3/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:107~1:109) /test/1/catalog1/schema1/t5/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__110]
+sql:
+SELECT /*+ JOIN_ORDER(t3,t2) JOIN_ORDER(t2,t3) */ COUNT(*) FROM t1 JOIN t2 JOIN t3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:50~1:55) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:64~1:66) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:72~1:74) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:80~1:82) /test/1/catalog1/schema1/t3/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__111]
+sql:
+SELECT /*+ JOIN_ORDER(t3,t2) JOIN_SUFFIX(t3) */ COUNT(*) FROM t1 JOIN t2 JOIN t3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:48~1:53) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:62~1:64) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:70~1:72) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:78~1:80) /test/1/catalog1/schema1/t3/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__112]
+sql:
+SELECT /*+ JOIN_SUFFIX(t2,t5@subq2,t4@subq1,t3,t1) JOIN_ORDER(t2,t5@subq2,t4@subq1,t3,t1) JOIN_PREFIX(t2,t5@subq2,t4@subq1,t3,t1) */ COUNT(*) FROM t1 JOIN t2 JOIN t3 WHERE t1.f1 IN (SELECT /*+ QB_NAME(subq1) */ f1 FROM t4) AND t2.f1 IN (SELECT /*+ QB_NAME(subq2) */ f1 FROM t5);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:133~1:138) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:147~1:149) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:155~1:157) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:163~1:165) /test/1/catalog1/schema1/t3/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:219~1:221) /test/1/catalog1/schema1/t4/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:274~1:276) /test/1/catalog1/schema1/t5/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__113]
+sql:
+SELECT STRAIGHT_JOIN /*+ QB_NAME(q1) JOIN_ORDER(t2,t1) */ COUNT(*) FROM t1 JOIN t2 JOIN t3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:58~1:63) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:72~1:74) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:80~1:82) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:88~1:90) /test/1/catalog1/schema1/t3/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__114]
+sql:
+SELECT /*+ QB_NAME(q1) JOIN_ORDER(@q1 t2,t3,t1) JOIN_PREFIX(@q1 t2,t3,t1) JOIN_SUFFIX(@q1 t2,t3,t1) */ COUNT(*) FROM t1 JOIN t2 JOIN t3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:103~1:108) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:117~1:119) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:125~1:127) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:133~1:135) /test/1/catalog1/schema1/t3/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__115]
+sql:
+SELECT /*+ JOIN_ORDER(t2,t4,t1) */ 1 FROM t1 JOIN t2 ON 1 RIGHT JOIN t3 ON 1 JOIN t4 ON 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:42~1:44) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:50~1:52) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:69~1:71) /test/1/catalog1/schema1/t3/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:82~1:84) /test/1/catalog1/schema1/t4/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__116]
+sql:
+SELECT /*+ JOIN_PREFIX(t1,t1) */ t2.f1 FROM t1 JOIN t2 ON t1.f2=t2.f1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:44~1:46) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:52~1:54) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__117]
+sql:
+SELECT /*+ JOIN_PREFIX(d1) */ d2.f1 FROM (SELECT f1,f2 FROM t1) AS d1 JOIN (SELECT f1,f2 FROM t2) AS d2 ON d1.f2=d2.f1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:60~1:62) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:94~1:96) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__118]
+sql:
+SELECT /*+ JOIN_ORDER(alias4,alias2) */ 1 FROM t1 AS alias1 LEFT JOIN (t2 AS alias2 JOIN t3 AS alias3 ON alias2.val=alias3.val) ON alias1.val=alias2.val JOIN t4 AS alias4 ON alias4.val=alias1.val;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:47~1:49) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:71~1:73) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:89~1:91) /test/1/catalog1/schema1/t3/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:158~1:160) /test/1/catalog1/schema1/t4/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__119]
+sql:
+SELECT /*+ JOIN_ORDER(alias3,alias3,alias1) */ alias1.f1 FROM t1 AS alias1 JOIN t1 AS alias2 JOIN t1 AS alias3 JOIN t1 AS alias4 WHERE alias3.id<=3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:62~1:64) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__120]
+sql:
+SELECT /*+ JOIN_FIXED_ORDER() JOIN_ORDER(t2,t1) JOIN_PREFIX(t2,t1) JOIN_SUFFIX(t2,t1) */ t2.f1 FROM t1 JOIN t2 ON t1.f1=t2.f2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:100~1:102) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:108~1:110) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__121]
+sql:
+SELECT /*+ JOIN_ORDER(table1,table3,table3) JOIN_FIXED_ORDER() JOIN_ORDER(table3,table1,table2) */ table2.f1 FROM t1 AS table1 LEFT JOIN t1 AS table2 RIGHT JOIN t1 AS table3 ON table2.f1=table3.id ON table1.f2=table3.f2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:114~1:116) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__122]
+sql:
+SELECT /*+ JOIN_PREFIX() */ COUNT(*) FROM t1 JOIN t2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:28~1:33) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:42~1:44) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:50~1:52) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__123]
+sql:
+SELECT /*+ QB_NAME(qb) JOIN_PREFIX(@qb t2@qb2,t4@qb1,ta3,ta4) */ COUNT(*) FROM t1 JOIN t2 AS ta3 JOIN t2 AS ta4 WHERE ta4.f1 IN (SELECT /*+ QB_NAME(qb1) */ f1 FROM t4) AND ta3.f2 IN (SELECT /*+ QB_NAME(qb2) */ f2 FROM t2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:65~1:70) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:79~1:81) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:87~1:89) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:164~1:166) /test/1/catalog1/schema1/t4/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[admin_table__124]
+sql:
+OPTIMIZE TABLE utility_audit.maint_a, utility_audit.maint_b;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:15~1:36) /test/1/catalog1/utility_audit/maint_a/",
+      "action" : "OPTIMIZE"
+    },
+    {
+      "subject": "Table(1:38~1:59) /test/1/catalog1/utility_audit/maint_b/",
+      "action" : "OPTIMIZE"
+    }
+  ]
+}
+----------
+[admin_table__125]
+sql:
+REPAIR NO_WRITE_TO_BINLOG TABLE utility_audit.myisam_a, utility_audit.myisam_b QUICK;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:32~1:54) /test/1/catalog1/utility_audit/myisam_a/",
+      "action" : "REPAIR"
+    },
+    {
+      "subject": "Table(1:56~1:78) /test/1/catalog1/utility_audit/myisam_b/",
+      "action" : "REPAIR"
+    }
+  ]
+}
+----------
+[select__126]
+sql:
+SELECT a.id,d.x FROM qa_t1 AS a RIGHT JOIN LATERAL (SELECT a.id AS x) AS d ON TRUE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:21~1:26) /test/1/catalog1/schema1/qa_t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__127]
+sql:
+SELECT * FROM (codex_select_audit_t1 AS codex_select_audit_t2 LEFT JOIN codex_select_audit_t1 AS codex_select_audit_t3 USING (codex_select_audit_a)), codex_select_audit_t1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:15~1:36) /test/1/catalog1/schema1/codex_select_audit_t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__128]
+sql:
+SELECT * FROM codex_select_audit_t1, (codex_select_audit_t1 AS codex_select_audit_t2 LEFT JOIN codex_select_audit_t1 AS codex_select_audit_t3 USING (codex_select_audit_a));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:35) /test/1/catalog1/schema1/codex_select_audit_t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__129]
+sql:
+SHOW TABLE STATUS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:17) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__130]
+sql:
+SHOW TABLE STATUS LIKE 'status\_%';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:34) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__131]
+sql:
+SHOW TABLE STATUS FROM split_show_status284 LIKE 'status_t';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:59) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__132]
+sql:
+SHOW TABLE STATUS IN split_show_status284 WHERE Name='status_v';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:63) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__133]
+sql:
+SELECT * FROM split_sample.t TABLESAMPLE SYSTEM (10);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:28) /test/1/catalog1/split_sample/t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__134]
+sql:
+SELECT * FROM split_sample.t TABLESAMPLE BERNOULLI (0.5);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:28) /test/1/catalog1/split_sample/t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__135]
+sql:
+SELECT * FROM split_sample.t TABLESAMPLE SYSTEM (@sample_pct);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:28) /test/1/catalog1/split_sample/t/",
+      "action" : "READ"
+    },
+    {
+      "subject": "ConfigKey(1:49~1:60) /test/1/sample_pct/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__136]
+sql:
+SELECT s.id FROM split_sample.t PARTITION (p0) AS s USE INDEX (idx_grp) TABLESAMPLE BERNOULLI (50) LEFT JOIN split_sample.t2 TABLESAMPLE SYSTEM (100) ON s.id = t2.id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:17~1:31) /test/1/catalog1/split_sample/t/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:109~1:124) /test/1/catalog1/split_sample/t2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[unsafe__137]
+sql:
+PREPARE sample_stmt FROM 'SELECT * FROM split_sample.t TABLESAMPLE SYSTEM (?)';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UNSAFE": [
+    {
+      "subject": "PrepareStatement(1:8~1:19) /test/1/sample_stmt/",
+      "action" : "UNSAFE"
+    }
+  ]
+}
+----------
+[select__138]
+sql:
+TABLE src ORDER BY id LIMIT 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:6~1:9) /test/1/catalog1/schema1/src/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__139]
+sql:
+VALUES ROW(1, 'a'), ROW(2, 'b') LIMIT 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__140]
+sql:
+((SELECT qa.d,qb.d FROM qa INNER JOIN qb USING(id))) ORDER BY qa.d;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:24~1:26) /test/1/catalog1/schema1/qa/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:38~1:40) /test/1/catalog1/schema1/qb/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__141]
+sql:
+SELECT o.id, d.id, d.rn
+  FROM t1 AS o
+  JOIN LATERAL (
+      SELECT i.id, ROW_NUMBER() OVER (ORDER BY i.v DESC) AS rn
+        FROM t2 AS i
+       WHERE i.grp = o.grp
+       ORDER BY i.v DESC
+       LIMIT 2
+  ) AS d ON TRUE
+ WHERE d.rn = 1
+ ORDER BY o.id
+ LIMIT 5;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:7~2:9) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(4:19~4:29) /test/1/catalog1/schema1/ROW_NUMBER/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(5:13~5:15) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__142]
+sql:
+SELECT * FROM (t1 AS t2 LEFT JOIN t1 AS t3 USING(a)) RIGHT OUTER JOIN t1 USING(a);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:15~1:17) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__143]
+sql:
+SELECT * FROM t1 RIGHT OUTER JOIN (t1 AS t2 LEFT JOIN t1 AS t3 USING(a)) USING(a);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:16) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[performance__144]
+sql:
+EXPLAIN SELECT COUNT(*) FROM t2 LEFT JOIN t1 ON t2.fkey=t1.id WHERE t1.name LIKE 'A%' OR FALSE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Function(1:15~1:20) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:29~1:31) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:42~1:44) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__145]
+sql:
+SELECT t1.pk FROM t2 LEFT JOIN t1 ON t2.pk=t1.col_int WHERE t1.col_int_key BETWEEN 5 AND 6 AND t1.pk IS NULL OR t1.pk IN (5) ORDER BY pk;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:18~1:20) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:31~1:33) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__146]
+sql:
+SELECT * FROM t0,LATERAL (SELECT * FROM t1 JOIN t2 ON a1=pk2 JOIN t3 ON pk2=b3 WHERE a0<100 LIMIT 100) AS dt;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:16) /test/1/catalog1/schema1/t0/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:40~1:42) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:48~1:50) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:66~1:68) /test/1/catalog1/schema1/t3/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__147]
+sql:
+SELECT * FROM t1 JOIN (t2, t3) JOIN t4;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:16) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:23~1:25) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:27~1:29) /test/1/catalog1/schema1/t3/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:36~1:38) /test/1/catalog1/schema1/t4/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__148]
+sql:
+SELECT * FROM t1 NATURAL LEFT JOIN t2 NATURAL RIGHT JOIN t3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:16) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:35~1:37) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:57~1:59) /test/1/catalog1/schema1/t3/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[admin_table__149]
+sql:
+CHECK TABLE split_check_options.t FOR UPGRADE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:12~1:33) /test/1/catalog1/split_check_options/t/",
+      "action" : "VALIDATE"
+    }
+  ]
+}
+----------
+[admin_table__150]
+sql:
+CHECK TABLE split_check_options.t FAST;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:12~1:33) /test/1/catalog1/split_check_options/t/",
+      "action" : "VALIDATE"
+    }
+  ]
+}
+----------
+[admin_table__151]
+sql:
+CHECK TABLE split_check_options.t MEDIUM;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:12~1:33) /test/1/catalog1/split_check_options/t/",
+      "action" : "VALIDATE"
+    }
+  ]
+}
+----------
+[admin_table__152]
+sql:
+CHECK TABLE split_check_options.t EXTENDED;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:12~1:33) /test/1/catalog1/split_check_options/t/",
+      "action" : "VALIDATE"
+    }
+  ]
+}
+----------
+[admin_table__153]
+sql:
+CHECK TABLE split_check_options.t CHANGED;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:12~1:33) /test/1/catalog1/split_check_options/t/",
+      "action" : "VALIDATE"
+    }
+  ]
+}
+----------
+[admin_table__154]
+sql:
+CHECK TABLE split_check_options.t QUICK FAST MEDIUM EXTENDED CHANGED;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TABLE": [
+    {
+      "subject": "Table(1:12~1:33) /test/1/catalog1/split_check_options/t/",
+      "action" : "VALIDATE"
+    }
+  ]
+}
+----------
+[select__155]
+sql:
+SELECT MIN(t3.f1) FROM (codex_native_dql.t2 JOIN (codex_native_dql.t3 JOIN (SELECT t1.* FROM codex_native_dql.t1 WHERE t1.f2<t1.f2) AS dt ON dt.f1=t3.f1) ON dt.f2=t3.f2) WHERE dt.f2<>ANY (SELECT t1.f1 FROM codex_native_dql.t1 WHERE t1.f2=dt.f2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/MIN/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:24~1:43) /test/1/catalog1/codex_native_dql/t2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:50~1:69) /test/1/catalog1/codex_native_dql/t3/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:93~1:112) /test/1/catalog1/codex_native_dql/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__156]
+sql:
+SELECT 1 FROM codex_native_dql.t1,LATERAL (SELECT DISTINCT t1.x) AS dt1,LATERAL (SELECT DISTINCT dt1.x) AS dt2 WHERE dt1.x=dt2.x;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:33) /test/1/catalog1/codex_native_dql/t1/",
+      "action" : "READ"
+    }
+  ]
+}

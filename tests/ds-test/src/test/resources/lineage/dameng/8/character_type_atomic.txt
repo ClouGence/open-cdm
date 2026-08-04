@@ -1,0 +1,13 @@
+[functions]
+sql:
+select trim(t.c_char) as trimmed,substr(t.c_varchar,1,3) as prefix,
+replace(t.c_varchar,'a','A') as replaced from catalog1.app.char_t t
+expect:
+{"trimmed":["/catalog1/app/char_t/c_char/"],"prefix":["/catalog1/app/char_t/c_varchar/"],"replaced":["/catalog1/app/char_t/c_varchar/"]}
+----------
+[concat]
+sql:
+select t.c_char||t.c_character as fixed_pair,
+concat(t.c_varchar,t.c_varchar2) as variable_pair from catalog1.app.char_t t
+expect:
+{"fixed_pair":["/catalog1/app/char_t/c_char/","/catalog1/app/char_t/c_character/"],"variable_pair":["/catalog1/app/char_t/c_varchar/","/catalog1/app/char_t/c_varchar2/"]}

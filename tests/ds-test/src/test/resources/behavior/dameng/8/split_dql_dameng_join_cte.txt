@@ -1,0 +1,72 @@
+[split_dql_dameng_join_cte_001]
+sql:
+create table app.order_snapshot as
+select o.id, c.name, o.order_total
+from app.orders o
+join app.customer c on c.id = o.customer_id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/app/order_snapshot/",
+      "action": "CREATE",
+      "target": [
+        "Table(3:5~3:15) /test/1/catalog1/app/orders/",
+        "Table(4:5~4:17) /test/1/catalog1/app/customer/"
+      ]
+    }
+  ]
+}
+----------
+[split_dql_dameng_join_cte_002]
+sql:
+select o.id, c.name
+from app.orders o
+join app.customer c on c.id = o.customer_id
+where o.order_total > 10;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:5~2:15) /test/1/catalog1/app/orders/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(3:5~3:17) /test/1/catalog1/app/customer/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_join_cte_003]
+sql:
+with recent_orders as (
+  select id, customer_id, order_total from app.orders where order_total > 10
+)
+select r.id, c.name
+from recent_orders r
+join app.customer c on c.id = r.customer_id
+where exists (select 1 from app.customer c2 where c2.id = c.id);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:43~2:53) /test/1/catalog1/app/orders/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(6:5~6:17) /test/1/catalog1/app/customer/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(7:28~7:40) /test/1/catalog1/app/customer/",
+      "action": "READ"
+    }
+  ]
+}

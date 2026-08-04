@@ -1,0 +1,82 @@
+[update_basic]
+sql:
+update test_schema.table2 set a=1 where id=2;
+expect:
+{
+  "contains": [
+    {"class":"PgUpdateDomain", "sqlType": "UPDATE", "auditKind":"DML", "schema":"test_schema", "table":"table2"}
+  ]
+}
+----------
+[update_withCatalog]
+sql:
+update pub.test_schema.table2 set a=1 where id=2;
+expect:
+{
+  "contains": [
+    {"class":"PgUpdateDomain", "sqlType": "UPDATE", "auditKind":"DML", "catalog":"pub", "schema":"test_schema", "table":"table2"}
+  ]
+}
+----------
+[delete_basic]
+sql:
+delete from test_schema.table2 where id=2;
+expect:
+{
+  "contains": [
+    {"class":"PgDeleteDomain", "sqlType": "DELETE", "auditKind":"DML", "schema":"test_schema", "table":"table2"}
+  ]
+}
+----------
+[query_basic]
+sql:
+select * from test_schema.table2;
+expect:
+{
+  "contains": [
+    {"class":"PgSelectDomain", "sqlType": "SELECT", "auditKind":"QUERY", "childrenSize":1},
+    {"class":"RdbTableDomain", "schema":"test_schema", "table":"table2"}
+  ]
+}
+----------
+[query_join]
+sql:
+select t1.*, t2.b from test_schema.table1 t1 join test_schema.table2 t2 on t1.id=t2.id;
+expect:
+{
+  "contains": [
+    {"class":"PgSelectDomain", "sqlType": "SELECT", "auditKind":"QUERY", "childrenSize":2},
+    {"class":"RdbTableDomain", "schema":"test_schema", "table":"table1"},
+    {"class":"RdbTableDomain", "schema":"test_schema", "table":"table2"}
+  ]
+}
+----------
+[drop_table]
+sql:
+drop table test_schema.table2;
+expect:
+{
+  "contains": [
+    {"class":"PgTableDomain", "sqlType": "DROP_TABLE", "auditKind":"DROP", "schema":"test_schema", "table":"table2"}
+  ]
+}
+----------
+[create_schema]
+sql:
+create schema test_schema;
+expect:
+{
+  "contains": [
+    {"class":"PgSchemaDomain", "sqlType": "CREATE_SCHEMA", "auditKind":"CREATE", "schema":"test_schema"}
+  ]
+}
+----------
+[drop_schema]
+sql:
+drop schema test_schema;
+expect:
+{
+  "contains": [
+    {"class":"PgSchemaDomain", "sqlType": "DROP_SCHEMA", "auditKind":"DROP", "schema":"test_schema"}
+  ]
+}

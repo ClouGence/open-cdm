@@ -1,0 +1,487 @@
+[split_dql_dml_block_dameng_link_query_atomic_0_001_behavior_review]
+sql:
+-- CASE_001_REMOTE_VIEW
+SELECT ID, NAME
+FROM remote_app.V_REMOTE@employee_link
+ORDER BY ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(3:5~3:38) /test/1/catalog1/remote_app/V_REMOTE/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_link_query_atomic_0_002_behavior_review]
+sql:
+-- CASE_002_REMOTE_SEQUENCE_NEXTVAL
+SELECT remote_app.S_REMOTE.NEXTVAL@employee_link;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Sequence(2:7~2:26) /test/1/catalog1/remote_app/S_REMOTE/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_link_query_atomic_0_003_behavior_review]
+sql:
+-- CASE_003_REMOTE_SEQUENCE_CURRVAL
+SELECT remote_app.S_REMOTE.CURRVAL@employee_link;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Sequence(2:7~2:26) /test/1/catalog1/remote_app/S_REMOTE/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_link_query_atomic_0_004_behavior_review]
+sql:
+-- CASE_004_REMOTE_FUNCTION_SQL_PARAMETER
+SELECT remote_app.F_REMOTE@employee_link(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:40) /test/1/catalog1/remote_app/F_REMOTE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_link_query_atomic_0_005_behavior_review]
+sql:
+-- CASE_005_REMOTE_PROCEDURE_SQL_PARAMETERS
+CALL remote_app.P_REMOTE@employee_link(
+  3, 'REMOTE_THREE', 'CLOB_THREE'
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:38) /test/1/catalog1/remote_app/P_REMOTE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_link_query_atomic_0_006_behavior_review]
+sql:
+-- CASE_006_REMOTE_PACKAGE_FUNCTION
+SELECT remote_app.PKG_REMOTE.F_NAME@employee_link(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:49) /test/1/catalog1/remote_app/PKG_REMOTE/F_NAME/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_link_query_atomic_0_007_behavior_review]
+sql:
+-- CASE_007_REMOTE_PACKAGE_PROCEDURE
+CALL remote_app.PKG_REMOTE.P_ADD@employee_link(
+  4, 'REMOTE_FOUR'
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:46) /test/1/catalog1/remote_app/PKG_REMOTE/P_ADD/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_link_query_atomic_0_008_behavior_review]
+sql:
+-- CASE_008_REMOTE_CLOB_SELECT
+SELECT ID, NOTE
+FROM remote_app.T_REMOTE@employee_link
+WHERE ID=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(3:5~3:38) /test/1/catalog1/remote_app/T_REMOTE/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_link_query_atomic_0_009_behavior_review]
+sql:
+-- CASE_009_REMOTE_CLOB_INSERT_CONSTANT
+INSERT INTO remote_app.T_REMOTE@employee_link
+VALUES(5, 'REMOTE_FIVE', 'CLOB_FIVE');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(2:12~2:45) /test/1/catalog1/remote_app/T_REMOTE/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_link_query_atomic_0_010_behavior_review]
+sql:
+-- CASE_010_REMOTE_CLOB_UPDATE_CONSTANT
+UPDATE remote_app.T_REMOTE@employee_link
+SET NOTE='CLOB_FIVE_UPDATED' WHERE ID=5;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(2:7~2:40) /test/1/catalog1/remote_app/T_REMOTE/",
+      "action" : "UPDATE"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_link_query_atomic_0_011_behavior_review]
+sql:
+-- CASE_011_REMOTE_CLOB_DELETE
+DELETE FROM remote_app.T_REMOTE@employee_link
+WHERE ID=5;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(2:12~2:45) /test/1/catalog1/remote_app/T_REMOTE/",
+      "action" : "DELETE"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_link_query_atomic_0_012_behavior_review]
+sql:
+-- CASE_012_REMOTE_INSERT_ROLLBACK
+INSERT INTO remote_app.T_REMOTE@employee_link
+VALUES(6, 'ROLLBACK_ME', 'ROLLBACK');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(2:12~2:45) /test/1/catalog1/remote_app/T_REMOTE/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_link_query_atomic_0_013_behavior_review]
+sql:
+-- CASE_013_LOCAL_ROLLBACK_CONTROLS_REMOTE
+ROLLBACK;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[split_dql_dml_block_dameng_link_query_atomic_0_014_behavior_review]
+sql:
+-- CASE_014_ROLLBACK_RESULT
+SELECT COUNT(*)
+FROM remote_app.T_REMOTE@employee_link
+WHERE ID=6;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(3:5~3:38) /test/1/catalog1/remote_app/T_REMOTE/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_link_query_atomic_0_015_behavior_review]
+sql:
+-- CASE_015_LOCAL_REMOTE_JOIN
+SELECT L.ID, R.NAME
+FROM app.employee L
+JOIN remote_app.T_REMOTE@employee_link R
+ON L.ID=R.ID
+ORDER BY L.ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(3:5~3:17) /test/1/catalog1/app/employee/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(4:5~4:38) /test/1/catalog1/remote_app/T_REMOTE/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_link_query_atomic_0_016_behavior_review]
+sql:
+-- CASE_016_REMOTE_SUBQUERY
+SELECT ID
+FROM remote_app.T_REMOTE@employee_link
+WHERE ID IN (SELECT ID FROM app.employee)
+ORDER BY ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(3:5~3:38) /test/1/catalog1/remote_app/T_REMOTE/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(4:28~4:40) /test/1/catalog1/app/employee/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_link_query_atomic_0_017_behavior_review]
+sql:
+-- CASE_017_REMOTE_UNION_LOCAL
+SELECT ID FROM app.employee
+UNION ALL
+SELECT ID FROM remote_app.T_REMOTE@employee_link;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:15~2:27) /test/1/catalog1/app/employee/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(4:15~4:48) /test/1/catalog1/remote_app/T_REMOTE/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_link_query_atomic_0_018_behavior_review]
+sql:
+-- CASE_018_REMOTE_AGGREGATE
+SELECT COUNT(*), SUM(ID)
+FROM remote_app.T_REMOTE@employee_link;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(2:17~2:20) /test/1/catalog1/schema1/SUM/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(3:5~3:38) /test/1/catalog1/remote_app/T_REMOTE/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_link_query_atomic_0_019_behavior_review]
+sql:
+-- CASE_019_REMOTE_GROUP_ORDER
+SELECT NAME, COUNT(*)
+FROM remote_app.T_REMOTE@employee_link
+GROUP BY NAME ORDER BY NAME;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:13~2:18) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(3:5~3:38) /test/1/catalog1/remote_app/T_REMOTE/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_link_query_atomic_0_020_behavior_review]
+sql:
+-- CASE_020_SELF_LINK_PACK29_DOC_DELTA
+SELECT COUNT(*) FROM DUAL@self_link;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/COUNT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:21~2:35) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_link_query_atomic_0_021_behavior_review]
+sql:
+-- SEM_001_REMOTE_FUNCTION_NULL_NO_DATA
+SELECT remote_app.F_REMOTE@employee_link(NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:40) /test/1/catalog1/remote_app/F_REMOTE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_link_query_atomic_0_022_behavior_review]
+sql:
+-- SEM_002_REMOTE_PROGRAM_RECORD_PARAMETER
+DECLARE
+  V_RECORD app.employee_record;
+BEGIN
+  V_RECORD.ID := 7;
+  V_RECORD.NAME := 'RECORD_REMOTE';
+  remote_app.P_RECORD@employee_link(V_RECORD);
+END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(3:11~3:30) /test/1/catalog1/app/employee_record/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Procedure(7:2~7:35) /test/1/catalog1/remote_app/P_RECORD/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_link_query_atomic_0_023_behavior_review]
+sql:
+-- SEM_003_REMOTE_COMPOSITE_COLUMN
+SELECT ID, VALUE
+FROM remote_app.T_OBJECT@employee_link;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(3:5~3:38) /test/1/catalog1/remote_app/T_OBJECT/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_link_query_atomic_0_024_behavior_review]
+sql:
+-- SEM_004_CURSOR_REMOTE_DML
+DECLARE
+  CURSOR C_REMOTE IS
+    SELECT ID, NAME
+    FROM remote_app.T_REMOTE@employee_link
+    FOR UPDATE;
+BEGIN
+  FOR R IN C_REMOTE LOOP
+    UPDATE remote_app.T_REMOTE@employee_link
+    SET NAME=NAME WHERE CURRENT OF C_REMOTE;
+  END LOOP;
+END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(5:9~5:42) /test/1/catalog1/remote_app/T_REMOTE/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(5:9~5:42) /test/1/catalog1/remote_app/T_REMOTE/",
+      "action" : "LOCK"
+    },
+    {
+      "subject": "Table(9:11~9:44) /test/1/catalog1/remote_app/T_REMOTE/",
+      "action" : "UPDATE"
+    }
+  ]
+}
+----------
+[split_dql_dml_block_dameng_link_query_atomic_0_025_behavior_review]
+sql:
+-- SEM_005_REMOTE_DML_RETURNING_INTO
+DECLARE
+  V_ID INT;
+BEGIN
+  INSERT INTO remote_app.T_REMOTE@employee_link
+  VALUES(8, 'RETURNING_REMOTE', 'RETURNING') RETURNING ID INTO V_ID;
+  ROLLBACK;
+END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(5:14~5:47) /test/1/catalog1/remote_app/T_REMOTE/",
+      "action" : "INSERT"
+    }
+  ]
+}

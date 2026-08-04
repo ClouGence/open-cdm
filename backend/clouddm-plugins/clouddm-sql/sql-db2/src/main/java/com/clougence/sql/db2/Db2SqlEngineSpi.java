@@ -16,33 +16,33 @@
 package com.clougence.sql.db2;
 
 import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
-import com.clougence.clouddm.sdk.sql.column.SelectColumnAnalysisSpi;
-import com.clougence.clouddm.sdk.sql.rewrite.RewriteSpi;
-import com.clougence.clouddm.sdk.sql.secrules.ResAnalysisSpi;
-import com.clougence.clouddm.sdk.sql.secrules.SecDomainResolveSpi;
-import com.clougence.clouddm.sdk.sql.secrules.SecRulesSupportSpi;
-import com.clougence.clouddm.sdk.sql.split.SplitAnalysisSpi;
+import com.clougence.clouddm.sdk.sql.SqlParserParameters;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAnalysisSpi;
+import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageAnalysisSpi;
+import com.clougence.clouddm.sdk.sql.analysis.security.SecDomainResolveSpi;
+import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteSpi;
+import com.clougence.clouddm.sdk.sql.parser.SplitAnalysisSpi;
 import com.clougence.dslpaser.antlr.DslProvider;
-import com.clougence.sql.db2.column.Db2SelectColumnAnalysisSpi;
-import com.clougence.sql.db2.resource.Db2ResAnalysisSpi;
-import com.clougence.sql.db2.security.Db2SecDomainResolveSpi;
-import com.clougence.sql.db2.split.Db2SplitAnalysisSpi;
+import com.clougence.sql.db2.analysis.behavior.Db2BehaviorAnalysisSpi;
+import com.clougence.sql.db2.analysis.security.Db2SecDomainResolveSpi;
+import com.clougence.sql.db2.parser.Db2DslProvider;
+import com.clougence.sql.db2.parser.Db2SplitAnalysisSpi;
 
 /** @author mode */
 public class Db2SqlEngineSpi implements SqlEngineSpi {
-    public static final String            NAME = "IBM DB2 SQL";
+    public static final String        NAME = "IBM DB2 SQL";
 
-    private final SplitAnalysisSpi        splitAnalysisSpi;
-    private final SecDomainResolveSpi     secDomainResolveSpi;
-    private final ResAnalysisSpi          resAnalysisSpi;
-    private final SelectColumnAnalysisSpi selectColumnAnalysisSpi;
-    private final RewriteSpi              rewriteSpi;
+    private final SplitAnalysisSpi    splitAnalysisSpi;
+    private final SecDomainResolveSpi secDomainResolveSpi;
+    private final BehaviorAnalysisSpi behaviorAnalysisSpi;
+    private final LineageAnalysisSpi  lineageAnalysisSpi;
+    private final RewriteSpi          rewriteSpi;
 
     public Db2SqlEngineSpi(){
         this.splitAnalysisSpi = new Db2SplitAnalysisSpi();
         this.secDomainResolveSpi = new Db2SecDomainResolveSpi();
-        this.resAnalysisSpi = new Db2ResAnalysisSpi();
-        this.selectColumnAnalysisSpi = new Db2SelectColumnAnalysisSpi();
+        this.behaviorAnalysisSpi = new Db2BehaviorAnalysisSpi();
+        this.lineageAnalysisSpi = LineageAnalysisSpi.EMPTY;
         this.rewriteSpi = null;
     }
 
@@ -52,37 +52,32 @@ public class Db2SqlEngineSpi implements SqlEngineSpi {
     }
 
     @Override
-    public DslProvider dslProvider() {
-        throw new UnsupportedOperationException("DB2 does not support DslProvider.");
+    public DslProvider dslProvider(SqlParserParameters parameters) {
+        return Db2DslProvider.INSTANCE;
     }
 
     @Override
-    public SplitAnalysisSpi splitAnalysisSpi() {
+    public SplitAnalysisSpi splitAnalysisSpi(SqlParserParameters parameters) {
         return splitAnalysisSpi;
     }
 
     @Override
-    public SecDomainResolveSpi secDomainResolveSpi() {
+    public SecDomainResolveSpi secDomainResolveSpi(SqlParserParameters parameters) {
         return secDomainResolveSpi;
     }
 
     @Override
-    public ResAnalysisSpi resAnalysisSpi() {
-        return resAnalysisSpi;
+    public BehaviorAnalysisSpi behaviorAnalysisSpi(SqlParserParameters parameters) {
+        return behaviorAnalysisSpi;
     }
 
     @Override
-    public SelectColumnAnalysisSpi selectColumnAnalysisSpi() {
-        return selectColumnAnalysisSpi;
+    public LineageAnalysisSpi lineageAnalysisSpi(SqlParserParameters parameters) {
+        return lineageAnalysisSpi;
     }
 
     @Override
-    public SecRulesSupportSpi secRulesSupportSpi() {
-        return null;
-    }
-
-    @Override
-    public RewriteSpi rewriteSpi() {
+    public RewriteSpi rewriteSpi(SqlParserParameters parameters) {
         return rewriteSpi;
     }
 }

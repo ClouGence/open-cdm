@@ -1,0 +1,30 @@
+alter table huge_part_range split partition pmax at() into(partition p1, partition p2);
+alter table huge_part_list split partition p34 values() into(partition p3, partition p4);
+alter table huge_part_range merge partitions p10 into partition p20;
+alter table huge_part_range exchange partition p10 with table;
+alter table huge_part_sub set subpartition template();
+alter table huge_part_sub modify partition p10 add subpartition values less than(30);
+alter table huge_part_range truncate partition for();
+alter table huge_part_list rename partition p12 to;
+alter table huge_part_list move partition p12 tablespace;
+create huge table huge_part_empty_key(id int) partition by range()(partition p1 values less than(10));
+------------------------------------------------------------------------------------------
+[ALTER_TABLE] alter table huge_part_range split partition pmax at() into(partition p1, partition p2);
+----------
+[ALTER_TABLE] alter table huge_part_list split partition p34 values() into(partition p3, partition p4);
+----------
+[ALTER_TABLE] alter table huge_part_range merge partitions p10 into partition p20;
+----------
+[ALTER_TABLE] alter table huge_part_range exchange partition p10 with table;
+----------
+[ALTER_TABLE] alter table huge_part_sub set subpartition template();
+----------
+[ALTER_TABLE] alter table huge_part_sub modify partition p10 add subpartition values less than(30);
+----------
+[ALTER_TABLE] alter table huge_part_range truncate partition for();
+----------
+[ALTER_TABLE] alter table huge_part_list rename partition p12 to;
+----------
+[ALTER_TABLE] alter table huge_part_list move partition p12 tablespace;
+----------
+[CREATE_TABLE] create huge table huge_part_empty_key(id int) partition by range()(partition p1 values less than(10));

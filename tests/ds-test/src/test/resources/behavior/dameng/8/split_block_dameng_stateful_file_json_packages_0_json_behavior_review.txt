@@ -1,0 +1,630 @@
+[split_block_dameng_stateful_file_json_packages_0_034_json_behavior_review]
+sql:
+declare dom jdom_t := jdom_t.parse('{"AGE":123}'); value number; begin value := dom.get_number('AGE'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:12~1:18) /test/1/catalog1/schema1/jdom_t/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(1:22~1:34) /test/1/catalog1/jdom_t/parse/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:84~1:94) /test/1/catalog1/jdom_t/get_number/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_stateful_file_json_packages_0_035_json_behavior_review]
+sql:
+declare dom jdom_t := jdom_t.parse('{"A":1}'); ret boolean; value varchar(32767); begin ret := dom.put('B', 'CODEX'); value := dom.to_string(); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:12~1:18) /test/1/catalog1/schema1/jdom_t/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(1:22~1:34) /test/1/catalog1/jdom_t/parse/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:99~1:102) /test/1/catalog1/jdom_t/put/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:131~1:140) /test/1/catalog1/jdom_t/to_string/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_stateful_file_json_packages_0_036_json_behavior_review]
+sql:
+declare dom jdom_t := jdom_t.parse('[1,2]'); ret boolean; value varchar(32767); begin ret := dom.put(1, 'CODEX', false); value := dom.stringify(); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:12~1:18) /test/1/catalog1/schema1/jdom_t/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(1:22~1:34) /test/1/catalog1/jdom_t/parse/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:97~1:100) /test/1/catalog1/jdom_t/put/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:134~1:143) /test/1/catalog1/jdom_t/stringify/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_stateful_file_json_packages_0_037_json_behavior_review]
+sql:
+declare dom jdom_t := jdom_t.parse('{"A":1,"B":2,"C":3}'); cloned jdom_t; ret boolean; keys json_key_list; begin cloned := dom.clone(); ret := cloned.remove('B'); keys := dom.get_keys(); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:12~1:18) /test/1/catalog1/schema1/jdom_t/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(1:66~1:72) /test/1/catalog1/schema1/jdom_t/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(1:92~1:105) /test/1/catalog1/schema1/json_key_list/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(1:22~1:34) /test/1/catalog1/jdom_t/parse/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:127~1:132) /test/1/catalog1/jdom_t/clone/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:150~1:156) /test/1/catalog1/jdom_t/remove/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:175~1:183) /test/1/catalog1/jdom_t/get_keys/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_stateful_file_json_packages_0_038_json_behavior_review]
+sql:
+declare dom jdom_t := jdom_t.create_arr(); item jdom_t; ret boolean; begin ret := dom.append(1); ret := dom.append_null(); item := dom."GET"(0); ret := dom.put_null(0, true); ret := dom.put(1, 20, true); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:12~1:18) /test/1/catalog1/schema1/jdom_t/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(1:48~1:54) /test/1/catalog1/schema1/jdom_t/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(1:22~1:39) /test/1/catalog1/jdom_t/create_arr/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:86~1:92) /test/1/catalog1/jdom_t/append/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:108~1:119) /test/1/catalog1/jdom_t/append_null/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:135~1:140) /test/1/catalog1/jdom_t/GET/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:156~1:164) /test/1/catalog1/jdom_t/put_null/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:186~1:189) /test/1/catalog1/jdom_t/put/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_stateful_file_json_packages_0_039_json_behavior_review]
+sql:
+declare dom jdom_t := jdom_t.parse('[1,"ABC",[2],{"A":1}]'); size_value number; type_value varchar(128); begin size_value := dom.get_size(); type_value := dom.get_type(0); type_value := dom.get_type(1); type_value := dom.get_type(2); type_value := dom.get_type(3); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:12~1:18) /test/1/catalog1/schema1/jdom_t/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(1:22~1:34) /test/1/catalog1/jdom_t/parse/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:129~1:137) /test/1/catalog1/jdom_t/get_size/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:159~1:167) /test/1/catalog1/jdom_t/get_type/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:190~1:198) /test/1/catalog1/jdom_t/get_type/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:221~1:229) /test/1/catalog1/jdom_t/get_type/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:252~1:260) /test/1/catalog1/jdom_t/get_type/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_stateful_file_json_packages_0_040_json_behavior_review]
+sql:
+declare dom jdom_t := jdom_t.parse('{"A":13,"B":14}'); ret boolean; begin if dom.has_key('A') then ret := dom.rename_key('A', 'A1'); end if; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:12~1:18) /test/1/catalog1/schema1/jdom_t/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(1:22~1:34) /test/1/catalog1/jdom_t/parse/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:81~1:88) /test/1/catalog1/jdom_t/has_key/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:110~1:120) /test/1/catalog1/jdom_t/rename_key/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_stateful_file_json_packages_0_041_json_behavior_review]
+sql:
+declare dom jdom_t := jdom_t.create_obj(); value varchar(32767); begin value := dom.stringify(); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:12~1:18) /test/1/catalog1/schema1/jdom_t/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(1:22~1:39) /test/1/catalog1/jdom_t/create_obj/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:84~1:93) /test/1/catalog1/jdom_t/stringify/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_stateful_file_json_packages_0_042_json_behavior_review]
+sql:
+declare dom jdom_t := jdom_t.parse('true'); value boolean; begin value := dom.to_boolean(); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:12~1:18) /test/1/catalog1/schema1/jdom_t/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(1:22~1:34) /test/1/catalog1/jdom_t/parse/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:78~1:88) /test/1/catalog1/jdom_t/to_boolean/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_stateful_file_json_packages_0_043_json_behavior_review]
+sql:
+declare dom jdom_t := jdom_t.parse('123.5'); value number; begin value := dom.to_number(); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:12~1:18) /test/1/catalog1/schema1/jdom_t/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(1:22~1:34) /test/1/catalog1/jdom_t/parse/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:78~1:87) /test/1/catalog1/jdom_t/to_number/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_stateful_file_json_packages_0_044_json_behavior_review]
+sql:
+declare dom jdom_t := jdom_t.parse('"2026-07-22"'); value date; begin value := dom.to_date(); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:12~1:18) /test/1/catalog1/schema1/jdom_t/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(1:22~1:34) /test/1/catalog1/jdom_t/parse/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:83~1:90) /test/1/catalog1/jdom_t/to_date/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_stateful_file_json_packages_0_045_json_behavior_review]
+sql:
+declare dom jdom_t := jdom_t.parse('"2026-07-22 03:04:05"'); value timestamp; begin value := dom.to_timestamp(); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:12~1:18) /test/1/catalog1/schema1/jdom_t/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(1:22~1:34) /test/1/catalog1/jdom_t/parse/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:97~1:109) /test/1/catalog1/jdom_t/to_timestamp/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_stateful_file_json_packages_0_046_json_behavior_review]
+sql:
+declare dom jdom_t := jdom_t.parse('{}'); value boolean; begin value := dom.is_object(); value := dom.is_array(); value := dom.is_scalar(); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:12~1:18) /test/1/catalog1/schema1/jdom_t/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(1:22~1:34) /test/1/catalog1/jdom_t/parse/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:76~1:85) /test/1/catalog1/jdom_t/is_object/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:102~1:110) /test/1/catalog1/jdom_t/is_array/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:127~1:136) /test/1/catalog1/jdom_t/is_scalar/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_stateful_file_json_packages_0_047_json_behavior_review]
+sql:
+declare dom jdom_t := jdom_t.parse('"CODEX"'); value boolean; begin value := dom.is_string(); value := dom.is_number(); value := dom.is_boolean(); value := dom.is_null(); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:12~1:18) /test/1/catalog1/schema1/jdom_t/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(1:22~1:34) /test/1/catalog1/jdom_t/parse/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:81~1:90) /test/1/catalog1/jdom_t/is_string/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:107~1:116) /test/1/catalog1/jdom_t/is_number/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:133~1:143) /test/1/catalog1/jdom_t/is_boolean/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:160~1:167) /test/1/catalog1/jdom_t/is_null/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_stateful_file_json_packages_0_048_json_behavior_review]
+sql:
+declare dom jdom_t := jdom_t.parse('false'); value boolean; begin value := dom.is_true(); value := dom.is_false(); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:12~1:18) /test/1/catalog1/schema1/jdom_t/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(1:22~1:34) /test/1/catalog1/jdom_t/parse/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:79~1:86) /test/1/catalog1/jdom_t/is_true/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:103~1:111) /test/1/catalog1/jdom_t/is_false/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_stateful_file_json_packages_0_049_json_behavior_review]
+sql:
+declare arr json_array_t := json_array_t.parse('[1,2]'); value number; begin value := arr.get_number(0); arr.append(3); arr.put(1, 4, true); arr.remove(0); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:12~1:24) /test/1/catalog1/schema1/json_array_t/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(1:109~1:115) /test/1/catalog1/json_array_t/append/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:124~1:127) /test/1/catalog1/json_array_t/put/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:145~1:151) /test/1/catalog1/json_array_t/remove/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:28~1:46) /test/1/catalog1/json_array_t/parse/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:90~1:100) /test/1/catalog1/json_array_t/get_number/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_stateful_file_json_packages_0_050_json_behavior_review]
+sql:
+declare arr json_array_t := json_array_t(); value varchar(32767); begin arr.append('CODEX'); arr.append_null(); value := arr.stringify(); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:12~1:24) /test/1/catalog1/schema1/json_array_t/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(1:76~1:82) /test/1/catalog1/json_array_t/append/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:97~1:108) /test/1/catalog1/json_array_t/append_null/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:28~1:40) /test/1/catalog1/schema1/json_array_t/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:125~1:134) /test/1/catalog1/json_array_t/stringify/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_stateful_file_json_packages_0_051_json_behavior_review]
+sql:
+declare obj json_object_t := json_object_t.parse('{"A":1}'); value number; begin value := obj.get_number('A'); obj.put('B', 2); obj.put_null('C'); obj.rename_key('B', 'B2'); obj.remove('C'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:12~1:25) /test/1/catalog1/schema1/json_object_t/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(1:115~1:118) /test/1/catalog1/json_object_t/put/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:132~1:140) /test/1/catalog1/json_object_t/put_null/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:151~1:161) /test/1/catalog1/json_object_t/rename_key/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:178~1:184) /test/1/catalog1/json_object_t/remove/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:29~1:48) /test/1/catalog1/json_object_t/parse/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:94~1:104) /test/1/catalog1/json_object_t/get_number/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_stateful_file_json_packages_0_052_json_behavior_review]
+sql:
+declare obj json_object_t := json_object_t(); value varchar(32767); begin obj.put('A', 'CODEX'); value := obj.get_string('A'); value := obj.get_type('A'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:12~1:25) /test/1/catalog1/schema1/json_object_t/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(1:78~1:81) /test/1/catalog1/json_object_t/put/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:29~1:42) /test/1/catalog1/schema1/json_object_t/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:110~1:120) /test/1/catalog1/json_object_t/get_string/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:140~1:148) /test/1/catalog1/json_object_t/get_type/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_stateful_file_json_packages_0_053_json_behavior_review]
+sql:
+declare elem json_element_t := json_element_t.parse('[1,2]'); value boolean; size_value number; begin value := elem.is_array(); size_value := elem.get_size(); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:13~1:27) /test/1/catalog1/schema1/json_element_t/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(1:31~1:51) /test/1/catalog1/json_element_t/parse/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:116~1:124) /test/1/catalog1/json_element_t/is_array/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:147~1:155) /test/1/catalog1/json_element_t/get_size/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_stateful_file_json_packages_0_054_json_behavior_review]
+sql:
+declare obj json_object_t := json_object_t.parse('{"A":{"B":1},"C":[2]}'); child_obj json_object_t; child_arr json_array_t; begin child_obj := obj.get_object('A'); child_arr := obj.get_array('C'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:12~1:25) /test/1/catalog1/schema1/json_object_t/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(1:85~1:98) /test/1/catalog1/schema1/json_object_t/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(1:110~1:122) /test/1/catalog1/schema1/json_array_t/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(1:29~1:48) /test/1/catalog1/json_object_t/parse/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:147~1:157) /test/1/catalog1/json_object_t/get_object/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:181~1:190) /test/1/catalog1/json_object_t/get_array/",
+      "action": "CALL"
+    }
+  ]
+}

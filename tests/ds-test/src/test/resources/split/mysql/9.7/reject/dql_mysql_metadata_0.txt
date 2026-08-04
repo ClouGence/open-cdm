@@ -1,0 +1,7 @@
+SHOW MASTER LOGS;
+SHOW SLAVE HOSTS;
+------------------------------------------------------------------------------------------
+[LOG_READ]
+SHOW MASTER LOGS;
+----------
+[METADATA] SHOW SLAVE HOSTS;

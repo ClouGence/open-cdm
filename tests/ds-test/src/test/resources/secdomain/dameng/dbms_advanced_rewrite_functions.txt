@@ -1,0 +1,20 @@
+[dbms_advanced_rewrite_all_public_signature_domains]
+sql:
+begin
+  DBMS_ADVANCED_REWRITE.ALTER_REWRITE_EQUIVALENCE('R','DISABLED');
+  DBMS_ADVANCED_REWRITE.DECLARE_REWRITE_EQUIVALENCE(
+    'R','SELECT 1 FROM DUAL','SELECT 2 FROM DUAL',FALSE,'TEXT_MATCH');
+  DBMS_ADVANCED_REWRITE.DROP_REWRITE_EQUIVALENCE('R');
+  DBMS_ADVANCED_REWRITE.DROP_REWRITE_EQUIVALENCE('R','SYSDBA');
+  DBMS_ADVANCED_REWRITE.VALIDATE_REWRITE_EQUIVALENCE('R');
+end;
+expect:
+{
+  "contains": [
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"DBMS_ADVANCED_REWRITE"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"DBMS_ADVANCED_REWRITE"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"DBMS_ADVANCED_REWRITE"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"DBMS_ADVANCED_REWRITE"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"DBMS_ADVANCED_REWRITE"}
+  ]
+}

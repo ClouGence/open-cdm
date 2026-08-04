@@ -1,0 +1,264 @@
+[split_dml_dameng_mpp_0_001_behavior_review]
+sql:
+insert into MPP_HASH values(1, 10, 'H1');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:20) /test/1/catalog1/schema1/MPP_HASH/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_mpp_0_002_behavior_review]
+sql:
+insert into MPP_HASH values(2, 20, 'H2');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:20) /test/1/catalog1/schema1/MPP_HASH/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_mpp_0_003_behavior_review]
+sql:
+insert into MPP_HASH values(3, 30, 'H3');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:20) /test/1/catalog1/schema1/MPP_HASH/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_mpp_0_004_behavior_review]
+sql:
+insert into MPP_HASH values(4, 40, 'H4');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:20) /test/1/catalog1/schema1/MPP_HASH/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_mpp_0_005_behavior_review]
+sql:
+insert into MPP_RANDOM values(1, 'R1');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:22) /test/1/catalog1/schema1/MPP_RANDOM/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_mpp_0_006_behavior_review]
+sql:
+insert into MPP_RANDOM values(2, 'R2');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:22) /test/1/catalog1/schema1/MPP_RANDOM/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_mpp_0_007_behavior_review]
+sql:
+insert into MPP_FULLY values(1, 'F1');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:21) /test/1/catalog1/schema1/MPP_FULLY/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_mpp_0_008_behavior_review]
+sql:
+insert into MPP_RANGE values(50, 'EP01_RANGE');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:21) /test/1/catalog1/schema1/MPP_RANGE/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_mpp_0_009_behavior_review]
+sql:
+insert into MPP_RANGE values(150, 'EP02_RANGE');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:21) /test/1/catalog1/schema1/MPP_RANGE/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_mpp_0_010_behavior_review]
+sql:
+insert into MPP_LIST values(1, 'EP01_LIST');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:20) /test/1/catalog1/schema1/MPP_LIST/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_mpp_0_011_behavior_review]
+sql:
+insert into MPP_LIST values(2, 'EP02_LIST');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:20) /test/1/catalog1/schema1/MPP_LIST/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_mpp_0_012_behavior_review]
+sql:
+insert into MPP_HASH_MULTI values(1, 10, 'HM1');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/MPP_HASH_MULTI/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_mpp_0_013_behavior_review]
+sql:
+insert into MPP_HASH_PART values(1, 'P1');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:25) /test/1/catalog1/schema1/MPP_HASH_PART/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_mpp_0_014_behavior_review]
+sql:
+insert into MPP_HASH_PART values(11, 'P2');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:25) /test/1/catalog1/schema1/MPP_HASH_PART/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_mpp_0_015_behavior_review]
+sql:
+commit;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[split_dml_dameng_mpp_0_016_behavior_review]
+sql:
+update MPP_HASH set ID=ID+100 where ID=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:15) /test/1/catalog1/schema1/MPP_HASH/",
+      "action": "UPDATE"
+    }
+  ]
+}
+----------
+[split_dml_dameng_mpp_0_017_behavior_review]
+sql:
+update MPP_HASH set NOTE='UPDATED' where ID=2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:15) /test/1/catalog1/schema1/MPP_HASH/",
+      "action": "UPDATE"
+    }
+  ]
+}
+----------
+[split_dml_dameng_mpp_0_018_behavior_review]
+sql:
+delete from MPP_FULLY where ID=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:21) /test/1/catalog1/schema1/MPP_FULLY/",
+      "action": "DELETE"
+    }
+  ]
+}

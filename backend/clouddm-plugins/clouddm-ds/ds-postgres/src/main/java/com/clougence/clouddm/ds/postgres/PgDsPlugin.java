@@ -19,12 +19,12 @@ import com.clougence.adapter.postgre.PostgresTypes;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.base.metadata.ui.DsFeatureIDs;
 import com.clougence.clouddm.ds.postgres.definition.PgDefService;
+import com.clougence.clouddm.ds.postgres.definition.secrules.PgSecRulesSupportSpi;
 import com.clougence.clouddm.ds.postgres.definition.ui.ddl.PgConvertTableDDLSpi;
 import com.clougence.clouddm.ds.postgres.dsconf.PgConfigSpi;
 import com.clougence.clouddm.ds.postgres.dsconf.PgSerializationSpi;
 import com.clougence.clouddm.ds.postgres.execute.PgSessionFactory;
 import com.clougence.clouddm.dsfamily.definition.TypeMapUtils;
-import com.clougence.clouddm.dsfamily.postgres.definition.secrules.PgSecRulesSupportSpi;
 import com.clougence.clouddm.dsfamily.postgres.definition.ui.browser.PgDsBrowseSpi;
 import com.clougence.clouddm.dsfamily.postgres.definition.ui.editor.data.PgDataEditorSpi;
 import com.clougence.clouddm.dsfamily.postgres.definition.ui.editor.table.PgEditorProvider;
@@ -41,12 +41,10 @@ import com.clougence.clouddm.sdk.DsPlugin;
 import com.clougence.clouddm.sdk.DsPluginBinder;
 import com.clougence.clouddm.sdk.Plugin;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
-import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
 import com.clougence.schema.DsType;
 import com.clougence.schema.SchemaBinder;
 import com.clougence.schema.SchemaFramework;
 import com.clougence.schema.SchemaPlugin;
-import com.clougence.sql.postgres.PgSqlEngineSpi;
 
 /** @author mode 2024/12/25 15:13 */
 @Plugin(name = "i18n::" + PgDsI18nKeys.PLUGIN_NAME_POSTGRESQL,                  //
@@ -84,9 +82,7 @@ public class PgDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
     private void configExecute(DsPluginBinder dsPlugin) {
         dsPlugin.bindDsSessionFactory(PgSessionFactory.class);
         dsPlugin.bindDsDriverFamily("PostgreSQL JDBC");
-
-        dsPlugin.bindSqlEngine(PgSqlEngineSpi.NAME);
-        dsPlugin.addGlobalSpi(SqlEngineSpi.class, PgSqlEngineSpi.NAME, new PgSqlEngineSpi(dsPlugin.findGlobalService(MetaService.class)));
+        dsPlugin.bindSqlEngine("PG SQL", "ISO-SQL-92", "ISO-SQL-99", "ISO-SQL-2003");
 
         dsPlugin.addPluginSpi(new PgSessionSpi());
         dsPlugin.addPluginSpi(new PgSupportSpi());

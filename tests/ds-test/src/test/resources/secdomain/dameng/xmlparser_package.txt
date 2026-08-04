@@ -1,0 +1,10 @@
+[xmlparser_object_domain]
+sql:
+select object_name, object_type, status from sys.dba_objects where object_name='DBMS_XMLPARSER'
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"sys", "table":"dba_objects"}
+  ]
+}
+

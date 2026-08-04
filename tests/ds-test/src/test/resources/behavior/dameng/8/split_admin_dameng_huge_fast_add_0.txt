@@ -1,0 +1,150 @@
+[split_admin_dameng_huge_fast_add_0_001]
+sql:
+alter session set 'ALTER_TABLE_OPT'=0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:18~1:35) /test/1/ALTER_TABLE_OPT/",
+      "action": "CONFIGURE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_huge_fast_add_0_002]
+sql:
+alter session set 'ALTER_TABLE_OPT'=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:18~1:35) /test/1/ALTER_TABLE_OPT/",
+      "action": "CONFIGURE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_huge_fast_add_0_003]
+sql:
+alter session set 'ALTER_TABLE_OPT'=2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:18~1:35) /test/1/ALTER_TABLE_OPT/",
+      "action": "CONFIGURE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_huge_fast_add_0_004]
+sql:
+alter session set 'ALTER_TABLE_OPT'=3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:18~1:35) /test/1/ALTER_TABLE_OPT/",
+      "action": "CONFIGURE"
+    }
+  ]
+}
+----------
+[split_admin_dameng_huge_fast_add_0_005]
+sql:
+select sf_get_session_para_value('ALTER_TABLE_OPT');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_VARIABLE_RW": [
+    {
+      "subject": "Function(1:7~1:32) /test/1/catalog1/schema1/sf_get_session_para_value/",
+      "action": "READ",
+      "target": "ConfigKey(1:33~1:50) /test/1/ALTER_TABLE_OPT/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_huge_fast_add_0_006]
+sql:
+alter table app.huge_fast add column c_no_default int;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_COLUMN": [
+    {
+      "subject": "Table(1:12~1:25) /test/1/catalog1/app/huge_fast/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_admin_dameng_huge_fast_add_0_007]
+sql:
+alter table app.huge_fast add column c_null int default null;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_COLUMN": [
+    {
+      "subject": "Table(1:12~1:25) /test/1/catalog1/app/huge_fast/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_admin_dameng_huge_fast_add_0_008]
+sql:
+alter table app.huge_fast add column c_default int default 33;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_COLUMN": [
+    {
+      "subject": "Table(1:12~1:25) /test/1/catalog1/app/huge_fast/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_admin_dameng_huge_fast_add_0_009]
+sql:
+alter table app.huge_fast_empty add column c_not_null int not null;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_COLUMN": [
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/app/huge_fast_empty/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_admin_dameng_huge_fast_add_0_010]
+sql:
+alter session set ALTER_TABLE_OPT=2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:18~1:33) /test/1/ALTER_TABLE_OPT/",
+      "action": "CONFIGURE"
+    }
+  ]
+}

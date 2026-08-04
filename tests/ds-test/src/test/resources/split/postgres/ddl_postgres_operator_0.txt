@@ -1,0 +1,149 @@
+DROP SCHEMA IF EXISTS split_operator_probe CASCADE;
+DROP SCHEMA IF EXISTS split_operator_probe_next CASCADE;
+CREATE SCHEMA split_operator_probe;
+CREATE SCHEMA split_operator_probe_next;
+CREATE FUNCTION split_operator_probe.int_add(left_value integer, right_value integer)
+RETURNS integer
+LANGUAGE SQL
+IMMUTABLE
+AS $$ SELECT left_value + right_value $$;
+CREATE FUNCTION split_operator_probe.int_abs(right_value integer)
+RETURNS integer
+LANGUAGE SQL
+IMMUTABLE
+AS $$ SELECT abs(right_value) $$;
+CREATE FUNCTION split_operator_probe.int_same(left_value integer, right_value integer)
+RETURNS boolean
+LANGUAGE SQL
+IMMUTABLE
+AS $$ SELECT left_value = right_value $$;
+CREATE OPERATOR split_operator_probe.## (
+    FUNCTION = split_operator_probe.int_add,
+    LEFTARG = integer,
+    RIGHTARG = integer
+);
+CREATE OPERATOR split_operator_probe.!! (
+    PROCEDURE = split_operator_probe.int_abs,
+    RIGHTARG = integer
+);
+CREATE OPERATOR split_operator_probe.=== (
+    FUNCTION = split_operator_probe.int_same,
+    LEFTARG = integer,
+    RIGHTARG = integer,
+    COMMUTATOR = OPERATOR(split_operator_probe.===),
+    RESTRICT = eqsel,
+    JOIN = eqjoinsel,
+    HASHES,
+    MERGES
+);
+ALTER OPERATOR split_operator_probe.## (integer, integer) OWNER TO CURRENT_USER;
+ALTER OPERATOR split_operator_probe.## (integer, integer) SET SCHEMA split_operator_probe_next;
+ALTER OPERATOR split_operator_probe.=== (integer, integer) SET (RESTRICT = NONE, JOIN = NONE);
+COMMENT ON OPERATOR split_operator_probe_next.## (integer, integer) IS 'split addition operator';
+CREATE OPERATOR FAMILY split_operator_probe.int_hash_family USING hash;
+CREATE OPERATOR CLASS split_operator_probe.int_hash_ops
+FOR TYPE integer USING hash FAMILY split_operator_probe.int_hash_family AS
+    OPERATOR 1 = (integer, integer),
+    FUNCTION 1 hashint4(integer);
+COMMENT ON OPERATOR FAMILY split_operator_probe.int_hash_family USING hash IS 'split hash family';
+COMMENT ON OPERATOR CLASS split_operator_probe.int_hash_ops USING hash IS 'split hash opclass';
+ALTER OPERATOR FAMILY split_operator_probe.int_hash_family USING hash OWNER TO CURRENT_USER;
+ALTER OPERATOR CLASS split_operator_probe.int_hash_ops USING hash OWNER TO CURRENT_USER;
+ALTER OPERATOR CLASS split_operator_probe.int_hash_ops USING hash RENAME TO int_hash_ops_renamed;
+ALTER OPERATOR FAMILY split_operator_probe.int_hash_family USING hash RENAME TO int_hash_family_renamed;
+ALTER OPERATOR CLASS split_operator_probe.int_hash_ops_renamed USING hash SET SCHEMA split_operator_probe_next;
+ALTER OPERATOR FAMILY split_operator_probe.int_hash_family_renamed USING hash SET SCHEMA split_operator_probe_next;
+DROP OPERATOR CLASS IF EXISTS split_operator_probe_next.int_hash_ops_renamed USING hash RESTRICT;
+DROP OPERATOR FAMILY IF EXISTS split_operator_probe_next.int_hash_family_renamed USING hash RESTRICT;
+DROP OPERATOR IF EXISTS split_operator_probe_next.## (integer, integer), split_operator_probe.!! (NONE, integer), split_operator_probe.=== (integer, integer) RESTRICT;
+DROP SCHEMA IF EXISTS split_operator_probe CASCADE;
+DROP SCHEMA IF EXISTS split_operator_probe_next CASCADE;
+------------------------------------------------------------------------------------------
+[DROP_SCHEMA] DROP SCHEMA IF EXISTS split_operator_probe CASCADE;
+----------
+[DROP_SCHEMA] DROP SCHEMA IF EXISTS split_operator_probe_next CASCADE;
+----------
+[CREATE_SCHEMA] CREATE SCHEMA split_operator_probe;
+----------
+[CREATE_SCHEMA] CREATE SCHEMA split_operator_probe_next;
+----------
+[CREATE_PROG_OBJ] CREATE FUNCTION split_operator_probe.int_add(left_value integer, right_value integer)
+RETURNS integer
+LANGUAGE SQL
+IMMUTABLE
+AS $$ SELECT left_value + right_value $$;
+----------
+[CREATE_PROG_OBJ] CREATE FUNCTION split_operator_probe.int_abs(right_value integer)
+RETURNS integer
+LANGUAGE SQL
+IMMUTABLE
+AS $$ SELECT abs(right_value) $$;
+----------
+[CREATE_PROG_OBJ] CREATE FUNCTION split_operator_probe.int_same(left_value integer, right_value integer)
+RETURNS boolean
+LANGUAGE SQL
+IMMUTABLE
+AS $$ SELECT left_value = right_value $$;
+----------
+[CREATE_PROG_OBJ] CREATE OPERATOR split_operator_probe.## (
+    FUNCTION = split_operator_probe.int_add,
+    LEFTARG = integer,
+    RIGHTARG = integer
+);
+----------
+[CREATE_PROG_OBJ] CREATE OPERATOR split_operator_probe.!! (
+    PROCEDURE = split_operator_probe.int_abs,
+    RIGHTARG = integer
+);
+----------
+[CREATE_PROG_OBJ] CREATE OPERATOR split_operator_probe.=== (
+    FUNCTION = split_operator_probe.int_same,
+    LEFTARG = integer,
+    RIGHTARG = integer,
+    COMMUTATOR = OPERATOR(split_operator_probe.===),
+    RESTRICT = eqsel,
+    JOIN = eqjoinsel,
+    HASHES,
+    MERGES
+);
+----------
+[TRANSFER_PRIVILEGE] ALTER OPERATOR split_operator_probe.## (integer, integer) OWNER TO CURRENT_USER;
+----------
+[ALTER_PROG_OBJ] ALTER OPERATOR split_operator_probe.## (integer, integer) SET SCHEMA split_operator_probe_next;
+----------
+[ALTER_PROG_OBJ] ALTER OPERATOR split_operator_probe.=== (integer, integer) SET (RESTRICT = NONE, JOIN = NONE);
+----------
+[COMMENT_PROG_OBJ] COMMENT ON OPERATOR split_operator_probe_next.## (integer, integer) IS 'split addition operator';
+----------
+[CREATE_PROG_OBJ] CREATE OPERATOR FAMILY split_operator_probe.int_hash_family USING hash;
+----------
+[CREATE_PROG_OBJ] CREATE OPERATOR CLASS split_operator_probe.int_hash_ops
+FOR TYPE integer USING hash FAMILY split_operator_probe.int_hash_family AS
+    OPERATOR 1 = (integer, integer),
+    FUNCTION 1 hashint4(integer);
+----------
+[COMMENT_PROG_OBJ] COMMENT ON OPERATOR FAMILY split_operator_probe.int_hash_family USING hash IS 'split hash family';
+----------
+[COMMENT_PROG_OBJ] COMMENT ON OPERATOR CLASS split_operator_probe.int_hash_ops USING hash IS 'split hash opclass';
+----------
+[TRANSFER_PRIVILEGE] ALTER OPERATOR FAMILY split_operator_probe.int_hash_family USING hash OWNER TO CURRENT_USER;
+----------
+[TRANSFER_PRIVILEGE] ALTER OPERATOR CLASS split_operator_probe.int_hash_ops USING hash OWNER TO CURRENT_USER;
+----------
+[ALTER_PROG_OBJ] ALTER OPERATOR CLASS split_operator_probe.int_hash_ops USING hash RENAME TO int_hash_ops_renamed;
+----------
+[ALTER_PROG_OBJ] ALTER OPERATOR FAMILY split_operator_probe.int_hash_family USING hash RENAME TO int_hash_family_renamed;
+----------
+[ALTER_PROG_OBJ] ALTER OPERATOR CLASS split_operator_probe.int_hash_ops_renamed USING hash SET SCHEMA split_operator_probe_next;
+----------
+[ALTER_PROG_OBJ] ALTER OPERATOR FAMILY split_operator_probe.int_hash_family_renamed USING hash SET SCHEMA split_operator_probe_next;
+----------
+[DROP_PROG_OBJ] DROP OPERATOR CLASS IF EXISTS split_operator_probe_next.int_hash_ops_renamed USING hash RESTRICT;
+----------
+[DROP_PROG_OBJ] DROP OPERATOR FAMILY IF EXISTS split_operator_probe_next.int_hash_family_renamed USING hash RESTRICT;
+----------
+[DROP_PROG_OBJ] DROP OPERATOR IF EXISTS split_operator_probe_next.## (integer, integer), split_operator_probe.!! (NONE, integer), split_operator_probe.=== (integer, integer) RESTRICT;
+----------
+[DROP_SCHEMA] DROP SCHEMA IF EXISTS split_operator_probe CASCADE;
+----------
+[DROP_SCHEMA] DROP SCHEMA IF EXISTS split_operator_probe_next CASCADE;

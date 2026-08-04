@@ -1,0 +1,6 @@
+CREATE LIBRARY "lib_ansi_combo" LANGUAGE JAVASCRIPT AS $$ export function f(n) { return n + 1; } $$;
+CREATE FUNCTION function_using_both(n INTEGER) RETURNS INTEGER LANGUAGE JAVASCRIPT USING ("lib_ansi_combo", `lib_backtick_combo`) AS $$ return 42 $$;
+------------------------------------------------------------------------------------------
+[CREATE_LIBRARY] CREATE LIBRARY "lib_ansi_combo" LANGUAGE JAVASCRIPT AS $$ export function f(n) { return n + 1; } $$;
+----------
+[CREATE_PROG_OBJ|UNSAFE] CREATE FUNCTION function_using_both(n INTEGER) RETURNS INTEGER LANGUAGE JAVASCRIPT USING ("lib_ansi_combo", `lib_backtick_combo`) AS $$ return 42 $$;

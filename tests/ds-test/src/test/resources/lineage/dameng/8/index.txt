@@ -1,0 +1,17 @@
+[select_with_index]
+sql:
+select e.id,e.name from catalog1.app.employee index idx_employee_name e where e.name='A'
+expect:
+{
+  "id": ["/catalog1/app/employee/id/"],
+  "name": ["/catalog1/app/employee/name/"]
+}
+----------
+[function_index_query]
+sql:
+select e.id,upper(e.name) as upper_name from catalog1.app.employee e where upper(e.name)='A'
+expect:
+{
+  "id": ["/catalog1/app/employee/id/"],
+  "upper_name": ["/catalog1/app/employee/name/"]
+}

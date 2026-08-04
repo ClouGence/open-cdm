@@ -1,0 +1,24 @@
+SELECT current_setting('DateStyle');
+SELECT current_setting('clouddm.missing_setting', true) IS NULL AS missing_setting_is_null;
+SELECT set_config('application_name', 'open_cdm_split_config', false);
+SELECT current_setting('application_name') = 'open_cdm_split_config' AS application_name_changed;
+SELECT set_config('application_name', NULL, false) IS NOT NULL AS application_name_reset;
+SELECT set_config('statement_timeout', '2s', true) AS local_statement_timeout;
+SELECT set_config('statement_timeout', NULL, true) IS NOT NULL AS local_statement_timeout_reset;
+SELECT pg_catalog.set_config('search_path', '', true);
+------------------------------------------------------------------------------------------
+[SELECT] SELECT current_setting('DateStyle');
+----------
+[SELECT] SELECT current_setting('clouddm.missing_setting', true) IS NULL AS missing_setting_is_null;
+----------
+[SELECT|SESSION_SETTING_WRITE] SELECT set_config('application_name', 'open_cdm_split_config', false);
+----------
+[SELECT] SELECT current_setting('application_name') = 'open_cdm_split_config' AS application_name_changed;
+----------
+[SELECT|SESSION_SETTING_WRITE] SELECT set_config('application_name', NULL, false) IS NOT NULL AS application_name_reset;
+----------
+[SELECT|SESSION_SETTING_WRITE] SELECT set_config('statement_timeout', '2s', true) AS local_statement_timeout;
+----------
+[SELECT|SESSION_SETTING_WRITE] SELECT set_config('statement_timeout', NULL, true) IS NOT NULL AS local_statement_timeout_reset;
+----------
+[SELECT|SESSION_SETTING_WRITE] SELECT pg_catalog.set_config('search_path', '', true);

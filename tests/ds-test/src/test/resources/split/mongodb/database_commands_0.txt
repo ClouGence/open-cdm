@@ -1,0 +1,9 @@
+db.runCommand({listCollections: 1});
+db.runCommand({dropDatabase: 1});
+show databases;
+------------------------------------------------------------------------------------------
+[METADATA] db.runCommand({listCollections: 1})
+----------
+[DROP_SCHEMA] db.runCommand({dropDatabase: 1})
+----------
+[METADATA] show databases

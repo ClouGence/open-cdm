@@ -1,0 +1,1378 @@
+[admin_performance__001]
+sql:
+CACHE INDEX utility_audit.myisam_a INDEX (PRIMARY, idx_v) IN DEFAULT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_PERFORMANCE": [
+    {
+      "subject": "Index(1:12~1:34) /test/1/catalog1/utility_audit/myisam_a/",
+      "action" : "LOAD"
+    }
+  ]
+}
+----------
+[admin_performance__002]
+sql:
+CACHE INDEX utility_audit.missing_part PARTITION (p0,p1) IN DEFAULT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_PERFORMANCE": [
+    {
+      "subject": "Index(1:12~1:38) /test/1/catalog1/utility_audit/missing_part/",
+      "action" : "LOAD"
+    }
+  ]
+}
+----------
+[select__003]
+sql:
+EXPLAIN ANALYZE SELECT * FROM explain_t84 WHERE val >= 10;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:30~1:41) /test/1/catalog1/schema1/explain_t84/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__004]
+sql:
+EXPLAIN ANALYZE FORMAT=TREE SELECT * FROM explain_t84 WHERE id = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:42~1:53) /test/1/catalog1/schema1/explain_t84/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[performance__005]
+sql:
+EXPLAIN FORMAT=JSON SELECT * FROM explain_t84 WHERE id = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Table(1:34~1:45) /test/1/catalog1/schema1/explain_t84/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[performance__006]
+sql:
+EXPLAIN FORMAT=TRADITIONAL SELECT * FROM explain_t84 WHERE id = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Table(1:41~1:52) /test/1/catalog1/schema1/explain_t84/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[performance__007]
+sql:
+EXPLAIN FOR CONNECTION 30;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Instance(1:0~1:25) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[performance_session_variable_rw__008]
+sql:
+EXPLAIN FORMAT=JSON INTO @codex_load_audit_explain FOR SCHEMA codex_load_audit_s SELECT 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "ConfigKey(1:25~1:50) /test/1/codex_load_audit_explain/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[performance_session_variable_rw__009]
+sql:
+EXPLAIN FORMAT=JSON INTO @codex_load_audit_explain SELECT 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "ConfigKey(1:25~1:50) /test/1/codex_load_audit_explain/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[performance__010]
+sql:
+EXPLAIN SELECT * FROM json_op;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Table(1:22~1:29) /test/1/catalog1/schema1/json_op/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[performance__011]
+sql:
+EXPLAIN REPLACE INTO utility_audit.maint_a VALUES (1,1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Table(1:21~1:42) /test/1/catalog1/utility_audit/maint_a/",
+      "action" : "MERGE"
+    }
+  ]
+}
+----------
+[performance__012]
+sql:
+EXPLAIN FORMAT=TRADITIONAL FOR CONNECTION 999999;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Instance(1:0~1:48) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[performance__013]
+sql:
+EXPLAIN FORMAT=TRADITIONAL FOR SCHEMA split_native_gap SELECT * FROM t_explain;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Table(1:69~1:78) /test/1/catalog1/schema1/t_explain/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__014]
+sql:
+SELECT /*+ INDEX_MERGE(t1) INDEX_MERGE(t1 f2,f3,f4) */ f2 FROM split_opt_hints_merge.t1 AS t1 WHERE f4='h' AND f2=2 AND f3='b';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:63~1:87) /test/1/catalog1/split_opt_hints_merge/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__015]
+sql:
+SELECT /*+ INDEX_MERGE(t1 f2,f3,f4) NO_INDEX_MERGE(t1) */ f2 FROM split_opt_hints_merge.t1 AS t1 WHERE f4='h' AND f2=2 AND f3='b';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:66~1:90) /test/1/catalog1/split_opt_hints_merge/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__016]
+sql:
+SELECT /*+ INDEX_MERGE(missing f9,f10) */ f2 FROM split_opt_hints_merge.t1 AS t1 WHERE f4='h' AND f2=2 AND f3='b';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:50~1:74) /test/1/catalog1/split_opt_hints_merge/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__017]
+sql:
+SELECT /*+ INDEX_MERGE(t1 f4,f2) */ COUNT(*) FROM split_opt_hints_merge.t1 AS t1 WHERE f4='h' AND f2=2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:36~1:41) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:50~1:74) /test/1/catalog1/split_opt_hints_merge/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__018]
+sql:
+SELECT /*+ INDEX_MERGE(t1 PRIMARY,f4,f3) */ COUNT(*) FROM split_opt_hints_merge.t1 AS t1 WHERE f4='h' AND f3='b' AND f5='i';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:44~1:49) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:58~1:82) /test/1/catalog1/split_opt_hints_merge/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__019]
+sql:
+SELECT /*+ NO_INDEX_MERGE(t1) */ COUNT(*) FROM split_opt_hints_merge.t1 AS t1 WHERE f4='h' AND f2=2 AND f3='b';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:33~1:38) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:47~1:71) /test/1/catalog1/split_opt_hints_merge/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__020]
+sql:
+SELECT /*+ NO_INDEX_MERGE(t1 f4) */ COUNT(*) FROM split_opt_hints_merge.t1 AS t1 WHERE f4='h' AND f2=2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:36~1:41) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:50~1:74) /test/1/catalog1/split_opt_hints_merge/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__021]
+sql:
+SELECT /*+ INDEX_MERGE(t1 f2,f3,f4) */ f1 FROM split_opt_hints_merge.t1 AS t1 WHERE f2=5 OR f3='c' OR f4='f';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:47~1:71) /test/1/catalog1/split_opt_hints_merge/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__022]
+sql:
+SELECT /*+ NO_INDEX_MERGE(t1 f2,f3,f4) */ f1 FROM split_opt_hints_merge.t1 AS t1 WHERE f2=5 OR f3='c' OR f4='f';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:50~1:74) /test/1/catalog1/split_opt_hints_merge/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__023]
+sql:
+SELECT /*+ INDEX_MERGE(t1 f2,f4) */ * FROM split_opt_hints_merge.t1 AS t1 WHERE (f2 BETWEEN 5 AND 6 OR f3='c') AND (f2 BETWEEN 5 AND 6 OR f4='f');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:43~1:67) /test/1/catalog1/split_opt_hints_merge/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__024]
+sql:
+SELECT /*+ INDEX_MERGE(t1) */ COUNT(*) FROM split_opt_hints_merge.t1 AS t1 WHERE (f4='h' AND f2=2 AND f3='b') OR (f7='d' AND f6='e');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:30~1:35) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:44~1:68) /test/1/catalog1/split_opt_hints_merge/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__025]
+sql:
+SELECT /*+ INDEX_MERGE(t1 f3,f4) */ * FROM split_opt_hints_merge.t1 AS t1 IGNORE INDEX(f3) WHERE f2=400 AND (f3='x' OR f4='n');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:43~1:67) /test/1/catalog1/split_opt_hints_merge/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__026]
+sql:
+SELECT /*+ INDEX_MERGE(t1 f2,f3,f4) */ f2 FROM split_opt_hints_merge.t1 AS t1 FORCE INDEX(f2,f3) WHERE f4='h' AND f2=2 AND f3='b';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:47~1:71) /test/1/catalog1/split_opt_hints_merge/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__027]
+sql:
+SELECT /*+ INDEX_MERGE(t1 f2,f3,f4) */ f2 FROM split_opt_hints_merge.t1 AS t1 USE INDEX(f2,f3) WHERE f4='h' AND f2=2 AND f3='b';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:47~1:71) /test/1/catalog1/split_opt_hints_merge/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__028]
+sql:
+SELECT /*+ INDEX_MERGE(t1 f3,PRIMARY) */ f2 FROM split_opt_hints_merge.t1 AS t1 WHERE f1=99 AND f2=f3 AND f3<='4';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:49~1:73) /test/1/catalog1/split_opt_hints_merge/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__029]
+sql:
+SELECT /*+ QB_NAME(q1) INDEX_MERGE(@q1 t1 f2,f3) NO_INDEX_MERGE(t1@q1 f4) */ f1 FROM split_opt_hints_merge.t1 AS t1 WHERE f2=5 OR f3='c' OR f4='f';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:85~1:109) /test/1/catalog1/split_opt_hints_merge/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__030]
+sql:
+SELECT /*+ INDEX(t1) JOIN_INDEX(t1) */ a FROM split_opt_hints_index.t1 AS t1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:46~1:70) /test/1/catalog1/split_opt_hints_index/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__031]
+sql:
+SELECT /*+ INDEX(t1 i_a,i_b,i_c) INDEX(t1 i_d) */ a FROM split_opt_hints_index.t1 AS t1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:57~1:81) /test/1/catalog1/split_opt_hints_index/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__032]
+sql:
+SELECT /*+ INDEX(t1 i_a) JOIN_INDEX(t1 i_a,i_b) GROUP_INDEX(t1 i_b) ORDER_INDEX(t1 i_c) */ a FROM split_opt_hints_index.t1 AS t1 WHERE a=1 AND b=1 GROUP BY a ORDER BY a;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:98~1:122) /test/1/catalog1/split_opt_hints_index/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__033]
+sql:
+SELECT /*+ INDEX(t1 i_a,i_b) */ a FROM split_opt_hints_index.t1 AS t1 WHERE a=1 AND b=2 AND c=3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:39~1:63) /test/1/catalog1/split_opt_hints_index/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__034]
+sql:
+SELECT /*+ NO_INDEX(t1 i_ab) */ a,MAX(b) FROM split_opt_hints_index.t1 AS t1 WHERE b=2 GROUP BY a;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:34~1:37) /test/1/catalog1/schema1/MAX/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:46~1:70) /test/1/catalog1/split_opt_hints_index/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__035]
+sql:
+SELECT /*+ NO_JOIN_INDEX(t1 i_ab) */ a,MAX(b) FROM split_opt_hints_index.t1 AS t1 WHERE b=2 GROUP BY a;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:39~1:42) /test/1/catalog1/schema1/MAX/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:51~1:75) /test/1/catalog1/split_opt_hints_index/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__036]
+sql:
+SELECT /*+ NO_GROUP_INDEX(t1 i_a) */ a,COUNT(*) FROM split_opt_hints_index.t1 AS t1 GROUP BY a;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:39~1:44) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:53~1:77) /test/1/catalog1/split_opt_hints_index/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__037]
+sql:
+SELECT /*+ NO_ORDER_INDEX(t1 i_ab) */ a FROM split_opt_hints_index.t1 AS t1 ORDER BY a;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:45~1:69) /test/1/catalog1/split_opt_hints_index/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__038]
+sql:
+SELECT /*+ NO_INDEX(t1) */ * FROM split_opt_hints_index.t1 AS t1 WHERE a=1 AND b=2 AND c=3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:34~1:58) /test/1/catalog1/split_opt_hints_index/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__039]
+sql:
+SELECT /*+ INDEX_MERGE(t1) */ * FROM split_opt_hints_index.t1 AS t1 IGNORE INDEX(i_a) WHERE a=1 AND b=2 AND c=3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:37~1:61) /test/1/catalog1/split_opt_hints_index/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__040]
+sql:
+SELECT /*+ INDEX(t1 i_a) */ * FROM split_opt_hints_index.t1 AS t1 IGNORE INDEX(i_a) WHERE a=1 AND b=2 AND c=3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:35~1:59) /test/1/catalog1/split_opt_hints_index/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__041]
+sql:
+SELECT /*+ NO_ORDER_INDEX(ft ft_x) */ doc_id,MATCH(x) AGAINST('abc') AS m FROM split_opt_hints_index.ft AS ft WHERE MATCH(x) AGAINST('abc') ORDER BY MATCH(x) AGAINST('abc') DESC;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:79~1:103) /test/1/catalog1/split_opt_hints_index/ft/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__042]
+sql:
+SELECT /*+ ORDER_INDEX(ft ft_x) */ doc_id,MATCH(x) AGAINST('abc') AS m FROM split_opt_hints_index.ft AS ft WHERE MATCH(x) AGAINST('abc') ORDER BY MATCH(x) AGAINST('abc') DESC;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:76~1:100) /test/1/catalog1/split_opt_hints_index/ft/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__043]
+sql:
+SELECT /*+ JOIN_INDEX(ft ft_x) */ * FROM split_opt_hints_index.ft AS ft WHERE MATCH(x) AGAINST('abc');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:41~1:65) /test/1/catalog1/split_opt_hints_index/ft/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__044]
+sql:
+SELECT /*+ NO_JOIN_INDEX(ft ft_x) */ * FROM split_opt_hints_index.ft AS ft WHERE MATCH(x) AGAINST('abc');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:44~1:68) /test/1/catalog1/split_opt_hints_index/ft/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__045]
+sql:
+SELECT /*+ NO_JOIN_INDEX(t1) */ a FROM split_opt_hints_index.t1 AS t1 WHERE a=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:39~1:63) /test/1/catalog1/split_opt_hints_index/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__046]
+sql:
+SELECT /*+ QB_NAME(q1) INDEX(@q1 t1 i_a) NO_INDEX(t1@q1 i_b) */ * FROM split_opt_hints_index.t1 AS t1 WHERE a>=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:71~1:95) /test/1/catalog1/split_opt_hints_index/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[performance__047]
+sql:
+EXPLAIN SELECT /*+ NO_BNL(t1) */ * FROM t1 t1, T1 T1 WHERE T1.f1 BETWEEN 1 AND 3 AND t1.f2=T1.f2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Table(1:40~1:42) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:47~1:49) /test/1/catalog1/schema1/T1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[performance__048]
+sql:
+EXPLAIN SELECT /*+ NO_BNL(T1) */ * FROM t1 t1, T1 T1 WHERE T1.f1 BETWEEN 1 AND 3 AND t1.f2=T1.f2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Table(1:40~1:42) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:47~1:49) /test/1/catalog1/schema1/T1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__049]
+sql:
+SELECT /*+ NO_RANGE_OPTIMIZATION(t1 PRIMARY, idx_b) */ a FROM split_opt_hints_native.t1 WHERE a BETWEEN 1 AND 3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:62~1:87) /test/1/catalog1/split_opt_hints_native/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__050]
+sql:
+SELECT /*+ NO_ICP(t1@inner_q idx_c) */ c FROM (SELECT /*+ QB_NAME(inner_q) */ a,b,c FROM split_opt_hints_native.t1 WHERE c='x') AS d WHERE d.a>0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:89~1:114) /test/1/catalog1/split_opt_hints_native/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__051]
+sql:
+SELECT /*+ BKA() */ t2.a FROM split_opt_hints_native.t1 JOIN split_opt_hints_native.t2 ON t1.a=t2.a;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:30~1:55) /test/1/catalog1/split_opt_hints_native/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:61~1:86) /test/1/catalog1/split_opt_hints_native/t2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__052]
+sql:
+SELECT /*+ QB_NAME(outer_q) BKA(t2@outer_q) NO_BKA(t3@outer_q) */ t1.a FROM split_opt_hints_native.t1 JOIN split_opt_hints_native.t2 ON t1.a=t2.a JOIN split_opt_hints_native.t3 ON t3.b=t2.b;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:76~1:101) /test/1/catalog1/split_opt_hints_native/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:107~1:132) /test/1/catalog1/split_opt_hints_native/t2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:151~1:176) /test/1/catalog1/split_opt_hints_native/t3/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__053]
+sql:
+SELECT /*+ BKA(@inner_q t2) */ * FROM (SELECT /*+ QB_NAME(inner_q) */ t2.a,t2.b FROM split_opt_hints_native.t1 JOIN split_opt_hints_native.t2 ON t1.a=t2.a) AS d;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:85~1:110) /test/1/catalog1/split_opt_hints_native/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:116~1:141) /test/1/catalog1/split_opt_hints_native/t2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__054]
+sql:
+SELECT * FROM (SELECT /*+ QB_NAME(inner_q) BKA(@inner_q t1@inner_q, t2@inner_q, t3) */ t1.a FROM split_opt_hints_native.t1,split_opt_hints_native.t2,split_opt_hints_native.t3) AS d;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:97~1:122) /test/1/catalog1/split_opt_hints_native/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:123~1:148) /test/1/catalog1/split_opt_hints_native/t2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:149~1:174) /test/1/catalog1/split_opt_hints_native/t3/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__055]
+sql:
+SELECT * FROM (SELECT /*+ QB_NAME(inner_q) NO_BKA(@inner_q t1@inner_q, t2@inner_q, t3) */ t1.a FROM split_opt_hints_native.t1,split_opt_hints_native.t2,split_opt_hints_native.t3) AS d;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:100~1:125) /test/1/catalog1/split_opt_hints_native/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:126~1:151) /test/1/catalog1/split_opt_hints_native/t2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:152~1:177) /test/1/catalog1/split_opt_hints_native/t3/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__056]
+sql:
+SELECT /*+ BNL(t2,t3) */ t1.a FROM split_opt_hints_native.t1,split_opt_hints_native.t2,split_opt_hints_native.t3 WHERE t1.a=t2.a AND t2.b=t3.b;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:35~1:60) /test/1/catalog1/split_opt_hints_native/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:61~1:86) /test/1/catalog1/split_opt_hints_native/t2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:87~1:112) /test/1/catalog1/split_opt_hints_native/t3/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__057]
+sql:
+SELECT /*+ QB_NAME(outer_q) NO_BNL(t1,t2) */ t1.a FROM split_opt_hints_native.t1 JOIN split_opt_hints_native.t2 ON t1.a=t2.a;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:55~1:80) /test/1/catalog1/split_opt_hints_native/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:86~1:111) /test/1/catalog1/split_opt_hints_native/t2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__058]
+sql:
+SELECT /*+ NO_BNL(@sub_q t2,t3) */ t1.a FROM split_opt_hints_native.t1 WHERE t1.a IN (SELECT /*+ QB_NAME(sub_q) */ t2.a FROM split_opt_hints_native.t2 JOIN split_opt_hints_native.t3 ON t2.b=t3.b);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:45~1:70) /test/1/catalog1/split_opt_hints_native/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:125~1:150) /test/1/catalog1/split_opt_hints_native/t2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:156~1:181) /test/1/catalog1/split_opt_hints_native/t3/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__059]
+sql:
+SELECT /*+ MRR(t1 idx_b) */ * FROM split_opt_hints_native.t1 WHERE b BETWEEN 1 AND 3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:35~1:60) /test/1/catalog1/split_opt_hints_native/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__060]
+sql:
+SELECT /*+ NO_MRR(t1 idx_b, idx_c) */ * FROM split_opt_hints_native.t1 WHERE b<=3 AND c='x';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:45~1:70) /test/1/catalog1/split_opt_hints_native/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__061]
+sql:
+SELECT /*+ QB_NAME(q1) NO_ICP(@q1 t1 PRIMARY) NO_ICP(@q1 t1 PRIMARY) */ * FROM split_opt_hints_native.t1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:79~1:104) /test/1/catalog1/split_opt_hints_native/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__062]
+sql:
+SELECT /*+ QB_NAME(`a b`) BKA(t1@`a b`) */ * FROM split_opt_hints_native.t1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:50~1:75) /test/1/catalog1/split_opt_hints_native/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__063]
+sql:
+SELECT /*+ QB_NAME(1a) BKA(t1@1a) */ * FROM split_opt_hints_native.t1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:44~1:69) /test/1/catalog1/split_opt_hints_native/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__064]
+sql:
+SELECT /*+*/ 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__065]
+sql:
+SELECT /*+ NO_ICP( */ 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__066]
+sql:
+SELECT t1.a FROM split_opt_hints_native.t1 AS t1 /*+ regular commentary, not a hint */ WHERE t1.a=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:17~1:42) /test/1/catalog1/split_opt_hints_native/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__067]
+sql:
+SELECT /*+ MERGE(dt1) NO_MERGE(dt2) */ * FROM (SELECT a FROM split_opt_hints_native.t1) AS dt1 JOIN (SELECT a FROM split_opt_hints_native.t2) AS dt2 USING(a);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:61~1:86) /test/1/catalog1/split_opt_hints_native/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:115~1:140) /test/1/catalog1/split_opt_hints_native/t2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__068]
+sql:
+SELECT /*+ NO_MERGE(@sub_q dt) */ t1.a FROM split_opt_hints_native.t1 WHERE t1.a IN (SELECT /*+ QB_NAME(sub_q) */ dt.a FROM (SELECT a FROM split_opt_hints_native.t2) AS dt);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:44~1:69) /test/1/catalog1/split_opt_hints_native/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:139~1:164) /test/1/catalog1/split_opt_hints_native/t2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__069]
+sql:
+SELECT /*+ NO_BKA(t2) NO_BNL(t3) BKA(t4) */ t1.a FROM split_opt_hints_native.t1 AS t1 JOIN split_opt_hints_native.t2 AS t2 ON t1.a=t2.a LEFT JOIN split_opt_hints_native.t2 AS t3 ON t2.b=t3.b LEFT JOIN split_opt_hints_native.t2 AS t4 ON t3.a=t4.a;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:54~1:79) /test/1/catalog1/split_opt_hints_native/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:91~1:116) /test/1/catalog1/split_opt_hints_native/t2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__070]
+sql:
+SELECT /*+ QB_NAME(q1) MRR(t1@q1 idx_b) NO_MRR(t1@q1 idx_c) */ * FROM split_opt_hints_native.t1 AS t1 WHERE b>=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:70~1:95) /test/1/catalog1/split_opt_hints_native/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__071]
+sql:
+SELECT /*+
+  BKA(t1@qb1)
+  BNL(@qb1 t1)
+  DUPSWEEDOUT
+  FIRSTMATCH
+  INTOEXISTS
+  LOOSESCAN
+  MATERIALIZATION
+  MRR(t1)
+  NO_BKA(t2)
+  NO_BNL(t2)
+  NO_ICP(t2)
+  NO_MRR(t2)
+  NO_RANGE_OPTIMIZATION(t2)
+  NO_SEMIJOIN(t2)
+  QB_NAME(qb1)
+  SEMIJOIN(t1)
+  SUBQUERY(t1)
+*/ * FROM t1, t2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(19:10~19:12) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(19:14~19:16) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__072]
+sql:
+/*+ MAX_EXECUTION_TIME(1) */ SELECT 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__073]
+sql:
+SELECT /*+ MAX_EXECUTION_TIME(4294967295) */ * FROM t2, t1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:52~1:54) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:56~1:58) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__074]
+sql:
+SELECT /*+ bad_hint_also_goes_to_digest */ 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[performance__075]
+sql:
+EXPLAIN FORMAT=JSON INSERT INTO codex_explain4.t VALUES (3,'c');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Table(1:32~1:48) /test/1/catalog1/codex_explain4/t/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[performance__076]
+sql:
+EXPLAIN FORMAT=JSON UPDATE codex_explain4.t SET name='x' WHERE id=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Table(1:27~1:43) /test/1/catalog1/codex_explain4/t/",
+      "action" : "UPDATE"
+    }
+  ]
+}
+----------
+[performance__077]
+sql:
+EXPLAIN FORMAT=JSON DELETE FROM codex_explain4.t WHERE id=2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Table(1:32~1:48) /test/1/catalog1/codex_explain4/t/",
+      "action" : "DELETE"
+    }
+  ]
+}
+----------
+[performance__078]
+sql:
+EXPLAIN DELETE FROM split_select_safe.t1 WHERE c1 IN (1,22);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Table(1:20~1:40) /test/1/catalog1/split_select_safe/t1/",
+      "action" : "DELETE"
+    }
+  ]
+}
+----------
+[performance__079]
+sql:
+EXPLAIN UPDATE split_select_safe.t1 SET c1=20 WHERE c1 IN (1,22);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Table(1:15~1:35) /test/1/catalog1/split_select_safe/t1/",
+      "action" : "UPDATE"
+    }
+  ]
+}
+----------
+[performance__080]
+sql:
+EXPLAIN DELETE t1 FROM split_select_safe.t1 AS t1 JOIN split_select_safe.t2 AS t2 ON t1.c2=t2.c1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Table(1:15~1:17) /test/1/catalog1/schema1/t1/",
+      "action" : "DELETE",
+      "target" : [
+        "Table(1:23~1:43) /test/1/catalog1/split_select_safe/t1/",
+        "Table(1:55~1:75) /test/1/catalog1/split_select_safe/t2/"
+      ]
+    }
+  ]
+}
+----------
+[performance__081]
+sql:
+EXPLAIN UPDATE split_select_safe.t1 AS t1,split_select_safe.t2 AS t2 SET t1.c1=20 WHERE t1.c2=t2.c1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Table(1:15~1:35) /test/1/catalog1/split_select_safe/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:42~1:62) /test/1/catalog1/split_select_safe/t2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[performance_session_variable_rw__082]
+sql:
+EXPLAIN FORMAT=JSON INTO @plan DELETE t1, t2 FROM t1 JOIN t2 ON t1.id = t2.id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Table(1:38~1:40) /test/1/catalog1/schema1/t1/",
+      "action" : "DELETE",
+      "target" : [
+        "Table(1:50~1:52) /test/1/catalog1/schema1/t1/",
+        "Table(1:58~1:60) /test/1/catalog1/schema1/t2/"
+      ]
+    },
+    {
+      "subject": "ConfigKey(1:25~1:30) /test/1/plan/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:42~1:44) /test/1/catalog1/schema1/t2/",
+      "action" : "DELETE"
+    }
+  ]
+}
+----------
+[performance__083]
+sql:
+EXPLAIN SELECT 1 AS res QUALIFY ROW_NUMBER() OVER () > 10;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Instance(1:0~1:57) /test/1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(1:32~1:42) /test/1/catalog1/schema1/ROW_NUMBER/",
+      "action" : "CALL"
+    }
+  ]
+}

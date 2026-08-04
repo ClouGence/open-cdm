@@ -1,0 +1,45 @@
+-- PIVOT nonXML subquery
+select * from app.pivot_t pivot(sum(amount) for product in(select product from app.pivot_t));
+-- UNPIVOT reserved output name
+select * from app.wide_t unpivot(select for product in(apple,orange));
+-- PIVOT missing aggregate
+select * from app.pivot_t pivot(for product in('APPLE'));
+-- PIVOT missing FOR
+select * from app.pivot_t pivot(sum(amount) product in('APPLE'));
+-- PIVOT empty IN
+select * from app.pivot_t pivot(sum(amount) for product in());
+-- UNPIVOT missing value
+select * from app.wide_t unpivot(for product in(apple));
+-- UNPIVOT missing IN
+select * from app.wide_t unpivot(amount for product);
+-- UNPIVOT empty IN
+select * from app.wide_t unpivot(amount for product in());
+-- duplicate NULL treatment
+select * from app.wide_t unpivot include nulls exclude nulls(amount for product in(apple));
+------------------------------------------------------------------------------------------
+[SELECT] -- PIVOT nonXML subquery
+select * from app.pivot_t pivot(sum(amount) for product in(select product from app.pivot_t));
+----------
+[SELECT] -- UNPIVOT reserved output name
+select * from app.wide_t unpivot(select for product in(apple,orange));
+----------
+[SELECT] -- PIVOT missing aggregate
+select * from app.pivot_t pivot(for product in('APPLE'));
+----------
+[SELECT] -- PIVOT missing FOR
+select * from app.pivot_t pivot(sum(amount) product in('APPLE'));
+----------
+[SELECT] -- PIVOT empty IN
+select * from app.pivot_t pivot(sum(amount) for product in());
+----------
+[SELECT] -- UNPIVOT missing value
+select * from app.wide_t unpivot(for product in(apple));
+----------
+[SELECT] -- UNPIVOT missing IN
+select * from app.wide_t unpivot(amount for product);
+----------
+[SELECT] -- UNPIVOT empty IN
+select * from app.wide_t unpivot(amount for product in());
+----------
+[SELECT] -- duplicate NULL treatment
+select * from app.wide_t unpivot include nulls exclude nulls(amount for product in(apple));

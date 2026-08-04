@@ -1,0 +1,330 @@
+[split_block_dameng_aggregate_atomic_0_001]
+sql:
+-- OR_REPLACE
+create or replace function APP.AGG_REPLACE(INPUT number) return number aggregate using APP.MAX_IMPL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(2:27~2:42) /test/1/catalog1/APP/AGG_REPLACE/",
+      "action": "REPLACE",
+      "target": "Function(2:87~2:99) /test/1/catalog1/APP/MAX_IMPL/"
+    }
+  ]
+}
+----------
+[split_block_dameng_aggregate_atomic_0_002]
+sql:
+-- ZERO_PARAMETERS
+create function APP.AGG_ZERO return number aggregate using APP.MAX_IMPL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(2:16~2:28) /test/1/catalog1/APP/AGG_ZERO/",
+      "action": "CREATE",
+      "target": "Function(2:59~2:71) /test/1/catalog1/APP/MAX_IMPL/"
+    }
+  ]
+}
+----------
+[split_block_dameng_aggregate_atomic_0_003]
+sql:
+-- EMPTY_PARAMETERS
+create function APP.AGG_EMPTY() return number aggregate using APP.MAX_IMPL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(2:16~2:29) /test/1/catalog1/APP/AGG_EMPTY/",
+      "action": "CREATE",
+      "target": "Function(2:62~2:74) /test/1/catalog1/APP/MAX_IMPL/"
+    }
+  ]
+}
+----------
+[split_block_dameng_aggregate_atomic_0_004]
+sql:
+-- OUT_PARAMETER
+create function APP.AGG_OUT(INPUT out number) return number aggregate using APP.MAX_IMPL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(2:16~2:27) /test/1/catalog1/APP/AGG_OUT/",
+      "action": "CREATE",
+      "target": "Function(2:76~2:88) /test/1/catalog1/APP/MAX_IMPL/"
+    }
+  ]
+}
+----------
+[split_block_dameng_aggregate_atomic_0_005]
+sql:
+-- IN_OUT_PARAMETER
+create function APP.AGG_INOUT(INPUT in out number) return number aggregate using APP.MAX_IMPL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(2:16~2:29) /test/1/catalog1/APP/AGG_INOUT/",
+      "action": "CREATE",
+      "target": "Function(2:81~2:93) /test/1/catalog1/APP/MAX_IMPL/"
+    }
+  ]
+}
+----------
+[split_block_dameng_aggregate_atomic_0_006]
+sql:
+-- OUT_IN_PARAMETER
+create function APP.AGG_OUTIN(INPUT out in number) return number aggregate using APP.MAX_IMPL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(2:16~2:29) /test/1/catalog1/APP/AGG_OUTIN/",
+      "action": "CREATE",
+      "target": "Function(2:81~2:93) /test/1/catalog1/APP/MAX_IMPL/"
+    }
+  ]
+}
+----------
+[split_block_dameng_aggregate_atomic_0_007]
+sql:
+-- ASSIGN_DEFAULT
+create function APP.AGG_DEFAULT(INPUT number := 7) return number aggregate using APP.MAX_IMPL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(2:16~2:31) /test/1/catalog1/APP/AGG_DEFAULT/",
+      "action": "CREATE",
+      "target": "Function(2:81~2:93) /test/1/catalog1/APP/MAX_IMPL/"
+    }
+  ]
+}
+----------
+[split_block_dameng_aggregate_atomic_0_008]
+sql:
+-- TWO_PARAMETERS
+create function APP.AGG_PAIR(A number,B number) return number aggregate using APP.MAX_IMPL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(2:16~2:28) /test/1/catalog1/APP/AGG_PAIR/",
+      "action": "CREATE",
+      "target": "Function(2:78~2:90) /test/1/catalog1/APP/MAX_IMPL/"
+    }
+  ]
+}
+----------
+[split_block_dameng_aggregate_atomic_0_009]
+sql:
+-- ROWID_PARAMETER
+create function APP.AGG_ROWID(INPUT rowid) return number aggregate using APP.MAX_IMPL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(2:16~2:29) /test/1/catalog1/APP/AGG_ROWID/",
+      "action": "CREATE",
+      "target": "Function(2:73~2:85) /test/1/catalog1/APP/MAX_IMPL/"
+    }
+  ]
+}
+----------
+[split_block_dameng_aggregate_atomic_0_010]
+sql:
+-- DUPLICATE_DETERMINISTIC
+create function APP.AGG_DUP_DET(INPUT number) return number deterministic deterministic aggregate using APP.MAX_IMPL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(2:16~2:31) /test/1/catalog1/APP/AGG_DUP_DET/",
+      "action": "CREATE",
+      "target": "Function(2:104~2:116) /test/1/catalog1/APP/MAX_IMPL/"
+    }
+  ]
+}
+----------
+[split_block_dameng_aggregate_atomic_0_011]
+sql:
+-- DUPLICATE_PARALLEL
+create function APP.AGG_DUP_PAR(INPUT number) return number parallel_enable parallel_enable aggregate using APP.MAX_IMPL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(2:16~2:31) /test/1/catalog1/APP/AGG_DUP_PAR/",
+      "action": "CREATE",
+      "target": "Function(2:108~2:120) /test/1/catalog1/APP/MAX_IMPL/"
+    }
+  ]
+}
+----------
+[split_block_dameng_aggregate_atomic_0_012]
+sql:
+-- ZERO_CALL_SERVER_BOUNDARY
+select APP.AGG_ZERO() from APP.AGG_SOURCE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:19) /test/1/catalog1/APP/AGG_ZERO/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:27~2:41) /test/1/catalog1/APP/AGG_SOURCE/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_aggregate_atomic_0_013]
+sql:
+-- OUT_CALL_SERVER_BOUNDARY
+select APP.AGG_OUT(N) from APP.AGG_SOURCE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:18) /test/1/catalog1/APP/AGG_OUT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:27~2:41) /test/1/catalog1/APP/AGG_SOURCE/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_aggregate_atomic_0_014]
+sql:
+-- PAIR_CALL_SERVER_BOUNDARY
+select APP.AGG_PAIR(N,ID) from APP.AGG_SOURCE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:19) /test/1/catalog1/APP/AGG_PAIR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:31~2:45) /test/1/catalog1/APP/AGG_SOURCE/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_aggregate_atomic_0_015]
+sql:
+-- ROWID_CALL_SERVER_BOUNDARY
+select APP.AGG_ROWID(rowid) from APP.AGG_SOURCE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:20) /test/1/catalog1/APP/AGG_ROWID/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:33~2:47) /test/1/catalog1/APP/AGG_SOURCE/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_aggregate_atomic_0_016]
+sql:
+-- ALTER_COMPILE
+alter function APP.AGG_MAX compile;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_PROG_OBJ": [
+    {
+      "subject": "Function(2:15~2:26) /test/1/catalog1/APP/AGG_MAX/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_block_dameng_aggregate_atomic_0_017]
+sql:
+-- ALTER_COMPILE_DEBUG
+alter function APP.AGG_MAX compile debug;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_PROG_OBJ": [
+    {
+      "subject": "Function(2:15~2:26) /test/1/catalog1/APP/AGG_MAX/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_block_dameng_aggregate_atomic_0_018]
+sql:
+-- DROP_MISSING
+drop function APP.NO_SUCH_AGG;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Function(2:14~2:29) /test/1/catalog1/APP/NO_SUCH_AGG/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_aggregate_atomic_0_019]
+sql:
+-- DROP_MISSING_IF_EXISTS
+drop function if exists APP.NO_SUCH_AGG;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Function(2:24~2:39) /test/1/catalog1/APP/NO_SUCH_AGG/",
+      "action": "DROP"
+    }
+  ]
+}

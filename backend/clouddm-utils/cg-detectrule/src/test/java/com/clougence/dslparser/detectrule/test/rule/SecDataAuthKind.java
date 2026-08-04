@@ -23,8 +23,8 @@ public enum SecDataAuthKind {
     QUERY("DM_DAUTH_QUERY"),
     DML("DM_DAUTH_DML"),
     DDL("DM_DAUTH_DDL"),
-    DCL("DM_DAUTH_DCL"),
-    OTHER("DM_DAUTH_OTHER"),;
+    MANAGE("DM_DAUTH_MANAGE"),
+    UNSAFE("DM_DAUTH_UNSAFE"),;
 
     private final String authLabel;
 

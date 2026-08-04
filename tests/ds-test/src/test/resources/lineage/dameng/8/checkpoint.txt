@@ -1,0 +1,6 @@
+[checkpoint_has_no_result_lineage]
+sql:
+checkpoint(30)
+expect:
+{}
+----------

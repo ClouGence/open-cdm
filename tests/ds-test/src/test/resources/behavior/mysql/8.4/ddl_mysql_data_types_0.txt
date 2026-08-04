@@ -1,0 +1,2743 @@
+[create_table__001]
+sql:
+CREATE TABLE codex_create_audit_key_prefix (c1 VARCHAR(33), KEY USING BTREE (c1));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Index(1:60~1:80) /test/1/catalog1/schema1/",
+      "action" : "CREATE",
+      "target" : "Table(1:13~1:42) /test/1/catalog1/schema1/codex_create_audit_key_prefix/"
+    }
+  ]
+}
+----------
+[create_table__002]
+sql:
+CREATE TABLE codex_create_audit_key_twice (c1 VARCHAR(33), KEY USING BTREE (c1) USING HASH) ENGINE=MEMORY;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Index(1:59~1:90) /test/1/catalog1/schema1/",
+      "action" : "CREATE",
+      "target" : "Table(1:13~1:41) /test/1/catalog1/schema1/codex_create_audit_key_twice/"
+    }
+  ]
+}
+----------
+[drop_schema__003]
+sql:
+DROP database AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SCHEMA": [
+    {
+      "subject": "Schema(1:14~1:204) /test/1/catalog1/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[create_prog_obj_block_program_control___004]
+sql:
+CREATE PROCEDURE p_types(IN p ENUM('a','b'), OUT q SET('x','y'), INOUT r DECIMAL(10,2)) BEGIN SET q='x'; SET r=COALESCE(r,0); END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:17~1:24) /test/1/catalog1/schema1/p_types/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:111~1:119) /test/1/catalog1/schema1/COALESCE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[system_setting_write__005]
+sql:
+DROP SPATIAL REFERENCE SYSTEM IF EXISTS 70000001;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:40~1:48) /test/1/catalog1/schema1/70000001/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[system_setting_write__006]
+sql:
+DROP SPATIAL REFERENCE SYSTEM IF EXISTS 70000002;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:40~1:48) /test/1/catalog1/schema1/70000002/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[system_setting_write__007]
+sql:
+CREATE SPATIAL REFERENCE SYSTEM 70000001
+  NAME 'split_srs_a'
+  DEFINITION 'GEOGCS["split_srs_a",DATUM["split_datum_a",SPHEROID["split_spheroid_a",6378137,298.257223563]],PRIMEM["Greenwich",0],UNIT["degree",0.017453292519943278],AXIS["Lat",NORTH],AXIS["Lon",EAST]]';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:32~1:40) /test/1/catalog1/schema1/70000001/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[system_setting_write__008]
+sql:
+CREATE OR REPLACE SPATIAL REFERENCE SYSTEM 70000001
+  ORGANIZATION 'SPLIT' IDENTIFIED BY 70000001
+  DESCRIPTION 'split replacement'
+  NAME 'split_srs_a_replace'
+  DEFINITION 'GEOGCS["split_srs_a_replace",DATUM["split_datum_ar",SPHEROID["split_spheroid_ar",6378137,298.257223563]],PRIMEM["Greenwich",0],UNIT["degree",0.017453292519943278],AXIS["Lat",NORTH],AXIS["Lon",EAST]]';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:43~1:51) /test/1/catalog1/schema1/70000001/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[system_setting_write__009]
+sql:
+CREATE SPATIAL REFERENCE SYSTEM IF NOT EXISTS 70000002
+  DEFINITION 'GEOGCS["split_srs_b",DATUM["split_datum_b",SPHEROID["split_spheroid_b",6378137,298.257223563]],PRIMEM["Greenwich",0],UNIT["degree",0.017453292519943278],AXIS["Lon",EAST],AXIS["Lat",NORTH]]'
+  NAME 'split_srs_b';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:46~1:54) /test/1/catalog1/schema1/70000002/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[system_setting_write__010]
+sql:
+DROP SPATIAL REFERENCE SYSTEM 70000002;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:30~1:38) /test/1/catalog1/schema1/70000002/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[system_setting_write__011]
+sql:
+DROP SPATIAL REFERENCE SYSTEM IF EXISTS 70000001;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:40~1:48) /test/1/catalog1/schema1/70000001/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[create_table__012]
+sql:
+CREATE TABLE audit_t (c CHAR(5) ASCII BINARY);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:20) /test/1/catalog1/schema1/audit_t/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__013]
+sql:
+CREATE TABLE audit_t (c CHAR(5) BINARY ASCII);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:20) /test/1/catalog1/schema1/audit_t/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__014]
+sql:
+CREATE TABLE audit_t (c CHAR(5) BINARY CHARACTER SET latin1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:20) /test/1/catalog1/schema1/audit_t/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__015]
+sql:
+CREATE TABLE audit_t (c CHAR(5) CHARACTER SET latin1 BINARY);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:20) /test/1/catalog1/schema1/audit_t/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__016]
+sql:
+CREATE TABLE audit_t (c JSON COLLATE utf8mb4_bin);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:20) /test/1/catalog1/schema1/audit_t/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__017]
+sql:
+CREATE TABLE audit_t (c INT SIGNED ZEROFILL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:20) /test/1/catalog1/schema1/audit_t/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__018]
+sql:
+CREATE TABLE audit_t (c INT ZEROFILL UNSIGNED);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:20) /test/1/catalog1/schema1/audit_t/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__019]
+sql:
+CREATE TABLE audit_t (c POINT SRID 4326 NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:20) /test/1/catalog1/schema1/audit_t/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__020]
+sql:
+CREATE TABLE audit_t (c TIMESTAMP(7));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:20) /test/1/catalog1/schema1/audit_t/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__021]
+sql:
+CREATE TABLE audit_t (c YEAR(2));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:20) /test/1/catalog1/schema1/audit_t/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__022]
+sql:
+CREATE TABLE type_alias_matrix (c_int INT, c_int1 INT1, c_int2 INT2, c_int3 INT3, c_int4 INT4, c_int8 INT8, c_middle MIDDLEINT, c_dec DEC(10,2), c_float4 FLOAT4, c_float8 FLOAT8, c_long LONG, c_char_byte CHAR BYTE, c_nat_varchar NATIONAL VARCHAR(20), c_nchar_varchar NCHAR VARCHAR(20), c_nat_char_varying NATIONAL CHAR VARYING(20), c_year YEAR);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/schema1/type_alias_matrix/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__023]
+sql:
+CREATE TABLE type_expression_defaults (
+ c_float FLOAT DEFAULT (RAND() * RAND()),
+ c_binary BINARY(16) DEFAULT (UUID_TO_BIN(UUID())),
+ c_date DATE DEFAULT (CURRENT_DATE + INTERVAL 1 YEAR),
+ c_point POINT DEFAULT (Point(0,0)),
+ c_json JSON DEFAULT (JSON_ARRAY()),
+ c_blob BLOB DEFAULT ('abc'),
+ c_text TEXT DEFAULT (CONCAT('a','b')),
+ c_base INT DEFAULT 2,
+ c_ref INT DEFAULT (c_base + 1)
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:37) /test/1/catalog1/schema1/type_expression_defaults/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(2:24~2:28) /test/1/catalog1/schema1/RAND/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(3:30~3:41) /test/1/catalog1/schema1/UUID_TO_BIN/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(3:42~3:46) /test/1/catalog1/schema1/UUID/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(4:22~4:34) /test/1/catalog1/schema1/CURRENT_DATE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(5:24~5:29) /test/1/catalog1/schema1/Point/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(6:22~6:32) /test/1/catalog1/schema1/JSON_ARRAY/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(8:22~8:28) /test/1/catalog1/schema1/CONCAT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_table__024]
+sql:
+CREATE TABLE type_literal_defaults (
+ c_neg INT DEFAULT -1,
+ c_unsigned BIGINT UNSIGNED DEFAULT 0,
+ c_decimal DECIMAL(10,2) DEFAULT 0.00,
+ c_float DOUBLE DEFAULT 1.25,
+ c_bit BIT(4) DEFAULT b'1010',
+ c_hex BINARY(2) DEFAULT X'4142',
+ c_empty VARCHAR(10) DEFAULT '',
+ c_char CHAR(1) DEFAULT 'x',
+ c_bool BOOLEAN DEFAULT TRUE,
+ c_date DATE DEFAULT '2020-01-02',
+ c_time TIME(6) DEFAULT '12:34:56.123456',
+ c_datetime DATETIME(6) DEFAULT '2020-01-02 12:34:56.123456',
+ c_timestamp TIMESTAMP(6) NULL DEFAULT '2020-01-02 12:34:56.123456',
+ c_year YEAR DEFAULT 2020,
+ c_enum ENUM('a','b') DEFAULT 'b',
+ c_set SET('x','y') DEFAULT 'x,y',
+ c_nullable INT DEFAULT NULL
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:34) /test/1/catalog1/schema1/type_literal_defaults/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__025]
+sql:
+CREATE TABLE type_json (c_json JSON);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:22) /test/1/catalog1/schema1/type_json/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__026]
+sql:
+CREATE TABLE type_numeric_forms (
+ c_bit_default BIT,
+ c_bit_max BIT(64),
+ c_tiny_plain TINYINT,
+ c_small_width SMALLINT(5) UNSIGNED,
+ c_medium_zero MEDIUMINT(8) ZEROFILL,
+ c_int_signed INT(10) SIGNED,
+ c_big_zero BIGINT(20) UNSIGNED ZEROFILL,
+ c_decimal_default DECIMAL,
+ c_decimal_precision DECIMAL(12),
+ c_numeric_signed NUMERIC(20,4) SIGNED,
+ c_float_default FLOAT,
+ c_float_scale FLOAT(10,3) ZEROFILL,
+ c_float_precision FLOAT(53) SIGNED,
+ c_double_default DOUBLE,
+ c_double_scale DOUBLE(30,10) UNSIGNED,
+ c_real_default REAL,
+ c_real_scale REAL(12,4) ZEROFILL
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/schema1/type_numeric_forms/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__027]
+sql:
+CREATE TABLE type_num_common (
+ c_tiny TINYINT(3) UNSIGNED ZEROFILL,
+ c_small SMALLINT SIGNED,
+ c_medium MEDIUMINT,
+ c_int INTEGER(11),
+ c_big BIGINT UNSIGNED,
+ c_dec DECIMAL(20,6) UNSIGNED ZEROFILL,
+ c_num NUMERIC(10),
+ c_fixed FIXED(12,2),
+ c_float FLOAT(24) UNSIGNED,
+ c_double DOUBLE PRECISION(20,5) ZEROFILL,
+ c_real REAL(10,3),
+ c_bit BIT(8),
+ c_bool BOOL,
+ c_boolean BOOLEAN,
+ c_serial SERIAL
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/schema1/type_num_common/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__028]
+sql:
+CREATE TABLE type_temporal_common (c_date DATE, c_time TIME(6), c_datetime DATETIME(6), c_timestamp TIMESTAMP(6), c_year YEAR(4));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:33) /test/1/catalog1/schema1/type_temporal_common/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__029]
+sql:
+CREATE TABLE type_year2 (c_year YEAR(2));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:23) /test/1/catalog1/schema1/type_year2/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__030]
+sql:
+CREATE TABLE type_float_ai (id FLOAT AUTO_INCREMENT PRIMARY KEY);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:26) /test/1/catalog1/schema1/type_float_ai/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Constraint(1:52~1:63) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__031]
+sql:
+CREATE TABLE type_spatial_standard (c_geom GEOMETRY, c_point POINT, c_linestring LINESTRING, c_polygon POLYGON, c_multipoint MULTIPOINT, c_multiline MULTILINESTRING, c_multipolygon MULTIPOLYGON, c_collection GEOMETRYCOLLECTION);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:34) /test/1/catalog1/schema1/type_spatial_standard/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__032]
+sql:
+CREATE TABLE type_geom_alias (c_collection GEOMCOLLECTION);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/schema1/type_geom_alias/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__033]
+sql:
+CREATE TABLE type_srid (c_point POINT NOT NULL SRID 4326, SPATIAL INDEX (c_point));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Index(1:58~1:81) /test/1/catalog1/schema1/",
+      "action" : "CREATE",
+      "target" : "Table(1:13~1:22) /test/1/catalog1/schema1/type_srid/"
+    }
+  ]
+}
+----------
+[create_table__034]
+sql:
+CREATE TABLE type_spatial_srid_forms (
+ c_geom GEOMETRY SRID 0,
+ c_point POINT SRID 4326 NOT NULL,
+ c_linestring LINESTRING SRID 0,
+ c_polygon POLYGON SRID 0,
+ c_multipoint MULTIPOINT SRID 0,
+ c_multiline MULTILINESTRING SRID 0,
+ c_multipolygon MULTIPOLYGON SRID 0,
+ c_collection GEOMETRYCOLLECTION SRID 0,
+ c_alias GEOMCOLLECTION SRID 0
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:36) /test/1/catalog1/schema1/type_spatial_srid_forms/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__035]
+sql:
+CREATE TABLE type_string_common (
+ c_char CHAR(10) BINARY,
+ c_character CHARACTER(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci,
+ c_varchar VARCHAR(20),
+ c_char_varying CHARACTER VARYING(20),
+ c_nchar NCHAR(10),
+ c_national NATIONAL CHARACTER(10),
+ c_national_varying NATIONAL CHARACTER VARYING(20),
+ c_nvarchar NVARCHAR(20),
+ c_binary BINARY(8),
+ c_varbinary VARBINARY(16),
+ c_tinyblob TINYBLOB,
+ c_blob BLOB(100),
+ c_mediumblob MEDIUMBLOB,
+ c_longblob LONGBLOB,
+ c_tinytext TINYTEXT,
+ c_text TEXT(100) BINARY,
+ c_mediumtext MEDIUMTEXT,
+ c_longtext LONGTEXT,
+ c_enum ENUM('a','b') CHARACTER SET utf8mb4,
+ c_set SET('x','y') BINARY,
+ c_long_varchar LONG VARCHAR,
+ c_long_varbinary LONG VARBINARY
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/schema1/type_string_common/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__036]
+sql:
+CREATE TABLE type_string_compat (
+ c_char_varying CHAR VARYING(10),
+ c_nchar_varying NCHAR VARYING(10),
+ c_long_ascii LONG ASCII,
+ c_long_varchar_unicode LONG VARCHAR UNICODE COLLATE ucs2_general_ci,
+ c_tinytext_ascii TINYTEXT ASCII COLLATE latin1_bin,
+ c_mediumtext_unicode MEDIUMTEXT UNICODE COLLATE ucs2_general_ci,
+ c_longtext_charset LONGTEXT CHARSET latin1 COLLATE latin1_general_cs,
+ c_binary_default BINARY
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/schema1/type_string_compat/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__037]
+sql:
+CREATE TABLE type_string_forms (
+ c_char_default CHAR,
+ c_char_zero CHAR(0),
+ c_char_ascii CHAR(5) ASCII,
+ c_varchar_ascii VARCHAR(10) ASCII,
+ c_varchar_unicode VARCHAR(10) UNICODE,
+ c_varchar_charset VARCHAR(10) CHARSET latin1 COLLATE latin1_bin,
+ c_varchar_binary_charset VARCHAR(10) CHARACTER SET binary,
+ c_text_ascii TEXT ASCII,
+ c_text_charset TEXT CHARACTER SET latin1 COLLATE latin1_general_cs,
+ c_enum_collate ENUM('a','b') CHARSET latin1 COLLATE latin1_bin,
+ c_set_collate SET('x','y') CHARACTER SET utf8mb4 COLLATE utf8mb4_bin,
+ c_national_collate NATIONAL CHAR(5) COLLATE utf8_general_ci
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/schema1/type_string_forms/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__038]
+sql:
+CREATE TABLE type_temporal_forms (
+ c_date DATE,
+ c_time_default TIME,
+ c_time_zero TIME(0),
+ c_datetime_default DATETIME,
+ c_datetime_zero DATETIME(0),
+ c_timestamp_default TIMESTAMP NULL,
+ c_timestamp_zero TIMESTAMP(0) NULL,
+ c_year_default YEAR,
+ c_year_four YEAR(4)
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:32) /test/1/catalog1/schema1/type_temporal_forms/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__039]
+sql:
+CREATE TEMPORARY TABLE t_varcharacter (c VARCHARACTER(10));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:23~1:37) /test/1/catalog1/schema1/t_varcharacter/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[alter_table_alter_column__040]
+sql:
+ALTER TABLE codex_year_alter MODIFY COLUMN c1 YEAR(2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:28) /test/1/catalog1/schema1/codex_year_alter/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[create_prog_obj_program_control___041]
+sql:
+CREATE FUNCTION codex_year4(a YEAR(4)) RETURNS YEAR(4) DETERMINISTIC RETURN a;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:27) /test/1/catalog1/schema1/codex_year4/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_prog_obj_program_control___042]
+sql:
+CREATE FUNCTION codex_year_plain(a YEAR) RETURNS YEAR DETERMINISTIC RETURN a;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:32) /test/1/catalog1/schema1/codex_year_plain/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_prog_obj_block___043]
+sql:
+CREATE PROCEDURE codex_year_proc(a YEAR(4),b YEAR) BEGIN END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:17~1:32) /test/1/catalog1/schema1/codex_year_proc/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__044]
+sql:
+CREATE TABLE codex_year_options(a YEAR SIGNED,b YEAR ZEROFILL,c YEAR UNSIGNED ZEROFILL,d YEAR ZEROFILL UNSIGNED);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/schema1/codex_year_options/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__045]
+sql:
+CREATE TABLE codex_year_union_result SELECT c1 FROM codex_year_union_source WHERE c1=1 UNION SELECT c2 FROM codex_year_union_source WHERE c2<2000;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:36) /test/1/catalog1/schema1/codex_year_union_result/",
+      "action" : "CREATE",
+      "target" : "Table(1:52~1:75) /test/1/catalog1/schema1/codex_year_union_source/"
+    }
+  ]
+}
+----------
+[create_view_select___046]
+sql:
+CREATE VIEW codex_year_view(c0) AS (SELECT CAST(2048 AS YEAR));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:27) /test/1/catalog1/schema1/codex_year_view/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:43~1:47) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_table__047]
+sql:
+CREATE TABLE codex_year_generated(c1 YEAR AS (CAST(1985 AS YEAR)));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:33) /test/1/catalog1/schema1/codex_year_generated/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:46~1:50) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_table__048]
+sql:
+CREATE TABLE codex_decimal_scale_gt(a_dec DECIMAL(0,11));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:35) /test/1/catalog1/schema1/codex_decimal_scale_gt/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__049]
+sql:
+CREATE TABLE codex_decimal_precision_64(d DECIMAL(64,0));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:39) /test/1/catalog1/schema1/codex_decimal_precision_64/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__050]
+sql:
+CREATE TABLE codex_decimal_precision_66(d DECIMAL(66,0));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:39) /test/1/catalog1/schema1/codex_decimal_precision_66/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[alter_table_alter_column__051]
+sql:
+ALTER TABLE a01 MODIFY COLUMN a FLOAT(255,0);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:15) /test/1/catalog1/schema1/a01/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_alter_column__052]
+sql:
+ALTER TABLE a02 MODIFY COLUMN a DOUBLE PRECISION(42,12);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:15) /test/1/catalog1/schema1/a02/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_alter_column__053]
+sql:
+ALTER TABLE a03 MODIFY COLUMN a REAL(42,12);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:15) /test/1/catalog1/schema1/a03/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[create_prog_obj_program_control___054]
+sql:
+CREATE FUNCTION f_float255(a FLOAT(255,0)) RETURNS DOUBLE(12,3) RETURN 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:26) /test/1/catalog1/schema1/f_float255/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_prog_obj_block_select___055]
+sql:
+CREATE PROCEDURE p_float255(IN a FLOAT(255,0),OUT b DOUBLE(12,3)) BEGIN SELECT 1 INTO b; END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:17~1:27) /test/1/catalog1/schema1/p_float255/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_prog_obj_program_control___056]
+sql:
+CREATE FUNCTION f_unsigned(a FLOAT UNSIGNED) RETURNS DOUBLE UNSIGNED RETURN 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:26) /test/1/catalog1/schema1/f_unsigned/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_prog_obj_block_select___057]
+sql:
+CREATE PROCEDURE p_unsigned(IN a FLOAT UNSIGNED,OUT b DOUBLE UNSIGNED) BEGIN SELECT 1 INTO b; END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:17~1:27) /test/1/catalog1/schema1/p_unsigned/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[alter_table_alter_column__058]
+sql:
+ALTER TABLE ai MODIFY COLUMN a FLOAT PRIMARY KEY AUTO_INCREMENT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:14) /test/1/catalog1/schema1/ai/",
+      "action" : "ALTER"
+    },
+    {
+      "subject": "Constraint(1:37~1:48) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__059]
+sql:
+CREATE TABLE t1 (c1 DATE DEFAULT 0);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:15) /test/1/catalog1/schema1/t1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__060]
+sql:
+CREATE TABLE bit_65(a BIT(65));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:19) /test/1/catalog1/schema1/bit_65/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__061]
+sql:
+CREATE TABLE bit_0(a BIT(0));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:18) /test/1/catalog1/schema1/bit_0/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_prog_obj_program_control___062]
+sql:
+CREATE FUNCTION bit_f(a BIT(64)) RETURNS BIT(8) DETERMINISTIC RETURN a;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:21) /test/1/catalog1/schema1/bit_f/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_prog_obj_select___063]
+sql:
+CREATE PROCEDURE bit_p(IN a BIT(3),OUT b BIT(12)) SELECT a INTO b;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:17~1:22) /test/1/catalog1/schema1/bit_p/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__064]
+sql:
+CREATE TABLE bit_defaults(f1 BIT(2) NOT NULL DEFAULT b'10',f2 BIT(14) NOT NULL DEFAULT b'11110000111100') ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_general_ci;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/bit_defaults/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__065]
+sql:
+CREATE TABLE bit_widths(b1 BIT(1) NOT NULL DEFAULT b'1',b2 BIT(2) DEFAULT b'10',b7 BIT(7),b9 BIT(9),b13 BIT(13),b31 BIT(31),b63 BIT(63),PRIMARY KEY(b1,b2),UNIQUE KEY uq_b7(b7),KEY idx_b9_b13(b9,b13));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Index(1:166~1:171) /test/1/catalog1/schema1/uq_b7/",
+      "action" : "CREATE",
+      "target" : "Table(1:13~1:23) /test/1/catalog1/schema1/bit_widths/"
+    },
+    {
+      "subject": "Index(1:180~1:190) /test/1/catalog1/schema1/idx_b9_b13/",
+      "action" : "CREATE",
+      "target" : "Table(1:13~1:23) /test/1/catalog1/schema1/bit_widths/"
+    },
+    {
+      "subject": "Constraint(1:136~1:154) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Constraint(1:155~1:175) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[alter_table_alter_column_add_column_add_index__066]
+sql:
+ALTER TABLE bit_widths MODIFY COLUMN b63 BIT(64) NOT NULL DEFAULT b'1',ADD COLUMN b8 BIT(8) NULL AFTER b7,ADD KEY idx_b8(b8);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Index(1:114~1:120) /test/1/catalog1/schema1/idx_b8/",
+      "action" : "CREATE",
+      "target" : "Table(1:12~1:22) /test/1/catalog1/schema1/bit_widths/"
+    }
+  ]
+}
+----------
+[create_table__067]
+sql:
+CREATE TABLE bit_partition(id INT,b BIT(8),PRIMARY KEY(id,b)) PARTITION BY HASH(b) PARTITIONS 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:26) /test/1/catalog1/schema1/bit_partition/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Constraint(1:43~1:60) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__068]
+sql:
+CREATE TABLE bit_generated(a INT,b BIT(8) AS (a & 255) STORED,KEY idx_b(b));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Index(1:66~1:71) /test/1/catalog1/schema1/idx_b/",
+      "action" : "CREATE",
+      "target" : "Table(1:13~1:26) /test/1/catalog1/schema1/bit_generated/"
+    }
+  ]
+}
+----------
+[create_prog_obj_block_program_control_select___069]
+sql:
+CREATE PROCEDURE bit_local()
+BEGIN
+  DECLARE v BIT(8) DEFAULT b'1';
+  SET v=v | b'10';
+  SELECT HEX(v);
+END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:17~1:26) /test/1/catalog1/schema1/bit_local/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(5:9~5:12) /test/1/catalog1/schema1/HEX/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_table__070]
+sql:
+CREATE TABLE time_fsp_7(t TIME(7));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:23) /test/1/catalog1/schema1/time_fsp_7/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__071]
+sql:
+CREATE TABLE time_widths(id INT PRIMARY KEY,t TIME,t0 TIME(0),t1 TIME(1),t2 TIME(2),t3 TIME(3),t4 TIME(4),t5 TIME(5),t6 TIME(6),KEY idx_t6(t6));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Index(1:132~1:138) /test/1/catalog1/schema1/idx_t6/",
+      "action" : "CREATE",
+      "target" : "Table(1:13~1:24) /test/1/catalog1/schema1/time_widths/"
+    },
+    {
+      "subject": "Constraint(1:32~1:43) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[alter_table_alter_column_add_index__072]
+sql:
+ALTER TABLE time_widths MODIFY t TIME(6) NOT NULL DEFAULT '00:00:00.000000',ADD UNIQUE KEY uk_t5(t5);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Index(1:91~1:96) /test/1/catalog1/schema1/uk_t5/",
+      "action" : "CREATE",
+      "target" : "Table(1:12~1:23) /test/1/catalog1/schema1/time_widths/"
+    }
+  ]
+}
+----------
+[create_prog_obj_program_control___073]
+sql:
+CREATE FUNCTION time_identity(p_value TIME(6)) RETURNS TIME(6) DETERMINISTIC RETURN p_value;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:29) /test/1/catalog1/schema1/time_identity/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_prog_obj_block_program_control___074]
+sql:
+CREATE PROCEDURE time_parameters(IN p_input TIME(6),OUT p_output TIME(6),INOUT p_accumulator TIME(3))
+BEGIN
+  DECLARE local_time TIME(6) DEFAULT TIME'00:00:00.000001';
+  SET p_output=ADDTIME(p_input,local_time);
+  SET p_accumulator=SUBTIME(p_accumulator,local_time);
+END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:17~1:32) /test/1/catalog1/schema1/time_parameters/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(4:15~4:22) /test/1/catalog1/schema1/ADDTIME/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(5:20~5:27) /test/1/catalog1/schema1/SUBTIME/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_table__075]
+sql:
+CREATE TABLE time_partition_range(id INT,t TIME(6)) PARTITION BY RANGE COLUMNS(t)(PARTITION p_negative VALUES LESS THAN(TIME'00:00:00.000000'),PARTITION p_positive VALUES LESS THAN(MAXVALUE));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:33) /test/1/catalog1/schema1/time_partition_range/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__076]
+sql:
+CREATE TABLE time_generated(raw_value VARCHAR(32),generated_time TIME(6) GENERATED ALWAYS AS(CAST(raw_value AS TIME(6))) STORED);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:27) /test/1/catalog1/schema1/time_generated/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:93~1:97) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_table__077]
+sql:
+CREATE TABLE datetime_widths(id INT PRIMARY KEY,dt DATETIME,dt0 DATETIME(0),dt1 DATETIME(1),dt2 DATETIME(2),dt3 DATETIME(3),dt4 DATETIME(4),dt5 DATETIME(5),dt6 DATETIME(6),ts TIMESTAMP NULL,ts0 TIMESTAMP(0) NULL,ts1 TIMESTAMP(1) NULL,ts2 TIMESTAMP(2) NULL,ts3 TIMESTAMP(3) NULL,ts4 TIMESTAMP(4) NULL,ts5 TIMESTAMP(5) NULL,ts6 TIMESTAMP(6) NULL,KEY idx_dt6(dt6),UNIQUE KEY uk_ts6(ts6));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Index(1:348~1:355) /test/1/catalog1/schema1/idx_dt6/",
+      "action" : "CREATE",
+      "target" : "Table(1:13~1:28) /test/1/catalog1/schema1/datetime_widths/"
+    },
+    {
+      "subject": "Index(1:372~1:378) /test/1/catalog1/schema1/uk_ts6/",
+      "action" : "CREATE",
+      "target" : "Table(1:13~1:28) /test/1/catalog1/schema1/datetime_widths/"
+    },
+    {
+      "subject": "Constraint(1:36~1:47) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Constraint(1:361~1:383) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__078]
+sql:
+CREATE TABLE datetime_fsp_7(dt DATETIME(7));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:27) /test/1/catalog1/schema1/datetime_fsp_7/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[alter_table_alter_column_add_index__079]
+sql:
+ALTER TABLE datetime_widths MODIFY dt DATETIME(6) NOT NULL DEFAULT '2000-01-01 00:00:00.000000',MODIFY ts TIMESTAMP(6) NULL DEFAULT NULL,ADD KEY idx_dt5_ts5(dt5,ts5);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Index(1:145~1:156) /test/1/catalog1/schema1/idx_dt5_ts5/",
+      "action" : "CREATE",
+      "target" : "Table(1:12~1:27) /test/1/catalog1/schema1/datetime_widths/"
+    }
+  ]
+}
+----------
+[create_prog_obj_program_control___080]
+sql:
+CREATE FUNCTION datetime_identity(p_value DATETIME(6)) RETURNS DATETIME(6) DETERMINISTIC RETURN p_value;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:33) /test/1/catalog1/schema1/datetime_identity/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_prog_obj_block_program_control_select___081]
+sql:
+CREATE PROCEDURE datetime_parameters(IN p_datetime DATETIME(6),OUT p_timestamp TIMESTAMP(6),INOUT p_accumulator DATETIME(3))
+BEGIN
+  DECLARE local_datetime DATETIME(6) DEFAULT '2000-01-01 00:00:00.000001';
+  DECLARE local_timestamp TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP(6);
+  SET p_timestamp=local_timestamp;
+  SET p_accumulator=TIMESTAMPADD(MICROSECOND,1,p_datetime);
+  SELECT local_datetime;
+END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:17~1:36) /test/1/catalog1/schema1/datetime_parameters/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(4:47~4:64) /test/1/catalog1/schema1/CURRENT_TIMESTAMP/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(6:20~6:32) /test/1/catalog1/schema1/TIMESTAMPADD/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[alter_table_alter_column__082]
+sql:
+ALTER TABLE datetime_widths MODIFY dt0 TIMESTAMP(0) NULL,MODIFY ts0 DATETIME(0) NULL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:27) /test/1/catalog1/schema1/datetime_widths/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[create_table__083]
+sql:
+CREATE TABLE temporal_generated(source_value VARCHAR(32),generated_datetime DATETIME(6) GENERATED ALWAYS AS(CAST(source_value AS DATETIME(6))) STORED,generated_timestamp TIMESTAMP(6) GENERATED ALWAYS AS(CAST(source_value AS DATETIME(6))) VIRTUAL,KEY idx_generated_datetime(generated_datetime),KEY idx_generated_timestamp(generated_timestamp));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Index(1:250~1:272) /test/1/catalog1/schema1/idx_generated_datetime/",
+      "action" : "CREATE",
+      "target" : "Table(1:13~1:31) /test/1/catalog1/schema1/temporal_generated/"
+    },
+    {
+      "subject": "Index(1:297~1:320) /test/1/catalog1/schema1/idx_generated_timestamp/",
+      "action" : "CREATE",
+      "target" : "Table(1:13~1:31) /test/1/catalog1/schema1/temporal_generated/"
+    },
+    {
+      "subject": "Function(1:108~1:112) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_table__084]
+sql:
+CREATE TABLE str_char_edges (c0 CHAR(0), c1 CHAR, c255 CHAR(255));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:27) /test/1/catalog1/schema1/str_char_edges/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__085]
+sql:
+CREATE TABLE str_varchar_edges (v0 VARCHAR(0), v254 VARCHAR(254), v255 VARCHAR(255), v256 VARCHAR(256), v300 VARCHAR(300));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/schema1/str_varchar_edges/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__086]
+sql:
+CREATE TABLE str_varchar_max (v VARCHAR(65535)) CHARACTER SET latin1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/schema1/str_varchar_max/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__087]
+sql:
+CREATE TABLE str_binary_edges (b0 BINARY(0), b1 BINARY, b255 BINARY(255));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:29) /test/1/catalog1/schema1/str_binary_edges/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__088]
+sql:
+CREATE TABLE str_varbinary_edges (v0 VARBINARY(0), v255 VARBINARY(255), v256 VARBINARY(256));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:32) /test/1/catalog1/schema1/str_varbinary_edges/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__089]
+sql:
+CREATE TABLE str_varbinary_max (v VARBINARY(65535));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/schema1/str_varbinary_max/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__090]
+sql:
+CREATE TABLE str_string_attribute_edges (
+  v_binary VARCHAR(16) BINARY,
+  v_binary_ascii VARCHAR(16) BINARY ASCII,
+  c_unicode CHAR(8) UNICODE,
+  n_varying NCHAR VARYING(16)
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:39) /test/1/catalog1/schema1/str_string_attribute_edges/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__091]
+sql:
+CREATE TABLE str_lifecycle (v VARCHAR(10), c CHAR(10), b BINARY(10), vb VARBINARY(10), t TEXT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:26) /test/1/catalog1/schema1/str_lifecycle/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[alter_table_alter_column__092]
+sql:
+ALTER TABLE str_lifecycle MODIFY c VARCHAR(20), MODIFY v CHAR(20), MODIFY t VARCHAR(300);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:25) /test/1/catalog1/schema1/str_lifecycle/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_alter_column_rename_column__093]
+sql:
+ALTER TABLE str_lifecycle CHANGE b fixed_binary BINARY(16), CHANGE vb variable_binary VARBINARY(32);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:25) /test/1/catalog1/schema1/str_lifecycle/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[create_table__094]
+sql:
+CREATE TABLE str_char_over_limit (c CHAR(256));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:32) /test/1/catalog1/schema1/str_char_over_limit/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__095]
+sql:
+CREATE TABLE str_varchar_over_limit (v VARCHAR(65536));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:35) /test/1/catalog1/schema1/str_varchar_over_limit/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__096]
+sql:
+CREATE TABLE str_binary_over_limit (b BINARY(256));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:34) /test/1/catalog1/schema1/str_binary_over_limit/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__097]
+sql:
+CREATE TABLE str_varbinary_over_limit (v VARBINARY(65536));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:37) /test/1/catalog1/schema1/str_varbinary_over_limit/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__098]
+sql:
+CREATE TABLE lob_family (
+  tb TINYBLOB,
+  b BLOB,
+  mb MEDIUMBLOB,
+  lb LONGBLOB,
+  tt TINYTEXT,
+  t TEXT,
+  mt MEDIUMTEXT,
+  lt LONGTEXT
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:23) /test/1/catalog1/schema1/lob_family/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__099]
+sql:
+CREATE TABLE blob_length_mapping (
+  b0 BLOB(0),
+  b255 BLOB(255),
+  b256 BLOB(256),
+  b65535 BLOB(65535),
+  b65536 BLOB(65536),
+  b16777215 BLOB(16777215),
+  b16777216 BLOB(16777216)
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:32) /test/1/catalog1/schema1/blob_length_mapping/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__100]
+sql:
+CREATE TABLE text_length_mapping (
+  t0 TEXT(0),
+  t255 TEXT(255),
+  t256 TEXT(256),
+  t65535 TEXT(65535),
+  t65536 TEXT(65536),
+  t16777215 TEXT(16777215),
+  t16777216 TEXT(16777216)
+) CHARACTER SET latin1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:32) /test/1/catalog1/schema1/text_length_mapping/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__101]
+sql:
+CREATE TABLE lob_lifecycle (
+  b BLOB,
+  t TEXT CHARACTER SET latin1,
+  mb MEDIUMBLOB,
+  mt MEDIUMTEXT CHARACTER SET latin1
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:26) /test/1/catalog1/schema1/lob_lifecycle/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[alter_table_alter_column_rename_column__102]
+sql:
+ALTER TABLE lob_lifecycle
+  MODIFY b MEDIUMBLOB,
+  MODIFY t MEDIUMTEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_bin,
+  CHANGE mb tiny_b TINYBLOB,
+  CHANGE mt long_t LONGTEXT CHARACTER SET utf8mb4;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:25) /test/1/catalog1/schema1/lob_lifecycle/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[create_table__103]
+sql:
+CREATE TABLE split_type_enum_set.es_core (
+      id INT PRIMARY KEY,
+      e_basic ENUM('','alpha','two words','quote''d','10','trailing ') NOT NULL DEFAULT 'alpha',
+      e_case ENUM('a','A') CHARACTER SET utf8mb4 COLLATE utf8mb4_bin,
+      s_basic SET('red','green','blue','two words','quote''d') DEFAULT 'red,blue',
+      s_case SET('a','A') CHARACTER SET utf8mb4 COLLATE utf8mb4_bin,
+      KEY idx_e (e_basic),
+      KEY idx_s (s_basic)
+    );
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Index(7:10~7:15) /test/1/catalog1/schema1/idx_e/",
+      "action" : "CREATE",
+      "target" : "Table(1:13~1:40) /test/1/catalog1/split_type_enum_set/es_core/"
+    },
+    {
+      "subject": "Index(8:10~8:15) /test/1/catalog1/schema1/idx_s/",
+      "action" : "CREATE",
+      "target" : "Table(1:13~1:40) /test/1/catalog1/split_type_enum_set/es_core/"
+    },
+    {
+      "subject": "Constraint(2:13~2:24) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__104]
+sql:
+CREATE TABLE split_type_enum_set.es_binary (
+      e_binary ENUM('a','A') BINARY,
+      e_byte ENUM(b'01100001',b'01000001') BYTE,
+      s_binary SET('a','A') BINARY,
+      s_byte SET(b'01100001',b'01000001') BYTE
+    );
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:42) /test/1/catalog1/split_type_enum_set/es_binary/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__105]
+sql:
+CREATE TABLE split_type_enum_set.es_hex (
+      e_hex ENUM(x'61',x'62'),
+      s_hex SET(x'61',x'62')
+    );
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:39) /test/1/catalog1/split_type_enum_set/es_hex/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__106]
+sql:
+CREATE TABLE split_type_enum_set.es_duplicate (
+      e ENUM('a','a','b'),
+      s SET('x','x','y')
+    );
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:45) /test/1/catalog1/split_type_enum_set/es_duplicate/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__107]
+sql:
+CREATE TABLE split_type_enum_set.es_comma (s SET('a,b','c'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:41) /test/1/catalog1/split_type_enum_set/es_comma/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__108]
+sql:
+CREATE TABLE split_type_enum_set.es_attributes (
+      e_ascii ENUM('yes','no') ASCII,
+      e_unicode ENUM('yes','no') UNICODE,
+      s_ascii SET('x','y') ASCII,
+      s_unicode SET('x','y') UNICODE,
+      e_collated ENUM('Y','N') CHARACTER SET utf8mb4 COLLATE utf8mb4_bin,
+      s_collated SET('Y','N') CHARACTER SET utf8mb4 COLLATE utf8mb4_bin
+    );
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:46) /test/1/catalog1/split_type_enum_set/es_attributes/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__109]
+sql:
+CREATE TABLE split_type_enum_set.es_set_64 (
+      s SET(
+        'm01','m02','m03','m04','m05','m06','m07','m08',
+        'm09','m10','m11','m12','m13','m14','m15','m16',
+        'm17','m18','m19','m20','m21','m22','m23','m24',
+        'm25','m26','m27','m28','m29','m30','m31','m32',
+        'm33','m34','m35','m36','m37','m38','m39','m40',
+        'm41','m42','m43','m44','m45','m46','m47','m48',
+        'm49','m50','m51','m52','m53','m54','m55','m56',
+        'm57','m58','m59','m60','m61','m62','m63','m64'
+      )
+    );
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:42) /test/1/catalog1/split_type_enum_set/es_set_64/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__110]
+sql:
+CREATE TABLE split_type_enum_set.es_set_65 (
+      s SET(
+        'm01','m02','m03','m04','m05','m06','m07','m08',
+        'm09','m10','m11','m12','m13','m14','m15','m16',
+        'm17','m18','m19','m20','m21','m22','m23','m24',
+        'm25','m26','m27','m28','m29','m30','m31','m32',
+        'm33','m34','m35','m36','m37','m38','m39','m40',
+        'm41','m42','m43','m44','m45','m46','m47','m48',
+        'm49','m50','m51','m52','m53','m54','m55','m56',
+        'm57','m58','m59','m60','m61','m62','m63','m64','m65'
+      )
+    );
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:42) /test/1/catalog1/split_type_enum_set/es_set_65/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__111]
+sql:
+CREATE TABLE split_type_enum_set.es_enum_255 (e ENUM('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:44) /test/1/catalog1/split_type_enum_set/es_enum_255/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__112]
+sql:
+CREATE TABLE split_type_enum_set.es_enum_256 (e ENUM('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:44) /test/1/catalog1/split_type_enum_set/es_enum_256/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__113]
+sql:
+CREATE TABLE split_type_enum_set.es_enum_pk (
+      e ENUM('zero','one','two') PRIMARY KEY,
+      payload INT
+    );
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:43) /test/1/catalog1/split_type_enum_set/es_enum_pk/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Constraint(2:33~2:44) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__114]
+sql:
+CREATE TABLE split_type_enum_set.es_generated (
+      id INT PRIMARY KEY,
+      e ENUM('low','medium','high'),
+      s SET('read','write','admin'),
+      e_index INT GENERATED ALWAYS AS (e+0) STORED,
+      s_mask INT GENERATED ALWAYS AS (s+0) VIRTUAL,
+      INDEX idx_e_index (e_index),
+      INDEX idx_s_mask (s_mask)
+    );
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Index(7:12~7:23) /test/1/catalog1/schema1/idx_e_index/",
+      "action" : "CREATE",
+      "target" : "Table(1:13~1:45) /test/1/catalog1/split_type_enum_set/es_generated/"
+    },
+    {
+      "subject": "Index(8:12~8:22) /test/1/catalog1/schema1/idx_s_mask/",
+      "action" : "CREATE",
+      "target" : "Table(1:13~1:45) /test/1/catalog1/split_type_enum_set/es_generated/"
+    },
+    {
+      "subject": "Constraint(2:13~2:24) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__115]
+sql:
+CREATE TABLE split_type_json.json_core (
+      id INT PRIMARY KEY,
+      doc JSON NOT NULL,
+      payload JSON,
+      doc_name VARCHAR(64)
+        GENERATED ALWAYS AS (JSON_UNQUOTE(doc->'$.name')) STORED,
+      KEY idx_doc_name (doc_name),
+      CHECK (JSON_VALID(doc))
+    );
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Index(7:10~7:22) /test/1/catalog1/schema1/idx_doc_name/",
+      "action" : "CREATE",
+      "target" : "Table(1:13~1:38) /test/1/catalog1/split_type_json/json_core/"
+    },
+    {
+      "subject": "Constraint(2:13~2:24) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(6:29~6:41) /test/1/catalog1/schema1/JSON_UNQUOTE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Constraint(8:6~8:29) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(8:13~8:23) /test/1/catalog1/schema1/JSON_VALID/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_table__116]
+sql:
+CREATE TABLE split_type_json.json_primary_key (doc JSON PRIMARY KEY);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:45) /test/1/catalog1/split_type_json/json_primary_key/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Constraint(1:56~1:67) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__117]
+sql:
+CREATE TABLE split_type_json.json_unique_key (doc JSON, UNIQUE KEY uq_doc(doc));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Index(1:67~1:73) /test/1/catalog1/schema1/uq_doc/",
+      "action" : "CREATE",
+      "target" : "Table(1:13~1:44) /test/1/catalog1/split_type_json/json_unique_key/"
+    },
+    {
+      "subject": "Constraint(1:56~1:78) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__118]
+sql:
+CREATE TABLE split_type_json.json_ordinary_key (doc JSON, KEY idx_doc(doc));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Index(1:62~1:69) /test/1/catalog1/schema1/idx_doc/",
+      "action" : "CREATE",
+      "target" : "Table(1:13~1:46) /test/1/catalog1/split_type_json/json_ordinary_key/"
+    }
+  ]
+}
+----------
+[create_table__119]
+sql:
+CREATE TABLE split_type_json.json_default_literal (id INT PRIMARY KEY,doc JSON DEFAULT '{}');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:49) /test/1/catalog1/split_type_json/json_default_literal/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Constraint(1:58~1:69) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[alter_table_add_column__120]
+sql:
+ALTER TABLE spatial_lifecycle ADD COLUMN p_added POINT NULL AFTER g;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:29) /test/1/catalog1/schema1/spatial_lifecycle/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_alter_column__121]
+sql:
+ALTER TABLE spatial_lifecycle MODIFY COLUMN p_added GEOMETRY NULL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:29) /test/1/catalog1/schema1/spatial_lifecycle/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_alter_column_rename_column__122]
+sql:
+ALTER TABLE spatial_lifecycle CHANGE COLUMN p_added p_changed LINESTRING NULL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:29) /test/1/catalog1/schema1/spatial_lifecycle/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[create_table__123]
+sql:
+CREATE TABLE spatial_generated (
+  id INT PRIMARY KEY,
+  p POINT,
+  g GEOMETRY AS (ST_Envelope(p)) STORED
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/schema1/spatial_generated/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Constraint(2:9~2:20) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(4:17~4:28) /test/1/catalog1/schema1/ST_Envelope/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[alter_table_add_column__124]
+sql:
+ALTER TABLE spatial_generated
+ADD COLUMN centroid POINT AS (ST_Centroid(g)) VIRTUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:29) /test/1/catalog1/schema1/spatial_generated/",
+      "action" : "ALTER"
+    },
+    {
+      "subject": "Function(2:30~2:41) /test/1/catalog1/schema1/ST_Centroid/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_table__125]
+sql:
+CREATE TABLE spatial_modern (
+  id INT PRIMARY KEY,
+  p POINT NOT NULL SRID 4326,
+  g GEOMETRY SRID 0,
+  SPATIAL INDEX sx_p (p)
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Index(5:16~5:20) /test/1/catalog1/schema1/sx_p/",
+      "action" : "CREATE",
+      "target" : "Table(1:13~1:27) /test/1/catalog1/schema1/spatial_modern/"
+    },
+    {
+      "subject": "Constraint(2:9~2:20) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[alter_table_add_column__126]
+sql:
+ALTER TABLE spatial_modern
+ADD COLUMN p0 POINT SRID 0 NULL AFTER p;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/spatial_modern/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[create_table__127]
+sql:
+CREATE TABLE integer_lifecycle (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  tiny_signed TINYINT SIGNED NOT NULL DEFAULT -1,
+  tiny_unsigned TINYINT(3) UNSIGNED ZEROFILL DEFAULT 1,
+  small_signed SMALLINT SIGNED DEFAULT -2,
+  small_unsigned SMALLINT(5) UNSIGNED DEFAULT 2,
+  medium_signed MEDIUMINT SIGNED DEFAULT -3,
+  medium_unsigned MEDIUMINT(8) UNSIGNED DEFAULT 3,
+  int_signed INT SIGNED DEFAULT -4,
+  int_unsigned INTEGER(10) UNSIGNED DEFAULT 4,
+  big_signed BIGINT SIGNED DEFAULT -5,
+  big_unsigned BIGINT(20) UNSIGNED DEFAULT 5,
+  bool_alias BOOL DEFAULT FALSE,
+  boolean_alias BOOLEAN DEFAULT TRUE,
+  note VARCHAR(32),
+  UNIQUE KEY uq_integer_unsigned (int_unsigned),
+  KEY idx_integer_widths (tiny_signed,small_signed,medium_signed,big_signed)
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Index(16:13~16:32) /test/1/catalog1/schema1/uq_integer_unsigned/",
+      "action" : "CREATE",
+      "target" : "Table(1:13~1:30) /test/1/catalog1/schema1/integer_lifecycle/"
+    },
+    {
+      "subject": "Index(17:6~17:24) /test/1/catalog1/schema1/idx_integer_widths/",
+      "action" : "CREATE",
+      "target" : "Table(1:13~1:30) /test/1/catalog1/schema1/integer_lifecycle/"
+    },
+    {
+      "subject": "Constraint(2:36~2:47) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Constraint(16:2~16:47) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[alter_table_add_column__128]
+sql:
+ALTER TABLE integer_lifecycle
+  ADD COLUMN tiny_added TINYINT UNSIGNED AFTER tiny_unsigned,
+  ADD COLUMN small_added SMALLINT ZEROFILL AFTER small_unsigned,
+  ADD COLUMN medium_added MEDIUMINT UNSIGNED AFTER medium_unsigned,
+  ADD COLUMN big_added BIGINT UNSIGNED AFTER big_unsigned;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:29) /test/1/catalog1/schema1/integer_lifecycle/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_alter_column_rename_column__129]
+sql:
+ALTER TABLE integer_lifecycle
+  MODIFY COLUMN tiny_added SMALLINT SIGNED DEFAULT 0,
+  CHANGE COLUMN small_added small_changed MEDIUMINT UNSIGNED ZEROFILL DEFAULT 0,
+  MODIFY COLUMN medium_added INT SIGNED DEFAULT 0,
+  CHANGE COLUMN big_added big_changed BIGINT SIGNED DEFAULT 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:29) /test/1/catalog1/schema1/integer_lifecycle/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[create_table__130]
+sql:
+CREATE TABLE integer_generated (
+  id INT PRIMARY KEY,
+  tiny_value TINYINT,
+  small_value SMALLINT,
+  medium_value MEDIUMINT,
+  int_value INTEGER,
+  big_value BIGINT,
+  signed_total BIGINT GENERATED ALWAYS AS (
+    tiny_value+small_value+medium_value+int_value+big_value
+  ) STORED,
+  unsigned_mask BIGINT UNSIGNED GENERATED ALWAYS AS (
+    CAST(int_value AS UNSIGNED)
+  ) VIRTUAL,
+  KEY idx_integer_generated (signed_total,unsigned_mask)
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Index(14:6~14:27) /test/1/catalog1/schema1/idx_integer_generated/",
+      "action" : "CREATE",
+      "target" : "Table(1:13~1:30) /test/1/catalog1/schema1/integer_generated/"
+    },
+    {
+      "subject": "Constraint(2:9~2:20) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(12:4~12:8) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[alter_table_alter_column__131]
+sql:
+ALTER TABLE integer_serial_lifecycle CHANGE COLUMN id id SERIAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:36) /test/1/catalog1/schema1/integer_serial_lifecycle/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[create_table__132]
+sql:
+CREATE TABLE numeric_lifecycle (
+  id INT PRIMARY KEY,
+  decimal_value DECIMAL(20,6) UNSIGNED ZEROFILL,
+  numeric_value NUMERIC(12,4) SIGNED,
+  fixed_value FIXED(18,2),
+  float_value FLOAT(24) UNSIGNED,
+  float_scale FLOAT(10,3) ZEROFILL,
+  double_value DOUBLE PRECISION(30,10) UNSIGNED,
+  real_value REAL(12,4) ZEROFILL,
+  note VARCHAR(32),
+  UNIQUE KEY uq_numeric_value (numeric_value),
+  KEY idx_exact_values (decimal_value,fixed_value),
+  KEY idx_approximate_values (float_value,double_value,real_value)
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Index(11:13~11:29) /test/1/catalog1/schema1/uq_numeric_value/",
+      "action" : "CREATE",
+      "target" : "Table(1:13~1:30) /test/1/catalog1/schema1/numeric_lifecycle/"
+    },
+    {
+      "subject": "Index(12:6~12:22) /test/1/catalog1/schema1/idx_exact_values/",
+      "action" : "CREATE",
+      "target" : "Table(1:13~1:30) /test/1/catalog1/schema1/numeric_lifecycle/"
+    },
+    {
+      "subject": "Index(13:6~13:28) /test/1/catalog1/schema1/idx_approximate_values/",
+      "action" : "CREATE",
+      "target" : "Table(1:13~1:30) /test/1/catalog1/schema1/numeric_lifecycle/"
+    },
+    {
+      "subject": "Constraint(2:9~2:20) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Constraint(11:2~11:45) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[alter_table_add_column__133]
+sql:
+ALTER TABLE numeric_lifecycle
+  ADD COLUMN decimal_added DECIMAL(65,30) AFTER decimal_value,
+  ADD COLUMN numeric_added NUMERIC(30,15) AFTER numeric_value,
+  ADD COLUMN fixed_added FIXED(24,8) AFTER fixed_value,
+  ADD COLUMN float_added FLOAT(25) AFTER float_value,
+  ADD COLUMN double_added DOUBLE AFTER double_value,
+  ADD COLUMN real_added REAL AFTER real_value;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:29) /test/1/catalog1/schema1/numeric_lifecycle/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_table_alter_column_rename_column__134]
+sql:
+ALTER TABLE numeric_lifecycle
+  MODIFY COLUMN decimal_added NUMERIC(40,20) UNSIGNED,
+  CHANGE COLUMN numeric_added numeric_changed FIXED(32,12) ZEROFILL,
+  MODIFY COLUMN fixed_added DECIMAL(30,10) SIGNED,
+  CHANGE COLUMN float_added float_changed DOUBLE PRECISION(20,8),
+  MODIFY COLUMN double_added REAL(18,6) UNSIGNED,
+  CHANGE COLUMN real_added real_changed FLOAT(24) ZEROFILL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:29) /test/1/catalog1/schema1/numeric_lifecycle/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[create_table__135]
+sql:
+CREATE TABLE double_auto_increment (
+  id DOUBLE AUTO_INCREMENT PRIMARY KEY,
+  payload DECIMAL(10,2)
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:34) /test/1/catalog1/schema1/double_auto_increment/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Constraint(2:27~2:38) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[alter_table_alter_column__136]
+sql:
+ALTER TABLE double_auto_increment_alter MODIFY COLUMN id DOUBLE AUTO_INCREMENT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:39) /test/1/catalog1/schema1/double_auto_increment_alter/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[create_table__137]
+sql:
+CREATE TABLE float_precision_edges (
+  f0 FLOAT(0),
+  f23 FLOAT(23),
+  f24 FLOAT(24),
+  f25 FLOAT(25),
+  f53 FLOAT(53),
+  f54 FLOAT(54)
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:34) /test/1/catalog1/schema1/float_precision_edges/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__138]
+sql:
+CREATE TABLE approximate_precision_edges (
+  f_wide FLOAT(200,100),
+  d_wide DOUBLE(200,100),
+  r_wide REAL(200,100)
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:40) /test/1/catalog1/schema1/approximate_precision_edges/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__139]
+sql:
+CREATE TABLE numeric_generated (
+  id INT PRIMARY KEY,
+  decimal_value DECIMAL(20,6),
+  float_value FLOAT,
+  double_value DOUBLE,
+  exact_total DECIMAL(30,10) GENERATED ALWAYS AS (
+    decimal_value+CAST(float_value AS DECIMAL(20,8))
+  ) STORED,
+  approximate_total DOUBLE GENERATED ALWAYS AS (
+    float_value+double_value
+  ) VIRTUAL,
+  KEY idx_numeric_generated (exact_total,approximate_total)
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Index(12:6~12:27) /test/1/catalog1/schema1/idx_numeric_generated/",
+      "action" : "CREATE",
+      "target" : "Table(1:13~1:30) /test/1/catalog1/schema1/numeric_generated/"
+    },
+    {
+      "subject": "Constraint(2:9~2:20) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(7:18~7:22) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_table__140]
+sql:
+CREATE TABLE temporal_generated_pair(dt DATETIME PRIMARY KEY,datetxt VARCHAR(10) GENERATED ALWAYS AS (DATE(dt)) STORED,timetxt VARCHAR(10) GENERATED ALWAYS AS (TIME(dt)) STORED) ENGINE=InnoDB;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:36) /test/1/catalog1/schema1/temporal_generated_pair/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Constraint(1:49~1:60) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:102~1:106) /test/1/catalog1/schema1/DATE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:160~1:164) /test/1/catalog1/schema1/TIME/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_table__141]
+sql:
+CREATE TABLE generated_coercibility(a VARCHAR(1024),b INT GENERATED ALWAYS AS (COERCIBILITY(a)) VIRTUAL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:35) /test/1/catalog1/schema1/generated_coercibility/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:79~1:91) /test/1/catalog1/schema1/COERCIBILITY/",
+      "action" : "CALL"
+    }
+  ]
+}

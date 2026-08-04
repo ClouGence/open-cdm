@@ -1,0 +1,41 @@
+select id, customer_id, amount from CODEX_DM8_MV_ADV_20260721.mv_prebuilt_default order by id;
+select count(*) from CODEX_DM8_MV_ADV_20260721.prebuilt_default;
+select id, amount from CODEX_DM8_MV_ADV_20260721.mv_prebuilt_reduced order by id;
+select id, amount from CODEX_DM8_MV_ADV_20260721.mv_prebuilt_exact order by id;
+select mview_name, mview_type, refresh_mode, refresh_method, staleness
+from sys.user_mviews
+where mview_name like 'MV_%'
+order by mview_name;
+select id, amount, source_rowid from CODEX_DM8_MV_ADV_20260721.mv_fast_rowid order by id;
+select count(*) from CODEX_DM8_MV_ADV_20260721.mv_on_commit;
+select id, amount from CODEX_DM8_MV_ADV_20260721.mv_storage order by id;
+select trigger_name, triggering_event, status
+from dba_triggers
+where owner = 'CODEX_DM8_MV_ADV_20260721'
+  and trigger_name like 'MTRG_REFRESH_MVIEW_%'
+order by trigger_name;
+------------------------------------------------------------------------------------------
+[SELECT] select id, customer_id, amount from CODEX_DM8_MV_ADV_20260721.mv_prebuilt_default order by id;
+----------
+[SELECT] select count(*) from CODEX_DM8_MV_ADV_20260721.prebuilt_default;
+----------
+[SELECT] select id, amount from CODEX_DM8_MV_ADV_20260721.mv_prebuilt_reduced order by id;
+----------
+[SELECT] select id, amount from CODEX_DM8_MV_ADV_20260721.mv_prebuilt_exact order by id;
+----------
+[SELECT] select mview_name, mview_type, refresh_mode, refresh_method, staleness
+from sys.user_mviews
+where mview_name like 'MV_%'
+order by mview_name;
+----------
+[SELECT] select id, amount, source_rowid from CODEX_DM8_MV_ADV_20260721.mv_fast_rowid order by id;
+----------
+[SELECT] select count(*) from CODEX_DM8_MV_ADV_20260721.mv_on_commit;
+----------
+[SELECT] select id, amount from CODEX_DM8_MV_ADV_20260721.mv_storage order by id;
+----------
+[SELECT] select trigger_name, triggering_event, status
+from dba_triggers
+where owner = 'CODEX_DM8_MV_ADV_20260721'
+  and trigger_name like 'MTRG_REFRESH_MVIEW_%'
+order by trigger_name;

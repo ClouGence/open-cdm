@@ -1,0 +1,24 @@
+SELECT pg_current_wal_lsn();
+SELECT pg_current_wal_insert_lsn();
+SELECT pg_current_wal_flush_lsn();
+SELECT pg_walfile_name(pg_current_wal_lsn());
+SELECT * FROM pg_walfile_name_offset(pg_current_wal_lsn());
+SELECT pg_wal_lsn_diff(pg_current_wal_insert_lsn(), pg_current_wal_flush_lsn()) >= 0 AS insert_not_before_flush;
+SELECT pg_create_restore_point('open_cdm_split_restore_' || pg_backend_pid()::text);
+SELECT pg_switch_wal();
+------------------------------------------------------------------------------------------
+[SELECT|LOG_READ] SELECT pg_current_wal_lsn();
+----------
+[SELECT|LOG_READ] SELECT pg_current_wal_insert_lsn();
+----------
+[SELECT|LOG_READ] SELECT pg_current_wal_flush_lsn();
+----------
+[SELECT|LOG_READ] SELECT pg_walfile_name(pg_current_wal_lsn());
+----------
+[SELECT|LOG_READ] SELECT * FROM pg_walfile_name_offset(pg_current_wal_lsn());
+----------
+[SELECT|LOG_READ] SELECT pg_wal_lsn_diff(pg_current_wal_insert_lsn(), pg_current_wal_flush_lsn()) >= 0 AS insert_not_before_flush;
+----------
+[SELECT|MAINTAIN_LOG] SELECT pg_create_restore_point('open_cdm_split_restore_' || pg_backend_pid()::text);
+----------
+[SELECT|MAINTAIN_LOG] SELECT pg_switch_wal();

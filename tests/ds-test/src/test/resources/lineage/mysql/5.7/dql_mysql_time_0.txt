@@ -1,0 +1,141 @@
+[dql_mysql_time_0.0001]
+sql:
+SELECT CAST(235959.123456 AS TIME),CAST(0.235959123456e+6 AS TIME(6)),CAST(235959123456e-6 AS TIME(6));
+expect:
+{
+  "CAST(235959.123456 AS TIME)" : [ ],
+  "CAST(0.235959123456e+6 AS TIME(6))" : [ ],
+  "CAST(235959123456e-6 AS TIME(6))" : [ ]
+}
+----------
+[dql_mysql_time_0.0002]
+sql:
+SELECT CAST('100:55:50' AS TIME)<CAST('024:00:00' AS TIME),CAST('300:55:50' AS TIME)>CAST('240:00:00' AS TIME);
+expect:
+{
+  "CAST('100:55:50' AS TIME)<CAST('024:00:00' AS TIME)" : [ ],
+  "CAST('300:55:50' AS TIME)>CAST('240:00:00' AS TIME)" : [ ]
+}
+----------
+[dql_mysql_time_0.0003]
+sql:
+SELECT CAST(IF(TRUE,TIME'00:00:00',TIME'01:01:01') AS CHAR),CAST(CASE WHEN FALSE THEN '01:01:01' ELSE TIME'02:02:02' END AS TIME(6));
+expect:
+{
+  "CAST(IF(TRUE,TIME'00:00:00',TIME'01:01:01') AS CHAR)" : [ ],
+  "CAST(CASE WHEN FALSE THEN '01:01:01' ELSE TIME'02:02:02' END AS TIME(6))" : [ ]
+}
+----------
+[dql_mysql_time_0.0004]
+sql:
+SELECT CAST(COALESCE(t6,t5) AS SIGNED),CAST(COALESCE(t6,t5) AS DECIMAL(23,6)),CAST(SUM(TIME_TO_SEC(t6)) AS TIME(6)) FROM time_widths;
+expect:
+{
+  "CAST(COALESCE(t6,t5) AS SIGNED)" : [ "(1:21~1:23) /catalog1/schema1/time_widths/t6/", "(1:24~1:26) /catalog1/schema1/time_widths/t5/" ],
+  "CAST(COALESCE(t6,t5) AS DECIMAL(23,6))" : [ "(1:53~1:55) /catalog1/schema1/time_widths/t6/", "(1:56~1:58) /catalog1/schema1/time_widths/t5/" ],
+  "CAST(SUM(TIME_TO_SEC(t6)) AS TIME(6))" : [ "(1:99~1:101) /catalog1/schema1/time_widths/t6/" ]
+}
+----------
+[dql_mysql_time_0.0005]
+sql:
+SELECT TIME('10000090000:10:10.1999999999999'),TIME(154559.616+0e0),TIME(NAME_CONST('time_name',0));
+expect:
+{
+  "TIME('10000090000:10:10.1999999999999')" : [ ],
+  "TIME(154559.616+0e0)" : [ ],
+  "TIME(NAME_CONST('time_name',0))" : [ ]
+}
+----------
+[dql_mysql_time_0.0006]
+sql:
+SELECT t6,TIME_TO_SEC(t6),SEC_TO_TIME(TIME_TO_SEC(t6)) FROM time_widths WHERE t6<=>TIME'19:20:30' OR t6<=>192030 ORDER BY t6;
+expect:
+{
+  "t6" : [ "(1:7~1:9) /catalog1/schema1/time_widths/t6/" ],
+  "TIME_TO_SEC(t6)" : [ "(1:22~1:24) /catalog1/schema1/time_widths/t6/" ],
+  "SEC_TO_TIME(TIME_TO_SEC(t6))" : [ "(1:50~1:52) /catalog1/schema1/time_widths/t6/" ]
+}
+----------
+[dql_mysql_time_0.0007]
+sql:
+SELECT CAST('1 00:00:00' AS TIME),EXTRACT(HOUR FROM '1 00:00:00'),HOUR('1 00:00:00');
+expect:
+{
+  "CAST('1 00:00:00' AS TIME)" : [ ],
+  "EXTRACT(HOUR FROM '1 00:00:00')" : [ ],
+  "HOUR('1 00:00:00')" : [ ]
+}
+----------
+[dql_mysql_time_0.0008]
+sql:
+SELECT LEAST(CAST('00:00:00.1' AS TIME(6)),'00:00:01.1'),GREATEST(TIME'00:00:00.1',TIME'00:00:00.12');
+expect:
+{
+  "LEAST(CAST('00:00:00.1' AS TIME(6)),'00:00:01.1')" : [ ],
+  "GREATEST(TIME'00:00:00.1',TIME'00:00:00.12')" : [ ]
+}
+----------
+[dql_mysql_time_0.0009]
+sql:
+SELECT TIME_FORMAT(TIME'-250:07:38.935647','%H:%i:%s.%f'),ADDTIME(TIME'838:59:58.999999','00:00:00.000001'),SUBTIME(TIME'-838:59:58.999999','00:00:00.000001');
+expect:
+{
+  "TIME_FORMAT(TIME'-250:07:38.935647','%H:%i:%s.%f')" : [ ],
+  "ADDTIME(TIME'838:59:58.999999','00:00:00.000001')" : [ ],
+  "SUBTIME(TIME'-838:59:58.999999','00:00:00.000001')" : [ ]
+}
+----------
+[dql_mysql_time_0.0010]
+sql:
+SELECT * FROM time_widths AS a JOIN time_widths AS b ON a.t6=b.t WHERE a.t6 BETWEEN TIME'-01:02:03.456789' AND TIME'01:02:03.456789';
+expect:
+[ {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/time_widths/t6/" ],
+  "column" : "t6"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/time_widths/t/" ],
+  "column" : "t"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/time_widths/t6/" ],
+  "column" : "t6"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/time_widths/t/" ],
+  "column" : "t"
+} ]
+----------
+[dql_mysql_time_0.0011]
+sql:
+SELECT t6 FROM time_widths UNION ALL SELECT CAST(id AS TIME(6)) FROM time_widths ORDER BY 1;
+expect:
+{
+  "t6" : [ "(1:7~1:9) /catalog1/schema1/time_widths/t6/", "(1:49~1:51) /catalog1/schema1/time_widths/id/" ]
+}
+----------
+[dql_mysql_time_0.0012]
+sql:
+SELECT 1 FROM time_widths WHERE DEFAULT(t6)>t6 AND @time_probe=t6;
+expect:
+{
+  "1" : [ ]
+}
+----------
+[dql_mysql_time_0.0013]
+sql:
+SELECT CAST(70503052756 AS TIME),CAST(70503052756.123456 AS TIME(6)),CAST(70503052756.123456E0 AS TIME(6)),CAST(20250101.123456 AS TIME(6));
+expect:
+{
+  "CAST(70503052756 AS TIME)" : [ ],
+  "CAST(70503052756.123456 AS TIME(6))" : [ ],
+  "CAST(70503052756.123456E0 AS TIME(6))" : [ ],
+  "CAST(20250101.123456 AS TIME(6))" : [ ]
+}
+----------
+[dql_mysql_time_0.0014]
+sql:
+SELECT CAST(-0.971042 AS TIME),CAST('21:07:58'/-1345980785 AS TIME(6)),CAST(9/'-1317798799' AS TIME);
+expect:
+{
+  "CAST(-0.971042 AS TIME)" : [ ],
+  "CAST('21:07:58'/-1345980785 AS TIME(6))" : [ ],
+  "CAST(9/'-1317798799' AS TIME)" : [ ]
+}

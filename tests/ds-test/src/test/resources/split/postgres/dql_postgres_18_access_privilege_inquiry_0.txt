@@ -1,0 +1,12 @@
+SELECT has_largeobject_privilege(987654::oid, 'SELECT, UPDATE');
+SELECT has_largeobject_privilege(current_user, 987654::oid, 'SELECT WITH GRANT OPTION');
+SELECT has_table_privilege('split_priv18.t_access', 'MAINTAIN');
+SELECT has_table_privilege(current_user, 'split_priv18.t_access'::regclass::oid, 'MAINTAIN WITH GRANT OPTION');
+------------------------------------------------------------------------------------------
+[METADATA] SELECT has_largeobject_privilege(987654::oid, 'SELECT, UPDATE');
+----------
+[METADATA] SELECT has_largeobject_privilege(current_user, 987654::oid, 'SELECT WITH GRANT OPTION');
+----------
+[METADATA] SELECT has_table_privilege('split_priv18.t_access', 'MAINTAIN');
+----------
+[METADATA] SELECT has_table_privilege(current_user, 'split_priv18.t_access'::regclass::oid, 'MAINTAIN WITH GRANT OPTION');

@@ -1,0 +1,95 @@
+[Db2RuleQueryAllowSubQueryTest#selectHasSelect_1#001]
+rule: _rules/query/query-allow-sub-query.rule
+expect: true
+vars:
+  allow: Any
+sql:
+select id, name from table1;
+----------
+[Db2RuleQueryAllowSubQueryTest#selectHasSelect_1#002]
+rule: _rules/query/query-allow-sub-query.rule
+expect: true
+vars:
+  allow: Any
+sql:
+select (select id from bb) as id1, name from table1;
+----------
+[Db2RuleQueryAllowSubQueryTest#selectHasSelect_1#003]
+rule: _rules/query/query-allow-sub-query.rule
+expect: true
+vars:
+  allow: Select,From,Where
+sql:
+select id, name from table1;
+----------
+[Db2RuleQueryAllowSubQueryTest#selectHasSelect_1#004]
+rule: _rules/query/query-allow-sub-query.rule
+expect: true
+vars:
+  allow: Select,From,Where
+sql:
+select (select id from bb) as id1, name from table1;
+----------
+[Db2RuleQueryAllowSubQueryTest#selectHasSelect_1#005]
+rule: _rules/query/query-allow-sub-query.rule
+expect: true
+vars:
+  allow: None
+sql:
+select id, name from table1;
+----------
+[Db2RuleQueryAllowSubQueryTest#selectHasSelect_1#006]
+rule: _rules/query/query-allow-sub-query.rule
+expect: false
+vars:
+  allow: None
+sql:
+select (select id from bb) as id1, name from table1;
+----------
+[Db2RuleQueryAllowSubQueryTest#fromHasSelect_1#002]
+rule: _rules/query/query-allow-sub-query.rule
+expect: true
+vars:
+  allow: Any
+sql:
+select t.id, t.name from (select id, name from bb) as t;
+----------
+[Db2RuleQueryAllowSubQueryTest#fromHasSelect_1#004]
+rule: _rules/query/query-allow-sub-query.rule
+expect: true
+vars:
+  allow: Select,From,Where
+sql:
+select t.id, t.name from (select id, name from bb) as t;
+----------
+[Db2RuleQueryAllowSubQueryTest#fromHasSelect_1#006]
+rule: _rules/query/query-allow-sub-query.rule
+expect: false
+vars:
+  allow: None
+sql:
+select t.id, t.name from (select id, name from bb) as t;
+----------
+[Db2RuleQueryAllowSubQueryTest#whereHasSelect_1#002]
+rule: _rules/query/query-allow-sub-query.rule
+expect: true
+vars:
+  allow: Any
+sql:
+select id, name from table1 where id in (select id from bb);
+----------
+[Db2RuleQueryAllowSubQueryTest#whereHasSelect_1#004]
+rule: _rules/query/query-allow-sub-query.rule
+expect: true
+vars:
+  allow: Select,From,Where
+sql:
+select id, name from table1 where id in (select id from bb);
+----------
+[Db2RuleQueryAllowSubQueryTest#whereHasSelect_1#006]
+rule: _rules/query/query-allow-sub-query.rule
+expect: false
+vars:
+  allow: None
+sql:
+select id, name from table1 where id in (select id from bb);

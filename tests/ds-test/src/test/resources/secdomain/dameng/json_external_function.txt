@@ -1,0 +1,31 @@
+[create_external_function]
+sql:
+create function app.c_add(a int,b int) return int
+external '/opt/libdm8_external.so' "dm8_c_add" using c;
+/
+expect:
+{
+  "contains": [
+    {"class":"RdbFunctionDomain", "sqlType":"CREATE_PROG_OBJ", "auditKind":"CREATE", "schema":"app", "name":"c_add"}
+  ]
+}
+----------
+[create_library]
+sql:
+create library app.c_lib as '/opt/libdm8_external.so';
+expect:
+{
+  "contains": [
+    {"sqlType":"CREATE_LIBRARY", "auditKind":"CREATE", "schema":"app", "name":"c_lib"}
+  ]
+}
+----------
+[drop_library]
+sql:
+drop library if exists app.c_lib;
+expect:
+{
+  "contains": [
+    {"sqlType":"DROP_LIBRARY", "auditKind":"DROP", "schema":"app", "name":"c_lib"}
+  ]
+}

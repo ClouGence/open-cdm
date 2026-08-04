@@ -1,0 +1,121 @@
+[create_user]
+sql:
+create user report_user identified by "Dm8@Test2026"
+expect:
+{
+  "contains": [
+    {"class":"RdbUserDomain", "sqlType":"CREATE_USER", "auditKind":"CREATE", "user":"report_user"}
+  ]
+}
+----------
+[create_user_with_policy]
+sql:
+create user readonly_user identified by "Dm8@Test2026" password_policy 15 read only
+expect:
+{
+  "contains": [
+    {"class":"RdbUserDomain", "sqlType":"CREATE_USER", "auditKind":"CREATE", "user":"readonly_user"}
+  ]
+}
+----------
+[alter_user]
+sql:
+alter user report_user account lock
+expect:
+{
+  "contains": [
+    {"class":"RdbUserDomain", "sqlType":"ALTER_USER", "auditKind":"ALTER", "user":"report_user"}
+  ]
+}
+----------
+[drop_user]
+sql:
+drop user report_user cascade
+expect:
+{
+  "contains": [
+    {"class":"RdbUserDomain", "sqlType":"DROP_USER", "auditKind":"DROP", "user":"report_user"}
+  ]
+}
+----------
+[create_role]
+sql:
+create role report_role
+expect:
+{
+  "contains": [
+    {"class":"RdbRoleDomain", "sqlType":"CREATE_ROLE", "auditKind":"CREATE", "role":"report_role"}
+  ]
+}
+----------
+[drop_role]
+sql:
+drop role report_role
+expect:
+{
+  "contains": [
+    {"class":"RdbRoleDomain", "sqlType":"DROP_ROLE", "auditKind":"DROP", "role":"report_role"}
+  ]
+}
+----------
+[grant_system_privilege]
+sql:
+grant create table, create view to report_user with admin option
+expect:
+{
+  "contains": [
+    {"class":"RdbGrantDomain", "sqlType":"GRANT", "auditKind":"ALTER", "name":"report_user"}
+  ]
+}
+----------
+[grant_object_privilege]
+sql:
+grant select, insert on table app.employee to report_user with grant option
+expect:
+{
+  "contains": [
+    {"class":"RdbGrantDomain", "sqlType":"GRANT", "auditKind":"ALTER", "name":"report_user"}
+  ]
+}
+----------
+[grant_to_multiple_grantees]
+sql:
+grant select on table app.employee to report_user, audit_user
+expect:
+{
+  "contains": [
+    {"class":"RdbGrantDomain", "sqlType":"GRANT", "auditKind":"ALTER", "name":"report_user"},
+    {"class":"RdbGrantDomain", "sqlType":"GRANT", "auditKind":"ALTER", "name":"audit_user"}
+  ]
+}
+----------
+[grant_role]
+sql:
+grant report_role to report_user
+expect:
+{
+  "contains": [
+    {"class":"RdbGrantDomain", "sqlType":"GRANT", "auditKind":"ALTER", "name":"report_user"}
+  ]
+}
+----------
+[revoke_object_privilege]
+sql:
+revoke select on table app.employee from report_user cascade
+expect:
+{
+  "contains": [
+    {"class":"RdbRevokeDomain", "sqlType":"REVOKE", "auditKind":"ALTER", "name":"report_user"}
+  ]
+}
+----------
+[revoke_role_from_multiple_grantees]
+sql:
+revoke report_role from report_user, audit_user
+expect:
+{
+  "contains": [
+    {"class":"RdbRevokeDomain", "sqlType":"REVOKE", "auditKind":"ALTER", "name":"report_user"},
+    {"class":"RdbRevokeDomain", "sqlType":"REVOKE", "auditKind":"ALTER", "name":"audit_user"}
+  ]
+}

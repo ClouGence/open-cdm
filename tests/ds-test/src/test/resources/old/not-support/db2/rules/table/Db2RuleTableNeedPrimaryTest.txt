@@ -1,0 +1,23 @@
+[Db2RuleTableNeedPrimaryTest#createTableMaxColumns_1#001]
+rule: _rules/table/table-need-primary.rule
+expect: true
+vars:
+{}
+sql:
+create table test.abc_test(id int not null primary key)
+----------
+[Db2RuleTableNeedPrimaryTest#createTableMaxColumns_1#002]
+rule: _rules/table/table-need-primary.rule
+expect: false
+vars:
+{}
+sql:
+create table test.abc_test(id int)
+----------
+[Db2RuleTableNeedPrimaryTest#createTableMaxColumns_1#003]
+rule: _rules/table/table-need-primary.rule
+expect: true
+vars:
+{}
+sql:
+create table test.abc(id int not null, name varchar(25) not null,primary key (id))

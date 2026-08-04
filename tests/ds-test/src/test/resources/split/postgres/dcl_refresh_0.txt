@@ -1,0 +1,3 @@
+refresh materialized view v1;
+------------------------------------------------------------------------------------------
+[ADMIN] refresh materialized view v1;

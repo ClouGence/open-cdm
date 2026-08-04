@@ -1,0 +1,15 @@
+select id from app.lock_t for update wait -1;
+select id from app.lock_t for update wait 1.5;
+select id from app.lock_t for update of;
+select id from app.lock_t for update nowait skip locked;
+update app.lock_t set name='X' where id=1 for read only;
+------------------------------------------------------------------------------------------
+[SELECT] select id from app.lock_t for update wait -1;
+----------
+[SELECT] select id from app.lock_t for update wait 1.5;
+----------
+[SELECT] select id from app.lock_t for update of;
+----------
+[SELECT] select id from app.lock_t for update nowait skip locked;
+----------
+[UPDATE] update app.lock_t set name='X' where id=1 for read only;

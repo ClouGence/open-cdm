@@ -1,0 +1,46 @@
+[create_aggregate]
+sql:
+create function app.agg_max(input number) return number aggregate using app.max_impl;
+/
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:27) /test/1/catalog1/app/agg_max/",
+      "action" : "CREATE",
+      "target": "Function(1:72~1:84) /test/1/catalog1/app/max_impl/"
+    }
+  ]
+}
+----------
+[alter_aggregate]
+sql:
+alter function app.agg_max compile debug;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_PROG_OBJ": [
+    {
+      "subject": "Function(1:15~1:26) /test/1/catalog1/app/agg_max/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[drop_aggregate]
+sql:
+drop function if exists app.agg_max;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Function(1:24~1:35) /test/1/catalog1/app/agg_max/",
+      "action" : "DROP"
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+select username, user_id, account_status, default_tablespace, default_index_tablespace, profile, authentication_type from sys.dba_users;
+select username, user_id, created from sys.all_users;
+select username, user_id, account_status from sys.user_users;
+select name, id, type$, subtype$ from sys.sysobjects where subtype$='USER';
+select grantee, privilege, admin_option from sys.dba_sys_privs where privilege in ('CREATE USER','ALTER USER','DROP USER');
+------------------------------------------------------------------------------------------
+[SELECT] select username, user_id, account_status, default_tablespace, default_index_tablespace, profile, authentication_type from sys.dba_users;
+----------
+[SELECT] select username, user_id, created from sys.all_users;
+----------
+[SELECT] select username, user_id, account_status from sys.user_users;
+----------
+[SELECT] select name, id, type$, subtype$ from sys.sysobjects where subtype$='USER';
+----------
+[SELECT] select grantee, privilege, admin_option from sys.dba_sys_privs where privilege in ('CREATE USER','ALTER USER','DROP USER');

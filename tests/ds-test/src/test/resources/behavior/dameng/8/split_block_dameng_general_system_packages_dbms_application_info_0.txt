@@ -1,0 +1,51 @@
+[split_block_dameng_general_system_packages_0_009]
+sql:
+declare
+  v_client varchar2(64);
+  v_module varchar2(64);
+  v_action varchar2(64);
+begin
+  dbms_application_info.set_client_info('CODEX_DM8_CLIENT');
+  dbms_application_info.set_module('CODEX_DM8_MODULE', 'ACTION_1');
+  dbms_application_info.set_action('ACTION_2');
+  dbms_application_info.read_client_info(v_client);
+  dbms_application_info.read_module(v_module, v_action);
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(6:2~6:39) /test/1/catalog1/dbms_application_info/set_client_info/",
+      "action": "CALL",
+      "target": "ConfigKey(6:2~6:39) /test/1/CLIENT_INFO/"
+    },
+    {
+      "subject": "Procedure(7:2~7:34) /test/1/catalog1/dbms_application_info/set_module/",
+      "action": "CALL",
+      "target": [
+        "ConfigKey(7:2~7:34) /test/1/MODULE/",
+        "ConfigKey(7:2~7:34) /test/1/ACTION/"
+      ]
+    },
+    {
+      "subject": "Procedure(8:2~8:34) /test/1/catalog1/dbms_application_info/set_action/",
+      "action": "CALL",
+      "target": "ConfigKey(8:2~8:34) /test/1/ACTION/"
+    },
+    {
+      "subject": "Procedure(9:2~9:40) /test/1/catalog1/dbms_application_info/read_client_info/",
+      "action": "CALL",
+      "target": "ConfigKey(9:2~9:40) /test/1/CLIENT_INFO/"
+    },
+    {
+      "subject": "Procedure(10:2~10:35) /test/1/catalog1/dbms_application_info/read_module/",
+      "action": "CALL",
+      "target": [
+        "ConfigKey(10:2~10:35) /test/1/MODULE/",
+        "ConfigKey(10:2~10:35) /test/1/ACTION/"
+      ]
+    }
+  ]
+}

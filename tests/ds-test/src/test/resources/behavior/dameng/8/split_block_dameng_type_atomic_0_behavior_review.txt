@@ -1,0 +1,991 @@
+[split_block_dameng_type_atomic_0_001_behavior_review]
+sql:
+-- RECORD_AS
+create type CODEX_DM8_TYPE.T_RECORD as record(ID int,NAME varchar(20));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:12~2:35) /test/1/catalog1/CODEX_DM8_TYPE/T_RECORD/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_atomic_0_002_behavior_review]
+sql:
+-- RECORD_IS
+create type CODEX_DM8_TYPE.T_RECORD_IS is record(ID int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:12~2:38) /test/1/catalog1/CODEX_DM8_TYPE/T_RECORD_IS/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_atomic_0_003_behavior_review]
+sql:
+-- RECORD_DEFAULT
+create type CODEX_DM8_TYPE.T_RECORD_DEFAULT as record(ID int default 1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:12~2:43) /test/1/catalog1/CODEX_DM8_TYPE/T_RECORD_DEFAULT/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_atomic_0_004_behavior_review]
+sql:
+-- NAME_128
+create type CODEX_DM8_TYPE.TAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA as record(ID int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:12~2:155) /test/1/catalog1/CODEX_DM8_TYPE/TAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_atomic_0_005_behavior_review]
+sql:
+-- NAME_129_SERVER_BOUNDARY
+create type CODEX_DM8_TYPE.TAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA as record(ID int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:12~2:156) /test/1/catalog1/CODEX_DM8_TYPE/TAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_atomic_0_006_behavior_review]
+sql:
+-- QUOTED_NAME
+create type CODEX_DM8_TYPE."Mixed Type" as record(ID int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:12~2:39) /test/1/catalog1/CODEX_DM8_TYPE/Mixed Type/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_atomic_0_007_behavior_review]
+sql:
+-- WITH_ENCRYPTION
+create type CODEX_DM8_TYPE.T_ENCRYPTED with encryption as object(V int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:12~2:38) /test/1/catalog1/CODEX_DM8_TYPE/T_ENCRYPTED/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_atomic_0_008_behavior_review]
+sql:
+-- AUTHID_DEFINER
+create type CODEX_DM8_TYPE.T_DEFINER authid definer as record(ID int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:12~2:36) /test/1/catalog1/CODEX_DM8_TYPE/T_DEFINER/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_atomic_0_009_behavior_review]
+sql:
+-- AUTHID_CURRENT_USER
+create type CODEX_DM8_TYPE.T_INVOKER authid current_user as record(ID int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:12~2:36) /test/1/catalog1/CODEX_DM8_TYPE/T_INVOKER/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_atomic_0_010_behavior_review]
+sql:
+-- PERSISTABLE_ONLINE_VERSION
+create type CODEX_DM8_TYPE.T_PERSIST as object(V int) persistable;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:12~2:36) /test/1/catalog1/CODEX_DM8_TYPE/T_PERSIST/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_atomic_0_011_behavior_review]
+sql:
+-- NOT_PERSISTABLE_ONLINE_VERSION
+create type CODEX_DM8_TYPE.T_NOT_PERSIST as object(V int) not persistable;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:12~2:40) /test/1/catalog1/CODEX_DM8_TYPE/T_NOT_PERSIST/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_atomic_0_012_behavior_review]
+sql:
+-- OBJECT_ATTRIBUTES
+create type CODEX_DM8_TYPE.T_OBJECT as object(V int,NAME varchar(20));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:12~2:35) /test/1/catalog1/CODEX_DM8_TYPE/T_OBJECT/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_atomic_0_013_behavior_review]
+sql:
+-- OBJECT_FINAL
+create type CODEX_DM8_TYPE.T_FINAL as object(V int) final;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:12~2:34) /test/1/catalog1/CODEX_DM8_TYPE/T_FINAL/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_atomic_0_014_behavior_review]
+sql:
+-- OBJECT_NOT_FINAL
+create type CODEX_DM8_TYPE.T_NOT_FINAL as object(V int) not final;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:12~2:38) /test/1/catalog1/CODEX_DM8_TYPE/T_NOT_FINAL/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_atomic_0_015_behavior_review]
+sql:
+-- OBJECT_INSTANTIABLE
+create type CODEX_DM8_TYPE.T_INSTANTIABLE as object(V int) instantiable;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:12~2:41) /test/1/catalog1/CODEX_DM8_TYPE/T_INSTANTIABLE/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_atomic_0_016_behavior_review]
+sql:
+-- OBJECT_NOT_INSTANTIABLE
+create type CODEX_DM8_TYPE.T_ABSTRACT as object(V int,not instantiable member function F return int) not final not instantiable;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:12~2:37) /test/1/catalog1/CODEX_DM8_TYPE/T_ABSTRACT/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_atomic_0_017_behavior_review]
+sql:
+-- OBJECT_INVALID_FINAL_NOT_INSTANTIABLE
+create type CODEX_DM8_TYPE.T_BAD_ABSTRACT as object(V int) final not instantiable;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:12~2:41) /test/1/catalog1/CODEX_DM8_TYPE/T_BAD_ABSTRACT/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_atomic_0_018_behavior_review]
+sql:
+-- OBJECT_UNDER
+create type CODEX_DM8_TYPE.T_CHILD under CODEX_DM8_TYPE.T_NOT_FINAL(EXTRA int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:12~2:34) /test/1/catalog1/CODEX_DM8_TYPE/T_CHILD/",
+      "action": "CREATE",
+      "target": "Type(2:41~2:67) /test/1/catalog1/CODEX_DM8_TYPE/T_NOT_FINAL/"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_atomic_0_019_behavior_review]
+sql:
+-- METHOD_OVERRIDING
+create type CODEX_DM8_TYPE.T_OVERRIDE under CODEX_DM8_TYPE.T_NOT_FINAL(EXTRA int,overriding member function F return int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:12~2:37) /test/1/catalog1/CODEX_DM8_TYPE/T_OVERRIDE/",
+      "action": "CREATE",
+      "target": "Type(2:44~2:70) /test/1/catalog1/CODEX_DM8_TYPE/T_NOT_FINAL/"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_atomic_0_020_behavior_review]
+sql:
+-- METHOD_ORDER_PACK_EXTENSION
+create type CODEX_DM8_TYPE.T_ORDER as object(V int,order member function CMP(X T_ORDER) return int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:12~2:34) /test/1/catalog1/CODEX_DM8_TYPE/T_ORDER/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_atomic_0_021_behavior_review]
+sql:
+-- METHOD_STATIC
+create type CODEX_DM8_TYPE.T_STATIC as object(V int,static function F(A int) return int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:12~2:35) /test/1/catalog1/CODEX_DM8_TYPE/T_STATIC/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_atomic_0_022_behavior_review]
+sql:
+-- METHOD_MEMBER
+create type CODEX_DM8_TYPE.T_MEMBER as object(V int,member function F return int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:12~2:35) /test/1/catalog1/CODEX_DM8_TYPE/T_MEMBER/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_atomic_0_023_behavior_review]
+sql:
+-- METHOD_DEFAULT_MEMBER
+create type CODEX_DM8_TYPE.T_DEFAULT_MEMBER as object(V int,function F return int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:12~2:43) /test/1/catalog1/CODEX_DM8_TYPE/T_DEFAULT_MEMBER/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_atomic_0_024_behavior_review]
+sql:
+-- METHOD_MAP
+create type CODEX_DM8_TYPE.T_MAP as object(V int,map member function F return int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:12~2:32) /test/1/catalog1/CODEX_DM8_TYPE/T_MAP/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_atomic_0_025_behavior_review]
+sql:
+-- METHOD_DETERMINISTIC
+create type CODEX_DM8_TYPE.T_DETERMINISTIC as object(V int,member function F return int deterministic);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:12~2:42) /test/1/catalog1/CODEX_DM8_TYPE/T_DETERMINISTIC/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_atomic_0_026_behavior_review]
+sql:
+-- METHOD_PIPELINED
+create type CODEX_DM8_TYPE.T_PIPELINED as object(V int,static function F return CODEX_DM8_TYPE.T_NESTED pipelined);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:12~2:38) /test/1/catalog1/CODEX_DM8_TYPE/T_PIPELINED/",
+      "action": "CREATE",
+      "target": "Type(2:80~2:103) /test/1/catalog1/CODEX_DM8_TYPE/T_NESTED/"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_atomic_0_027_behavior_review]
+sql:
+-- CONSTRUCTOR_SELF
+create type CODEX_DM8_TYPE.T_CONSTRUCTOR as object(V int,constructor function T_CONSTRUCTOR(SELF T_CONSTRUCTOR,V int) return self as result);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:12~2:40) /test/1/catalog1/CODEX_DM8_TYPE/T_CONSTRUCTOR/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_atomic_0_028_behavior_review]
+sql:
+-- ARRAY_STATIC
+create type CODEX_DM8_TYPE.T_ARRAY_STATIC as array int[2];
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:12~2:41) /test/1/catalog1/CODEX_DM8_TYPE/T_ARRAY_STATIC/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_atomic_0_029_behavior_review]
+sql:
+-- ARRAY_DYNAMIC
+create type CODEX_DM8_TYPE.T_ARRAY_DYNAMIC as array int[];
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:12~2:42) /test/1/catalog1/CODEX_DM8_TYPE/T_ARRAY_DYNAMIC/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_atomic_0_030_behavior_review]
+sql:
+-- ARRAY_MULTI
+create type CODEX_DM8_TYPE.T_ARRAY_MULTI as array int[2,3];
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:12~2:40) /test/1/catalog1/CODEX_DM8_TYPE/T_ARRAY_MULTI/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_atomic_0_031_behavior_review]
+sql:
+-- VARRAY_AS
+create type CODEX_DM8_TYPE.T_VARRAY as varray(3) of int;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:12~2:35) /test/1/catalog1/CODEX_DM8_TYPE/T_VARRAY/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_atomic_0_032_behavior_review]
+sql:
+-- VARRAY_IS
+create type CODEX_DM8_TYPE.T_VARRAY_IS is varray(3) of int;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:12~2:38) /test/1/catalog1/CODEX_DM8_TYPE/T_VARRAY_IS/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_atomic_0_033_behavior_review]
+sql:
+-- VARRAY_CONSTANT_EXPRESSION
+create type CODEX_DM8_TYPE.T_VARRAY_EXPR as varray(1+2) of int;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:12~2:40) /test/1/catalog1/CODEX_DM8_TYPE/T_VARRAY_EXPR/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_atomic_0_034_behavior_review]
+sql:
+-- VARRAY_NOT_NULL
+create type CODEX_DM8_TYPE.T_VARRAY_NN as varray(3) of int not null;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:12~2:38) /test/1/catalog1/CODEX_DM8_TYPE/T_VARRAY_NN/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_atomic_0_035_behavior_review]
+sql:
+-- NESTED_TABLE
+create type CODEX_DM8_TYPE.T_NESTED as table of int not null;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:12~2:35) /test/1/catalog1/CODEX_DM8_TYPE/T_NESTED/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_atomic_0_036_behavior_review]
+sql:
+-- INDEX_TABLE_INT
+create type CODEX_DM8_TYPE.T_INDEX_INT as table of int index by int;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:12~2:38) /test/1/catalog1/CODEX_DM8_TYPE/T_INDEX_INT/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_atomic_0_037_behavior_review]
+sql:
+-- INDEX_TABLE_VARCHAR
+create type CODEX_DM8_TYPE.T_INDEX_VARCHAR as table of int index by varchar(1024);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:12~2:42) /test/1/catalog1/CODEX_DM8_TYPE/T_INDEX_VARCHAR/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_atomic_0_038_behavior_review]
+sql:
+-- INDEX_TABLE_DATE_PACK_EXTENSION
+create type CODEX_DM8_TYPE.T_INDEX_DATE as table of int index by date;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:12~2:39) /test/1/catalog1/CODEX_DM8_TYPE/T_INDEX_DATE/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_atomic_0_039_behavior_review]
+sql:
+-- NESTED_DYNAMIC_ARRAY_PACK_EXTENSION
+create type CODEX_DM8_TYPE.T_NESTED_DYNAMIC as table of CODEX_DM8_TYPE.T_ARRAY_DYNAMIC;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:12~2:43) /test/1/catalog1/CODEX_DM8_TYPE/T_NESTED_DYNAMIC/",
+      "action": "CREATE",
+      "target": "Type(2:56~2:86) /test/1/catalog1/CODEX_DM8_TYPE/T_ARRAY_DYNAMIC/"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_atomic_0_040_behavior_review]
+sql:
+-- TYPE_BODY_METHODS
+create type body CODEX_DM8_TYPE.T_MEMBER as member function F return int is begin return V;end;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:17~2:40) /test/1/catalog1/CODEX_DM8_TYPE/T_MEMBER/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_atomic_0_041_behavior_review]
+sql:
+-- TYPE_BODY_PARAM_NAME_MISMATCH
+create or replace type body CODEX_DM8_TYPE.T_STATIC as static function F(B int) return int is begin return B;end;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:28~2:51) /test/1/catalog1/CODEX_DM8_TYPE/T_STATIC/",
+      "action": "REPLACE"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_atomic_0_042_behavior_review]
+sql:
+-- TYPE_BODY_PARAM_TYPE_MISMATCH
+create or replace type body CODEX_DM8_TYPE.T_STATIC as static function F(A varchar) return int is begin return 1;end;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:28~2:51) /test/1/catalog1/CODEX_DM8_TYPE/T_STATIC/",
+      "action": "REPLACE"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_atomic_0_043_behavior_review]
+sql:
+-- TYPE_BODY_WITHOUT_SPEC_SERVER_BOUNDARY
+create type body CODEX_DM8_TYPE.T_NO_SPEC as static function F return int is begin return 1;end;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:17~2:41) /test/1/catalog1/CODEX_DM8_TYPE/T_NO_SPEC/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_atomic_0_044_behavior_review]
+sql:
+-- TYPE_BODY_MISSING_DECLARED_MEMBER
+create type body CODEX_DM8_TYPE.T_MISSING_MEMBER as static function F return int is begin return 1;end;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:17~2:48) /test/1/catalog1/CODEX_DM8_TYPE/T_MISSING_MEMBER/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_atomic_0_045_behavior_review]
+sql:
+-- TYPE_BODY_WITH_ENCRYPTION
+create type body CODEX_DM8_TYPE.T_MEMBER with encryption as member function F return int is begin return V;end;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:17~2:40) /test/1/catalog1/CODEX_DM8_TYPE/T_MEMBER/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_atomic_0_046_behavior_review]
+sql:
+-- ALTER_COMPILE
+alter type CODEX_DM8_TYPE.T_MEMBER compile;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TYPE": [
+    {
+      "subject": "Type(2:11~2:34) /test/1/catalog1/CODEX_DM8_TYPE/T_MEMBER/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_atomic_0_047_behavior_review]
+sql:
+-- ALTER_COMPILE_DEBUG
+alter type CODEX_DM8_TYPE.T_MEMBER compile debug;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TYPE": [
+    {
+      "subject": "Type(2:11~2:34) /test/1/catalog1/CODEX_DM8_TYPE/T_MEMBER/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_atomic_0_048_behavior_review]
+sql:
+-- DROP_TYPE
+drop type CODEX_DM8_TYPE.T_RECORD restrict;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(2:10~2:33) /test/1/catalog1/CODEX_DM8_TYPE/T_RECORD/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_atomic_0_049_behavior_review]
+sql:
+-- DROP_TYPE_IF_EXISTS
+drop type if exists CODEX_DM8_TYPE.T_NO_SUCH cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(2:20~2:44) /test/1/catalog1/CODEX_DM8_TYPE/T_NO_SUCH/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_atomic_0_050_behavior_review]
+sql:
+-- DROP_TYPE_BODY
+drop type body CODEX_DM8_TYPE.T_MEMBER restrict;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(2:15~2:38) /test/1/catalog1/CODEX_DM8_TYPE/T_MEMBER/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_atomic_0_051_behavior_review]
+sql:
+-- DROP_TYPE_BODY_IF_EXISTS
+drop type body if exists CODEX_DM8_TYPE.T_NO_SUCH cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(2:25~2:49) /test/1/catalog1/CODEX_DM8_TYPE/T_NO_SUCH/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_atomic_0_052_behavior_review]
+sql:
+-- GRANT_CREATE_PACKAGE_FOR_TYPE
+grant create package to CODEX_DM8_TYPE_USER;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Package(2:13~2:20) /test/1/",
+      "action": "GRANT",
+      "target": "UserOrRole(2:24~2:43) /test/1/CODEX_DM8_TYPE_USER/"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_atomic_0_053_behavior_review]
+sql:
+-- AUTHID_DEFINER_METHOD_SPEC
+create type CODEX_DM8_TYPE.T_AUTH_DEFINER authid definer as object(static function READ_VALUE return int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:12~2:41) /test/1/catalog1/CODEX_DM8_TYPE/T_AUTH_DEFINER/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_atomic_0_054_behavior_review]
+sql:
+-- AUTHID_DEFINER_METHOD_BODY
+create type body CODEX_DM8_TYPE.T_AUTH_DEFINER as static function READ_VALUE return int is R int;begin select V into R from AUTH_SOURCE;return R;end;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:17~2:46) /test/1/catalog1/CODEX_DM8_TYPE/T_AUTH_DEFINER/",
+      "action": "CREATE"
+    },
+    {
+      "subject": "Table(2:124~2:135) /test/1/catalog1/schema1/AUTH_SOURCE/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_atomic_0_055_behavior_review]
+sql:
+-- AUTHID_INVOKER_METHOD_SPEC
+create type CODEX_DM8_TYPE.T_AUTH_INVOKER authid current_user as object(static function READ_VALUE return int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:12~2:41) /test/1/catalog1/CODEX_DM8_TYPE/T_AUTH_INVOKER/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_atomic_0_056_behavior_review]
+sql:
+-- AUTHID_INVOKER_METHOD_BODY
+create type body CODEX_DM8_TYPE.T_AUTH_INVOKER as static function READ_VALUE return int is R int;begin select V into R from AUTH_SOURCE;return R;end;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:17~2:46) /test/1/catalog1/CODEX_DM8_TYPE/T_AUTH_INVOKER/",
+      "action": "CREATE"
+    },
+    {
+      "subject": "Table(2:124~2:135) /test/1/catalog1/schema1/AUTH_SOURCE/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_atomic_0_057_behavior_review]
+sql:
+-- GRANT_EXECUTE_ON_TYPE
+grant execute on type CODEX_DM8_TYPE.T_AUTH_DEFINER to CODEX_DM8_TYPE_USER;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Type(2:22~2:51) /test/1/catalog1/CODEX_DM8_TYPE/T_AUTH_DEFINER/",
+      "action": "GRANT",
+      "target": "UserOrRole(2:55~2:74) /test/1/CODEX_DM8_TYPE_USER/"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_atomic_0_058_behavior_review]
+sql:
+-- GRANT_EXECUTE_ON_PACKAGE_TYPE
+grant execute on package CODEX_DM8_TYPE.T_AUTH_INVOKER to CODEX_DM8_TYPE_USER;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Package(2:25~2:54) /test/1/catalog1/CODEX_DM8_TYPE/T_AUTH_INVOKER/",
+      "action": "GRANT",
+      "target": "UserOrRole(2:58~2:77) /test/1/CODEX_DM8_TYPE_USER/"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_atomic_0_059_behavior_review]
+sql:
+-- REVOKE_EXECUTE_ON_PACKAGE_TYPE
+revoke execute on package CODEX_DM8_TYPE.T_AUTH_DEFINER from CODEX_DM8_TYPE_USER;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "Package(2:26~2:55) /test/1/catalog1/CODEX_DM8_TYPE/T_AUTH_DEFINER/",
+      "action": "REVOKE",
+      "target": "UserOrRole(2:61~2:80) /test/1/CODEX_DM8_TYPE_USER/"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_atomic_0_060_behavior_review]
+sql:
+-- OR_REPLACE_TYPE_PRESERVE_GRANT
+create or replace type CODEX_DM8_TYPE.T_RETAIN as object(static function F return int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:23~2:46) /test/1/catalog1/CODEX_DM8_TYPE/T_RETAIN/",
+      "action": "REPLACE"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_atomic_0_061_behavior_review]
+sql:
+-- OR_REPLACE_TYPE_BODY
+create or replace type body CODEX_DM8_TYPE.T_RETAIN as static function F return int is begin return 2;end;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(2:28~2:51) /test/1/catalog1/CODEX_DM8_TYPE/T_RETAIN/",
+      "action": "REPLACE"
+    }
+  ]
+}

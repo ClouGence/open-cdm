@@ -1,0 +1,698 @@
+[split_block_dameng_dbms_job_signature_combinations_0_001]
+sql:
+-- FUNC-0334 SUBMIT minimum required arguments
+declare
+  job_no int;
+begin
+  DBMS_JOB.SUBMIT(
+    job_no,
+    'insert into CODEX_DBMS_JOB_LOG(marker) values(''MAIN_RUN''); commit;'
+  );
+  insert into CODEX_DBMS_JOB_CTL values('MAIN', job_no);
+  commit;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(5:2~5:17) /test/1/catalog1/DBMS_JOB/SUBMIT/",
+      "action": "CALL",
+      "target": "Job(5:2~5:17) /test/1/"
+    },
+    {
+      "subject": "Table(9:14~9:32) /test/1/catalog1/schema1/CODEX_DBMS_JOB_CTL/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_job_signature_combinations_0_002]
+sql:
+-- FUNC-0327 BROKEN minimum positional
+declare job_no int; begin select job_id into job_no from CODEX_DBMS_JOB_CTL where label='MAIN'; DBMS_JOB.BROKEN(job_no, true); commit; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(2:57~2:75) /test/1/catalog1/schema1/CODEX_DBMS_JOB_CTL/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:96~2:111) /test/1/catalog1/DBMS_JOB/BROKEN/",
+      "action": "CALL",
+      "target": "Job(2:96~2:111) /test/1/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_job_signature_combinations_0_003]
+sql:
+-- FUNC-0327 BROKEN full named reordered
+declare job_no int; begin select job_id into job_no from CODEX_DBMS_JOB_CTL where label='MAIN'; DBMS_JOB.BROKEN(NEXT_DATE=>sysdate + 1, BROKEN=>false, JOB=>job_no); commit; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(2:57~2:75) /test/1/catalog1/schema1/CODEX_DBMS_JOB_CTL/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:96~2:111) /test/1/catalog1/DBMS_JOB/BROKEN/",
+      "action": "CALL",
+      "target": "Job(2:96~2:111) /test/1/"
+    },
+    {
+      "subject": "Function(2:123~2:130) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_job_signature_combinations_0_004]
+sql:
+-- FUNC-0331 NEXT_DATE positional
+declare job_no int; begin select job_id into job_no from CODEX_DBMS_JOB_CTL where label='MAIN'; DBMS_JOB.NEXT_DATE(job_no, sysdate + 1); commit; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(2:57~2:75) /test/1/catalog1/schema1/CODEX_DBMS_JOB_CTL/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:96~2:114) /test/1/catalog1/DBMS_JOB/NEXT_DATE/",
+      "action": "CALL",
+      "target": "Job(2:96~2:114) /test/1/"
+    },
+    {
+      "subject": "Function(2:123~2:130) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_job_signature_combinations_0_005]
+sql:
+-- FUNC-0331 NEXT_DATE named reordered
+declare job_no int; begin select job_id into job_no from CODEX_DBMS_JOB_CTL where label='MAIN'; DBMS_JOB.NEXT_DATE(NEXT_DATE=>sysdate + 2, JOB=>job_no); commit; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(2:57~2:75) /test/1/catalog1/schema1/CODEX_DBMS_JOB_CTL/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:96~2:114) /test/1/catalog1/DBMS_JOB/NEXT_DATE/",
+      "action": "CALL",
+      "target": "Job(2:96~2:114) /test/1/"
+    },
+    {
+      "subject": "Function(2:126~2:133) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_job_signature_combinations_0_006]
+sql:
+-- FUNC-0329 INTERVAL positional
+declare job_no int; begin select job_id into job_no from CODEX_DBMS_JOB_CTL where label='MAIN'; DBMS_JOB."INTERVAL"(job_no, 'sysdate + 1'); commit; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(2:57~2:75) /test/1/catalog1/schema1/CODEX_DBMS_JOB_CTL/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:96~2:115) /test/1/catalog1/DBMS_JOB/INTERVAL/",
+      "action": "CALL",
+      "target": "Job(2:96~2:115) /test/1/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_job_signature_combinations_0_007]
+sql:
+-- FUNC-0329 INTERVAL named reordered
+declare job_no int; begin select job_id into job_no from CODEX_DBMS_JOB_CTL where label='MAIN'; DBMS_JOB."INTERVAL"("INTERVAL"=>'sysdate + 2', JOB=>job_no); commit; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(2:57~2:75) /test/1/catalog1/schema1/CODEX_DBMS_JOB_CTL/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:96~2:115) /test/1/catalog1/DBMS_JOB/INTERVAL/",
+      "action": "CALL",
+      "target": "Job(2:96~2:115) /test/1/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_job_signature_combinations_0_008]
+sql:
+-- FUNC-0335 WHAT positional IN OUT
+declare job_no int; text_value varchar(1800); begin select job_id into job_no from CODEX_DBMS_JOB_CTL where label='MAIN'; text_value:='insert into CODEX_DBMS_JOB_LOG(marker) values(''WHAT_RUN''); commit;'; DBMS_JOB.WHAT(job_no, text_value); commit; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(2:83~2:101) /test/1/catalog1/schema1/CODEX_DBMS_JOB_CTL/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:206~2:219) /test/1/catalog1/DBMS_JOB/WHAT/",
+      "action": "CALL",
+      "target": "Job(2:206~2:219) /test/1/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_job_signature_combinations_0_009]
+sql:
+-- FUNC-0335 WHAT named reordered IN OUT
+declare job_no int; text_value varchar(1800); begin select job_id into job_no from CODEX_DBMS_JOB_CTL where label='MAIN'; text_value:='insert into CODEX_DBMS_JOB_LOG(marker) values(''WHAT_NAMED''); commit;'; DBMS_JOB.WHAT(WHAT=>text_value, JOB=>job_no); commit; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(2:83~2:101) /test/1/catalog1/schema1/CODEX_DBMS_JOB_CTL/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:208~2:221) /test/1/catalog1/DBMS_JOB/WHAT/",
+      "action": "CALL",
+      "target": "Job(2:208~2:221) /test/1/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_job_signature_combinations_0_010]
+sql:
+-- FUNC-0328 CHANGE four required arguments
+declare job_no int; begin select job_id into job_no from CODEX_DBMS_JOB_CTL where label='MAIN'; DBMS_JOB."CHANGE"(job_no, 'insert into CODEX_DBMS_JOB_LOG(marker) values(''CHANGE4''); commit;', sysdate + 1, 'sysdate + 1'); commit; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(2:57~2:75) /test/1/catalog1/schema1/CODEX_DBMS_JOB_CTL/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:96~2:113) /test/1/catalog1/DBMS_JOB/CHANGE/",
+      "action": "CALL",
+      "target": "Job(2:96~2:113) /test/1/"
+    },
+    {
+      "subject": "Function(2:193~2:200) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_job_signature_combinations_0_011]
+sql:
+-- FUNC-0328 CHANGE instance optional
+declare job_no int; begin select job_id into job_no from CODEX_DBMS_JOB_CTL where label='MAIN'; DBMS_JOB."CHANGE"(job_no, 'insert into CODEX_DBMS_JOB_LOG(marker) values(''CHANGE5''); commit;', sysdate + 1, 'sysdate + 1', 0); commit; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(2:57~2:75) /test/1/catalog1/schema1/CODEX_DBMS_JOB_CTL/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:96~2:113) /test/1/catalog1/DBMS_JOB/CHANGE/",
+      "action": "CALL",
+      "target": "Job(2:96~2:113) /test/1/"
+    },
+    {
+      "subject": "Function(2:193~2:200) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_job_signature_combinations_0_012]
+sql:
+-- FUNC-0328 CHANGE full named reordered
+declare job_no int; begin select job_id into job_no from CODEX_DBMS_JOB_CTL where label='MAIN'; DBMS_JOB."CHANGE"(FORCE=>true, INSTANCE=>0, "INTERVAL"=>'sysdate + 1', NEXT_DATE=>sysdate + 1, WHAT=>'insert into CODEX_DBMS_JOB_LOG(marker) values(''CHANGE6''); commit;', JOB=>job_no); commit; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(2:57~2:75) /test/1/catalog1/schema1/CODEX_DBMS_JOB_CTL/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:96~2:113) /test/1/catalog1/DBMS_JOB/CHANGE/",
+      "action": "CALL",
+      "target": "Job(2:96~2:113) /test/1/"
+    },
+    {
+      "subject": "Function(2:178~2:185) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_job_signature_combinations_0_013]
+sql:
+-- FUNC-0333 RUN minimum positional synchronous
+declare job_no int; begin select job_id into job_no from CODEX_DBMS_JOB_CTL where label='MAIN'; DBMS_JOB.RUN(job_no); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(2:57~2:75) /test/1/catalog1/schema1/CODEX_DBMS_JOB_CTL/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:96~2:108) /test/1/catalog1/DBMS_JOB/RUN/",
+      "action": "CALL",
+      "target": "Job(2:96~2:108) /test/1/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_job_signature_combinations_0_014]
+sql:
+-- FUNC-0333 RUN full named asynchronous
+declare job_no int; begin select job_id into job_no from CODEX_DBMS_JOB_CTL where label='MAIN'; DBMS_JOB.RUN(FORCE=>true, JOB=>job_no); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(2:57~2:75) /test/1/catalog1/schema1/CODEX_DBMS_JOB_CTL/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:96~2:108) /test/1/catalog1/DBMS_JOB/RUN/",
+      "action": "CALL",
+      "target": "Job(2:96~2:108) /test/1/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_job_signature_combinations_0_015]
+sql:
+-- FUNC-0332 REMOVE named
+declare job_no int; begin select job_id into job_no from CODEX_DBMS_JOB_CTL where label='MAIN'; DBMS_JOB.REMOVE(JOB=>job_no); delete from CODEX_DBMS_JOB_CTL where label='MAIN'; commit; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(2:57~2:75) /test/1/catalog1/schema1/CODEX_DBMS_JOB_CTL/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:96~2:111) /test/1/catalog1/DBMS_JOB/REMOVE/",
+      "action": "CALL",
+      "target": "Job(2:96~2:111) /test/1/"
+    },
+    {
+      "subject": "Table(2:138~2:156) /test/1/catalog1/schema1/CODEX_DBMS_JOB_CTL/",
+      "action": "DELETE"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_job_signature_combinations_0_016]
+sql:
+-- FUNC-0330 ISUBMIT minimum required arguments
+begin
+  DBMS_JOB.ISUBMIT(
+    930001,
+    'insert into CODEX_DBMS_JOB_LOG(marker) values(''ISUBMIT3''); commit;',
+    sysdate + 1
+  );
+  commit;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(3:2~3:18) /test/1/catalog1/DBMS_JOB/ISUBMIT/",
+      "action": "CALL",
+      "target": "Job(4:4~4:10) /test/1/930001/"
+    },
+    {
+      "subject": "Function(6:4~6:11) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_job_signature_combinations_0_017]
+sql:
+-- FUNC-0333 RUN ISUBMIT job
+begin DBMS_JOB.RUN(930001); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:18) /test/1/catalog1/DBMS_JOB/RUN/",
+      "action": "CALL",
+      "target": "Job(2:19~2:25) /test/1/930001/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_job_signature_combinations_0_018]
+sql:
+-- FUNC-0332 REMOVE ISUBMIT job
+begin DBMS_JOB.REMOVE(930001); commit; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:21) /test/1/catalog1/DBMS_JOB/REMOVE/",
+      "action": "CALL",
+      "target": "Job(2:22~2:28) /test/1/930001/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_job_signature_combinations_0_019]
+sql:
+-- FUNC-0330 ISUBMIT full named reordered
+begin
+  DBMS_JOB.ISUBMIT(
+    NO_PARSE=>true,
+    "INTERVAL"=>NULL,
+    NEXT_DATE=>sysdate + 1,
+    WHAT=>'insert into CODEX_DBMS_JOB_LOG(marker) values(''ISUBMIT5''); commit;',
+    JOB=>930002
+  );
+  commit;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(3:2~3:18) /test/1/catalog1/DBMS_JOB/ISUBMIT/",
+      "action": "CALL",
+      "target": "Job(8:9~8:15) /test/1/930002/"
+    },
+    {
+      "subject": "Function(6:15~6:22) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_job_signature_combinations_0_020]
+sql:
+-- FUNC-0332 REMOVE second ISUBMIT job
+begin DBMS_JOB.REMOVE(930002); commit; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:21) /test/1/catalog1/DBMS_JOB/REMOVE/",
+      "action": "CALL",
+      "target": "Job(2:22~2:28) /test/1/930002/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_job_signature_combinations_0_021]
+sql:
+-- FUNC-0334 SUBMIT through NEXT_DATE optional
+declare job_no int; begin DBMS_JOB.SUBMIT(job_no, 'begin null; end;', sysdate + 1); DBMS_JOB.REMOVE(job_no); commit; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:26~2:41) /test/1/catalog1/DBMS_JOB/SUBMIT/",
+      "action": "CALL",
+      "target": "Job(2:26~2:41) /test/1/"
+    },
+    {
+      "subject": "Function(2:70~2:77) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:84~2:99) /test/1/catalog1/DBMS_JOB/REMOVE/",
+      "action": "CALL",
+      "target": "Job(2:84~2:99) /test/1/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_job_signature_combinations_0_022]
+sql:
+-- FUNC-0334 SUBMIT through INTERVAL optional
+declare job_no int; begin DBMS_JOB.SUBMIT(job_no, 'begin null; end;', sysdate + 1, 'sysdate + 1'); DBMS_JOB.REMOVE(job_no); commit; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:26~2:41) /test/1/catalog1/DBMS_JOB/SUBMIT/",
+      "action": "CALL",
+      "target": "Job(2:26~2:41) /test/1/"
+    },
+    {
+      "subject": "Function(2:70~2:77) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:99~2:114) /test/1/catalog1/DBMS_JOB/REMOVE/",
+      "action": "CALL",
+      "target": "Job(2:99~2:114) /test/1/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_job_signature_combinations_0_023]
+sql:
+-- FUNC-0334 SUBMIT through NO_PARSE optional
+declare job_no int; begin DBMS_JOB.SUBMIT(job_no, 'begin null; end;', sysdate + 1, NULL, true); DBMS_JOB.REMOVE(job_no); commit; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:26~2:41) /test/1/catalog1/DBMS_JOB/SUBMIT/",
+      "action": "CALL",
+      "target": "Job(2:26~2:41) /test/1/"
+    },
+    {
+      "subject": "Function(2:70~2:77) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:96~2:111) /test/1/catalog1/DBMS_JOB/REMOVE/",
+      "action": "CALL",
+      "target": "Job(2:96~2:111) /test/1/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_job_signature_combinations_0_024]
+sql:
+-- FUNC-0334 SUBMIT through INSTANCE optional
+declare job_no int; begin DBMS_JOB.SUBMIT(job_no, 'begin null; end;', sysdate + 1, NULL, false, 0); DBMS_JOB.REMOVE(job_no); commit; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:26~2:41) /test/1/catalog1/DBMS_JOB/SUBMIT/",
+      "action": "CALL",
+      "target": "Job(2:26~2:41) /test/1/"
+    },
+    {
+      "subject": "Function(2:70~2:77) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:100~2:115) /test/1/catalog1/DBMS_JOB/REMOVE/",
+      "action": "CALL",
+      "target": "Job(2:100~2:115) /test/1/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_job_signature_combinations_0_025]
+sql:
+-- FUNC-0334 SUBMIT full named reordered
+declare job_no int; begin DBMS_JOB.SUBMIT(FORCE=>true, INSTANCE=>0, NO_PARSE=>false, "INTERVAL"=>NULL, NEXT_DATE=>sysdate + 1, WHAT=>'begin null; end;', JOB=>job_no); DBMS_JOB.REMOVE(job_no); commit; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:26~2:41) /test/1/catalog1/DBMS_JOB/SUBMIT/",
+      "action": "CALL",
+      "target": "Job(2:26~2:41) /test/1/"
+    },
+    {
+      "subject": "Function(2:114~2:121) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:167~2:182) /test/1/catalog1/DBMS_JOB/REMOVE/",
+      "action": "CALL",
+      "target": "Job(2:167~2:182) /test/1/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_job_signature_combinations_0_026]
+sql:
+-- FUNC-1617 JOB_CONFIG_COMMIT positional Pack29 public signature
+begin
+  SP_CREATE_JOB('CODEX_DBMS_JOB_CONFIG_A', 0, 0, NULL, 0, 0, NULL, 0, 'CODEX');
+  SP_JOB_CONFIG_START('CODEX_DBMS_JOB_CONFIG_A');
+  DBMS_JOB.JOB_CONFIG_COMMIT('CODEX_DBMS_JOB_CONFIG_A');
+  SP_DROP_JOB('CODEX_DBMS_JOB_CONFIG_A');
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(3:2~3:15) /test/1/catalog1/schema1/SP_CREATE_JOB/",
+      "action": "CALL",
+      "target": "Job(3:16~3:41) /test/1/CODEX_DBMS_JOB_CONFIG_A/"
+    },
+    {
+      "subject": "Procedure(4:2~4:21) /test/1/catalog1/schema1/SP_JOB_CONFIG_START/",
+      "action": "CALL",
+      "target": "Job(4:22~4:47) /test/1/CODEX_DBMS_JOB_CONFIG_A/"
+    },
+    {
+      "subject": "Procedure(5:2~5:28) /test/1/catalog1/DBMS_JOB/JOB_CONFIG_COMMIT/",
+      "action": "CALL",
+      "target": "Job(5:29~5:54) /test/1/CODEX_DBMS_JOB_CONFIG_A/"
+    },
+    {
+      "subject": "Procedure(6:2~6:13) /test/1/catalog1/schema1/SP_DROP_JOB/",
+      "action": "CALL",
+      "target": "Job(6:14~6:39) /test/1/CODEX_DBMS_JOB_CONFIG_A/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_job_signature_combinations_0_027]
+sql:
+-- FUNC-1617 JOB_CONFIG_COMMIT named argument
+begin
+  SP_CREATE_JOB('CODEX_DBMS_JOB_CONFIG_B', 0, 0, NULL, 0, 0, NULL, 0, 'CODEX');
+  SP_JOB_CONFIG_START('CODEX_DBMS_JOB_CONFIG_B');
+  DBMS_JOB.JOB_CONFIG_COMMIT(JOBNAME=>'CODEX_DBMS_JOB_CONFIG_B');
+  SP_DROP_JOB('CODEX_DBMS_JOB_CONFIG_B');
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(3:2~3:15) /test/1/catalog1/schema1/SP_CREATE_JOB/",
+      "action": "CALL",
+      "target": "Job(3:16~3:41) /test/1/CODEX_DBMS_JOB_CONFIG_B/"
+    },
+    {
+      "subject": "Procedure(4:2~4:21) /test/1/catalog1/schema1/SP_JOB_CONFIG_START/",
+      "action": "CALL",
+      "target": "Job(4:22~4:47) /test/1/CODEX_DBMS_JOB_CONFIG_B/"
+    },
+    {
+      "subject": "Procedure(5:2~5:28) /test/1/catalog1/DBMS_JOB/JOB_CONFIG_COMMIT/",
+      "action": "CALL",
+      "target": "Job(5:38~5:63) /test/1/CODEX_DBMS_JOB_CONFIG_B/"
+    },
+    {
+      "subject": "Procedure(6:2~6:13) /test/1/catalog1/schema1/SP_DROP_JOB/",
+      "action": "CALL",
+      "target": "Job(6:14~6:39) /test/1/CODEX_DBMS_JOB_CONFIG_B/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_job_signature_combinations_0_028]
+sql:
+-- FUNC-0334 SUBMIT Pack29 accepts instance 16 beyond documented 0 to 15
+declare
+  job_no int;
+begin
+  DBMS_JOB.SUBMIT(
+    job_no, 'begin null; end;', sysdate + 1, NULL, false, 16, false
+  );
+  DBMS_JOB.REMOVE(job_no);
+  commit;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(5:2~5:17) /test/1/catalog1/DBMS_JOB/SUBMIT/",
+      "action": "CALL",
+      "target": "Job(5:2~5:17) /test/1/"
+    },
+    {
+      "subject": "Function(6:32~6:39) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(8:2~8:17) /test/1/catalog1/DBMS_JOB/REMOVE/",
+      "action": "CALL",
+      "target": "Job(8:2~8:17) /test/1/"
+    }
+  ]
+}

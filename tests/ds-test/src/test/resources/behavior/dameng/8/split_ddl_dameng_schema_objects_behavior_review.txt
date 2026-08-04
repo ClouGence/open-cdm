@@ -1,0 +1,160 @@
+[split_ddl_dameng_schema_objects_behavior_review_001]
+sql:
+create schema app authorization SYSDBA;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SCHEMA": [
+    {
+      "subject": "Schema(1:14~1:17) /test/1/catalog1/app/",
+      "action": "CREATE",
+      "target": "User(1:32~1:38) /test/1/SYSDBA/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_objects_behavior_review_002]
+sql:
+create table app.customer (
+  id int identity(1, 1) primary key,
+  name varchar(100) not null,
+  status char(1) default 'A',
+  amount decimal(18, 2),
+  created_at timestamp default current_timestamp,
+  constraint uk_customer_name unique(name),
+  constraint ck_customer_status check(status in ('A', 'I'))
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/app/customer/",
+      "action": "CREATE"
+    },
+    {
+      "subject": "Function(6:31~6:48) /test/1/catalog1/schema1/current_timestamp/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_objects_behavior_review_003]
+sql:
+comment on table app.customer is 'customer master';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "COMMENT_TABLE": [
+    {
+      "subject": "Table(1:17~1:29) /test/1/catalog1/app/customer/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_objects_behavior_review_004]
+sql:
+comment on column app.customer.name is 'customer name';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "COMMENT_COLUMN": [
+    {
+      "subject": "Table(1:18~1:30) /test/1/catalog1/app/customer/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_objects_behavior_review_005]
+sql:
+create table app.orders (
+  id bigint identity,
+  customer_id int not null,
+  order_no varchar2(64) not null,
+  order_total number(18, 2) default 0,
+  payload clob,
+  constraint pk_orders primary key(id),
+  constraint fk_orders_customer foreign key(customer_id) references app.customer(id)
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:23) /test/1/catalog1/app/orders/",
+      "action": "CREATE",
+      "target": "Table(8:68~8:80) /test/1/catalog1/app/customer/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_objects_behavior_review_006]
+sql:
+create index idx_orders_customer on app.orders(customer_id);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:32) /test/1/catalog1/schema1/idx_orders_customer/",
+      "action": "CREATE",
+      "target": "Table(1:36~1:46) /test/1/catalog1/app/orders/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_objects_behavior_review_007]
+sql:
+create view app.active_customer_view as
+select id, name from app.customer where status = 'A';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:36) /test/1/catalog1/app/active_customer_view/",
+      "action": "CREATE",
+      "target": "Table(2:21~2:33) /test/1/catalog1/app/customer/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_objects_behavior_review_008]
+sql:
+create sequence app.seq_orders start with 1 increment by 1 cache 20;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SEQUENCE": [
+    {
+      "subject": "Sequence(1:16~1:30) /test/1/catalog1/app/seq_orders/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_objects_behavior_review_009]
+sql:
+create synonym app.syn_customer for app.customer;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SYNONYM": [
+    {
+      "subject": "Synonym(1:15~1:31) /test/1/catalog1/app/syn_customer/",
+      "action": "CREATE",
+      "target": "SchemaObject(1:36~1:48) /test/1/catalog1/app/customer/"
+    }
+  ]
+}

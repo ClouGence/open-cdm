@@ -373,16 +373,6 @@
         <applyTo>MaxCompute</applyTo>
         <applyTo>ClickHouse</applyTo>
     </ruleDef>
-    <ruleDef id="rule_query_010">
-        <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
-        <applyTo>OceanBase</applyTo>
-        <applyTo>AdbForMySQL,PolarDbX</applyTo>
-        <applyTo>PostgreSQL,Greenplum,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
-        <applyTo>Oracle,ObForOracle</applyTo>
-        <applyTo>Doris,SelectDB,StarRocks</applyTo>
-        <applyTo>ClickHouse</applyTo>
-    </ruleDef>
-
     <!-- update -->
     <ruleDef id="rule_update_001">
         <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>

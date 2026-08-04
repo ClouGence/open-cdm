@@ -1,0 +1,33 @@
+[split_dql_dameng_redefinition_xa_xmldom_0_013]
+sql:
+select dbms_xa.xa_ok, dbms_xa.tmnoFlags, dbms_xa.tmsuccess, dbms_xa.tmsuspend, dbms_xa.tmresume from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:101~1:105) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_redefinition_xa_xmldom_0_018]
+sql:
+select dbms_xa.xa_getlastoer() from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:28) /test/1/catalog1/dbms_xa/xa_getlastoer/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:36~1:40) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}

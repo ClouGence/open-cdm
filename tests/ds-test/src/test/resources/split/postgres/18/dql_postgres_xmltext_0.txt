@@ -1,0 +1,7 @@
+SELECT xmltext('< foo & bar >');
+SELECT xmltext('foo & <"bar">');
+------------------------------------------------------------------------------------------
+[SELECT] SELECT xmltext('< foo & bar >');
+----------
+[SELECT] SELECT xmltext('foo & <"bar">');
+

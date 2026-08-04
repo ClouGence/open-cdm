@@ -1,0 +1,152 @@
+-- FUNC-0240 REGISTER and FUNC-0241 REMOVE positional
+begin
+  DBMS_ALERT.REGISTER('CODEX_ALERT_POS');
+  DBMS_ALERT.REMOVE('CODEX_ALERT_POS');
+end;
+/
+-- FUNC-0240 REGISTER and FUNC-0241 REMOVE named
+begin
+  DBMS_ALERT.REGISTER(NAME=>'CODEX_ALERT_NAMED');
+  DBMS_ALERT.REMOVE(NAME=>'CODEX_ALERT_NAMED');
+end;
+/
+-- FUNC-0242 REMOVEALL after two registrations
+begin
+  DBMS_ALERT.REGISTER('CODEX_ALERT_ALL_A');
+  DBMS_ALERT.REGISTER('CODEX_ALERT_ALL_B');
+  DBMS_ALERT.REMOVEALL;
+end;
+/
+-- FUNC-0242 REMOVEALL idempotent zero argument
+begin DBMS_ALERT.REMOVEALL(); end;
+/
+-- FUNC-0243 SET_DEFAULTS positional one second
+begin DBMS_ALERT.SET_DEFAULTS(1); end;
+/
+-- FUNC-0243 SET_DEFAULTS positional NULL documented default
+begin DBMS_ALERT.SET_DEFAULTS(NULL); end;
+/
+-- FUNC-0243 SET_DEFAULTS named zero
+begin DBMS_ALERT.SET_DEFAULTS(SENSITIVITY=>0); end;
+/
+-- FUNC-0244 SIGNAL positional and FUNC-0246 WAITONE full
+declare message_value varchar(1800); status_value int; begin DBMS_ALERT.REGISTER('CODEX_ALERT_SIGNAL'); DBMS_ALERT.SIGNAL('CODEX_ALERT_SIGNAL', 'POSITIONAL_MESSAGE'); commit; DBMS_ALERT.WAITONE('CODEX_ALERT_SIGNAL', message_value, status_value, 2); DBMS_ALERT.REMOVE('CODEX_ALERT_SIGNAL'); end;
+/
+-- FUNC-0244 SIGNAL named reordered
+declare message_value varchar(1800); status_value int; begin DBMS_ALERT.REGISTER('CODEX_ALERT_SIGNAL_N'); DBMS_ALERT.SIGNAL(MESSAGE=>'NAMED_MESSAGE', NAME=>'CODEX_ALERT_SIGNAL_N'); commit; DBMS_ALERT.WAITONE('CODEX_ALERT_SIGNAL_N', message_value, status_value, 2); DBMS_ALERT.REMOVEALL; end;
+/
+-- FUNC-0246 WAITONE minimum arguments with pre-signaled message
+declare message_value varchar(1800); status_value int; begin DBMS_ALERT.REGISTER('CODEX_ALERT_ONE_MIN'); DBMS_ALERT.SIGNAL('CODEX_ALERT_ONE_MIN', 'MINIMUM'); commit; DBMS_ALERT.WAITONE('CODEX_ALERT_ONE_MIN', message_value, status_value); DBMS_ALERT.REMOVEALL; end;
+/
+-- FUNC-0246 WAITONE full named reordered timeout
+declare message_value varchar(1800); status_value int; begin DBMS_ALERT.REGISTER('CODEX_ALERT_ONE_T'); DBMS_ALERT.WAITONE(TIMEOUT=>0, STATUS=>status_value, MESSAGE=>message_value, NAME=>'CODEX_ALERT_ONE_T'); DBMS_ALERT.REMOVEALL; end;
+/
+-- FUNC-0245 WAITANY minimum arguments with pre-signaled message
+declare name_value varchar(30); message_value varchar(1800); status_value int; begin DBMS_ALERT.REGISTER('CODEX_ALERT_ANY_MIN'); DBMS_ALERT.SIGNAL('CODEX_ALERT_ANY_MIN', 'ANY_MINIMUM'); commit; DBMS_ALERT.WAITANY(name_value, message_value, status_value); DBMS_ALERT.REMOVEALL; end;
+/
+-- FUNC-0245 WAITANY full named reordered with pre-signaled message
+declare name_value varchar(30); message_value varchar(1800); status_value int; begin DBMS_ALERT.REGISTER('CODEX_ALERT_ANY_N'); DBMS_ALERT.SIGNAL('CODEX_ALERT_ANY_N', 'ANY_NAMED'); commit; DBMS_ALERT.WAITANY(TIMEOUT=>2, STATUS=>status_value, MESSAGE=>message_value, NAME=>name_value); DBMS_ALERT.REMOVEALL; end;
+/
+-- FUNC-0245 WAITANY full timeout boundary returning status
+declare name_value varchar(30); message_value varchar(1800); status_value int; begin DBMS_ALERT.REGISTER('CODEX_ALERT_ANY_T'); DBMS_ALERT.WAITANY(name_value, message_value, status_value, 0); DBMS_ALERT.REMOVEALL; end;
+/
+-- FUNC-0244 SIGNAL NULL message
+declare message_value varchar(1800); status_value int; begin DBMS_ALERT.REGISTER('CODEX_ALERT_NULL_MSG'); DBMS_ALERT.SIGNAL('CODEX_ALERT_NULL_MSG', NULL); commit; DBMS_ALERT.WAITONE('CODEX_ALERT_NULL_MSG', message_value, status_value, 2); DBMS_ALERT.REMOVEALL; end;
+/
+-- FUNC-0240 REGISTER maximum 30 character name
+begin
+  DBMS_ALERT.REGISTER('ABCDEFGHIJKLMNOPQRSTUVWXYZ1234');
+  DBMS_ALERT.REMOVE('ABCDEFGHIJKLMNOPQRSTUVWXYZ1234');
+end;
+/
+-- FUNC-0244 SIGNAL maximum 1800 character message
+declare message_value varchar(1800); status_value int; begin DBMS_ALERT.REGISTER('CODEX_ALERT_MAX_MSG'); DBMS_ALERT.SIGNAL('CODEX_ALERT_MAX_MSG', rpad('X', 1800, 'X')); commit; DBMS_ALERT.WAITONE('CODEX_ALERT_MAX_MSG', message_value, status_value, 2); DBMS_ALERT.REMOVEALL; end;
+/
+-- FUNC-0244 SIGNAL Pack29 accepts NULL name
+begin DBMS_ALERT.SIGNAL(NULL, 'NULL_NAME'); end;
+/
+-- FUNC-0246 WAITONE Pack29 accepts NULL name with timeout
+declare message_value varchar(1800); status_value int; begin DBMS_ALERT.WAITONE(NULL, message_value, status_value, 0); end;
+/
+-- FUNC-0241 REMOVE Pack29 accepts NULL name
+begin DBMS_ALERT.REMOVE(NULL); end;
+/
+-- FUNC-0243 SET_DEFAULTS Pack29 accepts negative sensitivity
+begin DBMS_ALERT.SET_DEFAULTS(-1); end;
+/
+------------------------------------------------------------------------------------------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-0240 REGISTER and FUNC-0241 REMOVE positional
+begin
+  DBMS_ALERT.REGISTER('CODEX_ALERT_POS');
+  DBMS_ALERT.REMOVE('CODEX_ALERT_POS');
+end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-0240 REGISTER and FUNC-0241 REMOVE named
+begin
+  DBMS_ALERT.REGISTER(NAME=>'CODEX_ALERT_NAMED');
+  DBMS_ALERT.REMOVE(NAME=>'CODEX_ALERT_NAMED');
+end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-0242 REMOVEALL after two registrations
+begin
+  DBMS_ALERT.REGISTER('CODEX_ALERT_ALL_A');
+  DBMS_ALERT.REGISTER('CODEX_ALERT_ALL_B');
+  DBMS_ALERT.REMOVEALL;
+end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-0242 REMOVEALL idempotent zero argument
+begin DBMS_ALERT.REMOVEALL(); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-0243 SET_DEFAULTS positional one second
+begin DBMS_ALERT.SET_DEFAULTS(1); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-0243 SET_DEFAULTS positional NULL documented default
+begin DBMS_ALERT.SET_DEFAULTS(NULL); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-0243 SET_DEFAULTS named zero
+begin DBMS_ALERT.SET_DEFAULTS(SENSITIVITY=>0); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ,TRANSACTION)] -- FUNC-0244 SIGNAL positional and FUNC-0246 WAITONE full
+declare message_value varchar(1800); status_value int; begin DBMS_ALERT.REGISTER('CODEX_ALERT_SIGNAL'); DBMS_ALERT.SIGNAL('CODEX_ALERT_SIGNAL', 'POSITIONAL_MESSAGE'); commit; DBMS_ALERT.WAITONE('CODEX_ALERT_SIGNAL', message_value, status_value, 2); DBMS_ALERT.REMOVE('CODEX_ALERT_SIGNAL'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ,TRANSACTION)] -- FUNC-0244 SIGNAL named reordered
+declare message_value varchar(1800); status_value int; begin DBMS_ALERT.REGISTER('CODEX_ALERT_SIGNAL_N'); DBMS_ALERT.SIGNAL(MESSAGE=>'NAMED_MESSAGE', NAME=>'CODEX_ALERT_SIGNAL_N'); commit; DBMS_ALERT.WAITONE('CODEX_ALERT_SIGNAL_N', message_value, status_value, 2); DBMS_ALERT.REMOVEALL; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ,TRANSACTION)] -- FUNC-0246 WAITONE minimum arguments with pre-signaled message
+declare message_value varchar(1800); status_value int; begin DBMS_ALERT.REGISTER('CODEX_ALERT_ONE_MIN'); DBMS_ALERT.SIGNAL('CODEX_ALERT_ONE_MIN', 'MINIMUM'); commit; DBMS_ALERT.WAITONE('CODEX_ALERT_ONE_MIN', message_value, status_value); DBMS_ALERT.REMOVEALL; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0246 WAITONE full named reordered timeout
+declare message_value varchar(1800); status_value int; begin DBMS_ALERT.REGISTER('CODEX_ALERT_ONE_T'); DBMS_ALERT.WAITONE(TIMEOUT=>0, STATUS=>status_value, MESSAGE=>message_value, NAME=>'CODEX_ALERT_ONE_T'); DBMS_ALERT.REMOVEALL; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ,TRANSACTION)] -- FUNC-0245 WAITANY minimum arguments with pre-signaled message
+declare name_value varchar(30); message_value varchar(1800); status_value int; begin DBMS_ALERT.REGISTER('CODEX_ALERT_ANY_MIN'); DBMS_ALERT.SIGNAL('CODEX_ALERT_ANY_MIN', 'ANY_MINIMUM'); commit; DBMS_ALERT.WAITANY(name_value, message_value, status_value); DBMS_ALERT.REMOVEALL; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ,TRANSACTION)] -- FUNC-0245 WAITANY full named reordered with pre-signaled message
+declare name_value varchar(30); message_value varchar(1800); status_value int; begin DBMS_ALERT.REGISTER('CODEX_ALERT_ANY_N'); DBMS_ALERT.SIGNAL('CODEX_ALERT_ANY_N', 'ANY_NAMED'); commit; DBMS_ALERT.WAITANY(TIMEOUT=>2, STATUS=>status_value, MESSAGE=>message_value, NAME=>name_value); DBMS_ALERT.REMOVEALL; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0245 WAITANY full timeout boundary returning status
+declare name_value varchar(30); message_value varchar(1800); status_value int; begin DBMS_ALERT.REGISTER('CODEX_ALERT_ANY_T'); DBMS_ALERT.WAITANY(name_value, message_value, status_value, 0); DBMS_ALERT.REMOVEALL; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ,TRANSACTION)] -- FUNC-0244 SIGNAL NULL message
+declare message_value varchar(1800); status_value int; begin DBMS_ALERT.REGISTER('CODEX_ALERT_NULL_MSG'); DBMS_ALERT.SIGNAL('CODEX_ALERT_NULL_MSG', NULL); commit; DBMS_ALERT.WAITONE('CODEX_ALERT_NULL_MSG', message_value, status_value, 2); DBMS_ALERT.REMOVEALL; end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-0240 REGISTER maximum 30 character name
+begin
+  DBMS_ALERT.REGISTER('ABCDEFGHIJKLMNOPQRSTUVWXYZ1234');
+  DBMS_ALERT.REMOVE('ABCDEFGHIJKLMNOPQRSTUVWXYZ1234');
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ,TRANSACTION)] -- FUNC-0244 SIGNAL maximum 1800 character message
+declare message_value varchar(1800); status_value int; begin DBMS_ALERT.REGISTER('CODEX_ALERT_MAX_MSG'); DBMS_ALERT.SIGNAL('CODEX_ALERT_MAX_MSG', rpad('X', 1800, 'X')); commit; DBMS_ALERT.WAITONE('CODEX_ALERT_MAX_MSG', message_value, status_value, 2); DBMS_ALERT.REMOVEALL; end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-0244 SIGNAL Pack29 accepts NULL name
+begin DBMS_ALERT.SIGNAL(NULL, 'NULL_NAME'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0246 WAITONE Pack29 accepts NULL name with timeout
+declare message_value varchar(1800); status_value int; begin DBMS_ALERT.WAITONE(NULL, message_value, status_value, 0); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-0241 REMOVE Pack29 accepts NULL name
+begin DBMS_ALERT.REMOVE(NULL); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-0243 SET_DEFAULTS Pack29 accepts negative sensitivity
+begin DBMS_ALERT.SET_DEFAULTS(-1); end;

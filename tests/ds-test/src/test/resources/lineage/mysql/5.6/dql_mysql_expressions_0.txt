@@ -1,0 +1,1402 @@
+[dql_mysql_expressions_0.0001]
+sql:
+SELECT 1 <=> 2 <=> 2, (1 <=> 2) <=> 2, 1 <=> (2 <=> 2);
+expect:
+{
+  "1 <=> 2 <=> 2" : [ ],
+  "(1 <=> 2) <=> 2" : [ ],
+  "1 <=> (2 <=> 2)" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0002]
+sql:
+SELECT @audit_a := 0 OR @audit_b := 1;
+expect:
+{
+  "0 OR @audit_b := 1" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0003]
+sql:
+SELECT @assign_left := @assign_right := 7, @assign_left, @assign_right;
+expect:
+{
+  "@assign_right := 7" : [ ],
+  "@assign_left" : [ ],
+  "@assign_right" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0004]
+sql:
+SELECT @assign_scalar := (SELECT MAX(c1) FROM assignment_t), @assign_scalar;
+expect:
+{
+  "(SELECT MAX(c1) FROM assignment_t)" : [ "(1:37~1:39) /catalog1/schema1/assignment_t/c1/" ],
+  "@assign_scalar" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0005]
+sql:
+SELECT 0 BETWEEN 0 AND 0 IS FALSE, (0 BETWEEN 0 AND 0) IS FALSE, 0 BETWEEN 0 AND (0 IS FALSE);
+expect:
+{
+  "0 BETWEEN 0 AND 0 IS FALSE" : [ ],
+  "(0 BETWEEN 0 AND 0) IS FALSE" : [ ],
+  "0 BETWEEN 0 AND (0 IS FALSE)" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0006]
+sql:
+SELECT HEX(CAST(X'0F' AS BINARY(1)) & CAST(X'F0' AS BINARY(1))), HEX(CAST(X'0F' AS BINARY(1)) | CAST(X'F0' AS BINARY(1))), HEX(CAST(X'0F' AS BINARY(1)) ^ CAST(X'F0' AS BINARY(1))), HEX(~CAST(X'0F' AS BINARY(1)));
+expect:
+{
+  "HEX(CAST(X'0F' AS BINARY(1)) & CAST(X'F0' AS BINARY(1)))" : [ ],
+  "HEX(CAST(X'0F' AS BINARY(1)) | CAST(X'F0' AS BINARY(1)))" : [ ],
+  "HEX(CAST(X'0F' AS BINARY(1)) ^ CAST(X'F0' AS BINARY(1)))" : [ ],
+  "HEX(~CAST(X'0F' AS BINARY(1)))" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0007]
+sql:
+SELECT HEX(BIT_AND(v)), HEX(BIT_OR(v)), HEX(BIT_XOR(v)) FROM (SELECT CAST(X'0F' AS BINARY(1)) AS v UNION ALL SELECT CAST(X'F3' AS BINARY(1))) AS d;
+expect:
+{
+  "HEX(BIT_AND(v))" : [ ],
+  "HEX(BIT_OR(v))" : [ ],
+  "HEX(BIT_XOR(v))" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0008]
+sql:
+SELECT LENGTH(BIT_OR(v)) FROM (SELECT CAST(REPEAT('a',511) AS BINARY(511)) AS v UNION ALL SELECT CAST(REPEAT('b',511) AS BINARY(511))) AS d;
+expect:
+{
+  "LENGTH(BIT_OR(v))" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0009]
+sql:
+SELECT LENGTH(BIT_OR(v)) FROM (SELECT CAST(REPEAT('a',512) AS BINARY(512)) AS v UNION ALL SELECT CAST(REPEAT('b',512) AS BINARY(512))) AS d;
+expect:
+{
+  "LENGTH(BIT_OR(v))" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0010]
+sql:
+SELECT HEX(BIT_OR(v)) FROM (SELECT CAST(X'0F' AS BINARY(1)) AS v UNION ALL SELECT CAST(X'00F0' AS BINARY(2))) AS d;
+expect:
+{
+  "HEX(BIT_OR(v))" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0011]
+sql:
+SELECT INTERVAL(23,1,15,17,30,44,200), ISNULL(NULL), ISNULL(0), 1 IS NOT TRUE, 0 IS NOT FALSE, NULL IS NOT UNKNOWN, ROW(1,2) < ROW(2,1), ROW(1,NULL) <=> ROW(1,NULL), ROW(1,2) IN (ROW(1,2),ROW(3,4));
+expect:
+{
+  "INTERVAL(23,1,15,17,30,44,200)" : [ ],
+  "ISNULL(NULL)" : [ ],
+  "ISNULL(0)" : [ ],
+  "1 IS NOT TRUE" : [ ],
+  "0 IS NOT FALSE" : [ ],
+  "NULL IS NOT UNKNOWN" : [ ],
+  "ROW(1,2) < ROW(2,1)" : [ ],
+  "ROW(1,NULL) <=> ROW(1,NULL)" : [ ],
+  "ROW(1,2) IN (ROW(1,2),ROW(3,4))" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0012]
+sql:
+SELECT ROW(2,3) BETWEEN ROW(1,9) AND ROW(3,0);
+expect:
+{
+  "ROW(2,3) BETWEEN ROW(1,9) AND ROW(3,0)" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0013]
+sql:
+SELECT 1 < 2 < 3, (1 < 2) < 3, 1 < (2 < 3);
+expect:
+{
+  "1 < 2 < 3" : [ ],
+  "(1 < 2) < 3" : [ ],
+  "1 < (2 < 3)" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0014]
+sql:
+SELECT 15 / 5 / 3, (15 / 5) / 3, 15 / (5 / 3);
+expect:
+{
+  "15 / 5 / 3" : [ ],
+  "(15 / 5) / 3" : [ ],
+  "15 / (5 / 3)" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0017]
+sql:
+SELECT
+  1 + 2, 5 - 3, 2 * 4, 7 / 2, 7 DIV 2, 7 % 2, 7 MOD 2,
+  +1, -1, ~1, 1 << 2, 8 >> 1, 6 & 3, 6 | 3, 6 ^ 3,
+  1 = 1, 1 <> 2, 1 != 2, 1 <=> NULL, 1 < 2, 2 <= 2, 3 > 2, 3 >= 3,
+  1 AND 0, 1 && 1, 0 OR 1, 0 || 1, 1 XOR 0, NOT 0, !0,
+  2 BETWEEN 1 AND 3, 4 NOT BETWEEN 1 AND 3,
+  2 IN (1,2,3), 4 NOT IN (1,2,3),
+  NULL IS NULL, 1 IS NOT NULL, 1 IS TRUE, 0 IS FALSE, NULL IS UNKNOWN,
+  'abc' LIKE 'a%' ESCAPE '=', 'abc' NOT LIKE 'z%',
+  'abc' REGEXP '^a', 'abc' RLIKE '^a', 'hello' SOUNDS LIKE 'hallo',
+  BINARY 'A' = BINARY 'a',
+  _utf8mb4'a' COLLATE utf8mb4_general_ci = 'A',
+  ROW(1,2) = ROW(1,2),
+  CASE 1 WHEN 1 THEN 'one' ELSE 'other' END,
+  CASE WHEN 1 = 1 THEN 'yes' ELSE 'no' END;
+expect:
+{
+  "1 + 2" : [ ],
+  "5 - 3" : [ ],
+  "2 * 4" : [ ],
+  "7 / 2" : [ ],
+  "7 DIV 2" : [ ],
+  "7 % 2" : [ ],
+  "7 MOD 2" : [ ],
+  "+1" : [ ],
+  "-1" : [ ],
+  "~1" : [ ],
+  "1 << 2" : [ ],
+  "8 >> 1" : [ ],
+  "6 & 3" : [ ],
+  "6 | 3" : [ ],
+  "6 ^ 3" : [ ],
+  "1 = 1" : [ ],
+  "1 <> 2" : [ ],
+  "1 != 2" : [ ],
+  "1 <=> NULL" : [ ],
+  "1 < 2" : [ ],
+  "2 <= 2" : [ ],
+  "3 > 2" : [ ],
+  "3 >= 3" : [ ],
+  "1 AND 0" : [ ],
+  "1 && 1" : [ ],
+  "0 OR 1" : [ ],
+  "0 || 1" : [ ],
+  "1 XOR 0" : [ ],
+  "NOT 0" : [ ],
+  "!0" : [ ],
+  "2 BETWEEN 1 AND 3" : [ ],
+  "4 NOT BETWEEN 1 AND 3" : [ ],
+  "2 IN (1,2,3)" : [ ],
+  "4 NOT IN (1,2,3)" : [ ],
+  "NULL IS NULL" : [ ],
+  "1 IS NOT NULL" : [ ],
+  "1 IS TRUE" : [ ],
+  "0 IS FALSE" : [ ],
+  "NULL IS UNKNOWN" : [ ],
+  "'abc' LIKE 'a%' ESCAPE '='" : [ ],
+  "'abc' NOT LIKE 'z%'" : [ ],
+  "'abc' REGEXP '^a'" : [ ],
+  "'abc' RLIKE '^a'" : [ ],
+  "'hello' SOUNDS LIKE 'hallo'" : [ ],
+  "BINARY 'A' = BINARY 'a'" : [ ],
+  "_utf8mb4'a' COLLATE utf8mb4_general_ci = 'A'" : [ ],
+  "ROW(1,2) = ROW(1,2)" : [ ],
+  "CASE 1 WHEN 1 THEN 'one' ELSE 'other' END" : [ ],
+  "CASE WHEN 1 = 1 THEN 'yes' ELSE 'no' END" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0018]
+sql:
+SELECT @split_expr := 1, @split_expr + 1;
+expect:
+{
+  "1" : [ ],
+  "@split_expr + 1" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0019]
+sql:
+SELECT
+  CURRENT_DATE, CURRENT_DATE(), CURRENT_TIME, CURRENT_TIME(),
+  CURRENT_TIMESTAMP, CURRENT_TIMESTAMP(), LOCALTIME, LOCALTIME(),
+  UTC_TIMESTAMP, UTC_TIMESTAMP(), CURRENT_USER, CURRENT_USER(), SCHEMA(),
+  DATE '2020-01-01', TIMESTAMP '2020-01-01 00:00:00';
+expect:
+{
+  "CURRENT_DATE" : [ ],
+  "CURRENT_DATE()" : [ ],
+  "CURRENT_TIME" : [ ],
+  "CURRENT_TIME()" : [ ],
+  "CURRENT_TIMESTAMP" : [ ],
+  "CURRENT_TIMESTAMP()" : [ ],
+  "LOCALTIME" : [ ],
+  "LOCALTIME()" : [ ],
+  "UTC_TIMESTAMP" : [ ],
+  "UTC_TIMESTAMP()" : [ ],
+  "CURRENT_USER" : [ ],
+  "CURRENT_USER()" : [ ],
+  "SCHEMA()" : [ ],
+  "DATE '2020-01-01'" : [ ],
+  "TIMESTAMP '2020-01-01 00:00:00'" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0020]
+sql:
+SELECT
+  CAST('12' AS SIGNED), CAST('12' AS UNSIGNED),
+  CONVERT('abc', CHAR), CONVERT('abc' USING utf8mb4),
+  CHAR(77,121,83,81,76 USING utf8mb4),
+  POSITION('b' IN 'abc'), SUBSTRING('abcdef' FROM 2 FOR 3),
+  TRIM(BOTH 'x' FROM 'xxabcxx'),
+  EXTRACT(YEAR_MONTH FROM DATE '2020-02-03'),
+  GET_FORMAT(DATE, 'ISO');
+expect:
+{
+  "CAST('12' AS SIGNED)" : [ ],
+  "CAST('12' AS UNSIGNED)" : [ ],
+  "CONVERT('abc', CHAR)" : [ ],
+  "CONVERT('abc' USING utf8mb4)" : [ ],
+  "CHAR(77,121,83,81,76 USING utf8mb4)" : [ ],
+  "POSITION('b' IN 'abc')" : [ ],
+  "SUBSTRING('abcdef' FROM 2 FOR 3)" : [ ],
+  "TRIM(BOTH 'x' FROM 'xxabcxx')" : [ ],
+  "EXTRACT(YEAR_MONTH FROM DATE '2020-02-03')" : [ ],
+  "GET_FORMAT(DATE, 'ISO')" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0022]
+sql:
+SELECT i1 = -129, u1 <> 256, i2 < -32769, u2 >= 65536, i3 <= 8388608, u3 > 16777215, i4 = -2147483649, u4 <> 4294967296, i8 < -9223372036854775809, u8 >= 18446744073709551616 FROM comparison_integer;
+expect:
+{
+  "i1 = -129" : [ "(1:7~1:9) /catalog1/schema1/comparison_integer/i1/" ],
+  "u1 <> 256" : [ "(1:18~1:20) /catalog1/schema1/comparison_integer/u1/" ],
+  "i2 < -32769" : [ "(1:29~1:31) /catalog1/schema1/comparison_integer/i2/" ],
+  "u2 >= 65536" : [ "(1:42~1:44) /catalog1/schema1/comparison_integer/u2/" ],
+  "i3 <= 8388608" : [ "(1:55~1:57) /catalog1/schema1/comparison_integer/i3/" ],
+  "u3 > 16777215" : [ "(1:70~1:72) /catalog1/schema1/comparison_integer/u3/" ],
+  "i4 = -2147483649" : [ "(1:85~1:87) /catalog1/schema1/comparison_integer/i4/" ],
+  "u4 <> 4294967296" : [ "(1:103~1:105) /catalog1/schema1/comparison_integer/u4/" ],
+  "i8 < -9223372036854775809" : [ "(1:121~1:123) /catalog1/schema1/comparison_integer/i8/" ],
+  "u8 >= 18446744073709551616" : [ "(1:148~1:150) /catalog1/schema1/comparison_integer/u8/" ]
+}
+----------
+[dql_mysql_expressions_0.0023]
+sql:
+SELECT i8 = 9223372036854775807, i8 <> 9223372036854775807.0, i8 < 9223372036854775807.0e0, i8 >= '9223372036854775807', u8 <= 18446744073709551615, u8 > '18446744073709551615' FROM comparison_integer;
+expect:
+{
+  "i8 = 9223372036854775807" : [ "(1:7~1:9) /catalog1/schema1/comparison_integer/i8/" ],
+  "i8 <> 9223372036854775807.0" : [ "(1:33~1:35) /catalog1/schema1/comparison_integer/i8/" ],
+  "i8 < 9223372036854775807.0e0" : [ "(1:62~1:64) /catalog1/schema1/comparison_integer/i8/" ],
+  "i8 >= '9223372036854775807'" : [ "(1:92~1:94) /catalog1/schema1/comparison_integer/i8/" ],
+  "u8 <= 18446744073709551615" : [ "(1:121~1:123) /catalog1/schema1/comparison_integer/u8/" ],
+  "u8 > '18446744073709551615'" : [ "(1:149~1:151) /catalog1/schema1/comparison_integer/u8/" ]
+}
+----------
+[dql_mysql_expressions_0.0024]
+sql:
+SELECT f4 = -3.40282347e+38, f8 <> '-1.797693134862315708e+308', f4 < 1.17549435e-38, f8 >= '2.225073858507201383e-308', f4 <= 3.40282347e+38, f8 > '0' FROM comparison_float;
+expect:
+{
+  "f4 = -3.40282347e+38" : [ "(1:7~1:9) /catalog1/schema1/comparison_float/f4/" ],
+  "f8 <> '-1.797693134862315708e+308'" : [ "(1:29~1:31) /catalog1/schema1/comparison_float/f8/" ],
+  "f4 < 1.17549435e-38" : [ "(1:65~1:67) /catalog1/schema1/comparison_float/f4/" ],
+  "f8 >= '2.225073858507201383e-308'" : [ "(1:86~1:88) /catalog1/schema1/comparison_float/f8/" ],
+  "f4 <= 3.40282347e+38" : [ "(1:121~1:123) /catalog1/schema1/comparison_float/f4/" ],
+  "f8 > '0'" : [ "(1:143~1:145) /catalog1/schema1/comparison_float/f8/" ]
+}
+----------
+[dql_mysql_expressions_0.0025]
+sql:
+SELECT dc1 = -99999999.9999, dc2 <> '-.999999999999999999999999999999', dc3 < 99999999999999999999999999999999999999999999999999999999999999999, dc4 >= '99999999999999999999999999999999999.999999999999999999999999999999', dc1 <= 99999999.9999, dc2 > '0' FROM comparison_decimal;
+expect:
+{
+  "dc1 = -99999999.9999" : [ "(1:7~1:10) /catalog1/schema1/comparison_decimal/dc1/" ],
+  "dc2 <> '-.999999999999999999999999999999'" : [ "(1:29~1:32) /catalog1/schema1/comparison_decimal/dc2/" ],
+  "dc3 < 99999999999999999999999999999999999999999999999999999999999999999" : [ "(1:72~1:75) /catalog1/schema1/comparison_decimal/dc3/" ],
+  "dc4 >= '99999999999999999999999999999999999.999999999999999999999999999999'" : [ "(1:145~1:148) /catalog1/schema1/comparison_decimal/dc4/" ],
+  "dc1 <= 99999999.9999" : [ "(1:222~1:225) /catalog1/schema1/comparison_decimal/dc1/" ],
+  "dc2 > '0'" : [ "(1:244~1:247) /catalog1/schema1/comparison_decimal/dc2/" ]
+}
+----------
+[dql_mysql_expressions_0.0026]
+sql:
+SELECT fc = '', vc <> '', fc < 'beta', vc >= 'alpha', fc <= 'omega', vc > 'alpha' FROM comparison_character;
+expect:
+{
+  "fc = ''" : [ "(1:7~1:9) /catalog1/schema1/comparison_character/fc/" ],
+  "vc <> ''" : [ "(1:16~1:18) /catalog1/schema1/comparison_character/vc/" ],
+  "fc < 'beta'" : [ "(1:26~1:28) /catalog1/schema1/comparison_character/fc/" ],
+  "vc >= 'alpha'" : [ "(1:39~1:41) /catalog1/schema1/comparison_character/vc/" ],
+  "fc <= 'omega'" : [ "(1:54~1:56) /catalog1/schema1/comparison_character/fc/" ],
+  "vc > 'alpha'" : [ "(1:69~1:71) /catalog1/schema1/comparison_character/vc/" ]
+}
+----------
+[dql_mysql_expressions_0.0027]
+sql:
+SELECT d = '2017-01-01', d <> 20170101, d < '2017-01-01 00:00:00.000000', d >= 20170101000000.0, d <= '9999-12-31', d > 00010101 FROM comparison_date;
+expect:
+{
+  "d = '2017-01-01'" : [ "(1:7~1:8) /catalog1/schema1/comparison_date/d/" ],
+  "d <> 20170101" : [ "(1:25~1:26) /catalog1/schema1/comparison_date/d/" ],
+  "d < '2017-01-01 00:00:00.000000'" : [ "(1:40~1:41) /catalog1/schema1/comparison_date/d/" ],
+  "d >= 20170101000000.0" : [ "(1:74~1:75) /catalog1/schema1/comparison_date/d/" ],
+  "d <= '9999-12-31'" : [ "(1:97~1:98) /catalog1/schema1/comparison_date/d/" ],
+  "d > 00010101" : [ "(1:116~1:117) /catalog1/schema1/comparison_date/d/" ]
+}
+----------
+[dql_mysql_expressions_0.0028]
+sql:
+SELECT d = -20010101, d <> 'abc' FROM comparison_date;
+expect:
+{
+  "d = -20010101" : [ "(1:7~1:8) /catalog1/schema1/comparison_date/d/" ],
+  "d <> 'abc'" : [ "(1:22~1:23) /catalog1/schema1/comparison_date/d/" ]
+}
+----------
+[dql_mysql_expressions_0.0029]
+sql:
+SELECT t1 = '-838:59:59.000000', t2 <> -8385959.000000, t1 < '00:00:00.000000', t2 >= 0.000000, t1 <= '838:59:59.000000', t2 > 235959.999999 FROM comparison_time;
+expect:
+{
+  "t1 = '-838:59:59.000000'" : [ "(1:7~1:9) /catalog1/schema1/comparison_time/t1/" ],
+  "t2 <> -8385959.000000" : [ "(1:33~1:35) /catalog1/schema1/comparison_time/t2/" ],
+  "t1 < '00:00:00.000000'" : [ "(1:56~1:58) /catalog1/schema1/comparison_time/t1/" ],
+  "t2 >= 0.000000" : [ "(1:80~1:82) /catalog1/schema1/comparison_time/t2/" ],
+  "t1 <= '838:59:59.000000'" : [ "(1:96~1:98) /catalog1/schema1/comparison_time/t1/" ],
+  "t2 > 235959.999999" : [ "(1:122~1:124) /catalog1/schema1/comparison_time/t2/" ]
+}
+----------
+[dql_mysql_expressions_0.0030]
+sql:
+SELECT dt1 = '2017-01-01', dt2 <> '2017-01-01 11:59:59.555555', dt1 < 20170101, dt2 >= 20170101115959.555555, dt1 <= '9999-12-31 23:59:59.999999', dt2 > 00010101000000.000000 FROM comparison_datetime;
+expect:
+{
+  "dt1 = '2017-01-01'" : [ "(1:7~1:10) /catalog1/schema1/comparison_datetime/dt1/" ],
+  "dt2 <> '2017-01-01 11:59:59.555555'" : [ "(1:27~1:30) /catalog1/schema1/comparison_datetime/dt2/" ],
+  "dt1 < 20170101" : [ "(1:64~1:67) /catalog1/schema1/comparison_datetime/dt1/" ],
+  "dt2 >= 20170101115959.555555" : [ "(1:80~1:83) /catalog1/schema1/comparison_datetime/dt2/" ],
+  "dt1 <= '9999-12-31 23:59:59.999999'" : [ "(1:110~1:113) /catalog1/schema1/comparison_datetime/dt1/" ],
+  "dt2 > 00010101000000.000000" : [ "(1:147~1:150) /catalog1/schema1/comparison_datetime/dt2/" ]
+}
+----------
+[dql_mysql_expressions_0.0031]
+sql:
+SELECT col_smallint, col_int, col_float FROM comparison_row WHERE (col_smallint, col_int, col_float) <=> (SELECT NULL, 3, NULL);
+expect:
+{
+  "col_smallint" : [ "(1:7~1:19) /catalog1/schema1/comparison_row/col_smallint/" ],
+  "col_int" : [ "(1:21~1:28) /catalog1/schema1/comparison_row/col_int/" ],
+  "col_float" : [ "(1:30~1:39) /catalog1/schema1/comparison_row/col_float/" ]
+}
+----------
+[dql_mysql_expressions_0.0032]
+sql:
+SELECT 0<=>0.0, 0.0<=>0E0, 0E0<=>'0', 10.0<=>1E1, 10<=>10.0, 10<=>1E1;
+expect:
+{
+  "0<=>0.0" : [ ],
+  "0.0<=>0E0" : [ ],
+  "0E0<=>'0'" : [ ],
+  "10.0<=>1E1" : [ ],
+  "10<=>10.0" : [ ],
+  "10<=>1E1" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0033]
+sql:
+SELECT * FROM t1 WHERE a = '4828532208463511553';
+expect:
+{
+  "id" : [ "(1:7~1:8) /catalog1/schema1/t1/id/" ]
+}
+----------
+[dql_mysql_expressions_0.0034]
+sql:
+SELECT * FROM t1 WHERE a IN ('4828532208463511553');
+expect:
+{
+  "id" : [ "(1:7~1:8) /catalog1/schema1/t1/id/" ]
+}
+----------
+[dql_mysql_expressions_0.0035]
+sql:
+SELECT 0<=>0,0.0<=>0.0,0E0=0E0,'A'<=>'A',NULL<=>NULL;
+expect:
+{
+  "0<=>0" : [ ],
+  "0.0<=>0.0" : [ ],
+  "0E0=0E0" : [ ],
+  "'A'<=>'A'" : [ ],
+  "NULL<=>NULL" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0036]
+sql:
+SELECT 1<=>0,0<=>NULL,NULL<=>0;
+expect:
+{
+  "1<=>0" : [ ],
+  "0<=>NULL" : [ ],
+  "NULL<=>0" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0037]
+sql:
+SELECT 1.0<=>0.0,0.0<=>NULL,NULL<=>0.0;
+expect:
+{
+  "1.0<=>0.0" : [ ],
+  "0.0<=>NULL" : [ ],
+  "NULL<=>0.0" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0038]
+sql:
+SELECT 'A'<>'B','A'<=>NULL,NULL<=>'A';
+expect:
+{
+  "'A'<>'B'" : [ ],
+  "'A'<=>NULL" : [ ],
+  "NULL<=>'A'" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0039]
+sql:
+SELECT 1.0<=>0E1,10<=>NULL,NULL<=>0.0,NULL<=>0E0;
+expect:
+{
+  "1.0<=>0E1" : [ ],
+  "10<=>NULL" : [ ],
+  "NULL<=>0.0" : [ ],
+  "NULL<=>0E0" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0040]
+sql:
+SELECT t1.*,t2.*,t1.value_col<=>t2.value_col FROM t1,t2 WHERE t1.id=t2.id AND t1.id=1;
+expect:
+[ {
+  "sources" : [ "(1:7~1:11) /catalog1/schema1/t1/value_col/" ],
+  "column" : "value_col"
+}, {
+  "sources" : [ "(1:7~1:11) /catalog1/schema1/t1/id/" ],
+  "column" : "id"
+}, {
+  "sources" : [ "(1:12~1:16) /catalog1/schema1/t2/value_col/" ],
+  "column" : "value_col"
+}, {
+  "sources" : [ "(1:12~1:16) /catalog1/schema1/t2/id/" ],
+  "column" : "id"
+}, {
+  "sources" : [ "(1:17~1:29) /catalog1/schema1/t1/value_col/", "(1:32~1:44) /catalog1/schema1/t2/value_col/" ],
+  "column" : "t1.value_col<=>t2.value_col"
+} ]
+----------
+[dql_mysql_expressions_0.0041]
+sql:
+SELECT * FROM t1 WHERE id<=>id;
+expect:
+{
+  "id" : [ "(1:7~1:8) /catalog1/schema1/t1/id/" ]
+}
+----------
+[dql_mysql_expressions_0.0042]
+sql:
+SELECT * FROM t1 WHERE value_col<=>value_col;
+expect:
+{
+  "id" : [ "(1:7~1:8) /catalog1/schema1/t1/id/" ]
+}
+----------
+[dql_mysql_expressions_0.0043]
+sql:
+SELECT * FROM t1 WHERE id<=>value_col OR value_col<=>id;
+expect:
+{
+  "id" : [ "(1:7~1:8) /catalog1/schema1/t1/id/" ]
+}
+----------
+[dql_mysql_expressions_0.0044]
+sql:
+SELECT BIT_COUNT(29), b'11110001' & b'01001111', b'11110001' | b'01001111', b'11110001' ^ b'01001111', ~b'00000001', b'00000001' << 3, b'10000000' >> 3;
+expect:
+{
+  "BIT_COUNT(29)" : [ ],
+  "b'11110001' & b'01001111'" : [ ],
+  "b'11110001' | b'01001111'" : [ ],
+  "b'11110001' ^ b'01001111'" : [ ],
+  "~b'00000001'" : [ ],
+  "b'00000001' << 3" : [ ],
+  "b'10000000' >> 3" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0045]
+sql:
+SELECT BIT_AND(x), BIT_OR(x), BIT_XOR(x) FROM (SELECT 1 AS x UNION ALL SELECT 3) AS d;
+expect:
+{
+  "BIT_AND(x)" : [ ],
+  "BIT_OR(x)" : [ ],
+  "BIT_XOR(x)" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0046]
+sql:
+SELECT MBREQUAL(ST_GEOMFROMTEXT('POINT(1 1)'),ST_GEOMFROMTEXT('POINT(1 1)'));
+expect:
+{
+  "MBREQUAL(ST_GEOMFROMTEXT('POINT(1 1)'),ST_GEOMFROMTEXT('POINT(1 1)'))" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0047]
+sql:
+SELECT NOT NULL, !NULL, 1 AND NULL, 0 AND NULL, NULL AND 0, 1 && NULL, 0 OR NULL, 1 OR NULL, NULL OR NULL, 0 || NULL, 1 XOR NULL, 1 XOR 1 XOR 1;
+expect:
+{
+  "NOT NULL" : [ ],
+  "!NULL" : [ ],
+  "1 AND NULL" : [ ],
+  "0 AND NULL" : [ ],
+  "NULL AND 0" : [ ],
+  "1 && NULL" : [ ],
+  "0 OR NULL" : [ ],
+  "1 OR NULL" : [ ],
+  "NULL OR NULL" : [ ],
+  "0 || NULL" : [ ],
+  "1 XOR NULL" : [ ],
+  "1 XOR 1 XOR 1" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0048]
+sql:
+SELECT !(1+1), !1+1, NOT 1+1;
+expect:
+{
+  "!(1+1)" : [ ],
+  "!1+1" : [ ],
+  "NOT 1+1" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0049]
+sql:
+SELECT 1 NOT IN (1) IS FALSE, (1 NOT IN (1)) IS FALSE, 1 NOT IN ((1) IS FALSE);
+expect:
+{
+  "1 NOT IN (1) IS FALSE" : [ ],
+  "(1 NOT IN (1)) IS FALSE" : [ ],
+  "1 NOT IN ((1) IS FALSE)" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0050]
+sql:
+SELECT 1+2*3, (1+2)*3, ~1<<2+1, 8>>1+1, 1|2&4, 1^3&1, 1=1 AND 0=1 OR 1=1, 1 XOR 1 AND 0, NOT 1 BETWEEN 0 AND 2, NOT 2 IN(1,2), 1=1 IS TRUE, NULL<=>NULL IS TRUE;
+expect:
+{
+  "1+2*3" : [ ],
+  "(1+2)*3" : [ ],
+  "~1<<2+1" : [ ],
+  "8>>1+1" : [ ],
+  "1|2&4" : [ ],
+  "1^3&1" : [ ],
+  "1=1 AND 0=1 OR 1=1" : [ ],
+  "1 XOR 1 AND 0" : [ ],
+  "NOT 1 BETWEEN 0 AND 2" : [ ],
+  "NOT 2 IN(1,2)" : [ ],
+  "1=1 IS TRUE" : [ ],
+  "NULL<=>NULL IS TRUE" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0051]
+sql:
+SELECT DATE '2020-01-01' + INTERVAL 1+1 DAY, BINARY 'a' = 'A', _utf8mb4'a' COLLATE utf8mb4_bin = _utf8mb4'A';
+expect:
+{
+  "DATE '2020-01-01' + INTERVAL 1+1 DAY" : [ ],
+  "BINARY 'a' = 'A'" : [ ],
+  "_utf8mb4'a' COLLATE utf8mb4_bin = _utf8mb4'A'" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0052]
+sql:
+SELECT !-1, !~0, -1^1, -(1^1), ~1^3, ~(1^3);
+expect:
+{
+  "!-1" : [ ],
+  "!~0" : [ ],
+  "-1^1" : [ ],
+  "-(1^1)" : [ ],
+  "~1^3" : [ ],
+  "~(1^3)" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0053]
+sql:
+SELECT 20 DIV 3*2, 20 DIV (3*2), 20 MOD 6+1, 20 MOD (6+1), 1+2<<1, 1+(2<<1);
+expect:
+{
+  "20 DIV 3*2" : [ ],
+  "20 DIV (3*2)" : [ ],
+  "20 MOD 6+1" : [ ],
+  "20 MOD (6+1)" : [ ],
+  "1+2<<1" : [ ],
+  "1+(2<<1)" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0054]
+sql:
+SELECT 4&1=0, (4&1)=0, 4&(1=0), 4|1=5, (4|1)=5, 4|(1=5);
+expect:
+{
+  "4&1=0" : [ ],
+  "(4&1)=0" : [ ],
+  "4&(1=0)" : [ ],
+  "4|1=5" : [ ],
+  "(4|1)=5" : [ ],
+  "4|(1=5)" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0055]
+sql:
+SELECT CASE WHEN 0 OR 1 THEN 10 ELSE 20 END + 1, 2 BETWEEN 1 AND 2 AND 0 OR 1, NOT 2 BETWEEN 1 AND 3 AND 0, 1 IS NOT FALSE, NULL IS UNKNOWN, NULL IS NOT UNKNOWN;
+expect:
+{
+  "CASE WHEN 0 OR 1 THEN 10 ELSE 20 END + 1" : [ ],
+  "2 BETWEEN 1 AND 2 AND 0 OR 1" : [ ],
+  "NOT 2 BETWEEN 1 AND 3 AND 0" : [ ],
+  "1 IS NOT FALSE" : [ ],
+  "NULL IS UNKNOWN" : [ ],
+  "NULL IS NOT UNKNOWN" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0056]
+sql:
+SELECT 1 LIKE 2 XOR 2 LIKE 1;
+expect:
+{
+  "1 LIKE 2 XOR 2 LIKE 1" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0057]
+sql:
+SELECT 5 BETWEEN 0 AND 10 BETWEEN 0 AND 1,(5 BETWEEN 0 AND 10) BETWEEN 0 AND 1;
+expect:
+{
+  "5 BETWEEN 0 AND 10 BETWEEN 0 AND 1" : [ ],
+  "(5 BETWEEN 0 AND 10) BETWEEN 0 AND 1" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0058]
+sql:
+SELECT 1 AND 2 BETWEEN 2 AND 10,2 BETWEEN 2 AND 10 AND 1;
+expect:
+{
+  "1 AND 2 BETWEEN 2 AND 10" : [ ],
+  "2 BETWEEN 2 AND 10 AND 1" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0059]
+sql:
+SELECT 1 AND 0 OR 2,2 OR 1 AND 0;
+expect:
+{
+  "1 AND 0 OR 2" : [ ],
+  "2 OR 1 AND 0" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0060]
+sql:
+SELECT 3^11,1^1,1^0,1^NULL,NULL^1,1 XOR 1,1 XOR 0,NULL XOR 1,1 XOR NULL,0 XOR NULL;
+expect:
+{
+  "3^11" : [ ],
+  "1^1" : [ ],
+  "1^0" : [ ],
+  "1^NULL" : [ ],
+  "NULL^1" : [ ],
+  "1 XOR 1" : [ ],
+  "1 XOR 0" : [ ],
+  "NULL XOR 1" : [ ],
+  "1 XOR NULL" : [ ],
+  "0 XOR NULL" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0061]
+sql:
+SELECT 18446744073709551615,18446744073709551615 DIV 1,18446744073709551615 DIV 2,(1<<64)-1,((1<<64)-1) DIV 1,((1<<64)-1) DIV 2;
+expect:
+{
+  "18446744073709551615" : [ ],
+  "18446744073709551615 DIV 1" : [ ],
+  "18446744073709551615 DIV 2" : [ ],
+  "(1<<64)-1" : [ ],
+  "((1<<64)-1) DIV 1" : [ ],
+  "((1<<64)-1) DIV 2" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0062]
+sql:
+SELECT 'abc' NOT REGEXP '^z', 'abc' NOT RLIKE '^z';
+expect:
+{
+  "'abc' NOT REGEXP '^z'" : [ ],
+  "'abc' NOT RLIKE '^z'" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0063]
+sql:
+SELECT 4 << 3 << 2, (4 << 3) << 2, 4 << (3 << 2);
+expect:
+{
+  "4 << 3 << 2" : [ ],
+  "(4 << 3) << 2" : [ ],
+  "4 << (3 << 2)" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0064]
+sql:
+SELECT 10 - 3 - 2, (10 - 3) - 2, 10 - (3 - 2);
+expect:
+{
+  "10 - 3 - 2" : [ ],
+  "(10 - 3) - 2" : [ ],
+  "10 - (3 - 2)" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0065]
+sql:
+SELECT INTERVAL 1 DAY + DATE '2024-01-01';
+expect:
+{
+  "INTERVAL 1 DAY + DATE '2024-01-01'" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0066]
+sql:
+SELECT DATE '2024-01-01' + INTERVAL ? DAY;
+expect:
+{
+  "DATE '2024-01-01' + INTERVAL ? DAY" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0067]
+sql:
+SELECT 1 & 1 << 1, (1 & 1) << 1, 1 & (1 << 1);
+expect:
+{
+  "1 & 1 << 1" : [ ],
+  "(1 & 1) << 1" : [ ],
+  "1 & (1 << 1)" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0068]
+sql:
+SELECT 2 * 3 ^ 2, (2 * 3) ^ 2, 2 * (3 ^ 2);
+expect:
+{
+  "2 * 3 ^ 2" : [ ],
+  "(2 * 3) ^ 2" : [ ],
+  "2 * (3 ^ 2)" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0069]
+sql:
+SELECT * FROM char_id WHERE id=000000000001;
+expect:
+{
+  "id" : [ "(1:7~1:8) /catalog1/schema1/char_id/id/" ]
+}
+----------
+[dql_mysql_expressions_0.0070]
+sql:
+SELECT 'a\0' < 'a', 'a\0' < 'a ', 'a\t' < 'a', 'a\t' < 'a ';
+expect:
+{
+  "'a\\0' < 'a'" : [ ],
+  "'a\\0' < 'a '" : [ ],
+  "'a\\t' < 'a'" : [ ],
+  "'a\\t' < 'a '" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0071]
+sql:
+SELECT CHAR(31) = '', '' = CHAR(31), CHAR(30) = '', '' = CHAR(30);
+expect:
+{
+  "CHAR(31) = ''" : [ ],
+  "'' = CHAR(31)" : [ ],
+  "CHAR(30) = ''" : [ ],
+  "'' = CHAR(30)" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0072]
+sql:
+SELECT * FROM binary_cmp WHERE a=b AND b=0x01;
+expect:
+{
+  "id" : [ "(1:7~1:8) /catalog1/schema1/binary_cmp/id/" ]
+}
+----------
+[dql_mysql_expressions_0.0073]
+sql:
+SELECT CONCAT(b,c), CONCAT(b,c) = '0101' FROM zero_cmp;
+expect:
+{
+  "CONCAT(b,c)" : [ "(1:14~1:15) /catalog1/schema1/zero_cmp/b/", "(1:16~1:17) /catalog1/schema1/zero_cmp/c/" ],
+  "CONCAT(b,c) = '0101'" : [ "(1:27~1:28) /catalog1/schema1/zero_cmp/b/", "(1:29~1:30) /catalog1/schema1/zero_cmp/c/" ]
+}
+----------
+[dql_mysql_expressions_0.0074]
+sql:
+SELECT a,(SELECT COUNT(*) FROM zero_cmp WHERE b=outer_cmp.a AND CONCAT(b,c)=CONCAT('0',outer_cmp.a,'01')) AS x FROM outer_cmp ORDER BY a;
+expect:
+{
+  "a" : [ "(1:7~1:8) /catalog1/schema1/outer_cmp/a/" ],
+  "x" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0075]
+sql:
+SELECT * FROM timestamp_cmp WHERE a > '2008-01-01' AND a = '0000-00-00';
+expect:
+{
+  "id" : [ "(1:7~1:8) /catalog1/schema1/timestamp_cmp/id/" ]
+}
+----------
+[dql_mysql_expressions_0.0076]
+sql:
+SELECT 1 FROM in_cmp WHERE in_cmp.a IN (1,in_cmp.a) AND in_cmp.a=2;
+expect:
+{
+  "1" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0077]
+sql:
+SELECT DATE_FORMAT(plage2,'%H:%i:%s') < plage, plage > DATE_FORMAT(plage2,'%H:%i:%s'), DATE_FORMAT(plage2,'%H:%i:%s') < plage COLLATE utf8_general_ci FROM time_cmp;
+expect:
+{
+  "DATE_FORMAT(plage2,'%H:%i:%s') < plage" : [ "(1:19~1:25) /catalog1/schema1/time_cmp/plage2/", "(1:40~1:45) /catalog1/schema1/time_cmp/plage/" ],
+  "plage > DATE_FORMAT(plage2,'%H:%i:%s')" : [ "(1:47~1:52) /catalog1/schema1/time_cmp/plage/", "(1:67~1:73) /catalog1/schema1/time_cmp/plage2/" ],
+  "DATE_FORMAT(plage2,'%H:%i:%s') < plage COLLATE utf8_general_ci" : [ "(1:99~1:105) /catalog1/schema1/time_cmp/plage2/", "(1:120~1:125) /catalog1/schema1/time_cmp/plage/" ]
+}
+----------
+[dql_mysql_expressions_0.0078]
+sql:
+SELECT ROW('1','1') > ROW(a,'1'), ROW(a,'1') > ROW('1','1') FROM row_cmp;
+expect:
+{
+  "ROW('1','1') > ROW(a,'1')" : [ "(1:26~1:27) /catalog1/schema1/row_cmp/a/" ],
+  "ROW(a,'1') > ROW('1','1')" : [ "(1:38~1:39) /catalog1/schema1/row_cmp/a/" ]
+}
+----------
+[dql_mysql_expressions_0.0080]
+sql:
+SELECT * FROM max_cmp WHERE a < @maxint OR 0 < @maxint;
+expect:
+{
+  "id" : [ "(1:7~1:8) /catalog1/schema1/max_cmp/id/" ]
+}
+----------
+[dql_mysql_expressions_0.0081]
+sql:
+SELECT 2*3+(~1&255)<<1&127^2|1 AS v;
+expect:
+{
+  "v" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0082]
+sql:
+SELECT NOT 2 BETWEEN 1 AND 3 XOR 1 AND 0 OR NULL <=> NULL AS v;
+expect:
+{
+  "v" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0083]
+sql:
+SELECT CASE WHEN 4&1=0 OR 8>>1=4 AND 3^1=2 THEN 10 ELSE 20 END+2*3 AS score;
+expect:
+{
+  "score" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0084]
+sql:
+SELECT _utf8mb4'A' COLLATE utf8mb4_bin=BINARY _utf8mb4'a' OR _utf8mb4'a' LIKE _utf8mb4'A' AND TRUE AS v;
+expect:
+{
+  "v" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0085]
+sql:
+SELECT 'abc123' REGEXP '^[a-z]+' AND NOT 'abc123' REGEXP '[^0-9]$' XOR FALSE AS v;
+expect:
+{
+  "v" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0086]
+sql:
+SELECT ROW(2,3)>ROW(1,9) AND ROW(2,NULL)<=>ROW(2,NULL) XOR ROW(2,3) IN (ROW(1,9),ROW(2,3)) AS v;
+expect:
+{
+  "v" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0087]
+sql:
+SELECT id,d+INTERVAL n*2+1 DAY AS due FROM (SELECT 1 id,DATE '2024-01-01' d,2 n UNION ALL SELECT 2,DATE '2024-01-10',-1) s WHERE d+INTERVAL n*2+1 DAY BETWEEN DATE '2024-01-01' AND DATE '2024-01-31' ORDER BY due;
+expect:
+{
+  "id" : [ ],
+  "due" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0088]
+sql:
+SELECT t.* FROM (SELECT 1 id,2 a,3 b UNION ALL SELECT 2,NULL,4 UNION ALL SELECT 3,5,1) t WHERE NOT a+b*2 BETWEEN id AND 10 AND b IS NOT NULL XOR a<=>NULL ORDER BY a IS NULL,a+b*id DESC;
+expect:
+{
+  "id" : [ ],
+  "a" : [ ],
+  "b" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0089]
+sql:
+SELECT a%2 grp,SUM(b*2+a) total,COUNT(*) cnt FROM (SELECT 1 a,2 b UNION ALL SELECT 2,3 UNION ALL SELECT 3,4) s GROUP BY a%2 HAVING NOT SUM(b*2+a) BETWEEN 8 AND 10 XOR COUNT(*)=1 ORDER BY total+cnt*2 DESC;
+expect:
+{
+  "grp" : [ ],
+  "total" : [ ],
+  "cnt" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0090]
+sql:
+SELECT o.id,(SELECT MAX(i.v*2-o.v) FROM (SELECT 1 id,3 v UNION ALL SELECT 2,5 UNION ALL SELECT 3,2) i WHERE i.id<=o.id AND NOT i.v BETWEEN o.v-1 AND o.v+1) score FROM (SELECT 1 id,3 v UNION ALL SELECT 2,5 UNION ALL SELECT 3,2) o ORDER BY score IS NULL,score DESC;
+expect:
+{
+  "id" : [ ],
+  "score" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0091]
+sql:
+SELECT o.id FROM (SELECT 1 id,3 v UNION ALL SELECT 2,5 UNION ALL SELECT 3,2) o WHERE EXISTS (SELECT 1 FROM (SELECT 1 id,3 v UNION ALL SELECT 2,5 UNION ALL SELECT 3,2) i WHERE i.id<o.id AND i.v*2+1>o.v) XOR o.v BETWEEN 2 AND 3 ORDER BY o.id;
+expect:
+{
+  "id" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0092]
+sql:
+SELECT grp,GROUP_CONCAT(CASE WHEN v%2=0 XOR v=3 THEN v*10 ELSE -v END ORDER BY v+grp*2 DESC SEPARATOR ':') packed FROM (SELECT 1 grp,2 v UNION ALL SELECT 1,3 UNION ALL SELECT 2,4) s GROUP BY grp ORDER BY grp;
+expect:
+{
+  "grp" : [ ],
+  "packed" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0093]
+sql:
+SELECT o.id FROM (SELECT 1 id,3 v UNION ALL SELECT 2,5 UNION ALL SELECT 3,2) o WHERE o.v+1>ALL (SELECT i.v*2-o.id FROM (SELECT 1 id,1 v UNION ALL SELECT 2,2) i WHERE i.id<=o.id) OR o.id=1 AND NOT o.v BETWEEN 2 AND 4 ORDER BY o.id;
+expect:
+{
+  "id" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0094]
+sql:
+SELECT 1/3,1/3=0.3333,1/3=0.333333333;
+expect:
+{
+  "1/3" : [ ],
+  "1/3=0.3333" : [ ],
+  "1/3=0.333333333" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0095]
+sql:
+SELECT 2/3,2/3=0.6667,2/3=0.666666666;
+expect:
+{
+  "2/3" : [ ],
+  "2/3=0.6667" : [ ],
+  "2/3=0.666666666" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0096]
+sql:
+SELECT c0 IN (1,-(NULL>CAST(-1147964344 AS DECIMAL))) FROM codex_decimal_in_source;
+expect:
+{
+  "c0 IN (1,-(NULL>CAST(-1147964344 AS DECIMAL)))" : [ "(1:7~1:9) /catalog1/schema1/codex_decimal_in_source/c0/" ]
+}
+----------
+[dql_mysql_expressions_0.0097]
+sql:
+SELECT c0 IN (1,-(NULL>-1147964344)) FROM codex_decimal_in_source;
+expect:
+{
+  "c0 IN (1,-(NULL>-1147964344))" : [ "(1:7~1:9) /catalog1/schema1/codex_decimal_in_source/c0/" ]
+}
+----------
+[dql_mysql_expressions_0.0098]
+sql:
+SELECT c0 IN (1,-(NULL>1.0E0)) FROM codex_decimal_in_source;
+expect:
+{
+  "c0 IN (1,-(NULL>1.0E0))" : [ "(1:7~1:9) /catalog1/schema1/codex_decimal_in_source/c0/" ]
+}
+----------
+[dql_mysql_expressions_0.0099]
+sql:
+SELECT 10.;
+expect:
+{
+  "10." : [ ]
+}
+----------
+[dql_mysql_expressions_0.0100]
+sql:
+SELECT .1e+2;
+expect:
+{
+  ".1e+2" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0101]
+sql:
+SELECT 6e-16;
+expect:
+{
+  "6e-16" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0102]
+sql:
+SELECT --6e-16;
+expect:
+{
+  "--6e-16" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0103]
+sql:
+SELECT 1.e1;
+expect:
+{
+  "1.e1" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0104]
+sql:
+SELECT CASE BINARY 'b' WHEN 'a' THEN 1 WHEN 'B' THEN 2 WHEN 'b' THEN 'ok' END;
+expect:
+{
+  "CASE BINARY 'b' WHEN 'a' THEN 1 WHEN 'B' THEN 2 WHEN 'b' THEN 'ok' END" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0105]
+sql:
+SELECT CASE 'b' WHEN 'a' THEN 1 WHEN BINARY 'B' THEN 2 WHEN 'b' THEN 'ok' END;
+expect:
+{
+  "CASE 'b' WHEN 'a' THEN 1 WHEN BINARY 'B' THEN 2 WHEN 'b' THEN 'ok' END" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0106]
+sql:
+SELECT (CASE 'two' WHEN 'one' THEN '1' WHEN 'two' THEN '2' END) | 0;
+expect:
+{
+  "(CASE 'two' WHEN 'one' THEN '1' WHEN 'two' THEN '2' END) | 0" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0107]
+sql:
+SELECT (CASE 'two' WHEN 'one' THEN 1.00 WHEN 'two' THEN 2.00 END) + 0.0;
+expect:
+{
+  "(CASE 'two' WHEN 'one' THEN 1.00 WHEN 'two' THEN 2.00 END) + 0.0" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0108]
+sql:
+SELECT CASE a WHEN 1 THEN 2 WHEN 2 THEN 3 ELSE 0 END AS fcase, COUNT(*) FROM case_t GROUP BY fcase;
+expect:
+{
+  "fcase" : [ "(1:12~1:13) /catalog1/schema1/case_t/a/" ],
+  "COUNT(*)" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0109]
+sql:
+SELECT MAX(CASE col WHEN 1 THEN val ELSE NULL END) AS color FROM case_t GROUP BY `row_no`;
+expect:
+{
+  "color" : [ "(1:16~1:19) /catalog1/schema1/case_t/col/", "(1:32~1:35) /catalog1/schema1/case_t/val/" ]
+}
+----------
+[dql_mysql_expressions_0.0110]
+sql:
+SELECT CASE _latin1'a' COLLATE latin1_general_ci WHEN _latin1'A' THEN '1' ELSE 2 END, CASE _latin1'a' COLLATE latin1_bin WHEN _latin1'A' THEN '1' ELSE 2 END, CASE _latin1'a' WHEN _latin1'A' COLLATE latin1_swedish_ci THEN '1' ELSE 2 END;
+expect:
+{
+  "CASE _latin1'a' COLLATE latin1_general_ci WHEN _latin1'A' THEN '1' ELSE 2 END" : [ ],
+  "CASE _latin1'a' COLLATE latin1_bin WHEN _latin1'A' THEN '1' ELSE 2 END" : [ ],
+  "CASE _latin1'a' WHEN _latin1'A' COLLATE latin1_swedish_ci THEN '1' ELSE 2 END" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0111]
+sql:
+SELECT 1 FROM case_t WHERE a=1 AND CASE 1 WHEN a THEN 1 ELSE 1 END;
+expect:
+{
+  "1" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0112]
+sql:
+SELECT FALSE IS NULL IS NULL IS NULL,TRUE IS NOT NULL IS NOT NULL IS NOT NULL;
+expect:
+{
+  "FALSE IS NULL IS NULL IS NULL" : [ ],
+  "TRUE IS NOT NULL IS NOT NULL IS NOT NULL" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0113]
+sql:
+SELECT 1 <=> 2 <=> 2,1 = 2 = 2,1 != 2 != 3,1 <> 2 <> 3,3 <= 2 <= 1,1 > 2 > 3,1 >= 2 >= 3;
+expect:
+{
+  "1 <=> 2 <=> 2" : [ ],
+  "1 = 2 = 2" : [ ],
+  "1 != 2 != 3" : [ ],
+  "1 <> 2 <> 3" : [ ],
+  "3 <= 2 <= 1" : [ ],
+  "1 > 2 > 3" : [ ],
+  "1 >= 2 >= 3" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0114]
+sql:
+SELECT 0xFF >> 4 << 2,0x0F << 4 >> 2;
+expect:
+{
+  "0xFF >> 4 << 2" : [ ],
+  "0x0F << 4 >> 2" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0115]
+sql:
+SELECT 1 + 2 - 3,1 - 2 + 3;
+expect:
+{
+  "1 + 2 - 3" : [ ],
+  "1 - 2 + 3" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0116]
+sql:
+SELECT 0xFF ^ 0xF0 * 2,0xFF ^ 0xF0 / 2,0xFF ^ 0xF0 % 0x20,0xFF ^ 0xF0 DIV 2,0xFF ^ 0xF0 MOD 0x20;
+expect:
+{
+  "0xFF ^ 0xF0 * 2" : [ ],
+  "0xFF ^ 0xF0 / 2" : [ ],
+  "0xFF ^ 0xF0 % 0x20" : [ ],
+  "0xFF ^ 0xF0 DIV 2" : [ ],
+  "0xFF ^ 0xF0 MOD 0x20" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0117]
+sql:
+SELECT 120 / 3 DIV 2 % 7 MOD 3 * 5,((((120 / 3) DIV 2) % 7) MOD 3) * 5;
+expect:
+{
+  "120 / 3 DIV 2 % 7 MOD 3 * 5" : [ ],
+  "((((120 / 3) DIV 2) % 7) MOD 3) * 5" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0118]
+sql:
+SELECT NOT 'x' SOUNDS LIKE 'y' AND 'hello' SOUNDS LIKE 'hallo' IS TRUE;
+expect:
+{
+  "NOT 'x' SOUNDS LIKE 'y' AND 'hello' SOUNDS LIKE 'hallo' IS TRUE" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0119]
+sql:
+SELECT 1 BETWEEN 0 AND 'hello' SOUNDS LIKE 'hallo';
+expect:
+{
+  "1 BETWEEN 0 AND 'hello' SOUNDS LIKE 'hallo'" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0120]
+sql:
+SELECT q.interval,q.select,q.external,q.library;
+expect:
+{
+  "interval" : [ ],
+  "select" : [ ],
+  "external" : [ ],
+  "library" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0121]
+sql:
+SELECT duality,files,guided,header,materialized,parameters,policy,relational,sets,uri,validate,vector,verify_key_constraints;
+expect:
+{
+  "duality" : [ ],
+  "files" : [ ],
+  "guided" : [ ],
+  "header" : [ ],
+  "materialized" : [ ],
+  "parameters" : [ ],
+  "policy" : [ ],
+  "relational" : [ ],
+  "sets" : [ ],
+  "uri" : [ ],
+  "validate" : [ ],
+  "vector" : [ ],
+  "verify_key_constraints" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0122]
+sql:
+SELECT t.timestamp,TIMESTAMP'2024-01-02 03:04:05' FROM (SELECT 7 AS timestamp) AS t;
+expect:
+{
+  "timestamp" : [ ],
+  "TIMESTAMP'2024-01-02 03:04:05'" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0123]
+sql:
+SELECT _utf8mb4'A' COLLATE utf8mb4_bin LIKE BINARY _utf8mb4'a' ESCAPE BINARY '=' IS TRUE;
+expect:
+{
+  "_utf8mb4'A' COLLATE utf8mb4_bin LIKE BINARY _utf8mb4'a' ESCAPE BINARY '=' IS TRUE" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0124]
+sql:
+SELECT 1 > '6x', 7 > '6x', 0 > 'x6', 0 = 'x6';
+expect:
+{
+  "1 > '6x'" : [ ],
+  "7 > '6x'" : [ ],
+  "0 > 'x6'" : [ ],
+  "0 = 'x6'" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0125]
+sql:
+SELECT * FROM conversion_strings WHERE c3 = 0;
+expect:
+{
+  "id" : [ "(1:7~1:8) /catalog1/schema1/conversion_strings/id/" ]
+}
+----------
+[dql_mysql_expressions_0.0126]
+sql:
+SELECT '9223372036854775807'=9223372036854775807,'9223372036854775807'=9223372036854775806;
+expect:
+{
+  "'9223372036854775807'=9223372036854775807" : [ ],
+  "'9223372036854775807'=9223372036854775806" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0127]
+sql:
+SELECT * FROM temporal_conversion WHERE dt=(SELECT 20200101);
+expect:
+{
+  "id" : [ "(1:7~1:8) /catalog1/schema1/temporal_conversion/id/" ]
+}
+----------
+[dql_mysql_expressions_0.0128]
+sql:
+SELECT * FROM temporal_conversion WHERE dt=CAST((SELECT 20200101) AS DATETIME);
+expect:
+{
+  "id" : [ "(1:7~1:8) /catalog1/schema1/temporal_conversion/id/" ]
+}
+----------
+[dql_mysql_expressions_0.0129]
+sql:
+SELECT 10+'10',10.0+'10',10E+0+'10',10+'a',10.0+CAST('a' AS DECIMAL),10E+0+'a';
+expect:
+{
+  "10+'10'" : [ ],
+  "10.0+'10'" : [ ],
+  "10E+0+'10'" : [ ],
+  "10+'a'" : [ ],
+  "10.0+CAST('a' AS DECIMAL)" : [ ],
+  "10E+0+'a'" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0130]
+sql:
+SELECT BINARY DATE '2024-01-01' + INTERVAL 1 DAY, DATE '2024-01-01' + INTERVAL BINARY 1 DAY, ! BINARY '0', ! _utf8mb4'0' COLLATE utf8mb4_bin;
+expect:
+{
+  "BINARY DATE '2024-01-01' + INTERVAL 1 DAY" : [ ],
+  "DATE '2024-01-01' + INTERVAL BINARY 1 DAY" : [ ],
+  "! BINARY '0'" : [ ],
+  "! _utf8mb4'0' COLLATE utf8mb4_bin" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0131]
+sql:
+SELECT ROW(2,2) != ROW(2,3), (2,2) != (2,3);
+expect:
+{
+  "ROW(2,2) != ROW(2,3)" : [ ],
+  "(2,2) != (2,3)" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0132]
+sql:
+SELECT (3,4) NOT IN ((1,2),(3,5));
+expect:
+{
+  "(3,4) NOT IN ((1,2),(3,5))" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0133]
+sql:
+SELECT ROW(2,2) >= (SELECT 1,2), ROW(2,2) <= (SELECT 2,3), ROW(2,2) <> (SELECT 1,2), ROW(2,2) != (SELECT 1,2);
+expect:
+{
+  "ROW(2,2) >= (SELECT 1,2)" : [ ],
+  "ROW(2,2) <= (SELECT 2,3)" : [ ],
+  "ROW(2,2) <> (SELECT 1,2)" : [ ],
+  "ROW(2,2) != (SELECT 1,2)" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0134]
+sql:
+SELECT 2 != ANY (SELECT 1 UNION ALL SELECT 2), 2 != SOME (SELECT 1 UNION ALL SELECT 3), 2 != ALL (SELECT 1 UNION ALL SELECT 3);
+expect:
+{
+  "2 != ANY (SELECT 1 UNION ALL SELECT 2)" : [ ],
+  "2 != SOME (SELECT 1 UNION ALL SELECT 3)" : [ ],
+  "2 != ALL (SELECT 1 UNION ALL SELECT 3)" : [ ]
+}
+----------
+[dql_mysql_expressions_0.0135]
+sql:
+SELECT 'a%' LIKE 'a%' ESCAPE '', 'a%' NOT LIKE 'b%' ESCAPE '';
+expect:
+{
+  "'a%' LIKE 'a%' ESCAPE ''" : [ ],
+  "'a%' NOT LIKE 'b%' ESCAPE ''" : [ ]
+}

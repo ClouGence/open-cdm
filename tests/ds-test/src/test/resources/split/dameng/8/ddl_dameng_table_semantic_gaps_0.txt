@@ -1,0 +1,120 @@
+create local temporary table table_sem_local(id int) on commit preserve rows;
+create global temporary table table_sem_global(id int) on commit preserve rows;
+insert into table_sem_global values(1);
+commit;
+select count(*) from table_sem_global;
+drop table table_sem_global purge;
+create table table_sem_pendant_parent(id int primary key);
+insert into table_sem_pendant_parent values(1);
+create table table_sem_pendant(id int references pendant table_sem_pendant_parent(id));
+select constraint_name, constraint_type, status, validated from user_constraints where table_name='TABLE_SEM_PENDANT';
+insert into table_sem_pendant values(1);
+insert into table_sem_pendant values(2);
+select tabledef('SYSDBA', 'TABLE_SEM_PENDANT');
+drop table table_sem_pendant purge;
+drop table table_sem_pendant_parent purge;
+create table table_sem_pendant(id int references pendant table_sem_missing_parent(id));
+create table table_sem_nonunique_parent(id int);
+create table table_sem_pendant(id int references pendant table_sem_nonunique_parent(id));
+drop table table_sem_nonunique_parent purge;
+create table table_sem_nv_unique(id int);
+insert into table_sem_nv_unique values(1);
+insert into table_sem_nv_unique values(1);
+alter table table_sem_nv_unique add constraint table_sem_nv_uq unique(id) novalidate;
+select constraint_name, status, validated from user_constraints where table_name='TABLE_SEM_NV_UNIQUE';
+insert into table_sem_nv_unique values(1);
+drop table table_sem_nv_unique purge;
+create table table_sem_nv_parent(id int primary key);
+insert into table_sem_nv_parent values(1);
+create table table_sem_nv_child(id int);
+insert into table_sem_nv_child values(2);
+alter table table_sem_nv_child add constraint table_sem_nv_fk foreign key(id) references table_sem_nv_parent(id) novalidate;
+select constraint_name, status, validated from user_constraints where table_name='TABLE_SEM_NV_CHILD';
+insert into table_sem_nv_child values(3);
+insert into table_sem_nv_child values(1);
+alter table table_sem_nv_child enable constraint table_sem_nv_fk validate;
+select constraint_name, status, validated from user_constraints where table_name='TABLE_SEM_NV_CHILD';
+alter table table_sem_nv_child modify constraint table_sem_nv_fk enable validate;
+drop table table_sem_nv_child purge;
+drop table table_sem_nv_parent purge;
+create table table_sem_ts_storage(id int) tablespace main storage(on main);
+------------------------------------------------------------------------------------------
+[CREATE_TABLE|ADD_COLUMN] create local temporary table table_sem_local(id int) on commit preserve rows;
+----------
+[CREATE_TABLE|ADD_COLUMN] create global temporary table table_sem_global(id int) on commit preserve rows;
+----------
+[INSERT] insert into table_sem_global values(1);
+----------
+[TRANSACTION] commit;
+----------
+[SELECT] select count(*) from table_sem_global;
+----------
+[DROP_TABLE] drop table table_sem_global purge;
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table table_sem_pendant_parent(id int primary key);
+----------
+[INSERT] insert into table_sem_pendant_parent values(1);
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table table_sem_pendant(id int references pendant table_sem_pendant_parent(id));
+----------
+[SELECT] select constraint_name, constraint_type, status, validated from user_constraints where table_name='TABLE_SEM_PENDANT';
+----------
+[INSERT] insert into table_sem_pendant values(1);
+----------
+[INSERT] insert into table_sem_pendant values(2);
+----------
+[SELECT] select tabledef('SYSDBA', 'TABLE_SEM_PENDANT');
+----------
+[DROP_TABLE] drop table table_sem_pendant purge;
+----------
+[DROP_TABLE] drop table table_sem_pendant_parent purge;
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table table_sem_pendant(id int references pendant table_sem_missing_parent(id));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table table_sem_nonunique_parent(id int);
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table table_sem_pendant(id int references pendant table_sem_nonunique_parent(id));
+----------
+[DROP_TABLE] drop table table_sem_nonunique_parent purge;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table table_sem_nv_unique(id int);
+----------
+[INSERT] insert into table_sem_nv_unique values(1);
+----------
+[INSERT] insert into table_sem_nv_unique values(1);
+----------
+[ALTER_TABLE|ADD_CONSTRAINT] alter table table_sem_nv_unique add constraint table_sem_nv_uq unique(id) novalidate;
+----------
+[SELECT] select constraint_name, status, validated from user_constraints where table_name='TABLE_SEM_NV_UNIQUE';
+----------
+[INSERT] insert into table_sem_nv_unique values(1);
+----------
+[DROP_TABLE] drop table table_sem_nv_unique purge;
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table table_sem_nv_parent(id int primary key);
+----------
+[INSERT] insert into table_sem_nv_parent values(1);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table table_sem_nv_child(id int);
+----------
+[INSERT] insert into table_sem_nv_child values(2);
+----------
+[ALTER_TABLE|ADD_CONSTRAINT] alter table table_sem_nv_child add constraint table_sem_nv_fk foreign key(id) references table_sem_nv_parent(id) novalidate;
+----------
+[SELECT] select constraint_name, status, validated from user_constraints where table_name='TABLE_SEM_NV_CHILD';
+----------
+[INSERT] insert into table_sem_nv_child values(3);
+----------
+[INSERT] insert into table_sem_nv_child values(1);
+----------
+[ALTER_TABLE|DROP_CONSTRAINT] alter table table_sem_nv_child enable constraint table_sem_nv_fk validate;
+----------
+[SELECT] select constraint_name, status, validated from user_constraints where table_name='TABLE_SEM_NV_CHILD';
+----------
+[ALTER_TABLE|ALTER_CONSTRAINT] alter table table_sem_nv_child modify constraint table_sem_nv_fk enable validate;
+----------
+[DROP_TABLE] drop table table_sem_nv_child purge;
+----------
+[DROP_TABLE] drop table table_sem_nv_parent purge;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table table_sem_ts_storage(id int) tablespace main storage(on main);

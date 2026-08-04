@@ -1,0 +1,5 @@
+CREATE SCHEMA sampledb;DROP SCHEMA sampledb;
+------------------------------------------------------------------------------------------
+[CREATE_SCHEMA] CREATE SCHEMA sampledb;
+----------
+[DROP_SCHEMA] DROP SCHEMA sampledb;

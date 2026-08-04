@@ -1,0 +1,1132 @@
+[split_ddl_dameng_schema_0_001_behavior_review]
+sql:
+CREATE SCHEMA CODEX_DM8_SCHEMA_SIMPLE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SCHEMA": [
+    {
+      "subject": "Schema(1:14~1:37) /test/1/catalog1/CODEX_DM8_SCHEMA_SIMPLE/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_0_002_behavior_review]
+sql:
+CREATE SCHEMA CODEX_DM8_SCHEMA_AUTH AUTHORIZATION SYSDBA;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SCHEMA": [
+    {
+      "subject": "Schema(1:14~1:35) /test/1/catalog1/CODEX_DM8_SCHEMA_AUTH/",
+      "action" : "CREATE",
+      "target" : "User(1:50~1:56) /test/1/SYSDBA/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_0_003_behavior_review]
+sql:
+CREATE SCHEMA CODEX_DM8_SCHEMA_IFNE AUTHORIZATION SYSDBA;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SCHEMA": [
+    {
+      "subject": "Schema(1:14~1:35) /test/1/catalog1/CODEX_DM8_SCHEMA_IFNE/",
+      "action" : "CREATE",
+      "target" : "User(1:50~1:56) /test/1/SYSDBA/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_0_004_behavior_review]
+sql:
+SELECT NAME FROM SYSOBJECTS WHERE TYPE$='SCH' AND NAME='CODEX_DM8_SCHEMA_IFNE';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:17~1:27) /test/1/catalog1/schema1/SYSOBJECTS/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_0_005_behavior_review]
+sql:
+CREATE SCHEMA "Schema_Quoted" AUTHORIZATION SYSDBA;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SCHEMA": [
+    {
+      "subject": "Schema(1:14~1:29) /test/1/catalog1/Schema_Quoted/",
+      "action" : "CREATE",
+      "target" : "User(1:44~1:50) /test/1/SYSDBA/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_0_006_behavior_review]
+sql:
+CREATE SCHEMA CODEX_DM8_SCHEMA_LONG_ABCDEFGHIJKLMNOPQRSTUVWXYZ_0123456789 AUTHORIZATION SYSDBA;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SCHEMA": [
+    {
+      "subject": "Schema(1:14~1:73) /test/1/catalog1/CODEX_DM8_SCHEMA_LONG_ABCDEFGHIJKLMNOPQRSTUVWXYZ_0123456789/",
+      "action" : "CREATE",
+      "target" : "User(1:88~1:94) /test/1/SYSDBA/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_0_007_behavior_review]
+sql:
+SET SCHEMA CODEX_DM8_SCHEMA_SIMPLE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SWITCH_SCHEMA": [
+    {
+      "subject": "Schema(1:11~1:34) /test/1/catalog1/CODEX_DM8_SCHEMA_SIMPLE/",
+      "action" : "SWITCH"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_0_008_behavior_review]
+sql:
+CREATE TABLE SIMPLE_TABLE (ID INT PRIMARY KEY, NOTE VARCHAR(40));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/SIMPLE_TABLE/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_0_009_behavior_review]
+sql:
+INSERT INTO SIMPLE_TABLE VALUES (1, 'A');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:24) /test/1/catalog1/schema1/SIMPLE_TABLE/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_0_010_behavior_review]
+sql:
+SELECT ID, NOTE FROM SIMPLE_TABLE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:21~1:33) /test/1/catalog1/schema1/SIMPLE_TABLE/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_0_011_behavior_review]
+sql:
+SET SCHEMA SYSDBA;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SWITCH_SCHEMA": [
+    {
+      "subject": "Schema(1:11~1:17) /test/1/catalog1/SYSDBA/",
+      "action" : "SWITCH"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_0_012_behavior_review]
+sql:
+SELECT ID, NOTE FROM CODEX_DM8_SCHEMA_SIMPLE.SIMPLE_TABLE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:21~1:57) /test/1/catalog1/CODEX_DM8_SCHEMA_SIMPLE/SIMPLE_TABLE/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_0_013_behavior_review]
+sql:
+SET SCHEMA "Schema_Quoted";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SWITCH_SCHEMA": [
+    {
+      "subject": "Schema(1:11~1:26) /test/1/catalog1/Schema_Quoted/",
+      "action" : "SWITCH"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_0_014_behavior_review]
+sql:
+CREATE TABLE "Quoted_Table" ("ID" INT PRIMARY KEY, "Value" VARCHAR(20));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:27) /test/1/catalog1/schema1/Quoted_Table/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_0_015_behavior_review]
+sql:
+INSERT INTO "Quoted_Table" VALUES (1, 'Q');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/Quoted_Table/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_0_016_behavior_review]
+sql:
+SELECT "ID", "Value" FROM "Quoted_Table";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:26~1:40) /test/1/catalog1/schema1/Quoted_Table/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_0_017_behavior_review]
+sql:
+SET SCHEMA SYSDBA;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SWITCH_SCHEMA": [
+    {
+      "subject": "Schema(1:11~1:17) /test/1/catalog1/SYSDBA/",
+      "action" : "SWITCH"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_0_018_behavior_review]
+sql:
+SELECT "ID", "Value" FROM "Schema_Quoted"."Quoted_Table";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:26~1:56) /test/1/catalog1/Schema_Quoted/Quoted_Table/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_0_019_behavior_review]
+sql:
+CREATE SCHEMA CODEX_DM8_SCHEMA_TABLE AUTHORIZATION SYSDBA CREATE TABLE EMBED_TABLE (ID INT PRIMARY KEY, NOTE VARCHAR(40));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SCHEMA": [
+    {
+      "subject": "Schema(1:14~1:36) /test/1/catalog1/CODEX_DM8_SCHEMA_TABLE/",
+      "action" : "CREATE",
+      "target" : "User(1:51~1:57) /test/1/SYSDBA/"
+    },
+    {
+      "subject": "Table(1:71~1:82) /test/1/catalog1/CODEX_DM8_SCHEMA_TABLE/EMBED_TABLE/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_0_020_behavior_review]
+sql:
+SELECT ID, NOTE FROM CODEX_DM8_SCHEMA_TABLE.EMBED_TABLE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:21~1:55) /test/1/catalog1/CODEX_DM8_SCHEMA_TABLE/EMBED_TABLE/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_0_021_behavior_review]
+sql:
+CREATE SCHEMA CODEX_DM8_SCHEMA_MULTI AUTHORIZATION SYSDBA CREATE TABLE EMBED_PARENT (ID INT PRIMARY KEY) CREATE TABLE EMBED_CHILD (ID INT PRIMARY KEY, PARENT_ID INT REFERENCES EMBED_PARENT(ID));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SCHEMA": [
+    {
+      "subject": "Schema(1:14~1:36) /test/1/catalog1/CODEX_DM8_SCHEMA_MULTI/",
+      "action" : "CREATE",
+      "target" : "User(1:51~1:57) /test/1/SYSDBA/"
+    },
+    {
+      "subject": "Table(1:71~1:83) /test/1/catalog1/CODEX_DM8_SCHEMA_MULTI/EMBED_PARENT/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Table(1:118~1:129) /test/1/catalog1/CODEX_DM8_SCHEMA_MULTI/EMBED_CHILD/",
+      "action" : "CREATE",
+      "target" : "Table(1:176~1:188) /test/1/catalog1/CODEX_DM8_SCHEMA_MULTI/EMBED_PARENT/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_0_022_behavior_review]
+sql:
+INSERT INTO CODEX_DM8_SCHEMA_MULTI.EMBED_PARENT VALUES (1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:47) /test/1/catalog1/CODEX_DM8_SCHEMA_MULTI/EMBED_PARENT/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_0_023_behavior_review]
+sql:
+INSERT INTO CODEX_DM8_SCHEMA_MULTI.EMBED_CHILD VALUES (1, 1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:46) /test/1/catalog1/CODEX_DM8_SCHEMA_MULTI/EMBED_CHILD/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_0_024_behavior_review]
+sql:
+SELECT C.ID FROM CODEX_DM8_SCHEMA_MULTI.EMBED_CHILD C JOIN CODEX_DM8_SCHEMA_MULTI.EMBED_PARENT P ON C.PARENT_ID=P.ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:17~1:51) /test/1/catalog1/CODEX_DM8_SCHEMA_MULTI/EMBED_CHILD/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:59~1:94) /test/1/catalog1/CODEX_DM8_SCHEMA_MULTI/EMBED_PARENT/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_0_025_behavior_review]
+sql:
+CREATE SCHEMA CODEX_DM8_SCHEMA_VIEW AUTHORIZATION SYSDBA CREATE TABLE VIEW_BASE (ID INT PRIMARY KEY, NOTE VARCHAR(40)) CREATE VIEW EMBED_VIEW AS SELECT ID, NOTE FROM VIEW_BASE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SCHEMA": [
+    {
+      "subject": "Schema(1:14~1:35) /test/1/catalog1/CODEX_DM8_SCHEMA_VIEW/",
+      "action" : "CREATE",
+      "target" : "User(1:50~1:56) /test/1/SYSDBA/"
+    },
+    {
+      "subject": "Table(1:70~1:79) /test/1/catalog1/CODEX_DM8_SCHEMA_VIEW/VIEW_BASE/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "View(1:131~1:141) /test/1/catalog1/CODEX_DM8_SCHEMA_VIEW/EMBED_VIEW/",
+      "action" : "CREATE",
+      "target" : "Table(1:166~1:175) /test/1/catalog1/CODEX_DM8_SCHEMA_VIEW/VIEW_BASE/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_0_026_behavior_review]
+sql:
+INSERT INTO CODEX_DM8_SCHEMA_VIEW.VIEW_BASE VALUES (1, 'V');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:43) /test/1/catalog1/CODEX_DM8_SCHEMA_VIEW/VIEW_BASE/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_0_027_behavior_review]
+sql:
+SELECT ID, NOTE FROM CODEX_DM8_SCHEMA_VIEW.EMBED_VIEW;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:21~1:53) /test/1/catalog1/CODEX_DM8_SCHEMA_VIEW/EMBED_VIEW/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_0_028_behavior_review]
+sql:
+CREATE SCHEMA CODEX_DM8_SCHEMA_INDEX AUTHORIZATION SYSDBA CREATE TABLE INDEX_BASE (ID INT, CODE VARCHAR(20)) CREATE INDEX EMBED_INDEX ON INDEX_BASE(CODE);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SCHEMA": [
+    {
+      "subject": "Schema(1:14~1:36) /test/1/catalog1/CODEX_DM8_SCHEMA_INDEX/",
+      "action" : "CREATE",
+      "target" : "User(1:51~1:57) /test/1/SYSDBA/"
+    },
+    {
+      "subject": "Table(1:71~1:81) /test/1/catalog1/CODEX_DM8_SCHEMA_INDEX/INDEX_BASE/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Index(1:122~1:133) /test/1/catalog1/CODEX_DM8_SCHEMA_INDEX/EMBED_INDEX/",
+      "action" : "CREATE",
+      "target" : "Table(1:137~1:147) /test/1/catalog1/CODEX_DM8_SCHEMA_INDEX/INDEX_BASE/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_0_029_behavior_review]
+sql:
+INSERT INTO CODEX_DM8_SCHEMA_INDEX.INDEX_BASE VALUES (1, 'I');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:45) /test/1/catalog1/CODEX_DM8_SCHEMA_INDEX/INDEX_BASE/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_0_030_behavior_review]
+sql:
+SELECT ID FROM CODEX_DM8_SCHEMA_INDEX.INDEX_BASE WHERE CODE='I';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:15~1:48) /test/1/catalog1/CODEX_DM8_SCHEMA_INDEX/INDEX_BASE/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_0_031_behavior_review]
+sql:
+CREATE SCHEMA CODEX_DM8_SCHEMA_SEQUENCE AUTHORIZATION SYSDBA CREATE SEQUENCE EMBED_SEQUENCE START WITH 10 INCREMENT BY 2 CREATE TABLE SEQUENCE_BASE (ID INT PRIMARY KEY);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SCHEMA": [
+    {
+      "subject": "Schema(1:14~1:39) /test/1/catalog1/CODEX_DM8_SCHEMA_SEQUENCE/",
+      "action" : "CREATE",
+      "target" : "User(1:54~1:60) /test/1/SYSDBA/"
+    },
+    {
+      "subject": "Sequence(1:77~1:91) /test/1/catalog1/CODEX_DM8_SCHEMA_SEQUENCE/EMBED_SEQUENCE/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Table(1:134~1:147) /test/1/catalog1/CODEX_DM8_SCHEMA_SEQUENCE/SEQUENCE_BASE/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_0_032_behavior_review]
+sql:
+INSERT INTO CODEX_DM8_SCHEMA_SEQUENCE.SEQUENCE_BASE VALUES (CODEX_DM8_SCHEMA_SEQUENCE.EMBED_SEQUENCE.NEXTVAL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:51) /test/1/catalog1/CODEX_DM8_SCHEMA_SEQUENCE/SEQUENCE_BASE/",
+      "action" : "INSERT",
+      "target" : "Sequence(1:60~1:100) /test/1/catalog1/CODEX_DM8_SCHEMA_SEQUENCE/EMBED_SEQUENCE/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_0_033_behavior_review]
+sql:
+SELECT ID FROM CODEX_DM8_SCHEMA_SEQUENCE.SEQUENCE_BASE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:15~1:54) /test/1/catalog1/CODEX_DM8_SCHEMA_SEQUENCE/SEQUENCE_BASE/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_0_034_behavior_review]
+sql:
+CREATE SCHEMA CODEX_DM8_SCHEMA_GRANT AUTHORIZATION SYSDBA CREATE TABLE GRANT_BASE (ID INT PRIMARY KEY) GRANT SELECT ON GRANT_BASE TO PUBLIC;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SCHEMA": [
+    {
+      "subject": "Schema(1:14~1:36) /test/1/catalog1/CODEX_DM8_SCHEMA_GRANT/",
+      "action" : "CREATE",
+      "target" : "User(1:51~1:57) /test/1/SYSDBA/"
+    },
+    {
+      "subject": "Table(1:71~1:81) /test/1/catalog1/CODEX_DM8_SCHEMA_GRANT/GRANT_BASE/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "SchemaObject(1:119~1:129) /test/1/catalog1/CODEX_DM8_SCHEMA_GRANT/GRANT_BASE/",
+      "action" : "GRANT",
+      "target" : "UserOrRole(1:133~1:139) /test/1/PUBLIC/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_0_035_behavior_review]
+sql:
+SELECT PRIVILEGE FROM DBA_TAB_PRIVS WHERE OWNER='CODEX_DM8_SCHEMA_GRANT' AND TABLE_NAME='GRANT_BASE' AND GRANTEE='PUBLIC';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:22~1:35) /test/1/catalog1/schema1/DBA_TAB_PRIVS/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_0_036_behavior_review]
+sql:
+CREATE SCHEMA CODEX_DM8_SCHEMA_COMMENT AUTHORIZATION SYSDBA CREATE TABLE COMMENT_BASE (ID INT, NOTE VARCHAR(20)) COMMENT ON TABLE COMMENT_BASE IS 'schema embedded table' COMMENT ON COLUMN COMMENT_BASE.NOTE IS 'schema embedded column';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SCHEMA": [
+    {
+      "subject": "Schema(1:14~1:38) /test/1/catalog1/CODEX_DM8_SCHEMA_COMMENT/",
+      "action" : "CREATE",
+      "target" : "User(1:53~1:59) /test/1/SYSDBA/"
+    },
+    {
+      "subject": "Table(1:73~1:85) /test/1/catalog1/CODEX_DM8_SCHEMA_COMMENT/COMMENT_BASE/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Table(1:130~1:142) /test/1/catalog1/CODEX_DM8_SCHEMA_COMMENT/COMMENT_BASE/",
+      "action" : "ALTER"
+    },
+    {
+      "subject": "Table(1:188~1:200) /test/1/catalog1/CODEX_DM8_SCHEMA_COMMENT/COMMENT_BASE/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_0_037_behavior_review]
+sql:
+SELECT COMMENTS FROM DBA_TAB_COMMENTS WHERE OWNER='CODEX_DM8_SCHEMA_COMMENT' AND TABLE_NAME='COMMENT_BASE';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:21~1:37) /test/1/catalog1/schema1/DBA_TAB_COMMENTS/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_0_038_behavior_review]
+sql:
+SELECT COMMENTS FROM DBA_COL_COMMENTS WHERE OWNER='CODEX_DM8_SCHEMA_COMMENT' AND TABLE_NAME='COMMENT_BASE' AND COLUMN_NAME='NOTE';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:21~1:37) /test/1/catalog1/schema1/DBA_COL_COMMENTS/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_0_039_behavior_review]
+sql:
+CREATE SCHEMA CODEX_DM8_SCHEMA_ALTER AUTHORIZATION SYSDBA CREATE TABLE ALTER_BASE (ID INT, PARENT_ID INT) ALTER TABLE ALTER_BASE ADD CONSTRAINT PK_ALTER_BASE PRIMARY KEY(ID);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SCHEMA": [
+    {
+      "subject": "Schema(1:14~1:36) /test/1/catalog1/CODEX_DM8_SCHEMA_ALTER/",
+      "action" : "CREATE",
+      "target" : "User(1:51~1:57) /test/1/SYSDBA/"
+    },
+    {
+      "subject": "Table(1:71~1:81) /test/1/catalog1/CODEX_DM8_SCHEMA_ALTER/ALTER_BASE/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Constraint(1:144~1:157) /test/1/catalog1/CODEX_DM8_SCHEMA_ALTER/PK_ALTER_BASE/",
+      "action" : "CREATE",
+      "target" : "Table(1:118~1:128) /test/1/catalog1/CODEX_DM8_SCHEMA_ALTER/ALTER_BASE/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_0_040_behavior_review]
+sql:
+SELECT CONSTRAINT_TYPE FROM DBA_CONSTRAINTS WHERE OWNER='CODEX_DM8_SCHEMA_ALTER' AND TABLE_NAME='ALTER_BASE' AND CONSTRAINT_NAME='PK_ALTER_BASE';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:28~1:43) /test/1/catalog1/schema1/DBA_CONSTRAINTS/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_0_041_behavior_review]
+sql:
+CREATE SCHEMA CODEX_DM8_SCHEMA_OBJECTS AUTHORIZATION SYSDBA CREATE TABLE OBJECT_BASE (ID INT PRIMARY KEY, NOTE VARCHAR(20)) CREATE SEQUENCE OBJECT_SEQUENCE START WITH 1 CREATE VIEW OBJECT_VIEW AS SELECT ID, NOTE FROM OBJECT_BASE CREATE SYNONYM OBJECT_SYNONYM FOR OBJECT_BASE GRANT SELECT, INSERT ON OBJECT_BASE TO PUBLIC COMMENT ON TABLE OBJECT_BASE IS 'object base';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SCHEMA": [
+    {
+      "subject": "Schema(1:14~1:38) /test/1/catalog1/CODEX_DM8_SCHEMA_OBJECTS/",
+      "action" : "CREATE",
+      "target" : "User(1:53~1:59) /test/1/SYSDBA/"
+    },
+    {
+      "subject": "Table(1:73~1:84) /test/1/catalog1/CODEX_DM8_SCHEMA_OBJECTS/OBJECT_BASE/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Sequence(1:140~1:155) /test/1/catalog1/CODEX_DM8_SCHEMA_OBJECTS/OBJECT_SEQUENCE/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "View(1:181~1:192) /test/1/catalog1/CODEX_DM8_SCHEMA_OBJECTS/OBJECT_VIEW/",
+      "action" : "CREATE",
+      "target" : "Table(1:217~1:228) /test/1/catalog1/CODEX_DM8_SCHEMA_OBJECTS/OBJECT_BASE/"
+    },
+    {
+      "subject": "Synonym(1:244~1:258) /test/1/catalog1/CODEX_DM8_SCHEMA_OBJECTS/OBJECT_SYNONYM/",
+      "action" : "CREATE",
+      "target" : "SchemaObject(1:263~1:274) /test/1/catalog1/CODEX_DM8_SCHEMA_OBJECTS/OBJECT_BASE/"
+    },
+    {
+      "subject": "SchemaObject(1:299~1:310) /test/1/catalog1/CODEX_DM8_SCHEMA_OBJECTS/OBJECT_BASE/",
+      "action" : "GRANT",
+      "target" : "UserOrRole(1:314~1:320) /test/1/PUBLIC/"
+    },
+    {
+      "subject": "Table(1:338~1:349) /test/1/catalog1/CODEX_DM8_SCHEMA_OBJECTS/OBJECT_BASE/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_0_042_behavior_review]
+sql:
+INSERT INTO CODEX_DM8_SCHEMA_OBJECTS.OBJECT_BASE VALUES (1, 'O');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:48) /test/1/catalog1/CODEX_DM8_SCHEMA_OBJECTS/OBJECT_BASE/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_0_043_behavior_review]
+sql:
+SELECT ID, NOTE FROM CODEX_DM8_SCHEMA_OBJECTS.OBJECT_VIEW;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:21~1:57) /test/1/catalog1/CODEX_DM8_SCHEMA_OBJECTS/OBJECT_VIEW/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_0_044_behavior_review]
+sql:
+SELECT COUNT(*) FROM SYSOBJECTS WHERE SCHID=(SELECT ID FROM SYSOBJECTS WHERE NAME='CODEX_DM8_SCHEMA_OBJECTS') AND NAME IN ('OBJECT_BASE','OBJECT_SEQUENCE','OBJECT_VIEW','OBJECT_SYNONYM');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "View(1:21~1:31) /test/1/catalog1/schema1/SYSOBJECTS/",
+      "action" : "READ"
+    },
+    {
+      "subject": "View(1:60~1:70) /test/1/catalog1/schema1/SYSOBJECTS/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_0_045_behavior_review]
+sql:
+SELECT NAME FROM SYSOBJECTS WHERE TYPE$='SCH' AND NAME LIKE 'CODEX_DM8_SCHEMA_%' ORDER BY NAME;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:17~1:27) /test/1/catalog1/schema1/SYSOBJECTS/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_0_046_behavior_review]
+sql:
+SELECT NAME FROM SYSOBJECTS WHERE TYPE$='SCH' AND NAME='Schema_Quoted';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:17~1:27) /test/1/catalog1/schema1/SYSOBJECTS/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_0_047_behavior_review]
+sql:
+SELECT SCHID, NAME AS SCHEMA_NAME FROM SYSOBJECTS WHERE TYPE$='SCH' AND NAME='CODEX_DM8_SCHEMA_AUTH';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:39~1:49) /test/1/catalog1/schema1/SYSOBJECTS/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_0_048_behavior_review]
+sql:
+CREATE SCHEMA CODEX_DM8_SCHEMA_RESTRICT AUTHORIZATION SYSDBA;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SCHEMA": [
+    {
+      "subject": "Schema(1:14~1:39) /test/1/catalog1/CODEX_DM8_SCHEMA_RESTRICT/",
+      "action" : "CREATE",
+      "target" : "User(1:54~1:60) /test/1/SYSDBA/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_0_049_behavior_review]
+sql:
+DROP SCHEMA CODEX_DM8_SCHEMA_RESTRICT RESTRICT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SCHEMA": [
+    {
+      "subject": "Schema(1:12~1:37) /test/1/catalog1/CODEX_DM8_SCHEMA_RESTRICT/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_0_050_behavior_review]
+sql:
+CREATE SCHEMA CODEX_DM8_SCHEMA_CASCADE AUTHORIZATION SYSDBA CREATE TABLE CASCADE_TABLE(ID INT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SCHEMA": [
+    {
+      "subject": "Schema(1:14~1:38) /test/1/catalog1/CODEX_DM8_SCHEMA_CASCADE/",
+      "action" : "CREATE",
+      "target" : "User(1:53~1:59) /test/1/SYSDBA/"
+    },
+    {
+      "subject": "Table(1:73~1:86) /test/1/catalog1/CODEX_DM8_SCHEMA_CASCADE/CASCADE_TABLE/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_0_051_behavior_review]
+sql:
+DROP SCHEMA CODEX_DM8_SCHEMA_CASCADE CASCADE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SCHEMA": [
+    {
+      "subject": "Schema(1:12~1:36) /test/1/catalog1/CODEX_DM8_SCHEMA_CASCADE/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_0_052_behavior_review]
+sql:
+DROP SCHEMA IF EXISTS CODEX_DM8_SCHEMA_MISSING;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SCHEMA": [
+    {
+      "subject": "Schema(1:22~1:46) /test/1/catalog1/CODEX_DM8_SCHEMA_MISSING/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_0_053_behavior_review]
+sql:
+SET SCHEMA SYSDBA;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SWITCH_SCHEMA": [
+    {
+      "subject": "Schema(1:11~1:17) /test/1/catalog1/SYSDBA/",
+      "action" : "SWITCH"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_0_054_behavior_review]
+sql:
+DROP SCHEMA CODEX_DM8_SCHEMA_SIMPLE CASCADE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SCHEMA": [
+    {
+      "subject": "Schema(1:12~1:35) /test/1/catalog1/CODEX_DM8_SCHEMA_SIMPLE/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_0_055_behavior_review]
+sql:
+DROP SCHEMA CODEX_DM8_SCHEMA_AUTH RESTRICT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SCHEMA": [
+    {
+      "subject": "Schema(1:12~1:33) /test/1/catalog1/CODEX_DM8_SCHEMA_AUTH/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_0_056_behavior_review]
+sql:
+DROP SCHEMA CODEX_DM8_SCHEMA_IFNE CASCADE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SCHEMA": [
+    {
+      "subject": "Schema(1:12~1:33) /test/1/catalog1/CODEX_DM8_SCHEMA_IFNE/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_0_057_behavior_review]
+sql:
+DROP SCHEMA "Schema_Quoted" CASCADE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SCHEMA": [
+    {
+      "subject": "Schema(1:12~1:27) /test/1/catalog1/Schema_Quoted/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_0_058_behavior_review]
+sql:
+DROP SCHEMA CODEX_DM8_SCHEMA_LONG_ABCDEFGHIJKLMNOPQRSTUVWXYZ_0123456789 RESTRICT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SCHEMA": [
+    {
+      "subject": "Schema(1:12~1:71) /test/1/catalog1/CODEX_DM8_SCHEMA_LONG_ABCDEFGHIJKLMNOPQRSTUVWXYZ_0123456789/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_0_059_behavior_review]
+sql:
+DROP SCHEMA CODEX_DM8_SCHEMA_TABLE CASCADE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SCHEMA": [
+    {
+      "subject": "Schema(1:12~1:34) /test/1/catalog1/CODEX_DM8_SCHEMA_TABLE/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_0_060_behavior_review]
+sql:
+DROP SCHEMA CODEX_DM8_SCHEMA_MULTI CASCADE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SCHEMA": [
+    {
+      "subject": "Schema(1:12~1:34) /test/1/catalog1/CODEX_DM8_SCHEMA_MULTI/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_0_061_behavior_review]
+sql:
+DROP SCHEMA CODEX_DM8_SCHEMA_VIEW CASCADE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SCHEMA": [
+    {
+      "subject": "Schema(1:12~1:33) /test/1/catalog1/CODEX_DM8_SCHEMA_VIEW/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_0_062_behavior_review]
+sql:
+DROP SCHEMA CODEX_DM8_SCHEMA_INDEX CASCADE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SCHEMA": [
+    {
+      "subject": "Schema(1:12~1:34) /test/1/catalog1/CODEX_DM8_SCHEMA_INDEX/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_0_063_behavior_review]
+sql:
+DROP SCHEMA CODEX_DM8_SCHEMA_SEQUENCE CASCADE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SCHEMA": [
+    {
+      "subject": "Schema(1:12~1:37) /test/1/catalog1/CODEX_DM8_SCHEMA_SEQUENCE/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_0_064_behavior_review]
+sql:
+DROP SCHEMA CODEX_DM8_SCHEMA_GRANT CASCADE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SCHEMA": [
+    {
+      "subject": "Schema(1:12~1:34) /test/1/catalog1/CODEX_DM8_SCHEMA_GRANT/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_0_065_behavior_review]
+sql:
+DROP SCHEMA CODEX_DM8_SCHEMA_COMMENT CASCADE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SCHEMA": [
+    {
+      "subject": "Schema(1:12~1:36) /test/1/catalog1/CODEX_DM8_SCHEMA_COMMENT/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_0_066_behavior_review]
+sql:
+DROP SCHEMA CODEX_DM8_SCHEMA_ALTER CASCADE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SCHEMA": [
+    {
+      "subject": "Schema(1:12~1:34) /test/1/catalog1/CODEX_DM8_SCHEMA_ALTER/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_schema_0_067_behavior_review]
+sql:
+DROP SCHEMA CODEX_DM8_SCHEMA_OBJECTS CASCADE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SCHEMA": [
+    {
+      "subject": "Schema(1:12~1:36) /test/1/catalog1/CODEX_DM8_SCHEMA_OBJECTS/",
+      "action" : "DROP"
+    }
+  ]
+}

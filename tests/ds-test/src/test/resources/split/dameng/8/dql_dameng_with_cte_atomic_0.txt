@@ -1,0 +1,220 @@
+-- inferred column name
+with q as(select id from app.cte_t) select id from q;
+-- explicit column list
+with q(c) as(select id from app.cte_t) select c from q;
+-- multiple CTE
+with q1(c) as(select 1 from dual),q2(c) as(select 2 from dual) select q1.c,q2.c from q1,q2;
+-- later CTE references earlier
+with q1(c) as(select 1 from dual),q2(c) as(select c+1 from q1) select c from q2;
+-- earlier CTE references later restriction
+with q1(c) as(select c+1 from q2),q2(c) as(select 1 from dual) select c from q1;
+-- duplicate CTE name restriction
+with q(c) as(select 1 from dual),q(c) as(select 2 from dual) select c from q;
+-- CTE priority over base table
+with cte_t(id) as(select 99 from dual) select id from cte_t;
+-- CTE reused twice
+with q as(select id,v from app.cte_t) select a.id,b.v from q a join q b on a.id=b.id;
+-- CTE union source
+with q(c) as(select 1 from dual union all select 2 from dual) select sum(c) from q;
+-- CTE order and limit source
+with q as(select id,v from app.cte_t order by id limit 2) select * from q order by id;
+-- nested CTE definition restriction
+with q as(with inner_q(c) as(select 1 from dual) select c from inner_q) select * from q;
+-- duplicate CTE columns restriction
+with q(c,c) as(select 1,2 from dual) select * from q;
+-- CTE column count too few restriction
+with q(c) as(select 1,2 from dual) select * from q;
+-- CTE column count too many restriction
+with q(c1,c2) as(select 1 from dual) select * from q;
+-- unnamed result without list restriction
+with q as(select 1+1 from dual) select * from q;
+-- nested separate CTE scope
+with outer_q(c) as(select 1 from dual) select c,(select c from(with inner_q(c) as(select 2 from dual) select c from inner_q)) from outer_q;
+-- CTE in scalar subquery
+select (with q(c) as(select 1 from dual) select c from q) value from dual;
+-- WITH before INSERT
+with q(id,v) as(select 10,100 from dual) insert into app.cte_t(id,v) select id,v from q;
+-- WITH after INSERT target
+insert into app.cte_t(id,v) with q(id,v) as(select 11,110 from dual) select id,v from q;
+-- WITH UPDATE
+with q as(select id from app.cte_t where id=1) update app.cte_t set v=v+1 where id in(select id from q);
+-- WITH DELETE
+with q as(select id from app.cte_t where id=999) delete from app.cte_t where id in(select id from q);
+-- CREATE VIEW with CTE
+create view app.cte_v as with q as(select id,v from app.cte_t) select * from q;
+-- recursive numbers
+with nums(n) as(select 1 from dual union all select n+1 from nums where n<3) select * from nums;
+-- WITH RECURSIVE numbers
+with recursive nums(n) as(select 1 from dual union all select n+1 from nums where n<3) select * from nums;
+-- recursive multiple columns
+with nums(n,total) as(select 1,1 from dual union all select n+1,total+n+1 from nums where n<3) select * from nums;
+-- recursive compound anchor
+with nums(n) as((select 1 from dual union select 2 from dual) union all select n+1 from nums where n<3) select * from nums;
+-- recursive anchor INTERSECT
+with nums(n) as((select 1 from dual intersect select 1 from dual) union all select n+1 from nums where n<3) select * from nums;
+-- recursive analytic member
+with nums(n,rn) as(select 1,1 from dual union all select n+1,row_number() over(order by n) from nums where n<3) select * from nums;
+-- recursive anchor self reference restriction
+with nums(n) as(select n from nums union all select n+1 from nums where n<3) select * from nums;
+-- recursive member two references restriction
+with nums(n) as(select 1 from dual union all select a.n+b.n from nums a,nums b where a.n<3) select * from nums;
+-- recursive DISTINCT restriction
+with nums(n) as(select 1 from dual union all select distinct n+1 from nums where n<3) select * from nums;
+-- recursive GROUP BY restriction
+with nums(n) as(select 1 from dual union all select n+1 from nums where n<3 group by n) select * from nums;
+-- recursive aggregate restriction
+with nums(n) as(select 1 from dual union all select max(n)+1 from nums where n<3) select * from nums;
+-- recursive nested self reference restriction
+with nums(n) as(select 1 from dual union all select n+1 from nums where exists(select 1 from nums x where x.n=nums.n) and n<3) select * from nums;
+-- recursive outer join right restriction
+with nums(n) as(select 1 from dual union all select nvl(q.n,0)+1 from dual d left join nums q on q.n<3) select * from nums;
+-- recursive type mismatch restriction
+with nums(n) as(select 1 from dual union all select 'x' from nums where n<2) select * from nums;
+-- recursive depth 100
+with nums(n) as(select 1 from dual union all select n+1 from nums where n<100) select max(n) from nums;
+-- recursive depth 101
+with nums(n) as(select 1 from dual union all select n+1 from nums where n<101) select max(n) from nums;
+-- recursive depth 102 restriction
+with nums(n) as(select 1 from dual union all select n+1 from nums where n<102) select max(n) from nums;
+-- SEARCH DEPTH FIRST availability
+with nums(n) as(select 1 from dual union all select n+1 from nums where n<3) search depth first by n set seq select n from nums;
+-- SEARCH BREADTH FIRST availability
+with nums(n) as(select 1 from dual union all select n+1 from nums where n<3) search breadth first by n set seq select n from nums;
+-- CYCLE finite availability
+with nums(n) as(select 1 from dual union all select n+1 from nums where n<3) cycle n set is_cycle to 1 default 0 select n from nums;
+-- SEARCH generated column restriction
+with nums(n) as(select 1 from dual union all select n+1 from nums where n<3) search depth first by n set seq select n,seq from nums;
+-- CYCLE generated column restriction
+with nums(n) as(select 1 from dual union all select n+1 from nums where n<3) cycle n set is_cycle to 1 default 0 select n,is_cycle from nums;
+------------------------------------------------------------------------------------------
+[SELECT] -- inferred column name
+with q as(select id from app.cte_t) select id from q;
+----------
+[SELECT] -- explicit column list
+with q(c) as(select id from app.cte_t) select c from q;
+----------
+[SELECT] -- multiple CTE
+with q1(c) as(select 1 from dual),q2(c) as(select 2 from dual) select q1.c,q2.c from q1,q2;
+----------
+[SELECT] -- later CTE references earlier
+with q1(c) as(select 1 from dual),q2(c) as(select c+1 from q1) select c from q2;
+----------
+[SELECT] -- earlier CTE references later restriction
+with q1(c) as(select c+1 from q2),q2(c) as(select 1 from dual) select c from q1;
+----------
+[SELECT] -- duplicate CTE name restriction
+with q(c) as(select 1 from dual),q(c) as(select 2 from dual) select c from q;
+----------
+[SELECT] -- CTE priority over base table
+with cte_t(id) as(select 99 from dual) select id from cte_t;
+----------
+[SELECT] -- CTE reused twice
+with q as(select id,v from app.cte_t) select a.id,b.v from q a join q b on a.id=b.id;
+----------
+[SELECT] -- CTE union source
+with q(c) as(select 1 from dual union all select 2 from dual) select sum(c) from q;
+----------
+[SELECT] -- CTE order and limit source
+with q as(select id,v from app.cte_t order by id limit 2) select * from q order by id;
+----------
+[SELECT] -- nested CTE definition restriction
+with q as(with inner_q(c) as(select 1 from dual) select c from inner_q) select * from q;
+----------
+[SELECT] -- duplicate CTE columns restriction
+with q(c,c) as(select 1,2 from dual) select * from q;
+----------
+[SELECT] -- CTE column count too few restriction
+with q(c) as(select 1,2 from dual) select * from q;
+----------
+[SELECT] -- CTE column count too many restriction
+with q(c1,c2) as(select 1 from dual) select * from q;
+----------
+[SELECT] -- unnamed result without list restriction
+with q as(select 1+1 from dual) select * from q;
+----------
+[SELECT] -- nested separate CTE scope
+with outer_q(c) as(select 1 from dual) select c,(select c from(with inner_q(c) as(select 2 from dual) select c from inner_q)) from outer_q;
+----------
+[SELECT] -- CTE in scalar subquery
+select (with q(c) as(select 1 from dual) select c from q) value from dual;
+----------
+[INSERT|SELECT] -- WITH before INSERT
+with q(id,v) as(select 10,100 from dual) insert into app.cte_t(id,v) select id,v from q;
+----------
+[INSERT|SELECT] -- WITH after INSERT target
+insert into app.cte_t(id,v) with q(id,v) as(select 11,110 from dual) select id,v from q;
+----------
+[UPDATE|SELECT] -- WITH UPDATE
+with q as(select id from app.cte_t where id=1) update app.cte_t set v=v+1 where id in(select id from q);
+----------
+[DELETE|SELECT] -- WITH DELETE
+with q as(select id from app.cte_t where id=999) delete from app.cte_t where id in(select id from q);
+----------
+[CREATE_VIEW(SELECT)] -- CREATE VIEW with CTE
+create view app.cte_v as with q as(select id,v from app.cte_t) select * from q;
+----------
+[SELECT] -- recursive numbers
+with nums(n) as(select 1 from dual union all select n+1 from nums where n<3) select * from nums;
+----------
+[SELECT] -- WITH RECURSIVE numbers
+with recursive nums(n) as(select 1 from dual union all select n+1 from nums where n<3) select * from nums;
+----------
+[SELECT] -- recursive multiple columns
+with nums(n,total) as(select 1,1 from dual union all select n+1,total+n+1 from nums where n<3) select * from nums;
+----------
+[SELECT] -- recursive compound anchor
+with nums(n) as((select 1 from dual union select 2 from dual) union all select n+1 from nums where n<3) select * from nums;
+----------
+[SELECT] -- recursive anchor INTERSECT
+with nums(n) as((select 1 from dual intersect select 1 from dual) union all select n+1 from nums where n<3) select * from nums;
+----------
+[SELECT] -- recursive analytic member
+with nums(n,rn) as(select 1,1 from dual union all select n+1,row_number() over(order by n) from nums where n<3) select * from nums;
+----------
+[SELECT] -- recursive anchor self reference restriction
+with nums(n) as(select n from nums union all select n+1 from nums where n<3) select * from nums;
+----------
+[SELECT] -- recursive member two references restriction
+with nums(n) as(select 1 from dual union all select a.n+b.n from nums a,nums b where a.n<3) select * from nums;
+----------
+[SELECT] -- recursive DISTINCT restriction
+with nums(n) as(select 1 from dual union all select distinct n+1 from nums where n<3) select * from nums;
+----------
+[SELECT] -- recursive GROUP BY restriction
+with nums(n) as(select 1 from dual union all select n+1 from nums where n<3 group by n) select * from nums;
+----------
+[SELECT] -- recursive aggregate restriction
+with nums(n) as(select 1 from dual union all select max(n)+1 from nums where n<3) select * from nums;
+----------
+[SELECT] -- recursive nested self reference restriction
+with nums(n) as(select 1 from dual union all select n+1 from nums where exists(select 1 from nums x where x.n=nums.n) and n<3) select * from nums;
+----------
+[SELECT] -- recursive outer join right restriction
+with nums(n) as(select 1 from dual union all select nvl(q.n,0)+1 from dual d left join nums q on q.n<3) select * from nums;
+----------
+[SELECT] -- recursive type mismatch restriction
+with nums(n) as(select 1 from dual union all select 'x' from nums where n<2) select * from nums;
+----------
+[SELECT] -- recursive depth 100
+with nums(n) as(select 1 from dual union all select n+1 from nums where n<100) select max(n) from nums;
+----------
+[SELECT] -- recursive depth 101
+with nums(n) as(select 1 from dual union all select n+1 from nums where n<101) select max(n) from nums;
+----------
+[SELECT] -- recursive depth 102 restriction
+with nums(n) as(select 1 from dual union all select n+1 from nums where n<102) select max(n) from nums;
+----------
+[SELECT] -- SEARCH DEPTH FIRST availability
+with nums(n) as(select 1 from dual union all select n+1 from nums where n<3) search depth first by n set seq select n from nums;
+----------
+[SELECT] -- SEARCH BREADTH FIRST availability
+with nums(n) as(select 1 from dual union all select n+1 from nums where n<3) search breadth first by n set seq select n from nums;
+----------
+[SELECT] -- CYCLE finite availability
+with nums(n) as(select 1 from dual union all select n+1 from nums where n<3) cycle n set is_cycle to 1 default 0 select n from nums;
+----------
+[SELECT] -- SEARCH generated column restriction
+with nums(n) as(select 1 from dual union all select n+1 from nums where n<3) search depth first by n set seq select n,seq from nums;
+----------
+[SELECT] -- CYCLE generated column restriction
+with nums(n) as(select 1 from dual union all select n+1 from nums where n<3) cycle n set is_cycle to 1 default 0 select n,is_cycle from nums;

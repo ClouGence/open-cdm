@@ -1,0 +1,349 @@
+[split_dml_dameng_rowid_bit_lob_0_001_behavior_review]
+sql:
+INSERT INTO CODEX_DM8_TYPE_ROWID VALUES(1, SF_BUILD_ROWID(1, 2, 50));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:32) /test/1/catalog1/schema1/CODEX_DM8_TYPE_ROWID/",
+      "action" : "INSERT"
+    },
+    {
+      "subject": "Function(1:43~1:57) /test/1/catalog1/schema1/SF_BUILD_ROWID/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[split_dml_dameng_rowid_bit_lob_0_002_behavior_review]
+sql:
+INSERT INTO CODEX_DM8_TYPE_ROWID VALUES(2, 'AAABAAAAACAAAAAAAz');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:32) /test/1/catalog1/schema1/CODEX_DM8_TYPE_ROWID/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_rowid_bit_lob_0_003_behavior_review]
+sql:
+INSERT INTO CODEX_DM8_TYPE_BIT VALUES(0, 0);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:30) /test/1/catalog1/schema1/CODEX_DM8_TYPE_BIT/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_rowid_bit_lob_0_004_behavior_review]
+sql:
+INSERT INTO CODEX_DM8_TYPE_BIT VALUES(1, 1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:30) /test/1/catalog1/schema1/CODEX_DM8_TYPE_BIT/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_rowid_bit_lob_0_005_behavior_review]
+sql:
+INSERT INTO CODEX_DM8_TYPE_BIT VALUES(2, -1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:30) /test/1/catalog1/schema1/CODEX_DM8_TYPE_BIT/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_rowid_bit_lob_0_006_behavior_review]
+sql:
+INSERT INTO CODEX_DM8_TYPE_BIT VALUES(3, 2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:30) /test/1/catalog1/schema1/CODEX_DM8_TYPE_BIT/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_rowid_bit_lob_0_007_behavior_review]
+sql:
+INSERT INTO CODEX_DM8_TYPE_BIT VALUES(4, NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:30) /test/1/catalog1/schema1/CODEX_DM8_TYPE_BIT/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_rowid_bit_lob_0_008_behavior_review]
+sql:
+INSERT INTO CODEX_DM8_TYPE_TEXT VALUES(1, 'TEXT-VALUE');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/schema1/CODEX_DM8_TYPE_TEXT/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_rowid_bit_lob_0_009_behavior_review]
+sql:
+INSERT INTO CODEX_DM8_TYPE_LONG VALUES(1, 'LONG-VALUE');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/schema1/CODEX_DM8_TYPE_LONG/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_rowid_bit_lob_0_010_behavior_review]
+sql:
+INSERT INTO CODEX_DM8_TYPE_LONGVARCHAR VALUES(1, 'LONGVARCHAR-VALUE');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:38) /test/1/catalog1/schema1/CODEX_DM8_TYPE_LONGVARCHAR/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_rowid_bit_lob_0_011_behavior_review]
+sql:
+INSERT INTO CODEX_DM8_TYPE_IMAGE VALUES(1, 0x494D414745);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:32) /test/1/catalog1/schema1/CODEX_DM8_TYPE_IMAGE/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_rowid_bit_lob_0_012_behavior_review]
+sql:
+INSERT INTO CODEX_DM8_TYPE_LONGVARBINARY VALUES(1, 0x4C4F4E4756415242494E415259);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:40) /test/1/catalog1/schema1/CODEX_DM8_TYPE_LONGVARBINARY/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_rowid_bit_lob_0_013_behavior_review]
+sql:
+INSERT INTO CODEX_DM8_TYPE_BLOB VALUES(1, TO_BLOB(UTL_RAW.CAST_TO_RAW('BLOB-VALUE')));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/schema1/CODEX_DM8_TYPE_BLOB/",
+      "action" : "INSERT"
+    },
+    {
+      "subject": "Function(1:42~1:49) /test/1/catalog1/schema1/TO_BLOB/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:50~1:69) /test/1/catalog1/UTL_RAW/CAST_TO_RAW/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[split_dml_dameng_rowid_bit_lob_0_014_behavior_review]
+sql:
+INSERT INTO CODEX_DM8_TYPE_CLOB VALUES(1, CAST('CLOB-VALUE' AS CLOB));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/schema1/CODEX_DM8_TYPE_CLOB/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_rowid_bit_lob_0_015_behavior_review]
+sql:
+INSERT INTO CODEX_DM8_TYPE_BFILE VALUES(1, BFILENAME('CODEX_DM8_BFILE_DIR', 'dm.ini'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:32) /test/1/catalog1/schema1/CODEX_DM8_TYPE_BFILE/",
+      "action" : "INSERT"
+    },
+    {
+      "subject": "Function(1:43~1:52) /test/1/catalog1/schema1/BFILENAME/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[split_dml_dameng_rowid_bit_lob_0_016_behavior_review]
+sql:
+INSERT INTO CODEX_DM8_BAD_TEXT VALUES('AB');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:30) /test/1/catalog1/schema1/CODEX_DM8_BAD_TEXT/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_rowid_bit_lob_0_017_behavior_review]
+sql:
+INSERT INTO CODEX_DM8_BAD_LONG VALUES('AB');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:30) /test/1/catalog1/schema1/CODEX_DM8_BAD_LONG/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_rowid_bit_lob_0_018_behavior_review]
+sql:
+INSERT INTO CODEX_DM8_BAD_LONGVARCHAR VALUES('AB');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:37) /test/1/catalog1/schema1/CODEX_DM8_BAD_LONGVARCHAR/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_rowid_bit_lob_0_019_behavior_review]
+sql:
+INSERT INTO CODEX_DM8_BAD_IMAGE VALUES(0x4142);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/schema1/CODEX_DM8_BAD_IMAGE/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_rowid_bit_lob_0_020_behavior_review]
+sql:
+INSERT INTO CODEX_DM8_BAD_LONGVARBINARY VALUES(0x4142);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:39) /test/1/catalog1/schema1/CODEX_DM8_BAD_LONGVARBINARY/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_rowid_bit_lob_0_021_behavior_review]
+sql:
+INSERT INTO CODEX_DM8_BAD_BLOB VALUES(TO_BLOB(0x4142));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:30) /test/1/catalog1/schema1/CODEX_DM8_BAD_BLOB/",
+      "action" : "INSERT"
+    },
+    {
+      "subject": "Function(1:38~1:45) /test/1/catalog1/schema1/TO_BLOB/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[split_dml_dameng_rowid_bit_lob_0_022_behavior_review]
+sql:
+INSERT INTO CODEX_DM8_BAD_CLOB VALUES(CAST('AB' AS CLOB));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:30) /test/1/catalog1/schema1/CODEX_DM8_BAD_CLOB/",
+      "action" : "INSERT"
+    }
+  ]
+}

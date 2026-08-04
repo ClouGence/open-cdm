@@ -1,0 +1,96 @@
+[create_pipeline_function_with_query]
+sql:
+create or replace function app.pipe_rows return app.pipe_table_type pipelined
+is
+begin
+  for rec in (select id, name from app.pipeline_source order by id) loop
+    pipe row(app.pipe_row_type(rec.id, rec.name));
+  end loop;
+end;
+/
+expect:
+{
+  "contains": [
+    {"class":"RdbFunctionDomain", "sqlType":"CREATE_PROG_OBJ", "auditKind":"CREATE", "schema":"app", "name":"pipe_rows"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"pipeline_source"}
+  ]
+}
+----------
+[pipeline_query_with_static_join]
+sql:
+select p.id, s.name
+from table(app.pipe_rows()) p
+join app.pipeline_source s on s.id = p.id
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"pipeline_source"}
+  ]
+}
+----------
+[autonomous_anonymous_insert]
+sql:
+declare
+  pragma autonomous_transaction;
+begin
+  insert into app.autonomous_log values(1, 'ANON');
+  commit;
+end;
+/
+expect:
+{
+  "contains": [
+    {"class":"RdbInsertDomain", "sqlType":"INSERT", "auditKind":"DML", "schema":"app", "table":"autonomous_log"}
+  ]
+}
+----------
+[create_autonomous_procedure]
+sql:
+create or replace procedure app.autonomous_insert(p_id int)
+is
+  pragma autonomous_transaction;
+begin
+  insert into app.autonomous_log values(p_id, 'PROCEDURE');
+  commit;
+end;
+/
+expect:
+{
+  "contains": [
+    {"class":"RdbProcedureDomain", "sqlType":"CREATE_PROG_OBJ", "auditKind":"CREATE", "schema":"app", "name":"autonomous_insert"},
+    {"class":"RdbInsertDomain", "sqlType":"INSERT", "auditKind":"DML", "schema":"app", "table":"autonomous_log"}
+  ]
+}
+----------
+[create_autonomous_trigger]
+sql:
+create or replace trigger app.autonomous_log_trigger
+after insert on app.trigger_source
+for each row
+declare
+  pragma autonomous_transaction;
+begin
+  insert into app.autonomous_log values(:new.id, :new.name);
+  commit;
+end;
+/
+expect:
+{
+  "contains": [
+    {"class":"RdbTriggerDomain", "sqlType":"CREATE_TRIGGER", "auditKind":"CREATE", "schema":"app", "name":"autonomous_log_trigger"},
+    {"class":"RdbTableDomain", "sqlType":"ALTER_TABLE", "auditKind":"ALTER", "schema":"app", "table":"trigger_source"},
+    {"class":"RdbInsertDomain", "sqlType":"INSERT", "auditKind":"DML", "schema":"app", "table":"autonomous_log"}
+  ]
+}
+----------
+[autonomous_dynamic_sql_has_no_direct_domain]
+sql:
+declare
+  pragma autonomous_transaction;
+begin
+  execute immediate 'insert into app.autonomous_log values(2, ''DYNAMIC'')';
+  commit;
+end;
+/
+expect:
+{"size":0}

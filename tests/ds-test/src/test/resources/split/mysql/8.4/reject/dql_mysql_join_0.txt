@@ -1,0 +1,30 @@
+SELECT t1.period FROM split_select_inc_a.t3 = t1 LIMIT 1;
+SELECT o.id, d.total
+  FROM t1 AS o
+  JOIN LATERAL (
+      SELECT SUM(i.v) AS total, GROUPING(i.grp) AS g
+        FROM t2 AS i
+       WHERE i.grp = o.grp
+       GROUP BY GROUPING SETS ((i.grp), ())
+      HAVING SUM(i.v) > 0
+       ORDER BY g
+       LIMIT 1
+  ) AS d ON TRUE
+ ORDER BY o.id
+ LIMIT 5;
+------------------------------------------------------------------------------------------
+[SELECT] SELECT t1.period FROM split_select_inc_a.t3 = t1 LIMIT 1;
+----------
+[SELECT] SELECT o.id, d.total
+  FROM t1 AS o
+  JOIN LATERAL (
+      SELECT SUM(i.v) AS total, GROUPING(i.grp) AS g
+        FROM t2 AS i
+       WHERE i.grp = o.grp
+       GROUP BY GROUPING SETS ((i.grp), ())
+      HAVING SUM(i.v) > 0
+       ORDER BY g
+       LIMIT 1
+  ) AS d ON TRUE
+ ORDER BY o.id
+ LIMIT 5;

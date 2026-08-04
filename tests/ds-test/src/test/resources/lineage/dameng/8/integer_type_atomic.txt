@@ -1,0 +1,16 @@
+[arithmetic_cast]
+sql:
+select t.c_tiny+t.c_byte as tiny_byte_sum,
+cast(t.c_small as bigint) as small_big,t.c_integer*t.c_int as int_product,
+mod(t.c_big,2) as big_parity from catalog1.app.int_type_t t
+expect:
+{"tiny_byte_sum":["/catalog1/app/int_type_t/c_tiny/","/catalog1/app/int_type_t/c_byte/"],"small_big":["/catalog1/app/int_type_t/c_small/"],"int_product":["/catalog1/app/int_type_t/c_integer/","/catalog1/app/int_type_t/c_int/"],"big_parity":["/catalog1/app/int_type_t/c_big/"]}
+----------
+[aggregate]
+sql:
+select min(t.c_tiny) as min_tiny,max(t.c_byte) as max_byte,
+sum(t.c_small) as sum_small,avg(t.c_integer) as avg_integer,
+count(t.c_int) as count_int,abs(min(t.c_big)+1) as abs_big
+from catalog1.app.int_type_t t
+expect:
+{"min_tiny":["/catalog1/app/int_type_t/c_tiny/"],"max_byte":["/catalog1/app/int_type_t/c_byte/"],"sum_small":["/catalog1/app/int_type_t/c_small/"],"avg_integer":["/catalog1/app/int_type_t/c_integer/"],"count_int":["/catalog1/app/int_type_t/c_int/"],"abs_big":["/catalog1/app/int_type_t/c_big/"]}

@@ -1,0 +1,263 @@
+[split_block_dameng_dbms_crypto_signature_combinations_0_001]
+sql:
+-- HASH VARBINARY
+declare
+  v_raw varbinary(128):='74696765727469676572746967657274';
+  v_hash varbinary(2048); v_enc varbinary(2048); v_dec varbinary(2048);
+  v_blob blob:=hextoraw('7469676572'); v_clob clob:='crypto clob data';
+  v_out_blob blob; v_out_clob clob;
+  v_typ pls_integer:=DBMS_CRYPTO.ENCRYPT_DES+DBMS_CRYPTO.CHAIN_ECB+DBMS_CRYPTO.PAD_PKCS5;
+  v_key varbinary(128):='3132333435363738';
+  v_iv varbinary(128):='3132333435363738';
+begin v_hash:=DBMS_CRYPTO.HASH(v_raw,DBMS_CRYPTO.HASH_MD5); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(5:15~5:23) /test/1/catalog1/schema1/hextoraw/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(10:14~10:30) /test/1/catalog1/DBMS_CRYPTO/HASH/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_crypto_signature_combinations_0_002]
+sql:
+-- HASH BLOB named
+declare
+  v_raw varbinary(128):='74696765727469676572746967657274';
+  v_hash varbinary(2048); v_enc varbinary(2048); v_dec varbinary(2048);
+  v_blob blob:=hextoraw('7469676572'); v_clob clob:='crypto clob data';
+  v_out_blob blob; v_out_clob clob;
+  v_typ pls_integer:=DBMS_CRYPTO.ENCRYPT_DES+DBMS_CRYPTO.CHAIN_ECB+DBMS_CRYPTO.PAD_PKCS5;
+  v_key varbinary(128):='3132333435363738';
+  v_iv varbinary(128):='3132333435363738';
+begin v_hash:=DBMS_CRYPTO.HASH(SRC=>v_blob,TYP=>DBMS_CRYPTO.HASH_SH256); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(5:15~5:23) /test/1/catalog1/schema1/hextoraw/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(10:14~10:30) /test/1/catalog1/DBMS_CRYPTO/HASH/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_crypto_signature_combinations_0_003]
+sql:
+-- HASH CLOB
+declare
+  v_raw varbinary(128):='74696765727469676572746967657274';
+  v_hash varbinary(2048); v_enc varbinary(2048); v_dec varbinary(2048);
+  v_blob blob:=hextoraw('7469676572'); v_clob clob:='crypto clob data';
+  v_out_blob blob; v_out_clob clob;
+  v_typ pls_integer:=DBMS_CRYPTO.ENCRYPT_DES+DBMS_CRYPTO.CHAIN_ECB+DBMS_CRYPTO.PAD_PKCS5;
+  v_key varbinary(128):='3132333435363738';
+  v_iv varbinary(128):='3132333435363738';
+begin v_hash:=DBMS_CRYPTO.HASH(v_clob,DBMS_CRYPTO.HASH_SH512); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(5:15~5:23) /test/1/catalog1/schema1/hextoraw/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(10:14~10:30) /test/1/catalog1/DBMS_CRYPTO/HASH/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_crypto_signature_combinations_0_004]
+sql:
+-- ENCRYPT VARBINARY default IV
+declare
+  v_raw varbinary(128):='74696765727469676572746967657274';
+  v_hash varbinary(2048); v_enc varbinary(2048); v_dec varbinary(2048);
+  v_blob blob:=hextoraw('7469676572'); v_clob clob:='crypto clob data';
+  v_out_blob blob; v_out_clob clob;
+  v_typ pls_integer:=DBMS_CRYPTO.ENCRYPT_DES+DBMS_CRYPTO.CHAIN_ECB+DBMS_CRYPTO.PAD_PKCS5;
+  v_key varbinary(128):='3132333435363738';
+  v_iv varbinary(128):='3132333435363738';
+begin v_enc:=DBMS_CRYPTO.ENCRYPT(v_raw,v_typ,v_key); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(5:15~5:23) /test/1/catalog1/schema1/hextoraw/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(10:13~10:32) /test/1/catalog1/DBMS_CRYPTO/ENCRYPT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_crypto_signature_combinations_0_005]
+sql:
+-- ENCRYPT BLOB explicit IV
+declare
+  v_raw varbinary(128):='74696765727469676572746967657274';
+  v_hash varbinary(2048); v_enc varbinary(2048); v_dec varbinary(2048);
+  v_blob blob:=hextoraw('7469676572'); v_clob clob:='crypto clob data';
+  v_out_blob blob; v_out_clob clob;
+  v_typ pls_integer:=DBMS_CRYPTO.ENCRYPT_DES+DBMS_CRYPTO.CHAIN_ECB+DBMS_CRYPTO.PAD_PKCS5;
+  v_key varbinary(128):='3132333435363738';
+  v_iv varbinary(128):='3132333435363738';
+begin DBMS_CRYPTO.ENCRYPT(v_out_blob,v_blob,v_typ,v_key,v_iv); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(10:6~10:25) /test/1/catalog1/DBMS_CRYPTO/ENCRYPT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(5:15~5:23) /test/1/catalog1/schema1/hextoraw/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_crypto_signature_combinations_0_006]
+sql:
+-- ENCRYPT CLOB named default IV
+declare
+  v_raw varbinary(128):='74696765727469676572746967657274';
+  v_hash varbinary(2048); v_enc varbinary(2048); v_dec varbinary(2048);
+  v_blob blob:=hextoraw('7469676572'); v_clob clob:='crypto clob data';
+  v_out_blob blob; v_out_clob clob;
+  v_typ pls_integer:=DBMS_CRYPTO.ENCRYPT_DES+DBMS_CRYPTO.CHAIN_ECB+DBMS_CRYPTO.PAD_PKCS5;
+  v_key varbinary(128):='3132333435363738';
+  v_iv varbinary(128):='3132333435363738';
+begin DBMS_CRYPTO.ENCRYPT(DST=>v_out_blob,SRC=>v_clob,TYP=>v_typ,KEY=>v_key); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(10:6~10:25) /test/1/catalog1/DBMS_CRYPTO/ENCRYPT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(5:15~5:23) /test/1/catalog1/schema1/hextoraw/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_crypto_signature_combinations_0_007]
+sql:
+-- DECRYPT VARBINARY explicit IV
+declare
+  v_raw varbinary(128):='74696765727469676572746967657274';
+  v_hash varbinary(2048); v_enc varbinary(2048); v_dec varbinary(2048);
+  v_blob blob:=hextoraw('7469676572'); v_clob clob:='crypto clob data';
+  v_out_blob blob; v_out_clob clob;
+  v_typ pls_integer:=DBMS_CRYPTO.ENCRYPT_DES+DBMS_CRYPTO.CHAIN_ECB+DBMS_CRYPTO.PAD_PKCS5;
+  v_key varbinary(128):='3132333435363738';
+  v_iv varbinary(128):='3132333435363738';
+begin v_enc:=DBMS_CRYPTO.ENCRYPT(v_raw,v_typ,v_key,v_iv); v_dec:=DBMS_CRYPTO.DECRYPT(v_enc,v_typ,v_key,v_iv); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(5:15~5:23) /test/1/catalog1/schema1/hextoraw/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(10:13~10:32) /test/1/catalog1/DBMS_CRYPTO/ENCRYPT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(10:65~10:84) /test/1/catalog1/DBMS_CRYPTO/DECRYPT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_crypto_signature_combinations_0_008]
+sql:
+-- DECRYPT BLOB
+declare
+  v_raw varbinary(128):='74696765727469676572746967657274';
+  v_hash varbinary(2048); v_enc varbinary(2048); v_dec varbinary(2048);
+  v_blob blob:=hextoraw('7469676572'); v_clob clob:='crypto clob data';
+  v_out_blob blob; v_out_clob clob;
+  v_typ pls_integer:=DBMS_CRYPTO.ENCRYPT_DES+DBMS_CRYPTO.CHAIN_ECB+DBMS_CRYPTO.PAD_PKCS5;
+  v_key varbinary(128):='3132333435363738';
+  v_iv varbinary(128):='3132333435363738';
+begin DBMS_CRYPTO.ENCRYPT(v_out_blob,v_blob,v_typ,v_key); DBMS_CRYPTO.DECRYPT(v_blob,v_out_blob,v_typ,v_key); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(10:6~10:25) /test/1/catalog1/DBMS_CRYPTO/ENCRYPT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(10:58~10:77) /test/1/catalog1/DBMS_CRYPTO/DECRYPT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(5:15~5:23) /test/1/catalog1/schema1/hextoraw/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_crypto_signature_combinations_0_009]
+sql:
+-- DECRYPT CLOB named
+declare
+  v_raw varbinary(128):='74696765727469676572746967657274';
+  v_hash varbinary(2048); v_enc varbinary(2048); v_dec varbinary(2048);
+  v_blob blob:=hextoraw('7469676572'); v_clob clob:='crypto clob data';
+  v_out_blob blob; v_out_clob clob;
+  v_typ pls_integer:=DBMS_CRYPTO.ENCRYPT_DES+DBMS_CRYPTO.CHAIN_ECB+DBMS_CRYPTO.PAD_PKCS5;
+  v_key varbinary(128):='3132333435363738';
+  v_iv varbinary(128):='3132333435363738';
+begin DBMS_CRYPTO.ENCRYPT(v_out_blob,v_clob,v_typ,v_key); DBMS_CRYPTO.DECRYPT(DST=>v_out_clob,SRC=>v_out_blob,TYP=>v_typ,KEY=>v_key); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(10:6~10:25) /test/1/catalog1/DBMS_CRYPTO/ENCRYPT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(10:58~10:77) /test/1/catalog1/DBMS_CRYPTO/DECRYPT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(5:15~5:23) /test/1/catalog1/schema1/hextoraw/",
+      "action": "CALL"
+    }
+  ]
+}

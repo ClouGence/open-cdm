@@ -1,0 +1,54 @@
+[AdsParseColumnWithTest.test1]
+sql:
+with test1 as (select * from table1) select * from test1
+expect:
+{
+  "column1" : [ "/catalog1/schema1/table1/column1/" ],
+  "column2" : [ "/catalog1/schema1/table1/column2/" ],
+  "column3" : [ "/catalog1/schema1/table1/column3/" ],
+  "column4" : [ "/catalog1/schema1/table1/column4/" ],
+  "column5" : [ "/catalog1/schema1/table1/column5/" ],
+  "column6" : [ "/catalog1/schema1/table1/column6/" ]
+}
+----------
+[AdsParseColumnWithTest.test2]
+sql:
+with test1 as (select * from table1) select * from (with test2 as (select * from table2) select * from test2)
+expect:
+{
+  "column1" : [ "/catalog1/schema1/table2/column1/" ],
+  "column2" : [ "/catalog1/schema1/table2/column2/" ],
+  "column3" : [ "/catalog1/schema1/table2/column3/" ],
+  "column4" : [ "/catalog1/schema1/table2/column4/" ],
+  "column5" : [ "/catalog1/schema1/table2/column5/" ],
+  "column6" : [ "/catalog1/schema1/table2/column6/" ]
+}
+----------
+[AdsParseColumnWithTest.test3]
+sql:
+select * from (with test1 as (select * from table1) select * from (with test1 as (select * from table2) select * from test1)) t
+expect:
+{
+  "column1" : [ "/catalog1/schema1/table2/column1/" ],
+  "column2" : [ "/catalog1/schema1/table2/column2/" ],
+  "column3" : [ "/catalog1/schema1/table2/column3/" ],
+  "column4" : [ "/catalog1/schema1/table2/column4/" ],
+  "column5" : [ "/catalog1/schema1/table2/column5/" ],
+  "column6" : [ "/catalog1/schema1/table2/column6/" ]
+}
+----------
+[AdsParseColumnWithTest.test4]
+sql:
+with test1 (a,b,c,d,e,f) as (select * from table1) select a from test1
+expect:
+{
+  "exception" : "AntlerSyntaxException"
+}
+----------
+[AdsParseColumnWithTest.test5]
+sql:
+select * from (with test1 (a,b,c,d,e,f) as (select * from table1) select a from test1) c
+expect:
+{
+  "exception" : "AntlerSyntaxException"
+}

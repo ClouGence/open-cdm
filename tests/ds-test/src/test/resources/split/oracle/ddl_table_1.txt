@@ -1,0 +1,35 @@
+CREATE TABLE audit_log_default_1 (
+    id RAW(16) DEFAULT SYS_GUID(),
+    created_at DATE DEFAULT SYSDATE,
+    created_ts TIMESTAMP DEFAULT SYSTIMESTAMP
+);
+
+CREATE TABLE audit_log_default_2 (
+    expire_ts TIMESTAMP DEFAULT SYSTIMESTAMP + NUMTODSINTERVAL(15, 'MINUTE'),
+    month_tag DATE DEFAULT ADD_MONTHS(TRUNC(SYSDATE, 'MM'), 1),
+    biz_day DATE DEFAULT TO_DATE('2024-03-01', 'YYYY-MM-DD')
+);
+
+CREATE TABLE audit_log_default_3 (
+    display_name VARCHAR2(100) DEFAULT INITCAP(NVL('oracle parser', 'oracle parser')),
+    digest VARCHAR2(64) DEFAULT SUBSTR(RAWTOHEX(SYS_GUID()), 1, 16),
+    created_by VARCHAR2(30) DEFAULT USER
+);
+------------------------------------------------------------------------------------------
+[CREATE_TABLE] CREATE TABLE audit_log_default_1 (
+    id RAW(16) DEFAULT SYS_GUID(),
+    created_at DATE DEFAULT SYSDATE,
+    created_ts TIMESTAMP DEFAULT SYSTIMESTAMP
+);
+----------
+[CREATE_TABLE] CREATE TABLE audit_log_default_2 (
+    expire_ts TIMESTAMP DEFAULT SYSTIMESTAMP + NUMTODSINTERVAL(15, 'MINUTE'),
+    month_tag DATE DEFAULT ADD_MONTHS(TRUNC(SYSDATE, 'MM'), 1),
+    biz_day DATE DEFAULT TO_DATE('2024-03-01', 'YYYY-MM-DD')
+);
+----------
+[CREATE_TABLE] CREATE TABLE audit_log_default_3 (
+    display_name VARCHAR2(100) DEFAULT INITCAP(NVL('oracle parser', 'oracle parser')),
+    digest VARCHAR2(64) DEFAULT SUBSTR(RAWTOHEX(SYS_GUID()), 1, 16),
+    created_by VARCHAR2(30) DEFAULT USER
+);

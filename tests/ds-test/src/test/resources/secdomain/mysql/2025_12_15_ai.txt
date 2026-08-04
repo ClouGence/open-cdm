@@ -1,0 +1,1640 @@
+[2025_12_15_ai_SELECT_1]
+sql:
+-- 测试控制流函数
+SELECT 
+    IF(1 > 2, 'true', 'false') as if_result,
+    IFNULL(NULL, 'default_value') as ifnull_result,
+    NULLIF('value1', 'value2') as nullif_result,
+    CASE 
+        WHEN 1 = 1 THEN 'one equals one'
+        WHEN 2 = 2 THEN 'two equals two'
+        ELSE 'no match'
+    END as case_result;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "IF",
+      "func": true,
+      "args": [
+        "1 > 2",
+        "'true'",
+        "'false'"
+      ],
+      "emptyArg": false
+    },
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": false,
+      "whereColumns": [],
+      "selectInWhere": false,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": false,
+      "mode": "NORMAL",
+      "virtual": false,
+      "hasAs": true,
+      "hasSelectAll": false,
+      "selectInSelect": false,
+      "funcInSelect": true,
+      "exprInSelect": false,
+      "selectVariables": [],
+      "selectFunc": [
+        "IF",
+        "IFNULL",
+        "NULLIF",
+        "CASE"
+      ],
+      "selectValue": [],
+      "selectInFrom": false,
+      "emptyFrom": true,
+      "joinTypes": [],
+      "hasLimit": false
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "NULLIF",
+      "func": true,
+      "args": [
+        "'value1'",
+        "'value2'"
+      ],
+      "emptyArg": false
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "IFNULL",
+      "func": true,
+      "args": [
+        "NULL",
+        "'default_value'"
+      ],
+      "emptyArg": false
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "CASE",
+      "func": true,
+      "args": [
+        "1 = 1",
+        "'one equals one'",
+        "2 = 2",
+        "'two equals two'",
+        "'no match'"
+      ],
+      "emptyArg": false
+    }
+  ]
+}
+----------
+
+[2025_12_15_ai_SELECT_2]
+sql:
+-- 测试加密和压缩函数
+SELECT
+    MD5('hello world') as md5_result,
+    SHA1('hello world') as sha1_result,
+    SHA2('hello world', 256) as sha2_result;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "SHA1",
+      "func": true,
+      "args": [
+        "'hello world'"
+      ],
+      "emptyArg": false
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "SHA2",
+      "func": true,
+      "args": [
+        "'hello world'",
+        "256"
+      ],
+      "emptyArg": false
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "MD5",
+      "func": true,
+      "args": [
+        "'hello world'"
+      ],
+      "emptyArg": false
+    },
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": false,
+      "whereColumns": [],
+      "selectInWhere": false,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": false,
+      "mode": "NORMAL",
+      "virtual": false,
+      "hasAs": true,
+      "hasSelectAll": false,
+      "selectInSelect": false,
+      "funcInSelect": true,
+      "exprInSelect": false,
+      "selectVariables": [],
+      "selectFunc": [
+        "MD5",
+        "SHA1",
+        "SHA2"
+      ],
+      "selectValue": [],
+      "selectInFrom": false,
+      "emptyFrom": true,
+      "joinTypes": [],
+      "hasLimit": false
+    }
+  ]
+}
+----------
+
+[2025_12_15_ai_SELECT_3]
+sql:
+-- 测试信息函数
+SELECT
+    CONNECTION_ID() as connection_id,
+    CURRENT_USER() as current_user1,
+    DATABASE() as current_database,
+    LAST_INSERT_ID() as last_insert_id,
+    ROW_COUNT() as affected_rows,
+    VERSION() as mysql_version;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "CONNECTION_ID",
+      "func": true,
+      "args": [],
+      "emptyArg": true
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "DATABASE",
+      "func": true,
+      "args": [],
+      "emptyArg": true
+    },
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": false,
+      "whereColumns": [],
+      "selectInWhere": false,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": false,
+      "mode": "NORMAL",
+      "virtual": false,
+      "hasAs": true,
+      "hasSelectAll": false,
+      "selectInSelect": false,
+      "funcInSelect": true,
+      "exprInSelect": false,
+      "selectColumns": [],
+      "selectVariables": [],
+      "selectFunc": [
+        "CONNECTION_ID",
+        "CURRENT_USER",
+        "DATABASE",
+        "LAST_INSERT_ID",
+        "ROW_COUNT",
+        "VERSION"
+      ],
+      "selectValue": [],
+      "selectInFrom": false,
+      "emptyFrom": true,
+      "joinTypes": [],
+      "hasLimit": false
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "VERSION",
+      "func": true,
+      "args": [],
+      "emptyArg": true
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "CURRENT_USER",
+      "func": true,
+      "args": [],
+      "emptyArg": true
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "ROW_COUNT",
+      "func": true,
+      "args": [],
+      "emptyArg": true
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "LAST_INSERT_ID",
+      "func": true,
+      "args": [],
+      "emptyArg": true
+    }
+  ]
+}
+----------
+
+[2025_12_15_ai_SELECT_4]
+sql:
+-- 测试系统变量
+SELECT @@autocommit as autocommit_status;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": false,
+      "whereColumns": [],
+      "selectInWhere": false,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": true,
+      "mode": "NORMAL",
+      "virtual": false,
+      "hasAs": true,
+      "hasSelectAll": false,
+      "selectInSelect": false,
+      "funcInSelect": false,
+      "exprInSelect": false,
+      "selectColumns": [],
+      "selectVariables": [
+        "autocommit"
+      ],
+      "selectFunc": [],
+      "selectValue": [],
+      "selectInFrom": false,
+      "emptyFrom": true,
+      "joinTypes": [],
+      "hasLimit": false
+    }
+  ]
+}
+----------
+
+[2025_12_15_ai_SELECT_5]
+sql:
+SELECT @@max_connections as max_connections;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": false,
+      "whereColumns": [],
+      "selectInWhere": false,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": true,
+      "mode": "NORMAL",
+      "virtual": false,
+      "hasAs": true,
+      "hasSelectAll": false,
+      "selectInSelect": false,
+      "funcInSelect": false,
+      "exprInSelect": false,
+      "selectColumns": [],
+      "selectVariables": [
+        "max_connections"
+      ],
+      "selectFunc": [],
+      "selectValue": [],
+      "selectInFrom": false,
+      "emptyFrom": true,
+      "joinTypes": [],
+      "hasLimit": false
+    }
+  ]
+}
+----------
+
+[2025_12_15_ai_SELECT_6]
+sql:
+SELECT @@innodb_version as innodb_version;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": false,
+      "whereColumns": [],
+      "selectInWhere": false,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": true,
+      "mode": "NORMAL",
+      "virtual": false,
+      "hasAs": true,
+      "hasSelectAll": false,
+      "selectInSelect": false,
+      "funcInSelect": false,
+      "exprInSelect": false,
+      "selectColumns": [],
+      "selectVariables": [
+        "innodb_version"
+      ],
+      "selectFunc": [],
+      "selectValue": [],
+      "selectInFrom": false,
+      "emptyFrom": true,
+      "joinTypes": [],
+      "hasLimit": false
+    }
+  ]
+}
+----------
+
+[2025_12_15_ai_SELECT_7]
+sql:
+-- 测试转换函数
+SELECT
+    CAST('123' AS SIGNED) as cast_signed,
+    CONVERT('123', SIGNED) as convert_signed,
+    CAST('2025-12-15' AS DATE) as cast_date;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": false,
+      "whereColumns": [],
+      "selectInWhere": false,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": false,
+      "mode": "NORMAL",
+      "virtual": false,
+      "hasAs": true,
+      "hasSelectAll": false,
+      "selectInSelect": false,
+      "funcInSelect": true,
+      "exprInSelect": false,
+      "selectColumns": [],
+      "selectVariables": [],
+      "selectFunc": [
+        "CAST",
+        "CONVERT"
+      ],
+      "selectValue": [],
+      "selectInFrom": false,
+      "emptyFrom": true,
+      "joinTypes": [],
+      "hasLimit": false
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "CAST",
+      "func": true,
+      "args": [
+        "'2025-12-15'"
+      ],
+      "emptyArg": false
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "CONVERT",
+      "func": true,
+      "args": [
+        "'123'"
+      ],
+      "emptyArg": false
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "CAST",
+      "func": true,
+      "args": [
+        "'123'"
+      ],
+      "emptyArg": false
+    }
+  ]
+}
+----------
+
+[2025_12_15_ai_SELECT_8]
+sql:
+-- 测试时间和日期函数补充
+SELECT
+    ADDDATE('2025-12-15', INTERVAL 10 DAY) as adddate_result,
+    SUBDATE('2025-12-15', INTERVAL 10 DAY) as subdate_result,
+    ADDTIME('12:00:00', '01:30:00') as addtime_result,
+    TIMEDIFF('12:00:00', '10:30:00') as timediff_result,
+    TIMESTAMPDIFF(MONTH, '2024-12-15', '2025-12-15') as timestampdiff_result,
+    PERIOD_ADD(202512, 3) as period_add_result,
+    PERIOD_DIFF(202603, 202512) as period_diff_result;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "TIMESTAMPDIFF",
+      "func": true,
+      "args": [
+        "MONTH",
+        "'2024-12-15'",
+        "'2025-12-15'"
+      ],
+      "emptyArg": false
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "TIMEDIFF",
+      "func": true,
+      "args": [
+        "'12:00:00'",
+        "'10:30:00'"
+      ],
+      "emptyArg": false
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "SUBDATE",
+      "func": true,
+      "args": [
+        "'2025-12-15'",
+        "INTERVAL 10 DAY"
+      ],
+      "emptyArg": false
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "ADDTIME",
+      "func": true,
+      "args": [
+        "'12:00:00'",
+        "'01:30:00'"
+      ],
+      "emptyArg": false
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "PERIOD_ADD",
+      "func": true,
+      "args": [
+        "202512",
+        "3"
+      ],
+      "emptyArg": false
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "PERIOD_DIFF",
+      "func": true,
+      "args": [
+        "202603",
+        "202512"
+      ],
+      "emptyArg": false
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "ADDDATE",
+      "func": true,
+      "args": [
+        "'2025-12-15'",
+        "INTERVAL 10 DAY"
+      ],
+      "emptyArg": false
+    },
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": false,
+      "whereColumns": [],
+      "selectInWhere": false,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": false,
+      "mode": "NORMAL",
+      "virtual": false,
+      "hasAs": true,
+      "hasSelectAll": false,
+      "selectInSelect": false,
+      "funcInSelect": true,
+      "exprInSelect": false,
+      "selectVariables": [],
+      "selectFunc": [
+        "INTERVAL",
+        "ADDDATE",
+        "SUBDATE",
+        "ADDTIME",
+        "TIMEDIFF",
+        "TIMESTAMPDIFF",
+        "PERIOD_ADD",
+        "PERIOD_DIFF"
+      ],
+      "selectValue": [],
+      "selectInFrom": false,
+      "emptyFrom": true,
+      "joinTypes": [],
+      "hasLimit": false
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "INTERVAL",
+      "func": true,
+      "args": [
+        "10"
+      ],
+      "emptyArg": false
+    }
+  ]
+}
+----------
+
+[2025_12_15_ai_SELECT_9]
+sql:
+-- 测试格式化函数
+SELECT
+    FORMAT(12345.6789, 2) as format_result,
+    QUOTE('Don\'t!') as quote_result,
+    SLEEP(0.01) as sleep_result;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "QUOTE",
+      "func": true,
+      "args": [
+        "'Don\\'t!'"
+      ],
+      "emptyArg": false
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "SLEEP",
+      "func": true,
+      "args": [
+        "0.01"
+      ],
+      "emptyArg": false
+    },
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": false,
+      "whereColumns": [],
+      "selectInWhere": false,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": false,
+      "mode": "NORMAL",
+      "virtual": false,
+      "hasAs": true,
+      "hasSelectAll": false,
+      "selectInSelect": false,
+      "funcInSelect": true,
+      "exprInSelect": false,
+      "selectColumns": [],
+      "selectVariables": [],
+      "selectFunc": [
+        "FORMAT",
+        "QUOTE",
+        "SLEEP"
+      ],
+      "selectValue": [],
+      "selectInFrom": false,
+      "emptyFrom": true,
+      "joinTypes": [],
+      "hasLimit": false
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "FORMAT",
+      "func": true,
+      "args": [
+        "12345.6789",
+        "2"
+      ],
+      "emptyArg": false
+    }
+  ]
+}
+----------
+
+[2025_12_15_ai_SELECT_10]
+sql:
+-- 测试空间函数
+SELECT
+    POINT(1, 1) as point_result,
+    LINESTRING(POINT(0, 0), POINT(1, 1)) as linestring_result;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": false,
+      "whereColumns": [],
+      "selectInWhere": false,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": false,
+      "mode": "NORMAL",
+      "virtual": false,
+      "hasAs": true,
+      "hasSelectAll": false,
+      "selectInSelect": false,
+      "funcInSelect": true,
+      "exprInSelect": false,
+      "selectColumns": [],
+      "selectVariables": [],
+      "selectFunc": [
+        "POINT",
+        "LINESTRING"
+      ],
+      "selectValue": [],
+      "selectInFrom": false,
+      "emptyFrom": true,
+      "joinTypes": [],
+      "hasLimit": false
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "POINT",
+      "func": true,
+      "args": [
+        "0",
+        "0"
+      ],
+      "emptyArg": false
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "POINT",
+      "func": true,
+      "args": [
+        "1",
+        "1"
+      ],
+      "emptyArg": false
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "LINESTRING",
+      "func": true,
+      "args": [
+        "POINT(0, 0)",
+        "POINT(1, 1)"
+      ],
+      "emptyArg": false
+    }
+  ]
+}
+----------
+
+[2025_12_15_ai_SELECT_11]
+sql:
+-- 测试XML函数
+SELECT
+    ExtractValue('<person><name>John</name><age>30</age></person>', '/person/name') as extract_result,
+    UpdateXML('<person><name>John</name><age>30</age></person>', '/person/age', '<age>35</age>') as update_result;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "ExtractValue",
+      "func": true,
+      "args": [
+        "'<person><name>John</name><age>30</age></person>'",
+        "'/person/name'"
+      ],
+      "emptyArg": false
+    },
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": false,
+      "whereColumns": [],
+      "selectInWhere": false,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": false,
+      "mode": "NORMAL",
+      "virtual": false,
+      "hasAs": true,
+      "hasSelectAll": false,
+      "selectInSelect": false,
+      "funcInSelect": true,
+      "exprInSelect": false,
+      "selectColumns": [],
+      "selectVariables": [],
+      "selectFunc": [
+        "ExtractValue",
+        "UpdateXML"
+      ],
+      "selectValue": [],
+      "selectInFrom": false,
+      "emptyFrom": true,
+      "joinTypes": [],
+      "hasLimit": false
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "UpdateXML",
+      "func": true,
+      "args": [
+        "'<person><name>John</name><age>30</age></person>'",
+        "'/person/age'",
+        "'<age>35</age>'"
+      ],
+      "emptyArg": false
+    }
+  ]
+}
+----------
+
+[2025_12_15_ai_SELECT_12]
+sql:
+-- 测试聚合函数补充
+SELECT
+    GROUP_CONCAT('A', 'B', 'C' SEPARATOR '-') as group_concat_sep,
+    COUNT(DISTINCT 1, 2, 3) as count_distinct,
+    APPROX_COUNT_DISTINCT(1, 2, 3) as approx_count_distinct;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "GROUP_CONCAT",
+      "func": true,
+      "args": [
+        "'A'",
+        "'B'",
+        "'C'"
+      ],
+      "emptyArg": false
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "APPROX_COUNT_DISTINCT",
+      "func": true,
+      "args": [
+        "1",
+        "2",
+        "3"
+      ],
+      "emptyArg": false
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "COUNT",
+      "func": true,
+      "args": [
+        "1",
+        "2",
+        "3"
+      ],
+      "emptyArg": false
+    },
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": false,
+      "whereColumns": [],
+      "selectInWhere": false,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": false,
+      "mode": "NORMAL",
+      "virtual": false,
+      "hasAs": true,
+      "hasSelectAll": false,
+      "selectInSelect": false,
+      "funcInSelect": true,
+      "exprInSelect": false,
+      "selectColumns": [],
+      "selectVariables": [],
+      "selectFunc": [
+        "GROUP_CONCAT",
+        "COUNT",
+        "APPROX_COUNT_DISTINCT"
+      ],
+      "selectValue": [],
+      "selectInFrom": false,
+      "emptyFrom": true,
+      "joinTypes": [],
+      "hasLimit": false
+    }
+  ]
+}
+----------
+
+[2025_12_15_ai_SELECT_13]
+sql:
+-- 测试分区表相关操作
+SELECT
+    PARTITION_NAME,
+    TABLE_ROWS
+FROM INFORMATION_SCHEMA.PARTITIONS
+WHERE TABLE_NAME = 'orders_partitioned'
+  AND PARTITION_NAME IS NOT NULL;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": true,
+      "whereColumns": [
+        "TABLE_NAME",
+        "PARTITION_NAME"
+      ],
+      "selectInWhere": false,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": true,
+      "mode": "NORMAL",
+      "virtual": false,
+      "hasAs": false,
+      "hasSelectAll": false,
+      "selectInSelect": false,
+      "funcInSelect": false,
+      "exprInSelect": false,
+      "selectColumns": [
+        "PARTITION_NAME",
+        "TABLE_ROWS"
+      ],
+      "selectVariables": [],
+      "selectFunc": [],
+      "selectValue": [],
+      "selectInFrom": false,
+      "emptyFrom": false,
+      "joinTypes": [],
+      "hasLimit": false
+    }
+  ]
+}
+----------
+
+[2025_12_15_ai_SELECT_14]
+sql:
+-- 测试子查询中的EXISTS和NOT EXISTS
+SELECT * FROM departments d
+WHERE EXISTS (
+    SELECT 1 FROM employees e
+    WHERE e.department_id = d.id
+      AND e.salary > 10000
+);
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": true,
+      "whereColumns": [],
+      "selectInWhere": true,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": false,
+      "mode": "NORMAL",
+      "virtual": false,
+      "hasAs": false,
+      "hasSelectAll": true,
+      "selectInSelect": false,
+      "funcInSelect": false,
+      "exprInSelect": false,
+      "selectColumns": [],
+      "selectVariables": [],
+      "selectFunc": [],
+      "selectValue": [],
+      "selectInFrom": false,
+      "emptyFrom": false,
+      "joinTypes": [],
+      "hasLimit": false
+    },
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": true,
+      "whereColumns": [
+        "department_id",
+        "id",
+        "salary"
+      ],
+      "selectInWhere": false,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": true,
+      "mode": "SUB_WHERE",
+      "virtual": false,
+      "hasAs": false,
+      "hasSelectAll": false,
+      "selectInSelect": false,
+      "funcInSelect": false,
+      "exprInSelect": false,
+      "selectColumns": [],
+      "selectVariables": [],
+      "selectFunc": [],
+      "selectValue": [
+        "1"
+      ],
+      "selectInFrom": false,
+      "emptyFrom": false,
+      "joinTypes": [],
+      "hasLimit": false
+    }
+  ]
+}
+----------
+
+[2025_12_15_ai_SELECT_15]
+sql:
+SELECT * FROM departments d
+WHERE NOT EXISTS (
+    SELECT 1 FROM employees e
+    WHERE e.department_id = d.id
+);
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": true,
+      "whereColumns": [],
+      "selectInWhere": true,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": false,
+      "mode": "NORMAL",
+      "virtual": false,
+      "hasAs": false,
+      "hasSelectAll": true,
+      "selectInSelect": false,
+      "funcInSelect": false,
+      "exprInSelect": false,
+      "selectColumns": [],
+      "selectVariables": [],
+      "selectFunc": [],
+      "selectValue": [],
+      "selectInFrom": false,
+      "emptyFrom": false,
+      "joinTypes": [],
+      "hasLimit": false
+    },
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": true,
+      "whereColumns": [
+        "department_id",
+        "id"
+      ],
+      "selectInWhere": false,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": true,
+      "mode": "SUB_WHERE",
+      "virtual": false,
+      "hasAs": false,
+      "hasSelectAll": false,
+      "selectInSelect": false,
+      "funcInSelect": false,
+      "exprInSelect": false,
+      "selectColumns": [],
+      "selectVariables": [],
+      "selectFunc": [],
+      "selectValue": [
+        "1"
+      ],
+      "selectInFrom": false,
+      "emptyFrom": false,
+      "joinTypes": [],
+      "hasLimit": false
+    }
+  ]
+}
+----------
+
+[2025_12_15_ai_INSERT_16]
+sql:
+-- 测试INSERT IGNORE和ON DUPLICATE KEY UPDATE的不同行为
+INSERT IGNORE INTO users (id, name, email) VALUES (1, 'Test User', 'test@example.com');
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "INSERT",
+      "auditKind": "DML",
+      "hasWith": false,
+      "table": "users",
+      "columns": [
+        "id",
+        "name",
+        "email"
+      ],
+      "onlyValues": false,
+      "multipleValues": false,
+      "conflict": "IGNORE",
+      "fromSelect": false,
+      "hasSubQuery": false,
+      "hasNullValue": false
+    }
+  ]
+}
+----------
+
+[2025_12_15_ai_INSERT_17]
+sql:
+INSERT INTO users (id, name, email) VALUES (1, 'Updated User', 'updated@example.com')
+ON DUPLICATE KEY UPDATE name = VALUES(name), email = VALUES(email);
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "MERGE",
+      "auditKind": "DML",
+      "hasWith": false,
+      "table": "users",
+      "columns": [
+        "id",
+        "name",
+        "email",
+        "name",
+        "email"
+      ],
+      "onlyValues": false,
+      "multipleValues": false,
+      "conflict": "UPDATE",
+      "fromSelect": false,
+      "hasSubQuery": false,
+      "hasNullValue": false
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "values",
+      "func": true,
+      "args": [
+        "email"
+      ],
+      "emptyArg": false
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "values",
+      "func": true,
+      "args": [
+        "name"
+      ],
+      "emptyArg": false
+    }
+  ]
+}
+----------
+
+[2025_12_15_ai_TRANSACTION_18]
+sql:
+-- 测试事务控制语句
+START TRANSACTION;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "TRANSACTION",
+      "auditKind": "QUERY",
+      "target": "Unknown",
+      "needSupply": true
+    }
+  ]
+}
+----------
+
+[2025_12_15_ai_INSERT_19]
+sql:
+INSERT INTO departments (name) VALUES ('Test Department');
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "INSERT",
+      "auditKind": "DML",
+      "hasWith": false,
+      "table": "departments",
+      "columns": [
+        "name"
+      ],
+      "onlyValues": false,
+      "multipleValues": false,
+      "conflict": "NONE",
+      "fromSelect": false,
+      "hasSubQuery": false,
+      "hasNullValue": false
+    }
+  ]
+}
+----------
+
+[2025_12_15_ai_TRANSACTION_20]
+sql:
+SAVEPOINT sp1;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "TRANSACTION",
+      "auditKind": "QUERY",
+      "target": "Unknown",
+      "needSupply": true
+    }
+  ]
+}
+----------
+
+[2025_12_15_ai_INSERT_21]
+sql:
+INSERT INTO employees (name, department_id, salary) VALUES ('Test Employee', LAST_INSERT_ID(), 5000);
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "INSERT",
+      "auditKind": "DML",
+      "hasWith": false,
+      "table": "employees",
+      "columns": [
+        "name",
+        "department_id",
+        "salary"
+      ],
+      "onlyValues": false,
+      "multipleValues": false,
+      "conflict": "NONE",
+      "fromSelect": false,
+      "hasSubQuery": false,
+      "hasNullValue": false
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "LAST_INSERT_ID",
+      "func": true,
+      "args": [],
+      "emptyArg": true
+    }
+  ]
+}
+----------
+
+[2025_12_15_ai_TRANSACTION_22]
+sql:
+ROLLBACK TO sp1;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "TRANSACTION",
+      "auditKind": "QUERY",
+      "target": "Unknown",
+      "needSupply": true
+    }
+  ]
+}
+----------
+
+[2025_12_15_ai_TRANSACTION_23]
+sql:
+COMMIT;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "TRANSACTION",
+      "auditKind": "QUERY",
+      "target": "Unknown",
+      "needSupply": true
+    }
+  ]
+}
+----------
+
+[2025_12_15_ai_PREPARE_24]
+sql:
+-- 测试预处理语句
+PREPARE stmt FROM 'SELECT * FROM users WHERE id = ?';
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "UNSAFE",
+      "auditKind": "OTHER",
+      "target": "PrepareStatement",
+      "needSupply": false
+    }
+  ]
+}
+----------
+
+[2025_12_15_ai_CONFIG_WRITE_25]
+sql:
+SET @user_id = 1;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CONFIG_WRITE",
+      "auditKind": "OTHER",
+      "configKey": "user_id",
+      "type": "LOCAL"
+    }
+  ]
+}
+----------
+
+[2025_12_15_ai_EXECUTE_26]
+sql:
+EXECUTE stmt USING @user_id;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "UNSAFE",
+      "auditKind": "OTHER",
+      "target": "PrepareStatement",
+      "needSupply": false
+    }
+  ]
+}
+----------
+
+[2025_12_15_ai_DEALLOCATE_27]
+sql:
+DEALLOCATE PREPARE stmt;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "UNSAFE",
+      "auditKind": "OTHER",
+      "target": "PrepareStatement",
+      "needSupply": false
+    }
+  ]
+}
+----------
+
+[2025_12_15_ai_CREATE_PROCEDURE_28]
+sql:
+-- 测试游标（通常在存储过程中使用）
+-- 这里仅展示语法结构
+
+CREATE PROCEDURE cursor_example()
+BEGIN
+  DECLARE done INT DEFAULT FALSE;
+  DECLARE user_name VARCHAR(255);
+  DECLARE cur CURSOR FOR SELECT name FROM users;
+  DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+
+  OPEN cur;
+
+  read_loop: LOOP
+    FETCH cur INTO user_name;
+    IF done THEN
+      LEAVE read_loop;
+    END IF;
+    -- Process user_name
+  END LOOP;
+
+  CLOSE cur;
+END;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CREATE_PROG_OBJ",
+      "auditKind": "CREATE",
+      "name": "cursor_example"
+    }
+  ]
+}
+----------
+
+[2025_12_15_ai_SELECT_29]
+sql:
+-- 测试复合语句块
+SELECT
+    (SELECT COUNT(*) FROM users) as user_count,
+    (SELECT AVG(salary) FROM employees) as avg_salary;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": false,
+      "whereColumns": [],
+      "selectInWhere": false,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": false,
+      "mode": "SUB_SELECT",
+      "virtual": false,
+      "hasAs": false,
+      "hasSelectAll": false,
+      "selectInSelect": false,
+      "funcInSelect": true,
+      "exprInSelect": false,
+      "selectColumns": [
+        "salary"
+      ],
+      "selectVariables": [],
+      "selectFunc": [
+        "AVG"
+      ],
+      "selectValue": [],
+      "selectInFrom": false,
+      "emptyFrom": false,
+      "joinTypes": [],
+      "hasLimit": false
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "AVG",
+      "func": true,
+      "args": [
+        "salary"
+      ],
+      "emptyArg": false
+    },
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": false,
+      "whereColumns": [],
+      "selectInWhere": false,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": false,
+      "mode": "SUB_SELECT",
+      "virtual": false,
+      "hasAs": false,
+      "hasSelectAll": false,
+      "selectInSelect": false,
+      "funcInSelect": true,
+      "exprInSelect": false,
+      "selectColumns": [],
+      "selectVariables": [],
+      "selectFunc": [
+        "COUNT"
+      ],
+      "selectValue": [],
+      "selectInFrom": false,
+      "emptyFrom": false,
+      "joinTypes": [],
+      "hasLimit": false
+    },
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": false,
+      "whereColumns": [],
+      "selectInWhere": false,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": false,
+      "mode": "NORMAL",
+      "virtual": false,
+      "hasAs": true,
+      "hasSelectAll": false,
+      "selectInSelect": true,
+      "funcInSelect": false,
+      "exprInSelect": false,
+      "selectColumns": [],
+      "selectVariables": [],
+      "selectFunc": [],
+      "selectValue": [],
+      "selectInFrom": false,
+      "emptyFrom": true,
+      "joinTypes": [],
+      "hasLimit": false
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "COUNT",
+      "func": true,
+      "args": [
+        "*"
+      ],
+      "emptyArg": false
+    }
+  ]
+}
+----------
+
+[2025_12_15_ai_SELECT_30]
+sql:
+-- 测试全文搜索函数
+SELECT
+    MATCH(title, content) AGAINST('MySQL' IN BOOLEAN MODE) as boolean_search,
+    MATCH(title, content) AGAINST('MySQL' WITH QUERY EXPANSION) as expanded_search
+FROM articles
+WHERE MATCH(title, content) AGAINST('MySQL' IN NATURAL LANGUAGE MODE);
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": true,
+      "whereColumns": [],
+      "selectInWhere": false,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": true,
+      "mode": "NORMAL",
+      "virtual": false,
+      "hasAs": true,
+      "hasSelectAll": false,
+      "selectInSelect": false,
+      "funcInSelect": false,
+      "exprInSelect": false,
+      "selectColumns": [],
+      "selectVariables": [],
+      "selectFunc": [],
+      "selectValue": [],
+      "selectInFrom": false,
+      "emptyFrom": false,
+      "joinTypes": [],
+      "hasLimit": false
+    }
+  ]
+}
+----------
+
+[2025_12_15_ai_CONFIG_WRITE_31]
+sql:
+-- 测试用户定义变量
+SET @var1 = 10;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CONFIG_WRITE",
+      "auditKind": "OTHER",
+      "configKey": "var1",
+      "type": "LOCAL"
+    }
+  ]
+}
+----------
+
+[2025_12_15_ai_CONFIG_WRITE_32]
+sql:
+SET @var2 = 20;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CONFIG_WRITE",
+      "auditKind": "OTHER",
+      "configKey": "var2",
+      "type": "LOCAL"
+    }
+  ]
+}
+----------
+
+[2025_12_15_ai_SELECT_33]
+sql:
+SELECT @var1 + @var2 as sum_result, @var1 * @var2 as product_result;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": false,
+      "whereColumns": [],
+      "selectInWhere": false,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": true,
+      "mode": "NORMAL",
+      "virtual": false,
+      "hasAs": true,
+      "hasSelectAll": false,
+      "selectInSelect": false,
+      "funcInSelect": false,
+      "exprInSelect": false,
+      "selectColumns": [],
+      "selectVariables": [
+        "var1",
+        "var2"
+      ],
+      "selectFunc": [],
+      "selectValue": [],
+      "selectInFrom": false,
+      "emptyFrom": true,
+      "joinTypes": [],
+      "hasLimit": false
+    }
+  ]
+}
+----------

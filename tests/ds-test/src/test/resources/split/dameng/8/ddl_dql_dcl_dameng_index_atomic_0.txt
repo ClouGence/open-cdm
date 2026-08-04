@@ -1,0 +1,858 @@
+create index idx_basic on app.idx_base(c1);
+create unique index idx_unique on app.idx_base(c2);
+create cluster index idx_cluster on app.idx_base(id);
+create not partial index idx_not_partial on app.idx_base(c3);
+create index if not exists idx_basic on app.idx_base(c1);
+create or replace index idx_basic on app.idx_base(c1 desc);
+create or replace index if not exists idx_basic on app.idx_base(c1);
+create index app.idx_schema on app.idx_base(c1);
+create index idx_sort on app.idx_base(c1 asc,c2 desc);
+create index idx_expr on app.idx_base(upper(c3));
+create index idx_tablespace on app.idx_base(c1) tablespace main;
+create index idx_storage on app.idx_base(c1) storage(initial 1,next 1,minextents 1,on main,fillfactor 80);
+create index idx_storage_on on app.idx_base(c1) storage on main;
+create index idx_nosort on app.idx_base(c1) nosort;
+create index idx_online on app.idx_base(c1) online;
+create index idx_reverse on app.idx_base(c3) reverse;
+create index idx_unusable on app.idx_base(c1) unusable;
+create index idx_parallel on app.idx_base(c1) parallel;
+create index idx_parallel0 on app.idx_base(c1) parallel 0;
+create index idx_parallel1 on app.idx_base(c1) parallel 1;
+create index idx_parallel2 on app.idx_base(c1) parallel 2;
+create index idx_noparallel on app.idx_base(c1) noparallel;
+create index idx_part_default on app.idx_part(id,c1);
+create index idx_part_local on app.idx_part(id,c2) local;
+create index idx_part_global on app.idx_part(c1) global;
+create unique index idx_part_unique_local on app.idx_part(id,c1);
+create unique index idx_part_unique_bad on app.idx_part(c2);
+create cluster index idx_part_cluster_global on app.idx_part(id) global;
+create index idx_initial_0 on app.idx_base(c1) storage(initial 0);
+create index idx_initial_1 on app.idx_base(c1) storage(initial 1);
+create index idx_initial_256 on app.idx_base(c1) storage(initial 256);
+create index idx_initial_257 on app.idx_base(c1) storage(initial 257);
+create index idx_next_0 on app.idx_base(c1) storage(next 0);
+create index idx_next_1 on app.idx_base(c1) storage(next 1);
+create index idx_next_256 on app.idx_base(c1) storage(next 256);
+create index idx_next_257 on app.idx_base(c1) storage(next 257);
+create index idx_minextents_0 on app.idx_base(c1) storage(minextents 0);
+create index idx_minextents_1 on app.idx_base(c1) storage(minextents 1);
+create index idx_minextents_256 on app.idx_base(c1) storage(minextents 256);
+create index idx_minextents_257 on app.idx_base(c1) storage(minextents 257);
+create index idx_fillfactor_n1 on app.idx_base(c1) storage(fillfactor -1);
+create index idx_fillfactor_0 on app.idx_base(c1) storage(fillfactor 0);
+create index idx_fillfactor_1 on app.idx_base(c1) storage(fillfactor 1);
+create index idx_fillfactor_100 on app.idx_base(c1) storage(fillfactor 100);
+create index idx_fillfactor_101 on app.idx_base(c1) storage(fillfactor 101);
+create index idx_storage_45 on app.idx_base(c1) storage(branch 1);
+create index idx_storage_46 on app.idx_base(c1) storage(branch(2,1));
+create index idx_storage_47 on app.idx_base(c1) storage(nobranch);
+create index idx_storage_48 on app.idx_base(c1) storage(clusterbtr);
+create index idx_storage_49 on app.idx_base(c1) storage(stat none);
+create index idx_storage_50 on app.idx_base(c1) storage(section(1));
+create index idx_cols_63 on app.idx_64(c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16,c17,c18,c19,c20,c21,c22,c23,c24,c25,c26,c27,c28,c29,c30,c31,c32,c33,c34,c35,c36,c37,c38,c39,c40,c41,c42,c43,c44,c45,c46,c47,c48,c49,c50,c51,c52,c53,c54,c55,c56,c57,c58,c59,c60,c61,c62,c63);
+create index idx_cols_64 on app.idx_64(c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16,c17,c18,c19,c20,c21,c22,c23,c24,c25,c26,c27,c28,c29,c30,c31,c32,c33,c34,c35,c36,c37,c38,c39,c40,c41,c42,c43,c44,c45,c46,c47,c48,c49,c50,c51,c52,c53,c54,c55,c56,c57,c58,c59,c60,c61,c62,c63,c64);
+create index idx_duplicate on app.idx_base(c1,c1);
+create index iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii on app.idx_name(c1);
+create index iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii on app.idx_name(c2);
+create index index33554432 on app.idx_name(c1);
+create index cons134217728 on app.idx_name(c2);
+create table app.idx_key_3000(c varchar(3000));
+insert into app.idx_key_3000 values(repeat('x',3000));
+create index idx_key_3000 on app.idx_key_3000(c);
+create table app.idx_key_3200(c varchar(3200));
+insert into app.idx_key_3200 values(repeat('x',3200));
+create index idx_key_3200 on app.idx_key_3200(c);
+create table app.idx_type_char(c char(10));
+create index idx_type_char on app.idx_type_char(c);
+create table app.idx_type_character(c character(10));
+create index idx_type_character on app.idx_type_character(c);
+create table app.idx_type_varchar(c varchar(20));
+create index idx_type_varchar on app.idx_type_varchar(c);
+create table app.idx_type_varchar2(c varchar2(20));
+create index idx_type_varchar2 on app.idx_type_varchar2(c);
+create table app.idx_type_nchar(c nchar(10));
+create index idx_type_nchar on app.idx_type_nchar(c);
+create table app.idx_type_national_char(c national char(10));
+create index idx_type_national_char on app.idx_type_national_char(c);
+create table app.idx_type_char_vary(c character varying(20));
+create index idx_type_char_vary on app.idx_type_char_vary(c);
+create table app.idx_type_nchar_vary(c nchar varying(20));
+create index idx_type_nchar_vary on app.idx_type_nchar_vary(c);
+create table app.idx_type_national_vary(c national character varying(20));
+create index idx_type_national_vary on app.idx_type_national_vary(c);
+create table app.idx_type_numeric(c numeric);
+create index idx_type_numeric on app.idx_type_numeric(c);
+create table app.idx_type_decimal(c decimal);
+create index idx_type_decimal on app.idx_type_decimal(c);
+create table app.idx_type_dec(c dec);
+create index idx_type_dec on app.idx_type_dec(c);
+create table app.idx_type_number(c number);
+create index idx_type_number on app.idx_type_number(c);
+create table app.idx_type_integer(c integer);
+create index idx_type_integer on app.idx_type_integer(c);
+create table app.idx_type_int(c int);
+create index idx_type_int on app.idx_type_int(c);
+create table app.idx_type_bigint(c bigint);
+create index idx_type_bigint on app.idx_type_bigint(c);
+create table app.idx_type_tinyint(c tinyint);
+create index idx_type_tinyint on app.idx_type_tinyint(c);
+create table app.idx_type_byte(c byte);
+create index idx_type_byte on app.idx_type_byte(c);
+create table app.idx_type_smallint(c smallint);
+create index idx_type_smallint on app.idx_type_smallint(c);
+create table app.idx_type_float(c float);
+create index idx_type_float on app.idx_type_float(c);
+create table app.idx_type_double(c double);
+create index idx_type_double on app.idx_type_double(c);
+create table app.idx_type_real(c real);
+create index idx_type_real on app.idx_type_real(c);
+create table app.idx_type_double_precision(c double precision);
+create index idx_type_double_precision on app.idx_type_double_precision(c);
+create table app.idx_type_date(c date);
+create index idx_type_date on app.idx_type_date(c);
+create table app.idx_type_time(c time);
+create index idx_type_time on app.idx_type_time(c);
+create table app.idx_type_timestamp(c timestamp);
+create index idx_type_timestamp on app.idx_type_timestamp(c);
+create table app.idx_type_datetime(c datetime);
+create index idx_type_datetime on app.idx_type_datetime(c);
+create table app.idx_type_time_tz(c time with time zone);
+create index idx_type_time_tz on app.idx_type_time_tz(c);
+create table app.idx_type_timestamp_tz(c timestamp with time zone);
+create index idx_type_timestamp_tz on app.idx_type_timestamp_tz(c);
+create table app.idx_type_datetime_tz(c datetime with time zone);
+create index idx_type_datetime_tz on app.idx_type_datetime_tz(c);
+create table app.idx_type_timestamp_local_tz(c timestamp with local time zone);
+create index idx_type_timestamp_local_tz on app.idx_type_timestamp_local_tz(c);
+create table app.idx_type_interval_ym(c interval year to month);
+create index idx_type_interval_ym on app.idx_type_interval_ym(c);
+create table app.idx_type_interval_ds(c interval day to second);
+create index idx_type_interval_ds on app.idx_type_interval_ds(c);
+create table app.idx_type_bit(c bit);
+create index idx_type_bit on app.idx_type_bit(c);
+create table app.idx_type_binary(c binary(10));
+create index idx_type_binary on app.idx_type_binary(c);
+create table app.idx_type_varbinary(c varbinary(10));
+create index idx_type_varbinary on app.idx_type_varbinary(c);
+create table app.idx_type_raw(c raw(10));
+create index idx_type_raw on app.idx_type_raw(c);
+create table app.idx_type_text(c text);
+create index idx_type_text on app.idx_type_text(c);
+create table app.idx_type_long(c long);
+create index idx_type_long on app.idx_type_long(c);
+create table app.idx_type_longvarchar(c longvarchar);
+create index idx_type_longvarchar on app.idx_type_longvarchar(c);
+create table app.idx_type_image(c image);
+create index idx_type_image on app.idx_type_image(c);
+create table app.idx_type_longvarbinary(c longvarbinary);
+create index idx_type_longvarbinary on app.idx_type_longvarbinary(c);
+create table app.idx_type_blob(c blob);
+create index idx_type_blob on app.idx_type_blob(c);
+create table app.idx_type_clob(c clob);
+create index idx_type_clob on app.idx_type_clob(c);
+create table app.idx_type_bfile(c bfile);
+create index idx_type_bfile on app.idx_type_bfile(c);
+create table app.idx_type_rowid(c rowid);
+create index idx_type_rowid on app.idx_type_rowid(c);
+create index idx_func_arith on app.idx_base(c1+c2);
+create unique index idx_func_unique on app.idx_base(upper(c3));
+create index idx_func_online on app.idx_base(upper(c3)) online;
+create index idx_func_agg on app.idx_base(sum(c1));
+create index idx_func_rand on app.idx_base(rand());
+create index idx_func_now on app.idx_base(now());
+create cluster index idx_func_cluster on app.idx_base(upper(c3));
+create index idx_reverse_raw on app.idx_base(raw_col) reverse;
+create index idx_reverse_bit on app.idx_base(bit_col) reverse;
+create index idx_reverse_interval on app.idx_base(interval_col) reverse;
+create bitmap index idx_bitmap_reverse on app.idx_fact(dim_id) reverse;
+create cluster index idx_cluster_reverse on app.idx_base(c1) reverse;
+create index idx_nosort_online on app.idx_base(c1) nosort online;
+create index idx_nosort_reverse on app.idx_base(c2) nosort reverse;
+create or replace index idx_replace_nosort on app.idx_base(c3) nosort;
+create index idx_unusable_nosort on app.idx_base(c1) unusable nosort;
+create index idx_unusable_online on app.idx_base(c2) unusable online;
+create bitmap index idx_bitmap on app.idx_fact(dim_id);
+create bitmap index idx_bitmap_expr on app.idx_fact(amount+1);
+create bitmap index idx_bitmap_pk on app.idx_unique(id);
+create bitmap index idx_bitmap_unique on app.idx_unique(u);
+create bitmap index idx_bitmap_global on app.idx_part(c1) global;
+create bitmap index idx_bitmap_interval on app.idx_interval(c1);
+create bitmap index idx_bmj on app.idx_fact(app.idx_dim.label) from app.idx_dim,app.idx_fact where app.idx_dim.id=app.idx_fact.dim_id;
+create bitmap index idx_bmj_bad_key on app.idx_fact(app.idx_dim.label) from app.idx_dim,app.idx_fact where app.idx_dim.label=app.idx_fact.dim_id;
+create bitmap index idx_bmj_dup on app.idx_fact(app.idx_dim.label) from app.idx_dim,app.idx_fact f1,app.idx_fact f2 where app.idx_dim.id=f1.dim_id and app.idx_dim.id=f2.dim_id;
+create bitmap index idx_bmj_sec4 on app.idx_fact(app.idx_dim.label) from app.idx_dim,app.idx_fact where app.idx_dim.id=app.idx_fact.dim_id storage(section(4));
+create bitmap index idx_bmj_sec2048 on app.idx_fact(app.idx_dim.label) from app.idx_dim,app.idx_fact where app.idx_dim.id=app.idx_fact.dim_id storage(section(2048));
+create bitmap index idx_bmj_sec3 on app.idx_fact(app.idx_dim.label) from app.idx_dim,app.idx_fact where app.idx_dim.id=app.idx_fact.dim_id storage(section(3));
+create bitmap index idx_bmj_sec2049 on app.idx_fact(app.idx_dim.label) from app.idx_dim,app.idx_fact where app.idx_dim.id=app.idx_fact.dim_id storage(section(2049));
+create index idx_dpc_global on app.dpc_idx_t(code,note) global partition by range(code)(partition ip1 values less than(2) storage(on dpc_ts1),partition ip2 values less than(maxvalue) storage(on dpc_ts2));
+create index idx_dpc_second on app.dpc_idx_t(alt1,note) global partition by list(alt1)(partition il1 values(1) storage(on dpc_ts1),partition il2 values(default) storage(on dpc_ts2));
+create index idx_dpc_list on app.dpc_idx_t(alt1,note) global partition by list(alt1)(partition il1 values(1) storage(on dpc_ts1),partition il2 values(default) storage(on dpc_ts2));
+create index idx_dpc_hash on app.dpc_idx_t(alt2,note) global partition by hash(alt2)(partition ih1 storage(on dpc_ts1),partition ih2 storage(on dpc_ts2));
+create unique index idx_dpc_unique on app.dpc_idx_t(uq,note) global partition by range(uq)(partition iu1 values less than(102) storage(on dpc_ts1),partition iu2 values less than(maxvalue) storage(on dpc_ts2));
+alter table app.dpc_idx_t truncate partition p1;
+drop index app.idx_dpc_global;
+alter table app.dpc_idx_t truncate partition p1;
+create index idx_dpc_heap on app.dpc_heap(code) global partition by range(code)(partition ip1 values less than(2) storage(on dpc_ts1),partition ip2 values less than(maxvalue) storage(on dpc_ts1));
+create index idx_dpc_no_part on app.dpc_idx_t(note) global;
+create index idx_dpc_func on app.dpc_idx_t(code,upper(note)) global partition by range(code)(partition ip1 values less than(2) storage(on dpc_ts1),partition ip2 values less than(maxvalue) storage(on dpc_ts2));
+create index idx_dpc_online on app.dpc_idx_t(code,note) global partition by range(code)(partition ip1 values less than(2) storage(on dpc_ts1),partition ip2 values less than(maxvalue) storage(on dpc_ts2)) online;
+create index idx_dpc_nonlead on app.dpc_idx_t(note,code) global partition by range(code)(partition ip1 values less than(2) storage(on dpc_ts1),partition ip2 values less than(maxvalue) storage(on dpc_ts2));
+create index idx_dpc_no_max on app.dpc_idx_t(code,note) global partition by range(code)(partition ip1 values less than(2) storage(on dpc_ts1));
+create index idx_dpc_no_default on app.dpc_idx_t(code,note) global partition by list(code)(partition ip1 values(1) storage(on dpc_ts1),partition ip2 values(2) storage(on dpc_ts2));
+create index idx_dpc_bad_ts on app.dpc_idx_t(code,note) global partition by range(code)(partition ip1 values less than(2) storage(on system),partition ip2 values less than(maxvalue) storage(on system));
+alter index app.idx_basic rebuild;
+alter index app.idx_basic rebuild nosort;
+alter index app.idx_basic rebuild online;
+alter index app.idx_unusable unusable;
+alter index app.idx_unusable rebuild share;
+alter index app.idx_unusable rebuild share asynchronous;
+alter index app.idx_unusable rebuild share asynchronous 2;
+alter index app.idx_unusable rebuild share asynchronous 100;
+alter index app.idx_unusable rebuild share asynchronous 1;
+alter index app.idx_unusable rebuild share asynchronous 101;
+alter index app.idx_basic rebuild exclusive;
+alter index app.idx_basic rebuild parallel;
+alter index app.idx_basic rebuild parallel 2;
+alter index app.idx_basic rebuild noparallel;
+alter index app.idx_basic invisible;
+alter index app.idx_basic visible;
+alter index app.idx_basic monitoring usage;
+alter index app.idx_basic nomonitoring usage;
+alter index app.idx_basic rename to app.idx_basic_renamed;
+create table app.ft_type_char(c char(10));
+create context index ft_type_char on app.ft_type_char(c);
+create table app.ft_type_character(c character(10));
+create context index ft_type_character on app.ft_type_character(c);
+create table app.ft_type_varchar(c varchar(20));
+create context index ft_type_varchar on app.ft_type_varchar(c);
+create table app.ft_type_varchar2(c varchar2(20));
+create context index ft_type_varchar2 on app.ft_type_varchar2(c);
+create table app.ft_type_longvarchar(c longvarchar);
+create context index ft_type_longvarchar on app.ft_type_longvarchar(c);
+create table app.ft_type_text(c text);
+create context index ft_type_text on app.ft_type_text(c);
+create table app.ft_type_clob(c clob);
+create context index ft_type_clob on app.ft_type_clob(c);
+create table app.ft_type_nchar(c nchar(10));
+create context index ft_type_nchar on app.ft_type_nchar(c);
+create table app.ft_type_nvarchar(c nvarchar(20));
+create context index ft_type_nvarchar on app.ft_type_nvarchar(c);
+create table app.ft_type_long(c long);
+create context index ft_type_long on app.ft_type_long(c);
+create table app.ft_type_image(c image);
+create context index ft_type_image on app.ft_type_image(c);
+create table app.ft_type_blob(c blob);
+create context index ft_type_blob on app.ft_type_blob(c);
+create table app.ft_type_int(c int);
+create context index ft_type_int on app.ft_type_int(c);
+create context index fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff on app.ft_name(c);
+create context index ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff on app.ft_name(c);
+create context index ft_basic on app.ft_docs(content);
+create context index if not exists ft_lexer on app.ft_docs(content) lexer english_lexer;
+create context index ft_sync on app.ft_docs(content) sync;
+create context index ft_sync_tx on app.ft_docs(content) sync transaction;
+create context index ft_ts on app.ft_docs(content) tablespace main;
+create context index ft_storage on app.ft_docs(content) storage on main;
+alter context index ft_basic on app.ft_docs rebuild;
+alter context index ft_basic on app.ft_docs rebuild online lexer english_lexer;
+alter context index ft_basic on app.ft_docs increment;
+alter context index ft_basic on app.ft_docs increment online;
+alter context index ft_basic on app.ft_docs optimize;
+alter context index ft_basic on app.ft_docs optimize online;
+drop context index ft_basic on app.ft_docs;
+drop context index if exists ft_missing on app.ft_docs;
+create array index idx_arr_varray on app.idx_array(v1);
+create array index idx_arr_nested on app.idx_array(v2);
+create array index idx_arr_dynamic on app.idx_array(v3);
+create array index idx_arr_static on app.idx_array(v4);
+create array index if not exists idx_arr_varray on app.idx_array(v1);
+alter index app.idx_arr_varray unusable;
+alter index app.idx_arr_varray rebuild;
+alter index app.idx_arr_varray invisible;
+alter index app.idx_arr_varray visible;
+alter index app.idx_arr_varray rename to app.idx_arr_renamed;
+alter index app.idx_arr_varray rebuild nosort;
+alter index app.idx_arr_varray rebuild online;
+drop index app.idx_arr_varray;
+select id from app.idx_array where contains(v1,1,2,3);
+create spatial index idx_spatial on app.idx_geo(geom);
+drop index if exists app.idx_spatial;
+stat 50 on index app.idx_basic;
+select * from app.idx_base index idx_basic where c1=1;
+select indexdef(id,0) from sysobjects where name='IDX_BASIC';
+drop index if exists app.idx_missing;
+drop index app.idx_basic;
+drop index app.idx_basic restrict;
+drop index app.idx_basic cascade;
+------------------------------------------------------------------------------------------
+[ADD_INDEX] create index idx_basic on app.idx_base(c1);
+----------
+[ADD_INDEX] create unique index idx_unique on app.idx_base(c2);
+----------
+[ADD_INDEX] create cluster index idx_cluster on app.idx_base(id);
+----------
+[ADD_INDEX] create not partial index idx_not_partial on app.idx_base(c3);
+----------
+[ADD_INDEX] create index if not exists idx_basic on app.idx_base(c1);
+----------
+[ADD_INDEX] create or replace index idx_basic on app.idx_base(c1 desc);
+----------
+[ADD_INDEX] create or replace index if not exists idx_basic on app.idx_base(c1);
+----------
+[ADD_INDEX] create index app.idx_schema on app.idx_base(c1);
+----------
+[ADD_INDEX] create index idx_sort on app.idx_base(c1 asc,c2 desc);
+----------
+[ADD_INDEX] create index idx_expr on app.idx_base(upper(c3));
+----------
+[ADD_INDEX] create index idx_tablespace on app.idx_base(c1) tablespace main;
+----------
+[ADD_INDEX] create index idx_storage on app.idx_base(c1) storage(initial 1,next 1,minextents 1,on main,fillfactor 80);
+----------
+[ADD_INDEX] create index idx_storage_on on app.idx_base(c1) storage on main;
+----------
+[ADD_INDEX] create index idx_nosort on app.idx_base(c1) nosort;
+----------
+[ADD_INDEX] create index idx_online on app.idx_base(c1) online;
+----------
+[ADD_INDEX] create index idx_reverse on app.idx_base(c3) reverse;
+----------
+[ADD_INDEX] create index idx_unusable on app.idx_base(c1) unusable;
+----------
+[ADD_INDEX] create index idx_parallel on app.idx_base(c1) parallel;
+----------
+[ADD_INDEX] create index idx_parallel0 on app.idx_base(c1) parallel 0;
+----------
+[ADD_INDEX] create index idx_parallel1 on app.idx_base(c1) parallel 1;
+----------
+[ADD_INDEX] create index idx_parallel2 on app.idx_base(c1) parallel 2;
+----------
+[ADD_INDEX] create index idx_noparallel on app.idx_base(c1) noparallel;
+----------
+[ADD_INDEX] create index idx_part_default on app.idx_part(id,c1);
+----------
+[ADD_INDEX] create index idx_part_local on app.idx_part(id,c2) local;
+----------
+[ADD_INDEX] create index idx_part_global on app.idx_part(c1) global;
+----------
+[ADD_INDEX] create unique index idx_part_unique_local on app.idx_part(id,c1);
+----------
+[ADD_INDEX] create unique index idx_part_unique_bad on app.idx_part(c2);
+----------
+[ADD_INDEX] create cluster index idx_part_cluster_global on app.idx_part(id) global;
+----------
+[ADD_INDEX] create index idx_initial_0 on app.idx_base(c1) storage(initial 0);
+----------
+[ADD_INDEX] create index idx_initial_1 on app.idx_base(c1) storage(initial 1);
+----------
+[ADD_INDEX] create index idx_initial_256 on app.idx_base(c1) storage(initial 256);
+----------
+[ADD_INDEX] create index idx_initial_257 on app.idx_base(c1) storage(initial 257);
+----------
+[ADD_INDEX] create index idx_next_0 on app.idx_base(c1) storage(next 0);
+----------
+[ADD_INDEX] create index idx_next_1 on app.idx_base(c1) storage(next 1);
+----------
+[ADD_INDEX] create index idx_next_256 on app.idx_base(c1) storage(next 256);
+----------
+[ADD_INDEX] create index idx_next_257 on app.idx_base(c1) storage(next 257);
+----------
+[ADD_INDEX] create index idx_minextents_0 on app.idx_base(c1) storage(minextents 0);
+----------
+[ADD_INDEX] create index idx_minextents_1 on app.idx_base(c1) storage(minextents 1);
+----------
+[ADD_INDEX] create index idx_minextents_256 on app.idx_base(c1) storage(minextents 256);
+----------
+[ADD_INDEX] create index idx_minextents_257 on app.idx_base(c1) storage(minextents 257);
+----------
+[ADD_INDEX] create index idx_fillfactor_n1 on app.idx_base(c1) storage(fillfactor -1);
+----------
+[ADD_INDEX] create index idx_fillfactor_0 on app.idx_base(c1) storage(fillfactor 0);
+----------
+[ADD_INDEX] create index idx_fillfactor_1 on app.idx_base(c1) storage(fillfactor 1);
+----------
+[ADD_INDEX] create index idx_fillfactor_100 on app.idx_base(c1) storage(fillfactor 100);
+----------
+[ADD_INDEX] create index idx_fillfactor_101 on app.idx_base(c1) storage(fillfactor 101);
+----------
+[ADD_INDEX] create index idx_storage_45 on app.idx_base(c1) storage(branch 1);
+----------
+[ADD_INDEX] create index idx_storage_46 on app.idx_base(c1) storage(branch(2,1));
+----------
+[ADD_INDEX] create index idx_storage_47 on app.idx_base(c1) storage(nobranch);
+----------
+[ADD_INDEX] create index idx_storage_48 on app.idx_base(c1) storage(clusterbtr);
+----------
+[ADD_INDEX] create index idx_storage_49 on app.idx_base(c1) storage(stat none);
+----------
+[ADD_INDEX] create index idx_storage_50 on app.idx_base(c1) storage(section(1));
+----------
+[ADD_INDEX] create index idx_cols_63 on app.idx_64(c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16,c17,c18,c19,c20,c21,c22,c23,c24,c25,c26,c27,c28,c29,c30,c31,c32,c33,c34,c35,c36,c37,c38,c39,c40,c41,c42,c43,c44,c45,c46,c47,c48,c49,c50,c51,c52,c53,c54,c55,c56,c57,c58,c59,c60,c61,c62,c63);
+----------
+[ADD_INDEX] create index idx_cols_64 on app.idx_64(c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16,c17,c18,c19,c20,c21,c22,c23,c24,c25,c26,c27,c28,c29,c30,c31,c32,c33,c34,c35,c36,c37,c38,c39,c40,c41,c42,c43,c44,c45,c46,c47,c48,c49,c50,c51,c52,c53,c54,c55,c56,c57,c58,c59,c60,c61,c62,c63,c64);
+----------
+[ADD_INDEX] create index idx_duplicate on app.idx_base(c1,c1);
+----------
+[ADD_INDEX] create index iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii on app.idx_name(c1);
+----------
+[ADD_INDEX] create index iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii on app.idx_name(c2);
+----------
+[ADD_INDEX] create index index33554432 on app.idx_name(c1);
+----------
+[ADD_INDEX] create index cons134217728 on app.idx_name(c2);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.idx_key_3000(c varchar(3000));
+----------
+[INSERT] insert into app.idx_key_3000 values(repeat('x',3000));
+----------
+[ADD_INDEX] create index idx_key_3000 on app.idx_key_3000(c);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.idx_key_3200(c varchar(3200));
+----------
+[INSERT] insert into app.idx_key_3200 values(repeat('x',3200));
+----------
+[ADD_INDEX] create index idx_key_3200 on app.idx_key_3200(c);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.idx_type_char(c char(10));
+----------
+[ADD_INDEX] create index idx_type_char on app.idx_type_char(c);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.idx_type_character(c character(10));
+----------
+[ADD_INDEX] create index idx_type_character on app.idx_type_character(c);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.idx_type_varchar(c varchar(20));
+----------
+[ADD_INDEX] create index idx_type_varchar on app.idx_type_varchar(c);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.idx_type_varchar2(c varchar2(20));
+----------
+[ADD_INDEX] create index idx_type_varchar2 on app.idx_type_varchar2(c);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.idx_type_nchar(c nchar(10));
+----------
+[ADD_INDEX] create index idx_type_nchar on app.idx_type_nchar(c);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.idx_type_national_char(c national char(10));
+----------
+[ADD_INDEX] create index idx_type_national_char on app.idx_type_national_char(c);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.idx_type_char_vary(c character varying(20));
+----------
+[ADD_INDEX] create index idx_type_char_vary on app.idx_type_char_vary(c);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.idx_type_nchar_vary(c nchar varying(20));
+----------
+[ADD_INDEX] create index idx_type_nchar_vary on app.idx_type_nchar_vary(c);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.idx_type_national_vary(c national character varying(20));
+----------
+[ADD_INDEX] create index idx_type_national_vary on app.idx_type_national_vary(c);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.idx_type_numeric(c numeric);
+----------
+[ADD_INDEX] create index idx_type_numeric on app.idx_type_numeric(c);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.idx_type_decimal(c decimal);
+----------
+[ADD_INDEX] create index idx_type_decimal on app.idx_type_decimal(c);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.idx_type_dec(c dec);
+----------
+[ADD_INDEX] create index idx_type_dec on app.idx_type_dec(c);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.idx_type_number(c number);
+----------
+[ADD_INDEX] create index idx_type_number on app.idx_type_number(c);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.idx_type_integer(c integer);
+----------
+[ADD_INDEX] create index idx_type_integer on app.idx_type_integer(c);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.idx_type_int(c int);
+----------
+[ADD_INDEX] create index idx_type_int on app.idx_type_int(c);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.idx_type_bigint(c bigint);
+----------
+[ADD_INDEX] create index idx_type_bigint on app.idx_type_bigint(c);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.idx_type_tinyint(c tinyint);
+----------
+[ADD_INDEX] create index idx_type_tinyint on app.idx_type_tinyint(c);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.idx_type_byte(c byte);
+----------
+[ADD_INDEX] create index idx_type_byte on app.idx_type_byte(c);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.idx_type_smallint(c smallint);
+----------
+[ADD_INDEX] create index idx_type_smallint on app.idx_type_smallint(c);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.idx_type_float(c float);
+----------
+[ADD_INDEX] create index idx_type_float on app.idx_type_float(c);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.idx_type_double(c double);
+----------
+[ADD_INDEX] create index idx_type_double on app.idx_type_double(c);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.idx_type_real(c real);
+----------
+[ADD_INDEX] create index idx_type_real on app.idx_type_real(c);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.idx_type_double_precision(c double precision);
+----------
+[ADD_INDEX] create index idx_type_double_precision on app.idx_type_double_precision(c);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.idx_type_date(c date);
+----------
+[ADD_INDEX] create index idx_type_date on app.idx_type_date(c);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.idx_type_time(c time);
+----------
+[ADD_INDEX] create index idx_type_time on app.idx_type_time(c);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.idx_type_timestamp(c timestamp);
+----------
+[ADD_INDEX] create index idx_type_timestamp on app.idx_type_timestamp(c);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.idx_type_datetime(c datetime);
+----------
+[ADD_INDEX] create index idx_type_datetime on app.idx_type_datetime(c);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.idx_type_time_tz(c time with time zone);
+----------
+[ADD_INDEX] create index idx_type_time_tz on app.idx_type_time_tz(c);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.idx_type_timestamp_tz(c timestamp with time zone);
+----------
+[ADD_INDEX] create index idx_type_timestamp_tz on app.idx_type_timestamp_tz(c);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.idx_type_datetime_tz(c datetime with time zone);
+----------
+[ADD_INDEX] create index idx_type_datetime_tz on app.idx_type_datetime_tz(c);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.idx_type_timestamp_local_tz(c timestamp with local time zone);
+----------
+[ADD_INDEX] create index idx_type_timestamp_local_tz on app.idx_type_timestamp_local_tz(c);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.idx_type_interval_ym(c interval year to month);
+----------
+[ADD_INDEX] create index idx_type_interval_ym on app.idx_type_interval_ym(c);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.idx_type_interval_ds(c interval day to second);
+----------
+[ADD_INDEX] create index idx_type_interval_ds on app.idx_type_interval_ds(c);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.idx_type_bit(c bit);
+----------
+[ADD_INDEX] create index idx_type_bit on app.idx_type_bit(c);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.idx_type_binary(c binary(10));
+----------
+[ADD_INDEX] create index idx_type_binary on app.idx_type_binary(c);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.idx_type_varbinary(c varbinary(10));
+----------
+[ADD_INDEX] create index idx_type_varbinary on app.idx_type_varbinary(c);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.idx_type_raw(c raw(10));
+----------
+[ADD_INDEX] create index idx_type_raw on app.idx_type_raw(c);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.idx_type_text(c text);
+----------
+[ADD_INDEX] create index idx_type_text on app.idx_type_text(c);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.idx_type_long(c long);
+----------
+[ADD_INDEX] create index idx_type_long on app.idx_type_long(c);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.idx_type_longvarchar(c longvarchar);
+----------
+[ADD_INDEX] create index idx_type_longvarchar on app.idx_type_longvarchar(c);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.idx_type_image(c image);
+----------
+[ADD_INDEX] create index idx_type_image on app.idx_type_image(c);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.idx_type_longvarbinary(c longvarbinary);
+----------
+[ADD_INDEX] create index idx_type_longvarbinary on app.idx_type_longvarbinary(c);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.idx_type_blob(c blob);
+----------
+[ADD_INDEX] create index idx_type_blob on app.idx_type_blob(c);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.idx_type_clob(c clob);
+----------
+[ADD_INDEX] create index idx_type_clob on app.idx_type_clob(c);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.idx_type_bfile(c bfile);
+----------
+[ADD_INDEX] create index idx_type_bfile on app.idx_type_bfile(c);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.idx_type_rowid(c rowid);
+----------
+[ADD_INDEX] create index idx_type_rowid on app.idx_type_rowid(c);
+----------
+[ADD_INDEX] create index idx_func_arith on app.idx_base(c1+c2);
+----------
+[ADD_INDEX] create unique index idx_func_unique on app.idx_base(upper(c3));
+----------
+[ADD_INDEX] create index idx_func_online on app.idx_base(upper(c3)) online;
+----------
+[ADD_INDEX] create index idx_func_agg on app.idx_base(sum(c1));
+----------
+[ADD_INDEX] create index idx_func_rand on app.idx_base(rand());
+----------
+[ADD_INDEX] create index idx_func_now on app.idx_base(now());
+----------
+[ADD_INDEX] create cluster index idx_func_cluster on app.idx_base(upper(c3));
+----------
+[ADD_INDEX] create index idx_reverse_raw on app.idx_base(raw_col) reverse;
+----------
+[ADD_INDEX] create index idx_reverse_bit on app.idx_base(bit_col) reverse;
+----------
+[ADD_INDEX] create index idx_reverse_interval on app.idx_base(interval_col) reverse;
+----------
+[ADD_INDEX] create bitmap index idx_bitmap_reverse on app.idx_fact(dim_id) reverse;
+----------
+[ADD_INDEX] create cluster index idx_cluster_reverse on app.idx_base(c1) reverse;
+----------
+[ADD_INDEX] create index idx_nosort_online on app.idx_base(c1) nosort online;
+----------
+[ADD_INDEX] create index idx_nosort_reverse on app.idx_base(c2) nosort reverse;
+----------
+[ADD_INDEX] create or replace index idx_replace_nosort on app.idx_base(c3) nosort;
+----------
+[ADD_INDEX] create index idx_unusable_nosort on app.idx_base(c1) unusable nosort;
+----------
+[ADD_INDEX] create index idx_unusable_online on app.idx_base(c2) unusable online;
+----------
+[ADD_INDEX] create bitmap index idx_bitmap on app.idx_fact(dim_id);
+----------
+[ADD_INDEX] create bitmap index idx_bitmap_expr on app.idx_fact(amount+1);
+----------
+[ADD_INDEX] create bitmap index idx_bitmap_pk on app.idx_unique(id);
+----------
+[ADD_INDEX] create bitmap index idx_bitmap_unique on app.idx_unique(u);
+----------
+[ADD_INDEX] create bitmap index idx_bitmap_global on app.idx_part(c1) global;
+----------
+[ADD_INDEX] create bitmap index idx_bitmap_interval on app.idx_interval(c1);
+----------
+[ADD_INDEX] create bitmap index idx_bmj on app.idx_fact(app.idx_dim.label) from app.idx_dim,app.idx_fact where app.idx_dim.id=app.idx_fact.dim_id;
+----------
+[ADD_INDEX] create bitmap index idx_bmj_bad_key on app.idx_fact(app.idx_dim.label) from app.idx_dim,app.idx_fact where app.idx_dim.label=app.idx_fact.dim_id;
+----------
+[ADD_INDEX] create bitmap index idx_bmj_dup on app.idx_fact(app.idx_dim.label) from app.idx_dim,app.idx_fact f1,app.idx_fact f2 where app.idx_dim.id=f1.dim_id and app.idx_dim.id=f2.dim_id;
+----------
+[ADD_INDEX] create bitmap index idx_bmj_sec4 on app.idx_fact(app.idx_dim.label) from app.idx_dim,app.idx_fact where app.idx_dim.id=app.idx_fact.dim_id storage(section(4));
+----------
+[ADD_INDEX] create bitmap index idx_bmj_sec2048 on app.idx_fact(app.idx_dim.label) from app.idx_dim,app.idx_fact where app.idx_dim.id=app.idx_fact.dim_id storage(section(2048));
+----------
+[ADD_INDEX] create bitmap index idx_bmj_sec3 on app.idx_fact(app.idx_dim.label) from app.idx_dim,app.idx_fact where app.idx_dim.id=app.idx_fact.dim_id storage(section(3));
+----------
+[ADD_INDEX] create bitmap index idx_bmj_sec2049 on app.idx_fact(app.idx_dim.label) from app.idx_dim,app.idx_fact where app.idx_dim.id=app.idx_fact.dim_id storage(section(2049));
+----------
+[ADD_INDEX] create index idx_dpc_global on app.dpc_idx_t(code,note) global partition by range(code)(partition ip1 values less than(2) storage(on dpc_ts1),partition ip2 values less than(maxvalue) storage(on dpc_ts2));
+----------
+[ADD_INDEX] create index idx_dpc_second on app.dpc_idx_t(alt1,note) global partition by list(alt1)(partition il1 values(1) storage(on dpc_ts1),partition il2 values(default) storage(on dpc_ts2));
+----------
+[ADD_INDEX] create index idx_dpc_list on app.dpc_idx_t(alt1,note) global partition by list(alt1)(partition il1 values(1) storage(on dpc_ts1),partition il2 values(default) storage(on dpc_ts2));
+----------
+[ADD_INDEX] create index idx_dpc_hash on app.dpc_idx_t(alt2,note) global partition by hash(alt2)(partition ih1 storage(on dpc_ts1),partition ih2 storage(on dpc_ts2));
+----------
+[ADD_INDEX] create unique index idx_dpc_unique on app.dpc_idx_t(uq,note) global partition by range(uq)(partition iu1 values less than(102) storage(on dpc_ts1),partition iu2 values less than(maxvalue) storage(on dpc_ts2));
+----------
+[ALTER_TABLE|TRUNCATE_PARTITION] alter table app.dpc_idx_t truncate partition p1;
+----------
+[DROP_INDEX] drop index app.idx_dpc_global;
+----------
+[ALTER_TABLE|TRUNCATE_PARTITION] alter table app.dpc_idx_t truncate partition p1;
+----------
+[ADD_INDEX] create index idx_dpc_heap on app.dpc_heap(code) global partition by range(code)(partition ip1 values less than(2) storage(on dpc_ts1),partition ip2 values less than(maxvalue) storage(on dpc_ts1));
+----------
+[ADD_INDEX] create index idx_dpc_no_part on app.dpc_idx_t(note) global;
+----------
+[ADD_INDEX] create index idx_dpc_func on app.dpc_idx_t(code,upper(note)) global partition by range(code)(partition ip1 values less than(2) storage(on dpc_ts1),partition ip2 values less than(maxvalue) storage(on dpc_ts2));
+----------
+[ADD_INDEX] create index idx_dpc_online on app.dpc_idx_t(code,note) global partition by range(code)(partition ip1 values less than(2) storage(on dpc_ts1),partition ip2 values less than(maxvalue) storage(on dpc_ts2)) online;
+----------
+[ADD_INDEX] create index idx_dpc_nonlead on app.dpc_idx_t(note,code) global partition by range(code)(partition ip1 values less than(2) storage(on dpc_ts1),partition ip2 values less than(maxvalue) storage(on dpc_ts2));
+----------
+[ADD_INDEX] create index idx_dpc_no_max on app.dpc_idx_t(code,note) global partition by range(code)(partition ip1 values less than(2) storage(on dpc_ts1));
+----------
+[ADD_INDEX] create index idx_dpc_no_default on app.dpc_idx_t(code,note) global partition by list(code)(partition ip1 values(1) storage(on dpc_ts1),partition ip2 values(2) storage(on dpc_ts2));
+----------
+[ADD_INDEX] create index idx_dpc_bad_ts on app.dpc_idx_t(code,note) global partition by range(code)(partition ip1 values less than(2) storage(on system),partition ip2 values less than(maxvalue) storage(on system));
+----------
+[ALTER_INDEX] alter index app.idx_basic rebuild;
+----------
+[ALTER_INDEX] alter index app.idx_basic rebuild nosort;
+----------
+[ALTER_INDEX] alter index app.idx_basic rebuild online;
+----------
+[ALTER_INDEX] alter index app.idx_unusable unusable;
+----------
+[ALTER_INDEX] alter index app.idx_unusable rebuild share;
+----------
+[ALTER_INDEX] alter index app.idx_unusable rebuild share asynchronous;
+----------
+[ALTER_INDEX] alter index app.idx_unusable rebuild share asynchronous 2;
+----------
+[ALTER_INDEX] alter index app.idx_unusable rebuild share asynchronous 100;
+----------
+[ALTER_INDEX] alter index app.idx_unusable rebuild share asynchronous 1;
+----------
+[ALTER_INDEX] alter index app.idx_unusable rebuild share asynchronous 101;
+----------
+[ALTER_INDEX] alter index app.idx_basic rebuild exclusive;
+----------
+[ALTER_INDEX] alter index app.idx_basic rebuild parallel;
+----------
+[ALTER_INDEX] alter index app.idx_basic rebuild parallel 2;
+----------
+[ALTER_INDEX] alter index app.idx_basic rebuild noparallel;
+----------
+[ALTER_INDEX] alter index app.idx_basic invisible;
+----------
+[ALTER_INDEX] alter index app.idx_basic visible;
+----------
+[ALTER_INDEX] alter index app.idx_basic monitoring usage;
+----------
+[ALTER_INDEX] alter index app.idx_basic nomonitoring usage;
+----------
+[RENAME_INDEX] alter index app.idx_basic rename to app.idx_basic_renamed;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.ft_type_char(c char(10));
+----------
+[ADD_INDEX] create context index ft_type_char on app.ft_type_char(c);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.ft_type_character(c character(10));
+----------
+[ADD_INDEX] create context index ft_type_character on app.ft_type_character(c);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.ft_type_varchar(c varchar(20));
+----------
+[ADD_INDEX] create context index ft_type_varchar on app.ft_type_varchar(c);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.ft_type_varchar2(c varchar2(20));
+----------
+[ADD_INDEX] create context index ft_type_varchar2 on app.ft_type_varchar2(c);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.ft_type_longvarchar(c longvarchar);
+----------
+[ADD_INDEX] create context index ft_type_longvarchar on app.ft_type_longvarchar(c);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.ft_type_text(c text);
+----------
+[ADD_INDEX] create context index ft_type_text on app.ft_type_text(c);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.ft_type_clob(c clob);
+----------
+[ADD_INDEX] create context index ft_type_clob on app.ft_type_clob(c);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.ft_type_nchar(c nchar(10));
+----------
+[ADD_INDEX] create context index ft_type_nchar on app.ft_type_nchar(c);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.ft_type_nvarchar(c nvarchar(20));
+----------
+[ADD_INDEX] create context index ft_type_nvarchar on app.ft_type_nvarchar(c);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.ft_type_long(c long);
+----------
+[ADD_INDEX] create context index ft_type_long on app.ft_type_long(c);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.ft_type_image(c image);
+----------
+[ADD_INDEX] create context index ft_type_image on app.ft_type_image(c);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.ft_type_blob(c blob);
+----------
+[ADD_INDEX] create context index ft_type_blob on app.ft_type_blob(c);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.ft_type_int(c int);
+----------
+[ADD_INDEX] create context index ft_type_int on app.ft_type_int(c);
+----------
+[ADD_INDEX] create context index fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff on app.ft_name(c);
+----------
+[ADD_INDEX] create context index ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff on app.ft_name(c);
+----------
+[ADD_INDEX] create context index ft_basic on app.ft_docs(content);
+----------
+[ADD_INDEX] create context index if not exists ft_lexer on app.ft_docs(content) lexer english_lexer;
+----------
+[ADD_INDEX] create context index ft_sync on app.ft_docs(content) sync;
+----------
+[ADD_INDEX] create context index ft_sync_tx on app.ft_docs(content) sync transaction;
+----------
+[ADD_INDEX] create context index ft_ts on app.ft_docs(content) tablespace main;
+----------
+[ADD_INDEX] create context index ft_storage on app.ft_docs(content) storage on main;
+----------
+[ALTER_INDEX] alter context index ft_basic on app.ft_docs rebuild;
+----------
+[ALTER_INDEX] alter context index ft_basic on app.ft_docs rebuild online lexer english_lexer;
+----------
+[ALTER_INDEX] alter context index ft_basic on app.ft_docs increment;
+----------
+[ALTER_INDEX] alter context index ft_basic on app.ft_docs increment online;
+----------
+[ALTER_INDEX] alter context index ft_basic on app.ft_docs optimize;
+----------
+[ALTER_INDEX] alter context index ft_basic on app.ft_docs optimize online;
+----------
+[DROP_INDEX] drop context index ft_basic on app.ft_docs;
+----------
+[DROP_INDEX] drop context index if exists ft_missing on app.ft_docs;
+----------
+[ADD_INDEX] create array index idx_arr_varray on app.idx_array(v1);
+----------
+[ADD_INDEX] create array index idx_arr_nested on app.idx_array(v2);
+----------
+[ADD_INDEX] create array index idx_arr_dynamic on app.idx_array(v3);
+----------
+[ADD_INDEX] create array index idx_arr_static on app.idx_array(v4);
+----------
+[ADD_INDEX] create array index if not exists idx_arr_varray on app.idx_array(v1);
+----------
+[ALTER_INDEX] alter index app.idx_arr_varray unusable;
+----------
+[ALTER_INDEX] alter index app.idx_arr_varray rebuild;
+----------
+[ALTER_INDEX] alter index app.idx_arr_varray invisible;
+----------
+[ALTER_INDEX] alter index app.idx_arr_varray visible;
+----------
+[RENAME_INDEX] alter index app.idx_arr_varray rename to app.idx_arr_renamed;
+----------
+[ALTER_INDEX] alter index app.idx_arr_varray rebuild nosort;
+----------
+[ALTER_INDEX] alter index app.idx_arr_varray rebuild online;
+----------
+[DROP_INDEX] drop index app.idx_arr_varray;
+----------
+[SELECT] select id from app.idx_array where contains(v1,1,2,3);
+----------
+[ADD_INDEX] create spatial index idx_spatial on app.idx_geo(geom);
+----------
+[DROP_INDEX] drop index if exists app.idx_spatial;
+----------
+[ADMIN_TABLE] stat 50 on index app.idx_basic;
+----------
+[SELECT] select * from app.idx_base index idx_basic where c1=1;
+----------
+[SELECT|CALL_PROG_OBJ] select indexdef(id,0) from sysobjects where name='IDX_BASIC';
+----------
+[DROP_INDEX] drop index if exists app.idx_missing;
+----------
+[DROP_INDEX] drop index app.idx_basic;
+----------
+[DROP_INDEX] drop index app.idx_basic restrict;
+----------
+[DROP_INDEX] drop index app.idx_basic cascade;

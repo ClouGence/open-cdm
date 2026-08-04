@@ -1,0 +1,39 @@
+alter table `test`.`user_table` add column `address` varchar(255);
+alter table user_table add column address varchar(255) not null default 'unknown';
+alter table user_table add column address varchar(255) first;
+alter table user_table add column address varchar(255) after name;
+alter table user_table add column (address varchar(255), city varchar(100));
+alter table user_table drop column address;
+alter table user_table drop address;
+alter table user_table modify column address varchar(512) not null;
+alter table user_table modify address int default 0;
+alter table test change column a1 a123456 char(10);
+alter table test change a1 a123456 char(10) first;
+alter table test change a1 a123456 char(10) after name;
+alter table user_table rename column old_name to new_name;
+------------------------------------------------------------------------------------------
+[ALTER_TABLE|ADD_COLUMN] alter table `test`.`user_table` add column `address` varchar(255);
+----------
+[ALTER_TABLE|ADD_COLUMN] alter table user_table add column address varchar(255) not null default 'unknown';
+----------
+[ALTER_TABLE|ADD_COLUMN] alter table user_table add column address varchar(255) first;
+----------
+[ALTER_TABLE|ADD_COLUMN] alter table user_table add column address varchar(255) after name;
+----------
+[ALTER_TABLE|ADD_COLUMN] alter table user_table add column (address varchar(255), city varchar(100));
+----------
+[ALTER_TABLE|DROP_COLUMN] alter table user_table drop column address;
+----------
+[ALTER_TABLE|DROP_COLUMN] alter table user_table drop address;
+----------
+[ALTER_TABLE|ALTER_COLUMN] alter table user_table modify column address varchar(512) not null;
+----------
+[ALTER_TABLE|ALTER_COLUMN] alter table user_table modify address int default 0;
+----------
+[ALTER_TABLE|ALTER_COLUMN|RENAME_COLUMN] alter table test change column a1 a123456 char(10);
+----------
+[ALTER_TABLE|ALTER_COLUMN|RENAME_COLUMN] alter table test change a1 a123456 char(10) first;
+----------
+[ALTER_TABLE|ALTER_COLUMN|RENAME_COLUMN] alter table test change a1 a123456 char(10) after name;
+----------
+[ALTER_TABLE|RENAME_COLUMN] alter table user_table rename column old_name to new_name;

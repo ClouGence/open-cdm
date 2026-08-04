@@ -1,0 +1,15 @@
+CREATE TABLE "ttt3"."table_name-2"(
+  "column_name"  smallint  NULL ,
+   "column_name_1"  smallint  NULL ,
+   "column_name_2"  smallint  NULL ,
+   "column_name_3"  smallint  NULL
+) WITH (orientation=ROW,storage_type=AStore)
+TABLESPACE pg_default;
+------------------------------------------------------------------------------------------
+[CREATE_TABLE] CREATE TABLE "ttt3"."table_name-2"(
+  "column_name"  smallint  NULL ,
+   "column_name_1"  smallint  NULL ,
+   "column_name_2"  smallint  NULL ,
+   "column_name_3"  smallint  NULL
+) WITH (orientation=ROW,storage_type=AStore)
+TABLESPACE pg_default;

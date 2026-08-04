@@ -1,0 +1,536 @@
+[split_block_dameng_dbms_session_signature_combinations_0_001]
+sql:
+-- FUNC-0770 UNIQUE_SESSION_ID without parentheses
+declare value_text varchar(32767); begin value_text:=DBMS_SESSION.UNIQUE_SESSION_ID; if value_text is null then raise_application_error(-20001,'unique id null'); end if; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:112~2:135) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:53~2:83) /test/1/catalog1/DBMS_SESSION/UNIQUE_SESSION_ID/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_session_signature_combinations_0_002]
+sql:
+-- FUNC-0770 UNIQUE_SESSION_ID with parentheses
+declare value_text varchar(32767); begin value_text:=DBMS_SESSION.UNIQUE_SESSION_ID(); if length(value_text)=0 then raise_application_error(-20002,'unique id empty'); end if; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:116~2:139) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:53~2:83) /test/1/catalog1/DBMS_SESSION/UNIQUE_SESSION_ID/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:90~2:96) /test/1/catalog1/schema1/length/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_session_signature_combinations_0_003]
+sql:
+-- FUNC-0765 IS_SESSION_ALIVE current session
+declare value_text varchar(32767); begin value_text:=DBMS_SESSION.IS_SESSION_ALIVE(DBMS_SESSION.UNIQUE_SESSION_ID); if value_text<>'TRUE' then raise_application_error(-20003,'current session not alive'); end if; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:143~2:166) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:53~2:82) /test/1/catalog1/DBMS_SESSION/IS_SESSION_ALIVE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:83~2:113) /test/1/catalog1/DBMS_SESSION/UNIQUE_SESSION_ID/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_session_signature_combinations_0_004]
+sql:
+-- FUNC-0765 IS_SESSION_ALIVE Pack29 named VARCHAR identifier
+declare value_text varchar(32767); begin value_text:=DBMS_SESSION.IS_SESSION_ALIVE(UNIQUEID=>DBMS_SESSION.UNIQUE_SESSION_ID()); if value_text<>'TRUE' then raise_application_error(-20004,'named current session not alive'); end if; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:155~2:178) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:53~2:82) /test/1/catalog1/DBMS_SESSION/IS_SESSION_ALIVE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:93~2:123) /test/1/catalog1/DBMS_SESSION/UNIQUE_SESSION_ID/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_session_signature_combinations_0_005]
+sql:
+-- FUNC-0765 IS_SESSION_ALIVE nonexistent identifier
+declare value_text varchar(32767); begin value_text:=DBMS_SESSION.IS_SESSION_ALIVE('999999999999999'); if value_text<>'FALSE' then raise_application_error(-20005,'nonexistent session alive'); end if; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:131~2:154) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:53~2:82) /test/1/catalog1/DBMS_SESSION/IS_SESSION_ALIVE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_session_signature_combinations_0_006]
+sql:
+-- FUNC-0769 SET_IDENTIFIER positional and V$SESSIONS effect
+declare row_count int; begin DBMS_SESSION.SET_IDENTIFIER('CODEX_DM8_SESSION_CLIENT'); select count(*) into row_count from V$SESSIONS where CLIENT_IDENTIFIER='CODEX_DM8_SESSION_CLIENT'; if row_count=0 then raise_application_error(-20006,'identifier absent'); end if; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:29~2:56) /test/1/catalog1/DBMS_SESSION/SET_IDENTIFIER/",
+      "action": "CALL",
+      "target": "ConfigKey(2:29~2:56) /test/1/CLIENT_IDENTIFIER/"
+    },
+    {
+      "subject": "Function(2:93~2:98) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:122~2:132) /test/1/catalog1/schema1/V$SESSIONS/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:205~2:228) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_session_signature_combinations_0_007]
+sql:
+-- FUNC-0769 SET_IDENTIFIER Pack29 named CLIENT_ID
+declare row_count int; begin DBMS_SESSION.SET_IDENTIFIER(CLIENT_ID=>'CODEX_DM8_SESSION_NAMED'); select count(*) into row_count from V$SESSIONS where CLIENT_IDENTIFIER='CODEX_DM8_SESSION_NAMED'; if row_count=0 then raise_application_error(-20007,'named identifier absent'); end if; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:29~2:56) /test/1/catalog1/DBMS_SESSION/SET_IDENTIFIER/",
+      "action": "CALL",
+      "target": "ConfigKey(2:29~2:56) /test/1/CLIENT_IDENTIFIER/"
+    },
+    {
+      "subject": "Function(2:103~2:108) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:132~2:142) /test/1/catalog1/schema1/V$SESSIONS/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:214~2:237) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_session_signature_combinations_0_008]
+sql:
+-- FUNC-0769 SET_IDENTIFIER maximum documented 64 characters
+declare row_count int; begin DBMS_SESSION.SET_IDENTIFIER('IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII'); select count(*) into row_count from V$SESSIONS where CLIENT_IDENTIFIER='IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII'; if row_count=0 then raise_application_error(-20008,'maximum identifier absent'); end if; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:29~2:56) /test/1/catalog1/DBMS_SESSION/SET_IDENTIFIER/",
+      "action": "CALL",
+      "target": "ConfigKey(2:29~2:56) /test/1/CLIENT_IDENTIFIER/"
+    },
+    {
+      "subject": "Function(2:133~2:138) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:162~2:172) /test/1/catalog1/schema1/V$SESSIONS/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:285~2:308) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_session_signature_combinations_0_009]
+sql:
+-- FUNC-0768 SET_CONTEXT required three arguments through associated package
+declare value_text varchar(32767); begin CODEX_DM8_SESSION_CTX_PKG.SET_VALUE('K_REQUIRED','V_REQUIRED'); value_text:=SYS_CONTEXT('CODEX_DM8_SESSION_CTX','K_REQUIRED'); if value_text<>'V_REQUIRED' then raise_application_error(-20009,'required context mismatch'); end if; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:41~2:76) /test/1/catalog1/CODEX_DM8_SESSION_CTX_PKG/SET_VALUE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:201~2:224) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:117~2:128) /test/1/catalog1/schema1/SYS_CONTEXT/",
+      "action": "CALL",
+      "target": "ConfigKey(2:153~2:165) /test/1/CODEX_DM8_SESSION_CTX/K_REQUIRED/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_session_signature_combinations_0_010]
+sql:
+-- FUNC-0768 SET_CONTEXT optional USERNAME prefix
+declare value_text varchar(32767); begin CODEX_DM8_SESSION_CTX_PKG.SET_VALUE('K_USER','V_USER','IGNORED_USER'); value_text:=SYS_CONTEXT('CODEX_DM8_SESSION_CTX','K_USER'); if value_text<>'V_USER' then raise_application_error(-20010,'username context mismatch'); end if; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:41~2:76) /test/1/catalog1/CODEX_DM8_SESSION_CTX_PKG/SET_VALUE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:200~2:223) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:124~2:135) /test/1/catalog1/schema1/SYS_CONTEXT/",
+      "action": "CALL",
+      "target": "ConfigKey(2:160~2:168) /test/1/CODEX_DM8_SESSION_CTX/K_USER/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_session_signature_combinations_0_011]
+sql:
+-- FUNC-0768 SET_CONTEXT all arguments including ignored CLIENT_ID
+declare value_text varchar(32767); begin CODEX_DM8_SESSION_CTX_PKG.SET_VALUE('K_CLIENT','V_CLIENT','IGNORED_USER','IGNORED_CLIENT'); value_text:=SYS_CONTEXT('CODEX_DM8_SESSION_CTX','K_CLIENT'); if value_text<>'V_CLIENT' then raise_application_error(-20011,'client context mismatch'); end if; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:41~2:76) /test/1/catalog1/CODEX_DM8_SESSION_CTX_PKG/SET_VALUE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:225~2:248) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:145~2:156) /test/1/catalog1/schema1/SYS_CONTEXT/",
+      "action": "CALL",
+      "target": "ConfigKey(2:181~2:191) /test/1/CODEX_DM8_SESSION_CTX/K_CLIENT/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_session_signature_combinations_0_012]
+sql:
+-- FUNC-0768 SET_CONTEXT NULL value
+declare value_text varchar(32767); begin CODEX_DM8_SESSION_CTX_PKG.SET_VALUE('K_NULL',NULL); value_text:=SYS_CONTEXT('CODEX_DM8_SESSION_CTX','K_NULL'); if length(value_text)>0 then raise_application_error(-20012,'null context mismatch'); end if; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:41~2:76) /test/1/catalog1/CODEX_DM8_SESSION_CTX_PKG/SET_VALUE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:181~2:204) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:105~2:116) /test/1/catalog1/schema1/SYS_CONTEXT/",
+      "action": "CALL",
+      "target": "ConfigKey(2:141~2:149) /test/1/CODEX_DM8_SESSION_CTX/K_NULL/"
+    },
+    {
+      "subject": "Function(2:155~2:161) /test/1/catalog1/schema1/length/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_session_signature_combinations_0_013]
+sql:
+-- FUNC-0766 LIST_CONTEXT returns associated context
+declare context_list DBMS_SESSION.APPCTXTABTYP; context_size int; found_value int:=0; begin CODEX_DM8_SESSION_CTX_PKG.SET_VALUE('K_LIST','V_LIST'); DBMS_SESSION.LIST_CONTEXT(context_list,context_size); for index_value in 0..context_size-1 loop if context_list(index_value).namespace='CODEX_DM8_SESSION_CTX' and context_list(index_value).attribute='K_LIST' and context_list(index_value).value='V_LIST' then found_value:=1; end if; end loop; if found_value=0 then raise_application_error(-20013,'listed context absent'); end if; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:21~2:46) /test/1/catalog1/DBMS_SESSION/APPCTXTABTYP/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:92~2:127) /test/1/catalog1/CODEX_DM8_SESSION_CTX_PKG/SET_VALUE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:148~2:173) /test/1/catalog1/DBMS_SESSION/LIST_CONTEXT/",
+      "action": "CALL",
+      "target": "Environment(2:148~2:173) /test/1/"
+    },
+    {
+      "subject": "Procedure(2:462~2:485) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_session_signature_combinations_0_014]
+sql:
+-- FUNC-0766 LIST_CONTEXT named OUT arguments reordered
+declare context_list DBMS_SESSION.APPCTXTABTYP; context_size int; begin DBMS_SESSION.LIST_CONTEXT(CONTEXT_SIZE=>context_size,CONTEXT_LIST=>context_list); if context_size<0 then raise_application_error(-20014,'negative context size'); end if; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:21~2:46) /test/1/catalog1/DBMS_SESSION/APPCTXTABTYP/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:72~2:97) /test/1/catalog1/DBMS_SESSION/LIST_CONTEXT/",
+      "action": "CALL",
+      "target": "Environment(2:72~2:97) /test/1/"
+    },
+    {
+      "subject": "Procedure(2:177~2:200) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_session_signature_combinations_0_015]
+sql:
+-- FUNC-0763 CLEAR_CONTEXT required namespace only through associated package
+declare value_text varchar(32767); begin CODEX_DM8_SESSION_CTX_PKG.SET_VALUE('K_CLEAR_ONE','V1'); CODEX_DM8_SESSION_CTX_PKG.CLEAR_VALUE; value_text:=SYS_CONTEXT('CODEX_DM8_SESSION_CTX','K_CLEAR_ONE'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:41~2:76) /test/1/catalog1/CODEX_DM8_SESSION_CTX_PKG/SET_VALUE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:98~2:135) /test/1/catalog1/CODEX_DM8_SESSION_CTX_PKG/CLEAR_VALUE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:149~2:160) /test/1/catalog1/schema1/SYS_CONTEXT/",
+      "action": "CALL",
+      "target": "ConfigKey(2:185~2:198) /test/1/CODEX_DM8_SESSION_CTX/K_CLEAR_ONE/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_session_signature_combinations_0_016]
+sql:
+-- FUNC-0763 CLEAR_CONTEXT namespace and client id prefix
+declare value_text varchar(32767); begin CODEX_DM8_SESSION_CTX_PKG.SET_VALUE('K_CLEAR_TWO','V2'); CODEX_DM8_SESSION_CTX_PKG.CLEAR_VALUE(NULL); value_text:=SYS_CONTEXT('CODEX_DM8_SESSION_CTX','K_CLEAR_TWO'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:41~2:76) /test/1/catalog1/CODEX_DM8_SESSION_CTX_PKG/SET_VALUE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:98~2:135) /test/1/catalog1/CODEX_DM8_SESSION_CTX_PKG/CLEAR_VALUE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:155~2:166) /test/1/catalog1/schema1/SYS_CONTEXT/",
+      "action": "CALL",
+      "target": "ConfigKey(2:191~2:204) /test/1/CODEX_DM8_SESSION_CTX/K_CLEAR_TWO/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_session_signature_combinations_0_017]
+sql:
+-- FUNC-0763 CLEAR_CONTEXT all arguments clears one attribute
+declare value_text varchar(32767); begin CODEX_DM8_SESSION_CTX_PKG.SET_VALUE('K_CLEAR_THREE','V3'); CODEX_DM8_SESSION_CTX_PKG.CLEAR_VALUE(NULL,'K_CLEAR_THREE'); value_text:=SYS_CONTEXT('CODEX_DM8_SESSION_CTX','K_CLEAR_THREE'); if length(value_text)>0 then raise_application_error(-20015,'attribute not cleared'); end if; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:41~2:76) /test/1/catalog1/CODEX_DM8_SESSION_CTX_PKG/SET_VALUE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:100~2:137) /test/1/catalog1/CODEX_DM8_SESSION_CTX_PKG/CLEAR_VALUE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:256~2:279) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:173~2:184) /test/1/catalog1/schema1/SYS_CONTEXT/",
+      "action": "CALL",
+      "target": "ConfigKey(2:209~2:224) /test/1/CODEX_DM8_SESSION_CTX/K_CLEAR_THREE/"
+    },
+    {
+      "subject": "Function(2:230~2:236) /test/1/catalog1/schema1/length/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_session_signature_combinations_0_018]
+sql:
+-- FUNC-0762 CLEAR_ALL_CONTEXT through associated package
+declare first_value varchar(32767); second_value varchar(32767); begin CODEX_DM8_SESSION_CTX_PKG.SET_VALUE('K_ALL_1','V1'); CODEX_DM8_SESSION_CTX_PKG.SET_VALUE('K_ALL_2','V2'); CODEX_DM8_SESSION_CTX_PKG.CLEAR_ALL; first_value:=SYS_CONTEXT('CODEX_DM8_SESSION_CTX','K_ALL_1'); second_value:=SYS_CONTEXT('CODEX_DM8_SESSION_CTX','K_ALL_2'); if first_value is not null or second_value is not null then raise_application_error(-20016,'context not cleared'); end if; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:71~2:106) /test/1/catalog1/CODEX_DM8_SESSION_CTX_PKG/SET_VALUE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:124~2:159) /test/1/catalog1/CODEX_DM8_SESSION_CTX_PKG/SET_VALUE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:177~2:212) /test/1/catalog1/CODEX_DM8_SESSION_CTX_PKG/CLEAR_ALL/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:397~2:420) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:227~2:238) /test/1/catalog1/schema1/SYS_CONTEXT/",
+      "action": "CALL",
+      "target": "ConfigKey(2:263~2:272) /test/1/CODEX_DM8_SESSION_CTX/K_ALL_1/"
+    },
+    {
+      "subject": "Function(2:289~2:300) /test/1/catalog1/schema1/SYS_CONTEXT/",
+      "action": "CALL",
+      "target": "ConfigKey(2:325~2:334) /test/1/CODEX_DM8_SESSION_CTX/K_ALL_2/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_session_signature_combinations_0_019]
+sql:
+-- FUNC-0767 RESET_PACKAGE without parentheses
+begin DBMS_SESSION.RESET_PACKAGE; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:32) /test/1/catalog1/DBMS_SESSION/RESET_PACKAGE/",
+      "action": "CALL",
+      "target": "Environment(2:6~2:32) /test/1/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_session_signature_combinations_0_020]
+sql:
+-- FUNC-0767 RESET_PACKAGE with parentheses
+begin DBMS_SESSION.RESET_PACKAGE(); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:32) /test/1/catalog1/DBMS_SESSION/RESET_PACKAGE/",
+      "action": "CALL",
+      "target": "Environment(2:6~2:32) /test/1/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_session_signature_combinations_0_021]
+sql:
+-- FUNC-0764 CLOSE_DATABASE_LINK after opening and committing link transaction
+declare row_count int; begin select count(*) into row_count from DUAL@CODEX_DM8_SESSION_LINK; commit; DBMS_SESSION.CLOSE_DATABASE_LINK('CODEX_DM8_SESSION_LINK'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:41) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:65~2:92) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:102~2:134) /test/1/catalog1/DBMS_SESSION/CLOSE_DATABASE_LINK/",
+      "action": "CALL",
+      "target": "Link(2:135~2:159) /test/1/CODEX_DM8_SESSION_LINK/"
+    }
+  ]
+}

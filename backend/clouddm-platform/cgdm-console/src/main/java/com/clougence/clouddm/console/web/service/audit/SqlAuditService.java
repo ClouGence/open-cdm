@@ -20,11 +20,9 @@ import java.util.Date;
 import com.clougence.clouddm.api.console.sqlaudit.SqlStatus;
 import com.clougence.clouddm.console.web.model.vo.DmPageVO;
 import com.clougence.clouddm.console.web.model.vo.audit.SqlAuditVO;
-import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
 import com.clougence.clouddm.sdk.service.secrules.Requester;
 
 public interface SqlAuditService {
 
-    DmPageVO<SqlAuditVO> pageUserAllAudit(String puid, String uid, SecQueryKind sqlKind, String resourcePath, Long dsId, Requester requester, SqlStatus status, Date start,
-                                          Date end, int pageNumber, int pageSize);
+    DmPageVO<SqlAuditVO> pageUserAllAudit(String puid, String uid, Long dsId, Requester requester, SqlStatus status, Date start, Date end, int pageNumber, int pageSize);
 }

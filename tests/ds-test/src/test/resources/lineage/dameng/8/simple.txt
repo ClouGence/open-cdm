@@ -1,0 +1,15 @@
+[select_column]
+sql:
+select column1 from catalog1.schema1.table1
+expect:
+{
+  "column1" : [ "/catalog1/schema1/table1/column1/" ]
+}
+----------
+[select_alias]
+sql:
+select t.column1 as c1 from catalog1.schema1.table1 t
+expect:
+{
+  "c1" : [ "/catalog1/schema1/table1/column1/" ]
+}

@@ -1,0 +1,5007 @@
+[split_block_dameng_dmgeo2_signature_combinations_0_001]
+sql:
+-- FUNC-1125 BOX2D full
+declare v varchar2(32767); begin v:=DMGEO2.BOX2D(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:48) /test/1/catalog1/DMGEO2/BOX2D/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_002]
+sql:
+-- FUNC-1126 BOX3D full
+declare v varchar2(32767); begin v:=DMGEO2.BOX3D(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:48) /test/1/catalog1/DMGEO2/BOX3D/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_003]
+sql:
+-- FUNC-1128 ST_2DDISTANCE full
+declare v varchar2(32767); begin v:=DMGEO2.ST_2DDISTANCE(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:56) /test/1/catalog1/DMGEO2/ST_2DDISTANCE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_004]
+sql:
+-- FUNC-1129 ST_3DAREA full
+declare v varchar2(32767); begin v:=DMGEO2.ST_3DAREA(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:52) /test/1/catalog1/DMGEO2/ST_3DAREA/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_005]
+sql:
+-- FUNC-1130 ST_3DCLOSESTPOINT full
+declare v varchar2(32767); begin v:=DMGEO2.ST_3DCLOSESTPOINT(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:60) /test/1/catalog1/DMGEO2/ST_3DCLOSESTPOINT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_006]
+sql:
+-- FUNC-1131 ST_3DDFULLYWITHIN full
+declare v varchar2(32767); begin v:=DMGEO2.ST_3DDFULLYWITHIN(NULL,NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:60) /test/1/catalog1/DMGEO2/ST_3DDFULLYWITHIN/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_007]
+sql:
+-- FUNC-1132 ST_3DDIFFERENCE full
+declare v varchar2(32767); begin v:=DMGEO2.ST_3DDIFFERENCE(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:58) /test/1/catalog1/DMGEO2/ST_3DDIFFERENCE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_008]
+sql:
+-- FUNC-1133 ST_3DDISTANCE full
+declare v varchar2(32767); begin v:=DMGEO2.ST_3DDISTANCE(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:56) /test/1/catalog1/DMGEO2/ST_3DDISTANCE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_009]
+sql:
+-- FUNC-1134 ST_3DDWITHIN full
+declare v varchar2(32767); begin v:=DMGEO2.ST_3DDWITHIN(NULL,NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:55) /test/1/catalog1/DMGEO2/ST_3DDWITHIN/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_010]
+sql:
+-- FUNC-1135 ST_3DINTERSECTION full
+declare v varchar2(32767); begin v:=DMGEO2.ST_3DINTERSECTION(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:60) /test/1/catalog1/DMGEO2/ST_3DINTERSECTION/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_011]
+sql:
+-- FUNC-1136 ST_3DINTERSECTS full
+declare v varchar2(32767); begin v:=DMGEO2.ST_3DINTERSECTS(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:58) /test/1/catalog1/DMGEO2/ST_3DINTERSECTS/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_012]
+sql:
+-- FUNC-1137 ST_3DLENGTH full
+declare v varchar2(32767); begin v:=DMGEO2.ST_3DLENGTH(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:54) /test/1/catalog1/DMGEO2/ST_3DLENGTH/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_013]
+sql:
+-- FUNC-1138 ST_3DLONGESTLINE full
+declare v varchar2(32767); begin v:=DMGEO2.ST_3DLONGESTLINE(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:59) /test/1/catalog1/DMGEO2/ST_3DLONGESTLINE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_014]
+sql:
+-- FUNC-1139 ST_3DMAKEBOX full
+declare v varchar2(32767); begin v:=DMGEO2.ST_3DMAKEBOX(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:55) /test/1/catalog1/DMGEO2/ST_3DMAKEBOX/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_015]
+sql:
+-- FUNC-1140 ST_3DMAXDISTANCE full
+declare v varchar2(32767); begin v:=DMGEO2.ST_3DMAXDISTANCE(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:59) /test/1/catalog1/DMGEO2/ST_3DMAXDISTANCE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_016]
+sql:
+-- FUNC-1141 ST_3DPERIMETER full
+declare v varchar2(32767); begin v:=DMGEO2.ST_3DPERIMETER(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:57) /test/1/catalog1/DMGEO2/ST_3DPERIMETER/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_017]
+sql:
+-- FUNC-1142 ST_3DSHORTESTLINE full
+declare v varchar2(32767); begin v:=DMGEO2.ST_3DSHORTESTLINE(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:60) /test/1/catalog1/DMGEO2/ST_3DSHORTESTLINE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_018]
+sql:
+-- FUNC-1143 ST_3DUNION full
+declare v varchar2(32767); begin v:=DMGEO2.ST_3DUNION(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:53) /test/1/catalog1/DMGEO2/ST_3DUNION/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_019]
+sql:
+-- FUNC-1144 ST_ABOVE full
+declare v varchar2(32767); begin v:=DMGEO2.ST_ABOVE(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:51) /test/1/catalog1/DMGEO2/ST_ABOVE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_020]
+sql:
+-- FUNC-1145 ST_ACCORDANCE full
+declare v varchar2(32767); begin v:=DMGEO2.ST_ACCORDANCE(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:56) /test/1/catalog1/DMGEO2/ST_ACCORDANCE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_021]
+sql:
+-- FUNC-1146 ST_ADD_SPATIAL_REF full
+declare v varchar2(32767); begin DMGEO2.ST_ADD_SPATIAL_REF(NULL,NULL,NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:33~2:58) /test/1/catalog1/DMGEO2/ST_ADD_SPATIAL_REF/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_022]
+sql:
+-- FUNC-1147 ST_ADDPOINT full
+declare v varchar2(32767); begin v:=DMGEO2.ST_ADDPOINT(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:54) /test/1/catalog1/DMGEO2/ST_ADDPOINT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_023]
+sql:
+-- FUNC-1148 ST_ADDPOINT full
+declare v varchar2(32767); begin v:=DMGEO2.ST_ADDPOINT(NULL,NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:54) /test/1/catalog1/DMGEO2/ST_ADDPOINT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_024]
+sql:
+-- FUNC-1149 ST_ANGLE full
+declare v varchar2(32767); begin v:=DMGEO2.ST_ANGLE(NULL,NULL,NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:51) /test/1/catalog1/DMGEO2/ST_ANGLE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_025]
+sql:
+-- FUNC-1150 ST_APPROXIMATEMEDIALAXIS full
+declare v varchar2(32767); begin v:=DMGEO2.ST_APPROXIMATEMEDIALAXIS(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:67) /test/1/catalog1/DMGEO2/ST_APPROXIMATEMEDIALAXIS/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_026]
+sql:
+-- FUNC-1151 ST_AREA full
+declare v varchar2(32767); begin v:=DMGEO2.ST_AREA(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:50) /test/1/catalog1/DMGEO2/ST_AREA/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_027]
+sql:
+-- FUNC-1152 ST_ASBINARY full
+declare v varchar2(32767); begin v:=DMGEO2.ST_ASBINARY(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:54) /test/1/catalog1/DMGEO2/ST_ASBINARY/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_028]
+sql:
+-- FUNC-1153 ST_ASBINARY full
+declare v varchar2(32767); begin v:=DMGEO2.ST_ASBINARY(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:54) /test/1/catalog1/DMGEO2/ST_ASBINARY/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_029]
+sql:
+-- FUNC-1154 ST_ASENCODEDPOLYLINE full
+declare v varchar2(32767); begin v:=DMGEO2.ST_ASENCODEDPOLYLINE(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:63) /test/1/catalog1/DMGEO2/ST_ASENCODEDPOLYLINE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_030]
+sql:
+-- FUNC-1155 ST_ASENCODEDPOLYLINE full
+declare v varchar2(32767); begin v:=DMGEO2.ST_ASENCODEDPOLYLINE(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:63) /test/1/catalog1/DMGEO2/ST_ASENCODEDPOLYLINE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_031]
+sql:
+-- FUNC-1156 ST_ASEWKB full
+declare v varchar2(32767); begin v:=DMGEO2.ST_ASEWKB(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:52) /test/1/catalog1/DMGEO2/ST_ASEWKB/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_032]
+sql:
+-- FUNC-1157 ST_ASEWKB full
+declare v varchar2(32767); begin v:=DMGEO2.ST_ASEWKB(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:52) /test/1/catalog1/DMGEO2/ST_ASEWKB/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_033]
+sql:
+-- FUNC-1158 ST_ASEWKT full
+declare v varchar2(32767); begin v:=DMGEO2.ST_ASEWKT(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:52) /test/1/catalog1/DMGEO2/ST_ASEWKT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_034]
+sql:
+-- FUNC-1159 ST_ASEWKTT full
+declare v varchar2(32767); begin v:=DMGEO2.ST_ASEWKTT(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:53) /test/1/catalog1/DMGEO2/ST_ASEWKTT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_035]
+sql:
+-- FUNC-1160 ST_ASGEOJSON full
+declare v varchar2(32767); begin v:=DMGEO2.ST_ASGEOJSON(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:55) /test/1/catalog1/DMGEO2/ST_ASGEOJSON/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_036]
+sql:
+-- FUNC-1161 ST_ASGEOJSON full
+declare v varchar2(32767); begin v:=DMGEO2.ST_ASGEOJSON(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:55) /test/1/catalog1/DMGEO2/ST_ASGEOJSON/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_037]
+sql:
+-- FUNC-1162 ST_ASGEOJSON full
+declare v varchar2(32767); begin v:=DMGEO2.ST_ASGEOJSON(NULL,NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:55) /test/1/catalog1/DMGEO2/ST_ASGEOJSON/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_038]
+sql:
+-- FUNC-1163 ST_ASGML full
+declare v varchar2(32767); begin v:=DMGEO2.ST_ASGML(NULL,NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:51) /test/1/catalog1/DMGEO2/ST_ASGML/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_039]
+sql:
+-- FUNC-1164 ST_ASGML full
+declare v varchar2(32767); begin v:=DMGEO2.ST_ASGML(NULL,NULL,NULL,NULL,NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:51) /test/1/catalog1/DMGEO2/ST_ASGML/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_040]
+sql:
+-- FUNC-1165 ST_ASHEXEWKB full
+declare v varchar2(32767); begin v:=DMGEO2.ST_ASHEXEWKB(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:55) /test/1/catalog1/DMGEO2/ST_ASHEXEWKB/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_041]
+sql:
+-- FUNC-1166 ST_ASHEXEWKB full
+declare v varchar2(32767); begin v:=DMGEO2.ST_ASHEXEWKB(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:55) /test/1/catalog1/DMGEO2/ST_ASHEXEWKB/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_042]
+sql:
+-- FUNC-1167 ST_ASKML full
+declare v varchar2(32767); begin v:=DMGEO2.ST_ASKML(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:51) /test/1/catalog1/DMGEO2/ST_ASKML/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_043]
+sql:
+-- FUNC-1168 ST_ASKML full
+declare v varchar2(32767); begin v:=DMGEO2.ST_ASKML(NULL,NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:51) /test/1/catalog1/DMGEO2/ST_ASKML/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_044]
+sql:
+-- FUNC-1169 ST_ASMVTGEOM full
+declare v varchar2(32767); begin v:=DMGEO2.ST_ASMVTGEOM(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:55) /test/1/catalog1/DMGEO2/ST_ASMVTGEOM/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_045]
+sql:
+-- FUNC-1170 ST_ASMVTGEOM full
+declare v varchar2(32767); begin v:=DMGEO2.ST_ASMVTGEOM(NULL,NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:55) /test/1/catalog1/DMGEO2/ST_ASMVTGEOM/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_046]
+sql:
+-- FUNC-1171 ST_ASMVTGEOM full
+declare v varchar2(32767); begin v:=DMGEO2.ST_ASMVTGEOM(NULL,NULL,NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:55) /test/1/catalog1/DMGEO2/ST_ASMVTGEOM/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_047]
+sql:
+-- FUNC-1172 ST_ASMVTGEOM full
+declare v varchar2(32767); begin v:=DMGEO2.ST_ASMVTGEOM(NULL,NULL,NULL,NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:55) /test/1/catalog1/DMGEO2/ST_ASMVTGEOM/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_048]
+sql:
+-- FUNC-1173 ST_ASSVG full
+declare v varchar2(32767); begin v:=DMGEO2.ST_ASSVG(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:51) /test/1/catalog1/DMGEO2/ST_ASSVG/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_049]
+sql:
+-- FUNC-1174 ST_ASSVG full
+declare v varchar2(32767); begin v:=DMGEO2.ST_ASSVG(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:51) /test/1/catalog1/DMGEO2/ST_ASSVG/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_050]
+sql:
+-- FUNC-1175 ST_ASSVG full
+declare v varchar2(32767); begin v:=DMGEO2.ST_ASSVG(NULL,NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:51) /test/1/catalog1/DMGEO2/ST_ASSVG/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_051]
+sql:
+-- FUNC-1176 ST_ASTEXT full
+declare v varchar2(32767); begin v:=DMGEO2.ST_ASTEXT(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:52) /test/1/catalog1/DMGEO2/ST_ASTEXT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_052]
+sql:
+-- FUNC-1177 ST_ASTEXT full
+declare v varchar2(32767); begin v:=DMGEO2.ST_ASTEXT(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:52) /test/1/catalog1/DMGEO2/ST_ASTEXT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_053]
+sql:
+-- FUNC-1178 ST_ASTWKB full
+declare v varchar2(32767); begin v:=DMGEO2.ST_ASTWKB(NULL,NULL,NULL,NULL,NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:52) /test/1/catalog1/DMGEO2/ST_ASTWKB/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_054]
+sql:
+-- FUNC-1179 ST_ASX3D full
+declare v varchar2(32767); begin v:=DMGEO2.ST_ASX3D(NULL,NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:51) /test/1/catalog1/DMGEO2/ST_ASX3D/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_055]
+sql:
+-- FUNC-1180 ST_AZIMUTH full
+declare v varchar2(32767); begin v:=DMGEO2.ST_AZIMUTH(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:53) /test/1/catalog1/DMGEO2/ST_AZIMUTH/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_056]
+sql:
+-- FUNC-1181 ST_BDMPOLYFROMTEXT full
+declare v varchar2(32767); begin v:=DMGEO2.ST_BDMPOLYFROMTEXT(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:61) /test/1/catalog1/DMGEO2/ST_BDMPOLYFROMTEXT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_057]
+sql:
+-- FUNC-1182 ST_BDPOLYFROMTEXT full
+declare v varchar2(32767); begin v:=DMGEO2.ST_BDPOLYFROMTEXT(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:60) /test/1/catalog1/DMGEO2/ST_BDPOLYFROMTEXT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_058]
+sql:
+-- FUNC-1183 ST_BDPOLYFROMTEXT full
+declare v varchar2(32767); begin v:=DMGEO2.ST_BDPOLYFROMTEXT(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:60) /test/1/catalog1/DMGEO2/ST_BDPOLYFROMTEXT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_059]
+sql:
+-- FUNC-1184 ST_BELOW full
+declare v varchar2(32767); begin v:=DMGEO2.ST_BELOW(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:51) /test/1/catalog1/DMGEO2/ST_BELOW/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_060]
+sql:
+-- FUNC-1185 ST_BOUNDARY full
+declare v varchar2(32767); begin v:=DMGEO2.ST_BOUNDARY(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:54) /test/1/catalog1/DMGEO2/ST_BOUNDARY/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_061]
+sql:
+-- FUNC-1186 ST_BOUNDINGDIAGONAL full
+declare v varchar2(32767); begin v:=DMGEO2.ST_BOUNDINGDIAGONAL(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:62) /test/1/catalog1/DMGEO2/ST_BOUNDINGDIAGONAL/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_062]
+sql:
+-- FUNC-1187 ST_BOUNDINGDIAGONAL full
+declare v varchar2(32767); begin v:=DMGEO2.ST_BOUNDINGDIAGONAL(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:62) /test/1/catalog1/DMGEO2/ST_BOUNDINGDIAGONAL/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_063]
+sql:
+-- FUNC-1188 ST_BOX2DDISTANCE full
+declare v varchar2(32767); begin v:=DMGEO2.ST_BOX2DDISTANCE(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:59) /test/1/catalog1/DMGEO2/ST_BOX2DDISTANCE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_064]
+sql:
+-- FUNC-1189 ST_BOX2DFROMGEOHASH full
+declare v varchar2(32767); begin v:=DMGEO2.ST_BOX2DFROMGEOHASH(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:62) /test/1/catalog1/DMGEO2/ST_BOX2DFROMGEOHASH/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_065]
+sql:
+-- FUNC-1190 ST_BOX2DFROMGEOHASH full
+declare v varchar2(32767); begin v:=DMGEO2.ST_BOX2DFROMGEOHASH(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:62) /test/1/catalog1/DMGEO2/ST_BOX2DFROMGEOHASH/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_066]
+sql:
+-- FUNC-1191 ST_BOX2DTOUCHES full
+declare v varchar2(32767); begin v:=DMGEO2.ST_BOX2DTOUCHES(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:58) /test/1/catalog1/DMGEO2/ST_BOX2DTOUCHES/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_067]
+sql:
+-- FUNC-1192 ST_BOXCONTAINS full
+declare v varchar2(32767); begin v:=DMGEO2.ST_BOXCONTAINS(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:57) /test/1/catalog1/DMGEO2/ST_BOXCONTAINS/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_068]
+sql:
+-- FUNC-1193 ST_BOXEQUALS full
+declare v varchar2(32767); begin v:=DMGEO2.ST_BOXEQUALS(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:55) /test/1/catalog1/DMGEO2/ST_BOXEQUALS/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_069]
+sql:
+-- FUNC-1194 ST_BOXNDDISTANCE full
+declare v varchar2(32767); begin v:=DMGEO2.ST_BOXNDDISTANCE(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:59) /test/1/catalog1/DMGEO2/ST_BOXNDDISTANCE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_070]
+sql:
+-- FUNC-1195 ST_BOXNDTOUCHES full
+declare v varchar2(32767); begin v:=DMGEO2.ST_BOXNDTOUCHES(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:58) /test/1/catalog1/DMGEO2/ST_BOXNDTOUCHES/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_071]
+sql:
+-- FUNC-1196 ST_BOXTOGEOM full
+declare v varchar2(32767); begin v:=DMGEO2.ST_BOXTOGEOM(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:55) /test/1/catalog1/DMGEO2/ST_BOXTOGEOM/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_072]
+sql:
+-- FUNC-1197 ST_BOXWITHIN full
+declare v varchar2(32767); begin v:=DMGEO2.ST_BOXWITHIN(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:55) /test/1/catalog1/DMGEO2/ST_BOXWITHIN/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_073]
+sql:
+-- FUNC-1198 ST_BUFFER full
+declare v varchar2(32767); begin v:=DMGEO2.ST_BUFFER(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:52) /test/1/catalog1/DMGEO2/ST_BUFFER/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_074]
+sql:
+-- FUNC-1199 ST_BUFFER full
+declare v varchar2(32767); begin v:=DMGEO2.ST_BUFFER(NULL,NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:52) /test/1/catalog1/DMGEO2/ST_BUFFER/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_075]
+sql:
+-- FUNC-1200 ST_BUFFER full
+declare v varchar2(32767); begin v:=DMGEO2.ST_BUFFER(NULL,NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:52) /test/1/catalog1/DMGEO2/ST_BUFFER/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_076]
+sql:
+-- FUNC-1201 ST_BUILDAREA full
+declare v varchar2(32767); begin v:=DMGEO2.ST_BUILDAREA(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:55) /test/1/catalog1/DMGEO2/ST_BUILDAREA/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_077]
+sql:
+-- FUNC-1202 ST_CENTROID full
+declare v varchar2(32767); begin v:=DMGEO2.ST_CENTROID(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:54) /test/1/catalog1/DMGEO2/ST_CENTROID/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_078]
+sql:
+-- FUNC-1203 ST_CENTROID_AGG full
+declare v varchar2(32767); begin v:=DMGEO2.ST_CENTROID_AGG(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:58) /test/1/catalog1/DMGEO2/ST_CENTROID_AGG/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_079]
+sql:
+-- FUNC-1204 ST_CIRCLE_POLYGON full
+declare v varchar2(32767); begin v:=DMGEO2.ST_CIRCLE_POLYGON(NULL,NULL,NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:60) /test/1/catalog1/DMGEO2/ST_CIRCLE_POLYGON/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_080]
+sql:
+-- FUNC-1205 ST_CLIPBYBOX2D full
+declare v varchar2(32767); begin v:=DMGEO2.ST_CLIPBYBOX2D(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:57) /test/1/catalog1/DMGEO2/ST_CLIPBYBOX2D/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_081]
+sql:
+-- FUNC-1206 ST_CLOSESTPOINT full
+declare v varchar2(32767); begin v:=DMGEO2.ST_CLOSESTPOINT(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:58) /test/1/catalog1/DMGEO2/ST_CLOSESTPOINT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_082]
+sql:
+-- FUNC-1207 ST_COLLECT full
+declare v varchar2(32767); begin v:=DMGEO2.ST_COLLECT(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:53) /test/1/catalog1/DMGEO2/ST_COLLECT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_083]
+sql:
+-- FUNC-1208 ST_COLLECTIONEXTRACT full
+declare v varchar2(32767); begin v:=DMGEO2.ST_COLLECTIONEXTRACT(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:63) /test/1/catalog1/DMGEO2/ST_COLLECTIONEXTRACT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_084]
+sql:
+-- FUNC-1209 ST_COLLECTIONHOMOGENIZE full
+declare v varchar2(32767); begin v:=DMGEO2.ST_COLLECTIONHOMOGENIZE(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:66) /test/1/catalog1/DMGEO2/ST_COLLECTIONHOMOGENIZE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_085]
+sql:
+-- FUNC-1210 ST_CONSTRAINEDDELAUNAYTRIANGLES full
+declare v varchar2(32767); begin v:=DMGEO2.ST_CONSTRAINEDDELAUNAYTRIANGLES(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:74) /test/1/catalog1/DMGEO2/ST_CONSTRAINEDDELAUNAYTRIANGLES/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_086]
+sql:
+-- FUNC-1211 ST_CONTAINS full
+declare v varchar2(32767); begin v:=DMGEO2.ST_CONTAINS(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:54) /test/1/catalog1/DMGEO2/ST_CONTAINS/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_087]
+sql:
+-- FUNC-1212 ST_CONTAINSPROPERLY full
+declare v varchar2(32767); begin v:=DMGEO2.ST_CONTAINSPROPERLY(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:62) /test/1/catalog1/DMGEO2/ST_CONTAINSPROPERLY/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_088]
+sql:
+-- FUNC-1213 ST_CONVERT_UNIT full
+declare v varchar2(32767); begin v:=DMGEO2.ST_CONVERT_UNIT(NULL,NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:58) /test/1/catalog1/DMGEO2/ST_CONVERT_UNIT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_089]
+sql:
+-- FUNC-1214 ST_CONVEXHULL full
+declare v varchar2(32767); begin v:=DMGEO2.ST_CONVEXHULL(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:56) /test/1/catalog1/DMGEO2/ST_CONVEXHULL/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_090]
+sql:
+-- FUNC-1215 ST_CONVEXHULL_AGG full
+declare v varchar2(32767); begin v:=DMGEO2.ST_CONVEXHULL_AGG(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:60) /test/1/catalog1/DMGEO2/ST_CONVEXHULL_AGG/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_091]
+sql:
+-- FUNC-1216 ST_COORDDIM full
+declare v varchar2(32767); begin v:=DMGEO2.ST_COORDDIM(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:54) /test/1/catalog1/DMGEO2/ST_COORDDIM/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_092]
+sql:
+-- FUNC-1217 ST_COVEREDBY full
+declare v varchar2(32767); begin v:=DMGEO2.ST_COVEREDBY(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:55) /test/1/catalog1/DMGEO2/ST_COVEREDBY/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_093]
+sql:
+-- FUNC-1218 ST_COVERS full
+declare v varchar2(32767); begin v:=DMGEO2.ST_COVERS(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:52) /test/1/catalog1/DMGEO2/ST_COVERS/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_094]
+sql:
+-- FUNC-1219 ST_CREATEANNULARSECTOR full
+declare v varchar2(32767); begin v:=DMGEO2.ST_CREATEANNULARSECTOR(NULL,NULL,NULL,NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:65) /test/1/catalog1/DMGEO2/ST_CREATEANNULARSECTOR/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_095]
+sql:
+-- FUNC-1220 ST_CREATEANNULUS full
+declare v varchar2(32767); begin v:=DMGEO2.ST_CREATEANNULUS(NULL,NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:59) /test/1/catalog1/DMGEO2/ST_CREATEANNULUS/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_096]
+sql:
+-- FUNC-1221 ST_CREATEARC full
+declare v varchar2(32767); begin v:=DMGEO2.ST_CREATEARC(NULL,NULL,NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:55) /test/1/catalog1/DMGEO2/ST_CREATEARC/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_097]
+sql:
+-- FUNC-1222 ST_CREATEARCPOLYGON full
+declare v varchar2(32767); begin v:=DMGEO2.ST_CREATEARCPOLYGON(NULL,NULL,NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:62) /test/1/catalog1/DMGEO2/ST_CREATEARCPOLYGON/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_098]
+sql:
+-- FUNC-1223 ST_CREATECIRCLE full
+declare v varchar2(32767); begin v:=DMGEO2.ST_CREATECIRCLE(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:58) /test/1/catalog1/DMGEO2/ST_CREATECIRCLE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_099]
+sql:
+-- FUNC-1224 ST_CROSSES full
+declare v varchar2(32767); begin v:=DMGEO2.ST_CROSSES(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:53) /test/1/catalog1/DMGEO2/ST_CROSSES/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_100]
+sql:
+-- FUNC-1225 ST_CURVETOLINE full
+declare v varchar2(32767); begin v:=DMGEO2.ST_CURVETOLINE(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:57) /test/1/catalog1/DMGEO2/ST_CURVETOLINE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_101]
+sql:
+-- FUNC-1226 ST_CURVETOLINE full
+declare v varchar2(32767); begin v:=DMGEO2.ST_CURVETOLINE(NULL,NULL,NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:57) /test/1/catalog1/DMGEO2/ST_CURVETOLINE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_102]
+sql:
+-- FUNC-1227 ST_DEL_SPATIAL_REF full
+declare v varchar2(32767); begin DMGEO2.ST_DEL_SPATIAL_REF(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:33~2:58) /test/1/catalog1/DMGEO2/ST_DEL_SPATIAL_REF/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_103]
+sql:
+-- FUNC-1228 ST_DFULLYWITHIN full
+declare v varchar2(32767); begin v:=DMGEO2.ST_DFULLYWITHIN(NULL,NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:58) /test/1/catalog1/DMGEO2/ST_DFULLYWITHIN/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_104]
+sql:
+-- FUNC-1229 ST_DIFFERENCE full
+declare v varchar2(32767); begin v:=DMGEO2.ST_DIFFERENCE(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:56) /test/1/catalog1/DMGEO2/ST_DIFFERENCE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_105]
+sql:
+-- FUNC-1230 ST_DIFFERENCE full
+declare v varchar2(32767); begin v:=DMGEO2.ST_DIFFERENCE(NULL,NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:56) /test/1/catalog1/DMGEO2/ST_DIFFERENCE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_106]
+sql:
+-- FUNC-1231 ST_DIMENSION full
+declare v varchar2(32767); begin v:=DMGEO2.ST_DIMENSION(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:55) /test/1/catalog1/DMGEO2/ST_DIMENSION/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_107]
+sql:
+-- FUNC-1232 ST_DISJOINT full
+declare v varchar2(32767); begin v:=DMGEO2.ST_DISJOINT(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:54) /test/1/catalog1/DMGEO2/ST_DISJOINT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_108]
+sql:
+-- FUNC-1233 ST_DISTANCE full
+declare v varchar2(32767); begin v:=DMGEO2.ST_DISTANCE(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:54) /test/1/catalog1/DMGEO2/ST_DISTANCE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_109]
+sql:
+-- FUNC-1234 ST_DISTANCESPHERE full
+declare v varchar2(32767); begin v:=DMGEO2.ST_DISTANCESPHERE(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:60) /test/1/catalog1/DMGEO2/ST_DISTANCESPHERE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_110]
+sql:
+-- FUNC-1235 ST_DISTANCESPHEROID full
+declare v varchar2(32767); begin v:=DMGEO2.ST_DISTANCESPHEROID(NULL,NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:62) /test/1/catalog1/DMGEO2/ST_DISTANCESPHEROID/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_111]
+sql:
+-- FUNC-1236 ST_DWITHIN full
+declare v varchar2(32767); begin v:=DMGEO2.ST_DWITHIN(NULL,NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:53) /test/1/catalog1/DMGEO2/ST_DWITHIN/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_112]
+sql:
+-- FUNC-1237 ST_ELLIPSE_POLYGON full
+declare v varchar2(32767); begin v:=DMGEO2.ST_ELLIPSE_POLYGON(NULL,NULL,NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:61) /test/1/catalog1/DMGEO2/ST_ELLIPSE_POLYGON/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_113]
+sql:
+-- FUNC-1238 ST_ENDPOINT full
+declare v varchar2(32767); begin v:=DMGEO2.ST_ENDPOINT(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:54) /test/1/catalog1/DMGEO2/ST_ENDPOINT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_114]
+sql:
+-- FUNC-1239 ST_ENVELOPE full
+declare v varchar2(32767); begin v:=DMGEO2.ST_ENVELOPE(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:54) /test/1/catalog1/DMGEO2/ST_ENVELOPE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_115]
+sql:
+-- FUNC-1240 ST_EQUALS full
+declare v varchar2(32767); begin v:=DMGEO2.ST_EQUALS(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:52) /test/1/catalog1/DMGEO2/ST_EQUALS/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_116]
+sql:
+-- FUNC-1241 ST_ESTIMATEDEXTENT full
+declare v varchar2(32767); begin v:=DMGEO2.ST_ESTIMATEDEXTENT(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:61) /test/1/catalog1/DMGEO2/ST_ESTIMATEDEXTENT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_117]
+sql:
+-- FUNC-1242 ST_ESTIMATEDEXTENT full
+declare v varchar2(32767); begin v:=DMGEO2.ST_ESTIMATEDEXTENT(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:61) /test/1/catalog1/DMGEO2/ST_ESTIMATEDEXTENT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_118]
+sql:
+-- FUNC-1243 ST_EXPAND full
+declare v varchar2(32767); begin v:=DMGEO2.ST_EXPAND(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:52) /test/1/catalog1/DMGEO2/ST_EXPAND/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_119]
+sql:
+-- FUNC-1244 ST_EXTERIORRING full
+declare v varchar2(32767); begin v:=DMGEO2.ST_EXTERIORRING(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:58) /test/1/catalog1/DMGEO2/ST_EXTERIORRING/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_120]
+sql:
+-- FUNC-1245 ST_EXTRUDE full
+declare v varchar2(32767); begin v:=DMGEO2.ST_EXTRUDE(NULL,NULL,NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:53) /test/1/catalog1/DMGEO2/ST_EXTRUDE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_121]
+sql:
+-- FUNC-1246 ST_FLIPCOORDINATES full
+declare v varchar2(32767); begin v:=DMGEO2.ST_FLIPCOORDINATES(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:61) /test/1/catalog1/DMGEO2/ST_FLIPCOORDINATES/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_122]
+sql:
+-- FUNC-1247 ST_FORCE2D full
+declare v varchar2(32767); begin v:=DMGEO2.ST_FORCE2D(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:53) /test/1/catalog1/DMGEO2/ST_FORCE2D/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_123]
+sql:
+-- FUNC-1248 ST_FORCE3D full
+declare v varchar2(32767); begin v:=DMGEO2.ST_FORCE3D(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:53) /test/1/catalog1/DMGEO2/ST_FORCE3D/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_124]
+sql:
+-- FUNC-1249 ST_FORCE3D full
+declare v varchar2(32767); begin v:=DMGEO2.ST_FORCE3D(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:53) /test/1/catalog1/DMGEO2/ST_FORCE3D/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_125]
+sql:
+-- FUNC-1250 ST_FORCE3DM full
+declare v varchar2(32767); begin v:=DMGEO2.ST_FORCE3DM(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:54) /test/1/catalog1/DMGEO2/ST_FORCE3DM/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_126]
+sql:
+-- FUNC-1251 ST_FORCE3DM full
+declare v varchar2(32767); begin v:=DMGEO2.ST_FORCE3DM(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:54) /test/1/catalog1/DMGEO2/ST_FORCE3DM/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_127]
+sql:
+-- FUNC-1252 ST_FORCE3DZ full
+declare v varchar2(32767); begin v:=DMGEO2.ST_FORCE3DZ(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:54) /test/1/catalog1/DMGEO2/ST_FORCE3DZ/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_128]
+sql:
+-- FUNC-1253 ST_FORCE3DZ full
+declare v varchar2(32767); begin v:=DMGEO2.ST_FORCE3DZ(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:54) /test/1/catalog1/DMGEO2/ST_FORCE3DZ/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_129]
+sql:
+-- FUNC-1254 ST_FORCE4D full
+declare v varchar2(32767); begin v:=DMGEO2.ST_FORCE4D(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:53) /test/1/catalog1/DMGEO2/ST_FORCE4D/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_130]
+sql:
+-- FUNC-1255 ST_FORCE4D full
+declare v varchar2(32767); begin v:=DMGEO2.ST_FORCE4D(NULL,NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:53) /test/1/catalog1/DMGEO2/ST_FORCE4D/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_131]
+sql:
+-- FUNC-1256 ST_FORCECOLLECTION full
+declare v varchar2(32767); begin v:=DMGEO2.ST_FORCECOLLECTION(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:61) /test/1/catalog1/DMGEO2/ST_FORCECOLLECTION/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_132]
+sql:
+-- FUNC-1257 ST_FORCECURVE full
+declare v varchar2(32767); begin v:=DMGEO2.ST_FORCECURVE(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:56) /test/1/catalog1/DMGEO2/ST_FORCECURVE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_133]
+sql:
+-- FUNC-1258 ST_FORCELHR full
+declare v varchar2(32767); begin v:=DMGEO2.ST_FORCELHR(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:54) /test/1/catalog1/DMGEO2/ST_FORCELHR/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_134]
+sql:
+-- FUNC-1259 ST_FORCEPOLYGONCCW full
+declare v varchar2(32767); begin v:=DMGEO2.ST_FORCEPOLYGONCCW(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:61) /test/1/catalog1/DMGEO2/ST_FORCEPOLYGONCCW/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_135]
+sql:
+-- FUNC-1260 ST_FORCEPOLYGONCW full
+declare v varchar2(32767); begin v:=DMGEO2.ST_FORCEPOLYGONCW(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:60) /test/1/catalog1/DMGEO2/ST_FORCEPOLYGONCW/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_136]
+sql:
+-- FUNC-1261 ST_FORCERHR full
+declare v varchar2(32767); begin v:=DMGEO2.ST_FORCERHR(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:54) /test/1/catalog1/DMGEO2/ST_FORCERHR/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_137]
+sql:
+-- FUNC-1262 ST_FORCESFS full
+declare v varchar2(32767); begin v:=DMGEO2.ST_FORCESFS(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:54) /test/1/catalog1/DMGEO2/ST_FORCESFS/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_138]
+sql:
+-- FUNC-1263 ST_FORCESFS full
+declare v varchar2(32767); begin v:=DMGEO2.ST_FORCESFS(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:54) /test/1/catalog1/DMGEO2/ST_FORCESFS/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_139]
+sql:
+-- FUNC-1264 ST_GEOGFROMTEXT full
+declare v varchar2(32767); begin v:=DMGEO2.ST_GEOGFROMTEXT(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:58) /test/1/catalog1/DMGEO2/ST_GEOGFROMTEXT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_140]
+sql:
+-- FUNC-1265 ST_GEOGFROMWKB full
+declare v varchar2(32767); begin v:=DMGEO2.ST_GEOGFROMWKB(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:57) /test/1/catalog1/DMGEO2/ST_GEOGFROMWKB/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_141]
+sql:
+-- FUNC-1266 ST_GEOGRAPHYFROMTEXT full
+declare v varchar2(32767); begin v:=DMGEO2.ST_GEOGRAPHYFROMTEXT(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:63) /test/1/catalog1/DMGEO2/ST_GEOGRAPHYFROMTEXT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_142]
+sql:
+-- FUNC-1267 ST_GEOMCOLLFROMTEXT full
+declare v varchar2(32767); begin v:=DMGEO2.ST_GEOMCOLLFROMTEXT(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:62) /test/1/catalog1/DMGEO2/ST_GEOMCOLLFROMTEXT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_143]
+sql:
+-- FUNC-1268 ST_GEOMCOLLFROMTEXT full
+declare v varchar2(32767); begin v:=DMGEO2.ST_GEOMCOLLFROMTEXT(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:62) /test/1/catalog1/DMGEO2/ST_GEOMCOLLFROMTEXT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_144]
+sql:
+-- FUNC-1269 ST_GEOMETRICMEDIAN full
+declare v varchar2(32767); begin v:=DMGEO2.ST_GEOMETRICMEDIAN(NULL,NULL,NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:61) /test/1/catalog1/DMGEO2/ST_GEOMETRICMEDIAN/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_145]
+sql:
+-- FUNC-1270 ST_GEOMETRYFROMTEXT full
+declare v varchar2(32767); begin v:=DMGEO2.ST_GEOMETRYFROMTEXT(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:62) /test/1/catalog1/DMGEO2/ST_GEOMETRYFROMTEXT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_146]
+sql:
+-- FUNC-1271 ST_GEOMETRYFROMTEXT full
+declare v varchar2(32767); begin v:=DMGEO2.ST_GEOMETRYFROMTEXT(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:62) /test/1/catalog1/DMGEO2/ST_GEOMETRYFROMTEXT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_147]
+sql:
+-- FUNC-1272 ST_GEOMETRYN full
+declare v varchar2(32767); begin v:=DMGEO2.ST_GEOMETRYN(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:55) /test/1/catalog1/DMGEO2/ST_GEOMETRYN/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_148]
+sql:
+-- FUNC-1273 ST_GEOMETRYTYPE full
+declare v varchar2(32767); begin v:=DMGEO2.ST_GEOMETRYTYPE(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:58) /test/1/catalog1/DMGEO2/ST_GEOMETRYTYPE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_149]
+sql:
+-- FUNC-1274 ST_GEOMFROMEWKB full
+declare v varchar2(32767); begin v:=DMGEO2.ST_GEOMFROMEWKB(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:58) /test/1/catalog1/DMGEO2/ST_GEOMFROMEWKB/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_150]
+sql:
+-- FUNC-1275 ST_GEOMFROMEWKT full
+declare v varchar2(32767); begin v:=DMGEO2.ST_GEOMFROMEWKT(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:58) /test/1/catalog1/DMGEO2/ST_GEOMFROMEWKT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_151]
+sql:
+-- FUNC-1276 ST_GEOMFROMGEOHASH full
+declare v varchar2(32767); begin v:=DMGEO2.ST_GEOMFROMGEOHASH(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:61) /test/1/catalog1/DMGEO2/ST_GEOMFROMGEOHASH/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_152]
+sql:
+-- FUNC-1277 ST_GEOMFROMGEOHASH full
+declare v varchar2(32767); begin v:=DMGEO2.ST_GEOMFROMGEOHASH(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:61) /test/1/catalog1/DMGEO2/ST_GEOMFROMGEOHASH/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_153]
+sql:
+-- FUNC-1278 ST_GEOMFROMGEOJSON full
+declare v varchar2(32767); begin v:=DMGEO2.ST_GEOMFROMGEOJSON(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:61) /test/1/catalog1/DMGEO2/ST_GEOMFROMGEOJSON/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_154]
+sql:
+-- FUNC-1279 ST_GEOMFROMGML full
+declare v varchar2(32767); begin v:=DMGEO2.ST_GEOMFROMGML(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:57) /test/1/catalog1/DMGEO2/ST_GEOMFROMGML/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_155]
+sql:
+-- FUNC-1280 ST_GEOMFROMGML full
+declare v varchar2(32767); begin v:=DMGEO2.ST_GEOMFROMGML(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:57) /test/1/catalog1/DMGEO2/ST_GEOMFROMGML/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_156]
+sql:
+-- FUNC-1281 ST_GEOMFROMKML full
+declare v varchar2(32767); begin v:=DMGEO2.ST_GEOMFROMKML(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:57) /test/1/catalog1/DMGEO2/ST_GEOMFROMKML/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_157]
+sql:
+-- FUNC-1282 ST_GEOMFROMTWKB full
+declare v varchar2(32767); begin v:=DMGEO2.ST_GEOMFROMTWKB(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:58) /test/1/catalog1/DMGEO2/ST_GEOMFROMTWKB/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_158]
+sql:
+-- FUNC-1283 ST_GEOMFROMWKB full
+declare v varchar2(32767); begin v:=DMGEO2.ST_GEOMFROMWKB(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:57) /test/1/catalog1/DMGEO2/ST_GEOMFROMWKB/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_159]
+sql:
+-- FUNC-1284 ST_GEOMFROMWKB full
+declare v varchar2(32767); begin v:=DMGEO2.ST_GEOMFROMWKB(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:57) /test/1/catalog1/DMGEO2/ST_GEOMFROMWKB/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_160]
+sql:
+-- FUNC-1285 ST_GET_TYPE full
+declare v varchar2(32767); begin v:=DMGEO2.ST_GET_TYPE(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:54) /test/1/catalog1/DMGEO2/ST_GET_TYPE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_161]
+sql:
+-- FUNC-1286 ST_GMLTOSQL full
+declare v varchar2(32767); begin v:=DMGEO2.ST_GMLTOSQL(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:54) /test/1/catalog1/DMGEO2/ST_GMLTOSQL/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_162]
+sql:
+-- FUNC-1287 ST_GMLTOSQL full
+declare v varchar2(32767); begin v:=DMGEO2.ST_GMLTOSQL(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:54) /test/1/catalog1/DMGEO2/ST_GMLTOSQL/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_163]
+sql:
+-- FUNC-1288 ST_HASARC full
+declare v varchar2(32767); begin v:=DMGEO2.ST_HASARC(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:52) /test/1/catalog1/DMGEO2/ST_HASARC/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_164]
+sql:
+-- FUNC-1289 ST_HEXAGON full
+declare v varchar2(32767); begin v:=DMGEO2.ST_HEXAGON(NULL,NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:53) /test/1/catalog1/DMGEO2/ST_HEXAGON/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_165]
+sql:
+-- FUNC-1290 ST_HEXAGON full
+declare v varchar2(32767); begin v:=DMGEO2.ST_HEXAGON(NULL,NULL,NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:53) /test/1/catalog1/DMGEO2/ST_HEXAGON/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_166]
+sql:
+-- FUNC-1291 ST_HEXAGON full
+declare v varchar2(32767); begin v:=DMGEO2.ST_HEXAGON(NULL,NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:53) /test/1/catalog1/DMGEO2/ST_HEXAGON/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_167]
+sql:
+-- FUNC-1292 ST_HEXAGON full
+declare v varchar2(32767); begin v:=DMGEO2.ST_HEXAGON(NULL,NULL,NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:53) /test/1/catalog1/DMGEO2/ST_HEXAGON/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_168]
+sql:
+-- FUNC-1293 ST_INTERIORRINGN full
+declare v varchar2(32767); begin v:=DMGEO2.ST_INTERIORRINGN(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:59) /test/1/catalog1/DMGEO2/ST_INTERIORRINGN/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_169]
+sql:
+-- FUNC-1294 ST_INTERSECTION full
+declare v varchar2(32767); begin v:=DMGEO2.ST_INTERSECTION(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:58) /test/1/catalog1/DMGEO2/ST_INTERSECTION/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_170]
+sql:
+-- FUNC-1295 ST_INTERSECTION full
+declare v varchar2(32767); begin v:=DMGEO2.ST_INTERSECTION(NULL,NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:58) /test/1/catalog1/DMGEO2/ST_INTERSECTION/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_171]
+sql:
+-- FUNC-1296 ST_INTERSECTS full
+declare v varchar2(32767); begin v:=DMGEO2.ST_INTERSECTS(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:56) /test/1/catalog1/DMGEO2/ST_INTERSECTS/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_172]
+sql:
+-- FUNC-1297 ST_ISCLOSED full
+declare v varchar2(32767); begin v:=DMGEO2.ST_ISCLOSED(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:54) /test/1/catalog1/DMGEO2/ST_ISCLOSED/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_173]
+sql:
+-- FUNC-1298 ST_ISCOLLECTION full
+declare v varchar2(32767); begin v:=DMGEO2.ST_ISCOLLECTION(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:58) /test/1/catalog1/DMGEO2/ST_ISCOLLECTION/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_174]
+sql:
+-- FUNC-1299 ST_ISEMPTY full
+declare v varchar2(32767); begin v:=DMGEO2.ST_ISEMPTY(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:53) /test/1/catalog1/DMGEO2/ST_ISEMPTY/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_175]
+sql:
+-- FUNC-1300 ST_ISPLANAR full
+declare v varchar2(32767); begin v:=DMGEO2.ST_ISPLANAR(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:54) /test/1/catalog1/DMGEO2/ST_ISPLANAR/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_176]
+sql:
+-- FUNC-1301 ST_ISPOLYGONCCW full
+declare v varchar2(32767); begin v:=DMGEO2.ST_ISPOLYGONCCW(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:58) /test/1/catalog1/DMGEO2/ST_ISPOLYGONCCW/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_177]
+sql:
+-- FUNC-1302 ST_ISPOLYGONCW full
+declare v varchar2(32767); begin v:=DMGEO2.ST_ISPOLYGONCW(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:57) /test/1/catalog1/DMGEO2/ST_ISPOLYGONCW/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_178]
+sql:
+-- FUNC-1303 ST_ISRING full
+declare v varchar2(32767); begin v:=DMGEO2.ST_ISRING(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:52) /test/1/catalog1/DMGEO2/ST_ISRING/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_179]
+sql:
+-- FUNC-1304 ST_ISSIMPLE full
+declare v varchar2(32767); begin v:=DMGEO2.ST_ISSIMPLE(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:54) /test/1/catalog1/DMGEO2/ST_ISSIMPLE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_180]
+sql:
+-- FUNC-1305 ST_ISSOLID full
+declare v varchar2(32767); begin v:=DMGEO2.ST_ISSOLID(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:53) /test/1/catalog1/DMGEO2/ST_ISSOLID/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_181]
+sql:
+-- FUNC-1306 ST_ISVALID full
+declare v varchar2(32767); begin v:=DMGEO2.ST_ISVALID(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:53) /test/1/catalog1/DMGEO2/ST_ISVALID/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_182]
+sql:
+-- FUNC-1307 ST_ISVALID full
+declare v varchar2(32767); begin v:=DMGEO2.ST_ISVALID(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:53) /test/1/catalog1/DMGEO2/ST_ISVALID/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_183]
+sql:
+-- FUNC-1308 ST_ISVALIDDETAIL full
+declare v varchar2(32767); begin v:=DMGEO2.ST_ISVALIDDETAIL(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:59) /test/1/catalog1/DMGEO2/ST_ISVALIDDETAIL/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_184]
+sql:
+-- FUNC-1309 ST_ISVALIDREASON full
+declare v varchar2(32767); begin v:=DMGEO2.ST_ISVALIDREASON(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:59) /test/1/catalog1/DMGEO2/ST_ISVALIDREASON/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_185]
+sql:
+-- FUNC-1310 ST_ISVALIDREASON full
+declare v varchar2(32767); begin v:=DMGEO2.ST_ISVALIDREASON(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:59) /test/1/catalog1/DMGEO2/ST_ISVALIDREASON/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_186]
+sql:
+-- FUNC-1311 ST_LEFT full
+declare v varchar2(32767); begin v:=DMGEO2.ST_LEFT(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:50) /test/1/catalog1/DMGEO2/ST_LEFT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_187]
+sql:
+-- FUNC-1312 ST_LENGTH full
+declare v varchar2(32767); begin v:=DMGEO2.ST_LENGTH(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:52) /test/1/catalog1/DMGEO2/ST_LENGTH/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_188]
+sql:
+-- FUNC-1313 ST_LENGTH2D full
+declare v varchar2(32767); begin v:=DMGEO2.ST_LENGTH2D(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:54) /test/1/catalog1/DMGEO2/ST_LENGTH2D/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_189]
+sql:
+-- FUNC-1314 ST_LINECROSSINGDIRECTION full
+declare v varchar2(32767); begin v:=DMGEO2.ST_LINECROSSINGDIRECTION(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:67) /test/1/catalog1/DMGEO2/ST_LINECROSSINGDIRECTION/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_190]
+sql:
+-- FUNC-1315 ST_LINEFROMENCODEDPOLYLINE full
+declare v varchar2(32767); begin v:=DMGEO2.ST_LINEFROMENCODEDPOLYLINE(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:69) /test/1/catalog1/DMGEO2/ST_LINEFROMENCODEDPOLYLINE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_191]
+sql:
+-- FUNC-1316 ST_LINEFROMENCODEDPOLYLINE full
+declare v varchar2(32767); begin v:=DMGEO2.ST_LINEFROMENCODEDPOLYLINE(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:69) /test/1/catalog1/DMGEO2/ST_LINEFROMENCODEDPOLYLINE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_192]
+sql:
+-- FUNC-1317 ST_LINEFROMMULTIPOINT full
+declare v varchar2(32767); begin v:=DMGEO2.ST_LINEFROMMULTIPOINT(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:64) /test/1/catalog1/DMGEO2/ST_LINEFROMMULTIPOINT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_193]
+sql:
+-- FUNC-1318 ST_LINEFROMWKB full
+declare v varchar2(32767); begin v:=DMGEO2.ST_LINEFROMWKB(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:57) /test/1/catalog1/DMGEO2/ST_LINEFROMWKB/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_194]
+sql:
+-- FUNC-1319 ST_LINEFROMWKB full
+declare v varchar2(32767); begin v:=DMGEO2.ST_LINEFROMWKB(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:57) /test/1/catalog1/DMGEO2/ST_LINEFROMWKB/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_195]
+sql:
+-- FUNC-1320 ST_LINEMERGE full
+declare v varchar2(32767); begin v:=DMGEO2.ST_LINEMERGE(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:55) /test/1/catalog1/DMGEO2/ST_LINEMERGE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_196]
+sql:
+-- FUNC-1321 ST_LINESTRINGFROMWKB full
+declare v varchar2(32767); begin v:=DMGEO2.ST_LINESTRINGFROMWKB(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:63) /test/1/catalog1/DMGEO2/ST_LINESTRINGFROMWKB/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_197]
+sql:
+-- FUNC-1322 ST_LINESTRINGFROMWKB full
+declare v varchar2(32767); begin v:=DMGEO2.ST_LINESTRINGFROMWKB(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:63) /test/1/catalog1/DMGEO2/ST_LINESTRINGFROMWKB/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_198]
+sql:
+-- FUNC-1323 ST_LINETOCURVE full
+declare v varchar2(32767); begin v:=DMGEO2.ST_LINETOCURVE(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:57) /test/1/catalog1/DMGEO2/ST_LINETOCURVE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_199]
+sql:
+-- FUNC-1324 ST_LONGESTLINE full
+declare v varchar2(32767); begin v:=DMGEO2.ST_LONGESTLINE(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:57) /test/1/catalog1/DMGEO2/ST_LONGESTLINE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_200]
+sql:
+-- FUNC-1325 ST_M full
+declare v varchar2(32767); begin v:=DMGEO2.ST_M(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:47) /test/1/catalog1/DMGEO2/ST_M/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_201]
+sql:
+-- FUNC-1326 ST_MAKEBOX2D full
+declare v varchar2(32767); begin v:=DMGEO2.ST_MAKEBOX2D(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:55) /test/1/catalog1/DMGEO2/ST_MAKEBOX2D/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_202]
+sql:
+-- FUNC-1327 ST_MAKEENVELOPE full
+declare v varchar2(32767); begin v:=DMGEO2.ST_MAKEENVELOPE(NULL,NULL,NULL,NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:58) /test/1/catalog1/DMGEO2/ST_MAKEENVELOPE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_203]
+sql:
+-- FUNC-1328 ST_MAKELINE full
+declare v varchar2(32767); begin v:=DMGEO2.ST_MAKELINE(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:54) /test/1/catalog1/DMGEO2/ST_MAKELINE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_204]
+sql:
+-- FUNC-1329 ST_MAKEPOINT full
+declare v varchar2(32767); begin v:=DMGEO2.ST_MAKEPOINT(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:55) /test/1/catalog1/DMGEO2/ST_MAKEPOINT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_205]
+sql:
+-- FUNC-1330 ST_MAKEPOINT full
+declare v varchar2(32767); begin v:=DMGEO2.ST_MAKEPOINT(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:55) /test/1/catalog1/DMGEO2/ST_MAKEPOINT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_206]
+sql:
+-- FUNC-1331 ST_MAKEPOINT full
+declare v varchar2(32767); begin v:=DMGEO2.ST_MAKEPOINT(NULL,NULL,NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:55) /test/1/catalog1/DMGEO2/ST_MAKEPOINT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_207]
+sql:
+-- FUNC-1332 ST_MAKEPOINTM full
+declare v varchar2(32767); begin v:=DMGEO2.ST_MAKEPOINTM(NULL,NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:56) /test/1/catalog1/DMGEO2/ST_MAKEPOINTM/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_208]
+sql:
+-- FUNC-1333 ST_MAKEPOLYGON full
+declare v varchar2(32767); begin v:=DMGEO2.ST_MAKEPOLYGON(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:57) /test/1/catalog1/DMGEO2/ST_MAKEPOLYGON/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_209]
+sql:
+-- FUNC-1334 ST_MAKESOLID full
+declare v varchar2(32767); begin v:=DMGEO2.ST_MAKESOLID(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:55) /test/1/catalog1/DMGEO2/ST_MAKESOLID/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_210]
+sql:
+-- FUNC-1335 ST_MAKEVALID full
+declare v varchar2(32767); begin v:=DMGEO2.ST_MAKEVALID(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:55) /test/1/catalog1/DMGEO2/ST_MAKEVALID/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_211]
+sql:
+-- FUNC-1336 ST_MAKEVALID full
+declare v varchar2(32767); begin v:=DMGEO2.ST_MAKEVALID(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:55) /test/1/catalog1/DMGEO2/ST_MAKEVALID/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_212]
+sql:
+-- FUNC-1337 ST_MAXDISTANCE full
+declare v varchar2(32767); begin v:=DMGEO2.ST_MAXDISTANCE(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:57) /test/1/catalog1/DMGEO2/ST_MAXDISTANCE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_213]
+sql:
+-- FUNC-1338 ST_MBR_AGG full
+declare v varchar2(32767); begin v:=DMGEO2.ST_MBR_AGG(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:53) /test/1/catalog1/DMGEO2/ST_MBR_AGG/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_214]
+sql:
+-- FUNC-1339 ST_MEMSIZE full
+declare v varchar2(32767); begin v:=DMGEO2.ST_MEMSIZE(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:53) /test/1/catalog1/DMGEO2/ST_MEMSIZE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_215]
+sql:
+-- FUNC-1340 ST_MINKOWSKISUM full
+declare v varchar2(32767); begin v:=DMGEO2.ST_MINKOWSKISUM(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:58) /test/1/catalog1/DMGEO2/ST_MINKOWSKISUM/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_216]
+sql:
+-- FUNC-1341 ST_MLINEFROMTEXT full
+declare v varchar2(32767); begin v:=DMGEO2.ST_MLINEFROMTEXT(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:59) /test/1/catalog1/DMGEO2/ST_MLINEFROMTEXT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_217]
+sql:
+-- FUNC-1342 ST_MLINEFROMTEXT full
+declare v varchar2(32767); begin v:=DMGEO2.ST_MLINEFROMTEXT(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:59) /test/1/catalog1/DMGEO2/ST_MLINEFROMTEXT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_218]
+sql:
+-- FUNC-1343 ST_MPOINTFROMTEXT full
+declare v varchar2(32767); begin v:=DMGEO2.ST_MPOINTFROMTEXT(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:60) /test/1/catalog1/DMGEO2/ST_MPOINTFROMTEXT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_219]
+sql:
+-- FUNC-1344 ST_MPOINTFROMTEXT full
+declare v varchar2(32767); begin v:=DMGEO2.ST_MPOINTFROMTEXT(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:60) /test/1/catalog1/DMGEO2/ST_MPOINTFROMTEXT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_220]
+sql:
+-- FUNC-1345 ST_MULTI full
+declare v varchar2(32767); begin v:=DMGEO2.ST_MULTI(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:51) /test/1/catalog1/DMGEO2/ST_MULTI/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_221]
+sql:
+-- FUNC-1346 ST_NDIMS full
+declare v varchar2(32767); begin v:=DMGEO2.ST_NDIMS(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:51) /test/1/catalog1/DMGEO2/ST_NDIMS/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_222]
+sql:
+-- FUNC-1347 ST_NORMALIZE full
+declare v varchar2(32767); begin v:=DMGEO2.ST_NORMALIZE(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:55) /test/1/catalog1/DMGEO2/ST_NORMALIZE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_223]
+sql:
+-- FUNC-1348 ST_NPOINTS full
+declare v varchar2(32767); begin v:=DMGEO2.ST_NPOINTS(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:53) /test/1/catalog1/DMGEO2/ST_NPOINTS/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_224]
+sql:
+-- FUNC-1349 ST_NRINGS full
+declare v varchar2(32767); begin v:=DMGEO2.ST_NRINGS(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:52) /test/1/catalog1/DMGEO2/ST_NRINGS/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_225]
+sql:
+-- FUNC-1350 ST_NUMGEOMETRIES full
+declare v varchar2(32767); begin v:=DMGEO2.ST_NUMGEOMETRIES(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:59) /test/1/catalog1/DMGEO2/ST_NUMGEOMETRIES/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_226]
+sql:
+-- FUNC-1351 ST_NUMINTERIORRING full
+declare v varchar2(32767); begin v:=DMGEO2.ST_NUMINTERIORRING(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:61) /test/1/catalog1/DMGEO2/ST_NUMINTERIORRING/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_227]
+sql:
+-- FUNC-1352 ST_NUMINTERIORRINGS full
+declare v varchar2(32767); begin v:=DMGEO2.ST_NUMINTERIORRINGS(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:62) /test/1/catalog1/DMGEO2/ST_NUMINTERIORRINGS/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_228]
+sql:
+-- FUNC-1353 ST_NUMPATCHES full
+declare v varchar2(32767); begin v:=DMGEO2.ST_NUMPATCHES(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:56) /test/1/catalog1/DMGEO2/ST_NUMPATCHES/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_229]
+sql:
+-- FUNC-1354 ST_NUMPOINTS full
+declare v varchar2(32767); begin v:=DMGEO2.ST_NUMPOINTS(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:55) /test/1/catalog1/DMGEO2/ST_NUMPOINTS/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_230]
+sql:
+-- FUNC-1355 ST_ORDERINGEQUALS full
+declare v varchar2(32767); begin v:=DMGEO2.ST_ORDERINGEQUALS(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:60) /test/1/catalog1/DMGEO2/ST_ORDERINGEQUALS/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_231]
+sql:
+-- FUNC-1356 ST_ORIENTATION full
+declare v varchar2(32767); begin v:=DMGEO2.ST_ORIENTATION(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:57) /test/1/catalog1/DMGEO2/ST_ORIENTATION/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_232]
+sql:
+-- FUNC-1357 ST_OVERLAPS full
+declare v varchar2(32767); begin v:=DMGEO2.ST_OVERLAPS(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:54) /test/1/catalog1/DMGEO2/ST_OVERLAPS/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_233]
+sql:
+-- FUNC-1358 ST_PATCHN full
+declare v varchar2(32767); begin v:=DMGEO2.ST_PATCHN(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:52) /test/1/catalog1/DMGEO2/ST_PATCHN/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_234]
+sql:
+-- FUNC-1359 ST_PERIMETER full
+declare v varchar2(32767); begin v:=DMGEO2.ST_PERIMETER(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:55) /test/1/catalog1/DMGEO2/ST_PERIMETER/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_235]
+sql:
+-- FUNC-1360 ST_PERIMETER2D full
+declare v varchar2(32767); begin v:=DMGEO2.ST_PERIMETER2D(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:57) /test/1/catalog1/DMGEO2/ST_PERIMETER2D/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_236]
+sql:
+-- FUNC-1361 ST_POINT full
+declare v varchar2(32767); begin v:=DMGEO2.ST_POINT(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:51) /test/1/catalog1/DMGEO2/ST_POINT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_237]
+sql:
+-- FUNC-1362 ST_POINT full
+declare v varchar2(32767); begin v:=DMGEO2.ST_POINT(NULL,NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:51) /test/1/catalog1/DMGEO2/ST_POINT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_238]
+sql:
+-- FUNC-1363 ST_POINTFROMGEOHASH full
+declare v varchar2(32767); begin v:=DMGEO2.ST_POINTFROMGEOHASH(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:62) /test/1/catalog1/DMGEO2/ST_POINTFROMGEOHASH/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_239]
+sql:
+-- FUNC-1364 ST_POINTFROMWKB full
+declare v varchar2(32767); begin v:=DMGEO2.ST_POINTFROMWKB(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:58) /test/1/catalog1/DMGEO2/ST_POINTFROMWKB/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_240]
+sql:
+-- FUNC-1365 ST_POINTFROMWKB full
+declare v varchar2(32767); begin v:=DMGEO2.ST_POINTFROMWKB(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:58) /test/1/catalog1/DMGEO2/ST_POINTFROMWKB/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_241]
+sql:
+-- FUNC-1366 ST_POINTINSIDECIRCLE full
+declare v varchar2(32767); begin v:=DMGEO2.ST_POINTINSIDECIRCLE(NULL,NULL,NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:63) /test/1/catalog1/DMGEO2/ST_POINTINSIDECIRCLE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_242]
+sql:
+-- FUNC-1367 ST_POINTM full
+declare v varchar2(32767); begin v:=DMGEO2.ST_POINTM(NULL,NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:52) /test/1/catalog1/DMGEO2/ST_POINTM/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_243]
+sql:
+-- FUNC-1368 ST_POINTM full
+declare v varchar2(32767); begin v:=DMGEO2.ST_POINTM(NULL,NULL,NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:52) /test/1/catalog1/DMGEO2/ST_POINTM/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_244]
+sql:
+-- FUNC-1369 ST_POINTN full
+declare v varchar2(32767); begin v:=DMGEO2.ST_POINTN(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:52) /test/1/catalog1/DMGEO2/ST_POINTN/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_245]
+sql:
+-- FUNC-1370 ST_POINTONSURFACE full
+declare v varchar2(32767); begin v:=DMGEO2.ST_POINTONSURFACE(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:60) /test/1/catalog1/DMGEO2/ST_POINTONSURFACE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_246]
+sql:
+-- FUNC-1371 ST_POINTS full
+declare v varchar2(32767); begin v:=DMGEO2.ST_POINTS(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:52) /test/1/catalog1/DMGEO2/ST_POINTS/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_247]
+sql:
+-- FUNC-1372 ST_POINTZ full
+declare v varchar2(32767); begin v:=DMGEO2.ST_POINTZ(NULL,NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:52) /test/1/catalog1/DMGEO2/ST_POINTZ/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_248]
+sql:
+-- FUNC-1373 ST_POINTZ full
+declare v varchar2(32767); begin v:=DMGEO2.ST_POINTZ(NULL,NULL,NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:52) /test/1/catalog1/DMGEO2/ST_POINTZ/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_249]
+sql:
+-- FUNC-1374 ST_POINTZM full
+declare v varchar2(32767); begin v:=DMGEO2.ST_POINTZM(NULL,NULL,NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:53) /test/1/catalog1/DMGEO2/ST_POINTZM/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_250]
+sql:
+-- FUNC-1375 ST_POINTZM full
+declare v varchar2(32767); begin v:=DMGEO2.ST_POINTZM(NULL,NULL,NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:53) /test/1/catalog1/DMGEO2/ST_POINTZM/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_251]
+sql:
+-- FUNC-1376 ST_POLYGONFROMTEXT full
+declare v varchar2(32767); begin v:=DMGEO2.ST_POLYGONFROMTEXT(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:61) /test/1/catalog1/DMGEO2/ST_POLYGONFROMTEXT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_252]
+sql:
+-- FUNC-1377 ST_POLYGONFROMTEXT full
+declare v varchar2(32767); begin v:=DMGEO2.ST_POLYGONFROMTEXT(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:61) /test/1/catalog1/DMGEO2/ST_POLYGONFROMTEXT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_253]
+sql:
+-- FUNC-1378 ST_PROJECT full
+declare v varchar2(32767); begin v:=DMGEO2.ST_PROJECT(NULL,NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:53) /test/1/catalog1/DMGEO2/ST_PROJECT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_254]
+sql:
+-- FUNC-1379 ST_RELATE full
+declare v varchar2(32767); begin v:=DMGEO2.ST_RELATE(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:52) /test/1/catalog1/DMGEO2/ST_RELATE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_255]
+sql:
+-- FUNC-1380 ST_REMOVEPOINT full
+declare v varchar2(32767); begin v:=DMGEO2.ST_REMOVEPOINT(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:57) /test/1/catalog1/DMGEO2/ST_REMOVEPOINT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_256]
+sql:
+-- FUNC-1381 ST_REMOVEREPEATEDPOINTS full
+declare v varchar2(32767); begin v:=DMGEO2.ST_REMOVEREPEATEDPOINTS(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:66) /test/1/catalog1/DMGEO2/ST_REMOVEREPEATEDPOINTS/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_257]
+sql:
+-- FUNC-1382 ST_REVERSE full
+declare v varchar2(32767); begin v:=DMGEO2.ST_REVERSE(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:53) /test/1/catalog1/DMGEO2/ST_REVERSE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_258]
+sql:
+-- FUNC-1383 ST_RIGHT full
+declare v varchar2(32767); begin v:=DMGEO2.ST_RIGHT(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:51) /test/1/catalog1/DMGEO2/ST_RIGHT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_259]
+sql:
+-- FUNC-1384 ST_SCROLL full
+declare v varchar2(32767); begin v:=DMGEO2.ST_SCROLL(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:52) /test/1/catalog1/DMGEO2/ST_SCROLL/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_260]
+sql:
+-- FUNC-1385 ST_SEGMENTIZE full
+declare v varchar2(32767); begin v:=DMGEO2.ST_SEGMENTIZE(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:56) /test/1/catalog1/DMGEO2/ST_SEGMENTIZE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_261]
+sql:
+-- FUNC-1386 ST_SETPOINT full
+declare v varchar2(32767); begin v:=DMGEO2.ST_SETPOINT(NULL,NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:54) /test/1/catalog1/DMGEO2/ST_SETPOINT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_262]
+sql:
+-- FUNC-1387 ST_SETSRID full
+declare v varchar2(32767); begin v:=DMGEO2.ST_SETSRID(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:53) /test/1/catalog1/DMGEO2/ST_SETSRID/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_263]
+sql:
+-- FUNC-1388 ST_SHIFTLONGITUDE full
+declare v varchar2(32767); begin v:=DMGEO2.ST_SHIFTLONGITUDE(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:60) /test/1/catalog1/DMGEO2/ST_SHIFTLONGITUDE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_264]
+sql:
+-- FUNC-1389 ST_SHORTESTLINE full
+declare v varchar2(32767); begin v:=DMGEO2.ST_SHORTESTLINE(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:58) /test/1/catalog1/DMGEO2/ST_SHORTESTLINE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_265]
+sql:
+-- FUNC-1390 ST_SIMPLIFY full
+declare v varchar2(32767); begin v:=DMGEO2.ST_SIMPLIFY(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:54) /test/1/catalog1/DMGEO2/ST_SIMPLIFY/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_266]
+sql:
+-- FUNC-1391 ST_SIMPLIFY full
+declare v varchar2(32767); begin v:=DMGEO2.ST_SIMPLIFY(NULL,NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:54) /test/1/catalog1/DMGEO2/ST_SIMPLIFY/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_267]
+sql:
+-- FUNC-1392 ST_SPLIT full
+declare v varchar2(32767); begin v:=DMGEO2.ST_SPLIT(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:51) /test/1/catalog1/DMGEO2/ST_SPLIT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_268]
+sql:
+-- FUNC-1393 ST_SQUARE full
+declare v varchar2(32767); begin v:=DMGEO2.ST_SQUARE(NULL,NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:52) /test/1/catalog1/DMGEO2/ST_SQUARE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_269]
+sql:
+-- FUNC-1394 ST_SQUARE full
+declare v varchar2(32767); begin v:=DMGEO2.ST_SQUARE(NULL,NULL,NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:52) /test/1/catalog1/DMGEO2/ST_SQUARE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_270]
+sql:
+-- FUNC-1395 ST_SQUARE full
+declare v varchar2(32767); begin v:=DMGEO2.ST_SQUARE(NULL,NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:52) /test/1/catalog1/DMGEO2/ST_SQUARE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_271]
+sql:
+-- FUNC-1396 ST_SQUARE full
+declare v varchar2(32767); begin v:=DMGEO2.ST_SQUARE(NULL,NULL,NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:52) /test/1/catalog1/DMGEO2/ST_SQUARE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_272]
+sql:
+-- FUNC-1397 ST_SQUARE full
+declare v varchar2(32767); begin v:=DMGEO2.ST_SQUARE(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:52) /test/1/catalog1/DMGEO2/ST_SQUARE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_273]
+sql:
+-- FUNC-1398 ST_SRID full
+declare v varchar2(32767); begin v:=DMGEO2.ST_SRID(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:50) /test/1/catalog1/DMGEO2/ST_SRID/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_274]
+sql:
+-- FUNC-1399 ST_STARTPOINT full
+declare v varchar2(32767); begin v:=DMGEO2.ST_STARTPOINT(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:56) /test/1/catalog1/DMGEO2/ST_STARTPOINT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_275]
+sql:
+-- FUNC-1400 ST_STRAIGHTSKELETON full
+declare v varchar2(32767); begin v:=DMGEO2.ST_STRAIGHTSKELETON(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:62) /test/1/catalog1/DMGEO2/ST_STRAIGHTSKELETON/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_276]
+sql:
+-- FUNC-1401 ST_STRICTABOVE full
+declare v varchar2(32767); begin v:=DMGEO2.ST_STRICTABOVE(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:57) /test/1/catalog1/DMGEO2/ST_STRICTABOVE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_277]
+sql:
+-- FUNC-1402 ST_STRICTBELOW full
+declare v varchar2(32767); begin v:=DMGEO2.ST_STRICTBELOW(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:57) /test/1/catalog1/DMGEO2/ST_STRICTBELOW/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_278]
+sql:
+-- FUNC-1403 ST_STRICTLEFT full
+declare v varchar2(32767); begin v:=DMGEO2.ST_STRICTLEFT(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:56) /test/1/catalog1/DMGEO2/ST_STRICTLEFT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_279]
+sql:
+-- FUNC-1404 ST_STRICTRIGHT full
+declare v varchar2(32767); begin v:=DMGEO2.ST_STRICTRIGHT(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:57) /test/1/catalog1/DMGEO2/ST_STRICTRIGHT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_280]
+sql:
+-- FUNC-1405 ST_SUMMARY full
+declare v varchar2(32767); begin v:=DMGEO2.ST_SUMMARY(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:53) /test/1/catalog1/DMGEO2/ST_SUMMARY/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_281]
+sql:
+-- FUNC-1406 ST_SWAPORDINATES full
+declare v varchar2(32767); begin v:=DMGEO2.ST_SWAPORDINATES(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:59) /test/1/catalog1/DMGEO2/ST_SWAPORDINATES/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_282]
+sql:
+-- FUNC-1407 ST_SYMDIFFERENCE full
+declare v varchar2(32767); begin v:=DMGEO2.ST_SYMDIFFERENCE(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:59) /test/1/catalog1/DMGEO2/ST_SYMDIFFERENCE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_283]
+sql:
+-- FUNC-1408 ST_SYMDIFFERENCE full
+declare v varchar2(32767); begin v:=DMGEO2.ST_SYMDIFFERENCE(NULL,NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:59) /test/1/catalog1/DMGEO2/ST_SYMDIFFERENCE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_284]
+sql:
+-- FUNC-1409 ST_TESSELATE full
+declare v varchar2(32767); begin v:=DMGEO2.ST_TESSELATE(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:55) /test/1/catalog1/DMGEO2/ST_TESSELATE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_285]
+sql:
+-- FUNC-1410 ST_TILEENVELOPE full
+declare v varchar2(32767); begin v:=DMGEO2.ST_TILEENVELOPE(NULL,NULL,NULL,NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:58) /test/1/catalog1/DMGEO2/ST_TILEENVELOPE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_286]
+sql:
+-- FUNC-1410 ST_TILEENVELOPE required only
+declare v varchar2(32767); begin v:=DMGEO2.ST_TILEENVELOPE(NULL,NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:58) /test/1/catalog1/DMGEO2/ST_TILEENVELOPE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_287]
+sql:
+-- FUNC-1411 ST_TOUCHES full
+declare v varchar2(32767); begin v:=DMGEO2.ST_TOUCHES(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:53) /test/1/catalog1/DMGEO2/ST_TOUCHES/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_288]
+sql:
+-- FUNC-1412 ST_TRANSFORM full
+declare v varchar2(32767); begin v:=DMGEO2.ST_TRANSFORM(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:55) /test/1/catalog1/DMGEO2/ST_TRANSFORM/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_289]
+sql:
+-- FUNC-1413 ST_UNION full
+declare v varchar2(32767); begin v:=DMGEO2.ST_UNION(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:51) /test/1/catalog1/DMGEO2/ST_UNION/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_290]
+sql:
+-- FUNC-1414 ST_UNION full
+declare v varchar2(32767); begin v:=DMGEO2.ST_UNION(NULL,NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:51) /test/1/catalog1/DMGEO2/ST_UNION/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_291]
+sql:
+-- FUNC-1415 ST_UNION_AGG full
+declare v varchar2(32767); begin v:=DMGEO2.ST_UNION_AGG(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:55) /test/1/catalog1/DMGEO2/ST_UNION_AGG/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_292]
+sql:
+-- FUNC-1416 ST_UPDATE_SRID full
+declare v varchar2(32767); begin DMGEO2.ST_UPDATE_SRID(NULL,NULL,NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:33~2:54) /test/1/catalog1/DMGEO2/ST_UPDATE_SRID/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_293]
+sql:
+-- FUNC-1417 ST_VALIDATE_LAYER_WITH_CONTEXT full
+declare v varchar2(32767); begin DMGEO2.ST_VALIDATE_LAYER_WITH_CONTEXT(NULL,NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:33~2:70) /test/1/catalog1/DMGEO2/ST_VALIDATE_LAYER_WITH_CONTEXT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_294]
+sql:
+-- FUNC-1418 ST_VALIDATE_LAYER_WITH_CONTEXT full
+declare v varchar2(32767); begin DMGEO2.ST_VALIDATE_LAYER_WITH_CONTEXT(NULL,NULL,NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:33~2:70) /test/1/catalog1/DMGEO2/ST_VALIDATE_LAYER_WITH_CONTEXT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_295]
+sql:
+-- FUNC-1419 ST_VALIDATE_LAYER_WITH_CONTEXT full
+declare v varchar2(32767); begin DMGEO2.ST_VALIDATE_LAYER_WITH_CONTEXT(NULL,NULL,NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:33~2:70) /test/1/catalog1/DMGEO2/ST_VALIDATE_LAYER_WITH_CONTEXT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_296]
+sql:
+-- FUNC-1420 ST_VALIDATE_LAYER_WITH_CONTEXT full
+declare v varchar2(32767); begin DMGEO2.ST_VALIDATE_LAYER_WITH_CONTEXT(NULL,NULL,NULL,NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:33~2:70) /test/1/catalog1/DMGEO2/ST_VALIDATE_LAYER_WITH_CONTEXT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_297]
+sql:
+-- FUNC-1421 ST_VOLUME full
+declare v varchar2(32767); begin v:=DMGEO2.ST_VOLUME(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:52) /test/1/catalog1/DMGEO2/ST_VOLUME/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_298]
+sql:
+-- FUNC-1422 ST_WITHIN full
+declare v varchar2(32767); begin v:=DMGEO2.ST_WITHIN(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:52) /test/1/catalog1/DMGEO2/ST_WITHIN/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_299]
+sql:
+-- FUNC-1423 ST_WKBTOSQL full
+declare v varchar2(32767); begin v:=DMGEO2.ST_WKBTOSQL(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:54) /test/1/catalog1/DMGEO2/ST_WKBTOSQL/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_300]
+sql:
+-- FUNC-1424 ST_WKTTOSQL full
+declare v varchar2(32767); begin v:=DMGEO2.ST_WKTTOSQL(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:54) /test/1/catalog1/DMGEO2/ST_WKTTOSQL/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_301]
+sql:
+-- FUNC-1425 ST_WRAPX full
+declare v varchar2(32767); begin v:=DMGEO2.ST_WRAPX(NULL,NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:51) /test/1/catalog1/DMGEO2/ST_WRAPX/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_302]
+sql:
+-- FUNC-1426 ST_X full
+declare v varchar2(32767); begin v:=DMGEO2.ST_X(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:47) /test/1/catalog1/DMGEO2/ST_X/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_303]
+sql:
+-- FUNC-1427 ST_XMAX full
+declare v varchar2(32767); begin v:=DMGEO2.ST_XMAX(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:50) /test/1/catalog1/DMGEO2/ST_XMAX/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_304]
+sql:
+-- FUNC-1428 ST_XMIN full
+declare v varchar2(32767); begin v:=DMGEO2.ST_XMIN(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:50) /test/1/catalog1/DMGEO2/ST_XMIN/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_305]
+sql:
+-- FUNC-1429 ST_XOR full
+declare v varchar2(32767); begin v:=DMGEO2.ST_XOR(NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:49) /test/1/catalog1/DMGEO2/ST_XOR/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_306]
+sql:
+-- FUNC-1430 ST_XOR full
+declare v varchar2(32767); begin v:=DMGEO2.ST_XOR(NULL,NULL,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:49) /test/1/catalog1/DMGEO2/ST_XOR/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_307]
+sql:
+-- FUNC-1431 ST_Y full
+declare v varchar2(32767); begin v:=DMGEO2.ST_Y(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:47) /test/1/catalog1/DMGEO2/ST_Y/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_308]
+sql:
+-- FUNC-1432 ST_YMAX full
+declare v varchar2(32767); begin v:=DMGEO2.ST_YMAX(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:50) /test/1/catalog1/DMGEO2/ST_YMAX/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_309]
+sql:
+-- FUNC-1433 ST_YMIN full
+declare v varchar2(32767); begin v:=DMGEO2.ST_YMIN(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:50) /test/1/catalog1/DMGEO2/ST_YMIN/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_310]
+sql:
+-- FUNC-1434 ST_Z full
+declare v varchar2(32767); begin v:=DMGEO2.ST_Z(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:47) /test/1/catalog1/DMGEO2/ST_Z/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_311]
+sql:
+-- FUNC-1435 ST_ZMAX full
+declare v varchar2(32767); begin v:=DMGEO2.ST_ZMAX(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:50) /test/1/catalog1/DMGEO2/ST_ZMAX/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_312]
+sql:
+-- FUNC-1436 ST_ZMFLAG full
+declare v varchar2(32767); begin v:=DMGEO2.ST_ZMFLAG(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:52) /test/1/catalog1/DMGEO2/ST_ZMFLAG/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dmgeo2_signature_combinations_0_313]
+sql:
+-- FUNC-1437 ST_ZMIN full
+declare v varchar2(32767); begin v:=DMGEO2.ST_ZMIN(NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:36~2:50) /test/1/catalog1/DMGEO2/ST_ZMIN/",
+      "action": "CALL"
+    }
+  ]
+}

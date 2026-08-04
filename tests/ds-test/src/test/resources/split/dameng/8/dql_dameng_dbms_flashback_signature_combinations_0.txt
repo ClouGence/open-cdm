@@ -1,0 +1,5 @@
+-- FUNC-0326 GET_SYSTEM_CHANGE_NUMBER select zero argument
+select DBMS_FLASHBACK.GET_SYSTEM_CHANGE_NUMBER;
+------------------------------------------------------------------------------------------
+[SELECT] -- FUNC-0326 GET_SYSTEM_CHANGE_NUMBER select zero argument
+select DBMS_FLASHBACK.GET_SYSTEM_CHANGE_NUMBER;

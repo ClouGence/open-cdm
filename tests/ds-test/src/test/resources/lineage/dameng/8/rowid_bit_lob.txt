@@ -1,0 +1,119 @@
+[rowid_columns]
+sql:
+select t.id,t.rid,t.rowid as physical_rowid from catalog1.app.codex_dm8_type_rowid t order by t.rid
+expect:
+{"id":["/catalog1/app/codex_dm8_type_rowid/id/"],"rid":["/catalog1/app/codex_dm8_type_rowid/rid/"],"physical_rowid":["/catalog1/app/codex_dm8_type_rowid/rowid/"]}
+----------
+[rowid_aggregate_columns]
+sql:
+select min(t.rid) as min_rid,max(t.rid) as max_rid from catalog1.app.codex_dm8_type_rowid t
+expect:
+{"min_rid":["/catalog1/app/codex_dm8_type_rowid/rid/"],"max_rid":["/catalog1/app/codex_dm8_type_rowid/rid/"]}
+----------
+[bit_columns]
+sql:
+select t.id,t.flag,cast(t.flag as int) as flag_int from catalog1.app.codex_dm8_type_bit t order by t.id
+expect:
+{"id":["/catalog1/app/codex_dm8_type_bit/id/"],"flag":["/catalog1/app/codex_dm8_type_bit/flag/"],"flag_int":["/catalog1/app/codex_dm8_type_bit/flag/"]}
+----------
+[text_columns]
+sql:
+select t.id,length(t.v) as value_length from catalog1.app.codex_dm8_type_text t
+expect:
+{"id":["/catalog1/app/codex_dm8_type_text/id/"],"value_length":["/catalog1/app/codex_dm8_type_text/v/"]}
+----------
+[long_columns]
+sql:
+select t.id,length(t.v) as value_length from catalog1.app.codex_dm8_type_long t
+expect:
+{"id":["/catalog1/app/codex_dm8_type_long/id/"],"value_length":["/catalog1/app/codex_dm8_type_long/v/"]}
+----------
+[longvarchar_columns]
+sql:
+select t.id,length(t.v) as value_length from catalog1.app.codex_dm8_type_longvarchar t
+expect:
+{"id":["/catalog1/app/codex_dm8_type_longvarchar/id/"],"value_length":["/catalog1/app/codex_dm8_type_longvarchar/v/"]}
+----------
+[image_columns]
+sql:
+select t.id,lengthb(t.v) as value_length from catalog1.app.codex_dm8_type_image t
+expect:
+{"id":["/catalog1/app/codex_dm8_type_image/id/"],"value_length":["/catalog1/app/codex_dm8_type_image/v/"]}
+----------
+[longvarbinary_columns]
+sql:
+select t.id,lengthb(t.v) as value_length from catalog1.app.codex_dm8_type_longvarbinary t
+expect:
+{"id":["/catalog1/app/codex_dm8_type_longvarbinary/id/"],"value_length":["/catalog1/app/codex_dm8_type_longvarbinary/v/"]}
+----------
+[blob_columns]
+sql:
+select t.id,dbms_lob.getlength(t.v) as value_length from catalog1.app.codex_dm8_type_blob t
+expect:
+{"id":["/catalog1/app/codex_dm8_type_blob/id/"],"value_length":["/catalog1/app/codex_dm8_type_blob/v/"]}
+----------
+[clob_columns]
+sql:
+select t.id,dbms_lob.getlength(t.v) as value_length from catalog1.app.codex_dm8_type_clob t
+expect:
+{"id":["/catalog1/app/codex_dm8_type_clob/id/"],"value_length":["/catalog1/app/codex_dm8_type_clob/v/"]}
+----------
+[bfile_columns]
+sql:
+select t.id,dbms_lob.fileexists(t.v) as file_exists,dbms_lob.getlength(t.v) as file_length from catalog1.app.codex_dm8_type_bfile t
+expect:
+{"id":["/catalog1/app/codex_dm8_type_bfile/id/"],"file_exists":["/catalog1/app/codex_dm8_type_bfile/v/"],"file_length":["/catalog1/app/codex_dm8_type_bfile/v/"]}
+----------
+[text_equal_columns]
+sql:
+select text_equal(t.v,'TEXT-VALUE') as is_equal from catalog1.app.codex_dm8_type_text t
+expect:
+{"is_equal":["/catalog1/app/codex_dm8_type_text/v/"]}
+----------
+[blob_equal_columns]
+sql:
+select blob_equal(t.v,0x494D414745) as is_equal from catalog1.app.codex_dm8_type_image t
+expect:
+{"is_equal":["/catalog1/app/codex_dm8_type_image/v/"]}
+----------
+[compat_text_columns]
+sql:
+select length(t.v) as value_length from catalog1.app.codex_dm8_bad_text t
+expect:
+{"value_length":["/catalog1/app/codex_dm8_bad_text/v/"]}
+----------
+[compat_long_columns]
+sql:
+select length(t.v) as value_length from catalog1.app.codex_dm8_bad_long t
+expect:
+{"value_length":["/catalog1/app/codex_dm8_bad_long/v/"]}
+----------
+[compat_longvarchar_columns]
+sql:
+select length(t.v) as value_length from catalog1.app.codex_dm8_bad_longvarchar t
+expect:
+{"value_length":["/catalog1/app/codex_dm8_bad_longvarchar/v/"]}
+----------
+[compat_image_columns]
+sql:
+select lengthb(t.v) as value_length from catalog1.app.codex_dm8_bad_image t
+expect:
+{"value_length":["/catalog1/app/codex_dm8_bad_image/v/"]}
+----------
+[compat_longvarbinary_columns]
+sql:
+select lengthb(t.v) as value_length from catalog1.app.codex_dm8_bad_longvarbinary t
+expect:
+{"value_length":["/catalog1/app/codex_dm8_bad_longvarbinary/v/"]}
+----------
+[compat_blob_columns]
+sql:
+select dbms_lob.getlength(t.v) as value_length from catalog1.app.codex_dm8_bad_blob t
+expect:
+{"value_length":["/catalog1/app/codex_dm8_bad_blob/v/"]}
+----------
+[compat_clob_columns]
+sql:
+select dbms_lob.getlength(t.v) as value_length from catalog1.app.codex_dm8_bad_clob t
+expect:
+{"value_length":["/catalog1/app/codex_dm8_bad_clob/v/"]}

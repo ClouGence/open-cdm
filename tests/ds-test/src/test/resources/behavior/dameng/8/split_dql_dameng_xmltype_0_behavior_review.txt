@@ -1,0 +1,291 @@
+[split_dql_dameng_xmltype_0_behavior_review_001]
+sql:
+SELECT ID, DOC FROM XMLTYPE_DOCS ORDER BY ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:20~1:32) /test/1/catalog1/schema1/XMLTYPE_DOCS/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_xmltype_0_behavior_review_002]
+sql:
+SELECT ID, XMLQUERY(DOC, '/ROOT/ITEM') AS ITEM_XML FROM XMLTYPE_DOCS WHERE ID IN(1,2) ORDER BY ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:11~1:19) /test/1/catalog1/schema1/XMLQUERY/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:56~1:68) /test/1/catalog1/schema1/XMLTYPE_DOCS/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_xmltype_0_behavior_review_003]
+sql:
+SELECT ID, EXISTSNODE(DOC, '/ROOT/ITEM') AS HAS_ITEM FROM XMLTYPE_DOCS WHERE ID IN(1,2,4) ORDER BY ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:11~1:21) /test/1/catalog1/schema1/EXISTSNODE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:58~1:70) /test/1/catalog1/schema1/XMLTYPE_DOCS/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_xmltype_0_behavior_review_004]
+sql:
+SELECT ID, EXTRACTVALUE(DOC, '/ROOT/ITEM') AS ITEM_VALUE FROM XMLTYPE_DOCS WHERE ID IN(1,2) ORDER BY ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:11~1:23) /test/1/catalog1/schema1/EXTRACTVALUE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:62~1:74) /test/1/catalog1/schema1/XMLTYPE_DOCS/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_xmltype_0_behavior_review_005]
+sql:
+SELECT APPENDCHILDXML(DOC, '/ROOT', '<TAIL>Z</TAIL>') FROM XMLTYPE_DOCS WHERE ID=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:21) /test/1/catalog1/schema1/APPENDCHILDXML/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:59~1:71) /test/1/catalog1/schema1/XMLTYPE_DOCS/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_xmltype_0_behavior_review_006]
+sql:
+SELECT DELETEXML(DOC, '/ROOT/ITEM') FROM XMLTYPE_DOCS WHERE ID=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/DELETEXML/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:41~1:53) /test/1/catalog1/schema1/XMLTYPE_DOCS/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_xmltype_0_behavior_review_007]
+sql:
+SELECT UPDATEXML(DOC, '/ROOT/ITEM', '<ITEM ID="9">Z</ITEM>') FROM XMLTYPE_DOCS WHERE ID=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/UPDATEXML/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:66~1:78) /test/1/catalog1/schema1/XMLTYPE_DOCS/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_xmltype_0_behavior_review_008]
+sql:
+SELECT D.ID, X.ITEM_ID, X.ITEM_TEXT FROM XMLTYPE_DOCS D, XMLTABLE('/ROOT/ITEM' PASSING D.DOC COLUMNS ITEM_ID INT PATH '@ID', ITEM_TEXT VARCHAR2(20) PATH 'text()') X WHERE D.ID IN(1,2) ORDER BY D.ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:57~1:65) /test/1/catalog1/schema1/XMLTABLE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:41~1:53) /test/1/catalog1/schema1/XMLTYPE_DOCS/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_xmltype_0_behavior_review_009]
+sql:
+SELECT X.COLUMN_VALUE FROM XMLTYPE_DOCS D, TABLE(XMLSEQUENCE(EXTRACT(D.DOC, '/ROOT/ITEM'))) X WHERE D.ID=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:49~1:60) /test/1/catalog1/schema1/XMLSEQUENCE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:61~1:68) /test/1/catalog1/schema1/EXTRACT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:27~1:39) /test/1/catalog1/schema1/XMLTYPE_DOCS/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_xmltype_0_behavior_review_010]
+sql:
+SELECT XMLAGG(DOC ORDER BY ID) FROM XMLTYPE_DOCS WHERE ID IN(5,6);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/XMLAGG/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:36~1:48) /test/1/catalog1/schema1/XMLTYPE_DOCS/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_xmltype_0_behavior_review_011]
+sql:
+SELECT COLUMN_NAME, DATA_TYPE FROM USER_TAB_COLUMNS WHERE TABLE_NAME='XMLTYPE_DOCS' ORDER BY COLUMN_ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:35~1:51) /test/1/catalog1/schema1/USER_TAB_COLUMNS/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_xmltype_0_behavior_review_012]
+sql:
+SELECT ID, T.VALUE.NAME AS NAME_VALUE, T.VALUE.DOC AS DOC_VALUE FROM XML_HOLDER_TAB T;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:69~1:83) /test/1/catalog1/schema1/XML_HOLDER_TAB/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_xmltype_0_behavior_review_013]
+sql:
+SELECT ID, DOC FROM XMLTYPE_DOCS WHERE ID=10;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:20~1:32) /test/1/catalog1/schema1/XMLTYPE_DOCS/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_xmltype_0_behavior_review_014]
+sql:
+SELECT ID FROM XMLTYPE_DOCS WHERE DOC=XMLTYPE('<ROOT/>');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:38~1:45) /test/1/catalog1/schema1/XMLTYPE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:15~1:27) /test/1/catalog1/schema1/XMLTYPE_DOCS/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_xmltype_0_behavior_review_015]
+sql:
+SELECT XMLQUERY(DOC, NULL) FROM XMLTYPE_DOCS WHERE ID=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/XMLQUERY/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:32~1:44) /test/1/catalog1/schema1/XMLTYPE_DOCS/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_xmltype_0_behavior_review_016]
+sql:
+SELECT EXTRACTVALUE(DOC, '/ROOT/*') FROM XMLTYPE_DOCS WHERE ID=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/EXTRACTVALUE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:41~1:53) /test/1/catalog1/schema1/XMLTYPE_DOCS/",
+      "action": "READ"
+    }
+  ]
+}

@@ -1,0 +1,67 @@
+CREATE TABLE codex_constraint_c07 (id INT, name VARCHAR(64), UNIQUE INDEX uq_c07 ((LOWER(name))));
+ALTER TABLE codex_c13_22.t ALTER my_row_id SET INVISIBLE, ADD INDEX (f1), ALGORITHM=INPLACE;
+ALTER TABLE codex_c13_22.t ALTER my_row_id SET INVISIBLE, RENAME COLUMN f1 TO f2, ALGORITHM=INSTANT;
+ALTER TABLE codex_c13_22.t ALTER my_row_id SET VISIBLE, ADD INDEX (f1), ALGORITHM=INPLACE;
+ALTER TABLE codex_c13_22.t ALTER my_row_id SET VISIBLE, RENAME COLUMN f1 TO f2, ALGORITHM=INSTANT;
+ALTER TABLE split_idx.t_alter_modern ADD INDEX idx_attr(id) ENGINE_ATTRIBUTE='{}';
+ALTER TABLE split_idx.t_alter_modern ADD INDEX idx_func ((LOWER(name))) INVISIBLE;
+ALTER TABLE split_idx.t_alter_modern ALTER INDEX idx_old INVISIBLE;
+ALTER TABLE split_idx.t_alter_modern ADD INDEX idx_multi ((CAST(j->'$.ids' AS UNSIGNED ARRAY))) VISIBLE;
+ALTER TABLE split_idx.t_alter_modern ALTER INDEX idx_old VISIBLE;
+CREATE INDEX idx_accept_attr ON split_accept.t_attr (id) ENGINE_ATTRIBUTE='{}' SECONDARY_ENGINE_ATTRIBUTE='{}';
+CREATE INDEX idx_func ON split_idx.t_modern ((LOWER(name))) INVISIBLE;
+CREATE INDEX idx_invisible ON split_idx.t_modern (name) INVISIBLE;
+CREATE INDEX idx_multi ON split_idx.t_modern ((CAST(j->'$.ids' AS UNSIGNED ARRAY))) VISIBLE;
+ALTER TABLE split_idx.t_rename RENAME INDEX idx_old TO idx_new;
+CREATE INDEX idx_secondary_attr ON split_idx.t_modern (id) SECONDARY_ENGINE_ATTRIBUTE='{}';
+CREATE INDEX idx_visible ON split_idx.t_modern (id) VISIBLE;
+CREATE TABLE codex_constraint_c08 (id INT, name VARCHAR(64), INDEX ix_c08 (id, (LOWER(name))));
+CREATE TABLE codex_constraint_c09 (id INT, modified DATETIME, j JSON, INDEX ix_c09 (id, (CAST(j->'$.ids' AS UNSIGNED ARRAY)), modified));
+CREATE TABLE bad_inline (col1 TEXT, FULLTEXT INDEX USING BTREE (col1));
+CREATE FULLTEXT INDEX USING BTREE ON t2(col1);
+ALTER TABLE t2 ADD FULLTEXT INDEX USING BTREE (col1);
+------------------------------------------------------------------------------------------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] CREATE TABLE codex_constraint_c07 (id INT, name VARCHAR(64), UNIQUE INDEX uq_c07 ((LOWER(name))));
+----------
+[ALTER_TABLE|ALTER_COLUMN|ADD_INDEX] ALTER TABLE codex_c13_22.t ALTER my_row_id SET INVISIBLE, ADD INDEX (f1), ALGORITHM=INPLACE;
+----------
+[ALTER_TABLE|ALTER_COLUMN|RENAME_COLUMN] ALTER TABLE codex_c13_22.t ALTER my_row_id SET INVISIBLE, RENAME COLUMN f1 TO f2, ALGORITHM=INSTANT;
+----------
+[ALTER_TABLE|ALTER_COLUMN|ADD_INDEX] ALTER TABLE codex_c13_22.t ALTER my_row_id SET VISIBLE, ADD INDEX (f1), ALGORITHM=INPLACE;
+----------
+[ALTER_TABLE|ALTER_COLUMN|RENAME_COLUMN] ALTER TABLE codex_c13_22.t ALTER my_row_id SET VISIBLE, RENAME COLUMN f1 TO f2, ALGORITHM=INSTANT;
+----------
+[ALTER_TABLE|ADD_INDEX] ALTER TABLE split_idx.t_alter_modern ADD INDEX idx_attr(id) ENGINE_ATTRIBUTE='{}';
+----------
+[ALTER_TABLE|ADD_INDEX] ALTER TABLE split_idx.t_alter_modern ADD INDEX idx_func ((LOWER(name))) INVISIBLE;
+----------
+[ALTER_TABLE|ALTER_INDEX] ALTER TABLE split_idx.t_alter_modern ALTER INDEX idx_old INVISIBLE;
+----------
+[ALTER_TABLE|ADD_INDEX] ALTER TABLE split_idx.t_alter_modern ADD INDEX idx_multi ((CAST(j->'$.ids' AS UNSIGNED ARRAY))) VISIBLE;
+----------
+[ALTER_TABLE|ALTER_INDEX] ALTER TABLE split_idx.t_alter_modern ALTER INDEX idx_old VISIBLE;
+----------
+[ADD_INDEX]
+CREATE INDEX idx_accept_attr ON split_accept.t_attr (id) ENGINE_ATTRIBUTE='{}' SECONDARY_ENGINE_ATTRIBUTE='{}';
+----------
+[ADD_INDEX] CREATE INDEX idx_func ON split_idx.t_modern ((LOWER(name))) INVISIBLE;
+----------
+[ADD_INDEX] CREATE INDEX idx_invisible ON split_idx.t_modern (name) INVISIBLE;
+----------
+[ADD_INDEX] CREATE INDEX idx_multi ON split_idx.t_modern ((CAST(j->'$.ids' AS UNSIGNED ARRAY))) VISIBLE;
+----------
+[ALTER_TABLE|RENAME_INDEX] ALTER TABLE split_idx.t_rename RENAME INDEX idx_old TO idx_new;
+----------
+[ADD_INDEX] CREATE INDEX idx_secondary_attr ON split_idx.t_modern (id) SECONDARY_ENGINE_ATTRIBUTE='{}';
+----------
+[ADD_INDEX] CREATE INDEX idx_visible ON split_idx.t_modern (id) VISIBLE;
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_INDEX] CREATE TABLE codex_constraint_c08 (id INT, name VARCHAR(64), INDEX ix_c08 (id, (LOWER(name))));
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_INDEX] CREATE TABLE codex_constraint_c09 (id INT, modified DATETIME, j JSON, INDEX ix_c09 (id, (CAST(j->'$.ids' AS UNSIGNED ARRAY)), modified));
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_INDEX] CREATE TABLE bad_inline (col1 TEXT, FULLTEXT INDEX USING BTREE (col1));
+----------
+[ADD_INDEX] CREATE FULLTEXT INDEX USING BTREE ON t2(col1);
+----------
+[ALTER_TABLE|ADD_INDEX] ALTER TABLE t2 ADD FULLTEXT INDEX USING BTREE (col1);

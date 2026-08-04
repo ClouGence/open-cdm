@@ -1,0 +1,24 @@
+create table app.bad_char_s01(c char());
+create table app.bad_char_s02(c character());
+create table app.bad_char_s03(c varchar());
+create table app.bad_char_s04(c varchar2());
+create table app.bad_char_s05(c char(4 char char));
+create table app.bad_char_s06(c char(char));
+create table app.bad_char_s07(c varchar(4 chars));
+create function app.bad_char_f(p char()) return int as begin return 1; end;/
+------------------------------------------------------------------------------------------
+[CREATE_TABLE] create table app.bad_char_s01(c char());
+----------
+[CREATE_TABLE] create table app.bad_char_s02(c character());
+----------
+[CREATE_TABLE] create table app.bad_char_s03(c varchar());
+----------
+[CREATE_TABLE] create table app.bad_char_s04(c varchar2());
+----------
+[CREATE_TABLE] create table app.bad_char_s05(c char(4 char char));
+----------
+[CREATE_TABLE] create table app.bad_char_s06(c char(char));
+----------
+[CREATE_TABLE] create table app.bad_char_s07(c varchar(4 chars));
+----------
+[CREATE_PROG_OBJ] create function app.bad_char_f(p char()) return int as begin return 1; end;/

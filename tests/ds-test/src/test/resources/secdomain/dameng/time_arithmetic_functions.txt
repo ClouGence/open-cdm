@@ -1,0 +1,15 @@
+[time_arithmetic_public_signatures]
+sql:
+select
+  time_to_sec(time '12:34:56') as seconds_value,
+  sec_to_time(45296) as time_value,
+  date_add(date '2024-01-01',interval '1' day) as added_value,
+  date_sub(date '2024-01-01',interval '1' month) as subtracted_value,
+  addtime(time '12:00:00',1) as addtime_value
+from dual
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "table":"dual"}
+  ]
+}

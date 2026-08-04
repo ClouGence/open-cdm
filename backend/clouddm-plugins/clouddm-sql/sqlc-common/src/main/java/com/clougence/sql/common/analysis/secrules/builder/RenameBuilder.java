@@ -18,11 +18,11 @@ package com.clougence.sql.common.analysis.secrules.builder;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.clougence.clouddm.sdk.model.analysis.TargetType;
 import com.clougence.clouddm.sdk.service.secrules.Domain;
-import com.clougence.clouddm.sdk.sql.secrules.rdb.RdbColumnDomain;
-import com.clougence.clouddm.sdk.sql.secrules.rdb.RdbSchemaDomain;
-import com.clougence.clouddm.sdk.sql.secrules.rdb.RdbTableDomain;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
+import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbColumnDomain;
+import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbSchemaDomain;
+import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbTableDomain;
 import com.clougence.sql.common.analysis.secrules.builder.enums.Attribute;
 import com.clougence.sql.common.analysis.secrules.builder.enums.CommonAttribute;
 import com.clougence.sql.common.analysis.secrules.builder.enums.DomainSource;

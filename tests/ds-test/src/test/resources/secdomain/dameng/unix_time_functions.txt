@@ -1,0 +1,15 @@
+[unix_time_public_signatures]
+sql:
+select
+  unix_timestamp(timestamp '1970-01-01 00:00:00') as unix_value,
+  unix_timestamp() as current_unix_value,
+  from_unixtime(0) as timestamp_value,
+  from_unixtime(0,'%Y-%m-%d %H:%i:%s') as formatted_value,
+  to_days(date '1970-01-01') as day_value
+from dual
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "table":"dual"}
+  ]
+}

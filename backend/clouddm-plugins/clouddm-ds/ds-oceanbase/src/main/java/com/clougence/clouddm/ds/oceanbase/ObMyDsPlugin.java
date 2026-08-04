@@ -37,18 +37,15 @@ import com.clougence.clouddm.ds.oceanbase.i18n.ObConfigI18nKeys;
 import com.clougence.clouddm.ds.oceanbase.i18n.ObDsI18nKeys;
 import com.clougence.clouddm.ds.oceanbase.language.ob4my.ObMyLanguageSpi;
 import com.clougence.clouddm.ds.oceanbase.resource.ObMyEditorResourceSpi;
-import com.clougence.clouddm.ds.oceanbase.sql.ob4my.ObSqlEngineSpi;
 import com.clougence.clouddm.dsfamily.definition.TypeMapUtils;
 import com.clougence.clouddm.sdk.DsPlugin;
 import com.clougence.clouddm.sdk.DsPluginBinder;
 import com.clougence.clouddm.sdk.Plugin;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
-import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
 import com.clougence.schema.DsType;
 import com.clougence.schema.SchemaBinder;
 import com.clougence.schema.SchemaFramework;
 import com.clougence.schema.SchemaPlugin;
-import com.clougence.sql.mysql.MySqlEngineSpi;
 
 /** @author mode 2024/12/25 15:13 */
 @Plugin(name = "i18n::" + ObDsI18nKeys.PLUGIN_NAME_OCEANBASE,                        //
@@ -86,9 +83,7 @@ public class ObMyDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
     private void configExecute(DsPluginBinder dsPlugin) {
         dsPlugin.bindDsSessionFactory(ObSessionFactory.class);
         dsPlugin.bindDsDriverFamily("OceanBase Client", "MySQL Connector/J");
-
-        dsPlugin.bindSqlEngine(ObSqlEngineSpi.NAME, MySqlEngineSpi.NAME);
-        dsPlugin.addGlobalSpi(SqlEngineSpi.class, ObSqlEngineSpi.NAME, new ObSqlEngineSpi(dsPlugin.findGlobalService(MetaService.class)));
+        dsPlugin.bindSqlEngine("OceanBase SQL for MySQL", "MySQL");
 
         dsPlugin.addPluginSpi(new ObSessionSpi());
         dsPlugin.addPluginSpi(new ObSupportSpi());

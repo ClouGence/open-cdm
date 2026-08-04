@@ -1,0 +1,35 @@
+[dbms_ldap_package_calls_no_static_lineage]
+sql:
+declare
+  ld DBMS_LDAP.SESSION;
+  msg DBMS_LDAP.MESSAGE;
+  modptr DBMS_LDAP.MOD_ARRAY;
+  strings DBMS_LDAP.STRING_COLLECTION;
+  bervals DBMS_LDAP.BERVAL_COLLECTION;
+  blobs DBMS_LDAP.BLOB_COLLECTION;
+  n PLS_INTEGER;
+  v VARCHAR2(32767);
+begin
+  n:=DBMS_LDAP.ADD_S(LD=>ld,ENTRYDN=>'cn=u,dc=example,dc=org',MODPTR=>modptr);
+  n:=DBMS_LDAP.COUNT_ENTRIES(LD=>ld,MSG=>msg);
+  modptr:=DBMS_LDAP.CREATE_MOD_ARRAY(NUM=>3);
+  n:=DBMS_LDAP.DELETE_S(LD=>ld,ENTRYDN=>'cn=u,dc=example,dc=org');
+  v:=DBMS_LDAP.ERR2STRING(LDAP_ERR=>0);
+  msg:=DBMS_LDAP.FIRST_ENTRY(LD=>ld,MSG=>msg);
+  DBMS_LDAP.FREE_MOD_ARRAY(MODPTR=>modptr);
+  v:=DBMS_LDAP.GET_DN(LD=>ld,LDAPENTRY=>msg);
+  strings:=DBMS_LDAP.GET_VALUES(LD=>ld,LDAPENTRY=>msg,ATTR=>'cn');
+  ld:=DBMS_LDAP.INIT(HOSTNAME=>'127.0.0.1',PORTNUM=>389);
+  n:=DBMS_LDAP.MODIFY_S(LD=>ld,ENTRYDN=>'cn=u,dc=example,dc=org',MODPTR=>modptr);
+  n:=DBMS_LDAP.MSGFREE(LM=>msg);
+  msg:=DBMS_LDAP.NEXT_ENTRY(LD=>ld,MSG=>msg);
+  DBMS_LDAP.POPULATE_MOD_ARRAY(MODPTR=>modptr,MOD_OP=>DBMS_LDAP.MOD_ADD,MOD_TYPE=>'cn',MODVAL=>strings);
+  DBMS_LDAP.POPULATE_MOD_ARRAY(MODPTR=>modptr,MOD_OP=>DBMS_LDAP.MOD_ADD,MOD_TYPE=>'jpegPhoto',MODBVAL=>bervals);
+  DBMS_LDAP.POPULATE_MOD_ARRAY(MODPTR=>modptr,MOD_OP=>DBMS_LDAP.MOD_ADD,MOD_TYPE=>'jpegPhoto',MODBVAL=>blobs);
+  n:=DBMS_LDAP.RENAME_S(LD=>ld,DN=>'cn=u,dc=example,dc=org',NEWRDN=>'cn=v',NEWPARENT=>'dc=example,dc=org',DELETEOLDRDN=>1,SERVERCTRLS=>NULL,CLIENTCTRLS=>NULL);
+  n:=DBMS_LDAP.SEARCH_S(LD=>ld,BASE=>'dc=example,dc=org',SCOPE=>DBMS_LDAP.SCOPE_SUBTREE,FILTER=>'(objectClass=*)',ATTRS=>strings,ATTRONLY=>0,RES=>msg);
+  n:=DBMS_LDAP.SIMPLE_BIND_S(LD=>ld,DN=>'cn=admin,dc=example,dc=org',PASSWD=>'secret');
+  n:=DBMS_LDAP.UNBIND_S(LD=>ld);
+end;
+expect:
+{}

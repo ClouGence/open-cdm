@@ -1,0 +1,162 @@
+[split_dql_dameng_stateful_file_json_packages_utl_compress_0_001]
+sql:
+select utl_compress.lz_compress(cast('434F444558' as varbinary(64)));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:31) /test/1/catalog1/utl_compress/lz_compress/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_stateful_file_json_packages_utl_compress_0_002]
+sql:
+select utl_compress.lz_compress(cast('434F444558' as varbinary(64)), 1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:31) /test/1/catalog1/utl_compress/lz_compress/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_stateful_file_json_packages_utl_compress_0_003]
+sql:
+select utl_compress.lz_compress(cast('434F444558' as varbinary(64)), 6);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:31) /test/1/catalog1/utl_compress/lz_compress/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_stateful_file_json_packages_utl_compress_0_004]
+sql:
+select utl_compress.lz_compress(cast('434F444558' as varbinary(64)), 9);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:31) /test/1/catalog1/utl_compress/lz_compress/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_stateful_file_json_packages_utl_compress_0_005]
+sql:
+select utl_compress.lz_uncompress(utl_compress.lz_compress(cast('434F444558' as varbinary(64))));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:33) /test/1/catalog1/utl_compress/lz_uncompress/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:34~1:58) /test/1/catalog1/utl_compress/lz_compress/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_stateful_file_json_packages_utl_compress_0_006]
+sql:
+select utl_compress.lz_compress(src => cast('434F444558' as varbinary(64)), quality => 5);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:31) /test/1/catalog1/utl_compress/lz_compress/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_stateful_file_json_packages_utl_compress_0_007]
+sql:
+select utl_compress.lz_uncompress(src => utl_compress.lz_compress(cast('434F444558' as varbinary(64))));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:33) /test/1/catalog1/utl_compress/lz_uncompress/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:41~1:65) /test/1/catalog1/utl_compress/lz_compress/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_stateful_file_json_packages_utl_compress_0_008]
+sql:
+select utl_compress.lz_compress(cast('' as varbinary(64)));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:31) /test/1/catalog1/utl_compress/lz_compress/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_stateful_file_json_packages_utl_compress_0_009]
+sql:
+select utl_compress.lz_uncompress(utl_compress.lz_compress(cast('' as varbinary(64))));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:33) /test/1/catalog1/utl_compress/lz_uncompress/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:34~1:58) /test/1/catalog1/utl_compress/lz_compress/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_stateful_file_json_packages_utl_compress_0_010]
+sql:
+select utl_compress.lz_compress(cast('434F4445582D444D382D434F4D5052455353' as varbinary(128)), 9);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:31) /test/1/catalog1/utl_compress/lz_compress/",
+      "action": "CALL"
+    }
+  ]
+}
+

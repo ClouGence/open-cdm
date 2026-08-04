@@ -1,0 +1,198 @@
+-- OPEN_CONNECTION_MINIMAL
+declare c utl_tcp.connection; begin c := utl_tcp.open_connection('host.docker.internal',18081); utl_tcp.close_connection(c); end;
+/
+-- OPEN_CONNECTION_NAMED_FULL
+declare c utl_tcp.connection; begin c := utl_tcp.open_connection(TX_TIMEOUT=>0,NEWLINE=>utl_tcp.crlf,CHARSET=>'UTF-8',LOCAL_PORT=>null,LOCAL_HOST=>null,REMOTE_PORT=>18081,REMOTE_HOST=>'host.docker.internal'); utl_tcp.close_connection(c); end;
+/
+-- AVAILABLE_DEFAULT
+declare c utl_tcp.connection; n int; begin c := utl_tcp.open_connection('host.docker.internal',18081); n := utl_tcp.available(c); utl_tcp.close_connection(c); end;
+/
+-- AVAILABLE_NAMED_TIMEOUT
+declare c utl_tcp.connection; n int; begin c := utl_tcp.open_connection('host.docker.internal',18081); n := utl_tcp.available(TIMEOUT=>1,C=>c); utl_tcp.close_connection(c); end;
+/
+-- GET_LINE_DEFAULTS
+declare c utl_tcp.connection; v varchar(32767); begin c := utl_tcp.open_connection('host.docker.internal',18081); v := utl_tcp.get_line(c); utl_tcp.close_connection(c); end;
+/
+-- GET_LINE_FULL
+declare c utl_tcp.connection; v varchar(32767); begin c := utl_tcp.open_connection('host.docker.internal',18081); v := utl_tcp.get_line(c,true,false); utl_tcp.close_connection(c); end;
+/
+-- GET_LINE_NAMED_PEEK
+declare c utl_tcp.connection; v varchar(32767); begin c := utl_tcp.open_connection('host.docker.internal',18081); v := utl_tcp.get_line(PEEK=>true,REMOVE_CRLF=>true,C=>c); v := utl_tcp.get_line(c,true,false); utl_tcp.close_connection(c); end;
+/
+-- GET_RAW_DEFAULTS
+declare c utl_tcp.connection; v varbinary(32767); begin c := utl_tcp.open_connection('host.docker.internal',18081); v := utl_tcp.get_raw(c); utl_tcp.close_connection(c); end;
+/
+-- GET_RAW_FULL_PEEK
+declare c utl_tcp.connection; v varbinary(32767); begin c := utl_tcp.open_connection('host.docker.internal',18081); v := utl_tcp.get_raw(c,13,true); v := utl_tcp.get_raw(c,13,false); utl_tcp.close_connection(c); end;
+/
+-- GET_RAW_ZERO
+declare c utl_tcp.connection; v varbinary(32767); begin c := utl_tcp.open_connection('host.docker.internal',18081); v := utl_tcp.get_raw(c,0,false); utl_tcp.close_connection(c); end;
+/
+-- GET_TEXT_DEFAULTS
+declare c utl_tcp.connection; v varchar(32767); begin c := utl_tcp.open_connection('host.docker.internal',18081); v := utl_tcp.get_text(c); utl_tcp.close_connection(c); end;
+/
+-- GET_TEXT_FULL_PEEK
+declare c utl_tcp.connection; v varchar(32767); begin c := utl_tcp.open_connection('host.docker.internal',18081); v := utl_tcp.get_text(c,13,true); v := utl_tcp.get_text(c,13,false); utl_tcp.close_connection(c); end;
+/
+-- GET_TEXT_ZERO
+declare c utl_tcp.connection; v varchar(32767); begin c := utl_tcp.open_connection('host.docker.internal',18081); v := utl_tcp.get_text(c,0,false); utl_tcp.close_connection(c); end;
+/
+-- READ_RAW_DEFAULTS
+declare c utl_tcp.connection; v varbinary(32767); n int; begin c := utl_tcp.open_connection('host.docker.internal',18081); n := utl_tcp.read_raw(c,v); utl_tcp.close_connection(c); end;
+/
+-- READ_RAW_FULL_PEEK
+declare c utl_tcp.connection; v varbinary(32767); n int; begin c := utl_tcp.open_connection('host.docker.internal',18081); n := utl_tcp.read_raw(c,v,13,true); n := utl_tcp.read_raw(c,v,13,false); utl_tcp.close_connection(c); end;
+/
+-- READ_RAW_ZERO
+declare c utl_tcp.connection; v varbinary(32767); n int; begin c := utl_tcp.open_connection('host.docker.internal',18081); n := utl_tcp.read_raw(c,v,0,false); utl_tcp.close_connection(c); end;
+/
+-- READ_TEXT_DEFAULTS
+declare c utl_tcp.connection; v varchar(32767); n int; begin c := utl_tcp.open_connection('host.docker.internal',18081); n := utl_tcp.read_text(c,v); utl_tcp.close_connection(c); end;
+/
+-- READ_TEXT_FULL_PEEK
+declare c utl_tcp.connection; v varchar(32767); n int; begin c := utl_tcp.open_connection('host.docker.internal',18081); n := utl_tcp.read_text(c,v,13,true); n := utl_tcp.read_text(c,v,13,false); utl_tcp.close_connection(c); end;
+/
+-- READ_TEXT_ZERO
+declare c utl_tcp.connection; v varchar(32767); n int; begin c := utl_tcp.open_connection('host.docker.internal',18081); n := utl_tcp.read_text(c,v,0,false); utl_tcp.close_connection(c); end;
+/
+-- WRITE_LINE_DEFAULT_NULL
+declare c utl_tcp.connection; n int; begin c := utl_tcp.open_connection('host.docker.internal',18081); n := utl_tcp.write_line(c); utl_tcp.close_connection(c); end;
+/
+-- WRITE_LINE_NAMED
+declare c utl_tcp.connection; n int; begin c := utl_tcp.open_connection('host.docker.internal',18081); n := utl_tcp.write_line(DATA=>'DM8_TCP_LINE',C=>c); utl_tcp.close_connection(c); end;
+/
+-- WRITE_RAW_DEFAULT_LEN
+declare c utl_tcp.connection; n int; begin c := utl_tcp.open_connection('host.docker.internal',18081); n := utl_tcp.write_raw(c,cast('444D385F5443505F5241570D0A' as varbinary(64))); utl_tcp.close_connection(c); end;
+/
+-- WRITE_RAW_NAMED_LEN
+declare c utl_tcp.connection; n int; begin c := utl_tcp.open_connection('host.docker.internal',18081); n := utl_tcp.write_raw(LEN=>4,DATA=>cast('444D385F5443505F5241570D0A' as varbinary(64)),C=>c); utl_tcp.close_connection(c); end;
+/
+-- WRITE_TEXT_DEFAULT_LEN
+declare c utl_tcp.connection; n int; begin c := utl_tcp.open_connection('host.docker.internal',18081); n := utl_tcp.write_text(c,'DM8_TCP_TEXT'||utl_tcp.crlf); utl_tcp.flush(c); utl_tcp.close_connection(c); end;
+/
+-- WRITE_TEXT_NAMED_LEN
+declare c utl_tcp.connection; n int; begin c := utl_tcp.open_connection('host.docker.internal',18081); n := utl_tcp.write_text(LEN=>4,DATA=>'DM8_TCP_TEXT',C=>c); utl_tcp.flush(c); utl_tcp.close_connection(c); end;
+/
+-- FLUSH_NAMED
+declare c utl_tcp.connection; begin c := utl_tcp.open_connection('host.docker.internal',18081); utl_tcp.flush(C=>c); utl_tcp.close_connection(c); end;
+/
+-- CLOSE_CONNECTION_NAMED
+declare c utl_tcp.connection; begin c := utl_tcp.open_connection('host.docker.internal',18081); utl_tcp.close_connection(C=>c); end;
+/
+-- CLOSE_ALL_CONNECTION
+begin utl_tcp.close_all_connection(); end;
+/
+-- CLOSE_ALL_CONNECTIONS
+begin utl_tcp.close_all_connections(); end;
+/
+-- READ_RAW_32768_CLAMP
+declare c utl_tcp.connection; greeting varchar(32767); payload varchar(32767); raw_value varbinary(32767); n int; begin c := utl_tcp.open_connection('host.docker.internal',18081,tx_timeout=>5); greeting := utl_tcp.get_line(c,true); payload := rpad('A',32765,'A')||utl_tcp.crlf; n := utl_tcp.write_text(c,payload); utl_tcp.flush(c); n := utl_tcp.read_raw(c,raw_value,32768,false); utl_tcp.close_connection(c); end;
+/
+-- READ_TEXT_32768_CLAMP
+declare c utl_tcp.connection; greeting varchar(32767); payload varchar(32767); text_value varchar(32767); n int; begin c := utl_tcp.open_connection('host.docker.internal',18081,tx_timeout=>5); greeting := utl_tcp.get_line(c,true); payload := rpad('B',32765,'B')||utl_tcp.crlf; n := utl_tcp.write_text(c,payload); utl_tcp.flush(c); n := utl_tcp.read_text(c,text_value,32768,false); utl_tcp.close_connection(c); end;
+/
+-- GET_RAW_32767_MAX
+declare c utl_tcp.connection; greeting varchar(32767); payload varchar(32767); raw_value varbinary(32767); n int; begin c := utl_tcp.open_connection('host.docker.internal',18081,tx_timeout=>5); greeting := utl_tcp.get_line(c,true); payload := rpad('C',32765,'C')||utl_tcp.crlf; n := utl_tcp.write_text(c,payload); utl_tcp.flush(c); raw_value := utl_tcp.get_raw(c,32767,false); utl_tcp.close_connection(c); end;
+/
+-- GET_TEXT_32767_MAX
+declare c utl_tcp.connection; greeting varchar(32767); payload varchar(32767); text_value varchar(32767); n int; begin c := utl_tcp.open_connection('host.docker.internal',18081,tx_timeout=>5); greeting := utl_tcp.get_line(c,true); payload := rpad('D',32765,'D')||utl_tcp.crlf; n := utl_tcp.write_text(c,payload); utl_tcp.flush(c); text_value := utl_tcp.get_text(c,32767,false); utl_tcp.close_connection(c); end;
+/
+------------------------------------------------------------------------------------------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- OPEN_CONNECTION_MINIMAL
+declare c utl_tcp.connection; begin c := utl_tcp.open_connection('host.docker.internal',18081); utl_tcp.close_connection(c); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- OPEN_CONNECTION_NAMED_FULL
+declare c utl_tcp.connection; begin c := utl_tcp.open_connection(TX_TIMEOUT=>0,NEWLINE=>utl_tcp.crlf,CHARSET=>'UTF-8',LOCAL_PORT=>null,LOCAL_HOST=>null,REMOTE_PORT=>18081,REMOTE_HOST=>'host.docker.internal'); utl_tcp.close_connection(c); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- AVAILABLE_DEFAULT
+declare c utl_tcp.connection; n int; begin c := utl_tcp.open_connection('host.docker.internal',18081); n := utl_tcp.available(c); utl_tcp.close_connection(c); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- AVAILABLE_NAMED_TIMEOUT
+declare c utl_tcp.connection; n int; begin c := utl_tcp.open_connection('host.docker.internal',18081); n := utl_tcp.available(TIMEOUT=>1,C=>c); utl_tcp.close_connection(c); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- GET_LINE_DEFAULTS
+declare c utl_tcp.connection; v varchar(32767); begin c := utl_tcp.open_connection('host.docker.internal',18081); v := utl_tcp.get_line(c); utl_tcp.close_connection(c); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- GET_LINE_FULL
+declare c utl_tcp.connection; v varchar(32767); begin c := utl_tcp.open_connection('host.docker.internal',18081); v := utl_tcp.get_line(c,true,false); utl_tcp.close_connection(c); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- GET_LINE_NAMED_PEEK
+declare c utl_tcp.connection; v varchar(32767); begin c := utl_tcp.open_connection('host.docker.internal',18081); v := utl_tcp.get_line(PEEK=>true,REMOVE_CRLF=>true,C=>c); v := utl_tcp.get_line(c,true,false); utl_tcp.close_connection(c); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- GET_RAW_DEFAULTS
+declare c utl_tcp.connection; v varbinary(32767); begin c := utl_tcp.open_connection('host.docker.internal',18081); v := utl_tcp.get_raw(c); utl_tcp.close_connection(c); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- GET_RAW_FULL_PEEK
+declare c utl_tcp.connection; v varbinary(32767); begin c := utl_tcp.open_connection('host.docker.internal',18081); v := utl_tcp.get_raw(c,13,true); v := utl_tcp.get_raw(c,13,false); utl_tcp.close_connection(c); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- GET_RAW_ZERO
+declare c utl_tcp.connection; v varbinary(32767); begin c := utl_tcp.open_connection('host.docker.internal',18081); v := utl_tcp.get_raw(c,0,false); utl_tcp.close_connection(c); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- GET_TEXT_DEFAULTS
+declare c utl_tcp.connection; v varchar(32767); begin c := utl_tcp.open_connection('host.docker.internal',18081); v := utl_tcp.get_text(c); utl_tcp.close_connection(c); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- GET_TEXT_FULL_PEEK
+declare c utl_tcp.connection; v varchar(32767); begin c := utl_tcp.open_connection('host.docker.internal',18081); v := utl_tcp.get_text(c,13,true); v := utl_tcp.get_text(c,13,false); utl_tcp.close_connection(c); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- GET_TEXT_ZERO
+declare c utl_tcp.connection; v varchar(32767); begin c := utl_tcp.open_connection('host.docker.internal',18081); v := utl_tcp.get_text(c,0,false); utl_tcp.close_connection(c); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- READ_RAW_DEFAULTS
+declare c utl_tcp.connection; v varbinary(32767); n int; begin c := utl_tcp.open_connection('host.docker.internal',18081); n := utl_tcp.read_raw(c,v); utl_tcp.close_connection(c); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- READ_RAW_FULL_PEEK
+declare c utl_tcp.connection; v varbinary(32767); n int; begin c := utl_tcp.open_connection('host.docker.internal',18081); n := utl_tcp.read_raw(c,v,13,true); n := utl_tcp.read_raw(c,v,13,false); utl_tcp.close_connection(c); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- READ_RAW_ZERO
+declare c utl_tcp.connection; v varbinary(32767); n int; begin c := utl_tcp.open_connection('host.docker.internal',18081); n := utl_tcp.read_raw(c,v,0,false); utl_tcp.close_connection(c); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- READ_TEXT_DEFAULTS
+declare c utl_tcp.connection; v varchar(32767); n int; begin c := utl_tcp.open_connection('host.docker.internal',18081); n := utl_tcp.read_text(c,v); utl_tcp.close_connection(c); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- READ_TEXT_FULL_PEEK
+declare c utl_tcp.connection; v varchar(32767); n int; begin c := utl_tcp.open_connection('host.docker.internal',18081); n := utl_tcp.read_text(c,v,13,true); n := utl_tcp.read_text(c,v,13,false); utl_tcp.close_connection(c); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- READ_TEXT_ZERO
+declare c utl_tcp.connection; v varchar(32767); n int; begin c := utl_tcp.open_connection('host.docker.internal',18081); n := utl_tcp.read_text(c,v,0,false); utl_tcp.close_connection(c); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- WRITE_LINE_DEFAULT_NULL
+declare c utl_tcp.connection; n int; begin c := utl_tcp.open_connection('host.docker.internal',18081); n := utl_tcp.write_line(c); utl_tcp.close_connection(c); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- WRITE_LINE_NAMED
+declare c utl_tcp.connection; n int; begin c := utl_tcp.open_connection('host.docker.internal',18081); n := utl_tcp.write_line(DATA=>'DM8_TCP_LINE',C=>c); utl_tcp.close_connection(c); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- WRITE_RAW_DEFAULT_LEN
+declare c utl_tcp.connection; n int; begin c := utl_tcp.open_connection('host.docker.internal',18081); n := utl_tcp.write_raw(c,cast('444D385F5443505F5241570D0A' as varbinary(64))); utl_tcp.close_connection(c); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- WRITE_RAW_NAMED_LEN
+declare c utl_tcp.connection; n int; begin c := utl_tcp.open_connection('host.docker.internal',18081); n := utl_tcp.write_raw(LEN=>4,DATA=>cast('444D385F5443505F5241570D0A' as varbinary(64)),C=>c); utl_tcp.close_connection(c); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- WRITE_TEXT_DEFAULT_LEN
+declare c utl_tcp.connection; n int; begin c := utl_tcp.open_connection('host.docker.internal',18081); n := utl_tcp.write_text(c,'DM8_TCP_TEXT'||utl_tcp.crlf); utl_tcp.flush(c); utl_tcp.close_connection(c); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- WRITE_TEXT_NAMED_LEN
+declare c utl_tcp.connection; n int; begin c := utl_tcp.open_connection('host.docker.internal',18081); n := utl_tcp.write_text(LEN=>4,DATA=>'DM8_TCP_TEXT',C=>c); utl_tcp.flush(c); utl_tcp.close_connection(c); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FLUSH_NAMED
+declare c utl_tcp.connection; begin c := utl_tcp.open_connection('host.docker.internal',18081); utl_tcp.flush(C=>c); utl_tcp.close_connection(c); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- CLOSE_CONNECTION_NAMED
+declare c utl_tcp.connection; begin c := utl_tcp.open_connection('host.docker.internal',18081); utl_tcp.close_connection(C=>c); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- CLOSE_ALL_CONNECTION
+begin utl_tcp.close_all_connection(); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- CLOSE_ALL_CONNECTIONS
+begin utl_tcp.close_all_connections(); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- READ_RAW_32768_CLAMP
+declare c utl_tcp.connection; greeting varchar(32767); payload varchar(32767); raw_value varbinary(32767); n int; begin c := utl_tcp.open_connection('host.docker.internal',18081,tx_timeout=>5); greeting := utl_tcp.get_line(c,true); payload := rpad('A',32765,'A')||utl_tcp.crlf; n := utl_tcp.write_text(c,payload); utl_tcp.flush(c); n := utl_tcp.read_raw(c,raw_value,32768,false); utl_tcp.close_connection(c); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- READ_TEXT_32768_CLAMP
+declare c utl_tcp.connection; greeting varchar(32767); payload varchar(32767); text_value varchar(32767); n int; begin c := utl_tcp.open_connection('host.docker.internal',18081,tx_timeout=>5); greeting := utl_tcp.get_line(c,true); payload := rpad('B',32765,'B')||utl_tcp.crlf; n := utl_tcp.write_text(c,payload); utl_tcp.flush(c); n := utl_tcp.read_text(c,text_value,32768,false); utl_tcp.close_connection(c); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- GET_RAW_32767_MAX
+declare c utl_tcp.connection; greeting varchar(32767); payload varchar(32767); raw_value varbinary(32767); n int; begin c := utl_tcp.open_connection('host.docker.internal',18081,tx_timeout=>5); greeting := utl_tcp.get_line(c,true); payload := rpad('C',32765,'C')||utl_tcp.crlf; n := utl_tcp.write_text(c,payload); utl_tcp.flush(c); raw_value := utl_tcp.get_raw(c,32767,false); utl_tcp.close_connection(c); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- GET_TEXT_32767_MAX
+declare c utl_tcp.connection; greeting varchar(32767); payload varchar(32767); text_value varchar(32767); n int; begin c := utl_tcp.open_connection('host.docker.internal',18081,tx_timeout=>5); greeting := utl_tcp.get_line(c,true); payload := rpad('D',32765,'D')||utl_tcp.crlf; n := utl_tcp.write_text(c,payload); utl_tcp.flush(c); text_value := utl_tcp.get_text(c,32767,false); utl_tcp.close_connection(c); end;

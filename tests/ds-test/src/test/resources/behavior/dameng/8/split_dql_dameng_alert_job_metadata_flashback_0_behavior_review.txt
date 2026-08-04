@@ -1,0 +1,124 @@
+[split_dql_dameng_alert_job_metadata_flashback_0_behavior_review_001]
+sql:
+select count(*) from dbms_alert_info;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:21~1:36) /test/1/catalog1/schema1/dbms_alert_info/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_alert_job_metadata_flashback_0_behavior_review_002]
+sql:
+select job, what, next_date, "INTERVAL" from user_jobs where job=(select job_id from CODEX_DM8_JOB_CTL where label='SUBMIT');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:45~1:54) /test/1/catalog1/schema1/user_jobs/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(1:85~1:102) /test/1/catalog1/schema1/CODEX_DM8_JOB_CTL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_alert_job_metadata_flashback_0_behavior_review_003]
+sql:
+select marker, run_at from CODEX_DM8_JOB_LOG where marker='SUBMIT_RUN';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:27~1:44) /test/1/catalog1/schema1/CODEX_DM8_JOB_LOG/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_alert_job_metadata_flashback_0_behavior_review_004]
+sql:
+select count(*) from CODEX_DM8_JOB_LOG where marker='CHANGE_RUN';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:21~1:38) /test/1/catalog1/schema1/CODEX_DM8_JOB_LOG/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_alert_job_metadata_flashback_0_behavior_review_005]
+sql:
+select count(*) from CODEX_DM8_JOB_LOG where marker='ISUBMIT_RUN';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:21~1:38) /test/1/catalog1/schema1/CODEX_DM8_JOB_LOG/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_alert_job_metadata_flashback_0_behavior_review_006]
+sql:
+select count(*) from user_jobs;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:21~1:30) /test/1/catalog1/schema1/user_jobs/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_alert_job_metadata_flashback_0_behavior_review_018]
+sql:
+select value_text from CODEX_DM8_FLASH_BASE where id=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:23~1:43) /test/1/catalog1/schema1/CODEX_DM8_FLASH_BASE/",
+      "action": "READ"
+    }
+  ]
+}

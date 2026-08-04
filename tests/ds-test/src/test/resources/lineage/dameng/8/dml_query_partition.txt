@@ -1,0 +1,26 @@
+[for_update_columns]
+sql:
+select e.id, e.name from catalog1.app.employee e where e.id = 1 for update of e.name nowait
+expect:
+{
+  "id" : [ "/catalog1/app/employee/id/" ],
+  "name" : [ "/catalog1/app/employee/name/" ]
+}
+----------
+[for_update_join_columns]
+sql:
+select e.id, d.name from catalog1.app.employee e join catalog1.app.department d on e.dept_id = d.id for update of e.name
+expect:
+{
+  "id" : [ "/catalog1/app/employee/id/" ],
+  "name" : [ "/catalog1/app/department/name/" ]
+}
+----------
+[partition_columns]
+sql:
+select p.id, p.name from catalog1.app.employee_partitioned partition for(10) p
+expect:
+{
+  "id" : [ "/catalog1/app/employee_partitioned/id/" ],
+  "name" : [ "/catalog1/app/employee_partitioned/name/" ]
+}

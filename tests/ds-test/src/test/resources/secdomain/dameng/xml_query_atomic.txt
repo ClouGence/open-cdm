@@ -1,0 +1,63 @@
+[for_xml_path]
+sql:
+select id,category from app.xml_docs order by id for xml path('row')
+expect:
+{
+  "contains": [
+    {
+      "class": "RdbTableDomain",
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "schema": "app",
+      "table": "xml_docs"
+    }
+  ]
+}
+----------
+[xml_table_namespace]
+sql:
+select d.id,x.item_text from app.xml_docs d,xmltable('/A/ITEM' passing d.payload columns item_text varchar(20) path 'text()') x
+expect:
+{
+  "contains": [
+    {
+      "class": "RdbTableDomain",
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "schema": "app",
+      "table": "xml_docs"
+    }
+  ]
+}
+----------
+[xml_serialize_table]
+sql:
+select xmlserialize(content d.payload as clob) from app.xml_docs d
+expect:
+{
+  "contains": [
+    {
+      "class": "RdbTableDomain",
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "schema": "app",
+      "table": "xml_docs"
+    }
+  ]
+}
+----------
+[xml_cast_table]
+sql:
+select xmlcast(d.payload as varchar(200)) from app.xml_docs d
+expect:
+{
+  "contains": [
+    {
+      "class": "RdbTableDomain",
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "schema": "app",
+      "table": "xml_docs"
+    }
+  ]
+}

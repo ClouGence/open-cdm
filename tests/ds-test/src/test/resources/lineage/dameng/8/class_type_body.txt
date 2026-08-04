@@ -1,0 +1,33 @@
+[class_body_query_has_no_result_lineage]
+sql:
+create or replace class body app.c_analysis as
+  member function get_value return int as
+    v_value int;
+  begin
+    select max(id) into v_value from catalog1.app.class_source;
+    return v_value;
+  end;
+end;
+/
+expect:
+{}
+----------
+[type_body_has_no_result_lineage]
+sql:
+create or replace type body app.t_analysis as
+  member function get_value return int is
+  begin
+    return value;
+  end;
+end;
+/
+expect:
+{}
+----------
+[is_of_type_query_columns]
+sql:
+select id from catalog1.app.type_source where value is not of type(app.t_analysis)
+expect:
+{
+  "id" : [ "/catalog1/app/type_source/id/" ]
+}

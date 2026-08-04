@@ -25,7 +25,7 @@ options {
 }
 
 @header {
-import com.clougence.clouddm.ds.gauss.sql.gs.parser.base.GaussSqlParserBase;
+import com.clougence.clouddm.ds.gauss.sql.analysis.security.base.GaussSqlParserBase;
 }
 
 // Insert here @header for C++ parser.

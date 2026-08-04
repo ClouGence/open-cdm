@@ -1,0 +1,1210 @@
+[split_ddl_dml_dql_block_dameng_general_datetime_type_atomic_0_001_behavior_review]
+sql:
+create table app.dt_t(
+  id int primary key,c_date date default date '2000-01-01' not null,
+  c_time0 time(0) default time '00:00:00',c_time6 time(6),
+  c_ts0 timestamp(0),c_ts9 timestamp(9),c_ts timestamp,
+  c_dt0 datetime(0),c_dt9 datetime(9),c_dt datetime,
+  c_null timestamp null,
+  constraint ck_dt check(c_date>=date '-4712-01-01'),
+  constraint uk_dt unique(c_ts9));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:21) /test/1/catalog1/app/dt_t/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_general_datetime_type_atomic_0_002_behavior_review]
+sql:
+comment on column app.dt_t.c_date is 'Gregorian and Julian date';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "COMMENT_COLUMN": [
+    {
+      "subject": "Table(1:18~1:26) /test/1/catalog1/app/dt_t/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_general_datetime_type_atomic_0_003_behavior_review]
+sql:
+comment on column app.dt_t.c_ts9 is 'declared nanosecond timestamp';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "COMMENT_COLUMN": [
+    {
+      "subject": "Table(1:18~1:26) /test/1/catalog1/app/dt_t/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_general_datetime_type_atomic_0_004_behavior_review]
+sql:
+create index app.idx_dt on app.dt_t(c_date,c_ts9);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:23) /test/1/catalog1/app/idx_dt/",
+      "action": "CREATE",
+      "target": "Table(1:27~1:35) /test/1/catalog1/app/dt_t/"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_general_datetime_type_atomic_0_005_behavior_review]
+sql:
+alter table app.dt_t add c_alter datetime(6) default current_timestamp;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_COLUMN": [
+    {
+      "subject": "Table(1:12~1:20) /test/1/catalog1/app/dt_t/",
+      "action": "ALTER"
+    },
+    {
+      "subject": "Function(1:53~1:70) /test/1/catalog1/schema1/current_timestamp/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_general_datetime_type_atomic_0_006_behavior_review]
+sql:
+alter table app.dt_t modify c_alter timestamp(9);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_COLUMN": [
+    {
+      "subject": "Table(1:12~1:20) /test/1/catalog1/app/dt_t/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_general_datetime_type_atomic_0_007_behavior_review]
+sql:
+insert into app.dt_t values(
+  1,date '-4712-01-01',time '00:00:00',time '00:00:00.000000',
+  timestamp '-4712-01-01 00:00:00',timestamp '-4712-01-01 00:00:00.000000000',
+  timestamp '-4712-01-01 00:00:00.123456789',
+  datetime '-4712-01-01 00:00:00',datetime '-4712-01-01 00:00:00.000000000',
+  datetime '-4712-01-01 00:00:00.123456789',null,current_timestamp);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:20) /test/1/catalog1/app/dt_t/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(6:49~6:66) /test/1/catalog1/schema1/current_timestamp/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_general_datetime_type_atomic_0_008_behavior_review]
+sql:
+insert into app.dt_t values(
+  2,date '9999-12-31',time '23:59:59',time '23:59:59.999999',
+  timestamp '9999-12-31 23:59:59',timestamp '9999-12-31 23:59:59.999999999',
+  timestamp '9999-12-31 23:59:59.999999999',
+  datetime '9999-12-31 23:59:59',datetime '9999-12-31 23:59:59.999999999',
+  datetime '9999-12-31 23:59:59.999999999',null,current_timestamp);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:20) /test/1/catalog1/app/dt_t/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(6:48~6:65) /test/1/catalog1/schema1/current_timestamp/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_general_datetime_type_atomic_0_009_behavior_review]
+sql:
+insert into app.dt_t(id,c_date,c_time0,c_time6,c_ts9,c_dt9)
+  values(3,'1999/10/01','9:10:21.49','09:10:21.123456',
+  '2002/12/12 09:10:21.123456789','2002.12.12 09:10:21.987654321');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:20) /test/1/catalog1/app/dt_t/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_general_datetime_type_atomic_0_010_behavior_review]
+sql:
+insert into app.dt_t(id,c_date) values(4,'1999.10.01');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:20) /test/1/catalog1/app/dt_t/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_general_datetime_type_atomic_0_011_behavior_review]
+sql:
+insert into app.dt_t(id,c_date) values(5,'1999,10,01');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:20) /test/1/catalog1/app/dt_t/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_general_datetime_type_atomic_0_012_behavior_review]
+sql:
+insert into app.dt_t(id,c_date) values(6,'1999:10:01');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:20) /test/1/catalog1/app/dt_t/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_general_datetime_type_atomic_0_013_behavior_review]
+sql:
+insert into app.dt_t(id,c_date) values(7,'1999*10*01');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:20) /test/1/catalog1/app/dt_t/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_general_datetime_type_atomic_0_014_behavior_review]
+sql:
+insert into app.dt_t(id) values(8);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:20) /test/1/catalog1/app/dt_t/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_general_datetime_type_atomic_0_015_behavior_review]
+sql:
+update app.dt_t set c_date=c_date+1,
+  c_ts0=c_ts0+interval '1' day where id=3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:15) /test/1/catalog1/app/dt_t/",
+      "action": "UPDATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_general_datetime_type_atomic_0_016_behavior_review]
+sql:
+select id,c_date,c_time0,c_time6,c_ts0,c_ts9,c_ts,c_dt0,c_dt9,c_dt,c_null
+  from app.dt_t order by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:7~2:15) /test/1/catalog1/app/dt_t/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_general_datetime_type_atomic_0_017_behavior_review]
+sql:
+select data_type,data_length,data_precision,data_scale
+  from user_tab_columns where table_name='DT_T' order by column_id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(2:7~2:23) /test/1/catalog1/schema1/user_tab_columns/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_general_datetime_type_atomic_0_018_behavior_review]
+sql:
+select date '1582-10-04'+1,date '1582-10-15'-1 from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:52~1:56) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_general_datetime_type_atomic_0_019_behavior_review]
+sql:
+select timestamp '1582-10-05 12:34:56.123456789',
+  datetime '1582-10-14 12:34:56.987654321' from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(2:48~2:52) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_general_datetime_type_atomic_0_020_behavior_review]
+sql:
+select extract(year from c_date),extract(hour from c_ts9),
+  to_char(c_date,'YYYY-MM-DD'),to_char(c_ts9,'YYYY-MM-DD HH24:MI:SS.FF9')
+  from app.dt_t where id=3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/extract/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:33~1:40) /test/1/catalog1/schema1/extract/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2~2:9) /test/1/catalog1/schema1/to_char/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:31~2:38) /test/1/catalog1/schema1/to_char/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(3:7~3:15) /test/1/catalog1/app/dt_t/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_general_datetime_type_atomic_0_021_behavior_review]
+sql:
+select add_days(c_date,10),add_months(c_date,1),last_day(c_date),
+  months_between(add_months(c_date,2),c_date) from app.dt_t where id=3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/add_days/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:27~1:37) /test/1/catalog1/schema1/add_months/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:48~1:56) /test/1/catalog1/schema1/last_day/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2~2:16) /test/1/catalog1/schema1/months_between/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:17~2:27) /test/1/catalog1/schema1/add_months/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:51~2:59) /test/1/catalog1/app/dt_t/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_general_datetime_type_atomic_0_022_behavior_review]
+sql:
+select datediff(day,c_date,date '2000-01-01'),
+  dateadd(day,2,c_date),trunc(c_ts9,'DD') from app.dt_t where id=3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/datediff/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2~2:9) /test/1/catalog1/schema1/dateadd/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:24~2:29) /test/1/catalog1/schema1/trunc/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:47~2:55) /test/1/catalog1/app/dt_t/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_general_datetime_type_atomic_0_023_behavior_review]
+sql:
+select to_date('2026-07-23','YYYY-MM-DD'),
+  to_timestamp('2026-07-23 12:34:56.123456','YYYY-MM-DD HH24:MI:SS.FF6')
+  from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/to_date/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2~2:14) /test/1/catalog1/schema1/to_timestamp/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(3:7~3:11) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_general_datetime_type_atomic_0_024_behavior_review]
+sql:
+select min(c_date),max(c_date),min(c_time6),max(c_time6),
+  min(c_ts9),max(c_dt9) from app.dt_t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/min/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:19~1:22) /test/1/catalog1/schema1/max/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:31~1:34) /test/1/catalog1/schema1/min/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:44~1:47) /test/1/catalog1/schema1/max/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2~2:5) /test/1/catalog1/schema1/min/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:13~2:16) /test/1/catalog1/schema1/max/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:29~2:37) /test/1/catalog1/app/dt_t/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_general_datetime_type_atomic_0_025_behavior_review]
+sql:
+select id from app.dt_t index idx_dt
+  where c_date between date '1999-01-01' and date '2000-12-31' order by c_ts9;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:15~1:23) /test/1/catalog1/app/dt_t/",
+      "action": "READ"
+    },
+    {
+      "subject": "Index(1:30~1:36) /test/1/catalog1/app/idx_dt/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_general_datetime_type_atomic_0_026_behavior_review]
+sql:
+create view app.dt_v as
+  select id,c_date,c_time6,c_ts9,c_dt9 from app.dt_t
+  where c_date>=date '1999-01-01';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:20) /test/1/catalog1/app/dt_v/",
+      "action": "CREATE",
+      "target": "Table(2:44~2:52) /test/1/catalog1/app/dt_t/"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_general_datetime_type_atomic_0_027_behavior_review]
+sql:
+select id,c_ts9-c_date from app.dt_v order by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:28~1:36) /test/1/catalog1/app/dt_v/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_general_datetime_type_atomic_0_028_behavior_review]
+sql:
+update app.dt_v set c_time6=time '12:34:56.654321' where id=3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:15) /test/1/catalog1/app/dt_v/",
+      "action": "UPDATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_general_datetime_type_atomic_0_029_behavior_review]
+sql:
+create function app.date_f(p date) return date as
+begin return p;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:26) /test/1/catalog1/app/date_f/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_general_datetime_type_atomic_0_030_behavior_review]
+sql:
+create function app.time_f(p time(6)) return time(6) as
+begin return p;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:26) /test/1/catalog1/app/time_f/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_general_datetime_type_atomic_0_031_behavior_review]
+sql:
+create function app.timestamp_f(p timestamp(9)) return timestamp(9) as
+begin return p;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:31) /test/1/catalog1/app/timestamp_f/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_general_datetime_type_atomic_0_032_behavior_review]
+sql:
+create function app.datetime_f(p datetime(9)) return datetime(9) as
+begin return p;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:30) /test/1/catalog1/app/datetime_f/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_general_datetime_type_atomic_0_033_behavior_review]
+sql:
+select app.date_f(date '-4712-01-01'),app.date_f(date '9999-12-31'),
+  app.time_f(time '23:59:59.999999'),
+  app.timestamp_f(timestamp '9999-12-31 23:59:59.999999999'),
+  app.datetime_f(datetime '-4712-01-01 00:00:00.000000000') from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/app/date_f/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:38~1:48) /test/1/catalog1/app/date_f/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2~2:12) /test/1/catalog1/app/time_f/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(3:2~3:17) /test/1/catalog1/app/timestamp_f/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(4:2~4:16) /test/1/catalog1/app/datetime_f/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(4:65~4:69) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_general_datetime_type_atomic_0_034_behavior_review]
+sql:
+create table app.dt_p_date(id date,v int)
+  partition by range(id)(partition p0 values less than(date '2000-01-01'),
+  partition p1 values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:26) /test/1/catalog1/app/dt_p_date/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_general_datetime_type_atomic_0_035_behavior_review]
+sql:
+insert into app.dt_p_date values(date '1999-12-31',1),(date '2000-01-01',2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:25) /test/1/catalog1/app/dt_p_date/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_general_datetime_type_atomic_0_036_behavior_review]
+sql:
+select count(*) from app.dt_p_date partition for(date '1999-12-31');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Partition(1:35~1:67) /test/1/catalog1/app/dt_p_date/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_general_datetime_type_atomic_0_037_behavior_review]
+sql:
+create table app.dt_p_time(id time(6),v int)
+  partition by range(id)(partition p0 values less than(time '12:00:00'),
+  partition p1 values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:26) /test/1/catalog1/app/dt_p_time/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_general_datetime_type_atomic_0_038_behavior_review]
+sql:
+insert into app.dt_p_time values(time '11:59:59',1),(time '12:00:00',2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:25) /test/1/catalog1/app/dt_p_time/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_general_datetime_type_atomic_0_039_behavior_review]
+sql:
+select count(*) from app.dt_p_time partition for(time '11:59:59');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Partition(1:35~1:65) /test/1/catalog1/app/dt_p_time/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_general_datetime_type_atomic_0_040_behavior_review]
+sql:
+create table app.dt_p_ts(id timestamp(9),v int)
+  partition by range(id)(partition p0 values less than(timestamp '2000-01-01 00:00:00'),
+  partition p1 values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:24) /test/1/catalog1/app/dt_p_ts/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_general_datetime_type_atomic_0_041_behavior_review]
+sql:
+insert into app.dt_p_ts values(timestamp '1999-12-31 23:59:59',1),(timestamp '2000-01-01 00:00:00',2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:23) /test/1/catalog1/app/dt_p_ts/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_general_datetime_type_atomic_0_042_behavior_review]
+sql:
+select count(*) from app.dt_p_ts partition for(timestamp '1999-12-31 23:59:59');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Partition(1:33~1:79) /test/1/catalog1/app/dt_p_ts/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_general_datetime_type_atomic_0_043_behavior_review]
+sql:
+create table app.bad_date_arg(c date(1));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:29) /test/1/catalog1/app/bad_date_arg/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_general_datetime_type_atomic_0_044_behavior_review]
+sql:
+create table app.bad_time_p7(c time(7));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/app/bad_time_p7/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_general_datetime_type_atomic_0_045_behavior_review]
+sql:
+create table app.bad_ts_p10(c timestamp(10));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:27) /test/1/catalog1/app/bad_ts_p10/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_general_datetime_type_atomic_0_046_behavior_review]
+sql:
+create table app.bad_dt_p10(c datetime(10));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:27) /test/1/catalog1/app/bad_dt_p10/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_general_datetime_type_atomic_0_047_behavior_review]
+sql:
+insert into app.dt_t(id,c_date) values(101,null);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:20) /test/1/catalog1/app/dt_t/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_general_datetime_type_atomic_0_048_behavior_review]
+sql:
+select time '24:00:00' from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:28~1:32) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_general_datetime_type_atomic_0_049_behavior_review]
+sql:
+select time '23:60:00' from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:28~1:32) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_general_datetime_type_atomic_0_050_behavior_review]
+sql:
+select time '23:59:60' from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:28~1:32) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_general_datetime_type_atomic_0_051_behavior_review]
+sql:
+select timestamp '2002-12-12 09:10:21.1234567894' from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:55~1:59) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_general_datetime_type_atomic_0_052_behavior_review]
+sql:
+select datetime '2002-12-12 09:10:21.1234567895' from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:54~1:58) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_general_datetime_type_atomic_0_053_behavior_review]
+sql:
+select date '-4712-01-01'-1 from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:33~1:37) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_general_datetime_type_atomic_0_054_behavior_review]
+sql:
+select date '9999-12-31'+1 from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:32~1:36) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_general_datetime_type_atomic_0_055_behavior_review]
+sql:
+select timestamp '-4712-01-01 00:00:00'-interval '0.000001' second from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:72~1:76) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_general_datetime_type_atomic_0_056_behavior_review]
+sql:
+select timestamp '9999-12-31 23:59:59.999999999'+interval '0.000001' second from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:81~1:85) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_general_datetime_type_atomic_0_057_behavior_review]
+sql:
+select time '09:10:21.1234567' from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:36~1:40) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_general_datetime_type_atomic_0_058_behavior_review]
+sql:
+select date '' from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:20~1:24) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_general_datetime_type_atomic_0_059_behavior_review]
+sql:
+select time '' from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:20~1:24) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_general_datetime_type_atomic_0_060_behavior_review]
+sql:
+select timestamp '' from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:25~1:29) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_general_datetime_type_atomic_0_061_behavior_review]
+sql:
+drop view app.dt_v;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "View(1:10~1:18) /test/1/catalog1/app/dt_v/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_general_datetime_type_atomic_0_062_behavior_review]
+sql:
+drop function app.date_f;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Function(1:14~1:24) /test/1/catalog1/app/date_f/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_general_datetime_type_atomic_0_063_behavior_review]
+sql:
+drop function app.time_f;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Function(1:14~1:24) /test/1/catalog1/app/time_f/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_general_datetime_type_atomic_0_064_behavior_review]
+sql:
+drop function app.timestamp_f;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Function(1:14~1:29) /test/1/catalog1/app/timestamp_f/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_general_datetime_type_atomic_0_065_behavior_review]
+sql:
+drop function app.datetime_f;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Function(1:14~1:28) /test/1/catalog1/app/datetime_f/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_general_datetime_type_atomic_0_066_behavior_review]
+sql:
+drop table app.dt_p_date;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:24) /test/1/catalog1/app/dt_p_date/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_general_datetime_type_atomic_0_067_behavior_review]
+sql:
+drop table app.dt_p_time;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:24) /test/1/catalog1/app/dt_p_time/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_general_datetime_type_atomic_0_068_behavior_review]
+sql:
+drop table app.dt_p_ts;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:22) /test/1/catalog1/app/dt_p_ts/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_general_datetime_type_atomic_0_069_behavior_review]
+sql:
+drop table app.dt_t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:19) /test/1/catalog1/app/dt_t/",
+      "action": "DROP"
+    }
+  ]
+}

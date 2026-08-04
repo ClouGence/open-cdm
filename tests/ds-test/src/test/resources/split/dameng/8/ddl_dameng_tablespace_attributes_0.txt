@@ -1,0 +1,369 @@
+create tablespace CODEX_TS_BASIC_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_BASIC_20260723.dbf' size 64;
+drop tablespace CODEX_TS_BASIC_20260723;
+create tablespace "CODEX TS QUOTED 20260723" datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_QUOTED_20260723.dbf' size 64;
+drop tablespace "CODEX TS QUOTED 20260723";
+create tablespace if not exists CODEX_TS_IFNE_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_IFNE_20260723.dbf' size 64;
+create tablespace if not exists CODEX_TS_IFNE_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_IFNE_IGNORED_20260723.dbf' size 128;
+drop tablespace CODEX_TS_IFNE_20260723;
+create tablespace CODEX_TS_MULTI_20260723
+datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_MULTI_A_20260723.dbf' size 64,
+         '/opt/dmdbms/data/DAMENG/CODEX_TS_MULTI_B_20260723.dbf' size 64;
+drop tablespace CODEX_TS_MULTI_20260723;
+create tablespace CODEX_TS_AE_ON_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_AE_ON_20260723.dbf' size 64 autoextend on;
+drop tablespace CODEX_TS_AE_ON_20260723;
+create tablespace CODEX_TS_AE_NEXT_MIN_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_AE_NEXT_MIN_20260723.dbf' size 64 autoextend on next 1;
+drop tablespace CODEX_TS_AE_NEXT_MIN_20260723;
+create tablespace CODEX_TS_AE_NEXT_MAX_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_AE_NEXT_MAX_20260723.dbf' size 64 autoextend on next 2048;
+drop tablespace CODEX_TS_AE_NEXT_MAX_20260723;
+create tablespace CODEX_TS_AE_MAXSIZE_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_AE_MAXSIZE_20260723.dbf' size 64 autoextend on next 8 maxsize 128;
+drop tablespace CODEX_TS_AE_MAXSIZE_20260723;
+create tablespace CODEX_TS_AE_UNLIMITED_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_AE_UNLIMITED_20260723.dbf' size 64 autoextend on maxsize unlimited;
+drop tablespace CODEX_TS_AE_UNLIMITED_20260723;
+create tablespace CODEX_TS_AE_OFF_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_AE_OFF_20260723.dbf' size 64 autoextend off;
+drop tablespace CODEX_TS_AE_OFF_20260723;
+create tablespace CODEX_TS_CACHE_NORMAL_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_CACHE_NORMAL_20260723.dbf' size 64 cache=normal;
+drop tablespace CODEX_TS_CACHE_NORMAL_20260723;
+create tablespace CODEX_TS_CACHE_KEEP_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_CACHE_KEEP_20260723.dbf' size 64 cache="KEEP";
+drop tablespace CODEX_TS_CACHE_KEEP_20260723;
+create tablespace CODEX_TS_ENC_RANDOM_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_ENC_RANDOM_20260723.dbf' size 64 encrypt with DES_CFB;
+drop tablespace CODEX_TS_ENC_RANDOM_20260723;
+create tablespace CODEX_TS_ENC_PLAIN_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_ENC_PLAIN_20260723.dbf' size 64 encrypt with DES_CFB by Dm8Pass2026;
+drop tablespace CODEX_TS_ENC_PLAIN_20260723;
+create tablespace CODEX_TS_STORAGE_RAFT_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_STORAGE_RAFT_20260723.dbf' size 64 storage(on CODEX_RAFT_20260723);
+drop tablespace CODEX_TS_STORAGE_RAFT_20260723;
+create tablespace CODEX_TS_STORAGE_BP_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_STORAGE_BP_20260723.dbf' size 64 storage(on CODEX_BP_20260723);
+drop tablespace CODEX_TS_STORAGE_BP_20260723;
+create tablespace CODEX_TS_HUGE_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_HUGE_20260723.dbf' size 64 with huge path '/opt/dmdbms/data/DAMENG/CODEX_TS_HUGE_PATH_20260723';
+drop tablespace CODEX_TS_HUGE_20260723;
+create tablespace CODEX_TS_ORDERED_20260723
+datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_ORDERED_20260723.dbf' size 64 autoextend on next 1 maxsize 128
+cache=normal encrypt with DES_CFB by Dm8Pass2026
+with huge path '/opt/dmdbms/data/DAMENG/CODEX_TS_ORDERED_HUGE_20260723'
+storage(on CODEX_RAFT_20260723);
+drop tablespace CODEX_TS_ORDERED_20260723;
+create tablespace TXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_NAME128_20260723.dbf' size 64;
+drop tablespace TXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX;
+create tablespace CODEX_TS_ALTER_STATE_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_ALTER_STATE_20260723.dbf' size 64;
+alter tablespace CODEX_TS_ALTER_STATE_20260723 offline;
+alter tablespace CODEX_TS_ALTER_STATE_20260723 online;
+drop tablespace CODEX_TS_ALTER_STATE_20260723;
+create tablespace CODEX_TS_RENAME_A_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_RENAME_A_20260723.dbf' size 64;
+alter tablespace CODEX_TS_RENAME_A_20260723 rename to CODEX_TS_RENAME_B_20260723;
+drop tablespace CODEX_TS_RENAME_B_20260723;
+create tablespace CODEX_TS_RENAME_FILE_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_RENAME_FILE_A_20260723.dbf' size 64;
+alter tablespace CODEX_TS_RENAME_FILE_20260723 offline;
+alter tablespace CODEX_TS_RENAME_FILE_20260723 rename datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_RENAME_FILE_A_20260723.dbf' to '/opt/dmdbms/data/DAMENG/CODEX_TS_RENAME_FILE_B_20260723.dbf';
+alter tablespace CODEX_TS_RENAME_FILE_20260723 online;
+drop tablespace CODEX_TS_RENAME_FILE_20260723;
+create tablespace CODEX_TS_ADD_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_ADD_A_20260723.dbf' size 64;
+alter tablespace CODEX_TS_ADD_20260723 add datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_ADD_B_20260723.dbf' size 64 autoextend on next 2 maxsize 128;
+alter tablespace CODEX_TS_ADD_20260723 drop datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_ADD_B_20260723.dbf';
+drop tablespace CODEX_TS_ADD_20260723;
+create tablespace CODEX_TS_RESIZE_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_RESIZE_20260723.dbf' size 64;
+alter tablespace CODEX_TS_RESIZE_20260723 resize datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_RESIZE_20260723.dbf' to 72;
+alter tablespace CODEX_TS_RESIZE_20260723 resize datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_RESIZE_20260723.dbf' to 64;
+drop tablespace CODEX_TS_RESIZE_20260723;
+create tablespace CODEX_TS_ALTER_AE_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_ALTER_AE_20260723.dbf' size 64;
+alter tablespace CODEX_TS_ALTER_AE_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_ALTER_AE_20260723.dbf' autoextend on next 1 maxsize 128;
+alter tablespace CODEX_TS_ALTER_AE_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_ALTER_AE_20260723.dbf' autoextend off;
+drop tablespace CODEX_TS_ALTER_AE_20260723;
+create tablespace CODEX_TS_ALTER_CACHE_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_ALTER_CACHE_20260723.dbf' size 64 cache=normal;
+alter tablespace CODEX_TS_ALTER_CACHE_20260723 cache="KEEP";
+alter tablespace CODEX_TS_ALTER_CACHE_20260723 cache=normal;
+drop tablespace CODEX_TS_ALTER_CACHE_20260723;
+create tablespace CODEX_TS_ADD_HUGE_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_ADD_HUGE_20260723.dbf' size 64;
+alter tablespace CODEX_TS_ADD_HUGE_20260723 add huge path '/opt/dmdbms/data/DAMENG/CODEX_TS_ADD_HUGE_PATH_20260723';
+drop tablespace CODEX_TS_ADD_HUGE_20260723;
+drop tablespace if exists CODEX_TS_NOT_EXISTS_20260723;
+create tablespace CODEX_TS_DICT_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_DICT_20260723.dbf' size 64 autoextend on next 4 maxsize 128 cache=normal;
+drop tablespace CODEX_TS_DICT_20260723;
+create tablespace CODEX_TS_COMMIT_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_COMMIT_20260723.dbf' size 64;
+alter tablespace CODEX_TS_COMMIT_20260723 cache=normal;
+drop tablespace CODEX_TS_COMMIT_20260723;
+create tablespace CODEX_TS_ENC_WRAPPED_20260723
+datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_ENC_WRAPPED_20260723.dbf' size 64 autoextend on next 0 maxsize 0
+cache="NORMAL" encrypt with DES_CFB by wrapped '0x099C4E3207539B68F167DB63361F8BFD9F7633DCAC6347EC7757FDFECC8C6A286B569C886B8FBE305E620C8A27F1BC9BFF05E954'
+copy 0 micro;
+drop tablespace CODEX_TS_ENC_WRAPPED_20260723;
+create tablespace CODEX_TS_NEXT0_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_NEXT0_20260723.dbf' size 64 autoextend on next 0;
+drop tablespace CODEX_TS_NEXT0_20260723;
+create tablespace CODEX_TS_PWD8_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_PWD8_20260723.dbf' size 64 encrypt with DES_CFB by Dm8Pas26;
+drop tablespace CODEX_TS_PWD8_20260723;
+create tablespace CODEX_TS_PWD9_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_PWD9_20260723.dbf' size 64 encrypt with DES_CFB by Dm8Pass26;
+drop tablespace CODEX_TS_PWD9_20260723;
+create tablespace CODEX_TS_PWD32_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_PWD32_20260723.dbf' size 64 encrypt with DES_CFB by Dm8Password20260723Abcdefghijk01;
+drop tablespace CODEX_TS_PWD32_20260723;
+create tablespace CODEX_TS_MIRROR_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_MIRROR_20260723.dbf' mirror '/opt/dmdbms/data/DAMENG/CODEX_TS_MIRROR_M_20260723.dbf' size 64;
+drop tablespace CODEX_TS_MIRROR_20260723;
+create tablespace CODEX_TS_RELATIVE_20260723 datafile './CODEX_TS_RELATIVE_20260723.dbf' size 64;
+drop tablespace CODEX_TS_RELATIVE_20260723;
+create tablespace CODEX_TS_BARE_REL_20260723 datafile 'CODEX_TS_BARE_REL_20260723.dbf' size 64;
+drop tablespace CODEX_TS_BARE_REL_20260723;
+create tablespace CODEX_TS_PWD_QUOTED_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_PWD_QUOTED_20260723.dbf' size 64 encrypt with DES_CFB by "Dm8Quoted2026";
+drop tablespace CODEX_TS_PWD_QUOTED_20260723;
+create tablespace CODEX_TS_ASM_STRIPING0_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_ASM_STRIPING0_20260723.dbf' size 64 striping 0;
+drop tablespace CODEX_TS_ASM_STRIPING0_20260723;
+create tablespace CODEX_TS_ASM_HIGH_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_ASM_HIGH_20260723.dbf' size 64 striping 32 high;
+drop tablespace CODEX_TS_ASM_HIGH_20260723;
+create tablespace CODEX_TS_ASM_NORMAL_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_ASM_NORMAL_20260723.dbf' size 64 striping 64 normal;
+drop tablespace CODEX_TS_ASM_NORMAL_20260723;
+create tablespace CODEX_TS_ASM_EXTERNAL_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_ASM_EXTERNAL_20260723.dbf' size 64 striping 128 external;
+drop tablespace CODEX_TS_ASM_EXTERNAL_20260723;
+create tablespace CODEX_TS_ASM_STRIPING256_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_ASM_STRIPING256_20260723.dbf' size 64 striping 256;
+drop tablespace CODEX_TS_ASM_STRIPING256_20260723;
+create tablespace CODEX_TS_TOPOLOGY_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_TOPOLOGY_20260723.dbf' size 64;
+alter tablespace CODEX_TS_TOPOLOGY_20260723 optimize 0;
+alter tablespace CODEX_TS_TOPOLOGY_20260723 resize datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_TOPOLOGY_20260723.dbf' to 72 on CODEX_RAFT_20260723;
+drop tablespace CODEX_TS_TOPOLOGY_20260723;
+create tablespace CODEX_TS_DATAFILE_DEFAULT_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_DATAFILE_DEFAULT_20260723.dbf' size 64 autoextend off;
+alter tablespace CODEX_TS_DATAFILE_DEFAULT_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_DATAFILE_DEFAULT_20260723.dbf';
+drop tablespace CODEX_TS_DATAFILE_DEFAULT_20260723;
+create tablespace CODEX_TS_CORRUPT_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_CORRUPT_20260723.dbf' size 64;
+alter tablespace CODEX_TS_CORRUPT_20260723 offline;
+alter tablespace CODEX_TS_CORRUPT_20260723 corrupt;
+drop tablespace CODEX_TS_CORRUPT_20260723;
+create tablespace CODEX_TS_PATH256_20260723 datafile '/opt/dmdbms/data/DAMENG/XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.dbf' size 64;
+drop tablespace CODEX_TS_PATH256_20260723;
+------------------------------------------------------------------------------------------
+[CREATE_TABLESPACE] create tablespace CODEX_TS_BASIC_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_BASIC_20260723.dbf' size 64;
+----------
+[DROP_TABLESPACE] drop tablespace CODEX_TS_BASIC_20260723;
+----------
+[CREATE_TABLESPACE] create tablespace "CODEX TS QUOTED 20260723" datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_QUOTED_20260723.dbf' size 64;
+----------
+[DROP_TABLESPACE] drop tablespace "CODEX TS QUOTED 20260723";
+----------
+[CREATE_TABLESPACE] create tablespace if not exists CODEX_TS_IFNE_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_IFNE_20260723.dbf' size 64;
+----------
+[CREATE_TABLESPACE] create tablespace if not exists CODEX_TS_IFNE_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_IFNE_IGNORED_20260723.dbf' size 128;
+----------
+[DROP_TABLESPACE] drop tablespace CODEX_TS_IFNE_20260723;
+----------
+[CREATE_TABLESPACE] create tablespace CODEX_TS_MULTI_20260723
+datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_MULTI_A_20260723.dbf' size 64,
+         '/opt/dmdbms/data/DAMENG/CODEX_TS_MULTI_B_20260723.dbf' size 64;
+----------
+[DROP_TABLESPACE] drop tablespace CODEX_TS_MULTI_20260723;
+----------
+[CREATE_TABLESPACE] create tablespace CODEX_TS_AE_ON_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_AE_ON_20260723.dbf' size 64 autoextend on;
+----------
+[DROP_TABLESPACE] drop tablespace CODEX_TS_AE_ON_20260723;
+----------
+[CREATE_TABLESPACE] create tablespace CODEX_TS_AE_NEXT_MIN_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_AE_NEXT_MIN_20260723.dbf' size 64 autoextend on next 1;
+----------
+[DROP_TABLESPACE] drop tablespace CODEX_TS_AE_NEXT_MIN_20260723;
+----------
+[CREATE_TABLESPACE] create tablespace CODEX_TS_AE_NEXT_MAX_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_AE_NEXT_MAX_20260723.dbf' size 64 autoextend on next 2048;
+----------
+[DROP_TABLESPACE] drop tablespace CODEX_TS_AE_NEXT_MAX_20260723;
+----------
+[CREATE_TABLESPACE] create tablespace CODEX_TS_AE_MAXSIZE_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_AE_MAXSIZE_20260723.dbf' size 64 autoextend on next 8 maxsize 128;
+----------
+[DROP_TABLESPACE] drop tablespace CODEX_TS_AE_MAXSIZE_20260723;
+----------
+[CREATE_TABLESPACE] create tablespace CODEX_TS_AE_UNLIMITED_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_AE_UNLIMITED_20260723.dbf' size 64 autoextend on maxsize unlimited;
+----------
+[DROP_TABLESPACE] drop tablespace CODEX_TS_AE_UNLIMITED_20260723;
+----------
+[CREATE_TABLESPACE] create tablespace CODEX_TS_AE_OFF_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_AE_OFF_20260723.dbf' size 64 autoextend off;
+----------
+[DROP_TABLESPACE] drop tablespace CODEX_TS_AE_OFF_20260723;
+----------
+[CREATE_TABLESPACE] create tablespace CODEX_TS_CACHE_NORMAL_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_CACHE_NORMAL_20260723.dbf' size 64 cache=normal;
+----------
+[DROP_TABLESPACE] drop tablespace CODEX_TS_CACHE_NORMAL_20260723;
+----------
+[CREATE_TABLESPACE] create tablespace CODEX_TS_CACHE_KEEP_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_CACHE_KEEP_20260723.dbf' size 64 cache="KEEP";
+----------
+[DROP_TABLESPACE] drop tablespace CODEX_TS_CACHE_KEEP_20260723;
+----------
+[CREATE_TABLESPACE] create tablespace CODEX_TS_ENC_RANDOM_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_ENC_RANDOM_20260723.dbf' size 64 encrypt with DES_CFB;
+----------
+[DROP_TABLESPACE] drop tablespace CODEX_TS_ENC_RANDOM_20260723;
+----------
+[CREATE_TABLESPACE] create tablespace CODEX_TS_ENC_PLAIN_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_ENC_PLAIN_20260723.dbf' size 64 encrypt with DES_CFB by Dm8Pass2026;
+----------
+[DROP_TABLESPACE] drop tablespace CODEX_TS_ENC_PLAIN_20260723;
+----------
+[CREATE_TABLESPACE] create tablespace CODEX_TS_STORAGE_RAFT_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_STORAGE_RAFT_20260723.dbf' size 64 storage(on CODEX_RAFT_20260723);
+----------
+[DROP_TABLESPACE] drop tablespace CODEX_TS_STORAGE_RAFT_20260723;
+----------
+[CREATE_TABLESPACE] create tablespace CODEX_TS_STORAGE_BP_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_STORAGE_BP_20260723.dbf' size 64 storage(on CODEX_BP_20260723);
+----------
+[DROP_TABLESPACE] drop tablespace CODEX_TS_STORAGE_BP_20260723;
+----------
+[CREATE_TABLESPACE] create tablespace CODEX_TS_HUGE_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_HUGE_20260723.dbf' size 64 with huge path '/opt/dmdbms/data/DAMENG/CODEX_TS_HUGE_PATH_20260723';
+----------
+[DROP_TABLESPACE] drop tablespace CODEX_TS_HUGE_20260723;
+----------
+[CREATE_TABLESPACE] create tablespace CODEX_TS_ORDERED_20260723
+datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_ORDERED_20260723.dbf' size 64 autoextend on next 1 maxsize 128
+cache=normal encrypt with DES_CFB by Dm8Pass2026
+with huge path '/opt/dmdbms/data/DAMENG/CODEX_TS_ORDERED_HUGE_20260723'
+storage(on CODEX_RAFT_20260723);
+----------
+[DROP_TABLESPACE] drop tablespace CODEX_TS_ORDERED_20260723;
+----------
+[CREATE_TABLESPACE] create tablespace TXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_NAME128_20260723.dbf' size 64;
+----------
+[DROP_TABLESPACE] drop tablespace TXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX;
+----------
+[CREATE_TABLESPACE] create tablespace CODEX_TS_ALTER_STATE_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_ALTER_STATE_20260723.dbf' size 64;
+----------
+[ALTER_TABLESPACE] alter tablespace CODEX_TS_ALTER_STATE_20260723 offline;
+----------
+[ALTER_TABLESPACE] alter tablespace CODEX_TS_ALTER_STATE_20260723 online;
+----------
+[DROP_TABLESPACE] drop tablespace CODEX_TS_ALTER_STATE_20260723;
+----------
+[CREATE_TABLESPACE] create tablespace CODEX_TS_RENAME_A_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_RENAME_A_20260723.dbf' size 64;
+----------
+[RENAME_TABLESPACE] alter tablespace CODEX_TS_RENAME_A_20260723 rename to CODEX_TS_RENAME_B_20260723;
+----------
+[DROP_TABLESPACE] drop tablespace CODEX_TS_RENAME_B_20260723;
+----------
+[CREATE_TABLESPACE] create tablespace CODEX_TS_RENAME_FILE_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_RENAME_FILE_A_20260723.dbf' size 64;
+----------
+[ALTER_TABLESPACE] alter tablespace CODEX_TS_RENAME_FILE_20260723 offline;
+----------
+[ALTER_TABLESPACE] alter tablespace CODEX_TS_RENAME_FILE_20260723 rename datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_RENAME_FILE_A_20260723.dbf' to '/opt/dmdbms/data/DAMENG/CODEX_TS_RENAME_FILE_B_20260723.dbf';
+----------
+[ALTER_TABLESPACE] alter tablespace CODEX_TS_RENAME_FILE_20260723 online;
+----------
+[DROP_TABLESPACE] drop tablespace CODEX_TS_RENAME_FILE_20260723;
+----------
+[CREATE_TABLESPACE] create tablespace CODEX_TS_ADD_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_ADD_A_20260723.dbf' size 64;
+----------
+[ALTER_TABLESPACE] alter tablespace CODEX_TS_ADD_20260723 add datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_ADD_B_20260723.dbf' size 64 autoextend on next 2 maxsize 128;
+----------
+[ALTER_TABLESPACE] alter tablespace CODEX_TS_ADD_20260723 drop datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_ADD_B_20260723.dbf';
+----------
+[DROP_TABLESPACE] drop tablespace CODEX_TS_ADD_20260723;
+----------
+[CREATE_TABLESPACE] create tablespace CODEX_TS_RESIZE_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_RESIZE_20260723.dbf' size 64;
+----------
+[ALTER_TABLESPACE] alter tablespace CODEX_TS_RESIZE_20260723 resize datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_RESIZE_20260723.dbf' to 72;
+----------
+[ALTER_TABLESPACE] alter tablespace CODEX_TS_RESIZE_20260723 resize datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_RESIZE_20260723.dbf' to 64;
+----------
+[DROP_TABLESPACE] drop tablespace CODEX_TS_RESIZE_20260723;
+----------
+[CREATE_TABLESPACE] create tablespace CODEX_TS_ALTER_AE_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_ALTER_AE_20260723.dbf' size 64;
+----------
+[ALTER_TABLESPACE] alter tablespace CODEX_TS_ALTER_AE_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_ALTER_AE_20260723.dbf' autoextend on next 1 maxsize 128;
+----------
+[ALTER_TABLESPACE] alter tablespace CODEX_TS_ALTER_AE_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_ALTER_AE_20260723.dbf' autoextend off;
+----------
+[DROP_TABLESPACE] drop tablespace CODEX_TS_ALTER_AE_20260723;
+----------
+[CREATE_TABLESPACE] create tablespace CODEX_TS_ALTER_CACHE_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_ALTER_CACHE_20260723.dbf' size 64 cache=normal;
+----------
+[ALTER_TABLESPACE] alter tablespace CODEX_TS_ALTER_CACHE_20260723 cache="KEEP";
+----------
+[ALTER_TABLESPACE] alter tablespace CODEX_TS_ALTER_CACHE_20260723 cache=normal;
+----------
+[DROP_TABLESPACE] drop tablespace CODEX_TS_ALTER_CACHE_20260723;
+----------
+[CREATE_TABLESPACE] create tablespace CODEX_TS_ADD_HUGE_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_ADD_HUGE_20260723.dbf' size 64;
+----------
+[ALTER_TABLESPACE] alter tablespace CODEX_TS_ADD_HUGE_20260723 add huge path '/opt/dmdbms/data/DAMENG/CODEX_TS_ADD_HUGE_PATH_20260723';
+----------
+[DROP_TABLESPACE] drop tablespace CODEX_TS_ADD_HUGE_20260723;
+----------
+[DROP_TABLESPACE] drop tablespace if exists CODEX_TS_NOT_EXISTS_20260723;
+----------
+[CREATE_TABLESPACE] create tablespace CODEX_TS_DICT_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_DICT_20260723.dbf' size 64 autoextend on next 4 maxsize 128 cache=normal;
+----------
+[DROP_TABLESPACE] drop tablespace CODEX_TS_DICT_20260723;
+----------
+[CREATE_TABLESPACE] create tablespace CODEX_TS_COMMIT_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_COMMIT_20260723.dbf' size 64;
+----------
+[ALTER_TABLESPACE] alter tablespace CODEX_TS_COMMIT_20260723 cache=normal;
+----------
+[DROP_TABLESPACE] drop tablespace CODEX_TS_COMMIT_20260723;
+----------
+[CREATE_TABLESPACE] create tablespace CODEX_TS_ENC_WRAPPED_20260723
+datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_ENC_WRAPPED_20260723.dbf' size 64 autoextend on next 0 maxsize 0
+cache="NORMAL" encrypt with DES_CFB by wrapped '0x099C4E3207539B68F167DB63361F8BFD9F7633DCAC6347EC7757FDFECC8C6A286B569C886B8FBE305E620C8A27F1BC9BFF05E954'
+copy 0 micro;
+----------
+[DROP_TABLESPACE] drop tablespace CODEX_TS_ENC_WRAPPED_20260723;
+----------
+[CREATE_TABLESPACE] create tablespace CODEX_TS_NEXT0_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_NEXT0_20260723.dbf' size 64 autoextend on next 0;
+----------
+[DROP_TABLESPACE] drop tablespace CODEX_TS_NEXT0_20260723;
+----------
+[CREATE_TABLESPACE] create tablespace CODEX_TS_PWD8_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_PWD8_20260723.dbf' size 64 encrypt with DES_CFB by Dm8Pas26;
+----------
+[DROP_TABLESPACE] drop tablespace CODEX_TS_PWD8_20260723;
+----------
+[CREATE_TABLESPACE] create tablespace CODEX_TS_PWD9_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_PWD9_20260723.dbf' size 64 encrypt with DES_CFB by Dm8Pass26;
+----------
+[DROP_TABLESPACE] drop tablespace CODEX_TS_PWD9_20260723;
+----------
+[CREATE_TABLESPACE] create tablespace CODEX_TS_PWD32_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_PWD32_20260723.dbf' size 64 encrypt with DES_CFB by Dm8Password20260723Abcdefghijk01;
+----------
+[DROP_TABLESPACE] drop tablespace CODEX_TS_PWD32_20260723;
+----------
+[CREATE_TABLESPACE] create tablespace CODEX_TS_MIRROR_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_MIRROR_20260723.dbf' mirror '/opt/dmdbms/data/DAMENG/CODEX_TS_MIRROR_M_20260723.dbf' size 64;
+----------
+[DROP_TABLESPACE] drop tablespace CODEX_TS_MIRROR_20260723;
+----------
+[CREATE_TABLESPACE] create tablespace CODEX_TS_RELATIVE_20260723 datafile './CODEX_TS_RELATIVE_20260723.dbf' size 64;
+----------
+[DROP_TABLESPACE] drop tablespace CODEX_TS_RELATIVE_20260723;
+----------
+[CREATE_TABLESPACE] create tablespace CODEX_TS_BARE_REL_20260723 datafile 'CODEX_TS_BARE_REL_20260723.dbf' size 64;
+----------
+[DROP_TABLESPACE] drop tablespace CODEX_TS_BARE_REL_20260723;
+----------
+[CREATE_TABLESPACE] create tablespace CODEX_TS_PWD_QUOTED_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_PWD_QUOTED_20260723.dbf' size 64 encrypt with DES_CFB by "Dm8Quoted2026";
+----------
+[DROP_TABLESPACE] drop tablespace CODEX_TS_PWD_QUOTED_20260723;
+----------
+[CREATE_TABLESPACE] create tablespace CODEX_TS_ASM_STRIPING0_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_ASM_STRIPING0_20260723.dbf' size 64 striping 0;
+----------
+[DROP_TABLESPACE] drop tablespace CODEX_TS_ASM_STRIPING0_20260723;
+----------
+[CREATE_TABLESPACE] create tablespace CODEX_TS_ASM_HIGH_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_ASM_HIGH_20260723.dbf' size 64 striping 32 high;
+----------
+[DROP_TABLESPACE] drop tablespace CODEX_TS_ASM_HIGH_20260723;
+----------
+[CREATE_TABLESPACE] create tablespace CODEX_TS_ASM_NORMAL_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_ASM_NORMAL_20260723.dbf' size 64 striping 64 normal;
+----------
+[DROP_TABLESPACE] drop tablespace CODEX_TS_ASM_NORMAL_20260723;
+----------
+[CREATE_TABLESPACE] create tablespace CODEX_TS_ASM_EXTERNAL_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_ASM_EXTERNAL_20260723.dbf' size 64 striping 128 external;
+----------
+[DROP_TABLESPACE] drop tablespace CODEX_TS_ASM_EXTERNAL_20260723;
+----------
+[CREATE_TABLESPACE] create tablespace CODEX_TS_ASM_STRIPING256_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_ASM_STRIPING256_20260723.dbf' size 64 striping 256;
+----------
+[DROP_TABLESPACE] drop tablespace CODEX_TS_ASM_STRIPING256_20260723;
+----------
+[CREATE_TABLESPACE] create tablespace CODEX_TS_TOPOLOGY_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_TOPOLOGY_20260723.dbf' size 64;
+----------
+[ALTER_TABLESPACE] alter tablespace CODEX_TS_TOPOLOGY_20260723 optimize 0;
+----------
+[ALTER_TABLESPACE] alter tablespace CODEX_TS_TOPOLOGY_20260723 resize datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_TOPOLOGY_20260723.dbf' to 72 on CODEX_RAFT_20260723;
+----------
+[DROP_TABLESPACE] drop tablespace CODEX_TS_TOPOLOGY_20260723;
+----------
+[CREATE_TABLESPACE] create tablespace CODEX_TS_DATAFILE_DEFAULT_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_DATAFILE_DEFAULT_20260723.dbf' size 64 autoextend off;
+----------
+[ALTER_TABLESPACE] alter tablespace CODEX_TS_DATAFILE_DEFAULT_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_DATAFILE_DEFAULT_20260723.dbf';
+----------
+[DROP_TABLESPACE] drop tablespace CODEX_TS_DATAFILE_DEFAULT_20260723;
+----------
+[CREATE_TABLESPACE] create tablespace CODEX_TS_CORRUPT_20260723 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_CORRUPT_20260723.dbf' size 64;
+----------
+[ALTER_TABLESPACE] alter tablespace CODEX_TS_CORRUPT_20260723 offline;
+----------
+[ALTER_TABLESPACE] alter tablespace CODEX_TS_CORRUPT_20260723 corrupt;
+----------
+[DROP_TABLESPACE] drop tablespace CODEX_TS_CORRUPT_20260723;
+----------
+[CREATE_TABLESPACE] create tablespace CODEX_TS_PATH256_20260723 datafile '/opt/dmdbms/data/DAMENG/XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.dbf' size 64;
+----------
+[DROP_TABLESPACE] drop tablespace CODEX_TS_PATH256_20260723;

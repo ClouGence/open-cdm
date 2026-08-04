@@ -1,0 +1,51 @@
+[inline_0.0001]
+sql:
+select * from table1;
+expect:
+{
+  "column1" : [ "(1:7~1:8) /catalog1/schema1/table1/column1/" ],
+  "column2" : [ "(1:7~1:8) /catalog1/schema1/table1/column2/" ],
+  "column3" : [ "(1:7~1:8) /catalog1/schema1/table1/column3/" ],
+  "column4" : [ "(1:7~1:8) /catalog1/schema1/table1/column4/" ],
+  "column5" : [ "(1:7~1:8) /catalog1/schema1/table1/column5/" ],
+  "column6" : [ "(1:7~1:8) /catalog1/schema1/table1/column6/" ]
+}
+----------
+[inline_0.0002]
+sql:
+select * from table2;
+expect:
+{
+  "column1" : [ "(1:7~1:8) /catalog1/schema1/table2/column1/" ],
+  "column2" : [ "(1:7~1:8) /catalog1/schema1/table2/column2/" ],
+  "column3" : [ "(1:7~1:8) /catalog1/schema1/table2/column3/" ],
+  "column4" : [ "(1:7~1:8) /catalog1/schema1/table2/column4/" ],
+  "column5" : [ "(1:7~1:8) /catalog1/schema1/table2/column5/" ],
+  "column6" : [ "(1:7~1:8) /catalog1/schema1/table2/column6/" ]
+}
+----------
+[inline_0.0003]
+sql:
+select * from table1     ;
+expect:
+{
+  "column1" : [ "(1:7~1:8) /catalog1/schema1/table1/column1/" ],
+  "column2" : [ "(1:7~1:8) /catalog1/schema1/table1/column2/" ],
+  "column3" : [ "(1:7~1:8) /catalog1/schema1/table1/column3/" ],
+  "column4" : [ "(1:7~1:8) /catalog1/schema1/table1/column4/" ],
+  "column5" : [ "(1:7~1:8) /catalog1/schema1/table1/column5/" ],
+  "column6" : [ "(1:7~1:8) /catalog1/schema1/table1/column6/" ]
+}
+----------
+[inline_0.0004]
+sql:
+select * from table2     ;
+expect:
+{
+  "column1" : [ "(1:7~1:8) /catalog1/schema1/table2/column1/" ],
+  "column2" : [ "(1:7~1:8) /catalog1/schema1/table2/column2/" ],
+  "column3" : [ "(1:7~1:8) /catalog1/schema1/table2/column3/" ],
+  "column4" : [ "(1:7~1:8) /catalog1/schema1/table2/column4/" ],
+  "column5" : [ "(1:7~1:8) /catalog1/schema1/table2/column5/" ],
+  "column6" : [ "(1:7~1:8) /catalog1/schema1/table2/column6/" ]
+}

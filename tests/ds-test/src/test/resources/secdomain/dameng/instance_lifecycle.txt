@@ -1,0 +1,79 @@
+[instance_mount]
+sql:
+alter database mount
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"ADMIN", "name":"DATABASE"}
+  ]
+}
+----------
+[instance_open]
+sql:
+alter database open
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"ADMIN", "name":"DATABASE"}
+  ]
+}
+----------
+[instance_suspend]
+sql:
+alter database suspend
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"ADMIN", "name":"DATABASE"}
+  ]
+}
+----------
+[instance_archivelog]
+sql:
+alter database archivelog
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"ADMIN", "name":"DATABASE"}
+  ]
+}
+----------
+[instance_archive_current]
+sql:
+alter database archivelog current
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"ADMIN", "name":"DATABASE"}
+  ]
+}
+----------
+[instance_noarchivelog]
+sql:
+alter database noarchivelog
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"ADMIN", "name":"DATABASE"}
+  ]
+}
+----------
+[instance_open_force]
+sql:
+alter database open force
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"ADMIN", "name":"DATABASE"}
+  ]
+}
+----------
+[instance_normal]
+sql:
+alter database normal
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"ADMIN", "name":"DATABASE"}
+  ]
+}

@@ -1,0 +1,5 @@
+[audit_sql_sequence_text_has_no_column_lineage]
+sql:
+sp_audit_sqlseq_add('AUDIT_SQL1', 'SELECT AMOUNT FROM APP.EMPLOYEE;')
+expect:
+{}

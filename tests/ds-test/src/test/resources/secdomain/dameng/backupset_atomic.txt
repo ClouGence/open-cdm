@@ -1,0 +1,149 @@
+[backup_database]
+sql:
+backup database full backupset '/opt/codex/db_full';
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"ADMIN", "name":"DATABASE"}
+  ]
+}
+----------
+[backup_tablespace]
+sql:
+backup tablespace CODEX_TS full backupset '/opt/codex/ts_full';
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"ADMIN", "name":"CODEX_TS"}
+  ]
+}
+----------
+[backup_table]
+sql:
+backup table CODEX_OWNER.CODEX_TAB backupset '/opt/codex/tab_default';
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"ADMIN", "schema":"CODEX_OWNER", "table":"CODEX_TAB"}
+  ]
+}
+----------
+[backup_archive]
+sql:
+backup archive log all backupset '/opt/codex/arch_all';
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"ADMIN", "name":"DATABASE"}
+  ]
+}
+----------
+[show_backupset]
+sql:
+show backupset '/opt/codex/backupset' info db, meta, file, tablespace, table;
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"ADMIN", "name":"DATABASE"}
+  ]
+}
+----------
+[remove_backupset]
+sql:
+remove backupset '/opt/codex/no_such_backupset';
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"ADMIN", "name":"DATABASE"}
+  ]
+}
+----------
+[restore_database]
+sql:
+restore database '/opt/codex/target/dm.ini' from backupset '/opt/codex/backupset';
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"ADMIN", "name":"DATABASE"}
+  ]
+}
+----------
+[restore_table]
+sql:
+restore table CODEX_OWNER.CODEX_TAB from backupset '/opt/codex/table_backup';
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"ADMIN", "schema":"CODEX_OWNER", "table":"CODEX_TAB"}
+  ]
+}
+----------
+[restore_tablespace]
+sql:
+restore database '/opt/codex/target/dm.ini' tablespace CODEX_TS from backupset '/opt/codex/ts_backup';
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"ADMIN", "name":"CODEX_TS"}
+  ]
+}
+----------
+[restore_archive]
+sql:
+restore archivelog from backupset '/opt/codex/arch_backup' to archivedir '/opt/codex/archive';
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"ADMIN", "name":"DATABASE"}
+  ]
+}
+----------
+[recover_database]
+sql:
+recover database '/opt/codex/target/dm.ini' from backupset '/opt/codex/backupset';
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"ADMIN", "name":"DATABASE"}
+  ]
+}
+----------
+[recover_tablespace]
+sql:
+recover database '/opt/codex/target/dm.ini' tablespace CODEX_TS;
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"ADMIN", "name":"CODEX_TS"}
+  ]
+}
+----------
+[repair_archive]
+sql:
+repair archivelog database '/opt/codex/source/dm.ini';
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"ADMIN", "name":"DATABASE"}
+  ]
+}
+----------
+[configure]
+sql:
+configure;
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"ADMIN", "name":"DATABASE"}
+  ]
+}
+----------
+[merge_database]
+sql:
+merge database '/opt/codex/target/dm.ini' from backupset '/opt/codex/increment';
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"ADMIN", "name":"DATABASE"}
+  ]
+}

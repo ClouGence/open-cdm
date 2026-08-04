@@ -1,0 +1,579 @@
+[split_dql_dameng_expressions_0_001_behavior_review]
+sql:
+select +0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[split_dql_dameng_expressions_0_002_behavior_review]
+sql:
+select +1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[split_dql_dameng_expressions_0_003_behavior_review]
+sql:
+select +1.25;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[split_dql_dameng_expressions_0_004_behavior_review]
+sql:
+select -0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[split_dql_dameng_expressions_0_005_behavior_review]
+sql:
+select -1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[split_dql_dameng_expressions_0_006_behavior_review]
+sql:
+select -1.25;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[split_dql_dameng_expressions_0_007_behavior_review]
+sql:
+select -(-5);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[split_dql_dameng_expressions_0_008_behavior_review]
+sql:
+select ~0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[split_dql_dameng_expressions_0_009_behavior_review]
+sql:
+select ~1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[split_dql_dameng_expressions_0_010_behavior_review]
+sql:
+select ~10;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[split_dql_dameng_expressions_0_011_behavior_review]
+sql:
+select ~(-1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[split_dql_dameng_expressions_0_012_behavior_review]
+sql:
+select 1 + 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[split_dql_dameng_expressions_0_013_behavior_review]
+sql:
+select 1 - 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[split_dql_dameng_expressions_0_014_behavior_review]
+sql:
+select 2 * 3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[split_dql_dameng_expressions_0_015_behavior_review]
+sql:
+select 8 / 4;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[split_dql_dameng_expressions_0_016_behavior_review]
+sql:
+select 1.25 + 2.75;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[split_dql_dameng_expressions_0_017_behavior_review]
+sql:
+select 5.5 - 2.25;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[split_dql_dameng_expressions_0_018_behavior_review]
+sql:
+select 2.5 * 4;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[split_dql_dameng_expressions_0_019_behavior_review]
+sql:
+select 7.5 / 2.5;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[split_dql_dameng_expressions_0_020_behavior_review]
+sql:
+select -5 + 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[split_dql_dameng_expressions_0_021_behavior_review]
+sql:
+select 5 + -2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[split_dql_dameng_expressions_0_022_behavior_review]
+sql:
+select (1 + 2) * 3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[split_dql_dameng_expressions_0_023_behavior_review]
+sql:
+select 1 + 2 * 3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[split_dql_dameng_expressions_0_024_behavior_review]
+sql:
+select 10 / 2 + 3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[split_dql_dameng_expressions_0_025_behavior_review]
+sql:
+select 6 & 3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[split_dql_dameng_expressions_0_026_behavior_review]
+sql:
+select 255 & 15;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[split_dql_dameng_expressions_0_027_behavior_review]
+sql:
+select -1 & 15;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[split_dql_dameng_expressions_0_028_behavior_review]
+sql:
+select 6 | 3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[split_dql_dameng_expressions_0_029_behavior_review]
+sql:
+select 240 | 15;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[split_dql_dameng_expressions_0_030_behavior_review]
+sql:
+select 0 | 15;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[split_dql_dameng_expressions_0_031_behavior_review]
+sql:
+select 6 ^ 3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[split_dql_dameng_expressions_0_032_behavior_review]
+sql:
+select 255 ^ 15;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[split_dql_dameng_expressions_0_033_behavior_review]
+sql:
+select 15 ^ 15;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[split_dql_dameng_expressions_0_034_behavior_review]
+sql:
+select 1 << 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[split_dql_dameng_expressions_0_035_behavior_review]
+sql:
+select 1 << 8;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[split_dql_dameng_expressions_0_036_behavior_review]
+sql:
+select 256 >> 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[split_dql_dameng_expressions_0_037_behavior_review]
+sql:
+select 256 >> 8;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[split_dql_dameng_expressions_0_038_behavior_review]
+sql:
+select (3 | 4) << 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[split_dql_dameng_expressions_0_039_behavior_review]
+sql:
+select 'DM' || '8';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[split_dql_dameng_expressions_0_040_behavior_review]
+sql:
+select '' || 'DM8';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[split_dql_dameng_expressions_0_041_behavior_review]
+sql:
+select 'DM8' || '';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[split_dql_dameng_expressions_0_042_behavior_review]
+sql:
+select 'A' || 'B' || 'C';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[split_dql_dameng_expressions_0_043_behavior_review]
+sql:
+select 'value=' || 8;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[split_dql_dameng_expressions_0_044_behavior_review]
+sql:
+select TIME '19:00:00' + INTERVAL '9' HOUR;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[split_dql_dameng_expressions_0_045_behavior_review]
+sql:
+select TIME '19:00:00' - INTERVAL '9' HOUR;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[split_dql_dameng_expressions_0_046_behavior_review]
+sql:
+select TIMESTAMP '2007-07-15 19:00:00' + INTERVAL '9' HOUR;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[split_dql_dameng_expressions_0_047_behavior_review]
+sql:
+select TIMESTAMP '2007-07-15 19:00:00' - INTERVAL '9' HOUR;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[split_dql_dameng_expressions_0_048_behavior_review]
+sql:
+select DATE '2011-09-29' + 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[split_dql_dameng_expressions_0_049_behavior_review]
+sql:
+select DATE '2011-09-29' - 100;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[split_dql_dameng_expressions_0_050_behavior_review]
+sql:
+select TIMESTAMP '2003-09-29 08:59:59.123' + 2.358;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[split_dql_dameng_expressions_0_051_behavior_review]
+sql:
+select (TIME '19:00:00' - TIME '10:00:00') HOUR;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[split_dql_dameng_expressions_0_052_behavior_review]
+sql:
+select (TIMESTAMP '2007-07-15 19:00:00' - TIMESTAMP '2007-01-15 19:00:00') HOUR;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[split_dql_dameng_expressions_0_053_behavior_review]
+sql:
+select INTERVAL '2007-07' YEAR(4) TO MONTH + INTERVAL '7' MONTH;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[split_dql_dameng_expressions_0_054_behavior_review]
+sql:
+select INTERVAL '2007-07' YEAR(4) TO MONTH - INTERVAL '7' MONTH;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[split_dql_dameng_expressions_0_055_behavior_review]
+sql:
+select INTERVAL '7 15' DAY TO HOUR + INTERVAL '10:10' MINUTE TO SECOND;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[split_dql_dameng_expressions_0_056_behavior_review]
+sql:
+select INTERVAL '7 15' DAY TO HOUR - INTERVAL '10:10' MINUTE TO SECOND;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[split_dql_dameng_expressions_0_057_behavior_review]
+sql:
+select INTERVAL '10:10' MINUTE TO SECOND * 3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[split_dql_dameng_expressions_0_058_behavior_review]
+sql:
+select INTERVAL '10:10' MINUTE TO SECOND / 3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}

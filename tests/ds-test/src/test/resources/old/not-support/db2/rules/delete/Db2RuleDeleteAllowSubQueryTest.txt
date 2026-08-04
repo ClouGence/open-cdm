@@ -1,0 +1,47 @@
+[Db2RuleDeleteAllowSubQueryTest#testHasWhereSelect_1#001]
+rule: _rules/delete/delete-allow-sub-query.rule
+expect: true
+vars:
+  allow: Any
+sql:
+delete from test_specify_column where id = (select id from text)
+----------
+[Db2RuleDeleteAllowSubQueryTest#testHasWhereSelect_1#002]
+rule: _rules/delete/delete-allow-sub-query.rule
+expect: true
+vars:
+  allow: Any
+sql:
+delete from test_specify_column where id =1
+----------
+[Db2RuleDeleteAllowSubQueryTest#testHasWhereSelect_2#001]
+rule: _rules/delete/delete-allow-sub-query.rule
+expect: true
+vars:
+  allow: Where
+sql:
+delete from test_specify_column where id = (select id from text)
+----------
+[Db2RuleDeleteAllowSubQueryTest#testHasWhereSelect_2#002]
+rule: _rules/delete/delete-allow-sub-query.rule
+expect: true
+vars:
+  allow: Where
+sql:
+delete from test_specify_column where id =1
+----------
+[Db2RuleDeleteAllowSubQueryTest#testHasWhereSelect_3#001]
+rule: _rules/delete/delete-allow-sub-query.rule
+expect: false
+vars:
+  allow: None
+sql:
+delete from test_specify_column where id = (select id from text)
+----------
+[Db2RuleDeleteAllowSubQueryTest#testHasWhereSelect_3#002]
+rule: _rules/delete/delete-allow-sub-query.rule
+expect: true
+vars:
+  allow: None
+sql:
+delete from test_specify_column where id =1

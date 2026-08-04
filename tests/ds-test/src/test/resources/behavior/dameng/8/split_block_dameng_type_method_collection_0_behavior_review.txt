@@ -1,0 +1,1002 @@
+[split_block_dameng_type_method_collection_0_001_behavior_review]
+sql:
+create or replace type arr_num as varray(3) of number;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:23~1:30) /test/1/catalog1/schema1/arr_num/",
+      "action" : "REPLACE"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_method_collection_0_002_behavior_review]
+sql:
+create table arr_table(id int primary key, values_col arr_num);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:22) /test/1/catalog1/schema1/arr_table/",
+      "action" : "CREATE",
+      "target" : "Type(1:54~1:61) /test/1/catalog1/schema1/arr_num/"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_method_collection_0_003_behavior_review]
+sql:
+insert into arr_table values(1, arr_num(1, 2));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:21) /test/1/catalog1/schema1/arr_table/",
+      "action" : "INSERT"
+    },
+    {
+      "subject": "Function(1:32~1:39) /test/1/catalog1/schema1/arr_num/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_method_collection_0_004_behavior_review]
+sql:
+insert into arr_table values(2, arr_num(3, 4, 5));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:21) /test/1/catalog1/schema1/arr_table/",
+      "action" : "INSERT"
+    },
+    {
+      "subject": "Function(1:32~1:39) /test/1/catalog1/schema1/arr_num/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_method_collection_0_005_behavior_review]
+sql:
+select id, values_col from arr_table order by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:27~1:36) /test/1/catalog1/schema1/arr_table/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_method_collection_0_006_behavior_review]
+sql:
+select column_value from table(select values_col from arr_table where id = 2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:54~1:63) /test/1/catalog1/schema1/arr_table/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_method_collection_0_007_behavior_review]
+sql:
+update arr_table set values_col = arr_num(6, 7, 8) where id = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:16) /test/1/catalog1/schema1/arr_table/",
+      "action" : "UPDATE"
+    },
+    {
+      "subject": "Function(1:34~1:41) /test/1/catalog1/schema1/arr_num/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_method_collection_0_008_behavior_review]
+sql:
+select column_value from table(select values_col from arr_table where id = 1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:54~1:63) /test/1/catalog1/schema1/arr_table/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_method_collection_0_009_behavior_review]
+sql:
+create or replace type nested_char as table of char;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:23~1:34) /test/1/catalog1/schema1/nested_char/",
+      "action" : "REPLACE"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_method_collection_0_010_behavior_review]
+sql:
+create table nested_table(id int primary key, values_col nested_char);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/nested_table/",
+      "action" : "CREATE",
+      "target" : "Type(1:57~1:68) /test/1/catalog1/schema1/nested_char/"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_method_collection_0_011_behavior_review]
+sql:
+insert into nested_table values(1, nested_char('A', 'B'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:24) /test/1/catalog1/schema1/nested_table/",
+      "action" : "INSERT"
+    },
+    {
+      "subject": "Function(1:35~1:46) /test/1/catalog1/schema1/nested_char/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_method_collection_0_012_behavior_review]
+sql:
+insert into nested_table values(2, nested_char('C', 'D', 'E'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:24) /test/1/catalog1/schema1/nested_table/",
+      "action" : "INSERT"
+    },
+    {
+      "subject": "Function(1:35~1:46) /test/1/catalog1/schema1/nested_char/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_method_collection_0_013_behavior_review]
+sql:
+select id, values_col from nested_table order by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:27~1:39) /test/1/catalog1/schema1/nested_table/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_method_collection_0_014_behavior_review]
+sql:
+select column_value from table(select values_col from nested_table where id = 1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:54~1:66) /test/1/catalog1/schema1/nested_table/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_method_collection_0_015_behavior_review]
+sql:
+update nested_table set values_col = nested_char('X', 'Y') where id = 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:19) /test/1/catalog1/schema1/nested_table/",
+      "action" : "UPDATE"
+    },
+    {
+      "subject": "Function(1:37~1:48) /test/1/catalog1/schema1/nested_char/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_method_collection_0_016_behavior_review]
+sql:
+select column_value from table(select values_col from nested_table where id = 2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:54~1:66) /test/1/catalog1/schema1/nested_table/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_method_collection_0_017_behavior_review]
+sql:
+create or replace type t_methods as object(
+  value int,
+  static function add_two(a int, b int) return int,
+  member function get_value return int,
+  member procedure set_value(p_value int),
+  map member function map_value return int
+) not final;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:23~1:32) /test/1/catalog1/schema1/t_methods/",
+      "action" : "REPLACE"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_method_collection_0_018_behavior_review]
+sql:
+create or replace type body t_methods as
+  static function add_two(a int, b int) return int is
+  begin
+    return a + b;
+  end;
+  member function get_value return int is
+  begin
+    return value;
+  end;
+  member procedure set_value(p_value int) is
+  begin
+    value = p_value;
+  end;
+  map member function map_value return int is
+  begin
+    return value;
+  end;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:28~1:37) /test/1/catalog1/schema1/t_methods/",
+      "action" : "REPLACE"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_method_collection_0_019_behavior_review]
+sql:
+select t_methods.add_two(2, 5);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:24) /test/1/catalog1/t_methods/add_two/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_method_collection_0_020_behavior_review]
+sql:
+select t_methods(7).get_value();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/t_methods/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:20~1:29) /test/1/catalog1/schema1/get_value/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_method_collection_0_021_behavior_review]
+sql:
+create table method_table(id int primary key, obj t_methods);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/method_table/",
+      "action" : "CREATE",
+      "target" : "Type(1:50~1:59) /test/1/catalog1/schema1/t_methods/"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_method_collection_0_022_behavior_review]
+sql:
+insert into method_table values(1, t_methods(8));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:24) /test/1/catalog1/schema1/method_table/",
+      "action" : "INSERT"
+    },
+    {
+      "subject": "Function(1:35~1:44) /test/1/catalog1/schema1/t_methods/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_method_collection_0_023_behavior_review]
+sql:
+insert into method_table values(2, t_methods(3));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:24) /test/1/catalog1/schema1/method_table/",
+      "action" : "INSERT"
+    },
+    {
+      "subject": "Function(1:35~1:44) /test/1/catalog1/schema1/t_methods/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_method_collection_0_024_behavior_review]
+sql:
+select id, t.obj.get_value(), t.obj.map_value() from method_table t order by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:17~1:26) /test/1/catalog1/schema1/get_value/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:36~1:45) /test/1/catalog1/schema1/map_value/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:53~1:65) /test/1/catalog1/schema1/method_table/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_method_collection_0_025_behavior_review]
+sql:
+select id from method_table where obj > t_methods(4);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:40~1:49) /test/1/catalog1/schema1/t_methods/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:15~1:27) /test/1/catalog1/schema1/method_table/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_method_collection_0_026_behavior_review]
+sql:
+declare
+  v_obj t_methods;
+begin
+  v_obj = new t_methods(1);
+  v_obj.set_value(9);
+  print v_obj.get_value();
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:8~2:17) /test/1/catalog1/schema1/t_methods/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(5:8~5:17) /test/1/catalog1/t_methods/set_value/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(4:14~4:23) /test/1/catalog1/schema1/t_methods/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(6:14~6:23) /test/1/catalog1/t_methods/get_value/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_method_collection_0_027_behavior_review]
+sql:
+create or replace type t_secure with encryption authid definer as object(
+  value int,
+  static function twice(p_value int) return int
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:23~1:31) /test/1/catalog1/schema1/t_secure/",
+      "action" : "REPLACE"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_method_collection_0_028_behavior_review]
+sql:
+create or replace type body t_secure with encryption as
+  static function twice(p_value int) return int is
+  begin
+    return p_value * 2;
+  end;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:28~1:36) /test/1/catalog1/schema1/t_secure/",
+      "action" : "REPLACE"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_method_collection_0_029_behavior_review]
+sql:
+select t_secure.twice(6);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:21) /test/1/catalog1/t_secure/twice/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_method_collection_0_030_behavior_review]
+sql:
+create or replace type t_record_auth authid current_user as record(id int, name varchar(20));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:23~1:36) /test/1/catalog1/schema1/t_record_auth/",
+      "action" : "REPLACE"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_method_collection_0_031_behavior_review]
+sql:
+create or replace type t_element as object(value int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:23~1:32) /test/1/catalog1/schema1/t_element/",
+      "action" : "REPLACE"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_method_collection_0_032_behavior_review]
+sql:
+create or replace type element_array as varray(4) of t_element;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:23~1:36) /test/1/catalog1/schema1/element_array/",
+      "action" : "REPLACE",
+      "target" : "Type(1:53~1:62) /test/1/catalog1/schema1/t_element/"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_method_collection_0_033_behavior_review]
+sql:
+create table element_array_table(id int primary key, values_col element_array);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:32) /test/1/catalog1/schema1/element_array_table/",
+      "action" : "CREATE",
+      "target" : "Type(1:64~1:77) /test/1/catalog1/schema1/element_array/"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_method_collection_0_034_behavior_review]
+sql:
+insert into element_array_table values(1, element_array(t_element(10), t_element(20)));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/schema1/element_array_table/",
+      "action" : "INSERT"
+    },
+    {
+      "subject": "Function(1:42~1:55) /test/1/catalog1/schema1/element_array/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:56~1:65) /test/1/catalog1/schema1/t_element/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:71~1:80) /test/1/catalog1/schema1/t_element/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_method_collection_0_035_behavior_review]
+sql:
+select * from table(select values_col from element_array_table where id = 1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:43~1:62) /test/1/catalog1/schema1/element_array_table/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_method_collection_0_036_behavior_review]
+sql:
+create or replace type element_nested as table of t_element;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:23~1:37) /test/1/catalog1/schema1/element_nested/",
+      "action" : "REPLACE",
+      "target" : "Type(1:50~1:59) /test/1/catalog1/schema1/t_element/"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_method_collection_0_037_behavior_review]
+sql:
+create table element_nested_table(id int primary key, values_col element_nested);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:33) /test/1/catalog1/schema1/element_nested_table/",
+      "action" : "CREATE",
+      "target" : "Type(1:65~1:79) /test/1/catalog1/schema1/element_nested/"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_method_collection_0_038_behavior_review]
+sql:
+insert into element_nested_table values(1, element_nested(t_element(30), t_element(40)));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:32) /test/1/catalog1/schema1/element_nested_table/",
+      "action" : "INSERT"
+    },
+    {
+      "subject": "Function(1:43~1:57) /test/1/catalog1/schema1/element_nested/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:58~1:67) /test/1/catalog1/schema1/t_element/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:73~1:82) /test/1/catalog1/schema1/t_element/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_method_collection_0_039_behavior_review]
+sql:
+select * from table(select values_col from element_nested_table where id = 1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:43~1:63) /test/1/catalog1/schema1/element_nested_table/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_method_collection_0_040_behavior_review]
+sql:
+alter type t_methods compile debug;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TYPE": [
+    {
+      "subject": "Type(1:11~1:20) /test/1/catalog1/schema1/t_methods/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_method_collection_0_041_behavior_review]
+sql:
+alter type t_secure compile;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_TYPE": [
+    {
+      "subject": "Type(1:11~1:19) /test/1/catalog1/schema1/t_secure/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_method_collection_0_042_behavior_review]
+sql:
+drop type body if exists t_secure restrict;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:25~1:33) /test/1/catalog1/schema1/t_secure/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_method_collection_0_043_behavior_review]
+sql:
+create or replace type body t_secure as
+  static function twice(p_value int) return int is
+  begin
+    return p_value * 2;
+  end;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:28~1:36) /test/1/catalog1/schema1/t_secure/",
+      "action" : "REPLACE"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_method_collection_0_044_behavior_review]
+sql:
+drop table element_nested_table;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:31) /test/1/catalog1/schema1/element_nested_table/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_method_collection_0_045_behavior_review]
+sql:
+drop table element_array_table;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:30) /test/1/catalog1/schema1/element_array_table/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_method_collection_0_046_behavior_review]
+sql:
+drop table method_table;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:23) /test/1/catalog1/schema1/method_table/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_method_collection_0_047_behavior_review]
+sql:
+drop table nested_table;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:23) /test/1/catalog1/schema1/nested_table/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_method_collection_0_048_behavior_review]
+sql:
+drop table arr_table;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:20) /test/1/catalog1/schema1/arr_table/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_method_collection_0_049_behavior_review]
+sql:
+drop type element_nested cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:10~1:24) /test/1/catalog1/schema1/element_nested/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_method_collection_0_050_behavior_review]
+sql:
+drop type element_array restrict;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:10~1:23) /test/1/catalog1/schema1/element_array/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_method_collection_0_051_behavior_review]
+sql:
+drop type t_element;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:10~1:19) /test/1/catalog1/schema1/t_element/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_method_collection_0_052_behavior_review]
+sql:
+drop type t_record_auth;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:10~1:23) /test/1/catalog1/schema1/t_record_auth/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_method_collection_0_053_behavior_review]
+sql:
+drop type t_secure;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:10~1:18) /test/1/catalog1/schema1/t_secure/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_method_collection_0_054_behavior_review]
+sql:
+drop type t_methods cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:10~1:19) /test/1/catalog1/schema1/t_methods/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_method_collection_0_055_behavior_review]
+sql:
+drop type nested_char;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:10~1:21) /test/1/catalog1/schema1/nested_char/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_method_collection_0_056_behavior_review]
+sql:
+drop type arr_num;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:10~1:17) /test/1/catalog1/schema1/arr_num/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_method_collection_0_057_behavior_review]
+sql:
+drop type if exists no_such_type restrict;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:20~1:32) /test/1/catalog1/schema1/no_such_type/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_type_method_collection_0_058_behavior_review]
+sql:
+drop type body if exists no_such_type cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:25~1:37) /test/1/catalog1/schema1/no_such_type/",
+      "action" : "DROP"
+    }
+  ]
+}

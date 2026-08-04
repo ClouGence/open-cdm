@@ -1,0 +1,28 @@
+drop TRIGGER TRIG_P22K_TafaA6BLE_AdUTO;
+CREATE OR REPLACE EDITIONABLE TRIGGER "SCOTT"."trg_users_bi2"
+before insert
+on "SCOTT"."USERS"
+for each row
+begin
+  IF :NEW.id IS NULL THEN
+    :NEW.id := seq_users.NEXTVAL;
+  END IF;
+end;
+ALTER TRIGGER "SCOTT"."trg_users_bi" ENABLE;
+ALTER TRIGGER "SCOTT"."trg_users_bi2" DISABLE;
+------------------------------------------------------------------------------------------
+[DROP_TRIGGER] drop TRIGGER TRIG_P22K_TafaA6BLE_AdUTO;
+----------
+[CREATE_TRIGGER(BLOCK,PROGRAM_CONTROL,UPDATE)] CREATE OR REPLACE EDITIONABLE TRIGGER "SCOTT"."trg_users_bi2"
+before insert
+on "SCOTT"."USERS"
+for each row
+begin
+  IF :NEW.id IS NULL THEN
+    :NEW.id := seq_users.NEXTVAL;
+  END IF;
+end;
+----------
+[ALTER_TRIGGER] ALTER TRIGGER "SCOTT"."trg_users_bi" ENABLE;
+----------
+[ALTER_TRIGGER] ALTER TRIGGER "SCOTT"."trg_users_bi2" DISABLE;

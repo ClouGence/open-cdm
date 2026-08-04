@@ -1,0 +1,133 @@
+[duplicate_result_column_names]
+sql:
+select table1.column1, table2.column1 from table1 join table2 on table1.column1 = table2.column1
+expect:
+[
+  {
+    "column" : "column1",
+    "sources" : [ "(1:7~1:21) /catalog1/schema1/table1/column1/" ]
+  },
+  {
+    "column" : "column1",
+    "sources" : [ "(1:23~1:37) /catalog1/schema1/table2/column1/" ]
+  }
+]
+----------
+[schema_qualified_same_table_name]
+sql:
+select schema1.table1.column1,schema2.table1.column2 from schema1.table1 join schema2.table1
+expect:
+{
+  "column1" : [ "(1:7~1:29) /catalog1/schema1/table1/column1/" ],
+  "column2" : [ "(1:30~1:52) /catalog1/schema2/table1/column2/" ]
+}
+----------
+[select_all_metadata_order]
+sql:
+select a.*, b.* from table1 a join table2 b on a.column1 = b.column1
+expect:
+[
+  {
+    "column" : "column1",
+    "sources" : [ "(1:7~1:10) /catalog1/schema1/table1/column1/" ]
+  },
+  {
+    "column" : "column2",
+    "sources" : [ "(1:7~1:10) /catalog1/schema1/table1/column2/" ]
+  },
+  {
+    "column" : "column3",
+    "sources" : [ "(1:7~1:10) /catalog1/schema1/table1/column3/" ]
+  },
+  {
+    "column" : "column4",
+    "sources" : [ "(1:7~1:10) /catalog1/schema1/table1/column4/" ]
+  },
+  {
+    "column" : "column5",
+    "sources" : [ "(1:7~1:10) /catalog1/schema1/table1/column5/" ]
+  },
+  {
+    "column" : "column6",
+    "sources" : [ "(1:7~1:10) /catalog1/schema1/table1/column6/" ]
+  },
+  {
+    "column" : "column1",
+    "sources" : [ "(1:12~1:15) /catalog1/schema1/table2/column1/" ]
+  },
+  {
+    "column" : "column2",
+    "sources" : [ "(1:12~1:15) /catalog1/schema1/table2/column2/" ]
+  },
+  {
+    "column" : "column3",
+    "sources" : [ "(1:12~1:15) /catalog1/schema1/table2/column3/" ]
+  },
+  {
+    "column" : "column4",
+    "sources" : [ "(1:12~1:15) /catalog1/schema1/table2/column4/" ]
+  },
+  {
+    "column" : "column5",
+    "sources" : [ "(1:12~1:15) /catalog1/schema1/table2/column5/" ]
+  },
+  {
+    "column" : "column6",
+    "sources" : [ "(1:12~1:15) /catalog1/schema1/table2/column6/" ]
+  }
+]
+----------
+[schema_qualified_stars_with_same_table_name]
+sql:
+select schema1.table1.*, schema2.table1.* from schema1.table1 join schema2.table1
+expect:
+[
+  {
+    "column" : "column1",
+    "sources" : [ "(1:7~1:23) /catalog1/schema1/table1/column1/" ]
+  },
+  {
+    "column" : "column2",
+    "sources" : [ "(1:7~1:23) /catalog1/schema1/table1/column2/" ]
+  },
+  {
+    "column" : "column3",
+    "sources" : [ "(1:7~1:23) /catalog1/schema1/table1/column3/" ]
+  },
+  {
+    "column" : "column4",
+    "sources" : [ "(1:7~1:23) /catalog1/schema1/table1/column4/" ]
+  },
+  {
+    "column" : "column5",
+    "sources" : [ "(1:7~1:23) /catalog1/schema1/table1/column5/" ]
+  },
+  {
+    "column" : "column6",
+    "sources" : [ "(1:7~1:23) /catalog1/schema1/table1/column6/" ]
+  },
+  {
+    "column" : "column1",
+    "sources" : [ "(1:25~1:41) /catalog1/schema2/table1/column1/" ]
+  },
+  {
+    "column" : "column2",
+    "sources" : [ "(1:25~1:41) /catalog1/schema2/table1/column2/" ]
+  },
+  {
+    "column" : "column3",
+    "sources" : [ "(1:25~1:41) /catalog1/schema2/table1/column3/" ]
+  },
+  {
+    "column" : "column4",
+    "sources" : [ "(1:25~1:41) /catalog1/schema2/table1/column4/" ]
+  },
+  {
+    "column" : "column5",
+    "sources" : [ "(1:25~1:41) /catalog1/schema2/table1/column5/" ]
+  },
+  {
+    "column" : "column6",
+    "sources" : [ "(1:25~1:41) /catalog1/schema2/table1/column6/" ]
+  }
+]

@@ -1,0 +1,45 @@
+[for_xml_path_columns]
+sql:
+select d.id,d.category from catalog1.app.xml_docs d order by id for xml path('row')
+expect:
+{
+  "id": [
+    "/catalog1/app/xml_docs/id/"
+  ],
+  "category": [
+    "/catalog1/app/xml_docs/category/"
+  ]
+}
+----------
+[xml_table_columns]
+sql:
+select d.id,x.item_text from catalog1.app.xml_docs d,xmltable('/A/ITEM' passing d.payload columns item_text varchar(20) path 'text()') x
+expect:
+{
+  "id": [
+    "/catalog1/app/xml_docs/id/"
+  ],
+  "item_text": [
+    "/catalog1/app/xml_docs/payload/"
+  ]
+}
+----------
+[xml_serialize_columns]
+sql:
+select xmlserialize(content d.payload as clob) as xml_text from catalog1.app.xml_docs d
+expect:
+{
+  "xml_text": [
+    "/catalog1/app/xml_docs/payload/"
+  ]
+}
+----------
+[xml_cast_columns]
+sql:
+select xmlcast(d.payload as varchar(200)) as xml_text from catalog1.app.xml_docs d
+expect:
+{
+  "xml_text": [
+    "/catalog1/app/xml_docs/payload/"
+  ]
+}

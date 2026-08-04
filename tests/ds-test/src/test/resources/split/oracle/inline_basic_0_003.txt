@@ -1,0 +1,11 @@
+ -- test 
+   select * from table1  -- test comment  
+ ;  /*comment
+gweg*/   select * from table2   -- ffff  ;  --aaaa
+------------------------------------------------------------------------------------------
+[SELECT] -- test 
+   select * from table1  -- test comment  
+ ;
+----------
+[SELECT] /*comment
+gweg*/   select * from table2   -- ffff  ;  --aaaa

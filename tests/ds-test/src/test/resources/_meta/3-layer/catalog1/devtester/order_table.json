@@ -1,0 +1,36 @@
+[
+  {
+    "columns": [
+      {
+        "column": "order_id",
+        "table": "order_table",
+        "schema": "devtester",
+        "catalog": "catalog1"
+      }
+    ],
+    "itemAlias": "order_id",
+    "icon": "COLUMN-PK"
+  },
+  {
+    "columns": [
+      {
+        "column": "user_id",
+        "table": "order_table",
+        "schema": "devtester",
+        "catalog": "catalog1"
+      }
+    ],
+    "itemAlias": "user_id"
+  },
+  {
+    "columns": [
+      {
+        "column": "amount",
+        "table": "order_table",
+        "schema": "devtester",
+        "catalog": "catalog1"
+      }
+    ],
+    "itemAlias": "amount"
+  }
+]

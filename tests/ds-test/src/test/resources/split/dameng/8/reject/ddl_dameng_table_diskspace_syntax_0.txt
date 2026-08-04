@@ -1,0 +1,24 @@
+create table table_disk_bad(id int) diskspace;
+create table table_disk_bad(id int) diskspace limit;
+create table table_disk_bad(id int) diskspace unlimited 1;
+create table table_disk_bad(id int) diskspace limit -1;
+alter table table_disk_alt modify diskspace;
+alter table table_disk_alt modify diskspace limit;
+alter table table_disk_alt modify diskspace unlimited 1;
+alter table table_disk_alt modify diskspace limit -1;
+------------------------------------------------------------------------------------------
+[CREATE_TABLE] create table table_disk_bad(id int) diskspace;
+----------
+[CREATE_TABLE] create table table_disk_bad(id int) diskspace limit;
+----------
+[CREATE_TABLE] create table table_disk_bad(id int) diskspace unlimited 1;
+----------
+[CREATE_TABLE] create table table_disk_bad(id int) diskspace limit -1;
+----------
+[ALTER_TABLE] alter table table_disk_alt modify diskspace;
+----------
+[ALTER_TABLE] alter table table_disk_alt modify diskspace limit;
+----------
+[ALTER_TABLE] alter table table_disk_alt modify diskspace unlimited 1;
+----------
+[ALTER_TABLE] alter table table_disk_alt modify diskspace limit -1;

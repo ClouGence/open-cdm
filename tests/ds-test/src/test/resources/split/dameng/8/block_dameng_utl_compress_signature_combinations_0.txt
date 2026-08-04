@@ -1,0 +1,125 @@
+-- LZ_COMPRESS_VARBINARY_DEFAULT
+declare s varbinary(32767); c varbinary(32767); begin s:=hextoraw('444D385F434F4D5052455353'); c:=utl_compress.lz_compress(s); if length(c)<=length(s) then null; end if; end;
+-- LZ_COMPRESS_VARBINARY_QUALITY_ONE
+declare s varbinary(32767); c varbinary(32767); begin s:=hextoraw('444D38444D38444D38444D38'); c:=utl_compress.lz_compress(s,1); end;
+-- LZ_COMPRESS_VARBINARY_NAMED_QUALITY_NINE
+declare s varbinary(32767); c varbinary(32767); begin s:=hextoraw('414141414141414141414141'); c:=utl_compress.lz_compress(quality=>9,src=>s); end;
+-- LZ_COMPRESS_BLOB_FUNCTION_DEFAULT
+declare s blob; c blob; begin s:=hextoraw('444D385F424C4F425F434F4D5052455353'); c:=utl_compress.lz_compress(s); end;
+-- LZ_COMPRESS_BLOB_FUNCTION_NAMED_QUALITY
+declare s blob; c blob; begin s:=hextoraw('424242424242424242424242'); c:=utl_compress.lz_compress(quality=>7,src=>s); end;
+-- LZ_COMPRESS_BLOB_PROCEDURE_DEFAULT
+declare s blob; d blob; begin s:=hextoraw('444D385F424C4F425F50524F43'); d:=hextoraw('00'); utl_compress.lz_compress(s,d); end;
+-- LZ_COMPRESS_BLOB_PROCEDURE_NAMED_QUALITY
+declare s blob; d blob; begin s:=hextoraw('434343434343434343434343'); d:=hextoraw('00'); utl_compress.lz_compress(quality=>8,dst=>d,src=>s); end;
+-- LZ_COMPRESS_BFILE_FUNCTION_DEFAULT
+declare s bfile; c blob; begin s:=bfilename('CODEX_UTL_COMPRESS_DIR','source.bin'); dbms_lob.fileopen(s,dbms_lob.file_readonly); c:=utl_compress.lz_compress(s); dbms_lob.fileclose(s); end;
+-- LZ_COMPRESS_BFILE_FUNCTION_NAMED_QUALITY
+declare s bfile; c blob; begin s:=bfilename('CODEX_UTL_COMPRESS_DIR','source.bin'); dbms_lob.fileopen(s,dbms_lob.file_readonly); c:=utl_compress.lz_compress(quality=>9,src=>s); dbms_lob.fileclose(s); end;
+-- LZ_COMPRESS_BFILE_PROCEDURE_DEFAULT
+declare s bfile; d blob; begin s:=bfilename('CODEX_UTL_COMPRESS_DIR','source.bin'); d:=hextoraw('00'); dbms_lob.fileopen(s,dbms_lob.file_readonly); utl_compress.lz_compress(s,d); dbms_lob.fileclose(s); end;
+-- LZ_COMPRESS_BFILE_PROCEDURE_NAMED_QUALITY
+declare s bfile; d blob; begin s:=bfilename('CODEX_UTL_COMPRESS_DIR','source.bin'); d:=hextoraw('00'); dbms_lob.fileopen(s,dbms_lob.file_readonly); utl_compress.lz_compress(quality=>1,dst=>d,src=>s); dbms_lob.fileclose(s); end;
+-- LZ_UNCOMPRESS_VARBINARY_FUNCTION
+declare s varbinary(32767); c varbinary(32767); d varbinary(32767); begin s:=hextoraw('444D385F554E434F4D5052455353'); c:=utl_compress.lz_compress(s); d:=utl_compress.lz_uncompress(c); if d<>s then raise_application_error(-20001,'varbinary mismatch'); end if; end;
+-- LZ_UNCOMPRESS_BLOB_FUNCTION
+declare s blob; c blob; d blob; begin s:=hextoraw('444D385F424C4F425F554E434F4D5052455353'); c:=utl_compress.lz_compress(s); d:=utl_compress.lz_uncompress(c); end;
+-- LZ_UNCOMPRESS_BLOB_PROCEDURE
+declare s blob; c blob; d blob; begin s:=hextoraw('444D385F424C4F425F50524F435F554E434F4D50'); c:=utl_compress.lz_compress(s); d:=hextoraw('00'); utl_compress.lz_uncompress(c,d); end;
+-- LZ_UNCOMPRESS_BFILE_FUNCTION
+declare s bfile; d blob; begin s:=bfilename('CODEX_UTL_COMPRESS_DIR','compressed.gz'); dbms_lob.fileopen(s,dbms_lob.file_readonly); d:=utl_compress.lz_uncompress(s); dbms_lob.fileclose(s); end;
+-- LZ_UNCOMPRESS_BFILE_PROCEDURE
+declare s bfile; d blob; begin s:=bfilename('CODEX_UTL_COMPRESS_DIR','compressed.gz'); d:=hextoraw('00'); dbms_lob.fileopen(s,dbms_lob.file_readonly); utl_compress.lz_uncompress(s,d); dbms_lob.fileclose(s); end;
+-- LZ_COMPRESS_OPEN_DEFAULT_ISOPEN_CLOSE
+declare d blob; h int; o int; begin d:=hextoraw('00'); h:=utl_compress.lz_compress_open(d); o:=utl_compress.isopen(h); if o<>1 then raise_application_error(-20002,'expected open'); end if; utl_compress.lz_compress_close(h,d); o:=utl_compress.isopen(h); if o<>0 then raise_application_error(-20003,'expected closed'); end if; end;
+-- LZ_COMPRESS_OPEN_NAMED_QUALITY
+declare d blob; h int; begin d:=hextoraw('00'); h:=utl_compress.lz_compress_open(quality=>9,dst=>d); utl_compress.lz_compress_close(dst=>d,handle=>h); end;
+-- LZ_COMPRESS_ADD_SINGLE_CHUNK
+declare d blob; s varbinary(32767); h int; begin d:=hextoraw('00'); s:=hextoraw('444D385F53545245414D'); h:=utl_compress.lz_compress_open(d,6); utl_compress.lz_compress_add(h,d,s); utl_compress.lz_compress_close(h,d); end;
+-- LZ_COMPRESS_ADD_NAMED_TWO_CHUNKS
+declare d blob; s varbinary(32767); h int; begin d:=hextoraw('00'); h:=utl_compress.lz_compress_open(d,1); s:=hextoraw('4348554E4B31'); utl_compress.lz_compress_add(src=>s,dst=>d,handle=>h); s:=hextoraw('4348554E4B32'); utl_compress.lz_compress_add(src=>s,dst=>d,handle=>h); utl_compress.lz_compress_close(h,d); end;
+-- LZ_UNCOMPRESS_OPEN_EXTRACT_TWO_ARGUMENT_CLOSE
+declare s blob; c blob; o varbinary(32767); h int; begin s:=hextoraw('444D385F455854524143545F54574F'); c:=utl_compress.lz_compress(s); h:=utl_compress.lz_uncompress_open(c); utl_compress.lz_uncompress_extract(h,o); utl_compress.lz_uncompress_close(h); end;
+-- LZ_UNCOMPRESS_OPEN_EXTRACT_THREE_ARGUMENT
+declare s blob; c blob; o varbinary(32767); h int; begin s:=hextoraw('444D385F455854524143545F5448524545'); c:=utl_compress.lz_compress(s); h:=utl_compress.lz_uncompress_open(src=>c); utl_compress.lz_uncompress_extract(handle=>h,dst=>o,out_len=>3); utl_compress.lz_uncompress_close(handle=>h); end;
+-- ISOPEN_CLOSED_HANDLE
+declare o int; begin o:=utl_compress.isopen(1); if o<>0 then raise_application_error(-20004,'expected free handle'); end if; end;
+-- QUALITY_MIN_BLOB_FUNCTION
+declare s blob; c blob; begin s:=hextoraw('41414141414141414141'); c:=utl_compress.lz_compress(s,1); end;
+-- QUALITY_MAX_BLOB_FUNCTION
+declare s blob; c blob; begin s:=hextoraw('41414141414141414141'); c:=utl_compress.lz_compress(s,9); end;
+------------------------------------------------------------------------------------------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- LZ_COMPRESS_VARBINARY_DEFAULT
+declare s varbinary(32767); c varbinary(32767); begin s:=hextoraw('444D385F434F4D5052455353'); c:=utl_compress.lz_compress(s); if length(c)<=length(s) then null; end if; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- LZ_COMPRESS_VARBINARY_QUALITY_ONE
+declare s varbinary(32767); c varbinary(32767); begin s:=hextoraw('444D38444D38444D38444D38'); c:=utl_compress.lz_compress(s,1); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- LZ_COMPRESS_VARBINARY_NAMED_QUALITY_NINE
+declare s varbinary(32767); c varbinary(32767); begin s:=hextoraw('414141414141414141414141'); c:=utl_compress.lz_compress(quality=>9,src=>s); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- LZ_COMPRESS_BLOB_FUNCTION_DEFAULT
+declare s blob; c blob; begin s:=hextoraw('444D385F424C4F425F434F4D5052455353'); c:=utl_compress.lz_compress(s); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- LZ_COMPRESS_BLOB_FUNCTION_NAMED_QUALITY
+declare s blob; c blob; begin s:=hextoraw('424242424242424242424242'); c:=utl_compress.lz_compress(quality=>7,src=>s); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- LZ_COMPRESS_BLOB_PROCEDURE_DEFAULT
+declare s blob; d blob; begin s:=hextoraw('444D385F424C4F425F50524F43'); d:=hextoraw('00'); utl_compress.lz_compress(s,d); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- LZ_COMPRESS_BLOB_PROCEDURE_NAMED_QUALITY
+declare s blob; d blob; begin s:=hextoraw('434343434343434343434343'); d:=hextoraw('00'); utl_compress.lz_compress(quality=>8,dst=>d,src=>s); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- LZ_COMPRESS_BFILE_FUNCTION_DEFAULT
+declare s bfile; c blob; begin s:=bfilename('CODEX_UTL_COMPRESS_DIR','source.bin'); dbms_lob.fileopen(s,dbms_lob.file_readonly); c:=utl_compress.lz_compress(s); dbms_lob.fileclose(s); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- LZ_COMPRESS_BFILE_FUNCTION_NAMED_QUALITY
+declare s bfile; c blob; begin s:=bfilename('CODEX_UTL_COMPRESS_DIR','source.bin'); dbms_lob.fileopen(s,dbms_lob.file_readonly); c:=utl_compress.lz_compress(quality=>9,src=>s); dbms_lob.fileclose(s); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- LZ_COMPRESS_BFILE_PROCEDURE_DEFAULT
+declare s bfile; d blob; begin s:=bfilename('CODEX_UTL_COMPRESS_DIR','source.bin'); d:=hextoraw('00'); dbms_lob.fileopen(s,dbms_lob.file_readonly); utl_compress.lz_compress(s,d); dbms_lob.fileclose(s); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- LZ_COMPRESS_BFILE_PROCEDURE_NAMED_QUALITY
+declare s bfile; d blob; begin s:=bfilename('CODEX_UTL_COMPRESS_DIR','source.bin'); d:=hextoraw('00'); dbms_lob.fileopen(s,dbms_lob.file_readonly); utl_compress.lz_compress(quality=>1,dst=>d,src=>s); dbms_lob.fileclose(s); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- LZ_UNCOMPRESS_VARBINARY_FUNCTION
+declare s varbinary(32767); c varbinary(32767); d varbinary(32767); begin s:=hextoraw('444D385F554E434F4D5052455353'); c:=utl_compress.lz_compress(s); d:=utl_compress.lz_uncompress(c); if d<>s then raise_application_error(-20001,'varbinary mismatch'); end if; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- LZ_UNCOMPRESS_BLOB_FUNCTION
+declare s blob; c blob; d blob; begin s:=hextoraw('444D385F424C4F425F554E434F4D5052455353'); c:=utl_compress.lz_compress(s); d:=utl_compress.lz_uncompress(c); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- LZ_UNCOMPRESS_BLOB_PROCEDURE
+declare s blob; c blob; d blob; begin s:=hextoraw('444D385F424C4F425F50524F435F554E434F4D50'); c:=utl_compress.lz_compress(s); d:=hextoraw('00'); utl_compress.lz_uncompress(c,d); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- LZ_UNCOMPRESS_BFILE_FUNCTION
+declare s bfile; d blob; begin s:=bfilename('CODEX_UTL_COMPRESS_DIR','compressed.gz'); dbms_lob.fileopen(s,dbms_lob.file_readonly); d:=utl_compress.lz_uncompress(s); dbms_lob.fileclose(s); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- LZ_UNCOMPRESS_BFILE_PROCEDURE
+declare s bfile; d blob; begin s:=bfilename('CODEX_UTL_COMPRESS_DIR','compressed.gz'); d:=hextoraw('00'); dbms_lob.fileopen(s,dbms_lob.file_readonly); utl_compress.lz_uncompress(s,d); dbms_lob.fileclose(s); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- LZ_COMPRESS_OPEN_DEFAULT_ISOPEN_CLOSE
+declare d blob; h int; o int; begin d:=hextoraw('00'); h:=utl_compress.lz_compress_open(d); o:=utl_compress.isopen(h); if o<>1 then raise_application_error(-20002,'expected open'); end if; utl_compress.lz_compress_close(h,d); o:=utl_compress.isopen(h); if o<>0 then raise_application_error(-20003,'expected closed'); end if; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- LZ_COMPRESS_OPEN_NAMED_QUALITY
+declare d blob; h int; begin d:=hextoraw('00'); h:=utl_compress.lz_compress_open(quality=>9,dst=>d); utl_compress.lz_compress_close(dst=>d,handle=>h); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- LZ_COMPRESS_ADD_SINGLE_CHUNK
+declare d blob; s varbinary(32767); h int; begin d:=hextoraw('00'); s:=hextoraw('444D385F53545245414D'); h:=utl_compress.lz_compress_open(d,6); utl_compress.lz_compress_add(h,d,s); utl_compress.lz_compress_close(h,d); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- LZ_COMPRESS_ADD_NAMED_TWO_CHUNKS
+declare d blob; s varbinary(32767); h int; begin d:=hextoraw('00'); h:=utl_compress.lz_compress_open(d,1); s:=hextoraw('4348554E4B31'); utl_compress.lz_compress_add(src=>s,dst=>d,handle=>h); s:=hextoraw('4348554E4B32'); utl_compress.lz_compress_add(src=>s,dst=>d,handle=>h); utl_compress.lz_compress_close(h,d); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- LZ_UNCOMPRESS_OPEN_EXTRACT_TWO_ARGUMENT_CLOSE
+declare s blob; c blob; o varbinary(32767); h int; begin s:=hextoraw('444D385F455854524143545F54574F'); c:=utl_compress.lz_compress(s); h:=utl_compress.lz_uncompress_open(c); utl_compress.lz_uncompress_extract(h,o); utl_compress.lz_uncompress_close(h); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- LZ_UNCOMPRESS_OPEN_EXTRACT_THREE_ARGUMENT
+declare s blob; c blob; o varbinary(32767); h int; begin s:=hextoraw('444D385F455854524143545F5448524545'); c:=utl_compress.lz_compress(s); h:=utl_compress.lz_uncompress_open(src=>c); utl_compress.lz_uncompress_extract(handle=>h,dst=>o,out_len=>3); utl_compress.lz_uncompress_close(handle=>h); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- ISOPEN_CLOSED_HANDLE
+declare o int; begin o:=utl_compress.isopen(1); if o<>0 then raise_application_error(-20004,'expected free handle'); end if; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- QUALITY_MIN_BLOB_FUNCTION
+declare s blob; c blob; begin s:=hextoraw('41414141414141414141'); c:=utl_compress.lz_compress(s,1); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- QUALITY_MAX_BLOB_FUNCTION
+declare s blob; c blob; begin s:=hextoraw('41414141414141414141'); c:=utl_compress.lz_compress(s,9); end;

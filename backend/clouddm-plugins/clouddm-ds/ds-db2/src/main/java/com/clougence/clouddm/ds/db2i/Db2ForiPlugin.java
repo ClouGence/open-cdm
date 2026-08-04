@@ -41,12 +41,10 @@ import com.clougence.clouddm.sdk.DsPlugin;
 import com.clougence.clouddm.sdk.DsPluginBinder;
 import com.clougence.clouddm.sdk.Plugin;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
-import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
 import com.clougence.schema.DsType;
 import com.clougence.schema.SchemaBinder;
 import com.clougence.schema.SchemaFramework;
 import com.clougence.schema.SchemaPlugin;
-import com.clougence.sql.db2.Db2SqlEngineSpi;
 
 /** @author mode 2024/12/25 15:13 */
 @Plugin(name = "i18n::" + Db2ForiDsI18nKeys.PLUGIN_NAME_DB2_4_I,            //
@@ -84,9 +82,7 @@ public class Db2ForiPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
     private void configExecute(DsPluginBinder dsPlugin) {
         dsPlugin.bindDsSessionFactory(Db2ForiSessionFactory.class);
         dsPlugin.bindDsDriverFamily("IBM JTOpen", "IBM JCC");
-
-        dsPlugin.bindSqlEngine(Db2SqlEngineSpi.NAME);
-        dsPlugin.addGlobalSpi(SqlEngineSpi.class, Db2SqlEngineSpi.NAME, new Db2SqlEngineSpi());
+        dsPlugin.bindSqlEngine("IBM DB2 SQL", "ISO-SQL-92", "ISO-SQL-99", "ISO-SQL-2003");
 
         dsPlugin.addPluginSpi(new Db2ForiSessionSpi());
         dsPlugin.addPluginSpi(new Db2ForiSupportSpi());

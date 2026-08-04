@@ -1,0 +1,68 @@
+create schema CODEX_DM8_SCHEMA_ATTR_20260722 authorization CODEX_DM8_SCHEMA_OWNER_20260722;
+/
+select name from sysobjects where type$='SCH' and name='CODEX_DM8_SCHEMA_ATTR_20260722';
+select username from dba_users where username='CODEX_DM8_SCHEMA_OWNER_20260722';
+create schema authorization CODEX_DM8_SCHEMA_OWNER_20260722;
+/
+select name from sysobjects where type$='SCH' and name='CODEX_DM8_SCHEMA_OWNER_20260722';
+create schema "Schema_Mixed_20260722" authorization SYSDBA;
+/
+select name from sysobjects where type$='SCH' and name='Schema_Mixed_20260722';
+create schema S0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 authorization SYSDBA;
+/
+select length(name) from sysobjects where type$='SCH' and name like 'S000000000000000000000000000000000000000000000000000000000000%';
+create schema CODEX_DM8_SCHEMA_DUP_20260722 authorization SYSDBA create table FIRST_TABLE(ID INT);
+/
+create schema CODEX_DM8_SCHEMA_DUP_20260722 authorization SYSDBA create table SECOND_TABLE(ID INT);
+/
+select count(*) from sysobjects where schid=(select id from sysobjects where type$='SCH' and name='CODEX_DM8_SCHEMA_DUP_20260722') and name in ('FIRST_TABLE','SECOND_TABLE');
+set schema CODEX_DM8_SCHEMA_DUP_20260722;
+select sys_context('USERENV','CURRENT_SCHEMA') from dual;
+set schema SYSDBA;
+create schema CODEX_DM8_SCHEMA_EMPTY_20260722 authorization SYSDBA;
+/
+drop schema CODEX_DM8_SCHEMA_EMPTY_20260722;
+create schema CODEX_DM8_SCHEMA_NONEMPTY_20260722 authorization SYSDBA create table T(ID INT);
+/
+drop schema CODEX_DM8_SCHEMA_NONEMPTY_20260722 cascade;
+drop schema if exists CODEX_DM8_SCHEMA_MISSING_20260722;
+------------------------------------------------------------------------------------------
+[CREATE_SCHEMA] create schema CODEX_DM8_SCHEMA_ATTR_20260722 authorization CODEX_DM8_SCHEMA_OWNER_20260722;
+----------
+[SELECT] select name from sysobjects where type$='SCH' and name='CODEX_DM8_SCHEMA_ATTR_20260722';
+----------
+[SELECT] select username from dba_users where username='CODEX_DM8_SCHEMA_OWNER_20260722';
+----------
+[CREATE_SCHEMA] create schema authorization CODEX_DM8_SCHEMA_OWNER_20260722;
+----------
+[SELECT] select name from sysobjects where type$='SCH' and name='CODEX_DM8_SCHEMA_OWNER_20260722';
+----------
+[CREATE_SCHEMA] create schema "Schema_Mixed_20260722" authorization SYSDBA;
+----------
+[SELECT] select name from sysobjects where type$='SCH' and name='Schema_Mixed_20260722';
+----------
+[CREATE_SCHEMA] create schema S0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 authorization SYSDBA;
+----------
+[SELECT] select length(name) from sysobjects where type$='SCH' and name like 'S000000000000000000000000000000000000000000000000000000000000%';
+----------
+[CREATE_SCHEMA|ADD_COLUMN] create schema CODEX_DM8_SCHEMA_DUP_20260722 authorization SYSDBA create table FIRST_TABLE(ID INT);
+----------
+[CREATE_SCHEMA|ADD_COLUMN] create schema CODEX_DM8_SCHEMA_DUP_20260722 authorization SYSDBA create table SECOND_TABLE(ID INT);
+----------
+[SELECT] select count(*) from sysobjects where schid=(select id from sysobjects where type$='SCH' and name='CODEX_DM8_SCHEMA_DUP_20260722') and name in ('FIRST_TABLE','SECOND_TABLE');
+----------
+[SWITCH_SCHEMA] set schema CODEX_DM8_SCHEMA_DUP_20260722;
+----------
+[SELECT|CALL_PROG_OBJ] select sys_context('USERENV','CURRENT_SCHEMA') from dual;
+----------
+[SWITCH_SCHEMA] set schema SYSDBA;
+----------
+[CREATE_SCHEMA] create schema CODEX_DM8_SCHEMA_EMPTY_20260722 authorization SYSDBA;
+----------
+[DROP_SCHEMA] drop schema CODEX_DM8_SCHEMA_EMPTY_20260722;
+----------
+[CREATE_SCHEMA|ADD_COLUMN] create schema CODEX_DM8_SCHEMA_NONEMPTY_20260722 authorization SYSDBA create table T(ID INT);
+----------
+[DROP_SCHEMA] drop schema CODEX_DM8_SCHEMA_NONEMPTY_20260722 cascade;
+----------
+[DROP_SCHEMA] drop schema if exists CODEX_DM8_SCHEMA_MISSING_20260722;

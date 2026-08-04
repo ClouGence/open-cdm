@@ -1,0 +1,118 @@
+call dbms_random.initialize(15);
+call dbms_random.seed(20260722);
+call dbms_random.seed('CODEX_DM8_SEED');
+call dbms_random.terminate();
+declare
+  v_len integer := 0;
+  v_array dbms_utility.lname_array;
+begin
+  dbms_utility.comma_to_table('HOPE,HOPE.WORLD.PEACE,"#*!:,A123"', v_len, v_array);
+end;
+/
+declare
+  v_len integer := 0;
+  v_array dbms_utility.lname_array;
+  v_result varchar2(200);
+begin
+  v_array[1] := 'AA';
+  v_array[2] := 'BB';
+  v_array[3] := null;
+  dbms_utility.table_to_comma(v_array, v_len, v_result);
+end;
+/
+declare
+  v_line varchar2(200);
+  v_status integer;
+begin
+  dbms_output.enable(2000);
+  dbms_output.put('CODEX');
+  dbms_output.put_line('_DM8');
+  dbms_output.new_line();
+  dbms_output.get_line(v_line, v_status);
+  dbms_output.disable();
+end;
+/
+declare
+  v_lines dbms_output.chararr;
+  v_count integer := 2;
+begin
+  dbms_output.enable();
+  dbms_output.put_line('LINE_1');
+  dbms_output.put_line('LINE_2');
+  dbms_output.get_lines(v_lines, v_count);
+  dbms_output.disable();
+end;
+/
+declare
+  v_client varchar2(64);
+  v_module varchar2(64);
+  v_action varchar2(64);
+begin
+  dbms_application_info.set_client_info('CODEX_DM8_CLIENT');
+  dbms_application_info.set_module('CODEX_DM8_MODULE', 'ACTION_1');
+  dbms_application_info.set_action('ACTION_2');
+  dbms_application_info.read_client_info(v_client);
+  dbms_application_info.read_module(v_module, v_action);
+end;
+/
+------------------------------------------------------------------------------------------
+[CALL_PROG_OBJ] call dbms_random.initialize(15);
+----------
+[CALL_PROG_OBJ] call dbms_random.seed(20260722);
+----------
+[CALL_PROG_OBJ] call dbms_random.seed('CODEX_DM8_SEED');
+----------
+[CALL_PROG_OBJ] call dbms_random.terminate();
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare
+  v_len integer := 0;
+  v_array dbms_utility.lname_array;
+begin
+  dbms_utility.comma_to_table('HOPE,HOPE.WORLD.PEACE,"#*!:,A123"', v_len, v_array);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare
+  v_len integer := 0;
+  v_array dbms_utility.lname_array;
+  v_result varchar2(200);
+begin
+  v_array[1] := 'AA';
+  v_array[2] := 'BB';
+  v_array[3] := null;
+  dbms_utility.table_to_comma(v_array, v_len, v_result);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare
+  v_line varchar2(200);
+  v_status integer;
+begin
+  dbms_output.enable(2000);
+  dbms_output.put('CODEX');
+  dbms_output.put_line('_DM8');
+  dbms_output.new_line();
+  dbms_output.get_line(v_line, v_status);
+  dbms_output.disable();
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare
+  v_lines dbms_output.chararr;
+  v_count integer := 2;
+begin
+  dbms_output.enable();
+  dbms_output.put_line('LINE_1');
+  dbms_output.put_line('LINE_2');
+  dbms_output.get_lines(v_lines, v_count);
+  dbms_output.disable();
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare
+  v_client varchar2(64);
+  v_module varchar2(64);
+  v_action varchar2(64);
+begin
+  dbms_application_info.set_client_info('CODEX_DM8_CLIENT');
+  dbms_application_info.set_module('CODEX_DM8_MODULE', 'ACTION_1');
+  dbms_application_info.set_action('ACTION_2');
+  dbms_application_info.read_client_info(v_client);
+  dbms_application_info.read_module(v_module, v_action);
+end;

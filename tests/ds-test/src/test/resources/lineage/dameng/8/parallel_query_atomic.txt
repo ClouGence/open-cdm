@@ -1,0 +1,51 @@
+[parallel_columns]
+sql:
+select /*+ parallel(4) */ id,group_id from catalog1.app.t_base
+expect:
+{
+  "id": [
+    "/catalog1/app/t_base/id/"
+  ],
+  "group_id": [
+    "/catalog1/app/t_base/group_id/"
+  ]
+}
+----------
+[parallel_join_columns]
+sql:
+select /*+ parallel(4) */ b.id,d.label from catalog1.app.t_base b join catalog1.app.t_dim d on d.group_id=b.group_id
+expect:
+{
+  "id": [
+    "/catalog1/app/t_base/id/"
+  ],
+  "label": [
+    "/catalog1/app/t_dim/label/"
+  ]
+}
+----------
+[parallel_partition_columns]
+sql:
+select /*+ parallel(t_part 4) */ id,payload from catalog1.app.t_part partition(p2)
+expect:
+{
+  "id": [
+    "/catalog1/app/t_part/id/"
+  ],
+  "payload": [
+    "/catalog1/app/t_part/payload/"
+  ]
+}
+----------
+[parallel_cte_columns]
+sql:
+with q as(select /*+ parallel(4) */ id,group_id from catalog1.app.t_base) select id,group_id from q
+expect:
+{
+  "id": [
+    "/catalog1/app/t_base/id/"
+  ],
+  "group_id": [
+    "/catalog1/app/t_base/group_id/"
+  ]
+}

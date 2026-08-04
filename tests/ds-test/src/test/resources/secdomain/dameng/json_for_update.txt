@@ -1,0 +1,30 @@
+[for_read_only]
+sql:
+select id,name from app.lock_t order by id for read only
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"lock_t"}
+  ]
+}
+----------
+[for_update_lob]
+sql:
+select id,name,payload from app.lock_t for update of app.lock_t.name wait 0
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"lock_t"}
+  ]
+}
+----------
+[for_update_join_selective]
+sql:
+select a.id,b.name from app.lock_t a join app.lock_other b on a.id=b.id for update of a.name
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"lock_t"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"lock_other"}
+  ]
+}

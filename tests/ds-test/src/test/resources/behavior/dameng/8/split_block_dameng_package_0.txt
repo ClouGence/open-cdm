@@ -1,0 +1,1547 @@
+[split_block_dameng_package_0_001]
+sql:
+CREATE PACKAGE PACKAGE_P01 AS
+  G_VALUE INT;
+END PACKAGE_P01;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Package(1:15~1:26) /test/1/catalog1/schema1/PACKAGE_P01/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_002]
+sql:
+CREATE OR REPLACE PACKAGE PACKAGE_P02 IS
+  G_VALUE INT;
+END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Package(1:26~1:37) /test/1/catalog1/schema1/PACKAGE_P02/",
+      "action": "REPLACE"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_003]
+sql:
+CREATE PACKAGE IF NOT EXISTS PACKAGE_P03 AS
+  G_VALUE INT;
+END PACKAGE_P03;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Package(1:29~1:40) /test/1/catalog1/schema1/PACKAGE_P03/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_004]
+sql:
+CREATE OR REPLACE PACKAGE IF NOT EXISTS PACKAGE_P04 AS
+  G_VALUE INT;
+END PACKAGE_P04;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Package(1:40~1:51) /test/1/catalog1/schema1/PACKAGE_P04/",
+      "action": "REPLACE"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_005]
+sql:
+CREATE PACKAGE PACKAGE_P05 WITH ENCRYPTION AS
+  G_VALUE INT;
+END PACKAGE_P05;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Package(1:15~1:26) /test/1/catalog1/schema1/PACKAGE_P05/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_006]
+sql:
+CREATE PACKAGE PACKAGE_P06 AUTHID DEFINER AS
+  G_VALUE INT;
+END PACKAGE_P06;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Package(1:15~1:26) /test/1/catalog1/schema1/PACKAGE_P06/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_007]
+sql:
+CREATE PACKAGE PACKAGE_P07 AUTHID CURRENT_USER AS
+  G_VALUE INT;
+END PACKAGE_P07;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Package(1:15~1:26) /test/1/catalog1/schema1/PACKAGE_P07/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_008]
+sql:
+CREATE PACKAGE PACKAGE_P08 WITH ENCRYPTION AUTHID DEFINER AS
+  G_VALUE INT;
+END PACKAGE_P08;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Package(1:15~1:26) /test/1/catalog1/schema1/PACKAGE_P08/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_009]
+sql:
+CREATE PACKAGE PACKAGE_P09 WITH ENCRYPTION AUTHID CURRENT_USER IS
+  G_VALUE INT;
+END PACKAGE_P09;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Package(1:15~1:26) /test/1/catalog1/schema1/PACKAGE_P09/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_010]
+sql:
+CREATE PACKAGE PACKAGE_P10 AS
+  G_DEFAULT INT DEFAULT 10;
+  G_ASSIGN INT := 11;
+  G_EQUALS INT = 12;
+END PACKAGE_P10;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Package(1:15~1:26) /test/1/catalog1/schema1/PACKAGE_P10/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_011]
+sql:
+CREATE PACKAGE PACKAGE_P11 AS
+  G_TEXT VARCHAR(80) := 'PACKAGE';
+  G_NUMBER NUMBER(12,2) := 11.25;
+  G_DATE DATE := DATE '2026-07-21';
+END PACKAGE_P11;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Package(1:15~1:26) /test/1/catalog1/schema1/PACKAGE_P11/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_012]
+sql:
+CREATE PACKAGE PACKAGE_P12 AS
+  G_ID PACKAGE_DATA.ID%TYPE;
+  G_ROW PACKAGE_DATA%ROWTYPE;
+END PACKAGE_P12;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Package(1:15~1:26) /test/1/catalog1/schema1/PACKAGE_P12/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_013]
+sql:
+CREATE PACKAGE PACKAGE_P13 AS
+  E_SIMPLE EXCEPTION;
+END PACKAGE_P13;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Package(1:15~1:26) /test/1/catalog1/schema1/PACKAGE_P13/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_014]
+sql:
+CREATE PACKAGE PACKAGE_P14 AS
+  E_CODE EXCEPTION FOR -20001;
+END PACKAGE_P14;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Package(1:15~1:26) /test/1/catalog1/schema1/PACKAGE_P14/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_015]
+sql:
+CREATE PACKAGE PACKAGE_P15 AS
+  E_MESSAGE EXCEPTION FOR -20002, 'PACKAGE ERROR';
+END PACKAGE_P15;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Package(1:15~1:26) /test/1/catalog1/schema1/PACKAGE_P15/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_016]
+sql:
+CREATE PACKAGE PACKAGE_P16 AS
+  C_DYNAMIC CURSOR;
+END PACKAGE_P16;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Package(1:15~1:26) /test/1/catalog1/schema1/PACKAGE_P16/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_017]
+sql:
+CREATE PACKAGE PACKAGE_P17 AS
+  CURSOR C_STATIC FOR SELECT ID, NOTE FROM PACKAGE_DATA;
+END PACKAGE_P17;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Package(1:15~1:26) /test/1/catalog1/schema1/PACKAGE_P17/",
+      "action": "CREATE"
+    },
+    {
+      "subject": "Table(2:43~2:55) /test/1/catalog1/schema1/PACKAGE_DATA/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_018]
+sql:
+CREATE PACKAGE PACKAGE_P18 AS
+  CURSOR C_BY_ID(P_ID INT) IS SELECT NOTE FROM PACKAGE_DATA WHERE ID=P_ID;
+END PACKAGE_P18;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Package(1:15~1:26) /test/1/catalog1/schema1/PACKAGE_P18/",
+      "action": "CREATE"
+    },
+    {
+      "subject": "Table(2:47~2:59) /test/1/catalog1/schema1/PACKAGE_DATA/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_019]
+sql:
+CREATE PACKAGE PACKAGE_P19 AS
+  CURSOR C_BY_ID(P_ID INT DEFAULT 1) IS SELECT NOTE FROM PACKAGE_DATA WHERE ID=P_ID;
+END PACKAGE_P19;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Package(1:15~1:26) /test/1/catalog1/schema1/PACKAGE_P19/",
+      "action": "CREATE"
+    },
+    {
+      "subject": "Table(2:57~2:69) /test/1/catalog1/schema1/PACKAGE_DATA/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_020]
+sql:
+CREATE PACKAGE PACKAGE_P20 AS
+  SUBTYPE SMALL_NUMBER IS NUMBER(6) NOT NULL;
+END PACKAGE_P20;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Package(1:15~1:26) /test/1/catalog1/schema1/PACKAGE_P20/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_021]
+sql:
+CREATE PACKAGE PACKAGE_P21 AS
+  TYPE ID_LIST IS TABLE OF INT;
+END PACKAGE_P21;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Package(1:15~1:26) /test/1/catalog1/schema1/PACKAGE_P21/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_022]
+sql:
+CREATE PACKAGE PACKAGE_P22 AS
+  TYPE NAME_ARRAY IS VARRAY(10) OF VARCHAR(80);
+END PACKAGE_P22;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Package(1:15~1:26) /test/1/catalog1/schema1/PACKAGE_P22/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_023]
+sql:
+CREATE PACKAGE PACKAGE_P23 AS
+  TYPE ITEM_REC IS RECORD(ID INT, NOTE VARCHAR(80));
+END PACKAGE_P23;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Package(1:15~1:26) /test/1/catalog1/schema1/PACKAGE_P23/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_024]
+sql:
+CREATE PACKAGE PACKAGE_P24 AS
+  TYPE ID_MAP IS TABLE OF VARCHAR(80) INDEX BY INT;
+END PACKAGE_P24;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Package(1:15~1:26) /test/1/catalog1/schema1/PACKAGE_P24/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_025]
+sql:
+CREATE PACKAGE PACKAGE_P25 AS
+  PROCEDURE NOOP;
+END PACKAGE_P25;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Package(1:15~1:26) /test/1/catalog1/schema1/PACKAGE_P25/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_026]
+sql:
+CREATE PACKAGE PACKAGE_P26 AS
+  PROCEDURE SET_VALUE(P_VALUE INT);
+END PACKAGE_P26;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Package(1:15~1:26) /test/1/catalog1/schema1/PACKAGE_P26/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_027]
+sql:
+CREATE PACKAGE PACKAGE_P27 AS
+  PROCEDURE SET_VALUE(P_ID IN INT, P_NOTE IN VARCHAR);
+END PACKAGE_P27;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Package(1:15~1:26) /test/1/catalog1/schema1/PACKAGE_P27/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_028]
+sql:
+CREATE PACKAGE PACKAGE_P28 AS
+  PROCEDURE GET_VALUE(P_ID IN INT, P_NOTE OUT VARCHAR);
+END PACKAGE_P28;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Package(1:15~1:26) /test/1/catalog1/schema1/PACKAGE_P28/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_029]
+sql:
+CREATE PACKAGE PACKAGE_P29 AS
+  PROCEDURE CHANGE_VALUE(P_VALUE IN OUT INT);
+END PACKAGE_P29;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Package(1:15~1:26) /test/1/catalog1/schema1/PACKAGE_P29/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_030]
+sql:
+CREATE PACKAGE PACKAGE_P30 AS
+  PROCEDURE SET_DEFAULT(P_VALUE INT DEFAULT 30);
+END PACKAGE_P30;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Package(1:15~1:26) /test/1/catalog1/schema1/PACKAGE_P30/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_031]
+sql:
+CREATE PACKAGE PACKAGE_P31 AS
+  PROCEDURE SET_DEFAULT(P_VALUE INT := 31);
+END PACKAGE_P31;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Package(1:15~1:26) /test/1/catalog1/schema1/PACKAGE_P31/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_032]
+sql:
+CREATE PACKAGE PACKAGE_P32 AS
+  PROCEDURE SET_DEFAULT(P_VALUE INT = 32);
+END PACKAGE_P32;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Package(1:15~1:26) /test/1/catalog1/schema1/PACKAGE_P32/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_033]
+sql:
+CREATE PACKAGE PACKAGE_P33 AS
+  FUNCTION GET_VALUE RETURN INT;
+END PACKAGE_P33;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Package(1:15~1:26) /test/1/catalog1/schema1/PACKAGE_P33/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_034]
+sql:
+CREATE PACKAGE PACKAGE_P34 AS
+  FUNCTION GET_VALUE(P_ID INT) RETURN VARCHAR;
+END PACKAGE_P34;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Package(1:15~1:26) /test/1/catalog1/schema1/PACKAGE_P34/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_035]
+sql:
+CREATE PACKAGE PACKAGE_P35 AS
+  FUNCTION GET_VALUE(P_ID INT DEFAULT 1) RETURN VARCHAR;
+END PACKAGE_P35;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Package(1:15~1:26) /test/1/catalog1/schema1/PACKAGE_P35/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_036]
+sql:
+CREATE PACKAGE PACKAGE_P36 AS
+  FUNCTION GET_VALUE(P_ID INT) RETURN VARCHAR RESULT_CACHE;
+END PACKAGE_P36;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Package(1:15~1:26) /test/1/catalog1/schema1/PACKAGE_P36/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_037]
+sql:
+CREATE PACKAGE PACKAGE_P37 AS
+  FUNCTION GET_VALUE(P_ID INT) RETURN VARCHAR DETERMINISTIC;
+END PACKAGE_P37;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Package(1:15~1:26) /test/1/catalog1/schema1/PACKAGE_P37/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_038]
+sql:
+CREATE PACKAGE PACKAGE_P38 AS
+  FUNCTION GET_VALUE(P_ID INT) RETURN VARCHAR RESULT_CACHE DETERMINISTIC;
+END PACKAGE_P38;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Package(1:15~1:26) /test/1/catalog1/schema1/PACKAGE_P38/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_039]
+sql:
+CREATE PACKAGE PACKAGE_P39 AS
+  PROCEDURE SET_VALUE(P_VALUE INT);
+  PROCEDURE SET_VALUE(P_VALUE VARCHAR);
+END PACKAGE_P39;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Package(1:15~1:26) /test/1/catalog1/schema1/PACKAGE_P39/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_040]
+sql:
+CREATE PACKAGE PACKAGE_P40 AS
+  FUNCTION ECHO(P_VALUE INT) RETURN INT;
+  FUNCTION ECHO(P_VALUE VARCHAR) RETURN VARCHAR;
+END PACKAGE_P40;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Package(1:15~1:26) /test/1/catalog1/schema1/PACKAGE_P40/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_041]
+sql:
+CREATE PACKAGE PACKAGE_P41 AS
+  G_COUNT INT;
+  PROCEDURE SET_VALUE(P_ID INT, P_NOTE VARCHAR);
+  FUNCTION GET_VALUE(P_ID INT) RETURN VARCHAR;
+END PACKAGE_P41;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Package(1:15~1:26) /test/1/catalog1/schema1/PACKAGE_P41/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_042]
+sql:
+CREATE PACKAGE PACKAGE_P42 AS
+  PROCEDURE NOOP;
+END PACKAGE_P42;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Package(1:15~1:26) /test/1/catalog1/schema1/PACKAGE_P42/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_043]
+sql:
+CREATE PACKAGE PACKAGE_P43 AS
+  G_COUNT INT;
+  FUNCTION GET_COUNT RETURN INT;
+END PACKAGE_P43;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Package(1:15~1:26) /test/1/catalog1/schema1/PACKAGE_P43/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_044]
+sql:
+CREATE PACKAGE PACKAGE_P44 AS
+  PROCEDURE SET_VALUE(P_VALUE INT);
+  PROCEDURE SET_VALUE(P_VALUE VARCHAR);
+END PACKAGE_P44;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Package(1:15~1:26) /test/1/catalog1/schema1/PACKAGE_P44/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_045]
+sql:
+CREATE PACKAGE PACKAGE_P45 AS
+  PROCEDURE TOUCH_VALUE(P_ID INT);
+END PACKAGE_P45;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Package(1:15~1:26) /test/1/catalog1/schema1/PACKAGE_P45/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_046]
+sql:
+CREATE PACKAGE BODY PACKAGE_P25 AS
+  PROCEDURE NOOP AS
+  BEGIN
+    NULL;
+  END NOOP;
+END PACKAGE_P25;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Package(1:20~1:31) /test/1/catalog1/schema1/PACKAGE_P25/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_047]
+sql:
+CREATE OR REPLACE PACKAGE BODY PACKAGE_P26 IS
+  PROCEDURE SET_VALUE(P_VALUE INT) IS
+  BEGIN
+    PRINT P_VALUE;
+  END;
+END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Package(1:31~1:42) /test/1/catalog1/schema1/PACKAGE_P26/",
+      "action": "REPLACE"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_048]
+sql:
+CREATE PACKAGE BODY PACKAGE_P27 WITH ENCRYPTION AS
+  PROCEDURE SET_VALUE(P_ID IN INT, P_NOTE IN VARCHAR) AS
+  BEGIN
+    UPDATE PACKAGE_DATA SET NOTE=P_NOTE WHERE ID=P_ID;
+  END SET_VALUE;
+END PACKAGE_P27;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Package(1:20~1:31) /test/1/catalog1/schema1/PACKAGE_P27/",
+      "action": "CREATE"
+    },
+    {
+      "subject": "Table(4:11~4:23) /test/1/catalog1/schema1/PACKAGE_DATA/",
+      "action": "UPDATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_049]
+sql:
+CREATE PACKAGE BODY PACKAGE_P28 AS
+  PROCEDURE GET_VALUE(P_ID IN INT, P_NOTE OUT VARCHAR) AS
+  BEGIN
+    SELECT NOTE INTO P_NOTE FROM PACKAGE_DATA WHERE ID=P_ID;
+  END GET_VALUE;
+END PACKAGE_P28;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Package(1:20~1:31) /test/1/catalog1/schema1/PACKAGE_P28/",
+      "action": "CREATE"
+    },
+    {
+      "subject": "Table(4:33~4:45) /test/1/catalog1/schema1/PACKAGE_DATA/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_050]
+sql:
+CREATE PACKAGE BODY PACKAGE_P29 AS
+  PROCEDURE CHANGE_VALUE(P_VALUE IN OUT INT) AS
+  BEGIN
+    P_VALUE := P_VALUE + 1;
+  END CHANGE_VALUE;
+END PACKAGE_P29;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Package(1:20~1:31) /test/1/catalog1/schema1/PACKAGE_P29/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_051]
+sql:
+CREATE PACKAGE BODY PACKAGE_P33 AS
+  FUNCTION GET_VALUE RETURN INT AS
+  BEGIN
+    RETURN 33;
+  END GET_VALUE;
+END PACKAGE_P33;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Package(1:20~1:31) /test/1/catalog1/schema1/PACKAGE_P33/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_052]
+sql:
+CREATE PACKAGE BODY PACKAGE_P34 AS
+  FUNCTION GET_VALUE(P_ID INT) RETURN VARCHAR AS
+    V_NOTE VARCHAR(80);
+  BEGIN
+    SELECT NOTE INTO V_NOTE FROM PACKAGE_DATA WHERE ID=P_ID;
+    RETURN V_NOTE;
+  END GET_VALUE;
+END PACKAGE_P34;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Package(1:20~1:31) /test/1/catalog1/schema1/PACKAGE_P34/",
+      "action": "CREATE"
+    },
+    {
+      "subject": "Table(5:33~5:45) /test/1/catalog1/schema1/PACKAGE_DATA/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_053]
+sql:
+CREATE PACKAGE BODY PACKAGE_P39 AS
+  PROCEDURE SET_VALUE(P_VALUE INT) AS BEGIN PRINT P_VALUE; END;
+  PROCEDURE SET_VALUE(P_VALUE VARCHAR) AS BEGIN PRINT P_VALUE; END;
+END PACKAGE_P39;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Package(1:20~1:31) /test/1/catalog1/schema1/PACKAGE_P39/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_054]
+sql:
+CREATE PACKAGE BODY PACKAGE_P40 AS
+  FUNCTION ECHO(P_VALUE INT) RETURN INT AS BEGIN RETURN P_VALUE; END;
+  FUNCTION ECHO(P_VALUE VARCHAR) RETURN VARCHAR AS BEGIN RETURN P_VALUE; END;
+END PACKAGE_P40;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Package(1:20~1:31) /test/1/catalog1/schema1/PACKAGE_P40/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_055]
+sql:
+CREATE PACKAGE BODY PACKAGE_P41 AS
+  PROCEDURE SET_VALUE(P_ID INT, P_NOTE VARCHAR) AS
+  BEGIN
+    UPDATE PACKAGE_DATA SET NOTE=P_NOTE WHERE ID=P_ID;
+    G_COUNT := SQL%ROWCOUNT;
+  END SET_VALUE;
+  FUNCTION GET_VALUE(P_ID INT) RETURN VARCHAR AS
+    V_NOTE VARCHAR(80);
+  BEGIN
+    SELECT NOTE INTO V_NOTE FROM PACKAGE_DATA WHERE ID=P_ID;
+    RETURN V_NOTE;
+  END GET_VALUE;
+END PACKAGE_P41;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Package(1:20~1:31) /test/1/catalog1/schema1/PACKAGE_P41/",
+      "action": "CREATE"
+    },
+    {
+      "subject": "Table(4:11~4:23) /test/1/catalog1/schema1/PACKAGE_DATA/",
+      "action": "UPDATE"
+    },
+    {
+      "subject": "Table(10:33~10:45) /test/1/catalog1/schema1/PACKAGE_DATA/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_056]
+sql:
+CREATE PACKAGE BODY PACKAGE_P42 AS
+  PROCEDURE NOOP AS BEGIN NULL; END;
+BEGIN
+  NULL;
+END PACKAGE_P42;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Package(1:20~1:31) /test/1/catalog1/schema1/PACKAGE_P42/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_057]
+sql:
+CREATE PACKAGE BODY PACKAGE_P43 AS
+  FUNCTION GET_COUNT RETURN INT AS BEGIN RETURN G_COUNT; END;
+BEGIN
+  SELECT COUNT(*) INTO G_COUNT FROM PACKAGE_DATA;
+END PACKAGE_P43;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Package(1:20~1:31) /test/1/catalog1/schema1/PACKAGE_P43/",
+      "action": "CREATE"
+    },
+    {
+      "subject": "Function(4:9~4:14) /test/1/catalog1/schema1/COUNT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(4:36~4:48) /test/1/catalog1/schema1/PACKAGE_DATA/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_058]
+sql:
+CREATE PACKAGE BODY PACKAGE_P44 AS
+  PROCEDURE SET_VALUE(P_VALUE INT) AS BEGIN PRINT P_VALUE; END;
+  PROCEDURE SET_VALUE(P_VALUE VARCHAR) AS BEGIN PRINT P_VALUE; END;
+BEGIN
+  NULL;
+END PACKAGE_P44;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Package(1:20~1:31) /test/1/catalog1/schema1/PACKAGE_P44/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_059]
+sql:
+CREATE PACKAGE BODY PACKAGE_P45 AS
+  G_LOCAL INT := 45;
+  E_LOCAL EXCEPTION;
+  CURSOR C_LOCAL IS SELECT ID FROM PACKAGE_DATA;
+  PROCEDURE TOUCH_VALUE(P_ID INT) AS
+  BEGIN
+    UPDATE PACKAGE_DATA SET NOTE='P45' WHERE ID=P_ID;
+  END TOUCH_VALUE;
+END PACKAGE_P45;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Package(1:20~1:31) /test/1/catalog1/schema1/PACKAGE_P45/",
+      "action": "CREATE"
+    },
+    {
+      "subject": "Table(4:35~4:47) /test/1/catalog1/schema1/PACKAGE_DATA/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(7:11~7:23) /test/1/catalog1/schema1/PACKAGE_DATA/",
+      "action": "UPDATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_060]
+sql:
+CREATE OR REPLACE PACKAGE BODY PACKAGE_P45 IS
+  PROCEDURE TOUCH_VALUE(P_ID INT) AS
+  BEGIN
+    DELETE FROM PACKAGE_DATA WHERE ID < 0;
+  END;
+END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Package(1:31~1:42) /test/1/catalog1/schema1/PACKAGE_P45/",
+      "action": "REPLACE"
+    },
+    {
+      "subject": "Table(4:16~4:28) /test/1/catalog1/schema1/PACKAGE_DATA/",
+      "action": "DELETE"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_061]
+sql:
+CALL PACKAGE_P27.SET_VALUE(1, 'POSITIONAL');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:5~1:26) /test/1/catalog1/PACKAGE_P27/SET_VALUE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_062]
+sql:
+CALL PACKAGE_P27.SET_VALUE(P_NOTE=>'NAMED', P_ID=>1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:5~1:26) /test/1/catalog1/PACKAGE_P27/SET_VALUE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_063]
+sql:
+CALL PACKAGE_P39.SET_VALUE(39);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:5~1:26) /test/1/catalog1/PACKAGE_P39/SET_VALUE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_064]
+sql:
+CALL PACKAGE_P39.SET_VALUE('THIRTY_NINE');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:5~1:26) /test/1/catalog1/PACKAGE_P39/SET_VALUE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_065]
+sql:
+SELECT PACKAGE_P34.GET_VALUE(1) AS PACKAGE_VALUE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:28) /test/1/catalog1/PACKAGE_P34/GET_VALUE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_066]
+sql:
+SELECT PACKAGE_P40.ECHO(40) AS PACKAGE_INT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:23) /test/1/catalog1/PACKAGE_P40/ECHO/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_067]
+sql:
+SELECT PACKAGE_P40.ECHO('FORTY') AS PACKAGE_TEXT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:23) /test/1/catalog1/PACKAGE_P40/ECHO/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_068]
+sql:
+SELECT PACKAGE_P43.GET_COUNT AS PACKAGE_COUNT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[split_block_dameng_package_0_069]
+sql:
+SELECT PACKAGE_P43.G_COUNT AS PACKAGE_VARIABLE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[split_block_dameng_package_0_070]
+sql:
+CALL PACKAGE_P41.SET_VALUE(P_ID=>1, P_NOTE=>'MIXED');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:5~1:26) /test/1/catalog1/PACKAGE_P41/SET_VALUE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_071]
+sql:
+ALTER PACKAGE PACKAGE_P25 COMPILE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_PROG_OBJ": [
+    {
+      "subject": "Package(1:14~1:25) /test/1/catalog1/schema1/PACKAGE_P25/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_072]
+sql:
+ALTER PACKAGE PACKAGE_P26 COMPILE DEBUG;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_PROG_OBJ": [
+    {
+      "subject": "Package(1:14~1:25) /test/1/catalog1/schema1/PACKAGE_P26/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_073]
+sql:
+ALTER PACKAGE PACKAGE_P27 COMPILE CASCADE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_PROG_OBJ": [
+    {
+      "subject": "Package(1:14~1:25) /test/1/catalog1/schema1/PACKAGE_P27/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_074]
+sql:
+ALTER PACKAGE PACKAGE_P28 COMPILE CASCADE DEBUG;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN_PROG_OBJ": [
+    {
+      "subject": "Package(1:14~1:25) /test/1/catalog1/schema1/PACKAGE_P28/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_075]
+sql:
+GRANT EXECUTE ON PACKAGE PACKAGE_P25 TO CODEX_DM8_PACKAGE_USER_20260721;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Package(1:25~1:36) /test/1/catalog1/schema1/PACKAGE_P25/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:40~1:71) /test/1/CODEX_DM8_PACKAGE_USER_20260721/"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_076]
+sql:
+REVOKE EXECUTE ON PACKAGE PACKAGE_P25 FROM CODEX_DM8_PACKAGE_USER_20260721;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "Package(1:26~1:37) /test/1/catalog1/schema1/PACKAGE_P25/",
+      "action": "REVOKE",
+      "target": "UserOrRole(1:43~1:74) /test/1/CODEX_DM8_PACKAGE_USER_20260721/"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_077]
+sql:
+GRANT EXECUTE ON PACKAGE_P26 TO CODEX_DM8_PACKAGE_USER_20260721;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "SchemaObject(1:17~1:28) /test/1/catalog1/schema1/PACKAGE_P26/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:32~1:63) /test/1/CODEX_DM8_PACKAGE_USER_20260721/"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_078]
+sql:
+REVOKE EXECUTE ON PACKAGE_P26 FROM CODEX_DM8_PACKAGE_USER_20260721;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "SchemaObject(1:18~1:29) /test/1/catalog1/schema1/PACKAGE_P26/",
+      "action": "REVOKE",
+      "target": "UserOrRole(1:35~1:66) /test/1/CODEX_DM8_PACKAGE_USER_20260721/"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_079]
+sql:
+DROP PACKAGE BODY IF EXISTS PACKAGE_P25;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Package(1:28~1:39) /test/1/catalog1/schema1/PACKAGE_P25/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_080]
+sql:
+DROP PACKAGE BODY PACKAGE_P26;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Package(1:18~1:29) /test/1/catalog1/schema1/PACKAGE_P26/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_081]
+sql:
+DROP PACKAGE BODY PACKAGE_P27 CASCADE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Package(1:18~1:29) /test/1/catalog1/schema1/PACKAGE_P27/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_082]
+sql:
+DROP PACKAGE BODY PACKAGE_P28 RESTRICT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Package(1:18~1:29) /test/1/catalog1/schema1/PACKAGE_P28/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_083]
+sql:
+DROP PACKAGE IF EXISTS PACKAGE_P01;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Package(1:23~1:34) /test/1/catalog1/schema1/PACKAGE_P01/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_084]
+sql:
+DROP PACKAGE PACKAGE_P02;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Package(1:13~1:24) /test/1/catalog1/schema1/PACKAGE_P02/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_085]
+sql:
+DROP PACKAGE PACKAGE_P03 CASCADE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Package(1:13~1:24) /test/1/catalog1/schema1/PACKAGE_P03/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_086]
+sql:
+DROP PACKAGE PACKAGE_P04 RESTRICT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Package(1:13~1:24) /test/1/catalog1/schema1/PACKAGE_P04/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_087]
+sql:
+DROP PACKAGE BODY IF EXISTS PACKAGE_MISSING_BODY;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Package(1:28~1:48) /test/1/catalog1/schema1/PACKAGE_MISSING_BODY/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_package_0_088]
+sql:
+DROP PACKAGE IF EXISTS PACKAGE_MISSING_SPEC;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Package(1:23~1:43) /test/1/catalog1/schema1/PACKAGE_MISSING_SPEC/",
+      "action": "DROP"
+    }
+  ]
+}

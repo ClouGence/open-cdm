@@ -1,0 +1,75 @@
+[mpp_colocated_join_resource]
+sql:
+select a.id,a.note,b.note from app.mpp_hash_a a join app.mpp_hash_b b on a.id=b.id
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:31~1:45) /test/1/catalog1/app/mpp_hash_a/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(1:53~1:67) /test/1/catalog1/app/mpp_hash_b/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[mpp_redistributed_join_resource]
+sql:
+select a.id,b.id from app.mpp_hash_a a join app.mpp_hash_b b on a.grp_id=b.grp_id
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:22~1:36) /test/1/catalog1/app/mpp_hash_a/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(1:44~1:58) /test/1/catalog1/app/mpp_hash_b/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[mpp_fully_join_resource]
+sql:
+select a.id,f.note from app.mpp_hash_a a join app.mpp_fully f on a.id=f.id
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:24~1:38) /test/1/catalog1/app/mpp_hash_a/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(1:46~1:59) /test/1/catalog1/app/mpp_fully/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[mpp_group_non_distribution_key_resource]
+sql:
+select grp_id,count(*) as row_count from app.mpp_hash_a group by grp_id
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:14~1:19) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:41~1:55) /test/1/catalog1/app/mpp_hash_a/",
+      "action": "READ"
+    }
+  ]
+}

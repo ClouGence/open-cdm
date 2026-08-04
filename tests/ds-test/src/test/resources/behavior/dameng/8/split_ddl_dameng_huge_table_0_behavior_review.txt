@@ -1,0 +1,996 @@
+[split_ddl_dameng_huge_table_0_001_behavior_review]
+sql:
+create huge table huge_min(id int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:26) /test/1/catalog1/schema1/huge_min/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_table_0_002_behavior_review]
+sql:
+create huge table if not exists app.huge_if_absent(id int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:32~1:50) /test/1/catalog1/app/huge_if_absent/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_table_0_003_behavior_review]
+sql:
+create huge table huge_default(id int default on null 7 not null, name varchar(40) default 'unknown' comment 'huge name');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:30) /test/1/catalog1/schema1/huge_default/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_table_0_004_behavior_review]
+sql:
+create huge table huge_col_unique(id int unique using index tablespace default);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:33) /test/1/catalog1/schema1/huge_col_unique/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_table_0_005_behavior_review]
+sql:
+create huge table huge_col_pk(id int primary key);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:29) /test/1/catalog1/schema1/huge_col_pk/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_table_0_006_behavior_review]
+sql:
+create huge table huge_table_pk(id int, constraint huge_pk primary key(id));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:31) /test/1/catalog1/schema1/huge_table_pk/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_table_0_007_behavior_review]
+sql:
+create huge table huge_table_unique(id int, unique(id) using index tablespace default);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:35) /test/1/catalog1/schema1/huge_table_unique/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_table_0_008_behavior_review]
+sql:
+create huge table huge_table_check(id int, check(id > 0));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:34) /test/1/catalog1/schema1/huge_table_check/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_table_0_009_behavior_review]
+sql:
+create huge table huge_col_stat(id int, name varchar(40) storage(stat none) comment 'not statistically collected');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:31) /test/1/catalog1/schema1/huge_col_stat/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_table_0_010_behavior_review]
+sql:
+create huge table huge_encrypt(id int encrypt, name varchar(20));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:30) /test/1/catalog1/schema1/huge_encrypt/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_table_0_011_behavior_review]
+sql:
+create huge table huge_partitioned(id int, name varchar(20)) partition by range(id)(partition p1 values less than(100), partition pmax values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:34) /test/1/catalog1/schema1/huge_partitioned/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_table_0_012_behavior_review]
+sql:
+create huge table huge_tablespace(id int) tablespace main;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:33) /test/1/catalog1/schema1/huge_tablespace/",
+      "action" : "CREATE",
+      "target" : "Tablespace(1:53~1:57) /test/1/main/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_table_0_013_behavior_review]
+sql:
+create huge table huge_section_min(id int) storage(section(1024));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:34) /test/1/catalog1/schema1/huge_section_min/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_table_0_014_behavior_review]
+sql:
+create huge table huge_section_round(id int) storage(section(1025));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:36) /test/1/catalog1/schema1/huge_section_round/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_table_0_015_behavior_review]
+sql:
+create huge table huge_section_max(id int) storage(section(1048576));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:34) /test/1/catalog1/schema1/huge_section_max/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_table_0_016_behavior_review]
+sql:
+create huge table huge_initial(id int) storage(initial 1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:30) /test/1/catalog1/schema1/huge_initial/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_table_0_017_behavior_review]
+sql:
+create huge table huge_filesize_min(id int) storage(filesize(16));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:35) /test/1/catalog1/schema1/huge_filesize_min/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_table_0_018_behavior_review]
+sql:
+create huge table huge_filesize_round(id int) storage(filesize(17));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:37) /test/1/catalog1/schema1/huge_filesize_round/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_table_0_019_behavior_review]
+sql:
+create huge table huge_filesize_max(id int) storage(initial 1, filesize(1048576));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:35) /test/1/catalog1/schema1/huge_filesize_max/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_table_0_020_behavior_review]
+sql:
+create huge table huge_stat_default(id int) storage(stat);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:35) /test/1/catalog1/schema1/huge_stat_default/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_table_0_021_behavior_review]
+sql:
+create huge table huge_stat_none(id int) storage(stat none);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:32) /test/1/catalog1/schema1/huge_stat_none/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_table_0_022_behavior_review]
+sql:
+create huge table huge_stat_sync(id int) storage(stat synchronous);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:32) /test/1/catalog1/schema1/huge_stat_sync/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_table_0_023_behavior_review]
+sql:
+create huge table huge_stat_async(id int) storage(stat asynchronous, with delta);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:33) /test/1/catalog1/schema1/huge_stat_async/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_table_0_024_behavior_review]
+sql:
+create huge table huge_stat_on(id int, name varchar(20)) storage(stat synchronous on(id));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:30) /test/1/catalog1/schema1/huge_stat_on/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_table_0_025_behavior_review]
+sql:
+create huge table huge_stat_except(id int, name varchar(20)) storage(stat synchronous except(name));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:34) /test/1/catalog1/schema1/huge_stat_except/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_table_0_026_behavior_review]
+sql:
+create huge table huge_with_delta(id int) storage(with delta);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:33) /test/1/catalog1/schema1/huge_with_delta/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_table_0_027_behavior_review]
+sql:
+create huge table huge_without_delta(id int) storage(without delta) log last;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:36) /test/1/catalog1/schema1/huge_without_delta/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_table_0_028_behavior_review]
+sql:
+create huge table huge_storage_on(id int) storage(on main);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:33) /test/1/catalog1/schema1/huge_storage_on/",
+      "action" : "CREATE",
+      "target" : "Tablespace(1:53~1:57) /test/1/main/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_table_0_029_behavior_review]
+sql:
+create huge table huge_storage_all(id int, name varchar(40)) storage(section(65536), initial 1, filesize(64), stat synchronous on(id), with delta, on main);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:34) /test/1/catalog1/schema1/huge_storage_all/",
+      "action" : "CREATE",
+      "target" : "Tablespace(1:150~1:154) /test/1/main/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_table_0_030_behavior_review]
+sql:
+create huge table huge_compress_default(id int, name varchar(40)) compress;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:39) /test/1/catalog1/schema1/huge_compress_default/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_table_0_031_behavior_review]
+sql:
+create huge table huge_compress_level0(id int, name varchar(40)) compress level 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:38) /test/1/catalog1/schema1/huge_compress_level0/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_table_0_032_behavior_review]
+sql:
+create huge table huge_compress_level10(id int, name varchar(40)) compress level 10 for 'QUERY HIGH';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:39) /test/1/catalog1/schema1/huge_compress_level10/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_table_0_033_behavior_review]
+sql:
+create huge table huge_compress_columns(id int, name varchar(40)) compress level 2 for 'QUERY LOW'(name level 9 for 'QUERY HIGH');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:39) /test/1/catalog1/schema1/huge_compress_columns/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_table_0_034_behavior_review]
+sql:
+create huge table huge_compress_except(id int, name varchar(40)) compress level 1 except(id);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:38) /test/1/catalog1/schema1/huge_compress_except/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_table_0_035_behavior_review]
+sql:
+create huge table huge_log_none(id int) storage(without delta) log none;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:31) /test/1/catalog1/schema1/huge_log_none/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_table_0_036_behavior_review]
+sql:
+create huge table huge_log_last(id int) storage(without delta) log last;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:31) /test/1/catalog1/schema1/huge_log_last/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_table_0_037_behavior_review]
+sql:
+create huge table huge_log_all(id int) storage(without delta) log all;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:30) /test/1/catalog1/schema1/huge_log_all/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_table_0_038_behavior_review]
+sql:
+create huge table huge_distributed_random(id int) distributed randomly;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:41) /test/1/catalog1/schema1/huge_distributed_random/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_table_0_039_behavior_review]
+sql:
+create huge table huge_distributed_full(id int) distributed fully;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:39) /test/1/catalog1/schema1/huge_distributed_full/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_table_0_040_behavior_review]
+sql:
+create huge table huge_distributed_hash(id int) distributed by hash(id);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:39) /test/1/catalog1/schema1/huge_distributed_hash/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_table_0_041_behavior_review]
+sql:
+create huge table huge_distributed_range(id int) distributed by range(id)(values less than(100) on ep01, values equ or less than(maxvalue) on ep02);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:40) /test/1/catalog1/schema1/huge_distributed_range/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_table_0_042_behavior_review]
+sql:
+create huge table huge_distributed_list(id int) distributed by list(id)(values(1,2) on ep01, values(3,4) on ep02);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:39) /test/1/catalog1/schema1/huge_distributed_list/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_table_0_043_behavior_review]
+sql:
+create huge table huge_asm(id int) storage(with delta) striping 64 high;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:26) /test/1/catalog1/schema1/huge_asm/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_table_0_044_behavior_review]
+sql:
+create huge table huge_ctas as select id, name from source_table;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:27) /test/1/catalog1/schema1/huge_ctas/",
+      "action" : "CREATE",
+      "target" : "Table(1:52~1:64) /test/1/catalog1/schema1/source_table/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_table_0_045_behavior_review]
+sql:
+create huge table huge_blob_boundary(value blob);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:36) /test/1/catalog1/schema1/huge_blob_boundary/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_table_0_046_behavior_review]
+sql:
+create huge table huge_custom_boundary(value app.custom_type);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:18~1:38) /test/1/catalog1/schema1/huge_custom_boundary/",
+      "action" : "CREATE",
+      "target" : "Type(1:45~1:60) /test/1/catalog1/app/custom_type/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_table_0_047_behavior_review]
+sql:
+alter table huge_main add column extra varchar(30) default null compress level 2 for 'QUERY HIGH';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_COLUMN": [
+    {
+      "subject": "Table(1:12~1:21) /test/1/catalog1/schema1/huge_main/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_table_0_048_behavior_review]
+sql:
+alter table huge_main alter column extra set stat none;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_COLUMN": [
+    {
+      "subject": "Table(1:12~1:21) /test/1/catalog1/schema1/huge_main/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_table_0_049_behavior_review]
+sql:
+alter table huge_main alter column(id, name) set stat;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_COLUMN": [
+    {
+      "subject": "Table(1:12~1:21) /test/1/catalog1/schema1/huge_main/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_table_0_050_behavior_review]
+sql:
+alter table huge_main with delta;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:21) /test/1/catalog1/schema1/huge_main/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_table_0_051_behavior_review]
+sql:
+alter table huge_main set stat none;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:21) /test/1/catalog1/schema1/huge_main/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_table_0_052_behavior_review]
+sql:
+alter table huge_main set stat synchronous on(id, name);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:21) /test/1/catalog1/schema1/huge_main/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_table_0_053_behavior_review]
+sql:
+alter table huge_main set stat asynchronous;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:21) /test/1/catalog1/schema1/huge_main/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_table_0_054_behavior_review]
+sql:
+alter table huge_main refresh stat;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:21) /test/1/catalog1/schema1/huge_main/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_table_0_055_behavior_review]
+sql:
+alter table huge_main force column storage;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:21) /test/1/catalog1/schema1/huge_main/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_table_0_056_behavior_review]
+sql:
+alter table huge_main rebuild section;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:21) /test/1/catalog1/schema1/huge_main/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_table_0_057_behavior_review]
+sql:
+alter table huge_main modify name varchar(80);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_COLUMN": [
+    {
+      "subject": "Table(1:12~1:21) /test/1/catalog1/schema1/huge_main/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_table_0_058_behavior_review]
+sql:
+alter table huge_main alter column name set default 'unknown';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_COLUMN": [
+    {
+      "subject": "Table(1:12~1:21) /test/1/catalog1/schema1/huge_main/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_table_0_059_behavior_review]
+sql:
+alter table huge_main alter column name drop default;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_COLUMN": [
+    {
+      "subject": "Table(1:12~1:21) /test/1/catalog1/schema1/huge_main/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_table_0_060_behavior_review]
+sql:
+alter table huge_main alter column name rename to display_name;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "RENAME_COLUMN": [
+    {
+      "subject": "Table(1:12~1:21) /test/1/catalog1/schema1/huge_main/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_table_0_061_behavior_review]
+sql:
+alter table huge_main rename constraint huge_pk to huge_pk_new;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "RENAME_CONSTRAINT": [
+    {
+      "subject": "Constraint(1:40~1:47) /test/1/catalog1/schema1/huge_pk/",
+      "action" : "RENAME",
+      "target" : "Constraint(1:51~1:62) /test/1/catalog1/schema1/huge_pk_new/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_table_0_062_behavior_review]
+sql:
+create index huge_name_idx on huge_main(name);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:26) /test/1/catalog1/schema1/huge_name_idx/",
+      "action" : "CREATE",
+      "target" : "Table(1:30~1:39) /test/1/catalog1/schema1/huge_main/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_table_0_063_behavior_review]
+sql:
+drop index huge_name_idx;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_INDEX": [
+    {
+      "subject": "Index(1:11~1:24) /test/1/catalog1/schema1/huge_name_idx/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_table_0_064_behavior_review]
+sql:
+comment on table huge_main is 'huge table';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "COMMENT_TABLE": [
+    {
+      "subject": "Table(1:17~1:26) /test/1/catalog1/schema1/huge_main/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_table_0_065_behavior_review]
+sql:
+comment on column huge_main.name is 'huge name';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "COMMENT_COLUMN": [
+    {
+      "subject": "Table(1:18~1:27) /test/1/catalog1/schema1/huge_main/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_huge_table_0_066_behavior_review]
+sql:
+drop table if exists huge_main cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:21~1:30) /test/1/catalog1/schema1/huge_main/",
+      "action" : "DROP"
+    }
+  ]
+}

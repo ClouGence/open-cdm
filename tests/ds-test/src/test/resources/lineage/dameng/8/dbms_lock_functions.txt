@@ -1,0 +1,16 @@
+[dbms_lock_argument_columns]
+sql:
+select LOCK_NAME, LOCK_HANDLE, EXPIRATION_SEC, LOCK_ID, LOCK_MODE,
+       LOCK_TIMEOUT, RELEASE_ON_COMMIT, SLEEP_SEC
+from catalog1.app.dbms_lock_payload
+expect:
+{
+  "LOCK_NAME": ["/catalog1/app/dbms_lock_payload/LOCK_NAME/"],
+  "LOCK_HANDLE": ["/catalog1/app/dbms_lock_payload/LOCK_HANDLE/"],
+  "EXPIRATION_SEC": ["/catalog1/app/dbms_lock_payload/EXPIRATION_SEC/"],
+  "LOCK_ID": ["/catalog1/app/dbms_lock_payload/LOCK_ID/"],
+  "LOCK_MODE": ["/catalog1/app/dbms_lock_payload/LOCK_MODE/"],
+  "LOCK_TIMEOUT": ["/catalog1/app/dbms_lock_payload/LOCK_TIMEOUT/"],
+  "RELEASE_ON_COMMIT": ["/catalog1/app/dbms_lock_payload/RELEASE_ON_COMMIT/"],
+  "SLEEP_SEC": ["/catalog1/app/dbms_lock_payload/SLEEP_SEC/"]
+}

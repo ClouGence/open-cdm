@@ -1,0 +1,14 @@
+[select_huge_subpartition_columns]
+sql:
+select p.id, p.note from catalog1.app.huge_part subpartition for(1, 1) p
+expect:
+{
+  "id": ["/catalog1/app/huge_part/id/"],
+  "note": ["/catalog1/app/huge_part/note/"]
+}
+----------
+[exchange_huge_partition_has_no_result_lineage]
+sql:
+alter table app.huge_part exchange partition p10 with table app.huge_part_exchange
+expect:
+{}

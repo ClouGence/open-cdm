@@ -1,0 +1,255 @@
+[PgRuleSchemaNameCaseTypeTest#createSchemaNameCaseType_1#001]
+rule: _rules/schema/schema-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper case
+sql:
+create schema abc_test
+----------
+[PgRuleSchemaNameCaseTypeTest#createSchemaNameCaseType_1#002]
+rule: _rules/schema/schema-name-case-type.rule
+expect: true
+vars:
+  caseType: Upper case
+sql:
+create schema ABC_TEST
+----------
+[PgRuleSchemaNameCaseTypeTest#createSchemaNameCaseType_1#003]
+rule: _rules/schema/schema-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper case
+sql:
+create schema abcTest
+----------
+[PgRuleSchemaNameCaseTypeTest#createSchemaNameCaseType_1#004]
+rule: _rules/schema/schema-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper case
+sql:
+create schema AbcTest
+----------
+[PgRuleSchemaNameCaseTypeTest#createSchemaNameCaseType_2#001]
+rule: _rules/schema/schema-name-case-type.rule
+expect: true
+vars:
+  caseType: Lower case
+sql:
+create schema abc_test
+----------
+[PgRuleSchemaNameCaseTypeTest#createSchemaNameCaseType_2#002]
+rule: _rules/schema/schema-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower case
+sql:
+create schema ABC_TEST
+----------
+[PgRuleSchemaNameCaseTypeTest#createSchemaNameCaseType_2#003]
+rule: _rules/schema/schema-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower case
+sql:
+create schema abcTest
+----------
+[PgRuleSchemaNameCaseTypeTest#createSchemaNameCaseType_2#004]
+rule: _rules/schema/schema-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower case
+sql:
+create schema AbcTest
+----------
+[PgRuleSchemaNameCaseTypeTest#createSchemaNameCaseType_3#001]
+rule: _rules/schema/schema-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower camel case
+sql:
+create schema abc_test
+----------
+[PgRuleSchemaNameCaseTypeTest#createSchemaNameCaseType_3#002]
+rule: _rules/schema/schema-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower camel case
+sql:
+create schema ABC_TEST
+----------
+[PgRuleSchemaNameCaseTypeTest#createSchemaNameCaseType_3#003]
+rule: _rules/schema/schema-name-case-type.rule
+expect: true
+vars:
+  caseType: Lower camel case
+sql:
+create schema abcTest
+----------
+[PgRuleSchemaNameCaseTypeTest#createSchemaNameCaseType_3#004]
+rule: _rules/schema/schema-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower camel case
+sql:
+create schema AbcTest
+----------
+[PgRuleSchemaNameCaseTypeTest#createSchemaNameCaseType_4#001]
+rule: _rules/schema/schema-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper camel case
+sql:
+create schema abc_test
+----------
+[PgRuleSchemaNameCaseTypeTest#createSchemaNameCaseType_4#002]
+rule: _rules/schema/schema-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper camel case
+sql:
+create schema ABC_TEST
+----------
+[PgRuleSchemaNameCaseTypeTest#createSchemaNameCaseType_4#003]
+rule: _rules/schema/schema-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper camel case
+sql:
+create schema abcTest
+----------
+[PgRuleSchemaNameCaseTypeTest#createSchemaNameCaseType_4#004]
+rule: _rules/schema/schema-name-case-type.rule
+expect: true
+vars:
+  caseType: Upper camel case
+sql:
+create schema AbcTest
+----------
+[PgRuleSchemaNameCaseTypeTest#alterSchemaNameCaseType_1#001]
+rule: _rules/schema/schema-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper case
+sql:
+alter schema test.ABC_TEST rename to abc_test
+----------
+[PgRuleSchemaNameCaseTypeTest#alterSchemaNameCaseType_1#002]
+rule: _rules/schema/schema-name-case-type.rule
+expect: true
+vars:
+  caseType: Upper case
+sql:
+alter schema test.ABC_TEST rename to ABC_TEST
+----------
+[PgRuleSchemaNameCaseTypeTest#alterSchemaNameCaseType_1#003]
+rule: _rules/schema/schema-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper case
+sql:
+alter schema test.ABC_TEST rename to abcTest
+----------
+[PgRuleSchemaNameCaseTypeTest#alterSchemaNameCaseType_1#004]
+rule: _rules/schema/schema-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper case
+sql:
+alter schema test.ABC_TEST rename to AbcTest
+----------
+[PgRuleSchemaNameCaseTypeTest#alterSchemaNameCaseType_2#001]
+rule: _rules/schema/schema-name-case-type.rule
+expect: true
+vars:
+  caseType: Lower case
+sql:
+alter schema test.ABC_TEST rename to abc_test
+----------
+[PgRuleSchemaNameCaseTypeTest#alterSchemaNameCaseType_2#002]
+rule: _rules/schema/schema-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower case
+sql:
+alter schema test.ABC_TEST rename to ABC_TEST
+----------
+[PgRuleSchemaNameCaseTypeTest#alterSchemaNameCaseType_2#003]
+rule: _rules/schema/schema-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower case
+sql:
+alter schema test.ABC_TEST rename to abcTest
+----------
+[PgRuleSchemaNameCaseTypeTest#alterSchemaNameCaseType_2#004]
+rule: _rules/schema/schema-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower case
+sql:
+alter schema test.ABC_TEST rename to AbcTest
+----------
+[PgRuleSchemaNameCaseTypeTest#alterSchemaNameCaseType_3#001]
+rule: _rules/schema/schema-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower camel case
+sql:
+alter schema test.ABC_TEST rename to abc_test
+----------
+[PgRuleSchemaNameCaseTypeTest#alterSchemaNameCaseType_3#002]
+rule: _rules/schema/schema-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower camel case
+sql:
+alter schema test.ABC_TEST rename to ABC_TEST
+----------
+[PgRuleSchemaNameCaseTypeTest#alterSchemaNameCaseType_3#003]
+rule: _rules/schema/schema-name-case-type.rule
+expect: true
+vars:
+  caseType: Lower camel case
+sql:
+alter schema test.ABC_TEST rename to abcTest
+----------
+[PgRuleSchemaNameCaseTypeTest#alterSchemaNameCaseType_3#004]
+rule: _rules/schema/schema-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower camel case
+sql:
+alter schema test.ABC_TEST rename to AbcTest
+----------
+[PgRuleSchemaNameCaseTypeTest#alterSchemaNameCaseType_4#001]
+rule: _rules/schema/schema-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper camel case
+sql:
+alter schema test.ABC_TEST rename to abc_test
+----------
+[PgRuleSchemaNameCaseTypeTest#alterSchemaNameCaseType_4#002]
+rule: _rules/schema/schema-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper camel case
+sql:
+alter schema test.ABC_TEST rename to ABC_TEST
+----------
+[PgRuleSchemaNameCaseTypeTest#alterSchemaNameCaseType_4#003]
+rule: _rules/schema/schema-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper camel case
+sql:
+alter schema test.ABC_TEST rename to abcTest
+----------
+[PgRuleSchemaNameCaseTypeTest#alterSchemaNameCaseType_4#004]
+rule: _rules/schema/schema-name-case-type.rule
+expect: true
+vars:
+  caseType: Upper camel case
+sql:
+alter schema test.ABC_TEST rename to AbcTest

@@ -1,0 +1,532 @@
+create table class_source(id int primary key, name varchar(20));
+insert into class_source values(1, 'A');
+insert into class_source values(2, 'B');
+create or replace class c_simple as
+  id int;
+  member function get_value return int;
+  static function add_two(a int, b int) return int;
+end;
+/
+create or replace class body c_simple as
+  member function get_value return int as
+  begin
+    return id;
+  end;
+  static function add_two(a int, b int) return int as
+  begin
+    return a + b;
+  end;
+end;
+/
+select c_simple(1).get_value();
+select c_simple.add_two(2, 3);
+alter class c_simple compile;
+create or replace class c_reader as
+  member function read_max return int;
+end;
+/
+create or replace class body c_reader as
+  member function read_max return int as
+    v_value int;
+  begin
+    select max(id) into v_value from class_source;
+    return v_value;
+  end;
+end;
+/
+select c_reader().read_max();
+create table class_object_table(id int primary key, obj c_simple);
+insert into class_object_table values(1, c_simple(4));
+select id, t.obj.id, t.obj.get_value() from class_object_table t;
+declare
+  v_obj c_simple;
+begin
+  v_obj = new c_simple(5);
+  print v_obj.get_value();
+end;
+/
+drop class body c_reader;
+create or replace class body c_reader as
+  member function read_max return int as
+    v_value int;
+  begin
+    select max(id) into v_value from class_source;
+    return v_value;
+  end;
+end;
+/
+select c_reader().read_max();
+create or replace class c_parent not final as
+  base_value int;
+  member function calculate return int;
+end;
+/
+create or replace class body c_parent as
+  member function calculate return int as
+  begin
+    return base_value;
+  end;
+end;
+/
+create or replace class c_child under c_parent as
+  child_value int;
+  overriding member function calculate return int;
+end;
+/
+create or replace class body c_child as
+  overriding member function calculate return int as
+  begin
+    return child_value;
+  end;
+end;
+/
+select c_child(6, 7).calculate();
+declare
+  v_parent c_parent;
+  v_child c_child;
+begin
+  v_child = new c_child(8, 9);
+  v_parent = v_child;
+  print v_parent.calculate();
+end;
+/
+create table class_inherit_table(id int primary key, obj c_parent);
+insert into class_inherit_table values(1, c_parent(10));
+insert into class_inherit_table values(2, c_child(11, 12));
+select id, t.obj.base_value, t.obj.calculate() from class_inherit_table t order by id;
+alter class c_child compile debug;
+create or replace class c_abstract not final not instantiable as
+  value int;
+  not instantiable member function calculate return int;
+  member function stable return int;
+  static function twice(p_value int) return int;
+end;
+/
+create or replace class body c_abstract as
+  member function stable return int as
+  begin
+    return value;
+  end;
+  static function twice(p_value int) return int as
+  begin
+    return p_value * 2;
+  end;
+end;
+/
+select c_abstract.twice(5);
+create or replace class c_concrete under c_abstract as
+  extra int;
+  overriding member function calculate return int;
+end;
+/
+create or replace class body c_concrete as
+  overriding member function calculate return int as
+  begin
+    return value + extra;
+  end;
+end;
+/
+select c_concrete(3, 4).calculate(), c_concrete(3, 4).stable();
+create or replace type t_complex as object(
+  rpart real,
+  ipart real,
+  member function plus(x t_complex) return t_complex,
+  member function total return real
+);
+/
+create or replace type body t_complex as
+  member function plus(x t_complex) return t_complex is
+  begin
+    return t_complex(rpart + x.rpart, ipart + x.ipart);
+  end;
+  member function total return real is
+  begin
+    return rpart + ipart;
+  end;
+end;
+/
+create table type_object_table(id int primary key, value t_complex);
+insert into type_object_table values(1, t_complex(2, 3));
+insert into type_object_table values(2, t_complex(4, 2).plus(t_complex(2, 3)));
+select id, t.value.rpart, t.value.ipart, t.value.total() from type_object_table t order by id;
+select id from type_object_table where value is of type(t_complex);
+alter type t_complex compile debug;
+drop type body t_complex;
+create or replace type body t_complex as
+  member function plus(x t_complex) return t_complex is
+  begin
+    return t_complex(rpart + x.rpart, ipart + x.ipart);
+  end;
+  member function total return real is
+  begin
+    return rpart + ipart;
+  end;
+end;
+/
+select t_complex(6, 7).total();
+create or replace type t_point as object(
+  x int,
+  y int,
+  constructor function t_point(p_value int) return self as result,
+  member function total return int
+);
+/
+create or replace type body t_point as
+  constructor function t_point(p_value int) return self as result is
+  begin
+    self.x = p_value;
+    self.y = p_value;
+    return self;
+  end;
+  member function total return int is
+  begin
+    return x + y;
+  end;
+end;
+/
+select t_point(5).x, t_point(5).y, t_point(5).total();
+create table type_point_table(id int primary key, value t_point);
+insert into type_point_table values(1, t_point(8));
+select id, t.value.x, t.value.y, t.value.total() from type_point_table t;
+alter type t_point compile;
+create or replace type t_base as object(
+  value int,
+  member function calculate return int
+) not final;
+/
+create or replace type body t_base as
+  member function calculate return int is
+  begin
+    return value;
+  end;
+end;
+/
+create or replace type t_child under t_base(
+  extra int,
+  overriding member function calculate return int
+);
+/
+create or replace type body t_child as
+  overriding member function calculate return int is
+  begin
+    return value + extra;
+  end;
+end;
+/
+select t_child(9, 10).calculate();
+create table type_inherit_table(id int primary key, obj t_base);
+insert into type_inherit_table values(1, t_base(11));
+insert into type_inherit_table values(2, t_child(12, 13));
+select id from type_inherit_table where obj is of type(t_child);
+select id from type_inherit_table where obj is not of type(t_child);
+alter type t_child compile debug;
+drop table type_inherit_table;
+drop table type_point_table;
+drop table type_object_table;
+drop table class_inherit_table;
+drop table class_object_table;
+drop type t_child;
+drop type t_base;
+drop type t_point;
+drop type t_complex;
+drop class c_concrete;
+drop class c_abstract;
+drop class c_child;
+drop class c_parent;
+drop class c_reader;
+drop class c_simple;
+drop table class_source;
+------------------------------------------------------------------------------------------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table class_source(id int primary key, name varchar(20));
+----------
+[INSERT] insert into class_source values(1, 'A');
+----------
+[INSERT] insert into class_source values(2, 'B');
+----------
+[CREATE_TYPE] create or replace class c_simple as
+  id int;
+  member function get_value return int;
+  static function add_two(a int, b int) return int;
+end;
+----------
+[CREATE_TYPE(PROGRAM_CONTROL)] create or replace class body c_simple as
+  member function get_value return int as
+  begin
+    return id;
+  end;
+  static function add_two(a int, b int) return int as
+  begin
+    return a + b;
+  end;
+end;
+----------
+[SELECT|CALL_PROG_OBJ] select c_simple(1).get_value();
+----------
+[SELECT|CALL_PROG_OBJ] select c_simple.add_two(2, 3);
+----------
+[ALTER_TYPE] alter class c_simple compile;
+----------
+[CREATE_TYPE] create or replace class c_reader as
+  member function read_max return int;
+end;
+----------
+[CREATE_TYPE|SELECT(SELECT,PROGRAM_CONTROL)] create or replace class body c_reader as
+  member function read_max return int as
+    v_value int;
+  begin
+    select max(id) into v_value from class_source;
+    return v_value;
+  end;
+end;
+----------
+[SELECT|CALL_PROG_OBJ] select c_reader().read_max();
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table class_object_table(id int primary key, obj c_simple);
+----------
+[INSERT|CALL_PROG_OBJ] insert into class_object_table values(1, c_simple(4));
+----------
+[SELECT|CALL_PROG_OBJ] select id, t.obj.id, t.obj.get_value() from class_object_table t;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare
+  v_obj c_simple;
+begin
+  v_obj = new c_simple(5);
+  print v_obj.get_value();
+end;
+----------
+[DROP_TYPE] drop class body c_reader;
+----------
+[CREATE_TYPE|SELECT(SELECT,PROGRAM_CONTROL)] create or replace class body c_reader as
+  member function read_max return int as
+    v_value int;
+  begin
+    select max(id) into v_value from class_source;
+    return v_value;
+  end;
+end;
+----------
+[SELECT|CALL_PROG_OBJ] select c_reader().read_max();
+----------
+[CREATE_TYPE] create or replace class c_parent not final as
+  base_value int;
+  member function calculate return int;
+end;
+----------
+[CREATE_TYPE(PROGRAM_CONTROL)] create or replace class body c_parent as
+  member function calculate return int as
+  begin
+    return base_value;
+  end;
+end;
+----------
+[CREATE_TYPE] create or replace class c_child under c_parent as
+  child_value int;
+  overriding member function calculate return int;
+end;
+----------
+[CREATE_TYPE(PROGRAM_CONTROL)] create or replace class body c_child as
+  overriding member function calculate return int as
+  begin
+    return child_value;
+  end;
+end;
+----------
+[SELECT|CALL_PROG_OBJ] select c_child(6, 7).calculate();
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare
+  v_parent c_parent;
+  v_child c_child;
+begin
+  v_child = new c_child(8, 9);
+  v_parent = v_child;
+  print v_parent.calculate();
+end;
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table class_inherit_table(id int primary key, obj c_parent);
+----------
+[INSERT|CALL_PROG_OBJ] insert into class_inherit_table values(1, c_parent(10));
+----------
+[INSERT|CALL_PROG_OBJ] insert into class_inherit_table values(2, c_child(11, 12));
+----------
+[SELECT|CALL_PROG_OBJ] select id, t.obj.base_value, t.obj.calculate() from class_inherit_table t order by id;
+----------
+[ALTER_TYPE] alter class c_child compile debug;
+----------
+[CREATE_TYPE] create or replace class c_abstract not final not instantiable as
+  value int;
+  not instantiable member function calculate return int;
+  member function stable return int;
+  static function twice(p_value int) return int;
+end;
+----------
+[CREATE_TYPE(PROGRAM_CONTROL)] create or replace class body c_abstract as
+  member function stable return int as
+  begin
+    return value;
+  end;
+  static function twice(p_value int) return int as
+  begin
+    return p_value * 2;
+  end;
+end;
+----------
+[SELECT|CALL_PROG_OBJ] select c_abstract.twice(5);
+----------
+[CREATE_TYPE] create or replace class c_concrete under c_abstract as
+  extra int;
+  overriding member function calculate return int;
+end;
+----------
+[CREATE_TYPE(PROGRAM_CONTROL)] create or replace class body c_concrete as
+  overriding member function calculate return int as
+  begin
+    return value + extra;
+  end;
+end;
+----------
+[SELECT|CALL_PROG_OBJ] select c_concrete(3, 4).calculate(), c_concrete(3, 4).stable();
+----------
+[CREATE_TYPE] create or replace type t_complex as object(
+  rpart real,
+  ipart real,
+  member function plus(x t_complex) return t_complex,
+  member function total return real
+);
+----------
+[CREATE_TYPE|CALL_PROG_OBJ(PROGRAM_CONTROL,CALL_PROG_OBJ)] create or replace type body t_complex as
+  member function plus(x t_complex) return t_complex is
+  begin
+    return t_complex(rpart + x.rpart, ipart + x.ipart);
+  end;
+  member function total return real is
+  begin
+    return rpart + ipart;
+  end;
+end;
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table type_object_table(id int primary key, value t_complex);
+----------
+[INSERT|CALL_PROG_OBJ] insert into type_object_table values(1, t_complex(2, 3));
+----------
+[INSERT|CALL_PROG_OBJ] insert into type_object_table values(2, t_complex(4, 2).plus(t_complex(2, 3)));
+----------
+[SELECT|CALL_PROG_OBJ] select id, t.value.rpart, t.value.ipart, t.value.total() from type_object_table t order by id;
+----------
+[SELECT] select id from type_object_table where value is of type(t_complex);
+----------
+[ALTER_TYPE] alter type t_complex compile debug;
+----------
+[DROP_TYPE] drop type body t_complex;
+----------
+[CREATE_TYPE|CALL_PROG_OBJ(PROGRAM_CONTROL,CALL_PROG_OBJ)] create or replace type body t_complex as
+  member function plus(x t_complex) return t_complex is
+  begin
+    return t_complex(rpart + x.rpart, ipart + x.ipart);
+  end;
+  member function total return real is
+  begin
+    return rpart + ipart;
+  end;
+end;
+----------
+[SELECT|CALL_PROG_OBJ] select t_complex(6, 7).total();
+----------
+[CREATE_TYPE] create or replace type t_point as object(
+  x int,
+  y int,
+  constructor function t_point(p_value int) return self as result,
+  member function total return int
+);
+----------
+[CREATE_TYPE(PROGRAM_CONTROL)] create or replace type body t_point as
+  constructor function t_point(p_value int) return self as result is
+  begin
+    self.x = p_value;
+    self.y = p_value;
+    return self;
+  end;
+  member function total return int is
+  begin
+    return x + y;
+  end;
+end;
+----------
+[SELECT|CALL_PROG_OBJ] select t_point(5).x, t_point(5).y, t_point(5).total();
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table type_point_table(id int primary key, value t_point);
+----------
+[INSERT|CALL_PROG_OBJ] insert into type_point_table values(1, t_point(8));
+----------
+[SELECT|CALL_PROG_OBJ] select id, t.value.x, t.value.y, t.value.total() from type_point_table t;
+----------
+[ALTER_TYPE] alter type t_point compile;
+----------
+[CREATE_TYPE] create or replace type t_base as object(
+  value int,
+  member function calculate return int
+) not final;
+----------
+[CREATE_TYPE(PROGRAM_CONTROL)] create or replace type body t_base as
+  member function calculate return int is
+  begin
+    return value;
+  end;
+end;
+----------
+[CREATE_TYPE] create or replace type t_child under t_base(
+  extra int,
+  overriding member function calculate return int
+);
+----------
+[CREATE_TYPE(PROGRAM_CONTROL)] create or replace type body t_child as
+  overriding member function calculate return int is
+  begin
+    return value + extra;
+  end;
+end;
+----------
+[SELECT|CALL_PROG_OBJ] select t_child(9, 10).calculate();
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table type_inherit_table(id int primary key, obj t_base);
+----------
+[INSERT|CALL_PROG_OBJ] insert into type_inherit_table values(1, t_base(11));
+----------
+[INSERT|CALL_PROG_OBJ] insert into type_inherit_table values(2, t_child(12, 13));
+----------
+[SELECT] select id from type_inherit_table where obj is of type(t_child);
+----------
+[SELECT] select id from type_inherit_table where obj is not of type(t_child);
+----------
+[ALTER_TYPE] alter type t_child compile debug;
+----------
+[DROP_TABLE] drop table type_inherit_table;
+----------
+[DROP_TABLE] drop table type_point_table;
+----------
+[DROP_TABLE] drop table type_object_table;
+----------
+[DROP_TABLE] drop table class_inherit_table;
+----------
+[DROP_TABLE] drop table class_object_table;
+----------
+[DROP_TYPE] drop type t_child;
+----------
+[DROP_TYPE] drop type t_base;
+----------
+[DROP_TYPE] drop type t_point;
+----------
+[DROP_TYPE] drop type t_complex;
+----------
+[DROP_TYPE] drop class c_concrete;
+----------
+[DROP_TYPE] drop class c_abstract;
+----------
+[DROP_TYPE] drop class c_child;
+----------
+[DROP_TYPE] drop class c_parent;
+----------
+[DROP_TYPE] drop class c_reader;
+----------
+[DROP_TYPE] drop class c_simple;
+----------
+[DROP_TABLE] drop table class_source;

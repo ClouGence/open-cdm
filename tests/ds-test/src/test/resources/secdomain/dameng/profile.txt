@@ -1,0 +1,91 @@
+[create_profile]
+sql:
+create profile if not exists employee_profile limit
+session_per_user 10 connect_time 60 password_life_time 90
+expect:
+{
+  "contains": [
+    {"class":"RdbConfigDomain", "sqlType":"CONFIG_WRITE", "auditKind":"OTHER", "configKey":"employee_profile"}
+  ]
+}
+----------
+[alter_profile]
+sql:
+alter profile employee_profile limit session_per_user 20 connect_time unlimited
+expect:
+{
+  "contains": [
+    {"class":"RdbConfigDomain", "sqlType":"CONFIG_WRITE", "auditKind":"OTHER", "configKey":"employee_profile"}
+  ]
+}
+----------
+[alter_default_profile]
+sql:
+alter profile default limit session_per_user default
+expect:
+{
+  "contains": [
+    {"class":"RdbConfigDomain", "sqlType":"CONFIG_WRITE", "auditKind":"OTHER", "configKey":"default"}
+  ]
+}
+----------
+[associate_user_profile]
+sql:
+alter user report_user profile employee_profile
+expect:
+{
+  "contains": [
+    {"class":"RdbUserDomain", "sqlType":"ALTER_USER", "auditKind":"ALTER", "user":"report_user"}
+  ]
+}
+----------
+[grant_profile_privileges]
+sql:
+grant create profile, alter profile, drop profile to profile_admin
+expect:
+{
+  "contains": [
+    {"class":"RdbGrantDomain", "sqlType":"GRANT", "auditKind":"ALTER", "name":"profile_admin"}
+  ]
+}
+----------
+[profile_dictionary]
+sql:
+select profile, resource_name, limit from sys.dba_profiles
+where profile = 'EMPLOYEE_PROFILE'
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"sys", "table":"dba_profiles"}
+  ]
+}
+----------
+[drop_profile]
+sql:
+drop profile if exists employee_profile cascade
+expect:
+{
+  "contains": [
+    {"class":"RdbConfigDomain", "sqlType":"CONFIG_WRITE", "auditKind":"OTHER", "configKey":"employee_profile"}
+  ]
+}
+----------
+[revoke_profile_privileges]
+sql:
+revoke create profile, alter profile, drop profile from profile_admin
+expect:
+{
+  "contains": [
+    {"class":"RdbRevokeDomain", "sqlType":"REVOKE", "auditKind":"ALTER", "name":"profile_admin"}
+  ]
+}
+----------
+[grant_profile_privileges_to_public]
+sql:
+grant create profile to public
+expect:
+{
+  "contains": [
+    {"class":"RdbGrantDomain", "sqlType":"GRANT", "auditKind":"ALTER", "name":"public"}
+  ]
+}

@@ -1,0 +1,42 @@
+create type app.bad_program_s01 as array int;
+/
+create type app.bad_program_s02 as array int[1,];
+/
+create type app.bad_program_s03 as varray() of int;
+/
+create type app.bad_program_s04 as varray(2147483648) of int;
+/
+create type app.bad_program_s05 as table of index by int;
+/
+create type app.bad_program_s06 as table of int index by;
+/
+declare subtype s is;v s;begin null;end;/
+declare type r is record();v r;begin null;end;/
+declare type rc is ref cursor return;v rc;begin null;end;/
+create function app.bad_program_s10(p app.program_type_base.name%type) return as begin return p;end;/
+------------------------------------------------------------------------------------------
+[CREATE_TYPE] create type app.bad_program_s01 as array int;
+/
+----------
+[CREATE_TYPE] create type app.bad_program_s02 as array int[1,];
+/
+----------
+[CREATE_TYPE] create type app.bad_program_s03 as varray() of int;
+/
+----------
+[CREATE_TYPE] create type app.bad_program_s04 as varray(2147483648) of int;
+/
+----------
+[CREATE_TYPE] create type app.bad_program_s05 as table of index by int;
+/
+----------
+[CREATE_TYPE] create type app.bad_program_s06 as table of int index by;
+/
+----------
+[BLOCK] declare subtype s is;v s;begin null;end;/
+----------
+[BLOCK] declare type r is record();v r;begin null;end;/
+----------
+[BLOCK] declare type rc is ref cursor return;v rc;begin null;end;/
+----------
+[CREATE_PROG_OBJ] create function app.bad_program_s10(p app.program_type_base.name%type) return as begin return p;end;/

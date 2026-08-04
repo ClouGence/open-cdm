@@ -1,0 +1,2468 @@
+[split_ddl_dameng_view_0_001_behavior_review]
+sql:
+drop schema if exists CODEX_DM8_VIEW_20260721 cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SCHEMA": [
+    {
+      "subject": "Schema(1:22~1:45) /test/1/catalog1/CODEX_DM8_VIEW_20260721/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_002_behavior_review]
+sql:
+create schema CODEX_DM8_VIEW_20260721 authorization SYSDBA;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SCHEMA": [
+    {
+      "subject": "Schema(1:14~1:37) /test/1/catalog1/CODEX_DM8_VIEW_20260721/",
+      "action": "CREATE",
+      "target": "User(1:52~1:58) /test/1/SYSDBA/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_003_behavior_review]
+sql:
+set schema CODEX_DM8_VIEW_20260721;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SWITCH_SCHEMA": [
+    {
+      "subject": "Schema(1:11~1:34) /test/1/catalog1/CODEX_DM8_VIEW_20260721/",
+      "action": "SWITCH"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_004_behavior_review]
+sql:
+create table VIEW_BASE(ID int primary key, NAME varchar(40), AMOUNT decimal(10,2), STATUS varchar(8), DEPT_ID int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:22) /test/1/catalog1/schema1/VIEW_BASE/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_005_behavior_review]
+sql:
+create table VIEW_DEPT(ID int primary key, DEPT_NAME varchar(40));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:22) /test/1/catalog1/schema1/VIEW_DEPT/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_006_behavior_review]
+sql:
+create table VIEW_AUDIT(ID int, ACTION_NAME varchar(40));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:23) /test/1/catalog1/schema1/VIEW_AUDIT/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_007_behavior_review]
+sql:
+insert into VIEW_BASE values(1, 'ALPHA', 10, 'A', 10);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:21) /test/1/catalog1/schema1/VIEW_BASE/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_008_behavior_review]
+sql:
+insert into VIEW_BASE values(2, 'BETA', 20, 'B', 20);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:21) /test/1/catalog1/schema1/VIEW_BASE/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_009_behavior_review]
+sql:
+insert into VIEW_BASE values(3, 'GAMMA', 30, 'A', 10);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:21) /test/1/catalog1/schema1/VIEW_BASE/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_010_behavior_review]
+sql:
+insert into VIEW_DEPT values(10, 'SALES');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:21) /test/1/catalog1/schema1/VIEW_DEPT/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_011_behavior_review]
+sql:
+insert into VIEW_DEPT values(20, 'DEV');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:21) /test/1/catalog1/schema1/VIEW_DEPT/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_012_behavior_review]
+sql:
+commit;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[split_ddl_dameng_view_0_013_behavior_review]
+sql:
+create view V_BASIC as select ID, NAME from VIEW_BASE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:19) /test/1/catalog1/schema1/V_BASIC/",
+      "action": "CREATE",
+      "target": "Table(1:44~1:53) /test/1/catalog1/schema1/VIEW_BASE/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_014_behavior_review]
+sql:
+select ID, NAME from V_BASIC order by ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:21~1:28) /test/1/catalog1/schema1/V_BASIC/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_015_behavior_review]
+sql:
+create view CODEX_DM8_VIEW_20260721.V_QUALIFIED as select ID, AMOUNT from CODEX_DM8_VIEW_20260721.VIEW_BASE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:47) /test/1/catalog1/CODEX_DM8_VIEW_20260721/V_QUALIFIED/",
+      "action": "CREATE",
+      "target": "Table(1:74~1:107) /test/1/catalog1/CODEX_DM8_VIEW_20260721/VIEW_BASE/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_016_behavior_review]
+sql:
+select count(*) from CODEX_DM8_VIEW_20260721.V_QUALIFIED;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:21~1:56) /test/1/catalog1/CODEX_DM8_VIEW_20260721/V_QUALIFIED/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_017_behavior_review]
+sql:
+create view "V_Quoted" as select ID, NAME from VIEW_BASE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:22) /test/1/catalog1/schema1/V_Quoted/",
+      "action": "CREATE",
+      "target": "Table(1:47~1:56) /test/1/catalog1/schema1/VIEW_BASE/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_018_behavior_review]
+sql:
+select ID from "V_Quoted" where ID = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:15~1:25) /test/1/catalog1/schema1/V_Quoted/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_019_behavior_review]
+sql:
+create view V_COLUMNS(VIEW_ID, VIEW_NAME) as select ID, NAME from VIEW_BASE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:21) /test/1/catalog1/schema1/V_COLUMNS/",
+      "action": "CREATE",
+      "target": "Table(1:66~1:75) /test/1/catalog1/schema1/VIEW_BASE/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_020_behavior_review]
+sql:
+select VIEW_ID, VIEW_NAME from V_COLUMNS order by VIEW_ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:31~1:40) /test/1/catalog1/schema1/V_COLUMNS/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_021_behavior_review]
+sql:
+create view V_EXPRESSION(ID, DOUBLE_AMOUNT) as select ID, AMOUNT * 2 from VIEW_BASE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:24) /test/1/catalog1/schema1/V_EXPRESSION/",
+      "action": "CREATE",
+      "target": "Table(1:74~1:83) /test/1/catalog1/schema1/VIEW_BASE/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_022_behavior_review]
+sql:
+select ID, DOUBLE_AMOUNT from V_EXPRESSION where DOUBLE_AMOUNT >= 40;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:30~1:42) /test/1/catalog1/schema1/V_EXPRESSION/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_023_behavior_review]
+sql:
+create or replace view V_BASIC as select ID, NAME, STATUS from VIEW_BASE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:23~1:30) /test/1/catalog1/schema1/V_BASIC/",
+      "action": "REPLACE",
+      "target": "Table(1:63~1:72) /test/1/catalog1/schema1/VIEW_BASE/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_024_behavior_review]
+sql:
+select STATUS from V_BASIC where ID = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:19~1:26) /test/1/catalog1/schema1/V_BASIC/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_025_behavior_review]
+sql:
+create view if not exists V_BASIC as select ID from VIEW_BASE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:26~1:33) /test/1/catalog1/schema1/V_BASIC/",
+      "action": "CREATE",
+      "target": "Table(1:52~1:61) /test/1/catalog1/schema1/VIEW_BASE/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_026_behavior_review]
+sql:
+create or replace view if not exists V_BASIC as select ID, NAME, AMOUNT from VIEW_BASE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:37~1:44) /test/1/catalog1/schema1/V_BASIC/",
+      "action": "REPLACE",
+      "target": "Table(1:77~1:86) /test/1/catalog1/schema1/VIEW_BASE/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_027_behavior_review]
+sql:
+select AMOUNT from V_BASIC where ID = 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:19~1:26) /test/1/catalog1/schema1/V_BASIC/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_028_behavior_review]
+sql:
+create force view V_FORCE_VALID as select ID, NAME from VIEW_BASE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:18~1:31) /test/1/catalog1/schema1/V_FORCE_VALID/",
+      "action": "CREATE",
+      "target": "Table(1:56~1:65) /test/1/catalog1/schema1/VIEW_BASE/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_029_behavior_review]
+sql:
+alter view V_FORCE_VALID compile;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_VIEW": [
+    {
+      "subject": "View(1:11~1:24) /test/1/catalog1/schema1/V_FORCE_VALID/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_030_behavior_review]
+sql:
+create force view V_FORCE_MISSING as select ID from VIEW_NOT_CREATED;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:18~1:33) /test/1/catalog1/schema1/V_FORCE_MISSING/",
+      "action": "CREATE",
+      "target": "Table(1:52~1:68) /test/1/catalog1/schema1/VIEW_NOT_CREATED/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_031_behavior_review]
+sql:
+select VALID from SYSOBJECTS where NAME = 'V_FORCE_MISSING';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:18~1:28) /test/1/catalog1/schema1/SYSOBJECTS/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_032_behavior_review]
+sql:
+drop view V_FORCE_MISSING;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "View(1:10~1:25) /test/1/catalog1/schema1/V_FORCE_MISSING/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_033_behavior_review]
+sql:
+create or replace force view if not exists V_FORCE_COMBINED as select ID, NAME from VIEW_BASE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:43~1:59) /test/1/catalog1/schema1/V_FORCE_COMBINED/",
+      "action": "REPLACE",
+      "target": "Table(1:84~1:93) /test/1/catalog1/schema1/VIEW_BASE/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_034_behavior_review]
+sql:
+select count(*) from V_FORCE_COMBINED;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:21~1:37) /test/1/catalog1/schema1/V_FORCE_COMBINED/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_035_behavior_review]
+sql:
+create view V_CHECK_DEFAULT as select ID, NAME, AMOUNT, STATUS, DEPT_ID from VIEW_BASE where STATUS = 'A' with check option;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:27) /test/1/catalog1/schema1/V_CHECK_DEFAULT/",
+      "action": "CREATE",
+      "target": "Table(1:77~1:86) /test/1/catalog1/schema1/VIEW_BASE/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_036_behavior_review]
+sql:
+create view V_CHECK_LOCAL as select ID, NAME, AMOUNT, STATUS, DEPT_ID from VIEW_BASE where AMOUNT >= 10 with local check option;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:25) /test/1/catalog1/schema1/V_CHECK_LOCAL/",
+      "action": "CREATE",
+      "target": "Table(1:75~1:84) /test/1/catalog1/schema1/VIEW_BASE/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_037_behavior_review]
+sql:
+create view V_CHECK_CASCADED as select ID, NAME, AMOUNT, STATUS, DEPT_ID from V_CHECK_DEFAULT where AMOUNT <= 100 with cascaded check option;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:28) /test/1/catalog1/schema1/V_CHECK_CASCADED/",
+      "action": "CREATE",
+      "target": "Table(1:78~1:93) /test/1/catalog1/schema1/V_CHECK_DEFAULT/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_038_behavior_review]
+sql:
+create view V_READ_ONLY as select ID, NAME from VIEW_BASE with read only;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:23) /test/1/catalog1/schema1/V_READ_ONLY/",
+      "action": "CREATE",
+      "target": "Table(1:48~1:57) /test/1/catalog1/schema1/VIEW_BASE/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_039_behavior_review]
+sql:
+select count(*) from V_CHECK_DEFAULT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:21~1:36) /test/1/catalog1/schema1/V_CHECK_DEFAULT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_040_behavior_review]
+sql:
+select count(*) from V_CHECK_LOCAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:21~1:34) /test/1/catalog1/schema1/V_CHECK_LOCAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_041_behavior_review]
+sql:
+select count(*) from V_CHECK_CASCADED;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:21~1:37) /test/1/catalog1/schema1/V_CHECK_CASCADED/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_042_behavior_review]
+sql:
+select count(*) from V_READ_ONLY;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:21~1:32) /test/1/catalog1/schema1/V_READ_ONLY/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_043_behavior_review]
+sql:
+create view V_FILTER as select ID, NAME, AMOUNT from VIEW_BASE where STATUS = 'A';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:20) /test/1/catalog1/schema1/V_FILTER/",
+      "action": "CREATE",
+      "target": "Table(1:53~1:62) /test/1/catalog1/schema1/VIEW_BASE/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_044_behavior_review]
+sql:
+create view V_DISTINCT as select distinct STATUS from VIEW_BASE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:22) /test/1/catalog1/schema1/V_DISTINCT/",
+      "action": "CREATE",
+      "target": "Table(1:54~1:63) /test/1/catalog1/schema1/VIEW_BASE/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_045_behavior_review]
+sql:
+create view V_GROUPED(STATUS, ITEM_COUNT, TOTAL_AMOUNT) as select STATUS, count(*), sum(AMOUNT) from VIEW_BASE group by STATUS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:21) /test/1/catalog1/schema1/V_GROUPED/",
+      "action": "CREATE",
+      "target": "Table(1:101~1:110) /test/1/catalog1/schema1/VIEW_BASE/"
+    },
+    {
+      "subject": "Function(1:74~1:79) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:84~1:87) /test/1/catalog1/schema1/sum/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_046_behavior_review]
+sql:
+create view V_GROUP_HAVING(STATUS, ITEM_COUNT) as select STATUS, count(*) from VIEW_BASE group by STATUS having count(*) >= 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:26) /test/1/catalog1/schema1/V_GROUP_HAVING/",
+      "action": "CREATE",
+      "target": "Table(1:79~1:88) /test/1/catalog1/schema1/VIEW_BASE/"
+    },
+    {
+      "subject": "Function(1:65~1:70) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:112~1:117) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_047_behavior_review]
+sql:
+create view V_ORDERED as select ID, NAME, AMOUNT from VIEW_BASE order by AMOUNT desc;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:21) /test/1/catalog1/schema1/V_ORDERED/",
+      "action": "CREATE",
+      "target": "Table(1:54~1:63) /test/1/catalog1/schema1/VIEW_BASE/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_048_behavior_review]
+sql:
+create view V_JOIN as select B.ID, B.NAME, D.DEPT_NAME from VIEW_BASE B join VIEW_DEPT D on B.DEPT_ID = D.ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:18) /test/1/catalog1/schema1/V_JOIN/",
+      "action": "CREATE",
+      "target": [
+        "Table(1:60~1:69) /test/1/catalog1/schema1/VIEW_BASE/",
+        "Table(1:77~1:86) /test/1/catalog1/schema1/VIEW_DEPT/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_049_behavior_review]
+sql:
+create view V_LEFT_JOIN as select B.ID, B.NAME, D.DEPT_NAME from VIEW_BASE B left join VIEW_DEPT D on B.DEPT_ID = D.ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:23) /test/1/catalog1/schema1/V_LEFT_JOIN/",
+      "action": "CREATE",
+      "target": [
+        "Table(1:65~1:74) /test/1/catalog1/schema1/VIEW_BASE/",
+        "Table(1:87~1:96) /test/1/catalog1/schema1/VIEW_DEPT/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_050_behavior_review]
+sql:
+create view V_SELF_JOIN as select A.ID A_ID, B.ID B_ID from VIEW_BASE A join VIEW_BASE B on A.DEPT_ID = B.DEPT_ID where A.ID < B.ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:23) /test/1/catalog1/schema1/V_SELF_JOIN/",
+      "action": "CREATE",
+      "target": [
+        "Table(1:60~1:69) /test/1/catalog1/schema1/VIEW_BASE/",
+        "Table(1:77~1:86) /test/1/catalog1/schema1/VIEW_BASE/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_051_behavior_review]
+sql:
+create view V_SUBQUERY as select ID, NAME from VIEW_BASE where DEPT_ID in (select ID from VIEW_DEPT where DEPT_NAME = 'SALES');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:22) /test/1/catalog1/schema1/V_SUBQUERY/",
+      "action": "CREATE",
+      "target": [
+        "Table(1:47~1:56) /test/1/catalog1/schema1/VIEW_BASE/",
+        "Table(1:90~1:99) /test/1/catalog1/schema1/VIEW_DEPT/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_052_behavior_review]
+sql:
+create view V_CORRELATED as select B.ID, B.NAME from VIEW_BASE B where exists (select 1 from VIEW_DEPT D where D.ID = B.DEPT_ID);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:24) /test/1/catalog1/schema1/V_CORRELATED/",
+      "action": "CREATE",
+      "target": [
+        "Table(1:53~1:62) /test/1/catalog1/schema1/VIEW_BASE/",
+        "Table(1:93~1:102) /test/1/catalog1/schema1/VIEW_DEPT/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_053_behavior_review]
+sql:
+create view V_SCALAR(ID, NAME, DEPT_NAME) as select B.ID, B.NAME, (select D.DEPT_NAME from VIEW_DEPT D where D.ID = B.DEPT_ID) from VIEW_BASE B;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:20) /test/1/catalog1/schema1/V_SCALAR/",
+      "action": "CREATE",
+      "target": [
+        "Table(1:91~1:100) /test/1/catalog1/schema1/VIEW_DEPT/",
+        "Table(1:132~1:141) /test/1/catalog1/schema1/VIEW_BASE/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_054_behavior_review]
+sql:
+create view V_CTE as with C as (select ID, NAME from VIEW_BASE where STATUS = 'A') select ID, NAME from C;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:17) /test/1/catalog1/schema1/V_CTE/",
+      "action": "CREATE",
+      "target": "Table(1:53~1:62) /test/1/catalog1/schema1/VIEW_BASE/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_055_behavior_review]
+sql:
+create view V_CTE_MULTI as with A as (select ID, DEPT_ID from VIEW_BASE), D as (select ID, DEPT_NAME from VIEW_DEPT) select A.ID, D.DEPT_NAME from A join D on A.DEPT_ID = D.ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:23) /test/1/catalog1/schema1/V_CTE_MULTI/",
+      "action": "CREATE",
+      "target": [
+        "Table(1:62~1:71) /test/1/catalog1/schema1/VIEW_BASE/",
+        "Table(1:106~1:115) /test/1/catalog1/schema1/VIEW_DEPT/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_056_behavior_review]
+sql:
+create view V_UNION as select ID from VIEW_BASE where STATUS = 'A' union select ID from VIEW_BASE where STATUS = 'B';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:19) /test/1/catalog1/schema1/V_UNION/",
+      "action": "CREATE",
+      "target": [
+        "Table(1:38~1:47) /test/1/catalog1/schema1/VIEW_BASE/",
+        "Table(1:88~1:97) /test/1/catalog1/schema1/VIEW_BASE/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_057_behavior_review]
+sql:
+create view V_UNION_ALL as select ID from VIEW_BASE where STATUS = 'A' union all select ID from VIEW_BASE where STATUS = 'B';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:23) /test/1/catalog1/schema1/V_UNION_ALL/",
+      "action": "CREATE",
+      "target": [
+        "Table(1:42~1:51) /test/1/catalog1/schema1/VIEW_BASE/",
+        "Table(1:96~1:105) /test/1/catalog1/schema1/VIEW_BASE/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_058_behavior_review]
+sql:
+create view V_INTERSECT as select DEPT_ID from VIEW_BASE intersect select ID from VIEW_DEPT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:23) /test/1/catalog1/schema1/V_INTERSECT/",
+      "action": "CREATE",
+      "target": [
+        "Table(1:47~1:56) /test/1/catalog1/schema1/VIEW_BASE/",
+        "Table(1:82~1:91) /test/1/catalog1/schema1/VIEW_DEPT/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_059_behavior_review]
+sql:
+create view V_MINUS as select ID from VIEW_DEPT minus select DEPT_ID from VIEW_BASE where STATUS = 'B';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:19) /test/1/catalog1/schema1/V_MINUS/",
+      "action": "CREATE",
+      "target": [
+        "Table(1:38~1:47) /test/1/catalog1/schema1/VIEW_DEPT/",
+        "Table(1:74~1:83) /test/1/catalog1/schema1/VIEW_BASE/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_060_behavior_review]
+sql:
+create view V_WINDOW as select ID, STATUS, sum(AMOUNT) over(partition by STATUS order by ID rows between unbounded preceding and current row) RUNNING_AMOUNT from VIEW_BASE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:20) /test/1/catalog1/schema1/V_WINDOW/",
+      "action": "CREATE",
+      "target": "Table(1:162~1:171) /test/1/catalog1/schema1/VIEW_BASE/"
+    },
+    {
+      "subject": "Function(1:43~1:46) /test/1/catalog1/schema1/sum/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_061_behavior_review]
+sql:
+create view V_ROW_NUMBER as select ID, row_number() over(order by AMOUNT desc) RN from VIEW_BASE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:24) /test/1/catalog1/schema1/V_ROW_NUMBER/",
+      "action": "CREATE",
+      "target": "Table(1:87~1:96) /test/1/catalog1/schema1/VIEW_BASE/"
+    },
+    {
+      "subject": "Function(1:39~1:49) /test/1/catalog1/schema1/row_number/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_062_behavior_review]
+sql:
+create view V_CASE as select ID, case STATUS when 'A' then 'ACTIVE' else 'OTHER' end STATUS_NAME from VIEW_BASE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:18) /test/1/catalog1/schema1/V_CASE/",
+      "action": "CREATE",
+      "target": "Table(1:102~1:111) /test/1/catalog1/schema1/VIEW_BASE/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_063_behavior_review]
+sql:
+create view V_COALESCE as select ID, coalesce(NAME, 'UNKNOWN') NAME_VALUE from VIEW_BASE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:22) /test/1/catalog1/schema1/V_COALESCE/",
+      "action": "CREATE",
+      "target": "Table(1:79~1:88) /test/1/catalog1/schema1/VIEW_BASE/"
+    },
+    {
+      "subject": "Function(1:37~1:45) /test/1/catalog1/schema1/coalesce/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_064_behavior_review]
+sql:
+create view V_NESTED as select ID, NAME from V_FILTER where AMOUNT >= 20;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:20) /test/1/catalog1/schema1/V_NESTED/",
+      "action": "CREATE",
+      "target": "Table(1:45~1:53) /test/1/catalog1/schema1/V_FILTER/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_065_behavior_review]
+sql:
+create view V_NESTED_CHECK as select ID, NAME, AMOUNT, STATUS, DEPT_ID from V_CHECK_LOCAL where AMOUNT <= 50 with local check option;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:26) /test/1/catalog1/schema1/V_NESTED_CHECK/",
+      "action": "CREATE",
+      "target": "Table(1:76~1:89) /test/1/catalog1/schema1/V_CHECK_LOCAL/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_066_behavior_review]
+sql:
+select * from V_FILTER order by ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:22) /test/1/catalog1/schema1/V_FILTER/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_067_behavior_review]
+sql:
+select * from V_GROUPED order by STATUS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:23) /test/1/catalog1/schema1/V_GROUPED/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_068_behavior_review]
+sql:
+select * from V_JOIN order by ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:20) /test/1/catalog1/schema1/V_JOIN/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_069_behavior_review]
+sql:
+select * from V_CTE order by ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:19) /test/1/catalog1/schema1/V_CTE/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_070_behavior_review]
+sql:
+select * from V_UNION order by ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:21) /test/1/catalog1/schema1/V_UNION/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_071_behavior_review]
+sql:
+select * from V_WINDOW order by ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:22) /test/1/catalog1/schema1/V_WINDOW/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_072_behavior_review]
+sql:
+select V.ID, D.DEPT_NAME from V_BASIC V join VIEW_DEPT D on V.ID = D.ID where 1 = 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:30~1:37) /test/1/catalog1/schema1/V_BASIC/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(1:45~1:54) /test/1/catalog1/schema1/VIEW_DEPT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_073_behavior_review]
+sql:
+select ID from VIEW_BASE where exists (select 1 from V_FILTER V where V.ID = VIEW_BASE.ID);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:15~1:24) /test/1/catalog1/schema1/VIEW_BASE/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(1:53~1:61) /test/1/catalog1/schema1/V_FILTER/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_074_behavior_review]
+sql:
+select * from (select ID, NAME from V_BASIC) X where X.ID <= 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:36~1:43) /test/1/catalog1/schema1/V_BASIC/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_075_behavior_review]
+sql:
+with X as (select ID from V_BASIC) select count(*) from X;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:42~1:47) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:26~1:33) /test/1/catalog1/schema1/V_BASIC/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_076_behavior_review]
+sql:
+create view V_UPDATABLE as select ID, NAME, AMOUNT, STATUS, DEPT_ID from VIEW_BASE where ID >= 1 with check option;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:23) /test/1/catalog1/schema1/V_UPDATABLE/",
+      "action": "CREATE",
+      "target": "Table(1:73~1:82) /test/1/catalog1/schema1/VIEW_BASE/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_077_behavior_review]
+sql:
+insert into V_UPDATABLE(ID, NAME, AMOUNT, STATUS, DEPT_ID) values(4, 'DELTA', 40, 'A', 20);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:23) /test/1/catalog1/schema1/V_UPDATABLE/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_078_behavior_review]
+sql:
+update V_UPDATABLE set AMOUNT = 45 where ID = 4;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:18) /test/1/catalog1/schema1/V_UPDATABLE/",
+      "action": "UPDATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_079_behavior_review]
+sql:
+select AMOUNT from VIEW_BASE where ID = 4;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:19~1:28) /test/1/catalog1/schema1/VIEW_BASE/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_080_behavior_review]
+sql:
+delete from V_UPDATABLE where ID = 4;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:23) /test/1/catalog1/schema1/V_UPDATABLE/",
+      "action": "DELETE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_081_behavior_review]
+sql:
+insert into V_CHECK_DEFAULT(ID, NAME, AMOUNT, STATUS, DEPT_ID) values(5, 'EPSILON', 50, 'A', 10);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:27) /test/1/catalog1/schema1/V_CHECK_DEFAULT/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_082_behavior_review]
+sql:
+update V_CHECK_DEFAULT set AMOUNT = 55 where ID = 5;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:22) /test/1/catalog1/schema1/V_CHECK_DEFAULT/",
+      "action": "UPDATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_083_behavior_review]
+sql:
+delete from V_CHECK_DEFAULT where ID = 5;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:27) /test/1/catalog1/schema1/V_CHECK_DEFAULT/",
+      "action": "DELETE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_084_behavior_review]
+sql:
+commit;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[split_ddl_dameng_view_0_085_behavior_review]
+sql:
+comment on view V_BASIC is 'DM8 ordinary view';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_VIEW": [
+    {
+      "subject": "View(1:16~1:23) /test/1/catalog1/schema1/V_BASIC/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_086_behavior_review]
+sql:
+comment on column V_BASIC.NAME is 'view name column';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "COMMENT_COLUMN": [
+    {
+      "subject": "Table(1:18~1:25) /test/1/catalog1/schema1/V_BASIC/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_087_behavior_review]
+sql:
+select VIEW_NAME from USER_VIEWS where VIEW_NAME in ('V_BASIC', 'V_JOIN') order by VIEW_NAME;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:22~1:32) /test/1/catalog1/schema1/USER_VIEWS/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_088_behavior_review]
+sql:
+select NAME, VALID from SYSOBJECTS where NAME in ('V_BASIC', 'V_JOIN') order by NAME;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:24~1:34) /test/1/catalog1/schema1/SYSOBJECTS/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_089_behavior_review]
+sql:
+alter view V_BASIC compile;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_VIEW": [
+    {
+      "subject": "View(1:11~1:18) /test/1/catalog1/schema1/V_BASIC/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_090_behavior_review]
+sql:
+alter view CODEX_DM8_VIEW_20260721.V_QUALIFIED compile;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_VIEW": [
+    {
+      "subject": "View(1:11~1:46) /test/1/catalog1/CODEX_DM8_VIEW_20260721/V_QUALIFIED/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_091_behavior_review]
+sql:
+create user CODEX_DM8_VIEW_USER_20260721 identified by "Dm8@View2026";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:40) /test/1/CODEX_DM8_VIEW_USER_20260721/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_092_behavior_review]
+sql:
+create role CODEX_DM8_VIEW_ROLE_20260721;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_ROLE": [
+    {
+      "subject": "Role(1:12~1:40) /test/1/CODEX_DM8_VIEW_ROLE_20260721/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_093_behavior_review]
+sql:
+grant create view to CODEX_DM8_VIEW_ROLE_20260721;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "View(1:13~1:17) /test/1/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:21~1:49) /test/1/CODEX_DM8_VIEW_ROLE_20260721/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_094_behavior_review]
+sql:
+grant CODEX_DM8_VIEW_ROLE_20260721 to CODEX_DM8_VIEW_USER_20260721;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Role(1:6~1:34) /test/1/CODEX_DM8_VIEW_ROLE_20260721/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:38~1:66) /test/1/CODEX_DM8_VIEW_USER_20260721/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_095_behavior_review]
+sql:
+grant select on V_BASIC to CODEX_DM8_VIEW_USER_20260721;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "SchemaObject(1:16~1:23) /test/1/catalog1/schema1/V_BASIC/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:27~1:55) /test/1/CODEX_DM8_VIEW_USER_20260721/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_096_behavior_review]
+sql:
+grant select, insert, update, delete on V_UPDATABLE to CODEX_DM8_VIEW_ROLE_20260721;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "SchemaObject(1:40~1:51) /test/1/catalog1/schema1/V_UPDATABLE/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:55~1:83) /test/1/CODEX_DM8_VIEW_ROLE_20260721/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_097_behavior_review]
+sql:
+revoke select, insert, update, delete on V_UPDATABLE from CODEX_DM8_VIEW_ROLE_20260721;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "SchemaObject(1:41~1:52) /test/1/catalog1/schema1/V_UPDATABLE/",
+      "action": "REVOKE",
+      "target": "UserOrRole(1:58~1:86) /test/1/CODEX_DM8_VIEW_ROLE_20260721/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_098_behavior_review]
+sql:
+revoke select on V_BASIC from CODEX_DM8_VIEW_USER_20260721;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "SchemaObject(1:17~1:24) /test/1/catalog1/schema1/V_BASIC/",
+      "action": "REVOKE",
+      "target": "UserOrRole(1:30~1:58) /test/1/CODEX_DM8_VIEW_USER_20260721/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_099_behavior_review]
+sql:
+revoke CODEX_DM8_VIEW_ROLE_20260721 from CODEX_DM8_VIEW_USER_20260721;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "Role(1:7~1:35) /test/1/CODEX_DM8_VIEW_ROLE_20260721/",
+      "action": "REVOKE",
+      "target": "UserOrRole(1:41~1:69) /test/1/CODEX_DM8_VIEW_USER_20260721/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_100_behavior_review]
+sql:
+revoke create view from CODEX_DM8_VIEW_ROLE_20260721;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "View(1:14~1:18) /test/1/",
+      "action": "REVOKE",
+      "target": "UserOrRole(1:24~1:52) /test/1/CODEX_DM8_VIEW_ROLE_20260721/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_101_behavior_review]
+sql:
+drop role CODEX_DM8_VIEW_ROLE_20260721;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_ROLE": [
+    {
+      "subject": "Role(1:10~1:38) /test/1/CODEX_DM8_VIEW_ROLE_20260721/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_102_behavior_review]
+sql:
+drop user CODEX_DM8_VIEW_USER_20260721 cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_USER": [
+    {
+      "subject": "User(1:10~1:38) /test/1/CODEX_DM8_VIEW_USER_20260721/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_103_behavior_review]
+sql:
+create view V_DROP_PLAIN as select ID from VIEW_BASE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:24) /test/1/catalog1/schema1/V_DROP_PLAIN/",
+      "action": "CREATE",
+      "target": "Table(1:43~1:52) /test/1/catalog1/schema1/VIEW_BASE/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_104_behavior_review]
+sql:
+drop view V_DROP_PLAIN;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "View(1:10~1:22) /test/1/catalog1/schema1/V_DROP_PLAIN/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_105_behavior_review]
+sql:
+create view V_DROP_RESTRICT as select ID from VIEW_BASE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:27) /test/1/catalog1/schema1/V_DROP_RESTRICT/",
+      "action": "CREATE",
+      "target": "Table(1:46~1:55) /test/1/catalog1/schema1/VIEW_BASE/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_106_behavior_review]
+sql:
+drop view V_DROP_RESTRICT restrict;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "View(1:10~1:25) /test/1/catalog1/schema1/V_DROP_RESTRICT/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_107_behavior_review]
+sql:
+create view V_DROP_CASCADE as select ID from VIEW_BASE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:26) /test/1/catalog1/schema1/V_DROP_CASCADE/",
+      "action": "CREATE",
+      "target": "Table(1:45~1:54) /test/1/catalog1/schema1/VIEW_BASE/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_108_behavior_review]
+sql:
+drop view V_DROP_CASCADE cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "View(1:10~1:24) /test/1/catalog1/schema1/V_DROP_CASCADE/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_109_behavior_review]
+sql:
+drop view if exists V_DROP_MISSING;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "View(1:20~1:34) /test/1/catalog1/schema1/V_DROP_MISSING/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_110_behavior_review]
+sql:
+drop view if exists V_DROP_MISSING restrict;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "View(1:20~1:34) /test/1/catalog1/schema1/V_DROP_MISSING/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_111_behavior_review]
+sql:
+drop view if exists V_DROP_MISSING cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "View(1:20~1:34) /test/1/catalog1/schema1/V_DROP_MISSING/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_112_behavior_review]
+sql:
+create view V_PARENT as select ID, NAME from VIEW_BASE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:20) /test/1/catalog1/schema1/V_PARENT/",
+      "action": "CREATE",
+      "target": "Table(1:45~1:54) /test/1/catalog1/schema1/VIEW_BASE/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_113_behavior_review]
+sql:
+create view V_CHILD as select ID from V_PARENT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:19) /test/1/catalog1/schema1/V_CHILD/",
+      "action": "CREATE",
+      "target": "Table(1:38~1:46) /test/1/catalog1/schema1/V_PARENT/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_114_behavior_review]
+sql:
+select count(*) from V_CHILD;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:21~1:28) /test/1/catalog1/schema1/V_CHILD/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_115_behavior_review]
+sql:
+drop view V_CHILD restrict;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "View(1:10~1:17) /test/1/catalog1/schema1/V_CHILD/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_116_behavior_review]
+sql:
+drop view V_PARENT cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "View(1:10~1:18) /test/1/catalog1/schema1/V_PARENT/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_117_behavior_review]
+sql:
+drop view V_NESTED_CHECK;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "View(1:10~1:24) /test/1/catalog1/schema1/V_NESTED_CHECK/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_118_behavior_review]
+sql:
+drop view V_NESTED;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "View(1:10~1:18) /test/1/catalog1/schema1/V_NESTED/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_119_behavior_review]
+sql:
+drop view V_UPDATABLE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "View(1:10~1:21) /test/1/catalog1/schema1/V_UPDATABLE/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_120_behavior_review]
+sql:
+drop view V_COALESCE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "View(1:10~1:20) /test/1/catalog1/schema1/V_COALESCE/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_121_behavior_review]
+sql:
+drop view V_CASE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "View(1:10~1:16) /test/1/catalog1/schema1/V_CASE/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_122_behavior_review]
+sql:
+drop view V_ROW_NUMBER;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "View(1:10~1:22) /test/1/catalog1/schema1/V_ROW_NUMBER/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_123_behavior_review]
+sql:
+drop view V_WINDOW;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "View(1:10~1:18) /test/1/catalog1/schema1/V_WINDOW/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_124_behavior_review]
+sql:
+drop view V_MINUS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "View(1:10~1:17) /test/1/catalog1/schema1/V_MINUS/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_125_behavior_review]
+sql:
+drop view V_INTERSECT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "View(1:10~1:21) /test/1/catalog1/schema1/V_INTERSECT/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_126_behavior_review]
+sql:
+drop view V_UNION_ALL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "View(1:10~1:21) /test/1/catalog1/schema1/V_UNION_ALL/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_127_behavior_review]
+sql:
+drop view V_UNION;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "View(1:10~1:17) /test/1/catalog1/schema1/V_UNION/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_128_behavior_review]
+sql:
+drop view V_CTE_MULTI;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "View(1:10~1:21) /test/1/catalog1/schema1/V_CTE_MULTI/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_129_behavior_review]
+sql:
+drop view V_CTE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "View(1:10~1:15) /test/1/catalog1/schema1/V_CTE/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_130_behavior_review]
+sql:
+drop view V_SCALAR;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "View(1:10~1:18) /test/1/catalog1/schema1/V_SCALAR/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_131_behavior_review]
+sql:
+drop view V_CORRELATED;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "View(1:10~1:22) /test/1/catalog1/schema1/V_CORRELATED/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_132_behavior_review]
+sql:
+drop view V_SUBQUERY;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "View(1:10~1:20) /test/1/catalog1/schema1/V_SUBQUERY/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_133_behavior_review]
+sql:
+drop view V_SELF_JOIN;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "View(1:10~1:21) /test/1/catalog1/schema1/V_SELF_JOIN/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_134_behavior_review]
+sql:
+drop view V_LEFT_JOIN;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "View(1:10~1:21) /test/1/catalog1/schema1/V_LEFT_JOIN/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_135_behavior_review]
+sql:
+drop view V_JOIN;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "View(1:10~1:16) /test/1/catalog1/schema1/V_JOIN/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_136_behavior_review]
+sql:
+drop view V_ORDERED;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "View(1:10~1:19) /test/1/catalog1/schema1/V_ORDERED/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_137_behavior_review]
+sql:
+drop view V_GROUP_HAVING;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "View(1:10~1:24) /test/1/catalog1/schema1/V_GROUP_HAVING/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_138_behavior_review]
+sql:
+drop view V_GROUPED;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "View(1:10~1:19) /test/1/catalog1/schema1/V_GROUPED/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_139_behavior_review]
+sql:
+drop view V_DISTINCT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "View(1:10~1:20) /test/1/catalog1/schema1/V_DISTINCT/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_140_behavior_review]
+sql:
+drop view V_FILTER;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "View(1:10~1:18) /test/1/catalog1/schema1/V_FILTER/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_141_behavior_review]
+sql:
+drop view V_READ_ONLY;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "View(1:10~1:21) /test/1/catalog1/schema1/V_READ_ONLY/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_142_behavior_review]
+sql:
+drop view V_CHECK_CASCADED;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "View(1:10~1:26) /test/1/catalog1/schema1/V_CHECK_CASCADED/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_143_behavior_review]
+sql:
+drop view V_CHECK_LOCAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "View(1:10~1:23) /test/1/catalog1/schema1/V_CHECK_LOCAL/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_144_behavior_review]
+sql:
+drop view V_CHECK_DEFAULT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "View(1:10~1:25) /test/1/catalog1/schema1/V_CHECK_DEFAULT/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_145_behavior_review]
+sql:
+drop view V_FORCE_COMBINED;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "View(1:10~1:26) /test/1/catalog1/schema1/V_FORCE_COMBINED/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_146_behavior_review]
+sql:
+drop view V_EXPRESSION;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "View(1:10~1:22) /test/1/catalog1/schema1/V_EXPRESSION/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_147_behavior_review]
+sql:
+drop view V_COLUMNS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "View(1:10~1:19) /test/1/catalog1/schema1/V_COLUMNS/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_148_behavior_review]
+sql:
+drop view "V_Quoted";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "View(1:10~1:20) /test/1/catalog1/schema1/V_Quoted/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_149_behavior_review]
+sql:
+drop view V_QUALIFIED;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "View(1:10~1:21) /test/1/catalog1/schema1/V_QUALIFIED/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_150_behavior_review]
+sql:
+drop view V_BASIC;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "View(1:10~1:17) /test/1/catalog1/schema1/V_BASIC/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_151_behavior_review]
+sql:
+drop table VIEW_AUDIT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:21) /test/1/catalog1/schema1/VIEW_AUDIT/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_152_behavior_review]
+sql:
+drop table VIEW_DEPT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:20) /test/1/catalog1/schema1/VIEW_DEPT/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_153_behavior_review]
+sql:
+drop table VIEW_BASE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:20) /test/1/catalog1/schema1/VIEW_BASE/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_154_behavior_review]
+sql:
+set schema SYSDBA;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SWITCH_SCHEMA": [
+    {
+      "subject": "Schema(1:11~1:17) /test/1/catalog1/SYSDBA/",
+      "action": "SWITCH"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_view_0_155_behavior_review]
+sql:
+drop schema CODEX_DM8_VIEW_20260721 cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SCHEMA": [
+    {
+      "subject": "Schema(1:12~1:35) /test/1/catalog1/CODEX_DM8_VIEW_20260721/",
+      "action": "DROP"
+    }
+  ]
+}

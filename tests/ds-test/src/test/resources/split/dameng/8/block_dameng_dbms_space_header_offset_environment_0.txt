@@ -1,0 +1,24 @@
+-- FUNC-0787 SEG_GET_BY_HEADER actual Pack29 offset rejected -20035
+declare v DBMS_SPACE.SEG_T; begin v:=DBMS_SPACE.SEG_GET_BY_HEADER(4,0,10,52); end;
+/
+-- FUNC-0787 SEG_GET_BY_HEADER documented offset has no matching header -4561
+declare v DBMS_SPACE.SEG_T; begin v:=DBMS_SPACE.SEG_GET_BY_HEADER(4,0,10,62); end;
+/
+-- FUNC-0789 SEG_LOAD_BY_HEADER actual Pack29 offset rejected -20035
+declare v DBMS_SPACE.SEG_T; begin DBMS_SPACE.SEG_LOAD_BY_HEADER(4,0,10,52,v); end;
+/
+-- FUNC-0789 SEG_LOAD_BY_HEADER documented offset has no matching header -4561
+declare v DBMS_SPACE.SEG_T; begin DBMS_SPACE.SEG_LOAD_BY_HEADER(4,0,10,62,v); end;
+/
+------------------------------------------------------------------------------------------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0787 SEG_GET_BY_HEADER actual Pack29 offset rejected -20035
+declare v DBMS_SPACE.SEG_T; begin v:=DBMS_SPACE.SEG_GET_BY_HEADER(4,0,10,52); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0787 SEG_GET_BY_HEADER documented offset has no matching header -4561
+declare v DBMS_SPACE.SEG_T; begin v:=DBMS_SPACE.SEG_GET_BY_HEADER(4,0,10,62); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0789 SEG_LOAD_BY_HEADER actual Pack29 offset rejected -20035
+declare v DBMS_SPACE.SEG_T; begin DBMS_SPACE.SEG_LOAD_BY_HEADER(4,0,10,52,v); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0789 SEG_LOAD_BY_HEADER documented offset has no matching header -4561
+declare v DBMS_SPACE.SEG_T; begin DBMS_SPACE.SEG_LOAD_BY_HEADER(4,0,10,62,v); end;

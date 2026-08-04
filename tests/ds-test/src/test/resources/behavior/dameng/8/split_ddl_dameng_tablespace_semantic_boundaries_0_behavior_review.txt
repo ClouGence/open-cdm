@@ -1,0 +1,297 @@
+[split_ddl_dameng_tablespace_semantic_boundaries_0_001_behavior_review]
+sql:
+create tablespace CODEX_TS_BAD_CACHE datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_BAD_CACHE.dbf' size 64 cache=CODEX_UNKNOWN_CACHE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLESPACE": [
+    {
+      "subject": "Tablespace(1:18~1:36) /test/1/CODEX_TS_BAD_CACHE/",
+      "action": "CREATE",
+      "target": "File(1:46~1:94) /test/1/opt/dmdbms/data/DAMENG/CODEX_TS_BAD_CACHE.dbf/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_tablespace_semantic_boundaries_0_002_behavior_review]
+sql:
+create tablespace TXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_BAD_NAME129.dbf' size 64;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLESPACE": [
+    {
+      "subject": "Tablespace(1:18~1:147) /test/1/TXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX/",
+      "action": "CREATE",
+      "target": "File(1:157~1:207) /test/1/opt/dmdbms/data/DAMENG/CODEX_TS_BAD_NAME129.dbf/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_tablespace_semantic_boundaries_0_003_behavior_review]
+sql:
+create tablespace CODEX_TS_BAD_SIZE63 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_BAD_SIZE63.dbf' size 63;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLESPACE": [
+    {
+      "subject": "Tablespace(1:18~1:37) /test/1/CODEX_TS_BAD_SIZE63/",
+      "action": "CREATE",
+      "target": "File(1:47~1:96) /test/1/opt/dmdbms/data/DAMENG/CODEX_TS_BAD_SIZE63.dbf/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_tablespace_semantic_boundaries_0_004_behavior_review]
+sql:
+create tablespace CODEX_TS_BAD_MAX63 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_BAD_MAX63.dbf' size 64 autoextend on maxsize 63;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLESPACE": [
+    {
+      "subject": "Tablespace(1:18~1:36) /test/1/CODEX_TS_BAD_MAX63/",
+      "action": "CREATE",
+      "target": "File(1:46~1:94) /test/1/opt/dmdbms/data/DAMENG/CODEX_TS_BAD_MAX63.dbf/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_tablespace_semantic_boundaries_0_005_behavior_review]
+sql:
+create tablespace CODEX_TS_BAD_PWD33 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_BAD_PWD33.dbf' size 64 encrypt with DES_CFB by Dm8Password20260723Abcdefghijk012;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLESPACE": [
+    {
+      "subject": "Tablespace(1:18~1:36) /test/1/CODEX_TS_BAD_PWD33/",
+      "action": "CREATE",
+      "target": "File(1:46~1:94) /test/1/opt/dmdbms/data/DAMENG/CODEX_TS_BAD_PWD33.dbf/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_tablespace_semantic_boundaries_0_006_behavior_review]
+sql:
+create tablespace CODEX_TS_BAD_PADDING datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_BAD_PADDING.dbf' size 64 encrypt with AES256_CBC;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLESPACE": [
+    {
+      "subject": "Tablespace(1:18~1:38) /test/1/CODEX_TS_BAD_PADDING/",
+      "action": "CREATE",
+      "target": "File(1:48~1:98) /test/1/opt/dmdbms/data/DAMENG/CODEX_TS_BAD_PADDING.dbf/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_tablespace_semantic_boundaries_0_007_behavior_review]
+sql:
+create tablespace CODEX_TS_BAD_PWD7 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_BAD_PWD7.dbf' size 64 encrypt with DES_CFB by Dm8Pa26;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLESPACE": [
+    {
+      "subject": "Tablespace(1:18~1:35) /test/1/CODEX_TS_BAD_PWD7/",
+      "action": "CREATE",
+      "target": "File(1:45~1:92) /test/1/opt/dmdbms/data/DAMENG/CODEX_TS_BAD_PWD7.dbf/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_tablespace_semantic_boundaries_0_008_behavior_review]
+sql:
+create tablespace CODEX_TS_BAD_PWD_LOWER datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_BAD_PWD_LOWER.dbf' size 64 encrypt with DES_CFB by dm8pass26;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLESPACE": [
+    {
+      "subject": "Tablespace(1:18~1:40) /test/1/CODEX_TS_BAD_PWD_LOWER/",
+      "action": "CREATE",
+      "target": "File(1:50~1:102) /test/1/opt/dmdbms/data/DAMENG/CODEX_TS_BAD_PWD_LOWER.dbf/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_tablespace_semantic_boundaries_0_009_behavior_review]
+sql:
+create tablespace CODEX_TS_BAD_PWD_NODIGIT datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_BAD_PWD_NODIGIT.dbf' size 64 encrypt with DES_CFB by DmPassword;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLESPACE": [
+    {
+      "subject": "Tablespace(1:18~1:42) /test/1/CODEX_TS_BAD_PWD_NODIGIT/",
+      "action": "CREATE",
+      "target": "File(1:52~1:106) /test/1/opt/dmdbms/data/DAMENG/CODEX_TS_BAD_PWD_NODIGIT.dbf/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_tablespace_semantic_boundaries_0_010_behavior_review]
+sql:
+create tablespace CODEX_TS_BAD_NEXT2049 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_BAD_NEXT2049.dbf' size 64 autoextend on next 2049;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLESPACE": [
+    {
+      "subject": "Tablespace(1:18~1:39) /test/1/CODEX_TS_BAD_NEXT2049/",
+      "action": "CREATE",
+      "target": "File(1:49~1:100) /test/1/opt/dmdbms/data/DAMENG/CODEX_TS_BAD_NEXT2049.dbf/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_tablespace_semantic_boundaries_0_011_behavior_review]
+sql:
+create tablespace CODEX_TS_ASM_BAD_STRIPING datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_ASM_BAD_STRIPING.dbf' size 64 striping 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLESPACE": [
+    {
+      "subject": "Tablespace(1:18~1:43) /test/1/CODEX_TS_ASM_BAD_STRIPING/",
+      "action": "CREATE",
+      "target": "File(1:53~1:108) /test/1/opt/dmdbms/data/DAMENG/CODEX_TS_ASM_BAD_STRIPING.dbf/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_tablespace_semantic_boundaries_0_012_behavior_review]
+sql:
+alter tablespace SYSTEM offline;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLESPACE": [
+    {
+      "subject": "Tablespace(1:17~1:23) /test/1/SYSTEM/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_tablespace_semantic_boundaries_0_013_behavior_review]
+sql:
+alter tablespace SYSTEM datafile '/opt/dmdbms/data/DAMENG/SYSTEM.DBF' autoextend off;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLESPACE": [
+    {
+      "subject": "File(1:33~1:69) /test/1/opt/dmdbms/data/DAMENG/SYSTEM.DBF/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_tablespace_semantic_boundaries_0_014_behavior_review]
+sql:
+drop tablespace SYSTEM;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLESPACE": [
+    {
+      "subject": "Tablespace(1:16~1:22) /test/1/SYSTEM/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_tablespace_semantic_boundaries_0_015_behavior_review]
+sql:
+create tablespace CODEX_TS_BAD_PATH257 datafile '/opt/dmdbms/data/DAMENG/XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.dbf' size 64;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLESPACE": [
+    {
+      "subject": "Tablespace(1:18~1:38) /test/1/CODEX_TS_BAD_PATH257/",
+      "action": "CREATE",
+      "target": "File(1:48~1:307) /test/1/opt/dmdbms/data/DAMENG/XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.dbf/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_tablespace_semantic_boundaries_0_016_behavior_review]
+sql:
+alter tablespace CODEX_TS_ONLY_FILE_20260723 drop datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_ONLY_FILE_20260723.dbf';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLESPACE": [
+    {
+      "subject": "File(1:59~1:116) /test/1/opt/dmdbms/data/DAMENG/CODEX_TS_ONLY_FILE_20260723.dbf/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_tablespace_semantic_boundaries_0_017_behavior_review]
+sql:
+alter tablespace CODEX_TS_NONMAX_FILE_20260723 drop datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_NONMAX_FILE_A_20260723.dbf';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLESPACE": [
+    {
+      "subject": "File(1:61~1:122) /test/1/opt/dmdbms/data/DAMENG/CODEX_TS_NONMAX_FILE_A_20260723.dbf/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_tablespace_semantic_boundaries_0_018_behavior_review]
+sql:
+drop tablespace CODEX_TS_USED_20260723;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLESPACE": [
+    {
+      "subject": "Tablespace(1:16~1:38) /test/1/CODEX_TS_USED_20260723/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_tablespace_semantic_boundaries_0_019_behavior_review]
+sql:
+alter tablespace CODEX_TS_RENAME_ONLINE_20260723 rename datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_RENAME_ONLINE_A_20260723.dbf' to '/opt/dmdbms/data/DAMENG/CODEX_TS_RENAME_ONLINE_B_20260723.dbf';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLESPACE": [
+    {
+      "subject": "File(1:65~1:128) /test/1/opt/dmdbms/data/DAMENG/CODEX_TS_RENAME_ONLINE_A_20260723.dbf/",
+      "action": "RENAME",
+      "target": "File(1:132~1:195) /test/1/opt/dmdbms/data/DAMENG/CODEX_TS_RENAME_ONLINE_B_20260723.dbf/"
+    }
+  ]
+}

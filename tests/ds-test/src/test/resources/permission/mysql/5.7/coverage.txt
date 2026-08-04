@@ -1,0 +1,104 @@
+[mysql_permission_read]
+sql:
+SELECT * FROM sales.orders INTO OUTFILE '/tmp/orders.csv';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "File(1:40~1:57) /test/1/tmp/orders.csv/"
+  ],
+  "READ": [
+    "Table(1:14~1:26) /test/1/catalog1/sales/orders/"
+  ]
+}
+----------
+[mysql_permission_write]
+sql:
+INSERT INTO archive_orders SELECT * FROM app_schema.orders;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:26) /test/1/catalog1/schema1/archive_orders/"
+  ],
+  "READ": [
+    "Table(1:41~1:58) /test/1/catalog1/app_schema/orders/"
+  ]
+}
+----------
+[mysql_permission_ddl]
+sql:
+CREATE TABLE report_orders AS SELECT * FROM app_schema.orders;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DDL": [
+    "Table(1:13~1:26) /test/1/catalog1/schema1/report_orders/"
+  ],
+  "READ": [
+    "Table(1:44~1:61) /test/1/catalog1/app_schema/orders/"
+  ]
+}
+----------
+[mysql_permission_program]
+sql:
+CALL refresh_orders();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:5~1:19) /test/1/catalog1/schema1/refresh_orders/"
+  ]
+}
+----------
+[mysql_permission_manage]
+sql:
+CREATE USER analyst IDENTIFIED BY 'secret';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MANAGE": [
+    "User(1:12~1:19) /test/1/analyst/"
+  ]
+}
+----------
+[mysql_permission_maintain]
+sql:
+FLUSH LOGS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MAINTAIN": [
+    "Log(1:0~1:10) /test/1/"
+  ]
+}
+----------
+[mysql_permission_space]
+sql:
+CREATE DATABASE reporting;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SPACE": [
+    "Schema(1:16~1:25) /test/1/catalog1/reporting/"
+  ]
+}
+----------
+[mysql_permission_unsafe]
+sql:
+PREPARE ps_select FROM 'SELECT 1';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UNSAFE": [
+    "PrepareStatement(1:8~1:17) /test/1/ps_select/"
+  ]
+}

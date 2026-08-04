@@ -1,0 +1,300 @@
+[select__001]
+sql:
+SELECT a,CAST(a AS DATE) FROM t1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:9~1:13) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:30~1:32) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__002]
+sql:
+SELECT CAST(CASE WHEN 0 THEN DATE'2001-01-01' END AS DATE);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__003]
+sql:
+SELECT COALESCE(DATE(NULL));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/COALESCE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:16~1:20) /test/1/catalog1/schema1/DATE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__004]
+sql:
+SELECT CAST(LEAST(DATE(NULL),DATE(NULL)) AS CHAR);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:12~1:17) /test/1/catalog1/schema1/LEAST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:18~1:22) /test/1/catalog1/schema1/DATE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__005]
+sql:
+SELECT CAST(LEAST(20010101,20020202) AS DATE);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:12~1:17) /test/1/catalog1/schema1/LEAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__006]
+sql:
+SELECT 1 FROM t1 WHERE CAST('2000-01-01 12:01:01' AS DATETIME) BETWEEN start_date AND end_date;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:16) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(1:23~1:27) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__007]
+sql:
+SELECT DATE'0000-01-02'-INTERVAL 1 DAY;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__008]
+sql:
+SELECT DATE'9999-12-31'+INTERVAL 1 DAY;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__009]
+sql:
+SELECT DATE '2014-02-31';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__010]
+sql:
+SELECT DATE_FORMAT(DATE '2014-02-31','%Y%b%e');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/DATE_FORMAT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__011]
+sql:
+SELECT STR_TO_DATE(EXP(11463),'%S  %S   ');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/STR_TO_DATE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:19~1:22) /test/1/catalog1/schema1/EXP/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select_call_prog_obj__012]
+sql:
+SELECT STR_TO_DATE(COT(IS_IPV6(UUID_TO_BIN(UUID()))),COMPRESS('_&?_[$'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/STR_TO_DATE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:19~1:22) /test/1/catalog1/schema1/COT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:23~1:30) /test/1/catalog1/schema1/IS_IPV6/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:31~1:42) /test/1/catalog1/schema1/UUID_TO_BIN/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:43~1:47) /test/1/catalog1/schema1/UUID/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:53~1:61) /test/1/catalog1/schema1/COMPRESS/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__013]
+sql:
+SELECT CAST(FROM_DAYS(-11797) AS UNSIGNED)^SLEEP(0);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:12~1:21) /test/1/catalog1/schema1/FROM_DAYS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:43~1:48) /test/1/catalog1/schema1/SLEEP/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__014]
+sql:
+SELECT CAST(CAST(FROM_DAYS(CURRENT_DATE()) AS UNSIGNED) AS SIGNED INTEGER);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:26) /test/1/catalog1/schema1/FROM_DAYS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:27~1:39) /test/1/catalog1/schema1/CURRENT_DATE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__015]
+sql:
+SELECT INET6_NTOA((SELECT CONVERT(FROM_DAYS(-15050),SIGNED)));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/INET6_NTOA/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:26~1:33) /test/1/catalog1/schema1/CONVERT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:34~1:43) /test/1/catalog1/schema1/FROM_DAYS/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__016]
+sql:
+SELECT TO_DAYS(FROM_DAYS(6)+INTERVAL 1933116476 SECOND_MICROSECOND);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/TO_DAYS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:15~1:24) /test/1/catalog1/schema1/FROM_DAYS/",
+      "action" : "CALL"
+    }
+  ]
+}

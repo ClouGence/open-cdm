@@ -1,0 +1,407 @@
+[ChRuleTableMaxColumnsTest#createTableMaxColumns_1#001]
+rule: _rules/table/table-max-columns.rule
+expect: false
+vars:
+  maxCount: 2
+sql:
+create table test.abc_test(id int, name string, age string) engine = memory
+----------
+[ChRuleTableMaxColumnsTest#createTableMaxColumns_1#002]
+rule: _rules/table/table-max-columns.rule
+expect: true
+vars:
+  maxCount: 2
+sql:
+create table test.abc_test(id int , name string ) engine = memory
+----------
+[ChRuleTableMaxColumnsTest#createTableMaxColumns_1#003]
+rule: _rules/table/table-max-columns.rule
+expect: true
+vars:
+  maxCount: 2
+sql:
+create table test.abc_test(id string) engine = memory
+----------
+[ChRuleTableNameCaseTypeTest#createTableNameCaseType_1#001]
+rule: _rules/table/table-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper case
+sql:
+create table test.abc_test(id int, name varchar) engine = test
+----------
+[ChRuleTableNameCaseTypeTest#createTableNameCaseType_1#002]
+rule: _rules/table/table-name-case-type.rule
+expect: true
+vars:
+  caseType: Upper case
+sql:
+create table test.ABC_TEST(id int(4), name varchar) engine = test
+----------
+[ChRuleTableNameCaseTypeTest#createTableNameCaseType_1#003]
+rule: _rules/table/table-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper case
+sql:
+create table test.abcTest(id int(4) , name varchar) engine = test
+----------
+[ChRuleTableNameCaseTypeTest#createTableNameCaseType_1#004]
+rule: _rules/table/table-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper case
+sql:
+create table test.AbcTest(id int, name varchar) engine = test
+----------
+[ChRuleTableNameCaseTypeTest#createTableNameCaseType_2#001]
+rule: _rules/table/table-name-case-type.rule
+expect: true
+vars:
+  caseType: Lower case
+sql:
+create table test.abc_test(id int, name varchar) engine = test
+----------
+[ChRuleTableNameCaseTypeTest#createTableNameCaseType_2#002]
+rule: _rules/table/table-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower case
+sql:
+create table test.ABC_TEST(id int, name varchar) engine = test
+----------
+[ChRuleTableNameCaseTypeTest#createTableNameCaseType_2#003]
+rule: _rules/table/table-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower case
+sql:
+create table test.abcTest(id int, name varchar) engine = test
+----------
+[ChRuleTableNameCaseTypeTest#createTableNameCaseType_2#004]
+rule: _rules/table/table-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower case
+sql:
+create table test.AbcTest(id int, name varchar) engine = test
+----------
+[ChRuleTableNameCaseTypeTest#createTableNameCaseType_3#001]
+rule: _rules/table/table-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower camel case
+sql:
+create table test.abc_test(id int, name varchar) engine = test
+----------
+[ChRuleTableNameCaseTypeTest#createTableNameCaseType_3#002]
+rule: _rules/table/table-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower camel case
+sql:
+create table test.ABC_TEST(id int, name varchar) engine = test
+----------
+[ChRuleTableNameCaseTypeTest#createTableNameCaseType_3#003]
+rule: _rules/table/table-name-case-type.rule
+expect: true
+vars:
+  caseType: Lower camel case
+sql:
+create table test.abcTest(id int, name varchar) engine = test
+----------
+[ChRuleTableNameCaseTypeTest#createTableNameCaseType_3#004]
+rule: _rules/table/table-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower camel case
+sql:
+create table test.AbcTest(id int, name varchar) engine = test
+----------
+[ChRuleTableNameCaseTypeTest#createTableNameCaseType_4#001]
+rule: _rules/table/table-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper camel case
+sql:
+create table test.abc_test(id int, name varchar) engine = test
+----------
+[ChRuleTableNameCaseTypeTest#createTableNameCaseType_4#002]
+rule: _rules/table/table-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper camel case
+sql:
+create table test.ABC_TEST(id int, name varchar) engine = test
+----------
+[ChRuleTableNameCaseTypeTest#createTableNameCaseType_4#003]
+rule: _rules/table/table-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper camel case
+sql:
+create table test.abcTest(id int, name varchar) engine = test
+----------
+[ChRuleTableNameCaseTypeTest#createTableNameCaseType_4#004]
+rule: _rules/table/table-name-case-type.rule
+expect: true
+vars:
+  caseType: Upper camel case
+sql:
+create table test.AbcTest(id int, name varchar) engine = test
+----------
+[ChRuleTableNameCaseTypeTest#renameTableNameCaseType_1#001]
+rule: _rules/table/table-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper case
+sql:
+rename table test.ABC_TEST to abc_test
+----------
+[ChRuleTableNameCaseTypeTest#renameTableNameCaseType_1#002]
+rule: _rules/table/table-name-case-type.rule
+expect: true
+vars:
+  caseType: Upper case
+sql:
+rename table test.ABC_TEST to ABC_TEST
+----------
+[ChRuleTableNameCaseTypeTest#renameTableNameCaseType_1#003]
+rule: _rules/table/table-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper case
+sql:
+rename table test.ABC_TEST to abcTest
+----------
+[ChRuleTableNameCaseTypeTest#renameTableNameCaseType_1#004]
+rule: _rules/table/table-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper case
+sql:
+rename table test.ABC_TEST to AbcTest
+----------
+[ChRuleTableNameCaseTypeTest#renameTableNameCaseType_2#001]
+rule: _rules/table/table-name-case-type.rule
+expect: true
+vars:
+  caseType: Lower case
+sql:
+rename table test.ABC_TEST to abc_test
+----------
+[ChRuleTableNameCaseTypeTest#renameTableNameCaseType_2#002]
+rule: _rules/table/table-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower case
+sql:
+rename table test.ABC_TEST to ABC_TEST
+----------
+[ChRuleTableNameCaseTypeTest#renameTableNameCaseType_2#003]
+rule: _rules/table/table-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower case
+sql:
+rename table test.ABC_TEST to abcTest
+----------
+[ChRuleTableNameCaseTypeTest#renameTableNameCaseType_2#004]
+rule: _rules/table/table-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower case
+sql:
+rename table test.ABC_TEST to AbcTest
+----------
+[ChRuleTableNameCaseTypeTest#renameTableNameCaseType_3#001]
+rule: _rules/table/table-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower camel case
+sql:
+rename table test.ABC_TEST to abc_test
+----------
+[ChRuleTableNameCaseTypeTest#renameTableNameCaseType_3#002]
+rule: _rules/table/table-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower camel case
+sql:
+rename table test.ABC_TEST to ABC_TEST
+----------
+[ChRuleTableNameCaseTypeTest#renameTableNameCaseType_3#003]
+rule: _rules/table/table-name-case-type.rule
+expect: true
+vars:
+  caseType: Lower camel case
+sql:
+rename table test.ABC_TEST to abcTest
+----------
+[ChRuleTableNameCaseTypeTest#renameTableNameCaseType_3#004]
+rule: _rules/table/table-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower camel case
+sql:
+rename table test.ABC_TEST to AbcTest
+----------
+[ChRuleTableNameCaseTypeTest#renameTableNameCaseType_4#001]
+rule: _rules/table/table-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper camel case
+sql:
+rename table test.ABC_TEST to abc_test
+----------
+[ChRuleTableNameCaseTypeTest#renameTableNameCaseType_4#002]
+rule: _rules/table/table-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper camel case
+sql:
+rename table test.ABC_TEST to ABC_TEST
+----------
+[ChRuleTableNameCaseTypeTest#renameTableNameCaseType_4#003]
+rule: _rules/table/table-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper camel case
+sql:
+rename table test.ABC_TEST to abcTest
+----------
+[ChRuleTableNameCaseTypeTest#renameTableNameCaseType_4#004]
+rule: _rules/table/table-name-case-type.rule
+expect: true
+vars:
+  caseType: Upper camel case
+sql:
+rename table test.ABC_TEST to AbcTest
+----------
+[ChRuleTableNameLengthTest#tableNameMaxLength_1#001]
+rule: _rules/table/table-name-length.rule
+expect: true
+vars:
+{}
+sql:
+create table test.a123456(r_int int) engine=InnoDB;
+----------
+[ChRuleTableNameLengthTest#tableNameMaxLength_1#002]
+rule: _rules/table/table-name-length.rule
+expect: true
+vars:
+{}
+sql:
+rename table `table` to a123456
+----------
+[ChRuleTableNameLengthTest#tableNameMaxLength_1#003]
+rule: _rules/table/table-name-length.rule
+expect: true
+vars:
+{}
+sql:
+rename table abc.`table` to a123456
+----------
+[ChRuleTableNameLengthTest#tableNameMaxLength_1#004]
+rule: _rules/table/table-name-length.rule
+expect: false
+vars:
+  length: 5
+sql:
+create table test.a123456(r_int int) engine = test;
+----------
+[ChRuleTableNameLengthTest#tableNameMaxLength_1#005]
+rule: _rules/table/table-name-length.rule
+expect: false
+vars:
+  length: 5
+sql:
+rename table `table` to a123456
+----------
+[ChRuleTableNeedColumnsTest#needColumns_1#001]
+rule: _rules/table/table-need-columns.rule
+expect: true
+vars:
+  columns: a,c
+sql:
+create table test.abc(a int,b int,c int,d int) engine = test
+----------
+[ChRuleTableNeedColumnsTest#needColumns_1#002]
+rule: _rules/table/table-need-columns.rule
+expect: false
+vars:
+  columns: a,c
+sql:
+create table test.abc(a int,b int,d int) engine = test
+----------
+[ChRuleTableNeedCommentTest#tableNeedComment_1#001]
+rule: _rules/table/table-need-comment.rule
+expect: false
+vars:
+{}
+sql:
+create table test.abc_test(id int) engine = test
+----------
+[ChRuleTableNeedCommentTest#tableNeedComment_1#002]
+rule: _rules/table/table-need-comment.rule
+expect: false
+vars:
+{}
+sql:
+create table test.abc_test(id int) engine = test comment '   '
+----------
+[ChRuleTableNeedCommentTest#tableNeedComment_1#003]
+rule: _rules/table/table-need-comment.rule
+expect: true
+vars:
+{}
+sql:
+create table test.abc_test(id int) engine = test comment 'abc'
+----------
+[ChRuleTableNeedCommentTest#tableNeedComment_1#004]
+rule: _rules/table/table-need-comment.rule
+expect: false
+vars:
+{}
+sql:
+alter table test.abc modify comment '';
+----------
+[ChRuleTableNeedCommentTest#tableNeedComment_1#005]
+rule: _rules/table/table-need-comment.rule
+expect: false
+vars:
+{}
+sql:
+alter table test.abc modify comment '   ';
+----------
+[ChRuleTableNeedCommentTest#tableNeedComment_1#006]
+rule: _rules/table/table-need-comment.rule
+expect: true
+vars:
+{}
+sql:
+alter table test.abc modify comment 'abc';
+----------
+[ChRuleTableNeedPrimaryTest#createTableMaxColumns_1#001]
+rule: _rules/table/table-need-primary.rule
+expect: true
+vars:
+{}
+sql:
+create table test.abc_test(id int(4), primary key(id))engine = test
+----------
+[ChRuleTableNeedPrimaryTest#createTableMaxColumns_1#002]
+rule: _rules/table/table-need-primary.rule
+expect: false
+vars:
+{}
+sql:
+create table test.abc_test(id int(4)) engine = test comment '   '
+----------
+[ChRuleTableNeedPrimaryTest#createTableMaxColumns_1#003]
+rule: _rules/table/table-need-primary.rule
+expect: true
+vars:
+{}
+sql:
+create table test.abc(id int(4), name varchar,primary key (id)) engine = test

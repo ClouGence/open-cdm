@@ -1,0 +1,72 @@
+[class_head]
+sql:
+create or replace class app.c_analysis as
+  id int;
+  member function get_value return int;
+end;
+/
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"CREATE_TYPE", "auditKind":"CREATE", "schema":"app", "name":"c_analysis"}
+  ]
+}
+----------
+[class_body_with_query]
+sql:
+create or replace class body app.c_analysis as
+  member function get_value return int as
+    v_value int;
+  begin
+    select max(id) into v_value from app.class_source;
+    return v_value;
+  end;
+end;
+/
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"CREATE_TYPE", "auditKind":"CREATE", "schema":"app", "name":"c_analysis"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"class_source"}
+  ]
+}
+----------
+[type_head]
+sql:
+create or replace type app.t_analysis as object(
+  value int,
+  member function get_value return int
+);
+/
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"CREATE_TYPE", "auditKind":"CREATE", "schema":"app", "name":"t_analysis"}
+  ]
+}
+----------
+[type_body]
+sql:
+create or replace type body app.t_analysis as
+  member function get_value return int is
+  begin
+    return value;
+  end;
+end;
+/
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"CREATE_TYPE", "auditKind":"CREATE", "schema":"app", "name":"t_analysis"}
+  ]
+}
+----------
+[is_of_type_query]
+sql:
+select id from app.type_source where value is not of type(app.t_analysis);
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"type_source"}
+  ]
+}

@@ -1,0 +1,49 @@
+[alter_add_column]
+sql:
+alter table [dbo].[user_table] add [address] varchar(255);
+expect:
+{
+  "contains": [
+    {"class":"MsTableDomain", "sqlType": "ALTER_TABLE", "auditKind":"ALTER", "schema":"dbo", "table":"user_table"}
+  ]
+}
+----------
+[alter_add_primary_key_column]
+sql:
+alter table user_table add address varchar(255) primary key;
+expect:
+{
+  "contains": [
+    {"class":"MsTableDomain", "sqlType": "ALTER_TABLE", "auditKind":"ALTER", "table":"user_table"}
+  ]
+}
+----------
+[alter_add_foreign_key_column]
+sql:
+alter table user_table add address int references abc(id2);
+expect:
+{
+  "contains": [
+    {"class":"MsTableDomain", "sqlType": "ALTER_TABLE", "auditKind":"ALTER", "table":"user_table"}
+  ]
+}
+----------
+[alter_drop_column]
+sql:
+alter table user_table drop column address;
+expect:
+{
+  "contains": [
+    {"class":"MsTableDomain", "sqlType": "ALTER_TABLE", "auditKind":"ALTER", "table":"user_table"}
+  ]
+}
+----------
+[alter_column]
+sql:
+alter table test alter column a1 char(10);
+expect:
+{
+  "contains": [
+    {"class":"MsTableDomain", "sqlType": "ALTER_TABLE", "auditKind":"ALTER", "table":"test"}
+  ]
+}

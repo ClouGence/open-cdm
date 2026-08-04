@@ -1,0 +1,366 @@
+[split_dql_dameng_encryption_packages_dbms_crypto_0_001]
+sql:
+select dbms_crypto.hash(cast('74696765727469676572746967657274' as varbinary(128)), dbms_crypto.hash_md5);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:23) /test/1/catalog1/dbms_crypto/hash/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_encryption_packages_dbms_crypto_0_002]
+sql:
+select dbms_crypto.hash(cast('74696765727469676572746967657274' as varbinary(128)), dbms_crypto.hash_sh1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:23) /test/1/catalog1/dbms_crypto/hash/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_encryption_packages_dbms_crypto_0_003]
+sql:
+select dbms_crypto.hash(cast('74696765727469676572746967657274' as varbinary(128)), dbms_crypto.hash_sh256);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:23) /test/1/catalog1/dbms_crypto/hash/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_encryption_packages_dbms_crypto_0_004]
+sql:
+select dbms_crypto.hash(cast('74696765727469676572746967657274' as varbinary(128)), dbms_crypto.hash_sh384);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:23) /test/1/catalog1/dbms_crypto/hash/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_encryption_packages_dbms_crypto_0_005]
+sql:
+select dbms_crypto.hash(cast('74696765727469676572746967657274' as varbinary(128)), dbms_crypto.hash_sh512);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:23) /test/1/catalog1/dbms_crypto/hash/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_encryption_packages_dbms_crypto_0_006]
+sql:
+select dbms_crypto.hash(cast(null as varbinary(128)), dbms_crypto.hash_md5);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:23) /test/1/catalog1/dbms_crypto/hash/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_encryption_packages_dbms_crypto_0_007]
+sql:
+select dbms_crypto.decrypt(dbms_crypto.encrypt(cast('444D313233343536' as varbinary(128)), dbms_crypto.encrypt_des + dbms_crypto.chain_ecb + dbms_crypto.pad_none, cast('50415353574F5244' as varbinary(128))), dbms_crypto.encrypt_des + dbms_crypto.chain_ecb + dbms_crypto.pad_none, cast('50415353574F5244' as varbinary(128)));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:26) /test/1/catalog1/dbms_crypto/decrypt/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:27~1:46) /test/1/catalog1/dbms_crypto/encrypt/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_encryption_packages_dbms_crypto_0_008]
+sql:
+select dbms_crypto.decrypt(dbms_crypto.encrypt(cast('444D31323334' as varbinary(128)), dbms_crypto.encrypt_des + dbms_crypto.chain_ecb + dbms_crypto.pad_pkcs5, cast('50415353574F5244' as varbinary(128))), dbms_crypto.encrypt_des + dbms_crypto.chain_ecb + dbms_crypto.pad_pkcs5, cast('50415353574F5244' as varbinary(128)));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:26) /test/1/catalog1/dbms_crypto/decrypt/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:27~1:46) /test/1/catalog1/dbms_crypto/encrypt/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_encryption_packages_dbms_crypto_0_009]
+sql:
+select dbms_crypto.decrypt(dbms_crypto.encrypt(cast('444D313233343536' as varbinary(128)), dbms_crypto.encrypt_3des + dbms_crypto.chain_ecb + dbms_crypto.pad_none, cast('50415353574F524450415353574F524450415353574F5244' as varbinary(128))), dbms_crypto.encrypt_3des + dbms_crypto.chain_ecb + dbms_crypto.pad_none, cast('50415353574F524450415353574F524450415353574F5244' as varbinary(128)));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:26) /test/1/catalog1/dbms_crypto/decrypt/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:27~1:46) /test/1/catalog1/dbms_crypto/encrypt/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_encryption_packages_dbms_crypto_0_010]
+sql:
+select dbms_crypto.decrypt(dbms_crypto.encrypt(cast('444D313233343536' as varbinary(128)), dbms_crypto.encrypt_3des_2key + dbms_crypto.chain_ecb + dbms_crypto.pad_none, cast('50415353574F524450415353574F5244' as varbinary(128))), dbms_crypto.encrypt_3des_2key + dbms_crypto.chain_ecb + dbms_crypto.pad_none, cast('50415353574F524450415353574F5244' as varbinary(128)));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:26) /test/1/catalog1/dbms_crypto/decrypt/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:27~1:46) /test/1/catalog1/dbms_crypto/encrypt/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_encryption_packages_dbms_crypto_0_011]
+sql:
+select dbms_crypto.decrypt(dbms_crypto.encrypt(cast('444D313233343536444D313233343536' as varbinary(128)), dbms_crypto.encrypt_aes128 + dbms_crypto.chain_ecb + dbms_crypto.pad_none, cast('00112233445566778899AABBCCDDEEFF' as varbinary(128))), dbms_crypto.encrypt_aes128 + dbms_crypto.chain_ecb + dbms_crypto.pad_none, cast('00112233445566778899AABBCCDDEEFF' as varbinary(128)));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:26) /test/1/catalog1/dbms_crypto/decrypt/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:27~1:46) /test/1/catalog1/dbms_crypto/encrypt/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_encryption_packages_dbms_crypto_0_012]
+sql:
+select dbms_crypto.decrypt(dbms_crypto.encrypt(cast('444D313233343536444D313233343536' as varbinary(128)), dbms_crypto.encrypt_aes192 + dbms_crypto.chain_ecb + dbms_crypto.pad_none, cast('00112233445566778899AABBCCDDEEFF0011223344556677' as varbinary(128))), dbms_crypto.encrypt_aes192 + dbms_crypto.chain_ecb + dbms_crypto.pad_none, cast('00112233445566778899AABBCCDDEEFF0011223344556677' as varbinary(128)));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:26) /test/1/catalog1/dbms_crypto/decrypt/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:27~1:46) /test/1/catalog1/dbms_crypto/encrypt/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_encryption_packages_dbms_crypto_0_013]
+sql:
+select dbms_crypto.decrypt(dbms_crypto.encrypt(cast('444D313233343536444D313233343536' as varbinary(128)), dbms_crypto.encrypt_aes256 + dbms_crypto.chain_ecb + dbms_crypto.pad_none, cast('00112233445566778899AABBCCDDEEFF00112233445566778899AABBCCDDEEFF' as varbinary(128))), dbms_crypto.encrypt_aes256 + dbms_crypto.chain_ecb + dbms_crypto.pad_none, cast('00112233445566778899AABBCCDDEEFF00112233445566778899AABBCCDDEEFF' as varbinary(128)));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:26) /test/1/catalog1/dbms_crypto/decrypt/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:27~1:46) /test/1/catalog1/dbms_crypto/encrypt/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_encryption_packages_dbms_crypto_0_014]
+sql:
+select dbms_crypto.decrypt(dbms_crypto.encrypt(cast('444D313233343536' as varbinary(128)), dbms_crypto.encrypt_rc4, cast('00112233445566778899AABBCCDDEEFF' as varbinary(128))), dbms_crypto.encrypt_rc4, cast('00112233445566778899AABBCCDDEEFF' as varbinary(128)));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:26) /test/1/catalog1/dbms_crypto/decrypt/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:27~1:46) /test/1/catalog1/dbms_crypto/encrypt/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_encryption_packages_dbms_crypto_0_015]
+sql:
+select dbms_crypto.decrypt(dbms_crypto.encrypt(cast('444D313233343536444D313233343536' as varbinary(128)), dbms_crypto.encrypt_aes128 + dbms_crypto.chain_cbc + dbms_crypto.pad_none, cast('00112233445566778899AABBCCDDEEFF' as varbinary(128)), cast('0102030405060708090A0B0C0D0E0F10' as varbinary(128))), dbms_crypto.encrypt_aes128 + dbms_crypto.chain_cbc + dbms_crypto.pad_none, cast('00112233445566778899AABBCCDDEEFF' as varbinary(128)), cast('0102030405060708090A0B0C0D0E0F10' as varbinary(128)));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:26) /test/1/catalog1/dbms_crypto/decrypt/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:27~1:46) /test/1/catalog1/dbms_crypto/encrypt/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_encryption_packages_dbms_crypto_0_016]
+sql:
+select dbms_crypto.decrypt(dbms_crypto.encrypt(cast('444D313233343536444D313233343536' as varbinary(128)), dbms_crypto.encrypt_aes128 + dbms_crypto.chain_cfb + dbms_crypto.pad_none, cast('00112233445566778899AABBCCDDEEFF' as varbinary(128)), cast('0102030405060708090A0B0C0D0E0F10' as varbinary(128))), dbms_crypto.encrypt_aes128 + dbms_crypto.chain_cfb + dbms_crypto.pad_none, cast('00112233445566778899AABBCCDDEEFF' as varbinary(128)), cast('0102030405060708090A0B0C0D0E0F10' as varbinary(128)));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:26) /test/1/catalog1/dbms_crypto/decrypt/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:27~1:46) /test/1/catalog1/dbms_crypto/encrypt/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_encryption_packages_dbms_crypto_0_017]
+sql:
+select dbms_crypto.decrypt(dbms_crypto.encrypt(cast('444D313233343536444D313233343536' as varbinary(128)), dbms_crypto.encrypt_aes128 + dbms_crypto.chain_ofb + dbms_crypto.pad_none, cast('00112233445566778899AABBCCDDEEFF' as varbinary(128)), cast('0102030405060708090A0B0C0D0E0F10' as varbinary(128))), dbms_crypto.encrypt_aes128 + dbms_crypto.chain_ofb + dbms_crypto.pad_none, cast('00112233445566778899AABBCCDDEEFF' as varbinary(128)), cast('0102030405060708090A0B0C0D0E0F10' as varbinary(128)));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:26) /test/1/catalog1/dbms_crypto/decrypt/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:27~1:46) /test/1/catalog1/dbms_crypto/encrypt/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_encryption_packages_dbms_crypto_0_018]
+sql:
+select dbms_crypto.decrypt(src => dbms_crypto.encrypt(src => cast('444D313233343536' as varbinary(128)), typ => dbms_crypto.encrypt_des + dbms_crypto.chain_ecb + dbms_crypto.pad_none, key => cast('50415353574F5244' as varbinary(128))), typ => dbms_crypto.encrypt_des + dbms_crypto.chain_ecb + dbms_crypto.pad_none, key => cast('50415353574F5244' as varbinary(128)));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:26) /test/1/catalog1/dbms_crypto/decrypt/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:34~1:53) /test/1/catalog1/dbms_crypto/encrypt/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_encryption_packages_dbms_crypto_0_019]
+sql:
+select dbms_crypto.decrypt(dbms_crypto.encrypt(cast(null as varbinary(128)), dbms_crypto.encrypt_des + dbms_crypto.chain_ecb + dbms_crypto.pad_none, cast('50415353574F5244' as varbinary(128))), dbms_crypto.encrypt_des + dbms_crypto.chain_ecb + dbms_crypto.pad_none, cast('50415353574F5244' as varbinary(128)));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:26) /test/1/catalog1/dbms_crypto/decrypt/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:27~1:46) /test/1/catalog1/dbms_crypto/encrypt/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_encryption_packages_dbms_crypto_0_020]
+sql:
+select dbms_crypto.hash(cast('CODEX_CLOB_HASH' as clob), dbms_crypto.hash_sh256);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:23) /test/1/catalog1/dbms_crypto/hash/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_encryption_packages_dbms_crypto_0_021]
+sql:
+select dbms_crypto.hash(cast('434F4445585F424C4F425F48415348' as blob), dbms_crypto.hash_sh512);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:23) /test/1/catalog1/dbms_crypto/hash/",
+      "action": "CALL"
+    }
+  ]
+}

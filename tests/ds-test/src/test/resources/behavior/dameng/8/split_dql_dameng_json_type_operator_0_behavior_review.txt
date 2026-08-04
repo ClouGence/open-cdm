@@ -1,0 +1,589 @@
+[split_dql_dameng_json_type_operator_0_behavior_review_001]
+sql:
+SELECT JSON_TYPE(DOC) AS JSON_KIND FROM JSON_STRICT ORDER BY ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/JSON_TYPE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:40~1:51) /test/1/catalog1/schema1/JSON_STRICT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_type_operator_0_behavior_review_002]
+sql:
+SELECT DOC::JSON->'a' AS A_VALUE FROM JSON_LAX;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Operator(1:16~1:18) /test/1/catalog1/schema1/->/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:38~1:46) /test/1/catalog1/schema1/JSON_LAX/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_type_operator_0_behavior_review_003]
+sql:
+SELECT JSON_QUERY(DOC, '$' WITH WRAPPER) AS WRAPPED_DOC FROM JSON_UNIQUE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/JSON_QUERY/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:61~1:72) /test/1/catalog1/schema1/JSON_UNIQUE/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_type_operator_0_behavior_review_004]
+sql:
+SELECT ID FROM JSON_STRICT WHERE DOC IS JSON(STRICT) ORDER BY ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:15~1:26) /test/1/catalog1/schema1/JSON_STRICT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_type_operator_0_behavior_review_005]
+sql:
+SELECT ID FROM JSON_LAX WHERE DOC IS JSON(LAX);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:15~1:23) /test/1/catalog1/schema1/JSON_LAX/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_type_operator_0_behavior_review_006]
+sql:
+SELECT ID FROM JSON_NONUNIQUE WHERE DOC IS JSON WITHOUT UNIQUE KEYS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:15~1:29) /test/1/catalog1/schema1/JSON_NONUNIQUE/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_type_operator_0_behavior_review_007]
+sql:
+SELECT ID FROM JSON_UNIQUE WHERE DOC IS JSON WITH UNIQUE KEYS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:15~1:26) /test/1/catalog1/schema1/JSON_UNIQUE/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_type_operator_0_behavior_review_008]
+sql:
+SELECT ID FROM JSON_LONG WHERE DOC IS NOT JSON;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:15~1:24) /test/1/catalog1/schema1/JSON_LONG/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_type_operator_0_behavior_review_009]
+sql:
+SELECT TABLE_NAME, COLUMN_NAME, FORMAT, DATA_TYPE FROM USER_JSON_COLUMNS ORDER BY TABLE_NAME;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:55~1:72) /test/1/catalog1/schema1/USER_JSON_COLUMNS/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_type_operator_0_behavior_review_010]
+sql:
+SELECT JSON_EXTRACT('{"a":[1,2]}', '$.a[1]');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/JSON_EXTRACT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_type_operator_0_behavior_review_011]
+sql:
+SELECT JSON_UNQUOTE('"a\\tb"');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/JSON_UNQUOTE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_type_operator_0_behavior_review_012]
+sql:
+SELECT * FROM JSON_OBJECT_KEYS('{"b":2,"a":1}');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:14~1:30) /test/1/catalog1/schema1/JSON_OBJECT_KEYS/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_type_operator_0_behavior_review_013]
+sql:
+SELECT * FROM JSONB_EACH('{"a":1,"b":"x\\ty"}');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:14~1:24) /test/1/catalog1/schema1/JSONB_EACH/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_type_operator_0_behavior_review_014]
+sql:
+SELECT * FROM JSONB_EACH_TEXT('{"a":1,"b":"x\\ty"}');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:14~1:29) /test/1/catalog1/schema1/JSONB_EACH_TEXT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_type_operator_0_behavior_review_015]
+sql:
+SELECT * FROM JSONB_ARRAY_ELEMENTS('[1,true,null,"x\\ty"]');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:14~1:34) /test/1/catalog1/schema1/JSONB_ARRAY_ELEMENTS/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_type_operator_0_behavior_review_016]
+sql:
+SELECT * FROM JSONB_ARRAY_ELEMENTS_TEXT('[1,true,null,"x\\ty"]');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:14~1:39) /test/1/catalog1/schema1/JSONB_ARRAY_ELEMENTS_TEXT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_type_operator_0_behavior_review_017]
+sql:
+SELECT JSONB_STRIP_NULLS('[null,{"a":null,"b":1}]');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:24) /test/1/catalog1/schema1/JSONB_STRIP_NULLS/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_type_operator_0_behavior_review_018]
+sql:
+SELECT JSONB_STRIP_NULLS(NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:24) /test/1/catalog1/schema1/JSONB_STRIP_NULLS/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_type_operator_0_behavior_review_019]
+sql:
+SELECT JSONB_BUILD_OBJECT('a',1,'b',true,'c',NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:25) /test/1/catalog1/schema1/JSONB_BUILD_OBJECT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_type_operator_0_behavior_review_020]
+sql:
+SELECT JSONB_BUILD_ARRAY(1,'a',true,NULL,'{"x":1}'::JSONB);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:24) /test/1/catalog1/schema1/JSONB_BUILD_ARRAY/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_type_operator_0_behavior_review_021]
+sql:
+SELECT JSONB_AGG(ID) FROM (SELECT ID FROM JSON_STRICT ORDER BY ID);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/JSONB_AGG/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:42~1:53) /test/1/catalog1/schema1/JSON_STRICT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_type_operator_0_behavior_review_022]
+sql:
+SELECT JSONB_OBJECT_AGG(CAST(ID AS VARCHAR), DOC) FROM JSON_STRICT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:23) /test/1/catalog1/schema1/JSONB_OBJECT_AGG/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:55~1:66) /test/1/catalog1/schema1/JSON_STRICT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_type_operator_0_behavior_review_023]
+sql:
+SELECT JSONB_TYPEOF('"text"');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/JSONB_TYPEOF/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_type_operator_0_behavior_review_024]
+sql:
+SELECT JSONB_TYPEOF('1');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/JSONB_TYPEOF/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_type_operator_0_behavior_review_025]
+sql:
+SELECT JSONB_TYPEOF('true');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/JSONB_TYPEOF/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_type_operator_0_behavior_review_026]
+sql:
+SELECT JSONB_TYPEOF('null');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/JSONB_TYPEOF/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_type_operator_0_behavior_review_027]
+sql:
+SELECT JSONB_TYPEOF('{}');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/JSONB_TYPEOF/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_type_operator_0_behavior_review_028]
+sql:
+SELECT JSONB_TYPEOF('[]');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/JSONB_TYPEOF/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_type_operator_0_behavior_review_029]
+sql:
+SELECT '[1,true,"abc"]'::JSON->0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Operator(1:29~1:31) /test/1/catalog1/schema1/->/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_type_operator_0_behavior_review_030]
+sql:
+SELECT '{"a":"bcd","e":[1,2,3]}'::JSON->'e';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Operator(1:38~1:40) /test/1/catalog1/schema1/->/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_type_operator_0_behavior_review_031]
+sql:
+SELECT '[1,true,"abc"]'::JSONB->>2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Operator(1:30~1:33) /test/1/catalog1/schema1/->>/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_type_operator_0_behavior_review_032]
+sql:
+SELECT '{"a":"bcd","e":[1,2,3]}'::JSONB->>'a';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Operator(1:39~1:42) /test/1/catalog1/schema1/->>/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_type_operator_0_behavior_review_033]
+sql:
+SELECT '{"a":1,"b":2}'::JSONB-'a';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Operator(1:29~1:30) /test/1/catalog1/schema1/-/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_type_operator_0_behavior_review_034]
+sql:
+SELECT '[1,{"a":1},"c"]'::JSONB-1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Operator(1:31~1:32) /test/1/catalog1/schema1/-/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_type_operator_0_behavior_review_035]
+sql:
+SELECT '[1,{"a":1},"c"]'::JSONB-'a';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Operator(1:31~1:32) /test/1/catalog1/schema1/-/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_type_operator_0_behavior_review_036]
+sql:
+SELECT '{"a":1}'::JSONB-NULL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Operator(1:23~1:24) /test/1/catalog1/schema1/-/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_type_operator_0_behavior_review_037]
+sql:
+SELECT '{"a":1,"b":2}'::JSONB @> '{"b":2}'::JSONB;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Operator(1:30~1:32) /test/1/catalog1/schema1/@>/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_json_type_operator_0_behavior_review_038]
+sql:
+SELECT '{"a":1,"b":2}'::JSONB @> '{"b":2,"b":2}';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Operator(1:30~1:32) /test/1/catalog1/schema1/@>/",
+      "action": "CALL"
+    }
+  ]
+}

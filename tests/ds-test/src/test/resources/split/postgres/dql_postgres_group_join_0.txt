@@ -1,0 +1,49 @@
+SELECT k, count(*) AS n
+FROM (VALUES ('a'), ('a'), ('b')) AS t(k)
+GROUP BY ALL k
+ORDER BY k;
+SELECT k, GROUPING(k, bucket) AS grp_id, bucket, count(*) AS n
+FROM (VALUES ('a', 1), ('a', 2), ('b', 1)) AS t(k, bucket)
+GROUP BY DISTINCT GROUPING SETS ((k), (k, bucket), (k))
+ORDER BY k NULLS LAST, bucket NULLS LAST, grp_id;
+SELECT k, bucket, count(*) AS n
+FROM (VALUES ('a', 1), ('a', 2), ('b', 1)) AS t(k, bucket)
+GROUP BY ALL ROLLUP (k, bucket)
+ORDER BY k NULLS LAST, bucket NULLS LAST;
+SELECT joined.id, l.left_val, r.right_val
+FROM (VALUES (1, 'left'), (2, 'missing')) AS l(id, left_val)
+JOIN (VALUES (1, 'right'), (3, 'extra')) AS r(id, right_val)
+USING (id) AS joined
+ORDER BY joined.id;
+SELECT pair.id, pair.code, l.left_val, r.right_val
+FROM (VALUES (1, 'x', 'left')) AS l(id, code, left_val)
+LEFT JOIN (VALUES (1, 'x', 'right'), (1, 'y', 'other')) AS r(id, code, right_val)
+USING (id, code) AS pair
+WHERE pair.code = 'x';
+------------------------------------------------------------------------------------------
+[SELECT] SELECT k, count(*) AS n
+FROM (VALUES ('a'), ('a'), ('b')) AS t(k)
+GROUP BY ALL k
+ORDER BY k;
+----------
+[SELECT] SELECT k, GROUPING(k, bucket) AS grp_id, bucket, count(*) AS n
+FROM (VALUES ('a', 1), ('a', 2), ('b', 1)) AS t(k, bucket)
+GROUP BY DISTINCT GROUPING SETS ((k), (k, bucket), (k))
+ORDER BY k NULLS LAST, bucket NULLS LAST, grp_id;
+----------
+[SELECT] SELECT k, bucket, count(*) AS n
+FROM (VALUES ('a', 1), ('a', 2), ('b', 1)) AS t(k, bucket)
+GROUP BY ALL ROLLUP (k, bucket)
+ORDER BY k NULLS LAST, bucket NULLS LAST;
+----------
+[SELECT] SELECT joined.id, l.left_val, r.right_val
+FROM (VALUES (1, 'left'), (2, 'missing')) AS l(id, left_val)
+JOIN (VALUES (1, 'right'), (3, 'extra')) AS r(id, right_val)
+USING (id) AS joined
+ORDER BY joined.id;
+----------
+[SELECT] SELECT pair.id, pair.code, l.left_val, r.right_val
+FROM (VALUES (1, 'x', 'left')) AS l(id, code, left_val)
+LEFT JOIN (VALUES (1, 'x', 'right'), (1, 'y', 'other')) AS r(id, code, right_val)
+USING (id, code) AS pair
+WHERE pair.code = 'x';

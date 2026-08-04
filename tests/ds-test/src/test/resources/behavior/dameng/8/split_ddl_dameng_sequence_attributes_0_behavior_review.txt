@@ -1,0 +1,462 @@
+[split_ddl_dameng_sequence_attributes_0_001_behavior_review]
+sql:
+CREATE SEQUENCE CODEX_DM8_SEQ_I64_UP START WITH 0 INCREMENT BY 9223372036854775807 MINVALUE 0 MAXVALUE 9223372036854775807 NOCYCLE NOCACHE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SEQUENCE": [
+    {
+      "subject": "Sequence(1:16~1:36) /test/1/catalog1/schema1/CODEX_DM8_SEQ_I64_UP/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_attributes_0_002_behavior_review]
+sql:
+SELECT SEQUENCE_NAME,MIN_VALUE,MAX_VALUE,INCREMENT_BY,CACHE_SIZE FROM USER_SEQUENCES WHERE SEQUENCE_NAME='CODEX_DM8_SEQ_I64_UP';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:70~1:84) /test/1/catalog1/schema1/USER_SEQUENCES/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_attributes_0_003_behavior_review]
+sql:
+SELECT CODEX_DM8_SEQ_I64_UP.NEXTVAL FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Sequence(1:7~1:27) /test/1/catalog1/schema1/CODEX_DM8_SEQ_I64_UP/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:41~1:45) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_attributes_0_004_behavior_review]
+sql:
+SELECT CODEX_DM8_SEQ_I64_UP.NEXTVAL FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Sequence(1:7~1:27) /test/1/catalog1/schema1/CODEX_DM8_SEQ_I64_UP/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:41~1:45) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_attributes_0_005_behavior_review]
+sql:
+DROP SEQUENCE CODEX_DM8_SEQ_I64_UP;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SEQUENCE": [
+    {
+      "subject": "Sequence(1:14~1:34) /test/1/catalog1/schema1/CODEX_DM8_SEQ_I64_UP/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_attributes_0_006_behavior_review]
+sql:
+CREATE SEQUENCE CODEX_DM8_SEQ_I64_DOWN START WITH 0 INCREMENT BY -9223372036854775807 MINVALUE -9223372036854775807 MAXVALUE 0 NOCYCLE NOCACHE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SEQUENCE": [
+    {
+      "subject": "Sequence(1:16~1:38) /test/1/catalog1/schema1/CODEX_DM8_SEQ_I64_DOWN/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_attributes_0_007_behavior_review]
+sql:
+SELECT SEQUENCE_NAME,MIN_VALUE,MAX_VALUE,INCREMENT_BY,CACHE_SIZE FROM USER_SEQUENCES WHERE SEQUENCE_NAME='CODEX_DM8_SEQ_I64_DOWN';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:70~1:84) /test/1/catalog1/schema1/USER_SEQUENCES/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_attributes_0_008_behavior_review]
+sql:
+SELECT CODEX_DM8_SEQ_I64_DOWN.NEXTVAL FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Sequence(1:7~1:29) /test/1/catalog1/schema1/CODEX_DM8_SEQ_I64_DOWN/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:43~1:47) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_attributes_0_009_behavior_review]
+sql:
+SELECT CODEX_DM8_SEQ_I64_DOWN.NEXTVAL FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Sequence(1:7~1:29) /test/1/catalog1/schema1/CODEX_DM8_SEQ_I64_DOWN/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:43~1:47) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_attributes_0_010_behavior_review]
+sql:
+DROP SEQUENCE CODEX_DM8_SEQ_I64_DOWN;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SEQUENCE": [
+    {
+      "subject": "Sequence(1:14~1:36) /test/1/catalog1/schema1/CODEX_DM8_SEQ_I64_DOWN/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_attributes_0_011_behavior_review]
+sql:
+CREATE SEQUENCE CODEX_DM8_SEQ_EXTENDED_BOUNDS START WITH 1 MINVALUE -9223372036854775809 MAXVALUE 9223372036854775808 NOCYCLE NOCACHE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SEQUENCE": [
+    {
+      "subject": "Sequence(1:16~1:45) /test/1/catalog1/schema1/CODEX_DM8_SEQ_EXTENDED_BOUNDS/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_attributes_0_012_behavior_review]
+sql:
+SELECT SEQUENCE_NAME,MIN_VALUE,MAX_VALUE,INCREMENT_BY FROM USER_SEQUENCES WHERE SEQUENCE_NAME='CODEX_DM8_SEQ_EXTENDED_BOUNDS';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:59~1:73) /test/1/catalog1/schema1/USER_SEQUENCES/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_attributes_0_013_behavior_review]
+sql:
+DROP SEQUENCE CODEX_DM8_SEQ_EXTENDED_BOUNDS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SEQUENCE": [
+    {
+      "subject": "Sequence(1:14~1:43) /test/1/catalog1/schema1/CODEX_DM8_SEQ_EXTENDED_BOUNDS/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_attributes_0_014_behavior_review]
+sql:
+CREATE SEQUENCE CODEX_DM8_SEQ_LOCAL_EDGE LOCAL START WITH 0 MINVALUE -9007199254740992 MAXVALUE 9007199254740991 INCREMENT BY 1 NOCYCLE NOCACHE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SEQUENCE": [
+    {
+      "subject": "Sequence(1:16~1:40) /test/1/catalog1/schema1/CODEX_DM8_SEQ_LOCAL_EDGE/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_attributes_0_015_behavior_review]
+sql:
+SELECT SEQUENCE_NAME,MIN_VALUE,MAX_VALUE,INCREMENT_BY FROM USER_SEQUENCES WHERE SEQUENCE_NAME='CODEX_DM8_SEQ_LOCAL_EDGE';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:59~1:73) /test/1/catalog1/schema1/USER_SEQUENCES/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_attributes_0_016_behavior_review]
+sql:
+DROP SEQUENCE CODEX_DM8_SEQ_LOCAL_EDGE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SEQUENCE": [
+    {
+      "subject": "Sequence(1:14~1:38) /test/1/catalog1/schema1/CODEX_DM8_SEQ_LOCAL_EDGE/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_attributes_0_017_behavior_review]
+sql:
+CREATE SEQUENCE CODEX_DM8_SEQ_CURRENT_EDGE START WITH 0 MINVALUE -5 MAXVALUE 5 INCREMENT BY 1 NOCYCLE NOCACHE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SEQUENCE": [
+    {
+      "subject": "Sequence(1:16~1:42) /test/1/catalog1/schema1/CODEX_DM8_SEQ_CURRENT_EDGE/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_attributes_0_018_behavior_review]
+sql:
+ALTER SEQUENCE CODEX_DM8_SEQ_CURRENT_EDGE CURRENT VALUE -5;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_SEQUENCE": [
+    {
+      "subject": "Sequence(1:15~1:41) /test/1/catalog1/schema1/CODEX_DM8_SEQ_CURRENT_EDGE/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_attributes_0_019_behavior_review]
+sql:
+SELECT CODEX_DM8_SEQ_CURRENT_EDGE.NEXTVAL FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Sequence(1:7~1:33) /test/1/catalog1/schema1/CODEX_DM8_SEQ_CURRENT_EDGE/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:47~1:51) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_attributes_0_020_behavior_review]
+sql:
+ALTER SEQUENCE CODEX_DM8_SEQ_CURRENT_EDGE CURRENT VALUE 5;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_SEQUENCE": [
+    {
+      "subject": "Sequence(1:15~1:41) /test/1/catalog1/schema1/CODEX_DM8_SEQ_CURRENT_EDGE/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_attributes_0_021_behavior_review]
+sql:
+SELECT CODEX_DM8_SEQ_CURRENT_EDGE.NEXTVAL FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Sequence(1:7~1:33) /test/1/catalog1/schema1/CODEX_DM8_SEQ_CURRENT_EDGE/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:47~1:51) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_attributes_0_022_behavior_review]
+sql:
+SELECT SEQUENCE_NAME,MIN_VALUE,MAX_VALUE,INCREMENT_BY FROM USER_SEQUENCES WHERE SEQUENCE_NAME='CODEX_DM8_SEQ_CURRENT_EDGE';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:59~1:73) /test/1/catalog1/schema1/USER_SEQUENCES/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_attributes_0_023_behavior_review]
+sql:
+DROP SEQUENCE CODEX_DM8_SEQ_CURRENT_EDGE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SEQUENCE": [
+    {
+      "subject": "Sequence(1:14~1:40) /test/1/catalog1/schema1/CODEX_DM8_SEQ_CURRENT_EDGE/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_attributes_0_024_behavior_review]
+sql:
+CREATE SEQUENCE CODEX_DM8_SEQ_CACHE_I32_MAX CACHE 2147483647;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SEQUENCE": [
+    {
+      "subject": "Sequence(1:16~1:43) /test/1/catalog1/schema1/CODEX_DM8_SEQ_CACHE_I32_MAX/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_attributes_0_025_behavior_review]
+sql:
+SELECT SEQUENCE_NAME,CACHE_SIZE FROM USER_SEQUENCES WHERE SEQUENCE_NAME='CODEX_DM8_SEQ_CACHE_I32_MAX';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:37~1:51) /test/1/catalog1/schema1/USER_SEQUENCES/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_attributes_0_026_behavior_review]
+sql:
+DROP SEQUENCE CODEX_DM8_SEQ_CACHE_I32_MAX;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SEQUENCE": [
+    {
+      "subject": "Sequence(1:14~1:41) /test/1/catalog1/schema1/CODEX_DM8_SEQ_CACHE_I32_MAX/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_attributes_0_027_behavior_review]
+sql:
+CREATE SEQUENCE SAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SEQUENCE": [
+    {
+      "subject": "Sequence(1:16~1:144) /test/1/catalog1/schema1/SAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_attributes_0_028_behavior_review]
+sql:
+SELECT SEQUENCE_NAME,LENGTHB(SEQUENCE_NAME) AS NAME_BYTES FROM USER_SEQUENCES WHERE SEQUENCE_NAME='SAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:21~1:28) /test/1/catalog1/schema1/LENGTHB/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "View(1:63~1:77) /test/1/catalog1/schema1/USER_SEQUENCES/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_attributes_0_029_behavior_review]
+sql:
+DROP SEQUENCE SAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SEQUENCE": [
+    {
+      "subject": "Sequence(1:14~1:142) /test/1/catalog1/schema1/SAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/",
+      "action" : "DROP"
+    }
+  ]
+}

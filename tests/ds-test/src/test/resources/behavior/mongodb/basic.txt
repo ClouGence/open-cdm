@@ -1,0 +1,44 @@
+[find_collection]
+sql:
+db.users.find({})
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:3~1:8) /test/1/schema1/users/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[insert_collection]
+sql:
+db.users.insertOne({name: "A"})
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:3~1:8) /test/1/schema1/users/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[show_collections]
+sql:
+show collections
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Schema(1:0~1:16) /test/1/schema1/",
+      "action" : "READ"
+    }
+  ]
+}

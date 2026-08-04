@@ -1,0 +1,42 @@
+create link "LBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB" connect 'DPI' with U identified by P using 'x';
+create link CODEX_DM8_LINK_ATTR_DUP connect 'DPI' with U identified by P using 'x';
+drop link CODEX_DM8_LINK_ATTR_MISSING;
+create link CODEX_DM8_LINK_BAD_TYPE connect 'POSTGRES' with U identified by P using 'x';
+create link CODEX_DM8_LINK_BAD_LOCAL connect 'ODBC' with U identified by P using 'x' option(LOCAL_CODE='LATIN1');
+create link CODEX_DM8_LINK_BAD_CONVERT connect 'ODBC' with U identified by P using 'x' option(CONVERT_MODE=2);
+create link CODEX_DM8_LINK_BAD_BYTES_ZERO connect 'ODBC' with U identified by P using 'x' option(BYTES_IN_CHAR=0);
+create link CODEX_DM8_LINK_BAD_BYTES_HIGH connect 'ODBC' with U identified by P using 'x' option(BYTES_IN_CHAR=2147483648);
+create link CODEX_DM8_LINK_BAD_DBTYPE connect 'ODBC' with U identified by P using 'x' option(DB_TYPE='POSTGRES');
+create link CODEX_DM8_LINK_BAD_DATA connect 'ODBC' with U identified by P using 'x' option(DATA_CHARSET='LATIN1');
+create link CODEX_DM8_LINK_BAD_CASE connect 'ODBC' with U identified by P using 'x' option(CASE_OPT='TITLE');
+create link CODEX_DM8_LINK_BAD_ROLLBACK connect 'DPI' with U identified by P using 'x' option(ROLLBACK_OPTION=2);
+create link CODEX_DM8_LINK_BAD_GWDSN connect 'GATEWAY' with U identified by P using 'x' option(GWDSN='CODEX_GW');
+create schema CODEX_DM8_LINK_PUBLIC_SCHEMA_20260722 authorization SYSDBA create public link CODEX_DM8_LINK_NESTED_PUBLIC connect 'DPI' with U identified by P using 'x';
+------------------------------------------------------------------------------------------
+[SYSTEM_SETTING_WRITE] create link "LBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB" connect 'DPI' with U identified by P using 'x';
+----------
+[SYSTEM_SETTING_WRITE] create link CODEX_DM8_LINK_ATTR_DUP connect 'DPI' with U identified by P using 'x';
+----------
+[SYSTEM_SETTING_WRITE] drop link CODEX_DM8_LINK_ATTR_MISSING;
+----------
+[SYSTEM_SETTING_WRITE] create link CODEX_DM8_LINK_BAD_TYPE connect 'POSTGRES' with U identified by P using 'x';
+----------
+[SYSTEM_SETTING_WRITE] create link CODEX_DM8_LINK_BAD_LOCAL connect 'ODBC' with U identified by P using 'x' option(LOCAL_CODE='LATIN1');
+----------
+[SYSTEM_SETTING_WRITE] create link CODEX_DM8_LINK_BAD_CONVERT connect 'ODBC' with U identified by P using 'x' option(CONVERT_MODE=2);
+----------
+[SYSTEM_SETTING_WRITE] create link CODEX_DM8_LINK_BAD_BYTES_ZERO connect 'ODBC' with U identified by P using 'x' option(BYTES_IN_CHAR=0);
+----------
+[SYSTEM_SETTING_WRITE] create link CODEX_DM8_LINK_BAD_BYTES_HIGH connect 'ODBC' with U identified by P using 'x' option(BYTES_IN_CHAR=2147483648);
+----------
+[SYSTEM_SETTING_WRITE] create link CODEX_DM8_LINK_BAD_DBTYPE connect 'ODBC' with U identified by P using 'x' option(DB_TYPE='POSTGRES');
+----------
+[SYSTEM_SETTING_WRITE] create link CODEX_DM8_LINK_BAD_DATA connect 'ODBC' with U identified by P using 'x' option(DATA_CHARSET='LATIN1');
+----------
+[SYSTEM_SETTING_WRITE] create link CODEX_DM8_LINK_BAD_CASE connect 'ODBC' with U identified by P using 'x' option(CASE_OPT='TITLE');
+----------
+[SYSTEM_SETTING_WRITE] create link CODEX_DM8_LINK_BAD_ROLLBACK connect 'DPI' with U identified by P using 'x' option(ROLLBACK_OPTION=2);
+----------
+[SYSTEM_SETTING_WRITE] create link CODEX_DM8_LINK_BAD_GWDSN connect 'GATEWAY' with U identified by P using 'x' option(GWDSN='CODEX_GW');
+----------
+[CREATE_SCHEMA] create schema CODEX_DM8_LINK_PUBLIC_SCHEMA_20260722 authorization SYSDBA create public link CODEX_DM8_LINK_NESTED_PUBLIC connect 'DPI' with U identified by P using 'x';

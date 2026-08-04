@@ -1,0 +1,3 @@
+ALTER IGNORE TABLE split_table.alter_probe ADD COLUMN c_ignore INT;
+------------------------------------------------------------------------------------------
+[ALTER_TABLE|ADD_COLUMN] ALTER IGNORE TABLE split_table.alter_probe ADD COLUMN c_ignore INT;

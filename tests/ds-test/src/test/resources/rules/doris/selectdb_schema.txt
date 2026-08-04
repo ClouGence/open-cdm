@@ -1,0 +1,127 @@
+[DrRuleSchemaNameCaseTypeTestFamily#createSchemaNameCaseType_1#001]
+rule: _rules/schema/schema-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper case
+sql:
+create schema abc_test
+----------
+[DrRuleSchemaNameCaseTypeTestFamily#createSchemaNameCaseType_1#002]
+rule: _rules/schema/schema-name-case-type.rule
+expect: true
+vars:
+  caseType: Upper case
+sql:
+create schema ABC_TEST
+----------
+[DrRuleSchemaNameCaseTypeTestFamily#createSchemaNameCaseType_1#003]
+rule: _rules/schema/schema-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper case
+sql:
+create schema abcTest
+----------
+[DrRuleSchemaNameCaseTypeTestFamily#createSchemaNameCaseType_1#004]
+rule: _rules/schema/schema-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper case
+sql:
+create schema AbcTest
+----------
+[DrRuleSchemaNameCaseTypeTestFamily#createSchemaNameCaseType_2#001]
+rule: _rules/schema/schema-name-case-type.rule
+expect: true
+vars:
+  caseType: Lower case
+sql:
+create schema abc_test
+----------
+[DrRuleSchemaNameCaseTypeTestFamily#createSchemaNameCaseType_2#002]
+rule: _rules/schema/schema-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower case
+sql:
+create schema ABC_TEST
+----------
+[DrRuleSchemaNameCaseTypeTestFamily#createSchemaNameCaseType_2#003]
+rule: _rules/schema/schema-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower case
+sql:
+create schema abcTest
+----------
+[DrRuleSchemaNameCaseTypeTestFamily#createSchemaNameCaseType_2#004]
+rule: _rules/schema/schema-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower case
+sql:
+create schema AbcTest
+----------
+[DrRuleSchemaNameCaseTypeTestFamily#createSchemaNameCaseType_3#001]
+rule: _rules/schema/schema-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower camel case
+sql:
+create schema abc_test
+----------
+[DrRuleSchemaNameCaseTypeTestFamily#createSchemaNameCaseType_3#002]
+rule: _rules/schema/schema-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower camel case
+sql:
+create schema ABC_TEST
+----------
+[DrRuleSchemaNameCaseTypeTestFamily#createSchemaNameCaseType_3#003]
+rule: _rules/schema/schema-name-case-type.rule
+expect: true
+vars:
+  caseType: Lower camel case
+sql:
+create schema abcTest
+----------
+[DrRuleSchemaNameCaseTypeTestFamily#createSchemaNameCaseType_3#004]
+rule: _rules/schema/schema-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower camel case
+sql:
+create schema AbcTest
+----------
+[DrRuleSchemaNameCaseTypeTestFamily#createSchemaNameCaseType_4#001]
+rule: _rules/schema/schema-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper camel case
+sql:
+create schema abc_test
+----------
+[DrRuleSchemaNameCaseTypeTestFamily#createSchemaNameCaseType_4#002]
+rule: _rules/schema/schema-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper camel case
+sql:
+create schema ABC_TEST
+----------
+[DrRuleSchemaNameCaseTypeTestFamily#createSchemaNameCaseType_4#003]
+rule: _rules/schema/schema-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper camel case
+sql:
+create schema abcTest
+----------
+[DrRuleSchemaNameCaseTypeTestFamily#createSchemaNameCaseType_4#004]
+rule: _rules/schema/schema-name-case-type.rule
+expect: true
+vars:
+  caseType: Upper camel case
+sql:
+create schema AbcTest

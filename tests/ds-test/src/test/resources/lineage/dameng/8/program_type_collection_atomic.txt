@@ -1,0 +1,13 @@
+[collection_projection]
+sql:
+select t.id as source_id,t.v as collection_value
+from catalog1.app.nested_tab t
+expect:
+{"source_id":["/catalog1/app/nested_tab/id/"],"collection_value":["/catalog1/app/nested_tab/v/"]}
+----------
+[percent_source]
+sql:
+select t.name as source_name,t.amount as source_amount
+from catalog1.app.program_type_base t
+expect:
+{"source_name":["/catalog1/app/program_type_base/name/"],"source_amount":["/catalog1/app/program_type_base/amount/"]}

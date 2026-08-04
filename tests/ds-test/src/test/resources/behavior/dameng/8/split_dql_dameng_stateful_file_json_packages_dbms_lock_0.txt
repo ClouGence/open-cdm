@@ -1,0 +1,104 @@
+[split_dql_dameng_stateful_file_json_packages_dbms_lock_0_001]
+sql:
+select dbms_lock.request(901001, 1, 0, true);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:24) /test/1/catalog1/dbms_lock/request/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_stateful_file_json_packages_dbms_lock_0_002]
+sql:
+select dbms_lock.request(901002, 2, 0, true);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:24) /test/1/catalog1/dbms_lock/request/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_stateful_file_json_packages_dbms_lock_0_003]
+sql:
+select dbms_lock.request(901003, 3, 0, true);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:24) /test/1/catalog1/dbms_lock/request/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_stateful_file_json_packages_dbms_lock_0_004]
+sql:
+select dbms_lock.request(901004, 4, 0, true);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:24) /test/1/catalog1/dbms_lock/request/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_stateful_file_json_packages_dbms_lock_0_005]
+sql:
+select dbms_lock.request(901005, 5, 0, true);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:24) /test/1/catalog1/dbms_lock/request/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_stateful_file_json_packages_dbms_lock_0_006]
+sql:
+select dbms_lock.request(901006, 6, 0, true);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:24) /test/1/catalog1/dbms_lock/request/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_stateful_file_json_packages_dbms_lock_0_007]
+sql:
+select dbms_lock.release(901014);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:24) /test/1/catalog1/dbms_lock/release/",
+      "action": "CALL"
+    }
+  ]
+}

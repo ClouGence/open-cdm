@@ -1,0 +1,30 @@
+create database test;
+create database if not exists test;
+create database test properties ("k"="v");
+drop database test;
+drop database if exists test;
+drop database test force;
+alter database test rename test1;
+alter database test set properties ("k"="v");
+alter database test set data quota 200T;
+alter database test set replica quota 200;
+------------------------------------------------------------------------------------------
+[CREATE_SCHEMA] create database test;
+----------
+[CREATE_SCHEMA] create database if not exists test;
+----------
+[CREATE_SCHEMA] create database test properties ("k"="v");
+----------
+[DROP_SCHEMA] drop database test;
+----------
+[DROP_SCHEMA] drop database if exists test;
+----------
+[DROP_SCHEMA] drop database test force;
+----------
+[RENAME_SCHEMA] alter database test rename test1;
+----------
+[ALTER_SCHEMA] alter database test set properties ("k"="v");
+----------
+[ALTER_SCHEMA] alter database test set data quota 200T;
+----------
+[ALTER_SCHEMA] alter database test set replica quota 200;

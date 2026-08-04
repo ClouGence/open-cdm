@@ -21,12 +21,6 @@
                 <Option value="dsId" :label="$t('shu-ju-yuan')">
                   <span>{{ $t('shu-ju-yuan') }}</span>
                 </Option>
-                <Option value="resourcePath" :label="$t('cao-zuo-zi-yuan')">
-                  <span>{{ $t('cao-zuo-zi-yuan') }}</span>
-                </Option>
-                <Option value="sqlKind" :label="$t('sql-lei-xing')">
-                  <span>{{ $t('sql-lei-xing') }}</span>
-                </Option>
                 <Option value="requester" :label="$t('sql-lai-yuan')">
                   <span>{{ $t('sql-lai-yuan') }}</span>
                 </Option>
@@ -40,29 +34,12 @@
                   {{ user.userName }}
                 </Option>
               </Select>
-              <Input
-                v-if="searchType === 'resourcePath'"
-                v-model="searchData.resourcePath"
-                @on-keydown="handleEnterSearch"
-                style="width: 250px"
-                clearable
-              />
               <Select v-if="searchType === 'dsId'" v-model="searchData.dsId" style="width: 200px" clearable>
                 <Option value="" :label="$t('quan-bu')">{{ $t('quan-bu') }}</Option>
                 <Option v-for="ds in dsList" :key="ds.objId" :value="ds.objId" :label="ds.objAttr.dsInstance">
                   <CustomIcon :type="ds.objAttr.dsType" />
                   {{ ds.objAttr.dsInstance }}
                 </Option>
-              </Select>
-              <Select v-if="searchType === 'sqlKind'" v-model="searchData.sqlKind" style="width: 200px" clearable>
-                <Option value="" :label="$t('quan-bu')">{{ $t('quan-bu') }}</Option>
-                <Option value="CREATE" label="CREATE">CREATE</Option>
-                <Option value="ALTER" label="ALTER">ALTER</Option>
-                <Option value="DROP" label="DROP">DROP</Option>
-                <Option value="QUERY" label="QUERY">QUERY</Option>
-                <Option value="DML" label="DML">DML</Option>
-                <Option value="CALL" label="CALL">CALL</Option>
-                <Option value="OTHER" label="OTHER">OTHER</Option>
               </Select>
               <Select v-if="searchType === 'requester'" v-model="searchData.requester" style="width: 200px" clearable>
                 <Option value="" :label="$t('quan-bu')">{{ $t('quan-bu') }}</Option>
@@ -113,13 +90,6 @@
                   </div>
                   <div class="datasource-desc">{{ formatDsRemark(row.dsRemark) }}</div>
                 </div>
-              </template>
-              <template #resource="{ row }">
-                <Tooltip :content="row.resource" placement="top" transfer>
-                  <span class="sql-log-resource-cell">
-                    {{ row.resource }}
-                  </span>
-                </Tooltip>
               </template>
               <template #execSql="{ row }">
                 <div class="sql-content">
@@ -230,9 +200,7 @@ export default {
       searchData: {
         dsId: null,
         userUid: null,
-        sqlKind: null,
         requester: null,
-        resourcePath: null,
         status: null,
         pageData: {
           pageNumber: 1,
@@ -313,12 +281,6 @@ export default {
           width: 240
         },
         {
-          title: this.$t('cao-zuo-zi-yuan'),
-          key: 'resource',
-          width: 200,
-          slot: 'resource'
-        },
-        {
           title: this.$t('sql-lai-yuan'),
           key: 'requester',
           width: 120,
@@ -331,11 +293,6 @@ export default {
             else if (!text) text = this.$t('quan-bu');
             return h('span', text);
           }
-        },
-        {
-          title: this.$t('sql-lei-xing'),
-          key: 'sqlKind',
-          width: 100
         },
         {
           title: this.$t('sql-zhi-hang-shi-jian'),
@@ -531,7 +488,6 @@ export default {
       this.searchData = {
         dsId: null,
         userUid: null,
-        sqlKind: null,
         requester: null,
         status: null,
         pageData: {
@@ -634,14 +590,6 @@ export default {
       color: #999;
       font-style: italic;
     }
-  }
-
-  .sql-log-resource-cell {
-    display: inline-block;
-    max-width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
   }
 }
 </style>

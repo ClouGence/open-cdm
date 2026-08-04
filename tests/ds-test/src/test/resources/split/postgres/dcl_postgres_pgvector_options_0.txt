@@ -1,0 +1,15 @@
+BEGIN;
+SET LOCAL hnsw.ef_search = 20;
+SET LOCAL ivfflat.probes = 1;
+SELECT id FROM split_pgvector_probe.items WHERE category_id = 1 ORDER BY embedding <-> '[1,1,1]' LIMIT 1;
+COMMIT;
+------------------------------------------------------------------------------------------
+[TRANSACTION] BEGIN;
+----------
+[SESSION_SETTING_WRITE] SET LOCAL hnsw.ef_search = 20;
+----------
+[SESSION_SETTING_WRITE] SET LOCAL ivfflat.probes = 1;
+----------
+[SELECT] SELECT id FROM split_pgvector_probe.items WHERE category_id = 1 ORDER BY embedding <-> '[1,1,1]' LIMIT 1;
+----------
+[TRANSACTION] COMMIT;

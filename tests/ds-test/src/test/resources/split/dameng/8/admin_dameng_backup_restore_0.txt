@@ -1,0 +1,216 @@
+BACKUP TABLE CODEX_DM8_BACKUP_20260721.BACKUP_DATA BACKUPSET '/opt/dmdbms/data/backup/case_001_table_basic';
+BACKUP TABLE CODEX_DM8_BACKUP_20260721.BACKUP_DATA TO CODEX_TABLE_BAK_002 BACKUPSET '/opt/dmdbms/data/backup/case_002_table_named';
+BACKUP TABLE CODEX_DM8_BACKUP_20260721.BACKUP_DATA BACKUPSET '/opt/dmdbms/data/backup/case_003_table_device' DEVICE TYPE DISK;
+BACKUP TABLE CODEX_DM8_BACKUP_20260721.BACKUP_DATA BACKUPSET '/opt/dmdbms/data/backup/case_004_table_info' BACKUPINFO 'CODEX TABLE BACKUP';
+BACKUP TABLE CODEX_DM8_BACKUP_20260721.BACKUP_DATA BACKUPSET '/opt/dmdbms/data/backup/case_005_table_piece' MAXPIECESIZE 128;
+BACKUP TABLE CODEX_DM8_BACKUP_20260721.BACKUP_DATA BACKUPSET '/opt/dmdbms/data/backup/case_006_table_read' LIMIT READ SPEED 0;
+BACKUP TABLE CODEX_DM8_BACKUP_20260721.BACKUP_DATA BACKUPSET '/opt/dmdbms/data/backup/case_007_table_read_write' LIMIT READ SPEED 0 WRITE SPEED 0;
+BACKUP TABLE CODEX_DM8_BACKUP_20260721.BACKUP_DATA BACKUPSET '/opt/dmdbms/data/backup/case_008_table_write' LIMIT WRITE SPEED 0;
+BACKUP TABLE CODEX_DM8_BACKUP_20260721.BACKUP_DATA BACKUPSET '/opt/dmdbms/data/backup/case_009_table_compressed' COMPRESSED;
+BACKUP TABLE CODEX_DM8_BACKUP_20260721.BACKUP_DATA BACKUPSET '/opt/dmdbms/data/backup/case_010_table_level' COMPRESSED LEVEL 5;
+BACKUP TABLE CODEX_DM8_BACKUP_20260721.BACKUP_DATA BACKUPSET '/opt/dmdbms/data/backup/case_011_table_encrypted' IDENTIFIED BY "Dm8Test2026" WITH ENCRYPTION 2 ENCRYPT WITH AES256_CFB;
+BACKUP TABLE CODEX_DM8_BACKUP_20260721.BACKUP_DATA BACKUPSET '/opt/dmdbms/data/backup/case_012_table_trace' TRACE FILE '/opt/dmdbms/data/trace/case_012_table_trace.log' TRACE LEVEL 2;
+RESTORE TABLE CODEX_DM8_BACKUP_20260721.RESTORE_BASIC STRUCT FROM BACKUPSET '/opt/dmdbms/data/backup/setup_restore_basic';
+RESTORE TABLE CODEX_DM8_BACKUP_20260721.RESTORE_BASIC FROM BACKUPSET '/opt/dmdbms/data/backup/setup_restore_basic';
+RESTORE TABLE STRUCT WITHOUT INDEX FROM BACKUPSET '/opt/dmdbms/data/backup/setup_restore_no_index';
+RESTORE TABLE WITHOUT INDEX FROM BACKUPSET '/opt/dmdbms/data/backup/setup_restore_no_index';
+RESTORE TABLE STRUCT WITHOUT CONSTRAINT FROM BACKUPSET '/opt/dmdbms/data/backup/setup_restore_no_constraint';
+RESTORE TABLE WITHOUT CONSTRAINT FROM BACKUPSET '/opt/dmdbms/data/backup/setup_restore_no_constraint';
+RESTORE TABLE CODEX_DM8_BACKUP_20260721.BACKUP_DATA STRUCT FROM BACKUPSET '/opt/dmdbms/data/backup/case_011_table_encrypted' IDENTIFIED BY "Dm8Test2026" ENCRYPT WITH AES256_CFB;
+RESTORE TABLE CODEX_DM8_BACKUP_20260721.BACKUP_DATA FROM BACKUPSET '/opt/dmdbms/data/backup/case_011_table_encrypted' IDENTIFIED BY "Dm8Test2026" ENCRYPT WITH AES256_CFB;
+BACKUP DATABASE FULL BACKUPSET '/opt/dmdbms/data/backup/case_021_db_full';
+BACKUP DATABASE BACKUPSET '/opt/dmdbms/data/backup/case_022_db_default_full';
+BACKUP DATABASE FULL TO CODEX_DB_BAK_023 BACKUPSET '/opt/dmdbms/data/backup/case_023_db_named';
+BACKUP DATABASE FULL BACKUPSET '/opt/dmdbms/data/backup/case_024_db_device' DEVICE TYPE DISK;
+BACKUP DATABASE FULL BACKUPSET '/opt/dmdbms/data/backup/case_025_db_info' BACKUPINFO 'CODEX DATABASE BACKUP';
+BACKUP DATABASE FULL BACKUPSET '/opt/dmdbms/data/backup/case_026_db_piece' MAXPIECESIZE 128;
+BACKUP DATABASE FULL BACKUPSET '/opt/dmdbms/data/backup/case_027_db_compressed' COMPRESSED LEVEL 1;
+BACKUP DATABASE FULL BACKUPSET '/opt/dmdbms/data/backup/case_028_db_task' TASK THREAD 2;
+BACKUP DATABASE FULL BACKUPSET '/opt/dmdbms/data/backup/case_029_db_parallel' PARALLEL 2;
+BACKUP DATABASE FULL BACKUPSET '/opt/dmdbms/data/backup/case_030_db_parallel_read' PARALLEL 2 READ SIZE 512;
+BACKUP DATABASE FULL BACKUPSET '/opt/dmdbms/data/backup/case_031_db_without_log' WITHOUT LOG;
+BACKUP DATABASE FULL BACKUPSET '/opt/dmdbms/data/backup/case_032_db_without_mirror' WITHOUT MIRROR;
+BACKUP DATABASE DDL_CLONE BACKUPSET '/opt/dmdbms/data/backup/case_033_db_ddl_clone';
+BACKUP DATABASE FULL DDL_CLONE BACKUPSET '/opt/dmdbms/data/backup/case_034_db_full_ddl_clone';
+BACKUP DATABASE SHADOW BACKUPSET '/opt/dmdbms/data/backup/case_035_db_shadow';
+BACKUP DATABASE FULL SHADOW BACKUPSET '/opt/dmdbms/data/backup/case_036_db_full_shadow';
+BACKUP DATABASE INCREMENT WITH BACKUPDIR '/opt/dmdbms/data/backup' BACKUPSET '/opt/dmdbms/data/backup/case_037_db_increment';
+BACKUP DATABASE INCREMENT CUMULATIVE WITH BACKUPDIR '/opt/dmdbms/data/backup' BACKUPSET '/opt/dmdbms/data/backup/case_038_db_cumulative';
+BACKUP DATABASE INCREMENT BASE ON BACKUPSET '/opt/dmdbms/data/backup/setup_db_full' BACKUPSET '/opt/dmdbms/data/backup/case_039_db_base_on';
+BACKUP TABLESPACE CODEX_DM8_BACKUP_TS_20260721 BACKUPSET '/opt/dmdbms/data/backup/case_040_ts_basic';
+BACKUP TABLESPACE CODEX_DM8_BACKUP_TS_20260721 FULL BACKUPSET '/opt/dmdbms/data/backup/case_041_ts_full';
+BACKUP TABLESPACE CODEX_DM8_BACKUP_TS_20260721 FULL TO CODEX_TS_BAK_042 BACKUPSET '/opt/dmdbms/data/backup/case_042_ts_named';
+BACKUP TABLESPACE CODEX_DM8_BACKUP_TS_20260721 FULL BACKUPSET '/opt/dmdbms/data/backup/case_043_ts_compressed' COMPRESSED LEVEL 1;
+BACKUP TABLESPACE CODEX_DM8_BACKUP_TS_20260721 FULL BACKUPSET '/opt/dmdbms/data/backup/case_044_ts_parallel' PARALLEL 2;
+BACKUP TABLESPACE CODEX_DM8_BACKUP_TS_20260721 INCREMENT BASE ON BACKUPSET '/opt/dmdbms/data/backup/case_040_ts_basic' BACKUPSET '/opt/dmdbms/data/backup/case_045_ts_increment';
+BACKUP ARCHIVE LOG ALL BACKUPSET '/opt/dmdbms/data/backup/case_046_arch_all';
+BACKUP ARCHIVELOG FROM LSN 1 BACKUPSET '/opt/dmdbms/data/backup/case_047_arch_from_lsn';
+BACKUP ARCHIVELOG UNTIL LSN 9223372036854775807 BACKUPSET '/opt/dmdbms/data/backup/case_048_arch_until_lsn';
+BACKUP ARCHIVELOG LSN BETWEEN 1 AND 9223372036854775807 BACKUPSET '/opt/dmdbms/data/backup/case_049_arch_between_lsn';
+BACKUP ARCHIVELOG FROM TIME '2026-07-21 00:00:00' BACKUPSET '/opt/dmdbms/data/backup/case_050_arch_from_time';
+BACKUP ARCHIVELOG UNTIL TIME '2026-07-22 00:00:00' BACKUPSET '/opt/dmdbms/data/backup/case_051_arch_until_time';
+BACKUP ARCHIVELOG TIME BETWEEN '2026-07-21 00:00:00' AND '2026-07-22 00:00:00' BACKUPSET '/opt/dmdbms/data/backup/case_052_arch_between_time';
+BACKUP ARCHIVELOG ALL NOT BACKED UP 100 TIMES BACKUPSET '/opt/dmdbms/data/backup/case_053_arch_not_backed_times';
+BACKUP ARCHIVELOG ALL NOT BACKED UP SINCE TIME '2026-07-21 00:00:00' BACKUPSET '/opt/dmdbms/data/backup/case_054_arch_not_backed_since';
+CHECK BACKUPSET '/opt/dmdbms/data/backup/case_001_table_basic';
+CHECK BACKUPSET '/opt/dmdbms/data/backup/case_021_db_full' DEVICE TYPE DISK;
+CHECK BACKUPSET '/opt/dmdbms/data/backup/case_021_db_full' DATABASE '/opt/dmdbms/data/DAMENG/dm.ini';
+CONFIGURE;
+CONFIGURE DEFAULT DEVICE TYPE DISK;
+CONFIGURE DEFAULT TRACE LEVEL 1;
+CONFIGURE DEFAULT BACKUPDIR ADD '/opt/dmdbms/data/backup';
+CONFIGURE DEFAULT BACKUPDIR DELETE '/opt/dmdbms/data/backup';
+CONFIGURE DEFAULT ARCHIVEDIR ADD '/opt/dmdbms/data/arch';
+CONFIGURE DEFAULT ARCHIVEDIR DELETE '/opt/dmdbms/data/arch';
+CONFIGURE DEFAULT OPEN FILES 64;
+CONFIGURE DEFAULT OPEN FILES CLEAR;
+CONFIGURE DEFAULT TRACE CLEAR;
+CONFIGURE DEFAULT BACKUPDIR CLEAR;
+CONFIGURE DEFAULT ARCHIVEDIR CLEAR;
+RESTORE DATABASE TO '/opt/dmdbms/data/DAMENG_RESTORE_20260721' WITH CHECK FROM BACKUPSET '/opt/dmdbms/data/backup/case_021_db_full';
+RECOVER DATABASE '/opt/dmdbms/data/DAMENG_RESTORE_20260721/dm.ini' FROM BACKUPSET '/opt/dmdbms/data/backup/case_021_db_full';
+RECOVER DATABASE '/opt/dmdbms/data/DAMENG_RESTORE_20260721/dm.ini' UPDATE DB_MAGIC;
+------------------------------------------------------------------------------------------
+[ADMIN] BACKUP TABLE CODEX_DM8_BACKUP_20260721.BACKUP_DATA BACKUPSET '/opt/dmdbms/data/backup/case_001_table_basic';
+----------
+[ADMIN] BACKUP TABLE CODEX_DM8_BACKUP_20260721.BACKUP_DATA TO CODEX_TABLE_BAK_002 BACKUPSET '/opt/dmdbms/data/backup/case_002_table_named';
+----------
+[ADMIN] BACKUP TABLE CODEX_DM8_BACKUP_20260721.BACKUP_DATA BACKUPSET '/opt/dmdbms/data/backup/case_003_table_device' DEVICE TYPE DISK;
+----------
+[ADMIN] BACKUP TABLE CODEX_DM8_BACKUP_20260721.BACKUP_DATA BACKUPSET '/opt/dmdbms/data/backup/case_004_table_info' BACKUPINFO 'CODEX TABLE BACKUP';
+----------
+[ADMIN] BACKUP TABLE CODEX_DM8_BACKUP_20260721.BACKUP_DATA BACKUPSET '/opt/dmdbms/data/backup/case_005_table_piece' MAXPIECESIZE 128;
+----------
+[ADMIN] BACKUP TABLE CODEX_DM8_BACKUP_20260721.BACKUP_DATA BACKUPSET '/opt/dmdbms/data/backup/case_006_table_read' LIMIT READ SPEED 0;
+----------
+[ADMIN] BACKUP TABLE CODEX_DM8_BACKUP_20260721.BACKUP_DATA BACKUPSET '/opt/dmdbms/data/backup/case_007_table_read_write' LIMIT READ SPEED 0 WRITE SPEED 0;
+----------
+[ADMIN] BACKUP TABLE CODEX_DM8_BACKUP_20260721.BACKUP_DATA BACKUPSET '/opt/dmdbms/data/backup/case_008_table_write' LIMIT WRITE SPEED 0;
+----------
+[ADMIN] BACKUP TABLE CODEX_DM8_BACKUP_20260721.BACKUP_DATA BACKUPSET '/opt/dmdbms/data/backup/case_009_table_compressed' COMPRESSED;
+----------
+[ADMIN] BACKUP TABLE CODEX_DM8_BACKUP_20260721.BACKUP_DATA BACKUPSET '/opt/dmdbms/data/backup/case_010_table_level' COMPRESSED LEVEL 5;
+----------
+[ADMIN] BACKUP TABLE CODEX_DM8_BACKUP_20260721.BACKUP_DATA BACKUPSET '/opt/dmdbms/data/backup/case_011_table_encrypted' IDENTIFIED BY "Dm8Test2026" WITH ENCRYPTION 2 ENCRYPT WITH AES256_CFB;
+----------
+[ADMIN] BACKUP TABLE CODEX_DM8_BACKUP_20260721.BACKUP_DATA BACKUPSET '/opt/dmdbms/data/backup/case_012_table_trace' TRACE FILE '/opt/dmdbms/data/trace/case_012_table_trace.log' TRACE LEVEL 2;
+----------
+[ADMIN] RESTORE TABLE CODEX_DM8_BACKUP_20260721.RESTORE_BASIC STRUCT FROM BACKUPSET '/opt/dmdbms/data/backup/setup_restore_basic';
+----------
+[ADMIN] RESTORE TABLE CODEX_DM8_BACKUP_20260721.RESTORE_BASIC FROM BACKUPSET '/opt/dmdbms/data/backup/setup_restore_basic';
+----------
+[ADMIN] RESTORE TABLE STRUCT WITHOUT INDEX FROM BACKUPSET '/opt/dmdbms/data/backup/setup_restore_no_index';
+----------
+[ADMIN] RESTORE TABLE WITHOUT INDEX FROM BACKUPSET '/opt/dmdbms/data/backup/setup_restore_no_index';
+----------
+[ADMIN] RESTORE TABLE STRUCT WITHOUT CONSTRAINT FROM BACKUPSET '/opt/dmdbms/data/backup/setup_restore_no_constraint';
+----------
+[ADMIN] RESTORE TABLE WITHOUT CONSTRAINT FROM BACKUPSET '/opt/dmdbms/data/backup/setup_restore_no_constraint';
+----------
+[ADMIN] RESTORE TABLE CODEX_DM8_BACKUP_20260721.BACKUP_DATA STRUCT FROM BACKUPSET '/opt/dmdbms/data/backup/case_011_table_encrypted' IDENTIFIED BY "Dm8Test2026" ENCRYPT WITH AES256_CFB;
+----------
+[ADMIN] RESTORE TABLE CODEX_DM8_BACKUP_20260721.BACKUP_DATA FROM BACKUPSET '/opt/dmdbms/data/backup/case_011_table_encrypted' IDENTIFIED BY "Dm8Test2026" ENCRYPT WITH AES256_CFB;
+----------
+[ADMIN] BACKUP DATABASE FULL BACKUPSET '/opt/dmdbms/data/backup/case_021_db_full';
+----------
+[ADMIN] BACKUP DATABASE BACKUPSET '/opt/dmdbms/data/backup/case_022_db_default_full';
+----------
+[ADMIN] BACKUP DATABASE FULL TO CODEX_DB_BAK_023 BACKUPSET '/opt/dmdbms/data/backup/case_023_db_named';
+----------
+[ADMIN] BACKUP DATABASE FULL BACKUPSET '/opt/dmdbms/data/backup/case_024_db_device' DEVICE TYPE DISK;
+----------
+[ADMIN] BACKUP DATABASE FULL BACKUPSET '/opt/dmdbms/data/backup/case_025_db_info' BACKUPINFO 'CODEX DATABASE BACKUP';
+----------
+[ADMIN] BACKUP DATABASE FULL BACKUPSET '/opt/dmdbms/data/backup/case_026_db_piece' MAXPIECESIZE 128;
+----------
+[ADMIN] BACKUP DATABASE FULL BACKUPSET '/opt/dmdbms/data/backup/case_027_db_compressed' COMPRESSED LEVEL 1;
+----------
+[ADMIN] BACKUP DATABASE FULL BACKUPSET '/opt/dmdbms/data/backup/case_028_db_task' TASK THREAD 2;
+----------
+[ADMIN] BACKUP DATABASE FULL BACKUPSET '/opt/dmdbms/data/backup/case_029_db_parallel' PARALLEL 2;
+----------
+[ADMIN] BACKUP DATABASE FULL BACKUPSET '/opt/dmdbms/data/backup/case_030_db_parallel_read' PARALLEL 2 READ SIZE 512;
+----------
+[ADMIN] BACKUP DATABASE FULL BACKUPSET '/opt/dmdbms/data/backup/case_031_db_without_log' WITHOUT LOG;
+----------
+[ADMIN] BACKUP DATABASE FULL BACKUPSET '/opt/dmdbms/data/backup/case_032_db_without_mirror' WITHOUT MIRROR;
+----------
+[ADMIN] BACKUP DATABASE DDL_CLONE BACKUPSET '/opt/dmdbms/data/backup/case_033_db_ddl_clone';
+----------
+[ADMIN] BACKUP DATABASE FULL DDL_CLONE BACKUPSET '/opt/dmdbms/data/backup/case_034_db_full_ddl_clone';
+----------
+[ADMIN] BACKUP DATABASE SHADOW BACKUPSET '/opt/dmdbms/data/backup/case_035_db_shadow';
+----------
+[ADMIN] BACKUP DATABASE FULL SHADOW BACKUPSET '/opt/dmdbms/data/backup/case_036_db_full_shadow';
+----------
+[ADMIN] BACKUP DATABASE INCREMENT WITH BACKUPDIR '/opt/dmdbms/data/backup' BACKUPSET '/opt/dmdbms/data/backup/case_037_db_increment';
+----------
+[ADMIN] BACKUP DATABASE INCREMENT CUMULATIVE WITH BACKUPDIR '/opt/dmdbms/data/backup' BACKUPSET '/opt/dmdbms/data/backup/case_038_db_cumulative';
+----------
+[ADMIN] BACKUP DATABASE INCREMENT BASE ON BACKUPSET '/opt/dmdbms/data/backup/setup_db_full' BACKUPSET '/opt/dmdbms/data/backup/case_039_db_base_on';
+----------
+[ADMIN] BACKUP TABLESPACE CODEX_DM8_BACKUP_TS_20260721 BACKUPSET '/opt/dmdbms/data/backup/case_040_ts_basic';
+----------
+[ADMIN] BACKUP TABLESPACE CODEX_DM8_BACKUP_TS_20260721 FULL BACKUPSET '/opt/dmdbms/data/backup/case_041_ts_full';
+----------
+[ADMIN] BACKUP TABLESPACE CODEX_DM8_BACKUP_TS_20260721 FULL TO CODEX_TS_BAK_042 BACKUPSET '/opt/dmdbms/data/backup/case_042_ts_named';
+----------
+[ADMIN] BACKUP TABLESPACE CODEX_DM8_BACKUP_TS_20260721 FULL BACKUPSET '/opt/dmdbms/data/backup/case_043_ts_compressed' COMPRESSED LEVEL 1;
+----------
+[ADMIN] BACKUP TABLESPACE CODEX_DM8_BACKUP_TS_20260721 FULL BACKUPSET '/opt/dmdbms/data/backup/case_044_ts_parallel' PARALLEL 2;
+----------
+[ADMIN] BACKUP TABLESPACE CODEX_DM8_BACKUP_TS_20260721 INCREMENT BASE ON BACKUPSET '/opt/dmdbms/data/backup/case_040_ts_basic' BACKUPSET '/opt/dmdbms/data/backup/case_045_ts_increment';
+----------
+[ADMIN] BACKUP ARCHIVE LOG ALL BACKUPSET '/opt/dmdbms/data/backup/case_046_arch_all';
+----------
+[ADMIN] BACKUP ARCHIVELOG FROM LSN 1 BACKUPSET '/opt/dmdbms/data/backup/case_047_arch_from_lsn';
+----------
+[ADMIN] BACKUP ARCHIVELOG UNTIL LSN 9223372036854775807 BACKUPSET '/opt/dmdbms/data/backup/case_048_arch_until_lsn';
+----------
+[ADMIN] BACKUP ARCHIVELOG LSN BETWEEN 1 AND 9223372036854775807 BACKUPSET '/opt/dmdbms/data/backup/case_049_arch_between_lsn';
+----------
+[ADMIN] BACKUP ARCHIVELOG FROM TIME '2026-07-21 00:00:00' BACKUPSET '/opt/dmdbms/data/backup/case_050_arch_from_time';
+----------
+[ADMIN] BACKUP ARCHIVELOG UNTIL TIME '2026-07-22 00:00:00' BACKUPSET '/opt/dmdbms/data/backup/case_051_arch_until_time';
+----------
+[ADMIN] BACKUP ARCHIVELOG TIME BETWEEN '2026-07-21 00:00:00' AND '2026-07-22 00:00:00' BACKUPSET '/opt/dmdbms/data/backup/case_052_arch_between_time';
+----------
+[ADMIN] BACKUP ARCHIVELOG ALL NOT BACKED UP 100 TIMES BACKUPSET '/opt/dmdbms/data/backup/case_053_arch_not_backed_times';
+----------
+[ADMIN] BACKUP ARCHIVELOG ALL NOT BACKED UP SINCE TIME '2026-07-21 00:00:00' BACKUPSET '/opt/dmdbms/data/backup/case_054_arch_not_backed_since';
+----------
+[ADMIN] CHECK BACKUPSET '/opt/dmdbms/data/backup/case_001_table_basic';
+----------
+[ADMIN] CHECK BACKUPSET '/opt/dmdbms/data/backup/case_021_db_full' DEVICE TYPE DISK;
+----------
+[ADMIN] CHECK BACKUPSET '/opt/dmdbms/data/backup/case_021_db_full' DATABASE '/opt/dmdbms/data/DAMENG/dm.ini';
+----------
+[ADMIN] CONFIGURE;
+----------
+[ADMIN] CONFIGURE DEFAULT DEVICE TYPE DISK;
+----------
+[ADMIN] CONFIGURE DEFAULT TRACE LEVEL 1;
+----------
+[ADMIN] CONFIGURE DEFAULT BACKUPDIR ADD '/opt/dmdbms/data/backup';
+----------
+[ADMIN] CONFIGURE DEFAULT BACKUPDIR DELETE '/opt/dmdbms/data/backup';
+----------
+[ADMIN] CONFIGURE DEFAULT ARCHIVEDIR ADD '/opt/dmdbms/data/arch';
+----------
+[ADMIN] CONFIGURE DEFAULT ARCHIVEDIR DELETE '/opt/dmdbms/data/arch';
+----------
+[ADMIN] CONFIGURE DEFAULT OPEN FILES 64;
+----------
+[ADMIN] CONFIGURE DEFAULT OPEN FILES CLEAR;
+----------
+[ADMIN] CONFIGURE DEFAULT TRACE CLEAR;
+----------
+[ADMIN] CONFIGURE DEFAULT BACKUPDIR CLEAR;
+----------
+[ADMIN] CONFIGURE DEFAULT ARCHIVEDIR CLEAR;
+----------
+[ADMIN] RESTORE DATABASE TO '/opt/dmdbms/data/DAMENG_RESTORE_20260721' WITH CHECK FROM BACKUPSET '/opt/dmdbms/data/backup/case_021_db_full';
+----------
+[ADMIN] RECOVER DATABASE '/opt/dmdbms/data/DAMENG_RESTORE_20260721/dm.ini' FROM BACKUPSET '/opt/dmdbms/data/backup/case_021_db_full';
+----------
+[ADMIN] RECOVER DATABASE '/opt/dmdbms/data/DAMENG_RESTORE_20260721/dm.ini' UPDATE DB_MAGIC;

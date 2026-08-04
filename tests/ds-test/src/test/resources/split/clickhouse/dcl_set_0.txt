@@ -1,0 +1,3 @@
+SET  max_binlog_cache_size = 1024;
+------------------------------------------------------------------------------------------
+[SESSION_SETTING_WRITE] SET  max_binlog_cache_size = 1024

@@ -12,7 +12,6 @@ import com.clougence.clouddm.dsfamily.language.completion.CompletionContext;
 import com.clougence.clouddm.dsfamily.language.completion.analyzer.CompletionClause;
 import com.clougence.clouddm.sdk.language.completion.CompletionItem;
 import com.clougence.clouddm.sdk.language.completion.CompletionItemKind;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.utils.StringUtils;
 
@@ -27,8 +26,7 @@ public class AfterFromTableCompletionStrategy extends AbstractColumnCompletionSt
 
     @Override
     public boolean match(CompletionContext context) {
-        if (context.getStatementType() != SecQueryType.SELECT || context.getClause() != CompletionClause.FROM_TABLE || StringUtils.isNotBlank(context.getPrefix()) ||
-            context.hasQualifier() || context.getTableRefs().isEmpty()) {
+        if (context.getClause() != CompletionClause.FROM_TABLE || StringUtils.isNotBlank(context.getPrefix()) || context.hasQualifier() || context.getTableRefs().isEmpty()) {
             return false;
         }
 

@@ -1,0 +1,45 @@
+[split_dql_dameng_performance_packages_0_001]
+sql:
+select dbms_stats.get_prefs('STALE_PERCENT', 'SYSDBA', 'CODEX_DM8_PERF_STATS') from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:27) /test/1/catalog1/dbms_stats/get_prefs/",
+      "action": "CALL",
+      "target": [
+        "Table(1:55~1:77) /test/1/catalog1/SYSDBA/CODEX_DM8_PERF_STATS/",
+        "ConfigKey(1:28~1:43) /test/1/STALE_PERCENT/"
+      ]
+    },
+    {
+      "subject": "View(1:84~1:88) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_performance_packages_0_002]
+sql:
+select dbms_stats.get_prefs('ESTIMATE_PERCENT', 'SYSDBA', 'CODEX_DM8_PERF_STATS') from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:27) /test/1/catalog1/dbms_stats/get_prefs/",
+      "action": "CALL",
+      "target": [
+        "Table(1:58~1:80) /test/1/catalog1/SYSDBA/CODEX_DM8_PERF_STATS/",
+        "ConfigKey(1:28~1:46) /test/1/ESTIMATE_PERCENT/"
+      ]
+    },
+    {
+      "subject": "View(1:87~1:91) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}

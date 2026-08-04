@@ -1,0 +1,10 @@
+[utl_mail_payload_columns]
+sql:
+select SENDER, RECIPIENTS, MESSAGE, ATTACHMENT from catalog1.app.mail_source
+expect:
+{
+  "SENDER": ["/catalog1/app/mail_source/SENDER/"],
+  "RECIPIENTS": ["/catalog1/app/mail_source/RECIPIENTS/"],
+  "MESSAGE": ["/catalog1/app/mail_source/MESSAGE/"],
+  "ATTACHMENT": ["/catalog1/app/mail_source/ATTACHMENT/"]
+}

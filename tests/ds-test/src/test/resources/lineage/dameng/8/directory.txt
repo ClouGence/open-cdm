@@ -1,0 +1,34 @@
+[directory_definition_has_no_result_lineage]
+sql:
+create directory employee_files as '/tmp/employee'
+expect:
+{}
+----------
+[external_table_definition_has_no_result_lineage]
+sql:
+create external table app.employee_external(id int, name varchar(20))
+from datafile default directory employee_files location ('employee.csv')
+parms(fields delimited by '|', records delimited by 0x0a)
+expect:
+{}
+----------
+[external_table_columns]
+sql:
+select id, name from catalog1.app.employee_external
+expect:
+{
+  "id": ["/catalog1/app/employee_external/id/"],
+  "name": ["/catalog1/app/employee_external/name/"]
+}
+----------
+[directory_object_privilege_has_no_column_lineage]
+sql:
+grant read, write on directory employee_files to public
+expect:
+{}
+----------
+[directory_system_privilege_has_no_column_lineage]
+sql:
+grant create any directory, drop any directory to directory_admin
+expect:
+{}

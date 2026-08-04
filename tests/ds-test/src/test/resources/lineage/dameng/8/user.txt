@@ -1,0 +1,45 @@
+[user_statements_have_no_lineage]
+sql:
+create user codex_user identified by "Dm8User#2026" diskspace limit 1;
+alter user codex_user limit session_per_user 10;
+grant create user to codex_user;
+alter user codex_user grant connect through proxy_user;
+drop user codex_user cascade
+expect:
+{}
+----------
+[dba_users_columns]
+sql:
+select u.username, u.user_id, u.account_status, u.default_tablespace,
+       u.default_index_tablespace, u.profile, u.authentication_type
+  from catalog1.sys.dba_users u
+expect:
+{
+  "username": ["/catalog1/sys/dba_users/username/"],
+  "user_id": ["/catalog1/sys/dba_users/user_id/"],
+  "account_status": ["/catalog1/sys/dba_users/account_status/"],
+  "default_tablespace": ["/catalog1/sys/dba_users/default_tablespace/"],
+  "default_index_tablespace": ["/catalog1/sys/dba_users/default_index_tablespace/"],
+  "profile": ["/catalog1/sys/dba_users/profile/"],
+  "authentication_type": ["/catalog1/sys/dba_users/authentication_type/"]
+}
+----------
+[all_users_columns]
+sql:
+select u.username, u.user_id, u.created from catalog1.sys.all_users u
+expect:
+{
+  "username": ["/catalog1/sys/all_users/username/"],
+  "user_id": ["/catalog1/sys/all_users/user_id/"],
+  "created": ["/catalog1/sys/all_users/created/"]
+}
+----------
+[user_privilege_columns]
+sql:
+select p.grantee, p.privilege, p.admin_option from catalog1.sys.dba_sys_privs p
+expect:
+{
+  "grantee": ["/catalog1/sys/dba_sys_privs/grantee/"],
+  "privilege": ["/catalog1/sys/dba_sys_privs/privilege/"],
+  "admin_option": ["/catalog1/sys/dba_sys_privs/admin_option/"]
+}

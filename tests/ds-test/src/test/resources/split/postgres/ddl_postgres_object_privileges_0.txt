@@ -1,0 +1,75 @@
+DROP SCHEMA IF EXISTS split_obj_priv CASCADE;
+DROP ROLE IF EXISTS split_priv_role;
+CREATE ROLE split_priv_role;
+CREATE SCHEMA split_obj_priv;
+CREATE TYPE split_obj_priv.cast_mood AS ENUM ('sad', 'ok', 'happy');
+CREATE FUNCTION split_obj_priv.mood_rank(split_obj_priv.cast_mood)
+RETURNS integer
+LANGUAGE SQL
+IMMUTABLE
+AS $$ SELECT array_position(ARRAY['sad','ok','happy'], $1::text) $$;
+CREATE CAST (split_obj_priv.cast_mood AS integer)
+WITH FUNCTION split_obj_priv.mood_rank(split_obj_priv.cast_mood)
+AS ASSIGNMENT;
+CREATE CAST (split_obj_priv.cast_mood AS text) WITH INOUT AS IMPLICIT;
+CREATE COLLATION split_obj_priv.c_from_c FROM "C";
+CREATE COLLATION split_obj_priv.c_locale (locale = 'C');
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA split_obj_priv GRANT SELECT, INSERT ON TABLES TO split_priv_role WITH GRANT OPTION;
+ALTER DEFAULT PRIVILEGES IN SCHEMA split_obj_priv GRANT USAGE ON SEQUENCES TO split_priv_role;
+ALTER DEFAULT PRIVILEGES IN SCHEMA split_obj_priv REVOKE INSERT ON TABLES FROM split_priv_role;
+DROP CAST IF EXISTS (split_obj_priv.cast_mood AS integer);
+DROP CAST IF EXISTS (split_obj_priv.cast_mood AS text);
+DROP COLLATION IF EXISTS split_obj_priv.c_locale;
+DROP COLLATION IF EXISTS split_obj_priv.c_from_c;
+DROP FUNCTION IF EXISTS split_obj_priv.mood_rank(split_obj_priv.cast_mood);
+DROP TYPE IF EXISTS split_obj_priv.cast_mood;
+DROP SCHEMA IF EXISTS split_obj_priv CASCADE;
+DROP ROLE IF EXISTS split_priv_role;
+------------------------------------------------------------------------------------------
+[DROP_SCHEMA] DROP SCHEMA IF EXISTS split_obj_priv CASCADE;
+----------
+[DROP_ROLE] DROP ROLE IF EXISTS split_priv_role;
+----------
+[CREATE_ROLE] CREATE ROLE split_priv_role;
+----------
+[CREATE_SCHEMA] CREATE SCHEMA split_obj_priv;
+----------
+[CREATE_TYPE] CREATE TYPE split_obj_priv.cast_mood AS ENUM ('sad', 'ok', 'happy');
+----------
+[CREATE_PROG_OBJ] CREATE FUNCTION split_obj_priv.mood_rank(split_obj_priv.cast_mood)
+RETURNS integer
+LANGUAGE SQL
+IMMUTABLE
+AS $$ SELECT array_position(ARRAY['sad','ok','happy'], $1::text) $$;
+----------
+[CREATE_PROG_OBJ] CREATE CAST (split_obj_priv.cast_mood AS integer)
+WITH FUNCTION split_obj_priv.mood_rank(split_obj_priv.cast_mood)
+AS ASSIGNMENT;
+----------
+[CREATE_PROG_OBJ] CREATE CAST (split_obj_priv.cast_mood AS text) WITH INOUT AS IMPLICIT;
+----------
+[CREATE_POLICY] CREATE COLLATION split_obj_priv.c_from_c FROM "C";
+----------
+[CREATE_POLICY] CREATE COLLATION split_obj_priv.c_locale (locale = 'C');
+----------
+[GRANT] ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA split_obj_priv GRANT SELECT, INSERT ON TABLES TO split_priv_role WITH GRANT OPTION;
+----------
+[GRANT] ALTER DEFAULT PRIVILEGES IN SCHEMA split_obj_priv GRANT USAGE ON SEQUENCES TO split_priv_role;
+----------
+[REVOKE] ALTER DEFAULT PRIVILEGES IN SCHEMA split_obj_priv REVOKE INSERT ON TABLES FROM split_priv_role;
+----------
+[DROP_PROG_OBJ] DROP CAST IF EXISTS (split_obj_priv.cast_mood AS integer);
+----------
+[DROP_PROG_OBJ] DROP CAST IF EXISTS (split_obj_priv.cast_mood AS text);
+----------
+[DROP_POLICY] DROP COLLATION IF EXISTS split_obj_priv.c_locale;
+----------
+[DROP_POLICY] DROP COLLATION IF EXISTS split_obj_priv.c_from_c;
+----------
+[DROP_PROG_OBJ] DROP FUNCTION IF EXISTS split_obj_priv.mood_rank(split_obj_priv.cast_mood);
+----------
+[DROP_TYPE] DROP TYPE IF EXISTS split_obj_priv.cast_mood;
+----------
+[DROP_SCHEMA] DROP SCHEMA IF EXISTS split_obj_priv CASCADE;
+----------
+[DROP_ROLE] DROP ROLE IF EXISTS split_priv_role;

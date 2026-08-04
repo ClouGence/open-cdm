@@ -1,0 +1,57 @@
+[as_of_lsn_columns]
+sql:
+select id,name from catalog1.app.t_base as of lsn 60000
+expect:
+{
+  "id": [
+    "/catalog1/app/t_base/id/"
+  ],
+  "name": [
+    "/catalog1/app/t_base/name/"
+  ]
+}
+----------
+[versions_columns]
+sql:
+select versions_startscn,versions_operation,id,name from catalog1.app.t_base versions between lsn 60000 and 60050
+expect:
+{
+  "versions_startscn": [
+    "/catalog1/app/t_base/versions_startscn/"
+  ],
+  "versions_operation": [
+    "/catalog1/app/t_base/versions_operation/"
+  ],
+  "id": [
+    "/catalog1/app/t_base/id/"
+  ],
+  "name": [
+    "/catalog1/app/t_base/name/"
+  ]
+}
+----------
+[snapshot_join_columns]
+sql:
+select b.id,o.label from catalog1.app.t_base as of lsn 60000 b join catalog1.app.t_other as of lsn 60000 o on o.id=b.id
+expect:
+{
+  "id": [
+    "/catalog1/app/t_base/id/"
+  ],
+  "label": [
+    "/catalog1/app/t_other/label/"
+  ]
+}
+----------
+[partition_snapshot_columns]
+sql:
+select id,name from catalog1.app.t_part partition(p1) as of lsn 60000
+expect:
+{
+  "id": [
+    "/catalog1/app/t_part/id/"
+  ],
+  "name": [
+    "/catalog1/app/t_part/name/"
+  ]
+}

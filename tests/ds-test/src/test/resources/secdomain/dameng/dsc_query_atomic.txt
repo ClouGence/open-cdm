@@ -1,0 +1,49 @@
+[dsc_query_shared_table_domain]
+sql:
+select id,note from app.dsc_q_shared_t order by id
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"dsc_q_shared_t"}
+  ]
+}
+----------
+[dsc_query_ep_view_domain]
+sql:
+select * from sys.v$dsc_ep_info
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"sys", "table":"v$dsc_ep_info"}
+  ]
+}
+----------
+[dsc_query_gbs_view_domain]
+sql:
+select * from sys.v$dsc_gbs_pool
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"sys", "table":"v$dsc_gbs_pool"}
+  ]
+}
+----------
+[dsc_query_dcr_view_domain]
+sql:
+select * from sys.v$dcr_group
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"sys", "table":"v$dcr_group"}
+  ]
+}
+----------
+[dsc_query_asm_view_domain]
+sql:
+select * from sys.v$asmgroup
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"sys", "table":"v$asmgroup"}
+  ]
+}

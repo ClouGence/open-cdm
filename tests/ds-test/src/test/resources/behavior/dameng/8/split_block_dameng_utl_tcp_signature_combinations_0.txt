@@ -1,0 +1,979 @@
+[split_block_dameng_utl_tcp_signature_combinations_0_001]
+sql:
+-- OPEN_CONNECTION_MINIMAL
+declare c utl_tcp.connection; begin c := utl_tcp.open_connection('host.docker.internal',18081); utl_tcp.close_connection(c); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:28) /test/1/catalog1/utl_tcp/connection/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:96~2:120) /test/1/catalog1/utl_tcp/close_connection/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:41~2:64) /test/1/catalog1/utl_tcp/open_connection/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_tcp_signature_combinations_0_002]
+sql:
+-- OPEN_CONNECTION_NAMED_FULL
+declare c utl_tcp.connection; begin c := utl_tcp.open_connection(TX_TIMEOUT=>0,NEWLINE=>utl_tcp.crlf,CHARSET=>'UTF-8',LOCAL_PORT=>null,LOCAL_HOST=>null,REMOTE_PORT=>18081,REMOTE_HOST=>'host.docker.internal'); utl_tcp.close_connection(c); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:28) /test/1/catalog1/utl_tcp/connection/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:209~2:233) /test/1/catalog1/utl_tcp/close_connection/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:41~2:64) /test/1/catalog1/utl_tcp/open_connection/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_tcp_signature_combinations_0_003]
+sql:
+-- AVAILABLE_DEFAULT
+declare c utl_tcp.connection; n int; begin c := utl_tcp.open_connection('host.docker.internal',18081); n := utl_tcp.available(c); utl_tcp.close_connection(c); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:28) /test/1/catalog1/utl_tcp/connection/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:130~2:154) /test/1/catalog1/utl_tcp/close_connection/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:48~2:71) /test/1/catalog1/utl_tcp/open_connection/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:108~2:125) /test/1/catalog1/utl_tcp/available/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_tcp_signature_combinations_0_004]
+sql:
+-- AVAILABLE_NAMED_TIMEOUT
+declare c utl_tcp.connection; n int; begin c := utl_tcp.open_connection('host.docker.internal',18081); n := utl_tcp.available(TIMEOUT=>1,C=>c); utl_tcp.close_connection(c); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:28) /test/1/catalog1/utl_tcp/connection/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:144~2:168) /test/1/catalog1/utl_tcp/close_connection/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:48~2:71) /test/1/catalog1/utl_tcp/open_connection/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:108~2:125) /test/1/catalog1/utl_tcp/available/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_tcp_signature_combinations_0_005]
+sql:
+-- GET_LINE_DEFAULTS
+declare c utl_tcp.connection; v varchar(32767); begin c := utl_tcp.open_connection('host.docker.internal',18081); v := utl_tcp.get_line(c); utl_tcp.close_connection(c); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:28) /test/1/catalog1/utl_tcp/connection/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:140~2:164) /test/1/catalog1/utl_tcp/close_connection/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:59~2:82) /test/1/catalog1/utl_tcp/open_connection/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:119~2:135) /test/1/catalog1/utl_tcp/get_line/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_tcp_signature_combinations_0_006]
+sql:
+-- GET_LINE_FULL
+declare c utl_tcp.connection; v varchar(32767); begin c := utl_tcp.open_connection('host.docker.internal',18081); v := utl_tcp.get_line(c,true,false); utl_tcp.close_connection(c); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:28) /test/1/catalog1/utl_tcp/connection/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:151~2:175) /test/1/catalog1/utl_tcp/close_connection/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:59~2:82) /test/1/catalog1/utl_tcp/open_connection/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:119~2:135) /test/1/catalog1/utl_tcp/get_line/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_tcp_signature_combinations_0_007]
+sql:
+-- GET_LINE_NAMED_PEEK
+declare c utl_tcp.connection; v varchar(32767); begin c := utl_tcp.open_connection('host.docker.internal',18081); v := utl_tcp.get_line(PEEK=>true,REMOVE_CRLF=>true,C=>c); v := utl_tcp.get_line(c,true,false); utl_tcp.close_connection(c); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:28) /test/1/catalog1/utl_tcp/connection/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:209~2:233) /test/1/catalog1/utl_tcp/close_connection/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:59~2:82) /test/1/catalog1/utl_tcp/open_connection/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:119~2:135) /test/1/catalog1/utl_tcp/get_line/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:177~2:193) /test/1/catalog1/utl_tcp/get_line/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_tcp_signature_combinations_0_008]
+sql:
+-- GET_RAW_DEFAULTS
+declare c utl_tcp.connection; v varbinary(32767); begin c := utl_tcp.open_connection('host.docker.internal',18081); v := utl_tcp.get_raw(c); utl_tcp.close_connection(c); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:28) /test/1/catalog1/utl_tcp/connection/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:141~2:165) /test/1/catalog1/utl_tcp/close_connection/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:61~2:84) /test/1/catalog1/utl_tcp/open_connection/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:121~2:136) /test/1/catalog1/utl_tcp/get_raw/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_tcp_signature_combinations_0_009]
+sql:
+-- GET_RAW_FULL_PEEK
+declare c utl_tcp.connection; v varbinary(32767); begin c := utl_tcp.open_connection('host.docker.internal',18081); v := utl_tcp.get_raw(c,13,true); v := utl_tcp.get_raw(c,13,false); utl_tcp.close_connection(c); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:28) /test/1/catalog1/utl_tcp/connection/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:183~2:207) /test/1/catalog1/utl_tcp/close_connection/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:61~2:84) /test/1/catalog1/utl_tcp/open_connection/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:121~2:136) /test/1/catalog1/utl_tcp/get_raw/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:154~2:169) /test/1/catalog1/utl_tcp/get_raw/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_tcp_signature_combinations_0_010]
+sql:
+-- GET_RAW_ZERO
+declare c utl_tcp.connection; v varbinary(32767); begin c := utl_tcp.open_connection('host.docker.internal',18081); v := utl_tcp.get_raw(c,0,false); utl_tcp.close_connection(c); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:28) /test/1/catalog1/utl_tcp/connection/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:149~2:173) /test/1/catalog1/utl_tcp/close_connection/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:61~2:84) /test/1/catalog1/utl_tcp/open_connection/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:121~2:136) /test/1/catalog1/utl_tcp/get_raw/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_tcp_signature_combinations_0_011]
+sql:
+-- GET_TEXT_DEFAULTS
+declare c utl_tcp.connection; v varchar(32767); begin c := utl_tcp.open_connection('host.docker.internal',18081); v := utl_tcp.get_text(c); utl_tcp.close_connection(c); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:28) /test/1/catalog1/utl_tcp/connection/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:140~2:164) /test/1/catalog1/utl_tcp/close_connection/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:59~2:82) /test/1/catalog1/utl_tcp/open_connection/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:119~2:135) /test/1/catalog1/utl_tcp/get_text/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_tcp_signature_combinations_0_012]
+sql:
+-- GET_TEXT_FULL_PEEK
+declare c utl_tcp.connection; v varchar(32767); begin c := utl_tcp.open_connection('host.docker.internal',18081); v := utl_tcp.get_text(c,13,true); v := utl_tcp.get_text(c,13,false); utl_tcp.close_connection(c); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:28) /test/1/catalog1/utl_tcp/connection/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:183~2:207) /test/1/catalog1/utl_tcp/close_connection/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:59~2:82) /test/1/catalog1/utl_tcp/open_connection/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:119~2:135) /test/1/catalog1/utl_tcp/get_text/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:153~2:169) /test/1/catalog1/utl_tcp/get_text/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_tcp_signature_combinations_0_013]
+sql:
+-- GET_TEXT_ZERO
+declare c utl_tcp.connection; v varchar(32767); begin c := utl_tcp.open_connection('host.docker.internal',18081); v := utl_tcp.get_text(c,0,false); utl_tcp.close_connection(c); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:28) /test/1/catalog1/utl_tcp/connection/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:148~2:172) /test/1/catalog1/utl_tcp/close_connection/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:59~2:82) /test/1/catalog1/utl_tcp/open_connection/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:119~2:135) /test/1/catalog1/utl_tcp/get_text/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_tcp_signature_combinations_0_014]
+sql:
+-- READ_RAW_DEFAULTS
+declare c utl_tcp.connection; v varbinary(32767); n int; begin c := utl_tcp.open_connection('host.docker.internal',18081); n := utl_tcp.read_raw(c,v); utl_tcp.close_connection(c); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:28) /test/1/catalog1/utl_tcp/connection/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:151~2:175) /test/1/catalog1/utl_tcp/close_connection/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:68~2:91) /test/1/catalog1/utl_tcp/open_connection/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:128~2:144) /test/1/catalog1/utl_tcp/read_raw/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_tcp_signature_combinations_0_015]
+sql:
+-- READ_RAW_FULL_PEEK
+declare c utl_tcp.connection; v varbinary(32767); n int; begin c := utl_tcp.open_connection('host.docker.internal',18081); n := utl_tcp.read_raw(c,v,13,true); n := utl_tcp.read_raw(c,v,13,false); utl_tcp.close_connection(c); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:28) /test/1/catalog1/utl_tcp/connection/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:196~2:220) /test/1/catalog1/utl_tcp/close_connection/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:68~2:91) /test/1/catalog1/utl_tcp/open_connection/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:128~2:144) /test/1/catalog1/utl_tcp/read_raw/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:164~2:180) /test/1/catalog1/utl_tcp/read_raw/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_tcp_signature_combinations_0_016]
+sql:
+-- READ_RAW_ZERO
+declare c utl_tcp.connection; v varbinary(32767); n int; begin c := utl_tcp.open_connection('host.docker.internal',18081); n := utl_tcp.read_raw(c,v,0,false); utl_tcp.close_connection(c); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:28) /test/1/catalog1/utl_tcp/connection/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:159~2:183) /test/1/catalog1/utl_tcp/close_connection/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:68~2:91) /test/1/catalog1/utl_tcp/open_connection/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:128~2:144) /test/1/catalog1/utl_tcp/read_raw/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_tcp_signature_combinations_0_017]
+sql:
+-- READ_TEXT_DEFAULTS
+declare c utl_tcp.connection; v varchar(32767); n int; begin c := utl_tcp.open_connection('host.docker.internal',18081); n := utl_tcp.read_text(c,v); utl_tcp.close_connection(c); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:28) /test/1/catalog1/utl_tcp/connection/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:150~2:174) /test/1/catalog1/utl_tcp/close_connection/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:66~2:89) /test/1/catalog1/utl_tcp/open_connection/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:126~2:143) /test/1/catalog1/utl_tcp/read_text/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_tcp_signature_combinations_0_018]
+sql:
+-- READ_TEXT_FULL_PEEK
+declare c utl_tcp.connection; v varchar(32767); n int; begin c := utl_tcp.open_connection('host.docker.internal',18081); n := utl_tcp.read_text(c,v,13,true); n := utl_tcp.read_text(c,v,13,false); utl_tcp.close_connection(c); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:28) /test/1/catalog1/utl_tcp/connection/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:196~2:220) /test/1/catalog1/utl_tcp/close_connection/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:66~2:89) /test/1/catalog1/utl_tcp/open_connection/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:126~2:143) /test/1/catalog1/utl_tcp/read_text/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:163~2:180) /test/1/catalog1/utl_tcp/read_text/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_tcp_signature_combinations_0_019]
+sql:
+-- READ_TEXT_ZERO
+declare c utl_tcp.connection; v varchar(32767); n int; begin c := utl_tcp.open_connection('host.docker.internal',18081); n := utl_tcp.read_text(c,v,0,false); utl_tcp.close_connection(c); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:28) /test/1/catalog1/utl_tcp/connection/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:158~2:182) /test/1/catalog1/utl_tcp/close_connection/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:66~2:89) /test/1/catalog1/utl_tcp/open_connection/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:126~2:143) /test/1/catalog1/utl_tcp/read_text/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_tcp_signature_combinations_0_020]
+sql:
+-- WRITE_LINE_DEFAULT_NULL
+declare c utl_tcp.connection; n int; begin c := utl_tcp.open_connection('host.docker.internal',18081); n := utl_tcp.write_line(c); utl_tcp.close_connection(c); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:28) /test/1/catalog1/utl_tcp/connection/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:131~2:155) /test/1/catalog1/utl_tcp/close_connection/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:48~2:71) /test/1/catalog1/utl_tcp/open_connection/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:108~2:126) /test/1/catalog1/utl_tcp/write_line/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_tcp_signature_combinations_0_021]
+sql:
+-- WRITE_LINE_NAMED
+declare c utl_tcp.connection; n int; begin c := utl_tcp.open_connection('host.docker.internal',18081); n := utl_tcp.write_line(DATA=>'DM8_TCP_LINE',C=>c); utl_tcp.close_connection(c); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:28) /test/1/catalog1/utl_tcp/connection/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:155~2:179) /test/1/catalog1/utl_tcp/close_connection/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:48~2:71) /test/1/catalog1/utl_tcp/open_connection/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:108~2:126) /test/1/catalog1/utl_tcp/write_line/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_tcp_signature_combinations_0_022]
+sql:
+-- WRITE_RAW_DEFAULT_LEN
+declare c utl_tcp.connection; n int; begin c := utl_tcp.open_connection('host.docker.internal',18081); n := utl_tcp.write_raw(c,cast('444D385F5443505F5241570D0A' as varbinary(64))); utl_tcp.close_connection(c); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:28) /test/1/catalog1/utl_tcp/connection/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:182~2:206) /test/1/catalog1/utl_tcp/close_connection/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:48~2:71) /test/1/catalog1/utl_tcp/open_connection/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:108~2:125) /test/1/catalog1/utl_tcp/write_raw/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_tcp_signature_combinations_0_023]
+sql:
+-- WRITE_RAW_NAMED_LEN
+declare c utl_tcp.connection; n int; begin c := utl_tcp.open_connection('host.docker.internal',18081); n := utl_tcp.write_raw(LEN=>4,DATA=>cast('444D385F5443505F5241570D0A' as varbinary(64)),C=>c); utl_tcp.close_connection(c); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:28) /test/1/catalog1/utl_tcp/connection/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:198~2:222) /test/1/catalog1/utl_tcp/close_connection/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:48~2:71) /test/1/catalog1/utl_tcp/open_connection/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:108~2:125) /test/1/catalog1/utl_tcp/write_raw/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_tcp_signature_combinations_0_024]
+sql:
+-- WRITE_TEXT_DEFAULT_LEN
+declare c utl_tcp.connection; n int; begin c := utl_tcp.open_connection('host.docker.internal',18081); n := utl_tcp.write_text(c,'DM8_TCP_TEXT'||utl_tcp.crlf); utl_tcp.flush(c); utl_tcp.close_connection(c); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:28) /test/1/catalog1/utl_tcp/connection/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:160~2:173) /test/1/catalog1/utl_tcp/flush/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:178~2:202) /test/1/catalog1/utl_tcp/close_connection/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:48~2:71) /test/1/catalog1/utl_tcp/open_connection/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:108~2:126) /test/1/catalog1/utl_tcp/write_text/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_tcp_signature_combinations_0_025]
+sql:
+-- WRITE_TEXT_NAMED_LEN
+declare c utl_tcp.connection; n int; begin c := utl_tcp.open_connection('host.docker.internal',18081); n := utl_tcp.write_text(LEN=>4,DATA=>'DM8_TCP_TEXT',C=>c); utl_tcp.flush(c); utl_tcp.close_connection(c); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:28) /test/1/catalog1/utl_tcp/connection/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:162~2:175) /test/1/catalog1/utl_tcp/flush/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:180~2:204) /test/1/catalog1/utl_tcp/close_connection/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:48~2:71) /test/1/catalog1/utl_tcp/open_connection/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:108~2:126) /test/1/catalog1/utl_tcp/write_text/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_tcp_signature_combinations_0_026]
+sql:
+-- FLUSH_NAMED
+declare c utl_tcp.connection; begin c := utl_tcp.open_connection('host.docker.internal',18081); utl_tcp.flush(C=>c); utl_tcp.close_connection(c); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:28) /test/1/catalog1/utl_tcp/connection/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:96~2:109) /test/1/catalog1/utl_tcp/flush/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:117~2:141) /test/1/catalog1/utl_tcp/close_connection/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:41~2:64) /test/1/catalog1/utl_tcp/open_connection/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_tcp_signature_combinations_0_027]
+sql:
+-- CLOSE_CONNECTION_NAMED
+declare c utl_tcp.connection; begin c := utl_tcp.open_connection('host.docker.internal',18081); utl_tcp.close_connection(C=>c); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:28) /test/1/catalog1/utl_tcp/connection/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:96~2:120) /test/1/catalog1/utl_tcp/close_connection/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:41~2:64) /test/1/catalog1/utl_tcp/open_connection/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_tcp_signature_combinations_0_028]
+sql:
+-- CLOSE_ALL_CONNECTION
+begin utl_tcp.close_all_connection(); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:34) /test/1/catalog1/utl_tcp/close_all_connection/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_tcp_signature_combinations_0_029]
+sql:
+-- CLOSE_ALL_CONNECTIONS
+begin utl_tcp.close_all_connections(); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:35) /test/1/catalog1/utl_tcp/close_all_connections/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_tcp_signature_combinations_0_030]
+sql:
+-- READ_RAW_32768_CLAMP
+declare c utl_tcp.connection; greeting varchar(32767); payload varchar(32767); raw_value varbinary(32767); n int; begin c := utl_tcp.open_connection('host.docker.internal',18081,tx_timeout=>5); greeting := utl_tcp.get_line(c,true); payload := rpad('A',32765,'A')||utl_tcp.crlf; n := utl_tcp.write_text(c,payload); utl_tcp.flush(c); n := utl_tcp.read_raw(c,raw_value,32768,false); utl_tcp.close_connection(c); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:28) /test/1/catalog1/utl_tcp/connection/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:314~2:327) /test/1/catalog1/utl_tcp/flush/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:380~2:404) /test/1/catalog1/utl_tcp/close_connection/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:125~2:148) /test/1/catalog1/utl_tcp/open_connection/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:206~2:222) /test/1/catalog1/utl_tcp/get_line/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:243~2:247) /test/1/catalog1/schema1/rpad/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:283~2:301) /test/1/catalog1/utl_tcp/write_text/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:337~2:353) /test/1/catalog1/utl_tcp/read_raw/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_tcp_signature_combinations_0_031]
+sql:
+-- READ_TEXT_32768_CLAMP
+declare c utl_tcp.connection; greeting varchar(32767); payload varchar(32767); text_value varchar(32767); n int; begin c := utl_tcp.open_connection('host.docker.internal',18081,tx_timeout=>5); greeting := utl_tcp.get_line(c,true); payload := rpad('B',32765,'B')||utl_tcp.crlf; n := utl_tcp.write_text(c,payload); utl_tcp.flush(c); n := utl_tcp.read_text(c,text_value,32768,false); utl_tcp.close_connection(c); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:28) /test/1/catalog1/utl_tcp/connection/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:313~2:326) /test/1/catalog1/utl_tcp/flush/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:381~2:405) /test/1/catalog1/utl_tcp/close_connection/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:124~2:147) /test/1/catalog1/utl_tcp/open_connection/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:205~2:221) /test/1/catalog1/utl_tcp/get_line/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:242~2:246) /test/1/catalog1/schema1/rpad/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:282~2:300) /test/1/catalog1/utl_tcp/write_text/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:336~2:353) /test/1/catalog1/utl_tcp/read_text/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_tcp_signature_combinations_0_032]
+sql:
+-- GET_RAW_32767_MAX
+declare c utl_tcp.connection; greeting varchar(32767); payload varchar(32767); raw_value varbinary(32767); n int; begin c := utl_tcp.open_connection('host.docker.internal',18081,tx_timeout=>5); greeting := utl_tcp.get_line(c,true); payload := rpad('C',32765,'C')||utl_tcp.crlf; n := utl_tcp.write_text(c,payload); utl_tcp.flush(c); raw_value := utl_tcp.get_raw(c,32767,false); utl_tcp.close_connection(c); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:28) /test/1/catalog1/utl_tcp/connection/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:314~2:327) /test/1/catalog1/utl_tcp/flush/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:377~2:401) /test/1/catalog1/utl_tcp/close_connection/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:125~2:148) /test/1/catalog1/utl_tcp/open_connection/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:206~2:222) /test/1/catalog1/utl_tcp/get_line/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:243~2:247) /test/1/catalog1/schema1/rpad/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:283~2:301) /test/1/catalog1/utl_tcp/write_text/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:345~2:360) /test/1/catalog1/utl_tcp/get_raw/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_tcp_signature_combinations_0_033]
+sql:
+-- GET_TEXT_32767_MAX
+declare c utl_tcp.connection; greeting varchar(32767); payload varchar(32767); text_value varchar(32767); n int; begin c := utl_tcp.open_connection('host.docker.internal',18081,tx_timeout=>5); greeting := utl_tcp.get_line(c,true); payload := rpad('D',32765,'D')||utl_tcp.crlf; n := utl_tcp.write_text(c,payload); utl_tcp.flush(c); text_value := utl_tcp.get_text(c,32767,false); utl_tcp.close_connection(c); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:28) /test/1/catalog1/utl_tcp/connection/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:313~2:326) /test/1/catalog1/utl_tcp/flush/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:378~2:402) /test/1/catalog1/utl_tcp/close_connection/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:124~2:147) /test/1/catalog1/utl_tcp/open_connection/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:205~2:221) /test/1/catalog1/utl_tcp/get_line/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:242~2:246) /test/1/catalog1/schema1/rpad/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:282~2:300) /test/1/catalog1/utl_tcp/write_text/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:345~2:361) /test/1/catalog1/utl_tcp/get_text/",
+      "action": "CALL"
+    }
+  ]
+}

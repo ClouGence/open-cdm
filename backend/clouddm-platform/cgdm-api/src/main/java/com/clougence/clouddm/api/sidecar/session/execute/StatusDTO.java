@@ -15,6 +15,8 @@
  */
 package com.clougence.clouddm.api.sidecar.session.execute;
 
+import java.util.Map;
+
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbIsolation;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
@@ -27,25 +29,26 @@ import lombok.Setter;
 public class StatusDTO {
 
     // it not going to change.
-    private Integer          maxIdleTimeSec;
-    private long             createTime;
+    private Integer             maxIdleTimeSec;
+    private long                createTime;
 
     // will change.
-    private String           curCatalog;
-    private String           curSchema;
-    private boolean          autoCommit;
-    private boolean          readOnly;
-    private RdbIsolation     isolation;
-    private boolean          hasUnCommitted;
+    private String              curCatalog;
+    private String              curSchema;
+    private boolean             autoCommit;
+    private boolean             readOnly;
+    private RdbIsolation        isolation;
+    private boolean             hasUnCommitted;
+    private Map<String, String> sqlParameters;
 
     // instantaneous
 
-    private volatile boolean executing;
-    private volatile String  curBatchId;
-    private volatile String  curQueryId;
-    private volatile long    lastRequestTime;
+    private volatile boolean    executing;
+    private volatile String     curBatchId;
+    private volatile String     curQueryId;
+    private volatile long       lastRequestTime;
 
-    private volatile int     waitBatchSize;
-    private volatile int     waitQuerySize;
-    private volatile int     eventGoods;
+    private volatile int        waitBatchSize;
+    private volatile int        waitQuerySize;
+    private volatile int        eventGoods;
 }

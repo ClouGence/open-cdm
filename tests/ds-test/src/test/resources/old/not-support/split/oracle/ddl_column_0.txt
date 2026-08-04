@@ -1,0 +1,69 @@
+alter table "test"."user_table" add address varchar(255);
+alter table user_table add address varchar(255) primary key;
+alter table user_table add address varchar(255) references abc(id2);
+alter table user_table drop column address;
+alter table user_table drop column address, drop column age;
+comment on column test.abc.column1 is 'ccc';
+comment on column abc.column1 is 'ccc';
+comment on column "test"."abc"."column1" is 'ccc';
+comment on column "abc"."column1" is 'ccc';
+alter table "abc" modify column1 nvarchar2(22);
+alter table "abc" modify column1 nvarchar2(22) not null;
+alter table user_table add primary key (id);
+alter table "user_table" add primary key ("id");
+alter table "test"."user_table" add primary key ("id");
+alter table user_table drop primary key;
+alter table user_table add primary key (id);
+alter table user_table drop constraint abc_uk;
+alter table abc add constraint ptr foreign key (id) references abc2 (id2);
+alter table abc drop constraint abc_fk;
+alter table abc drop constraint "abc_fk";
+create index index_name on abc (id);
+create index "index_name" on "test"."abc" ("id");
+create unique index index_name on abc (id);
+------------------------------------------------------------------------------------------
+alter table "test"."user_table" add address varchar(255);
+----------
+alter table user_table add address varchar(255) primary key;
+----------
+alter table user_table add address varchar(255) references abc(id2);
+----------
+alter table user_table drop column address;
+----------
+alter table user_table drop column address, drop column age;
+----------
+comment on column test.abc.column1 is 'ccc';
+----------
+comment on column abc.column1 is 'ccc';
+----------
+comment on column "test"."abc"."column1" is 'ccc';
+----------
+comment on column "abc"."column1" is 'ccc';
+----------
+alter table "abc" modify column1 nvarchar2(22);
+----------
+alter table "abc" modify column1 nvarchar2(22) not null;
+----------
+alter table user_table add primary key (id);
+----------
+alter table "user_table" add primary key ("id");
+----------
+alter table "test"."user_table" add primary key ("id");
+----------
+alter table user_table drop primary key;
+----------
+alter table user_table add primary key (id);
+----------
+alter table user_table drop constraint abc_uk;
+----------
+alter table abc add constraint ptr foreign key (id) references abc2 (id2);
+----------
+alter table abc drop constraint abc_fk;
+----------
+alter table abc drop constraint "abc_fk";
+----------
+create index index_name on abc (id);
+----------
+create index "index_name" on "test"."abc" ("id");
+----------
+create unique index index_name on abc (id);

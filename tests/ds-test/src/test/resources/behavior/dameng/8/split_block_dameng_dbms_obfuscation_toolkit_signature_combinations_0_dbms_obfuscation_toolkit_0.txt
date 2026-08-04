@@ -1,0 +1,980 @@
+[split_block_dameng_dbms_obfuscation_toolkit_signature_combinations_0_001]
+sql:
+-- FUNC-0636 DES3DECRYPT
+declare
+  bin_input8 varbinary(128):='7469676572746967';
+  bin_input16 varbinary(128):='74696765727469676572746967657274';
+  key8 varbinary(128):='73636F747473636F';
+  key16 varbinary(128):='73636F747473636F747473636F747473';
+  key24 varbinary(128):='313233343536373839303132333435363738393031323334';
+  iv_bin varbinary(128):='3132333435363738';
+  seed_bin varbinary(256):='3031323334353637383930313233343536373839303132333435363738393031323334353637383930313233343536373839303132333435363738393031323334353637383930313233343536373839';
+  bin_out varbinary(2048);
+  bin_result varbinary(2048);
+  text_input8 varchar2(128):='DM123456';
+  text_input16 varchar2(128):='tigertigertigert';
+  key_text8 varchar2(128):='PASSWORD';
+  key_text16 varchar2(128):='scottscottscotts';
+  key_text24 varchar2(128):='123456789012345678901234';
+  iv_text varchar2(128):='12345678';
+  seed_text varchar2(256):='01234567890123456789012345678901234567890123456789012345678901234567890123456789';
+  text_out varchar2(2048);
+  text_result varchar2(2048);
+begin DBMS_OBFUSCATION_TOOLKIT.DES3DECRYPT(INPUT=>bin_out,KEY=>key16,DECRYPTED_DATA=>bin_result,WHICH=>0,IV=>iv_bin); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(21:6~21:42) /test/1/catalog1/DBMS_OBFUSCATION_TOOLKIT/DES3DECRYPT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_obfuscation_toolkit_signature_combinations_0_002]
+sql:
+-- FUNC-0637 DES3DECRYPT
+declare
+  bin_input8 varbinary(128):='7469676572746967';
+  bin_input16 varbinary(128):='74696765727469676572746967657274';
+  key8 varbinary(128):='73636F747473636F';
+  key16 varbinary(128):='73636F747473636F747473636F747473';
+  key24 varbinary(128):='313233343536373839303132333435363738393031323334';
+  iv_bin varbinary(128):='3132333435363738';
+  seed_bin varbinary(256):='3031323334353637383930313233343536373839303132333435363738393031323334353637383930313233343536373839303132333435363738393031323334353637383930313233343536373839';
+  bin_out varbinary(2048);
+  bin_result varbinary(2048);
+  text_input8 varchar2(128):='DM123456';
+  text_input16 varchar2(128):='tigertigertigert';
+  key_text8 varchar2(128):='PASSWORD';
+  key_text16 varchar2(128):='scottscottscotts';
+  key_text24 varchar2(128):='123456789012345678901234';
+  iv_text varchar2(128):='12345678';
+  seed_text varchar2(256):='01234567890123456789012345678901234567890123456789012345678901234567890123456789';
+  text_out varchar2(2048);
+  text_result varchar2(2048);
+begin DBMS_OBFUSCATION_TOOLKIT.DES3DECRYPT(INPUT_STRING=>text_out,KEY_STRING=>key_text16,DECRYPTED_STRING=>text_result,WHICH=>0,IV_STRING=>iv_text); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(21:6~21:42) /test/1/catalog1/DBMS_OBFUSCATION_TOOLKIT/DES3DECRYPT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_obfuscation_toolkit_signature_combinations_0_003]
+sql:
+-- FUNC-0638 DES3DECRYPT
+declare
+  bin_input8 varbinary(128):='7469676572746967';
+  bin_input16 varbinary(128):='74696765727469676572746967657274';
+  key8 varbinary(128):='73636F747473636F';
+  key16 varbinary(128):='73636F747473636F747473636F747473';
+  key24 varbinary(128):='313233343536373839303132333435363738393031323334';
+  iv_bin varbinary(128):='3132333435363738';
+  seed_bin varbinary(256):='3031323334353637383930313233343536373839303132333435363738393031323334353637383930313233343536373839303132333435363738393031323334353637383930313233343536373839';
+  bin_out varbinary(2048);
+  bin_result varbinary(2048);
+  text_input8 varchar2(128):='DM123456';
+  text_input16 varchar2(128):='tigertigertigert';
+  key_text8 varchar2(128):='PASSWORD';
+  key_text16 varchar2(128):='scottscottscotts';
+  key_text24 varchar2(128):='123456789012345678901234';
+  iv_text varchar2(128):='12345678';
+  seed_text varchar2(256):='01234567890123456789012345678901234567890123456789012345678901234567890123456789';
+  text_out varchar2(2048);
+  text_result varchar2(2048);
+begin bin_result:=DBMS_OBFUSCATION_TOOLKIT.DES3DECRYPT(INPUT=>bin_out,KEY=>key16,WHICH=>0,IV=>iv_bin); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(21:18~21:54) /test/1/catalog1/DBMS_OBFUSCATION_TOOLKIT/DES3DECRYPT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_obfuscation_toolkit_signature_combinations_0_004]
+sql:
+-- FUNC-0639 DES3DECRYPT
+declare
+  bin_input8 varbinary(128):='7469676572746967';
+  bin_input16 varbinary(128):='74696765727469676572746967657274';
+  key8 varbinary(128):='73636F747473636F';
+  key16 varbinary(128):='73636F747473636F747473636F747473';
+  key24 varbinary(128):='313233343536373839303132333435363738393031323334';
+  iv_bin varbinary(128):='3132333435363738';
+  seed_bin varbinary(256):='3031323334353637383930313233343536373839303132333435363738393031323334353637383930313233343536373839303132333435363738393031323334353637383930313233343536373839';
+  bin_out varbinary(2048);
+  bin_result varbinary(2048);
+  text_input8 varchar2(128):='DM123456';
+  text_input16 varchar2(128):='tigertigertigert';
+  key_text8 varchar2(128):='PASSWORD';
+  key_text16 varchar2(128):='scottscottscotts';
+  key_text24 varchar2(128):='123456789012345678901234';
+  iv_text varchar2(128):='12345678';
+  seed_text varchar2(256):='01234567890123456789012345678901234567890123456789012345678901234567890123456789';
+  text_out varchar2(2048);
+  text_result varchar2(2048);
+begin text_result:=DBMS_OBFUSCATION_TOOLKIT.DES3DECRYPT(INPUT_STRING=>text_out,KEY_STRING=>key_text16,WHICH=>0,IV_STRING=>iv_text); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(21:19~21:55) /test/1/catalog1/DBMS_OBFUSCATION_TOOLKIT/DES3DECRYPT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_obfuscation_toolkit_signature_combinations_0_005]
+sql:
+-- FUNC-0640 DES3ENCRYPT
+declare
+  bin_input8 varbinary(128):='7469676572746967';
+  bin_input16 varbinary(128):='74696765727469676572746967657274';
+  key8 varbinary(128):='73636F747473636F';
+  key16 varbinary(128):='73636F747473636F747473636F747473';
+  key24 varbinary(128):='313233343536373839303132333435363738393031323334';
+  iv_bin varbinary(128):='3132333435363738';
+  seed_bin varbinary(256):='3031323334353637383930313233343536373839303132333435363738393031323334353637383930313233343536373839303132333435363738393031323334353637383930313233343536373839';
+  bin_out varbinary(2048);
+  bin_result varbinary(2048);
+  text_input8 varchar2(128):='DM123456';
+  text_input16 varchar2(128):='tigertigertigert';
+  key_text8 varchar2(128):='PASSWORD';
+  key_text16 varchar2(128):='scottscottscotts';
+  key_text24 varchar2(128):='123456789012345678901234';
+  iv_text varchar2(128):='12345678';
+  seed_text varchar2(256):='01234567890123456789012345678901234567890123456789012345678901234567890123456789';
+  text_out varchar2(2048);
+  text_result varchar2(2048);
+begin DBMS_OBFUSCATION_TOOLKIT.DES3ENCRYPT(INPUT=>bin_input16,KEY=>key16,ENCRYPTED_DATA=>bin_out,WHICH=>0,IV=>iv_bin); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(21:6~21:42) /test/1/catalog1/DBMS_OBFUSCATION_TOOLKIT/DES3ENCRYPT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_obfuscation_toolkit_signature_combinations_0_006]
+sql:
+-- FUNC-0641 DES3ENCRYPT
+declare
+  bin_input8 varbinary(128):='7469676572746967';
+  bin_input16 varbinary(128):='74696765727469676572746967657274';
+  key8 varbinary(128):='73636F747473636F';
+  key16 varbinary(128):='73636F747473636F747473636F747473';
+  key24 varbinary(128):='313233343536373839303132333435363738393031323334';
+  iv_bin varbinary(128):='3132333435363738';
+  seed_bin varbinary(256):='3031323334353637383930313233343536373839303132333435363738393031323334353637383930313233343536373839303132333435363738393031323334353637383930313233343536373839';
+  bin_out varbinary(2048);
+  bin_result varbinary(2048);
+  text_input8 varchar2(128):='DM123456';
+  text_input16 varchar2(128):='tigertigertigert';
+  key_text8 varchar2(128):='PASSWORD';
+  key_text16 varchar2(128):='scottscottscotts';
+  key_text24 varchar2(128):='123456789012345678901234';
+  iv_text varchar2(128):='12345678';
+  seed_text varchar2(256):='01234567890123456789012345678901234567890123456789012345678901234567890123456789';
+  text_out varchar2(2048);
+  text_result varchar2(2048);
+begin DBMS_OBFUSCATION_TOOLKIT.DES3ENCRYPT(INPUT_STRING=>text_input16,KEY_STRING=>key_text16,ENCRYPTED_STRING=>text_out,WHICH=>0,IV_STRING=>iv_text); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(21:6~21:42) /test/1/catalog1/DBMS_OBFUSCATION_TOOLKIT/DES3ENCRYPT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_obfuscation_toolkit_signature_combinations_0_007]
+sql:
+-- FUNC-0642 DES3ENCRYPT
+declare
+  bin_input8 varbinary(128):='7469676572746967';
+  bin_input16 varbinary(128):='74696765727469676572746967657274';
+  key8 varbinary(128):='73636F747473636F';
+  key16 varbinary(128):='73636F747473636F747473636F747473';
+  key24 varbinary(128):='313233343536373839303132333435363738393031323334';
+  iv_bin varbinary(128):='3132333435363738';
+  seed_bin varbinary(256):='3031323334353637383930313233343536373839303132333435363738393031323334353637383930313233343536373839303132333435363738393031323334353637383930313233343536373839';
+  bin_out varbinary(2048);
+  bin_result varbinary(2048);
+  text_input8 varchar2(128):='DM123456';
+  text_input16 varchar2(128):='tigertigertigert';
+  key_text8 varchar2(128):='PASSWORD';
+  key_text16 varchar2(128):='scottscottscotts';
+  key_text24 varchar2(128):='123456789012345678901234';
+  iv_text varchar2(128):='12345678';
+  seed_text varchar2(256):='01234567890123456789012345678901234567890123456789012345678901234567890123456789';
+  text_out varchar2(2048);
+  text_result varchar2(2048);
+begin bin_out:=DBMS_OBFUSCATION_TOOLKIT.DES3ENCRYPT(INPUT=>bin_input16,KEY=>key16,WHICH=>0,IV=>iv_bin); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(21:15~21:51) /test/1/catalog1/DBMS_OBFUSCATION_TOOLKIT/DES3ENCRYPT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_obfuscation_toolkit_signature_combinations_0_008]
+sql:
+-- FUNC-0643 DES3ENCRYPT
+declare
+  bin_input8 varbinary(128):='7469676572746967';
+  bin_input16 varbinary(128):='74696765727469676572746967657274';
+  key8 varbinary(128):='73636F747473636F';
+  key16 varbinary(128):='73636F747473636F747473636F747473';
+  key24 varbinary(128):='313233343536373839303132333435363738393031323334';
+  iv_bin varbinary(128):='3132333435363738';
+  seed_bin varbinary(256):='3031323334353637383930313233343536373839303132333435363738393031323334353637383930313233343536373839303132333435363738393031323334353637383930313233343536373839';
+  bin_out varbinary(2048);
+  bin_result varbinary(2048);
+  text_input8 varchar2(128):='DM123456';
+  text_input16 varchar2(128):='tigertigertigert';
+  key_text8 varchar2(128):='PASSWORD';
+  key_text16 varchar2(128):='scottscottscotts';
+  key_text24 varchar2(128):='123456789012345678901234';
+  iv_text varchar2(128):='12345678';
+  seed_text varchar2(256):='01234567890123456789012345678901234567890123456789012345678901234567890123456789';
+  text_out varchar2(2048);
+  text_result varchar2(2048);
+begin text_out:=DBMS_OBFUSCATION_TOOLKIT.DES3ENCRYPT(INPUT_STRING=>text_input16,KEY_STRING=>key_text16,WHICH=>0,IV_STRING=>iv_text); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(21:16~21:52) /test/1/catalog1/DBMS_OBFUSCATION_TOOLKIT/DES3ENCRYPT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_obfuscation_toolkit_signature_combinations_0_009]
+sql:
+-- FUNC-0644 DES3GETKEY
+declare
+  bin_input8 varbinary(128):='7469676572746967';
+  bin_input16 varbinary(128):='74696765727469676572746967657274';
+  key8 varbinary(128):='73636F747473636F';
+  key16 varbinary(128):='73636F747473636F747473636F747473';
+  key24 varbinary(128):='313233343536373839303132333435363738393031323334';
+  iv_bin varbinary(128):='3132333435363738';
+  seed_bin varbinary(256):='3031323334353637383930313233343536373839303132333435363738393031323334353637383930313233343536373839303132333435363738393031323334353637383930313233343536373839';
+  bin_out varbinary(2048);
+  bin_result varbinary(2048);
+  text_input8 varchar2(128):='DM123456';
+  text_input16 varchar2(128):='tigertigertigert';
+  key_text8 varchar2(128):='PASSWORD';
+  key_text16 varchar2(128):='scottscottscotts';
+  key_text24 varchar2(128):='123456789012345678901234';
+  iv_text varchar2(128):='12345678';
+  seed_text varchar2(256):='01234567890123456789012345678901234567890123456789012345678901234567890123456789';
+  text_out varchar2(2048);
+  text_result varchar2(2048);
+begin DBMS_OBFUSCATION_TOOLKIT.DES3GETKEY(WHICH=>0,SEED=>seed_bin,KEY=>bin_out); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(21:6~21:41) /test/1/catalog1/DBMS_OBFUSCATION_TOOLKIT/DES3GETKEY/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_obfuscation_toolkit_signature_combinations_0_010]
+sql:
+-- FUNC-0645 DES3GETKEY
+declare
+  bin_input8 varbinary(128):='7469676572746967';
+  bin_input16 varbinary(128):='74696765727469676572746967657274';
+  key8 varbinary(128):='73636F747473636F';
+  key16 varbinary(128):='73636F747473636F747473636F747473';
+  key24 varbinary(128):='313233343536373839303132333435363738393031323334';
+  iv_bin varbinary(128):='3132333435363738';
+  seed_bin varbinary(256):='3031323334353637383930313233343536373839303132333435363738393031323334353637383930313233343536373839303132333435363738393031323334353637383930313233343536373839';
+  bin_out varbinary(2048);
+  bin_result varbinary(2048);
+  text_input8 varchar2(128):='DM123456';
+  text_input16 varchar2(128):='tigertigertigert';
+  key_text8 varchar2(128):='PASSWORD';
+  key_text16 varchar2(128):='scottscottscotts';
+  key_text24 varchar2(128):='123456789012345678901234';
+  iv_text varchar2(128):='12345678';
+  seed_text varchar2(256):='01234567890123456789012345678901234567890123456789012345678901234567890123456789';
+  text_out varchar2(2048);
+  text_result varchar2(2048);
+begin DBMS_OBFUSCATION_TOOLKIT.DES3GETKEY(WHICH=>0,SEED_STRING=>seed_text,KEY=>text_out); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(21:6~21:41) /test/1/catalog1/DBMS_OBFUSCATION_TOOLKIT/DES3GETKEY/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_obfuscation_toolkit_signature_combinations_0_011]
+sql:
+-- FUNC-0646 DES3GETKEY
+declare
+  bin_input8 varbinary(128):='7469676572746967';
+  bin_input16 varbinary(128):='74696765727469676572746967657274';
+  key8 varbinary(128):='73636F747473636F';
+  key16 varbinary(128):='73636F747473636F747473636F747473';
+  key24 varbinary(128):='313233343536373839303132333435363738393031323334';
+  iv_bin varbinary(128):='3132333435363738';
+  seed_bin varbinary(256):='3031323334353637383930313233343536373839303132333435363738393031323334353637383930313233343536373839303132333435363738393031323334353637383930313233343536373839';
+  bin_out varbinary(2048);
+  bin_result varbinary(2048);
+  text_input8 varchar2(128):='DM123456';
+  text_input16 varchar2(128):='tigertigertigert';
+  key_text8 varchar2(128):='PASSWORD';
+  key_text16 varchar2(128):='scottscottscotts';
+  key_text24 varchar2(128):='123456789012345678901234';
+  iv_text varchar2(128):='12345678';
+  seed_text varchar2(256):='01234567890123456789012345678901234567890123456789012345678901234567890123456789';
+  text_out varchar2(2048);
+  text_result varchar2(2048);
+begin bin_out:=DBMS_OBFUSCATION_TOOLKIT.DES3GETKEY(WHICH=>0,SEED=>seed_bin); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(21:15~21:50) /test/1/catalog1/DBMS_OBFUSCATION_TOOLKIT/DES3GETKEY/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_obfuscation_toolkit_signature_combinations_0_012]
+sql:
+-- FUNC-0647 DES3GETKEY
+declare
+  bin_input8 varbinary(128):='7469676572746967';
+  bin_input16 varbinary(128):='74696765727469676572746967657274';
+  key8 varbinary(128):='73636F747473636F';
+  key16 varbinary(128):='73636F747473636F747473636F747473';
+  key24 varbinary(128):='313233343536373839303132333435363738393031323334';
+  iv_bin varbinary(128):='3132333435363738';
+  seed_bin varbinary(256):='3031323334353637383930313233343536373839303132333435363738393031323334353637383930313233343536373839303132333435363738393031323334353637383930313233343536373839';
+  bin_out varbinary(2048);
+  bin_result varbinary(2048);
+  text_input8 varchar2(128):='DM123456';
+  text_input16 varchar2(128):='tigertigertigert';
+  key_text8 varchar2(128):='PASSWORD';
+  key_text16 varchar2(128):='scottscottscotts';
+  key_text24 varchar2(128):='123456789012345678901234';
+  iv_text varchar2(128):='12345678';
+  seed_text varchar2(256):='01234567890123456789012345678901234567890123456789012345678901234567890123456789';
+  text_out varchar2(2048);
+  text_result varchar2(2048);
+begin text_out:=DBMS_OBFUSCATION_TOOLKIT.DES3GETKEY(WHICH=>0,SEED_STRING=>seed_text); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(21:16~21:51) /test/1/catalog1/DBMS_OBFUSCATION_TOOLKIT/DES3GETKEY/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_obfuscation_toolkit_signature_combinations_0_013]
+sql:
+-- FUNC-0648 DESDECRYPT
+declare
+  bin_input8 varbinary(128):='7469676572746967';
+  bin_input16 varbinary(128):='74696765727469676572746967657274';
+  key8 varbinary(128):='73636F747473636F';
+  key16 varbinary(128):='73636F747473636F747473636F747473';
+  key24 varbinary(128):='313233343536373839303132333435363738393031323334';
+  iv_bin varbinary(128):='3132333435363738';
+  seed_bin varbinary(256):='3031323334353637383930313233343536373839303132333435363738393031323334353637383930313233343536373839303132333435363738393031323334353637383930313233343536373839';
+  bin_out varbinary(2048);
+  bin_result varbinary(2048);
+  text_input8 varchar2(128):='DM123456';
+  text_input16 varchar2(128):='tigertigertigert';
+  key_text8 varchar2(128):='PASSWORD';
+  key_text16 varchar2(128):='scottscottscotts';
+  key_text24 varchar2(128):='123456789012345678901234';
+  iv_text varchar2(128):='12345678';
+  seed_text varchar2(256):='01234567890123456789012345678901234567890123456789012345678901234567890123456789';
+  text_out varchar2(2048);
+  text_result varchar2(2048);
+begin DBMS_OBFUSCATION_TOOLKIT.DESDECRYPT(INPUT=>bin_out,KEY=>key8,DECRYPTED_DATA=>bin_result); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(21:6~21:41) /test/1/catalog1/DBMS_OBFUSCATION_TOOLKIT/DESDECRYPT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_obfuscation_toolkit_signature_combinations_0_014]
+sql:
+-- FUNC-0649 DESDECRYPT
+declare
+  bin_input8 varbinary(128):='7469676572746967';
+  bin_input16 varbinary(128):='74696765727469676572746967657274';
+  key8 varbinary(128):='73636F747473636F';
+  key16 varbinary(128):='73636F747473636F747473636F747473';
+  key24 varbinary(128):='313233343536373839303132333435363738393031323334';
+  iv_bin varbinary(128):='3132333435363738';
+  seed_bin varbinary(256):='3031323334353637383930313233343536373839303132333435363738393031323334353637383930313233343536373839303132333435363738393031323334353637383930313233343536373839';
+  bin_out varbinary(2048);
+  bin_result varbinary(2048);
+  text_input8 varchar2(128):='DM123456';
+  text_input16 varchar2(128):='tigertigertigert';
+  key_text8 varchar2(128):='PASSWORD';
+  key_text16 varchar2(128):='scottscottscotts';
+  key_text24 varchar2(128):='123456789012345678901234';
+  iv_text varchar2(128):='12345678';
+  seed_text varchar2(256):='01234567890123456789012345678901234567890123456789012345678901234567890123456789';
+  text_out varchar2(2048);
+  text_result varchar2(2048);
+begin DBMS_OBFUSCATION_TOOLKIT.DESDECRYPT(INPUT_STRING=>text_out,KEY_STRING=>key_text8,DECRYPTED_STRING=>text_result); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(21:6~21:41) /test/1/catalog1/DBMS_OBFUSCATION_TOOLKIT/DESDECRYPT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_obfuscation_toolkit_signature_combinations_0_015]
+sql:
+-- FUNC-0650 DESDECRYPT
+declare
+  bin_input8 varbinary(128):='7469676572746967';
+  bin_input16 varbinary(128):='74696765727469676572746967657274';
+  key8 varbinary(128):='73636F747473636F';
+  key16 varbinary(128):='73636F747473636F747473636F747473';
+  key24 varbinary(128):='313233343536373839303132333435363738393031323334';
+  iv_bin varbinary(128):='3132333435363738';
+  seed_bin varbinary(256):='3031323334353637383930313233343536373839303132333435363738393031323334353637383930313233343536373839303132333435363738393031323334353637383930313233343536373839';
+  bin_out varbinary(2048);
+  bin_result varbinary(2048);
+  text_input8 varchar2(128):='DM123456';
+  text_input16 varchar2(128):='tigertigertigert';
+  key_text8 varchar2(128):='PASSWORD';
+  key_text16 varchar2(128):='scottscottscotts';
+  key_text24 varchar2(128):='123456789012345678901234';
+  iv_text varchar2(128):='12345678';
+  seed_text varchar2(256):='01234567890123456789012345678901234567890123456789012345678901234567890123456789';
+  text_out varchar2(2048);
+  text_result varchar2(2048);
+begin bin_result:=DBMS_OBFUSCATION_TOOLKIT.DESDECRYPT(INPUT=>bin_out,KEY=>key8); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(21:18~21:53) /test/1/catalog1/DBMS_OBFUSCATION_TOOLKIT/DESDECRYPT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_obfuscation_toolkit_signature_combinations_0_016]
+sql:
+-- FUNC-0651 DESDECRYPT
+declare
+  bin_input8 varbinary(128):='7469676572746967';
+  bin_input16 varbinary(128):='74696765727469676572746967657274';
+  key8 varbinary(128):='73636F747473636F';
+  key16 varbinary(128):='73636F747473636F747473636F747473';
+  key24 varbinary(128):='313233343536373839303132333435363738393031323334';
+  iv_bin varbinary(128):='3132333435363738';
+  seed_bin varbinary(256):='3031323334353637383930313233343536373839303132333435363738393031323334353637383930313233343536373839303132333435363738393031323334353637383930313233343536373839';
+  bin_out varbinary(2048);
+  bin_result varbinary(2048);
+  text_input8 varchar2(128):='DM123456';
+  text_input16 varchar2(128):='tigertigertigert';
+  key_text8 varchar2(128):='PASSWORD';
+  key_text16 varchar2(128):='scottscottscotts';
+  key_text24 varchar2(128):='123456789012345678901234';
+  iv_text varchar2(128):='12345678';
+  seed_text varchar2(256):='01234567890123456789012345678901234567890123456789012345678901234567890123456789';
+  text_out varchar2(2048);
+  text_result varchar2(2048);
+begin text_result:=DBMS_OBFUSCATION_TOOLKIT.DESDECRYPT(INPUT_STRING=>text_out,KEY_STRING=>key_text8); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(21:19~21:54) /test/1/catalog1/DBMS_OBFUSCATION_TOOLKIT/DESDECRYPT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_obfuscation_toolkit_signature_combinations_0_017]
+sql:
+-- FUNC-0652 DESENCRYPT
+declare
+  bin_input8 varbinary(128):='7469676572746967';
+  bin_input16 varbinary(128):='74696765727469676572746967657274';
+  key8 varbinary(128):='73636F747473636F';
+  key16 varbinary(128):='73636F747473636F747473636F747473';
+  key24 varbinary(128):='313233343536373839303132333435363738393031323334';
+  iv_bin varbinary(128):='3132333435363738';
+  seed_bin varbinary(256):='3031323334353637383930313233343536373839303132333435363738393031323334353637383930313233343536373839303132333435363738393031323334353637383930313233343536373839';
+  bin_out varbinary(2048);
+  bin_result varbinary(2048);
+  text_input8 varchar2(128):='DM123456';
+  text_input16 varchar2(128):='tigertigertigert';
+  key_text8 varchar2(128):='PASSWORD';
+  key_text16 varchar2(128):='scottscottscotts';
+  key_text24 varchar2(128):='123456789012345678901234';
+  iv_text varchar2(128):='12345678';
+  seed_text varchar2(256):='01234567890123456789012345678901234567890123456789012345678901234567890123456789';
+  text_out varchar2(2048);
+  text_result varchar2(2048);
+begin DBMS_OBFUSCATION_TOOLKIT.DESENCRYPT(INPUT=>bin_input8,KEY=>key8,ENCRYPTED_DATA=>bin_out); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(21:6~21:41) /test/1/catalog1/DBMS_OBFUSCATION_TOOLKIT/DESENCRYPT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_obfuscation_toolkit_signature_combinations_0_018]
+sql:
+-- FUNC-0653 DESENCRYPT
+declare
+  bin_input8 varbinary(128):='7469676572746967';
+  bin_input16 varbinary(128):='74696765727469676572746967657274';
+  key8 varbinary(128):='73636F747473636F';
+  key16 varbinary(128):='73636F747473636F747473636F747473';
+  key24 varbinary(128):='313233343536373839303132333435363738393031323334';
+  iv_bin varbinary(128):='3132333435363738';
+  seed_bin varbinary(256):='3031323334353637383930313233343536373839303132333435363738393031323334353637383930313233343536373839303132333435363738393031323334353637383930313233343536373839';
+  bin_out varbinary(2048);
+  bin_result varbinary(2048);
+  text_input8 varchar2(128):='DM123456';
+  text_input16 varchar2(128):='tigertigertigert';
+  key_text8 varchar2(128):='PASSWORD';
+  key_text16 varchar2(128):='scottscottscotts';
+  key_text24 varchar2(128):='123456789012345678901234';
+  iv_text varchar2(128):='12345678';
+  seed_text varchar2(256):='01234567890123456789012345678901234567890123456789012345678901234567890123456789';
+  text_out varchar2(2048);
+  text_result varchar2(2048);
+begin DBMS_OBFUSCATION_TOOLKIT.DESENCRYPT(INPUT_STRING=>text_input8,KEY_STRING=>key_text8,ENCRYPTED_STRING=>text_out); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(21:6~21:41) /test/1/catalog1/DBMS_OBFUSCATION_TOOLKIT/DESENCRYPT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_obfuscation_toolkit_signature_combinations_0_019]
+sql:
+-- FUNC-0654 DESENCRYPT
+declare
+  bin_input8 varbinary(128):='7469676572746967';
+  bin_input16 varbinary(128):='74696765727469676572746967657274';
+  key8 varbinary(128):='73636F747473636F';
+  key16 varbinary(128):='73636F747473636F747473636F747473';
+  key24 varbinary(128):='313233343536373839303132333435363738393031323334';
+  iv_bin varbinary(128):='3132333435363738';
+  seed_bin varbinary(256):='3031323334353637383930313233343536373839303132333435363738393031323334353637383930313233343536373839303132333435363738393031323334353637383930313233343536373839';
+  bin_out varbinary(2048);
+  bin_result varbinary(2048);
+  text_input8 varchar2(128):='DM123456';
+  text_input16 varchar2(128):='tigertigertigert';
+  key_text8 varchar2(128):='PASSWORD';
+  key_text16 varchar2(128):='scottscottscotts';
+  key_text24 varchar2(128):='123456789012345678901234';
+  iv_text varchar2(128):='12345678';
+  seed_text varchar2(256):='01234567890123456789012345678901234567890123456789012345678901234567890123456789';
+  text_out varchar2(2048);
+  text_result varchar2(2048);
+begin bin_out:=DBMS_OBFUSCATION_TOOLKIT.DESENCRYPT(INPUT=>bin_input8,KEY=>key8); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(21:15~21:50) /test/1/catalog1/DBMS_OBFUSCATION_TOOLKIT/DESENCRYPT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_obfuscation_toolkit_signature_combinations_0_020]
+sql:
+-- FUNC-0655 DESENCRYPT
+declare
+  bin_input8 varbinary(128):='7469676572746967';
+  bin_input16 varbinary(128):='74696765727469676572746967657274';
+  key8 varbinary(128):='73636F747473636F';
+  key16 varbinary(128):='73636F747473636F747473636F747473';
+  key24 varbinary(128):='313233343536373839303132333435363738393031323334';
+  iv_bin varbinary(128):='3132333435363738';
+  seed_bin varbinary(256):='3031323334353637383930313233343536373839303132333435363738393031323334353637383930313233343536373839303132333435363738393031323334353637383930313233343536373839';
+  bin_out varbinary(2048);
+  bin_result varbinary(2048);
+  text_input8 varchar2(128):='DM123456';
+  text_input16 varchar2(128):='tigertigertigert';
+  key_text8 varchar2(128):='PASSWORD';
+  key_text16 varchar2(128):='scottscottscotts';
+  key_text24 varchar2(128):='123456789012345678901234';
+  iv_text varchar2(128):='12345678';
+  seed_text varchar2(256):='01234567890123456789012345678901234567890123456789012345678901234567890123456789';
+  text_out varchar2(2048);
+  text_result varchar2(2048);
+begin text_out:=DBMS_OBFUSCATION_TOOLKIT.DESENCRYPT(INPUT_STRING=>text_input8,KEY_STRING=>key_text8); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(21:16~21:51) /test/1/catalog1/DBMS_OBFUSCATION_TOOLKIT/DESENCRYPT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_obfuscation_toolkit_signature_combinations_0_021]
+sql:
+-- FUNC-0656 DESGETKEY
+declare
+  bin_input8 varbinary(128):='7469676572746967';
+  bin_input16 varbinary(128):='74696765727469676572746967657274';
+  key8 varbinary(128):='73636F747473636F';
+  key16 varbinary(128):='73636F747473636F747473636F747473';
+  key24 varbinary(128):='313233343536373839303132333435363738393031323334';
+  iv_bin varbinary(128):='3132333435363738';
+  seed_bin varbinary(256):='3031323334353637383930313233343536373839303132333435363738393031323334353637383930313233343536373839303132333435363738393031323334353637383930313233343536373839';
+  bin_out varbinary(2048);
+  bin_result varbinary(2048);
+  text_input8 varchar2(128):='DM123456';
+  text_input16 varchar2(128):='tigertigertigert';
+  key_text8 varchar2(128):='PASSWORD';
+  key_text16 varchar2(128):='scottscottscotts';
+  key_text24 varchar2(128):='123456789012345678901234';
+  iv_text varchar2(128):='12345678';
+  seed_text varchar2(256):='01234567890123456789012345678901234567890123456789012345678901234567890123456789';
+  text_out varchar2(2048);
+  text_result varchar2(2048);
+begin DBMS_OBFUSCATION_TOOLKIT.DESGETKEY(SEED=>seed_bin,KEY=>bin_out); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(21:6~21:40) /test/1/catalog1/DBMS_OBFUSCATION_TOOLKIT/DESGETKEY/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_obfuscation_toolkit_signature_combinations_0_022]
+sql:
+-- FUNC-0657 DESGETKEY
+declare
+  bin_input8 varbinary(128):='7469676572746967';
+  bin_input16 varbinary(128):='74696765727469676572746967657274';
+  key8 varbinary(128):='73636F747473636F';
+  key16 varbinary(128):='73636F747473636F747473636F747473';
+  key24 varbinary(128):='313233343536373839303132333435363738393031323334';
+  iv_bin varbinary(128):='3132333435363738';
+  seed_bin varbinary(256):='3031323334353637383930313233343536373839303132333435363738393031323334353637383930313233343536373839303132333435363738393031323334353637383930313233343536373839';
+  bin_out varbinary(2048);
+  bin_result varbinary(2048);
+  text_input8 varchar2(128):='DM123456';
+  text_input16 varchar2(128):='tigertigertigert';
+  key_text8 varchar2(128):='PASSWORD';
+  key_text16 varchar2(128):='scottscottscotts';
+  key_text24 varchar2(128):='123456789012345678901234';
+  iv_text varchar2(128):='12345678';
+  seed_text varchar2(256):='01234567890123456789012345678901234567890123456789012345678901234567890123456789';
+  text_out varchar2(2048);
+  text_result varchar2(2048);
+begin DBMS_OBFUSCATION_TOOLKIT.DESGETKEY(SEED_STRING=>seed_text,KEY=>text_out); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(21:6~21:40) /test/1/catalog1/DBMS_OBFUSCATION_TOOLKIT/DESGETKEY/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_obfuscation_toolkit_signature_combinations_0_023]
+sql:
+-- FUNC-0658 DESGETKEY
+declare
+  bin_input8 varbinary(128):='7469676572746967';
+  bin_input16 varbinary(128):='74696765727469676572746967657274';
+  key8 varbinary(128):='73636F747473636F';
+  key16 varbinary(128):='73636F747473636F747473636F747473';
+  key24 varbinary(128):='313233343536373839303132333435363738393031323334';
+  iv_bin varbinary(128):='3132333435363738';
+  seed_bin varbinary(256):='3031323334353637383930313233343536373839303132333435363738393031323334353637383930313233343536373839303132333435363738393031323334353637383930313233343536373839';
+  bin_out varbinary(2048);
+  bin_result varbinary(2048);
+  text_input8 varchar2(128):='DM123456';
+  text_input16 varchar2(128):='tigertigertigert';
+  key_text8 varchar2(128):='PASSWORD';
+  key_text16 varchar2(128):='scottscottscotts';
+  key_text24 varchar2(128):='123456789012345678901234';
+  iv_text varchar2(128):='12345678';
+  seed_text varchar2(256):='01234567890123456789012345678901234567890123456789012345678901234567890123456789';
+  text_out varchar2(2048);
+  text_result varchar2(2048);
+begin bin_out:=DBMS_OBFUSCATION_TOOLKIT.DESGETKEY(SEED=>seed_bin); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(21:15~21:49) /test/1/catalog1/DBMS_OBFUSCATION_TOOLKIT/DESGETKEY/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_obfuscation_toolkit_signature_combinations_0_024]
+sql:
+-- FUNC-0659 DESGETKEY
+declare
+  bin_input8 varbinary(128):='7469676572746967';
+  bin_input16 varbinary(128):='74696765727469676572746967657274';
+  key8 varbinary(128):='73636F747473636F';
+  key16 varbinary(128):='73636F747473636F747473636F747473';
+  key24 varbinary(128):='313233343536373839303132333435363738393031323334';
+  iv_bin varbinary(128):='3132333435363738';
+  seed_bin varbinary(256):='3031323334353637383930313233343536373839303132333435363738393031323334353637383930313233343536373839303132333435363738393031323334353637383930313233343536373839';
+  bin_out varbinary(2048);
+  bin_result varbinary(2048);
+  text_input8 varchar2(128):='DM123456';
+  text_input16 varchar2(128):='tigertigertigert';
+  key_text8 varchar2(128):='PASSWORD';
+  key_text16 varchar2(128):='scottscottscotts';
+  key_text24 varchar2(128):='123456789012345678901234';
+  iv_text varchar2(128):='12345678';
+  seed_text varchar2(256):='01234567890123456789012345678901234567890123456789012345678901234567890123456789';
+  text_out varchar2(2048);
+  text_result varchar2(2048);
+begin text_out:=DBMS_OBFUSCATION_TOOLKIT.DESGETKEY(SEED_STRING=>seed_text); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(21:16~21:50) /test/1/catalog1/DBMS_OBFUSCATION_TOOLKIT/DESGETKEY/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_obfuscation_toolkit_signature_combinations_0_025]
+sql:
+-- FUNC-0660 MD5
+declare
+  bin_input8 varbinary(128):='7469676572746967';
+  bin_input16 varbinary(128):='74696765727469676572746967657274';
+  key8 varbinary(128):='73636F747473636F';
+  key16 varbinary(128):='73636F747473636F747473636F747473';
+  key24 varbinary(128):='313233343536373839303132333435363738393031323334';
+  iv_bin varbinary(128):='3132333435363738';
+  seed_bin varbinary(256):='3031323334353637383930313233343536373839303132333435363738393031323334353637383930313233343536373839303132333435363738393031323334353637383930313233343536373839';
+  bin_out varbinary(2048);
+  bin_result varbinary(2048);
+  text_input8 varchar2(128):='DM123456';
+  text_input16 varchar2(128):='tigertigertigert';
+  key_text8 varchar2(128):='PASSWORD';
+  key_text16 varchar2(128):='scottscottscotts';
+  key_text24 varchar2(128):='123456789012345678901234';
+  iv_text varchar2(128):='12345678';
+  seed_text varchar2(256):='01234567890123456789012345678901234567890123456789012345678901234567890123456789';
+  text_out varchar2(2048);
+  text_result varchar2(2048);
+begin DBMS_OBFUSCATION_TOOLKIT.MD5(INPUT=>bin_input16,CHECKSUM=>bin_out); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(21:6~21:34) /test/1/catalog1/DBMS_OBFUSCATION_TOOLKIT/MD5/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_obfuscation_toolkit_signature_combinations_0_026]
+sql:
+-- FUNC-0661 MD5
+declare
+  bin_input8 varbinary(128):='7469676572746967';
+  bin_input16 varbinary(128):='74696765727469676572746967657274';
+  key8 varbinary(128):='73636F747473636F';
+  key16 varbinary(128):='73636F747473636F747473636F747473';
+  key24 varbinary(128):='313233343536373839303132333435363738393031323334';
+  iv_bin varbinary(128):='3132333435363738';
+  seed_bin varbinary(256):='3031323334353637383930313233343536373839303132333435363738393031323334353637383930313233343536373839303132333435363738393031323334353637383930313233343536373839';
+  bin_out varbinary(2048);
+  bin_result varbinary(2048);
+  text_input8 varchar2(128):='DM123456';
+  text_input16 varchar2(128):='tigertigertigert';
+  key_text8 varchar2(128):='PASSWORD';
+  key_text16 varchar2(128):='scottscottscotts';
+  key_text24 varchar2(128):='123456789012345678901234';
+  iv_text varchar2(128):='12345678';
+  seed_text varchar2(256):='01234567890123456789012345678901234567890123456789012345678901234567890123456789';
+  text_out varchar2(2048);
+  text_result varchar2(2048);
+begin DBMS_OBFUSCATION_TOOLKIT.MD5(INPUT_STRING=>text_input16,CHECKSUM_STRING=>text_out); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(21:6~21:34) /test/1/catalog1/DBMS_OBFUSCATION_TOOLKIT/MD5/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_obfuscation_toolkit_signature_combinations_0_027]
+sql:
+-- FUNC-0662 MD5
+declare
+  bin_input8 varbinary(128):='7469676572746967';
+  bin_input16 varbinary(128):='74696765727469676572746967657274';
+  key8 varbinary(128):='73636F747473636F';
+  key16 varbinary(128):='73636F747473636F747473636F747473';
+  key24 varbinary(128):='313233343536373839303132333435363738393031323334';
+  iv_bin varbinary(128):='3132333435363738';
+  seed_bin varbinary(256):='3031323334353637383930313233343536373839303132333435363738393031323334353637383930313233343536373839303132333435363738393031323334353637383930313233343536373839';
+  bin_out varbinary(2048);
+  bin_result varbinary(2048);
+  text_input8 varchar2(128):='DM123456';
+  text_input16 varchar2(128):='tigertigertigert';
+  key_text8 varchar2(128):='PASSWORD';
+  key_text16 varchar2(128):='scottscottscotts';
+  key_text24 varchar2(128):='123456789012345678901234';
+  iv_text varchar2(128):='12345678';
+  seed_text varchar2(256):='01234567890123456789012345678901234567890123456789012345678901234567890123456789';
+  text_out varchar2(2048);
+  text_result varchar2(2048);
+begin bin_out:=DBMS_OBFUSCATION_TOOLKIT.MD5(INPUT=>bin_input16); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(21:15~21:43) /test/1/catalog1/DBMS_OBFUSCATION_TOOLKIT/MD5/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_obfuscation_toolkit_signature_combinations_0_028]
+sql:
+-- FUNC-0663 MD5
+declare
+  bin_input8 varbinary(128):='7469676572746967';
+  bin_input16 varbinary(128):='74696765727469676572746967657274';
+  key8 varbinary(128):='73636F747473636F';
+  key16 varbinary(128):='73636F747473636F747473636F747473';
+  key24 varbinary(128):='313233343536373839303132333435363738393031323334';
+  iv_bin varbinary(128):='3132333435363738';
+  seed_bin varbinary(256):='3031323334353637383930313233343536373839303132333435363738393031323334353637383930313233343536373839303132333435363738393031323334353637383930313233343536373839';
+  bin_out varbinary(2048);
+  bin_result varbinary(2048);
+  text_input8 varchar2(128):='DM123456';
+  text_input16 varchar2(128):='tigertigertigert';
+  key_text8 varchar2(128):='PASSWORD';
+  key_text16 varchar2(128):='scottscottscotts';
+  key_text24 varchar2(128):='123456789012345678901234';
+  iv_text varchar2(128):='12345678';
+  seed_text varchar2(256):='01234567890123456789012345678901234567890123456789012345678901234567890123456789';
+  text_out varchar2(2048);
+  text_result varchar2(2048);
+begin text_out:=DBMS_OBFUSCATION_TOOLKIT.MD5(INPUT_STRING=>text_input16); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(21:16~21:44) /test/1/catalog1/DBMS_OBFUSCATION_TOOLKIT/MD5/",
+      "action": "CALL"
+    }
+  ]
+}
+

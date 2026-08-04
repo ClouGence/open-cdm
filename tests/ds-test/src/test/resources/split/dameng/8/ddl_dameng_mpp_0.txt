@@ -1,0 +1,78 @@
+create schema CODEX_DM8_MPP authorization SYSDBA;
+/
+set schema CODEX_DM8_MPP;
+create table MPP_HASH(ID int primary key, GRP_ID int, NOTE varchar(40)) distributed by hash(ID);
+create table MPP_RANDOM(ID int, NOTE varchar(40)) distributed randomly;
+create table MPP_FULLY(ID int primary key, NOTE varchar(40)) distributed fully;
+create table MPP_RANGE(ID int, NOTE varchar(40)) distributed by range(ID)
+(values equ or less than(100) on EP01, values less than(maxvalue) on EP02);
+create table MPP_LIST(ID int, NOTE varchar(40)) distributed by list(ID)
+(values(1, 3, 5) on EP01, values(2, 4, 6) on EP02);
+create table MPP_HASH_MULTI(ID int, GRP_ID int, NOTE varchar(40)) distributed by hash(ID, GRP_ID);
+create table MPP_CTAS_HASH as select 1 as ID, 'A' as NOTE from DUAL distributed by hash(ID);
+create table MPP_CTAS_RANDOM as select 2 as ID, 'B' as NOTE from DUAL distributed randomly;
+create table MPP_HASH_PART(ID int, NOTE varchar(40))
+partition by range(ID)(partition P1 values less than(10), partition P2 values less than(maxvalue))
+distributed by hash(ID);
+truncate table MPP_RANDOM;
+drop table MPP_HASH_PART purge;
+drop table MPP_CTAS_RANDOM purge;
+drop table MPP_CTAS_HASH purge;
+drop table MPP_HASH_MULTI purge;
+drop table MPP_LIST purge;
+drop table MPP_RANGE purge;
+drop table MPP_FULLY purge;
+drop table MPP_RANDOM purge;
+drop table MPP_HASH purge;
+set schema SYSDBA;
+drop schema CODEX_DM8_MPP cascade;
+------------------------------------------------------------------------------------------
+[CREATE_SCHEMA] create schema CODEX_DM8_MPP authorization SYSDBA;
+----------
+[SWITCH_SCHEMA] set schema CODEX_DM8_MPP;
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table MPP_HASH(ID int primary key, GRP_ID int, NOTE varchar(40)) distributed by hash(ID);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table MPP_RANDOM(ID int, NOTE varchar(40)) distributed randomly;
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table MPP_FULLY(ID int primary key, NOTE varchar(40)) distributed fully;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table MPP_RANGE(ID int, NOTE varchar(40)) distributed by range(ID)
+(values equ or less than(100) on EP01, values less than(maxvalue) on EP02);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table MPP_LIST(ID int, NOTE varchar(40)) distributed by list(ID)
+(values(1, 3, 5) on EP01, values(2, 4, 6) on EP02);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table MPP_HASH_MULTI(ID int, GRP_ID int, NOTE varchar(40)) distributed by hash(ID, GRP_ID);
+----------
+[CREATE_TABLE|SELECT] create table MPP_CTAS_HASH as select 1 as ID, 'A' as NOTE from DUAL distributed by hash(ID);
+----------
+[CREATE_TABLE|SELECT] create table MPP_CTAS_RANDOM as select 2 as ID, 'B' as NOTE from DUAL distributed randomly;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table MPP_HASH_PART(ID int, NOTE varchar(40))
+partition by range(ID)(partition P1 values less than(10), partition P2 values less than(maxvalue))
+distributed by hash(ID);
+----------
+[TRUNCATE_TABLE] truncate table MPP_RANDOM;
+----------
+[DROP_TABLE] drop table MPP_HASH_PART purge;
+----------
+[DROP_TABLE] drop table MPP_CTAS_RANDOM purge;
+----------
+[DROP_TABLE] drop table MPP_CTAS_HASH purge;
+----------
+[DROP_TABLE] drop table MPP_HASH_MULTI purge;
+----------
+[DROP_TABLE] drop table MPP_LIST purge;
+----------
+[DROP_TABLE] drop table MPP_RANGE purge;
+----------
+[DROP_TABLE] drop table MPP_FULLY purge;
+----------
+[DROP_TABLE] drop table MPP_RANDOM purge;
+----------
+[DROP_TABLE] drop table MPP_HASH purge;
+----------
+[SWITCH_SCHEMA] set schema SYSDBA;
+----------
+[DROP_SCHEMA] drop schema CODEX_DM8_MPP cascade;

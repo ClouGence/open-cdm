@@ -1,0 +1,609 @@
+[split_admin_dameng_transaction_0_001]
+sql:
+commit;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[split_admin_dameng_transaction_0_002]
+sql:
+commit work;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[split_admin_dameng_transaction_0_003]
+sql:
+commit immediate;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[split_admin_dameng_transaction_0_004]
+sql:
+commit wait;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[split_admin_dameng_transaction_0_005]
+sql:
+commit nowait;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[split_admin_dameng_transaction_0_006]
+sql:
+commit work immediate;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[split_admin_dameng_transaction_0_007]
+sql:
+commit immediate wait;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[split_admin_dameng_transaction_0_008]
+sql:
+commit immediate nowait;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[split_admin_dameng_transaction_0_009]
+sql:
+commit work immediate wait;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[split_admin_dameng_transaction_0_010]
+sql:
+commit work immediate nowait;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[split_admin_dameng_transaction_0_011]
+sql:
+commit batch wait;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[split_admin_dameng_transaction_0_012]
+sql:
+commit batch nowait;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[split_admin_dameng_transaction_0_013]
+sql:
+commit work batch wait;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[split_admin_dameng_transaction_0_014]
+sql:
+commit work batch nowait;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[split_admin_dameng_transaction_0_015]
+sql:
+rollback;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[split_admin_dameng_transaction_0_016]
+sql:
+rollback work;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[split_admin_dameng_transaction_0_017]
+sql:
+savepoint codex_sp_01;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[split_admin_dameng_transaction_0_018]
+sql:
+rollback to savepoint codex_sp_01;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[split_admin_dameng_transaction_0_019]
+sql:
+rollback work to savepoint codex_sp_02;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[split_admin_dameng_transaction_0_020]
+sql:
+rollback to codex_sp_03;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[split_admin_dameng_transaction_0_021]
+sql:
+release savepoint codex_sp_04;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[split_admin_dameng_transaction_0_022]
+sql:
+start transaction;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[split_admin_dameng_transaction_0_023]
+sql:
+start transaction read only;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[split_admin_dameng_transaction_0_024]
+sql:
+start transaction read write;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[split_admin_dameng_transaction_0_025]
+sql:
+start transaction isolation level read committed;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[split_admin_dameng_transaction_0_026]
+sql:
+start transaction isolation level read uncommitted;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[split_admin_dameng_transaction_0_027]
+sql:
+start transaction isolation level serializable;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[split_admin_dameng_transaction_0_028]
+sql:
+start transaction read only, isolation level read committed;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[split_admin_dameng_transaction_0_029]
+sql:
+set transaction isolation level read committed;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[split_admin_dameng_transaction_0_030]
+sql:
+set transaction isolation level read uncommitted;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[split_admin_dameng_transaction_0_031]
+sql:
+set transaction isolation level serializable;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[split_admin_dameng_transaction_0_032]
+sql:
+set transaction read only;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[split_admin_dameng_transaction_0_033]
+sql:
+set transaction read write;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[split_admin_dameng_transaction_0_034]
+sql:
+set transaction read only, isolation level read committed;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[split_admin_dameng_transaction_0_035]
+sql:
+lock table codex_txn_t in intent share mode;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_LOCK": [
+    {
+      "subject": "Table(1:11~1:22) /test/1/catalog1/schema1/codex_txn_t/",
+      "action": "LOCK"
+    }
+  ]
+}
+----------
+[split_admin_dameng_transaction_0_036]
+sql:
+lock table codex_txn_t in intent share mode nowait;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_LOCK": [
+    {
+      "subject": "Table(1:11~1:22) /test/1/catalog1/schema1/codex_txn_t/",
+      "action": "LOCK"
+    }
+  ]
+}
+----------
+[split_admin_dameng_transaction_0_037]
+sql:
+lock table codex_txn_t in row share mode;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_LOCK": [
+    {
+      "subject": "Table(1:11~1:22) /test/1/catalog1/schema1/codex_txn_t/",
+      "action": "LOCK"
+    }
+  ]
+}
+----------
+[split_admin_dameng_transaction_0_038]
+sql:
+lock table codex_txn_t in row share mode nowait;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_LOCK": [
+    {
+      "subject": "Table(1:11~1:22) /test/1/catalog1/schema1/codex_txn_t/",
+      "action": "LOCK"
+    }
+  ]
+}
+----------
+[split_admin_dameng_transaction_0_039]
+sql:
+lock table codex_txn_t in share update mode;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_LOCK": [
+    {
+      "subject": "Table(1:11~1:22) /test/1/catalog1/schema1/codex_txn_t/",
+      "action": "LOCK"
+    }
+  ]
+}
+----------
+[split_admin_dameng_transaction_0_040]
+sql:
+lock table codex_txn_t in share update mode nowait;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_LOCK": [
+    {
+      "subject": "Table(1:11~1:22) /test/1/catalog1/schema1/codex_txn_t/",
+      "action": "LOCK"
+    }
+  ]
+}
+----------
+[split_admin_dameng_transaction_0_041]
+sql:
+lock table codex_txn_t in intent exclusive mode;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_LOCK": [
+    {
+      "subject": "Table(1:11~1:22) /test/1/catalog1/schema1/codex_txn_t/",
+      "action": "LOCK"
+    }
+  ]
+}
+----------
+[split_admin_dameng_transaction_0_042]
+sql:
+lock table codex_txn_t in intent exclusive mode nowait;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_LOCK": [
+    {
+      "subject": "Table(1:11~1:22) /test/1/catalog1/schema1/codex_txn_t/",
+      "action": "LOCK"
+    }
+  ]
+}
+----------
+[split_admin_dameng_transaction_0_043]
+sql:
+lock table codex_txn_t in row exclusive mode;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_LOCK": [
+    {
+      "subject": "Table(1:11~1:22) /test/1/catalog1/schema1/codex_txn_t/",
+      "action": "LOCK"
+    }
+  ]
+}
+----------
+[split_admin_dameng_transaction_0_044]
+sql:
+lock table codex_txn_t in row exclusive mode nowait;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_LOCK": [
+    {
+      "subject": "Table(1:11~1:22) /test/1/catalog1/schema1/codex_txn_t/",
+      "action": "LOCK"
+    }
+  ]
+}
+----------
+[split_admin_dameng_transaction_0_045]
+sql:
+lock table codex_txn_t in share mode;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_LOCK": [
+    {
+      "subject": "Table(1:11~1:22) /test/1/catalog1/schema1/codex_txn_t/",
+      "action": "LOCK"
+    }
+  ]
+}
+----------
+[split_admin_dameng_transaction_0_046]
+sql:
+lock table codex_txn_t in share mode nowait;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_LOCK": [
+    {
+      "subject": "Table(1:11~1:22) /test/1/catalog1/schema1/codex_txn_t/",
+      "action": "LOCK"
+    }
+  ]
+}
+----------
+[split_admin_dameng_transaction_0_047]
+sql:
+lock table codex_txn_t in exclusive mode;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_LOCK": [
+    {
+      "subject": "Table(1:11~1:22) /test/1/catalog1/schema1/codex_txn_t/",
+      "action": "LOCK"
+    }
+  ]
+}
+----------
+[split_admin_dameng_transaction_0_048]
+sql:
+lock table codex_txn_t in exclusive mode nowait;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_LOCK": [
+    {
+      "subject": "Table(1:11~1:22) /test/1/catalog1/schema1/codex_txn_t/",
+      "action": "LOCK"
+    }
+  ]
+}
+----------
+[split_admin_dameng_transaction_0_049]
+sql:
+lock table codex_txn_t in share intent exclusive mode;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_LOCK": [
+    {
+      "subject": "Table(1:11~1:22) /test/1/catalog1/schema1/codex_txn_t/",
+      "action": "LOCK"
+    }
+  ]
+}
+----------
+[split_admin_dameng_transaction_0_050]
+sql:
+lock table codex_txn_t in share intent exclusive mode nowait;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_LOCK": [
+    {
+      "subject": "Table(1:11~1:22) /test/1/catalog1/schema1/codex_txn_t/",
+      "action": "LOCK"
+    }
+  ]
+}
+----------
+[split_admin_dameng_transaction_0_051]
+sql:
+lock table codex_txn_t in share row exclusive mode;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_LOCK": [
+    {
+      "subject": "Table(1:11~1:22) /test/1/catalog1/schema1/codex_txn_t/",
+      "action": "LOCK"
+    }
+  ]
+}
+----------
+[split_admin_dameng_transaction_0_052]
+sql:
+lock table codex_txn_t in share row exclusive mode nowait;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_LOCK": [
+    {
+      "subject": "Table(1:11~1:22) /test/1/catalog1/schema1/codex_txn_t/",
+      "action": "LOCK"
+    }
+  ]
+}

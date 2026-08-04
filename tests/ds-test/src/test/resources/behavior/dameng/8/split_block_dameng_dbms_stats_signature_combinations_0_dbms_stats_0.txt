@@ -1,0 +1,1076 @@
+[split_block_dameng_dbms_stats_signature_combinations_0_001]
+sql:
+-- FUNC-0840 COLUMN_STATS_SHOW
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.COLUMN_STATS_SHOW(OWNNAME=>'SYSDBA',TABNAME=>'CODEX_STATS_T',COLNAME=>'CATEGORY'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(16:6~16:34) /test/1/catalog1/DBMS_STATS/COLUMN_STATS_SHOW/",
+      "action": "CALL",
+      "target": "Table(16:62~16:77) /test/1/catalog1/SYSDBA/CODEX_STATS_T/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_stats_signature_combinations_0_002]
+sql:
+-- FUNC-0841 CONV_DATA
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.CONV_DATA(OWNNAME=>'SYSDBA',TABNAME=>'CODEX_STATS_T',COLNAME=>'ID',DATA=>'1',RESVAL=>v); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(16:6~16:26) /test/1/catalog1/DBMS_STATS/CONV_DATA/",
+      "action": "CALL",
+      "target": "Table(16:54~16:69) /test/1/catalog1/SYSDBA/CODEX_STATS_T/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_stats_signature_combinations_0_003]
+sql:
+-- FUNC-0842 CONVERT_RAW_VALUE
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.CONVERT_RAW_VALUE(I_RAW=>raw_number,M_N=>n); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(16:6~16:34) /test/1/catalog1/DBMS_STATS/CONVERT_RAW_VALUE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_stats_signature_combinations_0_004]
+sql:
+-- FUNC-0843 CONVERT_RAW_VALUE
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.CONVERT_RAW_VALUE(I_RAW=>raw_datetime,M_N=>dt); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(16:6~16:34) /test/1/catalog1/DBMS_STATS/CONVERT_RAW_VALUE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_stats_signature_combinations_0_005]
+sql:
+-- FUNC-0844 CONVERT_RAW_VALUE
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.CONVERT_RAW_VALUE(I_RAW=>raw_varchar,M_N=>v); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(16:6~16:34) /test/1/catalog1/DBMS_STATS/CONVERT_RAW_VALUE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_stats_signature_combinations_0_006]
+sql:
+-- FUNC-0845 CONVERT_RAW_VALUE
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.CONVERT_RAW_VALUE(I_RAW=>raw_double,M_N=>dbl); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(16:6~16:34) /test/1/catalog1/DBMS_STATS/CONVERT_RAW_VALUE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_stats_signature_combinations_0_007]
+sql:
+-- FUNC-0846 COPY_TABLE_STATS
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.COPY_TABLE_STATS(OWNNAME=>'SYSDBA',TABNAME=>'CODEX_STATS_PART',SRCPARTNAME=>'P_LOW',DSTPARTNAME=>'P_HIGH',SCALE_FACTOR=>'1',FORCE=>FALSE); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(16:6~16:33) /test/1/catalog1/DBMS_STATS/COPY_TABLE_STATS/",
+      "action": "CALL",
+      "target": [
+        "Partition(16:93~16:100) /test/1/catalog1/SYSDBA/CODEX_STATS_PART/P_LOW/",
+        "Partition(16:114~16:122) /test/1/catalog1/SYSDBA/CODEX_STATS_PART/P_HIGH/"
+      ]
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_stats_signature_combinations_0_008]
+sql:
+-- FUNC-0847 CREATE_STAT_TABLE
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.CREATE_STAT_TABLE(STATOWN=>'SYSDBA',STATTAB=>'CODEX_STATS_EVID',TABLESPACE=>NULL,GLOBAL_TEMPORARY=>FALSE); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(16:6~16:34) /test/1/catalog1/DBMS_STATS/CREATE_STAT_TABLE/",
+      "action": "CALL",
+      "target": "Table(16:62~16:80) /test/1/catalog1/SYSDBA/CODEX_STATS_EVID/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_stats_signature_combinations_0_009]
+sql:
+-- FUNC-0848 DELETE_COLUMN_STATS
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.DELETE_COLUMN_STATS(OWNNAME=>'SYSDBA',TABNAME=>'CODEX_STATS_T',COLNAME=>'AMOUNT',FORCE=>FALSE); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(16:6~16:36) /test/1/catalog1/DBMS_STATS/DELETE_COLUMN_STATS/",
+      "action": "CALL",
+      "target": "Table(16:64~16:79) /test/1/catalog1/SYSDBA/CODEX_STATS_T/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_stats_signature_combinations_0_010]
+sql:
+-- FUNC-0849 DELETE_INDEX_STATS
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.DELETE_INDEX_STATS(OWNNAME=>'SYSDBA',INDNAME=>'CODEX_STATS_T_IDX',FORCE=>FALSE); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(16:6~16:35) /test/1/catalog1/DBMS_STATS/DELETE_INDEX_STATS/",
+      "action": "CALL",
+      "target": "Index(16:63~16:82) /test/1/catalog1/SYSDBA/CODEX_STATS_T_IDX/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_stats_signature_combinations_0_011]
+sql:
+-- FUNC-0850 DELETE_SCHEMA_STATS
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.DELETE_SCHEMA_STATS(OWNNAME=>'CODEX_STATS_U',FORCE=>FALSE); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(16:6~16:36) /test/1/catalog1/DBMS_STATS/DELETE_SCHEMA_STATS/",
+      "action": "CALL",
+      "target": "Schema(16:46~16:61) /test/1/catalog1/CODEX_STATS_U/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_stats_signature_combinations_0_012]
+sql:
+-- FUNC-0851 DELETE_TABLE_STATS
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.DELETE_TABLE_STATS(OWNNAME=>'SYSDBA',TABNAME=>'CODEX_STATS_T',FORCE=>FALSE); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(16:6~16:35) /test/1/catalog1/DBMS_STATS/DELETE_TABLE_STATS/",
+      "action": "CALL",
+      "target": "Table(16:63~16:78) /test/1/catalog1/SYSDBA/CODEX_STATS_T/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_stats_signature_combinations_0_013]
+sql:
+-- FUNC-0852 DROP_STAT_TABLE
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.DROP_STAT_TABLE(STATOWN=>'SYSDBA',STATTAB=>'CODEX_STATS_EVID'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(16:6~16:32) /test/1/catalog1/DBMS_STATS/DROP_STAT_TABLE/",
+      "action": "CALL",
+      "target": "Table(16:60~16:78) /test/1/catalog1/SYSDBA/CODEX_STATS_EVID/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_stats_signature_combinations_0_014]
+sql:
+-- FUNC-0853 EXPORT_DATABASE_STATS
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.EXPORT_DATABASE_STATS(STATTAB=>'CODEX_STATS_EVID',STATID=>'BASE',STATOWN=>'SYSDBA'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(16:6~16:38) /test/1/catalog1/DBMS_STATS/EXPORT_DATABASE_STATS/",
+      "action": "CALL",
+      "target": [
+        "Instance(16:6~16:38) /test/1/",
+        "Table(16:48~16:66) /test/1/catalog1/SYSDBA/CODEX_STATS_EVID/"
+      ]
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_stats_signature_combinations_0_015]
+sql:
+-- FUNC-0854 EXPORT_SCHEMA_STATS
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.EXPORT_SCHEMA_STATS(OWNNAME=>'SYSDBA',STATTAB=>'CODEX_STATS_EVID',STATID=>'BASE',STATOWN=>'SYSDBA'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(16:6~16:36) /test/1/catalog1/DBMS_STATS/EXPORT_SCHEMA_STATS/",
+      "action": "CALL",
+      "target": [
+        "Schema(16:46~16:54) /test/1/catalog1/SYSDBA/",
+        "Table(16:64~16:82) /test/1/catalog1/SYSDBA/CODEX_STATS_EVID/"
+      ]
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_stats_signature_combinations_0_016]
+sql:
+-- FUNC-0855 EXPORT_TABLE_STATS
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.EXPORT_TABLE_STATS(OWNNAME=>'SYSDBA',TABNAME=>'CODEX_STATS_T',STATTAB=>'CODEX_STATS_EVID',STATID=>'BASE',STATOWN=>'SYSDBA'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(16:6~16:35) /test/1/catalog1/DBMS_STATS/EXPORT_TABLE_STATS/",
+      "action": "CALL",
+      "target": [
+        "Table(16:63~16:78) /test/1/catalog1/SYSDBA/CODEX_STATS_T/",
+        "Table(16:88~16:106) /test/1/catalog1/SYSDBA/CODEX_STATS_EVID/"
+      ]
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_stats_signature_combinations_0_017]
+sql:
+-- FUNC-0856 GATHER_INDEX_STATS
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.GATHER_INDEX_STATS(OWNNAME=>'SYSDBA',INDNAME=>'CODEX_STATS_T_IDX',ESTIMATE_PERCENT=>100); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(16:6~16:35) /test/1/catalog1/DBMS_STATS/GATHER_INDEX_STATS/",
+      "action": "CALL",
+      "target": "Index(16:63~16:82) /test/1/catalog1/SYSDBA/CODEX_STATS_T_IDX/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_stats_signature_combinations_0_018]
+sql:
+-- FUNC-0857 GATHER_SCHEMA_STATS
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.GATHER_SCHEMA_STATS(OWNNAME=>'CODEX_STATS_U',ESTIMATE_PERCENT=>100); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(16:6~16:36) /test/1/catalog1/DBMS_STATS/GATHER_SCHEMA_STATS/",
+      "action": "CALL",
+      "target": "Schema(16:46~16:61) /test/1/catalog1/CODEX_STATS_U/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_stats_signature_combinations_0_019]
+sql:
+-- FUNC-0858 GATHER_TABLE_STATS
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.GATHER_TABLE_STATS(OWNNAME=>'SYSDBA',TABNAME=>'CODEX_STATS_T',ESTIMATE_PERCENT=>100,CASCADE=>TRUE); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(16:6~16:35) /test/1/catalog1/DBMS_STATS/GATHER_TABLE_STATS/",
+      "action": "CALL",
+      "target": "Table(16:63~16:78) /test/1/catalog1/SYSDBA/CODEX_STATS_T/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_stats_signature_combinations_0_020]
+sql:
+-- FUNC-0859 GET_COLUMN_STATS
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.GET_COLUMN_STATS(OWNNAME=>'SYSDBA',TABNAME=>'CODEX_STATS_T',COLNAME=>'ID',DISTCNT=>n,DENSITY=>n,NULLCNT=>n,SREC=>srec,AVGCLEN=>n); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(16:6~16:33) /test/1/catalog1/DBMS_STATS/GET_COLUMN_STATS/",
+      "action": "CALL",
+      "target": "Table(16:61~16:76) /test/1/catalog1/SYSDBA/CODEX_STATS_T/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_stats_signature_combinations_0_021]
+sql:
+-- FUNC-0860 GET_PREFS
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin v:=DBMS_STATS.GET_PREFS(PPNAME=>'STALE_PERCENT',OWNNAME=>'SYSDBA',TABNAME=>'CODEX_STATS_T'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(16:9~16:29) /test/1/catalog1/DBMS_STATS/GET_PREFS/",
+      "action": "CALL",
+      "target": [
+        "Table(16:81~16:96) /test/1/catalog1/SYSDBA/CODEX_STATS_T/",
+        "ConfigKey(16:38~16:53) /test/1/STALE_PERCENT/"
+      ]
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_stats_signature_combinations_0_022]
+sql:
+-- FUNC-0861 IMPORT_DATABASE_STATS
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.IMPORT_DATABASE_STATS(STATTAB=>'CODEX_STATS_EVID',STATID=>'BASE',STATOWN=>'SYSDBA'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(16:6~16:38) /test/1/catalog1/DBMS_STATS/IMPORT_DATABASE_STATS/",
+      "action": "CALL",
+      "target": [
+        "Instance(16:6~16:38) /test/1/",
+        "Table(16:48~16:66) /test/1/catalog1/SYSDBA/CODEX_STATS_EVID/"
+      ]
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_stats_signature_combinations_0_023]
+sql:
+-- FUNC-0862 IMPORT_SCHEMA_STATS
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.IMPORT_SCHEMA_STATS(OWNNAME=>'SYSDBA',STATTAB=>'CODEX_STATS_EVID',STATID=>'BASE',STATOWN=>'SYSDBA'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(16:6~16:36) /test/1/catalog1/DBMS_STATS/IMPORT_SCHEMA_STATS/",
+      "action": "CALL",
+      "target": [
+        "Schema(16:46~16:54) /test/1/catalog1/SYSDBA/",
+        "Table(16:64~16:82) /test/1/catalog1/SYSDBA/CODEX_STATS_EVID/"
+      ]
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_stats_signature_combinations_0_024]
+sql:
+-- FUNC-0863 IMPORT_TABLE_STATS
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.IMPORT_TABLE_STATS(OWNNAME=>'SYSDBA',TABNAME=>'CODEX_STATS_T',STATTAB=>'CODEX_STATS_EVID',STATID=>'BASE',STATOWN=>'SYSDBA'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(16:6~16:35) /test/1/catalog1/DBMS_STATS/IMPORT_TABLE_STATS/",
+      "action": "CALL",
+      "target": [
+        "Table(16:63~16:78) /test/1/catalog1/SYSDBA/CODEX_STATS_T/",
+        "Table(16:88~16:106) /test/1/catalog1/SYSDBA/CODEX_STATS_EVID/"
+      ]
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_stats_signature_combinations_0_025]
+sql:
+-- FUNC-0864 IMPORT_TABLE_STATS_CUSTOM
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.IMPORT_TABLE_STATS_CUSTOM(OWNNAME=>'SYSDBA',TABNAME=>'CODEX_STATS_T',STATTAB=>'CODEX_STATS_EVID',STATID=>'BASE',STATOWN=>'SYSDBA'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(16:6~16:42) /test/1/catalog1/DBMS_STATS/IMPORT_TABLE_STATS_CUSTOM/",
+      "action": "CALL",
+      "target": [
+        "Table(16:70~16:85) /test/1/catalog1/SYSDBA/CODEX_STATS_T/",
+        "Table(16:95~16:113) /test/1/catalog1/SYSDBA/CODEX_STATS_EVID/"
+      ]
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_stats_signature_combinations_0_026]
+sql:
+-- FUNC-0865 INDEX_STATS_SHOW
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.INDEX_STATS_SHOW(OWNNAME=>'SYSDBA',INDEXNAME=>'CODEX_STATS_T_IDX'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(16:6~16:33) /test/1/catalog1/DBMS_STATS/INDEX_STATS_SHOW/",
+      "action": "CALL",
+      "target": "Index(16:63~16:82) /test/1/catalog1/SYSDBA/CODEX_STATS_T_IDX/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_stats_signature_combinations_0_027]
+sql:
+-- FUNC-0866 PREPARE_COLUMN_VALUES
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.PREPARE_COLUMN_VALUES(SREC=>srec,CHARVALS=>chars); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(16:6~16:38) /test/1/catalog1/DBMS_STATS/PREPARE_COLUMN_VALUES/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_stats_signature_combinations_0_028]
+sql:
+-- FUNC-0867 PREPARE_COLUMN_VALUES
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.PREPARE_COLUMN_VALUES(SREC=>srec,NUMVALS=>nums); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(16:6~16:38) /test/1/catalog1/DBMS_STATS/PREPARE_COLUMN_VALUES/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_stats_signature_combinations_0_029]
+sql:
+-- FUNC-0868 PREPARE_COLUMN_VALUES
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.PREPARE_COLUMN_VALUES(SREC=>srec,TSVALS=>dates); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(16:6~16:38) /test/1/catalog1/DBMS_STATS/PREPARE_COLUMN_VALUES/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_stats_signature_combinations_0_030]
+sql:
+-- FUNC-0869 SET_COLUMN_STATS
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.SET_COLUMN_STATS(OWNNAME=>'SYSDBA',TABNAME=>'CODEX_STATS_T',COLNAME=>'ID'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(16:6~16:33) /test/1/catalog1/DBMS_STATS/SET_COLUMN_STATS/",
+      "action": "CALL",
+      "target": "Table(16:61~16:76) /test/1/catalog1/SYSDBA/CODEX_STATS_T/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_stats_signature_combinations_0_031]
+sql:
+-- FUNC-0870 SET_TABLE_PREFS
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.SET_TABLE_PREFS(OWNNAME=>'SYSDBA',TABNAME=>'CODEX_STATS_T',PPNAME=>'STALE_PERCENT',PVALUE=>'25'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(16:6~16:32) /test/1/catalog1/DBMS_STATS/SET_TABLE_PREFS/",
+      "action": "CALL",
+      "target": [
+        "Table(16:60~16:75) /test/1/catalog1/SYSDBA/CODEX_STATS_T/",
+        "ConfigKey(16:84~16:99) /test/1/STALE_PERCENT/"
+      ]
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_stats_signature_combinations_0_032]
+sql:
+-- FUNC-0871 SET_TABLE_STATS
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.SET_TABLE_STATS(OWNNAME=>'SYSDBA',TABNAME=>'CODEX_STATS_T',NUMROWS=>3,NUMBLKS=>1,AVGRLEN=>32); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(16:6~16:32) /test/1/catalog1/DBMS_STATS/SET_TABLE_STATS/",
+      "action": "CALL",
+      "target": "Table(16:60~16:75) /test/1/catalog1/SYSDBA/CODEX_STATS_T/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_stats_signature_combinations_0_033]
+sql:
+-- FUNC-0872 TABLE_STATS_SHOW
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.TABLE_STATS_SHOW(OWNNAME=>'SYSDBA',TABNAME=>'CODEX_STATS_T'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(16:6~16:33) /test/1/catalog1/DBMS_STATS/TABLE_STATS_SHOW/",
+      "action": "CALL",
+      "target": "Table(16:61~16:76) /test/1/catalog1/SYSDBA/CODEX_STATS_T/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_stats_signature_combinations_0_034]
+sql:
+-- FUNC-0873 UPDATE_ALL_STATS
+declare
+  v varchar2(8188);
+  n number;
+  dt datetime;
+  dbl double;
+  raw_number varbinary(8188):='C1030100000003C10B330000000000000000000000000000000000000000';
+  raw_datetime varbinary(8188):='E8070101010203000000E80300';
+  raw_varchar varbinary(8188):='0100000041';
+  raw_double varbinary(8188):='0000000000000A40';
+  srec varchar2(8188);
+  chars varchar2(8188);
+  nums varchar2(8188);
+  dates varchar2(8188);
+  objects varchar2(8188);
+begin DBMS_STATS.UPDATE_ALL_STATS(); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(16:6~16:33) /test/1/catalog1/DBMS_STATS/UPDATE_ALL_STATS/",
+      "action": "CALL",
+      "target": "Instance(16:6~16:33) /test/1/"
+    }
+  ]
+}

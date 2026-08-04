@@ -1,0 +1,389 @@
+[split_dml_dameng_column_encryption_0_behavior_review_001]
+sql:
+insert into CODEX_ENC_T01 values (1, 'transparent-default');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:25) /test/1/catalog1/schema1/CODEX_ENC_T01/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_column_encryption_0_behavior_review_002]
+sql:
+update CODEX_ENC_T01 set SECRET = 'transparent-updated' where ID = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:20) /test/1/catalog1/schema1/CODEX_ENC_T01/",
+      "action": "UPDATE"
+    }
+  ]
+}
+----------
+[split_dml_dameng_column_encryption_0_behavior_review_003]
+sql:
+delete from CODEX_ENC_T01 where ID = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:25) /test/1/catalog1/schema1/CODEX_ENC_T01/",
+      "action": "DELETE"
+    }
+  ]
+}
+----------
+[split_dml_dameng_column_encryption_0_behavior_review_004]
+sql:
+insert into CODEX_ENC_K05 values (1, 'invisible-to-all');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:25) /test/1/catalog1/schema1/CODEX_ENC_K05/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_column_encryption_0_behavior_review_005]
+sql:
+insert into CODEX_COLKEY_AUTO values(1, 'auto-value');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:29) /test/1/catalog1/schema1/CODEX_COLKEY_AUTO/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_column_encryption_0_behavior_review_006]
+sql:
+insert into CODEX_COLKEY_AUTO_HASH values(1, 'auto-hash-value');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:34) /test/1/catalog1/schema1/CODEX_COLKEY_AUTO_HASH/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_column_encryption_0_behavior_review_007]
+sql:
+insert into CODEX_COLKEY_MANUAL values(1, 'manual-hidden-value');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/schema1/CODEX_COLKEY_MANUAL/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_column_encryption_0_behavior_review_008]
+sql:
+insert into CODEX_COLKEY_MANUAL_VISIBLE values(1, 'manual-visible-value');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:39) /test/1/catalog1/schema1/CODEX_COLKEY_MANUAL_VISIBLE/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_column_encryption_0_behavior_review_009]
+sql:
+insert into CODEX_COLKEY_ALTER values(1, 'alter-auto-value', 'alter-manual-value');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:30) /test/1/catalog1/schema1/CODEX_COLKEY_ALTER/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_column_encryption_0_behavior_review_010]
+sql:
+update CODEX_COLKEY_AUTO set SECRET='auto-updated' where ID=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:24) /test/1/catalog1/schema1/CODEX_COLKEY_AUTO/",
+      "action": "UPDATE"
+    }
+  ]
+}
+----------
+[split_dml_dameng_column_encryption_0_behavior_review_011]
+sql:
+update CODEX_COLKEY_MANUAL_VISIBLE set SECRET='manual-updated' where ID=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:34) /test/1/catalog1/schema1/CODEX_COLKEY_MANUAL_VISIBLE/",
+      "action": "UPDATE"
+    }
+  ]
+}
+----------
+[split_dml_dameng_column_encryption_0_behavior_review_012]
+sql:
+delete from CODEX_COLKEY_AUTO where ID=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:29) /test/1/catalog1/schema1/CODEX_COLKEY_AUTO/",
+      "action": "DELETE"
+    }
+  ]
+}
+----------
+[split_dml_dameng_column_encryption_0_behavior_review_013]
+sql:
+delete from CODEX_COLKEY_MANUAL_VISIBLE where ID=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:39) /test/1/catalog1/schema1/CODEX_COLKEY_MANUAL_VISIBLE/",
+      "action": "DELETE"
+    }
+  ]
+}
+----------
+[split_dml_dameng_column_encryption_0_behavior_review_014]
+sql:
+insert into CODEX_WRAP_AUTO_20260722 values(1, 'auto-wrapped-value');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:36) /test/1/catalog1/schema1/CODEX_WRAP_AUTO_20260722/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_column_encryption_0_behavior_review_015]
+sql:
+insert into CODEX_WRAP_MANUAL_20260722 values(1, 'manual-wrapped-value');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:38) /test/1/catalog1/schema1/CODEX_WRAP_MANUAL_20260722/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_column_encryption_0_behavior_review_016]
+sql:
+insert into CODEX_WRAP_ALTER_20260722 values(1, 'alter-wrapped-value');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:37) /test/1/catalog1/schema1/CODEX_WRAP_ALTER_20260722/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_column_encryption_0_behavior_review_017]
+sql:
+update CODEX_WRAP_AUTO_20260722 set SECRET='auto-wrapped-updated' where ID=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:31) /test/1/catalog1/schema1/CODEX_WRAP_AUTO_20260722/",
+      "action": "UPDATE"
+    }
+  ]
+}
+----------
+[split_dml_dameng_column_encryption_0_behavior_review_018]
+sql:
+update CODEX_WRAP_MANUAL_20260722 set SECRET='manual-wrapped-updated' where ID=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:33) /test/1/catalog1/schema1/CODEX_WRAP_MANUAL_20260722/",
+      "action": "UPDATE"
+    }
+  ]
+}
+----------
+[split_dml_dameng_column_encryption_0_behavior_review_019]
+sql:
+update CODEX_WRAP_ALTER_20260722 set SECRET='alter-wrapped-updated' where ID=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:32) /test/1/catalog1/schema1/CODEX_WRAP_ALTER_20260722/",
+      "action": "UPDATE"
+    }
+  ]
+}
+----------
+[split_dml_dameng_column_encryption_0_behavior_review_020]
+sql:
+delete from CODEX_WRAP_AUTO_20260722 where ID=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:36) /test/1/catalog1/schema1/CODEX_WRAP_AUTO_20260722/",
+      "action": "DELETE"
+    }
+  ]
+}
+----------
+[split_dml_dameng_column_encryption_0_behavior_review_021]
+sql:
+delete from CODEX_WRAP_MANUAL_20260722 where ID=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:38) /test/1/catalog1/schema1/CODEX_WRAP_MANUAL_20260722/",
+      "action": "DELETE"
+    }
+  ]
+}
+----------
+[split_dml_dameng_column_encryption_0_behavior_review_022]
+sql:
+delete from CODEX_WRAP_ALTER_20260722 where ID=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:37) /test/1/catalog1/schema1/CODEX_WRAP_ALTER_20260722/",
+      "action": "DELETE"
+    }
+  ]
+}
+----------
+[split_dml_dameng_column_encryption_0_behavior_review_023]
+sql:
+insert into CODEX_ENC_USER1.MANUAL_OWNER_DATA values (1, 'USER1_INITIAL');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:45) /test/1/catalog1/CODEX_ENC_USER1/MANUAL_OWNER_DATA/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_column_encryption_0_behavior_review_024]
+sql:
+insert into CODEX_ENC_USER1.MANUAL_VISIBLE_DATA values (1, 'VISIBLE_TO_BOTH');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:47) /test/1/catalog1/CODEX_ENC_USER1/MANUAL_VISIBLE_DATA/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_column_encryption_0_behavior_review_025]
+sql:
+update CODEX_ENC_USER1.MANUAL_OWNER_DATA set SECRET = 'USER2_COMMITTED' where ID = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:40) /test/1/catalog1/CODEX_ENC_USER1/MANUAL_OWNER_DATA/",
+      "action": "UPDATE"
+    }
+  ]
+}
+----------
+[split_dml_dameng_column_encryption_0_behavior_review_026]
+sql:
+update CODEX_ENC_USER1.MANUAL_OWNER_DATA set SECRET = 'USER1_ROLLED_BACK' where ID = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:40) /test/1/catalog1/CODEX_ENC_USER1/MANUAL_OWNER_DATA/",
+      "action": "UPDATE"
+    }
+  ]
+}

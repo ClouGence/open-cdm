@@ -1,0 +1,330 @@
+ZMPOP 1 notsuchkey MIN
+ZADD myzset 1 "one" 2 "two" 3 "three"
+ZRANGE myzset 0 -1 WITHSCORES
+ZMPOP 1 myzset MAX COUNT 10
+ZADD myzset2 4 "four" 5 "five" 6 "six"
+ZMPOP 2 myzset myzset2 MIN COUNT 10
+ZRANGE myzset2 0 -1 WITHSCORES
+BZMPOP 60 1 notsuchkey MIN
+BZMPOP 60 1 myzset MAX COUNT 10
+BZMPOP 60 2 myzset myzset2 MIN COUNT 10
+BZPOPMAX zset1 zset2 0
+BZPOPMIN zset1 zset2 0
+ZADD myzset 2 "two" 3 "three"
+ZADD myzset NX 4 "four"
+ZADD myzset NX 4 "four" 5 "five" 6 "six"
+ZADD myzset NX GT 4 "four" 5 "five" 6 "six"
+ZADD myzset NX GT CH 4 "four" 5 "five" 6 "six"
+ZADD myzset NX GT CH INCR 4 "four" 5 "five" 6 "six"
+ZCARD myzset
+ZCOUNT myzset 1 3
+ZCOUNT myzset -inf +inf
+ZCOUNT myzset (1 3
+ZCOUNT myzset (1 3
+ZCOUNT myzset (1 3)
+ZCOUNT myzset (1 3]
+ZDIFF 2 zset1 zset2
+ZDIFF 2 zset1 zset2 WITHSCORES
+ZDIFFSTORE out 2 zset1 zset2
+ZINCRBY myzset 2 "one"
+ZINTER 2 zset1 zset2
+ZINTER 2 zset1 zset2 WITHSCORES
+ZINTERCARD 2 zset1 zset2
+ZINTERCARD 2 zset1 zset2 LIMIT 1
+ZINTERSTORE out 2 zset1 zset2
+ZINTERSTORE out 2 zset1 zset2 WEIGHTS 2 3
+ZINTERSTORE out 2 zset1 zset2 WEIGHTS 2 3 AGGREGATE SUM
+ZLEXCOUNT myzset - +
+ZLEXCOUNT myzset [b f]
+ZMPOP 1 notsuchkey MIN
+ZMPOP 1 notsuchkey MAX
+ZMPOP 1 notsuchkey MAX COUNT 211
+ZMSCORE myzset "one" "two" "nofield"
+ZPOPMAX myzset
+ZPOPMAX myzset 111
+ZPOPMIN myzset
+ZPOPMIN myzset 111
+ZRANDMEMBER dadi
+ZRANDMEMBER dadi -5
+ZRANDMEMBER dadi -5 WITHSCORES
+ZRANGE zset (1 5 BYSCORE
+ZRANGE zset (5 (10 BYSCORE
+ZRANGE zset 5 10 REV
+ZRANGE zset 10 5 BYSCORE REV
+ZRANGE zset 10 5 BYSCORE REV
+ZRANGE zset 10 5 BYSCORE REV LIMIT 12 22
+ZRANGE zset 10 5 BYSCORE REV LIMIT 12 22
+ZRANGE zset 10 5 BYSCORE REV WITHSCORES
+ZRANGE zset 10 5 WITHSCORES
+ZRANGE dstzset 0 -1
+ZADD autocomplete 0 foo:Foo 0 bar:BAR 0 zap:zap
+ZRANGEBYLEX myzset - [c
+ZRANGEBYLEX myzset - (c
+ZRANGEBYLEX myzset [aaa (g
+ZRANGEBYLEX myzset [aaa (g LIMIT 10 20
+ZRANGEBYLEX myzset - +
+ZRANGEBYSCORE zset (1 5
+ZRANGEBYSCORE zset (5 (10
+ZRANGEBYSCORE myzset -inf +inf
+ZRANGEBYSCORE myzset 1 2
+ZRANGEBYSCORE myzset (1 2
+ZRANGEBYSCORE myzset (1 (2
+ZRANGESTORE dstzset srczset 2 -1
+ZRANK myzset "three"
+ZRANK myzset "four"
+ZRANK myzset four
+ZRANK myzset "three" WITHSCORE
+ZREM myzset "two"
+ZREM myzset one two three
+ZREM myzset "one" two "three"
+ZREMRANGEBYLEX myzset [alpha [omega
+ZREMRANGEBYRANK myzset 0 1
+ZRANGE myzset 0 -1 WITHSCORES
+ZREMRANGEBYSCORE myzset -inf (2
+ZREVRANGE myzset 0 -1
+ZREVRANGE myzset 2 3
+ZREVRANGE myzset -2 -1
+ZREVRANGEBYLEX myzset [c -
+ZREVRANGEBYLEX myzset (c -
+ZREVRANGEBYLEX myzset (g [aaa
+ZREVRANGEBYLEX myzset 2 1
+ZREVRANGEBYSCORE myzset +inf -inf
+ZREVRANGEBYSCORE myzset 2 1
+ZREVRANGEBYSCORE myzset 2 (1
+ZREVRANGEBYSCORE myzset (2 (1
+ZREVRANK myzset "one"
+ZREVRANK myzset "four"
+ZREVRANK myzset "three" WITHSCORE
+zscan key 0
+zscan key 0 match *11*
+zscan key 176 match *11* count 1000
+ZSCORE myzset "one"
+ZSCORE myzset one
+ZUNION 2 zset1 zset2
+ZUNION 2 zset1 zset2 WEIGHTS 1 2 3 4
+ZUNION 2 zset1 zset2 WEIGHTS 1 2 3 4 AGGREGATE min
+ZUNION 2 zset1 zset2 WEIGHTS 1 2 3 4 AGGREGATE min WITHSCORES
+ZUNIONSTORE out 2 zset1 zset2
+ZUNIONSTORE out 2 zset1 zset2 WEIGHTS 1 2 3 4
+ZUNIONSTORE out 2 zset1 zset2 WEIGHTS 1 2 3 4 AGGREGATE min
+ZUNIONSTORE out 2 zset1 zset2 WEIGHTS 1 2 3 4 AGGREGATE min WITHSCORES
+------------------------------------------------------------------------------------------
+[DELETE] ZMPOP 1 notsuchkey MIN
+----------
+[MERGE] ZADD myzset 1 "one" 2 "two" 3 "three"
+----------
+[SELECT] ZRANGE myzset 0 -1 WITHSCORES
+----------
+[DELETE] ZMPOP 1 myzset MAX COUNT 10
+----------
+[MERGE] ZADD myzset2 4 "four" 5 "five" 6 "six"
+----------
+[DELETE] ZMPOP 2 myzset myzset2 MIN COUNT 10
+----------
+[SELECT] ZRANGE myzset2 0 -1 WITHSCORES
+----------
+[DELETE] BZMPOP 60 1 notsuchkey MIN
+----------
+[DELETE] BZMPOP 60 1 myzset MAX COUNT 10
+----------
+[DELETE] BZMPOP 60 2 myzset myzset2 MIN COUNT 10
+----------
+[DELETE] BZPOPMAX zset1 zset2 0
+----------
+[DELETE] BZPOPMIN zset1 zset2 0
+----------
+[MERGE] ZADD myzset 2 "two" 3 "three"
+----------
+[INSERT] ZADD myzset NX 4 "four"
+----------
+[INSERT] ZADD myzset NX 4 "four" 5 "five" 6 "six"
+----------
+[INSERT] ZADD myzset NX GT 4 "four" 5 "five" 6 "six"
+----------
+[INSERT] ZADD myzset NX GT CH 4 "four" 5 "five" 6 "six"
+----------
+[INSERT] ZADD myzset NX GT CH INCR 4 "four" 5 "five" 6 "six"
+----------
+[SELECT] ZCARD myzset
+----------
+[SELECT] ZCOUNT myzset 1 3
+----------
+[SELECT] ZCOUNT myzset -inf +inf
+----------
+[SELECT] ZCOUNT myzset (1 3
+----------
+[SELECT] ZCOUNT myzset (1 3
+----------
+[SELECT] ZCOUNT myzset (1 3)
+----------
+[SELECT] ZCOUNT myzset (1 3]
+----------
+[SELECT] ZDIFF 2 zset1 zset2
+----------
+[SELECT] ZDIFF 2 zset1 zset2 WITHSCORES
+----------
+[MERGE|SELECT] ZDIFFSTORE out 2 zset1 zset2
+----------
+[MERGE] ZINCRBY myzset 2 "one"
+----------
+[SELECT] ZINTER 2 zset1 zset2
+----------
+[SELECT] ZINTER 2 zset1 zset2 WITHSCORES
+----------
+[SELECT] ZINTERCARD 2 zset1 zset2
+----------
+[SELECT] ZINTERCARD 2 zset1 zset2 LIMIT 1
+----------
+[MERGE|SELECT] ZINTERSTORE out 2 zset1 zset2
+----------
+[MERGE|SELECT] ZINTERSTORE out 2 zset1 zset2 WEIGHTS 2 3
+----------
+[MERGE|SELECT] ZINTERSTORE out 2 zset1 zset2 WEIGHTS 2 3 AGGREGATE SUM
+----------
+[SELECT] ZLEXCOUNT myzset - +
+----------
+[SELECT] ZLEXCOUNT myzset [b f]
+----------
+[DELETE] ZMPOP 1 notsuchkey MIN
+----------
+[DELETE] ZMPOP 1 notsuchkey MAX
+----------
+[DELETE] ZMPOP 1 notsuchkey MAX COUNT 211
+----------
+[SELECT] ZMSCORE myzset "one" "two" "nofield"
+----------
+[DELETE] ZPOPMAX myzset
+----------
+[DELETE] ZPOPMAX myzset 111
+----------
+[DELETE] ZPOPMIN myzset
+----------
+[DELETE] ZPOPMIN myzset 111
+----------
+[SELECT] ZRANDMEMBER dadi
+----------
+[SELECT] ZRANDMEMBER dadi -5
+----------
+[SELECT] ZRANDMEMBER dadi -5 WITHSCORES
+----------
+[SELECT] ZRANGE zset (1 5 BYSCORE
+----------
+[SELECT] ZRANGE zset (5 (10 BYSCORE
+----------
+[SELECT] ZRANGE zset 5 10 REV
+----------
+[SELECT] ZRANGE zset 10 5 BYSCORE REV
+----------
+[SELECT] ZRANGE zset 10 5 BYSCORE REV
+----------
+[SELECT] ZRANGE zset 10 5 BYSCORE REV LIMIT 12 22
+----------
+[SELECT] ZRANGE zset 10 5 BYSCORE REV LIMIT 12 22
+----------
+[SELECT] ZRANGE zset 10 5 BYSCORE REV WITHSCORES
+----------
+[SELECT] ZRANGE zset 10 5 WITHSCORES
+----------
+[SELECT] ZRANGE dstzset 0 -1
+----------
+[MERGE] ZADD autocomplete 0 foo:Foo 0 bar:BAR 0 zap:zap
+----------
+[SELECT] ZRANGEBYLEX myzset - [c
+----------
+[SELECT] ZRANGEBYLEX myzset - (c
+----------
+[SELECT] ZRANGEBYLEX myzset [aaa (g
+----------
+[SELECT] ZRANGEBYLEX myzset [aaa (g LIMIT 10 20
+----------
+[SELECT] ZRANGEBYLEX myzset - +
+----------
+[SELECT] ZRANGEBYSCORE zset (1 5
+----------
+[SELECT] ZRANGEBYSCORE zset (5 (10
+----------
+[SELECT] ZRANGEBYSCORE myzset -inf +inf
+----------
+[SELECT] ZRANGEBYSCORE myzset 1 2
+----------
+[SELECT] ZRANGEBYSCORE myzset (1 2
+----------
+[SELECT] ZRANGEBYSCORE myzset (1 (2
+----------
+[MERGE|SELECT] ZRANGESTORE dstzset srczset 2 -1
+----------
+[SELECT] ZRANK myzset "three"
+----------
+[SELECT] ZRANK myzset "four"
+----------
+[SELECT] ZRANK myzset four
+----------
+[SELECT] ZRANK myzset "three" WITHSCORE
+----------
+[DELETE] ZREM myzset "two"
+----------
+[DELETE] ZREM myzset one two three
+----------
+[DELETE] ZREM myzset "one" two "three"
+----------
+[DELETE] ZREMRANGEBYLEX myzset [alpha [omega
+----------
+[DELETE] ZREMRANGEBYRANK myzset 0 1
+----------
+[SELECT] ZRANGE myzset 0 -1 WITHSCORES
+----------
+[DELETE] ZREMRANGEBYSCORE myzset -inf (2
+----------
+[SELECT] ZREVRANGE myzset 0 -1
+----------
+[SELECT] ZREVRANGE myzset 2 3
+----------
+[SELECT] ZREVRANGE myzset -2 -1
+----------
+[SELECT] ZREVRANGEBYLEX myzset [c -
+----------
+[SELECT] ZREVRANGEBYLEX myzset (c -
+----------
+[SELECT] ZREVRANGEBYLEX myzset (g [aaa
+----------
+[SELECT] ZREVRANGEBYLEX myzset 2 1
+----------
+[SELECT] ZREVRANGEBYSCORE myzset +inf -inf
+----------
+[SELECT] ZREVRANGEBYSCORE myzset 2 1
+----------
+[SELECT] ZREVRANGEBYSCORE myzset 2 (1
+----------
+[SELECT] ZREVRANGEBYSCORE myzset (2 (1
+----------
+[SELECT] ZREVRANK myzset "one"
+----------
+[SELECT] ZREVRANK myzset "four"
+----------
+[SELECT] ZREVRANK myzset "three" WITHSCORE
+----------
+[SELECT] zscan key 0
+----------
+[SELECT] zscan key 0 match *11*
+----------
+[SELECT] zscan key 176 match *11* count 1000
+----------
+[SELECT] ZSCORE myzset "one"
+----------
+[SELECT] ZSCORE myzset one
+----------
+[SELECT] ZUNION 2 zset1 zset2
+----------
+[SELECT] ZUNION 2 zset1 zset2 WEIGHTS 1 2 3 4
+----------
+[SELECT] ZUNION 2 zset1 zset2 WEIGHTS 1 2 3 4 AGGREGATE min
+----------
+[SELECT] ZUNION 2 zset1 zset2 WEIGHTS 1 2 3 4 AGGREGATE min WITHSCORES
+----------
+[MERGE|SELECT] ZUNIONSTORE out 2 zset1 zset2
+----------
+[MERGE|SELECT] ZUNIONSTORE out 2 zset1 zset2 WEIGHTS 1 2 3 4
+----------
+[MERGE|SELECT] ZUNIONSTORE out 2 zset1 zset2 WEIGHTS 1 2 3 4 AGGREGATE min
+----------
+[MERGE|SELECT] ZUNIONSTORE out 2 zset1 zset2 WEIGHTS 1 2 3 4 AGGREGATE min WITHSCORES

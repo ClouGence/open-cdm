@@ -1,0 +1,113 @@
+create user CODEX_DM8_LINK_CREATOR_20260722 identified by "Dm8@Link2026";
+create user CODEX_DM8_LINK_DROPPER_20260722 identified by "Dm8@Link2026";
+create user CODEX_DM8_LINK_OTHER_20260722 identified by "Dm8@Link2026";
+grant create link to CODEX_DM8_LINK_CREATOR_20260722;
+grant drop link to CODEX_DM8_LINK_DROPPER_20260722;
+create link CODEX_DM8_LINK_PRIVATE_20260722 connect 'DPI'
+with CODEX_DM8_LINK_REMOTE_20260721 identified by "Dm8@Link2026"
+using 'dm8-link-peer:5236';
+select count(*) from CODEX_DM8_LINK_REMOTE_20260721.CODEX_LINK_T@CODEX_DM8_LINK_PRIVATE_20260722;
+create public link CODEX_DM8_LINK_PUBLIC_20260722 connect 'DPI'
+with CODEX_DM8_LINK_REMOTE_20260721 identified by "Dm8@Link2026"
+using 'dm8-link-peer:5236';
+select count(*) from CODEX_DM8_LINK_REMOTE_20260721.CODEX_LINK_T@CODEX_DM8_LINK_CREATOR_20260722.CODEX_DM8_LINK_PRIVATE_20260722;
+select count(*) from CODEX_DM8_LINK_REMOTE_20260721.CODEX_LINK_T@CODEX_DM8_LINK_PUBLIC_20260722;
+drop link CODEX_DM8_LINK_CREATOR_20260722.CODEX_DM8_LINK_PRIVATE_20260722;
+drop public link CODEX_DM8_LINK_PUBLIC_20260722;
+grant drop link to CODEX_DM8_LINK_CREATOR_20260722;
+grant create link to public;
+drop link CODEX_DM8_LINK_PRIVATE_20260722;
+create link CODEX_DM8_LINK_PUBLIC_GRANT_20260722 connect 'DPI'
+with CODEX_DM8_LINK_REMOTE_20260721 identified by "Dm8@Link2026"
+using 'dm8-link-peer:5236';
+revoke create link from public;
+drop link CODEX_DM8_LINK_OTHER_20260722.CODEX_DM8_LINK_PUBLIC_GRANT_20260722;
+drop user CODEX_DM8_LINK_CREATOR_20260722 cascade;
+drop user CODEX_DM8_LINK_DROPPER_20260722 cascade;
+drop user CODEX_DM8_LINK_OTHER_20260722 cascade;
+create link CODEX_DM8_LINK_NOAUTH_20260722 connect 'DPI'
+with CODEX_DM8_LINK_REMOTE_20260721 identified by "Dm8@Link2026"
+using 'dm8-link-peer:5236';
+create user CODEX_DM8_LINK_ROLE_USER_20260722 identified by "Dm8@Link2026";
+create role CODEX_DM8_LINK_ROLE_20260722;
+grant create link, drop link to CODEX_DM8_LINK_ROLE_20260722;
+grant CODEX_DM8_LINK_ROLE_20260722 to CODEX_DM8_LINK_ROLE_USER_20260722;
+create link CODEX_DM8_LINK_ROLE_TARGET_20260722 connect 'DPI'
+with CODEX_DM8_LINK_REMOTE_20260721 identified by "Dm8@Link2026"
+using 'dm8-link-peer:5236';
+select count(*) from CODEX_DM8_LINK_REMOTE_20260721.CODEX_LINK_T@CODEX_DM8_LINK_ROLE_TARGET_20260722;
+drop link CODEX_DM8_LINK_ROLE_TARGET_20260722;
+drop user CODEX_DM8_LINK_ROLE_USER_20260722 cascade;
+drop role CODEX_DM8_LINK_ROLE_20260722;
+------------------------------------------------------------------------------------------
+[CREATE_USER] create user CODEX_DM8_LINK_CREATOR_20260722 identified by "Dm8@Link2026";
+----------
+[CREATE_USER] create user CODEX_DM8_LINK_DROPPER_20260722 identified by "Dm8@Link2026";
+----------
+[CREATE_USER] create user CODEX_DM8_LINK_OTHER_20260722 identified by "Dm8@Link2026";
+----------
+[GRANT] grant create link to CODEX_DM8_LINK_CREATOR_20260722;
+----------
+[GRANT] grant drop link to CODEX_DM8_LINK_DROPPER_20260722;
+----------
+[SYSTEM_SETTING_WRITE] create link CODEX_DM8_LINK_PRIVATE_20260722 connect 'DPI'
+with CODEX_DM8_LINK_REMOTE_20260721 identified by "Dm8@Link2026"
+using 'dm8-link-peer:5236';
+----------
+[SELECT] select count(*) from CODEX_DM8_LINK_REMOTE_20260721.CODEX_LINK_T@CODEX_DM8_LINK_PRIVATE_20260722;
+----------
+[SYSTEM_SETTING_WRITE] create public link CODEX_DM8_LINK_PUBLIC_20260722 connect 'DPI'
+with CODEX_DM8_LINK_REMOTE_20260721 identified by "Dm8@Link2026"
+using 'dm8-link-peer:5236';
+----------
+[SELECT] select count(*) from CODEX_DM8_LINK_REMOTE_20260721.CODEX_LINK_T@CODEX_DM8_LINK_CREATOR_20260722.CODEX_DM8_LINK_PRIVATE_20260722;
+----------
+[SELECT] select count(*) from CODEX_DM8_LINK_REMOTE_20260721.CODEX_LINK_T@CODEX_DM8_LINK_PUBLIC_20260722;
+----------
+[SYSTEM_SETTING_WRITE] drop link CODEX_DM8_LINK_CREATOR_20260722.CODEX_DM8_LINK_PRIVATE_20260722;
+----------
+[SYSTEM_SETTING_WRITE] drop public link CODEX_DM8_LINK_PUBLIC_20260722;
+----------
+[GRANT] grant drop link to CODEX_DM8_LINK_CREATOR_20260722;
+----------
+[GRANT] grant create link to public;
+----------
+[SYSTEM_SETTING_WRITE] drop link CODEX_DM8_LINK_PRIVATE_20260722;
+----------
+[SYSTEM_SETTING_WRITE] create link CODEX_DM8_LINK_PUBLIC_GRANT_20260722 connect 'DPI'
+with CODEX_DM8_LINK_REMOTE_20260721 identified by "Dm8@Link2026"
+using 'dm8-link-peer:5236';
+----------
+[REVOKE] revoke create link from public;
+----------
+[SYSTEM_SETTING_WRITE] drop link CODEX_DM8_LINK_OTHER_20260722.CODEX_DM8_LINK_PUBLIC_GRANT_20260722;
+----------
+[DROP_USER] drop user CODEX_DM8_LINK_CREATOR_20260722 cascade;
+----------
+[DROP_USER] drop user CODEX_DM8_LINK_DROPPER_20260722 cascade;
+----------
+[DROP_USER] drop user CODEX_DM8_LINK_OTHER_20260722 cascade;
+----------
+[SYSTEM_SETTING_WRITE] create link CODEX_DM8_LINK_NOAUTH_20260722 connect 'DPI'
+with CODEX_DM8_LINK_REMOTE_20260721 identified by "Dm8@Link2026"
+using 'dm8-link-peer:5236';
+----------
+[CREATE_USER] create user CODEX_DM8_LINK_ROLE_USER_20260722 identified by "Dm8@Link2026";
+----------
+[CREATE_ROLE] create role CODEX_DM8_LINK_ROLE_20260722;
+----------
+[GRANT] grant create link, drop link to CODEX_DM8_LINK_ROLE_20260722;
+----------
+[GRANT] grant CODEX_DM8_LINK_ROLE_20260722 to CODEX_DM8_LINK_ROLE_USER_20260722;
+----------
+[SYSTEM_SETTING_WRITE] create link CODEX_DM8_LINK_ROLE_TARGET_20260722 connect 'DPI'
+with CODEX_DM8_LINK_REMOTE_20260721 identified by "Dm8@Link2026"
+using 'dm8-link-peer:5236';
+----------
+[SELECT] select count(*) from CODEX_DM8_LINK_REMOTE_20260721.CODEX_LINK_T@CODEX_DM8_LINK_ROLE_TARGET_20260722;
+----------
+[SYSTEM_SETTING_WRITE] drop link CODEX_DM8_LINK_ROLE_TARGET_20260722;
+----------
+[DROP_USER] drop user CODEX_DM8_LINK_ROLE_USER_20260722 cascade;
+----------
+[DROP_ROLE] drop role CODEX_DM8_LINK_ROLE_20260722;

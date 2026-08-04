@@ -1,0 +1,63 @@
+[network_package_constant_query]
+sql:
+select utl_http.request('http://example.invalid')
+expect:
+{"size":0}
+----------
+[network_package_http_domains]
+sql:
+declare r utl_http.req; p utl_http.resp; body varchar(100); begin r := utl_http.begin_request('http://example.invalid'); utl_http.set_header(r, 'X-Test', '1'); p := utl_http.get_response(r); utl_http.read_text(p, body, 100); utl_http.end_response(p); end;
+expect:
+{
+  "contains": [
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"utl_http"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"utl_http"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"utl_http"}
+  ]
+}
+----------
+[network_package_mail_domains]
+sql:
+begin utl_mail.init('smtp.example.invalid', 25, 'sender@example.invalid', 'password'); utl_mail.send('sender@example.invalid', 'receiver@example.invalid', message => 'body'); end;
+expect:
+{
+  "contains": [
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"utl_mail"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"utl_mail"}
+  ]
+}
+----------
+[scheduler_package_domains]
+sql:
+begin dbms_scheduler.create_job('J', 'PLSQL_BLOCK', 'begin null; end;', enabled => false); dbms_scheduler.run_job('J', true); dbms_scheduler.drop_job('J'); end;
+expect:
+{
+  "contains": [
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_scheduler"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_scheduler"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_scheduler"}
+  ]
+}
+----------
+[aq_package_domains]
+sql:
+begin dbms_aqadm.create_queue('Q', 'QT'); dbms_aqadm.start_queue('Q'); dbms_aqadm.stop_queue('Q'); dbms_aqadm.drop_queue('Q'); end;
+expect:
+{
+  "contains": [
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_aqadm"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_aqadm"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_aqadm"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_aqadm"}
+  ]
+}
+----------
+[scheduler_log_table_domain]
+sql:
+select message from app.scheduler_log where id=1
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"scheduler_log"}
+  ]
+}

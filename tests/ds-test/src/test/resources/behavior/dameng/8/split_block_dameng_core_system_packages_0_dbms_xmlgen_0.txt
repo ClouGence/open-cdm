@@ -1,0 +1,302 @@
+[split_block_dameng_core_system_packages_0_041]
+sql:
+declare ctx int; xml_value clob; begin ctx := dbms_xmlgen.newcontext('select id,n from CODEX_DM8_CORE_PKG order by id'); dbms_xmlgen.setcheckinvalidchars(ctx, true); xml_value := dbms_xmlgen.getxml(ctx); dbms_xmlgen.closecontext(ctx); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:121~1:153) /test/1/catalog1/dbms_xmlgen/setcheckinvalidchars/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:204~1:228) /test/1/catalog1/dbms_xmlgen/closecontext/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:46~1:68) /test/1/catalog1/dbms_xmlgen/newcontext/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:179~1:197) /test/1/catalog1/dbms_xmlgen/getxml/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_core_system_packages_0_042]
+sql:
+declare ctx int; xml_value clob; result_value int; begin dbms_lob.createtemporary(xml_value, true); ctx := dbms_xmlgen.newcontext('select id,n from CODEX_DM8_CORE_PKG order by id'); result_value := dbms_xmlgen.getxml(ctx, xml_value, 0); dbms_xmlgen.closecontext(ctx); dbms_lob.freetemporary(xml_value); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:57~1:81) /test/1/catalog1/dbms_lob/createtemporary/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:237~1:261) /test/1/catalog1/dbms_xmlgen/closecontext/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:268~1:290) /test/1/catalog1/dbms_lob/freetemporary/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:107~1:129) /test/1/catalog1/dbms_xmlgen/newcontext/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:198~1:216) /test/1/catalog1/dbms_xmlgen/getxml/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_core_system_packages_0_043]
+sql:
+declare ctx int; xml_value clob; begin ctx := dbms_xmlgen.newcontext('select id,n from CODEX_DM8_CORE_PKG order by id'); xml_value := dbms_xmlgen.getxml(ctx); dbms_xmlgen.closecontext(ctx); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:159~1:183) /test/1/catalog1/dbms_xmlgen/closecontext/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:46~1:68) /test/1/catalog1/dbms_xmlgen/newcontext/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:134~1:152) /test/1/catalog1/dbms_xmlgen/getxml/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_core_system_packages_0_044]
+sql:
+declare ctx int; xml_value clob; begin ctx := dbms_xmlgen.newcontext('select id,n from CODEX_DM8_CORE_PKG order by id'); dbms_xmlgen.setrowsettag(ctx, 'ROWS'); dbms_xmlgen.setrowtag(ctx, 'ROW'); xml_value := dbms_xmlgen.getxml(ctx); dbms_xmlgen.closecontext(ctx); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:121~1:145) /test/1/catalog1/dbms_xmlgen/setrowsettag/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:160~1:181) /test/1/catalog1/dbms_xmlgen/setrowtag/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:233~1:257) /test/1/catalog1/dbms_xmlgen/closecontext/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:46~1:68) /test/1/catalog1/dbms_xmlgen/newcontext/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:208~1:226) /test/1/catalog1/dbms_xmlgen/getxml/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_core_system_packages_0_045]
+sql:
+declare ctx int; xml_value clob; row_count bigint; begin ctx := dbms_xmlgen.newcontext('select id,n from CODEX_DM8_CORE_PKG order by id'); dbms_xmlgen.setmaxrows(ctx, 1); dbms_xmlgen.setskiprows(ctx, 1); xml_value := dbms_xmlgen.getxml(ctx); row_count := dbms_xmlgen.getnumrowsprocessed(ctx); dbms_xmlgen.closecontext(ctx); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:139~1:161) /test/1/catalog1/dbms_xmlgen/setmaxrows/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:171~1:194) /test/1/catalog1/dbms_xmlgen/setskiprows/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:293~1:317) /test/1/catalog1/dbms_xmlgen/closecontext/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:64~1:86) /test/1/catalog1/dbms_xmlgen/newcontext/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:217~1:235) /test/1/catalog1/dbms_xmlgen/getxml/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:255~1:286) /test/1/catalog1/dbms_xmlgen/getnumrowsprocessed/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_core_system_packages_0_046]
+sql:
+declare ctx int; xml_value clob; begin ctx := dbms_xmlgen.newcontext('select id,c from CODEX_DM8_CORE_PKG order by id'); dbms_xmlgen.setconvertspecialchars(ctx, true); dbms_xmlgen.setnullhandling(ctx, 0); dbms_xmlgen.usenullattributeindicator(ctx, true); xml_value := dbms_xmlgen.getxml(ctx); dbms_xmlgen.closecontext(ctx); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:121~1:155) /test/1/catalog1/dbms_xmlgen/setconvertspecialchars/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:168~1:195) /test/1/catalog1/dbms_xmlgen/setnullhandling/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:205~1:242) /test/1/catalog1/dbms_xmlgen/usenullattributeindicator/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:293~1:317) /test/1/catalog1/dbms_xmlgen/closecontext/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:46~1:68) /test/1/catalog1/dbms_xmlgen/newcontext/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:268~1:286) /test/1/catalog1/dbms_xmlgen/getxml/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_core_system_packages_0_047]
+sql:
+declare ctx int; xml_value clob; begin ctx := dbms_xmlgen.newcontext('select id,n from CODEX_DM8_CORE_PKG where id=:ID'); dbms_xmlgen.setbindvalue(ctx, 'ID', '1'); xml_value := dbms_xmlgen.getxml(ctx); dbms_xmlgen.clearbindvalues(ctx); dbms_xmlgen.closecontext(ctx); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:122~1:146) /test/1/catalog1/dbms_xmlgen/setbindvalue/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:202~1:229) /test/1/catalog1/dbms_xmlgen/clearbindvalues/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:236~1:260) /test/1/catalog1/dbms_xmlgen/closecontext/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:46~1:68) /test/1/catalog1/dbms_xmlgen/newcontext/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:177~1:195) /test/1/catalog1/dbms_xmlgen/getxml/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_core_system_packages_0_048]
+sql:
+declare ctx int; xml_value clob; begin ctx := dbms_xmlgen.newcontext('select id,n from CODEX_DM8_CORE_PKG order by id'); dbms_xmlgen.setprettyprinting(ctx, true); dbms_xmlgen.setindentationwidth(ctx, 2); xml_value := dbms_xmlgen.getxml(ctx); dbms_xmlgen.closecontext(ctx); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:121~1:150) /test/1/catalog1/dbms_xmlgen/setprettyprinting/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:163~1:194) /test/1/catalog1/dbms_xmlgen/setindentationwidth/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:242~1:266) /test/1/catalog1/dbms_xmlgen/closecontext/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:46~1:68) /test/1/catalog1/dbms_xmlgen/newcontext/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:217~1:235) /test/1/catalog1/dbms_xmlgen/getxml/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_core_system_packages_0_049]
+sql:
+declare ctx int; xml_value clob; begin ctx := dbms_xmlgen.newcontext('select id,n from CODEX_DM8_CORE_PKG order by id'); xml_value := dbms_xmlgen.getxml(ctx); dbms_xmlgen.restartquery(ctx); xml_value := dbms_xmlgen.getxml(ctx); dbms_xmlgen.closecontext(ctx); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:159~1:183) /test/1/catalog1/dbms_xmlgen/restartquery/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:228~1:252) /test/1/catalog1/dbms_xmlgen/closecontext/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:46~1:68) /test/1/catalog1/dbms_xmlgen/newcontext/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:134~1:152) /test/1/catalog1/dbms_xmlgen/getxml/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:203~1:221) /test/1/catalog1/dbms_xmlgen/getxml/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_core_system_packages_0_050]
+sql:
+declare ctx int; xml_value clob; begin ctx := dbms_xmlgen.newcontext('select id,n from CODEX_DM8_CORE_PKG order by id'); dbms_xmlgen.useitemtagsforcoll(ctx); xml_value := dbms_xmlgen.getxml(ctx); dbms_xmlgen.closecontext(ctx); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:121~1:151) /test/1/catalog1/dbms_xmlgen/useitemtagsforcoll/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:196~1:220) /test/1/catalog1/dbms_xmlgen/closecontext/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:46~1:68) /test/1/catalog1/dbms_xmlgen/newcontext/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:171~1:189) /test/1/catalog1/dbms_xmlgen/getxml/",
+      "action": "CALL"
+    }
+  ]
+}
+

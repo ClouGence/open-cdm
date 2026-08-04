@@ -1,0 +1,55 @@
+[dpc_huge_range_create]
+sql:
+create huge table app.dpc_huge_range(id int, payload varchar(64))
+using partition group app.dpc_huge_pg_range by(id)
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"CREATE_TABLE", "schema":"app", "table":"dpc_huge_range"}
+  ]
+}
+----------
+[dpc_huge_sequence_default]
+sql:
+alter table app.dpc_huge_range add seq_value int default app.dpc_huge_seq.nextval
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"ALTER_TABLE", "schema":"app", "table":"dpc_huge_range"}
+  ]
+}
+----------
+[dpc_huge_route_query]
+sql:
+select id, payload, sf_get_ep_seqno(rowid) as ep_seqno
+from app.dpc_huge_range order by id
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "schema":"app", "table":"dpc_huge_range"}
+  ]
+}
+----------
+[dpc_huge_cross_bp_join]
+sql:
+select r.id, r.payload as range_payload, l.payload as list_payload
+from app.dpc_huge_range r join app.dpc_huge_list l on l.id=1
+where r.id=150
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "schema":"app", "table":"dpc_huge_range"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "schema":"app", "table":"dpc_huge_list"}
+  ]
+}
+----------
+[dpc_huge_bad_type]
+sql:
+create huge table app.dpc_huge_bad_type(id bigint)
+using partition group app.dpc_huge_pg_range by(id)
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"CREATE_TABLE", "schema":"app", "table":"dpc_huge_bad_type"}
+  ]
+}

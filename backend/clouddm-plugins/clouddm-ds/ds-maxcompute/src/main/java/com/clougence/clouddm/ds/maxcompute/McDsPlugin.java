@@ -34,13 +34,11 @@ import com.clougence.clouddm.ds.maxcompute.i18n.McConfigI18nKeys;
 import com.clougence.clouddm.ds.maxcompute.i18n.McI18nKeys;
 import com.clougence.clouddm.ds.maxcompute.language.McLanguageSpi;
 import com.clougence.clouddm.ds.maxcompute.resource.McEditorResourceSpi;
-import com.clougence.clouddm.ds.maxcompute.sql.McSqlEngineSpi;
 import com.clougence.clouddm.dsfamily.definition.TypeMapUtils;
 import com.clougence.clouddm.sdk.DsPlugin;
 import com.clougence.clouddm.sdk.DsPluginBinder;
 import com.clougence.clouddm.sdk.Plugin;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
-import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
 import com.clougence.schema.DsType;
 import com.clougence.schema.SchemaBinder;
 import com.clougence.schema.SchemaFramework;
@@ -81,9 +79,7 @@ public class McDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
     private void configExecute(DsPluginBinder dsPlugin) {
         dsPlugin.bindDsSessionFactory(McSessionFactory.class);
         dsPlugin.bindDsDriverFamily("ODPS JDBC");
-
-        dsPlugin.bindSqlEngine(McSqlEngineSpi.NAME);
-        dsPlugin.addGlobalSpi(SqlEngineSpi.class, McSqlEngineSpi.NAME, new McSqlEngineSpi(dsPlugin.findGlobalService(MetaService.class)));
+        dsPlugin.bindSqlEngine("MaxCompute SQL");
 
         dsPlugin.addPluginSpi(new McSessionSpi());
         dsPlugin.addPluginSpi(new McSupportSpi());

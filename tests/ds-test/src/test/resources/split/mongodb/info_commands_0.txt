@@ -1,0 +1,12 @@
+db.runCommand({buildInfo: 1});
+db.runCommand({hello: 1});
+db.runCommand({serverStatus: 1});
+db.runCommand({hostInfo: 1});
+------------------------------------------------------------------------------------------
+[METADATA] db.runCommand({buildInfo: 1})
+----------
+[METADATA] db.runCommand({hello: 1})
+----------
+[PERFORMANCE] db.runCommand({serverStatus: 1})
+----------
+[METADATA] db.runCommand({hostInfo: 1})

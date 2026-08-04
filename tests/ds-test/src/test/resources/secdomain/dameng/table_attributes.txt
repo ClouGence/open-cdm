@@ -1,0 +1,54 @@
+[table_storage_and_constraint_attributes]
+sql:
+create table app.orders(id int cluster primary key using index tablespace default,
+  parent_id int references app.parent(id) on update cascade)
+  storage(initial 1, fillfactor 80, branch(2,2), using long row)
+  segment creation immediate parallel 2 with advanced log
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"CREATE_TABLE", "auditKind":"CREATE", "schema":"app", "table":"orders"}
+  ]
+}
+----------
+[ctas_attributes_and_source]
+sql:
+create table app.orders_archive tablespace main parallel 2 add logic log
+  as select o.id, o.amount from catalog1.app.orders o
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"CREATE_TABLE_SELECT", "auditKind":"CREATE", "schema":"app", "table":"orders_archive"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "catalog":"catalog1", "schema":"app", "table":"orders"}
+  ]
+}
+----------
+[alter_comment_and_drop_domains]
+sql:
+alter table app.orders modify note default 'N' not null;
+alter table app.orders read only;
+comment on table app.orders is 'orders';
+comment on column app.orders.note is 'note';
+drop table app.orders purge
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"ALTER_TABLE", "auditKind":"ALTER", "schema":"app", "table":"orders"},
+    {"class":"RdbTableDomain", "sqlType":"COMMENT_TABLE", "auditKind":"ALTER", "schema":"app", "table":"orders"},
+    {"class":"RdbTableDomain", "sqlType":"COMMENT_COLUMN", "auditKind":"ALTER", "schema":"app", "table":"orders"},
+    {"class":"RdbTableDomain", "sqlType":"DROP_TABLE", "auditKind":"DROP", "schema":"app", "table":"orders"}
+  ]
+}
+----------
+[table_comment_dictionary_domains]
+sql:
+select table_name, comments from sys.user_tab_comments;
+select table_name, column_name, comments from sys.user_col_comments
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"sys", "table":"user_tab_comments"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"sys", "table":"user_col_comments"}
+  ]
+}
+

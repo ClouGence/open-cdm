@@ -1,0 +1,17 @@
+[for_read_only_columns]
+sql:
+select t.id,t.name from catalog1.app.lock_t t order by t.id for read only
+expect:
+{
+  "id" : [ "/catalog1/app/lock_t/id/" ],
+  "name" : [ "/catalog1/app/lock_t/name/" ]
+}
+----------
+[for_update_columns]
+sql:
+select a.id,b.name from catalog1.app.lock_t a join catalog1.app.lock_other b on a.id=b.id for update of a.name
+expect:
+{
+  "id" : [ "/catalog1/app/lock_t/id/" ],
+  "name" : [ "/catalog1/app/lock_other/name/" ]
+}

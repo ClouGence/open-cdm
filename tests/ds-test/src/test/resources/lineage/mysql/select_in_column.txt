@@ -1,0 +1,15 @@
+[MyParseColumnSelectInColumnTest.test1]
+sql:
+select (select column1 from table1) from table2
+expect:
+{
+  "(select column1 from table1)" : [ "(1:15~1:22) /catalog1/schema1/table1/column1/" ]
+}
+----------
+[correlated_subquery_output_reference]
+sql:
+select (select outer_t.column1) as copied from table1 outer_t
+expect:
+{
+  "copied" : [ "(1:15~1:30) /catalog1/schema1/table1/column1/" ]
+}

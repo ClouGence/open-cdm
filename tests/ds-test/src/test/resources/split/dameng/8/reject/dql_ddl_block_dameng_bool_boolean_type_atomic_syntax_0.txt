@@ -1,0 +1,21 @@
+declare b bool();begin null;end;/
+declare b boolean();begin null;end;/
+declare b bool boolean;begin null;end;/
+declare b boolean bool;begin null;end;/
+create function app.bad_bool_s05(p bool,) return int as begin return 1;end;/
+create function app.bad_bool_s06(p boolean) return as begin return 1;end;/
+declare b boolean:=;begin null;end;/
+------------------------------------------------------------------------------------------
+[BLOCK] declare b bool();begin null;end;/
+----------
+[BLOCK] declare b boolean();begin null;end;/
+----------
+[BLOCK] declare b bool boolean;begin null;end;/
+----------
+[BLOCK] declare b boolean bool;begin null;end;/
+----------
+[CREATE_PROG_OBJ] create function app.bad_bool_s05(p bool,) return int as begin return 1;end;/
+----------
+[CREATE_PROG_OBJ] create function app.bad_bool_s06(p boolean) return as begin return 1;end;/
+----------
+[BLOCK] declare b boolean:=;begin null;end;/

@@ -1,0 +1,80 @@
+CREATE JSON DUALITY VIEW splitjdv.jdv_basic AS SELECT JSON_DUALITY_OBJECT('_id' : id, 'name' : name) FROM splitjdv.root_doc;
+ALTER JSON DUALITY VIEW splitjdv.jdv_basic AS SELECT JSON_DUALITY_OBJECT('_id' : id, 'label' : name) FROM splitjdv.root_doc;
+CREATE OR REPLACE ALGORITHM = MERGE SQL SECURITY INVOKER JSON RELATIONAL DUALITY VIEW splitjdv.jdv_rel AS SELECT JSON_DUALITY_OBJECT(WITH (INSERT, UPDATE, NO DELETE) '_id' : id, 'name' : name) FROM splitjdv.root_doc;
+CREATE DEFINER = CURRENT_USER SQL SECURITY DEFINER JSON DUALITY VIEW splitjdv.jdv_def AS SELECT JSON_DUALITY_OBJECT('_id' : id, 'name' : name) FROM splitjdv.root_doc;
+CREATE JSON DUALITY VIEW IF NOT EXISTS splitjdv.jdv_exists AS SELECT JSON_DUALITY_OBJECT('_id' : id, 'name' : name) FROM splitjdv.root_doc AS r;
+ALTER JSON DUALITY VIEW splitjdv.jdv_basic AS SELECT JSON_DUALITY_OBJECT('_id' : id, 'label' : name) FROM splitjdv.root_doc;
+ALTER MATERIALIZED VIEW split_ext.mv_basic AS SELECT 3 AS id;
+CREATE MATERIALIZED VIEW split_ext.mv_basic AS SELECT 1 AS id;
+CREATE OR REPLACE ALGORITHM=MERGE MATERIALIZED VIEW split_ext.mv_replace AS SELECT 2 AS id;
+CREATE OR REPLACE VIEW v_where AS SELECT 1 WHERE 1;
+CREATE VIEW split_view56.v_cte AS WITH cte AS (SELECT id, amount FROM split_view56.src) SELECT id, amount FROM cte;
+CREATE VIEW IF NOT EXISTS v_ifne(v_a) AS SELECT a FROM t1;
+CREATE VIEW split_view56.v_table AS TABLE split_view56.src;
+CREATE VIEW split_view56.v_values AS VALUES ROW(1, 10, 'a'), ROW(2, 20, 'b');
+CREATE VIEW v_jdv_object AS SELECT JSON_DUALITY_OBJECT('c1':c1) FROM t1;
+ALTER VIEW audit_v AS TABLE audit_source;
+ALTER VIEW audit_v AS VALUES ROW(1,'a'), ROW(2,'b');
+ALTER VIEW audit_v AS WITH q AS (SELECT 1 AS id) SELECT id FROM q;
+CREATE MATERIALIZED VIEW IF NOT EXISTS audit_mv_ifne AS SELECT 1 AS id;
+CREATE MATERIALIZED DEFINER=CURRENT_USER SQL SECURITY INVOKER VIEW audit_mv_def AS SELECT 1 AS id;
+CREATE MATERIALIZED VIEW audit_mv_table AS TABLE audit_source;
+CREATE MATERIALIZED VIEW audit_mv_values AS VALUES ROW(1), ROW(2);
+CREATE MATERIALIZED VIEW audit_mv_cte AS WITH q AS (SELECT 1 AS id) SELECT id FROM q;
+ALTER ALGORITHM=TEMPTABLE MATERIALIZED VIEW audit_mv_ifne AS SELECT 2 AS id;
+ALTER MATERIALIZED DEFINER=CURRENT_USER SQL SECURITY INVOKER VIEW audit_mv_ifne AS SELECT 2 AS id;
+------------------------------------------------------------------------------------------
+[CREATE_VIEW(SELECT)]
+CREATE JSON DUALITY VIEW splitjdv.jdv_basic AS SELECT JSON_DUALITY_OBJECT('_id' : id, 'name' : name) FROM splitjdv.root_doc;
+----------
+[ALTER_VIEW(SELECT)]
+ALTER JSON DUALITY VIEW splitjdv.jdv_basic AS SELECT JSON_DUALITY_OBJECT('_id' : id, 'label' : name) FROM splitjdv.root_doc;
+----------
+[ALTER_VIEW(SELECT)]
+CREATE OR REPLACE ALGORITHM = MERGE SQL SECURITY INVOKER JSON RELATIONAL DUALITY VIEW splitjdv.jdv_rel AS SELECT JSON_DUALITY_OBJECT(WITH (INSERT, UPDATE, NO DELETE) '_id' : id, 'name' : name) FROM splitjdv.root_doc;
+----------
+[CREATE_VIEW(SELECT)]
+CREATE DEFINER = CURRENT_USER SQL SECURITY DEFINER JSON DUALITY VIEW splitjdv.jdv_def AS SELECT JSON_DUALITY_OBJECT('_id' : id, 'name' : name) FROM splitjdv.root_doc;
+----------
+[CREATE_VIEW(SELECT)]
+CREATE JSON DUALITY VIEW IF NOT EXISTS splitjdv.jdv_exists AS SELECT JSON_DUALITY_OBJECT('_id' : id, 'name' : name) FROM splitjdv.root_doc AS r;
+----------
+[ALTER_VIEW(SELECT)] ALTER JSON DUALITY VIEW splitjdv.jdv_basic AS SELECT JSON_DUALITY_OBJECT('_id' : id, 'label' : name) FROM splitjdv.root_doc;
+----------
+[ALTER_VIEW(SELECT)] ALTER MATERIALIZED VIEW split_ext.mv_basic AS SELECT 3 AS id;
+----------
+[CREATE_VIEW(SELECT)] CREATE MATERIALIZED VIEW split_ext.mv_basic AS SELECT 1 AS id;
+----------
+[ALTER_VIEW(SELECT)] CREATE OR REPLACE ALGORITHM=MERGE MATERIALIZED VIEW split_ext.mv_replace AS SELECT 2 AS id;
+----------
+[ALTER_VIEW(SELECT)] CREATE OR REPLACE VIEW v_where AS SELECT 1 WHERE 1;
+----------
+[CREATE_VIEW(SELECT)] CREATE VIEW split_view56.v_cte AS WITH cte AS (SELECT id, amount FROM split_view56.src) SELECT id, amount FROM cte;
+----------
+[CREATE_VIEW(SELECT)] CREATE VIEW IF NOT EXISTS v_ifne(v_a) AS SELECT a FROM t1;
+----------
+[CREATE_VIEW(SELECT)] CREATE VIEW split_view56.v_table AS TABLE split_view56.src;
+----------
+[CREATE_VIEW(SELECT)] CREATE VIEW split_view56.v_values AS VALUES ROW(1, 10, 'a'), ROW(2, 20, 'b');
+----------
+[CREATE_VIEW(SELECT)] CREATE VIEW v_jdv_object AS SELECT JSON_DUALITY_OBJECT('c1':c1) FROM t1;
+----------
+[ALTER_VIEW(SELECT)] ALTER VIEW audit_v AS TABLE audit_source;
+----------
+[ALTER_VIEW(SELECT)] ALTER VIEW audit_v AS VALUES ROW(1,'a'), ROW(2,'b');
+----------
+[ALTER_VIEW(SELECT)] ALTER VIEW audit_v AS WITH q AS (SELECT 1 AS id) SELECT id FROM q;
+----------
+[CREATE_VIEW(SELECT)] CREATE MATERIALIZED VIEW IF NOT EXISTS audit_mv_ifne AS SELECT 1 AS id;
+----------
+[CREATE_VIEW(SELECT)] CREATE MATERIALIZED DEFINER=CURRENT_USER SQL SECURITY INVOKER VIEW audit_mv_def AS SELECT 1 AS id;
+----------
+[CREATE_VIEW(SELECT)] CREATE MATERIALIZED VIEW audit_mv_table AS TABLE audit_source;
+----------
+[CREATE_VIEW(SELECT)] CREATE MATERIALIZED VIEW audit_mv_values AS VALUES ROW(1), ROW(2);
+----------
+[CREATE_VIEW(SELECT)] CREATE MATERIALIZED VIEW audit_mv_cte AS WITH q AS (SELECT 1 AS id) SELECT id FROM q;
+----------
+[ALTER_VIEW(SELECT)] ALTER ALGORITHM=TEMPTABLE MATERIALIZED VIEW audit_mv_ifne AS SELECT 2 AS id;
+----------
+[ALTER_VIEW(SELECT)] ALTER MATERIALIZED DEFINER=CURRENT_USER SQL SECURITY INVOKER VIEW audit_mv_ifne AS SELECT 2 AS id;

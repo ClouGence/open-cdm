@@ -1,0 +1,1060 @@
+[dql_mysql_spatial_0.0001]
+sql:
+SELECT ST_GEOMFROMWKB(POINT(0,0));
+expect:
+{
+  "ST_GEOMFROMWKB(POINT(0,0))" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0002]
+sql:
+SELECT ST_GEOMFROMWKB(POINT(0,0),4326);
+expect:
+{
+  "ST_GEOMFROMWKB(POINT(0,0),4326)" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0003]
+sql:
+SELECT ST_BUFFER_STRATEGY('point_square',20);
+expect:
+{
+  "ST_BUFFER_STRATEGY('point_square',20)" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0004]
+sql:
+SELECT ST_BUFFER_STRATEGY('point_circle');
+expect:
+{
+  "ST_BUFFER_STRATEGY('point_circle')" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0005]
+sql:
+SELECT ST_BUFFER(ST_GEOMFROMTEXT('POINT(0 0)'),1,1);
+expect:
+{
+  "ST_BUFFER(ST_GEOMFROMTEXT('POINT(0 0)'),1,1)" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0006]
+sql:
+SELECT ST_BUFFER(ST_GEOMFROMTEXT('POINT(0 0)'),5,ST_BUFFER_STRATEGY('join_miter',10),ST_BUFFER_STRATEGY('join_round',10));
+expect:
+{
+  "ST_BUFFER(ST_GEOMFROMTEXT('POINT(0 0)'),5,ST_BUFFER_STRATEGY('join_miter',10),ST_BUFFER_STRATEGY('join_round',10))" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0007]
+sql:
+SELECT ST_BUFFER(ST_GEOMFROMTEXT('POINT(0 0)'),-1);
+expect:
+{
+  "ST_BUFFER(ST_GEOMFROMTEXT('POINT(0 0)'),-1)" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0008]
+sql:
+SELECT ST_BUFFER(ST_GEOMFROMTEXT('LINESTRING(0 0,10 10)'),1,ST_BUFFER_STRATEGY('point_circle',10));
+expect:
+{
+  "ST_BUFFER(ST_GEOMFROMTEXT('LINESTRING(0 0,10 10)'),1,ST_BUFFER_STRATEGY('point_circle',10))" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0009]
+sql:
+SELECT ST_MAKEENVELOPE(ST_GEOMFROMTEXT('POINT(0 1)'),ST_GEOMFROMTEXT('MULTIPOINT(0 0)'));
+expect:
+{
+  "ST_MAKEENVELOPE(ST_GEOMFROMTEXT('POINT(0 1)'),ST_GEOMFROMTEXT('MULTIPOINT(0 0)'))" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0010]
+sql:
+SELECT ST_MAKEENVELOPE(ST_GEOMFROMTEXT('MULTIPOINT(0 0)'),ST_GEOMFROMTEXT('POINT(0 1)'));
+expect:
+{
+  "ST_MAKEENVELOPE(ST_GEOMFROMTEXT('MULTIPOINT(0 0)'),ST_GEOMFROMTEXT('POINT(0 1)'))" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0011]
+sql:
+SELECT ST_BUFFER_STRATEGY();
+expect:
+{
+  "ST_BUFFER_STRATEGY()" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0012]
+sql:
+SELECT ST_BUFFER_STRATEGY('end_round',10,100);
+expect:
+{
+  "ST_BUFFER_STRATEGY('end_round',10,100)" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0013]
+sql:
+SELECT ST_MAKEENVELOPE(ST_GEOMFROMTEXT('POINT(0 0)',0),ST_GEOMFROMTEXT('POINT(-1 1)',4145));
+expect:
+{
+  "ST_MAKEENVELOPE(ST_GEOMFROMTEXT('POINT(0 0)',0),ST_GEOMFROMTEXT('POINT(-1 1)',4145))" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0014]
+sql:
+SELECT ST_SIMPLIFY(ST_GEOMFROMTEXT('POLYGON((0 0,0 10,10 10,10 0,0 0))'),0);
+expect:
+{
+  "ST_SIMPLIFY(ST_GEOMFROMTEXT('POLYGON((0 0,0 10,10 10,10 0,0 0))'),0)" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0015]
+sql:
+SELECT ST_SIMPLIFY(ST_GEOMFROMTEXT('POLYGON((0 0,0 10,10 10,10 0,0 0))'),'a');
+expect:
+{
+  "ST_SIMPLIFY(ST_GEOMFROMTEXT('POLYGON((0 0,0 10,10 10,10 0,0 0))'),'a')" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0016]
+sql:
+SELECT ST_DISTANCE_SPHERE(ST_GEOMFROMTEXT('POINT(1 1)'),ST_GEOMFROMTEXT('POINT(0 0)'),-1);
+expect:
+{
+  "ST_DISTANCE_SPHERE(ST_GEOMFROMTEXT('POINT(1 1)'),ST_GEOMFROMTEXT('POINT(0 0)'),-1)" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0017]
+sql:
+SELECT ST_DISTANCE_SPHERE(ST_GEOMFROMTEXT('POINT(1 1)'),ST_GEOMFROMTEXT('POINT(0 0)'),200,300);
+expect:
+{
+  "ST_DISTANCE_SPHERE(ST_GEOMFROMTEXT('POINT(1 1)'),ST_GEOMFROMTEXT('POINT(0 0)'),200,300)" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0018]
+sql:
+SELECT ST_AsText(CAST(ST_GeomFromText('MULTIPOINT((1 2))') AS POINT));
+expect:
+{
+  "ST_AsText(CAST(ST_GeomFromText('MULTIPOINT((1 2))') AS POINT))" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0019]
+sql:
+SELECT ST_AsText(CAST(ST_GeomFromText('MULTIPOINT((1 2),(3 4))') AS LINESTRING));
+expect:
+{
+  "ST_AsText(CAST(ST_GeomFromText('MULTIPOINT((1 2),(3 4))') AS LINESTRING))" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0020]
+sql:
+SELECT ST_AsText(CAST(ST_GeomFromText('LINESTRING(0 0,1 0,1 1,0 0)') AS POLYGON));
+expect:
+{
+  "ST_AsText(CAST(ST_GeomFromText('LINESTRING(0 0,1 0,1 1,0 0)') AS POLYGON))" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0021]
+sql:
+SELECT ST_AsText(CAST(ST_GeomFromText('POINT(1 2)') AS MULTIPOINT));
+expect:
+{
+  "ST_AsText(CAST(ST_GeomFromText('POINT(1 2)') AS MULTIPOINT))" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0022]
+sql:
+SELECT ST_AsText(CAST(ST_GeomFromText('LINESTRING(0 0,1 1)') AS MULTILINESTRING));
+expect:
+{
+  "ST_AsText(CAST(ST_GeomFromText('LINESTRING(0 0,1 1)') AS MULTILINESTRING))" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0023]
+sql:
+SELECT ST_AsText(CAST(ST_GeomFromText('POLYGON((0 0,1 0,1 1,0 0))') AS MULTIPOLYGON));
+expect:
+{
+  "ST_AsText(CAST(ST_GeomFromText('POLYGON((0 0,1 0,1 1,0 0))') AS MULTIPOLYGON))" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0024]
+sql:
+SELECT ST_AsText(CAST(ST_GeomFromText('POINT(1 2)') AS GEOMETRYCOLLECTION));
+expect:
+{
+  "ST_AsText(CAST(ST_GeomFromText('POINT(1 2)') AS GEOMETRYCOLLECTION))" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0025]
+sql:
+SELECT ST_AsText(CONVERT(ST_GeomFromText('POINT(1 2)'), GEOMCOLLECTION));
+expect:
+{
+  "ST_AsText(CONVERT(ST_GeomFromText('POINT(1 2)'), GEOMCOLLECTION))" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0026]
+sql:
+SELECT JSON_VALUE('{"p": 1}', '$.p' RETURNING POINT);
+expect:
+{
+  "JSON_VALUE('{\"p\": 1}', '$.p' RETURNING POINT)" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0027]
+sql:
+SELECT CAST(ST_GeomFromText('POINT(1 2)') AS POINT ARRAY);
+expect:
+{
+  "CAST(ST_GeomFromText('POINT(1 2)') AS POINT ARRAY)" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0028]
+sql:
+SELECT ST_ISVALID(ST_GEOMFROMTEXT('POINT(1 2)')), ST_VALIDATE(ST_GEOMFROMTEXT('POINT(1 2)')), ST_DISTANCE_SPHERE(ST_GEOMFROMTEXT('POINT(0 0)'),ST_GEOMFROMTEXT('POINT(1 1)')), ST_MAKEENVELOPE(ST_GEOMFROMTEXT('POINT(0 0)'),ST_GEOMFROMTEXT('POINT(1 1)'));
+expect:
+{
+  "ST_ISVALID(ST_GEOMFROMTEXT('POINT(1 2)'))" : [ ],
+  "ST_VALIDATE(ST_GEOMFROMTEXT('POINT(1 2)'))" : [ ],
+  "ST_DISTANCE_SPHERE(ST_GEOMFROMTEXT('POINT(0 0)'),ST_GEOMFROMTEXT('POINT(1 1)'))" : [ ],
+  "ST_MAKEENVELOPE(ST_GEOMFROMTEXT('POINT(0 0)'),ST_GEOMFROMTEXT('POINT(1 1)'))" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0029]
+sql:
+SELECT ST_ASGEOJSON(ST_GEOMFROMTEXT('POINT(1 2)')), ST_GEOMFROMGEOJSON('{"type":"Point","coordinates":[1,2]}'), ST_GEOHASH(1,2,8), ST_LATFROMGEOHASH(ST_GEOHASH(1,2,8)), ST_LONGFROMGEOHASH(ST_GEOHASH(1,2,8)), ST_POINTFROMGEOHASH(ST_GEOHASH(1,2,8),4326);
+expect:
+{
+  "ST_ASGEOJSON(ST_GEOMFROMTEXT('POINT(1 2)'))" : [ ],
+  "ST_GEOMFROMGEOJSON('{\"type\":\"Point\",\"coordinates\":[1,2]}')" : [ ],
+  "ST_GEOHASH(1,2,8)" : [ ],
+  "ST_LATFROMGEOHASH(ST_GEOHASH(1,2,8))" : [ ],
+  "ST_LONGFROMGEOHASH(ST_GEOHASH(1,2,8))" : [ ],
+  "ST_POINTFROMGEOHASH(ST_GEOHASH(1,2,8),4326)" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0030]
+sql:
+SELECT ST_SIMPLIFY(ST_GEOMFROMTEXT('LINESTRING(0 0,1 0.1,2 0)'),0.2);
+expect:
+{
+  "ST_SIMPLIFY(ST_GEOMFROMTEXT('LINESTRING(0 0,1 0.1,2 0)'),0.2)" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0031]
+sql:
+SELECT HEX(ST_BUFFER_STRATEGY('join_round',32)), ST_ASTEXT(ST_CONVEXHULL(ST_GEOMFROMTEXT('MULTIPOINT(0 0,1 2,2 0)')));
+expect:
+{
+  "HEX(ST_BUFFER_STRATEGY('join_round',32))" : [ ],
+  "ST_ASTEXT(ST_CONVEXHULL(ST_GEOMFROMTEXT('MULTIPOINT(0 0,1 2,2 0)')))" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0032]
+sql:
+SELECT ST_TRANSFORM(ST_GEOMFROMTEXT('POINT(0 0)',4326),3857), ST_FRECHETDISTANCE(ST_GEOMFROMTEXT('LINESTRING(0 0,1 1)'),ST_GEOMFROMTEXT('LINESTRING(0 0,2 2)')), ST_HAUSDORFFDISTANCE(ST_GEOMFROMTEXT('LINESTRING(0 0,1 1)'),ST_GEOMFROMTEXT('LINESTRING(0 0,2 2)')), ST_LINEINTERPOLATEPOINT(ST_GEOMFROMTEXT('LINESTRING(0 0,10 0)'),0.5), ST_POINTATDISTANCE(ST_GEOMFROMTEXT('LINESTRING(0 0,10 0)'),5);
+expect:
+{
+  "ST_TRANSFORM(ST_GEOMFROMTEXT('POINT(0 0)',4326),3857)" : [ ],
+  "ST_FRECHETDISTANCE(ST_GEOMFROMTEXT('LINESTRING(0 0,1 1)'),ST_GEOMFROMTEXT('LINESTRING(0 0,2 2)'))" : [ ],
+  "ST_HAUSDORFFDISTANCE(ST_GEOMFROMTEXT('LINESTRING(0 0,1 1)'),ST_GEOMFROMTEXT('LINESTRING(0 0,2 2)'))" : [ ],
+  "ST_LINEINTERPOLATEPOINT(ST_GEOMFROMTEXT('LINESTRING(0 0,10 0)'),0.5)" : [ ],
+  "ST_POINTATDISTANCE(ST_GEOMFROMTEXT('LINESTRING(0 0,10 0)'),5)" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0033]
+sql:
+SELECT ST_COLLECT(g) FROM (SELECT ST_GEOMFROMTEXT('POINT(0 0)') AS g UNION ALL SELECT ST_GEOMFROMTEXT('POINT(1 1)')) AS d;
+expect:
+{
+  "ST_COLLECT(g)" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0034]
+sql:
+SELECT ST_LATITUDE(ST_GEOMFROMTEXT('POINT(10 20)',4326)), ST_LONGITUDE(ST_GEOMFROMTEXT('POINT(10 20)',4326)), ST_ASTEXT(ST_SWAPXY(ST_GEOMFROMTEXT('POINT(1 2)'))), ST_ASTEXT(ST_LINEINTERPOLATEPOINTS(ST_GEOMFROMTEXT('LINESTRING(0 0,10 0)'),0.25));
+expect:
+{
+  "ST_LATITUDE(ST_GEOMFROMTEXT('POINT(10 20)',4326))" : [ ],
+  "ST_LONGITUDE(ST_GEOMFROMTEXT('POINT(10 20)',4326))" : [ ],
+  "ST_ASTEXT(ST_SWAPXY(ST_GEOMFROMTEXT('POINT(1 2)')))" : [ ],
+  "ST_ASTEXT(ST_LINEINTERPOLATEPOINTS(ST_GEOMFROMTEXT('LINESTRING(0 0,10 0)'),0.25))" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0035]
+sql:
+SELECT ST_ASTEXT(ST_GEOMFROMTEXT('POINT(1 2)')), ST_ASBINARY(ST_GEOMFROMTEXT('POINT(1 2)')), ST_GEOMETRYTYPE(ST_GEOMFROMTEXT('POINT(1 2)')), ST_DIMENSION(ST_GEOMFROMTEXT('LINESTRING(0 0,1 1)')), ST_ISEMPTY(ST_GEOMFROMTEXT('GEOMETRYCOLLECTION()')), ST_ISSIMPLE(ST_GEOMFROMTEXT('LINESTRING(0 0,1 1)')), ST_SRID(ST_GEOMFROMTEXT('POINT(1 2)')), ST_X(ST_GEOMFROMTEXT('POINT(1 2)')), ST_Y(ST_GEOMFROMTEXT('POINT(1 2)'));
+expect:
+{
+  "ST_ASTEXT(ST_GEOMFROMTEXT('POINT(1 2)'))" : [ ],
+  "ST_ASBINARY(ST_GEOMFROMTEXT('POINT(1 2)'))" : [ ],
+  "ST_GEOMETRYTYPE(ST_GEOMFROMTEXT('POINT(1 2)'))" : [ ],
+  "ST_DIMENSION(ST_GEOMFROMTEXT('LINESTRING(0 0,1 1)'))" : [ ],
+  "ST_ISEMPTY(ST_GEOMFROMTEXT('GEOMETRYCOLLECTION()'))" : [ ],
+  "ST_ISSIMPLE(ST_GEOMFROMTEXT('LINESTRING(0 0,1 1)'))" : [ ],
+  "ST_SRID(ST_GEOMFROMTEXT('POINT(1 2)'))" : [ ],
+  "ST_X(ST_GEOMFROMTEXT('POINT(1 2)'))" : [ ],
+  "ST_Y(ST_GEOMFROMTEXT('POINT(1 2)'))" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0036]
+sql:
+SELECT ST_NUMPOINTS(ST_GEOMFROMTEXT('LINESTRING(0 0,1 1,2 2)')), ST_POINTN(ST_GEOMFROMTEXT('LINESTRING(0 0,1 1,2 2)'),2), ST_STARTPOINT(ST_GEOMFROMTEXT('LINESTRING(0 0,1 1)')), ST_ENDPOINT(ST_GEOMFROMTEXT('LINESTRING(0 0,1 1)')), ST_LENGTH(ST_GEOMFROMTEXT('LINESTRING(0 0,3 4)')), ST_AREA(ST_GEOMFROMTEXT('POLYGON((0 0,0 2,2 2,2 0,0 0))')), ST_CENTROID(ST_GEOMFROMTEXT('POLYGON((0 0,0 2,2 2,2 0,0 0))')), ST_EXTERIORRING(ST_GEOMFROMTEXT('POLYGON((0 0,0 2,2 2,2 0,0 0))')), ST_NUMINTERIORRINGS(ST_GEOMFROMTEXT('POLYGON((0 0,0 2,2 2,2 0,0 0))')), ST_ENVELOPE(ST_GEOMFROMTEXT('LINESTRING(0 0,2 3)'));
+expect:
+{
+  "ST_NUMPOINTS(ST_GEOMFROMTEXT('LINESTRING(0 0,1 1,2 2)'))" : [ ],
+  "ST_POINTN(ST_GEOMFROMTEXT('LINESTRING(0 0,1 1,2 2)'),2)" : [ ],
+  "ST_STARTPOINT(ST_GEOMFROMTEXT('LINESTRING(0 0,1 1)'))" : [ ],
+  "ST_ENDPOINT(ST_GEOMFROMTEXT('LINESTRING(0 0,1 1)'))" : [ ],
+  "ST_LENGTH(ST_GEOMFROMTEXT('LINESTRING(0 0,3 4)'))" : [ ],
+  "ST_AREA(ST_GEOMFROMTEXT('POLYGON((0 0,0 2,2 2,2 0,0 0))'))" : [ ],
+  "ST_CENTROID(ST_GEOMFROMTEXT('POLYGON((0 0,0 2,2 2,2 0,0 0))'))" : [ ],
+  "ST_EXTERIORRING(ST_GEOMFROMTEXT('POLYGON((0 0,0 2,2 2,2 0,0 0))'))" : [ ],
+  "ST_NUMINTERIORRINGS(ST_GEOMFROMTEXT('POLYGON((0 0,0 2,2 2,2 0,0 0))'))" : [ ],
+  "ST_ENVELOPE(ST_GEOMFROMTEXT('LINESTRING(0 0,2 3)'))" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0037]
+sql:
+SELECT ST_NUMGEOMETRIES(ST_GEOMFROMTEXT('GEOMETRYCOLLECTION(POINT(0 0),POINT(1 1))')), ST_GEOMETRYN(ST_GEOMFROMTEXT('GEOMETRYCOLLECTION(POINT(0 0),POINT(1 1))'),2), ST_CONTAINS(ST_GEOMFROMTEXT('POLYGON((0 0,0 4,4 4,4 0,0 0))'),ST_GEOMFROMTEXT('POINT(1 1)')), ST_WITHIN(ST_GEOMFROMTEXT('POINT(1 1)'),ST_GEOMFROMTEXT('POLYGON((0 0,0 4,4 4,4 0,0 0))')), ST_EQUALS(ST_GEOMFROMTEXT('POINT(1 1)'),ST_GEOMFROMTEXT('POINT(1 1)')), ST_DISJOINT(ST_GEOMFROMTEXT('POINT(0 0)'),ST_GEOMFROMTEXT('POINT(1 1)')), ST_INTERSECTS(ST_GEOMFROMTEXT('LINESTRING(0 0,2 2)'),ST_GEOMFROMTEXT('LINESTRING(0 2,2 0)')), ST_TOUCHES(ST_GEOMFROMTEXT('LINESTRING(0 0,1 1)'),ST_GEOMFROMTEXT('LINESTRING(1 1,2 2)')), ST_CROSSES(ST_GEOMFROMTEXT('LINESTRING(0 0,2 2)'),ST_GEOMFROMTEXT('LINESTRING(0 2,2 0)')), ST_OVERLAPS(ST_GEOMFROMTEXT('POLYGON((0 0,0 3,3 3,3 0,0 0))'),ST_GEOMFROMTEXT('POLYGON((2 2,2 4,4 4,4 2,2 2))'));
+expect:
+{
+  "ST_NUMGEOMETRIES(ST_GEOMFROMTEXT('GEOMETRYCOLLECTION(POINT(0 0),POINT(1 1))'))" : [ ],
+  "ST_GEOMETRYN(ST_GEOMFROMTEXT('GEOMETRYCOLLECTION(POINT(0 0),POINT(1 1))'),2)" : [ ],
+  "ST_CONTAINS(ST_GEOMFROMTEXT('POLYGON((0 0,0 4,4 4,4 0,0 0))'),ST_GEOMFROMTEXT('POINT(1 1)'))" : [ ],
+  "ST_WITHIN(ST_GEOMFROMTEXT('POINT(1 1)'),ST_GEOMFROMTEXT('POLYGON((0 0,0 4,4 4,4 0,0 0))'))" : [ ],
+  "ST_EQUALS(ST_GEOMFROMTEXT('POINT(1 1)'),ST_GEOMFROMTEXT('POINT(1 1)'))" : [ ],
+  "ST_DISJOINT(ST_GEOMFROMTEXT('POINT(0 0)'),ST_GEOMFROMTEXT('POINT(1 1)'))" : [ ],
+  "ST_INTERSECTS(ST_GEOMFROMTEXT('LINESTRING(0 0,2 2)'),ST_GEOMFROMTEXT('LINESTRING(0 2,2 0)'))" : [ ],
+  "ST_TOUCHES(ST_GEOMFROMTEXT('LINESTRING(0 0,1 1)'),ST_GEOMFROMTEXT('LINESTRING(1 1,2 2)'))" : [ ],
+  "ST_CROSSES(ST_GEOMFROMTEXT('LINESTRING(0 0,2 2)'),ST_GEOMFROMTEXT('LINESTRING(0 2,2 0)'))" : [ ],
+  "ST_OVERLAPS(ST_GEOMFROMTEXT('POLYGON((0 0,0 3,3 3,3 0,0 0))'),ST_GEOMFROMTEXT('POLYGON((2 2,2 4,4 4,4 2,2 2))'))" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0038]
+sql:
+SELECT ST_DISTANCE(ST_GEOMFROMTEXT('POINT(0 0)'),ST_GEOMFROMTEXT('POINT(3 4)')), ST_INTERSECTION(ST_GEOMFROMTEXT('LINESTRING(0 0,2 2)'),ST_GEOMFROMTEXT('LINESTRING(0 2,2 0)')), ST_UNION(ST_GEOMFROMTEXT('POINT(0 0)'),ST_GEOMFROMTEXT('POINT(1 1)')), ST_DIFFERENCE(ST_GEOMFROMTEXT('LINESTRING(0 0,2 2)'),ST_GEOMFROMTEXT('POINT(1 1)')), ST_SYMDIFFERENCE(ST_GEOMFROMTEXT('POINT(0 0)'),ST_GEOMFROMTEXT('POINT(1 1)')), ST_BUFFER(ST_GEOMFROMTEXT('POINT(0 0)'),1);
+expect:
+{
+  "ST_DISTANCE(ST_GEOMFROMTEXT('POINT(0 0)'),ST_GEOMFROMTEXT('POINT(3 4)'))" : [ ],
+  "ST_INTERSECTION(ST_GEOMFROMTEXT('LINESTRING(0 0,2 2)'),ST_GEOMFROMTEXT('LINESTRING(0 2,2 0)'))" : [ ],
+  "ST_UNION(ST_GEOMFROMTEXT('POINT(0 0)'),ST_GEOMFROMTEXT('POINT(1 1)'))" : [ ],
+  "ST_DIFFERENCE(ST_GEOMFROMTEXT('LINESTRING(0 0,2 2)'),ST_GEOMFROMTEXT('POINT(1 1)'))" : [ ],
+  "ST_SYMDIFFERENCE(ST_GEOMFROMTEXT('POINT(0 0)'),ST_GEOMFROMTEXT('POINT(1 1)'))" : [ ],
+  "ST_BUFFER(ST_GEOMFROMTEXT('POINT(0 0)'),1)" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0039]
+sql:
+SELECT ST_ASWKT(ST_GEOMFROMTEXT('POINT(1 2)')), HEX(ST_ASWKB(ST_GEOMFROMTEXT('POINT(1 2)'))), ST_ASTEXT(ST_GEOMETRYFROMTEXT('POINT(1 2)')), ST_ASTEXT(ST_GEOMCOLLFROMTEXT('GEOMETRYCOLLECTION(POINT(1 2))')), ST_ASTEXT(ST_GEOMETRYCOLLECTIONFROMTEXT('GEOMETRYCOLLECTION(POINT(1 2))')), ST_ASTEXT(ST_LINEFROMTEXT('LINESTRING(0 0,1 1)')), ST_ASTEXT(ST_LINESTRINGFROMTEXT('LINESTRING(0 0,1 1)')), ST_ASTEXT(ST_POINTFROMTEXT('POINT(1 2)')), ST_ASTEXT(ST_POLYFROMTEXT('POLYGON((0 0,0 1,1 1,0 0))')), ST_ASTEXT(ST_POLYGONFROMTEXT('POLYGON((0 0,0 1,1 1,0 0))')), ST_ASTEXT(ST_GEOMETRYFROMWKB(ST_ASWKB(ST_GEOMFROMTEXT('POINT(1 2)')))), ST_ASTEXT(ST_GEOMCOLLFROMWKB(ST_ASWKB(ST_GEOMFROMTEXT('GEOMETRYCOLLECTION(POINT(1 2))')))), ST_ASTEXT(ST_GEOMETRYCOLLECTIONFROMWKB(ST_ASWKB(ST_GEOMFROMTEXT('GEOMETRYCOLLECTION(POINT(1 2))')))), ST_ASTEXT(ST_LINEFROMWKB(ST_ASWKB(ST_GEOMFROMTEXT('LINESTRING(0 0,1 1)')))), ST_ASTEXT(ST_LINESTRINGFROMWKB(ST_ASWKB(ST_GEOMFROMTEXT('LINESTRING(0 0,1 1)')))), ST_ASTEXT(ST_POINTFROMWKB(ST_ASWKB(ST_GEOMFROMTEXT('POINT(1 2)')))), ST_ASTEXT(ST_POLYFROMWKB(ST_ASWKB(ST_GEOMFROMTEXT('POLYGON((0 0,0 1,1 1,0 0))')))), ST_ASTEXT(ST_POLYGONFROMWKB(ST_ASWKB(ST_GEOMFROMTEXT('POLYGON((0 0,0 1,1 1,0 0))'))));
+expect:
+{
+  "ST_ASWKT(ST_GEOMFROMTEXT('POINT(1 2)'))" : [ ],
+  "HEX(ST_ASWKB(ST_GEOMFROMTEXT('POINT(1 2)')))" : [ ],
+  "ST_ASTEXT(ST_GEOMETRYFROMTEXT('POINT(1 2)'))" : [ ],
+  "ST_ASTEXT(ST_GEOMCOLLFROMTEXT('GEOMETRYCOLLECTION(POINT(1 2))'))" : [ ],
+  "ST_ASTEXT(ST_GEOMETRYCOLLECTIONFROMTEXT('GEOMETRYCOLLECTION(POINT(1 2))'))" : [ ],
+  "ST_ASTEXT(ST_LINEFROMTEXT('LINESTRING(0 0,1 1)'))" : [ ],
+  "ST_ASTEXT(ST_LINESTRINGFROMTEXT('LINESTRING(0 0,1 1)'))" : [ ],
+  "ST_ASTEXT(ST_POINTFROMTEXT('POINT(1 2)'))" : [ ],
+  "ST_ASTEXT(ST_POLYFROMTEXT('POLYGON((0 0,0 1,1 1,0 0))'))" : [ ],
+  "ST_ASTEXT(ST_POLYGONFROMTEXT('POLYGON((0 0,0 1,1 1,0 0))'))" : [ ],
+  "ST_ASTEXT(ST_GEOMETRYFROMWKB(ST_ASWKB(ST_GEOMFROMTEXT('POINT(1 2)'))))" : [ ],
+  "ST_ASTEXT(ST_GEOMCOLLFROMWKB(ST_ASWKB(ST_GEOMFROMTEXT('GEOMETRYCOLLECTION(POINT(1 2))'))))" : [ ],
+  "ST_ASTEXT(ST_GEOMETRYCOLLECTIONFROMWKB(ST_ASWKB(ST_GEOMFROMTEXT('GEOMETRYCOLLECTION(POINT(1 2))'))))" : [ ],
+  "ST_ASTEXT(ST_LINEFROMWKB(ST_ASWKB(ST_GEOMFROMTEXT('LINESTRING(0 0,1 1)'))))" : [ ],
+  "ST_ASTEXT(ST_LINESTRINGFROMWKB(ST_ASWKB(ST_GEOMFROMTEXT('LINESTRING(0 0,1 1)'))))" : [ ],
+  "ST_ASTEXT(ST_POINTFROMWKB(ST_ASWKB(ST_GEOMFROMTEXT('POINT(1 2)'))))" : [ ],
+  "ST_ASTEXT(ST_POLYFROMWKB(ST_ASWKB(ST_GEOMFROMTEXT('POLYGON((0 0,0 1,1 1,0 0))'))))" : [ ],
+  "ST_ASTEXT(ST_POLYGONFROMWKB(ST_ASWKB(ST_GEOMFROMTEXT('POLYGON((0 0,0 1,1 1,0 0))'))))" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0040]
+sql:
+SELECT ST_ASTEXT(ST_GEOMFROMWKB(ST_ASWKB(ST_GEOMFROMTEXT('POINT(1 2)')),4326,'axis-order=long-lat')), ST_ASTEXT(ST_GEOMCOLLFROMTXT('GEOMETRYCOLLECTION(POINT(1 2))',4326,'axis-order=long-lat'));
+expect:
+{
+  "ST_ASTEXT(ST_GEOMFROMWKB(ST_ASWKB(ST_GEOMFROMTEXT('POINT(1 2)')),4326,'axis-order=long-lat'))" : [ ],
+  "ST_ASTEXT(ST_GEOMCOLLFROMTXT('GEOMETRYCOLLECTION(POINT(1 2))',4326,'axis-order=long-lat'))" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0041]
+sql:
+SELECT ST_NUMINTERIORRING(ST_GEOMFROMTEXT('POLYGON((0 0,0 2,2 2,2 0,0 0))'));
+expect:
+{
+  "ST_NUMINTERIORRING(ST_GEOMFROMTEXT('POLYGON((0 0,0 2,2 2,2 0,0 0))'))" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0042]
+sql:
+SELECT ST_ASTEXT(ST_MLINEFROMTEXT('MULTILINESTRING((0 0,1 1))')), ST_ASTEXT(ST_MULTILINESTRINGFROMTEXT('MULTILINESTRING((0 0,1 1))')), ST_ASTEXT(ST_MPOINTFROMTEXT('MULTIPOINT(0 0,1 1)')), ST_ASTEXT(ST_MULTIPOINTFROMTEXT('MULTIPOINT(0 0,1 1)')), ST_ASTEXT(ST_MPOLYFROMTEXT('MULTIPOLYGON(((0 0,0 1,1 1,0 0)))')), ST_ASTEXT(ST_MULTIPOLYGONFROMTEXT('MULTIPOLYGON(((0 0,0 1,1 1,0 0)))')), ST_ASTEXT(ST_MLINEFROMWKB(ST_ASWKB(ST_GEOMFROMTEXT('MULTILINESTRING((0 0,1 1))')))), ST_ASTEXT(ST_MULTILINESTRINGFROMWKB(ST_ASWKB(ST_GEOMFROMTEXT('MULTILINESTRING((0 0,1 1))')))), ST_ASTEXT(ST_MPOINTFROMWKB(ST_ASWKB(ST_GEOMFROMTEXT('MULTIPOINT(0 0,1 1)')))), ST_ASTEXT(ST_MULTIPOINTFROMWKB(ST_ASWKB(ST_GEOMFROMTEXT('MULTIPOINT(0 0,1 1)')))), ST_ASTEXT(ST_MPOLYFROMWKB(ST_ASWKB(ST_GEOMFROMTEXT('MULTIPOLYGON(((0 0,0 1,1 1,0 0)))')))), ST_ASTEXT(ST_MULTIPOLYGONFROMWKB(ST_ASWKB(ST_GEOMFROMTEXT('MULTIPOLYGON(((0 0,0 1,1 1,0 0)))'))));
+expect:
+{
+  "ST_ASTEXT(ST_MLINEFROMTEXT('MULTILINESTRING((0 0,1 1))'))" : [ ],
+  "ST_ASTEXT(ST_MULTILINESTRINGFROMTEXT('MULTILINESTRING((0 0,1 1))'))" : [ ],
+  "ST_ASTEXT(ST_MPOINTFROMTEXT('MULTIPOINT(0 0,1 1)'))" : [ ],
+  "ST_ASTEXT(ST_MULTIPOINTFROMTEXT('MULTIPOINT(0 0,1 1)'))" : [ ],
+  "ST_ASTEXT(ST_MPOLYFROMTEXT('MULTIPOLYGON(((0 0,0 1,1 1,0 0)))'))" : [ ],
+  "ST_ASTEXT(ST_MULTIPOLYGONFROMTEXT('MULTIPOLYGON(((0 0,0 1,1 1,0 0)))'))" : [ ],
+  "ST_ASTEXT(ST_MLINEFROMWKB(ST_ASWKB(ST_GEOMFROMTEXT('MULTILINESTRING((0 0,1 1))'))))" : [ ],
+  "ST_ASTEXT(ST_MULTILINESTRINGFROMWKB(ST_ASWKB(ST_GEOMFROMTEXT('MULTILINESTRING((0 0,1 1))'))))" : [ ],
+  "ST_ASTEXT(ST_MPOINTFROMWKB(ST_ASWKB(ST_GEOMFROMTEXT('MULTIPOINT(0 0,1 1)'))))" : [ ],
+  "ST_ASTEXT(ST_MULTIPOINTFROMWKB(ST_ASWKB(ST_GEOMFROMTEXT('MULTIPOINT(0 0,1 1)'))))" : [ ],
+  "ST_ASTEXT(ST_MPOLYFROMWKB(ST_ASWKB(ST_GEOMFROMTEXT('MULTIPOLYGON(((0 0,0 1,1 1,0 0)))'))))" : [ ],
+  "ST_ASTEXT(ST_MULTIPOLYGONFROMWKB(ST_ASWKB(ST_GEOMFROMTEXT('MULTIPOLYGON(((0 0,0 1,1 1,0 0)))'))))" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0043]
+sql:
+SELECT ST_ISCLOSED(ST_GEOMFROMTEXT('LINESTRING(0 0,1 1,0 0)')), ST_ASTEXT(ST_INTERIORRINGN(ST_GEOMFROMTEXT('POLYGON((0 0,0 4,4 4,4 0,0 0),(1 1,3 1,3 3,1 3,1 1))'),1));
+expect:
+{
+  "ST_ISCLOSED(ST_GEOMFROMTEXT('LINESTRING(0 0,1 1,0 0)'))" : [ ],
+  "ST_ASTEXT(ST_INTERIORRINGN(ST_GEOMFROMTEXT('POLYGON((0 0,0 4,4 4,4 0,0 0),(1 1,3 1,3 3,1 3,1 1))'),1))" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0044]
+sql:
+SELECT ST_ASTEXT(ST_GEOMCOLLFROMTXT('GEOMETRYCOLLECTION(POINT(1 2))')), ST_SRID(ST_GEOMCOLLFROMTXT('GEOMETRYCOLLECTION(POINT(1 2))',4326));
+expect:
+{
+  "ST_ASTEXT(ST_GEOMCOLLFROMTXT('GEOMETRYCOLLECTION(POINT(1 2))'))" : [ ],
+  "ST_SRID(ST_GEOMCOLLFROMTXT('GEOMETRYCOLLECTION(POINT(1 2))',4326))" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0045]
+sql:
+SELECT ST_ASTEXT(ST_GEOMFROMWKB(ST_ASWKB(ST_GEOMFROMTEXT('POINT(1 2)')))), ST_SRID(ST_GEOMFROMWKB(ST_ASWKB(ST_GEOMFROMTEXT('POINT(1 2)')),4326));
+expect:
+{
+  "ST_ASTEXT(ST_GEOMFROMWKB(ST_ASWKB(ST_GEOMFROMTEXT('POINT(1 2)'))))" : [ ],
+  "ST_SRID(ST_GEOMFROMWKB(ST_ASWKB(ST_GEOMFROMTEXT('POINT(1 2)')),4326))" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0046]
+sql:
+SELECT GEOMETRYCOLLECTION();
+expect:
+{
+  "GEOMETRYCOLLECTION()" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0047]
+sql:
+SELECT ST_ASGEOJSON(ST_GEOMFROMTEXT('POINT(11.111 22.222)'),2,1);
+expect:
+{
+  "ST_ASGEOJSON(ST_GEOMFROMTEXT('POINT(11.111 22.222)'),2,1)" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0048]
+sql:
+SELECT ST_ASTEXT(ST_GEOMFROMTEXT('POINT(11 22)',4326),'axis-order=long-lat');
+expect:
+{
+  "ST_ASTEXT(ST_GEOMFROMTEXT('POINT(11 22)',4326),'axis-order=long-lat')" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0049]
+sql:
+SELECT HEX(ST_ASWKB(ST_GEOMFROMTEXT('POINT(11 22)',4326),'axis-order=long-lat'));
+expect:
+{
+  "HEX(ST_ASWKB(ST_GEOMFROMTEXT('POINT(11 22)',4326),'axis-order=long-lat'))" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0050]
+sql:
+SELECT ST_ASTEXT(ST_BUFFER(ST_GEOMFROMTEXT('GEOMETRYCOLLECTION(POINT(0 0),LINESTRING(0 0,1 1))'),1,ST_BUFFER_STRATEGY('point_square'),ST_BUFFER_STRATEGY('join_round',8),ST_BUFFER_STRATEGY('end_flat')));
+expect:
+{
+  "ST_ASTEXT(ST_BUFFER(ST_GEOMFROMTEXT('GEOMETRYCOLLECTION(POINT(0 0),LINESTRING(0 0,1 1))'),1,ST_BUFFER_STRATEGY('point_square'),ST_BUFFER_STRATEGY('join_round',8),ST_BUFFER_STRATEGY('end_flat')))" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0051]
+sql:
+SELECT ST_DISTANCE_SPHERE(ST_GEOMFROMTEXT('POINT(0 0)'),ST_GEOMFROMTEXT('POINT(1 1)'),6371000);
+expect:
+{
+  "ST_DISTANCE_SPHERE(ST_GEOMFROMTEXT('POINT(0 0)'),ST_GEOMFROMTEXT('POINT(1 1)'),6371000)" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0052]
+sql:
+SELECT ST_DISTANCE(ST_GEOMFROMTEXT('POINT(0 0)',4326),ST_GEOMFROMTEXT('POINT(1 1)',4326),'kilometre');
+expect:
+{
+  "ST_DISTANCE(ST_GEOMFROMTEXT('POINT(0 0)',4326),ST_GEOMFROMTEXT('POINT(1 1)',4326),'kilometre')" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0053]
+sql:
+SELECT ST_FRECHETDISTANCE(ST_GEOMFROMTEXT('LINESTRING(0 0,1 1)',4326),ST_GEOMFROMTEXT('LINESTRING(0 0,2 2)',4326),'metre');
+expect:
+{
+  "ST_FRECHETDISTANCE(ST_GEOMFROMTEXT('LINESTRING(0 0,1 1)',4326),ST_GEOMFROMTEXT('LINESTRING(0 0,2 2)',4326),'metre')" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0054]
+sql:
+SELECT ST_GEOHASH(ST_GEOMFROMTEXT('POINT(11 22)'),8);
+expect:
+{
+  "ST_GEOHASH(ST_GEOMFROMTEXT('POINT(11 22)'),8)" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0055]
+sql:
+SELECT ST_ASTEXT(ST_GEOMFROMGEOJSON('{"type":"Point","coordinates":[11,22]}',2,4326));
+expect:
+{
+  "ST_ASTEXT(ST_GEOMFROMGEOJSON('{\"type\":\"Point\",\"coordinates\":[11,22]}',2,4326))" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0056]
+sql:
+SELECT ST_HAUSDORFFDISTANCE(ST_GEOMFROMTEXT('LINESTRING(0 0,1 1)',4326),ST_GEOMFROMTEXT('LINESTRING(0 0,2 2)',4326),'metre');
+expect:
+{
+  "ST_HAUSDORFFDISTANCE(ST_GEOMFROMTEXT('LINESTRING(0 0,1 1)',4326),ST_GEOMFROMTEXT('LINESTRING(0 0,2 2)',4326),'metre')" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0057]
+sql:
+SELECT ST_ASTEXT(ST_LATITUDE(ST_GEOMFROMTEXT('POINT(10 20)',4326),21));
+expect:
+{
+  "ST_ASTEXT(ST_LATITUDE(ST_GEOMFROMTEXT('POINT(10 20)',4326),21))" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0058]
+sql:
+SELECT ST_LENGTH(ST_GEOMFROMTEXT('LINESTRING(0 0,1 1)',4326),'kilometre');
+expect:
+{
+  "ST_LENGTH(ST_GEOMFROMTEXT('LINESTRING(0 0,1 1)',4326),'kilometre')" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0059]
+sql:
+SELECT ST_ASTEXT(ST_LONGITUDE(ST_GEOMFROMTEXT('POINT(10 20)',4326),11));
+expect:
+{
+  "ST_ASTEXT(ST_LONGITUDE(ST_GEOMFROMTEXT('POINT(10 20)',4326),11))" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0060]
+sql:
+SELECT ST_ASTEXT(ST_SRID(ST_GEOMFROMTEXT('POINT(1 2)'),4326));
+expect:
+{
+  "ST_ASTEXT(ST_SRID(ST_GEOMFROMTEXT('POINT(1 2)'),4326))" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0061]
+sql:
+SELECT ST_ASTEXT(ST_X(ST_GEOMFROMTEXT('POINT(1 2)'),9));
+expect:
+{
+  "ST_ASTEXT(ST_X(ST_GEOMFROMTEXT('POINT(1 2)'),9))" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0062]
+sql:
+SELECT ST_ASTEXT(ST_Y(ST_GEOMFROMTEXT('POINT(1 2)'),9));
+expect:
+{
+  "ST_ASTEXT(ST_Y(ST_GEOMFROMTEXT('POINT(1 2)'),9))" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0063]
+sql:
+SELECT ST_ASTEXT(ST_COLLECT(DISTINCT g) OVER (ORDER BY n ROWS BETWEEN 1 PRECEDING AND CURRENT ROW)) FROM (SELECT 1 n, ST_GEOMFROMTEXT('POINT(0 0)') g UNION ALL SELECT 2, ST_GEOMFROMTEXT('POINT(0 0)')) s;
+expect:
+{
+  "ST_ASTEXT(ST_COLLECT(DISTINCT g) OVER (ORDER BY n ROWS BETWEEN 1 PRECEDING AND CURRENT ROW))" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0064]
+sql:
+SELECT ST_COLLECT(1), COUNT(DISTINCT 2);
+expect:
+{
+  "ST_COLLECT(1)" : [ ],
+  "COUNT(DISTINCT 2)" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0065]
+sql:
+SELECT ST_ASGEOJSON(ST_GEOMFROMTEXT('POINT(1.23456 2.34567)'),3);
+expect:
+{
+  "ST_ASGEOJSON(ST_GEOMFROMTEXT('POINT(1.23456 2.34567)'),3)" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0066]
+sql:
+SELECT ST_ASTEXT(ST_BUFFER(ST_GEOMFROMTEXT('POINT(0 0)'),1,ST_BUFFER_STRATEGY('point_square')));
+expect:
+{
+  "ST_ASTEXT(ST_BUFFER(ST_GEOMFROMTEXT('POINT(0 0)'),1,ST_BUFFER_STRATEGY('point_square')))" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0067]
+sql:
+SELECT ST_ASTEXT(ST_BUFFER(ST_GEOMFROMTEXT('LINESTRING(0 0,1 1)'),1,ST_BUFFER_STRATEGY('join_round',8),ST_BUFFER_STRATEGY('end_flat')));
+expect:
+{
+  "ST_ASTEXT(ST_BUFFER(ST_GEOMFROMTEXT('LINESTRING(0 0,1 1)'),1,ST_BUFFER_STRATEGY('join_round',8),ST_BUFFER_STRATEGY('end_flat')))" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0068]
+sql:
+SELECT ST_ASTEXT(ST_GEOMFROMGEOJSON('{"type":"Point","coordinates":[1,2]}',1));
+expect:
+{
+  "ST_ASTEXT(ST_GEOMFROMGEOJSON('{\"type\":\"Point\",\"coordinates\":[1,2]}',1))" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0069]
+sql:
+SELECT ST_ASTEXT(ST_GEOMFROMTEXT('POINT(10 20)',4326,'axis-order=long-lat'));
+expect:
+{
+  "ST_ASTEXT(ST_GEOMFROMTEXT('POINT(10 20)',4326,'axis-order=long-lat'))" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0070]
+sql:
+SELECT ST_EQUALS(CAST(ST_GEOMFROMTEXT('MULTIPOINT((1 1))') AS POINT), CONVERT(ST_GEOMFROMTEXT('MULTIPOINT((1 1))'), POINT));
+expect:
+{
+  "ST_EQUALS(CAST(ST_GEOMFROMTEXT('MULTIPOINT((1 1))') AS POINT), CONVERT(ST_GEOMFROMTEXT('MULTIPOINT((1 1))'), POINT))" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0071]
+sql:
+SELECT CAST(ST_GEOMFROMTEXT('POINT(1 1)') AS DOUBLE);
+expect:
+{
+  "CAST(ST_GEOMFROMTEXT('POINT(1 1)') AS DOUBLE)" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0072]
+sql:
+SELECT CAST(ST_GEOMFROMTEXT('POINT(1 1)') AS JSON);
+expect:
+{
+  "CAST(ST_GEOMFROMTEXT('POINT(1 1)') AS JSON)" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0073]
+sql:
+SELECT CAST(NULL AS POINT);
+expect:
+{
+  "CAST(NULL AS POINT)" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0074]
+sql:
+SELECT ST_SRID(CAST(ST_GEOMFROMTEXT('POINT(45 90)', 4326) AS POINT));
+expect:
+{
+  "ST_SRID(CAST(ST_GEOMFROMTEXT('POINT(45 90)', 4326) AS POINT))" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0075]
+sql:
+SELECT a.id,ST_AsText(a.g),ST_Distance(a.p,b.p)
+FROM spatial_lifecycle AS a
+JOIN spatial_lifecycle AS b
+  ON ST_Intersects(a.g,ST_Buffer(b.p,1))
+WHERE a.id<>b.id;
+expect:
+{
+  "id" : [ "(1:7~1:11) /catalog1/schema1/spatial_lifecycle/id/" ],
+  "ST_AsText(a.g)" : [ "(1:22~1:25) /catalog1/schema1/spatial_lifecycle/g/" ],
+  "ST_Distance(a.p,b.p)" : [ "(1:39~1:42) /catalog1/schema1/spatial_lifecycle/p/", "(1:43~1:46) /catalog1/schema1/spatial_lifecycle/p/" ]
+}
+----------
+[dql_mysql_spatial_0.0076]
+sql:
+SELECT s.id,
+       (SELECT ST_AsText(ST_Union(i.g,s.g))
+        FROM spatial_lifecycle AS i
+        WHERE i.id=s.id) AS merged_wkt
+FROM spatial_lifecycle AS s
+WHERE EXISTS (
+  SELECT 1 FROM spatial_lifecycle AS x
+  WHERE x.id=s.id AND ST_Equals(x.p,s.p)
+);
+expect:
+{
+  "id" : [ "(1:7~1:11) /catalog1/schema1/spatial_lifecycle/id/" ],
+  "merged_wkt" : [ "(2:34~2:37) /catalog1/schema1/spatial_lifecycle/g/", "(2:38~2:41) /catalog1/schema1/spatial_lifecycle/g/" ]
+}
+----------
+[dql_mysql_spatial_0.0077]
+sql:
+SELECT d.kind,COUNT(*),ST_AsText(ST_Collect(d.g))
+FROM (
+  SELECT ST_GeometryType(g) AS kind,g
+  FROM spatial_lifecycle
+) AS d
+GROUP BY d.kind
+HAVING COUNT(*)>=0
+ORDER BY d.kind;
+expect:
+{
+  "kind" : [ "(3:25~3:26) /catalog1/schema1/spatial_lifecycle/g/" ],
+  "COUNT(*)" : [ ],
+  "ST_AsText(ST_Collect(d.g))" : [ "(3:36~3:37) /catalog1/schema1/spatial_lifecycle/g/" ]
+}
+----------
+[dql_mysql_spatial_0.0078]
+sql:
+SELECT id,
+       ST_AsText(CASE WHEN p IS NULL THEN g ELSE p END),
+       ST_AsText(COALESCE(p,g)),
+       NULLIF(ST_AsText(g),ST_AsText(p))
+FROM spatial_lifecycle;
+expect:
+{
+  "id" : [ "(1:7~1:9) /catalog1/schema1/spatial_lifecycle/id/" ],
+  "ST_AsText(CASE WHEN p IS NULL THEN g ELSE p END)" : [ "(2:27~2:28) /catalog1/schema1/spatial_lifecycle/p/", "(2:42~2:43) /catalog1/schema1/spatial_lifecycle/g/", "(2:49~2:50) /catalog1/schema1/spatial_lifecycle/p/" ],
+  "ST_AsText(COALESCE(p,g))" : [ "(3:26~3:27) /catalog1/schema1/spatial_lifecycle/p/", "(3:28~3:29) /catalog1/schema1/spatial_lifecycle/g/" ],
+  "NULLIF(ST_AsText(g),ST_AsText(p))" : [ "(4:24~4:25) /catalog1/schema1/spatial_lifecycle/g/", "(4:37~4:38) /catalog1/schema1/spatial_lifecycle/p/" ]
+}
+----------
+[dql_mysql_spatial_0.0079]
+sql:
+SELECT id,g,p FROM spatial_lifecycle WHERE id<10
+UNION ALL
+SELECT id,g,p FROM spatial_lifecycle WHERE id>=10
+ORDER BY id LIMIT 5;
+expect:
+{
+  "id" : [ "(1:7~1:9) /catalog1/schema1/spatial_lifecycle/id/", "(3:7~3:9) /catalog1/schema1/spatial_lifecycle/id/" ],
+  "g" : [ "(1:10~1:11) /catalog1/schema1/spatial_lifecycle/g/", "(3:10~3:11) /catalog1/schema1/spatial_lifecycle/g/" ],
+  "p" : [ "(1:12~1:13) /catalog1/schema1/spatial_lifecycle/p/", "(3:12~3:13) /catalog1/schema1/spatial_lifecycle/p/" ]
+}
+----------
+[dql_mysql_spatial_0.0080]
+sql:
+WITH spatial_cte AS (
+  SELECT id,p,g,ST_Distance(p,ST_GeomFromText('POINT(11 21)',4326),'metre') AS distance_m
+  FROM spatial_modern
+)
+SELECT id,ST_AsText(p),distance_m
+FROM spatial_cte
+WHERE distance_m>=0;
+expect:
+{
+  "id" : [ "(2:9~2:11) /catalog1/schema1/spatial_modern/id/" ],
+  "ST_AsText(p)" : [ "(2:12~2:13) /catalog1/schema1/spatial_modern/p/" ],
+  "distance_m" : [ "(2:28~2:29) /catalog1/schema1/spatial_modern/p/" ]
+}
+----------
+[dql_mysql_spatial_0.0081]
+sql:
+SELECT id,
+       ST_AsText(ST_Collect(p) OVER (
+         ORDER BY id ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+       )) AS accumulated_points
+FROM spatial_modern;
+expect:
+{
+  "id" : [ "(1:7~1:9) /catalog1/schema1/spatial_modern/id/" ],
+  "accumulated_points" : [ "(2:28~2:29) /catalog1/schema1/spatial_modern/p/", "(1:7~1:9) /catalog1/schema1/spatial_modern/id/" ]
+}
+----------
+[dql_mysql_spatial_0.0082]
+sql:
+SELECT s.id,j.kind,j.wkt
+FROM spatial_modern AS s
+JOIN JSON_TABLE(
+  JSON_ARRAY(
+    JSON_OBJECT('kind',ST_GeometryType(s.p),'wkt',ST_AsText(s.p)),
+    JSON_OBJECT('kind',ST_GeometryType(s.g),'wkt',ST_AsText(s.g))
+  ),
+  '$[*]' COLUMNS(
+    kind VARCHAR(32) PATH '$.kind',
+    wkt VARCHAR(255) PATH '$.wkt'
+  )
+) AS j ON TRUE;
+expect:
+{
+  "id" : [ "(1:7~1:11) /catalog1/schema1/spatial_modern/id/" ],
+  "kind" : [ "(5:39~5:42) /catalog1/schema1/spatial_modern/p/", "(5:60~5:63) /catalog1/schema1/spatial_modern/p/", "(6:39~6:42) /catalog1/schema1/spatial_modern/g/", "(6:60~6:63) /catalog1/schema1/spatial_modern/g/" ],
+  "wkt" : [ "(5:39~5:42) /catalog1/schema1/spatial_modern/p/", "(5:60~5:63) /catalog1/schema1/spatial_modern/p/", "(6:39~6:42) /catalog1/schema1/spatial_modern/g/", "(6:60~6:63) /catalog1/schema1/spatial_modern/g/" ]
+}
+----------
+[dql_mysql_spatial_0.0083]
+sql:
+WITH RECURSIVE spatial_walk(id,p,n) AS (
+  SELECT id,p,1 FROM spatial_modern
+  UNION ALL
+  SELECT id,ST_SRID(POINT(ST_X(p)+1,ST_Y(p)+1),4326),n+1
+  FROM spatial_walk
+  WHERE n<3
+)
+SELECT id,n,ST_AsText(p)
+FROM spatial_walk
+ORDER BY id,n;
+expect:
+{
+  "id" : [ "(2:9~2:11) /catalog1/schema1/spatial_modern/id/" ],
+  "n" : [ ],
+  "ST_AsText(p)" : [ "(2:12~2:13) /catalog1/schema1/spatial_modern/p/" ]
+}
+----------
+[dql_mysql_spatial_0.0088]
+sql:
+SELECT RANK() OVER(ORDER BY ST_Distance(location,POINT(0,0))),RANK() OVER(ORDER BY ST_Distance(location,POINT(5,5))),ROW_NUMBER() OVER(ORDER BY ST_Distance(location,POINT(5,5))) FROM cafe;
+expect:
+{
+  "RANK() OVER(ORDER BY ST_Distance(location,POINT(0,0)))" : [ "(1:40~1:48) /catalog1/schema1/cafe/location/" ],
+  "RANK() OVER(ORDER BY ST_Distance(location,POINT(5,5)))" : [ "(1:95~1:103) /catalog1/schema1/cafe/location/" ],
+  "ROW_NUMBER() OVER(ORDER BY ST_Distance(location,POINT(5,5)))" : [ "(1:156~1:164) /catalog1/schema1/cafe/location/" ]
+}
+----------
+[dql_mysql_spatial_0.0089]
+sql:
+SELECT ST_LONGFROMGEOHASH();
+expect:
+{
+  "ST_LONGFROMGEOHASH()" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0090]
+sql:
+SELECT ST_LONGFROMGEOHASH('123','456');
+expect:
+{
+  "ST_LONGFROMGEOHASH('123','456')" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0091]
+sql:
+SELECT ST_ASTEXT(ST_POINTFROMGEOHASH('zz'));
+expect:
+{
+  "ST_ASTEXT(ST_POINTFROMGEOHASH('zz'))" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0092]
+sql:
+SELECT ST_ASTEXT(ST_POINTFROMGEOHASH());
+expect:
+{
+  "ST_ASTEXT(ST_POINTFROMGEOHASH())" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0093]
+sql:
+SELECT ST_GEOHASH();
+expect:
+{
+  "ST_GEOHASH()" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0094]
+sql:
+SELECT ST_GEOHASH(1);
+expect:
+{
+  "ST_GEOHASH(1)" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0095]
+sql:
+SELECT ST_ASGEOJSON();
+expect:
+{
+  "ST_ASGEOJSON()" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0096]
+sql:
+SELECT ST_ASGEOJSON(ST_GEOMFROMTEXT('POINT(10 11)'),10,0,0);
+expect:
+{
+  "ST_ASGEOJSON(ST_GEOMFROMTEXT('POINT(10 11)'),10,0,0)" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0097]
+sql:
+SELECT 1 FROM split_spatial_rollup GROUP BY ST_ASGEOJSON(POINT(1, 1)) WITH ROLLUP;
+expect:
+{
+  "1" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0098]
+sql:
+SELECT ST_ASGEOJSON(ST_GEOMFROMTEXT('POINT(1.2345678901234567890 2.345678901234567890)'), SUM(3));
+expect:
+{
+  "ST_ASGEOJSON(ST_GEOMFROMTEXT('POINT(1.2345678901234567890 2.345678901234567890)'), SUM(3))" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0099]
+sql:
+SELECT ST_ASTEXT(ST_UNION(ST_INTERSECTION(ST_INTERSECTION(ST_GEOMFROMTEXT(@star_elem_horizontal), ST_GEOMFROMTEXT(@star_elem_vertical)), ST_GEOMFROMTEXT(@star_2)), ST_INTERSECTION(ST_GEOMFROMTEXT(@star_1), ST_GEOMFROMTEXT(@star_2))));
+expect:
+{
+  "ST_ASTEXT(ST_UNION(ST_INTERSECTION(ST_INTERSECTION(ST_GEOMFROMTEXT(@star_elem_horizontal), ST_GEOMFROMTEXT(@star_elem_vertical)), ST_GEOMFROMTEXT(@star_2)), ST_INTERSECTION(ST_GEOMFROMTEXT(@star_1), ST_GEOMFROMTEXT(@star_2))))" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0100]
+sql:
+SELECT ST_ASTEXT(ST_GEOMFROMWKB(ST_ASWKB(g,'axis-order=lat-long'))) FROM gis_point;
+expect:
+{
+  "ST_ASTEXT(ST_GEOMFROMWKB(ST_ASWKB(g,'axis-order=lat-long')))" : [ "(1:41~1:42) /catalog1/schema1/gis_point/g/" ]
+}
+----------
+[dql_mysql_spatial_0.0101]
+sql:
+SELECT ST_ASTEXT(ST_POINTFROMWKB(ST_ASWKB(POINT(1,2)),31000000,'axis-order=lat-long'));
+expect:
+{
+  "ST_ASTEXT(ST_POINTFROMWKB(ST_ASWKB(POINT(1,2)),31000000,'axis-order=lat-long'))" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0102]
+sql:
+SELECT ST_ASTEXT(ST_LINEFROMWKB(@wkb_ln,31000000,'axis-order=lat-long'));
+expect:
+{
+  "ST_ASTEXT(ST_LINEFROMWKB(@wkb_ln,31000000,'axis-order=lat-long'))" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0103]
+sql:
+SELECT ST_ASTEXT(ST_POLYFROMWKB(@wkb_py,31000000,'axis-order=lat-long'));
+expect:
+{
+  "ST_ASTEXT(ST_POLYFROMWKB(@wkb_py,31000000,'axis-order=lat-long'))" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0104]
+sql:
+SELECT ST_ASTEXT(ST_MPOINTFROMWKB(@wkb_mpt,31000000,'axis-order=lat-long'));
+expect:
+{
+  "ST_ASTEXT(ST_MPOINTFROMWKB(@wkb_mpt,31000000,'axis-order=lat-long'))" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0105]
+sql:
+SELECT ST_ASTEXT(ST_MLINEFROMWKB(@wkb_mln,31000000,'axis-order=lat-long'));
+expect:
+{
+  "ST_ASTEXT(ST_MLINEFROMWKB(@wkb_mln,31000000,'axis-order=lat-long'))" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0106]
+sql:
+SELECT ST_ASTEXT(ST_MPOLYFROMWKB(@wkb_mpy,31000000,'axis-order=lat-long'));
+expect:
+{
+  "ST_ASTEXT(ST_MPOLYFROMWKB(@wkb_mpy,31000000,'axis-order=lat-long'))" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0107]
+sql:
+SELECT ST_ASTEXT(ST_GEOMETRYFROMWKB(@wkb_pt,31000000,'axis-order=long-lat'));
+expect:
+{
+  "ST_ASTEXT(ST_GEOMETRYFROMWKB(@wkb_pt,31000000,'axis-order=long-lat'))" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0108]
+sql:
+SELECT ST_ASTEXT(ST_GEOMCOLLFROMWKB(@wkb_gc,31000000,'axis-order=long-lat'));
+expect:
+{
+  "ST_ASTEXT(ST_GEOMCOLLFROMWKB(@wkb_gc,31000000,'axis-order=long-lat'))" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0109]
+sql:
+SELECT ST_ASTEXT(ST_GEOMETRYCOLLECTIONFROMWKB(@wkb_gc,31000000,'axis-order=long-lat'));
+expect:
+{
+  "ST_ASTEXT(ST_GEOMETRYCOLLECTIONFROMWKB(@wkb_gc,31000000,'axis-order=long-lat'))" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0110]
+sql:
+SELECT ST_ASTEXT(ST_GEOMFROMWKB(ST_ASBINARY(g,'axis-order=srid-defined'))) FROM gis_geometrycollection ORDER BY fid;
+expect:
+{
+  "ST_ASTEXT(ST_GEOMFROMWKB(ST_ASBINARY(g,'axis-order=srid-defined')))" : [ "(1:44~1:45) /catalog1/schema1/gis_geometrycollection/g/" ]
+}
+----------
+[dql_mysql_spatial_0.0111]
+sql:
+SELECT ST_ASTEXT(ST_LINESTRINGFROMWKB(@wkb_ln,31000000,'axis-order=long-lat'));
+expect:
+{
+  "ST_ASTEXT(ST_LINESTRINGFROMWKB(@wkb_ln,31000000,'axis-order=long-lat'))" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0112]
+sql:
+SELECT ST_ASTEXT(ST_POLYGONFROMWKB(@wkb_py,31000000,'axis-order=long-lat'));
+expect:
+{
+  "ST_ASTEXT(ST_POLYGONFROMWKB(@wkb_py,31000000,'axis-order=long-lat'))" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0113]
+sql:
+SELECT ST_ASTEXT(ST_MULTIPOINTFROMWKB(@wkb_mpt,31000000,'axis-order=long-lat'));
+expect:
+{
+  "ST_ASTEXT(ST_MULTIPOINTFROMWKB(@wkb_mpt,31000000,'axis-order=long-lat'))" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0114]
+sql:
+SELECT ST_ASTEXT(ST_MULTILINESTRINGFROMWKB(@wkb_mln,31000000,'axis-order=long-lat'));
+expect:
+{
+  "ST_ASTEXT(ST_MULTILINESTRINGFROMWKB(@wkb_mln,31000000,'axis-order=long-lat'))" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0115]
+sql:
+SELECT ST_ASTEXT(ST_MULTIPOLYGONFROMWKB(@wkb_mpy,31000000,'axis-order=long-lat'));
+expect:
+{
+  "ST_ASTEXT(ST_MULTIPOLYGONFROMWKB(@wkb_mpy,31000000,'axis-order=long-lat'))" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0116]
+sql:
+SELECT ST_ASTEXT(GEOMETRYCOLLECTION(POINT(1,2),LINESTRING(POINT(0,0),POINT(1,1))));
+expect:
+{
+  "ST_ASTEXT(GEOMETRYCOLLECTION(POINT(1,2),LINESTRING(POINT(0,0),POINT(1,1))))" : [ ]
+}
+----------
+[dql_mysql_spatial_0.0117]
+sql:
+SELECT ST_ASTEXT(GEOMCOLLECTION()), ST_ASTEXT(GEOMCOLLECTION(POINT(1,2),LINESTRING(POINT(0,0),POINT(1,1)))), ST_ASTEXT(GEOMCOLLECTION(GEOMETRYCOLLECTION(),POINT(2,3)));
+expect:
+{
+  "ST_ASTEXT(GEOMCOLLECTION())" : [ ],
+  "ST_ASTEXT(GEOMCOLLECTION(POINT(1,2),LINESTRING(POINT(0,0),POINT(1,1))))" : [ ],
+  "ST_ASTEXT(GEOMCOLLECTION(GEOMETRYCOLLECTION(),POINT(2,3)))" : [ ]
+}

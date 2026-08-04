@@ -1,0 +1,819 @@
+[split_dql_dameng_utl_encode_signature_combinations_0_001]
+sql:
+-- ENCODE_VARBINARY_DOCUMENTED
+SELECT UTL_ENCODE.BASE64_ENCODE(HEXTORAW('420921197908051523')) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:31) /test/1/catalog1/UTL_ENCODE/BASE64_ENCODE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:32~2:40) /test/1/catalog1/schema1/HEXTORAW/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:69~2:73) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_encode_signature_combinations_0_002]
+sql:
+-- ENCODE_VARBINARY_ONE_BYTE
+SELECT UTL_ENCODE.BASE64_ENCODE(HEXTORAW('00')) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:31) /test/1/catalog1/UTL_ENCODE/BASE64_ENCODE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:32~2:40) /test/1/catalog1/schema1/HEXTORAW/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:53~2:57) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_encode_signature_combinations_0_003]
+sql:
+-- ENCODE_VARBINARY_TWO_BYTES
+SELECT UTL_ENCODE.BASE64_ENCODE(HEXTORAW('00FF')) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:31) /test/1/catalog1/UTL_ENCODE/BASE64_ENCODE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:32~2:40) /test/1/catalog1/schema1/HEXTORAW/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:55~2:59) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_encode_signature_combinations_0_004]
+sql:
+-- ENCODE_VARBINARY_THREE_BYTES
+SELECT UTL_ENCODE.BASE64_ENCODE(HEXTORAW('000102')) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:31) /test/1/catalog1/UTL_ENCODE/BASE64_ENCODE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:32~2:40) /test/1/catalog1/schema1/HEXTORAW/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:57~2:61) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_encode_signature_combinations_0_005]
+sql:
+-- ENCODE_VARBINARY_BINARY_SAMPLE
+SELECT UTL_ENCODE.BASE64_ENCODE(HEXTORAW('00FF7F80444D38')) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:31) /test/1/catalog1/UTL_ENCODE/BASE64_ENCODE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:32~2:40) /test/1/catalog1/schema1/HEXTORAW/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:65~2:69) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_encode_signature_combinations_0_006]
+sql:
+-- ENCODE_VARBINARY_NAMED
+SELECT UTL_ENCODE.BASE64_ENCODE(R=>HEXTORAW('444D38')) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:31) /test/1/catalog1/UTL_ENCODE/BASE64_ENCODE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:35~2:43) /test/1/catalog1/schema1/HEXTORAW/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:60~2:64) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_encode_signature_combinations_0_007]
+sql:
+-- ENCODE_VARBINARY_EXPLICIT_CAST
+SELECT UTL_ENCODE.BASE64_ENCODE(CAST(HEXTORAW('444D38') AS VARBINARY)) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:31) /test/1/catalog1/UTL_ENCODE/BASE64_ENCODE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:37~2:45) /test/1/catalog1/schema1/HEXTORAW/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:76~2:80) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_encode_signature_combinations_0_008]
+sql:
+-- ENCODE_VARBINARY_ROUNDTRIP
+SELECT UTL_ENCODE.BASE64_DECODE(UTL_ENCODE.BASE64_ENCODE(HEXTORAW('444D38'))) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:31) /test/1/catalog1/UTL_ENCODE/BASE64_DECODE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:32~2:56) /test/1/catalog1/UTL_ENCODE/BASE64_ENCODE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:57~2:65) /test/1/catalog1/schema1/HEXTORAW/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:83~2:87) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_encode_signature_combinations_0_009]
+sql:
+-- ENCODE_BLOB_DOCUMENTED
+SELECT UTL_ENCODE.BASE64_ENCODE(TO_BLOB(HEXTORAW('420921197908051523'))) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:31) /test/1/catalog1/UTL_ENCODE/BASE64_ENCODE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:32~2:39) /test/1/catalog1/schema1/TO_BLOB/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:40~2:48) /test/1/catalog1/schema1/HEXTORAW/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:78~2:82) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_encode_signature_combinations_0_010]
+sql:
+-- ENCODE_BLOB_ONE_BYTE
+SELECT UTL_ENCODE.BASE64_ENCODE(TO_BLOB(HEXTORAW('00'))) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:31) /test/1/catalog1/UTL_ENCODE/BASE64_ENCODE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:32~2:39) /test/1/catalog1/schema1/TO_BLOB/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:40~2:48) /test/1/catalog1/schema1/HEXTORAW/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:62~2:66) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_encode_signature_combinations_0_011]
+sql:
+-- ENCODE_BLOB_TWO_BYTES
+SELECT UTL_ENCODE.BASE64_ENCODE(TO_BLOB(HEXTORAW('00FF'))) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:31) /test/1/catalog1/UTL_ENCODE/BASE64_ENCODE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:32~2:39) /test/1/catalog1/schema1/TO_BLOB/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:40~2:48) /test/1/catalog1/schema1/HEXTORAW/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:64~2:68) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_encode_signature_combinations_0_012]
+sql:
+-- ENCODE_BLOB_THREE_BYTES
+SELECT UTL_ENCODE.BASE64_ENCODE(TO_BLOB(HEXTORAW('000102'))) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:31) /test/1/catalog1/UTL_ENCODE/BASE64_ENCODE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:32~2:39) /test/1/catalog1/schema1/TO_BLOB/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:40~2:48) /test/1/catalog1/schema1/HEXTORAW/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:66~2:70) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_encode_signature_combinations_0_013]
+sql:
+-- ENCODE_BLOB_BINARY_SAMPLE
+SELECT UTL_ENCODE.BASE64_ENCODE(TO_BLOB(HEXTORAW('00FF7F80444D38'))) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:31) /test/1/catalog1/UTL_ENCODE/BASE64_ENCODE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:32~2:39) /test/1/catalog1/schema1/TO_BLOB/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:40~2:48) /test/1/catalog1/schema1/HEXTORAW/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:74~2:78) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_encode_signature_combinations_0_014]
+sql:
+-- ENCODE_BLOB_NAMED
+SELECT UTL_ENCODE.BASE64_ENCODE(R=>TO_BLOB(HEXTORAW('444D38'))) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:31) /test/1/catalog1/UTL_ENCODE/BASE64_ENCODE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:35~2:42) /test/1/catalog1/schema1/TO_BLOB/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:43~2:51) /test/1/catalog1/schema1/HEXTORAW/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:69~2:73) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_encode_signature_combinations_0_015]
+sql:
+-- ENCODE_BLOB_LONGER
+SELECT UTL_ENCODE.BASE64_ENCODE(TO_BLOB(HEXTORAW('000102030405060708090A0B0C0D0E0F'))) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:31) /test/1/catalog1/UTL_ENCODE/BASE64_ENCODE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:32~2:39) /test/1/catalog1/schema1/TO_BLOB/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:40~2:48) /test/1/catalog1/schema1/HEXTORAW/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:92~2:96) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_encode_signature_combinations_0_016]
+sql:
+-- ENCODE_BLOB_ROUNDTRIP
+SELECT UTL_ENCODE.BASE64_DECODE(UTL_ENCODE.BASE64_ENCODE(TO_BLOB(HEXTORAW('444D38')))) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:31) /test/1/catalog1/UTL_ENCODE/BASE64_DECODE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:32~2:56) /test/1/catalog1/UTL_ENCODE/BASE64_ENCODE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:57~2:64) /test/1/catalog1/schema1/TO_BLOB/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:65~2:73) /test/1/catalog1/schema1/HEXTORAW/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:92~2:96) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_encode_signature_combinations_0_017]
+sql:
+-- DECODE_DOCUMENTED
+SELECT UTL_ENCODE.BASE64_DECODE(HEXTORAW('51676B6847586B494252556A')) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:31) /test/1/catalog1/UTL_ENCODE/BASE64_DECODE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:32~2:40) /test/1/catalog1/schema1/HEXTORAW/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:75~2:79) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_encode_signature_combinations_0_018]
+sql:
+-- DECODE_ONE_BYTE
+SELECT UTL_ENCODE.BASE64_DECODE(HEXTORAW('41413D3D')) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:31) /test/1/catalog1/UTL_ENCODE/BASE64_DECODE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:32~2:40) /test/1/catalog1/schema1/HEXTORAW/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:59~2:63) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_encode_signature_combinations_0_019]
+sql:
+-- DECODE_TWO_BYTES
+SELECT UTL_ENCODE.BASE64_DECODE(HEXTORAW('4150383D')) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:31) /test/1/catalog1/UTL_ENCODE/BASE64_DECODE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:32~2:40) /test/1/catalog1/schema1/HEXTORAW/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:59~2:63) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_encode_signature_combinations_0_020]
+sql:
+-- DECODE_THREE_BYTES
+SELECT UTL_ENCODE.BASE64_DECODE(HEXTORAW('41414543')) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:31) /test/1/catalog1/UTL_ENCODE/BASE64_DECODE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:32~2:40) /test/1/catalog1/schema1/HEXTORAW/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:59~2:63) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_encode_signature_combinations_0_021]
+sql:
+-- DECODE_BINARY_SAMPLE
+SELECT UTL_ENCODE.BASE64_DECODE(UTL_ENCODE.BASE64_ENCODE(HEXTORAW('00FF7F80444D38'))) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:31) /test/1/catalog1/UTL_ENCODE/BASE64_DECODE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:32~2:56) /test/1/catalog1/UTL_ENCODE/BASE64_ENCODE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:57~2:65) /test/1/catalog1/schema1/HEXTORAW/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:91~2:95) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_encode_signature_combinations_0_022]
+sql:
+-- DECODE_NAMED
+SELECT UTL_ENCODE.BASE64_DECODE(R=>HEXTORAW('52453034')) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:31) /test/1/catalog1/UTL_ENCODE/BASE64_DECODE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:35~2:43) /test/1/catalog1/schema1/HEXTORAW/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:62~2:66) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_encode_signature_combinations_0_023]
+sql:
+-- DECODE_EXPLICIT_CAST
+SELECT UTL_ENCODE.BASE64_DECODE(CAST(HEXTORAW('52453034') AS VARBINARY)) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:31) /test/1/catalog1/UTL_ENCODE/BASE64_DECODE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:37~2:45) /test/1/catalog1/schema1/HEXTORAW/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:78~2:82) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_encode_signature_combinations_0_024]
+sql:
+-- DECODE_NESTED
+SELECT UTL_ENCODE.BASE64_DECODE(UTL_ENCODE.BASE64_ENCODE(HEXTORAW('444D38'))) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:31) /test/1/catalog1/UTL_ENCODE/BASE64_DECODE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:32~2:56) /test/1/catalog1/UTL_ENCODE/BASE64_ENCODE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:57~2:65) /test/1/catalog1/schema1/HEXTORAW/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:83~2:87) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_encode_signature_combinations_0_025]
+sql:
+-- DECODE2_DOCUMENTED
+SELECT UTL_ENCODE.BASE64_DECODE2(HEXTORAW('51676B6847586B494252556A')) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:32) /test/1/catalog1/UTL_ENCODE/BASE64_DECODE2/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:33~2:41) /test/1/catalog1/schema1/HEXTORAW/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:76~2:80) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_encode_signature_combinations_0_026]
+sql:
+-- DECODE2_ONE_BYTE
+SELECT UTL_ENCODE.BASE64_DECODE2(HEXTORAW('41413D3D')) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:32) /test/1/catalog1/UTL_ENCODE/BASE64_DECODE2/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:33~2:41) /test/1/catalog1/schema1/HEXTORAW/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:60~2:64) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_encode_signature_combinations_0_027]
+sql:
+-- DECODE2_TWO_BYTES
+SELECT UTL_ENCODE.BASE64_DECODE2(HEXTORAW('4150383D')) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:32) /test/1/catalog1/UTL_ENCODE/BASE64_DECODE2/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:33~2:41) /test/1/catalog1/schema1/HEXTORAW/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:60~2:64) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_encode_signature_combinations_0_028]
+sql:
+-- DECODE2_THREE_BYTES
+SELECT UTL_ENCODE.BASE64_DECODE2(HEXTORAW('41414543')) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:32) /test/1/catalog1/UTL_ENCODE/BASE64_DECODE2/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:33~2:41) /test/1/catalog1/schema1/HEXTORAW/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:60~2:64) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_encode_signature_combinations_0_029]
+sql:
+-- DECODE2_NAMED
+SELECT UTL_ENCODE.BASE64_DECODE2(R=>HEXTORAW('52453034')) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:32) /test/1/catalog1/UTL_ENCODE/BASE64_DECODE2/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:36~2:44) /test/1/catalog1/schema1/HEXTORAW/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:63~2:67) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_encode_signature_combinations_0_030]
+sql:
+-- DECODE2_INVALID_RETURNS_NULL
+SELECT CASE WHEN UTL_ENCODE.BASE64_DECODE2(HEXTORAW('2121')) IS NULL THEN 1 ELSE 0 END FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:17~2:42) /test/1/catalog1/UTL_ENCODE/BASE64_DECODE2/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:43~2:51) /test/1/catalog1/schema1/HEXTORAW/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:92~2:96) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_encode_signature_combinations_0_031]
+sql:
+-- DECODE2_INVALID_PADDING_RETURNS_NULL
+SELECT CASE WHEN UTL_ENCODE.BASE64_DECODE2(HEXTORAW('413D3D3D')) IS NULL THEN 1 ELSE 0 END FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:17~2:42) /test/1/catalog1/UTL_ENCODE/BASE64_DECODE2/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:43~2:51) /test/1/catalog1/schema1/HEXTORAW/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:96~2:100) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_encode_signature_combinations_0_032]
+sql:
+-- DECODE2_NESTED
+SELECT UTL_ENCODE.BASE64_DECODE2(UTL_ENCODE.BASE64_ENCODE(HEXTORAW('444D38'))) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:32) /test/1/catalog1/UTL_ENCODE/BASE64_DECODE2/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:33~2:57) /test/1/catalog1/UTL_ENCODE/BASE64_ENCODE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:58~2:66) /test/1/catalog1/schema1/HEXTORAW/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:84~2:88) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}

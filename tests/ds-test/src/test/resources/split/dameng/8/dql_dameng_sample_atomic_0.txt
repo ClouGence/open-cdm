@@ -1,0 +1,18 @@
+select count(*) from app.sample_target sample(10+5);
+select count(*) from app.sample_target partition(p1) sample(30) seed(1);
+select count(*) from app.sample_target sample(30) a join app.sample_other sample block(30) b on a.id=b.id;
+select count(*) from (select * from app.sample_target sample(20) seed(2)) s;
+select id from app.sample_target sample(10) union all select id from app.sample_other sample(10);
+select count(*) from app.sample_target sample(10) block;
+------------------------------------------------------------------------------------------
+[SELECT] select count(*) from app.sample_target sample(10+5);
+----------
+[SELECT] select count(*) from app.sample_target partition(p1) sample(30) seed(1);
+----------
+[SELECT] select count(*) from app.sample_target sample(30) a join app.sample_other sample block(30) b on a.id=b.id;
+----------
+[SELECT] select count(*) from (select * from app.sample_target sample(20) seed(2)) s;
+----------
+[SELECT] select id from app.sample_target sample(10) union all select id from app.sample_other sample(10);
+----------
+[SELECT] select count(*) from app.sample_target sample(10) block;

@@ -1,0 +1,16 @@
+[table_diskspace_ctas]
+sql:
+create table catalog1.app.table_disk_ctas diskspace limit 1
+as select id from catalog1.app.table_disk_source
+expect:
+{
+  "id": ["/catalog1/app/table_disk_source/id/"]
+}
+----------
+[table_diskspace_select]
+sql:
+select id from catalog1.app.table_disk_ctas
+expect:
+{
+  "id": ["/catalog1/app/table_disk_ctas/id/"]
+}

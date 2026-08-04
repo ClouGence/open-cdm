@@ -36,11 +36,11 @@ import com.clougence.clouddm.platform.dal.access.entry.EnvCacheEntry;
 import com.clougence.clouddm.platform.dal.access.entry.UserCacheEntry;
 import com.clougence.clouddm.platform.dal.model.secrule.WarnLevel;
 import com.clougence.clouddm.platform.plugin.PluginManager;
-import com.clougence.clouddm.sdk.model.analysis.CodeInfo;
-import com.clougence.clouddm.sdk.model.analysis.ContextInfo;
 import com.clougence.clouddm.sdk.service.secrules.*;
 import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
-import com.clougence.clouddm.sdk.sql.secrules.SecDomainResolveSpi;
+import com.clougence.clouddm.sdk.sql.analysis.security.CodeInfo;
+import com.clougence.clouddm.sdk.sql.analysis.security.ContextInfo;
+import com.clougence.clouddm.sdk.sql.analysis.security.SecDomainResolveSpi;
 import com.clougence.clouddm.sdk.ui.browser.DsBrowseSpi;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.utils.CollectionUtils;
@@ -90,8 +90,12 @@ public class SecRulesEngineImpl implements SecRulesEngine {
                 .dataSourceConfig(dsConfig)
                 .build();
 
-            SqlEngineSpi sqlEngine = PluginManager.findParserSpi(dsType, dsConfig.getSqlEngine());
-            SecDomainResolveSpi resolveSpi = sqlEngine.secDomainResolveSpi();
+            SqlEngineSpi sqlEngine = configService.fetchSqlEngineSpi(context.getDsId());
+            SecDomainResolveSpi resolveSpi = sqlEngine == null ? null : sqlEngine.secDomainResolveSpi(context.getSqlParameters());
+            if (resolveSpi == null) {
+                return resultOK();
+            }
+
             CodeInfo codeInfo = CodeInfo.builder().baseLine(context.getBasicCodeLine()).baseColumn(context.getBasicCodeColumn()).query(querySql).build();
             domainList = resolveSpi.resolveDomain(dsType, codeInfo, ctxInfo);
             if (CollectionUtils.isEmpty(domainList)) {
@@ -111,7 +115,7 @@ public class SecRulesEngineImpl implements SecRulesEngine {
         result.setSpecName(rules.getDsUseSpecName());
         for (RuleDomain ruleDomain : domainList) {
             List<CheckerRule> checkerRules = rules.getQueryRuleList().stream().filter(r -> {
-                return r.getTarget() == null || r.getTarget() == ruleDomain.getSqlTarget();
+                return r.getTarget() == null || ruleDomain.getSqlTarget() == r.getTarget();
             }).collect(Collectors.toList());
             if (checkerRules.isEmpty()) {
                 continue;

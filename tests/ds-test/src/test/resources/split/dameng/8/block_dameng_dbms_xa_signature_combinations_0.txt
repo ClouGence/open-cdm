@@ -1,0 +1,54 @@
+-- FUNC-0892 DBMS_XA.XA_COMMIT
+declare r int; begin r:=DBMS_XA.XA_COMMIT(DBMS_XA_XID(1),FALSE); end;
+/
+-- FUNC-0893 DBMS_XA.XA_END
+declare r int; begin r:=DBMS_XA.XA_END(DBMS_XA_XID(1),DBMS_XA.TMSUCCESS); end;
+/
+-- FUNC-0894 DBMS_XA.XA_FORGET
+declare r int; begin r:=DBMS_XA.XA_FORGET(DBMS_XA_XID(1)); end;
+/
+-- FUNC-0895 DBMS_XA.XA_GETLASTOER
+declare r int; begin r:=DBMS_XA.XA_GETLASTOER(); end;
+/
+-- FUNC-0896 DBMS_XA.XA_PREPARE
+declare r int; begin r:=DBMS_XA.XA_PREPARE(DBMS_XA_XID(1)); end;
+/
+-- FUNC-0897 DBMS_XA.XA_RECOVER
+declare a DBMS_XA_XID_ARRAY; begin a:=DBMS_XA.XA_RECOVER(); end;
+/
+-- FUNC-0898 DBMS_XA.XA_ROLLBACK
+declare r int; begin r:=DBMS_XA.XA_ROLLBACK(DBMS_XA_XID(1)); end;
+/
+-- FUNC-0899 DBMS_XA.XA_SETTIMEOUT
+declare r int; begin r:=DBMS_XA.XA_SETTIMEOUT(60); end;
+/
+-- FUNC-0900 DBMS_XA.XA_START
+declare r int; begin r:=DBMS_XA.XA_START(DBMS_XA_XID(1),DBMS_XA.TMNOFLAGS); end;
+/
+------------------------------------------------------------------------------------------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0892 DBMS_XA.XA_COMMIT
+declare r int; begin r:=DBMS_XA.XA_COMMIT(DBMS_XA_XID(1),FALSE); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0893 DBMS_XA.XA_END
+declare r int; begin r:=DBMS_XA.XA_END(DBMS_XA_XID(1),DBMS_XA.TMSUCCESS); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0894 DBMS_XA.XA_FORGET
+declare r int; begin r:=DBMS_XA.XA_FORGET(DBMS_XA_XID(1)); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0895 DBMS_XA.XA_GETLASTOER
+declare r int; begin r:=DBMS_XA.XA_GETLASTOER(); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0896 DBMS_XA.XA_PREPARE
+declare r int; begin r:=DBMS_XA.XA_PREPARE(DBMS_XA_XID(1)); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0897 DBMS_XA.XA_RECOVER
+declare a DBMS_XA_XID_ARRAY; begin a:=DBMS_XA.XA_RECOVER(); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0898 DBMS_XA.XA_ROLLBACK
+declare r int; begin r:=DBMS_XA.XA_ROLLBACK(DBMS_XA_XID(1)); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0899 DBMS_XA.XA_SETTIMEOUT
+declare r int; begin r:=DBMS_XA.XA_SETTIMEOUT(60); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0900 DBMS_XA.XA_START
+declare r int; begin r:=DBMS_XA.XA_START(DBMS_XA_XID(1),DBMS_XA.TMNOFLAGS); end;

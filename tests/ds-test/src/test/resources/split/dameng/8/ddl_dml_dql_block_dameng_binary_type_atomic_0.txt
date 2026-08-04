@@ -1,0 +1,265 @@
+create table app.bin_t(
+  id int primary key,c_binary binary(4) default 0xAA not null,
+  c_varbinary varbinary(8) default 0xBB,c_raw raw(8) default 0xCC,
+  c_null raw(8) null,constraint ck_bin check(utl_raw.length(c_varbinary)<=8),
+  constraint uk_bin unique(c_varbinary,c_raw));
+comment on column app.bin_t.c_binary is 'fixed binary';
+comment on column app.bin_t.c_raw is 'raw variable binary';
+create index app.idx_bin on app.bin_t(c_varbinary,c_binary);
+alter table app.bin_t add c_alter raw(4) default 0xDD;
+alter table app.bin_t modify c_alter raw(8);
+insert into app.bin_t values
+  (1,0x2A3B,0x414243,hextoraw('444546'),null,0x47);
+insert into app.bin_t(id,c_binary,c_varbinary,c_raw,c_null)
+  values(2,hextoraw('0102'),utl_raw.cast_to_raw('var'),
+  utl_raw.cast_to_raw('raw'),hextoraw('00FF'));
+insert into app.bin_t(id) values(3);
+update app.bin_t set
+  c_varbinary=utl_raw.concat(c_varbinary,hextoraw('21')),
+  c_raw=utl_raw.reverse_raw(c_raw),c_alter=hextoraw('ABCD') where id=2;
+select id,utl_raw.length(c_binary),utl_raw.length(c_varbinary),
+  utl_raw.length(c_raw),rawtohex(c_binary),rawtohex(c_varbinary),rawtohex(c_raw)
+  from app.bin_t order by id;
+select rawtohex(utl_raw.substr(c_varbinary,2,2)),
+  utl_raw.compare(c_varbinary,c_raw),rawtohex(utl_raw.bit_and(c_varbinary,c_raw)),
+  rawtohex(utl_raw.bit_or(c_varbinary,c_raw)),
+  rawtohex(utl_raw.bit_xor(c_varbinary,c_raw)) from app.bin_t where id=2;
+select utl_raw.cast_to_varchar2(c_varbinary),
+  rawtohex(hextoraw('414243')),rawtohex(cast('414243' as varbinary(8)))
+  from app.bin_t where id=1;
+select min(c_binary),max(c_varbinary),count(c_raw),
+  count(distinct c_raw) from app.bin_t;
+select id from app.bin_t index idx_bin
+  where c_varbinary>=0x00 and c_binary=0xAA order by c_varbinary;
+create view app.bin_v as
+  select id,c_binary,c_varbinary,c_raw,c_alter from app.bin_t
+  where c_varbinary is not null;
+select rawtohex(c_binary),rawtohex(c_varbinary),rawtohex(c_raw)
+  from app.bin_v order by id;
+update app.bin_v set c_raw=hextoraw('ABCD') where id=2;
+create function app.bin_binary_f(p_value binary(32767)) return binary(32767) as
+begin
+  return p_value;
+end;
+/
+create function app.bin_varbinary_f(p_value varbinary(32767)) return varbinary(32767) as
+begin
+  return p_value;
+end;
+/
+create function app.bin_raw_f(p_value raw(32767)) return raw(32767) as
+begin
+  return p_value;
+end;
+/
+select utl_raw.length(app.bin_binary_f(0xAB)),
+  utl_raw.length(app.bin_varbinary_f(0xABCD)),
+  utl_raw.length(app.bin_raw_f(hextoraw('ABCDEF'))) from dual;
+create table app.bin_long(
+  c_varbinary varbinary(32767),c_raw raw(32767)) storage(using long row);
+insert into app.bin_long values(
+  utl_raw.cast_to_raw(repeat('V',32767)),
+  utl_raw.cast_to_raw(repeat('R',32767)));
+select utl_raw.length(c_varbinary),utl_raw.length(c_raw) from app.bin_long;
+create table app.bin_defaults(
+  c_binary binary,c_varbinary varbinary,c_raw raw) storage(using long row);
+select column_name,data_type,data_length from user_tab_columns
+  where table_name='BIN_DEFAULTS' order by column_id;
+insert into app.bin_defaults(c_binary,c_varbinary)
+  values(0x01,utl_raw.cast_to_raw(repeat('V',8188)));
+insert into app.bin_defaults(c_binary,c_raw)
+  values(0x01,utl_raw.cast_to_raw(repeat('R',8188)));
+create table app.bin_fixed_7981(c binary(7981));
+insert into app.bin_fixed_7981 values(0x01);
+create table app.bin_fixed_7982(c binary(7982));
+create table app.bin_fixed_8000(c binary(8000));
+create table app.bin_ordinary(c_varbinary varbinary(32767),c_raw raw(32767));
+insert into app.bin_ordinary(c_varbinary)
+  values(utl_raw.cast_to_raw(repeat('V',7979)));
+insert into app.bin_ordinary(c_raw)
+  values(utl_raw.cast_to_raw(repeat('R',7979)));
+create table app.bad_binary_0(c binary(0));
+create table app.bad_varbinary_0(c varbinary(0));
+create table app.bad_raw_0(c raw(0));
+create table app.bad_binary_8001(c binary(8001));
+create table app.bad_varbinary_32768(c varbinary(32768));
+create table app.bad_raw_32768(c raw(32768));
+create table app.bad_binary_pair(c binary(4,2));
+create table app.bad_varbinary_pair(c varbinary(4,2));
+create table app.bad_raw_pair(c raw(4,2));
+insert into app.bin_fixed_7982 values(0x01);
+insert into app.bin_fixed_8000 values(0x01);
+insert into app.bin_ordinary(c_varbinary) values(utl_raw.cast_to_raw(repeat('V',7980)));
+insert into app.bin_ordinary(c_raw) values(utl_raw.cast_to_raw(repeat('R',7980)));
+insert into app.bin_defaults(c_binary,c_varbinary) values(0x01,utl_raw.cast_to_raw(repeat('V',8189)));
+insert into app.bin_defaults(c_binary,c_raw) values(0x01,utl_raw.cast_to_raw(repeat('R',8189)));
+insert into app.bin_long(c_varbinary) values(utl_raw.cast_to_raw(repeat('V',32768)));
+insert into app.bin_long(c_raw) values(utl_raw.cast_to_raw(repeat('R',32768)));
+insert into app.bin_t(id,c_binary) values(101,null);
+insert into app.bin_t(id,c_binary) values(102,0x0102030405);
+insert into app.bin_t(id,c_varbinary) values(103,0x010203040506070809);
+insert into app.bin_t(id,c_raw) values(104,0x010203040506070809);
+create table app.bad_bin_part(c binary(4)) partition by range(c)(partition p0 values less than('80'),partition p1 values less than(maxvalue));
+create table app.bad_varbin_part(c varbinary(4)) partition by range(c)(partition p0 values less than('80'),partition p1 values less than(maxvalue));
+create table app.bad_raw_part(c raw(4)) partition by range(c)(partition p0 values less than('80'),partition p1 values less than(maxvalue));
+------------------------------------------------------------------------------------------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT|CALL_PROG_OBJ] create table app.bin_t(
+  id int primary key,c_binary binary(4) default 0xAA not null,
+  c_varbinary varbinary(8) default 0xBB,c_raw raw(8) default 0xCC,
+  c_null raw(8) null,constraint ck_bin check(utl_raw.length(c_varbinary)<=8),
+  constraint uk_bin unique(c_varbinary,c_raw));
+----------
+[COMMENT_COLUMN] comment on column app.bin_t.c_binary is 'fixed binary';
+----------
+[COMMENT_COLUMN] comment on column app.bin_t.c_raw is 'raw variable binary';
+----------
+[ADD_INDEX] create index app.idx_bin on app.bin_t(c_varbinary,c_binary);
+----------
+[ALTER_TABLE|ADD_COLUMN] alter table app.bin_t add c_alter raw(4) default 0xDD;
+----------
+[ALTER_TABLE|ALTER_COLUMN] alter table app.bin_t modify c_alter raw(8);
+----------
+[INSERT] insert into app.bin_t values
+  (1,0x2A3B,0x414243,hextoraw('444546'),null,0x47);
+----------
+[INSERT|CALL_PROG_OBJ] insert into app.bin_t(id,c_binary,c_varbinary,c_raw,c_null)
+  values(2,hextoraw('0102'),utl_raw.cast_to_raw('var'),
+  utl_raw.cast_to_raw('raw'),hextoraw('00FF'));
+----------
+[INSERT] insert into app.bin_t(id) values(3);
+----------
+[UPDATE|CALL_PROG_OBJ] update app.bin_t set
+  c_varbinary=utl_raw.concat(c_varbinary,hextoraw('21')),
+  c_raw=utl_raw.reverse_raw(c_raw),c_alter=hextoraw('ABCD') where id=2;
+----------
+[SELECT|CALL_PROG_OBJ] select id,utl_raw.length(c_binary),utl_raw.length(c_varbinary),
+  utl_raw.length(c_raw),rawtohex(c_binary),rawtohex(c_varbinary),rawtohex(c_raw)
+  from app.bin_t order by id;
+----------
+[SELECT|CALL_PROG_OBJ] select rawtohex(utl_raw.substr(c_varbinary,2,2)),
+  utl_raw.compare(c_varbinary,c_raw),rawtohex(utl_raw.bit_and(c_varbinary,c_raw)),
+  rawtohex(utl_raw.bit_or(c_varbinary,c_raw)),
+  rawtohex(utl_raw.bit_xor(c_varbinary,c_raw)) from app.bin_t where id=2;
+----------
+[SELECT|CALL_PROG_OBJ] select utl_raw.cast_to_varchar2(c_varbinary),
+  rawtohex(hextoraw('414243')),rawtohex(cast('414243' as varbinary(8)))
+  from app.bin_t where id=1;
+----------
+[SELECT] select min(c_binary),max(c_varbinary),count(c_raw),
+  count(distinct c_raw) from app.bin_t;
+----------
+[SELECT] select id from app.bin_t index idx_bin
+  where c_varbinary>=0x00 and c_binary=0xAA order by c_varbinary;
+----------
+[CREATE_VIEW(SELECT)] create view app.bin_v as
+  select id,c_binary,c_varbinary,c_raw,c_alter from app.bin_t
+  where c_varbinary is not null;
+----------
+[SELECT] select rawtohex(c_binary),rawtohex(c_varbinary),rawtohex(c_raw)
+  from app.bin_v order by id;
+----------
+[UPDATE] update app.bin_v set c_raw=hextoraw('ABCD') where id=2;
+----------
+[CREATE_PROG_OBJ(BLOCK,PROGRAM_CONTROL)] create function app.bin_binary_f(p_value binary(32767)) return binary(32767) as
+begin
+  return p_value;
+end;
+----------
+[CREATE_PROG_OBJ(BLOCK,PROGRAM_CONTROL)] create function app.bin_varbinary_f(p_value varbinary(32767)) return varbinary(32767) as
+begin
+  return p_value;
+end;
+----------
+[CREATE_PROG_OBJ(BLOCK,PROGRAM_CONTROL)] create function app.bin_raw_f(p_value raw(32767)) return raw(32767) as
+begin
+  return p_value;
+end;
+----------
+[SELECT|CALL_PROG_OBJ] select utl_raw.length(app.bin_binary_f(0xAB)),
+  utl_raw.length(app.bin_varbinary_f(0xABCD)),
+  utl_raw.length(app.bin_raw_f(hextoraw('ABCDEF'))) from dual;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.bin_long(
+  c_varbinary varbinary(32767),c_raw raw(32767)) storage(using long row);
+----------
+[INSERT|CALL_PROG_OBJ] insert into app.bin_long values(
+  utl_raw.cast_to_raw(repeat('V',32767)),
+  utl_raw.cast_to_raw(repeat('R',32767)));
+----------
+[SELECT|CALL_PROG_OBJ] select utl_raw.length(c_varbinary),utl_raw.length(c_raw) from app.bin_long;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.bin_defaults(
+  c_binary binary,c_varbinary varbinary,c_raw raw) storage(using long row);
+----------
+[SELECT] select column_name,data_type,data_length from user_tab_columns
+  where table_name='BIN_DEFAULTS' order by column_id;
+----------
+[INSERT|CALL_PROG_OBJ] insert into app.bin_defaults(c_binary,c_varbinary)
+  values(0x01,utl_raw.cast_to_raw(repeat('V',8188)));
+----------
+[INSERT|CALL_PROG_OBJ] insert into app.bin_defaults(c_binary,c_raw)
+  values(0x01,utl_raw.cast_to_raw(repeat('R',8188)));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.bin_fixed_7981(c binary(7981));
+----------
+[INSERT] insert into app.bin_fixed_7981 values(0x01);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.bin_fixed_7982(c binary(7982));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.bin_fixed_8000(c binary(8000));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.bin_ordinary(c_varbinary varbinary(32767),c_raw raw(32767));
+----------
+[INSERT|CALL_PROG_OBJ] insert into app.bin_ordinary(c_varbinary)
+  values(utl_raw.cast_to_raw(repeat('V',7979)));
+----------
+[INSERT|CALL_PROG_OBJ] insert into app.bin_ordinary(c_raw)
+  values(utl_raw.cast_to_raw(repeat('R',7979)));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.bad_binary_0(c binary(0));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.bad_varbinary_0(c varbinary(0));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.bad_raw_0(c raw(0));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.bad_binary_8001(c binary(8001));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.bad_varbinary_32768(c varbinary(32768));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.bad_raw_32768(c raw(32768));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.bad_binary_pair(c binary(4,2));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.bad_varbinary_pair(c varbinary(4,2));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.bad_raw_pair(c raw(4,2));
+----------
+[INSERT] insert into app.bin_fixed_7982 values(0x01);
+----------
+[INSERT] insert into app.bin_fixed_8000 values(0x01);
+----------
+[INSERT|CALL_PROG_OBJ] insert into app.bin_ordinary(c_varbinary) values(utl_raw.cast_to_raw(repeat('V',7980)));
+----------
+[INSERT|CALL_PROG_OBJ] insert into app.bin_ordinary(c_raw) values(utl_raw.cast_to_raw(repeat('R',7980)));
+----------
+[INSERT|CALL_PROG_OBJ] insert into app.bin_defaults(c_binary,c_varbinary) values(0x01,utl_raw.cast_to_raw(repeat('V',8189)));
+----------
+[INSERT|CALL_PROG_OBJ] insert into app.bin_defaults(c_binary,c_raw) values(0x01,utl_raw.cast_to_raw(repeat('R',8189)));
+----------
+[INSERT|CALL_PROG_OBJ] insert into app.bin_long(c_varbinary) values(utl_raw.cast_to_raw(repeat('V',32768)));
+----------
+[INSERT|CALL_PROG_OBJ] insert into app.bin_long(c_raw) values(utl_raw.cast_to_raw(repeat('R',32768)));
+----------
+[INSERT] insert into app.bin_t(id,c_binary) values(101,null);
+----------
+[INSERT] insert into app.bin_t(id,c_binary) values(102,0x0102030405);
+----------
+[INSERT] insert into app.bin_t(id,c_varbinary) values(103,0x010203040506070809);
+----------
+[INSERT] insert into app.bin_t(id,c_raw) values(104,0x010203040506070809);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.bad_bin_part(c binary(4)) partition by range(c)(partition p0 values less than('80'),partition p1 values less than(maxvalue));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.bad_varbin_part(c varbinary(4)) partition by range(c)(partition p0 values less than('80'),partition p1 values less than(maxvalue));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.bad_raw_part(c raw(4)) partition by range(c)(partition p0 values less than('80'),partition p1 values less than(maxvalue));

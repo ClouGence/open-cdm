@@ -1,0 +1,556 @@
+[split_block_dameng_application_info_signature_combinations_0_001]
+sql:
+-- POSITIONAL_STATE
+DECLARE
+  V_CLIENT VARCHAR2(128); V_MODULE VARCHAR2(128); V_ACTION VARCHAR2(128);
+BEGIN
+  DBMS_APPLICATION_INFO.SET_CLIENT_INFO('CODEX_CLIENT');
+  DBMS_APPLICATION_INFO.SET_MODULE('CODEX_MODULE','ACTION_1');
+  DBMS_APPLICATION_INFO.SET_ACTION('ACTION_2');
+  DBMS_APPLICATION_INFO.READ_CLIENT_INFO(V_CLIENT);
+  DBMS_APPLICATION_INFO.READ_MODULE(V_MODULE,V_ACTION);
+  IF V_CLIENT <> 'CODEX_CLIENT' OR V_MODULE <> 'CODEX_MODULE' OR V_ACTION <> 'ACTION_2' THEN
+    RAISE_APPLICATION_ERROR(-20001,'POSITIONAL_STATE');
+  END IF;
+END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(5:2~5:39) /test/1/catalog1/DBMS_APPLICATION_INFO/SET_CLIENT_INFO/",
+      "action": "CALL",
+      "target": "ConfigKey(5:2~5:39) /test/1/CLIENT_INFO/"
+    },
+    {
+      "subject": "Procedure(6:2~6:34) /test/1/catalog1/DBMS_APPLICATION_INFO/SET_MODULE/",
+      "action": "CALL",
+      "target": [
+        "ConfigKey(6:2~6:34) /test/1/MODULE/",
+        "ConfigKey(6:2~6:34) /test/1/ACTION/"
+      ]
+    },
+    {
+      "subject": "Procedure(7:2~7:34) /test/1/catalog1/DBMS_APPLICATION_INFO/SET_ACTION/",
+      "action": "CALL",
+      "target": "ConfigKey(7:2~7:34) /test/1/ACTION/"
+    },
+    {
+      "subject": "Procedure(8:2~8:40) /test/1/catalog1/DBMS_APPLICATION_INFO/READ_CLIENT_INFO/",
+      "action": "CALL",
+      "target": "ConfigKey(8:2~8:40) /test/1/CLIENT_INFO/"
+    },
+    {
+      "subject": "Procedure(9:2~9:35) /test/1/catalog1/DBMS_APPLICATION_INFO/READ_MODULE/",
+      "action": "CALL",
+      "target": [
+        "ConfigKey(9:2~9:35) /test/1/MODULE/",
+        "ConfigKey(9:2~9:35) /test/1/ACTION/"
+      ]
+    },
+    {
+      "subject": "Procedure(11:4~11:27) /test/1/catalog1/schema1/RAISE_APPLICATION_ERROR/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_application_info_signature_combinations_0_002]
+sql:
+-- NULL_RESET
+DECLARE
+  V_CLIENT VARCHAR2(128); V_MODULE VARCHAR2(128); V_ACTION VARCHAR2(128);
+BEGIN
+  DBMS_APPLICATION_INFO.SET_CLIENT_INFO('VALUE');
+  DBMS_APPLICATION_INFO.SET_MODULE('MODULE','ACTION');
+  DBMS_APPLICATION_INFO.SET_CLIENT_INFO(NULL);
+  DBMS_APPLICATION_INFO.SET_MODULE(NULL,NULL);
+  DBMS_APPLICATION_INFO.SET_ACTION(NULL);
+  DBMS_APPLICATION_INFO.READ_CLIENT_INFO(V_CLIENT);
+  DBMS_APPLICATION_INFO.READ_MODULE(V_MODULE,V_ACTION);
+  IF NVL(LENGTHB(V_CLIENT),0) <> 0 OR NVL(LENGTHB(V_MODULE),0) <> 0
+    OR NVL(LENGTHB(V_ACTION),0) <> 0 THEN
+    RAISE_APPLICATION_ERROR(-20001,'NULL_RESET');
+  END IF;
+END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(5:2~5:39) /test/1/catalog1/DBMS_APPLICATION_INFO/SET_CLIENT_INFO/",
+      "action": "CALL",
+      "target": "ConfigKey(5:2~5:39) /test/1/CLIENT_INFO/"
+    },
+    {
+      "subject": "Procedure(6:2~6:34) /test/1/catalog1/DBMS_APPLICATION_INFO/SET_MODULE/",
+      "action": "CALL",
+      "target": [
+        "ConfigKey(6:2~6:34) /test/1/MODULE/",
+        "ConfigKey(6:2~6:34) /test/1/ACTION/"
+      ]
+    },
+    {
+      "subject": "Procedure(7:2~7:39) /test/1/catalog1/DBMS_APPLICATION_INFO/SET_CLIENT_INFO/",
+      "action": "CALL",
+      "target": "ConfigKey(7:2~7:39) /test/1/CLIENT_INFO/"
+    },
+    {
+      "subject": "Procedure(8:2~8:34) /test/1/catalog1/DBMS_APPLICATION_INFO/SET_MODULE/",
+      "action": "CALL",
+      "target": [
+        "ConfigKey(8:2~8:34) /test/1/MODULE/",
+        "ConfigKey(8:2~8:34) /test/1/ACTION/"
+      ]
+    },
+    {
+      "subject": "Procedure(9:2~9:34) /test/1/catalog1/DBMS_APPLICATION_INFO/SET_ACTION/",
+      "action": "CALL",
+      "target": "ConfigKey(9:2~9:34) /test/1/ACTION/"
+    },
+    {
+      "subject": "Procedure(10:2~10:40) /test/1/catalog1/DBMS_APPLICATION_INFO/READ_CLIENT_INFO/",
+      "action": "CALL",
+      "target": "ConfigKey(10:2~10:40) /test/1/CLIENT_INFO/"
+    },
+    {
+      "subject": "Procedure(11:2~11:35) /test/1/catalog1/DBMS_APPLICATION_INFO/READ_MODULE/",
+      "action": "CALL",
+      "target": [
+        "ConfigKey(11:2~11:35) /test/1/MODULE/",
+        "ConfigKey(11:2~11:35) /test/1/ACTION/"
+      ]
+    },
+    {
+      "subject": "Procedure(14:4~14:27) /test/1/catalog1/schema1/RAISE_APPLICATION_ERROR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(12:5~12:8) /test/1/catalog1/schema1/NVL/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(12:9~12:16) /test/1/catalog1/schema1/LENGTHB/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(12:38~12:41) /test/1/catalog1/schema1/NVL/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(12:42~12:49) /test/1/catalog1/schema1/LENGTHB/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(13:7~13:10) /test/1/catalog1/schema1/NVL/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(13:11~13:18) /test/1/catalog1/schema1/LENGTHB/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_application_info_signature_combinations_0_003]
+sql:
+-- EMPTY_STRING_RESET
+DECLARE
+  V_CLIENT VARCHAR2(128); V_MODULE VARCHAR2(128); V_ACTION VARCHAR2(128);
+BEGIN
+  DBMS_APPLICATION_INFO.SET_CLIENT_INFO('');
+  DBMS_APPLICATION_INFO.SET_MODULE('','');
+  DBMS_APPLICATION_INFO.SET_ACTION('');
+  DBMS_APPLICATION_INFO.READ_CLIENT_INFO(V_CLIENT);
+  DBMS_APPLICATION_INFO.READ_MODULE(V_MODULE,V_ACTION);
+  IF NVL(LENGTHB(V_CLIENT),0) <> 0 OR NVL(LENGTHB(V_MODULE),0) <> 0
+    OR NVL(LENGTHB(V_ACTION),0) <> 0 THEN
+    RAISE_APPLICATION_ERROR(-20001,'EMPTY_RESET');
+  END IF;
+END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(5:2~5:39) /test/1/catalog1/DBMS_APPLICATION_INFO/SET_CLIENT_INFO/",
+      "action": "CALL",
+      "target": "ConfigKey(5:2~5:39) /test/1/CLIENT_INFO/"
+    },
+    {
+      "subject": "Procedure(6:2~6:34) /test/1/catalog1/DBMS_APPLICATION_INFO/SET_MODULE/",
+      "action": "CALL",
+      "target": [
+        "ConfigKey(6:2~6:34) /test/1/MODULE/",
+        "ConfigKey(6:2~6:34) /test/1/ACTION/"
+      ]
+    },
+    {
+      "subject": "Procedure(7:2~7:34) /test/1/catalog1/DBMS_APPLICATION_INFO/SET_ACTION/",
+      "action": "CALL",
+      "target": "ConfigKey(7:2~7:34) /test/1/ACTION/"
+    },
+    {
+      "subject": "Procedure(8:2~8:40) /test/1/catalog1/DBMS_APPLICATION_INFO/READ_CLIENT_INFO/",
+      "action": "CALL",
+      "target": "ConfigKey(8:2~8:40) /test/1/CLIENT_INFO/"
+    },
+    {
+      "subject": "Procedure(9:2~9:35) /test/1/catalog1/DBMS_APPLICATION_INFO/READ_MODULE/",
+      "action": "CALL",
+      "target": [
+        "ConfigKey(9:2~9:35) /test/1/MODULE/",
+        "ConfigKey(9:2~9:35) /test/1/ACTION/"
+      ]
+    },
+    {
+      "subject": "Procedure(12:4~12:27) /test/1/catalog1/schema1/RAISE_APPLICATION_ERROR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(10:5~10:8) /test/1/catalog1/schema1/NVL/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(10:9~10:16) /test/1/catalog1/schema1/LENGTHB/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(10:38~10:41) /test/1/catalog1/schema1/NVL/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(10:42~10:49) /test/1/catalog1/schema1/LENGTHB/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(11:7~11:10) /test/1/catalog1/schema1/NVL/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(11:11~11:18) /test/1/catalog1/schema1/LENGTHB/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_application_info_signature_combinations_0_004]
+sql:
+-- PUBLIC_BYTE_MAXIMA
+DECLARE
+  V_CLIENT VARCHAR2(128); V_MODULE VARCHAR2(128); V_ACTION VARCHAR2(128);
+BEGIN
+  DBMS_APPLICATION_INFO.SET_CLIENT_INFO(REPEAT('C',64));
+  DBMS_APPLICATION_INFO.SET_MODULE(REPEAT('M',48),REPEAT('A',32));
+  DBMS_APPLICATION_INFO.READ_CLIENT_INFO(V_CLIENT);
+  DBMS_APPLICATION_INFO.READ_MODULE(V_MODULE,V_ACTION);
+  IF LENGTHB(V_CLIENT) <> 64 OR LENGTHB(V_MODULE) <> 48 OR LENGTHB(V_ACTION) <> 32 THEN
+    RAISE_APPLICATION_ERROR(-20001,'PUBLIC_MAXIMA');
+  END IF;
+END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(5:2~5:39) /test/1/catalog1/DBMS_APPLICATION_INFO/SET_CLIENT_INFO/",
+      "action": "CALL",
+      "target": "ConfigKey(5:2~5:39) /test/1/CLIENT_INFO/"
+    },
+    {
+      "subject": "Function(5:40~5:46) /test/1/catalog1/schema1/REPEAT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(6:2~6:34) /test/1/catalog1/DBMS_APPLICATION_INFO/SET_MODULE/",
+      "action": "CALL",
+      "target": [
+        "ConfigKey(6:2~6:34) /test/1/MODULE/",
+        "ConfigKey(6:2~6:34) /test/1/ACTION/"
+      ]
+    },
+    {
+      "subject": "Function(6:35~6:41) /test/1/catalog1/schema1/REPEAT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(6:50~6:56) /test/1/catalog1/schema1/REPEAT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(7:2~7:40) /test/1/catalog1/DBMS_APPLICATION_INFO/READ_CLIENT_INFO/",
+      "action": "CALL",
+      "target": "ConfigKey(7:2~7:40) /test/1/CLIENT_INFO/"
+    },
+    {
+      "subject": "Procedure(8:2~8:35) /test/1/catalog1/DBMS_APPLICATION_INFO/READ_MODULE/",
+      "action": "CALL",
+      "target": [
+        "ConfigKey(8:2~8:35) /test/1/MODULE/",
+        "ConfigKey(8:2~8:35) /test/1/ACTION/"
+      ]
+    },
+    {
+      "subject": "Procedure(10:4~10:27) /test/1/catalog1/schema1/RAISE_APPLICATION_ERROR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(9:5~9:12) /test/1/catalog1/schema1/LENGTHB/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(9:32~9:39) /test/1/catalog1/schema1/LENGTHB/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(9:59~9:66) /test/1/catalog1/schema1/LENGTHB/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_application_info_signature_combinations_0_005]
+sql:
+-- ADJACENT_TRUNCATION
+DECLARE
+  V_CLIENT VARCHAR2(128); V_MODULE VARCHAR2(128); V_ACTION VARCHAR2(128);
+BEGIN
+  DBMS_APPLICATION_INFO.SET_CLIENT_INFO(REPEAT('C',65));
+  DBMS_APPLICATION_INFO.SET_MODULE(REPEAT('M',49),REPEAT('A',33));
+  DBMS_APPLICATION_INFO.READ_CLIENT_INFO(V_CLIENT);
+  DBMS_APPLICATION_INFO.READ_MODULE(V_MODULE,V_ACTION);
+  IF LENGTHB(V_CLIENT) <> 64 OR LENGTHB(V_MODULE) <> 48 OR LENGTHB(V_ACTION) <> 32 THEN
+    RAISE_APPLICATION_ERROR(-20001,'ADJACENT_TRUNCATION');
+  END IF;
+END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(5:2~5:39) /test/1/catalog1/DBMS_APPLICATION_INFO/SET_CLIENT_INFO/",
+      "action": "CALL",
+      "target": "ConfigKey(5:2~5:39) /test/1/CLIENT_INFO/"
+    },
+    {
+      "subject": "Function(5:40~5:46) /test/1/catalog1/schema1/REPEAT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(6:2~6:34) /test/1/catalog1/DBMS_APPLICATION_INFO/SET_MODULE/",
+      "action": "CALL",
+      "target": [
+        "ConfigKey(6:2~6:34) /test/1/MODULE/",
+        "ConfigKey(6:2~6:34) /test/1/ACTION/"
+      ]
+    },
+    {
+      "subject": "Function(6:35~6:41) /test/1/catalog1/schema1/REPEAT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(6:50~6:56) /test/1/catalog1/schema1/REPEAT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(7:2~7:40) /test/1/catalog1/DBMS_APPLICATION_INFO/READ_CLIENT_INFO/",
+      "action": "CALL",
+      "target": "ConfigKey(7:2~7:40) /test/1/CLIENT_INFO/"
+    },
+    {
+      "subject": "Procedure(8:2~8:35) /test/1/catalog1/DBMS_APPLICATION_INFO/READ_MODULE/",
+      "action": "CALL",
+      "target": [
+        "ConfigKey(8:2~8:35) /test/1/MODULE/",
+        "ConfigKey(8:2~8:35) /test/1/ACTION/"
+      ]
+    },
+    {
+      "subject": "Procedure(10:4~10:27) /test/1/catalog1/schema1/RAISE_APPLICATION_ERROR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(9:5~9:12) /test/1/catalog1/schema1/LENGTHB/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(9:32~9:39) /test/1/catalog1/schema1/LENGTHB/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(9:59~9:66) /test/1/catalog1/schema1/LENGTHB/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_application_info_signature_combinations_0_006]
+sql:
+-- ACTION_OVERRIDE
+DECLARE
+  V_MODULE VARCHAR2(128); V_ACTION VARCHAR2(128);
+BEGIN
+  DBMS_APPLICATION_INFO.SET_MODULE('MODULE','ACTION_1');
+  DBMS_APPLICATION_INFO.SET_ACTION('ACTION_2');
+  DBMS_APPLICATION_INFO.READ_MODULE(V_MODULE,V_ACTION);
+  IF V_MODULE <> 'MODULE' OR V_ACTION <> 'ACTION_2' THEN
+    RAISE_APPLICATION_ERROR(-20001,'ACTION_OVERRIDE');
+  END IF;
+END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(5:2~5:34) /test/1/catalog1/DBMS_APPLICATION_INFO/SET_MODULE/",
+      "action": "CALL",
+      "target": [
+        "ConfigKey(5:2~5:34) /test/1/MODULE/",
+        "ConfigKey(5:2~5:34) /test/1/ACTION/"
+      ]
+    },
+    {
+      "subject": "Procedure(6:2~6:34) /test/1/catalog1/DBMS_APPLICATION_INFO/SET_ACTION/",
+      "action": "CALL",
+      "target": "ConfigKey(6:2~6:34) /test/1/ACTION/"
+    },
+    {
+      "subject": "Procedure(7:2~7:35) /test/1/catalog1/DBMS_APPLICATION_INFO/READ_MODULE/",
+      "action": "CALL",
+      "target": [
+        "ConfigKey(7:2~7:35) /test/1/MODULE/",
+        "ConfigKey(7:2~7:35) /test/1/ACTION/"
+      ]
+    },
+    {
+      "subject": "Procedure(9:4~9:27) /test/1/catalog1/schema1/RAISE_APPLICATION_ERROR/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_application_info_signature_combinations_0_007]
+sql:
+-- MODULE_TRANSITION
+DECLARE
+  V_MODULE VARCHAR2(128); V_ACTION VARCHAR2(128);
+BEGIN
+  DBMS_APPLICATION_INFO.SET_MODULE('MODULE_1','ACTION_1');
+  DBMS_APPLICATION_INFO.SET_MODULE('MODULE_2',NULL);
+  DBMS_APPLICATION_INFO.READ_MODULE(V_MODULE,V_ACTION);
+  IF V_MODULE <> 'MODULE_2' OR NVL(LENGTHB(V_ACTION),0) <> 0 THEN
+    RAISE_APPLICATION_ERROR(-20001,'MODULE_TRANSITION');
+  END IF;
+END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(5:2~5:34) /test/1/catalog1/DBMS_APPLICATION_INFO/SET_MODULE/",
+      "action": "CALL",
+      "target": [
+        "ConfigKey(5:2~5:34) /test/1/MODULE/",
+        "ConfigKey(5:2~5:34) /test/1/ACTION/"
+      ]
+    },
+    {
+      "subject": "Procedure(6:2~6:34) /test/1/catalog1/DBMS_APPLICATION_INFO/SET_MODULE/",
+      "action": "CALL",
+      "target": [
+        "ConfigKey(6:2~6:34) /test/1/MODULE/",
+        "ConfigKey(6:2~6:34) /test/1/ACTION/"
+      ]
+    },
+    {
+      "subject": "Procedure(7:2~7:35) /test/1/catalog1/DBMS_APPLICATION_INFO/READ_MODULE/",
+      "action": "CALL",
+      "target": [
+        "ConfigKey(7:2~7:35) /test/1/MODULE/",
+        "ConfigKey(7:2~7:35) /test/1/ACTION/"
+      ]
+    },
+    {
+      "subject": "Procedure(9:4~9:27) /test/1/catalog1/schema1/RAISE_APPLICATION_ERROR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(8:31~8:34) /test/1/catalog1/schema1/NVL/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(8:35~8:42) /test/1/catalog1/schema1/LENGTHB/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_application_info_signature_combinations_0_008]
+sql:
+-- INITIAL_READ
+DECLARE
+  V_CLIENT VARCHAR2(128); V_MODULE VARCHAR2(128); V_ACTION VARCHAR2(128);
+BEGIN
+  DBMS_APPLICATION_INFO.READ_CLIENT_INFO(V_CLIENT);
+  DBMS_APPLICATION_INFO.READ_MODULE(V_MODULE,V_ACTION);
+  IF NVL(LENGTHB(V_CLIENT),0) <> 0 OR NVL(LENGTHB(V_MODULE),0) <> 0
+    OR NVL(LENGTHB(V_ACTION),0) <> 0 THEN
+    RAISE_APPLICATION_ERROR(-20001,'INITIAL_READ');
+  END IF;
+END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(5:2~5:40) /test/1/catalog1/DBMS_APPLICATION_INFO/READ_CLIENT_INFO/",
+      "action": "CALL",
+      "target": "ConfigKey(5:2~5:40) /test/1/CLIENT_INFO/"
+    },
+    {
+      "subject": "Procedure(6:2~6:35) /test/1/catalog1/DBMS_APPLICATION_INFO/READ_MODULE/",
+      "action": "CALL",
+      "target": [
+        "ConfigKey(6:2~6:35) /test/1/MODULE/",
+        "ConfigKey(6:2~6:35) /test/1/ACTION/"
+      ]
+    },
+    {
+      "subject": "Procedure(9:4~9:27) /test/1/catalog1/schema1/RAISE_APPLICATION_ERROR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(7:5~7:8) /test/1/catalog1/schema1/NVL/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(7:9~7:16) /test/1/catalog1/schema1/LENGTHB/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(7:38~7:41) /test/1/catalog1/schema1/NVL/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(7:42~7:49) /test/1/catalog1/schema1/LENGTHB/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(8:7~8:10) /test/1/catalog1/schema1/NVL/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(8:11~8:18) /test/1/catalog1/schema1/LENGTHB/",
+      "action": "CALL"
+    }
+  ]
+}
+

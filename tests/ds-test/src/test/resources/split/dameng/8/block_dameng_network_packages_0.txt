@@ -1,0 +1,120 @@
+declare request_value utl_http.req; response_value utl_http.resp; body_value varchar(32767); begin request_value := utl_http.begin_request('http://host.docker.internal:18080/dm8?case=context'); response_value := utl_http.get_response(request_value); utl_http.read_text(response_value, body_value, 32767); utl_http.end_response(response_value); end;
+/
+declare request_value utl_http.req; response_value utl_http.resp; body_value varchar(32767); begin request_value := utl_http.begin_request('http://host.docker.internal:18080/dm8?case=header'); utl_http.set_header(request_value, 'X-DM8-Case', 'HEADER_OK'); response_value := utl_http.get_response(request_value); utl_http.read_line(response_value, body_value, true); utl_http.end_response(response_value); end;
+/
+declare request_value utl_http.req; response_value utl_http.resp; body_value varchar(32767); begin request_value := utl_http.begin_request('http://host.docker.internal:18080/dm8', 'POST', 'HTTP/1.1'); utl_http.set_header(request_value, 'Content-Length', '13'); utl_http.write_text(request_value, 'DM8_HTTP_POST'); response_value := utl_http.get_response(request_value); utl_http.read_text(response_value, body_value); utl_http.end_response(response_value); end;
+/
+declare request_value utl_http.req; response_value utl_http.resp; body_value varbinary(32767); begin request_value := utl_http.begin_request('http://host.docker.internal:18080/dm8?case=raw'); response_value := utl_http.get_response(request_value); utl_http.read_raw(response_value, body_value, 32767); utl_http.end_response(response_value); end;
+/
+declare request_value utl_http.req; response_value utl_http.resp; header_count int; header_name varchar(32767); header_value varchar(32767); begin request_value := utl_http.begin_request('http://host.docker.internal:18080/dm8?case=headers'); response_value := utl_http.get_response(request_value); header_count := utl_http.get_header_count(response_value); utl_http.get_header(response_value, 1, header_name, header_value); utl_http.end_response(response_value); end;
+/
+declare request_value utl_http.req; response_value utl_http.resp; header_value varchar(32767); begin request_value := utl_http.begin_request('http://host.docker.internal:18080/dm8?case=header-name'); response_value := utl_http.get_response(request_value); utl_http.get_header_by_name(response_value, 'X-DM8-Protocol-Test', header_value); utl_http.end_response(response_value); end;
+/
+declare request_value utl_http.req; response_value utl_http.resp; body_value varchar(32767); begin utl_http.set_body_charset('UTF-8'); request_value := utl_http.begin_request('http://host.docker.internal:18080/dm8?case=charset'); utl_http.set_body_charset(request_value, 'UTF-8'); response_value := utl_http.get_response(request_value); utl_http.set_body_charset(response_value, 'UTF-8'); utl_http.read_text(response_value, body_value); utl_http.end_response(response_value); end;
+/
+declare request_value utl_http.req; response_value utl_http.resp; begin utl_http.set_transfer_timeout(5); request_value := utl_http.begin_request('http://host.docker.internal:18080/dm8?case=timeout'); utl_http.set_transfer_timeout(request_value, 5); response_value := utl_http.get_response(request_value); utl_http.end_response(response_value); end;
+/
+declare enabled_value boolean; begin utl_http.set_detailed_excp_support(true); utl_http.get_detailed_excp_support(enabled_value); utl_http.set_detailed_excp_support(false); end;
+/
+declare code_value int; message_value varchar(32767); begin utl_http.set_response_error_check(false); code_value := utl_http.get_detailed_sqlcode(); message_value := utl_http.get_detailed_sqlerrm(); end;
+/
+declare enabled_value boolean; max_connections int; begin utl_http.set_persistent_conn_support(true, 2); utl_http.get_persistent_conn_support(enabled_value, max_connections); utl_http.set_persistent_conn_support(false, 0); end;
+/
+begin utl_http.close_persistent_conns('host.docker.internal', 18080, null, null, false); end;
+/
+declare connection_value utl_tcp.connection; greeting_value varchar(128); begin connection_value := utl_tcp.open_connection('host.docker.internal', 18081, tx_timeout => 5); greeting_value := utl_tcp.get_line(connection_value, true); utl_tcp.close_connection(connection_value); end;
+/
+declare connection_value utl_tcp.connection; greeting_value varchar(128); reply_value varchar(128); written_value int; begin connection_value := utl_tcp.open_connection('host.docker.internal', 18081, tx_timeout => 5); greeting_value := utl_tcp.get_line(connection_value, true); written_value := utl_tcp.write_line(connection_value, 'DM8_TCP_LINE'); reply_value := utl_tcp.get_line(connection_value, true); utl_tcp.close_connection(connection_value); end;
+/
+declare connection_value utl_tcp.connection; greeting_value varchar(128); reply_value varchar(128); written_value int; begin connection_value := utl_tcp.open_connection('host.docker.internal', 18081, tx_timeout => 5); greeting_value := utl_tcp.get_line(connection_value, true); written_value := utl_tcp.write_text(connection_value, 'DM8_TCP_TEXT' || utl_tcp.crlf); utl_tcp.flush(connection_value); reply_value := utl_tcp.get_text(connection_value, 19); utl_tcp.close_connection(connection_value); end;
+/
+declare connection_value utl_tcp.connection; greeting_value varchar(128); reply_value varbinary(32767); written_value int; read_value int; begin connection_value := utl_tcp.open_connection('host.docker.internal', 18081, tx_timeout => 5); greeting_value := utl_tcp.get_line(connection_value, true); written_value := utl_tcp.write_raw(connection_value, cast('444D385F5443505F5241570D0A' as varbinary(64))); read_value := utl_tcp.read_raw(connection_value, reply_value, 18); utl_tcp.close_connection(connection_value); end;
+/
+declare connection_value utl_tcp.connection; available_value int; greeting_value varchar(128); begin connection_value := utl_tcp.open_connection('host.docker.internal', 18081, tx_timeout => 5); available_value := utl_tcp.available(connection_value, 1); greeting_value := utl_tcp.get_text(connection_value, available_value); utl_tcp.close_connection(connection_value); end;
+/
+declare connection_value utl_tcp.connection; greeting_value varbinary(32767); begin connection_value := utl_tcp.open_connection('host.docker.internal', 18081, tx_timeout => 5); greeting_value := utl_tcp.get_raw(connection_value, 13, true); greeting_value := utl_tcp.get_raw(connection_value, 13, false); utl_tcp.close_connection(connection_value); end;
+/
+begin utl_tcp.close_all_connection(); end;
+/
+begin utl_tcp.close_all_connections(); end;
+/
+declare connection_value utl_tcp.connection; greeting_value varchar(128); begin connection_value := utl_tcp.open_connection(remote_host => 'host.docker.internal', remote_port => 18081, charset => 'UTF-8', newline => utl_tcp.crlf, tx_timeout => 5); greeting_value := utl_tcp.get_line(connection_value, true); utl_tcp.close_connection(connection_value); end;
+/
+declare connection_value utl_smtp.connection; begin connection_value := utl_smtp.open_connection('host.docker.internal', 18025, 5); utl_smtp.helo(connection_value, 'dm8.local'); utl_smtp.mail(connection_value, 'sender@dm8.local'); utl_smtp.rcpt(connection_value, 'receiver@dm8.local'); utl_smtp.open_data(connection_value); utl_smtp.write_data(connection_value, 'DM8_SMTP_PROCEDURE'); utl_smtp.close_data(connection_value); utl_smtp.quit(connection_value); end;
+/
+declare connection_value utl_smtp.connection; reply_value utl_smtp.reply; begin connection_value := utl_smtp.open_connection('host.docker.internal', 18025, 5); reply_value := utl_smtp.helo(connection_value, 'dm8.local'); reply_value := utl_smtp.quit(connection_value); end;
+/
+declare connection_value utl_smtp.connection; replies_value utl_smtp.replies; reply_value utl_smtp.reply; begin connection_value := utl_smtp.open_connection('host.docker.internal', 18025, 5); replies_value := utl_smtp.ehlo(connection_value, 'dm8.local'); reply_value := utl_smtp.quit(connection_value); end;
+/
+declare connection_value utl_smtp.connection; reply_value utl_smtp.reply; begin connection_value := utl_smtp.open_connection('host.docker.internal', 18025, 5); reply_value := utl_smtp.command(connection_value, 'NOOP'); reply_value := utl_smtp.quit(connection_value); end;
+/
+declare connection_value utl_smtp.connection; begin connection_value := utl_smtp.open_connection('host.docker.internal', 18025, 5); utl_smtp.helo(connection_value, 'dm8.local'); utl_smtp.mail(connection_value, 'sender@dm8.local'); utl_smtp.rcpt(connection_value, 'receiver@dm8.local'); utl_smtp.open_data(connection_value); utl_smtp.write_raw_data(connection_value, cast('444D385F534D54505F524157' as varbinary(64))); utl_smtp.close_data(connection_value); utl_smtp.quit(connection_value); end;
+/
+declare connection_value utl_smtp.connection; begin connection_value := utl_smtp.open_connection('host.docker.internal', 18025, 5); utl_smtp.close_connection(connection_value); end;
+/
+begin utl_mail.init('host.docker.internal', 18025, 'sender@dm8.local', 'dm8-password'); utl_mail.send('sender@dm8.local', 'receiver@dm8.local', subject => 'DM8_MAIL_TEXT', message => 'DM8_MAIL_TEXT_BODY'); end;
+/
+declare attachment_value blob; begin dbms_lob.createtemporary(attachment_value, true); dbms_lob.writeappend(attachment_value, 4, cast('434F4445' as varbinary(16))); utl_mail.init('host.docker.internal', 18025, 'sender@dm8.local', 'dm8-password'); utl_mail.send_attach_raw('sender@dm8.local', 'receiver@dm8.local', subject => 'DM8_MAIL_ATTACHMENT', message => 'DM8_MAIL_ATTACHMENT_BODY', attachment => attachment_value, att_inline => false, att_filename => 'codex.bin'); dbms_lob.freetemporary(attachment_value); end;
+/
+begin utl_mail.init('host.docker.internal', 18025, 'sender@dm8.local', 'dm8-password'); end;
+/
+------------------------------------------------------------------------------------------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare request_value utl_http.req; response_value utl_http.resp; body_value varchar(32767); begin request_value := utl_http.begin_request('http://host.docker.internal:18080/dm8?case=context'); response_value := utl_http.get_response(request_value); utl_http.read_text(response_value, body_value, 32767); utl_http.end_response(response_value); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare request_value utl_http.req; response_value utl_http.resp; body_value varchar(32767); begin request_value := utl_http.begin_request('http://host.docker.internal:18080/dm8?case=header'); utl_http.set_header(request_value, 'X-DM8-Case', 'HEADER_OK'); response_value := utl_http.get_response(request_value); utl_http.read_line(response_value, body_value, true); utl_http.end_response(response_value); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare request_value utl_http.req; response_value utl_http.resp; body_value varchar(32767); begin request_value := utl_http.begin_request('http://host.docker.internal:18080/dm8', 'POST', 'HTTP/1.1'); utl_http.set_header(request_value, 'Content-Length', '13'); utl_http.write_text(request_value, 'DM8_HTTP_POST'); response_value := utl_http.get_response(request_value); utl_http.read_text(response_value, body_value); utl_http.end_response(response_value); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare request_value utl_http.req; response_value utl_http.resp; body_value varbinary(32767); begin request_value := utl_http.begin_request('http://host.docker.internal:18080/dm8?case=raw'); response_value := utl_http.get_response(request_value); utl_http.read_raw(response_value, body_value, 32767); utl_http.end_response(response_value); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare request_value utl_http.req; response_value utl_http.resp; header_count int; header_name varchar(32767); header_value varchar(32767); begin request_value := utl_http.begin_request('http://host.docker.internal:18080/dm8?case=headers'); response_value := utl_http.get_response(request_value); header_count := utl_http.get_header_count(response_value); utl_http.get_header(response_value, 1, header_name, header_value); utl_http.end_response(response_value); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare request_value utl_http.req; response_value utl_http.resp; header_value varchar(32767); begin request_value := utl_http.begin_request('http://host.docker.internal:18080/dm8?case=header-name'); response_value := utl_http.get_response(request_value); utl_http.get_header_by_name(response_value, 'X-DM8-Protocol-Test', header_value); utl_http.end_response(response_value); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare request_value utl_http.req; response_value utl_http.resp; body_value varchar(32767); begin utl_http.set_body_charset('UTF-8'); request_value := utl_http.begin_request('http://host.docker.internal:18080/dm8?case=charset'); utl_http.set_body_charset(request_value, 'UTF-8'); response_value := utl_http.get_response(request_value); utl_http.set_body_charset(response_value, 'UTF-8'); utl_http.read_text(response_value, body_value); utl_http.end_response(response_value); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare request_value utl_http.req; response_value utl_http.resp; begin utl_http.set_transfer_timeout(5); request_value := utl_http.begin_request('http://host.docker.internal:18080/dm8?case=timeout'); utl_http.set_transfer_timeout(request_value, 5); response_value := utl_http.get_response(request_value); utl_http.end_response(response_value); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare enabled_value boolean; begin utl_http.set_detailed_excp_support(true); utl_http.get_detailed_excp_support(enabled_value); utl_http.set_detailed_excp_support(false); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare code_value int; message_value varchar(32767); begin utl_http.set_response_error_check(false); code_value := utl_http.get_detailed_sqlcode(); message_value := utl_http.get_detailed_sqlerrm(); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare enabled_value boolean; max_connections int; begin utl_http.set_persistent_conn_support(true, 2); utl_http.get_persistent_conn_support(enabled_value, max_connections); utl_http.set_persistent_conn_support(false, 0); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin utl_http.close_persistent_conns('host.docker.internal', 18080, null, null, false); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare connection_value utl_tcp.connection; greeting_value varchar(128); begin connection_value := utl_tcp.open_connection('host.docker.internal', 18081, tx_timeout => 5); greeting_value := utl_tcp.get_line(connection_value, true); utl_tcp.close_connection(connection_value); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare connection_value utl_tcp.connection; greeting_value varchar(128); reply_value varchar(128); written_value int; begin connection_value := utl_tcp.open_connection('host.docker.internal', 18081, tx_timeout => 5); greeting_value := utl_tcp.get_line(connection_value, true); written_value := utl_tcp.write_line(connection_value, 'DM8_TCP_LINE'); reply_value := utl_tcp.get_line(connection_value, true); utl_tcp.close_connection(connection_value); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare connection_value utl_tcp.connection; greeting_value varchar(128); reply_value varchar(128); written_value int; begin connection_value := utl_tcp.open_connection('host.docker.internal', 18081, tx_timeout => 5); greeting_value := utl_tcp.get_line(connection_value, true); written_value := utl_tcp.write_text(connection_value, 'DM8_TCP_TEXT' || utl_tcp.crlf); utl_tcp.flush(connection_value); reply_value := utl_tcp.get_text(connection_value, 19); utl_tcp.close_connection(connection_value); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare connection_value utl_tcp.connection; greeting_value varchar(128); reply_value varbinary(32767); written_value int; read_value int; begin connection_value := utl_tcp.open_connection('host.docker.internal', 18081, tx_timeout => 5); greeting_value := utl_tcp.get_line(connection_value, true); written_value := utl_tcp.write_raw(connection_value, cast('444D385F5443505F5241570D0A' as varbinary(64))); read_value := utl_tcp.read_raw(connection_value, reply_value, 18); utl_tcp.close_connection(connection_value); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare connection_value utl_tcp.connection; available_value int; greeting_value varchar(128); begin connection_value := utl_tcp.open_connection('host.docker.internal', 18081, tx_timeout => 5); available_value := utl_tcp.available(connection_value, 1); greeting_value := utl_tcp.get_text(connection_value, available_value); utl_tcp.close_connection(connection_value); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare connection_value utl_tcp.connection; greeting_value varbinary(32767); begin connection_value := utl_tcp.open_connection('host.docker.internal', 18081, tx_timeout => 5); greeting_value := utl_tcp.get_raw(connection_value, 13, true); greeting_value := utl_tcp.get_raw(connection_value, 13, false); utl_tcp.close_connection(connection_value); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin utl_tcp.close_all_connection(); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin utl_tcp.close_all_connections(); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare connection_value utl_tcp.connection; greeting_value varchar(128); begin connection_value := utl_tcp.open_connection(remote_host => 'host.docker.internal', remote_port => 18081, charset => 'UTF-8', newline => utl_tcp.crlf, tx_timeout => 5); greeting_value := utl_tcp.get_line(connection_value, true); utl_tcp.close_connection(connection_value); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare connection_value utl_smtp.connection; begin connection_value := utl_smtp.open_connection('host.docker.internal', 18025, 5); utl_smtp.helo(connection_value, 'dm8.local'); utl_smtp.mail(connection_value, 'sender@dm8.local'); utl_smtp.rcpt(connection_value, 'receiver@dm8.local'); utl_smtp.open_data(connection_value); utl_smtp.write_data(connection_value, 'DM8_SMTP_PROCEDURE'); utl_smtp.close_data(connection_value); utl_smtp.quit(connection_value); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare connection_value utl_smtp.connection; reply_value utl_smtp.reply; begin connection_value := utl_smtp.open_connection('host.docker.internal', 18025, 5); reply_value := utl_smtp.helo(connection_value, 'dm8.local'); reply_value := utl_smtp.quit(connection_value); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare connection_value utl_smtp.connection; replies_value utl_smtp.replies; reply_value utl_smtp.reply; begin connection_value := utl_smtp.open_connection('host.docker.internal', 18025, 5); replies_value := utl_smtp.ehlo(connection_value, 'dm8.local'); reply_value := utl_smtp.quit(connection_value); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare connection_value utl_smtp.connection; reply_value utl_smtp.reply; begin connection_value := utl_smtp.open_connection('host.docker.internal', 18025, 5); reply_value := utl_smtp.command(connection_value, 'NOOP'); reply_value := utl_smtp.quit(connection_value); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare connection_value utl_smtp.connection; begin connection_value := utl_smtp.open_connection('host.docker.internal', 18025, 5); utl_smtp.helo(connection_value, 'dm8.local'); utl_smtp.mail(connection_value, 'sender@dm8.local'); utl_smtp.rcpt(connection_value, 'receiver@dm8.local'); utl_smtp.open_data(connection_value); utl_smtp.write_raw_data(connection_value, cast('444D385F534D54505F524157' as varbinary(64))); utl_smtp.close_data(connection_value); utl_smtp.quit(connection_value); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare connection_value utl_smtp.connection; begin connection_value := utl_smtp.open_connection('host.docker.internal', 18025, 5); utl_smtp.close_connection(connection_value); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin utl_mail.init('host.docker.internal', 18025, 'sender@dm8.local', 'dm8-password'); utl_mail.send('sender@dm8.local', 'receiver@dm8.local', subject => 'DM8_MAIL_TEXT', message => 'DM8_MAIL_TEXT_BODY'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare attachment_value blob; begin dbms_lob.createtemporary(attachment_value, true); dbms_lob.writeappend(attachment_value, 4, cast('434F4445' as varbinary(16))); utl_mail.init('host.docker.internal', 18025, 'sender@dm8.local', 'dm8-password'); utl_mail.send_attach_raw('sender@dm8.local', 'receiver@dm8.local', subject => 'DM8_MAIL_ATTACHMENT', message => 'DM8_MAIL_ATTACHMENT_BODY', attachment => attachment_value, att_inline => false, att_filename => 'codex.bin'); dbms_lob.freetemporary(attachment_value); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin utl_mail.init('host.docker.internal', 18025, 'sender@dm8.local', 'dm8-password'); end;

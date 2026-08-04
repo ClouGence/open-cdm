@@ -1,0 +1,285 @@
+UPDATE assignment_t SET c1 = 2 WHERE c1 = @assign_where := 1;
+select * from test;
+select id, name from test where id > 10;
+select count(*) from test group by name having count(*) > 1;
+select a.id, b.name from test a join test2 b on a.id = b.id;
+select * from test order by id desc limit 10;
+select * from test where id in (select id from test2);
+insert into test (id, name) values (1, 'abc');
+insert into test values (1, 'abc');
+insert into test (id, name) values (1, 'a'), (2, 'b'), (3, 'c');
+insert into test (id, name) select id, name from test2;
+insert into test set id = 1, name = 'abc';
+replace into test (id, name) values (1, 'abc');
+replace into test set id = 1, name = 'abc';
+update test set name = 'abc' where id = 1;
+update test set name = 'abc', age = 20 where id = 1;
+update test a join test2 b on a.id = b.id set a.name = b.name;
+delete from test where id = 1;
+delete from test where id > 10 order by id limit 5;
+delete a from test a join test2 b on a.id = b.id;
+truncate table test;
+call sp_test();
+call sp_test(1, 'abc');
+WITH c AS (SELECT id, val FROM t2) UPDATE t1 JOIN c ON t1.id = c.id SET t1.val = c.val WHERE t1.id > 0;
+WITH c AS (SELECT id FROM t2 WHERE id < 0) DELETE a FROM t1 AS a JOIN c ON a.id = c.id;
+UPDATE split_derived_80common.u1 SET a=5 WHERE a IN (SELECT a FROM split_derived_80common.u2 ORDER BY (SELECT a FROM (SELECT SUM(a) FROM split_derived_80common.u1) AS dt));
+INSERT INTO split_derived_80common.ref_t(a,b) VALUES(999,(SELECT a UNION SELECT a));
+UPDATE (SELECT * FROM split_derived_80early.t1) AS d SET a=5;
+UPDATE (SELECT * FROM split_derived_80early.t1) AS d,split_derived_80early.t1 AS b SET d.a=5;
+DELETE FROM split_derived_dml57.t1 WHERE id IN (SELECT * FROM (SELECT id FROM split_derived_dml57.t1) AS dt);
+UPDATE split_derived_dml57.t1 SET d=NULL WHERE id IN (SELECT * FROM (SELECT id FROM split_derived_dml57.t1) AS dt);
+INSERT INTO split_derived_dml57.t1 SELECT id+10,d FROM split_derived_dml57.t1;
+INSERT INTO split_derived_dml57.t1 SELECT id+20,d FROM (SELECT * FROM split_derived_dml57.t1) AS dt;
+UPDATE split_derived_dml57.users SET position=(SELECT COUNT(pos)+1 FROM (SELECT DISTINCT position AS pos FROM split_derived_dml57.users) AS t2 WHERE t2.pos<users.position) WHERE id=3;
+UPDATE split_derived_dml57.users SET position=(SELECT COUNT(pos)+1 FROM (SELECT position AS pos FROM split_derived_dml57.users) AS t2 WHERE t2.pos<users.position) WHERE id=3;
+UPDATE split_derived_dml57.users,(SELECT 1) AS dummy SET position=(SELECT COUNT(pos)+1 FROM (SELECT DISTINCT position AS pos FROM split_derived_dml57.users) AS t2 WHERE t2.pos<users.position) WHERE id=3;
+UPDATE split_derived_dml57.users,(SELECT 1) AS dummy SET position=(SELECT COUNT(pos)+1 FROM (SELECT position AS pos FROM split_derived_dml57.users) AS t2 WHERE t2.pos<users.position) WHERE id=3;
+DELETE a,b FROM split_derived_dml57.t1 AS a LEFT JOIN split_derived_dml57.t2 AS b ON a.id=b.id WHERE a.id IN (SELECT * FROM (SELECT id FROM split_derived_dml57.t1) AS t1sub);
+UPDATE split_derived_dml57.tbl1 AS t1 INNER JOIN (SELECT a.id,a.rec_id,b.s_date FROM split_derived_dml57.tbl2 AS b,split_derived_dml57.tbl1 AS a WHERE a.id_value2=b.t_id AND a.id=1 ORDER BY s_date DESC) AS t2 ON t1.id=t2.id AND t1.rec_id=t2.rec_id SET t1.rec_id=@ROWNUM:=@ROWNUM+1;
+INSERT INTO split_distinct_native_a.facility_dst SELECT DISTINCT facility FROM split_distinct_native_a.facility_src;
+INSERT INTO t3 SELECT a,MAX(b) FROM t1 GROUP BY a;
+INSERT INTO t3 SELECT 1,(SELECT MAX(b) FROM t1 GROUP BY a HAVING a<2) FROM t1 LIMIT 1;
+DELETE FROM t3 WHERE (SELECT MAX(b) FROM t1 GROUP BY a HAVING a<2)>10000;
+DELETE FROM t3 WHERE (SELECT (SELECT MAX(b) FROM t1 GROUP BY a HAVING a<2) AS x FROM t1)>10000;
+UPDATE u1 AS A NATURAL JOIN u2 AS B SET B.a2=1;
+UPDATE jt AS a NATURAL JOIN jt AS b SET a.dummy='',b.col_check=NULL;
+UPDATE t SET b=3 LIMIT 0;
+DELETE FROM t LIMIT 0;
+INSERT INTO target_t SELECT 1 WHERE 1;
+REPLACE INTO target_t SELECT 1 WHERE 1;
+UPDATE /*+ INDEX(t1 i_a) */ split_opt_hints_index.t1 AS t1 SET d=2 WHERE a=1 AND b=2 AND c=3;
+DELETE /*+ INDEX(t1 i_a) */ FROM split_opt_hints_index.t1 WHERE a=100 AND b=2 AND c=3;
+UPDATE /*+ JOIN_ORDER(t2,t1) JOIN_FIXED_ORDER() */ t1 JOIN t2 ON t1.val=t2.val SET t1.f1=t2.f1 WHERE t2.id>100;
+UPDATE /*+ JOIN_SUFFIX(ta1,t2) */ t1 AS ta1 JOIN t1 AS ta2 ON ta1.f1=ta2.f1 RIGHT JOIN t2 ON ta1.f1=t2.f1 SET ta1.f2=ta1.f2,ta2.f3=ta2.f3 WHERE ('n','r') IN (SELECT f3,f3 FROM t3 WHERE f1<>f2);
+DELETE /*+ JOIN_PREFIX(t2,t3,ta2) JOIN_SUFFIX(t3,ta1) */ FROM ta1.* USING t1 AS ta1 JOIN t1 AS ta2 ON 1 RIGHT OUTER JOIN t2 ON ta1.val=t2.val WHERE 9 IN (SELECT val FROM t3);
+UPDATE /*+ NO_RANGE_OPTIMIZATION(t1 PRIMARY) */ split_opt_hints_native.t1 SET c='z' WHERE a BETWEEN 1 AND 2;
+DELETE /*+ NO_RANGE_OPTIMIZATION(t1 PRIMARY) NO_BNL(t2@sub_q) */ FROM split_opt_hints_native.t1 WHERE a IN (SELECT /*+ QB_NAME(sub_q) */ a FROM split_opt_hints_native.t2 AS t2 WHERE t2.b>10);
+INSERT /*+ NO_ICP(t2@src_q idx_ab) */ INTO split_opt_hints_native.t3(a,b,c) SELECT /*+ QB_NAME(src_q) */ t2.a+20,t2.b,t2.c FROM split_opt_hints_native.t2 AS t2;
+REPLACE /*+ NO_ICP(t2@src_q idx_ab) */ INTO split_opt_hints_native.t3(a,b,c) SELECT /*+ QB_NAME(src_q) */ t2.a+30,t2.b,t2.c FROM split_opt_hints_native.t2 AS t2;
+INSERT /*+ SET_VAR(auto_increment_increment=10) SET_VAR(auto_increment_offset=5) */ INTO t1 VALUES (3,'c') ON DUPLICATE KEY UPDATE f1=VALUES(f1);
+INSERT /*+ SET_VAR(foreign_key_checks=OFF) */ INTO t1 VALUES (4,'d') ON DUPLICATE KEY UPDATE f1=VALUES(f1);
+UPDATE /*+ SET_VAR(time_zone='UTC') */ t1 SET f1=TIMEDIFF(NOW(), UTC_TIMESTAMP()) WHERE id=1;
+DELETE /*+ SET_VAR(time_zone='UTC') */ FROM t1 WHERE id=999;
+REPLACE /*+ SET_VAR(unique_checks=OFF) */ INTO t1 VALUES (5,'e');
+INSERT /*+ SET_VAR(unique_checks=OFF) */ INTO t1 SELECT /*+ SET_VAR(sort_buffer_size=16M) */ id+100, f1 FROM t2;
+PREPARE stmt_set_var FROM 'SELECT /*+ SET_VAR(big_tables=on) */ 1';
+UPDATE t SET b=0 ORDER BY (a=@id),b LIMIT 1;
+INSERT INTO split_select_short.distinct_t (SELECT 'a','a','a','a111','xy1','' FROM split_select_short.t);
+REPLACE INTO split_select_short.distinct_t (SELECT 'a','a','a','a111','xy1','' FROM split_select_short.t);
+CALL query_rewrite.flush_rewrite_rules();
+INSERT INTO split_select_short.distinct_t (WITH RECURSIVE a(i) AS (SELECT 0 UNION ALL SELECT i+1 FROM a WHERE i<2), b(i) AS (SELECT x.i+y.i*10+z.i*100 FROM a AS x,a AS y,a AS z) SELECT 'b','a','a','a211','xy1','' FROM b);
+REPLACE INTO split_select_short.distinct_t (WITH RECURSIVE a(i) AS (SELECT 0 UNION ALL SELECT i+1 FROM a WHERE i<2) SELECT 'b','a','a','a211','xy1','' FROM a);
+DELETE x.*,y.* FROM split_subquery_base.t11a AS x,split_subquery_base.t12a AS y WHERE x.a=y.a AND x.b=(SELECT z.b FROM split_subquery_base.t2 AS z WHERE z.a=x.a);
+DELETE x.*,y.* FROM split_subquery_base.t11b AS x,split_subquery_base.t12b AS y WHERE x.a=y.a AND x.b=(SELECT z.b FROM split_subquery_base.t12b AS z WHERE z.a=x.a);
+INSERT INTO split_subquery_base.ins_t(x) SELECT (SELECT SUM(s.x)+2 FROM split_subquery_base.ins_t AS s) FROM split_subquery_base.t2;
+INSERT INTO split_subquery_base.ins_values(x) VALUES ((SELECT x FROM split_subquery_base.ins_values));
+REPLACE LOW_PRIORITY INTO split_subquery_base.rep_t(x,y) VALUES ((SELECT a FROM split_subquery_base.t2 WHERE a=1),(SELECT a+1 FROM split_subquery_base.t2 WHERE a=1));
+REPLACE INTO split_subquery_base.rep_self(x,y) VALUES ((SELECT x FROM split_subquery_base.rep_self),(SELECT a+1 FROM split_subquery_base.t2 WHERE a=1));
+DO @sq_a:=(SELECT a FROM split_subquery_next.var_t);
+SET @sq_a:=(SELECT a FROM split_subquery_next.var_t);
+UPDATE split_subquery_next.update_outer SET i=i+1 WHERE i=(SELECT MAX(i));
+DELETE FROM split_subquery_next.del_t1 WHERE topic IN (SELECT DISTINCT topic FROM split_subquery_next.del_t2 WHERE NOT EXISTS (SELECT * FROM split_subquery_next.del_t3 WHERE numeropost=topic));
+UPDATE split_subquery_next.update_nested SET i=i+(SELECT MAX(i) FROM (SELECT 1 AS i) AS d) WHERE i=(SELECT MAX(i));
+UPDATE split_subquery_next.mt1,split_subquery_next.mt2 SET mt2.name='lenka' WHERE mt2.id IN (SELECT id FROM split_subquery_next.mt1);
+UPDATE IGNORE split_subquery_next.u1 SET b=(SELECT b FROM split_subquery_next.u2 WHERE u1.a=u2.a);
+UPDATE split_table_derived.t1 AS o SET o.a=o.a*100 WHERE o.b<0 OR o.a IN(SELECT i.a+1 FROM split_table_derived.t2 AS i);
+UPDATE split_table_derived.t1 AS o,(SELECT 1) AS d SET o.a=o.a*100 WHERE o.b<0 OR o.a IN(SELECT i.a+1 FROM split_table_derived.t2 AS i);
+DELETE FROM split_table_derived.t1 WHERE t1.b<0 OR t1.a IN(SELECT i.a+1 FROM split_table_derived.t2 AS i);
+DELETE o.* FROM split_table_derived.t1 AS o,(SELECT 1) AS d WHERE o.b<0 OR o.a IN(SELECT i.a+1 FROM split_table_derived.t2 AS i);
+INSERT INTO t(a,b) SELECT a+1000,b FROM r UNION ALL SELECT a+2000,b FROM s;
+REPLACE INTO t(a,b) SELECT a+3000,b FROM r UNION ALL SELECT a+4000,b FROM s;
+INSERT INTO t(a,b) SELECT 20000,'x' UNION SELECT 20001,'y' ON DUPLICATE KEY UPDATE b='updated';
+PREPARE stmt1 FROM "SELECT a.i,(LAST_VALUE(a.i) OVER outer_window)=a.i FROM (SELECT LAG(i) OVER inner_window AS i_lag,i FROM split_window_bugs.t_prep WINDOW inner_window AS (ORDER BY i)) a WINDOW outer_window AS (ORDER BY a.i)";
+UPDATE split_window_context.t SET a=SUM(b) OVER ();
+DELETE FROM split_window_context.t WHERE SUM(b) OVER ()=10;
+------------------------------------------------------------------------------------------
+[UPDATE|SESSION_VARIABLE_RW] UPDATE assignment_t SET c1 = 2 WHERE c1 = @assign_where := 1;
+----------
+[SELECT] select * from test;
+----------
+[SELECT] select id, name from test where id > 10;
+----------
+[SELECT] select count(*) from test group by name having count(*) > 1;
+----------
+[SELECT] select a.id, b.name from test a join test2 b on a.id = b.id;
+----------
+[SELECT] select * from test order by id desc limit 10;
+----------
+[SELECT] select * from test where id in (select id from test2);
+----------
+[INSERT] insert into test (id, name) values (1, 'abc');
+----------
+[INSERT] insert into test values (1, 'abc');
+----------
+[INSERT] insert into test (id, name) values (1, 'a'), (2, 'b'), (3, 'c');
+----------
+[INSERT|SELECT] insert into test (id, name) select id, name from test2;
+----------
+[INSERT] insert into test set id = 1, name = 'abc';
+----------
+[MERGE] replace into test (id, name) values (1, 'abc');
+----------
+[MERGE] replace into test set id = 1, name = 'abc';
+----------
+[UPDATE] update test set name = 'abc' where id = 1;
+----------
+[UPDATE] update test set name = 'abc', age = 20 where id = 1;
+----------
+[UPDATE] update test a join test2 b on a.id = b.id set a.name = b.name;
+----------
+[DELETE] delete from test where id = 1;
+----------
+[DELETE] delete from test where id > 10 order by id limit 5;
+----------
+[DELETE] delete a from test a join test2 b on a.id = b.id;
+----------
+[TRUNCATE_TABLE] truncate table test;
+----------
+[CALL_PROG_OBJ] call sp_test();
+----------
+[CALL_PROG_OBJ] call sp_test(1, 'abc');
+----------
+[UPDATE|SELECT] WITH c AS (SELECT id, val FROM t2) UPDATE t1 JOIN c ON t1.id = c.id SET t1.val = c.val WHERE t1.id > 0;
+----------
+[DELETE|SELECT] WITH c AS (SELECT id FROM t2 WHERE id < 0) DELETE a FROM t1 AS a JOIN c ON a.id = c.id;
+----------
+[UPDATE|SELECT] UPDATE split_derived_80common.u1 SET a=5 WHERE a IN (SELECT a FROM split_derived_80common.u2 ORDER BY (SELECT a FROM (SELECT SUM(a) FROM split_derived_80common.u1) AS dt));
+----------
+[INSERT|SELECT] INSERT INTO split_derived_80common.ref_t(a,b) VALUES(999,(SELECT a UNION SELECT a));
+----------
+[UPDATE|SELECT] UPDATE (SELECT * FROM split_derived_80early.t1) AS d SET a=5;
+----------
+[UPDATE|SELECT] UPDATE (SELECT * FROM split_derived_80early.t1) AS d,split_derived_80early.t1 AS b SET d.a=5;
+----------
+[DELETE|SELECT] DELETE FROM split_derived_dml57.t1 WHERE id IN (SELECT * FROM (SELECT id FROM split_derived_dml57.t1) AS dt);
+----------
+[UPDATE|SELECT] UPDATE split_derived_dml57.t1 SET d=NULL WHERE id IN (SELECT * FROM (SELECT id FROM split_derived_dml57.t1) AS dt);
+----------
+[INSERT|SELECT] INSERT INTO split_derived_dml57.t1 SELECT id+10,d FROM split_derived_dml57.t1;
+----------
+[INSERT|SELECT] INSERT INTO split_derived_dml57.t1 SELECT id+20,d FROM (SELECT * FROM split_derived_dml57.t1) AS dt;
+----------
+[UPDATE|SELECT] UPDATE split_derived_dml57.users SET position=(SELECT COUNT(pos)+1 FROM (SELECT DISTINCT position AS pos FROM split_derived_dml57.users) AS t2 WHERE t2.pos<users.position) WHERE id=3;
+----------
+[UPDATE|SELECT] UPDATE split_derived_dml57.users SET position=(SELECT COUNT(pos)+1 FROM (SELECT position AS pos FROM split_derived_dml57.users) AS t2 WHERE t2.pos<users.position) WHERE id=3;
+----------
+[UPDATE|SELECT] UPDATE split_derived_dml57.users,(SELECT 1) AS dummy SET position=(SELECT COUNT(pos)+1 FROM (SELECT DISTINCT position AS pos FROM split_derived_dml57.users) AS t2 WHERE t2.pos<users.position) WHERE id=3;
+----------
+[UPDATE|SELECT] UPDATE split_derived_dml57.users,(SELECT 1) AS dummy SET position=(SELECT COUNT(pos)+1 FROM (SELECT position AS pos FROM split_derived_dml57.users) AS t2 WHERE t2.pos<users.position) WHERE id=3;
+----------
+[DELETE|SELECT] DELETE a,b FROM split_derived_dml57.t1 AS a LEFT JOIN split_derived_dml57.t2 AS b ON a.id=b.id WHERE a.id IN (SELECT * FROM (SELECT id FROM split_derived_dml57.t1) AS t1sub);
+----------
+[UPDATE|SELECT|SESSION_VARIABLE_RW] UPDATE split_derived_dml57.tbl1 AS t1 INNER JOIN (SELECT a.id,a.rec_id,b.s_date FROM split_derived_dml57.tbl2 AS b,split_derived_dml57.tbl1 AS a WHERE a.id_value2=b.t_id AND a.id=1 ORDER BY s_date DESC) AS t2 ON t1.id=t2.id AND t1.rec_id=t2.rec_id SET t1.rec_id=@ROWNUM:=@ROWNUM+1;
+----------
+[INSERT|SELECT] INSERT INTO split_distinct_native_a.facility_dst SELECT DISTINCT facility FROM split_distinct_native_a.facility_src;
+----------
+[INSERT|SELECT] INSERT INTO t3 SELECT a,MAX(b) FROM t1 GROUP BY a;
+----------
+[INSERT|SELECT] INSERT INTO t3 SELECT 1,(SELECT MAX(b) FROM t1 GROUP BY a HAVING a<2) FROM t1 LIMIT 1;
+----------
+[DELETE|SELECT] DELETE FROM t3 WHERE (SELECT MAX(b) FROM t1 GROUP BY a HAVING a<2)>10000;
+----------
+[DELETE|SELECT] DELETE FROM t3 WHERE (SELECT (SELECT MAX(b) FROM t1 GROUP BY a HAVING a<2) AS x FROM t1)>10000;
+----------
+[UPDATE] UPDATE u1 AS A NATURAL JOIN u2 AS B SET B.a2=1;
+----------
+[UPDATE] UPDATE jt AS a NATURAL JOIN jt AS b SET a.dummy='',b.col_check=NULL;
+----------
+[UPDATE] UPDATE t SET b=3 LIMIT 0;
+----------
+[DELETE] DELETE FROM t LIMIT 0;
+----------
+[INSERT|SELECT] INSERT INTO target_t SELECT 1 WHERE 1;
+----------
+[MERGE|SELECT] REPLACE INTO target_t SELECT 1 WHERE 1;
+----------
+[UPDATE] UPDATE /*+ INDEX(t1 i_a) */ split_opt_hints_index.t1 AS t1 SET d=2 WHERE a=1 AND b=2 AND c=3;
+----------
+[DELETE] DELETE /*+ INDEX(t1 i_a) */ FROM split_opt_hints_index.t1 WHERE a=100 AND b=2 AND c=3;
+----------
+[UPDATE] UPDATE /*+ JOIN_ORDER(t2,t1) JOIN_FIXED_ORDER() */ t1 JOIN t2 ON t1.val=t2.val SET t1.f1=t2.f1 WHERE t2.id>100;
+----------
+[UPDATE|SELECT] UPDATE /*+ JOIN_SUFFIX(ta1,t2) */ t1 AS ta1 JOIN t1 AS ta2 ON ta1.f1=ta2.f1 RIGHT JOIN t2 ON ta1.f1=t2.f1 SET ta1.f2=ta1.f2,ta2.f3=ta2.f3 WHERE ('n','r') IN (SELECT f3,f3 FROM t3 WHERE f1<>f2);
+----------
+[DELETE|SELECT] DELETE /*+ JOIN_PREFIX(t2,t3,ta2) JOIN_SUFFIX(t3,ta1) */ FROM ta1.* USING t1 AS ta1 JOIN t1 AS ta2 ON 1 RIGHT OUTER JOIN t2 ON ta1.val=t2.val WHERE 9 IN (SELECT val FROM t3);
+----------
+[UPDATE] UPDATE /*+ NO_RANGE_OPTIMIZATION(t1 PRIMARY) */ split_opt_hints_native.t1 SET c='z' WHERE a BETWEEN 1 AND 2;
+----------
+[DELETE|SELECT] DELETE /*+ NO_RANGE_OPTIMIZATION(t1 PRIMARY) NO_BNL(t2@sub_q) */ FROM split_opt_hints_native.t1 WHERE a IN (SELECT /*+ QB_NAME(sub_q) */ a FROM split_opt_hints_native.t2 AS t2 WHERE t2.b>10);
+----------
+[INSERT|SELECT] INSERT /*+ NO_ICP(t2@src_q idx_ab) */ INTO split_opt_hints_native.t3(a,b,c) SELECT /*+ QB_NAME(src_q) */ t2.a+20,t2.b,t2.c FROM split_opt_hints_native.t2 AS t2;
+----------
+[MERGE|SELECT] REPLACE /*+ NO_ICP(t2@src_q idx_ab) */ INTO split_opt_hints_native.t3(a,b,c) SELECT /*+ QB_NAME(src_q) */ t2.a+30,t2.b,t2.c FROM split_opt_hints_native.t2 AS t2;
+----------
+[MERGE] INSERT /*+ SET_VAR(auto_increment_increment=10) SET_VAR(auto_increment_offset=5) */ INTO t1 VALUES (3,'c') ON DUPLICATE KEY UPDATE f1=VALUES(f1);
+----------
+[MERGE] INSERT /*+ SET_VAR(foreign_key_checks=OFF) */ INTO t1 VALUES (4,'d') ON DUPLICATE KEY UPDATE f1=VALUES(f1);
+----------
+[UPDATE] UPDATE /*+ SET_VAR(time_zone='UTC') */ t1 SET f1=TIMEDIFF(NOW(), UTC_TIMESTAMP()) WHERE id=1;
+----------
+[DELETE] DELETE /*+ SET_VAR(time_zone='UTC') */ FROM t1 WHERE id=999;
+----------
+[MERGE] REPLACE /*+ SET_VAR(unique_checks=OFF) */ INTO t1 VALUES (5,'e');
+----------
+[INSERT|SELECT] INSERT /*+ SET_VAR(unique_checks=OFF) */ INTO t1 SELECT /*+ SET_VAR(sort_buffer_size=16M) */ id+100, f1 FROM t2;
+----------
+[UNSAFE] PREPARE stmt_set_var FROM 'SELECT /*+ SET_VAR(big_tables=on) */ 1';
+----------
+[UPDATE|SESSION_VARIABLE_RW] UPDATE t SET b=0 ORDER BY (a=@id),b LIMIT 1;
+----------
+[INSERT|SELECT] INSERT INTO split_select_short.distinct_t (SELECT 'a','a','a','a111','xy1','' FROM split_select_short.t);
+----------
+[MERGE|SELECT] REPLACE INTO split_select_short.distinct_t (SELECT 'a','a','a','a111','xy1','' FROM split_select_short.t);
+----------
+[CALL_PROG_OBJ] CALL query_rewrite.flush_rewrite_rules();
+----------
+[INSERT|SELECT] INSERT INTO split_select_short.distinct_t (WITH RECURSIVE a(i) AS (SELECT 0 UNION ALL SELECT i+1 FROM a WHERE i<2), b(i) AS (SELECT x.i+y.i*10+z.i*100 FROM a AS x,a AS y,a AS z) SELECT 'b','a','a','a211','xy1','' FROM b);
+----------
+[MERGE|SELECT] REPLACE INTO split_select_short.distinct_t (WITH RECURSIVE a(i) AS (SELECT 0 UNION ALL SELECT i+1 FROM a WHERE i<2) SELECT 'b','a','a','a211','xy1','' FROM a);
+----------
+[DELETE|SELECT] DELETE x.*,y.* FROM split_subquery_base.t11a AS x,split_subquery_base.t12a AS y WHERE x.a=y.a AND x.b=(SELECT z.b FROM split_subquery_base.t2 AS z WHERE z.a=x.a);
+----------
+[DELETE|SELECT] DELETE x.*,y.* FROM split_subquery_base.t11b AS x,split_subquery_base.t12b AS y WHERE x.a=y.a AND x.b=(SELECT z.b FROM split_subquery_base.t12b AS z WHERE z.a=x.a);
+----------
+[INSERT|SELECT] INSERT INTO split_subquery_base.ins_t(x) SELECT (SELECT SUM(s.x)+2 FROM split_subquery_base.ins_t AS s) FROM split_subquery_base.t2;
+----------
+[INSERT|SELECT] INSERT INTO split_subquery_base.ins_values(x) VALUES ((SELECT x FROM split_subquery_base.ins_values));
+----------
+[MERGE|SELECT] REPLACE LOW_PRIORITY INTO split_subquery_base.rep_t(x,y) VALUES ((SELECT a FROM split_subquery_base.t2 WHERE a=1),(SELECT a+1 FROM split_subquery_base.t2 WHERE a=1));
+----------
+[MERGE|SELECT] REPLACE INTO split_subquery_base.rep_self(x,y) VALUES ((SELECT x FROM split_subquery_base.rep_self),(SELECT a+1 FROM split_subquery_base.t2 WHERE a=1));
+----------
+[BLOCK|SESSION_VARIABLE_RW|SELECT] DO @sq_a:=(SELECT a FROM split_subquery_next.var_t);
+----------
+[SESSION_VARIABLE_RW|SELECT] SET @sq_a:=(SELECT a FROM split_subquery_next.var_t);
+----------
+[UPDATE|SELECT] UPDATE split_subquery_next.update_outer SET i=i+1 WHERE i=(SELECT MAX(i));
+----------
+[DELETE|SELECT] DELETE FROM split_subquery_next.del_t1 WHERE topic IN (SELECT DISTINCT topic FROM split_subquery_next.del_t2 WHERE NOT EXISTS (SELECT * FROM split_subquery_next.del_t3 WHERE numeropost=topic));
+----------
+[UPDATE|SELECT] UPDATE split_subquery_next.update_nested SET i=i+(SELECT MAX(i) FROM (SELECT 1 AS i) AS d) WHERE i=(SELECT MAX(i));
+----------
+[UPDATE|SELECT] UPDATE split_subquery_next.mt1,split_subquery_next.mt2 SET mt2.name='lenka' WHERE mt2.id IN (SELECT id FROM split_subquery_next.mt1);
+----------
+[UPDATE|SELECT] UPDATE IGNORE split_subquery_next.u1 SET b=(SELECT b FROM split_subquery_next.u2 WHERE u1.a=u2.a);
+----------
+[UPDATE|SELECT] UPDATE split_table_derived.t1 AS o SET o.a=o.a*100 WHERE o.b<0 OR o.a IN(SELECT i.a+1 FROM split_table_derived.t2 AS i);
+----------
+[UPDATE|SELECT] UPDATE split_table_derived.t1 AS o,(SELECT 1) AS d SET o.a=o.a*100 WHERE o.b<0 OR o.a IN(SELECT i.a+1 FROM split_table_derived.t2 AS i);
+----------
+[DELETE|SELECT] DELETE FROM split_table_derived.t1 WHERE t1.b<0 OR t1.a IN(SELECT i.a+1 FROM split_table_derived.t2 AS i);
+----------
+[DELETE|SELECT] DELETE o.* FROM split_table_derived.t1 AS o,(SELECT 1) AS d WHERE o.b<0 OR o.a IN(SELECT i.a+1 FROM split_table_derived.t2 AS i);
+----------
+[INSERT|SELECT] INSERT INTO t(a,b) SELECT a+1000,b FROM r UNION ALL SELECT a+2000,b FROM s;
+----------
+[MERGE|SELECT] REPLACE INTO t(a,b) SELECT a+3000,b FROM r UNION ALL SELECT a+4000,b FROM s;
+----------
+[MERGE|SELECT] INSERT INTO t(a,b) SELECT 20000,'x' UNION SELECT 20001,'y' ON DUPLICATE KEY UPDATE b='updated';
+----------
+[UNSAFE] PREPARE stmt1 FROM "SELECT a.i,(LAST_VALUE(a.i) OVER outer_window)=a.i FROM (SELECT LAG(i) OVER inner_window AS i_lag,i FROM split_window_bugs.t_prep WINDOW inner_window AS (ORDER BY i)) a WINDOW outer_window AS (ORDER BY a.i)";
+----------
+[UPDATE] UPDATE split_window_context.t SET a=SUM(b) OVER ();
+----------
+[DELETE] DELETE FROM split_window_context.t WHERE SUM(b) OVER ()=10;

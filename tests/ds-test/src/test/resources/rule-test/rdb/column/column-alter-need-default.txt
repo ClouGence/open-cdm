@@ -1,6 +1,0 @@
-if
-  @domain.sqlType == 'ALTER_TABLE_ALTER_COLUMN' and
-  @domain.defaultValue != null
-then
-  return @func.string.isNotBlank(@domain.defaultValue)
-end

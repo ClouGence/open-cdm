@@ -1,0 +1,228 @@
+-- FUNC-0694 INITIALIZE ordinary integer
+begin DBMS_RANDOM.INITIALIZE(15); end;
+/
+-- FUNC-0694 INITIALIZE minimum documented integer
+begin DBMS_RANDOM.INITIALIZE(-2147483648); end;
+/
+-- FUNC-0694 INITIALIZE maximum documented integer
+begin DBMS_RANDOM.INITIALIZE(2147483647); end;
+/
+-- FUNC-0694 INITIALIZE deterministic RANDOM sequence
+declare first_value int; second_value int; begin DBMS_RANDOM.INITIALIZE(20260724); first_value:=DBMS_RANDOM.RANDOM; DBMS_RANDOM.INITIALIZE(20260724); second_value:=DBMS_RANDOM.RANDOM; if first_value<>second_value then raise_application_error(-20001,'initialize determinism mismatch'); end if; end;
+/
+-- FUNC-0700 SEED integer ordinary
+begin DBMS_RANDOM.SEED(20260724); end;
+/
+-- FUNC-0700 SEED integer minimum
+begin DBMS_RANDOM.SEED(-2147483648); end;
+/
+-- FUNC-0700 SEED integer maximum
+begin DBMS_RANDOM.SEED(2147483647); end;
+/
+-- FUNC-0700 SEED integer named
+begin DBMS_RANDOM.SEED(VAL=>42); end;
+/
+-- FUNC-0701 SEED VARCHAR arbitrary text
+begin DBMS_RANDOM.SEED('CODEX_DM8_SEED'); end;
+/
+-- FUNC-0701 SEED VARCHAR named and deterministic
+declare first_value int; second_value int; begin DBMS_RANDOM.SEED(VAL=>'CODEX_TEXT_SEED'); first_value:=DBMS_RANDOM.RANDOM; DBMS_RANDOM.SEED(VAL=>'CODEX_TEXT_SEED'); second_value:=DBMS_RANDOM.RANDOM; if first_value<>second_value then raise_application_error(-20002,'text seed determinism mismatch'); end if; end;
+/
+-- FUNC-0703 TERMINATE without parentheses
+begin DBMS_RANDOM.TERMINATE; end;
+/
+-- FUNC-0703 TERMINATE with parentheses
+begin DBMS_RANDOM.TERMINATE(); end;
+/
+-- FUNC-0698 RANDOM_NORMAL returns a number
+declare value_number number; begin value_number:=DBMS_RANDOM.RANDOM_NORMAL; if value_number is null then raise_application_error(-20003,'normal null'); end if; end;
+/
+-- FUNC-0697 RANDOM returns an integer
+declare value_number int; begin value_number:=DBMS_RANDOM.RANDOM(); if value_number is null then raise_application_error(-20004,'random null'); end if; end;
+/
+-- FUNC-0699 RANDOM_STRING uppercase mode
+declare value_text varchar(32767); begin value_text:=DBMS_RANDOM.RANDOM_STRING('U',12); if lengthb(value_text)<>12 or not regexp_like(value_text,'^[A-Z]+$') then raise_application_error(-20005,'uppercase mismatch'); end if; end;
+/
+-- FUNC-0699 RANDOM_STRING lowercase mode
+declare value_text varchar(32767); begin value_text:=DBMS_RANDOM.RANDOM_STRING('l',12); if lengthb(value_text)<>12 or not regexp_like(value_text,'^[a-z]+$') then raise_application_error(-20006,'lowercase mismatch'); end if; end;
+/
+-- FUNC-0699 RANDOM_STRING alphabetic mixed mode
+declare value_text varchar(32767); begin value_text:=DBMS_RANDOM.RANDOM_STRING('A',12); if lengthb(value_text)<>12 or not regexp_like(value_text,'^[A-Za-z]+$') then raise_application_error(-20007,'alphabetic mismatch'); end if; end;
+/
+-- FUNC-0699 RANDOM_STRING alphanumeric mode
+declare value_text varchar(32767); begin value_text:=DBMS_RANDOM.RANDOM_STRING('x',12); if lengthb(value_text)<>12 or not regexp_like(value_text,'^[A-Z0-9]+$') then raise_application_error(-20008,'alphanumeric mismatch'); end if; end;
+/
+-- FUNC-0699 RANDOM_STRING printable mode
+declare value_text varchar(32767); begin value_text:=DBMS_RANDOM.RANDOM_STRING('P',12); if lengthb(value_text)<>12 then raise_application_error(-20009,'printable length mismatch'); end if; end;
+/
+-- FUNC-0699 RANDOM_STRING unknown mode defaults to uppercase
+declare value_text varchar(32767); begin value_text:=DBMS_RANDOM.RANDOM_STRING('?',12); if lengthb(value_text)<>12 or not regexp_like(value_text,'^[A-Z]+$') then raise_application_error(-20010,'unknown mode mismatch'); end if; end;
+/
+-- FUNC-0699 RANDOM_STRING zero length
+declare value_text varchar(32767); begin value_text:=DBMS_RANDOM.RANDOM_STRING('X',0); if lengthb(value_text)<>0 then raise_application_error(-20011,'zero length mismatch'); end if; end;
+/
+-- FUNC-0699 RANDOM_STRING maximum documented length
+declare value_text varchar(32767); begin value_text:=DBMS_RANDOM.RANDOM_STRING('X',32767); if lengthb(value_text)<>32767 then raise_application_error(-20012,'maximum length mismatch'); end if; end;
+/
+-- FUNC-0699 RANDOM_STRING above maximum clamps to 32767
+declare value_text varchar(32767); begin value_text:=DBMS_RANDOM.RANDOM_STRING('X',32768); if lengthb(value_text)<>32767 then raise_application_error(-20013,'clamped length mismatch'); end if; end;
+/
+-- FUNC-0702 STRING uppercase mode
+declare value_text varchar(32767); begin value_text:=DBMS_RANDOM.STRING('U',8); if lengthb(value_text)<>8 or not regexp_like(value_text,'^[A-Z]+$') then raise_application_error(-20014,'string mismatch'); end if; end;
+/
+-- FUNC-0702 STRING named reordered
+declare value_text varchar(32767); begin value_text:=DBMS_RANDOM.STRING(LEN=>8,OPT=>'l'); if lengthb(value_text)<>8 or not regexp_like(value_text,'^[a-z]+$') then raise_application_error(-20015,'named string mismatch'); end if; end;
+/
+-- FUNC-0704 VALUE all defaults
+declare value_number number; begin value_number:=DBMS_RANDOM.VALUE; if value_number<0 or value_number>1 then raise_application_error(-20016,'default range mismatch'); end if; end;
+/
+-- FUNC-0704 VALUE low only with reversed effective interval
+declare value_number number; begin value_number:=DBMS_RANDOM.VALUE(10); if value_number<1 or value_number>10 then raise_application_error(-20017,'single range mismatch'); end if; end;
+/
+-- FUNC-0704 VALUE ascending interval
+declare value_number number; begin value_number:=DBMS_RANDOM.VALUE(10,100); if value_number<10 or value_number>100 then raise_application_error(-20018,'ascending range mismatch'); end if; end;
+/
+-- FUNC-0704 VALUE descending interval
+declare value_number number; begin value_number:=DBMS_RANDOM.VALUE(100,10); if value_number<10 or value_number>100 then raise_application_error(-20019,'descending range mismatch'); end if; end;
+/
+-- FUNC-0704 VALUE equal endpoints
+declare value_number number; begin value_number:=DBMS_RANDOM.VALUE(42,42); if value_number<>42 then raise_application_error(-20020,'equal range mismatch'); end if; end;
+/
+-- FUNC-0704 VALUE named reordered negative interval
+declare value_number number; begin value_number:=DBMS_RANDOM.VALUE(HIGH=>-10,LOW=>-100); if value_number < -100 or value_number > -10 then raise_application_error(-20021,'named range mismatch'); end if; end;
+/
+-- FUNC-0694 INITIALIZE Pack29 accepts NULL
+begin DBMS_RANDOM.INITIALIZE(NULL); end;
+/
+-- FUNC-0700 SEED integer overload accepts NULL
+declare value_int int:=NULL; begin DBMS_RANDOM.SEED(value_int); end;
+/
+-- FUNC-0701 SEED VARCHAR overload accepts NULL
+declare value_text varchar(20):=NULL; begin DBMS_RANDOM.SEED(value_text); end;
+/
+-- FUNC-0699 RANDOM_STRING NULL mode defaults to uppercase
+declare value_text varchar(32767); begin value_text:=DBMS_RANDOM.RANDOM_STRING(NULL,8); if lengthb(value_text)<>8 or not regexp_like(value_text,'^[A-Z]+$') then raise_application_error(-20022,'null mode mismatch'); end if; end;
+/
+-- FUNC-0699 RANDOM_STRING negative length returns NULL
+declare value_text varchar(32767); begin value_text:=DBMS_RANDOM.RANDOM_STRING('X',-1); if value_text is not null then raise_application_error(-20023,'negative length mismatch'); end if; end;
+/
+-- FUNC-0699 RANDOM_STRING fractional length rounds to three
+declare value_text varchar(32767); begin value_text:=DBMS_RANDOM.RANDOM_STRING('X',2.5); if lengthb(value_text)<>3 then raise_application_error(-20024,'fractional length mismatch'); end if; end;
+/
+-- FUNC-0704 VALUE NULL bound returns NULL
+declare value_number number; begin value_number:=DBMS_RANDOM.VALUE(NULL,1); if value_number is not null then raise_application_error(-20025,'null range mismatch'); end if; end;
+/
+------------------------------------------------------------------------------------------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-0694 INITIALIZE ordinary integer
+begin DBMS_RANDOM.INITIALIZE(15); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-0694 INITIALIZE minimum documented integer
+begin DBMS_RANDOM.INITIALIZE(-2147483648); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-0694 INITIALIZE maximum documented integer
+begin DBMS_RANDOM.INITIALIZE(2147483647); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0694 INITIALIZE deterministic RANDOM sequence
+declare first_value int; second_value int; begin DBMS_RANDOM.INITIALIZE(20260724); first_value:=DBMS_RANDOM.RANDOM; DBMS_RANDOM.INITIALIZE(20260724); second_value:=DBMS_RANDOM.RANDOM; if first_value<>second_value then raise_application_error(-20001,'initialize determinism mismatch'); end if; end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-0700 SEED integer ordinary
+begin DBMS_RANDOM.SEED(20260724); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-0700 SEED integer minimum
+begin DBMS_RANDOM.SEED(-2147483648); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-0700 SEED integer maximum
+begin DBMS_RANDOM.SEED(2147483647); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-0700 SEED integer named
+begin DBMS_RANDOM.SEED(VAL=>42); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-0701 SEED VARCHAR arbitrary text
+begin DBMS_RANDOM.SEED('CODEX_DM8_SEED'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0701 SEED VARCHAR named and deterministic
+declare first_value int; second_value int; begin DBMS_RANDOM.SEED(VAL=>'CODEX_TEXT_SEED'); first_value:=DBMS_RANDOM.RANDOM; DBMS_RANDOM.SEED(VAL=>'CODEX_TEXT_SEED'); second_value:=DBMS_RANDOM.RANDOM; if first_value<>second_value then raise_application_error(-20002,'text seed determinism mismatch'); end if; end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-0703 TERMINATE without parentheses
+begin DBMS_RANDOM.TERMINATE; end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-0703 TERMINATE with parentheses
+begin DBMS_RANDOM.TERMINATE(); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0698 RANDOM_NORMAL returns a number
+declare value_number number; begin value_number:=DBMS_RANDOM.RANDOM_NORMAL; if value_number is null then raise_application_error(-20003,'normal null'); end if; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0697 RANDOM returns an integer
+declare value_number int; begin value_number:=DBMS_RANDOM.RANDOM(); if value_number is null then raise_application_error(-20004,'random null'); end if; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0699 RANDOM_STRING uppercase mode
+declare value_text varchar(32767); begin value_text:=DBMS_RANDOM.RANDOM_STRING('U',12); if lengthb(value_text)<>12 or not regexp_like(value_text,'^[A-Z]+$') then raise_application_error(-20005,'uppercase mismatch'); end if; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0699 RANDOM_STRING lowercase mode
+declare value_text varchar(32767); begin value_text:=DBMS_RANDOM.RANDOM_STRING('l',12); if lengthb(value_text)<>12 or not regexp_like(value_text,'^[a-z]+$') then raise_application_error(-20006,'lowercase mismatch'); end if; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0699 RANDOM_STRING alphabetic mixed mode
+declare value_text varchar(32767); begin value_text:=DBMS_RANDOM.RANDOM_STRING('A',12); if lengthb(value_text)<>12 or not regexp_like(value_text,'^[A-Za-z]+$') then raise_application_error(-20007,'alphabetic mismatch'); end if; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0699 RANDOM_STRING alphanumeric mode
+declare value_text varchar(32767); begin value_text:=DBMS_RANDOM.RANDOM_STRING('x',12); if lengthb(value_text)<>12 or not regexp_like(value_text,'^[A-Z0-9]+$') then raise_application_error(-20008,'alphanumeric mismatch'); end if; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0699 RANDOM_STRING printable mode
+declare value_text varchar(32767); begin value_text:=DBMS_RANDOM.RANDOM_STRING('P',12); if lengthb(value_text)<>12 then raise_application_error(-20009,'printable length mismatch'); end if; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0699 RANDOM_STRING unknown mode defaults to uppercase
+declare value_text varchar(32767); begin value_text:=DBMS_RANDOM.RANDOM_STRING('?',12); if lengthb(value_text)<>12 or not regexp_like(value_text,'^[A-Z]+$') then raise_application_error(-20010,'unknown mode mismatch'); end if; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0699 RANDOM_STRING zero length
+declare value_text varchar(32767); begin value_text:=DBMS_RANDOM.RANDOM_STRING('X',0); if lengthb(value_text)<>0 then raise_application_error(-20011,'zero length mismatch'); end if; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0699 RANDOM_STRING maximum documented length
+declare value_text varchar(32767); begin value_text:=DBMS_RANDOM.RANDOM_STRING('X',32767); if lengthb(value_text)<>32767 then raise_application_error(-20012,'maximum length mismatch'); end if; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0699 RANDOM_STRING above maximum clamps to 32767
+declare value_text varchar(32767); begin value_text:=DBMS_RANDOM.RANDOM_STRING('X',32768); if lengthb(value_text)<>32767 then raise_application_error(-20013,'clamped length mismatch'); end if; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0702 STRING uppercase mode
+declare value_text varchar(32767); begin value_text:=DBMS_RANDOM.STRING('U',8); if lengthb(value_text)<>8 or not regexp_like(value_text,'^[A-Z]+$') then raise_application_error(-20014,'string mismatch'); end if; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0702 STRING named reordered
+declare value_text varchar(32767); begin value_text:=DBMS_RANDOM.STRING(LEN=>8,OPT=>'l'); if lengthb(value_text)<>8 or not regexp_like(value_text,'^[a-z]+$') then raise_application_error(-20015,'named string mismatch'); end if; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0704 VALUE all defaults
+declare value_number number; begin value_number:=DBMS_RANDOM.VALUE; if value_number<0 or value_number>1 then raise_application_error(-20016,'default range mismatch'); end if; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0704 VALUE low only with reversed effective interval
+declare value_number number; begin value_number:=DBMS_RANDOM.VALUE(10); if value_number<1 or value_number>10 then raise_application_error(-20017,'single range mismatch'); end if; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0704 VALUE ascending interval
+declare value_number number; begin value_number:=DBMS_RANDOM.VALUE(10,100); if value_number<10 or value_number>100 then raise_application_error(-20018,'ascending range mismatch'); end if; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0704 VALUE descending interval
+declare value_number number; begin value_number:=DBMS_RANDOM.VALUE(100,10); if value_number<10 or value_number>100 then raise_application_error(-20019,'descending range mismatch'); end if; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0704 VALUE equal endpoints
+declare value_number number; begin value_number:=DBMS_RANDOM.VALUE(42,42); if value_number<>42 then raise_application_error(-20020,'equal range mismatch'); end if; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0704 VALUE named reordered negative interval
+declare value_number number; begin value_number:=DBMS_RANDOM.VALUE(HIGH=>-10,LOW=>-100); if value_number < -100 or value_number > -10 then raise_application_error(-20021,'named range mismatch'); end if; end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-0694 INITIALIZE Pack29 accepts NULL
+begin DBMS_RANDOM.INITIALIZE(NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0700 SEED integer overload accepts NULL
+declare value_int int:=NULL; begin DBMS_RANDOM.SEED(value_int); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0701 SEED VARCHAR overload accepts NULL
+declare value_text varchar(20):=NULL; begin DBMS_RANDOM.SEED(value_text); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0699 RANDOM_STRING NULL mode defaults to uppercase
+declare value_text varchar(32767); begin value_text:=DBMS_RANDOM.RANDOM_STRING(NULL,8); if lengthb(value_text)<>8 or not regexp_like(value_text,'^[A-Z]+$') then raise_application_error(-20022,'null mode mismatch'); end if; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0699 RANDOM_STRING negative length returns NULL
+declare value_text varchar(32767); begin value_text:=DBMS_RANDOM.RANDOM_STRING('X',-1); if value_text is not null then raise_application_error(-20023,'negative length mismatch'); end if; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0699 RANDOM_STRING fractional length rounds to three
+declare value_text varchar(32767); begin value_text:=DBMS_RANDOM.RANDOM_STRING('X',2.5); if lengthb(value_text)<>3 then raise_application_error(-20024,'fractional length mismatch'); end if; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0704 VALUE NULL bound returns NULL
+declare value_number number; begin value_number:=DBMS_RANDOM.VALUE(NULL,1); if value_number is not null then raise_application_error(-20025,'null range mismatch'); end if; end;

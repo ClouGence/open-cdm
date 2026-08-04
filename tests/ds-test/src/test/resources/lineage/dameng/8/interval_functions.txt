@@ -1,0 +1,41 @@
+[interval_public_signatures]
+sql:
+select
+  numtodsinterval(2.5,'DAY') as ds_number,
+  numtoyminterval(2.5,'YEAR') as ym_number,
+  to_dsinterval('1 02:03:04.5') as ds_text,
+  to_yminterval('1-2') as ym_text,
+  overlaps(date '2024-01-01',date '2024-01-10',
+    date '2024-01-05',date '2024-01-06') as overlap_value
+from dual
+expect:
+{
+  "ds_number": [],
+  "ym_number": [],
+  "ds_text": [],
+  "ym_text": [],
+  "overlap_value": []
+}
+----------
+[interval_column_lineage]
+sql:
+select
+  numtodsinterval(t.duration_value,'DAY') as ds_value,
+  numtoyminterval(t.period_value,'MONTH') as ym_value,
+  to_dsinterval(t.day_interval_text) as ds_text,
+  to_yminterval(t.year_interval_text) as ym_text,
+  overlaps(t.created_at,t.updated_at,t.active_at,t.archived_at) as overlap_value
+from catalog1.app.events t
+expect:
+{
+  "ds_value": ["/catalog1/app/events/duration_value/"],
+  "ym_value": ["/catalog1/app/events/period_value/"],
+  "ds_text": ["/catalog1/app/events/day_interval_text/"],
+  "ym_text": ["/catalog1/app/events/year_interval_text/"],
+  "overlap_value": [
+    "/catalog1/app/events/created_at/",
+    "/catalog1/app/events/updated_at/",
+    "/catalog1/app/events/active_at/",
+    "/catalog1/app/events/archived_at/"
+  ]
+}

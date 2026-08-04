@@ -1,0 +1,13 @@
+[functions]
+sql:
+select trim(t.c_nchar) as fixed_value,
+substr(t.c_nvarchar,1,2) as variable_value from catalog1.app.nchar_t t
+expect:
+{"fixed_value":["/catalog1/app/nchar_t/c_nchar/"],"variable_value":["/catalog1/app/nchar_t/c_nvarchar/"]}
+----------
+[aggregate]
+sql:
+select min(t.c_nchar) as min_value,
+max(t.c_nvarchar) as max_value from catalog1.app.nchar_t t
+expect:
+{"min_value":["/catalog1/app/nchar_t/c_nchar/"],"max_value":["/catalog1/app/nchar_t/c_nvarchar/"]}

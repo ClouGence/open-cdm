@@ -1,0 +1,27 @@
+grant create tablespace to CODEX_TS_CREATOR_20260723;
+grant alter tablespace to CODEX_TS_ALTERER_20260723;
+grant drop tablespace to CODEX_TS_DROPPER_20260723;
+grant dba to CODEX_TS_DBA_20260723;
+grant create tablespace to CODEX_TS_DELEGATE_20260723 with admin option;
+grant create tablespace to CODEX_TS_CHILD_20260723;
+create tablespace CODEX_TS_PRIV_DENIED_CREATE datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_PRIV_DENIED_CREATE.dbf' size 64;
+alter tablespace CODEX_TS_PRIV_ALTER_20260723 cache=normal;
+drop tablespace CODEX_TS_PRIV_ALTER_20260723;
+------------------------------------------------------------------------------------------
+[GRANT] grant create tablespace to CODEX_TS_CREATOR_20260723;
+----------
+[GRANT] grant alter tablespace to CODEX_TS_ALTERER_20260723;
+----------
+[GRANT] grant drop tablespace to CODEX_TS_DROPPER_20260723;
+----------
+[GRANT] grant dba to CODEX_TS_DBA_20260723;
+----------
+[GRANT] grant create tablespace to CODEX_TS_DELEGATE_20260723 with admin option;
+----------
+[GRANT] grant create tablespace to CODEX_TS_CHILD_20260723;
+----------
+[CREATE_TABLESPACE] create tablespace CODEX_TS_PRIV_DENIED_CREATE datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_PRIV_DENIED_CREATE.dbf' size 64;
+----------
+[ALTER_TABLESPACE] alter tablespace CODEX_TS_PRIV_ALTER_20260723 cache=normal;
+----------
+[DROP_TABLESPACE] drop tablespace CODEX_TS_PRIV_ALTER_20260723;

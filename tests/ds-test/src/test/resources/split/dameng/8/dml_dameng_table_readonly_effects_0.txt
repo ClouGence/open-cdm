@@ -1,0 +1,20 @@
+select id, note from codex_dm8_table_readonly;
+insert into codex_dm8_table_readonly values(2, 'INSERT');
+update codex_dm8_table_readonly set note='UPDATE' where id=1;
+delete from codex_dm8_table_readonly where id=1;
+truncate table codex_dm8_table_readonly;
+alter table codex_dm8_table_readonly add c2 int;
+
+------------------------------------------------------------------------------------------
+[SELECT] select id, note from codex_dm8_table_readonly;
+----------
+[INSERT] insert into codex_dm8_table_readonly values(2, 'INSERT');
+----------
+[UPDATE] update codex_dm8_table_readonly set note='UPDATE' where id=1;
+----------
+[DELETE] delete from codex_dm8_table_readonly where id=1;
+----------
+[TRUNCATE_TABLE] truncate table codex_dm8_table_readonly;
+----------
+[ALTER_TABLE|ADD_COLUMN] alter table codex_dm8_table_readonly add c2 int;
+

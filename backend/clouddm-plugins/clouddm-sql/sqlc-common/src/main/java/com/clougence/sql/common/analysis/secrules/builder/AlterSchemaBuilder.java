@@ -20,10 +20,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 import com.clougence.clouddm.sdk.service.secrules.Domain;
-import com.clougence.clouddm.sdk.sql.secrules.rdb.RdbSchemaDomain;
+import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
+import com.clougence.clouddm.sdk.service.secrules.SecQueryKind;
+import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbSchemaDomain;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.secrules.builder.enums.DomainSource;
 import com.clougence.sql.common.analysis.secrules.builder.mode.ObjNameDomain;
@@ -48,7 +48,7 @@ public abstract class AlterSchemaBuilder<T extends RdbSchemaDomain> extends Abst
     @Override
     public List<Domain> build() {
         schemaDomain.setAuditKind(SecQueryKind.ALTER);
-        schemaDomain.setSqlType(SecQueryType.ALTER_SCHEMA);
+        schemaDomain.setSqlType(RuleQueryType.ALTER_SCHEMA);
         if (schemaDomain.getOptions() == null) {
             schemaDomain.setOptions(new HashMap<>());
         }

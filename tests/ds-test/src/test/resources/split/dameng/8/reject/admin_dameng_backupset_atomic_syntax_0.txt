@@ -1,0 +1,150 @@
+-- BACKUP_UNKNOWN_TARGET
+backup unknown;
+-- BACKUP_DATABASE_DUPLICATE_FULL
+backup database full full;
+-- BACKUP_DATABASE_INCREMENT_MISSING_BASE
+backup database increment base on;
+-- BACKUP_ARCHIVE_FROM_MISSING_LSN
+backup archivelog from lsn;
+-- BACKUP_ARCHIVE_BETWEEN_MISSING_AND
+backup archivelog lsn between 1 2;
+-- SHOW_MISSING_TARGET
+show;
+-- SHOW_BACKUPSET_MISSING_PATH
+show backupset;
+-- SHOW_BACKUPSETS_INFO_MISSING_TYPE
+show backupsets info;
+-- CHECK_MISSING_BACKUPSET
+check backupset;
+-- REMOVE_MISSING_TARGET
+remove;
+-- REMOVE_BACKUPSET_MISSING_PATH
+remove backupset;
+-- LOAD_MISSING_FROM
+load backupsets device type tape to backupdir '/opt/codex/out';
+-- LOAD_MISSING_DEVICE
+load backupsets from tape to backupdir '/opt/codex/out';
+-- LOAD_MISSING_TARGET
+load backupsets from device type tape;
+-- DUMP_MISSING_MAPPED_FILE
+dump backupset '/opt/codex/bak';
+-- DUMP_MISSING_PATH
+dump backupset mapped file '/opt/codex/map';
+-- RESTORE_DATABASE_MISSING_FROM
+restore database '/opt/codex/dm.ini';
+-- RESTORE_DATABASE_MISSING_SOURCE
+restore database '/opt/codex/dm.ini' from backupset;
+-- RESTORE_TABLESPACE_MISSING_NAME
+restore database '/opt/codex/dm.ini' tablespace from backupset '/opt/codex/bak';
+-- RESTORE_TABLESPACE_DATAFILE_MISSING
+restore database '/opt/codex/dm.ini' tablespace CODEX_TS datafile from backupset '/opt/codex/bak';
+-- RESTORE_ARCHIVE_MISSING_FROM
+restore archivelog to archivedir '/opt/codex/arch';
+-- RESTORE_ARCHIVE_MISSING_TARGET
+restore archivelog from backupset '/opt/codex/bak';
+-- RESTORE_ARCHIVE_OVERWRITE_MISSING_LEVEL
+restore archivelog from backupset '/opt/codex/bak' to archivedir '/opt/codex/arch' overwrite;
+-- RECOVER_DATABASE_MISSING_PATH
+recover database;
+-- RECOVER_TABLESPACE_MISSING_NAME
+recover database '/opt/codex/dm.ini' tablespace;
+-- RECOVER_TABLESPACE_ARCHIVEDIR_MISSING
+recover database '/opt/codex/dm.ini' tablespace CODEX_TS with archivedir;
+-- REPAIR_MISSING_DATABASE
+repair archivelog;
+-- CONFIGURE_DEFAULT_UNKNOWN_CLAUSE
+configure default unknown;
+-- MERGE_MISSING_DATABASE_PATH
+merge database from backupset '/opt/codex/bak';
+-- MERGE_MISSING_SOURCE
+merge database '/opt/codex/dm.ini' from backupset;
+------------------------------------------------------------------------------------------
+[ADMIN] -- BACKUP_UNKNOWN_TARGET
+backup unknown;
+----------
+[ADMIN] -- BACKUP_DATABASE_DUPLICATE_FULL
+backup database full full;
+----------
+[ADMIN] -- BACKUP_DATABASE_INCREMENT_MISSING_BASE
+backup database increment base on;
+----------
+[ADMIN] -- BACKUP_ARCHIVE_FROM_MISSING_LSN
+backup archivelog from lsn;
+----------
+[ADMIN] -- BACKUP_ARCHIVE_BETWEEN_MISSING_AND
+backup archivelog lsn between 1 2;
+----------
+[ADMIN] -- SHOW_MISSING_TARGET
+show;
+----------
+[ADMIN] -- SHOW_BACKUPSET_MISSING_PATH
+show backupset;
+----------
+[ADMIN] -- SHOW_BACKUPSETS_INFO_MISSING_TYPE
+show backupsets info;
+----------
+[ADMIN] -- CHECK_MISSING_BACKUPSET
+check backupset;
+----------
+[ADMIN] -- REMOVE_MISSING_TARGET
+remove;
+----------
+[ADMIN] -- REMOVE_BACKUPSET_MISSING_PATH
+remove backupset;
+----------
+[ADMIN] -- LOAD_MISSING_FROM
+load backupsets device type tape to backupdir '/opt/codex/out';
+----------
+[ADMIN] -- LOAD_MISSING_DEVICE
+load backupsets from tape to backupdir '/opt/codex/out';
+----------
+[ADMIN] -- LOAD_MISSING_TARGET
+load backupsets from device type tape;
+----------
+[ADMIN] -- DUMP_MISSING_MAPPED_FILE
+dump backupset '/opt/codex/bak';
+----------
+[ADMIN] -- DUMP_MISSING_PATH
+dump backupset mapped file '/opt/codex/map';
+----------
+[ADMIN] -- RESTORE_DATABASE_MISSING_FROM
+restore database '/opt/codex/dm.ini';
+----------
+[ADMIN] -- RESTORE_DATABASE_MISSING_SOURCE
+restore database '/opt/codex/dm.ini' from backupset;
+----------
+[ADMIN] -- RESTORE_TABLESPACE_MISSING_NAME
+restore database '/opt/codex/dm.ini' tablespace from backupset '/opt/codex/bak';
+----------
+[ADMIN] -- RESTORE_TABLESPACE_DATAFILE_MISSING
+restore database '/opt/codex/dm.ini' tablespace CODEX_TS datafile from backupset '/opt/codex/bak';
+----------
+[ADMIN] -- RESTORE_ARCHIVE_MISSING_FROM
+restore archivelog to archivedir '/opt/codex/arch';
+----------
+[ADMIN] -- RESTORE_ARCHIVE_MISSING_TARGET
+restore archivelog from backupset '/opt/codex/bak';
+----------
+[ADMIN] -- RESTORE_ARCHIVE_OVERWRITE_MISSING_LEVEL
+restore archivelog from backupset '/opt/codex/bak' to archivedir '/opt/codex/arch' overwrite;
+----------
+[ADMIN] -- RECOVER_DATABASE_MISSING_PATH
+recover database;
+----------
+[ADMIN] -- RECOVER_TABLESPACE_MISSING_NAME
+recover database '/opt/codex/dm.ini' tablespace;
+----------
+[ADMIN] -- RECOVER_TABLESPACE_ARCHIVEDIR_MISSING
+recover database '/opt/codex/dm.ini' tablespace CODEX_TS with archivedir;
+----------
+[ADMIN] -- REPAIR_MISSING_DATABASE
+repair archivelog;
+----------
+[ADMIN] -- CONFIGURE_DEFAULT_UNKNOWN_CLAUSE
+configure default unknown;
+----------
+[ADMIN] -- MERGE_MISSING_DATABASE_PATH
+merge database from backupset '/opt/codex/bak';
+----------
+[ADMIN] -- MERGE_MISSING_SOURCE
+merge database '/opt/codex/dm.ini' from backupset;

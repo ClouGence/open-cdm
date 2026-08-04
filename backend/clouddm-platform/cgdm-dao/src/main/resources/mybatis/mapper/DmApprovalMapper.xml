@@ -39,6 +39,8 @@
         <result column="levels" property="levels"
                 typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
         <result column="checked_info" property="checkedInfo"/>
+        <result column="behaviors" property="behaviors"
+                typeHandler="com.clougence.clouddm.platform.dal.handler.json.ApprovalBehaviorListTypeHandler"/>
     </resultMap>
 
     <sql id="all_ticket_col">
@@ -75,7 +77,8 @@
         roll_back_sql,
         ticket_info,
         levels,
-        checked_info
+        checked_info,
+        behaviors
     </sql>
 
     <!--   =============================== ========================================================================-->
@@ -120,6 +123,12 @@
         update
             dm_approval
         set ticket_info = #{ticketInfo}
+        where id = #{ticketId}
+    </update>
+
+    <update id="updateAnalysis">
+        update dm_approval
+        set behaviors = #{behaviors,jdbcType=LONGVARCHAR,typeHandler=com.clougence.clouddm.platform.dal.handler.json.ApprovalBehaviorListTypeHandler}
         where id = #{ticketId}
     </update>
 
@@ -203,7 +212,8 @@
         a.roll_back_sql,
         a.ticket_info,
         a.levels,
-        a.checked_info
+        a.checked_info,
+        a.behaviors
         from
         dm_approval a
         left join dm_approval_person b on a.biz_id = b.ticket_bz_id
@@ -225,7 +235,7 @@
             a.gmt_create desc
     </select>
 
-    <select id="queryByApproIdentity" resultType="com.clougence.clouddm.platform.dal.model.approval.DmApprovalDO">
+    <select id="queryByApproIdentity" resultMap="DmApprovalDO">
         select
         <include refid="all_ticket_col"/>
         from
@@ -239,7 +249,7 @@
     </select>
 
 
-    <select id="selectByIdForUpdate" resultType="com.clougence.clouddm.platform.dal.model.approval.DmApprovalDO">
+    <select id="selectByIdForUpdate" resultMap="DmApprovalDO">
         select
             <include refid="all_ticket_col"/>
         from dm_approval
@@ -256,7 +266,7 @@
         limit 20
     </select>
 
-    <select id="listAuthTicketByConditionAndPage" resultType="com.clougence.clouddm.platform.dal.model.approval.DmApprovalDO">
+    <select id="listAuthTicketByConditionAndPage" resultMap="DmApprovalDO">
         select
         <include refid="all_ticket_col"/>
         from

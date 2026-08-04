@@ -1,0 +1,27 @@
+create table app.bad_int_01(c tinyint byte);
+create table app.bad_int_02(c smallint bigint);
+create table app.bad_int_03(c integer int);
+create table app.bad_int_04(c bigint int);
+create table app.bad_int_05(c tinyint default);
+create table app.bad_int_06(c byte check);
+create table app.bad_int_07(c smallint not);
+create function app.bad_int_f(p tinyint byte) return int as begin return 1; end;/
+create function app.bad_big_f(p bigint) return as begin return p; end;/
+------------------------------------------------------------------------------------------
+[CREATE_TABLE] create table app.bad_int_01(c tinyint byte);
+----------
+[CREATE_TABLE] create table app.bad_int_02(c smallint bigint);
+----------
+[CREATE_TABLE] create table app.bad_int_03(c integer int);
+----------
+[CREATE_TABLE] create table app.bad_int_04(c bigint int);
+----------
+[CREATE_TABLE] create table app.bad_int_05(c tinyint default);
+----------
+[CREATE_TABLE] create table app.bad_int_06(c byte check);
+----------
+[CREATE_TABLE] create table app.bad_int_07(c smallint not);
+----------
+[CREATE_PROG_OBJ] create function app.bad_int_f(p tinyint byte) return int as begin return 1; end;/
+----------
+[CREATE_PROG_OBJ] create function app.bad_big_f(p bigint) return as begin return p; end;/

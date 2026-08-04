@@ -28,6 +28,5 @@ import com.clougence.utils.i18n.I18nResource;
 public interface ChDsI18nKeys extends DsDataEditorI18nKeys, DsTableEditorI18nKeys {
 
     String PLUGIN_NAME_CLICKHOUSE = "PLUGIN_NAME_CLICKHOUSE";
-
     String REWRITE_LIMIT_LABEL    = "REWRITE_LIMIT_LABEL";
 }

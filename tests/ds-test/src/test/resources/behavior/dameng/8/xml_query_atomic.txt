@@ -1,0 +1,71 @@
+[for_xml_path_resource]
+sql:
+select id,category from app.xml_docs order by id for xml path('row')
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:24~1:36) /test/1/catalog1/app/xml_docs/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[xml_table_resource]
+sql:
+select d.id,x.item_text from app.xml_docs d,xmltable('/A/ITEM' passing d.payload columns item_text varchar(20) path 'text()') x
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:44~1:52) /test/1/catalog1/schema1/xmltable/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:29~1:41) /test/1/catalog1/app/xml_docs/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[xml_serialize_resource]
+sql:
+select xmlserialize(content d.payload as clob) from app.xml_docs d
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/xmlserialize/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:52~1:64) /test/1/catalog1/app/xml_docs/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[xml_cast_resource]
+sql:
+select xmlcast(d.payload as varchar(200)) from app.xml_docs d
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/xmlcast/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:47~1:59) /test/1/catalog1/app/xml_docs/",
+      "action": "READ"
+    }
+  ]
+}

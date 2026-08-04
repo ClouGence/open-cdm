@@ -1,0 +1,39 @@
+[json_value_table]
+sql:
+select id, json_value(payload, '$.name') as doc_name from app.json_docs
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"json_docs"}
+  ]
+}
+----------
+[json_table_lateral]
+sql:
+select d.id, jt.v from app.json_docs d, json_table(d.payload, '$.items[*]' columns(v int path '$.v')) jt
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"json_docs"}
+  ]
+}
+----------
+[sample_table]
+sql:
+select s.id, s.name from app.sample_target sample(20) seed(3) s where s.id > 10
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"sample_target"}
+  ]
+}
+----------
+[sample_block]
+sql:
+select category, sum(amount) from app.sample_target sample block(40) seed(7) group by category
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"sample_target"}
+  ]
+}

@@ -1,0 +1,186 @@
+select count(*) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+select count(val) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+select count(distinct grp) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+select sum(val) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+select sum(distinct val) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+select avg(val) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+select min(val), max(val) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+select variance(val) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+select var_pop(val) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+select var_samp(val) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+select stddev(val) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+select stddev_pop(val) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+select stddev_samp(val) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+select median(val) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+select regr_count(val, id) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+select regr_avgx(val, id), regr_avgy(val, id) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+select regr_slope(val, id), regr_intercept(val, id) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+select covar_pop(val, id), covar_samp(val, id) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+select corr(val, id) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+select listagg(grp, ',') within group (order by id) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+select grp, count(*) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t group by grp;
+select grp, sum(val) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t group by grp having sum(val) >= 30;
+select grp, min(val), max(val) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t group by grp order by grp;
+select grp, count(distinct val) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t group by grp;
+select grp, sum(val) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t group by rollup(grp);
+select grp, sum(val) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t group by cube(grp);
+select grouping(grp), grp, sum(val) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t group by rollup(grp);
+select grouping_id(grp), grp, sum(val) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t group by cube(grp);
+select grp, sum(val) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t group by grouping sets ((grp), ());
+select id, row_number() over (order by id) rn from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+select id, rank() over (order by val) rn from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+select id, dense_rank() over (order by val) rn from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+select id, percent_rank() over (order by val) rn from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+select id, cume_dist() over (order by val) rn from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+select id, ntile(2) over (order by id) bucket from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+select id, lag(val) over (order by id) previous_val from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+select id, lag(val, 2, 0) over (order by id) previous_val from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+select id, lead(val) over (order by id) next_val from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+select id, lead(val, 2, 0) over (order by id) next_val from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+select id, first_value(val) over (order by id) first_val from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+select id, last_value(val) over (order by id rows between unbounded preceding and unbounded following) last_val from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+select id, nth_value(val, 2) over (order by id rows between unbounded preceding and unbounded following) second_val from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+select id, ratio_to_report(val) over () ratio_value from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+select id, sum(val) over () total from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+select id, sum(val) over (partition by grp) group_total from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+select id, avg(val) over (partition by grp) group_avg from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+select id, min(val) over (partition by grp) group_min from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+select id, max(val) over (partition by grp) group_max from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+select id, count(*) over (partition by grp) group_count from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+select id, sum(val) over (order by id rows unbounded preceding) running_total from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+select id, sum(val) over (order by id rows between 1 preceding and current row) moving_total from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+select id, avg(val) over (order by id rows between current row and 1 following) moving_avg from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+select id, sum(val) over (order by id range between unbounded preceding and current row) range_total from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+select * from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t order by id;
+select * from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t order by id desc;
+select * from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t order by grp asc, val desc;
+select id, val from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t order by 2 desc;
+select top 1 * from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+select top 2 id, val from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t order by id;
+select * from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t limit 1;
+select * from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t limit 1, 2;
+select * from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t limit 2 offset 1;
+------------------------------------------------------------------------------------------
+[SELECT] select count(*) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+----------
+[SELECT] select count(val) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+----------
+[SELECT] select count(distinct grp) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+----------
+[SELECT] select sum(val) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+----------
+[SELECT] select sum(distinct val) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+----------
+[SELECT] select avg(val) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+----------
+[SELECT] select min(val), max(val) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+----------
+[SELECT] select variance(val) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+----------
+[SELECT] select var_pop(val) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+----------
+[SELECT] select var_samp(val) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+----------
+[SELECT] select stddev(val) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+----------
+[SELECT] select stddev_pop(val) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+----------
+[SELECT] select stddev_samp(val) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+----------
+[SELECT] select median(val) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+----------
+[SELECT] select regr_count(val, id) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+----------
+[SELECT] select regr_avgx(val, id), regr_avgy(val, id) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+----------
+[SELECT] select regr_slope(val, id), regr_intercept(val, id) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+----------
+[SELECT] select covar_pop(val, id), covar_samp(val, id) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+----------
+[SELECT] select corr(val, id) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+----------
+[SELECT] select listagg(grp, ',') within group (order by id) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+----------
+[SELECT] select grp, count(*) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t group by grp;
+----------
+[SELECT] select grp, sum(val) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t group by grp having sum(val) >= 30;
+----------
+[SELECT] select grp, min(val), max(val) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t group by grp order by grp;
+----------
+[SELECT] select grp, count(distinct val) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t group by grp;
+----------
+[SELECT] select grp, sum(val) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t group by rollup(grp);
+----------
+[SELECT] select grp, sum(val) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t group by cube(grp);
+----------
+[SELECT|CALL_PROG_OBJ] select grouping(grp), grp, sum(val) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t group by rollup(grp);
+----------
+[SELECT|CALL_PROG_OBJ] select grouping_id(grp), grp, sum(val) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t group by cube(grp);
+----------
+[SELECT] select grp, sum(val) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t group by grouping sets ((grp), ());
+----------
+[SELECT] select id, row_number() over (order by id) rn from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+----------
+[SELECT] select id, rank() over (order by val) rn from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+----------
+[SELECT] select id, dense_rank() over (order by val) rn from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+----------
+[SELECT] select id, percent_rank() over (order by val) rn from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+----------
+[SELECT] select id, cume_dist() over (order by val) rn from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+----------
+[SELECT] select id, ntile(2) over (order by id) bucket from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+----------
+[SELECT] select id, lag(val) over (order by id) previous_val from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+----------
+[SELECT] select id, lag(val, 2, 0) over (order by id) previous_val from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+----------
+[SELECT] select id, lead(val) over (order by id) next_val from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+----------
+[SELECT] select id, lead(val, 2, 0) over (order by id) next_val from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+----------
+[SELECT] select id, first_value(val) over (order by id) first_val from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+----------
+[SELECT] select id, last_value(val) over (order by id rows between unbounded preceding and unbounded following) last_val from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+----------
+[SELECT] select id, nth_value(val, 2) over (order by id rows between unbounded preceding and unbounded following) second_val from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+----------
+[SELECT] select id, ratio_to_report(val) over () ratio_value from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+----------
+[SELECT] select id, sum(val) over () total from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+----------
+[SELECT] select id, sum(val) over (partition by grp) group_total from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+----------
+[SELECT] select id, avg(val) over (partition by grp) group_avg from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+----------
+[SELECT] select id, min(val) over (partition by grp) group_min from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+----------
+[SELECT] select id, max(val) over (partition by grp) group_max from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+----------
+[SELECT] select id, count(*) over (partition by grp) group_count from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+----------
+[SELECT] select id, sum(val) over (order by id rows unbounded preceding) running_total from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+----------
+[SELECT] select id, sum(val) over (order by id rows between 1 preceding and current row) moving_total from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+----------
+[SELECT] select id, avg(val) over (order by id rows between current row and 1 following) moving_avg from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+----------
+[SELECT] select id, sum(val) over (order by id range between unbounded preceding and current row) range_total from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+----------
+[SELECT] select * from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t order by id;
+----------
+[SELECT] select * from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t order by id desc;
+----------
+[SELECT] select * from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t order by grp asc, val desc;
+----------
+[SELECT] select id, val from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t order by 2 desc;
+----------
+[SELECT] select top 1 * from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+----------
+[SELECT] select top 2 id, val from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t order by id;
+----------
+[SELECT] select * from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t limit 1;
+----------
+[SELECT] select * from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t limit 1, 2;
+----------
+[SELECT] select * from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t limit 2 offset 1;

@@ -1,0 +1,418 @@
+create or replace java class j_parent
+{
+  int base_value;
+  public int get_value()
+  {
+    return base_value;
+  }
+}
+/
+create or replace java class j_child extends j_parent
+{
+  int child_value;
+  public override int get_value()
+  {
+    return child_value;
+  }
+}
+/
+select j_child(10, 20).get_value();
+declare
+  v_parent j_parent;
+  v_child j_child;
+begin
+  v_child = new j_child(10, 20);
+  v_parent = v_child;
+  print v_parent.get_value();
+end;
+/
+create table java_inherit_table(
+  id int primary key,
+  obj j_parent
+);
+insert into java_inherit_table values(1, j_parent(10));
+insert into java_inherit_table values(2, j_child(20, 30));
+select id, t.obj.base_value, t.obj.get_value() from java_inherit_table t order by id;
+create or replace java abstract class j_abstract
+{
+  int value;
+  public abstract int calculate();
+}
+/
+create or replace java class j_concrete extends j_abstract
+{
+  int extra;
+  public override int calculate()
+  {
+    return value + extra;
+  }
+}
+/
+select j_concrete(3, 4).calculate();
+declare
+  v_base j_abstract;
+  v_child j_concrete;
+begin
+  v_child = new j_concrete(5, 6);
+  v_base = v_child;
+  print v_base.calculate();
+end;
+/
+create or replace java abstract class j_partial_base
+{
+  int value;
+  public abstract int first_value();
+  public abstract int second_value();
+}
+/
+create or replace java abstract class j_partial_child extends j_partial_base
+{
+  int extra;
+  public override int first_value()
+  {
+    return value;
+  }
+}
+/
+create or replace java class j_partial_final extends j_partial_child
+{
+  int final_value;
+  public override int second_value()
+  {
+    return final_value;
+  }
+}
+/
+select j_partial_final(1, 2, 3).first_value(), j_partial_final(1, 2, 3).second_value();
+create or replace java class j_overload
+{
+  int value;
+  public int calculate(int a)
+  {
+    return a;
+  }
+  public int calculate(int a, int b)
+  {
+    return a + b;
+  }
+  public varchar calculate(varchar a)
+  {
+    return a;
+  }
+}
+/
+select j_overload().calculate(7);
+select j_overload().calculate(7, 8);
+select j_overload().calculate('DM8');
+create or replace java class j_constructor
+{
+  int value;
+  varchar name;
+  j_constructor()
+  {
+    this.value = 1;
+    this.name = 'DEFAULT';
+  }
+  j_constructor(int p_value)
+  {
+    this.value = p_value;
+    this.name = 'ONE_ARG';
+  }
+  j_constructor(int p_value, varchar p_name)
+  {
+    this.value = p_value;
+    this.name = p_name;
+  }
+  public varchar describe()
+  {
+    return name;
+  }
+}
+/
+select j_constructor().describe();
+select j_constructor(23).describe();
+select j_constructor(24, 'TWO_ARG').describe();
+create or replace java class j_static_members
+{
+  private int hidden_value;
+  public static int twice(int value)
+  {
+    return value * 2;
+  }
+  private int hidden()
+  {
+    return hidden_value;
+  }
+}
+/
+select j_static_members.twice(25);
+alter class j_child compile;
+alter class j_concrete compile debug;
+drop table java_inherit_table;
+drop class j_static_members;
+drop class j_constructor;
+drop class j_overload;
+drop class j_partial_final;
+drop class j_partial_child;
+drop class j_partial_base;
+drop class j_concrete;
+drop class j_abstract;
+drop class j_child;
+drop class j_parent;
+create table java_parent_source(id int primary key, parent_name varchar(30));
+create table java_child_source(id int primary key, child_name varchar(30));
+insert into java_parent_source values(1, 'PARENT');
+insert into java_child_source values(2, 'CHILD');
+create or replace java class j_resource_parent
+{
+  public int read_value()
+  {
+    int v_value;
+    select max(id) into v_value from java_parent_source;
+    return v_value;
+  }
+}
+/
+create or replace java class j_resource_child extends j_resource_parent
+{
+  int child_marker;
+  public override int read_value()
+  {
+    int v_value;
+    select max(id) into v_value from java_child_source where id > 0;
+    return v_value;
+  }
+}
+/
+select j_resource_child(1).read_value();
+drop class j_resource_child;
+drop class j_resource_parent;
+drop table java_child_source;
+drop table java_parent_source;
+------------------------------------------------------------------------------------------
+[CREATE_TYPE] create or replace java class j_parent
+{
+  int base_value;
+  public int get_value()
+  {
+    return base_value;
+  }
+}
+----------
+[CREATE_TYPE] create or replace java class j_child extends j_parent
+{
+  int child_value;
+  public override int get_value()
+  {
+    return child_value;
+  }
+}
+----------
+[SELECT|CALL_PROG_OBJ] select j_child(10, 20).get_value();
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare
+  v_parent j_parent;
+  v_child j_child;
+begin
+  v_child = new j_child(10, 20);
+  v_parent = v_child;
+  print v_parent.get_value();
+end;
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table java_inherit_table(
+  id int primary key,
+  obj j_parent
+);
+----------
+[INSERT|CALL_PROG_OBJ] insert into java_inherit_table values(1, j_parent(10));
+----------
+[INSERT|CALL_PROG_OBJ] insert into java_inherit_table values(2, j_child(20, 30));
+----------
+[SELECT|CALL_PROG_OBJ] select id, t.obj.base_value, t.obj.get_value() from java_inherit_table t order by id;
+----------
+[CREATE_TYPE] create or replace java abstract class j_abstract
+{
+  int value;
+  public abstract int calculate();
+}
+----------
+[CREATE_TYPE] create or replace java class j_concrete extends j_abstract
+{
+  int extra;
+  public override int calculate()
+  {
+    return value + extra;
+  }
+}
+----------
+[SELECT|CALL_PROG_OBJ] select j_concrete(3, 4).calculate();
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare
+  v_base j_abstract;
+  v_child j_concrete;
+begin
+  v_child = new j_concrete(5, 6);
+  v_base = v_child;
+  print v_base.calculate();
+end;
+----------
+[CREATE_TYPE] create or replace java abstract class j_partial_base
+{
+  int value;
+  public abstract int first_value();
+  public abstract int second_value();
+}
+----------
+[CREATE_TYPE] create or replace java abstract class j_partial_child extends j_partial_base
+{
+  int extra;
+  public override int first_value()
+  {
+    return value;
+  }
+}
+----------
+[CREATE_TYPE] create or replace java class j_partial_final extends j_partial_child
+{
+  int final_value;
+  public override int second_value()
+  {
+    return final_value;
+  }
+}
+----------
+[SELECT|CALL_PROG_OBJ] select j_partial_final(1, 2, 3).first_value(), j_partial_final(1, 2, 3).second_value();
+----------
+[CREATE_TYPE] create or replace java class j_overload
+{
+  int value;
+  public int calculate(int a)
+  {
+    return a;
+  }
+  public int calculate(int a, int b)
+  {
+    return a + b;
+  }
+  public varchar calculate(varchar a)
+  {
+    return a;
+  }
+}
+----------
+[SELECT|CALL_PROG_OBJ] select j_overload().calculate(7);
+----------
+[SELECT|CALL_PROG_OBJ] select j_overload().calculate(7, 8);
+----------
+[SELECT|CALL_PROG_OBJ] select j_overload().calculate('DM8');
+----------
+[CREATE_TYPE] create or replace java class j_constructor
+{
+  int value;
+  varchar name;
+  j_constructor()
+  {
+    this.value = 1;
+    this.name = 'DEFAULT';
+  }
+  j_constructor(int p_value)
+  {
+    this.value = p_value;
+    this.name = 'ONE_ARG';
+  }
+  j_constructor(int p_value, varchar p_name)
+  {
+    this.value = p_value;
+    this.name = p_name;
+  }
+  public varchar describe()
+  {
+    return name;
+  }
+}
+----------
+[SELECT|CALL_PROG_OBJ] select j_constructor().describe();
+----------
+[SELECT|CALL_PROG_OBJ] select j_constructor(23).describe();
+----------
+[SELECT|CALL_PROG_OBJ] select j_constructor(24, 'TWO_ARG').describe();
+----------
+[CREATE_TYPE] create or replace java class j_static_members
+{
+  private int hidden_value;
+  public static int twice(int value)
+  {
+    return value * 2;
+  }
+  private int hidden()
+  {
+    return hidden_value;
+  }
+}
+----------
+[SELECT|CALL_PROG_OBJ] select j_static_members.twice(25);
+----------
+[ALTER_TYPE] alter class j_child compile;
+----------
+[ALTER_TYPE] alter class j_concrete compile debug;
+----------
+[DROP_TABLE] drop table java_inherit_table;
+----------
+[DROP_TYPE] drop class j_static_members;
+----------
+[DROP_TYPE] drop class j_constructor;
+----------
+[DROP_TYPE] drop class j_overload;
+----------
+[DROP_TYPE] drop class j_partial_final;
+----------
+[DROP_TYPE] drop class j_partial_child;
+----------
+[DROP_TYPE] drop class j_partial_base;
+----------
+[DROP_TYPE] drop class j_concrete;
+----------
+[DROP_TYPE] drop class j_abstract;
+----------
+[DROP_TYPE] drop class j_child;
+----------
+[DROP_TYPE] drop class j_parent;
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table java_parent_source(id int primary key, parent_name varchar(30));
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table java_child_source(id int primary key, child_name varchar(30));
+----------
+[INSERT] insert into java_parent_source values(1, 'PARENT');
+----------
+[INSERT] insert into java_child_source values(2, 'CHILD');
+----------
+[CREATE_TYPE|SELECT] create or replace java class j_resource_parent
+{
+  public int read_value()
+  {
+    int v_value;
+    select max(id) into v_value from java_parent_source;
+    return v_value;
+  }
+}
+----------
+[CREATE_TYPE|SELECT] create or replace java class j_resource_child extends j_resource_parent
+{
+  int child_marker;
+  public override int read_value()
+  {
+    int v_value;
+    select max(id) into v_value from java_child_source where id > 0;
+    return v_value;
+  }
+}
+----------
+[SELECT|CALL_PROG_OBJ] select j_resource_child(1).read_value();
+----------
+[DROP_TYPE] drop class j_resource_child;
+----------
+[DROP_TYPE] drop class j_resource_parent;
+----------
+[DROP_TABLE] drop table java_child_source;
+----------
+[DROP_TABLE] drop table java_parent_source;

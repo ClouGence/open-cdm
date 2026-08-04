@@ -1,0 +1,1628 @@
+[split_ddl_dameng_link_0_001]
+sql:
+create table CODEX_DM8_LINK_LOCAL_T(ID int primary key,NAME varchar(50),AMOUNT decimal(10,2));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:35) /test/1/catalog1/schema1/CODEX_DM8_LINK_LOCAL_T/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_002]
+sql:
+insert into CODEX_DM8_LINK_LOCAL_T values(1,'LOCAL_ONE',1.5);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:34) /test/1/catalog1/schema1/CODEX_DM8_LINK_LOCAL_T/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_003]
+sql:
+insert into CODEX_DM8_LINK_LOCAL_T values(3,'LOCAL_THREE',3.5);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:34) /test/1/catalog1/schema1/CODEX_DM8_LINK_LOCAL_T/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_004]
+sql:
+create user CODEX_DM8_LINK_PRIV_USER_20260721 identified by "Dm8@Link2026";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:45) /test/1/CODEX_DM8_LINK_PRIV_USER_20260721/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_005]
+sql:
+create role CODEX_DM8_LINK_PRIV_ROLE_20260721;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_ROLE": [
+    {
+      "subject": "Role(1:12~1:45) /test/1/CODEX_DM8_LINK_PRIV_ROLE_20260721/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_006]
+sql:
+grant create link to CODEX_DM8_LINK_PRIV_USER_20260721;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Link(1:13~1:17) /test/1/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:21~1:54) /test/1/CODEX_DM8_LINK_PRIV_USER_20260721/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_007]
+sql:
+grant drop link to CODEX_DM8_LINK_PRIV_USER_20260721;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Link(1:11~1:15) /test/1/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:19~1:52) /test/1/CODEX_DM8_LINK_PRIV_USER_20260721/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_008]
+sql:
+grant create link,drop link to CODEX_DM8_LINK_PRIV_ROLE_20260721;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Link(1:13~1:17) /test/1/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:31~1:64) /test/1/CODEX_DM8_LINK_PRIV_ROLE_20260721/"
+    },
+    {
+      "subject": "Link(1:23~1:27) /test/1/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:31~1:64) /test/1/CODEX_DM8_LINK_PRIV_ROLE_20260721/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_009]
+sql:
+grant CODEX_DM8_LINK_PRIV_ROLE_20260721 to CODEX_DM8_LINK_PRIV_USER_20260721;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Role(1:6~1:39) /test/1/CODEX_DM8_LINK_PRIV_ROLE_20260721/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:43~1:76) /test/1/CODEX_DM8_LINK_PRIV_USER_20260721/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_010]
+sql:
+create link CODEX_DM8_LINK_PEER_20260721 connect 'DPI'
+with CODEX_DM8_LINK_REMOTE_20260721 identified by "Dm8@Link2026"
+using 'dm8-link-peer:5236';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:12~1:40) /test/1/catalog1/schema1/CODEX_DM8_LINK_PEER_20260721/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_011]
+sql:
+create link if not exists CODEX_DM8_LINK_PEER_20260721 connect 'DPI'
+with CODEX_DM8_LINK_REMOTE_20260721 identified by "Dm8@Link2026"
+using 'dm8-link-peer:5236';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:26~1:54) /test/1/catalog1/schema1/CODEX_DM8_LINK_PEER_20260721/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_012]
+sql:
+create or replace link CODEX_DM8_LINK_PEER_20260721 connect 'DPI'
+with CODEX_DM8_LINK_REMOTE_20260721 identified by "Dm8@Link2026"
+using 'dm8-link-peer:5236';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:23~1:51) /test/1/catalog1/schema1/CODEX_DM8_LINK_PEER_20260721/",
+      "action": "REPLACE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_013]
+sql:
+create or replace link if not exists CODEX_DM8_LINK_PEER_20260721 connect 'DPI'
+with CODEX_DM8_LINK_REMOTE_20260721 identified by "Dm8@Link2026"
+using 'dm8-link-peer:5236';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:37~1:65) /test/1/catalog1/schema1/CODEX_DM8_LINK_PEER_20260721/",
+      "action": "REPLACE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_014]
+sql:
+select count(*) from CODEX_DM8_LINK_REMOTE_20260721.CODEX_LINK_T@CODEX_DM8_LINK_PEER_20260721;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:21~1:93) /test/1/catalog1/CODEX_DM8_LINK_REMOTE_20260721/CODEX_LINK_T/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_015]
+sql:
+select ID,NAME,AMOUNT from CODEX_DM8_LINK_REMOTE_20260721.CODEX_LINK_T@CODEX_DM8_LINK_PEER_20260721 order by ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:27~1:99) /test/1/catalog1/CODEX_DM8_LINK_REMOTE_20260721/CODEX_LINK_T/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_016]
+sql:
+select NAME from CODEX_DM8_LINK_REMOTE_20260721.CODEX_LINK_T@CODEX_DM8_LINK_PEER_20260721 where ID=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:17~1:89) /test/1/catalog1/CODEX_DM8_LINK_REMOTE_20260721/CODEX_LINK_T/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_017]
+sql:
+select count(*),sum(AMOUNT) from CODEX_DM8_LINK_REMOTE_20260721.CODEX_LINK_T@CODEX_DM8_LINK_PEER_20260721;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:16~1:19) /test/1/catalog1/schema1/sum/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:33~1:105) /test/1/catalog1/CODEX_DM8_LINK_REMOTE_20260721/CODEX_LINK_T/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_018]
+sql:
+select ID,count(*) from CODEX_DM8_LINK_REMOTE_20260721.CODEX_LINK_T@CODEX_DM8_LINK_PEER_20260721 group by ID order by ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:10~1:15) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:24~1:96) /test/1/catalog1/CODEX_DM8_LINK_REMOTE_20260721/CODEX_LINK_T/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_019]
+sql:
+select ID from CODEX_DM8_LINK_REMOTE_20260721.CODEX_LINK_T@CODEX_DM8_LINK_PEER_20260721 where exists(select 1 from CODEX_DM8_LINK_LOCAL_T L where L.ID=1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:15~1:87) /test/1/catalog1/CODEX_DM8_LINK_REMOTE_20260721/CODEX_LINK_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(1:115~1:137) /test/1/catalog1/schema1/CODEX_DM8_LINK_LOCAL_T/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_020]
+sql:
+select (select max(ID) from CODEX_DM8_LINK_REMOTE_20260721.CODEX_LINK_T@CODEX_DM8_LINK_PEER_20260721) as MAX_REMOTE_ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:15~1:18) /test/1/catalog1/schema1/max/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:28~1:100) /test/1/catalog1/CODEX_DM8_LINK_REMOTE_20260721/CODEX_LINK_T/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_021]
+sql:
+select L.ID,L.NAME,R.NAME from CODEX_DM8_LINK_LOCAL_T L join CODEX_DM8_LINK_REMOTE_20260721.CODEX_LINK_T@CODEX_DM8_LINK_PEER_20260721 R on L.ID=R.ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:31~1:53) /test/1/catalog1/schema1/CODEX_DM8_LINK_LOCAL_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(1:61~1:133) /test/1/catalog1/CODEX_DM8_LINK_REMOTE_20260721/CODEX_LINK_T/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_022]
+sql:
+select L.ID,R.NAME from CODEX_DM8_LINK_LOCAL_T L left join CODEX_DM8_LINK_REMOTE_20260721.CODEX_LINK_T@CODEX_DM8_LINK_PEER_20260721 R on L.ID=R.ID order by L.ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:24~1:46) /test/1/catalog1/schema1/CODEX_DM8_LINK_LOCAL_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(1:59~1:131) /test/1/catalog1/CODEX_DM8_LINK_REMOTE_20260721/CODEX_LINK_T/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_023]
+sql:
+select ID from CODEX_DM8_LINK_LOCAL_T union all select ID from CODEX_DM8_LINK_REMOTE_20260721.CODEX_LINK_T@CODEX_DM8_LINK_PEER_20260721;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:15~1:37) /test/1/catalog1/schema1/CODEX_DM8_LINK_LOCAL_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(1:63~1:135) /test/1/catalog1/CODEX_DM8_LINK_REMOTE_20260721/CODEX_LINK_T/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_024]
+sql:
+create table CODEX_DM8_LINK_REMOTE_COPY as select ID,NAME,AMOUNT from CODEX_DM8_LINK_REMOTE_20260721.CODEX_LINK_T@CODEX_DM8_LINK_PEER_20260721;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:39) /test/1/catalog1/schema1/CODEX_DM8_LINK_REMOTE_COPY/",
+      "action": "CREATE",
+      "target": "Table(1:70~1:142) /test/1/catalog1/CODEX_DM8_LINK_REMOTE_20260721/CODEX_LINK_T/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_025]
+sql:
+select count(*) from CODEX_DM8_LINK_REMOTE_COPY;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:21~1:47) /test/1/catalog1/schema1/CODEX_DM8_LINK_REMOTE_COPY/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_026]
+sql:
+drop table CODEX_DM8_LINK_REMOTE_COPY;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:37) /test/1/catalog1/schema1/CODEX_DM8_LINK_REMOTE_COPY/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_027]
+sql:
+create view CODEX_DM8_LINK_REMOTE_V as select ID,NAME from CODEX_DM8_LINK_REMOTE_20260721.CODEX_LINK_T@CODEX_DM8_LINK_PEER_20260721;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:35) /test/1/catalog1/schema1/CODEX_DM8_LINK_REMOTE_V/",
+      "action": "CREATE",
+      "target": "Table(1:59~1:131) /test/1/catalog1/CODEX_DM8_LINK_REMOTE_20260721/CODEX_LINK_T/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_028]
+sql:
+select ID,NAME from CODEX_DM8_LINK_REMOTE_V order by ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:20~1:43) /test/1/catalog1/schema1/CODEX_DM8_LINK_REMOTE_V/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_029]
+sql:
+drop view CODEX_DM8_LINK_REMOTE_V;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "View(1:10~1:33) /test/1/catalog1/schema1/CODEX_DM8_LINK_REMOTE_V/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_030]
+sql:
+insert into CODEX_DM8_LINK_REMOTE_20260721.CODEX_LINK_T@CODEX_DM8_LINK_PEER_20260721 values(3,'REMOTE_THREE',30.5);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:84) /test/1/catalog1/CODEX_DM8_LINK_REMOTE_20260721/CODEX_LINK_T/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_031]
+sql:
+insert into CODEX_DM8_LINK_REMOTE_20260721.CODEX_LINK_T@CODEX_DM8_LINK_PEER_20260721
+select 4,'REMOTE_FOUR',40.5 from CODEX_DM8_LINK_LOCAL_T where ID=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:84) /test/1/catalog1/CODEX_DM8_LINK_REMOTE_20260721/CODEX_LINK_T/",
+      "action": "INSERT",
+      "target": "Table(2:33~2:55) /test/1/catalog1/schema1/CODEX_DM8_LINK_LOCAL_T/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_032]
+sql:
+select ID,NAME from CODEX_DM8_LINK_REMOTE_20260721.CODEX_LINK_T@CODEX_DM8_LINK_PEER_20260721 where ID in(3,4) order by ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:20~1:92) /test/1/catalog1/CODEX_DM8_LINK_REMOTE_20260721/CODEX_LINK_T/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_033]
+sql:
+update CODEX_DM8_LINK_REMOTE_20260721.CODEX_LINK_T@CODEX_DM8_LINK_PEER_20260721 set AMOUNT=31.5 where ID=3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:79) /test/1/catalog1/CODEX_DM8_LINK_REMOTE_20260721/CODEX_LINK_T/",
+      "action": "UPDATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_034]
+sql:
+update CODEX_DM8_LINK_REMOTE_20260721.CODEX_LINK_T@CODEX_DM8_LINK_PEER_20260721
+set AMOUNT=(select AMOUNT+40 from CODEX_DM8_LINK_LOCAL_T where ID=1) where ID=4;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:79) /test/1/catalog1/CODEX_DM8_LINK_REMOTE_20260721/CODEX_LINK_T/",
+      "action": "UPDATE",
+      "target": "Table(2:34~2:56) /test/1/catalog1/schema1/CODEX_DM8_LINK_LOCAL_T/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_035]
+sql:
+select ID,AMOUNT from CODEX_DM8_LINK_REMOTE_20260721.CODEX_LINK_T@CODEX_DM8_LINK_PEER_20260721 where ID in(3,4) order by ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:22~1:94) /test/1/catalog1/CODEX_DM8_LINK_REMOTE_20260721/CODEX_LINK_T/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_036]
+sql:
+delete from CODEX_DM8_LINK_REMOTE_20260721.CODEX_LINK_T@CODEX_DM8_LINK_PEER_20260721 where ID=4;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:84) /test/1/catalog1/CODEX_DM8_LINK_REMOTE_20260721/CODEX_LINK_T/",
+      "action": "DELETE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_037]
+sql:
+merge into CODEX_DM8_LINK_REMOTE_20260721.CODEX_LINK_T@CODEX_DM8_LINK_PEER_20260721 R
+using(select 5 as ID,'REMOTE_FIVE' as NAME,50.5 as AMOUNT) S on(R.ID=S.ID)
+when matched then update set R.NAME=S.NAME,R.AMOUNT=S.AMOUNT
+when not matched then insert(ID,NAME,AMOUNT) values(S.ID,S.NAME,S.AMOUNT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:11~1:83) /test/1/catalog1/CODEX_DM8_LINK_REMOTE_20260721/CODEX_LINK_T/",
+      "action": "MERGE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_038]
+sql:
+select ID,NAME from CODEX_DM8_LINK_REMOTE_20260721.CODEX_LINK_T@CODEX_DM8_LINK_PEER_20260721 where ID=5;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:20~1:92) /test/1/catalog1/CODEX_DM8_LINK_REMOTE_20260721/CODEX_LINK_T/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_039]
+sql:
+delete from CODEX_DM8_LINK_REMOTE_20260721.CODEX_LINK_T@CODEX_DM8_LINK_PEER_20260721 where ID in(3,5);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:84) /test/1/catalog1/CODEX_DM8_LINK_REMOTE_20260721/CODEX_LINK_T/",
+      "action": "DELETE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_040]
+sql:
+select CODEX_DM8_LINK_REMOTE_20260721.CODEX_LINK_FUNC@CODEX_DM8_LINK_PEER_20260721(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:82) /test/1/catalog1/CODEX_DM8_LINK_REMOTE_20260721/CODEX_LINK_FUNC/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_041]
+sql:
+call CODEX_DM8_LINK_REMOTE_20260721.CODEX_LINK_PROC@CODEX_DM8_LINK_PEER_20260721(6,'REMOTE_SIX',60.5);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:5~1:80) /test/1/catalog1/CODEX_DM8_LINK_REMOTE_20260721/CODEX_LINK_PROC/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_042]
+sql:
+select NAME from CODEX_DM8_LINK_REMOTE_20260721.CODEX_LINK_T@CODEX_DM8_LINK_PEER_20260721 where ID=6;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:17~1:89) /test/1/catalog1/CODEX_DM8_LINK_REMOTE_20260721/CODEX_LINK_T/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_043]
+sql:
+delete from CODEX_DM8_LINK_REMOTE_20260721.CODEX_LINK_T@CODEX_DM8_LINK_PEER_20260721 where ID=6;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:84) /test/1/catalog1/CODEX_DM8_LINK_REMOTE_20260721/CODEX_LINK_T/",
+      "action": "DELETE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_044]
+sql:
+select CODEX_DM8_LINK_REMOTE_20260721.CODEX_LINK_SEQ.nextval@CODEX_DM8_LINK_PEER_20260721;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Sequence(1:7~1:52) /test/1/catalog1/CODEX_DM8_LINK_REMOTE_20260721/CODEX_LINK_SEQ/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_045]
+sql:
+commit;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[split_ddl_dameng_link_0_046]
+sql:
+create public link CODEX_DM8_LINK_PUBLIC_20260721 connect 'DPI'
+with CODEX_DM8_LINK_REMOTE_20260721 identified by "Dm8@Link2026"
+using 'dm8-link-peer:5236';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:19~1:49) /test/1/CODEX_DM8_LINK_PUBLIC_20260721/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_047]
+sql:
+select count(*) from CODEX_DM8_LINK_REMOTE_20260721.CODEX_LINK_T@CODEX_DM8_LINK_PUBLIC_20260721;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:21~1:95) /test/1/catalog1/CODEX_DM8_LINK_REMOTE_20260721/CODEX_LINK_T/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_048]
+sql:
+select NAME,SCHID,TYPE$,SUBTYPE$ from SYSOBJECTS where NAME='CODEX_DM8_LINK_PUBLIC_20260721';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:38~1:48) /test/1/catalog1/schema1/SYSOBJECTS/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_049]
+sql:
+drop public link CODEX_DM8_LINK_PUBLIC_20260721;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:17~1:47) /test/1/CODEX_DM8_LINK_PUBLIC_20260721/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_050]
+sql:
+create link "Codex_Dm8_Link_Mixed_20260721" connect 'DPI'
+with CODEX_DM8_LINK_REMOTE_20260721 identified by "Dm8@Link2026"
+using 'dm8-link-peer:5236';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:12~1:43) /test/1/catalog1/schema1/Codex_Dm8_Link_Mixed_20260721/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_051]
+sql:
+select count(*) from CODEX_DM8_LINK_REMOTE_20260721.CODEX_LINK_T@"Codex_Dm8_Link_Mixed_20260721";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:21~1:96) /test/1/catalog1/CODEX_DM8_LINK_REMOTE_20260721/CODEX_LINK_T/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_052]
+sql:
+drop link "Codex_Dm8_Link_Mixed_20260721";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:10~1:41) /test/1/catalog1/schema1/Codex_Dm8_Link_Mixed_20260721/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_053]
+sql:
+create link SYSDBA.CODEX_DM8_LINK_SCHEMA_20260721 connect 'DPI'
+with CODEX_DM8_LINK_REMOTE_20260721 identified by "Dm8@Link2026"
+using 'dm8-link-peer:5236';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:12~1:49) /test/1/catalog1/SYSDBA/CODEX_DM8_LINK_SCHEMA_20260721/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_054]
+sql:
+select count(*) from CODEX_DM8_LINK_REMOTE_20260721.CODEX_LINK_T@SYSDBA.CODEX_DM8_LINK_SCHEMA_20260721;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:21~1:102) /test/1/catalog1/CODEX_DM8_LINK_REMOTE_20260721/CODEX_LINK_T/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_055]
+sql:
+drop link SYSDBA.CODEX_DM8_LINK_SCHEMA_20260721;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:10~1:47) /test/1/catalog1/SYSDBA/CODEX_DM8_LINK_SCHEMA_20260721/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_056]
+sql:
+create link CODEX_DM8_LINK_DEFAULT_20260721 connect
+with CODEX_LINK_USER identified by CODEX_LINK_PASSWORD using 'CODEX_INSTANCE';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:12~1:43) /test/1/catalog1/schema1/CODEX_DM8_LINK_DEFAULT_20260721/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_057]
+sql:
+drop link CODEX_DM8_LINK_DEFAULT_20260721;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:10~1:41) /test/1/catalog1/schema1/CODEX_DM8_LINK_DEFAULT_20260721/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_058]
+sql:
+create link CODEX_DM8_LINK_DAMENG_20260721 connect 'DAMENG'
+with CODEX_LINK_USER identified by CODEX_LINK_PASSWORD using 'CODEX_INSTANCE';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:12~1:42) /test/1/catalog1/schema1/CODEX_DM8_LINK_DAMENG_20260721/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_059]
+sql:
+drop link CODEX_DM8_LINK_DAMENG_20260721;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:10~1:40) /test/1/catalog1/schema1/CODEX_DM8_LINK_DAMENG_20260721/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_060]
+sql:
+create link CODEX_DM8_LINK_ORACLE_20260721 connect 'ORACLE'
+with CODEX_LINK_USER identified by CODEX_LINK_PASSWORD using 'ORCL';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:12~1:42) /test/1/catalog1/schema1/CODEX_DM8_LINK_ORACLE_20260721/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_061]
+sql:
+drop link CODEX_DM8_LINK_ORACLE_20260721;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:10~1:40) /test/1/catalog1/schema1/CODEX_DM8_LINK_ORACLE_20260721/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_062]
+sql:
+create link CODEX_DM8_LINK_ODBC_20260721 connect 'ODBC'
+with CODEX_LINK_USER identified by CODEX_LINK_PASSWORD using 'CODEX_DSN';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:12~1:40) /test/1/catalog1/schema1/CODEX_DM8_LINK_ODBC_20260721/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_063]
+sql:
+drop link CODEX_DM8_LINK_ODBC_20260721;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:10~1:38) /test/1/catalog1/schema1/CODEX_DM8_LINK_ODBC_20260721/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_064]
+sql:
+create link CODEX_DM8_LINK_GATEWAY_20260721 connect 'GATEWAY'
+with CODEX_LINK_USER identified by CODEX_LINK_PASSWORD using '127.0.0.1:1000';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:12~1:43) /test/1/catalog1/schema1/CODEX_DM8_LINK_GATEWAY_20260721/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_065]
+sql:
+drop link CODEX_DM8_LINK_GATEWAY_20260721;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:10~1:41) /test/1/catalog1/schema1/CODEX_DM8_LINK_GATEWAY_20260721/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_066]
+sql:
+create link CODEX_DM8_LINK_OPT_LOCAL_20260721 connect 'ODBC'
+with CODEX_LINK_USER identified by CODEX_LINK_PASSWORD using 'CODEX_DSN'
+option(LOCAL_CODE='UTF-8');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:12~1:45) /test/1/catalog1/schema1/CODEX_DM8_LINK_OPT_LOCAL_20260721/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_067]
+sql:
+select NAME,TYPE$,SUBTYPE$ from SYSOBJECTS where NAME='CODEX_DM8_LINK_OPT_LOCAL_20260721';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:32~1:42) /test/1/catalog1/schema1/SYSOBJECTS/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_068]
+sql:
+drop link CODEX_DM8_LINK_OPT_LOCAL_20260721;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:10~1:43) /test/1/catalog1/schema1/CODEX_DM8_LINK_OPT_LOCAL_20260721/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_069]
+sql:
+create link CODEX_DM8_LINK_OPT_CONVERT_20260721 connect 'ODBC'
+with CODEX_LINK_USER identified by CODEX_LINK_PASSWORD using 'CODEX_DSN'
+option(CONVERT_MODE=1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:12~1:47) /test/1/catalog1/schema1/CODEX_DM8_LINK_OPT_CONVERT_20260721/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_070]
+sql:
+drop link CODEX_DM8_LINK_OPT_CONVERT_20260721;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:10~1:45) /test/1/catalog1/schema1/CODEX_DM8_LINK_OPT_CONVERT_20260721/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_071]
+sql:
+create link CODEX_DM8_LINK_OPT_BYTES_20260721 connect 'ODBC'
+with CODEX_LINK_USER identified by CODEX_LINK_PASSWORD using 'CODEX_DSN'
+option(BYTES_IN_CHAR=2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:12~1:45) /test/1/catalog1/schema1/CODEX_DM8_LINK_OPT_BYTES_20260721/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_072]
+sql:
+drop link CODEX_DM8_LINK_OPT_BYTES_20260721;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:10~1:43) /test/1/catalog1/schema1/CODEX_DM8_LINK_OPT_BYTES_20260721/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_073]
+sql:
+create link CODEX_DM8_LINK_OPT_DBTYPE_20260721 connect 'ODBC'
+with CODEX_LINK_USER identified by CODEX_LINK_PASSWORD using 'CODEX_DSN'
+option(DB_TYPE='MYSQL');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:12~1:46) /test/1/catalog1/schema1/CODEX_DM8_LINK_OPT_DBTYPE_20260721/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_074]
+sql:
+drop link CODEX_DM8_LINK_OPT_DBTYPE_20260721;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:10~1:44) /test/1/catalog1/schema1/CODEX_DM8_LINK_OPT_DBTYPE_20260721/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_075]
+sql:
+create link CODEX_DM8_LINK_OPT_CHARSET_20260721 connect 'ODBC'
+with CODEX_LINK_USER identified by CODEX_LINK_PASSWORD using 'CODEX_DSN'
+option(DATA_CHARSET='UTF-8');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:12~1:47) /test/1/catalog1/schema1/CODEX_DM8_LINK_OPT_CHARSET_20260721/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_076]
+sql:
+drop link CODEX_DM8_LINK_OPT_CHARSET_20260721;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:10~1:45) /test/1/catalog1/schema1/CODEX_DM8_LINK_OPT_CHARSET_20260721/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_077]
+sql:
+create link CODEX_DM8_LINK_OPT_CASE_20260721 connect 'ODBC'
+with CODEX_LINK_USER identified by CODEX_LINK_PASSWORD using 'CODEX_DSN'
+option(CASE_OPT='UPPER');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:12~1:44) /test/1/catalog1/schema1/CODEX_DM8_LINK_OPT_CASE_20260721/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_078]
+sql:
+drop link CODEX_DM8_LINK_OPT_CASE_20260721;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:10~1:42) /test/1/catalog1/schema1/CODEX_DM8_LINK_OPT_CASE_20260721/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_079]
+sql:
+create link CODEX_DM8_LINK_OPT_ALL_20260721 connect 'ODBC'
+with CODEX_LINK_USER identified by CODEX_LINK_PASSWORD using 'CODEX_DSN'
+option(LOCAL_CODE='UTF-8',CONVERT_MODE=1,BYTES_IN_CHAR=2,
+DB_TYPE='MYSQL',DATA_CHARSET='UTF-8',CASE_OPT='LOWER');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:12~1:43) /test/1/catalog1/schema1/CODEX_DM8_LINK_OPT_ALL_20260721/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_080]
+sql:
+select NAME,SCHID,TYPE$,SUBTYPE$ from SYSOBJECTS where NAME='CODEX_DM8_LINK_OPT_ALL_20260721';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:38~1:48) /test/1/catalog1/schema1/SYSOBJECTS/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_081]
+sql:
+create or replace link CODEX_DM8_LINK_OPT_ALL_20260721 connect 'ODBC'
+with CODEX_LINK_USER identified by CODEX_LINK_PASSWORD using 'CODEX_DSN'
+option(LOCAL_CODE='GBK',CONVERT_MODE=0,BYTES_IN_CHAR=1,
+DB_TYPE='ORACLE',DATA_CHARSET='GBK',CASE_OPT='UPPER');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:23~1:54) /test/1/catalog1/schema1/CODEX_DM8_LINK_OPT_ALL_20260721/",
+      "action": "REPLACE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_082]
+sql:
+drop link CODEX_DM8_LINK_OPT_ALL_20260721;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:10~1:41) /test/1/catalog1/schema1/CODEX_DM8_LINK_OPT_ALL_20260721/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_083]
+sql:
+create public link SYSDBA.CODEX_DM8_LINK_PUBLIC_SCHEMA_20260721 connect 'DPI'
+with CODEX_LINK_USER identified by CODEX_LINK_PASSWORD using '127.0.0.1:5236';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:19~1:63) /test/1/catalog1/SYSDBA/CODEX_DM8_LINK_PUBLIC_SCHEMA_20260721/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_084]
+sql:
+select NAME,SCHID,TYPE$,SUBTYPE$ from SYSOBJECTS where NAME='CODEX_DM8_LINK_PUBLIC_SCHEMA_20260721';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:38~1:48) /test/1/catalog1/schema1/SYSOBJECTS/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_085]
+sql:
+drop public link if exists SYSDBA.CODEX_DM8_LINK_PUBLIC_SCHEMA_20260721;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:27~1:71) /test/1/catalog1/SYSDBA/CODEX_DM8_LINK_PUBLIC_SCHEMA_20260721/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_086]
+sql:
+create link CODEX_DM8_LINK_RESTRICT_20260721 connect 'DPI'
+with CODEX_LINK_USER identified by CODEX_LINK_PASSWORD using '127.0.0.1:5236';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:12~1:44) /test/1/catalog1/schema1/CODEX_DM8_LINK_RESTRICT_20260721/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_087]
+sql:
+drop link CODEX_DM8_LINK_RESTRICT_20260721 restrict;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:10~1:42) /test/1/catalog1/schema1/CODEX_DM8_LINK_RESTRICT_20260721/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_088]
+sql:
+create link CODEX_DM8_LINK_CASCADE_20260721 connect 'DPI'
+with CODEX_LINK_USER identified by CODEX_LINK_PASSWORD using '127.0.0.1:5236';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:12~1:43) /test/1/catalog1/schema1/CODEX_DM8_LINK_CASCADE_20260721/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_089]
+sql:
+drop link CODEX_DM8_LINK_CASCADE_20260721 cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:10~1:41) /test/1/catalog1/schema1/CODEX_DM8_LINK_CASCADE_20260721/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_090]
+sql:
+select NAME,SCHID,TYPE$,SUBTYPE$ from SYSOBJECTS where NAME='CODEX_DM8_LINK_PEER_20260721';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:38~1:48) /test/1/catalog1/schema1/SYSOBJECTS/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_091]
+sql:
+drop link CODEX_DM8_LINK_PEER_20260721;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:10~1:38) /test/1/catalog1/schema1/CODEX_DM8_LINK_PEER_20260721/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_092]
+sql:
+drop link if exists CODEX_DM8_LINK_MISSING_20260721;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:20~1:51) /test/1/catalog1/schema1/CODEX_DM8_LINK_MISSING_20260721/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_093]
+sql:
+drop link if exists SYSDBA.CODEX_DM8_LINK_SCHEMA_MISSING_20260721;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Link(1:20~1:65) /test/1/catalog1/SYSDBA/CODEX_DM8_LINK_SCHEMA_MISSING_20260721/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_094]
+sql:
+revoke CODEX_DM8_LINK_PRIV_ROLE_20260721 from CODEX_DM8_LINK_PRIV_USER_20260721;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "Role(1:7~1:40) /test/1/CODEX_DM8_LINK_PRIV_ROLE_20260721/",
+      "action": "REVOKE",
+      "target": "UserOrRole(1:46~1:79) /test/1/CODEX_DM8_LINK_PRIV_USER_20260721/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_095]
+sql:
+revoke create link from CODEX_DM8_LINK_PRIV_USER_20260721;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "Link(1:14~1:18) /test/1/",
+      "action": "REVOKE",
+      "target": "UserOrRole(1:24~1:57) /test/1/CODEX_DM8_LINK_PRIV_USER_20260721/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_096]
+sql:
+revoke drop link from CODEX_DM8_LINK_PRIV_USER_20260721;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "Link(1:12~1:16) /test/1/",
+      "action": "REVOKE",
+      "target": "UserOrRole(1:22~1:55) /test/1/CODEX_DM8_LINK_PRIV_USER_20260721/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_097]
+sql:
+revoke create link,drop link from CODEX_DM8_LINK_PRIV_ROLE_20260721;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "Link(1:14~1:18) /test/1/",
+      "action": "REVOKE",
+      "target": "UserOrRole(1:34~1:67) /test/1/CODEX_DM8_LINK_PRIV_ROLE_20260721/"
+    },
+    {
+      "subject": "Link(1:24~1:28) /test/1/",
+      "action": "REVOKE",
+      "target": "UserOrRole(1:34~1:67) /test/1/CODEX_DM8_LINK_PRIV_ROLE_20260721/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_098]
+sql:
+drop user CODEX_DM8_LINK_PRIV_USER_20260721 cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_USER": [
+    {
+      "subject": "User(1:10~1:43) /test/1/CODEX_DM8_LINK_PRIV_USER_20260721/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_099]
+sql:
+drop role CODEX_DM8_LINK_PRIV_ROLE_20260721;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_ROLE": [
+    {
+      "subject": "Role(1:10~1:43) /test/1/CODEX_DM8_LINK_PRIV_ROLE_20260721/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_100]
+sql:
+delete from CODEX_DM8_LINK_LOCAL_T;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:34) /test/1/catalog1/schema1/CODEX_DM8_LINK_LOCAL_T/",
+      "action": "DELETE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_link_0_101]
+sql:
+drop table CODEX_DM8_LINK_LOCAL_T;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:33) /test/1/catalog1/schema1/CODEX_DM8_LINK_LOCAL_T/",
+      "action": "DROP"
+    }
+  ]
+}

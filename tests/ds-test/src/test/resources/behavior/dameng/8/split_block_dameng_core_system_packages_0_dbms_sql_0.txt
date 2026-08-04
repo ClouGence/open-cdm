@@ -1,0 +1,302 @@
+[split_block_dameng_core_system_packages_0_034]
+sql:
+declare cursor_no int; open_value boolean; begin cursor_no := dbms_sql.open_cursor(); open_value := dbms_sql.is_open(cursor_no); dbms_sql.close_cursor(cursor_no); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:129~1:150) /test/1/catalog1/dbms_sql/close_cursor/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:62~1:82) /test/1/catalog1/dbms_sql/open_cursor/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:100~1:116) /test/1/catalog1/dbms_sql/is_open/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_core_system_packages_0_035]
+sql:
+declare cursor_no int; execute_value int; begin cursor_no := dbms_sql.open_cursor(); dbms_sql.parse(cursor_no, 'select 1 as A', '1'); execute_value := dbms_sql.execute(cursor_no); dbms_sql.close_cursor(cursor_no); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:85~1:99) /test/1/catalog1/dbms_sql/parse/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:180~1:201) /test/1/catalog1/dbms_sql/close_cursor/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:61~1:81) /test/1/catalog1/dbms_sql/open_cursor/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:151~1:167) /test/1/catalog1/dbms_sql/execute/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_core_system_packages_0_036]
+sql:
+declare cursor_no int; execute_value int; fetch_value int; column_value number; begin cursor_no := dbms_sql.open_cursor(); dbms_sql.parse(cursor_no, 'select 1.5 as A', '1'); dbms_sql.define_column(cursor_no, 1, column_value); execute_value := dbms_sql.execute(cursor_no); fetch_value := dbms_sql.fetch_rows(cursor_no); dbms_sql.column_value(cursor_no, 1, column_value); dbms_sql.close_cursor(cursor_no); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:123~1:137) /test/1/catalog1/dbms_sql/parse/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:174~1:196) /test/1/catalog1/dbms_sql/define_column/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:319~1:340) /test/1/catalog1/dbms_sql/column_value/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:370~1:391) /test/1/catalog1/dbms_sql/close_cursor/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:99~1:119) /test/1/catalog1/dbms_sql/open_cursor/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:243~1:259) /test/1/catalog1/dbms_sql/execute/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:287~1:306) /test/1/catalog1/dbms_sql/fetch_rows/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_core_system_packages_0_037]
+sql:
+declare cursor_no int; execute_value int; fetch_value int; column_value varchar(64); begin cursor_no := dbms_sql.open_cursor(); dbms_sql.parse(cursor_no, 'select ''CODEX'' as A', '1'); dbms_sql.define_column(cursor_no, 1, column_value, 64); execute_value := dbms_sql.execute(cursor_no); fetch_value := dbms_sql.fetch_rows(cursor_no); dbms_sql.column_value(cursor_no, 1, column_value); dbms_sql.close_cursor(cursor_no); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:128~1:142) /test/1/catalog1/dbms_sql/parse/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:185~1:207) /test/1/catalog1/dbms_sql/define_column/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:334~1:355) /test/1/catalog1/dbms_sql/column_value/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:385~1:406) /test/1/catalog1/dbms_sql/close_cursor/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:104~1:124) /test/1/catalog1/dbms_sql/open_cursor/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:258~1:274) /test/1/catalog1/dbms_sql/execute/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:302~1:321) /test/1/catalog1/dbms_sql/fetch_rows/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_core_system_packages_0_038]
+sql:
+declare cursor_no int; execute_value int; fetch_value int; column_value number; begin cursor_no := dbms_sql.open_cursor(); dbms_sql.parse(cursor_no, 'select :C1 as A', '1'); dbms_sql.bind_variable(cursor_no, 'C1', 52); dbms_sql.define_column(cursor_no, 1, column_value); execute_value := dbms_sql.execute(cursor_no); fetch_value := dbms_sql.fetch_rows(cursor_no); dbms_sql.column_value(cursor_no, 1, column_value); dbms_sql.close_cursor(cursor_no); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:123~1:137) /test/1/catalog1/dbms_sql/parse/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:174~1:196) /test/1/catalog1/dbms_sql/bind_variable/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:219~1:241) /test/1/catalog1/dbms_sql/define_column/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:364~1:385) /test/1/catalog1/dbms_sql/column_value/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:415~1:436) /test/1/catalog1/dbms_sql/close_cursor/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:99~1:119) /test/1/catalog1/dbms_sql/open_cursor/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:288~1:304) /test/1/catalog1/dbms_sql/execute/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:332~1:351) /test/1/catalog1/dbms_sql/fetch_rows/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_core_system_packages_0_039]
+sql:
+declare cursor_no int; execute_value int; fetch_value int; column_value dbms_sql.number_table; begin cursor_no := dbms_sql.open_cursor(); dbms_sql.parse(cursor_no, 'select n from CODEX_DM8_CORE_PKG order by id', '1'); dbms_sql.define_array(cursor_no, 1, column_value, 2, 1); execute_value := dbms_sql.execute(cursor_no); fetch_value := dbms_sql.fetch_rows(cursor_no); dbms_sql.column_value(cursor_no, 1, column_value); dbms_sql.close_cursor(cursor_no); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:72~1:93) /test/1/catalog1/dbms_sql/number_table/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(1:138~1:152) /test/1/catalog1/dbms_sql/parse/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:218~1:239) /test/1/catalog1/dbms_sql/define_array/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:368~1:389) /test/1/catalog1/dbms_sql/column_value/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:419~1:440) /test/1/catalog1/dbms_sql/close_cursor/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:114~1:134) /test/1/catalog1/dbms_sql/open_cursor/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:292~1:308) /test/1/catalog1/dbms_sql/execute/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:336~1:355) /test/1/catalog1/dbms_sql/fetch_rows/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_core_system_packages_0_040]
+sql:
+declare cursor_no int; execute_value int; begin cursor_no := dbms_sql.open_cursor(); dbms_sql.parse(cursor_no, 'select 1', '1'); execute_value := dbms_sql.execute_and_fetch(cursor_no, true); dbms_sql.close_cursor(cursor_no); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:85~1:99) /test/1/catalog1/dbms_sql/parse/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:191~1:212) /test/1/catalog1/dbms_sql/close_cursor/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:61~1:81) /test/1/catalog1/dbms_sql/open_cursor/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:146~1:172) /test/1/catalog1/dbms_sql/execute_and_fetch/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_core_system_packages_0_051]
+sql:
+declare cursor_no int; execute_value int; begin cursor_no := dbms_sql.open_cursor(); dbms_sql.parse(cursor_no, 'select :x from dual', 0); dbms_sql.bind_variable(cursor_no, ':x', 'ABC', 10); execute_value := dbms_sql.execute(cursor_no); dbms_sql.close_cursor(cursor_no); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:85~1:99) /test/1/catalog1/dbms_sql/parse/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:138~1:160) /test/1/catalog1/dbms_sql/bind_variable/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:236~1:257) /test/1/catalog1/dbms_sql/close_cursor/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:61~1:81) /test/1/catalog1/dbms_sql/open_cursor/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:207~1:223) /test/1/catalog1/dbms_sql/execute/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_core_system_packages_0_052]
+sql:
+declare cursor_no int; execute_value int; value varbinary(16) := '4142'; begin cursor_no := dbms_sql.open_cursor(); dbms_sql.parse(cursor_no, 'select :x from dual', 0); dbms_sql.bind_variable(cursor_no, ':x', value, 10); execute_value := dbms_sql.execute(cursor_no); dbms_sql.close_cursor(cursor_no); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:116~1:130) /test/1/catalog1/dbms_sql/parse/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:169~1:191) /test/1/catalog1/dbms_sql/bind_variable/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:267~1:288) /test/1/catalog1/dbms_sql/close_cursor/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:92~1:112) /test/1/catalog1/dbms_sql/open_cursor/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:238~1:254) /test/1/catalog1/dbms_sql/execute/",
+      "action": "CALL"
+    }
+  ]
+}

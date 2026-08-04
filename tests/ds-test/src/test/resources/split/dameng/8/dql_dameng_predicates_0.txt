@@ -1,0 +1,144 @@
+select 1 from dual where 1 = 1;
+select 1 from dual where 1 <> 2;
+select 1 from dual where 1 != 2;
+select 1 from dual where 2 > 1;
+select 1 from dual where 2 >= 2;
+select 1 from dual where 1 < 2;
+select 1 from dual where 1 <= 1;
+select 1 from dual where -1 < 0;
+select 1 from dual where 1.25 < 2.50;
+select 1 from dual where 'A' = 'A';
+select 1 from dual where 'A' <> 'B';
+select 1 from dual where DATE '2020-01-01' < DATE '2020-01-02';
+select 1 from dual where TIMESTAMP '2020-01-01 00:00:00' <= TIMESTAMP '2020-01-01 00:00:01';
+select 1 from dual where 5 between 1 and 10;
+select 1 from dual where 5 not between 6 and 10;
+select 1 from dual where -5 between -10 and 0;
+select 1 from dual where 1.5 between 1.0 and 2.0;
+select 1 from dual where 'B' between 'A' and 'C';
+select 1 from dual where DATE '2020-01-02' between DATE '2020-01-01' and DATE '2020-01-03';
+select 1 from dual where 1 in (1);
+select 1 from dual where 2 in (1, 2, 3);
+select 1 from dual where 4 not in (1, 2, 3);
+select 1 from dual where -1 in (-1, 0, 1);
+select 1 from dual where 'A' in ('A', 'B');
+select 1 from dual where 'C' not in ('A', 'B');
+select 1 from dual where DATE '2020-01-01' in (DATE '2020-01-01', DATE '2020-01-02');
+select 1 from dual where 'DM8' like 'DM%';
+select 1 from dual where 'DM8' like 'DM_';
+select 1 from dual where 'DM8' not like 'MYSQL%';
+select 1 from dual where 'ABC_123' like 'ABC#_123' escape '#';
+select 1 from dual where '100%' like '100#%' escape '#';
+select 1 from dual where 'A' like '%';
+select 1 from dual where 'ABC' like '_B_';
+select 1 from dual where null is null;
+select 1 from dual where 1 is not null;
+select 1 from dual where cast(null as int) is null;
+select 1 from dual where 1 = 1 and 2 = 2;
+select 1 from dual where 1 = 2 or 2 = 2;
+select 1 from dual where not (1 = 2);
+select 1 from dual where (1 = 1 or 1 = 2) and 2 = 2;
+select 1 from dual where 1 = 1 and not (2 = 3);
+select 1 from dual where null is null or 1 = 2;
+select 1 from dual where exists (select 1 from dual);
+select 1 from dual where not exists (select 1 from dual where 1 = 2);
+select 1 from dual where 1 = (select 1 from dual);
+select 1 from dual where 1 < any (select 2 from dual);
+select 1 from dual where 1 <= all (select 1 from dual);
+select 1 from dual where 1 in (select 1 from dual);
+------------------------------------------------------------------------------------------
+[SELECT] select 1 from dual where 1 = 1;
+----------
+[SELECT] select 1 from dual where 1 <> 2;
+----------
+[SELECT] select 1 from dual where 1 != 2;
+----------
+[SELECT] select 1 from dual where 2 > 1;
+----------
+[SELECT] select 1 from dual where 2 >= 2;
+----------
+[SELECT] select 1 from dual where 1 < 2;
+----------
+[SELECT] select 1 from dual where 1 <= 1;
+----------
+[SELECT] select 1 from dual where -1 < 0;
+----------
+[SELECT] select 1 from dual where 1.25 < 2.50;
+----------
+[SELECT] select 1 from dual where 'A' = 'A';
+----------
+[SELECT] select 1 from dual where 'A' <> 'B';
+----------
+[SELECT] select 1 from dual where DATE '2020-01-01' < DATE '2020-01-02';
+----------
+[SELECT] select 1 from dual where TIMESTAMP '2020-01-01 00:00:00' <= TIMESTAMP '2020-01-01 00:00:01';
+----------
+[SELECT] select 1 from dual where 5 between 1 and 10;
+----------
+[SELECT] select 1 from dual where 5 not between 6 and 10;
+----------
+[SELECT] select 1 from dual where -5 between -10 and 0;
+----------
+[SELECT] select 1 from dual where 1.5 between 1.0 and 2.0;
+----------
+[SELECT] select 1 from dual where 'B' between 'A' and 'C';
+----------
+[SELECT] select 1 from dual where DATE '2020-01-02' between DATE '2020-01-01' and DATE '2020-01-03';
+----------
+[SELECT] select 1 from dual where 1 in (1);
+----------
+[SELECT] select 1 from dual where 2 in (1, 2, 3);
+----------
+[SELECT] select 1 from dual where 4 not in (1, 2, 3);
+----------
+[SELECT] select 1 from dual where -1 in (-1, 0, 1);
+----------
+[SELECT] select 1 from dual where 'A' in ('A', 'B');
+----------
+[SELECT] select 1 from dual where 'C' not in ('A', 'B');
+----------
+[SELECT] select 1 from dual where DATE '2020-01-01' in (DATE '2020-01-01', DATE '2020-01-02');
+----------
+[SELECT] select 1 from dual where 'DM8' like 'DM%';
+----------
+[SELECT] select 1 from dual where 'DM8' like 'DM_';
+----------
+[SELECT] select 1 from dual where 'DM8' not like 'MYSQL%';
+----------
+[SELECT] select 1 from dual where 'ABC_123' like 'ABC#_123' escape '#';
+----------
+[SELECT] select 1 from dual where '100%' like '100#%' escape '#';
+----------
+[SELECT] select 1 from dual where 'A' like '%';
+----------
+[SELECT] select 1 from dual where 'ABC' like '_B_';
+----------
+[SELECT] select 1 from dual where null is null;
+----------
+[SELECT] select 1 from dual where 1 is not null;
+----------
+[SELECT] select 1 from dual where cast(null as int) is null;
+----------
+[SELECT] select 1 from dual where 1 = 1 and 2 = 2;
+----------
+[SELECT] select 1 from dual where 1 = 2 or 2 = 2;
+----------
+[SELECT] select 1 from dual where not (1 = 2);
+----------
+[SELECT] select 1 from dual where (1 = 1 or 1 = 2) and 2 = 2;
+----------
+[SELECT] select 1 from dual where 1 = 1 and not (2 = 3);
+----------
+[SELECT] select 1 from dual where null is null or 1 = 2;
+----------
+[SELECT] select 1 from dual where exists (select 1 from dual);
+----------
+[SELECT] select 1 from dual where not exists (select 1 from dual where 1 = 2);
+----------
+[SELECT] select 1 from dual where 1 = (select 1 from dual);
+----------
+[SELECT] select 1 from dual where 1 < any (select 2 from dual);
+----------
+[SELECT] select 1 from dual where 1 <= all (select 1 from dual);
+----------
+[SELECT] select 1 from dual where 1 in (select 1 from dual);

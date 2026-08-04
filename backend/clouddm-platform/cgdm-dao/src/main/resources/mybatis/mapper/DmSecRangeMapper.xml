@@ -15,7 +15,7 @@
         <result column="level_nodes" property="levelNodes" typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
         <result column="choose_all" property="chooseAll"/>
         <result column="ref_ds_type" property="referDsType" javaType="com.clougence.clouddm.base.metadata.ds.DataSourceType"/>
-        <result column="table_level" property="tableLevelType" javaType="com.clougence.clouddm.sdk.model.analysis.TargetType"/>
+        <result column="table_level" property="tableLevelType" javaType="com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType"/>
     </resultMap>
 
     <sql id="allColumns">
@@ -67,7 +67,7 @@
             level_nodes  = #{info.levelNodes, typeHandler=com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler},
             choose_all   = #{info.chooseAll},
             ref_ds_type  = #{info.referDsType, javaType=com.clougence.clouddm.base.metadata.ds.DataSourceType},
-            table_level  = #{info.tableLevelType, javaType=com.clougence.clouddm.sdk.model.analysis.TargetType}
+            table_level  = #{info.tableLevelType, javaType=com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType}
         where
             owner_uid = #{ownerUid} and
             id        = #{rangeId}

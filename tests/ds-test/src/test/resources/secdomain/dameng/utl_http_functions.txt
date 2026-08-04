@@ -1,0 +1,82 @@
+[utl_http_procedure_domains]
+sql:
+declare
+  q utl_http.req; p utl_http.resp; c utl_http.connection; cs utl_http.connection_table;
+  t varchar(32767); t2 varchar(32767); b varbinary(32767); f boolean; n int;
+begin
+  utl_http.close_persistent_conn(c);
+  utl_http.close_persistent_conns();
+  utl_http.end_request(q);
+  utl_http.end_response(p);
+  utl_http.get_authentication(p,t,t2);
+  utl_http.get_detailed_excp_support(f);
+  utl_http.get_header(p,1,t,t2);
+  utl_http.get_header_by_name(p,'X',t);
+  utl_http.get_persistent_conn_support(f,n);
+  utl_http.get_persistent_conns(cs);
+  utl_http.get_proxy(t,t2);
+  utl_http.read_line(p,t);
+  utl_http.read_raw(p,b);
+  utl_http.read_text(p,t);
+  utl_http.set_authentication(q,'u');
+  utl_http.set_body_charset();
+  utl_http.set_body_charset(q);
+  utl_http.set_body_charset(p);
+  utl_http.set_detailed_excp_support();
+  utl_http.set_header(q,'X');
+  utl_http.set_persistent_conn_support(true);
+  utl_http.set_persistent_conn_support(q);
+  utl_http.set_proxy('proxy');
+  utl_http.set_response_error_check();
+  utl_http.set_transfer_timeout(q);
+  utl_http.set_transfer_timeout();
+  utl_http.set_wallet('wallet');
+  utl_http.write_raw(q,b);
+  utl_http.write_text(q,'data');
+end;
+expect:
+{
+  "contains": [
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"utl_http"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"utl_http"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"utl_http"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"utl_http"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"utl_http"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"utl_http"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"utl_http"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"utl_http"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"utl_http"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"utl_http"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"utl_http"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"utl_http"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"utl_http"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"utl_http"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"utl_http"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"utl_http"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"utl_http"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"utl_http"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"utl_http"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"utl_http"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"utl_http"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"utl_http"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"utl_http"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"utl_http"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"utl_http"}
+  ]
+}
+----------
+[utl_http_function_expressions_no_domain]
+sql:
+declare
+  q utl_http.req; p utl_http.resp; t varchar(32767); n int;
+begin
+  q:=utl_http.begin_request('http://example.invalid');
+  p:=utl_http.get_response(q);
+  n:=utl_http.get_header_count(p);
+  t:=utl_http.request('http://example.invalid');
+  n:=utl_http.get_persistent_conn_count();
+  n:=utl_http.get_detailed_sqlcode();
+  t:=utl_http.get_detailed_sqlerrm();
+end;
+expect:
+{"size":0}

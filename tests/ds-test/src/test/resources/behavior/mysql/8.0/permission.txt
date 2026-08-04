@@ -1,0 +1,142 @@
+[builtin_and_user_functions]
+sql:
+SELECT COUNT(*), CAST('1' AS SIGNED), NOW(), score_udf(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject"   : "Function(1:7~1:12) /test/1/catalog1/schema1/COUNT/",
+      "action"    : "CALL",
+      "permission": "EXEMPT"
+    },
+    {
+      "subject"   : "Function(1:17~1:21) /test/1/catalog1/schema1/CAST/",
+      "action"    : "CALL",
+      "permission": "EXEMPT"
+    },
+    {
+      "subject"   : "Function(1:38~1:41) /test/1/catalog1/schema1/NOW/",
+      "action"    : "CALL",
+      "permission": "EXEMPT"
+    },
+    {
+      "subject"   : "Function(1:45~1:54) /test/1/catalog1/schema1/score_udf/",
+      "action"    : "CALL",
+      "permission": "REQUIRED"
+    }
+  ]
+}
+----------
+[qualified_and_quoted_builtin_names]
+sql:
+SELECT app_schema.CAST(1), `COUNT`(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject"   : "Function(1:7~1:22) /test/1/catalog1/app_schema/CAST/",
+      "action"    : "CALL",
+      "permission": "REQUIRED"
+    },
+    {
+      "subject"   : "Function(1:27~1:34) /test/1/catalog1/schema1/COUNT/",
+      "action"    : "CALL",
+      "permission": "REQUIRED"
+    }
+  ]
+}
+----------
+[system_procedure]
+sql:
+CALL sys.ps_setup_reset_to_default(false);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject"   : "Procedure(1:5~1:34) /test/1/catalog1/sys/ps_setup_reset_to_default/",
+      "action"    : "CALL",
+      "permission": "EXEMPT"
+    }
+  ]
+}
+----------
+[metadata_and_application_tables]
+sql:
+SELECT * FROM information_schema.tables;
+SELECT * FROM app_schema.tables;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject"   : "Table(1:14~1:39) /test/1/catalog1/information_schema/tables/",
+      "action"    : "READ",
+      "permission": "EXEMPT"
+    }
+  ],
+  "SELECT"  : [
+    {
+      "subject"   : "Table(2:14~2:31) /test/1/catalog1/app_schema/tables/",
+      "action"    : "READ",
+      "permission": "REQUIRED"
+    }
+  ]
+}
+----------
+[constant_select]
+sql:
+SELECT 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[dual]
+sql:
+SELECT 1 FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject"   : "Table(1:14~1:18) /test/1/catalog1/schema1/DUAL/",
+      "action"    : "READ",
+      "permission": "REQUIRED"
+    }
+  ]
+}
+----------
+[temporary_table_is_not_registered]
+sql:
+CREATE TEMPORARY TABLE tmp_result AS SELECT * FROM app_schema.orders;
+DROP TEMPORARY TABLE tmp_result;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject"   : "Table(1:23~1:33) /test/1/catalog1/schema1/tmp_result/",
+      "action"    : "CREATE",
+      "permission": "REQUIRED",
+      "target"    : "Table(1:51~1:68) /test/1/catalog1/app_schema/orders/"
+    }
+  ],
+  "DROP_TABLE"  : [
+    {
+      "subject"   : "Table(2:21~2:31) /test/1/catalog1/schema1/tmp_result/",
+      "action"    : "DROP",
+      "permission": "REQUIRED"
+    }
+  ]
+}

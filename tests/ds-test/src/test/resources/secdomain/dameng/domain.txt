@@ -1,0 +1,91 @@
+[create_domain]
+sql:
+create domain app.positive_amount decimal(12,2) default 0
+constraint ck_positive_amount check(value >= 0)
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"CREATE_TYPE", "auditKind":"CREATE", "schema":"app", "name":"positive_amount"}
+  ]
+}
+----------
+[create_domain_if_not_exists]
+sql:
+create domain if not exists app.status_code varchar(16) default 'NEW'
+check(value in ('NEW', 'DONE'))
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"CREATE_TYPE", "auditKind":"CREATE", "schema":"app", "name":"status_code"}
+  ]
+}
+----------
+[grant_domain_usage]
+sql:
+grant usage on domain app.positive_amount to report_user
+expect:
+{
+  "contains": [
+    {"class":"RdbGrantDomain", "sqlType":"GRANT", "auditKind":"ALTER", "name":"report_user"}
+  ]
+}
+----------
+[revoke_domain_usage]
+sql:
+revoke usage on domain app.positive_amount from report_user
+expect:
+{
+  "contains": [
+    {"class":"RdbRevokeDomain", "sqlType":"REVOKE", "auditKind":"ALTER", "name":"report_user"}
+  ]
+}
+----------
+[create_table_using_domain]
+sql:
+create table app.domain_orders(id int, amount app.positive_amount, status app.status_code)
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"CREATE_TABLE", "auditKind":"CREATE", "schema":"app", "table":"domain_orders"}
+  ]
+}
+----------
+[query_domain_table]
+sql:
+select id, amount, status from app.domain_orders where amount > 0
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"domain_orders"}
+  ]
+}
+----------
+[drop_domain_cascade]
+sql:
+drop domain if exists app.positive_amount cascade
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"DROP_TYPE", "auditKind":"DROP", "schema":"app", "name":"positive_amount"}
+  ]
+}
+----------
+[grant_domain_system_privileges]
+sql:
+grant create domain, create any domain, drop any domain, usage any domain, grant any domain to domain_actor
+expect:
+{
+  "contains": [
+    {"class":"RdbGrantDomain", "sqlType":"GRANT", "auditKind":"ALTER", "name":"domain_actor"}
+  ]
+}
+----------
+[revoke_domain_system_privileges]
+sql:
+revoke create domain, create any domain, drop any domain, usage any domain, grant any domain from domain_actor
+expect:
+{
+  "contains": [
+    {"class":"RdbRevokeDomain", "sqlType":"REVOKE", "auditKind":"ALTER", "name":"domain_actor"}
+  ]
+}

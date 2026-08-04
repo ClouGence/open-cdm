@@ -1,0 +1,39 @@
+select SF_GET_SELF_EP_SEQNO();
+select SF_GET_SESSION_MPP_SELECT_LOCAL();
+select SF_GET_SESSION_MPP_SELECT_LOCAL();
+select ID, SF_GET_EP_SEQNO(ROWID) as EP_SEQNO from MPP_HASH order by ID;
+select SF_GET_EP_SEQNO(ROWID) as EP_SEQNO, count(*) as ROW_COUNT
+from MPP_HASH group by SF_GET_EP_SEQNO(ROWID) order by EP_SEQNO;
+select distinct INST_NAME, EP_SEQNO from V$MPP_CFG_ITEM order by EP_SEQNO;
+select NAME from V$INSTANCE where SF_GET_EP_SEQNO(ROWID)=SF_GET_SELF_EP_SEQNO();
+select count(*) as SESSION_COUNT from V$SESSIONS
+where SF_GET_EP_SEQNO(ROWID)=SF_GET_SELF_EP_SEQNO();
+select TABLE_USED_PAGES('CODEX_DM8_MPP', 'MPP_HASH');
+select TABLE_USED_PAGES('CODEX_DM8_MPP', 'MPP_HASH'), NAME from V$INSTANCE order by NAME;
+select H.ID, H.NOTE, R.NOTE as RANGE_NOTE from MPP_HASH H join MPP_RANGE R on R.ID=150
+where H.ID=2;
+------------------------------------------------------------------------------------------
+[SELECT] select SF_GET_SELF_EP_SEQNO();
+----------
+[SELECT] select SF_GET_SESSION_MPP_SELECT_LOCAL();
+----------
+[SELECT] select SF_GET_SESSION_MPP_SELECT_LOCAL();
+----------
+[SELECT] select ID, SF_GET_EP_SEQNO(ROWID) as EP_SEQNO from MPP_HASH order by ID;
+----------
+[SELECT] select SF_GET_EP_SEQNO(ROWID) as EP_SEQNO, count(*) as ROW_COUNT
+from MPP_HASH group by SF_GET_EP_SEQNO(ROWID) order by EP_SEQNO;
+----------
+[SELECT] select distinct INST_NAME, EP_SEQNO from V$MPP_CFG_ITEM order by EP_SEQNO;
+----------
+[SELECT] select NAME from V$INSTANCE where SF_GET_EP_SEQNO(ROWID)=SF_GET_SELF_EP_SEQNO();
+----------
+[SELECT] select count(*) as SESSION_COUNT from V$SESSIONS
+where SF_GET_EP_SEQNO(ROWID)=SF_GET_SELF_EP_SEQNO();
+----------
+[SELECT] select TABLE_USED_PAGES('CODEX_DM8_MPP', 'MPP_HASH');
+----------
+[SELECT] select TABLE_USED_PAGES('CODEX_DM8_MPP', 'MPP_HASH'), NAME from V$INSTANCE order by NAME;
+----------
+[SELECT] select H.ID, H.NOTE, R.NOTE as RANGE_NOTE from MPP_HASH H join MPP_RANGE R on R.ID=150
+where H.ID=2;

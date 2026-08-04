@@ -1,0 +1,159 @@
+[MsRuleInsertAllowQueryTest#testInsertSubQuery_1#001]
+rule: _rules/insert/insert-allow-query.rule
+expect: true
+vars:
+  allow: true
+sql:
+insert into table1 select * from table2
+----------
+[MsRuleInsertAllowQueryTest#testInsertSubQuery_2#001]
+rule: _rules/insert/insert-allow-query.rule
+expect: false
+vars:
+  allow: false
+sql:
+insert into table1 select * from table2
+----------
+[MsRuleInsertRequireColumnsTest#requireColumns_1#001]
+rule: _rules/insert/insert-require-columns.rule
+expect: false
+vars:
+  require: true
+  columns: id,create_gmt,modify_gmt
+sql:
+insert into table1(id,bb) values(1,2,3)
+----------
+[MsRuleInsertRequireColumnsTest#requireColumns_1#002]
+rule: _rules/insert/insert-require-columns.rule
+expect: true
+vars:
+  require: true
+  columns: id,create_gmt,modify_gmt
+sql:
+insert into table1(id,create_gmt,modify_gmt) values(1,2,3)
+----------
+[MsRuleInsertRequireColumnsTest#requireColumns_1#003]
+rule: _rules/insert/insert-require-columns.rule
+expect: false
+vars:
+  require: true
+  columns: id,create_gmt,modify_gmt
+sql:
+insert into table1 values(1,2,3)
+----------
+[MsRuleInsertRequireColumnsTest#requireColumns_1#004]
+rule: _rules/insert/insert-require-columns.rule
+expect: false
+vars:
+  require: true
+  columns: id,create_gmt,modify_gmt
+sql:
+insert into table1 default values
+----------
+[MsRuleInsertRequireColumnsTest#requireColumns_2#001]
+rule: _rules/insert/insert-require-columns.rule
+expect: false
+vars:
+  require: false
+  columns: id,create_gmt,modify_gmt
+sql:
+insert into table1(id,bb) values(1,2,3)
+----------
+[MsRuleInsertRequireColumnsTest#requireColumns_2#002]
+rule: _rules/insert/insert-require-columns.rule
+expect: true
+vars:
+  require: false
+  columns: id,create_gmt,modify_gmt
+sql:
+insert into table1(id,create_gmt,modify_gmt) values(1,2,3)
+----------
+[MsRuleInsertRequireColumnsTest#requireColumns_2#003]
+rule: _rules/insert/insert-require-columns.rule
+expect: true
+vars:
+  require: false
+  columns: id,create_gmt,modify_gmt
+sql:
+insert into table1 values(1,2,3)
+----------
+[MsRuleInsertRequireColumnsTest#requireColumns_2#004]
+rule: _rules/insert/insert-require-columns.rule
+expect: true
+vars:
+  require: false
+  columns: id,create_gmt,modify_gmt
+sql:
+insert into table1 default values
+----------
+[MsRuleInsertRequireColumnsTest#requireColumns_3#001]
+rule: _rules/insert/insert-require-columns.rule
+expect: true
+vars:
+  require: true
+  columns: id
+sql:
+insert into table1(id,bb) values(1,2,3)
+----------
+[MsRuleInsertRequireColumnsTest#requireColumns_3#002]
+rule: _rules/insert/insert-require-columns.rule
+expect: true
+vars:
+  require: true
+  columns: id
+sql:
+insert into table1(id,create_gmt,modify_gmt) values(1,2,3)
+----------
+[MsRuleInsertRequireColumnsTest#requireColumns_3#003]
+rule: _rules/insert/insert-require-columns.rule
+expect: false
+vars:
+  require: true
+  columns: id
+sql:
+insert into table1 values(1,2,3)
+----------
+[MsRuleInsertRequireColumnsTest#requireColumns_3#004]
+rule: _rules/insert/insert-require-columns.rule
+expect: false
+vars:
+  require: true
+  columns: id
+sql:
+insert into table1 default values
+----------
+[MsRuleInsertRequireColumnsTest#requireColumns_4#001]
+rule: _rules/insert/insert-require-columns.rule
+expect: true
+vars:
+  require: false
+  columns: id
+sql:
+insert into table1(id,bb) values(1,2,3)
+----------
+[MsRuleInsertRequireColumnsTest#requireColumns_4#002]
+rule: _rules/insert/insert-require-columns.rule
+expect: true
+vars:
+  require: false
+  columns: id
+sql:
+insert into table1(id,create_gmt,modify_gmt) values(1,2,3)
+----------
+[MsRuleInsertRequireColumnsTest#requireColumns_4#003]
+rule: _rules/insert/insert-require-columns.rule
+expect: true
+vars:
+  require: false
+  columns: id
+sql:
+insert into table1 values(1,2,3)
+----------
+[MsRuleInsertRequireColumnsTest#requireColumns_4#004]
+rule: _rules/insert/insert-require-columns.rule
+expect: true
+vars:
+  require: false
+  columns: id
+sql:
+insert into table1 default values

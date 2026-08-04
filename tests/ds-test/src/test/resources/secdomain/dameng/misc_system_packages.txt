@@ -1,0 +1,82 @@
+[binary_column_domain]
+sql:
+select dbms_binary.binary_get_int(payload, 0) from app.binary_data
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"binary_data"}
+  ]
+}
+----------
+[url_i18n_column_domain]
+sql:
+select utl_url.escape(endpoint_url), utl_i18n.string_to_raw(note, 'UTF8') from app.endpoints
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"endpoints"}
+  ]
+}
+----------
+[errlog_create_domain]
+sql:
+call dbms_errlog.create_error_log('APP.ORDERS', 'APP.ERR_ORDERS')
+expect:
+{
+  "contains": [
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_errlog"}
+  ]
+}
+----------
+[errlog_insert_domain]
+sql:
+insert into app.orders(id, code) values(1, 'A') log errors into app.err_orders ('INSERT_TAG') reject limit unlimited
+expect:
+{
+  "contains": [
+    {"class":"RdbInsertDomain", "sqlType":"INSERT", "auditKind":"DML", "schema":"app", "table":"orders"},
+    {"class":"RdbInsertDomain", "sqlType":"INSERT", "auditKind":"DML", "schema":"app", "table":"err_orders"}
+  ]
+}
+----------
+[errlog_update_domain]
+sql:
+update app.orders set code=null where id=1 log errors into app.err_orders ('UPDATE_TAG') reject limit 10
+expect:
+{
+  "contains": [
+    {"class":"RdbUpdateDomain", "sqlType":"UPDATE", "auditKind":"DML", "schema":"app", "table":"orders"},
+    {"class":"RdbInsertDomain", "sqlType":"UPDATE", "auditKind":"DML", "schema":"app", "table":"err_orders"}
+  ]
+}
+----------
+[errlog_delete_domain]
+sql:
+delete from app.orders where id=1 log errors into app.err_orders ('DELETE_TAG') reject limit unlimited
+expect:
+{
+  "contains": [
+    {"class":"RdbDeleteDomain", "sqlType":"DELETE", "auditKind":"DML", "schema":"app", "table":"orders"},
+    {"class":"RdbInsertDomain", "sqlType":"DELETE", "auditKind":"DML", "schema":"app", "table":"err_orders"}
+  ]
+}
+----------
+[mview_refresh_domain]
+sql:
+call dbms_mview.refresh('APP.MV_ORDERS', 'C')
+expect:
+{
+  "contains": [
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_mview"}
+  ]
+}
+----------
+[errlog_query_domain]
+sql:
+select DM_ERR_NUMBER$, DM_ERR_OPTYPE$, DM_ERR_TAG$ from app.err_orders
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"err_orders"}
+  ]
+}

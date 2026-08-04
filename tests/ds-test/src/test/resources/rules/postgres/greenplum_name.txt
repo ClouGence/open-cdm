@@ -1,0 +1,191 @@
+[GpRuleNameNotInKeywordsTest#catalogNotInKeywords_1#001]
+rule: _rules/name/gp-name-not-in-keywords.rule
+expect: false
+vars:
+{}
+sql:
+create database "table"
+----------
+[GpRuleNameNotInKeywordsTest#catalogNotInKeywords_1#002]
+rule: _rules/name/gp-name-not-in-keywords.rule
+expect: true
+vars:
+{}
+sql:
+create database abc_test
+----------
+[GpRuleNameNotInKeywordsTest#catalogNotInKeywords_1#003]
+rule: _rules/name/gp-name-not-in-keywords.rule
+expect: false
+vars:
+{}
+sql:
+alter database abc rename to "table"
+----------
+[GpRuleNameNotInKeywordsTest#catalogNotInKeywords_1#004]
+rule: _rules/name/gp-name-not-in-keywords.rule
+expect: true
+vars:
+{}
+sql:
+alter database abc rename to abc_test
+----------
+[GpRuleNameNotInKeywordsTest#catalogNotInKeywords_1#005]
+rule: _rules/name/gp-name-not-in-keywords.rule
+expect: true
+vars:
+{}
+sql:
+alter database "table" rename to abc_test
+----------
+[GpRuleNameNotInKeywordsTest#schemaNotInKeywords_1#001]
+rule: _rules/name/gp-name-not-in-keywords.rule
+expect: true
+vars:
+{}
+sql:
+create schema abc_test
+----------
+[GpRuleNameNotInKeywordsTest#schemaNotInKeywords_2#001]
+rule: _rules/name/gp-name-not-in-keywords.rule
+expect: true
+vars:
+{}
+sql:
+alter schema abc rename to abc_test
+----------
+[GpRuleNameNotInKeywordsTest#schemaNotInKeywords_2#002]
+rule: _rules/name/gp-name-not-in-keywords.rule
+expect: true
+vars:
+{}
+sql:
+alter schema test.abc rename to abc_test
+----------
+[GpRuleNameNotInKeywordsTest#schemaNotInKeywords_2#003]
+rule: _rules/name/gp-name-not-in-keywords.rule
+expect: true
+vars:
+{}
+sql:
+alter schema test."table" rename to abc_test
+----------
+[GpRuleNameNotInKeywordsTest#schemaNotInKeywords_2#004]
+rule: _rules/name/gp-name-not-in-keywords.rule
+expect: true
+vars:
+{}
+sql:
+alter schema "table"."table" rename to abc_test
+----------
+[GpRuleNameNotInKeywordsTest#schemaNotInKeywords_3#001]
+rule: _rules/name/gp-name-not-in-keywords.rule
+expect: false
+vars:
+{}
+sql:
+alter schema abc rename to "else"
+----------
+[GpRuleNameNotInKeywordsTest#schemaNotInKeywords_3#002]
+rule: _rules/name/gp-name-not-in-keywords.rule
+expect: false
+vars:
+{}
+sql:
+alter schema test.abc rename to "else"
+----------
+[GpRuleNameNotInKeywordsTest#schemaNotInKeywords_3#003]
+rule: _rules/name/gp-name-not-in-keywords.rule
+expect: false
+vars:
+{}
+sql:
+alter schema test."table" rename to "else"
+----------
+[GpRuleNameNotInKeywordsTest#schemaNotInKeywords_3#004]
+rule: _rules/name/gp-name-not-in-keywords.rule
+expect: false
+vars:
+{}
+sql:
+alter schema "table"."table" rename to "else"
+----------
+[GpRuleNameNotInKeywordsTest#tableNotInKeywords_1#001]
+rule: _rules/name/gp-name-not-in-keywords.rule
+expect: false
+vars:
+{}
+sql:
+create table "table"(id int primary key, name varchar(25) not null)
+----------
+[GpRuleNameNotInKeywordsTest#tableNotInKeywords_1#002]
+rule: _rules/name/gp-name-not-in-keywords.rule
+expect: true
+vars:
+{}
+sql:
+create table abc_test(id int primary key, name varchar(25) not null)
+----------
+[GpRuleNameNotInKeywordsTest#tableNotInKeywords_1#003]
+rule: _rules/name/gp-name-not-in-keywords.rule
+expect: true
+vars:
+{}
+sql:
+alter table "table" rename to abc_test
+----------
+[GpRuleNameNotInKeywordsTest#tableNotInKeywords_1#004]
+rule: _rules/name/gp-name-not-in-keywords.rule
+expect: false
+vars:
+{}
+sql:
+alter table "table" rename to "else"
+----------
+[GpRuleNameNotInKeywordsTest#columnNameNotInKeywords_1#001]
+rule: _rules/name/gp-name-not-in-keywords.rule
+expect: true
+vars:
+{}
+sql:
+create table abc_test(id int)
+----------
+[GpRuleNameNotInKeywordsTest#columnNameNotInKeywords_1#002]
+rule: _rules/name/gp-name-not-in-keywords.rule
+expect: false
+vars:
+{}
+sql:
+create table abc_test(id int, "table" int)
+----------
+[GpRuleNameNotInKeywordsTest#columnNameNotInKeywords_1#003]
+rule: _rules/name/gp-name-not-in-keywords.rule
+expect: true
+vars:
+{}
+sql:
+alter table abc_test add name varchar(25);
+----------
+[GpRuleNameNotInKeywordsTest#columnNameNotInKeywords_1#004]
+rule: _rules/name/gp-name-not-in-keywords.rule
+expect: true
+vars:
+{}
+sql:
+alter table test rename column a1 to a123456;
+----------
+[GpRuleNameNotInKeywordsTest#columnNameNotInKeywords_1#005]
+rule: _rules/name/gp-name-not-in-keywords.rule
+expect: true
+vars:
+{}
+sql:
+alter table test rename column "table" to a123456;
+----------
+[GpRuleNameNotInKeywordsTest#columnNameNotInKeywords_1#006]
+rule: _rules/name/gp-name-not-in-keywords.rule
+expect: false
+vars:
+{}
+sql:
+alter table test rename column a1 to "table";

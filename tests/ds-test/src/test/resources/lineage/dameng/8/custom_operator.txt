@@ -1,0 +1,17 @@
+[operator_definition_has_no_result_lineage]
+sql:
+create operator app.@^ (function app.op_binary_int, leftarg int, rightarg int)
+expect:
+{}
+----------
+[operator_query_columns]
+sql:
+select o.left_value operator(app.@^) o.right_value as result
+from catalog1.app.operator_input o
+expect:
+{
+  "result" : [
+    "/catalog1/app/operator_input/left_value/",
+    "/catalog1/app/operator_input/right_value/"
+  ]
+}

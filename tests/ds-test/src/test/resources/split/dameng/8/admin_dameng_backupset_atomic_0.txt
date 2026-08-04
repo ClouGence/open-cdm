@@ -1,0 +1,745 @@
+-- BACKUP_DB_DEFAULT
+backup database backupset '/opt/codex/db_default';
+-- BACKUP_DB_FULL
+backup database full backupset '/opt/codex/db_full';
+-- BACKUP_DB_DDL_CLONE
+backup database ddl_clone backupset '/opt/codex/db_clone';
+-- BACKUP_DB_FULL_DDL_CLONE
+backup database full ddl_clone backupset '/opt/codex/db_full_clone';
+-- BACKUP_DB_SHADOW
+backup database shadow backupset '/opt/codex/db_shadow';
+-- BACKUP_DB_FULL_SHADOW
+backup database full shadow backupset '/opt/codex/db_full_shadow';
+-- BACKUP_DB_INCREMENT
+backup database increment backupset '/opt/codex/db_increment';
+-- BACKUP_DB_INCREMENT_CUMULATIVE
+backup database increment cumulative backupset '/opt/codex/db_cumulative';
+-- BACKUP_DB_FROM_LSN
+backup database increment from lsn 100 backupset '/opt/codex/db_from_lsn';
+-- BACKUP_DB_WITH_BACKUPDIR
+backup database increment with backupdir '/opt/codex/base1', '/opt/codex/base2' backupset '/opt/codex/db_dirs';
+-- BACKUP_DB_BASE_ON
+backup database increment base on backupset '/opt/codex/base' backupset '/opt/codex/db_base';
+-- BACKUP_DB_TO
+backup database full to CODEX_DB_BAK backupset '/opt/codex/db_to';
+-- BACKUP_DB_BACKUPNAME
+backup database full backupname CODEX_DB_BAK backupset '/opt/codex/db_name';
+-- BACKUP_DB_FORMAT
+backup database full format '/opt/codex/db_format';
+-- BACKUP_DB_DEVICE_DISK
+backup database full backupset '/opt/codex/db_disk' device type disk;
+-- BACKUP_DB_DEVICE_TAPE_PARMS
+backup database full backupset '/opt/codex/db_tape' device type tape parms '/dev/nst0';
+-- BACKUP_DB_BACKUPINFO
+backup database full backupset '/opt/codex/db_info' backupinfo 'CODEX';
+-- BACKUP_DB_MAXPIECESIZE
+backup database full backupset '/opt/codex/db_piece' maxpiecesize 128;
+-- BACKUP_DB_LIMIT_READ
+backup database full backupset '/opt/codex/db_read' limit read speed 0;
+-- BACKUP_DB_LIMIT_WRITE
+backup database full backupset '/opt/codex/db_write' limit write speed 0;
+-- BACKUP_DB_LIMIT_READ_WRITE
+backup database full backupset '/opt/codex/db_rw' limit read speed 0 write speed 0;
+-- BACKUP_DB_IDENTIFIED
+backup database full backupset '/opt/codex/db_pwd' identified by "Dm8Test2026";
+-- BACKUP_DB_ENCRYPTION
+backup database full backupset '/opt/codex/db_encrypt' identified by "Dm8Test2026" with encryption 2 encrypt with AES256_CFB;
+-- BACKUP_DB_COMPRESSED
+backup database full backupset '/opt/codex/db_compress' compressed;
+-- BACKUP_DB_COMPRESSED_LEVEL
+backup database full backupset '/opt/codex/db_level' compressed level 9;
+-- BACKUP_DB_WITHOUT_LOG
+backup database full backupset '/opt/codex/db_nolog' without log;
+-- BACKUP_DB_WITHOUT_MIRROR
+backup database full backupset '/opt/codex/db_nomirror' without mirror;
+-- BACKUP_DB_TRACE
+backup database full backupset '/opt/codex/db_trace' trace;
+-- BACKUP_DB_TRACE_FILE
+backup database full backupset '/opt/codex/db_trace_file' trace file '/opt/codex/trace.log';
+-- BACKUP_DB_TRACE_LEVEL
+backup database full backupset '/opt/codex/db_trace_level' trace level 2;
+-- BACKUP_DB_TASK_THREAD
+backup database full backupset '/opt/codex/db_task' task thread 2;
+-- BACKUP_DB_PARALLEL
+backup database full backupset '/opt/codex/db_parallel' parallel;
+-- BACKUP_DB_PARALLEL_COUNT
+backup database full backupset '/opt/codex/db_parallel2' parallel 2;
+-- BACKUP_DB_PARALLEL_READ_SIZE
+backup database full backupset '/opt/codex/db_parallel_read' parallel 2 read size 512;
+-- BACKUP_DB_USE_BAK_MAGIC
+backup database full backupset '/opt/codex/db_magic' use bak_magic 7;
+-- BACKUP_TABLESPACE_DEFAULT
+backup tablespace CODEX_TS backupset '/opt/codex/ts_default';
+-- BACKUP_TABLESPACE_FULL
+backup tablespace CODEX_TS full backupset '/opt/codex/ts_full';
+-- BACKUP_TABLESPACE_INCREMENT
+backup tablespace CODEX_TS increment backupset '/opt/codex/ts_increment';
+-- BACKUP_TABLESPACE_CUMULATIVE
+backup tablespace CODEX_TS increment cumulative base on backupset '/opt/codex/ts_base' backupset '/opt/codex/ts_cum';
+-- BACKUP_TABLESPACE_NAME
+backup tablespace CODEX_TS backupname CODEX_TS_BAK backupset '/opt/codex/ts_name';
+-- BACKUP_TABLESPACE_SHARED_OPTIONS
+backup tablespace CODEX_TS full backupset '/opt/codex/ts_options' device type disk backupinfo 'TS' maxpiecesize 128 limit read speed 0 write speed 0 identified by "Dm8Test2026" with encryption 2 encrypt with AES256_CFB compressed level 1 without log without mirror trace level 2 task thread 2 parallel 2 read size 512;
+-- BACKUP_TABLE_DEFAULT
+backup table CODEX_OWNER.CODEX_TAB backupset '/opt/codex/tab_default';
+-- BACKUP_TABLE_NAME
+backup table CODEX_OWNER.CODEX_TAB backupname CODEX_TAB_BAK backupset '/opt/codex/tab_name';
+-- BACKUP_TABLE_SHARED_OPTIONS
+backup table CODEX_OWNER.CODEX_TAB backupset '/opt/codex/tab_options' device type disk backupinfo 'TAB' maxpiecesize 128 limit write speed 0 identified by "Dm8Test2026" with encryption 2 encrypt with AES256_CFB compressed level 1 trace file '/opt/codex/tab_trace.log' task thread 2 parallel 2 read size 512;
+-- BACKUP_ARCHIVE_ALL
+backup archive log all backupset '/opt/codex/arch_all';
+-- BACKUP_ARCHIVE_FROM_LSN
+backup archivelog from lsn 100 backupset '/opt/codex/arch_from';
+-- BACKUP_ARCHIVE_UNTIL_LSN
+backup archivelog until lsn 200 backupset '/opt/codex/arch_until';
+-- BACKUP_ARCHIVE_LSN_BETWEEN
+backup archivelog lsn between 100 and 200 backupset '/opt/codex/arch_between';
+-- BACKUP_ARCHIVE_FROM_TIME
+backup archivelog from time '2026-07-01 00:00:00' backupset '/opt/codex/arch_from_time';
+-- BACKUP_ARCHIVE_UNTIL_TIME
+backup archivelog until time '2026-07-02 00:00:00' backupset '/opt/codex/arch_until_time';
+-- BACKUP_ARCHIVE_TIME_BETWEEN
+backup archivelog time between '2026-07-01 00:00:00' and '2026-07-02 00:00:00' backupset '/opt/codex/arch_time_between';
+-- BACKUP_ARCHIVE_NOT_BACKED
+backup archivelog all not backed up backupset '/opt/codex/arch_not_backed';
+-- BACKUP_ARCHIVE_NOT_BACKED_TIMES
+backup archivelog all not backed up 2 times backupset '/opt/codex/arch_times';
+-- BACKUP_ARCHIVE_NOT_BACKED_SINCE
+backup archivelog all not backed up since time '2026-07-01' backupset '/opt/codex/arch_since';
+-- BACKUP_ARCHIVE_DELETE_INPUT
+backup archivelog all delete input backupset '/opt/codex/arch_delete';
+-- BACKUP_ARCHIVE_NAME_OPTIONS
+backup archivelog all backupname CODEX_ARCH_BAK backupset '/opt/codex/arch_options' device type disk compressed level 1 task thread 2 parallel 2;
+-- BACKUP_OFFLINE_DATABASE
+backup database '/opt/codex/source/dm.ini' full backupset '/opt/codex/offline_db';
+-- BACKUP_OFFLINE_ARCHIVE_DATABASE
+backup archivelog all database '/opt/codex/source/dm.ini' backupset '/opt/codex/offline_arch';
+-- BACKUP_OFFLINE_ARCHIVE_RANGE_DATABASE
+backup archivelog from lsn 100 database '/opt/codex/source/dm.ini' backupset '/opt/codex/offline_arch_range';
+-- SHOW_BACKUPSET
+show backupset '/opt/codex/backupset';
+-- SHOW_BACKUPSET_DEVICE
+show backupset '/opt/codex/backupset' device type disk;
+-- SHOW_BACKUPSET_TAPE_PARMS
+show backupset '/opt/codex/backupset' device type tape parms '/dev/nst0';
+-- SHOW_BACKUPSET_RECURSIVE
+show backupset '/opt/codex/backupset' recursive;
+-- SHOW_BACKUPSET_DATABASE
+show backupset '/opt/codex/backupset' database '/opt/codex/source/dm.ini';
+-- SHOW_BACKUPSET_BACKUPDIR
+show backupset '/opt/codex/backupset' with backupdir '/opt/codex/base1', '/opt/codex/base2';
+-- SHOW_BACKUPSET_INFO_TYPES
+show backupset '/opt/codex/backupset' info db, meta, file, tablespace, table;
+-- SHOW_BACKUPSET_TO_TXT
+show backupset '/opt/codex/backupset' to '/opt/codex/info.txt' format txt;
+-- SHOW_BACKUPSET_TO_XML
+show backupset '/opt/codex/backupset' to '/opt/codex/info.xml' format xml;
+-- SHOW_BACKUPSETS_DATABASE
+show backupsets database '/opt/codex/source/dm.ini';
+-- SHOW_BACKUPSETS_DEFAULT_DIRS
+show backupsets;
+-- SHOW_BACKUPSETS_BACKUPDIR_MAGIC
+show backupsets with backupdir '/opt/codex/bak1', '/opt/codex/bak2' info meta use db_magic 7;
+-- CHECK_BACKUPSET
+check backupset '/opt/codex/backupset';
+-- CHECK_BACKUPSET_DEVICE
+check backupset '/opt/codex/backupset' device type disk;
+-- CHECK_BACKUPSET_DATABASE
+check backupset '/opt/codex/backupset' database '/opt/codex/source/dm.ini';
+-- REMOVE_BACKUPSET
+remove backupset '/opt/codex/no_such_backupset';
+-- REMOVE_BACKUPSET_DEVICE
+remove backupset '/opt/codex/no_such_backupset' device type disk;
+-- REMOVE_BACKUPSET_DATABASE_CASCADE
+remove backupset '/opt/codex/no_such_backupset' database '/opt/codex/source/dm.ini' cascade;
+-- REMOVE_BACKUPSETS_ALL
+remove backupsets with backupdir '/opt/codex/no_such_dir';
+-- REMOVE_DATABASE_BACKUPSETS
+remove database backupsets with backupdir '/opt/codex/no_such_dir';
+-- REMOVE_TABLESPACE_BACKUPSETS
+remove tablespace backupsets with backupdir '/opt/codex/no_such_dir';
+-- REMOVE_NAMED_TABLESPACE_BACKUPSETS
+remove tablespace CODEX_TS backupsets with backupdir '/opt/codex/no_such_dir';
+-- REMOVE_TABLE_BACKUPSETS
+remove table backupsets with backupdir '/opt/codex/no_such_dir';
+-- REMOVE_NAMED_TABLE_BACKUPSETS
+remove table "CODEX_OWNER"."CODEX_TAB" backupsets with backupdir '/opt/codex/no_such_dir';
+-- REMOVE_ARCHIVELOG_BACKUPSETS
+remove archivelog backupsets with backupdir '/opt/codex/no_such_dir';
+-- REMOVE_ARCHIVE_LOG_BACKUPSETS
+remove archive log backupsets with backupdir '/opt/codex/no_such_dir';
+-- REMOVE_BACKUPSETS_UNTIL
+remove backupsets with backupdir '/opt/codex/no_such_dir' until time '2026-01-01';
+-- REMOVE_BACKUPSETS_BEFORE
+remove backupsets with backupdir '/opt/codex/no_such_dir' before 30;
+-- LOAD_BACKUPSETS_TAPE
+load backupsets from device type tape to backupdir '/opt/codex/load_target';
+-- LOAD_BACKUPSETS_TAPE_PARMS_DIRS
+load backupsets from device type tape parms '/dev/nst0' with backupdir '/opt/codex/meta1', '/opt/codex/meta2' to backupdir '/opt/codex/load_target';
+-- DUMP_BACKUPSET
+dump backupset '/opt/codex/backupset' mapped file '/opt/codex/map.txt';
+-- DUMP_BACKUPSET_DATABASE
+dump backupset '/opt/codex/backupset' database '/opt/codex/source/dm.ini' mapped file '/opt/codex/map.txt';
+-- DUMP_BACKUPSET_TO
+dump backupset '/opt/codex/backupset' to '/opt/codex/system_dir' mapped file '/opt/codex/map.txt';
+-- RESTORE_DATABASE_INI
+restore database '/opt/codex/target/dm.ini' from backupset '/opt/codex/backupset';
+-- RESTORE_DATABASE_DIRECTORY
+restore database to '/opt/codex/target' from backupset '/opt/codex/backupset';
+-- RESTORE_DATABASE_BACKUPNAME
+restore database '/opt/codex/target/dm.ini' from backupname CODEX_DB_BAK;
+-- RESTORE_DATABASE_TARGET_OPTIONS
+restore database '/opt/codex/target/dm.ini' to shadow with check reuse dmini without space without mirror auto extend overwrite from backupset '/opt/codex/backupset';
+-- RESTORE_DATABASE_DIRECTORY_OPTIONS
+restore database to '/opt/codex/target' to shadow with check overwrite without mirror from backupset '/opt/codex/backupset';
+-- RESTORE_DATABASE_SHARED_OPTIONS
+restore database '/opt/codex/target/dm.ini' from backupset '/opt/codex/backupset' device type disk identified by "Dm8Test2026" encrypt with AES256_CFB with backupdir '/opt/codex/base1', '/opt/codex/base2' mapped file '/opt/codex/map.txt' task thread 2 rename to CODEX_DB use bak_magic 7 ignore corrupt auto_clear;
+-- RESTORE_TABLE_NAMED
+restore table CODEX_OWNER.CODEX_TAB from backupset '/opt/codex/table_backup';
+-- RESTORE_TABLE_UNNAMED
+restore table from backupset '/opt/codex/table_backup';
+-- RESTORE_TABLE_STRUCT
+restore table CODEX_OWNER.CODEX_TAB struct from backupset '/opt/codex/table_backup';
+-- RESTORE_TABLE_KEEP_TRXID
+restore table CODEX_OWNER.CODEX_TAB keep trxid from backupset '/opt/codex/table_backup';
+-- RESTORE_TABLE_WITHOUT_INDEX
+restore table struct without index from backupset '/opt/codex/table_backup';
+-- RESTORE_TABLE_WITHOUT_CONSTRAINT
+restore table struct without constraint from backupset '/opt/codex/table_backup';
+-- RESTORE_TABLE_OPTIONS
+restore table CODEX_OWNER.CODEX_TAB from backupset '/opt/codex/table_backup' device type disk identified by "Dm8Test2026" encrypt with AES256_CFB trace file '/opt/codex/table_restore.log' trace level 2;
+-- RESTORE_TABLESPACE
+restore database '/opt/codex/target/dm.ini' tablespace CODEX_TS from backupset '/opt/codex/ts_backup';
+-- RESTORE_TABLESPACE_BACKUPNAME
+restore database '/opt/codex/target/dm.ini' tablespace CODEX_TS from backupname CODEX_TS_BAK;
+-- RESTORE_TABLESPACE_WITH_CHECK
+restore database '/opt/codex/target/dm.ini' tablespace CODEX_TS with check from backupset '/opt/codex/ts_backup';
+-- RESTORE_TABLESPACE_DATAFILE_IDS
+restore database '/opt/codex/target/dm.ini' tablespace CODEX_TS datafile 1, 2 from backupset '/opt/codex/ts_backup';
+-- RESTORE_TABLESPACE_DATAFILE_PATHS
+restore database '/opt/codex/target/dm.ini' tablespace CODEX_TS datafile '/opt/codex/a.dbf', '/opt/codex/b.dbf' from backupset '/opt/codex/ts_backup';
+-- RESTORE_TABLESPACE_OPTIONS
+restore database '/opt/codex/target/dm.ini' tablespace CODEX_TS from backupset '/opt/codex/ts_backup' device type disk identified by "Dm8Test2026" encrypt with AES256_CFB with backupdir '/opt/codex/base1', '/opt/codex/base2' mapped file '/opt/codex/map.txt' task thread 2 ignore corrupt auto clear;
+-- RESTORE_ARCHIVE_DEFAULT
+restore archivelog from backupset '/opt/codex/arch_backup' to archivedir '/opt/codex/archive';
+-- RESTORE_ARCHIVE_LOG
+restore archive log from backupset '/opt/codex/arch_backup' to database '/opt/codex/target/dm.ini';
+-- RESTORE_ARCHIVE_BACKUPNAME
+restore archivelog from backupname CODEX_ARCH_BAK to database '/opt/codex/target/dm.ini';
+-- RESTORE_ARCHIVE_WITH_CHECK
+restore archivelog with check from backupset '/opt/codex/arch_backup' to archivedir '/opt/codex/archive';
+-- RESTORE_ARCHIVE_OPTIONS
+restore archivelog from backupset '/opt/codex/arch_backup' device type disk identified by "Dm8Test2026" encrypt with AES256_CFB task thread 2 not parallel all to archivedir '/opt/codex/archive' overwrite 3;
+-- RESTORE_ARCHIVE_LSN_RANGE
+restore archivelog from backupset '/opt/codex/arch_backup' lsn between 100 and 200 to archivedir '/opt/codex/archive';
+-- RESTORE_ARCHIVE_TIME_RANGE
+restore archivelog from backupset '/opt/codex/arch_backup' time between '2026-07-01' and '2026-07-02' to archivedir '/opt/codex/archive';
+-- RECOVER_DATABASE_BACKUPSET
+recover database '/opt/codex/target/dm.ini' from backupset '/opt/codex/backupset';
+-- RECOVER_DATABASE_BACKUPNAME
+recover database '/opt/codex/target/dm.ini' from backupname CODEX_DB_BAK;
+-- RECOVER_DATABASE_ARCHIVEDIR
+recover database '/opt/codex/target/dm.ini' with archivedir '/opt/codex/arch1', '/opt/codex/arch2' use db_magic 7 until time '2026-07-01' until lsn 100;
+-- RECOVER_DATABASE_FOR_STANDBY
+recover database '/opt/codex/target/dm.ini' for standby from backupset '/opt/codex/backupset' until end_lsn;
+-- RECOVER_DATABASE_BACKUP_OPTIONS
+recover database '/opt/codex/target/dm.ini' from backupset '/opt/codex/backupset' device type disk identified by "Dm8Test2026" encrypt with AES256_CFB use bak_magic 7;
+-- RECOVER_DATABASE_UPDATE_MAGIC
+recover database '/opt/codex/target/dm.ini' update db_magic;
+-- RECOVER_DATABASE_DEFAULT_ARCHIVE
+recover database '/opt/codex/target/dm.ini';
+-- RECOVER_TABLESPACE
+recover database '/opt/codex/target/dm.ini' tablespace CODEX_TS;
+-- RECOVER_TABLESPACE_OPTIONS
+recover database '/opt/codex/target/dm.ini' tablespace CODEX_TS with archivedir '/opt/codex/arch1', '/opt/codex/arch2' use db_magic 7 until time '2026-07-01' until lsn 100;
+-- REPAIR_ARCHIVELOG
+repair archivelog database '/opt/codex/source/dm.ini';
+-- REPAIR_ARCHIVE_LOG
+repair archive log database '/opt/codex/source/dm.ini';
+-- CONFIGURE_SHOW
+configure;
+-- CONFIGURE_DEFAULT_SHOW
+configure default;
+-- CONFIGURE_CLEAR
+configure clear;
+-- CONFIGURE_DEVICE
+configure default device type disk;
+-- CONFIGURE_DEVICE_PARMS
+configure default device type tape parms '/dev/nst0';
+-- CONFIGURE_DEVICE_CLEAR
+configure default device clear;
+-- CONFIGURE_TRACE_FILE
+configure default trace file '/opt/codex/rman_trace.log' trace level 2;
+-- CONFIGURE_TRACE_LEVEL
+configure default trace level 2;
+-- CONFIGURE_TRACE_CLEAR
+configure default trace clear;
+-- CONFIGURE_BACKUPDIR_ADD
+configure default backupdir add '/opt/codex/bak1', '/opt/codex/bak2';
+-- CONFIGURE_BACKUPDIR_DELETE
+configure default backupdir delete '/opt/codex/bak1';
+-- CONFIGURE_BACKUPDIR_CLEAR
+configure default backupdir clear;
+-- CONFIGURE_ARCHIVEDIR_ADD
+configure default archivedir add '/opt/codex/arch1', '/opt/codex/arch2';
+-- CONFIGURE_ARCHIVEDIR_DELETE
+configure default archivedir delete '/opt/codex/arch1';
+-- CONFIGURE_ARCHIVEDIR_CLEAR
+configure default archivedir clear;
+-- CONFIGURE_OPEN_FILES
+configure default open files 64;
+-- CONFIGURE_OPEN_FILES_CLEAR
+configure default open files clear;
+-- MERGE_DATABASE
+merge database '/opt/codex/target/dm.ini' from backupset '/opt/codex/increment';
+-- MERGE_DATABASE_TARGET_OPTIONS
+merge database '/opt/codex/target/dm.ini' with check without space auto extend overwrite from backupset '/opt/codex/increment';
+-- MERGE_DATABASE_OPTIONS
+merge database '/opt/codex/target/dm.ini' from backupset '/opt/codex/increment' device type disk identified by "Dm8Test2026" encrypt with AES256_CFB with backupdir '/opt/codex/base1', '/opt/codex/base2' task thread 2 rename to CODEX_DB use bak_magic 7 ignore corrupt auto clear;
+------------------------------------------------------------------------------------------
+[ADMIN] -- BACKUP_DB_DEFAULT
+backup database backupset '/opt/codex/db_default';
+----------
+[ADMIN] -- BACKUP_DB_FULL
+backup database full backupset '/opt/codex/db_full';
+----------
+[ADMIN] -- BACKUP_DB_DDL_CLONE
+backup database ddl_clone backupset '/opt/codex/db_clone';
+----------
+[ADMIN] -- BACKUP_DB_FULL_DDL_CLONE
+backup database full ddl_clone backupset '/opt/codex/db_full_clone';
+----------
+[ADMIN] -- BACKUP_DB_SHADOW
+backup database shadow backupset '/opt/codex/db_shadow';
+----------
+[ADMIN] -- BACKUP_DB_FULL_SHADOW
+backup database full shadow backupset '/opt/codex/db_full_shadow';
+----------
+[ADMIN] -- BACKUP_DB_INCREMENT
+backup database increment backupset '/opt/codex/db_increment';
+----------
+[ADMIN] -- BACKUP_DB_INCREMENT_CUMULATIVE
+backup database increment cumulative backupset '/opt/codex/db_cumulative';
+----------
+[ADMIN] -- BACKUP_DB_FROM_LSN
+backup database increment from lsn 100 backupset '/opt/codex/db_from_lsn';
+----------
+[ADMIN] -- BACKUP_DB_WITH_BACKUPDIR
+backup database increment with backupdir '/opt/codex/base1', '/opt/codex/base2' backupset '/opt/codex/db_dirs';
+----------
+[ADMIN] -- BACKUP_DB_BASE_ON
+backup database increment base on backupset '/opt/codex/base' backupset '/opt/codex/db_base';
+----------
+[ADMIN] -- BACKUP_DB_TO
+backup database full to CODEX_DB_BAK backupset '/opt/codex/db_to';
+----------
+[ADMIN] -- BACKUP_DB_BACKUPNAME
+backup database full backupname CODEX_DB_BAK backupset '/opt/codex/db_name';
+----------
+[ADMIN] -- BACKUP_DB_FORMAT
+backup database full format '/opt/codex/db_format';
+----------
+[ADMIN] -- BACKUP_DB_DEVICE_DISK
+backup database full backupset '/opt/codex/db_disk' device type disk;
+----------
+[ADMIN] -- BACKUP_DB_DEVICE_TAPE_PARMS
+backup database full backupset '/opt/codex/db_tape' device type tape parms '/dev/nst0';
+----------
+[ADMIN] -- BACKUP_DB_BACKUPINFO
+backup database full backupset '/opt/codex/db_info' backupinfo 'CODEX';
+----------
+[ADMIN] -- BACKUP_DB_MAXPIECESIZE
+backup database full backupset '/opt/codex/db_piece' maxpiecesize 128;
+----------
+[ADMIN] -- BACKUP_DB_LIMIT_READ
+backup database full backupset '/opt/codex/db_read' limit read speed 0;
+----------
+[ADMIN] -- BACKUP_DB_LIMIT_WRITE
+backup database full backupset '/opt/codex/db_write' limit write speed 0;
+----------
+[ADMIN] -- BACKUP_DB_LIMIT_READ_WRITE
+backup database full backupset '/opt/codex/db_rw' limit read speed 0 write speed 0;
+----------
+[ADMIN] -- BACKUP_DB_IDENTIFIED
+backup database full backupset '/opt/codex/db_pwd' identified by "Dm8Test2026";
+----------
+[ADMIN] -- BACKUP_DB_ENCRYPTION
+backup database full backupset '/opt/codex/db_encrypt' identified by "Dm8Test2026" with encryption 2 encrypt with AES256_CFB;
+----------
+[ADMIN] -- BACKUP_DB_COMPRESSED
+backup database full backupset '/opt/codex/db_compress' compressed;
+----------
+[ADMIN] -- BACKUP_DB_COMPRESSED_LEVEL
+backup database full backupset '/opt/codex/db_level' compressed level 9;
+----------
+[ADMIN] -- BACKUP_DB_WITHOUT_LOG
+backup database full backupset '/opt/codex/db_nolog' without log;
+----------
+[ADMIN] -- BACKUP_DB_WITHOUT_MIRROR
+backup database full backupset '/opt/codex/db_nomirror' without mirror;
+----------
+[ADMIN] -- BACKUP_DB_TRACE
+backup database full backupset '/opt/codex/db_trace' trace;
+----------
+[ADMIN] -- BACKUP_DB_TRACE_FILE
+backup database full backupset '/opt/codex/db_trace_file' trace file '/opt/codex/trace.log';
+----------
+[ADMIN] -- BACKUP_DB_TRACE_LEVEL
+backup database full backupset '/opt/codex/db_trace_level' trace level 2;
+----------
+[ADMIN] -- BACKUP_DB_TASK_THREAD
+backup database full backupset '/opt/codex/db_task' task thread 2;
+----------
+[ADMIN] -- BACKUP_DB_PARALLEL
+backup database full backupset '/opt/codex/db_parallel' parallel;
+----------
+[ADMIN] -- BACKUP_DB_PARALLEL_COUNT
+backup database full backupset '/opt/codex/db_parallel2' parallel 2;
+----------
+[ADMIN] -- BACKUP_DB_PARALLEL_READ_SIZE
+backup database full backupset '/opt/codex/db_parallel_read' parallel 2 read size 512;
+----------
+[ADMIN] -- BACKUP_DB_USE_BAK_MAGIC
+backup database full backupset '/opt/codex/db_magic' use bak_magic 7;
+----------
+[ADMIN] -- BACKUP_TABLESPACE_DEFAULT
+backup tablespace CODEX_TS backupset '/opt/codex/ts_default';
+----------
+[ADMIN] -- BACKUP_TABLESPACE_FULL
+backup tablespace CODEX_TS full backupset '/opt/codex/ts_full';
+----------
+[ADMIN] -- BACKUP_TABLESPACE_INCREMENT
+backup tablespace CODEX_TS increment backupset '/opt/codex/ts_increment';
+----------
+[ADMIN] -- BACKUP_TABLESPACE_CUMULATIVE
+backup tablespace CODEX_TS increment cumulative base on backupset '/opt/codex/ts_base' backupset '/opt/codex/ts_cum';
+----------
+[ADMIN] -- BACKUP_TABLESPACE_NAME
+backup tablespace CODEX_TS backupname CODEX_TS_BAK backupset '/opt/codex/ts_name';
+----------
+[ADMIN] -- BACKUP_TABLESPACE_SHARED_OPTIONS
+backup tablespace CODEX_TS full backupset '/opt/codex/ts_options' device type disk backupinfo 'TS' maxpiecesize 128 limit read speed 0 write speed 0 identified by "Dm8Test2026" with encryption 2 encrypt with AES256_CFB compressed level 1 without log without mirror trace level 2 task thread 2 parallel 2 read size 512;
+----------
+[ADMIN] -- BACKUP_TABLE_DEFAULT
+backup table CODEX_OWNER.CODEX_TAB backupset '/opt/codex/tab_default';
+----------
+[ADMIN] -- BACKUP_TABLE_NAME
+backup table CODEX_OWNER.CODEX_TAB backupname CODEX_TAB_BAK backupset '/opt/codex/tab_name';
+----------
+[ADMIN] -- BACKUP_TABLE_SHARED_OPTIONS
+backup table CODEX_OWNER.CODEX_TAB backupset '/opt/codex/tab_options' device type disk backupinfo 'TAB' maxpiecesize 128 limit write speed 0 identified by "Dm8Test2026" with encryption 2 encrypt with AES256_CFB compressed level 1 trace file '/opt/codex/tab_trace.log' task thread 2 parallel 2 read size 512;
+----------
+[ADMIN] -- BACKUP_ARCHIVE_ALL
+backup archive log all backupset '/opt/codex/arch_all';
+----------
+[ADMIN] -- BACKUP_ARCHIVE_FROM_LSN
+backup archivelog from lsn 100 backupset '/opt/codex/arch_from';
+----------
+[ADMIN] -- BACKUP_ARCHIVE_UNTIL_LSN
+backup archivelog until lsn 200 backupset '/opt/codex/arch_until';
+----------
+[ADMIN] -- BACKUP_ARCHIVE_LSN_BETWEEN
+backup archivelog lsn between 100 and 200 backupset '/opt/codex/arch_between';
+----------
+[ADMIN] -- BACKUP_ARCHIVE_FROM_TIME
+backup archivelog from time '2026-07-01 00:00:00' backupset '/opt/codex/arch_from_time';
+----------
+[ADMIN] -- BACKUP_ARCHIVE_UNTIL_TIME
+backup archivelog until time '2026-07-02 00:00:00' backupset '/opt/codex/arch_until_time';
+----------
+[ADMIN] -- BACKUP_ARCHIVE_TIME_BETWEEN
+backup archivelog time between '2026-07-01 00:00:00' and '2026-07-02 00:00:00' backupset '/opt/codex/arch_time_between';
+----------
+[ADMIN] -- BACKUP_ARCHIVE_NOT_BACKED
+backup archivelog all not backed up backupset '/opt/codex/arch_not_backed';
+----------
+[ADMIN] -- BACKUP_ARCHIVE_NOT_BACKED_TIMES
+backup archivelog all not backed up 2 times backupset '/opt/codex/arch_times';
+----------
+[ADMIN] -- BACKUP_ARCHIVE_NOT_BACKED_SINCE
+backup archivelog all not backed up since time '2026-07-01' backupset '/opt/codex/arch_since';
+----------
+[ADMIN] -- BACKUP_ARCHIVE_DELETE_INPUT
+backup archivelog all delete input backupset '/opt/codex/arch_delete';
+----------
+[ADMIN] -- BACKUP_ARCHIVE_NAME_OPTIONS
+backup archivelog all backupname CODEX_ARCH_BAK backupset '/opt/codex/arch_options' device type disk compressed level 1 task thread 2 parallel 2;
+----------
+[ADMIN] -- BACKUP_OFFLINE_DATABASE
+backup database '/opt/codex/source/dm.ini' full backupset '/opt/codex/offline_db';
+----------
+[ADMIN] -- BACKUP_OFFLINE_ARCHIVE_DATABASE
+backup archivelog all database '/opt/codex/source/dm.ini' backupset '/opt/codex/offline_arch';
+----------
+[ADMIN] -- BACKUP_OFFLINE_ARCHIVE_RANGE_DATABASE
+backup archivelog from lsn 100 database '/opt/codex/source/dm.ini' backupset '/opt/codex/offline_arch_range';
+----------
+[ADMIN] -- SHOW_BACKUPSET
+show backupset '/opt/codex/backupset';
+----------
+[ADMIN] -- SHOW_BACKUPSET_DEVICE
+show backupset '/opt/codex/backupset' device type disk;
+----------
+[ADMIN] -- SHOW_BACKUPSET_TAPE_PARMS
+show backupset '/opt/codex/backupset' device type tape parms '/dev/nst0';
+----------
+[ADMIN] -- SHOW_BACKUPSET_RECURSIVE
+show backupset '/opt/codex/backupset' recursive;
+----------
+[ADMIN] -- SHOW_BACKUPSET_DATABASE
+show backupset '/opt/codex/backupset' database '/opt/codex/source/dm.ini';
+----------
+[ADMIN] -- SHOW_BACKUPSET_BACKUPDIR
+show backupset '/opt/codex/backupset' with backupdir '/opt/codex/base1', '/opt/codex/base2';
+----------
+[ADMIN] -- SHOW_BACKUPSET_INFO_TYPES
+show backupset '/opt/codex/backupset' info db, meta, file, tablespace, table;
+----------
+[ADMIN] -- SHOW_BACKUPSET_TO_TXT
+show backupset '/opt/codex/backupset' to '/opt/codex/info.txt' format txt;
+----------
+[ADMIN] -- SHOW_BACKUPSET_TO_XML
+show backupset '/opt/codex/backupset' to '/opt/codex/info.xml' format xml;
+----------
+[ADMIN] -- SHOW_BACKUPSETS_DATABASE
+show backupsets database '/opt/codex/source/dm.ini';
+----------
+[ADMIN] -- SHOW_BACKUPSETS_DEFAULT_DIRS
+show backupsets;
+----------
+[ADMIN] -- SHOW_BACKUPSETS_BACKUPDIR_MAGIC
+show backupsets with backupdir '/opt/codex/bak1', '/opt/codex/bak2' info meta use db_magic 7;
+----------
+[ADMIN] -- CHECK_BACKUPSET
+check backupset '/opt/codex/backupset';
+----------
+[ADMIN] -- CHECK_BACKUPSET_DEVICE
+check backupset '/opt/codex/backupset' device type disk;
+----------
+[ADMIN] -- CHECK_BACKUPSET_DATABASE
+check backupset '/opt/codex/backupset' database '/opt/codex/source/dm.ini';
+----------
+[ADMIN] -- REMOVE_BACKUPSET
+remove backupset '/opt/codex/no_such_backupset';
+----------
+[ADMIN] -- REMOVE_BACKUPSET_DEVICE
+remove backupset '/opt/codex/no_such_backupset' device type disk;
+----------
+[ADMIN] -- REMOVE_BACKUPSET_DATABASE_CASCADE
+remove backupset '/opt/codex/no_such_backupset' database '/opt/codex/source/dm.ini' cascade;
+----------
+[ADMIN] -- REMOVE_BACKUPSETS_ALL
+remove backupsets with backupdir '/opt/codex/no_such_dir';
+----------
+[ADMIN] -- REMOVE_DATABASE_BACKUPSETS
+remove database backupsets with backupdir '/opt/codex/no_such_dir';
+----------
+[ADMIN] -- REMOVE_TABLESPACE_BACKUPSETS
+remove tablespace backupsets with backupdir '/opt/codex/no_such_dir';
+----------
+[ADMIN] -- REMOVE_NAMED_TABLESPACE_BACKUPSETS
+remove tablespace CODEX_TS backupsets with backupdir '/opt/codex/no_such_dir';
+----------
+[ADMIN] -- REMOVE_TABLE_BACKUPSETS
+remove table backupsets with backupdir '/opt/codex/no_such_dir';
+----------
+[ADMIN] -- REMOVE_NAMED_TABLE_BACKUPSETS
+remove table "CODEX_OWNER"."CODEX_TAB" backupsets with backupdir '/opt/codex/no_such_dir';
+----------
+[ADMIN] -- REMOVE_ARCHIVELOG_BACKUPSETS
+remove archivelog backupsets with backupdir '/opt/codex/no_such_dir';
+----------
+[ADMIN] -- REMOVE_ARCHIVE_LOG_BACKUPSETS
+remove archive log backupsets with backupdir '/opt/codex/no_such_dir';
+----------
+[ADMIN] -- REMOVE_BACKUPSETS_UNTIL
+remove backupsets with backupdir '/opt/codex/no_such_dir' until time '2026-01-01';
+----------
+[ADMIN] -- REMOVE_BACKUPSETS_BEFORE
+remove backupsets with backupdir '/opt/codex/no_such_dir' before 30;
+----------
+[ADMIN] -- LOAD_BACKUPSETS_TAPE
+load backupsets from device type tape to backupdir '/opt/codex/load_target';
+----------
+[ADMIN] -- LOAD_BACKUPSETS_TAPE_PARMS_DIRS
+load backupsets from device type tape parms '/dev/nst0' with backupdir '/opt/codex/meta1', '/opt/codex/meta2' to backupdir '/opt/codex/load_target';
+----------
+[ADMIN] -- DUMP_BACKUPSET
+dump backupset '/opt/codex/backupset' mapped file '/opt/codex/map.txt';
+----------
+[ADMIN] -- DUMP_BACKUPSET_DATABASE
+dump backupset '/opt/codex/backupset' database '/opt/codex/source/dm.ini' mapped file '/opt/codex/map.txt';
+----------
+[ADMIN] -- DUMP_BACKUPSET_TO
+dump backupset '/opt/codex/backupset' to '/opt/codex/system_dir' mapped file '/opt/codex/map.txt';
+----------
+[ADMIN] -- RESTORE_DATABASE_INI
+restore database '/opt/codex/target/dm.ini' from backupset '/opt/codex/backupset';
+----------
+[ADMIN] -- RESTORE_DATABASE_DIRECTORY
+restore database to '/opt/codex/target' from backupset '/opt/codex/backupset';
+----------
+[ADMIN] -- RESTORE_DATABASE_BACKUPNAME
+restore database '/opt/codex/target/dm.ini' from backupname CODEX_DB_BAK;
+----------
+[ADMIN] -- RESTORE_DATABASE_TARGET_OPTIONS
+restore database '/opt/codex/target/dm.ini' to shadow with check reuse dmini without space without mirror auto extend overwrite from backupset '/opt/codex/backupset';
+----------
+[ADMIN] -- RESTORE_DATABASE_DIRECTORY_OPTIONS
+restore database to '/opt/codex/target' to shadow with check overwrite without mirror from backupset '/opt/codex/backupset';
+----------
+[ADMIN] -- RESTORE_DATABASE_SHARED_OPTIONS
+restore database '/opt/codex/target/dm.ini' from backupset '/opt/codex/backupset' device type disk identified by "Dm8Test2026" encrypt with AES256_CFB with backupdir '/opt/codex/base1', '/opt/codex/base2' mapped file '/opt/codex/map.txt' task thread 2 rename to CODEX_DB use bak_magic 7 ignore corrupt auto_clear;
+----------
+[ADMIN] -- RESTORE_TABLE_NAMED
+restore table CODEX_OWNER.CODEX_TAB from backupset '/opt/codex/table_backup';
+----------
+[ADMIN] -- RESTORE_TABLE_UNNAMED
+restore table from backupset '/opt/codex/table_backup';
+----------
+[ADMIN] -- RESTORE_TABLE_STRUCT
+restore table CODEX_OWNER.CODEX_TAB struct from backupset '/opt/codex/table_backup';
+----------
+[ADMIN] -- RESTORE_TABLE_KEEP_TRXID
+restore table CODEX_OWNER.CODEX_TAB keep trxid from backupset '/opt/codex/table_backup';
+----------
+[ADMIN] -- RESTORE_TABLE_WITHOUT_INDEX
+restore table struct without index from backupset '/opt/codex/table_backup';
+----------
+[ADMIN] -- RESTORE_TABLE_WITHOUT_CONSTRAINT
+restore table struct without constraint from backupset '/opt/codex/table_backup';
+----------
+[ADMIN] -- RESTORE_TABLE_OPTIONS
+restore table CODEX_OWNER.CODEX_TAB from backupset '/opt/codex/table_backup' device type disk identified by "Dm8Test2026" encrypt with AES256_CFB trace file '/opt/codex/table_restore.log' trace level 2;
+----------
+[ADMIN] -- RESTORE_TABLESPACE
+restore database '/opt/codex/target/dm.ini' tablespace CODEX_TS from backupset '/opt/codex/ts_backup';
+----------
+[ADMIN] -- RESTORE_TABLESPACE_BACKUPNAME
+restore database '/opt/codex/target/dm.ini' tablespace CODEX_TS from backupname CODEX_TS_BAK;
+----------
+[ADMIN] -- RESTORE_TABLESPACE_WITH_CHECK
+restore database '/opt/codex/target/dm.ini' tablespace CODEX_TS with check from backupset '/opt/codex/ts_backup';
+----------
+[ADMIN] -- RESTORE_TABLESPACE_DATAFILE_IDS
+restore database '/opt/codex/target/dm.ini' tablespace CODEX_TS datafile 1, 2 from backupset '/opt/codex/ts_backup';
+----------
+[ADMIN] -- RESTORE_TABLESPACE_DATAFILE_PATHS
+restore database '/opt/codex/target/dm.ini' tablespace CODEX_TS datafile '/opt/codex/a.dbf', '/opt/codex/b.dbf' from backupset '/opt/codex/ts_backup';
+----------
+[ADMIN] -- RESTORE_TABLESPACE_OPTIONS
+restore database '/opt/codex/target/dm.ini' tablespace CODEX_TS from backupset '/opt/codex/ts_backup' device type disk identified by "Dm8Test2026" encrypt with AES256_CFB with backupdir '/opt/codex/base1', '/opt/codex/base2' mapped file '/opt/codex/map.txt' task thread 2 ignore corrupt auto clear;
+----------
+[ADMIN] -- RESTORE_ARCHIVE_DEFAULT
+restore archivelog from backupset '/opt/codex/arch_backup' to archivedir '/opt/codex/archive';
+----------
+[ADMIN] -- RESTORE_ARCHIVE_LOG
+restore archive log from backupset '/opt/codex/arch_backup' to database '/opt/codex/target/dm.ini';
+----------
+[ADMIN] -- RESTORE_ARCHIVE_BACKUPNAME
+restore archivelog from backupname CODEX_ARCH_BAK to database '/opt/codex/target/dm.ini';
+----------
+[ADMIN] -- RESTORE_ARCHIVE_WITH_CHECK
+restore archivelog with check from backupset '/opt/codex/arch_backup' to archivedir '/opt/codex/archive';
+----------
+[ADMIN] -- RESTORE_ARCHIVE_OPTIONS
+restore archivelog from backupset '/opt/codex/arch_backup' device type disk identified by "Dm8Test2026" encrypt with AES256_CFB task thread 2 not parallel all to archivedir '/opt/codex/archive' overwrite 3;
+----------
+[ADMIN] -- RESTORE_ARCHIVE_LSN_RANGE
+restore archivelog from backupset '/opt/codex/arch_backup' lsn between 100 and 200 to archivedir '/opt/codex/archive';
+----------
+[ADMIN] -- RESTORE_ARCHIVE_TIME_RANGE
+restore archivelog from backupset '/opt/codex/arch_backup' time between '2026-07-01' and '2026-07-02' to archivedir '/opt/codex/archive';
+----------
+[ADMIN] -- RECOVER_DATABASE_BACKUPSET
+recover database '/opt/codex/target/dm.ini' from backupset '/opt/codex/backupset';
+----------
+[ADMIN] -- RECOVER_DATABASE_BACKUPNAME
+recover database '/opt/codex/target/dm.ini' from backupname CODEX_DB_BAK;
+----------
+[ADMIN] -- RECOVER_DATABASE_ARCHIVEDIR
+recover database '/opt/codex/target/dm.ini' with archivedir '/opt/codex/arch1', '/opt/codex/arch2' use db_magic 7 until time '2026-07-01' until lsn 100;
+----------
+[ADMIN] -- RECOVER_DATABASE_FOR_STANDBY
+recover database '/opt/codex/target/dm.ini' for standby from backupset '/opt/codex/backupset' until end_lsn;
+----------
+[ADMIN] -- RECOVER_DATABASE_BACKUP_OPTIONS
+recover database '/opt/codex/target/dm.ini' from backupset '/opt/codex/backupset' device type disk identified by "Dm8Test2026" encrypt with AES256_CFB use bak_magic 7;
+----------
+[ADMIN] -- RECOVER_DATABASE_UPDATE_MAGIC
+recover database '/opt/codex/target/dm.ini' update db_magic;
+----------
+[ADMIN] -- RECOVER_DATABASE_DEFAULT_ARCHIVE
+recover database '/opt/codex/target/dm.ini';
+----------
+[ADMIN] -- RECOVER_TABLESPACE
+recover database '/opt/codex/target/dm.ini' tablespace CODEX_TS;
+----------
+[ADMIN] -- RECOVER_TABLESPACE_OPTIONS
+recover database '/opt/codex/target/dm.ini' tablespace CODEX_TS with archivedir '/opt/codex/arch1', '/opt/codex/arch2' use db_magic 7 until time '2026-07-01' until lsn 100;
+----------
+[ADMIN] -- REPAIR_ARCHIVELOG
+repair archivelog database '/opt/codex/source/dm.ini';
+----------
+[ADMIN] -- REPAIR_ARCHIVE_LOG
+repair archive log database '/opt/codex/source/dm.ini';
+----------
+[ADMIN] -- CONFIGURE_SHOW
+configure;
+----------
+[ADMIN] -- CONFIGURE_DEFAULT_SHOW
+configure default;
+----------
+[ADMIN] -- CONFIGURE_CLEAR
+configure clear;
+----------
+[ADMIN] -- CONFIGURE_DEVICE
+configure default device type disk;
+----------
+[ADMIN] -- CONFIGURE_DEVICE_PARMS
+configure default device type tape parms '/dev/nst0';
+----------
+[ADMIN] -- CONFIGURE_DEVICE_CLEAR
+configure default device clear;
+----------
+[ADMIN] -- CONFIGURE_TRACE_FILE
+configure default trace file '/opt/codex/rman_trace.log' trace level 2;
+----------
+[ADMIN] -- CONFIGURE_TRACE_LEVEL
+configure default trace level 2;
+----------
+[ADMIN] -- CONFIGURE_TRACE_CLEAR
+configure default trace clear;
+----------
+[ADMIN] -- CONFIGURE_BACKUPDIR_ADD
+configure default backupdir add '/opt/codex/bak1', '/opt/codex/bak2';
+----------
+[ADMIN] -- CONFIGURE_BACKUPDIR_DELETE
+configure default backupdir delete '/opt/codex/bak1';
+----------
+[ADMIN] -- CONFIGURE_BACKUPDIR_CLEAR
+configure default backupdir clear;
+----------
+[ADMIN] -- CONFIGURE_ARCHIVEDIR_ADD
+configure default archivedir add '/opt/codex/arch1', '/opt/codex/arch2';
+----------
+[ADMIN] -- CONFIGURE_ARCHIVEDIR_DELETE
+configure default archivedir delete '/opt/codex/arch1';
+----------
+[ADMIN] -- CONFIGURE_ARCHIVEDIR_CLEAR
+configure default archivedir clear;
+----------
+[ADMIN] -- CONFIGURE_OPEN_FILES
+configure default open files 64;
+----------
+[ADMIN] -- CONFIGURE_OPEN_FILES_CLEAR
+configure default open files clear;
+----------
+[ADMIN] -- MERGE_DATABASE
+merge database '/opt/codex/target/dm.ini' from backupset '/opt/codex/increment';
+----------
+[ADMIN] -- MERGE_DATABASE_TARGET_OPTIONS
+merge database '/opt/codex/target/dm.ini' with check without space auto extend overwrite from backupset '/opt/codex/increment';
+----------
+[ADMIN] -- MERGE_DATABASE_OPTIONS
+merge database '/opt/codex/target/dm.ini' from backupset '/opt/codex/increment' device type disk identified by "Dm8Test2026" encrypt with AES256_CFB with backupdir '/opt/codex/base1', '/opt/codex/base2' task thread 2 rename to CODEX_DB use bak_magic 7 ignore corrupt auto clear;

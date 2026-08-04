@@ -1,0 +1,26 @@
+[flashback_columns]
+sql:
+select f.id, f.name from catalog1.app.flash_target as of timestamp sysdate - 3/86400 f where f.id = 1
+expect:
+{
+  "id" : [ "/catalog1/app/flash_target/id/" ],
+  "name" : [ "/catalog1/app/flash_target/name/" ]
+}
+----------
+[flashback_join_columns]
+sql:
+select f.id, o.label from catalog1.app.flash_target as of timestamp sysdate - 3/86400 f join catalog1.app.flash_other as of timestamp sysdate - 3/86400 o on f.id = o.id
+expect:
+{
+  "id" : [ "/catalog1/app/flash_target/id/" ],
+  "label" : [ "/catalog1/app/flash_other/label/" ]
+}
+----------
+[flashback_version_columns]
+sql:
+select f.id, f.amount from catalog1.app.flash_target versions between timestamp sysdate - 3/86400 and sysdate f
+expect:
+{
+  "id" : [ "/catalog1/app/flash_target/id/" ],
+  "amount" : [ "/catalog1/app/flash_target/amount/" ]
+}

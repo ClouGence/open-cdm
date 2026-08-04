@@ -1,0 +1,51 @@
+create table table_disk_0(id int) diskspace limit 0;
+create table table_disk_1(id int) diskspace limit 1;
+create table table_disk_max(id int) diskspace limit 1048576;
+create table table_disk_over(id int) diskspace limit 1048577;
+create table table_disk_alt(id int) diskspace unlimited;
+alter table table_disk_alt modify diskspace limit 1;
+alter table table_disk_alt modify diskspace limit 1048576;
+alter table table_disk_alt modify diskspace limit 0;
+alter table table_disk_alt modify diskspace limit 1048577;
+alter table table_disk_alt modify diskspace unlimited;
+create table table_disk_ctas diskspace limit 1 as select 1 id;
+select tabledef('SYSDBA','TABLE_DISK_1');
+select tabledef('SYSDBA','TABLE_DISK_MAX');
+drop table table_disk_1 purge;
+drop table table_disk_max purge;
+drop table table_disk_alt purge;
+drop table table_disk_ctas purge;
+------------------------------------------------------------------------------------------
+[CREATE_TABLE|ADD_COLUMN] create table table_disk_0(id int) diskspace limit 0;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table table_disk_1(id int) diskspace limit 1;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table table_disk_max(id int) diskspace limit 1048576;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table table_disk_over(id int) diskspace limit 1048577;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table table_disk_alt(id int) diskspace unlimited;
+----------
+[ALTER_TABLE] alter table table_disk_alt modify diskspace limit 1;
+----------
+[ALTER_TABLE] alter table table_disk_alt modify diskspace limit 1048576;
+----------
+[ALTER_TABLE] alter table table_disk_alt modify diskspace limit 0;
+----------
+[ALTER_TABLE] alter table table_disk_alt modify diskspace limit 1048577;
+----------
+[ALTER_TABLE] alter table table_disk_alt modify diskspace unlimited;
+----------
+[CREATE_TABLE|SELECT] create table table_disk_ctas diskspace limit 1 as select 1 id;
+----------
+[SELECT] select tabledef('SYSDBA','TABLE_DISK_1');
+----------
+[SELECT] select tabledef('SYSDBA','TABLE_DISK_MAX');
+----------
+[DROP_TABLE] drop table table_disk_1 purge;
+----------
+[DROP_TABLE] drop table table_disk_max purge;
+----------
+[DROP_TABLE] drop table table_disk_alt purge;
+----------
+[DROP_TABLE] drop table table_disk_ctas purge;

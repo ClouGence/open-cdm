@@ -1,0 +1,311 @@
+[split_block_dameng_dbms_sqltune_signature_combinations_0_001]
+sql:
+-- FUNC-0833 CREATE_TUNING_TASK FUNCTION
+select DBMS_SQLTUNE.CREATE_TUNING_TASK() from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:38) /test/1/catalog1/DBMS_SQLTUNE/CREATE_TUNING_TASK/",
+      "action": "CREATE"
+    },
+    {
+      "subject": "View(2:46~2:50) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_sqltune_signature_combinations_0_002]
+sql:
+-- FUNC-0834 DROP_TUNING_TASK PROCEDURE
+call DBMS_SQLTUNE.DROP_TUNING_TASK();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:34) /test/1/catalog1/DBMS_SQLTUNE/DROP_TUNING_TASK/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_sqltune_signature_combinations_0_003]
+sql:
+-- FUNC-0835 EXECUTE_TUNING_TASK FUNCTION
+select DBMS_SQLTUNE.EXECUTE_TUNING_TASK() from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:39) /test/1/catalog1/DBMS_SQLTUNE/EXECUTE_TUNING_TASK/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:47~2:51) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_sqltune_signature_combinations_0_004]
+sql:
+-- FUNC-0836 EXECUTE_TUNING_TASK PROCEDURE
+call DBMS_SQLTUNE.EXECUTE_TUNING_TASK();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:37) /test/1/catalog1/DBMS_SQLTUNE/EXECUTE_TUNING_TASK/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_sqltune_signature_combinations_0_005]
+sql:
+-- FUNC-0837 REPORT_SQL_MONITOR FUNCTION
+select DBMS_SQLTUNE.REPORT_SQL_MONITOR() from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:38) /test/1/catalog1/DBMS_SQLTUNE/REPORT_SQL_MONITOR/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(2:46~2:50) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_sqltune_signature_combinations_0_006]
+sql:
+-- FUNC-0838 REPORT_SQL_MONITOR_LIST FUNCTION
+select DBMS_SQLTUNE.REPORT_SQL_MONITOR_LIST() from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:43) /test/1/catalog1/DBMS_SQLTUNE/REPORT_SQL_MONITOR_LIST/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(2:51~2:55) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_sqltune_signature_combinations_0_007]
+sql:
+-- FUNC-0839 REPORT_TUNING_TASK FUNCTION
+select DBMS_SQLTUNE.REPORT_TUNING_TASK() from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:38) /test/1/catalog1/DBMS_SQLTUNE/REPORT_TUNING_TASK/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(2:46~2:50) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_sqltune_signature_combinations_0_008]
+sql:
+-- FUNC-1777 FIND_BEST_INI FUNCTION
+declare a double:=1; b double:=0; r int; begin r:=DBMS_SQLTUNE.FIND_BEST_INI(3,'select 1','',a,b); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:50~2:76) /test/1/catalog1/DBMS_SQLTUNE/FIND_BEST_INI/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_sqltune_signature_combinations_0_009]
+sql:
+-- FUNC-1778 DROP_SQL_PROFILE PROCEDURE
+call DBMS_SQLTUNE.DROP_SQL_PROFILE(NULL,TRUE);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:34) /test/1/catalog1/DBMS_SQLTUNE/DROP_SQL_PROFILE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_sqltune_signature_combinations_0_010]
+sql:
+-- FUNC-1779 ALTER_SQL_PROFILE PROCEDURE
+call DBMS_SQLTUNE.ALTER_SQL_PROFILE(NULL,NULL,NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:35) /test/1/catalog1/DBMS_SQLTUNE/ALTER_SQL_PROFILE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_sqltune_signature_combinations_0_011]
+sql:
+-- FUNC-1780 IMPORT_SQL_PROFILE PROCEDURE
+call DBMS_SQLTUNE.IMPORT_SQL_PROFILE(NULL,NULL,NULL,NULL,NULL,FALSE,FALSE,TRUE);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:36) /test/1/catalog1/DBMS_SQLTUNE/IMPORT_SQL_PROFILE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_sqltune_signature_combinations_0_012]
+sql:
+-- FUNC-1781 ACCEPT_SQL_PROFILE PROCEDURE
+call DBMS_SQLTUNE.ACCEPT_SQL_PROFILE(NULL,NULL,NULL,NULL,NULL,NULL,FALSE,TRUE,NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:36) /test/1/catalog1/DBMS_SQLTUNE/ACCEPT_SQL_PROFILE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_sqltune_signature_combinations_0_013]
+sql:
+-- FUNC-1782 ACCEPT_ALL_SQL_PROFILES PROCEDURE
+call DBMS_SQLTUNE.ACCEPT_ALL_SQL_PROFILES(NULL,NULL,FALSE,TRUE,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:41) /test/1/catalog1/DBMS_SQLTUNE/ACCEPT_ALL_SQL_PROFILES/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_sqltune_signature_combinations_0_014]
+sql:
+-- FUNC-1783 SQLTEXT_TO_SIGNATURE FUNCTION
+select DBMS_SQLTUNE.SQLTEXT_TO_SIGNATURE('select 1',FALSE) from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:40) /test/1/catalog1/DBMS_SQLTUNE/SQLTEXT_TO_SIGNATURE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:64~2:68) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_sqltune_signature_combinations_0_015]
+sql:
+-- FUNC-1784 CREATE_STGTAB_SQLPROF PROCEDURE
+call DBMS_SQLTUNE.CREATE_STGTAB_SQLPROF(NULL,NULL,NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:39) /test/1/catalog1/DBMS_SQLTUNE/CREATE_STGTAB_SQLPROF/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_sqltune_signature_combinations_0_016]
+sql:
+-- FUNC-1785 PACK_STGTAB_SQLPROF PROCEDURE
+call DBMS_SQLTUNE.PACK_STGTAB_SQLPROF(NULL,NULL,NULL,NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:37) /test/1/catalog1/DBMS_SQLTUNE/PACK_STGTAB_SQLPROF/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_sqltune_signature_combinations_0_017]
+sql:
+-- FUNC-1786 UNPACK_STGTAB_SQLPROF PROCEDURE
+call DBMS_SQLTUNE.UNPACK_STGTAB_SQLPROF(NULL,NULL,FALSE,NULL,NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:39) /test/1/catalog1/DBMS_SQLTUNE/UNPACK_STGTAB_SQLPROF/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_sqltune_signature_combinations_0_018]
+sql:
+-- FUNC-1787 REMAP_STGTAB_SQLPROF PROCEDURE
+call DBMS_SQLTUNE.REMAP_STGTAB_SQLPROF(NULL,NULL,NULL,NULL,NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:38) /test/1/catalog1/DBMS_SQLTUNE/REMAP_STGTAB_SQLPROF/",
+      "action": "CALL"
+    }
+  ]
+}

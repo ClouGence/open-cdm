@@ -1,0 +1,154 @@
+[split_dml_dameng_dpc_0_001_behavior_review]
+sql:
+insert into CODEX_DPC_NORMAL values(1, 'NORMAL');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:28) /test/1/catalog1/schema1/CODEX_DPC_NORMAL/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_dpc_0_002_behavior_review]
+sql:
+insert into CODEX_DPC_RANGE values(50, 'RAFT_1');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:27) /test/1/catalog1/schema1/CODEX_DPC_RANGE/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_dpc_0_003_behavior_review]
+sql:
+insert into CODEX_DPC_RANGE values(150, 'RAFT_2');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:27) /test/1/catalog1/schema1/CODEX_DPC_RANGE/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_dpc_0_004_behavior_review]
+sql:
+insert into CODEX_DPC_HASH values('A', 10);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/CODEX_DPC_HASH/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_dpc_0_005_behavior_review]
+sql:
+insert into CODEX_DPC_HASH values('B', 20);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/CODEX_DPC_HASH/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_dpc_0_006_behavior_review]
+sql:
+insert into CODEX_DPC_HASH values('C', 30);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/CODEX_DPC_HASH/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_dpc_0_007_behavior_review]
+sql:
+insert into CODEX_DPC_HASH values('D', 40);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/CODEX_DPC_HASH/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_dpc_0_008_behavior_review]
+sql:
+commit;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[split_dml_dameng_dpc_0_009_behavior_review]
+sql:
+update CODEX_DPC_RANGE set NOTE='UPDATED_RAFT_2' where ID=150;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:22) /test/1/catalog1/schema1/CODEX_DPC_RANGE/",
+      "action": "UPDATE"
+    }
+  ]
+}
+----------
+[split_dml_dameng_dpc_0_010_behavior_review]
+sql:
+delete from CODEX_DPC_HASH where CODE='D';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/CODEX_DPC_HASH/",
+      "action": "DELETE"
+    }
+  ]
+}
+----------
+[split_dml_dameng_dpc_0_011_behavior_review]
+sql:
+commit;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRANSACTION": []
+}

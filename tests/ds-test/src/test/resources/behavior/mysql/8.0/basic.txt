@@ -1,0 +1,395 @@
+[select_join]
+sql:
+select * from db1.t1 join t2 on t1.id = t2.id
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:20) /test/1/catalog1/db1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:26~1:28) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[insert_on_duplicate_key_update]
+sql:
+insert into target_tab(id, value_col) values (1, 'new') on duplicate key update value_col = values(value_col)
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:12~1:22) /test/1/catalog1/schema1/target_tab/",
+      "action" : "MERGE"
+    },
+    {
+      "subject": "Function(1:92~1:98) /test/1/catalog1/schema1/values/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[replace_into]
+sql:
+replace into target_tab(id, value_col) values (1, 'replacement')
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:13~1:23) /test/1/catalog1/schema1/target_tab/",
+      "action" : "MERGE"
+    }
+  ]
+}
+----------
+[create_table_select]
+sql:
+create table target_tab as select * from source_tab
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:23) /test/1/catalog1/schema1/target_tab/",
+      "action" : "CREATE",
+      "target" : "Table(1:41~1:51) /test/1/catalog1/schema1/source_tab/"
+    }
+  ]
+}
+----------
+[rename_table]
+sql:
+rename table old_tab to new_tab
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "RENAME_TABLE": [
+    {
+      "subject": "Table(1:13~1:20) /test/1/catalog1/schema1/old_tab/",
+      "action" : "RENAME",
+      "target" : "Table(1:24~1:31) /test/1/catalog1/schema1/new_tab/"
+    }
+  ]
+}
+----------
+[call_procedure]
+sql:
+call proc1()
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:5~1:10) /test/1/catalog1/schema1/proc1/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_index]
+sql:
+create index idx_t1_name on t1(name)
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:24) /test/1/catalog1/schema1/idx_t1_name/",
+      "action" : "CREATE",
+      "target" : "Table(1:28~1:30) /test/1/catalog1/schema1/t1/"
+    }
+  ]
+}
+----------
+[system_metadata_table]
+sql:
+select * from information_schema.columns
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Table(1:14~1:40) /test/1/catalog1/information_schema/columns/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[ordinary_table_named_like_metadata]
+sql:
+select * from app_schema.columns
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:32) /test/1/catalog1/app_schema/columns/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[system_procedure]
+sql:
+call sys.ps_setup_reset_to_default(false)
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:5~1:34) /test/1/catalog1/sys/ps_setup_reset_to_default/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[system_function]
+sql:
+select sys.format_bytes(1024)
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:23) /test/1/catalog1/sys/format_bytes/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[variables]
+sql:
+SELECT @@global.time_zone, @@session.sql_mode;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "ConfigKey(1:7~1:25) /test/1/time_zone/",
+      "action" : "READ"
+    },
+    {
+      "subject": "ConfigKey(1:27~1:45) /test/1/sql_mode/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[export_table_and_file]
+sql:
+SELECT * FROM sales.orders INTO OUTFILE '/tmp/orders.csv';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DATA_EXPORT": [
+    {
+      "subject": {
+        "value"     : "File(1:40~1:57) /test/1/tmp/orders.csv/",
+        "catalog"   : null,
+        "schema"    : null,
+        "objectName": "tmp/orders.csv"
+      },
+      "action" : "EXPORT",
+      "target" : "Table(1:14~1:26) /test/1/catalog1/sales/orders/"
+    }
+  ]
+}
+----------
+[aggregate_and_udf_are_calls]
+sql:
+SELECT COUNT(*), SUM(a.score), db1.f_score(a.score), db2.f_label(b.kind)
+FROM db1.account a JOIN db2.profile b ON a.id = b.account_id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:20) /test/1/catalog1/schema1/SUM/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:31~1:42) /test/1/catalog1/db1/f_score/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:53~1:64) /test/1/catalog1/db2/f_label/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(2:5~2:16) /test/1/catalog1/db1/account/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(2:24~2:35) /test/1/catalog1/db2/profile/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[all_functions_are_calls_except_case]
+sql:
+SELECT COUNT(*), CONCAT('a', CAST(1 AS CHAR)), CASE WHEN 1 = 1 THEN NOW() ELSE 'x' END, score_udf(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:23) /test/1/catalog1/schema1/CONCAT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:29~1:33) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:68~1:71) /test/1/catalog1/schema1/NOW/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:88~1:97) /test/1/catalog1/schema1/score_udf/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[prepare_statement]
+sql:
+PREPARE stmt1 FROM 'SELECT * FROM t1';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UNSAFE": [
+    {
+      "subject": "PrepareStatement(1:8~1:13) /test/1/stmt1/",
+      "action" : "UNSAFE"
+    }
+  ]
+}
+----------
+[execute_statement]
+sql:
+EXECUTE stmt1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UNSAFE": [
+    {
+      "subject": "PrepareStatement(1:8~1:13) /test/1/stmt1/",
+      "action" : "UNSAFE"
+    }
+  ]
+}
+----------
+[deallocate_statement]
+sql:
+DEALLOCATE PREPARE stmt1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UNSAFE": [
+    {
+      "subject": "PrepareStatement(1:19~1:24) /test/1/stmt1/",
+      "action" : "UNSAFE"
+    }
+  ]
+}
+----------
+[functional_lock_functions_are_not_calls]
+sql:
+SELECT GET_LOCK('audit',0), IS_FREE_LOCK('audit'), RELEASE_LOCK('audit');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/GET_LOCK/",
+      "action" : "LOCK"
+    },
+    {
+      "subject": "Function(1:28~1:40) /test/1/catalog1/schema1/IS_FREE_LOCK/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:51~1:63) /test/1/catalog1/schema1/RELEASE_LOCK/",
+      "action" : "LOCK"
+    }
+  ]
+}
+----------
+[install_plugin_is_library]
+sql:
+INSTALL PLUGIN split_plugin SONAME 'split.so';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_LIBRARY": [
+    {
+      "subject": "Library(1:0~1:45) /test/1/",
+      "action": "UNSAFE"
+    }
+  ]
+}
+----------
+[uninstall_plugin_is_library]
+sql:
+UNINSTALL PLUGIN split_plugin;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_LIBRARY": [
+    {
+      "subject": "Library(1:0~1:29) /test/1/",
+      "action": "UNSAFE"
+    }
+  ]
+}
+----------
+[component_options_are_opaque]
+sql:
+INSTALL COMPONENT 'file://component_validate_password' SET length=@gizmo;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_LIBRARY": [
+    {
+      "subject": "Library(1:0~1:72) /test/1/",
+      "action": "UNSAFE"
+    }
+  ]
+}

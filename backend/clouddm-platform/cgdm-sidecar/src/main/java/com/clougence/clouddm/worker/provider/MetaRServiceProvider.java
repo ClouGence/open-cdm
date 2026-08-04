@@ -110,6 +110,17 @@ public class MetaRServiceProvider implements MetaRService {
     }
 
     @Override
+    public Map<String, String> getSqlParserParameters(RSocketSendDTO sendDTO, DataSourceConfig dbConfig, Map<UmiTypes, Object> levelsParam) {
+        try (Session rdbSession = metaSession(dbConfig, levelsParam)) {
+            return rdbSession.getMetaService().getSqlParserParameters();
+        } catch (Exception e) {
+            String msg = "getSqlParserParameters error.msg:" + ExceptionUtils.getRootCauseMessage(e);
+            log.error(msg, e);
+            throw new RuntimeException(msg, e);
+        }
+    }
+
+    @Override
     public List<DsElement> listLevels(RSocketSendDTO sendDTO, DataSourceConfig dbConfig, List<UmiTypes> levels, Map<UmiTypes, Object> levelsParam) {
         try (Session session = metaSession(dbConfig, levelsParam)) {
             return session.getMetaService().listLevels(levels, levelsParam);

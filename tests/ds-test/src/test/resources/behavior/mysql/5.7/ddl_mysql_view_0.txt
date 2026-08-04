@@ -1,0 +1,513 @@
+[create_view_select___001]
+sql:
+CREATE VIEW v_rpad AS SELECT RPAD('x', 1 NOT IN (0), 1) AS c;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:18) /test/1/catalog1/schema1/v_rpad/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:29~1:33) /test/1/catalog1/schema1/RPAD/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_view_select___002]
+sql:
+CREATE VIEW v_sha2 AS SELECT SHA2('x', 1 NOT IN (0)) AS c;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:18) /test/1/catalog1/schema1/v_sha2/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:29~1:33) /test/1/catalog1/schema1/SHA2/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_view_select___003]
+sql:
+CREATE VIEW v_substr_pos AS SELECT SUBSTR('x', 1 NOT IN (0)) AS c;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:24) /test/1/catalog1/schema1/v_substr_pos/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:35~1:41) /test/1/catalog1/schema1/SUBSTR/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_view_select___004]
+sql:
+CREATE VIEW v_repeat AS SELECT REPEAT('x', 1 NOT IN (0)) AS c;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:20) /test/1/catalog1/schema1/v_repeat/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:31~1:37) /test/1/catalog1/schema1/REPEAT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_view_select___005]
+sql:
+CREATE VIEW v_space AS SELECT SPACE(1 NOT IN (0)) AS c;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:19) /test/1/catalog1/schema1/v_space/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:30~1:35) /test/1/catalog1/schema1/SPACE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_view_select___006]
+sql:
+CREATE VIEW v_left AS SELECT LEFT('x', 1 NOT IN (0)) AS c;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:18) /test/1/catalog1/schema1/v_left/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:29~1:33) /test/1/catalog1/schema1/LEFT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_view_select___007]
+sql:
+CREATE VIEW v_right AS SELECT RIGHT('x', 1 NOT IN (0)) AS c;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:19) /test/1/catalog1/schema1/v_right/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:30~1:35) /test/1/catalog1/schema1/RIGHT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_view_select___008]
+sql:
+CREATE VIEW v_str_to_date AS SELECT STR_TO_DATE('2020', 1 NOT IN (0)) AS c;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:25) /test/1/catalog1/schema1/v_str_to_date/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:36~1:47) /test/1/catalog1/schema1/STR_TO_DATE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_view_select___009]
+sql:
+CREATE VIEW split_subquery_bugs_1800.v1 AS SELECT vt3.c2 AS vc1,vt3.c3 AS vc2,vt4.c1 AS vc3 FROM (((split_subquery_bugs_1800.vt3 LEFT JOIN split_subquery_bugs_1800.vt1 ON vt1.c1=vt3.c5) LEFT JOIN split_subquery_bugs_1800.vt2 ON vt3.c4=vt2.c1) JOIN split_subquery_bugs_1800.vt4);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:39) /test/1/catalog1/split_subquery_bugs_1800/v1/",
+      "action" : "CREATE",
+      "target" : [
+        "Table(1:100~1:128) /test/1/catalog1/split_subquery_bugs_1800/vt3/",
+        "Table(1:139~1:167) /test/1/catalog1/split_subquery_bugs_1800/vt1/",
+        "Table(1:196~1:224) /test/1/catalog1/split_subquery_bugs_1800/vt2/",
+        "Table(1:248~1:276) /test/1/catalog1/split_subquery_bugs_1800/vt4/"
+      ]
+    }
+  ]
+}
+----------
+[create_view_select___010]
+sql:
+CREATE VIEW split_subquery_bugs_550.v1 AS SELECT * FROM split_subquery_bugs_550.vb WHERE 5 IN (SELECT 1) IS UNKNOWN;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:38) /test/1/catalog1/split_subquery_bugs_550/v1/",
+      "action" : "CREATE",
+      "target" : "Table(1:56~1:82) /test/1/catalog1/split_subquery_bugs_550/vb/"
+    }
+  ]
+}
+----------
+[create_view_select___011]
+sql:
+CREATE VIEW split_subquery_twelfth.v_nested AS SELECT alias2.col_varchar_nokey FROM split_subquery_twelfth.v_base AS alias1 RIGHT JOIN split_subquery_twelfth.view_base AS alias2 ON 1 WHERE alias2.col_varchar_key IN (SELECT sq1.col_varchar_nokey FROM split_subquery_twelfth.v_base AS sq1 LEFT JOIN split_subquery_twelfth.view_base AS sq2 ON sq2.col_int_key=sq1.pk WHERE sq1.pk<>alias1.col_int_key AND sq1.col_varchar_key>alias1.col_varchar_key);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:43) /test/1/catalog1/split_subquery_twelfth/v_nested/",
+      "action" : "CREATE",
+      "target" : [
+        "Table(1:84~1:113) /test/1/catalog1/split_subquery_twelfth/v_base/",
+        "Table(1:135~1:167) /test/1/catalog1/split_subquery_twelfth/view_base/"
+      ]
+    }
+  ]
+}
+----------
+[create_view_select___012]
+sql:
+CREATE VIEW split_subquery_eleventh.v_predicates AS SELECT 1 LIKE (1 IN (SELECT 1)) AS p1,1 LIKE '%' ESCAPE (1 IN (SELECT 1)) AS p2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:48) /test/1/catalog1/split_subquery_eleventh/v_predicates/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_view_select___013]
+sql:
+CREATE VIEW split_subquery_tenth.v_check AS SELECT r.c AS c FROM split_subquery_tenth.view_left AS l,split_subquery_tenth.view_right AS r WHERE l.id=r.id AND 1 IN (SELECT i.id FROM split_subquery_tenth.view_left AS i) WITH CHECK OPTION;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:40) /test/1/catalog1/split_subquery_tenth/v_check/",
+      "action" : "CREATE",
+      "target" : [
+        "Table(1:65~1:95) /test/1/catalog1/split_subquery_tenth/view_left/",
+        "Table(1:101~1:132) /test/1/catalog1/split_subquery_tenth/view_right/"
+      ]
+    }
+  ]
+}
+----------
+[drop_view__014]
+sql:
+DROP VIEW IF EXISTS split_view57.v_base, split_view57.v_joined;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "View(1:20~1:39) /test/1/catalog1/split_view57/v_base/",
+      "action" : "DROP"
+    },
+    {
+      "subject": "View(1:41~1:62) /test/1/catalog1/split_view57/v_joined/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[alter_view_select___015]
+sql:
+CREATE OR REPLACE ALGORITHM = MERGE DEFINER = CURRENT_USER SQL SECURITY DEFINER VIEW split_view57.v_base (id, amount) AS
+SELECT id, amount FROM split_view57.src WHERE amount >= 0 WITH CASCADED CHECK OPTION;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_VIEW": [
+    {
+      "subject": "View(1:85~1:104) /test/1/catalog1/split_view57/v_base/",
+      "action" : "REPLACE",
+      "target" : "Table(2:23~2:39) /test/1/catalog1/split_view57/src/"
+    }
+  ]
+}
+----------
+[alter_view_select___016]
+sql:
+ALTER ALGORITHM = UNDEFINED DEFINER = CURRENT_USER SQL SECURITY INVOKER VIEW split_view57.v_base (id, amount) AS
+SELECT id, amount FROM split_view57.src WHERE amount BETWEEN 0 AND 100 WITH LOCAL CHECK OPTION;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_VIEW": [
+    {
+      "subject": "View(1:77~1:96) /test/1/catalog1/split_view57/v_base/",
+      "action" : "ALTER",
+      "target" : "Table(2:23~2:39) /test/1/catalog1/split_view57/src/"
+    }
+  ]
+}
+----------
+[create_view_select___017]
+sql:
+CREATE ALGORITHM = TEMPTABLE VIEW split_view57.v_joined AS
+SELECT s.id, a.action_name FROM split_view57.src AS s LEFT JOIN split_view57.audit AS a ON a.src_id = s.id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:34~1:55) /test/1/catalog1/split_view57/v_joined/",
+      "action" : "CREATE",
+      "target" : [
+        "Table(2:32~2:48) /test/1/catalog1/split_view57/src/",
+        "Table(2:64~2:82) /test/1/catalog1/split_view57/audit/"
+      ]
+    }
+  ]
+}
+----------
+[drop_view__018]
+sql:
+DROP VIEW IF EXISTS split_view57.v_joined RESTRICT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "View(1:20~1:41) /test/1/catalog1/split_view57/v_joined/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[drop_view__019]
+sql:
+DROP VIEW split_view57.v_base CASCADE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "View(1:10~1:29) /test/1/catalog1/split_view57/v_base/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[create_view_select_session_variable_rw___020]
+sql:
+CREATE VIEW codex_load_audit_s.v AS SELECT 1 INTO @codex_load_audit_v;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:32) /test/1/catalog1/codex_load_audit_s/v/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "ConfigKey(1:50~1:69) /test/1/codex_load_audit_v/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[alter_view_select___021]
+sql:
+ALTER DEFINER=no_such@user_1 VIEW v1 AS SELECT * FROM t1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_VIEW": [
+    {
+      "subject": "View(1:34~1:36) /test/1/catalog1/schema1/v1/",
+      "action" : "ALTER",
+      "target" : "Table(1:54~1:56) /test/1/catalog1/schema1/t1/"
+    }
+  ]
+}
+----------
+[create_view_select___022]
+sql:
+CREATE VIEW v_distinct_check AS
+SELECT DISTINCT a FROM t1 WITH CHECK OPTION;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:28) /test/1/catalog1/schema1/v_distinct_check/",
+      "action" : "CREATE",
+      "target" : "Table(2:23~2:25) /test/1/catalog1/schema1/t1/"
+    }
+  ]
+}
+----------
+[create_view_select___023]
+sql:
+CREATE VIEW v_paren_gap AS (SELECT 1 AS a);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:23) /test/1/catalog1/schema1/v_paren_gap/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_view_select___024]
+sql:
+CREATE VIEW v_union_gap AS (SELECT 1 AS a) UNION (SELECT 2 AS a);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:23) /test/1/catalog1/schema1/v_union_gap/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[alter_view_select___025]
+sql:
+ALTER ALGORITHM=MERGE VIEW v_base_gap AS SELECT a FROM t1 WHERE a>=0 WITH CASCADED CHECK OPTION;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_VIEW": [
+    {
+      "subject": "View(1:27~1:37) /test/1/catalog1/schema1/v_base_gap/",
+      "action" : "ALTER",
+      "target" : "Table(1:55~1:57) /test/1/catalog1/schema1/t1/"
+    }
+  ]
+}
+----------
+[create_view_select___026]
+sql:
+CREATE DEFINER=root@localhost SQL SECURITY INVOKER VIEW v_def_gap AS SELECT a FROM t1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:56~1:65) /test/1/catalog1/schema1/v_def_gap/",
+      "action" : "CREATE",
+      "target" : "Table(1:83~1:85) /test/1/catalog1/schema1/t1/"
+    }
+  ]
+}
+----------
+[create_view_data_export_select___027]
+sql:
+CREATE VIEW split_view_outfile AS SELECT 5 INTO OUTFILE '/tmp/split_native_gap_view.txt';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:30) /test/1/catalog1/schema1/split_view_outfile/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "File(1:56~1:88) /test/1/tmp/split_native_gap_view.txt/",
+      "action" : "EXPORT"
+    }
+  ]
+}
+----------
+[create_view_select___028]
+sql:
+CREATE VIEW split_view_order_limit AS SELECT a + 1 FROM split_view_source ORDER BY 1 DESC LIMIT 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:34) /test/1/catalog1/schema1/split_view_order_limit/",
+      "action" : "CREATE",
+      "target" : "Table(1:56~1:73) /test/1/catalog1/schema1/split_view_source/"
+    }
+  ]
+}
+----------
+[create_view_select___029]
+sql:
+CREATE VIEW split_view_system_variable (c,d) AS SELECT a, b + @@global.max_user_connections FROM split_view_source;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:38) /test/1/catalog1/schema1/split_view_system_variable/",
+      "action" : "CREATE",
+      "target" : "Table(1:97~1:114) /test/1/catalog1/schema1/split_view_source/"
+    },
+    {
+      "subject": "ConfigKey(1:62~1:91) /test/1/max_user_connections/",
+      "action" : "READ"
+    }
+  ]
+}

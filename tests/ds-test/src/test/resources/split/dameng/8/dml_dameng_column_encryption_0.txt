@@ -1,0 +1,78 @@
+insert into CODEX_ENC_T01 values (1, 'transparent-default');
+update CODEX_ENC_T01 set SECRET = 'transparent-updated' where ID = 1;
+delete from CODEX_ENC_T01 where ID = 1;
+insert into CODEX_ENC_K05 values (1, 'invisible-to-all');
+insert into CODEX_COLKEY_AUTO values(1, 'auto-value');
+insert into CODEX_COLKEY_AUTO_HASH values(1, 'auto-hash-value');
+insert into CODEX_COLKEY_MANUAL values(1, 'manual-hidden-value');
+insert into CODEX_COLKEY_MANUAL_VISIBLE values(1, 'manual-visible-value');
+insert into CODEX_COLKEY_ALTER values(1, 'alter-auto-value', 'alter-manual-value');
+update CODEX_COLKEY_AUTO set SECRET='auto-updated' where ID=1;
+update CODEX_COLKEY_MANUAL_VISIBLE set SECRET='manual-updated' where ID=1;
+delete from CODEX_COLKEY_AUTO where ID=1;
+delete from CODEX_COLKEY_MANUAL_VISIBLE where ID=1;
+insert into CODEX_WRAP_AUTO_20260722 values(1, 'auto-wrapped-value');
+insert into CODEX_WRAP_MANUAL_20260722 values(1, 'manual-wrapped-value');
+insert into CODEX_WRAP_ALTER_20260722 values(1, 'alter-wrapped-value');
+update CODEX_WRAP_AUTO_20260722 set SECRET='auto-wrapped-updated' where ID=1;
+update CODEX_WRAP_MANUAL_20260722 set SECRET='manual-wrapped-updated' where ID=1;
+update CODEX_WRAP_ALTER_20260722 set SECRET='alter-wrapped-updated' where ID=1;
+delete from CODEX_WRAP_AUTO_20260722 where ID=1;
+delete from CODEX_WRAP_MANUAL_20260722 where ID=1;
+delete from CODEX_WRAP_ALTER_20260722 where ID=1;
+insert into CODEX_ENC_USER1.MANUAL_OWNER_DATA values (1, 'USER1_INITIAL');
+insert into CODEX_ENC_USER1.MANUAL_VISIBLE_DATA values (1, 'VISIBLE_TO_BOTH');
+update CODEX_ENC_USER1.MANUAL_OWNER_DATA set SECRET = 'USER2_COMMITTED' where ID = 1;
+update CODEX_ENC_USER1.MANUAL_OWNER_DATA set SECRET = 'USER1_ROLLED_BACK' where ID = 1;
+------------------------------------------------------------------------------------------
+[INSERT] insert into CODEX_ENC_T01 values (1, 'transparent-default');
+----------
+[UPDATE] update CODEX_ENC_T01 set SECRET = 'transparent-updated' where ID = 1;
+----------
+[DELETE] delete from CODEX_ENC_T01 where ID = 1;
+----------
+[INSERT] insert into CODEX_ENC_K05 values (1, 'invisible-to-all');
+----------
+[INSERT] insert into CODEX_COLKEY_AUTO values(1, 'auto-value');
+----------
+[INSERT] insert into CODEX_COLKEY_AUTO_HASH values(1, 'auto-hash-value');
+----------
+[INSERT] insert into CODEX_COLKEY_MANUAL values(1, 'manual-hidden-value');
+----------
+[INSERT] insert into CODEX_COLKEY_MANUAL_VISIBLE values(1, 'manual-visible-value');
+----------
+[INSERT] insert into CODEX_COLKEY_ALTER values(1, 'alter-auto-value', 'alter-manual-value');
+----------
+[UPDATE] update CODEX_COLKEY_AUTO set SECRET='auto-updated' where ID=1;
+----------
+[UPDATE] update CODEX_COLKEY_MANUAL_VISIBLE set SECRET='manual-updated' where ID=1;
+----------
+[DELETE] delete from CODEX_COLKEY_AUTO where ID=1;
+----------
+[DELETE] delete from CODEX_COLKEY_MANUAL_VISIBLE where ID=1;
+----------
+[INSERT] insert into CODEX_WRAP_AUTO_20260722 values(1, 'auto-wrapped-value');
+----------
+[INSERT] insert into CODEX_WRAP_MANUAL_20260722 values(1, 'manual-wrapped-value');
+----------
+[INSERT] insert into CODEX_WRAP_ALTER_20260722 values(1, 'alter-wrapped-value');
+----------
+[UPDATE] update CODEX_WRAP_AUTO_20260722 set SECRET='auto-wrapped-updated' where ID=1;
+----------
+[UPDATE] update CODEX_WRAP_MANUAL_20260722 set SECRET='manual-wrapped-updated' where ID=1;
+----------
+[UPDATE] update CODEX_WRAP_ALTER_20260722 set SECRET='alter-wrapped-updated' where ID=1;
+----------
+[DELETE] delete from CODEX_WRAP_AUTO_20260722 where ID=1;
+----------
+[DELETE] delete from CODEX_WRAP_MANUAL_20260722 where ID=1;
+----------
+[DELETE] delete from CODEX_WRAP_ALTER_20260722 where ID=1;
+----------
+[INSERT] insert into CODEX_ENC_USER1.MANUAL_OWNER_DATA values (1, 'USER1_INITIAL');
+----------
+[INSERT] insert into CODEX_ENC_USER1.MANUAL_VISIBLE_DATA values (1, 'VISIBLE_TO_BOTH');
+----------
+[UPDATE] update CODEX_ENC_USER1.MANUAL_OWNER_DATA set SECRET = 'USER2_COMMITTED' where ID = 1;
+----------
+[UPDATE] update CODEX_ENC_USER1.MANUAL_OWNER_DATA set SECRET = 'USER1_ROLLED_BACK' where ID = 1;

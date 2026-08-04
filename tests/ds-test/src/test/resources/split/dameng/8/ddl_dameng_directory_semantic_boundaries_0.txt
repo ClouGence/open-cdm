@@ -1,0 +1,24 @@
+create directory DIR_BOUNDARY_DUPLICATE as '/var/tmp';
+create directory DIR_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA as '/tmp';
+create directory DIR_BOUNDARY_PATH_257 as '/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+create directory DIR_BOUNDARY_UTF8 as '/测';
+drop directory SYS.DIR_BOUNDARY_QUALIFIED;
+drop directory DIR_BOUNDARY_MISSING;
+select count(*) from DIR_BOUNDARY_EXT;
+grant read on directory to CODEX_DM8_DIRECTORY_USER_20260721;
+------------------------------------------------------------------------------------------
+[SYSTEM_SETTING_WRITE] create directory DIR_BOUNDARY_DUPLICATE as '/var/tmp';
+----------
+[SYSTEM_SETTING_WRITE] create directory DIR_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA as '/tmp';
+----------
+[SYSTEM_SETTING_WRITE] create directory DIR_BOUNDARY_PATH_257 as '/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+----------
+[SYSTEM_SETTING_WRITE] create directory DIR_BOUNDARY_UTF8 as '/测';
+----------
+[SYSTEM_SETTING_WRITE] drop directory SYS.DIR_BOUNDARY_QUALIFIED;
+----------
+[SYSTEM_SETTING_WRITE] drop directory DIR_BOUNDARY_MISSING;
+----------
+[SELECT] select count(*) from DIR_BOUNDARY_EXT;
+----------
+[GRANT] grant read on directory to CODEX_DM8_DIRECTORY_USER_20260721;

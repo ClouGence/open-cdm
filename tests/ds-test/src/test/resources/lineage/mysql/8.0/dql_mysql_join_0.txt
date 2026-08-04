@@ -1,0 +1,1486 @@
+[dql_mysql_join_0.0001]
+sql:
+SELECT * FROM {oj t1 LEFT OUTER JOIN t2 ON t1.a1=t2.a3} WHERE t1.a2 > 10;
+expect:
+{
+  "a1" : [ "(1:7~1:8) /catalog1/schema1/t1/a1/" ],
+  "a2" : [ "(1:7~1:8) /catalog1/schema1/t1/a2/" ],
+  "a3" : [ "(1:7~1:8) /catalog1/schema1/t2/a3/" ]
+}
+----------
+[dql_mysql_join_0.0002]
+sql:
+SELECT a.col_varchar FROM t1 a STRAIGHT_JOIN t2 b INNER JOIN t1 c ON c.col_varchar=b.col_varchar_key ON c.col_int=b.pk;
+expect:
+{
+  "col_varchar" : [ "(1:7~1:20) /catalog1/schema1/t1/col_varchar/" ]
+}
+----------
+[dql_mysql_join_0.0009]
+sql:
+SELECT a.id FROM articles AS a LEFT JOIN articles AS b ON b.id=a.id AND MATCH(b.title) AGAINST('database');
+expect:
+{
+  "id" : [ "(1:7~1:11) /catalog1/schema1/articles/id/" ]
+}
+----------
+[dql_mysql_join_0.0010]
+sql:
+SELECT f_acc.`rank`,a1.`rank`,a2.`rank`
+FROM func_least_faq
+LEFT JOIN func_least_faq AS f1 ON (f1.access_id=1 AND f1.faq_group_id=func_least_faq.faq_group_id)
+LEFT JOIN func_least_access_rank AS a1 ON (a1.access_id=f1.access_id)
+LEFT JOIN func_least_faq AS f2 ON (f2.access_id=3 AND f2.faq_group_id=func_least_faq.faq_group_id)
+LEFT JOIN func_least_access_rank AS a2 ON (a2.access_id=f2.access_id),
+func_least_access_rank AS f_acc
+WHERE LEAST(a1.`rank`,a2.`rank`)=f_acc.`rank`;
+expect:
+[ {
+  "sources" : [ "(1:7~1:19) /catalog1/schema1/func_least_access_rank/rank/" ],
+  "column" : "rank"
+}, {
+  "sources" : [ "(1:20~1:29) /catalog1/schema1/func_least_access_rank/rank/" ],
+  "column" : "rank"
+}, {
+  "sources" : [ "(1:30~1:39) /catalog1/schema1/func_least_access_rank/rank/" ],
+  "column" : "rank"
+} ]
+----------
+[dql_mysql_join_0.0011]
+sql:
+SELECT DISTINCT
+       projects.project_id,
+       projects.project_name,
+       projects.client_ptr,
+       projects.comments,
+       SUM(budgets.amount_received) + SUM(budgets.adjustment) AS total_budget
+FROM join_crash_periods AS client_period,
+     join_crash_periods AS project_period,
+     join_crash_budgets AS budgets
+LEFT JOIN join_crash_projects AS projects
+  ON budgets.project_ptr = projects.project_id
+ AND budgets.date_received <= '2001-03-22 14:15:09'
+LEFT JOIN join_crash_clients AS clients
+  ON clients.client_id = projects.client_ptr
+WHERE client_period.period_type = 'client_table'
+  AND client_period.period_key = clients.client_id
+  AND (client_period.start_date <= '2001-03-22 14:15:09' OR ISNULL(client_period.start_date))
+  AND (client_period.end_date > '2001-03-21 14:15:09' OR ISNULL(client_period.end_date))
+  AND project_period.period_type = 'project_table'
+  AND project_period.period_key = projects.project_id
+  AND (project_period.start_date <= '2001-03-22 14:15:09' OR ISNULL(project_period.start_date))
+  AND (project_period.end_date > '2001-03-21 14:15:09' OR ISNULL(project_period.end_date))
+GROUP BY clients.client_id,
+         projects.project_id,
+         client_period.period_id,
+         project_period.period_id
+ORDER BY clients.client_name ASC,
+         projects.project_name ASC;
+expect:
+{
+  "project_id" : [ "(2:7~2:26) /catalog1/schema1/join_crash_projects/project_id/" ],
+  "project_name" : [ "(3:7~3:28) /catalog1/schema1/join_crash_projects/project_name/" ],
+  "client_ptr" : [ "(4:7~4:26) /catalog1/schema1/join_crash_projects/client_ptr/" ],
+  "comments" : [ "(5:7~5:24) /catalog1/schema1/join_crash_projects/comments/" ],
+  "total_budget" : [ "(6:11~6:34) /catalog1/schema1/join_crash_budgets/amount_received/", "(6:42~6:60) /catalog1/schema1/join_crash_budgets/adjustment/" ]
+}
+----------
+[dql_mysql_join_0.0012]
+sql:
+SELECT t1.id FROM (t1, t2) JOIN t3 ON t2.id = t3.id WHERE t1.id = t2.id;
+expect:
+{
+  "id" : [ "(1:7~1:12) /catalog1/schema1/t1/id/" ]
+}
+----------
+[dql_mysql_join_0.0013]
+sql:
+SELECT t1.id FROM t1 CROSS JOIN t2 ON t1.id = t2.id;
+expect:
+{
+  "id" : [ "(1:7~1:12) /catalog1/schema1/t1/id/" ]
+}
+----------
+[dql_mysql_join_0.0014]
+sql:
+SELECT t1.id FROM t1 JOIN t2;
+expect:
+{
+  "id" : [ "(1:7~1:12) /catalog1/schema1/t1/id/" ]
+}
+----------
+[dql_mysql_join_0.0015]
+sql:
+SELECT t1.id FROM t1 INNER JOIN t2 USING (id);
+expect:
+{
+  "id" : [ "(1:7~1:12) /catalog1/schema1/t1/id/" ]
+}
+----------
+[dql_mysql_join_0.0016]
+sql:
+SELECT t1.id FROM t1 LEFT OUTER JOIN t2 USING (id);
+expect:
+{
+  "id" : [ "(1:7~1:12) /catalog1/schema1/t1/id/" ]
+}
+----------
+[dql_mysql_join_0.0017]
+sql:
+SELECT t1.id FROM t1 RIGHT JOIN t2 ON t1.id = t2.id;
+expect:
+{
+  "id" : [ "(1:7~1:12) /catalog1/schema1/t1/id/" ]
+}
+----------
+[dql_mysql_join_0.0018]
+sql:
+SELECT id, grp, v FROM t1 NATURAL JOIN t2;
+expect:
+{
+  "id" : [ "(1:7~1:9) /catalog1/schema1/t1/id/", "(1:7~1:9) /catalog1/schema1/t2/id/" ],
+  "grp" : [ "(1:11~1:14) /catalog1/schema1/t1/grp/", "(1:11~1:14) /catalog1/schema1/t2/grp/" ],
+  "v" : [ "(1:16~1:17) /catalog1/schema1/t1/v/", "(1:16~1:17) /catalog1/schema1/t2/v/" ]
+}
+----------
+[dql_mysql_join_0.0019]
+sql:
+SELECT id, grp, v FROM t1 NATURAL LEFT OUTER JOIN t2;
+expect:
+{
+  "id" : [ "(1:7~1:9) /catalog1/schema1/t1/id/", "(1:7~1:9) /catalog1/schema1/t2/id/" ],
+  "grp" : [ "(1:11~1:14) /catalog1/schema1/t1/grp/", "(1:11~1:14) /catalog1/schema1/t2/grp/" ],
+  "v" : [ "(1:16~1:17) /catalog1/schema1/t1/v/", "(1:16~1:17) /catalog1/schema1/t2/v/" ]
+}
+----------
+[dql_mysql_join_0.0020]
+sql:
+SELECT id, grp, v FROM t1 NATURAL RIGHT OUTER JOIN t2;
+expect:
+{
+  "id" : [ "(1:7~1:9) /catalog1/schema1/t1/id/", "(1:7~1:9) /catalog1/schema1/t2/id/" ],
+  "grp" : [ "(1:11~1:14) /catalog1/schema1/t1/grp/", "(1:11~1:14) /catalog1/schema1/t2/grp/" ],
+  "v" : [ "(1:16~1:17) /catalog1/schema1/t1/v/", "(1:16~1:17) /catalog1/schema1/t2/v/" ]
+}
+----------
+[dql_mysql_join_0.0021]
+sql:
+SELECT t1.id FROM t1 STRAIGHT_JOIN t2;
+expect:
+{
+  "id" : [ "(1:7~1:12) /catalog1/schema1/t1/id/" ]
+}
+----------
+[dql_mysql_join_0.0022]
+sql:
+SELECT t1.id FROM (((t1))) JOIN t2 ON t1.id = t2.id;
+expect:
+{
+  "id" : [ "(1:7~1:12) /catalog1/schema1/t1/id/" ]
+}
+----------
+[dql_mysql_join_0.0023]
+sql:
+SELECT t1.id FROM t1 JOIN t2 JOIN t3 ON t2.id = t3.id ON t1.id = t2.id;
+expect:
+{
+  "id" : [ "(1:7~1:12) /catalog1/schema1/t1/id/" ]
+}
+----------
+[dql_mysql_join_0.0024]
+sql:
+SELECT id, grp, v FROM t1 NATURAL INNER JOIN t2;
+expect:
+{
+  "id" : [ "(1:7~1:9) /catalog1/schema1/t1/id/", "(1:7~1:9) /catalog1/schema1/t2/id/" ],
+  "grp" : [ "(1:11~1:14) /catalog1/schema1/t1/grp/", "(1:11~1:14) /catalog1/schema1/t2/grp/" ],
+  "v" : [ "(1:16~1:17) /catalog1/schema1/t1/v/", "(1:16~1:17) /catalog1/schema1/t2/v/" ]
+}
+----------
+[dql_mysql_join_0.0025]
+sql:
+SELECT t1.*,dt.c FROM jt AS t1 CROSS JOIN LATERAL (SELECT COUNT(*) AS c FROM jt AS t2 LEFT JOIN jt AS t3 ON t3.a>t2.a-t1.a) AS dt;
+expect:
+{
+  "a" : [ "(1:7~1:11) /catalog1/schema1/jt/a/" ],
+  "c" : [ ]
+}
+----------
+[dql_mysql_join_0.0026]
+sql:
+SELECT * FROM (n1 NATURAL JOIN n2) NATURAL JOIN (n3 NATURAL JOIN n4);
+expect:
+{
+  "id" : [ "(1:7~1:8) /catalog1/schema1/n1/id/", "(1:7~1:8) /catalog1/schema1/n2/id/", "(1:7~1:8) /catalog1/schema1/n3/id/", "(1:7~1:8) /catalog1/schema1/n4/id/" ]
+}
+----------
+[dql_mysql_join_0.0027]
+sql:
+SELECT * FROM (n1 NATURAL JOIN n2) NATURAL LEFT JOIN (n3 NATURAL JOIN n4);
+expect:
+{
+  "id" : [ "(1:7~1:8) /catalog1/schema1/n1/id/", "(1:7~1:8) /catalog1/schema1/n2/id/", "(1:7~1:8) /catalog1/schema1/n3/id/", "(1:7~1:8) /catalog1/schema1/n4/id/" ]
+}
+----------
+[dql_mysql_join_0.0028]
+sql:
+SELECT * FROM (n3 NATURAL JOIN n4) NATURAL RIGHT JOIN (n1 NATURAL JOIN n2);
+expect:
+{
+  "id" : [ "(1:7~1:8) /catalog1/schema1/n3/id/", "(1:7~1:8) /catalog1/schema1/n4/id/", "(1:7~1:8) /catalog1/schema1/n1/id/", "(1:7~1:8) /catalog1/schema1/n2/id/" ]
+}
+----------
+[dql_mysql_join_0.0029]
+sql:
+SELECT * FROM n5 NATURAL RIGHT JOIN (n4 NATURAL RIGHT JOIN ((n2 NATURAL RIGHT JOIN n1) NATURAL RIGHT JOIN n3));
+expect:
+{
+  "id" : [ "(1:7~1:8) /catalog1/schema1/n5/id/", "(1:7~1:8) /catalog1/schema1/n4/id/", "(1:7~1:8) /catalog1/schema1/n2/id/", "(1:7~1:8) /catalog1/schema1/n1/id/", "(1:7~1:8) /catalog1/schema1/n3/id/" ]
+}
+----------
+[dql_mysql_join_0.0030]
+sql:
+SELECT * FROM n5 NATURAL JOIN ((n1 NATURAL JOIN n2), (n3 NATURAL JOIN n4));
+expect:
+{
+  "id" : [ "(1:7~1:8) /catalog1/schema1/n5/id/", "(1:7~1:8) /catalog1/schema1/n1/id/", "(1:7~1:8) /catalog1/schema1/n2/id/", "(1:7~1:8) /catalog1/schema1/n3/id/", "(1:7~1:8) /catalog1/schema1/n4/id/" ]
+}
+----------
+[dql_mysql_join_0.0031]
+sql:
+SELECT * FROM ((n1 NATURAL JOIN n2) CROSS JOIN (n3 NATURAL JOIN n4)) NATURAL JOIN n5;
+expect:
+{
+  "id" : [ "(1:7~1:8) /catalog1/schema1/n1/id/", "(1:7~1:8) /catalog1/schema1/n2/id/", "(1:7~1:8) /catalog1/schema1/n3/id/", "(1:7~1:8) /catalog1/schema1/n4/id/", "(1:7~1:8) /catalog1/schema1/n5/id/" ]
+}
+----------
+[dql_mysql_join_0.0032]
+sql:
+SELECT * FROM (n1 JOIN n2 USING (b)) JOIN (n3 JOIN n4 USING (c)) USING (c);
+expect:
+{
+  "c" : [ "(1:7~1:8) /catalog1/schema1/n1/c/", "(1:7~1:8) /catalog1/schema1/n2/c/", "(1:7~1:8) /catalog1/schema1/n3/c/", "(1:7~1:8) /catalog1/schema1/n4/c/" ],
+  "b" : [ "(1:7~1:8) /catalog1/schema1/n1/b/", "(1:7~1:8) /catalog1/schema1/n2/b/" ]
+}
+----------
+[dql_mysql_join_0.0033]
+sql:
+SELECT * FROM (n1 JOIN n2 USING (b)) NATURAL JOIN (n3 JOIN n4 USING (c));
+expect:
+{
+  "b" : [ "(1:7~1:8) /catalog1/schema1/n1/b/", "(1:7~1:8) /catalog1/schema1/n2/b/" ],
+  "c" : [ "(1:7~1:8) /catalog1/schema1/n3/c/", "(1:7~1:8) /catalog1/schema1/n4/c/" ]
+}
+----------
+[dql_mysql_join_0.0034]
+sql:
+SELECT a,b,c FROM (n1 NATURAL JOIN n2) NATURAL JOIN (n3 NATURAL JOIN n4) WHERE b+1=y OR b+10=y GROUP BY b,c,a HAVING MIN(b)<MAX(y) ORDER BY a;
+expect:
+{
+  "a" : [ "(1:7~1:8) /catalog1/schema1/n1/a/", "(1:7~1:8) /catalog1/schema1/n2/a/" ],
+  "b" : [ "(1:9~1:10) /catalog1/schema1/n1/b/", "(1:9~1:10) /catalog1/schema1/n2/b/" ],
+  "c" : [ "(1:11~1:12) /catalog1/schema1/n1/c/", "(1:11~1:12) /catalog1/schema1/n2/c/" ]
+}
+----------
+[dql_mysql_join_0.0035]
+sql:
+SELECT * FROM n1 NATURAL JOIN n2 WHERE n1.b>0;
+expect:
+{
+  "b" : [ "(1:7~1:8) /catalog1/schema1/n1/b/" ],
+  "id" : [ "(1:7~1:8) /catalog1/schema1/n2/id/" ]
+}
+----------
+[dql_mysql_join_0.0036]
+sql:
+SELECT n1.*,n2.* FROM n1 NATURAL JOIN n2;
+expect:
+[ {
+  "sources" : [ "(1:7~1:11) /catalog1/schema1/n1/id/" ],
+  "column" : "id"
+}, {
+  "sources" : [ "(1:12~1:16) /catalog1/schema1/n2/id/" ],
+  "column" : "id"
+} ]
+----------
+[dql_mysql_join_0.0037]
+sql:
+SELECT * FROM (SELECT * FROM n1 NATURAL JOIN n2) AS n12 NATURAL LEFT JOIN (SELECT * FROM n3 NATURAL JOIN n4) AS n34;
+expect:
+{
+  "id" : [ "(1:22~1:23) /catalog1/schema1/n1/id/", "(1:22~1:23) /catalog1/schema1/n2/id/", "(1:82~1:83) /catalog1/schema1/n3/id/", "(1:82~1:83) /catalog1/schema1/n4/id/" ]
+}
+----------
+[dql_mysql_join_0.0038]
+sql:
+SELECT * FROM (n1,n2) JOIN (n3,n4) ON (n2.a<n4.y AND n2.b<n3.c);
+expect:
+{
+  "id" : [ "(1:7~1:8) /catalog1/schema1/n1/id/" ],
+  "a" : [ "(1:7~1:8) /catalog1/schema1/n2/a/" ],
+  "b" : [ "(1:7~1:8) /catalog1/schema1/n2/b/" ],
+  "c" : [ "(1:7~1:8) /catalog1/schema1/n3/c/" ],
+  "y" : [ "(1:7~1:8) /catalog1/schema1/n4/y/" ]
+}
+----------
+[dql_mysql_join_0.0039]
+sql:
+SELECT * FROM ((n3 JOIN (n1 JOIN n2 ON n1.c>n2.a) ON n3.b<n2.a) JOIN n4 ON n4.y>n1.c) JOIN n5 ON n5.z=n1.b+3;
+expect:
+[ {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/n3/b/" ],
+  "column" : "b"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/n1/c/" ],
+  "column" : "c"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/n1/b/" ],
+  "column" : "b"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/n2/a/" ],
+  "column" : "a"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/n4/y/" ],
+  "column" : "y"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/n5/z/" ],
+  "column" : "z"
+} ]
+----------
+[dql_mysql_join_0.0040]
+sql:
+SELECT m1.a2 FROM ((m1 JOIN m2 USING (a1)) JOIN m3 ON m2.b=m3.c1) JOIN m4 USING (c2);
+expect:
+{
+  "a2" : [ "(1:7~1:12) /catalog1/schema1/m1/a2/" ]
+}
+----------
+[dql_mysql_join_0.0041]
+sql:
+SELECT * FROM u1 JOIN u2 ON u1.a1=u2.a1 LEFT JOIN ((u3 LEFT JOIN u4 ON u3.a1=u4.a1) LEFT JOIN (n1 LEFT JOIN n2 ON n1.b=n2.b) ON u4.a1=n2.a) ON u1.a1=u3.a1;
+expect:
+[ {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/u1/a1/" ],
+  "column" : "a1"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/u2/a1/" ],
+  "column" : "a1"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/u3/a1/" ],
+  "column" : "a1"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/u4/a1/" ],
+  "column" : "a1"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/n1/b/" ],
+  "column" : "b"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/n2/b/" ],
+  "column" : "b"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/n2/a/" ],
+  "column" : "a"
+} ]
+----------
+[dql_mysql_join_0.0042]
+sql:
+SELECT 1 FROM r1 LEFT JOIN r1 AS r2 ON 1 WHERE ROW(r1.a,1111.11)=ROW(1111.11,1111.11) AND ROW(r1.b,1111.11)<=>ROW('','');
+expect:
+{
+  "1" : [ ]
+}
+----------
+[dql_mysql_join_0.0043]
+sql:
+SELECT * FROM u1 STRAIGHT_JOIN u2 ON u1.a1=u2.a1 AND u1.a1=u2.b ORDER BY u2.a1,u1.a1;
+expect:
+[ {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/u1/a1/" ],
+  "column" : "a1"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/u2/a1/" ],
+  "column" : "a1"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/u2/b/" ],
+  "column" : "b"
+} ]
+----------
+[dql_mysql_join_0.0044]
+sql:
+SELECT u2.a2 AS f1 FROM u1 LEFT JOIN u2 ON u1.a1=u2.a1 RIGHT JOIN u3 ON u1.a1=u3.a1 GROUP BY f1;
+expect:
+{
+  "f1" : [ "(1:7~1:12) /catalog1/schema1/u2/a2/" ]
+}
+----------
+[dql_mysql_join_0.0045]
+sql:
+SELECT * FROM s4 JOIN (s1 JOIN s3 ON s3.ref_s1=s1.c1 JOIN s2 ON s2.ref_s1=s1.c1) ON s4.ref_s1=s1.c1;
+expect:
+[ {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/s4/ref_s1/" ],
+  "column" : "ref_s1"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/s1/c1/" ],
+  "column" : "c1"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/s3/ref_s1/" ],
+  "column" : "ref_s1"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/s2/ref_s1/" ],
+  "column" : "ref_s1"
+} ]
+----------
+[dql_mysql_join_0.0046]
+sql:
+SELECT STRAIGHT_JOIN * FROM s4 JOIN (s1 JOIN s3 ON s3.ref_s1=s1.c1 JOIN s2 ON s2.ref_s1=s1.c1) ON s4.ref_s1=s1.c1;
+expect:
+[ {
+  "sources" : [ "(1:21~1:22) /catalog1/schema1/s4/ref_s1/" ],
+  "column" : "ref_s1"
+}, {
+  "sources" : [ "(1:21~1:22) /catalog1/schema1/s1/c1/" ],
+  "column" : "c1"
+}, {
+  "sources" : [ "(1:21~1:22) /catalog1/schema1/s3/ref_s1/" ],
+  "column" : "ref_s1"
+}, {
+  "sources" : [ "(1:21~1:22) /catalog1/schema1/s2/ref_s1/" ],
+  "column" : "ref_s1"
+} ]
+----------
+[dql_mysql_join_0.0047]
+sql:
+SELECT * FROM s4 STRAIGHT_JOIN (s1 JOIN s3 ON s3.ref_s1=s1.c1 JOIN s2 ON s2.ref_s1=s1.c1) ON s4.ref_s1=s1.c1;
+expect:
+[ {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/s4/ref_s1/" ],
+  "column" : "ref_s1"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/s1/c1/" ],
+  "column" : "c1"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/s3/ref_s1/" ],
+  "column" : "ref_s1"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/s2/ref_s1/" ],
+  "column" : "ref_s1"
+} ]
+----------
+[dql_mysql_join_0.0048]
+sql:
+SELECT * FROM split_join_native_a.stress01 LEFT JOIN split_join_native_a.stress02 USING (id) LEFT JOIN split_join_native_a.stress03 USING (id) LEFT JOIN split_join_native_a.stress04 USING (id) LEFT JOIN split_join_native_a.stress05 USING (id) LEFT JOIN split_join_native_a.stress06 USING (id) LEFT JOIN split_join_native_a.stress07 USING (id) LEFT JOIN split_join_native_a.stress08 USING (id) LEFT JOIN split_join_native_a.stress09 USING (id) LEFT JOIN split_join_native_a.stress10 USING (id) LEFT JOIN split_join_native_a.stress11 USING (id) LEFT JOIN split_join_native_a.stress12 USING (id) LEFT JOIN split_join_native_a.stress13 USING (id) LEFT JOIN split_join_native_a.stress14 USING (id) LEFT JOIN split_join_native_a.stress15 USING (id) LEFT JOIN split_join_native_a.stress16 USING (id) LEFT JOIN split_join_native_a.stress17 USING (id) LEFT JOIN split_join_native_a.stress18 USING (id) LEFT JOIN split_join_native_a.stress19 USING (id) LEFT JOIN split_join_native_a.stress20 USING (id) LEFT JOIN split_join_native_a.stress21 USING (id) LEFT JOIN split_join_native_a.stress22 USING (id) LEFT JOIN split_join_native_a.stress23 USING (id) LEFT JOIN split_join_native_a.stress24 USING (id) LEFT JOIN split_join_native_a.stress25 USING (id) LEFT JOIN split_join_native_a.stress26 USING (id) LEFT JOIN split_join_native_a.stress27 USING (id) LEFT JOIN split_join_native_a.stress28 USING (id) LEFT JOIN split_join_native_a.stress29 USING (id) LEFT JOIN split_join_native_a.stress30 USING (id) LEFT JOIN split_join_native_a.stress31 USING (id);
+expect:
+{
+  "id" : [ "(1:7~1:8) /catalog1/split_join_native_a/stress01/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress02/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress03/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress04/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress05/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress06/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress07/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress08/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress09/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress10/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress11/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress12/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress13/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress14/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress15/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress16/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress17/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress18/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress19/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress20/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress21/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress22/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress23/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress24/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress25/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress26/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress27/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress28/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress29/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress30/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress31/id/" ]
+}
+----------
+[dql_mysql_join_0.0049]
+sql:
+SELECT * FROM split_join_native_a.stress01 LEFT JOIN split_join_native_a.stress02 USING (id) LEFT JOIN split_join_native_a.stress03 USING (id) LEFT JOIN split_join_native_a.stress04 USING (id) LEFT JOIN split_join_native_a.stress05 USING (id) LEFT JOIN split_join_native_a.stress06 USING (id) LEFT JOIN split_join_native_a.stress07 USING (id) LEFT JOIN split_join_native_a.stress08 USING (id) LEFT JOIN split_join_native_a.stress09 USING (id) LEFT JOIN split_join_native_a.stress10 USING (id) LEFT JOIN split_join_native_a.stress11 USING (id) LEFT JOIN split_join_native_a.stress12 USING (id) LEFT JOIN split_join_native_a.stress13 USING (id) LEFT JOIN split_join_native_a.stress14 USING (id) LEFT JOIN split_join_native_a.stress15 USING (id) LEFT JOIN split_join_native_a.stress16 USING (id) LEFT JOIN split_join_native_a.stress17 USING (id) LEFT JOIN split_join_native_a.stress18 USING (id) LEFT JOIN split_join_native_a.stress19 USING (id) LEFT JOIN split_join_native_a.stress20 USING (id) LEFT JOIN split_join_native_a.stress21 USING (id) LEFT JOIN split_join_native_a.stress22 USING (id) LEFT JOIN split_join_native_a.stress23 USING (id) LEFT JOIN split_join_native_a.stress24 USING (id) LEFT JOIN split_join_native_a.stress25 USING (id) LEFT JOIN split_join_native_a.stress26 USING (id) LEFT JOIN split_join_native_a.stress27 USING (id) LEFT JOIN split_join_native_a.stress28 USING (id) LEFT JOIN split_join_native_a.stress29 USING (id) LEFT JOIN split_join_native_a.stress30 USING (id) LEFT JOIN split_join_native_a.stress31 USING (id) LEFT JOIN split_join_native_a.stress32 USING (id) LEFT JOIN split_join_native_a.stress33 USING (id) LEFT JOIN split_join_native_a.stress34 USING (id) LEFT JOIN split_join_native_a.stress35 USING (id) LEFT JOIN split_join_native_a.stress36 USING (id) LEFT JOIN split_join_native_a.stress37 USING (id) LEFT JOIN split_join_native_a.stress38 USING (id) LEFT JOIN split_join_native_a.stress39 USING (id) LEFT JOIN split_join_native_a.stress40 USING (id) LEFT JOIN split_join_native_a.stress41 USING (id) LEFT JOIN split_join_native_a.stress42 USING (id) LEFT JOIN split_join_native_a.stress43 USING (id) LEFT JOIN split_join_native_a.stress44 USING (id) LEFT JOIN split_join_native_a.stress45 USING (id) LEFT JOIN split_join_native_a.stress46 USING (id) LEFT JOIN split_join_native_a.stress47 USING (id) LEFT JOIN split_join_native_a.stress48 USING (id) LEFT JOIN split_join_native_a.stress49 USING (id) LEFT JOIN split_join_native_a.stress50 USING (id) LEFT JOIN split_join_native_a.stress51 USING (id) LEFT JOIN split_join_native_a.stress52 USING (id) LEFT JOIN split_join_native_a.stress53 USING (id) LEFT JOIN split_join_native_a.stress54 USING (id) LEFT JOIN split_join_native_a.stress55 USING (id) LEFT JOIN split_join_native_a.stress56 USING (id) LEFT JOIN split_join_native_a.stress57 USING (id) LEFT JOIN split_join_native_a.stress58 USING (id) LEFT JOIN split_join_native_a.stress59 USING (id) LEFT JOIN split_join_native_a.stress60 USING (id) LEFT JOIN split_join_native_a.stress61 USING (id) LEFT JOIN split_join_native_a.stress62 USING (id) LEFT JOIN split_join_native_a.stress63 USING (id) LEFT JOIN split_join_native_a.stress64 USING (id) LEFT JOIN split_join_native_a.stress65 USING (id);
+expect:
+{
+  "id" : [ "(1:7~1:8) /catalog1/split_join_native_a/stress01/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress02/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress03/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress04/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress05/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress06/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress07/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress08/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress09/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress10/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress11/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress12/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress13/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress14/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress15/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress16/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress17/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress18/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress19/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress20/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress21/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress22/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress23/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress24/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress25/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress26/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress27/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress28/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress29/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress30/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress31/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress32/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress33/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress34/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress35/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress36/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress37/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress38/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress39/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress40/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress41/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress42/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress43/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress44/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress45/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress46/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress47/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress48/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress49/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress50/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress51/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress52/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress53/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress54/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress55/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress56/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress57/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress58/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress59/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress60/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress61/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress62/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress63/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress64/id/", "(1:7~1:8) /catalog1/split_join_native_a/stress65/id/" ]
+}
+----------
+[dql_mysql_join_0.0050]
+sql:
+SELECT 1 FROM (SELECT 1 FROM jt WHERE a) AS q NATURAL LEFT JOIN jt NATURAL LEFT JOIN jt AS t2;
+expect:
+{
+  "1" : [ ]
+}
+----------
+[dql_mysql_join_0.0051]
+sql:
+SELECT 1 FROM jt NATURAL RIGHT JOIN jt AS t2 NATURAL RIGHT JOIN (SELECT 1 FROM jt WHERE a) AS q;
+expect:
+{
+  "1" : [ ]
+}
+----------
+[dql_mysql_join_0.0052]
+sql:
+SELECT t1.*,(SELECT COUNT(*) FROM jt AS t2 LEFT JOIN jt AS t3 ON t3.a>t2.a-t1.a) FROM jt AS t1;
+expect:
+{
+  "a" : [ "(1:7~1:11) /catalog1/schema1/jt/a/" ],
+  "(SELECT COUNT(*) FROM jt AS t2 LEFT JOIN jt AS t3 ON t3.a>t2.a-t1.a)" : [ ]
+}
+----------
+[dql_mysql_join_0.0053]
+sql:
+SELECT t1.*,(SELECT * FROM (SELECT COUNT(*) FROM jt AS t2 LEFT JOIN jt AS t3 ON t3.a>t2.a-t1.a) AS dt) FROM jt AS t1;
+expect:
+{
+  "a" : [ "(1:7~1:11) /catalog1/schema1/jt/a/" ],
+  "(SELECT * FROM (SELECT COUNT(*) FROM jt AS t2 LEFT JOIN jt AS t3 ON t3.a>t2.a-t1.a) AS dt)" : [ ]
+}
+----------
+[dql_mysql_join_0.0054]
+sql:
+SELECT t1.*,dt.c FROM jt AS t1,(SELECT COUNT(*) AS c FROM jt AS t2 LEFT JOIN jt AS t3 ON t3.a>t2.a-t1.a) AS dt;
+expect:
+{
+  "a" : [ "(1:7~1:11) /catalog1/schema1/jt/a/" ],
+  "c" : [ ]
+}
+----------
+[dql_mysql_join_0.0055]
+sql:
+SELECT t1.* FROM jt AS t0 CROSS JOIN (jt AS t1 JOIN jt AS t2 ON 100=(SELECT COUNT(*) FROM jt AS t3 LEFT JOIN jt AS t4 ON t4.a>t3.a-t0.a));
+expect:
+{
+  "a" : [ "(1:7~1:11) /catalog1/schema1/jt/a/" ]
+}
+----------
+[dql_mysql_join_0.0056]
+sql:
+SELECT t1.* FROM jt AS t0 CROSS JOIN jt AS t1 JOIN jt AS t2 ON 100=(SELECT COUNT(*) FROM jt AS t3 LEFT JOIN jt AS t4 ON t4.a>t3.a-t0.a);
+expect:
+{
+  "a" : [ "(1:7~1:11) /catalog1/schema1/jt/a/" ]
+}
+----------
+[dql_mysql_join_0.0057]
+sql:
+SELECT * FROM (pk_t AS t2 LEFT JOIN pk_t AS t3 ON t2.pk IS NULL) LEFT JOIN jt AS t1 ON t1.a=t3.a;
+expect:
+[ {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/pk_t/pk/" ],
+  "column" : "pk"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/pk_t/a/" ],
+  "column" : "a"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/pk_t/pk/" ],
+  "column" : "pk"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/pk_t/a/" ],
+  "column" : "a"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/jt/a/" ],
+  "column" : "a"
+} ]
+----------
+[dql_mysql_join_0.0058]
+sql:
+SELECT * FROM jt AS t1 LEFT JOIN jt AS t2 ON TRUE WHERE t2.pk<=>3;
+expect:
+[ {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/jt/pk/" ],
+  "column" : "pk"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/jt/pk/" ],
+  "column" : "pk"
+} ]
+----------
+[dql_mysql_join_0.0059]
+sql:
+SELECT COUNT(*) FROM jt AS t1 LEFT JOIN jt AS t2 ON t1.x=t2.x AND t2.ts<=t1.ts JOIN jt AS t3 ON t1.y=t3.y AND t3.ts<=t1.ts LEFT JOIN jt AS t4 ON t3.z=t4.z;
+expect:
+{
+  "COUNT(*)" : [ ]
+}
+----------
+[dql_mysql_join_0.0060]
+sql:
+SELECT * FROM jt AS t1 LEFT JOIN jt AS t2 ON TRUE LEFT JOIN (jt AS t1i JOIN jt AS t2i ON t1i.a=t2i.a) ON t2.a=t2i.a WHERE t1i.a='' OR t2i.a='';
+expect:
+[ {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/jt/a/" ],
+  "column" : "a"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/jt/a/" ],
+  "column" : "a"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/jt/a/" ],
+  "column" : "a"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/jt/a/" ],
+  "column" : "a"
+} ]
+----------
+[dql_mysql_join_0.0061]
+sql:
+SELECT * FROM wide61 NATURAL JOIN (SELECT t2.* FROM wide61 AS t2 JOIN wide61 AS t3 ON t3.c1=t2.c1 WHERE t2.c3<>ANY(SELECT c3 FROM wide61)) AS d1;
+expect:
+{
+  "c1" : [ "(1:7~1:8) /catalog1/schema1/wide61/c1/", "(1:42~1:46) /catalog1/schema1/wide61/c1/" ],
+  "c3" : [ "(1:7~1:8) /catalog1/schema1/wide61/c3/", "(1:42~1:46) /catalog1/schema1/wide61/c3/" ]
+}
+----------
+[dql_mysql_join_0.0062]
+sql:
+SELECT * FROM (jt AS t1 STRAIGHT_JOIN jt AS t2) JOIN jt AS t3 ON t1.a=t3.a WHERE t2.a=t3.a ORDER BY t1.a;
+expect:
+[ {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/jt/a/" ],
+  "column" : "a"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/jt/a/" ],
+  "column" : "a"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/jt/a/" ],
+  "column" : "a"
+} ]
+----------
+[dql_mysql_join_0.0063]
+sql:
+SELECT * FROM (jt AS t1 STRAIGHT_JOIN jt AS t2 ON t1.b=t2.b) JOIN jt AS t3 ON t1.a=t3.b WHERE t1.a<t2.b AND t2.a<t3.b ORDER BY t1.b;
+expect:
+[ {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/jt/b/" ],
+  "column" : "b"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/jt/a/" ],
+  "column" : "a"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/jt/b/" ],
+  "column" : "b"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/jt/a/" ],
+  "column" : "a"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/jt/b/" ],
+  "column" : "b"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/jt/a/" ],
+  "column" : "a"
+} ]
+----------
+[dql_mysql_join_0.0064]
+sql:
+SELECT * FROM jt AS t1 JOIN jt AS t2 ON t1.pk=t2.pk JOIN jt AS t3 LEFT JOIN jt AS t4 ON t2.pk=t3.pk AND t4.pk=135;
+expect:
+[ {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/jt/pk/" ],
+  "column" : "pk"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/jt/pk/" ],
+  "column" : "pk"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/jt/pk/" ],
+  "column" : "pk"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/jt/pk/" ],
+  "column" : "pk"
+} ]
+----------
+[dql_mysql_join_0.0065]
+sql:
+SELECT * FROM jt AS t1 JOIN jt AS t2 ON t1.a=t2.b LEFT JOIN jt AS t3 ON t2.b=t3.b LEFT JOIN (jt AS t4 JOIN jt AS t5 ON t4.b=t5.b) ON t2.b=t4.a WHERE t1.b>=6 OR t3.b<>t4.b;
+expect:
+[ {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/jt/a/" ],
+  "column" : "a"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/jt/b/" ],
+  "column" : "b"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/jt/a/" ],
+  "column" : "a"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/jt/b/" ],
+  "column" : "b"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/jt/a/" ],
+  "column" : "a"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/jt/b/" ],
+  "column" : "b"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/jt/a/" ],
+  "column" : "a"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/jt/b/" ],
+  "column" : "b"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/jt/a/" ],
+  "column" : "a"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/jt/b/" ],
+  "column" : "b"
+} ]
+----------
+[dql_mysql_join_0.0066]
+sql:
+SELECT * FROM jt AS t1 JOIN jt AS t2 ON t1.b=t2.b JOIN jt AS t3 JOIN (jt AS t4 STRAIGHT_JOIN jt AS t5 ON t4.a=t5.b) ON t1.b=t4.b WHERE t1.a=t5.b;
+expect:
+[ {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/jt/b/" ],
+  "column" : "b"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/jt/a/" ],
+  "column" : "a"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/jt/b/" ],
+  "column" : "b"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/jt/a/" ],
+  "column" : "a"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/jt/b/" ],
+  "column" : "b"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/jt/a/" ],
+  "column" : "a"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/jt/b/" ],
+  "column" : "b"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/jt/a/" ],
+  "column" : "a"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/jt/b/" ],
+  "column" : "b"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/jt/a/" ],
+  "column" : "a"
+} ]
+----------
+[dql_mysql_join_0.0067]
+sql:
+SELECT * FROM jt AS t1 LEFT JOIN (jt AS t2 LEFT JOIN jt AS t3 ON FALSE) ON t1.a<=>t3.a WHERE t1.a<=>t3.a;
+expect:
+[ {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/jt/a/" ],
+  "column" : "a"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/jt/a/" ],
+  "column" : "a"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/jt/a/" ],
+  "column" : "a"
+} ]
+----------
+[dql_mysql_join_0.0068]
+sql:
+SELECT * FROM jt AS t1 LEFT JOIN (SELECT i FROM (SELECT a AS i FROM jt) AS q WHERE FALSE) AS d1 ON t1.a=d1.i WHERE NOT EXISTS(SELECT 1 FROM jt AS inner_t1 WHERE inner_t1.a=d1.i);
+expect:
+{
+  "a" : [ "(1:7~1:8) /catalog1/schema1/jt/a/" ],
+  "i" : [ "(1:56~1:57) /catalog1/schema1/jt/a/" ]
+}
+----------
+[dql_mysql_join_0.0069]
+sql:
+SELECT 1 FROM jt NATURAL JOIN jt AS t2 NATURAL JOIN jt AS t3 WHERE jt.a<>(SELECT SUM(a) FROM jt);
+expect:
+{
+  "1" : [ ]
+}
+----------
+[dql_mysql_join_0.0070]
+sql:
+SELECT DISTINCT t1.col_int FROM jt AS t2 LEFT OUTER JOIN jt AS t1 ON t2.pk=t1.col_int WHERE CAST(t2.pk AS SIGNED INTEGER)<>t1.col_date;
+expect:
+{
+  "col_int" : [ "(1:16~1:26) /catalog1/schema1/jt/col_int/" ]
+}
+----------
+[dql_mysql_join_0.0071]
+sql:
+SELECT t1.id FROM split_join_matrix.t1 AS t1 INNER JOIN split_join_matrix.t2 AS t2;
+expect:
+{
+  "id" : [ "(1:7~1:12) /catalog1/split_join_matrix/t1/id/" ]
+}
+----------
+[dql_mysql_join_0.0072]
+sql:
+SELECT t1.id FROM split_join_matrix.t1 AS t1 CROSS JOIN split_join_matrix.t2 AS t2 USING (id);
+expect:
+{
+  "id" : [ "(1:7~1:12) /catalog1/split_join_matrix/t1/id/" ]
+}
+----------
+[dql_mysql_join_0.0073]
+sql:
+SELECT t1.id FROM split_join_matrix.t1 AS t1 LEFT JOIN split_join_matrix.t2 AS t2 USING (id);
+expect:
+{
+  "id" : [ "(1:7~1:12) /catalog1/split_join_matrix/t1/id/" ]
+}
+----------
+[dql_mysql_join_0.0074]
+sql:
+SELECT t1.id FROM split_join_matrix.t1 AS t1 RIGHT OUTER JOIN split_join_matrix.t2 AS t2 ON t1.id=t2.id;
+expect:
+{
+  "id" : [ "(1:7~1:12) /catalog1/split_join_matrix/t1/id/" ]
+}
+----------
+[dql_mysql_join_0.0075]
+sql:
+SELECT t1.id FROM split_join_matrix.t1 AS t1 JOIN split_join_matrix.t2 AS t2 USING (id,grp);
+expect:
+{
+  "id" : [ "(1:7~1:12) /catalog1/split_join_matrix/t1/id/" ]
+}
+----------
+[dql_mysql_join_0.0076]
+sql:
+SELECT id,grp,v FROM split_join_matrix.t1 NATURAL LEFT JOIN split_join_matrix.t2;
+expect:
+{
+  "id" : [ "(1:7~1:9) /catalog1/split_join_matrix/t1/id/", "(1:7~1:9) /catalog1/split_join_matrix/t2/id/" ],
+  "grp" : [ "(1:10~1:13) /catalog1/split_join_matrix/t1/grp/", "(1:10~1:13) /catalog1/split_join_matrix/t2/grp/" ],
+  "v" : [ "(1:14~1:15) /catalog1/split_join_matrix/t1/v/", "(1:14~1:15) /catalog1/split_join_matrix/t2/v/" ]
+}
+----------
+[dql_mysql_join_0.0077]
+sql:
+SELECT id,grp,v FROM split_join_matrix.t1 NATURAL RIGHT JOIN split_join_matrix.t2;
+expect:
+{
+  "id" : [ "(1:7~1:9) /catalog1/split_join_matrix/t1/id/", "(1:7~1:9) /catalog1/split_join_matrix/t2/id/" ],
+  "grp" : [ "(1:10~1:13) /catalog1/split_join_matrix/t1/grp/", "(1:10~1:13) /catalog1/split_join_matrix/t2/grp/" ],
+  "v" : [ "(1:14~1:15) /catalog1/split_join_matrix/t1/v/", "(1:14~1:15) /catalog1/split_join_matrix/t2/v/" ]
+}
+----------
+[dql_mysql_join_0.0078]
+sql:
+SELECT t1.id FROM (split_join_matrix.t1 AS t1 LEFT JOIN split_join_matrix.t2 AS t2 USING (id)) RIGHT JOIN split_join_matrix.t3 AS t3 USING (id);
+expect:
+{
+  "id" : [ "(1:7~1:12) /catalog1/split_join_matrix/t1/id/" ]
+}
+----------
+[dql_mysql_join_0.0079]
+sql:
+SELECT t1.id FROM split_join_matrix.t1 AS t1 JOIN (split_join_matrix.t2 AS t2, split_join_matrix.t3 AS t3) ON t1.id=t2.id AND t2.id=t3.id;
+expect:
+{
+  "id" : [ "(1:7~1:12) /catalog1/split_join_matrix/t1/id/" ]
+}
+----------
+[dql_mysql_join_0.0080]
+sql:
+SELECT *
+FROM join84_bool_0
+LEFT JOIN join84_bool_1 ON FALSE
+RIGHT JOIN join84_bool_2
+  ON (join84_bool_1.c0 IS NOT NULL) = (join84_bool_2.c0 = 1000);
+expect:
+[ {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/join84_bool_0/id/" ],
+  "column" : "id"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/join84_bool_1/c0/" ],
+  "column" : "c0"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/join84_bool_2/c0/" ],
+  "column" : "c0"
+} ]
+----------
+[dql_mysql_join_0.0081]
+sql:
+SELECT STRAIGHT_JOIN
+       join80_cross_1.col_int_unique,
+       join80_cross_2.col_int_key,
+       join80_cross_3.pk
+FROM (join80_cross_1
+      LEFT JOIN join80_cross_2
+        ON join80_cross_1.col_int_unique = join80_cross_2.col_int_key)
+LEFT JOIN join80_cross_3
+  ON join80_cross_3.pk = join80_cross_1.col_int_unique
+ AND join80_cross_1.col_int_unique = join80_cross_2.col_int_key;
+expect:
+{
+  "col_int_unique" : [ "(2:7~2:36) /catalog1/schema1/join80_cross_1/col_int_unique/" ],
+  "col_int_key" : [ "(3:7~3:33) /catalog1/schema1/join80_cross_2/col_int_key/" ],
+  "pk" : [ "(4:7~4:24) /catalog1/schema1/join80_cross_3/pk/" ]
+}
+----------
+[dql_mysql_join_0.0082]
+sql:
+SELECT STRAIGHT_JOIN
+       join80_const_3.col_int,
+       join80_const_4.col_int,
+       join80_const_3.col_int = join80_const_4.col_int OR join80_const_4.col_int IS NULL AS nullable_match
+FROM join80_const_1
+LEFT JOIN join80_const_2
+  ON join80_const_1.col_int_key = join80_const_2.col_int_key
+ AND join80_const_1.col_int_unique = join80_const_2.col_int_unique
+LEFT JOIN join80_const_3
+  ON join80_const_3.col_char_unique = join80_const_2.col_char_unique
+LEFT JOIN join80_const_4
+  ON join80_const_4.col_int = join80_const_3.col_int
+ AND join80_const_4.col_int_unique = join80_const_1.col_int_unique
+WHERE join80_const_1.col_int_unique = 5;
+expect:
+[ {
+  "sources" : [ "(2:7~2:29) /catalog1/schema1/join80_const_3/col_int/" ],
+  "column" : "col_int"
+}, {
+  "sources" : [ "(3:7~3:29) /catalog1/schema1/join80_const_4/col_int/" ],
+  "column" : "col_int"
+}, {
+  "sources" : [ "(4:7~4:29) /catalog1/schema1/join80_const_3/col_int/", "(4:32~4:54) /catalog1/schema1/join80_const_4/col_int/", "(4:58~4:80) /catalog1/schema1/join80_const_4/col_int/" ],
+  "column" : "nullable_match"
+} ]
+----------
+[dql_mysql_join_0.0083]
+sql:
+SELECT * FROM join_h1 AS t1 LEFT JOIN join_h2 AS t2 ON t1.a=t2.a HAVING NOT (t2.a <=> t1.a);
+expect:
+[ {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/join_h1/a/" ],
+  "column" : "a"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/join_h2/a/" ],
+  "column" : "a"
+} ]
+----------
+[dql_mysql_join_0.0084]
+sql:
+SELECT * FROM join_row1 AS t1 LEFT JOIN join_row2 AS t2 ON t1.f2=t2.f2 WHERE (COALESCE(t1.f1,t2.f1),f3) IN ((1,3),(2,2));
+expect:
+[ {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/join_row1/f2/" ],
+  "column" : "f2"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/join_row1/f1/" ],
+  "column" : "f1"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/join_row2/f2/" ],
+  "column" : "f2"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/join_row2/f1/" ],
+  "column" : "f1"
+} ]
+----------
+[dql_mysql_join_0.0085]
+sql:
+SELECT *
+FROM join80_sub_1
+RIGHT JOIN (SELECT * FROM join80_sub_3 WHERE DAYNAME('1995')) AS derived_day
+  ON ((join80_sub_1.f1, join80_sub_1.pk) IN (SELECT 7,4 UNION SELECT 9,2))
+WHERE NOT EXISTS (
+    SELECT join80_sub_1.f1
+    FROM join80_sub_1
+    INNER JOIN join80_sub_2 ON join80_sub_1.pk = join80_sub_2.f1
+    WHERE 0 IS NOT NULL
+  )
+  AND join80_sub_1.f1 > 50;
+expect:
+{
+  "f1" : [ "(1:7~1:8) /catalog1/schema1/join80_sub_1/f1/" ],
+  "pk" : [ "(1:7~1:8) /catalog1/schema1/join80_sub_1/pk/" ],
+  "id" : [ "(3:19~3:20) /catalog1/schema1/join80_sub_3/id/" ]
+}
+----------
+[dql_mysql_join_0.0086]
+sql:
+SELECT joined_b.c2 AS f1
+FROM join80_nested_2 AS joined_a
+JOIN (
+    join80_nested_2 AS joined_b
+    JOIN join80_nested_2 AS joined_c ON joined_c.c3 = joined_b.c3
+) ON joined_c.c1 = joined_b.c2
+WHERE joined_c.c3 IN (
+    SELECT sub_b.c3
+    FROM join80_nested_1 AS sub_a
+    JOIN join80_nested_2 AS sub_b ON sub_b.c1 = sub_a.c1
+)
+AND (joined_a.c1 = joined_a.c1 AND (SELECT '' FROM DUAL) IS NULL);
+expect:
+{
+  "f1" : [ "(1:7~1:18) /catalog1/schema1/join80_nested_2/c2/" ]
+}
+----------
+[dql_mysql_join_0.0087]
+sql:
+SELECT * FROM join80_truth_1 LEFT JOIN join80_truth_2 ON c1=c2
+WHERE (c2 IS NOT NULL) IS TRUE;
+expect:
+[ {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/join80_truth_1/id/" ],
+  "column" : "id"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/join80_truth_2/id/" ],
+  "column" : "id"
+} ]
+----------
+[dql_mysql_join_0.0088]
+sql:
+SELECT * FROM join80_truth_1 LEFT JOIN join80_truth_2 ON c1=c2
+WHERE (c2 IS NOT NULL) IS FALSE;
+expect:
+[ {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/join80_truth_1/id/" ],
+  "column" : "id"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/join80_truth_2/id/" ],
+  "column" : "id"
+} ]
+----------
+[dql_mysql_join_0.0089]
+sql:
+SELECT *
+FROM join80_hint_2 USE INDEX(idx2)
+LEFT JOIN join80_hint_1 USE INDEX(idx1)
+  ON join80_hint_1.f2 = join80_hint_2.f2
+ AND join80_hint_1.f3 = 20
+ AND join80_hint_1.f4 > 10
+ AND join80_hint_1.f5 > 20;
+expect:
+[ {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/join80_hint_2/f2/" ],
+  "column" : "f2"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/join80_hint_1/f2/" ],
+  "column" : "f2"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/join80_hint_1/f3/" ],
+  "column" : "f3"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/join80_hint_1/f4/" ],
+  "column" : "f4"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/join80_hint_1/f5/" ],
+  "column" : "f5"
+} ]
+----------
+[dql_mysql_join_0.0090]
+sql:
+SELECT join80_false_2.f1
+FROM join80_false_1
+RIGHT JOIN join80_false_2
+  ON join80_false_1.f1 = join80_false_2.f1 AND 1=2
+LEFT JOIN join80_false_3
+  ON join80_false_1.f1 = join80_false_3.f1 AND 1=2;
+expect:
+{
+  "f1" : [ "(1:7~1:24) /catalog1/schema1/join80_false_2/f1/" ]
+}
+----------
+[dql_mysql_join_0.0091]
+sql:
+SELECT (SELECT * FROM (SELECT 'a') AS scalar_derived) AS f1
+HAVING (f1 = 'a' OR TRUE);
+expect:
+{
+  "f1" : [ ]
+}
+----------
+[dql_mysql_join_0.0092]
+sql:
+SELECT (SELECT * FROM (SELECT 'a') AS scalar_derived) + 1 AS f1
+HAVING (f1 = 'a' OR TRUE);
+expect:
+{
+  "f1" : [ ]
+}
+----------
+[dql_mysql_join_0.0093]
+sql:
+SELECT 1 + (SELECT * FROM (SELECT 'a') AS scalar_derived) AS f1
+HAVING (f1 = 'a' OR TRUE);
+expect:
+{
+  "f1" : [ ]
+}
+----------
+[dql_mysql_join_0.0094]
+sql:
+WITH subq(x) AS (
+    SELECT 1 AS x
+    FROM join80_cte_1 AS cte_a, join80_cte_1 AS cte_b, join80_cte_2
+    WHERE FALSE
+)
+SELECT 1
+FROM join80_cte_1
+LEFT JOIN subq ON join80_cte_1.x = subq.x
+ORDER BY subq.x;
+expect:
+{
+  "1" : [ ]
+}
+----------
+[dql_mysql_join_0.0095]
+sql:
+SELECT t1.*,t2.*,t3.a FROM t1 LEFT JOIN t2 ON (t3.a=t2.a) LEFT JOIN t1 AS t3 ON (t1.a=t3.a);
+expect:
+[ {
+  "sources" : [ "(1:7~1:11) /catalog1/schema1/t1/a/" ],
+  "column" : "a"
+}, {
+  "sources" : [ "(1:12~1:16) /catalog1/schema1/t2/a/" ],
+  "column" : "a"
+}, {
+  "sources" : [ "(1:17~1:21) /catalog1/schema1/t1/a/" ],
+  "column" : "a"
+} ]
+----------
+[dql_mysql_join_0.0097]
+sql:
+SELECT /*+ JOIN_PREFIX(t1) */ 1 FROM t1,LATERAL (SELECT DISTINCT t2.val FROM t2 WHERE t1.val=t2.val) AS dt;
+expect:
+{
+  "1" : [ ]
+}
+----------
+[dql_mysql_join_0.0098]
+sql:
+SELECT /*+ JOIN_PREFIX(dt) */ 1 FROM t1,LATERAL (SELECT DISTINCT t2.val FROM t2 WHERE t1.val=t2.val) AS dt;
+expect:
+{
+  "1" : [ ]
+}
+----------
+[dql_mysql_join_0.0099]
+sql:
+SELECT /*+ JOIN_FIXED_ORDER() */ COUNT(*) FROM t1 JOIN t2 USING(val) JOIN t3 USING(val);
+expect:
+{
+  "COUNT(*)" : [ ]
+}
+----------
+[dql_mysql_join_0.0100]
+sql:
+SELECT /*+ QB_NAME(q1) JOIN_FIXED_ORDER(@q1) */ COUNT(*) FROM t1 JOIN t2 USING(val) JOIN t3 USING(val);
+expect:
+{
+  "COUNT(*)" : [ ]
+}
+----------
+[dql_mysql_join_0.0101]
+sql:
+SELECT /*+ JOIN_PREFIX(t3,t1,t2) */ COUNT(*) FROM t1 JOIN t2 USING(val) JOIN t3 USING(val);
+expect:
+{
+  "COUNT(*)" : [ ]
+}
+----------
+[dql_mysql_join_0.0102]
+sql:
+SELECT /*+ JOIN_SUFFIX(t1,t3,t2) */ COUNT(*) FROM t1 JOIN t2 USING(val) JOIN t3 USING(val);
+expect:
+{
+  "COUNT(*)" : [ ]
+}
+----------
+[dql_mysql_join_0.0103]
+sql:
+SELECT /*+ JOIN_ORDER(t3,t2) */ COUNT(*) FROM t1 JOIN t2 USING(val) JOIN t3 USING(val);
+expect:
+{
+  "COUNT(*)" : [ ]
+}
+----------
+[dql_mysql_join_0.0104]
+sql:
+SELECT /*+ QB_NAME(q1) JOIN_PREFIX(t3,t2,t2@subq2) */ COUNT(*) FROM t1 JOIN t2 JOIN t3 WHERE t1.f1 IN (SELECT /*+ QB_NAME(subq1) */ f1 FROM t2) AND t2.f1 IN (SELECT /*+ QB_NAME(subq2) */ f1 FROM t2);
+expect:
+{
+  "COUNT(*)" : [ ]
+}
+----------
+[dql_mysql_join_0.0105]
+sql:
+SELECT /*+ JOIN_PREFIX(t2,t5@subq2,t4@subq1) JOIN_ORDER(t4@subq1,t3) JOIN_SUFFIX(t1) */ COUNT(*) FROM t1 JOIN t2 JOIN t3 WHERE t1.f1 IN (SELECT /*+ QB_NAME(subq1) */ f1 FROM t4) AND t2.f1 IN (SELECT /*+ QB_NAME(subq2) */ f1 FROM t5);
+expect:
+{
+  "COUNT(*)" : [ ]
+}
+----------
+[dql_mysql_join_0.0106]
+sql:
+SELECT /*+ JOIN_PREFIX(t3,t2,t1) JOIN_PREFIX(t2,t1) */ COUNT(*) FROM t1 JOIN t2 JOIN t3;
+expect:
+{
+  "COUNT(*)" : [ ]
+}
+----------
+[dql_mysql_join_0.0107]
+sql:
+SELECT /*+ JOIN_SUFFIX(t3,t2) JOIN_SUFFIX(t2,t1) */ COUNT(*) FROM t1 JOIN t2 JOIN t3;
+expect:
+{
+  "COUNT(*)" : [ ]
+}
+----------
+[dql_mysql_join_0.0108]
+sql:
+SELECT /*+ JOIN_ORDER(t3,t2) JOIN_ORDER(t1,t2,t5) */ COUNT(*) FROM t1 JOIN t2 JOIN t3 WHERE t2.f1 IN (SELECT f1 FROM t5);
+expect:
+{
+  "COUNT(*)" : [ ]
+}
+----------
+[dql_mysql_join_0.0109]
+sql:
+SELECT /*+ JOIN_ORDER(t1,t7_missing,t5) */ COUNT(*) FROM t1 JOIN t2 JOIN t3 WHERE t2.f1 IN (SELECT f1 FROM t5);
+expect:
+{
+  "COUNT(*)" : [ ]
+}
+----------
+[dql_mysql_join_0.0110]
+sql:
+SELECT /*+ JOIN_ORDER(t3,t2) JOIN_ORDER(t2,t3) */ COUNT(*) FROM t1 JOIN t2 JOIN t3;
+expect:
+{
+  "COUNT(*)" : [ ]
+}
+----------
+[dql_mysql_join_0.0111]
+sql:
+SELECT /*+ JOIN_ORDER(t3,t2) JOIN_SUFFIX(t3) */ COUNT(*) FROM t1 JOIN t2 JOIN t3;
+expect:
+{
+  "COUNT(*)" : [ ]
+}
+----------
+[dql_mysql_join_0.0112]
+sql:
+SELECT /*+ JOIN_SUFFIX(t2,t5@subq2,t4@subq1,t3,t1) JOIN_ORDER(t2,t5@subq2,t4@subq1,t3,t1) JOIN_PREFIX(t2,t5@subq2,t4@subq1,t3,t1) */ COUNT(*) FROM t1 JOIN t2 JOIN t3 WHERE t1.f1 IN (SELECT /*+ QB_NAME(subq1) */ f1 FROM t4) AND t2.f1 IN (SELECT /*+ QB_NAME(subq2) */ f1 FROM t5);
+expect:
+{
+  "COUNT(*)" : [ ]
+}
+----------
+[dql_mysql_join_0.0113]
+sql:
+SELECT STRAIGHT_JOIN /*+ QB_NAME(q1) JOIN_ORDER(t2,t1) */ COUNT(*) FROM t1 JOIN t2 JOIN t3;
+expect:
+{
+  "COUNT(*)" : [ ]
+}
+----------
+[dql_mysql_join_0.0114]
+sql:
+SELECT /*+ QB_NAME(q1) JOIN_ORDER(@q1 t2,t3,t1) JOIN_PREFIX(@q1 t2,t3,t1) JOIN_SUFFIX(@q1 t2,t3,t1) */ COUNT(*) FROM t1 JOIN t2 JOIN t3;
+expect:
+{
+  "COUNT(*)" : [ ]
+}
+----------
+[dql_mysql_join_0.0115]
+sql:
+SELECT /*+ JOIN_ORDER(t2,t4,t1) */ 1 FROM t1 JOIN t2 ON 1 RIGHT JOIN t3 ON 1 JOIN t4 ON 1;
+expect:
+{
+  "1" : [ ]
+}
+----------
+[dql_mysql_join_0.0116]
+sql:
+SELECT /*+ JOIN_PREFIX(t1,t1) */ t2.f1 FROM t1 JOIN t2 ON t1.f2=t2.f1;
+expect:
+{
+  "f1" : [ "(1:33~1:38) /catalog1/schema1/t2/f1/" ]
+}
+----------
+[dql_mysql_join_0.0117]
+sql:
+SELECT /*+ JOIN_PREFIX(d1) */ d2.f1 FROM (SELECT f1,f2 FROM t1) AS d1 JOIN (SELECT f1,f2 FROM t2) AS d2 ON d1.f2=d2.f1;
+expect:
+{
+  "f1" : [ "(1:83~1:85) /catalog1/schema1/t2/f1/" ]
+}
+----------
+[dql_mysql_join_0.0118]
+sql:
+SELECT /*+ JOIN_ORDER(alias4,alias2) */ 1 FROM t1 AS alias1 LEFT JOIN (t2 AS alias2 JOIN t3 AS alias3 ON alias2.val=alias3.val) ON alias1.val=alias2.val JOIN t4 AS alias4 ON alias4.val=alias1.val;
+expect:
+{
+  "1" : [ ]
+}
+----------
+[dql_mysql_join_0.0119]
+sql:
+SELECT /*+ JOIN_ORDER(alias3,alias3,alias1) */ alias1.f1 FROM t1 AS alias1 JOIN t1 AS alias2 JOIN t1 AS alias3 JOIN t1 AS alias4 WHERE alias3.id<=3;
+expect:
+{
+  "f1" : [ "(1:47~1:56) /catalog1/schema1/t1/f1/" ]
+}
+----------
+[dql_mysql_join_0.0120]
+sql:
+SELECT /*+ JOIN_FIXED_ORDER() JOIN_ORDER(t2,t1) JOIN_PREFIX(t2,t1) JOIN_SUFFIX(t2,t1) */ t2.f1 FROM t1 JOIN t2 ON t1.f1=t2.f2;
+expect:
+{
+  "f1" : [ "(1:89~1:94) /catalog1/schema1/t2/f1/" ]
+}
+----------
+[dql_mysql_join_0.0121]
+sql:
+SELECT /*+ JOIN_ORDER(table1,table3,table3) JOIN_FIXED_ORDER() JOIN_ORDER(table3,table1,table2) */ table2.f1 FROM t1 AS table1 LEFT JOIN t1 AS table2 RIGHT JOIN t1 AS table3 ON table2.f1=table3.id ON table1.f2=table3.f2;
+expect:
+{
+  "f1" : [ "(1:99~1:108) /catalog1/schema1/t1/f1/" ]
+}
+----------
+[dql_mysql_join_0.0122]
+sql:
+SELECT /*+ JOIN_PREFIX() */ COUNT(*) FROM t1 JOIN t2;
+expect:
+{
+  "COUNT(*)" : [ ]
+}
+----------
+[dql_mysql_join_0.0123]
+sql:
+SELECT /*+ QB_NAME(qb) JOIN_PREFIX(@qb t2@qb2,t4@qb1,ta3,ta4) */ COUNT(*) FROM t1 JOIN t2 AS ta3 JOIN t2 AS ta4 WHERE ta4.f1 IN (SELECT /*+ QB_NAME(qb1) */ f1 FROM t4) AND ta3.f2 IN (SELECT /*+ QB_NAME(qb2) */ f2 FROM t2);
+expect:
+{
+  "COUNT(*)" : [ ]
+}
+----------
+[dql_mysql_join_0.0126]
+sql:
+SELECT a.id,d.x FROM qa_t1 AS a RIGHT JOIN LATERAL (SELECT a.id AS x) AS d ON TRUE;
+expect:
+{
+  "id" : [ "(1:7~1:11) /catalog1/schema1/qa_t1/id/" ],
+  "x" : [ "(1:59~1:63) /catalog1/schema1/qa_t1/id/" ]
+}
+----------
+[dql_mysql_join_0.0127]
+sql:
+SELECT * FROM (codex_select_audit_t1 AS codex_select_audit_t2 LEFT JOIN codex_select_audit_t1 AS codex_select_audit_t3 USING (codex_select_audit_a)), codex_select_audit_t1;
+expect:
+[ {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/codex_select_audit_t1/codex_select_audit_a/", "(1:7~1:8) /catalog1/schema1/codex_select_audit_t1/codex_select_audit_a/" ],
+  "column" : "codex_select_audit_a"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/codex_select_audit_t1/codex_select_audit_a/" ],
+  "column" : "codex_select_audit_a"
+} ]
+----------
+[dql_mysql_join_0.0128]
+sql:
+SELECT * FROM codex_select_audit_t1, (codex_select_audit_t1 AS codex_select_audit_t2 LEFT JOIN codex_select_audit_t1 AS codex_select_audit_t3 USING (codex_select_audit_a));
+expect:
+[ {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/codex_select_audit_t1/codex_select_audit_a/" ],
+  "column" : "codex_select_audit_a"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/codex_select_audit_t1/codex_select_audit_a/", "(1:7~1:8) /catalog1/schema1/codex_select_audit_t1/codex_select_audit_a/" ],
+  "column" : "codex_select_audit_a"
+} ]
+----------
+[dql_mysql_join_0.0135]
+sql:
+((SELECT qa.d,qb.d FROM qa INNER JOIN qb USING(id))) ORDER BY qa.d;
+expect:
+[ {
+  "sources" : [ "(1:9~1:13) /catalog1/schema1/qa/d/" ],
+  "column" : "d"
+}, {
+  "sources" : [ "(1:14~1:18) /catalog1/schema1/qb/d/" ],
+  "column" : "d"
+} ]
+----------
+[dql_mysql_join_0.0136]
+sql:
+SELECT o.id, d.id, d.rn
+  FROM t1 AS o
+  JOIN LATERAL (
+      SELECT i.id, ROW_NUMBER() OVER (ORDER BY i.v DESC) AS rn
+        FROM t2 AS i
+       WHERE i.grp = o.grp
+       ORDER BY i.v DESC
+       LIMIT 2
+  ) AS d ON TRUE
+ WHERE d.rn = 1
+ ORDER BY o.id
+ LIMIT 5;
+expect:
+[ {
+  "sources" : [ "(1:7~1:11) /catalog1/schema1/t1/id/" ],
+  "column" : "id"
+}, {
+  "sources" : [ "(4:13~4:17) /catalog1/schema1/t2/id/" ],
+  "column" : "id"
+}, {
+  "sources" : [ "(4:47~4:50) /catalog1/schema1/t2/v/" ],
+  "column" : "rn"
+} ]
+----------
+[dql_mysql_join_0.0137]
+sql:
+SELECT * FROM (t1 AS t2 LEFT JOIN t1 AS t3 USING(a)) RIGHT OUTER JOIN t1 USING(a);
+expect:
+{
+  "a" : [ "(1:7~1:8) /catalog1/schema1/t1/a/", "(1:7~1:8) /catalog1/schema1/t1/a/", "(1:7~1:8) /catalog1/schema1/t1/a/" ]
+}
+----------
+[dql_mysql_join_0.0138]
+sql:
+SELECT * FROM t1 RIGHT OUTER JOIN (t1 AS t2 LEFT JOIN t1 AS t3 USING(a)) USING(a);
+expect:
+{
+  "a" : [ "(1:7~1:8) /catalog1/schema1/t1/a/", "(1:7~1:8) /catalog1/schema1/t1/a/", "(1:7~1:8) /catalog1/schema1/t1/a/" ]
+}
+----------
+[dql_mysql_join_0.0140]
+sql:
+SELECT t1.pk FROM t2 LEFT JOIN t1 ON t2.pk=t1.col_int WHERE t1.col_int_key BETWEEN 5 AND 6 AND t1.pk IS NULL OR t1.pk IN (5) ORDER BY pk;
+expect:
+{
+  "pk" : [ "(1:7~1:12) /catalog1/schema1/t1/pk/" ]
+}
+----------
+[dql_mysql_join_0.0141]
+sql:
+SELECT * FROM t0,LATERAL (SELECT * FROM t1 JOIN t2 ON a1=pk2 JOIN t3 ON pk2=b3 WHERE a0<100 LIMIT 100) AS dt;
+expect:
+[ {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/t0/id/" ],
+  "column" : "id"
+}, {
+  "sources" : [ "(1:33~1:34) /catalog1/schema1/t1/id/" ],
+  "column" : "id"
+}, {
+  "sources" : [ "(1:33~1:34) /catalog1/schema1/t2/id/" ],
+  "column" : "id"
+}, {
+  "sources" : [ "(1:33~1:34) /catalog1/schema1/t3/id/" ],
+  "column" : "id"
+} ]
+----------
+[dql_mysql_join_0.0142]
+sql:
+SELECT * FROM t1 JOIN (t2, t3) JOIN t4;
+expect:
+[ {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/t1/id/" ],
+  "column" : "id"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/t2/id/" ],
+  "column" : "id"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/t3/id/" ],
+  "column" : "id"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/t4/id/" ],
+  "column" : "id"
+} ]
+----------
+[dql_mysql_join_0.0143]
+sql:
+SELECT * FROM t1 NATURAL LEFT JOIN t2 NATURAL RIGHT JOIN t3;
+expect:
+{
+  "id" : [ "(1:7~1:8) /catalog1/schema1/t1/id/", "(1:7~1:8) /catalog1/schema1/t2/id/", "(1:7~1:8) /catalog1/schema1/t3/id/" ]
+}
+----------
+[dql_mysql_join_0.0150]
+sql:
+SELECT MIN(t3.f1) FROM (codex_native_dql.t2 JOIN (codex_native_dql.t3 JOIN (SELECT t1.* FROM codex_native_dql.t1 WHERE t1.f2<t1.f2) AS dt ON dt.f1=t3.f1) ON dt.f2=t3.f2) WHERE dt.f2<>ANY (SELECT t1.f1 FROM codex_native_dql.t1 WHERE t1.f2=dt.f2);
+expect:
+{
+  "MIN(t3.f1)" : [ "(1:11~1:16) /catalog1/codex_native_dql/t3/f1/" ]
+}
+----------
+[dql_mysql_join_0.0151]
+sql:
+SELECT 1 FROM codex_native_dql.t1,LATERAL (SELECT DISTINCT t1.x) AS dt1,LATERAL (SELECT DISTINCT dt1.x) AS dt2 WHERE dt1.x=dt2.x;
+expect:
+{
+  "1" : [ ]
+}

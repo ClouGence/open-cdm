@@ -1,0 +1,23 @@
+[split_ddl_dameng_mpp_huge_0_034]
+sql:
+select dbms_metadata.get_ddl('TABLE', 'MPP_HUGE_RANGE', user) from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:28) /test/1/catalog1/dbms_metadata/get_ddl/",
+      "action": "CALL",
+      "target": "Table(1:38~1:54) /test/1/catalog1/schema1/MPP_HUGE_RANGE/"
+    },
+    {
+      "subject": "Function(1:56~1:60) /test/1/catalog1/schema1/user/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:67~1:71) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}

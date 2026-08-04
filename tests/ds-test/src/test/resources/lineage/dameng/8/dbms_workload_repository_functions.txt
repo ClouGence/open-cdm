@@ -1,0 +1,21 @@
+[dbms_workload_repository_argument_columns]
+sql:
+select INTERVAL_VALUE, FLUSH_LEVEL, START_SNAP_ID, END_SNAP_ID, DEST_DIR,
+       DEST_FILE, LOW_SNAP_ID, HIGH_SNAP_ID, RETENTION_VALUE, TOPNSQL_VALUE,
+       END_TIME_VALUE, FREE_TS_SIZE
+from catalog1.app.dbms_workload_repository_payload
+expect:
+{
+  "INTERVAL_VALUE": ["/catalog1/app/dbms_workload_repository_payload/INTERVAL_VALUE/"],
+  "FLUSH_LEVEL": ["/catalog1/app/dbms_workload_repository_payload/FLUSH_LEVEL/"],
+  "START_SNAP_ID": ["/catalog1/app/dbms_workload_repository_payload/START_SNAP_ID/"],
+  "END_SNAP_ID": ["/catalog1/app/dbms_workload_repository_payload/END_SNAP_ID/"],
+  "DEST_DIR": ["/catalog1/app/dbms_workload_repository_payload/DEST_DIR/"],
+  "DEST_FILE": ["/catalog1/app/dbms_workload_repository_payload/DEST_FILE/"],
+  "LOW_SNAP_ID": ["/catalog1/app/dbms_workload_repository_payload/LOW_SNAP_ID/"],
+  "HIGH_SNAP_ID": ["/catalog1/app/dbms_workload_repository_payload/HIGH_SNAP_ID/"],
+  "RETENTION_VALUE": ["/catalog1/app/dbms_workload_repository_payload/RETENTION_VALUE/"],
+  "TOPNSQL_VALUE": ["/catalog1/app/dbms_workload_repository_payload/TOPNSQL_VALUE/"],
+  "END_TIME_VALUE": ["/catalog1/app/dbms_workload_repository_payload/END_TIME_VALUE/"],
+  "FREE_TS_SIZE": ["/catalog1/app/dbms_workload_repository_payload/FREE_TS_SIZE/"]
+}

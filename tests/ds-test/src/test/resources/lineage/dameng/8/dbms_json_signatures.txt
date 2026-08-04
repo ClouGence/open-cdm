@@ -1,0 +1,2915 @@
+[dbms_json_object_calls_no_static_lineage]
+sql:
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_bool:=j_arr.APPEND('VALUE'); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_bool:=j_arr.APPEND(7); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_bool:=j_arr.APPEND(TRUE); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_bool:=j_arr.APPEND(DATE '2026-07-27'); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_bool:=j_arr.APPEND(TIMESTAMP '2026-07-27 01:02:03'); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_bool:=j_arr.APPEND(c); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_bool:=j_arr.APPEND(b); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_bool:=j_arr.APPEND(j_scalar); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin arr.APPEND('VALUE'); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin arr.APPEND(7); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin arr.APPEND(TRUE); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin arr.APPEND(DATE '2026-07-27'); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin arr.APPEND(TIMESTAMP '2026-07-27 01:02:03'); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin arr.APPEND(c); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin arr.APPEND(b); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin arr.APPEND(elem); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_bool:=j_arr.APPEND_NULL(); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin arr.APPEND_NULL(); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_j:=j_obj.CLONE(); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_scalar:=scalar.CLONE(); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_arr:=arr.CLONE(); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_obj:=obj.CLONE(); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_j:=JDOM_T.CREATE_ARR(); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_j:=JDOM_T.CREATE_OBJ(); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_arr:=obj.GET_ARRAY('K'); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_blob:=j_obj.GET_BLOB('K',b); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_blob:=j_arr.GET_BLOB(0,b); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_blob:=arr.GET_BLOB(0); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin arr.GET_BLOB(0,b); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_blob:=obj.GET_BLOB('K'); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin obj.GET_BLOB('K',b); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_bool:=j_obj.GET_BOOLEAN('K'); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_bool:=j_arr.GET_BOOLEAN(0); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_bool:=arr.GET_BOOLEAN(0); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_bool:=obj.GET_BOOLEAN('K'); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_clob:=j_obj.GET_CLOB('K',c); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_clob:=j_arr.GET_CLOB(0,c); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_clob:=arr.GET_CLOB(0); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin arr.GET_CLOB(0,c); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_clob:=obj.GET_CLOB('K'); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin obj.GET_CLOB('K',c); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_date:=j_obj.GET_DATE('K'); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_date:=j_arr.GET_DATE(0); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_date:=arr.GET_DATE(0); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_date:=obj.GET_DATE('K'); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin keys:=j_obj.GET_KEYS(); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin keys:=obj.GET_KEYS(); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_number:=j_obj.GET_NUMBER('K'); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_number:=j_arr.GET_NUMBER(0); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_number:=arr.GET_NUMBER(0); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_number:=obj.GET_NUMBER('K'); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_obj:=obj.GET_OBJECT('K'); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_number:=j_obj.GET_SIZE(); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_number:=elem.GET_SIZE(); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_text:=j_obj.GET_STRING('K'); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_text:=j_arr.GET_STRING(0); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_text:=arr.GET_STRING(0); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_text:=obj.GET_STRING('K'); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_timestamp:=j_obj.GET_TIMESTAMP('K'); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_timestamp:=j_arr.GET_TIMESTAMP(0); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_timestamp:=arr.GET_TIMESTAMP(0); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_timestamp:=obj.GET_TIMESTAMP('K'); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_text:=j_obj.GET_TYPE('K'); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_text:=j_arr.GET_TYPE(0); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_text:=arr.GET_TYPE(0); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_text:=obj.GET_TYPE('K'); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_bool:=obj.HAS('K'); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_bool:=j_obj.HAS_KEY('K'); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_bool:=j_obj.IS_ARRAY(); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_bool:=elem.IS_ARRAY(); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_bool:=j_boolean.IS_BOOLEAN(); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_bool:=elem.IS_BOOLEAN(); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_bool:=j_date.IS_DATE(); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_bool:=elem.IS_DATE(); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_bool:=j_boolean.IS_FALSE(); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_bool:=elem.IS_FALSE(); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_bool:=j_obj.IS_NULL(); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_bool:=elem.IS_NULL(); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_bool:=j_number.IS_NUMBER(); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_bool:=elem.IS_NUMBER(); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_bool:=j_obj.IS_OBJECT(); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_bool:=elem.IS_OBJECT(); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_bool:=j_obj.IS_SCALAR(); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_bool:=elem.IS_SCALAR(); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_bool:=j_string.IS_STRING(); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_bool:=elem.IS_STRING(); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_bool:=j_timestamp.IS_TIMESTAMP(); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_bool:=elem.IS_TIMESTAMP(); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_bool:=j_boolean.IS_TRUE(); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_bool:=elem.IS_TRUE(); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_arr:=JSON_ARRAY_T(); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_arr:=JSON_ARRAY_T(j_arr); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_arr:=JSON_ARRAY_T(elem); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_arr:=JSON_ARRAY_T('[1,"2026-07-27",true]'); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_arr:=JSON_ARRAY_T(c); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_arr:=JSON_ARRAY_T(b); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_arr:=JSON_ARRAY_T(b,'UTF8'); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_obj:=JSON_OBJECT_T(); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_obj:=JSON_OBJECT_T(j_obj); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_obj:=JSON_OBJECT_T(elem_obj); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_obj:=JSON_OBJECT_T('{"K":"2026-07-27","N":1,"A":{"B":1},"C":[2]}'); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_obj:=JSON_OBJECT_T(c); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_obj:=JSON_OBJECT_T(b); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_obj:=JSON_OBJECT_T(b,'UTF8'); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_scalar:=JSON_SCALAR_T(j_scalar); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_scalar:=JSON_SCALAR_T(elem_scalar); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_j:=JDOM_T.PARSE('{"K":"2026-07-27","N":1}'); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_j:=JDOM_T.PARSE(c); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_j:=JDOM_T.PARSE(b); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_j:=JDOM_T.PARSE(b,'UTF8'); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_elem:=JSON_ELEMENT_T.PARSE('{"K":"2026-07-27","N":1}'); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_elem:=JSON_ELEMENT_T.PARSE(c); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_elem:=JSON_ELEMENT_T.PARSE(b); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_elem:=JSON_ELEMENT_T.PARSE(b,'UTF8'); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_arr:=JSON_ARRAY_T.PARSE('[1,"2026-07-27",true]',NULL); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_arr:=JSON_ARRAY_T.PARSE(c,NULL); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_arr:=JSON_ARRAY_T.PARSE(b,NULL); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_arr:=JSON_ARRAY_T.PARSE(b,'UTF8',NULL); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_obj:=JSON_OBJECT_T.PARSE('{"K":"2026-07-27","N":1,"A":{"B":1},"C":[2]}',NULL); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_obj:=JSON_OBJECT_T.PARSE(c,NULL); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_obj:=JSON_OBJECT_T.PARSE(b,NULL); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_obj:=JSON_OBJECT_T.PARSE(b,'UTF8',NULL); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_bool:=j_obj.PUT('K','VALUE'); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_bool:=j_obj.PUT('K',7); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_bool:=j_obj.PUT('K',TRUE); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_bool:=j_obj.PUT('K',DATE '2026-07-27'); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_bool:=j_obj.PUT('K',TIMESTAMP '2026-07-27 01:02:03'); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_bool:=j_obj.PUT('K',c); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_bool:=j_obj.PUT('K',b); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_bool:=j_obj.PUT('K',j_scalar); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_bool:=j_arr.PUT(0,'VALUE',TRUE); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_bool:=j_arr.PUT(0,7,TRUE); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_bool:=j_arr.PUT(0,TRUE,TRUE); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_bool:=j_arr.PUT(0,DATE '2026-07-27',TRUE); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_bool:=j_arr.PUT(0,TIMESTAMP '2026-07-27 01:02:03',TRUE); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_bool:=j_arr.PUT(0,c,TRUE); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_bool:=j_arr.PUT(0,b,TRUE); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_bool:=j_arr.PUT(0,j_scalar,TRUE); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin arr.PUT(0,'VALUE',TRUE); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin arr.PUT(0,7,TRUE); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin arr.PUT(0,TRUE,TRUE); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin arr.PUT(0,DATE '2026-07-27',TRUE); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin arr.PUT(0,TIMESTAMP '2026-07-27 01:02:03',TRUE); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin arr.PUT(0,c,TRUE); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin arr.PUT(0,b,TRUE); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin arr.PUT(0,elem,TRUE); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin obj.PUT('K','VALUE'); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin obj.PUT('K',7); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin obj.PUT('K',TRUE); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin obj.PUT('K',DATE '2026-07-27'); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin obj.PUT('K',TIMESTAMP '2026-07-27 01:02:03'); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin obj.PUT('K',c); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin obj.PUT('K',b); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin obj.PUT('K',elem_obj); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_bool:=j_obj.PUT_NULL('K'); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_bool:=j_arr.PUT_NULL(0,TRUE); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin arr.PUT_NULL(0,TRUE); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin obj.PUT_NULL('K'); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_bool:=j_obj.REMOVE('K'); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_bool:=j_arr.REMOVE(0); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin arr.REMOVE(0); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin obj.REMOVE('K'); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_bool:=j_obj.RENAME_KEY('K','K2'); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin obj.RENAME_KEY('K','K2'); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_text:=j_obj.STRINGIFY(); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_text:=elem.STRINGIFY(); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_blob:=j_obj.TO_BLOB(b); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_blob:=elem.TO_BLOB(); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin elem.TO_BLOB(b); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_bool:=j_boolean.TO_BOOLEAN(); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_bool:=elem_boolean.TO_BOOLEAN(); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_clob:=j_obj.TO_CLOB(c); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_clob:=elem.TO_CLOB(); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin elem.TO_CLOB(c); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_date:=j_date.TO_DATE(); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_date:=elem_date.TO_DATE(); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_number:=j_number.TO_NUMBER(); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_number:=elem_number.TO_NUMBER(); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_text:=j_string.TO_STRING(); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_text:=elem.TO_STRING(); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_timestamp:=j_timestamp.TO_TIMESTAMP(); end;
+/
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_timestamp:=elem_timestamp.TO_TIMESTAMP(); end;
+expect:
+{}

@@ -1,0 +1,1263 @@
+[split_dql_dameng_string_code_length_signature_combinations_0_001_behavior_review]
+sql:
+SELECT ASCII('A') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/ASCII/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:23~1:27) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_string_code_length_signature_combinations_0_002_behavior_review]
+sql:
+SELECT ASCII(NULL),ASCII('') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/ASCII/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:19~1:24) /test/1/catalog1/schema1/ASCII/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:34~1:38) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_string_code_length_signature_combinations_0_003_behavior_review]
+sql:
+SELECT ASCII(CAST('ABC' AS CLOB)) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/ASCII/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:39~1:43) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_string_code_length_signature_combinations_0_004_behavior_review]
+sql:
+SELECT ASCIISTR('ABC') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/ASCIISTR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:28~1:32) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_string_code_length_signature_combinations_0_005_behavior_review]
+sql:
+SELECT ASCIISTR(NULL),ASCIISTR('') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/ASCIISTR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:22~1:30) /test/1/catalog1/schema1/ASCIISTR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:40~1:44) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_string_code_length_signature_combinations_0_006_behavior_review]
+sql:
+SELECT ASCIISTR(CAST('ABC' AS CLOB)) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/ASCIISTR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:42~1:46) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_string_code_length_signature_combinations_0_007_behavior_review]
+sql:
+SELECT BIT_LENGTH('ABC') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/BIT_LENGTH/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:30~1:34) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_string_code_length_signature_combinations_0_008_behavior_review]
+sql:
+SELECT BIT_LENGTH(NULL),BIT_LENGTH('') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/BIT_LENGTH/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:24~1:34) /test/1/catalog1/schema1/BIT_LENGTH/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:44~1:48) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_string_code_length_signature_combinations_0_009_behavior_review]
+sql:
+SELECT BIT_LENGTH(CAST('ABC' AS CLOB)) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/BIT_LENGTH/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:44~1:48) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_string_code_length_signature_combinations_0_010_behavior_review]
+sql:
+SELECT CHAR(65) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CHAR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:21~1:25) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_string_code_length_signature_combinations_0_011_behavior_review]
+sql:
+SELECT CHAR(0) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CHAR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:20~1:24) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_string_code_length_signature_combinations_0_012_behavior_review]
+sql:
+SELECT CHAR(54992) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CHAR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:24~1:28) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_string_code_length_signature_combinations_0_013_behavior_review]
+sql:
+SELECT CHAR(NULL) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CHAR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:23~1:27) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_string_code_length_signature_combinations_0_014_behavior_review]
+sql:
+SELECT CHAR_LENGTH('ABC ') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/CHAR_LENGTH/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:32~1:36) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_string_code_length_signature_combinations_0_015_behavior_review]
+sql:
+SELECT CHAR_LENGTH(NULL),CHAR_LENGTH('') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/CHAR_LENGTH/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:25~1:36) /test/1/catalog1/schema1/CHAR_LENGTH/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:46~1:50) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_string_code_length_signature_combinations_0_016_behavior_review]
+sql:
+SELECT CHAR_LENGTH(CAST('ABC ' AS CLOB)) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/CHAR_LENGTH/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:46~1:50) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_string_code_length_signature_combinations_0_017_behavior_review]
+sql:
+SELECT CHARACTER_LENGTH('ABC ') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:23) /test/1/catalog1/schema1/CHARACTER_LENGTH/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:37~1:41) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_string_code_length_signature_combinations_0_018_behavior_review]
+sql:
+SELECT CHARACTER_LENGTH(NULL),CHARACTER_LENGTH('') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:23) /test/1/catalog1/schema1/CHARACTER_LENGTH/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:30~1:46) /test/1/catalog1/schema1/CHARACTER_LENGTH/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:56~1:60) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_string_code_length_signature_combinations_0_019_behavior_review]
+sql:
+SELECT CHARACTER_LENGTH(CAST('ABC ' AS CLOB)) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:23) /test/1/catalog1/schema1/CHARACTER_LENGTH/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:51~1:55) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_string_code_length_signature_combinations_0_020_behavior_review]
+sql:
+SELECT CHR(65) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/CHR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:20~1:24) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_string_code_length_signature_combinations_0_021_behavior_review]
+sql:
+SELECT CHR(0) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/CHR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:19~1:23) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_string_code_length_signature_combinations_0_022_behavior_review]
+sql:
+SELECT CHR(54992) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/CHR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:23~1:27) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_string_code_length_signature_combinations_0_023_behavior_review]
+sql:
+SELECT CHR(NULL) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/CHR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:22~1:26) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_string_code_length_signature_combinations_0_024_behavior_review]
+sql:
+SELECT COMPOSE('ABC') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/COMPOSE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:27~1:31) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_string_code_length_signature_combinations_0_025_behavior_review]
+sql:
+SELECT COMPOSE(NULL) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/COMPOSE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:26~1:30) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_string_code_length_signature_combinations_0_026_behavior_review]
+sql:
+SELECT COMPOSE(CAST('ABC' AS CLOB)) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/COMPOSE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:41~1:45) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_string_code_length_signature_combinations_0_027_behavior_review]
+sql:
+SELECT ISNULL(NULL),ISNULL('x') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/ISNULL/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:20~1:26) /test/1/catalog1/schema1/ISNULL/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:37~1:41) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_string_code_length_signature_combinations_0_028_behavior_review]
+sql:
+SELECT ISNULL('') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/ISNULL/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:23~1:27) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_string_code_length_signature_combinations_0_029_behavior_review]
+sql:
+SELECT ISNULL(CAST('ABC' AS CLOB)) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/ISNULL/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:40~1:44) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_string_code_length_signature_combinations_0_030_behavior_review]
+sql:
+SELECT LEN('ABC ') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/LEN/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:24~1:28) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_string_code_length_signature_combinations_0_031_behavior_review]
+sql:
+SELECT LEN(NULL),LEN('') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/LEN/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:20) /test/1/catalog1/schema1/LEN/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:30~1:34) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_string_code_length_signature_combinations_0_032_behavior_review]
+sql:
+SELECT LEN(CAST('ABC ' AS CLOB)) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/LEN/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:38~1:42) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_string_code_length_signature_combinations_0_033_behavior_review]
+sql:
+SELECT LENGTH('ABC ') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/LENGTH/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:27~1:31) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_string_code_length_signature_combinations_0_034_behavior_review]
+sql:
+SELECT LENGTH(NULL),LENGTH('') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/LENGTH/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:20~1:26) /test/1/catalog1/schema1/LENGTH/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:36~1:40) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_string_code_length_signature_combinations_0_035_behavior_review]
+sql:
+SELECT LENGTH(CAST('ABC ' AS CLOB)) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/LENGTH/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:41~1:45) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_string_code_length_signature_combinations_0_036_behavior_review]
+sql:
+SELECT LENGTH2('ABC ') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/LENGTH2/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:28~1:32) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_string_code_length_signature_combinations_0_037_behavior_review]
+sql:
+SELECT LENGTH2(NULL),LENGTH2('') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/LENGTH2/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:21~1:28) /test/1/catalog1/schema1/LENGTH2/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:38~1:42) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_string_code_length_signature_combinations_0_038_behavior_review]
+sql:
+SELECT LENGTH2(CAST('ABC ' AS CLOB)) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/LENGTH2/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:42~1:46) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_string_code_length_signature_combinations_0_039_behavior_review]
+sql:
+SELECT LENGTH4('ABC ') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/LENGTH4/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:28~1:32) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_string_code_length_signature_combinations_0_040_behavior_review]
+sql:
+SELECT LENGTH4(NULL),LENGTH4('') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/LENGTH4/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:21~1:28) /test/1/catalog1/schema1/LENGTH4/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:38~1:42) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_string_code_length_signature_combinations_0_041_behavior_review]
+sql:
+SELECT LENGTH4(CAST('ABC ' AS CLOB)) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/LENGTH4/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:42~1:46) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_string_code_length_signature_combinations_0_042_behavior_review]
+sql:
+SELECT LENGTHC('ABC ') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/LENGTHC/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:28~1:32) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_string_code_length_signature_combinations_0_043_behavior_review]
+sql:
+SELECT LENGTHC(NULL),LENGTHC('') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/LENGTHC/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:21~1:28) /test/1/catalog1/schema1/LENGTHC/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:38~1:42) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_string_code_length_signature_combinations_0_044_behavior_review]
+sql:
+SELECT LENGTHC(CAST('ABC ' AS CLOB)) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/LENGTHC/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:42~1:46) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_string_code_length_signature_combinations_0_045_behavior_review]
+sql:
+SELECT NCHR(65) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/NCHR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:21~1:25) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_string_code_length_signature_combinations_0_046_behavior_review]
+sql:
+SELECT NCHR(0) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/NCHR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:20~1:24) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_string_code_length_signature_combinations_0_047_behavior_review]
+sql:
+SELECT NCHR(54992) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/NCHR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:24~1:28) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_string_code_length_signature_combinations_0_048_behavior_review]
+sql:
+SELECT NCHR(NULL) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/NCHR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:23~1:27) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_string_code_length_signature_combinations_0_049_behavior_review]
+sql:
+SELECT OCTET_LENGTH('ABC') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/OCTET_LENGTH/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:32~1:36) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_string_code_length_signature_combinations_0_050_behavior_review]
+sql:
+SELECT OCTET_LENGTH(NULL),OCTET_LENGTH('') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/OCTET_LENGTH/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:26~1:38) /test/1/catalog1/schema1/OCTET_LENGTH/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:48~1:52) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_string_code_length_signature_combinations_0_051_behavior_review]
+sql:
+SELECT OCTET_LENGTH(CAST('ABC' AS CLOB)) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/OCTET_LENGTH/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:46~1:50) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_string_code_length_signature_combinations_0_052_behavior_review]
+sql:
+SELECT TO_CHAR('ABC') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/TO_CHAR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:27~1:31) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_string_code_length_signature_combinations_0_053_behavior_review]
+sql:
+SELECT TO_CHAR(NULL) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/TO_CHAR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:26~1:30) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_string_code_length_signature_combinations_0_054_behavior_review]
+sql:
+SELECT TO_CHAR(CAST('ABC' AS CLOB)) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/TO_CHAR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:41~1:45) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_string_code_length_signature_combinations_0_055_behavior_review]
+sql:
+SELECT TO_MULTI_BYTE('ABC') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:20) /test/1/catalog1/schema1/TO_MULTI_BYTE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:33~1:37) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_string_code_length_signature_combinations_0_056_behavior_review]
+sql:
+SELECT TO_MULTI_BYTE(NULL) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:20) /test/1/catalog1/schema1/TO_MULTI_BYTE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:32~1:36) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_string_code_length_signature_combinations_0_057_behavior_review]
+sql:
+SELECT TO_MULTI_BYTE(CAST('ABC' AS CLOB)) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:20) /test/1/catalog1/schema1/TO_MULTI_BYTE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:47~1:51) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_string_code_length_signature_combinations_0_058_behavior_review]
+sql:
+SELECT TO_SINGLE_BYTE('ABC') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:21) /test/1/catalog1/schema1/TO_SINGLE_BYTE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:34~1:38) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_string_code_length_signature_combinations_0_059_behavior_review]
+sql:
+SELECT TO_SINGLE_BYTE(NULL) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:21) /test/1/catalog1/schema1/TO_SINGLE_BYTE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:33~1:37) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_string_code_length_signature_combinations_0_060_behavior_review]
+sql:
+SELECT TO_SINGLE_BYTE(CAST('ABC' AS CLOB)) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:21) /test/1/catalog1/schema1/TO_SINGLE_BYTE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:48~1:52) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_string_code_length_signature_combinations_0_061_behavior_review]
+sql:
+SELECT UNISTR('ABC') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/UNISTR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:26~1:30) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_string_code_length_signature_combinations_0_062_behavior_review]
+sql:
+SELECT UNISTR('\0041\0042') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/UNISTR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:33~1:37) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_string_code_length_signature_combinations_0_063_behavior_review]
+sql:
+SELECT UNISTR(NULL) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/UNISTR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:25~1:29) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_string_code_length_signature_combinations_0_064_behavior_review]
+sql:
+SELECT UNISTR(CAST('ABC' AS CLOB)) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/UNISTR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:40~1:44) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}

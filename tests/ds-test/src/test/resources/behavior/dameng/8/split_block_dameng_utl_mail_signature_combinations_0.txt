@@ -1,0 +1,363 @@
+[split_block_dameng_utl_mail_signature_combinations_0_001]
+sql:
+-- INIT_FULL_POSITIONAL
+call utl_mail.init('127.0.0.1',65534,'sender@dm8.local','password');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:18) /test/1/catalog1/utl_mail/init/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_mail_signature_combinations_0_002]
+sql:
+-- INIT_DEFAULT_PORT_NAMED
+call utl_mail.init(SMTP_SERVER=>'127.0.0.1',SENDER=>'sender@dm8.local',PASSWORD=>'password');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:18) /test/1/catalog1/utl_mail/init/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_mail_signature_combinations_0_003]
+sql:
+-- INIT_REORDERED_NAMED
+call utl_mail.init(PASSWORD=>'password',SENDER=>'sender@dm8.local',SMTP_PORT=>65534,SMTP_SERVER=>'127.0.0.1');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:18) /test/1/catalog1/utl_mail/init/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_mail_signature_combinations_0_004]
+sql:
+-- INIT_PORT_ZERO
+call utl_mail.init('127.0.0.1',0,'sender@dm8.local','password');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:18) /test/1/catalog1/utl_mail/init/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_mail_signature_combinations_0_005]
+sql:
+-- INIT_PORT_65535
+call utl_mail.init('127.0.0.1',65535,'sender@dm8.local','password');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:18) /test/1/catalog1/utl_mail/init/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_mail_signature_combinations_0_006]
+sql:
+-- INIT_SERVER_128
+call utl_mail.init(repeat('x',128),65534,'sender@dm8.local','password');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:18) /test/1/catalog1/utl_mail/init/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:19~2:25) /test/1/catalog1/schema1/repeat/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_mail_signature_combinations_0_007]
+sql:
+-- INIT_SENDER_128
+call utl_mail.init('127.0.0.1',65534,repeat('s',128),'password');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:18) /test/1/catalog1/utl_mail/init/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:37~2:43) /test/1/catalog1/schema1/repeat/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_mail_signature_combinations_0_008]
+sql:
+-- INIT_PASSWORD_128
+call utl_mail.init('127.0.0.1',65534,'sender@dm8.local',repeat('p',128));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:18) /test/1/catalog1/utl_mail/init/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:56~2:62) /test/1/catalog1/schema1/repeat/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_mail_signature_combinations_0_009]
+sql:
+-- SEND_MINIMAL_NAMED
+begin
+  utl_mail.init('127.0.0.1',65534,'sender@dm8.local','password');
+  utl_mail.send(SENDER=>'sender@dm8.local',RECIPIENTS=>'receiver@dm8.local',MESSAGE=>'body');
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(3:2~3:15) /test/1/catalog1/utl_mail/init/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(4:2~4:15) /test/1/catalog1/utl_mail/send/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_mail_signature_combinations_0_010]
+sql:
+-- SEND_FULL_POSITIONAL
+begin
+  utl_mail.init('127.0.0.1',65534,'sender@dm8.local','password');
+  utl_mail.send('sender@dm8.local','receiver@dm8.local','cc@dm8.local','bcc@dm8.local','subject','body','text/plain; charset=utf-8',1);
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(3:2~3:15) /test/1/catalog1/utl_mail/init/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(4:2~4:15) /test/1/catalog1/utl_mail/send/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_mail_signature_combinations_0_011]
+sql:
+-- SEND_REORDERED_NAMED
+begin
+  utl_mail.init('127.0.0.1',65534,'sender@dm8.local','password');
+  utl_mail.send(PRIORITY=>3,MIME_TYPE=>'text/plain; charset=utf-8',MESSAGE=>'body',SUBJECT=>'subject',BCC=>null,CC=>null,RECIPIENTS=>'receiver@dm8.local',SENDER=>'sender@dm8.local');
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(3:2~3:15) /test/1/catalog1/utl_mail/init/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(4:2~4:15) /test/1/catalog1/utl_mail/send/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_mail_signature_combinations_0_012]
+sql:
+-- SEND_MESSAGE_32767
+begin
+  utl_mail.init('127.0.0.1',65534,'sender@dm8.local','password');
+  utl_mail.send('sender@dm8.local','receiver@dm8.local',MESSAGE=>repeat('m',32767));
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(3:2~3:15) /test/1/catalog1/utl_mail/init/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(4:2~4:15) /test/1/catalog1/utl_mail/send/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(4:65~4:71) /test/1/catalog1/schema1/repeat/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_mail_signature_combinations_0_013]
+sql:
+-- ATTACH_FULL_POSITIONAL
+declare
+  attachment_value blob;
+begin
+  dbms_lob.createtemporary(attachment_value, true);
+  dbms_lob.writeappend(attachment_value, 4, cast('434F4445' as varbinary(8)));
+  utl_mail.init('127.0.0.1', 65534, 'sender@dm8.local', 'password');
+  utl_mail.send_attach_raw('sender@dm8.local',
+    'receiver@dm8.local',
+    'cc@dm8.local',
+    'bcc@dm8.local',
+    'subject',
+    'body',
+    'text/plain; charset=utf-8',
+    1,
+    attachment_value,
+    false,
+    'application/octet-stream',
+    'probe.bin');
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(5:2~5:26) /test/1/catalog1/dbms_lob/createtemporary/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(6:2~6:22) /test/1/catalog1/dbms_lob/writeappend/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(7:2~7:15) /test/1/catalog1/utl_mail/init/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(8:2~8:26) /test/1/catalog1/utl_mail/send_attach_raw/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_mail_signature_combinations_0_014]
+sql:
+-- ATTACH_REORDERED_NAMED
+declare
+  attachment_value blob;
+begin
+  dbms_lob.createtemporary(attachment_value, true);
+  dbms_lob.writeappend(attachment_value, 4, cast('434F4445' as varbinary(8)));
+  utl_mail.init('127.0.0.1', 65534, 'sender@dm8.local', 'password');
+  utl_mail.send_attach_raw(ATT_FILENAME=>'probe.bin',
+    ATT_MIME_TYPE=>'application/octet-stream',
+    ATT_INLINE=>false,
+    ATTACHMENT=>attachment_value,
+    PRIORITY=>1,
+    MIME_TYPE=>'text/plain; charset=utf-8',
+    MESSAGE=>'body',
+    SUBJECT=>'subject',
+    BCC=>null,
+    CC=>null,
+    RECIPIENTS=>'receiver@dm8.local',
+    SENDER=>'sender@dm8.local');
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(5:2~5:26) /test/1/catalog1/dbms_lob/createtemporary/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(6:2~6:22) /test/1/catalog1/dbms_lob/writeappend/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(7:2~7:15) /test/1/catalog1/utl_mail/init/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(8:2~8:26) /test/1/catalog1/utl_mail/send_attach_raw/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_mail_signature_combinations_0_015]
+sql:
+-- ATTACH_DOCUMENTED_DEFAULTS
+declare
+  attachment_value blob;
+begin
+  dbms_lob.createtemporary(attachment_value, true);
+  dbms_lob.writeappend(attachment_value, 4, cast('434F4445' as varbinary(8)));
+  utl_mail.init('127.0.0.1', 65534, 'sender@dm8.local', 'password');
+  utl_mail.send_attach_raw(SENDER=>'sender@dm8.local',RECIPIENTS=>'receiver@dm8.local',MESSAGE=>'body',ATTACHMENT=>attachment_value);
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(5:2~5:26) /test/1/catalog1/dbms_lob/createtemporary/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(6:2~6:22) /test/1/catalog1/dbms_lob/writeappend/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(7:2~7:15) /test/1/catalog1/utl_mail/init/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(8:2~8:26) /test/1/catalog1/utl_mail/send_attach_raw/",
+      "action": "CALL"
+    }
+  ]
+}
+

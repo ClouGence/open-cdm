@@ -1,0 +1,349 @@
+create table synonym_base(id int primary key, name varchar(40), amount int);
+insert into synonym_base values(1, 'ALPHA', 10), (2, 'BETA', 20);
+create view synonym_view as select id, name, amount from synonym_base where amount >= 10;
+create sequence synonym_seq start with 100 increment by 5;
+create function synonym_fn(value_in int) return int as
+begin
+  return value_in * 2;
+end;
+/
+create procedure synonym_proc(value_in int) as
+begin
+  update synonym_base set amount = amount + value_in where id = 1;
+end;
+/
+create package synonym_pkg as
+  procedure add_amount(row_id int, delta_value int);
+end synonym_pkg;
+/
+create package body synonym_pkg as
+  procedure add_amount(row_id int, delta_value int) as
+  begin
+    update synonym_base set amount = amount + delta_value where id = row_id;
+  end;
+end synonym_pkg;
+/
+create synonym syn_table for synonym_base;
+select id, name, amount from syn_table order by id;
+insert into syn_table values(3, 'GAMMA', 30);
+update syn_table set amount = amount + 1 where id = 2;
+select count(*) as row_count, sum(amount) as total_amount from syn_table;
+delete from syn_table where id = 3;
+create or replace synonym syn_table for synonym_view;
+select id, name from syn_table where amount > 10 order by id;
+create synonym CODEX_DM8_SYNONYM_20260721.syn_view
+for CODEX_DM8_SYNONYM_20260721.synonym_view;
+select id, name from CODEX_DM8_SYNONYM_20260721.syn_view order by id;
+create synonym syn_seq for synonym_seq;
+select syn_seq.nextval from dual;
+select syn_seq.currval from dual;
+create synonym syn_fn for synonym_fn;
+select name, info5, info6 from sysobjects
+where subtype$ = 'SYNOM' and name = 'SYN_FN';
+create synonym syn_proc for synonym_proc;
+select name, info5, info6 from sysobjects
+where subtype$ = 'SYNOM' and name = 'SYN_PROC';
+create synonym syn_pkg for synonym_pkg;
+select name, info5, info6 from sysobjects
+where subtype$ = 'SYNOM' and name = 'SYN_PKG';
+select syn_fn(3) from dual;
+call syn_proc(5);
+call syn_pkg.add_amount(1, 2);
+select amount from synonym_base where id = 1;
+create synonym syn_chain_1 for syn_view;
+create synonym syn_chain_2 for syn_chain_1;
+select id, amount from syn_chain_2 order by id;
+create synonym syn_deferred for object_not_created_yet;
+select name, info5, info6 from sysobjects
+where subtype$ = 'SYNOM' and name = 'SYN_DEFERRED';
+create synonym if not exists syn_view for synonym_base;
+create or replace synonym if not exists syn_replace_ifne for synonym_base;
+create synonym "Syn_Quoted_20260721" for synonym_base;
+select id, name from "Syn_Quoted_20260721" order by id;
+create public synonym CODEX_DM8_PUB_TABLE_20260721
+for CODEX_DM8_SYNONYM_20260721.synonym_base;
+select id, name from CODEX_DM8_PUB_TABLE_20260721 order by id;
+create or replace public synonym CODEX_DM8_PUB_TABLE_20260721
+for CODEX_DM8_SYNONYM_20260721.synonym_view;
+select count(*) from CODEX_DM8_PUB_TABLE_20260721;
+create public synonym if not exists CODEX_DM8_PUB_TABLE_20260721
+for CODEX_DM8_SYNONYM_20260721.synonym_base;
+create public synonym CODEX_DM8_SHARED_20260721
+for CODEX_DM8_SYNONYM_20260721.synonym_base;
+create synonym CODEX_DM8_SHARED_20260721 for synonym_view;
+select id from CODEX_DM8_SYNONYM_20260721.CODEX_DM8_SHARED_20260721 order by id;
+drop synonym CODEX_DM8_SHARED_20260721;
+select id from CODEX_DM8_SHARED_20260721 order by id;
+drop public synonym if exists CODEX_DM8_SHARED_20260721;
+drop public synonym if exists CODEX_DM8_PUB_TABLE_20260721;
+drop synonym if exists "Syn_Quoted_20260721";
+drop synonym if exists syn_deferred;
+drop synonym if exists syn_replace_ifne;
+drop synonym if exists syn_chain_2;
+drop synonym if exists syn_chain_1;
+drop synonym if exists syn_pkg;
+drop synonym if exists syn_proc;
+drop synonym if exists syn_fn;
+drop synonym if exists syn_seq;
+drop synonym if exists syn_view;
+drop synonym if exists syn_table;
+drop package synonym_pkg;
+drop procedure synonym_proc;
+drop function synonym_fn;
+drop sequence synonym_seq;
+drop view synonym_view;
+drop table synonym_base;
+create table synonym_attr_base(id int primary key, source_name varchar(20));
+insert into synonym_attr_base values(1, 'PRIVATE');
+create view synonym_attr_view as select id, source_name from synonym_attr_base;
+create table synonym_public_base(id int primary key, source_name varchar(20));
+insert into synonym_public_base values(1, 'PUBLIC');
+create synonym CODEX_DM8_SYNONYM_20260721.syn_attr for CODEX_DM8_SYNONYM_20260721.synonym_attr_base;
+create or replace synonym CODEX_DM8_SYNONYM_20260721.syn_attr for CODEX_DM8_SYNONYM_20260721.synonym_attr_view;
+create synonym syn_attr_deferred for object_that_does_not_exist;
+create synonym SYN_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA for synonym_attr_base;
+select length(name) from sysobjects where subtype$ = 'SYNOM' and name like 'SYN_AAA%';
+drop synonym SYN_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA;
+create public synonym CODEX_DM8_SYN_PRECEDENCE_20260722 for CODEX_DM8_SYNONYM_20260721.synonym_public_base;
+create synonym CODEX_DM8_SYN_PRECEDENCE_20260722 for synonym_attr_base;
+select source_name from CODEX_DM8_SYN_PRECEDENCE_20260722 where id = 1;
+drop synonym CODEX_DM8_SYN_PRECEDENCE_20260722;
+select source_name from CODEX_DM8_SYN_PRECEDENCE_20260722 where id = 1;
+drop public synonym CODEX_DM8_SYN_PRECEDENCE_20260722;
+drop synonym if exists synonym_that_does_not_exist;
+drop synonym syn_attr_deferred;
+drop synonym syn_attr;
+drop view synonym_attr_view;
+drop table synonym_attr_base;
+drop table synonym_public_base;
+create link CODEX_DM8_SYN_LINK_20260722 connect 'DPI'
+with CODEX_DM8_LINK_REMOTE_20260721 identified by "Dm8@Link2026"
+using '127.0.0.1:5236';
+create synonym syn_remote_table for CODEX_DM8_LINK_REMOTE_20260721.CODEX_LINK_T@CODEX_DM8_SYN_LINK_20260722;
+select name from syn_remote_table where id = 1;
+drop synonym syn_remote_table;
+drop link CODEX_DM8_SYN_LINK_20260722;
+create public synonym CODEX_DM8_SYN_SCHEMA_DROP_20260722 for CODEX_DM8_SYNONYM_20260721.deferred_public_target;
+drop public synonym SYSDBA.CODEX_DM8_SYN_SCHEMA_DROP_20260722;
+------------------------------------------------------------------------------------------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table synonym_base(id int primary key, name varchar(40), amount int);
+----------
+[INSERT] insert into synonym_base values(1, 'ALPHA', 10), (2, 'BETA', 20);
+----------
+[CREATE_VIEW(SELECT)] create view synonym_view as select id, name, amount from synonym_base where amount >= 10;
+----------
+[CREATE_SEQUENCE] create sequence synonym_seq start with 100 increment by 5;
+----------
+[CREATE_PROG_OBJ(BLOCK,PROGRAM_CONTROL)] create function synonym_fn(value_in int) return int as
+begin
+  return value_in * 2;
+end;
+----------
+[CREATE_PROG_OBJ(BLOCK,UPDATE)] create procedure synonym_proc(value_in int) as
+begin
+  update synonym_base set amount = amount + value_in where id = 1;
+end;
+----------
+[CREATE_PROG_OBJ] create package synonym_pkg as
+  procedure add_amount(row_id int, delta_value int);
+end synonym_pkg;
+----------
+[CREATE_PROG_OBJ(UPDATE)] create package body synonym_pkg as
+  procedure add_amount(row_id int, delta_value int) as
+  begin
+    update synonym_base set amount = amount + delta_value where id = row_id;
+  end;
+end synonym_pkg;
+----------
+[CREATE_SYNONYM] create synonym syn_table for synonym_base;
+----------
+[SELECT] select id, name, amount from syn_table order by id;
+----------
+[INSERT] insert into syn_table values(3, 'GAMMA', 30);
+----------
+[UPDATE] update syn_table set amount = amount + 1 where id = 2;
+----------
+[SELECT] select count(*) as row_count, sum(amount) as total_amount from syn_table;
+----------
+[DELETE] delete from syn_table where id = 3;
+----------
+[CREATE_SYNONYM] create or replace synonym syn_table for synonym_view;
+----------
+[SELECT] select id, name from syn_table where amount > 10 order by id;
+----------
+[CREATE_SYNONYM] create synonym CODEX_DM8_SYNONYM_20260721.syn_view
+for CODEX_DM8_SYNONYM_20260721.synonym_view;
+----------
+[SELECT] select id, name from CODEX_DM8_SYNONYM_20260721.syn_view order by id;
+----------
+[CREATE_SYNONYM] create synonym syn_seq for synonym_seq;
+----------
+[SELECT] select syn_seq.nextval from dual;
+----------
+[SELECT] select syn_seq.currval from dual;
+----------
+[CREATE_SYNONYM] create synonym syn_fn for synonym_fn;
+----------
+[SELECT] select name, info5, info6 from sysobjects
+where subtype$ = 'SYNOM' and name = 'SYN_FN';
+----------
+[CREATE_SYNONYM] create synonym syn_proc for synonym_proc;
+----------
+[SELECT] select name, info5, info6 from sysobjects
+where subtype$ = 'SYNOM' and name = 'SYN_PROC';
+----------
+[CREATE_SYNONYM] create synonym syn_pkg for synonym_pkg;
+----------
+[SELECT] select name, info5, info6 from sysobjects
+where subtype$ = 'SYNOM' and name = 'SYN_PKG';
+----------
+[SELECT|CALL_PROG_OBJ] select syn_fn(3) from dual;
+----------
+[CALL_PROG_OBJ] call syn_proc(5);
+----------
+[CALL_PROG_OBJ] call syn_pkg.add_amount(1, 2);
+----------
+[SELECT] select amount from synonym_base where id = 1;
+----------
+[CREATE_SYNONYM] create synonym syn_chain_1 for syn_view;
+----------
+[CREATE_SYNONYM] create synonym syn_chain_2 for syn_chain_1;
+----------
+[SELECT] select id, amount from syn_chain_2 order by id;
+----------
+[CREATE_SYNONYM] create synonym syn_deferred for object_not_created_yet;
+----------
+[SELECT] select name, info5, info6 from sysobjects
+where subtype$ = 'SYNOM' and name = 'SYN_DEFERRED';
+----------
+[CREATE_SYNONYM] create synonym if not exists syn_view for synonym_base;
+----------
+[CREATE_SYNONYM] create or replace synonym if not exists syn_replace_ifne for synonym_base;
+----------
+[CREATE_SYNONYM] create synonym "Syn_Quoted_20260721" for synonym_base;
+----------
+[SELECT] select id, name from "Syn_Quoted_20260721" order by id;
+----------
+[CREATE_SYNONYM] create public synonym CODEX_DM8_PUB_TABLE_20260721
+for CODEX_DM8_SYNONYM_20260721.synonym_base;
+----------
+[SELECT] select id, name from CODEX_DM8_PUB_TABLE_20260721 order by id;
+----------
+[CREATE_SYNONYM] create or replace public synonym CODEX_DM8_PUB_TABLE_20260721
+for CODEX_DM8_SYNONYM_20260721.synonym_view;
+----------
+[SELECT] select count(*) from CODEX_DM8_PUB_TABLE_20260721;
+----------
+[CREATE_SYNONYM] create public synonym if not exists CODEX_DM8_PUB_TABLE_20260721
+for CODEX_DM8_SYNONYM_20260721.synonym_base;
+----------
+[CREATE_SYNONYM] create public synonym CODEX_DM8_SHARED_20260721
+for CODEX_DM8_SYNONYM_20260721.synonym_base;
+----------
+[CREATE_SYNONYM] create synonym CODEX_DM8_SHARED_20260721 for synonym_view;
+----------
+[SELECT] select id from CODEX_DM8_SYNONYM_20260721.CODEX_DM8_SHARED_20260721 order by id;
+----------
+[DROP_SYNONYM] drop synonym CODEX_DM8_SHARED_20260721;
+----------
+[SELECT] select id from CODEX_DM8_SHARED_20260721 order by id;
+----------
+[DROP_SYNONYM] drop public synonym if exists CODEX_DM8_SHARED_20260721;
+----------
+[DROP_SYNONYM] drop public synonym if exists CODEX_DM8_PUB_TABLE_20260721;
+----------
+[DROP_SYNONYM] drop synonym if exists "Syn_Quoted_20260721";
+----------
+[DROP_SYNONYM] drop synonym if exists syn_deferred;
+----------
+[DROP_SYNONYM] drop synonym if exists syn_replace_ifne;
+----------
+[DROP_SYNONYM] drop synonym if exists syn_chain_2;
+----------
+[DROP_SYNONYM] drop synonym if exists syn_chain_1;
+----------
+[DROP_SYNONYM] drop synonym if exists syn_pkg;
+----------
+[DROP_SYNONYM] drop synonym if exists syn_proc;
+----------
+[DROP_SYNONYM] drop synonym if exists syn_fn;
+----------
+[DROP_SYNONYM] drop synonym if exists syn_seq;
+----------
+[DROP_SYNONYM] drop synonym if exists syn_view;
+----------
+[DROP_SYNONYM] drop synonym if exists syn_table;
+----------
+[DROP_PROG_OBJ] drop package synonym_pkg;
+----------
+[DROP_PROG_OBJ] drop procedure synonym_proc;
+----------
+[DROP_PROG_OBJ] drop function synonym_fn;
+----------
+[DROP_SEQUENCE] drop sequence synonym_seq;
+----------
+[DROP_VIEW] drop view synonym_view;
+----------
+[DROP_TABLE] drop table synonym_base;
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table synonym_attr_base(id int primary key, source_name varchar(20));
+----------
+[INSERT] insert into synonym_attr_base values(1, 'PRIVATE');
+----------
+[CREATE_VIEW(SELECT)] create view synonym_attr_view as select id, source_name from synonym_attr_base;
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table synonym_public_base(id int primary key, source_name varchar(20));
+----------
+[INSERT] insert into synonym_public_base values(1, 'PUBLIC');
+----------
+[CREATE_SYNONYM] create synonym CODEX_DM8_SYNONYM_20260721.syn_attr for CODEX_DM8_SYNONYM_20260721.synonym_attr_base;
+----------
+[CREATE_SYNONYM] create or replace synonym CODEX_DM8_SYNONYM_20260721.syn_attr for CODEX_DM8_SYNONYM_20260721.synonym_attr_view;
+----------
+[CREATE_SYNONYM] create synonym syn_attr_deferred for object_that_does_not_exist;
+----------
+[CREATE_SYNONYM] create synonym SYN_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA for synonym_attr_base;
+----------
+[SELECT] select length(name) from sysobjects where subtype$ = 'SYNOM' and name like 'SYN_AAA%';
+----------
+[DROP_SYNONYM] drop synonym SYN_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA;
+----------
+[CREATE_SYNONYM] create public synonym CODEX_DM8_SYN_PRECEDENCE_20260722 for CODEX_DM8_SYNONYM_20260721.synonym_public_base;
+----------
+[CREATE_SYNONYM] create synonym CODEX_DM8_SYN_PRECEDENCE_20260722 for synonym_attr_base;
+----------
+[SELECT] select source_name from CODEX_DM8_SYN_PRECEDENCE_20260722 where id = 1;
+----------
+[DROP_SYNONYM] drop synonym CODEX_DM8_SYN_PRECEDENCE_20260722;
+----------
+[SELECT] select source_name from CODEX_DM8_SYN_PRECEDENCE_20260722 where id = 1;
+----------
+[DROP_SYNONYM] drop public synonym CODEX_DM8_SYN_PRECEDENCE_20260722;
+----------
+[DROP_SYNONYM] drop synonym if exists synonym_that_does_not_exist;
+----------
+[DROP_SYNONYM] drop synonym syn_attr_deferred;
+----------
+[DROP_SYNONYM] drop synonym syn_attr;
+----------
+[DROP_VIEW] drop view synonym_attr_view;
+----------
+[DROP_TABLE] drop table synonym_attr_base;
+----------
+[DROP_TABLE] drop table synonym_public_base;
+----------
+[SYSTEM_SETTING_WRITE] create link CODEX_DM8_SYN_LINK_20260722 connect 'DPI'
+with CODEX_DM8_LINK_REMOTE_20260721 identified by "Dm8@Link2026"
+using '127.0.0.1:5236';
+----------
+[CREATE_SYNONYM] create synonym syn_remote_table for CODEX_DM8_LINK_REMOTE_20260721.CODEX_LINK_T@CODEX_DM8_SYN_LINK_20260722;
+----------
+[SELECT] select name from syn_remote_table where id = 1;
+----------
+[DROP_SYNONYM] drop synonym syn_remote_table;
+----------
+[SYSTEM_SETTING_WRITE] drop link CODEX_DM8_SYN_LINK_20260722;
+----------
+[CREATE_SYNONYM] create public synonym CODEX_DM8_SYN_SCHEMA_DROP_20260722 for CODEX_DM8_SYNONYM_20260721.deferred_public_target;
+----------
+[DROP_SYNONYM] drop public synonym SYSDBA.CODEX_DM8_SYN_SCHEMA_DROP_20260722;

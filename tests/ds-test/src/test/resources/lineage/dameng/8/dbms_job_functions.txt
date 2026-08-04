@@ -1,0 +1,16 @@
+[dbms_job_argument_columns]
+sql:
+select JOB_ID, WHAT_TEXT, NEXT_DATE_VALUE, INTERVAL_TEXT, INSTANCE_VALUE,
+       FORCE_VALUE, NO_PARSE_VALUE, JOB_NAME
+from catalog1.app.dbms_job_payload
+expect:
+{
+  "JOB_ID": ["/catalog1/app/dbms_job_payload/JOB_ID/"],
+  "WHAT_TEXT": ["/catalog1/app/dbms_job_payload/WHAT_TEXT/"],
+  "NEXT_DATE_VALUE": ["/catalog1/app/dbms_job_payload/NEXT_DATE_VALUE/"],
+  "INTERVAL_TEXT": ["/catalog1/app/dbms_job_payload/INTERVAL_TEXT/"],
+  "INSTANCE_VALUE": ["/catalog1/app/dbms_job_payload/INSTANCE_VALUE/"],
+  "FORCE_VALUE": ["/catalog1/app/dbms_job_payload/FORCE_VALUE/"],
+  "NO_PARSE_VALUE": ["/catalog1/app/dbms_job_payload/NO_PARSE_VALUE/"],
+  "JOB_NAME": ["/catalog1/app/dbms_job_payload/JOB_NAME/"]
+}

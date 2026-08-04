@@ -1,0 +1,76 @@
+[rownum_table]
+sql:
+select rownum rn,t.id from app.rownum_t t where rownum<=3
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"rownum_t"}
+  ]
+}
+----------
+[rownum_join]
+sql:
+select t.id,d.flag
+from app.rownum_t t join app.rownum_dim d on t.id=d.id and rownum<=3
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"rownum_t"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"rownum_dim"}
+  ]
+}
+----------
+[rownum_cte]
+sql:
+with q as(select rownum rn,t.id from app.rownum_t t)
+select q.id from q where q.rn<=3
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"rownum_t"}
+  ]
+}
+----------
+[rownum_update]
+sql:
+update app.rownum_t set name=name||'_U' where rownum<=2
+expect:
+{
+  "contains": [
+    {"class":"RdbUpdateDomain", "sqlType":"UPDATE", "auditKind":"DML", "schema":"app", "table":"rownum_t"}
+  ]
+}
+----------
+[rownum_delete]
+sql:
+delete from app.rownum_t where rownum<=2
+expect:
+{
+  "contains": [
+    {"class":"RdbDeleteDomain", "sqlType":"DELETE", "auditKind":"DML", "schema":"app", "table":"rownum_t"}
+  ]
+}
+----------
+[rownum_insert_select]
+sql:
+insert into app.rownum_dim
+select t.id+100,rownum from app.rownum_t t where rownum<=2
+expect:
+{
+  "contains": [
+    {"class":"RdbInsertDomain", "sqlType":"INSERT", "auditKind":"DML", "schema":"app", "table":"rownum_dim"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"rownum_t"}
+  ]
+}
+----------
+[rownum_merge]
+sql:
+merge into app.rownum_dim d using app.rownum_t s on(d.id=s.id)
+when matched then update set d.flag=rownum
+expect:
+{
+  "contains": [
+    {"class":"RdbUpdateDomain", "sqlType":"MERGE", "auditKind":"DML", "schema":"app", "table":"rownum_dim"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"rownum_t"}
+  ]
+}

@@ -1,0 +1,60 @@
+-- SF_CHECK_AWR_SYS
+select SF_CHECK_AWR_SYS() from dual;
+-- SF_CHECK_GEO_SYS
+select SF_CHECK_GEO_SYS() from dual;
+-- SF_CHECK_GEO2_SYS
+select SF_CHECK_GEO2_SYS() from dual;
+-- SF_CHECK_SYSTEM_PACKAGE
+select SF_CHECK_SYSTEM_PACKAGE('DBMS_BINARY') from dual;
+-- SF_CHECK_SYSTEM_PACKAGES
+select SF_CHECK_SYSTEM_PACKAGES() from dual;
+-- SP_CREATE_SYSTEM_PACKAGES specific
+call SP_CREATE_SYSTEM_PACKAGES(1,'DBMS_BINARY');
+-- SP_CREATE_SYSTEM_PACKAGES all
+call SP_CREATE_SYSTEM_PACKAGES(1);
+-- SP_INIT_AWR_SYS
+call SP_INIT_AWR_SYS(1);
+-- SP_INIT_DBMS_SCHEDULER_SYS
+call SP_INIT_DBMS_SCHEDULER_SYS(1);
+-- SP_INIT_GEO_SYS environment probe
+call SP_INIT_GEO_SYS(1);
+-- SP_INIT_GEO2_SYS environment probe
+call SP_INIT_GEO2_SYS(1);
+-- SP_INIT_JOB_SYS
+call SP_INIT_JOB_SYS(1);
+------------------------------------------------------------------------------------------
+[SELECT|CALL_PROG_OBJ] -- SF_CHECK_AWR_SYS
+select SF_CHECK_AWR_SYS() from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- SF_CHECK_GEO_SYS
+select SF_CHECK_GEO_SYS() from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- SF_CHECK_GEO2_SYS
+select SF_CHECK_GEO2_SYS() from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- SF_CHECK_SYSTEM_PACKAGE
+select SF_CHECK_SYSTEM_PACKAGE('DBMS_BINARY') from dual;
+----------
+[SELECT|CALL_PROG_OBJ] -- SF_CHECK_SYSTEM_PACKAGES
+select SF_CHECK_SYSTEM_PACKAGES() from dual;
+----------
+[CALL_PROG_OBJ] -- SP_CREATE_SYSTEM_PACKAGES specific
+call SP_CREATE_SYSTEM_PACKAGES(1,'DBMS_BINARY');
+----------
+[CALL_PROG_OBJ] -- SP_CREATE_SYSTEM_PACKAGES all
+call SP_CREATE_SYSTEM_PACKAGES(1);
+----------
+[CALL_PROG_OBJ] -- SP_INIT_AWR_SYS
+call SP_INIT_AWR_SYS(1);
+----------
+[CALL_PROG_OBJ] -- SP_INIT_DBMS_SCHEDULER_SYS
+call SP_INIT_DBMS_SCHEDULER_SYS(1);
+----------
+[CALL_PROG_OBJ] -- SP_INIT_GEO_SYS environment probe
+call SP_INIT_GEO_SYS(1);
+----------
+[CALL_PROG_OBJ] -- SP_INIT_GEO2_SYS environment probe
+call SP_INIT_GEO2_SYS(1);
+----------
+[CALL_PROG_OBJ] -- SP_INIT_JOB_SYS
+call SP_INIT_JOB_SYS(1);

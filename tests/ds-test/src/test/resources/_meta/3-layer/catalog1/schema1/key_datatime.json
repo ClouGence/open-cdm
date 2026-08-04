@@ -1,0 +1,13 @@
+[
+  {
+    "columns": [
+      {
+        "column": "a1",
+        "table": "key_datatime",
+        "schema": "schema1",
+        "catalog": "catalog1"
+      }
+    ],
+    "itemAlias": "a1"
+  }
+]

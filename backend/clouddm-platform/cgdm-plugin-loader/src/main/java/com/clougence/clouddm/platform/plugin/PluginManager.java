@@ -32,7 +32,7 @@ import com.clougence.clouddm.sdk.execute.session.rdb.RdbSupportSpi;
 import com.clougence.clouddm.sdk.execute.tools.ToolFactory;
 import com.clougence.clouddm.sdk.service.Service;
 import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
-import com.clougence.clouddm.sdk.sql.secrules.SecRulesSupportSpi;
+import com.clougence.clouddm.sdk.sql.analysis.security.SecRulesSupportSpi;
 import com.clougence.clouddm.sdk.ui.browser.DsBrowseSpi;
 import com.clougence.clouddm.sdk.ui.ddl.ConvertTableDDLSpi;
 import com.clougence.clouddm.sdk.ui.editor.data.DataEditorSpi;

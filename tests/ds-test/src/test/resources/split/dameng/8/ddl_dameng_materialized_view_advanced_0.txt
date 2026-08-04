@@ -1,0 +1,164 @@
+create materialized view CODEX_DM8_MV_ADV_20260721.mv_prebuilt_default
+for CODEX_DM8_MV_ADV_20260721.prebuilt_default on prebuilt table
+as select id, customer_id, amount from CODEX_DM8_MV_ADV_20260721.orders;
+drop materialized view CODEX_DM8_MV_ADV_20260721.mv_prebuilt_default;
+create materialized view CODEX_DM8_MV_ADV_20260721.mv_prebuilt_reduced
+for CODEX_DM8_MV_ADV_20260721.prebuilt_reduced on prebuilt table with reduced precision
+as select id, customer_id, amount from CODEX_DM8_MV_ADV_20260721.orders;
+drop materialized view CODEX_DM8_MV_ADV_20260721.mv_prebuilt_reduced;
+create materialized view CODEX_DM8_MV_ADV_20260721.mv_prebuilt_exact
+for CODEX_DM8_MV_ADV_20260721.prebuilt_exact on prebuilt table without reduced precision
+as select id, customer_id, amount from CODEX_DM8_MV_ADV_20260721.orders;
+drop materialized view CODEX_DM8_MV_ADV_20260721.mv_prebuilt_exact;
+create materialized view CODEX_DM8_MV_ADV_20260721.mv_on_commit
+refresh complete on commit
+as select id, customer_id, amount from CODEX_DM8_MV_ADV_20260721.orders;
+create materialized view CODEX_DM8_MV_ADV_20260721.mv_start_once
+refresh complete start with sysdate + 1
+as select id, amount from CODEX_DM8_MV_ADV_20260721.orders;
+create materialized view CODEX_DM8_MV_ADV_20260721.mv_next_daily
+refresh complete next sysdate + 1
+as select id, amount from CODEX_DM8_MV_ADV_20260721.orders;
+create materialized view CODEX_DM8_MV_ADV_20260721.mv_start_next
+refresh complete start with sysdate + 1 next sysdate + 2
+as select id, amount from CODEX_DM8_MV_ADV_20260721.orders;
+create materialized view CODEX_DM8_MV_ADV_20260721.mv_demand_schedule
+refresh force on demand start with sysdate + 1 next sysdate + 1
+as select id, amount from CODEX_DM8_MV_ADV_20260721.orders;
+create materialized view CODEX_DM8_MV_ADV_20260721.mv_commit_schedule
+refresh complete on demand next sysdate + 1
+as select id, amount from CODEX_DM8_MV_ADV_20260721.orders;
+create materialized view CODEX_DM8_MV_ADV_20260721.mv_deferred_complete
+build deferred refresh complete on demand
+as select id, amount from CODEX_DM8_MV_ADV_20260721.orders;
+refresh materialized view CODEX_DM8_MV_ADV_20260721.mv_deferred_complete complete;
+create materialized view CODEX_DM8_MV_ADV_20260721.mv_tablespace
+tablespace main
+as select id, customer_id, amount from CODEX_DM8_MV_ADV_20260721.orders;
+create index CODEX_DM8_MV_ADV_20260721.idx_mv_on_commit_amount
+on CODEX_DM8_MV_ADV_20260721.mv_on_commit(amount);
+create materialized view log on CODEX_DM8_MV_ADV_20260721.orders
+with rowid(id, customer_id, amount, status);
+create materialized view CODEX_DM8_MV_ADV_20260721.mv_fast_rowid
+refresh fast with rowid
+as select id, customer_id, amount, status, rowid as source_rowid
+from CODEX_DM8_MV_ADV_20260721.orders;
+refresh materialized view CODEX_DM8_MV_ADV_20260721.mv_fast_rowid fast;
+drop materialized view CODEX_DM8_MV_ADV_20260721.mv_fast_rowid;
+drop materialized view log on CODEX_DM8_MV_ADV_20260721.orders;
+alter materialized view CODEX_DM8_MV_ADV_20260721.mv_start_next
+refresh complete on demand start with sysdate + 1 next sysdate + 1 disable query rewrite;
+alter materialized view CODEX_DM8_MV_ADV_20260721.mv_demand_schedule
+refresh complete on demand using delete enable query rewrite;
+create materialized view CODEX_DM8_MV_ADV_20260721.mv_storage
+storage(initial 1, next 1)
+as select id, amount from CODEX_DM8_MV_ADV_20260721.orders;
+drop index CODEX_DM8_MV_ADV_20260721.idx_mv_on_commit_amount;
+drop materialized view CODEX_DM8_MV_ADV_20260721.mv_on_commit;
+drop materialized view CODEX_DM8_MV_ADV_20260721.mv_start_once;
+drop materialized view CODEX_DM8_MV_ADV_20260721.mv_next_daily;
+drop materialized view CODEX_DM8_MV_ADV_20260721.mv_start_next;
+drop materialized view CODEX_DM8_MV_ADV_20260721.mv_demand_schedule;
+drop materialized view CODEX_DM8_MV_ADV_20260721.mv_commit_schedule;
+drop materialized view CODEX_DM8_MV_ADV_20260721.mv_deferred_complete;
+drop materialized view CODEX_DM8_MV_ADV_20260721.mv_tablespace;
+drop materialized view CODEX_DM8_MV_ADV_20260721.mv_storage;
+------------------------------------------------------------------------------------------
+[CREATE_VIEW(SELECT)] create materialized view CODEX_DM8_MV_ADV_20260721.mv_prebuilt_default
+for CODEX_DM8_MV_ADV_20260721.prebuilt_default on prebuilt table
+as select id, customer_id, amount from CODEX_DM8_MV_ADV_20260721.orders;
+----------
+[DROP_VIEW] drop materialized view CODEX_DM8_MV_ADV_20260721.mv_prebuilt_default;
+----------
+[CREATE_VIEW(SELECT)] create materialized view CODEX_DM8_MV_ADV_20260721.mv_prebuilt_reduced
+for CODEX_DM8_MV_ADV_20260721.prebuilt_reduced on prebuilt table with reduced precision
+as select id, customer_id, amount from CODEX_DM8_MV_ADV_20260721.orders;
+----------
+[DROP_VIEW] drop materialized view CODEX_DM8_MV_ADV_20260721.mv_prebuilt_reduced;
+----------
+[CREATE_VIEW(SELECT)] create materialized view CODEX_DM8_MV_ADV_20260721.mv_prebuilt_exact
+for CODEX_DM8_MV_ADV_20260721.prebuilt_exact on prebuilt table without reduced precision
+as select id, customer_id, amount from CODEX_DM8_MV_ADV_20260721.orders;
+----------
+[DROP_VIEW] drop materialized view CODEX_DM8_MV_ADV_20260721.mv_prebuilt_exact;
+----------
+[CREATE_VIEW(SELECT)] create materialized view CODEX_DM8_MV_ADV_20260721.mv_on_commit
+refresh complete on commit
+as select id, customer_id, amount from CODEX_DM8_MV_ADV_20260721.orders;
+----------
+[CREATE_VIEW(SELECT)] create materialized view CODEX_DM8_MV_ADV_20260721.mv_start_once
+refresh complete start with sysdate + 1
+as select id, amount from CODEX_DM8_MV_ADV_20260721.orders;
+----------
+[CREATE_VIEW(SELECT)] create materialized view CODEX_DM8_MV_ADV_20260721.mv_next_daily
+refresh complete next sysdate + 1
+as select id, amount from CODEX_DM8_MV_ADV_20260721.orders;
+----------
+[CREATE_VIEW(SELECT)] create materialized view CODEX_DM8_MV_ADV_20260721.mv_start_next
+refresh complete start with sysdate + 1 next sysdate + 2
+as select id, amount from CODEX_DM8_MV_ADV_20260721.orders;
+----------
+[CREATE_VIEW(SELECT)] create materialized view CODEX_DM8_MV_ADV_20260721.mv_demand_schedule
+refresh force on demand start with sysdate + 1 next sysdate + 1
+as select id, amount from CODEX_DM8_MV_ADV_20260721.orders;
+----------
+[CREATE_VIEW(SELECT)] create materialized view CODEX_DM8_MV_ADV_20260721.mv_commit_schedule
+refresh complete on demand next sysdate + 1
+as select id, amount from CODEX_DM8_MV_ADV_20260721.orders;
+----------
+[CREATE_VIEW(SELECT)] create materialized view CODEX_DM8_MV_ADV_20260721.mv_deferred_complete
+build deferred refresh complete on demand
+as select id, amount from CODEX_DM8_MV_ADV_20260721.orders;
+----------
+[ADMIN] refresh materialized view CODEX_DM8_MV_ADV_20260721.mv_deferred_complete complete;
+----------
+[CREATE_VIEW(SELECT)] create materialized view CODEX_DM8_MV_ADV_20260721.mv_tablespace
+tablespace main
+as select id, customer_id, amount from CODEX_DM8_MV_ADV_20260721.orders;
+----------
+[ADD_INDEX] create index CODEX_DM8_MV_ADV_20260721.idx_mv_on_commit_amount
+on CODEX_DM8_MV_ADV_20260721.mv_on_commit(amount);
+----------
+[CREATE_LOG] create materialized view log on CODEX_DM8_MV_ADV_20260721.orders
+with rowid(id, customer_id, amount, status);
+----------
+[CREATE_VIEW(SELECT)] create materialized view CODEX_DM8_MV_ADV_20260721.mv_fast_rowid
+refresh fast with rowid
+as select id, customer_id, amount, status, rowid as source_rowid
+from CODEX_DM8_MV_ADV_20260721.orders;
+----------
+[ADMIN] refresh materialized view CODEX_DM8_MV_ADV_20260721.mv_fast_rowid fast;
+----------
+[DROP_VIEW] drop materialized view CODEX_DM8_MV_ADV_20260721.mv_fast_rowid;
+----------
+[DROP_LOG] drop materialized view log on CODEX_DM8_MV_ADV_20260721.orders;
+----------
+[ALTER_VIEW] alter materialized view CODEX_DM8_MV_ADV_20260721.mv_start_next
+refresh complete on demand start with sysdate + 1 next sysdate + 1 disable query rewrite;
+----------
+[ALTER_VIEW] alter materialized view CODEX_DM8_MV_ADV_20260721.mv_demand_schedule
+refresh complete on demand using delete enable query rewrite;
+----------
+[CREATE_VIEW(SELECT)] create materialized view CODEX_DM8_MV_ADV_20260721.mv_storage
+storage(initial 1, next 1)
+as select id, amount from CODEX_DM8_MV_ADV_20260721.orders;
+----------
+[DROP_INDEX] drop index CODEX_DM8_MV_ADV_20260721.idx_mv_on_commit_amount;
+----------
+[DROP_VIEW] drop materialized view CODEX_DM8_MV_ADV_20260721.mv_on_commit;
+----------
+[DROP_VIEW] drop materialized view CODEX_DM8_MV_ADV_20260721.mv_start_once;
+----------
+[DROP_VIEW] drop materialized view CODEX_DM8_MV_ADV_20260721.mv_next_daily;
+----------
+[DROP_VIEW] drop materialized view CODEX_DM8_MV_ADV_20260721.mv_start_next;
+----------
+[DROP_VIEW] drop materialized view CODEX_DM8_MV_ADV_20260721.mv_demand_schedule;
+----------
+[DROP_VIEW] drop materialized view CODEX_DM8_MV_ADV_20260721.mv_commit_schedule;
+----------
+[DROP_VIEW] drop materialized view CODEX_DM8_MV_ADV_20260721.mv_deferred_complete;
+----------
+[DROP_VIEW] drop materialized view CODEX_DM8_MV_ADV_20260721.mv_tablespace;
+----------
+[DROP_VIEW] drop materialized view CODEX_DM8_MV_ADV_20260721.mv_storage;

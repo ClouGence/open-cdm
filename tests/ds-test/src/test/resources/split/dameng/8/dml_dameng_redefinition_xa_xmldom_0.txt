@@ -1,0 +1,15 @@
+insert into CODEX_REDEF_MAIN values(21, 'C21', 26.25, 'DURING-INSERT');
+update CODEX_REDEF_MAIN set amount=amount+100, note='DURING-UPDATE' where id=2;
+delete from CODEX_REDEF_MAIN where id=3;
+insert into CODEX_REDEF_ABORT values(2, 'ABORT-ME');
+update CODEX_REDEF_ROWID set payload='ROWID-UPDATED' where id=2;
+------------------------------------------------------------------------------------------
+[INSERT] insert into CODEX_REDEF_MAIN values(21, 'C21', 26.25, 'DURING-INSERT');
+----------
+[UPDATE] update CODEX_REDEF_MAIN set amount=amount+100, note='DURING-UPDATE' where id=2;
+----------
+[DELETE] delete from CODEX_REDEF_MAIN where id=3;
+----------
+[INSERT] insert into CODEX_REDEF_ABORT values(2, 'ABORT-ME');
+----------
+[UPDATE] update CODEX_REDEF_ROWID set payload='ROWID-UPDATED' where id=2;

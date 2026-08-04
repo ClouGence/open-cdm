@@ -1,0 +1,330 @@
+create table CODEX_DM8_SEQ_VALUES(ID bigint, NOTE varchar(40));
+create sequence CODEX_DM8_SEQ_BASE;
+select CODEX_DM8_SEQ_BASE.nextval from dual;
+select CODEX_DM8_SEQ_BASE.currval from dual;
+insert into CODEX_DM8_SEQ_VALUES values(CODEX_DM8_SEQ_BASE.nextval,'BASE');
+select ID,NOTE from CODEX_DM8_SEQ_VALUES order by ID;
+alter sequence CODEX_DM8_SEQ_BASE increment by 2;
+select CODEX_DM8_SEQ_BASE.nextval from dual;
+alter sequence CODEX_DM8_SEQ_BASE current value 100;
+select CODEX_DM8_SEQ_BASE.nextval from dual;
+alter sequence CODEX_DM8_SEQ_BASE rename to CODEX_DM8_SEQ_RENAMED;
+select CODEX_DM8_SEQ_RENAMED.nextval from dual;
+select NAME,TYPE$,SUBTYPE$ from SYSOBJECTS where NAME='CODEX_DM8_SEQ_RENAMED';
+drop sequence CODEX_DM8_SEQ_RENAMED;
+create sequence if not exists CODEX_DM8_SEQ_IFNE;
+create sequence if not exists CODEX_DM8_SEQ_IFNE increment by 9;
+drop sequence if exists CODEX_DM8_SEQ_IFNE;
+drop sequence if exists CODEX_DM8_SEQ_MISSING;
+create sequence SYSDBA.CODEX_DM8_SEQ_SCHEMA start with 7 increment by 3;
+select SYSDBA.CODEX_DM8_SEQ_SCHEMA.nextval from dual;
+drop sequence SYSDBA.CODEX_DM8_SEQ_SCHEMA;
+create sequence "Codex_Dm8_Seq_Mixed" start with 11;
+select "Codex_Dm8_Seq_Mixed".nextval from dual;
+drop sequence "Codex_Dm8_Seq_Mixed";
+create sequence CODEX_DM8_SEQ_INC_POS increment by 10;
+select CODEX_DM8_SEQ_INC_POS.nextval from dual;
+drop sequence CODEX_DM8_SEQ_INC_POS;
+create sequence CODEX_DM8_SEQ_INC_NEG increment by -10;
+select CODEX_DM8_SEQ_INC_NEG.nextval from dual;
+drop sequence CODEX_DM8_SEQ_INC_NEG;
+create sequence CODEX_DM8_SEQ_START start with 100;
+select CODEX_DM8_SEQ_START.nextval from dual;
+drop sequence CODEX_DM8_SEQ_START;
+create sequence CODEX_DM8_SEQ_BOUNDS start with 10 minvalue 5 maxvalue 20 nocycle;
+select CODEX_DM8_SEQ_BOUNDS.nextval from dual;
+drop sequence CODEX_DM8_SEQ_BOUNDS;
+create sequence CODEX_DM8_SEQ_NOBOUNDS start with 10 nominvalue nomaxvalue;
+select CODEX_DM8_SEQ_NOBOUNDS.nextval from dual;
+drop sequence CODEX_DM8_SEQ_NOBOUNDS;
+create sequence CODEX_DM8_SEQ_CYCLE_UP start with 3 increment by 1 minvalue 1 maxvalue 3 cycle nocache;
+select CODEX_DM8_SEQ_CYCLE_UP.nextval from dual;
+select CODEX_DM8_SEQ_CYCLE_UP.nextval from dual;
+select CODEX_DM8_SEQ_CYCLE_UP.nextval from dual;
+select CODEX_DM8_SEQ_CYCLE_UP.nextval from dual;
+drop sequence CODEX_DM8_SEQ_CYCLE_UP;
+create sequence CODEX_DM8_SEQ_CYCLE_DOWN start with -1 increment by -1 minvalue -3 maxvalue -1 cycle nocache;
+select CODEX_DM8_SEQ_CYCLE_DOWN.nextval from dual;
+select CODEX_DM8_SEQ_CYCLE_DOWN.nextval from dual;
+select CODEX_DM8_SEQ_CYCLE_DOWN.nextval from dual;
+select CODEX_DM8_SEQ_CYCLE_DOWN.nextval from dual;
+drop sequence CODEX_DM8_SEQ_CYCLE_DOWN;
+create sequence CODEX_DM8_SEQ_CACHE_MIN cache 2;
+select NAME,TYPE$,SUBTYPE$ from SYSOBJECTS where NAME='CODEX_DM8_SEQ_CACHE_MIN';
+drop sequence CODEX_DM8_SEQ_CACHE_MIN;
+create sequence CODEX_DM8_SEQ_CACHE_50000 cache 50000;
+select NAME,TYPE$,SUBTYPE$ from SYSOBJECTS where NAME='CODEX_DM8_SEQ_CACHE_50000';
+drop sequence CODEX_DM8_SEQ_CACHE_50000;
+create sequence CODEX_DM8_SEQ_NOCACHE nocache;
+select NAME,TYPE$,SUBTYPE$ from SYSOBJECTS where NAME='CODEX_DM8_SEQ_NOCACHE';
+drop sequence CODEX_DM8_SEQ_NOCACHE;
+create sequence CODEX_DM8_SEQ_ORDER order;
+select NAME,TYPE$,SUBTYPE$ from SYSOBJECTS where NAME='CODEX_DM8_SEQ_ORDER';
+drop sequence CODEX_DM8_SEQ_ORDER;
+create sequence CODEX_DM8_SEQ_NOORDER noorder;
+select NAME,TYPE$,SUBTYPE$ from SYSOBJECTS where NAME='CODEX_DM8_SEQ_NOORDER';
+drop sequence CODEX_DM8_SEQ_NOORDER;
+create sequence CODEX_DM8_SEQ_GLOBAL global;
+select NAME,TYPE$,SUBTYPE$ from SYSOBJECTS where NAME='CODEX_DM8_SEQ_GLOBAL';
+drop sequence CODEX_DM8_SEQ_GLOBAL;
+create sequence CODEX_DM8_SEQ_LOCAL local;
+select NAME,TYPE$,SUBTYPE$ from SYSOBJECTS where NAME='CODEX_DM8_SEQ_LOCAL';
+drop sequence CODEX_DM8_SEQ_LOCAL;
+create sequence CODEX_DM8_SEQ_ALTER start with 50 increment by 1 minvalue 1 maxvalue 1000 nocycle cache 10 noorder;
+alter sequence CODEX_DM8_SEQ_ALTER maxvalue 2000;
+alter sequence CODEX_DM8_SEQ_ALTER minvalue 0;
+alter sequence CODEX_DM8_SEQ_ALTER cache 20;
+alter sequence CODEX_DM8_SEQ_ALTER nocache;
+alter sequence CODEX_DM8_SEQ_ALTER cycle;
+alter sequence CODEX_DM8_SEQ_ALTER nocycle;
+alter sequence CODEX_DM8_SEQ_ALTER order;
+alter sequence CODEX_DM8_SEQ_ALTER noorder;
+alter sequence CODEX_DM8_SEQ_ALTER nomaxvalue;
+alter sequence CODEX_DM8_SEQ_ALTER nominvalue;
+alter sequence CODEX_DM8_SEQ_ALTER current value 300;
+select CODEX_DM8_SEQ_ALTER.nextval from dual;
+select NAME,TYPE$,SUBTYPE$ from SYSOBJECTS where NAME='CODEX_DM8_SEQ_ALTER';
+drop sequence CODEX_DM8_SEQ_ALTER;
+create sequence SYSDBA.CODEX_DM8_SEQ_RENAME start with 100;
+alter sequence SYSDBA.CODEX_DM8_SEQ_RENAME rename to CODEX_DM8_SEQ_RENAME_DONE;
+select SYSDBA.CODEX_DM8_SEQ_RENAME_DONE.nextval from dual;
+drop sequence SYSDBA.CODEX_DM8_SEQ_RENAME_DONE;
+create sequence CODEX_DM8_SEQ_DML start with 1000 increment by 10;
+insert into CODEX_DM8_SEQ_VALUES values(CODEX_DM8_SEQ_DML.nextval,'DML_ONE');
+insert into CODEX_DM8_SEQ_VALUES select CODEX_DM8_SEQ_DML.nextval,'DML_TWO' from dual;
+select ID,NOTE from CODEX_DM8_SEQ_VALUES where NOTE like 'DML_%' order by ID;
+update CODEX_DM8_SEQ_VALUES set ID=CODEX_DM8_SEQ_DML.nextval where NOTE='BASE';
+select ID,NOTE from CODEX_DM8_SEQ_VALUES order by ID;
+drop sequence CODEX_DM8_SEQ_DML;
+delete from CODEX_DM8_SEQ_VALUES;
+drop table CODEX_DM8_SEQ_VALUES;
+create sequence CODEX_DM8_SEQ_ALTER_GLOBAL global;
+alter sequence CODEX_DM8_SEQ_ALTER_GLOBAL global;
+drop sequence CODEX_DM8_SEQ_ALTER_GLOBAL;
+create sequence CODEX_DM8_SEQ_ALTER_LOCAL local;
+alter sequence CODEX_DM8_SEQ_ALTER_LOCAL local;
+drop sequence CODEX_DM8_SEQ_ALTER_LOCAL;
+create sequence CODEX_DM8_SEQ_DROP_RESTRICT;
+drop sequence CODEX_DM8_SEQ_DROP_RESTRICT restrict;
+create sequence CODEX_DM8_SEQ_DROP_CASCADE;
+drop sequence CODEX_DM8_SEQ_DROP_CASCADE cascade;
+------------------------------------------------------------------------------------------
+[CREATE_TABLE|ADD_COLUMN] create table CODEX_DM8_SEQ_VALUES(ID bigint, NOTE varchar(40));
+----------
+[CREATE_SEQUENCE] create sequence CODEX_DM8_SEQ_BASE;
+----------
+[SELECT] select CODEX_DM8_SEQ_BASE.nextval from dual;
+----------
+[SELECT] select CODEX_DM8_SEQ_BASE.currval from dual;
+----------
+[INSERT] insert into CODEX_DM8_SEQ_VALUES values(CODEX_DM8_SEQ_BASE.nextval,'BASE');
+----------
+[SELECT] select ID,NOTE from CODEX_DM8_SEQ_VALUES order by ID;
+----------
+[ALTER_SEQUENCE] alter sequence CODEX_DM8_SEQ_BASE increment by 2;
+----------
+[SELECT] select CODEX_DM8_SEQ_BASE.nextval from dual;
+----------
+[ALTER_SEQUENCE] alter sequence CODEX_DM8_SEQ_BASE current value 100;
+----------
+[SELECT] select CODEX_DM8_SEQ_BASE.nextval from dual;
+----------
+[RENAME_SEQUENCE] alter sequence CODEX_DM8_SEQ_BASE rename to CODEX_DM8_SEQ_RENAMED;
+----------
+[SELECT] select CODEX_DM8_SEQ_RENAMED.nextval from dual;
+----------
+[SELECT] select NAME,TYPE$,SUBTYPE$ from SYSOBJECTS where NAME='CODEX_DM8_SEQ_RENAMED';
+----------
+[DROP_SEQUENCE] drop sequence CODEX_DM8_SEQ_RENAMED;
+----------
+[CREATE_SEQUENCE] create sequence if not exists CODEX_DM8_SEQ_IFNE;
+----------
+[CREATE_SEQUENCE] create sequence if not exists CODEX_DM8_SEQ_IFNE increment by 9;
+----------
+[DROP_SEQUENCE] drop sequence if exists CODEX_DM8_SEQ_IFNE;
+----------
+[DROP_SEQUENCE] drop sequence if exists CODEX_DM8_SEQ_MISSING;
+----------
+[CREATE_SEQUENCE] create sequence SYSDBA.CODEX_DM8_SEQ_SCHEMA start with 7 increment by 3;
+----------
+[SELECT] select SYSDBA.CODEX_DM8_SEQ_SCHEMA.nextval from dual;
+----------
+[DROP_SEQUENCE] drop sequence SYSDBA.CODEX_DM8_SEQ_SCHEMA;
+----------
+[CREATE_SEQUENCE] create sequence "Codex_Dm8_Seq_Mixed" start with 11;
+----------
+[SELECT] select "Codex_Dm8_Seq_Mixed".nextval from dual;
+----------
+[DROP_SEQUENCE] drop sequence "Codex_Dm8_Seq_Mixed";
+----------
+[CREATE_SEQUENCE] create sequence CODEX_DM8_SEQ_INC_POS increment by 10;
+----------
+[SELECT] select CODEX_DM8_SEQ_INC_POS.nextval from dual;
+----------
+[DROP_SEQUENCE] drop sequence CODEX_DM8_SEQ_INC_POS;
+----------
+[CREATE_SEQUENCE] create sequence CODEX_DM8_SEQ_INC_NEG increment by -10;
+----------
+[SELECT] select CODEX_DM8_SEQ_INC_NEG.nextval from dual;
+----------
+[DROP_SEQUENCE] drop sequence CODEX_DM8_SEQ_INC_NEG;
+----------
+[CREATE_SEQUENCE] create sequence CODEX_DM8_SEQ_START start with 100;
+----------
+[SELECT] select CODEX_DM8_SEQ_START.nextval from dual;
+----------
+[DROP_SEQUENCE] drop sequence CODEX_DM8_SEQ_START;
+----------
+[CREATE_SEQUENCE] create sequence CODEX_DM8_SEQ_BOUNDS start with 10 minvalue 5 maxvalue 20 nocycle;
+----------
+[SELECT] select CODEX_DM8_SEQ_BOUNDS.nextval from dual;
+----------
+[DROP_SEQUENCE] drop sequence CODEX_DM8_SEQ_BOUNDS;
+----------
+[CREATE_SEQUENCE] create sequence CODEX_DM8_SEQ_NOBOUNDS start with 10 nominvalue nomaxvalue;
+----------
+[SELECT] select CODEX_DM8_SEQ_NOBOUNDS.nextval from dual;
+----------
+[DROP_SEQUENCE] drop sequence CODEX_DM8_SEQ_NOBOUNDS;
+----------
+[CREATE_SEQUENCE] create sequence CODEX_DM8_SEQ_CYCLE_UP start with 3 increment by 1 minvalue 1 maxvalue 3 cycle nocache;
+----------
+[SELECT] select CODEX_DM8_SEQ_CYCLE_UP.nextval from dual;
+----------
+[SELECT] select CODEX_DM8_SEQ_CYCLE_UP.nextval from dual;
+----------
+[SELECT] select CODEX_DM8_SEQ_CYCLE_UP.nextval from dual;
+----------
+[SELECT] select CODEX_DM8_SEQ_CYCLE_UP.nextval from dual;
+----------
+[DROP_SEQUENCE] drop sequence CODEX_DM8_SEQ_CYCLE_UP;
+----------
+[CREATE_SEQUENCE] create sequence CODEX_DM8_SEQ_CYCLE_DOWN start with -1 increment by -1 minvalue -3 maxvalue -1 cycle nocache;
+----------
+[SELECT] select CODEX_DM8_SEQ_CYCLE_DOWN.nextval from dual;
+----------
+[SELECT] select CODEX_DM8_SEQ_CYCLE_DOWN.nextval from dual;
+----------
+[SELECT] select CODEX_DM8_SEQ_CYCLE_DOWN.nextval from dual;
+----------
+[SELECT] select CODEX_DM8_SEQ_CYCLE_DOWN.nextval from dual;
+----------
+[DROP_SEQUENCE] drop sequence CODEX_DM8_SEQ_CYCLE_DOWN;
+----------
+[CREATE_SEQUENCE] create sequence CODEX_DM8_SEQ_CACHE_MIN cache 2;
+----------
+[SELECT] select NAME,TYPE$,SUBTYPE$ from SYSOBJECTS where NAME='CODEX_DM8_SEQ_CACHE_MIN';
+----------
+[DROP_SEQUENCE] drop sequence CODEX_DM8_SEQ_CACHE_MIN;
+----------
+[CREATE_SEQUENCE] create sequence CODEX_DM8_SEQ_CACHE_50000 cache 50000;
+----------
+[SELECT] select NAME,TYPE$,SUBTYPE$ from SYSOBJECTS where NAME='CODEX_DM8_SEQ_CACHE_50000';
+----------
+[DROP_SEQUENCE] drop sequence CODEX_DM8_SEQ_CACHE_50000;
+----------
+[CREATE_SEQUENCE] create sequence CODEX_DM8_SEQ_NOCACHE nocache;
+----------
+[SELECT] select NAME,TYPE$,SUBTYPE$ from SYSOBJECTS where NAME='CODEX_DM8_SEQ_NOCACHE';
+----------
+[DROP_SEQUENCE] drop sequence CODEX_DM8_SEQ_NOCACHE;
+----------
+[CREATE_SEQUENCE] create sequence CODEX_DM8_SEQ_ORDER order;
+----------
+[SELECT] select NAME,TYPE$,SUBTYPE$ from SYSOBJECTS where NAME='CODEX_DM8_SEQ_ORDER';
+----------
+[DROP_SEQUENCE] drop sequence CODEX_DM8_SEQ_ORDER;
+----------
+[CREATE_SEQUENCE] create sequence CODEX_DM8_SEQ_NOORDER noorder;
+----------
+[SELECT] select NAME,TYPE$,SUBTYPE$ from SYSOBJECTS where NAME='CODEX_DM8_SEQ_NOORDER';
+----------
+[DROP_SEQUENCE] drop sequence CODEX_DM8_SEQ_NOORDER;
+----------
+[CREATE_SEQUENCE] create sequence CODEX_DM8_SEQ_GLOBAL global;
+----------
+[SELECT] select NAME,TYPE$,SUBTYPE$ from SYSOBJECTS where NAME='CODEX_DM8_SEQ_GLOBAL';
+----------
+[DROP_SEQUENCE] drop sequence CODEX_DM8_SEQ_GLOBAL;
+----------
+[CREATE_SEQUENCE] create sequence CODEX_DM8_SEQ_LOCAL local;
+----------
+[SELECT] select NAME,TYPE$,SUBTYPE$ from SYSOBJECTS where NAME='CODEX_DM8_SEQ_LOCAL';
+----------
+[DROP_SEQUENCE] drop sequence CODEX_DM8_SEQ_LOCAL;
+----------
+[CREATE_SEQUENCE] create sequence CODEX_DM8_SEQ_ALTER start with 50 increment by 1 minvalue 1 maxvalue 1000 nocycle cache 10 noorder;
+----------
+[ALTER_SEQUENCE] alter sequence CODEX_DM8_SEQ_ALTER maxvalue 2000;
+----------
+[ALTER_SEQUENCE] alter sequence CODEX_DM8_SEQ_ALTER minvalue 0;
+----------
+[ALTER_SEQUENCE] alter sequence CODEX_DM8_SEQ_ALTER cache 20;
+----------
+[ALTER_SEQUENCE] alter sequence CODEX_DM8_SEQ_ALTER nocache;
+----------
+[ALTER_SEQUENCE] alter sequence CODEX_DM8_SEQ_ALTER cycle;
+----------
+[ALTER_SEQUENCE] alter sequence CODEX_DM8_SEQ_ALTER nocycle;
+----------
+[ALTER_SEQUENCE] alter sequence CODEX_DM8_SEQ_ALTER order;
+----------
+[ALTER_SEQUENCE] alter sequence CODEX_DM8_SEQ_ALTER noorder;
+----------
+[ALTER_SEQUENCE] alter sequence CODEX_DM8_SEQ_ALTER nomaxvalue;
+----------
+[ALTER_SEQUENCE] alter sequence CODEX_DM8_SEQ_ALTER nominvalue;
+----------
+[ALTER_SEQUENCE] alter sequence CODEX_DM8_SEQ_ALTER current value 300;
+----------
+[SELECT] select CODEX_DM8_SEQ_ALTER.nextval from dual;
+----------
+[SELECT] select NAME,TYPE$,SUBTYPE$ from SYSOBJECTS where NAME='CODEX_DM8_SEQ_ALTER';
+----------
+[DROP_SEQUENCE] drop sequence CODEX_DM8_SEQ_ALTER;
+----------
+[CREATE_SEQUENCE] create sequence SYSDBA.CODEX_DM8_SEQ_RENAME start with 100;
+----------
+[RENAME_SEQUENCE] alter sequence SYSDBA.CODEX_DM8_SEQ_RENAME rename to CODEX_DM8_SEQ_RENAME_DONE;
+----------
+[SELECT] select SYSDBA.CODEX_DM8_SEQ_RENAME_DONE.nextval from dual;
+----------
+[DROP_SEQUENCE] drop sequence SYSDBA.CODEX_DM8_SEQ_RENAME_DONE;
+----------
+[CREATE_SEQUENCE] create sequence CODEX_DM8_SEQ_DML start with 1000 increment by 10;
+----------
+[INSERT] insert into CODEX_DM8_SEQ_VALUES values(CODEX_DM8_SEQ_DML.nextval,'DML_ONE');
+----------
+[INSERT|SELECT] insert into CODEX_DM8_SEQ_VALUES select CODEX_DM8_SEQ_DML.nextval,'DML_TWO' from dual;
+----------
+[SELECT] select ID,NOTE from CODEX_DM8_SEQ_VALUES where NOTE like 'DML_%' order by ID;
+----------
+[UPDATE] update CODEX_DM8_SEQ_VALUES set ID=CODEX_DM8_SEQ_DML.nextval where NOTE='BASE';
+----------
+[SELECT] select ID,NOTE from CODEX_DM8_SEQ_VALUES order by ID;
+----------
+[DROP_SEQUENCE] drop sequence CODEX_DM8_SEQ_DML;
+----------
+[DELETE] delete from CODEX_DM8_SEQ_VALUES;
+----------
+[DROP_TABLE] drop table CODEX_DM8_SEQ_VALUES;
+----------
+[CREATE_SEQUENCE] create sequence CODEX_DM8_SEQ_ALTER_GLOBAL global;
+----------
+[ALTER_SEQUENCE] alter sequence CODEX_DM8_SEQ_ALTER_GLOBAL global;
+----------
+[DROP_SEQUENCE] drop sequence CODEX_DM8_SEQ_ALTER_GLOBAL;
+----------
+[CREATE_SEQUENCE] create sequence CODEX_DM8_SEQ_ALTER_LOCAL local;
+----------
+[ALTER_SEQUENCE] alter sequence CODEX_DM8_SEQ_ALTER_LOCAL local;
+----------
+[DROP_SEQUENCE] drop sequence CODEX_DM8_SEQ_ALTER_LOCAL;
+----------
+[CREATE_SEQUENCE] create sequence CODEX_DM8_SEQ_DROP_RESTRICT;
+----------
+[DROP_SEQUENCE] drop sequence CODEX_DM8_SEQ_DROP_RESTRICT restrict;
+----------
+[CREATE_SEQUENCE] create sequence CODEX_DM8_SEQ_DROP_CASCADE;
+----------
+[DROP_SEQUENCE] drop sequence CODEX_DM8_SEQ_DROP_CASCADE cascade;

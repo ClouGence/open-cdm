@@ -20,10 +20,8 @@ import java.util.List;
 import java.util.Map;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
-import com.clougence.clouddm.sdk.model.analysis.TargetType;
-import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
-import com.clougence.clouddm.sdk.sql.split.SplitScript;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
+import com.clougence.clouddm.sdk.sql.parser.SplitScript;
 import com.clougence.detectrule.lang.reflect.RuleIgnore;
 import com.clougence.utils.CollectionUtils;
 
@@ -37,7 +35,7 @@ public abstract class RuleDomain implements SecResolveName, Domain {
     @RuleIgnore
     private SplitScript         splitScript;
 
-    private SecQueryType        sqlType;
+    private RuleQueryType       sqlType;
     private SecQueryKind        auditKind;
     private Map<String, String> options;
 
@@ -52,12 +50,26 @@ public abstract class RuleDomain implements SecResolveName, Domain {
     @RuleIgnore
     private List<RuleDomain>    children;
 
-    public TargetType getSqlTarget() {
-        if (sqlType == null) {
+    public RuleQueryType getSqlType() {
+        if (this.sqlType == null) {
             return null;
-        } else {
-            return this.sqlType.getTarget();
         }
+        return switch (this.sqlType) {
+            case ADD_COLUMN -> RuleQueryType.ALTER_TABLE_ADD_COLUMN;
+            case ALTER_COLUMN -> RuleQueryType.ALTER_TABLE_ALTER_COLUMN;
+            case DROP_COLUMN -> RuleQueryType.ALTER_TABLE_DROP_COLUMN;
+            case RENAME_COLUMN -> RuleQueryType.ALTER_TABLE_RENAME_COLUMN;
+            case ADD_CONSTRAINT -> RuleQueryType.ALTER_TABLE_ADD_CONSTRAINT;
+            case DROP_CONSTRAINT -> RuleQueryType.ALTER_TABLE_DROP_CONSTRAINT;
+            case SESSION_VARIABLE_RW, SESSION_SETTING_WRITE, SYSTEM_SETTING_WRITE -> RuleQueryType.CONFIG_WRITE;
+            case TRUNCATE_TABLE -> RuleQueryType.TRUNCATE;
+            default -> this.sqlType;
+        };
+    }
+
+    public TargetType getSqlTarget() {
+        RuleQueryType compatibleType = this.getSqlType();
+        return compatibleType == null ? null : compatibleType.getTarget();
     }
 
     public void addChild(RuleDomain child) {

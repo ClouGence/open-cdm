@@ -1,0 +1,11 @@
+[dbms_flashback_argument_columns]
+sql:
+select QUERY_SCN, QUERY_TIME, CURRENT_LSN, SNAPSHOT_VALUE
+from catalog1.app.dbms_flashback_payload
+expect:
+{
+  "QUERY_SCN": ["/catalog1/app/dbms_flashback_payload/QUERY_SCN/"],
+  "QUERY_TIME": ["/catalog1/app/dbms_flashback_payload/QUERY_TIME/"],
+  "CURRENT_LSN": ["/catalog1/app/dbms_flashback_payload/CURRENT_LSN/"],
+  "SNAPSHOT_VALUE": ["/catalog1/app/dbms_flashback_payload/SNAPSHOT_VALUE/"]
+}

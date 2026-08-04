@@ -1,0 +1,141 @@
+[split_dcl_dameng_tablespace_privileges_0_001_behavior_review]
+sql:
+grant create tablespace to CODEX_TS_CREATOR_20260723;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Tablespace(1:13~1:23) /test/1/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:27~1:52) /test/1/CODEX_TS_CREATOR_20260723/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_tablespace_privileges_0_002_behavior_review]
+sql:
+grant alter tablespace to CODEX_TS_ALTERER_20260723;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Tablespace(1:12~1:22) /test/1/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:26~1:51) /test/1/CODEX_TS_ALTERER_20260723/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_tablespace_privileges_0_003_behavior_review]
+sql:
+grant drop tablespace to CODEX_TS_DROPPER_20260723;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Tablespace(1:11~1:21) /test/1/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:25~1:50) /test/1/CODEX_TS_DROPPER_20260723/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_tablespace_privileges_0_004_behavior_review]
+sql:
+grant dba to CODEX_TS_DBA_20260723;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Role(1:6~1:9) /test/1/dba/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:13~1:34) /test/1/CODEX_TS_DBA_20260723/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_tablespace_privileges_0_005_behavior_review]
+sql:
+grant create tablespace to CODEX_TS_DELEGATE_20260723 with admin option;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Tablespace(1:13~1:23) /test/1/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:27~1:53) /test/1/CODEX_TS_DELEGATE_20260723/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_tablespace_privileges_0_006_behavior_review]
+sql:
+grant create tablespace to CODEX_TS_CHILD_20260723;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Tablespace(1:13~1:23) /test/1/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:27~1:50) /test/1/CODEX_TS_CHILD_20260723/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_tablespace_privileges_0_007_behavior_review]
+sql:
+create tablespace CODEX_TS_PRIV_DENIED_CREATE datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_PRIV_DENIED_CREATE.dbf' size 64;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLESPACE": [
+    {
+      "subject": "Tablespace(1:18~1:45) /test/1/CODEX_TS_PRIV_DENIED_CREATE/",
+      "action": "CREATE",
+      "target": "File(1:55~1:112) /test/1/opt/dmdbms/data/DAMENG/CODEX_TS_PRIV_DENIED_CREATE.dbf/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_tablespace_privileges_0_008_behavior_review]
+sql:
+alter tablespace CODEX_TS_PRIV_ALTER_20260723 cache=normal;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLESPACE": [
+    {
+      "subject": "Tablespace(1:17~1:45) /test/1/CODEX_TS_PRIV_ALTER_20260723/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_tablespace_privileges_0_009_behavior_review]
+sql:
+drop tablespace CODEX_TS_PRIV_ALTER_20260723;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLESPACE": [
+    {
+      "subject": "Tablespace(1:16~1:44) /test/1/CODEX_TS_PRIV_ALTER_20260723/",
+      "action": "DROP"
+    }
+  ]
+}

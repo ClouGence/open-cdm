@@ -1,0 +1,29 @@
+[split_dql_dameng_general_system_packages_0_014]
+sql:
+select dbms_transaction.local_transaction_id(false);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:44) /test/1/catalog1/dbms_transaction/local_transaction_id/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_general_system_packages_0_015]
+sql:
+select dbms_transaction.local_transaction_id(true);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:44) /test/1/catalog1/dbms_transaction/local_transaction_id/",
+      "action": "CALL"
+    }
+  ]
+}

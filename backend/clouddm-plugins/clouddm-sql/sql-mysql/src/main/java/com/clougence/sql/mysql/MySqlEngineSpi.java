@@ -15,43 +15,44 @@
  */
 package com.clougence.sql.mysql;
 
+import java.util.EnumSet;
+import java.util.Locale;
+import java.util.Map;
+import java.util.StringTokenizer;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
-import com.clougence.clouddm.sdk.sql.column.SelectColumnAnalysisSpi;
-import com.clougence.clouddm.sdk.sql.rewrite.RewriteSpi;
-import com.clougence.clouddm.sdk.sql.secrules.ResAnalysisSpi;
-import com.clougence.clouddm.sdk.sql.secrules.SecDomainResolveSpi;
-import com.clougence.clouddm.sdk.sql.secrules.SecRulesSupportSpi;
-import com.clougence.clouddm.sdk.sql.split.SplitAnalysisSpi;
-import com.clougence.dslpaser.antlr.DslHelper;
+import com.clougence.clouddm.sdk.sql.SqlParserParameters;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAnalysisSpi;
+import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageAnalysisSpi;
+import com.clougence.clouddm.sdk.sql.analysis.security.SecDomainResolveSpi;
+import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteSpi;
+import com.clougence.clouddm.sdk.sql.parser.SplitAnalysisSpi;
 import com.clougence.dslpaser.antlr.DslProvider;
-import com.clougence.sql.mysql.column.MySelectColumnAnalysisSpi;
+import com.clougence.sql.mysql.analysis.behavior.MyBehaviorAnalysisSpi;
+import com.clougence.sql.mysql.analysis.lineage.MyLineageAnalysisSpi;
+import com.clougence.sql.mysql.analysis.security.MySecDomainResolveSpi;
+import com.clougence.sql.mysql.editor.rewrite.MyRewriteSpi;
 import com.clougence.sql.mysql.parser.MyDslProvider;
-import com.clougence.sql.mysql.resource.MyResAnalysisSpi;
-import com.clougence.sql.mysql.rewrite.MyRewriteSpi;
-import com.clougence.sql.mysql.security.MySecDomainResolveSpi;
-import com.clougence.sql.mysql.split.MySplitAnalysisSpi;
+import com.clougence.sql.mysql.parser.MySplitAnalysisSpi;
+import com.clougence.sql.mysql.parser.MySqlParserConfig;
+import com.clougence.sql.mysql.parser.MySqlParserConfig.Feature;
 
 /** @author mode */
 public class MySqlEngineSpi implements SqlEngineSpi {
-    public static final String            NAME = "MySQL";
+    public static final String                     NAME           = "MySQL";
 
-    private final SplitAnalysisSpi        splitAnalysisSpi;
-    private final SecDomainResolveSpi     secDomainResolveSpi;
-    private final ResAnalysisSpi          resAnalysisSpi;
-    private final SelectColumnAnalysisSpi selectColumnAnalysisSpi;
-    private final RewriteSpi              rewriteSpi;
-
-    static {
-        DslHelper.register(MyDslProvider.INSTANCE);
-    }
+    private final MetaService                      metaService;
+    private final Map<String, SplitAnalysisSpi>    splitCache     = new ConcurrentHashMap<>();
+    private final Map<String, SecDomainResolveSpi> secDomainCache = new ConcurrentHashMap<>();
+    private final Map<String, BehaviorAnalysisSpi> behaviorCache  = new ConcurrentHashMap<>();
+    private final Map<String, LineageAnalysisSpi>  lineageCache   = new ConcurrentHashMap<>();
+    private final Map<String, RewriteSpi>          rewriteCache   = new ConcurrentHashMap<>();
+    private final Map<String, DslProvider>         dslCache       = new ConcurrentHashMap<>();
 
     public MySqlEngineSpi(MetaService metaService){
-        this.splitAnalysisSpi = new MySplitAnalysisSpi();
-        this.secDomainResolveSpi = new MySecDomainResolveSpi(metaService);
-        this.resAnalysisSpi = new MyResAnalysisSpi(metaService);
-        this.selectColumnAnalysisSpi = new MySelectColumnAnalysisSpi(metaService);
-        this.rewriteSpi = new MyRewriteSpi();
+        this.metaService = metaService;
     }
 
     @Override
@@ -59,39 +60,90 @@ public class MySqlEngineSpi implements SqlEngineSpi {
         return NAME;
     }
 
-    @Override
-    public DslProvider dslProvider() {
-        return MyDslProvider.INSTANCE;
+    private static MySqlParserConfig parserConfig(SqlParserParameters parameters) {
+        boolean sqlModeKnown = parameters.contains(SqlParserParameters.SQL_MODE);
+        return MySqlParserConfig.of(   //
+                parameters.version(),   //
+                parameters.get(SqlParserParameters.GRAMMAR_VERSION), //
+                parameters.get(SqlParserParameters.EXACT_VERSION),   //
+                sqlModeKnown, //
+                parserFeatures(parameters));
+    }
+
+    private static EnumSet<Feature> parserFeatures(SqlParserParameters parameters) {
+        if (!parameters.contains(SqlParserParameters.SQL_MODE)) {
+            return EnumSet.noneOf(Feature.class);
+        }
+
+        EnumSet<Feature> features = EnumSet.noneOf(Feature.class);
+        String sqlMode = parameters.get(SqlParserParameters.SQL_MODE);
+        if (sqlMode != null && !sqlMode.isBlank()) {
+            StringTokenizer modeNames = new StringTokenizer(sqlMode, ",");
+            while (modeNames.hasMoreTokens()) {
+                String modeName = modeNames.nextToken();
+                String normalized = modeName.trim().toUpperCase(Locale.ROOT);
+                if (switch (normalized) {
+                    case "ANSI", "DB2", "MAXDB", "MSSQL", "ORACLE", "POSTGRESQL" -> true;
+                    default -> false;
+                }) {
+                    features.add(Feature.ANSI_QUOTES);
+                    features.add(Feature.PIPES_AS_CONCAT);
+                    features.add(Feature.IGNORE_SPACE);
+                    continue;
+                }
+                try {
+                    features.add(Feature.valueOf(normalized));
+                } catch (IllegalArgumentException ignored) {
+                    // SQL modes unrelated to lexical or grammar behavior do not affect the parser.
+                }
+            }
+        }
+        return features;
+    }
+
+    private static String parserKey(SqlParserParameters parameters) {
+        return parameters.values().entrySet().stream().sorted(Map.Entry.comparingByKey()).map(entry -> entry.getKey() + "=" + entry.getValue()).collect(Collectors.joining("&"));
     }
 
     @Override
-    public SplitAnalysisSpi splitAnalysisSpi() {
-        return splitAnalysisSpi;
+    public DslProvider dslProvider(SqlParserParameters parameters) {
+        SqlParserParameters parserParameters = SqlParserParameters.nullToEmpty(parameters);
+        String key = parserKey(parserParameters);
+        return dslCache.computeIfAbsent(key, value -> new MyDslProvider(parserConfig(parserParameters)));
     }
 
     @Override
-    public SecDomainResolveSpi secDomainResolveSpi() {
-        return secDomainResolveSpi;
+    public SplitAnalysisSpi splitAnalysisSpi(SqlParserParameters parameters) {
+        SqlParserParameters parserParameters = SqlParserParameters.nullToEmpty(parameters);
+        String key = parserKey(parserParameters);
+        return splitCache.computeIfAbsent(key, value -> new MySplitAnalysisSpi((MyDslProvider) dslProvider(parserParameters)));
     }
 
     @Override
-    public ResAnalysisSpi resAnalysisSpi() {
-        return resAnalysisSpi;
+    public SecDomainResolveSpi secDomainResolveSpi(SqlParserParameters parameters) {
+        SqlParserParameters parserParameters = SqlParserParameters.nullToEmpty(parameters);
+        String key = parserKey(parserParameters);
+        return secDomainCache.computeIfAbsent(key, value -> new MySecDomainResolveSpi(metaService, parserConfig(parserParameters)));
     }
 
     @Override
-    public SelectColumnAnalysisSpi selectColumnAnalysisSpi() {
-        return selectColumnAnalysisSpi;
+    public BehaviorAnalysisSpi behaviorAnalysisSpi(SqlParserParameters parameters) {
+        SqlParserParameters parserParameters = SqlParserParameters.nullToEmpty(parameters);
+        String key = parserKey(parserParameters);
+        return behaviorCache.computeIfAbsent(key, value -> new MyBehaviorAnalysisSpi(parserConfig(parserParameters)));
     }
 
     @Override
-    public SecRulesSupportSpi secRulesSupportSpi() {
-        return null;
+    public LineageAnalysisSpi lineageAnalysisSpi(SqlParserParameters parameters) {
+        SqlParserParameters parserParameters = SqlParserParameters.nullToEmpty(parameters);
+        String key = parserKey(parserParameters);
+        return lineageCache.computeIfAbsent(key, value -> new MyLineageAnalysisSpi(metaService, parserConfig(parserParameters)));
     }
 
     @Override
-    public RewriteSpi rewriteSpi() {
-        return rewriteSpi;
+    public RewriteSpi rewriteSpi(SqlParserParameters parameters) {
+        SqlParserParameters parserParameters = SqlParserParameters.nullToEmpty(parameters);
+        String key = parserKey(parserParameters);
+        return rewriteCache.computeIfAbsent(key, value -> new MyRewriteSpi(parserConfig(parserParameters)));
     }
-
 }

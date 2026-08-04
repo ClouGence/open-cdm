@@ -1,0 +1,127 @@
+[Db2RuleSchemaNameCaseTypeTest#createSchemaNameCaseType_1#001]
+rule: _rules/schema/schema-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper case
+sql:
+create schema abc_test
+----------
+[Db2RuleSchemaNameCaseTypeTest#createSchemaNameCaseType_1#002]
+rule: _rules/schema/schema-name-case-type.rule
+expect: true
+vars:
+  caseType: Upper case
+sql:
+create schema ABC_TEST
+----------
+[Db2RuleSchemaNameCaseTypeTest#createSchemaNameCaseType_1#003]
+rule: _rules/schema/schema-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper case
+sql:
+create schema abcTest
+----------
+[Db2RuleSchemaNameCaseTypeTest#createSchemaNameCaseType_1#004]
+rule: _rules/schema/schema-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper case
+sql:
+create schema AbcTest
+----------
+[Db2RuleSchemaNameCaseTypeTest#createSchemaNameCaseType_2#001]
+rule: _rules/schema/schema-name-case-type.rule
+expect: true
+vars:
+  caseType: Lower case
+sql:
+create schema abc_test
+----------
+[Db2RuleSchemaNameCaseTypeTest#createSchemaNameCaseType_2#002]
+rule: _rules/schema/schema-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower case
+sql:
+create schema ABC_TEST
+----------
+[Db2RuleSchemaNameCaseTypeTest#createSchemaNameCaseType_2#003]
+rule: _rules/schema/schema-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower case
+sql:
+create schema abcTest
+----------
+[Db2RuleSchemaNameCaseTypeTest#createSchemaNameCaseType_2#004]
+rule: _rules/schema/schema-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower case
+sql:
+create schema AbcTest
+----------
+[Db2RuleSchemaNameCaseTypeTest#createSchemaNameCaseType_3#001]
+rule: _rules/schema/schema-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower camel case
+sql:
+create schema abc_test
+----------
+[Db2RuleSchemaNameCaseTypeTest#createSchemaNameCaseType_3#002]
+rule: _rules/schema/schema-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower camel case
+sql:
+create schema ABC_TEST
+----------
+[Db2RuleSchemaNameCaseTypeTest#createSchemaNameCaseType_3#003]
+rule: _rules/schema/schema-name-case-type.rule
+expect: true
+vars:
+  caseType: Lower camel case
+sql:
+create schema abcTest
+----------
+[Db2RuleSchemaNameCaseTypeTest#createSchemaNameCaseType_3#004]
+rule: _rules/schema/schema-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower camel case
+sql:
+create schema AbcTest
+----------
+[Db2RuleSchemaNameCaseTypeTest#createSchemaNameCaseType_4#001]
+rule: _rules/schema/schema-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper camel case
+sql:
+create schema abc_test
+----------
+[Db2RuleSchemaNameCaseTypeTest#createSchemaNameCaseType_4#002]
+rule: _rules/schema/schema-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper camel case
+sql:
+create schema ABC_TEST
+----------
+[Db2RuleSchemaNameCaseTypeTest#createSchemaNameCaseType_4#003]
+rule: _rules/schema/schema-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper camel case
+sql:
+create schema abcTest
+----------
+[Db2RuleSchemaNameCaseTypeTest#createSchemaNameCaseType_4#004]
+rule: _rules/schema/schema-name-case-type.rule
+expect: true
+vars:
+  caseType: Upper camel case
+sql:
+create schema AbcTest

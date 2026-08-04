@@ -1,0 +1,3470 @@
+[alter_table_add_column_admin_table__001]
+sql:
+ALTER TABLE codex_alter_audit_t ADD COLUMN new_col INT, ORDER BY payoutID,bandID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/schema1/codex_alter_audit_t/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[create_table__002]
+sql:
+CREATE TABLE IF NOT EXISTS codex_create_audit_ifne_ignore (a INT UNIQUE, b INT) IGNORE SELECT 1 AS a, 1 AS b UNION ALL SELECT 1, 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:27~1:57) /test/1/catalog1/schema1/codex_create_audit_ifne_ignore/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Constraint(1:65~1:71) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__003]
+sql:
+CREATE TABLE IF NOT EXISTS codex_create_audit_ifne_replace (a INT UNIQUE, b INT) REPLACE SELECT 1 AS a, 1 AS b UNION ALL SELECT 1, 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:27~1:58) /test/1/catalog1/schema1/codex_create_audit_ifne_replace/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Constraint(1:66~1:72) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__004]
+sql:
+CREATE TABLE IF NOT EXISTS codex_create_audit_ifne_select (a INT) SELECT 1 AS a;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:27~1:57) /test/1/catalog1/schema1/codex_create_audit_ifne_select/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__005]
+sql:
+CREATE TABLE codex_create_audit_paren_union (PRIMARY KEY (a)) (SELECT 1 AS a) UNION ALL (SELECT 2 AS a);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:43) /test/1/catalog1/schema1/codex_create_audit_paren_union/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Constraint(1:45~1:60) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__006]
+sql:
+CREATE TEMPORARY TABLE IF NOT EXISTS codex_create_audit_temp_ifne_select (a INT) SELECT 1 AS a;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:37~1:72) /test/1/catalog1/schema1/codex_create_audit_temp_ifne_select/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__007]
+sql:
+CREATE TABLE codex_create_audit_union_select UNION=(codex_create_audit_src) SELECT * FROM codex_create_audit_src;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:44) /test/1/catalog1/schema1/codex_create_audit_union_select/",
+      "action" : "CREATE",
+      "target" : "Table(1:90~1:112) /test/1/catalog1/schema1/codex_create_audit_src/"
+    }
+  ]
+}
+----------
+[create_table__008]
+sql:
+CREATE TABLE aes_feedback_modes (a VARBINARY(128), b128 VARBINARY(144), b192 VARBINARY(144), b256 BINARY(144));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/schema1/aes_feedback_modes/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__009]
+sql:
+CREATE TABLE aes_cipher_keys (cipher BINARY(16) PRIMARY KEY);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/schema1/aes_cipher_keys/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Constraint(1:48~1:59) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__010]
+sql:
+CREATE TABLE aes_ecb_modes (a VARBINARY(16), b128 CHAR(16), b192 CHAR(16), b256 CHAR(16)) CHARACTER SET latin1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:26) /test/1/catalog1/schema1/aes_ecb_modes/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__011]
+sql:
+CREATE TABLE bitwise_native_result CHARACTER SET utf8mb4 AS SELECT vbin1 & vbin2 AS and_value, vbin1 | vbin2 AS or_value, vbin1 ^ vbin2 AS xor_value FROM bitwise_native_t WHERE id = 99;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:34) /test/1/catalog1/schema1/bitwise_native_result/",
+      "action" : "CREATE",
+      "target" : "Table(1:154~1:170) /test/1/catalog1/schema1/bitwise_native_t/"
+    }
+  ]
+}
+----------
+[create_prog_obj_session_variable_rw___012]
+sql:
+CREATE PROCEDURE codex_func_concat.p_concat_ws(a VARCHAR(255),b INT,c INT) SET @query=CONCAT_WS(',',a,b,c);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:17~1:46) /test/1/catalog1/codex_func_concat/p_concat_ws/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "ConfigKey(1:79~1:85) /test/1/query/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(1:86~1:95) /test/1/catalog1/schema1/CONCAT_WS/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_prog_obj_block_program_control_session_variable_rw_select___013]
+sql:
+CREATE PROCEDURE codex_func_concat.p_concat_double()
+BEGIN
+  DECLARE v1 DOUBLE(10,3);
+  SET v1=100;
+  SET @s=CONCAT('########################################',40,v1);
+  SELECT @s;
+END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:17~1:50) /test/1/catalog1/codex_func_concat/p_concat_double/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "ConfigKey(5:6~5:8) /test/1/s/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(5:9~5:15) /test/1/catalog1/schema1/CONCAT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_table__014]
+sql:
+CREATE TABLE codex_func_date_add_myisam.history_t (visitor_id int(10) unsigned DEFAULT '0' NOT NULL, group_id int(10) unsigned DEFAULT '0' NOT NULL, hits int(10) unsigned DEFAULT '0' NOT NULL, sessions int(10) unsigned DEFAULT '0' NOT NULL, ts timestamp, PRIMARY KEY (visitor_id,group_id))/*! engine=MyISAM */;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:49) /test/1/catalog1/codex_func_date_add_myisam/history_t/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Constraint(1:255~1:288) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__015]
+sql:
+CREATE TABLE digest_small_result AS SELECT STATEMENT_DIGEST_TEXT('select 1, 2, 3') AS digest_text;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:32) /test/1/catalog1/schema1/digest_small_result/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:43~1:64) /test/1/catalog1/schema1/STATEMENT_DIGEST_TEXT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_table__016]
+sql:
+CREATE TABLE t1(id INT,value_col INT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:15) /test/1/catalog1/schema1/t1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__017]
+sql:
+CREATE TABLE t2(id INT,value_col INT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:15) /test/1/catalog1/schema1/t2/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__018]
+sql:
+CREATE TABLE gcat_ctas AS SELECT GROUP_CONCAT(c ORDER BY b) AS gc FROM t1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:22) /test/1/catalog1/schema1/gcat_ctas/",
+      "action" : "CREATE",
+      "target" : "Table(1:71~1:73) /test/1/catalog1/schema1/t1/"
+    },
+    {
+      "subject": "Function(1:33~1:45) /test/1/catalog1/schema1/GROUP_CONCAT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_view_select___019]
+sql:
+CREATE VIEW gcat_view(c0) AS SELECT GROUP_CONCAT((SELECT 1),1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:21) /test/1/catalog1/schema1/gcat_view/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:36~1:48) /test/1/catalog1/schema1/GROUP_CONCAT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_table__020]
+sql:
+CREATE TABLE func_test_type_mix(a DATETIME,b BLOB,c TEXT,d CHAR(10),e BINARY(10),f VARBINARY(10));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/schema1/func_test_type_mix/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__021]
+sql:
+CREATE TABLE agg_ctas SELECT MAX(c),MIN(c) FROM fg;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:21) /test/1/catalog1/schema1/agg_ctas/",
+      "action" : "CREATE",
+      "target" : "Table(1:48~1:50) /test/1/catalog1/schema1/fg/"
+    },
+    {
+      "subject": "Function(1:29~1:32) /test/1/catalog1/schema1/MAX/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:36~1:39) /test/1/catalog1/schema1/MIN/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_table__022]
+sql:
+CREATE TABLE ct_datetime SELECT MAX(b) FROM dt GROUP BY a;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:24) /test/1/catalog1/schema1/ct_datetime/",
+      "action" : "CREATE",
+      "target" : "Table(1:44~1:46) /test/1/catalog1/schema1/dt/"
+    },
+    {
+      "subject": "Function(1:32~1:35) /test/1/catalog1/schema1/MAX/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_table__023]
+sql:
+CREATE TABLE ct_derived SELECT f2 FROM (SELECT MAX(NOW()) f2 FROM dt) a;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:23) /test/1/catalog1/schema1/ct_derived/",
+      "action" : "CREATE",
+      "target" : "Table(1:66~1:68) /test/1/catalog1/schema1/dt/"
+    },
+    {
+      "subject": "Function(1:47~1:50) /test/1/catalog1/schema1/MAX/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:51~1:54) /test/1/catalog1/schema1/NOW/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_prog_obj_block_program_control_select___024]
+sql:
+CREATE PROCEDURE p1()
+BEGIN
+  DECLARE dbl DOUBLE;
+  DECLARE deci DECIMAL(10, 2);
+  DECLARE intv INTEGER;
+  DECLARE str VARBINARY(16);
+  SELECT DISTINCT VAR_POP(1) FROM proc_t1 GROUP BY pk INTO dbl;
+  SELECT DISTINCT STDDEV_POP(1) FROM proc_t1 GROUP BY pk INTO dbl;
+  SELECT DISTINCT STDDEV_SAMP(1) FROM proc_t1 GROUP BY pk INTO dbl;
+  SELECT DISTINCT AVG(3.14159) FROM proc_t1 GROUP BY pk INTO deci;
+  SELECT DISTINCT AVG(3.14159E0) FROM proc_t1 GROUP BY pk INTO dbl;
+  SELECT DISTINCT BIT_OR(x'0000') FROM proc_t1 GROUP BY pk INTO str;
+  SELECT DISTINCT BIT_OR(9) FROM proc_t1 GROUP BY pk INTO intv;
+END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:17~1:19) /test/1/catalog1/schema1/p1/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(7:18~7:25) /test/1/catalog1/schema1/VAR_POP/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(7:34~7:41) /test/1/catalog1/schema1/proc_t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(8:18~8:28) /test/1/catalog1/schema1/STDDEV_POP/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(9:18~9:29) /test/1/catalog1/schema1/STDDEV_SAMP/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(10:18~10:21) /test/1/catalog1/schema1/AVG/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(12:18~12:24) /test/1/catalog1/schema1/BIT_OR/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_table__025]
+sql:
+CREATE TABLE codex_func_in.ctas_in AS SELECT 1 IN (2,NULL) AS result_value;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:34) /test/1/catalog1/codex_func_in/ctas_in/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_view_select___026]
+sql:
+CREATE VIEW codex_func_in.v_not_in AS SELECT * FROM codex_func_in.int_key WHERE a NOT IN (45);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:34) /test/1/catalog1/codex_func_in/v_not_in/",
+      "action" : "CREATE",
+      "target" : "Table(1:52~1:73) /test/1/catalog1/codex_func_in/int_key/"
+    }
+  ]
+}
+----------
+[create_table__027]
+sql:
+CREATE TABLE t1(i8 BIGINT,dc DECIMAL(20,4),r8 DOUBLE,fc CHAR(64),vc VARCHAR(64),d DATE,t TIME,dt DATETIME,j JSON,ji JSON,js JSON);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:15) /test/1/catalog1/schema1/t1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__028]
+sql:
+CREATE TABLE func_least_faq (faq_group_id INT NOT NULL, faq_id INT NOT NULL, access_id SMALLINT, UNIQUE KEY uq_faq_id (faq_id), KEY ix_group_faq (faq_group_id,faq_id));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Index(1:108~1:117) /test/1/catalog1/schema1/uq_faq_id/",
+      "action" : "CREATE",
+      "target" : "Table(1:13~1:27) /test/1/catalog1/schema1/func_least_faq/"
+    },
+    {
+      "subject": "Index(1:132~1:144) /test/1/catalog1/schema1/ix_group_faq/",
+      "action" : "CREATE",
+      "target" : "Table(1:13~1:27) /test/1/catalog1/schema1/func_least_faq/"
+    },
+    {
+      "subject": "Constraint(1:97~1:126) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__029]
+sql:
+CREATE TABLE func_least_access_rank (access_id SMALLINT NOT NULL, `rank` SMALLINT NOT NULL, KEY ix_access_id (access_id));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Index(1:96~1:108) /test/1/catalog1/schema1/ix_access_id/",
+      "action" : "CREATE",
+      "target" : "Table(1:13~1:35) /test/1/catalog1/schema1/func_least_access_rank/"
+    }
+  ]
+}
+----------
+[create_table__030]
+sql:
+CREATE TABLE t_generated(x VARCHAR(10), gc INTEGER GENERATED ALWAYS AS (x LIKE 'abba' ESCAPE 'b'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:24) /test/1/catalog1/schema1/t_generated/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__031]
+sql:
+CREATE TABLE math_ctas_floor AS SELECT CEILING(CAST(99999999999999999.9 AS DECIMAL(18,1))) AS c, FLOOR(CAST(-99999999999999999.9 AS DECIMAL(18,1))) AS f;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/schema1/math_ctas_floor/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:39~1:46) /test/1/catalog1/schema1/CEILING/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:47~1:51) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:97~1:102) /test/1/catalog1/schema1/FLOOR/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_table__032]
+sql:
+CREATE TABLE math_ctas_round AS SELECT number_value, ROUND(number_value,digits_value) AS rounded_value FROM math_round_context;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/schema1/math_ctas_round/",
+      "action" : "CREATE",
+      "target" : "Table(1:108~1:126) /test/1/catalog1/schema1/math_round_context/"
+    },
+    {
+      "subject": "Function(1:53~1:58) /test/1/catalog1/schema1/ROUND/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_view_select___033]
+sql:
+CREATE VIEW math_unary_view AS SELECT -(1 NOT IN (0)) AS c;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:27) /test/1/catalog1/schema1/math_unary_view/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_prog_obj_block_program_control_select___034]
+sql:
+CREATE FUNCTION math_crc32_func(input_value CHAR(10)) RETURNS BIGINT DETERMINISTIC
+BEGIN
+  DECLARE crc_value BIGINT;
+  SELECT CRC32(input_value) INTO crc_value;
+  RETURN crc_value;
+END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:31) /test/1/catalog1/schema1/math_crc32_func/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(4:9~4:14) /test/1/catalog1/schema1/CRC32/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_table__035]
+sql:
+CREATE TABLE md5_generated (a VARCHAR(1024), b VARBINARY(32) GENERATED ALWAYS AS (MD5(a)) VIRTUAL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:26) /test/1/catalog1/schema1/md5_generated/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:82~1:85) /test/1/catalog1/schema1/MD5/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_table__036]
+sql:
+CREATE TABLE md5_ctas AS SELECT MD5('a') AS c1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:21) /test/1/catalog1/schema1/md5_ctas/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:32~1:35) /test/1/catalog1/schema1/MD5/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_table__037]
+sql:
+CREATE TABLE misc_uuid_ctas AS SELECT UUID() AS uuid_value, LENGTH(UUID()) AS uuid_length;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:27) /test/1/catalog1/schema1/misc_uuid_ctas/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:38~1:42) /test/1/catalog1/schema1/UUID/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:60~1:66) /test/1/catalog1/schema1/LENGTH/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_table__038]
+sql:
+CREATE TABLE misc_name_const_ctas AS SELECT CONCAT(NAME_CONST('char_col',_cp932'test' COLLATE cp932_japanese_ci),NAME_CONST('num_col',0)) AS a;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:33) /test/1/catalog1/schema1/misc_name_const_ctas/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:44~1:50) /test/1/catalog1/schema1/CONCAT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:51~1:61) /test/1/catalog1/schema1/NAME_CONST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_prog_obj_program_control___039]
+sql:
+CREATE FUNCTION split_r_like(input_text VARCHAR(255)) RETURNS BOOLEAN DETERMINISTIC RETURN REGEXP_LIKE(input_text, 'pattern');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:28) /test/1/catalog1/schema1/split_r_like/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:91~1:102) /test/1/catalog1/schema1/REGEXP_LIKE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_prog_obj_program_control___040]
+sql:
+CREATE FUNCTION split_r_instr(input_text VARCHAR(255)) RETURNS INT DETERMINISTIC RETURN REGEXP_INSTR(input_text, 'pattern');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:29) /test/1/catalog1/schema1/split_r_instr/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:88~1:100) /test/1/catalog1/schema1/REGEXP_INSTR/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_prog_obj_program_control___041]
+sql:
+CREATE FUNCTION split_r_replace(input_text VARCHAR(255)) RETURNS VARCHAR(255) DETERMINISTIC RETURN REGEXP_REPLACE(input_text, 'pattern', 'xyz');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:31) /test/1/catalog1/schema1/split_r_replace/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:99~1:113) /test/1/catalog1/schema1/REGEXP_REPLACE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_prog_obj_program_control___042]
+sql:
+CREATE FUNCTION split_r_substr(input_text VARCHAR(255)) RETURNS VARCHAR(255) DETERMINISTIC RETURN REGEXP_SUBSTR(input_text, 'pattern');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:30) /test/1/catalog1/schema1/split_r_substr/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:98~1:111) /test/1/catalog1/schema1/REGEXP_SUBSTR/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_prog_obj_block_insert_program_control___043]
+sql:
+CREATE FUNCTION rb_fail() RETURNS INTEGER MODIFIES SQL DATA
+BEGIN
+  INSERT INTO rb_not_null SET f1=10,f2=10;
+  INSERT INTO rb_not_null SET f1=10,f2=NULL;
+  RETURN 1;
+END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:23) /test/1/catalog1/schema1/rb_fail/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Table(3:14~3:25) /test/1/catalog1/schema1/rb_not_null/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[create_view_select_call_prog_obj___044]
+sql:
+CREATE VIEW rb_func_view AS SELECT rb_fail() FROM rb_select;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:24) /test/1/catalog1/schema1/rb_func_view/",
+      "action" : "CREATE",
+      "target" : "Table(1:50~1:59) /test/1/catalog1/schema1/rb_select/"
+    },
+    {
+      "subject": "Function(1:35~1:42) /test/1/catalog1/schema1/rb_fail/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_table__045]
+sql:
+CREATE TABLE rb_fail_ctas AS SELECT rb_fail() FROM rb_select;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/rb_fail_ctas/",
+      "action" : "CREATE",
+      "target" : "Table(1:51~1:60) /test/1/catalog1/schema1/rb_select/"
+    },
+    {
+      "subject": "Function(1:36~1:43) /test/1/catalog1/schema1/rb_fail/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_table__046]
+sql:
+CREATE TABLE sapdb_time_ctas AS SELECT MAKEDATE(1997,1) AS f1, ADDTIME(CAST('1997-12-31 23:59:59.000001' AS DATETIME),'1 1:1:1.000002') AS f2, ADDTIME(CAST('23:59:59.999999' AS TIME),'1 1:1:1.000002') AS f3, TIMEDIFF('1997-12-31 23:59:59.000001','1997-12-30 01:01:01.000002') AS f4, TIMEDIFF('1997-12-30 23:59:59.000001','1997-12-31 23:59:59.000002') AS f5, MAKETIME(10,11,12) AS f6, TIMESTAMP(CAST('2001-12-01' AS DATE),'01:01:01') AS f7, DATE('1997-12-31 23:59:59.000001') AS f8, TIME('1997-12-31 23:59:59.000001') AS f9;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/schema1/sapdb_time_ctas/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:39~1:47) /test/1/catalog1/schema1/MAKEDATE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:63~1:70) /test/1/catalog1/schema1/ADDTIME/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:71~1:75) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:208~1:216) /test/1/catalog1/schema1/TIMEDIFF/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:358~1:366) /test/1/catalog1/schema1/MAKETIME/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:384~1:393) /test/1/catalog1/schema1/TIMESTAMP/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:440~1:444) /test/1/catalog1/schema1/DATE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:482~1:486) /test/1/catalog1/schema1/TIME/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_table__047]
+sql:
+CREATE TABLE digest_hash_result AS SELECT STATEMENT_DIGEST('SELECT 1, 2, 3') AS digest_hash;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/schema1/digest_hash_result/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:42~1:58) /test/1/catalog1/schema1/STATEMENT_DIGEST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_table__048]
+sql:
+CREATE TABLE digest_text_result AS SELECT STATEMENT_DIGEST_TEXT('SELECT 1, 2, 3') AS digest_text;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/schema1/digest_text_result/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:42~1:63) /test/1/catalog1/schema1/STATEMENT_DIGEST_TEXT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_table__049]
+sql:
+CREATE TABLE digest_generated(query_text VARCHAR(100), digest_hash VARCHAR(64) GENERATED ALWAYS AS (STATEMENT_DIGEST(query_text)));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:29) /test/1/catalog1/schema1/digest_generated/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:100~1:116) /test/1/catalog1/schema1/STATEMENT_DIGEST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_table__050]
+sql:
+CREATE TABLE digest_text_generated(query_text VARCHAR(100), digest_text VARCHAR(300) GENERATED ALWAYS AS (STATEMENT_DIGEST_TEXT(query_text)));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:34) /test/1/catalog1/schema1/digest_text_generated/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:106~1:127) /test/1/catalog1/schema1/STATEMENT_DIGEST_TEXT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_prog_obj_block_program_control_select___051]
+sql:
+CREATE FUNCTION f_digest() RETURNS LONGTEXT DETERMINISTIC
+BEGIN
+  DECLARE ret LONGTEXT;
+  SELECT STATEMENT_DIGEST_TEXT('DROP TABLE t') INTO ret;
+  RETURN ret;
+END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:24) /test/1/catalog1/schema1/f_digest/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(4:9~4:30) /test/1/catalog1/schema1/STATEMENT_DIGEST_TEXT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_table__052]
+sql:
+CREATE TABLE base64_roundtrip_ctas AS SELECT FROM_BASE64(TO_BASE64(binary_value)) AS decoded_value FROM base64_binary_values;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:34) /test/1/catalog1/schema1/base64_roundtrip_ctas/",
+      "action" : "CREATE",
+      "target" : "Table(1:104~1:124) /test/1/catalog1/schema1/base64_binary_values/"
+    },
+    {
+      "subject": "Function(1:45~1:56) /test/1/catalog1/schema1/FROM_BASE64/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:57~1:66) /test/1/catalog1/schema1/TO_BASE64/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_view_select___053]
+sql:
+CREATE VIEW str_coercibility_view AS SELECT COERCIBILITY(CONCAT(c1,c2)) AS coercibility_value, COLLATION(CONCAT(c1,c2)) AS collation_name FROM str_collation_values;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:33) /test/1/catalog1/schema1/str_coercibility_view/",
+      "action" : "CREATE",
+      "target" : "Table(1:143~1:163) /test/1/catalog1/schema1/str_collation_values/"
+    },
+    {
+      "subject": "Function(1:44~1:56) /test/1/catalog1/schema1/COERCIBILITY/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:57~1:63) /test/1/catalog1/schema1/CONCAT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:95~1:104) /test/1/catalog1/schema1/COLLATION/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_table__054]
+sql:
+CREATE TABLE str_function_ctas CHARACTER SET latin1 SELECT BIN(130) AS bin_value, OCT(130) AS oct_value, CONV(130,16,10) AS conv_value, HEX(130) AS hex_value, CHAR(130) AS char_value, FORMAT(130,10) AS format_value, LEFT(_latin2'a',1) AS left_value, RIGHT(_latin2'a',1) AS right_value, LCASE(_latin2'a') AS lower_value, UCASE(_latin2'a') AS upper_value, SUBSTRING(_latin2'a',1,1) AS substring_value, CONCAT(_latin2'a',_latin2'b') AS concat_value, LPAD(_latin2'a',4,_latin2'b') AS lpad_value, RPAD(_latin2'a',4,_latin2'b') AS rpad_value, CONCAT_WS(_latin2'a',_latin2'b') AS concat_ws_value, MAKE_SET(255,_latin2'a',_latin2'b',_latin2'c') AS make_set_value, EXPORT_SET(255,_latin2'y',_latin2'n',_latin2' ') AS export_set_value, TRIM(_latin2' a ') AS trim_value, LTRIM(_latin2' a ') AS ltrim_value, RTRIM(_latin2' a ') AS rtrim_value, REPEAT(_latin2'a',10) AS repeat_value, REVERSE(_latin2'ab') AS reverse_value, QUOTE(_latin2'ab') AS quote_value, SOUNDEX(_latin2'ab') AS soundex_value, SUBSTRING(_latin2'ab',1) AS substring_short_value, INSERT(_latin2'abcd',2,3,_latin2'ef') AS insert_value, REPLACE(_latin2'abcd',_latin2'b',_latin2'B') AS replace_value;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/schema1/str_function_ctas/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:59~1:62) /test/1/catalog1/schema1/BIN/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:82~1:85) /test/1/catalog1/schema1/OCT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:105~1:109) /test/1/catalog1/schema1/CONV/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:136~1:139) /test/1/catalog1/schema1/HEX/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:159~1:163) /test/1/catalog1/schema1/CHAR/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:184~1:190) /test/1/catalog1/schema1/FORMAT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:216~1:220) /test/1/catalog1/schema1/LEFT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:250~1:255) /test/1/catalog1/schema1/RIGHT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:286~1:291) /test/1/catalog1/schema1/LCASE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:320~1:325) /test/1/catalog1/schema1/UCASE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:354~1:363) /test/1/catalog1/schema1/SUBSTRING/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:400~1:406) /test/1/catalog1/schema1/CONCAT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:447~1:451) /test/1/catalog1/schema1/LPAD/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:492~1:496) /test/1/catalog1/schema1/RPAD/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:537~1:546) /test/1/catalog1/schema1/CONCAT_WS/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:590~1:598) /test/1/catalog1/schema1/MAKE_SET/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:656~1:666) /test/1/catalog1/schema1/EXPORT_SET/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:726~1:730) /test/1/catalog1/schema1/TRIM/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:760~1:765) /test/1/catalog1/schema1/LTRIM/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:796~1:801) /test/1/catalog1/schema1/RTRIM/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:832~1:838) /test/1/catalog1/schema1/REPEAT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:871~1:878) /test/1/catalog1/schema1/REVERSE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:910~1:915) /test/1/catalog1/schema1/QUOTE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:945~1:952) /test/1/catalog1/schema1/SOUNDEX/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:1035~1:1041) /test/1/catalog1/schema1/INSERT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:1090~1:1097) /test/1/catalog1/schema1/REPLACE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_view_select___055]
+sql:
+CREATE VIEW str_crc_view AS SELECT CRC32(value_text) AS crc_value FROM str_crc;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:24) /test/1/catalog1/schema1/str_crc_view/",
+      "action" : "CREATE",
+      "target" : "Table(1:71~1:78) /test/1/catalog1/schema1/str_crc/"
+    },
+    {
+      "subject": "Function(1:35~1:40) /test/1/catalog1/schema1/CRC32/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_table__056]
+sql:
+CREATE TABLE str_crc_ctas AS SELECT CRC32(value_text) AS crc_value FROM str_crc;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/str_crc_ctas/",
+      "action" : "CREATE",
+      "target" : "Table(1:72~1:79) /test/1/catalog1/schema1/str_crc/"
+    },
+    {
+      "subject": "Function(1:36~1:41) /test/1/catalog1/schema1/CRC32/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_table__057]
+sql:
+CREATE TABLE str_char_ctas AS SELECT CHAR(0x414243) AS char_value;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:26) /test/1/catalog1/schema1/str_char_ctas/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:37~1:41) /test/1/catalog1/schema1/CHAR/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_view_select___058]
+sql:
+CREATE VIEW str_char_view AS SELECT CHAR(0x414243) AS char_value;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:25) /test/1/catalog1/schema1/str_char_view/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:36~1:40) /test/1/catalog1/schema1/CHAR/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_table__059]
+sql:
+CREATE TABLE str_null_ctas CHARACTER SET utf8mb4 AS SELECT SUBSTRING('1', DAY(FROM_UNIXTIME(-1))) AS substring_value, LEFT('1', DAY(FROM_UNIXTIME(-1))) AS left_value, RIGHT('1', DAY(FROM_UNIXTIME(-1))) AS right_value, REPEAT('1', DAY(FROM_UNIXTIME(-1))) AS repeat_value, RPAD('hi', DAY(FROM_UNIXTIME(-1)), '?') AS rpad_value, LPAD('hi', DAY(FROM_UNIXTIME(-1)), '?') AS lpad_value;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:26) /test/1/catalog1/schema1/str_null_ctas/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:59~1:68) /test/1/catalog1/schema1/SUBSTRING/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:74~1:77) /test/1/catalog1/schema1/DAY/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:78~1:91) /test/1/catalog1/schema1/FROM_UNIXTIME/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:118~1:122) /test/1/catalog1/schema1/LEFT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:167~1:172) /test/1/catalog1/schema1/RIGHT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:218~1:224) /test/1/catalog1/schema1/REPEAT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:271~1:275) /test/1/catalog1/schema1/RPAD/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:326~1:330) /test/1/catalog1/schema1/LPAD/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_table__060]
+sql:
+CREATE TABLE str_format_ctas CHARACTER SET utf8mb4 AS SELECT FORMAT(123,2,'no_NO') AS format_value;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/schema1/str_format_ctas/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:61~1:67) /test/1/catalog1/schema1/FORMAT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_table__061]
+sql:
+CREATE TABLE str_quote_ctas AS SELECT QUOTE('a') AS quote_value;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:27) /test/1/catalog1/schema1/str_quote_ctas/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:38~1:43) /test/1/catalog1/schema1/QUOTE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_view_select___062]
+sql:
+CREATE VIEW str_lpad_not_in_view AS SELECT LPAD('x', 1 NOT IN (0), 1) AS value_text;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:32) /test/1/catalog1/schema1/str_lpad_not_in_view/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:43~1:47) /test/1/catalog1/schema1/LPAD/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_view_select___063]
+sql:
+CREATE VIEW str_substr_not_in_view AS SELECT SUBSTR('x', 1, 1 NOT IN (0)) AS value_text;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:34) /test/1/catalog1/schema1/str_substr_not_in_view/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:45~1:51) /test/1/catalog1/schema1/SUBSTR/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_view_select___064]
+sql:
+CREATE VIEW str_find_in_set_not_in_view AS SELECT FIND_IN_SET(1 NOT IN (0), set_value) AS found_value FROM str_set_values;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:39) /test/1/catalog1/schema1/str_find_in_set_not_in_view/",
+      "action" : "CREATE",
+      "target" : "Table(1:107~1:121) /test/1/catalog1/schema1/str_set_values/"
+    },
+    {
+      "subject": "Function(1:50~1:61) /test/1/catalog1/schema1/FIND_IN_SET/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_table__065]
+sql:
+CREATE TABLE t_gcol (
+  a INT,
+  b BLOB,
+  c INT GENERATED ALWAYS AS (1) VIRTUAL,
+  d INT,
+  e INT GENERATED ALWAYS AS (LPAD('111', b, '1')) VIRTUAL,
+  UNIQUE KEY (e),
+  KEY(b(1),a,e),
+  KEY(e,b(1))
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Index(8:2~8:15) /test/1/catalog1/schema1/",
+      "action" : "CREATE",
+      "target" : "Table(1:13~1:19) /test/1/catalog1/schema1/t_gcol/"
+    },
+    {
+      "subject": "Index(9:2~9:13) /test/1/catalog1/schema1/",
+      "action" : "CREATE",
+      "target" : "Table(1:13~1:19) /test/1/catalog1/schema1/t_gcol/"
+    },
+    {
+      "subject": "Function(6:29~6:33) /test/1/catalog1/schema1/LPAD/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Constraint(7:2~7:16) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__066]
+sql:
+CREATE TABLE dd_table (name VARCHAR(64) COLLATE utf8_tolower_ci, UNIQUE KEY(name));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:21) /test/1/catalog1/schema1/dd_table/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Constraint(1:65~1:81) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_view_select___067]
+sql:
+CREATE VIEW view1 AS SELECT name AS table_name FROM dd_table;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:17) /test/1/catalog1/schema1/view1/",
+      "action" : "CREATE",
+      "target" : "Table(1:52~1:60) /test/1/catalog1/schema1/dd_table/"
+    }
+  ]
+}
+----------
+[create_view_select___068]
+sql:
+CREATE VIEW view2 AS SELECT name COLLATE utf8_tolower_ci AS table_name FROM dd_table;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:17) /test/1/catalog1/schema1/view2/",
+      "action" : "CREATE",
+      "target" : "Table(1:76~1:84) /test/1/catalog1/schema1/dd_table/"
+    }
+  ]
+}
+----------
+[create_prog_obj_block_select_performance___069]
+sql:
+CREATE PROCEDURE sub1(id CHAR(10) CHARACTER SET utf8) BEGIN SELECT * FROM view1 WHERE table_name=id COLLATE utf8_tolower_ci; EXPLAIN SELECT * FROM view1 WHERE table_name=id COLLATE utf8_tolower_ci; SELECT * FROM view2 WHERE table_name=id; EXPLAIN SELECT * FROM view2 WHERE table_name=id; SELECT * FROM dd_table WHERE name COLLATE utf8_tolower_ci=id; EXPLAIN SELECT * FROM dd_table WHERE name COLLATE utf8_tolower_ci=id; SELECT * FROM view1 WHERE id COLLATE utf8_tolower_ci=table_name; EXPLAIN SELECT * FROM view1 WHERE id COLLATE utf8_tolower_ci=table_name; SELECT * FROM view2 WHERE id=table_name; EXPLAIN SELECT * FROM view2 WHERE id=table_name; SELECT * FROM dd_table WHERE id=name COLLATE utf8_tolower_ci; EXPLAIN SELECT * FROM dd_table WHERE id=name COLLATE utf8_tolower_ci; SELECT * FROM view1 WHERE table_name COLLATE utf8_tolower_ci=id; EXPLAIN SELECT * FROM view1 WHERE table_name COLLATE utf8_tolower_ci=id; END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:17~1:21) /test/1/catalog1/schema1/sub1/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Table(1:74~1:79) /test/1/catalog1/schema1/view1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:212~1:217) /test/1/catalog1/schema1/view2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:302~1:310) /test/1/catalog1/schema1/dd_table/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[create_table__070]
+sql:
+CREATE TABLE t_uuid_default (col VARCHAR(36) DEFAULT (REPLACE(UUID(), _utf8mb4'-', _utf8mb4'_')));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:27) /test/1/catalog1/schema1/t_uuid_default/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:54~1:61) /test/1/catalog1/schema1/REPLACE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:62~1:66) /test/1/catalog1/schema1/UUID/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_table__071]
+sql:
+CREATE TABLE split_func_system.ctas_system (version CHAR(60)) SELECT DATABASE(),USER(),VERSION() AS version;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:42) /test/1/catalog1/split_func_system/ctas_system/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:69~1:77) /test/1/catalog1/schema1/DATABASE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:80~1:84) /test/1/catalog1/schema1/USER/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:87~1:94) /test/1/catalog1/schema1/VERSION/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_table__072]
+sql:
+CREATE TABLE split_func_system.ctas_charset SELECT CHARSET(_utf8'a'),COLLATION(_utf8'a');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:43) /test/1/catalog1/split_func_system/ctas_charset/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:51~1:58) /test/1/catalog1/schema1/CHARSET/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:69~1:78) /test/1/catalog1/schema1/COLLATION/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_table__073]
+sql:
+CREATE TABLE func_test_nullable_self(d VARCHAR(6),k INT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:36) /test/1/catalog1/schema1/func_test_nullable_self/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__074]
+sql:
+CREATE TABLE func_test_not_between(a INT,b INT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:34) /test/1/catalog1/schema1/func_test_not_between/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__075]
+sql:
+CREATE TABLE func_test_null_unsigned(c BIGINT NOT NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:36) /test/1/catalog1/schema1/func_test_null_unsigned/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__076]
+sql:
+CREATE TABLE func_test_unsigned_pair(c1 INT UNSIGNED,c2 INT UNSIGNED);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:36) /test/1/catalog1/schema1/func_test_unsigned_pair/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__077]
+sql:
+CREATE TABLE func_test_signed_ctas AS SELECT GREATEST(-1,9223372036854775808) AS signed_value,GREATEST(9223372036854775808,9223372036854775808) AS unsigned_value;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:34) /test/1/catalog1/schema1/func_test_signed_ctas/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:45~1:53) /test/1/catalog1/schema1/GREATEST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_table__078]
+sql:
+CREATE TABLE func_test_type_ctas AS SELECT COALESCE(20010101,DATE '2005-05-05') AS coalesce_date,GREATEST(TIME '20:00:00',120000) AS greatest_time,GREATEST(_utf8mb4 x'c3a5',_binary '1') AS greatest_binary;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:32) /test/1/catalog1/schema1/func_test_type_ctas/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:43~1:51) /test/1/catalog1/schema1/COALESCE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:97~1:105) /test/1/catalog1/schema1/GREATEST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_table__079]
+sql:
+CREATE TABLE func_test_desc_index(c1 VARCHAR(10),c2 VARCHAR(10),c3 DATE NOT NULL,c4 INT,UNIQUE KEY ix(c1,c3 DESC,c4 DESC));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Index(1:99~1:101) /test/1/catalog1/schema1/ix/",
+      "action" : "CREATE",
+      "target" : "Table(1:13~1:33) /test/1/catalog1/schema1/func_test_desc_index/"
+    },
+    {
+      "subject": "Constraint(1:88~1:121) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__080]
+sql:
+CREATE TABLE to_days_result AS SELECT CAST(TO_DAYS('9999-12-31') AS CHAR) AS x,TO_DAYS('9999-12-31') * -4.0 AS y;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:27) /test/1/catalog1/schema1/to_days_result/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:38~1:42) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:43~1:50) /test/1/catalog1/schema1/TO_DAYS/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_table__081]
+sql:
+CREATE TABLE now_arithmetic_result AS SELECT IF(0,COALESCE(NULL),NOW(0)) + 0 AS now_number;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:34) /test/1/catalog1/schema1/now_arithmetic_result/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:45~1:47) /test/1/catalog1/schema1/IF/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:50~1:58) /test/1/catalog1/schema1/COALESCE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:65~1:68) /test/1/catalog1/schema1/NOW/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_view_select___082]
+sql:
+CREATE VIEW temporal_precision_view AS SELECT NOW(6) AS now_6,CURTIME(4) AS curtime_4,LOCALTIME(3) AS localtime_3,CURRENT_TIME(2) AS current_time_2,LOCALTIMESTAMP(1) AS localtimestamp_1,UTC_TIMESTAMP(4) AS utc_timestamp_4;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:35) /test/1/catalog1/schema1/temporal_precision_view/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:46~1:49) /test/1/catalog1/schema1/NOW/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:62~1:69) /test/1/catalog1/schema1/CURTIME/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:86~1:95) /test/1/catalog1/schema1/LOCALTIME/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:114~1:126) /test/1/catalog1/schema1/CURRENT_TIME/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:148~1:162) /test/1/catalog1/schema1/LOCALTIMESTAMP/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:186~1:199) /test/1/catalog1/schema1/UTC_TIMESTAMP/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_view_select___083]
+sql:
+CREATE VIEW temporal_having_view AS SELECT (SELECT 'v' FROM DUAL) AS field1 FROM temporal_view_source GROUP BY field1 HAVING TIME(field1) != 0 AND TIMESTAMP(field1) != 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:32) /test/1/catalog1/schema1/temporal_having_view/",
+      "action" : "CREATE",
+      "target" : [
+        "Table(1:60~1:64) /test/1/catalog1/schema1/DUAL/",
+        "Table(1:81~1:101) /test/1/catalog1/schema1/temporal_view_source/"
+      ]
+    },
+    {
+      "subject": "Function(1:125~1:129) /test/1/catalog1/schema1/TIME/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:147~1:156) /test/1/catalog1/schema1/TIMESTAMP/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_table__084]
+sql:
+CREATE TABLE uuid_bin_to_text_ctas AS SELECT BIN_TO_UUID(bin_value) AS from_binary, BIN_TO_UUID(varbin_value) AS from_varbinary, BIN_TO_UUID(tinyblob_value) AS from_tinyblob, BIN_TO_UUID(tinytext_value) AS from_tinytext, BIN_TO_UUID(blob_value) AS from_blob FROM uuid_storage_types;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:34) /test/1/catalog1/schema1/uuid_bin_to_text_ctas/",
+      "action" : "CREATE",
+      "target" : "Table(1:263~1:281) /test/1/catalog1/schema1/uuid_storage_types/"
+    },
+    {
+      "subject": "Function(1:45~1:56) /test/1/catalog1/schema1/BIN_TO_UUID/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_table__085]
+sql:
+CREATE TABLE uuid_text_to_bin_ctas AS SELECT UUID_TO_BIN('c8eb4b15-cb09-48bb-bbb2-e6a0b6b4d5c7') AS plain_order, UUID_TO_BIN('c8eb4b15-cb09-48bb-bbb2-e6a0b6b4d5c7', TRUE) AS swapped_order;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:34) /test/1/catalog1/schema1/uuid_text_to_bin_ctas/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:45~1:56) /test/1/catalog1/schema1/UUID_TO_BIN/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_table__086]
+sql:
+CREATE TABLE uuid_text_generated (uuid_text VARCHAR(100), uuid_binary BINARY(16) AS (UUID_TO_BIN(uuid_text)) VIRTUAL, INDEX (uuid_binary));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Index(1:118~1:137) /test/1/catalog1/schema1/",
+      "action" : "CREATE",
+      "target" : "Table(1:13~1:32) /test/1/catalog1/schema1/uuid_text_generated/"
+    },
+    {
+      "subject": "Function(1:85~1:96) /test/1/catalog1/schema1/UUID_TO_BIN/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_table__087]
+sql:
+CREATE TABLE uuid_binary_generated (uuid_binary BINARY(16), uuid_text VARCHAR(36) AS (BIN_TO_UUID(uuid_binary)) VIRTUAL, INDEX (uuid_binary), INDEX (uuid_text));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Index(1:121~1:140) /test/1/catalog1/schema1/",
+      "action" : "CREATE",
+      "target" : "Table(1:13~1:34) /test/1/catalog1/schema1/uuid_binary_generated/"
+    },
+    {
+      "subject": "Index(1:142~1:159) /test/1/catalog1/schema1/",
+      "action" : "CREATE",
+      "target" : "Table(1:13~1:34) /test/1/catalog1/schema1/uuid_binary_generated/"
+    },
+    {
+      "subject": "Function(1:86~1:97) /test/1/catalog1/schema1/BIN_TO_UUID/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_table_metadata__088]
+sql:
+CREATE TABLE uuid_replace_ctas AS SELECT REPLACE(UUID(), '-', '=') AS v FROM mysql.user;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/schema1/uuid_replace_ctas/",
+      "action" : "CREATE",
+      "target" : "Table(1:77~1:87) /test/1/catalog1/mysql/user/"
+    },
+    {
+      "subject": "Function(1:41~1:48) /test/1/catalog1/schema1/REPLACE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:49~1:53) /test/1/catalog1/schema1/UUID/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_table__089]
+sql:
+CREATE TABLE weight_short_ctas CHARACTER SET latin1 SELECT WEIGHT_STRING('test') AS weight_value;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/schema1/weight_short_ctas/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:59~1:72) /test/1/catalog1/schema1/WEIGHT_STRING/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_table__090]
+sql:
+CREATE TABLE weight_long_ctas CHARACTER SET latin1 SELECT WEIGHT_STRING(REPEAT('t',66000)) AS weight_value;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:29) /test/1/catalog1/schema1/weight_long_ctas/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:58~1:71) /test/1/catalog1/schema1/WEIGHT_STRING/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:72~1:78) /test/1/catalog1/schema1/REPEAT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_view_select___091]
+sql:
+CREATE VIEW weight_introducer_view AS SELECT WEIGHT_STRING(_latin1 'ab') AS weight_value;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:34) /test/1/catalog1/schema1/weight_introducer_view/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:45~1:58) /test/1/catalog1/schema1/WEIGHT_STRING/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_view_select___092]
+sql:
+CREATE VIEW weight_char_view AS SELECT WEIGHT_STRING(value_text AS CHAR(2)) AS weight_value FROM weight_source;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:28) /test/1/catalog1/schema1/weight_char_view/",
+      "action" : "CREATE",
+      "target" : "Table(1:97~1:110) /test/1/catalog1/schema1/weight_source/"
+    },
+    {
+      "subject": "Function(1:39~1:52) /test/1/catalog1/schema1/WEIGHT_STRING/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_view_select___093]
+sql:
+CREATE VIEW weight_binary_view AS SELECT WEIGHT_STRING(value_text AS BINARY(6)) AS weight_value FROM weight_source;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:30) /test/1/catalog1/schema1/weight_binary_view/",
+      "action" : "CREATE",
+      "target" : "Table(1:101~1:114) /test/1/catalog1/schema1/weight_source/"
+    },
+    {
+      "subject": "Function(1:41~1:54) /test/1/catalog1/schema1/WEIGHT_STRING/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_prog_obj_block_select___094]
+sql:
+CREATE PROCEDURE split_limit80.proc_limit(IN p_offset INT,IN p_count INT)
+BEGIN
+  SELECT id FROM split_limit80.t ORDER BY id LIMIT p_count;
+  SELECT id FROM split_limit80.t ORDER BY id LIMIT p_offset,p_count;
+  SELECT id FROM split_limit80.t ORDER BY id LIMIT p_count OFFSET p_offset;
+END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:17~1:41) /test/1/catalog1/split_limit80/proc_limit/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Table(3:17~3:32) /test/1/catalog1/split_limit80/t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[create_view_select___095]
+sql:
+CREATE VIEW split_olap_native_b.v_roll AS SELECT a,LENGTH(a) AS a_length,COUNT(*) AS row_count FROM split_olap_native_b.nums GROUP BY a WITH ROLLUP;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:38) /test/1/catalog1/split_olap_native_b/v_roll/",
+      "action" : "CREATE",
+      "target" : "Table(1:100~1:124) /test/1/catalog1/split_olap_native_b/nums/"
+    },
+    {
+      "subject": "Function(1:51~1:57) /test/1/catalog1/schema1/LENGTH/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:73~1:78) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_table__096]
+sql:
+CREATE TABLE split_olap_tail.ctas_roll AS SELECT a,COUNT(*) AS row_count FROM split_olap_tail.t GROUP BY a WITH ROLLUP;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:38) /test/1/catalog1/split_olap_tail/ctas_roll/",
+      "action" : "CREATE",
+      "target" : "Table(1:78~1:95) /test/1/catalog1/split_olap_tail/t/"
+    },
+    {
+      "subject": "Function(1:51~1:56) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_table__097]
+sql:
+CREATE TEMPORARY TABLE z2 (SELECT CAST(NULL AS TIME) AS c05 ORDER BY '1') ORDER BY '1';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:23~1:25) /test/1/catalog1/schema1/z2/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:34~1:38) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_table__098]
+sql:
+CREATE TABLE t2 SELECT id2 FROM t1 ORDER BY id3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:15) /test/1/catalog1/schema1/t2/",
+      "action" : "CREATE",
+      "target" : "Table(1:32~1:34) /test/1/catalog1/schema1/t1/"
+    }
+  ]
+}
+----------
+[create_view_select___099]
+sql:
+CREATE ALGORITHM=MERGE VIEW split_scalar_corr_b.v_merge AS SELECT (SELECT MAX(q2.id) FROM split_scalar_corr_b.q AS q2 WHERE q2.v>d.v OR q2.v<>2) AS max_id FROM (SELECT * FROM split_scalar_corr_b.q) AS d;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:28~1:55) /test/1/catalog1/split_scalar_corr_b/v_merge/",
+      "action" : "CREATE",
+      "target" : "Table(1:90~1:111) /test/1/catalog1/split_scalar_corr_b/q/"
+    },
+    {
+      "subject": "Function(1:74~1:77) /test/1/catalog1/schema1/MAX/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_table__100]
+sql:
+CREATE TABLE split_scalar80_c.ctas AS SELECT table2.col_int_key AS field1,(SELECT COUNT(col_int_key) FROM split_scalar80_c.t1) AS field2 FROM split_scalar80_c.t1 AS table1 JOIN split_scalar80_c.t1 AS table2 ON table2.col_int_key=table1.col_int_key;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:34) /test/1/catalog1/split_scalar80_c/ctas/",
+      "action" : "CREATE",
+      "target" : "Table(1:106~1:125) /test/1/catalog1/split_scalar80_c/t1/"
+    },
+    {
+      "subject": "Function(1:82~1:87) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_table__101]
+sql:
+CREATE TABLE split_scalar80_d.ctas AS SELECT COUNT(q1.id) AS total,(SELECT MIN(q4.s) FROM split_scalar80_d.q AS q4) AS min_s FROM split_scalar80_d.q AS q1 JOIN (split_scalar80_d.q AS q2 JOIN split_scalar80_d.q AS q3 ON TRUE) ON TRUE WHERE 1<>(SELECT COUNT(*) FROM split_scalar80_d.q AS q5);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:34) /test/1/catalog1/split_scalar80_d/ctas/",
+      "action" : "CREATE",
+      "target" : "Table(1:90~1:108) /test/1/catalog1/split_scalar80_d/q/"
+    },
+    {
+      "subject": "Function(1:45~1:50) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:75~1:78) /test/1/catalog1/schema1/MIN/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_view_select___102]
+sql:
+CREATE VIEW split_scalar80_e.v_scalar AS SELECT q1.id,q1.v,(SELECT COUNT(*) FROM split_scalar80_e.r AS r1) AS total FROM split_scalar80_e.q AS q1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:37) /test/1/catalog1/split_scalar80_e/v_scalar/",
+      "action" : "CREATE",
+      "target" : [
+        "Table(1:81~1:99) /test/1/catalog1/split_scalar80_e/r/",
+        "Table(1:121~1:139) /test/1/catalog1/split_scalar80_e/q/"
+      ]
+    },
+    {
+      "subject": "Function(1:67~1:72) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_view_select___103]
+sql:
+CREATE VIEW split_scalar80_f.v_complex AS SELECT q1.v FROM split_scalar80_f.q AS q1 JOIN ((split_scalar80_f.q AS q2 JOIN split_scalar80_f.q AS q3 ON 1)) ON q2.v>=(SELECT MIN(q4.v) FROM split_scalar80_f.q AS q4,split_scalar80_f.q AS q5) WHERE EXISTS((SELECT q6.v FROM split_scalar80_f.q AS q6 JOIN split_scalar80_f.q AS q7 ON q7.v=q6.id));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:38) /test/1/catalog1/split_scalar80_f/v_complex/",
+      "action" : "CREATE",
+      "target" : "Table(1:59~1:77) /test/1/catalog1/split_scalar80_f/q/"
+    },
+    {
+      "subject": "Function(1:170~1:173) /test/1/catalog1/schema1/MIN/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_table__104]
+sql:
+CREATE TABLE split_subquery_third.ct_corr SELECT a,b FROM split_subquery_third.src AS o WHERE b=(SELECT MIN(i.b) FROM split_subquery_third.src AS i WHERE i.a=o.a);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:41) /test/1/catalog1/split_subquery_third/ct_corr/",
+      "action" : "CREATE",
+      "target" : "Table(1:58~1:82) /test/1/catalog1/split_subquery_third/src/"
+    },
+    {
+      "subject": "Function(1:104~1:107) /test/1/catalog1/schema1/MIN/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_table__105]
+sql:
+CREATE TABLE split_subquery_next.ct SELECT * FROM (SELECT 1 AS a,(SELECT a+0) AS b) AS d;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:35) /test/1/catalog1/split_subquery_next/ct/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__106]
+sql:
+CREATE TABLE split_subquery_thirteenth.six_copy AS SELECT t1.vkey AS f1,t1.inokey AS f2,t2.vkey AS f3,t1.inokey AS f4,t2.inokey AS f5,t1.vnokey AS f6 FROM split_subquery_thirteenth.six_base AS t1 INNER JOIN split_subquery_thirteenth.six_base AS t2 ON t2.inokey=t1.ikey AND t2.ikey=t1.ikey WHERE t1.vkey=t2.vkey OR t1.pk=154 OR t1.pk<>201 AND (t1.vkey LIKE '%a%' OR t1.vkey LIKE '%b%');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:47) /test/1/catalog1/split_subquery_thirteenth/six_copy/",
+      "action" : "CREATE",
+      "target" : "Table(1:155~1:189) /test/1/catalog1/split_subquery_thirteenth/six_base/"
+    }
+  ]
+}
+----------
+[create_table__107]
+sql:
+CREATE TEMPORARY TABLE u_ctas SELECT a FROM r UNION SELECT a FROM s;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:23~1:29) /test/1/catalog1/schema1/u_ctas/",
+      "action" : "CREATE",
+      "target" : [
+        "Table(1:44~1:45) /test/1/catalog1/schema1/r/",
+        "Table(1:66~1:67) /test/1/catalog1/schema1/s/"
+      ]
+    }
+  ]
+}
+----------
+[create_prog_obj_select___108]
+sql:
+CREATE PROCEDURE p() SELECT 'foo' AS c UNION SELECT 'bar';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:17~1:18) /test/1/catalog1/schema1/p/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__109]
+sql:
+CREATE TABLE split_window_context.g_bad(a INT,b INT AS (ROW_NUMBER() OVER (ORDER BY a)));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:39) /test/1/catalog1/split_window_context/g_bad/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:56~1:66) /test/1/catalog1/schema1/ROW_NUMBER/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[alter_table_add_column__110]
+sql:
+ALTER TABLE split_window_context.g_base ADD b INT AS (ROW_NUMBER() OVER (ORDER BY a));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:39) /test/1/catalog1/split_window_context/g_base/",
+      "action" : "ALTER"
+    },
+    {
+      "subject": "Function(1:54~1:64) /test/1/catalog1/schema1/ROW_NUMBER/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_view_select___111]
+sql:
+CREATE VIEW split_window_json.v_array AS SELECT i,j,JSON_ARRAYAGG(j) OVER (ORDER BY i DESC ROWS UNBOUNDED PRECEDING) AS a FROM split_window_json.t1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:37) /test/1/catalog1/split_window_json/v_array/",
+      "action" : "CREATE",
+      "target" : "Table(1:127~1:147) /test/1/catalog1/split_window_json/t1/"
+    },
+    {
+      "subject": "Function(1:52~1:65) /test/1/catalog1/schema1/JSON_ARRAYAGG/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_view_select___112]
+sql:
+CREATE VIEW split_window_json.v_object AS SELECT i,j,JSON_OBJECTAGG(i,j) OVER (ORDER BY i DESC ROWS UNBOUNDED PRECEDING) AS o FROM split_window_json.t1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:38) /test/1/catalog1/split_window_json/v_object/",
+      "action" : "CREATE",
+      "target" : "Table(1:131~1:151) /test/1/catalog1/split_window_json/t1/"
+    },
+    {
+      "subject": "Function(1:53~1:67) /test/1/catalog1/schema1/JSON_OBJECTAGG/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_table__113]
+sql:
+CREATE TABLE split_window_tail.twf AS SELECT RANK() OVER (ORDER BY a) AS rnk FROM split_window_tail.t GROUP BY a;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:34) /test/1/catalog1/split_window_tail/twf/",
+      "action" : "CREATE",
+      "target" : "Table(1:82~1:101) /test/1/catalog1/split_window_tail/t/"
+    },
+    {
+      "subject": "Function(1:45~1:49) /test/1/catalog1/schema1/RANK/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_prog_obj_block___114]
+sql:
+CREATE PROCEDURE split_window_tail.p_stable(IN n INT) BEGIN DO NTILE(n) OVER(); DO LEAD(1,n) OVER(); DO LAG(1,n) OVER(); END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:17~1:43) /test/1/catalog1/split_window_tail/p_stable/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:63~1:68) /test/1/catalog1/schema1/NTILE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:83~1:87) /test/1/catalog1/schema1/LEAD/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:104~1:107) /test/1/catalog1/schema1/LAG/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_prog_obj_select___115]
+sql:
+CREATE PROCEDURE split_window_tail.p_select() SELECT AVG(a) OVER () FROM split_window_tail.t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:17~1:43) /test/1/catalog1/split_window_tail/p_select/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:53~1:56) /test/1/catalog1/schema1/AVG/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:73~1:92) /test/1/catalog1/split_window_tail/t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[create_table__116]
+sql:
+CREATE TABLE ctas_repeat AS SELECT CONCAT(CAST(REPEAT('9',1000) AS SIGNED)),CONCAT(CAST(REPEAT('9',1000) AS UNSIGNED));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:24) /test/1/catalog1/schema1/ctas_repeat/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:35~1:41) /test/1/catalog1/schema1/CONCAT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:42~1:46) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:47~1:53) /test/1/catalog1/schema1/REPEAT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_table__117]
+sql:
+CREATE TABLE ctas_overflow AS SELECT CONCAT(CAST(-1 AS UNSIGNED)) AS col1,1.0+CAST(-1 AS UNSIGNED) AS col2,CONCAT(CAST(9223372036854775808 AS SIGNED)) AS col3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:26) /test/1/catalog1/schema1/ctas_overflow/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:37~1:43) /test/1/catalog1/schema1/CONCAT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:44~1:48) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_table__118]
+sql:
+CREATE TABLE ctas_scalar AS SELECT CONVERT((SELECT beer FROM tmp_beer) USING binary) AS beer;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:24) /test/1/catalog1/schema1/ctas_scalar/",
+      "action" : "CREATE",
+      "target" : "Table(1:61~1:69) /test/1/catalog1/schema1/tmp_beer/"
+    },
+    {
+      "subject": "Function(1:35~1:42) /test/1/catalog1/schema1/CONVERT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_table__119]
+sql:
+CREATE TABLE ctas_nested_using AS SELECT CONVERT(CONVERT(X'F09F8DBA' USING utf8mb4) USING binary) AS beer;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/schema1/ctas_nested_using/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:41~1:48) /test/1/catalog1/schema1/CONVERT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_table__120]
+sql:
+CREATE TABLE ctas_mixed_convert AS SELECT CONVERT(CONVERT(X'F09F8DBA',CHAR(1) CHARACTER SET utf8mb4) USING binary) AS beer;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/schema1/ctas_mixed_convert/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:42~1:49) /test/1/catalog1/schema1/CONVERT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_table__121]
+sql:
+CREATE TABLE ctas_utf16 AS SELECT CONVERT(X'D83CDF7A' USING utf16) AS beer;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:23) /test/1/catalog1/schema1/ctas_utf16/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:34~1:41) /test/1/catalog1/schema1/CONVERT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_table__122]
+sql:
+CREATE TABLE bit_distinct AS SELECT SQL_SMALL_RESULT DISTINCT b FROM bit_t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/bit_distinct/",
+      "action" : "CREATE",
+      "target" : "Table(1:69~1:74) /test/1/catalog1/schema1/bit_t/"
+    }
+  ]
+}
+----------
+[create_table__123]
+sql:
+CREATE TEMPORARY TABLE bit_point_ctas(a BIT(60)) ENGINE=InnoDB SELECT a FROM point_t GROUP BY a HAVING a IS NULL ORDER BY a DESC;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:23~1:37) /test/1/catalog1/schema1/bit_point_ctas/",
+      "action" : "CREATE",
+      "target" : "Table(1:77~1:84) /test/1/catalog1/schema1/point_t/"
+    }
+  ]
+}
+----------
+[create_table__124]
+sql:
+CREATE TABLE bit_union AS SELECT b FROM bit_t UNION SELECT b FROM bit_t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:22) /test/1/catalog1/schema1/bit_union/",
+      "action" : "CREATE",
+      "target" : "Table(1:40~1:45) /test/1/catalog1/schema1/bit_t/"
+    }
+  ]
+}
+----------
+[create_view_select___125]
+sql:
+CREATE VIEW bit_view AS SELECT b+0 AS n,HEX(b) AS h FROM bit_values WHERE b=TRUE UNION ALL SELECT 0,'00';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:20) /test/1/catalog1/schema1/bit_view/",
+      "action" : "CREATE",
+      "target" : "Table(1:57~1:67) /test/1/catalog1/schema1/bit_values/"
+    },
+    {
+      "subject": "Function(1:40~1:43) /test/1/catalog1/schema1/HEX/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_table__126]
+sql:
+CREATE TABLE time_literal_ctas AS SELECT TIME'10:20:30.1234567' AS t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/schema1/time_literal_ctas/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_view_select___127]
+sql:
+CREATE VIEW time_literal_view AS SELECT TIME'-24:00:00.000001' AS negative_time,CAST('838:59:59.000000' AS TIME(6)) AS maximum_time;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:29) /test/1/catalog1/schema1/time_literal_view/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:80~1:84) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_table__128]
+sql:
+CREATE TABLE temporal_ctas AS SELECT id,dt6,ts6,TIMESTAMP(dt6,TIME'00:00:01') AS shifted FROM datetime_widths;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:26) /test/1/catalog1/schema1/temporal_ctas/",
+      "action" : "CREATE",
+      "target" : "Table(1:94~1:109) /test/1/catalog1/schema1/datetime_widths/"
+    },
+    {
+      "subject": "Function(1:48~1:57) /test/1/catalog1/schema1/TIMESTAMP/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_view_select___129]
+sql:
+CREATE VIEW temporal_view AS SELECT id,created_at,modified_at,TIMESTAMPDIFF(MICROSECOND,created_at,modified_at) AS elapsed_us FROM temporal_auto;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:25) /test/1/catalog1/schema1/temporal_view/",
+      "action" : "CREATE",
+      "target" : "Table(1:131~1:144) /test/1/catalog1/schema1/temporal_auto/"
+    },
+    {
+      "subject": "Function(1:62~1:75) /test/1/catalog1/schema1/TIMESTAMPDIFF/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_prog_obj_block_program_control___130]
+sql:
+CREATE PROCEDURE str_proc(IN p CHAR(8), OUT q VARCHAR(16), INOUT r VARBINARY(16))
+BEGIN
+  DECLARE local_b BINARY(16);
+  SET local_b = r;
+  SET q = CAST(p AS CHAR);
+  SET r = local_b;
+END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:17~1:25) /test/1/catalog1/schema1/str_proc/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(5:10~5:14) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_prog_obj_program_control___131]
+sql:
+CREATE FUNCTION str_func(p VARBINARY(16)) RETURNS BINARY(16) DETERMINISTIC RETURN p;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:24) /test/1/catalog1/schema1/str_func/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__132]
+sql:
+CREATE TABLE str_parents (id BINARY(16) NOT NULL, PRIMARY KEY(id));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:24) /test/1/catalog1/schema1/str_parents/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Constraint(1:50~1:65) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__133]
+sql:
+CREATE TABLE str_foos (
+  id BIGINT NOT NULL AUTO_INCREMENT,
+  parent_id VARBINARY(16) NOT NULL,
+  text VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+  PRIMARY KEY(id),
+  KEY index_foos_on_parent_id(parent_id)
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Index(6:6~6:29) /test/1/catalog1/schema1/index_foos_on_parent_id/",
+      "action" : "CREATE",
+      "target" : "Table(1:13~1:21) /test/1/catalog1/schema1/str_foos/"
+    },
+    {
+      "subject": "Constraint(5:2~5:17) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__134]
+sql:
+CREATE TABLE str_bars (
+  id BINARY(16) NOT NULL,
+  parent_id VARBINARY(16) NOT NULL,
+  PRIMARY KEY(id),
+  KEY index_bars_on_parent_id(parent_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Index(5:6~5:29) /test/1/catalog1/schema1/index_bars_on_parent_id/",
+      "action" : "CREATE",
+      "target" : "Table(1:13~1:21) /test/1/catalog1/schema1/str_bars/"
+    },
+    {
+      "subject": "Constraint(4:2~4:17) /test/1/catalog1/schema1/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__135]
+sql:
+CREATE TABLE str_generated (
+  c CHAR(8),
+  v VARCHAR(16),
+  b BINARY(8),
+  vb VARBINARY(16),
+  gc CHAR(8) GENERATED ALWAYS AS (c) VIRTUAL,
+  gv VARCHAR(16) GENERATED ALWAYS AS (v) STORED,
+  gb BINARY(8) GENERATED ALWAYS AS (b) VIRTUAL,
+  gvb VARBINARY(16) GENERATED ALWAYS AS (vb) STORED
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:26) /test/1/catalog1/schema1/str_generated/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_prog_obj_block_program_control___136]
+sql:
+CREATE PROCEDURE lob_proc(
+  IN p_tinyblob TINYBLOB,
+  IN p_blob BLOB,
+  OUT p_mediumtext MEDIUMTEXT,
+  INOUT p_longtext LONGTEXT
+)
+BEGIN
+  DECLARE local_mediumblob MEDIUMBLOB;
+  DECLARE local_text TEXT;
+  SET local_mediumblob=p_blob;
+  SET local_text=p_longtext;
+  SET p_mediumtext=local_text;
+END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:17~1:25) /test/1/catalog1/schema1/lob_proc/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_prog_obj_program_control___137]
+sql:
+CREATE FUNCTION lob_func(p LONGBLOB) RETURNS LONGTEXT DETERMINISTIC RETURN HEX(p);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:24) /test/1/catalog1/schema1/lob_func/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:75~1:78) /test/1/catalog1/schema1/HEX/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_table__138]
+sql:
+CREATE TABLE lob_ctas AS
+SELECT tb,b,mb,lb,tt,t,mt,lt FROM lob_family WHERE t IS NOT NULL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:21) /test/1/catalog1/schema1/lob_ctas/",
+      "action" : "CREATE",
+      "target" : "Table(2:34~2:44) /test/1/catalog1/schema1/lob_family/"
+    }
+  ]
+}
+----------
+[create_view_select___139]
+sql:
+CREATE VIEW lob_view AS
+SELECT HEX(b) AS b_hex,t,CHAR_LENGTH(mt) AS mt_length FROM lob_family;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:20) /test/1/catalog1/schema1/lob_view/",
+      "action" : "CREATE",
+      "target" : "Table(2:59~2:69) /test/1/catalog1/schema1/lob_family/"
+    },
+    {
+      "subject": "Function(2:7~2:10) /test/1/catalog1/schema1/HEX/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(2:25~2:36) /test/1/catalog1/schema1/CHAR_LENGTH/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_table__140]
+sql:
+CREATE TABLE lob_generated (
+  b BLOB,
+  t TEXT,
+  lb LONGBLOB,
+  lt LONGTEXT,
+  payload_length BIGINT GENERATED ALWAYS AS (OCTET_LENGTH(lb)+CHAR_LENGTH(lt)) STORED
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:26) /test/1/catalog1/schema1/lob_generated/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(6:45~6:57) /test/1/catalog1/schema1/OCTET_LENGTH/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(6:62~6:73) /test/1/catalog1/schema1/CHAR_LENGTH/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_view_select___141]
+sql:
+CREATE VIEW split_type_enum_set.es_view AS
+    SELECT id,e_basic,e_basic+0 AS enum_index,s_basic,s_basic+0 AS set_mask
+    FROM split_type_enum_set.es_core;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:39) /test/1/catalog1/split_type_enum_set/es_view/",
+      "action" : "CREATE",
+      "target" : "Table(3:9~3:36) /test/1/catalog1/split_type_enum_set/es_core/"
+    }
+  ]
+}
+----------
+[create_view_select___142]
+sql:
+CREATE VIEW split_type_json.json_view AS
+    SELECT id,doc,doc->>'$.name' AS name_text,
+           JSON_EXTRACT(payload,'$.tags') AS tags
+    FROM split_type_json.json_core;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:37) /test/1/catalog1/split_type_json/json_view/",
+      "action" : "CREATE",
+      "target" : "Table(4:9~4:34) /test/1/catalog1/split_type_json/json_core/"
+    },
+    {
+      "subject": "Function(3:11~3:23) /test/1/catalog1/schema1/JSON_EXTRACT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_view_select___143]
+sql:
+CREATE VIEW spatial_view AS
+SELECT id,ST_AsText(g) AS g_text,ST_SRID(g) AS g_srid
+FROM spatial_lifecycle
+WHERE MBRIntersects(g,ST_GeomFromText('POLYGON((0 0,0 10,10 10,10 0,0 0))'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:24) /test/1/catalog1/schema1/spatial_view/",
+      "action" : "CREATE",
+      "target" : "Table(3:5~3:22) /test/1/catalog1/schema1/spatial_lifecycle/"
+    },
+    {
+      "subject": "Function(2:10~2:19) /test/1/catalog1/schema1/ST_AsText/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(2:33~2:40) /test/1/catalog1/schema1/ST_SRID/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(4:6~4:19) /test/1/catalog1/schema1/MBRIntersects/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(4:22~4:37) /test/1/catalog1/schema1/ST_GeomFromText/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_table__144]
+sql:
+CREATE TABLE spatial_ctas AS
+SELECT id,g,p,ST_Envelope(g) AS envelope_g
+FROM spatial_lifecycle;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/spatial_ctas/",
+      "action" : "CREATE",
+      "target" : "Table(3:5~3:22) /test/1/catalog1/schema1/spatial_lifecycle/"
+    },
+    {
+      "subject": "Function(2:14~2:25) /test/1/catalog1/schema1/ST_Envelope/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_view_select___145]
+sql:
+CREATE VIEW integer_view AS
+SELECT id,tiny_signed,small_unsigned,medium_signed,int_unsigned,big_signed,
+       tiny_signed+small_unsigned+medium_signed+int_unsigned+big_signed AS integer_total
+FROM integer_lifecycle;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:24) /test/1/catalog1/schema1/integer_view/",
+      "action" : "CREATE",
+      "target" : "Table(4:5~4:22) /test/1/catalog1/schema1/integer_lifecycle/"
+    }
+  ]
+}
+----------
+[create_table__146]
+sql:
+CREATE TABLE integer_ctas AS
+SELECT id,tiny_signed,small_signed,medium_signed,int_signed,big_signed,
+       CAST(big_unsigned AS UNSIGNED) AS copied_unsigned
+FROM integer_lifecycle;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/integer_ctas/",
+      "action" : "CREATE",
+      "target" : "Table(4:5~4:22) /test/1/catalog1/schema1/integer_lifecycle/"
+    },
+    {
+      "subject": "Function(3:7~3:11) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_view_select___147]
+sql:
+CREATE VIEW numeric_view AS
+SELECT id,decimal_value,numeric_value,fixed_value,float_value,double_value,real_value,
+       decimal_value+numeric_value+fixed_value AS exact_total,
+       float_value+double_value+real_value AS approximate_total
+FROM numeric_lifecycle;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:24) /test/1/catalog1/schema1/numeric_view/",
+      "action" : "CREATE",
+      "target" : "Table(5:5~5:22) /test/1/catalog1/schema1/numeric_lifecycle/"
+    }
+  ]
+}
+----------
+[create_table__148]
+sql:
+CREATE TABLE numeric_ctas AS
+SELECT id,decimal_value,numeric_value,fixed_value,float_value,double_value,real_value,
+       CAST(decimal_value AS DECIMAL(30,10)) AS widened_decimal
+FROM numeric_lifecycle;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/numeric_ctas/",
+      "action" : "CREATE",
+      "target" : "Table(4:5~4:22) /test/1/catalog1/schema1/numeric_lifecycle/"
+    },
+    {
+      "subject": "Function(3:7~3:11) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_table__149]
+sql:
+CREATE TABLE t4 SELECT t2.*,1,2 FROM t2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:15) /test/1/catalog1/schema1/t4/",
+      "action" : "CREATE",
+      "target" : "Table(1:37~1:39) /test/1/catalog1/schema1/t2/"
+    }
+  ]
+}
+----------
+[create_table__150]
+sql:
+CREATE TABLE t5 SELECT t2.*,d AS x,d AS z FROM t2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:15) /test/1/catalog1/schema1/t5/",
+      "action" : "CREATE",
+      "target" : "Table(1:47~1:49) /test/1/catalog1/schema1/t2/"
+    }
+  ]
+}
+----------
+[create_table__151]
+sql:
+CREATE TABLE case_types AS SELECT CASE WHEN 1 THEN _latin1'a' COLLATE latin1_danish_ci ELSE _latin1'a' END AS c1, CASE WHEN 1 THEN 'a' ELSE 1 END AS c2, CASE WHEN 1 THEN 1.0 ELSE 'a' END AS c3, CASE WHEN 1 THEN 0.1e1 ELSE 1 END AS c4;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:23) /test/1/catalog1/schema1/case_types/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__152]
+sql:
+CREATE TABLE codex_ctas_values AS VALUES ROW(1,'a'), ROW(2,'b');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/schema1/codex_ctas_values/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__153]
+sql:
+CREATE TABLE codex_ctas_recursive AS WITH RECURSIVE c(n) AS (SELECT 1 UNION ALL SELECT n + 1 FROM c WHERE n < 3) SELECT n FROM c;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:33) /test/1/catalog1/schema1/codex_ctas_recursive/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__154]
+sql:
+CREATE TABLE codex_ctas_as_paren_union AS (SELECT 1 AS a) UNION ALL (SELECT 2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:38) /test/1/catalog1/schema1/codex_ctas_as_paren_union/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table_query_lock__155]
+sql:
+CREATE TABLE t3 AS SELECT * FROM t1 FOR UPDATE SKIP LOCKED;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:15) /test/1/catalog1/schema1/t3/",
+      "action" : "CREATE",
+      "target" : "Table(1:33~1:35) /test/1/catalog1/schema1/t1/"
+    }
+  ]
+}
+----------
+[create_table__156]
+sql:
+CREATE TABLE gap_attr_ctas ENGINE_ATTRIBUTE='{"kind":"ctas"}' AS SELECT 1 AS i;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:26) /test/1/catalog1/schema1/gap_attr_ctas/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__157]
+sql:
+CREATE TABLE edges(s INT,e INT) WITH RECURSIVE tmp(s,e,d) AS (SELECT 1,2,1 UNION ALL SELECT FLOOR(1+RAND(3565659)*@node_count),FLOOR(1+RAND(2344291)*@node_count),d+1 FROM tmp WHERE d<@edge_count) SELECT s,e FROM tmp;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:18) /test/1/catalog1/schema1/edges/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:92~1:97) /test/1/catalog1/schema1/FLOOR/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:100~1:104) /test/1/catalog1/schema1/RAND/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "ConfigKey(1:114~1:125) /test/1/node_count/",
+      "action" : "READ"
+    },
+    {
+      "subject": "ConfigKey(1:183~1:194) /test/1/edge_count/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[create_table__158]
+sql:
+CREATE TABLE t3 WITH qn(foo,bar) AS (SELECT a,b FROM t1 LIMIT 2) SELECT bar,foo FROM qn;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:15) /test/1/catalog1/schema1/t3/",
+      "action" : "CREATE",
+      "target" : "Table(1:53~1:55) /test/1/catalog1/schema1/t1/"
+    }
+  ]
+}
+----------
+[create_table__159]
+sql:
+CREATE TABLE tv VALUES ROW(1), ROW(2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:15) /test/1/catalog1/schema1/tv/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__160]
+sql:
+CREATE TABLE conversion_strings_copy SELECT * FROM conversion_strings WHERE c3 = 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:36) /test/1/catalog1/schema1/conversion_strings_copy/",
+      "action" : "CREATE",
+      "target" : "Table(1:51~1:69) /test/1/catalog1/schema1/conversion_strings/"
+    }
+  ]
+}
+----------
+[create_table__161]
+sql:
+CREATE TABLE inferred_integer SELECT 000000000000000000000 AS n;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:29) /test/1/catalog1/schema1/inferred_integer/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__162]
+sql:
+CREATE TABLE ctas_intersect AS SELECT 1 AS c1,1 AS c2 INTERSECT SELECT 2,2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:27) /test/1/catalog1/schema1/ctas_intersect/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__163]
+sql:
+CREATE TABLE ctas_except AS SELECT 1 AS c1,1 AS c2 EXCEPT SELECT 2,2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:24) /test/1/catalog1/schema1/ctas_except/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_table__164]
+sql:
+CREATE TABLE ctas_values_ordered AS ((VALUES ROW(1,1),ROW(2,2) ORDER BY column_0 LIMIT 2) ORDER BY column_1 LIMIT 1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:32) /test/1/catalog1/schema1/ctas_values_ordered/",
+      "action" : "CREATE"
+    }
+  ]
+}

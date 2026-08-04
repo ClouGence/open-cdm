@@ -25,6 +25,7 @@ import com.clougence.clouddm.sec.rules.domain.CheckerDomain;
 import com.clougence.detectrule.domain.ParamInfo;
 import com.clougence.detectrule.lang.reflect.ReflectHelper;
 import com.clougence.detectrule.lang.reflect.Type;
+import com.clougence.detectrule.parser.DetectRuleDslProvider;
 import com.clougence.detectrule.parser.DetectRuleHelper;
 import com.clougence.detectrule.parser.ast.statement.StatementList;
 import com.clougence.detectrule.runtime.DefaultDataTimeValueParser;
@@ -52,7 +53,7 @@ public class AbstractCheckerSpiProvider {
 
     protected StatementSet cacheOrParserDsl(String script) throws Exception {
         return (StatementSet) this.cacheService.getObjectIfAbsent("detectrule-script-" + MD5.getMD5(script), s -> {
-            return DslHelper.parserDsl("DetectRule", script);
+            return DslHelper.parserDsl(DetectRuleDslProvider.INSTANCE, script);
         });
     }
 

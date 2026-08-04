@@ -1,0 +1,40 @@
+-- ARRAY_DERIVED_COLUMN
+select A.V from array new int[2]{1,2} A(V);
+-- ARRAY_MULTIDIMENSION
+select * from array new int[2,2]{{1,2},{3,4}};
+-- ARRAY_MISSING_EXPRESSION
+select * from array;
+-- ARRAY_MISSING_NEW_TYPE
+select * from array new;
+-- ARRAY_MISSING_LENGTH
+select * from array new int[]{1};
+-- TABLE_DERIVED_COLUMN
+select X.V from table(AQ_VALUES(1)) X(V);
+-- TABLE_MISSING_EXPRESSION
+select * from table();
+-- TABLE_MULTI_ARGUMENT
+select * from table(AQ_VALUES(1),AQ_VALUES(2));
+------------------------------------------------------------------------------------------
+[SELECT] -- ARRAY_DERIVED_COLUMN
+select A.V from array new int[2]{1,2} A(V);
+----------
+[SELECT] -- ARRAY_MULTIDIMENSION
+select * from array new int[2,2]{{1,2},{3,4}};
+----------
+[SELECT] -- ARRAY_MISSING_EXPRESSION
+select * from array;
+----------
+[SELECT] -- ARRAY_MISSING_NEW_TYPE
+select * from array new;
+----------
+[SELECT] -- ARRAY_MISSING_LENGTH
+select * from array new int[]{1};
+----------
+[SELECT|CALL_PROG_OBJ] -- TABLE_DERIVED_COLUMN
+select X.V from table(AQ_VALUES(1)) X(V);
+----------
+[SELECT] -- TABLE_MISSING_EXPRESSION
+select * from table();
+----------
+[SELECT] -- TABLE_MULTI_ARGUMENT
+select * from table(AQ_VALUES(1),AQ_VALUES(2));

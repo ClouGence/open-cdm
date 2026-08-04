@@ -1,0 +1,386 @@
+-- BEGIN_REQUEST_MINIMAL
+declare r utl_http.req; begin r:=utl_http.begin_request('http://host.docker.internal:18080/dm8?case=begin-min'); utl_http.set_header(r,'X-DM8-Begin','MIN'); utl_http.end_request(r); end;
+/
+-- BEGIN_REQUEST_FULL
+declare r utl_http.req; begin r:=utl_http.begin_request('http://host.docker.internal:18080/dm8?case=begin-full','GET','HTTP/1.1',null); utl_http.set_header(r,'X-DM8-Begin','FULL'); utl_http.end_request(r); end;
+/
+-- BEGIN_REQUEST_NAMED_REORDERED
+declare r utl_http.req; begin r:=utl_http.begin_request(REQUEST_CONTEXT=>null,HTTP_VERSION=>'HTTP/1.0',METHOD=>'GET',URL=>'http://host.docker.internal:18080/dm8?case=begin-named'); utl_http.set_header(r,'X-DM8-Begin','NAMED'); utl_http.end_request(r); end;
+/
+-- GET_RESPONSE_FUNCTION
+declare q utl_http.req; p utl_http.resp; begin q:=utl_http.begin_request('http://host.docker.internal:18080/dm8?case=response'); p:=utl_http.get_response(q); utl_http.end_response(p); end;
+/
+-- END_RESPONSE_PROCEDURE
+declare q utl_http.req; p utl_http.resp; begin q:=utl_http.begin_request('http://host.docker.internal:18080/dm8?case=end-response'); p:=utl_http.get_response(q); utl_http.end_response(R=>p); end;
+/
+-- WRITE_TEXT_PROCEDURE
+declare q utl_http.req; p utl_http.resp; v varchar(32767); begin q:=utl_http.begin_request('http://host.docker.internal:18080/post-text','POST','HTTP/1.1'); utl_http.set_header(q,'Content-Length','13'); utl_http.write_text(q,'DM8_HTTP_POST'); p:=utl_http.get_response(q); utl_http.read_text(p,v); utl_http.end_response(p); end;
+/
+-- WRITE_RAW_PROCEDURE
+declare q utl_http.req; p utl_http.resp; v varchar(32767); begin q:=utl_http.begin_request('http://host.docker.internal:18080/post-raw','POST','HTTP/1.1'); utl_http.set_header(q,'Content-Length','12'); utl_http.write_raw(q,cast('444D385F485454505F524157' as varbinary(64))); p:=utl_http.get_response(q); utl_http.read_text(p,v); utl_http.end_response(p); end;
+/
+-- READ_TEXT_DEFAULT_LEN
+declare q utl_http.req; p utl_http.resp; v varchar(32767); begin q:=utl_http.begin_request('http://host.docker.internal:18080/dm8?case=read-text-default'); p:=utl_http.get_response(q); utl_http.read_text(p,v); utl_http.end_response(p); end;
+/
+-- READ_TEXT_EXPLICIT_LEN
+declare q utl_http.req; p utl_http.resp; v varchar(32767); begin q:=utl_http.begin_request('http://host.docker.internal:18080/dm8?case=read-text-len'); p:=utl_http.get_response(q); utl_http.read_text(p,v,4); utl_http.end_response(p); end;
+/
+-- READ_RAW_DEFAULT_LEN
+declare q utl_http.req; p utl_http.resp; v varbinary(32767); begin q:=utl_http.begin_request('http://host.docker.internal:18080/binary'); p:=utl_http.get_response(q); utl_http.read_raw(p,v); utl_http.end_response(p); end;
+/
+-- READ_RAW_EXPLICIT_LEN
+declare q utl_http.req; p utl_http.resp; v varbinary(32767); begin q:=utl_http.begin_request('http://host.docker.internal:18080/binary'); p:=utl_http.get_response(q); utl_http.read_raw(p,v,4); utl_http.end_response(p); end;
+/
+-- READ_LINE_DEFAULT
+declare q utl_http.req; p utl_http.resp; v varchar(32767); begin q:=utl_http.begin_request('http://host.docker.internal:18080/headers'); p:=utl_http.get_response(q); utl_http.read_line(p,v); utl_http.end_response(p); end;
+/
+-- READ_LINE_REMOVE_CRLF
+declare q utl_http.req; p utl_http.resp; v varchar(32767); begin q:=utl_http.begin_request('http://host.docker.internal:18080/headers'); p:=utl_http.get_response(q); utl_http.read_line(R=>p,DATA=>v,REMOVE_CRLF=>true); utl_http.end_response(p); end;
+/
+-- SET_HEADER_DEFAULT_VALUE
+declare q utl_http.req; p utl_http.resp; begin q:=utl_http.begin_request('http://host.docker.internal:18080/dm8?case=header-null'); utl_http.set_header(q,'X-DM8-Null'); p:=utl_http.get_response(q); utl_http.end_response(p); end;
+/
+-- SET_HEADER_NAMED_FULL
+declare q utl_http.req; p utl_http.resp; begin q:=utl_http.begin_request('http://host.docker.internal:18080/dm8?case=header-full'); utl_http.set_header(VALUE=>'HEADER_OK',NAME=>'X-DM8-Case',R=>q); p:=utl_http.get_response(q); utl_http.end_response(p); end;
+/
+-- GET_HEADER_COUNT_FUNCTION
+declare q utl_http.req; p utl_http.resp; n int; begin q:=utl_http.begin_request('http://host.docker.internal:18080/headers'); p:=utl_http.get_response(q); n:=utl_http.get_header_count(p); utl_http.end_response(p); end;
+/
+-- GET_HEADER_PROCEDURE
+declare q utl_http.req; p utl_http.resp; n varchar(32767); v varchar(32767); begin q:=utl_http.begin_request('http://host.docker.internal:18080/headers'); p:=utl_http.get_response(q); utl_http.get_header(p,1,n,v); utl_http.end_response(p); end;
+/
+-- GET_HEADER_NAMED
+declare q utl_http.req; p utl_http.resp; n varchar(32767); v varchar(32767); begin q:=utl_http.begin_request('http://host.docker.internal:18080/headers'); p:=utl_http.get_response(q); utl_http.get_header(VALUE=>v,NAME=>n,N=>1,R=>p); utl_http.end_response(p); end;
+/
+-- GET_HEADER_BY_NAME_DEFAULT_N
+declare q utl_http.req; p utl_http.resp; v varchar(32767); begin q:=utl_http.begin_request('http://host.docker.internal:18080/headers'); p:=utl_http.get_response(q); utl_http.get_header_by_name(p,'X-DM8-Repeat',v); utl_http.end_response(p); end;
+/
+-- GET_HEADER_BY_NAME_SECOND
+declare q utl_http.req; p utl_http.resp; v varchar(32767); begin q:=utl_http.begin_request('http://host.docker.internal:18080/headers'); p:=utl_http.get_response(q); utl_http.get_header_by_name(N=>2,VALUE=>v,NAME=>'X-DM8-Repeat',R=>p); utl_http.end_response(p); end;
+/
+-- SET_BODY_CHARSET_SESSION_DEFAULT
+begin utl_http.set_body_charset(); end;
+/
+-- SET_BODY_CHARSET_SESSION_EXPLICIT
+begin utl_http.set_body_charset(CHARSET=>'UTF-8'); end;
+/
+-- SET_BODY_CHARSET_REQUEST_DEFAULT
+declare q utl_http.req; begin q:=utl_http.begin_request('http://host.docker.internal:18080/dm8?case=req-charset-default'); utl_http.set_body_charset(q); utl_http.end_request(q); end;
+/
+-- SET_BODY_CHARSET_REQUEST_EXPLICIT
+declare q utl_http.req; begin q:=utl_http.begin_request('http://host.docker.internal:18080/dm8?case=req-charset'); utl_http.set_body_charset(CHARSET=>'UTF-8',R=>q); utl_http.end_request(q); end;
+/
+-- SET_BODY_CHARSET_RESPONSE_DEFAULT
+declare q utl_http.req; p utl_http.resp; begin q:=utl_http.begin_request('http://host.docker.internal:18080/dm8?case=resp-charset-default'); p:=utl_http.get_response(q); utl_http.set_body_charset(p); utl_http.end_response(p); end;
+/
+-- SET_BODY_CHARSET_RESPONSE_EXPLICIT
+declare q utl_http.req; p utl_http.resp; begin q:=utl_http.begin_request('http://host.docker.internal:18080/dm8?case=resp-charset'); p:=utl_http.get_response(q); utl_http.set_body_charset(CHARSET=>'UTF-8',R=>p); utl_http.end_response(p); end;
+/
+-- SET_AUTHENTICATION_PASSWORD_DEFAULT_NULL
+declare q utl_http.req; p utl_http.resp; begin q:=utl_http.begin_request('http://host.docker.internal:18080/auth'); utl_http.set_authentication(q,'dm8-user'); p:=utl_http.get_response(q); utl_http.end_response(p); end;
+/
+-- SET_AUTHENTICATION_FULL_NAMED
+declare q utl_http.req; p utl_http.resp; begin q:=utl_http.begin_request('http://host.docker.internal:18080/auth'); utl_http.set_authentication(FOR_PROXY=>false,SCHEME=>'Basic',PASSWORD=>'dm8-pass',USERNAME=>'dm8-user',R=>q); p:=utl_http.get_response(q); utl_http.end_response(p); end;
+/
+-- GET_AUTHENTICATION_DEFAULT_FOR_PROXY
+declare q utl_http.req; p utl_http.resp; s varchar(32767); r varchar(32767); begin utl_http.set_response_error_check(false); q:=utl_http.begin_request('http://host.docker.internal:18080/auth'); p:=utl_http.get_response(q); utl_http.get_authentication(p,s,r); utl_http.end_response(p); end;
+/
+-- GET_AUTHENTICATION_NAMED_FALSE
+declare q utl_http.req; p utl_http.resp; s varchar(32767); r varchar(32767); begin utl_http.set_response_error_check(false); q:=utl_http.begin_request('http://host.docker.internal:18080/auth'); p:=utl_http.get_response(q); utl_http.get_authentication(FOR_PROXY=>false,REALM=>r,SCHEME=>s,R=>p); utl_http.end_response(p); end;
+/
+-- REQUEST_MINIMAL
+select utl_http.request('http://host.docker.internal:18080/dm8?case=request-min');
+-- REQUEST_PROXY_DEFAULT
+select utl_http.request('http://host.docker.internal:18080/dm8?case=request-proxy',null);
+-- REQUEST_PACK29_FOUR_ARGUMENTS
+select utl_http.request('http://host.docker.internal:18080/dm8?case=request-wallet',null,null,null);
+-- SET_TRANSFER_TIMEOUT_SESSION_DEFAULT
+begin utl_http.set_transfer_timeout(); end;
+/
+-- SET_TRANSFER_TIMEOUT_SESSION_MIN
+begin utl_http.set_transfer_timeout(TIMEOUT=>1); end;
+/
+-- SET_TRANSFER_TIMEOUT_SESSION_MAX
+begin utl_http.set_transfer_timeout(2147483647); end;
+/
+-- SET_TRANSFER_TIMEOUT_REQUEST_DEFAULT
+declare q utl_http.req; begin q:=utl_http.begin_request('http://host.docker.internal:18080/dm8?case=req-timeout-default'); utl_http.set_transfer_timeout(q); utl_http.end_request(q); end;
+/
+-- SET_TRANSFER_TIMEOUT_REQUEST_EXPLICIT
+declare q utl_http.req; begin q:=utl_http.begin_request('http://host.docker.internal:18080/dm8?case=req-timeout'); utl_http.set_transfer_timeout(TIMEOUT=>1,R=>q); utl_http.end_request(q); end;
+/
+-- SET_PERSISTENT_SESSION_DEFAULT_MAX
+begin utl_http.set_persistent_conn_support(true); utl_http.set_persistent_conn_support(false); end;
+/
+-- SET_PERSISTENT_SESSION_FULL
+begin utl_http.set_persistent_conn_support(ENABLE_FLAG=>true,MAX_CONNS=>2); utl_http.set_persistent_conn_support(false,0); end;
+/
+-- SET_PERSISTENT_REQUEST_DEFAULT_ENABLE
+declare q utl_http.req; begin q:=utl_http.begin_request('http://host.docker.internal:18080/dm8?case=req-persist-default'); utl_http.set_persistent_conn_support(q); utl_http.end_request(q); end;
+/
+-- SET_PERSISTENT_REQUEST_TRUE
+declare q utl_http.req; p utl_http.resp; begin q:=utl_http.begin_request('http://host.docker.internal:18080/dm8?case=req-persist'); utl_http.set_persistent_conn_support(ENABLE_FLAG=>true,R=>q); p:=utl_http.get_response(q); utl_http.end_response(p); utl_http.close_persistent_conns(); end;
+/
+-- GET_PERSISTENT_CONN_SUPPORT
+declare e boolean; n int; begin utl_http.set_persistent_conn_support(true,2); utl_http.get_persistent_conn_support(e,n); utl_http.set_persistent_conn_support(false,0); end;
+/
+-- GET_PERSISTENT_CONN_COUNT
+declare n int; begin n:=utl_http.get_persistent_conn_count(); end;
+/
+-- GET_PERSISTENT_CONNS_EMPTY
+declare c utl_http.connection_table; begin utl_http.get_persistent_conns(c); end;
+/
+-- CLOSE_PERSISTENT_CONNS_ZERO
+begin utl_http.close_persistent_conns(); end;
+/
+-- CLOSE_PERSISTENT_CONNS_FULL_NAMED
+begin utl_http.close_persistent_conns(SSL=>false,PROXY_PORT=>null,PROXY_HOST=>null,PORT=>18080,HOST=>'host.docker.internal'); end;
+/
+-- CLOSE_PERSISTENT_CONN_RECORD
+declare q utl_http.req; p utl_http.resp; c utl_http.connection_table; i int; begin utl_http.set_persistent_conn_support(true,2); q:=utl_http.begin_request('http://host.docker.internal:18080/dm8?case=close-one'); p:=utl_http.get_response(q); utl_http.end_response(p); utl_http.get_persistent_conns(c); i:=c.first; if i is not null then utl_http.close_persistent_conn(c(i)); end if; utl_http.set_persistent_conn_support(false,0); end;
+/
+-- SET_PROXY_DEFAULT_NO_PROXY
+declare p varchar(32767); n varchar(32767); begin utl_http.set_proxy('http://proxy.example.invalid:8080'); utl_http.get_proxy(p,n); utl_http.set_proxy(null,null); end;
+/
+-- SET_PROXY_FULL_NAMED
+declare p varchar(32767); n varchar(32767); begin utl_http.set_proxy(NO_PROXY_DOMAINS=>'localhost,127.0.0.1',PROXY=>'http://proxy.example.invalid:8080'); utl_http.get_proxy(PROXY=>p,NO_PROXY_DOMAINS=>n); utl_http.set_proxy(null,null); end;
+/
+-- SET_WALLET_DEFAULT_PASSWORD
+begin utl_http.set_wallet('/tmp/dm8-wallet'); end;
+/
+-- SET_WALLET_FULL
+begin utl_http.set_wallet(PASSWORD=>'dm8-password',PATH=>'/tmp/dm8-wallet'); end;
+/
+-- SET_DETAILED_EXCP_DEFAULT
+begin utl_http.set_detailed_excp_support(); end;
+/
+-- SET_AND_GET_DETAILED_EXCP
+declare e boolean; begin utl_http.set_detailed_excp_support(true); utl_http.get_detailed_excp_support(e); utl_http.set_detailed_excp_support(false); end;
+/
+-- SET_RESPONSE_ERROR_CHECK_DEFAULT
+begin utl_http.set_response_error_check(); end;
+/
+-- SET_RESPONSE_ERROR_CHECK_TRUE_FALSE
+begin utl_http.set_response_error_check(true); utl_http.set_response_error_check(false); end;
+/
+-- GET_DETAILED_SQLCODE
+declare n int; begin n:=utl_http.get_detailed_sqlcode(); end;
+/
+-- GET_DETAILED_SQLERRM
+declare v varchar(32767); begin v:=utl_http.get_detailed_sqlerrm(); end;
+/
+-- REQUEST_RETURNS_FIRST_2000_BYTES
+select length(utl_http.request('http://host.docker.internal:18080/long'));
+-- SET_TRANSFER_TIMEOUT_PACK29_ZERO
+begin utl_http.set_transfer_timeout(0); end;
+/
+-- BEGIN_REQUEST_CONTEXT_COMPATIBILITY_NON_NULL
+declare q utl_http.req; begin q:=utl_http.begin_request('http://host.docker.internal:18080/dm8?case=context','GET',null,1); utl_http.end_request(q); end;
+/
+-- RESPONSE_ERROR_CHECK_404_PACK29_NO_EFFECT
+declare q utl_http.req; p utl_http.resp; begin utl_http.set_response_error_check(true); q:=utl_http.begin_request('http://host.docker.internal:18080/status/404'); p:=utl_http.get_response(q); utl_http.end_response(p); utl_http.set_response_error_check(false); end;
+/
+-- RESPONSE_ERROR_CHECK_500_PACK29_NO_EFFECT
+declare q utl_http.req; p utl_http.resp; begin utl_http.set_response_error_check(true); q:=utl_http.begin_request('http://host.docker.internal:18080/status/500'); p:=utl_http.get_response(q); utl_http.end_response(p); utl_http.set_response_error_check(false); end;
+/
+-- SET_AUTHENTICATION_FOR_PROXY_HEADER
+declare q utl_http.req; p utl_http.resp; begin q:=utl_http.begin_request('http://host.docker.internal:18080/dm8?case=proxy-authorization'); utl_http.set_authentication(q,'proxy-user','proxy-pass','Basic',true); p:=utl_http.get_response(q); utl_http.end_response(p); end;
+/
+-- GET_AUTHENTICATION_FOR_PROXY
+declare q utl_http.req; p utl_http.resp; s varchar(32767); r varchar(32767); begin utl_http.set_response_error_check(false); q:=utl_http.begin_request('http://host.docker.internal:18080/proxy-auth'); p:=utl_http.get_response(q); utl_http.get_authentication(p,s,r,true); utl_http.end_response(p); end;
+/
+------------------------------------------------------------------------------------------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- BEGIN_REQUEST_MINIMAL
+declare r utl_http.req; begin r:=utl_http.begin_request('http://host.docker.internal:18080/dm8?case=begin-min'); utl_http.set_header(r,'X-DM8-Begin','MIN'); utl_http.end_request(r); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- BEGIN_REQUEST_FULL
+declare r utl_http.req; begin r:=utl_http.begin_request('http://host.docker.internal:18080/dm8?case=begin-full','GET','HTTP/1.1',null); utl_http.set_header(r,'X-DM8-Begin','FULL'); utl_http.end_request(r); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- BEGIN_REQUEST_NAMED_REORDERED
+declare r utl_http.req; begin r:=utl_http.begin_request(REQUEST_CONTEXT=>null,HTTP_VERSION=>'HTTP/1.0',METHOD=>'GET',URL=>'http://host.docker.internal:18080/dm8?case=begin-named'); utl_http.set_header(r,'X-DM8-Begin','NAMED'); utl_http.end_request(r); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- GET_RESPONSE_FUNCTION
+declare q utl_http.req; p utl_http.resp; begin q:=utl_http.begin_request('http://host.docker.internal:18080/dm8?case=response'); p:=utl_http.get_response(q); utl_http.end_response(p); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- END_RESPONSE_PROCEDURE
+declare q utl_http.req; p utl_http.resp; begin q:=utl_http.begin_request('http://host.docker.internal:18080/dm8?case=end-response'); p:=utl_http.get_response(q); utl_http.end_response(R=>p); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- WRITE_TEXT_PROCEDURE
+declare q utl_http.req; p utl_http.resp; v varchar(32767); begin q:=utl_http.begin_request('http://host.docker.internal:18080/post-text','POST','HTTP/1.1'); utl_http.set_header(q,'Content-Length','13'); utl_http.write_text(q,'DM8_HTTP_POST'); p:=utl_http.get_response(q); utl_http.read_text(p,v); utl_http.end_response(p); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- WRITE_RAW_PROCEDURE
+declare q utl_http.req; p utl_http.resp; v varchar(32767); begin q:=utl_http.begin_request('http://host.docker.internal:18080/post-raw','POST','HTTP/1.1'); utl_http.set_header(q,'Content-Length','12'); utl_http.write_raw(q,cast('444D385F485454505F524157' as varbinary(64))); p:=utl_http.get_response(q); utl_http.read_text(p,v); utl_http.end_response(p); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- READ_TEXT_DEFAULT_LEN
+declare q utl_http.req; p utl_http.resp; v varchar(32767); begin q:=utl_http.begin_request('http://host.docker.internal:18080/dm8?case=read-text-default'); p:=utl_http.get_response(q); utl_http.read_text(p,v); utl_http.end_response(p); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- READ_TEXT_EXPLICIT_LEN
+declare q utl_http.req; p utl_http.resp; v varchar(32767); begin q:=utl_http.begin_request('http://host.docker.internal:18080/dm8?case=read-text-len'); p:=utl_http.get_response(q); utl_http.read_text(p,v,4); utl_http.end_response(p); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- READ_RAW_DEFAULT_LEN
+declare q utl_http.req; p utl_http.resp; v varbinary(32767); begin q:=utl_http.begin_request('http://host.docker.internal:18080/binary'); p:=utl_http.get_response(q); utl_http.read_raw(p,v); utl_http.end_response(p); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- READ_RAW_EXPLICIT_LEN
+declare q utl_http.req; p utl_http.resp; v varbinary(32767); begin q:=utl_http.begin_request('http://host.docker.internal:18080/binary'); p:=utl_http.get_response(q); utl_http.read_raw(p,v,4); utl_http.end_response(p); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- READ_LINE_DEFAULT
+declare q utl_http.req; p utl_http.resp; v varchar(32767); begin q:=utl_http.begin_request('http://host.docker.internal:18080/headers'); p:=utl_http.get_response(q); utl_http.read_line(p,v); utl_http.end_response(p); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- READ_LINE_REMOVE_CRLF
+declare q utl_http.req; p utl_http.resp; v varchar(32767); begin q:=utl_http.begin_request('http://host.docker.internal:18080/headers'); p:=utl_http.get_response(q); utl_http.read_line(R=>p,DATA=>v,REMOVE_CRLF=>true); utl_http.end_response(p); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- SET_HEADER_DEFAULT_VALUE
+declare q utl_http.req; p utl_http.resp; begin q:=utl_http.begin_request('http://host.docker.internal:18080/dm8?case=header-null'); utl_http.set_header(q,'X-DM8-Null'); p:=utl_http.get_response(q); utl_http.end_response(p); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- SET_HEADER_NAMED_FULL
+declare q utl_http.req; p utl_http.resp; begin q:=utl_http.begin_request('http://host.docker.internal:18080/dm8?case=header-full'); utl_http.set_header(VALUE=>'HEADER_OK',NAME=>'X-DM8-Case',R=>q); p:=utl_http.get_response(q); utl_http.end_response(p); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- GET_HEADER_COUNT_FUNCTION
+declare q utl_http.req; p utl_http.resp; n int; begin q:=utl_http.begin_request('http://host.docker.internal:18080/headers'); p:=utl_http.get_response(q); n:=utl_http.get_header_count(p); utl_http.end_response(p); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- GET_HEADER_PROCEDURE
+declare q utl_http.req; p utl_http.resp; n varchar(32767); v varchar(32767); begin q:=utl_http.begin_request('http://host.docker.internal:18080/headers'); p:=utl_http.get_response(q); utl_http.get_header(p,1,n,v); utl_http.end_response(p); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- GET_HEADER_NAMED
+declare q utl_http.req; p utl_http.resp; n varchar(32767); v varchar(32767); begin q:=utl_http.begin_request('http://host.docker.internal:18080/headers'); p:=utl_http.get_response(q); utl_http.get_header(VALUE=>v,NAME=>n,N=>1,R=>p); utl_http.end_response(p); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- GET_HEADER_BY_NAME_DEFAULT_N
+declare q utl_http.req; p utl_http.resp; v varchar(32767); begin q:=utl_http.begin_request('http://host.docker.internal:18080/headers'); p:=utl_http.get_response(q); utl_http.get_header_by_name(p,'X-DM8-Repeat',v); utl_http.end_response(p); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- GET_HEADER_BY_NAME_SECOND
+declare q utl_http.req; p utl_http.resp; v varchar(32767); begin q:=utl_http.begin_request('http://host.docker.internal:18080/headers'); p:=utl_http.get_response(q); utl_http.get_header_by_name(N=>2,VALUE=>v,NAME=>'X-DM8-Repeat',R=>p); utl_http.end_response(p); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- SET_BODY_CHARSET_SESSION_DEFAULT
+begin utl_http.set_body_charset(); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- SET_BODY_CHARSET_SESSION_EXPLICIT
+begin utl_http.set_body_charset(CHARSET=>'UTF-8'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- SET_BODY_CHARSET_REQUEST_DEFAULT
+declare q utl_http.req; begin q:=utl_http.begin_request('http://host.docker.internal:18080/dm8?case=req-charset-default'); utl_http.set_body_charset(q); utl_http.end_request(q); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- SET_BODY_CHARSET_REQUEST_EXPLICIT
+declare q utl_http.req; begin q:=utl_http.begin_request('http://host.docker.internal:18080/dm8?case=req-charset'); utl_http.set_body_charset(CHARSET=>'UTF-8',R=>q); utl_http.end_request(q); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- SET_BODY_CHARSET_RESPONSE_DEFAULT
+declare q utl_http.req; p utl_http.resp; begin q:=utl_http.begin_request('http://host.docker.internal:18080/dm8?case=resp-charset-default'); p:=utl_http.get_response(q); utl_http.set_body_charset(p); utl_http.end_response(p); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- SET_BODY_CHARSET_RESPONSE_EXPLICIT
+declare q utl_http.req; p utl_http.resp; begin q:=utl_http.begin_request('http://host.docker.internal:18080/dm8?case=resp-charset'); p:=utl_http.get_response(q); utl_http.set_body_charset(CHARSET=>'UTF-8',R=>p); utl_http.end_response(p); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- SET_AUTHENTICATION_PASSWORD_DEFAULT_NULL
+declare q utl_http.req; p utl_http.resp; begin q:=utl_http.begin_request('http://host.docker.internal:18080/auth'); utl_http.set_authentication(q,'dm8-user'); p:=utl_http.get_response(q); utl_http.end_response(p); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- SET_AUTHENTICATION_FULL_NAMED
+declare q utl_http.req; p utl_http.resp; begin q:=utl_http.begin_request('http://host.docker.internal:18080/auth'); utl_http.set_authentication(FOR_PROXY=>false,SCHEME=>'Basic',PASSWORD=>'dm8-pass',USERNAME=>'dm8-user',R=>q); p:=utl_http.get_response(q); utl_http.end_response(p); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- GET_AUTHENTICATION_DEFAULT_FOR_PROXY
+declare q utl_http.req; p utl_http.resp; s varchar(32767); r varchar(32767); begin utl_http.set_response_error_check(false); q:=utl_http.begin_request('http://host.docker.internal:18080/auth'); p:=utl_http.get_response(q); utl_http.get_authentication(p,s,r); utl_http.end_response(p); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- GET_AUTHENTICATION_NAMED_FALSE
+declare q utl_http.req; p utl_http.resp; s varchar(32767); r varchar(32767); begin utl_http.set_response_error_check(false); q:=utl_http.begin_request('http://host.docker.internal:18080/auth'); p:=utl_http.get_response(q); utl_http.get_authentication(FOR_PROXY=>false,REALM=>r,SCHEME=>s,R=>p); utl_http.end_response(p); end;
+----------
+[SELECT|CALL_PROG_OBJ] -- REQUEST_MINIMAL
+select utl_http.request('http://host.docker.internal:18080/dm8?case=request-min');
+----------
+[SELECT|CALL_PROG_OBJ] -- REQUEST_PROXY_DEFAULT
+select utl_http.request('http://host.docker.internal:18080/dm8?case=request-proxy',null);
+----------
+[SELECT|CALL_PROG_OBJ] -- REQUEST_PACK29_FOUR_ARGUMENTS
+select utl_http.request('http://host.docker.internal:18080/dm8?case=request-wallet',null,null,null);
+----------
+[BLOCK(CALL_PROG_OBJ)] -- SET_TRANSFER_TIMEOUT_SESSION_DEFAULT
+begin utl_http.set_transfer_timeout(); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- SET_TRANSFER_TIMEOUT_SESSION_MIN
+begin utl_http.set_transfer_timeout(TIMEOUT=>1); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- SET_TRANSFER_TIMEOUT_SESSION_MAX
+begin utl_http.set_transfer_timeout(2147483647); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- SET_TRANSFER_TIMEOUT_REQUEST_DEFAULT
+declare q utl_http.req; begin q:=utl_http.begin_request('http://host.docker.internal:18080/dm8?case=req-timeout-default'); utl_http.set_transfer_timeout(q); utl_http.end_request(q); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- SET_TRANSFER_TIMEOUT_REQUEST_EXPLICIT
+declare q utl_http.req; begin q:=utl_http.begin_request('http://host.docker.internal:18080/dm8?case=req-timeout'); utl_http.set_transfer_timeout(TIMEOUT=>1,R=>q); utl_http.end_request(q); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- SET_PERSISTENT_SESSION_DEFAULT_MAX
+begin utl_http.set_persistent_conn_support(true); utl_http.set_persistent_conn_support(false); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- SET_PERSISTENT_SESSION_FULL
+begin utl_http.set_persistent_conn_support(ENABLE_FLAG=>true,MAX_CONNS=>2); utl_http.set_persistent_conn_support(false,0); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- SET_PERSISTENT_REQUEST_DEFAULT_ENABLE
+declare q utl_http.req; begin q:=utl_http.begin_request('http://host.docker.internal:18080/dm8?case=req-persist-default'); utl_http.set_persistent_conn_support(q); utl_http.end_request(q); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- SET_PERSISTENT_REQUEST_TRUE
+declare q utl_http.req; p utl_http.resp; begin q:=utl_http.begin_request('http://host.docker.internal:18080/dm8?case=req-persist'); utl_http.set_persistent_conn_support(ENABLE_FLAG=>true,R=>q); p:=utl_http.get_response(q); utl_http.end_response(p); utl_http.close_persistent_conns(); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- GET_PERSISTENT_CONN_SUPPORT
+declare e boolean; n int; begin utl_http.set_persistent_conn_support(true,2); utl_http.get_persistent_conn_support(e,n); utl_http.set_persistent_conn_support(false,0); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- GET_PERSISTENT_CONN_COUNT
+declare n int; begin n:=utl_http.get_persistent_conn_count(); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- GET_PERSISTENT_CONNS_EMPTY
+declare c utl_http.connection_table; begin utl_http.get_persistent_conns(c); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- CLOSE_PERSISTENT_CONNS_ZERO
+begin utl_http.close_persistent_conns(); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- CLOSE_PERSISTENT_CONNS_FULL_NAMED
+begin utl_http.close_persistent_conns(SSL=>false,PROXY_PORT=>null,PROXY_HOST=>null,PORT=>18080,HOST=>'host.docker.internal'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- CLOSE_PERSISTENT_CONN_RECORD
+declare q utl_http.req; p utl_http.resp; c utl_http.connection_table; i int; begin utl_http.set_persistent_conn_support(true,2); q:=utl_http.begin_request('http://host.docker.internal:18080/dm8?case=close-one'); p:=utl_http.get_response(q); utl_http.end_response(p); utl_http.get_persistent_conns(c); i:=c.first; if i is not null then utl_http.close_persistent_conn(c(i)); end if; utl_http.set_persistent_conn_support(false,0); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- SET_PROXY_DEFAULT_NO_PROXY
+declare p varchar(32767); n varchar(32767); begin utl_http.set_proxy('http://proxy.example.invalid:8080'); utl_http.get_proxy(p,n); utl_http.set_proxy(null,null); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- SET_PROXY_FULL_NAMED
+declare p varchar(32767); n varchar(32767); begin utl_http.set_proxy(NO_PROXY_DOMAINS=>'localhost,127.0.0.1',PROXY=>'http://proxy.example.invalid:8080'); utl_http.get_proxy(PROXY=>p,NO_PROXY_DOMAINS=>n); utl_http.set_proxy(null,null); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- SET_WALLET_DEFAULT_PASSWORD
+begin utl_http.set_wallet('/tmp/dm8-wallet'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- SET_WALLET_FULL
+begin utl_http.set_wallet(PASSWORD=>'dm8-password',PATH=>'/tmp/dm8-wallet'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- SET_DETAILED_EXCP_DEFAULT
+begin utl_http.set_detailed_excp_support(); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- SET_AND_GET_DETAILED_EXCP
+declare e boolean; begin utl_http.set_detailed_excp_support(true); utl_http.get_detailed_excp_support(e); utl_http.set_detailed_excp_support(false); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- SET_RESPONSE_ERROR_CHECK_DEFAULT
+begin utl_http.set_response_error_check(); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- SET_RESPONSE_ERROR_CHECK_TRUE_FALSE
+begin utl_http.set_response_error_check(true); utl_http.set_response_error_check(false); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- GET_DETAILED_SQLCODE
+declare n int; begin n:=utl_http.get_detailed_sqlcode(); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- GET_DETAILED_SQLERRM
+declare v varchar(32767); begin v:=utl_http.get_detailed_sqlerrm(); end;
+----------
+[SELECT|CALL_PROG_OBJ] -- REQUEST_RETURNS_FIRST_2000_BYTES
+select length(utl_http.request('http://host.docker.internal:18080/long'));
+----------
+[BLOCK(CALL_PROG_OBJ)] -- SET_TRANSFER_TIMEOUT_PACK29_ZERO
+begin utl_http.set_transfer_timeout(0); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- BEGIN_REQUEST_CONTEXT_COMPATIBILITY_NON_NULL
+declare q utl_http.req; begin q:=utl_http.begin_request('http://host.docker.internal:18080/dm8?case=context','GET',null,1); utl_http.end_request(q); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- RESPONSE_ERROR_CHECK_404_PACK29_NO_EFFECT
+declare q utl_http.req; p utl_http.resp; begin utl_http.set_response_error_check(true); q:=utl_http.begin_request('http://host.docker.internal:18080/status/404'); p:=utl_http.get_response(q); utl_http.end_response(p); utl_http.set_response_error_check(false); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- RESPONSE_ERROR_CHECK_500_PACK29_NO_EFFECT
+declare q utl_http.req; p utl_http.resp; begin utl_http.set_response_error_check(true); q:=utl_http.begin_request('http://host.docker.internal:18080/status/500'); p:=utl_http.get_response(q); utl_http.end_response(p); utl_http.set_response_error_check(false); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- SET_AUTHENTICATION_FOR_PROXY_HEADER
+declare q utl_http.req; p utl_http.resp; begin q:=utl_http.begin_request('http://host.docker.internal:18080/dm8?case=proxy-authorization'); utl_http.set_authentication(q,'proxy-user','proxy-pass','Basic',true); p:=utl_http.get_response(q); utl_http.end_response(p); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- GET_AUTHENTICATION_FOR_PROXY
+declare q utl_http.req; p utl_http.resp; s varchar(32767); r varchar(32767); begin utl_http.set_response_error_check(false); q:=utl_http.begin_request('http://host.docker.internal:18080/proxy-auth'); p:=utl_http.get_response(q); utl_http.get_authentication(p,s,r,true); utl_http.end_response(p); end;

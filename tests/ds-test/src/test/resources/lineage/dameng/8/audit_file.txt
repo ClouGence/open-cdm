@@ -1,0 +1,11 @@
+[audit_file_arguments_have_no_column_lineage]
+sql:
+sp_drop_audit_file(sysdate + 1, 0)
+expect:
+{}
+----------
+[audit_encryption_arguments_have_no_column_lineage]
+sql:
+sp_audit_set_enc('AES128_CBC', 'CodexDm8AuditKey')
+expect:
+{}
