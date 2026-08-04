@@ -28,7 +28,9 @@ const MYSQL_INIT_MARKER = path.join(MYSQL_DATA_DIR, '.cgdm_initialized');
 const MYSQL_CONFIGURED_MARKER = path.join(USER_DATA_DIR, '.mysql_configured');
 
 let mysqlProcess = null;
+let mysqlPid = null;
 let javaProcess = null;
+let javaPid = null;
 let mainWindow = null;
 let isQuitting = false;
 
@@ -69,8 +71,162 @@ function sleep(ms) {
 function ensurePortFree(port) {
   const { execSync } = require('child_process');
   try {
-    execSync(`lsof -ti :${port} | xargs kill -9 2>/dev/null`, { timeout: 5000 });
+    const out = execSync(`lsof -ti :${port}`, { encoding: 'utf8', timeout: 3000 }).trim();
+    if (!out) return;
+    for (const pid of out.split('\n').map(s => Number(s.trim())).filter(n => n > 0)) {
+      const row = parseProcessList().find(r => r.pid === pid);
+      if (!row) continue;
+      killOwnedProcess(pid, row.command, 'SIGKILL');
+    }
   } catch (_) {}
+}
+
+function killProcessTree(pid, signal = 'SIGKILL') {
+  if (!pid || pid <= 0) return;
+  try {
+    process.kill(pid, signal);
+  } catch (_) {}
+}
+
+function listProcessCommands() {
+  const { execSync } = require('child_process');
+  try {
+    return execSync('ps -eo pid=,command=', { encoding: 'utf8', timeout: 5000 });
+  } catch (_) {
+    return '';
+  }
+}
+
+function parseProcessList() {
+  const rows = [];
+  for (const line of listProcessCommands().split('\n')) {
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+
+    const spaceIdx = trimmed.indexOf(' ');
+    if (spaceIdx <= 0) continue;
+
+    const pid = Number(trimmed.slice(0, spaceIdx));
+    const command = trimmed.slice(spaceIdx + 1);
+    if (pid > 0) rows.push({ pid, command });
+  }
+  return rows;
+}
+
+function listChildPids(parentPid) {
+  const { execSync } = require('child_process');
+  try {
+    const out = execSync(`pgrep -P ${parentPid}`, { encoding: 'utf8', timeout: 3000 }).trim();
+    if (!out) return [];
+    return out.split('\n').map(s => Number(s.trim())).filter(n => n > 0);
+  } catch (_) {
+    return [];
+  }
+}
+
+function listDescendantPids(rootPid) {
+  const descendants = new Set();
+  const queue = [rootPid];
+  while (queue.length > 0) {
+    const pid = queue.shift();
+    for (const childPid of listChildPids(pid)) {
+      if (!descendants.has(childPid)) {
+        descendants.add(childPid);
+        queue.push(childPid);
+      }
+    }
+  }
+  return descendants;
+}
+
+function isCloudDmJavaCommand(command) {
+  return command.includes('plexus-classworlds.launcher.Launcher')
+    && command.includes(`-Dapp.home=${RUNTIME_DIR}`);
+}
+
+function isCloudDmMysqldCommand(command) {
+  return command.includes('mysqld')
+    && command.includes(`--datadir=${MYSQL_DATA_DIR}`);
+}
+
+function isCloudDmBackendCommand(command) {
+  return isCloudDmJavaCommand(command) || isCloudDmMysqldCommand(command);
+}
+
+function isOwnedByCloudDmApp(pid, command) {
+  if (pid === javaPid || pid === mysqlPid) return true;
+  if (!isCloudDmBackendCommand(command)) return false;
+
+  if (pid === process.pid) return false;
+
+  const descendants = listDescendantPids(process.pid);
+  if (descendants.has(pid)) return true;
+
+  const { execSync } = require('child_process');
+  try {
+    const ppid = Number(execSync(`ps -o ppid= -p ${pid}`, { encoding: 'utf8', timeout: 3000 }).trim());
+    if (ppid === process.pid) return true;
+  } catch (_) {}
+
+  return false;
+}
+
+function killOwnedProcess(pid, command, signal = 'SIGTERM') {
+  if (!isOwnedByCloudDmApp(pid, command)) return false;
+  killProcessTree(pid, signal);
+  console.log(`[cgdm] Killed owned pid=${pid}`);
+  return true;
+}
+
+function killTrackedBackendProcesses(signal = 'SIGTERM') {
+  if (javaPid) killProcessTree(javaPid, signal);
+  if (mysqlPid) killProcessTree(mysqlPid, signal);
+}
+
+function killCloudDmChildBackendProcesses(signal = 'SIGKILL') {
+  const ownedPids = new Set([javaPid, mysqlPid].filter(Boolean));
+  for (const pid of listDescendantPids(process.pid)) {
+    ownedPids.add(pid);
+  }
+
+  for (const { pid, command } of parseProcessList()) {
+    if (!ownedPids.has(pid)) continue;
+    killOwnedProcess(pid, command, signal);
+  }
+}
+
+// Previous CloudDM session crashed: only match CloudDM-specific command line, never all java.
+function killStaleCloudDmBackendProcesses(signal = 'SIGKILL') {
+  for (const { pid, command } of parseProcessList()) {
+    if (!isCloudDmBackendCommand(command)) continue;
+    killProcessTree(pid, signal);
+    console.log(`[cgdm] Killed stale CloudDM backend pid=${pid}`);
+  }
+}
+
+function killOwnedPortListeners(signal = 'SIGKILL') {
+  const { execSync } = require('child_process');
+  for (const port of [APP_WEB_PORT, DB_PORT, RSOCKET_PORT]) {
+    let pids = [];
+    try {
+      const out = execSync(`lsof -ti :${port}`, { encoding: 'utf8', timeout: 3000 }).trim();
+      if (out) {
+        pids = out.split('\n').map(s => Number(s.trim())).filter(n => n > 0);
+      }
+    } catch (_) {}
+
+    for (const pid of pids) {
+      const row = parseProcessList().find(r => r.pid === pid);
+      if (!row) continue;
+      killOwnedProcess(pid, row.command, signal);
+    }
+  }
+}
+
+function forceKillBackendProcesses() {
+  killTrackedBackendProcesses('SIGTERM');
+  killCloudDmChildBackendProcesses('SIGKILL');
+  killOwnedPortListeners('SIGKILL');
 }
 
 function clearRestartFlag() {
@@ -430,39 +586,23 @@ function cleanupLegacyMysqlRuntimeFiles() {
   }
 }
 
-function killEmbeddedMysqldProcesses() {
-  const { execSync } = require('child_process');
-  const datadirNeedle = `--datadir=${MYSQL_DATA_DIR}`;
+function purgeLegacyBinlogFiles() {
+  if (!fs.existsSync(MYSQL_DATA_DIR)) return;
 
-  let listing = '';
-  try {
-    listing = execSync('ps -eo pid=,command=', { encoding: 'utf8', timeout: 5000 });
-  } catch (_) {
-    return;
-  }
-
-  for (const line of listing.split('\n')) {
-    const trimmed = line.trim();
-    if (!trimmed) continue;
-
-    const spaceIdx = trimmed.indexOf(' ');
-    if (spaceIdx <= 0) continue;
-
-    const pid = Number(trimmed.slice(0, spaceIdx));
-    const command = trimmed.slice(spaceIdx + 1);
-    if (!pid || !command.includes('mysqld')) continue;
-    if (!command.includes(datadirNeedle)) continue;
-
+  for (const name of fs.readdirSync(MYSQL_DATA_DIR)) {
+    if (!name.startsWith('binlog.') && name !== 'binlog.index') continue;
     try {
-      process.kill(pid, 'SIGKILL');
-      console.log(`[cgdm] Killed orphan mysqld pid=${pid}`);
+      fs.rmSync(path.join(MYSQL_DATA_DIR, name), { force: true });
+      console.log(`[cgdm] Removed legacy binlog file: ${name}`);
     } catch (_) {}
   }
 }
 
+
 function startMySQL() {
   const mysqldPath = path.join(MYSQL_DIR, 'bin', 'mysqld');
   cleanupMysqlRuntimeFiles();
+  purgeLegacyBinlogFiles();
 
   if (!fs.existsSync(MYSQL_INIT_MARKER)) {
     sendStatus('Initializing database...');
@@ -504,12 +644,14 @@ function startMysqldProcess() {
       '--character-set-server=utf8mb4',
       '--collation-server=utf8mb4_unicode_ci',
       '--mysqlx=0',
+      '--skip-log-bin',
       '--log-error-verbosity=1',
       `--log-error=${logErrorPath}`,
     ], {
       stdio: ['ignore', 'pipe', 'pipe'],
       env: mysqldEnv(),
     });
+    mysqlPid = mysqlProcess.pid;
 
     let started = false;
     const stderrChunks = [];
@@ -529,6 +671,7 @@ function startMysqldProcess() {
         console.error(`mysqld exited unexpectedly code=${code}`);
       }
       mysqlProcess = null;
+      mysqlPid = null;
     });
 
     setTimeout(() => {
@@ -576,29 +719,29 @@ function stopMySQL() {
     const finish = () => {
       if (done) return;
       done = true;
+      if (mysqlPid) killProcessTree(mysqlPid, 'SIGTERM');
       mysqlProcess = null;
-      killEmbeddedMysqldProcesses();
+      mysqlPid = null;
+      killCloudDmChildBackendProcesses('SIGKILL');
+      killOwnedPortListeners('SIGKILL');
       cleanupMysqlRuntimeFiles();
       cleanupLegacyMysqlRuntimeFiles();
       resolve();
     };
 
-    if (!mysqlProcess) {
+    if (!mysqlProcess && !mysqlPid) {
       finish();
       return;
     }
 
     runMysqlAdmin(['-p' + MYSQL_ROOT_PASSWORD, 'shutdown']).then(finish).catch(() => {
       runMysqlAdmin(['shutdown']).then(finish).catch(() => {
-        if (mysqlProcess) mysqlProcess.kill('SIGTERM');
+        if (mysqlPid) killProcessTree(mysqlPid, 'SIGTERM');
         finish();
       });
     });
 
-    setTimeout(() => {
-      if (mysqlProcess) mysqlProcess.kill('SIGKILL');
-      finish();
-    }, 15000);
+    setTimeout(finish, 15000);
   });
 }
 
@@ -650,6 +793,7 @@ function startJavaBackend() {
       cwd: RUNTIME_DIR,
       stdio: ['ignore', 'pipe', 'pipe'],
     });
+    javaPid = javaProcess.pid;
 
     let settled = false;
 
@@ -687,6 +831,7 @@ function startJavaBackend() {
         console.error(`Java exited unexpectedly code=${code}`);
       }
       javaProcess = null;
+      javaPid = null;
       if (!settled) {
         fail(new Error('Java process exited immediately. Check logs at ' + javaLogPath));
       }
@@ -698,15 +843,26 @@ function startJavaBackend() {
 
 function stopJavaBackend() {
   return new Promise(resolve => {
-    if (!javaProcess) return resolve();
+    const finish = () => {
+      if (javaPid) killProcessTree(javaPid, 'SIGTERM');
+      javaProcess = null;
+      javaPid = null;
+      killCloudDmChildBackendProcesses('SIGKILL');
+      killOwnedPortListeners('SIGKILL');
+      resolve();
+    };
+
+    if (!javaProcess && !javaPid) {
+      finish();
+      return;
+    }
 
     let classpath;
     try {
       classpath = findPlexusClassworldsJar();
     } catch (_e) {
-      if (javaProcess) javaProcess.kill('SIGTERM');
-      javaProcess = null;
-      return resolve();
+      finish();
+      return;
     }
 
     const javaCmd = findJava();
@@ -718,20 +874,9 @@ function stopJavaBackend() {
       'stop',
     ], { stdio: 'ignore', timeout: 15000 });
 
-    stop.on('exit', () => {
-      javaProcess = null;
-      resolve();
-    });
-    stop.on('error', () => {
-      if (javaProcess) javaProcess.kill('SIGTERM');
-      javaProcess = null;
-      resolve();
-    });
-    setTimeout(() => {
-      if (javaProcess) javaProcess.kill('SIGKILL');
-      javaProcess = null;
-      resolve();
-    }, 20000);
+    stop.on('exit', finish);
+    stop.on('error', finish);
+    setTimeout(finish, 20000);
   });
 }
 
@@ -763,9 +908,16 @@ function createLoadingWindow() {
   mainWindow.on('close', e => {
     if (!isQuitting) {
       e.preventDefault();
-      mainWindow.hide();
-      startShutdown();
+      requestShutdown();
     }
+  });
+}
+
+function requestShutdown() {
+  startShutdown().catch(err => {
+    console.error('[cgdm] Shutdown failed:', err);
+    forceKillBackendProcesses();
+    app.exit(1);
   });
 }
 
@@ -778,8 +930,14 @@ async function startShutdown() {
   isQuitting = true;
   sendStatus('Shutting down...');
   console.log('[cgdm] Shutting down...');
-  await stopJavaBackend();
-  await stopMySQL();
+
+  try {
+    await stopJavaBackend();
+    await stopMySQL();
+  } finally {
+    forceKillBackendProcesses();
+  }
+
   app.quit();
 }
 
@@ -788,21 +946,10 @@ async function startShutdown() {
 // ---------------------------------------------------------------------------
 
 function cleanupOrphanProcesses() {
-  const { execSync } = require('child_process');
-
-  killEmbeddedMysqldProcesses();
+  killStaleCloudDmBackendProcesses('SIGKILL');
   cleanupMysqlRuntimeFiles();
   cleanupLegacyMysqlRuntimeFiles();
-
-  for (const port of [APP_WEB_PORT, DB_PORT, RSOCKET_PORT]) {
-    try {
-      execSync(`lsof -ti :${port} | xargs kill -9 2>/dev/null`, { timeout: 3000 });
-    } catch (_) {}
-  }
-
-  try {
-    execSync(`pkill -9 -f "${BACKEND_DIR}.*plexus-classworlds.launcher.Launcher"`, { timeout: 3000 });
-  } catch (_) {}
+  killOwnedPortListeners('SIGKILL');
 }
 
 app.whenReady().then(async () => {
@@ -831,19 +978,28 @@ app.whenReady().then(async () => {
     await loadAppWindow();
   } catch (err) {
     console.error('[cgdm] Startup failed:', err);
+    isQuitting = true;
+    try {
+      await stopJavaBackend();
+      await stopMySQL();
+    } finally {
+      forceKillBackendProcesses();
+    }
     const logHint = `\n\nLogs:\n  ${path.join(LOG_DIR, 'java.log')}\n  ${path.join(LOG_DIR, 'mysqld.log')}`;
     dialog.showErrorBox('Startup Error', (err.message || String(err)) + logHint);
     app.quit();
   }
 });
 
-app.on('before-quit', async e => {
+app.on('before-quit', e => {
   if (!isQuitting) {
     e.preventDefault();
-    await startShutdown();
+    requestShutdown();
   }
 });
 
 app.on('window-all-closed', () => {
-  // keep running in dock
+  if (process.platform !== 'darwin') {
+    requestShutdown();
+  }
 });

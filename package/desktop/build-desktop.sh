@@ -140,40 +140,54 @@ if [ -d "$LIBS_DIR" ]; then
   fi
   echo "  Removed non-macOS native jars"
 
-  # Sign native libraries (.jnilib/.dylib) embedded inside JARs for notarization.
-  # Starting late 2024, Apple requires ALL binaries in the bundle to be signed,
-  # including those inside ZIP/JAR archives. codesign --deep cannot reach them,
-  # so we extract → sign → repack with jar.
-  # Sign native libs if Developer ID cert is available in keychain
-  if security find-identity -v -p basic 2>/dev/null | grep -q "Developer ID Application"; then
-    echo "  Signing native libs embedded in JARs..."
-    TMP_NATIVE_DIR=$(mktemp -d)
-    NTLIST_FILE=$(mktemp)
-    echo "    tmp dir: $TMP_NATIVE_DIR, list file: $NTLIST_FILE"
-    jar_count=0
-    for jar in "$LIBS_DIR"/*.jar; do
-      [ -f "$jar" ] || { echo "    skipping non-file: $jar"; continue; }
-      jar_count=$((jar_count + 1))
-      unzip -l "$jar" 2>/dev/null | grep -E '\.(jnilib|dylib)$' | awk '{print $4}' > "$NTLIST_FILE" || true
-      [ -s "$NTLIST_FILE" ] || continue
-      jar_name=$(basename "$jar")
-      echo "    $jar_name"
-      while IFS= read -r nf; do
-        [ -n "$nf" ] || continue
-        echo "      Extracting $nf..."
-        unzip -o -d "$TMP_NATIVE_DIR" "$jar" "$nf" 2>/dev/null || { echo "      ERROR: unzip failed"; continue; }
-        echo "      Signing $nf..."
-        codesign --force --options runtime --timestamp \
-          --sign "Developer ID Application" \
-          "$TMP_NATIVE_DIR/$nf" || { echo "      ERROR: codesign failed"; continue; }
-        echo "      Repacking $nf into $jar_name..."
-        (cd "$TMP_NATIVE_DIR" && jar uf "$jar" "$nf") || { echo "      ERROR: jar update failed"; continue; }
-        rm -rf "$TMP_NATIVE_DIR/${nf%%/*}" 2>/dev/null
-      done < "$NTLIST_FILE"
-    done
-    rm -rf "$TMP_NATIVE_DIR" "$NTLIST_FILE"
-    echo "  Scanned $jar_count JARs. Native lib signing done."
-  fi
+fi
+
+BUILTIN_DRIVERS_DIR="$BUILD_DIR/backend/built-in-drivers"
+# Sign native libraries (.jnilib/.dylib) embedded inside JARs for notarization.
+# Starting late 2024, Apple requires ALL binaries in the bundle to be signed,
+# including those inside ZIP/JAR archives. codesign --deep cannot reach them,
+# so we extract → sign → repack with jar.
+# Main branch now ships built-in-drivers in alone tgz; scan both libs and that tree.
+sign_native_libs_in_jars() {
+  local scan_root="$1"
+  [ -d "$scan_root" ] || return 0
+
+  echo "  Signing native libs embedded in JARs under $scan_root..."
+  local tmp_native_dir
+  tmp_native_dir=$(mktemp -d)
+  local ntlist_file
+  ntlist_file=$(mktemp)
+  local jar_count=0
+
+  while IFS= read -r jar; do
+    [ -f "$jar" ] || continue
+    jar_count=$((jar_count + 1))
+    unzip -l "$jar" 2>/dev/null | grep -E '\.(jnilib|dylib)$' | awk '{print $4}' > "$ntlist_file" || true
+    [ -s "$ntlist_file" ] || continue
+    echo "    $jar"
+    while IFS= read -r nf; do
+      [ -n "$nf" ] || continue
+      echo "      Extracting $nf..."
+      unzip -o -d "$tmp_native_dir" "$jar" "$nf" 2>/dev/null || { echo "      ERROR: unzip failed"; continue; }
+      echo "      Signing $nf..."
+      codesign --force --options runtime --timestamp \
+        --sign "Developer ID Application" \
+        "$tmp_native_dir/$nf" || { echo "      ERROR: codesign failed"; continue; }
+      echo "      Repacking $nf..."
+      (cd "$tmp_native_dir" && jar uf "$jar" "$nf") || { echo "      ERROR: jar update failed"; continue; }
+      rm -rf "$tmp_native_dir/${nf%%/*}" 2>/dev/null
+    done < "$ntlist_file"
+  done < <(find "$scan_root" -name '*.jar' -type f | sort)
+
+  rm -rf "$tmp_native_dir" "$ntlist_file"
+  echo "  Scanned $jar_count JARs under $scan_root."
+}
+
+if security find-identity -v -p basic 2>/dev/null | grep -q "Developer ID Application"; then
+  sign_native_libs_in_jars "$LIBS_DIR"
+  sign_native_libs_in_jars "$BUILTIN_DRIVERS_DIR"
+else
+  echo "  Skipping JAR native lib signing (Developer ID Application cert not found)."
 fi
 
 echo "  Libs size after trim: $(du -sh "$LIBS_DIR" 2>/dev/null | cut -f1)"
