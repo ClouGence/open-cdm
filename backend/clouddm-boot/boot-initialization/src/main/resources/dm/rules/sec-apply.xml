@@ -9,7 +9,7 @@
         <applyTo>MySQL,MariaDB,TiDB</applyTo>
     </ruleDef>
     <ruleDef id="rule_catalog_003">
-        <applyTo>PostgreSQL,Greenplum,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
+        <applyTo>PostgreSQL,Greenplum,Cloudberry,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
         <applyTo>SQLServer</applyTo>
         <applyTo>Doris,SelectDB,StarRocks</applyTo>
     </ruleDef>
@@ -27,7 +27,7 @@
         <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
         <applyTo>OceanBase</applyTo>
         <applyTo>AdbForMySQL,PolarDbX</applyTo>
-        <applyTo>PostgreSQL,Greenplum,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
+        <applyTo>PostgreSQL,Greenplum,Cloudberry,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
         <applyTo>Db2</applyTo>
         <applyTo>SQLServer</applyTo>
         <applyTo>Doris,SelectDB,StarRocks</applyTo>
@@ -51,7 +51,7 @@
         <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
         <applyTo>OceanBase</applyTo>
         <applyTo>AdbForMySQL,PolarDbX</applyTo>
-        <applyTo>PostgreSQL,Greenplum,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
+        <applyTo>PostgreSQL,Greenplum,Cloudberry,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
         <applyTo>Db2</applyTo>
         <applyTo>SQLServer</applyTo>
         <applyTo>Oracle,ObForOracle</applyTo>
@@ -63,7 +63,7 @@
         <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
         <applyTo>OceanBase</applyTo>
         <applyTo>AdbForMySQL,PolarDbX</applyTo>
-        <applyTo>PostgreSQL,Greenplum,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
+        <applyTo>PostgreSQL,Greenplum,Cloudberry,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
         <applyTo>Db2</applyTo>
         <applyTo>SQLServer</applyTo>
         <applyTo>Oracle,ObForOracle</applyTo>
@@ -83,7 +83,7 @@
         <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
         <applyTo>OceanBase</applyTo>
         <applyTo>AdbForMySQL,PolarDbX</applyTo>
-        <applyTo>PostgreSQL,Greenplum,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
+        <applyTo>PostgreSQL,Greenplum,Cloudberry,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
         <applyTo>Db2</applyTo>
         <applyTo>SQLServer</applyTo>
         <applyTo>Oracle,ObForOracle</applyTo>
@@ -94,7 +94,7 @@
         <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
         <applyTo>OceanBase</applyTo>
         <applyTo>AdbForMySQL,PolarDbX</applyTo>
-        <applyTo>PostgreSQL,Greenplum,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
+        <applyTo>PostgreSQL,Greenplum,Cloudberry,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
     </ruleDef>
     <ruleDef id="rule_table_007">
         <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
@@ -111,7 +111,7 @@
         <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
         <applyTo>OceanBase</applyTo>
         <applyTo>AdbForMySQL,PolarDbX</applyTo>
-        <applyTo>PostgreSQL,Greenplum,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
+        <applyTo>PostgreSQL,Greenplum,Cloudberry,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
         <applyTo>Db2</applyTo>
         <applyTo>SQLServer</applyTo>
         <applyTo>Oracle,ObForOracle</applyTo>
@@ -123,7 +123,7 @@
         <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
         <applyTo>OceanBase</applyTo>
         <applyTo>AdbForMySQL,PolarDbX</applyTo>
-        <applyTo>PostgreSQL,Greenplum,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
+        <applyTo>PostgreSQL,Greenplum,Cloudberry,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
         <applyTo>Db2</applyTo>
         <applyTo>SQLServer</applyTo>
         <applyTo>Oracle,ObForOracle</applyTo>
@@ -173,7 +173,7 @@
         <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
         <applyTo>OceanBase</applyTo>
         <applyTo>AdbForMySQL,PolarDbX</applyTo>
-        <applyTo>PostgreSQL,Greenplum,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
+        <applyTo>PostgreSQL,Greenplum,Cloudberry,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
         <applyTo>Db2</applyTo>
         <applyTo>SQLServer</applyTo>
         <applyTo>Oracle,ObForOracle</applyTo>
@@ -185,7 +185,7 @@
         <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
         <applyTo>OceanBase</applyTo>
         <applyTo>AdbForMySQL,PolarDbX</applyTo>
-        <applyTo>PostgreSQL,Greenplum,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
+        <applyTo>PostgreSQL,Greenplum,Cloudberry,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
         <applyTo>Db2</applyTo>
         <applyTo>SQLServer</applyTo>
         <applyTo>Oracle,ObForOracle</applyTo>
@@ -197,7 +197,7 @@
         <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
         <applyTo>OceanBase</applyTo>
         <applyTo>AdbForMySQL,PolarDbX</applyTo>
-        <applyTo>PostgreSQL,Greenplum,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
+        <applyTo>PostgreSQL,Greenplum,Cloudberry,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
         <applyTo>Db2</applyTo>
         <applyTo>SQLServer</applyTo>
         <applyTo>Oracle,ObForOracle</applyTo>
@@ -208,7 +208,7 @@
         <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
         <applyTo>OceanBase</applyTo>
         <applyTo>AdbForMySQL,PolarDbX</applyTo>
-        <applyTo>PostgreSQL,Greenplum,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
+        <applyTo>PostgreSQL,Greenplum,Cloudberry,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
         <applyTo>Db2</applyTo>
         <applyTo>SQLServer</applyTo>
         <applyTo>Oracle,ObForOracle</applyTo>
@@ -219,7 +219,7 @@
         <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
         <applyTo>OceanBase</applyTo>
         <applyTo>AdbForMySQL,PolarDbX</applyTo>
-        <applyTo>PostgreSQL,Greenplum,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
+        <applyTo>PostgreSQL,Greenplum,Cloudberry,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
         <applyTo>Db2</applyTo>
         <applyTo>SQLServer</applyTo>
         <applyTo>Oracle,ObForOracle</applyTo>
@@ -231,7 +231,7 @@
         <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
         <applyTo>OceanBase</applyTo>
         <applyTo>AdbForMySQL,PolarDbX</applyTo>
-        <applyTo>PostgreSQL,Greenplum,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
+        <applyTo>PostgreSQL,Greenplum,Cloudberry,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
         <applyTo>Db2</applyTo>
         <applyTo>SQLServer</applyTo>
         <applyTo>Oracle,ObForOracle</applyTo>
@@ -243,7 +243,7 @@
         <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
         <applyTo>OceanBase</applyTo>
         <applyTo>AdbForMySQL,PolarDbX</applyTo>
-        <applyTo>PostgreSQL,Greenplum,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
+        <applyTo>PostgreSQL,Greenplum,Cloudberry,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
         <applyTo>Db2</applyTo>
         <applyTo>SQLServer</applyTo>
         <applyTo>Oracle,ObForOracle</applyTo>
@@ -257,7 +257,7 @@
         <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
         <applyTo>OceanBase</applyTo>
         <applyTo>AdbForMySQL,PolarDbX</applyTo>
-        <applyTo>PostgreSQL,Greenplum,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
+        <applyTo>PostgreSQL,Greenplum,Cloudberry,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
         <applyTo>Db2</applyTo>
         <applyTo>SQLServer</applyTo>
         <applyTo>Oracle,ObForOracle</applyTo>
@@ -278,7 +278,7 @@
         <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
         <applyTo>OceanBase</applyTo>
         <applyTo>PolarDbX</applyTo>
-        <applyTo>PostgreSQL,Greenplum,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
+        <applyTo>PostgreSQL,Greenplum,Cloudberry,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
         <applyTo>Db2</applyTo>
         <applyTo>SQLServer</applyTo>
         <applyTo>Oracle,ObForOracle</applyTo>
@@ -292,7 +292,7 @@
         <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
         <applyTo>OceanBase</applyTo>
         <applyTo>AdbForMySQL,PolarDbX</applyTo>
-        <applyTo>PostgreSQL,Greenplum,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
+        <applyTo>PostgreSQL,Greenplum,Cloudberry,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
         <applyTo>Db2</applyTo>
         <applyTo>SQLServer</applyTo>
         <applyTo>Oracle,ObForOracle</applyTo>
@@ -304,7 +304,7 @@
         <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
         <applyTo>OceanBase</applyTo>
         <applyTo>AdbForMySQL,PolarDbX</applyTo>
-        <applyTo>PostgreSQL,Greenplum,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
+        <applyTo>PostgreSQL,Greenplum,Cloudberry,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
         <applyTo>Db2</applyTo>
         <applyTo>SQLServer</applyTo>
         <applyTo>Oracle,ObForOracle</applyTo>
@@ -314,7 +314,7 @@
         <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
         <applyTo>OceanBase</applyTo>
         <applyTo>AdbForMySQL,PolarDbX</applyTo>
-        <applyTo>PostgreSQL,Greenplum,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
+        <applyTo>PostgreSQL,Greenplum,Cloudberry,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
         <applyTo>Db2</applyTo>
         <applyTo>SQLServer</applyTo>
         <applyTo>Oracle,ObForOracle</applyTo>
@@ -326,7 +326,7 @@
         <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
         <applyTo>OceanBase</applyTo>
         <applyTo>AdbForMySQL,PolarDbX</applyTo>
-        <applyTo>PostgreSQL,Greenplum,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
+        <applyTo>PostgreSQL,Greenplum,Cloudberry,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
         <applyTo>Db2</applyTo>
         <applyTo>SQLServer</applyTo>
         <applyTo>Oracle,ObForOracle</applyTo>
@@ -341,7 +341,7 @@
         <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
         <applyTo>OceanBase</applyTo>
         <applyTo>AdbForMySQL,PolarDbX</applyTo>
-        <applyTo>PostgreSQL,Greenplum,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
+        <applyTo>PostgreSQL,Greenplum,Cloudberry,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
         <applyTo>Db2</applyTo>
         <applyTo>SQLServer</applyTo>
         <applyTo>Oracle,ObForOracle</applyTo>
@@ -353,7 +353,7 @@
         <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
         <applyTo>OceanBase</applyTo>
         <applyTo>AdbForMySQL,PolarDbX</applyTo>
-        <applyTo>PostgreSQL,Greenplum,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
+        <applyTo>PostgreSQL,Greenplum,Cloudberry,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
         <applyTo>Db2</applyTo>
         <applyTo>SQLServer</applyTo>
         <applyTo>Oracle,ObForOracle</applyTo>
@@ -365,7 +365,7 @@
         <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
         <applyTo>OceanBase</applyTo>
         <applyTo>AdbForMySQL,PolarDbX</applyTo>
-        <applyTo>PostgreSQL,Greenplum,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
+        <applyTo>PostgreSQL,Greenplum,Cloudberry,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
         <applyTo>Db2</applyTo>
         <applyTo>SQLServer</applyTo>
         <applyTo>Oracle,ObForOracle</applyTo>
@@ -378,7 +378,7 @@
         <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
         <applyTo>OceanBase</applyTo>
         <applyTo>AdbForMySQL,PolarDbX</applyTo>
-        <applyTo>PostgreSQL,Greenplum,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
+        <applyTo>PostgreSQL,Greenplum,Cloudberry,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
         <applyTo>Db2</applyTo>
         <applyTo>SQLServer</applyTo>
         <applyTo>Oracle,ObForOracle</applyTo>
@@ -390,7 +390,7 @@
         <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
         <applyTo>OceanBase</applyTo>
         <applyTo>AdbForMySQL,PolarDbX</applyTo>
-        <applyTo>PostgreSQL,Greenplum,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
+        <applyTo>PostgreSQL,Greenplum,Cloudberry,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
         <applyTo>Db2</applyTo>
         <applyTo>SQLServer</applyTo>
         <applyTo>Oracle,ObForOracle</applyTo>
@@ -405,7 +405,7 @@
         <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
         <applyTo>OceanBase</applyTo>
         <applyTo>AdbForMySQL,PolarDbX</applyTo>
-        <applyTo>PostgreSQL,Greenplum,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
+        <applyTo>PostgreSQL,Greenplum,Cloudberry,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
         <applyTo>Db2</applyTo>
         <applyTo>Oracle,ObForOracle</applyTo>
         <applyTo>Doris,SelectDB,StarRocks</applyTo>
@@ -416,7 +416,7 @@
         <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
         <applyTo>OceanBase</applyTo>
         <applyTo>AdbForMySQL,PolarDbX</applyTo>
-        <applyTo>PostgreSQL,Greenplum,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
+        <applyTo>PostgreSQL,Greenplum,Cloudberry,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
     </ruleDef>
     <ruleDef id="rule_update_006">
         <applyTo>MySQL,MariaDB,PolarDbMySQL,TiDB</applyTo>
@@ -435,7 +435,7 @@
         <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
         <applyTo>OceanBase</applyTo>
         <applyTo>AdbForMySQL,PolarDbX</applyTo>
-        <applyTo>PostgreSQL,Greenplum,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
+        <applyTo>PostgreSQL,Greenplum,Cloudberry,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
         <applyTo>Db2</applyTo>
         <applyTo>SQLServer</applyTo>
         <applyTo>Oracle,ObForOracle</applyTo>
@@ -450,13 +450,13 @@
         <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
         <applyTo>OceanBase</applyTo>
         <applyTo>AdbForMySQL,PolarDbX</applyTo>
-        <applyTo>PostgreSQL,Greenplum,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
+        <applyTo>PostgreSQL,Greenplum,Cloudberry,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
     </ruleDef>
     <ruleDef id="rule_insert_004">
         <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
         <applyTo>OceanBase</applyTo>
         <applyTo>AdbForMySQL,PolarDbX</applyTo>
-        <applyTo>PostgreSQL,Greenplum,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
+        <applyTo>PostgreSQL,Greenplum,Cloudberry,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
         <applyTo>Db2</applyTo>
         <applyTo>SQLServer</applyTo>
         <applyTo>Oracle,ObForOracle</applyTo>
@@ -470,7 +470,7 @@
         <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
         <applyTo>OceanBase</applyTo>
         <applyTo>AdbForMySQL,PolarDbX</applyTo>
-        <applyTo>PostgreSQL,Greenplum,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
+        <applyTo>PostgreSQL,Greenplum,Cloudberry,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
         <applyTo>Db2</applyTo>
         <applyTo>SQLServer</applyTo>
         <applyTo>Oracle,ObForOracle</applyTo>
@@ -482,13 +482,13 @@
         <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
         <applyTo>OceanBase</applyTo>
         <applyTo>PolarDbX</applyTo>
-        <applyTo>PostgreSQL,Greenplum,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
+        <applyTo>PostgreSQL,Greenplum,Cloudberry,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
     </ruleDef>
     <ruleDef id="rule_delete_003">
         <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
         <applyTo>OceanBase</applyTo>
         <applyTo>AdbForMySQL,PolarDbX</applyTo>
-        <applyTo>PostgreSQL,Greenplum,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
+        <applyTo>PostgreSQL,Greenplum,Cloudberry,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
         <applyTo>Db2</applyTo>
         <applyTo>Oracle,ObForOracle</applyTo>
         <applyTo>Doris,SelectDB,StarRocks</applyTo>

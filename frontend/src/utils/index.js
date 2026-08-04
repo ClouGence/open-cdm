@@ -8,9 +8,21 @@ export const formatTime = (value, fmt = 'YYYY/MM/DD') => dayjs(value).format(fmt
 export const generateData = (list) => list;
 
 export const dsGroup = {
-  hasSchema: ['PostgreSQL', 'Greenplum', 'SQLServer', 'Hana', 'GaussDBForOpenGauss', 'Doris', 'SelectDB', 'StarRocks', 'MaxCompute', 'Hologres'],
+  hasSchema: [
+    'PostgreSQL',
+    'Greenplum',
+    'Cloudberry',
+    'SQLServer',
+    'Hana',
+    'GaussDBForOpenGauss',
+    'Doris',
+    'SelectDB',
+    'StarRocks',
+    'MaxCompute',
+    'Hologres'
+  ],
   noStruct: ['Redis'],
-  supportTransaction: ['MySQL', 'PostgreSQL', 'Greenplum']
+  supportTransaction: ['MySQL', 'PostgreSQL', 'Greenplum', 'Cloudberry']
 };
 
 export const hasSchema = (type) => dsGroup.hasSchema.includes(type);

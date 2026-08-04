@@ -140,8 +140,8 @@ public class CbTableEditorUiPanelFactory extends PgTableEditorUiPanelFactory imp
         //            .titleI18N(CbDsI18nKeys.EDITOR_TABLEINFO_DISTRIBUTED_COLUMN_TITLE)
         //            .descI18N(CbDsI18nKeys.EDITOR_TABLEINFO_DISTRIBUTED_COLUMN_DESC)
         //            .build()));
-        result.add(optionDef(CbDsI18nKeys.EDITOR_TABLEINFO_DISTRIBUTED_RANDOMLY, "RANDOMLY"));
-        result.add(optionDef(CbDsI18nKeys.EDITOR_TABLEINFO_DISTRIBUTED_REPLICATED, "REPLICATED"));
+        result.add(optionDef(CbDsI18nKeys.EDITOR_TABLEINFO_DISTRIBUTED_RANDOMLY, "r"));
+        result.add(optionDef(CbDsI18nKeys.EDITOR_TABLEINFO_DISTRIBUTED_REPLICATED, "p_no_column"));
         return result;
     }
 

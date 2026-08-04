@@ -379,7 +379,7 @@ export const ALGORITHM_TYPES_PLACEHOLDER = {
   5: 'format：(1, 4), (8, 10), (-4)'
 };
 
-export const PG_GP = ['PostgreSQL', 'Greenplum', 'SQLServer'];
+export const PG_GP = ['PostgreSQL', 'Greenplum', 'Cloudberry', 'SQLServer'];
 
 export const BIZ_TYPE = {
   TICKETS_WORKFLOW: 'TICKETS_WORKFLOW',

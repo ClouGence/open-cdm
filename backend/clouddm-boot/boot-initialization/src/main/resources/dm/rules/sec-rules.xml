@@ -453,7 +453,7 @@ if @domain.dsType in ['MySQL', 'OceanBase', 'AdbForMySQL', 'PolarDbMySQL', 'Pola
      'WRITE','XOR','YEAR_MONTH','ZEROFILL']
 end
 
-if @domain.dsType in ['PostgreSQL', 'Greenplum', 'PolarDBPg','GaussDBForOpenGauss','GaussDB'] then
+if @domain.dsType in ['PostgreSQL', 'Greenplum', 'Cloudberry', 'PolarDBPg','GaussDBForOpenGauss','GaussDB'] then
   return @func.string.upperCase(testName) not in
     ['ALL','ALWAYS','ANALYSE','ANALYZE','AND','ANY','ARRAY','AS','ASC','ASYMMETRIC','AUTHORIZATION',
      'BETWEEN','BINARY','BOTH','CASE','CAST','CHECK','COLLATE','COLLATION','COLUMN','CONCURRENTLY','CONSTRAINT',
@@ -913,7 +913,7 @@ if @domain.dsType in ['MySQL', 'OceanBase', 'AdbForMySQL', 'PolarDbMySQL', 'Pola
      'WRITE','XOR','YEAR_MONTH','ZEROFILL']
 end
 
-if @domain.dsType in ['PostgreSQL', 'Greenplum', 'PolarDBPg','GaussDBForOpenGauss','GaussDB'] then
+if @domain.dsType in ['PostgreSQL', 'Greenplum', 'Cloudberry', 'PolarDBPg','GaussDBForOpenGauss','GaussDB'] then
   return @func.string.upperCase(testName) not in
     ['ALL','ALWAYS','ANALYSE','ANALYZE','AND','ANY','ARRAY','AS','ASC','ASYMMETRIC','AUTHORIZATION',
      'BETWEEN','BINARY','BOTH','CASE','CAST','CHECK','COLLATE','COLLATION','COLUMN','CONCURRENTLY','CONSTRAINT',
