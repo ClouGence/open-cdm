@@ -276,6 +276,22 @@ export const PREFERENCE_TABS = [
     labelKey: 'preference-tab-approval',
     sections: [
       {
+        name: 'approval-sql-file',
+        titleKey: 'preference-section-approval-sql-file',
+        fields: [
+          {
+            key: 'approvalSqlFileMaxMegaByte',
+            labelKey: 'preference-approval-sql-file-max-mb',
+            helpKey: 'preference-approval-sql-file-max-mb-help',
+            widget: 'number',
+            defaultValue: 20,
+            min: 1,
+            max: 20,
+            unitKey: 'preference-unit-mb'
+          }
+        ]
+      },
+      {
         name: 'approval-sync',
         titleKey: 'preference-section-approval-sync',
         fields: [
