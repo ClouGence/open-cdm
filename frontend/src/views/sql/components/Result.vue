@@ -29,7 +29,7 @@
                   type="icon-v2-close2"
                   hoverStyle
                   customStyle="radius-hover"
-                  @click.native="handleCloseResultTab('current', res.resultId)"
+                  @click.native.stop="handleCloseResultTab('current', res.resultId)"
                 />
               </div>
             </template>
@@ -44,7 +44,11 @@
                       <CustomIcon type="icon-v2-Table" />
                       <div style="margin-left: 5px; white-space: nowrap">{{ `${$t('jie-guo')}${res.showIndex}` }}</div>
                       <div class="dropdown-item-close">
-                        <CustomIcon type="icon-v2-close2" customStyle="icon-v2-hover" @click.native="handleCloseResultTab('current', res.resultId)" />
+                        <CustomIcon
+                          type="icon-v2-close2"
+                          customStyle="icon-v2-hover"
+                          @click.native.stop="handleCloseResultTab('current', res.resultId)"
+                        />
                       </div>
                     </div>
                   </a-menu-item>
@@ -89,25 +93,27 @@
         </div>
       </div>
       <div
-        v-if="!['message', 'async'].includes(tab.result.active)"
+        v-if="!['message', 'async'].includes(tab.result.active) && selectedTab.resultId"
         class="result-content-wrapper"
         style="display: flex; flex-direction: column; flex: 1; min-height: 0"
       >
-        <div class="tip-footer">
+        <div class="tip-footer" v-if="!editMode">
           <div class="tip-footer-main">
-            <div v-if="selectedTab.receiveMode !== 'STREAM'" class="tip-footer-page">
+            <div v-if="selectedTab.resultId && selectedTab.receiveMode !== 'STREAM'" class="tip-footer-page">
               <div v-if="selectedTab.receiveMode === 'PAGINATED' && paginatedLoading[selectedTab.resultId]" class="paginated-loading">
                 <div class="loading-spinner"></div>
               </div>
-              <Page
-                :model-value="selectedTab.page"
-                :page-size="selectedTab.receiveMode === 'PAGINATED' ? 30 : 50"
-                :total="selectedTab.receiveMode === 'PAGINATED' ? selectedTab.fetchCount || selectedTab.total : selectedTab.total"
-                placement="top"
-                show-total
-                size="small"
-                @on-change="changePage($event)"
-              ></Page>
+              <div class="tip-footer-page-control">
+                <Page
+                  :model-value="selectedTab.page"
+                  :page-size="resultPageSize"
+                  :total="resultTotalRows"
+                  placement="top"
+                  show-total
+                  size="small"
+                  @on-change="handlePageChange"
+                ></Page>
+              </div>
             </div>
             <div v-else class="stream-info">
               <span>{{ $t('liu-shi-mo-shi-xian-shi-zui-xin-tiao-zong-ji-tiao', [selectedTab.fetchCount || selectedTab.total || 0]) }}</span>
@@ -147,6 +153,16 @@
             </a-popover>
           </div>
           <div class="tip-footer-right">
+            <a-tooltip v-if="!isEditable" :title="editDisabledReason" placement="top">
+              <div class="tip-footer-edit-btn disabled">
+                <CustomIcon type="icon-v2-EditingPen" size="16px" />
+                <span>{{ $t('bian-ji') }}</span>
+              </div>
+            </a-tooltip>
+            <div v-else class="tip-footer-edit-btn" @click="enterEditMode">
+              <CustomIcon type="icon-v2-EditingPen" hoverStyle size="16px" />
+              <span>{{ $t('bian-ji') }}</span>
+            </div>
             <div class="tip-footer-export" v-if="!selectedTab.exportState?.exporting && selectedTab.exportState?.percent !== 100">
               <Poptip
                 v-if="selectedTab.exportState?.errorStatus === 'FAILED' && selectedTab.exportState?.errorMessage"
@@ -172,12 +188,12 @@
             </div>
           </div>
         </div>
-        <div class="result-table-container" v-if="selectedTab">
+        <div class="result-table-container" v-if="selectedTab.resultId && !editMode">
           <a-table
             class="result-set-style"
             :ref="`result_table_${tab.result.active}`"
             :columns="antdColumns"
-            :dataSource="selectedTab.showData"
+            :dataSource="selectedTab.showData || []"
             :pagination="false"
             :scroll="tableScroll"
             size="small"
@@ -194,7 +210,7 @@
               </div>
             </template>
             <template #bodyCell="{ column, record, index }">
-              <template v-if="column.dataIndex !== 'seq'">
+              <template v-if="record && column.dataIndex !== 'seq'">
                 <div class="vxe-input-tpl" @dblclick.stop="handleCellDetail(record, column, index)">
                   <span v-if="record[column.dataIndex] === null" style="color: #ccc; font-style: italic">NULL</span>
                   <pre v-else style="overflow: hidden; margin: 0" v-html="record[column.dataIndex]"></pre>
@@ -215,6 +231,21 @@
             </template>
           </a-table>
         </div>
+        <ResultEditView
+          v-if="selectedTab.resultId && editMode && editableMeta"
+          :key="`${selectedTab.resultId}_${editViewKey}`"
+          style="flex: 1; min-height: 0"
+          :resultData="selectedTab"
+          :columnMeta="editableMeta.columnList"
+          :levels="editableMeta.levels"
+          :targetName="editableMeta.targetName"
+          :targetType="editableMeta.targetType"
+          :page-size="resultPageSize"
+          :page-size-options="RESULT_EDIT_PAGE_SIZE_OPTIONS"
+          @saved="handleEditSaved"
+          @cancel="handleEditCancel"
+          @page-size-change="handleEditPageSizeChange"
+        />
       </div>
     </div>
     <CCModal v-model="showInsertSqlModal" @on-cancel="hideShowInsertSqlModal" title="Insert SQL" :width="1000" :mask-closable="false" transfer>
@@ -402,22 +433,30 @@ import dayjs from 'dayjs';
 import { Modal, Tooltip } from 'ant-design-vue';
 import { mysqlInsert, pgInsert } from '@/views/sql/components/typeGroup';
 import copyMixin from '@/mixins/copyMixin';
+import browseMixin from '@/mixins/browseMixin';
 import { EVENT_BUS_NAME_LIST } from '@/utils/eventBusName';
 import { mapGetters, mapState } from 'vuex';
 import CustomIcon from '@/components/function/CustomIcon.vue';
+import ResultEditView from '@/views/sql/components/ResultEditView.vue';
 import ContextMenu from '@imengyu/vue3-context-menu';
 import XEClipboard from 'xe-clipboard';
+import { cloneDeep as deepClone } from '@/utils/lodash';
+import { chunk } from 'xe-utils';
+
+// Align with backend default onlineMaxRecordCount; only block editing for very large result sets.
+const RESULT_EDIT_MAX_ROWS = 3000;
+const RESULT_EDIT_PAGE_SIZE_OPTIONS = [30, 50, 100, 300];
+const RESULT_EDIT_MAX_PAGE_SIZE = 300;
 
 export default {
   name: 'Result',
-  mixins: [copyMixin],
+  mixins: [copyMixin, browseMixin],
   props: {
     tab: Object
   },
   components: {
-    CustomIcon
-    // AsyncJobDetail,
-    // AsyncJobList
+    CustomIcon,
+    ResultEditView
   },
   data() {
     return {
@@ -478,7 +517,14 @@ export default {
       paginatedLoadingTimer: null, // Loading timer
       columnWidths: {}, // Stored column widths
       tableScrollY: 240,
-      tableResizeObserver: null
+      tableResizeObserver: null,
+
+      // edit mode
+      editMode: false,
+      editableMeta: null,
+      editShowDataSnapshot: null,
+      editViewKey: 0,
+      RESULT_EDIT_PAGE_SIZE_OPTIONS
     };
   },
   computed: {
@@ -513,18 +559,11 @@ export default {
       ];
     },
     selectedTab() {
-      if (!['message'].includes(this.tab.result.active)) {
-        let tab = {};
-        for (let i = 0; i < this.tab.result.list.length; i++) {
-          if (this.tab.result.list[i].resultId === this.tab.result.active) {
-            tab = this.tab.result.list[i];
-            break;
-          }
-        }
-        return tab;
-      } else {
+      if (['message', 'async'].includes(this.tab.result.active)) {
         return {};
       }
+      const matched = this.tab.result.list.find((item) => item.resultId === this.tab.result.active);
+      return matched || {};
     },
     antdColumns() {
       if (!this.selectedTab || !this.selectedTab.columnListSeq) {
@@ -563,6 +602,50 @@ export default {
         x: 'max-content',
         y: this.tableScrollY
       };
+    },
+    isEditable() {
+      if (this.editMode) return false;
+      return !this.editDisabledReason;
+    },
+    editDisabledReason() {
+      const tab = this.selectedTab;
+      if (!tab || !tab.columnList) {
+        return '无结果数据';
+      }
+      if (tab.queryType === 'plan') {
+        return this.$t('jie-guo-bian-ji-jin-zhi-plan-ti-shi');
+      }
+      if (!tab.table) {
+        return '该结果涉及多表，暂不支持直接编辑';
+      }
+      if (tab.targetType === 'VIEW') {
+        return '视图为只读，暂不支持编辑';
+      }
+      const totalRows = tab.fetchCount || tab.total || 0;
+      if (totalRows > RESULT_EDIT_MAX_ROWS) {
+        return `结果集超过 ${RESULT_EDIT_MAX_ROWS} 行，暂不支持编辑`;
+      }
+      if (tab.receiveMode === 'STREAM') {
+        return '流式结果暂不支持编辑';
+      }
+      return '';
+    },
+    editLevels() {
+      if (!this.tab || !this.tab.node) return [];
+      return this.browseGenLevelsData(this.tab.node);
+    },
+    resultPageSize() {
+      return this.getTabPageSize(this.selectedTab);
+    },
+    resultTotalRows() {
+      const tab = this.selectedTab;
+      if (!tab) {
+        return 0;
+      }
+      if (tab.receiveMode === 'PAGINATED') {
+        return tab.fetchCount || tab.total || 0;
+      }
+      return tab.total || 0;
     }
   },
   watch: {
@@ -588,6 +671,7 @@ export default {
     'tab.running': {
       handler(running) {
         if (running) {
+          this.exitEditMode();
           return;
         }
         if (this.paginatedLoadingTimer) {
@@ -601,12 +685,26 @@ export default {
       }
     },
     'tab.result.active'(activeKey) {
+      this.exitEditMode();
       if (activeKey === 'message' || activeKey === 'async') {
         this.destroyTableScrollObserver();
         return;
       }
+      this.refreshResultTableLayout();
+    },
+    'tab.result.list.length'(length) {
+      this.exitEditMode();
+      if (!length && !['message', 'async'].includes(this.tab.result.active)) {
+        this.tab.result.active = 'message';
+      }
+    },
+    editMode(val) {
+      if (val) {
+        this.destroyTableScrollObserver();
+        return;
+      }
       this.$nextTick(() => {
-        this.initTableScrollObserver();
+        this.refreshResultTableLayout();
       });
     }
   },
@@ -657,6 +755,7 @@ export default {
     this.initDsTypeOptions();
   },
   beforeUnmount() {
+    this.exitEditMode();
     this.destroyTableScrollObserver();
     this.$bus.off('setEditorHeight');
     this.$bus.off('consoleMessageAppend');
@@ -696,20 +795,104 @@ export default {
       document.body.addEventListener('mouseup', onMouseUp);
       document.body.style.cursor = 'col-resize';
     },
+    getTabPageSize(tab) {
+      if (!tab) {
+        return 50;
+      }
+      if (tab.size) {
+        return tab.size;
+      }
+      if (tab.receiveMode === 'PAGINATED') {
+        return 30;
+      }
+      return 50;
+    },
+    convertRowSetToShowList(rowSet, columnList) {
+      const list = [];
+      if (!rowSet || !columnList) {
+        return list;
+      }
+      rowSet.forEach((item) => {
+        const currentRow = {};
+        const rowData = item.data || item.row;
+        if (rowData) {
+          for (let i = 0; i < columnList.length; i++) {
+            if (rowData[i]) {
+              currentRow[columnList[i]] = rowData[i].value;
+            }
+          }
+        }
+        list.push(currentRow);
+      });
+      return list;
+    },
+    rechunkPageFullData(tab, pageSize) {
+      this.applyPageFullWindow(tab, pageSize, 0);
+    },
+    applyPageFullWindow(tab, pageSize, anchorOffset) {
+      let fullList = [];
+      if (Array.isArray(tab.dataArr) && tab.dataArr.length) {
+        if (Array.isArray(tab.dataArr[0])) {
+          fullList = tab.dataArr.flat();
+        } else {
+          fullList = [...tab.dataArr];
+        }
+      }
+      if (!fullList.length && tab.rowSet && tab.columnList) {
+        fullList = this.convertRowSetToShowList(tab.rowSet, tab.columnList);
+      }
+      if (!fullList.length && Array.isArray(tab.showData)) {
+        fullList = [...tab.showData];
+      }
+      const safeOffset = Math.max(anchorOffset, 0);
+      tab.dataArr = chunk(fullList, pageSize);
+      tab.dataOffset = safeOffset;
+      tab.page = Math.floor(safeOffset / pageSize) + 1;
+      tab.showData = fullList.slice(safeOffset, safeOffset + pageSize);
+    },
+    async fetchPaginatedPageAtOffset(tab, offsetRow, pageSize) {
+      const safeOffset = Math.max(offsetRow, 0);
+      try {
+        const res = await this.$services.dmQueryFetchResultPage({
+          data: {
+            resultId: tab.resultId,
+            offsetRow: safeOffset,
+            pageSize
+          }
+        });
+
+        if (res.success && res.data && res.data.rowSet) {
+          const { rowSet } = res.data;
+          const list = this.convertRowSetToShowList(rowSet, tab.columnList);
+          tab.dataOffset = safeOffset;
+          tab.page = Math.floor(safeOffset / pageSize) + 1;
+          tab.showData = list;
+          if (!tab.rowSetCache) {
+            tab.rowSetCache = {};
+          }
+          tab.rowSetCache[tab.page] = rowSet;
+        }
+      } catch (error) {
+        appLogger.error('获取分页数据失败:', error);
+        this.$Message.error(this.$t('huo-qu-fen-ye-shu-ju-shi-bai'));
+      }
+    },
     getRowNumber(index) {
       if (!this.selectedTab) return index + 1;
 
       const page = this.selectedTab.page || 1;
       const receiveMode = this.selectedTab.receiveMode || 'PAGE_FULL';
 
-      let pageSize = 50; // Default page size
-      if (receiveMode === 'PAGINATED') {
-        pageSize = 30;
-      } else if (receiveMode === 'STREAM') {
+      if (receiveMode === 'STREAM') {
         // STREAM mode is not paginated; return the index directly.
         return index + 1;
       }
 
+      if (this.editMode && this.selectedTab.dataOffset != null) {
+        return this.selectedTab.dataOffset + index + 1;
+      }
+
+      const pageSize = this.getTabPageSize(this.selectedTab);
       return (page - 1) * pageSize + index + 1;
     },
     onContextmenu(event, tab) {
@@ -735,6 +918,9 @@ export default {
       appLogger.debug(type, key);
       if (type === 'current') {
         const deleteIndex = this.tab.result.list.findIndex((tab) => tab.resultId === key);
+        if (deleteIndex < 0) {
+          return;
+        }
         const closingTab = this.tab.result.list[deleteIndex];
         if (closingTab) {
           this.callCloseResultWindow(closingTab);
@@ -788,6 +974,14 @@ export default {
       });
     },
     handleResultTabChange(activeKey) {
+      this.exitEditMode();
+      if (activeKey !== 'message' && activeKey !== 'async') {
+        const exists = this.tab.result.list.some((item) => item.resultId === activeKey);
+        if (!exists) {
+          this.tab.result.active = 'message';
+          activeKey = 'message';
+        }
+      }
       this.tab.result.active = activeKey;
 
       // process message table scroll position
@@ -883,6 +1077,13 @@ export default {
         this.tableResizeObserver.disconnect();
         this.tableResizeObserver = null;
       }
+    },
+    refreshResultTableLayout() {
+      this.$nextTick(() => {
+        requestAnimationFrame(() => {
+          this.initTableScrollObserver();
+        });
+      });
     },
     //
     handleViewNoPassedRuleList(index) {
@@ -991,14 +1192,11 @@ export default {
 
       // Calculate the actual row number, accounting for pagination.
       let rowNumber = rowIndex;
-      if (this.selectedTab.receiveMode === 'PAGINATED') {
-        const pageSize = 30;
+      if (this.selectedTab.receiveMode === 'PAGINATED' || this.selectedTab.receiveMode === 'PAGE_FULL') {
+        const pageSize = this.getTabPageSize(this.selectedTab);
         rowNumber = (this.selectedTab.page - 1) * pageSize + rowIndex;
       } else if (this.selectedTab.receiveMode === 'STREAM') {
         rowNumber = rowIndex;
-      } else {
-        const pageSize = 50;
-        rowNumber = (this.selectedTab.page - 1) * pageSize + rowIndex;
       }
 
       const cellValue = record[column.dataIndex || column.property] || '';
@@ -1210,9 +1408,17 @@ export default {
         types: ['csv']
       });
     },
+    handlePageChange(page) {
+      if (this.editMode) {
+        return;
+      }
+      this.changePage(page);
+    },
     async changePage(page) {
       const tab = this.selectedTab;
       const receiveMode = tab.receiveMode || 'PAGE_FULL';
+
+      delete tab.dataOffset;
 
       // STREAM mode does not support pagination changes.
       if (receiveMode === 'STREAM') {
@@ -1222,7 +1428,7 @@ export default {
       if (receiveMode === 'PAGINATED') {
         // Backend pagination mode
         tab.page = page;
-        const pageSize = 30;
+        const pageSize = this.getTabPageSize(tab);
         const offsetRow = (page - 1) * pageSize;
 
         // Check cache.
@@ -1243,23 +1449,7 @@ export default {
 
           if (res.success && res.data && res.data.rowSet) {
             const { rowSet } = res.data;
-            const { columnList } = tab;
-            const list = [];
-
-            if (rowSet && columnList) {
-              rowSet.forEach((item) => {
-                const currentRow = {};
-                const rowData = item.data || item.row;
-                if (rowData) {
-                  for (let i = 0; i < columnList?.length; i++) {
-                    if (rowData[i]) {
-                      currentRow[columnList[i]] = rowData[i].value;
-                    }
-                  }
-                }
-                list.push(currentRow);
-              });
-            }
+            const list = this.convertRowSetToShowList(rowSet, tab.columnList);
 
             if (!tab.pageCache) {
               tab.pageCache = {};
@@ -1609,6 +1799,102 @@ export default {
         this.selectedTab.exportState.errorStatus = null;
         this.selectedTab.exportState.errorMessage = null;
       }
+    },
+    exitEditMode() {
+      if (!this.editMode) {
+        return;
+      }
+      if (this.selectedTab) {
+        delete this.selectedTab.dataOffset;
+      }
+      this.editMode = false;
+      this.editableMeta = null;
+    },
+    async enterEditMode() {
+      const tab = this.selectedTab;
+      if (!tab || !tab.table || tab.queryType === 'plan') return;
+
+      try {
+        const res = await this.$services.dmEditorDataFetchColumnMeta({
+          data: {
+            levels: this.editLevels,
+            targetName: tab.table,
+            targetType: tab.targetType || 'TABLE'
+          }
+        });
+        if (res.success) {
+          const columnList = res.data;
+          const hasPk = columnList.some((c) => c.isPk);
+          if (!hasPk) {
+            Modal.info({
+              title: this.$t('ti-shi'),
+              content: '该表无主键，无法定位数据行'
+            });
+            return;
+          }
+          if (!tab.size) {
+            tab.size = tab.receiveMode === 'PAGINATED' ? 30 : 50;
+          }
+          this.editableMeta = {
+            resultId: tab.resultId,
+            levels: this.editLevels,
+            targetName: tab.table,
+            targetType: tab.targetType || 'TABLE',
+            columnList
+          };
+          this.editShowDataSnapshot = Array.isArray(tab.showData) ? deepClone(tab.showData) : null;
+          this.editMode = true;
+        }
+      } catch (e) {
+        console.error('Failed to fetch column meta:', e);
+      }
+    },
+    restoreEditShowData() {
+      const tab = this.selectedTab;
+      if (!tab || !this.editShowDataSnapshot) {
+        return;
+      }
+      tab.showData = deepClone(this.editShowDataSnapshot);
+    },
+    handleEditSaved() {
+      this.editShowDataSnapshot = null;
+      this.exitEditMode();
+      this.$emit('reloadResult');
+    },
+    handleEditCancel() {
+      this.restoreEditShowData();
+      this.editShowDataSnapshot = null;
+      this.exitEditMode();
+    },
+    async handleEditPageSizeChange(pageSize) {
+      const tab = this.selectedTab;
+      if (!tab || !this.editMode) {
+        return;
+      }
+      const nextSize = Number(pageSize);
+      if (!nextSize || nextSize > RESULT_EDIT_MAX_PAGE_SIZE || nextSize === this.getTabPageSize(tab)) {
+        return;
+      }
+
+      const oldPageSize = this.getTabPageSize(tab);
+      const oldPage = tab.page || 1;
+      let anchorOffset = (oldPage - 1) * oldPageSize;
+      if (tab.dataOffset != null) {
+        anchorOffset = tab.dataOffset;
+      }
+
+      tab.size = nextSize;
+
+      if (tab.receiveMode === 'PAGINATED') {
+        tab.pageCache = {};
+        tab.rowSetCache = {};
+        await this.fetchPaginatedPageAtOffset(tab, anchorOffset, nextSize);
+      } else if (tab.receiveMode === 'PAGE_FULL') {
+        this.applyPageFullWindow(tab, nextSize, anchorOffset);
+      }
+
+      this.editShowDataSnapshot = Array.isArray(tab.showData) ? deepClone(tab.showData) : null;
+      this.editViewKey += 1;
     }
   }
 };
@@ -1966,6 +2252,11 @@ export default {
   flex-shrink: 0;
 }
 
+.tip-footer-page-control {
+  display: inline-flex;
+  align-items: center;
+}
+
 .stream-info {
   flex-shrink: 0;
   line-height: 30px;
@@ -2028,6 +2319,21 @@ export default {
   gap: 4px;
   cursor: pointer;
   white-space: nowrap;
+}
+
+.tip-footer-edit-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  white-space: nowrap;
+  margin-right: 8px;
+  color: rgba(0, 0, 0, 0.88);
+
+  &.disabled {
+    cursor: not-allowed;
+    color: #ccc;
+  }
 }
 
 :deep(.ant-table-wrapper .ant-table-resize-handle) {

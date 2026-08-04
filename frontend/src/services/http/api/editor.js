@@ -21,6 +21,7 @@ export const editorApi = {
   dmEditorDataFetchCount: '/api/entry/editor/data/fetchCount',
   dmEditorDataGenerateDml: '/api/entry/editor/data/generateDml',
   dmEditorDataSaveData: '/api/entry/editor/data/saveData',
+  dmEditorDataFetchColumnMeta: '/api/entry/editor/data/fetchColumnMeta',
 
   dmEditorPropertiesPropertiesDef: '/api/entry/editor/properties/propertiesDef',
   dmEditorPropertiesGetProperties: '/api/entry/editor/properties/getProperties'

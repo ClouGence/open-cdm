@@ -22,6 +22,7 @@ import com.clougence.clouddm.console.web.model.fo.editor.data.ExecuteSqlFO;
 import com.clougence.clouddm.console.web.model.fo.editor.data.GenerateDataFO;
 import com.clougence.clouddm.console.web.model.fo.editor.data.SelectCountFO;
 import com.clougence.clouddm.console.web.model.fo.editor.data.SelectDataFO;
+import com.clougence.clouddm.console.web.model.vo.editor.data.DataEditorColumnVO;
 import com.clougence.clouddm.console.web.model.vo.editor.data.DataEditorResultVO;
 import com.clougence.clouddm.console.web.service.editor.model.DataEditorChangeDTO;
 import com.clougence.clouddm.console.web.service.editor.model.DataEditorExecuteResultDTO;
@@ -39,4 +40,7 @@ public interface DsDataEditorService {
 
     /** for service API '/editor/data/saveData' */
     DataEditorExecuteResultDTO saveData(String puid, String uid, DsLevels levels, ExecuteSqlFO execFO, String clientIp);
+
+    /** for service API '/editor/meta/fetchColumnMeta' */
+    List<DataEditorColumnVO> fetchColumnMeta(DsLevels levels, SelectDataFO selectFO);
 }

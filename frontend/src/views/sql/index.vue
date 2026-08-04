@@ -139,7 +139,13 @@
                     </SqlViewer>
                   </div>
                   <div ref="result" class="result-wrapper">
-                    <Result :id="`result_${currentTab.key}`" :ref="`result_`" :resultList="currentTab.resultList" :tab="currentTab" />
+                    <Result
+                      :id="`result_${currentTab.key}`"
+                      :ref="`result_`"
+                      :resultList="currentTab.resultList"
+                      :tab="currentTab"
+                      @reloadResult="handleReloadResult"
+                    />
                   </div>
                 </div>
               </div>
@@ -330,6 +336,9 @@ export default {
     },
     handleExpandDataSourceSidebar() {
       this.$refs.dataSourceTree?.handleSwitchHide();
+    },
+    handleReloadResult() {
+      this.$refs.sqlViewer?.onRun();
     },
     onContextmenu(event, tab) {
       this.contextData = tab;

@@ -299,11 +299,11 @@ export default {
             const rect = ele.getBoundingClientRect();
             let calcWidth = rect.width;
 
-            if (rect.width >= 60) {
+            if (rect.width >= 180) {
               calcWidth += leftWidth;
             }
-            if (calcWidth < 60) {
-              calcWidth = 60;
+            if (calcWidth < 180) {
+              calcWidth = 180;
               needMouseUp = true;
             }
 

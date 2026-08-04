@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.clougence.clouddm.api.common.GlobalConfUtils;
 import com.clougence.clouddm.component.resultfile.ResultSetOutputStream;
@@ -102,7 +104,11 @@ class ImplResultSetMetaBuild extends AbstractResultBuild<ResultSetMeta> implemen
         if (this.resultBuild == null) {
             List<ValueFetcherContext> metaCtx = new ArrayList<>();
 
-            // metadata and fetcher 
+            // metadata and fetcher
+            String firstCatalog = null;
+            String firstSchema = null;
+            String firstTable = null;
+            boolean sameTable = true;
             for (String colName : rowMeta.keySet()) {
                 ResultColMeta m = rowMeta.get(colName);
                 String vfcId = this.get().getResultId() + "_" + HashUtils.fnvHash(colName);
@@ -110,7 +116,34 @@ class ImplResultSetMetaBuild extends AbstractResultBuild<ResultSetMeta> implemen
 
                 this.get().getColumnList().add(m.getMeta().getColumn());
                 this.get().getColumnType().add(m.getMeta().getColumnType());
+
+                String colTable = m.getMeta().getTable();
+                if (colTable == null || colTable.isEmpty()) {
+                    continue;
+                }
+                if (firstTable == null) {
+                    firstCatalog = m.getMeta().getCatalog();
+                    firstSchema = m.getMeta().getSchema();
+                    firstTable = colTable;
+                } else if (sameTable && !java.util.Objects.equals(firstTable, colTable)) {
+                    sameTable = false;
+                }
             }
+
+            if (sameTable && firstTable != null && !firstTable.isEmpty()) {
+                this.get().setCatalog(firstCatalog);
+                this.get().setSchema(firstSchema);
+                this.get().setTable(firstTable);
+                this.get().setTargetType("TABLE");
+            } else {
+                // JDBC getTableName() may return empty for some drivers (e.g. MySQL Connector/J 8.x).
+                // Fall back to extracting the table name from the SQL query.
+                extractTableFromSql();
+            }
+
+            log.info("ResultSetMeta table detection: catalog={}, schema={}, table={}, targetType={}",
+                this.get().getCatalog(), this.get().getSchema(), this.get().getTable(),
+                this.get().getTargetType());
 
             // init storage
             boolean useResultCache = this.query.getResultConf().isCacheResult();
@@ -135,6 +168,44 @@ class ImplResultSetMetaBuild extends AbstractResultBuild<ResultSetMeta> implemen
         }
 
         return this.resultBuild;
+    }
+
+    /**
+     * Fallback: extract table name from SQL query when JDBC getTableName() returns empty.
+     * Handles simple SELECT ... FROM table queries. Returns without setting fields for complex queries.
+     */
+    private void extractTableFromSql() {
+        // Prefer the original user SQL (before any rewrite), fall back to the executed SQL.
+        String sql = this.query.getOriginalBody();
+        if (sql == null || sql.isEmpty()) {
+            sql = this.query.getQueryBody();
+        }
+        if (sql == null || sql.isEmpty()) {
+            return;
+        }
+        // Strip single-line comments and normalize whitespace
+        String normalized = sql.replaceAll("--.*", " ").replaceAll("/\\*.*?\\*/", " ").replaceAll("\\s+", " ").trim();
+        // Match: SELECT ... FROM [schema.]table (stop at WHERE/JOIN/ORDER/GROUP/LIMIT/etc.)
+        Pattern p = Pattern.compile(
+            "\\bFROM\\s+(?:`?([^`\\s.]+)`?\\.)?`?([^`\\s,;()]+)`?(?!.*\\bJOIN\\b)",
+            Pattern.CASE_INSENSITIVE
+        );
+        Matcher m = p.matcher(normalized);
+        if (m.find()) {
+            String schemaOrCatalog = m.group(1);
+            String tableName = m.group(2);
+            if (tableName != null && !tableName.isEmpty() && !"DUAL".equalsIgnoreCase(tableName)) {
+                // Check that this is the only table (no JOIN, no comma-separated tables)
+                String afterFrom = normalized.substring(m.start()).toUpperCase();
+                if (!afterFrom.contains("JOIN") && !afterFrom.substring(0, Math.min(100, afterFrom.length())).contains(",")) {
+                    this.get().setTable(tableName);
+                    this.get().setTargetType("TABLE");
+                    if (schemaOrCatalog != null) {
+                        this.get().setSchema(schemaOrCatalog);
+                    }
+                }
+            }
+        }
     }
 
     private void writeMetaData(ResultStorage storage, List<ValueFetcherContext> metaCtx) throws IOException {
