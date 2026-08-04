@@ -31,7 +31,6 @@ import com.clougence.clouddm.base.metadata.ui.form.UiPanel;
 import com.clougence.clouddm.base.metadata.ui.form.UiPanelField;
 import com.clougence.clouddm.base.metadata.ui.form.UiPanelFieldType;
 import com.clougence.clouddm.base.metadata.ui.form.value.ValueDef;
-import com.clougence.clouddm.ds.mongodb.execute.MongoConnectionUri;
 import com.clougence.clouddm.ds.mongodb.i18n.MongoConfigI18nKeys;
 import com.clougence.clouddm.dsfamily.dsconf.AbstractDsConfigSpi;
 import com.clougence.drivers.adapter.ConvertUtils;
@@ -118,7 +117,7 @@ public class MongoConfigSpi extends AbstractDsConfigSpi {
             if (host == null) {
                 host = StringUtils.trimToNull(configMap.get(DataSourceConfig.Fields.host));
             }
-            data.put(DataSourceConfig.Fields.host, MongoConnectionUri.normalizeSrvHost(host));
+            data.put(DataSourceConfig.Fields.host, normalizeSrvHost(host));
         } else if (uiMap.containsKey(ADDRESS_FIELD) || uiMap.containsKey(PORT_FIELD)) {
             String address = StringUtils.trimToNull(uiMap.get(ADDRESS_FIELD));
             String port = StringUtils.trimToNull(uiMap.get(PORT_FIELD));
@@ -130,6 +129,17 @@ public class MongoConfigSpi extends AbstractDsConfigSpi {
             }
         }
         return data;
+    }
+
+    private String normalizeSrvHost(String value) {
+        String host = StringUtils.trimToNull(value);
+        if (host == null) {
+            throw new IllegalArgumentException("MongoDB SRV host is required.");
+        }
+        if (StringUtils.containsAny(host, ":/?#@,")) {
+            throw new IllegalArgumentException("MongoDB SRV host must be a single hostname without scheme, port, path or query parameters.");
+        }
+        return host;
     }
 
     @Override
