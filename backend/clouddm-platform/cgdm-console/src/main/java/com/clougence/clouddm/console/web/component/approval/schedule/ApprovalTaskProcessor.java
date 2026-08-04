@@ -28,7 +28,6 @@ import org.springframework.transaction.support.TransactionTemplate;
 import com.clougence.clouddm.console.web.component.approval.ApprovalHandler;
 import com.clougence.clouddm.console.web.component.approval.impl.ApprovalProviderServiceImpl;
 import com.clougence.clouddm.console.web.component.approval.model.ApprovalStageMO;
-import com.clougence.clouddm.console.web.component.approval.model.PreInitContext;
 import com.clougence.clouddm.console.web.component.cicd.ImSenderService;
 import com.clougence.clouddm.console.web.component.config.RootUserConfig;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
@@ -103,21 +102,16 @@ public class ApprovalTaskProcessor {
 
     // PRE_INIT -> WAIT_APPROVAL
     public void processPreInit(DmApprovalDO approvalDO) {
-        PreInitContext context = null;
         if (approvalDO.hasFeature(ApprovalFeature.PRE_INIT)) {
-            context = this.preInitService.process(approvalDO);
+            this.preInitService.process(approvalDO);
         }
 
-        this.completePreInit(approvalDO, context);
+        this.completePreInit(approvalDO);
     }
 
-    private void completePreInit(DmApprovalDO approvalDO, PreInitContext context) {
+    private void completePreInit(DmApprovalDO approvalDO) {
         TransactionTemplate transaction = new TransactionTemplate(this.txManager);
         transaction.executeWithoutResult(status -> {
-            if (context != null) {
-                this.approvalDal.approvalMapper().updateAnalysis(//
-                        approvalDO.getId(), context.getBehaviors(), JsonUtils.toJson(context.getRuleCheckResults()));
-            }
             DmApprovalProcessDO processDO = this.approvalDal.processMapper().queryByStage(approvalDO.getId(), ApprovalStage.EXPLAIN);
             if (processDO != null) {
                 this.approvalDal.processMapper().updateTicketStatusByEnum(processDO.getId(), ApprovalProcessStatus.FINISH, null);

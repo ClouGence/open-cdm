@@ -28,23 +28,23 @@ import lombok.Setter;
 @Setter
 public class DmQueryTicketVO {
 
-    private Long                   id;
-    private String                 bizId;
-    private String                 gmtCreate;
-    private String                 gmtModified;
-    private Long                   dataSourceId;
-    private SqlContentType         contentType;
-    private Long                   attachmentId;
-    private String                 attachmentFileName;
-    private Long                   attachmentFileSize;
-    private List<ApprovalBehavior> behaviors;
-    private Integer                totalCount;
-    private String                 description;
-    private String                 statusMessage;
-    private Long                   expectedAffectedRows;
-    private Boolean                immediately;
-    private String                 rollBackSql;
-    private String                 ticketMessage;
-    private boolean                autoExec;
+    private Long                        id;
+    private String                      bizId;
+    private String                      gmtCreate;
+    private String                      gmtModified;
+    private Long                        dataSourceId;
+    private SqlContentType              contentType;
+    private Long                        attachmentId;
+    private String                      attachmentFileName;
+    private Long                        attachmentFileSize;
+    private List<ApprovalBehavior>      behaviors;
+    private Long                        totalCount;
+    private String                      description;
+    private String                      statusMessage;
+    private Long                        expectedAffectedRows;
+    private Boolean                     immediately;
+    private String                      rollBackSql;
+    private String                      ticketMessage;
+    private boolean                     autoExec;
     private List<TicketRuleCheckResult> checkedList;
 }

@@ -15,8 +15,9 @@
  */
 package com.clougence.clouddm.console.web.component.approval;
 
+import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.console.web.component.approval.model.PreInitContext;
-import com.clougence.clouddm.sdk.execute.session.QueryRequest;
+import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 
 /**
  * Handles one kind of analysis during approval pre-initialization.
@@ -27,5 +28,5 @@ public interface PreInitHandler {
 
     boolean supports(PreInitContext context);
 
-    void handle(QueryRequest request, PreInitContext context);
+    void handle(DataSourceConfig dsConfig, DsLevels dsLevels, PreInitContext context);
 }

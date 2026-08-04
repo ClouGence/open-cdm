@@ -31,9 +31,10 @@ import lombok.Getter;
 @Getter
 public class PreInitContext {
 
-    private final DmApprovalDO                       approval;
-    private final Map<String, ApprovalBehavior>      behaviors      = new LinkedHashMap<>();
-    private final SecRulesCheckResult                ruleCheckResult = new SecRulesCheckResult();
+    private final DmApprovalDO                  approval;
+    private final Map<String, ApprovalBehavior> behaviors       = new LinkedHashMap<>();
+    private final SecRulesCheckResult           ruleCheckResult = new SecRulesCheckResult();
+    private long                                sqlCounter;
 
     public PreInitContext(DmApprovalDO approval){
         this.approval = Objects.requireNonNull(approval, "approval");
@@ -51,6 +52,10 @@ public class PreInitContext {
     }
 
     public List<ApprovalBehavior> getBehaviors() { return new ArrayList<>(this.behaviors.values()); }
+
+    public void incrementSqlCount() {
+        this.sqlCounter++;
+    }
 
     public void addRuleCheckResult(SecRulesCheckResult result) {
         this.ruleCheckResult.merge(result);

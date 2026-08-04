@@ -5,7 +5,7 @@
         <p class="ticket-title-p" style="display: flex; align-items: center">
           <span class="ticket-title">【{{ APPROV_BIZ_MAP[ticketDetail.approBiz] }}】</span>
           <span class="ticket-title">{{ ticketDetail.ticketTitle }}</span>
-          <span class="ticket-status-total">
+          <span :class="['ticket-status-total', { 'analysis-status': ticketDetail.ticketStatus === 'PRE_INIT' }]">
             <span>{{ TICKET_STATUS[ticketDetail.ticketStatus] }}</span>
             <span v-if="ticketDetail.ticketStatus === 'FAILED'">
               <Tooltip :content="ticketDetail.statusMessage" transfer style="margin-left: 3px">
@@ -28,7 +28,7 @@
             </span>
           </span>
         </p>
-        <div class="ticket-detail-summary">
+        <div :class="['ticket-detail-summary', { 'with-analysis-summary': showAnalysisSummary }]">
           <div class="ticket-detail-item">
             <span class="ticket-detail-item-title">{{ $t('shen-qing-ren') }}：</span>
             <span>{{ ticketDetail.userName }}</span>
@@ -56,6 +56,24 @@
               ></CustomIcon>
               <span>{{ ticketDetail.approTemplateName }}</span>
             </div>
+          </div>
+          <div class="ticket-detail-item">
+            <span class="ticket-detail-item-title">{{ $t('miao-shu') }}：</span>
+            <span>{{ ticketDetail.description }}</span>
+          </div>
+        </div>
+        <div class="ticket-analysis-summary" v-if="showAnalysisSummary">
+          <div>
+            <span>{{ $t('ticket-current-stage') }}：</span>
+            <strong>{{ $t('ticket-analysis-stage') }}</strong>
+          </div>
+          <div>
+            <span>{{ $t('zhuang-tai') }}：</span>
+            <strong>{{ analysisProcessStatusText }}</strong>
+          </div>
+          <div>
+            <span>{{ $t('ticket-elapsed') }}：</span>
+            <strong>{{ analysisStageElapsed }}</strong>
           </div>
         </div>
         <div class="ticket-detail-operators">
@@ -105,11 +123,11 @@
           </div>
         </div>
         <div
-          :class="`step-item ${currentStep === index ? 'current-step' : ''}`"
+          :class="`step-item ${currentStep === index ? 'current-step' : ''} ${process.ticketStage === 'EXPLAIN' ? 'analysis-step' : ''}`"
           v-for="(process, index) in ticketDetail.ticketProcessVOList"
           :key="process.ticketProcessId"
         >
-          <div class="step-item-item" v-if="!process.activityList || process.activityList.length === 0">
+          <div class="step-item-item" v-if="process.ticketStage === 'EXPLAIN' || !process.activityList || process.activityList.length === 0">
             <div class="step-item-item">
               <div class="line" :style="`background: ${process.color}`"></div>
               <div class="status" :style="`border: 1px solid ${process.color};`">
@@ -149,11 +167,20 @@
                 <template #content>{{ process.execMsg }}</template>
               </Tooltip>
               <div v-if="!process.execMsg" class="step-detail-value ellipsis">
-                {{ TICKET_PROCESS_STATUS[process.ticketProcessStatus] }}
+                {{ process.ticketStage === 'EXPLAIN' ? analysisProcessStatusText : TICKET_PROCESS_STATUS[process.ticketProcessStatus] }}
               </div>
+              <Button
+                v-if="process.ticketStage === 'EXPLAIN' && analysisItems.length"
+                type="text"
+                class="analysis-toggle"
+                @click="analysisDetailsExpanded = !analysisDetailsExpanded"
+              >
+                {{ analysisDetailsExpanded ? $t('ticket-collapse-details') : $t('ticket-expand-details') }}
+                <Icon :type="analysisDetailsExpanded ? 'ios-arrow-up' : 'ios-arrow-down'" />
+              </Button>
             </div>
           </div>
-          <div class="step-item-item" v-if="process.activityList && process.activityList.length > 0">
+          <div class="step-item-item" v-if="process.ticketStage !== 'EXPLAIN' && process.activityList && process.activityList.length > 0">
             <div class="step-item-item" style="flex-grow: 1">
               <div class="line" :style="`background: ${process.color}`"></div>
               <div class="status" :style="`border: 1px solid ${process.color};`">
@@ -194,6 +221,22 @@
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+          <div v-if="process.ticketStage === 'EXPLAIN' && analysisDetailsExpanded && analysisItems.length" class="analysis-detail-list">
+            <div class="analysis-detail-row analysis-detail-header">
+              <div>{{ $t('ticket-analysis-content') }}</div>
+              <div>{{ $t('zhuang-tai') }}</div>
+              <div>{{ $t('ticket-analysis-result') }}</div>
+              <div>{{ $t('hao-shi') }}</div>
+            </div>
+            <div class="analysis-detail-row" v-for="item in analysisItems" :key="item.activityTitle">
+              <div>{{ analysisTypeText(item.activityTitle) }}</div>
+              <div>
+                <span :class="['analysis-item-status', analysisStatusClass(item.activityStatus)]">{{ analysisStatusText(item.activityStatus) }}</span>
+              </div>
+              <div class="analysis-result">{{ analysisResultText(item) }}</div>
+              <div>{{ analysisElapsed(item) }}</div>
             </div>
           </div>
         </div>
@@ -683,6 +726,9 @@ export default {
       ticketSqlContentInitialized: false,
       ticketAutoRefreshActive: false,
       ticketAutoRefreshTimer: null,
+      analysisDetailsExpanded: true,
+      durationNow: Date.now(),
+      durationTimer: null,
       TICKET_STATUS,
       TICKET_STATUS_COLOR,
       TICKET_PROCESS_STATUS,
@@ -745,9 +791,15 @@ export default {
     this.ticketAutoRefreshActive = true;
     await this.getTicketDetail('init');
     this.scheduleTicketAutoRefresh();
+    this.durationTimer = window.setInterval(() => {
+      this.durationNow = Date.now();
+    }, 1000);
   },
   beforeUnmount() {
     this.stopTicketAutoRefresh();
+    if (this.durationTimer) {
+      window.clearInterval(this.durationTimer);
+    }
     if (this.sqlPreviewTimer) {
       window.clearTimeout(this.sqlPreviewTimer);
     }
@@ -768,6 +820,46 @@ export default {
     showValidationResult() {
       return this.noPassedRuleList && this.noPassedRuleList.length > 0;
     },
+    analysisProcess() {
+      return (this.ticketDetail.ticketProcessVOList || []).find((item) => item.ticketStage === 'EXPLAIN');
+    },
+    analysisItems() {
+      return [...(this.analysisProcess?.activityList || [])].sort((left, right) =>
+        this.analysisTypeText(left.activityTitle).localeCompare(this.analysisTypeText(right.activityTitle))
+      );
+    },
+    showAnalysisSummary() {
+      return (
+        ['DM_QUERY', 'DM_CHANGE'].includes(this.ticketDetail.approBiz) &&
+        this.ticketDetail.ticketStatus === 'PRE_INIT' &&
+        this.analysisItems.length > 0
+      );
+    },
+    analysisRunningCount() {
+      return this.analysisItems.filter((item) => item.activityStatus === 'RUNNING').length;
+    },
+    analysisProcessStatusText() {
+      if (this.analysisItems.length > 0 && this.analysisItems.every((item) => item.activityStatus === 'COMPLETED')) {
+        return this.$t('ticket-analysis-complete');
+      }
+      if (this.analysisRunningCount > 0) {
+        return this.$t('ticket-analysis-running-count', { count: this.analysisRunningCount });
+      }
+      if (this.analysisItems.some((item) => item.activityStatus === 'REFUSE')) {
+        return this.$t('ticket-analysis-failed');
+      }
+      return this.$t('ticket-analysis-waiting');
+    },
+    analysisStageElapsed() {
+      const started = this.analysisItems.map((item) => item.startTimeUtc).filter(Boolean);
+      if (!started.length) {
+        return '--';
+      }
+      const start = Math.min(...started);
+      const finished = this.analysisItems.map((item) => item.finishTimeUtc).filter(Boolean);
+      const end = this.analysisRunningCount > 0 || finished.length !== this.analysisItems.length ? this.durationNow : Math.max(...finished);
+      return this.formatElapsed(end - start);
+    },
     hasError() {
       return this.noPassedRuleList.some((rule) => rule.ruleLevel !== 'SUGGEST');
     },
@@ -778,6 +870,71 @@ export default {
   methods: {
     isCk,
     isMongoDB,
+    analysisTypeText(type) {
+      const keyMap = {
+        SQL_RECOGNITION: 'ticket-analysis-sql-recognition',
+        BEHAVIOR_ANALYSIS: 'ticket-analysis-behavior',
+        SECURITY_RULE: 'ticket-analysis-security-rule'
+      };
+      return this.$t(keyMap[type] || type);
+    },
+    analysisStatusText(status) {
+      const keyMap = {
+        NEW: 'ticket-analysis-waiting',
+        RUNNING: 'ticket-analysis-running',
+        COMPLETED: 'ticket-analysis-complete',
+        REFUSE: 'ticket-analysis-failed'
+      };
+      return this.$t(keyMap[status] || status);
+    },
+    analysisStatusClass(status) {
+      const classMap = {
+        NEW: 'init',
+        RUNNING: 'running',
+        COMPLETED: 'finished',
+        REFUSE: 'failed'
+      };
+      return `status-${classMap[status] || 'init'}`;
+    },
+    analysisResultText(item) {
+      if (item.activityStatus === 'REFUSE') {
+        return item.remark || this.$t('ticket-analysis-failed');
+      }
+      if (item.activityStatus === 'NEW') {
+        return '--';
+      }
+      if (item.activityStatus === 'RUNNING') {
+        return item.processedCount == null
+          ? this.$t('ticket-analysis-running')
+          : this.$t('ticket-analysis-processed-count', { count: item.processedCount });
+      }
+      if (item.activityTitle === 'SQL_RECOGNITION' && item.resultCount != null) {
+        return this.$t('ticket-analysis-sql-result', { count: item.resultCount });
+      }
+      if (item.activityTitle === 'BEHAVIOR_ANALYSIS' && item.resultCount != null) {
+        return this.$t('ticket-analysis-behavior-result', { count: item.resultCount });
+      }
+      if (item.activityTitle === 'SECURITY_RULE' && item.resultCount != null) {
+        return item.resultCount === 0
+          ? this.$t('ticket-analysis-security-passed')
+          : this.$t('ticket-analysis-security-result', { count: item.resultCount });
+      }
+      return '--';
+    },
+    analysisElapsed(item) {
+      if (!item.startTimeUtc) {
+        return '--';
+      }
+      const end = item.finishTimeUtc || this.durationNow;
+      return this.formatElapsed(end - item.startTimeUtc);
+    },
+    formatElapsed(milliseconds) {
+      const totalSeconds = Math.max(0, Math.floor(milliseconds / 1000));
+      const hours = Math.floor(totalSeconds / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+      return [hours, minutes, seconds].map((value) => String(value).padStart(2, '0')).join(':');
+    },
     async loadSqlPreview() {
       this.sqlPreviewLineCount = this.$refs.sqlPreviewEditor?.getVisibleLineCount() || 25;
       const requestSequence = ++this.sqlPreviewRequestSequence;
@@ -1149,6 +1306,7 @@ export default {
               }
             });
             if (resQuery.success) {
+              this.noPassedRuleList = resQuery.data.checkedList || [];
               this.autoExec = resQuery.data.autoExec;
               if (resQuery.data?.autoExec) {
                 await this.queryAutoExecJobInfo();
@@ -1167,7 +1325,6 @@ export default {
                 await this.loadSqlPreview();
                 this.ticketSqlContentInitialized = true;
               }
-              this.noPassedRuleList = resQuery.data.checkedList || [];
             }
             break;
           default:
@@ -1354,6 +1511,10 @@ export default {
     font-weight: 400;
     padding-right: 200px;
 
+    &.with-analysis-summary {
+      padding-right: 500px;
+    }
+
     .ticket-detail-item {
       margin-top: 6px;
       margin-right: 80px;
@@ -1364,6 +1525,37 @@ export default {
         color: @icon-color;
       }
     }
+  }
+
+  .ticket-analysis-summary {
+    position: absolute;
+    top: 18px;
+    right: 132px;
+    width: 300px;
+    padding-left: 24px;
+    border-left: 1px solid #e8eaec;
+    font-size: 12px;
+
+    > div {
+      display: grid;
+      grid-template-columns: 76px 1fr;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    span {
+      color: @icon-color;
+    }
+
+    strong {
+      font-weight: 500;
+    }
+  }
+
+  .ticket-status-total.analysis-status {
+    color: #1677ff;
+    border-color: #91caff;
+    background: #e6f4ff;
   }
 
   .ticket-detail-operators {
@@ -1481,6 +1673,17 @@ export default {
         cursor: pointer;
       }
 
+      &.analysis-step {
+        flex-direction: column;
+        align-items: stretch;
+
+        &.current-step {
+          box-shadow: none;
+          border: 1px solid #d6e4ff;
+          background: #f7faff;
+        }
+      }
+
       .step-item-item {
         position: relative;
         width: 100%;
@@ -1520,6 +1723,69 @@ export default {
       &:last-child {
         margin-bottom: 0;
       }
+    }
+
+    .analysis-toggle {
+      margin-left: auto;
+      padding: 0 4px;
+      color: @font-color;
+    }
+
+    .analysis-detail-list {
+      width: 75%;
+      margin: 4px 0 0 25%;
+    }
+
+    .analysis-detail-row {
+      display: grid;
+      grid-template-columns: 22% 16% 1fr 100px;
+      align-items: center;
+      min-height: 42px;
+      border-top: 1px solid #e8eaec;
+
+      > div {
+        padding: 8px 12px;
+      }
+    }
+
+    .analysis-detail-header {
+      min-height: 36px;
+      color: @icon-color;
+      font-weight: 500;
+    }
+
+    .analysis-item-status {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 3px;
+      font-size: 12px;
+
+      &.status-finished {
+        color: #389e0d;
+        background: #f6ffed;
+      }
+
+      &.status-running {
+        color: #1677ff;
+        background: #e6f4ff;
+      }
+
+      &.status-failed {
+        color: #cf1322;
+        background: #fff1f0;
+      }
+
+      &.status-init {
+        color: #8c8c8c;
+        background: #f5f5f5;
+      }
+    }
+
+    .analysis-result {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
   }
 

@@ -27,6 +27,8 @@ import java.util.stream.Stream;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -37,9 +39,10 @@ import com.clougence.clouddm.console.web.component.analysis.QueryAnalysisService
 import com.clougence.clouddm.console.web.component.approval.ApprovalFlowService;
 import com.clougence.clouddm.console.web.component.approval.ApprovalService;
 import com.clougence.clouddm.console.web.component.approval.impl.ApprovalProviderServiceImpl;
+import com.clougence.clouddm.console.web.component.approval.model.ApprovalAnalysisStateMO;
 import com.clougence.clouddm.console.web.component.approval.model.ApprovalMO;
 import com.clougence.clouddm.console.web.component.approval.model.ApprovalStageMO;
-import com.clougence.clouddm.console.web.component.approval.model.TicketRuleCheckResult;
+import com.clougence.clouddm.console.web.component.approval.schedule.ApprovalTaskScheduler;
 import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForManage;
 import com.clougence.clouddm.console.web.component.autoexec.AutoExecService;
 import com.clougence.clouddm.console.web.component.autoexec.model.AutoExecJobCreateRequest;
@@ -140,6 +143,8 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
     private ApprovalService             approvalService;
     @Resource
     private ApprovalProviderServiceImpl approvalProviderService;
+    @Resource
+    private ApprovalTaskScheduler       approvalTaskScheduler;
 
     //
     // ticket list
@@ -243,9 +248,9 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
         for (DmApprovalDO tdo : records) {
             RdpTicketBasicVO t;
             if (tdo.getApproBiz() == ApprovalBiz.DM_QUERY || tdo.getApproBiz() == ApprovalBiz.DM_CHANGE) {
-                t = RdpTicketBasicVO.generateVO(tdo, ticketDsMap.get(tdo.getBindDsId()).getDataSourceType().getTypeName(), ticketUserMap.get(tdo.getId()));
+                t = RdpConvertUtils.convertToTicketBasicVO(tdo, ticketDsMap.get(tdo.getBindDsId()).getDataSourceType().getTypeName(), ticketUserMap.get(tdo.getId()));
             } else {
-                t = RdpTicketBasicVO.generateVO(tdo, tdo.getApproBiz().name(), ticketUserMap.get(tdo.getId()));
+                t = RdpConvertUtils.convertToTicketBasicVO(tdo, tdo.getApproBiz().name(), ticketUserMap.get(tdo.getId()));
             }
             vos.add(t);
         }
@@ -259,13 +264,13 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
     @Override
     public RdpTicketBaseInfoVO queryTicketBaseInfo(String puid, String uid, RdpQueryTicketDetailFO fo) {
         DmApprovalDO cachedTicketDO = this.approvalDal.approvalMapper().queryById(fo.getTicketId());
-        if (cachedTicketDO != null && //
-            fo.isRefreshCache() &&//
+        if (cachedTicketDO != null &&   //
+            fo.isRefreshCache() &&      //
             cachedTicketDO.getApproType() != ApprovalType.Internal &&//
             cachedTicketDO.getTicketStatus() == ApprovalStatus.WAIT_APPROVAL) {
 
-            CgFuture<Boolean> cgFuture = this.asyncTaskWithResultService.submitTask(//
-                    TaskType.getKey(TaskType.APPROVAL_LAST_STATUS, cachedTicketDO.getId()),//
+            CgFuture<Boolean> cgFuture = this.asyncTaskWithResultService.submitTask(        //
+                    TaskType.getKey(TaskType.APPROVAL_LAST_STATUS, cachedTicketDO.getId()), //
                     () -> refreshCache(cachedTicketDO));
 
             try {
@@ -343,38 +348,23 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
         }
 
         vo.setApproComment(approvalDO.getApproComment());
-        if (approvalDO.getApproType() != ApprovalType.Internal) {
-            List<DmApprovalProcessActivityDO> activities = this.approvalDal.activityMapper().queryByTicketId(approvalDO.getId());
-            for (RdpTicketProcessVO processVO : vo.getTicketProcessVOList()) {
-                Long ticketProcessId = processVO.getTicketProcessId();
-                List<RdpTicketActivityVO> activityVOS = new ArrayList<>();
-                if (processVO.getTicketProcessStatus() == ApprovalProcessStatus.FAIL) {
-                    continue;
-                }
-                for (DmApprovalProcessActivityDO activity : activities) {
-                    if (activity.getProcessId().equals(ticketProcessId)) {
-                        activityVOS.addAll(RdpConvertUtils.convertToTicketActivityVO(processVO.getTicketProcessStatus(), activity));
-                    }
-                }
-                if (!activityVOS.isEmpty()) {
-                    activityVOS.sort((a, b) -> {
-                        if (a.getFinishTime() == null && b.getFinishTime() != null) {
-                            return 1;
-                        } else if (a.getFinishTime() != null) {
-                            if (b.getFinishTime() == null) {
-                                return -1;
-                            }
-                            return a.getFinishTime().compareTo(b.getFinishTime());
-                        } else if (a.getStartTime() != null && b.getStartTime() != null) {
-                            return a.getStartTime().compareTo(b.getStartTime());
-                        } else {
-                            return 0;
-                        }
-                    });
-                    processVO.setActivityList(activityVOS);
-                    processVO.setHasActivity(true);
-                }
+        List<DmApprovalProcessActivityDO> activities = this.approvalDal.activityMapper().queryByTicketId(approvalDO.getId());
+        for (RdpTicketProcessVO processVO : vo.getTicketProcessVOList()) {
+            List<RdpTicketActivityVO> vos;
+            if (processVO.getTicketStage() == ApprovalStage.EXPLAIN) {
+                vos = this.convertAnalysisActivities(processVO, activities);
+            } else if (approvalDO.getApproType() != ApprovalType.Internal && processVO.getTicketProcessStatus() != ApprovalProcessStatus.FAIL) {
+                vos = this.convertApprovalActivities(processVO, activities);
+            } else {
+                continue;
             }
+            if (!vos.isEmpty()) {
+                processVO.setActivityList(vos);
+                processVO.setHasActivity(true);
+            }
+        }
+
+        if (approvalDO.getApproType() != ApprovalType.Internal) {
             String approvalUrl = approvalDO.getApprovalUrl();
             if (StringUtils.isNotEmpty(approvalUrl)) {
                 ApprovalUrl urlDTO = JsonUtils.toObj(approvalUrl, ApprovalUrl.class);
@@ -386,6 +376,41 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
         }
 
         return vo;
+    }
+
+    private List<RdpTicketActivityVO> convertAnalysisActivities(RdpTicketProcessVO processVO, List<DmApprovalProcessActivityDO> activities) {
+        List<RdpTicketActivityVO> vos = new ArrayList<>();
+        for (DmApprovalProcessActivityDO activity : activities) {
+            if (activity.getProcessId().equals(processVO.getTicketProcessId()) && StringUtils.isNotBlank(activity.getContext())) {
+                ApprovalAnalysisStateMO state = JsonUtils.toObj(activity.getContext(), ApprovalAnalysisStateMO.class);
+                vos.add(RdpConvertUtils.convertToAnalysisActivityVO(state));
+            }
+        }
+        return vos;
+    }
+
+    private List<RdpTicketActivityVO> convertApprovalActivities(RdpTicketProcessVO processVO, List<DmApprovalProcessActivityDO> activities) {
+        List<RdpTicketActivityVO> vos = new ArrayList<>();
+        for (DmApprovalProcessActivityDO activity : activities) {
+            if (activity.getProcessId().equals(processVO.getTicketProcessId())) {
+                vos.addAll(RdpConvertUtils.convertToTicketActivityVO(processVO.getTicketProcessStatus(), activity));
+            }
+        }
+        vos.sort((a, b) -> {
+            if (a.getFinishTime() == null && b.getFinishTime() != null) {
+                return 1;
+            } else if (a.getFinishTime() != null) {
+                if (b.getFinishTime() == null) {
+                    return -1;
+                }
+                return a.getFinishTime().compareTo(b.getFinishTime());
+            } else if (a.getStartTime() != null && b.getStartTime() != null) {
+                return a.getStartTime().compareTo(b.getStartTime());
+            } else {
+                return 0;
+            }
+        });
+        return vos;
     }
 
     @Override
@@ -418,18 +443,40 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
                 vo.setAttachmentFileSize(attachment.getFileSize());
             }
         }
+
         vo.setRollBackSql(approvalDO.getRollBackSql());
-        vo.setTotalCount(approvalDO.getTotalCount());
         vo.setExpectedAffectedRows(approvalDO.getExpectedAffectedRows());
-        vo.setBehaviors(approvalDO.getBehaviors());
+        this.fillAnalysisDetail(vo, approvalDO.getId());
+
         if (StringUtils.isNotEmpty(approvalDO.getTicketInfo())) {
             ApprovalMO ticketInfo = JsonUtils.toObj(approvalDO.getTicketInfo(), ApprovalMO.class);
             String message = ticketInfo.getMessage();
             vo.setTicketMessage(message);
             vo.setAutoExec(ticketInfo.isAutoExec());
         }
-        vo.setCheckedList(JsonUtils.toListUseType(approvalDO.getCheckedInfo(), TicketRuleCheckResult.class));
         return vo;
+    }
+
+    private void fillAnalysisDetail(DmQueryTicketVO vo, Long ticketId) {
+        List<DmApprovalProcessActivityDO> activities = this.approvalDal.activityMapper().queryByTicketId(ticketId);
+        for (DmApprovalProcessActivityDO activity : activities) {
+            if (StringUtils.isBlank(activity.getContext())) {
+                continue;
+            }
+            String activityId = activity.getActivityId();
+            if (!ApprovalAnalysisStateMO.TYPE_SQL_RECOGNITION.equals(activityId) && !ApprovalAnalysisStateMO.TYPE_BEHAVIOR_ANALYSIS.equals(activityId)
+                && !ApprovalAnalysisStateMO.TYPE_SECURITY_RULE.equals(activityId)) {
+                continue;
+            }
+            ApprovalAnalysisStateMO state = JsonUtils.toObj(activity.getContext(), ApprovalAnalysisStateMO.class);
+            if (ApprovalAnalysisStateMO.TYPE_SQL_RECOGNITION.equals(state.getAnalysisType())) {
+                vo.setTotalCount(state.getTotalCount());
+            } else if (ApprovalAnalysisStateMO.TYPE_BEHAVIOR_ANALYSIS.equals(state.getAnalysisType())) {
+                vo.setBehaviors(state.getBehaviors());
+            } else if (ApprovalAnalysisStateMO.TYPE_SECURITY_RULE.equals(state.getAnalysisType())) {
+                vo.setCheckedList(state.getCheckedInfo());
+            }
+        }
     }
 
     //
@@ -664,7 +711,6 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
         if (StringUtils.isNotBlank(fo.getRollBackSql())) {
             ticket.setRollBackSql(fo.getRollBackSql());
         }
-        ticket.setCheckedInfo(JsonUtils.toJson(result.getCheckedVOS()));
 
         if (ticket.getApproType() == ApprovalType.Internal) {
             DmApprovalPersonDO primary = new DmApprovalPersonDO();
@@ -680,9 +726,23 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
         }
 
         this.approvalFlowService.createProcess(ticket.getId(), ApprovalBiz.DM_QUERY, mo.getMessage() == null);
+        this.scheduleAfterCommit(ticket.getId());
 
         result.setTicketId(ticket.getId());
         return result;
+    }
+
+    private void scheduleAfterCommit(long ticketId) {
+        if (!TransactionSynchronizationManager.isSynchronizationActive()) {
+            this.approvalTaskScheduler.trySchedule(ticketId);
+            return;
+        }
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                approvalTaskScheduler.trySchedule(ticketId);
+            }
+        });
     }
 
     @Override

@@ -21,7 +21,6 @@ import java.util.List;
 import com.baomidou.mybatisplus.annotation.*;
 import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import com.clougence.clouddm.platform.dal.handler.enums.RdpApprovalTypeHandler;
-import com.clougence.clouddm.platform.dal.handler.json.ApprovalBehaviorListTypeHandler;
 import com.clougence.utils.CollectionUtils;
 
 import lombok.Data;
@@ -34,51 +33,47 @@ import lombok.Data;
 @TableName(value = "dm_approval", autoResultMap = true)
 public class DmApprovalDO {
 
+    // basic information
     @TableId(type = IdType.AUTO)
-    private Long                   id;
-    private String                 bizId;
+    private Long                  id;
+    private String                bizId;
     @TableField(insertStrategy = FieldStrategy.NOT_NULL, updateStrategy = FieldStrategy.NOT_NULL)
-    private Date                   gmtCreate;
+    private Date                  gmtCreate;
     @TableField(insertStrategy = FieldStrategy.NOT_NULL, updateStrategy = FieldStrategy.NOT_NULL)
-    private Date                   gmtModified;
-    private String                 ownerUid;
-    private Long                   bindDsId;
-    private String                 targetInfo;
-    @TableField(typeHandler = RdpApprovalTypeHandler.class)
-    private ApprovalType           approType;
-    private ApprovalBiz            approBiz;
-    private String                 approIdentity;
-    private String                 approTemplateName;
-    private String                 approTemplateIdentity;
-    private String                 approComment;
-    private String                 description;
-    private String                 ticketTitle;
-    private ApprovalStatus         ticketStatus;
-    private Date                   finishTime;
-    private String                 statusMessage;
-    private Boolean                deleted;
-    private Integer                errorCount;
-    private String                 primaryUid;
-    private String                 envName;
-    private String                 approvalUrl;
-    private String                 sessionId;
-    private String                 explainSqlData;
-    private Integer                riskSqlCount;
-    private String                 rawSql;
-    private SqlContentType         contentType;
-    private Integer                totalCount;
-    @TableField("`expected_affected_rows`")
-    private Long                   expectedAffectedRows;
-    private Date                   expectedExecTime;
-    private String                 rollBackSql;
-    private String                 ticketInfo;
+    private Date                  gmtModified;
+    private String                ownerUid;
+    private String                primaryUid;
+    private Long                  bindDsId;
+    private String                targetInfo;
+    private ApprovalBiz           approBiz;
+    private String                description;
+    private String                ticketTitle;
+    private String                envName;
+    private String                rawSql;
+    private SqlContentType        contentType;
     @TableField(value = "levels", typeHandler = JacksonTypeHandler.class)
-    private List<String>           levels;
+    private List<String>          levels;
+    private Boolean               deleted;
+
+    // ticket flow
+    @TableField(typeHandler = RdpApprovalTypeHandler.class)
+    private ApprovalType          approType;
+    private String                approIdentity;
+    private String                approTemplateName;
+    private String                approTemplateIdentity;
+    private String                approComment;
+    private ApprovalStatus        ticketStatus;
+    private String                statusMessage;
+    private Date                  finishTime;
+    private String                approvalUrl;
     @TableField(value = "features", typeHandler = JacksonTypeHandler.class)
-    private List<ApprovalFeature>  features;
-    private String                 checkedInfo;
-    @TableField(value = "behaviors", typeHandler = ApprovalBehaviorListTypeHandler.class)
-    private List<ApprovalBehavior> behaviors;
+    private List<ApprovalFeature> features;
+
+    // ticket execution
+    @TableField("`expected_affected_rows`")
+    private Long                  expectedAffectedRows;
+    private String                rollBackSql;
+    private String                ticketInfo;
 
     public boolean hasFeature(ApprovalFeature feature) {
         return CollectionUtils.isNotEmpty(this.features) && this.features.contains(feature);

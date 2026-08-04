@@ -371,9 +371,16 @@ public class ApprovalProviderServiceImpl implements ApprovalRefreshService {
     private void failedTicket(DmApprovalDO ticket) {
         List<DmApprovalProcessDO> processList = approvalDal.processMapper().listByTicketId(ticket.getId());
         for (DmApprovalProcessDO processDO : processList) {
-            if (processDO.getProcessStatus() != ApprovalProcessStatus.FINISH) {
-                // update status
-                this.approvalDal.processMapper().updateTicketStatusByEnum(processDO.getId(), ApprovalProcessStatus.FAIL, null);
+            if (processDO.getTicketStage() == ApprovalStage.APPROVAL &&//
+                processDO.getProcessStatus() != ApprovalProcessStatus.FINISH) {
+                processDO.setProcessStatus(ApprovalProcessStatus.FAIL);
+                processDO.setFinishTime(new Date());
+                this.approvalDal.processMapper().updateById(processDO);
+            } else if (processDO.getTicketStage().ordinal() > ApprovalStage.APPROVAL.ordinal() && //
+                       processDO.getProcessStatus() == ApprovalProcessStatus.INIT) {
+                processDO.setProcessStatus(ApprovalProcessStatus.CLOSED);
+                processDO.setFinishTime(new Date());
+                this.approvalDal.processMapper().updateById(processDO);
             }
         }
     }

@@ -336,8 +336,8 @@ export const PREFERENCE_TABS = [
 export const PREFERENCE_CONFIG_KEYS = PREFERENCE_TABS.flatMap((tab) => tab.sections.flatMap((section) => section.fields.map((field) => field.key)));
 
 const preferenceUniqueKeys = new Set(PREFERENCE_CONFIG_KEYS);
-if (PREFERENCE_CONFIG_KEYS.length !== 23 || preferenceUniqueKeys.size !== PREFERENCE_CONFIG_KEYS.length) {
-  throw new Error('Preference config registry must contain 23 unique config keys.');
+if (PREFERENCE_CONFIG_KEYS.length !== 24 || preferenceUniqueKeys.size !== PREFERENCE_CONFIG_KEYS.length) {
+  throw new Error('Preference config registry must contain 24 unique config keys.');
 }
 
 const preferenceFeatures = PREFERENCE_TABS.flatMap((tab, tabIndex) =>
@@ -406,8 +406,8 @@ export const USER_CONFIG_FEATURE_REGISTRY = [...preferenceFeatures, ...existingF
 export const REGISTERED_USER_CONFIG_KEYS = USER_CONFIG_FEATURE_REGISTRY.flatMap((feature) => feature.configKeys);
 
 const registeredUniqueKeys = new Set(REGISTERED_USER_CONFIG_KEYS);
-if (REGISTERED_USER_CONFIG_KEYS.length !== 85 || registeredUniqueKeys.size !== REGISTERED_USER_CONFIG_KEYS.length) {
-  throw new Error('User config feature registry must contain 85 unique config keys.');
+if (REGISTERED_USER_CONFIG_KEYS.length !== 86 || registeredUniqueKeys.size !== REGISTERED_USER_CONFIG_KEYS.length) {
+  throw new Error('User config feature registry must contain 86 unique config keys.');
 }
 
 export function getPreferenceTab(tabName) {

@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.console.web.component.approval.ApprovalFlowService;
 import com.clougence.clouddm.console.web.component.approval.ApprovalHandler;
+import com.clougence.clouddm.console.web.component.approval.model.ApprovalAnalysisStateMO;
 import com.clougence.clouddm.console.web.component.approval.model.ApprovalStageMO;
 import com.clougence.clouddm.console.web.component.cicd.ImSenderService;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
@@ -112,7 +113,7 @@ public class ApprovalFlowServiceImpl implements ApprovalFlowService {
         DmApprovalDO ticketDO = checkTicket(ticketId);
         checkInProgress(ticketDO);
 
-        this.failedAllProcess(ticketId);
+        this.failCurrentAndCloseFollowingProcesses(ticketDO);
         this.approvalDal.approvalMapper().updateStatusByEnum(ticketId, ApprovalStatus.FAILED, statusMessage);
         this.approvalHandler(ticketDO.getApproBiz()).approvalFailed(ticketDO.getId(), ticketDO.getApproBiz(), imSenderService);
     }
@@ -123,7 +124,7 @@ public class ApprovalFlowServiceImpl implements ApprovalFlowService {
         DmApprovalDO ticketDO = checkTicket(ticketId);
         checkInProgress(ticketDO);
 
-        this.failedAllProcess(ticketId);
+        this.failCurrentAndCloseFollowingProcesses(ticketDO);
         this.approvalDal.approvalMapper().updateStatusByEnum(ticketId, ApprovalStatus.EXEC_FAIL, statusMessage);
         this.approvalHandler(ticketDO.getApproBiz()).approvalFailed(ticketDO.getId(), ticketDO.getApproBiz(), imSenderService);
     }
@@ -252,6 +253,9 @@ public class ApprovalFlowServiceImpl implements ApprovalFlowService {
                 processDO.setStageContext(JsonUtils.toJson(execMO));
             }
             this.approvalDal.processMapper().insert(processDO);
+            if (stage == ApprovalStage.EXPLAIN) {
+                this.createAnalysisActivities(ticketId, processDO.getId());
+            }
 
             // need return first process id
             if (firstStageId == -1) {
@@ -266,6 +270,21 @@ public class ApprovalFlowServiceImpl implements ApprovalFlowService {
 
         if (firstStageId == -1) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_APPROVAL_CAN_NOT_GET.name(), ticketId));
+        }
+    }
+
+    private void createAnalysisActivities(long ticketId, long processId) {
+        List<ApprovalAnalysisStateMO> states = ApprovalAnalysisStateMO.initialStates();
+        for (int i = 0; i < states.size(); i++) {
+            ApprovalAnalysisStateMO state = states.get(i);
+            DmApprovalProcessActivityDO activityDO = new DmApprovalProcessActivityDO();
+            activityDO.setTicketId(ticketId);
+            activityDO.setProcessId(processId);
+            activityDO.setActivityId(state.getAnalysisType());
+            activityDO.setActivityTitle(state.getAnalysisType());
+            activityDO.setOrderNumber(i + 1);
+            activityDO.setContext(JsonUtils.toJson(state));
+            this.approvalDal.activityMapper().insert(activityDO);
         }
     }
 
@@ -328,20 +347,37 @@ public class ApprovalFlowServiceImpl implements ApprovalFlowService {
     @Override
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public void failedAllProcess(long ticketId) {
-        List<DmApprovalProcessDO> processList = this.getProcessList(ticketId);
-        for (DmApprovalProcessDO processDO : processList) {
-            // skip finish
-            if (processDO.getProcessStatus() == ApprovalProcessStatus.FINISH) {
+        this.failCurrentAndCloseFollowingProcesses(checkTicket(ticketId));
+    }
+
+    private void failCurrentAndCloseFollowingProcesses(DmApprovalDO ticketDO) {
+        ApprovalStage currentStage = switch (ticketDO.getTicketStatus()) {
+            case PRE_INIT -> ApprovalStage.EXPLAIN;
+            case WAIT_APPROVAL -> ApprovalStage.APPROVAL;
+            case WAIT_CONFIRM -> ApprovalStage.CONFIRM;
+            case WAIT_EXEC, RUNNING, EXEC_FAIL, EXEC_PAUSE -> ApprovalStage.EXECUTION;
+            default -> null;
+        };
+        if (currentStage == null) {
+            return;
+        }
+
+        DmApprovalProcessDO currentProcess = this.approvalDal.processMapper().queryByStage(ticketDO.getId(), currentStage);
+        if (currentProcess == null || currentProcess.getProcessStatus() == ApprovalProcessStatus.FINISH) {
+            return;
+        }
+        if (currentStage == ApprovalStage.APPROVAL) {
+            this.doFailed(ticketDO.getId(), currentProcess);
+        }
+        currentProcess.setProcessStatus(ApprovalProcessStatus.FAIL);
+        currentProcess.setFinishTime(new Date());
+        this.approvalDal.processMapper().updateById(currentProcess);
+
+        for (DmApprovalProcessDO processDO : this.getProcessList(ticketDO.getId())) {
+            if (processDO.getTicketStage().ordinal() <= currentStage.ordinal() || processDO.getProcessStatus() != ApprovalProcessStatus.INIT) {
                 continue;
             }
-
-            // do action
-            if (processDO.getTicketStage() == ApprovalStage.APPROVAL) {
-                this.doFailed(ticketId, processDO);
-            }
-
-            // update status
-            processDO.setProcessStatus(ApprovalProcessStatus.FAIL);
+            processDO.setProcessStatus(ApprovalProcessStatus.CLOSED);
             processDO.setFinishTime(new Date());
             this.approvalDal.processMapper().updateById(processDO);
         }

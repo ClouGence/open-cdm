@@ -25,7 +25,6 @@ import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.console.web.component.approval.ApprovalFlowService;
 import com.clougence.clouddm.console.web.component.approval.impl.ApprovalProviderServiceImpl;
-import com.clougence.clouddm.console.web.component.config.ConsoleConfig;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
 import com.clougence.clouddm.console.web.service.datasource.DmDsWebService;
@@ -47,8 +46,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 public class ApprovalTaskScheduler {
-    @Resource
-    private ConsoleConfig               config;
+    private static final int            THREAD_COUNT_MULTIPLIER = 2;
+    private static final int            QUEUE_SIZE_MULTIPLIER   = 3;
+
     @Resource
     private ApprovalDal                 approvalDal;
     @Resource
@@ -67,10 +67,8 @@ public class ApprovalTaskScheduler {
     private Set<Long>                   taskInQueueSet;
 
     public void start() {
-        LinkedBlockingQueue<Runnable> queue = new LinkedBlockingQueue<>(this.config.getRdpAsyncTaskQueueSize());
-        ThreadFactory threadFactory = ThreadUtils.daemonThreadFactory(this.getClass().getClassLoader(), "Ticket-task-%s");
-        // if queue is full, ignore the latest additions
-        this.threadPoolExecutor = new ThreadPoolExecutor(10, 10, 1, TimeUnit.MINUTES, queue, threadFactory, new ThreadPoolExecutor.AbortPolicy());
+        int threadCount = Runtime.getRuntime().availableProcessors() * THREAD_COUNT_MULTIPLIER;
+        this.threadPoolExecutor = createExecutor(threadCount);
         ClassLoader classLoader = this.applicationContext.getClassLoader();
         this.taskInQueueSet = Collections.newSetFromMap(new ConcurrentHashMap<>());
         this.scheduleWorkThread = ThreadUtils.daemonThread(classLoader, this::loopSchedule);
@@ -105,7 +103,7 @@ public class ApprovalTaskScheduler {
 
         int submitted = 0;
         for (Long tickId : ticketList) {
-            if (submitApproval(tickId)) {
+            if (trySchedule(tickId)) {
                 submitted++;
             }
         }
@@ -114,14 +112,18 @@ public class ApprovalTaskScheduler {
         }
     }
 
-    private boolean submitApproval(Long approvalId) {
+    public boolean trySchedule(Long approvalId) {
+        ThreadPoolExecutor executor = this.threadPoolExecutor;
+        if (executor == null || this.taskInQueueSet == null) {
+            return false;
+        }
         try {
             // is running or on queue， avoid repeat ticket task
             if (!this.taskInQueueSet.add(approvalId)) {
                 return false;
             }
             this.approvalDal.approvalMapper().updateModified(approvalId);
-            this.threadPoolExecutor.submit(() -> {
+            executor.submit(() -> {
                 try {
                     runApproval(approvalId);
                 } finally {
@@ -134,6 +136,12 @@ public class ApprovalTaskScheduler {
             this.taskInQueueSet.remove(approvalId);
             return false;
         }
+    }
+
+    private ThreadPoolExecutor createExecutor(int threadCount) {
+        LinkedBlockingQueue<Runnable> queue = new LinkedBlockingQueue<>(threadCount * QUEUE_SIZE_MULTIPLIER);
+        ThreadFactory threadFactory = ThreadUtils.daemonThreadFactory(this.getClass().getClassLoader(), "Ticket-task-%s");
+        return new ThreadPoolExecutor(threadCount, threadCount, 1, TimeUnit.MINUTES, queue, threadFactory, new ThreadPoolExecutor.AbortPolicy());
     }
 
     private void runApproval(Long approvalId) {

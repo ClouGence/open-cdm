@@ -28,23 +28,13 @@ import lombok.Setter;
 public class RdpTicketProcessVO {
 
     private Long                      ticketProcessId;
-
     private String                    gmtCreate;
-
     private String                    gmtModified;
-
-    private ApprovalStage            ticketStage;
-
+    private ApprovalStage             ticketStage;
     private String                    ticketStageTitle;
-
     private String                    finishTime;
-
-    private ApprovalProcessStatus    ticketProcessStatus;
-
+    private ApprovalProcessStatus     ticketProcessStatus;
     private String                    stageContext;
-
     private boolean                   hasActivity;
-
     private List<RdpTicketActivityVO> activityList;
-
 }

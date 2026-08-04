@@ -42,6 +42,15 @@
         order by order_number asc
     </select>
 
+    <select id="queryByProcessIdAndActivityId"
+            resultType="com.clougence.clouddm.platform.dal.model.approval.DmApprovalProcessActivityDO">
+        select
+        <include refid="all_col"/>
+        from dm_approval_process_activity
+        where process_id = #{processId}
+        and activity_id = #{activityId}
+    </select>
+
     <select id="queryByProcessIdAndActivityIdForUpdate"
             resultType="com.clougence.clouddm.platform.dal.model.approval.DmApprovalProcessActivityDO">
         select

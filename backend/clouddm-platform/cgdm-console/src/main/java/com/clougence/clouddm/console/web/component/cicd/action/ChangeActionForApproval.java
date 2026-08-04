@@ -16,7 +16,6 @@
 package com.clougence.clouddm.console.web.component.cicd.action;
 
 import java.nio.file.Path;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -27,7 +26,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.console.web.component.approval.ApprovalFlowService;
 import com.clougence.clouddm.console.web.component.approval.model.ApprovalMO;
-import com.clougence.clouddm.console.web.component.approval.model.TicketRuleCheckResult;
 import com.clougence.clouddm.console.web.component.cicd.ChangeSqlService;
 import com.clougence.clouddm.console.web.component.cicd.ImMessageType;
 import com.clougence.clouddm.console.web.component.cicd.model.ChangeApprovalInfo;
@@ -178,10 +176,6 @@ public class ChangeActionForApproval extends AbstractChangeAction {
             }
         }
 
-        // checkedResults
-        DmChangeItemDO summary = this.changeFlowDal.changeItemMapper().queryChangeItemByName(change.getOwnerUid(), change.getId(), ChangeItemType.CHECK_SUMMARY, "rule-summary");
-        List<TicketRuleCheckResult> checkedResults = summary == null ? Collections.emptyList() : JsonUtils.toListUseType(summary.getContent(), TicketRuleCheckResult.class);
-
         // create Ticket
         String bizId = this.namingDao.genApprovalBizId();
         DmApprovalDO ticket = new DmApprovalDO();
@@ -202,7 +196,6 @@ public class ChangeActionForApproval extends AbstractChangeAction {
         ticket.setRawSql(null);
         ticket.setContentType(SqlContentType.ATTACHMENT);
         ticket.setFeatures(List.of(ApprovalFeature.values()));
-        ticket.setTotalCount(0);
         ticket.setExpectedAffectedRows(0L);
         ApprovalMO ticketInfo = new ApprovalMO();
         ticketInfo.setChangeOwnerUid(change.getOwnerUid());
@@ -210,7 +203,6 @@ public class ChangeActionForApproval extends AbstractChangeAction {
         ticket.setTicketInfo(JsonUtils.toJson(ticketInfo));
         ticket.setLevels(dsLevels.dbLevels());
         ticket.setRollBackSql("");
-        ticket.setCheckedInfo(JsonUtils.toJson(checkedResults));
 
         //
         if (approvalInfo.getApprovalType() == ApprovalType.Internal) {
