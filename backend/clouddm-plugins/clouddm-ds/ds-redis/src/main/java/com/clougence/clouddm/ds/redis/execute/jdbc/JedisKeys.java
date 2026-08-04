@@ -37,6 +37,14 @@ public class JedisKeys {
     public static final String PASSWORD            = "password";
     public static final String DATABASE            = "database";
     public static final String CLIENT_NAME         = "clientName";
+    public static final String SSL_MODE                = "sslMode";
+    public static final String SSL_CA_FILE             = "sslCaFile";
+    public static final String SSL_CA_FORMAT           = "sslCaFormat";
+    public static final String SSL_CA_PASSWORD         = "sslCaPassword";
+    public static final String SSL_CLIENT_CERT_FILE    = "sslClientCertFile";
+    public static final String SSL_CLIENT_CERT_FORMAT  = "sslClientCertFormat";
+    public static final String SSL_CLIENT_KEY_FILE     = "sslClientKeyFile";
+    public static final String SSL_CLIENT_KEY_PASSWORD = "sslClientKeyPassword";
     // for pool
     public static final String MAX_TOTAL           = "maxTotal";
     public static final String MAX_IDLE            = "maxIdle";
