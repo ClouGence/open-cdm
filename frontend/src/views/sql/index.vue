@@ -337,6 +337,9 @@ export default {
     handleExpandDataSourceSidebar() {
       this.$refs.dataSourceTree?.handleSwitchHide();
     },
+    handleReloadResult() {
+      this.$refs.sqlViewer?.onRun();
+    },
     onContextmenu(event, tab) {
       this.contextData = tab;
       ContextMenu.showContextMenu({
