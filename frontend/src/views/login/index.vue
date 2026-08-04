@@ -539,6 +539,7 @@ export default {
         this.mfaInvalidMode = false;
         this.mfaCode = '';
         if (!challengeToken) {
+          this.mfaPreActionToken = '';
           this.showMfa = false;
           Toast.error(this.$t('mfa-deng-lu-zhuang-tai-wu-xiao-qing-zhong-xin-deng-lu'));
           return;
