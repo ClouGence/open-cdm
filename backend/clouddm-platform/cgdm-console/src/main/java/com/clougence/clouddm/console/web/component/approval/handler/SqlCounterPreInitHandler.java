@@ -14,24 +14,23 @@ import java.util.stream.Stream;
 import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
-import com.clougence.clouddm.console.web.component.analysis.AnalysisRuleOptions;
+import com.clougence.clouddm.console.web.component.analysis.AnalysisQueryOptions;
+import com.clougence.clouddm.console.web.component.analysis.QueryAnalysisFeature;
 import com.clougence.clouddm.console.web.component.analysis.QueryAnalysisService;
 import com.clougence.clouddm.console.web.component.approval.ApprovalService;
 import com.clougence.clouddm.console.web.component.approval.model.ApprovalAnalysisStateMO;
 import com.clougence.clouddm.console.web.component.approval.model.PreInitContext;
-import com.clougence.clouddm.console.web.component.detectrule.SecRulesCheckResult;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.platform.dal.model.approval.DmApprovalDO;
-import com.clougence.clouddm.platform.dal.model.secrule.WarnLevel;
-import com.clougence.clouddm.sdk.service.secrules.Requester;
+import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 
 import jakarta.annotation.Resource;
 
 /**
- * Collects security rule violations during approval pre-initialization.
+ * Recognizes SQL statements and records their total count.
  */
 @Service
-public class RuleCheckPreInitHandler extends AbstractPreInitHandler {
+public class SqlCounterPreInitHandler extends AbstractPreInitHandler {
 
     @Resource
     private ApprovalService      approvalService;
@@ -40,25 +39,24 @@ public class RuleCheckPreInitHandler extends AbstractPreInitHandler {
 
     @Override
     protected String analysisType() {
-        return ApprovalAnalysisStateMO.TYPE_SECURITY_RULE;
+        return ApprovalAnalysisStateMO.TYPE_SQL_RECOGNITION;
     }
 
     @Override
     protected void doHandle(DataSourceConfig dsConfig, DsLevels dsLevels, PreInitContext context, Runnable onProcessed) {
         DmApprovalDO approvalDO = context.getApproval();
-        AnalysisRuleOptions options = AnalysisRuleOptions.builder()
+        AnalysisQueryOptions options = AnalysisQueryOptions.builder()
             .currentUid(approvalDO.getOwnerUid())
-            .dsId(approvalDO.getBindDsId())
+            .dataSourceId(approvalDO.getBindDsId())
             .levels(dsLevels.levelsParam())
-            .requester(Requester.TICKET)
-            .unsupportedLevel(WarnLevel.FAILURE)
+            .skip(QueryAnalysisFeature.REWRITE, QueryAnalysisFeature.LINEAGE, QueryAnalysisFeature.MASKING)
             .build();
 
         this.approvalService.consumeSqlFile(approvalDO.getId(), sql -> {
             try (Reader reader = Files.newBufferedReader(sql, StandardCharsets.UTF_8);
-                    Stream<SecRulesCheckResult> results = this.queryAnalysisService.analysisRulesStream(dsConfig, reader, Collections.emptyList(), 1, 0, options)) {
-                results.forEachOrdered(result -> {
-                    context.addRuleCheckResult(result);
+                    Stream<QueryRequest> requests = this.queryAnalysisService.analysisRequestsStream(dsConfig, reader, Collections.emptyList(), 1, 0, options)) {
+                requests.forEachOrdered(request -> {
+                    context.incrementSqlCount();
                     onProcessed.run();
                 });
                 return null;
@@ -68,6 +66,6 @@ public class RuleCheckPreInitHandler extends AbstractPreInitHandler {
 
     @Override
     protected void fillResult(ApprovalAnalysisStateMO state, PreInitContext context) {
-        state.setCheckedInfo(context.getRuleCheckResults());
+        state.setTotalCount(context.getSqlCounter());
     }
 }

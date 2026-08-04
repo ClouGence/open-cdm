@@ -14,26 +14,34 @@
  * limitations under the License.
  */
 package com.clougence.clouddm.console.web.component.approval.handler;
-
+import java.io.Reader;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.util.Collections;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
-import com.clougence.clouddm.console.web.component.analysis.BehaviorRelations;
-import com.clougence.clouddm.console.web.component.analysis.BehaviorRequest;
-import com.clougence.clouddm.console.web.component.approval.PreInitHandler;
+import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
+import com.clougence.clouddm.console.web.component.analysis.*;
+import com.clougence.clouddm.console.web.component.approval.ApprovalService;
+import com.clougence.clouddm.console.web.component.approval.model.ApprovalAnalysisStateMO;
 import com.clougence.clouddm.console.web.component.approval.model.PreInitContext;
+import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.util.DmDsUtils;
 import com.clougence.clouddm.platform.dal.model.approval.ApprovalBehavior;
-import com.clougence.clouddm.platform.dal.model.approval.ApprovalBiz;
+import com.clougence.clouddm.platform.dal.model.approval.DmApprovalDO;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorObject;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+
+import jakarta.annotation.Resource;
 
 /**
  * Collects approval behaviors one query request at a time.
@@ -41,16 +49,41 @@ import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
  * @author clougence
  */
 @Service
-public class BehaviorPreInitHandler implements PreInitHandler {
+public class BehaviorPreInitHandler extends AbstractPreInitHandler {
+
+    @Resource
+    private ApprovalService      approvalService;
+    @Resource
+    private QueryAnalysisService queryAnalysisService;
 
     @Override
-    public boolean supports(PreInitContext context) {
-        var approval = context.getApproval();
-        return approval.getApproBiz() == ApprovalBiz.DM_QUERY || approval.getApproBiz() == ApprovalBiz.DM_CHANGE;
+    protected String analysisType() {
+        return ApprovalAnalysisStateMO.TYPE_BEHAVIOR_ANALYSIS;
     }
 
     @Override
-    public void handle(QueryRequest request, PreInitContext context) {
+    protected void doHandle(DataSourceConfig dsConfig, DsLevels dsLevels, PreInitContext context, Runnable onProcessed) {
+        DmApprovalDO approvalDO = context.getApproval();
+        AnalysisQueryOptions options = AnalysisQueryOptions.builder()
+            .currentUid(approvalDO.getOwnerUid())
+            .dataSourceId(approvalDO.getBindDsId())
+            .levels(dsLevels.levelsParam())
+            .skip(QueryAnalysisFeature.REWRITE, QueryAnalysisFeature.LINEAGE, QueryAnalysisFeature.MASKING)
+            .build();
+
+        this.approvalService.consumeSqlFile(approvalDO.getId(), sql -> {
+            try (Reader reader = Files.newBufferedReader(sql, StandardCharsets.UTF_8);
+                    Stream<QueryRequest> requests = this.queryAnalysisService.analysisRequestsStream(dsConfig, reader, Collections.emptyList(), 1, 0, options)) {
+                requests.forEachOrdered(request -> {
+                    this.analyzeRequest(request, context);
+                    onProcessed.run();
+                });
+                return null;
+            }
+        });
+    }
+
+    private void analyzeRequest(QueryRequest request, PreInitContext context) {
         if (request.hasQueryType(SplitQueryType.TRANSACTION)) {
             throw new UnsupportedOperationException(DmI18nUtils.getMessage(I18nDmMsgKeys.TICKET_NONSUPPORT_TRANSACTION_OPERATE_ERROR.name()));
         }
@@ -70,5 +103,10 @@ public class BehaviorPreInitHandler implements PreInitHandler {
             behavior.getActions().add(action);
             context.addBehavior(behavior);
         }
+    }
+
+    @Override
+    protected void fillResult(ApprovalAnalysisStateMO state, PreInitContext context) {
+        state.setBehaviors(context.getBehaviors());
     }
 }
