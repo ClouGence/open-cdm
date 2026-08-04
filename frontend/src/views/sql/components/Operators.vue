@@ -84,10 +84,10 @@
               </template>
             </Dropdown>
           </Button>
-          <Button size="small" v-if="showTxActions" @click="handleCommit">
+          <Button size="small" v-if="isSupportTx && !tab.autoCommit" :disabled="isRunning" @click="handleCommit">
             {{ $t('ti-jiao') }}
           </Button>
-          <Button size="small" v-if="showTxActions" @click="handleRollback">
+          <Button size="small" v-if="isSupportTx && !tab.autoCommit" :disabled="isRunning" @click="handleRollback">
             {{ $t('hui-gun') }}
           </Button>
           <Button size="small" v-if="isSupportReadOnly" class="readonly-operator-btn" @click="handleReadOnlyClick">
@@ -139,9 +139,6 @@ export default {
     },
     isSupportTx() {
       return this.tab.support.autoCommit.conf !== 'No';
-    },
-    showTxActions() {
-      return this.isSupportTx && !this.tab.autoCommit && !this.isRunning;
     },
     isSupportReadOnly() {
       return this.tab.support.readOnly.conf !== 'No';
