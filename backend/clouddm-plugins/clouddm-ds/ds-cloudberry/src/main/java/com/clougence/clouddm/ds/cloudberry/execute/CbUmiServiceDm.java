@@ -55,22 +55,15 @@ public class CbUmiServiceDm extends AbstractRdbUmiService<CbMetaProviderDm> impl
     public List<Value> listLeaf(Map<UmiTypes, Object> levelsParam, UmiTypes leafType, String pattern) throws SQLException {
         String catalog = StringUtils.toString(levelsParam.get(UmiTypes.Catalog));
         String schema = StringUtils.toString(levelsParam.get(UmiTypes.Schema));
-        switch (leafType) {
-            case View:
-                return this.metadataSupplier.eGet().selectViews(catalog, schema);
-            case Table:
-                return this.metadataSupplier.eGet().selectTables(catalog, schema);
-            case Materialized:
-                return this.metadataSupplier.eGet().selectMaterialized(catalog, schema);
-            case Function:
-                return this.metadataSupplier.eGet().selectFunctions(catalog, schema);
-            case Trigger:
-                return this.metadataSupplier.eGet().selectTriggers(catalog, schema);
-            case Sequence:
-                return this.metadataSupplier.eGet().selectSequence(catalog, schema);
-            default:
-                throw new UnsupportedOperationException("listLeaf of " + leafType + " Unsupported.");
-        }
+        return switch (leafType) {
+            case View -> this.metadataSupplier.eGet().selectViews(catalog, schema);
+            case Table -> this.metadataSupplier.eGet().selectTables(catalog, schema);
+            case Materialized -> this.metadataSupplier.eGet().selectMaterialized(catalog, schema);
+            case Function -> this.metadataSupplier.eGet().selectFunctions(catalog, schema);
+            case Trigger -> this.metadataSupplier.eGet().selectTriggers(catalog, schema);
+            case Sequence -> this.metadataSupplier.eGet().selectSequence(catalog, schema);
+            default -> throw new UnsupportedOperationException("listLeaf of " + leafType + " Unsupported.");
+        };
     }
 
     @Override
