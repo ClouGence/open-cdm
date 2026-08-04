@@ -45,33 +45,36 @@ public class CbMetaProviderDm extends PgMetaProviderDm implements MetaDataServic
                                                      + "       C.relname,\n"//
                                                      + "       C.relkind,\n"//
                                                      + "       C.relpersistence,\n"//
-                                                     + "       CASE\n"//
-                                                     + "           WHEN ts.spcname IS NULL THEN 'pg_default'\n"//
-                                                     + "           ELSE ts.spcname END                            AS spcname,\n"//
-                                                     + "       d.description                                      AS table_comment,\n"//
-                                                     + "       STRING_AGG(inh.inhparent :: regclass :: TEXT, ',') AS parent_table,\n"//
+                                                     + "       CASE WHEN ts.spcname IS NULL THEN 'pg_default' ELSE ts.spcname END AS spcname,\n"//
+                                                     + "       d.description AS table_comment,\n"//
+                                                     + "       inh.parent_table,\n"//
                                                      + "       C.reloptions,\n"//
                                                      + "       gdp.policytype,\n"//
-                                                     + "       STRING_AGG(a.attname, ',')                         AS distkey_columns,\n"//
-                                                     + "       STRING_AGG(pn.nspname || '.' || po.opcname, ',')   AS distclass_opcname\n"//
+                                                     + "       dist.distkey_columns,\n"//
+                                                     + "       dist.distclass_opcname,\n"//
+                                                     + "       ao.relid IS NOT NULL AS append_optimized,\n"//
+                                                     + "       ao.blocksize,\n"//
+                                                     + "       CASE WHEN ao.relid IS NULL THEN NULL WHEN ao.columnstore THEN 'column' ELSE 'row' END AS orientation,\n"//
+                                                     + "       ao.checksum,\n"//
+                                                     + "       ao.compresstype,\n"//
+                                                     + "       ao.compresslevel\n"//
                                                      + "FROM pg_namespace nc\n"//
                                                      + "         LEFT JOIN pg_class C ON nc.oid = C.relnamespace\n"
                                                      + "         LEFT JOIN pg_tablespace ts ON C.reltablespace = ts.oid\n"
-                                                     + "         LEFT JOIN pg_inherits inh ON C.oid = inh.inhrelid\n"
                                                      + "         LEFT JOIN pg_description d ON C.oid = d.objoid AND d.objsubid = 0\n"
-                                                     + "         LEFT JOIN gp_distribution_policy gdp on C.oid = gdp.localoid\n"//
-                                                     + "         LEFT JOIN LATERAL(\n"//
-                                                     + "    SELECT generate_subscripts(gdp.distkey, 1) AS i\n"//
-                                                     + "  FROM gp_distribution_policy gdp\n"//
-                                                     + "  LEFT JOIN pg_class pc ON pc.oid = gdp.localoid\n"//
-                                                     + ") AS tmp ON true\n"//
-                                                     + "         LEFT JOIN pg_opclass po ON gdp.distclass[tmp.i] = po.oid\n"
-                                                     + "         LEFT JOIN pg_attribute a ON a.attrelid = c.oid AND a.attnum = gdp.distkey[tmp.i]\n"
-                                                     + "         LEFT JOIN pg_namespace pn on pn.oid = po.opcnamespace\n"//
+                                                     + "         LEFT JOIN pg_appendonly ao ON C.oid = ao.relid\n"
+                                                     + "         LEFT JOIN gp_distribution_policy gdp ON C.oid = gdp.localoid\n" + "         LEFT JOIN LATERAL (\n"
+                                                     + "    SELECT STRING_AGG(i.inhparent :: regclass :: TEXT, ',') AS parent_table\n" + "    FROM pg_inherits i\n"
+                                                     + "    WHERE i.inhrelid = C.oid\n" + ") inh ON true\n" + "         LEFT JOIN LATERAL (\n"
+                                                     + "    SELECT JSON_AGG(a.attname ORDER BY tmp.i)::text AS distkey_columns,\n"
+                                                     + "           JSON_AGG(pn.nspname || '.' || po.opcname ORDER BY tmp.i)::text AS distclass_opcname\n"
+                                                     + "    FROM generate_subscripts(gdp.distkey, 1) AS tmp(i)\n"
+                                                     + "             LEFT JOIN pg_attribute a ON a.attrelid = C.oid AND a.attnum = gdp.distkey[tmp.i]\n"
+                                                     + "             LEFT JOIN pg_opclass po ON gdp.distclass[tmp.i] = po.oid\n"
+                                                     + "             LEFT JOIN pg_namespace pn ON pn.oid = po.opcnamespace\n" + ") dist ON true\n"
                                                      + "WHERE NOT pg_is_other_temp_schema(nc.oid)\n" + "  AND ###CONDITION###\n"//
                                                      + "  AND nc.nspname = ###NSPNAME###\n"//
-                                                     + "  AND C.relname IN  ###RELNAME###\n"//
-                                                     + "GROUP BY nc.nspname, C.relname, C.relkind, C.relpersistence, ts.spcname, C.relfilenode, C.reloptions, d.description, gdp.policytype";
+                                                     + "  AND C.relname IN  ###RELNAME###";
 
     public CbMetaProviderDm(Connection connection){
         super(connection);

@@ -57,36 +57,41 @@ public class CbMetaProviderUtils extends PgMetaProviderUtils {
             tab.setAttribute(TABLESPACE, rs.getString("spcname"));
             if (StringUtils.isNotBlank(createOptions)) {
                 containAndSetOpt("fillfactor", createOptions, FILL_FACTOR, tab);
-                //containAndSetOpt("appendonly", createOptions, APPEND_OPTIMIZED, tab);
-                //containAndSetOpt("blocksize", createOptions, BLOCK_SIZE, tab);
-                containAndSetOpt("orientation", createOptions, ORIENTATION, tab);
-                //containAndSetOpt("checksum", createOptions, CHECK_SUM, tab);
-                containAndSetOpt("compresstype", createOptions, COMPRESS_TYPE, tab);
-                //containAndSetOpt("compresslevel", createOptions, COMPRESS_LEVEL, tab);
             } else {
                 tab.setAttribute(FILL_FACTOR, null);
-                //tab.setAttribute(APPEND_OPTIMIZED, null);
-                //tab.setAttribute(BLOCK_SIZE, null);
-                tab.setAttribute(ORIENTATION, null);
-                //tab.setAttribute(CHECK_SUM, null);
-                tab.setAttribute(COMPRESS_TYPE, null);
-                //tab.setAttribute(COMPRESS_LEVEL, null);
             }
-            tab.setAttribute(DISTRIBUTED_TYPE, null);
-            //            String relType = rs.getString("relpersistence");
-            //            String policytype = rs.getString("policytype");
-            //            String dkCols = rs.getString("distkey_columns");
-            //            if ("r".equals(policytype)) {
-            //                tab.setAttribute(DISTRIBUTED_TYPE, "RANDOMLY");
-            //            } else {
-            //                if (StringUtils.isBlank(dkCols)) {
-            //                    tab.setAttribute(DISTRIBUTED_TYPE, "REPLICATED");
-            //                } else {
-            //                    tab.setAttribute(DISTRIBUTED_TYPE, policytype);
-            //                    //tab.setAttribute(DISTRIBUTED_COLUMN, distkeyColumns);
-            //                    //                    rs.getString("distclass_opcname"); //don't know how to display it at the moment
-            //                }
-            //            }
+
+            boolean appendOptimized = rs.getBoolean("append_optimized");
+            tab.setAttribute(APPEND_OPTIMIZED, Boolean.toString(appendOptimized));
+            if (appendOptimized) {
+                tab.setAttribute(BLOCK_SIZE, rs.getString("blocksize"));
+                tab.setAttribute(ORIENTATION, rs.getString("orientation"));
+                tab.setAttribute(CHECK_SUM, Boolean.toString(rs.getBoolean("checksum")));
+                tab.setAttribute(COMPRESS_TYPE, rs.getString("compresstype"));
+                tab.setAttribute(COMPRESS_LEVEL, rs.getString("compresslevel"));
+            } else {
+                tab.setAttribute(BLOCK_SIZE, null);
+                tab.setAttribute(ORIENTATION, null);
+                tab.setAttribute(CHECK_SUM, null);
+                tab.setAttribute(COMPRESS_TYPE, null);
+                tab.setAttribute(COMPRESS_LEVEL, null);
+            }
+
+            String policyType = rs.getString("policytype");
+            String distributedColumns = rs.getString("distkey_columns");
+            if ("r".equals(policyType)) {
+                tab.setAttribute(DISTRIBUTED_TYPE, "p_no_column");
+                tab.setAttribute(DISTRIBUTED_COLUMN, null);
+            } else if ("p".equals(policyType) && StringUtils.isBlank(distributedColumns)) {
+                tab.setAttribute(DISTRIBUTED_TYPE, "r");
+                tab.setAttribute(DISTRIBUTED_COLUMN, null);
+            } else if ("p".equals(policyType)) {
+                tab.setAttribute(DISTRIBUTED_TYPE, "p");
+                tab.setAttribute(DISTRIBUTED_COLUMN, distributedColumns);
+            } else {
+                tab.setAttribute(DISTRIBUTED_TYPE, null);
+                tab.setAttribute(DISTRIBUTED_COLUMN, null);
+            }
             rdbTables.add(tab);
         }
         return rdbTables;

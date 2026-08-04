@@ -20,12 +20,13 @@ import com.clougence.clouddm.dsfamily.postgres.definition.ui.editor.table.PgTabl
 
 public interface CbTableEditorFields extends PgTableEditorFields {
 
-    String FIELD_TABLE_DISTRIBUTED_TYPE   = CloudberryAttributeNames.DISTRIBUTED_TYPE.getCodeKey();
-    String FIELD_TABLE_DISTRIBUTED_COLUMN = CloudberryAttributeNames.DISTRIBUTED_COLUMN.getCodeKey();
-    String FIELD_TABLE_APPEND_OPTIMIZED   = CloudberryAttributeNames.APPEND_OPTIMIZED.getCodeKey();
-    String FIELD_TABLE_BLOCK_SIZE         = CloudberryAttributeNames.BLOCK_SIZE.getCodeKey();
-    String FIELD_TABLE_ORIENTATION        = CloudberryAttributeNames.ORIENTATION.getCodeKey();
-    String FIELD_TABLE_CHECK_SUM          = CloudberryAttributeNames.CHECK_SUM.getCodeKey();
-    String FIELD_TABLE_COMPRESS_TYPE      = CloudberryAttributeNames.COMPRESS_TYPE.getCodeKey();
-    String FIELD_TABLE_COMPRESS_LEVEL     = CloudberryAttributeNames.COMPRESS_LEVEL.getCodeKey();
+    String FIELD_TABLE_DISTRIBUTED_TYPE        = CloudberryAttributeNames.DISTRIBUTED_TYPE.getCodeKey();
+    String FIELD_TABLE_DISTRIBUTED_COLUMN      = CloudberryAttributeNames.DISTRIBUTED_COLUMN.getCodeKey();
+    String FIELD_TABLE_DISTRIBUTED_COLUMN_NAME = "name";
+    String FIELD_TABLE_APPEND_OPTIMIZED        = CloudberryAttributeNames.APPEND_OPTIMIZED.getCodeKey();
+    String FIELD_TABLE_BLOCK_SIZE              = CloudberryAttributeNames.BLOCK_SIZE.getCodeKey();
+    String FIELD_TABLE_ORIENTATION             = CloudberryAttributeNames.ORIENTATION.getCodeKey();
+    String FIELD_TABLE_CHECK_SUM               = CloudberryAttributeNames.CHECK_SUM.getCodeKey();
+    String FIELD_TABLE_COMPRESS_TYPE           = CloudberryAttributeNames.COMPRESS_TYPE.getCodeKey();
+    String FIELD_TABLE_COMPRESS_LEVEL          = CloudberryAttributeNames.COMPRESS_LEVEL.getCodeKey();
 }

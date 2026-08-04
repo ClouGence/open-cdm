@@ -21,13 +21,16 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import com.clougence.clouddm.ds.cloudberry.definition.ui.editor.table.CbEditorProvider;
 import com.clougence.clouddm.dsfamily.postgres.dialect.PostgreDialect;
 import com.clougence.clouddm.dsfamily.postgres.execute.PgMetaService;
 import com.clougence.clouddm.sdk.execute.session.Session;
 import com.clougence.clouddm.sdk.execute.session.rdb.DmRdbUmiService;
+import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.schema.editor.provider.SqlBuilder;
+import com.clougence.utils.ExceptionUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -45,6 +48,25 @@ public class CbMetaService extends PgMetaService {
 
     @Override
     protected SqlBuilder getSqlBuilder() { return CbEditorProvider.INSTANCE; }
+
+    @Override
+    public Map<String, String> getSqlParserParameters() {
+        try {
+            return this.rdbSession.executeQuery(connection -> {
+                try (Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery("select current_setting('server_version_num')")) {
+                    if (!resultSet.next()) {
+                        return Map.of();
+                    }
+
+                    int majorVersion = resultSet.getInt(1) / 10000;
+                    return Map.of(SqlParserParameters.VERSION, Integer.toString(majorVersion));
+                }
+            });
+        } catch (Exception e) {
+            log.warn("Get SQL parser parameters failed: {}", ExceptionUtils.getRootCauseMessage(e));
+            return Map.of();
+        }
+    }
 
     protected List<String> showCreateView(Connection con, String catalog, String schema, String view) throws SQLException {
         String showSql = "select pg_get_viewdef('" + PostgreDialect.INSTANCE.fmtTableName(true, catalog, schema, view) + "'::regclass, true)";

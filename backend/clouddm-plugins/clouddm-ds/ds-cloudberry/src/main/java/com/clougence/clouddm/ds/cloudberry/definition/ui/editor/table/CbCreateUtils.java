@@ -29,12 +29,12 @@ import com.clougence.schema.editor.domain.EIndex;
 import com.clougence.schema.editor.domain.EPrimaryKey;
 import com.clougence.schema.editor.domain.ETable;
 import com.clougence.schema.editor.triggers.TriggerContext;
+import com.clougence.utils.JsonUtils;
 import com.clougence.utils.StringUtils;
 
 public class CbCreateUtils extends PgCreateUtils {
 
     private static void buildTableWithOption(StringBuilder sqlBuild, Map<String, String> attrMap) {
-        boolean hasParam = false;
         String fill = attrMap.get(FILL_FACTOR.getCodeKey());
         String append = attrMap.get(APPEND_OPTIMIZED.getCodeKey());
         String block = attrMap.get(BLOCK_SIZE.getCodeKey());
@@ -47,34 +47,27 @@ public class CbCreateUtils extends PgCreateUtils {
 
         if (StringUtils.isNotBlank(fill)) {
             option.add("FILLFACTOR=" + fill);
-            hasParam = true;
         }
-        if (StringUtils.isNotBlank(append)) {
-            option.add("APPENDOPTIMIZED=" + append);
-            hasParam = true;
+        if (Boolean.parseBoolean(append)) {
+            option.add("APPENDOPTIMIZED=true");
+            if (StringUtils.isNotBlank(block)) {
+                option.add("BLOCKSIZE=" + block);
+            }
+            if (StringUtils.isNotBlank(orientation)) {
+                option.add("ORIENTATION=" + orientation);
+            }
+            if (StringUtils.isNotBlank(check)) {
+                option.add("CHECKSUM=" + check);
+            }
+            if (StringUtils.isNotBlank(type)) {
+                option.add("COMPRESSTYPE=" + type);
+            }
+            if (StringUtils.isNotBlank(level)) {
+                option.add("COMPRESSLEVEL=" + level);
+            }
         }
-        if (StringUtils.isNotBlank(block)) {
-            option.add("BLOCKSIZE=" + block);
-            hasParam = true;
-        }
-        if (StringUtils.isNotBlank(orientation)) {
-            option.add("ORIENTATION=" + orientation);
-            hasParam = true;
-        }
-        if (StringUtils.isNotBlank(check)) {
-            option.add("CHECKSUM=" + check);
-            hasParam = true;
-        }
-        if (StringUtils.isNotBlank(type)) {
-            option.add("COMPRESSTYPE=" + type);
-            hasParam = true;
-        }
-        if (StringUtils.isNotBlank(level)) {
-            option.add("COMPRESSLEVEL=" + level);
-            hasParam = true;
-        }
-        if (hasParam) {
-            sqlBuild.append("WITH (appendonly=true, ");
+        if (!option.isEmpty()) {
+            sqlBuild.append(" WITH (");
             sqlBuild.append(String.join(",", option));
             sqlBuild.append(")\n");
         }
@@ -124,7 +117,7 @@ public class CbCreateUtils extends PgCreateUtils {
         }
         sqlBuild.append(")");
         //createOption
-        buildTableCreateOption(sqlBuild, eTable);
+        buildTableCreateOption(sqlBuild, eTable, buildContext);
         ddlScripts.add(sqlBuild.toString());
 
         //table comment
@@ -168,7 +161,7 @@ public class CbCreateUtils extends PgCreateUtils {
         return ddlScripts;
     }
 
-    protected String buildTableCreateOption(StringBuilder sqlBuild, ETable eTable) {
+    protected String buildTableCreateOption(StringBuilder sqlBuild, ETable eTable, TriggerContext buildContext) {
         Map<String, String> attrMap = eTable.getAttribute();
         String fatherArr = attrMap.get(INHERITED_FROM.getCodeKey());
         if (StringUtils.isNotBlank(fatherArr)) {
@@ -177,7 +170,7 @@ public class CbCreateUtils extends PgCreateUtils {
                 fatherArr = fatherArr.replace("]", "");
                 if (StringUtils.isNotBlank(fatherArr)) {
                     String[] split = fatherArr.split(",");
-                    sqlBuild.append("INHERITS (");
+                    sqlBuild.append(" INHERITS (");
                     for (int i = 0; i < split.length; i++) {
                         if (i != 0) {
                             sqlBuild.append(",");
@@ -193,7 +186,7 @@ public class CbCreateUtils extends PgCreateUtils {
 
         String tablespace = attrMap.get(TABLESPACE.getCodeKey());
         if (StringUtils.isNotBlank(tablespace)) {
-            sqlBuild.append("TABLESPACE ");
+            sqlBuild.append(" TABLESPACE ");
             sqlBuild.append(tablespace);
         }
 
@@ -202,7 +195,14 @@ public class CbCreateUtils extends PgCreateUtils {
             switch (distType) {
                 case "p":
                     sqlBuild.append(" DISTRIBUTED BY (");
-                    sqlBuild.append(attrMap.get(DISTRIBUTED_COLUMN.getCodeKey()));//todo  unknown format
+                    String distributedColumnJson = attrMap.get(DISTRIBUTED_COLUMN.getCodeKey());
+                    List<String> distributedColumns = JsonUtils.toListUseType(distributedColumnJson, String.class);
+                    for (int i = 0; i < distributedColumns.size(); i++) {
+                        if (i > 0) {
+                            sqlBuild.append(",");
+                        }
+                        sqlBuild.append(getDialect().fmtName(buildContext.isUseDelimited(), distributedColumns.get(i)));
+                    }
                     sqlBuild.append(")");
                     break;
                 case "r":

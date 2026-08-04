@@ -52,26 +52,29 @@ public class CbTableEditorUiPanelFactory extends PgTableEditorUiPanelFactory imp
                 .field(FIELD_TABLE_DISTRIBUTED_TYPE)
                 .type(UiPanelFieldType.Radios)
                 .defaultValue(strValueDef(null))
-                .hide(viewMode == EditorViewMode.Alter)
-                .options(fetchDistributed())
+                .readOnly(readOnly)
+                .options(fetchDistributed(readOnly))
                 .titleI18N(CbDsI18nKeys.EDITOR_TABLEINFO_DISTRIBUTED_TYPE_TITLE)
                 .descI18N(CbDsI18nKeys.EDITOR_TABLEINFO_DISTRIBUTED_TYPE_DESC)
                 .build());
 
-        // uiPanel.getTableInfo()
-        //     .addField(UiPanelField.builder()
-        //         .field(FIELD_TABLE_APPEND_OPTIMIZED)
-        //         .type(UiPanelFieldType.Check)
-        //         .titleI18N(CbDsI18nKeys.EDITOR_TABLEINFO_APPEND_OPTIMIZED_TITLE)
-        //         .descI18N(CbDsI18nKeys.EDITOR_TABLEINFO_APPEND_OPTIMIZED_DESC)
-        //         .build());
-        // uiPanel.getTableInfo()
-        //     .addField(UiPanelField.builder()
-        //         .field(FIELD_TABLE_BLOCK_SIZE)
-        //         .type(UiPanelFieldType.Input)
-        //         .titleI18N(CbDsI18nKeys.EDITOR_TABLEINFO_BLOCK_SIZE_TITLE)
-        //         .descI18N(CbDsI18nKeys.EDITOR_TABLEINFO_BLOCK_SIZE_DESC)
-        //         .build());
+        uiPanel.getTableInfo()
+            .addField(UiPanelField.builder()
+                .field(FIELD_TABLE_APPEND_OPTIMIZED)
+                .type(UiPanelFieldType.Check)
+                .defaultValue(boolValueDef(false))
+                .readOnly(readOnly)
+                .titleI18N(CbDsI18nKeys.EDITOR_TABLEINFO_APPEND_OPTIMIZED_TITLE)
+                .descI18N(CbDsI18nKeys.EDITOR_TABLEINFO_APPEND_OPTIMIZED_DESC)
+                .build());
+        uiPanel.getTableInfo()
+            .addField(UiPanelField.builder()
+                .field(FIELD_TABLE_BLOCK_SIZE)
+                .type(UiPanelFieldType.Input)
+                .readOnly(readOnly)
+                .titleI18N(CbDsI18nKeys.EDITOR_TABLEINFO_BLOCK_SIZE_TITLE)
+                .descI18N(CbDsI18nKeys.EDITOR_TABLEINFO_BLOCK_SIZE_DESC)
+                .build());
 
         uiPanel.getTableInfo()
             .addField(UiPanelField.builder()
@@ -84,13 +87,15 @@ public class CbTableEditorUiPanelFactory extends PgTableEditorUiPanelFactory imp
                 .descI18N(CbDsI18nKeys.EDITOR_TABLEINFO_ORIENTATION_DESC)
                 .build());
 
-        // uiPanel.getTableInfo()
-        //     .addField(UiPanelField.builder()
-        //         .field(FIELD_TABLE_CHECK_SUM)
-        //         .type(UiPanelFieldType.Check)
-        //         .titleI18N(CbDsI18nKeys.EDITOR_TABLEINFO_CHECK_SUM_TITLE)
-        //         .descI18N(CbDsI18nKeys.EDITOR_TABLEINFO_CHECK_SUM_DESC)
-        //         .build());
+        uiPanel.getTableInfo()
+            .addField(UiPanelField.builder()
+                .field(FIELD_TABLE_CHECK_SUM)
+                .type(UiPanelFieldType.Check)
+                .defaultValue(boolValueDef(true))
+                .readOnly(readOnly)
+                .titleI18N(CbDsI18nKeys.EDITOR_TABLEINFO_CHECK_SUM_TITLE)
+                .descI18N(CbDsI18nKeys.EDITOR_TABLEINFO_CHECK_SUM_DESC)
+                .build());
 
         uiPanel.getTableInfo()
             .addField(UiPanelField.builder()
@@ -103,13 +108,14 @@ public class CbTableEditorUiPanelFactory extends PgTableEditorUiPanelFactory imp
                 .descI18N(CbDsI18nKeys.EDITOR_TABLEINFO_COMPRESS_TYPE_DESC)
                 .build());
 
-        // uiPanel.getTableInfo()
-        //     .addField(UiPanelField.builder()
-        //         .field(FIELD_TABLE_COMPRESS_LEVEL)
-        //         .type(UiPanelFieldType.Input)
-        //         .titleI18N(CbDsI18nKeys.EDITOR_TABLEINFO_COMPRESS_LEVEL_TITLE)
-        //         .descI18N(CbDsI18nKeys.EDITOR_TABLEINFO_COMPRESS_LEVEL_DESC)
-        //         .build());
+        uiPanel.getTableInfo()
+            .addField(UiPanelField.builder()
+                .field(FIELD_TABLE_COMPRESS_LEVEL)
+                .type(UiPanelFieldType.Input)
+                .readOnly(readOnly)
+                .titleI18N(CbDsI18nKeys.EDITOR_TABLEINFO_COMPRESS_LEVEL_TITLE)
+                .descI18N(CbDsI18nKeys.EDITOR_TABLEINFO_COMPRESS_LEVEL_DESC)
+                .build());
     }
 
     private List<ValueDef> fetchOrientation() {
@@ -131,15 +137,25 @@ public class CbTableEditorUiPanelFactory extends PgTableEditorUiPanelFactory imp
         return result;
     }
 
-    private List<ValueDef> fetchDistributed() {
+    private List<ValueDef> fetchDistributed(boolean readOnly) {
         List<ValueDef> result = new ArrayList<>();
         result.add(optionDef(CbDsI18nKeys.EDITOR_TABLEINFO_DISTRIBUTED_EMPTY, null));
-        //        result.add(fieldOptionDef(CbDsI18nKeys.EDITOR_TABLEINFO_DISTRIBUTED_BY, "p").addField(UiPanelField.builder()
-        //            .field(FIELD_TABLE_DISTRIBUTED_COLUMN)
-        //            .type(UiPanelFieldType.CheckboxColumns)
-        //            .titleI18N(CbDsI18nKeys.EDITOR_TABLEINFO_DISTRIBUTED_COLUMN_TITLE)
-        //            .descI18N(CbDsI18nKeys.EDITOR_TABLEINFO_DISTRIBUTED_COLUMN_DESC)
-        //            .build()));
+        UiPanelField distributedColumns = UiPanelField.builder()
+            .field(FIELD_TABLE_DISTRIBUTED_COLUMN)
+            .type(UiPanelFieldType.SelectColumns)
+            .require(true)
+            .readOnly(readOnly)
+            .titleI18N(CbDsI18nKeys.EDITOR_TABLEINFO_DISTRIBUTED_COLUMN_TITLE)
+            .descI18N(CbDsI18nKeys.EDITOR_TABLEINFO_DISTRIBUTED_COLUMN_DESC)
+            .build()
+            .addField(UiPanelField.builder()
+                .field(FIELD_TABLE_DISTRIBUTED_COLUMN_NAME)
+                .type(UiPanelFieldType.Columns)
+                .readOnly(readOnly)
+                .titleI18N(CbDsI18nKeys.EDITOR_TABLEINFO_DISTRIBUTED_COLUMN_TITLE)
+                .descI18N(CbDsI18nKeys.EDITOR_TABLEINFO_DISTRIBUTED_COLUMN_DESC)
+                .build());
+        result.add(fieldOptionDef(CbDsI18nKeys.EDITOR_TABLEINFO_DISTRIBUTED_BY, "p").addField(distributedColumns));
         result.add(optionDef(CbDsI18nKeys.EDITOR_TABLEINFO_DISTRIBUTED_RANDOMLY, "r"));
         result.add(optionDef(CbDsI18nKeys.EDITOR_TABLEINFO_DISTRIBUTED_REPLICATED, "p_no_column"));
         return result;
