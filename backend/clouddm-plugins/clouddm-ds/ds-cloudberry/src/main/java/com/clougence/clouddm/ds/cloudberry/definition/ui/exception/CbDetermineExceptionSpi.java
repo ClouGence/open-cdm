@@ -22,20 +22,20 @@ import com.clougence.clouddm.dsfamily.postgres.definition.ui.exception.PgDetermi
 
 public class CbDetermineExceptionSpi extends PgDetermineExceptionSpi {
 
-    protected static final List<String> GP_CONNECT_ERROR_MESSAGES;
-    protected static final List<String> GP_AUTH_ERROR_MESSAGES;
+    protected static final List<String> CB_CONNECT_ERROR_MESSAGES;
+    protected static final List<String> CB_AUTH_ERROR_MESSAGES;
 
     static {
-        GP_CONNECT_ERROR_MESSAGES = new ArrayList<>(FAMILY_CONNECT_ERROR_MESSAGES);
-        GP_CONNECT_ERROR_MESSAGES.add("尝试连线已失败");
+        CB_CONNECT_ERROR_MESSAGES = new ArrayList<>(FAMILY_CONNECT_ERROR_MESSAGES);
+        CB_CONNECT_ERROR_MESSAGES.add("尝试连线已失败");
 
-        GP_AUTH_ERROR_MESSAGES = new ArrayList<>(FAMILY_AUTH_ERROR_MESSAGES);
-        GP_AUTH_ERROR_MESSAGES.add("FATAL: role");
+        CB_AUTH_ERROR_MESSAGES = new ArrayList<>(FAMILY_AUTH_ERROR_MESSAGES);
+        CB_AUTH_ERROR_MESSAGES.add("FATAL: role");
     }
 
     @Override
-    protected List<String> getConnectionExceptionMessage() { return GP_CONNECT_ERROR_MESSAGES; }
+    protected List<String> getConnectionExceptionMessage() { return CB_CONNECT_ERROR_MESSAGES; }
 
     @Override
-    protected List<String> getAuthenticationExceptionMessage() { return GP_AUTH_ERROR_MESSAGES; }
+    protected List<String> getAuthenticationExceptionMessage() { return CB_AUTH_ERROR_MESSAGES; }
 }

@@ -15,7 +15,7 @@
  */
 package com.clougence.clouddm.ds.cloudberry.definition.ui.editor.table;
 
-import static com.clougence.adapter.greenplum.GreenplumAttributeNames.*;
+import static com.clougence.adapter.cloudberry.CloudberryAttributeNames.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -45,9 +45,14 @@ public class CbEditorProvider extends AbstractSqlBuilder implements SqlBuilder {
         sqlBuild.append(table);
         sqlBuild.append("\".\"");
         sqlBuild.append(newInfo.getName());
-        sqlBuild.append("\" IS '");
-        sqlBuild.append(newInfo.getComment());
-        sqlBuild.append("';\n");
+        sqlBuild.append("\" IS ");
+        if (StringUtils.isEmpty(newInfo.getComment())) {
+            sqlBuild.append("NULL;\n");
+        } else {
+            sqlBuild.append("'");
+            sqlBuild.append(PostgreDialect.INSTANCE.fmtComment(newInfo.getComment()));
+            sqlBuild.append("';\n");
+        }
     }
 
     private static String buildIdentity(EColumn newInfo, String oldVirtual, String sqlPrefix) {
@@ -462,7 +467,14 @@ public class CbEditorProvider extends AbstractSqlBuilder implements SqlBuilder {
         sqlBuild.append(getDialect().fmtTableName(useDelimited, null, schema, table));
         sqlBuild.append(".");
         sqlBuild.append(getDialect().fmtName(useDelimited, columnInfo.getName()));
-        sqlBuild.append(" IS '" + getDialect().fmtComment(comment) + "';");
+        sqlBuild.append(" IS ");
+        if (StringUtils.isEmpty(comment)) {
+            sqlBuild.append("NULL;");
+        } else {
+            sqlBuild.append("'");
+            sqlBuild.append(getDialect().fmtComment(comment));
+            sqlBuild.append("';");
+        }
         return Collections.singletonList(sqlBuild.toString());
     }
 

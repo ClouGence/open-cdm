@@ -62,8 +62,9 @@ public class CbHooks implements SessionHook {
     @Override
     public void setCurrentSchema(Connection conn, String schemaName) throws SQLException {
         if (StringUtils.isNotBlank(schemaName)) {
+            String escapedSchemaName = schemaName.replace("\"", "\"\"");
             try (Statement s = conn.createStatement()) {
-                s.executeUpdate("set search_path = \"" + schemaName + "\"");
+                s.executeUpdate("set search_path = \"" + escapedSchemaName + "\"");
             }
         }
     }

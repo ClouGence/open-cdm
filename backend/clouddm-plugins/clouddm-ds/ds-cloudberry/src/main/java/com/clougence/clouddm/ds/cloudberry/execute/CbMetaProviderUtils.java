@@ -15,7 +15,7 @@
  */
 package com.clougence.clouddm.ds.cloudberry.execute;
 
-import static com.clougence.adapter.greenplum.GreenplumAttributeNames.*;
+import static com.clougence.adapter.cloudberry.CloudberryAttributeNames.*;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -72,7 +72,6 @@ public class CbMetaProviderUtils extends PgMetaProviderUtils {
                 tab.setAttribute(COMPRESS_TYPE, null);
                 //tab.setAttribute(COMPRESS_LEVEL, null);
             }
-            //GP special attribute
             tab.setAttribute(DISTRIBUTED_TYPE, null);
             //            String relType = rs.getString("relpersistence");
             //            String policytype = rs.getString("policytype");

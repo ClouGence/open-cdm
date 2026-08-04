@@ -15,7 +15,7 @@
  */
 package com.clougence.clouddm.ds.cloudberry.definition.ui.editor.table;
 
-import static com.clougence.adapter.greenplum.GreenplumAttributeNames.*;
+import static com.clougence.adapter.cloudberry.CloudberryAttributeNames.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
