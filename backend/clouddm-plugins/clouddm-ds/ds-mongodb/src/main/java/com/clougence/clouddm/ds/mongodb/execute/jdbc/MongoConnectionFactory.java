@@ -19,6 +19,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Properties;
 
+import com.clougence.clouddm.ds.mongodb.dsconf.MongoConnectType;
 import com.clougence.drivers.adapter.AdapterFactory;
 import com.clougence.drivers.adapter.AdapterTypeSupport;
 import com.clougence.drivers.adapter.JdbcDriver;
@@ -44,7 +45,7 @@ public class MongoConnectionFactory implements AdapterFactory {
     public String[] getPropertyNames() {
         return new String[] { MongoKeys.SERVER, MongoKeys.ADAPTER_NAME, MongoKeys.DRIVER_VERSION, MongoKeys.INTERCEPTOR, MongoKeys.TIME_ZONE, MongoKeys.CONN_TIMEOUT,
                               MongoKeys.SO_TIMEOUT, MongoKeys.USERNAME, MongoKeys.PASSWORD, MongoKeys.DATABASE, MongoKeys.CLIENT_NAME, MongoKeys.MAX_TOTAL, MongoKeys.MAX_IDLE,
-                              MongoKeys.MIN_IDLE, MongoKeys.TEST_WHILE_IDLE };
+                              MongoKeys.MIN_IDLE, MongoKeys.TEST_WHILE_IDLE, MongoKeys.CONNECT_TYPE };
     }
 
     @Override
@@ -65,8 +66,9 @@ public class MongoConnectionFactory implements AdapterFactory {
             clientName = MongoKeys.DEFAULT_CLIENT_NAME;
         }
 
+        MongoConnectType connectType = MongoConnectType.of(props.getProperty(MongoKeys.CONNECT_TYPE));
         int i = jdbcUrl.indexOf(JdbcDriver.START_URL) + JdbcDriver.START_URL.length();
-        String mongoUrl = "mongodb" + jdbcUrl.substring(i + this.adapterName.length());
+        String mongoUrl = connectType.getUriScheme() + jdbcUrl.substring(i + this.adapterName.length());
         int queryIndex = mongoUrl.indexOf('?');
         int schemeEnd = mongoUrl.indexOf("://") + 3;
         int authorityEnd = queryIndex < 0 ? mongoUrl.length() : queryIndex;

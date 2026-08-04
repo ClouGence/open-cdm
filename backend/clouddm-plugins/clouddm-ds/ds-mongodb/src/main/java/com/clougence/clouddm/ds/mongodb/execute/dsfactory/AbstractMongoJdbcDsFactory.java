@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import com.clougence.clouddm.ds.mongodb.dsconf.MongoConnectType;
+import com.clougence.clouddm.ds.mongodb.execute.MongoConnectionUri;
 import com.clougence.clouddm.ds.mongodb.execute.jdbc.MongoConnectionFactory;
 import com.clougence.clouddm.ds.mongodb.execute.jdbc.MongoKeys;
 import com.clougence.drivers.DsConfigKeys;
@@ -102,6 +104,10 @@ abstract class AbstractMongoJdbcDsFactory implements DsFactory<Connection> {
         String username = dsConfig.getProperty(DsConfigKeys.USER.getConfigKey());
         String password = dsConfig.getProperty(DsConfigKeys.PASSWORD.getConfigKey());
         String host = dsConfig.getProperty(DsConfigKeys.HOST.getConfigKey());
+        MongoConnectType connectType = MongoConnectType.of(dsConfig.getProperty(MongoKeys.CONNECT_TYPE));
+        if (connectType == MongoConnectType.SRV) {
+            return MongoConnectionUri.buildSrvJdbcUrl(this.adapterName, host, username, password);
+        }
         String hosts = buildHosts(parseServerAddress(host));
         String startUrl = JdbcDriver.START_URL + this.adapterName + "://";
 

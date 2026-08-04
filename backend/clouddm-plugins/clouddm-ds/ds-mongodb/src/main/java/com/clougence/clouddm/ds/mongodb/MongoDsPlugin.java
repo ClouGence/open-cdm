@@ -26,6 +26,7 @@ import com.clougence.clouddm.ds.mongodb.dsconf.MongoSerializationSpi;
 import com.clougence.clouddm.ds.mongodb.execute.MongoSessionFactory;
 import com.clougence.clouddm.ds.mongodb.execute.MongoSessionSpi;
 import com.clougence.clouddm.ds.mongodb.execute.MongoSupportSpi;
+import com.clougence.clouddm.ds.mongodb.i18n.MongoConfigI18nKeys;
 import com.clougence.clouddm.ds.mongodb.i18n.MongoDsI18nKeys;
 import com.clougence.clouddm.ds.mongodb.language.MongoLanguageSpi;
 import com.clougence.clouddm.ds.mongodb.resource.MongoEditorResourceSpi;
@@ -88,6 +89,7 @@ public class MongoDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
 
     private void configUi(DsPluginBinder dsPlugin) {
         dsPlugin.bindPluginI18n(MongoDsI18nKeys.class);
+        dsPlugin.bindPluginI18n(MongoConfigI18nKeys.class);
         // defService
         //dsPlugin.bindDefinitionService(new ClickHouseDefinitionService());
         dsPlugin.bindDsDialect(DefaultDialect.DEFAULT);
