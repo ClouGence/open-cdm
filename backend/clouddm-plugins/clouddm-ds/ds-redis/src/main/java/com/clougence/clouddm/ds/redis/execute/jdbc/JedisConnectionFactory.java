@@ -26,6 +26,7 @@ import java.util.Set;
 
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 
+import com.clougence.clouddm.base.metadata.ds.SslMode;
 import com.clougence.drivers.adapter.AdapterFactory;
 import com.clougence.drivers.adapter.AdapterTypeSupport;
 import com.clougence.drivers.adapter.TypeSupport;
@@ -55,6 +56,7 @@ public class JedisConnectionFactory implements AdapterFactory {
         String defaultCatalog = dsConfig.get(JedisKeys.DATABASE);
         String connTimeoutMsStr = dsConfig.get(JedisKeys.CONN_TIMEOUT);
         String soTimeoutSecStr = dsConfig.get(JedisKeys.SO_TIMEOUT);
+        String sslMode = dsConfig.get(JedisKeys.SSL_MODE);
         //
         username = "".equals(username) ? null : username;
         password = "".equals(password) ? null : password;
@@ -70,7 +72,10 @@ public class JedisConnectionFactory implements AdapterFactory {
             .database(database)
             .clientName(clientName);
 
-        RedisSslFactory.apply(builder, dsConfig);
+        boolean useTLS = StringUtils.isNotBlank(sslMode) && !SslMode.DISABLED.name().equals(sslMode);
+        if (useTLS) {
+            RedisSslFactory.apply(builder, dsConfig);
+        }
 
         return builder.build();
     }
