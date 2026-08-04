@@ -22,8 +22,10 @@ import org.springframework.context.annotation.Configuration;
 
 import com.clougence.clouddm.console.web.constants.DmModeFeatured;
 
+import jakarta.annotation.PostConstruct;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author bucketli 2020-01-04 09:44
@@ -31,6 +33,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
+@Slf4j
 @Configuration
 public class ConsoleConfig {
 
@@ -74,6 +77,8 @@ public class ConsoleConfig {
     private Boolean        activeCsrfCheck;
     @Value("${clougence.rdp.login.retry.max-count:5}")
     private int            retryLoginMaxCount;
+    @Value("${clougence.rdp.login.mfa.disabled:false}")
+    private boolean        mfaLoginDisabled;
     @Value("${clougence.rdp.login.reset.period.minuetes:5}")
     private String         resetLoginLimitationWaitTimeMin;
     @Value("${clougence.rdp.deploy.context-path:#{NULL}}")
@@ -100,4 +105,11 @@ public class ConsoleConfig {
     private Boolean        rdpDsConfigValidateEnable;
     @Value("${clougence.rdp.audit.export.max_export_size:100000}")
     private Integer        maxExportSize;
+
+    @PostConstruct
+    public void init() {
+        if (mfaLoginDisabled) {
+            log.warn("MFA login protection is globally disabled. Users with MFA enabled can log in without MFA verification.");
+        }
+    }
 }

@@ -118,18 +118,14 @@
         >
           {{ $t('deng-lu') }}
         </a-button>
-        <a-button
-          v-if="showMfa && !mfaInvalidMode"
-          key="mfa"
-          :disabled="loginLoading"
-          :loading="loginLoading"
-          size="large"
-          class="login-submit is-mfa"
-          type="primary"
-          @click="handleMfaValid"
-        >
-          {{ $t('yan-zheng') }}
-        </a-button>
+        <div class="completion-actions" v-if="showMfa && !mfaInvalidMode">
+          <a-button :disabled="loginLoading" :loading="loginLoading" type="primary" size="large" class="completion-submit" @click="handleMfaValid">
+            {{ $t('yan-zheng') }}
+          </a-button>
+          <a-button :disabled="loginLoading" size="large" class="completion-back" @click="goReLogin">
+            {{ $t('chong-xin-deng-lu') }}
+          </a-button>
+        </div>
         <div class="completion-actions" v-if="showMfa && mfaInvalidMode">
           <a-button :disabled="loginLoading" size="large" class="completion-submit mfa-invalid-action" @click="goHandleInvalidMfa">
             {{ $t('qu-chu-li') }}
@@ -504,6 +500,10 @@ export default {
     },
     async goReLogin() {
       this.errMsg = '';
+      this.showMfa = false;
+      this.mfaInvalidMode = false;
+      this.mfaCode = '';
+      this.mfaPreActionToken = '';
       this.loginCallbackData = {};
       this.loginForm.account = '';
       this.loginForm.password = '';
@@ -530,10 +530,24 @@ export default {
         this.handleMfaValid();
       }
     },
-    applyCallbackQuery() {
-      if (this.$route.query && this.$route.query.token) {
+    async applyCallbackQuery() {
+      const query = this.$route.query || {};
+      if (query.mfa === '1') {
+        const challengeToken = Array.isArray(query.mfaPreActionToken) ? query.mfaPreActionToken[0] : query.mfaPreActionToken;
+        await this.$router.replace({ name: 'Login', query: {} });
+        this.loginCallbackData = {};
+        this.mfaInvalidMode = false;
+        this.mfaCode = '';
+        if (!challengeToken) {
+          this.showMfa = false;
+          Toast.error(this.$t('mfa-deng-lu-zhuang-tai-wu-xiao-qing-zhong-xin-deng-lu'));
+          return;
+        }
+        this.mfaPreActionToken = challengeToken;
+        this.showMfa = true;
+      } else if (query.token) {
         this.loginCallbackData = {
-          ...this.$route.query,
+          ...query,
           completion: true
         };
         this.loginForm.account = this.loginCallbackData.account || this.loginCallbackData.sub || this.loginCallbackData.registerAccount || '';
@@ -547,9 +561,9 @@ export default {
         if (this.loginCallbackData.loginType) {
           this.setCurrentLoginType(this.loginCallbackData.loginType, false);
         }
-      } else if (this.$route.query && this.$route.query.error) {
-        this.loginCallbackData = this.$route.query;
-        Toast.error(`${this.$route.query.error}:${this.$route.query.error_description}`);
+      } else if (query.error) {
+        this.loginCallbackData = query;
+        Toast.error(`${query.error}:${query.error_description}`);
       }
     },
     async getGlobalSettings() {
@@ -582,7 +596,7 @@ export default {
       setPageIcon(WEBSIDE_FAVICON);
       document.title = 'CloudDM';
       this.$store.dispatch('setTheme', 'light');
-      this.applyCallbackQuery();
+      await this.applyCallbackQuery();
     }
   },
   created() {

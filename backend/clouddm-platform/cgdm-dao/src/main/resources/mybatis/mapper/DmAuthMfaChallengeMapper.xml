@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clougence.clouddm.platform.dal.mapper.auth.DmAuthMfaChallengeMapper">
+
+    <resultMap id="dmAuthMfaChallengeDO" type="com.clougence.clouddm.platform.dal.model.auth.DmAuthMfaChallengeDO">
+        <result column="id" property="id"/>
+        <result column="gmt_create" property="gmtCreate"/>
+        <result column="gmt_modified" property="gmtModified"/>
+        <result column="uid" property="uid"/>
+        <result column="action_type" property="actionType"/>
+        <result column="login_type" property="loginType"/>
+        <result column="challenge_token_hash" property="challengeTokenHash"/>
+        <result column="retry_count" property="retryCount"/>
+        <result column="expire_time_ms" property="expireTimeMs"/>
+    </resultMap>
+
+    <sql id="dmAuthMfaChallenge">
+        id,
+        gmt_create,
+        gmt_modified,
+        uid,
+        action_type,
+        login_type,
+        challenge_token_hash,
+        retry_count,
+        expire_time_ms
+    </sql>
+
+    <select id="queryByTokenHash" resultMap="dmAuthMfaChallengeDO">
+        SELECT
+            <include refid="dmAuthMfaChallenge"/>
+        FROM dm_auth_mfa_challenge
+        WHERE challenge_token_hash = #{challengeTokenHash}
+        LIMIT 1
+    </select>
+
+    <update id="acquireAttempt">
+        UPDATE dm_auth_mfa_challenge
+        SET
+            retry_count = retry_count + 1,
+            gmt_modified = now()
+        WHERE
+            id = #{id}
+            AND challenge_token_hash = #{challengeTokenHash}
+            AND action_type = #{actionType}
+            AND expire_time_ms <![CDATA[ >= ]]> #{nowMs}
+            AND retry_count <![CDATA[ < ]]> #{maxRetryCount}
+    </update>
+
+    <delete id="deleteForConsume">
+        DELETE FROM dm_auth_mfa_challenge
+        WHERE
+            id = #{id}
+            AND challenge_token_hash = #{challengeTokenHash}
+            AND action_type = #{actionType}
+            AND expire_time_ms <![CDATA[ >= ]]> #{nowMs}
+            AND retry_count <![CDATA[ <= ]]> #{maxRetryCount}
+    </delete>
+
+    <delete id="deleteExpired">
+        DELETE FROM dm_auth_mfa_challenge
+        WHERE expire_time_ms <![CDATA[ < ]]> #{nowMs}
+    </delete>
+</mapper>

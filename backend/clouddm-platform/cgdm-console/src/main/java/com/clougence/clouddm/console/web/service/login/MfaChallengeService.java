@@ -15,20 +15,19 @@
  */
 package com.clougence.clouddm.console.web.service.login;
 
-import com.clougence.clouddm.console.web.model.fo.LoginFO;
-import com.clougence.clouddm.console.web.model.fo.mfa.LoginMfaValidFO;
-import com.clougence.rdp.service.model.LoginMO;
+import com.clougence.clouddm.console.web.constants.LoginAuthType;
+import com.clougence.clouddm.console.web.constants.MfaPreActionType;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthMfaChallengeDO;
 
-/**
- * @author wanshao create time is 2019/12/12 9:36 下午
- **/
-public interface LoginService {
+public interface MfaChallengeService {
 
-    LoginMO login(LoginFO loginFO);
+    int MAX_RETRY_COUNT = 3;
 
-    LoginMO loginMfaValid(LoginMfaValidFO validFO);
+    String createChallenge(String uid, MfaPreActionType actionType, LoginAuthType loginType);
 
-    boolean isLogoutUsingJump(String uid);
+    DmAuthMfaChallengeDO requirePendingChallenge(String challengeToken, MfaPreActionType actionType);
 
-    String logoutJumpUrl(String puid, String uid);
+    boolean acquireAttempt(DmAuthMfaChallengeDO challengeDO);
+
+    boolean consumeChallenge(DmAuthMfaChallengeDO challengeDO);
 }
