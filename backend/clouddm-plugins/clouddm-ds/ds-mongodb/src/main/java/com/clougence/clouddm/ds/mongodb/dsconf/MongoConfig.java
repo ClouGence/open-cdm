@@ -44,8 +44,7 @@ import lombok.experimental.FieldNameConstants;
 public class MongoConfig extends DataSourceConfig {
     // ------------------------------------------------------------------------------------------------------------------------ GENERAL
     @ConfigDef(name = Fields.connectType, defaultValue = "default", //
-            group = DsConfigGroup.GENERAL, labelKey = MongoConfigI18nKeys.CONFIG_MONGODB_CONNECT_TYPE_LABEL,
-            descKey = MongoConfigI18nKeys.CONFIG_MONGODB_CONNECT_TYPE_DESC, readOnly = false)
+            group = DsConfigGroup.GENERAL, labelKey = MongoConfigI18nKeys.CONFIG_MONGODB_CONNECT_TYPE_LABEL, readOnly = false)
     private MongoConnectType connectType = MongoConnectType.DEFAULT;
     @ConfigDef(name = Fields.defaultSchema, //
             group = DsConfigGroup.GENERAL, labelKey = MongoConfigI18nKeys.CONFIG_RDB_DEFAULT_SCHEMA_LABEL, descKey = MongoConfigI18nKeys.CONFIG_RDB_DEFAULT_SCHEMA_DESC, readOnly = false)

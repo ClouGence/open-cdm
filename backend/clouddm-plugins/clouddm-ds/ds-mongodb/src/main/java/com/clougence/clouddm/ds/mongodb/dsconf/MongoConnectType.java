@@ -17,6 +17,7 @@ package com.clougence.clouddm.ds.mongodb.dsconf;
 
 import com.clougence.utils.StringUtils;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 import lombok.Getter;
 
@@ -25,12 +26,18 @@ public enum MongoConnectType {
     DEFAULT("default", "mongodb"),
     SRV("srv", "mongodb+srv"),;
 
+    @JsonValue
     private final String code;
     private final String uriScheme;
 
     MongoConnectType(String code, String uriScheme){
         this.code = code;
         this.uriScheme = uriScheme;
+    }
+
+    @Override
+    public String toString() {
+        return this.code;
     }
 
     @JsonCreator
