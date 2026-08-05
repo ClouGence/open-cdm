@@ -196,7 +196,13 @@ public class CbCreateUtils extends PgCreateUtils {
                 case "p":
                     sqlBuild.append(" DISTRIBUTED BY (");
                     String distributedColumnJson = attrMap.get(DISTRIBUTED_COLUMN.getCodeKey());
+                    if (StringUtils.isBlank(distributedColumnJson)) {
+                        throw new IllegalArgumentException("Cloudberry hash distribution requires at least one distribution column.");
+                    }
                     List<String> distributedColumns = JsonUtils.toListUseType(distributedColumnJson, String.class);
+                    if (distributedColumns == null || distributedColumns.isEmpty()) {
+                        throw new IllegalArgumentException("Cloudberry hash distribution requires at least one distribution column.");
+                    }
                     for (int i = 0; i < distributedColumns.size(); i++) {
                         if (i > 0) {
                             sqlBuild.append(",");
