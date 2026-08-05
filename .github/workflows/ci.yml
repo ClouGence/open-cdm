@@ -19,10 +19,6 @@ jobs:
   backend-test:
     name: Backend test
     runs-on: ubuntu-latest
-    env:
-      ORG_GRADLE_PROJECT_parserTestParallelism: 8
-      ORG_GRADLE_PROJECT_parserTestParallelForks: 2
-      ORG_GRADLE_PROJECT_parserTestMaxHeapSize: 1g
     steps:
       - name: Checkout
         uses: actions/checkout@v7

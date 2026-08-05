@@ -101,7 +101,7 @@ public final class SqlTestSupport {
         if ("maxcompute".equals(datasource)) {
             return maxComputeContext(true);
         }
-        return ContextInfo.builder().deepParser(false).build();
+        return ContextInfo.builder().build();
     }
 
     public static String datasourceFromPath(String resourcePath) {
@@ -162,6 +162,6 @@ public final class SqlTestSupport {
     private static ContextInfo maxComputeContext(boolean schemaStyle) {
         McConfig dataSourceConfig = new McConfig();
         dataSourceConfig.setSchemaStyle(schemaStyle);
-        return ContextInfo.builder().deepParser(false).dataSourceConfig(dataSourceConfig).build();
+        return ContextInfo.builder().dataSourceConfig(dataSourceConfig).build();
     }
 }

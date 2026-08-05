@@ -438,7 +438,7 @@ public final class SecDomainTextTest {
         }
         try {
             JsonNode context = OBJECT_MAPPER.readTree(testCase.contextJson);
-            ContextInfo.ContextInfoBuilder builder = ContextInfo.builder().deepParser(false);
+            ContextInfo.ContextInfoBuilder builder = ContextInfo.builder();
             if (context.has("mcSchemaStyle")) {
                 McConfig dataSourceConfig = new McConfig();
                 dataSourceConfig.setSchemaStyle(context.get("mcSchemaStyle").asBoolean());

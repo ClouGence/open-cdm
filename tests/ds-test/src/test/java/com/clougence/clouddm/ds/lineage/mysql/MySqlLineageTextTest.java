@@ -302,7 +302,7 @@ public abstract class MySqlLineageTextTest {
 
         private ParsedSchema parseSchema(String sql) {
             AtomicReference<CorpusCstVisitor> visitorRef = new AtomicReference<>();
-            DslHelper.doVisitor(provider, sql, (lexer, parser) -> {
+            DslHelper.doVisitor(provider, new StringReader(sql), (lexer, parser) -> {
                 CorpusCstVisitor visitor = new CorpusCstVisitor(parser);
                 visitorRef.set(visitor);
                 return visitor;

@@ -20,7 +20,7 @@ public final class MySql97SecDomainTextTest {
     @TestFactory
     public Stream<DynamicTest> secDomainScripts() {
         MySecDomainResolveSpi spi = new MySecDomainResolveSpi(SqlTestSupport.metaService(), MySqlParserConfig.unknownSqlMode("9.7.1"));
-        ContextInfo context = ContextInfo.builder().deepParser(false).build();
+        ContextInfo context = ContextInfo.builder().build();
         List<DynamicTest> tests = new ArrayList<>();
         for (String resourcePath : SecDomainTextTest.listResourceFiles(RESOURCE_DIRECTORY)) {
             for (SecDomainTextTest.TestCase testCase : SecDomainTextTest.loadCases(resourcePath)) {
