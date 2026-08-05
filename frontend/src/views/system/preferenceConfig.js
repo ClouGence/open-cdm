@@ -166,6 +166,16 @@ export const PREFERENCE_TABS = [
             min: 1,
             max: 3,
             unitKey: 'preference-unit-requests'
+          },
+          {
+            key: 'languageMaxRequestKiloByte',
+            labelKey: 'preference-language-max-request-kb',
+            helpKey: 'preference-language-max-request-kb-help',
+            widget: 'number',
+            defaultValue: 1024,
+            min: 64,
+            max: 16384,
+            unitKey: 'preference-unit-kib'
           }
         ]
       },

@@ -186,7 +186,7 @@ public class ChangeActionForApproval extends AbstractChangeAction {
         ticket.setTargetInfo(targetInfo);
         ticket.setDescription(generateTicketDescription(change, flowDO, locale));
         ticket.setTicketTitle(generateTicketTitle(change, flowDO, locale));
-        ticket.setTicketStatus(ApprovalStatus.PRE_INIT);
+        ticket.setTicketStatus(ApprovalStatus.PRE_INIT_WAIT);
         ticket.setApproBiz(ApprovalBiz.DM_CHANGE);
         ticket.setStatusMessage(DmI18nUtils.getMessage(I18nDmMsgKeys.TICKET_STATUS_WAIT_EXPLAIN.name(), locale));
         ticket.setApproType(approvalType);

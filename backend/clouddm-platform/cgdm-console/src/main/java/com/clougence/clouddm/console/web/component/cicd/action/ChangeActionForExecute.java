@@ -36,6 +36,7 @@ import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
+import com.clougence.clouddm.console.web.util.DmTeamUtils;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
 import com.clougence.clouddm.platform.dal.model.cicd.*;
 import com.clougence.clouddm.platform.dal.model.execution.AutoExecType;
@@ -60,7 +61,7 @@ public class ChangeActionForExecute extends AbstractChangeAction {
     @Resource
     private QueryAnalysisService queryAnalysisService;
     @Resource
-    private ChangeSqlService      changeSqlService;
+    private ChangeSqlService     changeSqlService;
 
     @Override
     public void doAction(DmChangeDO change) {
@@ -134,8 +135,10 @@ public class ChangeActionForExecute extends AbstractChangeAction {
 
     private void doStartExecuteJob(Locale locale, DmChangeDO change, DmChangeFlowDO gitOpsFlowDO, ChangeExecuteInfo config) {
         DsLevels dsLevels = this.dmDsConfigService.parseLevels(gitOpsFlowDO.getDsPath());
+        String jobBizId = DmTeamUtils.nextExecJobBizId(SQLJobBizType.CHANGE);
         AutoExecJobCreateRequest request = AutoExecJobCreateRequest.builder()//
             .dsLevels(dsLevels)
+            .jobBizId(jobBizId)
             .bizType(SQLJobBizType.CHANGE)
             .bizId(String.valueOf(change.getId()))
             .execType(config.getExecType())
@@ -149,17 +152,18 @@ public class ChangeActionForExecute extends AbstractChangeAction {
         DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromExists(dsLevels.dsDO().getId());
 
         try {
-            long jobId = this.changeSqlService.consumeSqlFile(change.getId(), sqlFile -> {
+            this.changeSqlService.consumeSqlFile(change.getId(), sqlFile -> {
                 try (Reader reader = Files.newBufferedReader(sqlFile, StandardCharsets.UTF_8);
-                     Stream<SplitScript> scripts = this.queryAnalysisService.analysisSplitStream(dsConfig, reader, Collections.emptyList(), 1, 0)) {
-                    return this.autoExecService.createJob(request, scripts);
+                        Stream<SplitScript> scripts = this.queryAnalysisService.analysisSplitStream(dsConfig, reader, Collections.emptyList(), 1, 0)) {
+                    this.autoExecService.createJob(request, scripts);
+                    return null;
                 }
             });
             String operatorUid = config.getOperatorUid();
             if (StringUtils.isBlank(operatorUid)) {
                 operatorUid = AuthDal.ROOT_USER_UID;
             }
-            this.autoExecService.startJob(jobId, operatorUid);
+            this.autoExecService.startJob(jobBizId, operatorUid);
         } catch (Exception e) {
             change = changeFlowDal.changeMapper().queryChangeById(change.getId());
             String changeMessageStr = DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_CHANGE_EXECUTE_JOB_ERROR.name(), locale, change.getChangeName(), e.getMessage());

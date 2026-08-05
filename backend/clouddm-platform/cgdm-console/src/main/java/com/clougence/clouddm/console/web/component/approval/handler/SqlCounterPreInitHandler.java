@@ -5,22 +5,20 @@
  * you may not use this file except in compliance with the License.
  */
 package com.clougence.clouddm.console.web.component.approval.handler;
+
 import java.io.Reader;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.util.Collections;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Stream;
 
 import org.springframework.stereotype.Service;
 
-import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.console.web.component.analysis.AnalysisQueryOptions;
 import com.clougence.clouddm.console.web.component.analysis.QueryAnalysisFeature;
 import com.clougence.clouddm.console.web.component.analysis.QueryAnalysisService;
 import com.clougence.clouddm.console.web.component.approval.ApprovalService;
 import com.clougence.clouddm.console.web.component.approval.model.ApprovalAnalysisStateMO;
 import com.clougence.clouddm.console.web.component.approval.model.PreInitContext;
-import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.platform.dal.model.approval.DmApprovalDO;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 
@@ -43,29 +41,26 @@ public class SqlCounterPreInitHandler extends AbstractPreInitHandler {
     }
 
     @Override
-    protected void doHandle(DataSourceConfig dsConfig, DsLevels dsLevels, PreInitContext context, Runnable onProcessed) {
+    protected void doHandle(PreInitContext context) {
         DmApprovalDO approvalDO = context.getApproval();
+        AtomicLong sqlCounter = new AtomicLong();
         AnalysisQueryOptions options = AnalysisQueryOptions.builder()
             .currentUid(approvalDO.getOwnerUid())
             .dataSourceId(approvalDO.getBindDsId())
-            .levels(dsLevels.levelsParam())
+            .levels(context.getDsLevels().levelsParam())
             .skip(QueryAnalysisFeature.REWRITE, QueryAnalysisFeature.LINEAGE, QueryAnalysisFeature.MASKING)
             .build();
 
         this.approvalService.consumeSqlFile(approvalDO.getId(), sql -> {
-            try (Reader reader = Files.newBufferedReader(sql, StandardCharsets.UTF_8);
-                    Stream<QueryRequest> requests = this.queryAnalysisService.analysisRequestsStream(dsConfig, reader, Collections.emptyList(), 1, 0, options)) {
+            try (Reader reader = context.openReader(sql);
+                    Stream<QueryRequest> requests = this.queryAnalysisService.analysisRequestsStream(context.getDsConfig(), reader, Collections.emptyList(), 1, 0, options)) {
                 requests.forEachOrdered(request -> {
-                    context.incrementSqlCount();
-                    onProcessed.run();
+                    sqlCounter.incrementAndGet();
+                    context.itemProcessed(request.getQueryBody());
                 });
                 return null;
             }
         });
-    }
-
-    @Override
-    protected void fillResult(ApprovalAnalysisStateMO state, PreInitContext context) {
-        state.setTotalCount(context.getSqlCounter());
+        context.writeResult(state -> state.setTotalCount(sqlCounter.get()));
     }
 }

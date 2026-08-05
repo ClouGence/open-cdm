@@ -23,10 +23,15 @@ public class ApprovalAnalysisStateMO {
     private Long                        startTimeUtc;
     private Long                        finishTimeUtc;
     private Long                        processedCount;
+    private Long                        processedBytes;
+    private Long                        totalBytes;
     private String                      errorMessage;
     private Long                        totalCount;
     private List<ApprovalBehavior>      behaviors;
     private List<TicketRuleCheckResult> checkedInfo;
+
+    public ApprovalAnalysisStateMO(){
+    }
 
     public ApprovalAnalysisStateMO(String analysisType){
         this.analysisType = analysisType;

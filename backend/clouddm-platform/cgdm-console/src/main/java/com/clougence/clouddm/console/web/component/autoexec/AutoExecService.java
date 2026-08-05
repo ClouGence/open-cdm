@@ -28,9 +28,11 @@ import com.clougence.clouddm.sdk.sql.parser.SplitScript;
 
 public interface AutoExecService {
 
-    long createJob(AutoExecJobCreateRequest request, Stream<SplitScript> scripts);
+    void createJob(AutoExecJobCreateRequest request, Stream<SplitScript> scripts);
 
-    void startJob(long jobId, String operatorUid);
+    void startJob(String jobBizId, String operatorUid);
+
+    void deleteJob(String jobBizId);
 
     void dispatchJob(Long jobId);
 

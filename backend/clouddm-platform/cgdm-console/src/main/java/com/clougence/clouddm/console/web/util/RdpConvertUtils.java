@@ -609,6 +609,8 @@ public class RdpConvertUtils {
         vo.setStartTimeUtc(item.getStartTimeUtc());
         vo.setFinishTimeUtc(item.getFinishTimeUtc());
         vo.setProcessedCount(item.getProcessedCount());
+        vo.setProcessedBytes(item.getProcessedBytes());
+        vo.setTotalBytes(item.getTotalBytes());
         vo.setRemark(item.getErrorMessage());
         if (ApprovalAnalysisStateMO.TYPE_SQL_RECOGNITION.equals(item.getAnalysisType())) {
             vo.setResultCount(item.getTotalCount());

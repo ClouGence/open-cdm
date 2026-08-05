@@ -19,6 +19,7 @@ import java.io.StringReader;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.console.web.component.detectrule.SecRulesCheckContext;
@@ -85,8 +86,9 @@ final class SecRulesCheckSession4Batch implements SecRulesCheckSession {
         List<RuleDomain> domainList;
         try {
             CodeInfo codeInfo = CodeInfo.builder().baseLine(baseCodeLine).baseColumn(baseCodeColumn).build();
-            try (StringReader reader = new StringReader(querySql)) {
-                domainList = this.resolveSpi.resolveDomain(this.dsType, reader, codeInfo, this.contextInfo);
+            try (StringReader reader = new StringReader(querySql);
+                    Stream<RuleDomain> stream = this.resolveSpi.resolveDomainStream(this.dsType, reader, codeInfo, this.contextInfo)) {
+                domainList = stream.toList();
             }
             if (CollectionUtils.isEmpty(domainList)) {
                 return this.resultUnsupported();

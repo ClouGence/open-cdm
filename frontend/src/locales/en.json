@@ -4234,6 +4234,8 @@
   "preference-language-max-requests-help": "Maximum concurrent SQL analysis and completion requests across all users.",
   "preference-language-max-requests-by-user": "Maximum Requests per User",
   "preference-language-max-requests-by-user-help": "Maximum concurrent SQL analysis and completion requests for one user.",
+  "preference-language-max-request-kb": "Maximum SQL Size per Request",
+  "preference-language-max-request-kb-help": "Skip language-service completion, validation, and split processing when the SQL content exceeds this size.",
   "preference-online-max-record-count": "Maximum Records",
   "preference-online-max-record-count-help": "Maximum records returned by one online query.",
   "preference-online-max-result-set-mb": "Maximum Result Set Size",
@@ -4259,6 +4261,7 @@
   "preference-unit-requests": "requests",
   "preference-unit-records": "records",
   "preference-unit-mb": "MB",
+  "preference-unit-kib": "KiB",
   "preference-special-zero-unlimited": "{0} means passwords never expire",
   "preference-special-zero-disabled": "{0} disables proactive synchronization",
   "preference-special-zero-no-cache": "{0} disables result caching",
@@ -4359,7 +4362,11 @@
   "ticket-analysis-failed": "Failed",
   "ticket-analysis-sql-result": "Recognized {count} SQL statements",
   "ticket-analysis-processed-count": "Processed {count} items",
+  "ticket-analysis-read-progress": "Read {processed} / {total} ({percentage}%), processed {count} items",
   "ticket-analysis-behavior-result": "Recognized {count} objects",
   "ticket-analysis-security-passed": "No blocking rules found",
-  "ticket-analysis-security-result": "Found {count} security rule results"
+  "ticket-analysis-security-result": "Found {count} security rule results",
+  "ticket-recognized-content": "Recognized Content",
+  "ticket-recognized-summary": "Recognized {sqlCount} SQL statements involving {objectCount} objects",
+  "ticket-no-recognized-object": "No resource objects recognized"
 }

@@ -14,22 +14,18 @@
  * limitations under the License.
  */
 package com.clougence.clouddm.console.web.component.approval.handler;
+
 import java.io.Reader;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.util.Collections;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Stream;
 
 import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
-import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.console.web.component.analysis.*;
 import com.clougence.clouddm.console.web.component.approval.ApprovalService;
 import com.clougence.clouddm.console.web.component.approval.model.ApprovalAnalysisStateMO;
 import com.clougence.clouddm.console.web.component.approval.model.PreInitContext;
-import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.util.DmDsUtils;
@@ -40,6 +36,7 @@ import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorObject;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.dslpaser.antlr.AntlerSyntaxException;
 
 import jakarta.annotation.Resource;
 
@@ -62,28 +59,33 @@ public class BehaviorPreInitHandler extends AbstractPreInitHandler {
     }
 
     @Override
-    protected void doHandle(DataSourceConfig dsConfig, DsLevels dsLevels, PreInitContext context, Runnable onProcessed) {
+    protected void doHandle(PreInitContext context) {
         DmApprovalDO approvalDO = context.getApproval();
+        Map<String, ApprovalBehavior> behaviors = new LinkedHashMap<>();
         AnalysisQueryOptions options = AnalysisQueryOptions.builder()
             .currentUid(approvalDO.getOwnerUid())
             .dataSourceId(approvalDO.getBindDsId())
-            .levels(dsLevels.levelsParam())
+            .levels(context.getDsLevels().levelsParam())
             .skip(QueryAnalysisFeature.REWRITE, QueryAnalysisFeature.LINEAGE, QueryAnalysisFeature.MASKING)
             .build();
 
         this.approvalService.consumeSqlFile(approvalDO.getId(), sql -> {
-            try (Reader reader = Files.newBufferedReader(sql, StandardCharsets.UTF_8);
-                    Stream<QueryRequest> requests = this.queryAnalysisService.analysisRequestsStream(dsConfig, reader, Collections.emptyList(), 1, 0, options)) {
+            try (Reader reader = context.openReader(sql);
+                    Stream<QueryRequest> requests = this.queryAnalysisService.analysisRequestsStream(context.getDsConfig(), reader, Collections.emptyList(), 1, 0, options)) {
                 requests.forEachOrdered(request -> {
-                    this.analyzeRequest(request, context);
-                    onProcessed.run();
+                    this.analyzeRequest(request, behaviors);
+                    context.itemProcessed(request.getQueryBody());
                 });
                 return null;
+            } catch (AntlerSyntaxException e) {
+                throw this.lineError(e.getLine(), e.getMessage());
             }
         });
+
+        context.writeResult(state -> state.setBehaviors(new ArrayList<>(behaviors.values())));
     }
 
-    private void analyzeRequest(QueryRequest request, PreInitContext context) {
+    private void analyzeRequest(QueryRequest request, Map<String, ApprovalBehavior> behaviors) {
         if (request.hasQueryType(SplitQueryType.TRANSACTION)) {
             throw new UnsupportedOperationException(DmI18nUtils.getMessage(I18nDmMsgKeys.TICKET_NONSUPPORT_TRANSACTION_OPERATE_ERROR.name()));
         }
@@ -101,12 +103,19 @@ public class BehaviorPreInitHandler extends AbstractPreInitHandler {
             behavior.setResourceType(resourceType);
             behavior.setResourcePath(resourcePath);
             behavior.getActions().add(action);
-            context.addBehavior(behavior);
+            String resourceKey = resourceType + "|" + resourcePath;
+            ApprovalBehavior target = behaviors.computeIfAbsent(resourceKey, ignored -> {
+                ApprovalBehavior value = new ApprovalBehavior();
+                value.setResourceType(resourceType);
+                value.setResourcePath(resourcePath);
+                return value;
+            });
+            target.getActions().addAll(behavior.getActions());
         }
     }
 
-    @Override
-    protected void fillResult(ApprovalAnalysisStateMO state, PreInitContext context) {
-        state.setBehaviors(context.getBehaviors());
+    private ErrorMessageException lineError(int line, String message) {
+        return new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.TICKET_SQL_ANALYSIS_LINE_ERROR.name(), Math.max(1, line), message));
     }
+
 }

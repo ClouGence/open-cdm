@@ -26,9 +26,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionSynchronization;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -63,6 +63,7 @@ import com.clougence.clouddm.console.web.model.vo.ticket.*;
 import com.clougence.clouddm.console.web.service.envparam.DmEnvParamService;
 import com.clougence.clouddm.console.web.service.upload.impl.SqlFilePreviewReader;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
+import com.clougence.clouddm.console.web.util.DmTeamUtils;
 import com.clougence.clouddm.console.web.util.RdpConvertUtils;
 import com.clougence.clouddm.platform.dal.access.*;
 import com.clougence.clouddm.platform.dal.access.entry.DsCacheEntry;
@@ -145,6 +146,8 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
     private ApprovalProviderServiceImpl approvalProviderService;
     @Resource
     private ApprovalTaskScheduler       approvalTaskScheduler;
+    @Resource
+    private PlatformTransactionManager  txManager;
 
     //
     // ticket list
@@ -316,7 +319,8 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
         boolean isPrimary = uid.equals(puid);
         boolean isOwn = uid.equals(approvalDO.getOwnerUid());
         switch (ticketStatus) {
-            case PRE_INIT:
+            case PRE_INIT_WAIT:
+            case PRE_INIT_RUN:
             case WAIT_CONFIRM:
             case WAIT_APPROVAL: {
                 if (isPrimary || isOwn) {
@@ -610,9 +614,17 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
     // Sql Ticket
     //
 
-    @Transactional(rollbackFor = Throwable.class)
     @Override
     public DmTicketResultVO createSqlTicket(String puid, String uid, DmAddTicketFO fo) {
+        TransactionTemplate transaction = new TransactionTemplate(this.txManager);
+        DmTicketResultVO result = transaction.execute(status -> this.createSqlTicketInTransaction(puid, uid, fo));
+        if (result != null && result.getTicketId() != null) {
+            this.approvalTaskScheduler.trySchedule(result.getTicketId());
+        }
+        return result;
+    }
+
+    private DmTicketResultVO createSqlTicketInTransaction(String puid, String uid, DmAddTicketFO fo) {
         DsLevels dsLevels = this.dmDsConfigService.parseLevels(fo.getDbLevels());
         DmDsDO dsDO = dsLevels.dsDO();
         DmSysEnvDO envDO = this.systemDal.envMapper().queryByEnvID(puid, dsDO.getDsEnvId());
@@ -691,7 +703,7 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
         ticket.setTargetInfo(targetInfo);
         ticket.setDescription(fo.getDescription());
         ticket.setTicketTitle(fo.getTicketTitle());
-        ticket.setTicketStatus(ApprovalStatus.PRE_INIT);
+        ticket.setTicketStatus(ApprovalStatus.PRE_INIT_WAIT);
         ticket.setApproBiz(ApprovalBiz.DM_QUERY);
         ticket.setStatusMessage(DmI18nUtils.getMessage(I18nDmMsgKeys.TICKET_STATUS_WAIT_EXPLAIN.name()));
         ticket.setApproType(ApprovalType.valueOf(ticketConfig.getType()));
@@ -726,23 +738,9 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
         }
 
         this.approvalFlowService.createProcess(ticket.getId(), ApprovalBiz.DM_QUERY, mo.getMessage() == null);
-        this.scheduleAfterCommit(ticket.getId());
 
         result.setTicketId(ticket.getId());
         return result;
-    }
-
-    private void scheduleAfterCommit(long ticketId) {
-        if (!TransactionSynchronizationManager.isSynchronizationActive()) {
-            this.approvalTaskScheduler.trySchedule(ticketId);
-            return;
-        }
-        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
-            @Override
-            public void afterCommit() {
-                approvalTaskScheduler.trySchedule(ticketId);
-            }
-        });
     }
 
     @Override
@@ -758,11 +756,32 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
         return vo;
     }
 
-    @Transactional(rollbackFor = Throwable.class)
     @Override
     public void confirmTicket(String puid, long ticketId, DmConfirmTicketFO fo) {
-        DmApprovalDO rdpTicketDO = this.checkTicket(ticketId);
         ApprovalStatus actionStatus = statusFromConfirmAction(fo.getConfirmActionType(), fo.getAutoExecConfig().getAutoExecType());
+        String jobBizId = actionStatus == ApprovalStatus.WAIT_EXEC ? DmTeamUtils.nextExecJobBizId(SQLJobBizType.TICKET) : null;
+        try {
+            TransactionTemplate transaction = new TransactionTemplate(this.txManager);
+            transaction.executeWithoutResult(status -> this.confirmTicketInTransaction(puid, ticketId, fo, actionStatus, jobBizId));
+        } catch (RuntimeException e) {
+            if (actionStatus == ApprovalStatus.WAIT_EXEC) {
+                try {
+                    this.autoExecService.deleteJob(jobBizId);
+                } catch (RuntimeException cleanupError) {
+                    e.addSuppressed(cleanupError);
+                    log.error("Cleanup prepared auto execution job failed, jobBizId={}", jobBizId, cleanupError);
+                }
+            }
+            throw e;
+        }
+
+        if (actionStatus == ApprovalStatus.WAIT_EXEC) {
+            this.autoExecService.startJob(jobBizId, fo.getConfirmUid());
+        }
+    }
+
+    private void confirmTicketInTransaction(String puid, long ticketId, DmConfirmTicketFO fo, ApprovalStatus actionStatus, String jobBizId) {
+        DmApprovalDO rdpTicketDO = this.checkTicket(ticketId);
         checkJobOperationEnable(rdpTicketDO, fo.getConfirmUid());
 
         if (rdpTicketDO.getTicketStatus() != ApprovalStatus.WAIT_CONFIRM) {
@@ -811,13 +830,13 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
 
             info.setAutoExec(true);
             this.approvalDal.approvalMapper().updateTicketInfo(dmTicketDO.getId(), JsonUtils.toJson(info));
-            createExecJob(fo, rdpTicketDO, dmTicketDO, confirmUser.getUid());
+            this.createExecJob(fo, rdpTicketDO, dmTicketDO, jobBizId);
             this.approvalDal.processMapper().updateContextById(processDO.getId(), JsonUtils.toJson(info));
         }
         this.approvalDal.approvalMapper().updateStatusByEnum(ticketId, actionStatus, fo.getComment());
     }
 
-    private void createExecJob(DmConfirmTicketFO fo, DmApprovalDO rdpTicket, DmApprovalDO dmTicket, String operatorUid) {
+    private void createExecJob(DmConfirmTicketFO fo, DmApprovalDO rdpTicket, DmApprovalDO dmTicket, String jobBizId) {
         DsCacheEntry dsCacheEntry = objectCacheDao.queryByDsId(rdpTicket.getBindDsId());
         Long dsEnvId = dsCacheEntry.getEnvId();
 
@@ -837,6 +856,7 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
         DmAutoExecConfigFO config = fo.getAutoExecConfig();
         AutoExecJobCreateRequest request = AutoExecJobCreateRequest.builder()//
             .dsLevels(dsLevels)
+            .jobBizId(jobBizId)
             .bizType(SQLJobBizType.TICKET)
             .bizId(rdpTicket.getBizId())
             .execType(config.getAutoExecType())
@@ -846,14 +866,13 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
             .retryCount(config.getRetryCount())
             .execTime(config.getExecTime())
             .build();
-        long jobId = this.approvalService.consumeSqlFile(dmTicket.getId(), sqlFile -> {
+        this.approvalService.consumeSqlFile(dmTicket.getId(), sqlFile -> {
             try (Reader reader = Files.newBufferedReader(sqlFile, StandardCharsets.UTF_8);
                     Stream<SplitScript> scripts = this.queryAnalysisService.analysisSplitStream(dsConfig, reader, null, 1, 0)) {
-                return this.autoExecService.createJob(request, scripts);
+                this.autoExecService.createJob(request, scripts);
+                return null;
             }
         });
-
-        this.autoExecService.startJob(jobId, operatorUid);
     }
 
     @Override

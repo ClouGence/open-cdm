@@ -96,7 +96,10 @@ public class AutoExecServiceImpl implements AutoExecService {
 
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     @Override
-    public long createJob(AutoExecJobCreateRequest request, Stream<SplitScript> scripts) {
+    public void createJob(AutoExecJobCreateRequest request, Stream<SplitScript> scripts) {
+        if (StringUtils.isBlank(request.getJobBizId())) {
+            throw new IllegalArgumentException("Auto execution job biz id is required.");
+        }
         if (request.getErrorStrategy() == ErrorStrategy.RETRY) {
             if (request.getRetryWaitTime() == null || request.getRetryCount() == null) {
                 throw new ErrorMessageException("retry wait time or retry count not should be null");
@@ -113,7 +116,7 @@ public class AutoExecServiceImpl implements AutoExecService {
         job.setDependOnBizType(bizType);
         job.setDataSourceId(request.getDsLevels().dsDO().getId());
         job.setDependOnBizId(bizId);
-        job.setBizId(DmTeamUtils.nextExecJobBizId(bizType));
+        job.setBizId(request.getJobBizId());
         job.setExecType(request.getExecType());
         job.setStatus(AutoExecJobStatus.PREPARING);
 
@@ -174,26 +177,52 @@ public class AutoExecServiceImpl implements AutoExecService {
                     throw new IllegalStateException("Batch insert auto execution tasks failed.");
                 }
             }
-            return job.getId();
         } catch (RuntimeException e) {
-            this.execDal.autoTaskMapper().deleteByJobId(job.getId());
-            this.execDal.autoJobMapper().deleteById(job.getId());
+            try {
+                TransactionTemplate cleanup = new TransactionTemplate(this.txManager);
+                cleanup.executeWithoutResult(status -> this.doDeleteJob(job.getId()));
+            } catch (RuntimeException cleanupError) {
+                e.addSuppressed(cleanupError);
+                log.error("Cleanup partially created auto execution job failed, jobId={}", job.getId(), cleanupError);
+            }
             throw e;
         }
     }
 
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Throwable.class)
     @Override
-    public void startJob(long jobId, String operatorUid) {
+    public void startJob(String jobBizId, String operatorUid) {
+        DmExecAutoJobDO job = this.execDal.autoJobMapper().queryByBizId(jobBizId);
+        this.startPreparedJob(job, operatorUid, "jobBizId: " + jobBizId);
+    }
+
+    private void startPreparedJob(DmExecAutoJobDO job, String operatorUid, String jobIdentity) {
         if (StringUtils.isBlank(operatorUid)) {
             throw new IllegalArgumentException("Auto execution operator uid is required.");
         }
-        DmExecAutoJobDO job = this.execDal.autoJobMapper().queryById(jobId);
-        if (job == null || this.execDal.autoJobMapper().startPreparedJob(jobId, operatorUid) != 1) {
-            throw new IllegalStateException("Auto execution job is not ready to start, jobId: " + jobId);
+        if (job == null || this.execDal.autoJobMapper().startPreparedJob(job.getId(), operatorUid) != 1) {
+            throw new IllegalStateException("Auto execution job is not ready to start, " + jobIdentity);
         }
 
         this.execHelperService.getHelper(job.getDependOnBizType()).execStart(job.getDependOnBizType(), job.getBizId());
+    }
+
+    @Transactional(rollbackFor = Throwable.class)
+    @Override
+    public void deleteJob(String jobBizId) {
+        DmExecAutoJobDO job = this.execDal.autoJobMapper().queryByBizId(jobBizId);
+        if (job != null) {
+            this.doDeleteJob(job.getId());
+        }
+    }
+
+    private void doDeleteJob(long jobId) {
+        DmExecAutoJobDO job = this.execDal.autoJobMapper().queryByIdForUpdate(jobId);
+        if (job == null) {
+            return;
+        }
+        this.execDal.autoTaskMapper().deleteByJobId(jobId);
+        this.execDal.autoJobMapper().deleteById(jobId);
     }
 
     @Override

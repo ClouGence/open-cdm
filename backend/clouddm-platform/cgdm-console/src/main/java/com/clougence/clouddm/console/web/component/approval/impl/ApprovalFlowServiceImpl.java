@@ -25,7 +25,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.console.web.component.approval.ApprovalFlowService;
 import com.clougence.clouddm.console.web.component.approval.ApprovalHandler;
-import com.clougence.clouddm.console.web.component.approval.model.ApprovalAnalysisStateMO;
 import com.clougence.clouddm.console.web.component.approval.model.ApprovalStageMO;
 import com.clougence.clouddm.console.web.component.cicd.ImSenderService;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
@@ -253,9 +252,6 @@ public class ApprovalFlowServiceImpl implements ApprovalFlowService {
                 processDO.setStageContext(JsonUtils.toJson(execMO));
             }
             this.approvalDal.processMapper().insert(processDO);
-            if (stage == ApprovalStage.EXPLAIN) {
-                this.createAnalysisActivities(ticketId, processDO.getId());
-            }
 
             // need return first process id
             if (firstStageId == -1) {
@@ -270,21 +266,6 @@ public class ApprovalFlowServiceImpl implements ApprovalFlowService {
 
         if (firstStageId == -1) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_APPROVAL_CAN_NOT_GET.name(), ticketId));
-        }
-    }
-
-    private void createAnalysisActivities(long ticketId, long processId) {
-        List<ApprovalAnalysisStateMO> states = ApprovalAnalysisStateMO.initialStates();
-        for (int i = 0; i < states.size(); i++) {
-            ApprovalAnalysisStateMO state = states.get(i);
-            DmApprovalProcessActivityDO activityDO = new DmApprovalProcessActivityDO();
-            activityDO.setTicketId(ticketId);
-            activityDO.setProcessId(processId);
-            activityDO.setActivityId(state.getAnalysisType());
-            activityDO.setActivityTitle(state.getAnalysisType());
-            activityDO.setOrderNumber(i + 1);
-            activityDO.setContext(JsonUtils.toJson(state));
-            this.approvalDal.activityMapper().insert(activityDO);
         }
     }
 
@@ -352,7 +333,7 @@ public class ApprovalFlowServiceImpl implements ApprovalFlowService {
 
     private void failCurrentAndCloseFollowingProcesses(DmApprovalDO ticketDO) {
         ApprovalStage currentStage = switch (ticketDO.getTicketStatus()) {
-            case PRE_INIT -> ApprovalStage.EXPLAIN;
+            case PRE_INIT_WAIT, PRE_INIT_RUN -> ApprovalStage.EXPLAIN;
             case WAIT_APPROVAL -> ApprovalStage.APPROVAL;
             case WAIT_CONFIRM -> ApprovalStage.CONFIRM;
             case WAIT_EXEC, RUNNING, EXEC_FAIL, EXEC_PAUSE -> ApprovalStage.EXECUTION;

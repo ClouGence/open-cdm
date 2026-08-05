@@ -260,8 +260,8 @@ public class QueryAnalysisServiceImpl implements QueryAnalysisService {
             String afterRewrite;
             RewriteContext rewriteCtx = new RewriteContext();
             rewriteCtx.setFetchLimit(this.rewriteFetchLimit);
-            try (StringReader reader = new StringReader(beforeRewrite)) {
-                afterRewrite = this.rewriteSpi.rewriterQuery(reader, request, rewriteCtx);
+            try (StringReader reader = new StringReader(beforeRewrite); Stream<String> stream = this.rewriteSpi.rewriterQueryStream(reader, request, rewriteCtx)) {
+                afterRewrite = stream.findFirst().orElseThrow(() -> new IllegalStateException("Rewrite SPI returned no result"));
             }
 
             request.setOriginalBody(beforeRewrite);
@@ -281,18 +281,17 @@ public class QueryAnalysisServiceImpl implements QueryAnalysisService {
             int codeColumn = script.getBodyStartCodeColumn();
 
             List<StatementBehavior> behaviors;
-            try (StringReader reader = new StringReader(request.getQueryBody())) {
-                behaviors = this.behaviorSpi.analysisBehavior(reader, this.levels, codeLine, codeColumn);
+            try (StringReader reader = new StringReader(request.getQueryBody());
+                    Stream<StatementBehavior> stream = this.behaviorSpi.analysisBehaviorStream(reader, this.levels, codeLine, codeColumn)) {
+                behaviors = stream.toList();
             }
 
             List<BehaviorRelation> relations = new ArrayList<>();
-            if (behaviors != null) {
-                for (StatementBehavior behavior : behaviors) {
-                    if (behavior == null || behavior.getRelations() == null) {
-                        continue;
-                    }
-                    relations.addAll(behavior.getRelations().stream().filter(Objects::nonNull).toList());
+            for (StatementBehavior behavior : behaviors) {
+                if (behavior == null || behavior.getRelations() == null) {
+                    continue;
                 }
+                relations.addAll(behavior.getRelations().stream().filter(Objects::nonNull).toList());
             }
             request.setRelations(relations);
         }
@@ -301,10 +300,11 @@ public class QueryAnalysisServiceImpl implements QueryAnalysisService {
             if (this.lineageSpi == null) {
                 return;
             }
+
             if (request.hasQueryType(SplitQueryType.SELECT)) {
                 List<LineageColumn> lineageCols;
-                try (StringReader reader = new StringReader(request.getQueryBody())) {
-                    lineageCols = this.lineageSpi.analyze(reader, this.lineageContext);
+                try (StringReader reader = new StringReader(request.getQueryBody()); Stream<LineageColumn> stream = this.lineageSpi.analyzeStream(reader, this.lineageContext)) {
+                    lineageCols = stream.toList();
                 }
 
                 Set<String> columnNames = new HashSet<>();

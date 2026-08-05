@@ -5,7 +5,7 @@
         <p class="ticket-title-p" style="display: flex; align-items: center">
           <span class="ticket-title">【{{ APPROV_BIZ_MAP[ticketDetail.approBiz] }}】</span>
           <span class="ticket-title">{{ ticketDetail.ticketTitle }}</span>
-          <span :class="['ticket-status-total', { 'analysis-status': ticketDetail.ticketStatus === 'PRE_INIT' }]">
+          <span :class="['ticket-status-total', { 'analysis-status': ['PRE_INIT_WAIT', 'PRE_INIT_RUN'].includes(ticketDetail.ticketStatus) }]">
             <span>{{ TICKET_STATUS[ticketDetail.ticketStatus] }}</span>
             <span v-if="ticketDetail.ticketStatus === 'FAILED'">
               <Tooltip :content="ticketDetail.statusMessage" transfer style="margin-left: 3px">
@@ -241,6 +241,30 @@
           </div>
         </div>
       </div>
+    </Card>
+    <Card class="ticket-content" v-if="showRecognizedContent">
+      <template #title>
+        <div class="recognized-content-title">
+          <span>{{ $t('ticket-recognized-content') }}</span>
+          <span class="recognized-content-summary">
+            {{
+              $t('ticket-recognized-summary', {
+                sqlCount: analysisSqlCount || 0,
+                objectCount: recognizedBehaviorRows.length
+              })
+            }}
+          </span>
+        </div>
+      </template>
+      <Table v-if="recognizedBehaviorRows.length" :columns="recognizedContentColumns" :data="recognizedBehaviorRows" border size="small">
+        <template #resourceType="{ row }">
+          <Tag>{{ row.resourceType || '--' }}</Tag>
+        </template>
+        <template #actions="{ row }">
+          <Tag v-for="action in row.actions" :key="action" color="primary">{{ action }}</Tag>
+        </template>
+      </Table>
+      <div v-else class="recognized-content-empty">{{ $t('ticket-no-recognized-object') }}</div>
     </Card>
     <Card class="ticket-content" v-if="this.ticketType === 'DM_QUERY' && autoExec">
       <template #title>
@@ -488,10 +512,16 @@
         </FormItem>
       </Form>
       <template #footer>
-        <Button type="primary" @click="handleFinishTicket" v-if="confirmInfo.autoExecConfig.autoExecType === 'MANUAL_EXEC'">
+        <Button
+          type="primary"
+          :loading="confirmSubmitting"
+          :disabled="confirmSubmitting"
+          @click="handleFinishTicket"
+          v-if="confirmInfo.autoExecConfig.autoExecType === 'MANUAL_EXEC'"
+        >
           {{ $t('jie-shu-gong-dan') }}
         </Button>
-        <Button type="primary" @click="handleConfirmTicket" v-else>
+        <Button type="primary" :loading="confirmSubmitting" :disabled="confirmSubmitting" @click="handleConfirmTicket" v-else>
           {{ confirmInfo.autoExecConfig.autoExecType == 'IMMEDIATE' ? $t('li-ji-zhi-hang') : $t('ding-shi-zhi-hang') }}
         </Button>
         <Button @click="handleCloseModal">{{ $t('qu-xiao') }}</Button>
@@ -593,6 +623,24 @@ export default {
       autoExec: false,
       RULE_WARN_LEVEL,
       noPassedRuleList: [],
+      analysisSqlCount: null,
+      analysisBehaviors: [],
+      recognizedContentColumns: [
+        {
+          title: this.$t('zi-yuan-lei-xing'),
+          slot: 'resourceType',
+          width: 180
+        },
+        {
+          title: this.$t('zi-yuan-lu-jing'),
+          key: 'resourcePath'
+        },
+        {
+          title: this.$t('cao-zuo'),
+          slot: 'actions',
+          width: 320
+        }
+      ],
       showCheckedOnlyError: false,
       showContinueSkipAutoExecTaskModal: false,
       showSkipAutoExecTaskModal: false,
@@ -733,6 +781,7 @@ export default {
       TICKET_STATUS_COLOR,
       TICKET_PROCESS_STATUS,
       loading: false,
+      confirmSubmitting: false,
       confirmInfo: {
         autoExecConfig: {}
       },
@@ -820,6 +869,22 @@ export default {
     showValidationResult() {
       return this.noPassedRuleList && this.noPassedRuleList.length > 0;
     },
+    recognizedBehaviorRows() {
+      return [...this.analysisBehaviors]
+        .map((behavior) => ({
+          ...behavior,
+          actions: [...(behavior.actions || [])].sort()
+        }))
+        .sort((left, right) => {
+          const typeCompare = (left.resourceType || '').localeCompare(right.resourceType || '');
+          return typeCompare || (left.resourcePath || '').localeCompare(right.resourcePath || '');
+        });
+    },
+    showRecognizedContent() {
+      return (
+        ['DM_QUERY', 'DM_CHANGE'].includes(this.ticketDetail.approBiz) && (this.analysisSqlCount != null || this.recognizedBehaviorRows.length > 0)
+      );
+    },
     analysisProcess() {
       return (this.ticketDetail.ticketProcessVOList || []).find((item) => item.ticketStage === 'EXPLAIN');
     },
@@ -831,7 +896,7 @@ export default {
     showAnalysisSummary() {
       return (
         ['DM_QUERY', 'DM_CHANGE'].includes(this.ticketDetail.approBiz) &&
-        this.ticketDetail.ticketStatus === 'PRE_INIT' &&
+        this.ticketDetail.ticketStatus === 'PRE_INIT_RUN' &&
         this.analysisItems.length > 0
       );
     },
@@ -904,6 +969,15 @@ export default {
         return '--';
       }
       if (item.activityStatus === 'RUNNING') {
+        if (item.totalBytes > 0 && item.processedBytes != null) {
+          const percentage = Math.min(100, Math.floor((item.processedBytes * 100) / item.totalBytes));
+          return this.$t('ticket-analysis-read-progress', {
+            processed: this.formatFileSize(item.processedBytes),
+            total: this.formatFileSize(item.totalBytes),
+            percentage,
+            count: item.processedCount || 0
+          });
+        }
         return item.processedCount == null
           ? this.$t('ticket-analysis-running')
           : this.$t('ticket-analysis-processed-count', { count: item.processedCount });
@@ -1307,6 +1381,8 @@ export default {
             });
             if (resQuery.success) {
               this.noPassedRuleList = resQuery.data.checkedList || [];
+              this.analysisSqlCount = resQuery.data.totalCount ?? null;
+              this.analysisBehaviors = resQuery.data.behaviors || [];
               this.autoExec = resQuery.data.autoExec;
               if (resQuery.data?.autoExec) {
                 await this.queryAutoExecJobInfo();
@@ -1363,27 +1439,43 @@ export default {
       }
     },
     async handleConfirmTicket() {
-      appLogger.debug(this.confirmInfo.confirmActionType);
-      const data = { ...this.confirmInfo };
-      if (this.confirmInfo.confirmActionType === 'CONFIRM') {
-        data.autoExecConfig.execTime = Date.parse(data.autoExecConfig.execTime);
+      if (this.confirmSubmitting) {
+        return;
       }
-      const res = await this.$services.dmTicketConfirm({ data });
-      if (res.success) {
-        this.$Message.success(this.$t('cao-zuo-cheng-gong'));
-        this.handleCloseModal();
-        await this.getTicketDetail();
+      this.confirmSubmitting = true;
+      appLogger.debug(this.confirmInfo.confirmActionType);
+      try {
+        const data = { ...this.confirmInfo };
+        if (this.confirmInfo.confirmActionType === 'CONFIRM') {
+          data.autoExecConfig.execTime = Date.parse(data.autoExecConfig.execTime);
+        }
+        const res = await this.$services.dmTicketConfirm({ data });
+        if (res.success) {
+          this.$Message.success(this.$t('cao-zuo-cheng-gong'));
+          this.handleCloseModal();
+          await this.getTicketDetail();
+        }
+      } finally {
+        this.confirmSubmitting = false;
       }
     },
     async handleFinishTicket() {
+      if (this.confirmSubmitting) {
+        return;
+      }
+      this.confirmSubmitting = true;
       this.confirmInfo.confirmActionType = 'CONFIRM';
-      const data = { ...this.confirmInfo };
-      data.autoExecConfig.execTime = null;
-      const res = await this.$services.dmTicketConfirm({ data });
-      if (res.success) {
-        this.$Message.success(this.$t('cao-zuo-cheng-gong'));
-        this.handleCloseModal();
-        await this.getTicketDetail();
+      try {
+        const data = { ...this.confirmInfo };
+        data.autoExecConfig.execTime = null;
+        const res = await this.$services.dmTicketConfirm({ data });
+        if (res.success) {
+          this.$Message.success(this.$t('cao-zuo-cheng-gong'));
+          this.handleCloseModal();
+          await this.getTicketDetail();
+        }
+      } finally {
+        this.confirmSubmitting = false;
       }
     },
 
@@ -1577,6 +1669,25 @@ export default {
     }
     :deep(.ivu-table-wrapper-with-border) {
       border: 0;
+    }
+
+    .recognized-content-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+    }
+
+    .recognized-content-summary {
+      color: @icon-color;
+      font-size: 12px;
+      font-weight: 400;
+    }
+
+    .recognized-content-empty {
+      padding: 24px;
+      color: @icon-color;
+      text-align: center;
     }
 
     .ticket-content-title {

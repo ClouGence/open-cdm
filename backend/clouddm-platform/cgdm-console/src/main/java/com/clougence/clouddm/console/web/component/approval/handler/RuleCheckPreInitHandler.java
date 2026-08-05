@@ -5,22 +5,20 @@
  * you may not use this file except in compliance with the License.
  */
 package com.clougence.clouddm.console.web.component.approval.handler;
+
 import java.io.Reader;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.util.Collections;
 import java.util.stream.Stream;
 
 import org.springframework.stereotype.Service;
 
-import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.console.web.component.analysis.AnalysisRuleOptions;
 import com.clougence.clouddm.console.web.component.analysis.QueryAnalysisService;
 import com.clougence.clouddm.console.web.component.approval.ApprovalService;
 import com.clougence.clouddm.console.web.component.approval.model.ApprovalAnalysisStateMO;
 import com.clougence.clouddm.console.web.component.approval.model.PreInitContext;
 import com.clougence.clouddm.console.web.component.detectrule.SecRulesCheckResult;
-import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
+import com.clougence.clouddm.console.web.util.DmConvertUtils;
 import com.clougence.clouddm.platform.dal.model.approval.DmApprovalDO;
 import com.clougence.clouddm.platform.dal.model.secrule.WarnLevel;
 import com.clougence.clouddm.sdk.service.secrules.Requester;
@@ -44,30 +42,28 @@ public class RuleCheckPreInitHandler extends AbstractPreInitHandler {
     }
 
     @Override
-    protected void doHandle(DataSourceConfig dsConfig, DsLevels dsLevels, PreInitContext context, Runnable onProcessed) {
+    protected void doHandle(PreInitContext context) {
         DmApprovalDO approvalDO = context.getApproval();
+        SecRulesCheckResult ruleCheckResult = new SecRulesCheckResult();
         AnalysisRuleOptions options = AnalysisRuleOptions.builder()
             .currentUid(approvalDO.getOwnerUid())
             .dsId(approvalDO.getBindDsId())
-            .levels(dsLevels.levelsParam())
+            .levels(context.getDsLevels().levelsParam())
             .requester(Requester.TICKET)
             .unsupportedLevel(WarnLevel.FAILURE)
             .build();
 
         this.approvalService.consumeSqlFile(approvalDO.getId(), sql -> {
-            try (Reader reader = Files.newBufferedReader(sql, StandardCharsets.UTF_8);
-                    Stream<SecRulesCheckResult> results = this.queryAnalysisService.analysisRulesStream(dsConfig, reader, Collections.emptyList(), 1, 0, options)) {
+            try (Reader reader = context.openReader(sql);
+                    Stream<SecRulesCheckResult> results = this.queryAnalysisService.analysisRulesStream(context.getDsConfig(), reader, Collections.emptyList(), 1, 0, options)) {
                 results.forEachOrdered(result -> {
-                    context.addRuleCheckResult(result);
-                    onProcessed.run();
+                    ruleCheckResult.merge(result);
+                    context.itemProcessed();
                 });
                 return null;
             }
         });
-    }
 
-    @Override
-    protected void fillResult(ApprovalAnalysisStateMO state, PreInitContext context) {
-        state.setCheckedInfo(context.getRuleCheckResults());
+        context.writeResult(state -> state.setCheckedInfo(DmConvertUtils.convertToTicketRuleCheckResults(ruleCheckResult)));
     }
 }

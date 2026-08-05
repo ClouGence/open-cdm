@@ -28,6 +28,7 @@ import lombok.Getter;
 public class AutoExecJobCreateRequest {
 
     private final DsLevels      dsLevels;
+    private final String        jobBizId;
     private final SQLJobBizType bizType;
     private final String        bizId;
     private final AutoExecType  execType;

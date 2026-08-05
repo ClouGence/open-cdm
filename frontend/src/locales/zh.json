@@ -4230,6 +4230,8 @@
   "preference-language-max-requests-help": "所有用户同时执行 SQL 语法分析和提示请求的数量上限。",
   "preference-language-max-requests-by-user": "单用户最大并发请求",
   "preference-language-max-requests-by-user-help": "单个用户同时执行 SQL 语法分析和提示请求的数量上限。",
+  "preference-language-max-request-kb": "单次请求 SQL 大小上限",
+  "preference-language-max-request-kb-help": "补全、校验和拆分请求中的 SQL 内容超过该大小时，前后端均跳过语言服务处理。",
   "preference-online-max-record-count": "最大记录数",
   "preference-online-max-record-count-help": "一次在线查询允许返回的最大记录数。",
   "preference-online-max-result-set-mb": "最大结果集大小",
@@ -4255,6 +4257,7 @@
   "preference-unit-requests": "请求",
   "preference-unit-records": "条",
   "preference-unit-mb": "MB",
+  "preference-unit-kib": "KiB",
   "preference-special-zero-unlimited": "{0} 表示永不过期",
   "preference-special-zero-disabled": "{0} 表示不主动同步",
   "preference-special-zero-no-cache": "{0} 表示不保留缓存",
@@ -4355,7 +4358,11 @@
   "ticket-analysis-failed": "失败",
   "ticket-analysis-sql-result": "已识别 {count} 条 SQL 语句",
   "ticket-analysis-processed-count": "已处理 {count} 条",
+  "ticket-analysis-read-progress": "已读取 {processed} / {total}（{percentage}%），已处理 {count} 条",
   "ticket-analysis-behavior-result": "已识别 {count} 个对象",
   "ticket-analysis-security-passed": "未发现阻断规则",
-  "ticket-analysis-security-result": "发现 {count} 条安全规则结果"
+  "ticket-analysis-security-result": "发现 {count} 条安全规则结果",
+  "ticket-recognized-content": "识别内容",
+  "ticket-recognized-summary": "共识别 {sqlCount} 条 SQL，涉及 {objectCount} 个对象",
+  "ticket-no-recognized-object": "未识别到资源对象"
 }

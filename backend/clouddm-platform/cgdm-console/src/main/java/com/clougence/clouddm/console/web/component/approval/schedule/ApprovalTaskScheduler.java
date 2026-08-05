@@ -122,9 +122,9 @@ public class ApprovalTaskScheduler {
             if (!this.taskInQueueSet.add(approvalId)) {
                 return false;
             }
-            this.approvalDal.approvalMapper().updateModified(approvalId);
             executor.submit(() -> {
                 try {
+                    this.approvalDal.approvalMapper().updateModified(approvalId);
                     runApproval(approvalId);
                 } finally {
                     this.taskInQueueSet.remove(approvalId);
@@ -135,6 +135,18 @@ public class ApprovalTaskScheduler {
             // queue full
             this.taskInQueueSet.remove(approvalId);
             return false;
+        }
+    }
+
+    private void submitTask(Runnable task) {
+        ThreadPoolExecutor executor = this.threadPoolExecutor;
+        if (executor == null) {
+            return;
+        }
+        try {
+            executor.execute(task);
+        } catch (RejectedExecutionException e) {
+            // The PRE_INIT activity remains INIT and is submitted again by the next scheduler scan.
         }
     }
 
@@ -157,16 +169,29 @@ public class ApprovalTaskScheduler {
         this.approvalDal.approvalMapper().updateModified(afterCheck.getId());
 
         switch (afterCheck.getTicketStatus()) {
-            case PRE_INIT: {
+            case PRE_INIT_WAIT: {
                 try {
-                    this.taskProcessor.processPreInit(afterCheck);
-                    // this.delayTask(2, TimeUnit.SECONDS);
+                    if (this.taskProcessor.preparePreInit(afterCheck.getId())) {
+                        DmApprovalDO ado = this.approvalDal.approvalMapper().queryById(afterCheck.getId());
+                        this.taskProcessor.submitPreInitChildren(ado, this::submitTask);
+                    }
                 } catch (Exception e) {
                     Throwable rootException = ExceptionUtils.getRootCause(e);
                     log.error("processExplain failed msg:" + rootException.getMessage(), rootException);
                     String message = DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_STATUS_EXPLAIN_FAILED_MESSAGE.name()) + rootException.getMessage();
                     this.approvalFlowService.failTicket(afterCheck.getId(), message, puid);
-                    // this.finishTask(FINISH_MSG);
+                }
+                break;
+            }
+            case PRE_INIT_RUN: {
+                try {
+                    this.taskProcessor.submitPreInitChildren(afterCheck, this::submitTask);
+                    this.taskProcessor.processPreInitRun(afterCheck.getId());
+                } catch (Exception e) {
+                    Throwable rootException = ExceptionUtils.getRootCause(e);
+                    log.error("processExplain check failed msg:" + rootException.getMessage(), rootException);
+                    String message = DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_STATUS_EXPLAIN_FAILED_MESSAGE.name()) + rootException.getMessage();
+                    this.approvalFlowService.failTicket(afterCheck.getId(), message, puid);
                 }
                 break;
             }
@@ -236,8 +261,11 @@ public class ApprovalTaskScheduler {
             return null;
         }
 
-        if (ticketDO.getApproType() != ApprovalType.Internal
-            && (ticketDO.getTicketStatus() == ApprovalStatus.PRE_INIT || ticketDO.getTicketStatus() == ApprovalStatus.WAIT_APPROVAL)) {
+        boolean externalApproval = ticketDO.getApproType() != ApprovalType.Internal;
+        boolean waitingForApproval = ticketDO.getTicketStatus() == ApprovalStatus.PRE_INIT_WAIT || //
+                                     ticketDO.getTicketStatus() == ApprovalStatus.PRE_INIT_RUN ||  //
+                                     ticketDO.getTicketStatus() == ApprovalStatus.WAIT_APPROVAL;
+        if (externalApproval && waitingForApproval) {
             if (!this.approvalProviderServiceImpl.checkEnableApproval(puid, ticketDO.getApproType().getProviderType())) {
                 String failMsg = DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_APPROVAL_NOT_SUPPORT.name(), ticketDO.getApproType().name());
                 this.approvalFlowService.failTicket(ticketDO.getId(), failMsg, puid);

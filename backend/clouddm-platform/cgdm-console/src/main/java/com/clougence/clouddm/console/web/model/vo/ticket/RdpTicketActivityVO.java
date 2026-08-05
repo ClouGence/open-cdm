@@ -40,5 +40,7 @@ public class RdpTicketActivityVO {
     private Long                           startTimeUtc;
     private Long                           finishTimeUtc;
     private Long                           processedCount;
+    private Long                           processedBytes;
+    private Long                           totalBytes;
     private Long                           resultCount;
 }

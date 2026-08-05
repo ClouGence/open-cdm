@@ -13,6 +13,7 @@
         <result column="ticket_id" property="ticketId"/>
         <result column="order_number" property="orderNumber"/>
         <result column="context" property="context"/>
+        <result column="task_status" property="taskStatus"/>
     </resultMap>
 
     <sql id="all_col">
@@ -24,7 +25,8 @@
         ticket_id,
         activity_title,
         order_number,
-        context
+        context,
+        task_status
     </sql>
 
     <update id="updateContext">
@@ -32,6 +34,22 @@
         set context = #{context}
         where process_id = #{processId}
           and activity_id = #{activityId}
+    </update>
+
+    <update id="claimPreInitTask">
+        update dm_approval_process_activity
+        set task_status = 'RUNNING', gmt_modified = now()
+        where process_id = #{processId}
+          and activity_id = #{activityId}
+          and task_status = 'INIT'
+    </update>
+
+    <update id="completePreInitTask">
+        update dm_approval_process_activity
+        set task_status = #{taskStatus}, context = #{context}, gmt_modified = now()
+        where process_id = #{processId}
+          and activity_id = #{activityId}
+          and task_status = 'RUNNING'
     </update>
 
     <select id="queryByTicketId" resultType="com.clougence.clouddm.platform.dal.model.approval.DmApprovalProcessActivityDO">

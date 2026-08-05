@@ -218,7 +218,8 @@ export const TICKET_WAIT_STATUS = {
   WAIT_CONFIRM: i18n.global.t('deng-dai-que-ren')
 };
 export const TICKET_STATUS = {
-  PRE_INIT: i18n.global.t('deng-dai-fen-xi'),
+  PRE_INIT_WAIT: i18n.global.t('deng-dai-fen-xi'),
+  PRE_INIT_RUN: i18n.global.t('ticket-analysis-running'),
   WAIT_APPROVAL: i18n.global.t('deng-dai-shen-pi'),
   WAIT_CONFIRM: i18n.global.t('deng-dai-que-ren'),
   WAIT_EXEC: i18n.global.t('deng-dai-zhi-hang'),
@@ -233,7 +234,8 @@ export const TICKET_STATUS = {
 };
 
 export const TICKET_STATUS_COLOR = {
-  PRE_INIT: '#FFA30E',
+  PRE_INIT_WAIT: '#FFA30E',
+  PRE_INIT_RUN: '#FFA30E',
   WAIT_APPROVAL: '#FFA30E',
   WAIT_CONFIRM: '#FFA30E',
   WAIT_EXEC: '#FFA30E',
