@@ -15,7 +15,6 @@
  */
 package com.clougence.sql.postgres.parser;
 
-import java.io.Reader;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -25,7 +24,6 @@ import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
-import com.clougence.clouddm.sdk.execute.session.QueryArg;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.clouddm.sdk.sql.parser.SplitScript;
 import com.clougence.dslpaser.antlr.DslProvider;
@@ -51,13 +49,13 @@ public class PgSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
     }
 
     @Override
-    public List<SplitScript> splitScript(Reader reader, List<QueryArg> args, int baseLine, int baseColumn) {
+    protected void beforeSplitStream() {
         this.lastStatementStart.remove();
-        try {
-            return super.splitScript(reader, args, baseLine, baseColumn);
-        } finally {
-            this.lastStatementStart.remove();
-        }
+    }
+
+    @Override
+    protected void afterSplitStream() {
+        this.lastStatementStart.remove();
     }
 
     protected AbstractParseTreeVisitor<SplitQueryType> splitVisitor() {

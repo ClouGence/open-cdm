@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -28,7 +29,11 @@ import com.clougence.sql.common.analysis.behavior.RdbBehaviorObjectFactory;
 
 public class ObOraBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
     @Override
-    public List<StatementBehavior> analysisBehavior(Reader queryReader, Map<UmiTypes, Object> levels, int baseLine, int baseColumn) {
+    public Stream<StatementBehavior> analysisBehaviorStream(Reader queryReader, Map<UmiTypes, Object> levels, int baseLine, int baseColumn) {
+        return analysisBehaviorMaterialized(queryReader, levels, baseLine, baseColumn).stream();
+    }
+
+    private List<StatementBehavior> analysisBehaviorMaterialized(Reader queryReader, Map<UmiTypes, Object> levels, int baseLine, int baseColumn) {
         ObOraBehaviorParserVisitor[] holder = new ObOraBehaviorParserVisitor[1];
         DslHelper.doVisitor(ObOraDslProvider.INSTANCE, queryReader, (lexer, parser) -> {
             holder[0] = new ObOraBehaviorParserVisitor(parser, levels, baseLine, baseColumn);

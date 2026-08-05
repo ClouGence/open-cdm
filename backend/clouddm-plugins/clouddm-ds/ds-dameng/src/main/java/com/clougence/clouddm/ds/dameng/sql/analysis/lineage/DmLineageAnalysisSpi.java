@@ -17,6 +17,7 @@ package com.clougence.clouddm.ds.dameng.sql.analysis.lineage;
 
 import java.io.Reader;
 import java.util.*;
+import java.util.stream.Stream;
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
@@ -59,7 +60,11 @@ public class DmLineageAnalysisSpi implements LineageAnalysisSpi {
     }
 
     @Override
-    public List<LineageColumn> analyze(Reader sql, LineageContext lineageContext) {
+    public Stream<LineageColumn> analyzeStream(Reader sql, LineageContext lineageContext) {
+        return analyzeMaterialized(sql, lineageContext).stream();
+    }
+
+    private List<LineageColumn> analyzeMaterialized(Reader sql, LineageContext lineageContext) {
         List<MutableColumnLineage> result = new ArrayList<>();
         Object catalogLevel = lineageContext == null || lineageContext.getLevelsParam() == null ? null : lineageContext.getLevelsParam().get(UmiTypes.Catalog);
         String defaultCatalog = catalogLevel == null ? null : String.valueOf(catalogLevel);

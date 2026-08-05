@@ -19,6 +19,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
@@ -54,7 +55,11 @@ public class DrSecDomainResolveSpi implements SecDomainResolveSpi {
     }
 
     @Override
-    public List<RuleDomain> resolveDomain(DataSourceType dsType, Reader queryReader, CodeInfo codeInfo, ContextInfo ctxInfo) {
+    public Stream<RuleDomain> resolveDomainStream(DataSourceType dsType, Reader queryReader, CodeInfo codeInfo, ContextInfo ctxInfo) {
+        return resolveDomainMaterialized(dsType, queryReader, codeInfo, ctxInfo).stream();
+    }
+
+    private List<RuleDomain> resolveDomainMaterialized(DataSourceType dsType, Reader queryReader, CodeInfo codeInfo, ContextInfo ctxInfo) {
         CodeLocation dslBase = //
                 new CodeLocation(codeInfo.getBaseLine(), codeInfo.getBaseColumn());
         List<RuleDomain> domainList = new ArrayList<>();

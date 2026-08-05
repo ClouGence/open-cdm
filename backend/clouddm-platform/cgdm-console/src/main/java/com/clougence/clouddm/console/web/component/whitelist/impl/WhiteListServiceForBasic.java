@@ -55,6 +55,7 @@ public class WhiteListServiceForBasic implements WhiteListService, DsFeatureIDs,
             this.userConfigRange.put(RootUserConfig.Fields.onlineMaxColumnMegaByte, new Range(1, 16));
             this.userConfigRange.put(RootUserConfig.Fields.onlineMaxElementMegaByte, new Range(1, 16));
             this.userConfigRange.put(RootUserConfig.Fields.approvalSqlFileMaxMegaByte, new Range(1, 20));
+            this.userConfigRange.put(RootUserConfig.Fields.languageMaxRequestKiloByte, new Range(64, 16384));
 
             // commons
             this.addMenu(MENU_SEPARATOR, true, true, true);

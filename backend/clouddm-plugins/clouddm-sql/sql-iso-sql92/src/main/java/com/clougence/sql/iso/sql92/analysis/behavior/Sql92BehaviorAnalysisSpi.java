@@ -9,6 +9,7 @@ package com.clougence.sql.iso.sql92.analysis.behavior;
 import java.io.Reader;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAnalysisSpi;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.StatementBehavior;
@@ -19,7 +20,11 @@ import com.clougence.sql.iso.sql92.parser.Sql92DslProvider;
 public class Sql92BehaviorAnalysisSpi implements BehaviorAnalysisSpi {
 
     @Override
-    public List<StatementBehavior> analysisBehavior(Reader queryReader, Map<UmiTypes, Object> levels, int baseLine, int baseColumn) {
+    public Stream<StatementBehavior> analysisBehaviorStream(Reader queryReader, Map<UmiTypes, Object> levels, int baseLine, int baseColumn) {
+        return analysisBehaviorMaterialized(queryReader, levels, baseLine, baseColumn).stream();
+    }
+
+    private List<StatementBehavior> analysisBehaviorMaterialized(Reader queryReader, Map<UmiTypes, Object> levels, int baseLine, int baseColumn) {
 
         Sql92BehaviorParserVisitor[] holder = new Sql92BehaviorParserVisitor[1];
         DslHelper.doVisitor(Sql92DslProvider.INSTANCE, queryReader, (lexer, parser) -> {

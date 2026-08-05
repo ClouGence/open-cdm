@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Stream;
 
 import com.clougence.clouddm.sdk.service.execute.MetaCol;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
@@ -50,7 +51,11 @@ public class MyLineageAnalysisSpi implements LineageAnalysisSpi {
     }
 
     @Override
-    public List<LineageColumn> analyze(Reader sql, LineageContext lineageContext) {
+    public Stream<LineageColumn> analyzeStream(Reader sql, LineageContext lineageContext) {
+        return analyzeMaterialized(sql, lineageContext).stream();
+    }
+
+    private List<LineageColumn> analyzeMaterialized(Reader sql, LineageContext lineageContext) {
         AtomicReference<MyLineageCstVisitor> visitorRef = new AtomicReference<>();
         DslHelper.doVisitor(provider, sql, (lexer, parser) -> {
             MyLineageCstVisitor visitor = new MyLineageCstVisitor(parser);

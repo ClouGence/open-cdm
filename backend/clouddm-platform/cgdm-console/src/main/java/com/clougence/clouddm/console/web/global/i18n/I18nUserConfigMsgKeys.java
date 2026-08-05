@@ -101,6 +101,7 @@ public enum I18nUserConfigMsgKeys {
     // for Language
     LANGUAGE_MAX_REQUESTS,
     LANGUAGE_MAX_REQUESTS_BY_USER,
+    LANGUAGE_MAX_REQUEST_KB,
 
     // for CloudDM
     AI_DM_ENABLE_MCP,

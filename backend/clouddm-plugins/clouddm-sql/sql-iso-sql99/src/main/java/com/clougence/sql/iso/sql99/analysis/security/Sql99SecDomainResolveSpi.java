@@ -8,6 +8,7 @@ package com.clougence.sql.iso.sql99.analysis.security;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
@@ -27,7 +28,11 @@ public class Sql99SecDomainResolveSpi implements SecDomainResolveSpi {
     }
 
     @Override
-    public List<RuleDomain> resolveDomain(DataSourceType dsType, Reader queryReader, CodeInfo codeInfo, ContextInfo ctxInfo) {
+    public Stream<RuleDomain> resolveDomainStream(DataSourceType dsType, Reader queryReader, CodeInfo codeInfo, ContextInfo ctxInfo) {
+        return resolveDomainMaterialized(dsType, queryReader, codeInfo, ctxInfo).stream();
+    }
+
+    private List<RuleDomain> resolveDomainMaterialized(DataSourceType dsType, Reader queryReader, CodeInfo codeInfo, ContextInfo ctxInfo) {
         List<RuleDomain> domainList = new ArrayList<>();
         List<AstSplitScript> scripts = DslHelper.splitDsl(Sql99DslProvider.INSTANCE, queryReader);
         for (AstSplitScript s : scripts) {

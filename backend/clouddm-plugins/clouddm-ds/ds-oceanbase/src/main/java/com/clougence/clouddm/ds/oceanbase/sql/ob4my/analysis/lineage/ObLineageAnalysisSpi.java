@@ -17,6 +17,7 @@ package com.clougence.clouddm.ds.oceanbase.sql.ob4my.analysis.lineage;
 
 import java.io.Reader;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
@@ -53,7 +54,11 @@ public class ObLineageAnalysisSpi extends AbstractLineageAnalysisSpi {
     }
 
     @Override
-    public List<LineageColumn> analyze(Reader sql, LineageContext context) {
+    public Stream<LineageColumn> analyzeStream(Reader sql, LineageContext context) {
+        return analyzeMaterialized(sql, context).stream();
+    }
+
+    private List<LineageColumn> analyzeMaterialized(Reader sql, LineageContext context) {
         MyBuilderFactory builder = new MyBuilderFactory(metaService);
         DslHelper.doVisitor(dslProvider(), sql, (lexer, parser) -> parserVisitor(builder, parser));
         List<MutableColumnLineage> columns = analyzeColumns(context.getUserUID(), context.getDsId(), context.getLevelsParam(), builder.buildKeepOrigin());

@@ -11,6 +11,7 @@ import java.io.StringReader;
 import java.io.UncheckedIOException;
 import java.lang.reflect.Field;
 import java.util.*;
+import java.util.stream.Stream;
 
 import com.clougence.clouddm.sdk.sql.analysis.behavior.*;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
@@ -32,7 +33,11 @@ import com.clougence.utils.io.IOUtils;
 public class RedisBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
 
     @Override
-    public List<StatementBehavior> analysisBehavior(Reader queryReader, Map<UmiTypes, Object> levels, int baseLine, int baseColumn) {
+    public Stream<StatementBehavior> analysisBehaviorStream(Reader queryReader, Map<UmiTypes, Object> levels, int baseLine, int baseColumn) {
+        return analysisBehaviorMaterialized(queryReader, levels, baseLine, baseColumn).stream();
+    }
+
+    private List<StatementBehavior> analysisBehaviorMaterialized(Reader queryReader, Map<UmiTypes, Object> levels, int baseLine, int baseColumn) {
         String query;
         try {
             query = IOUtils.readToString(queryReader);

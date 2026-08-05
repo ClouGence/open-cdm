@@ -9,6 +9,7 @@ package com.clougence.sql.oracle.analysis.behavior;
 import java.io.Reader;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAnalysisSpi;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.StatementBehavior;
@@ -19,7 +20,11 @@ import com.clougence.sql.oracle.parser.OraDslProvider;
 public class OraBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
 
     @Override
-    public List<StatementBehavior> analysisBehavior(Reader queryReader, Map<UmiTypes, Object> levels, int baseLine, int baseColumn) {
+    public Stream<StatementBehavior> analysisBehaviorStream(Reader queryReader, Map<UmiTypes, Object> levels, int baseLine, int baseColumn) {
+        return analysisBehaviorMaterialized(queryReader, levels, baseLine, baseColumn).stream();
+    }
+
+    private List<StatementBehavior> analysisBehaviorMaterialized(Reader queryReader, Map<UmiTypes, Object> levels, int baseLine, int baseColumn) {
 
         OraBehaviorParserVisitor[] holder = new OraBehaviorParserVisitor[1];
         DslHelper.doVisitor(OraDslProvider.INSTANCE, queryReader, (lexer, parser) -> {

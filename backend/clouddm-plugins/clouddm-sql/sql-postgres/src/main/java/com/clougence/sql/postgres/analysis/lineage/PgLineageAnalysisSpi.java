@@ -17,6 +17,7 @@ package com.clougence.sql.postgres.analysis.lineage;
 
 import java.io.Reader;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
@@ -58,7 +59,11 @@ public class PgLineageAnalysisSpi extends AbstractLineageAnalysisSpi {
     }
 
     @Override
-    public List<LineageColumn> analyze(Reader sql, LineageContext lineageContext) {
+    public Stream<LineageColumn> analyzeStream(Reader sql, LineageContext lineageContext) {
+        return analyzeMaterialized(sql, lineageContext).stream();
+    }
+
+    private List<LineageColumn> analyzeMaterialized(Reader sql, LineageContext lineageContext) {
         PgBuilderFactory builder = new PgBuilderFactory(this.metaService);
         DslHelper.doVisitor(dslProvider(), sql, (lexer, parser) -> this.parserVisitor(builder, parser));
 

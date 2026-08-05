@@ -16,7 +16,6 @@
 package com.clougence.clouddm.sdk.sql.analysis.security;
 
 import java.io.Reader;
-import java.util.List;
 import java.util.stream.Stream;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
@@ -29,9 +28,5 @@ import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
  */
 public interface SecDomainResolveSpi extends Spi {
 
-    List<RuleDomain> resolveDomain(DataSourceType dsType, Reader queryReader, CodeInfo codeInfo, ContextInfo ctxInfo);
-
-    default Stream<RuleDomain> resolveDomainStream(DataSourceType dsType, Reader queryReader, CodeInfo codeInfo, ContextInfo ctxInfo) {
-        return resolveDomain(dsType, queryReader, codeInfo, ctxInfo).stream();
-    }
+    Stream<RuleDomain> resolveDomainStream(DataSourceType dsType, Reader queryReader, CodeInfo codeInfo, ContextInfo ctxInfo);
 }

@@ -16,7 +16,6 @@
 package com.clougence.clouddm.sdk.sql.analysis.lineage;
 
 import java.io.Reader;
-import java.util.List;
 import java.util.stream.Stream;
 
 import com.clougence.clouddm.sdk.Spi;
@@ -24,11 +23,7 @@ import com.clougence.clouddm.sdk.Spi;
 public interface LineageAnalysisSpi extends Spi {
 
     /** Lineage analyzer used when a SQL engine does not currently expose lineage analysis. */
-    LineageAnalysisSpi EMPTY = (sql, context) -> List.of();
+    LineageAnalysisSpi EMPTY = (sql, context) -> Stream.empty();
 
-    List<LineageColumn> analyze(Reader sqlReader, LineageContext context);
-
-    default Stream<LineageColumn> analyzeStream(Reader sqlReader, LineageContext context) {
-        return analyze(sqlReader, context).stream();
-    }
+    Stream<LineageColumn> analyzeStream(Reader sqlReader, LineageContext context);
 }

@@ -9,6 +9,7 @@ package com.clougence.sql.db2.analysis.behavior;
 import java.io.Reader;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAnalysisSpi;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.StatementBehavior;
@@ -19,7 +20,11 @@ import com.clougence.sql.db2.parser.Db2DslProvider;
 public class Db2BehaviorAnalysisSpi implements BehaviorAnalysisSpi {
 
     @Override
-    public List<StatementBehavior> analysisBehavior(Reader queryReader, Map<UmiTypes, Object> levels, int baseLine, int baseColumn) {
+    public Stream<StatementBehavior> analysisBehaviorStream(Reader queryReader, Map<UmiTypes, Object> levels, int baseLine, int baseColumn) {
+        return analysisBehaviorMaterialized(queryReader, levels, baseLine, baseColumn).stream();
+    }
+
+    private List<StatementBehavior> analysisBehaviorMaterialized(Reader queryReader, Map<UmiTypes, Object> levels, int baseLine, int baseColumn) {
         Db2BehaviorParserVisitor[] holder = new Db2BehaviorParserVisitor[1];
         DslHelper.doVisitor(Db2DslProvider.INSTANCE, queryReader, (lexer, parser) -> {
             holder[0] = new Db2BehaviorParserVisitor(parser, levels, baseLine, baseColumn);

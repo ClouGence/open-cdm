@@ -252,6 +252,8 @@ public class RootUserConfig {
     private Integer       languageMaxRequests;
     @UserConfigDef(name = "languageMaxRequestsByUser", defaultValue = "2", valueRange = "1 ~ 3", descKey = I18nUserConfigMsgKeys.LANGUAGE_MAX_REQUESTS_BY_USER, configTagType = UserConfigTagType.COMMON, confBelong = ConfBelong.CloudDM)
     private Integer       languageMaxRequestsByUser;
+    @UserConfigDef(name = "languageMaxRequestKiloByte", defaultValue = "1024", valueRange = "64 ~ 16384 KiB", descKey = I18nUserConfigMsgKeys.LANGUAGE_MAX_REQUEST_KB, configTagType = UserConfigTagType.COMMON, confBelong = ConfBelong.CloudDM)
+    private Integer       languageMaxRequestKiloByte;
 
     /**
      * Query Result

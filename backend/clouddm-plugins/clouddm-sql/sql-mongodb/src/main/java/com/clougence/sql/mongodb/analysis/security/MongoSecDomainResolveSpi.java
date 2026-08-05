@@ -19,6 +19,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
@@ -51,7 +52,11 @@ public class MongoSecDomainResolveSpi implements SecDomainResolveSpi {
     }
 
     @Override
-    public List<RuleDomain> resolveDomain(DataSourceType dsType, Reader queryReader, CodeInfo codeInfo, ContextInfo ctxInfo) {
+    public Stream<RuleDomain> resolveDomainStream(DataSourceType dsType, Reader queryReader, CodeInfo codeInfo, ContextInfo ctxInfo) {
+        return resolveDomainMaterialized(dsType, queryReader, codeInfo, ctxInfo).stream();
+    }
+
+    private List<RuleDomain> resolveDomainMaterialized(DataSourceType dsType, Reader queryReader, CodeInfo codeInfo, ContextInfo ctxInfo) {
         com.clougence.dslpaser.ast.location.CodeLocation dslBase = //
                 new com.clougence.dslpaser.ast.location.CodeLocation(codeInfo.getBaseLine(), codeInfo.getBaseColumn());
         List<RuleDomain> domainList = new ArrayList<>();

@@ -102,6 +102,14 @@ public class ConsoleLanguageService implements UnifiedPostConstruct, ConsoleLang
             request = new JSONObject();
         }
 
+        Object sqlText = request.get("sqlText");
+        int maxKiloByte = this.userConfigService.languageMaxRequestKiloByte();
+        if (sqlText instanceof String && exceedsUtf8Limit((String) sqlText, maxKiloByte * 1024L)) {
+            String message = DmI18nUtils.getMessage(I18nDmMsgKeys.DS_LANGUAGE_REQUEST_TOO_LARGE.name(), maxKiloByte);
+            consumer.accept(DmConvertUtils.convertToWsLanguageErrorResult(fo, null, DmErrorCode.DS_LANGUAGE_ERROR.code(), message));
+            return;
+        }
+
         LanguageCtx ctx = createLanguageCtx(fo);
         AbstractRequest parsed = parseRequest(fo, ctx, request);
 
@@ -129,6 +137,28 @@ public class ConsoleLanguageService implements UnifiedPostConstruct, ConsoleLang
             String errMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.DS_LANGUAGE_SERVICE_ERROR.name());
             consumer.accept(DmConvertUtils.convertToWsLanguageErrorResult(fo, parsed, errCode, errMsg));
         }
+    }
+
+    private static boolean exceedsUtf8Limit(String text, long maxBytes) {
+        long encodedBytes = 0;
+        for (int index = 0; index < text.length(); index++) {
+            char current = text.charAt(index);
+            if (current <= 0x7F) {
+                encodedBytes++;
+            } else if (current <= 0x7FF) {
+                encodedBytes += 2;
+            } else if (Character.isHighSurrogate(current) && index + 1 < text.length() && Character.isLowSurrogate(text.charAt(index + 1))) {
+                encodedBytes += 4;
+                index++;
+            } else {
+                encodedBytes += 3;
+            }
+
+            if (encodedBytes > maxBytes) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private LanguageCtx createLanguageCtx(WsLanguageFO fo) {

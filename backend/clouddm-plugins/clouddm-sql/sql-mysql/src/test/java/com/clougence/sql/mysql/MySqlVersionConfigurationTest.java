@@ -164,12 +164,12 @@ public class MySqlVersionConfigurationTest {
         request.setQueryBody(sql);
         RewriteContext rewriteContext = new RewriteContext();
         rewriteContext.setFetchLimit(10);
-        try (StringReader reader = new StringReader(sql)) {
-            Assertions.assertTrue(engine.rewriteSpi(ansiQuotes).rewriterQuery(reader, request, rewriteContext).contains("LIMIT 10"));
+        try (StringReader reader = new StringReader(sql); Stream<String> stream = engine.rewriteSpi(ansiQuotes).rewriterQueryStream(reader, request, rewriteContext)) {
+            Assertions.assertTrue(stream.findFirst().orElseThrow().contains("LIMIT 10"));
         }
         Assertions.assertThrows(AntlerSyntaxException.class, () -> {
-            try (StringReader reader = new StringReader(sql)) {
-                engine.rewriteSpi(knownEmpty).rewriterQuery(reader, request, rewriteContext);
+            try (StringReader reader = new StringReader(sql); Stream<String> stream = engine.rewriteSpi(knownEmpty).rewriterQueryStream(reader, request, rewriteContext)) {
+                stream.findFirst();
             }
         });
     }

@@ -18,6 +18,7 @@ package com.clougence.clouddm.ds.dameng.sql.analysis.security;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.ds.dameng.sql.parser.DmDslProvider;
@@ -40,7 +41,11 @@ public class DmSecDomainResolveSpi implements SecDomainResolveSpi {
     }
 
     @Override
-    public List<RuleDomain> resolveDomain(DataSourceType dsType, Reader queryReader, CodeInfo codeInfo, ContextInfo ctxInfo) {
+    public Stream<RuleDomain> resolveDomainStream(DataSourceType dsType, Reader queryReader, CodeInfo codeInfo, ContextInfo ctxInfo) {
+        return resolveDomainMaterialized(dsType, queryReader, codeInfo, ctxInfo).stream();
+    }
+
+    private List<RuleDomain> resolveDomainMaterialized(DataSourceType dsType, Reader queryReader, CodeInfo codeInfo, ContextInfo ctxInfo) {
         CodeLocation dslBase = new CodeLocation(codeInfo.getBaseLine(), codeInfo.getBaseColumn());
         List<AstSplitScript> scripts = DslHelper.splitDsl(DmDslProvider.INSTANCE, queryReader, dslBase);
         List<RuleDomain> domainList = new ArrayList<>();

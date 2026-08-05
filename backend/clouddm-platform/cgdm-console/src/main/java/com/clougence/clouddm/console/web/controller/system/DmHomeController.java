@@ -388,6 +388,7 @@ public class DmHomeController {
             .collect(Collectors.toCollection(ArrayList::new));
         settings.setDsSupportNames(groupDsTypesByDisplay(dsList).stream().map(this::toDsSupportNames).collect(Collectors.toList()));
         settings.setSqlFileMaxSize(this.userConfigService.sqlFileMaxSize());
+        settings.setLanguageMaxRequestKiloByte(this.userConfigService.languageMaxRequestKiloByte());
 
         return ResWebDataUtils.buildSuccess(settings);
     }
