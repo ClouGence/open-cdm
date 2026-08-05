@@ -1933,6 +1933,7 @@
   "deng-dai-que-ren": "Pending",
   "deng-dai-shen-pi": "Pending",
   "deng-dai-zhi-hang": "Waiting",
+  "ticket-execution-preparing": "Preparing Execution",
   "kai-shi-shi-jian-0": "StartTime",
   "kai-shi-shi-jian": "StartTime",
   "liang-ci-mi-ma-bu-yi-zhi": "Two passwords are inconsistent",
@@ -4350,6 +4351,10 @@
   "ticket-elapsed": "Elapsed",
   "ticket-analysis-content": "Analysis Item",
   "ticket-analysis-result": "Result",
+  "ticket-analysis-results": "Analysis Results",
+  "ticket-analysis-behavior-summary": "{sqlCount} SQL statements, {objectCount} objects, {operationCount} operations",
+  "ticket-analysis-behavior-summary-legacy": "{sqlCount} SQL statements involving {objectCount} objects",
+  "ticket-analysis-action-summary": "{action} ({count})",
   "ticket-collapse-details": "Collapse Details",
   "ticket-expand-details": "Expand Details",
   "ticket-analysis-sql-recognition": "SQL Recognition",
@@ -4365,8 +4370,5 @@
   "ticket-analysis-read-progress": "Read {processed} / {total} ({percentage}%), processed {count} items",
   "ticket-analysis-behavior-result": "Recognized {count} objects",
   "ticket-analysis-security-passed": "No blocking rules found",
-  "ticket-analysis-security-result": "Found {count} security rule results",
-  "ticket-recognized-content": "Recognized Content",
-  "ticket-recognized-summary": "Recognized {sqlCount} SQL statements involving {objectCount} objects",
-  "ticket-no-recognized-object": "No resource objects recognized"
+  "ticket-analysis-security-result": "Found {count} security rule results"
 }

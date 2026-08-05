@@ -37,7 +37,7 @@ public interface ApprovalControlService {
 
     DmTicketResultVO createSqlTicket(String puid, String uid, DmAddTicketFO fo);
 
-    void confirmTicket(String puid, long ticketId, DmConfirmTicketFO fo);
+    String confirmTicket(String puid, long ticketId, DmConfirmTicketFO fo);
 
     void createAuthTicket(String ownerUid, String uid, RdpAddAuthTicketFO fo);
 

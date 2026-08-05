@@ -16,6 +16,8 @@
 package com.clougence.clouddm.platform.dal.model.approval;
 
 import java.util.EnumSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Set;
 
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
@@ -31,7 +33,8 @@ import lombok.Setter;
 @Setter
 public class ApprovalBehavior {
 
-    private String              resourcePath;
-    private TargetType          resourceType;
-    private Set<BehaviorAction> actions = EnumSet.noneOf(BehaviorAction.class);
+    private String                    resourcePath;
+    private TargetType                resourceType;
+    private Set<BehaviorAction>       actions      = EnumSet.noneOf(BehaviorAction.class);
+    private Map<BehaviorAction, Long> actionCounts = new LinkedHashMap<>();
 }

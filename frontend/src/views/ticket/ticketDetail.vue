@@ -242,29 +242,59 @@
         </div>
       </div>
     </Card>
-    <Card class="ticket-content" v-if="showRecognizedContent">
+    <Card class="ticket-content analysis-results-card" v-if="showAnalysisResults">
       <template #title>
-        <div class="recognized-content-title">
-          <span>{{ $t('ticket-recognized-content') }}</span>
-          <span class="recognized-content-summary">
-            {{
-              $t('ticket-recognized-summary', {
-                sqlCount: analysisSqlCount || 0,
-                objectCount: recognizedBehaviorRows.length
-              })
-            }}
-          </span>
-        </div>
+        <span>{{ $t('ticket-analysis-results') }}</span>
       </template>
-      <Table v-if="recognizedBehaviorRows.length" :columns="recognizedContentColumns" :data="recognizedBehaviorRows" border size="small">
-        <template #resourceType="{ row }">
-          <Tag>{{ row.resourceType || '--' }}</Tag>
-        </template>
-        <template #actions="{ row }">
-          <Tag v-for="action in row.actions" :key="action" color="primary">{{ action }}</Tag>
-        </template>
-      </Table>
-      <div v-else class="recognized-content-empty">{{ $t('ticket-no-recognized-object') }}</div>
+      <Tabs v-model="analysisResultTab" type="card" :animated="false" class="analysis-result-tabs">
+        <TabPane v-for="item in analysisItems" :key="item.activityTitle" :label="analysisTypeText(item.activityTitle)" :name="item.activityTitle">
+          <template v-if="item.activityTitle === 'BEHAVIOR_ANALYSIS'">
+            <div v-if="behaviorSqlCount(item) != null" class="behavior-analysis-summary">
+              {{ behaviorSummaryText(item) }}
+            </div>
+            <Table v-if="recognizedBehaviorRows.length" :columns="recognizedContentColumns" :data="recognizedBehaviorRows" border size="small">
+              <template #resourceType="{ row }">
+                <Tag>{{ row.resourceType || '--' }}</Tag>
+              </template>
+              <template #actions="{ row }">
+                <Tag v-for="action in row.actionItems" :key="action.action" color="primary">
+                  {{ behaviorActionText(action) }}
+                </Tag>
+              </template>
+            </Table>
+            <div v-else class="analysis-result-empty">{{ analysisResultText(item) }}</div>
+          </template>
+
+          <template v-else-if="item.activityTitle === 'SECURITY_RULE'">
+            <div v-if="noPassedRuleList.length" class="analysis-rule-toolbar">
+              <Checkbox v-model="showCheckedOnlyError">{{ $t('jin-xian-shi-yan-zhong') }}</Checkbox>
+            </div>
+            <div v-if="checkRoleResultList().length" class="validation-content">
+              <div v-for="(rule, index) in checkRoleResultList()" :key="index" class="rule-item">
+                <div class="rule-header">
+                  <Tag :color="rule.ruleLevel === 'SUGGEST' ? 'warning' : 'error'" class="rule-level">
+                    {{ RULE_WARN_LEVEL[rule.ruleLevel] }}
+                  </Tag>
+                  <span class="rule-name">{{ rule.name }}</span>
+                  <div v-if="rule.lines && rule.lines.length" class="rule-lines">
+                    <span class="lines-label">{{ $t('wei-zhi-0') }}:</span>
+                    <span v-for="line in rule.lines" :key="line" class="lines-content">{{ line }}</span>
+                    <span v-if="rule.hitCount > rule.lines.length" class="lines-content">
+                      {{ $t('ticket-rule-location-total', { count: rule.hitCount }) }}
+                    </span>
+                  </div>
+                </div>
+                <div class="rule-desc">{{ rule.desc }}</div>
+              </div>
+            </div>
+            <div v-else class="analysis-result-empty">
+              {{ noPassedRuleList.length && showCheckedOnlyError ? $t('ticket-analysis-security-passed') : analysisResultText(item) }}
+            </div>
+          </template>
+
+          <div v-else class="analysis-result-empty">{{ analysisResultText(item) }}</div>
+        </TabPane>
+      </Tabs>
     </Card>
     <Card class="ticket-content" v-if="this.ticketType === 'DM_QUERY' && autoExec">
       <template #title>
@@ -337,38 +367,6 @@
       </Table>
       <div style="width: 100%; text-align: right">
         <Page v-model="page" :page-size="pageSize" :total="total" @on-change="handleTaskPageChange" size="small" style="margin-top: 10px" />
-      </div>
-    </Card>
-
-    <!-- Rule Validation Results -->
-    <Card class="ticket-content" v-if="(this.ticketType === 'DM_QUERY' || this.ticketType === 'DM_CHANGE') && showValidationResult">
-      <template #title>
-        <div>
-          <span>{{ $t('gui-ze-xiao-yan-jie-guo') }}</span>
-        </div>
-      </template>
-      <template #extra>
-        <div>
-          <Checkbox v-model="showCheckedOnlyError">{{ $t('jin-xian-shi-yan-zhong') }}</Checkbox>
-        </div>
-      </template>
-      <div class="validation-content" style="padding: 16px">
-        <div v-for="(rule, index) in checkRoleResultList()" :key="index" class="rule-item">
-          <div class="rule-header">
-            <Tag :color="rule.ruleLevel === 'SUGGEST' ? 'warning' : 'error'" class="rule-level">
-              {{ RULE_WARN_LEVEL[rule.ruleLevel] }}
-            </Tag>
-            <span class="rule-name">{{ rule.name }}</span>
-            <div v-if="rule.lines && rule.lines.length" class="rule-lines">
-              <span class="lines-label">{{ $t('wei-zhi-0') }}:</span>
-              <span v-for="line in rule.lines" :key="line" class="lines-content">{{ line }}</span>
-              <span v-if="rule.hitCount > rule.lines.length" class="lines-content">
-                {{ $t('ticket-rule-location-total', { count: rule.hitCount }) }}
-              </span>
-            </div>
-          </div>
-          <div class="rule-desc">{{ rule.desc }}</div>
-        </div>
       </div>
     </Card>
 
@@ -623,8 +621,9 @@ export default {
       autoExec: false,
       RULE_WARN_LEVEL,
       noPassedRuleList: [],
-      analysisSqlCount: null,
       analysisBehaviors: [],
+      analysisSqlCount: null,
+      analysisResultTab: 'BEHAVIOR_ANALYSIS',
       recognizedContentColumns: [
         {
           title: this.$t('zi-yuan-lei-xing'),
@@ -866,31 +865,28 @@ export default {
         endTime: authItem.endTime
       }));
     },
-    showValidationResult() {
-      return this.noPassedRuleList && this.noPassedRuleList.length > 0;
-    },
     recognizedBehaviorRows() {
       return [...this.analysisBehaviors]
         .map((behavior) => ({
           ...behavior,
-          actions: [...(behavior.actions || [])].sort()
+          actionItems: Object.keys(behavior.actionCounts || {}).length
+            ? Object.entries(behavior.actionCounts).map(([action, count]) => ({ action, count }))
+            : [...(behavior.actions || [])].sort().map((action) => ({ action, count: null }))
         }))
         .sort((left, right) => {
           const typeCompare = (left.resourceType || '').localeCompare(right.resourceType || '');
           return typeCompare || (left.resourcePath || '').localeCompare(right.resourcePath || '');
         });
     },
-    showRecognizedContent() {
-      return (
-        ['DM_QUERY', 'DM_CHANGE'].includes(this.ticketDetail.approBiz) && (this.analysisSqlCount != null || this.recognizedBehaviorRows.length > 0)
-      );
+    showAnalysisResults() {
+      return ['DM_QUERY', 'DM_CHANGE'].includes(this.ticketDetail.approBiz) && this.analysisItems.length > 0;
     },
     analysisProcess() {
       return (this.ticketDetail.ticketProcessVOList || []).find((item) => item.ticketStage === 'EXPLAIN');
     },
     analysisItems() {
-      return [...(this.analysisProcess?.activityList || [])].sort((left, right) =>
-        this.analysisTypeText(left.activityTitle).localeCompare(this.analysisTypeText(right.activityTitle))
+      return [...(this.analysisProcess?.activityList || [])].sort(
+        (left, right) => (left.displayOrder ?? Number.MAX_SAFE_INTEGER) - (right.displayOrder ?? Number.MAX_SAFE_INTEGER)
       );
     },
     showAnalysisSummary() {
@@ -932,9 +928,32 @@ export default {
       return Math.max(1, this.sqlPreviewTotalLines - this.sqlPreviewLineCount + 1);
     }
   },
+  watch: {
+    analysisItems(items) {
+      if (!items.some((item) => item.activityTitle === this.analysisResultTab)) {
+        this.analysisResultTab = items[0]?.activityTitle || '';
+      }
+    }
+  },
   methods: {
     isCk,
     isMongoDB,
+    behaviorSqlCount(item) {
+      return item.sqlCount ?? this.analysisSqlCount;
+    },
+    behaviorSummaryText(item) {
+      const values = {
+        sqlCount: this.behaviorSqlCount(item) || 0,
+        objectCount: this.recognizedBehaviorRows.length,
+        operationCount: item.operationCount || 0
+      };
+      return item.operationCount == null
+        ? this.$t('ticket-analysis-behavior-summary-legacy', values)
+        : this.$t('ticket-analysis-behavior-summary', values);
+    },
+    behaviorActionText(action) {
+      return action.count == null ? action.action : this.$t('ticket-analysis-action-summary', action);
+    },
     analysisTypeText(type) {
       const keyMap = {
         SQL_RECOGNITION: 'ticket-analysis-sql-recognition',
@@ -1381,8 +1400,8 @@ export default {
             });
             if (resQuery.success) {
               this.noPassedRuleList = resQuery.data.checkedList || [];
-              this.analysisSqlCount = resQuery.data.totalCount ?? null;
               this.analysisBehaviors = resQuery.data.behaviors || [];
+              this.analysisSqlCount = resQuery.data.totalCount ?? null;
               this.autoExec = resQuery.data.autoExec;
               if (resQuery.data?.autoExec) {
                 await this.queryAutoExecJobInfo();
@@ -1551,8 +1570,14 @@ export default {
 }
 
 .ticket-detail-container {
-  padding: 20px;
   position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  box-sizing: border-box;
+  padding: 20px;
+  overflow-x: hidden;
+  overflow-y: auto;
 
   .header {
     display: flex;
@@ -1671,23 +1696,39 @@ export default {
       border: 0;
     }
 
-    .recognized-content-title {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      width: 100%;
-    }
-
-    .recognized-content-summary {
-      color: @icon-color;
-      font-size: 12px;
-      font-weight: 400;
-    }
-
-    .recognized-content-empty {
+    .analysis-result-empty,
+    .analysis-result-overview {
       padding: 24px;
       color: @icon-color;
       text-align: center;
+    }
+
+    .analysis-result-overview {
+      color: @text-color;
+      font-size: 14px;
+    }
+
+    .behavior-analysis-summary {
+      padding: 16px 24px;
+      border-bottom: 1px solid #e8eaec;
+      color: @text-color;
+      font-size: 14px;
+    }
+
+    .analysis-result-tabs {
+      :deep(.ivu-tabs-bar) {
+        margin-bottom: 0;
+      }
+
+      :deep(.ivu-tabs-tabpane) {
+        min-height: 72px;
+      }
+    }
+
+    .analysis-rule-toolbar {
+      display: flex;
+      justify-content: flex-end;
+      padding: 12px 16px 0;
     }
 
     .ticket-content-title {
@@ -1928,6 +1969,8 @@ export default {
 }
 
 .validation-content {
+  padding: 16px;
+
   .rule-item {
     background: white;
     border: 1px solid #f0f0f0;

@@ -27,6 +27,8 @@ public interface PreInitHandler {
 
     String taskType();
 
+    int displayOrder();
+
     boolean supports(DmApprovalDO approval);
 
     boolean handle(PreInitContext context);

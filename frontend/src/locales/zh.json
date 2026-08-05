@@ -1953,6 +1953,7 @@
   "deng-dai-shen-pi": "等待审批",
   "deng-dai-que-ren": "等待确认",
   "deng-dai-zhi-hang": "等待执行",
+  "ticket-execution-preparing": "执行准备",
   "yi-ju-jue": "已拒绝",
   "zhi-hang-shi-bai": "执行失败",
   "zhi-hang-cheng-gong": "执行成功",
@@ -4346,6 +4347,10 @@
   "ticket-elapsed": "已耗时",
   "ticket-analysis-content": "分析内容",
   "ticket-analysis-result": "结果",
+  "ticket-analysis-results": "分析结果",
+  "ticket-analysis-behavior-summary": "共 {sqlCount} 条 SQL，涉及 {objectCount} 个对象，产生 {operationCount} 次操作",
+  "ticket-analysis-behavior-summary-legacy": "共 {sqlCount} 条 SQL，涉及 {objectCount} 个对象",
+  "ticket-analysis-action-summary": "{action}（{count} 次）",
   "ticket-collapse-details": "收起详情",
   "ticket-expand-details": "展开详情",
   "ticket-analysis-sql-recognition": "SQL 识别",
@@ -4361,8 +4366,5 @@
   "ticket-analysis-read-progress": "已读取 {processed} / {total}（{percentage}%），已处理 {count} 条",
   "ticket-analysis-behavior-result": "已识别 {count} 个对象",
   "ticket-analysis-security-passed": "未发现阻断规则",
-  "ticket-analysis-security-result": "发现 {count} 条安全规则结果",
-  "ticket-recognized-content": "识别内容",
-  "ticket-recognized-summary": "共识别 {sqlCount} 条 SQL，涉及 {objectCount} 个对象",
-  "ticket-no-recognized-object": "未识别到资源对象"
+  "ticket-analysis-security-result": "发现 {count} 条安全规则结果"
 }

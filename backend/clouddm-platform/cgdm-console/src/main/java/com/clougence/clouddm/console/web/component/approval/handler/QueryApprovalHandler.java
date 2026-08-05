@@ -88,9 +88,9 @@ public class QueryApprovalHandler implements ApprovalHandler {
         }
 
         AutoExecJobStatus status = jobDO.getStatus();
-        if (status == AutoExecJobStatus.EXECUTING) {
+        if (status == AutoExecJobStatus.WAIT_EXEC || status == AutoExecJobStatus.EXECUTING) {
             approvalDal.approvalMapper().updateStatusByEnum(approvalId, ApprovalStatus.RUNNING, null);
-        } else if (status == AutoExecJobStatus.WAIT_EXEC || status == AutoExecJobStatus.INIT || status == AutoExecJobStatus.PREPARING || status == AutoExecJobStatus.PACKAGING) {
+        } else if (status == AutoExecJobStatus.INIT || status == AutoExecJobStatus.PREPARING || status == AutoExecJobStatus.PACKAGING) {
 
         } else {
             runningCheck(approvalId, status);

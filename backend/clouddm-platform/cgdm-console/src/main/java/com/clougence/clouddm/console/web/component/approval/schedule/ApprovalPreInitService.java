@@ -6,10 +6,7 @@
  */
 package com.clougence.clouddm.console.web.component.approval.schedule;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.LongConsumer;
 import java.util.stream.Collectors;
 
@@ -52,6 +49,14 @@ public class ApprovalPreInitService {
 
     public ApprovalPreInitService(List<PreInitHandler> preInitHandlers){
         this.preInitHandlers = List.copyOf(preInitHandlers);
+    }
+
+    public List<ApprovalAnalysisStateMO> initialStates(DmApprovalDO approvalDO) {
+        return this.preInitHandlers.stream()//
+            .filter(handler -> handler.supports(approvalDO))
+            .sorted(Comparator.comparingInt(PreInitHandler::displayOrder))
+            .map(handler -> new ApprovalAnalysisStateMO(handler.taskType(), handler.displayOrder()))
+            .toList();
     }
 
     public void process(DmApprovalDO approvalDO, ApprovalTaskSubmitter taskSubmitter, LongConsumer callback) {

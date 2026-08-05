@@ -600,6 +600,7 @@ public class RdpConvertUtils {
     public static RdpTicketActivityVO convertToAnalysisActivityVO(ApprovalAnalysisStateMO item) {
         RdpTicketActivityVO vo = new RdpTicketActivityVO();
         vo.setActivityTitle(item.getAnalysisType());
+        vo.setDisplayOrder(item.getDisplayOrder());
         vo.setActivityStatus(switch (item.getAnalysisStatus()) {
             case ApprovalAnalysisStateMO.STATUS_RUNNING -> RdpTicketProcessActivityStatus.RUNNING;
             case ApprovalAnalysisStateMO.STATUS_FINISHED -> RdpTicketProcessActivityStatus.COMPLETED;
@@ -614,8 +615,11 @@ public class RdpConvertUtils {
         vo.setRemark(item.getErrorMessage());
         if (ApprovalAnalysisStateMO.TYPE_SQL_RECOGNITION.equals(item.getAnalysisType())) {
             vo.setResultCount(item.getTotalCount());
+            vo.setStatementTypeCounts(item.getStatementTypeCounts());
         } else if (ApprovalAnalysisStateMO.TYPE_BEHAVIOR_ANALYSIS.equals(item.getAnalysisType())) {
             vo.setResultCount(item.getBehaviors() == null ? null : (long) item.getBehaviors().size());
+            vo.setSqlCount(item.getTotalCount());
+            vo.setOperationCount(item.getOperationCount());
         } else if (ApprovalAnalysisStateMO.TYPE_SECURITY_RULE.equals(item.getAnalysisType())) {
             vo.setResultCount(item.getCheckedInfo() == null ? null : (long) item.getCheckedInfo().size());
         }

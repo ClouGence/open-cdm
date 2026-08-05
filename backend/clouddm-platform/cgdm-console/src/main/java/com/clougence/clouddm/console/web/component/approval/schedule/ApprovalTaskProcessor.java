@@ -129,15 +129,14 @@ public class ApprovalTaskProcessor {
 
         List<DmApprovalProcessActivityDO> existing = this.approvalDal.activityMapper().queryByTicketId(ticketId);
         if (existing.stream().noneMatch(a -> processDO.getId().equals(a.getProcessId()))) {
-            List<ApprovalAnalysisStateMO> states = ApprovalAnalysisStateMO.initialStates();
-            for (int index = 0; index < states.size(); index++) {
-                ApprovalAnalysisStateMO state = states.get(index);
+            List<ApprovalAnalysisStateMO> states = this.preInitService.initialStates(approvalDO);
+            for (ApprovalAnalysisStateMO state : states) {
                 DmApprovalProcessActivityDO a = new DmApprovalProcessActivityDO();
                 a.setTicketId(ticketId);
                 a.setProcessId(processDO.getId());
                 a.setActivityId(state.getAnalysisType());
                 a.setActivityTitle(state.getAnalysisType());
-                a.setOrderNumber(index + 1);
+                a.setOrderNumber(state.getDisplayOrder());
                 a.setTaskStatus(ApprovalAnalysisStateMO.STATUS_INIT);
                 a.setContext(JsonUtils.toJson(state));
                 this.approvalDal.activityMapper().insert(a);
@@ -172,6 +171,7 @@ public class ApprovalTaskProcessor {
                 .stream()//
                 .filter(activity -> processDO.getId().equals(activity.getProcessId()))
                 .filter(activity -> activity.getTaskStatus() != null)
+                .filter(activity -> !ApprovalAnalysisStateMO.TYPE_SQL_RECOGNITION.equals(activity.getActivityId()))
                 .toList();
             if (children.isEmpty() || children.stream().anyMatch(a -> !isPreInitChildTerminal(a.getTaskStatus()))) {
                 return;

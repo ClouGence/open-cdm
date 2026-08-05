@@ -16,6 +16,7 @@
 package com.clougence.clouddm.console.web.model.vo.ticket;
 
 import java.util.List;
+import java.util.Map;
 
 import com.clougence.clouddm.console.web.constants.RdpTicketProcessActivityStatus;
 
@@ -33,6 +34,7 @@ public class RdpTicketActivityVO {
     private String                         gmtModified;
     private RdpTicketProcessActivityStatus activityStatus;
     private String                         activityTitle;
+    private Integer                        displayOrder;
     private String                         finishTime;
     private String                         remark;
     private List<String>                   approvalUserList;
@@ -43,4 +45,7 @@ public class RdpTicketActivityVO {
     private Long                           processedBytes;
     private Long                           totalBytes;
     private Long                           resultCount;
+    private Long                           sqlCount;
+    private Long                           operationCount;
+    private Map<String, Long>              statementTypeCounts;
 }

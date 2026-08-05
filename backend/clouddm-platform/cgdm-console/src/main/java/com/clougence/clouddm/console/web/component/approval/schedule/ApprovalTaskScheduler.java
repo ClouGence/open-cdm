@@ -65,12 +65,14 @@ public class ApprovalTaskScheduler {
     ThreadPoolExecutor                  threadPoolExecutor;
     private Thread                      scheduleWorkThread;
     private Set<Long>                   taskInQueueSet;
+    private Set<Long>                   controlTaskInQueueSet;
 
     public void start() {
         int threadCount = Runtime.getRuntime().availableProcessors() * THREAD_COUNT_MULTIPLIER;
         this.threadPoolExecutor = createExecutor(threadCount);
         ClassLoader classLoader = this.applicationContext.getClassLoader();
         this.taskInQueueSet = Collections.newSetFromMap(new ConcurrentHashMap<>());
+        this.controlTaskInQueueSet = Collections.newSetFromMap(new ConcurrentHashMap<>());
         this.scheduleWorkThread = ThreadUtils.daemonThread(classLoader, this::loopSchedule);
         this.scheduleWorkThread.setName("TicketTask-Dispatcher");
         this.scheduleWorkThread.start();
@@ -134,6 +136,29 @@ public class ApprovalTaskScheduler {
         } catch (RejectedExecutionException e) {
             // queue full
             this.taskInQueueSet.remove(approvalId);
+            return false;
+        }
+    }
+
+    public boolean submitControlTask(Long approvalId, Runnable task) {
+        ThreadPoolExecutor executor = this.threadPoolExecutor;
+        if (executor == null || this.controlTaskInQueueSet == null) {
+            return false;
+        }
+        if (!this.controlTaskInQueueSet.add(approvalId)) {
+            return false;
+        }
+        try {
+            executor.execute(() -> {
+                try {
+                    task.run();
+                } finally {
+                    this.controlTaskInQueueSet.remove(approvalId);
+                }
+            });
+            return true;
+        } catch (RejectedExecutionException e) {
+            this.controlTaskInQueueSet.remove(approvalId);
             return false;
         }
     }

@@ -42,6 +42,11 @@ public class RuleCheckPreInitHandler extends AbstractPreInitHandler {
     }
 
     @Override
+    public int displayOrder() {
+        return 2;
+    }
+
+    @Override
     protected void doHandle(PreInitContext context) {
         DmApprovalDO approvalDO = context.getApproval();
         SecRulesCheckResult ruleCheckResult = new SecRulesCheckResult();

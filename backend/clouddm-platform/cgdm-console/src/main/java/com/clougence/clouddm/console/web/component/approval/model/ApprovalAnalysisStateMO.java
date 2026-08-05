@@ -1,6 +1,7 @@
 package com.clougence.clouddm.console.web.component.approval.model;
 
 import java.util.List;
+import java.util.Map;
 
 import com.clougence.clouddm.platform.dal.model.approval.ApprovalBehavior;
 
@@ -19,6 +20,7 @@ public class ApprovalAnalysisStateMO {
     public static final String          STATUS_FAILED          = "FAILED";
 
     private String                      analysisType;
+    private Integer                     displayOrder;
     private String                      analysisStatus;
     private Long                        startTimeUtc;
     private Long                        finishTimeUtc;
@@ -27,6 +29,8 @@ public class ApprovalAnalysisStateMO {
     private Long                        totalBytes;
     private String                      errorMessage;
     private Long                        totalCount;
+    private Long                        operationCount;
+    private Map<String, Long>           statementTypeCounts;
     private List<ApprovalBehavior>      behaviors;
     private List<TicketRuleCheckResult> checkedInfo;
 
@@ -38,7 +42,8 @@ public class ApprovalAnalysisStateMO {
         this.analysisStatus = STATUS_INIT;
     }
 
-    public static List<ApprovalAnalysisStateMO> initialStates() {
-        return List.of(new ApprovalAnalysisStateMO(TYPE_SQL_RECOGNITION), new ApprovalAnalysisStateMO(TYPE_BEHAVIOR_ANALYSIS), new ApprovalAnalysisStateMO(TYPE_SECURITY_RULE));
+    public ApprovalAnalysisStateMO(String analysisType, int displayOrder){
+        this(analysisType);
+        this.displayOrder = displayOrder;
     }
 }

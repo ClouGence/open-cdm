@@ -17,6 +17,7 @@ package com.clougence.clouddm.console.web.component.approval.handler;
 
 import java.io.Reader;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Stream;
 
 import org.springframework.stereotype.Service;
@@ -59,9 +60,21 @@ public class BehaviorPreInitHandler extends AbstractPreInitHandler {
     }
 
     @Override
+    public int displayOrder() {
+        return 1;
+    }
+
+    @Override
     protected void doHandle(PreInitContext context) {
         DmApprovalDO approvalDO = context.getApproval();
         Map<String, ApprovalBehavior> behaviors = new LinkedHashMap<>();
+        AtomicLong sqlCounter = new AtomicLong();
+        AtomicLong operationCounter = new AtomicLong();
+        context.writeResult(state -> {
+            state.setTotalCount(sqlCounter.get());
+            state.setOperationCount(operationCounter.get());
+            state.setBehaviors(new ArrayList<>(behaviors.values()));
+        });
         AnalysisQueryOptions options = AnalysisQueryOptions.builder()
             .currentUid(approvalDO.getOwnerUid())
             .dataSourceId(approvalDO.getBindDsId())
@@ -73,7 +86,8 @@ public class BehaviorPreInitHandler extends AbstractPreInitHandler {
             try (Reader reader = context.openReader(sql);
                     Stream<QueryRequest> requests = this.queryAnalysisService.analysisRequestsStream(context.getDsConfig(), reader, Collections.emptyList(), 1, 0, options)) {
                 requests.forEachOrdered(request -> {
-                    this.analyzeRequest(request, behaviors);
+                    operationCounter.addAndGet(this.analyzeRequest(request, behaviors));
+                    sqlCounter.incrementAndGet();
                     context.itemProcessed(request.getQueryBody());
                 });
                 return null;
@@ -81,15 +95,15 @@ public class BehaviorPreInitHandler extends AbstractPreInitHandler {
                 throw this.lineError(e.getLine(), e.getMessage());
             }
         });
-
-        context.writeResult(state -> state.setBehaviors(new ArrayList<>(behaviors.values())));
     }
 
-    private void analyzeRequest(QueryRequest request, Map<String, ApprovalBehavior> behaviors) {
+    private long analyzeRequest(QueryRequest request, Map<String, ApprovalBehavior> behaviors) {
         if (request.hasQueryType(SplitQueryType.TRANSACTION)) {
             throw new UnsupportedOperationException(DmI18nUtils.getMessage(I18nDmMsgKeys.TICKET_NONSUPPORT_TRANSACTION_OPERATE_ERROR.name()));
         }
 
+        long operationCount = 0;
+        Set<String> requestOperations = new HashSet<>();
         for (BehaviorRequest behaviorRequest : BehaviorRelations.flattenResourceIgnoringPermission(request.getRelations())) {
             BehaviorAction action = behaviorRequest.action();
             if (action == BehaviorAction.SWITCH) {
@@ -99,19 +113,21 @@ public class BehaviorPreInitHandler extends AbstractPreInitHandler {
             BehaviorObject resource = behaviorRequest.resource();
             TargetType resourceType = Objects.requireNonNullElse(resource.getObjectType(), TargetType.Unknown);
             String resourcePath = DmDsUtils.normalizeResourcePath(resource.getObjectPath());
-            ApprovalBehavior behavior = new ApprovalBehavior();
-            behavior.setResourceType(resourceType);
-            behavior.setResourcePath(resourcePath);
-            behavior.getActions().add(action);
             String resourceKey = resourceType + "|" + resourcePath;
+            if (!requestOperations.add(resourceKey + "|" + action)) {
+                continue;
+            }
             ApprovalBehavior target = behaviors.computeIfAbsent(resourceKey, ignored -> {
                 ApprovalBehavior value = new ApprovalBehavior();
                 value.setResourceType(resourceType);
                 value.setResourcePath(resourcePath);
                 return value;
             });
-            target.getActions().addAll(behavior.getActions());
+            target.getActions().add(action);
+            target.getActionCounts().merge(action, 1L, Long::sum);
+            operationCount++;
         }
+        return operationCount;
     }
 
     private ErrorMessageException lineError(int line, String message) {

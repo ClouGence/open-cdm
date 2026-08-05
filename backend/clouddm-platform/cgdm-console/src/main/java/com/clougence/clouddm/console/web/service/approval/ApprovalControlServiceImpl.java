@@ -385,9 +385,16 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
     private List<RdpTicketActivityVO> convertAnalysisActivities(RdpTicketProcessVO processVO, List<DmApprovalProcessActivityDO> activities) {
         List<RdpTicketActivityVO> vos = new ArrayList<>();
         for (DmApprovalProcessActivityDO activity : activities) {
+            if (ApprovalAnalysisStateMO.TYPE_SQL_RECOGNITION.equals(activity.getActivityId())) {
+                continue;
+            }
             if (activity.getProcessId().equals(processVO.getTicketProcessId()) && StringUtils.isNotBlank(activity.getContext())) {
                 ApprovalAnalysisStateMO state = JsonUtils.toObj(activity.getContext(), ApprovalAnalysisStateMO.class);
-                vos.add(RdpConvertUtils.convertToAnalysisActivityVO(state));
+                RdpTicketActivityVO vo = RdpConvertUtils.convertToAnalysisActivityVO(state);
+                if (vo.getDisplayOrder() == null) {
+                    vo.setDisplayOrder(activity.getOrderNumber());
+                }
+                vos.add(vo);
             }
         }
         return vos;
@@ -476,6 +483,9 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
             if (ApprovalAnalysisStateMO.TYPE_SQL_RECOGNITION.equals(state.getAnalysisType())) {
                 vo.setTotalCount(state.getTotalCount());
             } else if (ApprovalAnalysisStateMO.TYPE_BEHAVIOR_ANALYSIS.equals(state.getAnalysisType())) {
+                if (state.getTotalCount() != null) {
+                    vo.setTotalCount(state.getTotalCount());
+                }
                 vo.setBehaviors(state.getBehaviors());
             } else if (ApprovalAnalysisStateMO.TYPE_SECURITY_RULE.equals(state.getAnalysisType())) {
                 vo.setCheckedList(state.getCheckedInfo());
@@ -757,31 +767,61 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
     }
 
     @Override
-    public void confirmTicket(String puid, long ticketId, DmConfirmTicketFO fo) {
+    public String confirmTicket(String puid, long ticketId, DmConfirmTicketFO fo) {
         ApprovalStatus actionStatus = statusFromConfirmAction(fo.getConfirmActionType(), fo.getAutoExecConfig().getAutoExecType());
-        String jobBizId = actionStatus == ApprovalStatus.WAIT_EXEC ? DmTeamUtils.nextExecJobBizId(SQLJobBizType.TICKET) : null;
-        try {
-            TransactionTemplate transaction = new TransactionTemplate(this.txManager);
-            transaction.executeWithoutResult(status -> this.confirmTicketInTransaction(puid, ticketId, fo, actionStatus, jobBizId));
-        } catch (RuntimeException e) {
-            if (actionStatus == ApprovalStatus.WAIT_EXEC) {
-                try {
-                    this.autoExecService.deleteJob(jobBizId);
-                } catch (RuntimeException cleanupError) {
-                    e.addSuppressed(cleanupError);
-                    log.error("Cleanup prepared auto execution job failed, jobBizId={}", jobBizId, cleanupError);
-                }
-            }
-            throw e;
-        }
-
         if (actionStatus == ApprovalStatus.WAIT_EXEC) {
+            String jobBizId = DmTeamUtils.nextExecJobBizId(SQLJobBizType.TICKET);
+            this.confirmTicketInNewTransaction(ticketId, fo, actionStatus);
+            if (!this.approvalTaskScheduler.submitControlTask(ticketId, () -> this.prepareExecJobAsync(ticketId, fo, jobBizId))) {
+                String message = DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_EXEC_TASK_SUBMIT_BUSY.name());
+                this.restoreExecutionConfirmation(ticketId, message);
+                throw new ErrorMessageException(message);
+            }
+            return jobBizId;
+        }
+        this.confirmTicketInNewTransaction(ticketId, fo, actionStatus);
+        return null;
+    }
+
+    private void prepareExecJobAsync(long ticketId, DmConfirmTicketFO fo, String jobBizId) {
+        try {
+            DmApprovalDO rdpTicketDO = this.checkTicket(ticketId);
+            checkJobOperationEnable(rdpTicketDO, fo.getConfirmUid());
+            if (rdpTicketDO.getTicketStatus() != ApprovalStatus.WAIT_EXEC) {
+                throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_OPERATOR_TYPE_NOT_MATCH_STATUS.name()));
+            }
+
+            DmApprovalDO dmTicketDO = this.approvalDal.approvalMapper().queryByBizId(rdpTicketDO.getBizId());
+            if (dmTicketDO == null) {
+                throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_NOT_EXIST_ERROR.name()));
+            }
+            this.createExecJob(fo, rdpTicketDO, dmTicketDO, jobBizId);
+            this.updateAutoExecFlag(ticketId, true);
             this.autoExecService.startJob(jobBizId, fo.getConfirmUid());
+        } catch (RuntimeException e) {
+            log.error("Prepare ticket execution job failed, ticketId={}", ticketId, e);
+            try {
+                this.autoExecService.deleteJob(jobBizId);
+            } catch (RuntimeException cleanupError) {
+                e.addSuppressed(cleanupError);
+                log.error("Cleanup prepared auto execution job failed, jobBizId={}", jobBizId, cleanupError);
+            }
+            String failure = StringUtils.isBlank(e.getMessage()) ? e.getClass().getSimpleName() : e.getMessage();
+            String message = DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_JOB_PREPARE_ERROR_MESSAGE.name(), failure);
+            this.restoreExecutionConfirmation(ticketId, message);
         }
     }
 
-    private void confirmTicketInTransaction(String puid, long ticketId, DmConfirmTicketFO fo, ApprovalStatus actionStatus, String jobBizId) {
-        DmApprovalDO rdpTicketDO = this.checkTicket(ticketId);
+    private void confirmTicketInNewTransaction(long ticketId, DmConfirmTicketFO fo, ApprovalStatus actionStatus) {
+        TransactionTemplate transaction = new TransactionTemplate(this.txManager);
+        transaction.executeWithoutResult(status -> this.confirmTicketInTransaction(ticketId, fo, actionStatus));
+    }
+
+    private void confirmTicketInTransaction(long ticketId, DmConfirmTicketFO fo, ApprovalStatus actionStatus) {
+        DmApprovalDO rdpTicketDO = this.approvalDal.approvalMapper().selectByIdForUpdate(ticketId);
+        if (rdpTicketDO == null) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_NOT_EXIST_ERROR.name()));
+        }
         checkJobOperationEnable(rdpTicketDO, fo.getConfirmUid());
 
         if (rdpTicketDO.getTicketStatus() != ApprovalStatus.WAIT_CONFIRM) {
@@ -820,20 +860,50 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
             nContext.setExecMsg(DmI18nUtils.getMessage(I18nDmMsgKeys.TICKET_STATUS_COMPLETE_MESSAGE.name()));
             this.approvalDal.processMapper().updateTicketStatusByEnum(processDO.getId(), ApprovalProcessStatus.FINISH, JsonUtils.toJson(nContext));
         } else if (actionStatus == ApprovalStatus.WAIT_EXEC) {
-            String ticketInfo = dmTicketDO.getTicketInfo();
-            ApprovalMO info;
-            if (StringUtils.isEmpty(ticketInfo)) {
-                info = new ApprovalMO();
-            } else {
-                info = JsonUtils.toObj(ticketInfo, ApprovalMO.class);
-            }
-
-            info.setAutoExec(true);
-            this.approvalDal.approvalMapper().updateTicketInfo(dmTicketDO.getId(), JsonUtils.toJson(info));
-            this.createExecJob(fo, rdpTicketDO, dmTicketDO, jobBizId);
-            this.approvalDal.processMapper().updateContextById(processDO.getId(), JsonUtils.toJson(info));
+            this.approvalDal.processMapper().updateTicketStatusByEnum(processDO.getId(), ApprovalProcessStatus.INIT, JsonUtils.toJson(nContext));
         }
-        this.approvalDal.approvalMapper().updateStatusByEnum(ticketId, actionStatus, fo.getComment());
+        String statusMessage = actionStatus == ApprovalStatus.WAIT_EXEC
+                ? DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_STATUS_WAIT_EXEC_MESSAGE.name())
+                : fo.getComment();
+        this.approvalDal.approvalMapper().updateStatusByEnum(ticketId, actionStatus, statusMessage);
+    }
+
+    private void updateAutoExecFlag(long ticketId, boolean autoExec) {
+        TransactionTemplate transaction = new TransactionTemplate(this.txManager);
+        transaction.executeWithoutResult(status -> {
+            DmApprovalDO rdpTicketDO = this.approvalDal.approvalMapper().selectByIdForUpdate(ticketId);
+            if (rdpTicketDO == null) {
+                throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_NOT_EXIST_ERROR.name()));
+            }
+            DmApprovalDO dmTicketDO = this.approvalDal.approvalMapper().queryByBizId(rdpTicketDO.getBizId());
+            if (dmTicketDO == null) {
+                throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_NOT_EXIST_ERROR.name()));
+            }
+            ApprovalMO info = StringUtils.isEmpty(dmTicketDO.getTicketInfo()) ? new ApprovalMO() : JsonUtils.toObj(dmTicketDO.getTicketInfo(), ApprovalMO.class);
+            info.setAutoExec(autoExec);
+            this.approvalDal.approvalMapper().updateTicketInfo(dmTicketDO.getId(), JsonUtils.toJson(info));
+        });
+    }
+
+    private void restoreExecutionConfirmation(long ticketId, String message) {
+        TransactionTemplate transaction = new TransactionTemplate(this.txManager);
+        transaction.executeWithoutResult(status -> {
+            DmApprovalDO rdpTicketDO = this.approvalDal.approvalMapper().selectByIdForUpdate(ticketId);
+            if (rdpTicketDO == null || rdpTicketDO.getTicketStatus() != ApprovalStatus.WAIT_EXEC) {
+                return;
+            }
+            DmApprovalDO dmTicketDO = this.approvalDal.approvalMapper().queryByBizId(rdpTicketDO.getBizId());
+            if (dmTicketDO != null) {
+                ApprovalMO info = StringUtils.isEmpty(dmTicketDO.getTicketInfo()) ? new ApprovalMO() : JsonUtils.toObj(dmTicketDO.getTicketInfo(), ApprovalMO.class);
+                info.setAutoExec(false);
+                this.approvalDal.approvalMapper().updateTicketInfo(dmTicketDO.getId(), JsonUtils.toJson(info));
+            }
+            DmApprovalProcessDO confirmProcess = this.approvalDal.processMapper().queryByStage(ticketId, ApprovalStage.CONFIRM);
+            DmApprovalProcessDO executionProcess = this.approvalDal.processMapper().queryByStage(ticketId, ApprovalStage.EXECUTION);
+            this.approvalDal.processMapper().updateTicketStatusByEnum(confirmProcess.getId(), ApprovalProcessStatus.INIT, null);
+            this.approvalDal.processMapper().updateTicketStatusByEnum(executionProcess.getId(), ApprovalProcessStatus.INIT, null);
+            this.approvalDal.approvalMapper().updateStatusByEnum(ticketId, ApprovalStatus.WAIT_CONFIRM, message);
+        });
     }
 
     private void createExecJob(DmConfirmTicketFO fo, DmApprovalDO rdpTicket, DmApprovalDO dmTicket, String jobBizId) {

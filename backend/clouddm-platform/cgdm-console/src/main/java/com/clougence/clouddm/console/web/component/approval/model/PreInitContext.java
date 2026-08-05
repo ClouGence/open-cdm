@@ -124,6 +124,7 @@ public class PreInitContext {
             state.setProcessedBytes(this.processedBytes);
             state.setTotalBytes(this.totalBytes);
             state.setErrorMessage(error.getMessage());
+            this.resultWriter.accept(state);
         });
         log.error("[TicketAnalysis] ticketId={}, analysisType={}, status=FAILED, processedCount={}, elapsedMs={}", this.approval
             .getId(), this.taskType, this.processedCount, System.currentTimeMillis() - this.startedAt, error);
@@ -139,6 +140,7 @@ public class PreInitContext {
             state.setProcessedCount(this.processedCount);
             state.setProcessedBytes(this.processedBytes);
             state.setTotalBytes(this.totalBytes);
+            this.resultWriter.accept(state);
         });
     }
 

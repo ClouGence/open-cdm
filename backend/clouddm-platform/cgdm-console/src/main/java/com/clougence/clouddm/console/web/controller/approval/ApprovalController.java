@@ -38,7 +38,6 @@ import com.clougence.clouddm.console.web.component.approval.ApprovalFlowService;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsConfig;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
-import com.clougence.clouddm.console.web.constants.DmConfirmActionType;
 import com.clougence.clouddm.console.web.constants.DmControllerUrlPrefix;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
@@ -60,7 +59,6 @@ import com.clougence.clouddm.platform.dal.access.MonitorDal;
 import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.clouddm.platform.dal.model.execution.AutoExecJobStatus;
-import com.clougence.clouddm.platform.dal.model.execution.AutoExecType;
 import com.clougence.clouddm.platform.dal.model.execution.DmExecAutoJobDO;
 import com.clougence.clouddm.platform.dal.model.execution.DmExecAutoTaskDO;
 import com.clougence.clouddm.platform.dal.model.monitor.DmMonBizLogDO;
@@ -123,12 +121,11 @@ public class ApprovalController {
         String uid = (String) request.getAttribute(RdpUserService.UID);
         fo.setConfirmUid(uid);
 
-        this.approvalControlService.confirmTicket(puid, fo.getTicketId(), fo);
-        if (fo.getConfirmActionType() == DmConfirmActionType.CONFIRM && fo.getAutoExecConfig().getAutoExecType() != AutoExecType.MANUAL_EXEC) {
-            DmExecAutoJobDO job = this.queryAutoExecJob(puid, uid, fo.getTicketId());
+        String jobBizId = this.approvalControlService.confirmTicket(puid, fo.getTicketId(), fo);
+        if (StringUtils.isNotBlank(jobBizId)) {
             DmAuthUserDO user = this.authDal.userMapper().queryByUid(uid);
             String message = DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_JOB_CREATE_MESSAGE.name(), user.getUsername(), user.getUid());
-            this.monitorDal.bizLogMapper().insert(new DmMonBizLogDO(Loglevel.INFO, message, LogDependBizType.AUTO_EXEC_JOB, job.getBizId()));
+            this.monitorDal.bizLogMapper().insert(new DmMonBizLogDO(Loglevel.INFO, message, LogDependBizType.AUTO_EXEC_JOB, jobBizId));
         }
         return ResWebDataUtils.buildSuccess();
     }
