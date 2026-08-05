@@ -351,6 +351,14 @@ public class ApprovalController {
     }
 
     @RequestAuth(RDP_WORKER_ORDER_READ)
+    @RequestMapping(value = "/queryAutoExecTaskSql", method = RequestMethod.POST)
+    public ResWebData<?> queryAutoExecTaskSql(@Valid @RequestBody DmQueryAutoExecFO fo, HttpServletRequest request) {
+        String puid = (String) request.getAttribute(RdpUserService.PUID);
+        String uid = (String) request.getAttribute(RdpUserService.UID);
+        return ResWebDataUtils.buildSuccess(this.approvalControlService.queryExecTaskSql(puid, uid, fo));
+    }
+
+    @RequestAuth(RDP_WORKER_ORDER_READ)
     @RequestMapping(value = "/autoExecLog", method = RequestMethod.POST)
     public ResWebData<?> queryExecLog(@Valid @RequestBody DmQueryExecLogFO fo, HttpServletRequest request) {
         List<DmBizLogVO> result = this.approvalControlService.queryExecLog(fo);

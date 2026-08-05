@@ -614,14 +614,16 @@ public class RdpConvertUtils {
         vo.setTotalBytes(item.getTotalBytes());
         vo.setRemark(item.getErrorMessage());
         if (ApprovalAnalysisStateMO.TYPE_SQL_RECOGNITION.equals(item.getAnalysisType())) {
-            vo.setResultCount(item.getTotalCount());
+            vo.setStatementCount(item.getTotalCount());
             vo.setStatementTypeCounts(item.getStatementTypeCounts());
         } else if (ApprovalAnalysisStateMO.TYPE_BEHAVIOR_ANALYSIS.equals(item.getAnalysisType())) {
-            vo.setResultCount(item.getBehaviors() == null ? null : (long) item.getBehaviors().size());
-            vo.setSqlCount(item.getTotalCount());
-            vo.setOperationCount(item.getOperationCount());
+            vo.setStatementCount(item.getTotalCount());
+            vo.setObjectCount(item.getBehaviors() == null ? null : (long) item.getBehaviors().size());
+            vo.setBehaviorCount(item.getBehaviorCount());
+            vo.setBehaviors(item.getBehaviors());
         } else if (ApprovalAnalysisStateMO.TYPE_SECURITY_RULE.equals(item.getAnalysisType())) {
-            vo.setResultCount(item.getCheckedInfo() == null ? null : (long) item.getCheckedInfo().size());
+            vo.setRuleCount(item.getCheckedInfo() == null ? null : (long) item.getCheckedInfo().size());
+            vo.setRuleResults(item.getCheckedInfo());
         }
         return vo;
     }

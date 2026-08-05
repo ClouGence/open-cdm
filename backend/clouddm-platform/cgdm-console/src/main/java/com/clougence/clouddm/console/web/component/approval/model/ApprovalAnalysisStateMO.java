@@ -29,7 +29,7 @@ public class ApprovalAnalysisStateMO {
     private Long                        totalBytes;
     private String                      errorMessage;
     private Long                        totalCount;
-    private Long                        operationCount;
+    private Long                        behaviorCount;
     private Map<String, Long>           statementTypeCounts;
     private List<ApprovalBehavior>      behaviors;
     private List<TicketRuleCheckResult> checkedInfo;

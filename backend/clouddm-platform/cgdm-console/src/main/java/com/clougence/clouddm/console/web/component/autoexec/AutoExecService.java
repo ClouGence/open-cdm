@@ -49,4 +49,8 @@ public interface AutoExecService {
     DmAutoExecJobVO queryAutoExecJob(String bizId, SQLJobBizType type, boolean canOperate);
 
     DmPageVO<DmAutoExecTaskVO> queryAutoExecTaskList(String bizId, SQLJobBizType type, boolean canOperate, AutoExecTaskStatus status, PageObj page);
+
+    DmPageVO<DmAutoExecTaskVO> queryAutoExecTaskSummaryList(String bizId, SQLJobBizType type, boolean canOperate, AutoExecTaskStatus status, PageObj page, int sqlSummaryLength);
+
+    String queryAutoExecTaskSql(String bizId, SQLJobBizType type, long taskId);
 }

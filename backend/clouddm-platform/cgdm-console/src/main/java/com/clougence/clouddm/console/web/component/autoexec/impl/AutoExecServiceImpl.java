@@ -453,6 +453,22 @@ public class AutoExecServiceImpl implements AutoExecService {
             return new DmPageVO<>(page);
         }
         IPage<DmExecAutoTaskDO> iPage = this.execDal.autoTaskMapper().queryListByJobId(page, job.getId(), status);
+        return this.convertTaskPage(job, canOperate, iPage);
+    }
+
+    @Override
+    public DmPageVO<DmAutoExecTaskVO> queryAutoExecTaskSummaryList(String bizId, SQLJobBizType type, boolean canOperate, AutoExecTaskStatus status, PageObj pageDO,
+                                                                   int sqlSummaryLength) {
+        Page<?> page = PageUtils.startPage(pageDO);
+        DmExecAutoJobDO job = this.execDal.autoJobMapper().queryByDependOnBiz(bizId, type);
+        if (job == null) {
+            return new DmPageVO<>(page);
+        }
+        IPage<DmExecAutoTaskDO> iPage = this.execDal.autoTaskMapper().querySummaryListByJobId(page, job.getId(), status, sqlSummaryLength);
+        return this.convertTaskPage(job, canOperate, iPage);
+    }
+
+    private DmPageVO<DmAutoExecTaskVO> convertTaskPage(DmExecAutoJobDO job, boolean canOperate, IPage<DmExecAutoTaskDO> iPage) {
         DmPageVO<DmAutoExecTaskVO> result = new DmPageVO<>(iPage);
 
         for (DmExecAutoTaskDO taskDO : iPage.getRecords()) {
@@ -475,6 +491,16 @@ public class AutoExecServiceImpl implements AutoExecService {
             result.getRecords().add(vo);
         }
         return result;
+    }
+
+    @Override
+    public String queryAutoExecTaskSql(String bizId, SQLJobBizType type, long taskId) {
+        DmExecAutoJobDO job = this.requireJob(bizId, type);
+        DmExecAutoTaskDO task = this.execDal.autoTaskMapper().selectById(taskId);
+        if (task == null || !job.getId().equals(task.getAutoExecJobId())) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_WRONG_OPERATE_ERROR_MESSAGE.name()));
+        }
+        return task.getExecSql();
     }
 
     private DmExecAutoJobDO requireJob(String bizId, SQLJobBizType type) {

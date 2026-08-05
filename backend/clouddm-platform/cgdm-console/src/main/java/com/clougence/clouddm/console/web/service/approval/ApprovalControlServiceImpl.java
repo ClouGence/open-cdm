@@ -110,6 +110,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ApprovalControlServiceImpl implements ApprovalControlService {
 
+    private static final int            AUTO_EXEC_TASK_SQL_SUMMARY_LENGTH = 200;
+
     @Resource
     private SystemDal                   systemDal;
     @Resource
@@ -862,9 +864,7 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
         } else if (actionStatus == ApprovalStatus.WAIT_EXEC) {
             this.approvalDal.processMapper().updateTicketStatusByEnum(processDO.getId(), ApprovalProcessStatus.INIT, JsonUtils.toJson(nContext));
         }
-        String statusMessage = actionStatus == ApprovalStatus.WAIT_EXEC
-                ? DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_STATUS_WAIT_EXEC_MESSAGE.name())
-                : fo.getComment();
+        String statusMessage = actionStatus == ApprovalStatus.WAIT_EXEC ? DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_STATUS_WAIT_EXEC_MESSAGE.name()) : fo.getComment();
         this.approvalDal.approvalMapper().updateStatusByEnum(ticketId, actionStatus, statusMessage);
     }
 
@@ -948,8 +948,14 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
     @Override
     public DmPageVO<DmAutoExecTaskVO> queryExecTaskList(String puid, String uid, DmQueryTaskListFO fo) {
         DmApprovalDO ticketDO = this.checkTicket(fo.getTicketId());
-        return this.autoExecService.queryAutoExecTaskList(//
-                ticketDO.getBizId(), SQLJobBizType.TICKET, checkOperationEnableWithResult(ticketDO, uid), fo.getTaskStatus(), fo.getPage());
+        return this.autoExecService.queryAutoExecTaskSummaryList(//
+                ticketDO.getBizId(), SQLJobBizType.TICKET, checkOperationEnableWithResult(ticketDO, uid), fo.getTaskStatus(), fo.getPage(), AUTO_EXEC_TASK_SQL_SUMMARY_LENGTH);
+    }
+
+    @Override
+    public String queryExecTaskSql(String puid, String uid, DmQueryAutoExecFO fo) {
+        DmApprovalDO ticketDO = this.checkTicket(fo.getTicketId());
+        return this.autoExecService.queryAutoExecTaskSql(ticketDO.getBizId(), SQLJobBizType.TICKET, fo.getTaskId());
     }
 
     @Override

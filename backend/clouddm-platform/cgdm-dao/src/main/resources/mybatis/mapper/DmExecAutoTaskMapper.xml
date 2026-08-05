@@ -139,6 +139,31 @@
             and status = #{status}
         </if>
     </select>
+    <select id="querySummaryListByJobId" resultMap="taskDO">
+        select
+            id,
+            gmt_create,
+            gmt_modified,
+            auto_exec_job_id,
+            exec_order,
+            case
+                when char_length(exec_sql) > #{sqlSummaryLength}
+                    then concat(substring(exec_sql, 1, #{sqlSummaryLength}), '...')
+                else exec_sql
+            end as exec_sql,
+            status,
+            affect_row,
+            biz_id,
+            query_id,
+            exec_count,
+            gmt_last_start,
+            gmt_last_end
+        from dm_exec_auto_task
+        where auto_exec_job_id = #{jobId}
+        <if test="status != null">
+            and status = #{status}
+        </if>
+    </select>
     <select id="queryOneByJobIdAndStatus" resultMap="taskDO">
         select
         <include refid="sqlTask"/>

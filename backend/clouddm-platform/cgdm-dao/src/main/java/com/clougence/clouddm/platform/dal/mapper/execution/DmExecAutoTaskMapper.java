@@ -59,6 +59,9 @@ public interface DmExecAutoTaskMapper extends BaseMapper<DmExecAutoTaskDO> {
 
     IPage<DmExecAutoTaskDO> queryListByJobId(Page page, @Param("jobId") Long jobId, @Param("status") AutoExecTaskStatus status);
 
+    IPage<DmExecAutoTaskDO> querySummaryListByJobId(Page page, @Param("jobId") Long jobId, @Param("status") AutoExecTaskStatus status,
+            @Param("sqlSummaryLength") int sqlSummaryLength);
+
     List<DmExecAutoTaskDO> queryListByJobId(@Param("jobId") Long jobId, @Param("status") AutoExecTaskStatus status);
 
     void cancelAllWaitTask(@Param("jobId") Long jobId);

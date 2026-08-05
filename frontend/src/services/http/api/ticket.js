@@ -45,6 +45,7 @@ export const ticketApi = {
   dmTicketRemoveTemplate: '/api/entry/approval/removeTemplate',
   dmTicketQueryAutoExecJobInfo: '/api/entry/approval/queryAutoExecJobInfo',
   dmTicketQueryAutoExecTaskList: '/api/entry/approval/queryAutoExecTaskList',
+  dmTicketQueryAutoExecTaskSql: '/api/entry/approval/queryAutoExecTaskSql',
   dmTicketEndAutoExecJob: '/api/entry/approval/endAutoExecJob',
   dmTicketRetryAutoExecJob: '/api/entry/approval/retryAutoExecJob',
   dmTicketStopAutoExecJob: '/api/entry/approval/stopAutoExecJob',

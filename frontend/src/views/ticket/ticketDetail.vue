@@ -244,12 +244,18 @@
     </Card>
     <Card class="ticket-content analysis-results-card" v-if="showAnalysisResults">
       <template #title>
-        <span>{{ $t('ticket-analysis-results') }}</span>
+        <div class="collapsible-card-title">
+          <span>{{ $t('ticket-analysis-results') }}</span>
+          <Button type="text" size="small" @click="analysisResultsExpanded = !analysisResultsExpanded">
+            {{ analysisResultsExpanded ? $t('ticket-collapse') : $t('ticket-expand') }}
+            <Icon :type="analysisResultsExpanded ? 'ios-arrow-up' : 'ios-arrow-down'" />
+          </Button>
+        </div>
       </template>
-      <Tabs v-model="analysisResultTab" type="card" :animated="false" class="analysis-result-tabs">
+      <Tabs v-show="analysisResultsExpanded" v-model="analysisResultTab" type="card" :animated="false" class="analysis-result-tabs">
         <TabPane v-for="item in analysisItems" :key="item.activityTitle" :label="analysisTypeText(item.activityTitle)" :name="item.activityTitle">
           <template v-if="item.activityTitle === 'BEHAVIOR_ANALYSIS'">
-            <div v-if="behaviorSqlCount(item) != null" class="behavior-analysis-summary">
+            <div v-if="behaviorStatementCount(item) != null" class="behavior-analysis-summary">
               {{ behaviorSummaryText(item) }}
             </div>
             <Table v-if="recognizedBehaviorRows.length" :columns="recognizedContentColumns" :data="recognizedBehaviorRows" border size="small">
@@ -266,7 +272,7 @@
           </template>
 
           <template v-else-if="item.activityTitle === 'SECURITY_RULE'">
-            <div v-if="noPassedRuleList.length" class="analysis-rule-toolbar">
+            <div v-if="analysisRuleResults.length" class="analysis-rule-toolbar">
               <Checkbox v-model="showCheckedOnlyError">{{ $t('jin-xian-shi-yan-zhong') }}</Checkbox>
             </div>
             <div v-if="checkRoleResultList().length" class="validation-content">
@@ -288,7 +294,7 @@
               </div>
             </div>
             <div v-else class="analysis-result-empty">
-              {{ noPassedRuleList.length && showCheckedOnlyError ? $t('ticket-analysis-security-passed') : analysisResultText(item) }}
+              {{ analysisRuleResults.length && showCheckedOnlyError ? $t('ticket-analysis-security-passed') : analysisResultText(item) }}
             </div>
           </template>
 
@@ -335,83 +341,65 @@
             <Button type="text" size="small" @click="handleRefreshTaskList">
               {{ $t('shua-xin') }}
             </Button>
+            <Button type="text" size="small" @click="taskExecutionExpanded = !taskExecutionExpanded">
+              {{ taskExecutionExpanded ? $t('ticket-collapse') : $t('ticket-expand') }}
+              <Icon :type="taskExecutionExpanded ? 'ios-arrow-up' : 'ios-arrow-down'" />
+            </Button>
           </div>
         </div>
       </template>
 
-      <Table :columns="autoExecTaskColumns" :data="autoExecTaskList" border size="small">
-        <template #status="{ row }">
-          <Tag :color="AUTO_EXEC_TASK_STATUS_COLOR[row.status]">
-            {{ AUTO_EXEC_TASK_STATUS_I18N[row.status] }}
-          </Tag>
-        </template>
-        <template #sql="{ row }">
-          <Poptip :content="row.execSql" trigger="hover" transfer>
-            <span style="width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">
-              {{ row.execSql }}
-            </span>
-          </Poptip>
-        </template>
-        <template #action="{ row }">
-          <!--          <Button type="text" size="small" @click="handleAutoExecSQL(row)">{{ $t('cha-kan-sql') }}</Button>-->
-          <Button type="text" size="small" @click="handleAutoExecLog(row)">
-            {{ $t('ri-zhi') }}
-          </Button>
-          <Button type="text" size="small" @click="handleShowSkipAutoExecTaskModal(row)" v-if="row.canSkip">
-            {{ $t('tiao-guo') }}
-          </Button>
-          <Button type="text" size="small" @click="handleShowContinueAutoExecTaskModal(row)" v-if="row.canCancelSkip">
-            {{ $t('qu-xiao-tiao-guo') }}
-          </Button>
-        </template>
-      </Table>
-      <div style="width: 100%; text-align: right">
-        <Page v-model="page" :page-size="pageSize" :total="total" @on-change="handleTaskPageChange" size="small" style="margin-top: 10px" />
+      <div v-show="taskExecutionExpanded">
+        <Table :columns="autoExecTaskColumns" :data="autoExecTaskList" border size="small">
+          <template #status="{ row }">
+            <Tag :color="AUTO_EXEC_TASK_STATUS_COLOR[row.status]">
+              {{ AUTO_EXEC_TASK_STATUS_I18N[row.status] }}
+            </Tag>
+          </template>
+          <template #action="{ row }">
+            <Button type="text" size="small" @click="handleAutoExecSQL(row)">{{ $t('cha-kan') }}</Button>
+            <Button type="text" size="small" @click="handleAutoExecLog(row)">
+              {{ $t('ri-zhi') }}
+            </Button>
+            <Button type="text" size="small" @click="handleShowSkipAutoExecTaskModal(row)" v-if="row.canSkip">
+              {{ $t('tiao-guo') }}
+            </Button>
+            <Button type="text" size="small" @click="handleShowContinueAutoExecTaskModal(row)" v-if="row.canCancelSkip">
+              {{ $t('qu-xiao-tiao-guo') }}
+            </Button>
+          </template>
+        </Table>
+        <div style="width: 100%; text-align: right">
+          <Page v-model="page" :page-size="pageSize" :total="total" @on-change="handleTaskPageChange" size="small" style="margin-top: 10px" />
+        </div>
       </div>
     </Card>
 
-    <Card class="ticket-content" v-if="this.ticketType === 'DM_QUERY' || this.ticketType === 'DM_CHANGE'" :padding="0">
-      <template #title>
-        <div class="ticket-content-title">
-          <div class="ticket-content-title-main">
-            <div>{{ $t('gong-dan-nei-rong') }}</div>
-            <Button type="link" @click="handleShowRollbackSqlModal" v-if="ticketDetail.rollBackSql" style="margin-left: 10px">
-              {{ $t('cha-kan-hui-gun-sql') }}
-            </Button>
-            <span v-if="ticketDetail.ticketMessage" class="parse-error-msgContent">*{{ ticketDetail.ticketMessage }}</span>
-          </div>
-          <div v-if="ticketDetail.contentType === 'ATTACHMENT'" class="ticket-attachment-meta">
+    <Card class="ticket-content compact-ticket-content" v-if="this.ticketType === 'DM_QUERY' || this.ticketType === 'DM_CHANGE'" :padding="0">
+      <div
+        class="ticket-content-entry"
+        role="button"
+        tabindex="0"
+        @click="handleShowTicketContentModal"
+        @keydown.enter="handleShowTicketContentModal"
+      >
+        <div class="ticket-content-title-main">
+          <strong>{{ $t('gong-dan-nei-rong') }}</strong>
+          <Button type="link" @click.stop="handleShowRollbackSqlModal" v-if="ticketDetail.rollBackSql">
+            {{ $t('cha-kan-hui-gun-sql') }}
+          </Button>
+          <span v-if="ticketDetail.ticketMessage" class="parse-error-msgContent">*{{ ticketDetail.ticketMessage }}</span>
+        </div>
+        <div class="ticket-content-entry-meta">
+          <template v-if="ticketDetail.contentType === 'ATTACHMENT'">
             <Icon type="ios-document-outline" />
             <span>{{ ticketDetail.attachmentFileName }}</span>
             <span>{{ formatFileSize(ticketDetail.attachmentFileSize || 0) }}</span>
             <span>{{ $t('ticket-sql-readonly') }}</span>
-          </div>
+          </template>
+          <span>{{ $t('ticket-view-content') }}</span>
+          <Icon type="ios-arrow-forward" />
         </div>
-      </template>
-      <div class="ticket-sql-preview" @wheel="handleSqlPreviewWheel">
-        <read-only-editor
-          ref="sqlPreviewEditor"
-          :text="sqlPreview"
-          key="raw"
-          :border="0"
-          :ds-type="ticketDetail.dataSourceType"
-          fit-viewport
-          virtual-scroll-mode
-          :line-number-start="sqlPreviewStartLine"
-          @viewport-line-count-change="handleSqlPreviewViewportChange"
-        />
-        <input
-          v-if="ticketSqlContentInitialized"
-          v-model.number="sqlPreviewStartLine"
-          class="ticket-virtual-scrollbar"
-          type="range"
-          min="1"
-          :max="sqlPreviewMaxStartLine"
-          step="1"
-          :aria-label="$t('ticket-sql-virtual-scrollbar')"
-          aria-orientation="vertical"
-          @input="scheduleSqlPreview"
-        />
       </div>
     </Card>
     <Card class="ticket-content" v-if="ticketType === 'DATA_SOURCE_AUTH'">
@@ -463,6 +451,36 @@
         <Button type="primary" @click="copyText(ticketDetail.rollBackSql)">
           {{ $t('fu-zhi-sql') }}
         </Button>
+        <Button @click="handleCloseModal">{{ $t('guan-bi') }}</Button>
+      </template>
+    </CCModal>
+    <CCModal v-model="showTicketContentModal" :title="$t('gong-dan-nei-rong')" width="80vw" centered :draggable="false" class="responsive-sql-modal">
+      <div class="ticket-content-modal-editor ticket-sql-preview" @wheel="handleSqlPreviewWheel">
+        <read-only-editor
+          ref="sqlPreviewEditor"
+          :text="sqlPreview"
+          key="raw"
+          :border="0"
+          :ds-type="ticketDetail.dataSourceType"
+          fit-viewport
+          virtual-scroll-mode
+          :line-number-start="sqlPreviewStartLine"
+          @viewport-line-count-change="handleSqlPreviewViewportChange"
+        />
+        <input
+          v-if="ticketSqlContentInitialized"
+          v-model.number="sqlPreviewStartLine"
+          class="ticket-virtual-scrollbar"
+          type="range"
+          min="1"
+          :max="sqlPreviewMaxStartLine"
+          step="1"
+          :aria-label="$t('ticket-sql-virtual-scrollbar')"
+          aria-orientation="vertical"
+          @input="scheduleSqlPreview"
+        />
+      </div>
+      <template #footer>
         <Button @click="handleCloseModal">{{ $t('guan-bi') }}</Button>
       </template>
     </CCModal>
@@ -531,8 +549,22 @@
     <CCModal v-model="showAutoExecTaskLogModal" :title="$t('ri-zhi')" @ok="handleCloseModal" :width="800">
       <Table :columns="autoExecJobLogColumns" :data="autoExecTaskLogList" border size="small" />
     </CCModal>
-    <CCModal v-model="showAutoExecTaskSQLModal" :title="$t('sql-yu-ju')" @ok="handleCloseModal" :width="800">
-      {{ selectedAutoExecTask.execSql }}
+    <CCModal v-model="showAutoExecTaskSQLModal" :title="$t('sql-yu-ju')" width="80vw" centered :draggable="false" class="responsive-sql-modal">
+      <div class="responsive-sql-modal-editor">
+        <read-only-editor :text="selectedAutoExecTaskSql" key="auto-exec-task-sql" :ds-type="ticketDetail.dataSourceType" />
+      </div>
+      <template #footer>
+        <Button :disabled="!canViewPreviousAutoExecTask || autoExecTaskSqlLoading" @click="handleSwitchAutoExecSQL(-1)">
+          <Icon type="ios-arrow-back" />
+          {{ $t('ticket-previous-item') }}
+        </Button>
+        <Button :disabled="!canViewNextAutoExecTask || autoExecTaskSqlLoading" @click="handleSwitchAutoExecSQL(1)">
+          {{ $t('ticket-next-item') }}
+          <Icon type="ios-arrow-forward" />
+        </Button>
+        <Button type="primary" @click="copyText(selectedAutoExecTaskSql)">{{ $t('fu-zhi-sql') }}</Button>
+        <Button @click="handleCloseModal">{{ $t('guan-bi') }}</Button>
+      </template>
     </CCModal>
     <CCModal v-model="showStopAutoExecJobModal" :title="$t('zan-ting')" @ok="handleStopAutoExecJob">
       {{
@@ -668,6 +700,8 @@ export default {
       autoExecJobLogList: [],
       autoExecTaskLogList: [],
       selectedAutoExecTask: {},
+      selectedAutoExecTaskSql: '',
+      autoExecTaskSqlLoading: false,
       autoExecTaskColumns: [],
       autoExecTaskColumnsWithTrans: [
         {
@@ -697,7 +731,8 @@ export default {
         },
         {
           title: 'SQL 语句',
-          slot: 'sql'
+          key: 'execSql',
+          ellipsis: true
         },
         {
           title: '操作',
@@ -729,7 +764,8 @@ export default {
         },
         {
           title: 'SQL 语句',
-          slot: 'sql'
+          key: 'execSql',
+          ellipsis: true
         },
         {
           title: '操作',
@@ -753,6 +789,7 @@ export default {
       showAutoExecuteModal: false,
       showManualExecuteModal: false,
       showRollbackSqlModal: false,
+      showTicketContentModal: false,
       showApprovalModal: false,
       approvalData: {
         rejected: 'false',
@@ -774,6 +811,8 @@ export default {
       ticketAutoRefreshActive: false,
       ticketAutoRefreshTimer: null,
       analysisDetailsExpanded: true,
+      analysisResultsExpanded: true,
+      taskExecutionExpanded: true,
       durationNow: Date.now(),
       durationTimer: null,
       TICKET_STATUS,
@@ -866,7 +905,9 @@ export default {
       }));
     },
     recognizedBehaviorRows() {
-      return [...this.analysisBehaviors]
+      const behaviorItem = this.analysisItems.find((item) => item.activityTitle === 'BEHAVIOR_ANALYSIS');
+      const behaviors = behaviorItem?.behaviors ?? this.analysisBehaviors;
+      return [...behaviors]
         .map((behavior) => ({
           ...behavior,
           actionItems: Object.keys(behavior.actionCounts || {}).length
@@ -888,6 +929,10 @@ export default {
       return [...(this.analysisProcess?.activityList || [])].sort(
         (left, right) => (left.displayOrder ?? Number.MAX_SAFE_INTEGER) - (right.displayOrder ?? Number.MAX_SAFE_INTEGER)
       );
+    },
+    analysisRuleResults() {
+      const ruleItem = this.analysisItems.find((item) => item.activityTitle === 'SECURITY_RULE');
+      return ruleItem?.ruleResults ?? this.noPassedRuleList;
     },
     showAnalysisSummary() {
       return (
@@ -922,10 +967,25 @@ export default {
       return this.formatElapsed(end - start);
     },
     hasError() {
-      return this.noPassedRuleList.some((rule) => rule.ruleLevel !== 'SUGGEST');
+      return this.analysisRuleResults.some((rule) => rule.ruleLevel !== 'SUGGEST');
     },
     sqlPreviewMaxStartLine() {
       return Math.max(1, this.sqlPreviewTotalLines - this.sqlPreviewLineCount + 1);
+    },
+    selectedAutoExecTaskIndex() {
+      return this.autoExecTaskList.findIndex((task) => task.taskId === this.selectedAutoExecTask.taskId);
+    },
+    canViewPreviousAutoExecTask() {
+      if (this.selectedAutoExecTaskIndex < 0) {
+        return false;
+      }
+      return (this.page - 1) * this.pageSize + this.selectedAutoExecTaskIndex > 0;
+    },
+    canViewNextAutoExecTask() {
+      if (this.selectedAutoExecTaskIndex < 0) {
+        return false;
+      }
+      return (this.page - 1) * this.pageSize + this.selectedAutoExecTaskIndex < this.total - 1;
     }
   },
   watch: {
@@ -938,16 +998,16 @@ export default {
   methods: {
     isCk,
     isMongoDB,
-    behaviorSqlCount(item) {
-      return item.sqlCount ?? this.analysisSqlCount;
+    behaviorStatementCount(item) {
+      return item.statementCount ?? this.analysisSqlCount;
     },
     behaviorSummaryText(item) {
       const values = {
-        sqlCount: this.behaviorSqlCount(item) || 0,
+        statementCount: this.behaviorStatementCount(item) || 0,
         objectCount: this.recognizedBehaviorRows.length,
-        operationCount: item.operationCount || 0
+        behaviorCount: item.behaviorCount || 0
       };
-      return item.operationCount == null
+      return item.behaviorCount == null
         ? this.$t('ticket-analysis-behavior-summary-legacy', values)
         : this.$t('ticket-analysis-behavior-summary', values);
     },
@@ -1001,16 +1061,19 @@ export default {
           ? this.$t('ticket-analysis-running')
           : this.$t('ticket-analysis-processed-count', { count: item.processedCount });
       }
-      if (item.activityTitle === 'SQL_RECOGNITION' && item.resultCount != null) {
-        return this.$t('ticket-analysis-sql-result', { count: item.resultCount });
+      if (item.activityTitle === 'SQL_RECOGNITION' && item.statementCount != null) {
+        return this.$t('ticket-analysis-sql-result', { count: item.statementCount });
       }
-      if (item.activityTitle === 'BEHAVIOR_ANALYSIS' && item.resultCount != null) {
-        return this.$t('ticket-analysis-behavior-result', { count: item.resultCount });
+      if (item.activityTitle === 'BEHAVIOR_ANALYSIS' && item.objectCount != null) {
+        return this.$t('ticket-analysis-behavior-summary-legacy', {
+          statementCount: item.statementCount ?? this.analysisSqlCount ?? 0,
+          objectCount: item.objectCount
+        });
       }
-      if (item.activityTitle === 'SECURITY_RULE' && item.resultCount != null) {
-        return item.resultCount === 0
+      if (item.activityTitle === 'SECURITY_RULE' && item.ruleCount != null) {
+        return item.ruleCount === 0
           ? this.$t('ticket-analysis-security-passed')
-          : this.$t('ticket-analysis-security-result', { count: item.resultCount });
+          : this.$t('ticket-analysis-security-result', { count: item.ruleCount });
       }
       return '--';
     },
@@ -1209,9 +1272,37 @@ export default {
       this.page = page;
       this.queryAutoExecTaskList();
     },
-    handleAutoExecSQL(task) {
-      this.selectedAutoExecTask = task;
-      this.showAutoExecTaskSQLModal = true;
+    async handleAutoExecSQL(task) {
+      this.autoExecTaskSqlLoading = true;
+      try {
+        const res = await this.$services.dmTicketQueryAutoExecTaskSql({
+          data: {
+            ticketId: this.ticketId,
+            taskId: task.taskId
+          }
+        });
+        if (res.success) {
+          this.selectedAutoExecTask = task;
+          this.selectedAutoExecTaskSql = res.data || '';
+          this.showAutoExecTaskSQLModal = true;
+        }
+      } finally {
+        this.autoExecTaskSqlLoading = false;
+      }
+    },
+    async handleSwitchAutoExecSQL(direction) {
+      let targetIndex = this.selectedAutoExecTaskIndex + direction;
+      if (targetIndex < 0 || targetIndex >= this.autoExecTaskList.length) {
+        const loaded = await this.queryAutoExecTaskList(this.page + direction);
+        if (!loaded) {
+          return;
+        }
+        targetIndex = direction < 0 ? this.autoExecTaskList.length - 1 : 0;
+      }
+      const targetTask = this.autoExecTaskList[targetIndex];
+      if (targetTask) {
+        await this.handleAutoExecSQL(targetTask);
+      }
     },
     handleRefreshTaskList() {
       this.queryAutoExecJobInfo();
@@ -1249,12 +1340,12 @@ export default {
         this.autoExecTaskColumns = res.data.enableTransactional ? this.autoExecTaskColumnsWithTrans : this.autoExecTaskColumnsWithoutTrans;
       }
     },
-    async queryAutoExecTaskList() {
+    async queryAutoExecTaskList(targetPage = this.page) {
       const res = await this.$services.dmTicketQueryAutoExecTaskList({
         data: {
           ticketId: this.ticketId,
           page: {
-            pageNum: this.page,
+            pageNum: targetPage,
             pageSize: this.pageSize
           }
         }
@@ -1265,7 +1356,9 @@ export default {
         this.page = res.data.current;
         this.pageSize = res.data.size;
         this.total = res.data.total;
+        return true;
       }
+      return false;
     },
     handleShowManualExecuteModal(type) {
       this.confirmInfo = {
@@ -1299,6 +1392,12 @@ export default {
     },
     handleShowRollbackSqlModal() {
       this.showRollbackSqlModal = true;
+    },
+    async handleShowTicketContentModal() {
+      this.showTicketContentModal = true;
+      await this.$nextTick();
+      this.sqlPreviewLineCount = this.$refs.sqlPreviewEditor?.getVisibleLineCount() || this.sqlPreviewLineCount;
+      await this.loadSqlPreview();
     },
     handleShowCloseTicketModal() {
       this.showCloseTicketModal = true;
@@ -1525,12 +1624,14 @@ export default {
       this.showApprovalModal = false;
       this.showCancelTicketModal = false;
       this.showRollbackSqlModal = false;
+      this.showTicketContentModal = false;
       this.showManualExecuteModal = false;
       this.showCloseTicketModal = false;
       this.showAutoExecuteModal = false;
       this.showAutoExecJobLogModal = false;
       this.showAutoExecTaskLogModal = false;
       this.showAutoExecTaskSQLModal = false;
+      this.selectedAutoExecTaskSql = '';
       this.showStopAutoExecJobModal = false;
       this.showRetryAutoExecJobModal = false;
       this.showEndAutoExecJobModal = false;
@@ -1553,9 +1654,9 @@ export default {
     },
     checkRoleResultList() {
       if (!this.showCheckedOnlyError) {
-        return this.noPassedRuleList;
+        return this.analysisRuleResults;
       } else {
-        return this.noPassedRuleList.filter((rule) => rule.ruleLevel !== 'SUGGEST');
+        return this.analysisRuleResults.filter((rule) => rule.ruleLevel !== 'SUGGEST');
       }
     }
   }
@@ -1731,6 +1832,13 @@ export default {
       padding: 12px 16px 0;
     }
 
+    .collapsible-card-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+    }
+
     .ticket-content-title {
       display: flex;
       align-items: center;
@@ -1806,6 +1914,50 @@ export default {
       &:hover::-moz-range-thumb {
         background: rgba(100, 100, 100, 0.7);
       }
+    }
+  }
+
+  .compact-ticket-content {
+    :deep(.ivu-card-body) {
+      padding: 0;
+    }
+
+    .ticket-content-entry {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 52px;
+      padding: 0 20px;
+      cursor: pointer;
+
+      &:hover {
+        background: #f8f8f9;
+      }
+
+      &:focus-visible {
+        outline: 2px solid #57a3f3;
+        outline-offset: -2px;
+      }
+    }
+
+    .ticket-content-title-main {
+      min-width: 0;
+
+      .parse-error-msgContent {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+    }
+
+    .ticket-content-entry-meta {
+      display: flex;
+      flex-shrink: 0;
+      align-items: center;
+      gap: 8px;
+      margin-left: 16px;
+      color: @icon-color;
+      font-size: 12px;
     }
   }
 
@@ -1951,6 +2103,65 @@ export default {
       border-radius: 2px;
       color: #fff;
       font-weight: bold;
+    }
+  }
+}
+
+.ticket-content-modal-editor,
+.responsive-sql-modal-editor {
+  position: relative;
+  height: clamp(320px, 62vh, 720px);
+  overflow: hidden;
+
+  :deep(.read-only-editor-wrapper),
+  :deep(.read-only-editor) {
+    height: 100% !important;
+  }
+}
+
+.ticket-content-modal-editor {
+  padding-right: 18px;
+
+  .ticket-virtual-scrollbar {
+    position: absolute;
+    z-index: 3;
+    top: 8px;
+    right: 3px;
+    width: 14px;
+    height: calc(100% - 16px);
+    margin: 0;
+    writing-mode: vertical-lr;
+    direction: ltr;
+    appearance: none;
+    background: transparent;
+    cursor: pointer;
+
+    &::-webkit-slider-runnable-track {
+      width: 10px;
+      height: 100%;
+      background: transparent;
+    }
+
+    &::-webkit-slider-thumb {
+      width: 10px;
+      height: 20px;
+      border: 0;
+      border-radius: 0;
+      appearance: none;
+      background: rgba(100, 100, 100, 0.45);
+    }
+
+    &::-moz-range-track {
+      width: 10px;
+      background: transparent;
+    }
+
+    &::-moz-range-thumb {
+      width: 10px;
+      height: 20px;
+      border: 0;
+      border-radius: 0;
+      background: rgba(100, 100, 100, 0.45);
     }
   }
 }

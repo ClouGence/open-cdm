@@ -50,6 +50,10 @@ public class RuleCheckPreInitHandler extends AbstractPreInitHandler {
     protected void doHandle(PreInitContext context) {
         DmApprovalDO approvalDO = context.getApproval();
         SecRulesCheckResult ruleCheckResult = new SecRulesCheckResult();
+        context.writeResult(state -> {
+            state.setCheckedInfo(DmConvertUtils.convertToTicketRuleCheckResults(ruleCheckResult));
+        });
+
         AnalysisRuleOptions options = AnalysisRuleOptions.builder()
             .currentUid(approvalDO.getOwnerUid())
             .dsId(approvalDO.getBindDsId())
@@ -69,6 +73,5 @@ public class RuleCheckPreInitHandler extends AbstractPreInitHandler {
             }
         });
 
-        context.writeResult(state -> state.setCheckedInfo(DmConvertUtils.convertToTicketRuleCheckResults(ruleCheckResult)));
     }
 }

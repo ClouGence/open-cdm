@@ -69,10 +69,10 @@ public class BehaviorPreInitHandler extends AbstractPreInitHandler {
         DmApprovalDO approvalDO = context.getApproval();
         Map<String, ApprovalBehavior> behaviors = new LinkedHashMap<>();
         AtomicLong sqlCounter = new AtomicLong();
-        AtomicLong operationCounter = new AtomicLong();
+        AtomicLong behaviorCounter = new AtomicLong();
         context.writeResult(state -> {
             state.setTotalCount(sqlCounter.get());
-            state.setOperationCount(operationCounter.get());
+            state.setBehaviorCount(behaviorCounter.get());
             state.setBehaviors(new ArrayList<>(behaviors.values()));
         });
         AnalysisQueryOptions options = AnalysisQueryOptions.builder()
@@ -86,7 +86,7 @@ public class BehaviorPreInitHandler extends AbstractPreInitHandler {
             try (Reader reader = context.openReader(sql);
                     Stream<QueryRequest> requests = this.queryAnalysisService.analysisRequestsStream(context.getDsConfig(), reader, Collections.emptyList(), 1, 0, options)) {
                 requests.forEachOrdered(request -> {
-                    operationCounter.addAndGet(this.analyzeRequest(request, behaviors));
+                    behaviorCounter.addAndGet(this.analyzeRequest(request, behaviors));
                     sqlCounter.incrementAndGet();
                     context.itemProcessed(request.getQueryBody());
                 });
@@ -102,8 +102,7 @@ public class BehaviorPreInitHandler extends AbstractPreInitHandler {
             throw new UnsupportedOperationException(DmI18nUtils.getMessage(I18nDmMsgKeys.TICKET_NONSUPPORT_TRANSACTION_OPERATE_ERROR.name()));
         }
 
-        long operationCount = 0;
-        Set<String> requestOperations = new HashSet<>();
+        long behaviorCount = 0;
         for (BehaviorRequest behaviorRequest : BehaviorRelations.flattenResourceIgnoringPermission(request.getRelations())) {
             BehaviorAction action = behaviorRequest.action();
             if (action == BehaviorAction.SWITCH) {
@@ -114,9 +113,6 @@ public class BehaviorPreInitHandler extends AbstractPreInitHandler {
             TargetType resourceType = Objects.requireNonNullElse(resource.getObjectType(), TargetType.Unknown);
             String resourcePath = DmDsUtils.normalizeResourcePath(resource.getObjectPath());
             String resourceKey = resourceType + "|" + resourcePath;
-            if (!requestOperations.add(resourceKey + "|" + action)) {
-                continue;
-            }
             ApprovalBehavior target = behaviors.computeIfAbsent(resourceKey, ignored -> {
                 ApprovalBehavior value = new ApprovalBehavior();
                 value.setResourceType(resourceType);
@@ -125,9 +121,9 @@ public class BehaviorPreInitHandler extends AbstractPreInitHandler {
             });
             target.getActions().add(action);
             target.getActionCounts().merge(action, 1L, Long::sum);
-            operationCount++;
+            behaviorCount++;
         }
-        return operationCount;
+        return behaviorCount;
     }
 
     private ErrorMessageException lineError(int line, String message) {
