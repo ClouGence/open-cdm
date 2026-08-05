@@ -139,15 +139,19 @@ if [ -d "$LIBS_DIR" ]; then
     rm -f "$LIBS_DIR"/*-x86_64.jar 2>/dev/null
   fi
   echo "  Removed non-macOS native jars"
-
 fi
 
-BUILTIN_DRIVERS_DIR="$BUILD_DIR/backend/built-in-drivers"
+# 3. Drop built-in-drivers — desktop users download drivers on demand.
+#    Also avoids ~100MB package bloat and notarization of nested native libs.
+if [ -d "$BUILD_DIR/backend/built-in-drivers" ]; then
+  echo "  Remove built-in-drivers ($(du -sh "$BUILD_DIR/backend/built-in-drivers" | cut -f1))"
+  rm -rf "$BUILD_DIR/backend/built-in-drivers"
+fi
+
 # Sign native libraries (.jnilib/.dylib) embedded inside JARs for notarization.
 # Starting late 2024, Apple requires ALL binaries in the bundle to be signed,
 # including those inside ZIP/JAR archives. codesign --deep cannot reach them,
 # so we extract → sign → repack with jar.
-# Main branch now ships built-in-drivers in alone tgz; scan both libs and that tree.
 sign_native_libs_in_jars() {
   local scan_root="$1"
   [ -d "$scan_root" ] || return 0
@@ -185,14 +189,13 @@ sign_native_libs_in_jars() {
 
 if security find-identity -v -p basic 2>/dev/null | grep -q "Developer ID Application"; then
   sign_native_libs_in_jars "$LIBS_DIR"
-  sign_native_libs_in_jars "$BUILTIN_DRIVERS_DIR"
 else
   echo "  Skipping JAR native lib signing (Developer ID Application cert not found)."
 fi
 
 echo "  Libs size after trim: $(du -sh "$LIBS_DIR" 2>/dev/null | cut -f1)"
 
-# 3. Rewrite alone.properties for desktop — dedicated ports, TCP JDBC to bundled MySQL
+# 4. Rewrite alone.properties for desktop — dedicated ports, TCP JDBC to bundled MySQL
 ALONE_PROPS="$BUILD_DIR/backend/conf/alone.properties"
 if [ -f "$ALONE_PROPS" ]; then
   sed -i '' 's/server\.port=[0-9]*/server.port=18222/' "$ALONE_PROPS"
