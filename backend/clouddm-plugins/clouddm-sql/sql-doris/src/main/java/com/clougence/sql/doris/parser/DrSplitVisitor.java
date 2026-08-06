@@ -794,6 +794,9 @@ public class DrSplitVisitor extends DorisParserBaseVisitor<SplitQueryType> {
     @Override
     public SplitQueryType visitSupportedShowStatementAlias(SupportedShowStatementAliasContext ctx) {
         SupportedShowStatementContext show = ctx.supportedShowStatement();
+        if (show instanceof ShowBackupContext || show instanceof ShowRestoreContext || show instanceof ShowSnapshotContext) {
+            return SplitQueryType.MAINTAIN_BACKUP;
+        }
         if (show instanceof ShowProcessListContext || show instanceof ShowWarningErrorsContext || show instanceof ShowWarningErrorCountContext || show instanceof ShowStatusContext
             || show instanceof ShowOpenTablesContext || show instanceof ShowLoadProfileContext || show instanceof ShowQueryProfileContext
             || show instanceof ShowDiagnoseTabletContext || show instanceof ShowQueryStatsContext || show instanceof ShowDataSkewContext) {
@@ -844,12 +847,12 @@ public class DrSplitVisitor extends DorisParserBaseVisitor<SplitQueryType> {
 
     @Override
     public SplitQueryType visitBackup(BackupContext ctx) {
-        return SplitQueryType.DATA_EXPORT;
+        return SplitQueryType.BACKUP;
     }
 
     @Override
     public SplitQueryType visitRestore(RestoreContext ctx) {
-        return SplitQueryType.DATA_IMPORT;
+        return SplitQueryType.RESTORE;
     }
 
     @Override
@@ -989,12 +992,12 @@ public class DrSplitVisitor extends DorisParserBaseVisitor<SplitQueryType> {
 
     @Override
     public SplitQueryType visitCancelBackup(CancelBackupContext ctx) {
-        return SplitQueryType.ADMIN;
+        return SplitQueryType.MAINTAIN_BACKUP;
     }
 
     @Override
     public SplitQueryType visitCancelRestore(CancelRestoreContext ctx) {
-        return SplitQueryType.ADMIN;
+        return SplitQueryType.MAINTAIN_BACKUP;
     }
 
     @Override

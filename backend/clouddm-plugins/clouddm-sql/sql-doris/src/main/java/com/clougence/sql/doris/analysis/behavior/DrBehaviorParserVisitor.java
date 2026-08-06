@@ -190,6 +190,11 @@ final class DrStatementBehaviorVisitor extends DorisParserBaseVisitor<Void> {
             add(type, BehaviorAction.LOAD, objects.unnamedObject(TargetType.Index, context, UmiTypes.Schema));
             return true;
         }
+        if (normalized.startsWith("SHOW BACKUP") || normalized.startsWith("SHOW RESTORE") || normalized.startsWith("SHOW BRIEF RESTORE")
+            || normalized.startsWith("SHOW SNAPSHOT")) {
+            add(type, BehaviorAction.READ, objects.unnamedObject(TargetType.Backup, context, UmiTypes.Instance));
+            return true;
+        }
         if (normalized.startsWith("SHOW ")) {
             TargetType target = normalized
                 .contains("INDEX") ? TargetType.Index : normalized.contains("STATS") || normalized.contains("ANALYZE") ? TargetType.Statistics : TargetType.Query;
@@ -996,7 +1001,7 @@ final class DrStatementBehaviorVisitor extends DorisParserBaseVisitor<Void> {
         for (BaseTableRefContext table : ctx.baseTableRef()) {
             targets.add(object(TargetType.Table, table.multipartIdentifier()));
         }
-        add(SplitQueryType.DATA_EXPORT, BehaviorAction.EXPORT, backup, targets);
+        add(SplitQueryType.BACKUP, BehaviorAction.EXPORT, backup, targets);
         return null;
     }
 
@@ -1008,7 +1013,7 @@ final class DrStatementBehaviorVisitor extends DorisParserBaseVisitor<Void> {
         for (BaseTableRefContext table : ctx.baseTableRef()) {
             targets.add(object(TargetType.Table, table.multipartIdentifier()));
         }
-        add(SplitQueryType.DATA_IMPORT, BehaviorAction.RESTORE, backup, targets);
+        add(SplitQueryType.RESTORE, BehaviorAction.RESTORE, backup, targets);
         return null;
     }
 

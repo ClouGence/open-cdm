@@ -14,14 +14,14 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
 
+import com.clougence.clouddm.ds.tidb.sql.analysis.reference.TiDBResourceRegistry;
+import com.clougence.clouddm.ds.tidb.sql.parser.TiDBVersion;
 import com.clougence.clouddm.ds.tidb.sql.parser.antlr.TiDBParser;
 import com.clougence.clouddm.ds.tidb.sql.parser.antlr.TiDBParser.*;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
-import com.clougence.clouddm.ds.tidb.sql.analysis.reference.TiDBResourceRegistry;
-import com.clougence.clouddm.ds.tidb.sql.parser.TiDBVersion;
 import com.clougence.utils.StringUtils;
 
 /**
@@ -29,11 +29,11 @@ import com.clougence.utils.StringUtils;
  */
 final class TiBehaviorObjectReferenceVisitor extends TiDBObjectReferenceVisitor {
 
-    private final Parser                parser;
+    private final Parser               parser;
     private final TiDBVersion          version;
-    private final int                   exactVersion;
+    private final int                  exactVersion;
     private final TiDBResourceRegistry resources;
-    private final Set<String>           cteNames = new HashSet<>();
+    private final Set<String>          cteNames = new HashSet<>();
 
     TiBehaviorObjectReferenceVisitor(Parser parser, Map<UmiTypes, Object> levelsParam, int baseLine, int baseColumn, TiDBVersion version, int exactVersion,
                                      TiDBResourceRegistry resources){
@@ -82,7 +82,7 @@ final class TiBehaviorObjectReferenceVisitor extends TiDBObjectReferenceVisitor 
     @Override
     public Void visitBrieBackup(BrieBackupContext ctx) {
         if (ctx.brieObjects().tables() != null) {
-            ctx.brieObjects().tables().tableName().forEach(table -> add(SplitQueryType.DATA_EXPORT, TargetType.Table, true, table));
+            ctx.brieObjects().tables().tableName().forEach(table -> add(SplitQueryType.BACKUP, TargetType.Table, true, table));
         }
         return null;
     }
@@ -90,7 +90,7 @@ final class TiBehaviorObjectReferenceVisitor extends TiDBObjectReferenceVisitor 
     @Override
     public Void visitBrieRestore(BrieRestoreContext ctx) {
         if (ctx.brieObjects().tables() != null) {
-            ctx.brieObjects().tables().tableName().forEach(table -> add(SplitQueryType.DATA_IMPORT, TargetType.Table, true, table));
+            ctx.brieObjects().tables().tableName().forEach(table -> add(SplitQueryType.RESTORE, TargetType.Table, true, table));
         }
         return null;
     }
@@ -189,7 +189,8 @@ final class TiBehaviorObjectReferenceVisitor extends TiDBObjectReferenceVisitor 
 
     @Override
     public Void visitTidbShowStatement(TidbShowStatementContext ctx) {
-        addLooseTableList(ctx, SplitQueryType.METADATA);
+        TidbShowCommandContext command = ctx.tidbShowCommand();
+        addLooseTableList(ctx, command.BACKUP() != null || command.BACKUPS() != null || command.BR() != null ? SplitQueryType.MAINTAIN_BACKUP : SplitQueryType.METADATA);
         return null;
     }
 
@@ -406,8 +407,7 @@ final class TiBehaviorObjectReferenceVisitor extends TiDBObjectReferenceVisitor 
     @Override
     public Void visitSpecificFunctionCall(SpecificFunctionCallContext ctx) {
         SpecificFunctionContext function = ctx.specificFunction();
-        if (!(function instanceof CaseFunctionCallContext) &&
-                !(function instanceof ValuesFunctionCallContext)) {
+        if (!(function instanceof CaseFunctionCallContext) && !(function instanceof ValuesFunctionCallContext)) {
             addFunction(ctx.getStart());
         }
         return visitChildren(ctx);

@@ -253,6 +253,11 @@ public enum SplitQueryType {
     // Data import and export
     DATA_IMPORT,
     DATA_EXPORT,
+    // Database backup lifecycle
+    BACKUP,
+    RESTORE,
+    RECOVER,
+    MAINTAIN_BACKUP,
     // Metadata
     METADATA,
 

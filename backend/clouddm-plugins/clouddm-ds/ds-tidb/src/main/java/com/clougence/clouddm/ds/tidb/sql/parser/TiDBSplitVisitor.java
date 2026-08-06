@@ -22,21 +22,20 @@ import java.util.*;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.RuleNode;
 
+import com.clougence.clouddm.ds.tidb.sql.analysis.reference.TiDBResourceRegistry;
 import com.clougence.clouddm.ds.tidb.sql.parser.antlr.TiDBParserBaseVisitor;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
-import com.clougence.clouddm.ds.tidb.sql.analysis.reference.TiDBResourceRegistry;
-import com.clougence.clouddm.ds.tidb.sql.parser.TiDBVersion;
 
 public class TiDBSplitVisitor extends TiDBParserBaseVisitor<SplitQueryType> {
 
-    private final Set<SplitQueryType>   types                   = new LinkedHashSet<>();
-    private final Set<String>           cteNames                = new LinkedHashSet<>();
+    private final Set<SplitQueryType>  types    = new LinkedHashSet<>();
+    private final Set<String>          cteNames = new LinkedHashSet<>();
     private final TiDBVersion          version;
     private final TiDBResourceRegistry resources;
-    private boolean                     currentNodeOnly;
-    private boolean                     externalCodeLifecycleRisk;
-    private boolean                     metadataTableRead;
-    private boolean                     ordinaryTableRead;
+    private boolean                    currentNodeOnly;
+    private boolean                    externalCodeLifecycleRisk;
+    private boolean                    metadataTableRead;
+    private boolean                    ordinaryTableRead;
 
     public TiDBSplitVisitor(){
         this(TiDBVersion.LATEST, TiDBResourceRegistry.instance());
@@ -141,6 +140,13 @@ public class TiDBSplitVisitor extends TiDBParserBaseVisitor<SplitQueryType> {
 
     private void collectDirectActions(ParseTree tree) {
         collectLockAction(tree);
+        if (tree instanceof BrieBackupContext) {
+            this.types.add(SplitQueryType.DATA_EXPORT);
+        } else if (tree instanceof BrieRestoreContext) {
+            this.types.add(SplitQueryType.DATA_IMPORT);
+        } else if (tree instanceof BrieAdminContext ctx && ctx.PURGE() != null) {
+            this.types.add(SplitQueryType.UNSAFE);
+        }
         if (tree instanceof SetBindingContext ctx && !ctx.tidbLooseArgument().isEmpty() && ctx.tidbLooseArgument(0).getStart().getType() == SELECT) {
             this.types.add(SplitQueryType.SELECT);
         }
@@ -608,7 +614,8 @@ public class TiDBSplitVisitor extends TiDBParserBaseVisitor<SplitQueryType> {
 
     @Override
     public SplitQueryType visitTidbShowStatement(TidbShowStatementContext ctx) {
-        return SplitQueryType.METADATA;
+        TidbShowCommandContext command = ctx.tidbShowCommand();
+        return command.BACKUP() != null || command.BACKUPS() != null || command.BR() != null ? SplitQueryType.MAINTAIN_BACKUP : SplitQueryType.METADATA;
     }
 
     @Override
@@ -623,17 +630,17 @@ public class TiDBSplitVisitor extends TiDBParserBaseVisitor<SplitQueryType> {
 
     @Override
     public SplitQueryType visitBrieBackup(BrieBackupContext ctx) {
-        return SplitQueryType.DATA_EXPORT;
+        return SplitQueryType.BACKUP;
     }
 
     @Override
     public SplitQueryType visitBrieRestore(BrieRestoreContext ctx) {
-        return SplitQueryType.DATA_IMPORT;
+        return SplitQueryType.RESTORE;
     }
 
     @Override
     public SplitQueryType visitBrieAdmin(BrieAdminContext ctx) {
-        return SplitQueryType.ADMIN;
+        return SplitQueryType.MAINTAIN_BACKUP;
     }
 
     @Override
@@ -1448,7 +1455,7 @@ public class TiDBSplitVisitor extends TiDBParserBaseVisitor<SplitQueryType> {
 
     @Override
     public SplitQueryType visitShowRuntimeStatistics(ShowRuntimeStatisticsContext ctx) {
-        return SplitQueryType.PERFORMANCE;
+        return ctx.RESTORES() != null ? SplitQueryType.MAINTAIN_BACKUP : SplitQueryType.PERFORMANCE;
     }
 
     @Override

@@ -17,21 +17,21 @@ package com.clougence.clouddm.ds.tidb.sql.analysis.behavior;
 
 import java.util.*;
 
+import com.clougence.clouddm.ds.tidb.sql.analysis.reference.TiDBObjectReference;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.*;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
-import com.clougence.clouddm.ds.tidb.sql.analysis.reference.TiDBObjectReference;
 import com.clougence.utils.StringUtils;
 
 final class TiBehaviorRelationAssembler {
 
-    private final String                     sql;
-    private final SplitQueryType             statementType;
-    private final BehaviorAction             statementAction;
+    private final String                    sql;
+    private final SplitQueryType            statementType;
+    private final BehaviorAction            statementAction;
     private final List<TiDBObjectReference> references;
-    private final Map<UmiTypes, Object>      levels;
-    private final boolean[]                  consumed;
-    private final List<BehaviorRelation>     relations = new ArrayList<>();
+    private final Map<UmiTypes, Object>     levels;
+    private final boolean[]                 consumed;
+    private final List<BehaviorRelation>    relations = new ArrayList<>();
 
     TiBehaviorRelationAssembler(String sql, SplitQueryType statementType, List<TiDBObjectReference> references, Map<UmiTypes, Object> levels){
         this.sql = sql == null ? "" : sql;
@@ -74,8 +74,7 @@ final class TiBehaviorRelationAssembler {
         if (statementType != SplitQueryType.CREATE_TABLE && statementType != SplitQueryType.ALTER_TABLE) {
             return;
         }
-        int table = first(reference -> reference.targetType() == TargetType.Table
-                                       && (action(reference) == BehaviorAction.CREATE || action(reference) == BehaviorAction.ALTER));
+        int table = first(reference -> reference.targetType() == TargetType.Table && (action(reference) == BehaviorAction.CREATE || action(reference) == BehaviorAction.ALTER));
         if (table < 0) {
             return;
         }
@@ -292,7 +291,7 @@ final class TiBehaviorRelationAssembler {
             return;
         }
         List<Integer> sources = all(reference -> action(reference) == BehaviorAction.READ && isDataObject(reference.targetType())
-                                                  && !sameDataObject(references.get(subject), reference));
+                                                 && !sameDataObject(references.get(subject), reference));
         if (sources.isEmpty()) {
             return;
         }
@@ -621,7 +620,10 @@ final class TiBehaviorRelationAssembler {
             case REVOKE -> BehaviorAction.REVOKE;
             case TRANSFER_PRIVILEGE -> BehaviorAction.TRANSFER;
             case DATA_IMPORT -> BehaviorAction.IMPORT;
-            case DATA_EXPORT -> BehaviorAction.EXPORT;
+            case DATA_EXPORT, BACKUP -> BehaviorAction.EXPORT;
+            case RESTORE -> BehaviorAction.RESTORE;
+            case RECOVER -> BehaviorAction.RECOVER;
+            case MAINTAIN_BACKUP -> BehaviorAction.UNKNOWN;
             case QUERY_LOCK, SESSION_LOCK -> BehaviorAction.LOCK;
             case SESSION_SETTING_WRITE, SYSTEM_SETTING_WRITE -> BehaviorAction.CONFIGURE;
             default -> BehaviorAction.UNKNOWN;

@@ -2958,6 +2958,53 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
     }
 
     @Override
+    public Void visitBrieBackup(BrieBackupContext ctx) {
+        addBackupLifecycleDomain(RuleQueryType.BACKUP, TargetType.Backup);
+        return null;
+    }
+
+    @Override
+    public Void visitBrieRestore(BrieRestoreContext ctx) {
+        TargetType target = ctx.brieObjects().TABLE() != null ? TargetType.Table : ctx.brieObjects().LOGS() != null ? TargetType.Log : TargetType.Schema;
+        addBackupLifecycleDomain(RuleQueryType.RESTORE, target);
+        return null;
+    }
+
+    @Override
+    public Void visitBrieAdmin(BrieAdminContext ctx) {
+        addBackupLifecycleDomain(RuleQueryType.MAINTAIN_BACKUP, TargetType.Backup);
+        return null;
+    }
+
+    @Override
+    public Void visitTidbShowStatement(TidbShowStatementContext ctx) {
+        TidbShowCommandContext command = ctx.tidbShowCommand();
+        if (command.BACKUP() == null && command.BACKUPS() == null && command.BR() == null) {
+            throw new UnsupportedOperationException("unsupported SQL: " + getText(ctx));
+        }
+        addBackupLifecycleDomain(RuleQueryType.MAINTAIN_BACKUP, TargetType.Backup);
+        return null;
+    }
+
+    @Override
+    public Void visitShowRuntimeStatistics(ShowRuntimeStatisticsContext ctx) {
+        if (ctx.RESTORES() == null) {
+            throw new UnsupportedOperationException("unsupported SQL: " + getText(ctx));
+        }
+        addBackupLifecycleDomain(RuleQueryType.MAINTAIN_BACKUP, TargetType.Backup);
+        return null;
+    }
+
+    private void addBackupLifecycleDomain(RuleQueryType type, TargetType target) {
+        RdbResourceDomain domain = new RdbResourceDomain();
+        domain.setAuditKind(SecQueryKind.ADMIN);
+        domain.setSqlType(type);
+        domain.setNeedSupply(true);
+        domain.setTarget(target);
+        builder.addDomain(domain);
+    }
+
+    @Override
     public Void visitPreparedStatement(PreparedStatementContext ctx) {
         dmVisitChildren(ctx);
         return null;

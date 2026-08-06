@@ -271,6 +271,12 @@ public enum RuleQueryType {
     DATA_IMPORT(TargetType.Unknown, SecDataAuthKind.WRITE, SecQueryKind.ADMIN),
     DATA_EXPORT(TargetType.Unknown, SecDataAuthKind.READ, SecQueryKind.ADMIN),
 
+    // Database backup lifecycle
+    BACKUP(TargetType.Backup, SecDataAuthKind.MAINTAIN, SecQueryKind.ADMIN),
+    RESTORE(TargetType.Unknown, SecDataAuthKind.MAINTAIN, SecQueryKind.ADMIN),
+    RECOVER(TargetType.Unknown, SecDataAuthKind.MAINTAIN, SecQueryKind.ADMIN),
+    MAINTAIN_BACKUP(TargetType.Backup, SecDataAuthKind.MAINTAIN, SecQueryKind.ADMIN),
+
     // Metadata and performance
     METADATA(TargetType.Unknown, SecDataAuthKind.READ, SecQueryKind.QUERY),
     PERFORMANCE(TargetType.Query, SecDataAuthKind.READ, SecQueryKind.QUERY),
@@ -327,7 +333,7 @@ public enum RuleQueryType {
     COPY_INTO(TargetType.Unknown, SecDataAuthKind.WRITE, SecQueryKind.DML),
     EXPORT(TargetType.Unknown, SecDataAuthKind.MAINTAIN, SecQueryKind.OTHER),
     SYNC(TargetType.Unknown, SecDataAuthKind.MAINTAIN, SecQueryKind.OTHER),
-    RECOVER(TargetType.Unknown, SecDataAuthKind.DDL, SecQueryKind.ALTER),
+    RECOVER_OBJECT(TargetType.Unknown, SecDataAuthKind.DDL, SecQueryKind.ALTER),
 
     // Other
     UNSAFE(TargetType.Unknown, SecDataAuthKind.UNSAFE, SecQueryKind.OTHER),

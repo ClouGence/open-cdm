@@ -180,13 +180,20 @@ public class DmSplitVisitor extends DmSqlParserBaseVisitor<SplitQueryType> {
 
     @Override
     public SplitQueryType visitAdminStatement(DmSqlParser.AdminStatementContext ctx) {
-        if (ctx.backupStatementTail() != null || ctx.dumpStatementTail() != null) {
-            return SplitQueryType.DATA_EXPORT;
+        if (ctx.backupStatementTail() != null) {
+            return SplitQueryType.BACKUP;
         }
-        if (ctx.restoreStatementTail() != null || ctx.recoverStatementTail() != null || ctx.loadBackupsetsTail() != null || ctx.mergeDatabaseTail() != null) {
-            return SplitQueryType.DATA_IMPORT;
+        if (ctx.restoreStatementTail() != null) {
+            return SplitQueryType.RESTORE;
         }
-        if (ctx.showBackupsetTail() != null || ctx.CONFIGURE() != null && ctx.configureStatementTail() == null) {
+        if (ctx.recoverStatementTail() != null || ctx.mergeDatabaseTail() != null) {
+            return SplitQueryType.RECOVER;
+        }
+        if (ctx.showBackupsetTail() != null || ctx.checkStatementTail() != null || ctx.dumpStatementTail() != null || ctx.loadBackupsetsTail() != null
+            || ctx.removeStatementTail() != null) {
+            return SplitQueryType.MAINTAIN_BACKUP;
+        }
+        if (ctx.CONFIGURE() != null && ctx.configureStatementTail() == null) {
             return SplitQueryType.METADATA;
         }
         if (ctx.CONFIGURE() != null) {

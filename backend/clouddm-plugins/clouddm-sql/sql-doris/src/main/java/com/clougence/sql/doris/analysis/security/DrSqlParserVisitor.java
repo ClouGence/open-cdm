@@ -1042,10 +1042,40 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
 
     @Override
     public Void visitSupportedShowStatementAlias(SupportedShowStatementAliasContext ctx) {
+        SupportedShowStatementContext show = ctx.supportedShowStatement();
+        if (show instanceof ShowBackupContext || show instanceof ShowRestoreContext || show instanceof ShowSnapshotContext) {
+            builder.addDomain(new RdbResourceDomain(RuleQueryType.MAINTAIN_BACKUP, SecQueryKind.ADMIN, true, TargetType.Backup));
+            return null;
+        }
         DrShowDomain drShowDomain = new DrShowDomain();
         drShowDomain.setSqlType(RuleQueryType.UNKNOWN);
         drShowDomain.setAuditKind(SecQueryKind.QUERY);
         builder.addDomain(drShowDomain);
+        return null;
+    }
+
+    @Override
+    public Void visitBackup(BackupContext ctx) {
+        builder.addDomain(new RdbResourceDomain(RuleQueryType.BACKUP, SecQueryKind.ADMIN, true, TargetType.Backup));
+        return null;
+    }
+
+    @Override
+    public Void visitRestore(RestoreContext ctx) {
+        TargetType target = ctx.baseTableRef().isEmpty() ? TargetType.Schema : TargetType.Table;
+        builder.addDomain(new RdbResourceDomain(RuleQueryType.RESTORE, SecQueryKind.ADMIN, true, target));
+        return null;
+    }
+
+    @Override
+    public Void visitCancelBackup(CancelBackupContext ctx) {
+        builder.addDomain(new RdbResourceDomain(RuleQueryType.MAINTAIN_BACKUP, SecQueryKind.ADMIN, true, TargetType.Backup));
+        return null;
+    }
+
+    @Override
+    public Void visitCancelRestore(CancelRestoreContext ctx) {
+        builder.addDomain(new RdbResourceDomain(RuleQueryType.MAINTAIN_BACKUP, SecQueryKind.ADMIN, true, TargetType.Backup));
         return null;
     }
 

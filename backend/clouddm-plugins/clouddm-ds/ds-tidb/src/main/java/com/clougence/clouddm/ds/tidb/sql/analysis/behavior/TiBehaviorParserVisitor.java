@@ -17,12 +17,12 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 import org.antlr.v4.runtime.tree.ParseTree;
 
+import com.clougence.clouddm.ds.tidb.sql.analysis.reference.TiDBResourceRegistry;
 import com.clougence.clouddm.ds.tidb.sql.parser.TiDBDslProvider;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.*;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.behavior.RdbBehaviorObjectFactory;
-import com.clougence.clouddm.ds.tidb.sql.analysis.reference.TiDBResourceRegistry;
 import com.clougence.utils.StringUtils;
 
 final class TiBehaviorParserVisitor extends AbstractParseTreeVisitor<Void> {
@@ -32,7 +32,7 @@ final class TiBehaviorParserVisitor extends AbstractParseTreeVisitor<Void> {
     private final Map<UmiTypes, Object>   levels;
     private final int                     baseLine;
     private final int                     baseColumn;
-    private final TiDBResourceRegistry   resources;
+    private final TiDBResourceRegistry    resources;
     private final List<StatementBehavior> behaviors = new ArrayList<>();
     private ParserRuleContext             statementContext;
     private String                        statementSql;
@@ -198,6 +198,9 @@ final class TiBehaviorParserVisitor extends AbstractParseTreeVisitor<Void> {
                                     || normalized.startsWith("PAUSE") ? BehaviorAction.STOP : normalized.startsWith("RESUME") ? BehaviorAction.START : BehaviorAction.PURGE;
             addUnnamedRelation(sql, behavior, TargetType.Log, action);
             addQuotedPathAfter(sql, behavior, "FROM", TargetType.File, BehaviorAction.READ);
+            if (normalized.startsWith("PURGE")) {
+                addUnnamedRelation(sql, behavior, TargetType.Backup, BehaviorAction.UNSAFE);
+            }
         } else if (normalized.startsWith("CREATE GLOBAL BINDING") || normalized.startsWith("CREATE SESSION BINDING") || normalized.startsWith("CREATE BINDING")) {
             addUnnamedRelation(sql, behavior, TargetType.Policy, BehaviorAction.CREATE);
         } else if (normalized.startsWith("DROP GLOBAL BINDING") || normalized.startsWith("DROP SESSION BINDING") || normalized.startsWith("DROP BINDING")) {
@@ -747,8 +750,7 @@ final class TiBehaviorParserVisitor extends AbstractParseTreeVisitor<Void> {
     }
 
     private static boolean isLoadDataJobCommand(String sql) {
-        return TiBehaviorText.afterStartingWords(sql, "DROP", "LOAD", "DATA", "JOB") >= 0
-               || TiBehaviorText.afterStartingWords(sql, "PAUSE", "LOAD", "DATA", "JOB") >= 0
+        return TiBehaviorText.afterStartingWords(sql, "DROP", "LOAD", "DATA", "JOB") >= 0 || TiBehaviorText.afterStartingWords(sql, "PAUSE", "LOAD", "DATA", "JOB") >= 0
                || TiBehaviorText.afterStartingWords(sql, "RESUME", "LOAD", "DATA", "JOB") >= 0;
     }
 
@@ -824,6 +826,8 @@ final class TiBehaviorParserVisitor extends AbstractParseTreeVisitor<Void> {
             case CREATE_USER, ALTER_USER, DROP_USER, RENAME_USER, SWITCH_USER -> TargetType.User;
             case CREATE_ROLE, ALTER_ROLE, DROP_ROLE, RENAME_ROLE, SWITCH_ROLE -> TargetType.Role;
             case DATA_IMPORT, DATA_EXPORT -> TargetType.File;
+            case BACKUP, MAINTAIN_BACKUP -> TargetType.Backup;
+            case RESTORE, RECOVER -> TargetType.Unknown;
             case ADMIN_TABLE -> TargetType.Table;
             case ADMIN, ADMIN_PERFORMANCE, PERFORMANCE, METADATA, SESSION_LOCK, UNSAFE -> TargetType.Instance;
             case TRANSACTION -> TargetType.Transaction;

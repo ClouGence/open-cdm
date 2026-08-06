@@ -50,6 +50,7 @@ public class DmSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
         Set<SplitQueryType> types = new LinkedHashSet<>();
         SplitQueryType primaryType = normalizeType(context.accept(splitVisitor()));
         types.add(primaryType);
+        addBackupLifecycleTypes(context, types);
         if (primaryType == SplitQueryType.BLOCK || primaryType == SplitQueryType.PERFORMANCE || primaryType == SplitQueryType.CREATE_SCHEMA) {
             return types;
         }
@@ -64,6 +65,51 @@ public class DmSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
         collectAdditionalTypes(context, context, types, viewDefinition, programDefinition, opaqueExternalDefinition, tableCtasDefinition);
         normalizeCompositeTypes(context, types);
         return types;
+    }
+
+    private void addBackupLifecycleTypes(ParserRuleContext context, Set<SplitQueryType> types) {
+        DmSqlParser.AdminStatementContext admin = findContext(context, DmSqlParser.AdminStatementContext.class);
+        if (admin == null) {
+            return;
+        }
+        if (admin.backupStatementTail() != null) {
+            types.add(SplitQueryType.DATA_EXPORT);
+            DmSqlParser.BackupArchiveLogTailContext archive = admin.backupStatementTail().backupArchiveLogTail();
+            if (archive != null && archive.DELETE() != null && archive.INPUT() != null) {
+                types.add(SplitQueryType.UNSAFE);
+            }
+        } else if (admin.restoreStatementTail() != null) {
+            types.add(SplitQueryType.DATA_IMPORT);
+            if (isOverwriteRestore(admin.restoreStatementTail())) {
+                types.add(SplitQueryType.UNSAFE);
+            }
+        } else if (admin.dumpStatementTail() != null) {
+            types.add(SplitQueryType.DATA_EXPORT);
+        } else if (admin.loadBackupsetsTail() != null) {
+            types.add(SplitQueryType.DATA_IMPORT);
+        } else if (admin.removeStatementTail() != null) {
+            types.add(SplitQueryType.UNSAFE);
+        } else if (admin.mergeDatabaseTail() != null) {
+            types.add(SplitQueryType.DATA_IMPORT);
+            if (admin.mergeDatabaseTail().restoreDatabaseTargetOption().stream().anyMatch(option -> option.OVERWRITE() != null)) {
+                types.add(SplitQueryType.UNSAFE);
+            }
+        }
+        DmSqlParser.ShowBackupsetTailContext show = admin.showBackupsetTail();
+        if (show != null && show.showBackupsetOutputClause() != null) {
+            types.add(SplitQueryType.DATA_EXPORT);
+        }
+    }
+
+    private static boolean isOverwriteRestore(DmSqlParser.RestoreStatementTailContext restore) {
+        if (restore.restoreDatabaseTarget() != null) {
+            boolean databaseOverwrite = restore.restoreDatabaseTarget().restoreDatabaseTargetOption().stream().anyMatch(option -> option.OVERWRITE() != null);
+            boolean directoryOverwrite = restore.restoreDatabaseTarget().restoreDirectoryTargetOption().stream().anyMatch(option -> option.OVERWRITE() != null);
+            if (databaseOverwrite || directoryOverwrite) {
+                return true;
+            }
+        }
+        return restore.restoreArchiveTail() != null && restore.restoreArchiveTail().OVERWRITE() != null;
     }
 
     private void normalizeCompositeTypes(ParseTree context, Set<SplitQueryType> types) {

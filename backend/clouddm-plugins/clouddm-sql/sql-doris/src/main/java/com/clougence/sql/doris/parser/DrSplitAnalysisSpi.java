@@ -36,6 +36,10 @@ public class DrSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
     private static final Set<String> EXTERNAL_TABLE_FUNCTIONS = Set.of("azure", "gcs", "hdfs", "http_stream", "jdbc", "local", "s3");
     private final DrDslProvider      provider;
 
+    public DrSplitAnalysisSpi(){
+        this(DrDslProvider.INSTANCE);
+    }
+
     public DrSplitAnalysisSpi(DrDslProvider provider){
         this.provider = provider;
     }
@@ -60,7 +64,7 @@ public class DrSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
         }
 
         Set<SplitQueryType> types = new LinkedHashSet<>();
-        types.add(normalizeType(context.accept(splitVisitor()), script));
+        types.add(normalizeType(context.accept(splitVisitor())));
         if (createTable.columnDefs() != null) {
             types.add(SplitQueryType.ADD_COLUMN);
             for (DorisParser.ColumnDefContext column : createTable.columnDefs().columnDef()) {
@@ -87,6 +91,12 @@ public class DrSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
 
     @Override
     protected SplitQueryType additionalType(ParseTree tree) {
+        if (tree instanceof DorisParser.BackupContext) {
+            return SplitQueryType.DATA_EXPORT;
+        }
+        if (tree instanceof DorisParser.RestoreContext) {
+            return SplitQueryType.DATA_IMPORT;
+        }
         if (tree instanceof DorisParser.QuerySpecificationContext && isExecutedDmlQuery(tree)) {
             return SplitQueryType.SELECT;
         }

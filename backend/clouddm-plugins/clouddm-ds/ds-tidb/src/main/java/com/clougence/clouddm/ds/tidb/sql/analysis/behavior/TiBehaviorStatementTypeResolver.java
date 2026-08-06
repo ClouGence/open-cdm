@@ -9,9 +9,9 @@ package com.clougence.clouddm.ds.tidb.sql.analysis.behavior;
 import java.util.List;
 import java.util.Locale;
 
+import com.clougence.clouddm.ds.tidb.sql.analysis.reference.TiDBObjectReference;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
-import com.clougence.clouddm.ds.tidb.sql.analysis.reference.TiDBObjectReference;
 import com.clougence.utils.StringUtils;
 
 final class TiBehaviorStatementTypeResolver {
@@ -172,8 +172,7 @@ final class TiBehaviorStatementTypeResolver {
         if (normalized.startsWith("DISTRIBUTE TABLE")) {
             return SplitQueryType.ADMIN_TABLE;
         }
-        if (normalized.startsWith("CANCEL DISTRIBUTION JOB") || normalized.startsWith("ADMIN CANCEL DDL JOB")
-            || isLoadDataJobCommand(normalized)) {
+        if (normalized.startsWith("CANCEL DISTRIBUTION JOB") || normalized.startsWith("ADMIN CANCEL DDL JOB") || isLoadDataJobCommand(normalized)) {
             return SplitQueryType.ADMIN_JOB;
         }
         if (normalized.startsWith("ADMIN CREATE WORKLOAD SNAPSHOT")) {
@@ -207,10 +206,16 @@ final class TiBehaviorStatementTypeResolver {
         if (normalized.startsWith("DROP PLACEMENT POLICY")) {
             return SplitQueryType.DROP_POLICY;
         }
-        if (normalized.startsWith("BACKUP ") || normalized.startsWith("TRAFFIC CAPTURE ")) {
+        if (normalized.startsWith("BACKUP ")) {
+            return SplitQueryType.BACKUP;
+        }
+        if (normalized.startsWith("TRAFFIC CAPTURE ")) {
             return SplitQueryType.DATA_EXPORT;
         }
-        if (normalized.startsWith("RESTORE ") || normalized.startsWith("TRAFFIC REPLAY ")) {
+        if (normalized.startsWith("RESTORE ")) {
+            return SplitQueryType.RESTORE;
+        }
+        if (normalized.startsWith("TRAFFIC REPLAY ")) {
             return SplitQueryType.DATA_IMPORT;
         }
         if (normalized.startsWith("FLASHBACK ")) {
@@ -263,7 +268,7 @@ final class TiBehaviorStatementTypeResolver {
         }
         if (normalized.startsWith("STOP BACKUP LOGS") || normalized.startsWith("PAUSE BACKUP LOGS") || normalized.startsWith("RESUME BACKUP LOGS")
             || normalized.startsWith("PURGE BACKUP LOGS")) {
-            return SplitQueryType.MAINTAIN_LOG;
+            return SplitQueryType.MAINTAIN_BACKUP;
         }
         if (normalized.startsWith("CLONE INSTANCE") || normalized.startsWith("IMPORT TABLE")) {
             return SplitQueryType.DATA_IMPORT;
@@ -341,8 +346,7 @@ final class TiBehaviorStatementTypeResolver {
     }
 
     private static boolean isLoadDataJobCommand(String sql) {
-        return TiBehaviorText.afterStartingWords(sql, "DROP", "LOAD", "DATA", "JOB") >= 0
-               || TiBehaviorText.afterStartingWords(sql, "PAUSE", "LOAD", "DATA", "JOB") >= 0
+        return TiBehaviorText.afterStartingWords(sql, "DROP", "LOAD", "DATA", "JOB") >= 0 || TiBehaviorText.afterStartingWords(sql, "PAUSE", "LOAD", "DATA", "JOB") >= 0
                || TiBehaviorText.afterStartingWords(sql, "RESUME", "LOAD", "DATA", "JOB") >= 0;
     }
 

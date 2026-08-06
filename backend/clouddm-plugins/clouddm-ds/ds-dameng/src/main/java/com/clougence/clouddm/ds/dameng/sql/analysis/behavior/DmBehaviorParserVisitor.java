@@ -481,9 +481,9 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
             }
             for (DmSqlParser.BackupAdminOptionContext option : backup.backupAdminOption()) {
                 if ((option.BACKUPSET() != null && option.BASE() == null || option.FORMAT() != null) && !option.backupFilePath().isEmpty()) {
-                    add(SplitQueryType.ADMIN, BehaviorAction.EXPORT, fileObject(option.backupFilePath(0).getStart()), targets);
+                    add(SplitQueryType.BACKUP, BehaviorAction.EXPORT, fileObject(option.backupFilePath(0).getStart()), targets);
                 } else if (option.TRACE() != null && option.FILE() != null && !option.backupFilePath().isEmpty()) {
-                    add(SplitQueryType.ADMIN, BehaviorAction.EXPORT, fileObject(option.backupFilePath(0).getStart()), List.of(database));
+                    add(SplitQueryType.BACKUP, BehaviorAction.EXPORT, fileObject(option.backupFilePath(0).getStart()), List.of(database));
                 }
             }
             addFunctionCalls(ctx);
@@ -505,9 +505,9 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
             }
             for (DmSqlParser.BackupAdminOptionContext option : backup.backupAdminOption()) {
                 if ((option.BACKUPSET() != null && option.BASE() == null || option.FORMAT() != null) && !option.backupFilePath().isEmpty()) {
-                    add(SplitQueryType.ADMIN, BehaviorAction.EXPORT, fileObject(option.backupFilePath(0).getStart()), targets);
+                    add(SplitQueryType.BACKUP, BehaviorAction.EXPORT, fileObject(option.backupFilePath(0).getStart()), targets);
                 } else if (option.TRACE() != null && option.FILE() != null && !option.backupFilePath().isEmpty()) {
-                    add(SplitQueryType.ADMIN, BehaviorAction.EXPORT, fileObject(option.backupFilePath(0).getStart()), List.of(tablespace));
+                    add(SplitQueryType.BACKUP, BehaviorAction.EXPORT, fileObject(option.backupFilePath(0).getStart()), List.of(tablespace));
                 }
             }
             addFunctionCalls(ctx);
@@ -532,13 +532,13 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
             }
             for (DmSqlParser.BackupAdminOptionContext option : archive.backupAdminOption()) {
                 if ((option.BACKUPSET() != null && option.BASE() == null || option.FORMAT() != null) && !option.backupFilePath().isEmpty()) {
-                    add(SplitQueryType.ADMIN, BehaviorAction.EXPORT, fileObject(option.backupFilePath(0).getStart()), targets);
+                    add(SplitQueryType.BACKUP, BehaviorAction.EXPORT, fileObject(option.backupFilePath(0).getStart()), targets);
                 } else if (option.TRACE() != null && option.FILE() != null && !option.backupFilePath().isEmpty()) {
-                    add(SplitQueryType.ADMIN, BehaviorAction.EXPORT, fileObject(option.backupFilePath(0).getStart()), List.of(archiveLog));
+                    add(SplitQueryType.BACKUP, BehaviorAction.EXPORT, fileObject(option.backupFilePath(0).getStart()), List.of(archiveLog));
                 }
             }
             if (archive.DELETE() != null && archive.INPUT() != null) {
-                add(SplitQueryType.ADMIN, BehaviorAction.DELETE, archiveLog);
+                add(SplitQueryType.BACKUP, BehaviorAction.DELETE, archiveLog);
             }
             addFunctionCalls(ctx);
             return null;
@@ -547,9 +547,9 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
             BehaviorObject table = object(TargetType.Table, backup.qualifiedName(), NameParts.from(backup.qualifiedName()));
             for (DmSqlParser.BackupAdminOptionContext option : backup.backupAdminOption()) {
                 if ((option.BACKUPSET() != null || option.FORMAT() != null) && !option.backupFilePath().isEmpty()) {
-                    add(SplitQueryType.ADMIN, BehaviorAction.EXPORT, fileObject(option.backupFilePath(0).getStart()), List.of(table));
+                    add(SplitQueryType.BACKUP, BehaviorAction.EXPORT, fileObject(option.backupFilePath(0).getStart()), List.of(table));
                 } else if (option.TRACE() != null && option.FILE() != null && !option.backupFilePath().isEmpty()) {
-                    add(SplitQueryType.ADMIN, BehaviorAction.EXPORT, fileObject(option.backupFilePath(0).getStart()), List.of(table));
+                    add(SplitQueryType.BACKUP, BehaviorAction.EXPORT, fileObject(option.backupFilePath(0).getStart()), List.of(table));
                 }
             }
             addFunctionCalls(ctx);
@@ -567,14 +567,14 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
                 }
             }
             if (show.showBackupsetOutputClause() != null) {
-                add(SplitQueryType.ADMIN, BehaviorAction.EXPORT, fileObject(show.showBackupsetOutputClause().backupFilePath().getStart()), inputs);
+                add(SplitQueryType.MAINTAIN_BACKUP, BehaviorAction.EXPORT, fileObject(show.showBackupsetOutputClause().backupFilePath().getStart()), inputs);
             } else if (inputs.isEmpty()) {
                 // Without an explicit directory DMRMAN reads backup-set metadata
                 // from its configured default backup directories.
-                add(SplitQueryType.ADMIN, BehaviorAction.READ, objects.instanceObject(TargetType.Backup, show));
+                add(SplitQueryType.MAINTAIN_BACKUP, BehaviorAction.READ, objects.instanceObject(TargetType.Backup, show));
             } else {
                 for (BehaviorObject input : inputs) {
-                    add(SplitQueryType.ADMIN, BehaviorAction.READ, input);
+                    add(SplitQueryType.MAINTAIN_BACKUP, BehaviorAction.READ, input);
                 }
             }
             addFunctionCalls(ctx);
@@ -582,10 +582,10 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
         }
         DmSqlParser.RemoveStatementTailContext remove = ctx.removeStatementTail();
         if (ctx.REMOVE() != null && remove != null && remove.backupFilePath() != null) {
-            add(SplitQueryType.ADMIN, BehaviorAction.DELETE, fileObject(remove.backupFilePath().getStart()));
+            add(SplitQueryType.MAINTAIN_BACKUP, BehaviorAction.DELETE, fileObject(remove.backupFilePath().getStart()));
             for (DmSqlParser.RemoveBackupsetOptionContext option : remove.removeBackupsetOption()) {
                 if (option.DATABASE() != null && option.backupFilePath() != null) {
-                    add(SplitQueryType.ADMIN, BehaviorAction.READ, fileObject(option.backupFilePath().getStart()));
+                    add(SplitQueryType.MAINTAIN_BACKUP, BehaviorAction.READ, fileObject(option.backupFilePath().getStart()));
                 }
             }
             addFunctionCalls(ctx);
@@ -595,10 +595,10 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
             for (DmSqlParser.RemoveBackupsetsOptionContext option : remove.removeBackupsetsOption()) {
                 if (option.WITH() != null && option.BACKUPDIR() != null) {
                     for (DmSqlParser.BackupFilePathContext path : option.backupFilePath()) {
-                        add(SplitQueryType.ADMIN, BehaviorAction.DELETE, fileObject(path.getStart()));
+                        add(SplitQueryType.MAINTAIN_BACKUP, BehaviorAction.DELETE, fileObject(path.getStart()));
                     }
                 } else if (option.DATABASE() != null && !option.backupFilePath().isEmpty()) {
-                    add(SplitQueryType.ADMIN, BehaviorAction.READ, fileObject(option.backupFilePath(0).getStart()));
+                    add(SplitQueryType.MAINTAIN_BACKUP, BehaviorAction.READ, fileObject(option.backupFilePath(0).getStart()));
                 }
             }
             addFunctionCalls(ctx);
@@ -612,7 +612,7 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
             if (dump.DATABASE() != null) {
                 addObject(sources, fileObject(paths.get(paths.size() - 2).getStart()));
             }
-            add(SplitQueryType.ADMIN, BehaviorAction.EXPORT, fileObject(paths.get(paths.size() - 1).getStart()), sources);
+            add(SplitQueryType.MAINTAIN_BACKUP, BehaviorAction.EXPORT, fileObject(paths.get(paths.size() - 1).getStart()), sources);
             addFunctionCalls(ctx);
             return null;
         }
@@ -627,16 +627,16 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
                     addObject(sources, fileObject(paths.get(index).getStart()));
                 }
             }
-            add(SplitQueryType.ADMIN, BehaviorAction.IMPORT, destination, sources);
+            add(SplitQueryType.MAINTAIN_BACKUP, BehaviorAction.IMPORT, destination, sources);
             addFunctionCalls(ctx);
             return null;
         }
         DmSqlParser.CheckStatementTailContext check = ctx.checkStatementTail();
         if (ctx.CHECK() != null && check != null && check.backupFilePath() != null) {
-            add(SplitQueryType.ADMIN, BehaviorAction.READ, fileObject(check.backupFilePath().getStart()));
+            add(SplitQueryType.MAINTAIN_BACKUP, BehaviorAction.READ, fileObject(check.backupFilePath().getStart()));
             for (DmSqlParser.CheckBackupsetOptionContext option : check.checkBackupsetOption()) {
                 if (option.backupFilePath() != null) {
-                    add(SplitQueryType.ADMIN, BehaviorAction.READ, fileObject(option.backupFilePath().getStart()));
+                    add(SplitQueryType.MAINTAIN_BACKUP, BehaviorAction.READ, fileObject(option.backupFilePath().getStart()));
                 }
             }
             addFunctionCalls(ctx);
@@ -663,7 +663,7 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
                     addObject(targets, fileObject(path.getStart()));
                 }
             }
-            add(SplitQueryType.ADMIN, BehaviorAction.IMPORT, databaseFile, targets);
+            add(SplitQueryType.RECOVER, BehaviorAction.IMPORT, databaseFile, targets);
             addFunctionCalls(ctx);
             return null;
         }
@@ -711,7 +711,7 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
         }
         DmSqlParser.RecoverStatementTailContext recover = ctx.recoverStatementTail();
         if (ctx.RECOVER() != null && recover != null && recover.DATABASE() != null && recover.backupFilePath() != null && recover.UPDATE() != null && recover.DB_MAGIC() != null) {
-            add(SplitQueryType.ADMIN, BehaviorAction.RECOVER, fileObject(recover.backupFilePath().getStart()));
+            add(SplitQueryType.RECOVER, BehaviorAction.RECOVER, fileObject(recover.backupFilePath().getStart()));
             addFunctionCalls(ctx);
             return null;
         }
@@ -719,7 +719,7 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
             && recover.restoreFromClause().backupFilePath() != null) {
             BehaviorObject databaseFile = fileObject(recover.backupFilePath().getStart());
             BehaviorObject backupSet = fileObject(recover.restoreFromClause().backupFilePath().getStart());
-            add(SplitQueryType.ADMIN, BehaviorAction.IMPORT, databaseFile, List.of(backupSet));
+            add(SplitQueryType.RECOVER, BehaviorAction.IMPORT, databaseFile, List.of(backupSet));
             addFunctionCalls(ctx);
             return null;
         }
@@ -733,9 +733,9 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
                     }
                 }
             }
-            add(SplitQueryType.ADMIN, BehaviorAction.IMPORT, objects
+            add(SplitQueryType.RECOVER, BehaviorAction.IMPORT, objects
                 .instanceObject(TargetType.Tablespace, recover.qualifiedName(), NameParts.clean(recover.qualifiedName().getText())), sources);
-            add(SplitQueryType.ADMIN, BehaviorAction.READ, fileObject(recover.backupFilePath().getStart()));
+            add(SplitQueryType.RECOVER, BehaviorAction.READ, fileObject(recover.backupFilePath().getStart()));
             addFunctionCalls(ctx);
             return null;
         }
@@ -746,7 +746,7 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
                     addObject(sources, fileObject(path.getStart()));
                 }
             }
-            add(SplitQueryType.ADMIN, BehaviorAction.IMPORT, fileObject(recover.backupFilePath().getStart()), sources);
+            add(SplitQueryType.RECOVER, BehaviorAction.IMPORT, fileObject(recover.backupFilePath().getStart()), sources);
             addFunctionCalls(ctx);
             return null;
         }
@@ -765,16 +765,16 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
                     }
                 }
             }
-            add(SplitQueryType.ADMIN, BehaviorAction.IMPORT, tablespace, sources);
+            add(SplitQueryType.RESTORE, BehaviorAction.IMPORT, tablespace, sources);
             if (tail.restoreDatafileClause() != null) {
                 for (DmSqlParser.RestoreDatafileItemContext datafile : tail.restoreDatafileClause().restoreDatafileItem()) {
                     Token start = datafile.getStart();
                     if (start.getType() == DmSqlParser.STRING && start.getTokenIndex() == datafile.getStop().getTokenIndex()) {
-                        add(SplitQueryType.ADMIN, BehaviorAction.IMPORT, fileObject(start), sources);
+                        add(SplitQueryType.RESTORE, BehaviorAction.IMPORT, fileObject(start), sources);
                     }
                 }
             }
-            add(SplitQueryType.ADMIN, BehaviorAction.READ, fileObject(restore.backupFilePath().getStart()));
+            add(SplitQueryType.RESTORE, BehaviorAction.READ, fileObject(restore.backupFilePath().getStart()));
             addFunctionCalls(ctx);
             return null;
         }
@@ -791,7 +791,7 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
                     }
                 }
             }
-            add(SplitQueryType.ADMIN, BehaviorAction.IMPORT, destination, sources);
+            add(SplitQueryType.RESTORE, BehaviorAction.IMPORT, destination, sources);
             addFunctionCalls(ctx);
             return null;
         }
@@ -803,10 +803,10 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
                 table = object(TargetType.Table, restore.qualifiedName(), NameParts.from(restore.qualifiedName()));
             }
             BehaviorObject backupSet = fileObject(restore.restoreFromClause().backupFilePath().getStart());
-            add(SplitQueryType.ADMIN, BehaviorAction.IMPORT, table, List.of(backupSet));
+            add(SplitQueryType.RESTORE, BehaviorAction.IMPORT, table, List.of(backupSet));
             for (DmSqlParser.RestoreTableOptionContext option : restore.restoreTableOption()) {
                 if (option.TRACE() != null && option.FILE() != null && option.backupFilePath() != null) {
-                    add(SplitQueryType.ADMIN, BehaviorAction.EXPORT, fileObject(option.backupFilePath().getStart()), List.of(table));
+                    add(SplitQueryType.RESTORE, BehaviorAction.EXPORT, fileObject(option.backupFilePath().getStart()), List.of(table));
                 }
             }
             addFunctionCalls(ctx);
@@ -818,7 +818,7 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
             if (tail.restoreFromClause().backupFilePath() != null) {
                 addObject(sources, fileObject(tail.restoreFromClause().backupFilePath().getStart()));
             }
-            add(SplitQueryType.ADMIN, BehaviorAction.IMPORT, fileObject(tail.backupFilePath().getStart()), sources);
+            add(SplitQueryType.RESTORE, BehaviorAction.IMPORT, fileObject(tail.backupFilePath().getStart()), sources);
             addFunctionCalls(ctx);
             return null;
         }
@@ -4539,8 +4539,7 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
         if (index < 0 || index + word.length() > source.length() || !source.regionMatches(true, index, word, 0, word.length())) {
             return false;
         }
-        return (index == 0 || !isWordCharacter(source.charAt(index - 1)))
-               && (index + word.length() == source.length() || !isWordCharacter(source.charAt(index + word.length())));
+        return (index == 0 || !isWordCharacter(source.charAt(index - 1))) && (index + word.length() == source.length() || !isWordCharacter(source.charAt(index + word.length())));
     }
 
     private static boolean isWordCharacter(char value) {

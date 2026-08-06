@@ -750,22 +750,40 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
 
     @Override
     public Void visitAdminStatement(DmSqlParser.AdminStatementContext ctx) {
-        objectDomain(new NameParts(null, null, "DATABASE"), RuleQueryType.ADMIN);
+        RuleQueryType type = backupLifecycleType(ctx);
+        objectDomain(new NameParts(null, null, type == RuleQueryType.MAINTAIN_BACKUP ? "BACKUPSET" : "DATABASE"), type);
         if (ctx.backupStatementTail() != null) {
             DmSqlParser.BackupStatementTailContext backup = ctx.backupStatementTail();
             if (backup.TABLE() != null) {
-                tableDomain(NameParts.from(backup.qualifiedName()), RuleQueryType.ADMIN);
+                tableDomain(NameParts.from(backup.qualifiedName()), type);
             } else if (backup.TABLESPACE() != null) {
-                objectDomain(NameParts.from(backup.qualifiedName()), RuleQueryType.ADMIN);
+                objectDomain(NameParts.from(backup.qualifiedName()), type);
             }
         } else if (ctx.restoreStatementTail() != null && ctx.restoreStatementTail().TABLE() != null && ctx.restoreStatementTail().qualifiedName() != null) {
-            tableDomain(NameParts.from(ctx.restoreStatementTail().qualifiedName()), RuleQueryType.ADMIN);
+            tableDomain(NameParts.from(ctx.restoreStatementTail().qualifiedName()), type);
         } else if (ctx.restoreStatementTail() != null && ctx.restoreStatementTail().restoreTablespaceTail() != null) {
-            objectDomain(NameParts.from(ctx.restoreStatementTail().restoreTablespaceTail().qualifiedName()), RuleQueryType.ADMIN);
+            objectDomain(NameParts.from(ctx.restoreStatementTail().restoreTablespaceTail().qualifiedName()), type);
         } else if (ctx.recoverStatementTail() != null && ctx.recoverStatementTail().TABLESPACE() != null) {
-            objectDomain(NameParts.from(ctx.recoverStatementTail().qualifiedName()), RuleQueryType.ADMIN);
+            objectDomain(NameParts.from(ctx.recoverStatementTail().qualifiedName()), type);
         }
         return null;
+    }
+
+    private static RuleQueryType backupLifecycleType(DmSqlParser.AdminStatementContext ctx) {
+        if (ctx.backupStatementTail() != null) {
+            return RuleQueryType.BACKUP;
+        }
+        if (ctx.restoreStatementTail() != null) {
+            return RuleQueryType.RESTORE;
+        }
+        if (ctx.recoverStatementTail() != null || ctx.mergeDatabaseTail() != null) {
+            return RuleQueryType.RECOVER;
+        }
+        if (ctx.showBackupsetTail() != null || ctx.checkStatementTail() != null || ctx.dumpStatementTail() != null || ctx.loadBackupsetsTail() != null
+            || ctx.removeStatementTail() != null) {
+            return RuleQueryType.MAINTAIN_BACKUP;
+        }
+        return RuleQueryType.ADMIN;
     }
 
     @Override

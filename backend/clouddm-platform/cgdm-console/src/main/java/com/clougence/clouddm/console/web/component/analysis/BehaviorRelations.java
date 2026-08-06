@@ -34,10 +34,10 @@ public final class BehaviorRelations {
             Map.entry(BehaviorAction.ALTER, targetType -> AUTH_KIND_OVERRIDES.getOrDefault(targetType, SecDataAuthKind.DDL)), //
             Map.entry(BehaviorAction.DROP, targetType -> AUTH_KIND_OVERRIDES.getOrDefault(targetType, SecDataAuthKind.DDL)), //
             Map.entry(BehaviorAction.RENAME, targetType -> AUTH_KIND_OVERRIDES.getOrDefault(targetType, SecDataAuthKind.DDL)), //
-            Map.entry(BehaviorAction.READ, targetType -> SecDataAuthKind.READ), //
+            Map.entry(BehaviorAction.READ, targetType -> backupAuthKind(targetType, SecDataAuthKind.READ)), //
             Map.entry(BehaviorAction.INSERT, targetType -> SecDataAuthKind.WRITE), //
             Map.entry(BehaviorAction.UPDATE, targetType -> SecDataAuthKind.WRITE), //
-            Map.entry(BehaviorAction.DELETE, targetType -> SecDataAuthKind.WRITE), //
+            Map.entry(BehaviorAction.DELETE, targetType -> backupAuthKind(targetType, SecDataAuthKind.WRITE)), //
             Map.entry(BehaviorAction.MERGE, targetType -> SecDataAuthKind.WRITE), //
             Map.entry(BehaviorAction.REPLACE, targetType -> SecDataAuthKind.WRITE), //
             Map.entry(BehaviorAction.COPY, targetType -> SecDataAuthKind.WRITE), //
@@ -77,7 +77,7 @@ public final class BehaviorRelations {
             TargetType.UserOrRole, TargetType.User, TargetType.Role, TargetType.ConfigKey, TargetType.File, //
             TargetType.Query, TargetType.Update, TargetType.Delete, TargetType.Insert, TargetType.Call, //
             TargetType.Tablespace, TargetType.Log, TargetType.Library, TargetType.ResourceGroup, TargetType.Replication, //
-            TargetType.PublicationSubscription, TargetType.Publication, TargetType.Subscription, TargetType.PrepareStatement);
+            TargetType.PublicationSubscription, TargetType.Publication, TargetType.Subscription, TargetType.PrepareStatement, TargetType.Backup);
 
     private BehaviorRelations(){
     }
@@ -119,7 +119,11 @@ public final class BehaviorRelations {
     private static void registerMaintainAuthKinds(Map<TargetType, SecDataAuthKind> overrides) {
         putAuthKinds(overrides, SecDataAuthKind.MAINTAIN, //
                 TargetType.Environment, TargetType.Instance, TargetType.Machine, //
-                TargetType.ResourceGroup);
+                TargetType.ResourceGroup, TargetType.Backup);
+    }
+
+    private static SecDataAuthKind backupAuthKind(TargetType targetType, SecDataAuthKind defaultKind) {
+        return targetType == TargetType.Backup ? SecDataAuthKind.MAINTAIN : defaultKind;
     }
 
     private static void putAuthKinds(Map<TargetType, SecDataAuthKind> overrides, SecDataAuthKind authKind, TargetType... targetTypes) {
