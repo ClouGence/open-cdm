@@ -39,6 +39,7 @@ ext {
     HIKARICP_VERSION = globalConfig.getProperty("cg.lib.hikaricp.version")
     OKHTTP_VERSION = globalConfig.getProperty("cg.lib.okhttp.version")
     FASTJSON_VERSION = globalConfig.getProperty("cg.lib.fastjson.version")
+    GUAVA_VERSION = globalConfig.getProperty("cg.lib.guava.version")
 }
 
 group = 'com.cdmgr'

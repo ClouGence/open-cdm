@@ -50,8 +50,10 @@ public class MyColReader extends AbstractColReader {
             case "mediumint":
             case "mediumint unsigned":
             case "int":
+            case "integer":
                 return INTEGER_VALUE_FETCHER;
             case "int unsigned":
+            case "integer unsigned":
             case "bigint":
                 return LONG_VALUE_FETCHER;
             case "bigint unsigned":

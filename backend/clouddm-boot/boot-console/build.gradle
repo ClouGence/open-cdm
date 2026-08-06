@@ -59,7 +59,7 @@ dependencies {
     // utils
     implementation "com.fasterxml.uuid:java-uuid-generator:4.0"
     implementation "org.apache.commons:commons-lang3:3.12.0"
-    implementation 'com.google.guava:guava:33.3.1-jre'
+    implementation "com.google.guava:guava:${GUAVA_VERSION}"
     implementation 'com.warrenstrange:googleauth:1.5.0'
     implementation 'com.google.zxing:core:3.4.1'
     implementation 'com.google.zxing:javase:3.4.1'

@@ -38,6 +38,7 @@ public class MongoKeys {
     public static final String DATABASE            = "database";
     public static final String CLIENT_NAME         = "clientName";
     public static final String DRIVER_VERSION      = "driverVersion";
+    public static final String CONNECT_TYPE        = "connectType";
     // for pool
     public static final String MAX_TOTAL           = "maxTotal";
     public static final String MAX_IDLE            = "maxIdle";

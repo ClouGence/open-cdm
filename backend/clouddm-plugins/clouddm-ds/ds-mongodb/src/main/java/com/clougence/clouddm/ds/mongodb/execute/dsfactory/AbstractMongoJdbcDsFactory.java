@@ -15,12 +15,14 @@
  */
 package com.clougence.clouddm.ds.mongodb.execute.dsfactory;
 
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import com.clougence.clouddm.ds.mongodb.dsconf.MongoConnectType;
 import com.clougence.clouddm.ds.mongodb.execute.jdbc.MongoConnectionFactory;
 import com.clougence.clouddm.ds.mongodb.execute.jdbc.MongoKeys;
 import com.clougence.drivers.DsConfigKeys;
@@ -102,6 +104,10 @@ abstract class AbstractMongoJdbcDsFactory implements DsFactory<Connection> {
         String username = dsConfig.getProperty(DsConfigKeys.USER.getConfigKey());
         String password = dsConfig.getProperty(DsConfigKeys.PASSWORD.getConfigKey());
         String host = dsConfig.getProperty(DsConfigKeys.HOST.getConfigKey());
+        MongoConnectType connectType = MongoConnectType.of(dsConfig.getProperty(MongoKeys.CONNECT_TYPE));
+        if (connectType == MongoConnectType.SRV) {
+            return buildSrvJdbcUrl(host, username, password);
+        }
         String hosts = buildHosts(parseServerAddress(host));
         String startUrl = JdbcDriver.START_URL + this.adapterName + "://";
 
@@ -109,6 +115,41 @@ abstract class AbstractMongoJdbcDsFactory implements DsFactory<Connection> {
             return startUrl + hosts;
         }
         return String.format(startUrl + "%s:%s@%s", username, password, hosts);
+    }
+
+    private String buildSrvJdbcUrl(String host, String username, String password) {
+        StringBuilder uri = new StringBuilder(JdbcDriver.START_URL).append(this.adapterName).append("://");
+        if (StringUtils.isNotBlank(username)) {
+            uri.append(percentEncode(username)).append(':').append(percentEncode(password)).append('@');
+        }
+        uri.append(normalizeSrvHost(host));
+        return uri.toString();
+    }
+
+    private String normalizeSrvHost(String value) {
+        String host = StringUtils.trimToNull(value);
+        if (host == null) {
+            throw new IllegalArgumentException("MongoDB SRV host is required.");
+        }
+        if (StringUtils.containsAny(host, ":/?#@,")) {
+            throw new IllegalArgumentException("MongoDB SRV host must be a single hostname without scheme, port, path or query parameters.");
+        }
+        return host;
+    }
+
+    private String percentEncode(String value) {
+        StringBuilder encoded = new StringBuilder();
+        for (byte b : value.getBytes(StandardCharsets.UTF_8)) {
+            int c = b & 0xff;
+            if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '-' || c == '.' || c == '_' || c == '~') {
+                encoded.append((char) c);
+            } else {
+                encoded.append('%');
+                encoded.append(Character.toUpperCase(Character.forDigit((c >>> 4) & 0x0f, 16)));
+                encoded.append(Character.toUpperCase(Character.forDigit(c & 0x0f, 16)));
+            }
+        }
+        return encoded.toString();
     }
 
     private List<ServerAddress> parseServerAddress(String mongoAddress) {
