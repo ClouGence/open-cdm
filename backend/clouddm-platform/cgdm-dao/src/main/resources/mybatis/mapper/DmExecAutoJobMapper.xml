@@ -112,12 +112,6 @@
         where id = #{jobId}
           and status = 'PACKAGING'
     </update>
-    <update id="failPackaging">
-        update dm_exec_auto_job
-        set status = 'FAILED'
-        where id = #{jobId}
-          and status = 'PACKAGING'
-    </update>
     <update id="updateOverOutJob">
         update dm_exec_auto_job
         set status = 'INIT'

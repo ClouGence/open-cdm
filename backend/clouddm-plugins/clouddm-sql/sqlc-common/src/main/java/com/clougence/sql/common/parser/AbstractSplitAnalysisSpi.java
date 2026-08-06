@@ -134,8 +134,15 @@ public abstract class AbstractSplitAnalysisSpi implements SplitAnalysisSpi {
         parser.removeErrorListeners();
         parser.addErrorListener(SyntaxErrorListener.INSTANCE);
         parser.setBuildParseTree(true);
-        parser.addParseListener(new SplitListener(tokens, new LocationCursor(sourceReader, new CodeLocation(baseLine, baseColumn)), resultConsumer));
-        this.parseRoot(parser);
+        try (AntlrPredictionCaches.Lease ignored = AntlrPredictionCaches.acquire(lexer, parser, predictionCacheScope())) {
+            parser.addParseListener(new SplitListener(tokens, new LocationCursor(sourceReader, new CodeLocation(baseLine, baseColumn)), resultConsumer));
+            this.parseRoot(parser);
+        }
+    }
+
+    /** Stable value containing parser features which affect semantic predicates. */
+    protected Object predictionCacheScope() {
+        return null;
     }
 
     private final class SplitListener implements ParseTreeListener {

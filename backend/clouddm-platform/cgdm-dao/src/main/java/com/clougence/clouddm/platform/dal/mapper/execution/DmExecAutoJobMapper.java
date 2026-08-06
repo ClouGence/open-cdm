@@ -44,8 +44,6 @@ public interface DmExecAutoJobMapper extends BaseMapper<DmExecAutoJobDO> {
 
     int heartbeatPackaging(@Param("jobId") Long jobId);
 
-    int failPackaging(@Param("jobId") Long jobId);
-
     List<Long> listUnFinishJobIdList(@Param("time") Date date);
 
     int updateJobStatus(@Param("jobId") Long jobId, @Param("status") AutoExecJobStatus status);

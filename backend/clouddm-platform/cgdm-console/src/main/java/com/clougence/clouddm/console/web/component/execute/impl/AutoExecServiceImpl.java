@@ -261,7 +261,7 @@ public class AutoExecServiceImpl implements AutoExecService {
             taskPackage = this.create(jobId);
         } catch (RuntimeException e) {
             DmExecAutoJobDO failedJob = this.execDal.autoJobMapper().queryById(jobId);
-            if (failedJob != null && this.execDal.autoJobMapper().failPackaging(jobId) == 1) {
+            if (failedJob != null && this.execDal.autoJobMapper().markJobFailedIfActive(jobId) == 1) {
                 this.approvalStateService.failExecution(failedJob.getDependOnBizId(), null);
             }
             throw e;
@@ -367,6 +367,9 @@ public class AutoExecServiceImpl implements AutoExecService {
                         jsonOutput.disable(JsonGenerator.Feature.AUTO_CLOSE_TARGET);
                         jsonOutput.setRootValueSeparator(null);
                         for (DmExecAutoTaskDO task : tasks) {
+                            if (this.execDal.autoJobMapper().heartbeatPackaging(jobId) != 1) {
+                                throw new IllegalStateException("Auto execution job stopped while creating task package.");
+                            }
                             try (StringReader reader = new StringReader(task.getExecSql());
                                     Stream<QueryRequest> analyzed = this.analysisService.analysisRequestsStream(dsConfig, reader, Collections.emptyList(), 1, 0, options)) {
                                 Iterator<QueryRequest> iterator = analyzed.iterator();
@@ -404,9 +407,6 @@ public class AutoExecServiceImpl implements AutoExecService {
                     }
                     zipOutput.closeEntry();
                     afterExecOrder = tasks.get(tasks.size() - 1).getExecOrder();
-                    if (this.execDal.autoJobMapper().heartbeatPackaging(jobId) != 1) {
-                        throw new IllegalStateException("Auto execution job stopped while creating task package.");
-                    }
                 }
             }
 
