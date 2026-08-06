@@ -23,24 +23,18 @@
         <result column="ticket_status" property="ticketStatus"/>
         <result column="finish_time" property="finishTime"/>
         <result column="deleted" property="deleted"/>
-        <result column="error_count" property="errorCount"/>
         <result column="env_name" property="envName"/>
         <result column="primary_uid" property="primaryUid"/>
         <result column="approval_url" property="approvalUrl"/>
-        <result column="session_id" property="sessionId"/>
-        <result column="explain_sql_data" property="explainSqlData"/>
-        <result column="risk_sql_count" property="riskSqlCount"/>
         <result column="raw_sql" property="rawSql"/>
-        <result column="total_count" property="totalCount"/>
+        <result column="content_type" property="contentType"/>
         <result column="expected_affected_rows" property="expectedAffectedRows"/>
-        <result column="expected_exec_time" property="expectedExecTime"/>
         <result column="roll_back_sql" property="rollBackSql"/>
         <result column="ticket_info" property="ticketInfo"/>
         <result column="levels" property="levels"
                 typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
-        <result column="checked_info" property="checkedInfo"/>
-        <result column="behaviors" property="behaviors"
-                typeHandler="com.clougence.clouddm.platform.dal.handler.json.ApprovalBehaviorListTypeHandler"/>
+        <result column="features" property="features"
+                typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
     </resultMap>
 
     <sql id="all_ticket_col">
@@ -63,22 +57,16 @@
         ticket_status,
         finish_time,
         deleted,
-        error_count,
         primary_uid,
         env_name,
         approval_url,
-        session_id,
-        explain_sql_data,
-        risk_sql_count,
         raw_sql,
-        total_count,
+        content_type,
         expected_affected_rows,
-        expected_exec_time,
         roll_back_sql,
         ticket_info,
         levels,
-        checked_info,
-        behaviors
+        features
     </sql>
 
     <!--   =============================== ========================================================================-->
@@ -126,15 +114,29 @@
         where id = #{ticketId}
     </update>
 
-    <update id="updateAnalysis">
-        update dm_approval
-        set behaviors = #{behaviors,jdbcType=LONGVARCHAR,typeHandler=com.clougence.clouddm.platform.dal.handler.json.ApprovalBehaviorListTypeHandler}
-        where id = #{ticketId}
-    </update>
-
     <select id="queryByBizId" resultMap="DmApprovalDO">
         select
             <include refid="all_ticket_col"/>
+        from
+            dm_approval
+        <where>
+            biz_id = #{bizId}
+        and
+            deleted = false
+        </where>
+    </select>
+
+    <select id="queryByBizIdWithoutRawSql" resultMap="DmApprovalDO">
+        select
+            id,
+            biz_id,
+            owner_uid,
+            primary_uid,
+            content_type,
+            expected_affected_rows,
+            roll_back_sql,
+            ticket_info,
+            features
         from
             dm_approval
         <where>
@@ -198,22 +200,16 @@
         a.ticket_status,
         a.finish_time,
         a.deleted,
-        a.error_count,
         a.primary_uid,
         a.env_name,
         a.approval_url,
-        a.session_id,
-        a.explain_sql_data,
-        a.risk_sql_count,
         a.raw_sql,
-        a.total_count,
+        a.content_type,
         a.expected_affected_rows,
-        a.expected_exec_time,
         a.roll_back_sql,
         a.ticket_info,
         a.levels,
-        a.checked_info,
-        a.behaviors
+        a.features
         from
         dm_approval a
         left join dm_approval_person b on a.biz_id = b.ticket_bz_id
@@ -260,7 +256,7 @@
         select
             id
         from dm_approval
-        where ticket_status in('PRE_INIT','WAIT_APPROVAL','WAIT_CONFIRM','WAIT_EXEC','RUNNING','EXEC_FAIL')
+        where ticket_status in('PRE_INIT_WAIT','PRE_INIT_RUN','WAIT_APPROVAL','WAIT_CONFIRM','WAIT_EXEC','RUNNING','EXEC_FAIL')
         and date_sub(now(), interval 5 second) >= gmt_modified
         order by gmt_modified asc
         limit 20

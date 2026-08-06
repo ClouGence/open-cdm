@@ -32,15 +32,7 @@ import lombok.Getter;
 
 public class ResultFileRequests {
 
-    public static ResultFileRequest fromColumns(String queryBody, LinkedHashMap<String, JDBCType> columns) {
-        return fromColumns(null, queryBody, columns, null);
-    }
-
-    public static ResultFileRequest fromColumns(String queryBody, LinkedHashMap<String, JDBCType> columns, Map<String, String> variables) {
-        return fromColumns(null, queryBody, columns, variables);
-    }
-
-    public static ResultFileRequest fromColumns(String queryId, String queryBody, LinkedHashMap<String, JDBCType> columns, Map<String, String> variables) {
+    public static ResultFileRequest fromColumns(String queryId, String queryBody, LinkedHashMap<String, JDBCType> columns) {
         if (columns == null || columns.isEmpty()) {
             throw new IllegalArgumentException("Result columns must not be empty.");
         }
@@ -49,7 +41,6 @@ public class ResultFileRequests {
         query.setQueryId(StringUtils.isBlank(queryId) ? UUID.randomUUID().toString() : queryId);
         query.setQueryBody(queryBody);
         query.setRequestTime(new Date());
-        query.setVariables(variables == null ? new LinkedHashMap<>() : new LinkedHashMap<>(variables));
         query.setResultConf(defaultResultConf());
 
         ColMetaData[] metaData = new ColMetaData[columns.size()];
@@ -87,7 +78,7 @@ public class ResultFileRequests {
     @Getter
     public static class ResultFileRequest {
 
-        private final QueryRequest query;
+        private final QueryRequest  query;
         private final ColMetaData[] columns;
 
         private ResultFileRequest(QueryRequest query, ColMetaData[] columns){

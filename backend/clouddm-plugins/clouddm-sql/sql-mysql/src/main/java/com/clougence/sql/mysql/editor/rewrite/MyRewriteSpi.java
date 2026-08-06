@@ -15,8 +15,10 @@
  */
 package com.clougence.sql.mysql.editor.rewrite;
 
+import java.io.Reader;
 import java.math.BigInteger;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Parser;
@@ -46,8 +48,12 @@ public class MyRewriteSpi implements RewriteSpi {
     }
 
     @Override
-    public String rewriterQuery(QueryRequest request, RewriteContext context) {
-        List<AstSplitScript> scripts = DslHelper.splitDsl(dslProvider(), request.getQueryBody());
+    public Stream<String> rewriterQueryStream(Reader queryReader, QueryRequest request, RewriteContext context) {
+        return Stream.of(rewriterQueryMaterialized(queryReader, request, context));
+    }
+
+    private String rewriterQueryMaterialized(Reader queryReader, QueryRequest request, RewriteContext context) {
+        List<AstSplitScript> scripts = DslHelper.splitDsl(dslProvider(), queryReader);
         Parser parser = scripts.get(0).getParser();
         ParseTree astTree = scripts.get(0).getAstTree();
 

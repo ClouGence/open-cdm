@@ -19,7 +19,6 @@ import java.util.List;
 
 import com.clougence.clouddm.console.web.model.fo.env.UpdateDsEnvFO;
 import com.clougence.clouddm.console.web.model.lo.UpdateDsEnvLO;
-import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.platform.dal.model.system.DmSysEnvDO;
 
 /**
@@ -31,14 +30,9 @@ public interface RdpDsEnvService {
 
     DmSysEnvDO queryByUserAndId(String puid, String uid, long envID);
 
-    int initPrimaryUserDefaultEnv(String puid, String uid);
-
     int addEnvDs(String puid, String uid, DmSysEnvDO dsEnvDO);
 
     int deleteDsEnv(String puid, String uid, Long dsEnvId);
 
     UpdateDsEnvLO updateDsEnv(String puid, String uid, UpdateDsEnvFO updateDsEnvFO);
-
-    void fillDsEnvInfo(List<DmDsDO> dss);
-
 }

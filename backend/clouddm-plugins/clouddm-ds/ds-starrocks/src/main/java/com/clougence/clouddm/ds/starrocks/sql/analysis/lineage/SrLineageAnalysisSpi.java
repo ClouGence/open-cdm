@@ -15,6 +15,8 @@
  */
 package com.clougence.clouddm.ds.starrocks.sql.analysis.lineage;
 
+import java.io.Reader;
+import java.io.StringReader;
 import java.util.List;
 
 import org.antlr.v4.runtime.Parser;
@@ -23,6 +25,7 @@ import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 import com.clougence.clouddm.ds.starrocks.sql.analysis.security.SrSqlParserVisitor;
 import com.clougence.clouddm.ds.starrocks.sql.analysis.security.builder.SrBuilderFactory;
 import com.clougence.clouddm.ds.starrocks.sql.parser.SrDslProvider;
+import com.clougence.clouddm.ds.starrocks.sql.parser.SrSplitAnalysisSpi;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageColumn;
 import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageContext;
@@ -53,6 +56,21 @@ public class SrLineageAnalysisSpi extends AbstractLineageAnalysisSpi {
 
     @Override
     public List<LineageColumn> analyze(String sql, LineageContext lineageContext) {
+        try (var scripts = new SrSplitAnalysisSpi().splitScriptStream(new StringReader(sql), List.of(), 1, 0)) {
+            var iterator = scripts.iterator();
+            if (!iterator.hasNext()) {
+                return List.of();
+            }
+            iterator.next();
+            if (iterator.hasNext()) {
+                throw new IllegalArgumentException("Lineage analysis supports at most one SQL statement");
+            }
+        }
+
+        return analyzeStatement(new StringReader(sql), lineageContext);
+    }
+
+    private List<LineageColumn> analyzeStatement(Reader sql, LineageContext lineageContext) {
         SrBuilderFactory builder = new SrBuilderFactory(this.metaService);
         DslHelper.doVisitor(dslProvider(), sql, (lexer, parser) -> this.parserVisitor(builder, parser));
 

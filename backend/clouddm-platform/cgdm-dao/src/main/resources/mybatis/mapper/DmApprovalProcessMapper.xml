@@ -84,6 +84,7 @@
         set
             process_status = #{status},stage_context = #{context}
             <if test="status == 'REJECT' || status == 'FINISH' || status == 'CLOSED' || status == 'FAIL'">,finish_time = now()</if>
+            <if test="status == 'INIT'">,finish_time = null</if>
         where id = #{id}
     </update>
 </mapper>

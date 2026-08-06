@@ -15,6 +15,7 @@
  */
 package com.clougence.sql.mysql.parser;
 
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
@@ -111,8 +112,8 @@ public class MyDslProvider implements DslProvider {
             if (config.isSqlModeKnown() || noBackslashEscapesFallback) {
                 throw firstFailure;
             }
-            try {
-                return DslHelper.splitDsl(withNoBackslashEscapesFallback(), sourceText(lexer));
+            try (StringReader reader = new StringReader(sourceText(lexer))) {
+                return DslHelper.splitDsl(withNoBackslashEscapesFallback(), reader);
             } catch (RuntimeException fallbackFailure) {
                 firstFailure.addSuppressed(fallbackFailure);
                 throw firstFailure;
@@ -152,8 +153,8 @@ public class MyDslProvider implements DslProvider {
             if (config.isSqlModeKnown() || noBackslashEscapesFallback) {
                 throw firstFailure;
             }
-            try {
-                for (AstSplitScript script : DslHelper.splitDsl(withNoBackslashEscapesFallback(), sourceText(lexer))) {
+            try (StringReader reader = new StringReader(sourceText(lexer))) {
+                for (AstSplitScript script : DslHelper.splitDsl(withNoBackslashEscapesFallback(), reader)) {
                     visitor.visit(script.getAstTree());
                 }
             } catch (RuntimeException fallbackFailure) {

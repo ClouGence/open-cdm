@@ -308,16 +308,6 @@ public class DmChangeFlowController {
     }
 
     @RequestAuth(DM_CICD_FLOW_MANAGE)
-    @RequestMapping(value = "/pushFlowConfig", method = RequestMethod.POST)
-    public ResWebData<?> flowPushConfig(HttpServletRequest request, @Valid @RequestBody ChangeFlowConfigFO fo) {
-        String puid = (String) request.getAttribute(RdpUserService.PUID);
-        String uid = (String) request.getAttribute(RdpUserService.UID);
-
-        this.changeFlowService.updateFlowConfigByFlowId(puid, fo.getFlowId(), fo);
-        return ResWebDataUtils.buildSuccess();
-    }
-
-    @RequestAuth(DM_CICD_FLOW_MANAGE)
     @RequestMapping(value = "/gitOpsCreate", method = RequestMethod.POST)
     public ResWebData<?> flowGitOpsCreate(HttpServletRequest request, @Valid @RequestBody ChangeFlowGitOpsCreateFO fo) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
@@ -475,7 +465,6 @@ public class DmChangeFlowController {
         changeDO.setTryTimes(0);
         changeDO.setLastCommitId(branch.getBranchCommitId());
         changeDO.setLockStatus(true);
-        changeDO.setFlowWalked(new RsChangeFlowWalkedObj());
         this.changeFlowDal.changeMapper().insert(changeDO);
         return ResWebDataUtils.buildSuccess(true);
     }

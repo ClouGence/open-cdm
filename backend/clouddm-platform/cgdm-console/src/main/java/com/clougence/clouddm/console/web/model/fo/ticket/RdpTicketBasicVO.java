@@ -16,13 +16,8 @@
 package com.clougence.clouddm.console.web.model.fo.ticket;
 
 import com.clougence.clouddm.platform.dal.model.approval.ApprovalBiz;
-import com.clougence.clouddm.platform.dal.model.approval.ApprovalType;
 import com.clougence.clouddm.platform.dal.model.approval.ApprovalStatus;
-import com.clougence.clouddm.platform.dal.model.approval.DmApprovalDO;
-import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
-import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
-import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
-import com.clougence.utils.format.DateFormatType;
+import com.clougence.clouddm.platform.dal.model.approval.ApprovalType;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -33,65 +28,22 @@ public class RdpTicketBasicVO {
 
     // ----- from table dm_approval ------
 
-    private Long            id;
-
-    private String          bizId;
-
-    private String          gmtCreate;
-
-    private String          gmtModified;
-
-    private String          userName;
-
-    private Long            resId;
-
-    private String          resourceName;
-
-    private String          resourceDesc;
-
-    private String          resourceType;
-
-    private String          targetInfo;
-
-    private ApprovalType approType;
-
-    private ApprovalBiz  approBiz;
-
-    private String          approTemplateName;
-
-    private String          description;
-
-    private String          ticketTitle;
-
+    private Long           id;
+    private String         bizId;
+    private String         gmtCreate;
+    private String         gmtModified;
+    private String         userName;
+    private Long           resId;
+    private String         resourceName;
+    private String         resourceDesc;
+    private String         resourceType;
+    private String         targetInfo;
+    private ApprovalType   approType;
+    private ApprovalBiz    approBiz;
+    private String         approTemplateName;
+    private String         description;
+    private String         ticketTitle;
     private ApprovalStatus ticketStatus;
-
-    private String          finishTime;
-
-    private String          expectedExecTime;
-
-    //    private boolean         isNormal = true;
-
-    public static RdpTicketBasicVO generateVO(DmApprovalDO ticketDO, String resourceType, DmAuthUserDO ownerUserDO) {
-        RdpTicketBasicVO vo = new RdpTicketBasicVO();
-        vo.setId(ticketDO.getId());
-        vo.setBizId(ticketDO.getBizId());
-        vo.setGmtCreate(DateFormatType.s_yyyyMMdd_HHmmss.format(ticketDO.getGmtCreate()));
-        vo.setGmtModified(DateFormatType.s_yyyyMMdd_HHmmss.format(ticketDO.getGmtModified()));
-        vo.setResId(ticketDO.getBindDsId());
-        vo.setTargetInfo(ticketDO.getTargetInfo());
-        vo.setApproType(ticketDO.getApproType());
-        vo.setApproBiz(ticketDO.getApproBiz());
-        vo.setApproTemplateName(ticketDO.getApproTemplateName());
-        vo.setDescription(ticketDO.getDescription());
-        vo.setTicketTitle(ticketDO.getTicketTitle());
-        vo.setTicketStatus(ticketDO.getTicketStatus());
-        vo.setFinishTime(DateFormatType.s_yyyyMMdd_HHmmss.format(ticketDO.getFinishTime()));
-
-        vo.setUserName((ownerUserDO != null) ? ownerUserDO.getUsername() : DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_NOT_EXIST_ERROR.name()));
-
-        vo.setResourceType(resourceType);
-
-        return vo;
-    }
+    private String         finishTime;
 
 }

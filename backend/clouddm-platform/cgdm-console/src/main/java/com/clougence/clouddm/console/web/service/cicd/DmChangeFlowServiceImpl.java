@@ -26,7 +26,6 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.clougence.clouddm.api.common.GlobalConfUtils;
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
-import com.clougence.clouddm.api.console.autoexec.ErrorStrategy;
 import com.clougence.clouddm.console.web.component.cicd.ImMessageType;
 import com.clougence.clouddm.console.web.component.cicd.ImSenderService;
 import com.clougence.clouddm.console.web.component.config.RootUserConfig;
@@ -199,10 +198,7 @@ public class DmChangeFlowServiceImpl implements DmChangeFlowService {
         flowDO.setFlowDesc(fo.getFlowDesc());
         flowDO.setFlowManagerUid(StringUtils.isBlank(fo.getFlowManagerUid()) ? currentUser : fo.getFlowManagerUid());
         flowDO.setFlowStatus(ChangeFlowStatus.NORMAL);
-        flowDO.setFlowCheck((fo.getOption() != null && fo.getOption().getCheckStrategy() != null) ? fo.getOption().getCheckStrategy() : ChangeCheckStrategy.Always);
-        flowDO.setFlowApprove((fo.getOption() != null && fo.getOption().getApproveStrategy() != null) ? fo.getOption().getApproveStrategy() : ChangeApproveStrategy.Enable);
-        flowDO.setFlowExecute((fo.getOption() != null && fo.getOption().getExecuteStrategy() != null) ? fo.getOption().getExecuteStrategy() : ChangeExecStrategy.Manual);
-        flowDO.setFlowOptions(createFlowOptions(fo.getOption()));
+        flowDO.setFlowOptions(createFlowOptions());
         mergeMsgConfig(flowDO, checkAndCreateMsg(ownerUid, fo));
 
         this.changeFlowDal.flowMapper().insert(flowDO);
@@ -388,20 +384,8 @@ public class DmChangeFlowServiceImpl implements DmChangeFlowService {
         }
     }
 
-    private RsChangeFlowOptionObj createFlowOptions(ChangeFlowOptionFO fo) {
-        RsChangeFlowOptionObj options = new RsChangeFlowOptionObj();
-        if (fo == null) {
-            options.setTransactional(false);
-            options.setErrorStrategy(ErrorStrategy.NONE);
-            return options;
-        }
-
-        // exec default
-        options.setTransactional(fo.isTransactional());
-        options.setErrorStrategy(fo.getErrorStrategy());
-        options.setRetryCount(fo.getRetryCount());
-        options.setRetryWaitTime(fo.getRetryWaitTime());
-        return options;
+    private RsChangeFlowOptionObj createFlowOptions() {
+        return new RsChangeFlowOptionObj();
     }
 
     private RsChangeFlowScmOptionObj createDevopsOptions(ChangeFlowGitOpsOptionFO fo) {
@@ -441,7 +425,6 @@ public class DmChangeFlowServiceImpl implements DmChangeFlowService {
         changeDO.setTryTimes(0);
         changeDO.setLastCommitId(branch.getBranchCommitId());
         changeDO.setLockStatus(true);
-        changeDO.setFlowWalked(new RsChangeFlowWalkedObj());
         this.changeFlowDal.changeMapper().insert(changeDO);
     }
 
@@ -464,7 +447,6 @@ public class DmChangeFlowServiceImpl implements DmChangeFlowService {
         changeDO.setTryTimes(0);
         changeDO.setLastCommitId(branch.getBranchCommitId());
         changeDO.setLockStatus(false);
-        changeDO.setFlowWalked(new RsChangeFlowWalkedObj());
         this.changeFlowDal.changeMapper().insert(changeDO);
     }
 
@@ -582,34 +564,6 @@ public class DmChangeFlowServiceImpl implements DmChangeFlowService {
         this.senderService.sendMessage(ownerUid, flowId, ImMessageType.FlowConfig, textMsg);
     }
 
-    @Override
-    public void updateFlowConfigByFlowId(String ownerUid, long flowId, ChangeFlowConfigFO fo) {
-        DmChangeFlowDO flow = this.changeFlowDal.flowMapper().queryByOwnerAndId(ownerUid, flowId);
-        if (flow == null) {
-            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_FLOW_NOT_EXIST_ERROR.name()));
-        }
-        if (fo.getCheckStrategy() == null) {
-            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.COMM_BAD_ARG_ERROR.name()));
-        }
-        if (fo.getApproveStrategy() == null) {
-            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.COMM_BAD_ARG_ERROR.name()));
-        }
-        if (fo.getExecuteStrategy() == null) {
-            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.COMM_BAD_ARG_ERROR.name()));
-        }
-        if (fo.getExecuteStrategy() == ChangeExecStrategy.Auto && fo.getErrorStrategy() == null) {
-            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.COMM_BAD_ARG_ERROR.name()));
-        }
-        flow.setFlowCheck(fo.getCheckStrategy());
-        flow.setFlowApprove(fo.getApproveStrategy());
-        flow.setFlowExecute(fo.getExecuteStrategy());
-        if (fo.getExecuteStrategy() == ChangeExecStrategy.Auto) {
-            flow.getOptions().setTransactional(fo.isTransactional());
-            flow.getOptions().setErrorStrategy(fo.getErrorStrategy());
-        }
-        this.changeFlowDal.flowMapper().updateFlowConfigByOwnerAndId(ownerUid, flowId, flow);
-    }
-
     private void deleteOldMessenger(String ownerUid, long flowId) {
         DmChangeFlowDO msgDO = new DmChangeFlowDO();
         msgDO.setEnableMsg(false);
@@ -637,9 +591,6 @@ public class DmChangeFlowServiceImpl implements DmChangeFlowService {
         flowDO.setFlowDesc(baseFlow.getFlowDesc());
         flowDO.setFlowManagerUid(baseFlow.getFlowManagerUid());
         flowDO.setFlowStatus(ChangeFlowStatus.NORMAL);
-        flowDO.setFlowCheck(baseFlow.getFlowCheck());
-        flowDO.setFlowApprove(baseFlow.getFlowApprove());
-        flowDO.setFlowExecute(baseFlow.getFlowExecute());
         flowDO.setFlowOptions(baseFlow.getFlowOptions());
         flowDO.setRefMsgId(baseFlow.getRefMsgId());
         flowDO.setRefMsgType(baseFlow.getRefMsgType());

@@ -6,16 +6,16 @@
  */
 package com.clougence.clouddm.ds.hana.sql.analysis.behavior;
 
-import java.util.Collections;
+import java.io.Reader;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAnalysisSpi;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.StatementBehavior;
 import com.clougence.clouddm.sdk.sql.parser.SplitAnalysisSpi;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
-import com.clougence.utils.StringUtils;
 
 public class HanaBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
 
@@ -26,14 +26,12 @@ public class HanaBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
     }
 
     @Override
-    public List<StatementBehavior> analysisBehavior(String query, Map<UmiTypes, Object> levels, int baseLine, int baseColumn) {
-        if (StringUtils.isBlank(query)) {
-            return Collections.emptyList();
-        }
-        return splitAnalysisSpi.splitScript(query, Collections.emptyList(), baseLine, baseColumn).stream().map(script -> {
+    public Stream<StatementBehavior> analysisBehaviorStream(Reader queryReader, Map<UmiTypes, Object> levels, int baseLine, int baseColumn) {
+        var scripts = splitAnalysisSpi.splitScriptStream(queryReader, List.of(), baseLine, baseColumn);
+        return scripts.map(script -> {
             StatementBehavior behavior = new StatementBehavior();
             behavior.setStatementType(script.getType().stream().findFirst().orElse(SplitQueryType.UNKNOWN));
             return behavior;
-        }).toList();
+        }).onClose(scripts::close);
     }
 }

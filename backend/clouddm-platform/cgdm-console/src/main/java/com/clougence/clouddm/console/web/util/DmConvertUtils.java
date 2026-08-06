@@ -32,8 +32,10 @@ import com.clougence.clouddm.api.sidecar.session.execute.ResultPageDTO;
 import com.clougence.clouddm.base.metadata.ds.*;
 import com.clougence.clouddm.console.web.component.analysis.BehaviorRelations;
 import com.clougence.clouddm.console.web.component.analysis.BehaviorRequest;
+import com.clougence.clouddm.console.web.component.approval.model.TicketRuleCheckResult;
 import com.clougence.clouddm.console.web.component.cicd.model.ChangeCheckItemMO;
 import com.clougence.clouddm.console.web.component.detectrule.SecHintInfo;
+import com.clougence.clouddm.console.web.component.detectrule.SecRulesCheckResult;
 import com.clougence.clouddm.console.web.component.detectrule.domain.SecRange;
 import com.clougence.clouddm.console.web.component.detectrule.domain.SecRangeItem;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsConfigKvDef;
@@ -68,6 +70,7 @@ import com.clougence.clouddm.console.web.model.vo.faker.DmAsyncTaskVO;
 import com.clougence.clouddm.console.web.model.vo.openapi.DmApiDataSourceVO;
 import com.clougence.clouddm.console.web.model.vo.ssh.SshConfigDetailVO;
 import com.clougence.clouddm.console.web.model.vo.ssh.SshConfigListVO;
+import com.clougence.clouddm.console.web.model.vo.ticket.DmTicketResultVO;
 import com.clougence.clouddm.console.web.service.browse.model.ActionInfo;
 import com.clougence.clouddm.console.web.service.browse.model.ActionTargetMO;
 import com.clougence.clouddm.console.web.service.browse.model.GenerateSqlDataAuthEnum;
@@ -82,7 +85,6 @@ import com.clougence.clouddm.console.web.service.security.mode.DmSecRuleMO;
 import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
 import com.clougence.clouddm.platform.dal.access.entry.UserCacheEntry;
 import com.clougence.clouddm.platform.dal.model.auth.RsAuthPersonObj;
-import com.clougence.clouddm.platform.dal.model.cicd.ChangeStatus;
 import com.clougence.clouddm.platform.dal.model.cicd.DmChangeDO;
 import com.clougence.clouddm.platform.dal.model.cicd.DmChangeFlowDO;
 import com.clougence.clouddm.platform.dal.model.datasource.DataSourceStatus;
@@ -103,6 +105,7 @@ import com.clougence.clouddm.sdk.execute.session.rdb.RdbSupportSpi;
 import com.clougence.clouddm.sdk.language.AbstractRequest;
 import com.clougence.clouddm.sdk.language.LanguageResult;
 import com.clougence.clouddm.sdk.service.secrules.CheckerRange;
+import com.clougence.clouddm.sdk.service.secrules.RuleLevel;
 import com.clougence.clouddm.sdk.service.secrules.SecParam;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorObject;
@@ -144,6 +147,36 @@ import com.fasterxml.jackson.core.type.TypeReference;
  * @author mode create time is 2021/1/30
  **/
 public class DmConvertUtils {
+
+    private static final RuleLevel[] CHECK_LEVELS_FAILURE = new RuleLevel[] { RuleLevel.FAILURE };
+
+    public static List<TicketRuleCheckResult> convertToTicketRuleCheckResults(SecRulesCheckResult result) {
+        Objects.requireNonNull(result, "result");
+
+        List<TicketRuleCheckResult> checkedResults = new ArrayList<>();
+        result.getChecked().forEach((name, level) -> {
+            TicketRuleCheckResult checked = new TicketRuleCheckResult();
+            checked.setName(name);
+            checked.setRuleLevel(level);
+            checked.setHitCount(result.getHitCountMap().getOrDefault(name, 0L));
+            checked.setDesc(result.getMessageMap().get(name));
+            Set<Integer> lines = result.getScriptMap().get(name);
+            if (lines != null && !lines.isEmpty()) {
+                checked.setLines(lines.stream().sorted().toList());
+            }
+            checkedResults.add(checked);
+        });
+        return checkedResults;
+    }
+
+    public static DmTicketResultVO convertToRuleCheckResult(SecRulesCheckResult result) {
+        DmTicketResultVO vo = new DmTicketResultVO();
+        vo.setConfirm(!result.isAllSuccess());
+        vo.setFailure(result.hasAnyTarget(CHECK_LEVELS_FAILURE));
+
+        vo.setCheckedVOS(convertToTicketRuleCheckResults(result));
+        return vo;
+    }
 
     public static SqlAuditVO convertToSqlAuditVO(DmExecSqlAuditDO auditDO) {
         SqlAuditVO vo = new SqlAuditVO();
@@ -1736,9 +1769,6 @@ public class DmConvertUtils {
         flowVO.setFlowStatus(flowDO.getChangeFlowStatus());
         flowVO.setFlowName(flowDO.getFlowName());
         flowVO.setFlowDesc(flowDO.getFlowDesc());
-        flowVO.setFlowCheck(flowDO.getFlowCheck());
-        flowVO.setFlowApprove(flowDO.getFlowApprove());
-        flowVO.setFlowExecute(flowDO.getFlowExecute());
         flowVO.setOptions(flowDO.getOptions());
         flowVO.setScmType(flowDO.getRefScmType());
         flowVO.setRepoName(flowDO.getScmRepoName());
@@ -1929,20 +1959,6 @@ public class DmConvertUtils {
         return vo;
     }
 
-    private static <T> T afterReadyReturnLast(ChangeStatus status, T one, T two) {
-        switch (status) {
-            case OPEN:
-            case READY:
-                return one;
-            case WAIT:
-            case FINISH:
-            case CLOSED:
-            case FAILED:
-            default:
-                return two;
-        }
-    }
-
     public static ChangeVO convertToChangeVO(DmChangeFlowDO flowDO, DmChangeDO obj, Map<Long, DmChangeFlowDO> devopsMap, Map<Long, DmDsDO> dsMap, Map<Long, DmGitOpsScmDO> scmMap) {
         DmChangeFlowDO gitOpsFlowDO = devopsMap.get(obj.getRefFlowId());
         DmDsDO dsDO = dsMap.get(gitOpsFlowDO.getDsId());
@@ -1960,32 +1976,6 @@ public class DmConvertUtils {
         vo.setChangeFlowStatus(flowDO.getChangeFlowStatus());
 
         // init
-        vo.setFlowCheck(flowDO.getFlowCheck());
-        vo.setFlowApprove(flowDO.getFlowApprove());
-        vo.setFlowExecute(flowDO.getFlowExecute());
-        switch (obj.getCurrentStep()) {
-            case INIT_SNAPSHOT:
-            case INIT:
-                break;
-            case CHECK:
-                vo.setFlowCheck(afterReadyReturnLast(obj.getCurrentStatus(), flowDO.getFlowCheck(), obj.getFlowWalked().getFlowCheck()));
-                break;
-            case APPROVAL:
-                vo.setFlowCheck(obj.getFlowWalked().getFlowCheck());
-                vo.setFlowApprove(afterReadyReturnLast(obj.getCurrentStatus(), flowDO.getFlowApprove(), obj.getFlowWalked().getFlowApprove()));
-                break;
-            case EXECUTE:
-                vo.setFlowCheck(obj.getFlowWalked().getFlowCheck());
-                vo.setFlowApprove(obj.getFlowWalked().getFlowApprove());
-                vo.setFlowExecute(afterReadyReturnLast(obj.getCurrentStatus(), flowDO.getFlowExecute(), obj.getFlowWalked().getFlowExecute()));
-            case FINISH:
-                vo.setFlowCheck(obj.getFlowWalked().getFlowCheck());
-                vo.setFlowApprove(obj.getFlowWalked().getFlowApprove());
-                vo.setFlowExecute(obj.getFlowWalked().getFlowExecute());
-                break;
-            default:
-                break;
-        }
 
         vo.setLocked(obj.isLockStatus());
 

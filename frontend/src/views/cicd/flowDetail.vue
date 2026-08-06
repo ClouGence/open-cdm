@@ -339,95 +339,6 @@
         </div>
       </template>
     </CCModal>
-    <CCModal v-model="imDialogFlowShow" width="960px" class="execution-config-modal-wrap" :maskClosable="false" @on-cancel="handleCloseAllDrawer">
-      <div class="execution-config-modal">
-        <div class="execution-config-title">{{ $t('zhi-xing-pei-zhi') }}</div>
-        <div class="execution-config-list">
-          <div class="execution-config-row">
-            <div class="execution-config-name">
-              <span>{{ $t('sql-jian-cha') }}</span>
-              <Tooltip :content="fetchChangeFlowDescription('check', flowOption.checkStrategy)">
-                <Icon type="ios-information-circle-outline" />
-              </Tooltip>
-            </div>
-            <RadioGroup v-model="flowOption.checkStrategy" class="execution-config-options">
-              <Radio label="Always">{{ SQL_REVIEW_MAP.always }}</Radio>
-              <Radio label="Suggest">{{ SQL_REVIEW_MAP.suggest }}</Radio>
-              <Radio label="Failure">{{ SQL_REVIEW_MAP.failure }}</Radio>
-            </RadioGroup>
-            <div class="execution-config-desc">
-              {{ fetchChangeFlowDescription('check', flowOption.checkStrategy) }}
-            </div>
-          </div>
-          <div class="execution-config-row">
-            <div class="execution-config-name">
-              <span>{{ $t('gong-dan-shen-pi') }}</span>
-              <Tooltip :content="fetchChangeFlowDescription('approve', flowOption.approveStrategy)">
-                <Icon type="ios-information-circle-outline" />
-              </Tooltip>
-            </div>
-            <RadioGroup v-model="flowOption.approveStrategy" class="execution-config-options">
-              <Radio label="Enable">{{ APPROVE_MAP.Enable }}</Radio>
-              <Radio label="Disable">{{ APPROVE_MAP.Disable }}</Radio>
-            </RadioGroup>
-            <div class="execution-config-desc">
-              {{ fetchChangeFlowDescription('approve', flowOption.approveStrategy) }}
-            </div>
-          </div>
-          <div class="execution-config-row">
-            <div class="execution-config-name">
-              <span>{{ $t('fa-bu-bian-geng') }}</span>
-              <Tooltip :content="fetchChangeFlowDescription('execute', flowOption.executeStrategy)">
-                <Icon type="ios-information-circle-outline" />
-              </Tooltip>
-            </div>
-            <RadioGroup v-model="flowOption.executeStrategy" class="execution-config-options" @on-change="handleFlowOfExecuteOption">
-              <Radio label="Auto">{{ PUBLISH_MAP.auto }}</Radio>
-              <Radio label="Manual">{{ PUBLISH_MAP.manual }}</Radio>
-              <Radio label="Disabled">{{ PUBLISH_MAP.disabled }}</Radio>
-            </RadioGroup>
-            <div class="execution-config-desc">
-              {{ fetchChangeFlowDescription('execute', flowOption.executeStrategy) }}
-            </div>
-          </div>
-          <div class="execution-config-row">
-            <div class="execution-config-name">
-              <span>{{ $t('shi-wu') }}</span>
-              <Tooltip :content="flowTransactionalDescription">
-                <Icon type="ios-information-circle-outline" />
-              </Tooltip>
-            </div>
-            <RadioGroup v-model="flowOption.transactional" class="execution-config-options">
-              <Radio label="Enable" :disabled="!flowExecuteIsAuto">{{ APPROVE_MAP.Enable }}</Radio>
-              <Radio label="Disable" :disabled="!flowExecuteIsAuto">{{ APPROVE_MAP.Disable }}</Radio>
-            </RadioGroup>
-            <div class="execution-config-desc">{{ flowTransactionalDescription }}</div>
-          </div>
-          <div class="execution-config-row">
-            <div class="execution-config-name">
-              <span>{{ $t('cuo-wu-ce-lve') }}</span>
-              <Tooltip :content="fetchChangeFlowDescription('error', flowOption.errorStrategy)">
-                <Icon type="ios-information-circle-outline" />
-              </Tooltip>
-            </div>
-            <RadioGroup v-model="flowOption.errorStrategy" class="execution-config-options">
-              <Radio label="NONE" :disabled="!flowExecuteIsAuto">{{ ERROR_STRATEGY_MAP.abort }}</Radio>
-              <Radio label="RETRY" :disabled="!flowExecuteIsAuto">{{ ERROR_STRATEGY_MAP.retry }}</Radio>
-              <Radio label="SKIP" :disabled="!flowExecuteIsAuto">{{ ERROR_STRATEGY_MAP.ignore }}</Radio>
-            </RadioGroup>
-            <div class="execution-config-desc">
-              {{ fetchChangeFlowDescription('error', flowOption.errorStrategy) }}
-            </div>
-          </div>
-        </div>
-      </div>
-      <template #footer>
-        <div class="config-modal-footer">
-          <Button @click="handleCloseAllDrawer">{{ $t('qu-xiao') }}</Button>
-          <Button type="primary" @click="handleOptionSubmit">{{ $t('bao-cun') }}</Button>
-        </div>
-      </template>
-    </CCModal>
     <CCModal v-model="showTriggerModal" width="860px" class="trigger-config-modal-wrap">
       <div class="trigger-config-modal">
         <div class="trigger-config-title">{{ $t('chu-fa-pei-zhi') }}</div>
@@ -633,12 +544,9 @@ import enterOpPwdMixin from '@/mixins/modal/enterOpPwdMixin';
 import { encryptMixin } from '@/mixins/encryptMixin';
 import { handleCopy } from '@/utils/clipboard';
 import {
-  APPROVE_MAP,
   BECOME_STATUS_MAP,
-  CHANGE_FLOW_DESCRIPTION,
   CHANGE_STATUS_MAP,
   defaultLanguageMap,
-  ERROR_STRATEGY_MAP,
   EVEN_TYPE_MAP,
   FLOW_MARK_MAP,
   FLOW_STEP_NUM,
@@ -646,11 +554,9 @@ import {
   formRule,
   GITOPS_DESCRIPTION,
   IM_PROVIDER_MAP,
-  INIT_TYPE_MAP,
-  PUBLISH_MAP,
-  SQL_REVIEW_MAP
+  INIT_TYPE_MAP
 } from './constant';
-import { DEFAULT_FLOW_OPTION, getRepoSelectionKey, getScmDisplayName, getScmIconResource, groupByRepoNamespace } from './utils';
+import { getRepoSelectionKey, getScmDisplayName, getScmIconResource, groupByRepoNamespace } from './utils';
 
 export default {
   name: 'cicd-flow',
@@ -725,14 +631,6 @@ export default {
     flowArchived() {
       return this.flowInfo?.flowStatus === 'ARCHIVE';
     },
-    flowConfigStatusText() {
-      return this.flowInfo?.flowCheck || this.flowInfo?.flowApprove || this.flowInfo?.flowExecute
-        ? this.$t('cicd-yi-pei-zhi')
-        : this.$t('cicd-wei-pei-zhi');
-    },
-    flowTransactionalDescription() {
-      return this.fetchChangeFlowDescription('transactional', this.flowOption.transactional === 'Enable');
-    },
     triggerConfigured() {
       return !!(this.primaryDevops && (this.primaryDevops.webHookEnable || this.primaryDevops.triggerEnable));
     },
@@ -770,21 +668,6 @@ export default {
           statusClass: statusClass(this.callbackConfigured),
           desc: this.$t('cicd-pei-zhi-bian-geng-jie-guo-hui-diao-tong-zhi'),
           actions: [{ label: this.$t('cha-kan-pei-zhi'), type: 'editCallback' }]
-        },
-        {
-          key: 'flow',
-          title: this.$t('zhi-xing-pei-zhi'),
-          status: this.primaryDevops ? this.$t('cicd-yi-pei-zhi') : this.$t('cicd-wei-pei-zhi'),
-          statusClass: this.primaryDevops ? 'success' : 'muted',
-          desc: this.$t('cicd-pei-zhi-fa-bu-bu-zhou-yu-shen-pi-liu-cheng'),
-          actions: [
-            {
-              label: this.$t('cha-kan-pei-zhi'),
-              type: this.primaryDevops ? 'viewFlow' : 'addGitOps',
-              disabled: this.flowArchived,
-              disabledReason: this.flowArchived ? this.$t('cicd-archived-execute-config-unavailable') : ''
-            }
-          ]
         },
         {
           key: 'im',
@@ -828,9 +711,6 @@ export default {
       imProviderInfo: this.initImProviderInfo(),
       imProviderSelected: this.initImProviderInfo(),
       //
-      imDialogFlowShow: false,
-      flowExecuteIsAuto: true,
-      flowOption: DEFAULT_FLOW_OPTION,
       //
       imDialogDevOpsShow: false,
       devopsScmList: [],
@@ -890,12 +770,7 @@ export default {
       FLOW_STEP_NUM,
       BECOME_STATUS_MAP,
       INIT_TYPE_MAP,
-      APPROVE_MAP,
-      SQL_REVIEW_MAP,
-      PUBLISH_MAP,
-      CHANGE_FLOW_DESCRIPTION,
       GITOPS_DESCRIPTION,
-      ERROR_STRATEGY_MAP,
       EVEN_TYPE_MAP,
       CHANGE_STATUS_MAP
     };
@@ -954,23 +829,6 @@ export default {
         flowManagerName: this.flowInfo.flowManagerName,
         flowManagerUid: this.flowInfo.flowManagerUid
       };
-      this.fetchDetailFlowOptionApply();
-    },
-    fetchDetailFlowOptionApply() {
-      this.flowOption = {
-        checkStrategy: this.flowInfo.flowCheck,
-        approveStrategy: this.flowInfo.flowApprove,
-        executeStrategy: this.flowInfo.flowExecute,
-        errorStrategy: this.flowInfo.options?.errorStrategy || 'NONE',
-        transactional: (this.flowInfo.options?.transactional ? 'Enable' : 'Disable') || 'Disable'
-      };
-      if (this.flowOption.executeStrategy === 'Auto') {
-        this.flowExecuteIsAuto = true;
-      } else {
-        this.flowExecuteIsAuto = false;
-        this.flowOption.errorStrategy = '';
-        this.flowOption.transactional = '';
-      }
     },
     async fetchMsgInfo() {
       const res = await this.$services.dmCicdFlowFetchImConfig({
@@ -1042,17 +900,6 @@ export default {
     },
     fetchDevopsUsersListValueOfLabel(u) {
       return u.userName;
-    },
-    fetchChangeFlowDescription(type, option) {
-      if (type === '' || option === '') {
-        return this.$t('zan-wu-miao-shu');
-      }
-      try {
-        return CHANGE_FLOW_DESCRIPTION[type][option];
-      } catch (e) {
-        appLogger.error(e);
-        return this.$t('zan-wu-miao-shu');
-      }
     },
     //
     // handle methods
@@ -1202,39 +1049,6 @@ export default {
       }
     },
     //
-    async handleFlowEdit() {
-      if (!this.flowReadOnly) {
-        this.fetchDetailFlowOptionApply();
-        this.imDialogFlowShow = true;
-      }
-    },
-    handleFlowOfExecuteOption() {
-      if (this.flowOption.executeStrategy === 'Auto') {
-        this.flowOption.transactional = (this.flowInfo.options?.transactional ? 'Enable' : 'Disable') || 'Disable';
-        this.flowOption.errorStrategy = this.flowInfo.options?.errorStrategy || 'NONE';
-        this.flowExecuteIsAuto = true;
-      } else {
-        this.flowExecuteIsAuto = false;
-        this.flowOption.errorStrategy = '';
-        this.flowOption.transactional = '';
-      }
-    },
-    async handleOptionSubmit() {
-      const res = await this.$services.dmCicdFlowPushFlowConfig({
-        data: {
-          flowId: this.flowId,
-          ...this.flowOption,
-          transactional: this.flowOption.transactional === 'Enable'
-        }
-      });
-      if (res.success) {
-        await this.fetchDetail(() => this.fetchDetailFlowOptionApply());
-        this.$Message.success(this.$t('cao-zuo-cheng-gong'));
-        this.handleCloseAllDrawer();
-      } else {
-        this.$Message.error(this.$t('cao-zuo-shi-bai'));
-      }
-    },
     //
     handleGitOpsAdd() {
       if (!this.flowReadOnly) {
@@ -1300,10 +1114,6 @@ export default {
         } else {
           this.handleGitOpsAdd();
         }
-        return;
-      }
-      if (type === 'viewFlow') {
-        this.handleFlowEdit();
         return;
       }
       if (type === 'addGitOps') {
@@ -1505,7 +1315,6 @@ export default {
     },
     handleCloseAllDrawer() {
       this.imDialogDrawerShow = false;
-      this.imDialogFlowShow = false;
       this.imDialogDevOpsShow = false;
       setTimeout(() => {
         this.$refs.formModal?.resetFields?.();

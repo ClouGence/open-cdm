@@ -6,27 +6,37 @@
  */
 package com.clougence.sql.iso.sql2003.analysis.behavior;
 
-import java.util.Collections;
+import java.io.Reader;
+import java.io.StringReader;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAnalysisSpi;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.StatementBehavior;
 import com.clougence.dslpaser.antlr.DslHelper;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.iso.sql2003.parser.Sql2003DslProvider;
-import com.clougence.utils.StringUtils;
+import com.clougence.sql.iso.sql2003.parser.Sql2003SplitAnalysisSpi;
 
 public class Sql2003BehaviorAnalysisSpi implements BehaviorAnalysisSpi {
 
     @Override
-    public List<StatementBehavior> analysisBehavior(String query, Map<UmiTypes, Object> levels, int baseLine, int baseColumn) {
-        if (StringUtils.isBlank(query)) {
-            return Collections.emptyList();
-        }
+    public Stream<StatementBehavior> analysisBehaviorStream(Reader queryReader, Map<UmiTypes, Object> levels, int baseLine, int baseColumn) {
+        var scripts = new Sql2003SplitAnalysisSpi().splitScriptStream(queryReader, List.of(), baseLine, baseColumn);
+        return scripts.flatMap(script -> {
+            StringReader reader = new StringReader(script.getScript());
+            int codeLine = script.getBodyStartCodeLine();
+            int codeColumn = script.getBodyStartCodeColumn();
+
+            return analyzeStatement(reader, levels, codeLine, codeColumn).stream();
+        }).onClose(scripts::close);
+    }
+
+    private List<StatementBehavior> analyzeStatement(Reader queryReader, Map<UmiTypes, Object> levels, int baseLine, int baseColumn) {
 
         Sql2003BehaviorParserVisitor[] holder = new Sql2003BehaviorParserVisitor[1];
-        DslHelper.doVisitor(Sql2003DslProvider.INSTANCE, query, (lexer, parser) -> {
+        DslHelper.doVisitor(Sql2003DslProvider.INSTANCE, queryReader, (lexer, parser) -> {
             holder[0] = new Sql2003BehaviorParserVisitor(levels, baseLine, baseColumn);
             return holder[0];
         });

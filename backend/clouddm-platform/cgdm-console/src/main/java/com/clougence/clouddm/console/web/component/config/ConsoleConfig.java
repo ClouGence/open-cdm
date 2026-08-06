@@ -42,10 +42,6 @@ public class ConsoleConfig {
     @Value("${clouddm.consolejob.engine.async.dock_size:40}")
     protected int          asyncTaskDockSize;
 
-    // compatibility for legacy RDP async task config
-    @Value("${clougence.rdp.async.queue:500}")
-    private int            rdpAsyncTaskQueueSize;
-
     @Value("${clouddm.upgrade.server:server.cdmgr.com}")
     private String         upgradeServer;
     @Value("${clouddm.report.server:server.cdmgr.com}")

@@ -16,8 +16,11 @@
 package com.clougence.clouddm.console.web.model.vo.ticket;
 
 import java.util.List;
+import java.util.Map;
 
+import com.clougence.clouddm.console.web.component.approval.model.TicketRuleCheckResult;
 import com.clougence.clouddm.console.web.constants.RdpTicketProcessActivityStatus;
+import com.clougence.clouddm.platform.dal.model.approval.ApprovalBehavior;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -27,23 +30,27 @@ import lombok.Setter;
 public class RdpTicketActivityVO {
 
     private Long                           processActivityId;
-
     private Long                           processId;
     private Long                           ticketId;
-
     private String                         gmtCreate;
-
     private String                         gmtModified;
-
     private RdpTicketProcessActivityStatus activityStatus;
-
     private String                         activityTitle;
-
+    private Integer                        displayOrder;
     private String                         finishTime;
-
     private String                         remark;
-
     private List<String>                   approvalUserList;
-
     private String                         startTime;
+    private Long                           startTimeUtc;
+    private Long                           finishTimeUtc;
+    private Long                           processedCount;
+    private Long                           processedBytes;
+    private Long                           totalBytes;
+    private Long                           statementCount;
+    private Long                           objectCount;
+    private Long                           behaviorCount;
+    private Long                           ruleCount;
+    private Map<String, Long>              statementTypeCounts;
+    private List<ApprovalBehavior>         behaviors;
+    private List<TicketRuleCheckResult>    ruleResults;
 }

@@ -15,8 +15,11 @@
  */
 package com.clougence.clouddm.platform.dal.access;
 
+import java.io.OutputStream;
+
 import com.clougence.clouddm.platform.dal.mapper.cicd.*;
 import com.clougence.clouddm.platform.dal.mapper.gitops.DmGitOpsScmMapper;
+import com.clougence.clouddm.platform.dal.model.cicd.ChangeItemType;
 
 public interface ChangeFlowDal {
     DmChangeFlowMapper flowMapper();
@@ -32,4 +35,8 @@ public interface ChangeFlowDal {
     DmChangeTriggerReceiptMapper triggerReceiptMapper();
 
     DmGitOpsScmMapper scmMapper();
+
+    // ---------- dal service methods ----------
+
+    boolean readChangeItemContent(String ownerUid, long changeId, ChangeItemType itemType, OutputStream output);
 }

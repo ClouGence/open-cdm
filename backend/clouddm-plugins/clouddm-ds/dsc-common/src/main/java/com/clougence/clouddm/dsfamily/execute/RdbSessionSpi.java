@@ -15,10 +15,12 @@
  */
 package com.clougence.clouddm.dsfamily.execute;
 
-import java.util.*;
+import java.util.Date;
+import java.util.Map;
+import java.util.Properties;
+import java.util.UUID;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
-import com.clougence.clouddm.sdk.execute.ExecuteVariables;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.clouddm.sdk.execute.session.QueryResultConf;
 import com.clougence.clouddm.sdk.execute.session.SessionContextDTO;
@@ -60,19 +62,13 @@ public class RdbSessionSpi implements SessionSpi {
     }
 
     @Override
-    public QueryRequest createQueryRequest(SessionContextDTO contextDTO, DataSourceConfig dsConfig, Map<String, Object> params, String uid, String clientIp, boolean console) {
+    public QueryRequest createQueryRequest(DataSourceConfig dsConfig) {
         // request
         QueryRequest query = new QueryRequest();
         query.setQueryId(newQueryId());
         query.setUsingValueProcess(false);
-        query.setQueryDsType(dsConfig.getDataSourceType());
+        query.setDsType(dsConfig.getDataSourceType());
         query.setRequestTime(new Date());
-
-        query.setVariables(new HashMap<>());
-        query.getVariables().put(ExecuteVariables.CURRENT_CATALOG, (String) params.get(SessionSpi.PARAMS_DEFAULT_DB));
-        query.getVariables().put(ExecuteVariables.CURRENT_SCHEMA, (String) params.get(SessionSpi.PARAMS_DEFAULT_SCHEMA));
-        query.getVariables().put(ExecuteVariables.CURRENT_UID, uid);
-        query.getVariables().put(ExecuteVariables.CLIENT_IP, clientIp);
 
         // result
         QueryResultConf result = new QueryResultConf();

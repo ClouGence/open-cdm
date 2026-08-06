@@ -15,7 +15,9 @@
  */
 package com.clougence.clouddm.dsfamily.language.validate;
 
+import java.io.StringReader;
 import java.util.*;
+import java.util.stream.Stream;
 
 import com.clougence.clouddm.sdk.language.validate.Diagnostic;
 import com.clougence.clouddm.sdk.service.execute.MetaObj;
@@ -81,10 +83,12 @@ public class TablePermissionValidateStrategy implements ValidateStrategy {
             Map<UmiTypes, Object> levelsParam = context.getRequest().getLevelsParam();
             int lineNumber = state.getRange().getStartPosition().getLineNumber();
             int columnNumber = state.getRange().getStartPosition().getColumnNumber();
-            List<StatementBehavior> behaviors = behaviorAnalysisSpi.analysisBehavior(state.getSqlText(), levelsParam, lineNumber, columnNumber);
-            if (behaviors == null) {
-                continue;
+            List<StatementBehavior> behaviors;
+            try (StringReader reader = new StringReader(state.getSqlText());
+                    Stream<StatementBehavior> stream = behaviorAnalysisSpi.analysisBehaviorStream(reader, levelsParam, lineNumber, columnNumber)) {
+                behaviors = stream.toList();
             }
+
             for (StatementBehavior behavior : behaviors) {
                 if (behavior == null || behavior.getRelations() == null) {
                     continue;

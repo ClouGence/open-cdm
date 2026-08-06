@@ -72,18 +72,6 @@
             @select-open-change="handleSelectDropdownOpen"
             @add-im="goToAddIm"
           />
-          <ReleaseFlowExecuteConfig
-            v-if="currentStepKey === 'config'"
-            :flow-basic-form="flowBasicForm"
-            :check-options="checkOptions"
-            :approve-options="approveOptions"
-            :publish-options="publishOptions"
-            :transactional-options="transactionalOptions"
-            :error-options="errorOptions"
-            :flow-execute-is-auto="flowExecuteIsAuto"
-            :change-flow-description="fetchChangeFlowDescription"
-            @execute-strategy-change="setExecuteStrategy"
-          />
         </div>
 
         <ReleaseFlowSummary
@@ -97,11 +85,6 @@
           :summary-im-channel="summaryImChannel"
           :selected-im-provider-name="selectedImProviderName"
           :subscription-summary="subscriptionSummary"
-          :selected-check-label="selectedCheckLabel"
-          :selected-approve-label="selectedApproveLabel"
-          :selected-publish-label="selectedPublishLabel"
-          :selected-transactional-label="selectedTransactionalLabel"
-          :selected-error-label="selectedErrorLabel"
           @open-help="openHelp"
         />
       </div>
@@ -120,28 +103,14 @@
 import { mapState } from 'vuex';
 import { handleCopy } from '@/utils/clipboard';
 import ReleaseFlowBasicInfo from './components/ReleaseFlowBasicInfo.vue';
-import ReleaseFlowExecuteConfig from './components/ReleaseFlowExecuteConfig.vue';
 import ReleaseFlowNoticeConfig from './components/ReleaseFlowNoticeConfig.vue';
 import ReleaseFlowPipelineConfig from './components/ReleaseFlowPipelineConfig.vue';
 import ReleaseFlowSuccess from './components/ReleaseFlowSuccess.vue';
 import ReleaseFlowSummary from './components/ReleaseFlowSummary.vue';
-import {
-  APPROVE_MAP,
-  CHANGE_FLOW_DESCRIPTION,
-  defaultLanguageMap,
-  ERROR_STRATEGY_MAP,
-  EVEN_TYPE_MAP,
-  GITOPS_DESCRIPTION,
-  PUBLISH_MAP,
-  SQL_REVIEW_MAP
-} from './constant';
+import { defaultLanguageMap, EVEN_TYPE_MAP, GITOPS_DESCRIPTION } from './constant';
 import { DEFAULT_DEVOPS_INFO, DEFAULT_FLOW_INFO, getRepoSelectionKey, getScmDisplayName, groupByRepoNamespace } from './utils';
 
-const getDefaultFlowInfo = () => ({
-  ...DEFAULT_FLOW_INFO,
-  checkStrategy: 'Always',
-  approveStrategy: 'Disable'
-});
+const getDefaultFlowInfo = () => ({ ...DEFAULT_FLOW_INFO });
 
 const getDefaultGitOpsInfo = () => ({
   ...DEFAULT_DEVOPS_INFO,
@@ -152,7 +121,6 @@ export default {
   name: 'CicdReleaseFlowPage',
   components: {
     ReleaseFlowBasicInfo,
-    ReleaseFlowExecuteConfig,
     ReleaseFlowNoticeConfig,
     ReleaseFlowPipelineConfig,
     ReleaseFlowSuccess,
@@ -297,42 +265,6 @@ export default {
         { value: 'None', label: this.$t('tiao-guo-chu-shi-hua') }
       ];
     },
-    checkOptions() {
-      return [
-        { value: 'Always', label: SQL_REVIEW_MAP.always },
-        { value: 'Suggest', label: SQL_REVIEW_MAP.suggest },
-        { value: 'Failure', label: SQL_REVIEW_MAP.failure }
-      ];
-    },
-    approveOptions() {
-      return [
-        { value: 'Enable', label: APPROVE_MAP.Enable },
-        { value: 'Disable', label: APPROVE_MAP.Disable }
-      ];
-    },
-    publishOptions() {
-      return [
-        { value: 'Auto', label: PUBLISH_MAP.auto },
-        { value: 'Manual', label: PUBLISH_MAP.manual },
-        { value: 'Disabled', label: PUBLISH_MAP.disabled }
-      ];
-    },
-    transactionalOptions() {
-      return [
-        { value: 'true', label: APPROVE_MAP.Enable },
-        { value: 'false', label: APPROVE_MAP.Disable }
-      ];
-    },
-    errorOptions() {
-      return [
-        { value: 'NONE', label: ERROR_STRATEGY_MAP.abort },
-        { value: 'RETRY', label: ERROR_STRATEGY_MAP.retry },
-        { value: 'SKIP', label: ERROR_STRATEGY_MAP.ignore }
-      ];
-    },
-    flowExecuteIsAuto() {
-      return this.flowBasicForm.executeStrategy === 'Auto';
-    },
     databaseTypeList() {
       const types = this.devopsInsList.map((item) => item?.objAttr?.dsType).filter(Boolean);
       return [...new Set(types)];
@@ -398,21 +330,6 @@ export default {
     },
     selectedInitLabel() {
       return this.initOptions.find((item) => item.value === this.flowGitOpsForm.initScript)?.label || '';
-    },
-    selectedCheckLabel() {
-      return this.checkOptions.find((item) => item.value === this.flowBasicForm.checkStrategy)?.label || '';
-    },
-    selectedApproveLabel() {
-      return this.approveOptions.find((item) => item.value === this.flowBasicForm.approveStrategy)?.label || '';
-    },
-    selectedPublishLabel() {
-      return this.publishOptions.find((item) => item.value === this.flowBasicForm.executeStrategy)?.label || '';
-    },
-    selectedTransactionalLabel() {
-      return this.transactionalOptions.find((item) => item.value === this.flowBasicForm.transactional)?.label || '-';
-    },
-    selectedErrorLabel() {
-      return this.errorOptions.find((item) => item.value === this.flowBasicForm.errorStrategy)?.label || '-';
     },
     isImDisabled() {
       return this.flowImForm.imType === 'none';
@@ -823,23 +740,6 @@ export default {
       this.flowImForm.imId = imId;
       this.flowImForm.imType = this.imDefSelected.imType;
     },
-    setExecuteStrategy(value) {
-      this.flowBasicForm.executeStrategy = value;
-      if (value === 'Auto') {
-        this.flowBasicForm.transactional = 'false';
-        this.flowBasicForm.errorStrategy = 'NONE';
-      } else {
-        this.flowBasicForm.transactional = '';
-        this.flowBasicForm.errorStrategy = '';
-      }
-    },
-    fetchChangeFlowDescription(type, option) {
-      try {
-        return CHANGE_FLOW_DESCRIPTION[type][option] || '';
-      } catch (e) {
-        return '';
-      }
-    },
     fetchFlowGitOpsDescription(option) {
       try {
         return GITOPS_DESCRIPTION[option] || '';
@@ -1033,16 +933,8 @@ export default {
       };
     },
     buildFlowOptionPayload() {
-      const isAutoExecute = this.flowBasicForm.executeStrategy === 'Auto';
       return {
-        initScript: this.flowGitOpsForm.initScript,
-        checkStrategy: this.flowBasicForm.checkStrategy,
-        approveStrategy: this.flowBasicForm.approveStrategy,
-        executeStrategy: this.flowBasicForm.executeStrategy,
-        errorStrategy: isAutoExecute ? this.flowBasicForm.errorStrategy : 'NONE',
-        transactional: isAutoExecute ? this.flowBasicForm.transactional : 'false',
-        retryWaitTime: null,
-        retryCount: null
+        initScript: this.flowGitOpsForm.initScript
       };
     },
     buildMessengerPayload() {

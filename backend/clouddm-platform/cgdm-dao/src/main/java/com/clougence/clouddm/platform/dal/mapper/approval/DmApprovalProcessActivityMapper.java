@@ -26,7 +26,14 @@ public interface DmApprovalProcessActivityMapper extends BaseMapper<DmApprovalPr
 
     List<DmApprovalProcessActivityDO> queryByTicketId(Long ticketId);
 
+    DmApprovalProcessActivityDO queryByProcessIdAndActivityId(@Param("processId") Long processId, @Param("activityId") String activityId);
+
     DmApprovalProcessActivityDO queryByProcessIdAndActivityIdForUpdate(@Param("processId") Long processId, @Param("activityId") String activityId);
 
     void updateContext(@Param("processId") Long processId, @Param("activityId") String activityId, @Param("context") String context);
+
+    int claimPreInitTask(@Param("processId") Long processId, @Param("activityId") String activityId);
+
+    int completePreInitTask(@Param("processId") Long processId, @Param("activityId") String activityId, @Param("taskStatus") String taskStatus,
+                            @Param("context") String context);
 }

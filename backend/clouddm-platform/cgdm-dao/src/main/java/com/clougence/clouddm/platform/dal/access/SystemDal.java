@@ -1,8 +1,13 @@
 package com.clougence.clouddm.platform.dal.access;
 
+import java.io.InputStream;
+import java.io.OutputStream;
+
 import com.clougence.clouddm.platform.dal.mapper.system.*;
 
 public interface SystemDal {
+
+    DmSysAttachmentMapper attachmentMapper();
 
     DmSysClusterMapper clusterMapper();
 
@@ -19,6 +24,10 @@ public interface SystemDal {
     DmSshConfigMapper sshConfigMapper();
 
     // ---------- dal service methods ----------
+
+    void writeAttachment(long attachmentId, InputStream input, long contentLength);
+
+    boolean readAttachment(long attachmentId, OutputStream output);
 
     String fetchSystemConf(String configName);
 

@@ -457,7 +457,7 @@ public class RdpOpAuditServiceImpl implements RdpOpAuditService {
     }
 
     private long prepareAuditResultFile(ExportOpAuditFO fo, String requesterUid, String exportId, File resultFile) throws IOException {
-        ResultFileRequests.ResultFileRequest resultRequest = ResultFileRequests.fromColumns(exportId, "operation audit export", this.exportColumns(), this.exportVariables());
+        ResultFileRequests.ResultFileRequest resultRequest = ResultFileRequests.fromColumns(exportId, "operation audit export", this.exportColumns());
         long preparedRows = 0;
         int offset = 0;
         int batchSize = 1000;
@@ -513,14 +513,6 @@ public class RdpOpAuditServiceImpl implements RdpOpAuditService {
         columns.put(DmI18nUtils.getMessage("EXPORT_OPAUDIT_SECURITY_LEVEL"), JDBCType.VARCHAR);
         columns.put(DmI18nUtils.getMessage("EXPORT_OPAUDIT_UUID_KEY"), JDBCType.VARCHAR);
         return columns;
-    }
-
-    private Map<String, String> exportVariables() {
-        Map<String, String> variables = new LinkedHashMap<>();
-        variables.put("Environment", "DM");
-        variables.put("DataSource", "operation_audit");
-        variables.put("User", "DM");
-        return variables;
     }
 
     private List<String> exportRow(RdpOpAuditVO auditVO) {

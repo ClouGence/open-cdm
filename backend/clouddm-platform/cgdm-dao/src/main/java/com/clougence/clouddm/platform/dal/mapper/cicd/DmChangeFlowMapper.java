@@ -55,8 +55,6 @@ public interface DmChangeFlowMapper extends BaseMapper<DmChangeFlowDO> {
 
     void updateStatusByOwnerAndId(String ownerUid, long flowId, ChangeFlowStatus newData);
 
-    void updateFlowConfigByOwnerAndId(String ownerUid, long flowId, DmChangeFlowDO flow);
-
     void updateMessageConfigByOwnerAndId(String ownerUid, long flowId, DmChangeFlowDO flow);
 
     void disableByOwnerAndScmId(String ownerUid, long scmId);

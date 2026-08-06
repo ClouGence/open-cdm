@@ -35,6 +35,7 @@ import com.clougence.clouddm.platform.dal.access.AuthDal;
 import com.clougence.clouddm.platform.dal.model.approval.*;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.clouddm.sdk.approval.ApprovalProvider;
+import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
 import com.clougence.utils.JsonUtils;
 import com.clougence.utils.StringUtils;
 
@@ -55,9 +56,7 @@ public class ApprovalFlowServiceImpl implements ApprovalFlowService {
     @Resource
     private ApprovalDal                             approvalDal;
     @Resource
-    private ApprovalProcessServiceImpl              approvalProcessService;
-    @Resource
-    private ApprovalProviderServiceImpl             approvalProviderService;
+    private ApprovalProviderServiceImpl             providerService;
     @Resource
     private ImSenderService                         imSenderService;
 
@@ -76,7 +75,7 @@ public class ApprovalFlowServiceImpl implements ApprovalFlowService {
     @Override
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public void closeTicket(long ticketId, String statusMessage, String puid, String uid) {
-        DmApprovalDO ticketDO = checkTicket(ticketId, puid);
+        DmApprovalDO ticketDO = checkTicket(ticketId);
         ApprovalStatus ticketStatus = ticketDO.getTicketStatus();
         if (ticketStatus == ApprovalStatus.WAIT_EXEC || ticketStatus == ApprovalStatus.EXEC_FAIL || ticketStatus == ApprovalStatus.EXEC_PAUSE) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_OPERATOR_TYPE_NOT_MATCH_STATUS.name()));
@@ -92,58 +91,34 @@ public class ApprovalFlowServiceImpl implements ApprovalFlowService {
                 break;
             }
         }
-        this.approvalProcessService.cancelAllProcess(ticketId);
-        this.approvalDal.approvalMapper().updateStatusByEnum(ticketId, ApprovalStatus.CLOSED, statusMessage);
-        this.approvalHandler(ticketDO.getApproBiz()).approvalCanceled(ticketDO.getId(), ticketDO.getApproBiz(), imSenderService);
-    }
-
-    @Override
-    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
-    public void closeTicket(long ticketId, String statusMessage, String puid) {
-        DmApprovalDO ticketDO = checkTicket(ticketId, puid);
-        checkInProgress(ticketDO);
-        this.approvalProcessService.cancelAllProcess(ticketId);
-        this.approvalDal.approvalMapper().updateStatusByEnum(ticketId, ApprovalStatus.CLOSED, statusMessage);
-        this.approvalHandler(ticketDO.getApproBiz()).approvalCanceled(ticketDO.getId(), ticketDO.getApproBiz(), imSenderService);
+        this.cancelAllProcess(ticketId);
+        this.transitionTicketToTerminal(ticketDO, ApprovalStatus.CLOSED, statusMessage);
     }
 
     @Override
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public void failTicket(long ticketId, String statusMessage, String puid) {
-        DmApprovalDO ticketDO = checkTicket(ticketId, puid);
+        DmApprovalDO ticketDO = checkTicket(ticketId);
         checkInProgress(ticketDO);
 
-        this.approvalProcessService.failedAllProcess(ticketId);
-        this.approvalDal.approvalMapper().updateStatusByEnum(ticketId, ApprovalStatus.FAILED, statusMessage);
-        this.approvalHandler(ticketDO.getApproBiz()).approvalFailed(ticketDO.getId(), ticketDO.getApproBiz(), imSenderService);
-    }
-
-    @Override
-    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
-    public void execFailTicket(long ticketId, String statusMessage, String puid) {
-        DmApprovalDO ticketDO = checkTicket(ticketId, puid);
-        checkInProgress(ticketDO);
-
-        this.approvalProcessService.failedAllProcess(ticketId);
-        this.approvalDal.approvalMapper().updateStatusByEnum(ticketId, ApprovalStatus.EXEC_FAIL, statusMessage);
-        this.approvalHandler(ticketDO.getApproBiz()).approvalFailed(ticketDO.getId(), ticketDO.getApproBiz(), imSenderService);
+        this.failCurrentAndCloseFollowingProcesses(ticketDO);
+        this.transitionTicketToTerminal(ticketDO, ApprovalStatus.FAILED, statusMessage);
     }
 
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     @Override
     public void cancelTicket(String puid, long ticketId, String statusMessage) {
-        DmApprovalDO ticketDO = checkTicket(ticketId, puid);
+        DmApprovalDO ticketDO = checkTicket(ticketId);
 
         checkInProgress(ticketDO);
-        this.approvalProcessService.cancelAllProcess(ticketId);
-        this.approvalDal.approvalMapper().updateStatusByEnum(ticketId, ApprovalStatus.CANCELED, statusMessage);
-        this.approvalHandler(ticketDO.getApproBiz()).approvalCanceled(ticketDO.getId(), ticketDO.getApproBiz(), imSenderService);
+        this.cancelAllProcess(ticketId);
+        this.transitionTicketToTerminal(ticketDO, ApprovalStatus.CANCELED, statusMessage);
     }
 
     @Override
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public void approvalTicket(String puid, String uid, RdpApprovalFO fo) {
-        DmApprovalDO ticketDO = checkTicket(fo.getTicketId(), puid);
+        DmApprovalDO ticketDO = checkTicket(fo.getTicketId());
         if (ticketDO.getTicketStatus() != ApprovalStatus.WAIT_APPROVAL) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_OPERATOR_TYPE_NOT_MATCH_STATUS.name()));
         }
@@ -161,17 +136,16 @@ public class ApprovalFlowServiceImpl implements ApprovalFlowService {
         this.approvalDal.approvalMapper().updateComment(ticketDO.getId(), fo.getComment());
         if (fo.isRejected()) {
             // WAIT_APPROVAL -> REJECTED
-            approvalHandler(ticketDO.getApproBiz()).approvalRefuse(ticketDO.getId(), ticketDO.getApproBiz(), imSenderService);
             if (StringUtils.isNotBlank(fo.getComment())) {
                 execMO.setExecMsg(fo.getComment());
             } else {
                 execMO.setExecMsg(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_STATUS_REJECTED_BY_APPROVAL.name()));
             }
             this.approvalDal.processMapper().updateTicketStatusByEnum(processDO.getId(), ApprovalProcessStatus.REJECT, JsonUtils.toJson(execMO));
-            this.approvalDal.approvalMapper().updateStatusByEnum(ticketDO.getId(), ApprovalStatus.REJECTED, null);
+            this.transitionTicketToTerminal(ticketDO, ApprovalStatus.REJECTED, null);
         } else {
             // WAIT_APPROVAL -> WAIT_CONFIRM
-            approvalHandler(ticketDO.getApproBiz()).approvalCompleted(ticketDO.getId(), ticketDO.getApproBiz(), imSenderService);
+            approvalHandler(ticketDO.getApproBiz()).approvalApproved(ticketDO.getId(), ticketDO.getApproBiz(), imSenderService);
             if (StringUtils.isNotBlank(fo.getComment())) {
                 execMO.setExecMsg(fo.getComment());
                 ticketDO.setApproComment(fo.getComment());
@@ -200,59 +174,192 @@ public class ApprovalFlowServiceImpl implements ApprovalFlowService {
     }
 
     @Override
-    public void retryTicket(String puid, long ticketId) {
-        DmApprovalDO ticketDO = checkTicket(ticketId, puid);
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
+    public void createProcess(long ticketId, ApprovalBiz approvalBiz, boolean checkSuccess) {
+        long firstStageId = -1;
+        DmApprovalProcessDO lastProcessDO = null;
+        DmApprovalDO approvalDO = this.approvalDal.approvalMapper().queryById(ticketId);
 
-        if (ticketDO.getTicketStatus() != ApprovalStatus.EXEC_FAIL) {
-            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_RETRY_STATUS_DISCONTENT_ERROR.name()));
+        // set approval person to APPROVAL process
+        List<String> personList = new ArrayList<>();
+        List<DmApprovalPersonDO> personDOS = this.approvalDal.personMapper().queryByTicketBzId(approvalDO.getBizId());
+        personDOS.forEach(personDO -> {
+            personList.add(personDO.getPersonUid());
+        });
+
+        List<String> personName = new ArrayList<>();
+        personList.forEach(uid -> {
+            personName.add(this.authDal.userMapper().queryByUid(uid).getUsername());
+        });
+
+        for (ApprovalStage stage : ApprovalStage.values()) {
+            if (!stage.checkBiz(approvalBiz)) {
+                continue;
+            }
+
+            DmApprovalProcessDO processDO = new DmApprovalProcessDO();
+            processDO.setTicketId(ticketId);
+            processDO.setTicketStage(stage);
+            processDO.setProcessStatus(ApprovalProcessStatus.INIT);
+            if (stage == ApprovalStage.APPROVAL) {
+                ApprovalStageMO mo = new ApprovalStageMO();
+                mo.setExecUserName(personName);
+                processDO.setStageContext(JsonUtils.toJson(mo));
+            } else if (stage == ApprovalStage.EXPLAIN) {
+                ApprovalStageMO execMO = new ApprovalStageMO();
+                if (checkSuccess) {
+                    execMO.setExecMsg(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_RULE_CHECK_EXE.name()));
+                } else {
+                    execMO.setExecMsg(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_RULE_CHECK_FAIL_EXE.name()));
+                }
+                execMO.setExecUserName(Collections.singletonList(this.authDal.userMapper().queryByUid(approvalDO.getOwnerUid()).getUsername()));
+                processDO.setStageContext(JsonUtils.toJson(execMO));
+            }
+            this.approvalDal.processMapper().insert(processDO);
+
+            // need return first process id
+            if (firstStageId == -1) {
+                firstStageId = processDO.getId();
+            } else {
+                this.approvalDal.processMapper().updateById(lastProcessDO);
+            }
+
+            // refresh last
+            lastProcessDO = processDO;
         }
 
-        this.approvalDal.approvalMapper().updateStatusByEnum(ticketId, ApprovalStatus.WAIT_EXEC, DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_STATUS_WAIT_EXEC_MESSAGE.name()));
-    }
-
-    @Override
-    public void createProcess(long ticketId, ApprovalBiz approvalBiz, boolean checkSuccess) {
-        this.approvalProcessService.createProcess(ticketId, approvalBiz, checkSuccess);
+        if (firstStageId == -1) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_APPROVAL_CAN_NOT_GET.name(), ticketId));
+        }
     }
 
     @Override
     public List<DmApprovalProcessDO> getProcessList(long ticketId) {
-        return this.approvalProcessService.getProcessList(ticketId);
+        return this.approvalDal.processMapper().listByTicketId(ticketId);
     }
 
     @Override
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public void cancelProcess(long ticketId, long processId) {
-        this.approvalProcessService.cancelProcess(ticketId, processId);
+        DmApprovalDO ticketDO = this.approvalDal.approvalMapper().queryById(ticketId);
+        DmApprovalProcessDO processDO = this.approvalDal.processMapper().queryTicketProcessById(ticketId, processId);
+
+        // is completed.
+        if (processDO.getProcessStatus() == ApprovalProcessStatus.FINISH) {
+            return;
+        }
+
+        // do action
+        switch (processDO.getTicketStage()) {
+            case EXPLAIN:
+            case CONFIRM:
+            case EXECUTION: {
+                // when auto exec, EXECUTION need other code
+                break; // do nothing
+            }
+            case APPROVAL: {
+                if (StringUtils.isNotBlank(processDO.getStageContext()) && ticketDO.getApproType() != ApprovalType.Internal) {
+                    try {
+                        this.providerService.cancelApprovalInst(ticketDO.getId());
+                    } catch (ThirdPartyApiException e) {
+                        throw new ErrorMessageException(DmI18nUtils.getMessage(e.getMessageKey(), e.getMessageArgs()));
+                    }
+                }
+                break;
+            }
+            default: {
+                throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_STAGE_CANNOT_CANCEL.name(), processDO.getTicketStage().name()));
+            }
+        }
+
+        // update status
+        processDO.setProcessStatus(ApprovalProcessStatus.CLOSED);
+        processDO.setFinishTime(new Date());
+        this.approvalDal.processMapper().updateById(processDO);
     }
 
     @Override
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public void cancelAllProcess(long ticketId) {
-        this.approvalProcessService.cancelAllProcess(ticketId);
+        List<DmApprovalProcessDO> processList = this.getProcessList(ticketId);
+        for (DmApprovalProcessDO processDO : processList) {
+            if (processDO.getProcessStatus() != ApprovalProcessStatus.FINISH) {
+                this.cancelProcess(ticketId, processDO.getId());
+            }
+        }
     }
 
-    @Override
-    public void failedAllProcess(long ticketId) {
-        this.approvalProcessService.failedAllProcess(ticketId);
-    }
+    private void failCurrentAndCloseFollowingProcesses(DmApprovalDO ticketDO) {
+        ApprovalStage currentStage = switch (ticketDO.getTicketStatus()) {
+            case PRE_INIT_WAIT, PRE_INIT_RUN -> ApprovalStage.EXPLAIN;
+            case WAIT_APPROVAL -> ApprovalStage.APPROVAL;
+            case WAIT_CONFIRM -> ApprovalStage.CONFIRM;
+            case WAIT_EXEC, RUNNING, EXEC_FAIL, EXEC_PAUSE -> ApprovalStage.EXECUTION;
+            default -> null;
+        };
+        if (currentStage == null) {
+            return;
+        }
 
-    @Override
-    public void cancelApprovalInst(Long ticketId) {
-        this.approvalProviderService.cancelApprovalInst(ticketId);
+        DmApprovalProcessDO currentProcess = this.approvalDal.processMapper().queryByStage(ticketDO.getId(), currentStage);
+        if (currentProcess == null || currentProcess.getProcessStatus() == ApprovalProcessStatus.FINISH) {
+            return;
+        }
+        if (currentStage == ApprovalStage.APPROVAL) {
+            this.doFailed(ticketDO.getId(), currentProcess);
+        }
+        currentProcess.setProcessStatus(ApprovalProcessStatus.FAIL);
+        currentProcess.setFinishTime(new Date());
+        this.approvalDal.processMapper().updateById(currentProcess);
+
+        for (DmApprovalProcessDO processDO : this.getProcessList(ticketDO.getId())) {
+            if (processDO.getTicketStage().ordinal() <= currentStage.ordinal() || processDO.getProcessStatus() != ApprovalProcessStatus.INIT) {
+                continue;
+            }
+            processDO.setProcessStatus(ApprovalProcessStatus.CLOSED);
+            processDO.setFinishTime(new Date());
+            this.approvalDal.processMapper().updateById(processDO);
+        }
     }
 
     @Override
     public boolean checkEnableApproval(String ownerUid, ApprovalProvider type) {
-        return this.approvalProviderService.checkEnableApproval(ownerUid, type);
+        return this.providerService.checkEnableApproval(ownerUid, type);
     }
 
     @Override
-    public void refreshApprovalStatus(long ticketId) {
-        this.approvalProviderService.refreshApprovalStatus(ticketId);
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
+    public void transitionTicketToTerminal(long ticketId, ApprovalStatus terminalStatus, String statusMessage) {
+        DmApprovalDO ticketDO = checkTicket(ticketId);
+        this.transitionTicketToTerminal(ticketDO, terminalStatus, statusMessage);
+    }
+
+    private void transitionTicketToTerminal(DmApprovalDO ticketDO, ApprovalStatus terminalStatus, String statusMessage) {
+        this.approvalDal.approvalMapper().updateStatusByEnum(ticketDO.getId(), terminalStatus, statusMessage);
+        ApprovalHandler handler = approvalHandler(ticketDO.getApproBiz());
+        switch (terminalStatus) {
+            case FINISHED:
+                handler.approvalCompleted(ticketDO.getId(), ticketDO.getApproBiz(), imSenderService);
+                return;
+            case REJECTED:
+                handler.approvalRejected(ticketDO.getId(), ticketDO.getApproBiz(), imSenderService);
+                return;
+            case FAILED:
+            case EXEC_FAIL:
+                handler.approvalFailed(ticketDO.getId(), ticketDO.getApproBiz(), imSenderService);
+                return;
+            case CLOSED:
+            case CANCELED:
+                handler.approvalCanceled(ticketDO.getId(), ticketDO.getApproBiz(), imSenderService);
+                return;
+            default:
+                throw new IllegalStateException("Unsupported terminal ticket status: " + terminalStatus);
+        }
     }
 
     @Override
     public DmApprovalTemplateDO checkApprovalAndReturnTemplate(String ownerUid, ApprovalType type, String templateId, Locale locale) {
-        return this.approvalProviderService.checkApprovalAndReturnTemplate(ownerUid, type, templateId, locale);
+        return this.providerService.checkApprovalAndReturnTemplate(ownerUid, type, templateId, locale);
     }
 
     private void checkInProgress(DmApprovalDO ticketDO) {
@@ -267,15 +374,28 @@ public class ApprovalFlowServiceImpl implements ApprovalFlowService {
         }
     }
 
-    private DmApprovalDO checkTicket(long ticketId, String puid) {
+    private DmApprovalDO checkTicket(long ticketId) {
         DmApprovalDO ticketDO = this.approvalDal.approvalMapper().queryById(ticketId);
         if (ticketDO == null || ticketDO.getDeleted()) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_NOT_EXIST_ERROR.name()));
         }
-        if (!ticketDO.getPrimaryUid().equals(puid)) {
-            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_NOT_BELONG_CURRENT_TEAM.name()));
-        }
 
         return ticketDO;
+    }
+
+    private void doFailed(long ticketId, DmApprovalProcessDO processDO) {
+        DmApprovalDO ticketDO = this.approvalDal.approvalMapper().queryById(ticketId);
+
+        boolean isAllowType = StringUtils.isNotBlank(processDO.getStageContext()) && ticketDO.getApproType() != ApprovalType.Internal;
+        boolean isEnable = this.providerService.checkEnableApproval(ticketDO.getOwnerUid(), ticketDO.getApproType().getProviderType());
+
+        if (isAllowType && isEnable) {
+            try {
+                this.providerService.cancelApprovalInst(ticketDO.getId());
+            } catch (Exception e) {
+                // fail ticket don't care third party anything error
+                log.error("cancel approval instance failed", e);
+            }
+        }
     }
 }

@@ -223,7 +223,7 @@ public class DrSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
 
     private Set<SplitQueryType> collectBodyTypes(ParserRuleContext body, String script) {
         Set<SplitQueryType> types = new LinkedHashSet<>();
-        types.add(body instanceof DorisParser.QueryContext ? SplitQueryType.SELECT : normalizeType(body.accept(splitVisitor()), script));
+        types.add(body instanceof DorisParser.QueryContext ? SplitQueryType.SELECT : normalizeType(body.accept(splitVisitor())));
         collectBodyAdditionalTypes(body, types);
         return types;
     }

@@ -30,6 +30,5 @@ public class ChangeTicketInfoResult {
     private String         ticketBizId;
     private ApprovalBiz    ticketBizType;
     private ApprovalType   approvalType;
-
     private ApprovalStatus ticketStatus;
 }

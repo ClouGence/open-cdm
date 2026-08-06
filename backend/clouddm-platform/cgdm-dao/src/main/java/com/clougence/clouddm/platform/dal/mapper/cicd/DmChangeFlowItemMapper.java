@@ -23,5 +23,11 @@ import com.clougence.clouddm.platform.dal.model.cicd.DmChangeFlowItemDO;
 public interface DmChangeFlowItemMapper extends BaseMapper<DmChangeFlowItemDO> {
     List<DmChangeFlowItemDO> queryItemByFlowId(String ownerUid, long flowId);
 
+    List<DmChangeFlowItemDO> queryItemMetaByFlowId(String ownerUid, long flowId);
+
+    DmChangeFlowItemDO queryItemByFlowIdAndName(String ownerUid, long flowId, String contentName);
+
     int deleteItemByFlowId(String ownerUid, long flowId);
+
+    int insertFromChangeItems(String ownerUid, long changeId, long flowId);
 }

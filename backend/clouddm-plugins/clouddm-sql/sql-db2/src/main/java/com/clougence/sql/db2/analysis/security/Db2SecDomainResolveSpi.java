@@ -15,8 +15,11 @@
  */
 package com.clougence.sql.db2.analysis.security;
 
+import java.io.Reader;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
@@ -24,15 +27,16 @@ import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
-import com.clougence.clouddm.sdk.sql.analysis.security.CodeInfo;
 import com.clougence.clouddm.sdk.sql.analysis.security.ContextInfo;
 import com.clougence.clouddm.sdk.sql.analysis.security.SecDomainResolveSpi;
 import com.clougence.clouddm.sdk.sql.parser.SplitScript;
 import com.clougence.dslpaser.antlr.DslHelper;
 import com.clougence.dslpaser.antlr.DslProvider;
+import com.clougence.dslpaser.ast.location.CodeLocation;
 import com.clougence.dslpaser.parse.AstSplitScript;
 import com.clougence.sql.db2.analysis.security.builder.Db2BuildFactory;
 import com.clougence.sql.db2.parser.Db2DslProvider;
+import com.clougence.sql.db2.parser.Db2SplitAnalysisSpi;
 
 public class Db2SecDomainResolveSpi implements SecDomainResolveSpi, Db2SecDomainOptionKeys {
 
@@ -55,11 +59,21 @@ public class Db2SecDomainResolveSpi implements SecDomainResolveSpi, Db2SecDomain
     }
 
     @Override
-    public List<RuleDomain> resolveDomain(DataSourceType dsType, CodeInfo codeInfo, ContextInfo ctxInfo) {
-        com.clougence.dslpaser.ast.location.CodeLocation dslBase = //
-                new com.clougence.dslpaser.ast.location.CodeLocation(codeInfo.getBaseLine(), codeInfo.getBaseColumn());
+    public Stream<RuleDomain> resolveDomainStream(DataSourceType dsType, Reader queryReader, int baseLine, int baseColumn, ContextInfo ctxInfo) {
+        var scripts = new Db2SplitAnalysisSpi().splitScriptStream(queryReader, List.of(), baseLine, baseColumn);
+        return scripts.flatMap(script -> {
+            StringReader reader = new StringReader(script.getScript());
+            int codeLine = script.getBodyStartCodeLine();
+            int codeColumn = script.getBodyStartCodeColumn();
+
+            return resolveStatement(dsType, reader, codeLine, codeColumn, ctxInfo).stream();
+        }).onClose(scripts::close);
+    }
+
+    private List<RuleDomain> resolveStatement(DataSourceType dsType, Reader queryReader, int baseLine, int baseColumn, ContextInfo ctxInfo) {
+        CodeLocation dslBase = new CodeLocation(baseLine, baseColumn);
         List<RuleDomain> domainList = new ArrayList<>();
-        List<AstSplitScript> scripts = DslHelper.splitDsl(dslProvider(), codeInfo.getQuery(), dslBase);
+        List<AstSplitScript> scripts = DslHelper.splitDsl(dslProvider(), queryReader, dslBase);
         for (AstSplitScript s : scripts) {
             SplitScript ss = new SplitScript();
             ss.setScript(s.getScript());
@@ -69,9 +83,11 @@ public class Db2SecDomainResolveSpi implements SecDomainResolveSpi, Db2SecDomain
             ss.setBodyEndCodeColumn(s.getEndCodeColumn());
 
             Db2BuildFactory builder = new Db2BuildFactory(this.metaService);
-            DslHelper.doVisitor(dslProvider(), s.getScript(), (lexer, parser) -> this.parserVisitor(builder, parser));
+            try (StringReader reader = new StringReader(s.getScript())) {
+                DslHelper.doVisitor(dslProvider(), reader, (lexer, parser) -> this.parserVisitor(builder, parser));
+            }
             List<RuleDomain> build;
-            if (ctxInfo == null || !ctxInfo.isDeepParser()) {
+            if (ctxInfo == null) {
                 build = builder.build();
             } else {
                 build = builder.build(ctxInfo.getCuid(), ctxInfo.getDsId(), ctxInfo.getLevelsParam());

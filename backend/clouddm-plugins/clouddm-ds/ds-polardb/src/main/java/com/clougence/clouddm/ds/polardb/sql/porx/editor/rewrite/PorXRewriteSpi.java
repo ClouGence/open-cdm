@@ -15,7 +15,9 @@
  */
 package com.clougence.clouddm.ds.polardb.sql.porx.editor.rewrite;
 
+import java.io.Reader;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Parser;
@@ -23,19 +25,23 @@ import org.antlr.v4.runtime.TokenStreamRewriter;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import com.clougence.clouddm.ds.polardb.i18n.PorMyDsI18nKeys;
-import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteContext;
-import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteSpi;
-import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.clouddm.ds.polardb.sql.porx.parser.PolarXDslProvider;
 import com.clougence.clouddm.ds.polardb.sql.porx.parser.antlr.PolardbXParser;
+import com.clougence.clouddm.sdk.execute.session.QueryRequest;
+import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteContext;
+import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteSpi;
 import com.clougence.dslpaser.antlr.DslHelper;
 import com.clougence.dslpaser.parse.AstSplitScript;
 
 public class PorXRewriteSpi implements RewriteSpi {
 
     @Override
-    public String rewriterQuery(QueryRequest request, RewriteContext context) {
-        List<AstSplitScript> scripts = DslHelper.splitDsl(PolarXDslProvider.INSTANCE, request.getQueryBody());
+    public Stream<String> rewriterQueryStream(Reader queryReader, QueryRequest request, RewriteContext context) {
+        return Stream.of(rewriterQueryMaterialized(queryReader, request, context));
+    }
+
+    private String rewriterQueryMaterialized(Reader queryReader, QueryRequest request, RewriteContext context) {
+        List<AstSplitScript> scripts = DslHelper.splitDsl(PolarXDslProvider.INSTANCE, queryReader);
         Parser parser = scripts.get(0).getParser();
         ParseTree astTree = scripts.get(0).getAstTree();
 

@@ -22,9 +22,14 @@ import java.nio.charset.CharacterCodingException;
 import java.nio.charset.CodingErrorAction;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
 
+import com.clougence.clouddm.api.common.GlobalConfUtils;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
+import com.clougence.clouddm.platform.dal.model.cicd.DmChangeDO;
 
 public final class CicdSqlFileUtils {
 
@@ -35,6 +40,12 @@ public final class CicdSqlFileUtils {
     public static final long MAX_SQL_FILE_BYTES = 50L * 1024 * 1024;
 
     private CicdSqlFileUtils(){
+    }
+
+    public static Path cacheFile(DmChangeDO change) {
+        String date = new SimpleDateFormat("yyyyMMdd").format(change.getGmtCreate());
+        String fileName = "cicd-" + change.getRefFlowId() + "-" + change.getId() + ".sql";
+        return Paths.get(GlobalConfUtils.getTempDataHome(), "sqlfile", date, fileName);
     }
 
     public static String readUtf8(File file) throws IOException {

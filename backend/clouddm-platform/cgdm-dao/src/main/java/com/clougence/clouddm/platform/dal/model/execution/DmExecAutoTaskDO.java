@@ -30,21 +30,18 @@ public class DmExecAutoTaskDO {
 
     @TableId(type = IdType.AUTO)
     private Long               id;
-
     @TableField(insertStrategy = FieldStrategy.NOT_NULL, updateStrategy = FieldStrategy.NOT_NULL)
     private LocalDateTime      gmtCreate;
-
     @TableField(insertStrategy = FieldStrategy.NOT_NULL, updateStrategy = FieldStrategy.NOT_NULL)
     private LocalDateTime      gmtModified;
-
     private Long               autoExecJobId;
     private String             bizId;
+    private String             queryId;
     private Integer            execOrder;
     private String             execSql;
     private AutoExecTaskStatus status;
     private Long               affectRow;
     private Integer            execCount;
-
     private Date               gmtLastStart;
     private Date               gmtLastEnd;
 

@@ -23,10 +23,8 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 import org.antlr.v4.runtime.tree.ParseTree;
 
-import com.clougence.clouddm.sdk.execute.session.QueryArg;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.clouddm.sdk.sql.parser.SplitScript;
-import com.clougence.dslpaser.antlr.AntlerSyntaxException;
 import com.clougence.dslpaser.antlr.DslProvider;
 import com.clougence.dslpaser.parse.AntlrStatementParser;
 import com.clougence.sql.common.parser.AbstractSplitAnalysisSpi;
@@ -42,23 +40,6 @@ public class MySplitAnalysisSpi extends AbstractSplitAnalysisSpi {
 
     protected DslProvider dslProvider() {
         return provider;
-    }
-
-    @Override
-    public List<SplitScript> splitScript(String script, List<QueryArg> args, int baseLine, int baseColumn) {
-        try {
-            return super.splitScript(script, args, baseLine, baseColumn);
-        } catch (AntlerSyntaxException firstFailure) {
-            if (provider.config().isSqlModeKnown() || provider.isNoBackslashEscapesFallback()) {
-                throw firstFailure;
-            }
-            try {
-                return new MySplitAnalysisSpi(provider.withNoBackslashEscapesFallback()).splitScript(script, args, baseLine, baseColumn);
-            } catch (RuntimeException fallbackFailure) {
-                firstFailure.addSuppressed(fallbackFailure);
-                throw firstFailure;
-            }
-        }
     }
 
     @Override

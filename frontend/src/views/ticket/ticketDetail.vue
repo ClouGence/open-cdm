@@ -5,7 +5,7 @@
         <p class="ticket-title-p" style="display: flex; align-items: center">
           <span class="ticket-title">【{{ APPROV_BIZ_MAP[ticketDetail.approBiz] }}】</span>
           <span class="ticket-title">{{ ticketDetail.ticketTitle }}</span>
-          <span class="ticket-status-total">
+          <span :class="['ticket-status-total', { 'analysis-status': ['PRE_INIT_WAIT', 'PRE_INIT_RUN'].includes(ticketDetail.ticketStatus) }]">
             <span>{{ TICKET_STATUS[ticketDetail.ticketStatus] }}</span>
             <span v-if="ticketDetail.ticketStatus === 'FAILED'">
               <Tooltip :content="ticketDetail.statusMessage" transfer style="margin-left: 3px">
@@ -28,7 +28,7 @@
             </span>
           </span>
         </p>
-        <div class="ticket-detail-summary">
+        <div :class="['ticket-detail-summary', { 'with-analysis-summary': showAnalysisSummary }]">
           <div class="ticket-detail-item">
             <span class="ticket-detail-item-title">{{ $t('shen-qing-ren') }}：</span>
             <span>{{ ticketDetail.userName }}</span>
@@ -56,6 +56,24 @@
               ></CustomIcon>
               <span>{{ ticketDetail.approTemplateName }}</span>
             </div>
+          </div>
+          <div class="ticket-detail-item">
+            <span class="ticket-detail-item-title">{{ $t('miao-shu') }}：</span>
+            <span>{{ ticketDetail.description }}</span>
+          </div>
+        </div>
+        <div class="ticket-analysis-summary" v-if="showAnalysisSummary">
+          <div>
+            <span>{{ $t('ticket-current-stage') }}：</span>
+            <strong>{{ $t('ticket-analysis-stage') }}</strong>
+          </div>
+          <div>
+            <span>{{ $t('zhuang-tai') }}：</span>
+            <strong>{{ analysisProcessStatusText }}</strong>
+          </div>
+          <div>
+            <span>{{ $t('ticket-elapsed') }}：</span>
+            <strong>{{ analysisStageElapsed }}</strong>
           </div>
         </div>
         <div class="ticket-detail-operators">
@@ -105,11 +123,11 @@
           </div>
         </div>
         <div
-          :class="`step-item ${currentStep === index ? 'current-step' : ''}`"
+          :class="`step-item ${currentStep === index ? 'current-step' : ''} ${process.ticketStage === 'EXPLAIN' ? 'analysis-step' : ''}`"
           v-for="(process, index) in ticketDetail.ticketProcessVOList"
           :key="process.ticketProcessId"
         >
-          <div class="step-item-item" v-if="!process.activityList || process.activityList.length === 0">
+          <div class="step-item-item" v-if="process.ticketStage === 'EXPLAIN' || !process.activityList || process.activityList.length === 0">
             <div class="step-item-item">
               <div class="line" :style="`background: ${process.color}`"></div>
               <div class="status" :style="`border: 1px solid ${process.color};`">
@@ -149,11 +167,20 @@
                 <template #content>{{ process.execMsg }}</template>
               </Tooltip>
               <div v-if="!process.execMsg" class="step-detail-value ellipsis">
-                {{ TICKET_PROCESS_STATUS[process.ticketProcessStatus] }}
+                {{ process.ticketStage === 'EXPLAIN' ? analysisProcessStatusText : TICKET_PROCESS_STATUS[process.ticketProcessStatus] }}
               </div>
+              <Button
+                v-if="process.ticketStage === 'EXPLAIN' && analysisItems.length"
+                type="text"
+                class="analysis-toggle"
+                @click="analysisDetailsExpanded = !analysisDetailsExpanded"
+              >
+                {{ analysisDetailsExpanded ? $t('ticket-collapse-details') : $t('ticket-expand-details') }}
+                <Icon :type="analysisDetailsExpanded ? 'ios-arrow-up' : 'ios-arrow-down'" />
+              </Button>
             </div>
           </div>
-          <div class="step-item-item" v-if="process.activityList && process.activityList.length > 0">
+          <div class="step-item-item" v-if="process.ticketStage !== 'EXPLAIN' && process.activityList && process.activityList.length > 0">
             <div class="step-item-item" style="flex-grow: 1">
               <div class="line" :style="`background: ${process.color}`"></div>
               <div class="status" :style="`border: 1px solid ${process.color};`">
@@ -196,8 +223,84 @@
               </div>
             </div>
           </div>
+          <div v-if="process.ticketStage === 'EXPLAIN' && analysisDetailsExpanded && analysisItems.length" class="analysis-detail-list">
+            <div class="analysis-detail-row analysis-detail-header">
+              <div>{{ $t('ticket-analysis-content') }}</div>
+              <div>{{ $t('zhuang-tai') }}</div>
+              <div>{{ $t('ticket-analysis-result') }}</div>
+              <div>{{ $t('hao-shi') }}</div>
+            </div>
+            <div class="analysis-detail-row" v-for="item in analysisItems" :key="item.activityTitle">
+              <div>{{ analysisTypeText(item.activityTitle) }}</div>
+              <div>
+                <span :class="['analysis-item-status', analysisStatusClass(item.activityStatus)]">{{ analysisStatusText(item.activityStatus) }}</span>
+              </div>
+              <div class="analysis-result">{{ analysisResultText(item) }}</div>
+              <div>{{ analysisElapsed(item) }}</div>
+            </div>
+          </div>
         </div>
       </div>
+    </Card>
+    <Card class="ticket-content analysis-results-card" v-if="showAnalysisResults">
+      <template #title>
+        <div class="collapsible-card-title">
+          <span>{{ $t('ticket-analysis-results') }}</span>
+          <Button type="text" size="small" @click="analysisResultsExpanded = !analysisResultsExpanded">
+            {{ analysisResultsExpanded ? $t('ticket-collapse') : $t('ticket-expand') }}
+            <Icon :type="analysisResultsExpanded ? 'ios-arrow-up' : 'ios-arrow-down'" />
+          </Button>
+        </div>
+      </template>
+      <Tabs v-show="analysisResultsExpanded" v-model="analysisResultTab" type="card" :animated="false" class="analysis-result-tabs">
+        <TabPane v-for="item in analysisItems" :key="item.activityTitle" :label="analysisTypeText(item.activityTitle)" :name="item.activityTitle">
+          <template v-if="item.activityTitle === 'BEHAVIOR_ANALYSIS'">
+            <div v-if="behaviorStatementCount(item) != null" class="behavior-analysis-summary">
+              {{ behaviorSummaryText(item) }}
+            </div>
+            <Table v-if="recognizedBehaviorRows.length" :columns="recognizedContentColumns" :data="recognizedBehaviorRows" border size="small">
+              <template #resourceType="{ row }">
+                <Tag>{{ row.resourceType || '--' }}</Tag>
+              </template>
+              <template #actions="{ row }">
+                <Tag v-for="action in row.actionItems" :key="action.action" color="primary">
+                  {{ behaviorActionText(action) }}
+                </Tag>
+              </template>
+            </Table>
+            <div v-else class="analysis-result-empty">{{ analysisResultText(item) }}</div>
+          </template>
+
+          <template v-else-if="item.activityTitle === 'SECURITY_RULE'">
+            <div v-if="analysisRuleResults.length" class="analysis-rule-toolbar">
+              <Checkbox v-model="showCheckedOnlyError">{{ $t('jin-xian-shi-yan-zhong') }}</Checkbox>
+            </div>
+            <div v-if="checkRoleResultList().length" class="validation-content">
+              <div v-for="(rule, index) in checkRoleResultList()" :key="index" class="rule-item">
+                <div class="rule-header">
+                  <Tag :color="rule.ruleLevel === 'SUGGEST' ? 'warning' : 'error'" class="rule-level">
+                    {{ RULE_WARN_LEVEL[rule.ruleLevel] }}
+                  </Tag>
+                  <span class="rule-name">{{ rule.name }}</span>
+                  <div v-if="rule.lines && rule.lines.length" class="rule-lines">
+                    <span class="lines-label">{{ $t('wei-zhi-0') }}:</span>
+                    <span v-for="line in rule.lines" :key="line" class="lines-content">{{ line }}</span>
+                    <span v-if="rule.hitCount > rule.lines.length" class="lines-content">
+                      {{ $t('ticket-rule-location-total', { count: rule.hitCount }) }}
+                    </span>
+                  </div>
+                </div>
+                <div class="rule-desc">{{ rule.desc }}</div>
+              </div>
+            </div>
+            <div v-else class="analysis-result-empty">
+              {{ analysisRuleResults.length && showCheckedOnlyError ? $t('ticket-analysis-security-passed') : analysisResultText(item) }}
+            </div>
+          </template>
+
+          <div v-else class="analysis-result-empty">{{ analysisResultText(item) }}</div>
+        </TabPane>
+      </Tabs>
     </Card>
     <Card class="ticket-content" v-if="this.ticketType === 'DM_QUERY' && autoExec">
       <template #title>
@@ -238,81 +341,66 @@
             <Button type="text" size="small" @click="handleRefreshTaskList">
               {{ $t('shua-xin') }}
             </Button>
+            <Button type="text" size="small" @click="taskExecutionExpanded = !taskExecutionExpanded">
+              {{ taskExecutionExpanded ? $t('ticket-collapse') : $t('ticket-expand') }}
+              <Icon :type="taskExecutionExpanded ? 'ios-arrow-up' : 'ios-arrow-down'" />
+            </Button>
           </div>
         </div>
       </template>
 
-      <Table :columns="autoExecTaskColumns" :data="autoExecTaskList" border size="small">
-        <template #status="{ row }">
-          <Tag :color="AUTO_EXEC_TASK_STATUS_COLOR[row.status]">
-            {{ AUTO_EXEC_TASK_STATUS_I18N[row.status] }}
-          </Tag>
-        </template>
-        <template #sql="{ row }">
-          <Poptip :content="row.execSql" trigger="hover" transfer>
-            <span style="width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">
-              {{ row.execSql }}
-            </span>
-          </Poptip>
-        </template>
-        <template #action="{ row }">
-          <!--          <Button type="text" size="small" @click="handleAutoExecSQL(row)">{{ $t('cha-kan-sql') }}</Button>-->
-          <Button type="text" size="small" @click="handleAutoExecLog(row)">
-            {{ $t('ri-zhi') }}
-          </Button>
-          <Button type="text" size="small" @click="handleShowSkipAutoExecTaskModal(row)" v-if="row.canSkip">
-            {{ $t('tiao-guo') }}
-          </Button>
-          <Button type="text" size="small" @click="handleShowContinueAutoExecTaskModal(row)" v-if="row.canCancelSkip">
-            {{ $t('qu-xiao-tiao-guo') }}
-          </Button>
-        </template>
-      </Table>
-      <div style="width: 100%; text-align: right">
-        <Page v-model="page" :page-size="pageSize" :total="total" @on-change="handleTaskPageChange" size="small" style="margin-top: 10px" />
-      </div>
-    </Card>
-
-    <!-- Rule Validation Results -->
-    <Card class="ticket-content" v-if="(this.ticketType === 'DM_QUERY' || this.ticketType === 'DM_CHANGE') && showValidationResult">
-      <template #title>
-        <div>
-          <span>{{ $t('gui-ze-xiao-yan-jie-guo') }}</span>
-        </div>
-      </template>
-      <template #extra>
-        <div>
-          <Checkbox v-model="showCheckedOnlyError">{{ $t('jin-xian-shi-yan-zhong') }}</Checkbox>
-        </div>
-      </template>
-      <div class="validation-content" style="padding: 16px">
-        <div v-for="(rule, index) in checkRoleResultList()" :key="index" class="rule-item">
-          <div class="rule-header">
-            <Tag :color="rule.ruleLevel === 'SUGGEST' ? 'warning' : 'error'" class="rule-level">
-              {{ RULE_WARN_LEVEL[rule.ruleLevel] }}
+      <div v-show="taskExecutionExpanded">
+        <Table :columns="autoExecTaskColumns" :data="autoExecTaskList" border size="small">
+          <template #status="{ row }">
+            <Tag :color="AUTO_EXEC_TASK_STATUS_COLOR[row.status]">
+              {{ AUTO_EXEC_TASK_STATUS_I18N[row.status] }}
             </Tag>
-            <span class="rule-name">{{ rule.name }}</span>
-            <div v-if="rule.lines && rule.lines.length" class="rule-lines">
-              <span class="lines-label">{{ $t('wei-zhi-0') }}:</span>
-              <span v-for="line in rule.lines" :key="line" class="lines-content">{{ line }}</span>
-            </div>
-          </div>
-          <div class="rule-desc">{{ rule.desc }}</div>
+          </template>
+          <template #action="{ row }">
+            <Button type="text" size="small" @click="handleAutoExecSQL(row)">{{ $t('cha-kan') }}</Button>
+            <Button type="text" size="small" @click="handleAutoExecLog(row)">
+              {{ $t('ri-zhi') }}
+            </Button>
+            <Button type="text" size="small" @click="handleShowSkipAutoExecTaskModal(row)" v-if="row.canSkip">
+              {{ $t('tiao-guo') }}
+            </Button>
+            <Button type="text" size="small" @click="handleShowContinueAutoExecTaskModal(row)" v-if="row.canCancelSkip">
+              {{ $t('qu-xiao-tiao-guo') }}
+            </Button>
+          </template>
+        </Table>
+        <div style="width: 100%; text-align: right">
+          <Page v-model="page" :page-size="pageSize" :total="total" @on-change="handleTaskPageChange" size="small" style="margin-top: 10px" />
         </div>
       </div>
     </Card>
 
-    <Card class="ticket-content" v-if="this.ticketType === 'DM_QUERY' || this.ticketType === 'DM_CHANGE'" :padding="0">
-      <template #title>
-        <div style="display: flex; align-items: center">
-          <div>{{ $t('gong-dan-nei-rong') }}</div>
-          <Button type="link" @click="handleShowRollbackSqlModal" v-if="ticketDetail.rollBackSql" style="margin-left: 10px">
+    <Card class="ticket-content compact-ticket-content" v-if="this.ticketType === 'DM_QUERY' || this.ticketType === 'DM_CHANGE'" :padding="0">
+      <div
+        class="ticket-content-entry"
+        role="button"
+        tabindex="0"
+        @click="handleShowTicketContentModal"
+        @keydown.enter="handleShowTicketContentModal"
+      >
+        <div class="ticket-content-title-main">
+          <strong>{{ $t('gong-dan-nei-rong') }}</strong>
+          <Button type="link" @click.stop="handleShowRollbackSqlModal" v-if="ticketDetail.rollBackSql">
             {{ $t('cha-kan-hui-gun-sql') }}
           </Button>
           <span v-if="ticketDetail.ticketMessage" class="parse-error-msgContent">*{{ ticketDetail.ticketMessage }}</span>
         </div>
-      </template>
-      <read-only-editor :text="ticketDetail.rawSql" key="raw" :border="0" :ds-type="ticketDetail.dataSourceType" fit-viewport />
+        <div class="ticket-content-entry-meta">
+          <template v-if="ticketDetail.contentType === 'ATTACHMENT'">
+            <Icon type="ios-document-outline" />
+            <span>{{ ticketDetail.attachmentFileName }}</span>
+            <span>{{ formatFileSize(ticketDetail.attachmentFileSize || 0) }}</span>
+            <span>{{ $t('ticket-sql-readonly') }}</span>
+          </template>
+          <span>{{ $t('ticket-view-content') }}</span>
+          <Icon type="ios-arrow-forward" />
+        </div>
+      </div>
     </Card>
     <Card class="ticket-content" v-if="ticketType === 'DATA_SOURCE_AUTH'">
       <template #title>
@@ -366,6 +454,36 @@
         <Button @click="handleCloseModal">{{ $t('guan-bi') }}</Button>
       </template>
     </CCModal>
+    <CCModal v-model="showTicketContentModal" :title="$t('gong-dan-nei-rong')" width="80vw" centered :draggable="false" class="responsive-sql-modal">
+      <div class="ticket-content-modal-editor ticket-sql-preview" @wheel="handleSqlPreviewWheel">
+        <read-only-editor
+          ref="sqlPreviewEditor"
+          :text="sqlPreview"
+          key="raw"
+          :border="0"
+          :ds-type="ticketDetail.dataSourceType"
+          fit-viewport
+          virtual-scroll-mode
+          :line-number-start="sqlPreviewStartLine"
+          @viewport-line-count-change="handleSqlPreviewViewportChange"
+        />
+        <input
+          v-if="ticketSqlContentInitialized"
+          v-model.number="sqlPreviewStartLine"
+          class="ticket-virtual-scrollbar"
+          type="range"
+          min="1"
+          :max="sqlPreviewMaxStartLine"
+          step="1"
+          :aria-label="$t('ticket-sql-virtual-scrollbar')"
+          aria-orientation="vertical"
+          @input="scheduleSqlPreview"
+        />
+      </div>
+      <template #footer>
+        <Button @click="handleCloseModal">{{ $t('guan-bi') }}</Button>
+      </template>
+    </CCModal>
     <CCModal :title="$t('ti-shi')" v-model="showCloseTicketModal" @on-ok="closeTicket" @on-cancel="handleCloseModal">
       {{ $t('que-ding-yao-guan-bi-gong-dan-ma') }}
       <template #footer>
@@ -410,10 +528,16 @@
         </FormItem>
       </Form>
       <template #footer>
-        <Button type="primary" @click="handleFinishTicket" v-if="confirmInfo.autoExecConfig.autoExecType === 'MANUAL_EXEC'">
+        <Button
+          type="primary"
+          :loading="confirmSubmitting"
+          :disabled="confirmSubmitting"
+          @click="handleFinishTicket"
+          v-if="confirmInfo.autoExecConfig.autoExecType === 'MANUAL_EXEC'"
+        >
           {{ $t('jie-shu-gong-dan') }}
         </Button>
-        <Button type="primary" @click="handleConfirmTicket" v-else>
+        <Button type="primary" :loading="confirmSubmitting" :disabled="confirmSubmitting" @click="handleConfirmTicket" v-else>
           {{ confirmInfo.autoExecConfig.autoExecType == 'IMMEDIATE' ? $t('li-ji-zhi-hang') : $t('ding-shi-zhi-hang') }}
         </Button>
         <Button @click="handleCloseModal">{{ $t('qu-xiao') }}</Button>
@@ -425,8 +549,22 @@
     <CCModal v-model="showAutoExecTaskLogModal" :title="$t('ri-zhi')" @ok="handleCloseModal" :width="800">
       <Table :columns="autoExecJobLogColumns" :data="autoExecTaskLogList" border size="small" />
     </CCModal>
-    <CCModal v-model="showAutoExecTaskSQLModal" :title="$t('sql-yu-ju')" @ok="handleCloseModal" :width="800">
-      {{ selectedAutoExecTask.execSql }}
+    <CCModal v-model="showAutoExecTaskSQLModal" :title="$t('sql-yu-ju')" width="80vw" centered :draggable="false" class="responsive-sql-modal">
+      <div class="responsive-sql-modal-editor">
+        <read-only-editor :text="selectedAutoExecTaskSql" key="auto-exec-task-sql" :ds-type="ticketDetail.dataSourceType" />
+      </div>
+      <template #footer>
+        <Button :disabled="!canViewPreviousAutoExecTask || autoExecTaskSqlLoading" @click="handleSwitchAutoExecSQL(-1)">
+          <Icon type="ios-arrow-back" />
+          {{ $t('ticket-previous-item') }}
+        </Button>
+        <Button :disabled="!canViewNextAutoExecTask || autoExecTaskSqlLoading" @click="handleSwitchAutoExecSQL(1)">
+          {{ $t('ticket-next-item') }}
+          <Icon type="ios-arrow-forward" />
+        </Button>
+        <Button type="primary" @click="copyText(selectedAutoExecTaskSql)">{{ $t('fu-zhi-sql') }}</Button>
+        <Button @click="handleCloseModal">{{ $t('guan-bi') }}</Button>
+      </template>
     </CCModal>
     <CCModal v-model="showStopAutoExecJobModal" :title="$t('zan-ting')" @ok="handleStopAutoExecJob">
       {{
@@ -515,6 +653,25 @@ export default {
       autoExec: false,
       RULE_WARN_LEVEL,
       noPassedRuleList: [],
+      analysisBehaviors: [],
+      analysisSqlCount: null,
+      analysisResultTab: 'BEHAVIOR_ANALYSIS',
+      recognizedContentColumns: [
+        {
+          title: this.$t('zi-yuan-lei-xing'),
+          slot: 'resourceType',
+          width: 180
+        },
+        {
+          title: this.$t('zi-yuan-lu-jing'),
+          key: 'resourcePath'
+        },
+        {
+          title: this.$t('cao-zuo'),
+          slot: 'actions',
+          width: 320
+        }
+      ],
       showCheckedOnlyError: false,
       showContinueSkipAutoExecTaskModal: false,
       showSkipAutoExecTaskModal: false,
@@ -543,6 +700,8 @@ export default {
       autoExecJobLogList: [],
       autoExecTaskLogList: [],
       selectedAutoExecTask: {},
+      selectedAutoExecTaskSql: '',
+      autoExecTaskSqlLoading: false,
       autoExecTaskColumns: [],
       autoExecTaskColumnsWithTrans: [
         {
@@ -572,7 +731,8 @@ export default {
         },
         {
           title: 'SQL 语句',
-          slot: 'sql'
+          key: 'execSql',
+          ellipsis: true
         },
         {
           title: '操作',
@@ -604,7 +764,8 @@ export default {
         },
         {
           title: 'SQL 语句',
-          slot: 'sql'
+          key: 'execSql',
+          ellipsis: true
         },
         {
           title: '操作',
@@ -628,6 +789,7 @@ export default {
       showAutoExecuteModal: false,
       showManualExecuteModal: false,
       showRollbackSqlModal: false,
+      showTicketContentModal: false,
       showApprovalModal: false,
       approvalData: {
         rejected: 'false',
@@ -639,12 +801,25 @@ export default {
       preStartIds: [],
       ticketId: 0,
       ticketDetail: {},
+      sqlPreview: '',
+      sqlPreviewStartLine: 1,
+      sqlPreviewTotalLines: 1,
+      sqlPreviewLineCount: 25,
+      sqlPreviewTimer: null,
+      sqlPreviewRequestSequence: 0,
+      ticketSqlContentInitialized: false,
       ticketAutoRefreshActive: false,
       ticketAutoRefreshTimer: null,
+      analysisDetailsExpanded: true,
+      analysisResultsExpanded: true,
+      taskExecutionExpanded: true,
+      durationNow: Date.now(),
+      durationTimer: null,
       TICKET_STATUS,
       TICKET_STATUS_COLOR,
       TICKET_PROCESS_STATUS,
       loading: false,
+      confirmSubmitting: false,
       confirmInfo: {
         autoExecConfig: {}
       },
@@ -703,9 +878,19 @@ export default {
     this.ticketAutoRefreshActive = true;
     await this.getTicketDetail('init');
     this.scheduleTicketAutoRefresh();
+    this.durationTimer = window.setInterval(() => {
+      this.durationNow = Date.now();
+    }, 1000);
   },
   beforeUnmount() {
     this.stopTicketAutoRefresh();
+    if (this.durationTimer) {
+      window.clearInterval(this.durationTimer);
+    }
+    if (this.sqlPreviewTimer) {
+      window.clearTimeout(this.sqlPreviewTimer);
+    }
+    this.sqlPreviewRequestSequence++;
   },
   computed: {
     ...mapState(['userInfo', 'myAuth']),
@@ -719,16 +904,244 @@ export default {
         endTime: authItem.endTime
       }));
     },
-    showValidationResult() {
-      return this.noPassedRuleList && this.noPassedRuleList.length > 0;
+    recognizedBehaviorRows() {
+      const behaviorItem = this.analysisItems.find((item) => item.activityTitle === 'BEHAVIOR_ANALYSIS');
+      const behaviors = behaviorItem?.behaviors ?? this.analysisBehaviors;
+      return [...behaviors]
+        .map((behavior) => ({
+          ...behavior,
+          actionItems: Object.keys(behavior.actionCounts || {}).length
+            ? Object.entries(behavior.actionCounts).map(([action, count]) => ({ action, count }))
+            : [...(behavior.actions || [])].sort().map((action) => ({ action, count: null }))
+        }))
+        .sort((left, right) => {
+          const typeCompare = (left.resourceType || '').localeCompare(right.resourceType || '');
+          return typeCompare || (left.resourcePath || '').localeCompare(right.resourcePath || '');
+        });
+    },
+    showAnalysisResults() {
+      return ['DM_QUERY', 'DM_CHANGE'].includes(this.ticketDetail.approBiz) && this.analysisItems.length > 0;
+    },
+    analysisProcess() {
+      return (this.ticketDetail.ticketProcessVOList || []).find((item) => item.ticketStage === 'EXPLAIN');
+    },
+    analysisItems() {
+      return [...(this.analysisProcess?.activityList || [])].sort(
+        (left, right) => (left.displayOrder ?? Number.MAX_SAFE_INTEGER) - (right.displayOrder ?? Number.MAX_SAFE_INTEGER)
+      );
+    },
+    analysisRuleResults() {
+      const ruleItem = this.analysisItems.find((item) => item.activityTitle === 'SECURITY_RULE');
+      return ruleItem?.ruleResults ?? this.noPassedRuleList;
+    },
+    showAnalysisSummary() {
+      return (
+        ['DM_QUERY', 'DM_CHANGE'].includes(this.ticketDetail.approBiz) &&
+        this.ticketDetail.ticketStatus === 'PRE_INIT_RUN' &&
+        this.analysisItems.length > 0
+      );
+    },
+    analysisRunningCount() {
+      return this.analysisItems.filter((item) => item.activityStatus === 'RUNNING').length;
+    },
+    analysisProcessStatusText() {
+      if (this.analysisItems.length > 0 && this.analysisItems.every((item) => item.activityStatus === 'COMPLETED')) {
+        return this.$t('ticket-analysis-complete');
+      }
+      if (this.analysisRunningCount > 0) {
+        return this.$t('ticket-analysis-running-count', { count: this.analysisRunningCount });
+      }
+      if (this.analysisItems.some((item) => item.activityStatus === 'REFUSE')) {
+        return this.$t('ticket-analysis-failed');
+      }
+      return this.$t('ticket-analysis-waiting');
+    },
+    analysisStageElapsed() {
+      const started = this.analysisItems.map((item) => item.startTimeUtc).filter(Boolean);
+      if (!started.length) {
+        return '--';
+      }
+      const start = Math.min(...started);
+      const finished = this.analysisItems.map((item) => item.finishTimeUtc).filter(Boolean);
+      const end = this.analysisRunningCount > 0 || finished.length !== this.analysisItems.length ? this.durationNow : Math.max(...finished);
+      return this.formatElapsed(end - start);
     },
     hasError() {
-      return this.noPassedRuleList.some((rule) => rule.ruleLevel !== 'SUGGEST');
+      return this.analysisRuleResults.some((rule) => rule.ruleLevel !== 'SUGGEST');
+    },
+    sqlPreviewMaxStartLine() {
+      return Math.max(1, this.sqlPreviewTotalLines - this.sqlPreviewLineCount + 1);
+    },
+    selectedAutoExecTaskIndex() {
+      return this.autoExecTaskList.findIndex((task) => task.taskId === this.selectedAutoExecTask.taskId);
+    },
+    canViewPreviousAutoExecTask() {
+      if (this.selectedAutoExecTaskIndex < 0) {
+        return false;
+      }
+      return (this.page - 1) * this.pageSize + this.selectedAutoExecTaskIndex > 0;
+    },
+    canViewNextAutoExecTask() {
+      if (this.selectedAutoExecTaskIndex < 0) {
+        return false;
+      }
+      return (this.page - 1) * this.pageSize + this.selectedAutoExecTaskIndex < this.total - 1;
+    }
+  },
+  watch: {
+    analysisItems(items) {
+      if (!items.some((item) => item.activityTitle === this.analysisResultTab)) {
+        this.analysisResultTab = items[0]?.activityTitle || '';
+      }
     }
   },
   methods: {
     isCk,
     isMongoDB,
+    behaviorStatementCount(item) {
+      return item.statementCount ?? this.analysisSqlCount;
+    },
+    behaviorSummaryText(item) {
+      const values = {
+        statementCount: this.behaviorStatementCount(item) || 0,
+        objectCount: this.recognizedBehaviorRows.length,
+        behaviorCount: item.behaviorCount || 0
+      };
+      return item.behaviorCount == null
+        ? this.$t('ticket-analysis-behavior-summary-legacy', values)
+        : this.$t('ticket-analysis-behavior-summary', values);
+    },
+    behaviorActionText(action) {
+      return action.count == null ? action.action : this.$t('ticket-analysis-action-summary', action);
+    },
+    analysisTypeText(type) {
+      const keyMap = {
+        SQL_RECOGNITION: 'ticket-analysis-sql-recognition',
+        BEHAVIOR_ANALYSIS: 'ticket-analysis-behavior',
+        SECURITY_RULE: 'ticket-analysis-security-rule'
+      };
+      return this.$t(keyMap[type] || type);
+    },
+    analysisStatusText(status) {
+      const keyMap = {
+        NEW: 'ticket-analysis-waiting',
+        RUNNING: 'ticket-analysis-running',
+        COMPLETED: 'ticket-analysis-complete',
+        REFUSE: 'ticket-analysis-failed'
+      };
+      return this.$t(keyMap[status] || status);
+    },
+    analysisStatusClass(status) {
+      const classMap = {
+        NEW: 'init',
+        RUNNING: 'running',
+        COMPLETED: 'finished',
+        REFUSE: 'failed'
+      };
+      return `status-${classMap[status] || 'init'}`;
+    },
+    analysisResultText(item) {
+      if (item.activityStatus === 'REFUSE') {
+        return item.remark || this.$t('ticket-analysis-failed');
+      }
+      if (item.activityStatus === 'NEW') {
+        return '--';
+      }
+      if (item.activityStatus === 'RUNNING') {
+        if (item.totalBytes > 0 && item.processedBytes != null) {
+          const percentage = Math.min(100, Math.floor((item.processedBytes * 100) / item.totalBytes));
+          return this.$t('ticket-analysis-read-progress', {
+            processed: this.formatFileSize(item.processedBytes),
+            total: this.formatFileSize(item.totalBytes),
+            percentage,
+            count: item.processedCount || 0
+          });
+        }
+        return item.processedCount == null
+          ? this.$t('ticket-analysis-running')
+          : this.$t('ticket-analysis-processed-count', { count: item.processedCount });
+      }
+      if (item.activityTitle === 'SQL_RECOGNITION' && item.statementCount != null) {
+        return this.$t('ticket-analysis-sql-result', { count: item.statementCount });
+      }
+      if (item.activityTitle === 'BEHAVIOR_ANALYSIS' && item.objectCount != null) {
+        return this.$t('ticket-analysis-behavior-summary-legacy', {
+          statementCount: item.statementCount ?? this.analysisSqlCount ?? 0,
+          objectCount: item.objectCount
+        });
+      }
+      if (item.activityTitle === 'SECURITY_RULE' && item.ruleCount != null) {
+        return item.ruleCount === 0
+          ? this.$t('ticket-analysis-security-passed')
+          : this.$t('ticket-analysis-security-result', { count: item.ruleCount });
+      }
+      return '--';
+    },
+    analysisElapsed(item) {
+      if (!item.startTimeUtc) {
+        return '--';
+      }
+      const end = item.finishTimeUtc || this.durationNow;
+      return this.formatElapsed(end - item.startTimeUtc);
+    },
+    formatElapsed(milliseconds) {
+      const totalSeconds = Math.max(0, Math.floor(milliseconds / 1000));
+      const hours = Math.floor(totalSeconds / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+      return [hours, minutes, seconds].map((value) => String(value).padStart(2, '0')).join(':');
+    },
+    async loadSqlPreview() {
+      this.sqlPreviewLineCount = this.$refs.sqlPreviewEditor?.getVisibleLineCount() || 25;
+      const requestSequence = ++this.sqlPreviewRequestSequence;
+      const res = await this.$services.dmTicketPreviewApprovalSql({
+        data: {
+          ticketId: this.ticketId,
+          startLine: this.sqlPreviewStartLine,
+          lineCount: this.sqlPreviewLineCount
+        }
+      });
+      if (res.success && requestSequence === this.sqlPreviewRequestSequence) {
+        this.sqlPreview = res.data?.content || '';
+        this.sqlPreviewStartLine = res.data?.startLine || 1;
+        this.sqlPreviewTotalLines = res.data?.totalLines || 1;
+      }
+    },
+    scheduleSqlPreview() {
+      if (this.sqlPreviewTimer) {
+        window.clearTimeout(this.sqlPreviewTimer);
+      }
+      this.sqlPreviewTimer = window.setTimeout(() => {
+        this.sqlPreviewTimer = null;
+        this.loadSqlPreview();
+      }, 120);
+    },
+    handleSqlPreviewViewportChange(lineCount) {
+      if (!this.ticketSqlContentInitialized || !lineCount || lineCount === this.sqlPreviewLineCount) {
+        return;
+      }
+      this.sqlPreviewLineCount = lineCount;
+      this.scheduleSqlPreview();
+    },
+    handleSqlPreviewWheel(event) {
+      if (!this.ticketSqlContentInitialized) {
+        return;
+      }
+      event.preventDefault();
+      const step = Math.max(1, Math.floor(this.sqlPreviewLineCount / 3));
+      const delta = event.deltaY > 0 ? step : -step;
+      this.sqlPreviewStartLine = Math.max(1, Math.min(this.sqlPreviewMaxStartLine, this.sqlPreviewStartLine + delta));
+      this.scheduleSqlPreview();
+    },
+    formatFileSize(size) {
+      if (size < 1024) {
+        return `${size} B`;
+      }
+      if (size < 1024 * 1024) {
+        return `${(size / 1024).toFixed(1)} KB`;
+      }
+      return `${(size / 1024 / 1024).toFixed(1)} MB`;
+    },
     stopTicketAutoRefresh() {
       this.ticketAutoRefreshActive = false;
       if (this.ticketAutoRefreshTimer) {
@@ -859,9 +1272,37 @@ export default {
       this.page = page;
       this.queryAutoExecTaskList();
     },
-    handleAutoExecSQL(task) {
-      this.selectedAutoExecTask = task;
-      this.showAutoExecTaskSQLModal = true;
+    async handleAutoExecSQL(task) {
+      this.autoExecTaskSqlLoading = true;
+      try {
+        const res = await this.$services.dmTicketQueryAutoExecTaskSql({
+          data: {
+            ticketId: this.ticketId,
+            taskId: task.taskId
+          }
+        });
+        if (res.success) {
+          this.selectedAutoExecTask = task;
+          this.selectedAutoExecTaskSql = res.data || '';
+          this.showAutoExecTaskSQLModal = true;
+        }
+      } finally {
+        this.autoExecTaskSqlLoading = false;
+      }
+    },
+    async handleSwitchAutoExecSQL(direction) {
+      let targetIndex = this.selectedAutoExecTaskIndex + direction;
+      if (targetIndex < 0 || targetIndex >= this.autoExecTaskList.length) {
+        const loaded = await this.queryAutoExecTaskList(this.page + direction);
+        if (!loaded) {
+          return;
+        }
+        targetIndex = direction < 0 ? this.autoExecTaskList.length - 1 : 0;
+      }
+      const targetTask = this.autoExecTaskList[targetIndex];
+      if (targetTask) {
+        await this.handleAutoExecSQL(targetTask);
+      }
     },
     handleRefreshTaskList() {
       this.queryAutoExecJobInfo();
@@ -899,12 +1340,12 @@ export default {
         this.autoExecTaskColumns = res.data.enableTransactional ? this.autoExecTaskColumnsWithTrans : this.autoExecTaskColumnsWithoutTrans;
       }
     },
-    async queryAutoExecTaskList() {
+    async queryAutoExecTaskList(targetPage = this.page) {
       const res = await this.$services.dmTicketQueryAutoExecTaskList({
         data: {
           ticketId: this.ticketId,
           page: {
-            pageNum: this.page,
+            pageNum: targetPage,
             pageSize: this.pageSize
           }
         }
@@ -915,7 +1356,9 @@ export default {
         this.page = res.data.current;
         this.pageSize = res.data.size;
         this.total = res.data.total;
+        return true;
       }
+      return false;
     },
     handleShowManualExecuteModal(type) {
       this.confirmInfo = {
@@ -949,6 +1392,12 @@ export default {
     },
     handleShowRollbackSqlModal() {
       this.showRollbackSqlModal = true;
+    },
+    async handleShowTicketContentModal() {
+      this.showTicketContentModal = true;
+      await this.$nextTick();
+      this.sqlPreviewLineCount = this.$refs.sqlPreviewEditor?.getVisibleLineCount() || this.sqlPreviewLineCount;
+      await this.loadSqlPreview();
     },
     handleShowCloseTicketModal() {
       this.showCloseTicketModal = true;
@@ -1042,18 +1491,34 @@ export default {
             break;
           case 'DM_QUERY':
           case 'DM_CHANGE':
-            const resQuery = await this.$services.dmTicketQueryQueryTicketDetail({ data: { ticketId: this.ticketId } });
+            const initializeSqlContent = !this.ticketSqlContentInitialized;
+            const resQuery = await this.$services.dmTicketQueryQueryTicketDetail({
+              data: {
+                ticketId: this.ticketId
+              }
+            });
             if (resQuery.success) {
+              this.noPassedRuleList = resQuery.data.checkedList || [];
+              this.analysisBehaviors = resQuery.data.behaviors || [];
+              this.analysisSqlCount = resQuery.data.totalCount ?? null;
               this.autoExec = resQuery.data.autoExec;
               if (resQuery.data?.autoExec) {
                 await this.queryAutoExecJobInfo();
                 await this.queryAutoExecTaskList();
               }
-              this.ticketDetail.rollBackSql = resQuery.data?.rollBackSql || '';
               this.ticketDetail.ticketMessage = resQuery.data?.ticketMessage || '';
-              this.ticketDetail.rawSql = resQuery.data?.rawSql || '';
-              this.noPassedRuleList = resQuery.data.checkedList || [];
-              this.noPassedRuleList = resQuery.data.checkedList || [];
+              this.ticketDetail.rollBackSql = resQuery.data?.rollBackSql || '';
+              this.ticketDetail.contentType = resQuery.data?.contentType || 'INLINE';
+              this.ticketDetail.attachmentId = resQuery.data?.attachmentId;
+              this.ticketDetail.attachmentFileName = resQuery.data?.attachmentFileName || '';
+              this.ticketDetail.attachmentFileSize = resQuery.data?.attachmentFileSize || 0;
+              if (initializeSqlContent) {
+                this.sqlPreviewStartLine = 1;
+                this.sqlPreviewTotalLines = 1;
+                await this.$nextTick();
+                await this.loadSqlPreview();
+                this.ticketSqlContentInitialized = true;
+              }
             }
             break;
           default:
@@ -1092,27 +1557,43 @@ export default {
       }
     },
     async handleConfirmTicket() {
-      appLogger.debug(this.confirmInfo.confirmActionType);
-      const data = { ...this.confirmInfo };
-      if (this.confirmInfo.confirmActionType === 'CONFIRM') {
-        data.autoExecConfig.execTime = Date.parse(data.autoExecConfig.execTime);
+      if (this.confirmSubmitting) {
+        return;
       }
-      const res = await this.$services.dmTicketConfirm({ data });
-      if (res.success) {
-        this.$Message.success(this.$t('cao-zuo-cheng-gong'));
-        this.handleCloseModal();
-        await this.getTicketDetail();
+      this.confirmSubmitting = true;
+      appLogger.debug(this.confirmInfo.confirmActionType);
+      try {
+        const data = { ...this.confirmInfo };
+        if (this.confirmInfo.confirmActionType === 'CONFIRM') {
+          data.autoExecConfig.execTime = Date.parse(data.autoExecConfig.execTime);
+        }
+        const res = await this.$services.dmTicketConfirm({ data });
+        if (res.success) {
+          this.$Message.success(this.$t('cao-zuo-cheng-gong'));
+          this.handleCloseModal();
+          await this.getTicketDetail();
+        }
+      } finally {
+        this.confirmSubmitting = false;
       }
     },
     async handleFinishTicket() {
+      if (this.confirmSubmitting) {
+        return;
+      }
+      this.confirmSubmitting = true;
       this.confirmInfo.confirmActionType = 'CONFIRM';
-      const data = { ...this.confirmInfo };
-      data.autoExecConfig.execTime = null;
-      const res = await this.$services.dmTicketConfirm({ data });
-      if (res.success) {
-        this.$Message.success(this.$t('cao-zuo-cheng-gong'));
-        this.handleCloseModal();
-        await this.getTicketDetail();
+      try {
+        const data = { ...this.confirmInfo };
+        data.autoExecConfig.execTime = null;
+        const res = await this.$services.dmTicketConfirm({ data });
+        if (res.success) {
+          this.$Message.success(this.$t('cao-zuo-cheng-gong'));
+          this.handleCloseModal();
+          await this.getTicketDetail();
+        }
+      } finally {
+        this.confirmSubmitting = false;
       }
     },
 
@@ -1143,12 +1624,14 @@ export default {
       this.showApprovalModal = false;
       this.showCancelTicketModal = false;
       this.showRollbackSqlModal = false;
+      this.showTicketContentModal = false;
       this.showManualExecuteModal = false;
       this.showCloseTicketModal = false;
       this.showAutoExecuteModal = false;
       this.showAutoExecJobLogModal = false;
       this.showAutoExecTaskLogModal = false;
       this.showAutoExecTaskSQLModal = false;
+      this.selectedAutoExecTaskSql = '';
       this.showStopAutoExecJobModal = false;
       this.showRetryAutoExecJobModal = false;
       this.showEndAutoExecJobModal = false;
@@ -1171,9 +1654,9 @@ export default {
     },
     checkRoleResultList() {
       if (!this.showCheckedOnlyError) {
-        return this.noPassedRuleList;
+        return this.analysisRuleResults;
       } else {
-        return this.noPassedRuleList.filter((rule) => rule.ruleLevel !== 'SUGGEST');
+        return this.analysisRuleResults.filter((rule) => rule.ruleLevel !== 'SUGGEST');
       }
     }
   }
@@ -1188,8 +1671,14 @@ export default {
 }
 
 .ticket-detail-container {
-  padding: 20px;
   position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  box-sizing: border-box;
+  padding: 20px;
+  overflow-x: hidden;
+  overflow-y: auto;
 
   .header {
     display: flex;
@@ -1240,6 +1729,10 @@ export default {
     font-weight: 400;
     padding-right: 200px;
 
+    &.with-analysis-summary {
+      padding-right: 500px;
+    }
+
     .ticket-detail-item {
       margin-top: 6px;
       margin-right: 80px;
@@ -1250,6 +1743,37 @@ export default {
         color: @icon-color;
       }
     }
+  }
+
+  .ticket-analysis-summary {
+    position: absolute;
+    top: 18px;
+    right: 132px;
+    width: 300px;
+    padding-left: 24px;
+    border-left: 1px solid #e8eaec;
+    font-size: 12px;
+
+    > div {
+      display: grid;
+      grid-template-columns: 76px 1fr;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    span {
+      color: @icon-color;
+    }
+
+    strong {
+      font-weight: 500;
+    }
+  }
+
+  .ticket-status-total.analysis-status {
+    color: #1677ff;
+    border-color: #91caff;
+    background: #e6f4ff;
   }
 
   .ticket-detail-operators {
@@ -1272,6 +1796,169 @@ export default {
     :deep(.ivu-table-wrapper-with-border) {
       border: 0;
     }
+
+    .analysis-result-empty,
+    .analysis-result-overview {
+      padding: 24px;
+      color: @icon-color;
+      text-align: center;
+    }
+
+    .analysis-result-overview {
+      color: @text-color;
+      font-size: 14px;
+    }
+
+    .behavior-analysis-summary {
+      padding: 16px 24px;
+      border-bottom: 1px solid #e8eaec;
+      color: @text-color;
+      font-size: 14px;
+    }
+
+    .analysis-result-tabs {
+      :deep(.ivu-tabs-bar) {
+        margin-bottom: 0;
+      }
+
+      :deep(.ivu-tabs-tabpane) {
+        min-height: 72px;
+      }
+    }
+
+    .analysis-rule-toolbar {
+      display: flex;
+      justify-content: flex-end;
+      padding: 12px 16px 0;
+    }
+
+    .collapsible-card-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+    }
+
+    .ticket-content-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-width: 0;
+    }
+
+    .ticket-content-title-main,
+    .ticket-attachment-meta {
+      display: flex;
+      align-items: center;
+    }
+
+    .ticket-attachment-meta {
+      gap: 8px;
+      margin-left: 16px;
+      color: @icon-color;
+      font-size: 12px;
+      font-weight: 400;
+    }
+
+    .ticket-sql-preview {
+      position: relative;
+      padding-right: 18px;
+    }
+
+    .ticket-virtual-scrollbar {
+      position: absolute;
+      z-index: 3;
+      top: 8px;
+      right: 3px;
+      width: 14px;
+      height: calc(100% - 16px);
+      margin: 0;
+      writing-mode: vertical-lr;
+      direction: ltr;
+      appearance: none;
+      background: transparent;
+      cursor: pointer;
+
+      &::-webkit-slider-runnable-track {
+        width: 10px;
+        height: 100%;
+        background: transparent;
+      }
+
+      &::-webkit-slider-thumb {
+        width: 10px;
+        height: 20px;
+        border: 0;
+        border-radius: 0;
+        appearance: none;
+        background: rgba(100, 100, 100, 0.45);
+      }
+
+      &::-moz-range-track {
+        width: 10px;
+        background: transparent;
+      }
+
+      &::-moz-range-thumb {
+        width: 10px;
+        height: 20px;
+        border: 0;
+        border-radius: 0;
+        background: rgba(100, 100, 100, 0.45);
+      }
+
+      &:hover::-webkit-slider-thumb {
+        background: rgba(100, 100, 100, 0.7);
+      }
+
+      &:hover::-moz-range-thumb {
+        background: rgba(100, 100, 100, 0.7);
+      }
+    }
+  }
+
+  .compact-ticket-content {
+    :deep(.ivu-card-body) {
+      padding: 0;
+    }
+
+    .ticket-content-entry {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 52px;
+      padding: 0 20px;
+      cursor: pointer;
+
+      &:hover {
+        background: #f8f8f9;
+      }
+
+      &:focus-visible {
+        outline: 2px solid #57a3f3;
+        outline-offset: -2px;
+      }
+    }
+
+    .ticket-content-title-main {
+      min-width: 0;
+
+      .parse-error-msgContent {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+    }
+
+    .ticket-content-entry-meta {
+      display: flex;
+      flex-shrink: 0;
+      align-items: center;
+      gap: 8px;
+      margin-left: 16px;
+      color: @icon-color;
+      font-size: 12px;
+    }
   }
 
   .ticket-detail-wrapper {
@@ -1288,6 +1975,17 @@ export default {
         box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
         border-radius: 5px;
         cursor: pointer;
+      }
+
+      &.analysis-step {
+        flex-direction: column;
+        align-items: stretch;
+
+        &.current-step {
+          box-shadow: none;
+          border: 1px solid #d6e4ff;
+          background: #f7faff;
+        }
       }
 
       .step-item-item {
@@ -1330,6 +2028,69 @@ export default {
         margin-bottom: 0;
       }
     }
+
+    .analysis-toggle {
+      margin-left: auto;
+      padding: 0 4px;
+      color: @font-color;
+    }
+
+    .analysis-detail-list {
+      width: 75%;
+      margin: 4px 0 0 25%;
+    }
+
+    .analysis-detail-row {
+      display: grid;
+      grid-template-columns: 22% 16% 1fr 100px;
+      align-items: center;
+      min-height: 42px;
+      border-top: 1px solid #e8eaec;
+
+      > div {
+        padding: 8px 12px;
+      }
+    }
+
+    .analysis-detail-header {
+      min-height: 36px;
+      color: @icon-color;
+      font-weight: 500;
+    }
+
+    .analysis-item-status {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 3px;
+      font-size: 12px;
+
+      &.status-finished {
+        color: #389e0d;
+        background: #f6ffed;
+      }
+
+      &.status-running {
+        color: #1677ff;
+        background: #e6f4ff;
+      }
+
+      &.status-failed {
+        color: #cf1322;
+        background: #fff1f0;
+      }
+
+      &.status-init {
+        color: #8c8c8c;
+        background: #f5f5f5;
+      }
+    }
+
+    .analysis-result {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
   }
 
   .ticket-status {
@@ -1342,6 +2103,65 @@ export default {
       border-radius: 2px;
       color: #fff;
       font-weight: bold;
+    }
+  }
+}
+
+.ticket-content-modal-editor,
+.responsive-sql-modal-editor {
+  position: relative;
+  height: clamp(320px, 62vh, 720px);
+  overflow: hidden;
+
+  :deep(.read-only-editor-wrapper),
+  :deep(.read-only-editor) {
+    height: 100% !important;
+  }
+}
+
+.ticket-content-modal-editor {
+  padding-right: 18px;
+
+  .ticket-virtual-scrollbar {
+    position: absolute;
+    z-index: 3;
+    top: 8px;
+    right: 3px;
+    width: 14px;
+    height: calc(100% - 16px);
+    margin: 0;
+    writing-mode: vertical-lr;
+    direction: ltr;
+    appearance: none;
+    background: transparent;
+    cursor: pointer;
+
+    &::-webkit-slider-runnable-track {
+      width: 10px;
+      height: 100%;
+      background: transparent;
+    }
+
+    &::-webkit-slider-thumb {
+      width: 10px;
+      height: 20px;
+      border: 0;
+      border-radius: 0;
+      appearance: none;
+      background: rgba(100, 100, 100, 0.45);
+    }
+
+    &::-moz-range-track {
+      width: 10px;
+      background: transparent;
+    }
+
+    &::-moz-range-thumb {
+      width: 10px;
+      height: 20px;
+      border: 0;
+      border-radius: 0;
+      background: rgba(100, 100, 100, 0.45);
     }
   }
 }
@@ -1360,6 +2180,8 @@ export default {
 }
 
 .validation-content {
+  padding: 16px;
+
   .rule-item {
     background: white;
     border: 1px solid #f0f0f0;

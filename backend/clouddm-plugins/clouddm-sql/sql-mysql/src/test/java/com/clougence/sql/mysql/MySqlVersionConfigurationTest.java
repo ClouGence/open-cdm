@@ -1,8 +1,10 @@
 package com.clougence.sql.mysql;
 
+import java.io.StringReader;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -12,9 +14,9 @@ import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.clouddm.sdk.service.execute.MetaCol;
 import com.clougence.clouddm.sdk.service.execute.MetaObj;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
+import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
 import com.clougence.clouddm.sdk.sql.SqlParserParameters;
-import com.clougence.clouddm.sdk.sql.analysis.security.CodeInfo;
-import com.clougence.clouddm.sdk.sql.analysis.security.ContextInfo;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.StatementBehavior;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteContext;
 import com.clougence.dslpaser.antlr.AntlerSyntaxException;
 import com.clougence.schema.umi.struts.UmiTypes;
@@ -124,24 +126,52 @@ public class MySqlVersionConfigurationTest {
         String sql = "SELECT * FROM \"table1\";";
 
         Map<UmiTypes, Object> levels = Map.of(UmiTypes.Catalog, "catalog1", UmiTypes.Schema, "schema1");
-        Assertions.assertDoesNotThrow(() -> engine.behaviorAnalysisSpi(ansiQuotes).analysisBehavior(sql, levels, 0, 0));
-        Assertions.assertThrows(AntlerSyntaxException.class, () -> engine.behaviorAnalysisSpi(knownEmpty).analysisBehavior(sql, levels, 0, 0));
+        Assertions.assertDoesNotThrow(() -> {
+            try (StringReader reader = new StringReader(sql);
+                    Stream<StatementBehavior> stream = engine.behaviorAnalysisSpi(ansiQuotes).analysisBehaviorStream(reader, levels, 0, 0)) {
+                return stream.toList();
+            }
+        });
+        Assertions.assertThrows(AntlerSyntaxException.class, () -> {
+            try (StringReader reader = new StringReader(sql);
+                    Stream<StatementBehavior> stream = engine.behaviorAnalysisSpi(knownEmpty).analysisBehaviorStream(reader, levels, 0, 0)) {
+                stream.toList();
+            }
+        });
 
-        CodeInfo codeInfo = CodeInfo.builder().query(sql).baseLine(0).baseColumn(0).build();
-        ContextInfo securityContextInfo = ContextInfo.builder().deepParser(false).levelsParam(levels).build();
-        Assertions.assertDoesNotThrow(() -> engine.secDomainResolveSpi(ansiQuotes).resolveDomain(DataSourceType.MySQL, codeInfo, securityContextInfo));
-        Assertions.assertThrows(AntlerSyntaxException.class, () -> engine.secDomainResolveSpi(knownEmpty).resolveDomain(DataSourceType.MySQL, codeInfo, securityContextInfo));
+        Assertions.assertDoesNotThrow(() -> {
+            try (StringReader reader = new StringReader(sql);
+                    Stream<RuleDomain> stream = engine.secDomainResolveSpi(ansiQuotes).resolveDomainStream(DataSourceType.MySQL, reader, 0, 0, null)) {
+                return stream.toList();
+            }
+        });
+        Assertions.assertThrows(AntlerSyntaxException.class, () -> {
+            try (StringReader reader = new StringReader(sql);
+                    Stream<RuleDomain> stream = engine.secDomainResolveSpi(knownEmpty).resolveDomainStream(DataSourceType.MySQL, reader, 0, 0, null)) {
+                stream.toList();
+            }
+        });
 
         var columnContextInfo = com.clougence.clouddm.sdk.sql.analysis.lineage.LineageContext.builder().levelsParam(levels).build();
-        Assertions.assertDoesNotThrow(() -> engine.lineageAnalysisSpi(ansiQuotes).analyze(sql, columnContextInfo));
-        Assertions.assertThrows(AntlerSyntaxException.class, () -> engine.lineageAnalysisSpi(knownEmpty).analyze(sql, columnContextInfo));
+        Assertions.assertDoesNotThrow(() -> {
+            return engine.lineageAnalysisSpi(ansiQuotes).analyze(sql, columnContextInfo);
+        });
+        Assertions.assertThrows(AntlerSyntaxException.class, () -> {
+            engine.lineageAnalysisSpi(knownEmpty).analyze(sql, columnContextInfo);
+        });
 
         QueryRequest request = new QueryRequest();
         request.setQueryBody(sql);
         RewriteContext rewriteContext = new RewriteContext();
         rewriteContext.setFetchLimit(10);
-        Assertions.assertTrue(engine.rewriteSpi(ansiQuotes).rewriterQuery(request, rewriteContext).contains("LIMIT 10"));
-        Assertions.assertThrows(AntlerSyntaxException.class, () -> engine.rewriteSpi(knownEmpty).rewriterQuery(request, rewriteContext));
+        try (StringReader reader = new StringReader(sql); Stream<String> stream = engine.rewriteSpi(ansiQuotes).rewriterQueryStream(reader, request, rewriteContext)) {
+            Assertions.assertTrue(stream.findFirst().orElseThrow().contains("LIMIT 10"));
+        }
+        Assertions.assertThrows(AntlerSyntaxException.class, () -> {
+            try (StringReader reader = new StringReader(sql); Stream<String> stream = engine.rewriteSpi(knownEmpty).rewriterQueryStream(reader, request, rewriteContext)) {
+                stream.findFirst();
+            }
+        });
     }
 
     @Test

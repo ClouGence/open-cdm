@@ -16,6 +16,7 @@
 package com.clougence.dslparser.detectrule;
 
 import java.io.IOException;
+import java.io.StringReader;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -51,7 +52,10 @@ public class TestCase {
     }
 
     public static Object runScript(String script, Object domainData, Type domainType, Map<String, String> vars) {
-        StatementSet statements = DslHelper.parserDsl(DetectRuleDslProvider.INSTANCE, script);
+        StatementSet statements;
+        try (StringReader reader = new StringReader(script)) {
+            statements = DslHelper.parserDsl(DetectRuleDslProvider.INSTANCE, reader);
+        }
 
         EngineOption option = new EngineOption();
         option.setDataTimeValueParser(new DefaultDataTimeValueParser());
@@ -64,7 +68,10 @@ public class TestCase {
     }
 
     public static Object runScript(String script, Object domainData, Type domainType, Map<String, String> vars, DetectRulesFeature[] features) throws IOException {
-        StatementSet statements = DslHelper.parserDsl(DetectRuleDslProvider.INSTANCE, script);
+        StatementSet statements;
+        try (StringReader reader = new StringReader(script)) {
+            statements = DslHelper.parserDsl(DetectRuleDslProvider.INSTANCE, reader);
+        }
 
         EngineOption option = new EngineOption();
         option.setDataTimeValueParser(new DefaultDataTimeValueParser());

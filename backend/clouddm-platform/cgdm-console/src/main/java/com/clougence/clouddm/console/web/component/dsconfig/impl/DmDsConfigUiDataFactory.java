@@ -30,7 +30,7 @@ import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.base.metadata.ds.SecurityType;
 import com.clougence.clouddm.base.metadata.ds.SslMode;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsConfigKvDef;
-import com.clougence.clouddm.console.web.service.upload.ConsoleUploadService;
+import com.clougence.clouddm.console.web.service.upload.UploadService4Certificate;
 import com.clougence.clouddm.platform.plugin.DsPluginInfo;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.execute.dsconf.DsConfigSpi;
@@ -48,12 +48,12 @@ import jakarta.annotation.Resource;
 @Component
 public class DmDsConfigUiDataFactory {
 
-    private static final String  DRIVER_FAMILY_FIELD = "driverFamily";
+    private static final String       DRIVER_FAMILY_FIELD = "driverFamily";
 
     @Resource
-    private ConsoleUploadService uploadService;
+    private UploadService4Certificate uploadService;
 
-    public Map<String, String> toKvMap(DataSourceType dsType, Map<String, DsConfigKvDef> configDefMap, Map<String, String> uiMap) {
+    public Map<String, String> toKvMap(String uid, DataSourceType dsType, Map<String, DsConfigKvDef> configDefMap, Map<String, String> uiMap) {
         Map<String, String> kvMap = new LinkedHashMap<>();
         if (configDefMap == null || configDefMap.isEmpty()) {
             return kvMap;
@@ -62,7 +62,7 @@ public class DmDsConfigUiDataFactory {
         kvMap.putAll(driverData(dsType, configDefMap, uiMap));
         kvMap.putAll(addressKvData(configDefMap, uiMap));
         kvMap.putAll(authData(configDefMap, uiMap));
-        kvMap.putAll(sshSslData(configDefMap, uiMap));
+        kvMap.putAll(sshSslData(uid, configDefMap, uiMap));
 
         DsConfigSpi configSpi = PluginManager.findDsConfigSpi(dsType);
         Map<String, String> customData = configSpi.configMapFromUi(kvMap, uiMap);
@@ -184,7 +184,7 @@ public class DmDsConfigUiDataFactory {
         return data;
     }
 
-    private Map<String, String> sshSslData(Map<String, DsConfigKvDef> configDefMap, Map<String, String> input) {
+    private Map<String, String> sshSslData(String uid, Map<String, DsConfigKvDef> configDefMap, Map<String, String> input) {
         Map<String, String> data = new LinkedHashMap<>();
 
         // SSH
@@ -218,7 +218,8 @@ public class DmDsConfigUiDataFactory {
                 case TRUSTSTORE:
                     if (input.containsKey(DataSourceConfig.Fields.sslCaData)) {
                         configDefMap.remove(DataSourceConfig.Fields.sslCaData);
-                        data.put(DataSourceConfig.Fields.sslCaData, this.uploadService.resolveCertificateData(input.get(DataSourceConfig.Fields.sslCaData)));
+                        data.put(DataSourceConfig.Fields.sslCaData, //
+                                this.readCertificateData(uid, input.get(DataSourceConfig.Fields.sslCaData)));
                     }
                     putField(data, configDefMap, input, DataSourceConfig.Fields.sslCaPassword);
                     configDefMap.remove(DataSourceConfig.Fields.sslClientCertData);
@@ -231,12 +232,14 @@ public class DmDsConfigUiDataFactory {
                 case KEYSTORE_TRUSTSTORE:
                     if (input.containsKey(DataSourceConfig.Fields.sslCaData)) {
                         configDefMap.remove(DataSourceConfig.Fields.sslCaData);
-                        data.put(DataSourceConfig.Fields.sslCaData, this.uploadService.resolveCertificateData(input.get(DataSourceConfig.Fields.sslCaData)));
+                        data.put(DataSourceConfig.Fields.sslCaData,//
+                                this.readCertificateData(uid, input.get(DataSourceConfig.Fields.sslCaData)));
                     }
                     putField(data, configDefMap, input, DataSourceConfig.Fields.sslCaPassword);
                     if (input.containsKey(DataSourceConfig.Fields.sslClientCertData)) {
                         configDefMap.remove(DataSourceConfig.Fields.sslClientCertData);
-                        data.put(DataSourceConfig.Fields.sslClientCertData, this.uploadService.resolveCertificateData(input.get(DataSourceConfig.Fields.sslClientCertData)));
+                        data.put(DataSourceConfig.Fields.sslClientCertData, //
+                                this.readCertificateData(uid, input.get(DataSourceConfig.Fields.sslClientCertData)));
                     }
                     configDefMap.remove(DataSourceConfig.Fields.sslClientCertData);
                     configDefMap.remove(DataSourceConfig.Fields.sslClientKeyData);
@@ -246,17 +249,20 @@ public class DmDsConfigUiDataFactory {
                 case CLIENT_CERT:
                     if (input.containsKey(DataSourceConfig.Fields.sslCaData)) {
                         configDefMap.remove(DataSourceConfig.Fields.sslCaData);
-                        data.put(DataSourceConfig.Fields.sslCaData, this.uploadService.resolveCertificateData(input.get(DataSourceConfig.Fields.sslCaData)));
+                        data.put(DataSourceConfig.Fields.sslCaData, //
+                                this.readCertificateData(uid, input.get(DataSourceConfig.Fields.sslCaData)));
                     }
                     configDefMap.remove(DataSourceConfig.Fields.sslCaPassword);
                     data.put(DataSourceConfig.Fields.sslCaPassword, null);
                     if (input.containsKey(DataSourceConfig.Fields.sslClientCertData)) {
                         configDefMap.remove(DataSourceConfig.Fields.sslClientCertData);
-                        data.put(DataSourceConfig.Fields.sslClientCertData, this.uploadService.resolveCertificateData(input.get(DataSourceConfig.Fields.sslClientCertData)));
+                        data.put(DataSourceConfig.Fields.sslClientCertData,//
+                                this.readCertificateData(uid, input.get(DataSourceConfig.Fields.sslClientCertData)));
                     }
                     if (input.containsKey(DataSourceConfig.Fields.sslClientKeyData)) {
                         configDefMap.remove(DataSourceConfig.Fields.sslClientKeyData);
-                        data.put(DataSourceConfig.Fields.sslClientKeyData, this.uploadService.resolveCertificateData(input.get(DataSourceConfig.Fields.sslClientKeyData)));
+                        data.put(DataSourceConfig.Fields.sslClientKeyData, //
+                                this.readCertificateData(uid, input.get(DataSourceConfig.Fields.sslClientKeyData)));
                     }
                     putField(data, configDefMap, input, DataSourceConfig.Fields.sslClientKeyPassword);
                     break;
@@ -266,20 +272,27 @@ public class DmDsConfigUiDataFactory {
         } else {
             if (input != null && input.containsKey(DataSourceConfig.Fields.sslCaData)) {
                 configDefMap.remove(DataSourceConfig.Fields.sslCaData);
-                data.put(DataSourceConfig.Fields.sslCaData, this.uploadService.resolveCertificateData(input.get(DataSourceConfig.Fields.sslCaData)));
+                data.put(DataSourceConfig.Fields.sslCaData, //
+                        this.readCertificateData(uid, input.get(DataSourceConfig.Fields.sslCaData)));
             }
             putField(data, configDefMap, input, DataSourceConfig.Fields.sslCaPassword);
             if (input != null && input.containsKey(DataSourceConfig.Fields.sslClientCertData)) {
                 configDefMap.remove(DataSourceConfig.Fields.sslClientCertData);
-                data.put(DataSourceConfig.Fields.sslClientCertData, this.uploadService.resolveCertificateData(input.get(DataSourceConfig.Fields.sslClientCertData)));
+                data.put(DataSourceConfig.Fields.sslClientCertData,//
+                        this.readCertificateData(uid, input.get(DataSourceConfig.Fields.sslClientCertData)));
             }
             if (input != null && input.containsKey(DataSourceConfig.Fields.sslClientKeyData)) {
                 configDefMap.remove(DataSourceConfig.Fields.sslClientKeyData);
-                data.put(DataSourceConfig.Fields.sslClientKeyData, this.uploadService.resolveCertificateData(input.get(DataSourceConfig.Fields.sslClientKeyData)));
+                data.put(DataSourceConfig.Fields.sslClientKeyData,//
+                        this.readCertificateData(uid, input.get(DataSourceConfig.Fields.sslClientKeyData)));
             }
             putField(data, configDefMap, input, DataSourceConfig.Fields.sslClientKeyPassword);
         }
         return data;
+    }
+
+    private String readCertificateData(String uid, String value) {
+        return this.uploadService.readCertificateData(uid, value);
     }
 
     private Map<String, String> otherData(Map<String, DsConfigKvDef> configDefMap, Map<String, String> input, Map<String, String> existingData) {

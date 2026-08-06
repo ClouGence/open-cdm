@@ -15,10 +15,12 @@
  */
 package com.clougence.dslpaser.antlr;
 
+import java.io.FilterReader;
 import java.io.IOException;
-import java.io.StringReader;
+import java.io.Reader;
 import java.util.List;
 
+import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.Parser;
@@ -32,38 +34,55 @@ import com.clougence.utils.StringUtils;
 
 public final class DslHelper {
 
-    public static StatementSet parserDsl(DslProvider provider, String queryString) {
-        try {
-            Lexer lexer = provider.createLexer(CharStreams.fromReader(new StringReader(queryString)));
-            lexer.removeErrorListeners();
-            lexer.addErrorListener(SyntaxErrorListener.INSTANCE);
+    public static StatementSet parserDsl(DslProvider provider, Reader reader) {
+        Lexer lexer = provider.createLexer(toCharStream(reader));
+        lexer.removeErrorListeners();
+        lexer.addErrorListener(SyntaxErrorListener.INSTANCE);
 
-            Parser parser = provider.createParser(lexer);
-            parser.removeErrorListeners();
-            parser.addErrorListener(SyntaxErrorListener.INSTANCE);
-            return provider.doParser(lexer, parser);
+        Parser parser = provider.createParser(lexer);
+        parser.removeErrorListeners();
+        parser.addErrorListener(SyntaxErrorListener.INSTANCE);
+        return provider.doParser(lexer, parser);
+    }
+
+    public static List<AstSplitScript> splitDsl(DslProvider provider, Reader reader) {
+        return splitDsl(provider, toCharStream(reader));
+    }
+
+    private static List<AstSplitScript> splitDsl(DslProvider provider, CharStream source) {
+        Lexer lexer = provider.createLexer(source);
+        lexer.removeErrorListeners();
+        lexer.addErrorListener(SyntaxErrorListener.INSTANCE);
+
+        Parser parser = provider.createParser(lexer);
+        parser.removeErrorListeners();
+        parser.addErrorListener(SyntaxErrorListener.INSTANCE);
+
+        return provider.doSplit(lexer, parser);
+    }
+
+    @Deprecated
+    public static List<AstSplitScript> splitDsl(DslProvider provider, Reader reader, CodeLocation base) {
+        return splitDsl(provider, readText(reader), base);
+    }
+
+    @Deprecated
+    private static String readText(Reader reader) {
+        try {
+            StringBuilder query = new StringBuilder();
+            char[] buffer = new char[8192];
+            int read;
+            while ((read = reader.read(buffer)) != -1) {
+                query.append(buffer, 0, read);
+            }
+            return query.toString();
         } catch (IOException e) {
             throw new SyntaxIoException(e);
         }
     }
 
-    public static List<AstSplitScript> splitDsl(DslProvider provider, String queryString) {
-        try {
-            Lexer lexer = provider.createLexer(CharStreams.fromReader(new StringReader(queryString)));
-            lexer.removeErrorListeners();
-            lexer.addErrorListener(SyntaxErrorListener.INSTANCE);
-
-            Parser parser = provider.createParser(lexer);
-            parser.removeErrorListeners();
-            parser.addErrorListener(SyntaxErrorListener.INSTANCE);
-
-            return provider.doSplit(lexer, parser);
-        } catch (IOException e) {
-            throw new SyntaxIoException(e);
-        }
-    }
-
-    public static List<AstSplitScript> splitDsl(DslProvider provider, String queryString, CodeLocation base) {
+    @Deprecated
+    private static List<AstSplitScript> splitDsl(DslProvider provider, String queryString, CodeLocation base) {
         // offset for line and column numbers
         int lineNumber = Math.max(1, base == null ? 1 : base.getLineNumber());
         int columnNumber = Math.max(0, base == null ? 0 : base.getColumnNumber());
@@ -72,7 +91,7 @@ public final class DslHelper {
         int curLine = lineNumber;
         int curColumn = columnNumber;
 
-        List<AstSplitScript> scripts = splitDsl(provider, queryString);
+        List<AstSplitScript> scripts = splitDsl(provider, CharStreams.fromString(queryString));
         for (AstSplitScript ass : scripts) {
             String script = ass.getScript();
             int startCodeLine = curLine;
@@ -125,19 +144,38 @@ public final class DslHelper {
         return scripts;
     }
 
-    public static void doVisitor(DslProvider provider, String queryString, AntlrParseTreeVisitorCreator visitor) {
+    public static void doVisitor(DslProvider provider, Reader queryReader, AntlrParseTreeVisitorCreator visitor) {
+        doVisitor(provider, toCharStream(queryReader), visitor);
+    }
+
+    private static CharStream toCharStream(Reader reader) {
         try {
-            Lexer lexer = provider.createLexer(CharStreams.fromReader(new StringReader(queryString)));
-            lexer.removeErrorListeners();
-            lexer.addErrorListener(SyntaxErrorListener.INSTANCE);
-
-            Parser parser = provider.createParser(lexer);
-            parser.removeErrorListeners();
-            parser.addErrorListener(SyntaxErrorListener.INSTANCE);
-
-            provider.doVisitor(lexer, parser, visitor.createVisitor(lexer, parser));
+            return CharStreams.fromReader(new CloseShieldReader(reader));
         } catch (IOException e) {
             throw new SyntaxIoException(e);
+        }
+    }
+
+    private static void doVisitor(DslProvider provider, CharStream source, AntlrParseTreeVisitorCreator visitor) {
+        Lexer lexer = provider.createLexer(source);
+        lexer.removeErrorListeners();
+        lexer.addErrorListener(SyntaxErrorListener.INSTANCE);
+
+        Parser parser = provider.createParser(lexer);
+        parser.removeErrorListeners();
+        parser.addErrorListener(SyntaxErrorListener.INSTANCE);
+
+        provider.doVisitor(lexer, parser, visitor.createVisitor(lexer, parser));
+    }
+
+    private static final class CloseShieldReader extends FilterReader {
+
+        private CloseShieldReader(Reader reader){
+            super(reader);
+        }
+
+        @Override
+        public void close() {
         }
     }
 

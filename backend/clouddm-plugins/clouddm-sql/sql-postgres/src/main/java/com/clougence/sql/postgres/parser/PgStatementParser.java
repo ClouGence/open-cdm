@@ -23,7 +23,6 @@ import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
-import org.antlr.v4.runtime.misc.Interval;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNodeImpl;
 
@@ -87,7 +86,7 @@ public class PgStatementParser implements AntlrStatementParser {
             }
         }
 
-        return tokens.getTokenSource().getInputStream().getText(Interval.of(startToken.getStartIndex(), endToken.getStopIndex()));
+        return tokens.getText(startToken, endToken);
     }
 
     private static Token findStatementEnd(TokenStream tokens, Token startToken) {

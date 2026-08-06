@@ -5,6 +5,8 @@
  */
 package com.clougence.sql.iso.sql92.analysis.lineage;
 
+import java.io.Reader;
+import java.io.StringReader;
 import java.util.List;
 
 import org.antlr.v4.runtime.Parser;
@@ -20,6 +22,7 @@ import com.clougence.sql.common.analysis.lineage.AbstractLineageAnalysisSpi;
 import com.clougence.sql.iso.sql92.analysis.security.Sql92SqlParserVisitor;
 import com.clougence.sql.iso.sql92.analysis.security.builder.Sql92DomainCollector;
 import com.clougence.sql.iso.sql92.parser.Sql92DslProvider;
+import com.clougence.sql.iso.sql92.parser.Sql92SplitAnalysisSpi;
 
 public class Sql92LineageAnalysisSpi extends AbstractLineageAnalysisSpi {
 
@@ -42,8 +45,24 @@ public class Sql92LineageAnalysisSpi extends AbstractLineageAnalysisSpi {
 
     @Override
     public List<LineageColumn> analyze(String sql, LineageContext lineageContext) {
+        try (var scripts = new Sql92SplitAnalysisSpi().splitScriptStream(new StringReader(sql), List.of(), 1, 0)) {
+            var iterator = scripts.iterator();
+            if (!iterator.hasNext()) {
+                return List.of();
+            }
+            iterator.next();
+            if (iterator.hasNext()) {
+                throw new IllegalArgumentException("Lineage analysis supports at most one SQL statement");
+            }
+        }
+
+        return analyzeStatement(new java.io.StringReader(sql), lineageContext);
+    }
+
+    private List<LineageColumn> analyzeStatement(Reader sql, LineageContext lineageContext) {
         Sql92DomainCollector collector = new Sql92DomainCollector();
         DslHelper.doVisitor(dslProvider(), sql, (lexer, parser) -> parserVisitor(collector, parser));
+
         return toResultColumns(analyzeColumns(lineageContext.getUserUID(), lineageContext.getDsId(), lineageContext.getLevelsParam(), collector.build()));
     }
 }

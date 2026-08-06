@@ -8,7 +8,6 @@
         <result column="gmt_modified" property="gmtModified"/>
         <result column="data_source_id" property="dataSourceId"/>
         <result column="uid" property="uid"/>
-        <result column="primary_uid" property="primaryUid"/>
         <result column="depend_on_biz_type" property="dependOnBizType"/>
         <result column="depend_on_biz_id" property="dependOnBizId"/>
         <result column="query_id" property="queryId"/>
@@ -30,7 +29,6 @@
         gmt_modified,
         data_source_id,
         uid,
-        primary_uid,
         levels,
         query_id,
         biz_id,
@@ -96,10 +94,37 @@
           and worker_seq_number = #{wsn}
           and status = 'WAIT_EXEC'
     </update>
+    <update id="startPreparedJob">
+        update dm_exec_auto_job
+        set status = 'INIT',
+            uid = #{uid}
+        where id = #{jobId}
+          and status = 'PREPARING'
+    </update>
+    <update id="claimJobForPackaging">
+        update dm_exec_auto_job
+        set status = 'PACKAGING',
+            last_report_time = now()
+        where id = #{jobId}
+          and status = 'INIT'
+    </update>
+    <update id="heartbeatPackaging">
+        update dm_exec_auto_job
+        set last_report_time = now()
+        where id = #{jobId}
+          and status = 'PACKAGING'
+    </update>
+    <update id="failPackaging">
+        update dm_exec_auto_job
+        set status = 'FAILED'
+        where id = #{jobId}
+          and status = 'PACKAGING'
+    </update>
     <update id="updateOverOutJob">
         update dm_exec_auto_job
         set status = 'INIT'
-        where  #{date} > last_report_time and status = 'WAIT_EXEC'
+        where #{date} > last_report_time
+          and status in ('PACKAGING', 'WAIT_EXEC')
     </update>
     <update id="updateQueryIdByJobId">
         update dm_exec_auto_job

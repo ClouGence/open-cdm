@@ -109,10 +109,7 @@ const flowOptionRule = {
   instanceId: [{ required: true, message: '目标数据源不能为空' }],
   databaseName: [{ required: true, message: 'catalog不能为空' }],
   schemaName: [{ required: true, message: 'schema不能为空' }],
-  initScript: [{ required: true, message: '初始化方式不能为空' }],
-  checkStrategy: [{ required: true, message: 'sql审核不能为空' }],
-  executeStrategy: [{ required: true, message: '发布方式不能为空' }],
-  errorStrategy: [{ required: true, message: '错误策略不能为空' }]
+  initScript: [{ required: true, message: '初始化方式不能为空' }]
 };
 
 const formDevopsRules = {
@@ -123,10 +120,7 @@ const formDevopsRules = {
   instanceId: [{ required: true, message: '实例不能为空' }],
   databaseName: [{ required: true, message: '数据库（catalog）不能为空' }],
   schemaName: [{ required: true, message: 'schema不能为空' }],
-  initScript: [{ required: true, message: '初始化方式不能为空' }],
-  checkStrategy: [{ required: true, message: 'SQL审核策略不能为空' }],
-  executeStrategy: [{ required: true, message: '发布方式不能为空' }],
-  errorStrategy: [{ required: true, message: '错误策略不能为空' }]
+  initScript: [{ required: true, message: '初始化方式不能为空' }]
 };
 
 const formRule = {
@@ -158,10 +152,8 @@ const ERROR_LEVEL_COLOR_MAP = {
 const FLOW_STEP_NUM = {
   INIT_SNAPSHOT: 0,
   INIT: 1,
-  CHECK: 2,
-  APPROVAL: 3,
-  EXECUTE: 4,
-  FINISH: 5
+  APPROVAL: 2,
+  FINISH: 3
 };
 
 const FLOW_STEP = {
@@ -169,8 +161,7 @@ const FLOW_STEP = {
   BASIC2: -1,
   S0: 0,
   S1: 1,
-  S2: 2,
-  FINISH: 3
+  FINISH: 2
 };
 
 const IM_PROVIDER_MAP = {
@@ -195,67 +186,16 @@ const BECOME_STATUS_MAP = {
   disable: 'icon-v2-Disable'
 };
 
-const APPROVE_MAP = {
-  Disable: i18n.global.t('jin-yong'),
-  Enable: i18n.global.t('qi-yong')
-};
-
-const SQL_REVIEW_MAP = {
-  skip: i18n.global.t('jin-yong'),
-  always: i18n.global.t('shi-zhong'),
-  suggest: i18n.global.t('ti-shi'),
-  failure: i18n.global.t('zu-sai')
-};
-
 const INIT_TYPE_MAP = {
   none: i18n.global.t('bu-chu-li'),
   snapshot: i18n.global.t('chuang-jian-kuai-zhao'),
   change: i18n.global.t('chuang-jian-bian-geng')
 };
 
-const CHANGE_FLOW_DESCRIPTION = {
-  check: {
-    Always: i18n.global.t('change-flow-check-always'),
-    Suggest: i18n.global.t('change-flow-check-suggest'),
-    Failure: i18n.global.t('change-flow-check-failure'),
-    Skip: i18n.global.t('change-flow-check-skip')
-  },
-  approve: {
-    Enable: i18n.global.t('change-flow-approve-enable'),
-    Disable: i18n.global.t('change-flow-approve-disable')
-  },
-  execute: {
-    Auto: i18n.global.t('change-flow-execute-auto'),
-    Manual: i18n.global.t('change-flow-execute-manual'),
-    Disabled: i18n.global.t('change-flow-execute-disabled')
-  },
-  transactional: {
-    true: i18n.global.t('change-flow-transactional-enable'),
-    false: i18n.global.t('change-flow-transactional-disable')
-  },
-  error: {
-    NONE: i18n.global.t('change-flow-error-none'),
-    RETRY: i18n.global.t('change-flow-error-retry'),
-    SKIP: i18n.global.t('change-flow-error-skip')
-  }
-};
-
 const GITOPS_DESCRIPTION = {
   Snapshot: i18n.global.t('gitops-init-snapshot'),
   CreateChange: i18n.global.t('gitops-init-change'),
   None: i18n.global.t('gitops-init-none')
-};
-
-const PUBLISH_MAP = {
-  auto: i18n.global.t('zi-dong'),
-  manual: i18n.global.t('shou-dong'),
-  disabled: i18n.global.t('jin-yong')
-};
-
-const ERROR_STRATEGY_MAP = {
-  abort: i18n.global.t('zhong-duan'),
-  ignore: i18n.global.t('hu-lve'),
-  retry: i18n.global.t('zhong-shi')
 };
 
 const defaultLanguageMap = {
@@ -292,11 +232,9 @@ const AUTO_EXEC_JOB_STATUS_I18N = {
 
 const CHANGE_STATUS_MAP = {
   INIT: 0,
-  CHECK: 1,
-  APPROVAL: 2,
-  EXECUTE: 3,
-  FINISH: 4,
-  INIT_SNAPSHOT: 5
+  APPROVAL: 1,
+  FINISH: 2,
+  INIT_SNAPSHOT: 3
 };
 
 const AUTO_EXEC_TASK_STATUS_COLOR = {
@@ -339,13 +277,8 @@ export {
   IM_PROVIDER_MAP,
   FLOW_MARK_MAP,
   BECOME_STATUS_MAP,
-  SQL_REVIEW_MAP,
-  APPROVE_MAP,
   INIT_TYPE_MAP,
-  PUBLISH_MAP,
-  CHANGE_FLOW_DESCRIPTION,
   GITOPS_DESCRIPTION,
-  ERROR_STRATEGY_MAP,
   defaultLanguageMap,
   EVEN_TYPE_MAP,
   flowFormBasicRule,

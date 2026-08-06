@@ -29,6 +29,9 @@ export const ticketApi = {
   // dm
   dmTicketRequestUserDsAuth: '/api/entry/approval/requestuserdsauth',
   dmTicketCreate: '/api/entry/approval/create',
+  dmTicketUploadSqlFile: '/api/entry/resource/sqlfile/upload',
+  dmTicketPreviewSqlFile: '/api/entry/resource/sqlfile/preview',
+  dmTicketPreviewApprovalSql: '/api/entry/approval/previewSqlFile',
   dmTicketQueryDetail: '/api/entry/approval/querydetail',
   dmTicketCancel: '/api/entry/approval/cancel',
   dmTicketConfirm: '/api/entry/approval/confirm',
@@ -42,6 +45,7 @@ export const ticketApi = {
   dmTicketRemoveTemplate: '/api/entry/approval/removeTemplate',
   dmTicketQueryAutoExecJobInfo: '/api/entry/approval/queryAutoExecJobInfo',
   dmTicketQueryAutoExecTaskList: '/api/entry/approval/queryAutoExecTaskList',
+  dmTicketQueryAutoExecTaskSql: '/api/entry/approval/queryAutoExecTaskSql',
   dmTicketEndAutoExecJob: '/api/entry/approval/endAutoExecJob',
   dmTicketRetryAutoExecJob: '/api/entry/approval/retryAutoExecJob',
   dmTicketStopAutoExecJob: '/api/entry/approval/stopAutoExecJob',

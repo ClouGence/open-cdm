@@ -243,11 +243,16 @@ public class AuthApprovalHandler implements ApprovalHandler {
 
     @Override
     public void approvalCompleted(long approvalId, ApprovalBiz bizType, ImSenderService sender) {
+        // do nothing
+    }
+
+    @Override
+    public void approvalApproved(long approvalId, ApprovalBiz bizType, ImSenderService sender) {
         this.approvalDal.approvalMapper().updateStatusByEnum(approvalId, ApprovalStatus.WAIT_EXEC, null);
     }
 
     @Override
-    public void approvalRefuse(long approvalId, ApprovalBiz bizType, ImSenderService sender) {
+    public void approvalRejected(long approvalId, ApprovalBiz bizType, ImSenderService sender) {
         // do nothing
     }
 

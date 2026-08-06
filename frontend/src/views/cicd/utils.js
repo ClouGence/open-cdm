@@ -1,16 +1,7 @@
-const DEFAULT_FLOW_OPTION = {
-  checkStrategy: 'Always',
-  approveStrategy: 'Enable',
-  executeStrategy: 'Auto',
-  errorStrategy: 'NONE',
-  transactional: 'false'
-};
-
 const DEFAULT_FLOW_INFO = {
   flowName: '',
   flowDesc: '',
-  flowManagerUid: '',
-  ...DEFAULT_FLOW_OPTION
+  flowManagerUid: ''
 };
 
 const DEFAULT_DEVOPS_INFO = {
@@ -74,12 +65,4 @@ const getScmDisplayName = (scmType) => {
   return displayNames[scmType] || scmType || '';
 };
 
-export {
-  getRepoSelectionKey,
-  getScmDisplayName,
-  getScmIconResource,
-  groupByRepoNamespace,
-  DEFAULT_FLOW_INFO,
-  DEFAULT_FLOW_OPTION,
-  DEFAULT_DEVOPS_INFO
-};
+export { getRepoSelectionKey, getScmDisplayName, getScmIconResource, groupByRepoNamespace, DEFAULT_FLOW_INFO, DEFAULT_DEVOPS_INFO };

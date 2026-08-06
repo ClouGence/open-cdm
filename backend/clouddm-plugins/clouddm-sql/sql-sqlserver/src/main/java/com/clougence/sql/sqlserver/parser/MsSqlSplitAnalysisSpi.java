@@ -47,7 +47,7 @@ public class MsSqlSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
         if (findContext(context, SqlServerParser.Create_viewContext.class) != null || findContext(context, SqlServerParser.Create_or_alter_triggerContext.class) != null
             || findContext(context, SqlServerParser.Create_or_alter_procedureContext.class) != null
             || findContext(context, SqlServerParser.Create_or_alter_functionContext.class) != null) {
-            return Set.of(normalizeType(context.accept(splitVisitor()), script));
+            return Set.of(normalizeType(context.accept(splitVisitor())));
         }
         return super.collectTypes(context, script);
     }

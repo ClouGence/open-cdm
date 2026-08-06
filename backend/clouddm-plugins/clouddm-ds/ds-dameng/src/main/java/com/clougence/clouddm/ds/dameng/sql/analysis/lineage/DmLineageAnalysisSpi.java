@@ -15,6 +15,8 @@
  */
 package com.clougence.clouddm.ds.dameng.sql.analysis.lineage;
 
+import java.io.Reader;
+import java.io.StringReader;
 import java.util.*;
 
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -22,9 +24,10 @@ import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import com.clougence.clouddm.ds.dameng.sql.parser.DmDslProvider;
+import com.clougence.clouddm.ds.dameng.sql.parser.DmSplitAnalysisSpi;
 import com.clougence.clouddm.ds.dameng.sql.parser.antlr.DmSqlParser;
-import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageColumn;
 import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageAnalysisSpi;
+import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageColumn;
 import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageContext;
 import com.clougence.clouddm.sdk.sql.analysis.lineage.SourceName;
 import com.clougence.dslpaser.antlr.DslHelper;
@@ -59,6 +62,21 @@ public class DmLineageAnalysisSpi implements LineageAnalysisSpi {
 
     @Override
     public List<LineageColumn> analyze(String sql, LineageContext lineageContext) {
+        try (var scripts = new DmSplitAnalysisSpi().splitScriptStream(new StringReader(sql), java.util.List.of(), 1, 0)) {
+            var iterator = scripts.iterator();
+            if (!iterator.hasNext()) {
+                return List.of();
+            }
+            iterator.next();
+            if (iterator.hasNext()) {
+                throw new IllegalArgumentException("Lineage analysis supports at most one SQL statement");
+            }
+        }
+
+        return analyzeStatement(new StringReader(sql), lineageContext);
+    }
+
+    private List<LineageColumn> analyzeStatement(Reader sql, LineageContext lineageContext) {
         List<MutableColumnLineage> result = new ArrayList<>();
         Object catalogLevel = lineageContext == null || lineageContext.getLevelsParam() == null ? null : lineageContext.getLevelsParam().get(UmiTypes.Catalog);
         String defaultCatalog = catalogLevel == null ? null : String.valueOf(catalogLevel);
@@ -627,8 +645,14 @@ public class DmLineageAnalysisSpi implements LineageAnalysisSpi {
                 }
                 String sourceCatalog = column.catalog() == null ? catalog : column.catalog();
                 String sourceSchema = column.schema() == null ? schema : column.schema();
-                return new SourceName(sourceCatalog, sourceSchema, column.table(), column.column(),//
-                        column.startLine(), column.startColumn(), column.endLine(), column.endColumn());
+                return new SourceName(sourceCatalog,
+                    sourceSchema,
+                    column.table(),
+                    column.column(),//
+                    column.startLine(),
+                    column.startColumn(),
+                    column.endLine(),
+                    column.endColumn());
             });
         }
     }
@@ -735,8 +759,14 @@ public class DmLineageAnalysisSpi implements LineageAnalysisSpi {
     private SourceName realColumn(NameParts table, String column, ParserRuleContext sourceContext) {
         Token start = sourceContext.getStart();
         Token stop = sourceContext.getStop();
-        return new SourceName(table.catalog(), table.schema(), table.name(), column,//
-                start.getLine(), start.getCharPositionInLine(), stop.getLine(), stop.getCharPositionInLine() + stop.getText().length());
+        return new SourceName(table.catalog(),
+            table.schema(),
+            table.name(),
+            column,//
+            start.getLine(),
+            start.getCharPositionInLine(),
+            stop.getLine(),
+            stop.getCharPositionInLine() + stop.getText().length());
     }
 
     private record NameParts(String catalog, String schema, String name) {

@@ -124,6 +124,9 @@ export default {
       expandedKeys: storedExpandedKeys || [],
       hasStoredExpandedKeys: !!storedExpandedKeys,
       suspendExpandedKeysSync: false,
+      restoreExpandedKeysTimer: null,
+      restoreExpandedKeysGeneration: 0,
+      unmounting: false,
       selectedNode: null,
       hide: storedHide,
       dataSourceWidth: 0,
@@ -161,12 +164,19 @@ export default {
     ...mapGetters(['isDesktop', 'getMenus', 'getBrowserMenus', 'isDark'])
   },
   mounted() {
+    this.unmounting = false;
     const dataSourceTreeList = $('.datasource-tree .ctree-tree__scroll-area');
     if (dataSourceTreeList && dataSourceTreeList.length) {
       dataSourceTreeList[0].addEventListener('scroll', this.handleSetScrollTop, true);
     }
   },
   beforeUnmount() {
+    this.unmounting = true;
+    this.restoreExpandedKeysGeneration++;
+    if (this.restoreExpandedKeysTimer) {
+      window.clearTimeout(this.restoreExpandedKeysTimer);
+      this.restoreExpandedKeysTimer = null;
+    }
     const dataSourceTreeList = $('.datasource-tree .ctree-tree__scroll-area');
     if (dataSourceTreeList && dataSourceTreeList.length) {
       dataSourceTreeList[0].removeEventListener('scroll', this.handleSetScrollTop, true);
@@ -243,6 +253,7 @@ export default {
       if (!this.hasStoredExpandedKeys || !this.expandedKeys.length) {
         return;
       }
+      const generation = this.restoreExpandedKeysGeneration;
       const keys = [];
       this.expandedKeys.forEach((key) => {
         this.pushTreeKeyWithParents(key, keys);
@@ -252,9 +263,13 @@ export default {
         const key = keys[i];
         let expanded = false;
         for (let retry = 0; retry < 30 && !expanded; retry++) {
-          const node = this.$refs.tree.getNode(key);
+          const tree = this.$refs.tree;
+          if (this.unmounting || generation !== this.restoreExpandedKeysGeneration || !tree) {
+            return;
+          }
+          const node = tree.getNode(key);
           if (node) {
-            this.$refs.tree.setExpand(key, true, true);
+            tree.setExpand(key, true, true);
             expanded = true;
           } else {
             await new Promise((resolve) => setTimeout(resolve, 150));
@@ -631,31 +646,51 @@ export default {
     async handleSetData(data, search = false) {
       this.top = this.scrollY;
       appLogger.debug('handleSetData', this.$refs);
+      const tree = this.$refs.tree;
+      if (this.unmounting || !tree) {
+        return;
+      }
       const expandedKeys = this.expandedKeys.slice();
       this.suspendExpandedKeysSync = true;
       try {
-        await this.$refs.tree.setData(data);
+        await tree.setData(data);
       } catch (e) {
         this.suspendExpandedKeysSync = false;
         throw e;
       }
+      if (this.unmounting || !this.$refs.tree) {
+        this.suspendExpandedKeysSync = false;
+        return;
+      }
       this.expandedKeys = expandedKeys;
       const restoreDelay = this.hasStoredExpandedKeys ? 500 : 0;
-      setTimeout(async () => {
+      if (this.restoreExpandedKeysTimer) {
+        window.clearTimeout(this.restoreExpandedKeysTimer);
+      }
+      const generation = ++this.restoreExpandedKeysGeneration;
+      this.restoreExpandedKeysTimer = window.setTimeout(async () => {
         try {
+          if (this.unmounting || generation !== this.restoreExpandedKeysGeneration || !this.$refs.tree) {
+            return;
+          }
           this.handleEleScroll(this.top);
           if (search) {
             await this.handleSearch(false);
           }
           // Check tree state after setting data
           this.checkTreeDataAndToggle();
+          if (this.hasStoredExpandedKeys) {
+            await this.restoreExpandedKeys();
+          } else {
+            this.expandFirstEnvironment();
+          }
+        } catch (e) {
+          appLogger.warn('Failed to restore datasource tree state:', e);
         } finally {
           this.suspendExpandedKeysSync = false;
-        }
-        if (this.hasStoredExpandedKeys) {
-          await this.restoreExpandedKeys();
-        } else {
-          this.expandFirstEnvironment();
+          if (generation === this.restoreExpandedKeysGeneration) {
+            this.restoreExpandedKeysTimer = null;
+          }
         }
       }, restoreDelay);
     },

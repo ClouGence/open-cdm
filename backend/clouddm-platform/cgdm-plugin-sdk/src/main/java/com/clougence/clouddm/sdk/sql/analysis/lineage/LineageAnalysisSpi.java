@@ -24,12 +24,5 @@ public interface LineageAnalysisSpi extends Spi {
     /** Lineage analyzer used when a SQL engine does not currently expose lineage analysis. */
     LineageAnalysisSpi EMPTY = (sql, context) -> List.of();
 
-    /**
-     * Analyzes every result column in the query.
-     *
-     * <p>The returned list follows the order in which result columns appear in the SQL select list. This order must
-     * not be used to match columns against an actual result set; consumers must match them by
-     * {@link LineageColumn#column()}.</p>
-     */
     List<LineageColumn> analyze(String sql, LineageContext context);
 }

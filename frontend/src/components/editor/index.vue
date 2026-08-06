@@ -12,7 +12,7 @@ import { getDsSetting, resolveSqlEditorLanguage } from './sqlLanguage';
 
 const LANGUAGE_COMPLETION_DELAY_MS = 200;
 const LANGUAGE_SPLIT_DELAY_MS = 500;
-const MAX_LANGUAGE_FRAGMENT_BYTES = 1024 * 1024;
+const DEFAULT_MAX_LANGUAGE_REQUEST_KILO_BYTE = 1024;
 const DS_LANGUAGE_ERROR = '10111';
 const STATIC_KEYWORD_WEIGHT = 100;
 
@@ -78,7 +78,12 @@ export default {
   },
   computed: {
     ...mapGetters(['getLevels', 'getLeafGroup', 'genQualifierText', 'removeQualifierText', 'getEditor']),
-    ...mapState(['dmGlobalSetting', 'globalDsSetting'])
+    ...mapState(['dmGlobalSetting', 'globalDsSetting']),
+    languageMaxRequestBytes() {
+      const configuredKiloByte = Number(this.dmGlobalSetting?.languageMaxRequestKiloByte);
+      const maxKiloByte = Number.isFinite(configuredKiloByte) && configuredKiloByte > 0 ? configuredKiloByte : DEFAULT_MAX_LANGUAGE_REQUEST_KILO_BYTE;
+      return maxKiloByte * 1024;
+    }
   },
   mounted() {
     this.init();
@@ -860,7 +865,7 @@ export default {
       if (!sqlText) {
         return false;
       }
-      return new TextEncoder().encode(sqlText).length > MAX_LANGUAGE_FRAGMENT_BYTES;
+      return new TextEncoder().encode(sqlText).length > this.languageMaxRequestBytes;
     },
     getCurrentLanguageFragment(position = this.monacoEditor?.getPosition(), endAtPosition = false) {
       const model = this.monacoEditor?.getModel();

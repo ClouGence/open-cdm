@@ -38,18 +38,17 @@ public class QueryRequest implements Cloneable {
     private String                    queryId;
     private String                    queryBody;
     private List<QueryArg>            queryArgs;
+    //
     private Set<SplitQueryType>       queryTypes;
+    private Long                      dsId;
+    private DataSourceType            dsType;
     private List<BehaviorRelation>    relations;
-    private DataSourceType            queryDsType;
     private Requester                 requester;
     private Date                      requestTime;
 
     // for masking
     private boolean                   usingValueProcess;
     private Map<String, ColumnConfig> columnList;
-
-    // for env, see  ExecuteVariables
-    private Map<String, String>       variables;
 
     // for execute config
     private boolean                   useCallable = false;
@@ -78,14 +77,11 @@ public class QueryRequest implements Cloneable {
         if (this.relations != null) {
             req.relations = List.copyOf(this.relations);
         }
-        req.queryDsType = this.queryDsType;
+        req.dsId = this.dsId;
+        req.dsType = this.dsType;
         req.requester = this.requester;
         req.requestTime = this.requestTime;
         req.usingValueProcess = this.usingValueProcess;
-
-        if (this.variables != null) {
-            req.setVariables(new HashMap<>(this.variables));
-        }
 
         req.useCallable = this.useCallable;
         req.resultConf = this.resultConf == null ? null : this.resultConf.clone();

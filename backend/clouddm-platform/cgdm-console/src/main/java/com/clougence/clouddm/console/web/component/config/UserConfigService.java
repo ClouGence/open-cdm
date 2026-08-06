@@ -43,4 +43,10 @@ public interface UserConfigService {
     int languageMaxRequests();
 
     int languageMaxRequests(String uid);
+
+    int languageMaxRequestKiloByte();
+
+    String defaultLanguage();
+
+    int sqlFileMaxSize();
 }

@@ -424,89 +424,8 @@
           </div>
         </div>
       </div>
-      <!-- Step 2 -->
-      <div v-if="step === FLOW_STEP.S2" class="step-2">
-        <div class="content">
-          <Steps class="flow-drawer-steps" size="small" :current="-1">
-            <Step :title="$t('sql-shen-he-0')" />
-            <Step :title="$t('shen-pi-liu')"></Step>
-            <Step :title="$t('fa-bu-fang-shi')"></Step>
-          </Steps>
-          <Row :gutter="12">
-            <Col :span="8">
-              <div class="flow-card">
-                <CCTitle :content="$t('sql-shen-he-0')" />
-                <RadioGroup v-model="flowBasicForm.checkStrategy" size="small" type="button">
-                  <Radio label="Always">{{ SQL_REVIEW_MAP.always }}</Radio>
-                  <Radio label="Suggest">{{ SQL_REVIEW_MAP.suggest }}</Radio>
-                  <Radio label="Failure">{{ SQL_REVIEW_MAP.failure }}</Radio>
-                  <Radio label="Skip">{{ SQL_REVIEW_MAP.skip }}</Radio>
-                </RadioGroup>
-                <div class="flow-drawer-step-tips">
-                  {{ fetchChangeFlowDescription('check', flowBasicForm.checkStrategy) }}
-                </div>
-              </div>
-            </Col>
-
-            <Col :span="8">
-              <div class="flow-card">
-                <CCTitle :content="$t('shen-pi-liu')" />
-                <RadioGroup v-model="flowBasicForm.approveStrategy" size="small" type="button">
-                  <Radio label="Enable">{{ APPROVE_MAP.Enable }}</Radio>
-                  <Radio label="Disable">{{ APPROVE_MAP.Disable }}</Radio>
-                </RadioGroup>
-                <div class="flow-drawer-step-tips">
-                  {{ fetchChangeFlowDescription('approve', flowBasicForm.approveStrategy) }}
-                </div>
-              </div>
-            </Col>
-
-            <Col :span="8">
-              <div class="flow-card">
-                <CCTitle :content="$t('fa-bu-fang-shi')" />
-                <RadioGroup v-model="flowBasicForm.executeStrategy" size="small" type="button" @on-change="handleFlowOfExecuteOption">
-                  <Radio label="Auto">{{ PUBLISH_MAP.auto }}</Radio>
-                  <Radio label="Manual">{{ PUBLISH_MAP.manual }}</Radio>
-                  <Radio label="Disabled">{{ PUBLISH_MAP.disabled }}</Radio>
-                </RadioGroup>
-                <div class="flow-drawer-step-tips">
-                  {{ fetchChangeFlowDescription('execute', flowBasicForm.executeStrategy) }}
-                </div>
-
-                <div class="flow-section">
-                  <div class="flow-section-label">
-                    {{ $t('shi-yong-shi-wu') }}
-                  </div>
-                  <RadioGroup v-model="flowBasicForm.transactional" size="small" type="button">
-                    <Radio label="false" :disabled="!flowExecuteIsAuto">{{ APPROVE_MAP.Disable }}</Radio>
-                    <Radio label="true" :disabled="!flowExecuteIsAuto">{{ APPROVE_MAP.Enable }}</Radio>
-                  </RadioGroup>
-                  <div class="flow-drawer-step-tips">
-                    {{ fetchChangeFlowDescription('transactional', flowBasicForm.transactional) }}
-                  </div>
-                </div>
-
-                <div class="flow-section">
-                  <div class="flow-section-label">
-                    {{ $t('cuo-wu-ce-lve') }}
-                  </div>
-                  <RadioGroup v-model="flowBasicForm.errorStrategy" size="small" type="button">
-                    <Radio label="NONE" :disabled="!flowExecuteIsAuto">{{ ERROR_STRATEGY_MAP.abort }}</Radio>
-                    <Radio label="RETRY" :disabled="!flowExecuteIsAuto">{{ ERROR_STRATEGY_MAP.retry }}</Radio>
-                    <Radio label="SKIP" :disabled="!flowExecuteIsAuto">{{ ERROR_STRATEGY_MAP.ignore }}</Radio>
-                  </RadioGroup>
-                  <div class="flow-drawer-step-tips">
-                    {{ fetchChangeFlowDescription('error', flowBasicForm.errorStrategy) }}
-                  </div>
-                </div>
-              </div>
-            </Col>
-          </Row>
-        </div>
-      </div>
-
       <!-- Step 3 -->
-      <div v-if="step === FLOW_STEP.FINISH || (step === 3 && imDefSelected.imType === 'none')">
+      <div v-if="step === FLOW_STEP.FINISH">
         <div>
           <div class="title-text">
             <CustomIcon type="icon-v2-SuccessColorful" size="70px" bottomMargin="20px" />
@@ -546,13 +465,13 @@
         <Button type="primary" @click="handlePreviousStep" v-if="btnStatusShow()" :disabled="step === FLOW_STEP.BASIC1">
           {{ $t('shang-yi-bu') }}
         </Button>
-        <Button type="primary" @click="handleNextStep()" v-if="btnStatusShow() && step !== FLOW_STEP.S2" :disabled="step === FLOW_STEP.FIVE">
+        <Button type="primary" @click="handleNextStep()" v-if="btnStatusShow() && step !== FLOW_STEP.S1" :disabled="step === FLOW_STEP.FIVE">
           {{ $t('xia-yi-bu') }}
         </Button>
         <Button
           type="primary"
           @click="handleAddFlow"
-          v-if="(btnStatusShow() && step === FLOW_STEP.FINISH && imDefSelected.imType === 'none') || step === FLOW_STEP.S2"
+          v-if="(btnStatusShow() && step === FLOW_STEP.FINISH && imDefSelected.imType === 'none') || step === FLOW_STEP.S1"
           :loading="createLoading"
         >
           {{ $t('chuang-jian-xiang-mu') }}
@@ -575,10 +494,7 @@ import { handleCopy } from '@/utils/clipboard';
 import { encryptMixin } from '@/mixins/encryptMixin';
 import CCTitle from '@/components/widgets/CCTitle';
 import {
-  APPROVE_MAP,
-  CHANGE_FLOW_DESCRIPTION,
   defaultLanguageMap,
-  ERROR_STRATEGY_MAP,
   EVEN_TYPE_MAP,
   FLOW_STEP,
   flowFormBasicRule,
@@ -586,9 +502,7 @@ import {
   flowPipelineRule,
   flowTableColumns,
   GITOPS_DESCRIPTION,
-  INIT_TYPE_MAP,
-  PUBLISH_MAP,
-  SQL_REVIEW_MAP
+  INIT_TYPE_MAP
 } from './constant';
 import { DEFAULT_DEVOPS_INFO, DEFAULT_FLOW_INFO, getRepoSelectionKey, getScmDisplayName, getScmIconResource, groupByRepoNamespace } from './utils';
 
@@ -648,7 +562,6 @@ export default {
         imType: 'none'
       },
       imProviderList: [],
-      flowExecuteIsAuto: true,
       //
       //
       step: FLOW_STEP.BASIC1, // Display of Control Steps
@@ -661,14 +574,9 @@ export default {
       flowPipelineRule,
       flowTableColumns,
       INIT_TYPE_MAP,
-      PUBLISH_MAP,
-      SQL_REVIEW_MAP,
-      CHANGE_FLOW_DESCRIPTION,
-      ERROR_STRATEGY_MAP,
       defaultLanguageMap,
       EVEN_TYPE_MAP,
       FLOW_STEP,
-      APPROVE_MAP,
       flowOptionRule
     };
   },
@@ -699,9 +607,6 @@ export default {
             break;
           case FLOW_STEP.S1:
             prefix = this.$t('im-xiao-xi');
-            break;
-          case FLOW_STEP.S2:
-            prefix = this.$t('fa-bu-pei-zhi');
             break;
           default:
             break;
@@ -899,17 +804,6 @@ export default {
         this.devopsUsers = res.data;
       } else {
         this.devopsUsers = [];
-      }
-    },
-    handleFlowOfExecuteOption() {
-      if (this.flowBasicForm.executeStrategy === 'Auto') {
-        this.flowBasicForm.transactional = 'false';
-        this.flowBasicForm.errorStrategy = 'NONE';
-        this.flowExecuteIsAuto = true;
-      } else {
-        this.flowExecuteIsAuto = false;
-        this.flowBasicForm.errorStrategy = '';
-        this.flowBasicForm.transactional = '';
       }
     },
     //
@@ -1113,14 +1007,6 @@ export default {
       this.flowImForm.imId = im;
       this.flowImForm.imType = this.imDefSelected.imType;
     },
-    fetchChangeFlowDescription(type, option) {
-      try {
-        return CHANGE_FLOW_DESCRIPTION[type][option];
-      } catch (e) {
-        appLogger.error(e);
-        return '';
-      }
-    },
     //
     //
     //
@@ -1134,7 +1020,7 @@ export default {
         this.step--;
       }
 
-      if (this.step < FLOW_STEP.S0 || this.step > FLOW_STEP.S2) {
+      if (this.step < FLOW_STEP.S0 || this.step > FLOW_STEP.S1) {
         this.flowDialogWidth = 520;
       }
     },
@@ -1189,16 +1075,8 @@ export default {
     },
     async handleAddFlow(type = '') {
       this.createLoading = true;
-      const isAutoExecute = this.flowBasicForm.executeStrategy === 'Auto';
       const flowOption = {
-        initScript: this.flowGitOpsForm.initScript,
-        checkStrategy: this.flowBasicForm.checkStrategy,
-        approveStrategy: this.flowBasicForm.approveStrategy,
-        executeStrategy: this.flowBasicForm.executeStrategy,
-        errorStrategy: isAutoExecute ? this.flowBasicForm.errorStrategy : 'NONE',
-        transactional: isAutoExecute ? this.flowBasicForm.transactional : 'false',
-        retryWaitTime: null,
-        retryCount: null
+        initScript: this.flowGitOpsForm.initScript
       };
       if (type !== 'empty') {
         this.flowForm = {

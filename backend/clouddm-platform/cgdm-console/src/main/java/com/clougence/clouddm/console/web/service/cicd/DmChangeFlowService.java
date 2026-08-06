@@ -52,8 +52,6 @@ public interface DmChangeFlowService {
 
     void updateMessageByFlowId(String ownerUid, long flowId, ChangeFlowImConfigFO fo);
 
-    void updateFlowConfigByFlowId(String ownerUid, long flowId, ChangeFlowConfigFO fo);
-
     GuideCreateChangeFlowVO createGitOpsFlow(String ownerUid, long flowId, ChangeFlowGitOpsCreateFO fo);
 
     void updateInfoByFlowId(String ownerUid, long flowId, ChangeFlowUpdateFO fo);

@@ -50,12 +50,6 @@ public class DmChangeFlowDO {
     private String                   flowManagerUid;
     @TableField("flow_status")
     private ChangeFlowStatus         flowStatus;
-    @TableField("flow_check")
-    private ChangeCheckStrategy      flowCheck;
-    @TableField("flow_approve")
-    private ChangeApproveStrategy    flowApprove;
-    @TableField("flow_execute")
-    private ChangeExecStrategy       flowExecute;
     @TableField(value = "flow_options", typeHandler = JacksonTypeHandler.class)
     private RsChangeFlowOptionObj    flowOptions;
     @TableField(value = "flow_scm_options", typeHandler = JacksonTypeHandler.class)

@@ -22,7 +22,6 @@ import org.apache.ibatis.annotations.Param;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.clougence.clouddm.platform.dal.model.approval.ApprovalBehavior;
 import com.clougence.clouddm.platform.dal.model.approval.ApprovalStatus;
 import com.clougence.clouddm.platform.dal.model.approval.ArgApprovalQueryObj;
 import com.clougence.clouddm.platform.dal.model.approval.DmApprovalDO;
@@ -43,6 +42,8 @@ public interface DmApprovalMapper extends BaseMapper<DmApprovalDO> {
 
     DmApprovalDO queryByBizId(@Param("bizId") String bizId);
 
+    DmApprovalDO queryByBizIdWithoutRawSql(@Param("bizId") String bizId);
+
     DmApprovalDO queryById(@Param("id") Long id);
 
     DmApprovalDO queryByApproIdentity(@Param("approIdentity") String approIdentity, @Param("type") String type, @Param("puid") String puid);
@@ -59,5 +60,4 @@ public interface DmApprovalMapper extends BaseMapper<DmApprovalDO> {
 
     void updateTicketInfo(@Param("ticketId") Long ticketId, @Param("ticketInfo") String ticketInfo);
 
-    void updateAnalysis(@Param("ticketId") long ticketId, @Param("behaviors") List<ApprovalBehavior> behaviors);
 }

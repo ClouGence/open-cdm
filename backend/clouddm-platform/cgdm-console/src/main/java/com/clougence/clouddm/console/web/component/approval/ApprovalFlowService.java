@@ -23,10 +23,7 @@ import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
 import com.clougence.clouddm.console.web.model.fo.ticket.RdpApprovalFO;
 import com.clougence.clouddm.console.web.model.vo.RdpApproTemplateVO;
-import com.clougence.clouddm.platform.dal.model.approval.ApprovalBiz;
-import com.clougence.clouddm.platform.dal.model.approval.ApprovalType;
-import com.clougence.clouddm.platform.dal.model.approval.DmApprovalProcessDO;
-import com.clougence.clouddm.platform.dal.model.approval.DmApprovalTemplateDO;
+import com.clougence.clouddm.platform.dal.model.approval.*;
 import com.clougence.clouddm.sdk.approval.ApprovalProvider;
 
 /**
@@ -51,15 +48,9 @@ public interface ApprovalFlowService {
 
     void closeTicket(long ticketId, String statusMessage, String puid, String uid);
 
-    void closeTicket(long ticketId, String statusMessage, String puid);
-
     void failTicket(long ticketId, String statusMessage, String puid);
 
-    void execFailTicket(long ticketId, String statusMessage, String puid);
-
     void cancelTicket(String puid, long ticketId, String statusMessage);
-
-    void retryTicket(String puid, long ticketId);
 
     void approvalTicket(String puid, String uid, RdpApprovalFO fo);
 
@@ -73,14 +64,9 @@ public interface ApprovalFlowService {
 
     void cancelAllProcess(long ticketId);
 
-    void failedAllProcess(long ticketId);
-
-    void cancelApprovalInst(Long ticketId);
-
     boolean checkEnableApproval(String ownerUid, ApprovalProvider type);
 
-    void refreshApprovalStatus(long ticketId);
+    void transitionTicketToTerminal(long ticketId, ApprovalStatus terminalStatus, String statusMessage);
 
     DmApprovalTemplateDO checkApprovalAndReturnTemplate(String ownerUid, ApprovalType type, String templateId, Locale locale);
-
 }

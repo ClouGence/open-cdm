@@ -84,27 +84,6 @@
           <span>{{ $t('ding-yue-xiao-xi') }}</span>
           <strong>{{ subscriptionSummary }}</strong>
         </div>
-        <h3>{{ $t('zhi-xing-pei-zhi') }}</h3>
-        <div class="summary-row">
-          <span>{{ $t('sql-shen-he-0') }}</span>
-          <strong>{{ selectedCheckLabel }}</strong>
-        </div>
-        <div class="summary-row">
-          <span>{{ $t('shen-pi-liu') }}</span>
-          <strong>{{ selectedApproveLabel }}</strong>
-        </div>
-        <div class="summary-row">
-          <span>{{ $t('fa-bu-fang-shi') }}</span>
-          <strong>{{ selectedPublishLabel }}</strong>
-        </div>
-        <div class="summary-row summary-row-reserved">
-          <span>{{ $t('shi-yong-shi-wu') }}</span>
-          <strong>{{ selectedTransactionalLabel }}</strong>
-        </div>
-        <div class="summary-row summary-row-reserved">
-          <span>{{ $t('cuo-wu-ce-lve') }}</span>
-          <strong>{{ selectedErrorLabel }}</strong>
-        </div>
       </div>
     </div>
   </aside>
@@ -123,12 +102,7 @@ export default {
     selectedInitLabel: { type: String, default: '' },
     summaryImChannel: { type: String, default: '' },
     selectedImProviderName: { type: String, default: '' },
-    subscriptionSummary: { type: String, default: '' },
-    selectedCheckLabel: { type: String, default: '' },
-    selectedApproveLabel: { type: String, default: '' },
-    selectedPublishLabel: { type: String, default: '' },
-    selectedTransactionalLabel: { type: String, default: '' },
-    selectedErrorLabel: { type: String, default: '' }
+    subscriptionSummary: { type: String, default: '' }
   },
   emits: ['open-help'],
   methods: {

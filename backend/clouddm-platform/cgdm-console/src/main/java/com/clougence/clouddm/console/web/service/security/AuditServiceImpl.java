@@ -41,7 +41,6 @@ import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.platform.dal.model.execution.DmExecSqlAuditDO;
 import com.clougence.clouddm.platform.dal.model.system.DmSysUserConfDO;
-import com.clougence.clouddm.sdk.execute.ExecuteVariables;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.clouddm.sdk.service.secrules.Requester;
 import com.clougence.utils.StringUtils;
@@ -71,7 +70,7 @@ public class AuditServiceImpl implements AuditService, DmWorkerRegisterNotify, U
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
-    public void prepareAudit(Long dsId, QueryRequest request) {
+    public void prepareAudit(Long dsId, String auditUid, QueryRequest request) {
         if (request == null) {
             return;
         }
@@ -82,15 +81,9 @@ public class AuditServiceImpl implements AuditService, DmWorkerRegisterNotify, U
         if (exists != null) {
             return;
         }
-        String uid = null;
-        String clientIp = null;
-        if (request.getVariables() != null) {
-            uid = request.getVariables().get(ExecuteVariables.CURRENT_UID);
-            clientIp = request.getVariables().get(ExecuteVariables.CLIENT_IP);
-        }
-        String userName = uid;
-        if (StringUtils.isNotBlank(uid)) {
-            DmAuthUserDO user = this.userService.getUserByUid(uid);
+        String userName = auditUid;
+        if (StringUtils.isNotBlank(auditUid)) {
+            DmAuthUserDO user = this.userService.getUserByUid(auditUid);
             if (user != null) {
                 if (StringUtils.isNotBlank(user.getUsername())) {
                     userName = user.getUsername();
@@ -109,9 +102,8 @@ public class AuditServiceImpl implements AuditService, DmWorkerRegisterNotify, U
         auditDO.setExecSql(getString(request.getQueryBody()));
         auditDO.setOriginalSql(request.isHasRewrite() ? getString(request.getOriginalBody()) : null);
         auditDO.setDsId(dsId);
-        auditDO.setUid(uid);
+        auditDO.setUid(auditUid);
         auditDO.setUserName(userName);
-        auditDO.setClientIp(clientIp);
         auditDO.setLogIp(RdpHostUtil.getHostIp());
         auditDO.setRequester(request.getRequester());
         auditDO.setDataSourceType(dsDO.getDataSourceType());
@@ -153,7 +145,7 @@ public class AuditServiceImpl implements AuditService, DmWorkerRegisterNotify, U
         if (StringUtils.isBlank(dto.getQueryId())) {
             return null;
         }
-        int updated = this.execDal.sqlAuditMapper().completeByQueryId(dto.getQueryId(), dto.getSessionId(), dto.getSqlStatus().name(), dto.getLine(), message, dto.getTime());
+        int updated = this.execDal.sqlAuditMapper().completeByQueryId(dto.getQueryId(), dto.getSessionId(), dto.getStatus().name(), dto.getAffectLine(), message, dto.getTime());
         if (updated == 0) {
             return null;
         }
@@ -169,6 +161,7 @@ public class AuditServiceImpl implements AuditService, DmWorkerRegisterNotify, U
         }
 
         auditDO.setSessionId(dto.getSessionId());
+        auditDO.setClientIp(dto.getClientIp());
         auditDO.setWorkSeqNumber(wsn);
         auditDO.setOperateTime(dto.getTime());
         auditDO.setStatus(SqlStatus.RUNNING);
@@ -280,12 +273,12 @@ public class AuditServiceImpl implements AuditService, DmWorkerRegisterNotify, U
             LogInfo logInfo = new LogInfo();
             logInfo.setType(Type.SQL_END);
             logInfo.setSql(auditDO.getExecSql());
-            logInfo.setAffectLine(dto.getLine());
+            logInfo.setAffectLine(dto.getAffectLine());
             logInfo.setMessage(dto.getMessage());
             logInfo.setTime(dto.getTime());
             logInfo.setSessionId(dto.getSessionId());
-            logInfo.setSqlStatus(dto.getSqlStatus());
-            logInfo.setAffectLine(dto.getLine());
+            logInfo.setSqlStatus(dto.getStatus());
+            logInfo.setAffectLine(dto.getAffectLine());
             return logInfo;
         }
 
