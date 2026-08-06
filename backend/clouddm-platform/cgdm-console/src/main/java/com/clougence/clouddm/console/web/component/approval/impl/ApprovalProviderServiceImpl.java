@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.console.web.component.approval.ApprovalFlowService;
 import com.clougence.clouddm.console.web.component.approval.ApprovalHandler;
+import com.clougence.clouddm.console.web.component.approval.ApprovalStateService;
 import com.clougence.clouddm.console.web.component.cicd.ImSenderService;
 import com.clougence.clouddm.console.web.component.config.RootUserConfig;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
@@ -72,6 +73,8 @@ public class ApprovalProviderServiceImpl implements ApprovalRefreshService {
     private ApprovalDal                             approvalDal;
     @Resource
     private ImSenderService                         imSenderService;
+    @Resource
+    private ApprovalStateService                    approvalStateService;
 
     private final Map<ApprovalBiz, ApprovalHandler> approvalHandlers;
 
@@ -323,9 +326,9 @@ public class ApprovalProviderServiceImpl implements ApprovalRefreshService {
                 case CANCELED:
                 case TERMINATED: {
                     // step1
-                    this.approvalDal.processMapper().updateTicketStatusByEnum(processDO.getId(), ApprovalProcessStatus.CLOSED, null);
+                    this.approvalStateService.updateProcessStatus(ticketId, ApprovalStage.APPROVAL, ApprovalProcessStatus.CLOSED, null);
                     // step2
-                    this.approvalDal.approvalMapper().updateStatusByEnum(ticket.getId(), ApprovalStatus.CANCELED, null);
+                    this.approvalStateService.updateApprovalStatus(ticket.getId(), ApprovalStatus.CANCELED, null);
                     this.approvalDal.processMapper().updateNotEndProcessByTicketId(ticketId, ApprovalProcessStatus.CLOSED);
                     // step3
                     this.approvalHandler(ticket.getApproBiz()).approvalCanceled(ticket.getId(), ticket.getApproBiz(), imSenderService);
@@ -333,16 +336,16 @@ public class ApprovalProviderServiceImpl implements ApprovalRefreshService {
                 }
                 case COMPLETED: {
                     // step1
-                    this.approvalDal.processMapper().updateTicketStatusByEnum(processDO.getId(), ApprovalProcessStatus.FINISH, null);
+                    this.approvalStateService.updateProcessStatus(ticketId, ApprovalStage.APPROVAL, ApprovalProcessStatus.FINISH, null);
                     // step2
                     this.approvalHandler(ticket.getApproBiz()).approvalApproved(ticket.getId(), ticket.getApproBiz(), imSenderService);
                     break;
                 }
                 case REFUSE: {
                     // step1
-                    this.approvalDal.processMapper().updateTicketStatusByEnum(processDO.getId(), ApprovalProcessStatus.REJECT, null);
+                    this.approvalStateService.updateProcessStatus(ticketId, ApprovalStage.APPROVAL, ApprovalProcessStatus.REJECT, null);
                     // step2
-                    this.approvalDal.approvalMapper().updateStatusByEnum(ticket.getId(), ApprovalStatus.REJECTED, null);
+                    this.approvalStateService.updateApprovalStatus(ticket.getId(), ApprovalStatus.REJECTED, null);
                     this.approvalDal.processMapper().updateNotEndProcessByTicketId(ticketId, ApprovalProcessStatus.REJECT);
                     // step3
                     this.approvalHandler(ticket.getApproBiz()).approvalRejected(ticket.getId(), ticket.getApproBiz(), imSenderService);
@@ -350,7 +353,7 @@ public class ApprovalProviderServiceImpl implements ApprovalRefreshService {
                 }
                 case FAILED: {
                     // step1
-                    this.approvalDal.approvalMapper().updateStatusByEnum(ticket.getId(), ApprovalStatus.FAILED, null);
+                    this.approvalStateService.updateApprovalStatus(ticket.getId(), ApprovalStatus.FAILED, null);
                     this.failedTicket(ticket);
                     // step2
                     this.approvalHandler(ticket.getApproBiz()).approvalFailed(ticket.getId(), ticket.getApproBiz(), imSenderService);
@@ -373,14 +376,10 @@ public class ApprovalProviderServiceImpl implements ApprovalRefreshService {
         for (DmApprovalProcessDO processDO : processList) {
             if (processDO.getTicketStage() == ApprovalStage.APPROVAL &&//
                 processDO.getProcessStatus() != ApprovalProcessStatus.FINISH) {
-                processDO.setProcessStatus(ApprovalProcessStatus.FAIL);
-                processDO.setFinishTime(new Date());
-                this.approvalDal.processMapper().updateById(processDO);
+                this.approvalStateService.updateProcessStatus(ticket.getId(), processDO.getTicketStage(), ApprovalProcessStatus.FAIL, null);
             } else if (processDO.getTicketStage().ordinal() > ApprovalStage.APPROVAL.ordinal() && //
                        processDO.getProcessStatus() == ApprovalProcessStatus.INIT) {
-                processDO.setProcessStatus(ApprovalProcessStatus.CLOSED);
-                processDO.setFinishTime(new Date());
-                this.approvalDal.processMapper().updateById(processDO);
+                this.approvalStateService.updateProcessStatus(ticket.getId(), processDO.getTicketStage(), ApprovalProcessStatus.CLOSED, null);
             }
         }
     }

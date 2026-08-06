@@ -24,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.console.web.component.approval.ApprovalHandler;
+import com.clougence.clouddm.console.web.component.approval.ApprovalStateService;
 import com.clougence.clouddm.console.web.component.approval.model.ApprovalStageMO;
 import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForManage;
 import com.clougence.clouddm.console.web.component.cicd.ImSenderService;
@@ -67,6 +68,8 @@ public class AuthApprovalHandler implements ApprovalHandler {
     private ApprovalDal            approvalDal;
     @Resource
     private DmAuthServiceForManage authServiceForManage;
+    @Resource
+    private ApprovalStateService   approvalStateService;
 
     @Override
     public ApprovalBiz handleType() {
@@ -88,12 +91,10 @@ public class AuthApprovalHandler implements ApprovalHandler {
 
         this.authServiceForManage.appendUserAuth(ticketDO.getOwnerUid(), fo);
 
-        DmApprovalProcessDO processExec = this.approvalDal.processMapper().queryByStage(approvalId, ApprovalStage.EXECUTION);
-
-        this.approvalDal.approvalMapper().updateStatusByEnum(approvalId, ApprovalStatus.FINISHED, null);
+        this.approvalStateService.updateApprovalStatus(approvalId, ApprovalStatus.FINISHED, null);
         ApprovalStageMO mo = new ApprovalStageMO();
         mo.setAutoExecute(true);
-        this.approvalDal.processMapper().updateTicketStatusByEnum(processExec.getId(), ApprovalProcessStatus.FINISH, JsonUtils.toJson(mo));
+        this.approvalStateService.updateProcessStatus(approvalId, ApprovalStage.EXECUTION, ApprovalProcessStatus.FINISH, JsonUtils.toJson(mo));
     }
 
     @Override
@@ -181,11 +182,9 @@ public class AuthApprovalHandler implements ApprovalHandler {
         }
 
         // store instance data to db.
-        List<ApprovalActivityInfo> aaList = createInstance.getActivityList();
-        DmApprovalProcessDO processDO = this.approvalDal.processMapper().queryByStage(ticketDO.getId(), ApprovalStage.APPROVAL);
-        List<DmApprovalProcessActivityDO> approvalProcessActivityDOS = convertToDmApprovalProcessActivityDO(aaList, processDO.getId(), ticketDO.getId());
-        for (DmApprovalProcessActivityDO approvalProcessActivityDO : approvalProcessActivityDOS) {
-            this.approvalDal.activityMapper().insert(approvalProcessActivityDO);
+        for (ApprovalActivityInfo activity : createInstance.getActivityList()) {
+            this.approvalStateService
+                .initializeActivity(ticketDO.getId(), ApprovalStage.APPROVAL, activity.getActivityId(), activity.getActivityName(), activity.getOrder(), null, null);
         }
 
         ticketDO.setApproIdentity(createInstance.getApprovalIdentity());
@@ -225,22 +224,6 @@ public class AuthApprovalHandler implements ApprovalHandler {
         return form;
     }
 
-    private List<DmApprovalProcessActivityDO> convertToDmApprovalProcessActivityDO(List<ApprovalActivityInfo> activityDTOList, Long processId, Long approvalId) {
-        List<DmApprovalProcessActivityDO> result = new ArrayList<>();
-        for (ApprovalActivityInfo aaObj : activityDTOList) {
-            DmApprovalProcessActivityDO activityDO = new DmApprovalProcessActivityDO();
-            activityDO.setActivityId(aaObj.getActivityId());
-            // activityDO.setActivityType(approvalActivity.getApprovalMethod());
-            // activityDO.setActivityStatus(RdpTicketProcessActivityStatus.NEW);
-            activityDO.setActivityTitle(aaObj.getActivityName());
-            activityDO.setProcessId(processId);
-            activityDO.setTicketId(approvalId);
-            activityDO.setOrderNumber(aaObj.getOrder());
-            result.add(activityDO);
-        }
-        return result;
-    }
-
     @Override
     public void approvalCompleted(long approvalId, ApprovalBiz bizType, ImSenderService sender) {
         // do nothing
@@ -248,7 +231,7 @@ public class AuthApprovalHandler implements ApprovalHandler {
 
     @Override
     public void approvalApproved(long approvalId, ApprovalBiz bizType, ImSenderService sender) {
-        this.approvalDal.approvalMapper().updateStatusByEnum(approvalId, ApprovalStatus.WAIT_EXEC, null);
+        this.approvalStateService.updateApprovalStatus(approvalId, ApprovalStatus.WAIT_EXEC, null);
     }
 
     @Override

@@ -17,14 +17,14 @@ package com.clougence.clouddm.console.web.service.asyntask;
 
 import java.util.List;
 
-import com.clougence.clouddm.console.web.component.asyntask.AsyncTaskConfig;
+import com.clougence.clouddm.console.web.component.execute.asyntask.AsyncTaskConfig;
 import com.clougence.clouddm.platform.dal.model.execution.DmExecAsyncTaskDO;
 
 /**
  * @author mode 2019-12-30 17:44
  * @since 1.1.3
  */
-public interface AsyncTaskService {
+public interface AsyncTaskServiceService {
 
     DmExecAsyncTaskDO queryAsyncTaskByBizId(String bizId, String bizType);
 

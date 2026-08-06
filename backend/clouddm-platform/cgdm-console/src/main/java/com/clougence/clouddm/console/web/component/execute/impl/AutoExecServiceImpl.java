@@ -13,10 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.console.web.component.autoexec.impl;
+package com.clougence.clouddm.console.web.component.execute.impl;
 
+import java.io.StringReader;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import java.security.DigestOutputStream;
+import java.security.MessageDigest;
+import java.sql.Timestamp;
 import java.util.*;
 import java.util.stream.Stream;
+import java.util.zip.Deflater;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -26,6 +39,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.clougence.clouddm.api.common.GlobalConfUtils;
 import com.clougence.clouddm.api.common.exception.DmErrorCode;
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.api.console.autoexec.AutoExecTaskPackageInfo;
@@ -35,17 +49,22 @@ import com.clougence.clouddm.api.sidecar.autoexec.AutoExecRService;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.comm.model.RSocketSendDTO;
 import com.clougence.clouddm.comm.model.RSocketSendType;
-import com.clougence.clouddm.console.web.component.autoexec.AutoExecHelperService;
-import com.clougence.clouddm.console.web.component.autoexec.AutoExecJobPackageService;
-import com.clougence.clouddm.console.web.component.autoexec.AutoExecService;
-import com.clougence.clouddm.console.web.component.autoexec.model.AutoExecJobCreateRequest;
+import com.clougence.clouddm.console.web.component.analysis.AnalysisQueryOptions;
+import com.clougence.clouddm.console.web.component.analysis.QueryAnalysisFeature;
+import com.clougence.clouddm.console.web.component.analysis.QueryAnalysisService;
+import com.clougence.clouddm.console.web.component.approval.ApprovalStateService;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
+import com.clougence.clouddm.console.web.component.execute.AutoExecService;
+import com.clougence.clouddm.console.web.component.execute.model.AutoExecCreateMO;
+import com.clougence.clouddm.console.web.component.file.LocalFileService;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.model.vo.DmPageVO;
 import com.clougence.clouddm.console.web.model.vo.ticket.DmAutoExecJobVO;
 import com.clougence.clouddm.console.web.model.vo.ticket.DmAutoExecTaskVO;
+import com.clougence.clouddm.console.web.service.security.AuditService;
 import com.clougence.clouddm.console.web.util.CallUtils;
+import com.clougence.clouddm.console.web.util.DmDsUtils;
 import com.clougence.clouddm.console.web.util.DmTeamUtils;
 import com.clougence.clouddm.console.web.util.MessageUtils;
 import com.clougence.clouddm.platform.dal.access.DataSourceDal;
@@ -56,15 +75,21 @@ import com.clougence.clouddm.platform.dal.access.entry.DsCacheEntry;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.platform.dal.model.execution.*;
 import com.clougence.clouddm.platform.dal.model.system.DmSysWorkerDO;
+import com.clougence.clouddm.platform.dal.model.system.SysAttachmentType;
 import com.clougence.clouddm.platform.dal.util.PageObj;
 import com.clougence.clouddm.platform.dal.util.PageUtils;
 import com.clougence.clouddm.platform.plugin.PluginManager;
+import com.clougence.clouddm.sdk.execute.session.QueryRequest;
+import com.clougence.clouddm.sdk.execute.session.QueryResultConf;
 import com.clougence.clouddm.sdk.execute.session.SessionContextDTO;
 import com.clougence.clouddm.sdk.execute.session.SessionSpi;
+import com.clougence.clouddm.sdk.service.secrules.Requester;
 import com.clougence.clouddm.sdk.sql.parser.SplitScript;
 import com.clougence.schema.umi.struts.UmiTypes;
+import com.clougence.utils.JsonUtils;
 import com.clougence.utils.StringUtils;
 import com.clougence.utils.format.DateFormatType;
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.google.common.base.Utf8;
 
 import jakarta.annotation.Resource;
@@ -75,6 +100,7 @@ import lombok.extern.slf4j.Slf4j;
 public class AutoExecServiceImpl implements AutoExecService {
     private static final int           AUTO_EXEC_TASK_INSERT_BATCH_SIZE = 100;
     private static final long          AUTO_EXEC_TASK_INSERT_MAX_BYTES  = 4L * 1024 * 1024;
+    private static final int           TASK_FETCH_BATCH_SIZE            = 100;
     @Resource
     private SystemDal                  systemDal;
     @Resource
@@ -88,15 +114,19 @@ public class AutoExecServiceImpl implements AutoExecService {
     @Resource
     private DmDsConfigService          configService;
     @Resource
-    private AutoExecHelperService      execHelperService;
+    private ApprovalStateService       approvalStateService;
     @Resource
-    private AutoExecJobPackageService  taskPackageService;
+    private QueryAnalysisService       analysisService;
+    @Resource
+    private AuditService               auditService;
+    @Resource
+    private LocalFileService           localFileService;
     @Resource
     private PlatformTransactionManager txManager;
 
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     @Override
-    public void createJob(AutoExecJobCreateRequest request, Stream<SplitScript> scripts) {
+    public void createJob(AutoExecCreateMO request, Stream<SplitScript> scripts) {
         if (StringUtils.isBlank(request.getJobBizId())) {
             throw new IllegalArgumentException("Auto execution job biz id is required.");
         }
@@ -109,11 +139,9 @@ public class AutoExecServiceImpl implements AutoExecService {
             }
         }
 
-        SQLJobBizType bizType = request.getBizType();
         String bizId = request.getBizId();
         DmExecAutoJobDO job = new DmExecAutoJobDO();
         job.setLevels(request.getDsLevels().dbLevels());
-        job.setDependOnBizType(bizType);
         job.setDataSourceId(request.getDsLevels().dsDO().getId());
         job.setDependOnBizId(bizId);
         job.setBizId(request.getJobBizId());
@@ -155,7 +183,7 @@ public class AutoExecServiceImpl implements AutoExecService {
                 execTask.setExecOrder(order++);
                 execTask.setStatus(AutoExecTaskStatus.WAIT_EXEC);
                 execTask.setAutoExecJobId(job.getId());
-                execTask.setBizId(DmTeamUtils.nextExecTaskBizId(bizType));
+                execTask.setBizId(DmTeamUtils.nextExecTaskBizId());
                 execTask.setQueryId(UUID.randomUUID().toString());
                 taskBatch.add(execTask);
                 taskBatchBytes += scriptBytes;
@@ -203,8 +231,6 @@ public class AutoExecServiceImpl implements AutoExecService {
         if (job == null || this.execDal.autoJobMapper().startPreparedJob(job.getId(), operatorUid) != 1) {
             throw new IllegalStateException("Auto execution job is not ready to start, " + jobIdentity);
         }
-
-        this.execHelperService.getHelper(job.getDependOnBizType()).execStart(job.getDependOnBizType(), job.getBizId());
     }
 
     @Transactional(rollbackFor = Throwable.class)
@@ -232,11 +258,11 @@ public class AutoExecServiceImpl implements AutoExecService {
         }
         AutoExecTaskPackageInfo taskPackage;
         try {
-            taskPackage = this.taskPackageService.create(jobId);
+            taskPackage = this.create(jobId);
         } catch (RuntimeException e) {
             DmExecAutoJobDO failedJob = this.execDal.autoJobMapper().queryById(jobId);
-            if (failedJob != null && this.execDal.autoJobMapper().failPackaging(jobId) == 1) {
-                this.execHelperService.getHelper(failedJob.getDependOnBizType()).execFailed(failedJob.getDependOnBizType(), failedJob.getBizId());
+            if (failedJob != null && this.execDal.autoJobMapper().markJobFailedIfActive(jobId) == 1) {
+                this.approvalStateService.failExecution(failedJob.getDependOnBizId(), null);
             }
             throw e;
         }
@@ -268,11 +294,186 @@ public class AutoExecServiceImpl implements AutoExecService {
             return;
         }
 
+        DmExecAutoJobDO dispatchedJob = this.execDal.autoJobMapper().queryById(jobId);
+        this.approvalStateService.markExecutionDispatched(dispatchedJob.getDependOnBizId());
         try {
             this.execRService.dispatchJob(dispatch.getKey(), dispatch.getValue());
         } catch (Throwable e) {
             log.error("dispatch auto exec job failed, jobId: " + jobId, e);
         }
+    }
+
+    @Override
+    public AutoExecTaskPackageInfo create(long jobId) {
+        DmExecAutoJobDO job = this.execDal.autoJobMapper().queryById(jobId);
+        if (job.getStatus() != AutoExecJobStatus.PACKAGING) {
+            throw new IllegalStateException("Auto execution job is not ready for packaging, jobId: " + jobId);
+        }
+
+        DmDsDO dsDO = this.dsDal.dsMapper().queryDsIdentityById(job.getDataSourceId());
+        DataSourceConfig dsConfig = this.configService.fetchDsConfigFromExists(dsDO.getId());
+        List<String> levels = new ArrayList<>();
+        levels.add(dsDO.getDsEnvId().toString());
+        levels.add(dsDO.getId().toString());
+        levels.addAll(job.getLevels());
+
+        AnalysisQueryOptions options = AnalysisQueryOptions.builder()
+            .currentUid(job.getUid())
+            .dataSourceId(dsDO.getId())
+            .levels(this.configService.parseLevels(levels).levelsParam())
+            .skip(QueryAnalysisFeature.REWRITE)
+            .build();
+
+        QueryRequest template = DmDsUtils.createRequestCtx(dsConfig);
+        template.setRequester(Requester.TICKET);
+        DmDsUtils.fillRequestConfig(Collections.singletonList(template), dsDO.getId());
+        Long requestDsId = template.getDsId();
+        QueryResultConf requestResultConf = template.getResultConf();
+
+        String packageFileName = jobId + ".tasks.zip";
+        Path writingFile = Path.of(GlobalConfUtils.getTempDataHome(), "exec", packageFileName + ".tmp");
+        try {
+            Files.createDirectories(writingFile.getParent());
+            Files.deleteIfExists(writingFile);
+            Files.createFile(writingFile);
+
+            int maxExecOrder = this.execDal.autoTaskMapper().queryNeedExecTaskMaxOrder(jobId);
+            int totalTaskCount = this.execDal.autoTaskMapper().queryNeedExecTaskCount(jobId);
+            int processedTaskCount = 0;
+            this.approvalStateService.reportExecutionPreparationProgress(job.getDependOnBizId(), 0, totalTaskCount);
+            int fileNameWidth = Math.max(1, String.valueOf(maxExecOrder).length());
+            MessageDigest digest = MessageDigest.getInstance("MD5");
+
+            try (DigestOutputStream digestOutput = new DigestOutputStream(Files.newOutputStream(writingFile, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE),
+                digest); ZipOutputStream zipOutput = new ZipOutputStream(digestOutput, StandardCharsets.UTF_8)) {
+                zipOutput.setLevel(Deflater.BEST_SPEED);
+
+                int afterExecOrder = 0;
+                while (true) {
+                    List<Long> taskIds = this.execDal.autoTaskMapper().queryNeedExecTaskIdsBatch(jobId, afterExecOrder, TASK_FETCH_BATCH_SIZE);
+                    if (taskIds.isEmpty()) {
+                        break;
+                    }
+
+                    List<DmExecAutoTaskDO> tasks = this.execDal.autoTaskMapper().queryNeedExecTasksByIds(jobId, taskIds);
+                    if (tasks.size() != taskIds.size()) {
+                        throw new IllegalStateException("Auto execution tasks changed while creating package.");
+                    }
+
+                    ZipEntry entry = new ZipEntry(String.format(Locale.ROOT, "%0" + fileNameWidth + "d", tasks.get(0).getExecOrder()));
+                    entry.setTime(0L);
+                    zipOutput.putNextEntry(entry);
+                    try (JsonGenerator jsonOutput = JsonUtils.defaultObjectMapper().getFactory().createGenerator(zipOutput)) {
+                        jsonOutput.disable(JsonGenerator.Feature.AUTO_CLOSE_TARGET);
+                        jsonOutput.setRootValueSeparator(null);
+                        for (DmExecAutoTaskDO task : tasks) {
+                            if (this.execDal.autoJobMapper().heartbeatPackaging(jobId) != 1) {
+                                throw new IllegalStateException("Auto execution job stopped while creating task package.");
+                            }
+                            try (StringReader reader = new StringReader(task.getExecSql());
+                                    Stream<QueryRequest> analyzed = this.analysisService.analysisRequestsStream(dsConfig, reader, Collections.emptyList(), 1, 0, options)) {
+                                Iterator<QueryRequest> iterator = analyzed.iterator();
+                                if (!iterator.hasNext()) {
+                                    throw new IllegalStateException("Auto execution task must contain exactly one SQL statement.");
+                                }
+
+                                QueryRequest source = iterator.next();
+                                if (iterator.hasNext()) {
+                                    throw new IllegalStateException("Auto execution task must contain exactly one SQL statement.");
+                                }
+
+                                QueryRequest request = DmDsUtils.createRequestCtx(dsConfig);
+                                request.setQueryId(task.getQueryId());
+                                request.setQueryBody(source.getQueryBody());
+                                request.setQueryArgs(source.getQueryArgs());
+                                request.setQueryTypes(source.getQueryTypes());
+                                request.setDsId(requestDsId);
+                                request.setDsType(source.getDsType());
+                                request.setRelations(source.getRelations());
+                                request.setColumnList(source.getColumnList());
+                                request.setUsingValueProcess(source.isUsingValueProcess());
+                                request.setRequester(Requester.TICKET);
+                                request.setRequestTime(Timestamp.valueOf(task.getGmtCreate()));
+                                request.setResultConf(requestResultConf.clone());
+                                this.auditService.prepareAudit(dsDO.getId(), job.getUid(), request);
+                                JsonUtils.defaultObjectMapper().writeValue(jsonOutput, request);
+                                jsonOutput.writeRaw('\n');
+                            }
+                            processedTaskCount++;
+                            if (processedTaskCount == totalTaskCount || processedTaskCount % 10 == 0) {
+                                this.approvalStateService.reportExecutionPreparationProgress(job.getDependOnBizId(), processedTaskCount, totalTaskCount);
+                            }
+                        }
+                    }
+                    zipOutput.closeEntry();
+                    afterExecOrder = tasks.get(tasks.size() - 1).getExecOrder();
+                }
+            }
+
+            String md5 = HexFormat.of().formatHex(digest.digest());
+            long fileSize = Files.size(writingFile);
+            long attachmentId = this.localFileService.addAsEditing(job.getUid(), writingFile, packageFileName, SysAttachmentType.SQL_FILE_TASK);
+            AutoExecTaskPackageInfo info = new AutoExecTaskPackageInfo();
+            info.setAttachmentId(attachmentId);
+            info.setFileSize(fileSize);
+            info.setMd5(md5);
+            return info;
+        } catch (Exception e) {
+            try {
+                Files.deleteIfExists(writingFile);
+            } catch (Exception deleteError) {
+                log.warn("delete incomplete auto execution task package failed: {}", writingFile, deleteError);
+            }
+            throw new IllegalStateException("Create auto execution task package failed, jobId: " + jobId, e);
+        }
+    }
+
+    @Override
+    public byte[] read(long jobId, long attachmentId, long offset, int length) {
+        if (offset < 0 || length <= 0) {
+            throw new IllegalArgumentException("Invalid auto execution task package read range.");
+        }
+        DmExecAutoJobDO job = this.requireJob(jobId);
+        return this.localFileService.consumeEditing(job.getUid(), attachmentId, packageFile -> {
+            try (FileChannel channel = FileChannel.open(packageFile, StandardOpenOption.READ)) {
+                long fileSize = channel.size();
+                if (offset >= fileSize) {
+                    this.localFileService.renewEditing(job.getUid(), attachmentId);
+                    return new byte[0];
+                }
+
+                int readLength = (int) Math.min(length, fileSize - offset);
+                ByteBuffer buffer = ByteBuffer.allocate(readLength);
+                channel.position(offset);
+                while (buffer.hasRemaining() && channel.read(buffer) >= 0) {
+                    // Continue until the requested block is full or EOF is reached.
+                }
+
+                byte[] result;
+                if (buffer.position() == readLength) {
+                    result = buffer.array();
+                } else {
+                    result = new byte[buffer.position()];
+                    buffer.flip();
+                    buffer.get(result);
+                }
+                this.localFileService.renewEditing(job.getUid(), attachmentId);
+                return result;
+            }
+        });
+    }
+
+    @Override
+    public void delete(long attachmentId) {
+        this.localFileService.deleteRecord(attachmentId);
+    }
+
+    private DmExecAutoJobDO requireJob(long jobId) {
+        DmExecAutoJobDO job = this.execDal.autoJobMapper().queryById(jobId);
+        if (job == null) {
+            throw new IllegalStateException("Auto execution job does not exist, jobId: " + jobId);
+        }
+        return job;
     }
 
     private AutoExecJobDTO prepareJobData(DmExecAutoJobDO job, AutoExecTaskPackageInfo taskPackage) {
@@ -304,8 +505,8 @@ public class AutoExecServiceImpl implements AutoExecService {
     }
 
     @Override
-    public void continueTask(String bizId, SQLJobBizType type, long taskId) {
-        DmExecAutoJobDO job = requireJob(bizId, type);
+    public void continueTask(String bizId, long taskId) {
+        DmExecAutoJobDO job = requireJob(bizId);
         if (job.getStatus() != AutoExecJobStatus.PAUSE && job.getStatus() != AutoExecJobStatus.FAILED) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_WRONG_OPERATE_ERROR_MESSAGE.name()));
         }
@@ -322,8 +523,8 @@ public class AutoExecServiceImpl implements AutoExecService {
     }
 
     @Override
-    public boolean skipTask(String bizId, SQLJobBizType type, long taskId) {
-        DmExecAutoJobDO job = requireJob(bizId, type);
+    public boolean skipTask(String bizId, long taskId) {
+        DmExecAutoJobDO job = requireJob(bizId);
         if (job.getStatus() != AutoExecJobStatus.PAUSE && job.getStatus() != AutoExecJobStatus.FAILED) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_WRONG_OPERATE_ERROR_MESSAGE.name()));
         }
@@ -341,15 +542,15 @@ public class AutoExecServiceImpl implements AutoExecService {
         int count = this.execDal.autoTaskMapper().queryNeedExecTaskCount(job.getId());
         if (count == 0) {
             this.execDal.autoJobMapper().finishJob(job.getId());
-            this.execHelperService.getHelper(type).execCompleted(job.getDependOnBizType(), job.getBizId());
+            this.approvalStateService.completeExecution(job.getDependOnBizId());
             return true;
         }
         return false;
     }
 
     @Override
-    public DmAutoExecJobVO queryAutoExecJob(String bizId, SQLJobBizType type, boolean canOperate) {
-        DmExecAutoJobDO job = this.execDal.autoJobMapper().queryByDependOnBiz(bizId, type);
+    public DmAutoExecJobVO queryAutoExecJob(String bizId, boolean canOperate) {
+        DmExecAutoJobDO job = this.execDal.autoJobMapper().queryByDependOnBizId(bizId);
         if (job == null) {
             return null;
         }
@@ -407,15 +608,15 @@ public class AutoExecServiceImpl implements AutoExecService {
 
     @Transactional(rollbackFor = Throwable.class)
     @Override
-    public void stopJob(String bizId, SQLJobBizType type) {
-        DmExecAutoJobDO job = requireJob(bizId, type);
+    public void stopJob(String bizId) {
+        DmExecAutoJobDO job = requireJob(bizId);
         this.stopJob(job.getId());
     }
 
     @Transactional(rollbackFor = Throwable.class)
     @Override
-    public void endJob(String bizId, SQLJobBizType type) {
-        DmExecAutoJobDO job = this.execDal.autoJobMapper().queryByDependOnBiz(bizId, type);
+    public void endJob(String bizId) {
+        DmExecAutoJobDO job = this.execDal.autoJobMapper().queryByDependOnBizId(bizId);
         if (job == null || job.getStatus() == AutoExecJobStatus.TERMINATION) {
             return;
         }
@@ -426,13 +627,13 @@ public class AutoExecServiceImpl implements AutoExecService {
         job.setStatus(AutoExecJobStatus.TERMINATION);
         execDal.autoJobMapper().updateById(job);
         execDal.autoTaskMapper().cancelAllWaitTask(job.getId());
-        this.execHelperService.getHelper(type).execAbort(job.getDependOnBizType(), job.getBizId());
+        this.approvalStateService.cancelExecution(job.getDependOnBizId());
     }
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
-    public void retryJob(String bizId, SQLJobBizType type) {
-        DmExecAutoJobDO job = requireJob(bizId, type);
+    public void retryJob(String bizId) {
+        DmExecAutoJobDO job = requireJob(bizId);
         if (job.getStatus() != AutoExecJobStatus.FAILED && job.getStatus() != AutoExecJobStatus.PAUSE) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_RETRY_JOB_ERROR_MESSAGE.name()));
         }
@@ -446,21 +647,9 @@ public class AutoExecServiceImpl implements AutoExecService {
     }
 
     @Override
-    public DmPageVO<DmAutoExecTaskVO> queryAutoExecTaskList(String bizId, SQLJobBizType type, boolean canOperate, AutoExecTaskStatus status, PageObj pageDO) {
+    public DmPageVO<DmAutoExecTaskVO> queryAutoExecTaskSummaryList(String bizId, boolean canOperate, AutoExecTaskStatus status, PageObj pageDO, int sqlSummaryLength) {
         Page<?> page = PageUtils.startPage(pageDO);
-        DmExecAutoJobDO job = this.execDal.autoJobMapper().queryByDependOnBiz(bizId, type);
-        if (job == null) {
-            return new DmPageVO<>(page);
-        }
-        IPage<DmExecAutoTaskDO> iPage = this.execDal.autoTaskMapper().queryListByJobId(page, job.getId(), status);
-        return this.convertTaskPage(job, canOperate, iPage);
-    }
-
-    @Override
-    public DmPageVO<DmAutoExecTaskVO> queryAutoExecTaskSummaryList(String bizId, SQLJobBizType type, boolean canOperate, AutoExecTaskStatus status, PageObj pageDO,
-                                                                   int sqlSummaryLength) {
-        Page<?> page = PageUtils.startPage(pageDO);
-        DmExecAutoJobDO job = this.execDal.autoJobMapper().queryByDependOnBiz(bizId, type);
+        DmExecAutoJobDO job = this.execDal.autoJobMapper().queryByDependOnBizId(bizId);
         if (job == null) {
             return new DmPageVO<>(page);
         }
@@ -494,8 +683,8 @@ public class AutoExecServiceImpl implements AutoExecService {
     }
 
     @Override
-    public String queryAutoExecTaskSql(String bizId, SQLJobBizType type, long taskId) {
-        DmExecAutoJobDO job = this.requireJob(bizId, type);
+    public String queryAutoExecTaskSql(String bizId, long taskId) {
+        DmExecAutoJobDO job = this.requireJob(bizId);
         DmExecAutoTaskDO task = this.execDal.autoTaskMapper().selectById(taskId);
         if (task == null || !job.getId().equals(task.getAutoExecJobId())) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_WRONG_OPERATE_ERROR_MESSAGE.name()));
@@ -503,8 +692,8 @@ public class AutoExecServiceImpl implements AutoExecService {
         return task.getExecSql();
     }
 
-    private DmExecAutoJobDO requireJob(String bizId, SQLJobBizType type) {
-        DmExecAutoJobDO job = this.execDal.autoJobMapper().queryByDependOnBiz(bizId, type);
+    private DmExecAutoJobDO requireJob(String bizId) {
+        DmExecAutoJobDO job = this.execDal.autoJobMapper().queryByDependOnBizId(bizId);
         if (job == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_WRONG_OPERATE_ERROR_MESSAGE.name()));
         }

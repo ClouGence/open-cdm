@@ -27,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.clougence.clouddm.console.web.component.approval.ApprovalHandler;
 import com.clougence.clouddm.console.web.component.approval.ApprovalService;
+import com.clougence.clouddm.console.web.component.approval.ApprovalStateService;
 import com.clougence.clouddm.console.web.component.cicd.ImSenderService;
 import com.clougence.clouddm.console.web.component.config.UserConfigService;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
@@ -41,7 +42,6 @@ import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.clouddm.platform.dal.model.auth.RsAuthPersonObj;
 import com.clougence.clouddm.platform.dal.model.execution.AutoExecJobStatus;
 import com.clougence.clouddm.platform.dal.model.execution.DmExecAutoJobDO;
-import com.clougence.clouddm.platform.dal.model.execution.SQLJobBizType;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.approval.ApprovalActivityInfo;
 import com.clougence.clouddm.sdk.approval.ApprovalCreateInstanceResult;
@@ -61,17 +61,19 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 public class QueryApprovalHandler implements ApprovalHandler {
-    private static final int  EXTERNAL_APPROVAL_SQL_MAX_CHARS = 4000;
+    private static final int     EXTERNAL_APPROVAL_SQL_MAX_CHARS = 4000;
     @Resource
-    private ExecutionDal      execDal;
+    private ExecutionDal         execDal;
     @Resource
-    private AuthDal           authDal;
+    private AuthDal              authDal;
     @Resource
-    private ApprovalDal       approvalDal;
+    private ApprovalDal          approvalDal;
     @Resource
-    private ApprovalService   approvalService;
+    private ApprovalService      approvalService;
     @Resource
-    private UserConfigService userConfigService;
+    private ApprovalStateService approvalStateService;
+    @Resource
+    private UserConfigService    userConfigService;
 
     @Override
     public ApprovalBiz handleType() {
@@ -82,40 +84,39 @@ public class QueryApprovalHandler implements ApprovalHandler {
     @Override
     public void executeTicket(long approvalId, ApprovalBiz bizType, ImSenderService sender) {
         DmApprovalDO ticketDO = this.approvalDal.approvalMapper().queryById(approvalId);
-        DmExecAutoJobDO jobDO = this.execDal.autoJobMapper().queryByDependOnBiz(ticketDO.getBizId(), SQLJobBizType.TICKET);
+        DmExecAutoJobDO jobDO = this.execDal.autoJobMapper().queryByDependOnBizId(ticketDO.getBizId());
         if (jobDO == null) {
             return;
         }
 
-        AutoExecJobStatus status = jobDO.getStatus();
-        if (status == AutoExecJobStatus.WAIT_EXEC || status == AutoExecJobStatus.EXECUTING) {
-            approvalDal.approvalMapper().updateStatusByEnum(approvalId, ApprovalStatus.RUNNING, null);
-        } else if (status == AutoExecJobStatus.INIT || status == AutoExecJobStatus.PREPARING || status == AutoExecJobStatus.PACKAGING) {
-
-        } else {
-            runningCheck(approvalId, status);
-        }
+        this.updateExecutionStatus(approvalId, jobDO.getStatus());
     }
 
     @Transactional(rollbackFor = Throwable.class)
     @Override
     public void runningCheck(long approvalId, ApprovalBiz bizType, ImSenderService sender) {
         DmApprovalDO ticketDO = this.approvalDal.approvalMapper().queryById(approvalId);
-        DmExecAutoJobDO jobDO = this.execDal.autoJobMapper().queryByDependOnBiz(ticketDO.getBizId(), SQLJobBizType.TICKET);
-        AutoExecJobStatus status = jobDO.getStatus();
-        runningCheck(approvalId, status);
+        DmExecAutoJobDO jobDO = this.execDal.autoJobMapper().queryByDependOnBizId(ticketDO.getBizId());
+        this.updateExecutionStatus(approvalId, jobDO.getStatus());
     }
 
-    private void runningCheck(long ticketId, AutoExecJobStatus status) {
-        if (status == AutoExecJobStatus.FINISH) {
-            approvalDal.approvalMapper().updateStatusByEnum(ticketId, ApprovalStatus.FINISHED, null);
-            approvalDal.processMapper().updateProcessStatusByTicketIdAndStage(ticketId, ApprovalStage.EXECUTION, ApprovalProcessStatus.FINISH);
-        } else if (status == AutoExecJobStatus.FAILED) {
-            approvalDal.approvalMapper().updateStatusByEnum(ticketId, ApprovalStatus.EXEC_FAIL, null);
-            approvalDal.processMapper().updateProcessStatusByTicketIdAndStage(ticketId, ApprovalStage.EXECUTION, ApprovalProcessStatus.FAIL);
-        } else if (status == AutoExecJobStatus.PAUSE) {
-            approvalDal.approvalMapper().updateStatusByEnum(ticketId, ApprovalStatus.EXEC_PAUSE, null);
-            approvalDal.processMapper().updateProcessStatusByTicketIdAndStage(ticketId, ApprovalStage.EXECUTION, ApprovalProcessStatus.PAUSE);
+    private void updateExecutionStatus(long approvalId, AutoExecJobStatus status) {
+        switch (status) {
+            case FINISH -> {
+                this.approvalStateService.updateProcessStatus(approvalId, ApprovalStage.EXECUTION, ApprovalProcessStatus.FINISH, null);
+                this.approvalStateService.updateApprovalStatus(approvalId, ApprovalStatus.FINISHED, null);
+            }
+            case FAILED -> {
+                this.approvalStateService.updateProcessStatus(approvalId, ApprovalStage.EXECUTION, ApprovalProcessStatus.FAIL, null);
+                this.approvalStateService.updateApprovalStatus(approvalId, ApprovalStatus.EXEC_FAIL, null);
+            }
+            case PAUSE -> {
+                this.approvalStateService.updateProcessStatus(approvalId, ApprovalStage.EXECUTION, ApprovalProcessStatus.PAUSE, null);
+                this.approvalStateService.updateApprovalStatus(approvalId, ApprovalStatus.EXEC_PAUSE, null);
+            }
+            default -> {
+                // Execution progress states are synchronized by execution callbacks.
+            }
         }
     }
 
@@ -174,11 +175,9 @@ public class QueryApprovalHandler implements ApprovalHandler {
             throw e;
         }
 
-        List<ApprovalActivityInfo> aaObj = createInstance.getActivityList();
-        DmApprovalProcessDO processDO = this.approvalDal.processMapper().queryByStage(ticketDO.getId(), ApprovalStage.APPROVAL);
-        List<DmApprovalProcessActivityDO> approvalProcessActivityDOS = convertToDmApprovalProcessActivityDO(aaObj, processDO.getId(), ticketDO.getId());
-        for (DmApprovalProcessActivityDO approvalProcessActivityDO : approvalProcessActivityDOS) {
-            approvalDal.activityMapper().insert(approvalProcessActivityDO);
+        for (ApprovalActivityInfo activity : createInstance.getActivityList()) {
+            this.approvalStateService
+                .initializeActivity(ticketDO.getId(), ApprovalStage.APPROVAL, activity.getActivityId(), activity.getActivityName(), activity.getOrder(), null, null);
         }
         String url = null;
         if (createInstance.getApprovalUrl() != null) {
@@ -194,7 +193,7 @@ public class QueryApprovalHandler implements ApprovalHandler {
 
     @Override
     public void approvalApproved(long approvalId, ApprovalBiz bizType, ImSenderService sender) {
-        approvalDal.approvalMapper().updateStatusByEnum(approvalId, ApprovalStatus.WAIT_CONFIRM, null);
+        this.approvalStateService.updateApprovalStatus(approvalId, ApprovalStatus.WAIT_CONFIRM, null);
     }
 
     @Override
@@ -210,22 +209,6 @@ public class QueryApprovalHandler implements ApprovalHandler {
     @Override
     public void approvalCanceled(long approvalId, ApprovalBiz bizType, ImSenderService sender) {
         // do nothing
-    }
-
-    private List<DmApprovalProcessActivityDO> convertToDmApprovalProcessActivityDO(List<ApprovalActivityInfo> activityDTOList, Long processId, long approvalId) {
-        List<DmApprovalProcessActivityDO> result = new ArrayList<>();
-        for (ApprovalActivityInfo aaObj : activityDTOList) {
-            DmApprovalProcessActivityDO activityDO = new DmApprovalProcessActivityDO();
-            activityDO.setActivityId(aaObj.getActivityId());
-            // activityDO.setActivityType(approvalActivity.getApprovalMethod());
-            // activityDO.setActivityStatus(RdpTicketProcessActivityStatus.NEW);
-            activityDO.setActivityTitle(aaObj.getActivityName());
-            activityDO.setProcessId(processId);
-            activityDO.setTicketId(approvalId);
-            activityDO.setOrderNumber(aaObj.getOrder());
-            result.add(activityDO);
-        }
-        return result;
     }
 
     private QueryForm buildExternalApprovalForm(DmApprovalDO approvalDO, String templateId) {

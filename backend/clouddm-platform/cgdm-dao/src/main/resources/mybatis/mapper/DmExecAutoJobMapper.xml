@@ -8,7 +8,6 @@
         <result column="gmt_modified" property="gmtModified"/>
         <result column="data_source_id" property="dataSourceId"/>
         <result column="uid" property="uid"/>
-        <result column="depend_on_biz_type" property="dependOnBizType"/>
         <result column="depend_on_biz_id" property="dependOnBizId"/>
         <result column="query_id" property="queryId"/>
         <result column="status" property="status"/>
@@ -32,7 +31,6 @@
         levels,
         query_id,
         biz_id,
-        depend_on_biz_type,
         depend_on_biz_id,
         status,
         end_time,
@@ -114,12 +112,6 @@
         where id = #{jobId}
           and status = 'PACKAGING'
     </update>
-    <update id="failPackaging">
-        update dm_exec_auto_job
-        set status = 'FAILED'
-        where id = #{jobId}
-          and status = 'PACKAGING'
-    </update>
     <update id="updateOverOutJob">
         update dm_exec_auto_job
         set status = 'INIT'
@@ -188,12 +180,11 @@
             from dm_exec_auto_job
         where id = #{id} for update
     </select>
-    <select id="queryByDependOnBiz" resultMap="autoExecJobDO">
+    <select id="queryByDependOnBizId" resultMap="autoExecJobDO">
         select
         <include refid="sqlJob"/>
         from dm_exec_auto_job
         where depend_on_biz_id = #{bizId}
-          and depend_on_biz_type = #{bizType}
     </select>
     <select id="queryErrorJob" resultMap="autoExecJobDO">
         select

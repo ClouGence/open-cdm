@@ -25,8 +25,8 @@ import com.clougence.clouddm.api.console.autoexec.ExecJobRService;
 import com.clougence.clouddm.api.sidecar.autoexec.AutoExecMessageDTO;
 import com.clougence.clouddm.comm.RSocketApiClass;
 import com.clougence.clouddm.comm.model.auth.WorkerIdentity;
-import com.clougence.clouddm.console.web.component.autoexec.AutoExecHelperService;
-import com.clougence.clouddm.console.web.component.autoexec.AutoExecJobPackageService;
+import com.clougence.clouddm.console.web.component.approval.ApprovalStateService;
+import com.clougence.clouddm.console.web.component.execute.AutoExecService;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.platform.dal.access.ExecutionDal;
@@ -48,13 +48,13 @@ import lombok.extern.slf4j.Slf4j;
 @RSocketApiClass
 public class ExecJobRServiceProvider extends AbstractBasicProvider implements ExecJobRService {
     @Resource
-    private MonitorDal                monitorDal;
+    private MonitorDal           monitorDal;
     @Resource
-    private ExecutionDal              execDal;
+    private ExecutionDal         execDal;
     @Resource
-    private AutoExecHelperService     execHelperService;
+    private ApprovalStateService approvalStateService;
     @Resource
-    private AutoExecJobPackageService taskPackageService;
+    private AutoExecService      autoExecService;
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
@@ -62,7 +62,12 @@ public class ExecJobRServiceProvider extends AbstractBasicProvider implements Ex
         if (!checkAccessKey(identity)) {
             return false;
         }
-        return this.execDal.autoJobMapper().startJob(jobId, identity.getWorkerSeqNumber()) > 0;
+
+        DmExecAutoJobDO job = this.execDal.autoJobMapper().selectById(jobId);
+        if (job == null || this.execDal.autoJobMapper().startJob(jobId, identity.getWorkerSeqNumber()) <= 0) {
+            return false;
+        }
+        return true;
     }
 
     @Override
@@ -75,7 +80,7 @@ public class ExecJobRServiceProvider extends AbstractBasicProvider implements Ex
             throw new IllegalStateException("Auto execution job is not owned by current worker, jobId: " + jobId);
         }
 
-        return this.taskPackageService.read(jobId, attachmentId, offset, length);
+        return this.autoExecService.read(jobId, attachmentId, offset, length);
     }
 
     @Override
@@ -123,7 +128,7 @@ public class ExecJobRServiceProvider extends AbstractBasicProvider implements Ex
                 case JOB_FINISH: {
                     jobFinish(message);
                     if (message.getAttachmentId() != null) {
-                        this.taskPackageService.delete(message.getAttachmentId());
+                        this.autoExecService.delete(message.getAttachmentId());
                     }
                     break;
                 }
@@ -203,7 +208,7 @@ public class ExecJobRServiceProvider extends AbstractBasicProvider implements Ex
         }
         this.jobLog(Loglevel.ERROR, DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_CREATE_SESSION_ERROR_MESSAGE.name(), dto.getMessage()), dto.getJobId());
 
-        this.execHelperService.getHelper(jobDO.getDependOnBizType()).execFailed(jobDO.getDependOnBizType(), jobDO.getBizId());
+        this.approvalStateService.failExecution(jobDO.getDependOnBizId(), null);
     }
 
     private void jobPrepareFailed(AutoExecMessageDTO dto) {
@@ -212,7 +217,7 @@ public class ExecJobRServiceProvider extends AbstractBasicProvider implements Ex
             return;
         }
         this.jobLog(Loglevel.ERROR, DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_JOB_PREPARE_ERROR_MESSAGE.name(), dto.getMessage()), dto.getJobId());
-        this.execHelperService.getHelper(jobDO.getDependOnBizType()).execFailed(jobDO.getDependOnBizType(), jobDO.getBizId());
+        this.approvalStateService.failExecution(jobDO.getDependOnBizId(), null);
     }
 
     private void jobFinish(AutoExecMessageDTO dto) {
@@ -225,7 +230,7 @@ public class ExecJobRServiceProvider extends AbstractBasicProvider implements Ex
         }
         this.jobLog(Loglevel.INFO, DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_JOB_FINISH_MESSAGE.name()), dto.getJobId());
 
-        this.execHelperService.getHelper(jobDO.getDependOnBizType()).execCompleted(jobDO.getDependOnBizType(), jobDO.getBizId());
+        this.approvalStateService.completeExecution(jobDO.getDependOnBizId());
     }
 
     private void jobFailed(AutoExecMessageDTO dto) {
@@ -240,7 +245,7 @@ public class ExecJobRServiceProvider extends AbstractBasicProvider implements Ex
         String msg = DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_JOB_FAILED_MESSAGE.name(), taskDO.getExecOrder(), taskDO.getExecSql());
         this.jobLog(Loglevel.ERROR, msg, dto.getJobId());
 
-        this.execHelperService.getHelper(jobDO.getDependOnBizType()).execFailed(jobDO.getDependOnBizType(), jobDO.getBizId());
+        this.approvalStateService.failExecution(jobDO.getDependOnBizId(), null);
     }
 
     private void taskWaitConfirm(AutoExecMessageDTO message) {
@@ -288,6 +293,11 @@ public class ExecJobRServiceProvider extends AbstractBasicProvider implements Ex
         taskDO.setStatus(AutoExecTaskStatus.EXECUTING);
         taskDO.setGmtLastStart(message.getTime());
         execDal.autoTaskMapper().updateById(taskDO);
+
+        DmExecAutoJobDO jobDO = this.execDal.autoJobMapper().selectById(taskDO.getAutoExecJobId());
+        if (jobDO != null) {
+            this.approvalStateService.markExecutionRunning(jobDO.getDependOnBizId());
+        }
     }
 
     private void jobLog(Loglevel logLevel, String message, Long jobId) {

@@ -52,11 +52,6 @@ public abstract class AbstractSplitAnalysisSpi implements SplitAnalysisSpi {
 
     protected abstract AntlrStatementParser statementParser();
 
-    /** Stable value containing parser features which affect semantic predicates. */
-    protected Object predictionCacheScope() {
-        return null;
-    }
-
     protected void beforeSplitStream() {
     }
 
@@ -143,6 +138,11 @@ public abstract class AbstractSplitAnalysisSpi implements SplitAnalysisSpi {
             parser.addParseListener(new SplitListener(tokens, new LocationCursor(sourceReader, new CodeLocation(baseLine, baseColumn)), resultConsumer));
             this.parseRoot(parser);
         }
+    }
+
+    /** Stable value containing parser features which affect semantic predicates. */
+    protected Object predictionCacheScope() {
+        return null;
     }
 
     private final class SplitListener implements ParseTreeListener {

@@ -13,22 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.console.web.component.autoexec;
+package com.clougence.clouddm.console.web.component.execute;
 
 import java.util.stream.Stream;
 
-import com.clougence.clouddm.console.web.component.autoexec.model.AutoExecJobCreateRequest;
+import com.clougence.clouddm.api.console.autoexec.AutoExecTaskPackageInfo;
+import com.clougence.clouddm.console.web.component.execute.model.AutoExecCreateMO;
 import com.clougence.clouddm.console.web.model.vo.DmPageVO;
 import com.clougence.clouddm.console.web.model.vo.ticket.DmAutoExecJobVO;
 import com.clougence.clouddm.console.web.model.vo.ticket.DmAutoExecTaskVO;
 import com.clougence.clouddm.platform.dal.model.execution.AutoExecTaskStatus;
-import com.clougence.clouddm.platform.dal.model.execution.SQLJobBizType;
 import com.clougence.clouddm.platform.dal.util.PageObj;
 import com.clougence.clouddm.sdk.sql.parser.SplitScript;
 
 public interface AutoExecService {
 
-    void createJob(AutoExecJobCreateRequest request, Stream<SplitScript> scripts);
+    void createJob(AutoExecCreateMO request, Stream<SplitScript> scripts);
 
     void startJob(String jobBizId, String operatorUid);
 
@@ -36,21 +36,28 @@ public interface AutoExecService {
 
     void dispatchJob(Long jobId);
 
-    boolean skipTask(String bizId, SQLJobBizType type, long taskId);
+    boolean skipTask(String bizId, long taskId);
 
-    void continueTask(String bizId, SQLJobBizType type, long taskId);
+    void continueTask(String bizId, long taskId);
 
-    void retryJob(String bizId, SQLJobBizType type);
+    void retryJob(String bizId);
 
-    void endJob(String bizId, SQLJobBizType type);
+    void endJob(String bizId);
 
-    void stopJob(String bizId, SQLJobBizType type);
+    void stopJob(String bizId);
 
-    DmAutoExecJobVO queryAutoExecJob(String bizId, SQLJobBizType type, boolean canOperate);
+    DmAutoExecJobVO queryAutoExecJob(String bizId, boolean canOperate);
 
-    DmPageVO<DmAutoExecTaskVO> queryAutoExecTaskList(String bizId, SQLJobBizType type, boolean canOperate, AutoExecTaskStatus status, PageObj page);
+    DmPageVO<DmAutoExecTaskVO> queryAutoExecTaskSummaryList(String bizId, boolean canOperate, AutoExecTaskStatus status, PageObj page, int sqlSummaryLength);
 
-    DmPageVO<DmAutoExecTaskVO> queryAutoExecTaskSummaryList(String bizId, SQLJobBizType type, boolean canOperate, AutoExecTaskStatus status, PageObj page, int sqlSummaryLength);
+    String queryAutoExecTaskSql(String bizId, long taskId);
 
-    String queryAutoExecTaskSql(String bizId, SQLJobBizType type, long taskId);
+    //
+
+    AutoExecTaskPackageInfo create(long jobId);
+
+    byte[] read(long jobId, long attachmentId, long offset, int length);
+
+    void delete(long attachmentId);
+
 }

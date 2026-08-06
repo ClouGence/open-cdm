@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.console.web.component.asyntask;
+package com.clougence.clouddm.console.web.component.execute.asyntask;
 
 import java.util.List;
 import java.util.Map;
@@ -30,6 +30,7 @@ import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
 import com.clougence.clouddm.console.web.component.config.ConsoleConfig;
+import com.clougence.clouddm.console.web.component.execute.AsyncTaskService;
 import com.clougence.clouddm.console.web.global.events.DmGlobalEventBus;
 import com.clougence.clouddm.console.web.util.RdpTimerUtils;
 import com.clougence.clouddm.platform.dal.access.ExecutionDal;
@@ -52,7 +53,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Service
-public class AsyncTaskScheduleServiceImpl implements AsyncTaskScheduleService, UnifiedPostConstruct {
+public class AsyncTaskServiceImpl implements AsyncTaskService, UnifiedPostConstruct {
     @Resource
     private ExecutionDal         executionDal;
     @Resource

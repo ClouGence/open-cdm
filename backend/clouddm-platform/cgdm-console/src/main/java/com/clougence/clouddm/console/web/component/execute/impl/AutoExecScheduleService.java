@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.console.web.component.autoexec.impl;
+package com.clougence.clouddm.console.web.component.execute.impl;
 
 import java.util.Collections;
 import java.util.Date;
@@ -26,8 +26,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
-import com.clougence.clouddm.console.web.component.autoexec.AutoExecService;
 import com.clougence.clouddm.console.web.component.config.ConsoleConfig;
+import com.clougence.clouddm.console.web.component.execute.AutoExecService;
 import com.clougence.clouddm.console.web.global.notify.DmWorkerRegisterNotify;
 import com.clougence.clouddm.platform.dal.access.ExecutionDal;
 import com.clougence.utils.ExceptionUtils;
@@ -38,7 +38,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
-public class AutoExecScheduleServiceImpl implements UnifiedPostConstruct, DmWorkerRegisterNotify {
+public class AutoExecScheduleService implements UnifiedPostConstruct, DmWorkerRegisterNotify {
 
     @Resource
     private ExecutionDal                executionDal;

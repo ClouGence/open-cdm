@@ -28,15 +28,10 @@ import org.antlr.v4.runtime.dfa.DFA;
 /** Fixed-size pool of exclusively leased ANTLR prediction caches. */
 final class AntlrPredictionCaches {
 
-    static final String            SLOTS_PROPERTY             = "com.clougence.sql.antlr.cacheSlots";
-    static final String            MAX_SLOTS_PER_KEY_PROPERTY = "com.clougence.sql.antlr.maxSlotsPerKey";
-    static final String            MAX_DFA_STATES_PROPERTY    = "com.clougence.sql.antlr.maxDfaStatesPerSlot";
-    private static final int       DEFAULT_SLOTS              = Math.max(1, Runtime.getRuntime().availableProcessors());
-    private static final int       DEFAULT_MAX_SLOTS_PER_KEY  = 3;
-    private static final int       DEFAULT_MAX_DFA_STATES     = 2_000;
-    private static final CachePool CACHE_POOL                 = new CachePool(configuredPositive(SLOTS_PROPERTY, DEFAULT_SLOTS),
-        configuredPositive(MAX_SLOTS_PER_KEY_PROPERTY, DEFAULT_MAX_SLOTS_PER_KEY),
-        configuredPositive(MAX_DFA_STATES_PROPERTY, DEFAULT_MAX_DFA_STATES));
+    private static final int       DEFAULT_SLOTS             = Math.max(1, Runtime.getRuntime().availableProcessors());
+    private static final int       DEFAULT_MAX_SLOTS_PER_KEY = 3;
+    private static final int       DEFAULT_MAX_DFA_STATES    = 2_000;
+    private static final CachePool CACHE_POOL                = new CachePool(DEFAULT_SLOTS, DEFAULT_MAX_SLOTS_PER_KEY, DEFAULT_MAX_DFA_STATES);
 
     private AntlrPredictionCaches(){
     }

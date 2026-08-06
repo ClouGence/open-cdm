@@ -192,7 +192,23 @@
               <!--                <Icon type="ios-link" />-->
               <!--              </a>-->
             </div>
-            <div class="step-item-item" style="flex-grow: 3">
+            <div v-if="process.ticketStage === 'EXECUTION'" class="execution-progress-list">
+              <div class="execution-progress-row execution-progress-header">
+                <div>{{ $t('ticket-execution-process') }}</div>
+                <div>{{ $t('zhuang-tai') }}</div>
+                <div>{{ $t('ticket-execution-progress') }}</div>
+              </div>
+              <div class="execution-progress-row" v-for="activity in process.activityList" :key="activity.activityTitle">
+                <div>{{ executionActivityTitle(activity.activityTitle) }}</div>
+                <div>
+                  <span :class="['analysis-item-status', analysisStatusClass(activity.activityStatus)]">
+                    {{ executionStatusText(activity.activityStatus) }}
+                  </span>
+                </div>
+                <div>{{ executionProgressText(activity) }}</div>
+              </div>
+            </div>
+            <div v-else class="step-item-item" style="flex-grow: 3">
               <div style="width: 100%">
                 <div class="step-item-item" style="margin: 10px 0" v-for="(activity, index) in process.activityList" :key="index">
                   <div class="step-item-item">
@@ -1022,6 +1038,45 @@ export default {
       };
       return this.$t(keyMap[type] || type);
     },
+    executionActivityTitle(type) {
+      const keyMap = {
+        EXECUTION_PREPARATION: 'ticket-execution-preparation',
+        EXECUTION_DISPATCH: 'ticket-execution-dispatch',
+        EXECUTION_RUNNING: 'ticket-execution-running'
+      };
+      return this.$t(keyMap[type] || type);
+    },
+    executionStatusText(status) {
+      const keyMap = {
+        NEW: 'ticket-execution-waiting',
+        RUNNING: 'ticket-execution-processing',
+        COMPLETED: 'ticket-execution-complete',
+        REFUSE: 'ticket-execution-failed',
+        CANCELED: 'ticket-execution-canceled'
+      };
+      return this.$t(keyMap[status] || status);
+    },
+    executionProgressText(activity) {
+      if (activity.activityStatus === 'REFUSE') {
+        return activity.remark || this.$t('ticket-execution-failed');
+      }
+      if (activity.activityTitle === 'EXECUTION_PREPARATION' && activity.processedCount != null && activity.statementCount != null) {
+        const percentage = activity.statementCount > 0 ? Math.min(100, Math.floor((activity.processedCount * 100) / activity.statementCount)) : 0;
+        return this.$t('ticket-execution-preparation-progress', {
+          processed: activity.processedCount,
+          total: activity.statementCount,
+          percentage
+        });
+      }
+      if (activity.activityStatus === 'NEW') {
+        return '--';
+      }
+      const keyMap = {
+        EXECUTION_DISPATCH: activity.activityStatus === 'COMPLETED' ? 'ticket-execution-dispatched' : 'ticket-execution-dispatching',
+        EXECUTION_RUNNING: activity.activityStatus === 'COMPLETED' ? 'ticket-execution-finished' : 'ticket-execution-sidecar-running'
+      };
+      return this.$t(keyMap[activity.activityTitle] || 'ticket-execution-processing');
+    },
     analysisStatusText(status) {
       const keyMap = {
         NEW: 'ticket-analysis-waiting',
@@ -1036,7 +1091,8 @@ export default {
         NEW: 'init',
         RUNNING: 'running',
         COMPLETED: 'finished',
-        REFUSE: 'failed'
+        REFUSE: 'failed',
+        CANCELED: 'failed'
       };
       return `status-${classMap[status] || 'init'}`;
     },
@@ -2054,6 +2110,30 @@ export default {
 
     .analysis-detail-header {
       min-height: 36px;
+      color: @icon-color;
+      font-weight: 500;
+    }
+
+    .execution-progress-list {
+      flex-grow: 3;
+      width: 100%;
+      margin: 8px 0;
+    }
+
+    .execution-progress-row {
+      display: grid;
+      grid-template-columns: 28% 20% 1fr;
+      align-items: center;
+      min-height: 40px;
+      border-top: 1px solid #e8eaec;
+
+      > div {
+        padding: 8px 12px;
+      }
+    }
+
+    .execution-progress-header {
+      min-height: 34px;
       color: @icon-color;
       font-weight: 500;
     }

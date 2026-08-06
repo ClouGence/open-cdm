@@ -38,17 +38,19 @@ import com.clougence.clouddm.console.web.component.analysis.AnalysisRuleOptions;
 import com.clougence.clouddm.console.web.component.analysis.QueryAnalysisService;
 import com.clougence.clouddm.console.web.component.approval.ApprovalFlowService;
 import com.clougence.clouddm.console.web.component.approval.ApprovalService;
+import com.clougence.clouddm.console.web.component.approval.ApprovalStateService;
 import com.clougence.clouddm.console.web.component.approval.impl.ApprovalProviderServiceImpl;
 import com.clougence.clouddm.console.web.component.approval.model.ApprovalAnalysisStateMO;
+import com.clougence.clouddm.console.web.component.approval.model.ApprovalExecutionStateMO;
 import com.clougence.clouddm.console.web.component.approval.model.ApprovalMO;
 import com.clougence.clouddm.console.web.component.approval.model.ApprovalStageMO;
 import com.clougence.clouddm.console.web.component.approval.schedule.ApprovalTaskScheduler;
 import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForManage;
-import com.clougence.clouddm.console.web.component.autoexec.AutoExecService;
-import com.clougence.clouddm.console.web.component.autoexec.model.AutoExecJobCreateRequest;
 import com.clougence.clouddm.console.web.component.detectrule.SecRulesCheckResult;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
+import com.clougence.clouddm.console.web.component.execute.AutoExecService;
+import com.clougence.clouddm.console.web.component.execute.model.AutoExecCreateMO;
 import com.clougence.clouddm.console.web.constants.DmConfirmActionType;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
@@ -73,7 +75,6 @@ import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.platform.dal.model.execution.AutoExecType;
 import com.clougence.clouddm.platform.dal.model.execution.DmExecAutoJobDO;
 import com.clougence.clouddm.platform.dal.model.execution.DmExecAutoTaskDO;
-import com.clougence.clouddm.platform.dal.model.execution.SQLJobBizType;
 import com.clougence.clouddm.platform.dal.model.monitor.DmMonBizLogDO;
 import com.clougence.clouddm.platform.dal.model.monitor.LogDependBizType;
 import com.clougence.clouddm.platform.dal.model.secrule.WarnLevel;
@@ -144,6 +145,8 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
     private ApprovalFlowService         approvalFlowService;
     @Resource
     private ApprovalService             approvalService;
+    @Resource
+    private ApprovalStateService        approvalStateService;
     @Resource
     private ApprovalProviderServiceImpl approvalProviderService;
     @Resource
@@ -359,6 +362,8 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
             List<RdpTicketActivityVO> vos;
             if (processVO.getTicketStage() == ApprovalStage.EXPLAIN) {
                 vos = this.convertAnalysisActivities(processVO, activities);
+            } else if (processVO.getTicketStage() == ApprovalStage.EXECUTION) {
+                vos = this.convertExecutionActivities(processVO, activities);
             } else if (approvalDO.getApproType() != ApprovalType.Internal && processVO.getTicketProcessStatus() != ApprovalProcessStatus.FAIL) {
                 vos = this.convertApprovalActivities(processVO, activities);
             } else {
@@ -399,6 +404,24 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
                 vos.add(vo);
             }
         }
+        return vos;
+    }
+
+    private List<RdpTicketActivityVO> convertExecutionActivities(RdpTicketProcessVO processVO, List<DmApprovalProcessActivityDO> activities) {
+        List<RdpTicketActivityVO> vos = new ArrayList<>();
+        for (DmApprovalProcessActivityDO activity : activities) {
+            if (!activity.getProcessId().equals(processVO.getTicketProcessId()) || !ApprovalExecutionStateMO.isExecutionType(activity.getActivityId())
+                || StringUtils.isBlank(activity.getContext())) {
+                continue;
+            }
+            ApprovalExecutionStateMO state = JsonUtils.toObj(activity.getContext(), ApprovalExecutionStateMO.class);
+            RdpTicketActivityVO vo = RdpConvertUtils.convertToExecutionActivityVO(state);
+            if (vo.getDisplayOrder() == null) {
+                vo.setDisplayOrder(activity.getOrderNumber());
+            }
+            vos.add(vo);
+        }
+        vos.sort(Comparator.comparing(RdpTicketActivityVO::getDisplayOrder, Comparator.nullsLast(Integer::compareTo)));
         return vos;
     }
 
@@ -772,7 +795,7 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
     public String confirmTicket(String puid, long ticketId, DmConfirmTicketFO fo) {
         ApprovalStatus actionStatus = statusFromConfirmAction(fo.getConfirmActionType(), fo.getAutoExecConfig().getAutoExecType());
         if (actionStatus == ApprovalStatus.WAIT_EXEC) {
-            String jobBizId = DmTeamUtils.nextExecJobBizId(SQLJobBizType.TICKET);
+            String jobBizId = DmTeamUtils.nextExecJobBizId();
             this.confirmTicketInNewTransaction(ticketId, fo, actionStatus);
             if (!this.approvalTaskScheduler.submitControlTask(ticketId, () -> this.prepareExecJobAsync(ticketId, fo, jobBizId))) {
                 String message = DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_EXEC_TASK_SUBMIT_BUSY.name());
@@ -863,6 +886,7 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
             this.approvalDal.processMapper().updateTicketStatusByEnum(processDO.getId(), ApprovalProcessStatus.FINISH, JsonUtils.toJson(nContext));
         } else if (actionStatus == ApprovalStatus.WAIT_EXEC) {
             this.approvalDal.processMapper().updateTicketStatusByEnum(processDO.getId(), ApprovalProcessStatus.INIT, JsonUtils.toJson(nContext));
+            this.approvalStateService.initializeExecutionProgress(ticketId);
         }
         String statusMessage = actionStatus == ApprovalStatus.WAIT_EXEC ? DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_STATUS_WAIT_EXEC_MESSAGE.name()) : fo.getComment();
         if (ApprovalStatus.isEndStatus(actionStatus)) {
@@ -906,6 +930,7 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
             DmApprovalProcessDO executionProcess = this.approvalDal.processMapper().queryByStage(ticketId, ApprovalStage.EXECUTION);
             this.approvalDal.processMapper().updateTicketStatusByEnum(confirmProcess.getId(), ApprovalProcessStatus.INIT, null);
             this.approvalDal.processMapper().updateTicketStatusByEnum(executionProcess.getId(), ApprovalProcessStatus.INIT, null);
+            this.approvalStateService.resetExecutionProgress(ticketId);
             this.approvalDal.approvalMapper().updateStatusByEnum(ticketId, ApprovalStatus.WAIT_CONFIRM, message);
         });
     }
@@ -928,10 +953,9 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
         DsLevels dsLevels = dmDsConfigService.parseLevels(levels);
         DataSourceConfig dsConfig = dmDsConfigService.fetchDsConfigFromExists(rdpTicket.getBindDsId());
         DmAutoExecConfigFO config = fo.getAutoExecConfig();
-        AutoExecJobCreateRequest request = AutoExecJobCreateRequest.builder()//
+        AutoExecCreateMO request = AutoExecCreateMO.builder()//
             .dsLevels(dsLevels)
             .jobBizId(jobBizId)
-            .bizType(SQLJobBizType.TICKET)
             .bizId(rdpTicket.getBizId())
             .execType(config.getAutoExecType())
             .transactional(config.isEnableTransactional())
@@ -953,19 +977,19 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
     public DmPageVO<DmAutoExecTaskVO> queryExecTaskList(String puid, String uid, DmQueryTaskListFO fo) {
         DmApprovalDO ticketDO = this.checkTicket(fo.getTicketId());
         return this.autoExecService.queryAutoExecTaskSummaryList(//
-                ticketDO.getBizId(), SQLJobBizType.TICKET, checkOperationEnableWithResult(ticketDO, uid), fo.getTaskStatus(), fo.getPage(), AUTO_EXEC_TASK_SQL_SUMMARY_LENGTH);
+                ticketDO.getBizId(), checkOperationEnableWithResult(ticketDO, uid), fo.getTaskStatus(), fo.getPage(), AUTO_EXEC_TASK_SQL_SUMMARY_LENGTH);
     }
 
     @Override
     public String queryExecTaskSql(String puid, String uid, DmQueryAutoExecFO fo) {
         DmApprovalDO ticketDO = this.checkTicket(fo.getTicketId());
-        return this.autoExecService.queryAutoExecTaskSql(ticketDO.getBizId(), SQLJobBizType.TICKET, fo.getTaskId());
+        return this.autoExecService.queryAutoExecTaskSql(ticketDO.getBizId(), fo.getTaskId());
     }
 
     @Override
     public DmAutoExecJobVO queryExecJobInfo(String puid, String uid, long ticketId) {
         DmApprovalDO ticketDO = this.checkTicket(ticketId);
-        return this.autoExecService.queryAutoExecJob(ticketDO.getBizId(), SQLJobBizType.TICKET, checkOperationEnableWithResult(ticketDO, uid));
+        return this.autoExecService.queryAutoExecJob(ticketDO.getBizId(), checkOperationEnableWithResult(ticketDO, uid));
     }
 
     @Transactional(rollbackFor = Throwable.class)
@@ -974,8 +998,9 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
         DmApprovalDO ticketDO = this.checkTicket(ticketId);
         checkJobOperationEnable(ticketDO, uid);
 
-        this.autoExecService.retryJob(ticketDO.getBizId(), SQLJobBizType.TICKET);
+        this.autoExecService.retryJob(ticketDO.getBizId());
 
+        this.approvalStateService.initializeExecutionProgress(ticketId);
         approvalDal.approvalMapper().updateStatusByEnum(ticketId, ApprovalStatus.WAIT_EXEC, null);
         approvalDal.processMapper().updateProcessStatusByTicketIdAndStage(ticketId, ApprovalStage.EXECUTION, ApprovalProcessStatus.INIT);
     }
@@ -985,19 +1010,14 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
     public void skipTask(String puid, String uid, DmQueryAutoExecFO fo) {
         DmApprovalDO ticketDO = this.checkTicket(fo.getTicketId());
         checkJobOperationEnable(ticketDO, uid);
-        boolean jobFinish = this.autoExecService.skipTask(ticketDO.getBizId(), SQLJobBizType.TICKET, fo.getTaskId());
-
-        if (jobFinish) {
-            approvalDal.processMapper().updateProcessStatusByTicketIdAndStage(fo.getTicketId(), ApprovalStage.EXECUTION, ApprovalProcessStatus.FINISH);
-            this.approvalFlowService.transitionTicketToTerminal(fo.getTicketId(), ApprovalStatus.FINISHED, null);
-        }
+        this.autoExecService.skipTask(ticketDO.getBizId(), fo.getTaskId());
     }
 
     @Override
     public void canceledSkipTask(String puid, String uid, DmQueryAutoExecFO fo) {
         DmApprovalDO ticketDO = this.checkTicket(fo.getTicketId());
         checkJobOperationEnable(ticketDO, uid);
-        this.autoExecService.continueTask(ticketDO.getBizId(), SQLJobBizType.TICKET, fo.getTaskId());
+        this.autoExecService.continueTask(ticketDO.getBizId(), fo.getTaskId());
     }
 
     @Override
@@ -1006,7 +1026,7 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
         DmApprovalDO ticketDO = this.checkTicket(ticketId);
         checkJobOperationEnable(ticketDO, uid);
 
-        this.autoExecService.endJob(ticketDO.getBizId(), SQLJobBizType.TICKET);
+        this.autoExecService.endJob(ticketDO.getBizId());
 
         DmApprovalProcessDO rdpTicketProcessDO = this.approvalDal.processMapper().queryByStage(ticketId, ApprovalStage.EXECUTION);
         ApprovalStageMO mo;
@@ -1027,7 +1047,7 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
         DmApprovalDO ticketDO = this.checkTicket(ticketId);
         checkJobOperationEnable(ticketDO, uid);
 
-        this.autoExecService.stopJob(ticketDO.getBizId(), SQLJobBizType.TICKET);
+        this.autoExecService.stopJob(ticketDO.getBizId());
     }
 
     @Override

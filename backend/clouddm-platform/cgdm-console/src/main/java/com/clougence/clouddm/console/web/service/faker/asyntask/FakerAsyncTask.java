@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
-import com.clougence.clouddm.console.web.component.asyntask.AsyncTask;
+import com.clougence.clouddm.console.web.component.execute.asyntask.AsyncTask;
 import com.clougence.clouddm.console.web.service.faker.FakerService;
 import com.clougence.clouddm.sdk.model.faker.FakerRunStatus;
 import com.clougence.clouddm.sdk.model.faker.FakerStatusDTO;
