@@ -15,6 +15,7 @@
  */
 package com.clougence.clouddm.ds.tidb.sql.parser;
 
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -112,7 +113,7 @@ public class TiDBDslProvider implements DslProvider {
                 throw firstFailure;
             }
             try {
-                return DslHelper.splitDsl(withNoBackslashEscapesFallback(), sourceText(lexer));
+                return DslHelper.splitDsl(withNoBackslashEscapesFallback(), new StringReader(sourceText(lexer)));
             } catch (RuntimeException fallbackFailure) {
                 firstFailure.addSuppressed(fallbackFailure);
                 throw firstFailure;
@@ -153,7 +154,7 @@ public class TiDBDslProvider implements DslProvider {
                 throw firstFailure;
             }
             try {
-                for (AstSplitScript script : DslHelper.splitDsl(withNoBackslashEscapesFallback(), sourceText(lexer))) {
+                for (AstSplitScript script : DslHelper.splitDsl(withNoBackslashEscapesFallback(), new StringReader(sourceText(lexer)))) {
                     visitor.visit(script.getAstTree());
                 }
             } catch (RuntimeException fallbackFailure) {

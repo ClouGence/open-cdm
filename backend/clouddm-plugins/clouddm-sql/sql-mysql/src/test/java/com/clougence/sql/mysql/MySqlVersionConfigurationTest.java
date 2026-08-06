@@ -65,16 +65,17 @@ public class MySqlVersionConfigurationTest {
     @Test
     public void engineUsesLatestWhenVersionIsNull() {
         MySqlEngineSpi engine = new MySqlEngineSpi(null);
-        MyDslProvider provider = (MyDslProvider) engine.dslProvider();
+        SqlParserParameters parameters = SqlParserParameters.empty();
+        MyDslProvider provider = (MyDslProvider) engine.dslProvider(parameters);
         Assertions.assertEquals(MySqlVersion.LATEST, provider.version());
         Assertions.assertEquals(MySqlVersion.LATEST.exactVersion(), provider.exactVersion());
         Assertions.assertSame(provider, engine.dslProvider(null));
-        Assertions.assertSame(provider, engine.dslProvider(SqlParserParameters.empty()));
-        Assertions.assertSame(engine.splitAnalysisSpi(), engine.splitAnalysisSpi(null));
-        Assertions.assertSame(engine.behaviorAnalysisSpi(), engine.behaviorAnalysisSpi(null));
-        Assertions.assertSame(engine.lineageAnalysisSpi(), engine.lineageAnalysisSpi(null));
-        Assertions.assertSame(engine.secDomainResolveSpi(), engine.secDomainResolveSpi(null));
-        Assertions.assertSame(engine.rewriteSpi(), engine.rewriteSpi(null));
+        Assertions.assertSame(provider, engine.dslProvider(parameters));
+        Assertions.assertSame(engine.splitAnalysisSpi(parameters), engine.splitAnalysisSpi(null));
+        Assertions.assertSame(engine.behaviorAnalysisSpi(parameters), engine.behaviorAnalysisSpi(null));
+        Assertions.assertSame(engine.lineageAnalysisSpi(parameters), engine.lineageAnalysisSpi(null));
+        Assertions.assertSame(engine.secDomainResolveSpi(parameters), engine.secDomainResolveSpi(null));
+        Assertions.assertSame(engine.rewriteSpi(parameters), engine.rewriteSpi(null));
     }
 
     @Test
@@ -179,11 +180,11 @@ public class MySqlVersionConfigurationTest {
         MySqlEngineSpi engine = new MySqlEngineSpi(null);
         String sql = "SELECT /*!50000 'trailing backslash\\' */;";
 
-        var scripts = engine.splitAnalysisSpi(SqlParserParameters.ofVersion("8.0.46"))
-                .splitScript(sql, null, 0, 0);
-
-        Assertions.assertEquals(1, scripts.size());
-        Assertions.assertEquals(sql, scripts.get(0).getScript());
+        try (var scripts = engine.splitAnalysisSpi(SqlParserParameters.ofVersion("8.0.46")).splitScriptStream(new StringReader(sql), null, 0, 0)) {
+            var result = scripts.toList();
+            Assertions.assertEquals(1, result.size());
+            Assertions.assertEquals(sql, result.get(0).getScript());
+        }
     }
 
     private static SqlParserParameters parserParameters(String sqlMode) {

@@ -15,6 +15,8 @@
  */
 package com.clougence.sql.doris;
 
+import java.io.StringReader;
+import java.util.List;
 import java.util.Map;
 
 import org.antlr.v4.runtime.CharStreams;
@@ -22,6 +24,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import com.clougence.clouddm.sdk.sql.SqlParserParameters;
+import com.clougence.clouddm.sdk.sql.parser.SplitScript;
 import com.clougence.dslpaser.antlr.AntlerSyntaxException;
 import com.clougence.sql.doris.parser.DorisParserConfig;
 import com.clougence.sql.doris.parser.DorisVersion;
@@ -46,16 +49,17 @@ public class DorisVersionConfigurationTest {
     @Test
     public void parserParametersAreOptionalAcrossEveryEngineCapability() {
         DrSqlEngineSpi engine = new DrSqlEngineSpi(null);
-        DrDslProvider defaultProvider = (DrDslProvider) engine.dslProvider();
+        SqlParserParameters parameters = SqlParserParameters.empty();
+        DrDslProvider defaultProvider = (DrDslProvider) engine.dslProvider(parameters);
 
         Assertions.assertEquals(DorisVersion.LATEST, defaultProvider.config().version());
         Assertions.assertSame(defaultProvider, engine.dslProvider(null));
-        Assertions.assertSame(defaultProvider, engine.dslProvider(SqlParserParameters.empty()));
-        Assertions.assertSame(engine.splitAnalysisSpi(), engine.splitAnalysisSpi(null));
-        Assertions.assertSame(engine.behaviorAnalysisSpi(), engine.behaviorAnalysisSpi(null));
-        Assertions.assertSame(engine.lineageAnalysisSpi(), engine.lineageAnalysisSpi(null));
-        Assertions.assertSame(engine.secDomainResolveSpi(), engine.secDomainResolveSpi(null));
-        Assertions.assertSame(engine.rewriteSpi(), engine.rewriteSpi(null));
+        Assertions.assertSame(defaultProvider, engine.dslProvider(parameters));
+        Assertions.assertSame(engine.splitAnalysisSpi(parameters), engine.splitAnalysisSpi(null));
+        Assertions.assertSame(engine.behaviorAnalysisSpi(parameters), engine.behaviorAnalysisSpi(null));
+        Assertions.assertSame(engine.lineageAnalysisSpi(parameters), engine.lineageAnalysisSpi(null));
+        Assertions.assertSame(engine.secDomainResolveSpi(parameters), engine.secDomainResolveSpi(null));
+        Assertions.assertSame(engine.rewriteSpi(parameters), engine.rewriteSpi(null));
     }
 
     @Test
@@ -74,8 +78,8 @@ public class DorisVersionConfigurationTest {
         DrDslProvider provider = (DrDslProvider) engine.dslProvider(parameters);
 
         Assertions.assertEquals(DorisVersion.DORIS_3, provider.config().version());
-        Assertions.assertDoesNotThrow(() -> engine.splitAnalysisSpi(parameters).splitScript(BITMAP_INDEX, null, 0, 0));
-        Assertions.assertThrows(AntlerSyntaxException.class, () -> engine.splitAnalysisSpi(parameters).splitScript(ANN_INDEX, null, 0, 0));
+        Assertions.assertDoesNotThrow(() -> split(engine, parameters, BITMAP_INDEX));
+        Assertions.assertThrows(AntlerSyntaxException.class, () -> split(engine, parameters, ANN_INDEX));
     }
 
     @Test
@@ -85,13 +89,13 @@ public class DorisVersionConfigurationTest {
         SqlParserParameters doris3 = SqlParserParameters.ofVersion("3.1.4");
         SqlParserParameters doris4 = SqlParserParameters.ofVersion("4.1.3");
 
-        Assertions.assertDoesNotThrow(() -> engine.splitAnalysisSpi(doris2).splitScript(BITMAP_INDEX, null, 0, 0));
-        Assertions.assertDoesNotThrow(() -> engine.splitAnalysisSpi(doris3).splitScript(BITMAP_INDEX, null, 0, 0));
-        Assertions.assertThrows(AntlerSyntaxException.class, () -> engine.splitAnalysisSpi(doris4).splitScript(BITMAP_INDEX, null, 0, 0));
+        Assertions.assertDoesNotThrow(() -> split(engine, doris2, BITMAP_INDEX));
+        Assertions.assertDoesNotThrow(() -> split(engine, doris3, BITMAP_INDEX));
+        Assertions.assertThrows(AntlerSyntaxException.class, () -> split(engine, doris4, BITMAP_INDEX));
 
-        Assertions.assertThrows(AntlerSyntaxException.class, () -> engine.splitAnalysisSpi(doris2).splitScript(ANN_INDEX, null, 0, 0));
-        Assertions.assertThrows(AntlerSyntaxException.class, () -> engine.splitAnalysisSpi(doris3).splitScript(ANN_INDEX, null, 0, 0));
-        Assertions.assertDoesNotThrow(() -> engine.splitAnalysisSpi(doris4).splitScript(ANN_INDEX, null, 0, 0));
+        Assertions.assertThrows(AntlerSyntaxException.class, () -> split(engine, doris2, ANN_INDEX));
+        Assertions.assertThrows(AntlerSyntaxException.class, () -> split(engine, doris3, ANN_INDEX));
+        Assertions.assertDoesNotThrow(() -> split(engine, doris4, ANN_INDEX));
     }
 
     @Test
@@ -138,5 +142,11 @@ public class DorisVersionConfigurationTest {
 
     private static DorisParserConfig config(String version) {
         return DorisParserConfig.fromParameters(SqlParserParameters.ofVersion(version));
+    }
+
+    private static List<SplitScript> split(DrSqlEngineSpi engine, SqlParserParameters parameters, String sql) {
+        try (var scripts = engine.splitAnalysisSpi(parameters).splitScriptStream(new StringReader(sql), null, 0, 0)) {
+            return scripts.toList();
+        }
     }
 }

@@ -29,25 +29,11 @@ public interface SqlEngineSpi extends Spi {
     // parser
 
     /**
-     * Returns the SQL split and statement type analysis SPI using implementation defaults.
-     */
-    default SplitAnalysisSpi splitAnalysisSpi() {
-        return splitAnalysisSpi(SqlParserParameters.empty());
-    }
-
-    /**
      * Returns the SQL split and statement type analysis SPI. This method must not return null.
      *
      * @param parameters parser parameters, or null/empty to use implementation defaults.
      */
     SplitAnalysisSpi splitAnalysisSpi(SqlParserParameters parameters);
-
-    /**
-     * Returns the ANTLR DSL provider using implementation defaults.
-     */
-    default DslProvider dslProvider() {
-        return dslProvider(SqlParserParameters.empty());
-    }
 
     /**
      * Returns the ANTLR DSL provider, or null if language services are not supported.
@@ -59,25 +45,11 @@ public interface SqlEngineSpi extends Spi {
     // analysis
 
     /**
-     * Returns the SQL statement behavior analysis SPI using implementation defaults.
-     */
-    default BehaviorAnalysisSpi behaviorAnalysisSpi() {
-        return behaviorAnalysisSpi(SqlParserParameters.empty());
-    }
-
-    /**
      * Returns the SQL statement behavior analysis SPI. This method must not return null.
      *
      * @param parameters parser parameters, or null/empty to use implementation defaults.
      */
     BehaviorAnalysisSpi behaviorAnalysisSpi(SqlParserParameters parameters);
-
-    /**
-     * Returns the SELECT column analysis SPI using implementation defaults.
-     */
-    default LineageAnalysisSpi lineageAnalysisSpi() {
-        return lineageAnalysisSpi(SqlParserParameters.empty());
-    }
 
     /**
      * Returns the SELECT column analysis SPI, or null if column-level analysis is not supported.
@@ -87,13 +59,6 @@ public interface SqlEngineSpi extends Spi {
     LineageAnalysisSpi lineageAnalysisSpi(SqlParserParameters parameters);
 
     /**
-     * Returns the security-domain resolve SPI using implementation defaults.
-     */
-    default SecDomainResolveSpi secDomainResolveSpi() {
-        return secDomainResolveSpi(SqlParserParameters.empty());
-    }
-
-    /**
      * Returns the security-domain resolve SPI, or null if security-domain analysis is not supported.
      *
      * @param parameters parser parameters, or null/empty to use implementation defaults.
@@ -101,13 +66,6 @@ public interface SqlEngineSpi extends Spi {
     SecDomainResolveSpi secDomainResolveSpi(SqlParserParameters parameters);
 
     // editor
-
-    /**
-     * Returns the SQL rewrite SPI using implementation defaults.
-     */
-    default RewriteSpi rewriteSpi() {
-        return rewriteSpi(SqlParserParameters.empty());
-    }
 
     /**
      * Returns the SQL rewrite SPI, or null if query rewrite is not supported.

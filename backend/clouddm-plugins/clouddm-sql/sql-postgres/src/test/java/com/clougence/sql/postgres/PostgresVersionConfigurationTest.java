@@ -41,17 +41,18 @@ public class PostgresVersionConfigurationTest {
     @Test
     public void engineUsesLatestWhenVersionCannotBeObtained() {
         PgSqlEngineSpi engine = new PgSqlEngineSpi(null);
+        SqlParserParameters parameters = SqlParserParameters.empty();
 
-        PgDslProvider provider = (PgDslProvider) engine.dslProvider();
+        PgDslProvider provider = (PgDslProvider) engine.dslProvider(parameters);
         Assertions.assertEquals(PostgresVersion.LATEST, provider.version());
         Assertions.assertSame(provider, engine.dslProvider(null));
-        Assertions.assertSame(provider, engine.dslProvider(SqlParserParameters.empty()));
+        Assertions.assertSame(provider, engine.dslProvider(parameters));
 
-        Assertions.assertEquals(PostgresVersion.LATEST, ((PgSplitAnalysisSpi) engine.splitAnalysisSpi()).version());
-        Assertions.assertEquals(PostgresVersion.LATEST, ((PgSecDomainResolveSpi) engine.secDomainResolveSpi()).version());
-        Assertions.assertEquals(PostgresVersion.LATEST, ((PgBehaviorAnalysisSpi) engine.behaviorAnalysisSpi()).version());
-        Assertions.assertSame(LineageAnalysisSpi.EMPTY, engine.lineageAnalysisSpi());
-        Assertions.assertEquals(PostgresVersion.LATEST, ((PgRewriteSpi) engine.rewriteSpi()).version());
+        Assertions.assertEquals(PostgresVersion.LATEST, ((PgSplitAnalysisSpi) engine.splitAnalysisSpi(parameters)).version());
+        Assertions.assertEquals(PostgresVersion.LATEST, ((PgSecDomainResolveSpi) engine.secDomainResolveSpi(parameters)).version());
+        Assertions.assertEquals(PostgresVersion.LATEST, ((PgBehaviorAnalysisSpi) engine.behaviorAnalysisSpi(parameters)).version());
+        Assertions.assertSame(LineageAnalysisSpi.EMPTY, engine.lineageAnalysisSpi(parameters));
+        Assertions.assertEquals(PostgresVersion.LATEST, ((PgRewriteSpi) engine.rewriteSpi(parameters)).version());
         Assertions.assertEquals(PostgresVersion.LATEST, ((PgDslProvider) engine.dslProvider(SqlParserParameters.ofVersion("unsupported"))).version());
     }
 }
