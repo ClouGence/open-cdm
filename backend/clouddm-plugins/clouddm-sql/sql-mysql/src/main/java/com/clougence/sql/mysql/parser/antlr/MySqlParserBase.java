@@ -376,8 +376,9 @@ public abstract class MySqlParserBase extends Parser {
         boolean readOnly = false;
         boolean readWrite = false;
         for (int i = 1;; i++) {
-            String token = getInputStream().LT(i).getText();
-            if (token == null || ";".equals(token) || "<EOF>".equals(token)) {
+            Token lookahead = getInputStream().LT(i);
+            String token = lookahead == null ? null : lookahead.getText();
+            if (lookahead == null || lookahead.getType() == Token.EOF || ";".equals(token)) {
                 break;
             }
             if ("READ".equalsIgnoreCase(token)) {
@@ -436,8 +437,8 @@ public abstract class MySqlParserBase extends Parser {
     }
 
     private boolean isStatementEnd(int lookahead) {
-        String token = getInputStream().LT(lookahead).getText();
-        return token == null || ";".equals(token) || "<EOF>".equals(token);
+        Token token = getInputStream().LT(lookahead);
+        return token == null || token.getType() == Token.EOF || ";".equals(token.getText());
     }
 
     protected final boolean isLabelAllowed() {

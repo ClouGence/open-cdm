@@ -15,15 +15,14 @@
  */
 package com.clougence.clouddm.sdk.sql.analysis.lineage;
 
-import java.io.Reader;
-import java.util.stream.Stream;
+import java.util.List;
 
 import com.clougence.clouddm.sdk.Spi;
 
 public interface LineageAnalysisSpi extends Spi {
 
     /** Lineage analyzer used when a SQL engine does not currently expose lineage analysis. */
-    LineageAnalysisSpi EMPTY = (sql, context) -> Stream.empty();
+    LineageAnalysisSpi EMPTY = (sql, context) -> List.of();
 
-    Stream<LineageColumn> analyzeStream(Reader sqlReader, LineageContext context);
+    List<LineageColumn> analyze(String sql, LineageContext context);
 }

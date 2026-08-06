@@ -28,5 +28,5 @@ import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
  */
 public interface SecDomainResolveSpi extends Spi {
 
-    Stream<RuleDomain> resolveDomainStream(DataSourceType dsType, Reader queryReader, CodeInfo codeInfo, ContextInfo ctxInfo);
+    Stream<RuleDomain> resolveDomainStream(DataSourceType dsType, Reader queryReader, int baseLine, int baseColumn, ContextInfo ctxInfo);
 }

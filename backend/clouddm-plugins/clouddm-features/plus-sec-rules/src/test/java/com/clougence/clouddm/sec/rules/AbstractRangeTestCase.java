@@ -23,7 +23,6 @@ import java.util.stream.Stream;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.sdk.execute.session.SessionSpi;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
-import com.clougence.clouddm.sdk.sql.analysis.security.CodeInfo;
 import com.clougence.clouddm.sdk.sql.analysis.security.ContextInfo;
 import com.clougence.sql.mysql.analysis.security.MySecDomainResolveSpi;
 import com.clougence.sql.mysql.parser.MySqlParserConfig;
@@ -38,9 +37,8 @@ public class AbstractRangeTestCase {
             SessionSpi.PARAMS_DEFAULT_SCHEMA, "test_schema");
 
     protected List<RuleDomain> resolveDomain(String sql) {
-        CodeInfo codeInfo = CodeInfo.builder().baseLine(0).baseColumn(0).build();
         try (StringReader reader = new StringReader(sql);
-                Stream<RuleDomain> stream = this.resolveSpi.resolveDomainStream(dataSourceType, reader, codeInfo, ContextInfo.builder().build())) {
+                Stream<RuleDomain> stream = this.resolveSpi.resolveDomainStream(dataSourceType, reader, 0, 0, ContextInfo.builder().build())) {
             return stream.toList();
         }
     }

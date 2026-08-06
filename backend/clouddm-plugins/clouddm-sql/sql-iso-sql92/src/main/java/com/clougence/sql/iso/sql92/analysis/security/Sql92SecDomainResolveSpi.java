@@ -6,6 +6,7 @@
 package com.clougence.sql.iso.sql92.analysis.security;
 
 import java.io.Reader;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
@@ -13,7 +14,6 @@ import java.util.stream.Stream;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
-import com.clougence.clouddm.sdk.sql.analysis.security.CodeInfo;
 import com.clougence.clouddm.sdk.sql.analysis.security.ContextInfo;
 import com.clougence.clouddm.sdk.sql.analysis.security.SecDomainResolveSpi;
 import com.clougence.clouddm.sdk.sql.parser.SplitScript;
@@ -21,6 +21,7 @@ import com.clougence.dslpaser.antlr.DslHelper;
 import com.clougence.dslpaser.parse.AstSplitScript;
 import com.clougence.sql.iso.sql92.analysis.security.builder.Sql92DomainCollector;
 import com.clougence.sql.iso.sql92.parser.Sql92DslProvider;
+import com.clougence.sql.iso.sql92.parser.Sql92SplitAnalysisSpi;
 
 public class Sql92SecDomainResolveSpi implements SecDomainResolveSpi {
 
@@ -28,11 +29,18 @@ public class Sql92SecDomainResolveSpi implements SecDomainResolveSpi {
     }
 
     @Override
-    public Stream<RuleDomain> resolveDomainStream(DataSourceType dsType, Reader queryReader, CodeInfo codeInfo, ContextInfo ctxInfo) {
-        return resolveDomainMaterialized(dsType, queryReader, codeInfo, ctxInfo).stream();
+    public Stream<RuleDomain> resolveDomainStream(DataSourceType dsType, Reader queryReader, int baseLine, int baseColumn, ContextInfo ctxInfo) {
+        var scripts = new Sql92SplitAnalysisSpi().splitScriptStream(queryReader, List.of(), baseLine, baseColumn);
+        return scripts.flatMap(script -> {
+            StringReader reader = new StringReader(script.getScript());
+            int codeLine = script.getBodyStartCodeLine();
+            int codeColumn = script.getBodyStartCodeColumn();
+
+            return resolveStatement(dsType, reader, codeLine, codeColumn, ctxInfo).stream();
+        }).onClose(scripts::close);
     }
 
-    private List<RuleDomain> resolveDomainMaterialized(DataSourceType dsType, Reader queryReader, CodeInfo codeInfo, ContextInfo ctxInfo) {
+    private List<RuleDomain> resolveStatement(DataSourceType dsType, Reader queryReader, int baseLine, int baseColumn, ContextInfo ctxInfo) {
         List<RuleDomain> domainList = new ArrayList<>();
         List<AstSplitScript> scripts = DslHelper.splitDsl(Sql92DslProvider.INSTANCE, queryReader);
         for (AstSplitScript s : scripts) {

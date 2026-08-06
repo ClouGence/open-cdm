@@ -22,6 +22,7 @@ import com.clougence.dslpaser.ast.Statement;
 import com.clougence.dslpaser.ast.StatementSet;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.mongodb.parser.MongoDslProvider;
+import com.clougence.sql.mongodb.parser.MongoSplitAnalysisSpi;
 import com.clougence.sql.mongodb.parser.ast.MongoFuncType;
 import com.clougence.sql.mongodb.parser.ast.commands.AbstractMongoFunc;
 import com.clougence.sql.mongodb.parser.ast.commands.collection.CollectionFunc;
@@ -32,10 +33,17 @@ public class MongoBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
 
     @Override
     public Stream<StatementBehavior> analysisBehaviorStream(Reader queryReader, Map<UmiTypes, Object> levels, int baseLine, int baseColumn) {
-        return analysisBehaviorMaterialized(queryReader, levels, baseLine, baseColumn).stream();
+        var scripts = new MongoSplitAnalysisSpi().splitScriptStream(queryReader, List.of(), baseLine, baseColumn);
+        return scripts.flatMap(script -> {
+            StringReader reader = new StringReader(script.getScript());
+            int codeLine = script.getBodyStartCodeLine();
+            int codeColumn = script.getBodyStartCodeColumn();
+
+            return analyzeStatement(reader, levels, codeLine, codeColumn).stream();
+        }).onClose(scripts::close);
     }
 
-    private List<StatementBehavior> analysisBehaviorMaterialized(Reader queryReader, Map<UmiTypes, Object> levels, int baseLine, int baseColumn) {
+    private List<StatementBehavior> analyzeStatement(Reader queryReader, Map<UmiTypes, Object> levels, int baseLine, int baseColumn) {
         String query;
         try {
             query = IOUtils.readToString(queryReader);

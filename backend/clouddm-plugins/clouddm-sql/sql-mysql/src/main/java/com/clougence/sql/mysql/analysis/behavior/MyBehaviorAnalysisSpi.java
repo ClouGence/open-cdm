@@ -16,6 +16,7 @@
 package com.clougence.sql.mysql.analysis.behavior;
 
 import java.io.Reader;
+import java.io.StringReader;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -26,24 +27,34 @@ import com.clougence.dslpaser.antlr.DslHelper;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.mysql.analysis.reference.MySqlResourceRegistry;
 import com.clougence.sql.mysql.parser.MyDslProvider;
+import com.clougence.sql.mysql.parser.MySplitAnalysisSpi;
 import com.clougence.sql.mysql.parser.MySqlParserConfig;
 
 public class MyBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
 
     private final MyDslProvider         provider;
     private final MySqlResourceRegistry resources;
+    private final MySplitAnalysisSpi    splitter;
 
     public MyBehaviorAnalysisSpi(MySqlParserConfig config){
         this.provider = new MyDslProvider(config);
         this.resources = MySqlResourceRegistry.instance();
+        this.splitter = new MySplitAnalysisSpi(this.provider);
     }
 
     @Override
     public Stream<StatementBehavior> analysisBehaviorStream(Reader queryReader, Map<UmiTypes, Object> levels, int baseLine, int baseColumn) {
-        return analysisBehaviorMaterialized(queryReader, levels, baseLine, baseColumn).stream();
+        var scripts = this.splitter.splitScriptStream(queryReader, List.of(), baseLine, baseColumn);
+        return scripts.flatMap(script -> {
+            StringReader reader = new StringReader(script.getScript());
+            int codeLine = script.getBodyStartCodeLine();
+            int codeColumn = script.getBodyStartCodeColumn();
+
+            return analyzeStatement(reader, levels, codeLine, codeColumn).stream();
+        }).onClose(scripts::close);
     }
 
-    private List<StatementBehavior> analysisBehaviorMaterialized(Reader queryReader, Map<UmiTypes, Object> levels, int baseLine, int baseColumn) {
+    private List<StatementBehavior> analyzeStatement(Reader queryReader, Map<UmiTypes, Object> levels, int baseLine, int baseColumn) {
 
         MyBehaviorParserVisitor[] holder = new MyBehaviorParserVisitor[1];
         DslHelper.doVisitor(provider, queryReader, (lexer, parser) -> {

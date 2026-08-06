@@ -7,10 +7,12 @@
 package com.clougence.clouddm.ds.clickhouse.sql.analysis.behavior;
 
 import java.io.Reader;
+import java.io.StringReader;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import com.clougence.clouddm.ds.clickhouse.sql.parser.ChSplitAnalysisSpi;
 import com.clougence.clouddm.ds.clickhouse.sql.parser.ChSqlDslProvider;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAnalysisSpi;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.StatementBehavior;
@@ -21,10 +23,17 @@ public class ChBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
 
     @Override
     public Stream<StatementBehavior> analysisBehaviorStream(Reader queryReader, Map<UmiTypes, Object> levels, int baseLine, int baseColumn) {
-        return analysisBehaviorMaterialized(queryReader, levels, baseLine, baseColumn).stream();
+        var scripts = new ChSplitAnalysisSpi().splitScriptStream(queryReader, List.of(), baseLine, baseColumn);
+        return scripts.flatMap(script -> {
+            StringReader reader = new StringReader(script.getScript());
+            int codeLine = script.getBodyStartCodeLine();
+            int codeColumn = script.getBodyStartCodeColumn();
+
+            return analyzeStatement(reader, levels, codeLine, codeColumn).stream();
+        }).onClose(scripts::close);
     }
 
-    private List<StatementBehavior> analysisBehaviorMaterialized(Reader queryReader, Map<UmiTypes, Object> levels, int baseLine, int baseColumn) {
+    private List<StatementBehavior> analyzeStatement(Reader queryReader, Map<UmiTypes, Object> levels, int baseLine, int baseColumn) {
 
         ChBehaviorParserVisitor[] holder = new ChBehaviorParserVisitor[1];
         DslHelper.doVisitor(ChSqlDslProvider.INSTANCE, queryReader, (lexer, parser) -> {

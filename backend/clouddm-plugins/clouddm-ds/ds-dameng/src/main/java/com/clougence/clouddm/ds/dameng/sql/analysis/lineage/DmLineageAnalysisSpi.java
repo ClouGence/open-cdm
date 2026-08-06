@@ -16,14 +16,15 @@
 package com.clougence.clouddm.ds.dameng.sql.analysis.lineage;
 
 import java.io.Reader;
+import java.io.StringReader;
 import java.util.*;
-import java.util.stream.Stream;
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import com.clougence.clouddm.ds.dameng.sql.parser.DmDslProvider;
+import com.clougence.clouddm.ds.dameng.sql.parser.DmSplitAnalysisSpi;
 import com.clougence.clouddm.ds.dameng.sql.parser.antlr.DmSqlParser;
 import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageAnalysisSpi;
 import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageColumn;
@@ -60,11 +61,22 @@ public class DmLineageAnalysisSpi implements LineageAnalysisSpi {
     }
 
     @Override
-    public Stream<LineageColumn> analyzeStream(Reader sql, LineageContext lineageContext) {
-        return analyzeMaterialized(sql, lineageContext).stream();
+    public List<LineageColumn> analyze(String sql, LineageContext lineageContext) {
+        try (var scripts = new DmSplitAnalysisSpi().splitScriptStream(new StringReader(sql), java.util.List.of(), 1, 0)) {
+            var iterator = scripts.iterator();
+            if (!iterator.hasNext()) {
+                return List.of();
+            }
+            iterator.next();
+            if (iterator.hasNext()) {
+                throw new IllegalArgumentException("Lineage analysis supports at most one SQL statement");
+            }
+        }
+
+        return analyzeStatement(new StringReader(sql), lineageContext);
     }
 
-    private List<LineageColumn> analyzeMaterialized(Reader sql, LineageContext lineageContext) {
+    private List<LineageColumn> analyzeStatement(Reader sql, LineageContext lineageContext) {
         List<MutableColumnLineage> result = new ArrayList<>();
         Object catalogLevel = lineageContext == null || lineageContext.getLevelsParam() == null ? null : lineageContext.getLevelsParam().get(UmiTypes.Catalog);
         String defaultCatalog = catalogLevel == null ? null : String.valueOf(catalogLevel);

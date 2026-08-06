@@ -16,8 +16,8 @@
 package com.clougence.sql.doris.analysis.lineage;
 
 import java.io.Reader;
+import java.io.StringReader;
 import java.util.List;
-import java.util.stream.Stream;
 
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
@@ -32,6 +32,7 @@ import com.clougence.sql.common.analysis.lineage.AbstractLineageAnalysisSpi;
 import com.clougence.sql.doris.analysis.security.DrSqlParserVisitor;
 import com.clougence.sql.doris.analysis.security.builder.DrBuilderFactory;
 import com.clougence.sql.doris.parser.DrDslProvider;
+import com.clougence.sql.doris.parser.DrSplitAnalysisSpi;
 
 public class DrLineageAnalysisSpi extends AbstractLineageAnalysisSpi {
 
@@ -48,11 +49,22 @@ public class DrLineageAnalysisSpi extends AbstractLineageAnalysisSpi {
     }
 
     @Override
-    public Stream<LineageColumn> analyzeStream(Reader sql, LineageContext lineageContext) {
-        return analyzeMaterialized(sql, lineageContext).stream();
+    public List<LineageColumn> analyze(String sql, LineageContext lineageContext) {
+        try (var scripts = new DrSplitAnalysisSpi().splitScriptStream(new StringReader(sql), List.of(), 1, 0)) {
+            var iterator = scripts.iterator();
+            if (!iterator.hasNext()) {
+                return List.of();
+            }
+            iterator.next();
+            if (iterator.hasNext()) {
+                throw new IllegalArgumentException("Lineage analysis supports at most one SQL statement");
+            }
+        }
+
+        return analyzeStatement(new StringReader(sql), lineageContext);
     }
 
-    private List<LineageColumn> analyzeMaterialized(Reader sql, LineageContext lineageContext) {
+    private List<LineageColumn> analyzeStatement(Reader sql, LineageContext lineageContext) {
         DrBuilderFactory builder = new DrBuilderFactory(this.metaService);
         DslHelper.doVisitor(dslProvider(), sql, (lexer, parser) -> this.parserVisitor(builder, parser));
 

@@ -34,7 +34,6 @@ import com.clougence.clouddm.platform.dal.access.entry.UserCacheEntry;
 import com.clougence.clouddm.platform.dal.model.secrule.WarnLevel;
 import com.clougence.clouddm.sdk.service.secrules.*;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
-import com.clougence.clouddm.sdk.sql.analysis.security.CodeInfo;
 import com.clougence.clouddm.sdk.sql.analysis.security.ContextInfo;
 import com.clougence.clouddm.sdk.sql.analysis.security.SecDomainResolveSpi;
 import com.clougence.clouddm.sdk.ui.browser.DsBrowseSpi;
@@ -85,9 +84,8 @@ final class SecRulesCheckSession4Batch implements SecRulesCheckSession {
     public SecRulesCheckResult applyCheck(String querySql, int baseCodeLine, int baseCodeColumn) {
         List<RuleDomain> domainList;
         try {
-            CodeInfo codeInfo = CodeInfo.builder().baseLine(baseCodeLine).baseColumn(baseCodeColumn).build();
-            try (StringReader reader = new StringReader(querySql);
-                    Stream<RuleDomain> stream = this.resolveSpi.resolveDomainStream(this.dsType, reader, codeInfo, this.contextInfo)) {
+            try (StringReader reader = new StringReader(querySql); Stream<RuleDomain> stream = this.resolveSpi.resolveDomainStream(//
+                    this.dsType, reader, baseCodeLine, baseCodeColumn, this.contextInfo)) {
                 domainList = stream.toList();
             }
             if (CollectionUtils.isEmpty(domainList)) {

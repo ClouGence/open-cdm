@@ -25,7 +25,6 @@ import com.clougence.clouddm.ds.TextTestCase;
 import com.clougence.clouddm.ds.TextTestFramework;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
 import com.clougence.clouddm.sdk.sql.SqlParserParameters;
-import com.clougence.clouddm.sdk.sql.analysis.security.CodeInfo;
 import com.clougence.clouddm.sdk.sql.analysis.security.ContextInfo;
 import com.clougence.clouddm.sdk.sql.analysis.security.SecDomainResolveSpi;
 import com.clougence.clouddm.sec.rules.domain.CheckerDomain;
@@ -71,8 +70,7 @@ public final class RuleTextTest {
     }
 
     static void assertCase(String resourcePath, TestCase testCase, DataSourceType dataSourceType, SecDomainResolveSpi resolveSpi, ContextInfo contextInfo) {
-        try (StringReader reader = new StringReader(testCase.sql);
-                Stream<RuleDomain> stream = resolveSpi.resolveDomainStream(dataSourceType, reader, codeInfo(), contextInfo)) {
+        try (StringReader reader = new StringReader(testCase.sql); Stream<RuleDomain> stream = resolveSpi.resolveDomainStream(dataSourceType, reader, 1, 0, contextInfo)) {
             List<RuleDomain> domains = stream.toList();
             boolean actual = runRuleScript(testCase.rule, DomainHelper.create(domains), testCase.vars);
             Assert.assertEquals(testCase.caseId(), testCase.expect, actual);
@@ -206,10 +204,6 @@ public final class RuleTextTest {
         }
         LangObject returnData = visitor.returnData(new ValueObject(true, TypeType.Boolean));
         return (boolean) returnData.unwrap();
-    }
-
-    private static CodeInfo codeInfo() {
-        return CodeInfo.builder().baseLine(1).baseColumn(0).build();
     }
 
     static class TestCase extends TextTestCase {

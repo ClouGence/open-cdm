@@ -23,7 +23,6 @@ import com.clougence.clouddm.ds.TextTestCase;
 import com.clougence.clouddm.ds.maxcompute.dsconf.McConfig;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
 import com.clougence.clouddm.sdk.sql.SqlParserParameters;
-import com.clougence.clouddm.sdk.sql.analysis.security.CodeInfo;
 import com.clougence.clouddm.sdk.sql.analysis.security.ContextInfo;
 import com.clougence.clouddm.sdk.sql.analysis.security.SecDomainResolveSpi;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -94,7 +93,7 @@ public final class SecDomainTextTest {
 
         List<RuleDomain> domains;
         try (StringReader reader = new StringReader(testCase.sql);
-                Stream<RuleDomain> stream = resolveSpi.resolveDomainStream(dataSourceType, reader, codeInfo(), contextInfo(testCase, contextInfo))) {
+                Stream<RuleDomain> stream = resolveSpi.resolveDomainStream(dataSourceType, reader, 1, 0, contextInfo(testCase, contextInfo))) {
             domains = flatten(stream.toList());
         } catch (Exception e) {
             if (expected.has("exception")) {
@@ -426,10 +425,6 @@ public final class SecDomainTextTest {
         } catch (IllegalArgumentException ignored) {
             // Optional debug field for failure summaries.
         }
-    }
-
-    private static CodeInfo codeInfo() {
-        return CodeInfo.builder().baseLine(1).baseColumn(0).build();
     }
 
     private static ContextInfo contextInfo(TestCase testCase, ContextInfo defaultContextInfo) {

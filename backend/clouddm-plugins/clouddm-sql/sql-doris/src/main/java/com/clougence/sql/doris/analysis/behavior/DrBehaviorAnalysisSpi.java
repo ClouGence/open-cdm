@@ -7,6 +7,7 @@
 package com.clougence.sql.doris.analysis.behavior;
 
 import java.io.Reader;
+import java.io.StringReader;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -16,15 +17,23 @@ import com.clougence.clouddm.sdk.sql.analysis.behavior.StatementBehavior;
 import com.clougence.dslpaser.antlr.DslHelper;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.doris.parser.DrDslProvider;
+import com.clougence.sql.doris.parser.DrSplitAnalysisSpi;
 
 public class DrBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
 
     @Override
     public Stream<StatementBehavior> analysisBehaviorStream(Reader queryReader, Map<UmiTypes, Object> levels, int baseLine, int baseColumn) {
-        return analysisBehaviorMaterialized(queryReader, levels, baseLine, baseColumn).stream();
+        var scripts = new DrSplitAnalysisSpi().splitScriptStream(queryReader, List.of(), baseLine, baseColumn);
+        return scripts.flatMap(script -> {
+            StringReader reader = new StringReader(script.getScript());
+            int codeLine = script.getBodyStartCodeLine();
+            int codeColumn = script.getBodyStartCodeColumn();
+
+            return analyzeStatement(reader, levels, codeLine, codeColumn).stream();
+        }).onClose(scripts::close);
     }
 
-    private List<StatementBehavior> analysisBehaviorMaterialized(Reader queryReader, Map<UmiTypes, Object> levels, int baseLine, int baseColumn) {
+    private List<StatementBehavior> analyzeStatement(Reader queryReader, Map<UmiTypes, Object> levels, int baseLine, int baseColumn) {
 
         DrBehaviorParserVisitor[] holder = new DrBehaviorParserVisitor[1];
         DslHelper.doVisitor(DrDslProvider.INSTANCE, queryReader, (lexer, parser) -> {

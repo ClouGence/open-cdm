@@ -26,10 +26,6 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import org.antlr.v4.runtime.*;
-import org.antlr.v4.runtime.atn.ATN;
-import org.antlr.v4.runtime.atn.ParserATNSimulator;
-import org.antlr.v4.runtime.atn.PredictionContextCache;
-import org.antlr.v4.runtime.dfa.DFA;
 import org.antlr.v4.runtime.misc.Interval;
 import org.antlr.v4.runtime.tree.*;
 
@@ -64,13 +60,13 @@ public abstract class AbstractSplitAnalysisSpi implements SplitAnalysisSpi {
 
     //
 
-    protected SplitQueryType normalizeType(SplitQueryType type, String script) {
+    protected SplitQueryType normalizeType(SplitQueryType type) {
         return type == null ? SplitQueryType.UNKNOWN : type;
     }
 
     protected Set<SplitQueryType> collectTypes(ParserRuleContext context, String script) {
         Set<SplitQueryType> types = new LinkedHashSet<>();
-        types.add(normalizeType(context.accept(splitVisitor()), script));
+        types.add(normalizeType(context.accept(splitVisitor())));
         collectAdditionalTypes(context, types);
         return types;
     }
@@ -119,7 +115,6 @@ public abstract class AbstractSplitAnalysisSpi implements SplitAnalysisSpi {
 
     @Override
     public Stream<SplitScript> splitScriptStream(Reader reader, List<QueryArg> args, int baseLine, int baseColumn) {
-        Objects.requireNonNull(reader, "reader");
         StreamingSplit streamingSplit = new StreamingSplit(reader, baseLine, baseColumn);
         return StreamSupport.stream(streamingSplit, false).onClose(streamingSplit::close);
     }
@@ -134,34 +129,23 @@ public abstract class AbstractSplitAnalysisSpi implements SplitAnalysisSpi {
         lexer.addErrorListener(SyntaxErrorListener.INSTANCE);
 
         Parser parser = provider.createParser(lexer);
-        CommonTokenStream tokens = new StreamingCommonTokenStream(lexer);
+        StreamingCommonTokenStream tokens = new StreamingCommonTokenStream(lexer);
         parser.setTokenStream(tokens);
         parser.removeErrorListeners();
         parser.addErrorListener(SyntaxErrorListener.INSTANCE);
         parser.setBuildParseTree(true);
-        isolatePredictionCaches(parser);
-
         parser.addParseListener(new SplitListener(tokens, new LocationCursor(sourceReader, new CodeLocation(baseLine, baseColumn)), resultConsumer));
         this.parseRoot(parser);
     }
 
-    protected static void isolatePredictionCaches(Parser parser) {
-        ATN atn = parser.getATN();
-        DFA[] decisionToDfa = new DFA[atn.getNumberOfDecisions()];
-        for (int i = 0; i < decisionToDfa.length; i++) {
-            decisionToDfa[i] = new DFA(atn.getDecisionState(i), i);
-        }
-        parser.setInterpreter(new ParserATNSimulator(parser, atn, decisionToDfa, new PredictionContextCache()));
-    }
-
     private final class SplitListener implements ParseTreeListener {
 
-        private final CommonTokenStream     tokens;
-        private final LocationCursor        location;
-        private final Consumer<SplitScript> resultConsumer;
-        private ParserRuleContext           lastStatement;
+        private final StreamingCommonTokenStream tokens;
+        private final LocationCursor             location;
+        private final Consumer<SplitScript>      resultConsumer;
+        private ParserRuleContext                lastStatement;
 
-        private SplitListener(CommonTokenStream tokens, LocationCursor location, Consumer<SplitScript> resultConsumer){
+        private SplitListener(StreamingCommonTokenStream tokens, LocationCursor location, Consumer<SplitScript> resultConsumer){
             this.tokens = tokens;
             this.location = location;
             this.resultConsumer = resultConsumer;
@@ -194,8 +178,9 @@ public abstract class AbstractSplitAnalysisSpi implements SplitAnalysisSpi {
             split.setScript(script);
             split.setType(collectTypes(ctx, script));
             split.setChildren(collectChildren(ctx, this.tokens));
-            split.setBodyStartCodeLine(startToken.getLine());
-            split.setBodyStartCodeColumn(startToken.getCharPositionInLine());
+            ScriptLocation bodyStart = this.location.locate(startToken);
+            split.setBodyStartCodeLine(bodyStart.endLine());
+            split.setBodyStartCodeColumn(bodyStart.endColumn());
             split.setBodyEndCodeLine(scriptLocation.endLine());
             split.setBodyEndCodeColumn(scriptLocation.endColumn());
             this.resultConsumer.accept(split);
@@ -211,14 +196,18 @@ public abstract class AbstractSplitAnalysisSpi implements SplitAnalysisSpi {
     private static final class LocationCursor {
 
         private final WindowedReader source;
+        private final int            baseLine;
+        private final int            baseColumn;
         private int                  sourceOffset;
         private int                  line;
         private int                  column;
 
         private LocationCursor(WindowedReader source, CodeLocation base){
             this.source = source;
-            this.line = Math.max(1, base == null ? 1 : base.getLineNumber());
-            this.column = Math.max(0, base == null ? 0 : base.getColumnNumber());
+            this.baseLine = Math.max(1, base == null ? 1 : base.getLineNumber());
+            this.baseColumn = Math.max(0, base == null ? 0 : base.getColumnNumber());
+            this.line = this.baseLine;
+            this.column = this.baseColumn;
         }
 
         private ScriptLocation locate(String script, int stopOffset) {
@@ -234,6 +223,14 @@ public abstract class AbstractSplitAnalysisSpi implements SplitAnalysisSpi {
             this.sourceOffset += scriptOffset + script.length();
             this.source.discardBefore(this.sourceOffset);
             return new ScriptLocation(this.line, this.column);
+        }
+
+        private ScriptLocation locate(Token token) {
+            int tokenLine = Math.max(1, token.getLine());
+            int tokenColumn = Math.max(0, token.getCharPositionInLine());
+            int mappedLine = this.baseLine + tokenLine - 1;
+            int mappedColumn = tokenLine == 1 ? this.baseColumn + tokenColumn : tokenColumn;
+            return new ScriptLocation(mappedLine, mappedColumn);
         }
 
         private void advance(String value, int start, int end) {

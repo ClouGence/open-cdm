@@ -27,10 +27,10 @@ import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.ds.maxcompute.dsconf.McConfig;
 import com.clougence.clouddm.ds.maxcompute.sql.analysis.security.builder.McBuilderFactory;
+import com.clougence.clouddm.ds.maxcompute.sql.parser.McSplitAnalysisSpi;
 import com.clougence.clouddm.ds.maxcompute.sql.parser.McSqlDslProvider;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
-import com.clougence.clouddm.sdk.sql.analysis.security.CodeInfo;
 import com.clougence.clouddm.sdk.sql.analysis.security.ContextInfo;
 import com.clougence.clouddm.sdk.sql.analysis.security.SecDomainResolveSpi;
 import com.clougence.clouddm.sdk.sql.parser.SplitScript;
@@ -56,12 +56,19 @@ public class McSecDomainResolveSpi implements SecDomainResolveSpi, McSecDomainOp
     }
 
     @Override
-    public Stream<RuleDomain> resolveDomainStream(DataSourceType dsType, Reader queryReader, CodeInfo codeInfo, ContextInfo ctxInfo) {
-        return resolveDomainMaterialized(dsType, queryReader, codeInfo, ctxInfo).stream();
+    public Stream<RuleDomain> resolveDomainStream(DataSourceType dsType, Reader queryReader, int baseLine, int baseColumn, ContextInfo ctxInfo) {
+        var scripts = new McSplitAnalysisSpi().splitScriptStream(queryReader, List.of(), baseLine, baseColumn);
+        return scripts.flatMap(script -> {
+            StringReader reader = new StringReader(script.getScript());
+            int codeLine = script.getBodyStartCodeLine();
+            int codeColumn = script.getBodyStartCodeColumn();
+
+            return resolveStatement(dsType, reader, codeLine, codeColumn, ctxInfo).stream();
+        }).onClose(scripts::close);
     }
 
-    private List<RuleDomain> resolveDomainMaterialized(DataSourceType dsType, Reader queryReader, CodeInfo codeInfo, ContextInfo ctxInfo) {
-        CodeLocation dslBase = new CodeLocation(codeInfo.getBaseLine(), codeInfo.getBaseColumn());
+    private List<RuleDomain> resolveStatement(DataSourceType dsType, Reader queryReader, int baseLine, int baseColumn, ContextInfo ctxInfo) {
+        CodeLocation dslBase = new CodeLocation(baseLine, baseColumn);
         List<RuleDomain> domainList = new ArrayList<>();
         McConfig mcConfig = (McConfig) ctxInfo.getDataSourceConfig();
 

@@ -16,7 +16,6 @@
 package com.clougence.clouddm.ds.lineage;
 
 import java.io.IOException;
-import java.io.StringReader;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -33,8 +32,8 @@ import com.clougence.clouddm.ds.TextTestCase;
 import com.clougence.clouddm.ds.TextTestFramework;
 import com.clougence.clouddm.ds.maxcompute.dsconf.McConfig;
 import com.clougence.clouddm.sdk.sql.SqlParserParameters;
-import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageColumn;
 import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageAnalysisSpi;
+import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageColumn;
 import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageContext;
 import com.clougence.clouddm.sdk.sql.analysis.lineage.SourceName;
 import com.clougence.schema.umi.struts.UmiTypes;
@@ -117,9 +116,8 @@ public abstract class LineageTextTest {
         }
 
         List<LineageColumn> items;
-        try (StringReader reader = new StringReader(testCase.sql);
-                Stream<LineageColumn> stream = analysisSpi.analyzeStream(reader, lineageContext(context))) {
-            items = stream.toList();
+        try {
+            items = analysisSpi.analyze(testCase.sql, lineageContext(context));
         } catch (Exception e) {
             if (expected.has("exception")) {
                 assertExpectedException(testCase, expected.get("exception"), e, failures);

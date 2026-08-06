@@ -17,8 +17,6 @@ import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
 import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.StatementBehavior;
-import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageColumn;
-import com.clougence.clouddm.sdk.sql.analysis.security.CodeInfo;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteContext;
 import com.clougence.dslpaser.antlr.AntlerSyntaxException;
 import com.clougence.schema.umi.struts.UmiTypes;
@@ -134,30 +132,25 @@ public class MySqlVersionConfigurationTest {
             }
         });
 
-        CodeInfo codeInfo = CodeInfo.builder().baseLine(0).baseColumn(0).build();
         Assertions.assertDoesNotThrow(() -> {
             try (StringReader reader = new StringReader(sql);
-                    Stream<RuleDomain> stream = engine.secDomainResolveSpi(ansiQuotes).resolveDomainStream(DataSourceType.MySQL, reader, codeInfo, null)) {
+                    Stream<RuleDomain> stream = engine.secDomainResolveSpi(ansiQuotes).resolveDomainStream(DataSourceType.MySQL, reader, 0, 0, null)) {
                 return stream.toList();
             }
         });
         Assertions.assertThrows(AntlerSyntaxException.class, () -> {
             try (StringReader reader = new StringReader(sql);
-                    Stream<RuleDomain> stream = engine.secDomainResolveSpi(knownEmpty).resolveDomainStream(DataSourceType.MySQL, reader, codeInfo, null)) {
+                    Stream<RuleDomain> stream = engine.secDomainResolveSpi(knownEmpty).resolveDomainStream(DataSourceType.MySQL, reader, 0, 0, null)) {
                 stream.toList();
             }
         });
 
         var columnContextInfo = com.clougence.clouddm.sdk.sql.analysis.lineage.LineageContext.builder().levelsParam(levels).build();
         Assertions.assertDoesNotThrow(() -> {
-            try (StringReader reader = new StringReader(sql); Stream<LineageColumn> stream = engine.lineageAnalysisSpi(ansiQuotes).analyzeStream(reader, columnContextInfo)) {
-                return stream.toList();
-            }
+            return engine.lineageAnalysisSpi(ansiQuotes).analyze(sql, columnContextInfo);
         });
         Assertions.assertThrows(AntlerSyntaxException.class, () -> {
-            try (StringReader reader = new StringReader(sql); Stream<LineageColumn> stream = engine.lineageAnalysisSpi(knownEmpty).analyzeStream(reader, columnContextInfo)) {
-                stream.toList();
-            }
+            engine.lineageAnalysisSpi(knownEmpty).analyze(sql, columnContextInfo);
         });
 
         QueryRequest request = new QueryRequest();

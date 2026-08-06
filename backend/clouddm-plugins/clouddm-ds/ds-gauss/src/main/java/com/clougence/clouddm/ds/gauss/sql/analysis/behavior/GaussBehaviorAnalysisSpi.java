@@ -7,6 +7,7 @@
 package com.clougence.clouddm.ds.gauss.sql.analysis.behavior;
 
 import java.io.Reader;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +20,7 @@ import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import com.clougence.clouddm.ds.gauss.sql.parser.GaussDslProvider;
+import com.clougence.clouddm.ds.gauss.sql.parser.GaussSplitAnalysisSpi;
 import com.clougence.clouddm.ds.gauss.sql.parser.antlr.GaussSqlParserBaseVisitor;
 import com.clougence.clouddm.ds.gauss.sql.parser.antlr.GaussSqlParser.*;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.*;
@@ -30,10 +32,17 @@ import com.clougence.sql.common.analysis.behavior.RdbBehaviorObjectFactory;
 public class GaussBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
     @Override
     public Stream<StatementBehavior> analysisBehaviorStream(Reader queryReader, Map<UmiTypes, Object> levels, int baseLine, int baseColumn) {
-        return analysisBehaviorMaterialized(queryReader, levels, baseLine, baseColumn).stream();
+        var scripts = new GaussSplitAnalysisSpi().splitScriptStream(queryReader, List.of(), baseLine, baseColumn);
+        return scripts.flatMap(script -> {
+            StringReader reader = new StringReader(script.getScript());
+            int codeLine = script.getBodyStartCodeLine();
+            int codeColumn = script.getBodyStartCodeColumn();
+
+            return analyzeStatement(reader, levels, codeLine, codeColumn).stream();
+        }).onClose(scripts::close);
     }
 
-    private List<StatementBehavior> analysisBehaviorMaterialized(Reader queryReader, Map<UmiTypes, Object> levels, int baseLine, int baseColumn) {
+    private List<StatementBehavior> analyzeStatement(Reader queryReader, Map<UmiTypes, Object> levels, int baseLine, int baseColumn) {
         GaussBehaviorParserVisitor[] holder = new GaussBehaviorParserVisitor[1];
         DslHelper.doVisitor(GaussDslProvider.INSTANCE, queryReader, (lexer, parser) -> {
             holder[0] = new GaussBehaviorParserVisitor(parser, levels, baseLine, baseColumn);

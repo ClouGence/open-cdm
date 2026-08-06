@@ -16,12 +16,12 @@
 package com.clougence.sql.mysql.analysis.lineage;
 
 import java.io.Reader;
+import java.io.StringReader;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Stream;
 
 import com.clougence.clouddm.sdk.service.execute.MetaCol;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
@@ -38,24 +38,38 @@ import com.clougence.sql.common.analysis.lineage.resolve.LineageResolver;
 import com.clougence.sql.common.analysis.lineage.resolve.LineageTableName;
 import com.clougence.sql.mysql.analysis.lineage.antlr.MyLineageCstVisitor;
 import com.clougence.sql.mysql.parser.MyDslProvider;
+import com.clougence.sql.mysql.parser.MySplitAnalysisSpi;
 import com.clougence.sql.mysql.parser.MySqlParserConfig;
 
 public class MyLineageAnalysisSpi implements LineageAnalysisSpi {
 
-    private final MetaService metaService;
-    private final DslProvider provider;
+    private final MetaService        metaService;
+    private final DslProvider        provider;
+    private final MySplitAnalysisSpi splitter;
 
     public MyLineageAnalysisSpi(MetaService metaService, MySqlParserConfig config){
         this.metaService = metaService;
         this.provider = new MyDslProvider(config);
+        this.splitter = new MySplitAnalysisSpi((MyDslProvider) this.provider);
     }
 
     @Override
-    public Stream<LineageColumn> analyzeStream(Reader sql, LineageContext lineageContext) {
-        return analyzeMaterialized(sql, lineageContext).stream();
+    public List<LineageColumn> analyze(String sql, LineageContext lineageContext) {
+        try (var scripts = this.splitter.splitScriptStream(new StringReader(sql), List.of(), 1, 0)) {
+            var iterator = scripts.iterator();
+            if (!iterator.hasNext()) {
+                return List.of();
+            }
+            iterator.next();
+            if (iterator.hasNext()) {
+                throw new IllegalArgumentException("Lineage analysis supports at most one SQL statement");
+            }
+        }
+
+        return analyzeStatement(new StringReader(sql), lineageContext);
     }
 
-    private List<LineageColumn> analyzeMaterialized(Reader sql, LineageContext lineageContext) {
+    private List<LineageColumn> analyzeStatement(Reader sql, LineageContext lineageContext) {
         AtomicReference<MyLineageCstVisitor> visitorRef = new AtomicReference<>();
         DslHelper.doVisitor(provider, sql, (lexer, parser) -> {
             MyLineageCstVisitor visitor = new MyLineageCstVisitor(parser);

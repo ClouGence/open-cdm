@@ -302,10 +302,7 @@ public class QueryAnalysisServiceImpl implements QueryAnalysisService {
             }
 
             if (request.hasQueryType(SplitQueryType.SELECT)) {
-                List<LineageColumn> lineageCols;
-                try (StringReader reader = new StringReader(request.getQueryBody()); Stream<LineageColumn> stream = this.lineageSpi.analyzeStream(reader, this.lineageContext)) {
-                    lineageCols = stream.toList();
-                }
+                List<LineageColumn> lineageCols = this.lineageSpi.analyze(request.getQueryBody(), this.lineageContext);
 
                 Set<String> columnNames = new HashSet<>();
                 if (lineageCols.stream().anyMatch(c -> !columnNames.add(c.column()))) {
