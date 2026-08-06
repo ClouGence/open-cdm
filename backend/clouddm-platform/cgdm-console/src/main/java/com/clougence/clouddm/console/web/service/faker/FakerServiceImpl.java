@@ -22,11 +22,10 @@ import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.base.metadata.ds.tools.FakerPluginConfig;
-import com.clougence.clouddm.console.web.component.asyntask.AsyncTaskConfig;
-import com.clougence.clouddm.console.web.component.asyntask.AsyncTaskScheduleService;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.console.web.component.execute.ToolsService;
+import com.clougence.clouddm.console.web.component.execute.asyntask.AsyncTaskConfig;
 import com.clougence.clouddm.console.web.component.schema.DsSchemaService;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmLabelKeys;
@@ -39,7 +38,6 @@ import com.clougence.clouddm.console.web.model.vo.faker.FakerColumnVO;
 import com.clougence.clouddm.console.web.model.vo.faker.FakerDefVO;
 import com.clougence.clouddm.console.web.model.vo.faker.FakerLogVO;
 import com.clougence.clouddm.console.web.model.vo.faker.FakerPreviewVO;
-import com.clougence.clouddm.console.web.service.asyntask.AsyncTaskService;
 import com.clougence.clouddm.console.web.service.faker.asyntask.FakerAsyncTask;
 import com.clougence.clouddm.console.web.service.faker.asyntask.FakerAsyncTaskConfig;
 import com.clougence.clouddm.console.web.util.UiWebUtil;
@@ -70,19 +68,19 @@ import lombok.extern.slf4j.Slf4j;
 public class FakerServiceImpl implements FakerService, FakerMethod {
 
     @Resource
-    private ExecutionDal             executionDal;
+    private ExecutionDal                                                         executionDal;
     @Resource
-    private DataSourceDal            dsDal;
+    private DataSourceDal                                                        dsDal;
     @Resource
-    private AsyncTaskService         asyncTaskService;
+    private com.clougence.clouddm.console.web.service.asyntask.AsyncTaskService  asyncTaskService;
     @Resource
-    private ToolsService             toolsService;
+    private com.clougence.clouddm.console.web.component.execute.AsyncTaskService scheduleService;
     @Resource
-    private DsSchemaService          dsSchemaService;
+    private ToolsService                                                         toolsService;
     @Resource
-    private DmDsConfigService        dsConfigService;
+    private DsSchemaService                                                      dsSchemaService;
     @Resource
-    private AsyncTaskScheduleService scheduleService;
+    private DmDsConfigService                                                    dsConfigService;
 
     @Override
     public FakerDefVO loadFakerDef(String puid, String uid, FakerDefFO fo) {

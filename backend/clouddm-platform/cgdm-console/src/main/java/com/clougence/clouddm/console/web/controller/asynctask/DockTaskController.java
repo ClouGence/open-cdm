@@ -27,14 +27,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
-import com.clougence.clouddm.console.web.component.asyntask.AsyncTaskScheduleService;
 import com.clougence.clouddm.console.web.constants.DmControllerUrlPrefix;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
 import com.clougence.clouddm.console.web.model.fo.asyntask.ActionAsyncTaskFO;
 import com.clougence.clouddm.console.web.model.vo.faker.DmAsyncTaskVO;
-import com.clougence.clouddm.console.web.service.asyntask.AsyncTaskService;
 import com.clougence.clouddm.console.web.service.auth.RdpUserService;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
 import com.clougence.clouddm.platform.dal.access.ExecutionDal;
@@ -53,11 +51,11 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class DockTaskController {
     @Resource
-    private ExecutionDal             executionDal;
+    private ExecutionDal                                                         executionDal;
     @Resource
-    private AsyncTaskService         asyncTaskService;
+    private com.clougence.clouddm.console.web.service.asyntask.AsyncTaskService  asyncTaskService;
     @Resource
-    private AsyncTaskScheduleService scheduleService;
+    private com.clougence.clouddm.console.web.component.execute.AsyncTaskService scheduleService;
 
     @RequestAuth(strategy = RequestAuth.AuthStrategy.Ignore)
     @RequestMapping(value = "/listDockTask", method = RequestMethod.POST)

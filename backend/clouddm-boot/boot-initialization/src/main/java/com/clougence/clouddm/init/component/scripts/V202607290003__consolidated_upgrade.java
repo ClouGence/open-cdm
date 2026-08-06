@@ -123,6 +123,13 @@ public class V202607290003__consolidated_upgrade extends AbstractUpgradeJavaMigr
                 """, """
                     alter table dm_change
                         drop column flow_walked
+                """, """
+                    alter table dm_exec_auto_job
+                        drop index idx_depend_biz,
+                        drop column depend_on_biz_type
+                """, """
+                    create unique index uk_exec_auto_job_depend_biz
+                        on dm_exec_auto_job (depend_on_biz_id)
                 """);
     }
 }

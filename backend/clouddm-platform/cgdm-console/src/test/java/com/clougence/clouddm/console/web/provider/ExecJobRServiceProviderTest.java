@@ -22,9 +22,8 @@ import org.junit.Test;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import com.clougence.clouddm.api.sidecar.autoexec.AutoExecMessageDTO;
-import com.clougence.clouddm.console.web.component.autoexec.AutoExecHelper;
-import com.clougence.clouddm.console.web.component.autoexec.AutoExecHelperService;
-import com.clougence.clouddm.console.web.component.autoexec.AutoExecJobPackageService;
+import com.clougence.clouddm.console.web.component.approval.ApprovalStateService;
+import com.clougence.clouddm.console.web.component.execute.AutoExecService;
 import com.clougence.clouddm.platform.dal.access.ExecutionDal;
 import com.clougence.clouddm.platform.dal.access.MonitorDal;
 import com.clougence.clouddm.platform.dal.mapper.execution.DmExecAutoJobMapper;
@@ -33,13 +32,12 @@ import com.clougence.clouddm.platform.dal.mapper.monitor.DmMonBizLogMapper;
 import com.clougence.clouddm.platform.dal.model.execution.AutoExecJobStatus;
 import com.clougence.clouddm.platform.dal.model.execution.DmExecAutoJobDO;
 import com.clougence.clouddm.platform.dal.model.execution.DmExecAutoTaskDO;
-import com.clougence.clouddm.platform.dal.model.execution.SQLJobBizType;
 
 public class ExecJobRServiceProviderTest {
 
     private DmExecAutoJobMapper     jobMapper;
     private DmMonBizLogMapper       bizLogMapper;
-    private AutoExecHelper          changeHelper;
+    private ApprovalStateService    approvalStateService;
     private ExecJobRServiceProvider provider;
 
     @Before
@@ -54,14 +52,12 @@ public class ExecJobRServiceProviderTest {
         bizLogMapper = mock(DmMonBizLogMapper.class);
         when(monitorDal.bizLogMapper()).thenReturn(bizLogMapper);
 
-        AutoExecHelperService helperService = mock(AutoExecHelperService.class);
-        changeHelper = mock(AutoExecHelper.class);
-        when(helperService.getHelper(SQLJobBizType.CHANGE)).thenReturn(changeHelper);
+        approvalStateService = mock(ApprovalStateService.class);
 
         DmExecAutoJobDO job = new DmExecAutoJobDO();
         job.setId(6L);
-        job.setBizId("change-job");
-        job.setDependOnBizType(SQLJobBizType.CHANGE);
+        job.setBizId("ticket-job");
+        job.setDependOnBizId("approval-biz");
         job.setStatus(AutoExecJobStatus.EXECUTING);
         when(jobMapper.selectById(6L)).thenReturn(job);
 
@@ -79,16 +75,16 @@ public class ExecJobRServiceProviderTest {
         provider = new ExecJobRServiceProvider();
         ReflectionTestUtils.setField(provider, "execDal", executionDal);
         ReflectionTestUtils.setField(provider, "monitorDal", monitorDal);
-        ReflectionTestUtils.setField(provider, "execHelperService", helperService);
-        ReflectionTestUtils.setField(provider, "taskPackageService", mock(AutoExecJobPackageService.class));
+        ReflectionTestUtils.setField(provider, "approvalStateService", approvalStateService);
+        ReflectionTestUtils.setField(provider, "autoExecService", mock(AutoExecService.class));
     }
 
     @Test
-    public void shouldNotifyChangeWhenJobFails() {
+    public void shouldNotifyApprovalWhenJobFails() {
         ReflectionTestUtils.invokeMethod(provider, "jobFailed", AutoExecMessageDTO.jobFailedMessage(6L, "task-query"));
 
         verify(jobMapper).markJobFailedIfActive(6L);
-        verify(changeHelper).execFailed(SQLJobBizType.CHANGE, "change-job");
+        verify(approvalStateService).failExecution("approval-biz", null);
     }
 
     @Test
@@ -97,7 +93,7 @@ public class ExecJobRServiceProviderTest {
 
         ReflectionTestUtils.invokeMethod(provider, "jobFailed", AutoExecMessageDTO.jobFailedMessage(6L, "task-query"));
 
-        verify(changeHelper, never()).execFailed(any(), anyString());
+        verify(approvalStateService, never()).failExecution(anyString(), any());
         verifyNoInteractions(bizLogMapper);
     }
 
@@ -111,15 +107,15 @@ public class ExecJobRServiceProviderTest {
         ReflectionTestUtils.invokeMethod(provider, "jobFailed", AutoExecMessageDTO.jobFailedMessage(6L, "task-query"));
 
         verify(jobMapper, never()).markJobFailedIfActive(anyLong());
-        verifyNoInteractions(changeHelper, bizLogMapper);
+        verifyNoInteractions(approvalStateService, bizLogMapper);
     }
 
     @Test
-    public void shouldNotifyChangeWhenJobFinishes() {
+    public void shouldNotifyApprovalWhenJobFinishes() {
         ReflectionTestUtils.invokeMethod(provider, "jobFinish", AutoExecMessageDTO.jobFinishMessage(6L, 1L));
 
         verify(jobMapper).finishJobIfActive(6L);
-        verify(changeHelper).execCompleted(SQLJobBizType.CHANGE, "change-job");
+        verify(approvalStateService).completeExecution("approval-biz");
     }
 
     @Test
@@ -128,7 +124,7 @@ public class ExecJobRServiceProviderTest {
 
         ReflectionTestUtils.invokeMethod(provider, "jobFinish", AutoExecMessageDTO.jobFinishMessage(6L, 1L));
 
-        verify(changeHelper, never()).execCompleted(any(), anyString());
+        verify(approvalStateService, never()).completeExecution(anyString());
         verifyNoInteractions(bizLogMapper);
     }
 

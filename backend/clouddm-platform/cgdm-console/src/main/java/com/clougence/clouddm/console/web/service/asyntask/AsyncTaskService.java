@@ -17,7 +17,7 @@ package com.clougence.clouddm.console.web.service.asyntask;
 
 import java.util.List;
 
-import com.clougence.clouddm.console.web.component.asyntask.AsyncTaskConfig;
+import com.clougence.clouddm.console.web.component.execute.asyntask.AsyncTaskConfig;
 import com.clougence.clouddm.platform.dal.model.execution.DmExecAsyncTaskDO;
 
 /**

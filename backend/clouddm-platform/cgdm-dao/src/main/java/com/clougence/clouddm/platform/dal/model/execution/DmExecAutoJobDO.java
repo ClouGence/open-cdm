@@ -38,7 +38,6 @@ public class DmExecAutoJobDO {
     private Long                   dataSourceId;
     private String                 uid;
     private String                 bizId;
-    private SQLJobBizType          dependOnBizType;
     private String                 dependOnBizId;
     private AutoExecJobStatus      status;
     private Date                   lastReportTime;

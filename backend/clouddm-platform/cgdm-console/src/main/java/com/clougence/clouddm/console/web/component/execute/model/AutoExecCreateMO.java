@@ -13,23 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.console.web.component.autoexec.model;
+package com.clougence.clouddm.console.web.component.execute.model;
 
 import com.clougence.clouddm.api.console.autoexec.ErrorStrategy;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.platform.dal.model.execution.AutoExecType;
-import com.clougence.clouddm.platform.dal.model.execution.SQLJobBizType;
 
 import lombok.Builder;
 import lombok.Getter;
 
 @Getter
 @Builder
-public class AutoExecJobCreateRequest {
+public class AutoExecCreateMO {
 
     private final DsLevels      dsLevels;
     private final String        jobBizId;
-    private final SQLJobBizType bizType;
     private final String        bizId;
     private final AutoExecType  execType;
     private final boolean       transactional;

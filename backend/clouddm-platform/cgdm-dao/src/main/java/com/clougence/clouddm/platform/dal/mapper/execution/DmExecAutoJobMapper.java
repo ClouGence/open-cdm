@@ -23,13 +23,12 @@ import org.apache.ibatis.annotations.Param;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.clougence.clouddm.platform.dal.model.execution.AutoExecJobStatus;
 import com.clougence.clouddm.platform.dal.model.execution.DmExecAutoJobDO;
-import com.clougence.clouddm.platform.dal.model.execution.SQLJobBizType;
 
 public interface DmExecAutoJobMapper extends BaseMapper<DmExecAutoJobDO> {
 
     DmExecAutoJobDO queryById(long jobId);
 
-    DmExecAutoJobDO queryByDependOnBiz(@Param("bizId") String bizId, @Param("bizType") SQLJobBizType bizType);
+    DmExecAutoJobDO queryByDependOnBizId(@Param("bizId") String bizId);
 
     DmExecAutoJobDO queryByBizId(@Param("bizId") String bizId);
 

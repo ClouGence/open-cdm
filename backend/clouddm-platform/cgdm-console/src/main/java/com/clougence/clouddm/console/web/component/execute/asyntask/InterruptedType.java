@@ -13,9 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.platform.dal.model.execution;
+package com.clougence.clouddm.console.web.component.execute.asyntask;
 
-public enum SQLJobBizType {
-    TICKET,
-    CHANGE
+import lombok.extern.slf4j.Slf4j;
+
+/**
+ * default Task
+ * @author 赵永春 (zyc@hasor.net)
+ * @version : 2023-09-24
+ */
+@Slf4j
+public enum InterruptedType {
+    PAUSE,
+    CANCEL
 }

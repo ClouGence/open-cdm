@@ -1,4 +1,4 @@
-/*
+ /*
  * Copyright 2026 杭州开云集致科技有限公司
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.console.web.component.approval.ApprovalFlowService;
 import com.clougence.clouddm.console.web.component.approval.ApprovalHandler;
+import com.clougence.clouddm.console.web.component.approval.ApprovalStateService;
 import com.clougence.clouddm.console.web.component.approval.model.ApprovalStageMO;
 import com.clougence.clouddm.console.web.component.cicd.ImSenderService;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
@@ -59,6 +60,8 @@ public class ApprovalFlowServiceImpl implements ApprovalFlowService {
     private ApprovalProviderServiceImpl             providerService;
     @Resource
     private ImSenderService                         imSenderService;
+    @Resource
+    private ApprovalStateService                    approvalStateService;
 
     private final Map<ApprovalBiz, ApprovalHandler> approvalHandlers;
 
@@ -92,7 +95,7 @@ public class ApprovalFlowServiceImpl implements ApprovalFlowService {
             }
         }
         this.cancelAllProcess(ticketId);
-        this.transitionTicketToTerminal(ticketDO, ApprovalStatus.CLOSED, statusMessage);
+        this.transitionTicketToTerminal(ticketDO.getId(), ApprovalStatus.CLOSED, statusMessage);
     }
 
     @Override
@@ -102,7 +105,7 @@ public class ApprovalFlowServiceImpl implements ApprovalFlowService {
         checkInProgress(ticketDO);
 
         this.failCurrentAndCloseFollowingProcesses(ticketDO);
-        this.transitionTicketToTerminal(ticketDO, ApprovalStatus.FAILED, statusMessage);
+        this.transitionTicketToTerminal(ticketDO.getId(), ApprovalStatus.FAILED, statusMessage);
     }
 
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
@@ -112,7 +115,7 @@ public class ApprovalFlowServiceImpl implements ApprovalFlowService {
 
         checkInProgress(ticketDO);
         this.cancelAllProcess(ticketId);
-        this.transitionTicketToTerminal(ticketDO, ApprovalStatus.CANCELED, statusMessage);
+        this.transitionTicketToTerminal(ticketDO.getId(), ApprovalStatus.CANCELED, statusMessage);
     }
 
     @Override
@@ -142,7 +145,7 @@ public class ApprovalFlowServiceImpl implements ApprovalFlowService {
                 execMO.setExecMsg(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_STATUS_REJECTED_BY_APPROVAL.name()));
             }
             this.approvalDal.processMapper().updateTicketStatusByEnum(processDO.getId(), ApprovalProcessStatus.REJECT, JsonUtils.toJson(execMO));
-            this.transitionTicketToTerminal(ticketDO, ApprovalStatus.REJECTED, null);
+            this.transitionTicketToTerminal(ticketDO.getId(), ApprovalStatus.REJECTED, null);
         } else {
             // WAIT_APPROVAL -> WAIT_CONFIRM
             approvalHandler(ticketDO.getApproBiz()).approvalApproved(ticketDO.getId(), ticketDO.getApproBiz(), imSenderService);
@@ -215,7 +218,7 @@ public class ApprovalFlowServiceImpl implements ApprovalFlowService {
                 execMO.setExecUserName(Collections.singletonList(this.authDal.userMapper().queryByUid(approvalDO.getOwnerUid()).getUsername()));
                 processDO.setStageContext(JsonUtils.toJson(execMO));
             }
-            this.approvalDal.processMapper().insert(processDO);
+            processDO = this.approvalStateService.initializeProcess(ticketId, stage, ApprovalProcessStatus.INIT, processDO.getStageContext());
 
             // need return first process id
             if (firstStageId == -1) {
@@ -330,31 +333,8 @@ public class ApprovalFlowServiceImpl implements ApprovalFlowService {
     @Override
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public void transitionTicketToTerminal(long ticketId, ApprovalStatus terminalStatus, String statusMessage) {
-        DmApprovalDO ticketDO = checkTicket(ticketId);
-        this.transitionTicketToTerminal(ticketDO, terminalStatus, statusMessage);
-    }
-
-    private void transitionTicketToTerminal(DmApprovalDO ticketDO, ApprovalStatus terminalStatus, String statusMessage) {
-        this.approvalDal.approvalMapper().updateStatusByEnum(ticketDO.getId(), terminalStatus, statusMessage);
-        ApprovalHandler handler = approvalHandler(ticketDO.getApproBiz());
-        switch (terminalStatus) {
-            case FINISHED:
-                handler.approvalCompleted(ticketDO.getId(), ticketDO.getApproBiz(), imSenderService);
-                return;
-            case REJECTED:
-                handler.approvalRejected(ticketDO.getId(), ticketDO.getApproBiz(), imSenderService);
-                return;
-            case FAILED:
-            case EXEC_FAIL:
-                handler.approvalFailed(ticketDO.getId(), ticketDO.getApproBiz(), imSenderService);
-                return;
-            case CLOSED:
-            case CANCELED:
-                handler.approvalCanceled(ticketDO.getId(), ticketDO.getApproBiz(), imSenderService);
-                return;
-            default:
-                throw new IllegalStateException("Unsupported terminal ticket status: " + terminalStatus);
-        }
+        checkTicket(ticketId);
+        this.approvalStateService.finalizeApproval(ticketId, terminalStatus, statusMessage);
     }
 
     @Override

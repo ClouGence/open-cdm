@@ -23,9 +23,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.clougence.clouddm.console.web.component.asyntask.AsyncTaskConfig;
-import com.clougence.clouddm.console.web.component.asyntask.AsyncTaskScheduleService;
 import com.clougence.clouddm.console.web.component.config.ConsoleConfig;
+import com.clougence.clouddm.console.web.component.execute.AsyncTaskService;
+import com.clougence.clouddm.console.web.component.execute.asyntask.AsyncTaskConfig;
 import com.clougence.clouddm.console.web.global.events.DmGlobalEventBus;
 import com.clougence.clouddm.console.web.util.InstanceUtil;
 import com.clougence.clouddm.console.web.util.RdpTimerUtils;
@@ -45,13 +45,13 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Service
-public class AsyncTaskServiceImpl implements AsyncTaskService {
+public class AsyncTaskServiceImpl implements com.clougence.clouddm.console.web.service.asyntask.AsyncTaskService {
     @Resource
-    private ExecutionDal             executionDal;
+    private ExecutionDal     executionDal;
     @Resource
-    private AsyncTaskScheduleService asyncTaskScheduleService;
+    private AsyncTaskService asyncTaskService;
     @Resource
-    private ConsoleConfig            config;
+    private ConsoleConfig    config;
 
     @Override
     public void submitTask(String uid, AsyncTaskConfig config) {
@@ -93,7 +93,7 @@ public class AsyncTaskServiceImpl implements AsyncTaskService {
             for (DmExecAsyncTaskDO task : taskList) {
                 this.executionDal.asyncTaskMapper().activateTask(task.getId(), getHostIp());
             }
-            this.asyncTaskScheduleService.trigger();
+            this.asyncTaskService.trigger();
         };
 
         if (delay > 0) {
@@ -147,7 +147,7 @@ public class AsyncTaskServiceImpl implements AsyncTaskService {
     public void pauseTask(String bizId, String bizType, String reasons) {
         DmExecAsyncTaskDO taskDO = this.executionDal.asyncTaskMapper().queryByBiz(bizId, bizType);
         if (taskDO != null) {
-            this.asyncTaskScheduleService.pauseTask(taskDO.getId(), reasons);
+            this.asyncTaskService.pauseTask(taskDO.getId(), reasons);
         }
     }
 
@@ -155,7 +155,7 @@ public class AsyncTaskServiceImpl implements AsyncTaskService {
     public void cancelTask(String bizId, String bizType, String reasons) {
         DmExecAsyncTaskDO taskDO = this.executionDal.asyncTaskMapper().queryByBiz(bizId, bizType);
         if (taskDO != null) {
-            this.asyncTaskScheduleService.cancelTask(taskDO.getId(), reasons);
+            this.asyncTaskService.cancelTask(taskDO.getId(), reasons);
         }
     }
 
@@ -163,7 +163,7 @@ public class AsyncTaskServiceImpl implements AsyncTaskService {
     public void resumeTask(String bizId, String bizType, String reasons) {
         DmExecAsyncTaskDO taskDO = this.executionDal.asyncTaskMapper().queryByBiz(bizId, bizType);
         if (taskDO != null) {
-            this.asyncTaskScheduleService.resumeTask(taskDO.getId(), reasons);
+            this.asyncTaskService.resumeTask(taskDO.getId(), reasons);
         }
     }
 
@@ -171,7 +171,7 @@ public class AsyncTaskServiceImpl implements AsyncTaskService {
     public void retryTask(String bizId, String bizType, String reasons) {
         DmExecAsyncTaskDO taskDO = this.executionDal.asyncTaskMapper().queryByBiz(bizId, bizType);
         if (taskDO != null) {
-            this.asyncTaskScheduleService.retryTask(taskDO.getId(), reasons);
+            this.asyncTaskService.retryTask(taskDO.getId(), reasons);
         }
     }
 }

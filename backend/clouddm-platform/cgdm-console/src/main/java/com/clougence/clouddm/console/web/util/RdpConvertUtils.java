@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 
 import com.clougence.clouddm.base.metadata.ds.ConfigValType;
 import com.clougence.clouddm.console.web.component.approval.model.ApprovalAnalysisStateMO;
+import com.clougence.clouddm.console.web.component.approval.model.ApprovalExecutionStateMO;
 import com.clougence.clouddm.console.web.component.config.RootUserConfig;
 import com.clougence.clouddm.console.web.component.config.UserConfigKvDef;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsConfigKvDef;
@@ -625,6 +626,25 @@ public class RdpConvertUtils {
             vo.setRuleCount(item.getCheckedInfo() == null ? null : (long) item.getCheckedInfo().size());
             vo.setRuleResults(item.getCheckedInfo());
         }
+        return vo;
+    }
+
+    public static RdpTicketActivityVO convertToExecutionActivityVO(ApprovalExecutionStateMO item) {
+        RdpTicketActivityVO vo = new RdpTicketActivityVO();
+        vo.setActivityTitle(item.getExecutionType());
+        vo.setDisplayOrder(item.getDisplayOrder());
+        vo.setActivityStatus(switch (item.getExecutionStatus()) {
+            case ApprovalExecutionStateMO.STATUS_RUNNING -> RdpTicketProcessActivityStatus.RUNNING;
+            case ApprovalExecutionStateMO.STATUS_FINISHED -> RdpTicketProcessActivityStatus.COMPLETED;
+            case ApprovalExecutionStateMO.STATUS_FAILED -> RdpTicketProcessActivityStatus.REFUSE;
+            case ApprovalExecutionStateMO.STATUS_CANCELED -> RdpTicketProcessActivityStatus.CANCELED;
+            default -> RdpTicketProcessActivityStatus.NEW;
+        });
+        vo.setStartTimeUtc(item.getStartTimeUtc());
+        vo.setFinishTimeUtc(item.getFinishTimeUtc());
+        vo.setProcessedCount(item.getProcessedCount());
+        vo.setStatementCount(item.getTotalCount());
+        vo.setRemark(item.getErrorMessage());
         return vo;
     }
 
