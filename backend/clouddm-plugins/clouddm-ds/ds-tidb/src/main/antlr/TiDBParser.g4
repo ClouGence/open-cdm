@@ -3281,7 +3281,6 @@ showStatement
     | {tidbAtLeast(6)}? SHOW SESSION_STATES                          #showSessionStates
     | SHOW HISTOGRAMS_IN_FLIGHT                                     #showRuntimeStatistics
     | {tidbAtLeast(6)}? SHOW STATS_LOCKED showFilter?                #showRuntimeStatistics
-    | {tidbAtLeast(9)}? SHOW PLAN FOR textLiteralToken               #showRuntimeStatistics
     | SHOW RESTORES showFilter?                                     #showRuntimeStatistics
     | SHOW SESSION BINDINGS                                         #showSessionBindings
     | SHOW CHARSET showFilter?                                       #showCharset

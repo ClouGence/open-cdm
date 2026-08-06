@@ -3,6 +3,7 @@
 # Source: pkg/expression/builtin.go: funcs
 # Source: pkg/parser/misc.go: btFuncTokenMap/windowFuncTokenMap
 # Source: pkg/parser/parser.y and pkg/planner/core/expression_rewriter.go: parser-special functions
+# Source: TiDB docs/ai/integrations/vector-search-auto-embedding-overview.md: TiDB Cloud auto-embedding functions
 ABS
 ACOS
 ADDDATE
@@ -336,6 +337,8 @@ VAR_SAMP
 VEC_AS_TEXT
 VEC_COSINE_DISTANCE
 VEC_DIMS
+VEC_EMBED_COSINE_DISTANCE
+VEC_EMBED_L2_DISTANCE
 VEC_FROM_TEXT
 VEC_L1_DISTANCE
 VEC_L2_DISTANCE

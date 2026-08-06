@@ -49,6 +49,7 @@ final class TiBehaviorRelationAssembler {
         assembleDefaultRoles();
         assembleImport();
         assembleExport();
+        assembleTableDefinition();
         assembleIndexRelation();
         assembleTriggerRelation();
         assembleDataDependencies();
@@ -67,6 +68,32 @@ final class TiBehaviorRelationAssembler {
             distinct.putIfAbsent(key.toString(), relation);
         }
         return new ArrayList<>(distinct.values());
+    }
+
+    private void assembleTableDefinition() {
+        if (statementType != SplitQueryType.CREATE_TABLE && statementType != SplitQueryType.ALTER_TABLE) {
+            return;
+        }
+        int table = first(reference -> reference.targetType() == TargetType.Table
+                                       && (action(reference) == BehaviorAction.CREATE || action(reference) == BehaviorAction.ALTER));
+        if (table < 0) {
+            return;
+        }
+        List<Integer> children = all(reference -> reference.targetType() == TargetType.Column || reference.targetType() == TargetType.Constraint);
+        if (children.isEmpty()) {
+            return;
+        }
+
+        BehaviorObject carrier = toObject(references.get(table));
+        addUnary(table);
+        for (Integer child : children) {
+            BehaviorRelation relation = new BehaviorRelation();
+            relation.setSubject(toObject(references.get(child)));
+            relation.setAction(action(references.get(child)));
+            relation.getTarget().add(carrier);
+            relations.add(relation);
+            consumed[child] = true;
+        }
     }
 
     private void assembleQueryWatch() {
@@ -264,7 +291,8 @@ final class TiBehaviorRelationAssembler {
         if (subject < 0) {
             return;
         }
-        List<Integer> sources = all(reference -> action(reference) == BehaviorAction.READ && isDataObject(reference.targetType()));
+        List<Integer> sources = all(reference -> action(reference) == BehaviorAction.READ && isDataObject(reference.targetType())
+                                                  && !sameDataObject(references.get(subject), reference));
         if (sources.isEmpty()) {
             return;
         }
@@ -273,6 +301,11 @@ final class TiBehaviorRelationAssembler {
             behaviorAction = BehaviorAction.REPLACE;
         }
         addRelation(subject, behaviorAction, sources);
+        for (int index = 0; index < references.size(); index++) {
+            if (!consumed[index] && action(references.get(index)) == BehaviorAction.READ && sameDataObject(references.get(subject), references.get(index))) {
+                consumed[index] = true;
+            }
+        }
     }
 
     private boolean isDependencySubject(SplitQueryType type) {
@@ -284,6 +317,18 @@ final class TiBehaviorRelationAssembler {
 
     private boolean isDataObject(TargetType type) {
         return type == TargetType.Table || type == TargetType.View || type == TargetType.Materialized;
+    }
+
+    private boolean sameDataObject(TiDBObjectReference left, TiDBObjectReference right) {
+        if (left.targetType() != right.targetType() || left.nodes().size() != right.nodes().size()) {
+            return false;
+        }
+        for (int index = 0; index < left.nodes().size(); index++) {
+            if (!StringUtils.equalsIgnoreCase(left.nodes().get(index), right.nodes().get(index))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private void addUnary(int index) {

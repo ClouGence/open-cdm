@@ -15,9 +15,6 @@
  */
 package com.clougence.clouddm.ds.tidb.sql.parser;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 public enum TiDBVersion {
     TIDB_5(5, "v5.4.3"),
     TIDB_6(6, "v6.5.12"),
@@ -26,9 +23,6 @@ public enum TiDBVersion {
     TIDB_9(9, "v9.0.0-beta.2.pre");
 
     public static final TiDBVersion LATEST              = TIDB_9;
-
-    private static final Pattern    TIDB_SERVER_VERSION = Pattern.compile("(?i)\\bTiDB\\b(?:[-_\\s]*(?:SERVER|VERSION))?[-_\\s:]*V?(\\d+)");
-    private static final Pattern    DIRECT_VERSION      = Pattern.compile("(?i)^\\s*V?(\\d+)");
 
     private final int               major;
     private final String            sourceRef;
@@ -54,21 +48,95 @@ public enum TiDBVersion {
         if (version == null || version.isBlank()) {
             return LATEST;
         }
-        Matcher serverVersion = TIDB_SERVER_VERSION.matcher(version);
-        if (serverVersion.find()) {
-            return fromMajor(serverVersion.group(1));
+        int tidb = findWord(version, "TiDB");
+        if (tidb >= 0) {
+            int major = majorAfterTiDB(version, tidb + "TiDB".length());
+            if (major >= 0) {
+                return fromMajor(major);
+            }
         }
-        Matcher directVersion = DIRECT_VERSION.matcher(version);
-        return directVersion.find() ? fromMajor(directVersion.group(1)) : LATEST;
+        int start = skipWhitespace(version, 0);
+        if (start < version.length() && (version.charAt(start) == 'v' || version.charAt(start) == 'V')) {
+            start++;
+        }
+        int major = readMajor(version, start);
+        return major >= 0 ? fromMajor(major) : LATEST;
     }
 
-    private static TiDBVersion fromMajor(String value) {
-        int major = Integer.parseInt(value);
+    private static TiDBVersion fromMajor(int major) {
         for (TiDBVersion candidate : values()) {
             if (candidate.major == major) {
                 return candidate;
             }
         }
         return LATEST;
+    }
+
+    private static int majorAfterTiDB(String value, int start) {
+        int index = skipSeparators(value, start, false);
+        if (startsWithWord(value, index, "SERVER")) {
+            index = skipSeparators(value, index + "SERVER".length(), true);
+        } else if (startsWithWord(value, index, "VERSION")) {
+            index = skipSeparators(value, index + "VERSION".length(), true);
+        } else {
+            index = skipSeparators(value, index, true);
+        }
+        if (index < value.length() && (value.charAt(index) == 'v' || value.charAt(index) == 'V')) {
+            index++;
+        }
+        return readMajor(value, index);
+    }
+
+    private static int findWord(String value, String word) {
+        for (int index = 0; index + word.length() <= value.length(); index++) {
+            if (value.regionMatches(true, index, word, 0, word.length())
+                && (index == 0 || !isWordPart(value.charAt(index - 1)))
+                && (index + word.length() == value.length() || !isWordPart(value.charAt(index + word.length())))) {
+                return index;
+            }
+        }
+        return -1;
+    }
+
+    private static boolean startsWithWord(String value, int start, String word) {
+        int end = start + word.length();
+        return start >= 0 && end <= value.length() && value.regionMatches(true, start, word, 0, word.length())
+               && (start == 0 || !isWordPart(value.charAt(start - 1))) && (end == value.length() || !isWordPart(value.charAt(end)));
+    }
+
+    private static int skipWhitespace(String value, int start) {
+        int index = start;
+        while (index < value.length() && Character.isWhitespace(value.charAt(index))) {
+            index++;
+        }
+        return index;
+    }
+
+    private static int skipSeparators(String value, int start, boolean includeColon) {
+        int index = start;
+        while (index < value.length()) {
+            char current = value.charAt(index);
+            if (Character.isWhitespace(current) || current == '-' || current == '_' || includeColon && current == ':') {
+                index++;
+            } else {
+                break;
+            }
+        }
+        return index;
+    }
+
+    private static int readMajor(String value, int start) {
+        if (start >= value.length() || !Character.isDigit(value.charAt(start))) {
+            return -1;
+        }
+        int result = 0;
+        for (int index = start; index < value.length() && Character.isDigit(value.charAt(index)); index++) {
+            result = result * 10 + value.charAt(index) - '0';
+        }
+        return result;
+    }
+
+    private static boolean isWordPart(char value) {
+        return Character.isLetterOrDigit(value) || value == '_';
     }
 }

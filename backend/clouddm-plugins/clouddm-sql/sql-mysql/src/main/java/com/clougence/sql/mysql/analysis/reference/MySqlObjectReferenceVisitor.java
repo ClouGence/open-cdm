@@ -737,6 +737,30 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
     }
 
     @Override
+    public Void visitSavepointStatement(SavepointStatementContext ctx) {
+        String savepoint = name(ctx.uid());
+        addInstanceBehaviorResource(SplitQueryType.TRANSACTION, TargetType.Savepoint, false,
+                ctx.uid().getStart(), savepoint, BehaviorAction.CREATE);
+        return null;
+    }
+
+    @Override
+    public Void visitRollbackStatement(RollbackStatementContext ctx) {
+        String savepoint = name(ctx.uid());
+        addInstanceBehaviorResource(SplitQueryType.TRANSACTION, TargetType.Savepoint, true,
+                ctx.uid().getStart(), savepoint, BehaviorAction.RESET);
+        return null;
+    }
+
+    @Override
+    public Void visitReleaseStatement(ReleaseStatementContext ctx) {
+        String savepoint = name(ctx.uid());
+        addInstanceBehaviorResource(SplitQueryType.TRANSACTION, TargetType.Savepoint, true,
+                ctx.uid().getStart(), savepoint, BehaviorAction.DROP);
+        return null;
+    }
+
+    @Override
     public Void visitChangeMaster(ChangeMasterContext ctx) {
         addUnnamedResource(SplitQueryType.ALTER_REPLICATION, TargetType.Replication, true, ctx);
         return null;
@@ -1273,7 +1297,16 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
     }
 
     private void addConfigKey(SplitQueryType permission, VariableClauseContext ctx) {
-        addInstanceResource(permission, TargetType.ConfigKey, true, ctx, variableName(ctx));
+        ParserRuleContext nameContext = ctx.uid() == null ? ctx : ctx.uid();
+        String name = variableName(ctx);
+        if (nameContext == null || StringUtils.isBlank(name)) {
+            return;
+        }
+        List<String> nodes = new ArrayList<>();
+        addPart(nodes, name);
+        references.add(new MySqlObjectReference(permission, TargetType.ConfigKey, true,
+            line(nameContext), column(nameContext), endLine(nameContext), endColumn(nameContext),
+            nodes, BehaviorAction.CONFIGURE));
     }
 
     private String variableName(VariableClauseContext ctx) {
@@ -1506,6 +1539,26 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
         addPart(parts, unquoteIdentifier(token.getText()));
         List<String> nodes = resolveNodes(targetType, parts);
         addWithNodes(sqlType, targetType, require, token, nodes);
+    }
+
+    protected final void addTableChild(SplitQueryType sqlType, TargetType targetType, boolean require, TableNameContext table, ParserRuleContext child) {
+        if (table == null || child == null) {
+            return;
+        }
+        List<String> tableParts = new ArrayList<>();
+        if (table.delphiName != null) {
+            addPart(tableParts, name(table.delphiName));
+        } else if (table.fullId() != null) {
+            for (UidContext uid : table.fullId().uid()) {
+                addPart(tableParts, name(uid));
+            }
+            if (table.fullId().identifierAfterDot != null) {
+                addPart(tableParts, table.fullId().identifierAfterDot.getText());
+            }
+        }
+        List<String> nodes = resolveNodes(TargetType.Table, tableParts);
+        addPart(nodes, name(child));
+        addWithNodes(sqlType, targetType, require, child, nodes);
     }
 
     private void add(SplitQueryType sqlType, TargetType targetType, boolean require, ParserRuleContext ctx, List<String> parts) {

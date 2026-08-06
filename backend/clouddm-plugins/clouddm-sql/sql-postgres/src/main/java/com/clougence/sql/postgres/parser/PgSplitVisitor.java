@@ -88,7 +88,8 @@ public class PgSplitVisitor extends PgSqlParserBaseVisitor<SplitQueryType> {
         if (type != null) {
             this.types.add(type);
         }
-        if (tree instanceof DeclarecursorstmtContext || tree instanceof FetchstmtContext || tree instanceof CloseportalstmtContext) {
+        if (tree instanceof DeclarecursorstmtContext && !isExplainAnalyzeWrapper(tree)
+            || tree instanceof FetchstmtContext || tree instanceof CloseportalstmtContext) {
             this.types.add(SplitQueryType.PROGRAM_CONTROL);
         }
         if (tree instanceof VariablesetstmtContext ctx && ctx.set_rest().SESSION() != null) {
@@ -117,11 +118,23 @@ public class PgSplitVisitor extends PgSqlParserBaseVisitor<SplitQueryType> {
                || tree instanceof AlterseqstmtContext && hasToken(tree, OWNER) && hasToken(tree, TO);
     }
 
+    private boolean isExplainAnalyzeWrapper(ParseTree tree) {
+        ParseTree parent = tree.getParent();
+        while (parent != null) {
+            if (parent instanceof ExplainstmtContext explain) {
+                return isExplainAnalyze(explain);
+            }
+            parent = parent.getParent();
+        }
+        return false;
+    }
+
     private boolean shouldDescend(ParseTree tree, SplitQueryType type) {
         if (tree instanceof ExplainstmtContext ctx) {
             return isExplainAnalyze(ctx);
         }
-        if (tree instanceof CreateasstmtContext || tree instanceof SelectstmtContext || tree instanceof Select_no_parensContext || tree instanceof InsertstmtContext
+        if (tree instanceof CreateasstmtContext && !isExplainAnalyzeWrapper(tree)
+            || tree instanceof SelectstmtContext || tree instanceof Select_no_parensContext || tree instanceof InsertstmtContext
             || tree instanceof UpdatestmtContext || tree instanceof DeletestmtContext || tree instanceof MergestmtContext || tree instanceof CopystmtContext
             || tree instanceof AltertablestmtContext || tree instanceof DeclarecursorstmtContext) {
             return true;

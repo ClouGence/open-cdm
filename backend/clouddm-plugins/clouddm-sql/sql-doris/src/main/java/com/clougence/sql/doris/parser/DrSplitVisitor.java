@@ -27,7 +27,7 @@ public class DrSplitVisitor extends DorisParserBaseVisitor<SplitQueryType> {
 
     @Override
     public SplitQueryType visitStatementDefault(StatementDefaultContext ctx) {
-        return SplitQueryType.SELECT;
+        return ctx.explain() == null ? SplitQueryType.SELECT : SplitQueryType.PERFORMANCE;
     }
 
     @Override

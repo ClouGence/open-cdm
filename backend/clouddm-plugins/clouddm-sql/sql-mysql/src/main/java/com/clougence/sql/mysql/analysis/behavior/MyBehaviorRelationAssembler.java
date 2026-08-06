@@ -49,6 +49,7 @@ final class MyBehaviorRelationAssembler {
         assembleIndexRelation();
         assembleTriggerRelation();
         assembleDataDependencies();
+        assembleColumnRelation();
         for (int i = 0; i < references.size(); i++) {
             if (!consumed[i]) {
                 addUnary(i);
@@ -245,12 +246,40 @@ final class MyBehaviorRelationAssembler {
         }
     }
 
+    private void assembleColumnRelation() {
+        int table = first(reference -> reference.targetType() == TargetType.Table
+                && action(reference) == BehaviorAction.CREATE
+                && reference.sqlType() == SplitQueryType.CREATE_TABLE);
+        if (table < 0) {
+            return;
+        }
+        BehaviorObject carrier = toObject(references.get(table));
+        if (!consumed[table]) {
+            addUnary(table);
+        }
+        for (int index = 0; index < references.size(); index++) {
+            MySqlObjectReference reference = references.get(index);
+            if (consumed[index] || reference.targetType() != TargetType.Column
+                    || reference.sqlType() != SplitQueryType.CREATE_TABLE
+                    || action(reference) != BehaviorAction.CREATE) {
+                continue;
+            }
+            BehaviorRelation relation = new BehaviorRelation();
+            relation.setSubject(toObject(reference));
+            relation.setAction(BehaviorAction.CREATE);
+            relation.getTarget().add(carrier);
+            relations.add(relation);
+            consumed[index] = true;
+        }
+    }
+
     private void assembleDataDependencies() {
         int subject = first(reference -> isDependencySubject(reference.sqlType()));
         if (subject < 0) {
             return;
         }
-        List<Integer> sources = all(reference -> action(reference) == BehaviorAction.READ && isDataObject(reference.targetType()));
+        List<Integer> sources = all(reference -> action(reference) == BehaviorAction.READ && isDataObject(reference.targetType())
+                                                  && !sameDataObject(references.get(subject), reference));
         if (sources.isEmpty()) {
             return;
         }
@@ -259,6 +288,11 @@ final class MyBehaviorRelationAssembler {
             behaviorAction = BehaviorAction.REPLACE;
         }
         addRelation(subject, behaviorAction, sources);
+        for (int index = 0; index < references.size(); index++) {
+            if (!consumed[index] && action(references.get(index)) == BehaviorAction.READ && sameDataObject(references.get(subject), references.get(index))) {
+                consumed[index] = true;
+            }
+        }
     }
 
     private boolean isDependencySubject(SplitQueryType type) {
@@ -270,6 +304,18 @@ final class MyBehaviorRelationAssembler {
 
     private boolean isDataObject(TargetType type) {
         return type == TargetType.Table || type == TargetType.View || type == TargetType.Materialized;
+    }
+
+    private boolean sameDataObject(MySqlObjectReference left, MySqlObjectReference right) {
+        if (left.targetType() != right.targetType() || left.nodes().size() != right.nodes().size()) {
+            return false;
+        }
+        for (int index = 0; index < left.nodes().size(); index++) {
+            if (!StringUtils.equalsIgnoreCase(left.nodes().get(index), right.nodes().get(index))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private void addUnary(int index) {
@@ -322,6 +368,9 @@ final class MyBehaviorRelationAssembler {
     private ObjectName objectName(TargetType targetType, List<String> nodes) {
         if (targetType == TargetType.File) {
             return new ObjectName(null, null, nodes.get(0));
+        }
+        if (targetType == TargetType.Column && nodes.size() >= 4) {
+            return new ObjectName(nodes.get(nodes.size() - 4), nodes.get(nodes.size() - 3), nodes.get(nodes.size() - 1));
         }
         if (nodes.size() >= 3) {
             return new ObjectName(nodes.get(nodes.size() - 3), nodes.get(nodes.size() - 2), nodes.get(nodes.size() - 1));

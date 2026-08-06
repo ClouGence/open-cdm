@@ -144,6 +144,18 @@ public class MySqlVersionConfigurationTest {
         Assertions.assertThrows(AntlerSyntaxException.class, () -> engine.rewriteSpi(knownEmpty).rewriterQuery(request, rewriteContext));
     }
 
+    @Test
+    public void splitRetriesNoBackslashEscapesWhenSqlModeIsUnknown() {
+        MySqlEngineSpi engine = new MySqlEngineSpi(null);
+        String sql = "SELECT /*!50000 'trailing backslash\\' */;";
+
+        var scripts = engine.splitAnalysisSpi(SqlParserParameters.ofVersion("8.0.46"))
+                .splitScript(sql, null, 0, 0);
+
+        Assertions.assertEquals(1, scripts.size());
+        Assertions.assertEquals(sql, scripts.get(0).getScript());
+    }
+
     private static SqlParserParameters parserParameters(String sqlMode) {
         Map<String, String> values = new LinkedHashMap<>();
         values.put(SqlParserParameters.VERSION, "8.4.10");

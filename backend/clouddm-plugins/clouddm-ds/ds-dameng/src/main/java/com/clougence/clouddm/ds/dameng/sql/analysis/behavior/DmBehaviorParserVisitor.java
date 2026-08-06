@@ -85,13 +85,15 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
         String source = context.getStart().getInputStream().getText(Interval.of(context.getStart().getStartIndex(), context.getStop().getStopIndex()));
         String normalized = stripLeadingComments(source).stripLeading().toUpperCase(Locale.ROOT);
         SplitQueryType type = behavior.getStatementType();
-        if (normalized.startsWith("SHUTDOWN") || normalized.startsWith("EXECUTE IMMEDIATE") || normalized.matches("(?s).*\\bOPEN\\s+[^;]+?\\s+FOR\\s+(['\"]).*")) {
+        if (normalized.startsWith("SHUTDOWN") || normalized.startsWith("EXECUTE IMMEDIATE") || hasLiteralDynamicCursor(tree)) {
             add(type == SplitQueryType.UNKNOWN ? SplitQueryType.UNSAFE : type, BehaviorAction.UNSAFE, objects
                 .unnamedObject(TargetType.PrepareStatement, context, UmiTypes.Instance));
             return;
         }
         if (normalized.startsWith("CONFIGURE")) {
-            BehaviorAction action = normalized.matches("(?s)^CONFIGURE\\s+CLEAR\\b.*") ? BehaviorAction.RESET : BehaviorAction.READ;
+            DmSqlParser.AdminStatementContext admin = firstDescendant(tree, DmSqlParser.AdminStatementContext.class);
+            DmSqlParser.ConfigureStatementTailContext configure = admin == null ? null : admin.configureStatementTail();
+            BehaviorAction action = configure != null && configure.CLEAR() != null ? BehaviorAction.RESET : BehaviorAction.READ;
             add(SplitQueryType.ADMIN, action, objects.instanceObject(TargetType.ConfigKey, context, "DMRMAN_DEFAULTS"));
             return;
         }
@@ -109,6 +111,19 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
         } else {
             add(type, BehaviorAction.UNKNOWN, objects.unnamedObject(TargetType.Unknown, context, UmiTypes.Instance));
         }
+    }
+
+    private boolean hasLiteralDynamicCursor(ParseTree tree) {
+        for (DmSqlParser.OpenCursorStatementContext cursor : descendants(tree, DmSqlParser.OpenCursorStatementContext.class)) {
+            if (cursor.FOR() == null || cursor.expression() == null) {
+                continue;
+            }
+            int tokenType = cursor.expression().getStart().getType();
+            if (tokenType == DmSqlParser.STRING || tokenType == DmSqlParser.DOUBLE_QUOTED_ID) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static String stripLeadingComments(String sql) {
@@ -937,7 +952,14 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
                 }
             }
         }
-        add(SplitQueryType.CREATE_TABLE, BehaviorAction.CREATE, object(TargetType.Table, ctx.targetTable, schemaScoped(NameParts.from(ctx.targetTable))), sources);
+        BehaviorObject table = object(TargetType.Table, ctx.targetTable, schemaScoped(NameParts.from(ctx.targetTable)));
+        add(SplitQueryType.CREATE_TABLE, BehaviorAction.CREATE, table, sources);
+        for (DmSqlParser.ColumnDefinitionContext column : descendants(createBody, DmSqlParser.ColumnDefinitionContext.class)) {
+            add(SplitQueryType.CREATE_TABLE, BehaviorAction.CREATE, childObject(TargetType.Column, table, column.identifier()), List.of(table));
+        }
+        for (DmSqlParser.HugeColumnDefinitionContext column : descendants(createBody, DmSqlParser.HugeColumnDefinitionContext.class)) {
+            add(SplitQueryType.CREATE_TABLE, BehaviorAction.CREATE, childObject(TargetType.Column, table, column.identifier()), List.of(table));
+        }
         addFunctionCalls(ctx);
         return null;
     }
@@ -1518,7 +1540,18 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
                 DmSqlParser.IdentifierContext partition = truncate.partitionTruncateTarget().identifier();
                 addPartitionTarget(targets, name, partition);
             }
-            add(statementType, BehaviorAction.ALTER, object(TargetType.Table, qualified, name), targets);
+            BehaviorObject table = object(TargetType.Table, qualified, name);
+            if (statementType == SplitQueryType.ADD_COLUMN) {
+                add(SplitQueryType.ALTER_TABLE, BehaviorAction.ALTER, table, targets);
+                for (DmSqlParser.ColumnDefinitionContext column : descendants(action, DmSqlParser.ColumnDefinitionContext.class)) {
+                    add(SplitQueryType.ALTER_TABLE, BehaviorAction.CREATE, childObject(TargetType.Column, table, column.identifier()), List.of(table));
+                }
+                for (DmSqlParser.HugeColumnDefinitionContext column : descendants(action, DmSqlParser.HugeColumnDefinitionContext.class)) {
+                    add(SplitQueryType.ALTER_TABLE, BehaviorAction.CREATE, childObject(TargetType.Column, table, column.identifier()), List.of(table));
+                }
+            } else {
+                add(statementType, BehaviorAction.ALTER, table, targets);
+            }
             addFunctionCalls(ctx);
         } else if (ctx.contextTableName != null) {
             add(SplitQueryType.ALTER_INDEX, BehaviorAction.ALTER, object(TargetType.Index, ctx.contextIndexName, schemaScoped(NameParts.from(ctx.contextIndexName))), List
@@ -1820,8 +1853,6 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
             add(SplitQueryType.COMMENT_TRIGGER, BehaviorAction.ALTER, object(TargetType.Trigger, qualified, schemaScoped(NameParts.from(qualified))));
         } else if (target.TYPE() != null) {
             add(SplitQueryType.COMMENT_TYPE, BehaviorAction.ALTER, object(TargetType.Type, qualified, schemaScoped(NameParts.from(qualified))));
-        } else if (target.SYNONYM() != null) {
-            add(SplitQueryType.COMMENT_SYNONYM, BehaviorAction.ALTER, object(TargetType.Synonym, qualified, schemaScoped(NameParts.from(qualified))));
         } else if (target.CONTEXT() != null) {
             add(SplitQueryType.COMMENT_CONTEXT, BehaviorAction.ALTER, objects.instanceObject(TargetType.Context, qualified, NameParts.clean(qualified.getText())));
         } else if (target.DOMAIN() != null) {
@@ -1840,9 +1871,6 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
             add(SplitQueryType.COMMENT_PACKAGE, BehaviorAction.ALTER, object(TargetType.Package, qualified, schemaScoped(NameParts.from(qualified))));
         } else if (target.PROCEDURE() != null) {
             add(SplitQueryType.COMMENT_PROCEDURE, BehaviorAction.ALTER, object(TargetType.Procedure, qualified, schemaScoped(NameParts.from(qualified))));
-        } else if (target.OPERATOR() != null) {
-            add(SplitQueryType.COMMENT_OPERATOR, BehaviorAction.ALTER, object(TargetType.Operator, target
-                .operatorQualifiedName(), schemaScoped(operatorName(target.operatorQualifiedName()))));
         } else if (target.DATABASE() != null) {
             // DM's COMMENT ON DATABASE addresses the current schema. DATABASE
             // is a keyword here, not a schema identifier.
@@ -2394,7 +2422,11 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
         if (directoryValue == null || filenameValue == null) {
             return;
         }
-        directoryValue = directoryValue.replaceFirst("^/+", "");
+        int firstNonSlash = 0;
+        while (firstNonSlash < directoryValue.length() && directoryValue.charAt(firstNonSlash) == '/') {
+            firstNonSlash++;
+        }
+        directoryValue = directoryValue.substring(firstNonSlash);
         addObject(targets, objects.instanceObject(TargetType.File, filename, directoryValue + "/" + filenameValue));
     }
 
@@ -2805,7 +2837,7 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
             return first.startsWith("'");
         }
         if ("TIMEOUT".equals(sessionParameter)) {
-            return first.matches("[+-]?\\d+(?:\\.\\d+)?");
+            return isSignedDecimal(first);
         }
         return "TRUE".equalsIgnoreCase(first) || "FALSE".equalsIgnoreCase(first) || "NULL".equalsIgnoreCase(first);
     }
@@ -2852,7 +2884,7 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
 
     private void addJobTarget(List<BehaviorObject> targets, DmSqlParser.RoutineArgumentListContext arguments, ParserRuleContext context) {
         DmSqlParser.ExpressionContext job = routineArgumentExpression(arguments, 0, "JOB");
-        if (job != null && job.getText().matches("\\d+")) {
+        if (job != null && isUnsignedInteger(job.getText())) {
             addObject(targets, objects.instanceObject(TargetType.Job, job, job.getText()));
             return;
         }
@@ -3041,7 +3073,7 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
             addObject(targets, objects.instanceObject(type, token, value));
             return;
         }
-        List<String> names = Arrays.stream(value.split("\\.")).map(NameParts::clean).toList();
+        List<String> names = splitOnCharacter(value, '.').stream().map(NameParts::clean).toList();
         addObject(targets, objects.object(type, token, names));
     }
 
@@ -3338,14 +3370,7 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
             names.add(NameParts.clean(declaration.identifier().getText()).toLowerCase(Locale.ROOT));
         }
         String source = ctx.getStart().getInputStream().getText(Interval.of(ctx.getStart().getStartIndex(), ctx.getStop().getStopIndex()));
-        java.util.regex.Matcher begin = java.util.regex.Pattern.compile("(?i)\\bBEGIN\\b").matcher(source);
-        if (begin.find()) {
-            java.util.regex.Matcher declaration = java.util.regex.Pattern.compile("(?i)(?:\\bDECLARE\\b|;)\\s*([A-Z_][A-Z0-9_$#]*)\\s+")
-                .matcher(source.substring(0, begin.start()));
-            while (declaration.find()) {
-                names.add(declaration.group(1).toLowerCase(Locale.ROOT));
-            }
-        }
+        addLexicalDeclarationNames(source, names);
         return names;
     }
 
@@ -3380,7 +3405,7 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
     }
 
     private BehaviorObject localMethodObject(TargetType targetType, ParserRuleContext context, String localType, String method) {
-        List<String> names = Arrays.stream(localType.split("\\.")).map(NameParts::clean).filter(part -> !part.isEmpty()).collect(Collectors.toCollection(ArrayList::new));
+        List<String> names = splitOnCharacter(localType, '.').stream().map(NameParts::clean).filter(part -> !part.isEmpty()).collect(Collectors.toCollection(ArrayList::new));
         if (names.size() < 3 && levels != null && levels.get(UmiTypes.Catalog) != null) {
             names.add(0, levels.get(UmiTypes.Catalog).toString());
         }
@@ -4103,7 +4128,7 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
         if (targetType == null) {
             return;
         }
-        List<String> names = Arrays.stream(objectValue.split("\\.")).filter(part -> !part.isBlank()).toList();
+        List<String> names = splitOnCharacter(objectValue, '.').stream().filter(part -> !part.isBlank()).toList();
         addObject(targets, objects.object(targetType, object, names));
     }
 
@@ -4258,6 +4283,26 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
         return objects.object(type, context, names);
     }
 
+    private BehaviorObject childObject(TargetType type, BehaviorObject parent, ParserRuleContext context) {
+        if (parent == null || context == null) {
+            return null;
+        }
+        String childName = NameParts.clean(context.getText());
+        if (childName == null || childName.isBlank()) {
+            return null;
+        }
+        BehaviorObject child = objects.object(type, context, List.of(childName));
+        if (child == null) {
+            return null;
+        }
+        child.setObjectPath(parent.getObjectPath() + childName + "/");
+        ObjectName parentName = parent.getObjectName();
+        if (parentName != null) {
+            child.setObjectName(new ObjectName(parentName.getCatalog(), parentName.getSchema(), childName));
+        }
+        return child;
+    }
+
     private BehaviorObject routineObject(TargetType type, ParserRuleContext context, NameParts name) {
         if (context == null || name == null || name.name() == null || name.catalog() == null || !context.getText().contains("@")) {
             return object(type, context, name);
@@ -4389,6 +4434,141 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
         if (value != null && values.stream().noneMatch(existing -> sameObject(existing, value))) {
             values.add(value);
         }
+    }
+
+    private static boolean isSignedDecimal(String value) {
+        if (value == null || value.isEmpty()) {
+            return false;
+        }
+        int index = value.charAt(0) == '+' || value.charAt(0) == '-' ? 1 : 0;
+        int integerStart = index;
+        while (index < value.length() && Character.isDigit(value.charAt(index))) {
+            index++;
+        }
+        if (index == integerStart) {
+            return false;
+        }
+        if (index == value.length()) {
+            return true;
+        }
+        if (value.charAt(index++) != '.' || index == value.length()) {
+            return false;
+        }
+        while (index < value.length() && Character.isDigit(value.charAt(index))) {
+            index++;
+        }
+        return index == value.length();
+    }
+
+    private static boolean isUnsignedInteger(String value) {
+        if (value == null || value.isEmpty()) {
+            return false;
+        }
+        for (int index = 0; index < value.length(); index++) {
+            if (!Character.isDigit(value.charAt(index))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static List<String> splitOnCharacter(String value, char separator) {
+        if (value.isEmpty()) {
+            return List.of("");
+        }
+        List<String> parts = new ArrayList<>();
+        int start = 0;
+        for (int index = 0; index < value.length(); index++) {
+            if (value.charAt(index) == separator) {
+                parts.add(value.substring(start, index));
+                start = index + 1;
+            }
+        }
+        parts.add(value.substring(start));
+        while (!parts.isEmpty() && parts.get(parts.size() - 1).isEmpty()) {
+            parts.remove(parts.size() - 1);
+        }
+        return parts;
+    }
+
+    private static void addLexicalDeclarationNames(String source, Set<String> names) {
+        int declarationEnd = indexOfWordIgnoreCase(source, "BEGIN", 0);
+        if (declarationEnd < 0) {
+            return;
+        }
+        int index = 0;
+        while (index < declarationEnd) {
+            int markerEnd;
+            if (source.charAt(index) == ';') {
+                markerEnd = index + 1;
+            } else if (isWordAtIgnoreCase(source, "DECLARE", index)) {
+                markerEnd = index + "DECLARE".length();
+            } else {
+                index++;
+                continue;
+            }
+            int nameStart = markerEnd;
+            while (nameStart < declarationEnd && Character.isWhitespace(source.charAt(nameStart))) {
+                nameStart++;
+            }
+            if (nameStart >= declarationEnd || !isIdentifierStart(source.charAt(nameStart))) {
+                index = markerEnd;
+                continue;
+            }
+            int nameEnd = nameStart + 1;
+            while (nameEnd < declarationEnd && isIdentifierPart(source.charAt(nameEnd))) {
+                nameEnd++;
+            }
+            if (nameEnd < declarationEnd && Character.isWhitespace(source.charAt(nameEnd))) {
+                names.add(source.substring(nameStart, nameEnd).toLowerCase(Locale.ROOT));
+            }
+            index = nameEnd;
+        }
+    }
+
+    private static int indexOfWordIgnoreCase(String source, String word, int fromIndex) {
+        for (int index = Math.max(0, fromIndex); index + word.length() <= source.length(); index++) {
+            if (isWordAtIgnoreCase(source, word, index)) {
+                return index;
+            }
+        }
+        return -1;
+    }
+
+    private static boolean isWordAtIgnoreCase(String source, String word, int index) {
+        if (index < 0 || index + word.length() > source.length() || !source.regionMatches(true, index, word, 0, word.length())) {
+            return false;
+        }
+        return (index == 0 || !isWordCharacter(source.charAt(index - 1)))
+               && (index + word.length() == source.length() || !isWordCharacter(source.charAt(index + word.length())));
+    }
+
+    private static boolean isWordCharacter(char value) {
+        return Character.isLetterOrDigit(value) || value == '_';
+    }
+
+    private static boolean isIdentifierStart(char value) {
+        return Character.isLetter(value) || value == '_';
+    }
+
+    private static boolean isIdentifierPart(char value) {
+        return Character.isLetterOrDigit(value) || value == '_' || value == '$' || value == '#';
+    }
+
+    private <T extends ParserRuleContext> T firstDescendant(ParseTree tree, Class<T> type) {
+        if (tree == null) {
+            return null;
+        }
+        if (type.isInstance(tree)) {
+            return type.cast(tree);
+        }
+        for (int index = 0; index < tree.getChildCount(); index++) {
+            T result = firstDescendant(tree.getChild(index), type);
+            if (result != null) {
+                return result;
+            }
+        }
+        return null;
     }
 
     private <T extends ParserRuleContext> List<T> descendants(ParseTree tree, Class<T> type) {

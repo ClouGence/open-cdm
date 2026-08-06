@@ -323,7 +323,7 @@ public final class MyLineageCstVisitor extends MySqlParserBaseVisitor<Void> {
     }
 
     private boolean sameText(ExpressionContext expression, LineageColumnReference reference) {
-        String expressionText = text(expression).replaceAll("\\s+", "");
+        String expressionText = removeWhitespaceAndBackticks(text(expression));
         StringBuilder expected = new StringBuilder();
         if (reference.catalog() != null) {
             expected.append(reference.catalog()).append('.');
@@ -335,7 +335,22 @@ public final class MyLineageCstVisitor extends MySqlParserBaseVisitor<Void> {
             expected.append(reference.qualifier()).append('.');
         }
         expected.append(reference.column());
-        return expressionText.replace("`", "").equalsIgnoreCase(expected.toString());
+        return expressionText.equalsIgnoreCase(expected.toString());
+    }
+
+    private String removeWhitespaceAndBackticks(String value) {
+        StringBuilder normalized = new StringBuilder(value.length());
+        for (int index = 0; index < value.length(); index++) {
+            char character = value.charAt(index);
+            if (character != '`' && !isAsciiWhitespace(character)) {
+                normalized.append(character);
+            }
+        }
+        return normalized.toString();
+    }
+
+    private boolean isAsciiWhitespace(char character) {
+        return character == ' ' || character == '\t' || character == '\n' || character == '\u000B' || character == '\f' || character == '\r';
     }
 
     private void collectExpressionValues(ParseTree node, List<LineageValue> values) {

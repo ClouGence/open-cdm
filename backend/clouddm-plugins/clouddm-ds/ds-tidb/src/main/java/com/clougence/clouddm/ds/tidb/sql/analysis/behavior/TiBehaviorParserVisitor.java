@@ -134,8 +134,10 @@ final class TiBehaviorParserVisitor extends AbstractParseTreeVisitor<Void> {
                 addIdentifierListAfter(sql, behavior, anchor, "TO", type, BehaviorAction.RESTORE);
             }
         } else if (normalized.startsWith("INDEX ADVISE ")) {
-            behavior.getRelations().removeIf(relation -> relation.getSubject() != null && relation.getSubject().getObjectType() == TargetType.Instance);
-            addUnnamedRelation(sql, behavior, TargetType.Index, BehaviorAction.ANALYZE);
+            behavior.getRelations().clear();
+            if (statementType != SplitQueryType.UNSAFE) {
+                addUnnamedRelation(sql, behavior, TargetType.Index, BehaviorAction.ANALYZE);
+            }
             addQuotedPathAfter(sql, behavior, "INFILE", TargetType.File, BehaviorAction.UNSAFE);
         } else if (normalized.startsWith("RECOMMEND INDEX ")) {
             behavior.getRelations().removeIf(relation -> relation.getSubject() != null && relation.getSubject().getObjectType() == TargetType.Instance);
@@ -207,7 +209,7 @@ final class TiBehaviorParserVisitor extends AbstractParseTreeVisitor<Void> {
             addQuotedPathAfter(sql, behavior, "EXPLAIN", TargetType.File, BehaviorAction.EXPORT);
         } else if (normalized.startsWith("CANCEL DISTRIBUTION JOB") || normalized.startsWith("ADMIN CANCEL DDL JOB")) {
             addUnnamedRelation(sql, behavior, TargetType.Job, BehaviorAction.TERMINATE);
-        } else if (normalized.matches("(?s)(DROP|PAUSE|RESUME)\\s+LOAD\\s+DATA\\s+JOB\\b.*")) {
+        } else if (isLoadDataJobCommand(normalized)) {
             BehaviorAction action = normalized.startsWith("DROP") ? BehaviorAction.DROP : normalized.startsWith("PAUSE") ? BehaviorAction.STOP : BehaviorAction.START;
             addUnnamedRelation(sql, behavior, TargetType.Job, action);
         } else if (normalized.startsWith("ADMIN CREATE WORKLOAD SNAPSHOT")) {
@@ -263,10 +265,9 @@ final class TiBehaviorParserVisitor extends AbstractParseTreeVisitor<Void> {
         int start = TiBehaviorText.findWord(sql, 0, anchor);
         if (start < 0)
             return;
-        java.util.regex.Matcher matcher = identifierPattern().matcher(sql);
-        matcher.region(TiBehaviorText.skipWhitespace(sql, start + anchor.length()), sql.length());
-        if (matcher.find() && !matcher.group().equalsIgnoreCase(ignored)) {
-            addNamedRelation(sql, behavior, type, action, matcher.group(), matcher.start());
+        TiBehaviorTextSpan identifier = TiBehaviorText.nextIdentifier(sql, TiBehaviorText.skipWhitespace(sql, start + anchor.length()), sql.length(), false);
+        if (identifier != null && !identifier.text(sql).equalsIgnoreCase(ignored)) {
+            addNamedRelation(sql, behavior, type, action, identifier.text(sql), identifier.start());
         }
     }
 
@@ -282,41 +283,38 @@ final class TiBehaviorParserVisitor extends AbstractParseTreeVisitor<Void> {
         int end = before == null ? sql.length() : TiBehaviorText.findWord(sql, start, before);
         if (end < 0)
             end = sql.length();
-        java.util.regex.Matcher matcher = identifierPattern().matcher(sql);
-        matcher.region(start, end);
         int count = 0;
-        while (matcher.find() && count < limit) {
-            String raw = matcher.group();
+        while (start < end && count < limit) {
+            TiBehaviorTextSpan identifier = TiBehaviorText.nextIdentifier(sql, start, end, false);
+            if (identifier == null) {
+                break;
+            }
+            start = identifier.end();
+            String raw = identifier.text(sql);
             String bare = raw.replace("`", "");
             if (bare.equalsIgnoreCase("IF") || bare.equalsIgnoreCase("NOT") || bare.equalsIgnoreCase("EXISTS") || bare.equals("*"))
                 continue;
-            addNamedRelation(sql, behavior, type, action, raw, matcher.start());
+            addNamedRelation(sql, behavior, type, action, raw, identifier.start());
             count++;
         }
-    }
-
-    private java.util.regex.Pattern identifierPattern() {
-        String identifier = "(?:`(?:``|[^`])+`|[A-Za-z_$][A-Za-z0-9_$]*)";
-        return java.util.regex.Pattern.compile(identifier + "(?:\\s*\\.\\s*" + identifier + ")?");
     }
 
     private void addQuotedPathAfter(String sql, StatementBehavior behavior, String anchor, TargetType type, BehaviorAction action) {
         int anchorStart = TiBehaviorText.findWord(sql, 0, anchor);
         if (anchorStart < 0)
             return;
-        java.util.regex.Matcher matcher = java.util.regex.Pattern.compile("'(?:''|\\\\.|[^'])*'|\"(?:\"\"|\\\\.|[^\"])*\"").matcher(sql);
-        matcher.region(TiBehaviorText.skipWhitespace(sql, anchorStart + anchor.length()), sql.length());
-        if (!matcher.find())
+        TiBehaviorTextSpan quoted = TiBehaviorText.nextQuoted(sql, TiBehaviorText.skipWhitespace(sql, anchorStart + anchor.length()));
+        if (quoted == null)
             return;
-        String raw = matcher.group();
+        String raw = quoted.text(sql);
         String value = raw.substring(1, raw.length() - 1).replace("''", "'").replace("\"\"", "\"");
         if (type == TargetType.File)
-            value = value.replaceAll("/+", "/");
-        addNamedRelation(sql, behavior, type, action, value, matcher.start(), raw);
+            value = TiBehaviorText.collapseSlashes(value);
+        addNamedRelation(sql, behavior, type, action, value, quoted.start(), raw);
     }
 
     private void addNamedRelation(String sql, StatementBehavior behavior, TargetType type, BehaviorAction action, String raw, int offset) {
-        addNamedRelation(sql, behavior, type, action, raw.replace("`", "").replaceAll("\\s*\\.\\s*", "."), offset, raw);
+        addNamedRelation(sql, behavior, type, action, TiBehaviorText.normalizeQualifiedName(raw), offset, raw);
     }
 
     private void addNamedRelation(String sql, StatementBehavior behavior, TargetType type, BehaviorAction action, String value, int offset, String sourceText) {
@@ -330,7 +328,7 @@ final class TiBehaviorParserVisitor extends AbstractParseTreeVisitor<Void> {
         if (type == TargetType.File || type == TargetType.Query || type == TargetType.Job || type == TargetType.Replication || type == TargetType.ConfigKey) {
             object = factory.instanceObject(type, token, value);
         } else {
-            object = factory.object(type, token, token, java.util.Arrays.stream(value.split("\\.")).filter(part -> !part.isBlank()).toList());
+            object = factory.object(type, token, token, TiBehaviorText.qualifiedNameParts(value));
         }
         addRelation(behavior, object, action);
     }
@@ -600,12 +598,13 @@ final class TiBehaviorParserVisitor extends AbstractParseTreeVisitor<Void> {
             end = TiBehaviorText.findWord(sql, start, "GLOBAL");
         if (end < 0)
             end = sql.length();
-        String identifier = "(?:`(?:``|[^`])+`|[A-Za-z_$][A-Za-z0-9_$]*|\\*)";
-        java.util.regex.Matcher matcher = java.util.regex.Pattern.compile(identifier + "(?:\\s*\\.\\s*" + identifier + ")?").matcher(sql);
-        matcher.region(start, end);
-        while (matcher.find()) {
-            String raw = matcher.group();
-            addNamedRelation(sql, behavior, TargetType.Statistics, action, raw, matcher.start());
+        while (start < end) {
+            TiBehaviorTextSpan identifier = TiBehaviorText.nextIdentifier(sql, start, end, true);
+            if (identifier == null) {
+                break;
+            }
+            start = identifier.end();
+            addNamedRelation(sql, behavior, TargetType.Statistics, action, identifier.text(sql), identifier.start());
         }
         behavior.getRelations()
             .removeIf(relation -> relation.getAction() == BehaviorAction.UNKNOWN && relation.getSubject() != null && relation.getSubject().getObjectType() == TargetType.Table);
@@ -627,20 +626,22 @@ final class TiBehaviorParserVisitor extends AbstractParseTreeVisitor<Void> {
         if (end < 0) {
             end = sql.length();
         }
-        String identifier = "(?:`(?:``|[^`])+`|[A-Za-z_$][A-Za-z0-9_$]*)";
-        java.util.regex.Matcher matcher = java.util.regex.Pattern.compile(identifier + "(?:\\s*\\.\\s*" + identifier + ")?").matcher(sql);
-        matcher.region(start, end);
         if (removeUnnamed) {
             behavior.getRelations()
                 .removeIf(relation -> relation.getSubject() != null && relation.getSubject().getObjectType() == targetType && relation.getSubject().getObjectName() == null);
         }
         int count = 0;
-        while (matcher.find() && count++ < limit) {
-            String raw = matcher.group();
+        while (start < end && count++ < limit) {
+            TiBehaviorTextSpan identifier = TiBehaviorText.nextIdentifier(sql, start, end, false);
+            if (identifier == null) {
+                break;
+            }
+            start = identifier.end();
+            String raw = identifier.text(sql);
             if (isLooseStopWord(raw)) {
                 break;
             }
-            int absoluteStart = sourceOffset + matcher.start();
+            int absoluteStart = sourceOffset + identifier.start();
             BehaviorObject object = looseObject(sql, targetType, raw, absoluteStart);
             if (object != null) {
                 BehaviorRelation existing = behavior.getRelations()
@@ -677,13 +678,11 @@ final class TiBehaviorParserVisitor extends AbstractParseTreeVisitor<Void> {
         if (nameStart < 0) {
             return;
         }
-        String identifier = "(?:`(?:``|[^`])+`|[A-Za-z_$][A-Za-z0-9_$]*)";
-        java.util.regex.Matcher matcher = java.util.regex.Pattern.compile(identifier + "(?:\\s*\\.\\s*" + identifier + ")?").matcher(sql);
-        matcher.region(nameStart, sql.length());
-        if (!matcher.lookingAt()) {
+        TiBehaviorTextSpan identifier = TiBehaviorText.identifierAt(sql, nameStart, sql.length(), false);
+        if (identifier == null) {
             return;
         }
-        BehaviorObject object = looseObject(sql, TargetType.Table, matcher.group(), matcher.start());
+        BehaviorObject object = looseObject(sql, TargetType.Table, identifier.text(sql), identifier.start());
         if (object != null && !containsObject(behavior, TargetType.Table, object)) {
             BehaviorRelation relation = new BehaviorRelation();
             relation.setSubject(object);
@@ -693,18 +692,35 @@ final class TiBehaviorParserVisitor extends AbstractParseTreeVisitor<Void> {
     }
 
     private void addSequenceFunctionRelations(String sql, StatementBehavior behavior) {
-        String identifier = "(?:`(?:``|[^`])+`|[A-Za-z_$][A-Za-z0-9_$]*)";
-        java.util.regex.Matcher matcher = java.util.regex.Pattern.compile("(?i)\\b(NEXTVAL|LASTVAL|SETVAL)\\s*\\(\\s*(" + identifier + "(?:\\s*\\.\\s*" + identifier + ")?)")
-            .matcher(sql);
-        while (matcher.find()) {
-            BehaviorObject object = looseObject(sql, TargetType.Sequence, matcher.group(2), matcher.start(2));
+        int searchFrom = 0;
+        while (searchFrom < sql.length()) {
+            int functionStart = TiBehaviorText.findWord(sql, searchFrom, "NEXTVAL", "LASTVAL", "SETVAL");
+            if (functionStart < 0) {
+                break;
+            }
+            int functionEnd = TiBehaviorText.wordEnd(sql, functionStart);
+            String function = sql.substring(functionStart, functionEnd);
+            int opening = TiBehaviorText.skipWhitespace(sql, functionEnd);
+            if (opening >= sql.length() || sql.charAt(opening) != '(') {
+                searchFrom = functionEnd;
+                continue;
+            }
+            int nameStart = TiBehaviorText.skipWhitespace(sql, opening + 1);
+            TiBehaviorTextSpan identifier = TiBehaviorText.identifierAt(sql, nameStart, sql.length(), false);
+            if (identifier == null) {
+                searchFrom = opening + 1;
+                continue;
+            }
+            BehaviorObject object = looseObject(sql, TargetType.Sequence, identifier.text(sql), identifier.start());
             if (object == null || containsObject(behavior, TargetType.Sequence, object)) {
+                searchFrom = identifier.end();
                 continue;
             }
             BehaviorRelation relation = new BehaviorRelation();
             relation.setSubject(object);
-            relation.setAction("SETVAL".equalsIgnoreCase(matcher.group(1)) ? BehaviorAction.UPDATE : BehaviorAction.READ);
+            relation.setAction("SETVAL".equalsIgnoreCase(function) ? BehaviorAction.UPDATE : BehaviorAction.READ);
             behavior.getRelations().add(relation);
+            searchFrom = identifier.end();
         }
     }
 
@@ -716,14 +732,7 @@ final class TiBehaviorParserVisitor extends AbstractParseTreeVisitor<Void> {
     }
 
     private BehaviorObject looseObject(String sql, TargetType type, String rawName, int offset) {
-        List<String> names = new ArrayList<>();
-        for (String part : rawName.split("\\.")) {
-            String value = part.strip();
-            if (value.length() >= 2 && value.charAt(0) == '`' && value.charAt(value.length() - 1) == '`') {
-                value = value.substring(1, value.length() - 1).replace("``", "`");
-            }
-            names.add(value);
-        }
+        List<String> names = TiBehaviorText.qualifiedNameParts(rawName);
         int[] position = position(statementSql, offset);
         CommonToken token = new CommonToken(0, rawName);
         token.setLine(tokenLine(position));
@@ -735,6 +744,12 @@ final class TiBehaviorParserVisitor extends AbstractParseTreeVisitor<Void> {
         String normalized = value.replace("`", "").toUpperCase(Locale.ROOT);
         return normalized.equals("PARTITION") || normalized.equals("REGIONS") || normalized.equals("CREATE") || normalized.equals("FROM") || normalized.equals("TO")
                || normalized.equals("BETWEEN") || normalized.equals("VALUES") || normalized.equals("WHERE");
+    }
+
+    private static boolean isLoadDataJobCommand(String sql) {
+        return TiBehaviorText.afterStartingWords(sql, "DROP", "LOAD", "DATA", "JOB") >= 0
+               || TiBehaviorText.afterStartingWords(sql, "PAUSE", "LOAD", "DATA", "JOB") >= 0
+               || TiBehaviorText.afterStartingWords(sql, "RESUME", "LOAD", "DATA", "JOB") >= 0;
     }
 
     private static int findTopLevelWord(String sql, String word) {
@@ -811,7 +826,6 @@ final class TiBehaviorParserVisitor extends AbstractParseTreeVisitor<Void> {
             case DATA_IMPORT, DATA_EXPORT -> TargetType.File;
             case ADMIN_TABLE -> TargetType.Table;
             case ADMIN, ADMIN_PERFORMANCE, PERFORMANCE, METADATA, SESSION_LOCK, UNSAFE -> TargetType.Instance;
-            case SELECT -> TargetType.Query;
             case TRANSACTION -> TargetType.Transaction;
             case ALTER_SCHEMA -> TargetType.Schema;
             case PROGRAM_CONTROL -> TargetType.ProgramObject;

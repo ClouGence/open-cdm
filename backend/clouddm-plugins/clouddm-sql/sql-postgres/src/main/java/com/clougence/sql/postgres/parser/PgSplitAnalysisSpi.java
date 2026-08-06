@@ -92,8 +92,8 @@ public class PgSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
     }
 
     private ParserRuleContext viewQuery(ParserRuleContext context) {
-        if (context instanceof PgSqlParser.ExplainstmtContext) {
-            return null;
+        if (context instanceof PgSqlParser.ExplainstmtContext explain) {
+            return isExplainAnalyze(explain) ? viewQuery(explain.explainablestmt()) : null;
         }
         if (context instanceof PgSqlParser.ViewstmtContext view) {
             return view.selectstmt();
@@ -110,6 +110,26 @@ public class PgSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
             }
         }
         return null;
+    }
+
+    private boolean isExplainAnalyze(PgSqlParser.ExplainstmtContext context) {
+        if (context.analyze_keyword() != null) {
+            return true;
+        }
+        if (context.explain_option_list() == null) {
+            return false;
+        }
+        for (PgSqlParser.Explain_option_elemContext option : context.explain_option_list().explain_option_elem()) {
+            if (option.explain_option_name().analyze_keyword() == null) {
+                continue;
+            }
+            if (option.explain_option_arg() == null) {
+                return true;
+            }
+            String value = option.explain_option_arg().getText();
+            return !"false".equalsIgnoreCase(value) && !"off".equalsIgnoreCase(value) && !"0".equals(value);
+        }
+        return false;
     }
 
     private ParserRuleContext triggerFunction(ParserRuleContext context) {

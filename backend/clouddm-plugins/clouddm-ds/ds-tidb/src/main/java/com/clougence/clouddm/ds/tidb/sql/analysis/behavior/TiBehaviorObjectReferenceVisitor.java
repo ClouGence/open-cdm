@@ -406,7 +406,8 @@ final class TiBehaviorObjectReferenceVisitor extends TiDBObjectReferenceVisitor 
     @Override
     public Void visitSpecificFunctionCall(SpecificFunctionCallContext ctx) {
         SpecificFunctionContext function = ctx.specificFunction();
-        if (!(function instanceof CaseFunctionCallContext)) {
+        if (!(function instanceof CaseFunctionCallContext) &&
+                !(function instanceof ValuesFunctionCallContext)) {
             addFunction(ctx.getStart());
         }
         return visitChildren(ctx);
@@ -655,9 +656,44 @@ final class TiBehaviorObjectReferenceVisitor extends TiDBObjectReferenceVisitor 
 
     @Override
     public Void visitPrimaryKeyTableConstraint(PrimaryKeyTableConstraintContext ctx) {
-        addNamedOrUnnamed(SplitQueryType.ADD_CONSTRAINT, TargetType.Constraint, false, ctx.name, ctx);
+        if (ctx.name == null) {
+            addNamedAtCurrentSchema(SplitQueryType.ADD_CONSTRAINT, TargetType.Constraint, false, ctx, "PRIMARY");
+        } else {
+            add(SplitQueryType.ADD_CONSTRAINT, TargetType.Constraint, false, ctx.name);
+        }
         if (ctx.index != null) {
             add(SplitQueryType.ADD_INDEX, TargetType.Index, false, ctx.index);
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitColumnDeclaration(ColumnDeclarationContext ctx) {
+        UidContext column = ctx.columnDefinition().uid();
+        TableNameContext table = enclosingCreateTable(ctx);
+        if (column != null && table != null) {
+            addTableChild(SplitQueryType.ADD_COLUMN, TargetType.Column, false, table, column, normalizeIdentifier(column.getText()));
+        }
+        return null;
+    }
+
+    private static TableNameContext enclosingCreateTable(ParseTree node) {
+        for (ParseTree current = node.getParent(); current != null; current = current.getParent()) {
+            if (current instanceof ColumnCreateTableContext createTable) {
+                return createTable.tableName();
+            }
+            if (current instanceof QueryCreateTableContext createTable) {
+                return createTable.tableName();
+            }
+        }
+        return null;
+    }
+
+    private static TableNameContext enclosingAlterTable(ParseTree node) {
+        for (ParseTree current = node.getParent(); current != null; current = current.getParent()) {
+            if (current instanceof AlterTableContext alterTable) {
+                return alterTable.tableName();
+            }
         }
         return null;
     }
@@ -719,6 +755,16 @@ final class TiBehaviorObjectReferenceVisitor extends TiDBObjectReferenceVisitor 
     @Override
     public Void visitSpecialIndexDeclaration(SpecialIndexDeclarationContext ctx) {
         addNamedOrUnnamed(SplitQueryType.ADD_INDEX, TargetType.Index, false, ctx.uid(), ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitAlterByAddColumn(AlterByAddColumnContext ctx) {
+        UidContext column = ctx.columnDefinition().uid();
+        TableNameContext table = enclosingAlterTable(ctx);
+        if (column != null && table != null) {
+            addTableChild(SplitQueryType.ADD_COLUMN, TargetType.Column, false, table, column, normalizeIdentifier(column.getText()));
+        }
         return null;
     }
 
@@ -830,6 +876,12 @@ final class TiBehaviorObjectReferenceVisitor extends TiDBObjectReferenceVisitor 
     public Void visitSetDefaultRole(SetDefaultRoleContext ctx) {
         ctx.userName().forEach(user -> addAccount(SplitQueryType.ALTER_USER, TargetType.User, true, user));
         addDescendantAccounts(SplitQueryType.ALTER_USER, TargetType.Role, true, ctx.roleOption());
+        return null;
+    }
+
+    @Override
+    public Void visitSetRole(SetRoleContext ctx) {
+        addDescendantAccounts(SplitQueryType.SWITCH_ROLE, TargetType.Role, true, ctx.roleOption());
         return null;
     }
 

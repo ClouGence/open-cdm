@@ -50,26 +50,67 @@ public class DmSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
         Set<SplitQueryType> types = new LinkedHashSet<>();
         SplitQueryType primaryType = normalizeType(context.accept(splitVisitor()), script);
         types.add(primaryType);
-        if (primaryType == SplitQueryType.BLOCK) {
+        if (primaryType == SplitQueryType.BLOCK || primaryType == SplitQueryType.PERFORMANCE || primaryType == SplitQueryType.CREATE_SCHEMA) {
             return types;
+        }
+        boolean opaqueExternalDefinition = findContext(context, DmSqlParser.ExternalFunctionCreateTailContext.class) != null
+                                           || findContext(context, DmSqlParser.JavaClassCreateContext.class) != null;
+        if (opaqueExternalDefinition) {
+            types.add(SplitQueryType.UNSAFE);
         }
         boolean viewDefinition = findContext(context, DmSqlParser.ViewCreateContext.class) != null;
         boolean programDefinition = findProgramOwner(context) != null;
-        collectAdditionalTypes(context, context, types, viewDefinition, programDefinition);
+        boolean tableCtasDefinition = isTableCtasDefinition(context);
+        collectAdditionalTypes(context, context, types, viewDefinition, programDefinition, opaqueExternalDefinition, tableCtasDefinition);
+        normalizeCompositeTypes(context, types);
         return types;
     }
 
-    private void collectAdditionalTypes(ParseTree root, ParseTree tree, Set<SplitQueryType> types, boolean viewDefinition, boolean programDefinition) {
+    private void normalizeCompositeTypes(ParseTree context, Set<SplitQueryType> types) {
+        DmSqlParser.AlterTableActionContext action = findContext(context, DmSqlParser.AlterTableActionContext.class);
+        if (action == null) {
+            return;
+        }
+        if ((action.ENABLE() != null || action.DISABLE() != null) && action.CONSTRAINT() != null) {
+            types.remove(SplitQueryType.DROP_CONSTRAINT);
+            types.add(SplitQueryType.ALTER_CONSTRAINT);
+        }
+        if ((containsToken(action, DmSqlParser.ADD) || containsToken(action, DmSqlParser.DROP)) && containsToken(action, DmSqlParser.LOGIC)
+            && containsToken(action, DmSqlParser.LOG)) {
+            types.remove(SplitQueryType.ADD_COLUMN);
+            types.remove(SplitQueryType.DROP_COLUMN);
+            types.add(SplitQueryType.ADMIN_LOG);
+        }
+    }
+
+    private void collectAdditionalTypes(ParseTree root, ParseTree tree, Set<SplitQueryType> types, boolean viewDefinition, boolean programDefinition,
+                                        boolean opaqueExternalDefinition, boolean tableCtasDefinition) {
+        if (tree != root && opaqueExternalDefinition && (tree instanceof DmSqlParser.ExternalFunctionCreateTailContext || tree instanceof DmSqlParser.JavaClassCreateContext)) {
+            return;
+        }
         if (tree != root && isDefinitionExecutionBody(tree, viewDefinition, programDefinition)) {
             return;
         }
         SplitQueryType type = additionalType(tree);
-        if (type != null) {
+        if (type != null && !(tableCtasDefinition && type == SplitQueryType.SELECT)) {
             types.add(type);
         }
         for (int i = 0; i < tree.getChildCount(); i++) {
-            collectAdditionalTypes(root, tree.getChild(i), types, viewDefinition, programDefinition);
+            collectAdditionalTypes(root, tree.getChild(i), types, viewDefinition, programDefinition, opaqueExternalDefinition, tableCtasDefinition);
         }
+    }
+
+    private boolean isTableCtasDefinition(ParseTree tree) {
+        DmSqlParser.TableCreateContext tableCreate = findContext(tree, DmSqlParser.TableCreateContext.class);
+        if (tableCreate == null) {
+            return false;
+        }
+        DmSqlParser.TableCreateBodyContext regularBody = tableCreate.tableCreateBody();
+        if (regularBody != null && regularBody.selectStatement() != null) {
+            return true;
+        }
+        DmSqlParser.HugeTableCreateBodyContext hugeBody = tableCreate.hugeTableCreateBody();
+        return hugeBody != null && hugeBody.selectStatement() != null;
     }
 
     private boolean isDefinitionExecutionBody(ParseTree tree, boolean viewDefinition, boolean programDefinition) {
@@ -79,7 +120,9 @@ public class DmSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
         if (!programDefinition) {
             return false;
         }
-        return tree instanceof DmSqlParser.RoutineDefinitionContext || tree instanceof DmSqlParser.TriggerCreateTailContext;
+        return tree instanceof DmSqlParser.RoutineDefinitionContext || tree instanceof DmSqlParser.TriggerCreateTailContext
+               || tree instanceof DmSqlParser.PackageCursorDeclarationContext || tree instanceof DmSqlParser.ClassBodyInitializerContext
+               || tree instanceof DmSqlParser.PackageBodyInitializerContext;
     }
 
     @Override
@@ -100,7 +143,7 @@ public class DmSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
             }
         }
         if (tree instanceof DmSqlParser.ColumnDefinitionContext || tree instanceof DmSqlParser.CtasColumnDefinitionContext
-            || tree instanceof DmSqlParser.HugeColumnDefinitionContext) {
+            || tree instanceof DmSqlParser.HugeColumnDefinitionContext || tree instanceof DmSqlParser.ExternalColumnDefinitionContext) {
             return isCreateOrAddDefinition(tree) ? SplitQueryType.ADD_COLUMN : null;
         }
         if (tree instanceof DmSqlParser.TableConstraintContext || tree instanceof DmSqlParser.CtasTableConstraintContext || tree instanceof DmSqlParser.HugeTableConstraintContext
@@ -109,6 +152,18 @@ public class DmSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
         }
         if (isColumnComment(tree)) {
             return SplitQueryType.COMMENT_COLUMN;
+        }
+        if (tree instanceof DmSqlParser.AdvancedLogClauseContext) {
+            return SplitQueryType.CREATE_LOG;
+        }
+        if (tree instanceof DmSqlParser.AddLogicLogClauseContext) {
+            return SplitQueryType.ADMIN_LOG;
+        }
+        if (tree instanceof DmSqlParser.AlterDatabaseActionContext action && action.NOARCHIVELOG() != null) {
+            return SplitQueryType.UNSAFE;
+        }
+        if (tree instanceof DmSqlParser.TruncateStatementContext truncate && truncate.truncatePartitionClause() != null) {
+            return SplitQueryType.TRUNCATE_PARTITION;
         }
         if (!(tree instanceof DmSqlParser.AlterTableActionContext action)) {
             return null;
@@ -127,6 +182,9 @@ public class DmSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
             return SplitQueryType.ALTER_PARTITION;
         }
         if (action.ADD() != null) {
+            if (action.LOGIC() != null && action.LOG() != null) {
+                return SplitQueryType.ADMIN_LOG;
+            }
             if (action.tableConstraint() != null) {
                 return SplitQueryType.ADD_CONSTRAINT;
             }
@@ -135,6 +193,9 @@ public class DmSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
             }
             if (action.partitionAddAction() != null) {
                 return SplitQueryType.ADD_PARTITION;
+            }
+            if (action.IDENTITY() != null || action.AUTO_INCREMENT() != null) {
+                return SplitQueryType.ADD_COLUMN;
             }
         }
         if (action.MODIFY() != null && (action.modifyColumnDefinitionList() != null || action.modifyColumnDefinition() != null)) {
@@ -147,6 +208,9 @@ public class DmSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
             return actionText.contains("RENAMETO") ? SplitQueryType.RENAME_COLUMN : SplitQueryType.ALTER_COLUMN;
         }
         if (action.DROP() != null) {
+            if (action.LOGIC() != null && action.LOG() != null) {
+                return SplitQueryType.ADMIN_LOG;
+            }
             if (action.dropColumnTarget() != null) {
                 return SplitQueryType.DROP_COLUMN;
             }
@@ -166,7 +230,17 @@ public class DmSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
         if (action.TRUNCATE() != null && action.alterPartitionTruncateTarget() != null) {
             return SplitQueryType.TRUNCATE_PARTITION;
         }
-        if (action.partitionModifyAction() != null || action.SPLIT() != null || action.MERGE() != null || action.EXCHANGE() != null) {
+        if (action.WITH() != null && action.ADVANCED() != null && action.LOG() != null) {
+            return SplitQueryType.CREATE_LOG;
+        }
+        if (action.WITHOUT() != null && action.ADVANCED() != null && action.LOG() != null) {
+            return SplitQueryType.DROP_LOG;
+        }
+        if (action.TRUNCATE() != null && action.ADVANCED() != null && action.LOG() != null) {
+            return SplitQueryType.MAINTAIN_LOG;
+        }
+        if (action.partitionModifyAction() != null || action.SPLIT() != null || action.MERGE() != null || action.EXCHANGE() != null || action.rowMovementClause() != null
+            || action.SUBPARTITION() != null || action.LOCK() != null || action.MOVE() != null && (action.PARTITION() != null || action.SUBPARTITION() != null)) {
             return SplitQueryType.ALTER_PARTITION;
         }
         return null;
@@ -179,7 +253,7 @@ public class DmSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
 
     private boolean isColumnComment(ParseTree tree) {
         if (!(tree instanceof DmSqlParser.ColumnAttributeContext || tree instanceof DmSqlParser.ColumnTailClauseContext || tree instanceof DmSqlParser.CtasColumnAttributeContext
-              || tree instanceof DmSqlParser.HugeColumnAttributeContext)) {
+              || tree instanceof DmSqlParser.HugeColumnAttributeContext || tree instanceof DmSqlParser.ExternalColumnAttributeContext)) {
             return false;
         }
         return tree.getChildCount() > 0 && "COMMENT".equalsIgnoreCase(tree.getChild(0).getText());
@@ -232,20 +306,19 @@ public class DmSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
             }
         }
 
-        DmSqlParser.ClassBodyInitializerContext initializer = findContext(context, DmSqlParser.ClassBodyInitializerContext.class);
-        if (initializer != null) {
-            return directProgramChildren(initializer, tokens);
+        DmSqlParser.SchemaCreateContext schema = findContext(context, DmSqlParser.SchemaCreateContext.class);
+        if (schema != null && !schema.schemaDefinitionItem().isEmpty()) {
+            List<SplitScript> children = new ArrayList<>();
+            for (DmSqlParser.SchemaDefinitionItemContext item : schema.schemaDefinitionItem()) {
+                String script = tokens.getText(item.getStart(), item.getStop());
+                children.add(createChild(item, tokens, collectTypes(item, script), collectChildren(item, tokens)));
+            }
+            return List.copyOf(children);
         }
 
         ParseTree owner = findProgramOwner(context);
         if (owner != null) {
-            List<SplitScript> children = new ArrayList<>();
-            collectProgramDeclarations(owner, tokens, children);
-            DmSqlParser.SqlBlockStatementContext block = findContext(owner, DmSqlParser.SqlBlockStatementContext.class);
-            if (block != null) {
-                children.add(createProgramNode(block, tokens));
-            }
-            return children;
+            return directProgramChildren((ParserRuleContext) owner, tokens);
         }
 
         DmSqlParser.ViewCreateContext view = findContext(context, DmSqlParser.ViewCreateContext.class);
@@ -257,7 +330,10 @@ public class DmSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
     }
 
     private ParseTree findProgramOwner(ParseTree tree) {
-        if (tree instanceof DmSqlParser.ProcedureCreateContext || tree instanceof DmSqlParser.FunctionCreateContext || tree instanceof DmSqlParser.TriggerCreateContext) {
+        if (tree instanceof DmSqlParser.ProcedureCreateContext || tree instanceof DmSqlParser.FunctionCreateContext || tree instanceof DmSqlParser.TriggerCreateContext
+            || tree instanceof DmSqlParser.TypeBodyCreateContext || tree instanceof DmSqlParser.ClassBodyCreateContext
+            || tree instanceof DmSqlParser.ReplaceableObjectCreateContext replaceable && replaceable.PACKAGE() != null
+            || tree instanceof DmSqlParser.ClassCreateContext && findContext(tree, DmSqlParser.PackageCursorDeclarationContext.class) != null) {
             return tree;
         }
         for (int i = 0; i < tree.getChildCount(); i++) {
@@ -285,7 +361,9 @@ public class DmSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
     private SplitScript createProgramNode(ParserRuleContext context, CommonTokenStream tokens) {
         Set<SplitQueryType> types = new LinkedHashSet<>();
         List<SplitScript> children = Collections.emptyList();
-        if (context instanceof DmSqlParser.SqlBlockStatementContext || context instanceof DmSqlParser.CStyleBlockStatementContext) {
+        if (context instanceof DmSqlParser.SqlBlockStatementContext || context instanceof DmSqlParser.CStyleBlockStatementContext
+            || context instanceof DmSqlParser.RoutineDefinitionContext || context instanceof DmSqlParser.ClassBodyInitializerContext
+            || context instanceof DmSqlParser.PackageBodyInitializerContext) {
             types.add(SplitQueryType.BLOCK);
             children = directProgramChildren(context, tokens);
         } else if (isProgramControl(context)) {
@@ -295,6 +373,9 @@ public class DmSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
             if (findContext(context, DmSqlParser.PackageCursorDeclarationContext.class) != null) {
                 types.add(SplitQueryType.SELECT);
             }
+            types.add(SplitQueryType.PROGRAM_CONTROL);
+        } else if (context instanceof DmSqlParser.PackageCursorDeclarationContext) {
+            types.add(SplitQueryType.SELECT);
             types.add(SplitQueryType.PROGRAM_CONTROL);
         } else if (context instanceof DmSqlParser.ExecuteImmediateStatementContext) {
             types.add(SplitQueryType.UNSAFE);
@@ -359,7 +440,9 @@ public class DmSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
 
     private boolean isProgramBoundary(ParserRuleContext context) {
         return context instanceof DmSqlParser.SqlBlockStatementContext || context instanceof DmSqlParser.CStyleBlockStatementContext
-               || context instanceof DmSqlParser.BlockSqlStatementContext || context instanceof DmSqlParser.BlockDeclarationContext
+               || context instanceof DmSqlParser.RoutineDefinitionContext || context instanceof DmSqlParser.ClassBodyInitializerContext
+               || context instanceof DmSqlParser.PackageBodyInitializerContext || context instanceof DmSqlParser.BlockSqlStatementContext
+               || context instanceof DmSqlParser.BlockDeclarationContext || context instanceof DmSqlParser.PackageCursorDeclarationContext
                || context instanceof DmSqlParser.AssignmentStatementContext || context instanceof DmSqlParser.ExecuteImmediateStatementContext
                || context instanceof DmSqlParser.OpenCursorStatementContext || context instanceof DmSqlParser.FetchCursorStatementContext
                || context instanceof DmSqlParser.CloseCursorStatementContext || isProgramControl(context);
@@ -398,6 +481,18 @@ public class DmSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
             }
         }
         return null;
+    }
+
+    private boolean containsToken(ParseTree tree, int tokenType) {
+        if (tree instanceof org.antlr.v4.runtime.tree.TerminalNode terminal && terminal.getSymbol().getType() == tokenType) {
+            return true;
+        }
+        for (int i = 0; i < tree.getChildCount(); i++) {
+            if (containsToken(tree.getChild(i), tokenType)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

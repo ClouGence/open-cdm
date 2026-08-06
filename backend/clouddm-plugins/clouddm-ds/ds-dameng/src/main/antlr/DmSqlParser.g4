@@ -3423,7 +3423,6 @@ commentTarget
     | INDEX qualifiedName
     | TRIGGER qualifiedName
     | TYPE qualifiedName
-    | SYNONYM qualifiedName
     | CONTEXT qualifiedName
     | DOMAIN qualifiedName
     | DIRECTORY qualifiedName
@@ -3433,7 +3432,6 @@ commentTarget
     | FUNCTION qualifiedName
     | PACKAGE qualifiedName
     | PROCEDURE qualifiedName
-    | OPERATOR operatorQualifiedName
     | DATABASE
     ;
 

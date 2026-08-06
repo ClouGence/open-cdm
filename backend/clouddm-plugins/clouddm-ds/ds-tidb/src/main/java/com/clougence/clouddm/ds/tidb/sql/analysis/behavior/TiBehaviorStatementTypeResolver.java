@@ -173,7 +173,7 @@ final class TiBehaviorStatementTypeResolver {
             return SplitQueryType.ADMIN_TABLE;
         }
         if (normalized.startsWith("CANCEL DISTRIBUTION JOB") || normalized.startsWith("ADMIN CANCEL DDL JOB")
-            || normalized.matches("(?s)(DROP|PAUSE|RESUME)\\s+LOAD\\s+DATA\\s+JOB\\b.*")) {
+            || isLoadDataJobCommand(normalized)) {
             return SplitQueryType.ADMIN_JOB;
         }
         if (normalized.startsWith("ADMIN CREATE WORKLOAD SNAPSHOT")) {
@@ -215,6 +215,9 @@ final class TiBehaviorStatementTypeResolver {
         }
         if (normalized.startsWith("FLASHBACK ")) {
             return normalized.startsWith("FLASHBACK TABLE") ? SplitQueryType.ADMIN_TABLE : SplitQueryType.ADMIN;
+        }
+        if (normalized.startsWith("INDEX ADVISE LOCAL INFILE")) {
+            return SplitQueryType.UNSAFE;
         }
         if (normalized.startsWith("INDEX ADVISE ") || normalized.startsWith("RECOMMEND INDEX ") || normalized.startsWith("CALIBRATE RESOURCE")) {
             return SplitQueryType.ADMIN_PERFORMANCE;
@@ -335,6 +338,12 @@ final class TiBehaviorStatementTypeResolver {
             }
         }
         return SplitQueryType.UNKNOWN;
+    }
+
+    private static boolean isLoadDataJobCommand(String sql) {
+        return TiBehaviorText.afterStartingWords(sql, "DROP", "LOAD", "DATA", "JOB") >= 0
+               || TiBehaviorText.afterStartingWords(sql, "PAUSE", "LOAD", "DATA", "JOB") >= 0
+               || TiBehaviorText.afterStartingWords(sql, "RESUME", "LOAD", "DATA", "JOB") >= 0;
     }
 
     private static boolean contains(List<TiDBObjectReference> references, SplitQueryType type) {

@@ -50,6 +50,10 @@ public class DrSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
 
     @Override
     protected Set<SplitQueryType> collectTypes(ParserRuleContext context, String script) {
+        DorisParser.StatementDefaultContext statement = findContext(context, DorisParser.StatementDefaultContext.class);
+        if (statement != null && statement.explain() != null) {
+            return Collections.singleton(SplitQueryType.PERFORMANCE);
+        }
         DorisParser.CreateTableContext createTable = findContext(context, DorisParser.CreateTableContext.class);
         if (createTable == null) {
             return super.collectTypes(context, script);

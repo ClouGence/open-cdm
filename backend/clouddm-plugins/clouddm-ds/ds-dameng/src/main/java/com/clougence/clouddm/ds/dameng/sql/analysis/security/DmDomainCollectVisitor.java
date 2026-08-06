@@ -630,8 +630,6 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
             objectDomain(NameParts.from(qualified), RuleQueryType.COMMENT_TRIGGER);
         } else if (target.TYPE() != null) {
             objectDomain(NameParts.from(qualified), RuleQueryType.COMMENT_TYPE);
-        } else if (target.SYNONYM() != null) {
-            objectDomain(NameParts.from(qualified), RuleQueryType.COMMENT_SYNONYM);
         } else if (target.CONTEXT() != null) {
             objectDomain(NameParts.from(qualified), RuleQueryType.COMMENT_CONTEXT);
         } else if (target.DOMAIN() != null) {
@@ -650,8 +648,6 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
             objectDomain(NameParts.from(qualified), RuleQueryType.COMMENT_PACKAGE);
         } else if (target.PROCEDURE() != null) {
             objectDomain(NameParts.from(qualified), RuleQueryType.COMMENT_PROCEDURE);
-        } else if (target.OPERATOR() != null) {
-            objectDomain(operatorName(target.operatorQualifiedName()), RuleQueryType.COMMENT_OPERATOR);
         } else if (target.DATABASE() != null) {
             objectDomain(new NameParts(null, null, "DATABASE"), RuleQueryType.COMMENT_SCHEMA);
         }

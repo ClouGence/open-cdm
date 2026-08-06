@@ -10,8 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.Parser;
@@ -102,24 +100,24 @@ final class DrStatementBehaviorVisitor extends DorisParserBaseVisitor<Void> {
 
     private boolean addTextFallback(String sql, int statementOffset, String normalized, ParserRuleContext context, SplitQueryType type) {
         if (normalized.startsWith("MERGE INTO")) {
-            return addFirstNamed(sql, statementOffset, "(?i)\\bMERGE\\s+INTO\\s+", TargetType.Table, BehaviorAction.MERGE, type, false);
+            return addFirstNamed(sql, statementOffset, "MERGE INTO", TargetType.Table, BehaviorAction.MERGE, type, false);
         }
         if (normalized.startsWith("ALTER TABLE")) {
             BehaviorAction action = normalized.contains("EXECUTE EXPIRE_SNAPSHOTS") ? BehaviorAction.PURGE : BehaviorAction.ALTER;
             TargetType target = normalized.contains(" SET STATS") ? TargetType.Statistics : TargetType.Table;
-            return addFirstNamed(sql, statementOffset, "(?i)\\bALTER\\s+TABLE\\s+", target, action, type, false);
+            return addFirstNamed(sql, statementOffset, "ALTER TABLE", target, action, type, false);
         }
         if (normalized.startsWith("ALTER MATERIALIZED VIEW")) {
-            return addFirstNamed(sql, statementOffset, "(?i)\\bALTER\\s+MATERIALIZED\\s+VIEW\\s+", TargetType.Materialized, BehaviorAction.ALTER, type, false);
+            return addFirstNamed(sql, statementOffset, "ALTER MATERIALIZED VIEW", TargetType.Materialized, BehaviorAction.ALTER, type, false);
         }
         if (normalized.startsWith("ALTER ROLE")) {
-            return addFirstNamed(sql, statementOffset, "(?i)\\bALTER\\s+ROLE\\s+", TargetType.Role, BehaviorAction.ALTER, type, true);
+            return addFirstNamed(sql, statementOffset, "ALTER ROLE", TargetType.Role, BehaviorAction.ALTER, type, true);
         }
         if (normalized.startsWith("ALTER USER")) {
-            return addFirstNamed(sql, statementOffset, "(?i)\\bALTER\\s+USER\\s+", TargetType.User, BehaviorAction.ALTER, type, true);
+            return addFirstNamed(sql, statementOffset, "ALTER USER", TargetType.User, BehaviorAction.ALTER, type, true);
         }
         if (normalized.startsWith("SET PROPERTY FOR")) {
-            return addFirstNamed(sql, statementOffset, "(?i)\\bSET\\s+PROPERTY\\s+FOR\\s+", TargetType.User, BehaviorAction.CONFIGURE, type, true);
+            return addFirstNamed(sql, statementOffset, "SET PROPERTY FOR", TargetType.User, BehaviorAction.CONFIGURE, type, true);
         }
         if (normalized.startsWith("SET PROPERTY ")) {
             add(type, BehaviorAction.CONFIGURE, objects.unnamedObject(TargetType.User, context, UmiTypes.Instance));
@@ -134,39 +132,39 @@ final class DrStatementBehaviorVisitor extends DorisParserBaseVisitor<Void> {
                 .startsWith("CREATE INVERTED INDEX ANALYZER") ? TargetType.Analyzer : normalized.startsWith("CREATE INVERTED INDEX TOKENIZER") ? TargetType.Tokenizer : normalized
                     .startsWith("CREATE INVERTED INDEX TOKEN_FILTER") ? TargetType.TokenFilter : normalized
                         .startsWith("CREATE INVERTED INDEX CHAR_FILTER") ? TargetType.CharFilter : TargetType.Normalizer;
-            return addFirstNamed(sql, statementOffset, "(?i)\\b(?:ANALYZER|TOKENIZER|TOKEN_FILTER|CHAR_FILTER|NORMALIZER)\\s+(?:IF\\s+NOT\\s+EXISTS\\s+)?", target, BehaviorAction.CREATE, type, true);
+            return addFirstNamed(sql, statementOffset, invertedIndexComponent(target), "IF NOT EXISTS", target, BehaviorAction.CREATE, type, true);
         }
         if (normalized.startsWith("CREATE DICTIONARY")) {
-            return addFirstNamed(sql, statementOffset, "(?i)\\bCREATE\\s+DICTIONARY\\s+", TargetType.Dictionary, BehaviorAction.CREATE, type, false);
+            return addFirstNamed(sql, statementOffset, "CREATE DICTIONARY", TargetType.Dictionary, BehaviorAction.CREATE, type, false);
         }
         if (normalized.startsWith("DROP INVERTED INDEX ")) {
             TargetType target = normalized
                 .startsWith("DROP INVERTED INDEX ANALYZER") ? TargetType.Analyzer : normalized.startsWith("DROP INVERTED INDEX TOKENIZER") ? TargetType.Tokenizer : normalized
                     .startsWith("DROP INVERTED INDEX TOKEN_FILTER") ? TargetType.TokenFilter : normalized
                         .startsWith("DROP INVERTED INDEX CHAR_FILTER") ? TargetType.CharFilter : TargetType.Normalizer;
-            return addFirstNamed(sql, statementOffset, "(?i)\\b(?:ANALYZER|TOKENIZER|TOKEN_FILTER|CHAR_FILTER|NORMALIZER)\\s+(?:IF\\s+EXISTS\\s+)?", target, BehaviorAction.DROP, type, true);
+            return addFirstNamed(sql, statementOffset, invertedIndexComponent(target), "IF EXISTS", target, BehaviorAction.DROP, type, true);
         }
         if (normalized.startsWith("CREATE SQL_BLOCK_RULE") || normalized.startsWith("ALTER SQL_BLOCK_RULE") || normalized.startsWith("DROP SQL_BLOCK_RULE")) {
             BehaviorAction action = normalized.startsWith("CREATE") ? BehaviorAction.CREATE : normalized.startsWith("ALTER") ? BehaviorAction.ALTER : BehaviorAction.DROP;
-            boolean added = addFirstNamed(sql, statementOffset, "(?i)\\bSQL_BLOCK_RULE\\s+", TargetType.SqlBlockRule, action, type, true);
+            boolean added = addFirstNamed(sql, statementOffset, "SQL_BLOCK_RULE", TargetType.SqlBlockRule, action, type, true);
             if (added && action != BehaviorAction.DROP) {
                 // A block rule persists SQL text or a regular expression that will be
                 // applied to later statements. Treat that second-order execution surface
                 // independently from the rule's lifecycle operation.
-                addFirstNamed(sql, statementOffset, "(?i)\\bSQL_BLOCK_RULE\\s+", TargetType.SqlBlockRule, BehaviorAction.UNSAFE, type, true);
+                addFirstNamed(sql, statementOffset, "SQL_BLOCK_RULE", TargetType.SqlBlockRule, BehaviorAction.UNSAFE, type, true);
             }
             return added;
         }
         if (normalized.startsWith("CREATE ENCRYPTKEY") || normalized.startsWith("DROP ENCRYPTKEY")) {
             BehaviorAction action = normalized.startsWith("CREATE") ? BehaviorAction.CREATE : BehaviorAction.DROP;
-            return addFirstNamed(sql, statementOffset, "(?i)\\bENCRYPTKEY\\s+(?:IF\\s+EXISTS\\s+)?", TargetType.EncryptionKey, action, type, true);
+            return addFirstNamed(sql, statementOffset, "ENCRYPTKEY", "IF EXISTS", TargetType.EncryptionKey, action, type, true);
         }
         if (normalized.startsWith("SET LDAP_ADMIN_PASSWORD")) {
             add(type, BehaviorAction.CONFIGURE, objects.unnamedObject(TargetType.AuthenticationIntegration, context, UmiTypes.Instance));
             return true;
         }
         if (normalized.startsWith("SET ") && normalized.contains(" AS DEFAULT STORAGE VAULT")) {
-            return addFirstNamed(sql, statementOffset, "(?i)\\bSET\\s+", TargetType.StorageVault, BehaviorAction.SWITCH, type, true);
+            return addFirstNamed(sql, statementOffset, "SET", TargetType.StorageVault, BehaviorAction.SWITCH, type, true);
         }
         if (normalized.startsWith("UNSET DEFAULT STORAGE VAULT")) {
             add(type, BehaviorAction.RESET, objects.unnamedObject(TargetType.StorageVault, context, UmiTypes.Instance));
@@ -177,17 +175,17 @@ final class DrStatementBehaviorVisitor extends DorisParserBaseVisitor<Void> {
             return true;
         }
         if (normalized.startsWith("REFRESH CATALOG")) {
-            return addFirstNamed(sql, statementOffset, "(?i)\\bREFRESH\\s+CATALOG\\s+", TargetType.Catalog, BehaviorAction.REFRESH, type, false);
+            return addFirstNamed(sql, statementOffset, "REFRESH CATALOG", TargetType.Catalog, BehaviorAction.REFRESH, type, false);
         }
         if (normalized.startsWith("REFRESH DATABASE")) {
-            return addFirstNamed(sql, statementOffset, "(?i)\\bREFRESH\\s+DATABASE\\s+", TargetType.Schema, BehaviorAction.REFRESH, type, false);
+            return addFirstNamed(sql, statementOffset, "REFRESH DATABASE", TargetType.Schema, BehaviorAction.REFRESH, type, false);
         }
         if (normalized.startsWith("REFRESH MATERIALIZED VIEW")) {
-            return addFirstNamed(sql, statementOffset, "(?i)\\bREFRESH\\s+MATERIALIZED\\s+VIEW\\s+", TargetType.Materialized, BehaviorAction.REFRESH, type, false);
+            return addFirstNamed(sql, statementOffset, "REFRESH MATERIALIZED VIEW", TargetType.Materialized, BehaviorAction.REFRESH, type, false);
         }
         if (normalized.startsWith("BUILD INDEX")) {
-            boolean named = !normalized.matches("(?s)^BUILD\\s+INDEX\\s+ON\\b.*");
-            if (named && addFirstNamed(sql, statementOffset, "(?i)\\bBUILD\\s+INDEX\\s+", TargetType.Index, BehaviorAction.LOAD, type, false))
+            boolean named = !startsWithKeyword(normalized, "BUILD INDEX ON");
+            if (named && addFirstNamed(sql, statementOffset, "BUILD INDEX", TargetType.Index, BehaviorAction.LOAD, type, false))
                 return true;
             add(type, BehaviorAction.LOAD, objects.unnamedObject(TargetType.Index, context, UmiTypes.Schema));
             return true;
@@ -199,12 +197,13 @@ final class DrStatementBehaviorVisitor extends DorisParserBaseVisitor<Void> {
             return true;
         }
         if (normalized.startsWith("DESC FUNCTION")) {
-            return addFirstNamed(sql, statementOffset, "(?i)\\bDESC(?:RIBE)?\\s+FUNCTION\\s+", TargetType.Function, BehaviorAction.READ, type, false);
+            return addFirstNamed(sql, statementOffset, "DESC FUNCTION", TargetType.Function, BehaviorAction.READ, type, false);
         }
         if (normalized.startsWith("DESC ") || normalized.startsWith("DESCRIBE ")) {
-            return addFirstNamed(sql, statementOffset, "(?i)\\bDESC(?:RIBE)?\\s+", TargetType.Table, BehaviorAction.READ, type, false);
+            String phrase = normalized.startsWith("DESC ") ? "DESC" : "DESCRIBE";
+            return addFirstNamed(sql, statementOffset, phrase, TargetType.Table, BehaviorAction.READ, type, false);
         }
-        if (normalized.matches("(?s)^EXPLAIN\\b.*")) {
+        if (startsWithKeyword(normalized, "EXPLAIN")) {
             add(type, BehaviorAction.ANALYZE, objects.unnamedObject(TargetType.Query, context, UmiTypes.Instance));
             return true;
         }
@@ -213,13 +212,13 @@ final class DrStatementBehaviorVisitor extends DorisParserBaseVisitor<Void> {
             return true;
         }
         if (normalized.startsWith("PLAN REPLAYER PLAY")) {
-            if (!addFirstLiteral(sql, statementOffset, "(?i)\\bPLAY\\s+", TargetType.File, BehaviorAction.UNSAFE, type)) {
+            if (!addFirstLiteral(sql, statementOffset, "PLAY", TargetType.File, BehaviorAction.UNSAFE, type)) {
                 add(type, BehaviorAction.UNSAFE, objects.unnamedObject(TargetType.File, context, UmiTypes.Instance));
             }
             return true;
         }
         if (normalized.startsWith("WARM UP COMPUTE GROUP")) {
-            return addFirstNamed(sql, statementOffset, "(?i)\\bWARM\\s+UP\\s+COMPUTE\\s+GROUP\\s+", TargetType.ComputeGroup, BehaviorAction.LOAD, type, true);
+            return addFirstNamed(sql, statementOffset, "WARM UP COMPUTE GROUP", TargetType.ComputeGroup, BehaviorAction.LOAD, type, true);
         }
         if (normalized.startsWith("WARM UP SELECT")) {
             add(type, BehaviorAction.LOAD, objects.unnamedObject(TargetType.Query, context, UmiTypes.Instance));
@@ -244,24 +243,24 @@ final class DrStatementBehaviorVisitor extends DorisParserBaseVisitor<Void> {
             return true;
         }
         if (normalized.startsWith("RECOVER PARTITION")) {
-            return addFirstNamed(sql, statementOffset, "(?i)\\bRECOVER\\s+PARTITION\\s+", TargetType.Partition, BehaviorAction.RECOVER, type, false);
+            return addFirstNamed(sql, statementOffset, "RECOVER PARTITION", TargetType.Partition, BehaviorAction.RECOVER, type, false);
         }
         if (normalized.startsWith("RECOVER TABLE")) {
-            return addFirstNamed(sql, statementOffset, "(?i)\\bRECOVER\\s+TABLE\\s+", TargetType.Table, BehaviorAction.RECOVER, type, false);
+            return addFirstNamed(sql, statementOffset, "RECOVER TABLE", TargetType.Table, BehaviorAction.RECOVER, type, false);
         }
         if (normalized.startsWith("REFRESH TABLE")) {
-            return addFirstNamed(sql, statementOffset, "(?i)\\bREFRESH\\s+TABLE\\s+", TargetType.Table, BehaviorAction.REFRESH, type, false);
+            return addFirstNamed(sql, statementOffset, "REFRESH TABLE", TargetType.Table, BehaviorAction.REFRESH, type, false);
         }
         if (normalized.startsWith("CANCEL ALTER TABLE")) {
-            return addFirstNamed(sql, statementOffset, "(?i)\\bFROM\\s+", TargetType.Table, BehaviorAction.STOP, type, false);
+            return addFirstNamed(sql, statementOffset, "FROM", TargetType.Table, BehaviorAction.STOP, type, false);
         }
         if (normalized.startsWith("LOAD DATA")) {
-            boolean added = addFirstNamed(sql, statementOffset, "(?i)\\bINTO\\s+TABLE\\s+", TargetType.Table, BehaviorAction.IMPORT, type, false);
-            addFirstLiteral(sql, statementOffset, "(?i)\\bINFILE\\s+", TargetType.File, BehaviorAction.UNSAFE, type);
+            boolean added = addFirstNamed(sql, statementOffset, "INTO TABLE", TargetType.Table, BehaviorAction.IMPORT, type, false);
+            addFirstLiteral(sql, statementOffset, "INFILE", TargetType.File, BehaviorAction.UNSAFE, type);
             return added;
         }
         if (normalized.startsWith("RECOVER DATABASE")) {
-            return addFirstNamed(sql, statementOffset, "(?i)\\bRECOVER\\s+DATABASE\\s+", TargetType.Schema, BehaviorAction.RECOVER, type, false);
+            return addFirstNamed(sql, statementOffset, "RECOVER DATABASE", TargetType.Schema, BehaviorAction.RECOVER, type, false);
         }
         if (normalized.startsWith("CANCEL BACKUP")) {
             add(type, BehaviorAction.TERMINATE, objects.unnamedObject(TargetType.Backup, context, UmiTypes.Instance));
@@ -279,17 +278,18 @@ final class DrStatementBehaviorVisitor extends DorisParserBaseVisitor<Void> {
             return true;
         }
         if (normalized.startsWith("ADMIN SET TABLE")) {
-            return addFirstNamed(sql, statementOffset, "(?i)\\bADMIN\\s+SET\\s+TABLE\\s+", TargetType.Table, BehaviorAction.CONFIGURE, type, false);
+            return addFirstNamed(sql, statementOffset, "ADMIN SET TABLE", TargetType.Table, BehaviorAction.CONFIGURE, type, false);
         }
         if (normalized.startsWith("ADMIN COMPACT TABLE")) {
-            return addFirstNamed(sql, statementOffset, "(?i)\\bADMIN\\s+COMPACT\\s+TABLE\\s+", TargetType.Table, BehaviorAction.OPTIMIZE, type, false);
+            return addFirstNamed(sql, statementOffset, "ADMIN COMPACT TABLE", TargetType.Table, BehaviorAction.OPTIMIZE, type, false);
         }
         if (normalized.startsWith("ADMIN REPAIR TABLE") || normalized.startsWith("ADMIN CANCEL REPAIR TABLE")) {
             BehaviorAction action = normalized.startsWith("ADMIN CANCEL") ? BehaviorAction.STOP : BehaviorAction.REPAIR;
-            return addFirstNamed(sql, statementOffset, "(?i)\\b(?:REPAIR\\s+TABLE|CANCEL\\s+REPAIR\\s+TABLE)\\s+", TargetType.Table, action, type, false);
+            String phrase = normalized.startsWith("ADMIN CANCEL") ? "CANCEL REPAIR TABLE" : "REPAIR TABLE";
+            return addFirstNamed(sql, statementOffset, phrase, TargetType.Table, action, type, false);
         }
         if (normalized.startsWith("ADMIN SHOW REPLICA")) {
-            return addFirstNamed(sql, statementOffset, "(?i)\\bFROM\\s+", TargetType.Table, BehaviorAction.READ, type, false);
+            return addFirstNamed(sql, statementOffset, "FROM", TargetType.Table, BehaviorAction.READ, type, false);
         }
         if (normalized.startsWith("ADMIN SET REPLICA")) {
             add(type, BehaviorAction.CONFIGURE, objects.unnamedObject(TargetType.Replication, context, UmiTypes.Instance));
@@ -316,7 +316,7 @@ final class DrStatementBehaviorVisitor extends DorisParserBaseVisitor<Void> {
             return true;
         }
         if (normalized.startsWith("ALTER COLOCATE GROUP")) {
-            return addFirstNamed(sql, statementOffset, "(?i)\\bALTER\\s+COLOCATE\\s+GROUP\\s+", TargetType.ResourceGroup, BehaviorAction.ALTER, type, true);
+            return addFirstNamed(sql, statementOffset, "ALTER COLOCATE GROUP", TargetType.ResourceGroup, BehaviorAction.ALTER, type, true);
         }
         if (normalized.startsWith("CANCEL BUILD INDEX")) {
             add(type, BehaviorAction.STOP, objects.unnamedObject(TargetType.Index, context, UmiTypes.Schema));
@@ -339,7 +339,7 @@ final class DrStatementBehaviorVisitor extends DorisParserBaseVisitor<Void> {
             return true;
         }
         if (type == SplitQueryType.ADMIN_PERFORMANCE && normalized.startsWith("ALTER") && normalized.contains(" SET STATS")) {
-            return addFirstNamed(sql, statementOffset, "(?i)\\bALTER\\s+TABLE\\s+", TargetType.Statistics, BehaviorAction.ALTER, type, false);
+            return addFirstNamed(sql, statementOffset, "ALTER TABLE", TargetType.Statistics, BehaviorAction.ALTER, type, false);
         }
         if (normalized.equals("SYNC") || normalized.equals("SYNC;")) {
             add(type, BehaviorAction.FLUSH, objects.unnamedObject(TargetType.Instance, context, UmiTypes.Instance));
@@ -1115,41 +1115,236 @@ final class DrStatementBehaviorVisitor extends DorisParserBaseVisitor<Void> {
         }
     }
 
-    private boolean addFirstNamed(String sql, int statementOffset, String prefix, TargetType targetType, BehaviorAction action, SplitQueryType statementType, boolean instance) {
-        String identifier = "(?:`(?:``|[^`])+`|\"(?:\"\"|[^\"])+\"|'(?:''|[^'])+'|[A-Za-z_$][A-Za-z0-9_$]*)";
-        Matcher matcher = Pattern.compile(prefix + "(" + identifier + "(?:\\s*\\.\\s*" + identifier + ")?)").matcher(sql);
-        matcher.region(Math.max(0, statementOffset), sql.length());
-        if (!matcher.find())
-            return false;
-        return addNamed(sql, matcher.start(1), matcher.group(1), targetType, action, statementType, instance);
+    private boolean addFirstNamed(String sql, int statementOffset, String phrase, TargetType targetType, BehaviorAction action, SplitQueryType statementType, boolean instance) {
+        return addFirstNamed(sql, statementOffset, phrase, null, targetType, action, statementType, instance);
     }
 
-    private boolean addFirstLiteral(String sql, int statementOffset, String prefix, TargetType targetType, BehaviorAction action, SplitQueryType statementType) {
-        Matcher matcher = Pattern.compile(prefix + "('(?:''|\\\\.|[^'])*'|\"(?:\"\"|\\\\.|[^\"])*\")").matcher(sql);
-        matcher.region(Math.max(0, statementOffset), sql.length());
-        if (!matcher.find())
+    private boolean addFirstNamed(String sql, int statementOffset, String phrase, String optionalPhrase, TargetType targetType, BehaviorAction action, SplitQueryType statementType,
+                                  boolean instance) {
+        int offset = findPhraseEnd(sql, statementOffset, phrase);
+        if (offset < 0) {
             return false;
-        return addNamed(sql, matcher.start(1), matcher.group(1), targetType, action, statementType, true);
+        }
+        if (optionalPhrase != null) {
+            int optionalEnd = matchPhraseAt(sql, offset, optionalPhrase);
+            if (optionalEnd >= 0 && optionalEnd < sql.length() && Character.isWhitespace(sql.charAt(optionalEnd))) {
+                offset = skipWhitespace(sql, optionalEnd);
+            }
+        }
+        int end = qualifiedIdentifierEnd(sql, offset);
+        if (end < 0) {
+            return false;
+        }
+        return addNamed(sql, offset, sql.substring(offset, end), targetType, action, statementType, instance);
+    }
+
+    private boolean addFirstLiteral(String sql, int statementOffset, String phrase, TargetType targetType, BehaviorAction action, SplitQueryType statementType) {
+        int offset = findPhraseEnd(sql, statementOffset, phrase);
+        if (offset < 0) {
+            return false;
+        }
+        int end = quotedEnd(sql, offset, true);
+        if (end < 0) {
+            return false;
+        }
+        return addNamed(sql, offset, sql.substring(offset, end), targetType, action, statementType, true);
     }
 
     private boolean addIdentifierAt(String sql, int start, TargetType targetType, BehaviorAction action, SplitQueryType statementType, boolean instance) {
-        int offset = start;
-        while (offset < sql.length() && Character.isWhitespace(sql.charAt(offset)))
-            offset++;
-        if (offset >= sql.length())
+        int offset = skipWhitespace(sql, start);
+        int end = identifierEnd(sql, offset);
+        if (end < 0) {
             return false;
-        Matcher matcher = Pattern.compile("`(?:``|[^`])+`|\"(?:\"\"|[^\"])+\"|[A-Za-z_$][A-Za-z0-9_$]*").matcher(sql);
-        matcher.region(offset, sql.length());
-        return matcher.lookingAt() && addNamed(sql, matcher.start(), matcher.group(), targetType, action, statementType, instance);
+        }
+        return addNamed(sql, offset, sql.substring(offset, end), targetType, action, statementType, instance);
+    }
+
+    private int findPhraseEnd(String sql, int start, String phrase) {
+        for (int offset = Math.max(0, start); offset < sql.length(); offset++) {
+            if (offset > 0 && isIdentifierPart(sql.charAt(offset - 1))) {
+                continue;
+            }
+            int end = matchPhraseAt(sql, offset, phrase);
+            if (end >= 0 && end < sql.length() && Character.isWhitespace(sql.charAt(end))) {
+                return skipWhitespace(sql, end);
+            }
+        }
+        return -1;
+    }
+
+    private int matchPhraseAt(String sql, int offset, String phrase) {
+        int sqlIndex = offset;
+        int phraseIndex = 0;
+        while (phraseIndex < phrase.length()) {
+            char expected = phrase.charAt(phraseIndex);
+            if (Character.isWhitespace(expected)) {
+                if (sqlIndex >= sql.length() || !Character.isWhitespace(sql.charAt(sqlIndex))) {
+                    return -1;
+                }
+                while (phraseIndex < phrase.length() && Character.isWhitespace(phrase.charAt(phraseIndex))) {
+                    phraseIndex++;
+                }
+                sqlIndex = skipWhitespace(sql, sqlIndex);
+                continue;
+            }
+            if (sqlIndex >= sql.length() || Character.toUpperCase(sql.charAt(sqlIndex)) != Character.toUpperCase(expected)) {
+                return -1;
+            }
+            phraseIndex++;
+            sqlIndex++;
+        }
+        if (sqlIndex < sql.length() && isIdentifierPart(sql.charAt(sqlIndex))) {
+            return -1;
+        }
+        return sqlIndex;
+    }
+
+    private int qualifiedIdentifierEnd(String sql, int offset) {
+        int firstEnd = identifierEnd(sql, offset);
+        if (firstEnd < 0) {
+            return -1;
+        }
+        int dot = skipWhitespace(sql, firstEnd);
+        if (dot >= sql.length() || sql.charAt(dot) != '.') {
+            return firstEnd;
+        }
+        int secondStart = skipWhitespace(sql, dot + 1);
+        int secondEnd = identifierEnd(sql, secondStart);
+        return secondEnd < 0 ? firstEnd : secondEnd;
+    }
+
+    private int identifierEnd(String sql, int offset) {
+        if (offset >= sql.length()) {
+            return -1;
+        }
+        char first = sql.charAt(offset);
+        if (first == '`' || first == '"' || first == '\'') {
+            return quotedEnd(sql, offset, false);
+        }
+        if (!isIdentifierStart(first)) {
+            return -1;
+        }
+        int end = offset + 1;
+        while (end < sql.length() && isIdentifierPart(sql.charAt(end))) {
+            end++;
+        }
+        return end;
+    }
+
+    private int quotedEnd(String sql, int offset, boolean backslashEscape) {
+        if (offset >= sql.length()) {
+            return -1;
+        }
+        char quote = sql.charAt(offset);
+        if (quote != '`' && quote != '"' && quote != '\'') {
+            return -1;
+        }
+        boolean hasContent = false;
+        for (int index = offset + 1; index < sql.length(); index++) {
+            char current = sql.charAt(index);
+            if (backslashEscape && current == '\\' && index + 1 < sql.length()) {
+                hasContent = true;
+                index++;
+                continue;
+            }
+            if (current != quote) {
+                hasContent = true;
+                continue;
+            }
+            if (index + 1 < sql.length() && sql.charAt(index + 1) == quote) {
+                hasContent = true;
+                index++;
+                continue;
+            }
+            return backslashEscape || hasContent ? index + 1 : -1;
+        }
+        return -1;
+    }
+
+    private int skipWhitespace(String sql, int offset) {
+        int result = Math.max(0, offset);
+        while (result < sql.length() && Character.isWhitespace(sql.charAt(result))) {
+            result++;
+        }
+        return result;
+    }
+
+    private boolean isIdentifierStart(char value) {
+        return value >= 'A' && value <= 'Z' || value >= 'a' && value <= 'z' || value == '_' || value == '$';
+    }
+
+    private boolean isIdentifierPart(char value) {
+        return isIdentifierStart(value) || value >= '0' && value <= '9';
+    }
+
+    private boolean startsWithKeyword(String value, String keyword) {
+        if (!value.startsWith(keyword)) {
+            return false;
+        }
+        return value.length() == keyword.length() || !isIdentifierPart(value.charAt(keyword.length()));
+    }
+
+    private String invertedIndexComponent(TargetType target) {
+        if (target == TargetType.Analyzer) {
+            return "ANALYZER";
+        }
+        if (target == TargetType.Tokenizer) {
+            return "TOKENIZER";
+        }
+        if (target == TargetType.TokenFilter) {
+            return "TOKEN_FILTER";
+        }
+        if (target == TargetType.CharFilter) {
+            return "CHAR_FILTER";
+        }
+        return "NORMALIZER";
     }
 
     private boolean addNamed(String sql, int offset, String raw, TargetType targetType, BehaviorAction action, SplitQueryType statementType, boolean instance) {
-        String value = unquoteLiteral(raw).replaceAll("\\s*\\.\\s*", ".");
+        String value = unquoteLiteral(normalizeQualifiedName(raw));
         CommonToken token = positionedToken(sql, offset, raw);
-        BehaviorObject subject = instance ? objects.instanceObject(targetType, token, value) : objects
-            .object(targetType, token, token, java.util.Arrays.stream(value.split("\\.")).filter(part -> !part.isBlank()).toList());
+        BehaviorObject subject = instance ? objects.instanceObject(targetType, token, value) : objects.object(targetType, token, token, qualifiedNameParts(value, false));
         add(statementType, action, subject);
         return subject != null;
+    }
+
+    private String normalizeQualifiedName(String value) {
+        StringBuilder result = new StringBuilder(value.length());
+        for (int index = 0; index < value.length(); index++) {
+            char current = value.charAt(index);
+            if (!Character.isWhitespace(current)) {
+                if (current == '.') {
+                    while (!result.isEmpty() && Character.isWhitespace(result.charAt(result.length() - 1))) {
+                        result.setLength(result.length() - 1);
+                    }
+                    result.append(current);
+                    while (index + 1 < value.length() && Character.isWhitespace(value.charAt(index + 1))) {
+                        index++;
+                    }
+                } else {
+                    result.append(current);
+                }
+            } else {
+                result.append(current);
+            }
+        }
+        return result.toString();
+    }
+
+    private List<String> qualifiedNameParts(String value, boolean stripAndUnquote) {
+        List<String> result = new ArrayList<>();
+        int start = 0;
+        for (int index = 0; index <= value.length(); index++) {
+            if (index < value.length() && value.charAt(index) != '.') {
+                continue;
+            }
+            String part = value.substring(start, index);
+            if (!part.isBlank()) {
+                result.add(stripAndUnquote ? unquote(part.strip()) : part);
+            }
+            start = index + 1;
+        }
+        return result;
     }
 
     private CommonToken positionedToken(String sql, int offset, String raw) {
@@ -1300,11 +1495,7 @@ final class DrStatementBehaviorVisitor extends DorisParserBaseVisitor<Void> {
         if (context == null) {
             return null;
         }
-        List<String> names = new ArrayList<>();
-        for (String part : text(context).split("\\.")) {
-            names.add(unquote(part.strip()));
-        }
-        return objects.object(type, context, names);
+        return objects.object(type, context, qualifiedNameParts(text(context), true));
     }
 
     private BehaviorObject user(ParserRuleContext context) {

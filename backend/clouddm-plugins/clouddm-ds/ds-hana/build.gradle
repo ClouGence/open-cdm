@@ -16,12 +16,15 @@
 
 plugins {
     id 'com.clougence.plugin-conventions'
+    id 'antlr'
 }
 
 dependencies {
+    antlr "org.antlr:antlr4:${ANTLR_VERSION}"
+
     // project
     implementation project(':dsc-common')
-    implementation project(':sql-iso-sql2003')
+    implementation "org.antlr:antlr4-runtime:${ANTLR_VERSION}"
 
     // share lib (compileOnly)
     compileOnly project(':cgdm-share-libs')
@@ -31,3 +34,7 @@ dependencies {
 }
 
 description = 'ds-hana'
+
+tasks.named('generateGrammarSource') {
+    arguments += ['-package', 'com.clougence.clouddm.ds.hana.sql.parser.antlr']
+}

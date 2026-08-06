@@ -703,7 +703,7 @@ public class TiDBSplitVisitor extends TiDBParserBaseVisitor<SplitQueryType> {
 
     @Override
     public SplitQueryType visitLegacyIndexAdviseStatement(LegacyIndexAdviseStatementContext ctx) {
-        return SplitQueryType.ADMIN_PERFORMANCE;
+        return ctx.getText().toUpperCase(Locale.ROOT).startsWith("INDEXADVISELOCALINFILE") ? SplitQueryType.UNSAFE : SplitQueryType.ADMIN_PERFORMANCE;
     }
 
     @Override

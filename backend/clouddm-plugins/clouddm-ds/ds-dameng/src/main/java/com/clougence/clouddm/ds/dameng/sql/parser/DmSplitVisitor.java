@@ -15,6 +15,8 @@
  */
 package com.clougence.clouddm.ds.dameng.sql.parser;
 
+import java.util.Locale;
+
 import com.clougence.clouddm.ds.dameng.sql.parser.antlr.DmSqlParser;
 import com.clougence.clouddm.ds.dameng.sql.parser.antlr.DmSqlParserBaseVisitor;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
@@ -178,17 +180,67 @@ public class DmSplitVisitor extends DmSqlParserBaseVisitor<SplitQueryType> {
 
     @Override
     public SplitQueryType visitAdminStatement(DmSqlParser.AdminStatementContext ctx) {
+        if (ctx.backupStatementTail() != null || ctx.dumpStatementTail() != null) {
+            return SplitQueryType.DATA_EXPORT;
+        }
+        if (ctx.restoreStatementTail() != null || ctx.recoverStatementTail() != null || ctx.loadBackupsetsTail() != null || ctx.mergeDatabaseTail() != null) {
+            return SplitQueryType.DATA_IMPORT;
+        }
+        if (ctx.showBackupsetTail() != null || ctx.CONFIGURE() != null && ctx.configureStatementTail() == null) {
+            return SplitQueryType.METADATA;
+        }
+        if (ctx.CONFIGURE() != null) {
+            return SplitQueryType.SYSTEM_SETTING_WRITE;
+        }
+        if (ctx.repairStatementTail() != null || ctx.CHECKPOINT() != null) {
+            return SplitQueryType.MAINTAIN_LOG;
+        }
+        if (ctx.dataWatcherAdminProcedure() != null) {
+            return ctx.dataWatcherAdminProcedure().SP_SET_OGUID() != null ? SplitQueryType.ALTER_REPLICATION : SplitQueryType.ADMIN_REPLICATION;
+        }
+        if (ctx.alterSystemAction() != null) {
+            return SplitQueryType.MAINTAIN_LOG;
+        }
+        if (ctx.alterDatabaseAction() != null) {
+            DmSqlParser.AlterDatabaseActionContext action = ctx.alterDatabaseAction();
+            if (action.SUSPEND() != null) {
+                return SplitQueryType.ADMIN_REPLICATION;
+            }
+            if ((action.ADD() != null || action.MODIFY() != null || action.DELETE() != null) && action.ARCHIVELOG() != null) {
+                return isLocalArchiveDestination(action) ? SplitQueryType.ALTER_LOG : SplitQueryType.ALTER_REPLICATION;
+            }
+            if (action.LOGFILE() != null || action.NOARCHIVELOG() != null || action.ARCHIVELOG() != null && action.CURRENT() == null) {
+                return SplitQueryType.ALTER_LOG;
+            }
+            if (action.ARCHIVELOG() != null && action.CURRENT() != null) {
+                return SplitQueryType.MAINTAIN_LOG;
+            }
+            if (action.NORMAL() != null || action.PRIMARY() != null || action.STANDBY() != null) {
+                return SplitQueryType.ALTER_REPLICATION;
+            }
+        }
         return SplitQueryType.ADMIN;
+    }
+
+    private boolean isLocalArchiveDestination(DmSqlParser.AlterDatabaseActionContext action) {
+        if (action.backupFilePath().isEmpty()) {
+            return false;
+        }
+        String specification = action.backupFilePath(0).getText();
+        if (specification.length() >= 2 && specification.charAt(0) == '\'' && specification.charAt(specification.length() - 1) == '\'') {
+            specification = specification.substring(1, specification.length() - 1);
+        }
+        return specification.replace(" ", "").toUpperCase(Locale.ROOT).startsWith("TYPE=LOCAL,") || specification.replace(" ", "").equalsIgnoreCase("TYPE=LOCAL");
     }
 
     @Override
     public SplitQueryType visitStatStatement(DmSqlParser.StatStatementContext ctx) {
-        return SplitQueryType.ADMIN_TABLE;
+        return SplitQueryType.ADMIN_PERFORMANCE;
     }
 
     @Override
     public SplitQueryType visitStatProcedureStatement(DmSqlParser.StatProcedureStatementContext ctx) {
-        return SplitQueryType.ADMIN_TABLE;
+        return SplitQueryType.ADMIN_PERFORMANCE;
     }
 
     @Override
@@ -356,9 +408,6 @@ public class DmSplitVisitor extends DmSqlParserBaseVisitor<SplitQueryType> {
         if (target.TYPE() != null) {
             return SplitQueryType.COMMENT_TYPE;
         }
-        if (target.SYNONYM() != null) {
-            return SplitQueryType.COMMENT_SYNONYM;
-        }
         if (target.CONTEXT() != null) {
             return SplitQueryType.COMMENT_CONTEXT;
         }
@@ -386,9 +435,6 @@ public class DmSplitVisitor extends DmSqlParserBaseVisitor<SplitQueryType> {
         if (target.PROCEDURE() != null) {
             return SplitQueryType.COMMENT_PROCEDURE;
         }
-        if (target.OPERATOR() != null) {
-            return SplitQueryType.COMMENT_OPERATOR;
-        }
         if (target.DATABASE() != null) {
             return SplitQueryType.COMMENT_SCHEMA;
         }
@@ -407,7 +453,7 @@ public class DmSplitVisitor extends DmSqlParserBaseVisitor<SplitQueryType> {
 
     @Override
     public SplitQueryType visitCallStatement(DmSqlParser.CallStatementContext ctx) {
-        return SplitQueryType.CALL_PROG_OBJ;
+        return builtInProcedureType(ctx.qualifiedName().getText());
     }
 
     @Override
@@ -427,7 +473,7 @@ public class DmSplitVisitor extends DmSqlParserBaseVisitor<SplitQueryType> {
 
     @Override
     public SplitQueryType visitSetTimeZoneStatement(DmSqlParser.SetTimeZoneStatementContext ctx) {
-        return SplitQueryType.SYSTEM_SETTING_WRITE;
+        return SplitQueryType.SESSION_SETTING_WRITE;
     }
 
     @Override
@@ -440,22 +486,56 @@ public class DmSplitVisitor extends DmSqlParserBaseVisitor<SplitQueryType> {
         if (ctx.sessionConfigAssignment() != null) {
             return SplitQueryType.SESSION_SETTING_WRITE;
         }
+        DmSqlParser.ConfigWriteProcedureContext procedure = ctx.configWriteProcedure();
+        if (procedure != null && (procedure.SF_SET_SESSION_PARA_VALUE() != null || procedure.SP_RESET_SESSION_PARA_VALUE() != null || procedure.SP_SET_PARAM_IN_SESSION() != null
+                                  || procedure.SP_SET_SESSION_READONLY() != null)) {
+            return SplitQueryType.SESSION_SETTING_WRITE;
+        }
         return SplitQueryType.SYSTEM_SETTING_WRITE;
     }
 
     @Override
     public SplitQueryType visitAuditAdminStatement(DmSqlParser.AuditAdminStatementContext ctx) {
-        return SplitQueryType.ADMIN;
+        DmSqlParser.AuditAdminProcedureContext procedure = ctx.auditAdminProcedure();
+        return procedure.SP_DROP_AUDIT_FILE() != null || procedure.SP_SWITCH_AUDIT_FILE() != null ? SplitQueryType.MAINTAIN_LOG : SplitQueryType.SYSTEM_SETTING_WRITE;
     }
 
     @Override
     public SplitQueryType visitSecurityAdminStatement(DmSqlParser.SecurityAdminStatementContext ctx) {
-        return SplitQueryType.ADMIN;
+        return ctx.securityAdminProcedure().SP_SET_ROLE() != null ? SplitQueryType.SWITCH_ROLE : SplitQueryType.SYSTEM_SETTING_WRITE;
     }
 
     @Override
     public SplitQueryType visitProcedureCallStatement(DmSqlParser.ProcedureCallStatementContext ctx) {
-        return SplitQueryType.CALL_PROG_OBJ;
+        return builtInProcedureType(ctx.qualifiedName() != null ? ctx.qualifiedName().getText() : ctx.bareRoutineName().getText());
+    }
+
+    private SplitQueryType builtInProcedureType(String rawName) {
+        String name = rawName.toUpperCase(Locale.ROOT);
+        int separator = name.lastIndexOf('.');
+        if (separator >= 0) {
+            name = name.substring(separator + 1);
+        }
+        return switch (name) {
+            case "SP_TS_GROUP_CREATE" -> SplitQueryType.CREATE_POLICY;
+            case "SP_TS_GROUP_ADD_TS", "SP_TS_GROUP_REMOVE_TS" -> SplitQueryType.ALTER_POLICY;
+            case "SP_TS_GROUP_DROP" -> SplitQueryType.DROP_POLICY;
+            case "SP_GET_ALL_TS_BY_TSGROUP", "SP_GET_RAFT_ASYNC_INTERVAL" -> SplitQueryType.METADATA;
+            case "SP_GET_EP_COUNT" -> SplitQueryType.SELECT;
+            case "SP_SET_SESSION_LOCAL_TYPE", "SP_SET_SESSION_MPP_SELECT_LOCAL" -> SplitQueryType.SESSION_SETTING_WRITE;
+            case "SP_CLEAR_TAB_ROWCNT_CACHE", "SP_DPC_REBANLANCE_SESSION", "SP_INIT_AWR_SYS", "SP_SET_DBG_SHOW" -> SplitQueryType.ADMIN_PERFORMANCE;
+            case "SP_DISABLE_DPC_RAFT", "SP_ENABLE_DPC_RAFT", "SP_RAFT_RESUME_THREAD", "SP_RAFT_SUSPEND_THREAD", "SP_RAFT_SWITCHOVER" -> SplitQueryType.ADMIN_REPLICATION;
+            case "SP_DPC_DUMP_INST" -> SplitQueryType.DATA_EXPORT;
+            case "SP_TS_DROP_INVALID" -> SplitQueryType.DROP_TABLESPACE;
+            case "SP_FILE_SYS_CHECK", "SP_TABLESPACE_PREPARE_RECOVER", "SP_TABLESPACE_RECOVER" -> SplitQueryType.ADMIN;
+            case "SP_ADD_RAFT_LEARNER", "SP_ADD_RAFT_NODE", "SP_ALTER_DPC_INSTANCE", "SP_ALTER_RAFT_NODE", "SP_BP_GROUP_ADD_RAFT", "SP_BP_GROUP_DEL_RAFT", "SP_CREATE_DPC_BP_GROUP",
+                    "SP_CREATE_DPC_INSTANCE", "SP_CREATE_DPC_RAFT", "SP_CREATE_DPC_SP_GROUP", "SP_CREATE_SYSTEM_PACKAGES", "SP_DELETE_RAFT_LEARNER", "SP_DELETE_RAFT_NODE",
+                    "SP_DPC_MOVE_TS_OFFLINE", "SP_DROP_DPC_BP_GROUP", "SP_DROP_DPC_BP_RAFT", "SP_DROP_DPC_INSTANCE", "SP_DROP_DPC_RAFT", "SP_DROP_DPC_SP_GROUP",
+                    "SP_INIT_DBMS_SCHEDULER_SYS", "SP_MODIFY_DPC_INSTANCE", "SP_RENAME_DPC_INSTANCE", "SP_REPLACE_RAFT_NODE", "SP_RESET_SP_UPGRADE", "SP_SET_DPC_INST_AUX",
+                    "SP_SET_DPC_NET_CONF", "SP_SET_SP_UPGRADE", "SP_SP_GROUP_ADD_RAFT", "SP_SP_GROUP_DEL_RAFT" ->
+                SplitQueryType.SYSTEM_SETTING_WRITE;
+            default -> SplitQueryType.CALL_PROG_OBJ;
+        };
     }
 
     @Override

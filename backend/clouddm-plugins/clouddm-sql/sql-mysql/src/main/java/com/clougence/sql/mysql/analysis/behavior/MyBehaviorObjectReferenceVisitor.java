@@ -248,6 +248,32 @@ final class MyBehaviorObjectReferenceVisitor extends MySqlObjectReferenceVisitor
     }
 
     @Override
+    public Void visitColumnCreateTable(ColumnCreateTableContext ctx) {
+        super.visitColumnCreateTable(ctx);
+        addCreateColumns(ctx.tableName(), ctx.createDefinitions());
+        return null;
+    }
+
+    @Override
+    public Void visitQueryCreateTable(QueryCreateTableContext ctx) {
+        super.visitQueryCreateTable(ctx);
+        addCreateColumns(ctx.tableName(), ctx.createDefinitions());
+        return null;
+    }
+
+    private void addCreateColumns(TableNameContext table, CreateDefinitionsContext definitions) {
+        if (definitions == null) {
+            return;
+        }
+        for (CreateDefinitionContext definition : definitions.createDefinition()) {
+            if (!(definition instanceof ColumnDeclarationContext column) || column.columnDefinition().uid() == null) {
+                continue;
+            }
+            addTableChild(SplitQueryType.CREATE_TABLE, TargetType.Column, false, table, column.columnDefinition().uid());
+        }
+    }
+
+    @Override
     public Void visitAtomTableItem(AtomTableItemContext ctx) {
         if (isCte(ctx.tableName())) {
             return null;
@@ -320,6 +346,27 @@ final class MyBehaviorObjectReferenceVisitor extends MySqlObjectReferenceVisitor
         }
         if (ctx.whereClause() != null) {
             visit(ctx.whereClause());
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitMultipleDeleteStatement(MultipleDeleteStatementContext ctx) {
+        if (ctx.tableSources() == null) {
+            return super.visitMultipleDeleteStatement(ctx);
+        }
+        visit(ctx.tableSources());
+        List<AtomTableItemContext> tables = descendants(ctx.tableSources(), AtomTableItemContext.class).stream()
+            .filter(table -> topLevelUpdateTable(table, ctx.tableSources()))
+            .toList();
+        for (TableNameContext deleteTarget : ctx.tableName()) {
+            String qualifier = unquoteUpdateIdentifier(deleteTarget.getText());
+            AtomTableItemContext resolved = tables.stream().filter(table -> matchesUpdateQualifier(table, qualifier)).findFirst().orElse(null);
+            if (resolved == null) {
+                addBehaviorResource(SplitQueryType.DELETE, TargetType.Table, true, deleteTarget, BehaviorAction.DELETE);
+            } else {
+                addBehaviorResource(SplitQueryType.DELETE, TargetType.Table, true, resolved.tableName(), BehaviorAction.DELETE);
+            }
         }
         return null;
     }

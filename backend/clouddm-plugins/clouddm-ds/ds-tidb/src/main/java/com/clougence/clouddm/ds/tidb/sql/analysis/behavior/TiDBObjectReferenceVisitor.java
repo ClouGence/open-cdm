@@ -17,6 +17,7 @@ package com.clougence.clouddm.ds.tidb.sql.analysis.behavior;
 
 import java.util.*;
 
+import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
@@ -97,6 +98,24 @@ public class TiDBObjectReferenceVisitor extends TiDBParserBaseVisitor<Void> {
         } else {
             references.add(new TiDBObjectReference(sqlType, targetType, require, line(ctx), column(ctx), endLine(ctx), endColumn(ctx), nodes, null, false));
         }
+    }
+
+    protected final void addNamedAtCurrentSchema(SplitQueryType sqlType, TargetType targetType, boolean require, ParserRuleContext ctx, String name) {
+        List<String> nodes = new ArrayList<>();
+        addPart(nodes, level(UmiTypes.Catalog));
+        addPart(nodes, level(UmiTypes.Schema));
+        addPart(nodes, name);
+        addWithNodes(sqlType, targetType, require, ctx, nodes);
+    }
+
+    protected final void addTableChild(SplitQueryType sqlType, TargetType targetType, boolean require, TableNameContext table,
+                                       ParserRuleContext child, String childName) {
+        if (table == null || child == null || StringUtils.isBlank(childName)) {
+            return;
+        }
+        List<String> nodes = resolveNodes(TargetType.Table, qualifiedIdentifierParts(table));
+        addPart(nodes, childName);
+        addWithNodes(sqlType, targetType, require, child, nodes);
     }
 
     @Override
@@ -515,25 +534,29 @@ public class TiDBObjectReferenceVisitor extends TiDBParserBaseVisitor<Void> {
 
     @Override
     public Void visitCreateResourceGroup(CreateResourceGroupContext ctx) {
-        add(SplitQueryType.CREATE_RESOURCE_GROUP, TargetType.ResourceGroup, false, ctx.resourceGroupName());
+        addInstanceResource(SplitQueryType.CREATE_RESOURCE_GROUP, TargetType.ResourceGroup, false,
+            ctx.resourceGroupName(), name(ctx.resourceGroupName()));
         return null;
     }
 
     @Override
     public Void visitAlterResourceGroup(AlterResourceGroupContext ctx) {
-        add(SplitQueryType.ALTER_RESOURCE_GROUP, TargetType.ResourceGroup, ctx.resourceGroupName());
+        addInstanceResource(SplitQueryType.ALTER_RESOURCE_GROUP, TargetType.ResourceGroup, true,
+            ctx.resourceGroupName(), name(ctx.resourceGroupName()));
         return null;
     }
 
     @Override
     public Void visitDropResourceGroup(DropResourceGroupContext ctx) {
-        add(SplitQueryType.DROP_RESOURCE_GROUP, TargetType.ResourceGroup, ctx.resourceGroupName());
+        addInstanceResource(SplitQueryType.DROP_RESOURCE_GROUP, TargetType.ResourceGroup, true,
+            ctx.resourceGroupName(), name(ctx.resourceGroupName()));
         return null;
     }
 
     @Override
     public Void visitSetResourceGroup(SetResourceGroupContext ctx) {
-        add(SplitQueryType.ADMIN_RESOURCE_GROUP, TargetType.ResourceGroup, ctx.resourceGroupName());
+        addInstanceResource(SplitQueryType.ADMIN_RESOURCE_GROUP, TargetType.ResourceGroup, true,
+            ctx.resourceGroupName(), name(ctx.resourceGroupName()));
         return null;
     }
 
@@ -738,6 +761,30 @@ public class TiDBObjectReferenceVisitor extends TiDBParserBaseVisitor<Void> {
     @Override
     public Void visitTransactionStatement(TransactionStatementContext ctx) {
         return visitChildren(ctx);
+    }
+
+    @Override
+    public Void visitSavepointStatement(SavepointStatementContext ctx) {
+        String savepoint = name(ctx.uid());
+        addInstanceBehaviorResource(SplitQueryType.TRANSACTION, TargetType.Savepoint, false,
+                ctx.uid().getStart(), savepoint, BehaviorAction.CREATE);
+        return null;
+    }
+
+    @Override
+    public Void visitRollbackStatement(RollbackStatementContext ctx) {
+        String savepoint = name(ctx.uid());
+        addInstanceBehaviorResource(SplitQueryType.TRANSACTION, TargetType.Savepoint, true,
+                ctx.uid().getStart(), savepoint, BehaviorAction.RESET);
+        return null;
+    }
+
+    @Override
+    public Void visitReleaseStatement(ReleaseStatementContext ctx) {
+        String savepoint = name(ctx.uid());
+        addInstanceBehaviorResource(SplitQueryType.TRANSACTION, TargetType.Savepoint, true,
+                ctx.uid().getStart(), savepoint, BehaviorAction.DROP);
+        return null;
     }
 
     @Override
@@ -980,7 +1027,7 @@ public class TiDBObjectReferenceVisitor extends TiDBParserBaseVisitor<Void> {
             if (variable == null) {
                 String assignmentText = name(assignment);
                 String key = assignmentText != null && assignmentText.toUpperCase(Locale.ROOT)
-                    .startsWith("CHARACTER SET") ? "CHARACTER SET" : assignmentText == null ? null : assignmentText.split("\\s+", 2)[0];
+                    .startsWith("CHARACTER SET") ? "CHARACTER SET" : TiBehaviorText.firstWhitespaceToken(assignmentText);
                 addInstanceResource(SplitQueryType.SESSION_SETTING_WRITE, TargetType.ConfigKey, true, assignment, key);
                 continue;
             }
@@ -1003,6 +1050,12 @@ public class TiDBObjectReferenceVisitor extends TiDBParserBaseVisitor<Void> {
             }
             if (key.isEmpty()) {
                 addUnnamedResource(permission, TargetType.ConfigKey, true, variable);
+            } else if (variable.GLOBAL_ID() != null && variable.REVERSE_QUOTE_ID() != null) {
+                addInstanceResource(permission, TargetType.ConfigKey, true, variable.REVERSE_QUOTE_ID().getSymbol(), key);
+            } else if (variable.GLOBAL_ID() != null && variable.uid() != null) {
+                addInstanceResource(permission, TargetType.ConfigKey, true, variable.uid(), key);
+            } else if (variable.GLOBAL_ID() != null) {
+                addInstanceResource(permission, TargetType.ConfigKey, true, variableNameToken(variable.GLOBAL_ID().getSymbol()), key);
             } else {
                 addInstanceResource(permission, TargetType.ConfigKey, true, variable, key);
             }
@@ -1324,6 +1377,17 @@ public class TiDBObjectReferenceVisitor extends TiDBParserBaseVisitor<Void> {
         }
         variable = stripVariableScope(variable);
         return unquote(variable);
+    }
+
+    private static Token variableNameToken(Token variableToken) {
+        String text = variableToken.getText();
+        int separator = text.indexOf('.');
+        int offset = separator < 0 ? 0 : separator + 1;
+        String name = text.substring(offset);
+        CommonToken token = new CommonToken(0, name);
+        token.setLine(variableToken.getLine());
+        token.setCharPositionInLine(variableToken.getCharPositionInLine() + offset);
+        return token;
     }
 
     private void addFile(SplitQueryType sqlType, boolean require, ParserRuleContext ctx) {

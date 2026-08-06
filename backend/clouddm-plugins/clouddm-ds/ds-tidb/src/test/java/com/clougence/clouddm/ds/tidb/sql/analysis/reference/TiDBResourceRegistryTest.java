@@ -51,4 +51,14 @@ class TiDBResourceRegistryTest {
         assertFalse(resources.isMetadataTable("information_schema", "innodb_buffer_page", TiDBVersion.LATEST));
         assertFalse(resources.isMetadataTable("performance_schema", "replication_group_members", TiDBVersion.LATEST));
     }
+
+    @Test
+    void shouldParseDirectAndServerTiDBVersionsWithoutPatternMatching() {
+        assertEquals(TiDBVersion.TIDB_5, TiDBVersion.parse("v5.4.3"));
+        assertEquals(TiDBVersion.TIDB_6, TiDBVersion.parse("6.5.12"));
+        assertEquals(TiDBVersion.TIDB_7, TiDBVersion.parse("5.7.25-TiDB-v7.5.7"));
+        assertEquals(TiDBVersion.TIDB_8, TiDBVersion.parse("TiDB Server: V8.5.7"));
+        assertEquals(TiDBVersion.TIDB_9, TiDBVersion.parse("TiDB_VERSION-v9.0.0"));
+        assertEquals(TiDBVersion.LATEST, TiDBVersion.parse("MySQL 8.0.36"));
+    }
 }
