@@ -48,15 +48,9 @@ public interface ApprovalFlowService {
 
     void closeTicket(long ticketId, String statusMessage, String puid, String uid);
 
-    void closeTicket(long ticketId, String statusMessage, String puid);
-
     void failTicket(long ticketId, String statusMessage, String puid);
 
-    void execFailTicket(long ticketId, String statusMessage, String puid);
-
     void cancelTicket(String puid, long ticketId, String statusMessage);
-
-    void retryTicket(String puid, long ticketId);
 
     void approvalTicket(String puid, String uid, RdpApprovalFO fo);
 
@@ -70,16 +64,9 @@ public interface ApprovalFlowService {
 
     void cancelAllProcess(long ticketId);
 
-    void failedAllProcess(long ticketId);
-
-    void cancelApprovalInst(Long ticketId);
-
     boolean checkEnableApproval(String ownerUid, ApprovalProvider type);
-
-    void refreshApprovalStatus(long ticketId);
 
     void transitionTicketToTerminal(long ticketId, ApprovalStatus terminalStatus, String statusMessage);
 
     DmApprovalTemplateDO checkApprovalAndReturnTemplate(String ownerUid, ApprovalType type, String templateId, Locale locale);
-
 }

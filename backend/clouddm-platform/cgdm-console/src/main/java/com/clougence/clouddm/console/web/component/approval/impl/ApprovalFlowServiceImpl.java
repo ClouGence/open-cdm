@@ -97,31 +97,12 @@ public class ApprovalFlowServiceImpl implements ApprovalFlowService {
 
     @Override
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
-    public void closeTicket(long ticketId, String statusMessage, String puid) {
-        DmApprovalDO ticketDO = checkTicket(ticketId);
-        checkInProgress(ticketDO);
-        this.cancelAllProcess(ticketId);
-        this.transitionTicketToTerminal(ticketDO, ApprovalStatus.CLOSED, statusMessage);
-    }
-
-    @Override
-    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public void failTicket(long ticketId, String statusMessage, String puid) {
         DmApprovalDO ticketDO = checkTicket(ticketId);
         checkInProgress(ticketDO);
 
         this.failCurrentAndCloseFollowingProcesses(ticketDO);
         this.transitionTicketToTerminal(ticketDO, ApprovalStatus.FAILED, statusMessage);
-    }
-
-    @Override
-    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
-    public void execFailTicket(long ticketId, String statusMessage, String puid) {
-        DmApprovalDO ticketDO = checkTicket(ticketId);
-        checkInProgress(ticketDO);
-
-        this.failCurrentAndCloseFollowingProcesses(ticketDO);
-        this.transitionTicketToTerminal(ticketDO, ApprovalStatus.EXEC_FAIL, statusMessage);
     }
 
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
@@ -190,17 +171,6 @@ public class ApprovalFlowServiceImpl implements ApprovalFlowService {
     public boolean isFinish(long ticketId) {
         DmApprovalDO ticketDO = this.approvalDal.approvalMapper().queryById(ticketId);
         return ticketDO == null || ApprovalStatus.isEndStatus(ticketDO.getTicketStatus());
-    }
-
-    @Override
-    public void retryTicket(String puid, long ticketId) {
-        DmApprovalDO ticketDO = checkTicket(ticketId);
-
-        if (ticketDO.getTicketStatus() != ApprovalStatus.EXEC_FAIL) {
-            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_RETRY_STATUS_DISCONTENT_ERROR.name()));
-        }
-
-        this.approvalDal.approvalMapper().updateStatusByEnum(ticketId, ApprovalStatus.WAIT_EXEC, DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_STATUS_WAIT_EXEC_MESSAGE.name()));
     }
 
     @Override
@@ -319,12 +289,6 @@ public class ApprovalFlowServiceImpl implements ApprovalFlowService {
         }
     }
 
-    @Override
-    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
-    public void failedAllProcess(long ticketId) {
-        this.failCurrentAndCloseFollowingProcesses(checkTicket(ticketId));
-    }
-
     private void failCurrentAndCloseFollowingProcesses(DmApprovalDO ticketDO) {
         ApprovalStage currentStage = switch (ticketDO.getTicketStatus()) {
             case PRE_INIT_WAIT, PRE_INIT_RUN -> ApprovalStage.EXPLAIN;
@@ -359,18 +323,8 @@ public class ApprovalFlowServiceImpl implements ApprovalFlowService {
     }
 
     @Override
-    public void cancelApprovalInst(Long ticketId) {
-        this.providerService.cancelApprovalInst(ticketId);
-    }
-
-    @Override
     public boolean checkEnableApproval(String ownerUid, ApprovalProvider type) {
         return this.providerService.checkEnableApproval(ownerUid, type);
-    }
-
-    @Override
-    public void refreshApprovalStatus(long ticketId) {
-        this.providerService.refreshApprovalStatus(ticketId);
     }
 
     @Override
