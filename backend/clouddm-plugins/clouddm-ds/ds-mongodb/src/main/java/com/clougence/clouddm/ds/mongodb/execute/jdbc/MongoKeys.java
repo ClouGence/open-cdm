@@ -39,6 +39,15 @@ public class MongoKeys {
     public static final String CLIENT_NAME         = "clientName";
     public static final String DRIVER_VERSION      = "driverVersion";
     public static final String CONNECT_TYPE        = "connectType";
+    // for ssl
+    public static final String SSL_MODE                = "sslMode";
+    public static final String SSL_CA_FILE             = "sslCaFile";
+    public static final String SSL_CA_FORMAT           = "sslCaFormat";
+    public static final String SSL_CA_PASSWORD         = "sslCaPassword";
+    public static final String SSL_CLIENT_CERT_FILE    = "sslClientCertFile";
+    public static final String SSL_CLIENT_CERT_FORMAT  = "sslClientCertFormat";
+    public static final String SSL_CLIENT_KEY_FILE     = "sslClientKeyFile";
+    public static final String SSL_CLIENT_KEY_PASSWORD = "sslClientKeyPassword";
     // for pool
     public static final String MAX_TOTAL           = "maxTotal";
     public static final String MAX_IDLE            = "maxIdle";
