@@ -2,6 +2,128 @@
 
 版本：2026-08-04
 
+> **最高优先级总则（不可覆盖）**：本文首先执行下述 P0-0 严格链路。P0-0 的 S0 至 S9
+> 高于分类规则、数据源特例、实现便利、性能目标、历史结论、人工经验及本文其他全部章节。
+> 每次开始、恢复或切换一批 SQL 时，必须先声明该批次当前所在步骤及前置证据，从最早未完成的
+> 步骤继续；不得直接跳到分类落地、fixture 生成、CloudDM 回放或生产代码修改。未完成 S9 的 SQL
+> 只能标记为进行中或 `BLOCKED BY PROVENANCE`，不得宣称验证完成，也不得计入准确率。
+
+## P0 强制门禁（全文最高优先级）：先取得目标数据库原生证据，再验证 CloudDM
+
+本节高于本文所有分类规则、方言说明、历史 fixture 和既有通过结果。行为测试所需的语句分类、
+动作及资源关系必须严格遵守以下顺序：
+该顺序是硬门禁，不是推荐工作流。任一前置阶段缺少可复验产物时必须停止，禁止进入后一阶段；
+本文后续分类规则、数据源特例、工具实现和历史流程均不得放宽、倒置或绕过该顺序。
+
+### P0-0 严格执行链路（最高优先级执行契约）
+
+```text
+S0 冻结并禁止 CloudDM 自生成 expect 的入口
+  -> S1 从 split/源码测试/官方文档建立 SQL occurrence 来源账本
+        （数据库、主版本、原始文件、case ID、SQL 原文、SQL SHA-256）
+  -> S2 用目标数据库对应版本的源码、Planner、Executor 或真实运行时探针执行同一 SQL
+  -> S3 持久化不可变原生证据
+        （source/binary revision、probe revision、request revision、record ID、原生事实、证据 SHA-256）
+  -> S4 用独立校验器核对 occurrence、SQL SHA-256、版本、revision、原生动作与对象事实
+  -> S5 只按通过 S4 的原生事实映射 SplitQueryType、BehaviorAction、TargetType 和主客体关系
+  -> S6 只从通过 S5 的映射生成统一 behavior fixture
+  -> S7 运行 CloudDM 当前实现并与 probe-backed fixture 比较
+  -> S8 只根据 S7 的失败修正生产 parser/visitor/assembler/事实注册表，禁止反改期望迁就实现
+  -> S9 重新运行同一批 probe-backed fixture，并按 occurrence 报告结果
+```
+
+### P0-1 生产 SQL 解析链路零正则门禁（重要条件）
+
+MySQL、TiDB、Doris、Dameng、PostgreSQL 的生产 parser、split 分类、behavior、lineage 以及直接参与
+SQL 决策的生产辅助逻辑，禁止使用任何形式的正则表达式，包括 `Pattern`、`Matcher`、
+`String.matches`、`replaceAll`、`replaceFirst`、`split(regex)` 和功能等价的第三方实现。
+分类与对象识别必须来自 ANTLR token/parse tree、目标数据库原生 AST，或边界与转义规则明确的
+确定性字符扫描；禁止用 SQL 文本正则推断分类、对象、行为、版本或语法能力。
+
+离线语料扫描、探针编排和审计工具允许使用正则，但其结果不能直接驱动生产分类，也不能替代
+S1 至 S5 的原生证据。完成 S8、进入 S9 前，必须审计上述五个数据源及其直接共用的生产 SQL 模块；
+任何禁用 API 或等价正则实现仍有命中时，本批工作不得宣称完成。
+
+S0 至 S9 是不可交换、不可合并、不可省略、不可并行越级的串行状态机。任何 SQL 缺少精确
+occurrence、原生探针记录、revision、SQL/证据哈希或可验证原生事实时，必须停止晋级，标记为
+`BLOCKED BY PROVENANCE`，并从权威 fixture 与准确率分母中移除。不得用兼容数据库结论、人工
+猜测、旧 fixture、CloudDM 当前输出、空关系或 `UNKNOWN` 补位。`UNKNOWN` 只允许承载原生证据
+已经证明、但现有公共枚举无法准确表达而等待人工裁决的事实，不能代替缺失证据。
+
+多主版本数据源在 S2 必须按固定源码 tag/commit 构建并运行各自的原生采集器，最新版本不能代理
+旧版本，兼容方言也不能代理目标数据库。只有同一 occurrence 在全部受支持主版本通过 S2 至 S4，
+且原生动作、对象结构和后置状态一致，才能进入 `common`；否则必须留在对应主版本。版本源码中
+不存在某类 AST/Executor 能力时，应记录真实能力边界，不得制造空事件。原生采集器 stdout 只
+允许逐行严格解码的证据 JSONL；日志污染、inventory 数量或 ID 不一致、SQL/hash/revision 不匹配
+必须整批失败，禁止跳过异常记录后继续分类或生成 fixture。
+
+探针只能作为安插在目标数据库原生 Parser、Planner、权限检查、Executor 和资源访问点的事件 hook，
+并必须对每个固定主版本源码分别插入、分别编译。hook 只输出原生代码已经掌握的事实；外层 collector
+只负责运行、Reset/Drain、revision 绑定与持久化，禁止在 collector 中解释 SQL、按 AST 类型推导行为、
+补查目录后制造对象事实或用默认成功值代替执行器结果。不同主版本选择不同原生执行器时必须分别
+命中对应 hook 并保留差异；只命中 Parser/Planner 而没有命中要求的 Executor/资源 hook 时，S2/S3
+必须失败，不能生成分类或 behavior fixture。
+
+每个版本探针必须先独立编译成产物，再由外层 collector 调用。探针事件包只允许提供事件结构和
+Emit/Reset/Drain，不得承载语句生命周期、行为映射、对象推断或后置查询；薄运行壳也只能喂入 exact
+SQL 并排空原生结果。生命周期事件必须直接插入数据库已有生命周期函数，不能由运行壳中的
+`recordSet.Close`、AST 分支或返回值模拟。
+
+TiDB 5/6/7/8/9 的 ALTER ADD COLUMN、TRUNCATE、DROP 等表生命周期必须重新由 AST、Executor、
+资源访问源码 hook 闭环。旧 collector 的 `SHOW CREATE TABLE`、`COUNT(*)`、目录补查结果仅是迁移候选，
+不得作为权威证据。首次真正的 probe-backed 回放若发现生产 visitor 漏关系，应修复 visitor 并保持
+原生期望不变；parser 接受和分类标签不能代替对象行为与执行后状态。
+CREATE/ALTER/DROP DATABASE 同样要用数据库 AST 与 `SHOW CREATE DATABASE`/对象不存在状态交叉
+验证，并映射为 catalog 下的 `Schema`，不能仅按 DATABASE 关键字改成 `Catalog`。TiDB 5 与 6–9
+的数据库 AST 名称字段类型不同，版本采集器必须适配真实源码结构。
+Sequence 生命周期同样要求 CREATE 定义、ALTER 执行结果和 DROP 后不存在状态；对于
+`ALTER SEQUENCE ... RESTART WITH 5`，必须由目标版本 `NEXTVAL` 返回 5 证明，不能只凭 ALTER
+分类或 AST 接受。
+View 生命周期同样不能停在 CREATE_VIEW/ALTER_VIEW/DROP_VIEW 分类：CREATE/OR REPLACE 必须记录
+View AST、权限检查、Planner 源表对象与 `SHOW CREATE VIEW`，DROP 必须证明对象不存在。TiDB 8
+可能记录列级 SELECT，TiDB 9 的 OR REPLACE 还会检查旧 View 的 DROP 权限；版本原生证据必须保留
+这些差异。分类映射只有在对象副作用和依赖事实一致后，才能公共化为 View CREATE/REPLACE/DROP
+及源表 READ。
+ADD_INDEX/DROP_INDEX 不能只由分类或 parser 接受证明：必须记录 CreateIndexStmt/DropIndexStmt 的
+索引名、父表与索引列，核对权限和 Planner 表，并以 `SHOW INDEX`、`SHOW CREATE TABLE`/索引不存在
+状态证明执行器副作用，才允许映射为 Index CREATE/DROP 指向父 Table。
+RENAME_TABLE 必须记录 RenameTableStmt 的旧/新表身份、两端权限和 Planner 双表，并以执行后旧表
+不存在、新表存在且定义保留证明重命名副作用，才允许映射为旧 Table RENAME 到新 Table。
+CREATE/ALTER/DROP/RENAME USER 和 CREATE/DROP ROLE 必须从对应原生账户 AST 取得用户名与 host，
+并用权限事件及执行后 `mysql.user` 证明存在性、重命名两端和锁定状态。TiDB 5.4.3 虽接受
+`ALTER USER ... ACCOUNT LOCK`，但源码明确将其解析后忽略，系统表仍为未锁定；6–9 才真实写入
+锁定状态。因此语法接受可保持 `ALTER_USER` 分类，但执行副作用和 behavior 证据不得错误共用。
+GRANT/REVOKE 权限必须记录 GrantStmt/RevokeStmt 的权限范围、权限集合和接收身份，并通过
+`mysql.user`、`mysql.db`、`mysql.tables_priv` 等执行后授权表验证实际写入或删除。普通权限接收者
+在 TiDB 语法中不能静态区分 User 与 Role，应映射为 `UserOrRole`；角色授予由独立的
+GrantRoleStmt/RevokeRoleStmt 证明 Role 主体，并用执行后的 `mysql.role_edges` 验证每条
+Role -> UserOrRole 有向边，不能与普通权限授权混为一类。
+`SET ROLE` 分类为 `SWITCH_ROLE`，但不能仅凭 SetRoleStmt 的类型即认定行为完整：还必须记录请求
+角色、执行后的会话 `ActiveRoles`，并以 `mysql.role_edges` 验证当前身份的实际授权边。行为对象
+是 SQL 中具名且带准确坐标的 Role，不是整条语句范围的匿名 Role；探针内部校验查询不得污染
+被测语句的 Planner 表和权限事件。
+`USE <schema>` 分类为 `SWITCH_SCHEMA`，但行为证据还必须绑定原生 UseStmt 的目标名称、目录对象
+存在性和执行后的会话 `CurrentDB`；三者必须指向同一 Schema。仅 parser 接受或仅识别 USE 关键字
+不足以生成权威 fixture，也不能把具体 Schema 降级为匿名 Session/Instance。
+
+所有实现、脚本、测试、报告和人工裁决均必须服从 S0 至 S9。性能优化只能优化单一步骤内部，
+不能改变顺序、降低证据字段、跳过探针或提前生成 fixture。本文任何其他内容与本链路冲突时，
+无条件以本节为准。
+
+不得调用 CloudDM 当前 `BehaviorAnalysisSpi`、split visitor 或其他待验证实现生成、刷新或补齐
+正式 `expect`，再用同一实现回放。该做法形成自证循环，不能证明分类或行为正确，结果不得计入
+准确率。既有自动生成期望在没有原生探针绑定前一律视为未验证。
+
+源码 parser/AST 只能证明语法接受、AST 类型和其中明确携带的对象身份；Planner、Executor、权限
+检查与真实资源访问必须由相应层级探针证明。探针尚未覆盖的行为进入待裁决清单或继续增强探针，
+不能用兼容数据库结论、当前实现输出、空关系或猜测替代。
+
+正式 behavior case 必须能够从 fixture 追溯到不可变的原生探针记录，并在运行测试前校验证据
+哈希及 SQL 一致性。证据必须绑定精确源码 revision；只有服务端源码客观不可获得时，才允许绑定
+运行时实际报告的精确二进制 revision、不可变镜像 SHA-256 和探针依赖产物 SHA-256，且不得伪造
+`source_revision`。语料按数据库、主版本、语义分类采用达梦式平铺布局，每个 `.txt` 文件最多
+3000 行；拆分和重命名必须保留原 SQL 来源及探针 case 身份。
+
 ## 1. 唯一分类来源
 
 `com.clougence.clouddm.sdk.sql.parser.SplitQueryType` 是分类 Code 的唯一来源。分类器必须遵守以下约束：
@@ -341,7 +463,7 @@ Package 是编程对象容器，不承载 Table、View、Index 等普通模式�
 |---|---|---|---|---|
 | `CREATE_USER` | `ADMIN` | `User` | `CREATE` | 创建数据库用户或登录主体。 |
 | `DROP_USER` | `ADMIN` | `User` | `DROP` | 删除用户。 |
-| `RENAME_USER` | `ADMIN` | `User` | `ALTER` | 修改用户身份名称。 |
+| `RENAME_USER` | `ADMIN` | `User` | `RENAME` | 修改用户身份名称。 |
 | `ALTER_USER` | `ADMIN` | `User` | `ALTER` | 修改密码、认证方式、锁定状态、默认角色、资源限制等用户属性。 |
 | `COMMENT_USER` | `ADMIN` | `User` | `ALTER` | 用户备注变更。 |
 | `CREATE_ROLE` | `ADMIN` | `Role` | `CREATE` | 创建角色。 |
@@ -893,8 +1015,10 @@ View 查询定义中的用户变量访问继续按查询定义体递归收集，
 
 转换和归档还必须满足：
 
-1. AST dump、JSON/JSONL、执行 trace、SQL hash 清单只是中间证据，不是正式 fixture；最终每条
-   SQL 都使用本项目统一的 split 文本格式。
+1. AST dump、JSON/JSONL、执行 trace、SQL hash 清单不是正式期望 fixture；最终每条 SQL 都使用
+   本项目统一的文本格式。进入权威 behavior 套件的标准化原生探针 JSONL 必须独立持久化到
+   `behavior/_evidence/<dialect>/<major>`，由 fixture 绑定记录 ID 和 SHA-256；其他原始输出留在
+   `build/` 或 `tools/`。
 2. 尽量保留源码原测试文件名、测试组和场景名称。SQL hash 只用于身份、碰撞和去重，不能把正式
    文件全部改成 `by-sql-hash` 一类无语义名称。
 3. `common` 通过把同一 SQL hash 送入全部受支持主版本解析器得出；只有全部版本接受且分类/结构
@@ -1112,7 +1236,8 @@ cache slot 可以按机器配置调整，但不得改变 testcase 语义。统�
   `RAND()` 等函数即使出现在写语句中，也不追加 `UNSAFE` 或另设复制风险分类；
   只保留外层语句及函数本身已有的分类。`LOAD_FILE()` 因读取服务器文件而独立使用
   `DATA_IMPORT|UNSAFE`，不是因为 MySQL 将其列为 SBR unsafe。
-- `SHUTDOWN`、`RESTART` 使用 `UNSAFE`。
+- `SHUTDOWN`、`RESTART` 使用 `UNSAFE`。行为 fixture 必须由目标数据库版本的原生 AST 与
+  执行前阻断证据证明实例级危险语义，禁止为了取证在共享或持久实例实际执行。
 - `INSTALL/UNINSTALL PLUGIN`、`INSTALL/UNINSTALL COMPONENT` 使用对应的
   `CREATE_LIBRARY` 或 `DROP_LIBRARY`，不追加 `UNSAFE`。`CREATE FUNCTION ... SONAME`
   使用 `CREATE_PROG_OBJ|UNSAFE`。
