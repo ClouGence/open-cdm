@@ -24,6 +24,7 @@ import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.base.metadata.ds.tools.FakerPluginConfig;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
+import com.clougence.clouddm.console.web.component.execute.AsyncTaskService;
 import com.clougence.clouddm.console.web.component.execute.ToolsService;
 import com.clougence.clouddm.console.web.component.execute.asyntask.AsyncTaskConfig;
 import com.clougence.clouddm.console.web.component.schema.DsSchemaService;
@@ -38,6 +39,7 @@ import com.clougence.clouddm.console.web.model.vo.faker.FakerColumnVO;
 import com.clougence.clouddm.console.web.model.vo.faker.FakerDefVO;
 import com.clougence.clouddm.console.web.model.vo.faker.FakerLogVO;
 import com.clougence.clouddm.console.web.model.vo.faker.FakerPreviewVO;
+import com.clougence.clouddm.console.web.service.asyntask.AsyncTaskServiceService;
 import com.clougence.clouddm.console.web.service.faker.asyntask.FakerAsyncTask;
 import com.clougence.clouddm.console.web.service.faker.asyntask.FakerAsyncTaskConfig;
 import com.clougence.clouddm.console.web.util.UiWebUtil;
@@ -68,19 +70,19 @@ import lombok.extern.slf4j.Slf4j;
 public class FakerServiceImpl implements FakerService, FakerMethod {
 
     @Resource
-    private ExecutionDal                                                         executionDal;
+    private ExecutionDal            executionDal;
     @Resource
-    private DataSourceDal                                                        dsDal;
+    private DataSourceDal           dsDal;
     @Resource
-    private com.clougence.clouddm.console.web.service.asyntask.AsyncTaskService  asyncTaskService;
+    private AsyncTaskServiceService asyncTaskServiceService;
     @Resource
-    private com.clougence.clouddm.console.web.component.execute.AsyncTaskService scheduleService;
+    private AsyncTaskService        scheduleService;
     @Resource
-    private ToolsService                                                         toolsService;
+    private ToolsService            toolsService;
     @Resource
-    private DsSchemaService                                                      dsSchemaService;
+    private DsSchemaService         dsSchemaService;
     @Resource
-    private DmDsConfigService                                                    dsConfigService;
+    private DmDsConfigService       dsConfigService;
 
     @Override
     public FakerDefVO loadFakerDef(String puid, String uid, FakerDefFO fo) {
@@ -228,7 +230,7 @@ public class FakerServiceImpl implements FakerService, FakerMethod {
         config.setHandlerType(FakerAsyncTask.class);
         config.setBizType(FakerPluginConfig.TOOL_NAME);
         config.setBizId(sessionId);
-        this.asyncTaskService.submitTask(uid, config);
+        this.asyncTaskServiceService.submitTask(uid, config);
 
         return sessionId;
     }
@@ -314,14 +316,14 @@ public class FakerServiceImpl implements FakerService, FakerMethod {
     @Override
     public void pause(String uid, String sessionId) {
         this.toolsService.invoke(uid, sessionId, PAUSE, null);
-        DmExecAsyncTaskDO taskDO = this.asyncTaskService.queryAsyncTaskByBizId(sessionId, FakerPluginConfig.TOOL_NAME);
+        DmExecAsyncTaskDO taskDO = this.asyncTaskServiceService.queryAsyncTaskByBizId(sessionId, FakerPluginConfig.TOOL_NAME);
         scheduleService.pauseTask(taskDO.getId(), "Pause By Manual.");
     }
 
     @Override
     public void resume(String uid, String sessionId) {
         this.toolsService.invoke(uid, sessionId, RESUME, null);
-        DmExecAsyncTaskDO taskDO = this.asyncTaskService.queryAsyncTaskByBizId(sessionId, FakerPluginConfig.TOOL_NAME);
+        DmExecAsyncTaskDO taskDO = this.asyncTaskServiceService.queryAsyncTaskByBizId(sessionId, FakerPluginConfig.TOOL_NAME);
         scheduleService.resumeTask(taskDO.getId(), "Resume By Manual.");
     }
 
@@ -332,7 +334,7 @@ public class FakerServiceImpl implements FakerService, FakerMethod {
 
     @Override
     public FakerConfigFO fetchFoConfigByToolsSession(String uid, String sessionId) {
-        DmExecAsyncTaskDO taskDO = this.asyncTaskService.queryAsyncTaskByBizId(sessionId, FakerPluginConfig.TOOL_NAME);
+        DmExecAsyncTaskDO taskDO = this.asyncTaskServiceService.queryAsyncTaskByBizId(sessionId, FakerPluginConfig.TOOL_NAME);
         if (taskDO != null) {
             FakerAsyncTaskConfig config = JsonUtils.toObj(taskDO.getConfigData(), FakerAsyncTaskConfig.class);
             return config.getFoConfig();

@@ -45,7 +45,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Service
-public class AsyncTaskServiceImpl implements com.clougence.clouddm.console.web.service.asyntask.AsyncTaskService {
+public class AsyncTaskServiceServiceImpl implements AsyncTaskServiceService {
     @Resource
     private ExecutionDal     executionDal;
     @Resource
