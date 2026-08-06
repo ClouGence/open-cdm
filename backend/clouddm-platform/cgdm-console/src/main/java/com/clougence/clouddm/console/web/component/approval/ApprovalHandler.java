@@ -51,7 +51,9 @@ public interface ApprovalHandler {
 
     void approvalCompleted(long approvalId, ApprovalBiz bizType, ImSenderService sender);
 
-    void approvalRefuse(long approvalId, ApprovalBiz bizType, ImSenderService sender);
+    void approvalApproved(long approvalId, ApprovalBiz bizType, ImSenderService sender);
+
+    void approvalRejected(long approvalId, ApprovalBiz bizType, ImSenderService sender);
 
     void approvalFailed(long approvalId, ApprovalBiz bizType, ImSenderService sender);
 

@@ -28,10 +28,10 @@ public enum ApprovalStage {
     APPROVAL("TICKET_STAGE_APPROVAL", ApprovalBiz.DM_QUERY, ApprovalBiz.DATA_SOURCE_AUTH, ApprovalBiz.DM_CHANGE),
 
     /** wait to confirm */
-    CONFIRM("TICKET_STAGE_CONFIRM", ApprovalBiz.DM_QUERY),
+    CONFIRM("TICKET_STAGE_CONFIRM", ApprovalBiz.DM_QUERY, ApprovalBiz.DM_CHANGE),
 
     /** In execution */
-    EXECUTION("TICKET_STAGE_EXECUTION", ApprovalBiz.DM_QUERY, ApprovalBiz.DATA_SOURCE_AUTH);
+    EXECUTION("TICKET_STAGE_EXECUTION", ApprovalBiz.DM_QUERY, ApprovalBiz.DATA_SOURCE_AUTH, ApprovalBiz.DM_CHANGE);
 
     private final ApprovalBiz[] approvalBizs;
     private final String        i18nKey;

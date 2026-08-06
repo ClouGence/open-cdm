@@ -335,7 +335,7 @@ public class ApprovalProviderServiceImpl implements ApprovalRefreshService {
                     // step1
                     this.approvalDal.processMapper().updateTicketStatusByEnum(processDO.getId(), ApprovalProcessStatus.FINISH, null);
                     // step2
-                    this.approvalHandler(ticket.getApproBiz()).approvalCompleted(ticket.getId(), ticket.getApproBiz(), imSenderService);
+                    this.approvalHandler(ticket.getApproBiz()).approvalApproved(ticket.getId(), ticket.getApproBiz(), imSenderService);
                     break;
                 }
                 case REFUSE: {
@@ -345,7 +345,7 @@ public class ApprovalProviderServiceImpl implements ApprovalRefreshService {
                     this.approvalDal.approvalMapper().updateStatusByEnum(ticket.getId(), ApprovalStatus.REJECTED, null);
                     this.approvalDal.processMapper().updateNotEndProcessByTicketId(ticketId, ApprovalProcessStatus.REJECT);
                     // step3
-                    this.approvalHandler(ticket.getApproBiz()).approvalRefuse(ticket.getId(), ticket.getApproBiz(), imSenderService);
+                    this.approvalHandler(ticket.getApproBiz()).approvalRejected(ticket.getId(), ticket.getApproBiz(), imSenderService);
                     break;
                 }
                 case FAILED: {

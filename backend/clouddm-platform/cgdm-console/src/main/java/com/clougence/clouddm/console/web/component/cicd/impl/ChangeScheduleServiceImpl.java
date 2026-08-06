@@ -87,9 +87,7 @@ public class ChangeScheduleServiceImpl implements UnifiedPostConstruct {
 
         this.actionMap = new HashMap<>();
         this.actionMap.put(ChangeStep.INIT, this.applicationContext.getBean(ChangeActionForInit.class));
-        this.actionMap.put(ChangeStep.CHECK, this.applicationContext.getBean(ChangeActionForCheck.class));
         this.actionMap.put(ChangeStep.APPROVAL, this.applicationContext.getBean(ChangeActionForApproval.class));
-        this.actionMap.put(ChangeStep.EXECUTE, this.applicationContext.getBean(ChangeActionForExecute.class));
         this.actionMap.put(ChangeStep.FINISH, this.applicationContext.getBean(ChangeActionForFinish.class));
         this.actionMap.put(ChangeStep.INIT_SNAPSHOT, this.applicationContext.getBean(ChangeActionForInitSnapshot.class));
     }

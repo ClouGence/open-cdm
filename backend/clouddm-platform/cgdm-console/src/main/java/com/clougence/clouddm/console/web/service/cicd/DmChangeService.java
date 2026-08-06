@@ -15,25 +15,15 @@
  */
 package com.clougence.clouddm.console.web.service.cicd;
 
-import java.util.List;
-
 import com.clougence.clouddm.api.common.rpc.ResWebData;
-import com.clougence.clouddm.console.web.component.cicd.model.ChangeExecuteInfo;
 import com.clougence.clouddm.console.web.component.cicd.model.ChangeTicketInfoResult;
-import com.clougence.clouddm.console.web.model.fo.cicd.ChangeExecLogFO;
-import com.clougence.clouddm.console.web.model.fo.cicd.ChangeExecTaskListFO;
 import com.clougence.clouddm.console.web.model.fo.cicd.ChangeListFO;
-import com.clougence.clouddm.console.web.model.fo.ticket.DmAutoExecConfigFO;
-import com.clougence.clouddm.console.web.model.vo.DmBizLogVO;
 import com.clougence.clouddm.console.web.model.vo.DmPageVO;
 import com.clougence.clouddm.console.web.model.vo.cicd.ChangeSqlPreviewVO;
 import com.clougence.clouddm.console.web.model.vo.cicd.ChangeVO;
-import com.clougence.clouddm.console.web.model.vo.ticket.DmAutoExecJobVO;
-import com.clougence.clouddm.console.web.model.vo.ticket.DmAutoExecTaskVO;
 import com.clougence.clouddm.console.web.service.cicd.domain.ChangeTriggerContext;
 import com.clougence.clouddm.console.web.service.cicd.domain.CreateSuggest;
 import com.clougence.clouddm.platform.dal.model.cicd.DmChangeDO;
-import com.clougence.clouddm.platform.dal.model.cicd.DmChangeItemDO;
 
 public interface DmChangeService {
 
@@ -43,33 +33,7 @@ public interface DmChangeService {
 
     ChangeSqlPreviewVO previewChangeSql(long changeId, int startLine, int lineCount, String contentName);
 
-    List<DmChangeItemDO> fetchChangeCheckByChangeId(long changeId);
-
     ChangeTicketInfoResult fetchChangeApprovalByChangeId(long changeId);
-
-    ChangeExecuteInfo fetchChangeExecuteByChangeId(long changeId);
-
-    void skipCheck(String userUid, long changeId);
-
-    void confirmExec(String userUid, long changeId, DmAutoExecConfigFO fo);
-
-    DmAutoExecJobVO queryExecJobInfo(long changeId);
-
-    DmPageVO<DmAutoExecTaskVO> queryExecTaskList(ChangeExecTaskListFO fo);
-
-    List<DmBizLogVO> queryExecLog(ChangeExecLogFO fo);
-
-    void pauseExecJob(String curUid, long changeId);
-
-    void startExecJob(String curUid, long changeId);
-
-    void retryExecJob(String curUid, long changeId);
-
-    void abortExecJob(String curUid, long changeId);
-
-    void skipExecTask(String curUid, long changeId, long taskId);
-
-    void continueExecTask(long changeId, long taskId);
 
     void retryChange(String curUid, long changeId);
 

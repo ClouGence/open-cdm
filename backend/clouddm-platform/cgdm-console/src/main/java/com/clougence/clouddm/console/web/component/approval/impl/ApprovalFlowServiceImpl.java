@@ -92,8 +92,7 @@ public class ApprovalFlowServiceImpl implements ApprovalFlowService {
             }
         }
         this.cancelAllProcess(ticketId);
-        this.approvalDal.approvalMapper().updateStatusByEnum(ticketId, ApprovalStatus.CLOSED, statusMessage);
-        this.approvalHandler(ticketDO.getApproBiz()).approvalCanceled(ticketDO.getId(), ticketDO.getApproBiz(), imSenderService);
+        this.transitionTicketToTerminal(ticketDO, ApprovalStatus.CLOSED, statusMessage);
     }
 
     @Override
@@ -102,8 +101,7 @@ public class ApprovalFlowServiceImpl implements ApprovalFlowService {
         DmApprovalDO ticketDO = checkTicket(ticketId);
         checkInProgress(ticketDO);
         this.cancelAllProcess(ticketId);
-        this.approvalDal.approvalMapper().updateStatusByEnum(ticketId, ApprovalStatus.CLOSED, statusMessage);
-        this.approvalHandler(ticketDO.getApproBiz()).approvalCanceled(ticketDO.getId(), ticketDO.getApproBiz(), imSenderService);
+        this.transitionTicketToTerminal(ticketDO, ApprovalStatus.CLOSED, statusMessage);
     }
 
     @Override
@@ -113,8 +111,7 @@ public class ApprovalFlowServiceImpl implements ApprovalFlowService {
         checkInProgress(ticketDO);
 
         this.failCurrentAndCloseFollowingProcesses(ticketDO);
-        this.approvalDal.approvalMapper().updateStatusByEnum(ticketId, ApprovalStatus.FAILED, statusMessage);
-        this.approvalHandler(ticketDO.getApproBiz()).approvalFailed(ticketDO.getId(), ticketDO.getApproBiz(), imSenderService);
+        this.transitionTicketToTerminal(ticketDO, ApprovalStatus.FAILED, statusMessage);
     }
 
     @Override
@@ -124,8 +121,7 @@ public class ApprovalFlowServiceImpl implements ApprovalFlowService {
         checkInProgress(ticketDO);
 
         this.failCurrentAndCloseFollowingProcesses(ticketDO);
-        this.approvalDal.approvalMapper().updateStatusByEnum(ticketId, ApprovalStatus.EXEC_FAIL, statusMessage);
-        this.approvalHandler(ticketDO.getApproBiz()).approvalFailed(ticketDO.getId(), ticketDO.getApproBiz(), imSenderService);
+        this.transitionTicketToTerminal(ticketDO, ApprovalStatus.EXEC_FAIL, statusMessage);
     }
 
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
@@ -135,8 +131,7 @@ public class ApprovalFlowServiceImpl implements ApprovalFlowService {
 
         checkInProgress(ticketDO);
         this.cancelAllProcess(ticketId);
-        this.approvalDal.approvalMapper().updateStatusByEnum(ticketId, ApprovalStatus.CANCELED, statusMessage);
-        this.approvalHandler(ticketDO.getApproBiz()).approvalCanceled(ticketDO.getId(), ticketDO.getApproBiz(), imSenderService);
+        this.transitionTicketToTerminal(ticketDO, ApprovalStatus.CANCELED, statusMessage);
     }
 
     @Override
@@ -160,17 +155,16 @@ public class ApprovalFlowServiceImpl implements ApprovalFlowService {
         this.approvalDal.approvalMapper().updateComment(ticketDO.getId(), fo.getComment());
         if (fo.isRejected()) {
             // WAIT_APPROVAL -> REJECTED
-            approvalHandler(ticketDO.getApproBiz()).approvalRefuse(ticketDO.getId(), ticketDO.getApproBiz(), imSenderService);
             if (StringUtils.isNotBlank(fo.getComment())) {
                 execMO.setExecMsg(fo.getComment());
             } else {
                 execMO.setExecMsg(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_STATUS_REJECTED_BY_APPROVAL.name()));
             }
             this.approvalDal.processMapper().updateTicketStatusByEnum(processDO.getId(), ApprovalProcessStatus.REJECT, JsonUtils.toJson(execMO));
-            this.approvalDal.approvalMapper().updateStatusByEnum(ticketDO.getId(), ApprovalStatus.REJECTED, null);
+            this.transitionTicketToTerminal(ticketDO, ApprovalStatus.REJECTED, null);
         } else {
             // WAIT_APPROVAL -> WAIT_CONFIRM
-            approvalHandler(ticketDO.getApproBiz()).approvalCompleted(ticketDO.getId(), ticketDO.getApproBiz(), imSenderService);
+            approvalHandler(ticketDO.getApproBiz()).approvalApproved(ticketDO.getId(), ticketDO.getApproBiz(), imSenderService);
             if (StringUtils.isNotBlank(fo.getComment())) {
                 execMO.setExecMsg(fo.getComment());
                 ticketDO.setApproComment(fo.getComment());
@@ -377,6 +371,36 @@ public class ApprovalFlowServiceImpl implements ApprovalFlowService {
     @Override
     public void refreshApprovalStatus(long ticketId) {
         this.providerService.refreshApprovalStatus(ticketId);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
+    public void transitionTicketToTerminal(long ticketId, ApprovalStatus terminalStatus, String statusMessage) {
+        DmApprovalDO ticketDO = checkTicket(ticketId);
+        this.transitionTicketToTerminal(ticketDO, terminalStatus, statusMessage);
+    }
+
+    private void transitionTicketToTerminal(DmApprovalDO ticketDO, ApprovalStatus terminalStatus, String statusMessage) {
+        this.approvalDal.approvalMapper().updateStatusByEnum(ticketDO.getId(), terminalStatus, statusMessage);
+        ApprovalHandler handler = approvalHandler(ticketDO.getApproBiz());
+        switch (terminalStatus) {
+            case FINISHED:
+                handler.approvalCompleted(ticketDO.getId(), ticketDO.getApproBiz(), imSenderService);
+                return;
+            case REJECTED:
+                handler.approvalRejected(ticketDO.getId(), ticketDO.getApproBiz(), imSenderService);
+                return;
+            case FAILED:
+            case EXEC_FAIL:
+                handler.approvalFailed(ticketDO.getId(), ticketDO.getApproBiz(), imSenderService);
+                return;
+            case CLOSED:
+            case CANCELED:
+                handler.approvalCanceled(ticketDO.getId(), ticketDO.getApproBiz(), imSenderService);
+                return;
+            default:
+                throw new IllegalStateException("Unsupported terminal ticket status: " + terminalStatus);
+        }
     }
 
     @Override

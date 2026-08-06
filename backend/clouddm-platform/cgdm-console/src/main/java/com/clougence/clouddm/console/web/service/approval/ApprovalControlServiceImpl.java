@@ -865,7 +865,11 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
             this.approvalDal.processMapper().updateTicketStatusByEnum(processDO.getId(), ApprovalProcessStatus.INIT, JsonUtils.toJson(nContext));
         }
         String statusMessage = actionStatus == ApprovalStatus.WAIT_EXEC ? DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_STATUS_WAIT_EXEC_MESSAGE.name()) : fo.getComment();
-        this.approvalDal.approvalMapper().updateStatusByEnum(ticketId, actionStatus, statusMessage);
+        if (ApprovalStatus.isEndStatus(actionStatus)) {
+            this.approvalFlowService.transitionTicketToTerminal(ticketId, actionStatus, statusMessage);
+        } else {
+            this.approvalDal.approvalMapper().updateStatusByEnum(ticketId, actionStatus, statusMessage);
+        }
     }
 
     private void updateAutoExecFlag(long ticketId, boolean autoExec) {
@@ -984,8 +988,8 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
         boolean jobFinish = this.autoExecService.skipTask(ticketDO.getBizId(), SQLJobBizType.TICKET, fo.getTaskId());
 
         if (jobFinish) {
-            approvalDal.approvalMapper().updateStatusByEnum(fo.getTicketId(), ApprovalStatus.FINISHED, null);
             approvalDal.processMapper().updateProcessStatusByTicketIdAndStage(fo.getTicketId(), ApprovalStage.EXECUTION, ApprovalProcessStatus.FINISH);
+            this.approvalFlowService.transitionTicketToTerminal(fo.getTicketId(), ApprovalStatus.FINISHED, null);
         }
     }
 
@@ -1003,7 +1007,6 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
         checkJobOperationEnable(ticketDO, uid);
 
         this.autoExecService.endJob(ticketDO.getBizId(), SQLJobBizType.TICKET);
-        this.approvalDal.approvalMapper().updateStatusByEnum(ticketDO.getId(), ApprovalStatus.CLOSED, null);
 
         DmApprovalProcessDO rdpTicketProcessDO = this.approvalDal.processMapper().queryByStage(ticketId, ApprovalStage.EXECUTION);
         ApprovalStageMO mo;
@@ -1016,6 +1019,7 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
         mo.setExecMsg(DmI18nUtils.getMessage(I18nDmMsgKeys.TICKET_CLOSE_AT_CONSOLE_BY_END_JOB_MESSAGE.name(), rdpUserDO.getUsername()));
 
         this.approvalDal.processMapper().updateTicketStatusByEnum(rdpTicketProcessDO.getId(), ApprovalProcessStatus.CLOSED, JsonUtils.toJson(mo));
+        this.approvalFlowService.transitionTicketToTerminal(ticketDO.getId(), ApprovalStatus.CLOSED, null);
     }
 
     @Override

@@ -23,10 +23,7 @@ import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
 import com.clougence.clouddm.console.web.model.fo.ticket.RdpApprovalFO;
 import com.clougence.clouddm.console.web.model.vo.RdpApproTemplateVO;
-import com.clougence.clouddm.platform.dal.model.approval.ApprovalBiz;
-import com.clougence.clouddm.platform.dal.model.approval.ApprovalType;
-import com.clougence.clouddm.platform.dal.model.approval.DmApprovalProcessDO;
-import com.clougence.clouddm.platform.dal.model.approval.DmApprovalTemplateDO;
+import com.clougence.clouddm.platform.dal.model.approval.*;
 import com.clougence.clouddm.sdk.approval.ApprovalProvider;
 
 /**
@@ -80,6 +77,8 @@ public interface ApprovalFlowService {
     boolean checkEnableApproval(String ownerUid, ApprovalProvider type);
 
     void refreshApprovalStatus(long ticketId);
+
+    void transitionTicketToTerminal(long ticketId, ApprovalStatus terminalStatus, String statusMessage);
 
     DmApprovalTemplateDO checkApprovalAndReturnTemplate(String ownerUid, ApprovalType type, String templateId, Locale locale);
 

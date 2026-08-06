@@ -16,7 +16,6 @@
 package com.clougence.clouddm.console.web.component.cicd.action;
 
 import java.util.Collections;
-import java.util.List;
 import java.util.Locale;
 
 import org.springframework.stereotype.Service;
@@ -24,13 +23,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.console.web.component.cicd.ImMessageType;
-import com.clougence.clouddm.console.web.component.cicd.model.ChangeExecuteInfo;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.util.CallUtils;
-import com.clougence.clouddm.platform.dal.model.cicd.*;
-import com.clougence.utils.CollectionUtils;
-import com.clougence.utils.JsonUtils;
+import com.clougence.clouddm.platform.dal.model.cicd.ChangeStatus;
+import com.clougence.clouddm.platform.dal.model.cicd.DmChangeDO;
+import com.clougence.clouddm.platform.dal.model.cicd.DmChangeFlowDO;
 import com.clougence.utils.StringUtils;
 import com.clougence.utils.i18n.I18nUtils;
 
@@ -77,13 +75,8 @@ public class ChangeActionForFinish extends AbstractChangeAction {
     }
 
     private void storeToSnapshot(Locale locale, DmChangeDO change) {
-        List<DmChangeItemDO> items = this.changeFlowDal.changeItemMapper().queryChangeItemByChangeId(change.getOwnerUid(), change.getId(), ChangeItemType.EXECUTE);
-        DmChangeItemDO item = CollectionUtils.isEmpty(items) ? null : items.get(0);
-        if (item == null || StringUtils.isBlank(item.getContent())) {
-            return;
-        }
-        ChangeExecuteInfo config = JsonUtils.toObj(item.getContent(), ChangeExecuteInfo.class);
-        if (!config.isSnapshot()) {
+        DmChangeFlowDO flow = this.changeFlowDal.flowMapper().queryByOwnerAndId(change.getOwnerUid(), change.getRefFlowId());
+        if (flow.getOptions() == null || !flow.getOptions().isSnapshot()) {
             return;
         }
 

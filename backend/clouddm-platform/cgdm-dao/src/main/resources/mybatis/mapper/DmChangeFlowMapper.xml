@@ -13,12 +13,6 @@
         <result column="flow_manager_uid" property="flowManagerUid"/>
         <result column="flow_status" property="flowStatus"
                 javaType="com.clougence.clouddm.platform.dal.model.cicd.ChangeFlowStatus"/>
-        <result column="flow_check" property="flowCheck"
-                javaType="com.clougence.clouddm.platform.dal.model.cicd.ChangeCheckStrategy"/>
-        <result column="flow_approve" property="flowApprove"
-                javaType="com.clougence.clouddm.platform.dal.model.cicd.ChangeApproveStrategy"/>
-        <result column="flow_execute" property="flowExecute"
-                javaType="com.clougence.clouddm.platform.dal.model.cicd.ChangeExecStrategy"/>
         <result column="flow_options" property="flowOptions"
                 typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
         <result column="flow_scm_options" property="flowScmOptions"
@@ -62,7 +56,7 @@
     <sql id="dmChangeFlowDO_select">
         id
         , gmt_create, gmt_modified, owner_uid, flow_uid, flow_name, flow_desc, flow_manager_uid,
-        flow_status, flow_check, flow_approve, flow_execute, flow_options, flow_scm_options,
+        flow_status, flow_options, flow_scm_options,
         ref_scm_id, ref_scm_type, scm_repo_space, scm_repo_identifier, scm_repo_name, scm_repo_url, scm_repo_branch,
         scm_repo_event, scm_repo_script, scm_repo_hook_pwd, scm_repo_hook_signing_token, enable_hook, enable_trigger, trigger_token,
         ds_id, ds_type, ds_instance, ds_desc, ds_path, ref_msg_id, ref_msg_type, msg_language,
@@ -165,16 +159,6 @@
     <update id="updateStatusByOwnerAndId">
         update dm_change_flow
         set flow_status  = #{newData,javaType=com.clougence.clouddm.platform.dal.model.cicd.ChangeFlowStatus},
-            gmt_modified = now()
-        where owner_uid = #{ownerUid}
-          and id = #{flowId}
-    </update>
-    <update id="updateFlowConfigByOwnerAndId">
-        update dm_change_flow
-        set flow_check   = #{flow.flowCheck, javaType=com.clougence.clouddm.platform.dal.model.cicd.ChangeCheckStrategy},
-            flow_approve = #{flow.flowApprove, javaType=com.clougence.clouddm.platform.dal.model.cicd.ChangeApproveStrategy},
-            flow_execute = #{flow.flowExecute, javaType=com.clougence.clouddm.platform.dal.model.cicd.ChangeExecStrategy},
-            flow_options = #{flow.flowOptions, typeHandler=com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler},
             gmt_modified = now()
         where owner_uid = #{ownerUid}
           and id = #{flowId}

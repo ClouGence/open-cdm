@@ -15,8 +15,6 @@
  */
 package com.clougence.clouddm.platform.dal.model.cicd;
 
-import com.clougence.clouddm.api.console.autoexec.ErrorStrategy;
-
 import lombok.Getter;
 import lombok.Setter;
 
@@ -26,12 +24,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class RsChangeFlowOptionObj {
-
-    // exec default
-    private boolean       transactional;
-    private ErrorStrategy errorStrategy;
-    private Long          retryWaitTime;
-    private Long          retryCount;
 
     // flow
     private boolean       snapshot;

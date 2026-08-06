@@ -86,18 +86,6 @@ public class ChangeActionForApproval extends AbstractChangeAction {
         String language = this.senderService.getFlowLanguage(change.getOwnerUid(), change.getRefFlowId());
         Locale locale = I18nUtils.getLocale(language);
 
-        // test skip
-        DmChangeFlowDO flow = changeFlowDal.flowMapper().queryByOwnerAndId(change.getOwnerUid(), change.getRefFlowId());
-        ChangeApproveStrategy approveOpt = flow.getFlowApprove();
-        if (approveOpt == ChangeApproveStrategy.Disable) {
-            log.info("changeAction[" + change.getId() + "] skip approval.");
-            int res = changeFlowDal.changeMapper().updateStepTo(change.getId(), change.getVersion(), ChangeStep.EXECUTE, "");
-            changeFlowDal.changeMapper().updateFlowWalkedAppend(change.getId(), change, approveOpt);
-            return;
-        } else {
-            changeFlowDal.changeMapper().updateFlowWalkedAppend(change.getId(), change, approveOpt);
-        }
-
         // create ticket
         DmApprovalDO ticket;
         try {

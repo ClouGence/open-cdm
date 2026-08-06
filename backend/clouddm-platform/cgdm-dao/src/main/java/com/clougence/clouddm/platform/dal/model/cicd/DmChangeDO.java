@@ -18,7 +18,6 @@ package com.clougence.clouddm.platform.dal.model.cicd;
 import java.util.Date;
 
 import com.baomidou.mybatisplus.annotation.*;
-import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -59,6 +58,4 @@ public class DmChangeDO {
     private String                lastCommitId;
     @TableField("lock_status")
     private boolean               lockStatus;
-    @TableField(value = "flow_walked", typeHandler = JacksonTypeHandler.class)
-    private RsChangeFlowWalkedObj flowWalked;
 }

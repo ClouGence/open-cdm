@@ -189,11 +189,16 @@ public class QueryApprovalHandler implements ApprovalHandler {
 
     @Override
     public void approvalCompleted(long approvalId, ApprovalBiz bizType, ImSenderService sender) {
+        // do nothing
+    }
+
+    @Override
+    public void approvalApproved(long approvalId, ApprovalBiz bizType, ImSenderService sender) {
         approvalDal.approvalMapper().updateStatusByEnum(approvalId, ApprovalStatus.WAIT_CONFIRM, null);
     }
 
     @Override
-    public void approvalRefuse(long approvalId, ApprovalBiz bizType, ImSenderService sender) {
+    public void approvalRejected(long approvalId, ApprovalBiz bizType, ImSenderService sender) {
         // do nothing
     }
 

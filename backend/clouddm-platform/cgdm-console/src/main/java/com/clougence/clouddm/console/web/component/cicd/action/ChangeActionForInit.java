@@ -230,7 +230,7 @@ public class ChangeActionForInit extends AbstractChangeAction {
 
             String message = DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_CHANGE_SCM_INIT_SUCCESS.name(), locale, change.getChangeName());
             this.senderService.sendMessage(change.getOwnerUid(), change.getRefFlowId(), ImMessageType.ChangeLife, message);
-            changeFlowDal.changeMapper().updateStepTo(change.getId(), change.getVersion(), ChangeStep.CHECK, "");
+            changeFlowDal.changeMapper().updateStepTo(change.getId(), change.getVersion(), ChangeStep.APPROVAL, "");
         } else {
             String message = DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_CHANGE_SCM_NO_CHANGE.name(), locale, change.getChangeName());
             this.senderService.sendMessage(change.getOwnerUid(), change.getRefFlowId(), ImMessageType.ChangeNotice, message);

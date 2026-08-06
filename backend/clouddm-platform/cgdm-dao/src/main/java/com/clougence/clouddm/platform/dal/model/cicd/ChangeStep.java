@@ -20,9 +20,7 @@ package com.clougence.clouddm.platform.dal.model.cicd;
  */
 public enum ChangeStep {
     INIT,
-    CHECK,
     APPROVAL,
-    EXECUTE,
     FINISH,
 
     //

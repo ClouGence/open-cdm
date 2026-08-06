@@ -27,49 +27,35 @@ import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
 import com.clougence.clouddm.console.web.component.approval.ApprovalFlowService;
-import com.clougence.clouddm.console.web.component.autoexec.AutoExecService;
 import com.clougence.clouddm.console.web.component.cicd.ChangeSqlService;
 import com.clougence.clouddm.console.web.component.cicd.ImMessageType;
 import com.clougence.clouddm.console.web.component.cicd.ImSenderService;
-import com.clougence.clouddm.console.web.component.cicd.model.ChangeExecuteInfo;
 import com.clougence.clouddm.console.web.component.cicd.model.ChangeTicketInfo;
 import com.clougence.clouddm.console.web.component.cicd.model.ChangeTicketInfoResult;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
-import com.clougence.clouddm.console.web.model.fo.cicd.ChangeExecLogFO;
-import com.clougence.clouddm.console.web.model.fo.cicd.ChangeExecTaskListFO;
 import com.clougence.clouddm.console.web.model.fo.cicd.ChangeListFO;
-import com.clougence.clouddm.console.web.model.fo.ticket.DmAutoExecConfigFO;
-import com.clougence.clouddm.console.web.model.vo.DmBizLogVO;
 import com.clougence.clouddm.console.web.model.vo.DmPageVO;
 import com.clougence.clouddm.console.web.model.vo.cicd.ChangeBodyItemVO;
 import com.clougence.clouddm.console.web.model.vo.cicd.ChangeSqlPreviewVO;
 import com.clougence.clouddm.console.web.model.vo.cicd.ChangeVO;
-import com.clougence.clouddm.console.web.model.vo.ticket.DmAutoExecJobVO;
-import com.clougence.clouddm.console.web.model.vo.ticket.DmAutoExecTaskVO;
 import com.clougence.clouddm.console.web.service.cicd.domain.ChangeTriggerContext;
 import com.clougence.clouddm.console.web.service.cicd.domain.CreateSuggest;
 import com.clougence.clouddm.console.web.service.cicd.domain.CreateSuggestType;
 import com.clougence.clouddm.console.web.service.upload.impl.SqlFilePreviewReader;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
-import com.clougence.clouddm.platform.dal.access.*;
-import com.clougence.clouddm.platform.dal.access.entry.UserCacheEntry;
+import com.clougence.clouddm.platform.dal.access.ApprovalDal;
+import com.clougence.clouddm.platform.dal.access.ChangeFlowDal;
+import com.clougence.clouddm.platform.dal.access.DataSourceDal;
 import com.clougence.clouddm.platform.dal.model.approval.DmApprovalDO;
 import com.clougence.clouddm.platform.dal.model.cicd.*;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
-import com.clougence.clouddm.platform.dal.model.execution.AutoExecJobStatus;
-import com.clougence.clouddm.platform.dal.model.execution.DmExecAutoJobDO;
-import com.clougence.clouddm.platform.dal.model.execution.DmExecAutoTaskDO;
-import com.clougence.clouddm.platform.dal.model.execution.SQLJobBizType;
 import com.clougence.clouddm.platform.dal.model.gitops.DmGitOpsScmDO;
-import com.clougence.clouddm.platform.dal.model.monitor.DmMonBizLogDO;
-import com.clougence.clouddm.platform.dal.model.monitor.LogDependBizType;
 import com.clougence.clouddm.platform.dal.util.PageUtils;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.JsonUtils;
 import com.clougence.utils.StringUtils;
-import com.clougence.utils.format.DateFormatType;
 import com.clougence.utils.format.WellKnowFormat;
 import com.clougence.utils.i18n.I18nUtils;
 
@@ -82,21 +68,13 @@ public class DmChangeServiceImpl implements DmChangeService {
     @Resource
     private ChangeFlowDal       changeFlowDal;
     @Resource
-    private MonitorDal          monitorDal;
-    @Resource
-    private ExecutionDal        executionDal;
-    @Resource
     private DataSourceDal       dsDal;
     @Resource
     private ApprovalDal         approvalDal;
     @Resource
-    private ObjectCacheDao      objectCacheDao;
-    @Resource
     private DmScmService        dmScmService;
     @Resource
     private ImSenderService     senderService;
-    @Resource
-    private AutoExecService     autoExecService;
     @Resource
     private ApprovalFlowService approvalFlowService;
     @Resource
@@ -197,16 +175,6 @@ public class DmChangeServiceImpl implements DmChangeService {
     }
 
     @Override
-    public List<DmChangeItemDO> fetchChangeCheckByChangeId(long changeId) {
-        DmChangeDO change = this.changeFlowDal.changeMapper().queryChangeById(changeId);
-        if (change == null) {
-            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_CHANGE_NOT_EXIST_ERROR.name()));
-        }
-
-        return this.changeFlowDal.changeItemMapper().queryChangeItemByChangeId(change.getOwnerUid(), changeId, ChangeItemType.CHECKS_DETAIL);
-    }
-
-    @Override
     public ChangeTicketInfoResult fetchChangeApprovalByChangeId(long changeId) {
         DmChangeDO change = this.changeFlowDal.changeMapper().queryChangeById(changeId);
         if (change == null) {
@@ -238,195 +206,6 @@ public class DmChangeServiceImpl implements DmChangeService {
     }
 
     @Override
-    public ChangeExecuteInfo fetchChangeExecuteByChangeId(long changeId) {
-        DmChangeDO change = this.changeFlowDal.changeMapper().queryChangeById(changeId);
-        if (change == null) {
-            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_CHANGE_NOT_EXIST_ERROR.name()));
-        }
-
-        List<DmChangeItemDO> list = this.changeFlowDal.changeItemMapper().queryChangeItemByChangeId(change.getOwnerUid(), changeId, ChangeItemType.EXECUTE);
-        DmChangeItemDO item = list.isEmpty() ? null : list.get(0);
-        if (item == null) {
-            return null;
-        }
-        return JsonUtils.toObj(item.getContent(), ChangeExecuteInfo.class);
-    }
-
-    @Override
-    public void skipCheck(String userUid, long changeId) {
-        DmChangeDO change = this.changeFlowDal.changeMapper().queryChangeById(changeId);
-        if (change == null) {
-            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_CHANGE_NOT_EXIST_ERROR.name()));
-        }
-        if (change.getCurrentStep() != ChangeStep.CHECK) {
-            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_CHANGE_NEED_CHECK_STEP_ERROR.name()));
-        }
-
-        String language = this.senderService.getFlowLanguage(change.getOwnerUid(), change.getRefFlowId());
-        Locale locale = I18nUtils.getLocale(language);
-
-        UserCacheEntry operatorUser = this.objectCacheDao.queryByUid(userUid);
-        String operatorMsg = String.format("[%s] %s", DmI18nUtils.getMessage(operatorUser.getRoleName()), operatorUser.getUserName());
-        String message = DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_CHANGE_SKIP_CHECK_STEP_ERROR.name(), locale, change.getChangeName(), operatorMsg);
-        this.senderService.sendMessage(change.getOwnerUid(), change.getRefFlowId(), ImMessageType.ChangeLife, message);
-        this.changeFlowDal.changeMapper().updateStepTo(change.getId(), change.getVersion(), ChangeStep.APPROVAL, message);
-        this.changeFlowDal.changeMapper().updateStatusTo(change.getId(), change.getVersion() + 1, ChangeStatus.READY, message);
-
-    }
-
-    @Transactional(rollbackFor = Throwable.class)
-    @Override
-    public void confirmExec(String userUid, long changeId, DmAutoExecConfigFO fo) {
-        DmChangeDO change = this.changeFlowDal.changeMapper().queryChangeById(changeId);
-        if (change == null) {
-            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_CHANGE_NOT_EXIST_ERROR.name()));
-        }
-        if (change.getCurrentStep() != ChangeStep.EXECUTE) {
-            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_CHANGE_NEED_EXECUTE_STEP_ERROR.name()));
-        }
-        if (change.getCurrentStatus() != ChangeStatus.OPEN) {
-            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_CHANGE_NEED_EXECUTE_OPEN_ERROR.name()));
-        }
-        DmChangeFlowDO flowDO = this.changeFlowDal.flowMapper().queryByOwnerAndId(change.getOwnerUid(), change.getRefFlowId());
-        if (flowDO.getFlowExecute() != ChangeExecStrategy.Manual) {
-            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_CHANGE_EXECUTE_IS_NOT_MANUAL_ERROR.name()));
-        }
-
-        ChangeExecuteInfo config = new ChangeExecuteInfo();
-        config.setExecType(fo.getAutoExecType());
-        config.setTransactional(fo.isEnableTransactional());
-        config.setErrorStrategy(fo.getErrorStrategy());
-        config.setRetryWaitTime(fo.getRetryWaitTime());
-        config.setRetryCount(fo.getRetryCount());
-        config.setExecTime(fo.getExecTime());
-        config.setSnapshot(fo.isSnapshot());
-        config.setOperatorUid(userUid);
-
-        DmChangeItemDO itemDO = new DmChangeItemDO();
-        itemDO.setOwnerUid(change.getOwnerUid());
-        itemDO.setRefFlowId(change.getRefFlowId());
-        itemDO.setRefChangeId(change.getId());
-        itemDO.setChangeItemType(ChangeItemType.EXECUTE);
-        itemDO.setContent(JsonUtils.toJson(config));
-        itemDO.setContentIndex(1);
-        itemDO.setContentName("exec");
-        this.changeFlowDal.changeItemMapper().deleteByChangeItemType(change.getOwnerUid(), change.getId(), ChangeItemType.EXECUTE);
-        this.changeFlowDal.changeItemMapper().insert(itemDO);
-        this.changeFlowDal.changeMapper().updateStatusTo(change.getId(), change.getVersion(), ChangeStatus.READY, "");
-    }
-
-    private static void checkRunStatus(DmChangeDO change) {
-        if (change == null) {
-            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_CHANGE_NOT_EXIST_ERROR.name()));
-        }
-        if (change.getCurrentStep() != ChangeStep.EXECUTE && change.getCurrentStep() != ChangeStep.FINISH) {
-            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_CHANGE_NEED_EXECUTE_STEP_ERROR.name()));
-        }
-    }
-
-    @Override
-    public DmAutoExecJobVO queryExecJobInfo(long changeId) {
-        DmChangeDO change = this.changeFlowDal.changeMapper().queryChangeById(changeId);
-        checkRunStatus(change);
-
-        return this.autoExecService.queryAutoExecJob(String.valueOf(change.getId()), SQLJobBizType.CHANGE, true);
-    }
-
-    @Override
-    public DmPageVO<DmAutoExecTaskVO> queryExecTaskList(ChangeExecTaskListFO fo) {
-        DmChangeDO change = this.changeFlowDal.changeMapper().queryChangeById(fo.getChangeId());
-        checkRunStatus(change);
-
-        return this.autoExecService.queryAutoExecTaskList(String.valueOf(change.getId()), SQLJobBizType.CHANGE, true, fo.getTaskStatus(), fo.getPage());
-    }
-
-    @Override
-    public List<DmBizLogVO> queryExecLog(ChangeExecLogFO fo) {
-        DmChangeDO change = this.changeFlowDal.changeMapper().queryChangeById(fo.getChangeId());
-        checkRunStatus(change);
-
-        DmExecAutoJobDO jobDO = checkJob(fo.getJobId());
-        List<DmMonBizLogDO> dmBizLogDOS;
-        if (fo.getBizType() == LogDependBizType.AUTO_EXEC_JOB) {
-            if (jobDO.getBizId() == null) {
-                return Collections.emptyList();
-            } else {
-                dmBizLogDOS = this.monitorDal.bizLogMapper().queryListByBizId(jobDO.getBizId());
-            }
-        } else {
-            if (fo.getTaskId() == null) {
-                return Collections.emptyList();
-            } else {
-                DmExecAutoTaskDO execTaskDO = executionDal.autoTaskMapper().selectById(fo.getTaskId());
-                if (execTaskDO == null || !Objects.equals(execTaskDO.getAutoExecJobId(), jobDO.getId())) {
-                    throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_TASK_JOB_NOT_MATCH_ERROR_MESSAGE.name()));
-                }
-                dmBizLogDOS = this.monitorDal.bizLogMapper().queryListByBizId(execTaskDO.getBizId());
-            }
-        }
-
-        return dmBizLogDOS.stream().map((dmBizLogDO -> {
-            DmBizLogVO vo = new DmBizLogVO();
-            vo.setContent(dmBizLogDO.getContent());
-            vo.setId(dmBizLogDO.getId());
-            vo.setLogLevel(dmBizLogDO.getLogLevel());
-            vo.setDependOnBizType(dmBizLogDO.getDependOnBizType());
-            vo.setTime(DateFormatType.s_yyyyMMdd_HHmmss.format(dmBizLogDO.getGmtCreate()));
-            return vo;
-        })).collect(Collectors.toList());
-    }
-
-    @Override
-    public void pauseExecJob(String curUid, long changeId) {
-        DmChangeDO change = this.changeFlowDal.changeMapper().queryChangeById(changeId);
-        checkRunStatus(change);
-
-        this.autoExecService.stopJob(String.valueOf(changeId), SQLJobBizType.CHANGE);
-    }
-
-    @Override
-    public void startExecJob(String curUid, long changeId) {
-        DmChangeDO change = this.changeFlowDal.changeMapper().queryChangeById(changeId);
-        checkRunStatus(change);
-
-        this.autoExecService.retryJob(String.valueOf(changeId), SQLJobBizType.CHANGE);
-    }
-
-    @Override
-    public void retryExecJob(String curUid, long changeId) {
-        DmChangeDO change = this.changeFlowDal.changeMapper().queryChangeById(changeId);
-        checkRunStatus(change);
-
-        this.autoExecService.retryJob(String.valueOf(changeId), SQLJobBizType.CHANGE);
-    }
-
-    @Override
-    public void abortExecJob(String curUid, long changeId) {
-        DmChangeDO change = this.changeFlowDal.changeMapper().queryChangeById(changeId);
-        checkRunStatus(change);
-
-        this.autoExecService.endJob(String.valueOf(changeId), SQLJobBizType.CHANGE);
-    }
-
-    @Transactional(rollbackFor = Throwable.class)
-    @Override
-    public void skipExecTask(String curUid, long changeId, long taskId) {
-        DmChangeDO change = this.changeFlowDal.changeMapper().queryChangeById(changeId);
-        checkRunStatus(change);
-
-        this.autoExecService.skipTask(String.valueOf(changeId), SQLJobBizType.CHANGE, taskId);
-    }
-
-    @Transactional(rollbackFor = Throwable.class)
-    @Override
-    public void continueExecTask(long changeId, long taskId) {
-        DmChangeDO change = this.changeFlowDal.changeMapper().queryChangeById(changeId);
-        checkRunStatus(change);
-
-        this.autoExecService.continueTask(String.valueOf(changeId), SQLJobBizType.CHANGE, taskId);
-    }
-
-    @Override
     public void retryChange(String curUid, long changeId) {
         DmChangeDO change = this.changeFlowDal.changeMapper().queryChangeById(changeId);
         if (change == null || change.isLockStatus()) {
@@ -440,14 +219,10 @@ public class DmChangeServiceImpl implements DmChangeService {
         Locale locale = I18nUtils.getLocale(language);
         switch (change.getCurrentStep()) {
             case INIT:
-            case CHECK:
-                this.retryChangeAtInitOrCheck(locale, change, false);
+                this.retryChangeAtInit(locale, change, false);
                 return;
             case APPROVAL:
                 this.retryChangeAtApproval(locale, change, curUid, false);
-                return;
-            case EXECUTE:
-                this.retryChangeAtExecute(locale, change);
                 return;
             case FINISH:
             default:
@@ -469,16 +244,11 @@ public class DmChangeServiceImpl implements DmChangeService {
         Locale locale = I18nUtils.getLocale(language);
         switch (change.getCurrentStep()) {
             case INIT:
-            case CHECK:
-                this.retryChangeAtInitOrCheck(locale, change, true);
+                this.retryChangeAtInit(locale, change, true);
                 this.changeFlowDal.changeItemMapper().deleteByChangeItemAll(change.getOwnerUid(), change.getId());
                 return;
             case APPROVAL:
                 this.retryChangeAtApproval(locale, change, curUid, true);
-                this.changeFlowDal.changeItemMapper().deleteByChangeItemAll(change.getOwnerUid(), change.getId());
-                return;
-            case EXECUTE:
-                this.restartChangeAtExecute(locale, change);
                 this.changeFlowDal.changeItemMapper().deleteByChangeItemAll(change.getOwnerUid(), change.getId());
                 return;
             case FINISH:
@@ -487,7 +257,7 @@ public class DmChangeServiceImpl implements DmChangeService {
         }
     }
 
-    private void retryChangeAtInitOrCheck(Locale locale, DmChangeDO change, boolean isRestart) {
+    private void retryChangeAtInit(Locale locale, DmChangeDO change, boolean isRestart) {
         String msg1 = DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_CHANGE_REINIT_OR_RECHECK_AT_CONSOLE_MESSAGE.name());
 
         if (isRestart) {
@@ -537,48 +307,6 @@ public class DmChangeServiceImpl implements DmChangeService {
         }
     }
 
-    private void retryChangeAtExecute(Locale locale, DmChangeDO change) {
-        switch (change.getCurrentStatus()) {
-            case OPEN:
-            case READY:
-                return;
-            case WAIT:
-            case FINISH:
-            case CLOSED:
-                throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_CHANGE_UNSUPPORT_STATUS_MESSAGE.name()));
-            case FAILED:
-            default:
-                break;
-        }
-
-        String msg1 = DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_CHANGE_REEXE_AT_CONSOLE_MESSAGE.name());
-        List<DmChangeItemDO> items = this.changeFlowDal.changeItemMapper().queryChangeItemByChangeId(change.getOwnerUid(), change.getId(), ChangeItemType.EXECUTE);
-        DmChangeItemDO item = CollectionUtils.isEmpty(items) ? null : items.get(0);
-
-        if (item == null || StringUtils.isEmpty(item.getContent())) {
-            int res = this.changeFlowDal.changeMapper().updateStatusTo(change.getId(), change.getVersion(), ChangeStatus.READY, msg1);
-        } else {
-            this.autoExecService.retryJob(String.valueOf(change.getId()), SQLJobBizType.CHANGE);
-            int res = this.changeFlowDal.changeMapper().updateStatusTo(change.getId(), change.getVersion(), ChangeStatus.WAIT, msg1);
-        }
-
-        String msg2 = DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_CHANGE_REEXE_AT_CONSOLE_NOTICE.name(), locale, change.getChangeName());
-        this.senderService.sendMessage(change.getOwnerUid(), change.getRefFlowId(), ImMessageType.ChangeNotice, msg2);
-    }
-
-    private void restartChangeAtExecute(Locale locale, DmChangeDO change) {
-        if (change.getCurrentStatus() == ChangeStatus.OPEN) {
-            String msg1 = DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_CHANGE_REINIT_OR_RECHECK_AT_CONSOLE_MESSAGE.name());
-            int res1 = this.changeFlowDal.changeMapper().updateStepTo(change.getId(), change.getVersion(), ChangeStep.INIT, msg1);
-            int res2 = this.changeFlowDal.changeMapper().updateStatusTo(change.getId(), change.getVersion() + 1, ChangeStatus.READY, msg1);
-
-            String msg2 = DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_CHANGE_REINIT_OR_RECHECK_AT_CONSOLE_NOTICE.name(), locale, change.getChangeName());
-            this.senderService.sendMessage(change.getOwnerUid(), change.getRefFlowId(), ImMessageType.ChangeNotice, msg2);
-        } else {
-            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_CHANGE_UNSUPPORT_STATUS_MESSAGE.name()));
-        }
-    }
-
     @Override
     public void closeChange(String curUid, long changeId) {
         DmChangeDO change = this.changeFlowDal.changeMapper().queryChangeById(changeId);
@@ -591,14 +319,10 @@ public class DmChangeServiceImpl implements DmChangeService {
 
         switch (change.getCurrentStep()) {
             case INIT:
-            case CHECK:
-                this.closeChangeAtInitOrCheck(locale, change);
+                this.closeChangeAtInit(locale, change);
                 return;
             case APPROVAL:
                 this.closeChangeAtApproval(locale, change, curUid);
-                return;
-            case EXECUTE:
-                this.closeChangeAtExecute(locale, change);
                 return;
             case INIT_SNAPSHOT:
                 this.closeChangeAtSnapshot(locale, change);
@@ -610,7 +334,7 @@ public class DmChangeServiceImpl implements DmChangeService {
         }
     }
 
-    private void closeChangeAtInitOrCheck(Locale locale, DmChangeDO change) {
+    private void closeChangeAtInit(Locale locale, DmChangeDO change) {
         String msg1 = DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_CHANGE_CLOSE_AT_CONSOLE_MESSAGE.name());
         int res = this.changeFlowDal.changeMapper().updateStatusTo(change.getId(), change.getVersion(), ChangeStatus.CLOSED, msg1);
 
@@ -643,29 +367,6 @@ public class DmChangeServiceImpl implements DmChangeService {
         this.changeFlowDal.changeMapper().lockChangeById(change.getId(), change.getVersion() + 1);
     }
 
-    private void closeChangeAtExecute(Locale locale, DmChangeDO change) {
-        // message
-        String msg1 = DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_CHANGE_CLOSE_AT_CONSOLE_MESSAGE.name());
-
-        // close auto exec
-        DmAutoExecJobVO jobVO = this.autoExecService.queryAutoExecJob(String.valueOf(change.getId()), SQLJobBizType.CHANGE, true);
-        if (jobVO != null) {
-            if (jobVO.getStatus() == AutoExecJobStatus.FINISH || jobVO.getStatus() == AutoExecJobStatus.TERMINATION) {
-                // is end status
-            } else {
-                throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_CHANGE_EXECUTE_NOT_FINISH.name()));
-            }
-        }
-
-        // send message and update status
-        int res = this.changeFlowDal.changeMapper().updateStatusTo(change.getId(), change.getVersion(), ChangeStatus.CLOSED, msg1);
-
-        String msg2 = DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_CHANGE_CLOSE_AT_CONSOLE_NOTICE.name(), locale, change.getChangeName());
-        this.senderService.sendMessage(change.getOwnerUid(), change.getRefFlowId(), ImMessageType.ChangeNotice, msg2);
-
-        this.changeFlowDal.changeMapper().lockChangeById(change.getId(), change.getVersion() + 1);
-    }
-
     private void closeChangeAtSnapshot(Locale locale, DmChangeDO change) {
         if (change.getCurrentStatus() == ChangeStatus.FINISH || change.getCurrentStatus() == ChangeStatus.CLOSED) {
             return;
@@ -681,14 +382,6 @@ public class DmChangeServiceImpl implements DmChangeService {
         this.senderService.sendMessage(change.getOwnerUid(), change.getRefFlowId(), ImMessageType.ChangeNotice, msg2);
 
         this.changeFlowDal.changeMapper().lockChangeById(change.getId(), change.getVersion() + 1);
-    }
-
-    private DmExecAutoJobDO checkJob(long jobId) {
-        DmExecAutoJobDO jobDO = this.executionDal.autoJobMapper().selectById(jobId);
-        if (jobDO == null) {
-            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_JOB_NOT_EXISTS_ERROR_MESSAGE.name()));
-        }
-        return jobDO;
     }
 
     @Override
@@ -733,25 +426,11 @@ public class DmChangeServiceImpl implements DmChangeService {
                         return suggest;
                     }
                     case INIT:
-                    case CHECK:
                     case APPROVAL: {
                         CreateSuggest suggest = new CreateSuggest();
                         suggest.setChange(changeDO);
                         suggest.setSuggestType(CreateSuggestType.Restart);
                         return suggest;
-                    }
-                    case EXECUTE: {
-                        if (changeDO.getCurrentStatus() == ChangeStatus.OPEN) {
-                            CreateSuggest suggest = new CreateSuggest();
-                            suggest.setChange(changeDO);
-                            suggest.setSuggestType(CreateSuggestType.Restart);
-                            return suggest;
-                        } else {
-                            CreateSuggest suggest = new CreateSuggest();
-                            suggest.setChange(changeDO);
-                            suggest.setSuggestType(CreateSuggestType.Later);
-                            return suggest;
-                        }
                     }
                     case FINISH: {
                         CreateSuggest suggest = new CreateSuggest();
@@ -825,7 +504,6 @@ public class DmChangeServiceImpl implements DmChangeService {
         changeDO.setTryTimes(0);
         changeDO.setLastCommitId(commitId);
         changeDO.setLockStatus(false);
-        changeDO.setFlowWalked(new RsChangeFlowWalkedObj());
         this.changeFlowDal.changeMapper().insert(changeDO);
     }
 
@@ -860,7 +538,6 @@ public class DmChangeServiceImpl implements DmChangeService {
         changeDO.setTryTimes(0);
         changeDO.setLastCommitId(commitId);
         changeDO.setLockStatus(true);
-        changeDO.setFlowWalked(new RsChangeFlowWalkedObj());
         this.changeFlowDal.changeMapper().insert(changeDO);
     }
 }

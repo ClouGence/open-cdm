@@ -46,32 +46,4 @@ public interface DmChangeMapper extends BaseMapper<DmChangeDO> {
 
     List<DmChangeDO> queryUnlockedChange(String ownerUid, long flowId);
 
-    int updateFlowWalked(long changeId, RsChangeFlowWalkedObj flowWalked);
-
-    default int updateFlowWalkedAppend(long changeId, DmChangeDO change, ChangeCheckStrategy option) {
-        RsChangeFlowWalkedObj flowWalked = change.getFlowWalked();
-        if (flowWalked == null) {
-            flowWalked = new RsChangeFlowWalkedObj();
-        }
-        flowWalked.setFlowCheck(option);
-        return this.updateFlowWalked(changeId, flowWalked);
-    }
-
-    default int updateFlowWalkedAppend(long changeId, DmChangeDO change, ChangeApproveStrategy option) {
-        RsChangeFlowWalkedObj flowWalked = change.getFlowWalked();
-        if (flowWalked == null) {
-            flowWalked = new RsChangeFlowWalkedObj();
-        }
-        flowWalked.setFlowApprove(option);
-        return this.updateFlowWalked(changeId, flowWalked);
-    }
-
-    default int updateFlowWalkedAppend(long changeId, DmChangeDO change, ChangeExecStrategy option) {
-        RsChangeFlowWalkedObj flowWalked = change.getFlowWalked();
-        if (flowWalked == null) {
-            flowWalked = new RsChangeFlowWalkedObj();
-        }
-        flowWalked.setFlowExecute(option);
-        return this.updateFlowWalked(changeId, flowWalked);
-    }
 }

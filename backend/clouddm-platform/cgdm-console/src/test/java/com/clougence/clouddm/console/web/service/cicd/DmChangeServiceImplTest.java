@@ -29,7 +29,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.api.common.rpc.ResWebData;
-import com.clougence.clouddm.console.web.component.autoexec.AutoExecService;
 import com.clougence.clouddm.console.web.service.cicd.domain.ChangeTriggerContext;
 import com.clougence.clouddm.console.web.service.cicd.domain.CreateSuggest;
 import com.clougence.clouddm.console.web.service.cicd.domain.CreateSuggestType;
@@ -41,7 +40,6 @@ import com.clougence.clouddm.platform.dal.model.cicd.ChangeStep;
 import com.clougence.clouddm.platform.dal.model.cicd.DmChangeDO;
 import com.clougence.clouddm.platform.dal.model.cicd.DmChangeFlowDO;
 import com.clougence.clouddm.platform.dal.model.cicd.DmChangeTriggerReceiptDO;
-import com.clougence.clouddm.platform.dal.model.execution.SQLJobBizType;
 import com.clougence.clouddm.platform.dal.model.gitops.ScmType;
 
 public class DmChangeServiceImplTest {
@@ -50,7 +48,6 @@ public class DmChangeServiceImplTest {
     private DmChangeFlowMapper           flowMapper;
     private DmChangeMapper               changeMapper;
     private DmChangeTriggerReceiptMapper receiptMapper;
-    private AutoExecService              autoExecService;
     private DmChangeServiceImpl          changeService;
 
     @Before
@@ -59,7 +56,6 @@ public class DmChangeServiceImplTest {
         flowMapper = mock(DmChangeFlowMapper.class);
         changeMapper = mock(DmChangeMapper.class);
         receiptMapper = mock(DmChangeTriggerReceiptMapper.class);
-        autoExecService = mock(AutoExecService.class);
         when(changeFlowDal.flowMapper()).thenReturn(flowMapper);
         when(changeFlowDal.changeMapper()).thenReturn(changeMapper);
         when(changeFlowDal.triggerReceiptMapper()).thenReturn(receiptMapper);
@@ -73,7 +69,6 @@ public class DmChangeServiceImplTest {
 
         changeService = new DmChangeServiceImpl();
         ReflectionTestUtils.setField(changeService, "changeFlowDal", changeFlowDal);
-        ReflectionTestUtils.setField(changeService, "autoExecService", autoExecService);
     }
 
     @Test
@@ -133,15 +128,4 @@ public class DmChangeServiceImplTest {
         assertEquals(CreateSuggestType.Restart, sameCommit.getSuggestType());
     }
 
-    @Test
-    public void shouldContinueSkippedChangeExecutionTask() {
-        DmChangeDO change = new DmChangeDO();
-        change.setId(23L);
-        change.setCurrentStep(ChangeStep.FINISH);
-        when(changeMapper.queryChangeById(23L)).thenReturn(change);
-
-        changeService.continueExecTask(23L, 12L);
-
-        verify(autoExecService).continueTask("23", SQLJobBizType.CHANGE, 12L);
-    }
 }

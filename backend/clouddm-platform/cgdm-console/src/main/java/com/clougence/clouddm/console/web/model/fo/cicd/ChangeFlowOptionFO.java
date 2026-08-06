@@ -15,11 +15,7 @@
  */
 package com.clougence.clouddm.console.web.model.fo.cicd;
 
-import com.clougence.clouddm.api.console.autoexec.ErrorStrategy;
 import com.clougence.clouddm.console.web.constants.DmInitScriptStrategy;
-import com.clougence.clouddm.platform.dal.model.cicd.ChangeApproveStrategy;
-import com.clougence.clouddm.platform.dal.model.cicd.ChangeCheckStrategy;
-import com.clougence.clouddm.platform.dal.model.cicd.ChangeExecStrategy;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -28,16 +24,6 @@ import lombok.Setter;
 @Setter
 public class ChangeFlowOptionFO {
 
-    private DmInitScriptStrategy  initScript;
+    private DmInitScriptStrategy initScript;
 
-    // for flow
-    private ChangeCheckStrategy   checkStrategy;
-    private ChangeApproveStrategy approveStrategy;
-    private ChangeExecStrategy    executeStrategy;
-
-    // exec default
-    private boolean               transactional;
-    private ErrorStrategy         errorStrategy;
-    private Long                  retryWaitTime;
-    private Long                  retryCount;
 }
