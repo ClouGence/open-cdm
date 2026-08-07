@@ -15,6 +15,7 @@
  */
 package com.clougence.clouddm.init.component.scripts;
 
+import java.sql.Connection;
 import java.util.List;
 
 import com.clougence.clouddm.init.component.flyway.AbstractUpgradeJavaMigration;
@@ -31,10 +32,6 @@ public class V202607290003__consolidated_upgrade extends AbstractUpgradeJavaMigr
                     alter table dm_approval
                         add column features longtext null
                             comment 'JSON list of enabled approval features'
-                """, """
-                    update dm_approval
-                    set features = '["PRE_INIT"]'
-                    where appro_biz = 'DM_QUERY'
                 """, """
                     create table dm_sys_attachment
                     (
@@ -67,22 +64,8 @@ public class V202607290003__consolidated_upgrade extends AbstractUpgradeJavaMigr
                     alter table dm_exec_auto_task
                         add column query_id varchar(128) null
                 """, """
-                    update dm_exec_auto_task
-                    set query_id = uuid()
-                    where query_id is null
-                """, """
-                    alter table dm_exec_auto_task
-                        modify column query_id varchar(128) not null
-                """, """
-                    create unique index uk_exec_auto_task_query_id
-                        on dm_exec_auto_task (query_id)
-                """, """
                     create unique index uk_exec_auto_job_query_id
                         on dm_exec_auto_job (query_id)
-                """, """
-                    update dm_change_item
-                    set ref_change_item_type = 'CHECKS_DETAIL'
-                    where ref_change_item_type = 'CHECKS'
                 """, """
                     alter table dm_approval
                         drop column error_count,
@@ -98,24 +81,6 @@ public class V202607290003__consolidated_upgrade extends AbstractUpgradeJavaMigr
                         add column task_status varchar(16) null
                             comment 'Execution state of a PRE_INIT child task'
                 """, """
-                    update dm_approval_process_activity
-                    set task_status = case json_unquote(json_extract(context, '$.analysisStatus'))
-                        when 'FINISHED' then 'FINISHED'
-                        when 'FAILED' then 'FAILED'
-                        else 'INIT'
-                    end
-                    where activity_id in ('SQL_RECOGNITION', 'BEHAVIOR_ANALYSIS', 'SECURITY_RULE')
-                      and context is not null
-                      and json_valid(context)
-                """, """
-                    update dm_approval
-                    set ticket_status = case
-                        when exists(select 1 from dm_approval_process_activity a where a.ticket_id = dm_approval.id)
-                            then 'PRE_INIT_RUN'
-                        else 'PRE_INIT_WAIT'
-                    end
-                    where ticket_status = 'PRE_INIT'
-                """, """
                     alter table dm_change_flow
                         drop column flow_check,
                         drop column flow_approve,
@@ -130,6 +95,55 @@ public class V202607290003__consolidated_upgrade extends AbstractUpgradeJavaMigr
                 """, """
                     create unique index uk_exec_auto_job_depend_biz
                         on dm_exec_auto_job (depend_on_biz_id)
+                """);
+    }
+
+    @Override
+    protected void afterMigrate(Connection connection) throws Exception {
+        safeExecute(connection, """
+                    update dm_approval
+                    set features = '["PRE_INIT"]'
+                    where appro_biz = 'DM_QUERY'
+                """);
+        safeExecute(connection, """
+                    update dm_exec_auto_task
+                    set query_id = uuid()
+                    where query_id is null
+                """);
+        // The NOT NULL constraint and the unique index must be applied after the
+        // query_id backfill above.
+        safeExecute(connection, """
+                    alter table dm_exec_auto_task
+                        modify column query_id varchar(128) not null
+                """);
+        safeExecute(connection, """
+                    create unique index uk_exec_auto_task_query_id
+                        on dm_exec_auto_task (query_id)
+                """);
+        safeExecute(connection, """
+                    update dm_change_item
+                    set ref_change_item_type = 'CHECKS_DETAIL'
+                    where ref_change_item_type = 'CHECKS'
+                """);
+        safeExecute(connection, """
+                    update dm_approval_process_activity
+                    set task_status = case json_unquote(json_extract(context, '$.analysisStatus'))
+                        when 'FINISHED' then 'FINISHED'
+                        when 'FAILED' then 'FAILED'
+                        else 'INIT'
+                    end
+                    where activity_id in ('SQL_RECOGNITION', 'BEHAVIOR_ANALYSIS', 'SECURITY_RULE')
+                      and context is not null
+                      and json_valid(context)
+                """);
+        safeExecute(connection, """
+                    update dm_approval
+                    set ticket_status = case
+                        when exists(select 1 from dm_approval_process_activity a where a.ticket_id = dm_approval.id)
+                            then 'PRE_INIT_RUN'
+                        else 'PRE_INIT_WAIT'
+                    end
+                    where ticket_status = 'PRE_INIT'
                 """);
     }
 }
