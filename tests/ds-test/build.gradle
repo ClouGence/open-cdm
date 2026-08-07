@@ -61,6 +61,9 @@ dependencies {
 
 test {
     useJUnitPlatform()
+    // Each parallel worker parses large SQL fixtures and keeps grammar/DFA caches;
+    // the Gradle default worker heap (512m) causes OutOfMemoryError on big corpora.
+    maxHeapSize = '4g'
 
     def parserTestParallelism = providers.gradleProperty('parserTestParallelism').getOrElse('16')
     if (!['8', '16'].contains(parserTestParallelism)) {

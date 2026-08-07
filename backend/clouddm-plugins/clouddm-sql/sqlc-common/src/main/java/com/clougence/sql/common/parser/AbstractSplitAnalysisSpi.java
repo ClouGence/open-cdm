@@ -140,9 +140,13 @@ public abstract class AbstractSplitAnalysisSpi implements SplitAnalysisSpi {
         }
     }
 
-    /** Stable value containing parser features which affect semantic predicates. */
+    /**
+     * Scope key for the shared ANTLR prediction caches. The provider instance encodes the full
+     * parsing configuration (grammar version, features, sql mode), so different configurations
+     * never share DFA states that embed semantic-predicate decisions.
+     */
     protected Object predictionCacheScope() {
-        return null;
+        return dslProvider();
     }
 
     private final class SplitListener implements ParseTreeListener {
