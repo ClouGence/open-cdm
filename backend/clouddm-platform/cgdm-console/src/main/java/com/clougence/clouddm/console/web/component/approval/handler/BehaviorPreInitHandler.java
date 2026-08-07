@@ -35,8 +35,8 @@ import com.clougence.clouddm.platform.dal.model.approval.DmApprovalDO;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorObject;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.StatementType;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.dslpaser.antlr.AntlerSyntaxException;
 
 import jakarta.annotation.Resource;
@@ -98,7 +98,7 @@ public class BehaviorPreInitHandler extends AbstractPreInitHandler {
     }
 
     private long analyzeRequest(QueryRequest request, Map<String, ApprovalBehavior> behaviors) {
-        if (request.hasQueryType(SplitQueryType.TRANSACTION)) {
+        if (request.hasQueryType(StatementType.TRANSACTION)) {
             throw new UnsupportedOperationException(DmI18nUtils.getMessage(I18nDmMsgKeys.TICKET_NONSUPPORT_TRANSACTION_OPERATE_ERROR.name()));
         }
 

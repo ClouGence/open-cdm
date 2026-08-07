@@ -4,6 +4,7 @@ import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.io.IOException;
+import java.io.StringReader;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.stream.Stream;
@@ -22,7 +23,6 @@ import com.clougence.clouddm.ds.TextTestCase;
 import com.clougence.clouddm.ds.maxcompute.dsconf.McConfig;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
 import com.clougence.clouddm.sdk.sql.SqlParserParameters;
-import com.clougence.clouddm.sdk.sql.analysis.security.CodeInfo;
 import com.clougence.clouddm.sdk.sql.analysis.security.ContextInfo;
 import com.clougence.clouddm.sdk.sql.analysis.security.SecDomainResolveSpi;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -94,7 +94,7 @@ public final class SecDomainTextTest {
         List<RuleDomain> domains;
         JsonNode expectedException = expectedException(expected, dataSourceType);
         try {
-            domains = flatten(resolveSpi.resolveDomain(dataSourceType, codeInfo(testCase.sql), contextInfo(testCase, contextInfo)));
+            domains = flatten(resolveSpi.resolveDomainStream(dataSourceType, new StringReader(testCase.sql), 1, 0, contextInfo(testCase, contextInfo)).toList());
         } catch (Exception e) {
             if (expectedException != null) {
                 assertExpectedException(testCase, expectedException, e, failures);
@@ -435,17 +435,14 @@ public final class SecDomainTextTest {
         }
     }
 
-    private static CodeInfo codeInfo(String sql) {
-        return CodeInfo.builder().query(sql).baseLine(1).baseColumn(0).build();
-    }
-
     private static ContextInfo contextInfo(TestCase testCase, ContextInfo defaultContextInfo) {
         if (testCase.contextJson == null || testCase.contextJson.isBlank()) {
             return defaultContextInfo;
         }
+
         try {
             JsonNode context = OBJECT_MAPPER.readTree(testCase.contextJson);
-            ContextInfo.ContextInfoBuilder builder = ContextInfo.builder().deepParser(false);
+            ContextInfo.ContextInfoBuilder builder = ContextInfo.builder();
             if (context.has("mcSchemaStyle")) {
                 McConfig dataSourceConfig = new McConfig();
                 dataSourceConfig.setSchemaStyle(context.get("mcSchemaStyle").asBoolean());

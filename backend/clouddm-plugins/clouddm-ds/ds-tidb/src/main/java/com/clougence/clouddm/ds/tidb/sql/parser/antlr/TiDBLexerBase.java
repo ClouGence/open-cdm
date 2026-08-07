@@ -2,6 +2,7 @@ package com.clougence.clouddm.ds.tidb.sql.parser.antlr;
 
 import org.antlr.v4.runtime.*;
 
+import com.clougence.clouddm.ds.tidb.sql.analysis.reference.TiDBResourceRegistry;
 import com.clougence.clouddm.ds.tidb.sql.parser.TiDBParserConfig;
 import com.clougence.clouddm.ds.tidb.sql.parser.TiDBParserFeature;
 import com.clougence.clouddm.ds.tidb.sql.parser.TiDBVersion;
@@ -9,9 +10,9 @@ import com.clougence.clouddm.ds.tidb.sql.parser.TiDBVersion;
 public abstract class TiDBLexerBase extends Lexer {
 
     private TiDBParserConfig config                    = TiDBParserConfig.unknownSqlMode(null);
-    private boolean           insideExecutableComment;
-    private int               lastDefaultTokenType      = Token.INVALID_TYPE;
-    private int               lastDefaultTokenStopIndex = -2;
+    private boolean          insideExecutableComment;
+    private int              lastDefaultTokenType      = Token.INVALID_TYPE;
+    private int              lastDefaultTokenStopIndex = -2;
 
     protected TiDBLexerBase(CharStream input){
         super(input);
@@ -37,7 +38,8 @@ public abstract class TiDBLexerBase extends Lexer {
     }
 
     private void classifySpecialFunctionToken(Token token) {
-        if (!(token instanceof WritableToken writableToken) || token.getChannel() != DEFAULT_TOKEN_CHANNEL || !config.sqlModeKnown() || !isSpecialFunctionName(token.getText())) {
+        if (!(token instanceof WritableToken writableToken) || token.getChannel() != DEFAULT_TOKEN_CHANNEL || !config.sqlModeKnown()
+                || !TiDBResourceRegistry.instance().isLexerSpecialFunction(token.getText())) {
             return;
         }
         if (isImmediatelyAfterDot(token.getStartIndex())) {
@@ -54,27 +56,15 @@ public abstract class TiDBLexerBase extends Lexer {
         return nextIndex >= 0 && nextIndex < _input.size() && _input.getText(org.antlr.v4.runtime.misc.Interval.of(nextIndex, nextIndex)).charAt(0) == '(';
     }
 
-    private static boolean isSpecialFunctionName(String text) {
-        if (text == null) {
-            return false;
-        }
-        return switch (text.toUpperCase(java.util.Locale.ROOT)) {
-            case "ADDDATE", "BIT_AND", "BIT_OR", "BIT_XOR", "CAST", "COUNT", "CURDATE", "CURTIME", "DATE_ADD", "DATE_SUB", "EXTRACT", "GROUP_CONCAT", "JSON_ARRAYAGG",
-                    "JSON_DUALITY_OBJECT", "JSON_OBJECTAGG", "MAX", "MID", "MIN", "NOW", "POSITION", "PI", "SESSION_USER", "STD", "STDDEV", "STDDEV_POP", "STDDEV_SAMP",
-                    "ST_COLLECT", "SUBDATE", "SUBSTR", "SUBSTRING", "SUM", "SYSDATE", "SYSTEM_USER", "TRIM", "VARIANCE", "VAR_POP", "VAR_SAMP" ->
-                true;
-            default -> false;
-        };
-    }
-
     private void downgradeVersionedToken(Token token) {
-        if (!(token instanceof WritableToken writableToken) || isTokenAllowed(token.getType())) {
+        if (!(token instanceof WritableToken writableToken) || isTokenAllowed(token)) {
             return;
         }
         writableToken.setType(TiDBLexer.ID);
     }
 
-    private boolean isTokenAllowed(int tokenType) {
+    private boolean isTokenAllowed(Token token) {
+        int tokenType = token.getType();
         // TiDB introduced VECTOR in major 8, earlier than the MySQL grammar
         // ceiling (9.7) from which this lexer was cloned.
         if (tokenType == TiDBLexer.VECTOR) {
@@ -92,15 +82,14 @@ public abstract class TiDBLexerBase extends Lexer {
             case TiDBLexer.ANALYSE, TiDBLexer.REDOFILE, TiDBLexer.SQL_CACHE -> atMost(5, 7);
             case TiDBLexer.OLD_PASSWORD -> atMost(5, 6);
             case TiDBLexer.MASTER_BIND, TiDBLexer.MASTER_SSL_VERIFY_SERVER_CERT -> atMost(8, 0);
-            case TiDBLexer.COMPONENT, TiDBLexer.CLONE, TiDBLexer.EXCEPT, TiDBLexer.EXCLUDE, TiDBLexer.GROUPS, TiDBLexer.GROUPING,
-                    TiDBLexer.INTERSECT, TiDBLexer.LATERAL, TiDBLexer.NULLS, TiDBLexer.OTHERS, TiDBLexer.TIES, TiDBLexer.RESTART,
-                    TiDBLexer.RESPECT, TiDBLexer.URL, TiDBLexer.BULK, TiDBLexer.ZONE, TiDBLexer.GEOMCOLLECTION ->
+            case TiDBLexer.COMPONENT, TiDBLexer.CLONE, TiDBLexer.EXCEPT, TiDBLexer.EXCLUDE, TiDBLexer.GROUPS, TiDBLexer.GROUPING, TiDBLexer.INTERSECT, TiDBLexer.LATERAL,
+                    TiDBLexer.NULLS, TiDBLexer.OTHERS, TiDBLexer.TIES, TiDBLexer.RESTART, TiDBLexer.RESPECT, TiDBLexer.URL, TiDBLexer.BULK, TiDBLexer.ZONE,
+                    TiDBLexer.GEOMCOLLECTION ->
                 atLeast(8, 0);
             case TiDBLexer.PARSE_TREE, TiDBLexer.QUALIFY, TiDBLexer.S3, TiDBLexer.PARALLEL -> atLeast(8, 4);
-            case TiDBLexer.ABSENT, TiDBLexer.DUALITY, TiDBLexer.EXTERNAL, TiDBLexer.EXTERNAL_FORMAT, TiDBLexer.LIBRARY, TiDBLexer.MASKING,
-                    TiDBLexer.GUIDED, TiDBLexer.VALIDATE, TiDBLexer.POLICY, TiDBLexer.RELATIONAL, TiDBLexer.VECTOR, TiDBLexer.URI,
-                    TiDBLexer.HEADER, TiDBLexer.PARAMETERS, TiDBLexer.MATERIALIZED, TiDBLexer.SETS, TiDBLexer.ALLOW_MISSING_FILES,
-                    TiDBLexer.AUTO_REFRESH, TiDBLexer.AUTO_REFRESH_SOURCE, TiDBLexer.FILES, TiDBLexer.FILE_FORMAT, TiDBLexer.FILE_NAME,
+            case TiDBLexer.ABSENT, TiDBLexer.DUALITY, TiDBLexer.EXTERNAL, TiDBLexer.EXTERNAL_FORMAT, TiDBLexer.LIBRARY, TiDBLexer.MASKING, TiDBLexer.GUIDED, TiDBLexer.VALIDATE,
+                    TiDBLexer.POLICY, TiDBLexer.RELATIONAL, TiDBLexer.VECTOR, TiDBLexer.URI, TiDBLexer.HEADER, TiDBLexer.PARAMETERS, TiDBLexer.MATERIALIZED, TiDBLexer.SETS,
+                    TiDBLexer.ALLOW_MISSING_FILES, TiDBLexer.AUTO_REFRESH, TiDBLexer.AUTO_REFRESH_SOURCE, TiDBLexer.FILES, TiDBLexer.FILE_FORMAT, TiDBLexer.FILE_NAME,
                     TiDBLexer.FILE_PATTERN, TiDBLexer.FILE_PREFIX, TiDBLexer.STRICT_LOAD, TiDBLexer.VERIFY_KEY_CONSTRAINTS ->
                 atLeast(9, 7);
             case TiDBLexer.SECONDARY_LOAD, TiDBLexer.SECONDARY_UNLOAD -> atLeast(8, 0);
@@ -109,16 +98,12 @@ public abstract class TiDBLexerBase extends Lexer {
             case TiDBLexer.JSON_ARRAYAGG, TiDBLexer.JSON_OBJECTAGG -> isFunctionTokenAllowed(50722);
             case TiDBLexer.ST_COLLECT -> isFunctionTokenAllowed(80024);
             case TiDBLexer.STRING_CHARSET_NAME -> {
-                String token = tokenText();
-                yield (!"_gb18030".equalsIgnoreCase(token) || atLeast(5, 7)) && (!"_filename".equalsIgnoreCase(token) || exactVersion() < 50710);
+                String text = token.getText();
+                yield (!"_gb18030".equalsIgnoreCase(text) || atLeast(5, 7)) && (!"_filename".equalsIgnoreCase(text) || exactVersion() < 50710);
             }
             case TiDBLexer.DOLLAR_QUOTED_STRING -> false;
             default -> true;
         };
-    }
-
-    private String tokenText() {
-        return _text == null ? getText() : _text;
     }
 
     private void rememberDefaultToken(Token token) {

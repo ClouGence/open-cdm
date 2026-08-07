@@ -15,38 +15,20 @@
  */
 package com.clougence.sql.iso.sql92.parser;
 
-import org.antlr.v4.runtime.Parser;
-import org.antlr.v4.runtime.ParserRuleContext;
-import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
-
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.dslpaser.antlr.DslProvider;
-import com.clougence.dslpaser.parse.AntlrStatementParser;
 import com.clougence.sql.common.parser.AbstractSplitAnalysisSpi;
-import com.clougence.sql.iso.sql92.parser.antlr.Sql92Parser;
+import com.clougence.sql.common.parser.LexerSplitPolicy;
 
+/** SQL-92 lexer-only statement splitter. */
 public class Sql92SplitAnalysisSpi extends AbstractSplitAnalysisSpi {
 
+    @Override
     protected DslProvider dslProvider() {
         return Sql92DslProvider.INSTANCE;
     }
 
-    protected AbstractParseTreeVisitor<SplitQueryType> splitVisitor() {
-        return Sql92SplitVisitor.INSTANCE;
-    }
-
     @Override
-    protected void parseRoot(Parser parser) {
-        ((Sql92Parser) parser).root();
-    }
-
-    @Override
-    protected boolean isStatementContext(ParserRuleContext context) {
-        return context instanceof Sql92Parser.SqlStatementContext && context.getParent() instanceof Sql92Parser.SqlScriptContext;
-    }
-
-    @Override
-    protected AntlrStatementParser statementParser() {
-        return new Sql92StatementParser();
+    protected LexerSplitPolicy createSplitPolicy() {
+        return new Sql92LexerSplitPolicy();
     }
 }

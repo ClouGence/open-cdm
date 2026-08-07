@@ -15,22 +15,11 @@
  */
 package com.clougence.sql.mongodb.parser;
 
-import java.util.Collections;
-import java.util.List;
-
-import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.Parser;
-import org.antlr.v4.runtime.ParserRuleContext;
-import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
-import org.antlr.v4.runtime.tree.ParseTree;
-
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
-import com.clougence.clouddm.sdk.sql.parser.SplitScript;
 import com.clougence.dslpaser.antlr.DslProvider;
-import com.clougence.dslpaser.parse.AntlrStatementParser;
 import com.clougence.sql.common.parser.AbstractSplitAnalysisSpi;
-import com.clougence.sql.mongodb.parser.antlr.MongoParser;
+import com.clougence.sql.common.parser.LexerSplitPolicy;
 
+/** MongoDB lexer-only statement splitter. */
 public class MongoSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
 
     @Override
@@ -39,60 +28,7 @@ public class MongoSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
     }
 
     @Override
-    protected AbstractParseTreeVisitor<SplitQueryType> splitVisitor() {
-        return MongoSplitVisitor.INSTANCE;
-    }
-
-    @Override
-    protected void parseRoot(Parser parser) {
-        ((MongoParser) parser).root();
-    }
-
-    @Override
-    protected boolean isStatementContext(ParserRuleContext context) {
-        return context instanceof MongoParser.CommandContext && context.getParent() instanceof MongoParser.RootContext;
-    }
-
-    @Override
-    protected AntlrStatementParser statementParser() {
-        return new MongoAntlrStatementParser();
-    }
-
-    @Override
-    protected List<SplitScript> collectChildren(ParserRuleContext context, CommonTokenStream tokens) {
-        MongoParser.DbCreateViewContext createView = find(context, MongoParser.DbCreateViewContext.class);
-        if (createView != null) {
-            return Collections.singletonList(createChild(createView.pipeline, tokens, Collections.singleton(SplitQueryType.SELECT), Collections.emptyList()));
-        }
-
-        MongoParser.RunCommandContext runCommand = find(context, MongoParser.RunCommandContext.class);
-        if (runCommand == null || runCommand.obj().pair().isEmpty() || !"create".equals(MongoSplitVisitor.keyText(runCommand.obj().pair(0).key()))
-            || !hasKey(runCommand.obj(), "viewOn")) {
-            return Collections.emptyList();
-        }
-
-        for (MongoParser.PairContext pair : runCommand.obj().pair()) {
-            if ("pipeline".equals(MongoSplitVisitor.keyText(pair.key())) && pair.value().arr() != null) {
-                return Collections.singletonList(createChild(pair.value().arr(), tokens, Collections.singleton(SplitQueryType.SELECT), Collections.emptyList()));
-            }
-        }
-        return Collections.emptyList();
-    }
-
-    private static boolean hasKey(MongoParser.ObjContext object, String expected) {
-        return object.pair().stream().anyMatch(pair -> expected.equals(MongoSplitVisitor.keyText(pair.key())));
-    }
-
-    private static <T extends ParseTree> T find(ParseTree tree, Class<T> type) {
-        if (type.isInstance(tree)) {
-            return type.cast(tree);
-        }
-        for (int i = 0; i < tree.getChildCount(); i++) {
-            T result = find(tree.getChild(i), type);
-            if (result != null) {
-                return result;
-            }
-        }
-        return null;
+    protected LexerSplitPolicy createSplitPolicy() {
+        return new MongoLexerSplitPolicy();
     }
 }

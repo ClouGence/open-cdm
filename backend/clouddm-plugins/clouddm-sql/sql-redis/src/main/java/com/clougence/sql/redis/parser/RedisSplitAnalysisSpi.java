@@ -15,45 +15,20 @@
  */
 package com.clougence.sql.redis.parser;
 
-import java.util.Set;
-
-import org.antlr.v4.runtime.Parser;
-import org.antlr.v4.runtime.ParserRuleContext;
-import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
-
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.dslpaser.antlr.DslProvider;
-import com.clougence.dslpaser.parse.AntlrStatementParser;
 import com.clougence.sql.common.parser.AbstractSplitAnalysisSpi;
-import com.clougence.sql.redis.parser.antlr.RedisParser;
+import com.clougence.sql.common.parser.LexerSplitPolicy;
 
+/** Redis lexer-only command splitter. */
 public class RedisSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
 
+    @Override
     protected DslProvider dslProvider() {
         return RedisDslProvider.INSTANCE;
     }
 
-    protected AbstractParseTreeVisitor<SplitQueryType> splitVisitor() {
-        return RedisSplitVisitor.INSTANCE;
-    }
-
     @Override
-    protected Set<SplitQueryType> collectTypes(ParserRuleContext context, String script) {
-        return RedisSplitVisitor.INSTANCE.collectTypes(context);
-    }
-
-    @Override
-    protected void parseRoot(Parser parser) {
-        ((RedisParser) parser).rootInstSet();
-    }
-
-    @Override
-    protected boolean isStatementContext(ParserRuleContext context) {
-        return context instanceof RedisParser.CmdInstContext;
-    }
-
-    @Override
-    protected AntlrStatementParser statementParser() {
-        return new RedisAntlrStatementParser();
+    protected LexerSplitPolicy createSplitPolicy() {
+        return new RedisLexerSplitPolicy();
     }
 }

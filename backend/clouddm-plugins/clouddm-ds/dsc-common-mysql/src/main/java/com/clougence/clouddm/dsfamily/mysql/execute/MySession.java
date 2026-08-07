@@ -24,7 +24,7 @@ import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.clouddm.sdk.execute.session.ResultBuilder;
 import com.clougence.clouddm.sdk.execute.session.SessionHook;
 import com.clougence.clouddm.sdk.execute.session.rdb.DefaultRdbSession;
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.StatementType;
 import com.clougence.drivers.DsObject;
 import com.mysql.cj.jdbc.ConnectionImpl;
 
@@ -51,7 +51,7 @@ public class MySession extends DefaultRdbSession {
 
     protected Statement createStatement(Connection conn, QueryRequest query) throws SQLException {
         QueryRequest queryObject = query;
-        if (!query.isUseExplain() && query.getResultConf().getFetchRecordCountLimit() > 0 && query.hasQueryType(SplitQueryType.SELECT)) {
+        if (!query.isUseExplain() && query.getResultConf().getFetchRecordCountLimit() > 0 && query.hasQueryType(StatementType.SELECT)) {
             QueryRequest tmp = query.clone();
             String trimQueryBody = tmp.getQueryBody().trim();
             if (trimQueryBody.endsWith(";")) {
@@ -65,7 +65,7 @@ public class MySession extends DefaultRdbSession {
 
     //    protected Statement createStatement(Connection conn, QueryRequest query) throws SQLException {
     //        QueryRequest queryObject = query;
-    //        if (!query.isRdbUseExplain() && query.getResultConf().getFetchRecordCountLimit() > 0 && query.hasQueryType(SplitQueryType.SELECT)) {
+    //        if (!query.isRdbUseExplain() && query.getResultConf().getFetchRecordCountLimit() > 0 && query.hasQueryType(StatementType.SELECT)) {
     //            try {
     //                QueryRequest tmp = query.clone();
     //

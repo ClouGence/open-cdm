@@ -49,7 +49,7 @@ import com.clougence.clouddm.sdk.execute.session.SessionContextDTO;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
 import com.clougence.clouddm.sdk.security.auth.def.SecDataAuthLabel;
 import com.clougence.clouddm.sdk.service.secrules.Requester;
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.StatementType;
 import com.clougence.clouddm.sdk.ui.editor.data.DataEditorSpi;
 import com.clougence.clouddm.sdk.ui.editor.data.DataEditorSqlType;
 import com.clougence.clouddm.sdk.ui.editor.data.DataEditorUiStyle;
@@ -282,7 +282,7 @@ public class DsDataEditorServiceImpl implements DsDataEditorService {
         QueryRequest request = DmDsUtils.createRequestCtx(dsConfig);
         request.setQueryBody(countSql);
         request.setQueryArgs(Collections.emptyList());
-        request.setQueryTypes(Set.of(SplitQueryType.SELECT));
+        request.setQueryTypes(Set.of(StatementType.SELECT));
         request.setRequester(Requester.CONSOLE);
 
         // execute sql
@@ -323,7 +323,7 @@ public class DsDataEditorServiceImpl implements DsDataEditorService {
         QueryRequest request = DmDsUtils.createRequestCtx(dsConfig);
         request.setQueryBody(fetchSql);
         request.setQueryArgs(Collections.emptyList());
-        request.setQueryTypes(Set.of(SplitQueryType.SELECT));
+        request.setQueryTypes(Set.of(StatementType.SELECT));
         request.setRequester(Requester.CONSOLE);
         request.setUsingValueProcess(!this.authCheckService
             .checkResPathWithoutError(puid, uid, levels.dsDO().getId(), AuthKind.DataSource, levels.asResPath(), SecDataAuthLabel.DM_DAUTH_SENSITIVE));

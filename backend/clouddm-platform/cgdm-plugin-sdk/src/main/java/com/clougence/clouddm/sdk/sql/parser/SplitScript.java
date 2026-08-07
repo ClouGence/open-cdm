@@ -16,7 +16,6 @@
 package com.clougence.clouddm.sdk.sql.parser;
 
 import java.util.List;
-import java.util.Set;
 
 import com.clougence.clouddm.sdk.execute.session.QueryArg;
 
@@ -27,10 +26,8 @@ import lombok.Setter;
 @Setter
 public class SplitScript {
 
-    private Set<SplitQueryType> type;
     private String              script;
     private List<QueryArg>      scriptArgs;
-    private List<SplitScript>   children;
 
     private int                 bodyStartCodeLine;
     private int                 bodyStartCodeColumn;
@@ -40,9 +37,4 @@ public class SplitScript {
     public SplitScript(){
     }
 
-    public SplitScript(Set<SplitQueryType> type, String script, List<QueryArg> scriptArgs){
-        this.type = type;
-        this.script = script;
-        this.scriptArgs = scriptArgs;
-    }
 }

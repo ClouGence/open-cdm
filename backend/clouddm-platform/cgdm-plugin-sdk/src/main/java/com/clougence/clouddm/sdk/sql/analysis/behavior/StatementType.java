@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.sdk.sql.parser;
+package com.clougence.clouddm.sdk.sql.analysis.behavior;
 
 import lombok.Getter;
 
 @Getter
-public enum SplitQueryType {
+public enum StatementType {
     // DDL catalog
     CREATE_CATALOG,
     ALTER_CATALOG,
@@ -272,11 +272,11 @@ public enum SplitQueryType {
 
     private final boolean allowPlan;
 
-    SplitQueryType(){
+    StatementType(){
         this(false);
     }
 
-    SplitQueryType(boolean allowPlan){
+    StatementType(boolean allowPlan){
         this.allowPlan = allowPlan;
     }
 }

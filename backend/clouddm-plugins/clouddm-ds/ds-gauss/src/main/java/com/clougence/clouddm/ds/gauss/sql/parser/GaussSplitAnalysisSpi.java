@@ -15,15 +15,8 @@
  */
 package com.clougence.clouddm.ds.gauss.sql.parser;
 
-import java.util.Collections;
-import org.antlr.v4.runtime.Parser;
-import org.antlr.v4.runtime.ParserRuleContext;
-import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
-
-import com.clougence.clouddm.ds.gauss.sql.parser.antlr.GaussSqlParser;
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.dslpaser.antlr.DslProvider;
-import com.clougence.dslpaser.parse.AntlrStatementParser;
+import com.clougence.sql.common.parser.LexerSplitPolicy;
 import com.clougence.sql.postgres.parser.PgSplitAnalysisSpi;
 import com.clougence.sql.postgres.parser.PostgresVersion;
 
@@ -39,29 +32,8 @@ public class GaussSplitAnalysisSpi extends PgSplitAnalysisSpi {
     }
 
     @Override
-    protected AbstractParseTreeVisitor<SplitQueryType> splitVisitor() {
-        return new GaussSplitVisitor();
-    }
-
-    @Override
-    protected java.util.Set<SplitQueryType> collectTypes(ParserRuleContext context, String script) {
-        SplitQueryType type = context.accept(new GaussSplitVisitor());
-        return Collections.singleton(type == null ? SplitQueryType.UNKNOWN : type);
-    }
-
-    @Override
-    protected void parseRoot(Parser parser) {
-        ((GaussSqlParser) parser).root();
-    }
-
-    @Override
-    protected boolean isStatementContext(ParserRuleContext context) {
-        return context.getParent() instanceof GaussSqlParser.StmtmultiContext;
-    }
-
-    @Override
-    protected AntlrStatementParser statementParser() {
-        return new GaussAntlrStatementParser();
+    protected LexerSplitPolicy createSplitPolicy() {
+        return new GaussLexerSplitPolicy();
     }
 
 }

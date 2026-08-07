@@ -15,26 +15,13 @@
  */
 package com.clougence.sql.postgres.parser;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-
-import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.Parser;
-import org.antlr.v4.runtime.ParserRuleContext;
-import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
-
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
-import com.clougence.clouddm.sdk.sql.parser.SplitScript;
 import com.clougence.dslpaser.antlr.DslProvider;
-import com.clougence.dslpaser.parse.AntlrStatementParser;
 import com.clougence.sql.common.parser.AbstractSplitAnalysisSpi;
-import com.clougence.sql.postgres.parser.antlr.PgSqlParser;
+import com.clougence.sql.common.parser.LexerSplitPolicy;
 
 public class PgSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
 
-    private final PgDslProvider        provider;
-    private final ThreadLocal<Integer> lastStatementStart = new ThreadLocal<>();
+    private final PgDslProvider provider;
 
     public PgSplitAnalysisSpi(){
         this(PostgresVersion.LATEST);
@@ -48,132 +35,14 @@ public class PgSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
         return provider.version();
     }
 
+    @Override
     protected DslProvider dslProvider() {
         return provider;
     }
 
     @Override
-    protected Object predictionCacheScope() {
-        return this.provider.version();
+    protected LexerSplitPolicy createSplitPolicy() {
+        return new PgLexerSplitPolicy();
     }
 
-    @Override
-    protected void beforeSplitStream() {
-        this.lastStatementStart.remove();
-    }
-
-    @Override
-    protected void afterSplitStream() {
-        this.lastStatementStart.remove();
-    }
-
-    protected AbstractParseTreeVisitor<SplitQueryType> splitVisitor() {
-        return new PgSplitVisitor(version());
-    }
-
-    @Override
-    protected Set<SplitQueryType> collectTypes(ParserRuleContext context, String script) {
-        Set<SplitQueryType> types = new PgSplitVisitor(version()).collectTypes(context);
-        return types.isEmpty() ? Collections.singleton(SplitQueryType.UNKNOWN) : types;
-    }
-
-    @Override
-    protected List<SplitScript> collectChildren(ParserRuleContext context, CommonTokenStream tokens) {
-        ParserRuleContext query = viewQuery(context);
-        if (query != null) {
-            Set<SplitQueryType> types = new PgSplitVisitor(version()).collectTypes(query);
-            if (types.isEmpty()) {
-                types = Collections.singleton(SplitQueryType.UNKNOWN);
-            }
-            return List.of(createChild(query, tokens, types, Collections.emptyList()));
-        }
-        ParserRuleContext triggerFunction = triggerFunction(context);
-        if (triggerFunction != null) {
-            return List.of(createChild(triggerFunction, tokens, Collections.singleton(SplitQueryType.CALL_PROG_OBJ), Collections.emptyList()));
-        }
-        return Collections.emptyList();
-    }
-
-    private ParserRuleContext viewQuery(ParserRuleContext context) {
-        if (context instanceof PgSqlParser.ExplainstmtContext explain) {
-            return isExplainAnalyze(explain) ? viewQuery(explain.explainablestmt()) : null;
-        }
-        if (context instanceof PgSqlParser.ViewstmtContext view) {
-            return view.selectstmt();
-        }
-        if (context instanceof PgSqlParser.CreatematviewstmtContext view) {
-            return view.selectstmt();
-        }
-        for (int i = 0; i < context.getChildCount(); i++) {
-            if (context.getChild(i) instanceof ParserRuleContext child) {
-                ParserRuleContext query = viewQuery(child);
-                if (query != null) {
-                    return query;
-                }
-            }
-        }
-        return null;
-    }
-
-    private boolean isExplainAnalyze(PgSqlParser.ExplainstmtContext context) {
-        if (context.analyze_keyword() != null) {
-            return true;
-        }
-        if (context.explain_option_list() == null) {
-            return false;
-        }
-        for (PgSqlParser.Explain_option_elemContext option : context.explain_option_list().explain_option_elem()) {
-            if (option.explain_option_name().analyze_keyword() == null) {
-                continue;
-            }
-            if (option.explain_option_arg() == null) {
-                return true;
-            }
-            String value = option.explain_option_arg().getText();
-            return !"false".equalsIgnoreCase(value) && !"off".equalsIgnoreCase(value) && !"0".equals(value);
-        }
-        return false;
-    }
-
-    private ParserRuleContext triggerFunction(ParserRuleContext context) {
-        if (context instanceof PgSqlParser.CreatetrigstmtContext trigger) {
-            return trigger.func_name();
-        }
-        if (context instanceof PgSqlParser.CreateeventtrigstmtContext trigger) {
-            return trigger.func_name();
-        }
-        for (int i = 0; i < context.getChildCount(); i++) {
-            if (context.getChild(i) instanceof ParserRuleContext child) {
-                ParserRuleContext function = triggerFunction(child);
-                if (function != null) {
-                    return function;
-                }
-            }
-        }
-        return null;
-    }
-
-    @Override
-    protected void parseRoot(Parser parser) {
-        ((PgSqlParser) parser).root();
-    }
-
-    @Override
-    protected boolean isStatementContext(ParserRuleContext context) {
-        if (!(context.getParent() instanceof PgSqlParser.StmtmultiContext)) {
-            return false;
-        }
-        int start = context.getStart().getTokenIndex();
-        Integer previous = this.lastStatementStart.get();
-        if (previous != null && previous == start) {
-            return false;
-        }
-        this.lastStatementStart.set(start);
-        return true;
-    }
-
-    @Override
-    protected AntlrStatementParser statementParser() {
-        return new PgStatementParser();
-    }
 }
