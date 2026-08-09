@@ -62,7 +62,7 @@ public class HanaSqlEngineSpi implements SqlEngineSpi {
     public BehaviorAnalysisSpi behaviorAnalysisSpi(SqlParserParameters parameters) {
         SqlParserParameters parserParameters = SqlParserParameters.nullToEmpty(parameters);
         String key = parserKey(parserParameters);
-        return behaviorCache.computeIfAbsent(key, value -> new HanaBehaviorAnalysisSpi(splitAnalysisSpi(parserParameters)));
+        return behaviorCache.computeIfAbsent(key, value -> new HanaBehaviorAnalysisSpi((HanaSplitAnalysisSpi) splitAnalysisSpi(parserParameters)));
     }
 
     @Override
